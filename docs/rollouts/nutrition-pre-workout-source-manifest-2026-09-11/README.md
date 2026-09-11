@@ -6,9 +6,10 @@
 
 **Scope:** frozen 25 canonical variants across 21 canonical products
 
-This package passed the existing collector's planning gate. The completed Batch
-01 terms review did not leave any URL eligible for collection, so it contains no
-downloaded page, label, image or OCR output and records no nutrition value. The
+This package passed the existing collector's planning gate. The collector has not
+downloaded any page or image. A later owner handoff supplied four Applied Nutrition
+label images; they are retained only in the private archive and represented here
+by a hash/source review report. No OCR output or nutrition value is recorded. The
 authoritative frozen denominator remains
 [`nutrition-pre-workout-pilot-scope-2026-09-11.json`](../nutrition-pre-workout-pilot-scope-2026-09-11.json).
 
@@ -23,6 +24,10 @@ authoritative frozen denominator remains
 - [`batch-01/collection-gate-2026-09-11.json`](batch-01/collection-gate-2026-09-11.json)
   records the final three-domain terms decision, zero-fetch result and private
   archive readback for Batch 01's 10 variants.
+- [`batch-01/owner-handoff-archive-2026-09-11.json`](batch-01/owner-handoff-archive-2026-09-11.json)
+  records the four owner-supplied Applied Nutrition images, official page/image
+  URLs, canonical string IDs, hashes, private object paths, readback and exact
+  applicability gaps. The raw JPEGs and handoff manifest are outside Git.
 - [`batch-02/sources.json`](batch-02/sources.json) contains 4 unique official
   product URLs in the same format. Collection of this batch is blocked pending
   written permission from BioTech USA and 10X Athletic.
@@ -82,16 +87,28 @@ objects and reproduced hashes
 `b5a66d9664f2401065eecf455dca650ba8154415960e53f11e6271a2b7330d24`
 and `33c1eb1edbf18a44058d91794a915b43b561baca10b0722ea8b14015b44c459c`.
 Anonymous SDK download and an unauthenticated public URL both returned HTTP 400.
-The objects have no automatic expiration; this storage result is **not a backup**.
+The objects have no automatic expiration.
+
+A later duplicate scan found only those two objects and no hash/path match for the
+owner handoff. Four JPEGs and manifest SHA-256
+`e82828601e1b379bb2d4e77aabe4f5c11a55b09c7140bbf5b3b9922515fde645`
+were uploaded without upsert. A fresh process reproduced all five hashes and sizes;
+anonymous SDK access to a new image returned HTTP 404 and its unauthenticated public
+URL returned HTTP 400. This storage result is **not a backup**.
 
 ## Batch 01 collection result
 
 No collector run occurred. Optimum Nutrition isolates 1 URL/1 variant pending
 manufacturer written permission. Applied Nutrition and Bulk isolate 6 URLs/9
 variants pending a decisive site-use policy or manufacturer clarification. Actual
-result: 0 page requests, 0 collected pages, 0 readable labels and 0/10 collected
-variant coverage (0/25 for the complete pilot). A page snapshot without a readable
-label would not count as a collected label.
+collector result remains 0 page requests and 0 collected pages.
+
+The separate owner handoff preserved four readable Applied Nutrition labels for
+four product pages and seven candidate variants. All four images confirm the
+product family and package; only product `38` visibly confirms the selected Fruit
+Burst flavour for variant `726`. Six candidate variants require flavour
+applicability review, and variants `714`, `3676` and `3759` still have no archived
+label image. No formula or nutrition value is approved by this archive step.
 
 ## Required decisions before collection
 
@@ -104,6 +121,7 @@ label would not count as a collected label.
    `961`; duplicate canonical identity for `957`; package evidence for `1249` and
    `1275`; official source for `1252`; flavour/package evidence for `1283`.
 
-Only after an applicable rights decision may an owner regenerate the allowed
-subset and run the existing collector with its explicit approvals. This package
-does not mark NUT-01 complete and does not authorize NUT-02.
+The current next step is the existing manual exact-variant applicability review of
+the four archived Applied Nutrition labels and all seven candidate bindings before
+any OCR or catalogue write. The remaining rights and source decisions stay open.
+This package does not mark NUT-01 complete and does not authorize NUT-02.

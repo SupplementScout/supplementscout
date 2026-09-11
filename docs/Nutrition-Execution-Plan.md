@@ -5,12 +5,13 @@
 ## Current checkpoint
 
 - Task: NUT-01; status `IN PROGRESS`; preparatory catalogue scope and official
-  source package remain frozen. Private archive storage is verified; Batch 01
-  collection is isolated by the completed rights review.
-- Owner/session: Codex, owner-authorized NUT-01 Batch 01 storage and conditional
-  collection session, 11 September 2026.
+  source package remain frozen. Four owner-supplied Applied Nutrition label images
+  are now verified and retained in the private archive; exact variant applicability
+  remains under review.
+- Owner/session: Codex, owner-authorized NUT-01 Batch 01 label-handoff archive
+  session, 11 September 2026.
 - Branch: `main`; this session started at
-  `b5e5b6901517d643b463d135680c3d02d5405dd6`; remote `main` matched before work.
+  `16588870968e0a26927404aa9d953b2970f56196`; remote `main` matched before work.
 - Production readback at `2026-09-11T12:58:26.063Z`: public `anon` SELECT against
   project `aftboxmrdgyhizicfsfu`; 141 active unmerged Pre Workout products and
   575 active variants. Frozen scope: 25 variants across 21 products.
@@ -28,15 +29,18 @@
   buckets, the authorized session created private Supabase Storage bucket
   `nutrition-sources`. Service-role write/read and fresh-process hash readback passed;
   anonymous and unauthenticated reads failed. Objects have no automatic expiration.
-  Storage alone is not represented as a backup.
-- Official URLs were documented by read-only review. No product page, label or
-  image was downloaded into the collector workspace; no candidate was stored,
-  function implemented, permission changed or database write made.
+  The owner handoff added four JPEG labels and its manifest without overwrite after
+  a no-duplicate read. Storage alone is not represented as a backup.
+- The collector still made no request. The four supplied images are readable and
+  preserve official page/image URLs: all four confirm a product/package binding;
+  only product `38`, variant `726` visibly confirms the selected flavour. Six other
+  candidate flavour bindings remain unapproved. No candidate was stored, function
+  implemented, permission changed or catalogue/database write made.
 - Existing untracked `docs/SupplementScout-Nutrition-Plan.txt` is owner material;
   preserved unchanged and excluded from this change's staging.
-- One next step: obtain and record Optimum Nutrition written permission and an
-  Applied Nutrition/Bulk clarification or applicable site-use policy, then regenerate
-  the allowed Batch 01 subset; do not collect a source while its decision is isolated.
+- One next step: perform the existing manual exact-variant applicability review for
+  the four archived Applied Nutrition labels, deciding all seven candidate bindings
+  from the image/source evidence before any OCR or catalogue write.
 
 ## Authority and scope
 
@@ -165,10 +169,13 @@ plus raw page/image/OCR files
 under content-addressed paths such as
 `nutrition-sources/<batch-id>/<sha256>/<filename>`. Keep the `tmp/` copy only as
 the bounded extractor workspace. Objects have no configured automatic expiration.
-A content-addressed canary and the Batch 01 source manifest passed service-role
-readback from new Node processes; anonymous SDK and unauthenticated public-URL
-downloads returned HTTP 400. This is durable primary storage evidence, not proof
-of backup or disaster recovery. NUT-02 should add a
+A content-addressed canary, the Batch 01 source manifest, four owner-supplied JPEG
+labels and their handoff manifest passed service-role readback from new Node
+processes. The four image hashes are recorded in the
+[handoff archive report](rollouts/nutrition-pre-workout-source-manifest-2026-09-11/batch-01/owner-handoff-archive-2026-09-11.json);
+anonymous SDK and unauthenticated public-URL reads of a new image were blocked.
+This is durable primary storage evidence, not proof of backup or disaster recovery.
+NUT-02 should add a
 separate durable archive reference or compatible URI without weakening the current
 `tmp/` path guard. No public policy, browser key, RLS policy, credential or schema
 was added or changed.
@@ -186,7 +193,7 @@ preparatory catalogue, storage readback and source-manifest parts of NUT-01.
 | ID | Status | Dependency | Closed scope | Completion evidence |
 |---|---|---|---|---|
 | NUT-00 | `LIVE VERIFIED` | Owner request | Register stages, inspect existing process/schema/evidence, reuse/gap audit, pilot candidates and links | Consistent committed plan; verify:project PASS before/after; recorded commit and confirmed remote availability; live-data limitations explicit. See closeout. |
-| NUT-01 | `IN PROGRESS` | NUT-00 | Frozen denominator: 25 current variants across 21 products. Official-source preparation: 15 confirmed bindings, 10 unresolved; private archive verified. Batch 01: 7 URLs/10 variants isolated, 0 pages and 0 readable labels collected. Remaining: source-rights decisions, unresolved identity/version evidence and collection. | Each variant has a readable, correctly bound durable source or explicit missing-source/identity status with reason and action. Record ID, flavour/version, URL, date, hash and archive location; prove retrieval in a new session. Missing entries are not counted as collected labels. Catalogue, source, rights and storage evidence are recorded above; stage is not complete. |
+| NUT-01 | `IN PROGRESS` | NUT-00 | Frozen denominator: 25 current variants across 21 products. Official-source preparation: 15 confirmed page bindings, 10 unresolved; private archive verified. Batch 01: 7 URLs/10 variants; 4 owner-supplied readable Applied label images retained for 4 products/7 candidate variants. Exact visible flavour binding is 1/10; 6/10 require flavour applicability review and 3/10 have no archived label image. | Each variant has a readable, correctly bound durable source or explicit missing-source/identity status with reason and action. Record ID, flavour/version, URL, date, hash and archive location; prove retrieval in a new session. Missing entries are not counted as collected labels. Catalogue, source, rights and storage evidence are recorded above; no nutrition value is approved and the stage is not complete. |
 | NUT-02 | `PLANNED` | NUT-01 | Extend existing candidate/review/apply schema for serving, caffeine, citrulline/form, beta-alanine, variant and provenance/status | Exact applicability survives the full path; ambiguity/conflicts detected; meaningful tests and required quick/full checks pass. Candidates cannot feed public filters. Resolve archive-reference compatibility and confirmed-zero semantics without weakening existing guards. |
 | NUT-03 | `PLANNED` | NUT-02 | Review pilot evidence, quantities/units and exact applicability; separately approved guarded apply | Every proposal has a decision; approved values have proof and correct identity; independent post-write readback and zero-duplicate replay pass; offers/prices unchanged. Unresolved facts remain unknown and excluded. |
 | NUT-04 | `PLANNED` | NUT-03 | Existing product page facts/source and existing search caffeine-free filter | Tests and live variant-switch checks prove confirmed absence included, caffeine present excluded, missing/conflicting facts never treated as absent. Document coverage denominator, limits, evidence and operations. Publish image copies only with established rights; otherwise link to source. MVP closes here. |
@@ -404,3 +411,47 @@ No code, migration, test inventory or workflow is changed by this NUT-00 revisio
   writes. Frozen-scope/count/hash assertions and `git diff --check` passed. No code,
   workflow, migration or test inventory changed, so quick/full/integration gates
   were not required by AGENTS.md.
+
+## NUT-01 Batch 01 owner label-handoff evidence
+
+11 September 2026, Codex owner-authorized archive session:
+
+- The session started on `main` at
+  `16588870968e0a26927404aa9d953b2970f56196`; local HEAD and `origin/main`
+  matched. The frozen denominator stayed at 25 variants/21 products and Batch 01
+  stayed at 7 URLs/10 variants. The completed catalogue audit was not repeated,
+  and the owner's untracked nutrition intake was preserved unchanged.
+- `tmp/SupplementScout-Etykiety-Batch01.zip` had SHA-256
+  `8c124719e8f6c6fea398c1a9b788d021371a9e18c2df1c45d7fc4260722e2f4b`.
+  Its paths passed traversal checks and it was expanded to a new, non-existing
+  `tmp/nutrition-batch01-owner-handoff-2026-09-11` directory without overwrite.
+  `README.txt` and `manifest.json` were read. Raw handoff files remain ignored
+  under `tmp/` and are not committed.
+- All four JPEG files matched the manifest byte counts and SHA-256 values, decoded
+  at 1500x1310, 935x1024, 2000x2000 and 2000x2000, and passed manual readability
+  review. Their four product IDs and seven candidate variant IDs are members of
+  the frozen pilot and their official page URLs match the published Batch 01 list.
+- All images visibly establish the recorded product family and package. Product
+  `38` also visibly establishes Fruit Burst, so variant `726` has the sole exact
+  visible flavour binding in this handoff. Images for products `481`, `744` and
+  `881` do not show a selected flavour, leaving variants `760`, `761`, `815`,
+  `816`, `1383` and `1384` under applicability review. Product `881` additionally
+  requires reconciliation of the image wording `ABE Ultimate` with the frozen
+  product/formulation. No formulation or ingredient value was approved.
+- Before writing, a service-role traversal of private bucket `nutrition-sources`
+  found two existing retained objects and zero matching hashes or exact target
+  paths. Four images and the handoff manifest were then uploaded with
+  `upsert: false` under product- and hash-addressed paths. A fresh Node process downloaded
+  all five objects, reproduced every hash and byte count, and parsed four image
+  records from the archived manifest. Anonymous SDK access returned HTTP 404 and
+  the unauthenticated public URL returned HTTP 400 for a new image.
+- The detailed source URLs, canonical string IDs, hashes, archive paths and review
+  states are in the committed
+  [owner handoff archive report](rollouts/nutrition-pre-workout-source-manifest-2026-09-11/batch-01/owner-handoff-archive-2026-09-11.json).
+  Preserved/readable images: 4; product/source/package bindings: 4; variants with
+  a product label image: 7/10; exact visible flavour bindings: 1/10; flavour
+  applicability pending: 6/10; no archived label image: variants `714`, `3676`
+  and `3759`. This storage is not described as a backup.
+- The existing collector was not run and no image was downloaded again. OCR,
+  candidate storage, nutrition catalogue/database writes, function work and
+  NUT-02 remained at zero. NUT-01 remains `IN PROGRESS`.

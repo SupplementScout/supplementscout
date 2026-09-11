@@ -1,0 +1,261 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-owner-label-handoff-archive-v1",
+  "status_date": "2026-09-11",
+  "stage": "NUT-01_IN_PROGRESS",
+  "scope": {
+    "frozen_scope": "../../nutrition-pre-workout-pilot-scope-2026-09-11.json",
+    "frozen_variant_count": "25",
+    "frozen_product_count": "21",
+    "batch_id": "batch-01",
+    "batch_source_url_count": "7",
+    "batch_variant_count": "10",
+    "handoff_product_count": "4",
+    "handoff_candidate_variant_count": "7",
+    "preserved": "PASS_NO_VARIANT_ADDED_REMOVED_OR_REPLACED"
+  },
+  "handoff": {
+    "zip_path": "tmp/SupplementScout-Etykiety-Batch01.zip",
+    "zip_sha256": "8c124719e8f6c6fea398c1a9b788d021371a9e18c2df1c45d7fc4260722e2f4b",
+    "extracted_path": "tmp/nutrition-batch01-owner-handoff-2026-09-11",
+    "extraction_mode": "NEW_DIRECTORY_NO_OVERWRITE",
+    "readme_read": true,
+    "manifest_path": "tmp/nutrition-batch01-owner-handoff-2026-09-11/manifest.json",
+    "manifest_sha256": "e82828601e1b379bb2d4e77aabe4f5c11a55b09c7140bbf5b3b9922515fde645",
+    "manifest_size_bytes": "6551",
+    "capture_origin": "OWNER_PROVIDED_OFFICIAL_APPLIED_NUTRITION_MATERIALS",
+    "collector_run": false,
+    "repeated_downloads": "0",
+    "ocr_runs": "0"
+  },
+  "images": [
+    {
+      "canonical_product_id": "38",
+      "canonical_product_name": "Applied Nutrition Pump 3G Pre-Workout 375g",
+      "canonical_variants": [
+        {
+          "canonical_variant_id": "726",
+          "flavour": "Fruit Burst",
+          "package_size": "375 g"
+        }
+      ],
+      "official_page_url": "https://appliednutrition.uk/products/pump-3g-375g",
+      "official_image_url": "https://cdn.shopify.com/s/files/1/0454/0871/4919/files/81do6lMH9QL._AC_SL1500.jpg?v=1762123078",
+      "source_confirmation": "OWNER_HANDOFF_MANIFEST_WITH_OFFICIAL_PAGE_AND_CDN_URL",
+      "file_name": "38-Applied-Pump-3G-375g.jpg",
+      "sha256": "1182c1aeab46a72ff38709e349d692ab18d45355d87549574d30bb04f3067842",
+      "size_bytes": "216866",
+      "image": {
+        "format": "jpeg",
+        "width": "1500",
+        "height": "1310"
+      },
+      "readability_status": "READABLE_MANUAL_VISUAL_CHECK",
+      "identity_review": {
+        "product_match_status": "CONFIRMED_FROM_IMAGE",
+        "package_match_status": "CONFIRMED_375G_FROM_IMAGE",
+        "flavour_match_status": "CONFIRMED_FRUIT_BURST_FROM_IMAGE",
+        "formulation_match_status": "REQUIRES_REVIEW",
+        "variant_applicability_status": "REQUIRES_FORMULATION_REVIEW",
+        "observation": "The image visibly identifies Fruit Burst and 375 g; no nutrition value is approved at this stage."
+      },
+      "archive": {
+        "bucket_id": "nutrition-sources",
+        "object_path": "labels/nut-01/batch-01/applied-nutrition/38/1182c1aeab46a72ff38709e349d692ab18d45355d87549574d30bb04f3067842/38-Applied-Pump-3G-375g.jpg",
+        "upsert": false,
+        "fresh_process_hash_readback": "PASS"
+      }
+    },
+    {
+      "canonical_product_id": "481",
+      "canonical_product_name": "Applied Nutrition ABE Pump 500g",
+      "canonical_variants": [
+        {
+          "canonical_variant_id": "760",
+          "flavour": "Blue Razz",
+          "package_size": "500 g"
+        },
+        {
+          "canonical_variant_id": "761",
+          "flavour": "Red Hawaiian",
+          "package_size": "500 g"
+        }
+      ],
+      "official_page_url": "https://appliednutrition.uk/products/abe-pump-pre-workout-500g-caffeine-free",
+      "official_image_url": "https://cdn.shopify.com/s/files/1/0454/0871/4919/files/ABEPumpStim-Free500g-Nutritionals-1000x1000_b7d93758-c96c-4e48-9dac-50a0a9afe90f_1024x1024.jpg?v=1691075914",
+      "source_confirmation": "OWNER_HANDOFF_MANIFEST_WITH_OFFICIAL_PAGE_AND_CDN_URL",
+      "file_name": "481-Applied-ABE-Pump-500g.jpg",
+      "sha256": "77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513",
+      "size_bytes": "142670",
+      "image": {
+        "format": "jpeg",
+        "width": "935",
+        "height": "1024"
+      },
+      "readability_status": "READABLE_MANUAL_VISUAL_CHECK",
+      "identity_review": {
+        "product_match_status": "CONFIRMED_FROM_IMAGE",
+        "package_match_status": "CONFIRMED_500G_FROM_IMAGE",
+        "flavour_match_status": "REQUIRES_REVIEW_IMAGE_DOES_NOT_SHOW_FLAVOUR",
+        "formulation_match_status": "REQUIRES_REVIEW",
+        "variant_applicability_status": "REQUIRES_FLAVOUR_AND_FORMULATION_REVIEW",
+        "observation": "The image visibly identifies ABE Pump Zero-Stim and 500 g, but does not identify Blue Razz or Red Hawaiian."
+      },
+      "archive": {
+        "bucket_id": "nutrition-sources",
+        "object_path": "labels/nut-01/batch-01/applied-nutrition/481/77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513/481-Applied-ABE-Pump-500g.jpg",
+        "upsert": false,
+        "fresh_process_hash_readback": "PASS"
+      }
+    },
+    {
+      "canonical_product_id": "744",
+      "canonical_product_name": "Applied Nutrition Pump 3G Zero Stim 375g",
+      "canonical_variants": [
+        {
+          "canonical_variant_id": "815",
+          "flavour": "Fruit Burst",
+          "package_size": "375 g"
+        },
+        {
+          "canonical_variant_id": "816",
+          "flavour": "Icy Blue Razz",
+          "package_size": "375 g"
+        }
+      ],
+      "official_page_url": "https://appliednutrition.uk/products/pump-3g-zero-stimulant-375g",
+      "official_image_url": "https://cdn.shopify.com/s/files/1/0454/0871/4919/files/Pump3GZero-StimPre-Workout375g_CaffeineFree_-Nutritionals.jpg?v=1708597518",
+      "source_confirmation": "OWNER_HANDOFF_MANIFEST_WITH_OFFICIAL_PAGE_AND_CDN_URL",
+      "file_name": "744-Applied-Pump-3G-Zero-Stim-375g.jpg",
+      "sha256": "047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c",
+      "size_bytes": "311397",
+      "image": {
+        "format": "jpeg",
+        "width": "2000",
+        "height": "2000"
+      },
+      "readability_status": "READABLE_MANUAL_VISUAL_CHECK",
+      "identity_review": {
+        "product_match_status": "CONFIRMED_FROM_IMAGE",
+        "package_match_status": "CONFIRMED_375G_FROM_IMAGE",
+        "flavour_match_status": "REQUIRES_REVIEW_IMAGE_DOES_NOT_SHOW_FLAVOUR",
+        "formulation_match_status": "REQUIRES_REVIEW",
+        "variant_applicability_status": "REQUIRES_FLAVOUR_AND_FORMULATION_REVIEW",
+        "observation": "The image visibly identifies Pump 3G Zero-Stim and 375 g, but does not identify Fruit Burst or Icy Blue Razz."
+      },
+      "archive": {
+        "bucket_id": "nutrition-sources",
+        "object_path": "labels/nut-01/batch-01/applied-nutrition/744/047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c/744-Applied-Pump-3G-Zero-Stim-375g.jpg",
+        "upsert": false,
+        "fresh_process_hash_readback": "PASS"
+      }
+    },
+    {
+      "canonical_product_id": "881",
+      "canonical_product_name": "ABE All Black Everything Pre-Workout 375g",
+      "canonical_variants": [
+        {
+          "canonical_variant_id": "1383",
+          "flavour": "Baddy Berry",
+          "package_size": "375 g"
+        },
+        {
+          "canonical_variant_id": "1384",
+          "flavour": "Bubblegum Crush",
+          "package_size": "375 g"
+        }
+      ],
+      "official_page_url": "https://appliednutrition.uk/products/abe-all-black-everything-375g",
+      "official_image_url": "https://cdn.shopify.com/s/files/1/0454/0871/4919/files/ABE_Ultimate_Pre-Workout_375g_-_Nutritionals_-_1000x1000_42163958-d2cb-4bf5-ad4e-6bd9d63221fa.jpg?v=1742482293",
+      "source_confirmation": "OWNER_HANDOFF_MANIFEST_WITH_OFFICIAL_PAGE_AND_CDN_URL",
+      "file_name": "881-Applied-ABE-375g.jpg",
+      "sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+      "size_bytes": "235968",
+      "image": {
+        "format": "jpeg",
+        "width": "2000",
+        "height": "2000"
+      },
+      "readability_status": "READABLE_MANUAL_VISUAL_CHECK",
+      "identity_review": {
+        "product_match_status": "CONFIRMED_PRODUCT_FAMILY_FROM_IMAGE",
+        "package_match_status": "CONFIRMED_375G_FROM_IMAGE",
+        "flavour_match_status": "REQUIRES_REVIEW_IMAGE_DOES_NOT_SHOW_FLAVOUR",
+        "formulation_match_status": "REQUIRES_REVIEW_IMAGE_SAYS_ABE_ULTIMATE",
+        "variant_applicability_status": "REQUIRES_FLAVOUR_AND_FORMULATION_REVIEW",
+        "observation": "The image visibly identifies ABE Ultimate Pre-Workout and 375 g, but does not identify Baddy Berry or Bubblegum Crush; the label-version wording must be reconciled with canonical product 881 before use."
+      },
+      "archive": {
+        "bucket_id": "nutrition-sources",
+        "object_path": "labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+        "upsert": false,
+        "fresh_process_hash_readback": "PASS"
+      }
+    }
+  ],
+  "coverage": {
+    "preserved_image_count": "4",
+    "readable_label_image_count": "4",
+    "confirmed_source_product_package_bindings": "4",
+    "candidate_variants_with_an_archived_product_label": "7/10",
+    "exact_flavour_visibly_confirmed": "1/10",
+    "flavour_applicability_review_required": "6/10",
+    "variants_without_an_archived_label_image": "3/10",
+    "variants_without_an_archived_label_image_ids": [
+      "714",
+      "3676",
+      "3759"
+    ],
+    "approved_nutrition_variant_count": "0"
+  },
+  "storage": {
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "bucket_id": "nutrition-sources",
+    "public": false,
+    "duplicate_check_before_write": {
+      "existing_object_count": "2",
+      "same_hash_count": "0",
+      "exact_path_count": "0",
+      "result": "PASS_NO_DUPLICATES"
+    },
+    "manifest_object": {
+      "object_path": "manifests/nut-01/batch-01/manual-handoff/e82828601e1b379bb2d4e77aabe4f5c11a55b09c7140bbf5b3b9922515fde645/manifest.json",
+      "sha256": "e82828601e1b379bb2d4e77aabe4f5c11a55b09c7140bbf5b3b9922515fde645",
+      "size_bytes": "6551",
+      "upsert": false,
+      "fresh_process_hash_readback": "PASS",
+      "archived_image_count_readback": "4"
+    },
+    "uploaded_object_count": "5",
+    "fresh_process_readback_count": "5",
+    "fresh_process_readback_result": "PASS",
+    "anonymous_sdk_download": "BLOCKED_HTTP_404",
+    "unauthenticated_public_url": "BLOCKED_HTTP_400",
+    "automatic_expiration": "NOT_CONFIGURED",
+    "backup_status": "NOT_A_BACKUP"
+  },
+  "validation": {
+    "verify_project_before": "PASS_19_SEO_TASKS_NEXT_SEO_15_NONE_IN_PROGRESS",
+    "verify_project_after": "PASS_19_SEO_TASKS_NEXT_SEO_15_NONE_IN_PROGRESS",
+    "local_manifest_hashes_and_sizes": "PASS_4_OF_4",
+    "jpeg_decode_and_dimensions": "PASS_4_OF_4",
+    "manual_readability": "PASS_4_OF_4",
+    "frozen_scope_membership": "PASS_4_PRODUCTS_7_VARIANTS",
+    "published_batch_source_url_match": "PASS_4_OF_4",
+    "canonical_ids_serialized_as_strings": true,
+    "raw_images_committed_to_git": false,
+    "nutrition_catalogue_writes": "0",
+    "nut_02_started": false,
+    "git_diff_check": "PASS",
+    "quick_full_integration_required": false,
+    "quick_full_integration_reason": "Documentation and evidence JSON only; no code, workflow, migration or test inventory changed."
+  },
+  "remaining_gaps": [
+    "Review whether the archived product 481 label applies to variants 760 Blue Razz and 761 Red Hawaiian; neither flavour is visible in the image.",
+    "Review whether the archived product 744 label applies to variants 815 Fruit Burst and 816 Icy Blue Razz; neither flavour is visible in the image.",
+    "Review whether the archived product 881 label applies to variants 1383 Baddy Berry and 1384 Bubblegum Crush and reconcile the image wording ABE Ultimate with the frozen product/formulation.",
+    "No archived label image is present for Batch 01 variants 714, 3676 or 3759.",
+    "No ingredient value or exact formulation has been approved for any variant."
+  ],
+  "next_step": "Perform the existing manual exact-variant applicability review for the four archived Applied Nutrition labels, deciding the seven candidate bindings from the image and source evidence before any OCR or catalogue write."
+}
