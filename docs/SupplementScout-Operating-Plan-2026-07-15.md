@@ -26,10 +26,14 @@ columns, eight relevant constraints, three triggers, the full new queue query an
 the authenticated panel. The 695-candidate legacy projection and 170 batch items
 are byte-stable before and after, and all five catalogue counts are unchanged.
 Production evidence after migration is read-only; isolated PostgreSQL remains the
-write-behavior proof. No candidate, approval, catalogue fact, OCR or source was
-created. The next step is NUT-03A: prepare and dry-validate one offline candidate
-artifact from the existing archived label for product `38` / variant `726`,
-without storing or approving it.
+write-behavior proof. NUT-03 is now `IN PROGRESS`: bounded NUT-03A reused the
+existing archived label for product `38` / variant `726`, verified its manifest
+hash, manually transcribed the exact 15 g serving plus caffeine, beta-alanine and
+citrulline-malate 2:1 into one ignored four-row candidate artifact, and passed the
+existing `DRY_RUN_NO_DATABASE` validation. No OCR, source fetch, candidate write,
+approval or catalogue fact was created. The next step is NUT-03B: owner-review
+that exact artifact and separately authorize candidate-table-only storage, without
+approving or applying the candidates.
 SEO-15 remains BLOCKED, the 16 September accrual check and conditional 24-25
 September reviews remain scheduled, and GYM HIGH remains owner-deferred.
 Guardian currently validates SEO, not nutrition.

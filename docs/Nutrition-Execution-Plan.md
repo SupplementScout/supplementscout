@@ -4,15 +4,14 @@
 
 ## Current checkpoint
 
-- Task: NUT-02; status `LIVE VERIFIED` within its candidate-schema and guarded-path
-  boundary. NUT-02A, NUT-02B and the production rollout NUT-02C are complete.
-  Exact variant provenance and the three pre-workout ingredient facts survive the
-  existing candidate/review/plan/apply path; no pilot fact has yet been created,
-  reviewed or applied.
-- Owner/session: Codex, owner-authorized NUT-02C production migration session,
+- Task: NUT-03; status `IN PROGRESS`. Bounded preparation step NUT-03A is
+  `CODE COMPLETE`: one exact-variant offline artifact for product `38`, variant
+  `726` has been transcribed from its archived label and passes the existing
+  candidate-store dry-run. No candidate has been stored, reviewed or applied.
+- Owner/session: Codex, owner-authorized NUT-03A explicit transcription session,
   11 September 2026.
 - Branch: `main`; this session started at
-  `519ac42c4a61212559d7119428f9fcb0581fe871`; remote `main` matched before work.
+  `a80f1eef4fbdc93063053004928519e18176c99c`; remote `main` matched before work.
 - Production readback at `2026-09-11T12:58:26.063Z`: public `anon` SELECT against
   project `aftboxmrdgyhizicfsfu`; 141 active unmerged Pre Workout products and
   575 active variants. Frozen scope: 25 variants across 21 products.
@@ -67,10 +66,14 @@
   verified all 11 columns, eight relevant constraints, three queue triggers and
   both exact migration hashes. The authenticated panel and full new-shape read
   both pass. No candidate, review, approved plan, catalogue fact or source changed.
-- One next step, NUT-03A: use only the archived image for product `38` / variant
-  `726` to prepare a one-variant offline candidate artifact with explicit serving
-  evidence, then run the existing candidate validation in dry-run mode. Do not
-  store or approve it without a separate authorization.
+- NUT-03A used the already-local archived image only; its SHA-256 matched the
+  NUT-01 manifest. The single v2 artifact contains four pending candidates:
+  serving size, caffeine, beta-alanine and citrulline malate with its declared
+  ratio. The required dry-run reports `DRY_RUN_NO_DATABASE` and four rows.
+- One next step, NUT-03B: owner-review the exact NUT-03A artifact and, only under
+  separate authorization, store its four candidates in the existing private
+  review queue. Do not approve candidates or run an approved plan/apply in that
+  storage step.
 
 ## Authority and scope
 
@@ -228,7 +231,8 @@ implementation or any nutrition catalogue write.
 | NUT-02B | `LIVE VERIFIED` | NUT-02A | Existing path supports caffeine, beta-alanine and citrulline with L-citrulline/citrulline-malate form and optional declared malate ratio. Each fact preserves one of five information states, its exact serving basis, original source amount/unit and deterministic mg value when quantified. All recreated SQL CHECK predicates are hardened with `IS TRUE`. | Isolated PostgreSQL proves writes and rejection behavior across pre-A, post-A/pre-B and post-B schemas. Production readback proves all nine B columns, five hardened checks and the full new query shape are available. No structured fact row was created. |
 | NUT-02C | `LIVE VERIFIED` | NUT-02B + owner authorization | Apply exactly A then B through the existing production selector; verify history, schema, queue and authenticated panel without creating candidates or catalogue facts. | Rehearsal rolled back cleanly; apply committed ledger rows 205/206. Fresh owner readback matched both SQL hashes, 11 columns, eight constraints and three triggers. Legacy queue digests and catalogue counts are unchanged; the panel returns 200 without an unavailable notice. |
 | NUT-02 | `LIVE VERIFIED` | NUT-02C | Candidate schema and the guarded exact-variant structured-fact path are deployed. Existing product-only records remain compatible. No pilot ingredient value has been entered or approved, and public filters remain outside this stage. | Production read proves schema and read availability; isolated integration tests prove write guards, review invalidation, idempotency and legacy compatibility. This closure does not claim a production write test or pilot coverage. |
-| NUT-03 | `PLANNED` | NUT-02 | Review pilot evidence, quantities/units and exact applicability; separately approved guarded apply | Every proposal has a decision; approved values have proof and correct identity; independent post-write readback and zero-duplicate replay pass; offers/prices unchanged. Unresolved facts remain unknown and excluded. |
+| NUT-03A | `CODE COMPLETE` | NUT-02 | Explicitly transcribe only the archived exact-variant label for product `38` / variant `726` into one offline candidate artifact; validate without database access. | Image hash matches the archive manifest; four pending candidates preserve exact source quantities, serving evidence, citrulline form/ratio, variant ID, archive URI and image hash. Store dry-run passes with zero database writes. |
+| NUT-03 | `IN PROGRESS` | NUT-03A | Review pilot evidence, quantities/units and exact applicability; separately approved candidate storage, review and guarded apply | NUT-03A prepares only one local unapproved artifact. Complete only when every in-scope proposal has a decision and separately authorized writes have independent readback and zero-duplicate replay; unresolved facts remain unknown and excluded. |
 | NUT-04 | `PLANNED` | NUT-03 | Existing product page facts/source and existing search caffeine-free filter | Tests and live variant-switch checks prove confirmed absence included, caffeine present excluded, missing/conflicting facts never treated as absent. Document coverage denominator, limits, evidence and operations. Publish image copies only with established rights; otherwise link to source. MVP closes here. |
 | NUT-05 | `DEFERRED` | NUT-04 closure | Subsequent bounded batches/categories in the same process | Review extraction yield, review time and missing-source rate before expansion; every batch has a fixed denominator and closure. No expansion of an active batch. |
 
@@ -555,6 +559,48 @@ No code, migration, test inventory or workflow is changed by this NUT-00 revisio
 - NUT-02 is closed only for the deployed candidate schema and guarded path. It is
   not a claim of pilot data coverage, approved ingredient values or public filter
   behavior. NUT-03 retains the separate evidence review and production-write gate.
+
+## NUT-03A exact-variant transcription evidence
+
+11 September 2026, owner-authorized bounded preparation:
+
+- Scope remained exactly product `38`, variant `726`, Applied Nutrition Pump 3G
+  Pre-Workout, Fruit Burst, 375 g. Repository and ignored-`tmp` searches found no
+  prior candidate artifact for variant `726`; the production readback recorded in
+  NUT-02C likewise had zero variant-scoped candidates. No existing artifact or
+  database row was duplicated.
+- The original local image at
+  `tmp/nutrition-batch01-owner-handoff-2026-09-11/labels/38-Applied-Pump-3G-375g.jpg`
+  was reused. Its SHA-256 is
+  `1182c1aeab46a72ff38709e349d692ab18d45355d87549574d30bb04f3067842`,
+  exactly matching the owner handoff manifest and archived-object record. No page,
+  image or other source was fetched, and no OCR was run.
+- Manual visual transcription reads the exact serving declaration as
+  `Serving Size: 2 Scoops (15 g) - Servings Per Container: 25`. The per-15-g
+  column states `Caffeine | 250 mg`, `Beta-Alanine | 2 g` and
+  `Citrulline Malate 2:1 | 5 g`. The artifact retains those original quantities
+  and units. Its deterministic normalized values are respectively 250, 2000 and
+  5000 mg; it does not convert citrulline-malate mass into pure L-citrulline or
+  treat one serving as one scoop.
+- The one ignored artifact is
+  `tmp/nutrition-candidates/nut-03a-product-38-variant-726/nutrition-candidates-ncr1-nut03a-38-726-1182c1aeab46.json`,
+  SHA-256
+  `b2ba6b0371c513461e004fe99b361927607018100b89e249d680ddf2a783404d`.
+  It contains exactly four rows: `serving_size_g`,
+  `caffeine_per_serving_mg`, `beta_alanine_per_serving_mg` and
+  `citrulline_per_serving_mg`. All use string IDs `38`/`726`, the stable private
+  `supabase-storage://nutrition-sources/...` URI, original image SHA-256, exact
+  image/table locators, `PENDING` review status and the explicit manual-transcript
+  review flag. Re-running the assembly produced the same bytes and one file.
+- Required validation command
+  `npm run nutrition:candidates:store -- --dry-run --input=tmp/nutrition-candidates/nut-03a-product-38-variant-726/nutrition-candidates-ncr1-nut03a-38-726-1182c1aeab46.json`
+  passed with mode `DRY_RUN_NO_DATABASE`, destination `nutrition_candidates`,
+  four candidate rows, zero product updates and zero verified CSV files. This
+  path did not initialize Supabase or perform a database write.
+- The image and candidate artifact remain outside Git under ignored `tmp`. No
+  parser, OCR service, candidate row, approval, plan or catalogue value was
+  created. NUT-03 remains open; NUT-03B requires a separate owner review and
+  authorization before candidate-table-only storage.
 
 ## NUT-00 closeout evidence
 
