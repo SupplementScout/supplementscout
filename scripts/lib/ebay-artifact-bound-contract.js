@@ -179,19 +179,26 @@ function verifyFreshReport(approved, fresh) {
   invariant(canonicalJson(inventoryMappingRows(fresh.semantic_source_rows)) === canonicalJson(inventoryMappingRows(approved.report.semantic_source_rows)), "Fresh inventory or mapping drift");
   const approvedExecutable = sortedStrings(approved.report.execution_offer_ids), approvedReview = sortedStrings(approved.report.review_rows.map((row) => row.offer_id));
   const freshCandidates = new Set(fresh.execution_offer_ids.map(String));
-  invariant(approvedExecutable.every((id) => freshCandidates.has(id)), "Fresh approved executable row missing or no longer VERIFY_NO_CHANGE");
+  const boundedExecutable = approvedExecutable.filter((id) => freshCandidates.has(id));
+  const demotedExecutable = approvedExecutable.filter((id) => !freshCandidates.has(id));
+  invariant(boundedExecutable.length > 0, "Fresh approved executable scope fully demoted to review");
   const sourceMap = new Map(fresh.semantic_source_rows.map((row) => [String(row.offer_id), row]));
-  const executableRows = approvedExecutable.map((id) => sourceMap.get(id));
-  invariant(executableRows.every(Boolean) && canonicalHash(executableRows) === approved.report.executable_source_fingerprint, "Fresh executable_source_fingerprint drift");
+  const approvedSourceMap = new Map(approved.report.semantic_source_rows.map((row) => [String(row.offer_id), row]));
+  const executableRows = boundedExecutable.map((id) => sourceMap.get(id));
+  invariant(executableRows.every(Boolean) && boundedExecutable.every((id) => canonicalJson(sourceMap.get(id)) === canonicalJson(approvedSourceMap.get(id))), "Fresh executable source row drift");
   const planMap = new Map(fresh.semantic_plan_rows.executable.map((row) => [String(row.offer_id), row]));
-  const executablePlans = approvedExecutable.map((id) => planMap.get(id));
-  invariant(executablePlans.every(Boolean), "Fresh approved executable plan missing");
-  const expectedDeltas = approved.report.expected_deltas;
-  const planBinding = { executable_offer_ids: approvedExecutable, executable: executablePlans, expected_deltas: expectedDeltas };
-  invariant(canonicalHash(planBinding) === approved.report.plan_fingerprint, "Fresh approved executable plan fingerprint drift");
+  const approvedPlanMap = new Map(approved.report.semantic_plan_rows.executable.map((row) => [String(row.offer_id), row]));
+  const executablePlans = boundedExecutable.map((id) => planMap.get(id));
+  invariant(executablePlans.every(Boolean) && boundedExecutable.every((id) => canonicalJson(planMap.get(id)) === canonicalJson(approvedPlanMap.get(id))), "Fresh approved executable plan drift");
+  const approvedDeltas = approved.report.expected_deltas;
+  invariant(approvedDeltas?.logical_field_deltas?.last_checked_at_updates === approvedExecutable.length && Object.entries(approvedDeltas.logical_field_deltas).every(([field, count]) => field === "last_checked_at_updates" || count === 0) && Object.values(approvedDeltas.row_count_deltas || {}).every((count) => count === 0), "Approved executable delta contract drift");
+  const expectedDeltas = structuredClone(approvedDeltas);
+  expectedDeltas.logical_field_deltas.last_checked_at_updates = boundedExecutable.length;
   const freshReviewById = new Map(fresh.review_rows.map((row) => [String(row.offer_id), row]));
-  const reviewRows = approvedReview.map((id) => freshReviewById.get(id) || ({ offer_id: id, review_type: "UNAPPROVED_EXECUTABLE_CANDIDATE", action: fresh.classifications?.[id] || "VERIFY_NO_CHANGE" }));
-  const reviewSourceRows = approvedReview.map((id) => sourceMap.get(id));
+  invariant(demotedExecutable.every((id) => freshReviewById.has(id)), "Fresh demoted executable row is missing review evidence");
+  const reviewIds = sortedStrings([...approvedReview, ...demotedExecutable]);
+  const reviewRows = reviewIds.map((id) => freshReviewById.get(id) || ({ offer_id: id, review_type: "UNAPPROVED_EXECUTABLE_CANDIDATE", action: fresh.classifications?.[id] || "VERIFY_NO_CHANGE" }));
+  const reviewSourceRows = reviewIds.map((id) => sourceMap.get(id));
   invariant(reviewSourceRows.every(Boolean), "Fresh review inventory drift");
   const freshFullCaptureFingerprint = canonicalHash([...fresh.semantic_source_rows].sort((a, b) => Number(a.offer_id) - Number(b.offer_id)));
   const freshReviewScopeFingerprint = canonicalHash(reviewSourceRows);
@@ -199,21 +206,22 @@ function verifyFreshReport(approved, fresh) {
   const bounded = bindSemanticEvidence({
     ...fresh,
     result: reviewRows.length ? "PASS_WITH_REVIEW" : "PASS",
-    executable_plan_count: approvedExecutable.length,
+    executable_plan_count: boundedExecutable.length,
     review_row_count: reviewRows.length,
     blocked_row_count: 0,
-    execution_offer_ids: approvedExecutable,
+    execution_offer_ids: boundedExecutable,
     review_rows: reviewRows,
     blocked_rows: [],
-    classification: { VERIFY_NO_CHANGE: approvedExecutable.length },
+    classification: { VERIFY_NO_CHANGE: boundedExecutable.length },
     expected_deltas: expectedDeltas,
     fresh_candidate_classification: fresh.classification,
     fresh_candidate_executable_offer_ids: sortedStrings(fresh.execution_offer_ids),
-    drift_scope: freshFullCaptureFingerprint === approved.report.full_capture_fingerprint ? "NONE" : freshReviewScopeFingerprint === approved.report.review_scope_fingerprint ? "EXECUTABLE_OR_GLOBAL" : "REVIEW_ONLY",
+    drift_scope: demotedExecutable.length ? "EXECUTABLE_DEMOTED_TO_REVIEW" : freshFullCaptureFingerprint === approved.report.full_capture_fingerprint ? "NONE" : freshReviewScopeFingerprint === approved.report.review_scope_fingerprint ? "EXECUTABLE_OR_GLOBAL" : "REVIEW_ONLY",
   }, fresh.semantic_source_rows, boundedPlanRows);
-  invariant(bounded.executable_source_fingerprint === approved.report.executable_source_fingerprint && bounded.plan_fingerprint === approved.report.plan_fingerprint, "Bounded manual executable contract drift");
   bounded.approved_full_capture_fingerprint = approved.report.full_capture_fingerprint;
+  bounded.approved_executable_source_fingerprint = approved.report.executable_source_fingerprint;
   bounded.approved_review_scope_fingerprint = approved.report.review_scope_fingerprint;
+  bounded.approved_plan_fingerprint = approved.report.plan_fingerprint;
   bounded.fresh_full_capture_fingerprint = bounded.full_capture_fingerprint;
   bounded.fresh_review_scope_fingerprint = bounded.review_scope_fingerprint;
   return bounded;

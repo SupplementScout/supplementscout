@@ -380,7 +380,9 @@ function writePendingBatch(report, now) {
     executable_source_fingerprint: report.executable_source_fingerprint,
     review_scope_fingerprint: report.review_scope_fingerprint,
     approved_full_capture_fingerprint: report.approved_full_capture_fingerprint || report.full_capture_fingerprint,
+    approved_executable_source_fingerprint: report.approved_executable_source_fingerprint || report.executable_source_fingerprint,
     approved_review_scope_fingerprint: report.approved_review_scope_fingerprint || report.review_scope_fingerprint,
+    approved_plan_fingerprint: report.approved_plan_fingerprint || report.plan_fingerprint,
     fresh_full_capture_fingerprint: report.fresh_full_capture_fingerprint || report.full_capture_fingerprint,
     fresh_review_scope_fingerprint: report.fresh_review_scope_fingerprint || report.review_scope_fingerprint,
     source_row_fingerprints: report.source_row_fingerprints,
@@ -405,7 +407,7 @@ function loadPendingBatch(now = new Date()) {
   const blocked = new Set((manifest.blocked_rows || []).map((row) => String(row.offer_id)));
   const sourceFingerprintIds = new Set((manifest.source_row_fingerprints || []).map((row) => String(row.offer_id)));
   const planFingerprintIds = new Set((manifest.plan_row_fingerprints || []).map((row) => String(row.offer_id)));
-  const fingerprintFields = ["source_fingerprint", "full_capture_fingerprint", "executable_source_fingerprint", "review_scope_fingerprint", "approved_full_capture_fingerprint", "approved_review_scope_fingerprint", "fresh_full_capture_fingerprint", "fresh_review_scope_fingerprint", "plan_fingerprint"];
+  const fingerprintFields = ["source_fingerprint", "full_capture_fingerprint", "executable_source_fingerprint", "review_scope_fingerprint", "approved_full_capture_fingerprint", "approved_executable_source_fingerprint", "approved_review_scope_fingerprint", "approved_plan_fingerprint", "fresh_full_capture_fingerprint", "fresh_review_scope_fingerprint", "plan_fingerprint"];
   if (manifest.schema_version !== 2 || manifest.kind !== KIND || !Number.isFinite(ageMs) || ageMs < -120000 || ageMs > 15 * 60 * 1000 || JSON.stringify(manifest.offer_ids) !== JSON.stringify(SCOPES.map((scope) => scope.offer_id)) || executable.size !== (manifest.executable_offer_ids || []).length || review.size !== (manifest.review_rows || []).length || blocked.size !== (manifest.blocked_rows || []).length || blocked.size !== 0 || [...executable].some((id) => review.has(id) || blocked.has(id)) || [...review].some((id) => blocked.has(id)) || executable.size + review.size !== SCOPES.length || SCOPES.some((scope) => !executable.has(scope.offer_id) && !review.has(scope.offer_id)) || sourceFingerprintIds.size !== SCOPES.length || SCOPES.some((scope) => !sourceFingerprintIds.has(scope.offer_id)) || planFingerprintIds.size !== executable.size || [...executable].some((id) => !planFingerprintIds.has(id)) || (manifest.source_row_fingerprints || []).some((row) => !/^[0-9a-f]{64}$/.test(row.semantic_fingerprint || "")) || (manifest.plan_row_fingerprints || []).some((row) => row.scope !== "EXECUTABLE" || !/^[0-9a-f]{64}$/.test(row.semantic_fingerprint || "")) || fingerprintFields.some((field) => !/^[0-9a-f]{64}$/.test(manifest[field] || ""))) fail("Pending eBay refresh batch scope, partition or freshness mismatch");
   return { manifest, executable, manifestSha256: expectedHash };
 }
@@ -568,7 +570,7 @@ async function run(options, dependencies = {}) {
     let approvedInput = null;
     if ((dependencies.env || process.env).GITHUB_EVENT_NAME === "workflow_dispatch") {
       approvedInput = approvedFromEnv(dependencies.env || process.env);
-      if (batch.manifest.commit_sha !== approvedInput.commitSha || batch.manifest.approved_full_capture_fingerprint !== approvedInput.fullCaptureFingerprint || batch.manifest.executable_source_fingerprint !== approvedInput.executableSourceFingerprint || batch.manifest.approved_review_scope_fingerprint !== approvedInput.reviewScopeFingerprint || batch.manifest.plan_fingerprint !== approvedInput.planFingerprint) fail("Pending batch escaped the approved executable-scope contract");
+      if (batch.manifest.commit_sha !== approvedInput.commitSha || batch.manifest.approved_full_capture_fingerprint !== approvedInput.fullCaptureFingerprint || batch.manifest.approved_executable_source_fingerprint !== approvedInput.executableSourceFingerprint || batch.manifest.approved_review_scope_fingerprint !== approvedInput.reviewScopeFingerprint || batch.manifest.approved_plan_fingerprint !== approvedInput.planFingerprint) fail("Pending batch escaped the approved executable-scope contract");
     }
     const approved = SCOPES.filter((scope) => batch.executable.has(scope.offer_id)).map((scope) => validatePreparedArtifact(scope, (dependencies.loadDryRunArtifact || loadDryRunArtifact)(pendingArtifact(scope)), now));
     for (const item of approved) await (dependencies.executePlan || executePlan)(item, KIND);
@@ -599,7 +601,9 @@ async function run(options, dependencies = {}) {
       review_scope_fingerprint: batch.manifest.review_scope_fingerprint,
       plan_row_fingerprints: batch.manifest.plan_row_fingerprints,
       approved_full_capture_fingerprint: batch.manifest.approved_full_capture_fingerprint,
+      approved_executable_source_fingerprint: batch.manifest.approved_executable_source_fingerprint,
       approved_review_scope_fingerprint: batch.manifest.approved_review_scope_fingerprint,
+      approved_plan_fingerprint: batch.manifest.approved_plan_fingerprint,
       fresh_full_capture_fingerprint: batch.manifest.fresh_full_capture_fingerprint,
       fresh_review_scope_fingerprint: batch.manifest.fresh_review_scope_fingerprint,
       plan_fingerprint: batch.manifest.plan_fingerprint,

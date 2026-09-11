@@ -1051,6 +1051,29 @@ test("eBay review-only commercial, identity and source-error drift stays isolate
   }
 });
 
+test("eBay fresh revalidation safely demotes an approved row and executes only the unchanged subset", () => {
+  const fixture = artifactBoundFixture();
+  const approved = { report: fixture.report };
+  const fresh = structuredClone(fixture.report);
+  const demotedId = fresh.execution_offer_ids[0];
+  fresh.execution_offer_ids = fresh.execution_offer_ids.filter((id) => id !== demotedId);
+  fresh.semantic_plan_rows.executable = fresh.semantic_plan_rows.executable.filter((row) => row.offer_id !== demotedId);
+  fresh.review_rows.push({ offer_id: demotedId, review_type: "IDENTITY_CONFLICT", blockers: ["LISTING_OUT_OF_STOCK"] });
+  fresh.semantic_plan_rows.review = structuredClone(fresh.review_rows);
+  fresh.semantic_source_rows.find((row) => row.offer_id === demotedId).continuity_tier = "blocked";
+  const bounded = verifyFreshReport(approved, fresh);
+  assert.equal(bounded.drift_scope, "EXECUTABLE_DEMOTED_TO_REVIEW");
+  assert.equal(bounded.executable_plan_count, fixture.report.executable_plan_count - 1);
+  assert.equal(bounded.review_row_count, fixture.report.review_row_count + 1);
+  assert.equal(bounded.execution_offer_ids.includes(demotedId), false);
+  assert.equal(bounded.review_rows.some((row) => row.offer_id === demotedId), true);
+  assert.equal(bounded.expected_deltas.logical_field_deltas.last_checked_at_updates, fixture.report.executable_plan_count - 1);
+  assert.equal(bounded.approved_executable_source_fingerprint, fixture.report.executable_source_fingerprint);
+  assert.equal(bounded.approved_plan_fingerprint, fixture.report.plan_fingerprint);
+  assert.notEqual(bounded.executable_source_fingerprint, fixture.report.executable_source_fingerprint);
+  assert.notEqual(bounded.plan_fingerprint, fixture.report.plan_fingerprint);
+});
+
 test("eBay fresh revalidation evidence is emitted before verification and pending batch preparation", () => {
   const source = fs.readFileSync(path.join(process.cwd(), "scripts/ebay-offer-refresh.js"), "utf8");
   const evidence = source.indexOf('"fresh-revalidation-candidate.json"');
