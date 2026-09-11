@@ -5,13 +5,12 @@
 ## Current checkpoint
 
 - Task: NUT-01; status `IN PROGRESS`; preparatory catalogue scope and official
-  source package are frozen, while collection and completion gates remain outstanding.
-- Owner/session: Codex, owner-requested NUT-01 source-manifest session,
-  11 September 2026.
+  source package remain frozen. Private archive storage is verified; Batch 01
+  collection is isolated by the completed rights review.
+- Owner/session: Codex, owner-authorized NUT-01 Batch 01 storage and conditional
+  collection session, 11 September 2026.
 - Branch: `main`; this session started at
-  `15f8ded9f4b4ce2fbc8fa76402d08cea6aa2243e`; remote `main` matched before work.
-  Scope commit `ed750cb4d2f5d7feb76276cecb907331336cf89d` and preparation closeout
-  `15f8ded9f4b4ce2fbc8fa76402d08cea6aa2243e` were already on GitHub `main`.
+  `b5e5b6901517d643b463d135680c3d02d5405dd6`; remote `main` matched before work.
 - Production readback at `2026-09-11T12:58:26.063Z`: public `anon` SELECT against
   project `aftboxmrdgyhizicfsfu`; 141 active unmerged Pre Workout products and
   575 active variants. Frozen scope: 25 variants across 21 products.
@@ -25,20 +24,19 @@
 - Earlier `TypeError: fetch failed` reproduced inside restricted networking.
   The same query passed with Node using the Windows system CA outside the sandbox;
   it was an environment transport/certificate-path issue, not missing database data.
-- Source archive decision: use a private Supabase Storage bucket with service-role-only
-  access and content-addressed immutable object paths. An administrative read-only
-  `storage.listBuckets()` returned zero buckets, so no existing target can be reused.
-  Provisioning remains unauthorized and was not performed; existing alternatives
-  do not meet durability.
+- Source archive: after a fresh administrative duplicate check again returned zero
+  buckets, the authorized session created private Supabase Storage bucket
+  `nutrition-sources`. Service-role write/read and fresh-process hash readback passed;
+  anonymous and unauthenticated reads failed. Objects have no automatic expiration.
+  Storage alone is not represented as a backup.
 - Official URLs were documented by read-only review. No product page, label or
   image was downloaded into the collector workspace; no candidate was stored,
   function implemented, permission changed or database write made.
 - Existing untracked `docs/SupplementScout-Nutrition-Plan.txt` is owner material;
   preserved unchanged and excluded from this change's staging.
-- One next step: the owner reviews the source package and records the collection
-  decision for each batch, including written permission for BioTech USA/10X where
-  required, while an authorized administrator provisions or designates the private
-  archive; do not run collection until both decisions are recorded.
+- One next step: obtain and record Optimum Nutrition written permission and an
+  Applied Nutrition/Bulk clarification or applicable site-use policy, then regenerate
+  the allowed Batch 01 subset; do not collect a source while its decision is isolated.
 
 ## Authority and scope
 
@@ -148,29 +146,32 @@ current evidence explicitly establishes that applicability.
 
 ### Durable source storage decision
 
-No ready durable raw-source archive exists in the audited repository or public
-production surface:
+The repository still has no durable raw-source archive:
 
 - `tmp/` is ignored, machine-local working storage and explicitly not an archive;
 - committed source snapshots are forbidden by the extractor safety contract;
 - `nutrition_candidates` and batch items preserve hashes, locators and excerpts,
   but not durable raw snapshot bytes, and variant-scoped storage is currently blocked;
 - existing private GitHub Actions artifacts expire after 7–90 days and therefore
-  cannot be the source of record;
-- the earlier public `anon` Storage discovery could not establish private bucket
-  state. The subsequent administrative service-role `storage.listBuckets()` read
-  returned zero buckets, so there is no existing private bucket to designate.
+  cannot be the source of record.
 
-The simplest compatible target is one **private Supabase Storage bucket** in the
-existing production project, readable/writable only by the existing service-role/
-owner boundary. Store an immutable batch manifest plus raw page/image/OCR files
+The selected target is private Supabase Storage bucket `nutrition-sources` in the
+existing production project, readable/writable only through the existing service-role/
+owner boundary. It was created only after a second administrative read returned
+zero existing and zero equivalent buckets. Its 10 MB object limit covers the
+existing 5 MB manufacturer HTML and 8 MB image limits; allowed types are HTML,
+XHTML, JSON, plain text, JPEG, PNG and WebP. Store an immutable batch manifest
+plus raw page/image/OCR files
 under content-addressed paths such as
 `nutrition-sources/<batch-id>/<sha256>/<filename>`. Keep the `tmp/` copy only as
-the bounded extractor workspace. Before any fetch, an authorized administrator
-must provision the private bucket with retention, backup and access rules. NUT-02
-should add a
+the bounded extractor workspace. Objects have no configured automatic expiration.
+A content-addressed canary and the Batch 01 source manifest passed service-role
+readback from new Node processes; anonymous SDK and unauthenticated public-URL
+downloads returned HTTP 400. This is durable primary storage evidence, not proof
+of backup or disaster recovery. NUT-02 should add a
 separate durable archive reference or compatible URI without weakening the current
-`tmp/` path guard. This session changed no bucket, RLS policy, credential or schema.
+`tmp/` path guard. No public policy, browser key, RLS policy, credential or schema
+was added or changed.
 
 ## Stage ledger
 
@@ -185,7 +186,7 @@ preparatory catalogue, storage readback and source-manifest parts of NUT-01.
 | ID | Status | Dependency | Closed scope | Completion evidence |
 |---|---|---|---|---|
 | NUT-00 | `LIVE VERIFIED` | Owner request | Register stages, inspect existing process/schema/evidence, reuse/gap audit, pilot candidates and links | Consistent committed plan; verify:project PASS before/after; recorded commit and confirmed remote availability; live-data limitations explicit. See closeout. |
-| NUT-01 | `IN PROGRESS` | NUT-00 | Frozen denominator: 25 current variants across 21 products. Official-source preparation: 15 confirmed bindings, 10 unresolved; 11 URLs in batches of 7 and 4. Remaining: owner rights decisions, unresolved identity/version evidence, collection and durable private preservation. | Each variant has a readable, correctly bound durable source or explicit missing-source/identity status with reason and action. Record ID, flavour/version, URL, date, hash and archive location; prove retrieval in a new session. Missing entries are not counted as collected labels. Catalogue and source-preparation evidence are recorded above; stage is not complete. |
+| NUT-01 | `IN PROGRESS` | NUT-00 | Frozen denominator: 25 current variants across 21 products. Official-source preparation: 15 confirmed bindings, 10 unresolved; private archive verified. Batch 01: 7 URLs/10 variants isolated, 0 pages and 0 readable labels collected. Remaining: source-rights decisions, unresolved identity/version evidence and collection. | Each variant has a readable, correctly bound durable source or explicit missing-source/identity status with reason and action. Record ID, flavour/version, URL, date, hash and archive location; prove retrieval in a new session. Missing entries are not counted as collected labels. Catalogue, source, rights and storage evidence are recorded above; stage is not complete. |
 | NUT-02 | `PLANNED` | NUT-01 | Extend existing candidate/review/apply schema for serving, caffeine, citrulline/form, beta-alanine, variant and provenance/status | Exact applicability survives the full path; ambiguity/conflicts detected; meaningful tests and required quick/full checks pass. Candidates cannot feed public filters. Resolve archive-reference compatibility and confirmed-zero semantics without weakening existing guards. |
 | NUT-03 | `PLANNED` | NUT-02 | Review pilot evidence, quantities/units and exact applicability; separately approved guarded apply | Every proposal has a decision; approved values have proof and correct identity; independent post-write readback and zero-duplicate replay pass; offers/prices unchanged. Unresolved facts remain unknown and excluded. |
 | NUT-04 | `PLANNED` | NUT-03 | Existing product page facts/source and existing search caffeine-free filter | Tests and live variant-switch checks prove confirmed absence included, caffeine present excluded, missing/conflicting facts never treated as absent. Document coverage denominator, limits, evidence and operations. Publish image copies only with established rights; otherwise link to source. MVP closes here. |
@@ -353,3 +354,53 @@ No code, migration, test inventory or workflow is changed by this NUT-00 revisio
 - NUT-01 remains `IN PROGRESS`. No candidate, function, migration, product/variant,
   offer, nutrition value, database row, bucket or permission was created or changed;
   NUT-02 did not start.
+
+## NUT-01 Batch 01 storage and collection-gate evidence
+
+11 September 2026, Codex owner-authorized Batch 01 session:
+
+- The session started on `main` at
+  `b5e5b6901517d643b463d135680c3d02d5405dd6`; local HEAD and `origin/main`
+  matched. The frozen 25-variant denominator and completed catalogue audit were
+  reused. Batch 01 remained exactly 7 URLs covering 10 selected variants; Batch 02
+  and the 10 `NEEDS_REVIEW` variants stayed outside collection.
+- Before the authorized storage write, a new administrative service-role
+  `storage.listBuckets()` read returned zero buckets and zero equivalent
+  nutrition/label/source/evidence candidates. Private bucket `nutrition-sources`
+  was then created with `public: false`, a 10,000,000-byte object limit, only the
+  existing process's HTML/XHTML/JSON/text/JPEG/PNG/WebP types and no configured
+  automatic expiration. No browser credential or public policy was added.
+- A retained 334-byte canary at
+  `storage-canary/2026-09-11/b5a66d9664f2401065eecf455dca650ba8154415960e53f11e6271a2b7330d24/readback.json`
+  passed service-role readback with SHA-256
+  `b5a66d9664f2401065eecf455dca650ba8154415960e53f11e6271a2b7330d24`.
+  Anonymous SDK download and unauthenticated public-URL download both returned
+  HTTP 400. A separate new Node process repeated the authenticated read and hash.
+- The final 7-source Batch 01 manifest was uploaded without upsert at
+  `manifests/nut-01/batch-01/33c1eb1edbf18a44058d91794a915b43b561baca10b0722ea8b14015b44c459c/sources.json`.
+  A separate new process downloaded it, reproduced SHA-256
+  `33c1eb1edbf18a44058d91794a915b43b561baca10b0722ea8b14015b44c459c`
+  and parsed 7 sources. These retained objects prove durable primary storage and
+  retrieval, not backup or disaster recovery.
+- The corrected official Optimum Nutrition Terms of Use cover
+  `www.optimumnutrition.com` and associated sites. Their permitted-use section
+  requires prior written consent for the planned commercial copy/private storage;
+  the owner's operational authorization was not treated as manufacturer consent.
+  The source's 1 URL/1 variant is isolated as `WRITTEN_PERMISSION_REQUIRED`.
+- Applied Nutrition and Bulk each link terms of sale. Those documents discuss
+  consumer orders and do not decide automated page copying/private storage. This
+  is recorded as `NO_DETERMINATIVE_INFORMATION`, distinct from an express written-
+  permission requirement; their combined 6 URLs/9 variants are isolated pending
+  clarification or an applicable site-use policy.
+- No Batch 01 URL met the owner's condition that the terms permit collection.
+  Therefore the existing collector was not run: page requests 0, collected pages
+  0, readable labels 0, collected coverage 0/10 for Batch 01 and 0/25 for the full
+  pilot. No OCR, candidate creation, ingredient extraction, product identity repair,
+  catalogue/database write or NUT-02 work occurred. The detailed report
+  is [Batch 01 collection gate](rollouts/nutrition-pre-workout-source-manifest-2026-09-11/batch-01/collection-gate-2026-09-11.json).
+- `npm run verify:project` passed before and after the ledger edit: 19 SEO tasks,
+  next SEO-15 and none in progress. The final Batch 01 source list passed the
+  existing `DRY_PLAN_NO_NETWORK` validator with 7 sources, zero requests and zero
+  writes. Frozen-scope/count/hash assertions and `git diff --check` passed. No code,
+  workflow, migration or test inventory changed, so quick/full/integration gates
+  were not required by AGENTS.md.

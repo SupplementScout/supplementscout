@@ -6,9 +6,10 @@
 
 **Scope:** frozen 25 canonical variants across 21 canonical products
 
-This package is ready for the existing collector's planning gate. It does not
-authorize collection. It contains no downloaded page, label, image or OCR output
-and records no nutrition value. The authoritative frozen denominator remains
+This package passed the existing collector's planning gate. The completed Batch
+01 terms review did not leave any URL eligible for collection, so it contains no
+downloaded page, label, image or OCR output and records no nutrition value. The
+authoritative frozen denominator remains
 [`nutrition-pre-workout-pilot-scope-2026-09-11.json`](../nutrition-pre-workout-pilot-scope-2026-09-11.json).
 
 ## Contents and result
@@ -19,6 +20,9 @@ and records no nutrition value. The authoritative frozen denominator remains
 - [`batch-01/sources.json`](batch-01/sources.json) contains 7 unique official
   product URLs in the collector's existing
   `nutrition-manufacturer-source-list-v1` format.
+- [`batch-01/collection-gate-2026-09-11.json`](batch-01/collection-gate-2026-09-11.json)
+  records the final three-domain terms decision, zero-fetch result and private
+  archive readback for Batch 01's 10 variants.
 - [`batch-02/sources.json`](batch-02/sources.json) contains 4 unique official
   product URLs in the same format. Collection of this batch is blocked pending
   written permission from BioTech USA and 10X Athletic.
@@ -39,9 +43,9 @@ reuse rights or satisfy the collector's owner-confirmation gate.
 
 | Domain | robots.txt result for product path | Terms source | Collection decision |
 |---|---|---|---|
-| `optimumnutrition.com` | Product path not disallowed | [UK terms and conditions](https://www.optimumnutrition.com/en-gb/pages/terms-and-conditions) | `OWNER_REVIEW_REQUIRED`; no UK collection permission established |
-| `appliednutrition.uk` | `/products/` allowed | [Terms and conditions](https://appliednutrition.uk/pages/terms-conditions) | `OWNER_REVIEW_REQUIRED`; sale terms do not establish collection permission |
-| `bulk.com` | Product path not disallowed | [Terms and conditions](https://help.bulk.com/hc/en-gb/articles/208192485-Terms-Conditions) | `OWNER_REVIEW_REQUIRED`; sale terms do not establish collection permission |
+| `optimumnutrition.com` | Product path not disallowed | [General Terms of Use](https://www.optimumnutrition.com/en-us/pages/terms-of-use) | `BLOCKED_WRITTEN_PERMISSION_REQUIRED`; the terms cover `www.optimumnutrition.com` and associated sites and require prior written consent for the planned commercial copy/private storage |
+| `appliednutrition.uk` | `/products/` allowed | [Terms and conditions](https://appliednutrition.uk/pages/terms-conditions) | `NO_DETERMINATIVE_INFORMATION`; the footer-linked sale terms neither permit nor prohibit the planned collection, so clarification is required |
+| `bulk.com` | Product path not disallowed | [Terms and conditions](https://help.bulk.com/hc/en-gb/articles/208192485-Terms-Conditions) | `NO_DETERMINATIVE_INFORMATION`; the footer-linked sale terms neither permit nor prohibit the planned collection, so clarification is required |
 | `shop.biotechusa.com` | `/products/` allowed | [Terms of purchase](https://shop.biotechusa.com/pages/terms-of-purchase) | `BLOCKED_WRITTEN_PERMISSION_REQUIRED`; terms prohibit download/electronic storage or processing without consent |
 | `10xathletic.com` | `/products/` allowed | [Terms of service](https://www.10xathletic.com/policies/terms-of-service) | `BLOCKED_WRITTEN_PERMISSION_REQUIRED`; terms prohibit spider/crawl/scrape without written permission |
 
@@ -65,26 +69,41 @@ PreTRAIN X, Iced Raspberry, 350 g and its formula version.
 
 ## Storage readback
 
-An administrative, read-only `storage.listBuckets()` call against production
-project `aftboxmrdgyhizicfsfu` returned `bucket_count: 0`. It used the existing
-service-role credential loaded from local project configuration. There were no
-writes, bucket creations, permission changes or credential changes. Therefore no
-existing private bucket can be designated today. Before collection, an authorized
-owner must provision the private Supabase Storage bucket already specified in the
-execution ledger, including retention and access rules; this package does not do so.
+A fresh administrative `storage.listBuckets()` call against production project
+`aftboxmrdgyhizicfsfu` again returned zero buckets and no equivalent candidate.
+The authorized session then created private bucket `nutrition-sources` with a
+10 MB per-object limit and the HTML, JSON, text, JPEG, PNG and WebP types used by
+the existing process. No public access, browser credential or automatic object
+expiration was added.
+
+A 334-byte content-addressed canary and the 7-source Batch 01 manifest were
+uploaded with SHA-256 metadata and no upsert. New Node processes downloaded both
+objects and reproduced hashes
+`b5a66d9664f2401065eecf455dca650ba8154415960e53f11e6271a2b7330d24`
+and `33c1eb1edbf18a44058d91794a915b43b561baca10b0722ea8b14015b44c459c`.
+Anonymous SDK download and an unauthenticated public URL both returned HTTP 400.
+The objects have no automatic expiration; this storage result is **not a backup**.
+
+## Batch 01 collection result
+
+No collector run occurred. Optimum Nutrition isolates 1 URL/1 variant pending
+manufacturer written permission. Applied Nutrition and Bulk isolate 6 URLs/9
+variants pending a decisive site-use policy or manufacturer clarification. Actual
+result: 0 page requests, 0 collected pages, 0 readable labels and 0/10 collected
+variant coverage (0/25 for the complete pilot). A page snapshot without a readable
+label would not count as a collected label.
 
 ## Required decisions before collection
 
-1. Record the existing owner decision for robots/terms on each batch. Batch 02
-   requires written manufacturer permission; the current evidence does not permit
-   collection.
-2. Provision or designate the private production Storage bucket and record its
-   service-role-only access, retention and backup rules.
-3. Resolve the 10 `NEEDS_REVIEW` entries without changing the frozen denominator:
+1. Obtain and record Optimum Nutrition written permission and an Applied Nutrition/
+   Bulk clarification or applicable site-use policy. The owner's operational
+   authorization is not manufacturer permission. Batch 02 remains unchanged and
+   requires its separately recorded written permissions.
+2. Resolve the 10 `NEEDS_REVIEW` entries without changing the frozen denominator:
    product/formula version conflicts for products `58`, `215`, `295`, `899` and
    `961`; duplicate canonical identity for `957`; package evidence for `1249` and
    `1275`; official source for `1252`; flavour/package evidence for `1283`.
 
-Only after the applicable rights decision and storage gate may an owner run the
-existing collector with its explicit approvals. This package does not mark NUT-01
-complete and does not authorize NUT-02.
+Only after an applicable rights decision may an owner regenerate the allowed
+subset and run the existing collector with its explicit approvals. This package
+does not mark NUT-01 complete and does not authorize NUT-02.

@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-manufacturer-collection-gate-v1",
+  "status_date": "2026-09-11",
+  "stage": "NUT-01_IN_PROGRESS",
+  "scope": {
+    "batch_id": "batch-01",
+    "source_url_count": "7",
+    "canonical_variant_count": "10",
+    "canonical_product_ids": [
+      "17",
+      "38",
+      "481",
+      "744",
+      "881",
+      "1254",
+      "1279"
+    ],
+    "canonical_variant_ids": [
+      "714",
+      "726",
+      "760",
+      "761",
+      "815",
+      "816",
+      "1383",
+      "1384",
+      "3676",
+      "3759"
+    ]
+  },
+  "terms_reviews": [
+    {
+      "domain": "optimumnutrition.com",
+      "source_url_count": "1",
+      "canonical_variant_ids": [
+        "714"
+      ],
+      "robots_url": "https://www.optimumnutrition.com/robots.txt",
+      "robots_result": "PRODUCT_PATH_NOT_DISALLOWED",
+      "terms_url": "https://www.optimumnutrition.com/en-us/pages/terms-of-use",
+      "terms_scope": "The official terms define the site as www.optimumnutrition.com and associated websites; the UK promotions page is not the site-use contract.",
+      "terms_result": "WRITTEN_PERMISSION_REQUIRED",
+      "reason": "The permitted-use section requires prior written consent for copying site content to another computer or server for a commercial enterprise; the narrow downloadable-information exception is personal and non-commercial.",
+      "manufacturer_permission_recorded": false,
+      "collection_decision": "ISOLATED_DO_NOT_COLLECT"
+    },
+    {
+      "domain": "appliednutrition.uk",
+      "source_url_count": "4",
+      "canonical_variant_ids": [
+        "726",
+        "760",
+        "761",
+        "815",
+        "816",
+        "1383",
+        "1384"
+      ],
+      "robots_url": "https://appliednutrition.uk/robots.txt",
+      "robots_result": "PRODUCT_PATH_ALLOWED",
+      "terms_url": "https://appliednutrition.uk/pages/terms-conditions",
+      "terms_scope": "The footer-linked document identifies itself as terms and conditions of sale and addresses consumer orders, delivery, returns and related matters.",
+      "terms_result": "NO_DETERMINATIVE_INFORMATION",
+      "reason": "The published document neither authorizes nor expressly prohibits the planned automated page copy and private storage. Operational owner authorization is not manufacturer permission.",
+      "manufacturer_permission_recorded": false,
+      "collection_decision": "ISOLATED_CLARIFICATION_REQUIRED"
+    },
+    {
+      "domain": "bulk.com",
+      "source_url_count": "2",
+      "canonical_variant_ids": [
+        "3676",
+        "3759"
+      ],
+      "robots_url": "https://www.bulk.com/robots.txt",
+      "robots_result": "PRODUCT_PATH_NOT_DISALLOWED",
+      "terms_url": "https://help.bulk.com/hc/en-gb/articles/208192485-Terms-Conditions",
+      "terms_scope": "The website footer links this document, which identifies itself as terms and conditions of sale for consumer orders.",
+      "terms_result": "NO_DETERMINATIVE_INFORMATION",
+      "reason": "The published document neither authorizes nor expressly prohibits the planned automated page copy and private storage. Operational owner authorization is not manufacturer permission.",
+      "manufacturer_permission_recorded": false,
+      "collection_decision": "ISOLATED_CLARIFICATION_REQUIRED"
+    }
+  ],
+  "collection_result": {
+    "eligible_source_url_count": "0",
+    "eligible_canonical_variant_count": "0",
+    "collector_run": false,
+    "page_requests": "0",
+    "collected_page_count": "0",
+    "readable_label_count": "0",
+    "collected_variant_count": "0",
+    "batch_variant_coverage": "0/10",
+    "pilot_variant_coverage": "0/25",
+    "isolated_written_permission_source_url_count": "1",
+    "isolated_written_permission_variant_count": "1",
+    "isolated_clarification_source_url_count": "6",
+    "isolated_clarification_variant_count": "9",
+    "notes": "No page was fetched because none of the three reviewed domains currently satisfies the owner's condition that its terms permit one-time collection and private storage. A page without a readable label would not count as a collected label."
+  },
+  "storage_result": {
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "duplicate_check_before_create": "NO_EQUIVALENT_BUCKET_FOUND",
+    "bucket_id": "nutrition-sources",
+    "bucket_public": false,
+    "file_size_limit_bytes": "10000000",
+    "allowed_mime_types": [
+      "text/html",
+      "application/xhtml+xml",
+      "application/json",
+      "text/plain",
+      "image/jpeg",
+      "image/png",
+      "image/webp"
+    ],
+    "automatic_expiration": "NOT_CONFIGURED",
+    "access_boundary": "SERVICE_ROLE_ONLY_CONFIRMED_BY_READBACK",
+    "browser_key_added": false,
+    "anonymous_sdk_download": "BLOCKED_HTTP_400",
+    "unauthenticated_public_url": "BLOCKED_HTTP_400",
+    "canary_object": {
+      "path": "storage-canary/2026-09-11/b5a66d9664f2401065eecf455dca650ba8154415960e53f11e6271a2b7330d24/readback.json",
+      "sha256": "b5a66d9664f2401065eecf455dca650ba8154415960e53f11e6271a2b7330d24",
+      "size_bytes": "334",
+      "fresh_process_readback": "PASS"
+    },
+    "archived_batch_manifest": {
+      "repository_path": "docs/rollouts/nutrition-pre-workout-source-manifest-2026-09-11/batch-01/sources.json",
+      "object_path": "manifests/nut-01/batch-01/33c1eb1edbf18a44058d91794a915b43b561baca10b0722ea8b14015b44c459c/sources.json",
+      "sha256": "33c1eb1edbf18a44058d91794a915b43b561baca10b0722ea8b14015b44c459c",
+      "size_bytes": "4548",
+      "source_count": "7",
+      "fresh_process_readback": "PASS"
+    },
+    "object_retention": "NO_AUTOMATIC_EXPIRATION",
+    "backup_status": "NOT_A_BACKUP"
+  },
+  "excluded_work": {
+    "batch_02": "UNCHANGED_AND_NOT_COLLECTED",
+    "unresolved_variant_count": "10",
+    "unresolved_variants": "UNCHANGED_AND_NOT_COLLECTED",
+    "ocr_runs": "0",
+    "nutrition_catalogue_writes": "0",
+    "product_identity_changes": "0",
+    "nut_02_started": false
+  },
+  "validation": {
+    "verify_project_before": "PASS",
+    "verify_project_after": "PASS",
+    "project_guardian_seo_tasks_checked": "19",
+    "manufacturer_dry_plan": "PASS",
+    "manufacturer_dry_plan_network_requests": "0",
+    "manufacturer_dry_plan_files_written": "0",
+    "frozen_scope_assertions": "PASS_25_VARIANTS_7_BATCH_URLS_10_BATCH_VARIANTS",
+    "git_diff_check": "PASS"
+  },
+  "next_step": "Obtain and record Optimum Nutrition written permission and Applied Nutrition/Bulk clarification or an applicable site-use policy; then regenerate the allowed subset and run the existing collector only for sources whose decision permits collection."
+}

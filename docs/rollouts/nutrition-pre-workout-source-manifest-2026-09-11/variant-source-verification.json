@@ -15,7 +15,7 @@
       "batch_id": "batch-01",
       "source_count": "7",
       "manifest": "batch-01/sources.json",
-      "collection_status": "OWNER_ROBOTS_TERMS_AND_STORAGE_APPROVAL_REQUIRED"
+      "collection_status": "ISOLATED_1_URL_WRITTEN_PERMISSION_REQUIRED_6_URLS_TERMS_CLARIFICATION_REQUIRED"
     },
     {
       "batch_id": "batch-02",
@@ -28,10 +28,12 @@
     "access": "SUPABASE_SERVICE_ROLE_READ_ONLY",
     "operation": "storage.listBuckets()",
     "project_ref": "aftboxmrdgyhizicfsfu",
-    "bucket_count": "0",
-    "result": "NO_EXISTING_BUCKET",
-    "writes": "0",
-    "required_action": "An authorized owner must provision or designate the private bucket defined in Nutrition-Execution-Plan.md before collection."
+    "bucket_count": "1",
+    "result": "PRIVATE_BUCKET_CREATED_AND_READBACK_VERIFIED",
+    "bucket_id": "nutrition-sources",
+    "public": false,
+    "automatic_expiration": "NOT_CONFIGURED",
+    "required_action": "Use content-addressed immutable paths and service-role-only access; storage availability does not override per-domain collection rights."
   },
   "variants": [
     {
