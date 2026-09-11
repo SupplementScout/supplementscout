@@ -4,20 +4,23 @@
 
 ## Current checkpoint
 
-- Task: NUT-00; status `IN PROGRESS`, documentation audit prepared; publication pending.
+- Task: NUT-00; status `LIVE VERIFIED` (documentation published, no feature release).
+- Active nutrition implementation: none; NUT-01 remains `PLANNED`, not started.
 - Owner/session: Codex, owner-requested NUT-00 session, 11 September 2026.
 - Branch: `main`; audited HEAD: `7c553d8be48e19413cb23d9fd55c3b7e7ad982b2`.
-- Remote: `git ls-remote origin refs/heads/main` independently matched that HEAD.
+- Published plan commit: `9eb82cc89847043ebb92f98c72e70fe5d035c553` on GitHub `main`;
+  independent `git ls-remote` readback matched after push.
 - Scope: repository, schemas and existing evidence; documentation only.
 - Pre-edit `npm run verify:project`: PASS; 19 SEO tasks, next SEO-15, none in progress.
-- Post-edit checks and Git publication evidence: see closeout below.
+- Post-edit verify:project and verify:full: PASS; see closeout below.
 - Production nutrition/schema readback: not yet verified; local SELECT attempt
   returned `TypeError: fetch failed`. Repository migrations are not live evidence.
 - No labels fetched, candidates stored, functions implemented or database writes made.
 - Existing untracked `docs/SupplementScout-Nutrition-Plan.txt` is owner material;
   preserved unchanged and excluded from this change's staging.
-- One next step: finish NUT-00 checks and publish this bounded documentation change,
-  then record its commit and independent remote readback before closing NUT-00.
+- One next step: NUT-01 — obtain an authenticated read-only catalogue readback and
+  freeze 20–30 exact pilot variant IDs with flavour/pack and a fixed denominator;
+  resolve unavailable access first. No collection has started or is approved here.
 
 ## Authority and scope
 
@@ -94,7 +97,7 @@ not a newly discovered production blocker. Only NUT-00 is authorized this sessio
 
 | ID | Status | Dependency | Closed scope | Completion evidence |
 |---|---|---|---|---|
-| NUT-00 | `IN PROGRESS` | Owner request | Register stages, inspect existing process/schema/evidence, reuse/gap audit, pilot candidates and links | Consistent committed plan; verify:project PASS before/after; recorded commit and confirmed remote availability; live-data limitations explicit. |
+| NUT-00 | `LIVE VERIFIED` | Owner request | Register stages, inspect existing process/schema/evidence, reuse/gap audit, pilot candidates and links | Consistent committed plan; verify:project PASS before/after; recorded commit and confirmed remote availability; live-data limitations explicit. See closeout. |
 | NUT-01 | `PLANNED` | NUT-00 | Freeze 20–30 existing variants; review exact official URLs and collection permissions; preserve labels privately | Each variant has a readable, correctly bound durable source or explicit missing-source/identity status with reason and action. Record ID, flavour/version, URL, date, hash and archive location; prove retrieval in a new session. Missing entries are not counted as collected labels. |
 | NUT-02 | `PLANNED` | NUT-01 | Extend existing candidate/review/apply schema for serving, caffeine, citrulline/form, beta-alanine, variant and provenance/status | Exact applicability survives the full path; ambiguity/conflicts detected; meaningful tests and required quick/full checks pass. Candidates cannot feed public filters. Resolve archive-reference compatibility and confirmed-zero semantics without weakening existing guards. |
 | NUT-03 | `PLANNED` | NUT-02 | Review pilot evidence, quantities/units and exact applicability; separately approved guarded apply | Every proposal has a decision; approved values have proof and correct identity; independent post-write readback and zero-duplicate replay pass; offers/prices unchanged. Unresolved facts remain unknown and excluded. |
@@ -153,4 +156,33 @@ No code, migration, test inventory or workflow is changed by this NUT-00 revisio
 
 ## NUT-00 closeout evidence
 
-Pending final checks and publication. Do not interpret this draft as NUT-00 closure.
+11 September 2026, Codex NUT-00 session:
+
+- Commit `9eb82cc89847043ebb92f98c72e70fe5d035c553`, branch `main`, contains
+  only AGENTS.md, the Operating Plan link/checkpoint and this canonical ledger.
+  Push succeeded; a separate `git ls-remote origin refs/heads/main` returned
+  that exact SHA. This proves GitHub availability, not application deployment.
+- `npm run verify:project`: PASS before editing, after plan incorporation and
+  before/after this closeout update; always 19 SEO tasks, next SEO-15, none in progress.
+- `git diff --check`: PASS. Manual ledger review: unique stage IDs, no parallel
+  active nutrition implementation, all future-stage dependencies and completion
+  gates recorded, one next action in the checkpoint and links resolve locally.
+- `npm run verify:full`: PASS (exit 0), including inventory, Guardian, TypeScript,
+  ESLint, all 252 safe test files, baseline migration validation and production
+  build. Inventory: 299 files, 43 isolated integration and 4 artifact-bound files.
+  Build logged refused connections to its isolated `127.0.0.1:54321` endpoint;
+  it still completed 36/36 pages. This is not a live-data check. No separate quick
+  or integration run was needed for this documentation-only change.
+- Three bounded SELECT probes (products 528/839/972, at most eight matching
+  variants, candidate variant-column existence) failed with `TypeError: fetch
+  failed` in both sandbox and permitted retry. No production readback or access
+  failure cause is established. Do not infer current data or schema from that
+  failure. Remedy is authenticated read-only access at the start of NUT-01.
+- No label capture, candidate staging/review/apply, catalogue writes, code,
+  migrations, tests, workflow edits or feature deployment were performed.
+- Owner intake preserved unmodified and untracked, SHA-256
+  `42399b7a185c2144cc26e0487384893323f026ecda754613fbd48833347a9336`.
+- This closeout is a documentation follow-up to the published plan commit;
+  its own commit is discoverable with `git log -1 -- docs/Nutrition-Execution-Plan.md`.
+  Remote CI/deployment results are not claimed. The next work remains exactly
+  the single NUT-01 action in the checkpoint; no further NUT-00 implementation remains.
