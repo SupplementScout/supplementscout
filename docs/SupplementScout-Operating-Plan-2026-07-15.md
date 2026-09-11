@@ -7,14 +7,18 @@
 
 **11 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
-for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-00 is a
-bounded documentation/read-only audit; its evidence, publication status and one
-next step are maintained there. Reuse the existing
-[nutrition process](nutrition-candidate-extractor.md), including its review and
-explicit-apply gates. No label collection, feature implementation or database
-write is authorized by this checkpoint. SEO-15 remains BLOCKED, the 16 September
-accrual check and conditional 24-25 September reviews remain scheduled, and
-GYM HIGH remains owner-deferred. Guardian currently validates SEO, not nutrition.
+for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
+closed with explicit gaps over its frozen 25-variant/21-product pilot: all entries
+have a source disposition or a concrete missing reason and action, four readable
+images are archived, and only variant `726` has a confirmed exact label binding.
+This is evidence accounting, not full catalogue or verified-nutrition coverage.
+The next planned step is NUT-02, reusing the existing
+[nutrition process](nutrition-candidate-extractor.md) with variant and durable
+source provenance carried through its guarded candidate/review/apply path; no
+NUT-02 implementation or catalogue write is authorized by this checkpoint.
+SEO-15 remains BLOCKED, the 16 September accrual check and conditional 24-25
+September reviews remain scheduled, and GYM HIGH remains owner-deferred.
+Guardian currently validates SEO, not nutrition.
 
 **11 September 2026 shared automation final checkpoint:** commits `e07c193`,
 `bd97683` and `9856a55` are on `main`; local quick/full verification and GitHub

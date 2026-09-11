@@ -4,14 +4,13 @@
 
 ## Current checkpoint
 
-- Task: NUT-01; status `IN PROGRESS`; preparatory catalogue scope and official
-  source package remain frozen. Four owner-supplied Applied Nutrition label images
-  are now verified and retained in the private archive; exact variant applicability
-  remains under review.
-- Owner/session: Codex, owner-authorized NUT-01 Batch 01 label-handoff archive
+- Task: NUT-01; status `LIVE VERIFIED`; closed with explicit gaps. The frozen
+  25-variant/21-product denominator is fully accounted without claiming complete
+  label or nutrition coverage.
+- Owner/session: Codex, owner-authorized NUT-01 exact-applicability and closure
   session, 11 September 2026.
 - Branch: `main`; this session started at
-  `16588870968e0a26927404aa9d953b2970f56196`; remote `main` matched before work.
+  `ff53e2d6a238d17c48e0d56cc9156ccddbbb524f`; remote `main` matched before work.
 - Production readback at `2026-09-11T12:58:26.063Z`: public `anon` SELECT against
   project `aftboxmrdgyhizicfsfu`; 141 active unmerged Pre Workout products and
   575 active variants. Frozen scope: 25 variants across 21 products.
@@ -22,6 +21,11 @@
   It records all 25 variants: 15 have confirmed source bindings and 10 remain
   unresolved. Eleven unique official URLs are split into collector-format batches
   of 7 and 4.
+- NUT-01 closeout:
+  [nut-01-closeout-2026-09-11.json](rollouts/nutrition-pre-workout-source-manifest-2026-09-11/nut-01-closeout-2026-09-11.json).
+  Four archived images cover seven candidate variants. Exact label-to-variant
+  applicability is confirmed only for product `38`, variant `726`; six archived
+  candidates remain applicability gaps and 18 variants have no archived label.
 - Earlier `TypeError: fetch failed` reproduced inside restricted networking.
   The same query passed with Node using the Windows system CA outside the sandbox;
   it was an environment transport/certificate-path issue, not missing database data.
@@ -31,16 +35,19 @@
   anonymous and unauthenticated reads failed. Objects have no automatic expiration.
   The owner handoff added four JPEG labels and its manifest without overwrite after
   a no-duplicate read. Storage alone is not represented as a backup.
-- The collector still made no request. The four supplied images are readable and
-  preserve official page/image URLs: all four confirm a product/package binding;
-  only product `38`, variant `726` visibly confirms the selected flavour. Six other
-  candidate flavour bindings remain unapproved. No candidate was stored, function
-  implemented, permission changed or catalogue/database write made.
+- The collector still made no request. All seven archived label bindings have a
+  final NUT-01 disposition. Variant `726` has confirmed name/flavour/package and
+  exact label binding; ingredient values remain untranscribed and unapproved.
+  Variants `760`, `761`, `815`, `816`, `1383` and `1384` lack evidence that the
+  shared flavour-neutral table applies to their exact flavour. For `1383`/`1384`,
+  `ABE Ultimate` versus `ABE All Black Everything` is an unresolved alias/version,
+  not evidence of either an unchanged or changed formula.
 - Existing untracked `docs/SupplementScout-Nutrition-Plan.txt` is owner material;
   preserved unchanged and excluded from this change's staging.
-- One next step: perform the existing manual exact-variant applicability review for
-  the four archived Applied Nutrition labels, deciding all seven candidate bindings
-  from the image/source evidence before any OCR or catalogue write.
+- One next step, NUT-02: extend the existing candidate/review/apply path so exact
+  variant ID and durable source URI/hash survive end to end, using archived product
+  `38` / variant `726` as the first bounded compatibility canary; do not write
+  nutrition values to the catalogue during that step.
 
 ## Authority and scope
 
@@ -187,13 +194,13 @@ For documentation-only NUT-00, `CODE COMPLETE` means documentation checked and
 committed; `LIVE VERIFIED` means remote repository readback, never feature deployment.
 Stages after NUT-01 have no executor assigned and no branch/implementation evidence;
 assign these in this ledger when activated. Their dependency is their current gate,
-not a newly discovered production blocker. This session authorizes only the
-preparatory catalogue, storage readback and source-manifest parts of NUT-01.
+not a newly discovered production blocker. NUT-01 closure does not authorize NUT-02
+implementation or any nutrition catalogue write.
 
 | ID | Status | Dependency | Closed scope | Completion evidence |
 |---|---|---|---|---|
 | NUT-00 | `LIVE VERIFIED` | Owner request | Register stages, inspect existing process/schema/evidence, reuse/gap audit, pilot candidates and links | Consistent committed plan; verify:project PASS before/after; recorded commit and confirmed remote availability; live-data limitations explicit. See closeout. |
-| NUT-01 | `IN PROGRESS` | NUT-00 | Frozen denominator: 25 current variants across 21 products. Official-source preparation: 15 confirmed page bindings, 10 unresolved; private archive verified. Batch 01: 7 URLs/10 variants; 4 owner-supplied readable Applied label images retained for 4 products/7 candidate variants. Exact visible flavour binding is 1/10; 6/10 require flavour applicability review and 3/10 have no archived label image. | Each variant has a readable, correctly bound durable source or explicit missing-source/identity status with reason and action. Record ID, flavour/version, URL, date, hash and archive location; prove retrieval in a new session. Missing entries are not counted as collected labels. Catalogue, source, rights and storage evidence are recorded above; no nutrition value is approved and the stage is not complete. |
+| NUT-01 | `LIVE VERIFIED` | NUT-00 | Closed frozen denominator: 25 current variants across 21 products. Fifteen official page bindings confirmed, ten source/identity gaps; 4 archived readable images, 1 confirmed exact label-to-variant binding, 6 archived applicability gaps and 18 variants without an archived label. All 24 unresolved positions have a reason and required action. | Completion criterion is met because every frozen variant has a preserved official source disposition or explicit missing-source/identity/label status with reason and action. Archive hashes/readback, exact seven-label decisions and all 25 records are in the closeout report. No ingredient value is approved; closure is bounded evidence accounting, not full catalogue coverage. |
 | NUT-02 | `PLANNED` | NUT-01 | Extend existing candidate/review/apply schema for serving, caffeine, citrulline/form, beta-alanine, variant and provenance/status | Exact applicability survives the full path; ambiguity/conflicts detected; meaningful tests and required quick/full checks pass. Candidates cannot feed public filters. Resolve archive-reference compatibility and confirmed-zero semantics without weakening existing guards. |
 | NUT-03 | `PLANNED` | NUT-02 | Review pilot evidence, quantities/units and exact applicability; separately approved guarded apply | Every proposal has a decision; approved values have proof and correct identity; independent post-write readback and zero-duplicate replay pass; offers/prices unchanged. Unresolved facts remain unknown and excluded. |
 | NUT-04 | `PLANNED` | NUT-03 | Existing product page facts/source and existing search caffeine-free filter | Tests and live variant-switch checks prove confirmed absence included, caffeine present excluded, missing/conflicting facts never treated as absent. Document coverage denominator, limits, evidence and operations. Publish image copies only with established rights; otherwise link to source. MVP closes here. |
@@ -455,3 +462,55 @@ No code, migration, test inventory or workflow is changed by this NUT-00 revisio
 - The existing collector was not run and no image was downloaded again. OCR,
   candidate storage, nutrition catalogue/database writes, function work and
   NUT-02 remained at zero. NUT-01 remains `IN PROGRESS`.
+
+## NUT-01 exact applicability and closeout evidence
+
+11 September 2026, Codex owner-authorized closeout session:
+
+- The session started on `main` at
+  `ff53e2d6a238d17c48e0d56cc9156ccddbbb524f`; local HEAD and `origin/main`
+  matched. It reused the frozen scope, source manifests, archived-image hashes,
+  manual readability results and successful private-storage readback. It did not
+  rerun the catalogue audit, fetch a page or download an image.
+- All seven archived label-to-variant candidates received a disposition. Product
+  `38` / variant `726` is confirmed: the image itself establishes Pump 3G,
+  Fruit Burst and 375 g, so the label is bound to that exact variant for later
+  review. This does not approve or transcribe any ingredient value.
+- Variants `760`, `761`, `815` and `816` remain unresolved because a flavour's
+  presence on the official page does not prove that the single flavour-neutral
+  table applies to it. Required evidence is a flavour-specific official label or
+  an explicit manufacturer statement that identifies the common table and covered
+  flavours for the captured formulation.
+- Variants `1383` and `1384` have the same shared-table gap. The image says
+  `ABE Ultimate`, while the source page and frozen product say
+  `ABE All Black Everything`. The difference is recorded as an unresolved
+  alias/version relationship; it proves neither formula equality nor reformulation.
+  Resolution requires flavour-specific labels or manufacturer evidence covering
+  both the name/version relationship and table applicability.
+- The complete
+  [NUT-01 closeout](rollouts/nutrition-pre-workout-source-manifest-2026-09-11/nut-01-closeout-2026-09-11.json)
+  accounts for all 25 frozen variants with canonical IDs as strings. Fifteen retain
+  confirmed official page bindings and ten retain source/identity gaps. Four images
+  are archived; one exact label-to-variant binding is confirmed, six archived
+  applications are unresolved and 18 variants have no archived label. Every one
+  of the 24 unresolved positions names a concrete reason and required action.
+- This satisfies the recorded NUT-01 completion rule: every frozen variant has a
+  correctly bounded source disposition or explicit missing-source/identity/label
+  status with reason and action. NUT-01 is therefore closed `LIVE VERIFIED` with
+  explicit gaps. This is pilot evidence accounting, not full catalogue coverage,
+  not approved nutrition coverage and not a representation of the archive as a
+  backup. Existing Batch 01/02 rights constraints and the ten unresolved source
+  entries remain unchanged.
+- No OCR, candidate generation, function/schema implementation, product-identity
+  repair, nutrition catalogue/database write or NUT-02 implementation occurred.
+  The owner's untracked nutrition intake remained unchanged and outside staging.
+- `npm run verify:project` passed before and after the documentation/status change:
+  19 SEO tasks, next SEO-15 and none in progress. The 25-row closeout assertion
+  passed with 25 unique string variant IDs, unchanged official URLs, one confirmed
+  label binding and 24 reason/action gaps. `git diff --check` passed. No code,
+  workflow, migration or test inventory changed, so quick/full/integration gates
+  were not required by AGENTS.md.
+- One next step is NUT-02: extend the existing candidate/review/apply path so exact
+  variant ID and durable source URI/hash survive end to end, using archived product
+  `38` / variant `726` as the first bounded compatibility canary and making no
+  nutrition catalogue write during that step.

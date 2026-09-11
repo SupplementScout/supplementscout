@@ -2,7 +2,7 @@
 
 **Status date:** 11 September 2026
 
-**Stage:** NUT-01 `IN PROGRESS`
+**Stage:** NUT-01 `LIVE VERIFIED` with explicit gaps
 
 **Scope:** frozen 25 canonical variants across 21 canonical products
 
@@ -18,6 +18,10 @@ authoritative frozen denominator remains
 - [`variant-source-verification.json`](variant-source-verification.json) binds
   all 25 frozen variants to an official source or an explicit unresolved reason.
   All canonical IDs and counts in this package are strings.
+- [`nut-01-closeout-2026-09-11.json`](nut-01-closeout-2026-09-11.json) gives all
+  25 variants a final NUT-01 label/source disposition, concrete missing reason
+  and required action. It records one confirmed exact label binding and 24
+  unresolved positions without changing the denominator.
 - [`batch-01/sources.json`](batch-01/sources.json) contains 7 unique official
   product URLs in the collector's existing
   `nutrition-manufacturer-source-list-v1` format.
@@ -106,9 +110,22 @@ collector result remains 0 page requests and 0 collected pages.
 The separate owner handoff preserved four readable Applied Nutrition labels for
 four product pages and seven candidate variants. All four images confirm the
 product family and package; only product `38` visibly confirms the selected Fruit
-Burst flavour for variant `726`. Six candidate variants require flavour
-applicability review, and variants `714`, `3676` and `3759` still have no archived
-label image. No formula or nutrition value is approved by this archive step.
+Burst flavour for variant `726`. Its exact label binding is accepted for later
+review, while its ingredient values remain untranscribed and unapproved.
+
+For variants `760`, `761`, `815` and `816`, a flavour listed on the product page
+does not establish that the one flavour-neutral table applies across flavours.
+For `1383` and `1384`, the same shared-table gap remains and the image wording
+`ABE Ultimate` versus page/catalogue wording `ABE All Black Everything` is an
+unresolved alias/version question. The name difference alone does not prove a
+formula change. The required evidence is a flavour-specific official label or an
+explicit manufacturer statement covering both the common table and, for product
+`881`, the name/version relationship.
+
+Across the full frozen pilot, 18 variants have no archived label. Together with
+the six unresolved shared-table candidates, this leaves 24 explicit gaps. Each
+gap has a reason and required action in the closeout file; no formula or nutrition
+value is approved by NUT-01.
 
 ## Required decisions before collection
 
@@ -121,7 +138,9 @@ label image. No formula or nutrition value is approved by this archive step.
    `961`; duplicate canonical identity for `957`; package evidence for `1249` and
    `1275`; official source for `1252`; flavour/package evidence for `1283`.
 
-The current next step is the existing manual exact-variant applicability review of
-the four archived Applied Nutrition labels and all seven candidate bindings before
-any OCR or catalogue write. The remaining rights and source decisions stay open.
-This package does not mark NUT-01 complete and does not authorize NUT-02.
+These missing-source and rights decisions remain open but are fully recorded, so
+the NUT-01 completion criterion is met without claiming complete source coverage.
+NUT-01 is closed with explicit gaps. The next planned step is to extend the existing
+candidate/review/apply path for exact variant ID and durable source URI/hash, using
+product `38` / variant `726` as the bounded NUT-02 compatibility canary. This
+package does not implement NUT-02 or authorize a nutrition catalogue write.
