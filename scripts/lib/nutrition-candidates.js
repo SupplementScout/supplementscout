@@ -125,6 +125,14 @@ function fail(code, message, detail) {
   throw new NutritionCandidateError(code, message, detail);
 }
 
+const MISSING_VARIANT_PROVENANCE_COLUMN =
+  /(?:column\s+(?:nutrition_candidates\.)?(?:product_variant_id|source_archive_uri)\s+does not exist|could not find the '(?:product_variant_id|source_archive_uri)' column of 'nutrition_candidates')/i;
+
+function isMissingNutritionVariantProvenanceColumn(error) {
+  return Boolean(error && ["42703", "PGRST204"].includes(String(error.code || "")) &&
+    MISSING_VARIANT_PROVENANCE_COLUMN.test(String(error.message || "")));
+}
+
 function sha256(value) {
   return crypto.createHash("sha256").update(value).digest("hex");
 }
@@ -1208,6 +1216,7 @@ module.exports = {
   fieldDefinition,
   fingerprint,
   htmlAttribute,
+  isMissingNutritionVariantProvenanceColumn,
   manufacturerPrimaryProductHtml,
   parseSelectedShopifyVariantFacts,
   parseCandidateCsv,

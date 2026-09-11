@@ -5,6 +5,7 @@ const {
   FIELDS,
   STATUS,
   fingerprint,
+  isMissingNutritionVariantProvenanceColumn,
   validateSourceArchiveUri,
   validateSourceUrl,
 } = require("./lib/nutrition-candidates");
@@ -137,10 +138,23 @@ function createCandidateSupabase() {
 
 async function storeRows(rows, dependencies = {}) {
   const supabase = dependencies.supabase || createCandidateSupabase();
-  const { error } = await supabase
+  const write = (values) => supabase
     .from("nutrition_candidates")
-    .upsert(rows, { onConflict: "candidate_fingerprint", ignoreDuplicates: true });
-  if (error) throw error;
+    .upsert(values, { onConflict: "candidate_fingerprint", ignoreDuplicates: true });
+  const current = await write(rows);
+  if (!current.error) return;
+  if (!isMissingNutritionVariantProvenanceColumn(current.error)) throw current.error;
+  if (rows.some((row) => row.product_variant_id !== null || row.source_archive_uri !== null)) {
+    fail("Nutrition variant provenance migration is required before variant candidates can be stored");
+  }
+  const legacyRows = rows.map((row) => {
+    const legacyRow = { ...row };
+    delete legacyRow.product_variant_id;
+    delete legacyRow.source_archive_uri;
+    return legacyRow;
+  });
+  const legacy = await write(legacyRows);
+  if (legacy.error) throw legacy.error;
 }
 
 async function runCli(argv = process.argv.slice(2), dependencies = {}) {

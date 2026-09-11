@@ -264,6 +264,14 @@ Every JSON candidate and CSV row is explicitly marked
 `candidate_status=CANDIDATE_REQUIRES_REVIEW` and starts with
 `review_status=PENDING`. `HIGH` confidence is not verification.
 
+While the NUT-02A provenance migration is pending, the existing product-only
+queue remains available. Candidate read, review, storage, planning and apply may
+retry the legacy column shape only for database error `42703` or `PGRST204` that
+specifically names missing `nutrition_candidates.product_variant_id` or
+`source_archive_uri`. Other errors remain visible. An exact-variant operation is
+never downgraded to product scope: it fails with a migration-required result
+until both columns exist.
+
 Reviewers must confirm:
 
 - exact product and variant identity;

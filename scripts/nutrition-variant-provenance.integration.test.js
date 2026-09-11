@@ -57,6 +57,22 @@ function insertCandidate({ fingerprint, product = 38, variant = "726", uri = arc
     );
   `;
 }
+function insertLegacyCandidate(fingerprint) {
+  return `
+    insert into public.nutrition_candidates(
+      product_id,retailer_id,source_type,source_url,source_file_sha256,
+      source_snapshot_ref,source_domain,product_name,brand,proposed_field,
+      proposed_value,proposed_unit,confidence,evidence_snippet,source_locator,
+      warning_flags,status,run_id,candidate_fingerprint
+    ) values (
+      38,null,'owner_transcribed_official_page','https://appliednutrition.uk/products/pump-3g-375g',
+      '${"b".repeat(64)}','tmp/legacy-source.html','appliednutrition.uk',
+      'Applied Nutrition Pump 3G','Applied Nutrition','serving_size_g',1,'g','LOW',
+      'TEST ONLY: legacy product review path','legacy:line:1','{TEST_ONLY}'::text[],
+      'pending','NUT-02-legacy-compatibility-test','${fingerprint}'
+    );
+  `;
+}
 
 test("variant candidate migration preserves legacy rows and enforces exact immutable private provenance", {
   skip: !dockerAvailable() && "Docker unavailable",
@@ -81,12 +97,30 @@ test("variant candidate migration preserves legacy rows and enforces exact immut
       insert into public.products(id) values (38),(39);
       insert into public.product_variants(id,product_id,name) values (726,38,'Default / 375g'),(727,39,'Other');
     `), "setup");
-    for (const migration of migrations) {
+    for (const migration of migrations.slice(0, -1)) {
       ok(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-f", `/workspace/supabase/migrations/${migration}`]), migration);
     }
 
     const legacyFingerprint = "a".repeat(64);
-    ok(sql(container, insertCandidate({ fingerprint: legacyFingerprint, variant: null, uri: null, sourceHash: "b".repeat(64) })), "legacy product candidate");
+    ok(sql(container, insertLegacyCandidate(legacyFingerprint)), "pre-migration legacy product candidate");
+    const currentShapeBeforeMigration = sql(container, "select id,product_variant_id,source_archive_uri from public.nutrition_candidates;");
+    assert.notEqual(currentShapeBeforeMigration.status, 0);
+    assert.match(output(currentShapeBeforeMigration), /column .*product_variant_id.* does not exist/);
+    assert.equal(ok(sql(container, `
+      select id::text||'|'||product_id::text||'|'||status::text
+      from public.nutrition_candidates where candidate_fingerprint='${legacyFingerprint}';
+    `), "pre-migration legacy queue read").stdout.trim(), "1|38|pending");
+    ok(sql(container, `
+      update public.nutrition_candidates
+      set status='approved',reviewed_at=now(),reviewed_by='integration-test',approved_value=proposed_value
+      where candidate_fingerprint='${legacyFingerprint}';
+    `), "pre-migration legacy review");
+    const unavailableVariantInsert = sql(container, insertCandidate({ fingerprint: "9".repeat(64) }));
+    assert.notEqual(unavailableVariantInsert.status, 0);
+    assert.match(output(unavailableVariantInsert), /column "product_variant_id" of relation "nutrition_candidates" does not exist/);
+
+    const provenanceMigration = migrations.at(-1);
+    ok(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-f", `/workspace/supabase/migrations/${provenanceMigration}`]), provenanceMigration);
     const exactFingerprint = "c".repeat(64);
     ok(sql(container, insertCandidate({ fingerprint: exactFingerprint })), "exact variant candidate");
 

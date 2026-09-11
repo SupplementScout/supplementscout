@@ -4,7 +4,7 @@ const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
 const { buildArtifact, sealCandidate, sha256 } = require("./lib/nutrition-candidates");
-const { parseArgs, runCli, validateArtifact } = require("./store-nutrition-candidates");
+const { parseArgs, runCli, storeRows, validateArtifact } = require("./store-nutrition-candidates");
 
 function artifactFixture(directory) {
   const html = "<p>Protein per serving: 24 g</p>";
@@ -116,8 +116,43 @@ test("storage targets only nutrition_candidates", async () => {
       return { async upsert(rows, options) { calls.push({ rows, options }); return { error: null }; } };
     },
   };
-  const { storeRows } = require("./store-nutrition-candidates");
   await storeRows([{ candidate_fingerprint: "a".repeat(64) }], { supabase });
   assert.equal(calls[0], "nutrition_candidates");
   assert.equal(calls[1].options.ignoreDuplicates, true);
+});
+
+test("legacy product candidate storage retries without unavailable provenance columns", async () => {
+  const writes = [];
+  const missing = { code: "42703", message: "column nutrition_candidates.product_variant_id does not exist" };
+  const supabase = {
+    from(table) {
+      assert.equal(table, "nutrition_candidates");
+      return { async upsert(rows) {
+        writes.push(rows);
+        return { error: writes.length === 1 ? missing : null };
+      } };
+    },
+  };
+  await storeRows([{
+    candidate_fingerprint: "a".repeat(64), product_variant_id: null, source_archive_uri: null,
+  }], { supabase });
+  assert.equal(writes.length, 2);
+  assert.equal(Object.hasOwn(writes[1][0], "product_variant_id"), false);
+  assert.equal(Object.hasOwn(writes[1][0], "source_archive_uri"), false);
+});
+
+test("variant storage fails closed on a schema without provenance columns", async () => {
+  let writes = 0;
+  const supabase = {
+    from() {
+      return { async upsert() {
+        writes += 1;
+        return { error: { code: "42703", message: "column nutrition_candidates.product_variant_id does not exist" } };
+      } };
+    },
+  };
+  await assert.rejects(storeRows([{
+    candidate_fingerprint: "a".repeat(64), product_variant_id: "726", source_archive_uri: "supabase-storage://nutrition-sources/test.jpg",
+  }], { supabase }), /migration is required/);
+  assert.equal(writes, 1);
 });

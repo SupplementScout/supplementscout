@@ -1,6 +1,9 @@
 const fs = require("node:fs");
 const path = require("node:path");
-const { FIELDS, assertRealPathInsideRoot, fingerprint, validateSourceArchiveUri } = require("./nutrition-candidates");
+const {
+  FIELDS, assertRealPathInsideRoot, fingerprint,
+  isMissingNutritionVariantProvenanceColumn, validateSourceArchiveUri,
+} = require("./nutrition-candidates");
 const { createCandidateSupabase } = require("../store-nutrition-candidates");
 
 const PLAN_KIND = "nutrition-approved-update-plan-v3";
@@ -304,17 +307,30 @@ function writePlan(plan, cwd = process.cwd()) {
   return file;
 }
 const CANDIDATE_SELECT = "id,product_id,product_variant_id,proposed_field,proposed_value,approved_value,proposed_unit,confidence,source_url,source_file_sha256,source_archive_uri,evidence_snippet,source_locator,warning_flags,status,run_id,candidate_fingerprint";
+const LEGACY_CANDIDATE_SELECT = "id,product_id,proposed_field,proposed_value,approved_value,proposed_unit,confidence,source_url,source_file_sha256,evidence_snippet,source_locator,warning_flags,status,run_id,candidate_fingerprint";
+async function runApprovedCandidateQuery(supabase, columns, runId, candidateIds) {
+  let query = supabase.from("nutrition_candidates").select(columns)
+    .eq("run_id", runId).eq("status", "approved");
+  if (candidateIds) query = query.in("id", candidateIds);
+  return query.order("id", { ascending: true });
+}
+async function loadApprovedCandidateRows(supabase, runId, candidateIds) {
+  const current = await runApprovedCandidateQuery(supabase, CANDIDATE_SELECT, runId, candidateIds);
+  if (!current.error) return current.data || [];
+  if (!isMissingNutritionVariantProvenanceColumn(current.error)) throw current.error;
+  const legacy = await runApprovedCandidateQuery(supabase, LEGACY_CANDIDATE_SELECT, runId, candidateIds);
+  if (legacy.error) throw legacy.error;
+  return (legacy.data || []).map((row) => ({
+    ...row,
+    product_variant_id: null,
+    source_archive_uri: null,
+  }));
+}
 async function loadApprovedCandidates(supabase, runId, candidateIds) {
-  const { data, error } = await supabase.from("nutrition_candidates").select(CANDIDATE_SELECT)
-    .eq("run_id", runId).eq("status", "approved").in("id", candidateIds).order("id", { ascending: true });
-  if (error) throw error;
-  return data || [];
+  return loadApprovedCandidateRows(supabase, runId, candidateIds);
 }
 async function loadApprovedCandidatesForRun(supabase, runId) {
-  const { data, error } = await supabase.from("nutrition_candidates").select(CANDIDATE_SELECT)
-    .eq("run_id", runId).eq("status", "approved").order("id", { ascending: true });
-  if (error) throw error;
-  return data || [];
+  return loadApprovedCandidateRows(supabase, runId);
 }
 async function loadProducts(supabase, productIds) {
   if (!productIds.length) return [];

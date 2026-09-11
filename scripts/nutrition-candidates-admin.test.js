@@ -37,6 +37,74 @@ const {
 } = loadTsModule(
   "app/admin/lib/nutritionCandidateRuns.ts"
 );
+const {
+  NutritionVariantProvenanceMigrationRequiredError,
+  isMissingNutritionVariantProvenanceColumn,
+  readNutritionCandidatesWithSchemaCompatibility,
+} = loadTsModule("app/admin/lib/nutritionCandidateSchemaCompatibility.ts");
+
+test("candidate reads fall back only for the exact missing provenance columns", async () => {
+  const missing = {
+    code: "42703",
+    message: "column nutrition_candidates.product_variant_id does not exist",
+  };
+  assert.equal(isMissingNutritionVariantProvenanceColumn(missing), true);
+  assert.equal(isMissingNutritionVariantProvenanceColumn({ code: "42703", message: "column products.name does not exist" }), false);
+  let legacyReads = 0;
+  const result = await readNutritionCandidatesWithSchemaCompatibility(
+    async () => ({ data: null, error: missing }),
+    async () => {
+      legacyReads += 1;
+      return { data: [{ id: "1", product_id: "38" }], error: null };
+    },
+    true
+  );
+  assert.equal(legacyReads, 1);
+  assert.equal(result.variantProvenanceAvailable, false);
+  assert.deepEqual(result.rows, [{
+    id: "1", product_id: "38", product_variant_id: null, source_archive_uri: null,
+  }]);
+  await assert.rejects(
+    readNutritionCandidatesWithSchemaCompatibility(
+      async () => ({ data: null, error: { code: "42501", message: "permission denied" } }),
+      async () => ({ data: [], error: null }),
+      true
+    ),
+    (error) => error?.code === "42501" && error?.message === "permission denied"
+  );
+});
+
+test("variant review stays unavailable when provenance columns are absent", async () => {
+  await assert.rejects(
+    readNutritionCandidatesWithSchemaCompatibility(
+      async () => ({ data: null, error: {
+        code: "PGRST204",
+        message: "Could not find the 'source_archive_uri' column of 'nutrition_candidates' in the schema cache",
+      } }),
+      async () => ({ data: [{ id: "1" }], error: null }),
+      false
+    ),
+    NutritionVariantProvenanceMigrationRequiredError
+  );
+});
+
+test("post-migration candidate reads retain exact provenance without a legacy retry", async () => {
+  let legacyReads = 0;
+  const result = await readNutritionCandidatesWithSchemaCompatibility(
+    async () => ({ data: [{
+      id: "1", product_id: "38", product_variant_id: "726",
+      source_archive_uri: "supabase-storage://nutrition-sources/labels/38/source.jpg",
+    }], error: null }),
+    async () => {
+      legacyReads += 1;
+      return { data: [], error: null };
+    },
+    true
+  );
+  assert.equal(result.variantProvenanceAvailable, true);
+  assert.equal(result.rows[0].product_variant_id, "726");
+  assert.equal(legacyReads, 0);
+});
 
 test("batch progress counts complete data entry and completed review by product", () => {
   const items = [
@@ -289,6 +357,9 @@ test("bulk review route authenticates, validates, and only updates pending candi
   const post = route.slice(route.indexOf("export async function POST"));
   assert(post.indexOf("requireAdminRoute(request)") < post.indexOf("request.formData()"));
   assert.match(post, /validateNutritionCandidateBulkSelection/);
+  assert.match(post, /readNutritionCandidatesWithSchemaCompatibility/);
+  assert.match(post, /input\.productVariantId === null/);
+  assert.match(post, /Variant nutrition review requires the pending provenance migration/);
   assert.match(post, /\.from\("nutrition_candidates"\)/);
   assert.match(post, /\.eq\("status", "pending"\)/);
   assert.match(post, /formData\.get\("returnTo"\)/);

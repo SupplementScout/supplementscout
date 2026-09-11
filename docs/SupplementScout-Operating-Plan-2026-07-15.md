@@ -12,10 +12,13 @@ closed with explicit gaps over its frozen 25-variant/21-product pilot. NUT-02 is
 now `IN PROGRESS`; bounded step NUT-02A is `CODE COMPLETE`. The existing
 [nutrition process](nutrition-candidate-extractor.md) now carries exact variant
 ID, private source-object URI and SHA-256 through candidate/review/plan/apply,
-while preserving the nullable product-only path. Local tests use only the
+while preserving the nullable product-only path. Production readback confirmed
+that the two new candidate columns are not yet deployed: the compatibility
+correction keeps existing product-only queue operations available for that exact
+schema and blocks all variant operations until the pending migration. Local tests use only the
 archived product `38` / variant `726` provenance and an explicitly test-only
 numeric value. No production migration or catalogue write was performed. The
-next step is NUT-02B: add caffeine, citrulline amount/form, beta-alanine and
+next step after the correction's live panel readback is NUT-02B: add caffeine, citrulline amount/form, beta-alanine and
 explicit absence/unknown/conflict semantics to the same guarded path.
 SEO-15 remains BLOCKED, the 16 September accrual check and conditional 24-25
 September reviews remain scheduled, and GYM HIGH remains owner-deferred.

@@ -127,6 +127,19 @@ function planSourceEvidence(plan) {
   return [...byCandidate.values()].sort((left, right) => Number(left.candidate_id) - Number(right.candidate_id));
 }
 
+async function nutritionCandidateSchemaState(client) {
+  const result = await client.query(`
+    select column_name
+    from information_schema.columns
+    where table_schema='public' and table_name='nutrition_candidates'
+      and column_name=any($1::text[])
+    order by column_name
+  `, [["product_variant_id", "source_archive_uri"]]);
+  const columns = new Set(result.rows.map((row) => String(row.column_name)));
+  if (columns.size === 1) fail("Nutrition candidate variant provenance schema is only partially applied");
+  return columns.size === 2;
+}
+
 async function applyTransaction(plan, dependencies = {}) {
   const envFile = dependencies.envFile || path.join(
     process.env.USERPROFILE || "",
@@ -158,8 +171,17 @@ async function applyTransaction(plan, dependencies = {}) {
     const target = (await client.query("select public.retailer_catalogue_actual_database_target() target")).rows[0].target;
     if (target.target_environment !== "PRODUCTION" || target.project_ref !== PRODUCTION.projectRef ||
         target.database_identity !== PRODUCTION.databaseIdentity) fail("Production database identity mismatch");
-    const candidateResult = await client.query(`
+    const variantProvenanceAvailable = await nutritionCandidateSchemaState(client);
+    if (!variantProvenanceAvailable && plan.variant_updates.length) {
+      fail("Nutrition variant provenance migration is required before variant updates can be applied");
+    }
+    const candidateResult = await client.query(variantProvenanceAvailable ? `
       select id,product_id,product_variant_id,proposed_field,proposed_value,approved_value,proposed_unit,status,run_id,candidate_fingerprint,source_file_sha256,source_archive_uri
+      from public.nutrition_candidates
+      where run_id=$1 and id=any($2::bigint[])
+      order by id for share
+    ` : `
+      select id,product_id,null::bigint product_variant_id,proposed_field,proposed_value,approved_value,proposed_unit,status,run_id,candidate_fingerprint,source_file_sha256,null::text source_archive_uri
       from public.nutrition_candidates
       where run_id=$1 and id=any($2::bigint[])
       order by id for share
@@ -261,4 +283,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { applyTransaction, parseArgs, planSourceEvidence, runCli, verifyCandidates, verifyProducts, verifyVariants };
+module.exports = { applyTransaction, nutritionCandidateSchemaState, parseArgs, planSourceEvidence, runCli, verifyCandidates, verifyProducts, verifyVariants };

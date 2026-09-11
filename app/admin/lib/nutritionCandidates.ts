@@ -1,6 +1,7 @@
 import "server-only";
 
 import { supabaseAdmin } from "../../lib/supabaseAdmin";
+import { readNutritionCandidatesWithSchemaCompatibility } from "./nutritionCandidateSchemaCompatibility";
 
 export type NutritionCandidateStatus = "pending" | "approved" | "rejected";
 
@@ -58,6 +59,11 @@ export type NutritionCandidateBatchItem = {
   page_error: string | null;
 };
 
+const CURRENT_CANDIDATE_SELECT =
+  "id,created_at,product_id,product_variant_id,retailer_id,source_type,source_url,source_file_sha256,source_snapshot_ref,source_archive_uri,source_domain,product_name,brand,proposed_field,proposed_value,approved_value,proposed_unit,confidence,evidence_snippet,source_locator,warning_flags,status,reviewed_at,reviewed_by,review_note,run_id,candidate_fingerprint";
+const LEGACY_CANDIDATE_SELECT =
+  "id,created_at,product_id,retailer_id,source_type,source_url,source_file_sha256,source_snapshot_ref,source_domain,product_name,brand,proposed_field,proposed_value,approved_value,proposed_unit,confidence,evidence_snippet,source_locator,warning_flags,status,reviewed_at,reviewed_by,review_note,run_id,candidate_fingerprint";
+
 function rowString(value: unknown) {
   return value === null || value === undefined ? null : String(value);
 }
@@ -97,25 +103,29 @@ function normalizeRow(row: Record<string, unknown>): NutritionCandidateRow {
 }
 
 export async function getNutritionCandidateReport(runId?: string): Promise<NutritionCandidateReport> {
-  let query = supabaseAdmin
-    .from("nutrition_candidates")
-    .select(
-      "id,created_at,product_id,product_variant_id,retailer_id,source_type,source_url,source_file_sha256,source_snapshot_ref,source_archive_uri,source_domain,product_name,brand,proposed_field,proposed_value,approved_value,proposed_unit,confidence,evidence_snippet,source_locator,warning_flags,status,reviewed_at,reviewed_by,review_note,run_id,candidate_fingerprint"
-    );
-  if (runId) query = query.eq("run_id", runId);
-  const { data, error } = await query
-    .order("created_at", { ascending: false })
-    .order("id", { ascending: false })
-    .limit(1000);
-
-  if (error) throw error;
+  const read = async (columns: string) => {
+    let query = supabaseAdmin.from("nutrition_candidates").select(columns);
+    if (runId) query = query.eq("run_id", runId);
+    const result = await query.order("created_at", { ascending: false })
+      .order("id", { ascending: false })
+      .limit(1000);
+    return {
+      data: result.data as unknown as Record<string, unknown>[] | null,
+      error: result.error,
+    };
+  };
+  const { rows } = await readNutritionCandidatesWithSchemaCompatibility(
+    () => read(CURRENT_CANDIDATE_SELECT),
+    () => read(LEGACY_CANDIDATE_SELECT),
+    true
+  );
 
   const report: NutritionCandidateReport = {
     pending: [],
     approved: [],
     rejected: [],
   };
-  for (const raw of data || []) {
+  for (const raw of rows) {
     const row = normalizeRow(raw as Record<string, unknown>);
     if (row.status in report) report[row.status].push(row);
   }

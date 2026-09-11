@@ -2,7 +2,12 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
-const { buildApprovedPlan, validatePlan } = require("./lib/nutrition-approved-updates");
+const {
+  buildApprovedPlan,
+  loadApprovedCandidates,
+  loadApprovedCandidatesForRun,
+  validatePlan,
+} = require("./lib/nutrition-approved-updates");
 const planner = require("./nutrition-approved-plan");
 const apply = require("./nutrition-approved-apply");
 
@@ -266,6 +271,50 @@ test("planner reads approved candidates and writes a dry plan only under tmp", a
   fs.rmSync(path.resolve(root, result.plan), { force: true });
 });
 
+function candidateReadSupabase(results) {
+  const selects = [];
+  return {
+    selects,
+    from(table) {
+      assert.equal(table, "nutrition_candidates");
+      return {
+        select(columns) {
+          selects.push(columns);
+          const result = results[selects.length - 1];
+          return {
+            eq() { return this; },
+            in() { return this; },
+            order() { return Promise.resolve(result); },
+          };
+        },
+      };
+    },
+  };
+}
+
+test("approved product planner reads legacy rows only for the exact missing-column error", async () => {
+  const legacy = candidate();
+  delete legacy.product_variant_id;
+  delete legacy.source_archive_uri;
+  const supabase = candidateReadSupabase([
+    { data: null, error: { code: "42703", message: "column nutrition_candidates.product_variant_id does not exist" } },
+    { data: [legacy], error: null },
+  ]);
+  const rows = await loadApprovedCandidates(supabase, runId, ["1"]);
+  assert.equal(supabase.selects.length, 2);
+  assert.equal(rows[0].product_variant_id, null);
+  assert.equal(rows[0].source_archive_uri, null);
+
+  const denied = candidateReadSupabase([
+    { data: null, error: { code: "42501", message: "permission denied" } },
+  ]);
+  await assert.rejects(
+    loadApprovedCandidatesForRun(denied, runId),
+    (error) => error?.code === "42501" && error?.message === "permission denied",
+  );
+  assert.equal(denied.selects.length, 1);
+});
+
 test("planner requires an exact reviewed candidate subset", async () => {
   assert.throws(() => planner.parseArgs([`--run-id=${runId}`]), /Choose exactly one/);
   assert.throws(() => planner.parseArgs([`--run-id=${runId}`, "--candidate-ids=1,1"]), /unique/);
@@ -394,6 +443,7 @@ test("controlled apply writes only the exact variant nutrition override", async 
       queries.push({ sql: compact, values });
       if (compact.startsWith("select current_user")) return { rows: [{ current_user: "postgres", safe_update: null }] };
       if (compact.includes("retailer_catalogue_actual_database_target")) return { rows: [{ target: { target_environment: "PRODUCTION", project_ref: "aftboxmrdgyhizicfsfu", database_identity: "supplementscout-production:aftboxmrdgyhizicfsfu" } }] };
+      if (compact.includes("from information_schema.columns")) return { rows: [{ column_name: "product_variant_id" }, { column_name: "source_archive_uri" }] };
       if (compact.includes("from public.nutrition_candidates")) return { rows: [reviewed] };
       if (compact.includes("from public.products")) return { rows: [{ id: "38" }] };
       if (compact.startsWith("select id,product_id,nutrition_override")) return { rows: [{ id: "726", product_id: "38", nutrition_override: {} }] };
@@ -412,4 +462,33 @@ test("controlled apply writes only the exact variant nutrition override", async 
   assert.deepEqual(result.changed_variants, [{ product_id: "38", product_variant_id: "726", fields: ["serving_size_g"] }]);
   assert.equal(queries.filter((query) => query.sql.startsWith("update public.product_variants")).length, 1);
   assert.equal(queries.some((query) => query.sql.startsWith("update public.products")), false);
+});
+
+test("controlled apply blocks variant operations before the provenance migration", async () => {
+  const reviewed = candidate({
+    product_id: "38", product_variant_id: "726", source_file_sha256: pumpHash,
+    source_archive_uri: pumpArchive,
+  });
+  const plan = buildApprovedPlan([reviewed], [{ id: "38", name: "Pump" }], runId,
+    "2026-09-11T12:00:00.000Z", [{ id: "726", product_id: "38", nutrition_override: {} }]);
+  const queries = [];
+  const client = {
+    async query(sql) {
+      const compact = String(sql).replace(/\s+/g, " ").trim();
+      queries.push(compact);
+      if (compact.startsWith("select current_user")) return { rows: [{ current_user: "postgres", safe_update: null }] };
+      if (compact.includes("retailer_catalogue_actual_database_target")) return { rows: [{ target: { target_environment: "PRODUCTION", project_ref: "aftboxmrdgyhizicfsfu", database_identity: "supplementscout-production:aftboxmrdgyhizicfsfu" } }] };
+      if (compact.includes("from information_schema.columns")) return { rows: [] };
+      return { rows: [] };
+    },
+  };
+  await assert.rejects(apply.applyTransaction(plan, {
+    client,
+    environment: {
+      SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF: "aftboxmrdgyhizicfsfu",
+      SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL: "redacted",
+    },
+  }), /migration is required/);
+  assert.ok(queries.includes("rollback"));
+  assert.equal(queries.some((query) => query.startsWith("update public.")), false);
 });

@@ -3,9 +3,14 @@ import { requireAdminRoute } from "../../../lib/adminAuth";
 import { supabaseAdmin } from "../../../lib/supabaseAdmin";
 import { addNutritionCandidateReturnTarget } from "../../lib/nutritionCandidateNavigation";
 import {
+  type BulkReviewCandidate,
   parseNutritionCandidateBulkReviewInput,
   validateNutritionCandidateBulkSelection,
 } from "../../lib/nutritionCandidateReview";
+import {
+  NutritionVariantProvenanceMigrationRequiredError,
+  readNutritionCandidatesWithSchemaCompatibility,
+} from "../../lib/nutritionCandidateSchemaCompatibility";
 
 function redirectToReview(request: NextRequest, saved: string, returnTo: FormDataEntryValue | null) {
   const url = new URL("/admin/nutrition-candidates", request.url);
@@ -28,12 +33,31 @@ export async function POST(request: NextRequest) {
   });
   if (!input) return new NextResponse("Invalid bulk nutrition review.", { status: 400 });
 
-  const { data: candidates, error: loadError } = await supabaseAdmin
-    .from("nutrition_candidates")
-    .select("id,product_id,product_variant_id,proposed_field,proposed_value,warning_flags,status,run_id")
-    .in("id", input.candidateIds)
-    .eq("status", "pending");
-  if (loadError || !validateNutritionCandidateBulkSelection(input, candidates || [])) {
+  const read = async (columns: string) => {
+    const result = await supabaseAdmin.from("nutrition_candidates")
+      .select(columns)
+      .in("id", input.candidateIds)
+      .eq("status", "pending");
+    return {
+      data: result.data as unknown as BulkReviewCandidate[] | null,
+      error: result.error,
+    };
+  };
+  let candidates: BulkReviewCandidate[];
+  try {
+    const result = await readNutritionCandidatesWithSchemaCompatibility(
+      () => read("id,product_id,product_variant_id,proposed_field,proposed_value,warning_flags,status,run_id"),
+      () => read("id,product_id,proposed_field,proposed_value,warning_flags,status,run_id"),
+      input.productVariantId === null
+    );
+    candidates = result.rows as BulkReviewCandidate[];
+  } catch (error) {
+    if (error instanceof NutritionVariantProvenanceMigrationRequiredError) {
+      return new NextResponse("Variant nutrition review requires the pending provenance migration.", { status: 409 });
+    }
+    return new NextResponse("Bulk review was blocked because the candidate set could not be read.", { status: 409 });
+  }
+  if (!validateNutritionCandidateBulkSelection(input, candidates)) {
     return new NextResponse("Bulk review was blocked because the candidate set is unsafe or changed.", { status: 409 });
   }
 
