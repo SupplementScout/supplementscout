@@ -19,11 +19,11 @@ function parseArgs(argv) {
   const options = {};
   for (const argument of argv) {
     if (argument.startsWith("--plan=")) options.plan = argument.slice("--plan=".length);
-    else if (argument === "--confirm-reviewed-product-update=true") options.confirm = true;
+    else if (["--confirm-reviewed-nutrition-update=true", "--confirm-reviewed-product-update=true"].includes(argument)) options.confirm = true;
     else fail(`Unknown option: ${argument}`);
   }
   if (!options.plan) fail("Required option: --plan=tmp/nutrition-approved-plan/<plan>.json");
-  if (!options.confirm) fail("Apply requires --confirm-reviewed-product-update=true");
+  if (!options.confirm) fail("Apply requires --confirm-reviewed-nutrition-update=true; --confirm-reviewed-product-update=true remains a compatible alias");
   return options;
 }
 
@@ -31,6 +31,7 @@ function candidateSnapshot(candidate) {
   return {
     id: String(candidate.id),
     product_id: candidate.product_id == null ? null : String(candidate.product_id),
+    product_variant_id: candidate.product_variant_id == null ? null : String(candidate.product_variant_id),
     proposed_field: String(candidate.proposed_field),
     proposed_value: Number(candidate.proposed_value),
     approved_value: Number(candidate.approved_value),
@@ -38,26 +39,50 @@ function candidateSnapshot(candidate) {
     status: String(candidate.status),
     run_id: String(candidate.run_id),
     candidate_fingerprint: String(candidate.candidate_fingerprint),
+    source_file_sha256: String(candidate.source_file_sha256),
+    source_archive_uri: candidate.source_archive_uri == null ? null : String(candidate.source_archive_uri),
   };
 }
 
 function verifyCandidates(plan, candidates) {
   const actual = new Map(candidates.map((candidate) => [String(candidate.id), candidate]));
   if (actual.size !== plan.source_candidate_ids.length) fail("Approved candidate set changed after plan generation");
-  for (const product of plan.product_updates) {
-    for (const [field, change] of Object.entries(product.changes)) {
+  for (const target of [...plan.product_updates, ...plan.variant_updates]) {
+    for (const [field, change] of Object.entries(target.changes)) {
       for (const evidence of change.evidence) {
         const candidate = actual.get(String(evidence.candidate_id));
         const snapshot = candidate && candidateSnapshot(candidate);
         const expectedSourceField = field === "nutrition_verified" ? evidence.source_field : field;
         const expectedSourceValue = field === "nutrition_verified" ? evidence.source_value : change.after;
         if (!snapshot || snapshot.status !== "approved" || snapshot.run_id !== plan.run_id ||
-            snapshot.product_id !== product.product_id || snapshot.proposed_field !== expectedSourceField ||
+            snapshot.product_id !== target.product_id ||
+            snapshot.product_variant_id !== (target.product_variant_id || null) ||
+            snapshot.proposed_field !== expectedSourceField ||
             snapshot.proposed_value !== evidence.proposed_value || snapshot.approved_value !== expectedSourceValue ||
-            snapshot.candidate_fingerprint !== evidence.candidate_fingerprint) {
+            snapshot.candidate_fingerprint !== evidence.candidate_fingerprint ||
+            snapshot.source_file_sha256 !== evidence.source_file_sha256 ||
+            snapshot.source_archive_uri !== evidence.source_archive_uri) {
           fail(`Approved candidate ${evidence.candidate_id} changed after plan generation`);
         }
       }
+    }
+  }
+}
+
+function canonicalJson(value) {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  if (value && typeof value === "object") return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(",")}}`;
+  return JSON.stringify(value);
+}
+
+function verifyVariants(plan, variants) {
+  const byId = new Map(variants.map((variant) => [String(variant.id), variant]));
+  for (const update of plan.variant_updates) {
+    const current = byId.get(update.product_variant_id);
+    if (!current) fail(`Variant ${update.product_variant_id} no longer exists`);
+    if (String(current.product_id) !== update.product_id) fail(`Variant ${update.product_variant_id} no longer belongs to product ${update.product_id}`);
+    if (canonicalJson(current.nutrition_override || {}) !== canonicalJson(update.before_nutrition_override)) {
+      fail(`Variant ${update.product_variant_id} nutrition override changed after plan generation`);
     }
   }
 }
@@ -81,6 +106,25 @@ function writeAudit(planPath, audit) {
   const file = path.join(directory, `${path.basename(planPath, ".json")}-audit.json`);
   fs.writeFileSync(file, `${JSON.stringify(audit, null, 2)}\n`, { flag: "wx" });
   return file;
+}
+
+function planSourceEvidence(plan) {
+  const byCandidate = new Map();
+  for (const target of [...plan.product_updates, ...plan.variant_updates]) {
+    for (const change of Object.values(target.changes)) {
+      for (const evidence of change.evidence) {
+        byCandidate.set(evidence.candidate_id, {
+          candidate_id: evidence.candidate_id,
+          candidate_fingerprint: evidence.candidate_fingerprint,
+          product_id: evidence.product_id,
+          product_variant_id: evidence.product_variant_id,
+          source_file_sha256: evidence.source_file_sha256,
+          source_archive_uri: evidence.source_archive_uri,
+        });
+      }
+    }
+  }
+  return [...byCandidate.values()].sort((left, right) => Number(left.candidate_id) - Number(right.candidate_id));
 }
 
 async function applyTransaction(plan, dependencies = {}) {
@@ -115,7 +159,7 @@ async function applyTransaction(plan, dependencies = {}) {
     if (target.target_environment !== "PRODUCTION" || target.project_ref !== PRODUCTION.projectRef ||
         target.database_identity !== PRODUCTION.databaseIdentity) fail("Production database identity mismatch");
     const candidateResult = await client.query(`
-      select id,product_id,proposed_field,proposed_value,approved_value,proposed_unit,status,run_id,candidate_fingerprint
+      select id,product_id,product_variant_id,proposed_field,proposed_value,approved_value,proposed_unit,status,run_id,candidate_fingerprint,source_file_sha256,source_archive_uri
       from public.nutrition_candidates
       where run_id=$1 and id=any($2::bigint[])
       order by id for share
@@ -128,7 +172,13 @@ async function applyTransaction(plan, dependencies = {}) {
       from public.products where id=any($1::bigint[]) order by id for update
     `, [productIds]);
     verifyProducts(plan, productResult.rows);
-    const changed = [];
+    const variantIds = plan.variant_updates.map((variant) => variant.product_variant_id);
+    const variantResult = variantIds.length ? await client.query(`
+      select id,product_id,nutrition_override
+      from public.product_variants where id=any($1::bigint[]) order by id for update
+    `, [variantIds]) : { rows: [] };
+    verifyVariants(plan, variantResult.rows);
+    const changedProducts = [];
     for (const product of plan.product_updates) {
       const entries = Object.entries(product.changes).filter(([, change]) => !change.no_change);
       if (!entries.length) continue;
@@ -140,11 +190,26 @@ async function applyTransaction(plan, dependencies = {}) {
         values,
       );
       if (result.rowCount !== 1) fail(`Product ${product.product_id} was not updated exactly once`);
-      changed.push({ product_id: product.product_id, fields: entries.map(([field]) => field) });
+      changedProducts.push({ product_id: product.product_id, fields: entries.map(([field]) => field) });
+    }
+    const changedVariants = [];
+    for (const variant of plan.variant_updates) {
+      const entries = Object.entries(variant.changes).filter(([, change]) => !change.no_change);
+      if (!entries.length) continue;
+      const result = await client.query(
+        "update public.product_variants set nutrition_override=$1::jsonb where id=$2 and product_id=$3 returning id",
+        [JSON.stringify(variant.after_nutrition_override), variant.product_variant_id, variant.product_id],
+      );
+      if (result.rowCount !== 1) fail(`Variant ${variant.product_variant_id} was not updated exactly once`);
+      changedVariants.push({
+        product_id: variant.product_id,
+        product_variant_id: variant.product_variant_id,
+        fields: entries.map(([field]) => field),
+      });
     }
     await client.query("commit");
     open = false;
-    return changed;
+    return { changed_products: changedProducts, changed_variants: changedVariants };
   } catch (error) {
     if (open) await client.query("rollback");
     throw error;
@@ -168,20 +233,23 @@ async function runCli(argv = process.argv.slice(2), dependencies = {}) {
     ? await dependencies.applyTransaction(plan)
     : await applyTransaction(plan, dependencies);
   const audit = {
-    schema_version: 1,
+    schema_version: 2,
     kind: AUDIT_KIND,
-    status: "APPLIED_REVIEWED_PRODUCT_FIELDS",
+    status: "APPLIED_REVIEWED_NUTRITION_FIELDS",
     plan_fingerprint: plan.plan_fingerprint,
     run_id: plan.run_id,
     applied_at: new Date(dependencies.appliedAt || Date.now()).toISOString(),
-    changed_products: changed,
-    destination_table: "products",
+    changed_products: changed.changed_products,
+    changed_variants: changed.changed_variants,
+    source_evidence: planSourceEvidence(plan),
+    destination_tables: ["products", "product_variants"],
     allowed_fields_only: true,
   };
   const auditPath = writeAudit(planPath, audit);
   return {
     status: audit.status,
-    changed_products: changed,
+    changed_products: changed.changed_products,
+    changed_variants: changed.changed_variants,
     audit: path.relative(cwd, auditPath).replaceAll("\\", "/"),
   };
 }
@@ -193,4 +261,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { applyTransaction, parseArgs, runCli, verifyCandidates, verifyProducts };
+module.exports = { applyTransaction, parseArgs, planSourceEvidence, runCli, verifyCandidates, verifyProducts, verifyVariants };

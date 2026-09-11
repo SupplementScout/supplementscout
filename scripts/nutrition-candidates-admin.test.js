@@ -105,9 +105,10 @@ test("nutrition candidate runs are grouped with the newest batch first", () => {
 });
 
 test("candidates are grouped by product and ordered by review dependency", () => {
-  const candidate = (id, product_id, product_name, proposed_field, confidence = "LOW") => ({
+  const candidate = (id, product_id, product_name, proposed_field, confidence = "LOW", product_variant_id = null) => ({
     id,
     product_id,
+    product_variant_id,
     product_name,
     proposed_field,
     confidence,
@@ -130,6 +131,19 @@ test("candidates are grouped by product and ordered by review dependency", () =>
   assert.deepEqual(groups[2].candidates.map((item) => item.id), ["7", "8"]);
 });
 
+test("variant candidates remain in separate review groups", () => {
+  const base = {
+    product_id: "38", product_name: "Pump 3G", proposed_field: "serving_size_g", confidence: "LOW",
+  };
+  const groups = groupNutritionCandidatesByProduct([
+    { ...base, id: "1", product_variant_id: "726" },
+    { ...base, id: "2", product_variant_id: "727" },
+    { ...base, id: "3", product_variant_id: null },
+  ]);
+  assert.equal(groups.length, 3);
+  assert.deepEqual(new Set(groups.map((group) => group.product_variant_id)), new Set(["726", "727", null]));
+});
+
 test("candidate review accepts only pending to approved or rejected", () => {
   assert.equal(canReviewNutritionCandidate("pending", "approved"), true);
   assert.equal(canReviewNutritionCandidate("pending", "rejected"), true);
@@ -138,25 +152,29 @@ test("candidate review accepts only pending to approved or rejected", () => {
 });
 
 test("candidate review validates IDs, decisions and bounded optional notes", () => {
+  const candidateFingerprint = "a".repeat(64);
   assert.deepEqual(parseNutritionCandidateReviewInput({
     id: "42",
     status: "approved",
     approvedValue: "14",
     reviewNote: "  label checked  ",
-  }), { id: "42", status: "approved", approvedValue: 14, reviewNote: "label checked" });
-  assert.equal(parseNutritionCandidateReviewInput({ id: "0", status: "approved", approvedValue: "14", reviewNote: null }), null);
-  assert.equal(parseNutritionCandidateReviewInput({ id: "42", status: "pending", approvedValue: "14", reviewNote: null }), null);
-  assert.equal(parseNutritionCandidateReviewInput({ id: "42", status: "approved", approvedValue: "", reviewNote: null }), null);
-  assert.equal(parseNutritionCandidateReviewInput({ id: "42", status: "approved", approvedValue: "0", reviewNote: null }), null);
-  assert.equal(parseNutritionCandidateReviewInput({ id: "42", status: "approved", approvedValue: "14", reviewNote: "x".repeat(1001) }), null);
+    candidateFingerprint,
+  }), { id: "42", status: "approved", approvedValue: 14, reviewNote: "label checked", candidateFingerprint });
+  const values = { candidateFingerprint, approvedValue: "14", reviewNote: null };
+  assert.equal(parseNutritionCandidateReviewInput({ ...values, id: "0", status: "approved" }), null);
+  assert.equal(parseNutritionCandidateReviewInput({ ...values, id: "42", status: "pending" }), null);
+  assert.equal(parseNutritionCandidateReviewInput({ ...values, id: "42", status: "approved", approvedValue: "" }), null);
+  assert.equal(parseNutritionCandidateReviewInput({ ...values, id: "42", status: "approved", approvedValue: "0" }), null);
+  assert.equal(parseNutritionCandidateReviewInput({ ...values, id: "42", status: "approved", reviewNote: "x".repeat(1001) }), null);
+  assert.equal(parseNutritionCandidateReviewInput({ ...values, id: "42", status: "approved", candidateFingerprint: "bad" }), null);
   assert.deepEqual(parseNutritionCandidateReviewInput({
-    id: "42", status: "rejected", approvedValue: "28", reviewNote: "wrong pack",
-  }), { id: "42", status: "rejected", approvedValue: null, reviewNote: "wrong pack" });
+    id: "42", status: "rejected", approvedValue: "28", reviewNote: "wrong pack", candidateFingerprint,
+  }), { id: "42", status: "rejected", approvedValue: null, reviewNote: "wrong pack", candidateFingerprint });
 });
 
 test("candidate review update contains review metadata but no product mutation", () => {
   const update = buildNutritionCandidateReviewUpdate(
-    { id: "42", status: "approved", approvedValue: 14, reviewNote: null },
+    { id: "42", status: "approved", approvedValue: 14, reviewNote: null, candidateFingerprint: "a".repeat(64) },
     "2026-08-02T12:00:00.000Z"
   );
   assert.deepEqual(update, {
@@ -172,20 +190,23 @@ test("candidate review update contains review metadata but no product mutation",
 
 test("bulk review accepts a bounded unique product selection", () => {
   assert.deepEqual(parseNutritionCandidateBulkReviewInput({
-    candidateIds: ["10", "11"], productId: "79", runId: "NCR1-safe",
-  }), { candidateIds: ["10", "11"], productId: "79", runId: "NCR1-safe" });
+    candidateIds: ["10", "11"], productId: "79", productVariantId: null, runId: "NCR1-safe",
+  }), { candidateIds: ["10", "11"], productId: "79", productVariantId: null, runId: "NCR1-safe" });
+  assert.deepEqual(parseNutritionCandidateBulkReviewInput({
+    candidateIds: ["10"], productId: "79", productVariantId: "726", runId: "NCR1-safe",
+  }), { candidateIds: ["10"], productId: "79", productVariantId: "726", runId: "NCR1-safe" });
   assert.equal(parseNutritionCandidateBulkReviewInput({
-    candidateIds: ["10", "10"], productId: "79", runId: "NCR1-safe",
+    candidateIds: ["10", "10"], productId: "79", productVariantId: null, runId: "NCR1-safe",
   }), null);
   assert.equal(parseNutritionCandidateBulkReviewInput({
     candidateIds: Array.from({ length: 51 }, (_, index) => String(index + 1)),
-    productId: "79", runId: "NCR1-safe",
+    productId: "79", productVariantId: null, runId: "NCR1-safe",
   }), null);
 });
 
 test("bulk review excludes unsafe warnings and invalid serving counts", () => {
   const candidate = (overrides = {}) => ({
-    id: "10", product_id: "79", proposed_field: "serving_size_g",
+    id: "10", product_id: "79", product_variant_id: null, proposed_field: "serving_size_g",
     proposed_value: "31", warning_flags: [], status: "pending", run_id: "NCR1-safe",
     ...overrides,
   });
@@ -197,9 +218,9 @@ test("bulk review excludes unsafe warnings and invalid serving counts", () => {
 });
 
 test("bulk selection is one unchanged product and rejects field conflicts", () => {
-  const input = { candidateIds: ["10", "11"], productId: "79", runId: "NCR1-safe" };
+  const input = { candidateIds: ["10", "11"], productId: "79", productVariantId: null, runId: "NCR1-safe" };
   const candidate = (id, field, value) => ({
-    id, product_id: "79", proposed_field: field, proposed_value: value,
+    id, product_id: "79", product_variant_id: null, proposed_field: field, proposed_value: value,
     warning_flags: [], status: "pending", run_id: "NCR1-safe",
   });
   assert.equal(validateNutritionCandidateBulkSelection(input, [

@@ -22,6 +22,7 @@ test("migration is hash-bound and transactional", () => {
   assert.deepEqual(selector.CONTRACTS.STAGING.pending.map(({ filename }) => filename), [
     "20260831110000_create_automation_review_queue_publication_rpc.sql",
     "20260910193000_allow_automation_review_retry_revisions.sql",
+    "20260911120000_add_nutrition_candidate_variant_provenance.sql",
   ]);
   assert.equal(selector.CONTRACTS.STAGING.ledgerCount, 94);
   assert.equal(

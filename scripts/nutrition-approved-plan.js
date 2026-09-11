@@ -5,6 +5,7 @@ const {
   loadApprovedCandidates,
   loadApprovedCandidatesForRun,
   loadProducts,
+  loadVariants,
   validateRunId,
   writePlan,
 } = require("./lib/nutrition-approved-updates");
@@ -29,32 +30,29 @@ function parseArgs(argv) {
   return options;
 }
 
-function buildSafeApprovedPlan(candidates, products, runId, generatedAt) {
+function buildSafeApprovedPlan(candidates, products, runId, generatedAt, variants = []) {
   let selected = [...candidates];
   const excluded = new Map();
   while (selected.length) {
-    const plan = buildApprovedPlan(selected, products, runId, generatedAt);
+    const plan = buildApprovedPlan(selected, products, runId, generatedAt, variants);
     if (!plan.blockers.length) {
       return {
         plan,
         excludedCandidates: [...excluded.entries()].map(([candidate_id, reason]) => ({ candidate_id, reason })),
       };
     }
-    const candidateById = new Map(selected.map((candidate) => [String(candidate.id), candidate]));
-    const blockedProducts = new Set();
+    const blockedTargets = new Set();
     const blockedCandidates = new Set();
     for (const blocker of plan.blockers) {
-      if (blocker.product_id) blockedProducts.add(String(blocker.product_id));
+      if (blocker.product_id) blockedTargets.add(
+        `${String(blocker.product_id)}|${blocker.product_variant_id ? String(blocker.product_variant_id) : "PRODUCT"}`,
+      );
       if (blocker.candidate_id) blockedCandidates.add(String(blocker.candidate_id));
-      for (const candidateId of blocker.candidate_ids || []) {
-        const candidate = candidateById.get(String(candidateId));
-        if (candidate?.product_id) blockedProducts.add(String(candidate.product_id));
-        else blockedCandidates.add(String(candidateId));
-      }
+      for (const candidateId of blocker.candidate_ids || []) blockedCandidates.add(String(candidateId));
     }
     const next = selected.filter((candidate) => {
       const blocked = blockedCandidates.has(String(candidate.id)) ||
-        (candidate.product_id && blockedProducts.has(String(candidate.product_id)));
+        blockedTargets.has(`${String(candidate.product_id || "")}|${candidate.product_variant_id ? String(candidate.product_variant_id) : "PRODUCT"}`);
       if (blocked) excluded.set(String(candidate.id), plan.blockers
         .filter((item) => String(item.product_id || "") === String(candidate.product_id || "") ||
           String(item.candidate_id || "") === String(candidate.id) ||
@@ -88,9 +86,13 @@ async function runCli(argv = process.argv.slice(2), dependencies = {}) {
   const products = dependencies.loadProducts
     ? await dependencies.loadProducts(productIds)
     : await loadProducts(supabase, productIds);
+  const variantIds = [...new Set(candidates.map((candidate) => candidate.product_variant_id).filter(Boolean).map(String))];
+  const variants = dependencies.loadVariants
+    ? await dependencies.loadVariants(variantIds)
+    : await loadVariants(supabase, variantIds);
   const built = safeApprovedForRun
-    ? buildSafeApprovedPlan(candidates, products, runId, dependencies.generatedAt)
-    : { plan: buildApprovedPlan(candidates, products, runId, dependencies.generatedAt), excludedCandidates: [] };
+    ? buildSafeApprovedPlan(candidates, products, runId, dependencies.generatedAt, variants)
+    : { plan: buildApprovedPlan(candidates, products, runId, dependencies.generatedAt, variants), excludedCandidates: [] };
   const { plan } = built;
   const planPath = writePlan(plan, dependencies.cwd || process.cwd());
   return {
@@ -100,6 +102,7 @@ async function runCli(argv = process.argv.slice(2), dependencies = {}) {
     approved_candidates: plan.source_candidate_ids.length,
     excluded_candidates: built.excludedCandidates,
     planned_products: plan.product_updates.length,
+    planned_variants: plan.variant_updates.length,
     blockers: plan.blockers,
     plan: path.relative(dependencies.cwd || process.cwd(), planPath).replaceAll("\\", "/"),
   };

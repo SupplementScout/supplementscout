@@ -11,6 +11,10 @@ const migrationPath = path.join(
 );
 const migration = fs.readFileSync(migrationPath, "utf8");
 const sql = migration.replace(/\s+/g, " ").trim().toLowerCase();
+const variantMigration = fs.readFileSync(path.join(
+  process.cwd(), "supabase", "migrations",
+  "20260911120000_add_nutrition_candidate_variant_provenance.sql"
+), "utf8").replace(/\s+/g, " ").trim().toLowerCase();
 
 test("nutrition candidates migration is transactional and candidate-only", () => {
   assert.match(sql, /^begin;/);
@@ -63,4 +67,17 @@ test("candidate evidence and review metadata are bounded", () => {
   assert.match(sql, /position\('#' in source_url\) = 0/);
   assert.match(sql, /source_url !~\*/);
   assert.match(sql, /in \(source_domain, 'www\.' \|\| source_domain\)/);
+});
+
+test("variant provenance migration is nullable for legacy rows and guarded for exact variants", () => {
+  assert.match(variantMigration, /^begin;/);
+  assert.match(variantMigration, /add column product_variant_id bigint references public\.product_variants\(id\) on delete restrict/);
+  assert.match(variantMigration, /add column source_archive_uri text/);
+  assert.doesNotMatch(variantMigration, /product_variant_id bigint not null|source_archive_uri text not null/);
+  assert.match(variantMigration, /product_variant_id is null or source_archive_uri is not null/);
+  assert.match(variantMigration, /supabase-storage:\/\/nutrition-sources/);
+  assert.match(variantMigration, /variant does not belong to product/);
+  assert.match(variantMigration, /new\.product_variant_id[\s\S]*new\.source_archive_uri/);
+  assert.doesNotMatch(variantMigration, /\b(?:insert into|update|delete from) public\.(?:products|product_variants)/);
+  assert.match(variantMigration, /commit;$/);
 });

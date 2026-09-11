@@ -72,6 +72,7 @@ export type NutritionCandidateRunGroup = {
 export type NutritionCandidateProductGroup = {
   key: string;
   product_id: string | null;
+  product_variant_id: string | null;
   product_name: string;
   candidates: NutritionCandidateRow[];
 };
@@ -115,11 +116,12 @@ export function groupNutritionCandidatesByProduct(
 
   for (const candidate of candidates) {
     const key = candidate.product_id
-      ? `product:${candidate.product_id}`
+      ? `product:${candidate.product_id}:variant:${candidate.product_variant_id ?? "none"}`
       : `unmapped:${candidate.product_name}`;
     const group = groups.get(key) ?? {
       key,
       product_id: candidate.product_id,
+      product_variant_id: candidate.product_variant_id,
       product_name: candidate.product_name,
       candidates: [],
     };

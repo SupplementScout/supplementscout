@@ -23,13 +23,14 @@ export async function POST(request: NextRequest) {
   const input = parseNutritionCandidateBulkReviewInput({
     candidateIds: formData.getAll("candidateId"),
     productId: formData.get("productId"),
+    productVariantId: formData.get("productVariantId"),
     runId: formData.get("runId"),
   });
   if (!input) return new NextResponse("Invalid bulk nutrition review.", { status: 400 });
 
   const { data: candidates, error: loadError } = await supabaseAdmin
     .from("nutrition_candidates")
-    .select("id,product_id,proposed_field,proposed_value,warning_flags,status,run_id")
+    .select("id,product_id,product_variant_id,proposed_field,proposed_value,warning_flags,status,run_id")
     .in("id", input.candidateIds)
     .eq("status", "pending");
   if (loadError || !validateNutritionCandidateBulkSelection(input, candidates || [])) {
@@ -43,7 +44,7 @@ export async function POST(request: NextRequest) {
       status: "approved",
       reviewed_at: reviewedAt,
       reviewed_by: "admin-panel-bulk",
-      review_note: "Bulk accepted proposed values after product-level review.",
+      review_note: "Bulk accepted proposed values after exact product/variant review.",
     })
     .in("id", input.candidateIds)
     .eq("status", "pending")

@@ -3,7 +3,7 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
-const { buildArtifact, sha256 } = require("./lib/nutrition-candidates");
+const { buildArtifact, sealCandidate, sha256 } = require("./lib/nutrition-candidates");
 const { parseArgs, runCli, validateArtifact } = require("./store-nutrition-candidates");
 
 function artifactFixture(directory) {
@@ -55,12 +55,34 @@ test("candidate artifact maps only to pending nutrition_candidates rows", () => 
   assert.equal(Object.hasOwn(rows[0], "nutrition_verified"), false);
 });
 
-test("candidate storage refuses to discard variant identity provenance", () => {
+test("candidate storage preserves exact variant identity and private archive provenance", () => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "candidate-store-variant-"));
   test.after(() => fs.rmSync(directory, { recursive: true, force: true }));
   const artifact = artifactFixture(directory);
-  artifact.candidates[0].product_variant_id = "733";
-  assert.throws(() => validateArtifact(artifact), /variant-scoped candidates require a separate schema/);
+  const core = { ...artifact.candidates[0] };
+  delete core.candidate_id;
+  delete core.candidate_fingerprint;
+  core.product_id = "38";
+  core.product_variant_id = "726";
+  core.source_sha256 = "1182c1aeab46a72ff38709e349d692ab18d45355d87549574d30bb04f3067842";
+  core.source_archive_uri = "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/38/1182c1aeab46a72ff38709e349d692ab18d45355d87549574d30bb04f3067842/38-Applied-Pump-3G-375g.jpg";
+  artifact.candidates = [sealCandidate(core)];
+  const [row] = validateArtifact(artifact);
+  assert.equal(row.product_id, "38");
+  assert.equal(row.product_variant_id, "726");
+  assert.equal(row.source_file_sha256, core.source_sha256);
+  assert.equal(row.source_archive_uri, core.source_archive_uri);
+});
+
+test("variant candidate requires a durable credential-free archive reference", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "candidate-store-variant-invalid-"));
+  test.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const artifact = artifactFixture(directory);
+  const core = { ...artifact.candidates[0], product_variant_id: "726", source_archive_uri: null };
+  delete core.candidate_id;
+  delete core.candidate_fingerprint;
+  artifact.candidates = [sealCandidate(core)];
+  assert.throws(() => validateArtifact(artifact), /require source_archive_uri/);
 });
 
 test("database write requires explicit candidate-table confirmation", () => {

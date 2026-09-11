@@ -6,6 +6,7 @@ const { parse } = require("csv-parse/sync");
 const ARTIFACT_KIND = "nutrition-candidate-artifact-v2";
 const INPUT_KIND = "nutrition-candidate-source-snapshot-v1";
 const INPUT_KIND_V2 = "nutrition-candidate-source-snapshot-v2";
+const INPUT_KIND_V3 = "nutrition-candidate-source-snapshot-v3";
 const STATUS = "CANDIDATE_REQUIRES_REVIEW";
 const MODE = "OFFLINE_READ_ONLY";
 const MAX_RECORDS = 100;
@@ -73,6 +74,10 @@ const RECORD_KEYS_V2 = Object.freeze([
   "content_type",
   "current_values",
 ]);
+const RECORD_KEYS_V3 = Object.freeze([
+  ...RECORD_KEYS_V2,
+  "source_archive_uri",
+]);
 const CSV_COLUMNS = Object.freeze([
   "candidate_id",
   "run_id",
@@ -96,6 +101,7 @@ const CSV_COLUMNS = Object.freeze([
   "evidence_locator",
   "captured_at",
   "source_sha256",
+  "source_archive_uri",
   "identity_confidence",
   "extraction_confidence",
   "overall_confidence",
@@ -177,6 +183,19 @@ function validateSourceUrl(value) {
   return url.href;
 }
 
+function validateSourceArchiveUri(value, { required = false } = {}) {
+  if (value === null || value === undefined) {
+    if (required) fail("NCE_SOURCE_SCHEMA_MISMATCH", "exact variant sources require source_archive_uri");
+    return null;
+  }
+  if (typeof value !== "string" || value.length > 1000 ||
+      !/^supabase-storage:\/\/nutrition-sources\/[A-Za-z0-9._/-]+$/.test(value) ||
+      value.includes("..") || value.includes("?") || value.includes("#")) {
+    fail("NCE_SOURCE_SCHEMA_MISMATCH", "source_archive_uri must be a stable private nutrition-sources object reference");
+  }
+  return value;
+}
+
 function validateCurrentValues(value, label) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     fail("NCE_SOURCE_SCHEMA_MISMATCH", `${label} current_values must be an object`);
@@ -194,7 +213,8 @@ function validateCurrentValues(value, label) {
 function validateManifest(manifest) {
   const isV1 = manifest?.schema_version === 1 && manifest?.kind === INPUT_KIND;
   const isV2 = manifest?.schema_version === 2 && manifest?.kind === INPUT_KIND_V2;
-  if (!exactKeys(manifest, MANIFEST_KEYS) || (!isV1 && !isV2) || manifest.mode !== "OFFLINE" ||
+  const isV3 = manifest?.schema_version === 3 && manifest?.kind === INPUT_KIND_V3;
+  if (!exactKeys(manifest, MANIFEST_KEYS) || (!isV1 && !isV2 && !isV3) || manifest.mode !== "OFFLINE" ||
       !validTimestamp(manifest.captured_at) || !Array.isArray(manifest.records) ||
       manifest.records.length < 1 || manifest.records.length > MAX_RECORDS) {
     fail("NCE_SOURCE_SCHEMA_MISMATCH", "Invalid offline source manifest");
@@ -202,7 +222,7 @@ function validateManifest(manifest) {
   const sourceIds = new Set();
   for (const [index, record] of manifest.records.entries()) {
     const label = `record ${index + 1}`;
-    const expectedKeys = isV2 ? RECORD_KEYS_V2 : RECORD_KEYS_V1;
+    const expectedKeys = isV3 ? RECORD_KEYS_V3 : isV2 ? RECORD_KEYS_V2 : RECORD_KEYS_V1;
     const manufacturerSource = record.source_type === "manufacturer_product_page";
     if (!exactKeys(record, expectedKeys) || typeof record.source_record_id !== "string" ||
         !record.source_record_id.trim() || record.source_record_id.length > 200 ||
@@ -214,7 +234,7 @@ function validateManifest(manifest) {
         !CONTENT_TYPES.has(record.content_type)) {
       fail("NCE_SOURCE_SCHEMA_MISMATCH", `${label} has an invalid schema`);
     }
-    if (isV2 && (!boundedText(record.product_name, 300) || !boundedText(record.brand, 200) ||
+    if ((isV2 || isV3) && (!boundedText(record.product_name, 300) || !boundedText(record.brand, 200) ||
         !boundedText(record.manufacturer, 200) || !boundedText(record.source_snapshot_ref, 500) ||
         path.isAbsolute(record.source_snapshot_ref) || record.source_snapshot_ref.split(/[\\/]/).includes("..") ||
         !record.source_snapshot_ref.replaceAll("\\", "/").startsWith("tmp/"))) {
@@ -230,6 +250,9 @@ function validateManifest(manifest) {
     if (record.identity_binding === "EXACT_VARIANT" && (!positiveId(record.product_id) || record.product_variant_id === null)) {
       fail("NCE_SOURCE_SCHEMA_MISMATCH", `${label} exact variant binding requires product_variant_id`);
     }
+    if (isV3) validateSourceArchiveUri(record.source_archive_uri, {
+      required: record.identity_binding === "EXACT_VARIANT",
+    });
     if (["EXACT_PRODUCT", "LEGACY_PRODUCT_URL"].includes(record.identity_binding) && !positiveId(record.product_id)) {
       fail("NCE_SOURCE_SCHEMA_MISMATCH", `${label} mapped identity binding requires product_id`);
     }
@@ -929,6 +952,7 @@ function buildCandidates(record, observations, runId, capturedAt) {
       evidence_locator: item.evidence_locator,
       captured_at: capturedAt,
       source_sha256: record.snapshot_sha256,
+      source_archive_uri: record.source_archive_uri || null,
       identity_confidence: identity,
       extraction_confidence: extraction,
       overall_confidence: overall,
@@ -1169,6 +1193,7 @@ module.exports = {
   FIELDS,
   INPUT_KIND,
   INPUT_KIND_V2,
+  INPUT_KIND_V3,
   MAX_SNAPSHOT_BYTES,
   MODE,
   NutritionCandidateError,
@@ -1198,6 +1223,7 @@ module.exports = {
   sealCandidate,
   sha256,
   validateManifest,
+  validateSourceArchiveUri,
   validateSourceUrl,
   writeArtifactFiles,
 };

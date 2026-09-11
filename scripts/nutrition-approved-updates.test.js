@@ -8,6 +8,8 @@ const apply = require("./nutrition-approved-apply");
 
 const root = path.resolve(__dirname, "..");
 const runId = "NCR1-approved-test";
+const pumpHash = "1182c1aeab46a72ff38709e349d692ab18d45355d87549574d30bb04f3067842";
+const pumpArchive = `supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/38/${pumpHash}/38-Applied-Pump-3G-375g.jpg`;
 
 function candidate(overrides = {}) {
   const result = {
@@ -19,6 +21,9 @@ function candidate(overrides = {}) {
     proposed_unit: "g",
     confidence: "LOW",
     source_url: "https://manufacturer.example/products/creatine",
+    source_file_sha256: "b".repeat(64),
+    source_archive_uri: null,
+    product_variant_id: null,
     evidence_snippet: "Serving Size: 1 Scoop (5g)",
     source_locator: "ocr:line:1",
     warning_flags: ["OCR_ONLY"],
@@ -75,6 +80,60 @@ test("serving facts alone never derive nutrition verification", () => {
     "2026-08-02T12:00:00.000Z",
   );
   assert.equal("nutrition_verified" in plan.product_updates[0].changes, false);
+});
+
+test("bounded product 38 variant 726 test candidate preserves exact identity and archived evidence", () => {
+  const testOnlyCandidate = candidate({
+    product_id: "38",
+    product_variant_id: "726",
+    proposed_value: 1,
+    approved_value: 1,
+    source_url: "https://appliednutrition.uk/products/pump-3g-375g",
+    source_file_sha256: pumpHash,
+    source_archive_uri: pumpArchive,
+    evidence_snippet: "TEST ONLY: transport-path value; not approved catalogue nutrition",
+  });
+  const plan = buildApprovedPlan(
+    [testOnlyCandidate],
+    [{ id: "38", name: "Applied Nutrition Pump 3G" }],
+    runId,
+    "2026-09-11T12:00:00.000Z",
+    [{ id: "726", product_id: "38", name: "Default / 375g", nutrition_override: {} }],
+  );
+  assert.equal(plan.status, "READY_FOR_EXPLICIT_APPLY");
+  assert.equal(plan.product_updates.length, 0);
+  assert.equal(plan.variant_updates[0].product_variant_id, "726");
+  const evidence = plan.variant_updates[0].changes.serving_size_g.evidence[0];
+  assert.equal(evidence.product_id, "38");
+  assert.equal(evidence.product_variant_id, "726");
+  assert.equal(evidence.source_file_sha256, pumpHash);
+  assert.equal(evidence.source_archive_uri, pumpArchive);
+  assert.equal(validatePlan(plan), plan);
+});
+
+test("variant planner rejects a product mismatch and missing durable evidence", () => {
+  const base = candidate({
+    product_id: "38", product_variant_id: "726", source_file_sha256: pumpHash,
+    source_archive_uri: pumpArchive,
+  });
+  const mismatch = buildApprovedPlan([base], [{ id: "38", name: "Pump" }], runId,
+    "2026-09-11T12:00:00.000Z", [{ id: "726", product_id: "39", nutrition_override: {} }]);
+  assert.ok(mismatch.blockers.some((item) => item.code === "VARIANT_PRODUCT_MISMATCH"));
+  const missing = buildApprovedPlan([{ ...base, source_archive_uri: null }], [{ id: "38", name: "Pump" }], runId,
+    "2026-09-11T12:00:00.000Z", [{ id: "726", product_id: "38", nutrition_override: {} }]);
+  assert.ok(missing.blockers.some((item) => item.code === "INVALID_VARIANT_SOURCE_ARCHIVE"));
+});
+
+test("apply verification invalidates changed source hash, stale approval and variant override", () => {
+  const reviewed = candidate({
+    product_id: "38", product_variant_id: "726", source_file_sha256: pumpHash,
+    source_archive_uri: pumpArchive,
+  });
+  const plan = buildApprovedPlan([reviewed], [{ id: "38", name: "Pump" }], runId,
+    "2026-09-11T12:00:00.000Z", [{ id: "726", product_id: "38", nutrition_override: {} }]);
+  assert.throws(() => apply.verifyCandidates(plan, [{ ...reviewed, source_file_sha256: "c".repeat(64) }]), /changed after plan generation/);
+  assert.throws(() => apply.verifyCandidates(plan, [{ ...reviewed, status: "pending" }]), /changed after plan generation/);
+  assert.throws(() => apply.verifyVariants(plan, [{ id: "726", product_id: "38", nutrition_override: { serving_size_g: 2 } }]), /changed after plan generation/);
 });
 
 test("planner uses the explicit owner-approved value instead of the extracted proposal", () => {
@@ -269,7 +328,7 @@ test("apply requires explicit confirmation and rechecks approval before product-
     appliedAt: "2026-08-02T13:00:00.000Z",
     applyTransaction: async (appliedPlan) => {
       updates.push(appliedPlan.product_updates[0]);
-      return [{ product_id: "337", fields: ["serving_size_g"] }];
+      return { changed_products: [{ product_id: "337", fields: ["serving_size_g"] }], changed_variants: [] };
     },
   });
   assert.equal(updates.length, 1);
@@ -311,9 +370,46 @@ test("production apply uses one transaction and only updates whitelisted product
       SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL: "redacted",
     },
   });
-  assert.deepEqual(changed, [{ product_id: "337", fields: ["serving_size_g"] }]);
+  assert.deepEqual(changed, {
+    changed_products: [{ product_id: "337", fields: ["serving_size_g"] }],
+    changed_variants: [],
+  });
   assert.ok(queries.some((query) => query.sql === "commit"));
   const update = queries.find((query) => query.sql.startsWith("update public.products"));
   assert.match(update.sql, /^update public\.products set "serving_size_g"=\$1 where id=\$2 returning id$/);
   assert.doesNotMatch(queries.map((query) => query.sql).join("\n"), /update public\.(?:offers|retailer_products|nutrition_candidates)/);
+});
+
+test("controlled apply writes only the exact variant nutrition override", async () => {
+  const reviewed = candidate({
+    product_id: "38", product_variant_id: "726", source_file_sha256: pumpHash,
+    source_archive_uri: pumpArchive,
+  });
+  const plan = buildApprovedPlan([reviewed], [{ id: "38", name: "Pump" }], runId,
+    "2026-09-11T12:00:00.000Z", [{ id: "726", product_id: "38", nutrition_override: {} }]);
+  const queries = [];
+  const client = {
+    async query(sql, values) {
+      const compact = String(sql).replace(/\s+/g, " ").trim();
+      queries.push({ sql: compact, values });
+      if (compact.startsWith("select current_user")) return { rows: [{ current_user: "postgres", safe_update: null }] };
+      if (compact.includes("retailer_catalogue_actual_database_target")) return { rows: [{ target: { target_environment: "PRODUCTION", project_ref: "aftboxmrdgyhizicfsfu", database_identity: "supplementscout-production:aftboxmrdgyhizicfsfu" } }] };
+      if (compact.includes("from public.nutrition_candidates")) return { rows: [reviewed] };
+      if (compact.includes("from public.products")) return { rows: [{ id: "38" }] };
+      if (compact.startsWith("select id,product_id,nutrition_override")) return { rows: [{ id: "726", product_id: "38", nutrition_override: {} }] };
+      if (compact.startsWith("update public.product_variants")) return { rowCount: 1, rows: [{ id: "726" }] };
+      return { rows: [] };
+    },
+  };
+  const result = await apply.applyTransaction(plan, {
+    client,
+    environment: {
+      SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF: "aftboxmrdgyhizicfsfu",
+      SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL: "redacted",
+    },
+  });
+  assert.deepEqual(result.changed_products, []);
+  assert.deepEqual(result.changed_variants, [{ product_id: "38", product_variant_id: "726", fields: ["serving_size_g"] }]);
+  assert.equal(queries.filter((query) => query.sql.startsWith("update public.product_variants")).length, 1);
+  assert.equal(queries.some((query) => query.sql.startsWith("update public.products")), false);
 });

@@ -5,6 +5,7 @@ const {
   FIELDS,
   STATUS,
   fingerprint,
+  validateSourceArchiveUri,
   validateSourceUrl,
 } = require("./lib/nutrition-candidates");
 
@@ -49,8 +50,12 @@ function candidateCore(candidate) {
 }
 
 function candidateToRow(candidate, runId) {
+  const productVariantId = candidate?.product_variant_id ?? null;
+  const sourceArchiveUri = validateSourceArchiveUri(candidate?.source_archive_uri ?? null, {
+    required: productVariantId !== null,
+  });
   if (!candidate || candidate.candidate_status !== STATUS || candidate.review_status !== "PENDING" ||
-      candidate.product_variant_id !== null ||
+      !optionalPositiveId(productVariantId) ||
       !FIELDS.includes(candidate.field_name) || UNITS[candidate.field_name] !== candidate.unit ||
       !SOURCE_TYPES.has(candidate.source_type) ||
       !optionalPositiveId(candidate.product_id) || !optionalPositiveId(candidate.retailer_id) ||
@@ -64,16 +69,18 @@ function candidateToRow(candidate, runId) {
       typeof candidate.brand !== "string" || !candidate.brand.trim() || candidate.brand.length > 200 ||
       !Array.isArray(candidate.flags) || candidate.flags.length > 20 || candidate.flags.some((flag) => typeof flag !== "string" || flag.length > 100) ||
       candidate.candidate_fingerprint !== fingerprint("CANDIDATE", candidateCore(candidate))) {
-    fail(`Invalid candidate row ${candidate?.candidate_id || "unknown"}; variant-scoped candidates require a separate schema`);
+    fail(`Invalid candidate row ${candidate?.candidate_id || "unknown"}`);
   }
   const sourceUrl = validateSourceUrl(candidate.source_url);
   return {
     product_id: candidate.product_id,
+    product_variant_id: productVariantId,
     retailer_id: candidate.retailer_id,
     source_type: candidate.source_type,
     source_url: sourceUrl,
     source_file_sha256: candidate.source_sha256,
     source_snapshot_ref: candidate.source_file,
+    source_archive_uri: sourceArchiveUri,
     source_domain: new URL(sourceUrl).hostname.toLowerCase().replace(/^www\./, ""),
     product_name: candidate.product_name,
     brand: candidate.brand,

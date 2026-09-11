@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
     status: formData.get("status"),
     approvedValue: formData.get("approvedValue"),
     reviewNote: formData.get("reviewNote"),
+    candidateFingerprint: formData.get("candidateFingerprint"),
   });
   if (!input) {
     return new NextResponse("Invalid nutrition candidate review.", {
@@ -41,6 +42,7 @@ export async function POST(request: NextRequest) {
     .update(update)
     .eq("id", input.id)
     .eq("status", "pending")
+    .eq("candidate_fingerprint", input.candidateFingerprint)
     .select("id")
     .maybeSingle();
 

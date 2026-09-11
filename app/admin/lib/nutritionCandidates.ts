@@ -8,11 +8,13 @@ export type NutritionCandidateRow = {
   id: string;
   created_at: string;
   product_id: string | null;
+  product_variant_id: string | null;
   retailer_id: string | null;
   source_type: string;
   source_url: string;
   source_file_sha256: string;
   source_snapshot_ref: string;
+  source_archive_uri: string | null;
   source_domain: string;
   product_name: string;
   brand: string;
@@ -29,6 +31,7 @@ export type NutritionCandidateRow = {
   reviewed_by: string | null;
   review_note: string | null;
   run_id: string;
+  candidate_fingerprint: string;
 };
 
 export type NutritionCandidateReport = Record<
@@ -64,11 +67,13 @@ function normalizeRow(row: Record<string, unknown>): NutritionCandidateRow {
     id: String(row.id),
     created_at: String(row.created_at),
     product_id: rowString(row.product_id),
+    product_variant_id: rowString(row.product_variant_id),
     retailer_id: rowString(row.retailer_id),
     source_type: String(row.source_type),
     source_url: String(row.source_url),
     source_file_sha256: String(row.source_file_sha256),
     source_snapshot_ref: String(row.source_snapshot_ref),
+    source_archive_uri: rowString(row.source_archive_uri),
     source_domain: String(row.source_domain),
     product_name: String(row.product_name),
     brand: String(row.brand),
@@ -87,6 +92,7 @@ function normalizeRow(row: Record<string, unknown>): NutritionCandidateRow {
     reviewed_by: rowString(row.reviewed_by),
     review_note: rowString(row.review_note),
     run_id: String(row.run_id),
+    candidate_fingerprint: String(row.candidate_fingerprint),
   };
 }
 
@@ -94,7 +100,7 @@ export async function getNutritionCandidateReport(runId?: string): Promise<Nutri
   let query = supabaseAdmin
     .from("nutrition_candidates")
     .select(
-      "id,created_at,product_id,retailer_id,source_type,source_url,source_file_sha256,source_snapshot_ref,source_domain,product_name,brand,proposed_field,proposed_value,approved_value,proposed_unit,confidence,evidence_snippet,source_locator,warning_flags,status,reviewed_at,reviewed_by,review_note,run_id"
+      "id,created_at,product_id,product_variant_id,retailer_id,source_type,source_url,source_file_sha256,source_snapshot_ref,source_archive_uri,source_domain,product_name,brand,proposed_field,proposed_value,approved_value,proposed_unit,confidence,evidence_snippet,source_locator,warning_flags,status,reviewed_at,reviewed_by,review_note,run_id,candidate_fingerprint"
     );
   if (runId) query = query.eq("run_id", runId);
   const { data, error } = await query

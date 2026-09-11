@@ -272,6 +272,10 @@ const CONTRACTS = Object.freeze({
         filename: "20260910193000_allow_automation_review_retry_revisions.sql",
         sha256: "ddfb939887df1793f554adc1e4f171b64b3ba2549a4d3651bd339947d7bc496b",
       }),
+      Object.freeze({
+        filename: "20260911120000_add_nutrition_candidate_variant_provenance.sql",
+        sha256: "62a7a5dd812d4559889d7392217095b67841d1d6db37e5519ee6e1593bc207cb",
+      }),
     ]),
   }),
   PRODUCTION: Object.freeze({
@@ -300,7 +304,12 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260911120000_add_nutrition_candidate_variant_provenance.sql",
+        sha256: "62a7a5dd812d4559889d7392217095b67841d1d6db37e5519ee6e1593bc207cb",
+      }),
+    ]),
   }),
 });
 

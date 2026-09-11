@@ -4,13 +4,14 @@
 
 ## Current checkpoint
 
-- Task: NUT-01; status `LIVE VERIFIED`; closed with explicit gaps. The frozen
-  25-variant/21-product denominator is fully accounted without claiming complete
-  label or nutrition coverage.
-- Owner/session: Codex, owner-authorized NUT-01 exact-applicability and closure
+- Task: NUT-02; status `IN PROGRESS`. The first bounded implementation step,
+  NUT-02A, is `CODE COMPLETE`: exact variant identity and durable private source
+  provenance now survive the existing candidate/review/plan/apply path. The rest
+  of NUT-02 remains open.
+- Owner/session: Codex, owner-authorized NUT-02 exact-variant provenance
   session, 11 September 2026.
 - Branch: `main`; this session started at
-  `ff53e2d6a238d17c48e0d56cc9156ccddbbb524f`; remote `main` matched before work.
+  `4ad0774104ddf4811061ac86ed4fdc09b8eba140`; remote `main` matched before work.
 - Production readback at `2026-09-11T12:58:26.063Z`: public `anon` SELECT against
   project `aftboxmrdgyhizicfsfu`; 141 active unmerged Pre Workout products and
   575 active variants. Frozen scope: 25 variants across 21 products.
@@ -44,10 +45,15 @@
   not evidence of either an unchanged or changed formula.
 - Existing untracked `docs/SupplementScout-Nutrition-Plan.txt` is owner material;
   preserved unchanged and excluded from this change's staging.
-- One next step, NUT-02: extend the existing candidate/review/apply path so exact
-  variant ID and durable source URI/hash survive end to end, using archived product
-  `38` / variant `726` as the first bounded compatibility canary; do not write
-  nutrition values to the catalogue during that step.
+- NUT-02A changed code and a local-only migration; it did not migrate or write
+  production. Existing product-scoped records remain compatible and are not
+  backfilled. The canary uses product `38`, variant `726`, its recorded private
+  object URI and SHA-256; its numeric value is explicitly test-only and is not an
+  approved ingredient or catalogue fact.
+- One next step, NUT-02B: extend the same candidate, review and guarded plan/apply
+  contracts for caffeine, citrulline amount and form, beta-alanine and explicit
+  confirmed-absence status, with unknown/conflict states kept distinct. Do not
+  collect or apply pilot values in that schema step.
 
 ## Authority and scope
 
@@ -201,7 +207,8 @@ implementation or any nutrition catalogue write.
 |---|---|---|---|---|
 | NUT-00 | `LIVE VERIFIED` | Owner request | Register stages, inspect existing process/schema/evidence, reuse/gap audit, pilot candidates and links | Consistent committed plan; verify:project PASS before/after; recorded commit and confirmed remote availability; live-data limitations explicit. See closeout. |
 | NUT-01 | `LIVE VERIFIED` | NUT-00 | Closed frozen denominator: 25 current variants across 21 products. Fifteen official page bindings confirmed, ten source/identity gaps; 4 archived readable images, 1 confirmed exact label-to-variant binding, 6 archived applicability gaps and 18 variants without an archived label. All 24 unresolved positions have a reason and required action. | Completion criterion is met because every frozen variant has a preserved official source disposition or explicit missing-source/identity/label status with reason and action. Archive hashes/readback, exact seven-label decisions and all 25 records are in the closeout report. No ingredient value is approved; closure is bounded evidence accounting, not full catalogue coverage. |
-| NUT-02 | `PLANNED` | NUT-01 | Extend existing candidate/review/apply schema for serving, caffeine, citrulline/form, beta-alanine, variant and provenance/status | Exact applicability survives the full path; ambiguity/conflicts detected; meaningful tests and required quick/full checks pass. Candidates cannot feed public filters. Resolve archive-reference compatibility and confirmed-zero semantics without weakening existing guards. |
+| NUT-02A | `CODE COMPLETE` | NUT-01 | Existing candidate/review/plan/apply path preserves string product/variant IDs, immutable private archive URI and SHA-256; exact variant ownership is checked and old product candidates stay nullable/compatible. | Local Docker migration test and focused path tests pass for archived product `38` / variant `726`; wrong ownership, signed/missing URI, changed hash, stale approval/override and duplicate insert are rejected or deduplicated. Migration and catalogue apply were not run on production. |
+| NUT-02 | `IN PROGRESS` | NUT-02A | Remaining schema/process work for caffeine, citrulline/form, beta-alanine and explicit confirmed absence versus unknown/conflict; NUT-02A supplies variant/provenance transport only. | Complete only after all new facts/statuses survive the same guarded path, ambiguity/conflicts fail closed and the required checks pass. Candidates cannot feed public filters. |
 | NUT-03 | `PLANNED` | NUT-02 | Review pilot evidence, quantities/units and exact applicability; separately approved guarded apply | Every proposal has a decision; approved values have proof and correct identity; independent post-write readback and zero-duplicate replay pass; offers/prices unchanged. Unresolved facts remain unknown and excluded. |
 | NUT-04 | `PLANNED` | NUT-03 | Existing product page facts/source and existing search caffeine-free filter | Tests and live variant-switch checks prove confirmed absence included, caffeine present excluded, missing/conflicting facts never treated as absent. Document coverage denominator, limits, evidence and operations. Publish image copies only with established rights; otherwise link to source. MVP closes here. |
 | NUT-05 | `DEFERRED` | NUT-04 closure | Subsequent bounded batches/categories in the same process | Review extraction yield, review time and missing-source rate before expansion; every batch has a fixed denominator and closure. No expansion of an active batch. |
@@ -255,6 +262,52 @@ Run verify:project before and after every roadmap/status/evidence edit. Code or
 workflow implementation additionally requires verify:quick and verify:full; keep
 integration isolated and production-write credentials out of quality-gate jobs.
 No code, migration, test inventory or workflow is changed by this NUT-00 revision.
+
+## NUT-02A exact-variant provenance evidence
+
+11 September 2026, Codex owner-authorized bounded implementation session:
+
+- Migration `20260911120000_add_nutrition_candidate_variant_provenance.sql`
+  adds nullable `product_variant_id` and `source_archive_uri` to the existing
+  private candidate table. Existing product-scoped rows need no backfill. Exact
+  variant rows require a credential-free
+  `supabase-storage://nutrition-sources/...` URI, and a database trigger verifies
+  that the variant belongs to the candidate product. The existing review guard
+  now treats variant ID and archive URI as immutable evidence.
+- Extractor manifest v3, candidate storage, admin review, approved-plan v3 and
+  explicit apply carry product ID, variant ID, original SHA-256 and private
+  archive URI as strings. Review groups are exact product/variant targets;
+  single review is bound to the current candidate fingerprint. Apply re-reads
+  approval and evidence and writes a variant-scoped value only to that existing
+  variant's `nutrition_override`. Product-scoped candidates retain their previous
+  product-only behavior.
+- The bounded fixture uses the previously archived product `38` / variant `726`
+  URI and SHA-256. Its numeric fact is labelled `TEST ONLY` and was used only in
+  isolated tests. The original image was not fetched or copied again, no OCR ran,
+  and no candidate, nutrition value, migration or catalogue row was written to
+  production.
+- Focused candidate/store/admin/planner/apply/migration/selector tests passed:
+  78 tests.
+  The new network-isolated PostgreSQL integration test passed and proved legacy
+  compatibility, exact ownership, private URI constraints, immutable approval
+  evidence and duplicate-fingerprint idempotency. `npm run verify:quick` passed
+  with sealed inventory 300/252 safe/44 integration/4 artifact-bound.
+- The full `npm run verify:integration` run executed the new test successfully
+  but did not finish green because two unrelated pre-existing Docker migration
+  scenarios failed; an isolated retry made the Batch G test pass while the Jon's
+  final-closeout fixture still failed its 10 Reps v8 anchor precondition. This
+  step does not change either file or contract. The remaining integration chunk
+  passed 40/41; its one transient PostgreSQL socket failure passed when rerun in
+  isolation.
+- `npm run verify:full` passed after registering the migration as pending, without
+  applying it, in the exact staging and production migration selectors. It
+  included Project Guardian, TypeScript, ESLint, the sealed safe-test inventory,
+  baseline migration validation and the Next.js production build. Final
+  `verify:project`, `verify:quick` and `git diff --check` also passed after the
+  ledger update. Git publication is recorded in the session closeout commit
+  history and report.
+- NUT-02 remains open. Its only next step is NUT-02B in the current checkpoint;
+  do not start pilot collection, OCR or catalogue writes as part of NUT-02A.
 
 ## NUT-00 closeout evidence
 

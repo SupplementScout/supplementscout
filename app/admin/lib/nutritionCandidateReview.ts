@@ -11,17 +11,20 @@ export type NutritionCandidateReviewInput = {
   status: NutritionCandidateReviewStatus;
   approvedValue: number | null;
   reviewNote: string | null;
+  candidateFingerprint: string;
 };
 
 export type NutritionCandidateBulkReviewInput = {
   candidateIds: string[];
   productId: string;
+  productVariantId: string | null;
   runId: string;
 };
 
 export type BulkReviewCandidate = {
   id: string | number;
   product_id: string | number | null;
+  product_variant_id: string | number | null;
   proposed_field: string;
   proposed_value: string | number;
   warning_flags: unknown;
@@ -45,6 +48,7 @@ export function parseNutritionCandidateReviewInput(input: {
   status: FormDataEntryValue | null;
   approvedValue: FormDataEntryValue | null;
   reviewNote: FormDataEntryValue | null;
+  candidateFingerprint: FormDataEntryValue | null;
 }): NutritionCandidateReviewInput | null {
   if (typeof input.id !== "string" || !/^[1-9]\d*$/.test(input.id)) {
     return null;
@@ -60,6 +64,7 @@ export function parseNutritionCandidateReviewInput(input: {
   if (input.reviewNote !== null && typeof input.reviewNote !== "string") {
     return null;
   }
+  if (typeof input.candidateFingerprint !== "string" || !/^[0-9a-f]{64}$/.test(input.candidateFingerprint)) return null;
   const note = input.reviewNote?.trim() || null;
   if (note && note.length > 1000) return null;
   const approvedValueText = typeof input.approvedValue === "string"
@@ -77,6 +82,7 @@ export function parseNutritionCandidateReviewInput(input: {
     status: input.status as NutritionCandidateReviewStatus,
     approvedValue: input.status === "approved" ? approvedValue : null,
     reviewNote: note,
+    candidateFingerprint: input.candidateFingerprint,
   };
 }
 
@@ -123,6 +129,7 @@ export function isBulkApprovableNutritionCandidate(
 export function parseNutritionCandidateBulkReviewInput(input: {
   candidateIds: FormDataEntryValue[];
   productId: FormDataEntryValue | null;
+  productVariantId: FormDataEntryValue | null;
   runId: FormDataEntryValue | null;
 }): NutritionCandidateBulkReviewInput | null {
   if (
@@ -137,8 +144,14 @@ export function parseNutritionCandidateBulkReviewInput(input: {
     return null;
   }
   const candidateIds = input.candidateIds.map(String);
+  const productVariantId = input.productVariantId === "" || input.productVariantId === null
+    ? null
+    : typeof input.productVariantId === "string" && /^[1-9]\d*$/.test(input.productVariantId)
+      ? input.productVariantId
+      : undefined;
+  if (productVariantId === undefined) return null;
   if (new Set(candidateIds).size !== candidateIds.length) return null;
-  return { candidateIds, productId: input.productId, runId: input.runId };
+  return { candidateIds, productId: input.productId, productVariantId, runId: input.runId };
 }
 
 export function validateNutritionCandidateBulkSelection(
@@ -152,6 +165,7 @@ export function validateNutritionCandidateBulkSelection(
     if (
       !requested.has(String(candidate.id)) ||
       String(candidate.product_id) !== input.productId ||
+      (candidate.product_variant_id == null ? null : String(candidate.product_variant_id)) !== input.productVariantId ||
       candidate.run_id !== input.runId ||
       !isBulkApprovableNutritionCandidate(candidate)
     ) {

@@ -145,9 +145,13 @@ facts into the existing private candidate schema. For this MVP, the image file,
 image SHA-256, OCR text file and OCR locator are preserved in
 `source_snapshot_ref`, `source_file_sha256` and `source_locator`. Fully
 structured image provenance is a later improvement and is not required to
-review a product-scoped candidate safely. Variant-scoped candidates are blocked
-from storage because the current table has no `product_variant_id`; the workflow
-will not silently discard that identity provenance.
+review a product-scoped candidate safely. Variant-scoped candidates use the same
+private queue after migration
+`20260911120000_add_nutrition_candidate_variant_provenance.sql`. They must carry
+the exact canonical `product_id`, exact canonical `product_variant_id`, original
+image SHA-256 and a stable `supabase-storage://nutrition-sources/<object-path>`
+reference. Signed URLs, query strings, fragments and missing archive references
+are rejected. Product-scoped legacy candidates keep both new fields null.
 
 Windows OCR metadata also preserves word bounding boxes. The extractor may use
 those coordinates to recover `protein_per_serving_g` and
@@ -178,8 +182,8 @@ directory such as `tmp/nutrition-source-batch-1/`.
 
 ```json
 {
-  "schema_version": 1,
-  "kind": "nutrition-candidate-source-snapshot-v1",
+  "schema_version": 3,
+  "kind": "nutrition-candidate-source-snapshot-v3",
   "mode": "OFFLINE",
   "captured_at": "2026-08-02T10:00:00.000Z",
   "records": [
@@ -189,10 +193,15 @@ directory such as `tmp/nutrition-source-batch-1/`.
       "product_variant_id": "733",
       "retailer_id": "11",
       "retailer_product_id": "9001",
+      "product_name": "Example Pre-Workout 375g",
+      "brand": "Example Nutrition",
+      "manufacturer": "Example Nutrition",
       "source_url": "https://retailer.example/product/example/?variant=733",
       "source_type": "retailer_product_page",
       "identity_binding": "EXACT_VARIANT",
       "snapshot_file": "product-501.html",
+      "source_snapshot_ref": "tmp/nutrition-source-batch-1/product-501.html",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/example/733/<lowercase-SHA-256>/product-501.html",
       "snapshot_sha256": "<lowercase SHA-256>",
       "content_type": "text/html",
       "current_values": {
@@ -211,7 +220,9 @@ directory such as `tmp/nutrition-source-batch-1/`.
 Allowed source types are `retailer_product_page`, `retailer_feed`, and
 `manufacturer_product_page`. Allowed identity bindings are:
 
-- `EXACT_VARIANT`: requires `product_variant_id`; identity confidence `HIGH`.
+- `EXACT_VARIANT`: requires `product_id`, `product_variant_id` and the durable
+  private `source_archive_uri`; identity confidence `HIGH`. Storage and planning
+  also verify that the variant belongs to that product.
 - `EXACT_PRODUCT`: product is exact but variant applicability is not proved;
   identity confidence `MEDIUM`.
 - `LEGACY_PRODUCT_URL`: legacy mapping without exact source variant identity;
@@ -377,8 +388,8 @@ into the work-item table without fetching again or creating candidates:
 npm run nutrition:batch-items:store -- --input=tmp/<batch>/pages.json --report=tmp/<batch>/candidate-batch-report.json --source-manifest=tmp/<batch>/candidate-source-manifest.json --run-id=<run_id> --confirm-work-items-only=true
 ```
 
-The admin groups pending facts by product. When a product has at least two
-safe proposals, `Approve all safe facts for this product` accepts their exact
+The admin groups pending facts by exact product/variant target. When a target has
+at least two safe proposals, `Approve all safe facts for this exact target` accepts their exact
 proposed values in one review action. Candidates carrying conflict, ambiguity,
 unclear, mismatch or exceeds warnings are excluded and remain in individual
 review. Corrected values also stay in the individual form. Bulk approval writes
@@ -393,9 +404,9 @@ generate a read-only before/after plan:
 npm run nutrition:approved-plan -- --run-id=<run_id> --safe-approved-for-run=true
 ```
 
-This product-safe batch mode reads every approved candidate in the run, removes
-an entire product when any of its facts hits a planner blocker, writes one ready
-plan for the remaining products and reports every excluded candidate and
+This target-safe batch mode reads every approved candidate in the run, isolates
+blocked product or exact-variant targets, writes one ready plan for the remaining
+targets and reports every excluded candidate and
 reason. It never silently weakens a blocker. Use
 `--candidate-ids=<id,id,...>` instead when the owner wants an exact reviewed
 subset. Both modes are read-only and explicit apply remains separate.
@@ -467,7 +478,7 @@ pack. The existing `product_match_review_queue` decision
 `APPROVE_NEW_VARIANT_SEED` is the review route when the smaller retailer pack
 first appears; routine offer refresh must not create or rebind that variant.
 
-Plans created before schema version 2 are rejected by the apply command and
+Plans created before schema version 3 are rejected by the apply command and
 must be regenerated so these checks cannot be bypassed.
 
 The planner reads only `approved` candidates. It blocks unmapped products,
@@ -478,14 +489,17 @@ ambiguity warnings. Its JSON output is written below
 After separately reviewing that plan, apply exactly its reviewed changes:
 
 ```powershell
-npm run nutrition:approved-apply -- --plan=tmp/nutrition-approved-plan/<plan>.json --confirm-reviewed-product-update=true
+npm run nutrition:approved-apply -- --plan=tmp/nutrition-approved-plan/<plan>.json --confirm-reviewed-nutrition-update=true
 ```
 
-Apply rechecks candidate approval and fingerprints plus each product's planned
-before value inside one production-owner PostgreSQL transaction. It validates
+Apply rechecks candidate approval, exact product/variant identity, source hash,
+durable archive URI and each target's planned before value inside one
+production-owner PostgreSQL transaction. It validates
 the existing production project identity, locks the reviewed rows, and rolls the
 whole batch back on an error. It can update only the seven numeric nutrition
-fields documented above plus the derived `nutrition_verified` flag on
-`products`; it cannot update offers, retailer products, GTIN, prices,
-`unit_pricing_verified`, or any pending/rejected candidate. A successful
+fields documented above plus the derived `nutrition_verified` flag on the
+planned product or exact variant override; it cannot update offers, retailer products, GTIN, prices,
+`unit_pricing_verified`, or any pending/rejected candidate. Product-scoped facts
+still update only `products`; variant-scoped facts update only the exact existing
+variant's `nutrition_override`. A successful
 audit JSON is written below `tmp/`.

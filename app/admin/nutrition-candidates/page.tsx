@@ -178,6 +178,7 @@ function CandidateCard({
           <h3 className="mt-1 text-lg font-bold">{candidate.product_name}</h3>
           <p className="mt-1 text-sm text-zinc-600">
             Product ID: {candidate.product_id ?? "Needs mapping"}
+            {candidate.product_variant_id ? ` · Variant ID: ${candidate.product_variant_id}` : " · Product-level fact"}
           </p>
           <p className="mt-1 break-all font-mono text-xs text-zinc-500">
             Run: {candidate.run_id}
@@ -226,6 +227,13 @@ function CandidateCard({
           <dt className="font-semibold text-zinc-500">Source locator</dt>
           <dd className="mt-1 break-all font-mono text-xs">{candidate.source_locator}</dd>
         </div>
+        <div className="md:col-span-2">
+          <dt className="font-semibold text-zinc-500">Private original and SHA-256</dt>
+          <dd className="mt-1 break-all font-mono text-xs">
+            {candidate.source_archive_uri ?? "No durable archive reference on this legacy product candidate"}
+            <br />{candidate.source_file_sha256}
+          </dd>
+        </div>
       </dl>
 
       {candidate.status === "pending" ? (
@@ -235,6 +243,7 @@ function CandidateCard({
           className="mt-5 border-t border-zinc-200 pt-4"
         >
           <input type="hidden" name="id" value={candidate.id} />
+          <input type="hidden" name="candidateFingerprint" value={candidate.candidate_fingerprint} />
           <input type="hidden" name="returnTo" value={returnTarget} />
           <label className="block text-sm font-semibold text-zinc-700">
             Approved value
@@ -297,11 +306,13 @@ function CandidateCard({
 function BulkApproveProduct({
   candidates,
   productId,
+  productVariantId,
   runId,
   returnTarget,
 }: {
   candidates: NutritionCandidateRow[];
   productId: string | null;
+  productVariantId: string | null;
   runId: string;
   returnTarget: string;
 }) {
@@ -314,6 +325,7 @@ function BulkApproveProduct({
       className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4"
     >
       <input type="hidden" name="productId" value={productId} />
+      <input type="hidden" name="productVariantId" value={productVariantId ?? ""} />
       <input type="hidden" name="runId" value={runId} />
       <input type="hidden" name="returnTo" value={returnTarget} />
       {safeCandidates.map((candidate) => (
@@ -329,7 +341,7 @@ function BulkApproveProduct({
         type="submit"
         className="mt-3 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-800"
       >
-        Approve all safe facts for this product
+        Approve all safe facts for this exact target
       </button>
     </form>
   );
@@ -458,10 +470,10 @@ export default async function NutritionCandidatesPage({
                     {group.report[status].length ? (
                       <div className="mt-5 space-y-8">
                         {groupNutritionCandidatesByProduct(group.report[status]).map((productGroup, productIndex, productGroups) => {
-                          const productAnchor = `nutrition-product-${productGroup.product_id ?? productGroup.candidates[0].id}`;
+                          const productAnchor = `nutrition-product-${productGroup.product_id ?? productGroup.candidates[0].id}${productGroup.product_variant_id ? `-variant-${productGroup.product_variant_id}` : ""}`;
                           const nextProduct = productGroups[productIndex + 1];
                           const nextProductAnchor = nextProduct
-                            ? `nutrition-product-${nextProduct.product_id ?? nextProduct.candidates[0].id}`
+                            ? `nutrition-product-${nextProduct.product_id ?? nextProduct.candidates[0].id}${nextProduct.product_variant_id ? `-variant-${nextProduct.product_variant_id}` : ""}`
                             : "nutrition-candidate-review";
                           const candidateReturnTarget = productGroup.candidates.length === 1
                             ? nextProductAnchor
@@ -476,13 +488,14 @@ export default async function NutritionCandidatesPage({
                                 {productGroup.product_name}
                               </h4>
                               <span className="text-xs font-semibold text-zinc-500">
-                                Product ID: {productGroup.product_id ?? "Needs mapping"} · {productGroup.candidates.length} facts
+                                Product ID: {productGroup.product_id ?? "Needs mapping"} · Variant ID: {productGroup.product_variant_id ?? "product-level"} · {productGroup.candidates.length} facts
                               </span>
                             </div>
                             {status === "pending" ? (
                               <BulkApproveProduct
                                 candidates={productGroup.candidates}
                                 productId={productGroup.product_id}
+                                productVariantId={productGroup.product_variant_id}
                                 runId={group.run_id}
                                 returnTarget={bulkReturnTarget}
                               />
