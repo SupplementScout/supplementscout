@@ -485,6 +485,13 @@ No code, migration, test inventory or workflow is changed by this NUT-00 revisio
 - Migration readiness remains ordered: apply pending migration A first, then the
   corrected migration B with the SHA-256 above. NUT-02 stays `IN PROGRESS`, and
   NUT-02C still requires separate authorization.
+- Correction commit `b8415c7d90f78a5eb1c2cdc7497d29af1cc7e262` is published on
+  `main`; GitHub's Vercel context completed successfully at
+  `2026-09-11T18:57:26Z`. Final read-only production evidence again found all A/B
+  columns absent and the unchanged 695-candidate/170-item legacy queue. The
+  authenticated panel returned HTTP 200 with pending-candidate and latest-batch
+  sections and no unavailable notice. No review was submitted and no data was
+  written.
 
 ## NUT-00 closeout evidence
 
