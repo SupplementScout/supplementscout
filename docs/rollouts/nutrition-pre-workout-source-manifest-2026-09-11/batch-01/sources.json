@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-manufacturer-source-list-v1",
+  "sources": [
+    {
+      "product_id": "17",
+      "product_name": "Optimum Nutrition Gold Standard Pre-Workout 330g",
+      "brand": "Optimum Nutrition",
+      "manufacturer": "Optimum Nutrition",
+      "source_url": "https://www.optimumnutrition.com/en-gb/products/gold-standard-pre-workout-powder-eu?variant=52651864326411",
+      "expected_domain": "optimumnutrition.com",
+      "source_type": "manufacturer_product_page",
+      "notes": "Binds variant 714 only: Blue Raspberry, 330 g. Official UK homepage confirms the current product address. Robots permits the product path; owner review of collection rights remains required."
+    },
+    {
+      "product_id": "38",
+      "product_name": "Applied Nutrition Pump 3G Pre-Workout 375g",
+      "brand": "Applied Nutrition",
+      "manufacturer": "Applied Nutrition",
+      "source_url": "https://appliednutrition.uk/products/pump-3g-375g",
+      "expected_domain": "appliednutrition.uk",
+      "source_type": "manufacturer_product_page",
+      "notes": "Binds variant 726 only: Fruit Burst, 375 g. Official pre-workout collection confirms the product address. Robots permits /products/; owner review of collection rights remains required."
+    },
+    {
+      "product_id": "481",
+      "product_name": "Applied Nutrition ABE Pump 500g",
+      "brand": "Applied Nutrition",
+      "manufacturer": "Applied Nutrition",
+      "source_url": "https://appliednutrition.uk/products/abe-pump-pre-workout-500g-caffeine-free",
+      "expected_domain": "appliednutrition.uk",
+      "source_type": "manufacturer_product_page",
+      "notes": "Binds variants 760 Blue Razz and 761 Red Hawaiian, both 500 g; the page explicitly lists both flavours. Official pre-workout collection confirms the address. Owner collection-rights review remains required."
+    },
+    {
+      "product_id": "744",
+      "product_name": "Applied Nutrition Pump 3G Zero Stim 375g",
+      "brand": "Applied Nutrition",
+      "manufacturer": "Applied Nutrition",
+      "source_url": "https://appliednutrition.uk/products/pump-3g-zero-stimulant-375g",
+      "expected_domain": "appliednutrition.uk",
+      "source_type": "manufacturer_product_page",
+      "notes": "Binds variants 815 Fruit Burst and 816 Icy Blue Razz, both 375 g; the page explicitly lists both flavours. The product name alone is not nutrition evidence. Owner collection-rights review remains required."
+    },
+    {
+      "product_id": "881",
+      "product_name": "ABE All Black Everything Pre-Workout 375g",
+      "brand": "ABE All",
+      "manufacturer": "Applied Nutrition",
+      "source_url": "https://appliednutrition.uk/products/abe-all-black-everything-375g",
+      "expected_domain": "appliednutrition.uk",
+      "source_type": "manufacturer_product_page",
+      "notes": "Binds variants 1383 Baddy Berry and 1384 Bubblegum Crush, 375 g/30 servings; the page explicitly lists both flavours. It does not bind catalogue product 957 until duplicate identity is resolved."
+    },
+    {
+      "product_id": "1254",
+      "product_name": "Bulk Dope Max Pre-Workout 563g",
+      "brand": "Bulk",
+      "manufacturer": "Bulk",
+      "source_url": "https://www.bulk.com/uk/products/dope-max-pre-workout/bble-dmax",
+      "expected_domain": "bulk.com",
+      "source_type": "manufacturer_product_page",
+      "notes": "Binds variant 3676 only: Blue Raspberry, 563 g. The official Dope range page confirms the product address. No product-path robots prohibition found; owner collection-rights review remains required."
+    },
+    {
+      "product_id": "1279",
+      "product_name": "Bulk Dope Caffeine Free Pre-Workout 510g",
+      "brand": "Bulk",
+      "manufacturer": "Bulk",
+      "source_url": "https://www.bulk.com/uk/products/dope-pre-workout-caffeine-free/bble-docf",
+      "expected_domain": "bulk.com",
+      "source_type": "manufacturer_product_page",
+      "notes": "Binds variant 3759 only: Blue Raspberry, 510 g. The official Dope range page confirms the product address. Product naming is not nutrition evidence; owner collection-rights review remains required."
+    }
+  ]
+}

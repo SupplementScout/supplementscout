@@ -1,0 +1,538 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-pre-workout-variant-source-verification-v1",
+  "status_date": "2026-09-11",
+  "scope": {
+    "source_scope": "../nutrition-pre-workout-pilot-scope-2026-09-11.json",
+    "variant_count": "25",
+    "product_count": "21",
+    "confirmed_source_binding_count": "15",
+    "unresolved_source_binding_count": "10",
+    "collector_source_url_count": "11"
+  },
+  "collector_batches": [
+    {
+      "batch_id": "batch-01",
+      "source_count": "7",
+      "manifest": "batch-01/sources.json",
+      "collection_status": "OWNER_ROBOTS_TERMS_AND_STORAGE_APPROVAL_REQUIRED"
+    },
+    {
+      "batch_id": "batch-02",
+      "source_count": "4",
+      "manifest": "batch-02/sources.json",
+      "collection_status": "BLOCKED_WRITTEN_PERMISSION_REQUIRED"
+    }
+  ],
+  "storage_readback": {
+    "access": "SUPABASE_SERVICE_ROLE_READ_ONLY",
+    "operation": "storage.listBuckets()",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "bucket_count": "0",
+    "result": "NO_EXISTING_BUCKET",
+    "writes": "0",
+    "required_action": "An authorized owner must provision or designate the private bucket defined in Nutrition-Execution-Plan.md before collection."
+  },
+  "variants": [
+    {
+      "canonical_product_id": "17",
+      "canonical_variant_id": "714",
+      "brand": "Optimum Nutrition",
+      "canonical_product_name": "Optimum Nutrition Gold Standard Pre-Workout 330g",
+      "flavour": "Blue Raspberry",
+      "package_size": "330 g",
+      "official_url": "https://www.optimumnutrition.com/en-gb/products/gold-standard-pre-workout-powder-eu?variant=52651864326411",
+      "address_confirmation": {
+        "method": "OFFICIAL_UK_HOMEPAGE_PRODUCT_LINK",
+        "url": "https://www.optimumnutrition.com/en-gb/"
+      },
+      "product_match_status": "CONFIRMED",
+      "flavour_match_status": "CONFIRMED",
+      "package_match_status": "CONFIRMED",
+      "formulation_match_status": "CURRENT_OFFICIAL_PAGE_LABEL_VERSION_PENDING_COLLECTION",
+      "overall_status": "SOURCE_BINDING_CONFIRMED",
+      "collector_batch": "batch-01",
+      "notes": "Binding confirms identity only; ingredient values and exact captured label version remain unverified."
+    },
+    {
+      "canonical_product_id": "38",
+      "canonical_variant_id": "726",
+      "brand": "Applied Nutrition",
+      "canonical_product_name": "Applied Nutrition Pump 3G Pre-Workout 375g",
+      "flavour": "Fruit Burst",
+      "package_size": "375 g",
+      "official_url": "https://appliednutrition.uk/products/pump-3g-375g",
+      "address_confirmation": {
+        "method": "OFFICIAL_PRE_WORKOUT_COLLECTION_LINK",
+        "url": "https://appliednutrition.uk/collections/pre-workout-best-sellers"
+      },
+      "product_match_status": "CONFIRMED",
+      "flavour_match_status": "CONFIRMED",
+      "package_match_status": "CONFIRMED",
+      "formulation_match_status": "CURRENT_OFFICIAL_PAGE_LABEL_VERSION_PENDING_COLLECTION",
+      "overall_status": "SOURCE_BINDING_CONFIRMED",
+      "collector_batch": "batch-01",
+      "notes": "Binding confirms identity only; Pump in the name is not composition evidence."
+    },
+    {
+      "canonical_product_id": "55",
+      "canonical_variant_id": "1029",
+      "brand": "BioTech USA",
+      "canonical_product_name": "BioTech USA Nitrox Therapy 340g",
+      "flavour": "Blue Grape",
+      "package_size": "340 g",
+      "official_url": "https://shop.biotechusa.com/products/nitrox-therapy-340-g",
+      "address_confirmation": {
+        "method": "OFFICIAL_PRODUCT_COLLECTION_LINK",
+        "url": "https://shop.biotechusa.com/collections/nitrox-therapy"
+      },
+      "product_match_status": "CONFIRMED",
+      "flavour_match_status": "CONFIRMED",
+      "package_match_status": "CONFIRMED",
+      "formulation_match_status": "CURRENT_OFFICIAL_PAGE_LABEL_VERSION_PENDING_COLLECTION",
+      "overall_status": "SOURCE_BINDING_CONFIRMED",
+      "collector_batch": "batch-02",
+      "notes": "Collection is blocked until written permission is obtained under the official terms."
+    },
+    {
+      "canonical_product_id": "58",
+      "canonical_variant_id": "1007",
+      "brand": "5% Nutrition",
+      "canonical_product_name": "5 Nutrition Rich Piana  Full As F*ck 387g",
+      "flavour": "Blue Raspberry",
+      "package_size": "387 g",
+      "official_url": "https://5percentnutrition.com/products/fullaf-preworkout-nitric-oxide-booster",
+      "address_confirmation": {
+        "method": "OFFICIAL_PRE_WORKOUT_COLLECTION_LINK",
+        "url": "https://5percentnutrition.com/collections/pre-workout-supplements"
+      },
+      "product_match_status": "VERSION_REVIEW_REQUIRED",
+      "flavour_match_status": "CONFIRMED",
+      "package_match_status": "UNCONFIRMED_387G",
+      "formulation_match_status": "CURRENT_PAGE_MAY_NOT_MATCH_CATALOGUE_VERSION",
+      "overall_status": "NEEDS_REVIEW",
+      "collector_batch": null,
+      "notes": "Current official Full AF page does not establish the catalogue's 387 g Rich Piana Full As F*ck version."
+    },
+    {
+      "canonical_product_id": "215",
+      "canonical_variant_id": "1016",
+      "brand": "Applied Nutrition",
+      "canonical_product_name": "Applied Nutrition ABE Ultimate Pre-Workout 315g",
+      "flavour": "Bubblegum Crush",
+      "package_size": "315 g",
+      "official_url": "https://appliednutrition.uk/products/abe-all-black-everything-375g",
+      "address_confirmation": {
+        "method": "OFFICIAL_PRE_WORKOUT_COLLECTION_LINK",
+        "url": "https://appliednutrition.uk/collections/pre-workout-best-sellers"
+      },
+      "product_match_status": "VERSION_CONFLICT",
+      "flavour_match_status": "CONFIRMED",
+      "package_match_status": "CONFLICT_315G_VS_375G",
+      "formulation_match_status": "VERSION_UNRESOLVED",
+      "overall_status": "NEEDS_REVIEW",
+      "collector_batch": null,
+      "notes": "The current family page is 375 g; it cannot be bound to the frozen 315 g variant without version evidence."
+    },
+    {
+      "canonical_product_id": "294",
+      "canonical_variant_id": "1059",
+      "brand": "BioTech USA",
+      "canonical_product_name": "BioTech USA Black Blood CAF+ 300g",
+      "flavour": "Cola",
+      "package_size": "300 g",
+      "official_url": "https://shop.biotechusa.com/products/black-blood-caf-300-g",
+      "address_confirmation": {
+        "method": "OFFICIAL_PRODUCT_COLLECTION_LINK",
+        "url": "https://shop.biotechusa.com/collections/black-blood"
+      },
+      "product_match_status": "CONFIRMED",
+      "flavour_match_status": "CONFIRMED",
+      "package_match_status": "CONFIRMED",
+      "formulation_match_status": "CURRENT_OFFICIAL_PAGE_LABEL_VERSION_PENDING_COLLECTION",
+      "overall_status": "SOURCE_BINDING_CONFIRMED",
+      "collector_batch": "batch-02",
+      "notes": "Collection is blocked until written permission is obtained under the official terms."
+    },
+    {
+      "canonical_product_id": "295",
+      "canonical_variant_id": "1041",
+      "brand": "BioTech USA",
+      "canonical_product_name": "BioTech USA Black Blood NOX+ 330g",
+      "flavour": "Blood Orange",
+      "package_size": "330 g",
+      "official_url": "https://shop.biotechusa.com/products/black-blood-nox-340-g",
+      "address_confirmation": {
+        "method": "OFFICIAL_PRODUCT_COLLECTION_LINK",
+        "url": "https://shop.biotechusa.com/collections/black-blood"
+      },
+      "product_match_status": "CONFIRMED_FAMILY",
+      "flavour_match_status": "CONFIRMED",
+      "package_match_status": "CONFLICT_330G_VS_340G",
+      "formulation_match_status": "VERSION_UNRESOLVED",
+      "overall_status": "NEEDS_REVIEW",
+      "collector_batch": null,
+      "notes": "A historical official page mentions 330 g, while the current store page is 340 g; current exact version is unresolved."
+    },
+    {
+      "canonical_product_id": "481",
+      "canonical_variant_id": "760",
+      "brand": "Applied Nutrition",
+      "canonical_product_name": "Applied Nutrition ABE Pump 500g",
+      "flavour": "Blue Razz",
+      "package_size": "500 g",
+      "official_url": "https://appliednutrition.uk/products/abe-pump-pre-workout-500g-caffeine-free",
+      "address_confirmation": {
+        "method": "OFFICIAL_PRE_WORKOUT_COLLECTION_LINK",
+        "url": "https://appliednutrition.uk/collections/pre-workout-best-sellers"
+      },
+      "product_match_status": "CONFIRMED",
+      "flavour_match_status": "CONFIRMED",
+      "package_match_status": "CONFIRMED",
+      "formulation_match_status": "CURRENT_OFFICIAL_PAGE_LABEL_VERSION_PENDING_COLLECTION",
+      "overall_status": "SOURCE_BINDING_CONFIRMED",
+      "collector_batch": "batch-01",
+      "notes": "The official page explicitly lists this flavour; product naming is not nutrition evidence."
+    },
+    {
+      "canonical_product_id": "481",
+      "canonical_variant_id": "761",
+      "brand": "Applied Nutrition",
+      "canonical_product_name": "Applied Nutrition ABE Pump 500g",
+      "flavour": "Red Hawaiian",
+      "package_size": "500 g",
+      "official_url": "https://appliednutrition.uk/products/abe-pump-pre-workout-500g-caffeine-free",
+      "address_confirmation": {
+        "method": "OFFICIAL_PRE_WORKOUT_COLLECTION_LINK",
+        "url": "https://appliednutrition.uk/collections/pre-workout-best-sellers"
+      },
+      "product_match_status": "CONFIRMED",
+      "flavour_match_status": "CONFIRMED",
+      "package_match_status": "CONFIRMED",
+      "formulation_match_status": "CURRENT_OFFICIAL_PAGE_LABEL_VERSION_PENDING_COLLECTION",
+      "overall_status": "SOURCE_BINDING_CONFIRMED",
+      "collector_batch": "batch-01",
+      "notes": "The official page explicitly lists this flavour; no cross-flavour label assumption is made."
+    },
+    {
+      "canonical_product_id": "744",
+      "canonical_variant_id": "815",
+      "brand": "Applied Nutrition",
+      "canonical_product_name": "Applied Nutrition Pump 3G Zero Stim 375g",
+      "flavour": "Fruit Burst",
+      "package_size": "375 g",
+      "official_url": "https://appliednutrition.uk/products/pump-3g-zero-stimulant-375g",
+      "address_confirmation": {
+        "method": "OFFICIAL_PRE_WORKOUT_COLLECTION_LINK",
+        "url": "https://appliednutrition.uk/collections/pre-workout-best-sellers"
+      },
+      "product_match_status": "CONFIRMED",
+      "flavour_match_status": "CONFIRMED",
+      "package_match_status": "CONFIRMED",
+      "formulation_match_status": "CURRENT_OFFICIAL_PAGE_LABEL_VERSION_PENDING_COLLECTION",
+      "overall_status": "SOURCE_BINDING_CONFIRMED",
+      "collector_batch": "batch-01",
+      "notes": "The official page explicitly lists this flavour; Zero Stim in the name is not composition evidence."
+    },
+    {
+      "canonical_product_id": "744",
+      "canonical_variant_id": "816",
+      "brand": "Applied Nutrition",
+      "canonical_product_name": "Applied Nutrition Pump 3G Zero Stim 375g",
+      "flavour": "Icy Blue Razz",
+      "package_size": "375 g",
+      "official_url": "https://appliednutrition.uk/products/pump-3g-zero-stimulant-375g",
+      "address_confirmation": {
+        "method": "OFFICIAL_PRE_WORKOUT_COLLECTION_LINK",
+        "url": "https://appliednutrition.uk/collections/pre-workout-best-sellers"
+      },
+      "product_match_status": "CONFIRMED",
+      "flavour_match_status": "CONFIRMED",
+      "package_match_status": "CONFIRMED",
+      "formulation_match_status": "CURRENT_OFFICIAL_PAGE_LABEL_VERSION_PENDING_COLLECTION",
+      "overall_status": "SOURCE_BINDING_CONFIRMED",
+      "collector_batch": "batch-01",
+      "notes": "The official page explicitly lists this flavour; no cross-flavour label assumption is made."
+    },
+    {
+      "canonical_product_id": "756",
+      "canonical_variant_id": "885",
+      "brand": "10X Athletic",
+      "canonical_product_name": "10X Athletic PUMP Non-Stim Pre Workout 50 servings",
+      "flavour": "Apple Attack",
+      "package_size": "50 servings",
+      "official_url": "https://www.10xathletic.com/products/10x-pump",
+      "address_confirmation": {
+        "method": "OFFICIAL_PRE_WORKOUT_COLLECTION_LINK",
+        "url": "https://www.10xathletic.com/collections/pre-workout"
+      },
+      "product_match_status": "CONFIRMED",
+      "flavour_match_status": "CONFIRMED",
+      "package_match_status": "CONFIRMED",
+      "formulation_match_status": "CURRENT_OFFICIAL_PAGE_LABEL_VERSION_PENDING_COLLECTION",
+      "overall_status": "SOURCE_BINDING_CONFIRMED",
+      "collector_batch": "batch-02",
+      "notes": "The page explicitly lists this flavour and 50 servings; collection requires written permission."
+    },
+    {
+      "canonical_product_id": "756",
+      "canonical_variant_id": "1974",
+      "brand": "10X Athletic",
+      "canonical_product_name": "10X Athletic PUMP Non-Stim Pre Workout 50 servings",
+      "flavour": "Cobra Ki",
+      "package_size": "50 servings",
+      "official_url": "https://www.10xathletic.com/products/10x-pump",
+      "address_confirmation": {
+        "method": "OFFICIAL_PRE_WORKOUT_COLLECTION_LINK",
+        "url": "https://www.10xathletic.com/collections/pre-workout"
+      },
+      "product_match_status": "CONFIRMED",
+      "flavour_match_status": "CONFIRMED",
+      "package_match_status": "CONFIRMED",
+      "formulation_match_status": "CURRENT_OFFICIAL_PAGE_LABEL_VERSION_PENDING_COLLECTION",
+      "overall_status": "SOURCE_BINDING_CONFIRMED",
+      "collector_batch": "batch-02",
+      "notes": "The page explicitly lists this flavour and 50 servings; collection requires written permission."
+    },
+    {
+      "canonical_product_id": "757",
+      "canonical_variant_id": "887",
+      "brand": "10X Athletic",
+      "canonical_product_name": "10X Extreme Stim Pre Workout 600g",
+      "flavour": "Apple Attack",
+      "package_size": "600 g",
+      "official_url": "https://www.10xathletic.com/products/10x-stim",
+      "address_confirmation": {
+        "method": "OFFICIAL_PRE_WORKOUT_COLLECTION_LINK",
+        "url": "https://www.10xathletic.com/collections/pre-workout"
+      },
+      "product_match_status": "CONFIRMED",
+      "flavour_match_status": "CONFIRMED",
+      "package_match_status": "CONFIRMED",
+      "formulation_match_status": "CURRENT_OFFICIAL_PAGE_LABEL_VERSION_PENDING_COLLECTION",
+      "overall_status": "SOURCE_BINDING_CONFIRMED",
+      "collector_batch": "batch-02",
+      "notes": "The official page establishes Apple Attack and 50 x 12 g servings; collection requires written permission."
+    },
+    {
+      "canonical_product_id": "881",
+      "canonical_variant_id": "1383",
+      "brand": "ABE All",
+      "canonical_product_name": "ABE All Black Everything Pre-Workout 375g",
+      "flavour": "Baddy Berry",
+      "package_size": "375 g",
+      "official_url": "https://appliednutrition.uk/products/abe-all-black-everything-375g",
+      "address_confirmation": {
+        "method": "OFFICIAL_PRE_WORKOUT_COLLECTION_LINK",
+        "url": "https://appliednutrition.uk/collections/pre-workout-best-sellers"
+      },
+      "product_match_status": "CONFIRMED",
+      "flavour_match_status": "CONFIRMED",
+      "package_match_status": "CONFIRMED",
+      "formulation_match_status": "CURRENT_OFFICIAL_PAGE_LABEL_VERSION_PENDING_COLLECTION",
+      "overall_status": "SOURCE_BINDING_CONFIRMED",
+      "collector_batch": "batch-01",
+      "notes": "The official page explicitly lists this flavour; binding does not extend to duplicate catalogue product 957."
+    },
+    {
+      "canonical_product_id": "881",
+      "canonical_variant_id": "1384",
+      "brand": "ABE All",
+      "canonical_product_name": "ABE All Black Everything Pre-Workout 375g",
+      "flavour": "Bubblegum Crush",
+      "package_size": "375 g",
+      "official_url": "https://appliednutrition.uk/products/abe-all-black-everything-375g",
+      "address_confirmation": {
+        "method": "OFFICIAL_PRE_WORKOUT_COLLECTION_LINK",
+        "url": "https://appliednutrition.uk/collections/pre-workout-best-sellers"
+      },
+      "product_match_status": "CONFIRMED",
+      "flavour_match_status": "CONFIRMED",
+      "package_match_status": "CONFIRMED",
+      "formulation_match_status": "CURRENT_OFFICIAL_PAGE_LABEL_VERSION_PENDING_COLLECTION",
+      "overall_status": "SOURCE_BINDING_CONFIRMED",
+      "collector_batch": "batch-01",
+      "notes": "The official page explicitly lists this flavour; no cross-flavour label assumption is made."
+    },
+    {
+      "canonical_product_id": "899",
+      "canonical_variant_id": "1487",
+      "brand": "CNP",
+      "canonical_product_name": "CNP Professional Full Tilt V2 Stim Pre Workout 570g",
+      "flavour": "Cherry Berry Bomb",
+      "package_size": "570 g",
+      "official_url": "https://cnpprofessional.co.uk/products/loaded-pre",
+      "address_confirmation": {
+        "method": "OFFICIAL_ALL_PRODUCTS_COLLECTION_LINK",
+        "url": "https://cnpprofessional.co.uk/collections/all"
+      },
+      "product_match_status": "VERSION_CONFLICT_FULL_TILT_V2_VS_LOADED_PRE",
+      "flavour_match_status": "NOT_LISTED_ON_CURRENT_PAGE",
+      "package_match_status": "CONFIRMED",
+      "formulation_match_status": "VERSION_UNRESOLVED",
+      "overall_status": "NEEDS_REVIEW",
+      "collector_batch": null,
+      "notes": "The current official 570 g successor page has different naming and flavours, so it cannot evidence the frozen variant."
+    },
+    {
+      "canonical_product_id": "957",
+      "canonical_variant_id": "1864",
+      "brand": "Applied Nutrition",
+      "canonical_product_name": "Applied Nutrition ABE 30 servings",
+      "flavour": "Baddy Berry",
+      "package_size": "30 servings",
+      "official_url": "https://appliednutrition.uk/products/abe-all-black-everything-375g",
+      "address_confirmation": {
+        "method": "OFFICIAL_PRE_WORKOUT_COLLECTION_LINK",
+        "url": "https://appliednutrition.uk/collections/pre-workout-best-sellers"
+      },
+      "product_match_status": "CANONICAL_IDENTITY_AMBIGUOUS_WITH_PRODUCT_881",
+      "flavour_match_status": "CONFIRMED",
+      "package_match_status": "CONFIRMED_30_SERVINGS",
+      "formulation_match_status": "BLOCKED_BY_IDENTITY_DECISION",
+      "overall_status": "NEEDS_REVIEW",
+      "collector_batch": null,
+      "notes": "The same current family is already bound to product 881; owner identity review is required before applying this source to product 957."
+    },
+    {
+      "canonical_product_id": "961",
+      "canonical_variant_id": "1879",
+      "brand": "Cellucor",
+      "canonical_product_name": "Cellucor C4 Original – Energy, Focus & Performance Pre-Workout 30 servings",
+      "flavour": "Millions Cola",
+      "package_size": "30 servings",
+      "official_url": "https://cellucor.com/products/c4-original?view=xt-product",
+      "address_confirmation": {
+        "method": "PUBLIC_SEARCH_RESULT_ON_OFFICIAL_DOMAIN",
+        "url": "https://cellucor.com/products/c4-original?view=xt-product"
+      },
+      "product_match_status": "CONFIRMED",
+      "flavour_match_status": "NOT_LISTED_ON_CURRENT_PAGE",
+      "package_match_status": "CONFIRMED",
+      "formulation_match_status": "VERSION_UNRESOLVED",
+      "overall_status": "NEEDS_REVIEW",
+      "collector_batch": null,
+      "notes": "Current official flavours do not include Millions Cola; do not substitute a current formulation for the frozen UK variant."
+    },
+    {
+      "canonical_product_id": "1249",
+      "canonical_variant_id": "3671",
+      "brand": "Animal",
+      "canonical_product_name": "Animal Fury Pre Workout 491g",
+      "flavour": "Blue Raspberry",
+      "package_size": "491 g",
+      "official_url": "https://www.animalpak.com/collections/shop-all-supplements/products/animal-fury-pre-workout-powder-supplement",
+      "address_confirmation": {
+        "method": "OFFICIAL_COLLECTION_PRODUCT_LINK",
+        "url": "https://www.animalpak.com/collections/shop-all-supplements"
+      },
+      "product_match_status": "CONFIRMED",
+      "flavour_match_status": "CONFIRMED",
+      "package_match_status": "UNCONFIRMED_491G",
+      "formulation_match_status": "EXACT_PACKAGE_AND_BATCH_UNRESOLVED",
+      "overall_status": "NEEDS_REVIEW",
+      "collector_batch": null,
+      "notes": "The official page confirms product, flavour and 30 servings, but does not establish the frozen 491 g pack."
+    },
+    {
+      "canonical_product_id": "1252",
+      "canonical_variant_id": "3674",
+      "brand": "Adapt Nutrition",
+      "canonical_product_name": "Adapt Nutrition PreTRAIN X 350g",
+      "flavour": "Iced Raspberry",
+      "package_size": "350 g",
+      "official_url": null,
+      "address_confirmation": {
+        "method": "OFFICIAL_SOURCE_NOT_FOUND_IN_BOUNDED_SEARCH",
+        "url": null
+      },
+      "product_match_status": "OFFICIAL_SOURCE_NOT_FOUND",
+      "flavour_match_status": "OFFICIAL_SOURCE_NOT_FOUND",
+      "package_match_status": "OFFICIAL_SOURCE_NOT_FOUND",
+      "formulation_match_status": "OFFICIAL_SOURCE_NOT_FOUND",
+      "overall_status": "NEEDS_REVIEW",
+      "collector_batch": null,
+      "notes": "Distributor pages were found but are not manufacturer evidence. Obtain an official manufacturer URL or written manufacturer source; do not insert a retailer URL."
+    },
+    {
+      "canonical_product_id": "1254",
+      "canonical_variant_id": "3676",
+      "brand": "Bulk",
+      "canonical_product_name": "Bulk Dope Max Pre-Workout 563g",
+      "flavour": "Blue Raspberry",
+      "package_size": "563 g",
+      "official_url": "https://www.bulk.com/uk/products/dope-max-pre-workout/bble-dmax",
+      "address_confirmation": {
+        "method": "OFFICIAL_RANGE_PAGE_LINK",
+        "url": "https://www.bulk.com/uk/sports-nutrition/dope"
+      },
+      "product_match_status": "CONFIRMED",
+      "flavour_match_status": "CONFIRMED",
+      "package_match_status": "CONFIRMED",
+      "formulation_match_status": "CURRENT_OFFICIAL_PAGE_LABEL_VERSION_PENDING_COLLECTION",
+      "overall_status": "SOURCE_BINDING_CONFIRMED",
+      "collector_batch": "batch-01",
+      "notes": "Binding confirms identity only; ingredient values and exact captured label version remain unverified."
+    },
+    {
+      "canonical_product_id": "1275",
+      "canonical_variant_id": "3755",
+      "brand": "Dark Stims",
+      "canonical_product_name": "Darkstims Pump V2 Stim-Free Pre-Workout 520g",
+      "flavour": "Peach",
+      "package_size": "520 g",
+      "official_url": "https://www.darkstims.com/products/pump-v2",
+      "address_confirmation": {
+        "method": "OFFICIAL_SUPPLEMENTS_COLLECTION_LINK",
+        "url": "https://www.darkstims.com/collections/supplements"
+      },
+      "product_match_status": "CONFIRMED",
+      "flavour_match_status": "CONFIRMED",
+      "package_match_status": "UNCONFIRMED_520G",
+      "formulation_match_status": "EXACT_PACKAGE_AND_BATCH_UNRESOLVED",
+      "overall_status": "NEEDS_REVIEW",
+      "collector_batch": null,
+      "notes": "The official page confirms product and Peach, but visible official evidence does not establish 520 g. Stim-Free in the name is not composition evidence."
+    },
+    {
+      "canonical_product_id": "1279",
+      "canonical_variant_id": "3759",
+      "brand": "Bulk",
+      "canonical_product_name": "Bulk Dope Caffeine Free Pre-Workout 510g",
+      "flavour": "Blue Raspberry",
+      "package_size": "510 g",
+      "official_url": "https://www.bulk.com/uk/products/dope-pre-workout-caffeine-free/bble-docf",
+      "address_confirmation": {
+        "method": "OFFICIAL_RANGE_PAGE_LINK",
+        "url": "https://www.bulk.com/uk/sports-nutrition/dope"
+      },
+      "product_match_status": "CONFIRMED",
+      "flavour_match_status": "CONFIRMED",
+      "package_match_status": "CONFIRMED",
+      "formulation_match_status": "CURRENT_OFFICIAL_PAGE_LABEL_VERSION_PENDING_COLLECTION",
+      "overall_status": "SOURCE_BINDING_CONFIRMED",
+      "collector_batch": "batch-01",
+      "notes": "Binding confirms identity only; Caffeine Free in the name is not composition evidence."
+    },
+    {
+      "canonical_product_id": "1283",
+      "canonical_variant_id": "3763",
+      "brand": "Apex Formulas",
+      "canonical_product_name": "Apex Formulas Apex Pump 625g",
+      "flavour": "Raspberry Rush",
+      "package_size": "625 g",
+      "official_url": "https://apexformulas.co.uk/products/apex-pump",
+      "address_confirmation": {
+        "method": "OFFICIAL_ALL_PRODUCTS_COLLECTION_LINK",
+        "url": "https://apexformulas.co.uk/collections/all"
+      },
+      "product_match_status": "CONFIRMED",
+      "flavour_match_status": "UNCONFIRMED_RASPBERRY_RUSH",
+      "package_match_status": "UNCONFIRMED_625G",
+      "formulation_match_status": "EXACT_VARIANT_AND_BATCH_UNRESOLVED",
+      "overall_status": "NEEDS_REVIEW",
+      "collector_batch": null,
+      "notes": "The official page confirms Apex Pump, but visible official evidence does not establish the frozen flavour and pack."
+    }
+  ]
+}

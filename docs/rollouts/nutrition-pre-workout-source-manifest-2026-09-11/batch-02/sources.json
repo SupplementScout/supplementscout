@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-manufacturer-source-list-v1",
+  "sources": [
+    {
+      "product_id": "55",
+      "product_name": "BioTech USA Nitrox Therapy 340g",
+      "brand": "BioTech USA",
+      "manufacturer": "BioTech USA",
+      "source_url": "https://shop.biotechusa.com/products/nitrox-therapy-340-g",
+      "expected_domain": "shop.biotechusa.com",
+      "source_type": "manufacturer_product_page",
+      "notes": "Binds variant 1029 only: Blue Grape, 340 g. Official collection confirms the address. Robots permits /products/, but terms prohibit downloading or electronic storage/processing without written consent; do not collect before permission."
+    },
+    {
+      "product_id": "294",
+      "product_name": "BioTech USA Black Blood CAF+ 300g",
+      "brand": "BioTech USA",
+      "manufacturer": "BioTech USA",
+      "source_url": "https://shop.biotechusa.com/products/black-blood-caf-300-g",
+      "expected_domain": "shop.biotechusa.com",
+      "source_type": "manufacturer_product_page",
+      "notes": "Binds variant 1059 only: Cola, 300 g. Official Black Blood collection confirms the address. Robots permits /products/, but terms require written consent for downloading/storage/processing; do not collect before permission."
+    },
+    {
+      "product_id": "756",
+      "product_name": "10X Athletic PUMP Non-Stim Pre Workout 50 servings",
+      "brand": "10X Athletic",
+      "manufacturer": "10X Athletic",
+      "source_url": "https://www.10xathletic.com/products/10x-pump",
+      "expected_domain": "10xathletic.com",
+      "source_type": "manufacturer_product_page",
+      "notes": "Binds variants 885 Apple Attack and 1974 Cobra Ki, 50 servings; the page explicitly lists both flavours. Robots permits /products/, but terms prohibit spider/crawl/scrape without written permission; do not collect before permission."
+    },
+    {
+      "product_id": "757",
+      "product_name": "10X Extreme Stim Pre Workout 600g",
+      "brand": "10X Athletic",
+      "manufacturer": "10X Athletic",
+      "source_url": "https://www.10xathletic.com/products/10x-stim",
+      "expected_domain": "10xathletic.com",
+      "source_type": "manufacturer_product_page",
+      "notes": "Binds variant 887 only: Apple Attack, 600 g (50 x 12 g servings). Official pre-workout collection confirms the address. Terms prohibit spider/crawl/scrape without written permission; do not collect before permission."
+    }
+  ]
+}
