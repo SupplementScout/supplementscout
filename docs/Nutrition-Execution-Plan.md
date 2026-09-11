@@ -8,7 +8,9 @@
   source collection and completion gates remain outstanding.
 - Owner/session: Codex, owner-requested preparatory NUT-01 session, 11 September 2026.
 - Branch: `main`; starting HEAD `07321b4b68db2eca6bca04a40a15c24c21c648c4`;
-  remote `main` matched before work. Publication commit/readback: see NUT-01 evidence.
+  remote `main` matched before work. Scope commit
+  `ed750cb4d2f5d7feb76276cecb907331336cf89d` was pushed to GitHub `main` and
+  matched by independent `git ls-remote` readback.
 - Production readback at `2026-09-11T12:58:26.063Z`: public `anon` SELECT against
   project `aftboxmrdgyhizicfsfu`; 141 active unmerged Pre Workout products and
   575 active variants. Frozen scope: 25 variants across 21 products.
@@ -299,6 +301,10 @@ No code, migration, test inventory or workflow is changed by this NUT-00 revisio
   19 SEO tasks, next SEO-15, none in progress. `git diff --check` passed and the
   frozen JSON parsed successfully. No code, workflow, migration or test changed,
   so quick/full/integration gates were not required by AGENTS.md.
-- Git publication evidence is recorded in the follow-up below. This preparation
-  does not complete NUT-01; the exact next action remains the source-manifest step
-  in the current checkpoint.
+- Scope commit `ed750cb4d2f5d7feb76276cecb907331336cf89d` was pushed to
+  GitHub `main`; independent `git ls-remote origin refs/heads/main` returned that
+  exact SHA. This proves remote documentation availability, not source capture,
+  storage provisioning or feature deployment. The present closeout update is
+  discoverable with `git log -1 -- docs/Nutrition-Execution-Plan.md`.
+- This preparation does not complete NUT-01; the exact next action remains the
+  source-manifest step in the current checkpoint.
