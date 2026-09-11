@@ -354,9 +354,15 @@ No code, migration, test inventory or workflow is changed by this NUT-00 revisio
   final-closeout fixture again failed the 10 Reps v8 anchor precondition. This
   correction does not change or repair either fixture and does not represent the
   aggregate integration suite as passed.
-- NUT-02B has not started. Its start remains contingent on publishing this
-  correction and confirming that the authenticated production panel again shows
-  the existing product candidate queue while the production schema is unchanged.
+- Commit `c996268f66aa760e53b234e087a927d38a0b45e9` is published on `main`, and
+  GitHub's Vercel context completed successfully at `2026-09-11T17:45:32Z`.
+  The final read-only production check again found both provenance columns absent,
+  695 legacy candidates (16 pending, 673 approved and 6 rejected) and 170 batch
+  items. An authenticated request to the deployed panel returned HTTP 200, showed
+  the pending-candidate and latest-batch sections, and did not show the unavailable
+  notice. NUT-02B has not started; this compatibility prerequisite no longer
+  blocks its bounded implementation, while variant operations remain blocked
+  until the separately authorized production migration.
 
 ## NUT-00 closeout evidence
 

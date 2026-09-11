@@ -18,7 +18,10 @@ correction keeps existing product-only queue operations available for that exact
 schema and blocks all variant operations until the pending migration. Local tests use only the
 archived product `38` / variant `726` provenance and an explicitly test-only
 numeric value. No production migration or catalogue write was performed. The
-next step after the correction's live panel readback is NUT-02B: add caffeine, citrulline amount/form, beta-alanine and
+published correction `c996268` has a successful Vercel status, and authenticated
+production readback shows the existing pending-candidate and latest-batch sections
+on the unchanged pre-migration schema. The next step is NUT-02B: add caffeine,
+citrulline amount/form, beta-alanine and
 explicit absence/unknown/conflict semantics to the same guarded path.
 SEO-15 remains BLOCKED, the 16 September accrual check and conditional 24-25
 September reviews remain scheduled, and GYM HIGH remains owner-deferred.
