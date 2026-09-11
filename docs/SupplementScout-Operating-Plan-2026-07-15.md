@@ -5,6 +5,17 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
+**11 September 2026 nutrition planning checkpoint:**
+[Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
+for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-00 is a
+bounded documentation/read-only audit; its evidence, publication status and one
+next step are maintained there. Reuse the existing
+[nutrition process](nutrition-candidate-extractor.md), including its review and
+explicit-apply gates. No label collection, feature implementation or database
+write is authorized by this checkpoint. SEO-15 remains BLOCKED, the 16 September
+accrual check and conditional 24-25 September reviews remain scheduled, and
+GYM HIGH remains owner-deferred. Guardian currently validates SEO, not nutrition.
+
 **11 September 2026 shared automation final checkpoint:** commits `e07c193`,
 `bd97683` and `9856a55` are on `main`; local quick/full verification and GitHub
 Quality Gate `34571034428` passed. The eBay workflow now refreshes Automation

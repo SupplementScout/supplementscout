@@ -24,6 +24,13 @@ For SEO, catalogue, retailer, automation or roadmap work:
 7. Never give an agent autonomous product-identity or production-write
    authority; retain existing owner approvals and guarded data paths.
 
+For nutrition work, also read `docs/Nutrition-Execution-Plan.md` (the canonical
+nutrition ledger) and `docs/nutrition-candidate-extractor.md` (the existing
+process). Keep one active nutrition task and preserve the Operating Plan's SEO
+priorities. The nutrition ledger records its next step; Project Guardian does
+not yet validate nutrition statuses or evidence. NUT-00 authorizes documentation
+and read-only audit only, not label collection, implementation or database writes.
+
 Before creating or changing a public comparison, category, brand or retailer
 hub, follow `docs/SEO-Indexability-Lifecycle.md`: confirm the feature does not
 already exist; register the route; reuse the shared cache, robots, canonical,
