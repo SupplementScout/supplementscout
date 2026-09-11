@@ -421,6 +421,19 @@ No code, migration, test inventory or workflow is changed by this NUT-00 revisio
   safe test files, baseline migration validation and the Next.js production
   build. No OCR, source collection, pilot candidate, production migration or
   nutrition/catalogue write occurred; all values used by tests are TEST ONLY.
+- Code commit `d2db38f4ee6fb76fbdbd35ffc17ad74fcb8e2897` is published on
+  `main`; GitHub's Vercel context completed successfully at
+  `2026-09-11T18:37:52Z`. A production validator transaction with
+  `transaction_read_only=on` confirmed that both NUT-02A columns and all nine
+  NUT-02B columns remain absent. The legacy reads still returned 695 candidates
+  (16 pending, 673 approved and 6 rejected) and 170 batch items. The validator
+  cannot read `supabase_migrations`, so no migration conclusion is inferred from
+  that ledger.
+- After deployment, an authenticated read of `/admin/nutrition-candidates`
+  returned HTTP 200, rendered the pending-candidate and latest-batch sections and
+  did not render the unavailable notice. This confirms the existing product-only
+  panel still works on the actual pre-A schema; no review form was submitted and
+  no data was written.
 - The aggregate `npm run verify:integration` remains explicitly non-green from
   the preceding current checkpoint: its first 30-file chunk reported 65 passed,
   2 failed and 5 skipped because the unrelated Batch F disposable PostgreSQL

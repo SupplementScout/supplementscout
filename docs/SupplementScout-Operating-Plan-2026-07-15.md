@@ -18,7 +18,9 @@ exact serving and original unit. The deployed compatibility path still serves
 the product-only queue on the confirmed pre-NUT-02A schema and blocks newer
 operations until their exact columns exist. Local tests use TEST ONLY data and
 cover schemas before A, after A and after B. No production migration, candidate
-or catalogue write was performed. The next step is NUT-02C: separately authorize
+or catalogue write was performed. Code commit `d2db38f` has a successful Vercel
+status; authenticated production readback shows the existing panel on the actual
+pre-A schema. The next step is NUT-02C: separately authorize
 the two pending migrations in A-then-B order, then read back the schema and panel
 without entering pilot facts.
 SEO-15 remains BLOCKED, the 16 September accrual check and conditional 24-25
