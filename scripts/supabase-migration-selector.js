@@ -289,9 +289,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 204,
+    ledgerCount: 206,
     ledgerFingerprint:
-      "95b09e5d09814d048e41b6034272a79ef6cca14f5b2712d15bac69d14852e48f",
+      "532359913006127f8b83c549091f0d95714cd052cafec5f1d366a4bfab0f1e45",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -308,16 +308,7 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260911120000_add_nutrition_candidate_variant_provenance.sql",
-        sha256: "62a7a5dd812d4559889d7392217095b67841d1d6db37e5519ee6e1593bc207cb",
-      }),
-      Object.freeze({
-        filename: "20260911130000_add_nutrition_candidate_preworkout_facts.sql",
-        sha256: "76db080b347dfffd36a8233c1d8f9725421b9caf2e445d56579833898b6428d5",
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
 });
 

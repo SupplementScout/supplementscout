@@ -242,23 +242,16 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the nutrition migrations as pending", () => {
+test("production records the nutrition migrations as deployed", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [
-    {
-      filename: NUTRITION_VARIANT_PROVENANCE_MIGRATION,
-      sha256: NUTRITION_VARIANT_PROVENANCE_SHA256,
-    },
-    {
-      filename: NUTRITION_PREWORKOUT_FACTS_MIGRATION,
-      sha256: NUTRITION_PREWORKOUT_FACTS_SHA256,
-    },
-  ]);
-  assert.equal(contract.ledgerCount, 204);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 206);
   assert.equal(
     contract.ledgerFingerprint,
-    "95b09e5d09814d048e41b6034272a79ef6cca14f5b2712d15bac69d14852e48f",
+    "532359913006127f8b83c549091f0d95714cd052cafec5f1d366a4bfab0f1e45",
   );
+  assert.equal(sha256File(path.join(SOURCE, NUTRITION_VARIANT_PROVENANCE_MIGRATION)), NUTRITION_VARIANT_PROVENANCE_SHA256);
+  assert.equal(sha256File(path.join(SOURCE, NUTRITION_PREWORKOUT_FACTS_MIGRATION)), NUTRITION_PREWORKOUT_FACTS_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TEN_REPS_SYNC_REGISTRATION_MIGRATION)), TEN_REPS_SYNC_REGISTRATION_SHA256);
   assert.equal(sha256File(path.join(SOURCE, INTERRUPTED_SHARED_REFRESH_MIGRATION)), INTERRUPTED_SHARED_REFRESH_SHA256);
   assert.equal(sha256File(path.join(SOURCE, EXPIRED_DISCOUNT_JONS_MIGRATION)), EXPIRED_DISCOUNT_JONS_SHA256);
@@ -358,7 +351,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger with the reviewed nutrition migrations pending", () => {
+test("production binds its exact ledger with the nutrition migrations deployed", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -384,16 +377,13 @@ test("production binds its exact ledger with the reviewed nutrition migrations p
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 204);
+  assert.equal(result.ledger_count, 206);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 206);
-  assert.deepEqual(result.pending_files, [NUTRITION_VARIANT_PROVENANCE_MIGRATION, NUTRITION_PREWORKOUT_FACTS_MIGRATION]);
+  assert.deepEqual(result.pending_files, []);
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {
-    [NUTRITION_VARIANT_PROVENANCE_MIGRATION]: NUTRITION_VARIANT_PROVENANCE_SHA256,
-    [NUTRITION_PREWORKOUT_FACTS_MIGRATION]: NUTRITION_PREWORKOUT_FACTS_SHA256,
-  });
+  assert.deepEqual(result.pending_sha256s, {});
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_CATALOGUE_COUNT_MIGRATION)), REVIEWED_CATALOGUE_COUNT_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_ENERGY_MIGRATION)), REVIEWED_ENERGY_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_EXISTING_CATEGORIES_MIGRATION)), REVIEWED_EXISTING_CATEGORIES_SHA256);

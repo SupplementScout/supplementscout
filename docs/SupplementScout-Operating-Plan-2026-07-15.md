@@ -9,22 +9,27 @@
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
 closed with explicit gaps over its frozen 25-variant/21-product pilot. NUT-02 is
-`IN PROGRESS`; bounded steps NUT-02A and NUT-02B are `CODE COMPLETE`. The existing
+`LIVE VERIFIED` within its candidate-schema and guarded-path boundary; NUT-02A,
+NUT-02B and the production rollout NUT-02C are complete. The existing
 [nutrition process](nutrition-candidate-extractor.md) carries exact variant ID,
 private source-object URI and SHA-256 plus caffeine, beta-alanine and citrulline
 amount/form through candidate/review/plan/apply. Five ingredient-information
 states remain separate from candidate review, and quantified facts retain the
-exact serving and original unit. The pending NUT-02B migration now hardens every
+exact serving and original unit. The deployed NUT-02B migration hardens every
 recreated fact/unit/review CHECK with `IS TRUE` after direct PostgreSQL regression
-proved nullable comparisons could otherwise pass incomplete rows. The deployed compatibility path still serves
-the product-only queue on the confirmed pre-NUT-02A schema and blocks newer
-operations until their exact columns exist. Local tests use TEST ONLY data and
-cover schemas before A, after A and after B. No production migration, candidate
-or catalogue write was performed. Code commit `d2db38f` has a successful Vercel
-status; authenticated production readback shows the existing panel on the actual
-pre-A schema. The next step is NUT-02C: separately authorize
-the two pending migrations in A-then-B order, then read back the schema and panel
-without entering pilot facts.
+proved nullable comparisons could otherwise pass incomplete rows. The deployed
+compatibility path still serves the product-only queue on pre-NUT-02A schemas and
+blocks newer operations until their exact columns exist. Local tests use TEST ONLY
+data and cover schemas before A, after A and after B. The controlled production
+selector applied only A then B; fresh readback verified both exact hashes, all 11
+columns, eight relevant constraints, three triggers, the full new queue query and
+the authenticated panel. The 695-candidate legacy projection and 170 batch items
+are byte-stable before and after, and all five catalogue counts are unchanged.
+Production evidence after migration is read-only; isolated PostgreSQL remains the
+write-behavior proof. No candidate, approval, catalogue fact, OCR or source was
+created. The next step is NUT-03A: prepare and dry-validate one offline candidate
+artifact from the existing archived label for product `38` / variant `726`,
+without storing or approving it.
 SEO-15 remains BLOCKED, the 16 September accrual check and conditional 24-25
 September reviews remain scheduled, and GYM HIGH remains owner-deferred.
 Guardian currently validates SEO, not nutrition.

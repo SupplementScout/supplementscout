@@ -4,14 +4,15 @@
 
 ## Current checkpoint
 
-- Task: NUT-02; status `IN PROGRESS`. Bounded steps NUT-02A and NUT-02B are
-  `CODE COMPLETE`: exact variant provenance and the three pre-workout ingredient
-  facts now survive the existing candidate/review/plan/apply path. The production
-  migrations and their live readback remain outstanding, so NUT-02 is not closed.
-- Owner/session: Codex, owner-authorized NUT-02B pre-workout fact implementation
-  session, 11 September 2026.
+- Task: NUT-02; status `LIVE VERIFIED` within its candidate-schema and guarded-path
+  boundary. NUT-02A, NUT-02B and the production rollout NUT-02C are complete.
+  Exact variant provenance and the three pre-workout ingredient facts survive the
+  existing candidate/review/plan/apply path; no pilot fact has yet been created,
+  reviewed or applied.
+- Owner/session: Codex, owner-authorized NUT-02C production migration session,
+  11 September 2026.
 - Branch: `main`; this session started at
-  `4ad0774104ddf4811061ac86ed4fdc09b8eba140`; remote `main` matched before work.
+  `519ac42c4a61212559d7119428f9fcb0581fe871`; remote `main` matched before work.
 - Production readback at `2026-09-11T12:58:26.063Z`: public `anon` SELECT against
   project `aftboxmrdgyhizicfsfu`; 141 active unmerged Pre Workout products and
   575 active variants. Frozen scope: 25 variants across 21 products.
@@ -50,26 +51,26 @@
   backfilled. The canary uses product `38`, variant `726`, its recorded private
   object URI and SHA-256; its numeric value is explicitly test-only and is not an
   approved ingredient or catalogue fact.
-- Production still has the pre-NUT-02A candidate schema. A bounded compatibility
-  correction keeps product-only candidate read, review, storage, planning and
-  apply available only when the database reports the exact missing provenance
-  columns. Variant operations remain unavailable until the pending migration is
-  applied through the separately authorized migration process.
+- The compatibility correction remains in place for older schemas, but production
+  now has the NUT-02A and NUT-02B candidate schema. Product-only records remain
+  readable and unchanged; exact-variant operations no longer take the missing-
+  migration branch.
 - NUT-02B adds caffeine, citrulline amount/form and beta-alanine with five explicit
   information states, exact per-serving source quantities and deterministic g/mg
   normalization. Review approval remains separate from the information state.
   Its pending migration has also received the bounded NUT-02B CHECK correction:
   every recreated fact/unit/review predicate must evaluate `IS TRUE`, so SQL NULL
   cannot satisfy a required condition.
-- Production remains on the pre-NUT-02A schema. Both migrations
-  `20260911120000_add_nutrition_candidate_variant_provenance.sql` and
-  `20260911130000_add_nutrition_candidate_preworkout_facts.sql` are registered as
-  pending in exact A-then-B order. No production migration or nutrition write was
-  performed.
-- One next step, NUT-02C: through separate owner authorization, apply only those
-  two migrations in A-then-B order and perform schema, legacy-panel and
-  variant-operation readback without creating candidates or writing catalogue
-  facts.
+- The controlled production selector applied exactly
+  `20260911120000_add_nutrition_candidate_variant_provenance.sql` and then
+  `20260911130000_add_nutrition_candidate_preworkout_facts.sql`. Fresh readback
+  verified all 11 columns, eight relevant constraints, three queue triggers and
+  both exact migration hashes. The authenticated panel and full new-shape read
+  both pass. No candidate, review, approved plan, catalogue fact or source changed.
+- One next step, NUT-03A: use only the archived image for product `38` / variant
+  `726` to prepare a one-variant offline candidate artifact with explicit serving
+  evidence, then run the existing candidate validation in dry-run mode. Do not
+  store or approve it without a separate authorization.
 
 ## Authority and scope
 
@@ -223,9 +224,10 @@ implementation or any nutrition catalogue write.
 |---|---|---|---|---|
 | NUT-00 | `LIVE VERIFIED` | Owner request | Register stages, inspect existing process/schema/evidence, reuse/gap audit, pilot candidates and links | Consistent committed plan; verify:project PASS before/after; recorded commit and confirmed remote availability; live-data limitations explicit. See closeout. |
 | NUT-01 | `LIVE VERIFIED` | NUT-00 | Closed frozen denominator: 25 current variants across 21 products. Fifteen official page bindings confirmed, ten source/identity gaps; 4 archived readable images, 1 confirmed exact label-to-variant binding, 6 archived applicability gaps and 18 variants without an archived label. All 24 unresolved positions have a reason and required action. | Completion criterion is met because every frozen variant has a preserved official source disposition or explicit missing-source/identity/label status with reason and action. Archive hashes/readback, exact seven-label decisions and all 25 records are in the closeout report. No ingredient value is approved; closure is bounded evidence accounting, not full catalogue coverage. |
-| NUT-02A | `CODE COMPLETE` | NUT-01 | Existing candidate/review/plan/apply path preserves string product/variant IDs, immutable private archive URI and SHA-256; exact variant ownership is checked. The deployment compatibility correction preserves product-only operations on the confirmed pre-migration schema and blocks variant operations until migration. | Local Docker tests cover the schema before and after migration. Focused path tests pass for archived product `38` / variant `726`; wrong ownership, signed/missing URI, changed hash, stale approval/override, duplicate insert and pre-migration variant operations are rejected or deduplicated. Migration and catalogue apply were not run on production. |
-| NUT-02B | `CODE COMPLETE` | NUT-02A | Existing path supports caffeine, beta-alanine and citrulline with L-citrulline/citrulline-malate form and optional declared malate ratio. Each fact preserves one of five information states, its exact serving basis, original source amount/unit and deterministic mg value when quantified. All recreated SQL CHECK predicates are hardened with `IS TRUE`. | Focused tests cover all states, units, servings, citrulline forms, invalid and NULL combinations, immutable approvals, exact variant/source evidence and duplicate retry. Direct isolated PostgreSQL covers pre-A, post-A/pre-B and post-B schemas plus legacy product insert/review after B. Both migrations remain unapplied in production. |
-| NUT-02 | `IN PROGRESS` | NUT-02B | A and B code contracts are complete; production still lacks both candidate-schema migrations and the required post-migration schema/panel/operation readback. No pilot ingredient value has been entered or approved. | Complete only after the separately authorized A-then-B migration rollout proves legacy product operations plus exact-variant structured operations on production. Candidates cannot feed public filters. |
+| NUT-02A | `LIVE VERIFIED` | NUT-01 | Existing candidate/review/plan/apply path preserves string product/variant IDs, immutable private archive URI and SHA-256; exact variant ownership is checked. The compatibility correction still preserves product-only operations on an older schema and blocks variant operations when A is absent. | Isolated tests prove pre/post-migration behavior. Production now has both provenance columns, its FK/checks and ownership trigger; the full queue read passes. No variant-scoped row was created by rollout. |
+| NUT-02B | `LIVE VERIFIED` | NUT-02A | Existing path supports caffeine, beta-alanine and citrulline with L-citrulline/citrulline-malate form and optional declared malate ratio. Each fact preserves one of five information states, its exact serving basis, original source amount/unit and deterministic mg value when quantified. All recreated SQL CHECK predicates are hardened with `IS TRUE`. | Isolated PostgreSQL proves writes and rejection behavior across pre-A, post-A/pre-B and post-B schemas. Production readback proves all nine B columns, five hardened checks and the full new query shape are available. No structured fact row was created. |
+| NUT-02C | `LIVE VERIFIED` | NUT-02B + owner authorization | Apply exactly A then B through the existing production selector; verify history, schema, queue and authenticated panel without creating candidates or catalogue facts. | Rehearsal rolled back cleanly; apply committed ledger rows 205/206. Fresh owner readback matched both SQL hashes, 11 columns, eight constraints and three triggers. Legacy queue digests and catalogue counts are unchanged; the panel returns 200 without an unavailable notice. |
+| NUT-02 | `LIVE VERIFIED` | NUT-02C | Candidate schema and the guarded exact-variant structured-fact path are deployed. Existing product-only records remain compatible. No pilot ingredient value has been entered or approved, and public filters remain outside this stage. | Production read proves schema and read availability; isolated integration tests prove write guards, review invalidation, idempotency and legacy compatibility. This closure does not claim a production write test or pilot coverage. |
 | NUT-03 | `PLANNED` | NUT-02 | Review pilot evidence, quantities/units and exact applicability; separately approved guarded apply | Every proposal has a decision; approved values have proof and correct identity; independent post-write readback and zero-duplicate replay pass; offers/prices unchanged. Unresolved facts remain unknown and excluded. |
 | NUT-04 | `PLANNED` | NUT-03 | Existing product page facts/source and existing search caffeine-free filter | Tests and live variant-switch checks prove confirmed absence included, caffeine present excluded, missing/conflicting facts never treated as absent. Document coverage denominator, limits, evidence and operations. Publish image copies only with established rights; otherwise link to source. MVP closes here. |
 | NUT-05 | `DEFERRED` | NUT-04 closure | Subsequent bounded batches/categories in the same process | Review extraction yield, review time and missing-source rate before expansion; every batch has a fixed denominator and closure. No expansion of an active batch. |
@@ -492,6 +494,67 @@ No code, migration, test inventory or workflow is changed by this NUT-00 revisio
   authenticated panel returned HTTP 200 with pending-candidate and latest-batch
   sections and no unavailable notice. No review was submitted and no data was
   written.
+
+## NUT-02C production migration and readback evidence
+
+11 September 2026, owner-authorized production rollout:
+
+- A fresh owner read-only selector check bound the target to project
+  `aftboxmrdgyhizicfsfu`, environment `PRODUCTION`, database identity
+  `supplementscout-production:aftboxmrdgyhizicfsfu` and PostgreSQL owner
+  `postgres`. The actual migration ledger had 204 rows with fingerprint
+  `95b09e5d09814d048e41b6034272a79ef6cca14f5b2712d15bac69d14852e48f`.
+  Its complete pending list was exactly A then B; no other migration was selected.
+- Repository and selector hashes matched the authorization: A
+  `20260911120000_add_nutrition_candidate_variant_provenance.sql` at
+  `62a7a5dd812d4559889d7392217095b67841d1d6db37e5519ee6e1593bc207cb`,
+  then B `20260911130000_add_nutrition_candidate_preworkout_facts.sql` at
+  `76db080b347dfffd36a8233c1d8f9725421b9caf2e445d56579833898b6428d5`.
+  A controlled rehearsal executed them in that order and rolled back with PASS.
+- The existing selected-migration executor then committed A followed by B under
+  its advisory lock and one transaction. Both history rows were inserted; fresh
+  post-commit state had 206 rows and fingerprint
+  `532359913006127f8b83c549091f0d95714cd052cafec5f1d366a4bfab0f1e45`.
+  A failure in either step would have rolled back the complete transaction; no
+  repair or migration outside the authorized pair ran.
+- A separate read-only owner connection confirmed all 11 new nullable columns,
+  the variant FK, both provenance CHECKs, all five hardened B CHECKs and all three
+  active queue triggers. Both history entries stored one statement whose
+  normalized SHA-256 matched its repository file exactly. The production selector
+  contract is advanced to the verified 206-row ledger and now reports no pending
+  production migration; staging remains unchanged.
+- The service-role full new-shape SELECT returned all 695 existing candidates and
+  no missing-schema fallback. There are zero exact-variant candidates and zero
+  structured pre-workout fact candidates, as expected because this rollout did
+  not create one. No dry plan was generated: there is no approved new candidate
+  to plan, and fabricating one was outside scope.
+- The authenticated deployed panel login returned 303 with a session cookie, then
+  `/admin/nutrition-candidates` returned 200 with the review heading, pending
+  section and latest-batch section. It did not show the unavailable notice. No
+  form was submitted.
+- Before and after snapshots both contain 695 candidates: 16 pending, 673 approved
+  and 6 rejected. Their stable legacy projection SHA-256 is
+  `27afe848b8dd1d3f91fc34de7b0ba383d530d31f59a8dbbc70ca0b16c6f7305f`.
+  Both snapshots contain 170 batch items with SHA-256
+  `433f7bbb457aecbe39dbe7592a0cf8a03c05f1286475757bbbeb2e36146cc848`.
+  Products, variants, retailer mappings, offers and price history remained
+  `1337/3632/3758/3758/13860` throughout the rehearsal and committed rollout.
+- These production checks prove deployed schema, history, permissions and read
+  availability. The isolated NUT-02A/B PostgreSQL tests remain the evidence for
+  candidate writes, invalid-row rejection, immutable review evidence and replay
+  idempotency. No production candidate, review, approved plan, catalogue fact,
+  OCR job or source collection was created or run.
+- The focused selector/executor regression passed 40/40. `npm run verify:quick`
+  passed 379/379 tests, and `npm run verify:full` passed with Project Guardian,
+  TypeScript, ESLint, all 252 sealed safe test files, baseline migration
+  validation and the 36-page production build. The build's expected isolated
+  `127.0.0.1:54321` cache reads were refused without failing the build. Final
+  `verify:project` and `git diff --check` also pass. The previously recorded full
+  `verify:integration` result remains non-green because of the unrelated Batch F
+  timeout and Jon's fixture; this rollout did not rerun or alter those fixtures.
+- NUT-02 is closed only for the deployed candidate schema and guarded path. It is
+  not a claim of pilot data coverage, approved ingredient values or public filter
+  behavior. NUT-03 retains the separate evidence review and production-write gate.
 
 ## NUT-00 closeout evidence
 
