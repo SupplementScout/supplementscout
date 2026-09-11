@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-pre-workout-pilot-scope",
+  "status": "SCOPE_FROZEN_SOURCE_COLLECTION_NOT_STARTED",
+  "captured_at": "2026-09-11T12:58:26.063Z",
+  "database_read_mode": "PUBLIC_ANON_READ_ONLY",
+  "production_project_ref": "aftboxmrdgyhizicfsfu",
+  "source_readback_sha256": "fe928bd4bb3b93178e409316cce3da0866c02c4e778de467ed402170070afe11",
+  "catalogue_scope": {
+    "category": "Pre Workout",
+    "active_unmerged_products": 141,
+    "active_variants": 575,
+    "selected_variants": 25,
+    "selected_products": 21
+  },
+  "selection_contract": {
+    "required": [
+      "active canonical product",
+      "unmerged canonical product",
+      "active canonical variant",
+      "non-default explicit variant",
+      "explicit flavour_label",
+      "explicit positive size_value and size_unit",
+      "pack_count equals 1",
+      "product_format equals powder",
+      "unique product/flavour/size/unit/pack identity"
+    ],
+    "excluded": [
+      "GYM HIGH owner-deferred scope",
+      "bundle products",
+      "inactive or merged products",
+      "inactive variants",
+      "variants without explicit flavour or package size",
+      "non-powder formats"
+    ],
+    "composition_boundary": "Product and variant names, including Pump, Non-Stim, Zero Stim, Stim-Free, Caffeine Free and CAF+, are catalogue identity only and are not evidence of caffeine or any other ingredient."
+  },
+  "validation": {
+    "unique_variant_ids": 25,
+    "unique_product_ids": 21,
+    "duplicate_semantic_keys": 0,
+    "all_required_identity_fields_present": true,
+    "gym_high_rows": 0,
+    "bundle_rows": 0
+  },
+  "variants": [
+    { "product_id": 17, "variant_id": 714, "brand": "Optimum Nutrition", "name": "Optimum Nutrition Gold Standard Pre-Workout 330g", "flavour": "Blue Raspberry", "package_size": "330 g" },
+    { "product_id": 38, "variant_id": 726, "brand": "Applied Nutrition", "name": "Applied Nutrition Pump 3G Pre-Workout 375g", "flavour": "Fruit Burst", "package_size": "375 g" },
+    { "product_id": 55, "variant_id": 1029, "brand": "BioTech USA", "name": "BioTech USA Nitrox Therapy 340g", "flavour": "Blue Grape", "package_size": "340 g" },
+    { "product_id": 58, "variant_id": 1007, "brand": "5% Nutrition", "name": "5 Nutrition Rich Piana  Full As F*ck 387g", "flavour": "Blue Raspberry", "package_size": "387 g" },
+    { "product_id": 215, "variant_id": 1016, "brand": "Applied Nutrition", "name": "Applied Nutrition ABE Ultimate Pre-Workout 315g", "flavour": "Bubblegum Crush", "package_size": "315 g" },
+    { "product_id": 294, "variant_id": 1059, "brand": "BioTech USA", "name": "BioTech USA Black Blood CAF+ 300g", "flavour": "Cola", "package_size": "300 g" },
+    { "product_id": 295, "variant_id": 1041, "brand": "BioTech USA", "name": "BioTech USA Black Blood NOX+ 330g", "flavour": "Blood Orange", "package_size": "330 g" },
+    { "product_id": 481, "variant_id": 760, "brand": "Applied Nutrition", "name": "Applied Nutrition ABE Pump 500g", "flavour": "Blue Razz", "package_size": "500 g" },
+    { "product_id": 481, "variant_id": 761, "brand": "Applied Nutrition", "name": "Applied Nutrition ABE Pump 500g", "flavour": "Red Hawaiian", "package_size": "500 g" },
+    { "product_id": 744, "variant_id": 815, "brand": "Applied Nutrition", "name": "Applied Nutrition Pump 3G Zero Stim 375g", "flavour": "Fruit Burst", "package_size": "375 g" },
+    { "product_id": 744, "variant_id": 816, "brand": "Applied Nutrition", "name": "Applied Nutrition Pump 3G Zero Stim 375g", "flavour": "Icy Blue Razz", "package_size": "375 g" },
+    { "product_id": 756, "variant_id": 885, "brand": "10X Athletic", "name": "10X Athletic PUMP Non-Stim Pre Workout 50 servings", "flavour": "Apple Attack", "package_size": "50 servings" },
+    { "product_id": 756, "variant_id": 1974, "brand": "10X Athletic", "name": "10X Athletic PUMP Non-Stim Pre Workout 50 servings", "flavour": "Cobra Ki", "package_size": "50 servings" },
+    { "product_id": 757, "variant_id": 887, "brand": "10X Athletic", "name": "10X Extreme Stim Pre Workout 600g", "flavour": "Apple Attack", "package_size": "600 g" },
+    { "product_id": 881, "variant_id": 1383, "brand": "ABE All", "name": "ABE All Black Everything Pre-Workout 375g", "flavour": "Baddy Berry", "package_size": "375 g" },
+    { "product_id": 881, "variant_id": 1384, "brand": "ABE All", "name": "ABE All Black Everything Pre-Workout 375g", "flavour": "Bubblegum Crush", "package_size": "375 g" },
+    { "product_id": 899, "variant_id": 1487, "brand": "CNP", "name": "CNP Professional Full Tilt V2 Stim Pre Workout 570g", "flavour": "Cherry Berry Bomb", "package_size": "570 g" },
+    { "product_id": 957, "variant_id": 1864, "brand": "Applied Nutrition", "name": "Applied Nutrition ABE 30 servings", "flavour": "Baddy Berry", "package_size": "30 servings" },
+    { "product_id": 961, "variant_id": 1879, "brand": "Cellucor", "name": "Cellucor C4 Original – Energy, Focus & Performance Pre-Workout 30 servings", "flavour": "Millions Cola", "package_size": "30 servings" },
+    { "product_id": 1249, "variant_id": 3671, "brand": "Animal", "name": "Animal Fury Pre Workout 491g", "flavour": "Blue Raspberry", "package_size": "491 g" },
+    { "product_id": 1252, "variant_id": 3674, "brand": "Adapt Nutrition", "name": "Adapt Nutrition PreTRAIN X 350g", "flavour": "Iced Raspberry", "package_size": "350 g" },
+    { "product_id": 1254, "variant_id": 3676, "brand": "Bulk", "name": "Bulk Dope Max Pre-Workout 563g", "flavour": "Blue Raspberry", "package_size": "563 g" },
+    { "product_id": 1275, "variant_id": 3755, "brand": "Dark Stims", "name": "Darkstims Pump V2 Stim-Free Pre-Workout 520g", "flavour": "Peach", "package_size": "520 g" },
+    { "product_id": 1279, "variant_id": 3759, "brand": "Bulk", "name": "Bulk Dope Caffeine Free Pre-Workout 510g", "flavour": "Blue Raspberry", "package_size": "510 g" },
+    { "product_id": 1283, "variant_id": 3763, "brand": "Apex Formulas", "name": "Apex Formulas Apex Pump 625g", "flavour": "Raspberry Rush", "package_size": "625 g" }
+  ]
+}

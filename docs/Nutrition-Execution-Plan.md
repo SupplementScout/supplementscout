@@ -4,23 +4,31 @@
 
 ## Current checkpoint
 
-- Task: NUT-00; status `LIVE VERIFIED` (documentation published, no feature release).
-- Active nutrition implementation: none; NUT-01 remains `PLANNED`, not started.
-- Owner/session: Codex, owner-requested NUT-00 session, 11 September 2026.
-- Branch: `main`; audited HEAD: `7c553d8be48e19413cb23d9fd55c3b7e7ad982b2`.
-- Published plan commit: `9eb82cc89847043ebb92f98c72e70fe5d035c553` on GitHub `main`;
-  independent `git ls-remote` readback matched after push.
-- Scope: repository, schemas and existing evidence; documentation only.
-- Pre-edit `npm run verify:project`: PASS; 19 SEO tasks, next SEO-15, none in progress.
-- Post-edit verify:project and verify:full: PASS; see closeout below.
-- Production nutrition/schema readback: not yet verified; local SELECT attempt
-  returned `TypeError: fetch failed`. Repository migrations are not live evidence.
-- No labels fetched, candidates stored, functions implemented or database writes made.
+- Task: NUT-01; status `IN PROGRESS`; preparatory catalogue scope frozen,
+  source collection and completion gates remain outstanding.
+- Owner/session: Codex, owner-requested preparatory NUT-01 session, 11 September 2026.
+- Branch: `main`; starting HEAD `07321b4b68db2eca6bca04a40a15c24c21c648c4`;
+  remote `main` matched before work. Publication commit/readback: see NUT-01 evidence.
+- Production readback at `2026-09-11T12:58:26.063Z`: public `anon` SELECT against
+  project `aftboxmrdgyhizicfsfu`; 141 active unmerged Pre Workout products and
+  575 active variants. Frozen scope: 25 variants across 21 products.
+- Frozen list and exact criteria:
+  [nutrition-pre-workout-pilot-scope-2026-09-11.json](rollouts/nutrition-pre-workout-pilot-scope-2026-09-11.json).
+- Earlier `TypeError: fetch failed` reproduced inside restricted networking.
+  The same query passed with Node using the Windows system CA outside the sandbox;
+  it was an environment transport/certificate-path issue, not missing database data.
+- Source archive decision: use a private Supabase Storage bucket with service-role-only
+  access and content-addressed immutable object paths; provisioning is not authorized
+  or performed in this preparation. Existing alternatives do not meet durability.
+- No labels fetched, URLs collected, candidates stored, functions implemented,
+  permissions changed or database writes made.
 - Existing untracked `docs/SupplementScout-Nutrition-Plan.txt` is owner material;
   preserved unchanged and excluded from this change's staging.
-- One next step: NUT-01 — obtain an authenticated read-only catalogue readback and
-  freeze 20–30 exact pilot variant IDs with flavour/pack and a fixed denominator;
-  resolve unavailable access first. No collection has started or is approved here.
+- One next step: NUT-01 source-manifest preparation — identify the official
+  manufacturer product page for each of the 21 frozen product families, bind every
+  URL to the applicable selected variants and split the dry manifest into batches
+  of at most ten; perform zero fetches until URLs, robots/terms and archive access
+  receive their existing approvals.
 
 ## Authority and scope
 
@@ -78,27 +86,96 @@ These are starting candidates from committed catalogue evidence, not an approved
 | Product 839, Gas Mark 10 Pitbull Pump 25 servings | Migration `20260810240000_create_reviewed_jons_17_explicit_variants.sql`; Cherry Bubblegum entry, existing default 1186 | Resolve current exact Cherry Bubblegum variant; default ID is not proof of this flavour. |
 | Product 972, Kilo Labs Supreme 20 servings Peach Rings | Migration `20260826160000_create_fit_house_owner_reviewed_exact_pack_10.sql`; default 1901 | Confirm current canonical pack/flavour identity and manufacturer source. |
 
-NUT-01 must read the current catalogue, freeze 20–30 exact IDs and denominator,
-and include differing flavours/packs and evidence states where available. Names
-such as Pump or Zero Caffeine never establish caffeine absence. Do not include
-GYM HIGH through this plan or fabricate missing IDs to reach the target count.
-Live schema, candidate queue state, current variant IDs and pre-workout coverage
-remain unverified until an authenticated read-only readback succeeds. No old
-snapshot is substituted for it. This limitation does not prevent documenting NUT-00.
+These tentative NUT-00 candidates are superseded by the current production scope
+below. The public read verified the selected product and variant records, but did
+not expose retailer-product mappings or the private nutrition candidate queue;
+no claim about current offer coverage or private queue state follows from it.
+
+### Frozen pilot scope — NUT-01 preparation
+
+The 11 September 2026 production readback supersedes the three tentative NUT-00
+candidates above. The closed denominator is **25 active canonical variants across
+21 active, unmerged products**. Selection required a non-default active variant,
+an explicit flavour and package size, `pack_count=1`, `powder` format and a unique
+product/flavour/size/unit/pack tuple. It excluded GYM HIGH, bundles, inactive or
+merged records and incomplete variant identities. All 25 IDs were returned by the
+current production read; no migration was used as evidence.
+
+| Product ID | Variant ID | Brand | Canonical product | Flavour | Package |
+|---:|---:|---|---|---|---:|
+| 17 | 714 | Optimum Nutrition | Optimum Nutrition Gold Standard Pre-Workout 330g | Blue Raspberry | 330 g |
+| 38 | 726 | Applied Nutrition | Applied Nutrition Pump 3G Pre-Workout 375g | Fruit Burst | 375 g |
+| 55 | 1029 | BioTech USA | BioTech USA Nitrox Therapy 340g | Blue Grape | 340 g |
+| 58 | 1007 | 5% Nutrition | 5 Nutrition Rich Piana Full As F*ck 387g | Blue Raspberry | 387 g |
+| 215 | 1016 | Applied Nutrition | Applied Nutrition ABE Ultimate Pre-Workout 315g | Bubblegum Crush | 315 g |
+| 294 | 1059 | BioTech USA | BioTech USA Black Blood CAF+ 300g | Cola | 300 g |
+| 295 | 1041 | BioTech USA | BioTech USA Black Blood NOX+ 330g | Blood Orange | 330 g |
+| 481 | 760 | Applied Nutrition | Applied Nutrition ABE Pump 500g | Blue Razz | 500 g |
+| 481 | 761 | Applied Nutrition | Applied Nutrition ABE Pump 500g | Red Hawaiian | 500 g |
+| 744 | 815 | Applied Nutrition | Applied Nutrition Pump 3G Zero Stim 375g | Fruit Burst | 375 g |
+| 744 | 816 | Applied Nutrition | Applied Nutrition Pump 3G Zero Stim 375g | Icy Blue Razz | 375 g |
+| 756 | 885 | 10X Athletic | 10X Athletic PUMP Non-Stim Pre Workout 50 servings | Apple Attack | 50 servings |
+| 756 | 1974 | 10X Athletic | 10X Athletic PUMP Non-Stim Pre Workout 50 servings | Cobra Ki | 50 servings |
+| 757 | 887 | 10X Athletic | 10X Extreme Stim Pre Workout 600g | Apple Attack | 600 g |
+| 881 | 1383 | ABE All | ABE All Black Everything Pre-Workout 375g | Baddy Berry | 375 g |
+| 881 | 1384 | ABE All | ABE All Black Everything Pre-Workout 375g | Bubblegum Crush | 375 g |
+| 899 | 1487 | CNP | CNP Professional Full Tilt V2 Stim Pre Workout 570g | Cherry Berry Bomb | 570 g |
+| 957 | 1864 | Applied Nutrition | Applied Nutrition ABE 30 servings | Baddy Berry | 30 servings |
+| 961 | 1879 | Cellucor | Cellucor C4 Original – Energy, Focus & Performance Pre-Workout 30 servings | Millions Cola | 30 servings |
+| 1249 | 3671 | Animal | Animal Fury Pre Workout 491g | Blue Raspberry | 491 g |
+| 1252 | 3674 | Adapt Nutrition | Adapt Nutrition PreTRAIN X 350g | Iced Raspberry | 350 g |
+| 1254 | 3676 | Bulk | Bulk Dope Max Pre-Workout 563g | Blue Raspberry | 563 g |
+| 1275 | 3755 | Dark Stims | Darkstims Pump V2 Stim-Free Pre-Workout 520g | Peach | 520 g |
+| 1279 | 3759 | Bulk | Bulk Dope Caffeine Free Pre-Workout 510g | Blue Raspberry | 510 g |
+| 1283 | 3763 | Apex Formulas | Apex Formulas Apex Pump 625g | Raspberry Rush | 625 g |
+
+Names containing Pump, Non-Stim, Zero Stim, Stim-Free, Caffeine Free or CAF+
+remain identity strings only. No caffeine, stimulant, citrulline, beta-alanine,
+serving or formulation fact is inferred from them. Source review may later mark
+a variant confirmed, unknown or conflicting; it must not silently replace this
+fixed denominator. One source page may cover multiple flavours only when its
+current evidence explicitly establishes that applicability.
+
+### Durable source storage decision
+
+No ready durable raw-source archive exists in the audited repository or public
+production surface:
+
+- `tmp/` is ignored, machine-local working storage and explicitly not an archive;
+- committed source snapshots are forbidden by the extractor safety contract;
+- `nutrition_candidates` and batch items preserve hashes, locators and excerpts,
+  but not durable raw snapshot bytes, and variant-scoped storage is currently blocked;
+- existing private GitHub Actions artifacts expire after 7–90 days and therefore
+  cannot be the source of record;
+- public `anon` Storage discovery returned no visible bucket. That does not prove
+  that no private bucket exists, so provisioning must first check with an authorized
+  storage administrator rather than creating a duplicate.
+
+The simplest compatible target is one **private Supabase Storage bucket** in the
+existing production project, readable/writable only by the existing service-role/
+owner boundary. Store an immutable batch manifest plus raw page/image/OCR files
+under content-addressed paths such as
+`nutrition-sources/<batch-id>/<sha256>/<filename>`. Keep the `tmp/` copy only as
+the bounded extractor workspace. Before any fetch, an authorized administrator
+must confirm an equivalent private bucket does not already exist, then provision
+or designate it with retention, backup and access rules. NUT-02 should add a
+separate durable archive reference or compatible URI without weakening the current
+`tmp/` path guard. This session changed no bucket, RLS policy, credential or schema.
 
 ## Stage ledger
 
 Statuses reuse Guardian's vocabulary but are not currently parsed by Guardian.
 For documentation-only NUT-00, `CODE COMPLETE` means documentation checked and
 committed; `LIVE VERIFIED` means remote repository readback, never feature deployment.
-All future stages have no executor assigned and no branch/implementation evidence;
+Stages after NUT-01 have no executor assigned and no branch/implementation evidence;
 assign these in this ledger when activated. Their dependency is their current gate,
-not a newly discovered production blocker. Only NUT-00 is authorized this session.
+not a newly discovered production blocker. This session authorizes only the
+preparatory catalogue and storage-decision part of NUT-01.
 
 | ID | Status | Dependency | Closed scope | Completion evidence |
 |---|---|---|---|---|
 | NUT-00 | `LIVE VERIFIED` | Owner request | Register stages, inspect existing process/schema/evidence, reuse/gap audit, pilot candidates and links | Consistent committed plan; verify:project PASS before/after; recorded commit and confirmed remote availability; live-data limitations explicit. See closeout. |
-| NUT-01 | `PLANNED` | NUT-00 | Freeze 20–30 existing variants; review exact official URLs and collection permissions; preserve labels privately | Each variant has a readable, correctly bound durable source or explicit missing-source/identity status with reason and action. Record ID, flavour/version, URL, date, hash and archive location; prove retrieval in a new session. Missing entries are not counted as collected labels. |
+| NUT-01 | `IN PROGRESS` | NUT-00 | Frozen denominator: 25 current variants across 21 products. Remaining: exact official URLs, permissions review, collection and durable private preservation. | Each variant has a readable, correctly bound durable source or explicit missing-source/identity status with reason and action. Record ID, flavour/version, URL, date, hash and archive location; prove retrieval in a new session. Missing entries are not counted as collected labels. Catalogue-scope evidence is recorded above; stage is not complete. |
 | NUT-02 | `PLANNED` | NUT-01 | Extend existing candidate/review/apply schema for serving, caffeine, citrulline/form, beta-alanine, variant and provenance/status | Exact applicability survives the full path; ambiguity/conflicts detected; meaningful tests and required quick/full checks pass. Candidates cannot feed public filters. Resolve archive-reference compatibility and confirmed-zero semantics without weakening existing guards. |
 | NUT-03 | `PLANNED` | NUT-02 | Review pilot evidence, quantities/units and exact applicability; separately approved guarded apply | Every proposal has a decision; approved values have proof and correct identity; independent post-write readback and zero-duplicate replay pass; offers/prices unchanged. Unresolved facts remain unknown and excluded. |
 | NUT-04 | `PLANNED` | NUT-03 | Existing product page facts/source and existing search caffeine-free filter | Tests and live variant-switch checks prove confirmed absence included, caffeine present excluded, missing/conflicting facts never treated as absent. Document coverage denominator, limits, evidence and operations. Publish image copies only with established rights; otherwise link to source. MVP closes here. |
@@ -186,3 +263,42 @@ No code, migration, test inventory or workflow is changed by this NUT-00 revisio
   its own commit is discoverable with `git log -1 -- docs/Nutrition-Execution-Plan.md`.
   Remote CI/deployment results are not claimed. The next work remains exactly
   the single NUT-01 action in the checkpoint; no further NUT-00 implementation remains.
+
+## NUT-01 preparatory evidence
+
+11 September 2026, Codex preparatory NUT-01 session:
+
+- Starting branch/HEAD: `main` at
+  `07321b4b68db2eca6bca04a40a15c24c21c648c4`; independent remote readback
+  matched. No earlier NUT-01 edit or task was present. The only pre-existing
+  working-tree item was the preserved untracked intake document.
+- Restricted-network and permitted retries without the system CA reproduced the
+  previous `TypeError: fetch failed`. A public `anon` SELECT with
+  `NODE_OPTIONS=--use-system-ca` succeeded without changing a credential,
+  permission or database setting. This isolates the earlier failure to the local
+  TLS/network trust path used by Node; it was not a database-schema result.
+- Readback mode was the application's existing public Supabase endpoint and anon
+  key under active-row RLS. The full local readback contained 141 active unmerged
+  Pre Workout products and 575 active variants at
+  `2026-09-11T12:58:26.063Z`; its SHA-256 is
+  `fe928bd4bb3b93178e409316cce3da0866c02c4e778de467ed402170070afe11`.
+  The full file remains ignored in `tmp` and is not a durable source artifact.
+- The committed frozen-scope evidence SHA-256 is
+  `8956ca2dae631d33aa8d29f12bf283a8bd586020881864a0a93c4d95ca507724`.
+  Independent local comparison returned PASS for 25 selected/25 found, 25 unique
+  variant IDs, 21 unique product IDs, 25 unique semantic keys and zero field or
+  active-state mismatches.
+- Public `retailer_products` selection returned zero rows under RLS, so offer
+  mapping and availability were deliberately not used as selection evidence.
+  Public Storage discovery returned zero visible buckets without error; private
+  bucket existence remains an administrator readback, not an inferred absence.
+- Storage alternatives were checked against current repository contracts. The
+  private Supabase Storage target and its prerequisite duplicate check are recorded
+  above; no storage or schema change was made.
+- `npm run verify:project` passed before and after the ledger/status change:
+  19 SEO tasks, next SEO-15, none in progress. `git diff --check` passed and the
+  frozen JSON parsed successfully. No code, workflow, migration or test changed,
+  so quick/full/integration gates were not required by AGENTS.md.
+- Git publication evidence is recorded in the follow-up below. This preparation
+  does not complete NUT-01; the exact next action remains the source-manifest step
+  in the current checkpoint.
