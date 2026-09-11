@@ -278,7 +278,7 @@ const CONTRACTS = Object.freeze({
       }),
       Object.freeze({
         filename: "20260911130000_add_nutrition_candidate_preworkout_facts.sql",
-        sha256: "6f31c98f0af79c00214926026216e0e7b83485ee9e28ae7231ac904b2c5b5822",
+        sha256: "76db080b347dfffd36a8233c1d8f9725421b9caf2e445d56579833898b6428d5",
       }),
     ]),
   }),
@@ -315,7 +315,7 @@ const CONTRACTS = Object.freeze({
       }),
       Object.freeze({
         filename: "20260911130000_add_nutrition_candidate_preworkout_facts.sql",
-        sha256: "6f31c98f0af79c00214926026216e0e7b83485ee9e28ae7231ac904b2c5b5822",
+        sha256: "76db080b347dfffd36a8233c1d8f9725421b9caf2e445d56579833898b6428d5",
       }),
     ]),
   }),

@@ -57,7 +57,10 @@ zero.
 Citrulline also records `ingredient_form` as `l_citrulline` or
 `citrulline_malate`. A declared positive blend ratio may be retained only for
 citrulline malate. The process does not infer a scoop mass, mix per-serving and
-per-100-g values, or convert citrulline-malate mass into pure L-citrulline.
+per-100-g values, or convert citrulline-malate mass into pure L-citrulline. The
+database keeps optional evidence columns nullable but requires each complete
+fact, unit and review CHECK predicate to evaluate `IS TRUE`; a SQL NULL result
+does not satisfy a required condition.
 
 ## Accepted evidence
 

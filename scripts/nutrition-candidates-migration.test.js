@@ -100,6 +100,16 @@ test("NUT-02B migration models structured ingredient states without catalogue wr
   assert.match(preworkoutMigration, /ingredient_form in \('l_citrulline', 'citrulline_malate'\)/);
   assert.match(preworkoutMigration, /ingredient_form = 'citrulline_malate'/);
   assert.match(preworkoutMigration, /new\.information_state[\s\S]*old\.information_state/);
+  const hardenedChecks = [...preworkoutMigration.matchAll(
+    /add constraint (nutrition_candidates_[a-z_]+) check \(\([\s\S]*?\) is true\)(?:,|;)/g,
+  )].map((match) => match[1]);
+  assert.deepEqual(hardenedChecks, [
+    "nutrition_candidates_proposed_field_check",
+    "nutrition_candidates_fact_shape_check",
+    "nutrition_candidates_proposed_unit_check",
+    "nutrition_candidates_approved_value_positive",
+    "nutrition_candidates_approved_value_review_state",
+  ]);
   assert.doesNotMatch(preworkoutMigration, /\b(?:insert into|update|delete from) public\.(?:products|product_variants)/);
   assert.match(preworkoutMigration, /commit;$/);
 });

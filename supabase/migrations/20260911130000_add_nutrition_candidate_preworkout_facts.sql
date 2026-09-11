@@ -21,15 +21,15 @@ alter table public.nutrition_candidates
   alter column proposed_unit drop not null;
 
 alter table public.nutrition_candidates
-  add constraint nutrition_candidates_proposed_field_check check (
+  add constraint nutrition_candidates_proposed_field_check check ((
     proposed_field in (
       'net_weight_g', 'net_volume_ml', 'serving_count_verified',
       'serving_size_g', 'serving_size_ml', 'protein_per_serving_g',
       'creatine_per_serving_g', 'caffeine_per_serving_mg',
       'citrulline_per_serving_mg', 'beta_alanine_per_serving_mg'
     )
-  ),
-  add constraint nutrition_candidates_fact_shape_check check (
+  ) is true),
+  add constraint nutrition_candidates_fact_shape_check check ((
     (
       proposed_field in (
         'net_weight_g', 'net_volume_ml', 'serving_count_verified',
@@ -106,8 +106,8 @@ alter table public.nutrition_candidates
         )
       )
     )
-  ),
-  add constraint nutrition_candidates_proposed_unit_check check (
+  ) is true),
+  add constraint nutrition_candidates_proposed_unit_check check ((
     (proposed_field in (
       'net_weight_g', 'serving_size_g', 'protein_per_serving_g',
       'creatine_per_serving_g'
@@ -121,11 +121,11 @@ alter table public.nutrition_candidates
       (information_state = 'present_with_amount' and proposed_unit = 'mg')
       or (information_state <> 'present_with_amount' and proposed_unit is null)
     ))
-  ),
-  add constraint nutrition_candidates_approved_value_positive check (
+  ) is true),
+  add constraint nutrition_candidates_approved_value_positive check ((
     approved_value is null or approved_value > 0
-  ),
-  add constraint nutrition_candidates_approved_value_review_state check (
+  ) is true),
+  add constraint nutrition_candidates_approved_value_review_state check ((
     (status in ('pending', 'rejected') and approved_value is null)
     or (
       status = 'approved'
@@ -138,7 +138,7 @@ alter table public.nutrition_candidates
         ) and approved_value is null)
       )
     )
-  );
+  ) is true);
 
 create or replace function public.guard_nutrition_candidate_review_update()
 returns trigger

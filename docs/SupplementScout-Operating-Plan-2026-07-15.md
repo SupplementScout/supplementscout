@@ -14,7 +14,9 @@ closed with explicit gaps over its frozen 25-variant/21-product pilot. NUT-02 is
 private source-object URI and SHA-256 plus caffeine, beta-alanine and citrulline
 amount/form through candidate/review/plan/apply. Five ingredient-information
 states remain separate from candidate review, and quantified facts retain the
-exact serving and original unit. The deployed compatibility path still serves
+exact serving and original unit. The pending NUT-02B migration now hardens every
+recreated fact/unit/review CHECK with `IS TRUE` after direct PostgreSQL regression
+proved nullable comparisons could otherwise pass incomplete rows. The deployed compatibility path still serves
 the product-only queue on the confirmed pre-NUT-02A schema and blocks newer
 operations until their exact columns exist. Local tests use TEST ONLY data and
 cover schemas before A, after A and after B. No production migration, candidate

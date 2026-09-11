@@ -96,6 +96,58 @@ function insertStructuredCandidate({ fingerprint, field = "caffeine_per_serving_
     );
   `;
 }
+function directFactFingerprint(name) {
+  return crypto.createHash("sha256").update(`NUT-02B-CHECK-${name}`).digest("hex");
+}
+function insertDirectFact({
+  name,
+  field = "caffeine_per_serving_mg",
+  proposedValue = 200,
+  proposedUnit = "mg",
+  informationState = "present_with_amount",
+  sourceValue = 0.2,
+  sourceUnit = "g",
+  quantityBasis = "per_serving",
+  servingValue = 15,
+  servingUnit = "g",
+  servingText = "Per 15 g serving",
+  form = null,
+  ratio = null,
+  productVariantId = 726,
+  sourceArchiveUri = archive,
+  status = "pending",
+  approvedValue = null,
+}) {
+  const literal = (value) => {
+    if (value === null) return "null";
+    if (typeof value === "number") return String(value);
+    return `'${String(value).replaceAll("'", "''")}'`;
+  };
+  const fingerprint = directFactFingerprint(name);
+  const reviewed = status === "approved";
+  return `
+    insert into public.nutrition_candidates(
+      product_id,product_variant_id,retailer_id,source_type,source_url,
+      source_file_sha256,source_snapshot_ref,source_archive_uri,source_domain,
+      product_name,brand,proposed_field,proposed_value,proposed_unit,
+      information_state,source_quantity_value,source_quantity_unit,quantity_basis,
+      serving_basis_value,serving_basis_unit,serving_basis_text,ingredient_form,ingredient_ratio,
+      confidence,evidence_snippet,source_locator,warning_flags,status,reviewed_at,reviewed_by,
+      approved_value,run_id,candidate_fingerprint
+    ) values (
+      38,${literal(productVariantId)},null,'owner_transcribed_official_page',
+      'https://appliednutrition.uk/products/pump-3g-375g','${hash}',
+      'db:nutrition_candidate_batch_items/1',${literal(sourceArchiveUri)},'appliednutrition.uk',
+      'Applied Nutrition Pump 3G','Applied Nutrition',${literal(field)},${literal(proposedValue)},
+      ${literal(proposedUnit)},${literal(informationState)},${literal(sourceValue)},${literal(sourceUnit)},
+      ${literal(quantityBasis)},${literal(servingValue)},${literal(servingUnit)},${literal(servingText)},
+      ${literal(form)},${literal(ratio)},'LOW','TEST ONLY: direct SQL constraint regression',
+      'sql:direct-check','{TEST_ONLY}'::text[],${literal(status)},
+      ${reviewed ? "now()" : "null"},${reviewed ? "'integration-test'" : "null"},
+      ${literal(approvedValue)},'NUT-02B-direct-check','${fingerprint}'
+    );
+  `;
+}
 
 test("variant candidate migration preserves legacy rows and enforces exact immutable private provenance", {
   skip: !dockerAvailable() && "Docker unavailable",
@@ -191,6 +243,62 @@ test("variant candidate migration preserves legacy rows and enforces exact immut
     assert.match(output(beforeNut02b), /column "information_state" of relation "nutrition_candidates" does not exist/);
 
     ok(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-f", `/workspace/supabase/migrations/${migrations[4]}`]), migrations[4]);
+    const malformedFacts = [
+      ["quantified-missing-value", { proposedValue: null }],
+      ["quantified-missing-unit", { proposedUnit: null }],
+      ["quantified-missing-source-value", { sourceValue: null }],
+      ["quantified-missing-source-unit", { sourceUnit: null }],
+      ["quantified-missing-serving-text", { servingText: null }],
+      ["citrulline-missing-form", { field: "citrulline_per_serving_mg", proposedValue: 6000, sourceValue: 6 }],
+      ["structured-missing-information-state", {
+        proposedValue: null, proposedUnit: null, informationState: null,
+        sourceValue: null, sourceUnit: null, quantityBasis: null,
+        servingValue: null, servingUnit: null, servingText: null,
+      }],
+      ["partial-serving-basis-pair", { servingUnit: null }],
+      ["legacy-missing-value", {
+        field: "serving_size_g", proposedValue: null, proposedUnit: "g",
+        informationState: null, sourceValue: null, sourceUnit: null, quantityBasis: null,
+        servingValue: null, servingUnit: null, servingText: null,
+        productVariantId: null, sourceArchiveUri: null,
+      }],
+      ["legacy-missing-unit", {
+        field: "serving_size_g", proposedValue: 15, proposedUnit: null,
+        informationState: null, sourceValue: null, sourceUnit: null, quantityBasis: null,
+        servingValue: null, servingUnit: null, servingText: null,
+        productVariantId: null, sourceArchiveUri: null,
+      }],
+      ["approved-legacy-missing-approved-value", {
+        field: "serving_size_g", proposedValue: 15, proposedUnit: "g",
+        informationState: null, sourceValue: null, sourceUnit: null, quantityBasis: null,
+        servingValue: null, servingUnit: null, servingText: null,
+        productVariantId: null, sourceArchiveUri: null, status: "approved",
+      }],
+    ];
+    const acceptedMalformedFacts = [];
+    for (const [name, values] of malformedFacts) {
+      const result = sql(container, insertDirectFact({ name, ...values }));
+      if (result.status === 0) acceptedMalformedFacts.push(name);
+      else assert.match(output(result), /nutrition_candidates_(?:fact_shape_check|proposed_unit_check|approved_value_review_state)/);
+    }
+    assert.deepEqual(acceptedMalformedFacts, [], "direct SQL must reject every incomplete candidate fact");
+    const validLegacyName = "valid-legacy-product-path";
+    ok(sql(container, insertDirectFact({
+      name: validLegacyName,
+      field: "serving_size_g", proposedValue: 15, proposedUnit: "g",
+      informationState: null, sourceValue: null, sourceUnit: null, quantityBasis: null,
+      servingValue: null, servingUnit: null, servingText: null,
+      productVariantId: null, sourceArchiveUri: null,
+    })), "post-NUT-02B legacy product candidate");
+    ok(sql(container, `
+      update public.nutrition_candidates
+      set status='approved',reviewed_at=now(),reviewed_by='integration-test'
+      where candidate_fingerprint='${directFactFingerprint(validLegacyName)}';
+    `), "post-NUT-02B legacy product review");
+    assert.equal(ok(sql(container, `
+      select approved_value from public.nutrition_candidates
+      where candidate_fingerprint='${directFactFingerprint(validLegacyName)}';
+    `), "post-NUT-02B legacy approved value").stdout.trim(), "15");
     const facts = [
       { fingerprint: "1".repeat(64) },
       { fingerprint: "2".repeat(64), field: "citrulline_per_serving_mg", value: 6000, sourceValue: 6, form: "citrulline_malate", ratio: "2:1" },
