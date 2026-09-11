@@ -8,6 +8,18 @@ const {
 } = require("./lib/nutrition-approved-updates");
 const { loadEnvFile } = require("./apply-selected-migrations");
 const { CONTRACTS, validateDatabaseOwner } = require("./supabase-migration-selector");
+const {
+  PREWORKOUT_TARGET_FIELDS,
+  TARGET_FIELD_BY_CANDIDATE_FIELD,
+  ingredientFact,
+} = (() => {
+  const facts = require("./lib/nutrition-preworkout-facts");
+  return {
+    PREWORKOUT_TARGET_FIELDS: Object.values(facts.TARGET_FIELD_BY_CANDIDATE_FIELD),
+    TARGET_FIELD_BY_CANDIDATE_FIELD: facts.TARGET_FIELD_BY_CANDIDATE_FIELD,
+    ingredientFact: facts.ingredientFact,
+  };
+})();
 
 const PRODUCTION = CONTRACTS.PRODUCTION;
 
@@ -33,14 +45,23 @@ function candidateSnapshot(candidate) {
     product_id: candidate.product_id == null ? null : String(candidate.product_id),
     product_variant_id: candidate.product_variant_id == null ? null : String(candidate.product_variant_id),
     proposed_field: String(candidate.proposed_field),
-    proposed_value: Number(candidate.proposed_value),
-    approved_value: Number(candidate.approved_value),
-    proposed_unit: String(candidate.proposed_unit),
+    proposed_value: candidate.proposed_value == null ? null : Number(candidate.proposed_value),
+    approved_value: candidate.approved_value == null ? null : Number(candidate.approved_value),
+    proposed_unit: candidate.proposed_unit == null ? null : String(candidate.proposed_unit),
     status: String(candidate.status),
     run_id: String(candidate.run_id),
     candidate_fingerprint: String(candidate.candidate_fingerprint),
     source_file_sha256: String(candidate.source_file_sha256),
     source_archive_uri: candidate.source_archive_uri == null ? null : String(candidate.source_archive_uri),
+    information_state: candidate.information_state == null ? null : String(candidate.information_state),
+    source_quantity_value: candidate.source_quantity_value == null ? null : Number(candidate.source_quantity_value),
+    source_quantity_unit: candidate.source_quantity_unit == null ? null : String(candidate.source_quantity_unit),
+    quantity_basis: candidate.quantity_basis == null ? null : String(candidate.quantity_basis),
+    serving_basis_value: candidate.serving_basis_value == null ? null : Number(candidate.serving_basis_value),
+    serving_basis_unit: candidate.serving_basis_unit == null ? null : String(candidate.serving_basis_unit),
+    serving_basis_text: candidate.serving_basis_text == null ? null : String(candidate.serving_basis_text),
+    ingredient_form: candidate.ingredient_form == null ? null : String(candidate.ingredient_form),
+    ingredient_ratio: candidate.ingredient_ratio == null ? null : String(candidate.ingredient_ratio),
   };
 }
 
@@ -52,8 +73,11 @@ function verifyCandidates(plan, candidates) {
       for (const evidence of change.evidence) {
         const candidate = actual.get(String(evidence.candidate_id));
         const snapshot = candidate && candidateSnapshot(candidate);
-        const expectedSourceField = field === "nutrition_verified" ? evidence.source_field : field;
-        const expectedSourceValue = field === "nutrition_verified" ? evidence.source_value : change.after;
+        const structured = PREWORKOUT_TARGET_FIELDS.includes(field);
+        const expectedSourceField = structured
+          ? Object.keys(TARGET_FIELD_BY_CANDIDATE_FIELD).find((key) => TARGET_FIELD_BY_CANDIDATE_FIELD[key] === field)
+          : field === "nutrition_verified" ? evidence.source_field : field;
+        const expectedSourceValue = field === "nutrition_verified" ? evidence.source_value : structured ? evidence.source_value : change.after;
         if (!snapshot || snapshot.status !== "approved" || snapshot.run_id !== plan.run_id ||
             snapshot.product_id !== target.product_id ||
             snapshot.product_variant_id !== (target.product_variant_id || null) ||
@@ -61,7 +85,21 @@ function verifyCandidates(plan, candidates) {
             snapshot.proposed_value !== evidence.proposed_value || snapshot.approved_value !== expectedSourceValue ||
             snapshot.candidate_fingerprint !== evidence.candidate_fingerprint ||
             snapshot.source_file_sha256 !== evidence.source_file_sha256 ||
-            snapshot.source_archive_uri !== evidence.source_archive_uri) {
+            snapshot.source_archive_uri !== evidence.source_archive_uri ||
+            snapshot.information_state !== (evidence.information_state ?? null) ||
+            snapshot.source_quantity_value !== (evidence.source_quantity_value ?? null) ||
+            snapshot.source_quantity_unit !== (evidence.source_quantity_unit ?? null) ||
+            snapshot.quantity_basis !== (evidence.quantity_basis ?? null) ||
+            snapshot.serving_basis_value !== (evidence.serving_basis_value ?? null) ||
+            snapshot.serving_basis_unit !== (evidence.serving_basis_unit ?? null) ||
+            snapshot.serving_basis_text !== (evidence.serving_basis_text ?? null) ||
+            snapshot.ingredient_form !== (evidence.ingredient_form ?? null) ||
+            snapshot.ingredient_ratio !== (evidence.ingredient_ratio ?? null) ||
+            (structured && canonicalJson(ingredientFact({
+              ...snapshot, field_name: snapshot.proposed_field,
+              value_numeric: snapshot.proposed_value, unit: snapshot.proposed_unit,
+              basis: snapshot.quantity_basis,
+            }, snapshot.approved_value)) !== canonicalJson(change.after))) {
           fail(`Approved candidate ${evidence.candidate_id} changed after plan generation`);
         }
       }
@@ -128,16 +166,26 @@ function planSourceEvidence(plan) {
 }
 
 async function nutritionCandidateSchemaState(client) {
+  const variantColumns = ["product_variant_id", "source_archive_uri"];
+  const factColumns = [
+    "information_state", "source_quantity_value", "source_quantity_unit", "quantity_basis",
+    "serving_basis_value", "serving_basis_unit", "serving_basis_text", "ingredient_form", "ingredient_ratio",
+  ];
   const result = await client.query(`
     select column_name
     from information_schema.columns
     where table_schema='public' and table_name='nutrition_candidates'
       and column_name=any($1::text[])
     order by column_name
-  `, [["product_variant_id", "source_archive_uri"]]);
+  `, [[...variantColumns, ...factColumns]]);
   const columns = new Set(result.rows.map((row) => String(row.column_name)));
-  if (columns.size === 1) fail("Nutrition candidate variant provenance schema is only partially applied");
-  return columns.size === 2;
+  const variantCount = variantColumns.filter((column) => columns.has(column)).length;
+  const factCount = factColumns.filter((column) => columns.has(column)).length;
+  if (![0, variantColumns.length].includes(variantCount)) fail("Nutrition candidate variant provenance schema is only partially applied");
+  if (![0, factColumns.length].includes(factCount) || (factCount && variantCount !== variantColumns.length)) {
+    fail("Nutrition candidate NUT-02B schema is only partially applied");
+  }
+  return { variantProvenanceAvailable: variantCount === variantColumns.length, preworkoutFactsAvailable: factCount === factColumns.length };
 }
 
 async function applyTransaction(plan, dependencies = {}) {
@@ -171,17 +219,33 @@ async function applyTransaction(plan, dependencies = {}) {
     const target = (await client.query("select public.retailer_catalogue_actual_database_target() target")).rows[0].target;
     if (target.target_environment !== "PRODUCTION" || target.project_ref !== PRODUCTION.projectRef ||
         target.database_identity !== PRODUCTION.databaseIdentity) fail("Production database identity mismatch");
-    const variantProvenanceAvailable = await nutritionCandidateSchemaState(client);
+    const { variantProvenanceAvailable, preworkoutFactsAvailable } = await nutritionCandidateSchemaState(client);
     if (!variantProvenanceAvailable && plan.variant_updates.length) {
       fail("Nutrition variant provenance migration is required before variant updates can be applied");
     }
-    const candidateResult = await client.query(variantProvenanceAvailable ? `
-      select id,product_id,product_variant_id,proposed_field,proposed_value,approved_value,proposed_unit,status,run_id,candidate_fingerprint,source_file_sha256,source_archive_uri
+    const hasStructuredUpdates = plan.variant_updates.some((variant) =>
+      Object.keys(variant.changes).some((field) => PREWORKOUT_TARGET_FIELDS.includes(field))
+    );
+    if (hasStructuredUpdates && !preworkoutFactsAvailable) {
+      fail("NUT-02B candidate schema migration is required before structured ingredient updates can be applied");
+    }
+    const candidateResult = await client.query(preworkoutFactsAvailable ? `
+      select id,product_id,product_variant_id,proposed_field,proposed_value,approved_value,proposed_unit,status,run_id,candidate_fingerprint,source_file_sha256,source_archive_uri,
+             information_state,source_quantity_value,source_quantity_unit,quantity_basis,serving_basis_value,serving_basis_unit,serving_basis_text,ingredient_form,ingredient_ratio
+      from public.nutrition_candidates
+      where run_id=$1 and id=any($2::bigint[])
+      order by id for share
+    ` : variantProvenanceAvailable ? `
+      select id,product_id,product_variant_id,proposed_field,proposed_value,approved_value,proposed_unit,status,run_id,candidate_fingerprint,source_file_sha256,source_archive_uri,
+             null::text information_state,null::numeric source_quantity_value,null::text source_quantity_unit,null::text quantity_basis,
+             null::numeric serving_basis_value,null::text serving_basis_unit,null::text serving_basis_text,null::text ingredient_form,null::text ingredient_ratio
       from public.nutrition_candidates
       where run_id=$1 and id=any($2::bigint[])
       order by id for share
     ` : `
-      select id,product_id,null::bigint product_variant_id,proposed_field,proposed_value,approved_value,proposed_unit,status,run_id,candidate_fingerprint,source_file_sha256,null::text source_archive_uri
+      select id,product_id,null::bigint product_variant_id,proposed_field,proposed_value,approved_value,proposed_unit,status,run_id,candidate_fingerprint,source_file_sha256,null::text source_archive_uri,
+             null::text information_state,null::numeric source_quantity_value,null::text source_quantity_unit,null::text quantity_basis,
+             null::numeric serving_basis_value,null::text serving_basis_unit,null::text serving_basis_text,null::text ingredient_form,null::text ingredient_ratio
       from public.nutrition_candidates
       where run_id=$1 and id=any($2::bigint[])
       order by id for share

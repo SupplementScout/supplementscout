@@ -11,6 +11,7 @@ const migrations = [
   "20260809120000_add_nutrition_candidate_approved_value.sql",
   "20260809130000_add_nutrition_candidate_batch_items.sql",
   "20260911120000_add_nutrition_candidate_variant_provenance.sql",
+  "20260911130000_add_nutrition_candidate_preworkout_facts.sql",
 ];
 function run(command, args, options = {}) {
   return spawnSync(command, args, { cwd: root, encoding: "utf8", timeout: options.timeout || 180_000, input: options.input });
@@ -73,6 +74,28 @@ function insertLegacyCandidate(fingerprint) {
     );
   `;
 }
+function insertStructuredCandidate({ fingerprint, field = "caffeine_per_serving_mg", state = "present_with_amount", value = 200, sourceValue = 0.2, sourceUnit = "g", form = null, ratio = null }) {
+  const quantified = state === "present_with_amount";
+  const literal = (input) => input == null ? "null" : `'${input}'`;
+  return `
+    insert into public.nutrition_candidates(
+      product_id,product_variant_id,retailer_id,source_type,source_url,
+      source_file_sha256,source_snapshot_ref,source_archive_uri,source_domain,
+      product_name,brand,proposed_field,proposed_value,proposed_unit,
+      information_state,source_quantity_value,source_quantity_unit,quantity_basis,
+      serving_basis_value,serving_basis_unit,serving_basis_text,ingredient_form,ingredient_ratio,
+      confidence,evidence_snippet,source_locator,warning_flags,status,run_id,candidate_fingerprint
+    ) values (
+      38,726,null,'owner_transcribed_official_page','https://appliednutrition.uk/products/pump-3g-375g',
+      '${hash}','db:nutrition_candidate_batch_items/1','${archive}','appliednutrition.uk',
+      'Applied Nutrition Pump 3G','Applied Nutrition','${field}',${quantified ? value : "null"},${quantified ? "'mg'" : "null"},
+      '${state}',${quantified ? sourceValue : "null"},${quantified ? literal(sourceUnit) : "null"},${quantified ? "'per_serving'" : "null"},
+      ${quantified ? "15" : "null"},${quantified ? "'g'" : "null"},${quantified ? "'Per 15 g serving'" : "null"},${literal(form)},${literal(ratio)},
+      'LOW','TEST ONLY: structured ingredient path','image:test-only','{TEST_ONLY}'::text[],
+      'pending','NUT-02B-structured-test','${fingerprint}'
+    );
+  `;
+}
 
 test("variant candidate migration preserves legacy rows and enforces exact immutable private provenance", {
   skip: !dockerAvailable() && "Docker unavailable",
@@ -97,7 +120,7 @@ test("variant candidate migration preserves legacy rows and enforces exact immut
       insert into public.products(id) values (38),(39);
       insert into public.product_variants(id,product_id,name) values (726,38,'Default / 375g'),(727,39,'Other');
     `), "setup");
-    for (const migration of migrations.slice(0, -1)) {
+    for (const migration of migrations.slice(0, 3)) {
       ok(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-f", `/workspace/supabase/migrations/${migration}`]), migration);
     }
 
@@ -119,7 +142,7 @@ test("variant candidate migration preserves legacy rows and enforces exact immut
     assert.notEqual(unavailableVariantInsert.status, 0);
     assert.match(output(unavailableVariantInsert), /column "product_variant_id" of relation "nutrition_candidates" does not exist/);
 
-    const provenanceMigration = migrations.at(-1);
+    const provenanceMigration = migrations[3];
     ok(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-f", `/workspace/supabase/migrations/${provenanceMigration}`]), provenanceMigration);
     const exactFingerprint = "c".repeat(64);
     ok(sql(container, insertCandidate({ fingerprint: exactFingerprint })), "exact variant candidate");
@@ -162,6 +185,61 @@ test("variant candidate migration preserves legacy rows and enforces exact immut
       ${insertCandidate({ fingerprint: exactFingerprint }).replace(/;\s*$/, " on conflict(candidate_fingerprint) do nothing;")}
     `), "idempotent retry");
     assert.equal(ok(sql(container, `select count(*) from public.nutrition_candidates where candidate_fingerprint='${exactFingerprint}';`), "duplicate count").stdout.trim(), "1");
+
+    const beforeNut02b = sql(container, insertStructuredCandidate({ fingerprint: "1".repeat(64) }));
+    assert.notEqual(beforeNut02b.status, 0);
+    assert.match(output(beforeNut02b), /column "information_state" of relation "nutrition_candidates" does not exist/);
+
+    ok(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-f", `/workspace/supabase/migrations/${migrations[4]}`]), migrations[4]);
+    const facts = [
+      { fingerprint: "1".repeat(64) },
+      { fingerprint: "2".repeat(64), field: "citrulline_per_serving_mg", value: 6000, sourceValue: 6, form: "citrulline_malate", ratio: "2:1" },
+      { fingerprint: "3".repeat(64), field: "beta_alanine_per_serving_mg", state: "present_amount_not_disclosed" },
+      { fingerprint: "4".repeat(64), state: "confirmed_absent" },
+      { fingerprint: "5".repeat(64), state: "no_information" },
+      { fingerprint: "6".repeat(64), state: "conflicting_information" },
+    ];
+    for (const fact of facts) ok(sql(container, insertStructuredCandidate(fact)), `structured ${fact.state || "present_with_amount"}`);
+    ok(sql(container, `
+      update public.nutrition_candidates
+      set status='approved',reviewed_at=now(),reviewed_by='integration-test'
+      where run_id='NUT-02B-structured-test';
+    `), "approve structured candidates");
+    const stateReadback = ok(sql(container, `
+      select jsonb_agg(jsonb_build_object(
+        'state',information_state,'value',proposed_value,'approved',approved_value,
+        'source_value',source_quantity_value,'source_unit',source_quantity_unit,
+        'basis',quantity_basis,'serving',serving_basis_text,'form',ingredient_form,'ratio',ingredient_ratio
+      ) order by id)::text from public.nutrition_candidates
+      where run_id='NUT-02B-structured-test';
+    `), "structured readback").stdout.trim();
+    const parsed = JSON.parse(stateReadback);
+    assert.equal(parsed.length, 6);
+    assert.deepEqual(parsed[0], {
+      state: "present_with_amount", value: 200, approved: 200, source_value: 0.2,
+      source_unit: "g", basis: "per_serving", serving: "Per 15 g serving", form: null, ratio: null,
+    });
+    assert.equal(parsed[1].form, "citrulline_malate");
+    assert.equal(parsed[1].ratio, "2:1");
+    assert.equal(parsed[1].value, 6000);
+    for (const row of parsed.slice(2)) assert.equal(row.approved, null);
+
+    const changedFact = sql(container, `
+      update public.nutrition_candidates set serving_basis_text='Per guessed scoop'
+      where candidate_fingerprint='${"1".repeat(64)}';
+    `);
+    assert.notEqual(changedFact.status, 0);
+    assert.match(output(changedFact), /already been reviewed|evidence is immutable/);
+    const invalidCitrulline = sql(container, insertStructuredCandidate({
+      fingerprint: "7".repeat(64), field: "citrulline_per_serving_mg", value: 3000,
+      sourceValue: 3, form: "citrulline_malate", ratio: "0:1",
+    }));
+    assert.notEqual(invalidCitrulline.status, 0);
+    assert.match(output(invalidCitrulline), /nutrition_candidates_fact_shape_check/);
+    ok(sql(container, `
+      ${insertStructuredCandidate({ fingerprint: "1".repeat(64) }).replace(/;\s*$/, " on conflict(candidate_fingerprint) do nothing;")}
+    `), "structured idempotent retry");
+    assert.equal(ok(sql(container, `select count(*) from public.nutrition_candidates where candidate_fingerprint='${"1".repeat(64)}';`), "structured duplicate count").stdout.trim(), "1");
   } finally {
     run("docker", ["rm", "-f", container], { timeout: 30_000 });
   }

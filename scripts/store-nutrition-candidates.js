@@ -5,10 +5,15 @@ const {
   FIELDS,
   STATUS,
   fingerprint,
+  isMissingNutritionPreworkoutFactColumn,
   isMissingNutritionVariantProvenanceColumn,
   validateSourceArchiveUri,
   validateSourceUrl,
 } = require("./lib/nutrition-candidates");
+const {
+  PREWORKOUT_FIELD_SET,
+  validatePreworkoutIngredientCandidate,
+} = require("./lib/nutrition-preworkout-facts");
 
 const UNITS = Object.freeze({
   net_weight_g: "g",
@@ -55,12 +60,16 @@ function candidateToRow(candidate, runId) {
   const sourceArchiveUri = validateSourceArchiveUri(candidate?.source_archive_uri ?? null, {
     required: productVariantId !== null,
   });
+  const structured = PREWORKOUT_FIELD_SET.has(candidate?.field_name);
+  const validFact = structured
+    ? validatePreworkoutIngredientCandidate(candidate)
+    : FIELDS.includes(candidate?.field_name) && UNITS[candidate.field_name] === candidate.unit &&
+      typeof candidate.value_numeric === "number" && Number.isFinite(candidate.value_numeric) && candidate.value_numeric > 0;
   if (!candidate || candidate.candidate_status !== STATUS || candidate.review_status !== "PENDING" ||
       !optionalPositiveId(productVariantId) ||
-      !FIELDS.includes(candidate.field_name) || UNITS[candidate.field_name] !== candidate.unit ||
+      !validFact ||
       !SOURCE_TYPES.has(candidate.source_type) ||
       !optionalPositiveId(candidate.product_id) || !optionalPositiveId(candidate.retailer_id) ||
-      typeof candidate.value_numeric !== "number" || !Number.isFinite(candidate.value_numeric) || candidate.value_numeric <= 0 ||
       !["HIGH", "MEDIUM", "LOW"].includes(candidate.overall_confidence) ||
       typeof candidate.evidence_text !== "string" || !candidate.evidence_text.trim() || candidate.evidence_text.length > 300 ||
       typeof candidate.evidence_locator !== "string" || !candidate.evidence_locator.trim() || candidate.evidence_locator.length > 500 ||
@@ -88,6 +97,15 @@ function candidateToRow(candidate, runId) {
     proposed_field: candidate.field_name,
     proposed_value: candidate.value_numeric,
     proposed_unit: candidate.unit,
+    information_state: structured ? candidate.information_state : null,
+    source_quantity_value: structured ? candidate.source_quantity_value ?? null : null,
+    source_quantity_unit: structured ? candidate.source_quantity_unit ?? null : null,
+    quantity_basis: structured ? candidate.basis : null,
+    serving_basis_value: structured ? candidate.serving_basis_value ?? null : null,
+    serving_basis_unit: structured ? candidate.serving_basis_unit ?? null : null,
+    serving_basis_text: structured ? candidate.serving_basis_text ?? null : null,
+    ingredient_form: structured ? candidate.ingredient_form ?? null : null,
+    ingredient_ratio: structured ? candidate.ingredient_ratio ?? null : null,
     confidence: candidate.overall_confidence,
     evidence_snippet: candidate.evidence_text,
     source_locator: candidate.evidence_locator,
@@ -141,13 +159,29 @@ async function storeRows(rows, dependencies = {}) {
   const write = (values) => supabase
     .from("nutrition_candidates")
     .upsert(values, { onConflict: "candidate_fingerprint", ignoreDuplicates: true });
-  const current = await write(rows);
+  let currentRows = rows;
+  let current = await write(currentRows);
   if (!current.error) return;
+  if (isMissingNutritionPreworkoutFactColumn(current.error)) {
+    if (rows.some((row) => row.information_state !== null)) {
+      fail("NUT-02B candidate schema migration is required before structured ingredient candidates can be stored");
+    }
+    currentRows = rows.map((row) => {
+      const compatible = { ...row };
+      for (const column of [
+        "information_state", "source_quantity_value", "source_quantity_unit", "quantity_basis",
+        "serving_basis_value", "serving_basis_unit", "serving_basis_text", "ingredient_form", "ingredient_ratio",
+      ]) delete compatible[column];
+      return compatible;
+    });
+    current = await write(currentRows);
+    if (!current.error) return;
+  }
   if (!isMissingNutritionVariantProvenanceColumn(current.error)) throw current.error;
-  if (rows.some((row) => row.product_variant_id !== null || row.source_archive_uri !== null)) {
+  if (currentRows.some((row) => row.product_variant_id !== null || row.source_archive_uri !== null)) {
     fail("Nutrition variant provenance migration is required before variant candidates can be stored");
   }
-  const legacyRows = rows.map((row) => {
+  const legacyRows = currentRows.map((row) => {
     const legacyRow = { ...row };
     delete legacyRow.product_variant_id;
     delete legacyRow.source_archive_uri;

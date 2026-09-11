@@ -5,7 +5,9 @@ import { addNutritionCandidateReturnTarget } from "../../lib/nutritionCandidateN
 import {
   buildNutritionCandidateReviewUpdate,
   parseNutritionCandidateReviewInput,
+  validateNutritionCandidateReviewFact,
 } from "../../lib/nutritionCandidateReview";
+import { isMissingNutritionPreworkoutFactColumn } from "../../lib/nutritionCandidateSchemaCompatibility";
 
 function redirectToReview(request: NextRequest, saved: string, returnTo: FormDataEntryValue | null) {
   const url = new URL("/admin/nutrition-candidates", request.url);
@@ -26,11 +28,35 @@ export async function POST(request: NextRequest) {
     approvedValue: formData.get("approvedValue"),
     reviewNote: formData.get("reviewNote"),
     candidateFingerprint: formData.get("candidateFingerprint"),
+    informationState: formData.get("informationState"),
   });
   if (!input) {
     return new NextResponse("Invalid nutrition candidate review.", {
       status: 400,
     });
+  }
+
+  const current = await supabaseAdmin.from("nutrition_candidates")
+    .select("id,information_state,proposed_value")
+    .eq("id", input.id)
+    .eq("status", "pending")
+    .eq("candidate_fingerprint", input.candidateFingerprint)
+    .maybeSingle();
+  let candidate = current.data as { information_state: unknown; proposed_value: unknown } | null;
+  if (current.error && isMissingNutritionPreworkoutFactColumn(current.error)) {
+    const legacy = await supabaseAdmin.from("nutrition_candidates")
+      .select("id,proposed_value")
+      .eq("id", input.id)
+      .eq("status", "pending")
+      .eq("candidate_fingerprint", input.candidateFingerprint)
+      .maybeSingle();
+    if (legacy.error) return new NextResponse("Candidate could not be read for review.", { status: 409 });
+    candidate = legacy.data ? { ...legacy.data, information_state: null } : null;
+  } else if (current.error) {
+    return new NextResponse("Candidate could not be read for review.", { status: 409 });
+  }
+  if (!candidate || !validateNutritionCandidateReviewFact(input, candidate)) {
+    return new NextResponse("Candidate review fields changed or do not match the pending fact.", { status: 409 });
   }
 
   const update = buildNutritionCandidateReviewUpdate(

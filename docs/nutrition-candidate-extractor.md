@@ -35,10 +35,29 @@ workflow.
 - `net_weight_g`
 - `net_volume_ml`
 - `serving_size_ml`
+- `caffeine_per_serving_mg`
+- `citrulline_per_serving_mg`
+- `beta_alanine_per_serving_mg`
 
 One output row represents one candidate fact. The extractor never derives a
 missing value from other values. Package arithmetic is used only to flag
 inconsistency.
+
+The three pre-workout fields use a structured candidate contract. Their
+`information_state` is exactly one of `present_with_amount`,
+`present_amount_not_disclosed`, `confirmed_absent`, `no_information`, or
+`conflicting_information`. This describes the source evidence and is independent
+of `review_status`; every state starts pending and even confirmed absence needs
+review. Only `present_with_amount` carries a positive source quantity in `mg` or
+`g`, an exact `per_serving` basis and a nonempty source serving description. The
+normalized proposed value is stored in mg and must equal the deterministic g/mg
+conversion. Other states carry no numeric value and are never represented by
+zero.
+
+Citrulline also records `ingredient_form` as `l_citrulline` or
+`citrulline_malate`. A declared positive blend ratio may be retained only for
+citrulline malate. The process does not infer a scoop mass, mix per-serving and
+per-100-g values, or convert citrulline-malate mass into pure L-citrulline.
 
 ## Accepted evidence
 
@@ -80,9 +99,9 @@ is an integer serving count.
 OCR is an additional evidence path, not an approval or database-write path. It
 uses Windows Media OCR locally after `sharp` has decoded, bounded and normalized
 the selected JPG, PNG or WebP image. It does not use cloud OCR, Supabase, the
-verified-data importer or product update code. `caffeine_per_serving_mg` remains
-a future field because the current candidate and verified schemas do not fully
-support it.
+verified-data importer or product update code. OCR extraction for the three new
+pre-workout fields remains outside NUT-02B; structured candidates enter only
+through reviewed, explicit TEST ONLY fixtures until a later authorized step.
 
 Create `tmp/nutrition-ocr-batch-1/pages.json` with this exact schema (one to ten
 explicit official manufacturer pages; the first canary processes at most five):
@@ -264,13 +283,14 @@ Every JSON candidate and CSV row is explicitly marked
 `candidate_status=CANDIDATE_REQUIRES_REVIEW` and starts with
 `review_status=PENDING`. `HIGH` confidence is not verification.
 
-While the NUT-02A provenance migration is pending, the existing product-only
-queue remains available. Candidate read, review, storage, planning and apply may
-retry the legacy column shape only for database error `42703` or `PGRST204` that
-specifically names missing `nutrition_candidates.product_variant_id` or
-`source_archive_uri`. Other errors remain visible. An exact-variant operation is
-never downgraded to product scope: it fails with a migration-required result
-until both columns exist.
+Schema compatibility is staged. Before NUT-02A, the existing product-only queue
+remains available; candidate read, review, storage, planning and apply retry the
+legacy shape only for database error `42703` or `PGRST204` that specifically names
+missing `nutrition_candidates.product_variant_id` or `source_archive_uri`.
+After NUT-02A but before NUT-02B, product candidates and provenance-only variant
+candidates remain available. A structured pre-workout operation fails with a
+migration-required result until all NUT-02B columns exist. Other errors remain
+visible, and neither exact-variant nor structured operations are downgraded.
 
 Reviewers must confirm:
 
@@ -449,11 +469,15 @@ creatine or protein amounts greater than an available gram serving size.
 
 ### Owner-approved values and pack transitions
 
-Approving a candidate requires an explicit numeric `approved_value`. The admin
-form starts with the extracted `proposed_value`, but the owner may correct it
-from the reviewed label evidence. `review_note` remains explanatory only;
-free-form text is never parsed into catalogue data. Approval still authorises
-planning only and never bypasses pending review or performs a product update.
+Approving an existing scalar candidate requires an explicit numeric
+`approved_value`; the owner may correct that value from reviewed label evidence.
+A quantified structured candidate binds approval to its deterministic proposed
+mg value, so changing amount, source unit, serving, form or information state
+requires a new candidate. A nonquantified structured state has no approved
+numeric value but still requires an explicit approve/reject decision.
+`review_note` remains explanatory only; free-form text is never parsed into
+catalogue data. Approval still authorises planning only and never bypasses
+pending review or performs a product update.
 
 For pack applicability, the current retailer identity wins over a newer pack
 shown on the manufacturer page. While a retailer still sells the larger pack,
@@ -504,9 +528,11 @@ Apply rechecks candidate approval, exact product/variant identity, source hash,
 durable archive URI and each target's planned before value inside one
 production-owner PostgreSQL transaction. It validates
 the existing production project identity, locks the reviewed rows, and rolls the
-whole batch back on an error. It can update only the seven numeric nutrition
-fields documented above plus the derived `nutrition_verified` flag on the
-planned product or exact variant override; it cannot update offers, retailer products, GTIN, prices,
+whole batch back on an error. It can update the seven legacy numeric nutrition
+fields on products and the exact variant override, plus atomic structured
+`caffeine`, `citrulline` and `beta_alanine` facts on the exact variant override.
+Unknown or conflicting structured evidence cannot overwrite an existing
+determinate approved fact. The path cannot update offers, retailer products, GTIN, prices,
 `unit_pricing_verified`, or any pending/rejected candidate. Product-scoped facts
 still update only `products`; variant-scoped facts update only the exact existing
 variant's `nutrition_override`. A successful

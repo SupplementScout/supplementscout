@@ -44,6 +44,37 @@ function candidate(overrides = {}) {
   return result;
 }
 
+function structuredCandidate(overrides = {}) {
+  return candidate({
+    product_id: "38",
+    product_variant_id: "726",
+    proposed_field: "caffeine_per_serving_mg",
+    proposed_value: 200,
+    approved_value: 200,
+    proposed_unit: "mg",
+    information_state: "present_with_amount",
+    source_quantity_value: 0.2,
+    source_quantity_unit: "g",
+    quantity_basis: "per_serving",
+    serving_basis_value: 15,
+    serving_basis_unit: "g",
+    serving_basis_text: "Per 15 g serving",
+    ingredient_form: null,
+    ingredient_ratio: null,
+    source_file_sha256: pumpHash,
+    source_archive_uri: pumpArchive,
+    warning_flags: ["TEST_ONLY"],
+    ...overrides,
+  });
+}
+
+function pumpInputs(override = {}) {
+  return {
+    products: [{ id: "38", name: "Applied Nutrition Pump 3G" }],
+    variants: [{ id: "726", product_id: "38", nutrition_override: override }],
+  };
+}
+
 test("approved planner creates before/after product-only changes", () => {
   const plan = buildApprovedPlan([candidate()], [{ id: "337", name: "Creatine", serving_size_g: null }], runId, "2026-08-02T12:00:00.000Z");
   assert.equal(plan.status, "READY_FOR_EXPLICIT_APPLY");
@@ -127,6 +158,90 @@ test("variant planner rejects a product mismatch and missing durable evidence", 
   const missing = buildApprovedPlan([{ ...base, source_archive_uri: null }], [{ id: "38", name: "Pump" }], runId,
     "2026-09-11T12:00:00.000Z", [{ id: "726", product_id: "38", nutrition_override: {} }]);
   assert.ok(missing.blockers.some((item) => item.code === "INVALID_VARIANT_SOURCE_ARCHIVE"));
+});
+
+test("structured planner preserves amount, original unit, serving and citrulline form atomically", () => {
+  const input = pumpInputs();
+  const caffeine = structuredCandidate();
+  const plan = buildApprovedPlan([caffeine], input.products, runId,
+    "2026-09-11T18:00:00.000Z", input.variants);
+  assert.equal(plan.status, "READY_FOR_EXPLICIT_APPLY");
+  assert.deepEqual(plan.variant_updates[0].changes.caffeine.after, {
+    information_state: "present_with_amount",
+    amount_per_serving_mg: 200,
+    source_quantity_value: 0.2,
+    source_quantity_unit: "g",
+    quantity_basis: "per_serving",
+    serving_basis_text: "Per 15 g serving",
+    serving_basis_value: 15,
+    serving_basis_unit: "g",
+  });
+  assert.equal(validatePlan(plan), plan);
+
+  const citrulline = structuredCandidate({
+    proposed_field: "citrulline_per_serving_mg", proposed_value: 6000, approved_value: 6000,
+    source_quantity_value: 6, ingredient_form: "citrulline_malate", ingredient_ratio: "2:1",
+  });
+  const citrullinePlan = buildApprovedPlan([citrulline], input.products, runId,
+    "2026-09-11T18:00:00.000Z", input.variants);
+  assert.deepEqual(citrullinePlan.variant_updates[0].changes.citrulline.after, {
+    information_state: "present_with_amount",
+    amount_per_serving_mg: 6000,
+    source_quantity_value: 6,
+    source_quantity_unit: "g",
+    quantity_basis: "per_serving",
+    serving_basis_text: "Per 15 g serving",
+    serving_basis_value: 15,
+    serving_basis_unit: "g",
+    ingredient_form: "citrulline_malate",
+    ingredient_ratio: "2:1",
+  });
+});
+
+test("all ingredient information states remain distinct from candidate review", () => {
+  for (const state of [
+    "present_amount_not_disclosed", "confirmed_absent", "no_information", "conflicting_information",
+  ]) {
+    const input = pumpInputs();
+    const row = structuredCandidate({
+      proposed_field: "beta_alanine_per_serving_mg",
+      proposed_value: null, approved_value: null, proposed_unit: null,
+      information_state: state, source_quantity_value: null, source_quantity_unit: null,
+      quantity_basis: null, serving_basis_value: null, serving_basis_unit: null, serving_basis_text: null,
+    });
+    const plan = buildApprovedPlan([row], input.products, runId,
+      "2026-09-11T18:00:00.000Z", input.variants);
+    assert.equal(row.status, "approved");
+    assert.equal(plan.status, "READY_FOR_EXPLICIT_APPLY");
+    assert.equal(plan.variant_updates[0].changes.beta_alanine.after.information_state, state);
+    assert.equal(validatePlan(plan), plan);
+    assert.doesNotThrow(() => apply.verifyCandidates(plan, [row]));
+  }
+});
+
+test("unknown and conflicting information cannot overwrite an approved fact", () => {
+  for (const state of ["no_information", "conflicting_information"]) {
+    const input = pumpInputs({ caffeine: { information_state: "confirmed_absent" } });
+    const row = structuredCandidate({
+      proposed_value: null, approved_value: null, proposed_unit: null, information_state: state,
+      source_quantity_value: null, source_quantity_unit: null, quantity_basis: null,
+      serving_basis_value: null, serving_basis_unit: null, serving_basis_text: null,
+    });
+    const plan = buildApprovedPlan([row], input.products, runId,
+      "2026-09-11T18:00:00.000Z", input.variants);
+    assert.equal(plan.status, "BLOCKED");
+    assert.ok(plan.blockers.some((item) => item.code === "INDETERMINATE_STATE_WOULD_OVERWRITE_APPROVED_FACT"));
+  }
+});
+
+test("structured planner rejects corrected conversions and unsupported product scope", () => {
+  const input = pumpInputs();
+  const corrected = buildApprovedPlan([structuredCandidate({ approved_value: 201 })], input.products, runId,
+    "2026-09-11T18:00:00.000Z", input.variants);
+  assert.ok(corrected.blockers.some((item) => item.code === "UNSUPPORTED_OR_INVALID_FACT"));
+  const productScoped = buildApprovedPlan([structuredCandidate({ product_variant_id: null, source_archive_uri: null })], input.products, runId,
+    "2026-09-11T18:00:00.000Z", input.variants);
+  assert.ok(productScoped.blockers.some((item) => item.code === "PREWORKOUT_FACT_REQUIRES_EXACT_VARIANT"));
 });
 
 test("apply verification invalidates changed source hash, stale approval and variant override", () => {
@@ -315,6 +430,22 @@ test("approved product planner reads legacy rows only for the exact missing-colu
   assert.equal(denied.selects.length, 1);
 });
 
+test("planner preserves NUT-02A variant rows while the NUT-02B migration is pending", async () => {
+  const variant = candidate({
+    product_id: "38", product_variant_id: "726", source_file_sha256: pumpHash,
+    source_archive_uri: pumpArchive,
+  });
+  const supabase = candidateReadSupabase([
+    { data: null, error: { code: "42703", message: "column nutrition_candidates.information_state does not exist" } },
+    { data: [variant], error: null },
+  ]);
+  const rows = await loadApprovedCandidates(supabase, runId, ["1"]);
+  assert.equal(supabase.selects.length, 2);
+  assert.equal(rows[0].product_variant_id, "726");
+  assert.equal(rows[0].source_archive_uri, pumpArchive);
+  assert.equal(rows[0].information_state, null);
+});
+
 test("planner requires an exact reviewed candidate subset", async () => {
   assert.throws(() => planner.parseArgs([`--run-id=${runId}`]), /Choose exactly one/);
   assert.throws(() => planner.parseArgs([`--run-id=${runId}`, "--candidate-ids=1,1"]), /unique/);
@@ -491,4 +622,46 @@ test("controlled apply blocks variant operations before the provenance migration
   }), /migration is required/);
   assert.ok(queries.includes("rollback"));
   assert.equal(queries.some((query) => query.startsWith("update public.")), false);
+});
+
+test("controlled apply blocks NUT-02B facts before its schema and writes the exact variant after it", async () => {
+  const input = pumpInputs();
+  const reviewed = structuredCandidate();
+  const plan = buildApprovedPlan([reviewed], input.products, runId,
+    "2026-09-11T18:00:00.000Z", input.variants);
+  const environment = {
+    SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF: "aftboxmrdgyhizicfsfu",
+    SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL: "redacted",
+  };
+  const baseClient = (schemaColumns) => ({
+    queries: [],
+    async query(sql, values) {
+      const compact = String(sql).replace(/\s+/g, " ").trim();
+      this.queries.push({ sql: compact, values });
+      if (compact.startsWith("select current_user")) return { rows: [{ current_user: "postgres", safe_update: null }] };
+      if (compact.includes("retailer_catalogue_actual_database_target")) return { rows: [{ target: { target_environment: "PRODUCTION", project_ref: "aftboxmrdgyhizicfsfu", database_identity: "supplementscout-production:aftboxmrdgyhizicfsfu" } }] };
+      if (compact.includes("from information_schema.columns")) return { rows: schemaColumns.map((column_name) => ({ column_name })) };
+      if (compact.includes("from public.nutrition_candidates")) return { rows: [reviewed] };
+      if (compact.includes("from public.products")) return { rows: [{ id: "38" }] };
+      if (compact.startsWith("select id,product_id,nutrition_override")) return { rows: [{ id: "726", product_id: "38", nutrition_override: {} }] };
+      if (compact.startsWith("update public.product_variants")) return { rowCount: 1, rows: [{ id: "726" }] };
+      return { rows: [] };
+    },
+  });
+  const before = baseClient(["product_variant_id", "source_archive_uri"]);
+  await assert.rejects(apply.applyTransaction(plan, { client: before, environment }), /NUT-02B candidate schema migration is required/);
+  assert.equal(before.queries.some((query) => query.sql.startsWith("update public.product_variants")), false);
+  assert.ok(before.queries.some((query) => query.sql === "rollback"));
+
+  const after = baseClient([
+    "product_variant_id", "source_archive_uri", "information_state", "source_quantity_value",
+    "source_quantity_unit", "quantity_basis", "serving_basis_value", "serving_basis_unit",
+    "serving_basis_text", "ingredient_form", "ingredient_ratio",
+  ]);
+  const result = await apply.applyTransaction(plan, { client: after, environment });
+  assert.deepEqual(result.changed_variants, [{ product_id: "38", product_variant_id: "726", fields: ["caffeine"] }]);
+  const write = after.queries.find((query) => query.sql.startsWith("update public.product_variants"));
+  assert.equal(JSON.parse(write.values[0]).caffeine.amount_per_serving_mg, 200);
+  assert.equal(write.values[1], "726");
+  assert.equal(write.values[2], "38");
 });

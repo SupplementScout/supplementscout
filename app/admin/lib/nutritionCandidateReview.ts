@@ -12,6 +12,7 @@ export type NutritionCandidateReviewInput = {
   approvedValue: number | null;
   reviewNote: string | null;
   candidateFingerprint: string;
+  informationState: string | null;
 };
 
 export type NutritionCandidateBulkReviewInput = {
@@ -26,13 +27,20 @@ export type BulkReviewCandidate = {
   product_id: string | number | null;
   product_variant_id: string | number | null;
   proposed_field: string;
-  proposed_value: string | number;
+  proposed_value: string | number | null;
   warning_flags: unknown;
   status: string;
   run_id: string;
 };
 
 const UNSAFE_BULK_WARNING = /CONFLICT|AMBIGUOUS|UNCLEAR|MISMATCH|EXCEEDS/i;
+export const PREWORKOUT_INFORMATION_STATES = [
+  "present_with_amount",
+  "present_amount_not_disclosed",
+  "confirmed_absent",
+  "no_information",
+  "conflicting_information",
+] as const;
 const BULK_FIELDS = new Set([
   "net_weight_g",
   "net_volume_ml",
@@ -49,6 +57,7 @@ export function parseNutritionCandidateReviewInput(input: {
   approvedValue: FormDataEntryValue | null;
   reviewNote: FormDataEntryValue | null;
   candidateFingerprint: FormDataEntryValue | null;
+  informationState: FormDataEntryValue | null;
 }): NutritionCandidateReviewInput | null {
   if (typeof input.id !== "string" || !/^[1-9]\d*$/.test(input.id)) {
     return null;
@@ -71,9 +80,20 @@ export function parseNutritionCandidateReviewInput(input: {
     ? input.approvedValue.trim()
     : "";
   const approvedValue = approvedValueText === "" ? null : Number(approvedValueText);
+  const informationState = input.informationState === "" || input.informationState == null
+    ? null
+    : typeof input.informationState === "string" && PREWORKOUT_INFORMATION_STATES.includes(
+      input.informationState as (typeof PREWORKOUT_INFORMATION_STATES)[number]
+    )
+      ? input.informationState
+      : undefined;
+  if (informationState === undefined) return null;
+  const amountRequired = informationState === null || informationState === "present_with_amount";
   if (
     input.status === "approved" &&
-      (!Number.isFinite(approvedValue) || approvedValue === null || approvedValue <= 0)
+      (amountRequired
+        ? !Number.isFinite(approvedValue) || approvedValue === null || approvedValue <= 0
+        : approvedValue !== null)
   ) {
     return null;
   }
@@ -83,7 +103,19 @@ export function parseNutritionCandidateReviewInput(input: {
     approvedValue: input.status === "approved" ? approvedValue : null,
     reviewNote: note,
     candidateFingerprint: input.candidateFingerprint,
+    informationState,
   };
+}
+
+export function validateNutritionCandidateReviewFact(
+  input: NutritionCandidateReviewInput,
+  candidate: { information_state: unknown; proposed_value: unknown }
+) {
+  const state = candidate.information_state == null ? null : String(candidate.information_state);
+  if (state !== input.informationState) return false;
+  if (input.status !== "approved" || state === null) return true;
+  if (state === "present_with_amount") return input.approvedValue === Number(candidate.proposed_value);
+  return input.approvedValue === null;
 }
 
 export function canReviewNutritionCandidate(

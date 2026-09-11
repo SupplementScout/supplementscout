@@ -10,6 +10,8 @@ type NutritionCandidateReadResult<T> = {
 
 const MISSING_VARIANT_PROVENANCE_COLUMN =
   /(?:column\s+(?:nutrition_candidates\.)?(?:product_variant_id|source_archive_uri)\s+does not exist|could not find the '(?:product_variant_id|source_archive_uri)' column of 'nutrition_candidates')/i;
+const MISSING_PREWORKOUT_FACT_COLUMN =
+  /(?:column\s+(?:nutrition_candidates\.)?(?:information_state|source_quantity_value|source_quantity_unit|quantity_basis|serving_basis_value|serving_basis_unit|serving_basis_text|ingredient_form|ingredient_ratio)\s+does not exist|could not find the '(?:information_state|source_quantity_value|source_quantity_unit|quantity_basis|serving_basis_value|serving_basis_unit|serving_basis_text|ingredient_form|ingredient_ratio)' column of 'nutrition_candidates')/i;
 
 export class NutritionVariantProvenanceMigrationRequiredError extends Error {
   constructor() {
@@ -25,6 +27,16 @@ export function isMissingNutritionVariantProvenanceColumn(
     error &&
     (error.code === "42703" || error.code === "PGRST204") &&
     MISSING_VARIANT_PROVENANCE_COLUMN.test(String(error.message || ""))
+  );
+}
+
+export function isMissingNutritionPreworkoutFactColumn(
+  error: NutritionCandidateReadError | null | undefined
+) {
+  return Boolean(
+    error &&
+    (error.code === "42703" || error.code === "PGRST204") &&
+    MISSING_PREWORKOUT_FACT_COLUMN.test(String(error.message || ""))
   );
 }
 

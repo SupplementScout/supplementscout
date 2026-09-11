@@ -165,6 +165,8 @@ function CandidateCard({
   runFilter?: string;
   returnTarget: string;
 }) {
+  const structured = candidate.information_state !== null;
+  const quantified = candidate.information_state === "present_with_amount";
   const warnings = candidate.warning_flags.length
     ? candidate.warning_flags.join(", ")
     : "None";
@@ -193,9 +195,31 @@ function CandidateCard({
         <div>
           <dt className="font-semibold text-zinc-500">Proposed fact</dt>
           <dd className="mt-1 font-mono text-zinc-950">
-            {candidate.proposed_field} = {candidate.proposed_value} {candidate.proposed_unit}
+            {candidate.proposed_field} = {structured
+              ? candidate.information_state
+              : `${candidate.proposed_value} ${candidate.proposed_unit}`}
           </dd>
         </div>
+        {structured ? (
+          <div className="md:col-span-2">
+            <dt className="font-semibold text-zinc-500">Structured ingredient evidence</dt>
+            <dd className="mt-1 rounded-lg bg-zinc-50 p-3 font-mono text-xs leading-5">
+              State: {candidate.information_state}
+              {quantified ? (
+                <>
+                  <br />Normalized: {candidate.proposed_value} mg per serving
+                  <br />Source amount: {candidate.source_quantity_value} {candidate.source_quantity_unit}
+                  <br />Serving basis: {candidate.serving_basis_text}
+                  {candidate.serving_basis_value
+                    ? <> ({candidate.serving_basis_value} {candidate.serving_basis_unit})</>
+                    : null}
+                </>
+              ) : null}
+              {candidate.ingredient_form ? <><br />Form: {candidate.ingredient_form}</> : null}
+              {candidate.ingredient_ratio ? <><br />Declared ratio: {candidate.ingredient_ratio}</> : null}
+            </dd>
+          </div>
+        ) : null}
         <div>
           <dt className="font-semibold text-zinc-500">Created</dt>
           <dd className="mt-1">{new Date(candidate.created_at).toLocaleString("en-GB")}</dd>
@@ -244,22 +268,26 @@ function CandidateCard({
         >
           <input type="hidden" name="id" value={candidate.id} />
           <input type="hidden" name="candidateFingerprint" value={candidate.candidate_fingerprint} />
+          <input type="hidden" name="informationState" value={candidate.information_state ?? ""} />
           <input type="hidden" name="returnTo" value={returnTarget} />
-          <label className="block text-sm font-semibold text-zinc-700">
+          {!structured || quantified ? <label className="block text-sm font-semibold text-zinc-700">
             Approved value
             <input
               name="approvedValue"
               type="number"
               min="0.000001"
               step="any"
-              defaultValue={candidate.proposed_value}
+              defaultValue={candidate.proposed_value ?? ""}
               required
+              readOnly={structured}
               className="mt-2 block w-full rounded-lg border border-zinc-300 px-3 py-2 font-mono font-normal"
             />
             <span className="mt-1 block text-xs font-normal text-zinc-500">
-              This is the exact value used by the approved-plan. Correct the extracted proposal here when needed.
+              {structured
+                ? "Structured amounts are bound to their source conversion. Reject and create a new candidate to change them."
+                : "This is the exact value used by the approved-plan. Correct the extracted proposal here when needed."}
             </span>
-          </label>
+          </label> : <input type="hidden" name="approvedValue" value="" />}
           <label className="block text-sm font-semibold text-zinc-700">
             Review note (optional)
             <input
@@ -293,9 +321,11 @@ function CandidateCard({
           Reviewed {candidate.reviewed_at
             ? new Date(candidate.reviewed_at).toLocaleString("en-GB")
             : "at an unknown time"}
-          {candidate.approved_value
-            ? ` · approved value ${candidate.approved_value} ${candidate.proposed_unit}`
-            : ""}
+          {candidate.information_state
+            ? ` · approved information state ${candidate.information_state}`
+            : candidate.approved_value
+              ? ` · approved value ${candidate.approved_value} ${candidate.proposed_unit}`
+              : ""}
           {candidate.review_note ? ` — ${candidate.review_note}` : ""}
         </div>
       )}

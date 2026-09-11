@@ -85,6 +85,76 @@ test("variant candidate requires a durable credential-free archive reference", (
   assert.throws(() => validateArtifact(artifact), /require source_archive_uri/);
 });
 
+function structuredCandidate(artifact, overrides = {}) {
+  const core = { ...artifact.candidates[0] };
+  delete core.candidate_id;
+  delete core.candidate_fingerprint;
+  Object.assign(core, {
+    product_id: "38",
+    product_variant_id: "726",
+    field_name: "caffeine_per_serving_mg",
+    value_numeric: 200,
+    unit: "mg",
+    basis: "per_serving",
+    information_state: "present_with_amount",
+    source_quantity_value: 0.2,
+    source_quantity_unit: "g",
+    serving_basis_value: 15,
+    serving_basis_unit: "g",
+    serving_basis_text: "Per 15 g serving",
+    ingredient_form: null,
+    ingredient_ratio: null,
+    source_archive_uri: "supabase-storage://nutrition-sources/test-only/38/726/label.jpg",
+  }, overrides);
+  return sealCandidate(core);
+}
+
+test("structured candidates preserve state, source units, serving basis and citrulline form", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "candidate-store-structured-"));
+  test.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const artifact = artifactFixture(directory);
+  artifact.candidates = [structuredCandidate(artifact), structuredCandidate(artifact, {
+    field_name: "citrulline_per_serving_mg",
+    value_numeric: 6000,
+    source_quantity_value: 6,
+    ingredient_form: "citrulline_malate",
+    ingredient_ratio: "2:1",
+  })];
+  const rows = validateArtifact(artifact);
+  assert.equal(rows[0].proposed_value, 200);
+  assert.equal(rows[0].source_quantity_value, 0.2);
+  assert.equal(rows[0].source_quantity_unit, "g");
+  assert.equal(rows[0].serving_basis_text, "Per 15 g serving");
+  assert.equal(rows[1].ingredient_form, "citrulline_malate");
+  assert.equal(rows[1].ingredient_ratio, "2:1");
+  const changedAmount = structuredCandidate(artifact, { value_numeric: 201, source_quantity_value: 0.201 });
+  const changedServing = structuredCandidate(artifact, { serving_basis_text: "Per 1 scoop (15 g)" });
+  const changedState = structuredCandidate(artifact, {
+    information_state: "confirmed_absent", value_numeric: null, unit: null, basis: null,
+    source_quantity_value: null, source_quantity_unit: null, serving_basis_value: null,
+    serving_basis_unit: null, serving_basis_text: null,
+  });
+  assert.notEqual(changedAmount.candidate_fingerprint, artifact.candidates[0].candidate_fingerprint);
+  assert.notEqual(changedServing.candidate_fingerprint, artifact.candidates[0].candidate_fingerprint);
+  assert.notEqual(changedState.candidate_fingerprint, artifact.candidates[0].candidate_fingerprint);
+});
+
+test("structured candidate validation rejects per-100g, guessed or contradictory combinations", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "candidate-store-invalid-facts-"));
+  test.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  for (const overrides of [
+    { basis: "per_100g" },
+    { value_numeric: 201 },
+    { serving_basis_value: 0 },
+    { field_name: "citrulline_per_serving_mg", ingredient_form: "citrulline_malate", ingredient_ratio: "0:1" },
+    { information_state: "confirmed_absent", value_numeric: 0, unit: "mg" },
+  ]) {
+    const artifact = artifactFixture(directory);
+    artifact.candidates = [structuredCandidate(artifact, overrides)];
+    assert.throws(() => validateArtifact(artifact), /Invalid candidate row/);
+  }
+});
+
 test("database write requires explicit candidate-table confirmation", () => {
   assert.throws(() => parseArgs(["--input=tmp/a.json"]), /exactly one/);
   assert.throws(() => parseArgs(["--store-candidates", "--input=tmp/a.json"]), /confirm-candidate-table-only/);
@@ -155,4 +225,32 @@ test("variant storage fails closed on a schema without provenance columns", asyn
     candidate_fingerprint: "a".repeat(64), product_variant_id: "726", source_archive_uri: "supabase-storage://nutrition-sources/test.jpg",
   }], { supabase }), /migration is required/);
   assert.equal(writes, 1);
+});
+
+test("structured storage fails closed before NUT-02B and old NUT-02A rows still retry", async () => {
+  const missing = { code: "42703", message: "column nutrition_candidates.information_state does not exist" };
+  let writes = 0;
+  const blocked = { from() { return { async upsert() { writes += 1; return { error: missing }; } }; } };
+  await assert.rejects(storeRows([{
+    candidate_fingerprint: "a".repeat(64), product_variant_id: "726",
+    source_archive_uri: "supabase-storage://nutrition-sources/test.jpg",
+    information_state: "confirmed_absent",
+  }], { supabase: blocked }), /NUT-02B candidate schema migration is required/);
+  assert.equal(writes, 1);
+
+  const attempts = [];
+  const compatible = { from() { return { async upsert(rows) {
+    attempts.push(rows);
+    return { error: attempts.length === 1 ? missing : null };
+  } }; } };
+  await storeRows([{
+    candidate_fingerprint: "b".repeat(64), product_variant_id: "726",
+    source_archive_uri: "supabase-storage://nutrition-sources/test.jpg",
+    information_state: null, source_quantity_value: null, source_quantity_unit: null,
+    quantity_basis: null, serving_basis_value: null, serving_basis_unit: null,
+    serving_basis_text: null, ingredient_form: null, ingredient_ratio: null,
+  }], { supabase: compatible });
+  assert.equal(attempts.length, 2);
+  assert.equal(Object.hasOwn(attempts[1][0], "information_state"), false);
+  assert.equal(attempts[1][0].product_variant_id, "726");
 });

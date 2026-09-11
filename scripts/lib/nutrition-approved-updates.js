@@ -2,14 +2,21 @@ const fs = require("node:fs");
 const path = require("node:path");
 const {
   FIELDS, assertRealPathInsideRoot, fingerprint,
-  isMissingNutritionVariantProvenanceColumn, validateSourceArchiveUri,
+  isMissingNutritionPreworkoutFactColumn, isMissingNutritionVariantProvenanceColumn, validateSourceArchiveUri,
 } = require("./nutrition-candidates");
 const { createCandidateSupabase } = require("../store-nutrition-candidates");
+const {
+  PREWORKOUT_FIELD_SET,
+  TARGET_FIELD_BY_CANDIDATE_FIELD,
+  ingredientFact,
+} = require("./nutrition-preworkout-facts");
 
 const PLAN_KIND = "nutrition-approved-update-plan-v3";
 const AUDIT_KIND = "nutrition-approved-update-audit-v2";
 const DERIVED_FIELDS = Object.freeze(["nutrition_verified"]);
-const ALLOWED_FIELDS = Object.freeze([...FIELDS, ...DERIVED_FIELDS]);
+const PREWORKOUT_TARGET_FIELDS = Object.freeze(["caffeine", "citrulline", "beta_alanine"]);
+const LEGACY_ALLOWED_FIELDS = Object.freeze([...FIELDS, ...DERIVED_FIELDS]);
+const ALLOWED_FIELDS = Object.freeze([...LEGACY_ALLOWED_FIELDS, ...PREWORKOUT_TARGET_FIELDS]);
 const CANDIDATE_FIELD_SET = new Set(FIELDS);
 const NUTRITION_SOURCE_FIELDS = new Set(["protein_per_serving_g", "creatine_per_serving_g"]);
 const EXPECTED_UNITS = Object.freeze({
@@ -35,6 +42,11 @@ function numeric(value) {
 function jsonObject(value) {
   return value && typeof value === "object" && !Array.isArray(value) ? { ...value } : {};
 }
+function canonicalJson(value) {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  if (value && typeof value === "object") return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(",")}}`;
+  return JSON.stringify(value);
+}
 function candidateEvidence(candidate) {
   return {
     candidate_id: String(candidate.id),
@@ -49,9 +61,20 @@ function candidateEvidence(candidate) {
     source_locator: String(candidate.source_locator),
     warning_flags: Array.isArray(candidate.warning_flags) ? candidate.warning_flags.map(String) : [],
     source_field: String(candidate.proposed_field),
-    proposed_value: Number(candidate.proposed_value),
-    source_value: Number(candidate.approved_value),
-    owner_corrected: Number(candidate.approved_value) !== Number(candidate.proposed_value),
+    proposed_value: candidate.proposed_value == null ? null : Number(candidate.proposed_value),
+    source_value: candidate.approved_value == null ? null : Number(candidate.approved_value),
+    owner_corrected: PREWORKOUT_FIELD_SET.has(String(candidate.proposed_field))
+      ? false
+      : Number(candidate.approved_value) !== Number(candidate.proposed_value),
+    information_state: candidate.information_state == null ? null : String(candidate.information_state),
+    source_quantity_value: candidate.source_quantity_value == null ? null : Number(candidate.source_quantity_value),
+    source_quantity_unit: candidate.source_quantity_unit == null ? null : String(candidate.source_quantity_unit),
+    quantity_basis: candidate.quantity_basis == null ? null : String(candidate.quantity_basis),
+    serving_basis_value: candidate.serving_basis_value == null ? null : Number(candidate.serving_basis_value),
+    serving_basis_unit: candidate.serving_basis_unit == null ? null : String(candidate.serving_basis_unit),
+    serving_basis_text: candidate.serving_basis_text == null ? null : String(candidate.serving_basis_text),
+    ingredient_form: candidate.ingredient_form == null ? null : String(candidate.ingredient_form),
+    ingredient_ratio: candidate.ingredient_ratio == null ? null : String(candidate.ingredient_ratio),
   };
 }
 function validateEvidenceIdentity(candidate, candidateId, productId, variantId, blockers) {
@@ -80,8 +103,10 @@ function buildApprovedPlan(candidates, products, runId, generatedAt = new Date()
     const candidateId = String(candidate.id || "unknown");
     const productId = positiveId(candidate.product_id);
     const variantId = candidate.product_variant_id == null ? null : positiveId(candidate.product_variant_id);
-    const field = String(candidate.proposed_field || "");
-    const value = numeric(candidate.approved_value);
+    const sourceField = String(candidate.proposed_field || "");
+    const structured = PREWORKOUT_FIELD_SET.has(sourceField);
+    const field = structured ? TARGET_FIELD_BY_CANDIDATE_FIELD[sourceField] : sourceField;
+    let value = numeric(candidate.approved_value);
     const flags = Array.isArray(candidate.warning_flags) ? candidate.warning_flags.map(String) : [];
     if (candidate.status !== "approved" || candidate.run_id !== runId) {
       blockers.push({ code: "CANDIDATE_NOT_APPROVED_FOR_RUN", candidate_id: candidateId });
@@ -96,7 +121,18 @@ function buildApprovedPlan(candidates, products, runId, generatedAt = new Date()
       continue;
     }
     if (!validateEvidenceIdentity(candidate, candidateId, productId, variantId, blockers)) continue;
-    if (!CANDIDATE_FIELD_SET.has(field) || EXPECTED_UNITS[field] !== candidate.proposed_unit || !Number.isFinite(value) || value <= 0) {
+    if (structured) {
+      if (!variantId) {
+        blockers.push({ code: "PREWORKOUT_FACT_REQUIRES_EXACT_VARIANT", candidate_id: candidateId, product_id: productId, field: sourceField });
+        continue;
+      }
+      try {
+        value = ingredientFact({ ...candidate, field_name: sourceField, value_numeric: candidate.proposed_value, unit: candidate.proposed_unit, basis: candidate.quantity_basis });
+      } catch {
+        blockers.push({ code: "UNSUPPORTED_OR_INVALID_FACT", candidate_id: candidateId, product_id: productId, product_variant_id: variantId, field: sourceField });
+        continue;
+      }
+    } else if (!CANDIDATE_FIELD_SET.has(field) || EXPECTED_UNITS[field] !== candidate.proposed_unit || !Number.isFinite(value) || value <= 0) {
       blockers.push({ code: "UNSUPPORTED_OR_INVALID_FACT", candidate_id: candidateId, product_id: productId, field });
       continue;
     }
@@ -106,14 +142,14 @@ function buildApprovedPlan(candidates, products, runId, generatedAt = new Date()
     }
     const key = `${productId}|${variantId || "PRODUCT"}|${field}`;
     if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push({ candidate, productId, variantId, field, value, flags });
+    groups.get(key).push({ candidate, productId, variantId, field, sourceField, value, flags, structured });
   }
 
   const changesByProduct = new Map();
   const changesByVariant = new Map();
   for (const group of groups.values()) {
     const first = group[0];
-    const values = new Set(group.map((item) => String(item.value)));
+    const values = new Set(group.map((item) => canonicalJson(item.value)));
     if (values.size !== 1) {
       blockers.push({
         code: "CONFLICTING_APPROVED_VALUES", product_id: first.productId,
@@ -122,7 +158,10 @@ function buildApprovedPlan(candidates, products, runId, generatedAt = new Date()
       });
       continue;
     }
-    const unsafe = group.filter((item) => item.flags.some((flag) => UNSAFE_FLAGS.test(flag)));
+    const unsafe = group.filter((item) =>
+      item.flags.some((flag) => UNSAFE_FLAGS.test(flag)) &&
+      !(item.structured && item.value.information_state === "conflicting_information")
+    );
     if (unsafe.length) {
       const ownerResolvedSourceConflict = group.some((item) => Number(item.candidate.approved_value) !== Number(item.candidate.proposed_value)) &&
         unsafe.every((item) => item.flags.filter((flag) => UNSAFE_FLAGS.test(flag))
@@ -160,6 +199,27 @@ function buildApprovedPlan(candidates, products, runId, generatedAt = new Date()
         });
       }
       const update = changesByVariant.get(variantId);
+      if (first.structured) {
+        const beforeRaw = Object.hasOwn(update.before_nutrition_override, field)
+          ? update.before_nutrition_override[field]
+          : null;
+        const before = beforeRaw === null ? null : jsonObject(beforeRaw);
+        if (beforeRaw !== null && (!beforeRaw || typeof beforeRaw !== "object" || Array.isArray(beforeRaw) || !before.information_state)) {
+          blockers.push({ code: "INVALID_CURRENT_VARIANT_VALUE", product_id: productId, product_variant_id: variantId, field });
+          continue;
+        }
+        if (["no_information", "conflicting_information"].includes(value.information_state) &&
+            before && !["no_information", "conflicting_information"].includes(before.information_state)) {
+          blockers.push({ code: "INDETERMINATE_STATE_WOULD_OVERWRITE_APPROVED_FACT", product_id: productId, product_variant_id: variantId, field });
+          continue;
+        }
+        const evidence = group.map((item) => candidateEvidence(item.candidate));
+        update.changes[field] = {
+          before, after: value, no_change: canonicalJson(before) === canonicalJson(value), evidence,
+        };
+        update.after_nutrition_override[field] = value;
+        continue;
+      }
       const before = Object.hasOwn(update.before_nutrition_override, field) ? numeric(update.before_nutrition_override[field]) : null;
       if (Number.isNaN(before)) {
         blockers.push({ code: "INVALID_CURRENT_VARIANT_VALUE", product_id: productId, product_variant_id: variantId, field });
@@ -237,8 +297,23 @@ function buildApprovedPlan(candidates, products, runId, generatedAt = new Date()
 function validEvidence(evidence, productId, variantId) {
   if (!evidence || evidence.product_id !== productId || evidence.product_variant_id !== variantId ||
       !/^[0-9a-f]{64}$/.test(evidence.candidate_fingerprint) ||
-      !/^[0-9a-f]{64}$/.test(evidence.source_file_sha256) ||
-      !Number.isFinite(evidence.proposed_value) || evidence.proposed_value <= 0 ||
+      !/^[0-9a-f]{64}$/.test(evidence.source_file_sha256)) return false;
+  const structured = PREWORKOUT_FIELD_SET.has(evidence.source_field);
+  if (structured) {
+    try {
+      ingredientFact({
+        ...evidence,
+        field_name: evidence.source_field,
+        value_numeric: evidence.proposed_value,
+        unit: evidence.source_value == null ? null : "mg",
+        proposed_value: evidence.proposed_value,
+        proposed_unit: evidence.source_value == null ? null : "mg",
+        basis: evidence.quantity_basis,
+        product_variant_id: evidence.product_variant_id,
+      }, evidence.source_value);
+    } catch { return false; }
+    if (evidence.owner_corrected !== false) return false;
+  } else if (!Number.isFinite(evidence.proposed_value) || evidence.proposed_value <= 0 ||
       !Number.isFinite(evidence.source_value) || evidence.source_value <= 0 ||
       typeof evidence.owner_corrected !== "boolean" ||
       evidence.owner_corrected !== (evidence.proposed_value !== evidence.source_value)) return false;
@@ -259,13 +334,25 @@ function validateChanges(changes, productId, variantId) {
       evidenceOk && change.evidence.every((row) => NUTRITION_SOURCE_FIELDS.has(row.source_field));
     const numericChange = FIELDS.includes(field) && Number.isFinite(change?.after) && change.after > 0 &&
       (change.before === null || Number.isFinite(change.before)) && evidenceOk;
-    if (!derived && !numericChange) fail("Invalid change in approved plan");
+    const structuredChange = PREWORKOUT_TARGET_FIELDS.includes(field) && variantId !== null &&
+      change?.after && typeof change.after === "object" && !Array.isArray(change.after) &&
+      (change.before === null || (change.before && typeof change.before === "object" && !Array.isArray(change.before))) &&
+      evidenceOk && change.evidence.every((row) => TARGET_FIELD_BY_CANDIDATE_FIELD[row.source_field] === field) &&
+      canonicalJson(ingredientFact({
+        ...change.evidence[0], field_name: change.evidence[0].source_field,
+        value_numeric: change.evidence[0].proposed_value,
+        unit: change.evidence[0].source_value == null ? null : "mg",
+        proposed_value: change.evidence[0].proposed_value,
+        proposed_unit: change.evidence[0].source_value == null ? null : "mg",
+        basis: change.evidence[0].quantity_basis,
+      }, change.evidence[0].source_value)) === canonicalJson(change.after);
+    if (!derived && !numericChange && !structuredChange) fail("Invalid change in approved plan");
   }
 }
 function validatePlan(plan) {
   if (!plan || plan.schema_version !== 3 || plan.kind !== PLAN_KIND ||
       plan.status !== "READY_FOR_EXPLICIT_APPLY" || !Array.isArray(plan.allowed_fields) ||
-      JSON.stringify(plan.allowed_fields) !== JSON.stringify(ALLOWED_FIELDS) ||
+      ![JSON.stringify(ALLOWED_FIELDS), JSON.stringify(LEGACY_ALLOWED_FIELDS)].includes(JSON.stringify(plan.allowed_fields)) ||
       !Array.isArray(plan.source_candidate_ids) || !plan.source_candidate_ids.length ||
       !Array.isArray(plan.blockers) || plan.blockers.length ||
       !Array.isArray(plan.product_updates) || !Array.isArray(plan.variant_updates)) {
@@ -306,7 +393,8 @@ function writePlan(plan, cwd = process.cwd()) {
   fs.writeFileSync(file, `${JSON.stringify(plan, null, 2)}\n`, { flag: "wx" });
   return file;
 }
-const CANDIDATE_SELECT = "id,product_id,product_variant_id,proposed_field,proposed_value,approved_value,proposed_unit,confidence,source_url,source_file_sha256,source_archive_uri,evidence_snippet,source_locator,warning_flags,status,run_id,candidate_fingerprint";
+const CANDIDATE_SELECT = "id,product_id,product_variant_id,proposed_field,proposed_value,approved_value,proposed_unit,information_state,source_quantity_value,source_quantity_unit,quantity_basis,serving_basis_value,serving_basis_unit,serving_basis_text,ingredient_form,ingredient_ratio,confidence,source_url,source_file_sha256,source_archive_uri,evidence_snippet,source_locator,warning_flags,status,run_id,candidate_fingerprint";
+const NUT02A_CANDIDATE_SELECT = "id,product_id,product_variant_id,proposed_field,proposed_value,approved_value,proposed_unit,confidence,source_url,source_file_sha256,source_archive_uri,evidence_snippet,source_locator,warning_flags,status,run_id,candidate_fingerprint";
 const LEGACY_CANDIDATE_SELECT = "id,product_id,proposed_field,proposed_value,approved_value,proposed_unit,confidence,source_url,source_file_sha256,evidence_snippet,source_locator,warning_flags,status,run_id,candidate_fingerprint";
 async function runApprovedCandidateQuery(supabase, columns, runId, candidateIds) {
   let query = supabase.from("nutrition_candidates").select(columns)
@@ -315,8 +403,16 @@ async function runApprovedCandidateQuery(supabase, columns, runId, candidateIds)
   return query.order("id", { ascending: true });
 }
 async function loadApprovedCandidateRows(supabase, runId, candidateIds) {
-  const current = await runApprovedCandidateQuery(supabase, CANDIDATE_SELECT, runId, candidateIds);
+  let current = await runApprovedCandidateQuery(supabase, CANDIDATE_SELECT, runId, candidateIds);
   if (!current.error) return current.data || [];
+  if (isMissingNutritionPreworkoutFactColumn(current.error)) {
+    current = await runApprovedCandidateQuery(supabase, NUT02A_CANDIDATE_SELECT, runId, candidateIds);
+    if (!current.error) return (current.data || []).map((row) => ({
+      ...row, information_state: null, source_quantity_value: null, source_quantity_unit: null,
+      quantity_basis: null, serving_basis_value: null, serving_basis_unit: null,
+      serving_basis_text: null, ingredient_form: null, ingredient_ratio: null,
+    }));
+  }
   if (!isMissingNutritionVariantProvenanceColumn(current.error)) throw current.error;
   const legacy = await runApprovedCandidateQuery(supabase, LEGACY_CANDIDATE_SELECT, runId, candidateIds);
   if (legacy.error) throw legacy.error;
@@ -334,7 +430,7 @@ async function loadApprovedCandidatesForRun(supabase, runId) {
 }
 async function loadProducts(supabase, productIds) {
   if (!productIds.length) return [];
-  const { data, error } = await supabase.from("products").select(`id,name,${ALLOWED_FIELDS.join(",")}`).in("id", productIds);
+  const { data, error } = await supabase.from("products").select(`id,name,${LEGACY_ALLOWED_FIELDS.join(",")}`).in("id", productIds);
   if (error) throw error;
   return data || [];
 }

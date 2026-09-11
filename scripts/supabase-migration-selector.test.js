@@ -32,6 +32,8 @@ const REVIEW_QUEUE_RETRY_MIGRATION = "20260910193000_allow_automation_review_ret
 const REVIEW_QUEUE_RETRY_SHA256 = "ddfb939887df1793f554adc1e4f171b64b3ba2549a4d3651bd339947d7bc496b";
 const NUTRITION_VARIANT_PROVENANCE_MIGRATION = "20260911120000_add_nutrition_candidate_variant_provenance.sql";
 const NUTRITION_VARIANT_PROVENANCE_SHA256 = "62a7a5dd812d4559889d7392217095b67841d1d6db37e5519ee6e1593bc207cb";
+const NUTRITION_PREWORKOUT_FACTS_MIGRATION = "20260911130000_add_nutrition_candidate_preworkout_facts.sql";
+const NUTRITION_PREWORKOUT_FACTS_SHA256 = "6f31c98f0af79c00214926026216e0e7b83485ee9e28ae7231ac904b2c5b5822";
 const REVIEWED_VARIANT_REBIND_MIGRATION = "20260901090000_add_reviewed_variant_create_rebind_offer_update.sql";
 const REVIEWED_VARIANT_REBIND_SHA256 = "a8e279a8efacab24fa14b671e9ecdc211933b27f2460efc4ddf6833e789ca2b7";
 const REVIEWED_VARIANT_DIGEST_FIX_MIGRATION = "20260901100000_fix_reviewed_variant_digest_schema_resolution.sql";
@@ -146,13 +148,13 @@ test("staging records both verified no-change timestamp repairs as applied", () 
   const result = validateSelection(validInput());
   assert.equal(result.ledger_count, 94);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending_files, [REVIEW_QUEUE_PUBLICATION_MIGRATION, REVIEW_QUEUE_RETRY_MIGRATION, NUTRITION_VARIANT_PROVENANCE_MIGRATION]);
+  assert.deepEqual(result.pending_files, [REVIEW_QUEUE_PUBLICATION_MIGRATION, REVIEW_QUEUE_RETRY_MIGRATION, NUTRITION_VARIANT_PROVENANCE_MIGRATION, NUTRITION_PREWORKOUT_FACTS_MIGRATION]);
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
-  assert.equal(result.selected_files.length, 97);
+  assert.equal(result.selected_files.length, 98);
   assert.ok(result.selected_files.includes(TIMESTAMP_GUARD_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_OPERATOR_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEW_QUEUE_PUBLICATION_MIGRATION));
@@ -240,12 +242,18 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the applied queue retry revision migration", () => {
+test("production records the nutrition migrations as pending", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{
-    filename: NUTRITION_VARIANT_PROVENANCE_MIGRATION,
-    sha256: NUTRITION_VARIANT_PROVENANCE_SHA256,
-  }]);
+  assert.deepEqual(contract.pending, [
+    {
+      filename: NUTRITION_VARIANT_PROVENANCE_MIGRATION,
+      sha256: NUTRITION_VARIANT_PROVENANCE_SHA256,
+    },
+    {
+      filename: NUTRITION_PREWORKOUT_FACTS_MIGRATION,
+      sha256: NUTRITION_PREWORKOUT_FACTS_SHA256,
+    },
+  ]);
   assert.equal(contract.ledgerCount, 204);
   assert.equal(
     contract.ledgerFingerprint,
@@ -334,7 +342,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 97);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 98);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -350,7 +358,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger with only the reviewed nutrition migration pending", () => {
+test("production binds its exact ledger with the reviewed nutrition migrations pending", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -378,11 +386,14 @@ test("production binds its exact ledger with only the reviewed nutrition migrati
   });
   assert.equal(result.ledger_count, 204);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 205);
-  assert.deepEqual(result.pending_files, [NUTRITION_VARIANT_PROVENANCE_MIGRATION]);
-  assert.equal(result.pending_file, NUTRITION_VARIANT_PROVENANCE_MIGRATION);
-  assert.equal(result.pending_sha256, NUTRITION_VARIANT_PROVENANCE_SHA256);
-  assert.deepEqual(result.pending_sha256s, { [NUTRITION_VARIANT_PROVENANCE_MIGRATION]: NUTRITION_VARIANT_PROVENANCE_SHA256 });
+  assert.equal(result.selected_files.length, 206);
+  assert.deepEqual(result.pending_files, [NUTRITION_VARIANT_PROVENANCE_MIGRATION, NUTRITION_PREWORKOUT_FACTS_MIGRATION]);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_sha256s, {
+    [NUTRITION_VARIANT_PROVENANCE_MIGRATION]: NUTRITION_VARIANT_PROVENANCE_SHA256,
+    [NUTRITION_PREWORKOUT_FACTS_MIGRATION]: NUTRITION_PREWORKOUT_FACTS_SHA256,
+  });
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_CATALOGUE_COUNT_MIGRATION)), REVIEWED_CATALOGUE_COUNT_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_ENERGY_MIGRATION)), REVIEWED_ENERGY_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_EXISTING_CATEGORIES_MIGRATION)), REVIEWED_EXISTING_CATEGORIES_SHA256);
@@ -495,11 +506,12 @@ test("staging output reports the review queue, retry and nutrition migrations as
   const result = validateSelection(validInput());
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_files, [REVIEW_QUEUE_PUBLICATION_MIGRATION, REVIEW_QUEUE_RETRY_MIGRATION, NUTRITION_VARIANT_PROVENANCE_MIGRATION]);
+  assert.deepEqual(result.pending_files, [REVIEW_QUEUE_PUBLICATION_MIGRATION, REVIEW_QUEUE_RETRY_MIGRATION, NUTRITION_VARIANT_PROVENANCE_MIGRATION, NUTRITION_PREWORKOUT_FACTS_MIGRATION]);
   assert.deepEqual(result.pending_sha256s, {
     [REVIEW_QUEUE_PUBLICATION_MIGRATION]: REVIEW_QUEUE_PUBLICATION_SHA256,
     [REVIEW_QUEUE_RETRY_MIGRATION]: REVIEW_QUEUE_RETRY_SHA256,
     [NUTRITION_VARIANT_PROVENANCE_MIGRATION]: NUTRITION_VARIANT_PROVENANCE_SHA256,
+    [NUTRITION_PREWORKOUT_FACTS_MIGRATION]: NUTRITION_PREWORKOUT_FACTS_SHA256,
   });
 });
 

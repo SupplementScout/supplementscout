@@ -9,20 +9,18 @@
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
 closed with explicit gaps over its frozen 25-variant/21-product pilot. NUT-02 is
-now `IN PROGRESS`; bounded step NUT-02A is `CODE COMPLETE`. The existing
-[nutrition process](nutrition-candidate-extractor.md) now carries exact variant
-ID, private source-object URI and SHA-256 through candidate/review/plan/apply,
-while preserving the nullable product-only path. Production readback confirmed
-that the two new candidate columns are not yet deployed: the compatibility
-correction keeps existing product-only queue operations available for that exact
-schema and blocks all variant operations until the pending migration. Local tests use only the
-archived product `38` / variant `726` provenance and an explicitly test-only
-numeric value. No production migration or catalogue write was performed. The
-published correction `c996268` has a successful Vercel status, and authenticated
-production readback shows the existing pending-candidate and latest-batch sections
-on the unchanged pre-migration schema. The next step is NUT-02B: add caffeine,
-citrulline amount/form, beta-alanine and
-explicit absence/unknown/conflict semantics to the same guarded path.
+`IN PROGRESS`; bounded steps NUT-02A and NUT-02B are `CODE COMPLETE`. The existing
+[nutrition process](nutrition-candidate-extractor.md) carries exact variant ID,
+private source-object URI and SHA-256 plus caffeine, beta-alanine and citrulline
+amount/form through candidate/review/plan/apply. Five ingredient-information
+states remain separate from candidate review, and quantified facts retain the
+exact serving and original unit. The deployed compatibility path still serves
+the product-only queue on the confirmed pre-NUT-02A schema and blocks newer
+operations until their exact columns exist. Local tests use TEST ONLY data and
+cover schemas before A, after A and after B. No production migration, candidate
+or catalogue write was performed. The next step is NUT-02C: separately authorize
+the two pending migrations in A-then-B order, then read back the schema and panel
+without entering pilot facts.
 SEO-15 remains BLOCKED, the 16 September accrual check and conditional 24-25
 September reviews remain scheduled, and GYM HIGH remains owner-deferred.
 Guardian currently validates SEO, not nutrition.

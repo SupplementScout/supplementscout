@@ -1,7 +1,10 @@
 import "server-only";
 
 import { supabaseAdmin } from "../../lib/supabaseAdmin";
-import { readNutritionCandidatesWithSchemaCompatibility } from "./nutritionCandidateSchemaCompatibility";
+import {
+  isMissingNutritionPreworkoutFactColumn,
+  readNutritionCandidatesWithSchemaCompatibility,
+} from "./nutritionCandidateSchemaCompatibility";
 
 export type NutritionCandidateStatus = "pending" | "approved" | "rejected";
 
@@ -20,9 +23,18 @@ export type NutritionCandidateRow = {
   product_name: string;
   brand: string;
   proposed_field: string;
-  proposed_value: string;
+  proposed_value: string | null;
   approved_value: string | null;
-  proposed_unit: string;
+  proposed_unit: string | null;
+  information_state: string | null;
+  source_quantity_value: string | null;
+  source_quantity_unit: string | null;
+  quantity_basis: string | null;
+  serving_basis_value: string | null;
+  serving_basis_unit: string | null;
+  serving_basis_text: string | null;
+  ingredient_form: string | null;
+  ingredient_ratio: string | null;
   confidence: "HIGH" | "MEDIUM" | "LOW";
   evidence_snippet: string;
   source_locator: string;
@@ -59,7 +71,9 @@ export type NutritionCandidateBatchItem = {
   page_error: string | null;
 };
 
-const CURRENT_CANDIDATE_SELECT =
+const NUT02B_CANDIDATE_SELECT =
+  "id,created_at,product_id,product_variant_id,retailer_id,source_type,source_url,source_file_sha256,source_snapshot_ref,source_archive_uri,source_domain,product_name,brand,proposed_field,proposed_value,approved_value,proposed_unit,information_state,source_quantity_value,source_quantity_unit,quantity_basis,serving_basis_value,serving_basis_unit,serving_basis_text,ingredient_form,ingredient_ratio,confidence,evidence_snippet,source_locator,warning_flags,status,reviewed_at,reviewed_by,review_note,run_id,candidate_fingerprint";
+const NUT02A_CANDIDATE_SELECT =
   "id,created_at,product_id,product_variant_id,retailer_id,source_type,source_url,source_file_sha256,source_snapshot_ref,source_archive_uri,source_domain,product_name,brand,proposed_field,proposed_value,approved_value,proposed_unit,confidence,evidence_snippet,source_locator,warning_flags,status,reviewed_at,reviewed_by,review_note,run_id,candidate_fingerprint";
 const LEGACY_CANDIDATE_SELECT =
   "id,created_at,product_id,retailer_id,source_type,source_url,source_file_sha256,source_snapshot_ref,source_domain,product_name,brand,proposed_field,proposed_value,approved_value,proposed_unit,confidence,evidence_snippet,source_locator,warning_flags,status,reviewed_at,reviewed_by,review_note,run_id,candidate_fingerprint";
@@ -84,9 +98,18 @@ function normalizeRow(row: Record<string, unknown>): NutritionCandidateRow {
     product_name: String(row.product_name),
     brand: String(row.brand),
     proposed_field: String(row.proposed_field),
-    proposed_value: String(row.proposed_value),
+    proposed_value: rowString(row.proposed_value),
     approved_value: rowString(row.approved_value),
-    proposed_unit: String(row.proposed_unit),
+    proposed_unit: rowString(row.proposed_unit),
+    information_state: rowString(row.information_state),
+    source_quantity_value: rowString(row.source_quantity_value),
+    source_quantity_unit: rowString(row.source_quantity_unit),
+    quantity_basis: rowString(row.quantity_basis),
+    serving_basis_value: rowString(row.serving_basis_value),
+    serving_basis_unit: rowString(row.serving_basis_unit),
+    serving_basis_text: rowString(row.serving_basis_text),
+    ingredient_form: rowString(row.ingredient_form),
+    ingredient_ratio: rowString(row.ingredient_ratio),
     confidence: String(row.confidence) as NutritionCandidateRow["confidence"],
     evidence_snippet: String(row.evidence_snippet),
     source_locator: String(row.source_locator),
@@ -114,11 +137,35 @@ export async function getNutritionCandidateReport(runId?: string): Promise<Nutri
       error: result.error,
     };
   };
-  const { rows } = await readNutritionCandidatesWithSchemaCompatibility(
-    () => read(CURRENT_CANDIDATE_SELECT),
-    () => read(LEGACY_CANDIDATE_SELECT),
-    true
-  );
+  const current = await read(NUT02B_CANDIDATE_SELECT);
+  let rows: Record<string, unknown>[];
+  if (!current.error) {
+    rows = current.data || [];
+  } else {
+    const compatible = isMissingNutritionPreworkoutFactColumn(current.error)
+      ? await readNutritionCandidatesWithSchemaCompatibility(
+        () => read(NUT02A_CANDIDATE_SELECT),
+        () => read(LEGACY_CANDIDATE_SELECT),
+        true
+      )
+      : await readNutritionCandidatesWithSchemaCompatibility(
+        async () => ({ data: null, error: current.error }),
+        () => read(LEGACY_CANDIDATE_SELECT),
+        true
+      );
+    rows = compatible.rows.map((row) => ({
+      ...row,
+      information_state: null,
+      source_quantity_value: null,
+      source_quantity_unit: null,
+      quantity_basis: null,
+      serving_basis_value: null,
+      serving_basis_unit: null,
+      serving_basis_text: null,
+      ingredient_form: null,
+      ingredient_ratio: null,
+    }));
+  }
 
   const report: NutritionCandidateReport = {
     pending: [],

@@ -15,6 +15,10 @@ const variantMigration = fs.readFileSync(path.join(
   process.cwd(), "supabase", "migrations",
   "20260911120000_add_nutrition_candidate_variant_provenance.sql"
 ), "utf8").replace(/\s+/g, " ").trim().toLowerCase();
+const preworkoutMigration = fs.readFileSync(path.join(
+  process.cwd(), "supabase", "migrations",
+  "20260911130000_add_nutrition_candidate_preworkout_facts.sql"
+), "utf8").replace(/\s+/g, " ").trim().toLowerCase();
 
 test("nutrition candidates migration is transactional and candidate-only", () => {
   assert.match(sql, /^begin;/);
@@ -80,4 +84,22 @@ test("variant provenance migration is nullable for legacy rows and guarded for e
   assert.match(variantMigration, /new\.product_variant_id[\s\S]*new\.source_archive_uri/);
   assert.doesNotMatch(variantMigration, /\b(?:insert into|update|delete from) public\.(?:products|product_variants)/);
   assert.match(variantMigration, /commit;$/);
+});
+
+test("NUT-02B migration models structured ingredient states without catalogue writes", () => {
+  assert.match(preworkoutMigration, /^begin;/);
+  for (const field of ["caffeine_per_serving_mg", "citrulline_per_serving_mg", "beta_alanine_per_serving_mg"]) {
+    assert.match(preworkoutMigration, new RegExp(`'${field}'`));
+  }
+  for (const state of ["present_with_amount", "present_amount_not_disclosed", "confirmed_absent", "no_information", "conflicting_information"]) {
+    assert.match(preworkoutMigration, new RegExp(`'${state}'`));
+  }
+  assert.match(preworkoutMigration, /source_quantity_unit in \('mg', 'g'\)/);
+  assert.match(preworkoutMigration, /proposed_value = source_quantity_value \* case source_quantity_unit when 'g' then 1000 else 1 end/);
+  assert.match(preworkoutMigration, /quantity_basis = 'per_serving'/);
+  assert.match(preworkoutMigration, /ingredient_form in \('l_citrulline', 'citrulline_malate'\)/);
+  assert.match(preworkoutMigration, /ingredient_form = 'citrulline_malate'/);
+  assert.match(preworkoutMigration, /new\.information_state[\s\S]*old\.information_state/);
+  assert.doesNotMatch(preworkoutMigration, /\b(?:insert into|update|delete from) public\.(?:products|product_variants)/);
+  assert.match(preworkoutMigration, /commit;$/);
 });

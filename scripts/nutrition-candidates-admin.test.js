@@ -28,6 +28,7 @@ const {
   isBulkApprovableNutritionCandidate,
   parseNutritionCandidateBulkReviewInput,
   parseNutritionCandidateReviewInput,
+  validateNutritionCandidateReviewFact,
   validateNutritionCandidateBulkSelection,
 } = loadTsModule("app/admin/lib/nutritionCandidateReview.ts");
 const {
@@ -39,6 +40,7 @@ const {
 );
 const {
   NutritionVariantProvenanceMigrationRequiredError,
+  isMissingNutritionPreworkoutFactColumn,
   isMissingNutritionVariantProvenanceColumn,
   readNutritionCandidatesWithSchemaCompatibility,
 } = loadTsModule("app/admin/lib/nutritionCandidateSchemaCompatibility.ts");
@@ -227,7 +229,7 @@ test("candidate review validates IDs, decisions and bounded optional notes", () 
     approvedValue: "14",
     reviewNote: "  label checked  ",
     candidateFingerprint,
-  }), { id: "42", status: "approved", approvedValue: 14, reviewNote: "label checked", candidateFingerprint });
+  }), { id: "42", status: "approved", approvedValue: 14, reviewNote: "label checked", candidateFingerprint, informationState: null });
   const values = { candidateFingerprint, approvedValue: "14", reviewNote: null };
   assert.equal(parseNutritionCandidateReviewInput({ ...values, id: "0", status: "approved" }), null);
   assert.equal(parseNutritionCandidateReviewInput({ ...values, id: "42", status: "pending" }), null);
@@ -237,12 +239,51 @@ test("candidate review validates IDs, decisions and bounded optional notes", () 
   assert.equal(parseNutritionCandidateReviewInput({ ...values, id: "42", status: "approved", candidateFingerprint: "bad" }), null);
   assert.deepEqual(parseNutritionCandidateReviewInput({
     id: "42", status: "rejected", approvedValue: "28", reviewNote: "wrong pack", candidateFingerprint,
-  }), { id: "42", status: "rejected", approvedValue: null, reviewNote: "wrong pack", candidateFingerprint });
+  }), { id: "42", status: "rejected", approvedValue: null, reviewNote: "wrong pack", candidateFingerprint, informationState: null });
+});
+
+test("structured ingredient review keeps evidence state separate and binds quantified values", () => {
+  const candidateFingerprint = "a".repeat(64);
+  const absent = parseNutritionCandidateReviewInput({
+    id: "42", status: "approved", approvedValue: "", reviewNote: "absence checked",
+    candidateFingerprint, informationState: "confirmed_absent",
+  });
+  assert.equal(absent.informationState, "confirmed_absent");
+  assert.equal(absent.approvedValue, null);
+  assert.equal(validateNutritionCandidateReviewFact(absent, {
+    information_state: "confirmed_absent", proposed_value: null,
+  }), true);
+  const quantified = parseNutritionCandidateReviewInput({
+    id: "43", status: "approved", approvedValue: "200", reviewNote: null,
+    candidateFingerprint, informationState: "present_with_amount",
+  });
+  assert.equal(validateNutritionCandidateReviewFact(quantified, {
+    information_state: "present_with_amount", proposed_value: "200",
+  }), true);
+  assert.equal(validateNutritionCandidateReviewFact({ ...quantified, approvedValue: 201 }, {
+    information_state: "present_with_amount", proposed_value: "200",
+  }), false);
+  assert.equal(parseNutritionCandidateReviewInput({
+    id: "44", status: "approved", approvedValue: "0", reviewNote: null,
+    candidateFingerprint, informationState: "confirmed_absent",
+  }), null);
+});
+
+test("NUT-02B compatibility recognizes only its exact missing columns", () => {
+  assert.equal(isMissingNutritionPreworkoutFactColumn({
+    code: "42703", message: "column nutrition_candidates.information_state does not exist",
+  }), true);
+  assert.equal(isMissingNutritionPreworkoutFactColumn({
+    code: "42703", message: "column nutrition_candidates.unrelated does not exist",
+  }), false);
+  assert.equal(isMissingNutritionPreworkoutFactColumn({
+    code: "42501", message: "column nutrition_candidates.information_state does not exist",
+  }), false);
 });
 
 test("candidate review update contains review metadata but no product mutation", () => {
   const update = buildNutritionCandidateReviewUpdate(
-    { id: "42", status: "approved", approvedValue: 14, reviewNote: null, candidateFingerprint: "a".repeat(64) },
+    { id: "42", status: "approved", approvedValue: 14, reviewNote: null, candidateFingerprint: "a".repeat(64), informationState: null },
     "2026-08-02T12:00:00.000Z"
   );
   assert.deepEqual(update, {
@@ -327,6 +368,8 @@ test("admin page authenticates before loading the service-role report", () => {
   assert.match(page, /Skip for now — no data saved/);
   assert.match(page, /nutrition-product-/);
   assert.match(page, /productGroup\.candidates\.every\(isBulkApprovableNutritionCandidate\)/);
+  assert.match(page, /Structured ingredient evidence/);
+  assert.match(page, /readOnly=\{structured\}/);
   assert.match(page, /Data entered:/);
   assert.match(page, /Review completed:/);
   assert.match(page, /Remaining:/);
@@ -345,6 +388,8 @@ test("review route authenticates before parsing or writing and updates candidate
   assert(auth < post.indexOf("supabaseAdmin"));
   assert.match(post, /\.from\("nutrition_candidates"\)/);
   assert.match(post, /\.eq\("status", "pending"\)/);
+  assert.match(post, /validateNutritionCandidateReviewFact/);
+  assert.match(post, /isMissingNutritionPreworkoutFactColumn/);
   assert.match(post, /formData\.get\("returnTo"\)/);
   assert.doesNotMatch(post, /\.from\("products"\)|nutrition_verified|unit_pricing_verified/);
 });
