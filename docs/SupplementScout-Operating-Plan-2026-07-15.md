@@ -1,9 +1,33 @@
 # SupplementScout Operating Plan
 
-**Status date:** 10 September 2026<br>
+**Status date:** 11 September 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
+
+**11 September 2026 shared automation final checkpoint:** commits `e07c193`,
+`bd97683` and `9856a55` are on `main`; local quick/full verification and GitHub
+Quality Gate `34571034428` passed. The eBay workflow now refreshes Automation
+Review Queue after a no-op apply, safely removes source-drifted rows from an
+approved batch, and accepts that same isolated drift during the final readback.
+It still cannot add an unapproved row or change price, stock, shipping, URL or
+product identity through the freshness path.
+
+Fresh dry-run `34571115142` checked all `237` registered eBay offers: `197`
+unchanged offers were executable, `40` remained isolated for review and none
+was blocked. With the owner's exact approval, protected apply `34571828653`
+updated freshness for those `197` offers. DB postflight and idempotency both
+passed with zero price, stock, shipping, URL, total-value or price-history
+changes. Artifact `10188620698` has digest
+`990236633bafa934a961008b4aab5c6e5adfbe08584cde36a5f5d7473612f9ba`.
+
+Final read-only watchdog `34573443392` checked all `12` retailers and passed
+with **0 failed retailers**, `5` approved monitored-backlog retailers, `4`
+review retailers and zero database writes. Its result is
+`PASS_WITH_MONITORED_BACKLOG`. The shared retailer automation goal is green
+within the recorded monitoring boundaries. Routine eBay exceptions now belong
+in Automation Review Queue. The public price-drop decision remains scheduled
+for about 24-25 September, and Predators Gear remains source-blocked.
 
 **10 September 2026 Automation Review Queue live checkpoint:** commit `b55d4aa`
 is on `main`; GitHub Quality Gate `34521002248` and Baseline Validation
