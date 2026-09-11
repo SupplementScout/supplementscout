@@ -769,7 +769,7 @@ test("same-run eBay evidence sealer requires exact apply, postflight and idempot
   const executableSourceFingerprint = canonicalHash(semanticSourceRows.slice(0, 197));
   const reviewScopeFingerprint = canonicalHash(semanticSourceRows.slice(197));
   const planFingerprint = canonicalHash({ executable_offer_ids: executionOfferIds, executable: semanticExecutablePlans, expected_deltas: expectedDeltas });
-  const apply = { result: "PASS_WITH_REVIEW", approved_mapping_count: 237, executable_plan_count: 197, executed_plan_count: 197, review_row_count: 40, blocked_row_count: 0, classification: { VERIFY_NO_CHANGE: 197 }, execution_offer_ids: executionOfferIds, review_rows: reviewRows, expected_deltas: expectedDeltas, commit_sha: "a".repeat(40), manifest_sha256: "b".repeat(64), source_fingerprint: fullCaptureFingerprint, full_capture_fingerprint: fullCaptureFingerprint, executable_source_fingerprint: executableSourceFingerprint, review_scope_fingerprint: reviewScopeFingerprint, plan_fingerprint: planFingerprint, plan_row_fingerprints: semanticExecutablePlans.map((row) => ({ offer_id: row.offer_id, semantic_fingerprint: canonicalHash(row), scope: "EXECUTABLE" })) };
+  const apply = { result: "PASS_WITH_REVIEW", approved_mapping_count: 237, executable_plan_count: 197, executed_plan_count: 197, review_row_count: 40, blocked_row_count: 0, classification: { VERIFY_NO_CHANGE: 197 }, execution_offer_ids: executionOfferIds, review_rows: reviewRows, expected_deltas: expectedDeltas, commit_sha: "a".repeat(40), manifest_sha256: "b".repeat(64), source_fingerprint: fullCaptureFingerprint, full_capture_fingerprint: fullCaptureFingerprint, executable_source_fingerprint: executableSourceFingerprint, review_scope_fingerprint: reviewScopeFingerprint, plan_fingerprint: planFingerprint, source_row_fingerprints: semanticSourceRows.map((row) => ({ offer_id: row.offer_id, semantic_fingerprint: canonicalHash(row) })), plan_row_fingerprints: semanticExecutablePlans.map((row) => ({ offer_id: row.offer_id, semantic_fingerprint: canonicalHash(row), scope: "EXECUTABLE" })) };
   const postflight = { result: "PASS", approved_mapping_count: 237, executable_plan_count: 197, executed_plan_count: 197, review_row_count: 40, blocked_row_count: 0, freshness_change_count: 197, price_change_count: 0, stock_change_count: 0, shipping_change_count: 0, total_change_count: 0, offer_url_change_count: 0, mapping_url_change_count: 0, price_history_delta: 0, postflight_hash: "e".repeat(64), completed_at: "2026-08-30T18:00:00.000Z" };
   const postApplyPlans = structuredClone(semanticExecutablePlans);
   for (const row of postApplyPlans) row.before_state.offer.last_checked_at = "2026-08-30T18:00:00.000Z";
@@ -778,6 +778,16 @@ test("same-run eBay evidence sealer requires exact apply, postflight and idempot
   const env = { GITHUB_SHA: "a".repeat(40), GITHUB_RUN_ID: "1", GITHUB_SERVER_URL: "https://github.com", GITHUB_REPOSITORY: "SupplementScout/supplementscout" };
   const sealed = sealEbayRefreshEvidence({ apply, baseline, postflight, idempotency, env });
   assert.equal(sealed.result, "PASS"); assert.equal(sealed.idempotency_result, "PASS"); assert.equal(sealed.database_writes, 197); assert.equal(sealed.price_history_delta, 0); assert.equal(sealed.idempotency_executable_source_fingerprint, executableSourceFingerprint);
+  const demoted = structuredClone(idempotency);
+  const demotedId = executionOfferIds[0];
+  demoted.execution_offer_ids = demoted.execution_offer_ids.filter((id) => id !== demotedId);
+  demoted.semantic_plan_rows.executable = demoted.semantic_plan_rows.executable.filter((row) => row.offer_id !== demotedId);
+  demoted.classifications[demotedId] = "UPDATE_STOCK";
+  demoted.review_rows.push({ offer_id: demotedId, review_type: "COMMERCIAL_CHANGE", action: "UPDATE_STOCK" });
+  demoted.executable_plan_count -= 1;
+  demoted.review_row_count += 1;
+  const isolated = sealEbayRefreshEvidence({ apply, baseline, postflight, idempotency: demoted, env });
+  assert.deepEqual(isolated.idempotency_demoted_offer_ids, [demotedId]);
   assert.throws(() => sealEbayRefreshEvidence({ apply, baseline, postflight: { ...postflight, price_history_delta: 1 }, idempotency, env }), /postflight delta drift/);
   assert.throws(() => sealEbayRefreshEvidence({ apply, baseline, postflight, idempotency: { ...idempotency, execution_offer_ids: executionOfferIds.slice(1) }, env }), /approved executable scope/);
   const priceDrift = structuredClone(idempotency); priceDrift.semantic_plan_rows.executable[0].offer.values.price = "11";

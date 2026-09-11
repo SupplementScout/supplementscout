@@ -599,6 +599,7 @@ async function run(options, dependencies = {}) {
       full_capture_fingerprint: batch.manifest.full_capture_fingerprint,
       executable_source_fingerprint: batch.manifest.executable_source_fingerprint,
       review_scope_fingerprint: batch.manifest.review_scope_fingerprint,
+      source_row_fingerprints: batch.manifest.source_row_fingerprints,
       plan_row_fingerprints: batch.manifest.plan_row_fingerprints,
       approved_full_capture_fingerprint: batch.manifest.approved_full_capture_fingerprint,
       approved_executable_source_fingerprint: batch.manifest.approved_executable_source_fingerprint,

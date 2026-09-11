@@ -19,15 +19,19 @@ function seal({ apply, baseline, postflight, idempotency, env = process.env }) {
   invariant(postflight.freshness_change_count === apply.executed_plan_count && postflight.price_change_count === 0 && postflight.stock_change_count === 0 && postflight.shipping_change_count === 0 && postflight.total_change_count === 0 && postflight.offer_url_change_count === 0 && postflight.mapping_url_change_count === 0 && postflight.price_history_delta === 0 && /^[0-9a-f]{64}$/.test(postflight.postflight_hash || ""), "eBay DB postflight delta drift");
   invariant(["PASS", "PASS_WITH_REVIEW"].includes(idempotency.result) && idempotency.approved_mapping_count === 237 && idempotency.executed_plan_count === 0 && idempotency.blocked_row_count === 0, "eBay idempotency contract drift");
   const approvedIds = sortedStrings(apply.execution_offer_ids), idempotencyIds = new Set(idempotency.execution_offer_ids.map(String));
-  invariant(approvedIds.every((offerId) => idempotencyIds.has(offerId) && idempotency.classifications?.[offerId] === "VERIFY_NO_CHANGE"), "eBay idempotency approved executable scope contains drift or a non-freshness action");
+  const idempotencyReviewIds = new Set((idempotency.review_rows || []).map((row) => String(row.offer_id)));
+  const demotedIds = approvedIds.filter((offerId) => !idempotencyIds.has(offerId));
+  invariant(approvedIds.every((offerId) => idempotencyIds.has(offerId) ? idempotency.classifications?.[offerId] === "VERIFY_NO_CHANGE" : idempotencyReviewIds.has(offerId)), "eBay idempotency approved executable scope contains drift without review isolation");
+  const retainedIds = approvedIds.filter((offerId) => idempotencyIds.has(offerId));
   const sourceMap = new Map(idempotency.semantic_source_rows.map((row) => [String(row.offer_id), row]));
-  invariant(canonicalHash(approvedIds.map((id) => sourceMap.get(id))) === apply.executable_source_fingerprint, "eBay idempotency executable source fingerprint drift");
+  const expectedSourceFingerprints = new Map((apply.source_row_fingerprints || []).map((row) => [String(row.offer_id), row.semantic_fingerprint]));
+  invariant(expectedSourceFingerprints.size === 237 && retainedIds.every((id) => sourceMap.has(id) && canonicalHash(sourceMap.get(id)) === expectedSourceFingerprints.get(id)), "eBay idempotency retained executable source drift");
   const planMap = new Map(idempotency.semantic_plan_rows.executable.map((row) => [String(row.offer_id), row]));
   const baselineMap = new Map((baseline?.snapshot?.rows || []).map((row) => [String(row.offer_id), row]));
   const expectedPlanFingerprints = new Map((apply.plan_row_fingerprints || []).map((row) => [String(row.offer_id), row.semantic_fingerprint]));
   invariant(baseline?.result === "PASS" && baseline?.profile === "ebay-uk" && baseline?.snapshot?.row_count === 237 && baselineMap.size === 237, "eBay idempotency baseline evidence missing");
   invariant(expectedPlanFingerprints.size === approvedIds.length && approvedIds.every((id) => expectedPlanFingerprints.has(id)), "eBay apply plan-row fingerprints missing");
-  const restoredPlans = approvedIds.map((id) => {
+  const restoredPlans = retainedIds.map((id) => {
     const freshPlan = planMap.get(id), before = baselineMap.get(id);
     invariant(freshPlan?.before_state?.offer && before?.last_checked_at, `eBay idempotency plan or baseline missing for offer ${id}`);
     const restored = JSON.parse(JSON.stringify(freshPlan));
@@ -35,7 +39,7 @@ function seal({ apply, baseline, postflight, idempotency, env = process.env }) {
     invariant(canonicalHash(restored) === expectedPlanFingerprints.get(id), `eBay idempotency plan drift outside freshness for offer ${id}`);
     return restored;
   });
-  invariant(canonicalHash({ executable_offer_ids: approvedIds, executable: restoredPlans, expected_deltas: apply.expected_deltas }) === apply.plan_fingerprint, "eBay idempotency approved plan fingerprint drift outside freshness");
+  if (!demotedIds.length) invariant(canonicalHash({ executable_offer_ids: approvedIds, executable: restoredPlans, expected_deltas: apply.expected_deltas }) === apply.plan_fingerprint, "eBay idempotency approved plan fingerprint drift outside freshness");
   invariant(idempotency.commit_sha === env.GITHUB_SHA, "eBay idempotency commit binding missing");
   return {
     schema_version: 2,
@@ -63,6 +67,8 @@ function seal({ apply, baseline, postflight, idempotency, env = process.env }) {
     idempotency_executable_source_fingerprint: idempotency.executable_source_fingerprint,
     idempotency_review_scope_fingerprint: idempotency.review_scope_fingerprint,
     idempotency_plan_fingerprint: idempotency.plan_fingerprint,
+    idempotency_demoted_offer_ids: demotedIds,
+    idempotency_promoted_offer_ids: sortedStrings(idempotency.execution_offer_ids.filter((id) => !approvedIds.includes(String(id)))),
     postflight_hash: postflight.postflight_hash,
     approved_mapping_count: 237,
     executable_plan_count: apply.executable_plan_count,
