@@ -4,8 +4,8 @@
 
 ## Current checkpoint
 
-- Task: NUT-03 remains `IN PROGRESS`; the owner has authorized the bounded early
-  NUT-04A presentation step before NUT-03 closes. NUT-03A, NUT-03B, NUT-03D and NUT-03G are
+- Task: NUT-03 remains `IN PROGRESS`; the bounded early NUT-04A presentation
+  step is `LIVE VERIFIED`. NUT-03A, NUT-03B, NUT-03D and NUT-03G are
   `CODE COMPLETE`; NUT-03C, NUT-03E, NUT-03F and NUT-03H are `LIVE VERIFIED`.
   NUT-03I retains its historical exact-variant evidence gap. Further preparation
   now uses one closed batch of at most ten variants per owner decision instead
@@ -354,7 +354,7 @@ implementation or any nutrition catalogue write.
 | NUT-03-BATCH-01 | `AWAITING OWNER EVIDENCE` | NUT-03H + batch authorization | One closed owner-decision package for variants 760, 761, 816, 714, 1029, 1059, 885, 1974, 887 and 3676. Reuse existing source dispositions; do not revisit 815 or substitute variants. | Fresh production read confirms all ten exact ownership pairs, empty overrides and zero exact-variant candidates. Two retained product-label hashes match, but applicability is unproved for three variants; seven have no archived label and retain their access constraints. Package validation passes with 0 ready proposals, 10 explicit gaps, 0 candidate artifacts and no dry-run or write. |
 | NUT-03-DEMO-GH-STINGER | `LIVE VERIFIED` | Exact owner demonstration authorization, extended to store/review/plan/apply for the unchanged artifact | Carry one exact-variant package outside the frozen pilot through the existing guarded path for product 411 / variant 1047, Electric Red 425 g. Preserve two supplied images and a separate owner attestation; keep all other GYM HIGH work deferred. | Archive and dry-run evidence remained hash-bound. Production candidates 701-705 each exist once, were approved through authenticated review, and fed one zero-blocker variant-only plan. Controlled apply changed only variant 1047's five nutrition override facts. New read-only connections matched the complete after state, unchanged candidates/product/other variants and protected legacy fields; exact replay was safely rejected by the stale-before guard with no second write. |
 | NUT-03 | `IN PROGRESS` | Iterative closed batches + separate owner write authorization | Review pilot evidence, quantities/units and exact applicability in batches of at most ten; separately approve candidate storage, review, planning and guarded apply. | NUT-03A through NUT-03H complete the first exact pilot variant, product 38 / variant 726, through controlled apply. NUT-03I preserves the unresolved 815 evidence gap. Batch 01 adds one consolidated disposition for ten more variants without lowering evidence requirements. The separately authorized Stinger demonstration is also applied but remains outside the denominator. Pilot progress remains 1 of 25 and does not establish full pilot coverage. Complete only when every in-scope proposal has a decision and separately authorized writes have independent readback and safe replay evidence; unresolved facts remain unknown and excluded. |
-| NUT-04A | `CODE COMPLETE` | Early owner authorization + exact applied facts | Reuse existing product pages and search to present exact-variant applied facts and add a confirmed caffeine-free filter. A fact is public only when an approved candidate for the same product/variant reconstructs the current override exactly. Expose only source kind; never private URI, reviewer metadata or raw archive material. | Production preflight proves variant 726 has applied caffeine and variant 1047 has applied confirmed caffeine/creatine absence. Local resolver, search, URL, product-page, mobile-layout and regression tests pass; `verify:quick` passes. Deployment and live readback remain required before `LIVE VERIFIED`. |
+| NUT-04A | `LIVE VERIFIED` | Early owner authorization + exact applied facts | Reuse existing product pages and search to present exact-variant applied facts and add a confirmed caffeine-free filter. A fact is public only when an approved candidate for the same product/variant reconstructs the current override exactly. Expose only source kind; never private URI, reviewer metadata or raw archive material. | Commit 58c83cb deployed successfully. Public readback passed for variants 726, 727 and 1047, the exact-variant caffeine-free result, source redaction and the existing pre-workout link. A 390 x 844 browser check found no horizontal overflow; contract tests pass for variant switching, filter reset and pagination. NUT-03 and the frozen pilot remain unchanged. |
 | NUT-04 | `PLANNED` | NUT-03 closure + NUT-04A | Close the presentation/filter stage after the frozen pilot decisions are accounted for; retain NUT-04A's existing product/search mechanisms and evidence threshold. | NUT-04A tests and live variant-switch checks must prove confirmed absence included, caffeine present excluded, missing/conflicting facts never treated as absent. Document the final coverage denominator, limits, evidence and operations. Publish image copies only with established rights; otherwise link to source. MVP closes only here. |
 | NUT-05 | `DEFERRED` | NUT-04 closure | Subsequent bounded batches/categories in the same process | Review extraction yield, review time and missing-source rate before expansion; every batch has a fixed denominator and closure. No expansion of an active batch. |
 
@@ -1110,6 +1110,14 @@ No code, migration, test inventory or workflow is changed by this NUT-00 revisio
   update. No migration, candidate write, catalogue write, new public route,
   panel, importer or AI path was added. Live deployment evidence is recorded
   separately in `docs/rollouts/nutrition-nut-04a-presentation-2026-09-12.json`.
+- Commit `58c83cbe73e71de24da08f4778fe179293ea28b6` deployed successfully
+  through Vercel at `2026-09-12T09:40:01Z`. Fresh public HTTP 200 reads show
+  variant `726` with its 250 mg caffeine fact and declared compound masses,
+  variant `727` without inherited facts, variant `1047` with the two confirmed
+  absences and sanitized source kinds, and the caffeine-free search returning
+  one result linked to exact variant `1047` while excluding `726`. A 390 x 844
+  browser check found no horizontal overflow on the product or search view.
+  Existing contract tests cover flavour/variant switching, reset and pagination.
 
 ## NUT-03I exact-variant applicability evidence
 

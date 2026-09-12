@@ -1,7 +1,7 @@
 {
   "schema_version": "nutrition_nut04a_e1",
   "stage": "NUT-04A",
-  "status": "CODE_COMPLETE",
+  "status": "LIVE_VERIFIED",
   "status_date": "2026-09-12",
   "authorization": {
     "scope": "Early bounded presentation of applied exact-variant pre-workout facts and a confirmed caffeine-free search filter.",
@@ -68,10 +68,41 @@
     "verify_project_after_documentation": "PASS"
   },
   "live_verification": {
-    "deployment_commit": null,
-    "deployment_status": "PENDING",
-    "checked_at": null,
-    "examples": []
+    "deployment_commit": "58c83cbe73e71de24da08f4778fe179293ea28b6",
+    "deployment_status": "Vercel success: Deployment has completed",
+    "deployment_completed_at": "2026-09-12T09:40:01Z",
+    "checked_at": "2026-09-12T09:42:09.303Z",
+    "examples": [
+      {
+        "url": "https://www.supplementscout.co.uk/product/applied-nutrition-pump-3g-pre-workout-375g?variant=726",
+        "result": "HTTP 200; exact-variant panel shows caffeine 250 mg, citrulline malate 2:1 as declared malate mass, and creatine monohydrate as declared form mass."
+      },
+      {
+        "url": "https://www.supplementscout.co.uk/product/applied-nutrition-pump-3g-pre-workout-375g?variant=727",
+        "result": "HTTP 200; exact variant has no reviewed facts and does not inherit the 250 mg caffeine fact."
+      },
+      {
+        "url": "https://www.supplementscout.co.uk/product/gym-high-the-stinger-zero-caffeine-pump-pre-workout-425g?variant=1047",
+        "result": "HTTP 200; panel shows serving 17 g/two scoops, beta-alanine 3200 mg, free-form L-citrulline 3000 mg, confirmed caffeine and creatine absence, and sanitized source kinds."
+      },
+      {
+        "url": "https://www.supplementscout.co.uk/search?q=pre%20workout&caffeine=free",
+        "result": "HTTP 200; one result, linked to exact variant 1047; variant 726 is excluded; reset link removes the caffeine filter."
+      },
+      {
+        "url": "https://www.supplementscout.co.uk/pre-workout",
+        "result": "HTTP 200; existing landing page links to the confirmed caffeine-free search."
+      }
+    ],
+    "mobile": {
+      "viewport_css_px": "390x844",
+      "product_document_width_px": 390,
+      "search_document_width_px": 390,
+      "horizontal_overflow": false,
+      "search_result_count": 1,
+      "search_result_variant_id": "1047"
+    },
+    "pagination_and_reset": "Contract tests confirm filter/sort changes reset pagination, pagination retains caffeine=free, and reset removes it."
   },
   "coverage": {
     "frozen_pilot_completed_variants": 1,
@@ -79,5 +110,5 @@
     "additional_demo_variants_presented": 1,
     "confirmed_caffeine_free_variants_with_current_offer_at_preflight": 1
   },
-  "next_step": "Complete deployment and live desktop/mobile checks for NUT-04A, then resume NUT-03 only when the fixed Batch 01 receives new owner evidence."
+  "next_step": "Resume NUT-03 only when the fixed Batch 01 receives new owner evidence; the remaining NUT-04 scope still waits for NUT-03 closure and separate authorization."
 }

@@ -121,6 +121,12 @@ the applied-caffeine control; product `411` / variant `1047` is the separately
 authorized GYM HIGH absence example. Variants without matching proof remain
 excluded. NUT-03 and its frozen denominator remain unchanged; NUT-04 does not
 close until NUT-03 and the remaining NUT-04 criteria are complete.
+NUT-04A is now `LIVE VERIFIED` at commit `58c83cb`: production readback confirms
+the exact-variant fact panels for variants `726` and `1047`, no fact inheritance
+to variant `727`, and one current caffeine-free search result linked to variant
+`1047`. The public response exposes only sanitized source kinds; a 390 x 844
+browser check found no horizontal overflow. This does not change NUT-03 progress
+or authorize the remaining NUT-04 scope.
 SEO-15 remains BLOCKED, the 16 September accrual check and conditional 24-25
 September reviews remain scheduled, and GYM HIGH remains owner-deferred outside
 the single exact demonstration exception above.
