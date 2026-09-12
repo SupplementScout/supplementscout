@@ -12,6 +12,7 @@ const migrations = [
   "20260809130000_add_nutrition_candidate_batch_items.sql",
   "20260911120000_add_nutrition_candidate_variant_provenance.sql",
   "20260911130000_add_nutrition_candidate_preworkout_facts.sql",
+  "20260911150000_add_nutrition_candidate_structured_creatine.sql",
 ];
 function run(command, args, options = {}) {
   return spawnSync(command, args, { cwd: root, encoding: "utf8", timeout: options.timeout || 180_000, input: options.input });
@@ -348,6 +349,121 @@ test("variant candidate migration preserves legacy rows and enforces exact immut
       ${insertStructuredCandidate({ fingerprint: "1".repeat(64) }).replace(/;\s*$/, " on conflict(candidate_fingerprint) do nothing;")}
     `), "structured idempotent retry");
     assert.equal(ok(sql(container, `select count(*) from public.nutrition_candidates where candidate_fingerprint='${"1".repeat(64)}';`), "structured duplicate count").stdout.trim(), "1");
+
+    const beforeNut03b = sql(container, insertStructuredCandidate({
+      fingerprint: "8".repeat(64),
+      field: "creatine_declared_form_per_serving_mg",
+      value: 3000,
+      sourceValue: 3,
+      form: "creatine_monohydrate",
+    }));
+    assert.notEqual(beforeNut03b.status, 0);
+    assert.match(output(beforeNut03b), /nutrition_candidates_(?:proposed_field_check|fact_shape_check)/);
+    assert.equal(ok(sql(container, `
+      select count(*) from public.nutrition_candidates
+      where run_id in ('NUT-02-legacy-compatibility-test','NUT-02B-structured-test');
+    `), "pre-NUT-03B existing queue read").stdout.trim(), "7");
+
+    ok(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-f", `/workspace/supabase/migrations/${migrations[5]}`]), migrations[5]);
+    const malformedCreatineFacts = [
+      ["creatine-present-missing-value", {
+        field: "creatine_declared_form_per_serving_mg", proposedValue: null,
+        form: "creatine_monohydrate",
+      }],
+      ["creatine-present-missing-source-unit", {
+        field: "creatine_declared_form_per_serving_mg", proposedValue: 3000,
+        sourceValue: 3, sourceUnit: null, form: "creatine_monohydrate",
+      }],
+      ["creatine-present-missing-form", {
+        field: "creatine_declared_form_per_serving_mg", proposedValue: 3000,
+        sourceValue: 3,
+      }],
+      ["creatine-present-invalid-form", {
+        field: "creatine_declared_form_per_serving_mg", proposedValue: 3000,
+        sourceValue: 3, form: "monohydrate",
+      }],
+      ["creatine-new-field-missing-state", {
+        field: "creatine_declared_form_per_serving_mg", proposedValue: null,
+        proposedUnit: null, informationState: null, sourceValue: null,
+        sourceUnit: null, quantityBasis: null, servingValue: null,
+        servingUnit: null, servingText: null,
+      }],
+      ["creatine-partial-serving-pair", {
+        field: "creatine_declared_form_per_serving_mg", proposedValue: 3000,
+        sourceValue: 3, form: "creatine_monohydrate", servingUnit: null,
+      }],
+      ["creatine-non-present-carries-form", {
+        field: "creatine_declared_form_per_serving_mg", proposedValue: null,
+        proposedUnit: null, informationState: "confirmed_absent", sourceValue: null,
+        sourceUnit: null, quantityBasis: null, servingValue: null,
+        servingUnit: null, servingText: null, form: "creatine_monohydrate",
+      }],
+      ["creatine-ratio-forbidden", {
+        field: "creatine_declared_form_per_serving_mg", proposedValue: 3000,
+        sourceValue: 3, form: "creatine_monohydrate", ratio: "1:1",
+      }],
+    ];
+    for (const [name, values] of malformedCreatineFacts) {
+      const result = sql(container, insertDirectFact({ name, ...values }));
+      assert.notEqual(result.status, 0, `${name} must be rejected directly by PostgreSQL`);
+      assert.match(output(result), /nutrition_candidates_(?:fact_shape_check|proposed_unit_check)/);
+    }
+
+    const creatineFacts = [
+      { fingerprint: "8".repeat(64), field: "creatine_declared_form_per_serving_mg", value: 3000, sourceValue: 3, form: "creatine_monohydrate" },
+      { fingerprint: "9".repeat(64), field: "creatine_declared_form_per_serving_mg", state: "present_amount_not_disclosed", form: "creatine_form_not_disclosed" },
+      { fingerprint: "d".repeat(64), field: "creatine_declared_form_per_serving_mg", state: "confirmed_absent" },
+      { fingerprint: "e".repeat(64), field: "creatine_declared_form_per_serving_mg", state: "no_information" },
+      { fingerprint: "f".repeat(64), field: "creatine_declared_form_per_serving_mg", state: "conflicting_information" },
+    ];
+    for (const fact of creatineFacts) ok(sql(container, insertStructuredCandidate(fact)), `structured creatine ${fact.state || "present_with_amount"}`);
+    ok(sql(container, `
+      update public.nutrition_candidates
+      set status='approved',reviewed_at=now(),reviewed_by='integration-test'
+      where proposed_field='creatine_declared_form_per_serving_mg';
+    `), "approve structured creatine candidates");
+    const creatineReadback = JSON.parse(ok(sql(container, `
+      select jsonb_agg(jsonb_build_object(
+        'state',information_state,'value',proposed_value,'approved',approved_value,
+        'source_value',source_quantity_value,'source_unit',source_quantity_unit,
+        'basis',quantity_basis,'serving',serving_basis_text,'form',ingredient_form
+      ) order by id)::text from public.nutrition_candidates
+      where proposed_field='creatine_declared_form_per_serving_mg';
+    `), "structured creatine readback").stdout.trim());
+    assert.equal(creatineReadback.length, 5);
+    assert.deepEqual(creatineReadback[0], {
+      state: "present_with_amount", value: 3000, approved: 3000,
+      source_value: 3, source_unit: "g", basis: "per_serving",
+      serving: "Per 15 g serving", form: "creatine_monohydrate",
+    });
+    assert.equal(creatineReadback[1].form, "creatine_form_not_disclosed");
+    for (const row of creatineReadback.slice(1)) assert.equal(row.approved, null);
+
+    const changedCreatineEvidence = sql(container, `
+      update public.nutrition_candidates set source_file_sha256='${"0".repeat(64)}'
+      where candidate_fingerprint='${"8".repeat(64)}';
+    `);
+    assert.notEqual(changedCreatineEvidence.status, 0);
+    assert.match(output(changedCreatineEvidence), /already been reviewed|evidence is immutable/);
+    ok(sql(container, `
+      ${insertStructuredCandidate({
+        fingerprint: "8".repeat(64), field: "creatine_declared_form_per_serving_mg",
+        value: 3000, sourceValue: 3, form: "creatine_monohydrate",
+      }).replace(/;\s*$/, " on conflict(candidate_fingerprint) do nothing;")}
+    `), "structured creatine idempotent retry");
+    assert.equal(ok(sql(container, `
+      select count(*) from public.nutrition_candidates
+      where candidate_fingerprint='${"8".repeat(64)}';
+    `), "structured creatine duplicate count").stdout.trim(), "1");
+
+    const postNut03bLegacyName = "post-nut03b-legacy-product-path";
+    ok(sql(container, insertDirectFact({
+      name: postNut03bLegacyName,
+      field: "creatine_per_serving_g", proposedValue: 3, proposedUnit: "g",
+      informationState: null, sourceValue: null, sourceUnit: null,
+      quantityBasis: null, servingValue: null, servingUnit: null,
+      servingText: null, productVariantId: null, sourceArchiveUri: null,
+    })), "post-NUT-03B legacy creatine candidate");
   } finally {
     run("docker", ["rm", "-f", container], { timeout: 30_000 });
   }

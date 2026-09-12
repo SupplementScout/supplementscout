@@ -14,8 +14,10 @@ const {
 const PLAN_KIND = "nutrition-approved-update-plan-v3";
 const AUDIT_KIND = "nutrition-approved-update-audit-v2";
 const DERIVED_FIELDS = Object.freeze(["nutrition_verified"]);
-const PREWORKOUT_TARGET_FIELDS = Object.freeze(["caffeine", "citrulline", "beta_alanine"]);
+const NUT02B_PREWORKOUT_TARGET_FIELDS = Object.freeze(["caffeine", "citrulline", "beta_alanine"]);
+const PREWORKOUT_TARGET_FIELDS = Object.freeze([...NUT02B_PREWORKOUT_TARGET_FIELDS, "creatine"]);
 const LEGACY_ALLOWED_FIELDS = Object.freeze([...FIELDS, ...DERIVED_FIELDS]);
+const NUT02B_ALLOWED_FIELDS = Object.freeze([...LEGACY_ALLOWED_FIELDS, ...NUT02B_PREWORKOUT_TARGET_FIELDS]);
 const ALLOWED_FIELDS = Object.freeze([...LEGACY_ALLOWED_FIELDS, ...PREWORKOUT_TARGET_FIELDS]);
 const CANDIDATE_FIELD_SET = new Set(FIELDS);
 const NUTRITION_SOURCE_FIELDS = new Set(["protein_per_serving_g", "creatine_per_serving_g"]);
@@ -352,7 +354,11 @@ function validateChanges(changes, productId, variantId) {
 function validatePlan(plan) {
   if (!plan || plan.schema_version !== 3 || plan.kind !== PLAN_KIND ||
       plan.status !== "READY_FOR_EXPLICIT_APPLY" || !Array.isArray(plan.allowed_fields) ||
-      ![JSON.stringify(ALLOWED_FIELDS), JSON.stringify(LEGACY_ALLOWED_FIELDS)].includes(JSON.stringify(plan.allowed_fields)) ||
+      ![
+        JSON.stringify(ALLOWED_FIELDS),
+        JSON.stringify(NUT02B_ALLOWED_FIELDS),
+        JSON.stringify(LEGACY_ALLOWED_FIELDS),
+      ].includes(JSON.stringify(plan.allowed_fields)) ||
       !Array.isArray(plan.source_candidate_ids) || !plan.source_candidate_ids.length ||
       !Array.isArray(plan.blockers) || plan.blockers.length ||
       !Array.isArray(plan.product_updates) || !Array.isArray(plan.variant_updates)) {

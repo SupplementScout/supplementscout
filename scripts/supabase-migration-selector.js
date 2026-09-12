@@ -280,6 +280,10 @@ const CONTRACTS = Object.freeze({
         filename: "20260911130000_add_nutrition_candidate_preworkout_facts.sql",
         sha256: "76db080b347dfffd36a8233c1d8f9725421b9caf2e445d56579833898b6428d5",
       }),
+      Object.freeze({
+        filename: "20260911150000_add_nutrition_candidate_structured_creatine.sql",
+        sha256: "dc9a411d19cb3547b508744c6dab21fb0df741e30f896cb186de6b38639ce28c",
+      }),
     ]),
   }),
   PRODUCTION: Object.freeze({
@@ -308,7 +312,12 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260911150000_add_nutrition_candidate_structured_creatine.sql",
+        sha256: "dc9a411d19cb3547b508744c6dab21fb0df741e30f896cb186de6b38639ce28c",
+      }),
+    ]),
   }),
 });
 

@@ -1,19 +1,19 @@
 # Nutrition Data Enrichment — Execution Plan
 
-**Status date:** 11 September 2026
+**Status date:** 12 September 2026
 
 ## Current checkpoint
 
-- Task: NUT-03; status `IN PROGRESS`. Bounded preparation step NUT-03A is
-  `CODE COMPLETE`: one exact-variant offline artifact for product `38`, variant
-  `726` has been transcribed from its archived label and passes the existing
-  candidate-store dry-run. It contains four supported pending candidates plus
-  one deferred creatine review-evidence record. No candidate has been stored,
-  reviewed or applied.
-- Owner/session: Codex, owner-authorized NUT-03A explicit transcription and
-  creatine-scope supplement, 11 September 2026.
+- Task: NUT-03; status `IN PROGRESS`. NUT-03A and the bounded NUT-03B code step
+  are `CODE COMPLETE`. The existing candidate/review/plan/apply path now models
+  creatine as the mass of its declared ingredient form against an exact serving,
+  with the same five information states. Migration C remains unapplied in
+  production, so structured creatine storage/apply stays unavailable there. No
+  candidate has been stored, reviewed or applied.
+- Owner/session: Codex, owner-authorized NUT-03B implementation and isolated
+  migration testing, 12 September 2026.
 - Branch: `main`; this session started at
-  `7109ef43a64d51302a6a5c6345305901685e17d3`; remote `main` matched before work.
+  `19aa74b64083eda708c24c53dfb7bb982518127d`; remote `main` matched before work.
 - Production readback at `2026-09-11T12:58:26.063Z`: public `anon` SELECT against
   project `aftboxmrdgyhizicfsfu`; 141 active unmerged Pre Workout products and
   575 active variants. Frozen scope: 25 variants across 21 products.
@@ -59,7 +59,7 @@
 - NUT-02B adds caffeine, citrulline amount/form and beta-alanine with five explicit
   information states, exact per-serving source quantities and deterministic g/mg
   normalization. Review approval remains separate from the information state.
-  Its pending migration has also received the bounded NUT-02B CHECK correction:
+  Its deployed migration includes the bounded NUT-02B CHECK correction:
   every recreated fact/unit/review predicate must evaluate `IS TRUE`, so SQL NULL
   cannot satisfy a required condition.
 - Scope decision for pre-workouts now also requires creatine for every exact
@@ -67,8 +67,9 @@
   the same five information states. Existing `creatine_per_serving_g` is a legacy
   positive numeric field without form or information state, so it cannot safely
   hold a declaration such as creatine-monohydrate mass as though it were pure
-  creatine mass. The existing structured path must be extended before such a
-  candidate can be stored.
+  creatine mass. NUT-03B extends the existing structured path with the separate
+  field `creatine_declared_form_per_serving_mg`; the legacy field and calculations
+  remain unchanged.
 - The controlled production selector applied exactly
   `20260911120000_add_nutrition_candidate_variant_provenance.sql` and then
   `20260911130000_add_nutrition_candidate_preworkout_facts.sql`. Fresh readback
@@ -82,11 +83,11 @@
   review evidence tied to the same 15 g serving, variant, archive URI and image
   hash; it does not create a `creatine_per_serving_g` candidate. The required
   dry-run reports `DRY_RUN_NO_DATABASE` and four rows.
-- One next step, NUT-03B: extend the existing structured pre-workout
-  candidate/review/plan/apply contract with creatine form and the same five
-  information states, including isolated migration tests. This requires separate
-  authorization. Do not store or approve the NUT-03A facts in that implementation
-  step.
+- One next step, NUT-03C: after separate owner authorization, apply only
+  `20260911150000_add_nutrition_candidate_structured_creatine.sql` through the
+  controlled production selector and verify the migration history, three updated
+  CHECK constraints, legacy queue and authenticated panel by readback. Do not
+  store or approve the NUT-03A facts during that migration-only step.
 
 ## Authority and scope
 
@@ -129,7 +130,7 @@ remain unchanged.
 | Extend, NUT-02 | Store explicitly rejects non-null `product_variant_id`; candidate table lacks that column; planner updates products | Preserve exact variant applicability throughout capture, storage, review and apply, reusing existing overrides. Never silently broaden a variant fact to a product family. |
 | Extend, NUT-01 decision / NUT-02 compatibility | Raw sources and OCR stay in ignored `tmp`; SQL snapshot reference requires `tmp/` | Select a durable private archive with hashes and cross-session retrieval before capture. Keep existing working copies; evaluate archive-reference compatibility in NUT-02. Never commit raw snapshots or treat tmp as an archive. |
 | Extend, NUT-02 | Candidate and approved-value validation requires positive values | Model confirmed absence separately from unknown, present-without-dose and conflict. Do not encode missing evidence as zero or simply relax all numeric guards. |
-| Extend, NUT-03B | Legacy `creatine_per_serving_g` carries only a positive number in grams; the structured five-state mechanism currently covers caffeine, citrulline and beta-alanine only. | Add creatine as one more target in the same structured candidate/review/plan/apply path. Preserve the declared form and its source mass per explicit serving; never equate creatine-monohydrate mass with pure-creatine mass. |
+| Extend, NUT-03B | Legacy `creatine_per_serving_g` carries only a positive number in grams; the structured five-state mechanism originally covered caffeine, citrulline and beta-alanine only. | NUT-03B adds `creatine_declared_form_per_serving_mg` as one more target in the same structured candidate/review/plan/apply path. It preserves declared form and source mass per explicit serving; it never equates creatine-monohydrate mass with pure-creatine mass. Migration C remains pending. |
 | Unnecessary | Existing queue, imports, variant model, reports and project controls | No second admin panel, importer, catalogue, master roadmap, agent system, new public hub or cloud OCR is needed. |
 
 Existing tests include extractor, candidate store/admin/batch, approved updates,
@@ -250,8 +251,9 @@ implementation or any nutrition catalogue write.
 | NUT-02C | `LIVE VERIFIED` | NUT-02B + owner authorization | Apply exactly A then B through the existing production selector; verify history, schema, queue and authenticated panel without creating candidates or catalogue facts. | Rehearsal rolled back cleanly; apply committed ledger rows 205/206. Fresh owner readback matched both SQL hashes, 11 columns, eight constraints and three triggers. Legacy queue digests and catalogue counts are unchanged; the panel returns 200 without an unavailable notice. |
 | NUT-02 | `LIVE VERIFIED` | NUT-02C | Candidate schema and the guarded exact-variant structured-fact path are deployed. Existing product-only records remain compatible. No pilot ingredient value has been entered or approved, and public filters remain outside this stage. | Production read proves schema and read availability; isolated integration tests prove write guards, review invalidation, idempotency and legacy compatibility. This closure does not claim a production write test or pilot coverage. |
 | NUT-03A | `CODE COMPLETE` | NUT-02 | Explicitly transcribe only the archived exact-variant label for product `38` / variant `726` into one offline candidate artifact; validate without database access. | Image hash matches the archive manifest; four supported pending candidates preserve exact source quantities, serving evidence, citrulline form/ratio, variant ID, archive URI and image hash. One deferred review record preserves the exact creatine-monohydrate declaration without putting it in the legacy pure-creatine field. Store dry-run passes with zero database writes. |
-| NUT-03B | `PLANNED` | NUT-03A + separate owner authorization | Extend the existing structured pre-workout fact target with creatine, its declared form, explicit-serving amount and all five information states; prepare the smallest forward-only schema update and test it only in isolation. | Existing candidate/review/plan/apply tests prove state combinations, form and source-compound amount semantics, approval invalidation, exact variant/source preservation, replay idempotency and legacy product-record compatibility. No production migration or data write belongs to this step. |
-| NUT-03 | `IN PROGRESS` | NUT-03B | Review pilot evidence, quantities/units and exact applicability; separately approved candidate storage, review and guarded apply | NUT-03A prepares only one local unapproved artifact. Complete only when every in-scope proposal, including creatine, has a decision and separately authorized writes have independent readback and zero-duplicate replay; unresolved facts remain unknown and excluded. |
+| NUT-03B | `CODE COMPLETE` | NUT-03A + owner authorization | The existing structured pre-workout target now includes creatine declared-form mass, explicit form or `creatine_form_not_disclosed`, original quantity/unit, exact serving and all five information states. Existing variant/source/fingerprint and approval controls are reused; legacy `creatine_per_serving_g` remains unchanged. | Unit/static tests and isolated PostgreSQL prove pre-C rejection with the legacy queue readable, post-C state/form/unit/serving validation, NULL-safe CHECKs, evidence-change invalidation, protection from unknown/conflict overwrite and idempotent replay. Migration C is prepared and hash-bound but is not applied to production; no candidate or catalogue data was written. |
+| NUT-03C | `PLANNED` | NUT-03B + separate owner authorization | Apply only migration C through the controlled production selector, then read back its history and three updated CHECKs and verify the legacy queue and authenticated panel without creating candidates. | Exact migration hash and target are verified before apply; fresh production connection proves schema/panel availability and unchanged queue/catalogue data. Isolated PostgreSQL remains the write-behavior proof. |
+| NUT-03 | `IN PROGRESS` | NUT-03C | Review pilot evidence, quantities/units and exact applicability; separately approved candidate storage, review and guarded apply | NUT-03A prepares only one local unapproved artifact and NUT-03B prepares its structured creatine path. Complete only when every in-scope proposal, including creatine, has a decision and separately authorized writes have independent readback and zero-duplicate replay; unresolved facts remain unknown and excluded. |
 | NUT-04 | `PLANNED` | NUT-03 | Existing product page facts/source and existing search caffeine-free filter | Tests and live variant-switch checks prove confirmed absence included, caffeine present excluded, missing/conflicting facts never treated as absent. Document coverage denominator, limits, evidence and operations. Publish image copies only with established rights; otherwise link to source. MVP closes here. |
 | NUT-05 | `DEFERRED` | NUT-04 closure | Subsequent bounded batches/categories in the same process | Review extraction yield, review time and missing-source rate before expansion; every batch has a fixed denominator and closure. No expansion of an active batch. |
 
@@ -650,6 +652,64 @@ No code, migration, test inventory or workflow is changed by this NUT-00 revisio
   any pure-creatine equivalent remains separate and absent unless the source
   explicitly declares it. This requires a forward-only migration plus the
   existing isolated tests; it does not require another importer, queue or panel.
+
+## NUT-03B structured creatine implementation evidence
+
+12 September 2026, owner-authorized bounded implementation:
+
+- The existing structured candidate contract now accepts
+  `creatine_declared_form_per_serving_mg`. It uses the same five information
+  states as the other pre-workout facts. Present states require a normalized
+  declared form such as `creatine_monohydrate`, or the explicit
+  `creatine_form_not_disclosed` marker when the source names creatine but omits
+  its form. Non-present states carry neither form nor amount.
+- A quantified creatine candidate preserves the source quantity and `mg`/`g`
+  unit, the exact `per_serving` description and optional numeric serving basis,
+  while deterministically normalizing the declared-form mass to mg. Its stored
+  structured fact is explicitly marked `amount_subject:
+  declared_ingredient_form`. A `3 g Creatine Monohydrate` declaration therefore
+  remains 3 g of creatine monohydrate; it is not written to or interpreted as
+  the legacy pure-creatine-oriented `creatine_per_serving_g` field.
+- Candidate storage, review fingerprinting, planning and guarded apply reuse the
+  existing exact string product/variant IDs, durable private archive URI,
+  original-image SHA-256 and immutable evidence checks. Quantity, unit, serving,
+  form, information-state or evidence changes create a different fingerprint
+  and invalidate an earlier approval. Unknown and conflicting facts cannot
+  replace an existing determinate approved fact.
+- The smallest forward-only migration is
+  `20260911150000_add_nutrition_candidate_structured_creatine.sql`, normalized
+  SHA-256
+  `dc9a411d19cb3547b508744c6dab21fb0df741e30f896cb186de6b38639ce28c`.
+  It adds no column and performs no data DML. It only recreates the three existing
+  candidate field/fact/unit CHECK constraints to admit the new field. Each whole
+  predicate uses `IS TRUE`, so a nullable comparison cannot admit an incomplete
+  record. Executed migrations A and B are unchanged.
+- The migration selector binds C as the only production-pending nutrition
+  migration after deployed A and B. Before C, a creatine store/apply request
+  returns a specific NUT-03B migration-required error while the existing queue
+  remains readable. Unrelated PostgreSQL errors are not converted to this state.
+- Focused unit/static validation passed 99/99. The isolated Docker PostgreSQL
+  integration passed and proves: the existing path before C; all five states;
+  explicit and undisclosed forms; original g/mg quantities and exact serving;
+  rejection of incomplete and NULL-shaped records; source/fingerprint approval
+  invalidation; protected-fact overwrite blocking; and replay without duplicates.
+- `verify:project`, `verify:quick` and `verify:full` pass. The aggregate
+  `verify:integration` remains explicitly non-green: its first 30-file chunk
+  completed 71/72 tests and stopped on the unrelated existing Jon's/Predators
+  Gear fixture at `20260906150000_allow_10reps_v8_short_source_ids.sql` with
+  `10 Reps v8 short source ID anchor/state mismatch`. The NUT-03B isolated test
+  passed within that same aggregate run. The unrelated fixture was not changed.
+- The NUT-03A artifact remains unchanged at
+  `tmp/nutrition-candidates/nut-03a-product-38-variant-726/nutrition-candidates-ncr1-nut03a-38-726-1182c1aeab46.json`,
+  SHA-256
+  `0e390c0e372f2b4ef7a4dc9ddb89f6eaa30a8d43b394a28d3b772e051295d866`.
+  Its deferred creatine evidence remains deferred. No source was fetched, no OCR
+  ran and no production migration, candidate, approval, plan, apply or catalogue
+  write occurred.
+- NUT-03B is `CODE COMPLETE`, not production-enabled. One next step is NUT-03C:
+  separately authorize migration C alone, deploy it through the existing
+  selector and perform read-only production schema, queue and panel checks. Do
+  not store the pilot artifact in that migration-only step.
 
 ## NUT-00 closeout evidence
 

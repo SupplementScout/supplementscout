@@ -38,12 +38,13 @@ workflow.
 - `caffeine_per_serving_mg`
 - `citrulline_per_serving_mg`
 - `beta_alanine_per_serving_mg`
+- `creatine_declared_form_per_serving_mg`
 
 One output row represents one candidate fact. The extractor never derives a
 missing value from other values. Package arithmetic is used only to flag
 inconsistency.
 
-The three pre-workout fields use a structured candidate contract. Their
+The four pre-workout fields use a structured candidate contract. Their
 `information_state` is exactly one of `present_with_amount`,
 `present_amount_not_disclosed`, `confirmed_absent`, `no_information`, or
 `conflicting_information`. This describes the source evidence and is independent
@@ -61,6 +62,15 @@ per-100-g values, or convert citrulline-malate mass into pure L-citrulline. The
 database keeps optional evidence columns nullable but requires each complete
 fact, unit and review CHECK predicate to evaluate `IS TRUE`; a SQL NULL result
 does not satisfy a required condition.
+
+Structured creatine records `ingredient_form` as a normalized declared form,
+for example `creatine_monohydrate`. When the source names creatine but does not
+state its form, use the explicit `creatine_form_not_disclosed` value. For a
+quantified fact, the normalized mg value and original quantity describe the mass
+of that declared ingredient form. They do not represent a pure-creatine
+equivalent and do not populate the legacy `creatine_per_serving_g` field. The
+forward-only NUT-03B migration must be present before structured creatine rows
+can be stored or applied; older product-only candidates continue to work.
 
 ## Accepted evidence
 
@@ -102,8 +112,8 @@ is an integer serving count.
 OCR is an additional evidence path, not an approval or database-write path. It
 uses Windows Media OCR locally after `sharp` has decoded, bounded and normalized
 the selected JPG, PNG or WebP image. It does not use cloud OCR, Supabase, the
-verified-data importer or product update code. OCR extraction for the three new
-pre-workout fields remains outside NUT-02B; structured candidates enter only
+verified-data importer or product update code. OCR extraction for the structured
+pre-workout fields remains outside the current path; structured candidates enter only
 through reviewed, explicit TEST ONLY fixtures until a later authorized step.
 
 Create `tmp/nutrition-ocr-batch-1/pages.json` with this exact schema (one to ten
@@ -533,7 +543,9 @@ production-owner PostgreSQL transaction. It validates
 the existing production project identity, locks the reviewed rows, and rolls the
 whole batch back on an error. It can update the seven legacy numeric nutrition
 fields on products and the exact variant override, plus atomic structured
-`caffeine`, `citrulline` and `beta_alanine` facts on the exact variant override.
+`caffeine`, `citrulline`, `beta_alanine` and declared-form `creatine` facts on the
+exact variant override. Structured creatine updates do not change the legacy
+`creatine_per_serving_g` field or its existing calculations.
 Unknown or conflicting structured evidence cannot overwrite an existing
 determinate approved fact. The path cannot update offers, retailer products, GTIN, prices,
 `unit_pricing_verified`, or any pending/rejected candidate. Product-scoped facts

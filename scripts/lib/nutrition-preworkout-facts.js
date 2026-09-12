@@ -1,7 +1,9 @@
+const CREATINE_CANDIDATE_FIELD = "creatine_declared_form_per_serving_mg";
 const PREWORKOUT_INGREDIENT_FIELDS = Object.freeze([
   "caffeine_per_serving_mg",
   "citrulline_per_serving_mg",
   "beta_alanine_per_serving_mg",
+  CREATINE_CANDIDATE_FIELD,
 ]);
 const PREWORKOUT_FIELD_SET = new Set(PREWORKOUT_INGREDIENT_FIELDS);
 const INFORMATION_STATES = Object.freeze([
@@ -14,10 +16,13 @@ const INFORMATION_STATES = Object.freeze([
 const INFORMATION_STATE_SET = new Set(INFORMATION_STATES);
 const CITRULLINE_FORMS = Object.freeze(["l_citrulline", "citrulline_malate"]);
 const CITRULLINE_FORM_SET = new Set(CITRULLINE_FORMS);
+const CREATINE_FORM_NOT_DISCLOSED = "creatine_form_not_disclosed";
+const CREATINE_FORM_PATTERN = /^creatine_[a-z0-9]+(?:_[a-z0-9]+)*$/;
 const TARGET_FIELD_BY_CANDIDATE_FIELD = Object.freeze({
   caffeine_per_serving_mg: "caffeine",
   citrulline_per_serving_mg: "citrulline",
   beta_alanine_per_serving_mg: "beta_alanine",
+  [CREATINE_CANDIDATE_FIELD]: "creatine",
 });
 
 function finitePositive(value) {
@@ -35,6 +40,10 @@ function normalizedMg(value, unit) {
 
 function ratioValid(value) {
   return value === null || (typeof value === "string" && /^[1-9][0-9]*(?:\.[0-9]+)?:[1-9][0-9]*(?:\.[0-9]+)?$/.test(value));
+}
+
+function creatineFormValid(value) {
+  return typeof value === "string" && value.length <= 100 && CREATINE_FORM_PATTERN.test(value);
 }
 
 function validatePreworkoutIngredientCandidate(candidate) {
@@ -67,6 +76,10 @@ function validatePreworkoutIngredientCandidate(candidate) {
     if (present && !CITRULLINE_FORM_SET.has(form)) return false;
     if (!present && form !== null) return false;
     if (!ratioValid(ratio) || (ratio !== null && form !== "citrulline_malate")) return false;
+  } else if (candidate.field_name === CREATINE_CANDIDATE_FIELD) {
+    if (present && !creatineFormValid(form)) return false;
+    if (!present && form !== null) return false;
+    if (ratio !== null) return false;
   } else if (form !== null || ratio !== null) {
     return false;
   }
@@ -94,6 +107,9 @@ function ingredientFact(candidate, approvedValue = candidate.approved_value) {
       quantity_basis: "per_serving",
       serving_basis_text: candidate.serving_basis_text,
     });
+    if (candidate.field_name === CREATINE_CANDIDATE_FIELD) {
+      fact.amount_subject = "declared_ingredient_form";
+    }
     if (candidate.serving_basis_value != null) {
       fact.serving_basis_value = Number(candidate.serving_basis_value);
       fact.serving_basis_unit = candidate.serving_basis_unit;
@@ -108,6 +124,8 @@ function ingredientFact(candidate, approvedValue = candidate.approved_value) {
 
 module.exports = {
   CITRULLINE_FORMS,
+  CREATINE_CANDIDATE_FIELD,
+  CREATINE_FORM_NOT_DISCLOSED,
   INFORMATION_STATES,
   PREWORKOUT_INGREDIENT_FIELDS,
   PREWORKOUT_FIELD_SET,

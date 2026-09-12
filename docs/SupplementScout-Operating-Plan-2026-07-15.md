@@ -1,11 +1,11 @@
 # SupplementScout Operating Plan
 
-**Status date:** 11 September 2026<br>
+**Status date:** 12 September 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
-**11 September 2026 nutrition planning checkpoint:**
+**12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
 closed with explicit gaps over its frozen 25-variant/21-product pilot. NUT-02 is
@@ -36,10 +36,17 @@ the 15 g serving. It is not a `creatine_per_serving_g` candidate because that
 legacy numeric field cannot retain ingredient form or the five required
 information states, and monohydrate mass is not treated as pure-creatine mass.
 No OCR, source fetch, candidate write, approval or catalogue fact was created.
-The next step is NUT-03B: extend the existing structured
-candidate/review/plan/apply path with creatine form, explicit-serving quantity and
-the same five states in an isolated, separately authorized implementation; no
-candidate storage or production migration belongs to that step.
+NUT-03B is `CODE COMPLETE`: the same structured candidate/review/plan/apply path
+now accepts `creatine_declared_form_per_serving_mg`, all five information states,
+the declared form or an explicit undisclosed-form marker, original quantity/unit
+and exact serving. A quantified value is the mass of the declared ingredient
+form; legacy `creatine_per_serving_g` and its calculations are unchanged. The
+forward-only migration C is hash-bound and passes isolated PostgreSQL tests but
+remains unapplied, so production structured-creatine operations are explicitly
+blocked while the existing queue remains usable. The next step is NUT-03C: after
+separate owner authorization, apply migration C alone and perform read-only
+schema, queue and authenticated-panel verification. Candidate storage and pilot
+data writes remain outside that migration-only step.
 SEO-15 remains BLOCKED, the 16 September accrual check and conditional 24-25
 September reviews remain scheduled, and GYM HIGH remains owner-deferred.
 Guardian currently validates SEO, not nutrition.

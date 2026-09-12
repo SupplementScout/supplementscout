@@ -19,6 +19,10 @@ const preworkoutMigration = fs.readFileSync(path.join(
   process.cwd(), "supabase", "migrations",
   "20260911130000_add_nutrition_candidate_preworkout_facts.sql"
 ), "utf8").replace(/\s+/g, " ").trim().toLowerCase();
+const structuredCreatineMigration = fs.readFileSync(path.join(
+  process.cwd(), "supabase", "migrations",
+  "20260911150000_add_nutrition_candidate_structured_creatine.sql"
+), "utf8").replace(/\s+/g, " ").trim().toLowerCase();
 
 test("nutrition candidates migration is transactional and candidate-only", () => {
   assert.match(sql, /^begin;/);
@@ -112,4 +116,26 @@ test("NUT-02B migration models structured ingredient states without catalogue wr
   ]);
   assert.doesNotMatch(preworkoutMigration, /\b(?:insert into|update|delete from) public\.(?:products|product_variants)/);
   assert.match(preworkoutMigration, /commit;$/);
+});
+
+test("NUT-03B migration adds structured declared-form creatine without changing legacy creatine", () => {
+  assert.match(structuredCreatineMigration, /^begin;/);
+  assert.match(structuredCreatineMigration, /'creatine_per_serving_g'/);
+  assert.match(structuredCreatineMigration, /'creatine_declared_form_per_serving_mg'/);
+  assert.match(structuredCreatineMigration, /ingredient_form ~ '\^creatine_\[a-z0-9\]\+/);
+  assert.match(structuredCreatineMigration, /source_quantity_unit in \('mg', 'g'\)/);
+  assert.match(structuredCreatineMigration, /quantity_basis = 'per_serving'/);
+  for (const state of ["present_with_amount", "present_amount_not_disclosed", "confirmed_absent", "no_information", "conflicting_information"]) {
+    assert.match(structuredCreatineMigration, new RegExp(`'${state}'`));
+  }
+  const hardenedChecks = [...structuredCreatineMigration.matchAll(
+    /add constraint (nutrition_candidates_[a-z_]+) check \(\([\s\S]*?\) is true\)(?:,|;)/g,
+  )].map((match) => match[1]);
+  assert.deepEqual(hardenedChecks, [
+    "nutrition_candidates_proposed_field_check",
+    "nutrition_candidates_fact_shape_check",
+    "nutrition_candidates_proposed_unit_check",
+  ]);
+  assert.doesNotMatch(structuredCreatineMigration, /\b(?:insert into|update|delete from) public\.(?:products|product_variants)/);
+  assert.match(structuredCreatineMigration, /commit;$/);
 });

@@ -58,6 +58,10 @@ const FIELD_REVIEW_ORDER: Record<string, number> = {
   serving_count_verified: 4,
   protein_per_serving_g: 5,
   creatine_per_serving_g: 6,
+  caffeine_per_serving_mg: 7,
+  citrulline_per_serving_mg: 8,
+  beta_alanine_per_serving_mg: 9,
+  creatine_declared_form_per_serving_mg: 10,
 };
 
 const CONFIDENCE_ORDER = { HIGH: 0, MEDIUM: 1, LOW: 2 } as const;

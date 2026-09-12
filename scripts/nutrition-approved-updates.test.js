@@ -198,6 +198,48 @@ test("structured planner preserves amount, original unit, serving and citrulline
   });
 });
 
+test("structured creatine plan preserves declared-form mass without changing legacy creatine semantics", () => {
+  const input = pumpInputs();
+  const creatine = structuredCandidate({
+    proposed_field: "creatine_declared_form_per_serving_mg",
+    proposed_value: 3000,
+    approved_value: 3000,
+    source_quantity_value: 3,
+    ingredient_form: "creatine_monohydrate",
+    evidence_snippet: "TEST ONLY: Creatine Monohydrate | 3 g",
+  });
+  const plan = buildApprovedPlan([creatine], input.products, runId,
+    "2026-09-11T19:00:00.000Z", input.variants);
+  assert.equal(plan.status, "READY_FOR_EXPLICIT_APPLY");
+  assert.deepEqual(plan.variant_updates[0].changes.creatine.after, {
+    information_state: "present_with_amount",
+    amount_per_serving_mg: 3000,
+    source_quantity_value: 3,
+    source_quantity_unit: "g",
+    quantity_basis: "per_serving",
+    serving_basis_text: "Per 15 g serving",
+    amount_subject: "declared_ingredient_form",
+    serving_basis_value: 15,
+    serving_basis_unit: "g",
+    ingredient_form: "creatine_monohydrate",
+  });
+  assert.equal("creatine_per_serving_g" in plan.variant_updates[0].after_nutrition_override, false);
+  assert.equal(validatePlan(plan), plan);
+
+  const changedForm = structuredCandidate({
+    proposed_field: "creatine_declared_form_per_serving_mg",
+    proposed_value: 3000,
+    approved_value: 3000,
+    source_quantity_value: 3,
+    ingredient_form: "creatine_form_not_disclosed",
+  });
+  assert.notDeepEqual(
+    buildApprovedPlan([changedForm], input.products, runId,
+      "2026-09-11T19:00:00.000Z", input.variants).variant_updates[0].changes.creatine.after,
+    plan.variant_updates[0].changes.creatine.after,
+  );
+});
+
 test("all ingredient information states remain distinct from candidate review", () => {
   for (const state of [
     "present_amount_not_disclosed", "confirmed_absent", "no_information", "conflicting_information",
@@ -229,6 +271,37 @@ test("unknown and conflicting information cannot overwrite an approved fact", ()
     });
     const plan = buildApprovedPlan([row], input.products, runId,
       "2026-09-11T18:00:00.000Z", input.variants);
+    assert.equal(plan.status, "BLOCKED");
+    assert.ok(plan.blockers.some((item) => item.code === "INDETERMINATE_STATE_WOULD_OVERWRITE_APPROVED_FACT"));
+  }
+});
+
+test("unknown and conflicting creatine cannot overwrite a determinate exact-variant fact", () => {
+  for (const state of ["no_information", "conflicting_information"]) {
+    const input = pumpInputs({
+      creatine: {
+        information_state: "present_with_amount",
+        amount_per_serving_mg: 3000,
+        amount_subject: "declared_ingredient_form",
+        ingredient_form: "creatine_monohydrate",
+      },
+    });
+    const row = structuredCandidate({
+      proposed_field: "creatine_declared_form_per_serving_mg",
+      proposed_value: null,
+      approved_value: null,
+      proposed_unit: null,
+      information_state: state,
+      source_quantity_value: null,
+      source_quantity_unit: null,
+      quantity_basis: null,
+      serving_basis_value: null,
+      serving_basis_unit: null,
+      serving_basis_text: null,
+      ingredient_form: null,
+    });
+    const plan = buildApprovedPlan([row], input.products, runId,
+      "2026-09-11T19:00:00.000Z", input.variants);
     assert.equal(plan.status, "BLOCKED");
     assert.ok(plan.blockers.some((item) => item.code === "INDETERMINATE_STATE_WOULD_OVERWRITE_APPROVED_FACT"));
   }
@@ -664,4 +737,59 @@ test("controlled apply blocks NUT-02B facts before its schema and writes the exa
   assert.equal(JSON.parse(write.values[0]).caffeine.amount_per_serving_mg, 200);
   assert.equal(write.values[1], "726");
   assert.equal(write.values[2], "38");
+});
+
+test("controlled apply blocks structured creatine before NUT-03B and preserves declared-form mass after it", async () => {
+  const input = pumpInputs();
+  const reviewed = structuredCandidate({
+    proposed_field: "creatine_declared_form_per_serving_mg",
+    proposed_value: 3000,
+    approved_value: 3000,
+    source_quantity_value: 3,
+    ingredient_form: "creatine_monohydrate",
+  });
+  const plan = buildApprovedPlan([reviewed], input.products, runId,
+    "2026-09-11T19:00:00.000Z", input.variants);
+  const environment = {
+    SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF: "aftboxmrdgyhizicfsfu",
+    SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL: "redacted",
+  };
+  const clientFor = (matchingConstraints) => ({
+    queries: [],
+    async query(sql, values) {
+      const compact = String(sql).replace(/\s+/g, " ").trim();
+      this.queries.push({ sql: compact, values });
+      if (compact.startsWith("select current_user")) return { rows: [{ current_user: "postgres", safe_update: null }] };
+      if (compact.includes("retailer_catalogue_actual_database_target")) return { rows: [{ target: { target_environment: "PRODUCTION", project_ref: "aftboxmrdgyhizicfsfu", database_identity: "supplementscout-production:aftboxmrdgyhizicfsfu" } }] };
+      if (compact.includes("from information_schema.columns")) return { rows: [
+        "product_variant_id", "source_archive_uri", "information_state", "source_quantity_value",
+        "source_quantity_unit", "quantity_basis", "serving_basis_value", "serving_basis_unit",
+        "serving_basis_text", "ingredient_form", "ingredient_ratio",
+      ].map((column_name) => ({ column_name })) };
+      if (compact.includes("from pg_constraint")) return { rows: [{ matching_constraints: matchingConstraints }] };
+      if (compact.includes("from public.nutrition_candidates")) return { rows: [reviewed] };
+      if (compact.includes("from public.products")) return { rows: [{ id: "38" }] };
+      if (compact.startsWith("select id,product_id,nutrition_override")) return { rows: [{ id: "726", product_id: "38", nutrition_override: {} }] };
+      if (compact.startsWith("update public.product_variants")) return { rowCount: 1, rows: [{ id: "726" }] };
+      return { rows: [] };
+    },
+  });
+
+  const before = clientFor(0);
+  await assert.rejects(
+    apply.applyTransaction(plan, { client: before, environment }),
+    /NUT-03B structured creatine migration is required/,
+  );
+  assert.equal(before.queries.some((query) => query.sql.startsWith("update public.product_variants")), false);
+  assert.ok(before.queries.some((query) => query.sql === "rollback"));
+
+  const after = clientFor(3);
+  const result = await apply.applyTransaction(plan, { client: after, environment });
+  assert.deepEqual(result.changed_variants, [{ product_id: "38", product_variant_id: "726", fields: ["creatine"] }]);
+  const write = after.queries.find((query) => query.sql.startsWith("update public.product_variants"));
+  const fact = JSON.parse(write.values[0]).creatine;
+  assert.equal(fact.amount_per_serving_mg, 3000);
+  assert.equal(fact.amount_subject, "declared_ingredient_form");
+  assert.equal(fact.ingredient_form, "creatine_monohydrate");
+  assert.equal("creatine_per_serving_g" in JSON.parse(write.values[0]), false);
 });

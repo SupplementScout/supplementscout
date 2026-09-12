@@ -10,12 +10,14 @@ const { loadEnvFile } = require("./apply-selected-migrations");
 const { CONTRACTS, validateDatabaseOwner } = require("./supabase-migration-selector");
 const {
   PREWORKOUT_TARGET_FIELDS,
+  CREATINE_CANDIDATE_FIELD,
   TARGET_FIELD_BY_CANDIDATE_FIELD,
   ingredientFact,
 } = (() => {
   const facts = require("./lib/nutrition-preworkout-facts");
   return {
     PREWORKOUT_TARGET_FIELDS: Object.values(facts.TARGET_FIELD_BY_CANDIDATE_FIELD),
+    CREATINE_CANDIDATE_FIELD: facts.CREATINE_CANDIDATE_FIELD,
     TARGET_FIELD_BY_CANDIDATE_FIELD: facts.TARGET_FIELD_BY_CANDIDATE_FIELD,
     ingredientFact: facts.ingredientFact,
   };
@@ -188,6 +190,21 @@ async function nutritionCandidateSchemaState(client) {
   return { variantProvenanceAvailable: variantCount === variantColumns.length, preworkoutFactsAvailable: factCount === factColumns.length };
 }
 
+async function structuredCreatineSchemaAvailable(client) {
+  const result = await client.query(`
+    select count(*)::int matching_constraints
+    from pg_constraint
+    where conrelid='public.nutrition_candidates'::regclass
+      and conname=any($1::text[])
+      and position($2 in pg_get_constraintdef(oid)) > 0
+  `, [[
+    "nutrition_candidates_proposed_field_check",
+    "nutrition_candidates_fact_shape_check",
+    "nutrition_candidates_proposed_unit_check",
+  ], CREATINE_CANDIDATE_FIELD]);
+  return Number(result.rows[0]?.matching_constraints) === 3;
+}
+
 async function applyTransaction(plan, dependencies = {}) {
   const envFile = dependencies.envFile || path.join(
     process.env.USERPROFILE || "",
@@ -228,6 +245,12 @@ async function applyTransaction(plan, dependencies = {}) {
     );
     if (hasStructuredUpdates && !preworkoutFactsAvailable) {
       fail("NUT-02B candidate schema migration is required before structured ingredient updates can be applied");
+    }
+    const hasStructuredCreatineUpdates = plan.variant_updates.some((variant) =>
+      Object.hasOwn(variant.changes, "creatine")
+    );
+    if (hasStructuredCreatineUpdates && !await structuredCreatineSchemaAvailable(client)) {
+      fail("NUT-03B structured creatine migration is required before creatine updates can be applied");
     }
     const candidateResult = await client.query(preworkoutFactsAvailable ? `
       select id,product_id,product_variant_id,proposed_field,proposed_value,approved_value,proposed_unit,status,run_id,candidate_fingerprint,source_file_sha256,source_archive_uri,
@@ -347,4 +370,14 @@ if (require.main === module) {
   });
 }
 
-module.exports = { applyTransaction, nutritionCandidateSchemaState, parseArgs, planSourceEvidence, runCli, verifyCandidates, verifyProducts, verifyVariants };
+module.exports = {
+  applyTransaction,
+  nutritionCandidateSchemaState,
+  parseArgs,
+  planSourceEvidence,
+  runCli,
+  structuredCreatineSchemaAvailable,
+  verifyCandidates,
+  verifyProducts,
+  verifyVariants,
+};

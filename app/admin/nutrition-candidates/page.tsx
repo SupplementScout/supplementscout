@@ -167,6 +167,7 @@ function CandidateCard({
 }) {
   const structured = candidate.information_state !== null;
   const quantified = candidate.information_state === "present_with_amount";
+  const declaredFormMass = candidate.proposed_field === "creatine_declared_form_per_serving_mg";
   const warnings = candidate.warning_flags.length
     ? candidate.warning_flags.join(", ")
     : "None";
@@ -207,7 +208,7 @@ function CandidateCard({
               State: {candidate.information_state}
               {quantified ? (
                 <>
-                  <br />Normalized: {candidate.proposed_value} mg per serving
+                  <br />{declaredFormMass ? "Declared-form mass" : "Normalized"}: {candidate.proposed_value} mg per serving
                   <br />Source amount: {candidate.source_quantity_value} {candidate.source_quantity_unit}
                   <br />Serving basis: {candidate.serving_basis_text}
                   {candidate.serving_basis_value
@@ -418,7 +419,7 @@ export default async function NutritionCandidatesPage({
               Nutrition candidate review
             </h1>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-600">
-              Review numeric source evidence only. Approval records a review decision and never updates verified product data.
+              Review source evidence and structured ingredient states. Approval records a review decision and never updates verified product data.
             </p>
           </div>
         </div>

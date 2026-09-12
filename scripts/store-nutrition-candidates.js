@@ -11,6 +11,7 @@ const {
   validateSourceUrl,
 } = require("./lib/nutrition-candidates");
 const {
+  CREATINE_CANDIDATE_FIELD,
   PREWORKOUT_FIELD_SET,
   validatePreworkoutIngredientCandidate,
 } = require("./lib/nutrition-preworkout-facts");
@@ -35,6 +36,13 @@ function optionalPositiveId(value) {
 
 function fail(message) {
   throw new Error(message);
+}
+
+function isPreNut03bCreatineConstraint(error) {
+  return Boolean(error && String(error.code || "") === "23514" &&
+    /nutrition_candidates_(?:proposed_field_check|fact_shape_check|proposed_unit_check)/i.test(
+      `${error.constraint || ""} ${error.message || ""}`,
+    ));
 }
 
 function resolveArtifactInsideTmp(file, cwd = process.cwd()) {
@@ -162,6 +170,10 @@ async function storeRows(rows, dependencies = {}) {
   let currentRows = rows;
   let current = await write(currentRows);
   if (!current.error) return;
+  if (rows.some((row) => row.proposed_field === CREATINE_CANDIDATE_FIELD) &&
+      isPreNut03bCreatineConstraint(current.error)) {
+    fail("NUT-03B structured creatine migration is required before creatine candidates can be stored");
+  }
   if (isMissingNutritionPreworkoutFactColumn(current.error)) {
     if (rows.some((row) => row.information_state !== null)) {
       fail("NUT-02B candidate schema migration is required before structured ingredient candidates can be stored");

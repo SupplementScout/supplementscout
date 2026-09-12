@@ -4,6 +4,7 @@ const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
 const { buildArtifact, sealCandidate, sha256 } = require("./lib/nutrition-candidates");
+const { CREATINE_CANDIDATE_FIELD } = require("./lib/nutrition-preworkout-facts");
 const { parseArgs, runCli, storeRows, validateArtifact } = require("./store-nutrition-candidates");
 
 function artifactFixture(directory) {
@@ -139,6 +140,50 @@ test("structured candidates preserve state, source units, serving basis and citr
   assert.notEqual(changedState.candidate_fingerprint, artifact.candidates[0].candidate_fingerprint);
 });
 
+test("structured creatine preserves declared-form mass, explicit serving and all five states", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "candidate-store-creatine-"));
+  test.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const quantifiedArtifact = artifactFixture(directory);
+  quantifiedArtifact.candidates = [structuredCandidate(quantifiedArtifact, {
+    field_name: CREATINE_CANDIDATE_FIELD,
+    value_numeric: 3000,
+    source_quantity_value: 3,
+    ingredient_form: "creatine_monohydrate",
+  })];
+  const [quantified] = validateArtifact(quantifiedArtifact);
+  assert.equal(quantified.proposed_field, CREATINE_CANDIDATE_FIELD);
+  assert.equal(quantified.proposed_value, 3000);
+  assert.equal(quantified.source_quantity_value, 3);
+  assert.equal(quantified.source_quantity_unit, "g");
+  assert.equal(quantified.serving_basis_value, 15);
+  assert.equal(quantified.ingredient_form, "creatine_monohydrate");
+
+  for (const state of [
+    "present_amount_not_disclosed",
+    "confirmed_absent",
+    "no_information",
+    "conflicting_information",
+  ]) {
+    const artifact = artifactFixture(directory);
+    artifact.candidates = [structuredCandidate(artifact, {
+      field_name: CREATINE_CANDIDATE_FIELD,
+      information_state: state,
+      value_numeric: null,
+      unit: null,
+      basis: null,
+      source_quantity_value: null,
+      source_quantity_unit: null,
+      serving_basis_value: null,
+      serving_basis_unit: null,
+      serving_basis_text: null,
+      ingredient_form: state === "present_amount_not_disclosed"
+        ? "creatine_form_not_disclosed"
+        : null,
+    })];
+    assert.equal(validateArtifact(artifact)[0].information_state, state);
+  }
+});
+
 test("structured candidate validation rejects per-100g, guessed or contradictory combinations", () => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "candidate-store-invalid-facts-"));
   test.after(() => fs.rmSync(directory, { recursive: true, force: true }));
@@ -147,6 +192,9 @@ test("structured candidate validation rejects per-100g, guessed or contradictory
     { value_numeric: 201 },
     { serving_basis_value: 0 },
     { field_name: "citrulline_per_serving_mg", ingredient_form: "citrulline_malate", ingredient_ratio: "0:1" },
+    { field_name: CREATINE_CANDIDATE_FIELD, ingredient_form: null },
+    { field_name: CREATINE_CANDIDATE_FIELD, ingredient_form: "monohydrate" },
+    { field_name: CREATINE_CANDIDATE_FIELD, ingredient_form: "creatine_monohydrate", ingredient_ratio: "1:1" },
     { information_state: "confirmed_absent", value_numeric: 0, unit: "mg" },
   ]) {
     const artifact = artifactFixture(directory);
@@ -253,4 +301,21 @@ test("structured storage fails closed before NUT-02B and old NUT-02A rows still 
   assert.equal(attempts.length, 2);
   assert.equal(Object.hasOwn(attempts[1][0], "information_state"), false);
   assert.equal(attempts[1][0].product_variant_id, "726");
+});
+
+test("structured creatine storage reports the exact missing NUT-03B migration", async () => {
+  const missing = {
+    code: "23514",
+    message: 'new row violates check constraint "nutrition_candidates_proposed_field_check"',
+  };
+  let writes = 0;
+  const supabase = { from() { return { async upsert() { writes += 1; return { error: missing }; } }; } };
+  await assert.rejects(storeRows([{
+    candidate_fingerprint: "c".repeat(64),
+    proposed_field: CREATINE_CANDIDATE_FIELD,
+    product_variant_id: "726",
+    source_archive_uri: "supabase-storage://nutrition-sources/test.jpg",
+    information_state: "present_with_amount",
+  }], { supabase }), /NUT-03B structured creatine migration is required/);
+  assert.equal(writes, 1);
 });
