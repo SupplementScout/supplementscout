@@ -244,16 +244,13 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records A and B as deployed and structured creatine as pending", () => {
+test("production records nutrition migrations A, B and C as deployed", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{
-    filename: NUTRITION_STRUCTURED_CREATINE_MIGRATION,
-    sha256: NUTRITION_STRUCTURED_CREATINE_SHA256,
-  }]);
-  assert.equal(contract.ledgerCount, 206);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 207);
   assert.equal(
     contract.ledgerFingerprint,
-    "532359913006127f8b83c549091f0d95714cd052cafec5f1d366a4bfab0f1e45",
+    "13cd90548a2ee62b5ba065258a48ac123798c41141c1680dd051161fa356791b",
   );
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_VARIANT_PROVENANCE_MIGRATION)), NUTRITION_VARIANT_PROVENANCE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_PREWORKOUT_FACTS_MIGRATION)), NUTRITION_PREWORKOUT_FACTS_SHA256);
@@ -383,15 +380,13 @@ test("production binds its exact ledger with the nutrition migrations deployed",
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 206);
+  assert.equal(result.ledger_count, 207);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 207);
-  assert.deepEqual(result.pending_files, [NUTRITION_STRUCTURED_CREATINE_MIGRATION]);
-  assert.equal(result.pending_file, NUTRITION_STRUCTURED_CREATINE_MIGRATION);
-  assert.equal(result.pending_sha256, NUTRITION_STRUCTURED_CREATINE_SHA256);
-  assert.deepEqual(result.pending_sha256s, {
-    [NUTRITION_STRUCTURED_CREATINE_MIGRATION]: NUTRITION_STRUCTURED_CREATINE_SHA256,
-  });
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_CATALOGUE_COUNT_MIGRATION)), REVIEWED_CATALOGUE_COUNT_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_ENERGY_MIGRATION)), REVIEWED_ENERGY_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_EXISTING_CATEGORIES_MIGRATION)), REVIEWED_EXISTING_CATEGORIES_SHA256);

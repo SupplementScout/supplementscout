@@ -69,8 +69,9 @@ state its form, use the explicit `creatine_form_not_disclosed` value. For a
 quantified fact, the normalized mg value and original quantity describe the mass
 of that declared ingredient form. They do not represent a pure-creatine
 equivalent and do not populate the legacy `creatine_per_serving_g` field. The
-forward-only NUT-03B migration must be present before structured creatine rows
-can be stored or applied; older product-only candidates continue to work.
+forward-only NUT-03B migration is present in production. Environments without it
+reject structured creatine storage and apply with the specific migration-required
+error; older product-only candidates continue to work.
 
 ## Accepted evidence
 

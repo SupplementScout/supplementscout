@@ -41,15 +41,19 @@ now accepts `creatine_declared_form_per_serving_mg`, all five information states
 the declared form or an explicit undisclosed-form marker, original quantity/unit
 and exact serving. A quantified value is the mass of the declared ingredient
 form; legacy `creatine_per_serving_g` and its calculations are unchanged. The
-forward-only migration C is hash-bound and passes isolated PostgreSQL tests but
-remains unapplied, so production structured-creatine operations are explicitly
-blocked while the existing queue remains usable. The next step is NUT-03C: after
-separate owner authorization, apply migration C alone and perform read-only
-schema, queue and authenticated-panel verification. Candidate storage and pilot
-data writes remain outside that migration-only step. Code commit `29479ff` is on
-`origin/main`; its Vercel production deployment succeeded, and the authenticated
-panel returned 200 without an unavailable notice. A fresh read-only PostgreSQL
-check found migration C absent and the existing 695-row queue readable.
+forward-only migration C is now `LIVE VERIFIED` in production. The controlled
+selector applied only its normalized hash
+`dc9a411d19cb3547b508744c6dab21fb0df741e30f896cb186de6b38639ce28c`, advancing
+the production migration ledger from 206 to 207 entries. A fresh read-only
+connection verified its history row and all three validated, NULL-safe CHECKs;
+the 695-row queue, 170 batch items, five catalogue counts and exact product `38` /
+variant `726` row digests remained unchanged. The authenticated panel returned
+200 with the expected review sections and no unavailable notice. This readback
+proves production schema and availability; the isolated PostgreSQL suite remains
+the write-behavior proof. No candidate, approval, apply, OCR, source fetch or
+catalogue write occurred. The next step is NUT-03D: prepare a new version of the
+existing product `38` / variant `726` artifact with a fifth pending declared-form
+creatine candidate and validate it without a database write.
 SEO-15 remains BLOCKED, the 16 September accrual check and conditional 24-25
 September reviews remain scheduled, and GYM HIGH remains owner-deferred.
 Guardian currently validates SEO, not nutrition.

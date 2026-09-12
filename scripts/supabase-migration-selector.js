@@ -293,9 +293,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 206,
+    ledgerCount: 207,
     ledgerFingerprint:
-      "532359913006127f8b83c549091f0d95714cd052cafec5f1d366a4bfab0f1e45",
+      "13cd90548a2ee62b5ba065258a48ac123798c41141c1680dd051161fa356791b",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -312,12 +312,7 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260911150000_add_nutrition_candidate_structured_creatine.sql",
-        sha256: "dc9a411d19cb3547b508744c6dab21fb0df741e30f896cb186de6b38639ce28c",
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
 });
 
