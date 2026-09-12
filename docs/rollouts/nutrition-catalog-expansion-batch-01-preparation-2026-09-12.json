@@ -1,0 +1,1502 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-expansion-preparation-summary-v1",
+  "generated_at": "2026-09-12T19:17:49.068Z",
+  "target_environment_read": {
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "database_oid": "5",
+    "database_identity": "supplementscout-production:aftboxmrdgyhizicfsfu",
+    "target_environment": "PRODUCTION",
+    "database_system_identifier": "7642734024280108049"
+  },
+  "frozen_scope": {
+    "exact_variants": 44,
+    "ready_variants": 16,
+    "unresolved_variants": 28,
+    "ready_candidate_facts": 80,
+    "unique_tables_identified": 5,
+    "unique_tables_qualified_and_archived": 3,
+    "variants_supported_by_qualified_tables": 16,
+    "technical_candidate_artifacts": 3
+  },
+  "historical_boundaries": {
+    "pilot": "7/25 complete; 18 unresolved unchanged",
+    "stinger": "separate completed demonstration",
+    "gym_high": "all other products remain owner-deferred",
+    "completed_variants_excluded": [
+      "726",
+      "760",
+      "761",
+      "815",
+      "816",
+      "1383",
+      "1384",
+      "1047"
+    ]
+  },
+  "context_manifest": {
+    "path": "tmp/nutrition-catalog-expansion-2026-09-12/source-context-manifest.json",
+    "sha256": "74d499888be00fdcaa68081b814878d163c2ae761f0abfcc02b6e6d8c37c2aed",
+    "archive_uri": "supabase-storage://nutrition-sources/manifests/nut-03/catalog-expansion-batch-01/applied-common-tables/74d499888be00fdcaa68081b814878d163c2ae761f0abfcc02b6e6d8c37c2aed/source-context-manifest.json"
+  },
+  "source_tables": [
+    {
+      "product_id": "38",
+      "status": "QUALIFIED_REUSED_ARCHIVE",
+      "image_sha256": "1182c1aeab46a72ff38709e349d692ab18d45355d87549574d30bb04f3067842",
+      "archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/38/1182c1aeab46a72ff38709e349d692ab18d45355d87549574d30bb04f3067842/38-Applied-Pump-3G-375g.jpg",
+      "official_url": "https://appliednutrition.uk/products/pump-3g-375g",
+      "supporting_variants": 2
+    },
+    {
+      "product_id": "481",
+      "status": "QUALIFIED_REUSED_ARCHIVE",
+      "image_sha256": "77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513",
+      "archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/481/77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513/481-Applied-ABE-Pump-500g.jpg",
+      "official_url": "https://appliednutrition.uk/products/abe-pump-pre-workout-500g-caffeine-free",
+      "supporting_variants": 3
+    },
+    {
+      "product_id": "881",
+      "status": "QUALIFIED_REUSED_ARCHIVE",
+      "image_sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+      "archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+      "official_url": "https://appliednutrition.uk/products/abe-all-black-everything-375g",
+      "supporting_variants": 11
+    },
+    {
+      "product_id": "789",
+      "status": "IDENTIFIED_NOT_COLLECTED_PERMISSION_REQUIRED",
+      "official_url": "https://per4mbetter.com/products/pre-workout-stim-blackberry",
+      "supporting_variants_if_cleared": 17
+    },
+    {
+      "product_id": "882",
+      "status": "IDENTIFIED_NOT_COLLECTED_PERMISSION_REQUIRED",
+      "official_url": "https://per4mbetter.com/products/cola-bottle-energy-preworkout",
+      "supporting_variants_if_cleared": 11
+    }
+  ],
+  "artifacts": [
+    {
+      "product_id": "38",
+      "path": "tmp/nutrition-catalog-expansion-2026-09-12/candidate-artifact/nutrition-candidates-ncr1-catalog-expansion-applied-38-20260912.json",
+      "sha256": "4a0f39961bc0a3f59cfaf64922e5b861049e88ddbbed23917a8f65f745a00458",
+      "artifact_fingerprint": "2a084f3089bf0517b95a3d5663ea5e703450e56753949708186b39584c030418",
+      "variants": 2,
+      "candidates": 10,
+      "unique_candidate_fingerprints": 10,
+      "bytes": 23976,
+      "dry_run": {
+        "result": "PASS",
+        "mode": "DRY_RUN_NO_DATABASE",
+        "destination": "nutrition_candidates",
+        "candidate_rows": 10,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "481",
+      "path": "tmp/nutrition-catalog-expansion-2026-09-12/candidate-artifact/nutrition-candidates-ncr1-catalog-expansion-applied-481-20260912.json",
+      "sha256": "914ad50e6979b3c8d93904dce6b639de8ba926e6386867bd66493f94a6499ba6",
+      "artifact_fingerprint": "1638cf68fa67d580927ae4767d753e89b9d2a63f03fe95e1fc93cc9faee4ebc0",
+      "variants": 3,
+      "candidates": 15,
+      "unique_candidate_fingerprints": 15,
+      "bytes": 36244,
+      "dry_run": {
+        "result": "PASS",
+        "mode": "DRY_RUN_NO_DATABASE",
+        "destination": "nutrition_candidates",
+        "candidate_rows": 15,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "881",
+      "path": "tmp/nutrition-catalog-expansion-2026-09-12/candidate-artifact/nutrition-candidates-ncr1-catalog-expansion-applied-881-20260912.json",
+      "sha256": "c01ffb9094aaa916e6bad1804763ee8febf668944f67ebd50f01e57f193af9a4",
+      "artifact_fingerprint": "4066d7a087950e240835c6753b66851d8a04efd217c3769026c6ca94c2f1f48f",
+      "variants": 11,
+      "candidates": 55,
+      "unique_candidate_fingerprints": 55,
+      "bytes": 122902,
+      "dry_run": {
+        "result": "PASS",
+        "mode": "DRY_RUN_NO_DATABASE",
+        "destination": "nutrition_candidates",
+        "candidate_rows": 55,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    }
+  ],
+  "ready": [
+    {
+      "product_id": "38",
+      "product_variant_id": "727",
+      "product_name": "Applied Nutrition Pump 3G Pre-Workout 375g",
+      "variant_name": "Icy Blue Razz / 375g",
+      "status": "READY_FOR_OWNER_DECISION",
+      "source_table_sha256": "1182c1aeab46a72ff38709e349d692ab18d45355d87549574d30bb04f3067842",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/38/1182c1aeab46a72ff38709e349d692ab18d45355d87549574d30bb04f3067842/38-Applied-Pump-3G-375g.jpg",
+      "source_basis": "wspólna tabela producenta dla wariantów produktu",
+      "proposed_facts": {
+        "beta_alanine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 2000,
+          "unit": "mg",
+          "source_quantity_value": 2,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 2 Scoops (15 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "caffeine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 250,
+          "unit": "mg",
+          "source_quantity_value": 250,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 2 Scoops (15 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "citrulline_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 5000,
+          "unit": "mg",
+          "source_quantity_value": 5,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 2 Scoops (15 g)",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": "2:1"
+        },
+        "serving_size_g": {
+          "information_state": "present_with_amount",
+          "value_numeric": 15,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "creatine_declared_form_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 3000,
+          "unit": "mg",
+          "source_quantity_value": 3,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 2 Scoops (15 g)",
+          "ingredient_form": "creatine_monohydrate",
+          "ingredient_ratio": null
+        }
+      }
+    },
+    {
+      "product_id": "38",
+      "product_variant_id": "728",
+      "product_name": "Applied Nutrition Pump 3G Pre-Workout 375g",
+      "variant_name": "Rainbow Unicorn / 375g",
+      "status": "READY_FOR_OWNER_DECISION",
+      "source_table_sha256": "1182c1aeab46a72ff38709e349d692ab18d45355d87549574d30bb04f3067842",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/38/1182c1aeab46a72ff38709e349d692ab18d45355d87549574d30bb04f3067842/38-Applied-Pump-3G-375g.jpg",
+      "source_basis": "wspólna tabela producenta dla wariantów produktu",
+      "proposed_facts": {
+        "beta_alanine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 2000,
+          "unit": "mg",
+          "source_quantity_value": 2,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 2 Scoops (15 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "caffeine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 250,
+          "unit": "mg",
+          "source_quantity_value": 250,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 2 Scoops (15 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "citrulline_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 5000,
+          "unit": "mg",
+          "source_quantity_value": 5,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 2 Scoops (15 g)",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": "2:1"
+        },
+        "serving_size_g": {
+          "information_state": "present_with_amount",
+          "value_numeric": 15,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "creatine_declared_form_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 3000,
+          "unit": "mg",
+          "source_quantity_value": 3,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 2 Scoops (15 g)",
+          "ingredient_form": "creatine_monohydrate",
+          "ingredient_ratio": null
+        }
+      }
+    },
+    {
+      "product_id": "481",
+      "product_variant_id": "762",
+      "product_name": "Applied Nutrition ABE Pump 500g",
+      "variant_name": "Slush Puppie / 500g",
+      "status": "READY_FOR_OWNER_DECISION",
+      "source_table_sha256": "77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/481/77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513/481-Applied-ABE-Pump-500g.jpg",
+      "source_basis": "wspólna tabela producenta dla wariantów produktu",
+      "proposed_facts": {
+        "beta_alanine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 3000,
+          "unit": "mg",
+          "source_quantity_value": 3000,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "caffeine_per_serving_mg": {
+          "information_state": "confirmed_absent",
+          "value_numeric": null,
+          "unit": null,
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "citrulline_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 10000,
+          "unit": "mg",
+          "source_quantity_value": 10000,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": "2:1"
+        },
+        "creatine_declared_form_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 3000,
+          "unit": "mg",
+          "source_quantity_value": 3000,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+          "ingredient_form": "creatine_monohydrate",
+          "ingredient_ratio": null
+        },
+        "serving_size_g": {
+          "information_state": "present_with_amount",
+          "value_numeric": 25,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        }
+      }
+    },
+    {
+      "product_id": "481",
+      "product_variant_id": "763",
+      "product_name": "Applied Nutrition ABE Pump 500g",
+      "variant_name": "Tigers Blood / 500g",
+      "status": "READY_FOR_OWNER_DECISION",
+      "source_table_sha256": "77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/481/77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513/481-Applied-ABE-Pump-500g.jpg",
+      "source_basis": "wspólna tabela producenta dla wariantów produktu",
+      "proposed_facts": {
+        "beta_alanine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 3000,
+          "unit": "mg",
+          "source_quantity_value": 3000,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "caffeine_per_serving_mg": {
+          "information_state": "confirmed_absent",
+          "value_numeric": null,
+          "unit": null,
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "citrulline_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 10000,
+          "unit": "mg",
+          "source_quantity_value": 10000,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": "2:1"
+        },
+        "creatine_declared_form_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 3000,
+          "unit": "mg",
+          "source_quantity_value": 3000,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+          "ingredient_form": "creatine_monohydrate",
+          "ingredient_ratio": null
+        },
+        "serving_size_g": {
+          "information_state": "present_with_amount",
+          "value_numeric": 25,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        }
+      }
+    },
+    {
+      "product_id": "481",
+      "product_variant_id": "3603",
+      "product_name": "Applied Nutrition ABE Pump 500g",
+      "variant_name": "Slush Puppie Twisted Citrus / 500g",
+      "status": "READY_FOR_OWNER_DECISION",
+      "source_table_sha256": "77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/481/77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513/481-Applied-ABE-Pump-500g.jpg",
+      "source_basis": "wspólna tabela producenta dla wariantów produktu",
+      "proposed_facts": {
+        "beta_alanine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 3000,
+          "unit": "mg",
+          "source_quantity_value": 3000,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "caffeine_per_serving_mg": {
+          "information_state": "confirmed_absent",
+          "value_numeric": null,
+          "unit": null,
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "citrulline_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 10000,
+          "unit": "mg",
+          "source_quantity_value": 10000,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": "2:1"
+        },
+        "creatine_declared_form_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 3000,
+          "unit": "mg",
+          "source_quantity_value": 3000,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+          "ingredient_form": "creatine_monohydrate",
+          "ingredient_ratio": null
+        },
+        "serving_size_g": {
+          "information_state": "present_with_amount",
+          "value_numeric": 25,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        }
+      }
+    },
+    {
+      "product_id": "881",
+      "product_variant_id": "1385",
+      "product_name": "ABE All Black Everything Pre-Workout 375g",
+      "variant_name": "Candy Ice Blast / 375g",
+      "status": "READY_FOR_OWNER_DECISION",
+      "source_table_sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+      "source_basis": "wspólna tabela producenta dla wariantów produktu",
+      "proposed_facts": {
+        "beta_alanine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 2000,
+          "unit": "mg",
+          "source_quantity_value": 2,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "caffeine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 200,
+          "unit": "mg",
+          "source_quantity_value": 200,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "citrulline_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 4000,
+          "unit": "mg",
+          "source_quantity_value": 4,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": "2:1"
+        },
+        "creatine_declared_form_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 3000,
+          "unit": "mg",
+          "source_quantity_value": 3,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": "creatine_monohydrate",
+          "ingredient_ratio": null
+        },
+        "serving_size_g": {
+          "information_state": "present_with_amount",
+          "value_numeric": 12.5,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        }
+      }
+    },
+    {
+      "product_id": "881",
+      "product_variant_id": "1386",
+      "product_name": "ABE All Black Everything Pre-Workout 375g",
+      "variant_name": "Cherry Cola / 375g",
+      "status": "READY_FOR_OWNER_DECISION",
+      "source_table_sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+      "source_basis": "wspólna tabela producenta dla wariantów produktu",
+      "proposed_facts": {
+        "beta_alanine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 2000,
+          "unit": "mg",
+          "source_quantity_value": 2,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "caffeine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 200,
+          "unit": "mg",
+          "source_quantity_value": 200,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "citrulline_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 4000,
+          "unit": "mg",
+          "source_quantity_value": 4,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": "2:1"
+        },
+        "creatine_declared_form_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 3000,
+          "unit": "mg",
+          "source_quantity_value": 3,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": "creatine_monohydrate",
+          "ingredient_ratio": null
+        },
+        "serving_size_g": {
+          "information_state": "present_with_amount",
+          "value_numeric": 12.5,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        }
+      }
+    },
+    {
+      "product_id": "881",
+      "product_variant_id": "1387",
+      "product_name": "ABE All Black Everything Pre-Workout 375g",
+      "variant_name": "Cool Watermelon / 375g",
+      "status": "READY_FOR_OWNER_DECISION",
+      "source_table_sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+      "source_basis": "wspólna tabela producenta dla wariantów produktu",
+      "proposed_facts": {
+        "beta_alanine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 2000,
+          "unit": "mg",
+          "source_quantity_value": 2,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "caffeine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 200,
+          "unit": "mg",
+          "source_quantity_value": 200,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "citrulline_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 4000,
+          "unit": "mg",
+          "source_quantity_value": 4,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": "2:1"
+        },
+        "creatine_declared_form_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 3000,
+          "unit": "mg",
+          "source_quantity_value": 3,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": "creatine_monohydrate",
+          "ingredient_ratio": null
+        },
+        "serving_size_g": {
+          "information_state": "present_with_amount",
+          "value_numeric": 12.5,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        }
+      }
+    },
+    {
+      "product_id": "881",
+      "product_variant_id": "1388",
+      "product_name": "ABE All Black Everything Pre-Workout 375g",
+      "variant_name": "Energy Flavour / 375g",
+      "status": "READY_FOR_OWNER_DECISION",
+      "source_table_sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+      "source_basis": "wspólna tabela producenta dla wariantów produktu",
+      "proposed_facts": {
+        "beta_alanine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 2000,
+          "unit": "mg",
+          "source_quantity_value": 2,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "caffeine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 200,
+          "unit": "mg",
+          "source_quantity_value": 200,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "citrulline_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 4000,
+          "unit": "mg",
+          "source_quantity_value": 4,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": "2:1"
+        },
+        "creatine_declared_form_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 3000,
+          "unit": "mg",
+          "source_quantity_value": 3,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": "creatine_monohydrate",
+          "ingredient_ratio": null
+        },
+        "serving_size_g": {
+          "information_state": "present_with_amount",
+          "value_numeric": 12.5,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        }
+      }
+    },
+    {
+      "product_id": "881",
+      "product_variant_id": "1389",
+      "product_name": "ABE All Black Everything Pre-Workout 375g",
+      "variant_name": "Strwberry Mojito / 375g",
+      "status": "READY_FOR_OWNER_DECISION",
+      "source_table_sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+      "source_basis": "wspólna tabela producenta dla wariantów produktu",
+      "proposed_facts": {
+        "beta_alanine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 2000,
+          "unit": "mg",
+          "source_quantity_value": 2,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "caffeine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 200,
+          "unit": "mg",
+          "source_quantity_value": 200,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "citrulline_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 4000,
+          "unit": "mg",
+          "source_quantity_value": 4,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": "2:1"
+        },
+        "creatine_declared_form_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 3000,
+          "unit": "mg",
+          "source_quantity_value": 3,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": "creatine_monohydrate",
+          "ingredient_ratio": null
+        },
+        "serving_size_g": {
+          "information_state": "present_with_amount",
+          "value_numeric": 12.5,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        }
+      }
+    },
+    {
+      "product_id": "881",
+      "product_variant_id": "1390",
+      "product_name": "ABE All Black Everything Pre-Workout 375g",
+      "variant_name": "Sour Apple / 375g",
+      "status": "READY_FOR_OWNER_DECISION",
+      "source_table_sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+      "source_basis": "wspólna tabela producenta dla wariantów produktu",
+      "proposed_facts": {
+        "beta_alanine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 2000,
+          "unit": "mg",
+          "source_quantity_value": 2,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "caffeine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 200,
+          "unit": "mg",
+          "source_quantity_value": 200,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "citrulline_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 4000,
+          "unit": "mg",
+          "source_quantity_value": 4,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": "2:1"
+        },
+        "creatine_declared_form_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 3000,
+          "unit": "mg",
+          "source_quantity_value": 3,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": "creatine_monohydrate",
+          "ingredient_ratio": null
+        },
+        "serving_size_g": {
+          "information_state": "present_with_amount",
+          "value_numeric": 12.5,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        }
+      }
+    },
+    {
+      "product_id": "881",
+      "product_variant_id": "1391",
+      "product_name": "ABE All Black Everything Pre-Workout 375g",
+      "variant_name": "Sour Gummy Bear / 375g",
+      "status": "READY_FOR_OWNER_DECISION",
+      "source_table_sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+      "source_basis": "wspólna tabela producenta dla wariantów produktu",
+      "proposed_facts": {
+        "beta_alanine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 2000,
+          "unit": "mg",
+          "source_quantity_value": 2,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "caffeine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 200,
+          "unit": "mg",
+          "source_quantity_value": 200,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "citrulline_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 4000,
+          "unit": "mg",
+          "source_quantity_value": 4,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": "2:1"
+        },
+        "creatine_declared_form_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 3000,
+          "unit": "mg",
+          "source_quantity_value": 3,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": "creatine_monohydrate",
+          "ingredient_ratio": null
+        },
+        "serving_size_g": {
+          "information_state": "present_with_amount",
+          "value_numeric": 12.5,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        }
+      }
+    },
+    {
+      "product_id": "881",
+      "product_variant_id": "1392",
+      "product_name": "ABE All Black Everything Pre-Workout 375g",
+      "variant_name": "Slush Puppie / 375g",
+      "status": "READY_FOR_OWNER_DECISION",
+      "source_table_sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+      "source_basis": "wspólna tabela producenta dla wariantów produktu",
+      "proposed_facts": {
+        "beta_alanine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 2000,
+          "unit": "mg",
+          "source_quantity_value": 2,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "caffeine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 200,
+          "unit": "mg",
+          "source_quantity_value": 200,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "citrulline_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 4000,
+          "unit": "mg",
+          "source_quantity_value": 4,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": "2:1"
+        },
+        "creatine_declared_form_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 3000,
+          "unit": "mg",
+          "source_quantity_value": 3,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": "creatine_monohydrate",
+          "ingredient_ratio": null
+        },
+        "serving_size_g": {
+          "information_state": "present_with_amount",
+          "value_numeric": 12.5,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        }
+      }
+    },
+    {
+      "product_id": "881",
+      "product_variant_id": "1393",
+      "product_name": "ABE All Black Everything Pre-Workout 375g",
+      "variant_name": "Icy Blue Raz / 375g",
+      "status": "READY_FOR_OWNER_DECISION",
+      "source_table_sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+      "source_basis": "wspólna tabela producenta dla wariantów produktu",
+      "proposed_facts": {
+        "beta_alanine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 2000,
+          "unit": "mg",
+          "source_quantity_value": 2,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "caffeine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 200,
+          "unit": "mg",
+          "source_quantity_value": 200,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "citrulline_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 4000,
+          "unit": "mg",
+          "source_quantity_value": 4,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": "2:1"
+        },
+        "creatine_declared_form_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 3000,
+          "unit": "mg",
+          "source_quantity_value": 3,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": "creatine_monohydrate",
+          "ingredient_ratio": null
+        },
+        "serving_size_g": {
+          "information_state": "present_with_amount",
+          "value_numeric": 12.5,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        }
+      }
+    },
+    {
+      "product_id": "881",
+      "product_variant_id": "1394",
+      "product_name": "ABE All Black Everything Pre-Workout 375g",
+      "variant_name": "Fruit punch / 375g",
+      "status": "READY_FOR_OWNER_DECISION",
+      "source_table_sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+      "source_basis": "wspólna tabela producenta dla wariantów produktu",
+      "proposed_facts": {
+        "beta_alanine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 2000,
+          "unit": "mg",
+          "source_quantity_value": 2,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "caffeine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 200,
+          "unit": "mg",
+          "source_quantity_value": 200,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "citrulline_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 4000,
+          "unit": "mg",
+          "source_quantity_value": 4,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": "2:1"
+        },
+        "creatine_declared_form_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 3000,
+          "unit": "mg",
+          "source_quantity_value": 3,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": "creatine_monohydrate",
+          "ingredient_ratio": null
+        },
+        "serving_size_g": {
+          "information_state": "present_with_amount",
+          "value_numeric": 12.5,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        }
+      }
+    },
+    {
+      "product_id": "881",
+      "product_variant_id": "1395",
+      "product_name": "ABE All Black Everything Pre-Workout 375g",
+      "variant_name": "Twisted citrus / 375g",
+      "status": "READY_FOR_OWNER_DECISION",
+      "source_table_sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+      "source_basis": "wspólna tabela producenta dla wariantów produktu",
+      "proposed_facts": {
+        "beta_alanine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 2000,
+          "unit": "mg",
+          "source_quantity_value": 2,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "caffeine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 200,
+          "unit": "mg",
+          "source_quantity_value": 200,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        },
+        "citrulline_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 4000,
+          "unit": "mg",
+          "source_quantity_value": 4,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": "2:1"
+        },
+        "creatine_declared_form_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value_numeric": 3000,
+          "unit": "mg",
+          "source_quantity_value": 3,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+          "ingredient_form": "creatine_monohydrate",
+          "ingredient_ratio": null
+        },
+        "serving_size_g": {
+          "information_state": "present_with_amount",
+          "value_numeric": 12.5,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null
+        }
+      }
+    }
+  ],
+  "unresolved": [
+    {
+      "product_id": "789",
+      "product_variant_id": "1084",
+      "product_name": "Per4m Pre-Workout Stim 570g",
+      "variant_name": "Blackberry / 570g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/pre-workout-stim-blackberry",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "789",
+      "product_variant_id": "1085",
+      "product_name": "Per4m Pre-Workout Stim 570g",
+      "variant_name": "Berry Blast / 570g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/pre-workout-stim-blackberry",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "789",
+      "product_variant_id": "1086",
+      "product_name": "Per4m Pre-Workout Stim 570g",
+      "variant_name": "Cola Bottles / 570g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/pre-workout-stim-blackberry",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "789",
+      "product_variant_id": "1087",
+      "product_name": "Per4m Pre-Workout Stim 570g",
+      "variant_name": "Lemon Sherbet Fizz / 570g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/pre-workout-stim-blackberry",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "789",
+      "product_variant_id": "1088",
+      "product_name": "Per4m Pre-Workout Stim 570g",
+      "variant_name": "Orange & Mango / 570g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/pre-workout-stim-blackberry",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "789",
+      "product_variant_id": "1089",
+      "product_name": "Per4m Pre-Workout Stim 570g",
+      "variant_name": "Passionfruit / 570g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/pre-workout-stim-blackberry",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "789",
+      "product_variant_id": "1090",
+      "product_name": "Per4m Pre-Workout Stim 570g",
+      "variant_name": "Pink Lemonade / 570g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/pre-workout-stim-blackberry",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "789",
+      "product_variant_id": "1091",
+      "product_name": "Per4m Pre-Workout Stim 570g",
+      "variant_name": "Rainbow Candy / 570g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/pre-workout-stim-blackberry",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "789",
+      "product_variant_id": "1092",
+      "product_name": "Per4m Pre-Workout Stim 570g",
+      "variant_name": "Watermelon Lemonade / 570g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/pre-workout-stim-blackberry",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "789",
+      "product_variant_id": "1137",
+      "product_name": "Per4m Pre-Workout Stim 570g",
+      "variant_name": "Strawberry Lime / 570g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/pre-workout-stim-blackberry",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "789",
+      "product_variant_id": "3588",
+      "product_name": "Per4m Pre-Workout Stim 570g",
+      "variant_name": "Blue Raspberry / 570g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/pre-workout-stim-blackberry",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "789",
+      "product_variant_id": "3589",
+      "product_name": "Per4m Pre-Workout Stim 570g",
+      "variant_name": "Cherry Fizz / 570g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/pre-workout-stim-blackberry",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "789",
+      "product_variant_id": "3590",
+      "product_name": "Per4m Pre-Workout Stim 570g",
+      "variant_name": "Cola Bottle / 570g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/pre-workout-stim-blackberry",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "789",
+      "product_variant_id": "3591",
+      "product_name": "Per4m Pre-Workout Stim 570g",
+      "variant_name": "Fizzy Bubblegum Bottles / 570g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/pre-workout-stim-blackberry",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "789",
+      "product_variant_id": "3592",
+      "product_name": "Per4m Pre-Workout Stim 570g",
+      "variant_name": "Gummy Worms / 570g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/pre-workout-stim-blackberry",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "789",
+      "product_variant_id": "3593",
+      "product_name": "Per4m Pre-Workout Stim 570g",
+      "variant_name": "Orange Mango / 570g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/pre-workout-stim-blackberry",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "789",
+      "product_variant_id": "3594",
+      "product_name": "Per4m Pre-Workout Stim 570g",
+      "variant_name": "Passion Fruit / 570g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/pre-workout-stim-blackberry",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "882",
+      "product_variant_id": "1396",
+      "product_name": "PER4M Energy Pre Workout 390g",
+      "variant_name": "Cherry Fizz / 390g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/cola-bottle-energy-preworkout",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "882",
+      "product_variant_id": "1397",
+      "product_name": "PER4M Energy Pre Workout 390g",
+      "variant_name": "Pineapple Rings / 390g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/cola-bottle-energy-preworkout",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "882",
+      "product_variant_id": "1398",
+      "product_name": "PER4M Energy Pre Workout 390g",
+      "variant_name": "Gummy Worms / 390g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/cola-bottle-energy-preworkout",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "882",
+      "product_variant_id": "1399",
+      "product_name": "PER4M Energy Pre Workout 390g",
+      "variant_name": "Cola Bottles / 390g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/cola-bottle-energy-preworkout",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "882",
+      "product_variant_id": "1400",
+      "product_name": "PER4M Energy Pre Workout 390g",
+      "variant_name": "Pech Sweets / 390g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/cola-bottle-energy-preworkout",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "882",
+      "product_variant_id": "1401",
+      "product_name": "PER4M Energy Pre Workout 390g",
+      "variant_name": "Raspberry Cherry / 390g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/cola-bottle-energy-preworkout",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "882",
+      "product_variant_id": "1402",
+      "product_name": "PER4M Energy Pre Workout 390g",
+      "variant_name": "Strawberry Blackcurrant / 390g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/cola-bottle-energy-preworkout",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "882",
+      "product_variant_id": "1403",
+      "product_name": "PER4M Energy Pre Workout 390g",
+      "variant_name": "Fizzy Bubblegum Bottles / 390g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/cola-bottle-energy-preworkout",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "882",
+      "product_variant_id": "1404",
+      "product_name": "PER4M Energy Pre Workout 390g",
+      "variant_name": "Lemon Sherbert Fizz / 390g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/cola-bottle-energy-preworkout",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "882",
+      "product_variant_id": "1405",
+      "product_name": "PER4M Energy Pre Workout 390g",
+      "variant_name": "Blue Raspberry / 390g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/cola-bottle-energy-preworkout",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    },
+    {
+      "product_id": "882",
+      "product_variant_id": "1406",
+      "product_name": "PER4M Energy Pre Workout 390g",
+      "variant_name": "Blackberry / 390g",
+      "status": "WRITTEN_PERMISSION_REQUIRED",
+      "identified_official_url": "https://per4mbetter.com/products/cola-bottle-energy-preworkout",
+      "missing_reason": "PER4M terms require express written permission to reproduce/copy the service and prohibit spider/crawl/scrape; no source was collected or archived.",
+      "required_evidence_or_action": "Obtain written manufacturer permission, then confirm this exact flavour in the official selector, market/formula version, serving basis and common-table stability before transcription."
+    }
+  ],
+  "validation": {
+    "result": "PASS",
+    "commands": [
+      "npm run nutrition:candidates:store -- --dry-run --input=tmp/nutrition-catalog-expansion-2026-09-12/candidate-artifact/nutrition-candidates-ncr1-catalog-expansion-applied-38-20260912.json",
+      "npm run nutrition:candidates:store -- --dry-run --input=tmp/nutrition-catalog-expansion-2026-09-12/candidate-artifact/nutrition-candidates-ncr1-catalog-expansion-applied-481-20260912.json",
+      "npm run nutrition:candidates:store -- --dry-run --input=tmp/nutrition-catalog-expansion-2026-09-12/candidate-artifact/nutrition-candidates-ncr1-catalog-expansion-applied-881-20260912.json"
+    ],
+    "artifact_count": 3,
+    "candidate_rows": 80,
+    "unique_candidate_fingerprints": 80,
+    "product_updates": 0,
+    "database_writes": 0
+  },
+  "status": "READY_FOR_ONE_OWNER_DECISION",
+  "policy_decision": {
+    "organizational_owner_package_limit": 50,
+    "technical_limits_retained": {
+      "collector_urls_per_batch": 10,
+      "candidate_rows_per_artifact": 100,
+      "artifact_max_bytes": 10000000
+    },
+    "common_table_rule": "Read one official manufacturer table once for one formula version and market, then bind it separately to listed flavours when serving basis matches and the page shows no separate table or tracked-active dose change.",
+    "candy_ice_blast_correction": "Breathe Easy is presented as a flavour addition and is not, by itself, evidence that caffeine, citrulline, beta-alanine or creatine doses differ. Existing applied data was not changed."
+  },
+  "access_and_collection": {
+    "applied_context": {
+      "successful_read_requests": 19,
+      "technical_batches": [
+        7,
+        10,
+        1,
+        1
+      ],
+      "each_batch_within_limit": true,
+      "discarded_no_write_preflight_attempts": 2,
+      "discarded_preflight_requests": 5,
+      "raw_page_archives_created": 0,
+      "label_downloads": 0,
+      "retained_label_copies_created": 0
+    },
+    "per4m": {
+      "robots_url": "https://per4mbetter.com/robots.txt",
+      "robots_sha256": "9ddcc8d3d2b515a98834b809cbbc832500c68b31115dd252773b26cfb5abceab",
+      "robots_product_paths": "ALLOW",
+      "terms_url": "https://per4mbetter.com/pages/terms-conditions",
+      "terms_checked_at": "2026-09-12",
+      "terms_result": "WRITTEN_PERMISSION_REQUIRED_AND_SCRAPING_PROHIBITED",
+      "decision": "No collector, table download, private archive or transcription was run for products 789 or 882."
+    }
+  },
+  "archive_readback": {
+    "result": "FRESH_PROCESS_READBACK_PASS",
+    "target_environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "bucket": "nutrition-sources",
+    "bucket_public": false,
+    "context": {
+      "object_path": "manifests/nut-03/catalog-expansion-batch-01/applied-common-tables/74d499888be00fdcaa68081b814878d163c2ae761f0abfcc02b6e6d8c37c2aed/source-context-manifest.json",
+      "durable_uri": "supabase-storage://nutrition-sources/manifests/nut-03/catalog-expansion-batch-01/applied-common-tables/74d499888be00fdcaa68081b814878d163c2ae761f0abfcc02b6e6d8c37c2aed/source-context-manifest.json",
+      "sha256": "74d499888be00fdcaa68081b814878d163c2ae761f0abfcc02b6e6d8c37c2aed",
+      "bytes": 15562
+    },
+    "labels": [
+      {
+        "product_id": "38",
+        "object_path": "labels/nut-01/batch-01/applied-nutrition/38/1182c1aeab46a72ff38709e349d692ab18d45355d87549574d30bb04f3067842/38-Applied-Pump-3G-375g.jpg",
+        "sha256": "1182c1aeab46a72ff38709e349d692ab18d45355d87549574d30bb04f3067842",
+        "bytes": 216866,
+        "result": "PASS"
+      },
+      {
+        "product_id": "481",
+        "object_path": "labels/nut-01/batch-01/applied-nutrition/481/77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513/481-Applied-ABE-Pump-500g.jpg",
+        "sha256": "77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513",
+        "bytes": 142670,
+        "result": "PASS"
+      },
+      {
+        "product_id": "881",
+        "object_path": "labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+        "sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+        "bytes": 235968,
+        "result": "PASS"
+      }
+    ],
+    "storage_writes": 0,
+    "database_writes": 0
+  },
+  "current_status": "NUT-03_IN_PROGRESS",
+  "next_step": "One owner decision on controlled store -> review -> plan -> apply for the unchanged 80-candidate Applied Nutrition set in these three artifacts; PER4M remains excluded until written manufacturer permission and exact selector/formula checks are available."
+}

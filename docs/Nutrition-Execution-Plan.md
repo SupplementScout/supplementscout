@@ -18,6 +18,11 @@
   with the same five information states. Migration C is deployed in production.
   The frozen pilot has seven completed exact variants: `726`, `760`, `761`,
   `815`, `816`, `1383` and `1384`. This is 7 of 25, not the full pilot.
+- Catalogue expansion batch 01 is a separate frozen denominator of 44 exact
+  variants across five product families. Sixteen Applied Nutrition variants are
+  prepared in three validated artifacts; 28 PER4M variants are unresolved because
+  the current manufacturer terms require express written permission and prohibit
+  spider/crawl/scrape. No candidate from this expansion has been stored.
 - The exact GYM HIGH demonstration exception for product `411` / variant `1047`
   is also `LIVE VERIFIED`: candidates `701`-`705` were stored, reviewed and
   applied through the existing guarded path. Its bounded exception now also
@@ -406,7 +411,8 @@ implementation or any nutrition catalogue write.
 | NUT-03-APPLIED-REASSESSMENT | `LIVE VERIFIED` | Owner source-policy decision plus explicit store/review/plan/apply authorization of 12 September 2026 | Reassess and then carry only Applied Nutrition product `481` variants `760`/`761` and product `744` variants `815`/`816` through the guarded path. | The 20-row artifact and common-table context passed hash and duplicate checks. Candidates `706`-`725` each exist once and are approved. The plan SHA-256 `88c45c6f3afad3f2878ffc4b2ec7809af037acccdff39584a3f6f65c595145ec` has fingerprint `0179395d4f7ec10a0efb0795a23dce460e7630adefe21e480f0b3228f61a5484`, zero product updates and four exact variant updates. Controlled apply and independent readback match all four `after` objects; stale-plan replay fails closed with no second write. Public exact-variant pages show the facts, and the caffeine-free search groups the four qualifying variants into two product cards. See `docs/rollouts/nutrition-applied-shared-table-execution-2026-09-12.json`. |
 | NUT-03-APPLIED-881 | `LIVE VERIFIED` | Owner authorization of the unchanged 10-candidate artifact for product `881` | Carry only variants `1383` Baddy Berry and `1384` Bubblegum Crush through store/review/plan/apply using their retained shared manufacturer table and exact selected-flavour context. | Candidates `726`-`735` each exist once and are approved. Plan SHA-256 `3f19a7146db2bd9182316319b5bb4a09ac7c16947ac13727d2dcccf627d49ef6`, fingerprint `b1f666d6cf3ec7e726e80dbd6fd4986041720fee29cfac88848fb4734b1e53aa`, has zero product updates and two exact variant updates. Controlled apply and fresh readback match both complete `after` objects; stale-before replay is safely rejected with no second write. Both public exact-variant pages show the five facts and neither caffeinated variant appears in the caffeine-free filter. See `docs/rollouts/nutrition-applied-881-execution-2026-09-12.json`. |
 | NUT-03-DEMO-GH-STINGER | `LIVE VERIFIED` | Exact owner demonstration authorization, extended to store/review/plan/apply for the unchanged artifact | Carry one exact-variant package outside the frozen pilot through the existing guarded path for product 411 / variant 1047, Electric Red 425 g. Preserve two supplied images and a separate owner attestation; keep all other GYM HIGH work deferred. | Archive and dry-run evidence remained hash-bound. Production candidates 701-705 each exist once, were approved through authenticated review, and fed one zero-blocker variant-only plan. Controlled apply changed only variant 1047's five nutrition override facts. New read-only connections matched the complete after state, unchanged candidates/product/other variants and protected legacy fields; exact replay was safely rejected by the stale-before guard with no second write. |
-| NUT-03 | `IN PROGRESS` | Organizational packages up to 50 exact variants + separate owner write authorization | Review pilot evidence, quantities/units and exact applicability in one owner-decision package while retaining existing technical sub-batch limits; separately approve candidate storage, review, planning and guarded apply. | Product 38 / variant 726 and Applied Nutrition variants `760`, `761`, `815`, `816`, `1383` and `1384` bring applied pilot progress to 7 of 25. The 18 other variants retain their explicit permission, access, identity, package, version or official-source gaps and should not be audited again without new evidence. The separately completed Stinger demonstration remains outside the denominator. This does not establish full pilot coverage. |
+| NUT-03-CATALOG-BATCH-01 | `AWAITING OWNER DECISION` | NUT-03 deployed path + catalogue-expansion preparation authorization | Freeze and prepare at most 50 exact variants as one owner package, prioritising remaining variants in accepted source families and then available official tables. Preserve technical batches and access gates. | Separate denominator: 44 assessed variants. Three reused Applied tables support 16 variants and 80 dry-run-valid candidates in three artifacts. Two identified PER4M tables would cover 28 variants but were not collected because current terms require express written permission and prohibit scraping. No production candidate or catalogue write occurred. See `docs/rollouts/nutrition-catalog-expansion-batch-01-preparation-2026-09-12.json`. |
+| NUT-03 | `IN PROGRESS` | Organizational packages up to 50 exact variants + separate owner write authorization | Review pilot evidence, quantities/units and exact applicability in one owner-decision package while retaining existing technical sub-batch limits; separately approve candidate storage, review, planning and guarded apply. | Product 38 / variant 726 and Applied Nutrition variants `760`, `761`, `815`, `816`, `1383` and `1384` bring applied pilot progress to 7 of 25. The 18 other pilot variants retain their explicit gaps and should not be audited again without new evidence. The separately completed Stinger demonstration remains outside that denominator. Catalogue expansion batch 01 is separate: 16/44 prepared and 28/44 blocked before collection. NUT-03 and MVP remain open. |
 | NUT-04A | `LIVE VERIFIED` | Early owner authorization + exact applied facts | Reuse existing product pages and search to present exact-variant applied facts and add a confirmed caffeine-free filter. A fact is public only when an approved candidate for the same product/variant reconstructs the current override exactly. Expose only source kind; never private URI, reviewer metadata or raw archive material. | Commit 58c83cb deployed successfully. Public readback passed for variants 726, 727 and 1047, the exact-variant caffeine-free result, source redaction and the existing pre-workout link. A 390 x 844 browser check found no horizontal overflow; contract tests pass for variant switching, filter reset and pagination. NUT-03 and the frozen pilot remain unchanged. |
 | NUT-04 | `PLANNED` | NUT-03 closure + NUT-04A | Close the presentation/filter stage after the frozen pilot decisions are accounted for; retain NUT-04A's existing product/search mechanisms and evidence threshold. | NUT-04A tests and live variant-switch checks must prove confirmed absence included, caffeine present excluded, missing/conflicting facts never treated as absent. Document the final coverage denominator, limits, evidence and operations. Publish image copies only with established rights; otherwise link to source. MVP closes only here. |
 | NUT-05 | `DEFERRED` | NUT-04 closure | Subsequent bounded batches/categories in the same process | Review extraction yield, review time and missing-source rate before expansion; every batch has a fixed denominator and closure. No expansion of an active batch. |
@@ -1944,3 +1950,91 @@ pilot variants under the revised organizational batch limit:
   retain their recorded gaps and must not be audited again without new evidence,
   permission, an identity decision or an exact source. NUT-03 remains
   `IN PROGRESS`.
+
+## NUT-03 catalogue expansion batch 01 preparation
+
+12 September 2026, owner-authorized preparation of one catalogue expansion
+package with at most 50 exact variants:
+
+- This is a new, separately counted denominator. It does not change the frozen
+  pilot result of 7/25 completed and 18 unresolved, and it does not include the
+  separate completed Stinger demonstration. The frozen expansion scope contains
+  44 exact active variants from products `38`, `481`, `881`, `789` and `882`.
+  Completed variants `726`, `760`, `761`, `815`, `816`, `1383`, `1384` and
+  demonstration variant `1047` were excluded. All other GYM HIGH work remains
+  owner-deferred.
+- The official common-table rule remains the binding source rule: one table is
+  read once for one formula version and market and may bind each listed flavour
+  separately when the serving basis matches and no separate table or changed
+  tracked-active dose is shown. Candy Ice Blast's named Breathe Easy flavour
+  addition is not by itself evidence that caffeine, citrulline, beta-alanine or
+  creatine doses differ. No already applied value was changed.
+- A fresh forced-read-only production snapshot of project
+  `aftboxmrdgyhizicfsfu` confirmed 141 active unmerged Pre Workout products, 575
+  active variants, all 44 exact selected product/variant bindings, empty target
+  `nutrition_override` objects and no existing candidate for those exact targets.
+  Snapshot SHA-256 is
+  `97988cba55dd7f3ab92814577307bc46cd1c3c682de49b483959d595e4120dd6`.
+- Three retained Applied Nutrition tables qualify for 16 variants. Product `38`
+  variants `727` and `728` propose 15 g / 2 scoops, caffeine 250 mg,
+  beta-alanine 2000 mg from 2 g, citrulline malate 2:1 at 5000 mg declared
+  malate mass from 5 g and creatine monohydrate at 3000 mg declared monohydrate
+  mass from 3 g. Product `481` variants `762`, `763` and `3603` propose the full
+  25 g / 2-scoop column, confirmed caffeine absence, beta-alanine 3000 mg,
+  citrulline malate 2:1 at 10000 mg and creatine monohydrate 3000 mg. Product
+  `881` variants `1385`-`1395` propose 12.5 g / 1 scoop, caffeine 200 mg,
+  beta-alanine 2000 mg from 2 g, citrulline malate 2:1 at 4000 mg from 4 g and
+  creatine monohydrate 3000 mg from 3 g. Compound masses are not converted to
+  pure L-citrulline or pure creatine.
+- Selected-flavour context checks were divided into successful technical batches
+  of 7, 10, 1 and 1 requests. Two discarded no-write preflight attempts used five
+  requests while resolving exact manufacturer spelling (`Icy Blue Raz` and
+  `Tigers Blood`). No raw page snapshot or label image was downloaded or archived.
+  Product `481` retained one nutrition image across all three targets; product
+  `881` retained one across all eleven. The product `38` page lists its three
+  flavours, one product-level Nutritional Info section, the common 15 g serving
+  and common active amounts.
+- Existing archived images were not copied. Fresh private-bucket reads reproduced
+  image SHA-256 values
+  `1182c1aeab46a72ff38709e349d692ab18d45355d87549574d30bb04f3067842`
+  for product `38`,
+  `77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513`
+  for product `481` and
+  `02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87`
+  for product `881`. The new common-table context manifest was stored once with
+  `upsert: false` in private `nutrition-sources`; a fresh process read all 15562
+  bytes and reproduced SHA-256
+  `74d499888be00fdcaa68081b814878d163c2ae761f0abfcc02b6e6d8c37c2aed`.
+- The three ignored candidate artifacts contain 10, 15 and 55 pending proposals:
+  product `38` artifact SHA-256
+  `4a0f39961bc0a3f59cfaf64922e5b861049e88ddbbed23917a8f65f745a00458`
+  with fingerprint
+  `2a084f3089bf0517b95a3d5663ea5e703450e56753949708186b39584c030418`;
+  product `481` artifact SHA-256
+  `914ad50e6979b3c8d93904dce6b639de8ba926e6386867bd66493f94a6499ba6`
+  with fingerprint
+  `1638cf68fa67d580927ae4767d753e89b9d2a63f03fe95e1fc93cc9faee4ebc0`;
+  and product `881` artifact SHA-256
+  `c01ffb9094aaa916e6bad1804763ee8febf668944f67ebd50f01e57f193af9a4`
+  with fingerprint
+  `4066d7a087950e240835c6753b66851d8a04efd217c3769026c6ca94c2f1f48f`.
+  All 80 candidate fingerprints are unique. Each existing
+  `nutrition:candidates:store --dry-run` passed with zero product updates and no
+  database access or write.
+- The other two identified official tables remain unusable for preparation. The
+  current PER4M terms require express written permission to reproduce or copy the
+  service and separately prohibit spider/crawl/scrape. Although `robots.txt`
+  permits product paths, it does not override those terms. No PER4M collector,
+  image download, private archive or transcription was run. Product `789` has 17
+  exact selected catalogue variants and product `882` has 11; each needs written
+  manufacturer permission followed by exact selector, market/version, serving
+  and common-table checks. All 28 remain unresolved rather than receiving
+  inferred values.
+- The complete machine-readable owner package is
+  [nutrition-catalog-expansion-batch-01-preparation-2026-09-12.json](rollouts/nutrition-catalog-expansion-batch-01-preparation-2026-09-12.json).
+  Current expansion status is 44 assessed, 16 ready, 28 unresolved, five official
+  tables identified, three qualified retained tables supporting 16 variants and
+  80 dry-run-valid candidates. NUT-03 remains `IN PROGRESS`; one next step is one
+  owner decision on controlled store -> review -> plan -> apply for exactly the
+  unchanged 80-candidate Applied Nutrition set. PER4M remains outside that write
+  scope until the stated permission and evidence arrive.
