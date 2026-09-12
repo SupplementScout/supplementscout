@@ -1,0 +1,1107 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-applied-shared-table-controlled-execution-closeout-v1",
+  "status": "LIVE_VERIFIED",
+  "status_date": "2026-09-12",
+  "scope": {
+    "classification": "FROZEN_PILOT_EXACT_VARIANTS",
+    "products": [
+      "481",
+      "744"
+    ],
+    "variants": [
+      "760",
+      "761",
+      "815",
+      "816"
+    ],
+    "candidate_ids": [
+      "706",
+      "707",
+      "708",
+      "709",
+      "710",
+      "711",
+      "712",
+      "713",
+      "714",
+      "715",
+      "716",
+      "717",
+      "718",
+      "719",
+      "720",
+      "721",
+      "722",
+      "723",
+      "724",
+      "725"
+    ],
+    "frozen_pilot_completed_variants": 5,
+    "frozen_pilot_total_variants": 25,
+    "separate_demonstration_variants_completed": [
+      {
+        "product_id": "411",
+        "product_variant_id": "1047",
+        "name": "GYM HIGH The Stinger Electric Red 425 g"
+      }
+    ]
+  },
+  "authorization": {
+    "authorized_stages": [
+      "store",
+      "review",
+      "plan",
+      "apply"
+    ],
+    "artifact_path": "tmp/nutrition-applied-shared-table-2026-09-12/candidate-artifact/nutrition-candidates-ncr1-applied-shared-table-481-744-20260912.json",
+    "artifact_sha256": "312c4c8094be99d880c867bf85be9bb588179e4d0589addb540072878e694e30",
+    "artifact_fingerprint": "fd9418bf6dfde2b9edb51c9a92056a91e76a1feaf61e28dbe8f175adcc4831d9",
+    "expected_candidates": 20,
+    "allowed_variant_updates": 4,
+    "allowed_product_updates": 0
+  },
+  "production_target": {
+    "target_environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu"
+  },
+  "source_basis": {
+    "classification": "wspólna tabela producenta dla wariantów produktu",
+    "context_manifest_path": "tmp/nutrition-applied-shared-table-2026-09-12/source-context-manifest.json",
+    "context_manifest_sha256": "c64e0f9753585113f4be4f7e2ab7faf65b3a68454f5ac3834a6197ebcd988c20",
+    "durable_context_uri": "supabase-storage://nutrition-sources/manifests/nut-03/applied-nutrition/shared-table/c64e0f9753585113f4be4f7e2ab7faf65b3a68454f5ac3834a6197ebcd988c20/source-context-manifest.json",
+    "durable_context_readback": "FRESH_PROCESS_READBACK_PASS",
+    "retained_source_images": [
+      {
+        "product_id": "481",
+        "sha256": "77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513",
+        "copied_again": false
+      },
+      {
+        "product_id": "744",
+        "sha256": "047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c",
+        "copied_again": false
+      }
+    ],
+    "caffeine_absence_evidence": "Explicit manufacturer caffeine-free declaration retained separately in each caffeine candidate evidence snippet and selected-flavour page context."
+  },
+  "candidates": [
+    {
+      "id": "706",
+      "product_id": "481",
+      "product_variant_id": "760",
+      "field": "beta_alanine_per_serving_mg",
+      "approved_value": 3000,
+      "approved_unit": "mg",
+      "information_state": "present_with_amount",
+      "source_quantity_value": 3000,
+      "source_quantity_unit": "mg",
+      "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+      "ingredient_form": null,
+      "ingredient_ratio": null,
+      "status": "approved",
+      "reviewed_by": "admin-panel",
+      "candidate_fingerprint": "f790b6bc4ccc317671ffe31e2371e0078f3a177ab4dc87706f249d1b485e5f20",
+      "source_file_sha256": "77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513",
+      "source_url": "https://appliednutrition.uk/products/abe-pump-pre-workout-500g-caffeine-free",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/481/77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513/481-Applied-ABE-Pump-500g.jpg",
+      "caffeine_declaration": null
+    },
+    {
+      "id": "707",
+      "product_id": "481",
+      "product_variant_id": "760",
+      "field": "caffeine_per_serving_mg",
+      "approved_value": null,
+      "approved_unit": null,
+      "information_state": "confirmed_absent",
+      "source_quantity_value": null,
+      "source_quantity_unit": null,
+      "serving_basis_text": null,
+      "ingredient_form": null,
+      "ingredient_ratio": null,
+      "status": "approved",
+      "reviewed_by": "admin-panel",
+      "candidate_fingerprint": "f8fe201629edcaf141a591c41a3aecdb7af9cd7e127d8ea6de9382a3ec2d92ff",
+      "source_file_sha256": "77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513",
+      "source_url": "https://appliednutrition.uk/products/abe-pump-pre-workout-500g-caffeine-free",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/481/77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513/481-Applied-ABE-Pump-500g.jpg",
+      "caffeine_declaration": "Official product page title identifies ABE Pump Pre-Workout 500g as caffeine-free."
+    },
+    {
+      "id": "708",
+      "product_id": "481",
+      "product_variant_id": "760",
+      "field": "citrulline_per_serving_mg",
+      "approved_value": 10000,
+      "approved_unit": "mg",
+      "information_state": "present_with_amount",
+      "source_quantity_value": 10000,
+      "source_quantity_unit": "mg",
+      "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+      "ingredient_form": "citrulline_malate",
+      "ingredient_ratio": "2:1",
+      "status": "approved",
+      "reviewed_by": "admin-panel",
+      "candidate_fingerprint": "2246489c1a57e84472dd7fce959b34b7743c2752555e7c46c78f0e83b91a9569",
+      "source_file_sha256": "77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513",
+      "source_url": "https://appliednutrition.uk/products/abe-pump-pre-workout-500g-caffeine-free",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/481/77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513/481-Applied-ABE-Pump-500g.jpg",
+      "caffeine_declaration": null
+    },
+    {
+      "id": "709",
+      "product_id": "481",
+      "product_variant_id": "760",
+      "field": "creatine_declared_form_per_serving_mg",
+      "approved_value": 3000,
+      "approved_unit": "mg",
+      "information_state": "present_with_amount",
+      "source_quantity_value": 3000,
+      "source_quantity_unit": "mg",
+      "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+      "ingredient_form": "creatine_monohydrate",
+      "ingredient_ratio": null,
+      "status": "approved",
+      "reviewed_by": "admin-panel",
+      "candidate_fingerprint": "3117d6c90a58eb23e69725e48e801acf24d55d21b3059ceab57d5d6a467b35d7",
+      "source_file_sha256": "77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513",
+      "source_url": "https://appliednutrition.uk/products/abe-pump-pre-workout-500g-caffeine-free",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/481/77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513/481-Applied-ABE-Pump-500g.jpg",
+      "caffeine_declaration": null
+    },
+    {
+      "id": "710",
+      "product_id": "481",
+      "product_variant_id": "760",
+      "field": "serving_size_g",
+      "approved_value": 25,
+      "approved_unit": "g",
+      "information_state": null,
+      "source_quantity_value": null,
+      "source_quantity_unit": null,
+      "serving_basis_text": null,
+      "ingredient_form": null,
+      "ingredient_ratio": null,
+      "status": "approved",
+      "reviewed_by": "admin-panel",
+      "candidate_fingerprint": "ebf5a1e957559d630a8c815ea18a8be8c40c554d4809a547eefc4a4ecf891022",
+      "source_file_sha256": "77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513",
+      "source_url": "https://appliednutrition.uk/products/abe-pump-pre-workout-500g-caffeine-free",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/481/77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513/481-Applied-ABE-Pump-500g.jpg",
+      "caffeine_declaration": null
+    },
+    {
+      "id": "711",
+      "product_id": "481",
+      "product_variant_id": "761",
+      "field": "beta_alanine_per_serving_mg",
+      "approved_value": 3000,
+      "approved_unit": "mg",
+      "information_state": "present_with_amount",
+      "source_quantity_value": 3000,
+      "source_quantity_unit": "mg",
+      "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+      "ingredient_form": null,
+      "ingredient_ratio": null,
+      "status": "approved",
+      "reviewed_by": "admin-panel",
+      "candidate_fingerprint": "2abac2e15d1c5d545990a4585e79da55aa3647ec2f221a712450839ba22eec93",
+      "source_file_sha256": "77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513",
+      "source_url": "https://appliednutrition.uk/products/abe-pump-pre-workout-500g-caffeine-free",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/481/77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513/481-Applied-ABE-Pump-500g.jpg",
+      "caffeine_declaration": null
+    },
+    {
+      "id": "712",
+      "product_id": "481",
+      "product_variant_id": "761",
+      "field": "caffeine_per_serving_mg",
+      "approved_value": null,
+      "approved_unit": null,
+      "information_state": "confirmed_absent",
+      "source_quantity_value": null,
+      "source_quantity_unit": null,
+      "serving_basis_text": null,
+      "ingredient_form": null,
+      "ingredient_ratio": null,
+      "status": "approved",
+      "reviewed_by": "admin-panel",
+      "candidate_fingerprint": "09f1469e0fe33703faf9af15597a055d858b1fc9dd8f38c28dd427790327e2da",
+      "source_file_sha256": "77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513",
+      "source_url": "https://appliednutrition.uk/products/abe-pump-pre-workout-500g-caffeine-free",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/481/77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513/481-Applied-ABE-Pump-500g.jpg",
+      "caffeine_declaration": "Official product page title identifies ABE Pump Pre-Workout 500g as caffeine-free."
+    },
+    {
+      "id": "713",
+      "product_id": "481",
+      "product_variant_id": "761",
+      "field": "citrulline_per_serving_mg",
+      "approved_value": 10000,
+      "approved_unit": "mg",
+      "information_state": "present_with_amount",
+      "source_quantity_value": 10000,
+      "source_quantity_unit": "mg",
+      "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+      "ingredient_form": "citrulline_malate",
+      "ingredient_ratio": "2:1",
+      "status": "approved",
+      "reviewed_by": "admin-panel",
+      "candidate_fingerprint": "2c36be9348b91fc353746ca04bad41e949a2522987b156f4653945a9d37dfe82",
+      "source_file_sha256": "77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513",
+      "source_url": "https://appliednutrition.uk/products/abe-pump-pre-workout-500g-caffeine-free",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/481/77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513/481-Applied-ABE-Pump-500g.jpg",
+      "caffeine_declaration": null
+    },
+    {
+      "id": "714",
+      "product_id": "481",
+      "product_variant_id": "761",
+      "field": "creatine_declared_form_per_serving_mg",
+      "approved_value": 3000,
+      "approved_unit": "mg",
+      "information_state": "present_with_amount",
+      "source_quantity_value": 3000,
+      "source_quantity_unit": "mg",
+      "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+      "ingredient_form": "creatine_monohydrate",
+      "ingredient_ratio": null,
+      "status": "approved",
+      "reviewed_by": "admin-panel",
+      "candidate_fingerprint": "cff175252cb74c30a9e94ee4cc335fb77bac3636c3621e01d76fc0f631a32371",
+      "source_file_sha256": "77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513",
+      "source_url": "https://appliednutrition.uk/products/abe-pump-pre-workout-500g-caffeine-free",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/481/77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513/481-Applied-ABE-Pump-500g.jpg",
+      "caffeine_declaration": null
+    },
+    {
+      "id": "715",
+      "product_id": "481",
+      "product_variant_id": "761",
+      "field": "serving_size_g",
+      "approved_value": 25,
+      "approved_unit": "g",
+      "information_state": null,
+      "source_quantity_value": null,
+      "source_quantity_unit": null,
+      "serving_basis_text": null,
+      "ingredient_form": null,
+      "ingredient_ratio": null,
+      "status": "approved",
+      "reviewed_by": "admin-panel",
+      "candidate_fingerprint": "9cfa4b08fac2344b90a2bd0a3d1f4a46e10a60291157792b87ad1a00724c3e0d",
+      "source_file_sha256": "77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513",
+      "source_url": "https://appliednutrition.uk/products/abe-pump-pre-workout-500g-caffeine-free",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/481/77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513/481-Applied-ABE-Pump-500g.jpg",
+      "caffeine_declaration": null
+    },
+    {
+      "id": "716",
+      "product_id": "744",
+      "product_variant_id": "815",
+      "field": "beta_alanine_per_serving_mg",
+      "approved_value": 2000,
+      "approved_unit": "mg",
+      "information_state": "present_with_amount",
+      "source_quantity_value": 2,
+      "source_quantity_unit": "g",
+      "serving_basis_text": "Serving Size: 2 Scoops (15 g)",
+      "ingredient_form": null,
+      "ingredient_ratio": null,
+      "status": "approved",
+      "reviewed_by": "admin-panel",
+      "candidate_fingerprint": "39d3168f5522cccc12ea51a9f0fcd484265ba6ddc18ba707fa693e0b56e8fdee",
+      "source_file_sha256": "047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c",
+      "source_url": "https://appliednutrition.uk/products/pump-3g-zero-stimulant-375g",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/744/047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c/744-Applied-Pump-3G-Zero-Stim-375g.jpg",
+      "caffeine_declaration": null
+    },
+    {
+      "id": "717",
+      "product_id": "744",
+      "product_variant_id": "815",
+      "field": "caffeine_per_serving_mg",
+      "approved_value": null,
+      "approved_unit": null,
+      "information_state": "confirmed_absent",
+      "source_quantity_value": null,
+      "source_quantity_unit": null,
+      "serving_basis_text": null,
+      "ingredient_form": null,
+      "ingredient_ratio": null,
+      "status": "approved",
+      "reviewed_by": "admin-panel",
+      "candidate_fingerprint": "d198f3b202dc33f7bb6a62377f2ab45942d1f4b8bac37239154c9a88a6ac9d17",
+      "source_file_sha256": "047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c",
+      "source_url": "https://appliednutrition.uk/products/pump-3g-zero-stimulant-375g",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/744/047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c/744-Applied-Pump-3G-Zero-Stim-375g.jpg",
+      "caffeine_declaration": "Official product page and archived product nutrition image identify Pump 3G Zero Stim as caffeine-free."
+    },
+    {
+      "id": "718",
+      "product_id": "744",
+      "product_variant_id": "815",
+      "field": "citrulline_per_serving_mg",
+      "approved_value": 5000,
+      "approved_unit": "mg",
+      "information_state": "present_with_amount",
+      "source_quantity_value": 5,
+      "source_quantity_unit": "g",
+      "serving_basis_text": "Serving Size: 2 Scoops (15 g)",
+      "ingredient_form": "citrulline_malate",
+      "ingredient_ratio": "2:1",
+      "status": "approved",
+      "reviewed_by": "admin-panel",
+      "candidate_fingerprint": "c4b0eb90856809c68061a200ce04733813fcfa4fdb16415ed89efecb3b699934",
+      "source_file_sha256": "047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c",
+      "source_url": "https://appliednutrition.uk/products/pump-3g-zero-stimulant-375g",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/744/047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c/744-Applied-Pump-3G-Zero-Stim-375g.jpg",
+      "caffeine_declaration": null
+    },
+    {
+      "id": "719",
+      "product_id": "744",
+      "product_variant_id": "815",
+      "field": "creatine_declared_form_per_serving_mg",
+      "approved_value": 3000,
+      "approved_unit": "mg",
+      "information_state": "present_with_amount",
+      "source_quantity_value": 3,
+      "source_quantity_unit": "g",
+      "serving_basis_text": "Serving Size: 2 Scoops (15 g)",
+      "ingredient_form": "creatine_monohydrate",
+      "ingredient_ratio": null,
+      "status": "approved",
+      "reviewed_by": "admin-panel",
+      "candidate_fingerprint": "9ce0d2046734c2b5da97451a388f03115251958e5c26a77500f20599636a8d99",
+      "source_file_sha256": "047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c",
+      "source_url": "https://appliednutrition.uk/products/pump-3g-zero-stimulant-375g",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/744/047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c/744-Applied-Pump-3G-Zero-Stim-375g.jpg",
+      "caffeine_declaration": null
+    },
+    {
+      "id": "720",
+      "product_id": "744",
+      "product_variant_id": "815",
+      "field": "serving_size_g",
+      "approved_value": 15,
+      "approved_unit": "g",
+      "information_state": null,
+      "source_quantity_value": null,
+      "source_quantity_unit": null,
+      "serving_basis_text": null,
+      "ingredient_form": null,
+      "ingredient_ratio": null,
+      "status": "approved",
+      "reviewed_by": "admin-panel",
+      "candidate_fingerprint": "ecce1b737f6231e10e7d7c4a04f20298a2c40e501b0e787ce4dd12e541c84dd5",
+      "source_file_sha256": "047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c",
+      "source_url": "https://appliednutrition.uk/products/pump-3g-zero-stimulant-375g",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/744/047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c/744-Applied-Pump-3G-Zero-Stim-375g.jpg",
+      "caffeine_declaration": null
+    },
+    {
+      "id": "721",
+      "product_id": "744",
+      "product_variant_id": "816",
+      "field": "beta_alanine_per_serving_mg",
+      "approved_value": 2000,
+      "approved_unit": "mg",
+      "information_state": "present_with_amount",
+      "source_quantity_value": 2,
+      "source_quantity_unit": "g",
+      "serving_basis_text": "Serving Size: 2 Scoops (15 g)",
+      "ingredient_form": null,
+      "ingredient_ratio": null,
+      "status": "approved",
+      "reviewed_by": "admin-panel",
+      "candidate_fingerprint": "d740122b92dd62a26077f19dfb47407ce62a03ded8734d50e9777e305f1e364d",
+      "source_file_sha256": "047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c",
+      "source_url": "https://appliednutrition.uk/products/pump-3g-zero-stimulant-375g",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/744/047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c/744-Applied-Pump-3G-Zero-Stim-375g.jpg",
+      "caffeine_declaration": null
+    },
+    {
+      "id": "722",
+      "product_id": "744",
+      "product_variant_id": "816",
+      "field": "caffeine_per_serving_mg",
+      "approved_value": null,
+      "approved_unit": null,
+      "information_state": "confirmed_absent",
+      "source_quantity_value": null,
+      "source_quantity_unit": null,
+      "serving_basis_text": null,
+      "ingredient_form": null,
+      "ingredient_ratio": null,
+      "status": "approved",
+      "reviewed_by": "admin-panel",
+      "candidate_fingerprint": "3ed8541801d20cfcbc0e37a67ccf090045c7b9fb168e105b1875f118f9db4081",
+      "source_file_sha256": "047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c",
+      "source_url": "https://appliednutrition.uk/products/pump-3g-zero-stimulant-375g",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/744/047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c/744-Applied-Pump-3G-Zero-Stim-375g.jpg",
+      "caffeine_declaration": "Official product page and archived product nutrition image identify Pump 3G Zero Stim as caffeine-free."
+    },
+    {
+      "id": "723",
+      "product_id": "744",
+      "product_variant_id": "816",
+      "field": "citrulline_per_serving_mg",
+      "approved_value": 5000,
+      "approved_unit": "mg",
+      "information_state": "present_with_amount",
+      "source_quantity_value": 5,
+      "source_quantity_unit": "g",
+      "serving_basis_text": "Serving Size: 2 Scoops (15 g)",
+      "ingredient_form": "citrulline_malate",
+      "ingredient_ratio": "2:1",
+      "status": "approved",
+      "reviewed_by": "admin-panel",
+      "candidate_fingerprint": "89b86b5305c815eafdb1133e49ad362f9c25fd0a1dc5d52bbae3a7397ee5c39c",
+      "source_file_sha256": "047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c",
+      "source_url": "https://appliednutrition.uk/products/pump-3g-zero-stimulant-375g",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/744/047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c/744-Applied-Pump-3G-Zero-Stim-375g.jpg",
+      "caffeine_declaration": null
+    },
+    {
+      "id": "724",
+      "product_id": "744",
+      "product_variant_id": "816",
+      "field": "creatine_declared_form_per_serving_mg",
+      "approved_value": 3000,
+      "approved_unit": "mg",
+      "information_state": "present_with_amount",
+      "source_quantity_value": 3,
+      "source_quantity_unit": "g",
+      "serving_basis_text": "Serving Size: 2 Scoops (15 g)",
+      "ingredient_form": "creatine_monohydrate",
+      "ingredient_ratio": null,
+      "status": "approved",
+      "reviewed_by": "admin-panel",
+      "candidate_fingerprint": "36bc77ec326e6f08b897107fef86c7aaf15bece8478cdc7e5a92691beddc12ff",
+      "source_file_sha256": "047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c",
+      "source_url": "https://appliednutrition.uk/products/pump-3g-zero-stimulant-375g",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/744/047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c/744-Applied-Pump-3G-Zero-Stim-375g.jpg",
+      "caffeine_declaration": null
+    },
+    {
+      "id": "725",
+      "product_id": "744",
+      "product_variant_id": "816",
+      "field": "serving_size_g",
+      "approved_value": 15,
+      "approved_unit": "g",
+      "information_state": null,
+      "source_quantity_value": null,
+      "source_quantity_unit": null,
+      "serving_basis_text": null,
+      "ingredient_form": null,
+      "ingredient_ratio": null,
+      "status": "approved",
+      "reviewed_by": "admin-panel",
+      "candidate_fingerprint": "4cacee1cd62c37c84deb642a5231769eabc2df19ae101d46a568ff6cfe2fd23a",
+      "source_file_sha256": "047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c",
+      "source_url": "https://appliednutrition.uk/products/pump-3g-zero-stimulant-375g",
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/744/047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c/744-Applied-Pump-3G-Zero-Stim-375g.jpg",
+      "caffeine_declaration": null
+    }
+  ],
+  "store": {
+    "result": "CANDIDATE_TABLE_WRITE_ONLY",
+    "new_records": 20,
+    "existing_records": 0,
+    "candidate_ids": [
+      "706",
+      "707",
+      "708",
+      "709",
+      "710",
+      "711",
+      "712",
+      "713",
+      "714",
+      "715",
+      "716",
+      "717",
+      "718",
+      "719",
+      "720",
+      "721",
+      "722",
+      "723",
+      "724",
+      "725"
+    ],
+    "each_fingerprint_count_after_store": 1,
+    "product_updates": 0,
+    "queue_before": {
+      "approved": 683,
+      "pending": 16,
+      "rejected": 6
+    },
+    "queue_after_store": {
+      "approved": 683,
+      "pending": 36,
+      "rejected": 6
+    }
+  },
+  "review": {
+    "mechanism": "authenticated individual-review route",
+    "result": "APPROVED",
+    "approved_records": 20,
+    "reviewed_by": "admin-panel",
+    "queue_after_review": {
+      "approved": 703,
+      "pending": 16,
+      "rejected": 6
+    },
+    "approvals_match_proposals_and_evidence": true
+  },
+  "plan": {
+    "path": "tmp/nutrition-approved-plan/NCR1-applied-shared-table-481-744-20260912-0179395d4f7e.json",
+    "sha256": "88c45c6f3afad3f2878ffc4b2ec7809af037acccdff39584a3f6f65c595145ec",
+    "plan_fingerprint": "0179395d4f7ec10a0efb0795a23dce460e7630adefe21e480f0b3228f61a5484",
+    "source_candidate_ids": [
+      "706",
+      "707",
+      "708",
+      "709",
+      "710",
+      "711",
+      "712",
+      "713",
+      "714",
+      "715",
+      "716",
+      "717",
+      "718",
+      "719",
+      "720",
+      "721",
+      "722",
+      "723",
+      "724",
+      "725"
+    ],
+    "blockers": [],
+    "product_updates": 0,
+    "variant_updates": 4,
+    "before_overrides": {
+      "760": {},
+      "761": {},
+      "815": {},
+      "816": {}
+    },
+    "after_overrides": {
+      "760": {
+        "beta_alanine": {
+          "information_state": "present_with_amount",
+          "amount_per_serving_mg": 3000,
+          "source_quantity_value": 3000,
+          "source_quantity_unit": "mg",
+          "quantity_basis": "per_serving",
+          "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+          "serving_basis_value": 25,
+          "serving_basis_unit": "g"
+        },
+        "caffeine": {
+          "information_state": "confirmed_absent"
+        },
+        "citrulline": {
+          "information_state": "present_with_amount",
+          "amount_per_serving_mg": 10000,
+          "source_quantity_value": 10000,
+          "source_quantity_unit": "mg",
+          "quantity_basis": "per_serving",
+          "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+          "serving_basis_value": 25,
+          "serving_basis_unit": "g",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": "2:1"
+        },
+        "creatine": {
+          "information_state": "present_with_amount",
+          "amount_per_serving_mg": 3000,
+          "source_quantity_value": 3000,
+          "source_quantity_unit": "mg",
+          "quantity_basis": "per_serving",
+          "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+          "amount_subject": "declared_ingredient_form",
+          "serving_basis_value": 25,
+          "serving_basis_unit": "g",
+          "ingredient_form": "creatine_monohydrate"
+        },
+        "serving_size_g": 25
+      },
+      "761": {
+        "beta_alanine": {
+          "information_state": "present_with_amount",
+          "amount_per_serving_mg": 3000,
+          "source_quantity_value": 3000,
+          "source_quantity_unit": "mg",
+          "quantity_basis": "per_serving",
+          "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+          "serving_basis_value": 25,
+          "serving_basis_unit": "g"
+        },
+        "caffeine": {
+          "information_state": "confirmed_absent"
+        },
+        "citrulline": {
+          "information_state": "present_with_amount",
+          "amount_per_serving_mg": 10000,
+          "source_quantity_value": 10000,
+          "source_quantity_unit": "mg",
+          "quantity_basis": "per_serving",
+          "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+          "serving_basis_value": 25,
+          "serving_basis_unit": "g",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": "2:1"
+        },
+        "creatine": {
+          "information_state": "present_with_amount",
+          "amount_per_serving_mg": 3000,
+          "source_quantity_value": 3000,
+          "source_quantity_unit": "mg",
+          "quantity_basis": "per_serving",
+          "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+          "amount_subject": "declared_ingredient_form",
+          "serving_basis_value": 25,
+          "serving_basis_unit": "g",
+          "ingredient_form": "creatine_monohydrate"
+        },
+        "serving_size_g": 25
+      },
+      "815": {
+        "beta_alanine": {
+          "information_state": "present_with_amount",
+          "amount_per_serving_mg": 2000,
+          "source_quantity_value": 2,
+          "source_quantity_unit": "g",
+          "quantity_basis": "per_serving",
+          "serving_basis_text": "Serving Size: 2 Scoops (15 g)",
+          "serving_basis_value": 15,
+          "serving_basis_unit": "g"
+        },
+        "caffeine": {
+          "information_state": "confirmed_absent"
+        },
+        "citrulline": {
+          "information_state": "present_with_amount",
+          "amount_per_serving_mg": 5000,
+          "source_quantity_value": 5,
+          "source_quantity_unit": "g",
+          "quantity_basis": "per_serving",
+          "serving_basis_text": "Serving Size: 2 Scoops (15 g)",
+          "serving_basis_value": 15,
+          "serving_basis_unit": "g",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": "2:1"
+        },
+        "creatine": {
+          "information_state": "present_with_amount",
+          "amount_per_serving_mg": 3000,
+          "source_quantity_value": 3,
+          "source_quantity_unit": "g",
+          "quantity_basis": "per_serving",
+          "serving_basis_text": "Serving Size: 2 Scoops (15 g)",
+          "amount_subject": "declared_ingredient_form",
+          "serving_basis_value": 15,
+          "serving_basis_unit": "g",
+          "ingredient_form": "creatine_monohydrate"
+        },
+        "serving_size_g": 15
+      },
+      "816": {
+        "beta_alanine": {
+          "information_state": "present_with_amount",
+          "amount_per_serving_mg": 2000,
+          "source_quantity_value": 2,
+          "source_quantity_unit": "g",
+          "quantity_basis": "per_serving",
+          "serving_basis_text": "Serving Size: 2 Scoops (15 g)",
+          "serving_basis_value": 15,
+          "serving_basis_unit": "g"
+        },
+        "caffeine": {
+          "information_state": "confirmed_absent"
+        },
+        "citrulline": {
+          "information_state": "present_with_amount",
+          "amount_per_serving_mg": 5000,
+          "source_quantity_value": 5,
+          "source_quantity_unit": "g",
+          "quantity_basis": "per_serving",
+          "serving_basis_text": "Serving Size: 2 Scoops (15 g)",
+          "serving_basis_value": 15,
+          "serving_basis_unit": "g",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": "2:1"
+        },
+        "creatine": {
+          "information_state": "present_with_amount",
+          "amount_per_serving_mg": 3000,
+          "source_quantity_value": 3,
+          "source_quantity_unit": "g",
+          "quantity_basis": "per_serving",
+          "serving_basis_text": "Serving Size: 2 Scoops (15 g)",
+          "amount_subject": "declared_ingredient_form",
+          "serving_basis_value": 15,
+          "serving_basis_unit": "g",
+          "ingredient_form": "creatine_monohydrate"
+        },
+        "serving_size_g": 15
+      }
+    }
+  },
+  "apply": {
+    "status": "APPLIED_REVIEWED_NUTRITION_FIELDS",
+    "applied_at": "2026-09-12T17:53:31.384Z",
+    "changed_products": [],
+    "changed_variants": [
+      {
+        "product_id": "481",
+        "product_variant_id": "760",
+        "fields": [
+          "beta_alanine",
+          "caffeine",
+          "citrulline",
+          "creatine",
+          "serving_size_g"
+        ]
+      },
+      {
+        "product_id": "481",
+        "product_variant_id": "761",
+        "fields": [
+          "beta_alanine",
+          "caffeine",
+          "citrulline",
+          "creatine",
+          "serving_size_g"
+        ]
+      },
+      {
+        "product_id": "744",
+        "product_variant_id": "815",
+        "fields": [
+          "beta_alanine",
+          "caffeine",
+          "citrulline",
+          "creatine",
+          "serving_size_g"
+        ]
+      },
+      {
+        "product_id": "744",
+        "product_variant_id": "816",
+        "fields": [
+          "beta_alanine",
+          "caffeine",
+          "citrulline",
+          "creatine",
+          "serving_size_g"
+        ]
+      }
+    ],
+    "audit_path": "tmp/nutrition-approved-plan/NCR1-applied-shared-table-481-744-20260912-0179395d4f7e-audit.json",
+    "audit_sha256": "4c2c04e405c77871640aa41c7611617e805ad92d007a607119576785fbecd548"
+  },
+  "independent_readback": {
+    "connection": "new production PostgreSQL connection forced read-only",
+    "result": "PASS",
+    "complete_overrides_match_plan_after": true,
+    "queue_status_counts": {
+      "approved": 703,
+      "pending": 16,
+      "rejected": 6
+    },
+    "preservation": {
+      "full_product_table_sha256": "54ca4527908c69a05a19affcb7ad12a99613054de5058797f599c29e265e2392",
+      "all_other_variants_sha256": "d3c75eb080c58a3bace5ffc8bede3b81cd207dd217552cca7af1503072afd258",
+      "target_variant_metadata_sha256": "b8cf2b346ff3ecf54c81463bd31f4d660e2084a8d42bf9fdfa408f37e809aabe",
+      "non_target_candidate_queue_sha256": "4649e6b3d89b1d8d5a0bff3479be66e0d25529b3d070f3b937dd1152553ce68e",
+      "product_count": 1337,
+      "other_variant_count": 3628,
+      "non_target_candidate_count": 705
+    },
+    "approved_candidates_and_evidence_unchanged": true,
+    "nutrition_verified_unchanged": true,
+    "legacy_creatine_per_serving_g_unchanged": true
+  },
+  "exact_replay": {
+    "result": "SAFE_REJECTION",
+    "no_op": false,
+    "process_exit_code": 1,
+    "message": "Variant 760 nutrition override changed after plan generation",
+    "post_rejection_overrides_match_applied_state": true,
+    "post_rejection_state_digest_matches_postapply": true,
+    "additional_writes": 0
+  },
+  "public_readback": {
+    "checked_at": "2026-09-12T17:57:28.334Z",
+    "request_cache_headers": "cache-control:no-cache; pragma:no-cache",
+    "response_cache_control": "private, no-cache, no-store, max-age=0, must-revalidate",
+    "product_pages": [
+      {
+        "product_id": "481",
+        "product_variant_id": "760",
+        "url": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-pump-500g?variant=760",
+        "http_status": 200,
+        "cache_control": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "vercel_id_present": true,
+        "checks": {
+          "exact_variant": true,
+          "serving": true,
+          "caffeine": true,
+          "beta": true,
+          "citrulline": true,
+          "creatine": true,
+          "manufacturer_source": true,
+          "product_label": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true,
+          "raw_hash_absent": true
+        }
+      },
+      {
+        "product_id": "481",
+        "product_variant_id": "761",
+        "url": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-pump-500g?variant=761",
+        "http_status": 200,
+        "cache_control": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "vercel_id_present": true,
+        "checks": {
+          "exact_variant": true,
+          "serving": true,
+          "caffeine": true,
+          "beta": true,
+          "citrulline": true,
+          "creatine": true,
+          "manufacturer_source": true,
+          "product_label": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true,
+          "raw_hash_absent": true
+        }
+      },
+      {
+        "product_id": "744",
+        "product_variant_id": "815",
+        "url": "https://www.supplementscout.co.uk/product/applied-nutrition-pump-3g-zero-stim-375g?variant=815",
+        "http_status": 200,
+        "cache_control": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "vercel_id_present": true,
+        "checks": {
+          "exact_variant": true,
+          "serving": true,
+          "caffeine": true,
+          "beta": true,
+          "citrulline": true,
+          "creatine": true,
+          "manufacturer_source": true,
+          "product_label": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true,
+          "raw_hash_absent": true
+        }
+      },
+      {
+        "product_id": "744",
+        "product_variant_id": "816",
+        "url": "https://www.supplementscout.co.uk/product/applied-nutrition-pump-3g-zero-stim-375g?variant=816",
+        "http_status": 200,
+        "cache_control": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "vercel_id_present": true,
+        "checks": {
+          "exact_variant": true,
+          "serving": true,
+          "caffeine": true,
+          "beta": true,
+          "citrulline": true,
+          "creatine": true,
+          "manufacturer_source": true,
+          "product_label": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true,
+          "raw_hash_absent": true
+        }
+      }
+    ],
+    "offer_evidence": [
+      {
+        "product_id": "481",
+        "product_variant_id": "760",
+        "observed_offers": 3,
+        "current_in_stock_offers": 3,
+        "offers": [
+          {
+            "id": "792",
+            "in_stock": true,
+            "last_checked_at": "2026-09-12T11:16:13.355Z",
+            "fresh_within_24h": true,
+            "price": "29.99",
+            "shipping_cost": "4.99"
+          },
+          {
+            "id": "1549",
+            "in_stock": true,
+            "last_checked_at": "2026-09-12T07:11:45.820Z",
+            "fresh_within_24h": true,
+            "price": "37.81",
+            "shipping_cost": "3.99"
+          },
+          {
+            "id": "3312",
+            "in_stock": true,
+            "last_checked_at": "2026-09-12T07:22:12.785Z",
+            "fresh_within_24h": true,
+            "price": "28.99",
+            "shipping_cost": "3.99"
+          }
+        ]
+      },
+      {
+        "product_id": "481",
+        "product_variant_id": "761",
+        "observed_offers": 3,
+        "current_in_stock_offers": 3,
+        "offers": [
+          {
+            "id": "485",
+            "in_stock": true,
+            "last_checked_at": "2026-09-12T07:11:45.820Z",
+            "fresh_within_24h": true,
+            "price": "37.81",
+            "shipping_cost": "3.99"
+          },
+          {
+            "id": "793",
+            "in_stock": true,
+            "last_checked_at": "2026-09-12T11:16:13.355Z",
+            "fresh_within_24h": true,
+            "price": "29.99",
+            "shipping_cost": "4.99"
+          },
+          {
+            "id": "3313",
+            "in_stock": true,
+            "last_checked_at": "2026-09-12T07:22:12.785Z",
+            "fresh_within_24h": true,
+            "price": "28.99",
+            "shipping_cost": "3.99"
+          }
+        ]
+      },
+      {
+        "product_id": "744",
+        "product_variant_id": "815",
+        "observed_offers": 2,
+        "current_in_stock_offers": 2,
+        "offers": [
+          {
+            "id": "868",
+            "in_stock": true,
+            "last_checked_at": "2026-09-12T11:16:13.355Z",
+            "fresh_within_24h": true,
+            "price": "18.99",
+            "shipping_cost": "4.99"
+          },
+          {
+            "id": "2053",
+            "in_stock": true,
+            "last_checked_at": "2026-09-12T07:52:52.685Z",
+            "fresh_within_24h": true,
+            "price": "24.99",
+            "shipping_cost": "4.99"
+          }
+        ]
+      },
+      {
+        "product_id": "744",
+        "product_variant_id": "816",
+        "observed_offers": 2,
+        "current_in_stock_offers": 2,
+        "offers": [
+          {
+            "id": "869",
+            "in_stock": true,
+            "last_checked_at": "2026-09-12T11:16:13.355Z",
+            "fresh_within_24h": true,
+            "price": "18.99",
+            "shipping_cost": "4.99"
+          },
+          {
+            "id": "2052",
+            "in_stock": true,
+            "last_checked_at": "2026-09-12T07:52:52.685Z",
+            "fresh_within_24h": true,
+            "price": "24.99",
+            "shipping_cost": "4.99"
+          }
+        ]
+      }
+    ],
+    "caffeine_free_search": {
+      "url": "https://www.supplementscout.co.uk/search?q=pre%20workout&caffeine=free",
+      "http_status": 200,
+      "cache_control": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "vercel_id_present": true,
+      "unique_product_variant_links": [
+        {
+          "href": "/product/gym-high-the-stinger-zero-caffeine-pump-pre-workout-425g?variant=1047",
+          "variant_id": "1047"
+        },
+        {
+          "href": "/product/applied-nutrition-pump-3g-zero-stim-375g?variant=815",
+          "variant_id": "815"
+        },
+        {
+          "href": "/product/applied-nutrition-abe-pump-500g?variant=760",
+          "variant_id": "760"
+        }
+      ],
+      "target_links": [
+        {
+          "href": "/product/applied-nutrition-pump-3g-zero-stim-375g?variant=815",
+          "variant_id": "815"
+        },
+        {
+          "href": "/product/applied-nutrition-abe-pump-500g?variant=760",
+          "variant_id": "760"
+        }
+      ],
+      "eligible_target_products": [
+        "481",
+        "744"
+      ],
+      "target_products_represented": [
+        "744",
+        "481"
+      ],
+      "grouping": "one search card per product; selected link points to one qualifying current-offer variant"
+    },
+    "explanation": "All four variants had current in-stock offers. Search groups by canonical product, so the two Applied Nutrition products produce two cards, linked to variants 815 and 760; the existing Stinger demonstration is a separate third card."
+  },
+  "authenticated_panel_readback": {
+    "result": "PASS",
+    "url": "https://www.supplementscout.co.uk/admin/nutrition-candidates?run=NCR1-applied-shared-table-481-744-20260912",
+    "http_status": 200,
+    "authenticated_session": true,
+    "vercel_id_present": true,
+    "checks": {
+      "approved_section": true,
+      "unavailable_notice_absent": true,
+      "run_visible": true,
+      "products_visible": true,
+      "variants_visible": true,
+      "fields_visible": true,
+      "candidate_ids_rendered_by_existing_ui": false
+    },
+    "note": "The existing approved-candidate card does not render database candidate IDs; exact IDs 706-725 were verified by independent production readback."
+  },
+  "code_or_schema_changes": false,
+  "next_step": "Continue NUT-03 with the seven unchanged Batch 01 source gaps; no further action on these four variants is required unless evidence or applied state changes."
+}
