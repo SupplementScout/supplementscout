@@ -57,9 +57,13 @@ candidates exactly and adds a fifth pending candidate for `3 g` creatine
 monohydrate, normalized to `3000 mg` of the declared form per `2 Scoops (15 g)`.
 The original artifact and hash remain intact; the new artifact has five unique
 candidate fingerprints and passes the existing `DRY_RUN_NO_DATABASE` path with
-zero product updates. The next step is NUT-03E: after separate owner authorization,
-store exactly that hash-bound five-candidate set in the existing private queue,
-without approval, planning or apply.
+zero product updates. NUT-03E is `LIVE VERIFIED`: the guarded production write
+created candidate IDs `696`-`700`, exactly one per fingerprint, and left all five
+pending. The queue changed only from 695 to 700 rows and from 16 to 21 pending;
+approved and rejected counts, product `38` and variant `726` digests were
+unchanged. Authenticated panel readback shows all five cards. The next step is
+NUT-03F: after separate owner review authorization, decide only those five
+candidates while keeping review separate from any later plan or apply.
 SEO-15 remains BLOCKED, the 16 September accrual check and conditional 24-25
 September reviews remain scheduled, and GYM HIGH remains owner-deferred.
 Guardian currently validates SEO, not nutrition.
