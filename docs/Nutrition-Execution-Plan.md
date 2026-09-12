@@ -688,6 +688,17 @@ No code, migration, test inventory or workflow is changed by this NUT-00 revisio
   migration after deployed A and B. Before C, a creatine store/apply request
   returns a specific NUT-03B migration-required error while the existing queue
   remains readable. Unrelated PostgreSQL errors are not converted to this state.
+- Code commit `29479ff880f8b5e05e8718d8e521cb9f60dac54b` is published on
+  `origin/main`. GitHub reported the matching Vercel production deployment
+  `6405283357` successful at `2026-09-12T03:05:51Z`. An authenticated read after
+  that deployment returned HTTP 200 with the review heading, pending section and
+  latest-batch section present and no unavailable notice.
+- A fresh owner PostgreSQL connection with `transaction_read_only=on` confirmed
+  project `aftboxmrdgyhizicfsfu` / `PRODUCTION`: migration C has zero history
+  rows and none of the three current field/fact/unit CHECK definitions names the
+  structured-creatine field. The existing queue remains readable with 695 rows,
+  zero variant-scoped rows and zero structured rows. This is availability and
+  schema evidence only; no production write was attempted.
 - Focused unit/static validation passed 99/99. The isolated Docker PostgreSQL
   integration passed and proves: the existing path before C; all five states;
   explicit and undisclosed forms; original g/mg quantities and exact serving;

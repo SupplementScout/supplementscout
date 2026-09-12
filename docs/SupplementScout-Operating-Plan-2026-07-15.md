@@ -46,7 +46,10 @@ remains unapplied, so production structured-creatine operations are explicitly
 blocked while the existing queue remains usable. The next step is NUT-03C: after
 separate owner authorization, apply migration C alone and perform read-only
 schema, queue and authenticated-panel verification. Candidate storage and pilot
-data writes remain outside that migration-only step.
+data writes remain outside that migration-only step. Code commit `29479ff` is on
+`origin/main`; its Vercel production deployment succeeded, and the authenticated
+panel returned 200 without an unavailable notice. A fresh read-only PostgreSQL
+check found migration C absent and the existing 695-row queue readable.
 SEO-15 remains BLOCKED, the 16 September accrual check and conditional 24-25
 September reviews remain scheduled, and GYM HIGH remains owner-deferred.
 Guardian currently validates SEO, not nutrition.
