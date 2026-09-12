@@ -5,17 +5,19 @@
 ## Current checkpoint
 
 - Task: NUT-03; status `IN PROGRESS`. NUT-03A, NUT-03B, NUT-03D and NUT-03G are
-  `CODE COMPLETE`; NUT-03C, NUT-03E, NUT-03F and NUT-03H are `LIVE VERIFIED`. The existing
+  `CODE COMPLETE`; NUT-03C, NUT-03E, NUT-03F and NUT-03H are `LIVE VERIFIED`.
+  NUT-03I is `BLOCKED` by exact-variant source evidence. The existing
   candidate/review/plan/apply path now models
   creatine as the mass of its declared ingredient form against an exact serving,
   with the same five information states. Migration C is deployed in production.
   Exactly five product `38` / variant `726` candidates are stored, approved and
   applied to that exact variant. This completes one of the frozen 25 variants,
   not the full pilot.
-- Owner/session: Codex, owner-authorized NUT-03H controlled production apply,
+- Owner/session: Codex, owner-authorized NUT-03I applicability review for exact
+  product `744` / variant `815`,
   12 September 2026.
 - Branch: `main`; this session started at
-  `6268b500f07bccb8391d5fcd25ad10e2353bc845`; remote `main` matched before work.
+  `7bbcee6075b82a70e8d73e321f0e34353b602b88`; remote `main` matched before work.
 - Production readback at `2026-09-11T12:58:26.063Z`: public `anon` SELECT against
   project `aftboxmrdgyhizicfsfu`; 141 active unmerged Pre Workout products and
   575 active variants. Frozen scope: 25 variants across 21 products.
@@ -104,9 +106,14 @@
   readback matched the complete planned after override and found no other data
   change. Exact replay was rejected by the stale-plan guard and a further
   readback proved zero additional writes.
-- One next step, NUT-03I: within the frozen remaining 24 variants, obtain an
-  exact-variant source/applicability decision for one next candidate set before
-  any further candidate or catalogue write.
+- NUT-03I confirmed current product `744` / variant `815` identity but did not
+  find a Fruit Burst-specific back label or an explicit manufacturer statement
+  binding the shared nutrition table to that flavour. No artifact or dry-run was
+  created and no database write ran.
+- One next step: obtain an official Fruit Burst 375 g back label for manufacturer
+  SKU `P3GFBZERO` / GTIN `5056555204986`, or an explicit Applied Nutrition
+  statement that identifies the archived table and Fruit Burst as covered. Then
+  recheck the binding before preparing any candidate artifact.
 
 ## Authority and scope
 
@@ -277,7 +284,7 @@ implementation or any nutrition catalogue write.
 | NUT-03F | `LIVE VERIFIED` | NUT-03E + owner review authorization | Review only candidate IDs 696-700 against the hash-bound artifact and preserved exact-variant label, then approve each matching fact without planning or applying it. | Preflight proved five pending exact matches and one row per fingerprint. Authenticated individual review approved all five with their proposed values. Fresh readback found `reviewed_by=admin-panel`, immutable evidence, unchanged exact product/variant digests and all five approved cards in the panel. |
 | NUT-03G | `CODE COMPLETE` | NUT-03F + owner authorization | Use the existing planner to prepare a before/after plan only for approved candidate IDs 696-700. Do not execute apply. | Fresh readback matched all five approvals and immutable evidence. The validated plan has zero blockers, zero product updates, one exact variant update and zero writes. It preserves the whole prior override and is bound to the five fingerprints, current empty override, file hash and plan fingerprint. |
 | NUT-03H | `LIVE VERIFIED` | NUT-03G + owner apply authorization | Revalidate and apply only the exact hash-bound NUT-03G plan through the existing guarded path. | Preflight matched the production target, empty before override, five approvals and immutable evidence. Transactional apply changed only variant 726's five planned override fields. Fresh readback matched the whole after object and preserved the queue, all products and every other variant. Exact replay failed closed on the stale before-state; another read proved zero additional writes and identical final state. |
-| NUT-03I | `PLANNED` | NUT-03H + separate owner authorization | Select one next exact variant only from the frozen remaining 24 after resolving its existing source/applicability disposition. Do not infer shared flavour formulas or start a write without a new bounded artifact and authorization. | The next exact variant has a source-bound candidate disposition under the existing process; all other frozen variants retain their recorded gap/reason/action and no catalogue data changes during preparation. |
+| NUT-03I | `BLOCKED` | NUT-03H + owner authorization | Review only product 744 / variant 815, Fruit Burst 375 g, against its preserved label and a bounded official-source read. Prepare an offline candidate artifact only if the table is explicitly bound to that flavour. | The archived image and current official page confirm product, package and the manufacturer's Fruit Burst variant, but the image is flavour-neutral and the page gives no explicit shared-table statement. Exact SKU/GTIN searches found no official Fruit Burst back label. No artifact, dry-run or database write ran. Unblock with a Fruit Burst-specific official back label or an explicit manufacturer statement identifying this table and flavour. |
 | NUT-03 | `IN PROGRESS` | NUT-03I | Review pilot evidence, quantities/units and exact applicability; separately approved candidate review, planning and guarded apply | NUT-03A through NUT-03H complete the first exact variant, product 38 / variant 726, through controlled apply. This is 1 of 25 frozen variants and does not establish full pilot coverage. Complete only when every in-scope proposal, including creatine, has a decision and separately authorized writes have independent readback and safe replay evidence; unresolved facts remain unknown and excluded. |
 | NUT-04 | `PLANNED` | NUT-03 | Existing product page facts/source and existing search caffeine-free filter | Tests and live variant-switch checks prove confirmed absence included, caffeine present excluded, missing/conflicting facts never treated as absent. Document coverage denominator, limits, evidence and operations. Publish image copies only with established rights; otherwise link to source. MVP closes here. |
 | NUT-05 | `DEFERRED` | NUT-04 closure | Subsequent bounded batches/categories in the same process | Review extraction yield, review time and missing-source rate before expansion; every batch has a fixed denominator and closure. No expansion of an active batch. |
@@ -839,6 +846,70 @@ No code, migration, test inventory or workflow is changed by this NUT-00 revisio
   authorization to store exactly this hash-bound five-candidate set in the
   existing private queue. That step must leave every row pending and must not
   approve, plan or apply any fact.
+
+## NUT-03I exact-variant applicability evidence
+
+12 September 2026, owner-authorized bounded review of product `744`, variant
+`815`, Applied Nutrition Pump 3G Zero Stim, Fruit Burst, 375 g:
+
+- The frozen scope and fresh production read agree on string product ID `744`
+  and variant ID `815`. Production project `aftboxmrdgyhizicfsfu` returned product
+  `Applied Nutrition Pump 3G Zero Stim 375g` and its owned variant
+  `Fruit Burst / 375g` through a transaction forced read-only. The variant's
+  `nutrition_override` remains `{}` and the read performed zero writes.
+- No ignored candidate artifact or approved plan names variant `815`. Production
+  has no variant-scoped candidate for it. Existing candidate IDs `6` and `14`
+  belong to product `744` only, have no variant ID or archive URI and concern
+  `serving_count_verified`; they were preserved and are not evidence for this
+  exact variant or this structured-fact task.
+- The existing local image remains
+  `tmp/nutrition-batch01-owner-handoff-2026-09-11/labels/744-Applied-Pump-3G-Zero-Stim-375g.jpg`.
+  It decodes at 2000 by 2000 pixels and matches its handoff and private-archive
+  SHA-256
+  `047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c`.
+  Its stable private URI is
+  `supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/744/047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c/744-Applied-Pump-3G-Zero-Stim-375g.jpg`.
+  The image visibly identifies Pump 3G Zero-Stim, caffeine-free positioning and
+  375 g, but it names no flavour.
+- A bounded live read of the existing official URL
+  `https://appliednutrition.uk/products/pump-3g-zero-stimulant-375g` and its
+  public Shopify product JSON returned HTTP 200. The current manufacturer record
+  identifies Fruit Burst as Shopify variant `39338227531943`, SKU `P3GFBZERO`
+  and GTIN `5056555204986`, with a flavour-specific front image. The page also
+  lists a Fruit Burst ingredient list and a single product-level Nutritional
+  Information image: the same flavour-neutral archived image above. The page
+  does not state that this numeric table applies to Fruit Burst or every flavour.
+- The live HTML response observed during the bounded read had SHA-256
+  `f687e24e8a4c8b45a5dadf0e73148ecc712870d761773abae56ca7e0e6a61ef2`;
+  the public product JSON had SHA-256
+  `f80632c2cca04abc65967bbe7ad22c8330032a3ed04b0ca591ac320f95976e85`.
+  These transient response hashes document what was inspected; they do not
+  replace the retained source-image hash or create a new archive object.
+- Exact official-domain searches for the SKU, GTIN and Fruit Burst label returned
+  only the same product page or its localized forms. They found no official
+  Fruit Burst back-label image and no explicit common-table statement. The
+  flavour option, front image, ingredient list and the words Zero Stim or
+  Caffeine Free establish neither the flavour-specific numeric table nor a
+  confirmed zero for any tracked fact.
+- Applicability decision:
+  `UNKNOWN_SHARED_TABLE_ACROSS_FLAVOURS`. The evidence required to unblock it is
+  either an official Fruit Burst 375 g back label visibly tied to SKU
+  `P3GFBZERO` / GTIN `5056555204986`, or an explicit Applied Nutrition statement
+  identifying this archived table and Fruit Burst as covered. No value from
+  product `38` / variant `726` was reused.
+- Because exact applicability was not established, no five-candidate artifact
+  was created and `nutrition:candidates:store --dry-run` was not run against a
+  fabricated input. No candidate, review, plan, apply, migration, OCR, source
+  archive write or catalogue write ran.
+- No panel check was needed or performed in NUT-03I. A public HTTP redirect to
+  `/admin/login` confirms only route reachability; it is not evidence that the
+  nutrition panel works in an authenticated active session. Earlier ledger
+  entries that say the authenticated panel returned HTTP 200 retain their
+  separate session-backed evidence.
+- `verify:project` passed before this ledger update. Only the canonical ledger
+  and Operating Plan change; the post-update project and diff checks are recorded
+  with the published commit. NUT-03 remains `IN PROGRESS`, with 1 of 25 frozen
+  variants applied and variant `815` still unresolved.
 
 ## NUT-03H controlled apply evidence
 
