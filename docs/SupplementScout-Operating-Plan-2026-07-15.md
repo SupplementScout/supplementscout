@@ -51,9 +51,15 @@ variant `726` row digests remained unchanged. The authenticated panel returned
 200 with the expected review sections and no unavailable notice. This readback
 proves production schema and availability; the isolated PostgreSQL suite remains
 the write-behavior proof. No candidate, approval, apply, OCR, source fetch or
-catalogue write occurred. The next step is NUT-03D: prepare a new version of the
-existing product `38` / variant `726` artifact with a fifth pending declared-form
-creatine candidate and validate it without a database write.
+catalogue write occurred. NUT-03D is now `CODE COMPLETE`: a new ignored version
+of the existing product `38` / variant `726` artifact preserves its four original
+candidates exactly and adds a fifth pending candidate for `3 g` creatine
+monohydrate, normalized to `3000 mg` of the declared form per `2 Scoops (15 g)`.
+The original artifact and hash remain intact; the new artifact has five unique
+candidate fingerprints and passes the existing `DRY_RUN_NO_DATABASE` path with
+zero product updates. The next step is NUT-03E: after separate owner authorization,
+store exactly that hash-bound five-candidate set in the existing private queue,
+without approval, planning or apply.
 SEO-15 remains BLOCKED, the 16 September accrual check and conditional 24-25
 September reviews remain scheduled, and GYM HIGH remains owner-deferred.
 Guardian currently validates SEO, not nutrition.

@@ -4,16 +4,16 @@
 
 ## Current checkpoint
 
-- Task: NUT-03; status `IN PROGRESS`. NUT-03A and the bounded NUT-03B code step
-  are `CODE COMPLETE`; NUT-03C is `LIVE VERIFIED`. The existing
+- Task: NUT-03; status `IN PROGRESS`. NUT-03A, NUT-03B and NUT-03D are
+  `CODE COMPLETE`; NUT-03C is `LIVE VERIFIED`. The existing
   candidate/review/plan/apply path now models
   creatine as the mass of its declared ingredient form against an exact serving,
   with the same five information states. Migration C is deployed in production;
   no candidate has been stored, reviewed or applied.
-- Owner/session: Codex, owner-authorized NUT-03C production migration and
-  read-only verification, 12 September 2026.
+- Owner/session: Codex, owner-authorized NUT-03D offline artifact revision and
+  validation, 12 September 2026.
 - Branch: `main`; this session started at
-  `9cd8f4bb34dd1792c8dbc2104e6cca3b24c23707`; remote `main` matched before work.
+  `fcc9d6f24c4d48fd328daabdcf24ec67de8cb9f1`; remote `main` matched before work.
 - Production readback at `2026-09-11T12:58:26.063Z`: public `anon` SELECT against
   project `aftboxmrdgyhizicfsfu`; 141 active unmerged Pre Workout products and
   575 active variants. Frozen scope: 25 variants across 21 products.
@@ -83,9 +83,14 @@
   review evidence tied to the same 15 g serving, variant, archive URI and image
   hash; it does not create a `creatine_per_serving_g` candidate. The required
   dry-run reports `DRY_RUN_NO_DATABASE` and four rows.
-- One next step, NUT-03D: prepare a new version of the existing product `38` /
-  variant `726` artifact with a fifth pending candidate for declared-form
-  creatine. Validate it by dry-run only; do not store, approve or apply it.
+- NUT-03D preserves the original four-row artifact and adds one new ignored
+  five-row version for product `38` / variant `726`. Its fifth pending candidate
+  records `3 g` creatine monohydrate as `3000 mg` of the declared monohydrate
+  form per `2 Scoops (15 g)`; it does not populate legacy
+  `creatine_per_serving_g`. Dry-run reports five rows and zero database writes.
+- One next step, NUT-03E: after separate owner authorization, store exactly the
+  five candidates from the hash-bound NUT-03D artifact in the existing private
+  queue. Do not approve, plan or apply them during that storage-only step.
 
 ## Authority and scope
 
@@ -251,8 +256,9 @@ implementation or any nutrition catalogue write.
 | NUT-03A | `CODE COMPLETE` | NUT-02 | Explicitly transcribe only the archived exact-variant label for product `38` / variant `726` into one offline candidate artifact; validate without database access. | Image hash matches the archive manifest; four supported pending candidates preserve exact source quantities, serving evidence, citrulline form/ratio, variant ID, archive URI and image hash. One deferred review record preserves the exact creatine-monohydrate declaration without putting it in the legacy pure-creatine field. Store dry-run passes with zero database writes. |
 | NUT-03B | `CODE COMPLETE` | NUT-03A + owner authorization | The existing structured pre-workout target now includes creatine declared-form mass, explicit form or `creatine_form_not_disclosed`, original quantity/unit, exact serving and all five information states. Existing variant/source/fingerprint and approval controls are reused; legacy `creatine_per_serving_g` remains unchanged. | Unit/static tests and isolated PostgreSQL prove pre-C rejection with the legacy queue readable, post-C state/form/unit/serving validation, NULL-safe CHECKs, evidence-change invalidation, protection from unknown/conflict overwrite and idempotent replay. Migration C is prepared and hash-bound but is not applied to production; no candidate or catalogue data was written. |
 | NUT-03C | `LIVE VERIFIED` | NUT-03B + owner authorization | Apply only migration C through the controlled production selector, then read back its history and three updated CHECKs and verify the legacy queue and authenticated panel without creating candidates. | Rehearsal rolled back, then the exact hash-bound migration committed as production ledger entry 207. A fresh read-only connection verified history/hash and all three validated, NULL-safe CHECKs; queue, batch, catalogue and exact product/variant digests stayed unchanged. The authenticated panel returned 200 with its expected sections and no unavailable notice. |
-| NUT-03D | `PLANNED` | NUT-03C | Revise only the existing product `38` / variant `726` offline artifact to add a fifth pending structured-creatine candidate from its preserved evidence. | Artifact retains the exact variant, archive URI, image hash, declared form, original quantity/unit and 15 g serving; existing store dry-run passes with zero database writes. |
-| NUT-03 | `IN PROGRESS` | NUT-03D | Review pilot evidence, quantities/units and exact applicability; separately approved candidate storage, review and guarded apply | NUT-03A prepares only one local unapproved artifact, NUT-03B adds structured creatine and NUT-03C deploys its schema. Complete only when every in-scope proposal, including creatine, has a decision and separately authorized writes have independent readback and zero-duplicate replay; unresolved facts remain unknown and excluded. |
+| NUT-03D | `CODE COMPLETE` | NUT-03C | Revise only the existing product `38` / variant `726` offline artifact to add a fifth pending structured-creatine candidate from its preserved evidence. | The previous artifact and hash remain intact. Its new five-row version preserves the first four candidate objects exactly, carries declared-form creatine with exact source/serving evidence, has five unique fingerprints and passes `DRY_RUN_NO_DATABASE` with zero product updates. |
+| NUT-03E | `PLANNED` | NUT-03D + separate owner authorization | Store exactly the hash-bound five-candidate NUT-03D artifact in the existing private nutrition queue, without review, approval, planning or apply. | Guarded store and independent readback preserve all five PENDING fingerprints, exact variant and source provenance; replay creates zero duplicates and catalogue data remains unchanged. |
+| NUT-03 | `IN PROGRESS` | NUT-03E | Review pilot evidence, quantities/units and exact applicability; separately approved candidate storage, review and guarded apply | NUT-03A prepares the original offline artifact, NUT-03B adds structured creatine, NUT-03C deploys its schema and NUT-03D prepares the five-row revision. Complete only when every in-scope proposal, including creatine, has a decision and separately authorized writes have independent readback and zero-duplicate replay; unresolved facts remain unknown and excluded. |
 | NUT-04 | `PLANNED` | NUT-03 | Existing product page facts/source and existing search caffeine-free filter | Tests and live variant-switch checks prove confirmed absence included, caffeine present excluded, missing/conflicting facts never treated as absent. Document coverage denominator, limits, evidence and operations. Publish image copies only with established rights; otherwise link to source. MVP closes here. |
 | NUT-05 | `DEFERRED` | NUT-04 closure | Subsequent bounded batches/categories in the same process | Review extraction yield, review time and missing-source rate before expansion; every batch has a fixed denominator and closure. No expansion of an active batch. |
 
@@ -772,6 +778,47 @@ No code, migration, test inventory or workflow is changed by this NUT-00 revisio
   NUT-03 remains `IN PROGRESS`. One next step, NUT-03D, is to prepare a new
   version of that artifact with a fifth pending structured-creatine candidate
   and validate it by dry-run without storing it in the database.
+
+## NUT-03D five-candidate artifact evidence
+
+12 September 2026, owner-authorized offline artifact revision:
+
+- The preserved official image at
+  `tmp/nutrition-batch01-owner-handoff-2026-09-11/labels/38-Applied-Pump-3G-375g.jpg`
+  still has SHA-256
+  `1182c1ab46a72ff38709e349d692ab18d45355d87549574d30bb04f3067842`.
+  Direct visual review reconfirmed `Serving Size: 2 Scoops (15 g)` and the
+  `Creatine Monohydrate | 3 g` row under `Per (15 g)`. No source was fetched and
+  OCR was not run.
+- The original four-row artifact remains unchanged at
+  `tmp/nutrition-candidates/nut-03a-product-38-variant-726/nutrition-candidates-ncr1-nut03a-38-726-1182c1aeab46.json`,
+  SHA-256
+  `0e390c0e372f2b4ef7a4dc9ddb89f6eaa30a8d43b394a28d3b772e051295d866`.
+- The new artifact is
+  `tmp/nutrition-candidates/nut-03a-product-38-variant-726/nutrition-candidates-ncr1-nut03a-38-726-1182c1aeab46-v3.json`,
+  SHA-256
+  `c6513b6b0bb5cdca3e62388476186c82c976e5f3e0a48b9ea2681fcf579a54a1`,
+  artifact fingerprint
+  `a86b28e7376daf7da4f6d431bc4e81dd7ef656d7c227ace9d03f23e6b374729c`.
+  Its first four candidate objects are byte-equivalent to the original artifact.
+- The fifth candidate is `creatine_declared_form_per_serving_mg` with
+  `information_state=present_with_amount`, source quantity `3 g`, normalized
+  value `3000 mg`, `ingredient_form=creatine_monohydrate`, exact `15 g` serving,
+  image evidence locator, string product `38` / variant `726`, durable private
+  archive URI and the original image hash. No pure-creatine equivalent is
+  calculated, and no `creatine_per_serving_g` candidate exists.
+- All five candidates remain `PENDING`; their fingerprints are unique. The
+  existing command
+  `npm run nutrition:candidates:store -- --dry-run --input=tmp/nutrition-candidates/nut-03a-product-38-variant-726/nutrition-candidates-ncr1-nut03a-38-726-1182c1aeab46-v3.json`
+  returned `DRY_RUN_NO_DATABASE`, five candidate rows, zero product updates and
+  zero verified CSV files. Neither artifact is committed.
+- `verify:project` passed before and after the checkpoint update, and
+  `git diff --check` passed. No tracked code, workflow, migration or test changed,
+  so the code quality gates were not required for this documentation-only commit.
+- NUT-03 remains `IN PROGRESS`. One next step, NUT-03E, requires separate owner
+  authorization to store exactly this hash-bound five-candidate set in the
+  existing private queue. That step must leave every row pending and must not
+  approve, plan or apply any fact.
 
 ## NUT-00 closeout evidence
 
