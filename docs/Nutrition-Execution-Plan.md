@@ -6,18 +6,20 @@
 
 - Task: NUT-03; status `IN PROGRESS`. NUT-03A, NUT-03B, NUT-03D and NUT-03G are
   `CODE COMPLETE`; NUT-03C, NUT-03E, NUT-03F and NUT-03H are `LIVE VERIFIED`.
-  NUT-03I is `BLOCKED` by exact-variant source evidence. The existing
+  NUT-03I retains its historical exact-variant evidence gap. Further preparation
+  now uses one closed batch of at most ten variants per owner decision instead
+  of a separate checkpoint for every variant. The existing
   candidate/review/plan/apply path now models
   creatine as the mass of its declared ingredient form against an exact serving,
   with the same five information states. Migration C is deployed in production.
   Exactly five product `38` / variant `726` candidates are stored, approved and
   applied to that exact variant. This completes one of the frozen 25 variants,
   not the full pilot.
-- Owner/session: Codex, owner-authorized NUT-03I applicability review for exact
-  product `744` / variant `815`,
+- Owner/session: Codex, owner-authorized NUT-03 batch preparation and one
+  consolidated owner-decision package,
   12 September 2026.
 - Branch: `main`; this session started at
-  `7bbcee6075b82a70e8d73e321f0e34353b602b88`; remote `main` matched before work.
+  `7a023141082b1cc964493ea3a2076a167b415d69`; remote `main` matched before work.
 - Production readback at `2026-09-11T12:58:26.063Z`: public `anon` SELECT against
   project `aftboxmrdgyhizicfsfu`; 141 active unmerged Pre Workout products and
   575 active variants. Frozen scope: 25 variants across 21 products.
@@ -110,10 +112,14 @@
   find a Fruit Burst-specific back label or an explicit manufacturer statement
   binding the shared nutrition table to that flavour. No artifact or dry-run was
   created and no database write ran.
-- One next step: obtain an official Fruit Burst 375 g back label for manufacturer
-  SKU `P3GFBZERO` / GTIN `5056555204986`, or an explicit Applied Nutrition
-  statement that identifies the archived table and Fruit Burst as covered. Then
-  recheck the binding before preparing any candidate artifact.
+- NUT-03 Batch 01 now accounts for ten further variants in one package. All ten
+  current product/variant pairs and empty overrides were confirmed in production,
+  but none has exact-variant label applicability. It contains zero proposals and
+  ten actionable source gaps; no candidate artifact or dry-run was fabricated.
+- One next step: the owner supplies one consolidated evidence pack for any of
+  these ten variants, containing flavour-specific official back labels or
+  explicit common-table statements and the recorded written permissions where
+  required. Re-run this same closed batch once using only that new evidence.
 
 ## Authority and scope
 
@@ -129,6 +135,36 @@ is a separate five-mismatch evidence scope, not a general nutrition roadmap.
 The supplied Nutrition Plan text is historical intake after this incorporation;
 do not maintain a second checkpoint there. All operative requirements needed to
 resume are retained here, so the untracked intake is not a remote dependency.
+
+## Batched nutrition preparation mode
+
+- Prepare at most ten exact variants in one closed batch. The batch, rather than
+  each variant, is the owner-decision and documentation unit. Do not create a
+  separate checkpoint for every variant.
+- Select only from the frozen 25-variant scope. Preserve completed variant `726`,
+  keep variant `815` unresolved, and do not repeat an exhausted search unless a
+  new source or specific new lead is supplied.
+- Prefer variants with an existing official source and the fewest unresolved
+  identity, package, formulation and access issues. Fix the list before evidence
+  work begins; do not substitute easier variants after a gap is found.
+- Within one batch, verify current product/variant ownership and existing
+  candidates once, then review every variant's retained evidence. Read and
+  transcribe a label only when exact-variant applicability is established.
+  An unresolved item receives a concrete reason and required evidence and does
+  not stop work on the rest of the batch.
+- Candidate artifacts remain in ignored `tmp`, use the existing structured
+  pre-workout format and must retain string IDs, durable private URI, source hash,
+  exact evidence locator, original quantity/unit, exact serving, ingredient form
+  and one of the five information states. No exact source binding means no
+  candidate row and no invented `no_information` state.
+- Run `nutrition:candidates:store --dry-run` once per generated artifact. If the
+  whole batch has zero eligible variants, create no candidate artifact and record
+  `NOT_RUN_NO_ELIGIBLE_EXACT_VARIANT_ARTIFACT`; a validator cannot legitimize an
+  unsupported source binding.
+- Publish one owner-decision package separating ready proposals from gaps and
+  listing every source, retained hash, artifact hash and validation result.
+  Candidate storage, review, plan and apply remain separate owner-authorized
+  steps through the existing guarded path.
 
 MVP: a closed pilot of 20–30 existing pre-workout variants, counted by canonical
 variant ID, with serving data, caffeine, citrulline including ingredient form,
@@ -285,7 +321,8 @@ implementation or any nutrition catalogue write.
 | NUT-03G | `CODE COMPLETE` | NUT-03F + owner authorization | Use the existing planner to prepare a before/after plan only for approved candidate IDs 696-700. Do not execute apply. | Fresh readback matched all five approvals and immutable evidence. The validated plan has zero blockers, zero product updates, one exact variant update and zero writes. It preserves the whole prior override and is bound to the five fingerprints, current empty override, file hash and plan fingerprint. |
 | NUT-03H | `LIVE VERIFIED` | NUT-03G + owner apply authorization | Revalidate and apply only the exact hash-bound NUT-03G plan through the existing guarded path. | Preflight matched the production target, empty before override, five approvals and immutable evidence. Transactional apply changed only variant 726's five planned override fields. Fresh readback matched the whole after object and preserved the queue, all products and every other variant. Exact replay failed closed on the stale before-state; another read proved zero additional writes and identical final state. |
 | NUT-03I | `BLOCKED` | NUT-03H + owner authorization | Review only product 744 / variant 815, Fruit Burst 375 g, against its preserved label and a bounded official-source read. Prepare an offline candidate artifact only if the table is explicitly bound to that flavour. | The archived image and current official page confirm product, package and the manufacturer's Fruit Burst variant, but the image is flavour-neutral and the page gives no explicit shared-table statement. Exact SKU/GTIN searches found no official Fruit Burst back label. No artifact, dry-run or database write ran. Unblock with a Fruit Burst-specific official back label or an explicit manufacturer statement identifying this table and flavour. |
-| NUT-03 | `IN PROGRESS` | NUT-03I | Review pilot evidence, quantities/units and exact applicability; separately approved candidate review, planning and guarded apply | NUT-03A through NUT-03H complete the first exact variant, product 38 / variant 726, through controlled apply. This is 1 of 25 frozen variants and does not establish full pilot coverage. Complete only when every in-scope proposal, including creatine, has a decision and separately authorized writes have independent readback and safe replay evidence; unresolved facts remain unknown and excluded. |
+| NUT-03-BATCH-01 | `AWAITING OWNER EVIDENCE` | NUT-03H + batch authorization | One closed owner-decision package for variants 760, 761, 816, 714, 1029, 1059, 885, 1974, 887 and 3676. Reuse existing source dispositions; do not revisit 815 or substitute variants. | Fresh production read confirms all ten exact ownership pairs, empty overrides and zero exact-variant candidates. Two retained product-label hashes match, but applicability is unproved for three variants; seven have no archived label and retain their access constraints. Package validation passes with 0 ready proposals, 10 explicit gaps, 0 candidate artifacts and no dry-run or write. |
+| NUT-03 | `IN PROGRESS` | Iterative closed batches + separate owner write authorization | Review pilot evidence, quantities/units and exact applicability in batches of at most ten; separately approve candidate storage, review, planning and guarded apply. | NUT-03A through NUT-03H complete the first exact variant, product 38 / variant 726, through controlled apply. NUT-03I preserves the unresolved 815 evidence gap. Batch 01 adds one consolidated disposition for ten more variants without lowering evidence requirements. This remains 1 of 25 applied and does not establish full pilot coverage. Complete only when every in-scope proposal has a decision and separately authorized writes have independent readback and safe replay evidence; unresolved facts remain unknown and excluded. |
 | NUT-04 | `PLANNED` | NUT-03 | Existing product page facts/source and existing search caffeine-free filter | Tests and live variant-switch checks prove confirmed absence included, caffeine present excluded, missing/conflicting facts never treated as absent. Document coverage denominator, limits, evidence and operations. Publish image copies only with established rights; otherwise link to source. MVP closes here. |
 | NUT-05 | `DEFERRED` | NUT-04 closure | Subsequent bounded batches/categories in the same process | Review extraction yield, review time and missing-source rate before expansion; every batch has a fixed denominator and closure. No expansion of an active batch. |
 
@@ -846,6 +883,63 @@ No code, migration, test inventory or workflow is changed by this NUT-00 revisio
   authorization to store exactly this hash-bound five-candidate set in the
   existing private queue. That step must leave every row pending and must not
   approve, plan or apply any fact.
+
+## NUT-03 Batch 01 consolidated owner-decision evidence
+
+12 September 2026, first preparation under the batched operating mode:
+
+- The closed list is variants `760`, `761`, `816`, `714`, `1029`, `1059`,
+  `885`, `1974`, `887` and `3676`. All are members of the frozen scope and have
+  an existing confirmed official-page binding. Completed variant `726` and the
+  exhausted unresolved variant `815` are excluded. Variants with an additional
+  identity, package or version conflict were deferred in favour of this lower-
+  ambiguity set; no substitution occurred after selection.
+- One production transaction forced read-only against project
+  `aftboxmrdgyhizicfsfu` confirmed all ten exact product/variant ownership pairs,
+  current display names and empty `nutrition_override` objects. It found zero
+  exact-variant nutrition candidates for the batch and performed zero writes.
+  Existing product-only candidate IDs `6` and `14` remain preserved and are not
+  treated as evidence for variant `816`.
+- Existing repository and ignored-artifact searches found no candidate artifact
+  or approved plan for any selected exact variant. The two unique retained image
+  files were reused without download or OCR. Their hashes still match the
+  archive register: product `481`
+  `77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513`
+  for variants `760`/`761`, and product `744`
+  `047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c`
+  for variant `816`. Both labels are readable and establish their product and
+  package, but neither names a flavour or states common-table applicability.
+- Variants `714`, `1029`, `1059`, `885`, `1974`, `887` and `3676` retain their
+  confirmed official-page bindings but have no archived label. The Optimum
+  Nutrition, BioTech USA and 10X sources retain their recorded written-permission
+  requirements. Bulk `3676` retains the earlier HTTP 403 and unresolved private-
+  retention terms. No request was repeated and no protection was bypassed.
+- No selected variant therefore meets the exact-label threshold. The batch has
+  zero evidence-backed proposals and ten concrete gaps. No numeric value, serving,
+  ingredient form or information state was copied from a product-level label.
+  In particular, absence of an exact source does not become `no_information` or
+  `confirmed_absent`; those are candidate fact states only after exact evidence
+  is bound.
+- Because there is no eligible exact-variant candidate artifact,
+  `nutrition:candidates:store --dry-run` is
+  `NOT_RUN_NO_ELIGIBLE_EXACT_VARIANT_ARTIFACT`. Creating an empty or unsupported
+  artifact solely to invoke the validator would lower the source-binding guard.
+- The single owner package is
+  [batch-01-owner-decision.json](rollouts/nutrition-pre-workout-batches-2026-09-12/batch-01-owner-decision.json),
+  SHA-256
+  `1a958f04ed3a469cd533bf232b0460c716292d51e2c563ff95f2c309ecbb9025`.
+  Its structural validation passed: 10 unique string IDs, 10/10 frozen-scope
+  membership and official source bindings, exclusion of `726`/`815`, two verified
+  retained-image hashes, 0 proposals, 10 actionable gaps, 0 candidate artifacts
+  and 0 dry-runs.
+- No source page or image fetch, OCR, migration, candidate storage, review, plan,
+  apply or catalogue update ran. This package is a preparation decision, not a
+  production nutrition-data change and not additional pilot coverage.
+- One next step is one consolidated owner-provided evidence pack for any of these
+  ten variants: flavour-specific official back labels or explicit common-table
+  statements, plus written download/private-storage permission where the existing
+  register requires it. Re-run this same closed list once using only new evidence;
+  do not repeat the prior searches.
 
 ## NUT-03I exact-variant applicability evidence
 

@@ -80,11 +80,19 @@ final override. This completes 1 of the frozen 25 variants, not the full pilot.
 NUT-03I reviewed only product `744` / variant `815`, Fruit Burst 375 g. The
 archived product label and current official page confirm the family, package and
 manufacturer Fruit Burst variant, but the label is flavour-neutral and the page
-does not explicitly bind its one nutrition table to that flavour. NUT-03I is
-therefore `BLOCKED`; no candidate artifact, dry-run or database write ran. The
-next step is to obtain an official Fruit Burst back label for SKU `P3GFBZERO` /
-GTIN `5056555204986`, or an explicit Applied Nutrition statement identifying
-the archived table and Fruit Burst as covered, before preparing candidates.
+does not explicitly bind its one nutrition table to that flavour. Its gap remains
+recorded and its exhausted search is not repeated without a new source.
+Further nutrition preparation now uses one closed batch of at most ten exact
+variants as the owner-decision unit; unresolved items receive a concrete gap and
+do not stop the rest. The first package covers variants `760`, `761`, `816`,
+`714`, `1029`, `1059`, `885`, `1974`, `887` and `3676`. Fresh production read
+confirmed every ownership pair, empty override and zero exact-variant candidates.
+Two retained product-label hashes match, but none of the ten has exact flavour
+applicability; the other seven have no archived label and retain their recorded
+access constraints. The package therefore has 0 ready proposals and 10 actionable
+gaps, with no fabricated artifact or dry-run and no database write. The next step
+is one consolidated owner-provided source/permission pack for this same list,
+followed by one rerun using only newly supplied evidence.
 SEO-15 remains BLOCKED, the 16 September accrual check and conditional 24-25
 September reviews remain scheduled, and GYM HIGH remains owner-deferred.
 Guardian currently validates SEO, not nutrition.
