@@ -96,6 +96,42 @@ ignored. Evidence is reduced to the matched numeric phrase and carries the
 treated as pure creatine. A direct `Creatine per serving` or `of which
 creatine` value is required.
 
+### Shared manufacturer tables across product variants
+
+The official manufacturer product page is the primary source for the declared
+composition. Record the applicability basis as
+`wspólna tabela producenta dla wariantów produktu` when all of these conditions
+are met:
+
+- the page presents the flavours as variants of the same named product;
+- one nutrition table is presented in the shared product context and remains
+  the same after selecting each target flavour;
+- the product version, market and serving basis agree with the retained source;
+- the page does not show a separate nutrition table, tracked-active amount or
+  formulation warning for a target flavour.
+
+Record the official URL, check date, selected-flavour URLs or equivalent selector
+evidence, market context, serving evidence and the common table image or snapshot
+hash. One archived object may support several exact variants; do not duplicate
+identical source bytes in storage. A flavour-neutral table image is not a blocker
+when this page context establishes the shared table. Describe it as a common
+manufacturer table, never as a flavour-specific back label.
+
+Do not infer applicability from product naming, the word `Pump` or `Zero`, or a
+general belief that flavours share a formula. A flavour list without the shared
+table context is also insufficient. Flavour-specific ingredient lists may differ
+in flavouring or colour while the declared tracked actives remain common; record
+the difference and fail closed if it changes a tracked ingredient, amount, form,
+serving, product version or market. A different pack size requires evidence of
+the same recipe and serving even when it does not automatically imply a different
+composition.
+
+An explicit manufacturer `caffeine free` declaration may support
+`confirmed_absent`. Omission from a table, OCR output, product name or ingredient
+list never proves absence. Known contradictions retain
+`conflicting_information` or an unresolved source disposition and are not
+overridden by this rule.
+
 The standard extractor does not fetch product-gallery images. The separate,
 local-only OCR canary can inspect images embedded in an explicitly listed
 official manufacturer product page. It never follows product links or crawls a

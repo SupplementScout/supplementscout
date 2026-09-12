@@ -1,0 +1,462 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-applied-shared-table-reassessment-v1",
+  "status": "READY_FOR_OWNER_DECISION",
+  "status_date": "2026-09-12",
+  "scope": {
+    "canonical_product_ids": [
+      "481",
+      "744"
+    ],
+    "canonical_variant_ids": [
+      "760",
+      "761",
+      "815",
+      "816"
+    ],
+    "frozen_pilot_unchanged": true
+  },
+  "policy": {
+    "source_priority": "Official manufacturer product page is primary evidence for declared composition.",
+    "source_basis": "wspólna tabela producenta dla wariantów produktu",
+    "qualification": "A common table applies where the official product page lists the variants, presents one shared nutrition block, keeps that block stable after selecting each target flavour, matches product version and serving basis, and identifies no separate tracked-active table for those flavours.",
+    "does_not_qualify": [
+      "Product naming without the manufacturer page context.",
+      "General similarity between flavours.",
+      "Ingredient omission as proof of absence.",
+      "A page with a known market, formulation, serving or flavour-table conflict."
+    ]
+  },
+  "context_check": {
+    "checked_at": "2026-09-12T11:52:21.888Z",
+    "market": "GB",
+    "pages_checked": 4,
+    "selected_flavour_pages_http_200": 4,
+    "nutrition_image_stable_after_flavour_selection": true,
+    "separate_tracked_active_tables_found": false,
+    "notes": "Both product pages list the target flavours in one selector and retain one identical Nutritional Info image URL for each selected target. Flavour ingredient lists contain flavour/colour differences but retain the same tracked active forms and show no alternate tracked-active amounts."
+  },
+  "production_readback": {
+    "checked_at": "2026-09-12T17:14:34.127Z",
+    "target": "aftboxmrdgyhizicfsfu.supabase.co",
+    "mode": "READ_ONLY",
+    "ownership_pairs_confirmed": 4,
+    "empty_nutrition_overrides": 4,
+    "existing_exact_variant_candidates": 0,
+    "writes": 0
+  },
+  "sources": [
+    {
+      "canonical_product_id": "481",
+      "official_url": "https://appliednutrition.uk/products/abe-pump-pre-workout-500g-caffeine-free",
+      "checked_at": "2026-09-12T11:52:21.888Z",
+      "market_context": "Applied Nutrition UK page; country/region control shows GB (£).",
+      "official_variant_pages": [
+        {
+          "canonical_variant_id": "760",
+          "flavour": "Blue Razz",
+          "official_variant_id": "44666243645672",
+          "checked_url": "https://appliednutrition.uk/products/abe-pump-pre-workout-500g-caffeine-free?variant=44666243645672",
+          "page_sha256": "cd954d6b70b8bcd7a394fb3823b487c04a6721ceae85d6035c7de4bab3107605",
+          "status": "COMMON_MANUFACTURER_TABLE_APPLIES"
+        },
+        {
+          "canonical_variant_id": "761",
+          "flavour": "Red Hawaiian",
+          "official_variant_id": "44666243612904",
+          "checked_url": "https://appliednutrition.uk/products/abe-pump-pre-workout-500g-caffeine-free?variant=44666243612904",
+          "page_sha256": "a01fdb4f35c8e87706e783ef7169206b294e1326e42c6e970f1810997578b863",
+          "status": "COMMON_MANUFACTURER_TABLE_APPLIES"
+        }
+      ],
+      "archived_image_sha256": "77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513",
+      "official_image_url": "https://cdn.shopify.com/s/files/1/0454/0871/4919/files/ABEPumpStim-Free500g-Nutritionals-1000x1000_b7d93758-c96c-4e48-9dac-50a0a9afe90f_1024x1024.jpg?v=1691075914",
+      "private_archive_object_path": "labels/nut-01/batch-01/applied-nutrition/481/77e37094d9f5eb4cb2f4b75a4e55d50cf22d6de8ed065d3a4fc8e565ba542513/481-Applied-ABE-Pump-500g.jpg",
+      "local_hash_check": "PASS"
+    },
+    {
+      "canonical_product_id": "744",
+      "official_url": "https://appliednutrition.uk/products/pump-3g-zero-stimulant-375g",
+      "checked_at": "2026-09-12T11:52:21.888Z",
+      "market_context": "Applied Nutrition UK page; country/region control shows GB (£).",
+      "official_variant_pages": [
+        {
+          "canonical_variant_id": "815",
+          "flavour": "Fruit Burst",
+          "official_variant_id": "39338227531943",
+          "checked_url": "https://appliednutrition.uk/products/pump-3g-zero-stimulant-375g?variant=39338227531943",
+          "page_sha256": "8f17d238c0cba3d3e9e02ed806a45162249d0212b97ee2045125d81bb8021c4d",
+          "status": "COMMON_MANUFACTURER_TABLE_APPLIES"
+        },
+        {
+          "canonical_variant_id": "816",
+          "flavour": "Icy Blue Razz",
+          "official_variant_id": "39338227564711",
+          "checked_url": "https://appliednutrition.uk/products/pump-3g-zero-stimulant-375g?variant=39338227564711",
+          "page_sha256": "50b5d9b9c3d22794617c6773af5775a33e204a8b64b6cf31546b79e13ea7d0ac",
+          "status": "COMMON_MANUFACTURER_TABLE_APPLIES"
+        }
+      ],
+      "archived_image_sha256": "047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c",
+      "official_image_url": "https://cdn.shopify.com/s/files/1/0454/0871/4919/files/Pump3GZero-StimPre-Workout375g_CaffeineFree_-Nutritionals.jpg?v=1708597518",
+      "private_archive_object_path": "labels/nut-01/batch-01/applied-nutrition/744/047bd5c2266f5de4bb9890fcf52279121ed9c15a1dc60f492679de76e473477c/744-Applied-Pump-3G-Zero-Stim-375g.jpg",
+      "local_hash_check": "PASS"
+    }
+  ],
+  "superseded_decisions": [
+    {
+      "decision": "NUT-01 exact-flavour-back-label requirement for variants 760, 761, 815 and 816",
+      "status": "SUPERSEDED_BY_OWNER_SOURCE_POLICY_2026_09_12",
+      "history_retained": true
+    },
+    {
+      "decision": "NUT-03I BLOCKED disposition for variant 815",
+      "status": "SUPERSEDED_BY_THIS_REASSESSMENT",
+      "history_retained": true
+    },
+    {
+      "decision": "NUT-03-BATCH-01 applicability gaps for variants 760, 761 and 816",
+      "status": "SUPERSEDED_BY_THIS_REASSESSMENT",
+      "history_retained": true
+    }
+  ],
+  "variants": [
+    {
+      "canonical_product_id": "481",
+      "canonical_variant_id": "760",
+      "flavour": "Blue Razz",
+      "package_size": "500 g",
+      "applicability": "COMMON_MANUFACTURER_TABLE_APPLIES",
+      "source_basis": "wspólna tabela producenta dla wariantów produktu",
+      "candidates": [
+        {
+          "field_name": "serving_size_g",
+          "information_state": null,
+          "normalized_value": 25,
+          "normalized_unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g) / 2 Scoops (25 g); selected full serving column: Per (25 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "evidence_text": "Serving Size: 1 Scoop (12.5 g) / 2 Scoops (25 g); selected full serving column: Per (25 g)",
+          "candidate_fingerprint": "ebf5a1e957559d630a8c815ea18a8be8c40c554d4809a547eefc4a4ecf891022",
+          "status": "PENDING_OFFLINE_ONLY"
+        },
+        {
+          "field_name": "caffeine_per_serving_mg",
+          "information_state": "confirmed_absent",
+          "normalized_value": null,
+          "normalized_unit": null,
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "evidence_text": "Official product page title identifies ABE Pump Pre-Workout 500g as caffeine-free.",
+          "candidate_fingerprint": "f8fe201629edcaf141a591c41a3aecdb7af9cd7e127d8ea6de9382a3ec2d92ff",
+          "status": "PENDING_OFFLINE_ONLY"
+        },
+        {
+          "field_name": "beta_alanine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "normalized_value": 3000,
+          "normalized_unit": "mg",
+          "source_quantity_value": 3000,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "evidence_text": "Per (25 g) | Beta-Alanine | 3000 mg",
+          "candidate_fingerprint": "f790b6bc4ccc317671ffe31e2371e0078f3a177ab4dc87706f249d1b485e5f20",
+          "status": "PENDING_OFFLINE_ONLY"
+        },
+        {
+          "field_name": "citrulline_per_serving_mg",
+          "information_state": "present_with_amount",
+          "normalized_value": 10000,
+          "normalized_unit": "mg",
+          "source_quantity_value": 10000,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": "2:1",
+          "evidence_text": "Per (25 g) | Citrulline Malate 2:1 | 10000 mg",
+          "candidate_fingerprint": "2246489c1a57e84472dd7fce959b34b7743c2752555e7c46c78f0e83b91a9569",
+          "status": "PENDING_OFFLINE_ONLY"
+        },
+        {
+          "field_name": "creatine_declared_form_per_serving_mg",
+          "information_state": "present_with_amount",
+          "normalized_value": 3000,
+          "normalized_unit": "mg",
+          "source_quantity_value": 3000,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+          "ingredient_form": "creatine_monohydrate",
+          "ingredient_ratio": null,
+          "evidence_text": "Per (25 g) | Creatine Monohydrate | 3000 mg",
+          "candidate_fingerprint": "3117d6c90a58eb23e69725e48e801acf24d55d21b3059ceab57d5d6a467b35d7",
+          "status": "PENDING_OFFLINE_ONLY"
+        }
+      ]
+    },
+    {
+      "canonical_product_id": "481",
+      "canonical_variant_id": "761",
+      "flavour": "Red Hawaiian",
+      "package_size": "500 g",
+      "applicability": "COMMON_MANUFACTURER_TABLE_APPLIES",
+      "source_basis": "wspólna tabela producenta dla wariantów produktu",
+      "candidates": [
+        {
+          "field_name": "serving_size_g",
+          "information_state": null,
+          "normalized_value": 25,
+          "normalized_unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": "Serving Size: 1 Scoop (12.5 g) / 2 Scoops (25 g); selected full serving column: Per (25 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "evidence_text": "Serving Size: 1 Scoop (12.5 g) / 2 Scoops (25 g); selected full serving column: Per (25 g)",
+          "candidate_fingerprint": "9cfa4b08fac2344b90a2bd0a3d1f4a46e10a60291157792b87ad1a00724c3e0d",
+          "status": "PENDING_OFFLINE_ONLY"
+        },
+        {
+          "field_name": "caffeine_per_serving_mg",
+          "information_state": "confirmed_absent",
+          "normalized_value": null,
+          "normalized_unit": null,
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "evidence_text": "Official product page title identifies ABE Pump Pre-Workout 500g as caffeine-free.",
+          "candidate_fingerprint": "09f1469e0fe33703faf9af15597a055d858b1fc9dd8f38c28dd427790327e2da",
+          "status": "PENDING_OFFLINE_ONLY"
+        },
+        {
+          "field_name": "beta_alanine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "normalized_value": 3000,
+          "normalized_unit": "mg",
+          "source_quantity_value": 3000,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "evidence_text": "Per (25 g) | Beta-Alanine | 3000 mg",
+          "candidate_fingerprint": "2abac2e15d1c5d545990a4585e79da55aa3647ec2f221a712450839ba22eec93",
+          "status": "PENDING_OFFLINE_ONLY"
+        },
+        {
+          "field_name": "citrulline_per_serving_mg",
+          "information_state": "present_with_amount",
+          "normalized_value": 10000,
+          "normalized_unit": "mg",
+          "source_quantity_value": 10000,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": "2:1",
+          "evidence_text": "Per (25 g) | Citrulline Malate 2:1 | 10000 mg",
+          "candidate_fingerprint": "2c36be9348b91fc353746ca04bad41e949a2522987b156f4653945a9d37dfe82",
+          "status": "PENDING_OFFLINE_ONLY"
+        },
+        {
+          "field_name": "creatine_declared_form_per_serving_mg",
+          "information_state": "present_with_amount",
+          "normalized_value": 3000,
+          "normalized_unit": "mg",
+          "source_quantity_value": 3000,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "Serving Size: 2 Scoops (25 g)",
+          "ingredient_form": "creatine_monohydrate",
+          "ingredient_ratio": null,
+          "evidence_text": "Per (25 g) | Creatine Monohydrate | 3000 mg",
+          "candidate_fingerprint": "cff175252cb74c30a9e94ee4cc335fb77bac3636c3621e01d76fc0f631a32371",
+          "status": "PENDING_OFFLINE_ONLY"
+        }
+      ]
+    },
+    {
+      "canonical_product_id": "744",
+      "canonical_variant_id": "815",
+      "flavour": "Fruit Burst",
+      "package_size": "375 g",
+      "applicability": "COMMON_MANUFACTURER_TABLE_APPLIES",
+      "source_basis": "wspólna tabela producenta dla wariantów produktu",
+      "candidates": [
+        {
+          "field_name": "serving_size_g",
+          "information_state": null,
+          "normalized_value": 15,
+          "normalized_unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": "Serving Size: 2 Scoops (15g) - Servings Per Container: 25",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "evidence_text": "Serving Size: 2 Scoops (15g) - Servings Per Container: 25",
+          "candidate_fingerprint": "ecce1b737f6231e10e7d7c4a04f20298a2c40e501b0e787ce4dd12e541c84dd5",
+          "status": "PENDING_OFFLINE_ONLY"
+        },
+        {
+          "field_name": "caffeine_per_serving_mg",
+          "information_state": "confirmed_absent",
+          "normalized_value": null,
+          "normalized_unit": null,
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "evidence_text": "Official product page and archived product nutrition image identify Pump 3G Zero Stim as caffeine-free.",
+          "candidate_fingerprint": "d198f3b202dc33f7bb6a62377f2ab45942d1f4b8bac37239154c9a88a6ac9d17",
+          "status": "PENDING_OFFLINE_ONLY"
+        },
+        {
+          "field_name": "beta_alanine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "normalized_value": 2000,
+          "normalized_unit": "mg",
+          "source_quantity_value": 2,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 2 Scoops (15 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "evidence_text": "Per (15 g) | Beta-Alanine | 2 g",
+          "candidate_fingerprint": "39d3168f5522cccc12ea51a9f0fcd484265ba6ddc18ba707fa693e0b56e8fdee",
+          "status": "PENDING_OFFLINE_ONLY"
+        },
+        {
+          "field_name": "citrulline_per_serving_mg",
+          "information_state": "present_with_amount",
+          "normalized_value": 5000,
+          "normalized_unit": "mg",
+          "source_quantity_value": 5,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 2 Scoops (15 g)",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": "2:1",
+          "evidence_text": "Per (15 g) | Citrulline Malate 2:1 | 5 g",
+          "candidate_fingerprint": "c4b0eb90856809c68061a200ce04733813fcfa4fdb16415ed89efecb3b699934",
+          "status": "PENDING_OFFLINE_ONLY"
+        },
+        {
+          "field_name": "creatine_declared_form_per_serving_mg",
+          "information_state": "present_with_amount",
+          "normalized_value": 3000,
+          "normalized_unit": "mg",
+          "source_quantity_value": 3,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 2 Scoops (15 g)",
+          "ingredient_form": "creatine_monohydrate",
+          "ingredient_ratio": null,
+          "evidence_text": "Per (15 g) | Creatine Monohydrate | 3 g",
+          "candidate_fingerprint": "9ce0d2046734c2b5da97451a388f03115251958e5c26a77500f20599636a8d99",
+          "status": "PENDING_OFFLINE_ONLY"
+        }
+      ]
+    },
+    {
+      "canonical_product_id": "744",
+      "canonical_variant_id": "816",
+      "flavour": "Icy Blue Razz",
+      "package_size": "375 g",
+      "applicability": "COMMON_MANUFACTURER_TABLE_APPLIES",
+      "source_basis": "wspólna tabela producenta dla wariantów produktu",
+      "candidates": [
+        {
+          "field_name": "serving_size_g",
+          "information_state": null,
+          "normalized_value": 15,
+          "normalized_unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": "Serving Size: 2 Scoops (15g) - Servings Per Container: 25",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "evidence_text": "Serving Size: 2 Scoops (15g) - Servings Per Container: 25",
+          "candidate_fingerprint": "4cacee1cd62c37c84deb642a5231769eabc2df19ae101d46a568ff6cfe2fd23a",
+          "status": "PENDING_OFFLINE_ONLY"
+        },
+        {
+          "field_name": "caffeine_per_serving_mg",
+          "information_state": "confirmed_absent",
+          "normalized_value": null,
+          "normalized_unit": null,
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "evidence_text": "Official product page and archived product nutrition image identify Pump 3G Zero Stim as caffeine-free.",
+          "candidate_fingerprint": "3ed8541801d20cfcbc0e37a67ccf090045c7b9fb168e105b1875f118f9db4081",
+          "status": "PENDING_OFFLINE_ONLY"
+        },
+        {
+          "field_name": "beta_alanine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "normalized_value": 2000,
+          "normalized_unit": "mg",
+          "source_quantity_value": 2,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 2 Scoops (15 g)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "evidence_text": "Per (15 g) | Beta-Alanine | 2 g",
+          "candidate_fingerprint": "d740122b92dd62a26077f19dfb47407ce62a03ded8734d50e9777e305f1e364d",
+          "status": "PENDING_OFFLINE_ONLY"
+        },
+        {
+          "field_name": "citrulline_per_serving_mg",
+          "information_state": "present_with_amount",
+          "normalized_value": 5000,
+          "normalized_unit": "mg",
+          "source_quantity_value": 5,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 2 Scoops (15 g)",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": "2:1",
+          "evidence_text": "Per (15 g) | Citrulline Malate 2:1 | 5 g",
+          "candidate_fingerprint": "89b86b5305c815eafdb1133e49ad362f9c25fd0a1dc5d52bbae3a7397ee5c39c",
+          "status": "PENDING_OFFLINE_ONLY"
+        },
+        {
+          "field_name": "creatine_declared_form_per_serving_mg",
+          "information_state": "present_with_amount",
+          "normalized_value": 3000,
+          "normalized_unit": "mg",
+          "source_quantity_value": 3,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "Serving Size: 2 Scoops (15 g)",
+          "ingredient_form": "creatine_monohydrate",
+          "ingredient_ratio": null,
+          "evidence_text": "Per (15 g) | Creatine Monohydrate | 3 g",
+          "candidate_fingerprint": "36bc77ec326e6f08b897107fef86c7aaf15bece8478cdc7e5a92691beddc12ff",
+          "status": "PENDING_OFFLINE_ONLY"
+        }
+      ]
+    }
+  ],
+  "package": {
+    "context_manifest_path": "tmp/nutrition-applied-shared-table-2026-09-12/source-context-manifest.json",
+    "context_manifest_sha256": "c64e0f9753585113f4be4f7e2ab7faf65b3a68454f5ac3834a6197ebcd988c20",
+    "candidate_artifact_path": "tmp/nutrition-applied-shared-table-2026-09-12/candidate-artifact/nutrition-candidates-ncr1-applied-shared-table-481-744-20260912.json",
+    "candidate_artifact_sha256": "312c4c8094be99d880c867bf85be9bb588179e4d0589addb540072878e694e30",
+    "artifact_fingerprint": "fd9418bf6dfde2b9edb51c9a92056a91e76a1feaf61e28dbe8f175adcc4831d9",
+    "candidate_count": 20,
+    "unique_candidate_fingerprints": 20,
+    "dry_run": {
+      "command": "npm run nutrition:candidates:store -- --dry-run --input=tmp/nutrition-applied-shared-table-2026-09-12/candidate-artifact/nutrition-candidates-ncr1-applied-shared-table-481-744-20260912.json",
+      "mode": "DRY_RUN_NO_DATABASE",
+      "candidate_rows": 20,
+      "product_updates": 0,
+      "database_writes": 0
+    }
+  },
+  "next_step": "One owner decision may authorize storage of this exact hash-bound 20-candidate set. Review and apply remain separate controlled steps unless separately authorized."
+}
