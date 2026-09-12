@@ -17,7 +17,7 @@ export type AnalyticsEventMap = {
     search_context: "site_search";
   };
   filter_used: {
-    filter_name: "category" | "brand" | "retailer";
+    filter_name: "category" | "brand" | "retailer" | "caffeine";
     filter_action: "apply" | "remove";
   };
   sort_used: {

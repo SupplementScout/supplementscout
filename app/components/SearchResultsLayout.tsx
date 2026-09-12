@@ -34,12 +34,14 @@ export default function SearchResultsLayout({
     filters.category,
     filters.brand,
     filters.retailer,
+    filters.caffeine,
   ].filter(Boolean).length;
   const hasFilterOptions =
     activeFilterCount > 0 ||
     facets.categories.length > 0 ||
     facets.brands.length > 0 ||
-    facets.retailers.length > 0;
+    facets.retailers.length > 0 ||
+    facets.caffeine.length > 0;
 
   return (
     <>
@@ -78,7 +80,7 @@ export default function SearchResultsLayout({
       >
         {hasFilterOptions && (
           <SearchFilters
-            key={`${filters.category}:${filters.brand}:${filters.retailer}`}
+            key={`${filters.category}:${filters.brand}:${filters.retailer}:${filters.caffeine}`}
             query={query}
             sort={sort}
             filters={filters}

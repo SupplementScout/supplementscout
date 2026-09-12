@@ -85,6 +85,10 @@ function loadProductsModule() {
       return { supabase: {} };
     }
 
+    if (parent === mod && request === "./reviewedPreWorkoutFacts.server") {
+      return { loadAppliedPreWorkoutFacts: async () => new Map() };
+    }
+
     return originalLoad.call(this, request, parent, isMain);
   };
 

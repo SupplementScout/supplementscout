@@ -16,7 +16,10 @@ test("search variant nutrition uses a bounded ID query, not the removed offer FK
   assert.doesNotMatch(source, /offers_product_variant_id_fkey/);
 });
 
-function loadProductsModule(mockSupabase = {}) {
+function loadProductsModule(
+  mockSupabase = {},
+  mockAppliedFactsLoader = async () => new Map()
+) {
   const filename = path.join(process.cwd(), "app", "lib", "products.ts");
   const source = fs.readFileSync(filename, "utf8");
   const { outputText } = ts.transpileModule(source, {
@@ -78,6 +81,10 @@ function loadProductsModule(mockSupabase = {}) {
 
     if (parent === mod && request === "./supabase") {
       return { supabase: mockSupabase };
+    }
+
+    if (parent === mod && request === "./reviewedPreWorkoutFacts.server") {
+      return { loadAppliedPreWorkoutFacts: mockAppliedFactsLoader };
     }
 
     return originalLoad.call(this, request, parent, isMain);
@@ -251,7 +258,7 @@ function searchProductsWithRows(
   query,
   rows,
   sort = "relevance",
-  filters = { category: "", brand: "", retailer: "" }
+  filters = { category: "", brand: "", retailer: "", caffeine: "" }
 ) {
   const { searchProducts: searchProductsFromRows } = loadProductsModule({
     from: () => {
@@ -804,6 +811,7 @@ test("search URLs preserve price per serving sort with filters and pagination", 
     category: "Creatine",
     brand: "Example Brand",
     retailer: "example-retailer",
+    caffeine: "free",
   };
 
   assert.equal(
@@ -813,7 +821,7 @@ test("search URLs preserve price per serving sort with filters and pagination", 
       filters,
       updates: { brand: "Another Brand" },
     }),
-    "/search?q=creatine&category=Creatine&brand=Another+Brand&retailer=example-retailer&sort=price_per_serving_asc"
+    "/search?q=creatine&category=Creatine&brand=Another+Brand&retailer=example-retailer&caffeine=free&sort=price_per_serving_asc"
   );
   assert.equal(
     searchUrl({
@@ -822,8 +830,70 @@ test("search URLs preserve price per serving sort with filters and pagination", 
       filters,
       page: 2,
     }),
-    "/search?q=creatine&category=Creatine&brand=Example+Brand&retailer=example-retailer&sort=price_per_serving_asc&page=2"
+    "/search?q=creatine&category=Creatine&brand=Example+Brand&retailer=example-retailer&caffeine=free&sort=price_per_serving_asc&page=2"
   );
+});
+
+test("confirmed caffeine-free search requires exact variant proof and a current offer", async () => {
+  const rows = [
+    searchProduct(411, "GYM HIGH The Stinger", "Pre Workout", "GYM HIGH"),
+    searchProduct(38, "Applied Nutrition Pump 3G", "Pre Workout", "Applied Nutrition"),
+    searchProduct(999, "Unknown pre-workout", "Pre Workout", "Example Brand"),
+  ];
+  rows[0].slug = "gym-high-the-stinger-zero-caffeine-pump-pre-workout-425g";
+  rows[0].offers[0].product_variant_id = 1047;
+  rows[1].offers[0].product_variant_id = 726;
+  rows[2].offers[0].product_variant_id = 9999;
+
+  const variants = [
+    { id: 1047, product_id: 411, display_name: "Electric Red / 425g", flavour_label: "Electric Red", size_value: 425, size_unit: "g", product_format: "powder", nutrition_override: {} },
+    { id: 726, product_id: 38, display_name: "Fruit Burst / 375g", flavour_label: "Fruit Burst", size_value: 375, size_unit: "g", product_format: "powder", nutrition_override: {} },
+    { id: 9999, product_id: 999, display_name: "Unknown / 300g", flavour_label: "Unknown", size_value: 300, size_unit: "g", product_format: "powder", nutrition_override: {} },
+  ];
+  const facts = new Map([
+    ["1047", { productId: "411", productVariantId: "1047", facts: [], caffeineFreeConfirmed: true }],
+    ["726", { productId: "38", productVariantId: "726", facts: [], caffeineFreeConfirmed: false }],
+    ["9999", { productId: "999", productVariantId: "9999", facts: [], caffeineFreeConfirmed: false }],
+  ]);
+  const mockSupabase = {
+    from: (table) => {
+      if (table === "product_variants") {
+        const query = {
+          select: () => query,
+          eq: () => query,
+          in: () => ({ data: variants, error: null }),
+        };
+        return query;
+      }
+      const query = {
+        select: () => query,
+        eq: () => query,
+        is: () => query,
+        gt: () => query,
+        or: () => query,
+        order: () => query,
+        range: () => ({ data: rows, error: null }),
+      };
+      return query;
+    },
+  };
+  const { searchProducts: searchWithFacts } = loadProductsModule(
+    mockSupabase,
+    async () => facts
+  );
+
+  const result = await searchWithFacts(
+    "pre workout",
+    "relevance",
+    { category: "", brand: "", retailer: "", caffeine: "free" }
+  );
+
+  assert.equal(result.totalCount, 1);
+  assert.equal(result.results[0].id, "411");
+  assert.equal(result.results[0].selectedVariantId, "1047");
+  assert.equal(result.results[0].selectedVariantLabel, "Electric Red / 425g");
+  assert.equal(result.results[0].caffeineFreeConfirmed, true);
+  assert.equal(result.results[0].availableOfferCount, 1);
 });
 
 test("buildSearchQueryPlan returns corrected magnesium metadata", () => {

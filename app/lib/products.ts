@@ -15,6 +15,8 @@ import {
   isOfferFresh,
   type OfferPresentationState,
 } from "./offerFreshness";
+import { loadAppliedPreWorkoutFacts } from "./reviewedPreWorkoutFacts.server";
+import type { AppliedPreWorkoutFacts } from "./reviewedPreWorkoutFacts";
 import { supabase } from "./supabase";
 
 export type SearchSort =
@@ -37,6 +39,7 @@ export type SearchFilters = {
   category: string;
   brand: string;
   retailer: string;
+  caffeine: string;
 };
 
 export type SearchRetailer = {
@@ -48,6 +51,7 @@ export type SearchRetailer = {
 
 export type SearchOffer = {
   id: string;
+  product_variant_id: string | null;
   price: number | string | null;
   shipping_cost: number | string | null;
   url: string | null;
@@ -67,6 +71,7 @@ export type SearchFacets = {
   categories: SearchFacetOption[];
   brands: SearchFacetOption[];
   retailers: SearchFacetOption[];
+  caffeine: SearchFacetOption[];
 };
 
 export type SearchMatchStatus = "exact" | "corrected" | "none";
@@ -136,6 +141,9 @@ export type ProductSearchResult = {
   verifiedPricePerLitre: number | null;
   verifiedPricePerServing: number | null;
   relevanceScore: number;
+  selectedVariantId: string | null;
+  selectedVariantLabel: string | null;
+  caffeineFreeConfirmed: boolean;
 };
 
 export type RawRetailer = {
@@ -157,12 +165,16 @@ export type RawOffer = {
   product_variant?: RawProductVariant | RawProductVariant[] | null;
 };
 
-type RawProductVariant = {
+export type RawProductVariant = {
   id?: number | string;
+  product_id?: number | string;
+  display_name?: string | null;
+  flavour_label?: string | null;
   size_value: number | string | null;
   size_unit: string | null;
   product_format: string | null;
   nutrition_override: Record<string, unknown> | null;
+  applied_preworkout_facts?: AppliedPreWorkoutFacts | null;
 };
 
 type RawProduct = {
@@ -227,16 +239,29 @@ async function loadProductVariants(products: RawProduct[]) {
 
   const { data, error } = await supabase
     .from("product_variants")
-    .select("id,size_value,size_unit,product_format,nutrition_override")
+    .select("id,product_id,display_name,flavour_label,size_value,size_unit,product_format,nutrition_override")
     .eq("is_active", true)
     .in("id", variantIds);
 
   if (error) return products;
 
-  return attachProductVariants(
-    products,
-    (data || []) as RawProductVariant[]
+  const variants = (data || []) as RawProductVariant[];
+  const proofs = await loadAppliedPreWorkoutFacts(
+    variants
+      .filter((variant) => variant.id !== undefined && variant.product_id !== undefined)
+      .map((variant) => ({
+        id: variant.id!,
+        product_id: variant.product_id!,
+        nutrition_override: variant.nutrition_override,
+      }))
   );
+
+  return attachProductVariants(products, variants.map((variant) => ({
+    ...variant,
+    applied_preworkout_facts: variant.id === undefined
+      ? null
+      : proofs.get(String(variant.id)) || null,
+  })));
 }
 
 type RawSuggestionProduct = Pick<
@@ -312,11 +337,13 @@ export function normalizeSearchFilters(values: {
   category?: string | string[];
   brand?: string | string[];
   retailer?: string | string[];
+  caffeine?: string | string[];
 }): SearchFilters {
   return {
     category: normalizeFilterValue(values.category),
     brand: normalizeFilterValue(values.brand),
     retailer: normalizeFilterValue(values.retailer),
+    caffeine: normalizeFilterValue(values.caffeine) === "free" ? "free" : "",
   };
 }
 
@@ -939,6 +966,10 @@ export function normalizeSearchOffers(offers: RawOffer[], now = new Date()) {
 
       return {
         id: String(offer.id),
+        product_variant_id:
+          offer.product_variant_id === null || offer.product_variant_id === undefined
+            ? null
+            : String(offer.product_variant_id),
         price: offer.price,
         shipping_cost: offer.shipping_cost,
         url: offer.url,
@@ -975,23 +1006,35 @@ function normalizeProduct(
   const rawOffers = product.offers || [];
   const validOffers = normalizeSearchOffers(rawOffers);
 
-  const matchingRetailerOffers = filters.retailer
-    ? validOffers.filter(
-        (offer) => retailerFilterValue(offer.retailer) === filters.retailer
+  const caffeineEligibleOffers = filters.caffeine === "free"
+    ? validOffers.filter((offer) =>
+        offer.product_variant?.applied_preworkout_facts?.caffeineFreeConfirmed === true
       )
     : validOffers;
+  const matchingRetailerOffers = filters.retailer
+    ? caffeineEligibleOffers.filter(
+        (offer) => retailerFilterValue(offer.retailer) === filters.retailer
+      )
+    : caffeineEligibleOffers;
 
   const cheapestOffer = matchingRetailerOffers[0] || null;
 
-  const matchingObservedOffers = filters.retailer
-    ? rawOffers.filter(
-        (offer) => retailerFilterValue(normalizeRetailer(offer.retailer)) === filters.retailer
-      )
-    : rawOffers;
+  const matchingObservedOffers = rawOffers.filter((offer) => {
+    const variant = Array.isArray(offer.product_variant)
+      ? offer.product_variant[0] || null
+      : offer.product_variant || null;
+    if (
+      filters.caffeine === "free" &&
+      variant?.applied_preworkout_facts?.caffeineFreeConfirmed !== true
+    ) return false;
+    return !filters.retailer ||
+      retailerFilterValue(normalizeRetailer(offer.retailer)) === filters.retailer;
+  });
 
   if (filters.retailer && matchingObservedOffers.length === 0) {
     return null;
   }
+  if (filters.caffeine === "free" && cheapestOffer === null) return null;
   const presentation = classifyOfferCollection(
     matchingObservedOffers.filter(isSearchPresentationEvidence)
   );
@@ -1030,9 +1073,9 @@ function normalizeProduct(
     nutrition_verified: effectiveMetrics.nutrition_verified,
     unit_pricing_verified: effectiveMetrics.unit_pricing_verified,
     cheapestOffer,
-    validOffers,
-    availableOfferCount: validOffers.length,
-    availableRetailerCount: countAvailableRetailers(validOffers),
+    validOffers: caffeineEligibleOffers,
+    availableOfferCount: caffeineEligibleOffers.length,
+    availableRetailerCount: countAvailableRetailers(caffeineEligibleOffers),
     observedRetailerCount,
     observedRetailerKeys,
     latestVerificationAt: presentation.checkedAt,
@@ -1076,6 +1119,16 @@ function normalizeProduct(
     relevanceScore: searchPlan
       ? scoreProductForSearch(product, searchPlan)
       : scoreProduct(product, query),
+    selectedVariantId: filters.caffeine === "free"
+      ? cheapestOffer?.product_variant_id || null
+      : null,
+    selectedVariantLabel: filters.caffeine === "free"
+      ? cheapestOffer?.product_variant?.display_name ||
+        cheapestOffer?.product_variant?.flavour_label ||
+        null
+      : null,
+    caffeineFreeConfirmed:
+      cheapestOffer?.product_variant?.applied_preworkout_facts?.caffeineFreeConfirmed === true,
   };
 }
 
@@ -1091,6 +1144,7 @@ function buildFacets(results: ProductSearchResult[]): SearchFacets {
   const categories = new Map<string, SearchFacetOption>();
   const brands = new Map<string, SearchFacetOption>();
   const retailers = new Map<string, SearchFacetOption>();
+  let caffeineFreeCount = 0;
 
   for (const product of results) {
     const category = normalizeWhitespace(product.category || "");
@@ -1139,12 +1193,21 @@ function buildFacets(results: ProductSearchResult[]): SearchFacets {
         count: (existing?.count || 0) + 1,
       });
     }
+
+    if (
+      product.validOffers.some((offer) =>
+        offer.product_variant?.applied_preworkout_facts?.caffeineFreeConfirmed === true
+      )
+    ) caffeineFreeCount += 1;
   }
 
   return {
     categories: facetOptionsFromMap(categories),
     brands: facetOptionsFromMap(brands),
     retailers: facetOptionsFromMap(retailers),
+    caffeine: caffeineFreeCount > 0
+      ? [{ value: "free", label: "Confirmed caffeine free", count: caffeineFreeCount }]
+      : [],
   };
 }
 
@@ -1168,6 +1231,10 @@ function applyProductFilters(
       filters.retailer &&
       !product.observedRetailerKeys.includes(filters.retailer)
     ) {
+      return false;
+    }
+
+    if (filters.caffeine === "free" && !product.caffeineFreeConfirmed) {
       return false;
     }
 
@@ -1227,7 +1294,7 @@ function sortResults(results: ProductSearchResult[], sort: SearchSort) {
 export async function searchProducts(
   query: string,
   sort: SearchSort,
-  filters: SearchFilters = { category: "", brand: "", retailer: "" },
+  filters: SearchFilters = { category: "", brand: "", retailer: "", caffeine: "" },
   requestedPage = 1
 ) {
   const intent = parseSearchIntent(query);
@@ -1237,7 +1304,7 @@ export async function searchProducts(
   if (!sanitizedQuery) {
     return {
       results: [],
-      facets: { categories: [], brands: [], retailers: [] },
+      facets: { categories: [], brands: [], retailers: [], caffeine: [] },
       totalCount: 0,
       unfilteredCount: 0,
       page: 1,
@@ -1299,7 +1366,7 @@ export async function searchProducts(
   if (error) {
     return {
       results: [],
-      facets: { categories: [], brands: [], retailers: [] },
+      facets: { categories: [], brands: [], retailers: [], caffeine: [] },
       totalCount: 0,
       unfilteredCount: 0,
       page: 1,
@@ -1326,6 +1393,7 @@ export async function searchProducts(
           category: "",
           brand: "",
           retailer: "",
+          caffeine: "",
         },
         searchMetadata
       )
@@ -1340,7 +1408,7 @@ export async function searchProducts(
       ? eligibleResults
       : eligibleResults.filter(isWithinBudget);
   const facets = buildFacets(baseResults);
-  const filteredResults = filters.retailer
+  const filteredResults = filters.retailer || filters.caffeine === "free"
     ? enrichedProducts
         .map((product) =>
           normalizeProduct(product, sanitizedQuery, filters, searchMetadata)
@@ -1623,6 +1691,7 @@ export async function getLandingProducts(
         category: "",
         brand: "",
         retailer: "",
+        caffeine: "",
       })
     )
     .filter((product): product is ProductSearchResult => product !== null)

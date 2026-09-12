@@ -12,7 +12,10 @@ import {
 } from "../lib/searchResultPresentation";
 
 function productHref(product: ProductSearchResult) {
-  return `/product/${product.slug || product.id}`;
+  const base = `/product/${product.slug || product.id}`;
+  return product.selectedVariantId
+    ? `${base}?variant=${encodeURIComponent(product.selectedVariantId)}`
+    : base;
 }
 
 function safeBackgroundImage(value: string) {
@@ -199,6 +202,11 @@ export default function ProductResultCard({
               {product.observedRetailerCount > 0 && (
                 <> Evidence from {product.observedRetailerCount} retailer{product.observedRetailerCount === 1 ? "" : "s"}.</>
               )}
+            </p>
+          )}
+          {product.caffeineFreeConfirmed && product.selectedVariantLabel && (
+            <p className="mt-2 text-sm font-semibold text-emerald-800">
+              Confirmed caffeine free · {product.selectedVariantLabel}
             </p>
           )}
           {searchMobileFirst && pricePresentation && retailerName && (

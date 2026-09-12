@@ -308,6 +308,12 @@ export function PreWorkoutPageContent({
               current offers from multiple retailers.
             </p>
           )}
+          <Link
+            href="/search?q=pre%20workout&caffeine=free"
+            className="mt-5 inline-flex min-h-11 items-center rounded-lg border border-zinc-950 bg-white px-4 py-2 text-sm font-semibold text-zinc-950 hover:bg-zinc-100"
+          >
+            Find confirmed caffeine-free variants
+          </Link>
         </div>
       </section>
 
@@ -429,10 +435,10 @@ export function PreWorkoutPageContent({
               Does this page identify stimulant-free products?
             </h3>
             <p className="mt-2 leading-7 text-zinc-700">
-              No. Product names can mention pump, stim or caffeine, but this
-              page does not infer stimulant status or ingredient suitability
-              from names. Check the current label and retailer details for the
-              formulation that matters to you.
+              The caffeine-free search filter includes only exact variants with
+              an approved and applied confirmed-absence fact. Product names,
+              empty fields and facts from another flavour do not qualify a result.
+              This page does not infer stimulant status or ingredient suitability.
             </p>
           </div>
           <div>

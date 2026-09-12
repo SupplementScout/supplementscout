@@ -24,6 +24,7 @@ type SearchPageProps = {
     category?: string | string[];
     brand?: string | string[];
     retailer?: string | string[];
+    caffeine?: string | string[];
     page?: string | string[];
   }>;
 };
@@ -92,7 +93,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     ? await searchProducts(query, sort, filters, requestedPage)
     : {
         results: [],
-        facets: { categories: [], brands: [], retailers: [] },
+        facets: { categories: [], brands: [], retailers: [], caffeine: [] },
         totalCount: 0,
         unfilteredCount: 0,
         page: 1,
@@ -114,7 +115,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const hasActiveFilters =
     filters.category.length > 0 ||
     filters.brand.length > 0 ||
-    filters.retailer.length > 0;
+    filters.retailer.length > 0 ||
+    filters.caffeine.length > 0;
 
   if (hasQuery && !error && totalCount > 0 && requestedPage > totalPages) {
     redirect(searchUrl({ query, sort, filters, page: totalPages }));
@@ -262,7 +264,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                           href={searchUrl({
                             query: suggestion.query,
                             sort: "relevance",
-                            filters: { category: "", brand: "", retailer: "" },
+                            filters: { category: "", brand: "", retailer: "", caffeine: "" },
                           })}
                           className="inline-flex min-h-11 items-center rounded-full border border-zinc-300 bg-white px-4 text-sm font-semibold text-zinc-800 hover:border-zinc-950"
                         >
@@ -276,7 +278,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                         href={searchUrl({
                           query,
                           sort,
-                          filters: { category: "", brand: "", retailer: "" },
+                          filters: { category: "", brand: "", retailer: "", caffeine: "" },
                         })}
                         className="mt-5 inline-flex min-h-11 items-center font-semibold text-zinc-800 underline underline-offset-4"
                       >

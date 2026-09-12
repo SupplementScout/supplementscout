@@ -138,6 +138,7 @@ export default function SearchFilters({
     category: false,
     brand: false,
     retailer: false,
+    caffeine: false,
   });
 
   useEffect(() => {
@@ -302,6 +303,21 @@ export default function SearchFilters({
                 setDraftFilters((current) => ({ ...current, [key]: value }))
               }
             />
+            {(facets.caffeine.length > 0 || draftFilters.caffeine) && (
+              <FilterOptionList
+                title="Caffeine"
+                filterKey="caffeine"
+                options={facets.caffeine}
+                query={query}
+                sort={sort}
+                filters={draftFilters}
+                expanded={expanded.caffeine}
+                onExpand={() => setExpanded((current) => ({ ...current, caffeine: true }))}
+                onDraftChange={(key, value) =>
+                  setDraftFilters((current) => ({ ...current, [key]: value }))
+                }
+              />
+            )}
           </div>
         </div>
 
@@ -309,7 +325,7 @@ export default function SearchFilters({
           <button
             type="button"
             onClick={() =>
-              setDraftFilters({ category: "", brand: "", retailer: "" })
+              setDraftFilters({ category: "", brand: "", retailer: "", caffeine: "" })
             }
             className="min-h-12 rounded-lg border border-zinc-300 px-3 text-sm font-semibold text-zinc-800"
           >

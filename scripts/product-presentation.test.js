@@ -4,6 +4,8 @@ const Module = require("module");
 const path = require("path");
 const test = require("node:test");
 const ts = require("typescript");
+const React = require("react");
+const { renderToStaticMarkup } = require("react-dom/server");
 
 function loadProductPresentationModule() {
   const filename = path.join(
@@ -27,6 +29,40 @@ function loadProductPresentationModule() {
   mod._compile(outputText, filename);
 
   return mod.exports;
+}
+
+function loadReviewedPreWorkoutFactsComponent() {
+  const factsFilename = path.join(process.cwd(), "app", "lib", "reviewedPreWorkoutFacts.ts");
+  const componentFilename = path.join(process.cwd(), "app", "components", "ReviewedPreWorkoutFacts.tsx");
+  const compile = (filename, jsx) => ts.transpileModule(fs.readFileSync(filename, "utf8"), {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+      ...(jsx ? { jsx: ts.JsxEmit.ReactJSX } : {}),
+    },
+    fileName: filename,
+  }).outputText;
+  const factsModule = new Module(factsFilename, module);
+  factsModule.filename = factsFilename;
+  factsModule.paths = Module._nodeModulePaths(path.dirname(factsFilename));
+  factsModule._compile(compile(factsFilename, false), factsFilename);
+
+  const componentModule = new Module(componentFilename, module);
+  const originalLoad = Module._load;
+  Module._load = function patchedLoad(request, parent, isMain) {
+    if (parent === componentModule && request === "../lib/reviewedPreWorkoutFacts") {
+      return factsModule.exports;
+    }
+    return originalLoad.call(this, request, parent, isMain);
+  };
+  try {
+    componentModule.filename = componentFilename;
+    componentModule.paths = Module._nodeModulePaths(path.dirname(componentFilename));
+    componentModule._compile(compile(componentFilename, true), componentFilename);
+  } finally {
+    Module._load = originalLoad;
+  }
+  return componentModule.exports.default;
 }
 
 const {
@@ -352,4 +388,44 @@ test("product page constrains mobile offer cards and long content without horizo
   assert.match(retailerOfferCardSource, /flex min-w-0 flex-col gap-4 sm:flex-row/);
   assert.match(retailerOfferCardSource, /w-full min-w-0 max-w-full shrink-0 items-center justify-center rounded-xl/);
   assert.match(retailerOfferCardSource, /break-words[^\"]*\[overflow-wrap:anywhere\]/);
+});
+
+test("reviewed pre-workout facts render exact states, forms and public source kinds", () => {
+  const Component = loadReviewedPreWorkoutFactsComponent();
+  const html = renderToStaticMarkup(React.createElement(Component, {
+    variantName: "Electric Red / 425g",
+    facts: {
+      productId: "411",
+      productVariantId: "1047",
+      caffeineFreeConfirmed: true,
+      facts: [
+        { key: "serving_size_g", informationState: null, amountPerServingMg: null, servingSizeG: 17, servingBasisText: "Serving Size:17g (2 scoops)", ingredientForm: null, ingredientRatio: null, sourceKinds: ["product_label"] },
+        { key: "caffeine", informationState: "confirmed_absent", amountPerServingMg: null, servingSizeG: null, servingBasisText: null, ingredientForm: null, ingredientRatio: null, sourceKinds: ["brand_owner_statement"] },
+        { key: "citrulline", informationState: "present_with_amount", amountPerServingMg: 5000, servingSizeG: 15, servingBasisText: "Serving Size: 2 Scoops (15 g)", ingredientForm: "citrulline_malate", ingredientRatio: "2:1", sourceKinds: ["product_label"] },
+        { key: "creatine", informationState: "present_with_amount", amountPerServingMg: 3000, servingSizeG: 15, servingBasisText: "Serving Size: 2 Scoops (15 g)", ingredientForm: "creatine_monohydrate", ingredientRatio: null, sourceKinds: ["product_label"] },
+        { key: "beta_alanine", informationState: "conflicting_information", amountPerServingMg: null, servingSizeG: null, servingBasisText: null, ingredientForm: null, ingredientRatio: null, sourceKinds: ["manufacturer_source"] },
+      ],
+    },
+  }));
+
+  assert.match(html, /Serving Size:17g \(2 scoops\)/);
+  assert.match(html, /Confirmed absent/);
+  assert.match(html, /Brand owner statement/);
+  assert.match(html, /Citrulline malate 2:1 \(declared malate mass\)/);
+  assert.match(html, /Creatine monohydrate \(declared form mass\)/);
+  assert.match(html, /Not resolved; sources conflict/);
+  assert.match(html, /does not verify the entire formulation/);
+  assert.doesNotMatch(html, /supabase-storage|source_archive_uri|approved_by/);
+});
+
+test("product page validates and scopes the exact requested pre-workout variant", () => {
+  const pageSource = fs.readFileSync(
+    path.join(process.cwd(), "app", "product", "[id]", "page.tsx"),
+    "utf8"
+  );
+  assert.match(pageSource, /\^\[1-9\]\[0-9\]\*\$/);
+  assert.match(pageSource, /productVariants\.find\(\(variant\) => String\(variant\.id\) === requestedVariantId\)/);
+  assert.match(pageSource, /String\(offer\.product_variant_id\) === String\(requestedVariant\.id\)/);
+  assert.match(pageSource, /href=\{`\/product\/\$\{product\.slug \|\| product\.id\}\?variant=/);
+  assert.match(pageSource, /No reviewed ingredient facts are available for this exact/);
 });

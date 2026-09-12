@@ -61,6 +61,19 @@ export default function ActiveSearchFilters({
           }),
         }
       : null,
+    filters.caffeine === "free"
+      ? {
+          key: "caffeine",
+          label: "Caffeine",
+          value: "Confirmed caffeine free",
+          href: searchUrl({
+            query,
+            sort,
+            filters,
+            updates: { caffeine: "" },
+          }),
+        }
+      : null,
   ].filter((filter): filter is NonNullable<typeof filter> => filter !== null);
 
   if (activeFilters.length === 0) {
@@ -83,7 +96,7 @@ export default function ActiveSearchFilters({
         href={searchUrl({
           query,
           sort,
-          filters: { category: "", brand: "", retailer: "" },
+          filters: { category: "", brand: "", retailer: "", caffeine: "" },
         })}
         className="text-sm font-semibold text-zinc-700 underline underline-offset-4 hover:text-zinc-950"
       >

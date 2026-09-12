@@ -1,5 +1,6 @@
 import PriceHistoryChart from "../../components/PriceHistoryChart";
 import RetailerOfferCard from "../../components/RetailerOfferCard";
+import ReviewedPreWorkoutFacts from "../../components/ReviewedPreWorkoutFacts";
 import {
   BetterValueAlternativeLink,
   BetterValueAlternativesImpression,
@@ -37,6 +38,7 @@ import {
   formatOfferCheckedDate,
 } from "../../lib/productOfferPresentation";
 import { getEffectiveNutritionMetrics } from "../../lib/nutritionMetrics";
+import { loadAppliedPreWorkoutFacts } from "../../lib/reviewedPreWorkoutFacts.server";
 import { comparisonLinkForProduct } from "../../lib/categoryRoutes";
 import {
   getBestProductOffer,
@@ -96,6 +98,10 @@ type ProductOfferEnrichmentRow = {
   id: number | string;
   external_options: Record<string, unknown> | null;
   product_variant: ProductOfferVariant | ProductOfferVariant[] | null;
+};
+
+type ProductPageVariant = ProductOfferVariant & {
+  product_id: number | string;
 };
 
 function relationOne<T>(value: T | T[] | null | undefined) {
@@ -239,10 +245,21 @@ export async function generateMetadata({
 }
 export default async function ProductPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<{ variant?: string | string[] }>;
 }) {
   const { id } = await params;
+  const routeSearchParams = await (
+    searchParams || Promise.resolve<{ variant?: string | string[] }>({})
+  );
+  const requestedVariantValue = Array.isArray(routeSearchParams.variant)
+    ? routeSearchParams.variant[0]
+    : routeSearchParams.variant;
+  const requestedVariantId = requestedVariantValue && /^[1-9][0-9]*$/.test(requestedVariantValue)
+    ? requestedVariantValue
+    : null;
 
   const { data: product, error } = await getProductByRouteParam(id, "*");
   if (error || !product) {
@@ -274,7 +291,37 @@ export default async function ProductPage({
     .eq("product_id", product.id)
     .order("price", { ascending: true });
 
-  const offerRows = (offers || []) as unknown as ProductOfferQueryRow[];
+  const isPreWorkoutProduct =
+    product.category?.trim().toLowerCase() === "pre workout";
+  const { data: productVariantData, error: productVariantError } = isPreWorkoutProduct
+    ? await supabaseAdmin
+        .from("product_variants")
+        .select("id,product_id,variant_key,display_name,flavour_label,size_value,size_unit,product_format,nutrition_override,is_default,is_active")
+        .eq("product_id", product.id)
+        .eq("is_active", true)
+        .order("display_name")
+    : { data: [], error: null };
+  const productVariants = productVariantError
+    ? []
+    : (productVariantData || []) as unknown as ProductPageVariant[];
+  const appliedFactsByVariant = await loadAppliedPreWorkoutFacts(
+    productVariants.map((variant) => ({
+      id: variant.id,
+      product_id: variant.product_id,
+      nutrition_override: variant.nutrition_override,
+    }))
+  );
+
+  const requestedVariant = requestedVariantId
+    ? productVariants.find((variant) => String(variant.id) === requestedVariantId) || null
+    : null;
+
+  const offerRows = ((offers || []) as unknown as ProductOfferQueryRow[])
+    .filter((offer) =>
+      requestedVariant
+        ? String(offer.product_variant_id) === String(requestedVariant.id)
+        : true
+    );
   const retailerProductIds = offerRows.map((offer) => offer.retailer_product_id);
   const { data: retailerProducts } = retailerProductIds.length > 0
     ? await supabaseAdmin
@@ -546,6 +593,19 @@ export default async function ProductPage({
   const cheapestVariantLabel = cheapestOffer
     ? getOfferVariantLabel(cheapestOffer)
     : null;
+  const selectedVariant = requestedVariant || (
+    cheapestOffer
+      ? productVariants.find((variant) =>
+          String(variant.id) === String(cheapestOffer.product_variant_id)
+        ) || cheapestOffer.product_variant
+      : null
+  );
+  const selectedVariantId = selectedVariant ? String(selectedVariant.id) : null;
+  const selectedVariantLabel = selectedVariant?.display_name || cheapestVariantLabel;
+  const selectedAppliedFacts = selectedVariantId
+    ? appliedFactsByVariant.get(selectedVariantId) || null
+    : null;
+  const showPreWorkoutFacts = isPreWorkoutProduct && selectedVariant !== null;
   const hasPriceHistorySummary =
     lowestHistoricalPrice !== null ||
     lowestPriceDate !== null ||
@@ -577,7 +637,7 @@ export default async function ProductPage({
       />
       <ProductViewAnalytics
         product={productAnalytics}
-        variantId={cheapestOffer ? String(cheapestOffer.product_variant_id) : undefined}
+        variantId={selectedVariantId || undefined}
       />
       <div className="mx-auto w-full min-w-0 max-w-7xl px-4 py-5 sm:px-6 sm:py-8 lg:py-12">
         <nav aria-label="Breadcrumb">
@@ -666,7 +726,12 @@ export default async function ProductPage({
                 {product.name}
               </h1>
 
-              {cheapestVariantLabel && (
+              {requestedVariant && selectedVariantLabel && (
+                <p className="mt-2 min-w-0 max-w-full break-words text-sm font-medium text-[#4B5563] [overflow-wrap:anywhere] sm:mt-3 sm:text-base">
+                  Variant: {selectedVariantLabel}
+                </p>
+              )}
+              {!requestedVariant && cheapestVariantLabel && (
                 <p className="mt-2 min-w-0 max-w-full break-words text-sm font-medium text-[#4B5563] [overflow-wrap:anywhere] sm:mt-3 sm:text-base">
                   Variant: {cheapestVariantLabel}
                 </p>
@@ -790,6 +855,57 @@ export default async function ProductPage({
                   ))}
                 </dl>
               </section>
+            )}
+
+            {showPreWorkoutFacts && (
+              <>
+                {productVariants.length > 1 && (
+                  <section className="mt-5 w-full min-w-0 max-w-full rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:mt-7 sm:p-6 lg:mt-8 lg:rounded-3xl lg:p-8">
+                    <h2 className="text-xl font-bold text-gray-900">
+                      Choose a variant
+                    </h2>
+                    <div className="mt-4 flex flex-wrap gap-2" aria-label="Product variants">
+                      {productVariants.map((variant) => {
+                        const variantId = String(variant.id);
+                        const isSelected = variantId === selectedVariantId;
+                        return (
+                          <Link
+                            key={variantId}
+                            href={`/product/${product.slug || product.id}?variant=${encodeURIComponent(variantId)}`}
+                            aria-current={isSelected ? "true" : undefined}
+                            className={`inline-flex min-h-11 max-w-full items-center rounded-xl border px-4 py-2 text-sm font-semibold ${
+                              isSelected
+                                ? "border-zinc-950 bg-zinc-950 text-white"
+                                : "border-zinc-300 bg-white text-zinc-800 hover:border-zinc-500"
+                            }`}
+                          >
+                            <span className="break-words [overflow-wrap:anywhere]">
+                              {variant.display_name || variant.flavour_label || `Variant ${variantId}`}
+                            </span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </section>
+                )}
+
+                {selectedAppliedFacts && selectedAppliedFacts.facts.length > 0 ? (
+                  <ReviewedPreWorkoutFacts
+                    facts={selectedAppliedFacts}
+                    variantName={selectedVariantLabel || `Variant ${selectedVariantId}`}
+                  />
+                ) : (
+                  <section className="mt-5 w-full min-w-0 max-w-full rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:mt-7 sm:p-6 lg:mt-8 lg:rounded-3xl lg:p-8">
+                    <h2 className="text-xl font-bold text-gray-900">
+                      Pre-workout ingredients
+                    </h2>
+                    <p className="mt-3 text-sm leading-6 text-gray-600">
+                      No reviewed ingredient facts are available for this exact
+                      variant. We do not infer them from its name or another flavour.
+                    </p>
+                  </section>
+                )}
+              </>
             )}
 
             {(verifiedPricePerServing !== null ||

@@ -111,6 +111,16 @@ and produced no second write. This demonstration is now `LIVE VERIFIED`; it does
 not replace a frozen pilot variant or authorize any other GYM HIGH work. Pilot
 progress remains one completed variant of 25. The next nutrition step remains
 one consolidated owner source/permission pack for the fixed ten-variant Batch 01.
+The owner has also authorized bounded NUT-04A ahead of NUT-03 closure. It reuses
+the existing product and search routes to display only exact-variant facts whose
+approved candidates reconstruct the applied override, and to filter current
+available offers by an applied, approved `confirmed_absent` caffeine fact. The
+public result contains only the source kind and never the private candidate queue,
+archive URI, reviewer identity or raw evidence. Product `38` / variant `726` is
+the applied-caffeine control; product `411` / variant `1047` is the separately
+authorized GYM HIGH absence example. Variants without matching proof remain
+excluded. NUT-03 and its frozen denominator remain unchanged; NUT-04 does not
+close until NUT-03 and the remaining NUT-04 criteria are complete.
 SEO-15 remains BLOCKED, the 16 September accrual check and conditional 24-25
 September reviews remain scheduled, and GYM HIGH remains owner-deferred outside
 the single exact demonstration exception above.

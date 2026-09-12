@@ -1,0 +1,83 @@
+{
+  "schema_version": "nutrition_nut04a_e1",
+  "stage": "NUT-04A",
+  "status": "CODE_COMPLETE",
+  "status_date": "2026-09-12",
+  "authorization": {
+    "scope": "Early bounded presentation of applied exact-variant pre-workout facts and a confirmed caffeine-free search filter.",
+    "frozen_pilot_unchanged": true,
+    "nut_03_status": "IN PROGRESS",
+    "gym_high_exception": {
+      "product_id": "411",
+      "product_variant_id": "1047",
+      "presentation_only": true,
+      "other_gym_high_work_unlocked": false
+    }
+  },
+  "production_preflight": {
+    "captured_at": "2026-09-12T09:23:30.866Z",
+    "mode": "read_only",
+    "control_variants": [
+      {
+        "product_id": "38",
+        "product_variant_id": "726",
+        "slug": "applied-nutrition-pump-3g-pre-workout-375g",
+        "caffeine_information_state": "present_with_amount",
+        "caffeine_amount_per_serving_mg": 250,
+        "approved_candidate_ids": ["696", "697", "698", "699", "700"]
+      },
+      {
+        "product_id": "411",
+        "product_variant_id": "1047",
+        "slug": "gym-high-the-stinger-zero-caffeine-pump-pre-workout-425g",
+        "caffeine_information_state": "confirmed_absent",
+        "creatine_information_state": "confirmed_absent",
+        "approved_candidate_ids": ["701", "702", "703", "704", "705"]
+      }
+    ],
+    "catalogue_writes": 0,
+    "candidate_writes": 0
+  },
+  "public_proof_contract": {
+    "requires_candidate_status": "approved",
+    "requires_exact_product_variant_pair": true,
+    "requires_exact_reconstruction_of_current_override": true,
+    "filter_requires_current_in_stock_offer_for_same_variant": true,
+    "public_fields": ["fact", "information_state", "amount", "serving_basis", "ingredient_form", "ingredient_ratio", "source_kind"],
+    "withheld_fields": ["source_archive_uri", "source_file_sha256", "source_locator", "reviewer", "review_notes", "raw_evidence"]
+  },
+  "implementation": {
+    "new_public_routes": 0,
+    "new_panels": 0,
+    "new_importers": 0,
+    "migrations": 0,
+    "catalogue_data_changes": 0,
+    "product_variant_query_parameter": "variant",
+    "caffeine_filter_parameter": "caffeine=free",
+    "seo_contract": "Existing /search noindex/canonical and product canonical behavior retained."
+  },
+  "local_validation": {
+    "targeted_tests": {
+      "command": "node --test scripts/product-presentation.test.js scripts/nutrition-metrics.test.js scripts/search.test.js scripts/search-ux.test.js",
+      "passed": 91,
+      "failed": 0
+    },
+    "verify_quick": "PASS (380 tests)",
+    "verify_full": "PASS (production build included)",
+    "verify_project_before_documentation": "PASS",
+    "verify_project_after_documentation": "PASS"
+  },
+  "live_verification": {
+    "deployment_commit": null,
+    "deployment_status": "PENDING",
+    "checked_at": null,
+    "examples": []
+  },
+  "coverage": {
+    "frozen_pilot_completed_variants": 1,
+    "frozen_pilot_total_variants": 25,
+    "additional_demo_variants_presented": 1,
+    "confirmed_caffeine_free_variants_with_current_offer_at_preflight": 1
+  },
+  "next_step": "Complete deployment and live desktop/mobile checks for NUT-04A, then resume NUT-03 only when the fixed Batch 01 receives new owner evidence."
+}

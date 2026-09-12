@@ -21,6 +21,7 @@ export function searchUrl({
     category: updates.category ?? filters.category,
     brand: updates.brand ?? filters.brand,
     retailer: updates.retailer ?? filters.retailer,
+    caffeine: updates.caffeine ?? filters.caffeine,
   };
   const nextSort = updates.sort ?? sort;
 
@@ -38,6 +39,10 @@ export function searchUrl({
 
   if (nextFilters.retailer) {
     params.set("retailer", nextFilters.retailer);
+  }
+
+  if (nextFilters.caffeine === "free") {
+    params.set("caffeine", "free");
   }
 
   if (nextSort !== "relevance") {
