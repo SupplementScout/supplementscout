@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-controlled-execution-closeout-v1",
+  "status": "LIVE_VERIFIED",
+  "scope": {
+    "classification": "LIMITED_DEMONSTRATION_EXCEPTION_OUTSIDE_FROZEN_PILOT",
+    "product_id": "411",
+    "product_variant_id": "1047",
+    "product_name": "GYM HIGH The Stinger Zero Caffeine Pump Pre Workout 425g",
+    "variant_name": "Electric Red / 425g",
+    "frozen_pilot_completed_variants": 1,
+    "frozen_pilot_total_variants": 25,
+    "counts_toward_frozen_pilot": false,
+    "unlocks_other_gym_high_work": false
+  },
+  "authorization": {
+    "authorized_stages": [
+      "store",
+      "review",
+      "plan",
+      "apply"
+    ],
+    "artifact_sha256": "bef4f35930c644c0df1a651fb4e9d8328428f4f7285cbe3699e25b6140f9ce42",
+    "artifact_fingerprint": "a41be3efaa2b83cf3381373563bec2fe2634acc06b7ea52b96b86c9c197a97f6",
+    "expected_initial_nutrition_override": {}
+  },
+  "production_target": {
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "database_identity": "supplementscout-production:aftboxmrdgyhizicfsfu",
+    "target_environment": "PRODUCTION"
+  },
+  "source_separation": {
+    "label_sha256": "74685708dc6cc27d8e588ab4cb642e6f7183267747e7831a65e991b407ca4136",
+    "label_supports_candidate_ids": [
+      "701",
+      "702",
+      "703"
+    ],
+    "brand_owner_attestation_sha256": "2d9ac778aed20531616e72467f05bcfe6c73e5b7335f3c26f39c082ffde7b3f1",
+    "brand_owner_attestation_supports_candidate_ids": [
+      "704",
+      "705"
+    ],
+    "attestation_is_label_text": false,
+    "attestation_is_laboratory_result": false
+  },
+  "candidates": [
+    {
+      "id": "701",
+      "candidate_fingerprint": "b85be8d5a8dff1d5603420094fc82ba8eba3e19915dddf9282ffc828d81e1733",
+      "field": "serving_size_g",
+      "approved_value": 17,
+      "approved_unit": "g",
+      "status": "approved",
+      "reviewed_by": "admin-panel"
+    },
+    {
+      "id": "702",
+      "candidate_fingerprint": "65f243e23f88c8b82439758d0da53d778281452a7b67275b995938adcdb22106",
+      "field": "beta_alanine_per_serving_mg",
+      "approved_value": 3200,
+      "approved_unit": "mg",
+      "information_state": "present_with_amount",
+      "serving_basis_text": "Serving Size:17g (2 scoops)",
+      "status": "approved",
+      "reviewed_by": "admin-panel"
+    },
+    {
+      "id": "703",
+      "candidate_fingerprint": "dcd3c49ca21aadcbda538cc7cc1ca24da5a556e3c600e339482474a2e6745b78",
+      "field": "citrulline_per_serving_mg",
+      "approved_value": 3000,
+      "approved_unit": "mg",
+      "information_state": "present_with_amount",
+      "ingredient_form": "l_citrulline",
+      "serving_basis_text": "Serving Size:17g (2 scoops)",
+      "status": "approved",
+      "reviewed_by": "admin-panel"
+    },
+    {
+      "id": "704",
+      "candidate_fingerprint": "7c0b25a0bf701d6df31f97be797559c02f66fda8a6cfe90dc92e5de0bb4b9bd5",
+      "field": "caffeine_per_serving_mg",
+      "approved_value": null,
+      "approved_unit": null,
+      "information_state": "confirmed_absent",
+      "status": "approved",
+      "reviewed_by": "admin-panel"
+    },
+    {
+      "id": "705",
+      "candidate_fingerprint": "4b920eb930498711857ba8604cd5f1f9f6fa4010e139faf0f016069eba511181",
+      "field": "creatine_declared_form_per_serving_mg",
+      "approved_value": null,
+      "approved_unit": null,
+      "information_state": "confirmed_absent",
+      "status": "approved",
+      "reviewed_by": "admin-panel"
+    }
+  ],
+  "store": {
+    "result": "CANDIDATE_TABLE_WRITE_ONLY",
+    "new_records": 5,
+    "existing_records": 0,
+    "product_updates": 0,
+    "candidate_ids": [
+      "701",
+      "702",
+      "703",
+      "704",
+      "705"
+    ],
+    "each_fingerprint_count_after_store": 1
+  },
+  "review": {
+    "mechanism": "authenticated individual-review route",
+    "result": "APPROVED",
+    "approved_records": 5,
+    "panel_http_status": 200,
+    "panel_exact_target_visible": true,
+    "panel_unavailable_notice": false
+  },
+  "plan": {
+    "path": "tmp/nutrition-approved-plan/NCR1-demo-gym-high-411-1047-cb1005b7aa2a-0dd1acfa89b2.json",
+    "sha256": "a1eb3c61e64d65d7e4f3092f0067479ee8efa44002359abd07962a7270a8cd16",
+    "plan_fingerprint": "0dd1acfa89b2393dea57fcd36cd8e74e1e7666ff44c32a98d604bfd2b644944d",
+    "source_candidate_ids": [
+      "701",
+      "702",
+      "703",
+      "704",
+      "705"
+    ],
+    "blockers": [],
+    "product_updates": 0,
+    "variant_updates": 1,
+    "before_nutrition_override": {},
+    "changed_fields": [
+      "serving_size_g",
+      "beta_alanine",
+      "citrulline",
+      "caffeine",
+      "creatine"
+    ]
+  },
+  "apply": {
+    "status": "APPLIED_REVIEWED_NUTRITION_FIELDS",
+    "applied_at": "2026-09-12T08:51:43.438Z",
+    "changed_products": [],
+    "changed_variants": [
+      "1047"
+    ],
+    "audit_sha256": "88a0f2f1e5a34de8bbd8bb914b03b1f9dec11c55cc1c51472b7697bc9bea1645"
+  },
+  "independent_readback": {
+    "connection": "new production PostgreSQL connection forced read-only",
+    "result": "PASS",
+    "complete_override_matches_plan_after": true,
+    "nutrition_override_sha256": "185c8e4e5dbce7b1eb19a8041d00073457b8aadbd380ddaeba989df326553955",
+    "candidate_queue_sha256_unchanged_by_apply": "4649e6b3d89b1d8d5a0bff3479be66e0d25529b3d070f3b937dd1152553ce68e",
+    "product_table_sha256_unchanged": "54ca4527908c69a05a19affcb7ad12a99613054de5058797f599c29e265e2392",
+    "all_other_variants_sha256_unchanged": "95fb95cd468accc9421e7c9e87af518c7c9ed457da648b37f8131640a4d20799",
+    "target_variant_non_override_metadata_sha256_unchanged": "d46537374d983729a182487f87b0534252056d050c9999eaf1d85e236008ff67",
+    "product_411_sha256_unchanged": "3fb48e6204048ed1ae247413b2cf301f76f4b69362a2645609bf6fdab3792c30",
+    "nutrition_verified": false,
+    "legacy_creatine_per_serving_g": null,
+    "approved_candidates_and_evidence_unchanged": true
+  },
+  "exact_replay": {
+    "result": "SAFE_REJECTION",
+    "no_op": false,
+    "process_exit_code": 1,
+    "message": "Variant 1047 nutrition override changed after plan generation",
+    "post_rejection_readback_matches_applied_state": true,
+    "additional_writes": 0
+  },
+  "code_or_schema_changes": false
+}

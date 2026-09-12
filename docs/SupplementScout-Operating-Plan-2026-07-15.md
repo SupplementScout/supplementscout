@@ -95,16 +95,22 @@ is one consolidated owner-provided source/permission pack for this same list,
 followed by one rerun using only newly supplied evidence.
 Separately, the owner authorized one exact demonstration outside the frozen
 pilot for GYM HIGH The Stinger product `411` / variant `1047`, Electric Red
-425 g. Fresh production read confirmed the ownership pair, empty variant
-override and zero existing exact-variant candidates. Two supplied images, a
-separate brand-owner attestation and their manifest are stored in the existing
-private archive with matched readback hashes. One ignored five-row artifact
-proposes the 17 g/two-scoop serving, 3200 mg beta-alanine, 3000 mg free-form
-L-citrulline, and owner-attested `confirmed_absent` states for caffeine and
-creatine. The existing dry-run passed with no database write. This exception
-does not replace a frozen pilot variant or authorize any other GYM HIGH work;
-candidate storage remains a separate owner decision recorded in the canonical
-Nutrition Execution Plan.
+425 g. Fresh production preflight confirmed the ownership pair, empty variant
+override and initially zero exact-variant candidates. Two supplied images, a
+separate brand-owner attestation and their manifest remain stored in the private
+archive with matched readback hashes. The owner subsequently authorized the
+unchanged five-row artifact through store, review, plan and apply. Candidates
+`701`-`705` each exist once and are approved; the owner-attested caffeine and
+creatine absences retain null numeric values. The zero-blocker plan updated only
+variant `1047`'s `nutrition_override` with the 17 g/two-scoop serving, 3200 mg
+beta-alanine, 3000 mg free-form L-citrulline and both absence states. New
+read-only production connections matched the complete result and preserved the
+candidate evidence, all products, all other variants, `nutrition_verified` and
+legacy creatine field. Exact replay failed closed against the stale before-state
+and produced no second write. This demonstration is now `LIVE VERIFIED`; it does
+not replace a frozen pilot variant or authorize any other GYM HIGH work. Pilot
+progress remains one completed variant of 25. The next nutrition step remains
+one consolidated owner source/permission pack for the fixed ten-variant Batch 01.
 SEO-15 remains BLOCKED, the 16 September accrual check and conditional 24-25
 September reviews remain scheduled, and GYM HIGH remains owner-deferred outside
 the single exact demonstration exception above.
