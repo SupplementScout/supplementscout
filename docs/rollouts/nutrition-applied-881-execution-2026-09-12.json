@@ -1,0 +1,1045 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-applied-881-controlled-execution-closeout-v1",
+  "status": "LIVE_VERIFIED",
+  "status_date": "2026-09-12",
+  "scope": {
+    "product_id": "881",
+    "variants": [
+      {
+        "product_variant_id": "1383",
+        "name": "Baddy Berry / 375g"
+      },
+      {
+        "product_variant_id": "1384",
+        "name": "Bubblegum Crush / 375g"
+      }
+    ],
+    "candidate_ids": [
+      "726",
+      "727",
+      "728",
+      "729",
+      "730",
+      "731",
+      "732",
+      "733",
+      "734",
+      "735"
+    ],
+    "applied_pilot_coverage": {
+      "completed": 7,
+      "total": 25
+    },
+    "separate_demonstration": {
+      "product_id": "411",
+      "product_variant_id": "1047",
+      "name": "GYM HIGH The Stinger Electric Red 425 g",
+      "included_in_pilot_denominator": false
+    }
+  },
+  "authorization": {
+    "stages": [
+      "store",
+      "review",
+      "plan",
+      "apply"
+    ],
+    "artifact_path": "tmp/nutrition-pilot-remaining-2026-09-12/candidate-artifact/nutrition-candidates-ncr1-remaining-pilot-applied-881-20260912.json",
+    "artifact_sha256": "d127d1be12e3977d74363e54e79e2a83c23de810f388824b399910138bfaf243",
+    "artifact_fingerprint": "c9e47b1251d808596bbd2202fbdd668c5881804cb23eb268cf532257c7573c49",
+    "expected_candidates": 10,
+    "allowed_product_updates": 0,
+    "allowed_variant_updates": 2
+  },
+  "production_target": {
+    "target_environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu"
+  },
+  "preflight": {
+    "result": "PASS",
+    "target_candidate_count": 0,
+    "initial_overrides": {
+      "1383": {},
+      "1384": {}
+    },
+    "queue_status_counts": {
+      "approved": 703,
+      "pending": 16,
+      "rejected": 6
+    },
+    "source_archive_readback": {
+      "result": "PASS",
+      "captured_at": "2026-09-12T18:40:46.589Z",
+      "target_environment": "PRODUCTION",
+      "project_ref": "aftboxmrdgyhizicfsfu",
+      "bucket": "nutrition-sources",
+      "bucket_public": false,
+      "writes": 0,
+      "objects": [
+        {
+          "kind": "manufacturer_label",
+          "uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+          "sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+          "bytes": 235968,
+          "result": "PASS"
+        },
+        {
+          "kind": "shared_table_context_manifest",
+          "uri": "supabase-storage://nutrition-sources/manifests/nut-03/applied-nutrition/remaining-pilot-881/fc086ee4e321b109e421a92148c0ef01cb74f028fd0c694c30fccad6aa3a4cbf/source-context-manifest.json",
+          "sha256": "fc086ee4e321b109e421a92148c0ef01cb74f028fd0c694c30fccad6aa3a4cbf",
+          "bytes": 3726,
+          "result": "PASS"
+        }
+      ]
+    }
+  },
+  "source_basis": {
+    "classification": "wspolna tabela producenta dla wariantow produktu",
+    "product_naming_context": "Official page title: All Black Everything; product information section: ABE Ultimate; same current 375 g / 30-serving page and table.",
+    "excluded_variant_context": "Candy Ice Blast is outside the authorized variants and no fact was extended to it.",
+    "context_manifest_path": "tmp/nutrition-pilot-remaining-2026-09-12/source-context-manifest.json",
+    "context_manifest_sha256": "fc086ee4e321b109e421a92148c0ef01cb74f028fd0c694c30fccad6aa3a4cbf",
+    "context_manifest_archive_uri": "supabase-storage://nutrition-sources/manifests/nut-03/applied-nutrition/remaining-pilot-881/fc086ee4e321b109e421a92148c0ef01cb74f028fd0c694c30fccad6aa3a4cbf/source-context-manifest.json",
+    "label_sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+    "label_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+    "duplicate_archive_write": false
+  },
+  "store": {
+    "mode": "CANDIDATE_TABLE_WRITE_ONLY",
+    "new_records": 10,
+    "existing_records": 0,
+    "product_updates": 0,
+    "candidate_ids": [
+      "726",
+      "727",
+      "728",
+      "729",
+      "730",
+      "731",
+      "732",
+      "733",
+      "734",
+      "735"
+    ],
+    "status": "pending",
+    "queue_status_counts_after": {
+      "approved": 703,
+      "pending": 26,
+      "rejected": 6
+    }
+  },
+  "review": {
+    "result": "PASS",
+    "mechanism": "authenticated existing admin individual-review path",
+    "status": "approved",
+    "review_note": "Owner-authorized Applied Nutrition product 881 shared-table review; candidate matches artifact SHA-256 d127d1be12e3977d74363e54e79e2a83c23de810f388824b399910138bfaf243; applicability basis: wspolna tabela producenta dla wariantow produktu; ABE Ultimate / All Black Everything context manifest SHA-256 fc086ee4e321b109e421a92148c0ef01cb74f028fd0c694c30fccad6aa3a4cbf.",
+    "candidates": [
+      {
+        "id": "726",
+        "product_id": "881",
+        "product_variant_id": "1383",
+        "field": "beta_alanine_per_serving_mg",
+        "proposed_value": 2000,
+        "proposed_unit": "mg",
+        "approved_value": 2000,
+        "information_state": "present_with_amount",
+        "source_quantity_value": 2,
+        "source_quantity_unit": "g",
+        "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+        "ingredient_form": null,
+        "ingredient_ratio": null,
+        "status": "approved",
+        "reviewed_at": "2026-09-12T18:41:36.08+00:00",
+        "reviewed_by": "admin-panel",
+        "candidate_fingerprint": "1b08b52ea53e3b36b0fe873be5239100a369cd0553fd210b066b7a734f616ba8",
+        "source_url": "https://appliednutrition.uk/products/abe-all-black-everything-375g",
+        "source_file_sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+        "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+        "source_locator": "image:881-Applied-ABE-375g.jpg#nutrition-table/beta/per-12.5g; source-context-manifest.json#product-881/variant-1383; selected page https://appliednutrition.uk/products/abe-all-black-everything-375g?variant=46669202981096; page SHA-256 8985a0be2d0e893bf5dddb6c202c3f933eb37e1c6e16d317d5c9301d1c5cd1fd"
+      },
+      {
+        "id": "727",
+        "product_id": "881",
+        "product_variant_id": "1383",
+        "field": "caffeine_per_serving_mg",
+        "proposed_value": 200,
+        "proposed_unit": "mg",
+        "approved_value": 200,
+        "information_state": "present_with_amount",
+        "source_quantity_value": 200,
+        "source_quantity_unit": "mg",
+        "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+        "ingredient_form": null,
+        "ingredient_ratio": null,
+        "status": "approved",
+        "reviewed_at": "2026-09-12T18:41:36.999+00:00",
+        "reviewed_by": "admin-panel",
+        "candidate_fingerprint": "8fb5a050d713862ed7eda100ce588403f3754f538a1ca2c098b11183a42c7e77",
+        "source_url": "https://appliednutrition.uk/products/abe-all-black-everything-375g",
+        "source_file_sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+        "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+        "source_locator": "image:881-Applied-ABE-375g.jpg#nutrition-table/caffeine/per-12.5g; source-context-manifest.json#product-881/variant-1383; selected page https://appliednutrition.uk/products/abe-all-black-everything-375g?variant=46669202981096; page SHA-256 8985a0be2d0e893bf5dddb6c202c3f933eb37e1c6e16d317d5c9301d1c5cd1fd"
+      },
+      {
+        "id": "728",
+        "product_id": "881",
+        "product_variant_id": "1383",
+        "field": "citrulline_per_serving_mg",
+        "proposed_value": 4000,
+        "proposed_unit": "mg",
+        "approved_value": 4000,
+        "information_state": "present_with_amount",
+        "source_quantity_value": 4,
+        "source_quantity_unit": "g",
+        "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+        "ingredient_form": "citrulline_malate",
+        "ingredient_ratio": "2:1",
+        "status": "approved",
+        "reviewed_at": "2026-09-12T18:41:37.946+00:00",
+        "reviewed_by": "admin-panel",
+        "candidate_fingerprint": "f42ca44d16f6f0f07b296dfa86deb2d40e22453454d14c74d1131cdd5a5fa45f",
+        "source_url": "https://appliednutrition.uk/products/abe-all-black-everything-375g",
+        "source_file_sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+        "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+        "source_locator": "image:881-Applied-ABE-375g.jpg#nutrition-table/citrulline/per-12.5g; source-context-manifest.json#product-881/variant-1383; selected page https://appliednutrition.uk/products/abe-all-black-everything-375g?variant=46669202981096; page SHA-256 8985a0be2d0e893bf5dddb6c202c3f933eb37e1c6e16d317d5c9301d1c5cd1fd"
+      },
+      {
+        "id": "729",
+        "product_id": "881",
+        "product_variant_id": "1383",
+        "field": "creatine_declared_form_per_serving_mg",
+        "proposed_value": 3000,
+        "proposed_unit": "mg",
+        "approved_value": 3000,
+        "information_state": "present_with_amount",
+        "source_quantity_value": 3,
+        "source_quantity_unit": "g",
+        "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+        "ingredient_form": "creatine_monohydrate",
+        "ingredient_ratio": null,
+        "status": "approved",
+        "reviewed_at": "2026-09-12T18:41:38.923+00:00",
+        "reviewed_by": "admin-panel",
+        "candidate_fingerprint": "866445dc66bffb2939668dcc443a9dfcfc3433bb23923b1e146e1a0e635f8a7a",
+        "source_url": "https://appliednutrition.uk/products/abe-all-black-everything-375g",
+        "source_file_sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+        "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+        "source_locator": "image:881-Applied-ABE-375g.jpg#nutrition-table/creatine/per-12.5g; source-context-manifest.json#product-881/variant-1383; selected page https://appliednutrition.uk/products/abe-all-black-everything-375g?variant=46669202981096; page SHA-256 8985a0be2d0e893bf5dddb6c202c3f933eb37e1c6e16d317d5c9301d1c5cd1fd"
+      },
+      {
+        "id": "730",
+        "product_id": "881",
+        "product_variant_id": "1383",
+        "field": "serving_size_g",
+        "proposed_value": 12.5,
+        "proposed_unit": "g",
+        "approved_value": 12.5,
+        "information_state": null,
+        "source_quantity_value": null,
+        "source_quantity_unit": null,
+        "serving_basis_text": null,
+        "ingredient_form": null,
+        "ingredient_ratio": null,
+        "status": "approved",
+        "reviewed_at": "2026-09-12T18:41:39.506+00:00",
+        "reviewed_by": "admin-panel",
+        "candidate_fingerprint": "71c622d1a3689d977faceaf7d6ea9756d03203959aa7ad852d295df956ec9eb4",
+        "source_url": "https://appliednutrition.uk/products/abe-all-black-everything-375g",
+        "source_file_sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+        "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+        "source_locator": "image:881-Applied-ABE-375g.jpg#serving-header; source-context-manifest.json#product-881/variant-1383; selected page https://appliednutrition.uk/products/abe-all-black-everything-375g?variant=46669202981096; page SHA-256 8985a0be2d0e893bf5dddb6c202c3f933eb37e1c6e16d317d5c9301d1c5cd1fd"
+      },
+      {
+        "id": "731",
+        "product_id": "881",
+        "product_variant_id": "1384",
+        "field": "beta_alanine_per_serving_mg",
+        "proposed_value": 2000,
+        "proposed_unit": "mg",
+        "approved_value": 2000,
+        "information_state": "present_with_amount",
+        "source_quantity_value": 2,
+        "source_quantity_unit": "g",
+        "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+        "ingredient_form": null,
+        "ingredient_ratio": null,
+        "status": "approved",
+        "reviewed_at": "2026-09-12T18:41:40.443+00:00",
+        "reviewed_by": "admin-panel",
+        "candidate_fingerprint": "55ea6d7e47860f7c47036e3911aaf9104175cbf8e16a59c2a86bac414430cf47",
+        "source_url": "https://appliednutrition.uk/products/abe-all-black-everything-375g",
+        "source_file_sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+        "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+        "source_locator": "image:881-Applied-ABE-375g.jpg#nutrition-table/beta/per-12.5g; source-context-manifest.json#product-881/variant-1384; selected page https://appliednutrition.uk/products/abe-all-black-everything-375g?variant=39339774705831; page SHA-256 cb543dd66383a780b25ec0d9a3c66d118c0f84af4c5c05969284ea08829e7d49"
+      },
+      {
+        "id": "732",
+        "product_id": "881",
+        "product_variant_id": "1384",
+        "field": "caffeine_per_serving_mg",
+        "proposed_value": 200,
+        "proposed_unit": "mg",
+        "approved_value": 200,
+        "information_state": "present_with_amount",
+        "source_quantity_value": 200,
+        "source_quantity_unit": "mg",
+        "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+        "ingredient_form": null,
+        "ingredient_ratio": null,
+        "status": "approved",
+        "reviewed_at": "2026-09-12T18:41:40.87+00:00",
+        "reviewed_by": "admin-panel",
+        "candidate_fingerprint": "b5c131e579dd79fce5a59746bdfaca0fdb50c668c128ed8a20bbc42543d25af5",
+        "source_url": "https://appliednutrition.uk/products/abe-all-black-everything-375g",
+        "source_file_sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+        "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+        "source_locator": "image:881-Applied-ABE-375g.jpg#nutrition-table/caffeine/per-12.5g; source-context-manifest.json#product-881/variant-1384; selected page https://appliednutrition.uk/products/abe-all-black-everything-375g?variant=39339774705831; page SHA-256 cb543dd66383a780b25ec0d9a3c66d118c0f84af4c5c05969284ea08829e7d49"
+      },
+      {
+        "id": "733",
+        "product_id": "881",
+        "product_variant_id": "1384",
+        "field": "citrulline_per_serving_mg",
+        "proposed_value": 4000,
+        "proposed_unit": "mg",
+        "approved_value": 4000,
+        "information_state": "present_with_amount",
+        "source_quantity_value": 4,
+        "source_quantity_unit": "g",
+        "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+        "ingredient_form": "citrulline_malate",
+        "ingredient_ratio": "2:1",
+        "status": "approved",
+        "reviewed_at": "2026-09-12T18:41:41.33+00:00",
+        "reviewed_by": "admin-panel",
+        "candidate_fingerprint": "e8a376734d4015d9e0a998a971ac49dee6bb93d24d0be0e930055d3f74fc7f1a",
+        "source_url": "https://appliednutrition.uk/products/abe-all-black-everything-375g",
+        "source_file_sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+        "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+        "source_locator": "image:881-Applied-ABE-375g.jpg#nutrition-table/citrulline/per-12.5g; source-context-manifest.json#product-881/variant-1384; selected page https://appliednutrition.uk/products/abe-all-black-everything-375g?variant=39339774705831; page SHA-256 cb543dd66383a780b25ec0d9a3c66d118c0f84af4c5c05969284ea08829e7d49"
+      },
+      {
+        "id": "734",
+        "product_id": "881",
+        "product_variant_id": "1384",
+        "field": "creatine_declared_form_per_serving_mg",
+        "proposed_value": 3000,
+        "proposed_unit": "mg",
+        "approved_value": 3000,
+        "information_state": "present_with_amount",
+        "source_quantity_value": 3,
+        "source_quantity_unit": "g",
+        "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+        "ingredient_form": "creatine_monohydrate",
+        "ingredient_ratio": null,
+        "status": "approved",
+        "reviewed_at": "2026-09-12T18:41:41.747+00:00",
+        "reviewed_by": "admin-panel",
+        "candidate_fingerprint": "ddf83a1b5db6150ca4f1df720ecdb0343612e6b1efed7e234fbd4293df0d495f",
+        "source_url": "https://appliednutrition.uk/products/abe-all-black-everything-375g",
+        "source_file_sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+        "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+        "source_locator": "image:881-Applied-ABE-375g.jpg#nutrition-table/creatine/per-12.5g; source-context-manifest.json#product-881/variant-1384; selected page https://appliednutrition.uk/products/abe-all-black-everything-375g?variant=39339774705831; page SHA-256 cb543dd66383a780b25ec0d9a3c66d118c0f84af4c5c05969284ea08829e7d49"
+      },
+      {
+        "id": "735",
+        "product_id": "881",
+        "product_variant_id": "1384",
+        "field": "serving_size_g",
+        "proposed_value": 12.5,
+        "proposed_unit": "g",
+        "approved_value": 12.5,
+        "information_state": null,
+        "source_quantity_value": null,
+        "source_quantity_unit": null,
+        "serving_basis_text": null,
+        "ingredient_form": null,
+        "ingredient_ratio": null,
+        "status": "approved",
+        "reviewed_at": "2026-09-12T18:41:42.452+00:00",
+        "reviewed_by": "admin-panel",
+        "candidate_fingerprint": "14e5245b9ecb0c60e84752ba08a392441caa85d650a64096c8775b346408cd2c",
+        "source_url": "https://appliednutrition.uk/products/abe-all-black-everything-375g",
+        "source_file_sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+        "source_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+        "source_locator": "image:881-Applied-ABE-375g.jpg#serving-header; source-context-manifest.json#product-881/variant-1384; selected page https://appliednutrition.uk/products/abe-all-black-everything-375g?variant=39339774705831; page SHA-256 cb543dd66383a780b25ec0d9a3c66d118c0f84af4c5c05969284ea08829e7d49"
+      }
+    ],
+    "queue_status_counts_after": {
+      "approved": 713,
+      "pending": 16,
+      "rejected": 6
+    }
+  },
+  "plan": {
+    "result": "PASS",
+    "path": "tmp/nutrition-approved-plan/NCR1-remaining-pilot-applied-881-20260912-b1f666d6cf3e.json",
+    "sha256": "3f19a7146db2bd9182316319b5bb4a09ac7c16947ac13727d2dcccf627d49ef6",
+    "plan_fingerprint": "b1f666d6cf3ec7e726e80dbd6fd4986041720fee29cfac88848fb4734b1e53aa",
+    "source_candidate_ids": [
+      "726",
+      "727",
+      "728",
+      "729",
+      "730",
+      "731",
+      "732",
+      "733",
+      "734",
+      "735"
+    ],
+    "product_updates": 0,
+    "variant_updates": [
+      {
+        "product_id": "881",
+        "product_variant_id": "1383",
+        "before": {},
+        "after": {
+          "beta_alanine": {
+            "information_state": "present_with_amount",
+            "amount_per_serving_mg": 2000,
+            "source_quantity_value": 2,
+            "source_quantity_unit": "g",
+            "quantity_basis": "per_serving",
+            "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+            "serving_basis_value": 12.5,
+            "serving_basis_unit": "g"
+          },
+          "caffeine": {
+            "information_state": "present_with_amount",
+            "amount_per_serving_mg": 200,
+            "source_quantity_value": 200,
+            "source_quantity_unit": "mg",
+            "quantity_basis": "per_serving",
+            "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+            "serving_basis_value": 12.5,
+            "serving_basis_unit": "g"
+          },
+          "citrulline": {
+            "information_state": "present_with_amount",
+            "amount_per_serving_mg": 4000,
+            "source_quantity_value": 4,
+            "source_quantity_unit": "g",
+            "quantity_basis": "per_serving",
+            "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+            "serving_basis_value": 12.5,
+            "serving_basis_unit": "g",
+            "ingredient_form": "citrulline_malate",
+            "ingredient_ratio": "2:1"
+          },
+          "creatine": {
+            "information_state": "present_with_amount",
+            "amount_per_serving_mg": 3000,
+            "source_quantity_value": 3,
+            "source_quantity_unit": "g",
+            "quantity_basis": "per_serving",
+            "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+            "amount_subject": "declared_ingredient_form",
+            "serving_basis_value": 12.5,
+            "serving_basis_unit": "g",
+            "ingredient_form": "creatine_monohydrate"
+          },
+          "serving_size_g": 12.5
+        }
+      },
+      {
+        "product_id": "881",
+        "product_variant_id": "1384",
+        "before": {},
+        "after": {
+          "beta_alanine": {
+            "information_state": "present_with_amount",
+            "amount_per_serving_mg": 2000,
+            "source_quantity_value": 2,
+            "source_quantity_unit": "g",
+            "quantity_basis": "per_serving",
+            "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+            "serving_basis_value": 12.5,
+            "serving_basis_unit": "g"
+          },
+          "caffeine": {
+            "information_state": "present_with_amount",
+            "amount_per_serving_mg": 200,
+            "source_quantity_value": 200,
+            "source_quantity_unit": "mg",
+            "quantity_basis": "per_serving",
+            "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+            "serving_basis_value": 12.5,
+            "serving_basis_unit": "g"
+          },
+          "citrulline": {
+            "information_state": "present_with_amount",
+            "amount_per_serving_mg": 4000,
+            "source_quantity_value": 4,
+            "source_quantity_unit": "g",
+            "quantity_basis": "per_serving",
+            "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+            "serving_basis_value": 12.5,
+            "serving_basis_unit": "g",
+            "ingredient_form": "citrulline_malate",
+            "ingredient_ratio": "2:1"
+          },
+          "creatine": {
+            "information_state": "present_with_amount",
+            "amount_per_serving_mg": 3000,
+            "source_quantity_value": 3,
+            "source_quantity_unit": "g",
+            "quantity_basis": "per_serving",
+            "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+            "amount_subject": "declared_ingredient_form",
+            "serving_basis_value": 12.5,
+            "serving_basis_unit": "g",
+            "ingredient_form": "creatine_monohydrate"
+          },
+          "serving_size_g": 12.5
+        }
+      }
+    ],
+    "blockers": [],
+    "database_writes": 0
+  },
+  "apply": {
+    "status": "APPLIED_REVIEWED_NUTRITION_FIELDS",
+    "applied_at": "2026-09-12T18:43:44.907Z",
+    "changed_products": [],
+    "changed_variants": [
+      {
+        "product_id": "881",
+        "product_variant_id": "1383",
+        "fields": [
+          "beta_alanine",
+          "caffeine",
+          "citrulline",
+          "creatine",
+          "serving_size_g"
+        ]
+      },
+      {
+        "product_id": "881",
+        "product_variant_id": "1384",
+        "fields": [
+          "beta_alanine",
+          "caffeine",
+          "citrulline",
+          "creatine",
+          "serving_size_g"
+        ]
+      }
+    ],
+    "audit_path": "tmp/nutrition-approved-plan/NCR1-remaining-pilot-applied-881-20260912-b1f666d6cf3e-audit.json",
+    "audit_sha256": "a03cba14a8755e40ea760f898618991d40d360a3893e701835bc672dc44fcdcf"
+  },
+  "independent_readback": {
+    "result": "PASS",
+    "queue_status_counts": {
+      "approved": 713,
+      "pending": 16,
+      "rejected": 6
+    },
+    "variants": [
+      {
+        "id": "1383",
+        "product_id": "881",
+        "display_name": "Baddy Berry / 375g",
+        "nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 12.5,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 200,
+            "source_quantity_value": 200
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 12.5,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3000,
+            "source_quantity_value": 3
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "citrulline_malate",
+            "ingredient_ratio": "2:1",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 12.5,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 4000,
+            "source_quantity_value": 4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 12.5,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 2000,
+            "source_quantity_value": 2
+          },
+          "serving_size_g": 12.5
+        }
+      },
+      {
+        "id": "1384",
+        "product_id": "881",
+        "display_name": "Bubblegum Crush / 375g",
+        "nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 12.5,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 200,
+            "source_quantity_value": 200
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 12.5,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3000,
+            "source_quantity_value": 3
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "citrulline_malate",
+            "ingredient_ratio": "2:1",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 12.5,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 4000,
+            "source_quantity_value": 4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "Serving Size: 1 Scoop (12.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 12.5,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 2000,
+            "source_quantity_value": 2
+          },
+          "serving_size_g": 12.5
+        }
+      }
+    ],
+    "full_after_matches_plan": true,
+    "candidate_approvals_and_evidence_unchanged": true,
+    "preserved": {
+      "full_product_table": true,
+      "all_other_variants": true,
+      "target_variant_metadata": true,
+      "non_target_candidate_queue": true,
+      "nutrition_verified": false,
+      "legacy_creatine_per_serving_g": null
+    }
+  },
+  "replay_protection": {
+    "result": "PASS_SAFE_REJECTION",
+    "behavior": "safe stale-before rejection, not a successful no-op",
+    "exit_code": 1,
+    "message": "Variant 1383 nutrition override changed after plan generation",
+    "post_replay_state_matches_post_apply": true,
+    "queue_status_counts_unchanged": true
+  },
+  "public_readback": {
+    "result": "PASS",
+    "checked_at": "2026-09-12T18:47:40.898Z",
+    "target_environment": "PUBLIC_PRODUCTION",
+    "request_cache_headers": "cache-control:no-cache; pragma:no-cache",
+    "catalogue": {
+      "products": [
+        {
+          "id": "881",
+          "name": "ABE All Black Everything Pre-Workout 375g",
+          "slug": "abe-all-black-everything-pre-workout-375g",
+          "category": "Pre Workout",
+          "nutrition_verified": false,
+          "legacy_creatine_per_serving_g": null
+        }
+      ],
+      "offer_evidence": [
+        {
+          "product_id": "881",
+          "product_variant_id": "1383",
+          "observed_offers": 1,
+          "current_in_stock_offers": 1,
+          "offers": [
+            {
+              "id": "1311",
+              "in_stock": true,
+              "last_checked_at": "2026-09-12T08:52:51.257Z",
+              "fresh_within_24h": true,
+              "price": "20.99",
+              "shipping_cost": "3.99"
+            }
+          ]
+        },
+        {
+          "product_id": "881",
+          "product_variant_id": "1384",
+          "observed_offers": 1,
+          "current_in_stock_offers": 1,
+          "offers": [
+            {
+              "id": "1312",
+              "in_stock": true,
+              "last_checked_at": "2026-09-12T08:52:51.257Z",
+              "fresh_within_24h": true,
+              "price": "20.99",
+              "shipping_cost": "3.99"
+            }
+          ]
+        }
+      ]
+    },
+    "product_pages": [
+      {
+        "product_id": "881",
+        "product_variant_id": "1383",
+        "url": "https://www.supplementscout.co.uk/product/abe-all-black-everything-pre-workout-375g?variant=1383",
+        "http_status": 200,
+        "cache_control": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "vercel_id_present": true,
+        "checks": {
+          "exact_variant": true,
+          "serving": true,
+          "caffeine": true,
+          "beta": true,
+          "citrulline": true,
+          "creatine": true,
+          "source_kind_product_label": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true,
+          "raw_hash_absent": true
+        }
+      },
+      {
+        "product_id": "881",
+        "product_variant_id": "1384",
+        "url": "https://www.supplementscout.co.uk/product/abe-all-black-everything-pre-workout-375g?variant=1384",
+        "http_status": 200,
+        "cache_control": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "vercel_id_present": true,
+        "checks": {
+          "exact_variant": true,
+          "serving": true,
+          "caffeine": true,
+          "beta": true,
+          "citrulline": true,
+          "creatine": true,
+          "source_kind_product_label": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true,
+          "raw_hash_absent": true
+        }
+      }
+    ],
+    "caffeine_free_search": {
+      "url": "https://www.supplementscout.co.uk/search?q=pre%20workout&caffeine=free",
+      "http_status": 200,
+      "cache_control": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "vercel_id_present": true,
+      "unique_product_variant_links": [
+        {
+          "href": "/product/gym-high-the-stinger-zero-caffeine-pump-pre-workout-425g?variant=1047",
+          "variant_id": "1047"
+        },
+        {
+          "href": "/product/applied-nutrition-pump-3g-zero-stim-375g?variant=815",
+          "variant_id": "815"
+        },
+        {
+          "href": "/product/applied-nutrition-abe-pump-500g?variant=760",
+          "variant_id": "760"
+        }
+      ],
+      "target_links": [],
+      "eligible_target_products": [],
+      "target_products_represented": [],
+      "grouping": "one search card per product; selected link points to one qualifying current-offer variant"
+    }
+  },
+  "remaining_pilot": {
+    "unresolved_count": 18,
+    "re_audit_performed": false,
+    "resume_condition": "new evidence, permission, identity decision or exact source resolving the recorded gap",
+    "by_constraint": {
+      "written_permission_required": [
+        "714",
+        "1029",
+        "1059",
+        "885",
+        "1974",
+        "887"
+      ],
+      "http_403_and_terms_clarification": [
+        "3676",
+        "3759"
+      ],
+      "version_package_identity_or_official_source_gap": [
+        "1007",
+        "1016",
+        "1041",
+        "1487",
+        "1864",
+        "1879",
+        "3671",
+        "3674",
+        "3755",
+        "3763"
+      ]
+    },
+    "variants": [
+      {
+        "product_id": "17",
+        "product_variant_id": "714",
+        "brand": "Optimum Nutrition",
+        "product_name": "Optimum Nutrition Gold Standard Pre-Workout 330g",
+        "flavour": "Blue Raspberry",
+        "package_size": "330 g",
+        "official_url": "https://www.optimumnutrition.com/en-gb/products/gold-standard-pre-workout-powder-eu?variant=52651864326411",
+        "collection_constraint": "BATCH_01_WRITTEN_PERMISSION_REQUIRED",
+        "missing_reason": "The official page binding exists, but the handoff request returned HTTP 403 and Optimum Nutrition terms require written permission for the planned copy and private storage.",
+        "required_evidence_or_action": "Obtain manufacturer written permission and an official label that visibly or explicitly binds the Blue Raspberry 330 g formulation."
+      },
+      {
+        "product_id": "55",
+        "product_variant_id": "1029",
+        "brand": "BioTech USA",
+        "product_name": "BioTech USA Nitrox Therapy 340g",
+        "flavour": "Blue Grape",
+        "package_size": "340 g",
+        "official_url": "https://shop.biotechusa.com/products/nitrox-therapy-340-g",
+        "collection_constraint": "BATCH_02_WRITTEN_PERMISSION_REQUIRED",
+        "missing_reason": "Batch 02 was not collected because BioTech USA terms require consent for download and electronic storage or processing.",
+        "required_evidence_or_action": "Obtain written permission and a current official Blue Grape 340 g label before exact formula review."
+      },
+      {
+        "product_id": "58",
+        "product_variant_id": "1007",
+        "brand": "5% Nutrition",
+        "product_name": "5 Nutrition Rich Piana  Full As F*ck 387g",
+        "flavour": "Blue Raspberry",
+        "package_size": "387 g",
+        "official_url": "https://5percentnutrition.com/products/fullaf-preworkout-nitric-oxide-booster",
+        "collection_constraint": "SOURCE_OR_IDENTITY_RESOLUTION_REQUIRED_BEFORE_COLLECTION",
+        "missing_reason": "The current official Full AF page does not establish the frozen Rich Piana Full As F*ck 387 g version.",
+        "required_evidence_or_action": "Provide an official manufacturer label or dated source explicitly identifying the 387 g Blue Raspberry version, then review collection rights."
+      },
+      {
+        "product_id": "215",
+        "product_variant_id": "1016",
+        "brand": "Applied Nutrition",
+        "product_name": "Applied Nutrition ABE Ultimate Pre-Workout 315g",
+        "flavour": "Bubblegum Crush",
+        "package_size": "315 g",
+        "official_url": "https://appliednutrition.uk/products/abe-all-black-everything-375g",
+        "collection_constraint": "SOURCE_OR_IDENTITY_RESOLUTION_REQUIRED_BEFORE_COLLECTION",
+        "missing_reason": "The available official family page is 375 g and cannot establish the frozen 315 g variant.",
+        "required_evidence_or_action": "Provide a dated official 315 g Bubblegum Crush label or manufacturer statement identifying that exact version."
+      },
+      {
+        "product_id": "294",
+        "product_variant_id": "1059",
+        "brand": "BioTech USA",
+        "product_name": "BioTech USA Black Blood CAF+ 300g",
+        "flavour": "Cola",
+        "package_size": "300 g",
+        "official_url": "https://shop.biotechusa.com/products/black-blood-caf-300-g",
+        "collection_constraint": "BATCH_02_WRITTEN_PERMISSION_REQUIRED",
+        "missing_reason": "Batch 02 was not collected because BioTech USA terms require consent for download and electronic storage or processing.",
+        "required_evidence_or_action": "Obtain written permission and a current official Cola 300 g label before exact formula review."
+      },
+      {
+        "product_id": "295",
+        "product_variant_id": "1041",
+        "brand": "BioTech USA",
+        "product_name": "BioTech USA Black Blood NOX+ 330g",
+        "flavour": "Blood Orange",
+        "package_size": "330 g",
+        "official_url": "https://shop.biotechusa.com/products/black-blood-nox-340-g",
+        "collection_constraint": "SOURCE_OR_IDENTITY_RESOLUTION_REQUIRED_BEFORE_COLLECTION",
+        "missing_reason": "Available official evidence refers to both historical 330 g and current 340 g versions without an exact current binding to the frozen variant.",
+        "required_evidence_or_action": "Provide a dated official Blood Orange 330 g label and written download/storage permission before formula review."
+      },
+      {
+        "product_id": "756",
+        "product_variant_id": "885",
+        "brand": "10X Athletic",
+        "product_name": "10X Athletic PUMP Non-Stim Pre Workout 50 servings",
+        "flavour": "Apple Attack",
+        "package_size": "50 servings",
+        "official_url": "https://www.10xathletic.com/products/10x-pump",
+        "collection_constraint": "BATCH_02_WRITTEN_PERMISSION_REQUIRED",
+        "missing_reason": "Batch 02 was not collected because 10X Athletic terms prohibit spider, crawl or scrape without written permission.",
+        "required_evidence_or_action": "Obtain written permission and an Apple Attack-specific label or an explicit common-formula statement for the 50-serving product."
+      },
+      {
+        "product_id": "756",
+        "product_variant_id": "1974",
+        "brand": "10X Athletic",
+        "product_name": "10X Athletic PUMP Non-Stim Pre Workout 50 servings",
+        "flavour": "Cobra Ki",
+        "package_size": "50 servings",
+        "official_url": "https://www.10xathletic.com/products/10x-pump",
+        "collection_constraint": "BATCH_02_WRITTEN_PERMISSION_REQUIRED",
+        "missing_reason": "Batch 02 was not collected because 10X Athletic terms prohibit spider, crawl or scrape without written permission.",
+        "required_evidence_or_action": "Obtain written permission and a Cobra Ki-specific label or an explicit common-formula statement for the 50-serving product."
+      },
+      {
+        "product_id": "757",
+        "product_variant_id": "887",
+        "brand": "10X Athletic",
+        "product_name": "10X Extreme Stim Pre Workout 600g",
+        "flavour": "Apple Attack",
+        "package_size": "600 g",
+        "official_url": "https://www.10xathletic.com/products/10x-stim",
+        "collection_constraint": "BATCH_02_WRITTEN_PERMISSION_REQUIRED",
+        "missing_reason": "Batch 02 was not collected because 10X Athletic terms prohibit spider, crawl or scrape without written permission.",
+        "required_evidence_or_action": "Obtain written permission and the exact Apple Attack 600 g label before formula review."
+      },
+      {
+        "product_id": "899",
+        "product_variant_id": "1487",
+        "brand": "CNP",
+        "product_name": "CNP Professional Full Tilt V2 Stim Pre Workout 570g",
+        "flavour": "Cherry Berry Bomb",
+        "package_size": "570 g",
+        "official_url": "https://cnpprofessional.co.uk/products/loaded-pre",
+        "collection_constraint": "SOURCE_OR_IDENTITY_RESOLUTION_REQUIRED_BEFORE_COLLECTION",
+        "missing_reason": "The current official 570 g Loaded Pre page does not establish frozen Full Tilt V2 Cherry Berry Bomb identity or formula.",
+        "required_evidence_or_action": "Provide a dated official Full Tilt V2 570 g Cherry Berry Bomb label or manufacturer version statement, then review collection rights."
+      },
+      {
+        "product_id": "957",
+        "product_variant_id": "1864",
+        "brand": "Applied Nutrition",
+        "product_name": "Applied Nutrition ABE 30 servings",
+        "flavour": "Baddy Berry",
+        "package_size": "30 servings",
+        "official_url": "https://appliednutrition.uk/products/abe-all-black-everything-375g",
+        "collection_constraint": "SOURCE_OR_IDENTITY_RESOLUTION_REQUIRED_BEFORE_COLLECTION",
+        "missing_reason": "The same official family is already bound to product 881, and the archived product 881 label cannot be extended to duplicate product 957.",
+        "required_evidence_or_action": "Obtain the owner product-identity decision for 881 versus 957, then bind a flavour/version-specific official label to the surviving canonical variant."
+      },
+      {
+        "product_id": "961",
+        "product_variant_id": "1879",
+        "brand": "Cellucor",
+        "product_name": "Cellucor C4 Original – Energy, Focus & Performance Pre-Workout 30 servings",
+        "flavour": "Millions Cola",
+        "package_size": "30 servings",
+        "official_url": "https://cellucor.com/products/c4-original?view=xt-product",
+        "collection_constraint": "SOURCE_OR_IDENTITY_RESOLUTION_REQUIRED_BEFORE_COLLECTION",
+        "missing_reason": "The current official C4 Original page does not list Millions Cola and cannot evidence the frozen UK flavour/version.",
+        "required_evidence_or_action": "Provide a dated official Millions Cola 30-serving label or manufacturer source for that UK version, then review collection authorization."
+      },
+      {
+        "product_id": "1249",
+        "product_variant_id": "3671",
+        "brand": "Animal",
+        "product_name": "Animal Fury Pre Workout 491g",
+        "flavour": "Blue Raspberry",
+        "package_size": "491 g",
+        "official_url": "https://www.animalpak.com/collections/shop-all-supplements/products/animal-fury-pre-workout-powder-supplement",
+        "collection_constraint": "SOURCE_OR_IDENTITY_RESOLUTION_REQUIRED_BEFORE_COLLECTION",
+        "missing_reason": "The official page confirms product, flavour and 30 servings but does not establish the frozen 491 g pack.",
+        "required_evidence_or_action": "Provide an official Blue Raspberry label that visibly establishes 491 g and its formula version, then review collection rights."
+      },
+      {
+        "product_id": "1252",
+        "product_variant_id": "3674",
+        "brand": "Adapt Nutrition",
+        "product_name": "Adapt Nutrition PreTRAIN X 350g",
+        "flavour": "Iced Raspberry",
+        "package_size": "350 g",
+        "official_url": null,
+        "collection_constraint": "SOURCE_OR_IDENTITY_RESOLUTION_REQUIRED_BEFORE_COLLECTION",
+        "missing_reason": "No official Adapt Nutrition manufacturer source was found in the completed bounded search; distributor pages are not manufacturer evidence.",
+        "required_evidence_or_action": "Provide an official manufacturer URL or written label establishing PreTRAIN X, Iced Raspberry, 350 g and the formula version."
+      },
+      {
+        "product_id": "1254",
+        "product_variant_id": "3676",
+        "brand": "Bulk",
+        "product_name": "Bulk Dope Max Pre-Workout 563g",
+        "flavour": "Blue Raspberry",
+        "package_size": "563 g",
+        "official_url": "https://www.bulk.com/uk/products/dope-max-pre-workout/bble-dmax",
+        "collection_constraint": "BATCH_01_TERMS_CLARIFICATION_AND_HTTP_403",
+        "missing_reason": "The handoff request returned HTTP 403 and the published Bulk sale terms do not decide copying and private storage; no bypass was attempted.",
+        "required_evidence_or_action": "Obtain a manufacturer-provided Blue Raspberry 563 g label or decisive site-use clarification before any new collection attempt."
+      },
+      {
+        "product_id": "1275",
+        "product_variant_id": "3755",
+        "brand": "Dark Stims",
+        "product_name": "Darkstims Pump V2 Stim-Free Pre-Workout 520g",
+        "flavour": "Peach",
+        "package_size": "520 g",
+        "official_url": "https://www.darkstims.com/products/pump-v2",
+        "collection_constraint": "SOURCE_OR_IDENTITY_RESOLUTION_REQUIRED_BEFORE_COLLECTION",
+        "missing_reason": "Visible official evidence does not establish the frozen 520 g package or exact formula version.",
+        "required_evidence_or_action": "Provide an official Peach label that visibly establishes 520 g and the formula version, then review collection rights."
+      },
+      {
+        "product_id": "1279",
+        "product_variant_id": "3759",
+        "brand": "Bulk",
+        "product_name": "Bulk Dope Caffeine Free Pre-Workout 510g",
+        "flavour": "Blue Raspberry",
+        "package_size": "510 g",
+        "official_url": "https://www.bulk.com/uk/products/dope-pre-workout-caffeine-free/bble-docf",
+        "collection_constraint": "BATCH_01_TERMS_CLARIFICATION_AND_HTTP_403",
+        "missing_reason": "The handoff request returned HTTP 403 and the published Bulk sale terms do not decide copying and private storage; no bypass was attempted.",
+        "required_evidence_or_action": "Obtain a manufacturer-provided Blue Raspberry 510 g label or decisive site-use clarification before any new collection attempt."
+      },
+      {
+        "product_id": "1283",
+        "product_variant_id": "3763",
+        "brand": "Apex Formulas",
+        "product_name": "Apex Formulas Apex Pump 625g",
+        "flavour": "Raspberry Rush",
+        "package_size": "625 g",
+        "official_url": "https://apexformulas.co.uk/products/apex-pump",
+        "collection_constraint": "SOURCE_OR_IDENTITY_RESOLUTION_REQUIRED_BEFORE_COLLECTION",
+        "missing_reason": "The official page confirms Apex Pump but not the frozen Raspberry Rush 625 g variant or formula.",
+        "required_evidence_or_action": "Provide an official Raspberry Rush label that visibly establishes 625 g and the formula version, and locate the applicable collection terms."
+      }
+    ]
+  },
+  "controls": {
+    "code_changes": 0,
+    "migration_changes": 0,
+    "product_updates": 0,
+    "changed_variant_ids": [
+      "1383",
+      "1384"
+    ],
+    "nutrition_verified_changed": false,
+    "legacy_creatine_per_serving_g_changed": false,
+    "other_variant_updates": 0
+  },
+  "next_step": "Do not re-audit the 18 unresolved pilot variants until a recorded evidence or permission gap receives new evidence; NUT-03 remains IN PROGRESS."
+}
