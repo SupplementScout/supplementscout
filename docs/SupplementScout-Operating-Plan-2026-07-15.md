@@ -58,12 +58,14 @@ monohydrate, normalized to `3000 mg` of the declared form per `2 Scoops (15 g)`.
 The original artifact and hash remain intact; the new artifact has five unique
 candidate fingerprints and passes the existing `DRY_RUN_NO_DATABASE` path with
 zero product updates. NUT-03E is `LIVE VERIFIED`: the guarded production write
-created candidate IDs `696`-`700`, exactly one per fingerprint, and left all five
-pending. The queue changed only from 695 to 700 rows and from 16 to 21 pending;
-approved and rejected counts, product `38` and variant `726` digests were
-unchanged. Authenticated panel readback shows all five cards. The next step is
-NUT-03F: after separate owner review authorization, decide only those five
-candidates while keeping review separate from any later plan or apply.
+created candidate IDs `696`-`700`, exactly one per fingerprint. NUT-03F is now
+`LIVE VERIFIED`: the preserved label and artifact matched all five records, and
+the authenticated individual-review path approved them with exact proposed
+values. Fresh readback found all five approved with unchanged source evidence,
+product `38` and variant `726` digests. The queue remains 700 rows; pending moved
+from 21 to 16 and approved from 673 to 678. No plan, apply or catalogue write
+ran. The next step is NUT-03G: after separate owner authorization, prepare the
+existing planner's before/after plan for only IDs `696`-`700`, without apply.
 SEO-15 remains BLOCKED, the 16 September accrual check and conditional 24-25
 September reviews remain scheduled, and GYM HIGH remains owner-deferred.
 Guardian currently validates SEO, not nutrition.

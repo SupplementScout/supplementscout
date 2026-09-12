@@ -5,16 +5,16 @@
 ## Current checkpoint
 
 - Task: NUT-03; status `IN PROGRESS`. NUT-03A, NUT-03B and NUT-03D are
-  `CODE COMPLETE`; NUT-03C and NUT-03E are `LIVE VERIFIED`. The existing
+  `CODE COMPLETE`; NUT-03C, NUT-03E and NUT-03F are `LIVE VERIFIED`. The existing
   candidate/review/plan/apply path now models
   creatine as the mass of its declared ingredient form against an exact serving,
   with the same five information states. Migration C is deployed in production.
-  Exactly five product `38` / variant `726` candidates are stored and remain
-  pending; none has been reviewed or applied.
-- Owner/session: Codex, owner-authorized NUT-03E production candidate storage
-  and readback, 12 September 2026.
+  Exactly five product `38` / variant `726` candidates are stored and approved
+  after exact-label review; none has been planned or applied.
+- Owner/session: Codex, owner-authorized NUT-03F production review and approval,
+  12 September 2026.
 - Branch: `main`; this session started at
-  `f001703aa1acf67215c4ce3bfbbc3355b25fc78b`; remote `main` matched before work.
+  `18fc65b4feaff1be30ceffd1f67f7c0c5f0a5d27`; remote `main` matched before work.
 - Production readback at `2026-09-11T12:58:26.063Z`: public `anon` SELECT against
   project `aftboxmrdgyhizicfsfu`; 141 active unmerged Pre Workout products and
   575 active variants. Frozen scope: 25 variants across 21 products.
@@ -90,10 +90,14 @@
   form per `2 Scoops (15 g)`; it does not populate legacy
   `creatine_per_serving_g`. Dry-run reports five rows and zero database writes.
 - NUT-03E stored exactly those five candidates in the production private queue
-  as IDs `696`-`700`. All remain pending, each fingerprint occurs once, and the
+  as IDs `696`-`700`. Each fingerprint occurs once, and the
   product `38` / variant `726` catalogue rows are unchanged.
-- One next step, NUT-03F: review only candidate IDs `696`-`700` from this exact
-  artifact. Approval decisions remain separate from any later plan or apply.
+- NUT-03F matched all five candidates to the preserved label and exact artifact,
+  then approved IDs `696`-`700` through the authenticated individual-review path.
+  Approved values equal the proposals; source evidence and catalogue rows are
+  unchanged.
+- One next step, NUT-03G: prepare the existing planner's before/after plan only
+  for approved IDs `696`-`700`. Do not apply it.
 
 ## Authority and scope
 
@@ -261,8 +265,9 @@ implementation or any nutrition catalogue write.
 | NUT-03C | `LIVE VERIFIED` | NUT-03B + owner authorization | Apply only migration C through the controlled production selector, then read back its history and three updated CHECKs and verify the legacy queue and authenticated panel without creating candidates. | Rehearsal rolled back, then the exact hash-bound migration committed as production ledger entry 207. A fresh read-only connection verified history/hash and all three validated, NULL-safe CHECKs; queue, batch, catalogue and exact product/variant digests stayed unchanged. The authenticated panel returned 200 with its expected sections and no unavailable notice. |
 | NUT-03D | `CODE COMPLETE` | NUT-03C | Revise only the existing product `38` / variant `726` offline artifact to add a fifth pending structured-creatine candidate from its preserved evidence. | The previous artifact and hash remain intact. Its new five-row version preserves the first four candidate objects exactly, carries declared-form creatine with exact source/serving evidence, has five unique fingerprints and passes `DRY_RUN_NO_DATABASE` with zero product updates. |
 | NUT-03E | `LIVE VERIFIED` | NUT-03D + owner authorization | Store exactly the hash-bound five-candidate NUT-03D artifact in the existing private nutrition queue, without review, approval, planning or apply. | Preflight found zero existing target fingerprints and no same-evidence conflicts. Guarded storage created IDs 696-700; independent readback matched all values and provenance, found each fingerprint exactly once and confirmed every status pending. Queue delta was exactly +5 and exact product/variant digests were unchanged. The authenticated panel shows all five rows. |
-| NUT-03F | `PLANNED` | NUT-03E + separate owner review authorization | Review only candidate IDs 696-700 and record an explicit approve/reject decision for each exact fingerprint. Do not plan or apply approved facts in the review step. | Readback proves only candidate review metadata/status changed according to the five recorded reviewed decisions; product and variant facts remain unchanged. Any plan/apply requires a later separate authorization. |
-| NUT-03 | `IN PROGRESS` | NUT-03F | Review pilot evidence, quantities/units and exact applicability; separately approved candidate review, planning and guarded apply | NUT-03A prepares the original offline artifact, NUT-03B adds structured creatine, NUT-03C deploys its schema, NUT-03D prepares the five-row revision and NUT-03E stores it pending. Complete only when every in-scope proposal, including creatine, has a decision and separately authorized writes have independent readback and zero-duplicate replay; unresolved facts remain unknown and excluded. |
+| NUT-03F | `LIVE VERIFIED` | NUT-03E + owner review authorization | Review only candidate IDs 696-700 against the hash-bound artifact and preserved exact-variant label, then approve each matching fact without planning or applying it. | Preflight proved five pending exact matches and one row per fingerprint. Authenticated individual review approved all five with their proposed values. Fresh readback found `reviewed_by=admin-panel`, immutable evidence, unchanged exact product/variant digests and all five approved cards in the panel. |
+| NUT-03G | `PLANNED` | NUT-03F + separate owner authorization | Use the existing planner to prepare a before/after plan only for approved candidate IDs 696-700. Do not execute apply. | A hash-bound plan shows the exact current and proposed variant facts, consumes only the five approved fingerprints, reports zero writes and leaves candidate, product and variant rows unchanged. |
+| NUT-03 | `IN PROGRESS` | NUT-03G | Review pilot evidence, quantities/units and exact applicability; separately approved candidate review, planning and guarded apply | NUT-03A prepares the original offline artifact, NUT-03B adds structured creatine, NUT-03C deploys its schema, NUT-03D prepares the five-row revision, NUT-03E stores it pending and NUT-03F approves the exact reviewed set. Complete only when every in-scope proposal, including creatine, has a decision and separately authorized writes have independent readback and zero-duplicate replay; unresolved facts remain unknown and excluded. |
 | NUT-04 | `PLANNED` | NUT-03 | Existing product page facts/source and existing search caffeine-free filter | Tests and live variant-switch checks prove confirmed absence included, caffeine present excluded, missing/conflicting facts never treated as absent. Document coverage denominator, limits, evidence and operations. Publish image copies only with established rights; otherwise link to source. MVP closes here. |
 | NUT-05 | `DEFERRED` | NUT-04 closure | Subsequent bounded batches/categories in the same process | Review extraction yield, review time and missing-source rate before expansion; every batch has a fixed denominator and closure. No expansion of an active batch. |
 
@@ -823,6 +828,54 @@ No code, migration, test inventory or workflow is changed by this NUT-00 revisio
   authorization to store exactly this hash-bound five-candidate set in the
   existing private queue. That step must leave every row pending and must not
   approve, plan or apply any fact.
+
+## NUT-03F production review evidence
+
+12 September 2026, owner-authorized review of candidate IDs `696`-`700`:
+
+- The target resolved to production project `aftboxmrdgyhizicfsfu`. The local
+  artifact SHA-256 remained
+  `c6513b6b0bb5cdca3e62388476186c82c976e5f3e0a48b9ea2681fcf579a54a1`,
+  its artifact fingerprint remained
+  `a86b28e7376daf7da4f6d431bc4e81dd7ef656d7c227ace9d03f23e6b374729c`,
+  and the preserved image SHA-256 remained
+  `1182c1aeab46a72ff38709e349d692ab18d45355d87549574d30bb04f3067842`.
+  Visual inspection confirmed `Serving Size: 2 Scoops (15 g)` and the exact
+  label rows: beta-alanine `2 g`, caffeine `250 mg`, citrulline malate `2:1`
+  `5 g`, and creatine monohydrate `3 g`, all in the `Per (15 g)` column.
+- Read-only preflight found IDs `696`-`700` pending, owned by string product
+  `38` / variant `726`, with exactly one row per fingerprint. Every database
+  value matched the artifact: ID `696` beta-alanine `2 g` / `2000 mg`; ID `697`
+  caffeine `250 mg`; ID `698` citrulline-malate mass `5 g` / `5000 mg`, form
+  `citrulline_malate`, ratio `2:1`; ID `699` serving size `15 g`; and ID `700`
+  creatine-monohydrate mass `3 g` / `3000 mg`, form
+  `creatine_monohydrate`. No pure L-citrulline or pure-creatine conversion was
+  made.
+- The review used the existing authenticated individual route because the
+  existing bulk route excludes structured pre-workout fields. All five guarded
+  requests returned HTTP 303. The route set `reviewed_by=admin-panel`; no
+  alternate user identity was supplied. It stored each exact proposed amount as
+  `approved_value` and a note binding the decision to the preserved image hash.
+- A new process read all five as approved: ID/value pairs `696/2000`, `697/250`,
+  `698/5000`, `699/15` and `700/3000`. Each has a valid `reviewed_at`, the
+  expected approved value and `reviewed_by=admin-panel`. The private archive
+  URI, original image hash, original quantities and units, serving evidence,
+  form, ratio, evidence locators and fingerprints still match the artifact.
+- Queue totals remain 700. The review changed pending from 21 to 16 and approved
+  from 673 to 678; rejected remains 6. Product `38` digest remains
+  `ba2c45634c302cb8eb3f403a64ffc3ea12355d09606c35757ae8c2478e1add04`
+  and variant `726` digest remains
+  `3aeb701ea750531434beb01c3320699f324a47e69cc6e17a7993b13e71fe1101`.
+  No product or variant fact changed.
+- Authenticated panel readback returned HTTP 200, showed the exact target and
+  run in the approved section, displayed all five fields with their evidence
+  locators, and showed no pending review button for this filtered set.
+- `verify:project` passed before and after this ledger update, and
+  `git diff --check` passed. Only documentation changed in Git, so the code and
+  workflow quality gates were not required.
+- No plan, apply, migration, OCR, source fetch or catalogue write ran. NUT-03
+  remains `IN PROGRESS`. One next step, NUT-03G, is a separately authorized
+  before/after plan for only these five approved candidates, with no apply.
 
 ## NUT-03E production candidate-storage evidence
 
