@@ -15,11 +15,12 @@
   Exactly five product `38` / variant `726` candidates are stored, approved and
   applied to that exact variant. This completes one of the frozen 25 variants,
   not the full pilot.
-- Owner/session: Codex, owner-authorized NUT-03 batch preparation and one
-  consolidated owner-decision package,
+- Owner/session: Codex, owner-authorized NUT-03 batch preparation, one
+  consolidated owner-decision package and the exact GYM HIGH demonstration
+  exception for product `411` / variant `1047`,
   12 September 2026.
 - Branch: `main`; this session started at
-  `7a023141082b1cc964493ea3a2076a167b415d69`; remote `main` matched before work.
+  `1152483b970aed57e469ed6a066a95391476b97f`; remote `main` matched before work.
 - Production readback at `2026-09-11T12:58:26.063Z`: public `anon` SELECT against
   project `aftboxmrdgyhizicfsfu`; 141 active unmerged Pre Workout products and
   575 active variants. Frozen scope: 25 variants across 21 products.
@@ -116,10 +117,17 @@
   current product/variant pairs and empty overrides were confirmed in production,
   but none has exact-variant label applicability. It contains zero proposals and
   ten actionable source gaps; no candidate artifact or dry-run was fabricated.
-- One next step: the owner supplies one consolidated evidence pack for any of
-  these ten variants, containing flavour-specific official back labels or
-  explicit common-table statements and the recorded written permissions where
-  required. Re-run this same closed batch once using only that new evidence.
+- One expressly bounded demonstration exception now covers only GYM HIGH The
+  Stinger product `411` / variant `1047`, Electric Red, 425 g. It does not change
+  or replace the frozen 25, and it does not release any other GYM HIGH work from
+  `owner_deferred`. Fresh read-only catalogue evidence confirmed the exact pair
+  and zero existing exact-variant candidates. Two owner-supplied images, a
+  separately recorded brand-owner attestation and their manifest are preserved
+  in the private archive with fresh-process hash readback. One ignored artifact
+  contains five unique pending proposals and passes `DRY_RUN_NO_DATABASE`.
+- One next step: after separate owner authorization, store exactly the hash-bound
+  five-candidate GYM HIGH demonstration artifact in the existing private queue,
+  leaving every row pending and performing no review or apply.
 
 ## Authority and scope
 
@@ -136,6 +144,13 @@ The supplied Nutrition Plan text is historical intake after this incorporation;
 do not maintain a second checkpoint there. All operative requirements needed to
 resume are retained here, so the untracked intake is not a remote dependency.
 
+The frozen pilot remains exactly 25 variants. The owner has authorized one
+additional demonstration exception only for product `411`, variant `1047`, GYM
+HIGH The Stinger, Electric Red, 425 g. This exception permits source archiving,
+offline candidate preparation and dry-run validation for that exact pair. It
+does not replace a pilot position, enlarge the pilot denominator, authorize a
+candidate write, or change the `owner_deferred` status of any other GYM HIGH work.
+
 ## Batched nutrition preparation mode
 
 - Prepare at most ten exact variants in one closed batch. The batch, rather than
@@ -144,6 +159,9 @@ resume are retained here, so the untracked intake is not a remote dependency.
 - Select only from the frozen 25-variant scope. Preserve completed variant `726`,
   keep variant `815` unresolved, and do not repeat an exhausted search unless a
   new source or specific new lead is supplied.
+- A named owner-authorized demonstration outside the frozen scope must remain a
+  separate exact-variant package. The only current exception is product `411` /
+  variant `1047`; it does not enter a pilot batch or unlock another GYM HIGH item.
 - Prefer variants with an existing official source and the fewest unresolved
   identity, package, formulation and access issues. Fix the list before evidence
   work begins; do not substitute easier variants after a gap is found.
@@ -322,6 +340,7 @@ implementation or any nutrition catalogue write.
 | NUT-03H | `LIVE VERIFIED` | NUT-03G + owner apply authorization | Revalidate and apply only the exact hash-bound NUT-03G plan through the existing guarded path. | Preflight matched the production target, empty before override, five approvals and immutable evidence. Transactional apply changed only variant 726's five planned override fields. Fresh readback matched the whole after object and preserved the queue, all products and every other variant. Exact replay failed closed on the stale before-state; another read proved zero additional writes and identical final state. |
 | NUT-03I | `BLOCKED` | NUT-03H + owner authorization | Review only product 744 / variant 815, Fruit Burst 375 g, against its preserved label and a bounded official-source read. Prepare an offline candidate artifact only if the table is explicitly bound to that flavour. | The archived image and current official page confirm product, package and the manufacturer's Fruit Burst variant, but the image is flavour-neutral and the page gives no explicit shared-table statement. Exact SKU/GTIN searches found no official Fruit Burst back label. No artifact, dry-run or database write ran. Unblock with a Fruit Burst-specific official back label or an explicit manufacturer statement identifying this table and flavour. |
 | NUT-03-BATCH-01 | `AWAITING OWNER EVIDENCE` | NUT-03H + batch authorization | One closed owner-decision package for variants 760, 761, 816, 714, 1029, 1059, 885, 1974, 887 and 3676. Reuse existing source dispositions; do not revisit 815 or substitute variants. | Fresh production read confirms all ten exact ownership pairs, empty overrides and zero exact-variant candidates. Two retained product-label hashes match, but applicability is unproved for three variants; seven have no archived label and retain their access constraints. Package validation passes with 0 ready proposals, 10 explicit gaps, 0 candidate artifacts and no dry-run or write. |
+| NUT-03-DEMO-GH-STINGER | `CODE COMPLETE` | Exact owner demonstration authorization | Prepare one exact-variant package outside the frozen pilot for product 411 / variant 1047, Electric Red 425 g. Preserve two supplied images and a separate owner attestation, then create five pending proposals and validate them without queue or catalogue writes. | Production read-only ownership check passed with zero existing exact-variant candidates. Private archive duplicate precheck found none; four objects were stored without overwrite and fresh-process readback matched every SHA-256. The ignored five-row artifact has unique fingerprints and passes `DRY_RUN_NO_DATABASE` with zero product updates. The owner-decision package records sources, limits and the separate storage gate. |
 | NUT-03 | `IN PROGRESS` | Iterative closed batches + separate owner write authorization | Review pilot evidence, quantities/units and exact applicability in batches of at most ten; separately approve candidate storage, review, planning and guarded apply. | NUT-03A through NUT-03H complete the first exact variant, product 38 / variant 726, through controlled apply. NUT-03I preserves the unresolved 815 evidence gap. Batch 01 adds one consolidated disposition for ten more variants without lowering evidence requirements. This remains 1 of 25 applied and does not establish full pilot coverage. Complete only when every in-scope proposal has a decision and separately authorized writes have independent readback and safe replay evidence; unresolved facts remain unknown and excluded. |
 | NUT-04 | `PLANNED` | NUT-03 | Existing product page facts/source and existing search caffeine-free filter | Tests and live variant-switch checks prove confirmed absence included, caffeine present excluded, missing/conflicting facts never treated as absent. Document coverage denominator, limits, evidence and operations. Publish image copies only with established rights; otherwise link to source. MVP closes here. |
 | NUT-05 | `DEFERRED` | NUT-04 closure | Subsequent bounded batches/categories in the same process | Review extraction yield, review time and missing-source rate before expansion; every batch has a fixed denominator and closure. No expansion of an active batch. |
@@ -883,6 +902,72 @@ No code, migration, test inventory or workflow is changed by this NUT-00 revisio
   authorization to store exactly this hash-bound five-candidate set in the
   existing private queue. That step must leave every row pending and must not
   approve, plan or apply any fact.
+
+## NUT-03 GYM HIGH The Stinger demonstration package evidence
+
+12 September 2026, exact owner-authorized exception outside the frozen pilot:
+
+- A fresh production transaction forced read-only against project
+  `aftboxmrdgyhizicfsfu` confirmed canonical product ID `411`, product name
+  `GYM HIGH The Stinger Zero Caffeine Pump Pre Workout 425g`, and owned variant
+  ID `1047`, `Electric Red / 425g`. Both IDs remain strings in the artifact.
+  The variant is active with `nutrition_override={}`. The exact pair has zero
+  existing nutrition candidates, so no exact-variant artifact or queue row was
+  duplicated. Older ignored GYM HIGH product-level artifacts have no variant ID
+  and are not reused as exact-variant evidence.
+- This is one limited demonstration exception. It does not replace any of the
+  frozen 25 variants, alter the 1-of-25 applied count, revisit variant `815`, or
+  release another GYM HIGH product from `owner_deferred`.
+- The two actual owner-supplied local files were copied byte-for-byte below
+  ignored `tmp/nutrition-gym-high-stinger-2026-09-12/source/` without overwrite.
+  The Electric Red front image is a 3000 by 2000 PNG, 713038 bytes, SHA-256
+  `96e25662a7abd699a8438ba62339841963c8fd2a4cf6247d95f8cf1d96edab8d`.
+  It shows the exact flavour, `25` servings, `17G` and `NET WEIGHT 425G`.
+  The nutrition-panel photograph is a 4032 by 3024 JPEG, 2890032 bytes,
+  SHA-256
+  `74685708dc6cc27d8e588ab4cb642e6f7183267747e7831a65e991b407ca4136`.
+  It legibly shows `Serving Size:17g (2 scoops)`, `Servings Per Container:25`,
+  `BETA ALANINE 3,200 mg` and `L-CITRULLINE (FREE FORM) 3,000 mg`.
+- The user's statements in this session are preserved separately as a GYM HIGH
+  brand-owner attestation: the supplied table applies to Electric Red 425 g,
+  and that formulation contains no caffeine or creatine. The attestation is
+  explicitly marked as neither label text nor laboratory evidence. Its SHA-256
+  is `2d9ac778aed20531616e72467f05bcfe6c73e5b7335f3c26f39c082ffde7b3f1`.
+  The absence candidates rely on this attestation, never on the omission of an
+  ingredient row from the photographed table.
+- Administrative preflight found the existing `nutrition-sources` bucket private
+  and found no object with any of the three source hashes or the manifest hash.
+  Four objects were then stored with `upsert:false`: the two originals, the
+  attestation and manifest. The manifest SHA-256 is
+  `cb1005b7aa2a6db9ac68d2894e65070e9852d570346c6571f579ca064076961f`.
+  A separate Node process downloaded all four private objects and matched every
+  byte count and SHA-256. This is durable primary source storage, not a backup
+  claim. No database table was written.
+- The ignored candidate artifact is
+  `tmp/nutrition-gym-high-stinger-2026-09-12/candidate-artifact/nutrition-candidates-ncr1-demo-gym-high-411-1047-cb1005b7aa2a-v1.json`,
+  SHA-256
+  `bef4f35930c644c0df1a651fb4e9d8328428f4f7285cbe3699e25b6140f9ce42`,
+  artifact fingerprint
+  `a41be3efaa2b83cf3381373563bec2fe2634acc06b7ea52b96b86c9c197a97f6`.
+  It contains five unique PENDING fingerprints: serving size `17 g` / two
+  scoops, beta-alanine `3200 mg`, free-form L-citrulline `3000 mg`, caffeine
+  `confirmed_absent` and declared-form creatine `confirmed_absent`. The two
+  absence states carry null amounts and units, not invented zeros.
+- Supporting evidence for `25` servings and `425 g` is preserved in the artifact
+  and source manifest without creating extra candidates. The owner-decision
+  record is
+  [owner-decision-package.json](rollouts/nutrition-gym-high-stinger-demo-2026-09-12/owner-decision-package.json),
+  SHA-256
+  `8f740505e8aed0d1da46c63237ff75cce6862d4d6dd7236e9e4930131f87ee8b`.
+- `npm run nutrition:candidates:store -- --dry-run --input=tmp/nutrition-gym-high-stinger-2026-09-12/candidate-artifact/nutrition-candidates-ncr1-demo-gym-high-411-1047-cb1005b7aa2a-v1.json`
+  returned `DRY_RUN_NO_DATABASE`, five candidate rows, zero product updates and
+  zero verified CSV files. A fresh read-only production connection still found
+  zero candidates for product `411` / variant `1047`, unchanged empty override,
+  product serving size null and `nutrition_verified=false`.
+- No candidate storage, review, plan, apply, migration, OCR, source refetch,
+  catalogue write or new feature ran. One next step requires separate owner
+  authorization to store exactly this artifact in the private queue with all
+  five rows left pending.
 
 ## NUT-03 Batch 01 consolidated owner-decision evidence
 

@@ -93,8 +93,21 @@ access constraints. The package therefore has 0 ready proposals and 10 actionabl
 gaps, with no fabricated artifact or dry-run and no database write. The next step
 is one consolidated owner-provided source/permission pack for this same list,
 followed by one rerun using only newly supplied evidence.
+Separately, the owner authorized one exact demonstration outside the frozen
+pilot for GYM HIGH The Stinger product `411` / variant `1047`, Electric Red
+425 g. Fresh production read confirmed the ownership pair, empty variant
+override and zero existing exact-variant candidates. Two supplied images, a
+separate brand-owner attestation and their manifest are stored in the existing
+private archive with matched readback hashes. One ignored five-row artifact
+proposes the 17 g/two-scoop serving, 3200 mg beta-alanine, 3000 mg free-form
+L-citrulline, and owner-attested `confirmed_absent` states for caffeine and
+creatine. The existing dry-run passed with no database write. This exception
+does not replace a frozen pilot variant or authorize any other GYM HIGH work;
+candidate storage remains a separate owner decision recorded in the canonical
+Nutrition Execution Plan.
 SEO-15 remains BLOCKED, the 16 September accrual check and conditional 24-25
-September reviews remain scheduled, and GYM HIGH remains owner-deferred.
+September reviews remain scheduled, and GYM HIGH remains owner-deferred outside
+the single exact demonstration exception above.
 Guardian currently validates SEO, not nutrition.
 
 **11 September 2026 shared automation final checkpoint:** commits `e07c193`,

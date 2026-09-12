@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-owner-decision-package-v1",
+  "status": "READY_FOR_OWNER_STORAGE_DECISION",
+  "prepared_at": "2026-09-12T08:18:24.960Z",
+  "scope": {
+    "product_id": "411",
+    "product_variant_id": "1047",
+    "product_name": "GYM HIGH The Stinger Zero Caffeine Pump Pre Workout 425g",
+    "variant_name": "Electric Red / 425g",
+    "classification": "LIMITED_DEMONSTRATION_EXCEPTION_OUTSIDE_FROZEN_PILOT",
+    "frozen_pilot_size_unchanged": 25,
+    "replaces_frozen_pilot_variant": false,
+    "unlocks_other_gym_high_work": false
+  },
+  "catalog_readback": {
+    "target_environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "transaction_read_only": true,
+    "product_variant_ownership": "PASS",
+    "variant_nutrition_override": {},
+    "existing_exact_variant_candidate_count": 0,
+    "database_writes": 0
+  },
+  "sources": [
+    {
+      "source_id": "front-image",
+      "evidence_type": "OWNER_SUPPLIED_PRODUCT_IMAGE",
+      "sha256": "96e25662a7abd699a8438ba62339841963c8fd2a4cf6247d95f8cf1d96edab8d",
+      "bytes": 713038,
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/demo/gym-high/411/1047/96e25662a7abd699a8438ba62339841963c8fd2a4cf6247d95f8cf1d96edab8d/front-electric-red-425g.png",
+      "supports": [
+        "Electric Red",
+        "425 g",
+        "25 servings",
+        "17 g"
+      ]
+    },
+    {
+      "source_id": "nutrition-panel-image",
+      "evidence_type": "OWNER_SUPPLIED_LABEL_IMAGE",
+      "sha256": "74685708dc6cc27d8e588ab4cb642e6f7183267747e7831a65e991b407ca4136",
+      "bytes": 2890032,
+      "source_archive_uri": "supabase-storage://nutrition-sources/labels/demo/gym-high/411/1047/74685708dc6cc27d8e588ab4cb642e6f7183267747e7831a65e991b407ca4136/nutrition-facts-electric-red-425g.jpeg",
+      "supports": [
+        "Serving Size:17g (2 scoops)",
+        "Servings Per Container:25",
+        "BETA ALANINE 3,200 mg",
+        "L-CITRULLINE (FREE FORM) 3,000 mg"
+      ],
+      "does_not_establish": [
+        "confirmed caffeine absence",
+        "confirmed creatine absence"
+      ]
+    },
+    {
+      "source_id": "brand-owner-attestation",
+      "evidence_type": "BRAND_OWNER_ATTESTATION",
+      "sha256": "2d9ac778aed20531616e72467f05bcfe6c73e5b7335f3c26f39c082ffde7b3f1",
+      "bytes": 1420,
+      "source_archive_uri": "supabase-storage://nutrition-sources/attestations/demo/gym-high/411/1047/2d9ac778aed20531616e72467f05bcfe6c73e5b7335f3c26f39c082ffde7b3f1/brand-owner-attestation.json",
+      "supports": [
+        "the supplied table applies to Electric Red 425 g",
+        "caffeine confirmed_absent",
+        "creatine confirmed_absent"
+      ],
+      "limitations": [
+        "separate from image transcription",
+        "not a laboratory result"
+      ]
+    },
+    {
+      "source_id": "source-manifest",
+      "evidence_type": "PRIVATE_ARCHIVE_MANIFEST",
+      "sha256": "cb1005b7aa2a6db9ac68d2894e65070e9852d570346c6571f579ca064076961f",
+      "bytes": 3077,
+      "source_archive_uri": "supabase-storage://nutrition-sources/manifests/demo/gym-high/411/1047/cb1005b7aa2a6db9ac68d2894e65070e9852d570346c6571f579ca064076961f/manifest.json"
+    }
+  ],
+  "archive_verification": {
+    "bucket": "nutrition-sources",
+    "bucket_public": false,
+    "duplicate_precheck": "NO_DUPLICATES",
+    "upsert": false,
+    "stored_object_count": 4,
+    "fresh_process_readback": "PASS",
+    "readback_hash_matches": 4,
+    "database_writes": 0
+  },
+  "proposals": [
+    {
+      "local_candidate_id": "NC1-b85be8d5a8dff1d560342009",
+      "candidate_fingerprint": "b85be8d5a8dff1d5603420094fc82ba8eba3e19915dddf9282ffc828d81e1733",
+      "field_name": "serving_size_g",
+      "information_state": null,
+      "proposed_value": 17,
+      "unit": "g",
+      "serving_basis_text": "Serving Size:17g (2 scoops)",
+      "source_id": "nutrition-panel-image",
+      "review_status": "PENDING"
+    },
+    {
+      "local_candidate_id": "NC1-65f243e23f88c8b82439758d",
+      "candidate_fingerprint": "65f243e23f88c8b82439758d0da53d778281452a7b67275b995938adcdb22106",
+      "field_name": "beta_alanine_per_serving_mg",
+      "information_state": "present_with_amount",
+      "proposed_value": 3200,
+      "unit": "mg",
+      "source_quantity_value": 3200,
+      "source_quantity_unit": "mg",
+      "serving_basis_text": "Serving Size:17g (2 scoops)",
+      "source_id": "nutrition-panel-image",
+      "review_status": "PENDING"
+    },
+    {
+      "local_candidate_id": "NC1-dcd3c49ca21aadcbda538cc7",
+      "candidate_fingerprint": "dcd3c49ca21aadcbda538cc7cc1ca24da5a556e3c600e339482474a2e6745b78",
+      "field_name": "citrulline_per_serving_mg",
+      "information_state": "present_with_amount",
+      "proposed_value": 3000,
+      "unit": "mg",
+      "source_quantity_value": 3000,
+      "source_quantity_unit": "mg",
+      "ingredient_form": "l_citrulline",
+      "ingredient_ratio": null,
+      "serving_basis_text": "Serving Size:17g (2 scoops)",
+      "source_id": "nutrition-panel-image",
+      "review_status": "PENDING"
+    },
+    {
+      "local_candidate_id": "NC1-7c0b25a0bf701d6df31f97be",
+      "candidate_fingerprint": "7c0b25a0bf701d6df31f97be797559c02f66fda8a6cfe90dc92e5de0bb4b9bd5",
+      "field_name": "caffeine_per_serving_mg",
+      "information_state": "confirmed_absent",
+      "proposed_value": null,
+      "unit": null,
+      "source_id": "brand-owner-attestation",
+      "review_status": "PENDING"
+    },
+    {
+      "local_candidate_id": "NC1-4b920eb930498711857ba860",
+      "candidate_fingerprint": "4b920eb930498711857ba8604cd5f1f9f6fa4010e139faf0f016069eba511181",
+      "field_name": "creatine_declared_form_per_serving_mg",
+      "information_state": "confirmed_absent",
+      "proposed_value": null,
+      "unit": null,
+      "ingredient_form": null,
+      "source_id": "brand-owner-attestation",
+      "review_status": "PENDING"
+    }
+  ],
+  "supporting_evidence": [
+    {
+      "fact": "serving_count",
+      "value": 25,
+      "unit": "count",
+      "sources": [
+        "front-image",
+        "nutrition-panel-image"
+      ],
+      "candidate_created": false
+    },
+    {
+      "fact": "package_weight",
+      "value": 425,
+      "unit": "g",
+      "sources": [
+        "front-image"
+      ],
+      "candidate_created": false
+    }
+  ],
+  "artifact": {
+    "path": "tmp/nutrition-gym-high-stinger-2026-09-12/candidate-artifact/nutrition-candidates-ncr1-demo-gym-high-411-1047-cb1005b7aa2a-v1.json",
+    "sha256": "bef4f35930c644c0df1a651fb4e9d8328428f4f7285cbe3699e25b6140f9ce42",
+    "artifact_fingerprint": "a41be3efaa2b83cf3381373563bec2fe2634acc06b7ea52b96b86c9c197a97f6",
+    "candidate_count": 5,
+    "unique_candidate_fingerprint_count": 5,
+    "raw_sources_committed_to_git": false
+  },
+  "validation": {
+    "command": "npm run nutrition:candidates:store -- --dry-run --input=tmp/nutrition-gym-high-stinger-2026-09-12/candidate-artifact/nutrition-candidates-ncr1-demo-gym-high-411-1047-cb1005b7aa2a-v1.json",
+    "mode": "DRY_RUN_NO_DATABASE",
+    "destination": "nutrition_candidates",
+    "candidate_rows": 5,
+    "product_updates": 0,
+    "verified_csv_files": 0,
+    "postflight_exact_variant_candidate_count": 0
+  },
+  "next_step": "After a separate owner authorization, store exactly this hash-bound five-candidate artifact in the existing private nutrition_candidates queue, leaving all five rows pending and performing no review or apply."
+}
