@@ -1,0 +1,641 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-remaining-frozen-pilot-preparation-v1",
+  "status": "READY_FOR_SINGLE_OWNER_DECISION_WITH_EXPLICIT_GAPS",
+  "status_date": "2026-09-12",
+  "organizational_policy": {
+    "owner_decision_batch_max_exact_variants": 50,
+    "technical_limits_unchanged": true,
+    "collector_url_batch_limit": 10,
+    "candidate_artifact_max_rows": 100,
+    "candidate_artifact_max_bytes": 10000000,
+    "meaning": "The owner decision may cover up to 50 exact variants, while collection requests, files, artifacts and writes remain split under existing technical controls."
+  },
+  "scope": {
+    "frozen_pilot_total_variants": 25,
+    "completed_frozen_pilot_variants_excluded": [
+      "726",
+      "760",
+      "761",
+      "815",
+      "816"
+    ],
+    "remaining_frozen_pilot_variants_assessed": [
+      "714",
+      "1029",
+      "1007",
+      "1016",
+      "1059",
+      "1041",
+      "885",
+      "1974",
+      "887",
+      "1383",
+      "1384",
+      "1487",
+      "1864",
+      "1879",
+      "3671",
+      "3674",
+      "3676",
+      "3755",
+      "3759",
+      "3763"
+    ],
+    "assessed_variant_count": 20,
+    "product_group_count": 18,
+    "product_groups": [
+      {
+        "product_id": "17",
+        "product_name": "Optimum Nutrition Gold Standard Pre-Workout 330g",
+        "brand": "Optimum Nutrition",
+        "variants": [
+          "714"
+        ]
+      },
+      {
+        "product_id": "55",
+        "product_name": "BioTech USA Nitrox Therapy 340g",
+        "brand": "BioTech USA",
+        "variants": [
+          "1029"
+        ]
+      },
+      {
+        "product_id": "58",
+        "product_name": "5 Nutrition Rich Piana  Full As F*ck 387g",
+        "brand": "5% Nutrition",
+        "variants": [
+          "1007"
+        ]
+      },
+      {
+        "product_id": "215",
+        "product_name": "Applied Nutrition ABE Ultimate Pre-Workout 315g",
+        "brand": "Applied Nutrition",
+        "variants": [
+          "1016"
+        ]
+      },
+      {
+        "product_id": "294",
+        "product_name": "BioTech USA Black Blood CAF+ 300g",
+        "brand": "BioTech USA",
+        "variants": [
+          "1059"
+        ]
+      },
+      {
+        "product_id": "295",
+        "product_name": "BioTech USA Black Blood NOX+ 330g",
+        "brand": "BioTech USA",
+        "variants": [
+          "1041"
+        ]
+      },
+      {
+        "product_id": "756",
+        "product_name": "10X Athletic PUMP Non-Stim Pre Workout 50 servings",
+        "brand": "10X Athletic",
+        "variants": [
+          "885",
+          "1974"
+        ]
+      },
+      {
+        "product_id": "757",
+        "product_name": "10X Extreme Stim Pre Workout 600g",
+        "brand": "10X Athletic",
+        "variants": [
+          "887"
+        ]
+      },
+      {
+        "product_id": "881",
+        "product_name": "ABE All Black Everything Pre-Workout 375g",
+        "brand": "ABE All",
+        "variants": [
+          "1383",
+          "1384"
+        ]
+      },
+      {
+        "product_id": "899",
+        "product_name": "CNP Professional Full Tilt V2 Stim Pre Workout 570g",
+        "brand": "CNP",
+        "variants": [
+          "1487"
+        ]
+      },
+      {
+        "product_id": "957",
+        "product_name": "Applied Nutrition ABE 30 servings",
+        "brand": "Applied Nutrition",
+        "variants": [
+          "1864"
+        ]
+      },
+      {
+        "product_id": "961",
+        "product_name": "Cellucor C4 Original – Energy, Focus & Performance Pre-Workout 30 servings",
+        "brand": "Cellucor",
+        "variants": [
+          "1879"
+        ]
+      },
+      {
+        "product_id": "1249",
+        "product_name": "Animal Fury Pre Workout 491g",
+        "brand": "Animal",
+        "variants": [
+          "3671"
+        ]
+      },
+      {
+        "product_id": "1252",
+        "product_name": "Adapt Nutrition PreTRAIN X 350g",
+        "brand": "Adapt Nutrition",
+        "variants": [
+          "3674"
+        ]
+      },
+      {
+        "product_id": "1254",
+        "product_name": "Bulk Dope Max Pre-Workout 563g",
+        "brand": "Bulk",
+        "variants": [
+          "3676"
+        ]
+      },
+      {
+        "product_id": "1275",
+        "product_name": "Darkstims Pump V2 Stim-Free Pre-Workout 520g",
+        "brand": "Dark Stims",
+        "variants": [
+          "3755"
+        ]
+      },
+      {
+        "product_id": "1279",
+        "product_name": "Bulk Dope Caffeine Free Pre-Workout 510g",
+        "brand": "Bulk",
+        "variants": [
+          "3759"
+        ]
+      },
+      {
+        "product_id": "1283",
+        "product_name": "Apex Formulas Apex Pump 625g",
+        "brand": "Apex Formulas",
+        "variants": [
+          "3763"
+        ]
+      }
+    ],
+    "separate_stinger_excluded": {
+      "product_id": "411",
+      "product_variant_id": "1047"
+    }
+  },
+  "production_preflight": {
+    "captured_at": "2026-09-12T18:14:27.053Z",
+    "target_environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "read_only": true,
+    "ownership_pairs_match_frozen_scope": true,
+    "nonempty_override_variants": [],
+    "variants_with_existing_candidates": [],
+    "database_writes": 0
+  },
+  "source_work": {
+    "reused_prior_source_decisions_without_repeating_exhausted_searches": true,
+    "new_network_requests": 3,
+    "new_request_scope": "Applied Nutrition product 881 product JSON and two selected-flavour pages only",
+    "downloaded_source_images": 0,
+    "copied_existing_source_images": 0,
+    "unique_qualifying_source_tables": 1,
+    "shared_table_source": {
+      "product_id": "881",
+      "image_sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+      "image_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+      "context_manifest_sha256": "fc086ee4e321b109e421a92148c0ef01cb74f028fd0c694c30fccad6aa3a4cbf",
+      "context_manifest_uri": "supabase-storage://nutrition-sources/manifests/nut-03/applied-nutrition/remaining-pilot-881/fc086ee4e321b109e421a92148c0ef01cb74f028fd0c694c30fccad6aa3a4cbf/source-context-manifest.json",
+      "context_manifest_readback": "FRESH_PROCESS_READBACK_PASS",
+      "official_url": "https://appliednutrition.uk/products/abe-all-black-everything-375g",
+      "product_json_sha256": "55bad597f7eb12cf3c0c5c5529132a4c953a8d100b6ef54defa867c07fc89cca",
+      "selected_variant_pages": [
+        {
+          "canonical_variant_id": "1383",
+          "flavour": "Baddy Berry",
+          "official_variant_id": "46669202981096",
+          "checked_url": "https://appliednutrition.uk/products/abe-all-black-everything-375g?variant=46669202981096",
+          "page_sha256": "8985a0be2d0e893bf5dddb6c202c3f933eb37e1c6e16d317d5c9301d1c5cd1fd",
+          "status": "COMMON_MANUFACTURER_TABLE_APPLIES"
+        },
+        {
+          "canonical_variant_id": "1384",
+          "flavour": "Bubblegum Crush",
+          "official_variant_id": "39339774705831",
+          "checked_url": "https://appliednutrition.uk/products/abe-all-black-everything-375g?variant=39339774705831",
+          "page_sha256": "cb543dd66383a780b25ec0d9a3c66d118c0f84af4c5c05969284ea08829e7d49",
+          "status": "COMMON_MANUFACTURER_TABLE_APPLIES"
+        }
+      ],
+      "applicability_basis": "wspólna tabela producenta dla wariantów produktu"
+    }
+  },
+  "ready": {
+    "variant_count": 2,
+    "variants": [
+      {
+        "product_id": "881",
+        "product_variant_id": "1383",
+        "flavour": "Baddy Berry",
+        "package_size": "375 g"
+      },
+      {
+        "product_id": "881",
+        "product_variant_id": "1384",
+        "flavour": "Bubblegum Crush",
+        "package_size": "375 g"
+      }
+    ],
+    "per_variant_proposals": {
+      "serving_size_g": {
+        "information_state": "present_with_amount",
+        "source_value": 12.5,
+        "source_unit": "g",
+        "normalized_value": 12.5,
+        "normalized_unit": "g",
+        "serving_description": "1 Scoop (12.5 g)"
+      },
+      "caffeine_per_serving_mg": {
+        "information_state": "present_with_amount",
+        "source_value": 200,
+        "source_unit": "mg",
+        "normalized_value": 200,
+        "normalized_unit": "mg",
+        "serving_description": "1 Scoop (12.5 g)"
+      },
+      "beta_alanine_per_serving_mg": {
+        "information_state": "present_with_amount",
+        "source_value": 2,
+        "source_unit": "g",
+        "normalized_value": 2000,
+        "normalized_unit": "mg",
+        "serving_description": "1 Scoop (12.5 g)"
+      },
+      "citrulline_per_serving_mg": {
+        "information_state": "present_with_amount",
+        "source_value": 4,
+        "source_unit": "g",
+        "normalized_value": 4000,
+        "normalized_unit": "mg",
+        "ingredient_form": "citrulline_malate",
+        "ingredient_ratio": "2:1",
+        "amount_subject": "declared_compound_mass",
+        "serving_description": "1 Scoop (12.5 g)"
+      },
+      "creatine_declared_form_per_serving_mg": {
+        "information_state": "present_with_amount",
+        "source_value": 3,
+        "source_unit": "g",
+        "normalized_value": 3000,
+        "normalized_unit": "mg",
+        "ingredient_form": "creatine_monohydrate",
+        "amount_subject": "declared_ingredient_form",
+        "serving_description": "1 Scoop (12.5 g)"
+      }
+    }
+  },
+  "candidate_package": {
+    "path": "tmp/nutrition-pilot-remaining-2026-09-12/candidate-artifact/nutrition-candidates-ncr1-remaining-pilot-applied-881-20260912.json",
+    "sha256": "d127d1be12e3977d74363e54e79e2a83c23de810f388824b399910138bfaf243",
+    "artifact_fingerprint": "c9e47b1251d808596bbd2202fbdd668c5881804cb23eb268cf532257c7573c49",
+    "run_id": "NCR1-remaining-pilot-applied-881-20260912",
+    "candidate_count": 10,
+    "unique_candidate_fingerprints": 10,
+    "candidate_fingerprints": [
+      {
+        "product_variant_id": "1383",
+        "field": "beta_alanine_per_serving_mg",
+        "fingerprint": "1b08b52ea53e3b36b0fe873be5239100a369cd0553fd210b066b7a734f616ba8"
+      },
+      {
+        "product_variant_id": "1383",
+        "field": "caffeine_per_serving_mg",
+        "fingerprint": "8fb5a050d713862ed7eda100ce588403f3754f538a1ca2c098b11183a42c7e77"
+      },
+      {
+        "product_variant_id": "1383",
+        "field": "citrulline_per_serving_mg",
+        "fingerprint": "f42ca44d16f6f0f07b296dfa86deb2d40e22453454d14c74d1131cdd5a5fa45f"
+      },
+      {
+        "product_variant_id": "1383",
+        "field": "creatine_declared_form_per_serving_mg",
+        "fingerprint": "866445dc66bffb2939668dcc443a9dfcfc3433bb23923b1e146e1a0e635f8a7a"
+      },
+      {
+        "product_variant_id": "1383",
+        "field": "serving_size_g",
+        "fingerprint": "71c622d1a3689d977faceaf7d6ea9756d03203959aa7ad852d295df956ec9eb4"
+      },
+      {
+        "product_variant_id": "1384",
+        "field": "beta_alanine_per_serving_mg",
+        "fingerprint": "55ea6d7e47860f7c47036e3911aaf9104175cbf8e16a59c2a86bac414430cf47"
+      },
+      {
+        "product_variant_id": "1384",
+        "field": "caffeine_per_serving_mg",
+        "fingerprint": "b5c131e579dd79fce5a59746bdfaca0fdb50c668c128ed8a20bbc42543d25af5"
+      },
+      {
+        "product_variant_id": "1384",
+        "field": "citrulline_per_serving_mg",
+        "fingerprint": "e8a376734d4015d9e0a998a971ac49dee6bb93d24d0be0e930055d3f74fc7f1a"
+      },
+      {
+        "product_variant_id": "1384",
+        "field": "creatine_declared_form_per_serving_mg",
+        "fingerprint": "ddf83a1b5db6150ca4f1df720ecdb0343612e6b1efed7e234fbd4293df0d495f"
+      },
+      {
+        "product_variant_id": "1384",
+        "field": "serving_size_g",
+        "fingerprint": "14e5245b9ecb0c60e84752ba08a392441caa85d650a64096c8775b346408cd2c"
+      }
+    ],
+    "all_statuses": [
+      "PENDING"
+    ],
+    "dry_run": {
+      "command": "npm run nutrition:candidates:store -- --dry-run --input=tmp/nutrition-pilot-remaining-2026-09-12/candidate-artifact/nutrition-candidates-ncr1-remaining-pilot-applied-881-20260912.json",
+      "result": "DRY_RUN_NO_DATABASE",
+      "candidate_rows": 10,
+      "product_updates": 0,
+      "database_writes": 0
+    }
+  },
+  "unresolved": {
+    "variant_count": 18,
+    "by_constraint": {
+      "written_permission_required": [
+        "714",
+        "1029",
+        "1059",
+        "885",
+        "1974",
+        "887"
+      ],
+      "http_403_and_terms_clarification": [
+        "3676",
+        "3759"
+      ],
+      "version_package_identity_or_official_source_gap": [
+        "1007",
+        "1016",
+        "1041",
+        "1487",
+        "1864",
+        "1879",
+        "3671",
+        "3674",
+        "3755",
+        "3763"
+      ]
+    },
+    "variants": [
+      {
+        "product_id": "17",
+        "product_variant_id": "714",
+        "brand": "Optimum Nutrition",
+        "product_name": "Optimum Nutrition Gold Standard Pre-Workout 330g",
+        "flavour": "Blue Raspberry",
+        "package_size": "330 g",
+        "official_url": "https://www.optimumnutrition.com/en-gb/products/gold-standard-pre-workout-powder-eu?variant=52651864326411",
+        "collection_constraint": "BATCH_01_WRITTEN_PERMISSION_REQUIRED",
+        "missing_reason": "The official page binding exists, but the handoff request returned HTTP 403 and Optimum Nutrition terms require written permission for the planned copy and private storage.",
+        "required_evidence_or_action": "Obtain manufacturer written permission and an official label that visibly or explicitly binds the Blue Raspberry 330 g formulation."
+      },
+      {
+        "product_id": "55",
+        "product_variant_id": "1029",
+        "brand": "BioTech USA",
+        "product_name": "BioTech USA Nitrox Therapy 340g",
+        "flavour": "Blue Grape",
+        "package_size": "340 g",
+        "official_url": "https://shop.biotechusa.com/products/nitrox-therapy-340-g",
+        "collection_constraint": "BATCH_02_WRITTEN_PERMISSION_REQUIRED",
+        "missing_reason": "Batch 02 was not collected because BioTech USA terms require consent for download and electronic storage or processing.",
+        "required_evidence_or_action": "Obtain written permission and a current official Blue Grape 340 g label before exact formula review."
+      },
+      {
+        "product_id": "58",
+        "product_variant_id": "1007",
+        "brand": "5% Nutrition",
+        "product_name": "5 Nutrition Rich Piana  Full As F*ck 387g",
+        "flavour": "Blue Raspberry",
+        "package_size": "387 g",
+        "official_url": "https://5percentnutrition.com/products/fullaf-preworkout-nitric-oxide-booster",
+        "collection_constraint": "SOURCE_OR_IDENTITY_RESOLUTION_REQUIRED_BEFORE_COLLECTION",
+        "missing_reason": "The current official Full AF page does not establish the frozen Rich Piana Full As F*ck 387 g version.",
+        "required_evidence_or_action": "Provide an official manufacturer label or dated source explicitly identifying the 387 g Blue Raspberry version, then review collection rights."
+      },
+      {
+        "product_id": "215",
+        "product_variant_id": "1016",
+        "brand": "Applied Nutrition",
+        "product_name": "Applied Nutrition ABE Ultimate Pre-Workout 315g",
+        "flavour": "Bubblegum Crush",
+        "package_size": "315 g",
+        "official_url": "https://appliednutrition.uk/products/abe-all-black-everything-375g",
+        "collection_constraint": "SOURCE_OR_IDENTITY_RESOLUTION_REQUIRED_BEFORE_COLLECTION",
+        "missing_reason": "The available official family page is 375 g and cannot establish the frozen 315 g variant.",
+        "required_evidence_or_action": "Provide a dated official 315 g Bubblegum Crush label or manufacturer statement identifying that exact version."
+      },
+      {
+        "product_id": "294",
+        "product_variant_id": "1059",
+        "brand": "BioTech USA",
+        "product_name": "BioTech USA Black Blood CAF+ 300g",
+        "flavour": "Cola",
+        "package_size": "300 g",
+        "official_url": "https://shop.biotechusa.com/products/black-blood-caf-300-g",
+        "collection_constraint": "BATCH_02_WRITTEN_PERMISSION_REQUIRED",
+        "missing_reason": "Batch 02 was not collected because BioTech USA terms require consent for download and electronic storage or processing.",
+        "required_evidence_or_action": "Obtain written permission and a current official Cola 300 g label before exact formula review."
+      },
+      {
+        "product_id": "295",
+        "product_variant_id": "1041",
+        "brand": "BioTech USA",
+        "product_name": "BioTech USA Black Blood NOX+ 330g",
+        "flavour": "Blood Orange",
+        "package_size": "330 g",
+        "official_url": "https://shop.biotechusa.com/products/black-blood-nox-340-g",
+        "collection_constraint": "SOURCE_OR_IDENTITY_RESOLUTION_REQUIRED_BEFORE_COLLECTION",
+        "missing_reason": "Available official evidence refers to both historical 330 g and current 340 g versions without an exact current binding to the frozen variant.",
+        "required_evidence_or_action": "Provide a dated official Blood Orange 330 g label and written download/storage permission before formula review."
+      },
+      {
+        "product_id": "756",
+        "product_variant_id": "885",
+        "brand": "10X Athletic",
+        "product_name": "10X Athletic PUMP Non-Stim Pre Workout 50 servings",
+        "flavour": "Apple Attack",
+        "package_size": "50 servings",
+        "official_url": "https://www.10xathletic.com/products/10x-pump",
+        "collection_constraint": "BATCH_02_WRITTEN_PERMISSION_REQUIRED",
+        "missing_reason": "Batch 02 was not collected because 10X Athletic terms prohibit spider, crawl or scrape without written permission.",
+        "required_evidence_or_action": "Obtain written permission and an Apple Attack-specific label or an explicit common-formula statement for the 50-serving product."
+      },
+      {
+        "product_id": "756",
+        "product_variant_id": "1974",
+        "brand": "10X Athletic",
+        "product_name": "10X Athletic PUMP Non-Stim Pre Workout 50 servings",
+        "flavour": "Cobra Ki",
+        "package_size": "50 servings",
+        "official_url": "https://www.10xathletic.com/products/10x-pump",
+        "collection_constraint": "BATCH_02_WRITTEN_PERMISSION_REQUIRED",
+        "missing_reason": "Batch 02 was not collected because 10X Athletic terms prohibit spider, crawl or scrape without written permission.",
+        "required_evidence_or_action": "Obtain written permission and a Cobra Ki-specific label or an explicit common-formula statement for the 50-serving product."
+      },
+      {
+        "product_id": "757",
+        "product_variant_id": "887",
+        "brand": "10X Athletic",
+        "product_name": "10X Extreme Stim Pre Workout 600g",
+        "flavour": "Apple Attack",
+        "package_size": "600 g",
+        "official_url": "https://www.10xathletic.com/products/10x-stim",
+        "collection_constraint": "BATCH_02_WRITTEN_PERMISSION_REQUIRED",
+        "missing_reason": "Batch 02 was not collected because 10X Athletic terms prohibit spider, crawl or scrape without written permission.",
+        "required_evidence_or_action": "Obtain written permission and the exact Apple Attack 600 g label before formula review."
+      },
+      {
+        "product_id": "899",
+        "product_variant_id": "1487",
+        "brand": "CNP",
+        "product_name": "CNP Professional Full Tilt V2 Stim Pre Workout 570g",
+        "flavour": "Cherry Berry Bomb",
+        "package_size": "570 g",
+        "official_url": "https://cnpprofessional.co.uk/products/loaded-pre",
+        "collection_constraint": "SOURCE_OR_IDENTITY_RESOLUTION_REQUIRED_BEFORE_COLLECTION",
+        "missing_reason": "The current official 570 g Loaded Pre page does not establish frozen Full Tilt V2 Cherry Berry Bomb identity or formula.",
+        "required_evidence_or_action": "Provide a dated official Full Tilt V2 570 g Cherry Berry Bomb label or manufacturer version statement, then review collection rights."
+      },
+      {
+        "product_id": "957",
+        "product_variant_id": "1864",
+        "brand": "Applied Nutrition",
+        "product_name": "Applied Nutrition ABE 30 servings",
+        "flavour": "Baddy Berry",
+        "package_size": "30 servings",
+        "official_url": "https://appliednutrition.uk/products/abe-all-black-everything-375g",
+        "collection_constraint": "SOURCE_OR_IDENTITY_RESOLUTION_REQUIRED_BEFORE_COLLECTION",
+        "missing_reason": "The same official family is already bound to product 881, and the archived product 881 label cannot be extended to duplicate product 957.",
+        "required_evidence_or_action": "Obtain the owner product-identity decision for 881 versus 957, then bind a flavour/version-specific official label to the surviving canonical variant."
+      },
+      {
+        "product_id": "961",
+        "product_variant_id": "1879",
+        "brand": "Cellucor",
+        "product_name": "Cellucor C4 Original – Energy, Focus & Performance Pre-Workout 30 servings",
+        "flavour": "Millions Cola",
+        "package_size": "30 servings",
+        "official_url": "https://cellucor.com/products/c4-original?view=xt-product",
+        "collection_constraint": "SOURCE_OR_IDENTITY_RESOLUTION_REQUIRED_BEFORE_COLLECTION",
+        "missing_reason": "The current official C4 Original page does not list Millions Cola and cannot evidence the frozen UK flavour/version.",
+        "required_evidence_or_action": "Provide a dated official Millions Cola 30-serving label or manufacturer source for that UK version, then review collection authorization."
+      },
+      {
+        "product_id": "1249",
+        "product_variant_id": "3671",
+        "brand": "Animal",
+        "product_name": "Animal Fury Pre Workout 491g",
+        "flavour": "Blue Raspberry",
+        "package_size": "491 g",
+        "official_url": "https://www.animalpak.com/collections/shop-all-supplements/products/animal-fury-pre-workout-powder-supplement",
+        "collection_constraint": "SOURCE_OR_IDENTITY_RESOLUTION_REQUIRED_BEFORE_COLLECTION",
+        "missing_reason": "The official page confirms product, flavour and 30 servings but does not establish the frozen 491 g pack.",
+        "required_evidence_or_action": "Provide an official Blue Raspberry label that visibly establishes 491 g and its formula version, then review collection rights."
+      },
+      {
+        "product_id": "1252",
+        "product_variant_id": "3674",
+        "brand": "Adapt Nutrition",
+        "product_name": "Adapt Nutrition PreTRAIN X 350g",
+        "flavour": "Iced Raspberry",
+        "package_size": "350 g",
+        "official_url": null,
+        "collection_constraint": "SOURCE_OR_IDENTITY_RESOLUTION_REQUIRED_BEFORE_COLLECTION",
+        "missing_reason": "No official Adapt Nutrition manufacturer source was found in the completed bounded search; distributor pages are not manufacturer evidence.",
+        "required_evidence_or_action": "Provide an official manufacturer URL or written label establishing PreTRAIN X, Iced Raspberry, 350 g and the formula version."
+      },
+      {
+        "product_id": "1254",
+        "product_variant_id": "3676",
+        "brand": "Bulk",
+        "product_name": "Bulk Dope Max Pre-Workout 563g",
+        "flavour": "Blue Raspberry",
+        "package_size": "563 g",
+        "official_url": "https://www.bulk.com/uk/products/dope-max-pre-workout/bble-dmax",
+        "collection_constraint": "BATCH_01_TERMS_CLARIFICATION_AND_HTTP_403",
+        "missing_reason": "The handoff request returned HTTP 403 and the published Bulk sale terms do not decide copying and private storage; no bypass was attempted.",
+        "required_evidence_or_action": "Obtain a manufacturer-provided Blue Raspberry 563 g label or decisive site-use clarification before any new collection attempt."
+      },
+      {
+        "product_id": "1275",
+        "product_variant_id": "3755",
+        "brand": "Dark Stims",
+        "product_name": "Darkstims Pump V2 Stim-Free Pre-Workout 520g",
+        "flavour": "Peach",
+        "package_size": "520 g",
+        "official_url": "https://www.darkstims.com/products/pump-v2",
+        "collection_constraint": "SOURCE_OR_IDENTITY_RESOLUTION_REQUIRED_BEFORE_COLLECTION",
+        "missing_reason": "Visible official evidence does not establish the frozen 520 g package or exact formula version.",
+        "required_evidence_or_action": "Provide an official Peach label that visibly establishes 520 g and the formula version, then review collection rights."
+      },
+      {
+        "product_id": "1279",
+        "product_variant_id": "3759",
+        "brand": "Bulk",
+        "product_name": "Bulk Dope Caffeine Free Pre-Workout 510g",
+        "flavour": "Blue Raspberry",
+        "package_size": "510 g",
+        "official_url": "https://www.bulk.com/uk/products/dope-pre-workout-caffeine-free/bble-docf",
+        "collection_constraint": "BATCH_01_TERMS_CLARIFICATION_AND_HTTP_403",
+        "missing_reason": "The handoff request returned HTTP 403 and the published Bulk sale terms do not decide copying and private storage; no bypass was attempted.",
+        "required_evidence_or_action": "Obtain a manufacturer-provided Blue Raspberry 510 g label or decisive site-use clarification before any new collection attempt."
+      },
+      {
+        "product_id": "1283",
+        "product_variant_id": "3763",
+        "brand": "Apex Formulas",
+        "product_name": "Apex Formulas Apex Pump 625g",
+        "flavour": "Raspberry Rush",
+        "package_size": "625 g",
+        "official_url": "https://apexformulas.co.uk/products/apex-pump",
+        "collection_constraint": "SOURCE_OR_IDENTITY_RESOLUTION_REQUIRED_BEFORE_COLLECTION",
+        "missing_reason": "The official page confirms Apex Pump but not the frozen Raspberry Rush 625 g variant or formula.",
+        "required_evidence_or_action": "Provide an official Raspberry Rush label that visibly establishes 625 g and the formula version, and locate the applicable collection terms."
+      }
+    ]
+  },
+  "validation": {
+    "page_check_qualification": true,
+    "common_nutrition_image_stable": true,
+    "exact_string_ids": true,
+    "exact_product_variant_binding": true,
+    "source_hash_consistent": true,
+    "private_uri_consistent": true,
+    "pending_only": true,
+    "product_updates": 0,
+    "production_candidate_store_review_plan_apply": false,
+    "code_migration_or_interface_changes": false
+  },
+  "next_step": "One owner decision may authorize controlled store, review, plan and apply for the unchanged 10-candidate artifact covering only product 881 variants 1383 and 1384; all 18 unresolved variants retain their listed gaps."
+}
