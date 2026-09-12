@@ -6,6 +6,7 @@ const {
   buildApprovedPlan,
   loadApprovedCandidates,
   loadApprovedCandidatesForRun,
+  loadVariants,
   validatePlan,
 } = require("./lib/nutrition-approved-updates");
 const planner = require("./nutrition-approved-plan");
@@ -74,6 +75,32 @@ function pumpInputs(override = {}) {
     variants: [{ id: "726", product_id: "38", nutrition_override: override }],
   };
 }
+
+test("variant loader uses the canonical display_name schema", async () => {
+  let selected = null;
+  const rows = await loadVariants({
+    from(table) {
+      assert.equal(table, "product_variants");
+      return {
+        select(columns) {
+          selected = columns;
+          return {
+            async in(column, ids) {
+              assert.equal(column, "id");
+              assert.deepEqual(ids, ["726"]);
+              return {
+                data: [{ id: 726, product_id: 38, display_name: "Fruit Burst / 375 g", nutrition_override: {} }],
+                error: null,
+              };
+            },
+          };
+        },
+      };
+    },
+  }, ["726"]);
+  assert.equal(selected, "id,product_id,display_name,nutrition_override");
+  assert.equal(rows[0].display_name, "Fruit Burst / 375 g");
+});
 
 test("approved planner creates before/after product-only changes", () => {
   const plan = buildApprovedPlan([candidate()], [{ id: "337", name: "Creatine", serving_size_g: null }], runId, "2026-08-02T12:00:00.000Z");

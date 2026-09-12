@@ -63,9 +63,16 @@ created candidate IDs `696`-`700`, exactly one per fingerprint. NUT-03F is now
 the authenticated individual-review path approved them with exact proposed
 values. Fresh readback found all five approved with unchanged source evidence,
 product `38` and variant `726` digests. The queue remains 700 rows; pending moved
-from 21 to 16 and approved from 673 to 678. No plan, apply or catalogue write
-ran. The next step is NUT-03G: after separate owner authorization, prepare the
-existing planner's before/after plan for only IDs `696`-`700`, without apply.
+from 21 to 16 and approved from 673 to 678. NUT-03G is `CODE COMPLETE`: the
+existing planner, after a bounded production-schema correction from `name` to
+canonical `display_name`, created one zero-write plan for only IDs `696`-`700`
+and variant `726`. It has zero blockers and zero product updates, preserves the
+whole prior override, adds no verification flag and is bound to file SHA-256
+`124880966f5cf83c05fcd425f581996244f2cd7177bb6bfdf79bb59d8b33cb7a`
+and plan fingerprint
+`e51e5d86919184e6863a1f004e4c6cd7d6b28b9db894cdecd3fa73c27ded318d`.
+No apply or catalogue write ran. The next step is NUT-03H: separately approve
+this exact plan, revalidate current state and only then run controlled apply.
 SEO-15 remains BLOCKED, the 16 September accrual check and conditional 24-25
 September reviews remain scheduled, and GYM HIGH remains owner-deferred.
 Guardian currently validates SEO, not nutrition.

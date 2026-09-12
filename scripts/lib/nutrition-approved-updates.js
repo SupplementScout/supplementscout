@@ -196,7 +196,7 @@ function buildApprovedPlan(candidates, products, runId, generatedAt = new Date()
       if (!changesByVariant.has(variantId)) {
         const beforeOverride = jsonObject(variant.nutrition_override);
         changesByVariant.set(variantId, {
-          product_id: productId, product_variant_id: variantId, variant_name: String(variant.name || ""),
+          product_id: productId, product_variant_id: variantId, variant_name: String(variant.display_name || variant.name || ""),
           before_nutrition_override: beforeOverride, after_nutrition_override: { ...beforeOverride }, changes: {},
         });
       }
@@ -442,7 +442,7 @@ async function loadProducts(supabase, productIds) {
 }
 async function loadVariants(supabase, variantIds) {
   if (!variantIds.length) return [];
-  const { data, error } = await supabase.from("product_variants").select("id,product_id,name,nutrition_override").in("id", variantIds);
+  const { data, error } = await supabase.from("product_variants").select("id,product_id,display_name,nutrition_override").in("id", variantIds);
   if (error) throw error;
   return data || [];
 }
