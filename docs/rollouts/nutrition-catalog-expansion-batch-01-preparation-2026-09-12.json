@@ -1435,6 +1435,14 @@
   },
   "access_and_collection": {
     "applied_context": {
+      "collector_dry_plan": {
+        "result": "PASS",
+        "mode": "DRY_PLAN_NO_NETWORK",
+        "source_count": 3,
+        "network_requests": 0,
+        "files_written": 0,
+        "stop_reason": "ROBOTS_TERMS_AND_FETCH_APPROVAL_REQUIRED"
+      },
       "successful_read_requests": 19,
       "technical_batches": [
         7,

@@ -1990,6 +1990,9 @@ package with at most 50 exact variants:
   of 7, 10, 1 and 1 requests. Two discarded no-write preflight attempts used five
   requests while resolving exact manufacturer spelling (`Icy Blue Raz` and
   `Tigers Blood`). No raw page snapshot or label image was downloaded or archived.
+  The existing manufacturer collector dry-plan also passed for the three explicit
+  Applied product URLs with zero requests and zero files written; collection was
+  not invoked.
   Product `481` retained one nutrition image across all three targets; product
   `881` retained one across all eleven. The product `38` page lists its three
   flavours, one product-level Nutritional Info section, the common 15 g serving
