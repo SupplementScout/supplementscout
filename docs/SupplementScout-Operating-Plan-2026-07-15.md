@@ -71,8 +71,14 @@ whole prior override, adds no verification flag and is bound to file SHA-256
 `124880966f5cf83c05fcd425f581996244f2cd7177bb6bfdf79bb59d8b33cb7a`
 and plan fingerprint
 `e51e5d86919184e6863a1f004e4c6cd7d6b28b9db894cdecd3fa73c27ded318d`.
-No apply or catalogue write ran. The next step is NUT-03H: separately approve
-this exact plan, revalidate current state and only then run controlled apply.
+NUT-03H is `LIVE VERIFIED`: controlled apply changed only variant `726`'s
+`nutrition_override`, and a new read matched the complete planned after object.
+The candidate queue, all products, every other variant and target non-override
+metadata retained their before digests. Exact replay failed closed against the
+stale before-state; another new read proved zero additional writes and the same
+final override. This completes 1 of the frozen 25 variants, not the full pilot.
+The next step is NUT-03I: resolve the existing source/applicability disposition
+for one exact variant among the remaining 24 before any further write.
 SEO-15 remains BLOCKED, the 16 September accrual check and conditional 24-25
 September reviews remain scheduled, and GYM HIGH remains owner-deferred.
 Guardian currently validates SEO, not nutrition.

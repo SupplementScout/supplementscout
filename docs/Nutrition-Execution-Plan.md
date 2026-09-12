@@ -5,17 +5,17 @@
 ## Current checkpoint
 
 - Task: NUT-03; status `IN PROGRESS`. NUT-03A, NUT-03B, NUT-03D and NUT-03G are
-  `CODE COMPLETE`; NUT-03C, NUT-03E and NUT-03F are `LIVE VERIFIED`. The existing
+  `CODE COMPLETE`; NUT-03C, NUT-03E, NUT-03F and NUT-03H are `LIVE VERIFIED`. The existing
   candidate/review/plan/apply path now models
   creatine as the mass of its declared ingredient form against an exact serving,
   with the same five information states. Migration C is deployed in production.
-  Exactly five product `38` / variant `726` candidates are stored and approved
-  after exact-label review. Their bounded before/after plan is ready; it has not
-  been applied.
-- Owner/session: Codex, owner-authorized NUT-03G plan-only preparation,
+  Exactly five product `38` / variant `726` candidates are stored, approved and
+  applied to that exact variant. This completes one of the frozen 25 variants,
+  not the full pilot.
+- Owner/session: Codex, owner-authorized NUT-03H controlled production apply,
   12 September 2026.
 - Branch: `main`; this session started at
-  `42d055895bdbcd6665398706d6f754ebc95599de`; remote `main` matched before work.
+  `6268b500f07bccb8391d5fcd25ad10e2353bc845`; remote `main` matched before work.
 - Production readback at `2026-09-11T12:58:26.063Z`: public `anon` SELECT against
   project `aftboxmrdgyhizicfsfu`; 141 active unmerged Pre Workout products and
   575 active variants. Frozen scope: 25 variants across 21 products.
@@ -100,9 +100,13 @@
 - NUT-03G prepared that plan with zero blockers, zero product updates and one
   exact variant update. It retains the full existing override, adds only the
   five reviewed facts and records zero database writes.
-- One next step, NUT-03H: after separate owner approval of the exact plan hash
-  and fingerprint, revalidate its stale-state guards and execute only its
-  controlled apply.
+- NUT-03H applied the exact hash-bound plan to variant `726`. Independent
+  readback matched the complete planned after override and found no other data
+  change. Exact replay was rejected by the stale-plan guard and a further
+  readback proved zero additional writes.
+- One next step, NUT-03I: within the frozen remaining 24 variants, obtain an
+  exact-variant source/applicability decision for one next candidate set before
+  any further candidate or catalogue write.
 
 ## Authority and scope
 
@@ -272,8 +276,9 @@ implementation or any nutrition catalogue write.
 | NUT-03E | `LIVE VERIFIED` | NUT-03D + owner authorization | Store exactly the hash-bound five-candidate NUT-03D artifact in the existing private nutrition queue, without review, approval, planning or apply. | Preflight found zero existing target fingerprints and no same-evidence conflicts. Guarded storage created IDs 696-700; independent readback matched all values and provenance, found each fingerprint exactly once and confirmed every status pending. Queue delta was exactly +5 and exact product/variant digests were unchanged. The authenticated panel shows all five rows. |
 | NUT-03F | `LIVE VERIFIED` | NUT-03E + owner review authorization | Review only candidate IDs 696-700 against the hash-bound artifact and preserved exact-variant label, then approve each matching fact without planning or applying it. | Preflight proved five pending exact matches and one row per fingerprint. Authenticated individual review approved all five with their proposed values. Fresh readback found `reviewed_by=admin-panel`, immutable evidence, unchanged exact product/variant digests and all five approved cards in the panel. |
 | NUT-03G | `CODE COMPLETE` | NUT-03F + owner authorization | Use the existing planner to prepare a before/after plan only for approved candidate IDs 696-700. Do not execute apply. | Fresh readback matched all five approvals and immutable evidence. The validated plan has zero blockers, zero product updates, one exact variant update and zero writes. It preserves the whole prior override and is bound to the five fingerprints, current empty override, file hash and plan fingerprint. |
-| NUT-03H | `PLANNED` | NUT-03G + separate owner apply authorization | Revalidate and apply only the exact hash-bound NUT-03G plan through the existing guarded path. | Apply rejects any candidate/evidence/approval/variant drift; successful transactional readback changes only variant 726 `nutrition_override`, preserves all other catalogue data and proves a no-op replay. |
-| NUT-03 | `IN PROGRESS` | NUT-03H | Review pilot evidence, quantities/units and exact applicability; separately approved candidate review, planning and guarded apply | NUT-03A prepares the original offline artifact, NUT-03B adds structured creatine, NUT-03C deploys its schema, NUT-03D prepares the five-row revision, NUT-03E stores it pending, NUT-03F approves the exact reviewed set and NUT-03G prepares its bounded plan. Complete only when every in-scope proposal, including creatine, has a decision and separately authorized writes have independent readback and zero-duplicate replay; unresolved facts remain unknown and excluded. |
+| NUT-03H | `LIVE VERIFIED` | NUT-03G + owner apply authorization | Revalidate and apply only the exact hash-bound NUT-03G plan through the existing guarded path. | Preflight matched the production target, empty before override, five approvals and immutable evidence. Transactional apply changed only variant 726's five planned override fields. Fresh readback matched the whole after object and preserved the queue, all products and every other variant. Exact replay failed closed on the stale before-state; another read proved zero additional writes and identical final state. |
+| NUT-03I | `PLANNED` | NUT-03H + separate owner authorization | Select one next exact variant only from the frozen remaining 24 after resolving its existing source/applicability disposition. Do not infer shared flavour formulas or start a write without a new bounded artifact and authorization. | The next exact variant has a source-bound candidate disposition under the existing process; all other frozen variants retain their recorded gap/reason/action and no catalogue data changes during preparation. |
+| NUT-03 | `IN PROGRESS` | NUT-03I | Review pilot evidence, quantities/units and exact applicability; separately approved candidate review, planning and guarded apply | NUT-03A through NUT-03H complete the first exact variant, product 38 / variant 726, through controlled apply. This is 1 of 25 frozen variants and does not establish full pilot coverage. Complete only when every in-scope proposal, including creatine, has a decision and separately authorized writes have independent readback and safe replay evidence; unresolved facts remain unknown and excluded. |
 | NUT-04 | `PLANNED` | NUT-03 | Existing product page facts/source and existing search caffeine-free filter | Tests and live variant-switch checks prove confirmed absence included, caffeine present excluded, missing/conflicting facts never treated as absent. Document coverage denominator, limits, evidence and operations. Publish image copies only with established rights; otherwise link to source. MVP closes here. |
 | NUT-05 | `DEFERRED` | NUT-04 closure | Subsequent bounded batches/categories in the same process | Review extraction yield, review time and missing-source rate before expansion; every batch has a fixed denominator and closure. No expansion of an active batch. |
 
@@ -834,6 +839,69 @@ No code, migration, test inventory or workflow is changed by this NUT-00 revisio
   authorization to store exactly this hash-bound five-candidate set in the
   existing private queue. That step must leave every row pending and must not
   approve, plan or apply any fact.
+
+## NUT-03H controlled apply evidence
+
+12 September 2026, owner-authorized apply of the exact NUT-03G plan:
+
+- The authorized file remained
+  `tmp/nutrition-approved-plan/NCR1-nut03a-38-726-1182c1aeab46-e51e5d869191.json`,
+  SHA-256
+  `124880966f5cf83c05fcd425f581996244f2cd7177bb6bfdf79bb59d8b33cb7a`,
+  plan fingerprint
+  `e51e5d86919184e6863a1f004e4c6cd7d6b28b9db894cdecd3fa73c27ded318d`.
+  Local validation again found only source candidate IDs `696`-`700`, zero
+  product updates and one product `38` / variant `726` update.
+- A fresh read-only connection resolved to production project
+  `aftboxmrdgyhizicfsfu` and classified the target `READY_FOR_APPLY` rather than
+  already applied or drifted. The whole before override was `{}` with digest
+  `44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a`.
+  All five candidates remained approved with their planned values, fingerprints,
+  archive URI, image SHA-256, original quantities/units, serving text, forms and
+  citrulline ratio.
+- The existing `nutrition:approved-apply` command used only that plan and
+  `--confirm-reviewed-nutrition-update=true`. It returned
+  `APPLIED_REVIEWED_NUTRITION_FIELDS`, no changed products and one changed
+  variant: `726`, fields `beta_alanine`, `caffeine`, `citrulline`,
+  `serving_size_g` and `creatine`. No manual SQL or substitute update ran.
+- The immutable local audit is
+  `tmp/nutrition-approved-plan/NCR1-nut03a-38-726-1182c1aeab46-e51e5d869191-audit.json`,
+  SHA-256
+  `08c7a97f942ad950c1dbf7abe5467c2af8baf37f4c29137ac3ae1d6a5a76e184`.
+  It binds the applied timestamp, plan fingerprint, five candidate fingerprints,
+  exact product/variant, image hash and private source URI.
+- An independent new read-only connection classified the result
+  `ALREADY_APPLIED_EXACTLY`. The complete override matched the plan after object
+  with digest
+  `70f0d5e160bcf578856fe5c3eeabc4876f3fc0ca987eae2404906cee8088be1c`:
+  beta-alanine `2000 mg`, caffeine `250 mg`, citrulline-malate mass `5000 mg`
+  with ratio `2:1`, serving size `15 g`, and creatine-monohydrate declared-form
+  mass `3000 mg`, all against `Serving Size: 2 Scoops (15 g)` where applicable.
+- Before/after comparison kept the full candidate-queue digest
+  `30ab9473205716c3fbc1b8a29bce9433cd7eb992cb8d1468388d7136ed73cbee`,
+  full products digest
+  `54ca4527908c69a05a19affcb7ad12a99613054de5058797f599c29e265e2392`,
+  all-other-variants digest
+  `8350973f56782c6e83a3704906f3875d742cec832715dcd1b13b34e5e8f011ba`,
+  exact product `38` digest and target variant non-override metadata digest
+  unchanged. Counts remained 700 candidates, 1,337 products and 3,631 other
+  variants. The five candidates remained approved and their evidence unchanged.
+  Neither `nutrition_verified` nor legacy `creatine_per_serving_g` appears in the
+  resulting override.
+- Replaying the exact command did not report a successful no-op. The unchanged
+  stale-state guard rejected it with
+  `Variant 726 nutrition override changed after plan generation`, because the
+  current state now equals the plan after rather than its original before.
+  A third new read-only connection matched every postflight digest and the exact
+  after override, proving the rejected replay made zero additional writes. The
+  guard was not weakened.
+- `verify:project` passed before the ledger update. No tracked code, migration,
+  workflow or test changes in NUT-03H, so code quality gates are not required.
+  The post-update project and diff checks are recorded with the published commit.
+- NUT-03 remains `IN PROGRESS`. This is the first completed exact variant out of
+  the frozen 25, not full pilot coverage. One next step, NUT-03I, requires a
+  separate bounded authorization for one next exact-variant source/applicability
+  disposition before any further write.
 
 ## NUT-03G bounded before/after plan evidence
 
