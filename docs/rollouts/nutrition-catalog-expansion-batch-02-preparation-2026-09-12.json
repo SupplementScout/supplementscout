@@ -1,0 +1,404 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-expansion-batch-02-preparation-v1",
+  "status": "READY_FOR_SINGLE_OWNER_DECISION_WITH_EXPLICIT_GAPS",
+  "generated_at": "2026-09-12T20:19:35.682Z",
+  "target_environment_read": "PRODUCTION",
+  "production_project_ref": "aftboxmrdgyhizicfsfu",
+  "authorization_boundary": {
+    "preparation_only": true,
+    "candidate_store": false,
+    "review": false,
+    "plan": false,
+    "apply": false,
+    "database_writes": 0
+  },
+  "baseline": {
+    "production_read_at": "2026-09-12T20:06:11.066Z",
+    "exact_applied_variants": 24,
+    "exact_applied_variant_ids": [
+      "726",
+      "727",
+      "728",
+      "1047",
+      "760",
+      "761",
+      "762",
+      "763",
+      "3603",
+      "815",
+      "816",
+      "1383",
+      "1384",
+      "1385",
+      "1386",
+      "1387",
+      "1388",
+      "1389",
+      "1390",
+      "1391",
+      "1392",
+      "1393",
+      "1394",
+      "1395"
+    ],
+    "no_unexpected_completion": true,
+    "frozen_pilot": "7/25 complete before and after preparation",
+    "stinger": "1 separate completed demonstration",
+    "catalogue_expansion_batch_01": "16 complete",
+    "total_distinct_completed": 24,
+    "per4m": "28 exact variants retained as permission/evidence blocked and not rechecked",
+    "gym_high": "all products except the completed Stinger demonstration remain owner-deferred"
+  },
+  "closed_scope": {
+    "assessed_variants": 19,
+    "ready_variants": 15,
+    "unresolved_variants": 4,
+    "candidate_facts": 75,
+    "organizational_limit": 50,
+    "unique_source_tables": 2,
+    "formula_groups": 2,
+    "frozen_pilot_variants_reopened_by_new_evidence": [
+      "1016",
+      "1864"
+    ],
+    "other_frozen_pilot_gaps_rechecked": 0
+  },
+  "production_preflight": {
+    "captured_at": "2026-09-12T20:13:55.626Z",
+    "read_only": true,
+    "exact_bindings_confirmed": 19,
+    "existing_candidates": 0,
+    "nonempty_override_variant_ids": [],
+    "database_writes": 0
+  },
+  "source_context": {
+    "path": "tmp/nutrition-catalog-batch-02-2026-09-12/source-context-manifest.json",
+    "sha256": "fda0d679d334affa186970c8a05f3b714310f9a0219d696cad0c6b6163838371",
+    "archive_uri": "supabase-storage://nutrition-sources/manifests/nut-03/catalog-expansion-batch-02/applied-abe/fda0d679d334affa186970c8a05f3b714310f9a0219d696cad0c6b6163838371/source-context-manifest.json",
+    "basis": "wspólna tabela producenta dla wariantów produktu",
+    "tables": [
+      {
+        "formula_key": "applied-abe-315g-30-servings-10.5g",
+        "official_url": "https://connect.appliednutrition.uk/product/abe-all-black-everything-pre-workout-copy/",
+        "table_sha256": "24b73d21da2c833d091c334bb5e696b085c74d8a3a6ac6b50dfb664bf8636728",
+        "table_archive_uri": "supabase-storage://nutrition-sources/labels/nut-03/catalog-expansion-batch-02/applied-nutrition/215/24b73d21da2c833d091c334bb5e696b085c74d8a3a6ac6b50dfb664bf8636728/ABE-315g-nutrition-table.webp",
+        "serving_basis": "1 Scoop (10.5 g)",
+        "package_and_servings": "315 g / 30 servings",
+        "supported_variants": 12
+      },
+      {
+        "formula_key": "applied-abe-375g-30-servings-12.5g",
+        "official_url": "https://appliednutrition.uk/products/abe-all-black-everything-375g",
+        "table_sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+        "table_archive_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+        "serving_basis": "1 Scoop (12.5 g)",
+        "package_and_servings": "375 g / 30 servings",
+        "supported_variants": 3
+      }
+    ]
+  },
+  "archive": {
+    "duplicate_precheck": "UPLOAD_REQUIRED",
+    "private_bucket": true,
+    "upsert": false,
+    "new_objects": [
+      {
+        "id": "abe-315g-table",
+        "object_path": "labels/nut-03/catalog-expansion-batch-02/applied-nutrition/215/24b73d21da2c833d091c334bb5e696b085c74d8a3a6ac6b50dfb664bf8636728/ABE-315g-nutrition-table.webp",
+        "sha256": "24b73d21da2c833d091c334bb5e696b085c74d8a3a6ac6b50dfb664bf8636728",
+        "bytes": 19288
+      },
+      {
+        "id": "context-manifest",
+        "object_path": "manifests/nut-03/catalog-expansion-batch-02/applied-abe/fda0d679d334affa186970c8a05f3b714310f9a0219d696cad0c6b6163838371/source-context-manifest.json",
+        "sha256": "fda0d679d334affa186970c8a05f3b714310f9a0219d696cad0c6b6163838371",
+        "bytes": 10914
+      }
+    ],
+    "readback": "FRESH_PROCESS_READBACK_PASS",
+    "reused_existing_table_sha256": "02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87",
+    "reused_existing_table_uri": "supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/881/02987e5bfa5716453ea9ef6cb2db8af5582adc005ab0664ab9aef0a2efaeac87/881-Applied-ABE-375g.jpg",
+    "database_writes": 0
+  },
+  "ready_groups": [
+    {
+      "product_id": "215",
+      "product_name": "Applied Nutrition ABE Ultimate Pre-Workout 315g",
+      "formula": "315 g / 30 servings / 10.5 g serving",
+      "variants": [
+        {
+          "product_variant_id": "1016",
+          "name": "Bubblegum Crush / 315g"
+        },
+        {
+          "product_variant_id": "1663",
+          "name": "Candy Ice Blast / 315g"
+        },
+        {
+          "product_variant_id": "1664",
+          "name": "Cherry Cola / 315g"
+        },
+        {
+          "product_variant_id": "1665",
+          "name": "Energy / 315g"
+        },
+        {
+          "product_variant_id": "1666",
+          "name": "Fruit Punch / 315g"
+        },
+        {
+          "product_variant_id": "1667",
+          "name": "Icy Blue Raz / 315g"
+        },
+        {
+          "product_variant_id": "1668",
+          "name": "Sour Apple / 315g"
+        },
+        {
+          "product_variant_id": "1669",
+          "name": "Sour Gummy Bear / 315g"
+        },
+        {
+          "product_variant_id": "1670",
+          "name": "Strawberry Mojito / 315g"
+        },
+        {
+          "product_variant_id": "1671",
+          "name": "Tropical / 315g"
+        },
+        {
+          "product_variant_id": "1676",
+          "name": "Twirler Ice Cream / 315g"
+        },
+        {
+          "product_variant_id": "2019",
+          "name": "Gin & Tonic / 315g"
+        }
+      ],
+      "facts": {
+        "serving_size_g": {
+          "information_state": "present_with_amount",
+          "normalized_value": 10.5,
+          "unit": "g",
+          "source_value": 10.5,
+          "source_unit": "g",
+          "basis": "1 Scoop (10.5 g)"
+        },
+        "caffeine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "normalized_value": 200,
+          "unit": "mg",
+          "source_value": 200,
+          "source_unit": "mg",
+          "basis": "1 Scoop (10.5 g)"
+        },
+        "beta_alanine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "normalized_value": 2000,
+          "unit": "mg",
+          "source_value": 2,
+          "source_unit": "g",
+          "basis": "1 Scoop (10.5 g)"
+        },
+        "citrulline_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "normalized_value": 4000,
+          "unit": "mg",
+          "source_value": 4,
+          "source_unit": "g",
+          "form": "citrulline_malate",
+          "ratio": "2:1",
+          "basis": "1 Scoop (10.5 g)",
+          "meaning": "declared citrulline-malate mass"
+        },
+        "creatine_declared_form_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "normalized_value": 3250,
+          "unit": "mg",
+          "source_value": 3.25,
+          "source_unit": "g",
+          "form": "creatine_monohydrate",
+          "basis": "1 Scoop (10.5 g)",
+          "meaning": "declared creatine-monohydrate mass"
+        }
+      },
+      "artifact": {
+        "product_id": "215",
+        "path": "tmp/nutrition-catalog-batch-02-2026-09-12/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-02-applied-215-20260912.json",
+        "sha256": "6d7f26a9299d732b6467b48a9c84b55dc30a9f7f279457177909c5686ab58d7b",
+        "artifact_fingerprint": "fdf6dda20459e751e3008a1189004b734168e531934ef28d5ecf565fbde6dab3",
+        "variants": 12,
+        "candidates": 60,
+        "unique_candidate_fingerprints": 60
+      }
+    },
+    {
+      "product_id": "957",
+      "product_name": "Applied Nutrition ABE 30 servings",
+      "formula": "375 g / 30 servings / 12.5 g serving",
+      "variants": [
+        {
+          "product_variant_id": "1864",
+          "name": "Baddy Berry / 30servings",
+          "official_variant_id": "46669202981096",
+          "retailer_variant_id": "47984405840112"
+        },
+        {
+          "product_variant_id": "1865",
+          "name": "Cherry Cola / 30servings",
+          "official_variant_id": "39339774771367",
+          "retailer_variant_id": "47984405872880"
+        },
+        {
+          "product_variant_id": "1866",
+          "name": "Cool Watermelon / 30servings",
+          "official_variant_id": "55170278818167",
+          "retailer_variant_id": "47984405905648"
+        }
+      ],
+      "facts": {
+        "serving_size_g": {
+          "information_state": "present_with_amount",
+          "normalized_value": 12.5,
+          "unit": "g",
+          "source_value": 12.5,
+          "source_unit": "g",
+          "basis": "1 Scoop (12.5 g)"
+        },
+        "caffeine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "normalized_value": 200,
+          "unit": "mg",
+          "source_value": 200,
+          "source_unit": "mg",
+          "basis": "1 Scoop (12.5 g)"
+        },
+        "beta_alanine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "normalized_value": 2000,
+          "unit": "mg",
+          "source_value": 2,
+          "source_unit": "g",
+          "basis": "1 Scoop (12.5 g)"
+        },
+        "citrulline_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "normalized_value": 4000,
+          "unit": "mg",
+          "source_value": 4,
+          "source_unit": "g",
+          "form": "citrulline_malate",
+          "ratio": "2:1",
+          "basis": "1 Scoop (12.5 g)",
+          "meaning": "declared citrulline-malate mass"
+        },
+        "creatine_declared_form_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "normalized_value": 3000,
+          "unit": "mg",
+          "source_value": 3,
+          "source_unit": "g",
+          "form": "creatine_monohydrate",
+          "basis": "1 Scoop (12.5 g)",
+          "meaning": "declared creatine-monohydrate mass"
+        }
+      },
+      "artifact": {
+        "product_id": "957",
+        "path": "tmp/nutrition-catalog-batch-02-2026-09-12/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-02-applied-957-20260912.json",
+        "sha256": "da8169e2a67ddd57a064edd5831acb5a320c33901752998e0dcfecc121422240",
+        "artifact_fingerprint": "559a455981674c5bb598613ff94cc41df1b6a048bc22da710983e36a3bce12f4",
+        "variants": 3,
+        "candidates": 15,
+        "unique_candidate_fingerprints": 15
+      }
+    }
+  ],
+  "unresolved": [
+    {
+      "canonical_product_id": "215",
+      "canonical_variant_id": "1672",
+      "catalogue_name": "Baddy Berry / 315g",
+      "status": "FORMULA_VERSION_UNRESOLVED",
+      "reason": "The official 315 g source does not list this later flavour; the current official listing is the changed 375 g / 12.5 g / 3 g-creatine formula.",
+      "required_material": "An official 315 g / 10.5 g product-page entry or label that explicitly includes this exact flavour, or manufacturer evidence that the 315 g common table covered it."
+    },
+    {
+      "canonical_product_id": "215",
+      "canonical_variant_id": "1673",
+      "catalogue_name": "Swizzels Drumstick Squashies / 315g",
+      "status": "FORMULA_VERSION_UNRESOLVED",
+      "reason": "The official 315 g source does not list this later flavour; the current official listing is the changed 375 g / 12.5 g / 3 g-creatine formula.",
+      "required_material": "An official 315 g / 10.5 g product-page entry or label that explicitly includes this exact flavour, or manufacturer evidence that the 315 g common table covered it."
+    },
+    {
+      "canonical_product_id": "215",
+      "canonical_variant_id": "1674",
+      "catalogue_name": "Swizzels Love Hearts / 315g",
+      "status": "FORMULA_VERSION_UNRESOLVED",
+      "reason": "The official 315 g source does not list this later flavour; the current official listing is the changed 375 g / 12.5 g / 3 g-creatine formula.",
+      "required_material": "An official 315 g / 10.5 g product-page entry or label that explicitly includes this exact flavour, or manufacturer evidence that the 315 g common table covered it."
+    },
+    {
+      "canonical_product_id": "215",
+      "canonical_variant_id": "1675",
+      "catalogue_name": "Swizzels Refreshers Lemon / 315g",
+      "status": "FORMULA_VERSION_UNRESOLVED",
+      "reason": "The official 315 g source does not list this later flavour; the current official listing is the changed 375 g / 12.5 g / 3 g-creatine formula.",
+      "required_material": "An official 315 g / 10.5 g product-page entry or label that explicitly includes this exact flavour, or manufacturer evidence that the 315 g common table covered it."
+    }
+  ],
+  "validation": {
+    "status": "PASS",
+    "commands": [
+      "npm run nutrition:candidates:store -- --dry-run --input=tmp/nutrition-catalog-batch-02-2026-09-12/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-02-applied-215-20260912.json",
+      "npm run nutrition:candidates:store -- --dry-run --input=tmp/nutrition-catalog-batch-02-2026-09-12/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-02-applied-957-20260912.json"
+    ],
+    "results": [
+      {
+        "product_id": "215",
+        "candidate_rows": 60,
+        "unique_candidate_fingerprints": 60,
+        "mode": "DRY_RUN_NO_DATABASE",
+        "product_updates": 0,
+        "database_writes": 0
+      },
+      {
+        "product_id": "957",
+        "candidate_rows": 15,
+        "unique_candidate_fingerprints": 15,
+        "mode": "DRY_RUN_NO_DATABASE",
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    ],
+    "total_candidate_rows": 75,
+    "total_unique_candidate_fingerprints": 75,
+    "product_updates": 0,
+    "database_writes": 0
+  },
+  "exclusions": [
+    {
+      "scope": "24 completed exact variants",
+      "action": "excluded from all preparation"
+    },
+    {
+      "scope": "PER4M 28 variants",
+      "action": "retained blocked; no repeated access or terms review"
+    },
+    {
+      "scope": "other frozen-pilot unresolved variants",
+      "action": "not rechecked without new evidence"
+    },
+    {
+      "scope": "other GYM HIGH products",
+      "action": "owner-deferred"
+    },
+    {
+      "scope": "default variants 134 and 1867",
+      "action": "excluded because they are not exact flavour/package variants"
+    }
+  ],
+  "next_step": "One owner decision on controlled store -> review -> plan -> apply for exactly the unchanged 75 candidates across the 15 ready exact variants; the four unresolved 315 g flavours remain outside that write scope until the stated exact official evidence exists."
+}
