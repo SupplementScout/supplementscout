@@ -39,11 +39,12 @@
   updates. Independent and replay readbacks passed, as did all ten public exact-
   variant pages. Variant `1331` and nine Warrior variants retain their recorded
   source/collector gaps. The distinct applied total is now 49.
-- Catalogue expansion batch 04 preparation is `READY FOR OWNER DECISION` for six
-  exact variants and 30 pending candidates across products `528` and `1248`.
-  Two archived official formula tables support all six variants. Four Nutrend
-  variants retain creatine as `no_information`; two PhD variants have all four
-  tracked ingredient states resolved. No candidate or catalogue database write ran.
+- Catalogue expansion batch 04 is `LIVE VERIFIED` for six exact variants across
+  products `528` and `1248`. Candidates `941`-`970` were stored and approved,
+  and two guarded plans applied only the five approved facts to six exact variant
+  overrides, with zero product updates. Four Nutrend variants retain creatine as
+  `no_information`; two PhD variants have all four tracked ingredient states
+  resolved. The distinct applied total is now 55.
 - The exact GYM HIGH demonstration exception for product `411` / variant `1047`
   is also `LIVE VERIFIED`: candidates `701`-`705` were stored, reviewed and
   applied through the existing guarded path. Its bounded exception now also
@@ -51,10 +52,10 @@
   the frozen pilot denominator and does not authorize any other GYM HIGH item.
 - Owner/session: Codex, owner-authorized NUT-03 preparation in organizational
   packages of at most 50 exact variants. The owner authorized the unchanged
-  50-candidate Batch 03 set through store, review, plan and apply; production,
+  30-candidate Batch 04 set through store, review, plan and apply; production,
   replay and public readbacks are complete. The frozen pilot remains 9/25, the
   separately completed GYM HIGH demonstration remains outside its denominator,
-  and the distinct applied total is 49 variants, 13 September 2026.
+  and the distinct applied total is 55 variants, 13 September 2026.
 - Branch: `main`; the NUT-04A session started at
   `805717043dd2b7121a435954a2441e6182d6304e`; remote `main` matched before work.
 - Production readback at `2026-09-11T12:58:26.063Z`: public `anon` SELECT against
@@ -2479,3 +2480,83 @@ ready subset:
   across variants `976`, `977`, `1847`, `1848`, `3670` and `3716`. No production
   candidate store, review, plan, apply or catalogue write ran. NUT-03 remains
   `IN PROGRESS` and the distinct applied total remains 49.
+
+## NUT-03 catalogue expansion batch 04 execution evidence
+
+13 September 2026, owner-authorized controlled execution of the unchanged Batch
+04 package in production project `aftboxmrdgyhizicfsfu`:
+
+- Preflight reproduced the authorized preparation report SHA-256
+  `340428ab2732124d44c677ffdc6c596fa1907361850ab3250224f32e0baa8860`,
+  product `528` artifact SHA-256
+  `add367babe690803875598093ad53b884dc986739271341ba1f6484a6d94bba4`
+  and fingerprint
+  `9738c30835ecab8a2289a36e6c1d2e8fe5538bd23e47ed31ebac0ccdccb74eff`,
+  and product `1248` artifact SHA-256
+  `dcd14e7d367840a1f96ac96bbd4fa57d65c0c628fd76686072617f257f7132f1`
+  and fingerprint
+  `7f89bf5ecd26a2369a7fcb6c567154d41d0a4cbca4c6603ec50908b634e67351`.
+  All 30 candidate fingerprints were unique. All six product-variant bindings
+  were active, exact and non-default, every target override was `{}`, and no
+  matching candidate existed before store.
+- A fresh-process readback from private bucket `nutrition-sources` reproduced the
+  two official formula-table hashes and context-manifest hash recorded by the
+  preparation package. No source object was copied again. Repeated artifact
+  dry-runs returned `DRY_RUN_NO_DATABASE`: 20 plus ten candidates, zero product
+  updates and zero database writes.
+- The controlled store created exactly candidates `941`-`970`; a new connection
+  found one record for each fingerprint and no target override change.
+  Authenticated review approved exactly those 30 records as `admin-panel`, with
+  approved values, exact variants, evidence and fingerprints unchanged. The
+  Nutrend half-scoop basis is `1/2 scoop (15 g)`, caffeine absence retains the
+  manufacturer's explicit declaration, creatine remains `no_information` with
+  a null value, and no citrulline-malate ratio was invented. The two PhD records
+  retain their flavour-specific table evidence and one-scoop / 15 g basis.
+- The product `528` plan is
+  `tmp/nutrition-approved-plan/NCR1-catalog-batch-04-528-20260913-b8421a9a6199.json`,
+  SHA-256
+  `4a4af466f8ecb8d64f4e88150d3e4eeb039743164d715c40833af635332597a8`,
+  fingerprint
+  `b8421a9a61994abce58885c13b867cc93ea30862e9576242b40f4a05e18b337d`.
+  It contains candidates `941`-`960`, zero product updates and four exact variant
+  updates. The product `1248` plan is
+  `tmp/nutrition-approved-plan/NCR1-catalog-batch-04-1248-20260913-9284b4423665.json`,
+  SHA-256
+  `606551467d7fbfd9cab2cdf601e28ad9b38f9058d6316a86ea64fbb3f3f186d1`,
+  fingerprint
+  `9284b4423665522e57d47142fb67206da5957a29a0523c38569a8a330c24a36b`.
+  It contains candidates `961`-`970`, zero product updates and two exact variant
+  updates. Both plans had zero blockers and an empty exact `before` override.
+- Controlled apply returned `APPLIED_REVIEWED_NUTRITION_FIELDS` for both plans.
+  An independent new-connection readback matched every full `after` override for
+  variants `976`, `977`, `1847`, `1848`, `3670` and `3716`. Full-product,
+  all-other-variant, target non-override metadata and non-target candidate-queue
+  digests remained unchanged; this includes `nutrition_verified` and legacy
+  `creatine_per_serving_g`. All 30 approvals and source proofs remained intact.
+- Replaying each unchanged plan through the guarded apply path was safely rejected
+  by the stale-before check. This was a protected rejection rather than a no-op;
+  a further independent readback confirmed an identical final state and zero
+  additional writes.
+- All six exact public variant URLs returned HTTP 200 and showed the correct
+  selected variant, serving and reviewed facts with a sanitized manufacturer
+  source kind. Private archive URIs and reviewer identity were absent. The
+  caffeine-free result contained none of the six: both PhD variants contain
+  caffeine, while all four otherwise qualifying Nutrend variants had zero current
+  in-stock offers inside the existing freshness window. The filter therefore
+  preserved its offer-availability and one-card-per-product grouping rules.
+- Six unique variants and 30 candidates were applied. Both PhD variants resolve
+  all four tracked ingredients; the four Nutrend variants deliberately retain
+  creatine as `no_information`, so the fully resolved count is 2 of 6. Batch 04
+  stopped at six because the preparation pass found source-use restrictions,
+  unresolved package/formula identities, conflicting serving evidence and mixed
+  citrulline forms for the other shortlisted families. Those recorded blocks were
+  not re-audited and safeguards were not weakened to fill the 50-variant ceiling.
+- Machine-readable execution evidence is
+  [nutrition-catalog-expansion-batch-04-execution-2026-09-13.json](rollouts/nutrition-catalog-expansion-batch-04-execution-2026-09-13.json),
+  SHA-256
+  `b5c14a508d362680ae0717d57dd1b82bf3b1eae8515a4d0167251c463e56afd4`.
+  Batch 04 is `LIVE VERIFIED`; the distinct applied total is now 55. The frozen
+  pilot remains 9/25, Stinger remains one separate demonstration, and NUT-03
+  remains `IN PROGRESS`. One next step is another independent catalogue-family
+  preparation package based on new qualifying evidence, without reopening known
+  blocks absent a new premise.

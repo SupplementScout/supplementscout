@@ -1,0 +1,1255 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-expansion-batch-04-execution-v1",
+  "status": "LIVE_VERIFIED",
+  "generated_at": "2026-09-13T07:31:56.770Z",
+  "target_environment": "PRODUCTION",
+  "project_ref": "aftboxmrdgyhizicfsfu",
+  "authorization": {
+    "store": true,
+    "authenticated_review": true,
+    "plan": true,
+    "apply": true,
+    "exact_candidate_count": 30,
+    "exact_variant_count": 6,
+    "product_updates_allowed": 0
+  },
+  "preparation_report": {
+    "path": "docs/rollouts/nutrition-catalog-expansion-batch-04-preparation-2026-09-13.json",
+    "sha256": "340428ab2732124d44c677ffdc6c596fa1907361850ab3250224f32e0baa8860"
+  },
+  "source_archive": {
+    "result": "FRESH_PROCESS_READBACK_PASS",
+    "bucket": "nutrition-sources",
+    "bucket_public": false,
+    "objects_verified": 3,
+    "storage_writes_during_execution": 0,
+    "database_writes": 0,
+    "objects": [
+      {
+        "uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html",
+        "sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "bytes": 1094635,
+        "result": "PASS"
+      },
+      {
+        "uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/phd-nutrition/1248/5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af/02-p1248-phd-charge-pre-workout-powder-300g-4ae4da0193e4.html",
+        "sha256": "5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af",
+        "bytes": 284766,
+        "result": "PASS"
+      },
+      {
+        "uri": "supabase-storage://nutrition-sources/manifests/nut-03/catalog-expansion-batch-04/0f7c0d6277b1cb0b399c54a259f51c28220f3cd82f19f738f50823d8aac9e813/source-context-manifest.json",
+        "sha256": "0f7c0d6277b1cb0b399c54a259f51c28220f3cd82f19f738f50823d8aac9e813",
+        "bytes": 6395,
+        "result": "PASS"
+      }
+    ]
+  },
+  "store": {
+    "result": "PASS",
+    "new_candidates": 30,
+    "existing_candidates": 0,
+    "candidate_ids": [
+      "941",
+      "942",
+      "943",
+      "944",
+      "945",
+      "946",
+      "947",
+      "948",
+      "949",
+      "950",
+      "951",
+      "952",
+      "953",
+      "954",
+      "955",
+      "956",
+      "957",
+      "958",
+      "959",
+      "960",
+      "961",
+      "962",
+      "963",
+      "964",
+      "965",
+      "966",
+      "967",
+      "968",
+      "969",
+      "970"
+    ],
+    "queue_before": {
+      "approved": 918,
+      "pending": 16,
+      "rejected": 6
+    },
+    "queue_after": {
+      "approved": 918,
+      "pending": 46,
+      "rejected": 6
+    }
+  },
+  "review": {
+    "result": "PASS",
+    "newly_approved": 30,
+    "already_approved": 0,
+    "reviewed_by": "admin-panel",
+    "queue_after": {
+      "approved": 948,
+      "pending": 16,
+      "rejected": 6
+    },
+    "candidates": [
+      {
+        "id": "941",
+        "product_id": "528",
+        "product_variant_id": "976",
+        "field": "beta_alanine_per_serving_mg",
+        "status": "approved",
+        "approved_value": 3000,
+        "information_state": "present_with_amount",
+        "candidate_fingerprint": "523a1c246703c5787749022cbf9b494931c6136db15d9ab2ca997151765877a6",
+        "source_file_sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html"
+      },
+      {
+        "id": "942",
+        "product_id": "528",
+        "product_variant_id": "976",
+        "field": "caffeine_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "d375a8c28df11939a33624e767b18dde6adc24b460aa3de822df190e2eed8222",
+        "source_file_sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html"
+      },
+      {
+        "id": "943",
+        "product_id": "528",
+        "product_variant_id": "976",
+        "field": "citrulline_per_serving_mg",
+        "status": "approved",
+        "approved_value": 5000,
+        "information_state": "present_with_amount",
+        "candidate_fingerprint": "31b180588661031281f14b06b6995f72cab2cd8ead2d0da13726b87c7f73db90",
+        "source_file_sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html"
+      },
+      {
+        "id": "944",
+        "product_id": "528",
+        "product_variant_id": "976",
+        "field": "creatine_declared_form_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "no_information",
+        "candidate_fingerprint": "6cc3c3c0fbc432bf82d93c1c5379aa041ba88666f7706bd0fdffdfe8c6b62e30",
+        "source_file_sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html"
+      },
+      {
+        "id": "945",
+        "product_id": "528",
+        "product_variant_id": "976",
+        "field": "serving_size_g",
+        "status": "approved",
+        "approved_value": 15,
+        "information_state": null,
+        "candidate_fingerprint": "73e78b044efafa43a44f582ba604f9ab6702a26a3a745b545ebd1970dad5ff79",
+        "source_file_sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html"
+      },
+      {
+        "id": "946",
+        "product_id": "528",
+        "product_variant_id": "977",
+        "field": "beta_alanine_per_serving_mg",
+        "status": "approved",
+        "approved_value": 3000,
+        "information_state": "present_with_amount",
+        "candidate_fingerprint": "640b5cec6d9b0ce8dd46b5c5e4beabefc8c902eb0fdcc999b39bb82949a7ad07",
+        "source_file_sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html"
+      },
+      {
+        "id": "947",
+        "product_id": "528",
+        "product_variant_id": "977",
+        "field": "caffeine_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "534026450d6e15f0e5af1509ffe910526c26dc0b4d798f76be68ab5e1d428744",
+        "source_file_sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html"
+      },
+      {
+        "id": "948",
+        "product_id": "528",
+        "product_variant_id": "977",
+        "field": "citrulline_per_serving_mg",
+        "status": "approved",
+        "approved_value": 5000,
+        "information_state": "present_with_amount",
+        "candidate_fingerprint": "c3df568d2f3bedbb5066c9b1f4343678328b9dc8995630a4261b9db61c18fb59",
+        "source_file_sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html"
+      },
+      {
+        "id": "949",
+        "product_id": "528",
+        "product_variant_id": "977",
+        "field": "creatine_declared_form_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "no_information",
+        "candidate_fingerprint": "599bc016ec3e965080e24d5cc98f9fdb02edf6f14026bad4d083ab620434f1e7",
+        "source_file_sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html"
+      },
+      {
+        "id": "950",
+        "product_id": "528",
+        "product_variant_id": "977",
+        "field": "serving_size_g",
+        "status": "approved",
+        "approved_value": 15,
+        "information_state": null,
+        "candidate_fingerprint": "676d627bb6d3d2a002472362472338f2e160e7df27fd2eb927f44ebc3b5e6009",
+        "source_file_sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html"
+      },
+      {
+        "id": "951",
+        "product_id": "528",
+        "product_variant_id": "1847",
+        "field": "beta_alanine_per_serving_mg",
+        "status": "approved",
+        "approved_value": 3000,
+        "information_state": "present_with_amount",
+        "candidate_fingerprint": "0c9155a2eeae24c44d115f92619001225475ec91c8cd425405ff5e0ffcc59852",
+        "source_file_sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html"
+      },
+      {
+        "id": "952",
+        "product_id": "528",
+        "product_variant_id": "1847",
+        "field": "caffeine_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "cc24f0ef30066e13d6d02d1f7a9f93303249004576519f3f1fb32d091a43266d",
+        "source_file_sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html"
+      },
+      {
+        "id": "953",
+        "product_id": "528",
+        "product_variant_id": "1847",
+        "field": "citrulline_per_serving_mg",
+        "status": "approved",
+        "approved_value": 5000,
+        "information_state": "present_with_amount",
+        "candidate_fingerprint": "7147301b256ac9735c8a74e7748b1843736b201ecf61872bb0d0aa40628dd458",
+        "source_file_sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html"
+      },
+      {
+        "id": "954",
+        "product_id": "528",
+        "product_variant_id": "1847",
+        "field": "creatine_declared_form_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "no_information",
+        "candidate_fingerprint": "7f8f6c74e0eff1cfe92787b3fdc2b7b2523c3466a050a1d8c2254c2bdc5dd947",
+        "source_file_sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html"
+      },
+      {
+        "id": "955",
+        "product_id": "528",
+        "product_variant_id": "1847",
+        "field": "serving_size_g",
+        "status": "approved",
+        "approved_value": 15,
+        "information_state": null,
+        "candidate_fingerprint": "7cf28f3cd187d6097a7c9c077368da338d09f2cd96d44018433df588946c43ff",
+        "source_file_sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html"
+      },
+      {
+        "id": "956",
+        "product_id": "528",
+        "product_variant_id": "1848",
+        "field": "beta_alanine_per_serving_mg",
+        "status": "approved",
+        "approved_value": 3000,
+        "information_state": "present_with_amount",
+        "candidate_fingerprint": "7109e535a9e862eab627c1d85230b3bd2b61c0ef343a4651f5501d8babecce98",
+        "source_file_sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html"
+      },
+      {
+        "id": "957",
+        "product_id": "528",
+        "product_variant_id": "1848",
+        "field": "caffeine_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "4801077636505f0cb8fe2f2338055a12061e2a905d73083928a191b3052167de",
+        "source_file_sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html"
+      },
+      {
+        "id": "958",
+        "product_id": "528",
+        "product_variant_id": "1848",
+        "field": "citrulline_per_serving_mg",
+        "status": "approved",
+        "approved_value": 5000,
+        "information_state": "present_with_amount",
+        "candidate_fingerprint": "1d9bcd3ebd4f70151f3737577aa7eda31d71f3a818690b46ca43503494c8b89d",
+        "source_file_sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html"
+      },
+      {
+        "id": "959",
+        "product_id": "528",
+        "product_variant_id": "1848",
+        "field": "creatine_declared_form_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "no_information",
+        "candidate_fingerprint": "1e9d83b0637a4b529ad849061631141872b4abff0ef8386c111d611c60c7381b",
+        "source_file_sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html"
+      },
+      {
+        "id": "960",
+        "product_id": "528",
+        "product_variant_id": "1848",
+        "field": "serving_size_g",
+        "status": "approved",
+        "approved_value": 15,
+        "information_state": null,
+        "candidate_fingerprint": "bf726256325172ffc75b8100d31342040e08a9feb0461a7c8782c0ab48fc34ba",
+        "source_file_sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html"
+      },
+      {
+        "id": "961",
+        "product_id": "1248",
+        "product_variant_id": "3670",
+        "field": "beta_alanine_per_serving_mg",
+        "status": "approved",
+        "approved_value": 2000,
+        "information_state": "present_with_amount",
+        "candidate_fingerprint": "e704eb69ec7225ca24bcca039ae8cf1e9b06eea46507c2b5ca9c0e00e2d4623b",
+        "source_file_sha256": "5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/phd-nutrition/1248/5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af/02-p1248-phd-charge-pre-workout-powder-300g-4ae4da0193e4.html"
+      },
+      {
+        "id": "962",
+        "product_id": "1248",
+        "product_variant_id": "3670",
+        "field": "caffeine_per_serving_mg",
+        "status": "approved",
+        "approved_value": 200,
+        "information_state": "present_with_amount",
+        "candidate_fingerprint": "064f74790965befcef837275ad9a8f64a60c52f94d936f2b8d9967259238c083",
+        "source_file_sha256": "5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/phd-nutrition/1248/5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af/02-p1248-phd-charge-pre-workout-powder-300g-4ae4da0193e4.html"
+      },
+      {
+        "id": "963",
+        "product_id": "1248",
+        "product_variant_id": "3670",
+        "field": "citrulline_per_serving_mg",
+        "status": "approved",
+        "approved_value": 1000,
+        "information_state": "present_with_amount",
+        "candidate_fingerprint": "a6f8e2fba896f0f9d2e7b007847c1ebdd47b43698b29c02b9b6662c7a2c604df",
+        "source_file_sha256": "5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/phd-nutrition/1248/5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af/02-p1248-phd-charge-pre-workout-powder-300g-4ae4da0193e4.html"
+      },
+      {
+        "id": "964",
+        "product_id": "1248",
+        "product_variant_id": "3670",
+        "field": "creatine_declared_form_per_serving_mg",
+        "status": "approved",
+        "approved_value": 3000,
+        "information_state": "present_with_amount",
+        "candidate_fingerprint": "bff9e6370fcece3ebb99e4bce0ee2026b8ef5a10116270f665269e6927edebf7",
+        "source_file_sha256": "5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/phd-nutrition/1248/5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af/02-p1248-phd-charge-pre-workout-powder-300g-4ae4da0193e4.html"
+      },
+      {
+        "id": "965",
+        "product_id": "1248",
+        "product_variant_id": "3670",
+        "field": "serving_size_g",
+        "status": "approved",
+        "approved_value": 15,
+        "information_state": null,
+        "candidate_fingerprint": "ff22ccd4ba23f6e51edbb499073f6ddc24adc44591bc79ed3a3232247c2eda3c",
+        "source_file_sha256": "5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/phd-nutrition/1248/5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af/02-p1248-phd-charge-pre-workout-powder-300g-4ae4da0193e4.html"
+      },
+      {
+        "id": "966",
+        "product_id": "1248",
+        "product_variant_id": "3716",
+        "field": "beta_alanine_per_serving_mg",
+        "status": "approved",
+        "approved_value": 2000,
+        "information_state": "present_with_amount",
+        "candidate_fingerprint": "01ef36cd1b2219de83b8b8416d981350c6a2f6d8ace929e44ca6e2d85fdc37c4",
+        "source_file_sha256": "5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/phd-nutrition/1248/5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af/02-p1248-phd-charge-pre-workout-powder-300g-4ae4da0193e4.html"
+      },
+      {
+        "id": "967",
+        "product_id": "1248",
+        "product_variant_id": "3716",
+        "field": "caffeine_per_serving_mg",
+        "status": "approved",
+        "approved_value": 200,
+        "information_state": "present_with_amount",
+        "candidate_fingerprint": "72106aa9125bcac5e74b83bf119db25c8d26aaf4dd0464c2a415438ca7e7dd9d",
+        "source_file_sha256": "5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/phd-nutrition/1248/5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af/02-p1248-phd-charge-pre-workout-powder-300g-4ae4da0193e4.html"
+      },
+      {
+        "id": "968",
+        "product_id": "1248",
+        "product_variant_id": "3716",
+        "field": "citrulline_per_serving_mg",
+        "status": "approved",
+        "approved_value": 1000,
+        "information_state": "present_with_amount",
+        "candidate_fingerprint": "308d6de51b488bb46697158d61094e9e5bc634df2d0787cbec18ac5ea6edfbb4",
+        "source_file_sha256": "5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/phd-nutrition/1248/5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af/02-p1248-phd-charge-pre-workout-powder-300g-4ae4da0193e4.html"
+      },
+      {
+        "id": "969",
+        "product_id": "1248",
+        "product_variant_id": "3716",
+        "field": "creatine_declared_form_per_serving_mg",
+        "status": "approved",
+        "approved_value": 3000,
+        "information_state": "present_with_amount",
+        "candidate_fingerprint": "881277b835368bec8ee7f7fc6d7191dfece536692f759b133aa49070d0194f41",
+        "source_file_sha256": "5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/phd-nutrition/1248/5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af/02-p1248-phd-charge-pre-workout-powder-300g-4ae4da0193e4.html"
+      },
+      {
+        "id": "970",
+        "product_id": "1248",
+        "product_variant_id": "3716",
+        "field": "serving_size_g",
+        "status": "approved",
+        "approved_value": 15,
+        "information_state": null,
+        "candidate_fingerprint": "644b5e3f9894fe9dbf41ef0da3b87e576321c5aa7518b3948995e803140ece65",
+        "source_file_sha256": "5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/phd-nutrition/1248/5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af/02-p1248-phd-charge-pre-workout-powder-300g-4ae4da0193e4.html"
+      }
+    ]
+  },
+  "plans": [
+    {
+      "product_id": "528",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-batch-04-528-20260913-b8421a9a6199.json",
+      "sha256": "4a4af466f8ecb8d64f4e88150d3e4eeb039743164d715c40833af635332597a8",
+      "plan_fingerprint": "b8421a9a61994abce58885c13b867cc93ea30862e9576242b40f4a05e18b337d",
+      "source_candidate_ids": [
+        "941",
+        "942",
+        "943",
+        "944",
+        "945",
+        "946",
+        "947",
+        "948",
+        "949",
+        "950",
+        "951",
+        "952",
+        "953",
+        "954",
+        "955",
+        "956",
+        "957",
+        "958",
+        "959",
+        "960"
+      ],
+      "product_updates": 0,
+      "variant_updates": [
+        "976",
+        "977",
+        "1847",
+        "1848"
+      ],
+      "blockers": 0,
+      "before": [
+        {
+          "product_variant_id": "976",
+          "nutrition_override": {}
+        },
+        {
+          "product_variant_id": "977",
+          "nutrition_override": {}
+        },
+        {
+          "product_variant_id": "1847",
+          "nutrition_override": {}
+        },
+        {
+          "product_variant_id": "1848",
+          "nutrition_override": {}
+        }
+      ],
+      "after": [
+        {
+          "product_variant_id": "976",
+          "nutrition_override": {
+            "beta_alanine": {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 3000,
+              "source_quantity_value": 3000,
+              "source_quantity_unit": "mg",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1/2 scoop (15 g)",
+              "serving_basis_value": 15,
+              "serving_basis_unit": "g"
+            },
+            "caffeine": {
+              "information_state": "confirmed_absent"
+            },
+            "citrulline": {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 5000,
+              "source_quantity_value": 5000,
+              "source_quantity_unit": "mg",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1/2 scoop (15 g)",
+              "serving_basis_value": 15,
+              "serving_basis_unit": "g",
+              "ingredient_form": "citrulline_malate"
+            },
+            "creatine": {
+              "information_state": "no_information"
+            },
+            "serving_size_g": 15
+          }
+        },
+        {
+          "product_variant_id": "977",
+          "nutrition_override": {
+            "beta_alanine": {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 3000,
+              "source_quantity_value": 3000,
+              "source_quantity_unit": "mg",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1/2 scoop (15 g)",
+              "serving_basis_value": 15,
+              "serving_basis_unit": "g"
+            },
+            "caffeine": {
+              "information_state": "confirmed_absent"
+            },
+            "citrulline": {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 5000,
+              "source_quantity_value": 5000,
+              "source_quantity_unit": "mg",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1/2 scoop (15 g)",
+              "serving_basis_value": 15,
+              "serving_basis_unit": "g",
+              "ingredient_form": "citrulline_malate"
+            },
+            "creatine": {
+              "information_state": "no_information"
+            },
+            "serving_size_g": 15
+          }
+        },
+        {
+          "product_variant_id": "1847",
+          "nutrition_override": {
+            "beta_alanine": {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 3000,
+              "source_quantity_value": 3000,
+              "source_quantity_unit": "mg",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1/2 scoop (15 g)",
+              "serving_basis_value": 15,
+              "serving_basis_unit": "g"
+            },
+            "caffeine": {
+              "information_state": "confirmed_absent"
+            },
+            "citrulline": {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 5000,
+              "source_quantity_value": 5000,
+              "source_quantity_unit": "mg",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1/2 scoop (15 g)",
+              "serving_basis_value": 15,
+              "serving_basis_unit": "g",
+              "ingredient_form": "citrulline_malate"
+            },
+            "creatine": {
+              "information_state": "no_information"
+            },
+            "serving_size_g": 15
+          }
+        },
+        {
+          "product_variant_id": "1848",
+          "nutrition_override": {
+            "beta_alanine": {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 3000,
+              "source_quantity_value": 3000,
+              "source_quantity_unit": "mg",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1/2 scoop (15 g)",
+              "serving_basis_value": 15,
+              "serving_basis_unit": "g"
+            },
+            "caffeine": {
+              "information_state": "confirmed_absent"
+            },
+            "citrulline": {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 5000,
+              "source_quantity_value": 5000,
+              "source_quantity_unit": "mg",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1/2 scoop (15 g)",
+              "serving_basis_value": 15,
+              "serving_basis_unit": "g",
+              "ingredient_form": "citrulline_malate"
+            },
+            "creatine": {
+              "information_state": "no_information"
+            },
+            "serving_size_g": 15
+          }
+        }
+      ],
+      "apply_status": "APPLIED_REVIEWED_NUTRITION_FIELDS",
+      "audit_path": "tmp/nutrition-approved-plan/NCR1-catalog-batch-04-528-20260913-b8421a9a6199-audit.json"
+    },
+    {
+      "product_id": "1248",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-batch-04-1248-20260913-9284b4423665.json",
+      "sha256": "606551467d7fbfd9cab2cdf601e28ad9b38f9058d6316a86ea64fbb3f3f186d1",
+      "plan_fingerprint": "9284b4423665522e57d47142fb67206da5957a29a0523c38569a8a330c24a36b",
+      "source_candidate_ids": [
+        "961",
+        "962",
+        "963",
+        "964",
+        "965",
+        "966",
+        "967",
+        "968",
+        "969",
+        "970"
+      ],
+      "product_updates": 0,
+      "variant_updates": [
+        "3670",
+        "3716"
+      ],
+      "blockers": 0,
+      "before": [
+        {
+          "product_variant_id": "3670",
+          "nutrition_override": {}
+        },
+        {
+          "product_variant_id": "3716",
+          "nutrition_override": {}
+        }
+      ],
+      "after": [
+        {
+          "product_variant_id": "3670",
+          "nutrition_override": {
+            "beta_alanine": {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 2000,
+              "source_quantity_value": 2000,
+              "source_quantity_unit": "mg",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1 scoop (15 g)",
+              "serving_basis_value": 15,
+              "serving_basis_unit": "g"
+            },
+            "caffeine": {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 200,
+              "source_quantity_value": 200,
+              "source_quantity_unit": "mg",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1 scoop (15 g)",
+              "serving_basis_value": 15,
+              "serving_basis_unit": "g"
+            },
+            "citrulline": {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 1000,
+              "source_quantity_value": 1000,
+              "source_quantity_unit": "mg",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1 scoop (15 g)",
+              "serving_basis_value": 15,
+              "serving_basis_unit": "g",
+              "ingredient_form": "citrulline_malate",
+              "ingredient_ratio": "2:1"
+            },
+            "creatine": {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 3000,
+              "source_quantity_value": 3000,
+              "source_quantity_unit": "mg",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1 scoop (15 g)",
+              "amount_subject": "declared_ingredient_form",
+              "serving_basis_value": 15,
+              "serving_basis_unit": "g",
+              "ingredient_form": "creatine_monohydrate"
+            },
+            "serving_size_g": 15
+          }
+        },
+        {
+          "product_variant_id": "3716",
+          "nutrition_override": {
+            "beta_alanine": {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 2000,
+              "source_quantity_value": 2000,
+              "source_quantity_unit": "mg",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1 scoop (15 g)",
+              "serving_basis_value": 15,
+              "serving_basis_unit": "g"
+            },
+            "caffeine": {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 200,
+              "source_quantity_value": 200,
+              "source_quantity_unit": "mg",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1 scoop (15 g)",
+              "serving_basis_value": 15,
+              "serving_basis_unit": "g"
+            },
+            "citrulline": {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 1000,
+              "source_quantity_value": 1000,
+              "source_quantity_unit": "mg",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1 scoop (15 g)",
+              "serving_basis_value": 15,
+              "serving_basis_unit": "g",
+              "ingredient_form": "citrulline_malate",
+              "ingredient_ratio": "2:1"
+            },
+            "creatine": {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 3000,
+              "source_quantity_value": 3000,
+              "source_quantity_unit": "mg",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1 scoop (15 g)",
+              "amount_subject": "declared_ingredient_form",
+              "serving_basis_value": 15,
+              "serving_basis_unit": "g",
+              "ingredient_form": "creatine_monohydrate"
+            },
+            "serving_size_g": 15
+          }
+        }
+      ],
+      "apply_status": "APPLIED_REVIEWED_NUTRITION_FIELDS",
+      "audit_path": "tmp/nutrition-approved-plan/NCR1-catalog-batch-04-1248-20260913-9284b4423665-audit.json"
+    }
+  ],
+  "apply": {
+    "result": "PASS",
+    "product_updates": 0,
+    "variant_updates": [
+      {
+        "product_id": "528",
+        "product_variant_id": "976",
+        "display_name": "Berry Splash / 225g",
+        "nutrition_override": {
+          "caffeine": {
+            "information_state": "confirmed_absent"
+          },
+          "creatine": {
+            "information_state": "no_information"
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "citrulline_malate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1/2 scoop (15 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 15,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 5000,
+            "source_quantity_value": 5000
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1/2 scoop (15 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 15,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 3000,
+            "source_quantity_value": 3000
+          },
+          "serving_size_g": 15
+        }
+      },
+      {
+        "product_id": "528",
+        "product_variant_id": "977",
+        "display_name": "Tropical Blend / 225g",
+        "nutrition_override": {
+          "caffeine": {
+            "information_state": "confirmed_absent"
+          },
+          "creatine": {
+            "information_state": "no_information"
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "citrulline_malate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1/2 scoop (15 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 15,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 5000,
+            "source_quantity_value": 5000
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1/2 scoop (15 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 15,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 3000,
+            "source_quantity_value": 3000
+          },
+          "serving_size_g": 15
+        }
+      },
+      {
+        "product_id": "528",
+        "product_variant_id": "1847",
+        "display_name": "Rainbow / 225g",
+        "nutrition_override": {
+          "caffeine": {
+            "information_state": "confirmed_absent"
+          },
+          "creatine": {
+            "information_state": "no_information"
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "citrulline_malate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1/2 scoop (15 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 15,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 5000,
+            "source_quantity_value": 5000
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1/2 scoop (15 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 15,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 3000,
+            "source_quantity_value": 3000
+          },
+          "serving_size_g": 15
+        }
+      },
+      {
+        "product_id": "528",
+        "product_variant_id": "1848",
+        "display_name": "Bubble Gum / 225g",
+        "nutrition_override": {
+          "caffeine": {
+            "information_state": "confirmed_absent"
+          },
+          "creatine": {
+            "information_state": "no_information"
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "citrulline_malate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1/2 scoop (15 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 15,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 5000,
+            "source_quantity_value": 5000
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1/2 scoop (15 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 15,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 3000,
+            "source_quantity_value": 3000
+          },
+          "serving_size_g": 15
+        }
+      },
+      {
+        "product_id": "1248",
+        "product_variant_id": "3670",
+        "display_name": "Blue Gummy Bear",
+        "nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (15 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 15,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 200,
+            "source_quantity_value": 200
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (15 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 15,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 3000,
+            "source_quantity_value": 3000
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "citrulline_malate",
+            "ingredient_ratio": "2:1",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (15 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 15,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 1000,
+            "source_quantity_value": 1000
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (15 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 15,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 2000,
+            "source_quantity_value": 2000
+          },
+          "serving_size_g": 15
+        }
+      },
+      {
+        "product_id": "1248",
+        "product_variant_id": "3716",
+        "display_name": "Sherbet Lemon / 300g",
+        "nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (15 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 15,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 200,
+            "source_quantity_value": 200
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (15 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 15,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 3000,
+            "source_quantity_value": 3000
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "citrulline_malate",
+            "ingredient_ratio": "2:1",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (15 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 15,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 1000,
+            "source_quantity_value": 1000
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (15 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 15,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 2000,
+            "source_quantity_value": 2000
+          },
+          "serving_size_g": 15
+        }
+      }
+    ],
+    "preservation": {
+      "full_product_table_sha256": "54ca4527908c69a05a19affcb7ad12a99613054de5058797f599c29e265e2392",
+      "all_other_variants_sha256": "e0c806996098cb74aa31cd98ee4f01c368b30fa46f90f1453f9da48cfa0c6b3f",
+      "target_variant_metadata_sha256": "e224555729772e64285c60330bb93c3bbd48705bf400683e799a3f033d1d13d9",
+      "non_target_candidate_queue_sha256": "a32223f264fab125e49826c767deaf4fea4fd5395d64598f407ba1cc3984a2f2",
+      "product_count": 1337,
+      "other_variant_count": 3626,
+      "non_target_candidate_count": 940
+    }
+  },
+  "replay": {
+    "result": "PASS_ALL_REPLAYS_SAFELY_REJECTED",
+    "mechanism": "stale-before safe rejection",
+    "attempts": [
+      {
+        "plan": "tmp/nutrition-approved-plan/NCR1-catalog-batch-04-528-20260913-b8421a9a6199.json",
+        "result": "PASS_SAFE_REJECTION",
+        "exit_code": 1
+      },
+      {
+        "plan": "tmp/nutrition-approved-plan/NCR1-catalog-batch-04-1248-20260913-9284b4423665.json",
+        "result": "PASS_SAFE_REJECTION",
+        "exit_code": 1
+      }
+    ],
+    "postretry_state_identical": true
+  },
+  "public_readback": {
+    "result": "PASS",
+    "checked_variant_pages": 6,
+    "variant_pages": [
+      {
+        "product_id": "528",
+        "product_variant_id": "976",
+        "url": "https://www.supplementscout.co.uk/product/nutrend--pump-pre-workout?variant=976",
+        "http_status": 200,
+        "checks": {
+          "exact_variant": true,
+          "reviewed_section": true,
+          "serving": true,
+          "caffeine": true,
+          "beta": true,
+          "citrulline": true,
+          "creatine": true,
+          "source_kind": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "528",
+        "product_variant_id": "977",
+        "url": "https://www.supplementscout.co.uk/product/nutrend--pump-pre-workout?variant=977",
+        "http_status": 200,
+        "checks": {
+          "exact_variant": true,
+          "reviewed_section": true,
+          "serving": true,
+          "caffeine": true,
+          "beta": true,
+          "citrulline": true,
+          "creatine": true,
+          "source_kind": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "528",
+        "product_variant_id": "1847",
+        "url": "https://www.supplementscout.co.uk/product/nutrend--pump-pre-workout?variant=1847",
+        "http_status": 200,
+        "checks": {
+          "exact_variant": true,
+          "reviewed_section": true,
+          "serving": true,
+          "caffeine": true,
+          "beta": true,
+          "citrulline": true,
+          "creatine": true,
+          "source_kind": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "528",
+        "product_variant_id": "1848",
+        "url": "https://www.supplementscout.co.uk/product/nutrend--pump-pre-workout?variant=1848",
+        "http_status": 200,
+        "checks": {
+          "exact_variant": true,
+          "reviewed_section": true,
+          "serving": true,
+          "caffeine": true,
+          "beta": true,
+          "citrulline": true,
+          "creatine": true,
+          "source_kind": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1248",
+        "product_variant_id": "3670",
+        "url": "https://www.supplementscout.co.uk/product/phd-charge-pre-workout-powder-300g?variant=3670",
+        "http_status": 200,
+        "checks": {
+          "exact_variant": true,
+          "reviewed_section": true,
+          "serving": true,
+          "caffeine": true,
+          "beta": true,
+          "citrulline": true,
+          "creatine": true,
+          "source_kind": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1248",
+        "product_variant_id": "3716",
+        "url": "https://www.supplementscout.co.uk/product/phd-charge-pre-workout-powder-300g?variant=3716",
+        "http_status": 200,
+        "checks": {
+          "exact_variant": true,
+          "reviewed_section": true,
+          "serving": true,
+          "caffeine": true,
+          "beta": true,
+          "citrulline": true,
+          "creatine": true,
+          "source_kind": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      }
+    ],
+    "caffeine_free_search": {
+      "url": "https://www.supplementscout.co.uk/search?q=pre%20workout&caffeine=free",
+      "http_status": 200,
+      "target_variant_links": [],
+      "nutrend_grouped_cards": 0,
+      "phd_links": 0,
+      "grouping": "one card per product; exact qualifying variant selected from current available offers"
+    },
+    "offer_evidence": [
+      {
+        "product_id": "528",
+        "product_variant_id": "976",
+        "observed_offers": 1,
+        "current_in_stock_offers": 0
+      },
+      {
+        "product_id": "528",
+        "product_variant_id": "977",
+        "observed_offers": 2,
+        "current_in_stock_offers": 0
+      },
+      {
+        "product_id": "528",
+        "product_variant_id": "1847",
+        "observed_offers": 2,
+        "current_in_stock_offers": 0
+      },
+      {
+        "product_id": "528",
+        "product_variant_id": "1848",
+        "observed_offers": 2,
+        "current_in_stock_offers": 0
+      },
+      {
+        "product_id": "1248",
+        "product_variant_id": "3670",
+        "observed_offers": 1,
+        "current_in_stock_offers": 0
+      },
+      {
+        "product_id": "1248",
+        "product_variant_id": "3716",
+        "observed_offers": 1,
+        "current_in_stock_offers": 0
+      }
+    ],
+    "availability_explanation": "No Batch 04 variant had a current in-stock offer inside the existing freshness window, so none appeared in the caffeine-free result. PhD remains ineligible because caffeine is present."
+  },
+  "completeness": {
+    "processed_variants": 6,
+    "candidates": 30,
+    "fully_resolved_four_ingredient_variants": 2,
+    "variants_with_explicit_no_information": 4,
+    "unresolved_field": "Nutrend creatine",
+    "unresolved_state": "no_information",
+    "unresolved_numeric_value": null
+  },
+  "coverage": {
+    "previous_distinct_applied_variants": 49,
+    "batch_04_applied_variants": 6,
+    "current_distinct_applied_variants": 55,
+    "frozen_pilot": "9/25",
+    "separate_stinger": 1,
+    "nut_03_status": "IN_PROGRESS"
+  },
+  "preparation_scope_explanation": "Batch 04 stopped at six after the recorded short recognition pass. Other shortlisted families had explicit source-use restrictions, unresolved package/formula identity, conflicting serving evidence, or mixed citrulline forms that the existing single-form field cannot represent faithfully. Known blocks were not re-audited and safeguards were not relaxed to fill the 50-variant ceiling.",
+  "next_step": "Prepare another independent catalogue-family package only from new qualifying evidence; do not re-audit retained blocks without a new premise."
+}
