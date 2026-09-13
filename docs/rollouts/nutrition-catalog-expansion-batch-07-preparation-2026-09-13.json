@@ -279,7 +279,7 @@
       "unique_candidate_fingerprints": 8
     },
     "dry_run": {
-      "command": "npm run nutrition:candidates:store -- --dry-run --input=tmp/nutrition-batch-07/tmp/nutrition-catalog-batch-07-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-07-twp-1282-20260913.json",
+      "command": "npm run nutrition:candidates:store -- --dry-run --input=tmp/nutrition-catalog-batch-07-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-07-twp-1282-20260913.json",
       "result": "DRY_RUN_NO_DATABASE",
       "candidate_rows": 8,
       "product_updates": 0,

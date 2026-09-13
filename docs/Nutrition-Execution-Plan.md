@@ -3080,7 +3080,7 @@ catalogue write:
   permission for copying. No blocked source was downloaded or archived.
 - Complete machine-readable evidence is
   [nutrition-catalog-expansion-batch-07-preparation-2026-09-13.json](rollouts/nutrition-catalog-expansion-batch-07-preparation-2026-09-13.json),
-  SHA-256 `b0d6c51802fd11da843b9ce2d7f99f8b6640536e5a6982acac53dc91b617b905`.
+  SHA-256 `febacd4f4ffb3a410e5235d589c0056b75211bfa2452b97b46fc9b5be51bbc44`.
   NUT-03 and the MVP remain `IN PROGRESS`.
 
 One next step is one owner decision on controlled store -> authenticated review
