@@ -1,0 +1,1415 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-expansion-batch-03-execution-v1",
+  "status": "LIVE_VERIFIED",
+  "generated_at": "2026-09-13T05:48:19.496Z",
+  "target_environment": "PRODUCTION",
+  "project_ref": "aftboxmrdgyhizicfsfu",
+  "authorization": {
+    "store": true,
+    "authenticated_review": true,
+    "plan": true,
+    "apply": true,
+    "exact_candidate_count": 50,
+    "exact_variant_count": 10,
+    "product_updates_allowed": 0
+  },
+  "preparation_report": {
+    "path": "docs/rollouts/nutrition-catalog-expansion-batch-03-preparation-2026-09-13.json",
+    "sha256": "a44eeeddcd932b2aeea2d80711491622c211f18fe116cf00c16e7eb41a974ac1"
+  },
+  "source_archive": {
+    "result": "FRESH_PROCESS_READBACK_PASS",
+    "bucket": "nutrition-sources",
+    "bucket_public": false,
+    "objects_verified": 6,
+    "storage_writes": 0,
+    "database_writes": 0,
+    "hashes": [
+      "47a1cbdfc6327193ccb2fd0e7b9793dab94771664d2a96736bb176ba5cd9e230",
+      "a185591be61aff68b0b7b3a9fc0fa605971398908d10d5c13d3d8c97077c127b",
+      "80ae870c635cd24c15fe1473e568d10c0966266514ab81df075d0afb14b462a7",
+      "ca6ae0c5d7acd9822d94fc5f34df10bb9742710b6bc9d9b68fda11bc1baf5c66",
+      "a9539e3c6e6ee92bb3b67ed9fb90b9e909a6157770341871977267e60caf3f7a",
+      "9fbe9d1c882e26f265532663afce9a9e5052da96c996a07a1fbd0c6e25bbb605"
+    ]
+  },
+  "store": {
+    "result": "PASS",
+    "new_candidates": 50,
+    "existing_candidates": 0,
+    "candidate_ids": [
+      "891",
+      "892",
+      "893",
+      "894",
+      "895",
+      "896",
+      "897",
+      "898",
+      "899",
+      "900",
+      "901",
+      "902",
+      "903",
+      "904",
+      "905",
+      "906",
+      "907",
+      "908",
+      "909",
+      "910",
+      "911",
+      "912",
+      "913",
+      "914",
+      "915",
+      "916",
+      "917",
+      "918",
+      "919",
+      "920",
+      "921",
+      "922",
+      "923",
+      "924",
+      "925",
+      "926",
+      "927",
+      "928",
+      "929",
+      "930",
+      "931",
+      "932",
+      "933",
+      "934",
+      "935",
+      "936",
+      "937",
+      "938",
+      "939",
+      "940"
+    ],
+    "queue_before": {
+      "approved": 868,
+      "pending": 16,
+      "rejected": 6
+    },
+    "queue_after": {
+      "approved": 868,
+      "pending": 66,
+      "rejected": 6
+    }
+  },
+  "review": {
+    "result": "PASS",
+    "newly_approved": 50,
+    "already_approved": 0,
+    "reviewed_by": "admin-panel",
+    "queue_after": {
+      "approved": 918,
+      "pending": 16,
+      "rejected": 6
+    },
+    "candidates": [
+      {
+        "id": "891",
+        "product_id": "869",
+        "product_variant_id": "1323",
+        "field": "beta_alanine_per_serving_mg",
+        "status": "approved",
+        "approved_value": 3200,
+        "candidate_fingerprint": "eea51f1e0f03435f7b55db6cf066b97916ecf9f46a89f2b5d3a0aa7aeb5e83da"
+      },
+      {
+        "id": "892",
+        "product_id": "869",
+        "product_variant_id": "1323",
+        "field": "caffeine_per_serving_mg",
+        "status": "approved",
+        "approved_value": 250,
+        "candidate_fingerprint": "55c742face1910b431b1c0d84083540515f7bf774a46ff6a73e33126e1fa72ba"
+      },
+      {
+        "id": "893",
+        "product_id": "869",
+        "product_variant_id": "1323",
+        "field": "citrulline_per_serving_mg",
+        "status": "approved",
+        "approved_value": 6000,
+        "candidate_fingerprint": "0c4cad22bbe07e6d5bdd51018bec24489a420aad8614af80c50cc828604bfd71"
+      },
+      {
+        "id": "894",
+        "product_id": "869",
+        "product_variant_id": "1323",
+        "field": "creatine_declared_form_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "candidate_fingerprint": "cbcd0047b3ee6b6c563fdfbcbd5d6bb6750b8a5b5b1ad97fd8716290006d04ec"
+      },
+      {
+        "id": "895",
+        "product_id": "869",
+        "product_variant_id": "1323",
+        "field": "serving_size_g",
+        "status": "approved",
+        "approved_value": 12,
+        "candidate_fingerprint": "4c138fc56d94181e4772cfa69dfd6fa0071f52dbe8674797a6e4ead95b8ed56f"
+      },
+      {
+        "id": "896",
+        "product_id": "869",
+        "product_variant_id": "1324",
+        "field": "beta_alanine_per_serving_mg",
+        "status": "approved",
+        "approved_value": 3200,
+        "candidate_fingerprint": "f3a1a2eb3ffbec5c9dc52fabc3b51fb6eb868911649c2dd70fbb91f8da4fa1d0"
+      },
+      {
+        "id": "897",
+        "product_id": "869",
+        "product_variant_id": "1324",
+        "field": "caffeine_per_serving_mg",
+        "status": "approved",
+        "approved_value": 250,
+        "candidate_fingerprint": "35a813c76cdc942f17a82ed65d902f758bc4be155c65e0aadcc79b7f440eb28d"
+      },
+      {
+        "id": "898",
+        "product_id": "869",
+        "product_variant_id": "1324",
+        "field": "citrulline_per_serving_mg",
+        "status": "approved",
+        "approved_value": 6000,
+        "candidate_fingerprint": "71fb715778f46d1a9b5c3134d769dcc22e85a063fbc28e983a513009d2a8de2d"
+      },
+      {
+        "id": "899",
+        "product_id": "869",
+        "product_variant_id": "1324",
+        "field": "creatine_declared_form_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "candidate_fingerprint": "27ff78ef63a6158873dfb76e3ea299661824572590ce078df8f581f06dec77ff"
+      },
+      {
+        "id": "900",
+        "product_id": "869",
+        "product_variant_id": "1324",
+        "field": "serving_size_g",
+        "status": "approved",
+        "approved_value": 12,
+        "candidate_fingerprint": "54df4f3e32e870afd0083d8bb34a9b367593bf7e3d42c4913c2982bbc26277e6"
+      },
+      {
+        "id": "901",
+        "product_id": "870",
+        "product_variant_id": "1325",
+        "field": "beta_alanine_per_serving_mg",
+        "status": "approved",
+        "approved_value": 3200,
+        "candidate_fingerprint": "130a04fa82b05ce3cdc9b3a4a0ac611e73055c0ce9e5c35746373db224aa742d"
+      },
+      {
+        "id": "902",
+        "product_id": "870",
+        "product_variant_id": "1325",
+        "field": "caffeine_per_serving_mg",
+        "status": "approved",
+        "approved_value": 300,
+        "candidate_fingerprint": "50023bd172f2aca6790079fa3b3825e3fe19b77f2c9c3d33b01c6bceef38b6c8"
+      },
+      {
+        "id": "903",
+        "product_id": "870",
+        "product_variant_id": "1325",
+        "field": "citrulline_per_serving_mg",
+        "status": "approved",
+        "approved_value": 6000,
+        "candidate_fingerprint": "6b1b69959c47eeac80952deb7e63e5b5d5e1592d58633a32d62c67d36e0f9b85"
+      },
+      {
+        "id": "904",
+        "product_id": "870",
+        "product_variant_id": "1325",
+        "field": "creatine_declared_form_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "candidate_fingerprint": "d69c3b3020053011b3ea5a113837cf08614c332f53f755482d8f314cbe72ebc7"
+      },
+      {
+        "id": "905",
+        "product_id": "870",
+        "product_variant_id": "1325",
+        "field": "serving_size_g",
+        "status": "approved",
+        "approved_value": 13,
+        "candidate_fingerprint": "b059def4bd9c75847cd79759c56bcdff2b5a9a7b3ebf8e8b9369dd2b2bda88a4"
+      },
+      {
+        "id": "906",
+        "product_id": "870",
+        "product_variant_id": "1326",
+        "field": "beta_alanine_per_serving_mg",
+        "status": "approved",
+        "approved_value": 3200,
+        "candidate_fingerprint": "1834dbe5a168e92998744c447ffabcad401d6e44b97d428239704544ab68fc32"
+      },
+      {
+        "id": "907",
+        "product_id": "870",
+        "product_variant_id": "1326",
+        "field": "caffeine_per_serving_mg",
+        "status": "approved",
+        "approved_value": 300,
+        "candidate_fingerprint": "cc826bae574da5800a28129a4591b7c3bdc16650a669bbce12c2fa48f4357e09"
+      },
+      {
+        "id": "908",
+        "product_id": "870",
+        "product_variant_id": "1326",
+        "field": "citrulline_per_serving_mg",
+        "status": "approved",
+        "approved_value": 6000,
+        "candidate_fingerprint": "8feea8f17d8c0358fb4103e3e16b6814fb9c7d71dbf64c99043b0e33e7e05005"
+      },
+      {
+        "id": "909",
+        "product_id": "870",
+        "product_variant_id": "1326",
+        "field": "creatine_declared_form_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "candidate_fingerprint": "bf790c0b3787939fc7b3a87a91a62f6d3c7e60ccbe5a0a9b559679aaeb0874e1"
+      },
+      {
+        "id": "910",
+        "product_id": "870",
+        "product_variant_id": "1326",
+        "field": "serving_size_g",
+        "status": "approved",
+        "approved_value": 13,
+        "candidate_fingerprint": "487e8a34a983bda22a84f7a50211ffee578466c2f5ba5024cde41073c2709510"
+      },
+      {
+        "id": "911",
+        "product_id": "870",
+        "product_variant_id": "1327",
+        "field": "beta_alanine_per_serving_mg",
+        "status": "approved",
+        "approved_value": 3200,
+        "candidate_fingerprint": "8e6f7a7a7b537531fa1714b225600b6cf882a5c05e6b2b84dd342f7ee9722914"
+      },
+      {
+        "id": "912",
+        "product_id": "870",
+        "product_variant_id": "1327",
+        "field": "caffeine_per_serving_mg",
+        "status": "approved",
+        "approved_value": 300,
+        "candidate_fingerprint": "88d8cf268adb0e537df04a4f760ab08735c0335b95b8377429a8397c7e504e94"
+      },
+      {
+        "id": "913",
+        "product_id": "870",
+        "product_variant_id": "1327",
+        "field": "citrulline_per_serving_mg",
+        "status": "approved",
+        "approved_value": 6000,
+        "candidate_fingerprint": "cdd47f002370011e128ec78d52e204c578250f811ee78497eae2a0c90d062dc8"
+      },
+      {
+        "id": "914",
+        "product_id": "870",
+        "product_variant_id": "1327",
+        "field": "creatine_declared_form_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "candidate_fingerprint": "7ccc7fa76de293ed8fd1dabb2f6fd99f645b98696a8af6c45bcf54a7f08cd5d6"
+      },
+      {
+        "id": "915",
+        "product_id": "870",
+        "product_variant_id": "1327",
+        "field": "serving_size_g",
+        "status": "approved",
+        "approved_value": 13,
+        "candidate_fingerprint": "a577fa434cdb064b47616bd0860a2d0f226e19cd5658fbd9f52a21740fc783ff"
+      },
+      {
+        "id": "916",
+        "product_id": "871",
+        "product_variant_id": "1328",
+        "field": "beta_alanine_per_serving_mg",
+        "status": "approved",
+        "approved_value": 3200,
+        "candidate_fingerprint": "2d33d17e95c2d6c747c5f3dbaa5efe28eb130f6426ab6399e02877a0fc671fab"
+      },
+      {
+        "id": "917",
+        "product_id": "871",
+        "product_variant_id": "1328",
+        "field": "caffeine_per_serving_mg",
+        "status": "approved",
+        "approved_value": 250,
+        "candidate_fingerprint": "569a8c94df75b42ed2228194d98bd201eb11edaabec44a22e0385d76f4b267ca"
+      },
+      {
+        "id": "918",
+        "product_id": "871",
+        "product_variant_id": "1328",
+        "field": "citrulline_per_serving_mg",
+        "status": "approved",
+        "approved_value": 6000,
+        "candidate_fingerprint": "226f87bfe2fda461859e764c553137b2903bd715af9f82f7d5140feb77254245"
+      },
+      {
+        "id": "919",
+        "product_id": "871",
+        "product_variant_id": "1328",
+        "field": "creatine_declared_form_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "candidate_fingerprint": "ca4a003e1f567c37dfe229a44bc6224c23ba736c44de4285ae2536df18e36c5c"
+      },
+      {
+        "id": "920",
+        "product_id": "871",
+        "product_variant_id": "1328",
+        "field": "serving_size_g",
+        "status": "approved",
+        "approved_value": 12,
+        "candidate_fingerprint": "2bca0011c7348cbede8ede1fffaaec72878dcbe77e2db21de6a67786b641e95c"
+      },
+      {
+        "id": "921",
+        "product_id": "872",
+        "product_variant_id": "1329",
+        "field": "beta_alanine_per_serving_mg",
+        "status": "approved",
+        "approved_value": 3200,
+        "candidate_fingerprint": "e6c2032dd9c1de66e8d729baccd60013101cdf49ea1df5509ed34e4dc36900b8"
+      },
+      {
+        "id": "922",
+        "product_id": "872",
+        "product_variant_id": "1329",
+        "field": "caffeine_per_serving_mg",
+        "status": "approved",
+        "approved_value": 250,
+        "candidate_fingerprint": "5719baa97180c184569543cf43e85efb8106ebaab1a123da3a9c0a81ea511703"
+      },
+      {
+        "id": "923",
+        "product_id": "872",
+        "product_variant_id": "1329",
+        "field": "citrulline_per_serving_mg",
+        "status": "approved",
+        "approved_value": 6000,
+        "candidate_fingerprint": "cad60cdd47849d41ee5456123cc711aab9a19b1d8bb46b4c57c82c2ee66bfa35"
+      },
+      {
+        "id": "924",
+        "product_id": "872",
+        "product_variant_id": "1329",
+        "field": "creatine_declared_form_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "candidate_fingerprint": "7c72b63507c0edb3d358a0c5eecc55f7b83a44b255ce28163dd6fd2c70f3b89e"
+      },
+      {
+        "id": "925",
+        "product_id": "872",
+        "product_variant_id": "1329",
+        "field": "serving_size_g",
+        "status": "approved",
+        "approved_value": 12,
+        "candidate_fingerprint": "341448543018c2e62026d3364834caaae9fadc4fb5cfd57d2903620174c986b4"
+      },
+      {
+        "id": "926",
+        "product_id": "872",
+        "product_variant_id": "1330",
+        "field": "beta_alanine_per_serving_mg",
+        "status": "approved",
+        "approved_value": 3200,
+        "candidate_fingerprint": "e581447fc5e6f80cce99b28253b2f2cb68374e7197ccba2a7f53e670f0667a55"
+      },
+      {
+        "id": "927",
+        "product_id": "872",
+        "product_variant_id": "1330",
+        "field": "caffeine_per_serving_mg",
+        "status": "approved",
+        "approved_value": 250,
+        "candidate_fingerprint": "122be6e057fbda9bbcff10a34970b0f9645a9c19f33f68d8956a5757d9c49182"
+      },
+      {
+        "id": "928",
+        "product_id": "872",
+        "product_variant_id": "1330",
+        "field": "citrulline_per_serving_mg",
+        "status": "approved",
+        "approved_value": 6000,
+        "candidate_fingerprint": "046455ad8089755716ba4d792ad6cbe4b3650b8df192a6734b8b6483bdc8cb3b"
+      },
+      {
+        "id": "929",
+        "product_id": "872",
+        "product_variant_id": "1330",
+        "field": "creatine_declared_form_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "candidate_fingerprint": "2525753e7ef8350094d2e9fdb83735480f6dc4d174887bc9f9237235aa905771"
+      },
+      {
+        "id": "930",
+        "product_id": "872",
+        "product_variant_id": "1330",
+        "field": "serving_size_g",
+        "status": "approved",
+        "approved_value": 12,
+        "candidate_fingerprint": "30c35687c744294edb633fe95d04d9273f15bdd490e270b9df8e50f992956b3b"
+      },
+      {
+        "id": "931",
+        "product_id": "873",
+        "product_variant_id": "1332",
+        "field": "beta_alanine_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "candidate_fingerprint": "7b893fa4272f5f8cf50a9d6b6921a5c777a9366bfd7847c82267069c848aad9d"
+      },
+      {
+        "id": "932",
+        "product_id": "873",
+        "product_variant_id": "1332",
+        "field": "caffeine_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "candidate_fingerprint": "38d942d5f5962dc1345366519735c6249a44ec90137ff9046e05c41c58e2c62a"
+      },
+      {
+        "id": "933",
+        "product_id": "873",
+        "product_variant_id": "1332",
+        "field": "citrulline_per_serving_mg",
+        "status": "approved",
+        "approved_value": 4000,
+        "candidate_fingerprint": "fd176bac7bd9bf76000bb654901a45fab603cea23ee70991be8f7e6ff3f755f3"
+      },
+      {
+        "id": "934",
+        "product_id": "873",
+        "product_variant_id": "1332",
+        "field": "creatine_declared_form_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "candidate_fingerprint": "d24f2c587b0fe24ee73e2a05ab34f64e3b79ff8c1e76879e69579437ac69a479"
+      },
+      {
+        "id": "935",
+        "product_id": "873",
+        "product_variant_id": "1332",
+        "field": "serving_size_g",
+        "status": "approved",
+        "approved_value": 15.7,
+        "candidate_fingerprint": "8f6f64565865b827442b94bfb23ff1275ebeeadd8be79964d4bbf94b9ef86a36"
+      },
+      {
+        "id": "936",
+        "product_id": "873",
+        "product_variant_id": "1333",
+        "field": "beta_alanine_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "candidate_fingerprint": "3ff731e46ac346129610a7f8793f0651d529e8e400782d56080f63796cba26ac"
+      },
+      {
+        "id": "937",
+        "product_id": "873",
+        "product_variant_id": "1333",
+        "field": "caffeine_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "candidate_fingerprint": "dc1aa271fd52734a1f0d007926400cf3bcde6f4e0bde1818e82e0a7e46123b36"
+      },
+      {
+        "id": "938",
+        "product_id": "873",
+        "product_variant_id": "1333",
+        "field": "citrulline_per_serving_mg",
+        "status": "approved",
+        "approved_value": 4000,
+        "candidate_fingerprint": "3cd90e4a60017cc69042f96a667076972b87d1310600f919f1515389a62158a8"
+      },
+      {
+        "id": "939",
+        "product_id": "873",
+        "product_variant_id": "1333",
+        "field": "creatine_declared_form_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "candidate_fingerprint": "a317444748e477ed15a07fe2a0dc956033479a64b81b811b1be01167b05d9799"
+      },
+      {
+        "id": "940",
+        "product_id": "873",
+        "product_variant_id": "1333",
+        "field": "serving_size_g",
+        "status": "approved",
+        "approved_value": 15.7,
+        "candidate_fingerprint": "e3af6767077d5f066cb08474dd51c3dd21a6cc2659e046c05d6231ad2340e513"
+      }
+    ]
+  },
+  "plans": [
+    {
+      "product_id": "869",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-batch-03-strom-869-20260913-af23f70b74b0.json",
+      "sha256": "5d9022c214b9acb1de6921a465e321660e0d6f2798ba6b666d0fd1959e4de2c0",
+      "plan_fingerprint": "af23f70b74b08cf1a9036a5b92ab622df2ceba6e4295dcc4cb1cb45a9a05388d",
+      "source_candidate_ids": [
+        "891",
+        "892",
+        "893",
+        "894",
+        "895",
+        "896",
+        "897",
+        "898",
+        "899",
+        "900"
+      ],
+      "product_updates": 0,
+      "variant_updates": [
+        "1323",
+        "1324"
+      ],
+      "blockers": 0,
+      "apply_status": "APPLIED_REVIEWED_NUTRITION_FIELDS",
+      "audit_path": "tmp/nutrition-approved-plan/NCR1-catalog-batch-03-strom-869-20260913-af23f70b74b0-audit.json"
+    },
+    {
+      "product_id": "870",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-batch-03-strom-870-20260913-5bbe896c2d27.json",
+      "sha256": "b8bace38771019d523f33ee8dbf8b7ffcb1efa361afd64fc03f78fc523914f8e",
+      "plan_fingerprint": "5bbe896c2d27e12c9d3e325a34e458e856db51d42fab33bc36302466a3a84314",
+      "source_candidate_ids": [
+        "901",
+        "902",
+        "903",
+        "904",
+        "905",
+        "906",
+        "907",
+        "908",
+        "909",
+        "910",
+        "911",
+        "912",
+        "913",
+        "914",
+        "915"
+      ],
+      "product_updates": 0,
+      "variant_updates": [
+        "1325",
+        "1326",
+        "1327"
+      ],
+      "blockers": 0,
+      "apply_status": "APPLIED_REVIEWED_NUTRITION_FIELDS",
+      "audit_path": "tmp/nutrition-approved-plan/NCR1-catalog-batch-03-strom-870-20260913-5bbe896c2d27-audit.json"
+    },
+    {
+      "product_id": "871",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-batch-03-strom-871-20260913-7a8a55a774ce.json",
+      "sha256": "c98b8f1ebb1c2e91d25aa4c6d8d550fe26479a5bea84c7c1298e82e9cb184a8a",
+      "plan_fingerprint": "7a8a55a774ceba2848d7ac39601cf38c2b48a6f2db304862724be319c50dbccc",
+      "source_candidate_ids": [
+        "916",
+        "917",
+        "918",
+        "919",
+        "920"
+      ],
+      "product_updates": 0,
+      "variant_updates": [
+        "1328"
+      ],
+      "blockers": 0,
+      "apply_status": "APPLIED_REVIEWED_NUTRITION_FIELDS",
+      "audit_path": "tmp/nutrition-approved-plan/NCR1-catalog-batch-03-strom-871-20260913-7a8a55a774ce-audit.json"
+    },
+    {
+      "product_id": "872",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-batch-03-strom-872-20260913-7698ac666255.json",
+      "sha256": "9820a8b6b0b797e9cb9ce4668842b7578f1e6a42198f340863f890ad3b753412",
+      "plan_fingerprint": "7698ac666255969995596791b59d50f56cdabac575189245369d548d72260825",
+      "source_candidate_ids": [
+        "921",
+        "922",
+        "923",
+        "924",
+        "925",
+        "926",
+        "927",
+        "928",
+        "929",
+        "930"
+      ],
+      "product_updates": 0,
+      "variant_updates": [
+        "1329",
+        "1330"
+      ],
+      "blockers": 0,
+      "apply_status": "APPLIED_REVIEWED_NUTRITION_FIELDS",
+      "audit_path": "tmp/nutrition-approved-plan/NCR1-catalog-batch-03-strom-872-20260913-7698ac666255-audit.json"
+    },
+    {
+      "product_id": "873",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-batch-03-strom-873-20260913-29120943ae25.json",
+      "sha256": "99606ef8054ce001a6f8240a3711d523f8c5fb7cd75d6085cc2f188438809e6b",
+      "plan_fingerprint": "29120943ae2532aea152d140f60c3d56a646628640be67288321764df1e62158",
+      "source_candidate_ids": [
+        "931",
+        "932",
+        "933",
+        "934",
+        "935",
+        "936",
+        "937",
+        "938",
+        "939",
+        "940"
+      ],
+      "product_updates": 0,
+      "variant_updates": [
+        "1332",
+        "1333"
+      ],
+      "blockers": 0,
+      "apply_status": "APPLIED_REVIEWED_NUTRITION_FIELDS",
+      "audit_path": "tmp/nutrition-approved-plan/NCR1-catalog-batch-03-strom-873-20260913-29120943ae25-audit.json"
+    }
+  ],
+  "apply": {
+    "result": "PASS",
+    "product_updates": 0,
+    "variant_updates": [
+      {
+        "product_id": "869",
+        "product_variant_id": "1323",
+        "display_name": "Green Apple / 360g",
+        "nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (12 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 12,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 250,
+            "source_quantity_value": 250
+          },
+          "creatine": {
+            "information_state": "no_information"
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "citrulline_malate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (12 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 12,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 6000,
+            "source_quantity_value": 6000
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (12 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 12,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3200
+          },
+          "serving_size_g": 12
+        }
+      },
+      {
+        "product_id": "869",
+        "product_variant_id": "1324",
+        "display_name": "Lemon Pineapple / 360g",
+        "nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (12 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 12,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 250,
+            "source_quantity_value": 250
+          },
+          "creatine": {
+            "information_state": "no_information"
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "citrulline_malate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (12 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 12,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 6000,
+            "source_quantity_value": 6000
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (12 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 12,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3200
+          },
+          "serving_size_g": 12
+        }
+      },
+      {
+        "product_id": "870",
+        "product_variant_id": "1325",
+        "display_name": "Acai Berry / 390g",
+        "nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (13 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 13,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 300,
+            "source_quantity_value": 300
+          },
+          "creatine": {
+            "information_state": "no_information"
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "citrulline_malate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (13 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 13,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 6000,
+            "source_quantity_value": 6000
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (13 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 13,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3200
+          },
+          "serving_size_g": 13
+        }
+      },
+      {
+        "product_id": "870",
+        "product_variant_id": "1326",
+        "display_name": "Cherry Cola / 390g",
+        "nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (13 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 13,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 300,
+            "source_quantity_value": 300
+          },
+          "creatine": {
+            "information_state": "no_information"
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "citrulline_malate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (13 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 13,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 6000,
+            "source_quantity_value": 6000
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (13 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 13,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3200
+          },
+          "serving_size_g": 13
+        }
+      },
+      {
+        "product_id": "870",
+        "product_variant_id": "1327",
+        "display_name": "Pina Colada / 390g",
+        "nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (13 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 13,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 300,
+            "source_quantity_value": 300
+          },
+          "creatine": {
+            "information_state": "no_information"
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "citrulline_malate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (13 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 13,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 6000,
+            "source_quantity_value": 6000
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (13 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 13,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3200
+          },
+          "serving_size_g": 13
+        }
+      },
+      {
+        "product_id": "871",
+        "product_variant_id": "1328",
+        "display_name": "Cola / 360g",
+        "nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (12 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 12,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 250,
+            "source_quantity_value": 250
+          },
+          "creatine": {
+            "information_state": "no_information"
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "citrulline_malate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (12 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 12,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 6000,
+            "source_quantity_value": 6000
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (12 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 12,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3200
+          },
+          "serving_size_g": 12
+        }
+      },
+      {
+        "product_id": "872",
+        "product_variant_id": "1329",
+        "display_name": "Strawberry Kiwi / 360g",
+        "nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (12 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 12,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 250,
+            "source_quantity_value": 250
+          },
+          "creatine": {
+            "information_state": "no_information"
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "citrulline_malate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (12 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 12,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 6000,
+            "source_quantity_value": 6000
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (12 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 12,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3200
+          },
+          "serving_size_g": 12
+        }
+      },
+      {
+        "product_id": "872",
+        "product_variant_id": "1330",
+        "display_name": "Unicorn Pi55 / 360g",
+        "nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (12 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 12,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 250,
+            "source_quantity_value": 250
+          },
+          "creatine": {
+            "information_state": "no_information"
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "citrulline_malate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (12 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 12,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 6000,
+            "source_quantity_value": 6000
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (12 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 12,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3200
+          },
+          "serving_size_g": 12
+        }
+      },
+      {
+        "product_id": "873",
+        "product_variant_id": "1332",
+        "display_name": "Cherry Cola / 470g",
+        "nutrition_override": {
+          "caffeine": {
+            "information_state": "no_information"
+          },
+          "creatine": {
+            "information_state": "no_information"
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "citrulline_malate",
+            "ingredient_ratio": "2:1",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (15.7 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 15.7,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 4000,
+            "source_quantity_value": 4000
+          },
+          "beta_alanine": {
+            "information_state": "confirmed_absent"
+          },
+          "serving_size_g": 15.7
+        }
+      },
+      {
+        "product_id": "873",
+        "product_variant_id": "1333",
+        "display_name": "Strawberry Kiwi / 470g",
+        "nutrition_override": {
+          "caffeine": {
+            "information_state": "no_information"
+          },
+          "creatine": {
+            "information_state": "no_information"
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "citrulline_malate",
+            "ingredient_ratio": "2:1",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (15.7 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 15.7,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 4000,
+            "source_quantity_value": 4000
+          },
+          "beta_alanine": {
+            "information_state": "confirmed_absent"
+          },
+          "serving_size_g": 15.7
+        }
+      }
+    ],
+    "preservation": {
+      "full_product_table_sha256": "54ca4527908c69a05a19affcb7ad12a99613054de5058797f599c29e265e2392",
+      "all_other_variants_sha256": "604c602592789303db94e73813825c57fc6eb2e6c61a20e1136deb56fd6ed802",
+      "target_variant_metadata_sha256": "42af4ca5d9d10cc6bc51d9413563fe1ed79ec7a78773a89f8e7e8a897bb65e9b",
+      "non_target_candidate_queue_sha256": "b5be6651779029b67ec7a9c2dcbb543c83ec6115761f65f9a54662e42cf8e7bd",
+      "product_count": 1337,
+      "other_variant_count": 3622,
+      "non_target_candidate_count": 890
+    }
+  },
+  "replay": {
+    "result": "PASS_ALL_REPLAYS_SAFELY_REJECTED",
+    "mechanism": "stale-before safe rejection",
+    "attempts": [
+      {
+        "plan": "tmp/nutrition-approved-plan/NCR1-catalog-batch-03-strom-869-20260913-af23f70b74b0.json",
+        "result": "PASS_SAFE_REJECTION",
+        "exit_code": 1
+      },
+      {
+        "plan": "tmp/nutrition-approved-plan/NCR1-catalog-batch-03-strom-870-20260913-5bbe896c2d27.json",
+        "result": "PASS_SAFE_REJECTION",
+        "exit_code": 1
+      },
+      {
+        "plan": "tmp/nutrition-approved-plan/NCR1-catalog-batch-03-strom-871-20260913-7a8a55a774ce.json",
+        "result": "PASS_SAFE_REJECTION",
+        "exit_code": 1
+      },
+      {
+        "plan": "tmp/nutrition-approved-plan/NCR1-catalog-batch-03-strom-872-20260913-7698ac666255.json",
+        "result": "PASS_SAFE_REJECTION",
+        "exit_code": 1
+      },
+      {
+        "plan": "tmp/nutrition-approved-plan/NCR1-catalog-batch-03-strom-873-20260913-29120943ae25.json",
+        "result": "PASS_SAFE_REJECTION",
+        "exit_code": 1
+      }
+    ],
+    "postretry_state_identical": true
+  },
+  "public_readback": {
+    "result": "PASS",
+    "checked_variant_pages": 10,
+    "variant_pages": [
+      {
+        "product_id": "869",
+        "product_variant_id": "1323",
+        "url": "https://www.supplementscout.co.uk/product/strom-stimumax-black-edition-360g?variant=1323",
+        "http_status": 200,
+        "checks": {
+          "exact_variant": true,
+          "reviewed_section": true,
+          "serving": true,
+          "caffeine": true,
+          "beta": true,
+          "citrulline": true,
+          "creatine": true,
+          "source_kind": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "869",
+        "product_variant_id": "1324",
+        "url": "https://www.supplementscout.co.uk/product/strom-stimumax-black-edition-360g?variant=1324",
+        "http_status": 200,
+        "checks": {
+          "exact_variant": true,
+          "reviewed_section": true,
+          "serving": true,
+          "caffeine": true,
+          "beta": true,
+          "citrulline": true,
+          "creatine": true,
+          "source_kind": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "870",
+        "product_variant_id": "1325",
+        "url": "https://www.supplementscout.co.uk/product/strom-stimumax-extreme-pre-workout-390g?variant=1325",
+        "http_status": 200,
+        "checks": {
+          "exact_variant": true,
+          "reviewed_section": true,
+          "serving": true,
+          "caffeine": true,
+          "beta": true,
+          "citrulline": true,
+          "creatine": true,
+          "source_kind": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "870",
+        "product_variant_id": "1326",
+        "url": "https://www.supplementscout.co.uk/product/strom-stimumax-extreme-pre-workout-390g?variant=1326",
+        "http_status": 200,
+        "checks": {
+          "exact_variant": true,
+          "reviewed_section": true,
+          "serving": true,
+          "caffeine": true,
+          "beta": true,
+          "citrulline": true,
+          "creatine": true,
+          "source_kind": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "870",
+        "product_variant_id": "1327",
+        "url": "https://www.supplementscout.co.uk/product/strom-stimumax-extreme-pre-workout-390g?variant=1327",
+        "http_status": 200,
+        "checks": {
+          "exact_variant": true,
+          "reviewed_section": true,
+          "serving": true,
+          "caffeine": true,
+          "beta": true,
+          "citrulline": true,
+          "creatine": true,
+          "source_kind": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "871",
+        "product_variant_id": "1328",
+        "url": "https://www.supplementscout.co.uk/product/strom-stimumax-og-pre-workout-360g?variant=1328",
+        "http_status": 200,
+        "checks": {
+          "exact_variant": true,
+          "reviewed_section": true,
+          "serving": true,
+          "caffeine": true,
+          "beta": true,
+          "citrulline": true,
+          "creatine": true,
+          "source_kind": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "872",
+        "product_variant_id": "1329",
+        "url": "https://www.supplementscout.co.uk/product/strom-stimumax-pro-pre-workout-360g?variant=1329",
+        "http_status": 200,
+        "checks": {
+          "exact_variant": true,
+          "reviewed_section": true,
+          "serving": true,
+          "caffeine": true,
+          "beta": true,
+          "citrulline": true,
+          "creatine": true,
+          "source_kind": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "872",
+        "product_variant_id": "1330",
+        "url": "https://www.supplementscout.co.uk/product/strom-stimumax-pro-pre-workout-360g?variant=1330",
+        "http_status": 200,
+        "checks": {
+          "exact_variant": true,
+          "reviewed_section": true,
+          "serving": true,
+          "caffeine": true,
+          "beta": true,
+          "citrulline": true,
+          "creatine": true,
+          "source_kind": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "873",
+        "product_variant_id": "1332",
+        "url": "https://www.supplementscout.co.uk/product/strom-vascumax-pro-470g?variant=1332",
+        "http_status": 200,
+        "checks": {
+          "exact_variant": true,
+          "reviewed_section": true,
+          "serving": true,
+          "caffeine": true,
+          "beta": true,
+          "citrulline": true,
+          "creatine": true,
+          "source_kind": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "873",
+        "product_variant_id": "1333",
+        "url": "https://www.supplementscout.co.uk/product/strom-vascumax-pro-470g?variant=1333",
+        "http_status": 200,
+        "checks": {
+          "exact_variant": true,
+          "reviewed_section": true,
+          "serving": true,
+          "caffeine": true,
+          "beta": true,
+          "citrulline": true,
+          "creatine": true,
+          "source_kind": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      }
+    ],
+    "caffeine_free_search": {
+      "url": "https://www.supplementscout.co.uk/search?q=pre%20workout&caffeine=free",
+      "http_status": 200,
+      "target_variant_links": [],
+      "grouping": "one card per product; target variants are ineligible because caffeine is present or unresolved"
+    },
+    "offer_evidence": [
+      {
+        "product_id": "869",
+        "product_variant_id": "1323",
+        "observed_offers": 1,
+        "current_in_stock_offers": 1
+      },
+      {
+        "product_id": "869",
+        "product_variant_id": "1324",
+        "observed_offers": 1,
+        "current_in_stock_offers": 1
+      },
+      {
+        "product_id": "870",
+        "product_variant_id": "1325",
+        "observed_offers": 1,
+        "current_in_stock_offers": 1
+      },
+      {
+        "product_id": "870",
+        "product_variant_id": "1326",
+        "observed_offers": 1,
+        "current_in_stock_offers": 1
+      },
+      {
+        "product_id": "870",
+        "product_variant_id": "1327",
+        "observed_offers": 1,
+        "current_in_stock_offers": 1
+      },
+      {
+        "product_id": "871",
+        "product_variant_id": "1328",
+        "observed_offers": 1,
+        "current_in_stock_offers": 1
+      },
+      {
+        "product_id": "872",
+        "product_variant_id": "1329",
+        "observed_offers": 1,
+        "current_in_stock_offers": 1
+      },
+      {
+        "product_id": "872",
+        "product_variant_id": "1330",
+        "observed_offers": 1,
+        "current_in_stock_offers": 1
+      },
+      {
+        "product_id": "873",
+        "product_variant_id": "1332",
+        "observed_offers": 1,
+        "current_in_stock_offers": 0
+      },
+      {
+        "product_id": "873",
+        "product_variant_id": "1333",
+        "observed_offers": 1,
+        "current_in_stock_offers": 0
+      }
+    ]
+  },
+  "coverage": {
+    "previous_distinct_applied_variants": 39,
+    "batch_03_applied_variants": 10,
+    "current_distinct_applied_variants": 49,
+    "frozen_pilot": "9/25",
+    "separate_stinger": 1,
+    "unresolved_batch_03_variants": [
+      "1331",
+      "1006",
+      "1601",
+      "1602",
+      "1603",
+      "1604",
+      "1605",
+      "1606",
+      "3468",
+      "3469"
+    ],
+    "nut_03_status": "IN_PROGRESS"
+  },
+  "next_step": "Prepare the next independent catalogue-family package from new qualifying evidence; do not re-audit retained blocks without a new premise."
+}
