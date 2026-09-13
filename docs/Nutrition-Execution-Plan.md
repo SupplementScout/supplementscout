@@ -3267,3 +3267,67 @@ blocked before execution by the automatic approval control:
   NUT-03 remains `IN PROGRESS`. One next step is explicit owner reauthorization
   after the rejection, followed by resumption at store without repeating source
   collection or package preparation.
+
+## NUT-03 creatine-absence controlled execution for 23 existing variants
+
+13 September 2026, new and separate owner authorization after the recorded
+automatic-approval rejection:
+
+- Fresh resume preflight reconfirmed production project
+  `aftboxmrdgyhizicfsfu`, all 23 exact product-variant bindings, the four
+  authorized artifact hashes, 23 unique fingerprints, zero existing matching
+  candidates and no conflicting creatine-presence fact. Sources were not
+  collected again. The malformed characters previously shown in two summary
+  fingerprints were absent from the artifacts; direct artifact validation
+  returned the complete hexadecimal fingerprints already recorded above.
+- Controlled store created candidates `1121`-`1143`: product `528` IDs
+  `1121`-`1124`, product `763` IDs `1125`-`1133`, product `778` IDs
+  `1134`-`1139` and product `903` IDs `1140`-`1143`. Authenticated review
+  approved all 23 with `approved_value=null`, `information_state` equal to
+  `confirmed_absent`, and unchanged exact-variant, source, archive, hash and
+  fingerprint evidence. The older four approved Nutrend `no_information`
+  candidates remain in history.
+- Four explicit-ID plans contain zero product updates and 23 variant updates,
+  each changing only `nutrition_override.creatine`. Their SHA-256 / plan
+  fingerprint pairs are: product `528`
+  `ad9ccedbdffc4ce0fb870f74afc720712171494c00c5edbbe8dc6cd303a584a0` /
+  `35242a0646ee0812aa793723b67a7393c6f72e01302c1a85cd87415d18e292aa`;
+  product `763`
+  `e47cee1d399054ebc9f5b9683da01e86e8acb7709921351892b45a20ae2459d0` /
+  `fe19e8e607e54b35d000ee3b944c2a9e32fb8ec12aee712fd24ca8812499da42`;
+  product `778`
+  `87c37eb1f3ac80d7873f150d929bd4585f7846cf21a13a135c10525e497e75cc` /
+  `94aed10160f81541b8d9df1010163cd4e93a67faff2610ac96da16ce022f21d5`;
+  product `903`
+  `f52c4102efaac713dd595b239d32c084087c582fca7a3e62f5b224d95cfa2b2f` /
+  `cc7b4a8c984768a2e383cdd8ac73499b94e682e967e703e0775ba3f8dd2155bb`.
+- Guarded apply succeeded for all four plans. It changed zero products and only
+  the 23 authorized overrides. A new read-only connection matched every whole
+  override to the sealed `after`, retained all approvals and evidence, and
+  matched the preservation hashes for products, other variants, target metadata
+  and non-target queue rows. Replaying each plan was safely rejected because its
+  sealed `before` no longer matched; a subsequent read proved no additional
+  write and an identical final state.
+- All 23 public exact-variant pages return 200, select the requested variant and
+  display creatine as `Confirmed absent`. Existing portion, caffeine,
+  beta-alanine and citrulline facts remain visible. Retailer-backed facts keep
+  the `Retailer source` label; the Nutrend and Time 4 facts use
+  `Manufacturer source`. No private URI or reviewer metadata is exposed. The
+  caffeine-free search still groups Nutrend as one product card and links to a
+  qualifying current-offer variant; caffeine-containing targets remain absent.
+- The distinct applied-variant counter remains 89 because all 23 variants were
+  already counted. Current-offer coverage is 404 exact variants: 75 complete,
+  six partial and 323 without applied facts. Frozen-pilot counts remain 11
+  complete, one partial and 13 without applied facts. Owner questions 1-4 are
+  closed; questions 5-19 remain available for later evidence-led work.
+- Complete machine-readable evidence is
+  [nutrition-creatine-absence-23-execution-2026-09-13.json](rollouts/nutrition-creatine-absence-23-execution-2026-09-13.json),
+  SHA-256
+  `14a5cbd5b1077af7a5337cacf69ecab655d4c8f9fc2ef6693b9278a4adb3cc9e`.
+  `verify:project` passes. The latest `verify:full` remains explicitly non-green
+  on the unchanged unrelated Whey Okay evidence-hash and OstroVit line-ending
+  fixtures; it is not reported as passed.
+
+NUT-03 remains `IN PROGRESS`. One next step is to use a new answer or retained
+exact-formula proof for questions 5-19; do not repeat the completed questions
+1-4 or the earlier blocked-source audits without new evidence.

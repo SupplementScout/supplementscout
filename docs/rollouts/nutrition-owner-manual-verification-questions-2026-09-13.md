@@ -9,52 +9,60 @@ these questions concern only unresolved fields or blocked assignments.
 
 Owner response recorded on 13 September 2026: questions 1-4 were answered
 `nie ma w pełnym deklarowanym składzie` after review of the complete declared
-compositions. The retained sources now support 23 pending `confirmed_absent`
-proposals. The first production store attempt was rejected by the automatic
+compositions. The first production store attempt was rejected by the automatic
 approval control before execution because it compared the new product `528`
-scope with the prior 84-candidate authorization. No candidate or catalogue row
-was written. Keep questions 1-4 as answered but not operationally closed until
-the separately reauthorized guarded process succeeds.
+scope with the prior 84-candidate authorization; no row was written by that
+attempt. After the owner gave a new and separate authorization, controlled
+store, authenticated review, explicit-ID planning and guarded apply succeeded
+for candidates `1121`-`1143`. Questions 1-4 are now operationally closed. Each
+exact target has applied `creatine.confirmed_absent` with a null numeric value;
+the conclusion remains a review inference from the complete declared formula,
+not a laboratory result or a measured zero.
 
 For every presence question, answer for the named formula with one of:
 `jest`, `nie ma w pełnym deklarowanym składzie`, or `nie da się ustalić`.
 If the answer is `jest`, also provide the exact declared form, original amount
 and unit, and the serving statement on which the amount is based.
 
-1. **Naughty Boy Menace V2, 420 g / 60 servings — product `763`; variants
+1. **CLOSED — Naughty Boy Menace V2, 420 g / 60 servings — product `763`; variants
    `920`, `921`, `4100`, `4102`, `4103`, `4104`, `4105`, `4106`, `4108`
-   (9 variants).** Missing fact: creatine. Retained material: Ambiactive Menace
+   (9 variants).** Former missing fact: creatine. Retained material: Ambiactive Menace
    V2 product table, SHA-256
    `7beaaba373003c3b0f6d77753363b33fc74406d35af230589a725013015f3597`,
    and `nutrition-retailer-source-batch-01-preparation-2026-09-13.json`.
    **Question:** Does this exact V2 420 g formula contain creatine? Required
    proof: a complete declared ingredient list or label/manufacturer statement
-   tied to this formula and its 7 g serving.
+   tied to this formula and its 7 g serving. **Resolution:** candidates
+   `1125`-`1133` were approved and applied as `confirmed_absent`.
 
-2. **Naughty Boy Energy, 390 g / 30 servings — product `778`; variants `972`,
-   `1978`, `4082`, `4084`, `4088`, `4089` (6 variants).** Missing fact:
+2. **CLOSED — Naughty Boy Energy, 390 g / 30 servings — product `778`; variants `972`,
+   `1978`, `4082`, `4084`, `4088`, `4089` (6 variants).** Former missing fact:
    creatine. Retained material: Ambiactive Energy product table, SHA-256
    `83af67170760968617ff7296325d2ac6ff7ff03f2fe1575dc0c9fa9019d1bc3f`,
    and the retailer-source preparation report. **Question:** Does this exact
    390 g formula contain creatine? Required proof: the complete ingredient list
-   or a label/manufacturer statement tied to the 13 g serving.
+   or a label/manufacturer statement tied to the 13 g serving. **Resolution:**
+   candidates `1134`-`1139` were approved and applied as `confirmed_absent`.
 
-3. **Nutrend Pump, 225 g — product `528`; variants `976`, `977`, `1847`,
-   `1848` (4 variants).** Unresolved fact: creatine is currently recorded as
+3. **CLOSED — Nutrend Pump, 225 g — product `528`; variants `976`, `977`, `1847`,
+   `1848` (4 variants).** Former state: creatine was recorded as
    `no_information`. Retained material: Nutrend page snapshot, SHA-256
    `b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6`,
    and `nutrition-catalog-expansion-batch-04-execution-2026-09-13.json`.
    **Question:** Does this exact 225 g formula contain creatine? Required proof:
    the complete declared ingredient list or manufacturer statement for the
-   15 g half-scoop serving.
+   15 g half-scoop serving. **Resolution:** candidates `1121`-`1124` were
+   approved and applied as `confirmed_absent`; the older `no_information`
+   candidates remain in review history.
 
-4. **Time 4 Pre Workout Professional, 300 g — product `903`; variants `1499`,
-   `1500`, `1501`, `1502` (4 variants).** Missing fact: creatine. Retained
+4. **CLOSED — Time 4 Pre Workout Professional, 300 g — product `903`; variants `1499`,
+   `1500`, `1501`, `1502` (4 variants).** Former missing fact: creatine. Retained
    material: Matrix Nutrition product table, SHA-256
    `9aacf9d93fe2d7b9fd645ce875d99ec976b73d4795f96b6c2d3af9f30a98dff3`,
    and the retailer-source preparation report. **Question:** Does this exact
    300 g formula contain creatine? Required proof: a complete ingredient list
-   or label/manufacturer statement tied to one level 12 g scoop.
+   or label/manufacturer statement tied to one level 12 g scoop. **Resolution:**
+   candidates `1140`-`1143` were approved and applied as `confirmed_absent`.
 
 5. **Strom StimuMAX Extreme, 390 g — product `870`; variants `1325`, `1326`,
    `1327` (3 variants).** Unresolved fact: creatine is `no_information`.

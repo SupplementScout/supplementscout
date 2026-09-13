@@ -1,0 +1,586 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-creatine-absence-23-execution",
+  "status": "COMPLETE",
+  "executed_at": "2026-09-13T17:42:01.464Z",
+  "production": {
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "environment": "PRODUCTION",
+    "distinct_applied_variant_count_before": 89,
+    "distinct_applied_variant_count_after": 89
+  },
+  "authorization": {
+    "scope": "new separate authorization after disclosed automatic rejection",
+    "candidate_count": 23,
+    "variant_count": 23,
+    "field": "creatine_declared_form_per_serving_mg",
+    "information_state": "confirmed_absent",
+    "value_numeric": null,
+    "limitations": [
+      "Inference from a reviewed complete declared composition for the exact formula.",
+      "Not an explicit manufacturer creatine-free claim unless separately quoted.",
+      "Not a laboratory result or a claim of measured 0 mg."
+    ]
+  },
+  "artifacts": [
+    {
+      "product_id": "528",
+      "path": "tmp/nutrition-creatine-absence-23-2026-09-13/candidate-artifact/nutrition-candidates-NCR1-creatine-absence-23-528-20260913.json",
+      "sha256": "6785d6d3a8280c26b70432e4fe7a3a584743f39bb09a6898efa138f661aa02a5",
+      "artifact_fingerprint": "570b968c1a4a465eaff12a70451b98b67eedc6050ebd713c6ffd95a7052a7bec",
+      "candidate_count": 4,
+      "candidate_fingerprints": [
+        "8cbda220994c2e13ae477f3d35774529d86710aeeea8ff444c0cb210fe0764dd",
+        "5108a7735a712ef751cbd787e599f77462d25be013047021e7f320e82211fe09",
+        "f0b9225cc6893071385dfa62e75444a172cfa46daeadcbbd0c2d6d14842e88e0",
+        "78299698a15ea27a0123b9329db81550fe238b31e6311dc6ff24efd1d2072be9"
+      ]
+    },
+    {
+      "product_id": "763",
+      "path": "tmp/nutrition-creatine-absence-23-2026-09-13/candidate-artifact/nutrition-candidates-NCR1-creatine-absence-23-763-20260913.json",
+      "sha256": "c093ca26df1fcf0eca94496fd02fcb4d49a166fdeff7d4b35bab73f32f04995b",
+      "artifact_fingerprint": "170555388dd9ce50f334f06b39ccf0ffe0d2d56a336472bda04d655f6e9b1f30",
+      "candidate_count": 9,
+      "candidate_fingerprints": [
+        "ff5a776242cd4b0f82fd1f295f96a24a8d3fe8f3699fdff33f4ce1c8e5d42038",
+        "b3611ccef5556c65d059ce2bef49a51797fe78160ae7b31b7eb1cc7e1399c146",
+        "81d87160b340b56972926c8d8a416d71d04b2f996003e1a461b27053a14df4c0",
+        "f3b754264d50126697f63cf9da9f20e9ad841ade2448aa3a9aca462883125aaa",
+        "a34a2fbc113b2ea9ce3256770b4ff2f4981532758e50fece38841d0ef748aa94",
+        "debe703fa903614325341a7596c9bd3f5dd752f6f8792742675c7b394a50b496",
+        "195216f8dbb90c9e51308b741d8624007b6507fb7ec823a513e26918927f8605",
+        "bb08cfac584f04abccae3d855d50cae241d05f02dccaf19cf31efb9a4f046342",
+        "1162f5e6dd1ae42d5a5ba031b05f9c181f7bb34646d4e3691f3e4c4fb12aa5de"
+      ]
+    },
+    {
+      "product_id": "778",
+      "path": "tmp/nutrition-creatine-absence-23-2026-09-13/candidate-artifact/nutrition-candidates-NCR1-creatine-absence-23-778-20260913.json",
+      "sha256": "7a6dfa557f9b5ad4d5491cfe38f244665542219f10814983dcb6660900017a7f",
+      "artifact_fingerprint": "2665b8e1141cea36b44b7e2bcc7355953f4d898f80e15a27161075a4b451a982",
+      "candidate_count": 6,
+      "candidate_fingerprints": [
+        "78918a4bbcd94eb98f3d5e8239583b44f3c748eba9cb08020244e83232a736e2",
+        "6fe759298a91ef78477a103454a676dd3a1a1a1c81e993d8186417c1a8f3b93e",
+        "1f95eea0fef9845aa543f5af64eb96ad8ad98cf27215cd1aadca4e00825ec68c",
+        "91a0153b20a732a73f9e672d078e0f2941143014de50530a04ef912248bc3ce0",
+        "82467797b4fe8bce1ad3e3610400770eb36e2192b04beec2f6d39fa4b808d403",
+        "48358907f4e1425a1776d1da745be9de95466aea7e5a93f543f130c1d0b3b6ac"
+      ]
+    },
+    {
+      "product_id": "903",
+      "path": "tmp/nutrition-creatine-absence-23-2026-09-13/candidate-artifact/nutrition-candidates-NCR1-creatine-absence-23-903-20260913.json",
+      "sha256": "a8f02c729aae97d64e8cef0e2297f16c116affe42bc41d03fafbbb1c4c710aa3",
+      "artifact_fingerprint": "3423005f8c78ed337e4e4bd387ffc55078092974576865e1b2f3593d872617de",
+      "candidate_count": 4,
+      "candidate_fingerprints": [
+        "ebf25a8d9482bace970f4d62289b2f5571b6c7b2af73240535f6a25629b2f438",
+        "4250e0d34e40b0dc4aed9da2abc558344b9a850a5b6cd3ba9fc5cc2e220d8510",
+        "d23051e8eea2361a71ddbb37e6035057edcfe42aaa9a1ef0cd1e18b7c4c3fa01",
+        "f754fdb414e5ef7a89b1744413781ee9b269e02dfe914602cdb2d0b8902e5310"
+      ]
+    }
+  ],
+  "store": {
+    "result": "PASS",
+    "new_records": 23,
+    "existing_records": 0,
+    "product_updates": 0,
+    "candidate_ids": [
+      "1121",
+      "1122",
+      "1123",
+      "1124",
+      "1125",
+      "1126",
+      "1127",
+      "1128",
+      "1129",
+      "1130",
+      "1131",
+      "1132",
+      "1133",
+      "1134",
+      "1135",
+      "1136",
+      "1137",
+      "1138",
+      "1139",
+      "1140",
+      "1141",
+      "1142",
+      "1143"
+    ]
+  },
+  "review": {
+    "result": "PASS",
+    "reviewed_records": 23,
+    "status": "approved",
+    "approved_value": null,
+    "reviewed_by": "admin-panel",
+    "candidates": [
+      {
+        "id": "1121",
+        "product_id": "528",
+        "product_variant_id": "976",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "8cbda220994c2e13ae477f3d35774529d86710aeeea8ff444c0cb210fe0764dd",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T17:36:46.804+00:00",
+        "source_file_sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html"
+      },
+      {
+        "id": "1122",
+        "product_id": "528",
+        "product_variant_id": "977",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "5108a7735a712ef751cbd787e599f77462d25be013047021e7f320e82211fe09",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T17:36:47.521+00:00",
+        "source_file_sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html"
+      },
+      {
+        "id": "1123",
+        "product_id": "528",
+        "product_variant_id": "1847",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "f0b9225cc6893071385dfa62e75444a172cfa46daeadcbbd0c2d6d14842e88e0",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T17:36:48.276+00:00",
+        "source_file_sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html"
+      },
+      {
+        "id": "1124",
+        "product_id": "528",
+        "product_variant_id": "1848",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "78299698a15ea27a0123b9329db81550fe238b31e6311dc6ff24efd1d2072be9",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T17:36:48.664+00:00",
+        "source_file_sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html"
+      },
+      {
+        "id": "1125",
+        "product_id": "763",
+        "product_variant_id": "920",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "ff5a776242cd4b0f82fd1f295f96a24a8d3fe8f3699fdff33f4ce1c8e5d42038",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T17:37:04.252+00:00",
+        "source_file_sha256": "7beaaba373003c3b0f6d77753363b33fc74406d35af230589a725013015f3597",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/retailer-source-batch-01/ambiactive/763/7beaaba373003c3b0f6d77753363b33fc74406d35af230589a725013015f3597/naughty-boy-menace-v2-420g.html"
+      },
+      {
+        "id": "1126",
+        "product_id": "763",
+        "product_variant_id": "921",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "b3611ccef5556c65d059ce2bef49a51797fe78160ae7b31b7eb1cc7e1399c146",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T17:37:04.789+00:00",
+        "source_file_sha256": "7beaaba373003c3b0f6d77753363b33fc74406d35af230589a725013015f3597",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/retailer-source-batch-01/ambiactive/763/7beaaba373003c3b0f6d77753363b33fc74406d35af230589a725013015f3597/naughty-boy-menace-v2-420g.html"
+      },
+      {
+        "id": "1127",
+        "product_id": "763",
+        "product_variant_id": "4100",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "81d87160b340b56972926c8d8a416d71d04b2f996003e1a461b27053a14df4c0",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T17:37:05.511+00:00",
+        "source_file_sha256": "7beaaba373003c3b0f6d77753363b33fc74406d35af230589a725013015f3597",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/retailer-source-batch-01/ambiactive/763/7beaaba373003c3b0f6d77753363b33fc74406d35af230589a725013015f3597/naughty-boy-menace-v2-420g.html"
+      },
+      {
+        "id": "1128",
+        "product_id": "763",
+        "product_variant_id": "4102",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "f3b754264d50126697f63cf9da9f20e9ad841ade2448aa3a9aca462883125aaa",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T17:37:06.055+00:00",
+        "source_file_sha256": "7beaaba373003c3b0f6d77753363b33fc74406d35af230589a725013015f3597",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/retailer-source-batch-01/ambiactive/763/7beaaba373003c3b0f6d77753363b33fc74406d35af230589a725013015f3597/naughty-boy-menace-v2-420g.html"
+      },
+      {
+        "id": "1129",
+        "product_id": "763",
+        "product_variant_id": "4103",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "a34a2fbc113b2ea9ce3256770b4ff2f4981532758e50fece38841d0ef748aa94",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T17:37:06.417+00:00",
+        "source_file_sha256": "7beaaba373003c3b0f6d77753363b33fc74406d35af230589a725013015f3597",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/retailer-source-batch-01/ambiactive/763/7beaaba373003c3b0f6d77753363b33fc74406d35af230589a725013015f3597/naughty-boy-menace-v2-420g.html"
+      },
+      {
+        "id": "1130",
+        "product_id": "763",
+        "product_variant_id": "4104",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "debe703fa903614325341a7596c9bd3f5dd752f6f8792742675c7b394a50b496",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T17:37:06.771+00:00",
+        "source_file_sha256": "7beaaba373003c3b0f6d77753363b33fc74406d35af230589a725013015f3597",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/retailer-source-batch-01/ambiactive/763/7beaaba373003c3b0f6d77753363b33fc74406d35af230589a725013015f3597/naughty-boy-menace-v2-420g.html"
+      },
+      {
+        "id": "1131",
+        "product_id": "763",
+        "product_variant_id": "4105",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "195216f8dbb90c9e51308b741d8624007b6507fb7ec823a513e26918927f8605",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T17:37:07.326+00:00",
+        "source_file_sha256": "7beaaba373003c3b0f6d77753363b33fc74406d35af230589a725013015f3597",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/retailer-source-batch-01/ambiactive/763/7beaaba373003c3b0f6d77753363b33fc74406d35af230589a725013015f3597/naughty-boy-menace-v2-420g.html"
+      },
+      {
+        "id": "1132",
+        "product_id": "763",
+        "product_variant_id": "4106",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "bb08cfac584f04abccae3d855d50cae241d05f02dccaf19cf31efb9a4f046342",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T17:37:08.027+00:00",
+        "source_file_sha256": "7beaaba373003c3b0f6d77753363b33fc74406d35af230589a725013015f3597",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/retailer-source-batch-01/ambiactive/763/7beaaba373003c3b0f6d77753363b33fc74406d35af230589a725013015f3597/naughty-boy-menace-v2-420g.html"
+      },
+      {
+        "id": "1133",
+        "product_id": "763",
+        "product_variant_id": "4108",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "1162f5e6dd1ae42d5a5ba031b05f9c181f7bb34646d4e3691f3e4c4fb12aa5de",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T17:37:08.783+00:00",
+        "source_file_sha256": "7beaaba373003c3b0f6d77753363b33fc74406d35af230589a725013015f3597",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/retailer-source-batch-01/ambiactive/763/7beaaba373003c3b0f6d77753363b33fc74406d35af230589a725013015f3597/naughty-boy-menace-v2-420g.html"
+      },
+      {
+        "id": "1134",
+        "product_id": "778",
+        "product_variant_id": "972",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "78918a4bbcd94eb98f3d5e8239583b44f3c748eba9cb08020244e83232a736e2",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T17:37:22.016+00:00",
+        "source_file_sha256": "83af67170760968617ff7296325d2ac6ff7ff03f2fe1575dc0c9fa9019d1bc3f",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/retailer-source-batch-01/ambiactive/778/83af67170760968617ff7296325d2ac6ff7ff03f2fe1575dc0c9fa9019d1bc3f/naughty-boy-energy-390g.html"
+      },
+      {
+        "id": "1135",
+        "product_id": "778",
+        "product_variant_id": "1978",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "6fe759298a91ef78477a103454a676dd3a1a1a1c81e993d8186417c1a8f3b93e",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T17:37:22.75+00:00",
+        "source_file_sha256": "83af67170760968617ff7296325d2ac6ff7ff03f2fe1575dc0c9fa9019d1bc3f",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/retailer-source-batch-01/ambiactive/778/83af67170760968617ff7296325d2ac6ff7ff03f2fe1575dc0c9fa9019d1bc3f/naughty-boy-energy-390g.html"
+      },
+      {
+        "id": "1136",
+        "product_id": "778",
+        "product_variant_id": "4082",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "1f95eea0fef9845aa543f5af64eb96ad8ad98cf27215cd1aadca4e00825ec68c",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T17:37:23.485+00:00",
+        "source_file_sha256": "83af67170760968617ff7296325d2ac6ff7ff03f2fe1575dc0c9fa9019d1bc3f",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/retailer-source-batch-01/ambiactive/778/83af67170760968617ff7296325d2ac6ff7ff03f2fe1575dc0c9fa9019d1bc3f/naughty-boy-energy-390g.html"
+      },
+      {
+        "id": "1137",
+        "product_id": "778",
+        "product_variant_id": "4084",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "91a0153b20a732a73f9e672d078e0f2941143014de50530a04ef912248bc3ce0",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T17:37:24.209+00:00",
+        "source_file_sha256": "83af67170760968617ff7296325d2ac6ff7ff03f2fe1575dc0c9fa9019d1bc3f",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/retailer-source-batch-01/ambiactive/778/83af67170760968617ff7296325d2ac6ff7ff03f2fe1575dc0c9fa9019d1bc3f/naughty-boy-energy-390g.html"
+      },
+      {
+        "id": "1138",
+        "product_id": "778",
+        "product_variant_id": "4088",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "82467797b4fe8bce1ad3e3610400770eb36e2192b04beec2f6d39fa4b808d403",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T17:37:24.93+00:00",
+        "source_file_sha256": "83af67170760968617ff7296325d2ac6ff7ff03f2fe1575dc0c9fa9019d1bc3f",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/retailer-source-batch-01/ambiactive/778/83af67170760968617ff7296325d2ac6ff7ff03f2fe1575dc0c9fa9019d1bc3f/naughty-boy-energy-390g.html"
+      },
+      {
+        "id": "1139",
+        "product_id": "778",
+        "product_variant_id": "4089",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "48358907f4e1425a1776d1da745be9de95466aea7e5a93f543f130c1d0b3b6ac",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T17:37:25.662+00:00",
+        "source_file_sha256": "83af67170760968617ff7296325d2ac6ff7ff03f2fe1575dc0c9fa9019d1bc3f",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/retailer-source-batch-01/ambiactive/778/83af67170760968617ff7296325d2ac6ff7ff03f2fe1575dc0c9fa9019d1bc3f/naughty-boy-energy-390g.html"
+      },
+      {
+        "id": "1140",
+        "product_id": "903",
+        "product_variant_id": "1499",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "ebf25a8d9482bace970f4d62289b2f5571b6c7b2af73240535f6a25629b2f438",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T17:37:38.94+00:00",
+        "source_file_sha256": "b5d5e3a96083f635990104e5aa3b507d08d67c0949ae186c351b38c6c506b049",
+        "source_archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/creatine-absence-23/time4/b5d5e3a96083f635990104e5aa3b507d08d67c0949ae186c351b38c6c506b049/time4-official-page-review.json"
+      },
+      {
+        "id": "1141",
+        "product_id": "903",
+        "product_variant_id": "1500",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "4250e0d34e40b0dc4aed9da2abc558344b9a850a5b6cd3ba9fc5cc2e220d8510",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T17:37:39.363+00:00",
+        "source_file_sha256": "b5d5e3a96083f635990104e5aa3b507d08d67c0949ae186c351b38c6c506b049",
+        "source_archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/creatine-absence-23/time4/b5d5e3a96083f635990104e5aa3b507d08d67c0949ae186c351b38c6c506b049/time4-official-page-review.json"
+      },
+      {
+        "id": "1142",
+        "product_id": "903",
+        "product_variant_id": "1501",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "d23051e8eea2361a71ddbb37e6035057edcfe42aaa9a1ef0cd1e18b7c4c3fa01",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T17:37:39.893+00:00",
+        "source_file_sha256": "b5d5e3a96083f635990104e5aa3b507d08d67c0949ae186c351b38c6c506b049",
+        "source_archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/creatine-absence-23/time4/b5d5e3a96083f635990104e5aa3b507d08d67c0949ae186c351b38c6c506b049/time4-official-page-review.json"
+      },
+      {
+        "id": "1143",
+        "product_id": "903",
+        "product_variant_id": "1502",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "candidate_fingerprint": "f754fdb414e5ef7a89b1744413781ee9b269e02dfe914602cdb2d0b8902e5310",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T17:37:40.425+00:00",
+        "source_file_sha256": "b5d5e3a96083f635990104e5aa3b507d08d67c0949ae186c351b38c6c506b049",
+        "source_archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/creatine-absence-23/time4/b5d5e3a96083f635990104e5aa3b507d08d67c0949ae186c351b38c6c506b049/time4-official-page-review.json"
+      }
+    ]
+  },
+  "plans": [
+    {
+      "product_id": "528",
+      "path": "tmp/nutrition-approved-plan/NCR1-creatine-absence-23-528-20260913-35242a0646ee.json",
+      "sha256": "ad9ccedbdffc4ce0fb870f74afc720712171494c00c5edbbe8dc6cd303a584a0",
+      "plan_fingerprint": "35242a0646ee0812aa793723b67a7393c6f72e01302c1a85cd87415d18e292aa",
+      "source_candidate_ids": [
+        "1121",
+        "1122",
+        "1123",
+        "1124"
+      ],
+      "product_updates": 0,
+      "variant_updates": 4,
+      "changed_fields": [
+        "creatine"
+      ],
+      "audit_path": "tmp/nutrition-approved-plan/NCR1-creatine-absence-23-528-20260913-35242a0646ee-audit.json",
+      "audit_sha256": "bc05c55494738ad3287e0aaea1d396fb3da2a6874ec3af83ce897aef112b325e"
+    },
+    {
+      "product_id": "763",
+      "path": "tmp/nutrition-approved-plan/NCR1-creatine-absence-23-763-20260913-fe19e8e607e5.json",
+      "sha256": "e47cee1d399054ebc9f5b9683da01e86e8acb7709921351892b45a20ae2459d0",
+      "plan_fingerprint": "fe19e8e607e54b35d000ee3b944c2a9e32fb8ec12aee712fd24ca8812499da42",
+      "source_candidate_ids": [
+        "1125",
+        "1126",
+        "1127",
+        "1128",
+        "1129",
+        "1130",
+        "1131",
+        "1132",
+        "1133"
+      ],
+      "product_updates": 0,
+      "variant_updates": 9,
+      "changed_fields": [
+        "creatine"
+      ],
+      "audit_path": "tmp/nutrition-approved-plan/NCR1-creatine-absence-23-763-20260913-fe19e8e607e5-audit.json",
+      "audit_sha256": "5b4dc54ae68aefb78fb4070bda7a279a8b70f612f0f7ee7c3b3f075b302ebd36"
+    },
+    {
+      "product_id": "778",
+      "path": "tmp/nutrition-approved-plan/NCR1-creatine-absence-23-778-20260913-94aed10160f8.json",
+      "sha256": "87c37eb1f3ac80d7873f150d929bd4585f7846cf21a13a135c10525e497e75cc",
+      "plan_fingerprint": "94aed10160f81541b8d9df1010163cd4e93a67faff2610ac96da16ce022f21d5",
+      "source_candidate_ids": [
+        "1134",
+        "1135",
+        "1136",
+        "1137",
+        "1138",
+        "1139"
+      ],
+      "product_updates": 0,
+      "variant_updates": 6,
+      "changed_fields": [
+        "creatine"
+      ],
+      "audit_path": "tmp/nutrition-approved-plan/NCR1-creatine-absence-23-778-20260913-94aed10160f8-audit.json",
+      "audit_sha256": "2331677a55545f2c1718985783fc33e1ca8404ea2eb0ee7d04cb9272a89dde14"
+    },
+    {
+      "product_id": "903",
+      "path": "tmp/nutrition-approved-plan/NCR1-creatine-absence-23-903-20260913-cc7b4a8c9847.json",
+      "sha256": "f52c4102efaac713dd595b239d32c084087c582fca7a3e62f5b224d95cfa2b2f",
+      "plan_fingerprint": "cc7b4a8c984768a2e383cdd8ac73499b94e682e967e703e0775ba3f8dd2155bb",
+      "source_candidate_ids": [
+        "1140",
+        "1141",
+        "1142",
+        "1143"
+      ],
+      "product_updates": 0,
+      "variant_updates": 4,
+      "changed_fields": [
+        "creatine"
+      ],
+      "audit_path": "tmp/nutrition-approved-plan/NCR1-creatine-absence-23-903-20260913-cc7b4a8c9847-audit.json",
+      "audit_sha256": "95512d31476586db19e8d47a4b7f489dad4012394caa417e550fd9789d9687f0"
+    }
+  ],
+  "apply": {
+    "result": "PASS",
+    "changed_products": 0,
+    "changed_variants": 23,
+    "only_target_field": "product_variants.nutrition_override.creatine",
+    "nutrend_transition": "no_information -> confirmed_absent; prior approved no_information candidates retained",
+    "replay": {
+      "result": "SAFE_REJECTION",
+      "reason": "Each sealed before no longer matched after first application; no second write occurred.",
+      "final_state_unchanged": true
+    }
+  },
+  "independent_readback": {
+    "result": "PASS",
+    "full_override_matches_sealed_after": true,
+    "candidate_evidence_unchanged": true,
+    "approved_candidate_count": 23,
+    "preservation_sha256": {
+      "products": "54ca4527908c69a05a19affcb7ad12a99613054de5058797f599c29e265e2392",
+      "other_variants": "d2f8a83e82b8f93f4989486f469b0bb6927ed91d2932720cb2b10d490db01fcc",
+      "variant_metadata": "5f305276452b36662db1562acc025d6b039c91cf0820e0b5a13950589b9b35b3",
+      "non_target_candidates": "c7f0f204b40e7c502ced216731d908750423c37e6c1677673b071bad70cc651f"
+    },
+    "queue_status_counts": {
+      "approved": 1121,
+      "pending": 16,
+      "rejected": 6
+    }
+  },
+  "public_readback": {
+    "result": "PASS",
+    "exact_variant_pages": 23,
+    "current_offer_variants": 23,
+    "creatine_confirmed_absent_visible": 23,
+    "private_archive_uris_exposed": 0,
+    "reviewer_metadata_exposed": 0,
+    "caffeine_free_target_links": [
+      {
+        "href": "/product/nutrend--pump-pre-workout?variant=977",
+        "variant_id": "977"
+      }
+    ],
+    "examples": [
+      "https://www.supplementscout.co.uk/product/nutrend--pump-pre-workout?variant=976",
+      "https://www.supplementscout.co.uk/product/naughty-boy-menace-v2-60-servings?variant=920",
+      "https://www.supplementscout.co.uk/product/naughty-boy-energy-pre-workout-30-servings?variant=972",
+      "https://www.supplementscout.co.uk/product/time-4-pre-workout-professional-300g?variant=1499"
+    ]
+  },
+  "coverage": {
+    "distinct_applied_variant_count": 89,
+    "not_incremented_for_existing_variants": true,
+    "current_offer_catalogue": {
+      "variants": 404,
+      "complete": 75,
+      "partial": 6,
+      "none": 323
+    },
+    "frozen_pilot_unchanged": {
+      "complete": 11,
+      "partial": 1,
+      "without_applied_facts": 13
+    },
+    "questions_closed": [
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "quality": {
+    "verify_project_before": "PASS",
+    "verify_project_after": "PASS",
+    "known_verify_full": "FAIL: unchanged unrelated Whey Okay evidence-hash and OstroVit line-ending fixture failures; not rerun and not reported as passed"
+  },
+  "next_step": "Continue with unresolved owner questions 5-19 or another evidence-backed nutrition package; NUT-03 remains IN PROGRESS."
+}
