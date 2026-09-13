@@ -7,9 +7,11 @@
 - Task: NUT-03 remains `IN PROGRESS`; the bounded early NUT-04A presentation
   step is `LIVE VERIFIED`. NUT-03A, NUT-03B, NUT-03D and NUT-03G are
   `CODE COMPLETE`; NUT-03C, NUT-03E, NUT-03F and NUT-03H are `LIVE VERIFIED`.
-  The bounded multi-component citrulline extension is `CODE COMPLETE` on the
-  local branch; its single forward-only migration remains pending and no
-  production nutrition data was written.
+  The bounded multi-component citrulline extension is `LIVE VERIFIED`: commit
+  `e013facbc3bf708b810a6442e2604deb9c423cb7` is deployed from `main`, and its
+  single forward-only migration is applied. Production readback found the queue
+  and catalogue unchanged. An ignored 18-candidate package for nine exact
+  variants passes dry-run; no candidate, review, plan or apply write ran.
   NUT-03I retains its historical exact-variant evidence gap. Further preparation
   now uses one closed organizational package of at most 50 exact variants per
   owner decision instead of a separate checkpoint for every variant. Existing
@@ -76,8 +78,10 @@
   variants (`3676`, `3759`, `3763`) and 13 with no applied facts. The separately
   completed GYM HIGH demonstration remains outside its denominator, and the
   distinct applied total is 68 variants, 13 September 2026.
-- Branch: `main`; the NUT-04A session started at
-  `805717043dd2b7121a435954a2441e6182d6304e`; remote `main` matched before work.
+- Branch: `main`; the component implementation was fast-forwarded from
+  `codex/nut-citrulline-components` at full commit
+  `e013facbc3bf708b810a6442e2604deb9c423cb7`. Vercel production deployment
+  `6421420844` completed successfully for that exact SHA.
 - Production readback at `2026-09-11T12:58:26.063Z`: public `anon` SELECT against
   project `aftboxmrdgyhizicfsfu`; 141 active unmerged Pre Workout products and
   575 active variants. Frozen scope: 25 variants across 21 products.
@@ -214,13 +218,12 @@
   production candidates `701`-`705`, approved through the authenticated review
   path and applied only to variant `1047`. Independent readback matches the plan,
   while exact replay fails closed before a second write.
-- One next step: separately authorize implementation and isolated testing of the
-  bounded multi-component citrulline extension designed below. It targets only
-  the nine variants whose retained tables disclose separate citrulline-malate
-  and L-citrulline masses. Production migration and candidate execution remain
-  separate decisions. Do not reopen recorded access, version or evidence gaps
-  without a new premise. NUT-03 remains `IN PROGRESS`; 68 distinct variants now
-  have applied facts.
+- One next step: one owner decision on store -> review -> plan -> apply for the
+  exact 18-candidate component package prepared below. It targets only the nine
+  variants whose retained tables disclose separate citrulline-malate and
+  L-citrulline masses. Do not reopen recorded access, version or evidence gaps
+  without a new premise. NUT-03 remains `IN PROGRESS`; 68 distinct variants
+  still have applied facts because this step made no nutrition-data write.
 
 ## Authority and scope
 
@@ -463,7 +466,8 @@ implementation or any nutrition catalogue write.
 | NUT-03-CATALOG-BATCH-04 | `LIVE VERIFIED` | NUT-03 deployed path + preparation and exact owner execution authorization | Carry only the unchanged 30-candidate ready subset through existing controls for product `528` variants `976`, `977`, `1847`, `1848` and product `1248` variants `3670`, `3716`. | Candidates `941`-`970` each exist once and are approved. Two zero-product-update plans applied only six exact overrides. Independent and replay readbacks and all six public pages passed. Two PhD variants resolve all four ingredients; four Nutrend variants retain creatine as `no_information`. See `docs/rollouts/nutrition-catalog-expansion-batch-04-execution-2026-09-13.json`. |
 | NUT-03-CATALOG-BATCH-05 | `LIVE VERIFIED` | NUT-03 deployed path + preparation and exact owner execution authorization | Carry only the unchanged 45 supported candidates for product `1247` variants `3669`, `3714`, `3715`; product `1250` variants `3672`, `3721`, `3722`; product `1254` variants `3676`, `3725`, `3726`; and product `1279` variants `3759`, `3894`, `3895`. | Candidates `971`-`1015` each exist once and are approved. Four zero-blocker, zero-product-update plans changed only the 12 exact overrides. Independent readback matched every complete `after`, and four stale-before replays failed closed. All 12 public pages pass; only the confirmed caffeine-free family qualifies for one grouped filter card. Unsupported facts remain omitted. See `docs/rollouts/nutrition-catalog-expansion-batch-05-execution-2026-09-13.json`. |
 | NUT-03-CATALOG-BATCH-06 | `LIVE VERIFIED` | NUT-03 deployed path + preparation and exact owner execution authorization | Carry only the unchanged three-candidate supported subset through existing controls for product `1283` / variant `3763`; leave beta-alanine, creatine and the 49 recorded blockers untouched. | Candidates `1016`-`1018` each exist once and are approved. One zero-blocker, zero-product-update plan applied only serving size, caffeine and L-citrulline to exact variant `3763`. Independent readback matched the whole `after`; exact replay failed closed with no second write. The public exact-variant page and caffeine-free filter pass. See `docs/rollouts/nutrition-catalog-expansion-batch-06-execution-2026-09-13.json`. |
-| NUT-03 | `IN PROGRESS` | Organizational packages up to 50 exact variants + separate owner write authorization | Review pilot evidence, quantities/units and exact applicability in one owner-decision package while retaining existing technical sub-batch limits; separately approve candidate storage, review, planning and guarded apply. | Pilot progress is 9 complete, 3 partial (`3676`, `3759`, `3763`) and 13 without applied facts out of 25. Stinger is one separate demonstration. All tracked scopes contain 68 distinct variants with applied facts. The nine-variant multi-component citrulline extension is designed but not implemented. NUT-03 and MVP remain open. |
+| NUT-03-CITRULLINE-COMPONENTS | `LIVE VERIFIED; DATA PACKAGE READY` | Batch 06 design + owner deployment/migration authorization | Deploy the bounded component implementation and only its sealed migration; then prepare, without storing, 18 component candidates for the retained nine exact variants. | Commit `e013facbc3bf708b810a6442e2604deb9c423cb7` and migration `20260913110000` are live. Authenticated panel, three NULL-safe validated CHECKs and unchanged queue/catalogue readbacks pass. The ignored 18-row artifact has 18 unique fingerprints and passes `DRY_RUN_NO_DATABASE`; store/review/plan/apply remain unrun. See `docs/rollouts/nutrition-citrulline-components-production-rollout-2026-09-13.json`. |
+| NUT-03 | `IN PROGRESS` | Organizational packages up to 50 exact variants + separate owner write authorization | Review pilot evidence, quantities/units and exact applicability in one owner-decision package while retaining existing technical sub-batch limits; separately approve candidate storage, review, planning and guarded apply. | Pilot progress is 9 complete, 3 partial (`3676`, `3759`, `3763`) and 13 without applied facts out of 25. Stinger is one separate demonstration. All tracked scopes contain 68 distinct variants with applied facts. Multi-component citrulline support is deployed and its 18-candidate package is ready for a separate data-write decision. NUT-03 and MVP remain open. |
 | NUT-04A | `LIVE VERIFIED` | Early owner authorization + exact applied facts | Reuse existing product pages and search to present exact-variant applied facts and add a confirmed caffeine-free filter. A fact is public only when an approved candidate for the same product/variant reconstructs the current override exactly. Expose only source kind; never private URI, reviewer metadata or raw archive material. | Commit 58c83cb deployed successfully. Public readback passed for variants 726, 727 and 1047, the exact-variant caffeine-free result, source redaction and the existing pre-workout link. A 390 x 844 browser check found no horizontal overflow; contract tests pass for variant switching, filter reset and pagination. NUT-03 and the frozen pilot remain unchanged. |
 | NUT-04 | `PLANNED` | NUT-03 closure + NUT-04A | Close the presentation/filter stage after the frozen pilot decisions are accounted for; retain NUT-04A's existing product/search mechanisms and evidence threshold. | NUT-04A tests and live variant-switch checks must prove confirmed absence included, caffeine present excluded, missing/conflicting facts never treated as absent. Document the final coverage denominator, limits, evidence and operations. Publish image copies only with established rights; otherwise link to source. MVP closes only here. |
 | NUT-05 | `DEFERRED` | NUT-04 closure | Subsequent bounded batches/categories in the same process | Review extraction yield, review time and missing-source rate before expansion; every batch has a fixed denominator and closure. No expansion of an active batch. |
@@ -2928,8 +2932,45 @@ and isolated-test step:
   SHA-256
   `374eccadbfea30668ec619094058cff33a8fde51929252bc74d7f31c61f17ad1`.
 
-One next step is one owner decision on the documented rollout sequence: publish
-the compatibility code, confirm the existing panel on the old schema, apply only
-the sealed component migration, then read back the new schema and unchanged
-data. Preparing or writing the 18 component candidates for the nine variants
-still requires a later data-write authorization.
+### Production rollout and 18-candidate preparation
+
+Owner authorization on 13 September 2026 completed the bounded rollout while
+retaining a separate data-write gate:
+
+- Full commit `e013facbc3bf708b810a6442e2604deb9c423cb7` was fast-forwarded
+  to `main`. The implementation package retained SHA-256
+  `374eccadbfea30668ec619094058cff33a8fde51929252bc74d7f31c61f17ad1`.
+  `verify:project`, `verify:quick` and final `verify:full` passed; Vercel
+  production deployment `6421420844` succeeded for the exact commit.
+- Before migration, the existing 1,018-row queue and authenticated review panel
+  remained readable. The panel returned HTTP 200 in a real authenticated session,
+  showed pending and approved sections and no schema-unavailable notice.
+- The production selector identified exactly
+  `20260913110000_add_nutrition_candidate_citrulline_components.sql`, normalized
+  SHA-256 `76dd8390e19f45dd8ffcc69bafe9721abc6dedff6db280fdc6f75e3938258ac4`,
+  as pending. Its CLI dry-run showed one migration; controlled apply executed
+  only that file. Fresh readback found history version `20260913110000` and all
+  three recreated, validated CHECKs containing the component field and ending
+  in `IS TRUE`.
+- Pre/post hashes match for all 1,018 queue rows, 170 batch items, products
+  `1250`/`1254`/`1279`, their nine target variants and every catalogue count.
+  The authenticated panel passed again after migration. These production reads
+  prove schema and availability; isolated PostgreSQL tests remain the evidence
+  for write behavior. No candidate or catalogue data changed.
+- The retained three archived Bulk tables were reused without network or storage
+  writes. The ignored artifact at
+  `tmp/nutrition-citrulline-components-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-citrulline-components-bulk-1250-1254-1279-20260913.json`
+  has SHA-256 `88e70433f68c802f59e48c145b72ac8c8ffdb90f03fb6f4e3400132ad3bb3474`,
+  artifact fingerprint `62eaed138ac27509fce9c620f4d142060e5b2a0503b59ea2cf0b86a44f245973`
+  and 18 unique component fingerprints. It preserves two components per exact
+  variant: products `1250` and `1279` use 2.5 g citrulline malate plus 500 mg
+  L-citrulline per approximately 17 g; product `1254` uses 3 g malate plus 2 g
+  L-citrulline per approximately 22.5 g. No source states a malate ratio.
+- `nutrition:candidates:store --dry-run` returned `DRY_RUN_NO_DATABASE`, 18 rows,
+  zero product updates and zero writes. Store, review, plan and apply were not
+  authorized or run. Machine-readable evidence is
+  [nutrition-citrulline-components-production-rollout-2026-09-13.json](rollouts/nutrition-citrulline-components-production-rollout-2026-09-13.json),
+  SHA-256 `a28a69cfb2a95bae1c2f0b2faddde23812bd08af74e50d45dd3b3fce6ddd8e94`.
+
+One next step is a single owner decision authorizing store -> review -> plan ->
+apply for only this unchanged, hash-bound 18-candidate package.
