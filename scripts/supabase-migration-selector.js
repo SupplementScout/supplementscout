@@ -284,6 +284,10 @@ const CONTRACTS = Object.freeze({
         filename: "20260911150000_add_nutrition_candidate_structured_creatine.sql",
         sha256: "dc9a411d19cb3547b508744c6dab21fb0df741e30f896cb186de6b38639ce28c",
       }),
+      Object.freeze({
+        filename: "20260913110000_add_nutrition_candidate_citrulline_components.sql",
+        sha256: "76dd8390e19f45dd8ffcc69bafe9721abc6dedff6db280fdc6f75e3938258ac4",
+      }),
     ]),
   }),
   PRODUCTION: Object.freeze({
@@ -312,7 +316,12 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260913110000_add_nutrition_candidate_citrulline_components.sql",
+        sha256: "76dd8390e19f45dd8ffcc69bafe9721abc6dedff6db280fdc6f75e3938258ac4",
+      }),
+    ]),
   }),
 });
 

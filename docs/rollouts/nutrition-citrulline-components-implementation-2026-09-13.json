@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-citrulline-components-implementation-evidence-v1",
+  "status": "CODE_COMPLETE_LOCAL",
+  "recorded_at": "2026-09-13",
+  "authorization_scope": "Implementation and isolated tests only; no production migration, candidate write, review, plan, apply, or main deployment.",
+  "source_design": {
+    "path": "docs/rollouts/nutrition-catalog-expansion-batch-06-execution-2026-09-13.json",
+    "sha256": "462674f21468625f3b73d685f1ffe6a1ec37b58cd771b8bc0e2641a14ebead5e",
+    "affected_exact_variants": [
+      { "product_id": "1250", "product_variant_ids": ["3672", "3721", "3722"] },
+      { "product_id": "1254", "product_variant_ids": ["3676", "3725", "3726"] },
+      { "product_id": "1279", "product_variant_ids": ["3759", "3894", "3895"] }
+    ],
+    "future_component_candidates": 18,
+    "candidate_data_created": 0
+  },
+  "implementation": {
+    "candidate_field": "citrulline_component_per_serving_mg",
+    "override_field": "citrulline_components",
+    "database_shape": "The existing nutrition_candidates table and evidence columns are reused; no table or column is added.",
+    "component_contract": [
+      "One present_with_amount row per separately declared citrulline form.",
+      "Each row retains declared form, amount, source unit, optional malate ratio, exact variant, serving text/value/unit, URL, private archive URI, and source SHA-256.",
+      "Fingerprint identity changes with amount, form, serving, or source evidence.",
+      "A planned mixture needs at least two unique form-and-ratio identities with one serving and source-recipe context.",
+      "Component masses remain separate and are never converted to or summed as pure L-citrulline."
+    ],
+    "coexistence_policy": "A variant override may use singular citrulline or citrulline_components, but never both. The planner blocks an implicit transition and public presentation fails closed on coexistence or incomplete component evidence.",
+    "compatibility": "Before the migration, existing product and structured-fact reads/review continue; component store/apply returns a specific migration-required error. After migration, the same panel, planner, apply, and public resolver support component rows while legacy singular facts remain unchanged.",
+    "private_evidence_exposure": "Server-side evidence is used to prove applied facts; public output contains only the source kind and no archive URI, source hash, or reviewer data."
+  },
+  "migration": {
+    "filename": "20260913110000_add_nutrition_candidate_citrulline_components.sql",
+    "normalized_sha256": "76dd8390e19f45dd8ffcc69bafe9721abc6dedff6db280fdc6f75e3938258ac4",
+    "forward_only": true,
+    "production_status": "PENDING",
+    "production_selector_pending_files": [
+      "20260913110000_add_nutrition_candidate_citrulline_components.sql"
+    ],
+    "changes": [
+      "Recreates the existing proposed-field, fact-shape, and proposed-unit CHECK constraints.",
+      "Every required CHECK expression remains wrapped with IS TRUE, including nullable predicates.",
+      "Adds no DML, table, column, grant, role, or public access."
+    ]
+  },
+  "test_evidence": {
+    "focused_nutrition_and_presentation": {
+      "result": "PASS",
+      "tests": 102
+    },
+    "isolated_postgresql": {
+      "command": "node --test scripts/nutrition-variant-provenance.integration.test.js",
+      "result": "PASS",
+      "tests": 1,
+      "proof": "Pre-migration rejection and legacy queue read, post-migration direct-SQL NULL/partial-row rejection, two-form readback, immutable reviewed evidence, duplicate-safe retry, and legacy product-path readback."
+    },
+    "migration_selector": {
+      "result": "PASS",
+      "tests": 28,
+      "proof": "Production ledger remains 207 applied migrations and exposes exactly the component migration as pending with the sealed normalized hash."
+    },
+    "verify_project_before_ledger": "PASS",
+    "verify_quick": "PASS",
+    "verify_full": "PASS"
+  },
+  "production_effects": {
+    "migration_executed": false,
+    "candidate_writes": 0,
+    "catalogue_writes": 0,
+    "deployment_published": false
+  },
+  "deployment_order_for_owner_decision": [
+    "Review and publish the implementation commit; deploy the compatibility code while the production schema is still unchanged.",
+    "Smoke-read the authenticated nutrition panel and existing product/structured candidate queue; component writes must still report the migration-required error.",
+    "Run the controlled production selector read-only and require exactly 20260913110000_add_nutrition_candidate_citrulline_components.sql with normalized SHA-256 76dd8390e19f45dd8ffcc69bafe9721abc6dedff6db280fdc6f75e3938258ac4.",
+    "Record the production queue and relevant catalogue state, then apply only that migration through the existing controlled migration path.",
+    "Open a new connection and read back migration history plus all three CHECK definitions; confirm IS TRUE, the existing queue, authenticated panel sections, and unchanged catalogue data.",
+    "Only under a later data-write authorization, prepare and dry-run the 18 exact component candidates for the nine retained variants, then use the existing store, review, plan, and apply stages."
+  ],
+  "next_step": "One owner decision may authorize publishing the code and executing the single sealed production migration in the order above; it does not authorize the later 18 candidate writes."
+}

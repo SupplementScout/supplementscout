@@ -10,6 +10,7 @@ const FACT_LABELS: Record<AppliedPreWorkoutFact["key"], string> = {
   caffeine: "Caffeine",
   beta_alanine: "Beta-alanine",
   citrulline: "Citrulline",
+  citrulline_component: "Citrulline blend component",
   creatine: "Creatine",
 };
 
@@ -36,7 +37,7 @@ function factValue(fact: AppliedPreWorkoutFact) {
   const serving = fact.servingBasisText ? ` per ${fact.servingBasisText}` : " per serving";
   const subject = fact.key === "creatine" && form
     ? ` of ${form} (declared form mass)`
-    : fact.key === "citrulline" && form
+    : ["citrulline", "citrulline_component"].includes(fact.key) && form
       ? ` of ${form}${ratio}${fact.ingredientForm === "citrulline_malate" ? " (declared malate mass)" : ""}`
       : "";
 
@@ -66,8 +67,8 @@ export default function ReviewedPreWorkoutFacts({
         Variant: {variantName}
       </p>
       <dl className="mt-5 divide-y divide-emerald-200/70">
-        {facts.facts.map((fact) => (
-          <div key={fact.key} className="py-3 first:pt-0 last:pb-0">
+        {facts.facts.map((fact, index) => (
+          <div key={`${fact.key}:${fact.ingredientForm || "none"}:${fact.ingredientRatio || "none"}:${index}`} className="py-3 first:pt-0 last:pb-0">
             <dt className="text-sm font-semibold text-gray-900">
               {FACT_LABELS[fact.key]}
             </dt>

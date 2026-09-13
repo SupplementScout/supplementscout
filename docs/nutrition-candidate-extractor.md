@@ -37,6 +37,7 @@ workflow.
 - `serving_size_ml`
 - `caffeine_per_serving_mg`
 - `citrulline_per_serving_mg`
+- `citrulline_component_per_serving_mg`
 - `beta_alanine_per_serving_mg`
 - `creatine_declared_form_per_serving_mg`
 
@@ -44,7 +45,7 @@ One output row represents one candidate fact. The extractor never derives a
 missing value from other values. Package arithmetic is used only to flag
 inconsistency.
 
-The four pre-workout fields use a structured candidate contract. Their
+The pre-workout ingredient fields use a structured candidate contract. Their
 `information_state` is exactly one of `present_with_amount`,
 `present_amount_not_disclosed`, `confirmed_absent`, `no_information`, or
 `conflicting_information`. This describes the source evidence and is independent
@@ -62,6 +63,26 @@ per-100-g values, or convert citrulline-malate mass into pure L-citrulline. The
 database keeps optional evidence columns nullable but requires each complete
 fact, unit and review CHECK predicate to evaluate `IS TRUE`; a SQL NULL result
 does not satisfy a required condition.
+
+Use `citrulline_component_per_serving_mg` when one declared mixture contains
+separately quantified citrulline forms. Create one quantified candidate per
+declared component. Every component retains its own form, original amount and
+unit, optional malate ratio, identical exact-variant identity, durable source
+evidence and the same serving text/value/unit. Preserve manufacturer qualifiers
+such as `approx.` in `serving_basis_text`. A component candidate supports only
+`present_with_amount`; the other information states continue to use the
+singular `citrulline_per_serving_mg` fact.
+
+A planned component set must contain at least two distinct form-and-ratio
+identities with one source and serving context. The planner writes the complete
+set to `nutrition_override.citrulline_components`, keeps unrelated override
+facts unchanged and never adds component masses together. The singular
+`nutrition_override.citrulline` representation and `citrulline_components`
+cannot coexist: replacing one representation requires a separately reviewed
+transition plan. Public presentation likewise fails closed if both appear, if
+component evidence is incomplete, or if component serving/source contexts do
+not agree. It renders each declared component once and never exposes archive
+URIs or source hashes.
 
 Structured creatine records `ingredient_form` as a normalized declared form,
 for example `creatine_monohydrate`. When the source names creatine but does not
@@ -598,7 +619,11 @@ exact variant override. Structured creatine updates do not change the legacy
 `creatine_per_serving_g` field or its existing calculations.
 Unknown or conflicting structured evidence cannot overwrite an existing
 determinate approved fact. The path cannot update offers, retailer products, GTIN, prices,
-`unit_pricing_verified`, or any pending/rejected candidate. Product-scoped facts
+`unit_pricing_verified`, or any pending/rejected candidate. Component citrulline
+updates require migration
+`20260913110000_add_nutrition_candidate_citrulline_components.sql`; before that
+migration, the old product and structured-fact paths remain readable while
+component store/apply returns a specific migration-required error. Product-scoped facts
 still update only `products`; variant-scoped facts update only the exact existing
 variant's `nutrition_override`. A successful
 audit JSON is written below `tmp/`.

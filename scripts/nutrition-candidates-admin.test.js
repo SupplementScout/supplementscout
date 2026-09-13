@@ -371,6 +371,8 @@ test("admin page authenticates before loading the service-role report", () => {
   assert.match(page, /Structured ingredient evidence/);
   assert.match(page, /creatine_declared_form_per_serving_mg/);
   assert.match(page, /Declared-form mass/);
+  assert.match(page, /citrulline_component_per_serving_mg/);
+  assert.match(page, /Declared component mass/);
   assert.match(page, /readOnly=\{structured\}/);
   assert.match(page, /Data entered:/);
   assert.match(page, /Review completed:/);

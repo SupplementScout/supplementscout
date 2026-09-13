@@ -7,6 +7,9 @@
 - Task: NUT-03 remains `IN PROGRESS`; the bounded early NUT-04A presentation
   step is `LIVE VERIFIED`. NUT-03A, NUT-03B, NUT-03D and NUT-03G are
   `CODE COMPLETE`; NUT-03C, NUT-03E, NUT-03F and NUT-03H are `LIVE VERIFIED`.
+  The bounded multi-component citrulline extension is `CODE COMPLETE` on the
+  local branch; its single forward-only migration remains pending and no
+  production nutrition data was written.
   NUT-03I retains its historical exact-variant evidence gap. Further preparation
   now uses one closed organizational package of at most 50 exact variants per
   owner decision instead of a separate checkpoint for every variant. Existing
@@ -2847,7 +2850,7 @@ three candidates of product `1283` / variant `3763`:
   SHA-256
   `462674f21468625f3b73d685f1ffe6a1ec37b58cd771b8bc0e2641a14ebead5e`.
 
-## NUT-03 multi-component citrulline extension design
+## NUT-03 multi-component citrulline extension design and implementation
 
 13 September 2026, design only; no code, migration or candidate/catalogue write:
 
@@ -2885,6 +2888,48 @@ three candidates of product `1283` / variant `3763`:
   migration and candidate execution for the nine variants each require separate
   authorization.
 
-One next step is separate authorization to implement and test this bounded
-extension in isolation. Do not migrate production or create the nine variants'
-component candidates in that implementation step.
+The implementation authorized on 13 September 2026 completes the bounded code
+and isolated-test step:
+
+- Candidate storage, authenticated individual review, deterministic planning,
+  controlled apply and the existing product presentation now recognize
+  `citrulline_component_per_serving_mg` and
+  `nutrition_override.citrulline_components`. No second importer, queue, panel
+  or public route was created.
+- Each planned component retains its declared mass and source unit, form,
+  optional malate ratio, exact variant, durable source evidence and full serving
+  wording, including approximation qualifiers. Fingerprints remain component-
+  specific. Reviewed evidence is immutable, and apply rechecks approval,
+  fingerprint, source, serving and before-state values.
+- A component set requires at least two distinct form/ratio identities and one
+  serving plus source-recipe context. The planner blocks mismatched contexts,
+  duplicates and implicit singular-to-components transitions. Public rendering
+  fails closed if singular and component representations coexist, presents each
+  component separately and never exposes private archive data.
+- Forward-only migration
+  `20260913110000_add_nutrition_candidate_citrulline_components.sql`, normalized
+  SHA-256
+  `76dd8390e19f45dd8ffcc69bafe9721abc6dedff6db280fdc6f75e3938258ac4`,
+  changes only the three existing candidate CHECK constraints. Direct PostgreSQL
+  tests prove pre-migration component rejection, post-migration NULL-safe shape
+  checks, two-component storage, immutable reviewed evidence, duplicate-safe
+  retry and the unchanged legacy path. The controlled production selector now
+  reports this file as its only pending production migration.
+- Focused nutrition, admin and public-presentation tests pass (102/102); the
+  isolated PostgreSQL test passes (1/1); selector tests pass (28/28);
+  `verify:quick` and the final `verify:full` pass. The first `verify:full` run correctly failed when the
+  new migration had not yet been registered as pending; that deployment-contract
+  omission was fixed before the final gate rerun.
+- No production migration, candidate storage, review, plan, apply, catalogue
+  write or `main` deployment occurred. The nine retained variants and their
+  source artifacts remain unchanged.
+- Machine-readable package:
+  [nutrition-citrulline-components-implementation-2026-09-13.json](rollouts/nutrition-citrulline-components-implementation-2026-09-13.json),
+  SHA-256
+  `374eccadbfea30668ec619094058cff33a8fde51929252bc74d7f31c61f17ad1`.
+
+One next step is one owner decision on the documented rollout sequence: publish
+the compatibility code, confirm the existing panel on the old schema, apply only
+the sealed component migration, then read back the new schema and unchanged
+data. Preparing or writing the 18 component candidates for the nine variants
+still requires a later data-write authorization.

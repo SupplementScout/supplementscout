@@ -11,6 +11,7 @@ const {
   validateSourceUrl,
 } = require("./lib/nutrition-candidates");
 const {
+  CITRULLINE_COMPONENT_CANDIDATE_FIELD,
   CREATINE_CANDIDATE_FIELD,
   PREWORKOUT_FIELD_SET,
   validatePreworkoutIngredientCandidate,
@@ -39,6 +40,13 @@ function fail(message) {
 }
 
 function isPreNut03bCreatineConstraint(error) {
+  return Boolean(error && String(error.code || "") === "23514" &&
+    /nutrition_candidates_(?:proposed_field_check|fact_shape_check|proposed_unit_check)/i.test(
+      `${error.constraint || ""} ${error.message || ""}`,
+    ));
+}
+
+function isPreCitrullineComponentsConstraint(error) {
   return Boolean(error && String(error.code || "") === "23514" &&
     /nutrition_candidates_(?:proposed_field_check|fact_shape_check|proposed_unit_check)/i.test(
       `${error.constraint || ""} ${error.message || ""}`,
@@ -170,6 +178,10 @@ async function storeRows(rows, dependencies = {}) {
   let currentRows = rows;
   let current = await write(currentRows);
   if (!current.error) return;
+  if (rows.some((row) => row.proposed_field === CITRULLINE_COMPONENT_CANDIDATE_FIELD) &&
+      isPreCitrullineComponentsConstraint(current.error)) {
+    fail("Multi-component citrulline candidate migration is required before component candidates can be stored");
+  }
   if (rows.some((row) => row.proposed_field === CREATINE_CANDIDATE_FIELD) &&
       isPreNut03bCreatineConstraint(current.error)) {
     fail("NUT-03B structured creatine migration is required before creatine candidates can be stored");

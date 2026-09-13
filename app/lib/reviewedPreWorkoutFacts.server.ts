@@ -32,6 +32,9 @@ const CANDIDATE_SELECT = [
   "ingredient_ratio",
   "warning_flags",
   "source_locator",
+  "source_url",
+  "source_file_sha256",
+  "source_archive_uri",
 ].join(",");
 
 const QUERY_BATCH_SIZE = 100;

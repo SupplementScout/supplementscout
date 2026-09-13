@@ -13,6 +13,7 @@ const migrations = [
   "20260911120000_add_nutrition_candidate_variant_provenance.sql",
   "20260911130000_add_nutrition_candidate_preworkout_facts.sql",
   "20260911150000_add_nutrition_candidate_structured_creatine.sql",
+  "20260913110000_add_nutrition_candidate_citrulline_components.sql",
 ];
 function run(command, args, options = {}) {
   return spawnSync(command, args, { cwd: root, encoding: "utf8", timeout: options.timeout || 180_000, input: options.input });
@@ -464,6 +465,115 @@ test("variant candidate migration preserves legacy rows and enforces exact immut
       quantityBasis: null, servingValue: null, servingUnit: null,
       servingText: null, productVariantId: null, sourceArchiveUri: null,
     })), "post-NUT-03B legacy creatine candidate");
+
+    const beforeComponents = sql(container, insertStructuredCandidate({
+      fingerprint: "0".repeat(64),
+      field: "citrulline_component_per_serving_mg",
+      value: 2500,
+      sourceValue: 2.5,
+      form: "citrulline_malate",
+    }));
+    assert.notEqual(beforeComponents.status, 0);
+    assert.match(output(beforeComponents), /nutrition_candidates_(?:proposed_field_check|fact_shape_check)/);
+    assert.ok(Number(ok(sql(container, `select count(*) from public.nutrition_candidates;`),
+      "pre-component-migration queue read").stdout.trim()) > 0);
+
+    ok(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-f", `/workspace/supabase/migrations/${migrations[6]}`]), migrations[6]);
+    const constraintReadback = ok(sql(container, `
+      select count(*)::text||'|'||bool_and(lower(pg_get_constraintdef(oid)) like '%is true%')::text
+      from pg_constraint
+      where conrelid='public.nutrition_candidates'::regclass
+        and conname in (
+          'nutrition_candidates_proposed_field_check',
+          'nutrition_candidates_fact_shape_check',
+          'nutrition_candidates_proposed_unit_check'
+        )
+        and position('citrulline_component_per_serving_mg' in pg_get_constraintdef(oid)) > 0;
+    `), "component constraint readback").stdout.trim();
+    assert.equal(constraintReadback, "3|true");
+
+    const malformedComponents = [
+      ["component-missing-value", { proposedValue: null, form: "citrulline_malate" }],
+      ["component-missing-source-unit", { sourceUnit: null, form: "citrulline_malate" }],
+      ["component-missing-serving-text", { servingText: null, form: "citrulline_malate" }],
+      ["component-missing-form", {}],
+      ["component-invalid-form", { form: "citrulline_blend" }],
+      ["component-missing-state", {
+        proposedValue: null, proposedUnit: null, informationState: null,
+        sourceValue: null, sourceUnit: null, quantityBasis: null,
+        servingValue: null, servingUnit: null, servingText: null, form: null,
+      }],
+      ["component-nonquantified-state", {
+        proposedValue: null, proposedUnit: null, informationState: "present_amount_not_disclosed",
+        sourceValue: null, sourceUnit: null, quantityBasis: null,
+        servingValue: null, servingUnit: null, servingText: null, form: "citrulline_malate",
+      }],
+      ["component-partial-serving-pair", { servingUnit: null, form: "citrulline_malate" }],
+      ["component-l-citrulline-ratio", { form: "l_citrulline", ratio: "2:1" }],
+    ];
+    for (const [name, values] of malformedComponents) {
+      const result = sql(container, insertDirectFact({
+        name,
+        field: "citrulline_component_per_serving_mg",
+        ...values,
+      }));
+      assert.notEqual(result.status, 0, `${name} must be rejected directly by PostgreSQL`);
+      assert.match(output(result), /nutrition_candidates_(?:fact_shape_check|proposed_unit_check)/);
+    }
+
+    const componentFacts = [
+      {
+        fingerprint: "0".repeat(64), field: "citrulline_component_per_serving_mg",
+        value: 2500, sourceValue: 2.5, form: "citrulline_malate",
+      },
+      {
+        fingerprint: "b".repeat(64), field: "citrulline_component_per_serving_mg",
+        value: 500, sourceValue: 500, sourceUnit: "mg", form: "l_citrulline",
+      },
+    ];
+    for (const fact of componentFacts) ok(sql(container, insertStructuredCandidate(fact)),
+      `structured citrulline component ${fact.form}`);
+    ok(sql(container, `
+      update public.nutrition_candidates
+      set status='approved',reviewed_at=now(),reviewed_by='integration-test'
+      where candidate_fingerprint in ('${"0".repeat(64)}','${"b".repeat(64)}');
+    `), "approve citrulline components");
+    const componentReadback = JSON.parse(ok(sql(container, `
+      select jsonb_agg(jsonb_build_object(
+        'value',proposed_value,'approved',approved_value,
+        'source_value',source_quantity_value,'source_unit',source_quantity_unit,
+        'serving',serving_basis_text,'form',ingredient_form,'ratio',ingredient_ratio
+      ) order by proposed_value desc)::text
+      from public.nutrition_candidates
+      where proposed_field='citrulline_component_per_serving_mg';
+    `), "citrulline component readback").stdout.trim());
+    assert.deepEqual(componentReadback, [
+      { value: 2500, approved: 2500, source_value: 2.5, source_unit: "g", serving: "Per 15 g serving", form: "citrulline_malate", ratio: null },
+      { value: 500, approved: 500, source_value: 500, source_unit: "mg", serving: "Per 15 g serving", form: "l_citrulline", ratio: null },
+    ]);
+    const changedComponentEvidence = sql(container, `
+      update public.nutrition_candidates set source_file_sha256='${"4".repeat(64)}'
+      where candidate_fingerprint='${"0".repeat(64)}';
+    `);
+    assert.notEqual(changedComponentEvidence.status, 0);
+    assert.match(output(changedComponentEvidence), /already been reviewed|evidence is immutable/);
+    ok(sql(container, `
+      ${insertStructuredCandidate(componentFacts[0]).replace(/;\s*$/, " on conflict(candidate_fingerprint) do nothing;")}
+      ${insertStructuredCandidate(componentFacts[1]).replace(/;\s*$/, " on conflict(candidate_fingerprint) do nothing;")}
+    `), "citrulline component idempotent retry");
+    assert.equal(ok(sql(container, `
+      select count(*) from public.nutrition_candidates
+      where proposed_field='citrulline_component_per_serving_mg';
+    `), "citrulline component duplicate count").stdout.trim(), "2");
+
+    const postComponentLegacyName = "post-component-legacy-product-path";
+    ok(sql(container, insertDirectFact({
+      name: postComponentLegacyName,
+      field: "serving_size_g", proposedValue: 17, proposedUnit: "g",
+      informationState: null, sourceValue: null, sourceUnit: null,
+      quantityBasis: null, servingValue: null, servingUnit: null,
+      servingText: null, productVariantId: null, sourceArchiveUri: null,
+    })), "post-component legacy candidate");
   } finally {
     run("docker", ["rm", "-f", container], { timeout: 30_000 });
   }

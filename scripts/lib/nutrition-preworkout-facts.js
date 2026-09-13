@@ -1,7 +1,10 @@
 const CREATINE_CANDIDATE_FIELD = "creatine_declared_form_per_serving_mg";
+const CITRULLINE_COMPONENT_CANDIDATE_FIELD = "citrulline_component_per_serving_mg";
+const CITRULLINE_COMPONENT_TARGET_FIELD = "citrulline_components";
 const PREWORKOUT_INGREDIENT_FIELDS = Object.freeze([
   "caffeine_per_serving_mg",
   "citrulline_per_serving_mg",
+  CITRULLINE_COMPONENT_CANDIDATE_FIELD,
   "beta_alanine_per_serving_mg",
   CREATINE_CANDIDATE_FIELD,
 ]);
@@ -21,6 +24,7 @@ const CREATINE_FORM_PATTERN = /^creatine_[a-z0-9]+(?:_[a-z0-9]+)*$/;
 const TARGET_FIELD_BY_CANDIDATE_FIELD = Object.freeze({
   caffeine_per_serving_mg: "caffeine",
   citrulline_per_serving_mg: "citrulline",
+  [CITRULLINE_COMPONENT_CANDIDATE_FIELD]: CITRULLINE_COMPONENT_TARGET_FIELD,
   beta_alanine_per_serving_mg: "beta_alanine",
   [CREATINE_CANDIDATE_FIELD]: "creatine",
 });
@@ -72,7 +76,8 @@ function validatePreworkoutIngredientCandidate(candidate) {
     return false;
   }
 
-  if (candidate.field_name === "citrulline_per_serving_mg") {
+  if (["citrulline_per_serving_mg", CITRULLINE_COMPONENT_CANDIDATE_FIELD].includes(candidate.field_name)) {
+    if (candidate.field_name === CITRULLINE_COMPONENT_CANDIDATE_FIELD && !quantified) return false;
     if (present && !CITRULLINE_FORM_SET.has(form)) return false;
     if (!present && form !== null) return false;
     if (!ratioValid(ratio) || (ratio !== null && form !== "citrulline_malate")) return false;
@@ -123,6 +128,8 @@ function ingredientFact(candidate, approvedValue = candidate.approved_value) {
 }
 
 module.exports = {
+  CITRULLINE_COMPONENT_CANDIDATE_FIELD,
+  CITRULLINE_COMPONENT_TARGET_FIELD,
   CITRULLINE_FORMS,
   CREATINE_CANDIDATE_FIELD,
   CREATINE_FORM_NOT_DISCLOSED,

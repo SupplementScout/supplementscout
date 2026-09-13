@@ -10,6 +10,8 @@ const { loadEnvFile } = require("./apply-selected-migrations");
 const { CONTRACTS, validateDatabaseOwner } = require("./supabase-migration-selector");
 const {
   PREWORKOUT_TARGET_FIELDS,
+  CITRULLINE_COMPONENT_CANDIDATE_FIELD,
+  CITRULLINE_COMPONENT_TARGET_FIELD,
   CREATINE_CANDIDATE_FIELD,
   TARGET_FIELD_BY_CANDIDATE_FIELD,
   ingredientFact,
@@ -17,6 +19,8 @@ const {
   const facts = require("./lib/nutrition-preworkout-facts");
   return {
     PREWORKOUT_TARGET_FIELDS: Object.values(facts.TARGET_FIELD_BY_CANDIDATE_FIELD),
+    CITRULLINE_COMPONENT_CANDIDATE_FIELD: facts.CITRULLINE_COMPONENT_CANDIDATE_FIELD,
+    CITRULLINE_COMPONENT_TARGET_FIELD: facts.CITRULLINE_COMPONENT_TARGET_FIELD,
     CREATINE_CANDIDATE_FIELD: facts.CREATINE_CANDIDATE_FIELD,
     TARGET_FIELD_BY_CANDIDATE_FIELD: facts.TARGET_FIELD_BY_CANDIDATE_FIELD,
     ingredientFact: facts.ingredientFact,
@@ -80,6 +84,19 @@ function verifyCandidates(plan, candidates) {
           ? Object.keys(TARGET_FIELD_BY_CANDIDATE_FIELD).find((key) => TARGET_FIELD_BY_CANDIDATE_FIELD[key] === field)
           : field === "nutrition_verified" ? evidence.source_field : field;
         const expectedSourceValue = field === "nutrition_verified" ? evidence.source_value : structured ? evidence.source_value : change.after;
+        const expectedStructuredFact = structured && snapshot
+          ? ingredientFact({
+            ...snapshot, field_name: snapshot.proposed_field,
+            value_numeric: snapshot.proposed_value, unit: snapshot.proposed_unit,
+            basis: snapshot.quantity_basis,
+          }, snapshot.approved_value)
+          : null;
+        const structuredFactMatches = !structured || (
+          field === CITRULLINE_COMPONENT_TARGET_FIELD
+            ? Array.isArray(change.after) && change.after.some((component) =>
+              canonicalJson(component) === canonicalJson(expectedStructuredFact))
+            : canonicalJson(expectedStructuredFact) === canonicalJson(change.after)
+        );
         if (!snapshot || snapshot.status !== "approved" || snapshot.run_id !== plan.run_id ||
             snapshot.product_id !== target.product_id ||
             snapshot.product_variant_id !== (target.product_variant_id || null) ||
@@ -97,11 +114,7 @@ function verifyCandidates(plan, candidates) {
             snapshot.serving_basis_text !== (evidence.serving_basis_text ?? null) ||
             snapshot.ingredient_form !== (evidence.ingredient_form ?? null) ||
             snapshot.ingredient_ratio !== (evidence.ingredient_ratio ?? null) ||
-            (structured && canonicalJson(ingredientFact({
-              ...snapshot, field_name: snapshot.proposed_field,
-              value_numeric: snapshot.proposed_value, unit: snapshot.proposed_unit,
-              basis: snapshot.quantity_basis,
-            }, snapshot.approved_value)) !== canonicalJson(change.after))) {
+            !structuredFactMatches) {
           fail(`Approved candidate ${evidence.candidate_id} changed after plan generation`);
         }
       }
@@ -205,6 +218,21 @@ async function structuredCreatineSchemaAvailable(client) {
   return Number(result.rows[0]?.matching_constraints) === 3;
 }
 
+async function citrullineComponentsSchemaAvailable(client) {
+  const result = await client.query(`
+    select count(*)::int matching_constraints
+    from pg_constraint
+    where conrelid='public.nutrition_candidates'::regclass
+      and conname=any($1::text[])
+      and position($2 in pg_get_constraintdef(oid)) > 0
+  `, [[
+    "nutrition_candidates_proposed_field_check",
+    "nutrition_candidates_fact_shape_check",
+    "nutrition_candidates_proposed_unit_check",
+  ], CITRULLINE_COMPONENT_CANDIDATE_FIELD]);
+  return Number(result.rows[0]?.matching_constraints) === 3;
+}
+
 async function applyTransaction(plan, dependencies = {}) {
   const envFile = dependencies.envFile || path.join(
     process.env.USERPROFILE || "",
@@ -251,6 +279,12 @@ async function applyTransaction(plan, dependencies = {}) {
     );
     if (hasStructuredCreatineUpdates && !await structuredCreatineSchemaAvailable(client)) {
       fail("NUT-03B structured creatine migration is required before creatine updates can be applied");
+    }
+    const hasCitrullineComponentUpdates = plan.variant_updates.some((variant) =>
+      Object.hasOwn(variant.changes, CITRULLINE_COMPONENT_TARGET_FIELD)
+    );
+    if (hasCitrullineComponentUpdates && !await citrullineComponentsSchemaAvailable(client)) {
+      fail("Multi-component citrulline migration is required before component updates can be applied");
     }
     const candidateResult = await client.query(preworkoutFactsAvailable ? `
       select id,product_id,product_variant_id,proposed_field,proposed_value,approved_value,proposed_unit,status,run_id,candidate_fingerprint,source_file_sha256,source_archive_uri,
@@ -372,6 +406,7 @@ if (require.main === module) {
 
 module.exports = {
   applyTransaction,
+  citrullineComponentsSchemaAvailable,
   nutritionCandidateSchemaState,
   parseArgs,
   planSourceEvidence,

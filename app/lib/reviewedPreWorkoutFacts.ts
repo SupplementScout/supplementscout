@@ -15,6 +15,7 @@ export type AppliedPreWorkoutFactKey =
   | "caffeine"
   | "beta_alanine"
   | "citrulline"
+  | "citrulline_component"
   | "creatine";
 
 export type AppliedPreWorkoutFact = {
@@ -54,6 +55,9 @@ export type ReviewedNutritionCandidate = {
   ingredient_ratio: string | null;
   warning_flags: unknown;
   source_locator: string | null;
+  source_url?: string | null;
+  source_file_sha256?: string | null;
+  source_archive_uri?: string | null;
 };
 
 const STRUCTURED_FIELDS = {
@@ -156,7 +160,10 @@ function structuredFact(candidate: ReviewedNutritionCandidate) {
     candidate.serving_basis_text !== null
   ) return null;
 
-  if (candidate.proposed_field === "citrulline_per_serving_mg") {
+  if (["citrulline_per_serving_mg", "citrulline_component_per_serving_mg"].includes(candidate.proposed_field)) {
+    if (candidate.proposed_field === "citrulline_component_per_serving_mg" && state !== "present_with_amount") {
+      return null;
+    }
     if (present) {
       if (!["l_citrulline", "citrulline_malate"].includes(candidate.ingredient_form || "")) {
         return null;
@@ -208,6 +215,26 @@ function uniqueSources(candidates: ReviewedNutritionCandidate[]) {
   return [...new Set(candidates.map(sourceKind))];
 }
 
+function componentSourceContext(candidate: ReviewedNutritionCandidate) {
+  if (
+    !candidate.source_url?.startsWith("https://") ||
+    !/^[0-9a-f]{64}$/.test(candidate.source_file_sha256 || "") ||
+    !candidate.source_archive_uri?.startsWith("supabase-storage://nutrition-sources/")
+  ) return null;
+  return canonical({
+    source_url: candidate.source_url,
+    source_file_sha256: candidate.source_file_sha256,
+    source_archive_uri: candidate.source_archive_uri,
+    serving_basis_text: candidate.serving_basis_text,
+    serving_basis_value: finitePositive(candidate.serving_basis_value),
+    serving_basis_unit: candidate.serving_basis_unit,
+  });
+}
+
+function componentIdentity(fact: Record<string, unknown>) {
+  return `${String(fact.ingredient_form || "")}|${String(fact.ingredient_ratio || "")}`;
+}
+
 export function resolveAppliedPreWorkoutFacts(
   productId: number | string,
   productVariantId: number | string,
@@ -218,6 +245,9 @@ export function resolveAppliedPreWorkoutFacts(
   const exactVariantId = String(productVariantId);
   const override = isRecord(nutritionOverride) ? nutritionOverride : {};
   const facts: AppliedPreWorkoutFact[] = [];
+  const hasSingularCitrulline = isRecord(override.citrulline);
+  const hasCitrullineComponents = Array.isArray(override.citrulline_components);
+  const citrullineRepresentationConflict = hasSingularCitrulline && hasCitrullineComponents;
 
   const servingSize = finitePositive(override.serving_size_g);
   const servingCandidates = matchingCandidates(
@@ -233,6 +263,7 @@ export function resolveAppliedPreWorkoutFacts(
 
   const structuredMatches = new Map<AppliedPreWorkoutFactKey, ReviewedNutritionCandidate[]>();
   for (const [candidateField, targetField] of Object.entries(STRUCTURED_FIELDS)) {
+    if (targetField === "citrulline" && citrullineRepresentationConflict) continue;
     const applied = override[targetField];
     if (!isRecord(applied)) continue;
     const matches = matchingCandidates(
@@ -247,8 +278,43 @@ export function resolveAppliedPreWorkoutFacts(
     if (matches.length > 0) structuredMatches.set(targetField, matches);
   }
 
+  const componentMatches: Array<{
+    applied: Record<string, unknown>;
+    candidate: ReviewedNutritionCandidate;
+  }> = [];
+  if (!citrullineRepresentationConflict && hasCitrullineComponents) {
+    const appliedComponents = (override.citrulline_components as unknown[])
+      .filter(isRecord);
+    const candidatePool = matchingCandidates(
+      candidates,
+      exactProductId,
+      exactVariantId,
+      "citrulline_component_per_serving_mg"
+    );
+    const used = new Set<number>();
+    for (const applied of appliedComponents) {
+      const index = candidatePool.findIndex((candidate, candidateIndex) =>
+        !used.has(candidateIndex) &&
+        canonical(structuredFact(candidate)) === canonical(applied)
+      );
+      if (index >= 0) {
+        used.add(index);
+        componentMatches.push({ applied, candidate: candidatePool[index] });
+      }
+    }
+    const contexts = new Set(componentMatches.map(({ candidate }) => componentSourceContext(candidate)));
+    const identities = new Set(componentMatches.map(({ applied }) => componentIdentity(applied)));
+    if (
+      appliedComponents.length < 2 ||
+      appliedComponents.length !== (override.citrulline_components as unknown[]).length ||
+      componentMatches.length !== appliedComponents.length ||
+      contexts.size !== 1 || contexts.has(null) ||
+      identities.size !== appliedComponents.length
+    ) componentMatches.length = 0;
+  }
+
   if (servingSize !== null && servingCandidates.length > 0) {
-    const servingBasisText = [...structuredMatches.values()]
+    const servingBasisText = [...structuredMatches.values(), componentMatches.map(({ candidate }) => candidate)]
       .flat()
       .find((candidate) => finitePositive(candidate.serving_basis_value) === servingSize)
       ?.serving_basis_text || null;
@@ -278,6 +344,19 @@ export function resolveAppliedPreWorkoutFacts(
       ingredientForm: typeof applied.ingredient_form === "string" ? applied.ingredient_form : null,
       ingredientRatio: typeof applied.ingredient_ratio === "string" ? applied.ingredient_ratio : null,
       sourceKinds: uniqueSources(matches),
+    });
+  }
+
+  for (const { applied, candidate } of componentMatches) {
+    facts.push({
+      key: "citrulline_component",
+      informationState: "present_with_amount",
+      amountPerServingMg: finitePositive(applied.amount_per_serving_mg),
+      servingSizeG: finitePositive(applied.serving_basis_value),
+      servingBasisText: typeof applied.serving_basis_text === "string" ? applied.serving_basis_text : null,
+      ingredientForm: typeof applied.ingredient_form === "string" ? applied.ingredient_form : null,
+      ingredientRatio: typeof applied.ingredient_ratio === "string" ? applied.ingredient_ratio : null,
+      sourceKinds: uniqueSources([candidate]),
     });
   }
 

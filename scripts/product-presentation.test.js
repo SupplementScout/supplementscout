@@ -418,6 +418,28 @@ test("reviewed pre-workout facts render exact states, forms and public source ki
   assert.doesNotMatch(html, /supabase-storage|source_archive_uri|approved_by/);
 });
 
+test("reviewed citrulline blend components render separately without implying a pure total", () => {
+  const Component = loadReviewedPreWorkoutFactsComponent();
+  const html = renderToStaticMarkup(React.createElement(Component, {
+    variantName: "TEST ONLY blend",
+    facts: {
+      productId: "1283",
+      productVariantId: "3763",
+      caffeineFreeConfirmed: false,
+      facts: [
+        { key: "citrulline_component", informationState: "present_with_amount", amountPerServingMg: 2500, servingSizeG: 17, servingBasisText: "Approx. 2 scoops (17 g)", ingredientForm: "citrulline_malate", ingredientRatio: "2:1", sourceKinds: ["manufacturer_source"] },
+        { key: "citrulline_component", informationState: "present_with_amount", amountPerServingMg: 500, servingSizeG: 17, servingBasisText: "Approx. 2 scoops (17 g)", ingredientForm: "l_citrulline", ingredientRatio: null, sourceKinds: ["manufacturer_source"] },
+      ],
+    },
+  }));
+
+  assert.equal((html.match(/Citrulline blend component/g) || []).length, 2);
+  assert.match(html, /2,500 mg of Citrulline malate 2:1 \(declared malate mass\)/);
+  assert.match(html, /500 mg of L-citrulline \(free form\)/);
+  assert.match(html, /Approx\. 2 scoops \(17 g\)/);
+  assert.doesNotMatch(html, /3,000 mg|pure L-citrulline|supabase-storage|source_archive_uri/);
+});
+
 test("product page validates and scopes the exact requested pre-workout variant", () => {
   const pageSource = fs.readFileSync(
     path.join(process.cwd(), "app", "product", "[id]", "page.tsx"),

@@ -6,6 +6,8 @@ const {
 } = require("./nutrition-candidates");
 const { createCandidateSupabase } = require("../store-nutrition-candidates");
 const {
+  CITRULLINE_COMPONENT_CANDIDATE_FIELD,
+  CITRULLINE_COMPONENT_TARGET_FIELD,
   PREWORKOUT_FIELD_SET,
   TARGET_FIELD_BY_CANDIDATE_FIELD,
   ingredientFact,
@@ -15,9 +17,11 @@ const PLAN_KIND = "nutrition-approved-update-plan-v3";
 const AUDIT_KIND = "nutrition-approved-update-audit-v2";
 const DERIVED_FIELDS = Object.freeze(["nutrition_verified"]);
 const NUT02B_PREWORKOUT_TARGET_FIELDS = Object.freeze(["caffeine", "citrulline", "beta_alanine"]);
-const PREWORKOUT_TARGET_FIELDS = Object.freeze([...NUT02B_PREWORKOUT_TARGET_FIELDS, "creatine"]);
+const NUT03B_PREWORKOUT_TARGET_FIELDS = Object.freeze([...NUT02B_PREWORKOUT_TARGET_FIELDS, "creatine"]);
+const PREWORKOUT_TARGET_FIELDS = Object.freeze([...NUT03B_PREWORKOUT_TARGET_FIELDS, CITRULLINE_COMPONENT_TARGET_FIELD]);
 const LEGACY_ALLOWED_FIELDS = Object.freeze([...FIELDS, ...DERIVED_FIELDS]);
 const NUT02B_ALLOWED_FIELDS = Object.freeze([...LEGACY_ALLOWED_FIELDS, ...NUT02B_PREWORKOUT_TARGET_FIELDS]);
+const NUT03B_ALLOWED_FIELDS = Object.freeze([...LEGACY_ALLOWED_FIELDS, ...NUT03B_PREWORKOUT_TARGET_FIELDS]);
 const ALLOWED_FIELDS = Object.freeze([...LEGACY_ALLOWED_FIELDS, ...PREWORKOUT_TARGET_FIELDS]);
 const CANDIDATE_FIELD_SET = new Set(FIELDS);
 const NUTRITION_SOURCE_FIELDS = new Set(["protein_per_serving_g", "creatine_per_serving_g"]);
@@ -48,6 +52,35 @@ function canonicalJson(value) {
   if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
   if (value && typeof value === "object") return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(",")}}`;
   return JSON.stringify(value);
+}
+function citrullineComponentContext(candidate) {
+  return canonicalJson({
+    source_url: String(candidate.source_url),
+    source_file_sha256: String(candidate.source_file_sha256),
+    source_archive_uri: String(candidate.source_archive_uri),
+    serving_basis_text: String(candidate.serving_basis_text),
+    serving_basis_value: candidate.serving_basis_value == null ? null : Number(candidate.serving_basis_value),
+    serving_basis_unit: candidate.serving_basis_unit == null ? null : String(candidate.serving_basis_unit),
+  });
+}
+function sortCitrullineComponents(components) {
+  return [...components].sort((left, right) =>
+    String(left.ingredient_form).localeCompare(String(right.ingredient_form)) ||
+    String(left.ingredient_ratio || "").localeCompare(String(right.ingredient_ratio || "")) ||
+    Number(left.amount_per_serving_mg) - Number(right.amount_per_serving_mg)
+  );
+}
+function componentIdentity(component) {
+  return `${component.ingredient_form}|${component.ingredient_ratio || ""}`;
+}
+function componentSetIssue(items) {
+  if (items.length < 2) return "CITRULLINE_COMPONENT_SET_REQUIRES_MULTIPLE_COMPONENTS";
+  if (new Set(items.map((item) => citrullineComponentContext(item.candidate || item))).size !== 1) {
+    return "CITRULLINE_COMPONENT_CONTEXT_MISMATCH";
+  }
+  const identities = items.map((item) => componentIdentity(item.value || item));
+  if (new Set(identities).size !== identities.length) return "DUPLICATE_CITRULLINE_COMPONENT";
+  return null;
 }
 function candidateEvidence(candidate) {
   return {
@@ -152,7 +185,8 @@ function buildApprovedPlan(candidates, products, runId, generatedAt = new Date()
   for (const group of groups.values()) {
     const first = group[0];
     const values = new Set(group.map((item) => canonicalJson(item.value)));
-    if (values.size !== 1) {
+    const componentGroup = first.field === CITRULLINE_COMPONENT_TARGET_FIELD;
+    if (!componentGroup && values.size !== 1) {
       blockers.push({
         code: "CONFLICTING_APPROVED_VALUES", product_id: first.productId,
         ...(first.variantId ? { product_variant_id: first.variantId } : {}),
@@ -177,7 +211,21 @@ function buildApprovedPlan(candidates, products, runId, generatedAt = new Date()
       }
     }
 
-    const { productId, variantId, field, value } = first;
+    const componentIssue = componentGroup ? componentSetIssue(group) : null;
+    if (componentIssue) {
+      blockers.push({
+        code: componentIssue,
+        product_id: first.productId,
+        product_variant_id: first.variantId,
+        field: first.field,
+        candidate_ids: group.map((item) => String(item.candidate.id)),
+      });
+      continue;
+    }
+    const { productId, variantId, field } = first;
+    const value = componentGroup
+      ? sortCitrullineComponents(group.map((item) => item.value))
+      : first.value;
     const product = productById.get(productId);
     if (!product) {
       blockers.push({ code: "PRODUCT_NOT_FOUND", product_id: productId, field });
@@ -201,6 +249,26 @@ function buildApprovedPlan(candidates, products, runId, generatedAt = new Date()
         });
       }
       const update = changesByVariant.get(variantId);
+      if (componentGroup) {
+        if (Object.hasOwn(update.before_nutrition_override, "citrulline")) {
+          blockers.push({ code: "CITRULLINE_SINGLE_AND_COMPONENTS_REQUIRE_REVIEWED_TRANSITION", product_id: productId, product_variant_id: variantId, field });
+          continue;
+        }
+        const beforeRaw = Object.hasOwn(update.before_nutrition_override, field)
+          ? update.before_nutrition_override[field]
+          : null;
+        if (beforeRaw !== null && (!Array.isArray(beforeRaw) || beforeRaw.some((entry) => !entry || typeof entry !== "object" || Array.isArray(entry)))) {
+          blockers.push({ code: "INVALID_CURRENT_VARIANT_VALUE", product_id: productId, product_variant_id: variantId, field });
+          continue;
+        }
+        const before = beforeRaw === null ? null : beforeRaw;
+        const evidence = group.map((item) => candidateEvidence(item.candidate));
+        update.changes[field] = {
+          before, after: value, no_change: canonicalJson(before) === canonicalJson(value), evidence,
+        };
+        update.after_nutrition_override[field] = value;
+        continue;
+      }
       if (first.structured) {
         const beforeRaw = Object.hasOwn(update.before_nutrition_override, field)
           ? update.before_nutrition_override[field]
@@ -260,6 +328,18 @@ function buildApprovedPlan(candidates, products, runId, generatedAt = new Date()
         before: verifiedBefore, after: true, no_change: verifiedBefore,
         derived_from_reviewed_nutrition: true, evidence: existing ? [...existing.evidence, ...evidence] : evidence,
       };
+    }
+  }
+
+  for (const update of changesByVariant.values()) {
+    if (Object.hasOwn(update.after_nutrition_override, "citrulline") &&
+        Object.hasOwn(update.after_nutrition_override, CITRULLINE_COMPONENT_TARGET_FIELD)) {
+      blockers.push({
+        code: "CITRULLINE_SINGLE_AND_COMPONENTS_REQUIRE_REVIEWED_TRANSITION",
+        product_id: update.product_id,
+        product_variant_id: update.product_variant_id,
+        field: CITRULLINE_COMPONENT_TARGET_FIELD,
+      });
     }
   }
 
@@ -336,7 +416,22 @@ function validateChanges(changes, productId, variantId) {
       evidenceOk && change.evidence.every((row) => NUTRITION_SOURCE_FIELDS.has(row.source_field));
     const numericChange = FIELDS.includes(field) && Number.isFinite(change?.after) && change.after > 0 &&
       (change.before === null || Number.isFinite(change.before)) && evidenceOk;
-    const structuredChange = PREWORKOUT_TARGET_FIELDS.includes(field) && variantId !== null &&
+    const componentFacts = field === CITRULLINE_COMPONENT_TARGET_FIELD && evidenceOk
+      ? sortCitrullineComponents(change.evidence.map((row) => ingredientFact({
+        ...row, field_name: row.source_field,
+        value_numeric: row.proposed_value,
+        unit: row.source_value == null ? null : "mg",
+        proposed_value: row.proposed_value,
+        proposed_unit: row.source_value == null ? null : "mg",
+        basis: row.quantity_basis,
+      }, row.source_value)))
+      : null;
+    const componentChange = field === CITRULLINE_COMPONENT_TARGET_FIELD && variantId !== null &&
+      Array.isArray(change?.after) && (change.before === null || Array.isArray(change.before)) &&
+      evidenceOk && change.evidence.every((row) => row.source_field === CITRULLINE_COMPONENT_CANDIDATE_FIELD) &&
+      componentSetIssue(change.evidence.map((candidate, index) => ({ candidate, value: componentFacts[index] }))) === null &&
+      canonicalJson(componentFacts) === canonicalJson(change.after);
+    const structuredChange = PREWORKOUT_TARGET_FIELDS.includes(field) && field !== CITRULLINE_COMPONENT_TARGET_FIELD && variantId !== null &&
       change?.after && typeof change.after === "object" && !Array.isArray(change.after) &&
       (change.before === null || (change.before && typeof change.before === "object" && !Array.isArray(change.before))) &&
       evidenceOk && change.evidence.every((row) => TARGET_FIELD_BY_CANDIDATE_FIELD[row.source_field] === field) &&
@@ -348,7 +443,7 @@ function validateChanges(changes, productId, variantId) {
         proposed_unit: change.evidence[0].source_value == null ? null : "mg",
         basis: change.evidence[0].quantity_basis,
       }, change.evidence[0].source_value)) === canonicalJson(change.after);
-    if (!derived && !numericChange && !structuredChange) fail("Invalid change in approved plan");
+    if (!derived && !numericChange && !structuredChange && !componentChange) fail("Invalid change in approved plan");
   }
 }
 function validatePlan(plan) {
@@ -356,6 +451,7 @@ function validatePlan(plan) {
       plan.status !== "READY_FOR_EXPLICIT_APPLY" || !Array.isArray(plan.allowed_fields) ||
       ![
         JSON.stringify(ALLOWED_FIELDS),
+        JSON.stringify(NUT03B_ALLOWED_FIELDS),
         JSON.stringify(NUT02B_ALLOWED_FIELDS),
         JSON.stringify(LEGACY_ALLOWED_FIELDS),
       ].includes(JSON.stringify(plan.allowed_fields)) ||
@@ -376,6 +472,10 @@ function validatePlan(plan) {
         !update.before_nutrition_override || !update.after_nutrition_override ||
         Array.isArray(update.before_nutrition_override) || Array.isArray(update.after_nutrition_override)) fail("Invalid variant update entry");
     validateChanges(update.changes, update.product_id, update.product_variant_id);
+    if (Object.hasOwn(update.after_nutrition_override, "citrulline") &&
+        Object.hasOwn(update.after_nutrition_override, CITRULLINE_COMPONENT_TARGET_FIELD)) {
+      fail("Singular citrulline and citrulline components cannot coexist in one variant override");
+    }
     const expected = { ...update.before_nutrition_override };
     for (const [field, change] of Object.entries(update.changes)) expected[field] = change.after;
     if (JSON.stringify(expected) !== JSON.stringify(update.after_nutrition_override)) fail("Variant nutrition override does not match planned changes");

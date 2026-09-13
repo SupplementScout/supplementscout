@@ -168,6 +168,9 @@ function reviewedCandidate(overrides = {}) {
     ingredient_ratio: null,
     warning_flags: ["BRAND_OWNER_ATTESTATION_REQUIRES_REVIEW"],
     source_locator: "json:brand-owner-attestation:caffeine_absent",
+    source_url: "https://manufacturer.example/products/pre-workout",
+    source_file_sha256: "a".repeat(64),
+    source_archive_uri: "supabase-storage://nutrition-sources/test-only/pre-workout/source.html",
     ...overrides,
   };
 }
@@ -268,4 +271,73 @@ test("applied facts fail closed on drift and malformed ingredient forms", () => 
   assert.equal(resolveAppliedPreWorkoutFacts("38", "726", applied, [candidate]).facts.length, 1);
   assert.equal(resolveAppliedPreWorkoutFacts("38", "726", { citrulline: { ...applied.citrulline, amount_per_serving_mg: 4000 } }, [candidate]).facts.length, 0);
   assert.equal(resolveAppliedPreWorkoutFacts("38", "726", applied, [{ ...candidate, ingredient_form: "unknown_form" }]).facts.length, 0);
+});
+
+test("applied citrulline components require one exact reviewed mixture context", () => {
+  const serving = "1 slightly heaped scoop (approximately 17 g)";
+  const candidate = (overrides) => reviewedCandidate({
+    product_id: "1250",
+    product_variant_id: "3672",
+    proposed_field: "citrulline_component_per_serving_mg",
+    proposed_value: 2500,
+    proposed_unit: "mg",
+    approved_value: 2500,
+    information_state: "present_with_amount",
+    source_quantity_value: 2.5,
+    source_quantity_unit: "g",
+    quantity_basis: "per_serving",
+    serving_basis_value: 17,
+    serving_basis_unit: "g",
+    serving_basis_text: serving,
+    ingredient_form: "citrulline_malate",
+    ingredient_ratio: null,
+    warning_flags: [],
+    source_locator: "image:active-ingredients",
+    source_url: "https://www.bulk.com/uk/products/dope-pre-workout/bble-dope",
+    source_file_sha256: "b".repeat(64),
+    source_archive_uri: "supabase-storage://nutrition-sources/test-only/bulk/dope.html",
+    ...overrides,
+  });
+  const candidates = [
+    candidate({}),
+    candidate({
+      proposed_value: 500,
+      approved_value: 500,
+      source_quantity_value: 500,
+      source_quantity_unit: "mg",
+      ingredient_form: "l_citrulline",
+    }),
+  ];
+  const components = candidates.map((row) => ({
+    information_state: "present_with_amount",
+    amount_per_serving_mg: Number(row.approved_value),
+    source_quantity_value: Number(row.source_quantity_value),
+    source_quantity_unit: row.source_quantity_unit,
+    quantity_basis: "per_serving",
+    serving_basis_text: row.serving_basis_text,
+    serving_basis_value: 17,
+    serving_basis_unit: "g",
+    ingredient_form: row.ingredient_form,
+  }));
+  const result = resolveAppliedPreWorkoutFacts("1250", "3672", {
+    serving_size_g: 17,
+    citrulline_components: components,
+  }, candidates);
+  assert.deepEqual(result.facts.map((fact) => [fact.key, fact.ingredientForm, fact.amountPerServingMg]), [
+    ["citrulline_component", "citrulline_malate", 2500],
+    ["citrulline_component", "l_citrulline", 500],
+  ]);
+  assert.equal(result.facts.every((fact) => fact.servingBasisText === serving), true);
+  assert.equal(JSON.stringify(result).includes("supabase-storage"), false);
+
+  assert.equal(resolveAppliedPreWorkoutFacts("1250", "3672", {
+    citrulline_components: components,
+  }, [candidates[0], { ...candidates[1], serving_basis_text: "1 scoop (18 g)" }]).facts.length, 0);
+  assert.equal(resolveAppliedPreWorkoutFacts("1250", "3672", {
+    citrulline_components: components,
+  }, [candidates[0], { ...candidates[1], source_file_sha256: "c".repeat(64) }]).facts.length, 0);
+  assert.equal(resolveAppliedPreWorkoutFacts("1250", "3672", {
+    citrulline: components[0],
+    citrulline_components: components,
+  }, candidates).facts.length, 0);
 });

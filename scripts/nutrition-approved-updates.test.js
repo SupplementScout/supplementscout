@@ -225,6 +225,112 @@ test("structured planner preserves amount, original unit, serving and citrulline
   });
 });
 
+function citrullineComponents() {
+  return [
+    structuredCandidate({
+      id: "11",
+      candidate_fingerprint: "1".repeat(64),
+      proposed_field: "citrulline_component_per_serving_mg",
+      proposed_value: 2500,
+      approved_value: 2500,
+      source_quantity_value: 2.5,
+      source_quantity_unit: "g",
+      serving_basis_value: 17,
+      serving_basis_text: "1 slightly heaped scoop (approximately 17 g)",
+      ingredient_form: "citrulline_malate",
+    }),
+    structuredCandidate({
+      id: "12",
+      candidate_fingerprint: "2".repeat(64),
+      proposed_field: "citrulline_component_per_serving_mg",
+      proposed_value: 500,
+      approved_value: 500,
+      source_quantity_value: 500,
+      source_quantity_unit: "mg",
+      serving_basis_value: 17,
+      serving_basis_text: "1 slightly heaped scoop (approximately 17 g)",
+      ingredient_form: "l_citrulline",
+    }),
+  ];
+}
+
+test("planner groups two declared citrulline components without summing and preserves other facts", () => {
+  const existing = {
+    serving_size_g: 17,
+    caffeine: { information_state: "present_with_amount", amount_per_serving_mg: 200 },
+  };
+  const input = pumpInputs(existing);
+  const components = citrullineComponents();
+  const plan = buildApprovedPlan(components, input.products, runId,
+    "2026-09-13T12:00:00.000Z", input.variants);
+  assert.equal(plan.status, "READY_FOR_EXPLICIT_APPLY");
+  assert.deepEqual(plan.variant_updates[0].after_nutrition_override.caffeine, existing.caffeine);
+  assert.deepEqual(plan.variant_updates[0].changes.citrulline_components.after, [
+    {
+      information_state: "present_with_amount",
+      amount_per_serving_mg: 2500,
+      source_quantity_value: 2.5,
+      source_quantity_unit: "g",
+      quantity_basis: "per_serving",
+      serving_basis_text: "1 slightly heaped scoop (approximately 17 g)",
+      serving_basis_value: 17,
+      serving_basis_unit: "g",
+      ingredient_form: "citrulline_malate",
+    },
+    {
+      information_state: "present_with_amount",
+      amount_per_serving_mg: 500,
+      source_quantity_value: 500,
+      source_quantity_unit: "mg",
+      quantity_basis: "per_serving",
+      serving_basis_text: "1 slightly heaped scoop (approximately 17 g)",
+      serving_basis_value: 17,
+      serving_basis_unit: "g",
+      ingredient_form: "l_citrulline",
+    },
+  ]);
+  assert.equal(plan.variant_updates[0].changes.citrulline_components.after.some(
+    (component) => component.amount_per_serving_mg === 3000
+  ), false);
+  assert.equal(validatePlan(plan), plan);
+  assert.doesNotThrow(() => apply.verifyCandidates(plan, components));
+  assert.throws(() => apply.verifyCandidates(plan, [
+    { ...components[0], source_file_sha256: "c".repeat(64) },
+    components[1],
+  ]), /changed after plan generation/);
+  assert.throws(() => apply.verifyCandidates(plan, [
+    components[0],
+    { ...components[1], status: "pending" },
+  ]), /changed after plan generation/);
+});
+
+test("planner blocks incomplete, duplicate, mixed-context and singular-plus-component citrulline", () => {
+  const input = pumpInputs({ serving_size_g: 17 });
+  const components = citrullineComponents();
+  const cases = [
+    [[components[0]], "CITRULLINE_COMPONENT_SET_REQUIRES_MULTIPLE_COMPONENTS"],
+    [[components[0], { ...components[1], ingredient_form: "citrulline_malate" }], "DUPLICATE_CITRULLINE_COMPONENT"],
+    [[components[0], { ...components[1], serving_basis_text: "1 scoop (18 g)", serving_basis_value: 18 }], "CITRULLINE_COMPONENT_CONTEXT_MISMATCH"],
+    [[components[0], { ...components[1], source_file_sha256: "c".repeat(64) }], "CITRULLINE_COMPONENT_CONTEXT_MISMATCH"],
+  ];
+  for (const [rows, code] of cases) {
+    const plan = buildApprovedPlan(rows, input.products, runId,
+      "2026-09-13T12:00:00.000Z", input.variants);
+    assert.equal(plan.status, "BLOCKED");
+    assert.ok(plan.blockers.some((blocker) => blocker.code === code));
+  }
+
+  const singular = pumpInputs({
+    serving_size_g: 17,
+    citrulline: { information_state: "present_with_amount", amount_per_serving_mg: 3000 },
+  });
+  const coexistence = buildApprovedPlan(components, singular.products, runId,
+    "2026-09-13T12:00:00.000Z", singular.variants);
+  assert.equal(coexistence.status, "BLOCKED");
+  assert.ok(coexistence.blockers.some((blocker) =>
+    blocker.code === "CITRULLINE_SINGLE_AND_COMPONENTS_REQUIRE_REVIEWED_TRANSITION"));
+});
+
 test("structured creatine plan preserves declared-form mass without changing legacy creatine semantics", () => {
   const input = pumpInputs();
   const creatine = structuredCandidate({
@@ -819,4 +925,56 @@ test("controlled apply blocks structured creatine before NUT-03B and preserves d
   assert.equal(fact.amount_subject, "declared_ingredient_form");
   assert.equal(fact.ingredient_form, "creatine_monohydrate");
   assert.equal("creatine_per_serving_g" in JSON.parse(write.values[0]), false);
+});
+
+test("controlled apply blocks citrulline components before their migration and preserves each mass after it", async () => {
+  const existing = { serving_size_g: 17, beta_alanine: { information_state: "no_information" } };
+  const input = pumpInputs(existing);
+  const reviewed = citrullineComponents();
+  const plan = buildApprovedPlan(reviewed, input.products, runId,
+    "2026-09-13T12:00:00.000Z", input.variants);
+  const environment = {
+    SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF: "aftboxmrdgyhizicfsfu",
+    SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL: "redacted",
+  };
+  const clientFor = (matchingConstraints) => ({
+    queries: [],
+    async query(sql, values) {
+      const compact = String(sql).replace(/\s+/g, " ").trim();
+      this.queries.push({ sql: compact, values });
+      if (compact.startsWith("select current_user")) return { rows: [{ current_user: "postgres", safe_update: null }] };
+      if (compact.includes("retailer_catalogue_actual_database_target")) return { rows: [{ target: { target_environment: "PRODUCTION", project_ref: "aftboxmrdgyhizicfsfu", database_identity: "supplementscout-production:aftboxmrdgyhizicfsfu" } }] };
+      if (compact.includes("from information_schema.columns")) return { rows: [
+        "product_variant_id", "source_archive_uri", "information_state", "source_quantity_value",
+        "source_quantity_unit", "quantity_basis", "serving_basis_value", "serving_basis_unit",
+        "serving_basis_text", "ingredient_form", "ingredient_ratio",
+      ].map((column_name) => ({ column_name })) };
+      if (compact.includes("from pg_constraint")) return { rows: [{ matching_constraints: matchingConstraints }] };
+      if (compact.includes("from public.nutrition_candidates")) return { rows: reviewed };
+      if (compact.includes("from public.products")) return { rows: [{ id: "38" }] };
+      if (compact.startsWith("select id,product_id,nutrition_override")) return { rows: [{ id: "726", product_id: "38", nutrition_override: existing }] };
+      if (compact.startsWith("update public.product_variants")) return { rowCount: 1, rows: [{ id: "726" }] };
+      return { rows: [] };
+    },
+  });
+
+  const before = clientFor(0);
+  await assert.rejects(
+    apply.applyTransaction(plan, { client: before, environment }),
+    /Multi-component citrulline migration is required/,
+  );
+  assert.equal(before.queries.some((query) => query.sql.startsWith("update public.product_variants")), false);
+  assert.ok(before.queries.some((query) => query.sql === "rollback"));
+
+  const after = clientFor(3);
+  const result = await apply.applyTransaction(plan, { client: after, environment });
+  assert.deepEqual(result.changed_variants, [{
+    product_id: "38", product_variant_id: "726", fields: ["citrulline_components"],
+  }]);
+  const write = after.queries.find((query) => query.sql.startsWith("update public.product_variants"));
+  const written = JSON.parse(write.values[0]);
+  assert.deepEqual(written.beta_alanine, existing.beta_alanine);
+  assert.deepEqual(written.citrulline_components.map((component) => [
+    component.ingredient_form, component.amount_per_serving_mg,
+  ]), [["citrulline_malate", 2500], ["l_citrulline", 500]]);
 });

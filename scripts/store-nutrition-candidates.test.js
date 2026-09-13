@@ -4,7 +4,10 @@ const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
 const { buildArtifact, sealCandidate, sha256 } = require("./lib/nutrition-candidates");
-const { CREATINE_CANDIDATE_FIELD } = require("./lib/nutrition-preworkout-facts");
+const {
+  CITRULLINE_COMPONENT_CANDIDATE_FIELD,
+  CREATINE_CANDIDATE_FIELD,
+} = require("./lib/nutrition-preworkout-facts");
 const { parseArgs, runCli, storeRows, validateArtifact } = require("./store-nutrition-candidates");
 
 function artifactFixture(directory) {
@@ -184,6 +187,52 @@ test("structured creatine preserves declared-form mass, explicit serving and all
   }
 });
 
+test("citrulline components preserve separate declared forms and fingerprint changes", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "candidate-store-citrulline-components-"));
+  test.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const artifact = artifactFixture(directory);
+  const malate = structuredCandidate(artifact, {
+    field_name: CITRULLINE_COMPONENT_CANDIDATE_FIELD,
+    value_numeric: 2500,
+    source_quantity_value: 2.5,
+    ingredient_form: "citrulline_malate",
+    serving_basis_value: 17,
+    serving_basis_text: "1 slightly heaped scoop (approximately 17 g)",
+  });
+  const freeForm = structuredCandidate(artifact, {
+    field_name: CITRULLINE_COMPONENT_CANDIDATE_FIELD,
+    value_numeric: 500,
+    source_quantity_value: 500,
+    source_quantity_unit: "mg",
+    ingredient_form: "l_citrulline",
+    serving_basis_value: 17,
+    serving_basis_text: "1 slightly heaped scoop (approximately 17 g)",
+  });
+  artifact.candidates = [malate, freeForm];
+  const rows = validateArtifact(artifact);
+  assert.deepEqual(rows.map((row) => [row.proposed_value, row.ingredient_form]), [
+    [2500, "citrulline_malate"],
+    [500, "l_citrulline"],
+  ]);
+  assert.notEqual(malate.candidate_fingerprint, freeForm.candidate_fingerprint);
+  assert.notEqual(malate.candidate_fingerprint, structuredCandidate(artifact, {
+    field_name: CITRULLINE_COMPONENT_CANDIDATE_FIELD,
+    value_numeric: 2500,
+    source_quantity_value: 2.5,
+    ingredient_form: "citrulline_malate",
+    serving_basis_value: 17,
+    serving_basis_text: "approximately 17 g",
+  }).candidate_fingerprint);
+  assert.notEqual(malate.candidate_fingerprint, structuredCandidate(artifact, {
+    field_name: CITRULLINE_COMPONENT_CANDIDATE_FIELD,
+    value_numeric: 2500,
+    source_quantity_value: 2.5,
+    ingredient_form: "l_citrulline",
+    serving_basis_value: 17,
+    serving_basis_text: "1 slightly heaped scoop (approximately 17 g)",
+  }).candidate_fingerprint);
+});
+
 test("structured candidate validation rejects per-100g, guessed or contradictory combinations", () => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "candidate-store-invalid-facts-"));
   test.after(() => fs.rmSync(directory, { recursive: true, force: true }));
@@ -195,6 +244,12 @@ test("structured candidate validation rejects per-100g, guessed or contradictory
     { field_name: CREATINE_CANDIDATE_FIELD, ingredient_form: null },
     { field_name: CREATINE_CANDIDATE_FIELD, ingredient_form: "monohydrate" },
     { field_name: CREATINE_CANDIDATE_FIELD, ingredient_form: "creatine_monohydrate", ingredient_ratio: "1:1" },
+    {
+      field_name: CITRULLINE_COMPONENT_CANDIDATE_FIELD,
+      information_state: "no_information", value_numeric: null, unit: null, basis: null,
+      source_quantity_value: null, source_quantity_unit: null, serving_basis_value: null,
+      serving_basis_unit: null, serving_basis_text: null, ingredient_form: null,
+    },
     { information_state: "confirmed_absent", value_numeric: 0, unit: "mg" },
   ]) {
     const artifact = artifactFixture(directory);
@@ -317,5 +372,22 @@ test("structured creatine storage reports the exact missing NUT-03B migration", 
     source_archive_uri: "supabase-storage://nutrition-sources/test.jpg",
     information_state: "present_with_amount",
   }], { supabase }), /NUT-03B structured creatine migration is required/);
+  assert.equal(writes, 1);
+});
+
+test("citrulline component storage reports the exact missing forward migration", async () => {
+  const missing = {
+    code: "23514",
+    message: 'new row violates check constraint "nutrition_candidates_proposed_field_check"',
+  };
+  let writes = 0;
+  const supabase = { from() { return { async upsert() { writes += 1; return { error: missing }; } }; } };
+  await assert.rejects(storeRows([{
+    candidate_fingerprint: "d".repeat(64),
+    proposed_field: CITRULLINE_COMPONENT_CANDIDATE_FIELD,
+    product_variant_id: "726",
+    source_archive_uri: "supabase-storage://nutrition-sources/test.jpg",
+    information_state: "present_with_amount",
+  }], { supabase }), /Multi-component citrulline candidate migration is required/);
   assert.equal(writes, 1);
 });
