@@ -1,0 +1,391 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-expansion-batch-04-preparation-v1",
+  "status": "READY_FOR_SINGLE_OWNER_DECISION_WITH_EXPLICIT_GAPS",
+  "generated_at": "2026-09-13T06:15:27.939Z",
+  "target_environment_read": "PRODUCTION",
+  "production_project_ref": "aftboxmrdgyhizicfsfu",
+  "authorization_boundary": {
+    "preparation_only": true,
+    "source_collection_and_private_archive": true,
+    "candidate_store": false,
+    "review": false,
+    "plan": false,
+    "apply": false,
+    "production_database_writes": 0
+  },
+  "baseline": {
+    "catalogue_read_at": "2026-09-13T06:01:43.244Z",
+    "preflight_read_at": "2026-09-13T06:11:39.543Z",
+    "active_preworkout_products": 141,
+    "active_preworkout_variants": 575,
+    "exact_applied_variants": 49,
+    "exact_applied_variant_ids": [
+      "726",
+      "727",
+      "728",
+      "760",
+      "761",
+      "762",
+      "763",
+      "815",
+      "816",
+      "1016",
+      "1047",
+      "1323",
+      "1324",
+      "1325",
+      "1326",
+      "1327",
+      "1328",
+      "1329",
+      "1330",
+      "1332",
+      "1333",
+      "1383",
+      "1384",
+      "1385",
+      "1386",
+      "1387",
+      "1388",
+      "1389",
+      "1390",
+      "1391",
+      "1392",
+      "1393",
+      "1394",
+      "1395",
+      "1663",
+      "1664",
+      "1665",
+      "1666",
+      "1667",
+      "1668",
+      "1669",
+      "1670",
+      "1671",
+      "1676",
+      "1864",
+      "1865",
+      "1866",
+      "2019",
+      "3603"
+    ],
+    "excluded_from_batch": true,
+    "known_blocked_rechecks": 0,
+    "production_preflight": {
+      "assessed_bindings": 6,
+      "existing_candidates": 0,
+      "nonempty_overrides": [],
+      "database_writes": 0
+    }
+  },
+  "closed_scope": {
+    "organizational_limit": 50,
+    "assessed_variants": 6,
+    "ready_variants": 6,
+    "variants_with_all_four_tracked_ingredients_resolved_without_no_information_or_conflict": 2,
+    "variants_with_explicit_no_information": 4,
+    "candidate_facts": 30,
+    "unique_candidate_fingerprints": 30,
+    "unique_formula_tables": 2,
+    "variants_supported_by_unique_formula_tables": 6,
+    "product_families": 2,
+    "brands": 2
+  },
+  "source_review": {
+    "official_page_rule": "wspólna tabela producenta dla wariantów produktu",
+    "collector": {
+      "source_urls": 2,
+      "technical_batches": 1,
+      "network_requests": 2,
+      "maximum_urls_per_batch": 10,
+      "result": "PASS"
+    },
+    "access": {
+      "nutrend": {
+        "robots": "PUBLIC_PRODUCT_PATH_NOT_DISALLOWED",
+        "terms_url": "https://www.nutrend.eu/terms-of-use",
+        "terms_result": "SALES_TERMS; NO_PRODUCT_PAGE_COLLECTION_PROHIBITION_FOUND"
+      },
+      "phd": {
+        "robots": "PUBLIC_PRODUCT_PATH_NOT_DISALLOWED",
+        "terms_url": "https://www.phd.com/eu/terms-and-conditions",
+        "terms_result": "PURCHASE_AND_SUBSCRIPTION_TERMS; NO_PRODUCT_PAGE_COLLECTION_PROHIBITION_FOUND"
+      },
+      "manufacturer_permission_claimed": false
+    },
+    "manufacturer_permission_claimed": false
+  },
+  "archive": {
+    "bucket": "nutrition-sources",
+    "bucket_public": false,
+    "duplicate_precheck": "NO_DUPLICATES",
+    "objects_checked_before_upload": 22,
+    "uploaded_objects": 3,
+    "readback": "FRESH_PROCESS_READBACK_PASS",
+    "readback_objects": [
+      {
+        "object_path": "snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html",
+        "sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "bytes": 1094635,
+        "result": "PASS"
+      },
+      {
+        "object_path": "snapshots/nut-03/catalog-expansion-batch-04/phd-nutrition/1248/5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af/02-p1248-phd-charge-pre-workout-powder-300g-4ae4da0193e4.html",
+        "sha256": "5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af",
+        "bytes": 284766,
+        "result": "PASS"
+      },
+      {
+        "object_path": "manifests/nut-03/catalog-expansion-batch-04/0f7c0d6277b1cb0b399c54a259f51c28220f3cd82f19f738f50823d8aac9e813/source-context-manifest.json",
+        "sha256": "0f7c0d6277b1cb0b399c54a259f51c28220f3cd82f19f738f50823d8aac9e813",
+        "bytes": 6395,
+        "result": "PASS"
+      }
+    ],
+    "storage_is_backup_claimed": false,
+    "database_writes": 0
+  },
+  "source_context_manifest": {
+    "path": "tmp/nutrition-catalog-batch-04-2026-09-13/source-context-manifest.json",
+    "sha256": "0f7c0d6277b1cb0b399c54a259f51c28220f3cd82f19f738f50823d8aac9e813",
+    "archive_uri": "supabase-storage://nutrition-sources/manifests/nut-03/catalog-expansion-batch-04/0f7c0d6277b1cb0b399c54a259f51c28220f3cd82f19f738f50823d8aac9e813/source-context-manifest.json",
+    "object_path": "manifests/nut-03/catalog-expansion-batch-04/0f7c0d6277b1cb0b399c54a259f51c28220f3cd82f19f738f50823d8aac9e813/source-context-manifest.json"
+  },
+  "ready_groups": [
+    {
+      "product_id": "528",
+      "product_name": "Nutrend  Pump Pre-Workout",
+      "formula_key": "nutrend-pump-225g-eu-15g",
+      "market": "EU",
+      "variants": [
+        {
+          "product_variant_id": "976",
+          "name": "Berry Splash / 225g"
+        },
+        {
+          "product_variant_id": "977",
+          "name": "Tropical Blend / 225g"
+        },
+        {
+          "product_variant_id": "1847",
+          "name": "Rainbow / 225g"
+        },
+        {
+          "product_variant_id": "1848",
+          "name": "Bubble Gum / 225g"
+        }
+      ],
+      "proposed_facts": {
+        "serving_size_g": {
+          "value": 15,
+          "source": "15 g",
+          "serving_basis": "1/2 scoop (15 g)"
+        },
+        "caffeine_per_serving_mg": {
+          "information_state": "confirmed_absent",
+          "value": null,
+          "source": "Pre-workout without caffeine"
+        },
+        "beta_alanine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value": 3000,
+          "source": "3 000 mg"
+        },
+        "citrulline_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value": 5000,
+          "source": "5 000 mg",
+          "form": "citrulline_malate",
+          "ratio": null
+        },
+        "creatine_declared_form_per_serving_mg": {
+          "information_state": "no_information",
+          "value": null,
+          "form": null,
+          "reason": "Omission is not confirmed absence."
+        }
+      },
+      "source": {
+        "official_url": "https://www.nutrend.eu/product/pump-798/225-g-rainbow",
+        "basis": "wspólna tabela producenta dla wariantów produktu",
+        "snapshot_sha256": "b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6",
+        "snapshot_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/nutrend/528/b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6/01-p528-nutrend-pump-pre-workout-225g-39294bbe0ebf.html"
+      },
+      "evidence": [
+        "Title and description: Pre-workout without caffeine.",
+        "Each listed flavour table uses the 15 g column and declares L-citrulline malate 5 000 mg and Beta-alanine 3 000 mg.",
+        "Directions: Mix a dose of 15 g (1/2 scoop) with 250 ml of water.",
+        "Creatine is not disclosed; omission remains no_information."
+      ]
+    },
+    {
+      "product_id": "1248",
+      "product_name": "PhD Charge Pre-Workout Powder 300g",
+      "formula_key": "phd-charge-powder-300g-gb-15g",
+      "market": "GB",
+      "variants": [
+        {
+          "product_variant_id": "3670",
+          "name": "Blue Gummy Bear"
+        },
+        {
+          "product_variant_id": "3716",
+          "name": "Sherbet Lemon / 300g"
+        }
+      ],
+      "proposed_facts": {
+        "serving_size_g": {
+          "value": 15,
+          "source": "15g",
+          "serving_basis": "1 scoop (15 g)"
+        },
+        "caffeine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value": 200,
+          "source": "200mg"
+        },
+        "beta_alanine_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value": 2000,
+          "source": "2000mg"
+        },
+        "citrulline_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value": 1000,
+          "source": "1000mg",
+          "form": "citrulline_malate",
+          "ratio": "2:1"
+        },
+        "creatine_declared_form_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value": 3000,
+          "source": "3000mg",
+          "form": "creatine_monohydrate"
+        }
+      },
+      "source": {
+        "official_url": "https://www.phd.com/charge-powder-300g",
+        "basis": "wspólna tabela producenta dla wariantów produktu",
+        "snapshot_sha256": "5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af",
+        "snapshot_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-04/phd-nutrition/1248/5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af/02-p1248-phd-charge-pre-workout-powder-300g-4ae4da0193e4.html"
+      },
+      "evidence": [
+        "Directions: Add 1 scoop (15g) to 150ml of ice-cold water.",
+        "Blue Gummy Bear and Sherbert Lemon tables each declare per 15g: Creatine Monohydrate 3000mg, Beta Alanine 2000mg, L-Citrulline DL-Malate 1000mg and Caffeine 200mg.",
+        "The ingredients for both flavours declare L-Citrulline DL-Malate 2:1.",
+        "Catalogue spelling Sherbet Lemon maps to manufacturer spelling Sherbert Lemon on the exact 300 g product page."
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "product_id": "528",
+      "path": "tmp/nutrition-catalog-batch-04-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-04-528-20260913.json",
+      "sha256": "add367babe690803875598093ad53b884dc986739271341ba1f6484a6d94bba4",
+      "artifact_fingerprint": "9738c30835ecab8a2289a36e6c1d2e8fe5538bd23e47ed31ebac0ccdccb74eff",
+      "variants": 4,
+      "candidates": 20,
+      "unique_candidate_fingerprints": 20,
+      "candidate_fingerprints": [
+        "523a1c246703c5787749022cbf9b494931c6136db15d9ab2ca997151765877a6",
+        "d375a8c28df11939a33624e767b18dde6adc24b460aa3de822df190e2eed8222",
+        "31b180588661031281f14b06b6995f72cab2cd8ead2d0da13726b87c7f73db90",
+        "6cc3c3c0fbc432bf82d93c1c5379aa041ba88666f7706bd0fdffdfe8c6b62e30",
+        "73e78b044efafa43a44f582ba604f9ab6702a26a3a745b545ebd1970dad5ff79",
+        "640b5cec6d9b0ce8dd46b5c5e4beabefc8c902eb0fdcc999b39bb82949a7ad07",
+        "534026450d6e15f0e5af1509ffe910526c26dc0b4d798f76be68ab5e1d428744",
+        "c3df568d2f3bedbb5066c9b1f4343678328b9dc8995630a4261b9db61c18fb59",
+        "599bc016ec3e965080e24d5cc98f9fdb02edf6f14026bad4d083ab620434f1e7",
+        "676d627bb6d3d2a002472362472338f2e160e7df27fd2eb927f44ebc3b5e6009",
+        "0c9155a2eeae24c44d115f92619001225475ec91c8cd425405ff5e0ffcc59852",
+        "cc24f0ef30066e13d6d02d1f7a9f93303249004576519f3f1fb32d091a43266d",
+        "7147301b256ac9735c8a74e7748b1843736b201ecf61872bb0d0aa40628dd458",
+        "7f8f6c74e0eff1cfe92787b3fdc2b7b2523c3466a050a1d8c2254c2bdc5dd947",
+        "7cf28f3cd187d6097a7c9c077368da338d09f2cd96d44018433df588946c43ff",
+        "7109e535a9e862eab627c1d85230b3bd2b61c0ef343a4651f5501d8babecce98",
+        "4801077636505f0cb8fe2f2338055a12061e2a905d73083928a191b3052167de",
+        "1d9bcd3ebd4f70151f3737577aa7eda31d71f3a818690b46ca43503494c8b89d",
+        "1e9d83b0637a4b529ad849061631141872b4abff0ef8386c111d611c60c7381b",
+        "bf726256325172ffc75b8100d31342040e08a9feb0461a7c8782c0ab48fc34ba"
+      ],
+      "validation": {
+        "mode": "DRY_RUN_NO_DATABASE",
+        "candidate_rows": 20,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "1248",
+      "path": "tmp/nutrition-catalog-batch-04-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-04-1248-20260913.json",
+      "sha256": "dcd14e7d367840a1f96ac96bbd4fa57d65c0c628fd76686072617f257f7132f1",
+      "artifact_fingerprint": "7f89bf5ecd26a2369a7fcb6c567154d41d0a4cbca4c6603ec50908b634e67351",
+      "variants": 2,
+      "candidates": 10,
+      "unique_candidate_fingerprints": 10,
+      "candidate_fingerprints": [
+        "e704eb69ec7225ca24bcca039ae8cf1e9b06eea46507c2b5ca9c0e00e2d4623b",
+        "064f74790965befcef837275ad9a8f64a60c52f94d936f2b8d9967259238c083",
+        "a6f8e2fba896f0f9d2e7b007847c1ebdd47b43698b29c02b9b6662c7a2c604df",
+        "bff9e6370fcece3ebb99e4bce0ee2026b8ef5a10116270f665269e6927edebf7",
+        "ff22ccd4ba23f6e51edbb499073f6ddc24adc44591bc79ed3a3232247c2eda3c",
+        "01ef36cd1b2219de83b8b8416d981350c6a2f6d8ace929e44ca6e2d85fdc37c4",
+        "72106aa9125bcac5e74b83bf119db25c8d26aaf4dd0464c2a415438ca7e7dd9d",
+        "308d6de51b488bb46697158d61094e9e5bc634df2d0787cbec18ac5ea6edfbb4",
+        "881277b835368bec8ee7f7fc6d7191dfece536692f759b133aa49070d0194f41",
+        "644b5e3f9894fe9dbf41ef0da3b87e576321c5aa7518b3948995e803140ece65"
+      ],
+      "validation": {
+        "mode": "DRY_RUN_NO_DATABASE",
+        "candidate_rows": 10,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    }
+  ],
+  "deferred_after_short_recognition": [
+    {
+      "family": "Ghost",
+      "reason": "OFFICIAL_TERMS_REQUIRE_PERMISSION_FOR_COPYING_OR_ROBOT_ACCESS"
+    },
+    {
+      "family": "Animal",
+      "reason": "OFFICIAL_TERMS_PROHIBIT COMMERCIAL SCRAPING_OR_COPYING"
+    },
+    {
+      "family": "NXT Nutrition",
+      "reason": "TERMS_LIMIT_COPYING_TO_PERSONAL_NONCOMMERCIAL_LOCAL_USE"
+    },
+    {
+      "family": "CNP",
+      "reason": "TERMS_PROHIBIT_REPRODUCTION_AND_COMMERCIAL_USE"
+    },
+    {
+      "family": "Time 4 Nutrition",
+      "reason": "TERMS_PROHIBIT_REPRODUCTION"
+    },
+    {
+      "family": "BioTechUSA Black Blood",
+      "reason": "CURRENT_OFFICIAL_330G_PAGES_CONFLICT_ON_SERVING_AND_FORMULA"
+    },
+    {
+      "family": "Redcon1 Total War",
+      "reason": "CURRENT_OFFICIAL_FORMULA_DOES_NOT_BIND_TO_CATALOGUE_400G_VERSION"
+    },
+    {
+      "family": "Bulk",
+      "reason": "CURRENT_TABLE_MIXES_CITRULLINE_FORMS_NOT_REPRESENTABLE_BY_EXISTING_SINGLE_FORM_FIELD"
+    }
+  ],
+  "retained_blocks_not_rechecked": [
+    "16 remaining frozen-pilot variants without new evidence",
+    "28 PER4M exact variants awaiting permission or new evidence",
+    "product 215 variants 1672-1675 with formula-version gap",
+    "Strom variant 1331 and nine Warrior variants with recorded source gaps",
+    "all other GYM HIGH products remain owner_deferred"
+  ],
+  "why_scope_stopped_at_six": "After the two qualifying families, shortlisted families were excluded by explicit source-use restrictions, unresolved package/formula identity, serving conflicts, or an ingredient-form combination the existing schema cannot represent faithfully. The evidence bar and current data model were not weakened to fill the 50-variant ceiling.",
+  "next_step": "One owner decision on controlled store -> authenticated review -> exact-ID plans -> guarded apply for exactly the unchanged 30 candidates across variants 976, 977, 1847, 1848, 3670 and 3716. No deferred family is included."
+}

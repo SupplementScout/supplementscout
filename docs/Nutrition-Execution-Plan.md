@@ -39,6 +39,11 @@
   updates. Independent and replay readbacks passed, as did all ten public exact-
   variant pages. Variant `1331` and nine Warrior variants retain their recorded
   source/collector gaps. The distinct applied total is now 49.
+- Catalogue expansion batch 04 preparation is `READY FOR OWNER DECISION` for six
+  exact variants and 30 pending candidates across products `528` and `1248`.
+  Two archived official formula tables support all six variants. Four Nutrend
+  variants retain creatine as `no_information`; two PhD variants have all four
+  tracked ingredient states resolved. No candidate or catalogue database write ran.
 - The exact GYM HIGH demonstration exception for product `411` / variant `1047`
   is also `LIVE VERIFIED`: candidates `701`-`705` were stored, reviewed and
   applied through the existing guarded path. Its bounded exception now also
@@ -2399,3 +2404,78 @@ ready subset:
   One next step is the next independent catalogue-family preparation package
   using new qualifying evidence; retained blocks are not re-audited without a
   new premise.
+
+## NUT-03 catalogue expansion batch 04 preparation
+
+13 September 2026, preparation of the next closed catalogue package under the
+50-exact-variant organizational ceiling:
+
+- A fresh forced-read-only production catalogue snapshot found 141 active,
+  unmerged Pre Workout products, 575 active variants and exactly 49 distinct
+  variants with a non-empty `nutrition_override`. All 49 were excluded. A second
+  read-only production preflight confirmed six exact active non-default bindings,
+  zero existing candidates for them and `{}` for every target override: product
+  `528` variants `976`, `977`, `1847`, `1848`, and product `1248` variants `3670`,
+  `3716`.
+- The official Nutrend Pump 225 g page presents Berry Splash, Tropical Blend,
+  Rainbow and Bubble Gum in the same product context, with a flavour table for
+  each. Every 15 g column declares L-citrulline malate 5000 mg and beta-alanine
+  3000 mg; directions define 15 g as one-half scoop. The product is explicitly
+  described as without caffeine, so caffeine is `confirmed_absent`. Creatine is
+  omitted and remains `no_information`, not confirmed absence.
+- The official PhD Charge 300 g page presents Blue Gummy Bear and manufacturer-
+  spelled Sherbert Lemon in the same GB product context. Both flavour tables
+  declare per 15 g: caffeine 200 mg, beta-alanine 2000 mg, L-citrulline
+  DL-malate 1000 mg and creatine monohydrate 3000 mg. Directions define the
+  serving as one scoop / 15 g, and both ingredient lists declare the malate ratio
+  as 2:1. Catalogue spelling `Sherbet Lemon` is retained as the same exact
+  variant binding; no pure-citrulline or pure-creatine conversion is made.
+- The existing collector fetched only the two explicit official product URLs in
+  one technical batch, below its ten-URL limit. Reviewed robots rules did not
+  disallow the public product paths. Nutrend's linked terms govern sales, and
+  PhD's linked terms govern purchases and subscriptions; neither reviewed page
+  states a product-page collection prohibition. This is an access result, not a
+  claim of manufacturer permission.
+- A private-bucket duplicate precheck found no intended path or matching hash.
+  The two official HTML snapshots and one context manifest were stored once in
+  private bucket `nutrition-sources`, with overwrite disabled. A fresh-process
+  readback reproduced all three hashes: Nutrend
+  `b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6`,
+  PhD `5dcfa29066ca5a269eacafcb22c6510ec284ce362c9170cdccbaad6bdaaca4af`
+  and context
+  `0f7c0d6277b1cb0b399c54a259f51c28220f3cd82f19f738f50823d8aac9e813`.
+  Private source retention is not represented as a backup.
+- The ignored product `528` artifact contains 20 pending candidates and has
+  SHA-256
+  `add367babe690803875598093ad53b884dc986739271341ba1f6484a6d94bba4`
+  with artifact fingerprint
+  `9738c30835ecab8a2289a36e6c1d2e8fe5538bd23e47ed31ebac0ccdccb74eff`.
+  The ignored product `1248` artifact contains ten pending candidates and has
+  SHA-256
+  `dcd14e7d367840a1f96ac96bbd4fa57d65c0c628fd76686072617f257f7132f1`
+  with artifact fingerprint
+  `7f89bf5ecd26a2369a7fcb6c567154d41d0a4cbca4c6603ec50908b634e67351`.
+  All 30 candidate fingerprints are unique. Both existing
+  `nutrition:candidates:store --dry-run` runs returned `DRY_RUN_NO_DATABASE`,
+  respectively 20 and ten rows, zero product updates and zero database writes.
+- Six variants were assessed and are ready for a decision; two PhD variants have
+  caffeine, beta-alanine, citrulline and creatine fully resolved without
+  `no_information` or conflict. The four Nutrend variants are still valid
+  packages with an explicit creatine `no_information` state. Two unique formula
+  tables support the six variants and produce 30 candidates.
+- The scope stopped at six after a short recognition pass. Further shortlisted
+  families had explicit source-use restrictions, unresolved package or formula
+  identity, conflicting serving evidence, or mixed citrulline forms that the
+  existing single-form field cannot represent faithfully. Known frozen-pilot,
+  PER4M, Applied, Strom/Warrior and GYM HIGH blocks were not reopened without new
+  evidence. The evidence bar and current model were not weakened to fill the
+  organizational ceiling.
+- The machine-readable owner package is
+  [nutrition-catalog-expansion-batch-04-preparation-2026-09-13.json](rollouts/nutrition-catalog-expansion-batch-04-preparation-2026-09-13.json),
+  SHA-256
+  `340428ab2732124d44c677ffdc6c596fa1907361850ab3250224f32e0baa8860`.
+  One next step is one owner decision on controlled store -> authenticated review
+  -> exact-ID plans -> guarded apply for exactly these unchanged 30 candidates
+  across variants `976`, `977`, `1847`, `1848`, `3670` and `3716`. No production
+  candidate store, review, plan, apply or catalogue write ran. NUT-03 remains
+  `IN PROGRESS` and the distinct applied total remains 49.
