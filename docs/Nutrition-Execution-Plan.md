@@ -53,27 +53,26 @@
   public exact-variant pages and the caffeine-free grouping check. Every target
   retains its recorded unsupported fields rather than fabricated candidates.
   The distinct applied total is now 67.
-- Catalogue expansion batch 06 is prepared as one closed read-only package of
-  50 current-offer variants after excluding all 67 applied variants. Product
-  `1283` / variant `3763` is ready with three supported candidates from one
-  archived Apex Formulas table: serving 25 g, caffeine `confirmed_absent` and
-  6000 mg free-form L-citrulline. Beta-alanine and creatine remain unresolved,
-  so this is a partial variant package. The other 49 variants retain exact
-  access or current-version applicability blockers; known blocks were not
-  reopened merely to fill the organizational cap.
+- Catalogue expansion batch 06 is `LIVE VERIFIED` for the one supported partial
+  variant in its closed 50-variant scope. Candidates `1016`-`1018` were stored
+  and approved through authenticated review. One zero-blocker, zero-product-
+  update plan applied serving 25 g, caffeine `confirmed_absent` and 6000 mg
+  free-form L-citrulline only to product `1283` / variant `3763`. Independent
+  readback, stale-plan replay protection, its exact public page and the grouped
+  caffeine-free result all pass. Beta-alanine and creatine remain unresolved;
+  the other 49 scoped variants retain their recorded access or version gaps.
 - The exact GYM HIGH demonstration exception for product `411` / variant `1047`
   is also `LIVE VERIFIED`: candidates `701`-`705` were stored, reviewed and
   applied through the existing guarded path. Its bounded exception now also
   permits NUT-04A to present those applied facts publicly. This remains outside
   the frozen pilot denominator and does not authorize any other GYM HIGH item.
 - Owner/session: Codex, owner-authorized NUT-03 preparation and controlled
-  execution in organizational packages of at most 50 exact variants. Batch 05
-  completed its unchanged 45-candidate store/review/plan/apply path; Batch 06
-  preparation is complete with three pending offline proposals and no candidate
-  or catalogue write. The frozen pilot has 9 complete variants, 2 partial
-  variants (`3676`, `3759`) and 14 with no applied facts. The separately
+  execution in organizational packages of at most 50 exact variants. Batch 06
+  completed its unchanged three-candidate store/review/plan/apply path for one
+  partial exact variant. The frozen pilot has 9 complete variants, 3 partial
+  variants (`3676`, `3759`, `3763`) and 13 with no applied facts. The separately
   completed GYM HIGH demonstration remains outside its denominator, and the
-  distinct applied total remains 67 variants, 13 September 2026.
+  distinct applied total is 68 variants, 13 September 2026.
 - Branch: `main`; the NUT-04A session started at
   `805717043dd2b7121a435954a2441e6182d6304e`; remote `main` matched before work.
 - Production readback at `2026-09-11T12:58:26.063Z`: public `anon` SELECT against
@@ -212,12 +211,13 @@
   production candidates `701`-`705`, approved through the authenticated review
   path and applied only to variant `1047`. Independent readback matches the plan,
   while exact replay fails closed before a second write.
-- One next step: one owner decision on controlled store -> authenticated review
-  -> exact-ID plan -> guarded apply for only Batch 06 product `1283` / variant
-  `3763` and its three unchanged fingerprints. Beta-alanine and creatine stay
-  omitted. Do not reopen recorded access, version or evidence gaps without a new
-  premise. NUT-03 remains `IN PROGRESS`; the applied total is still 67 distinct
-  variants.
+- One next step: separately authorize implementation and isolated testing of the
+  bounded multi-component citrulline extension designed below. It targets only
+  the nine variants whose retained tables disclose separate citrulline-malate
+  and L-citrulline masses. Production migration and candidate execution remain
+  separate decisions. Do not reopen recorded access, version or evidence gaps
+  without a new premise. NUT-03 remains `IN PROGRESS`; 68 distinct variants now
+  have applied facts.
 
 ## Authority and scope
 
@@ -459,8 +459,8 @@ implementation or any nutrition catalogue write.
 | NUT-03-CATALOG-BATCH-03 | `LIVE VERIFIED` | NUT-03 deployed path + preparation and exact owner execution authorization | Prepare one closed package of at most 50 next incomplete exact variants, then carry only its unchanged ready subset through existing store/review/plan/apply controls. | Candidates `891`-`940` each exist once and are approved. Five zero-product-update plans applied the facts only to variants `1323`-`1330`, `1332`, `1333`. Independent readback matched all ten complete `after` objects, and five stale-before replays failed closed. All ten public pages pass; no Batch 03 variant enters the caffeine-free filter. Variant `1331` and nine Warrior variants remain unresolved and untouched. See `docs/rollouts/nutrition-catalog-expansion-batch-03-execution-2026-09-13.json`. |
 | NUT-03-CATALOG-BATCH-04 | `LIVE VERIFIED` | NUT-03 deployed path + preparation and exact owner execution authorization | Carry only the unchanged 30-candidate ready subset through existing controls for product `528` variants `976`, `977`, `1847`, `1848` and product `1248` variants `3670`, `3716`. | Candidates `941`-`970` each exist once and are approved. Two zero-product-update plans applied only six exact overrides. Independent and replay readbacks and all six public pages passed. Two PhD variants resolve all four ingredients; four Nutrend variants retain creatine as `no_information`. See `docs/rollouts/nutrition-catalog-expansion-batch-04-execution-2026-09-13.json`. |
 | NUT-03-CATALOG-BATCH-05 | `LIVE VERIFIED` | NUT-03 deployed path + preparation and exact owner execution authorization | Carry only the unchanged 45 supported candidates for product `1247` variants `3669`, `3714`, `3715`; product `1250` variants `3672`, `3721`, `3722`; product `1254` variants `3676`, `3725`, `3726`; and product `1279` variants `3759`, `3894`, `3895`. | Candidates `971`-`1015` each exist once and are approved. Four zero-blocker, zero-product-update plans changed only the 12 exact overrides. Independent readback matched every complete `after`, and four stale-before replays failed closed. All 12 public pages pass; only the confirmed caffeine-free family qualifies for one grouped filter card. Unsupported facts remain omitted. See `docs/rollouts/nutrition-catalog-expansion-batch-05-execution-2026-09-13.json`. |
-| NUT-03-CATALOG-BATCH-06 | `READY FOR OWNER DECISION` | NUT-03 deployed path + read-only preparation authorization | Assess up to 50 next current-offer exact variants while excluding 67 applied variants and known blocks without new evidence; preserve partial facts and exact serving wording. | The closed 50-variant scope yields one partial ready variant: product `1283` / variant `3763`, with three unique dry-run-valid candidates from one archived Apex Formulas table. Forty-nine variants retain explicit access or version/applicability blockers. No candidate, review, plan, apply or catalogue write ran. See `docs/rollouts/nutrition-catalog-expansion-batch-06-preparation-2026-09-13.json`. |
-| NUT-03 | `IN PROGRESS` | Organizational packages up to 50 exact variants + separate owner write authorization | Review pilot evidence, quantities/units and exact applicability in one owner-decision package while retaining existing technical sub-batch limits; separately approve candidate storage, review, planning and guarded apply. | Pilot progress is 9 complete, 2 partial (`3676`, `3759`) and 14 without applied facts out of 25. Stinger is one separate demonstration. Catalogue Batches 01-05 have applied 59 variants, including the two pilot overlaps; all tracked scopes therefore contain 67 distinct variants with applied facts. NUT-03 and MVP remain open. |
+| NUT-03-CATALOG-BATCH-06 | `LIVE VERIFIED` | NUT-03 deployed path + preparation and exact owner execution authorization | Carry only the unchanged three-candidate supported subset through existing controls for product `1283` / variant `3763`; leave beta-alanine, creatine and the 49 recorded blockers untouched. | Candidates `1016`-`1018` each exist once and are approved. One zero-blocker, zero-product-update plan applied only serving size, caffeine and L-citrulline to exact variant `3763`. Independent readback matched the whole `after`; exact replay failed closed with no second write. The public exact-variant page and caffeine-free filter pass. See `docs/rollouts/nutrition-catalog-expansion-batch-06-execution-2026-09-13.json`. |
+| NUT-03 | `IN PROGRESS` | Organizational packages up to 50 exact variants + separate owner write authorization | Review pilot evidence, quantities/units and exact applicability in one owner-decision package while retaining existing technical sub-batch limits; separately approve candidate storage, review, planning and guarded apply. | Pilot progress is 9 complete, 3 partial (`3676`, `3759`, `3763`) and 13 without applied facts out of 25. Stinger is one separate demonstration. All tracked scopes contain 68 distinct variants with applied facts. The nine-variant multi-component citrulline extension is designed but not implemented. NUT-03 and MVP remain open. |
 | NUT-04A | `LIVE VERIFIED` | Early owner authorization + exact applied facts | Reuse existing product pages and search to present exact-variant applied facts and add a confirmed caffeine-free filter. A fact is public only when an approved candidate for the same product/variant reconstructs the current override exactly. Expose only source kind; never private URI, reviewer metadata or raw archive material. | Commit 58c83cb deployed successfully. Public readback passed for variants 726, 727 and 1047, the exact-variant caffeine-free result, source redaction and the existing pre-workout link. A 390 x 844 browser check found no horizontal overflow; contract tests pass for variant switching, filter reset and pagination. NUT-03 and the frozen pilot remain unchanged. |
 | NUT-04 | `PLANNED` | NUT-03 closure + NUT-04A | Close the presentation/filter stage after the frozen pilot decisions are accounted for; retain NUT-04A's existing product/search mechanisms and evidence threshold. | NUT-04A tests and live variant-switch checks must prove confirmed absence included, caffeine present excluded, missing/conflicting facts never treated as absent. Document the final coverage denominator, limits, evidence and operations. Publish image copies only with established rights; otherwise link to source. MVP closes only here. |
 | NUT-05 | `DEFERRED` | NUT-04 closure | Subsequent bounded batches/categories in the same process | Review extraction yield, review time and missing-source rate before expansion; every batch has a fixed denominator and closure. No expansion of an active batch. |
@@ -2751,8 +2751,8 @@ organizational limit:
 - A fresh production read at `2026-09-13T09:11:54.124Z` confirmed project
   `aftboxmrdgyhizicfsfu`, 575 active pre-workout variants and exactly 67 variants
   with non-empty `nutrition_override`. Those 67 were excluded. The closed scope
-  contains 47 current-offer variants across eight product families. It stops
-  reaches the 50-variant organizational cap; known blocks were not reopened.
+  contains 50 current-offer variants across eight product families and reaches
+  the organizational cap; known blocks were not reopened.
 - One exact variant is ready, partially: Apex Formulas product `1283`, variant
   `3763`, Raspberry Rush 625 g. The official page and retained pack/table images
   bind that flavour and show `Serving Size 1 Scoop (25g)`, free-form
@@ -2793,7 +2793,98 @@ organizational limit:
   [nutrition-catalog-expansion-batch-06-preparation-2026-09-13.json](rollouts/nutrition-catalog-expansion-batch-06-preparation-2026-09-13.json),
   SHA-256
   `da54c4e347975b9f1937786e8a2b3fd5dfbf4a694f2c5f4036c796ae4e5a2080`.
-  One next step is one owner decision on controlled store -> authenticated
-  review -> exact-ID plan -> guarded apply for only the three unchanged
-  fingerprints of product `1283` / variant `3763`. Its two unresolved fields
-  remain excluded; NUT-03 and MVP remain `IN PROGRESS`.
+  The subsequently authorized controlled path is recorded below. Its two
+  unresolved fields remain excluded; NUT-03 and MVP remain `IN PROGRESS`.
+
+## NUT-03 catalogue expansion batch 06 execution
+
+13 September 2026, owner-authorized store, review, plan and apply for exactly
+three candidates of product `1283` / variant `3763`:
+
+- Production preflight on project `aftboxmrdgyhizicfsfu` matched the authorized
+  artifact SHA-256
+  `7def45fbd24c931a25a2ba13afe6e61a37ded013cf74a837a025977bd732ec55`,
+  artifact fingerprint
+  `31e0d7c9ebb7d58bdc4070f0eec408b94c95df8e0b3a07f90c4f2cc12a516d4e`,
+  three unique candidate fingerprints, the exact product/variant relationship,
+  empty target override and zero existing target candidates. Fresh private-
+  archive readback reproduced the hashes of the official HTML, three retained
+  images and context manifest; it made no storage or database write.
+- Guarded store created exactly candidates `1016`-`1018`. Authenticated
+  individual review approved only those rows with `reviewed_by=admin-panel`:
+  serving size 25 g, caffeine `confirmed_absent` with no numeric value, and
+  6000 mg free-form L-citrulline per `Serving Size 1 Scoop (25g)`. Fresh reads
+  preserved their exact variant ID, source URI, source SHA-256, locators and
+  fingerprints. Beta-alanine and creatine were not fabricated.
+- The exact-ID plan is
+  `tmp/nutrition-approved-plan/NCR1-catalog-batch-06-1283-20260913-v2-a027d2cffb54.json`,
+  SHA-256
+  `fa82e56c4ef856df046d68a9e479710425ddb8b3881bf37843d308001a287c1b`,
+  fingerprint
+  `a027d2cffb54efe4fb73103dd55131ffc660a11c6d3f7471b64b25ab7b7210a0`.
+  It has zero blockers, zero product updates and one exact variant update from
+  `{}`. Controlled apply changed only `serving_size_g`, `caffeine` and
+  `citrulline` in variant `3763`'s override.
+- A new connection matched the complete planned `after` object and all three
+  approvals. Whole products, every other variant, target metadata outside the
+  override and the non-target queue retained their preflight digests. Exact plan
+  replay was safely rejected because the before-state was stale; another fresh
+  read proved zero additional writes and the same final state.
+- The exact public page
+  `https://www.supplementscout.co.uk/product/apex-formulas-apex-pump-625g?variant=3763`
+  returns 200 and displays the applied serving, confirmed caffeine absence and
+  L-citrulline while omitting the unresolved beta-alanine and creatine facts.
+  It exposes neither private URI nor reviewer metadata. The current in-stock
+  exact variant qualifies at
+  `https://www.supplementscout.co.uk/search?q=pre%20workout&caffeine=free`,
+  under the existing one-card-per-product grouping.
+- Fresh production reconciliation finds 68 distinct active pre-workout variants
+  with applied facts. The frozen pilot is 9 complete, 3 partial (`3676`, `3759`,
+  `3763`) and 13 without applied facts. Batch 06 is `LIVE VERIFIED`; NUT-03 and
+  MVP remain `IN PROGRESS`.
+- Machine-readable execution and design evidence is
+  [nutrition-catalog-expansion-batch-06-execution-2026-09-13.json](rollouts/nutrition-catalog-expansion-batch-06-execution-2026-09-13.json),
+  SHA-256
+  `462674f21468625f3b73d685f1ffe6a1ec37b58cd771b8bc0e2641a14ebead5e`.
+
+## NUT-03 multi-component citrulline extension design
+
+13 September 2026, design only; no code, migration or candidate/catalogue write:
+
+- The retained Batch 05 tables identify exactly nine affected variants:
+  product `1250`, variants `3672`, `3721`, `3722`; product `1254`, variants
+  `3676`, `3725`, `3726`; and product `1279`, variants `3759`, `3894`, `3895`.
+  Every table declares separate masses for citrulline malate and L-citrulline
+  against one serving. None gives only an aggregate blend mass, and none states
+  a malate ratio. These sources must be reused; no collection rerun is needed.
+- The smallest forward-compatible model adds one allowed candidate field,
+  `citrulline_component_per_serving_mg`, without a new table or column. One
+  candidate represents one declared component and reuses the current exact
+  variant, durable source, hash, source quantity/unit, serving basis, form,
+  optional ratio, fingerprint and approval columns. Component rows require
+  `present_with_amount`; the existing singular citrulline field continues to
+  represent the five information states, including absence, unknown and
+  conflict. New forward-only CHECK changes must remain NULL-safe with `IS TRUE`.
+- Review stays individual. The planner groups approved components for one exact
+  variant into a deterministically ordered `nutrition_override.citrulline_components`
+  array. It must reject duplicate form/ratio entries, different serving bases or
+  source revisions, and an unreviewed mix of singular and plural citrulline. It
+  never sums compound and free-form masses into pure L-citrulline.
+- Apply retains current before-state, exact-variant, evidence, approval and replay
+  guards. Existing singular citrulline facts are neither backfilled nor
+  reinterpreted. A later plan for these nine variants may add only the component
+  array while retaining every current override field.
+- Public presentation reconstructs each component against its own approved,
+  applied candidate and renders separate lines under the shared serving. It
+  continues to hide private URI and reviewer details and remains compatible with
+  current singular citrulline records. No filter change is needed.
+- Completion requires isolated pre/post-migration SQL tests for NULL and partial
+  rows, store/review invalidation tests, deterministic planner conflicts, exact
+  apply and replay tests, public evidence reconstruction and existing singular-
+  fact regression coverage. Required project gates must pass. Production
+  migration and candidate execution for the nine variants each require separate
+  authorization.
+
+One next step is separate authorization to implement and test this bounded
+extension in isolation. Do not migrate production or create the nine variants'
+component candidates in that implementation step.

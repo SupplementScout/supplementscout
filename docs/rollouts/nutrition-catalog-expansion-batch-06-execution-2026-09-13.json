@@ -1,0 +1,228 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-expansion-batch-06-execution",
+  "status": "LIVE_VERIFIED",
+  "recorded_at": "2026-09-13",
+  "target_environment": "PRODUCTION",
+  "project_ref": "aftboxmrdgyhizicfsfu",
+  "scope": {
+    "product_id": "1283",
+    "product_name": "Apex Formulas Apex Pump 625g",
+    "product_variant_id": "3763",
+    "variant_name": "Raspberry Rush",
+    "candidate_count": 3,
+    "product_updates": 0,
+    "variant_updates": 1,
+    "allowed_destination": "product_variants.nutrition_override",
+    "unresolved_fields": [
+      "beta_alanine",
+      "creatine"
+    ]
+  },
+  "preparation": {
+    "report_path": "docs/rollouts/nutrition-catalog-expansion-batch-06-preparation-2026-09-13.json",
+    "report_sha256": "da54c4e347975b9f1937786e8a2b3fd5dfbf4a694f2c5f4036c796ae4e5a2080",
+    "artifact_path": "tmp/nutrition-catalog-batch-06-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-06-1283-20260913-v2.json",
+    "artifact_sha256": "7def45fbd24c931a25a2ba13afe6e61a37ded013cf74a837a025977bd732ec55",
+    "artifact_fingerprint": "31e0d7c9ebb7d58bdc4070f0eec408b94c95df8e0b3a07f90c4f2cc12a516d4e",
+    "context_manifest_path": "tmp/nutrition-catalog-batch-06-2026-09-13/source-context-manifest-v2.json",
+    "context_manifest_sha256": "6af6bbb633c9ca959b736b611f119c691a0fed2b3ccda2c6cb97cd2c8d6fb79a",
+    "source_url": "https://apexformulas.co.uk/products/apex-pump",
+    "source_html_sha256": "0ff89fea8c70b1b7e0be3da45249dc6c6bb818c7e94f6e2bead37108965ab236",
+    "archive_readback": {
+      "result": "READBACK_PASS",
+      "bucket": "nutrition-sources",
+      "private": true,
+      "objects_checked": 5,
+      "hashes_matched": 5,
+      "storage_writes_during_execution_preflight": 0
+    },
+    "dry_run": {
+      "result": "DRY_RUN_NO_DATABASE",
+      "candidate_rows": 3,
+      "product_updates": 0,
+      "database_writes": 0
+    }
+  },
+  "candidates": [
+    {
+      "id": "1016",
+      "field": "serving_size_g",
+      "approved_value": 25,
+      "unit": "g",
+      "information_state": null,
+      "candidate_fingerprint": "85603f39ad13f6b8885b2a81e4402e94ba5577e993d0b6c83b75187679831bb0",
+      "status": "approved"
+    },
+    {
+      "id": "1017",
+      "field": "caffeine_per_serving_mg",
+      "approved_value": null,
+      "unit": null,
+      "information_state": "confirmed_absent",
+      "candidate_fingerprint": "67822f3176f7a72100ee5fbd552502d944e1a1898f66bf046c5f80ce476c3820",
+      "status": "approved"
+    },
+    {
+      "id": "1018",
+      "field": "citrulline_per_serving_mg",
+      "approved_value": 6000,
+      "unit": "mg",
+      "information_state": "present_with_amount",
+      "ingredient_form": "l_citrulline",
+      "source_quantity_value": 6000,
+      "source_quantity_unit": "mg",
+      "serving_basis_text": "Serving Size 1 Scoop (25g)",
+      "serving_basis_value": 25,
+      "serving_basis_unit": "g",
+      "candidate_fingerprint": "25f0cda52f6626637f1a078c6f2262ecad0954111385ff0db9f3d5e355dc4dae",
+      "status": "approved"
+    }
+  ],
+  "review": {
+    "mechanism": "authenticated admin-panel individual review",
+    "reviewed_by": "admin-panel",
+    "approved_candidate_ids": [
+      "1016",
+      "1017",
+      "1018"
+    ],
+    "fresh_readback": "PASS",
+    "evidence_unchanged": true
+  },
+  "plan": {
+    "path": "tmp/nutrition-approved-plan/NCR1-catalog-batch-06-1283-20260913-v2-a027d2cffb54.json",
+    "sha256": "fa82e56c4ef856df046d68a9e479710425ddb8b3881bf37843d308001a287c1b",
+    "fingerprint": "a027d2cffb54efe4fb73103dd55131ffc660a11c6d3f7471b64b25ab7b7210a0",
+    "blockers": 0,
+    "product_updates": 0,
+    "variant_updates": [
+      "3763"
+    ],
+    "before_nutrition_override": {},
+    "after_nutrition_override": {
+      "serving_size_g": 25,
+      "caffeine": {
+        "information_state": "confirmed_absent"
+      },
+      "citrulline": {
+        "information_state": "present_with_amount",
+        "amount_per_serving_mg": 6000,
+        "source_quantity_value": 6000,
+        "source_quantity_unit": "mg",
+        "quantity_basis": "per_serving",
+        "serving_basis_text": "Serving Size 1 Scoop (25g)",
+        "serving_basis_value": 25,
+        "serving_basis_unit": "g",
+        "ingredient_form": "l_citrulline"
+      }
+    }
+  },
+  "apply": {
+    "mechanism": "nutrition:approved-apply",
+    "result": "APPLIED_REVIEWED_NUTRITION_FIELDS",
+    "applied_at": "2026-09-13T09:56:30.238Z",
+    "audit_path": "tmp/nutrition-approved-plan/NCR1-catalog-batch-06-1283-20260913-v2-a027d2cffb54-audit.json",
+    "audit_sha256": "d2c2a4c7c43df85bab2612d82751aec18f18223616afb8cb81ecc658b98abaab",
+    "changed_products": [],
+    "changed_variants": [
+      {
+        "product_id": "1283",
+        "product_variant_id": "3763",
+        "fields": [
+          "serving_size_g",
+          "caffeine",
+          "citrulline"
+        ]
+      }
+    ],
+    "independent_readback": {
+      "result": "PASS",
+      "whole_override_matches_plan_after": true,
+      "candidate_approvals_and_evidence_unchanged": true,
+      "products_unchanged": true,
+      "all_other_variants_unchanged": true,
+      "target_non_override_metadata_unchanged": true,
+      "non_target_queue_unchanged": true
+    },
+    "exact_replay": {
+      "result": "PASS_SAFE_REJECTION",
+      "reason": "Variant 3763 nutrition override changed after plan generation",
+      "additional_writes": 0,
+      "post_replay_state_unchanged": true
+    }
+  },
+  "public_readback": {
+    "result": "PASS",
+    "product_url": "https://www.supplementscout.co.uk/product/apex-formulas-apex-pump-625g?variant=3763",
+    "product_http_status": 200,
+    "selected_exact_variant": true,
+    "serving_displayed": true,
+    "confirmed_caffeine_absence_displayed": true,
+    "l_citrulline_displayed": true,
+    "unsupported_beta_alanine_omitted": true,
+    "unsupported_creatine_omitted": true,
+    "private_source_data_redacted": true,
+    "caffeine_free_filter_url": "https://www.supplementscout.co.uk/search?q=pre%20workout&caffeine=free",
+    "exact_variant_qualifies": true,
+    "current_in_stock_offers": 1,
+    "grouping": "one card per product with the exact qualifying available variant link"
+  },
+  "coverage_after_apply": {
+    "distinct_applied_variants": 68,
+    "frozen_pilot": {
+      "complete_five_facts": 9,
+      "partial_applied_facts": 3,
+      "no_applied_facts": 13,
+      "partial_variant_ids": [
+        "3676",
+        "3759",
+        "3763"
+      ]
+    }
+  },
+  "multi_component_citrulline_extension_design": {
+    "status": "DESIGN_ONLY_REQUIRES_SEPARATE_AUTHORIZATION",
+    "affected_exact_variants": [
+      { "product_id": "1250", "product_variant_ids": ["3672", "3721", "3722"], "serving": "1 slightly heaped scoop (approximately 17 g)", "components": [{"form": "citrulline_malate", "source_value": 2.5, "source_unit": "g", "amount_per_serving_mg": 2500, "ratio": null}, {"form": "l_citrulline", "source_value": 500, "source_unit": "mg", "amount_per_serving_mg": 500, "ratio": null}] },
+      { "product_id": "1254", "product_variant_ids": ["3676", "3725", "3726"], "serving": "1 slightly heaped scoop (approximately 22.5 g)", "components": [{"form": "citrulline_malate", "source_value": 3, "source_unit": "g", "amount_per_serving_mg": 3000, "ratio": null}, {"form": "l_citrulline", "source_value": 2, "source_unit": "g", "amount_per_serving_mg": 2000, "ratio": null}] },
+      { "product_id": "1279", "product_variant_ids": ["3759", "3894", "3895"], "serving": "1 slightly heaped scoop (approximately 17 g)", "components": [{"form": "citrulline_malate", "source_value": 2.5, "source_unit": "g", "amount_per_serving_mg": 2500, "ratio": null}, {"form": "l_citrulline", "source_value": 500, "source_unit": "mg", "amount_per_serving_mg": 500, "ratio": null}] }
+    ],
+    "evidence": {
+      "batch_05_context_manifest_path": "tmp/nutrition-catalog-batch-05-2026-09-13/source-context-manifest.json",
+      "batch_05_context_manifest_sha256": "836c7ab8ba849dcf8a4cee41523ee962f6c0551b055206d66452daa98521a39c",
+      "source_tables": [
+        {"product_id": "1250", "url": "https://www.bulk.com/uk/products/dope-pre-workout/bble-dope", "sha256": "4c5ca745d34fe8c07cee9f8dc424db9163bd896576d6c324f70d0d4b3998af16"},
+        {"product_id": "1254", "url": "https://www.bulk.com/uk/products/dope-max-pre-workout/bble-dmax", "sha256": "f55f6485844ea6f6edf31992b83e73ea877649d8c2237e10c757488cf5875b75"},
+        {"product_id": "1279", "url": "https://www.bulk.com/uk/products/dope-pre-workout-caffeine-free/bble-docf", "sha256": "8b9d3ff1d906372ab4a7941ca6a1e4a200ee9b856c707e3f1e41f343bfba7d15"}
+      ],
+      "all_components_have_individual_declared_masses": true,
+      "aggregate_only_blends": 0
+    },
+    "smallest_change": {
+      "database": "Add one allowed proposed field, citrulline_component_per_serving_mg, by a forward-only migration that changes the existing field, fact-shape and unit CHECK constraints. Do not add a table or column. Every required predicate remains IS TRUE.",
+      "candidate_model": "Store one present_with_amount candidate per declared component, reusing exact variant, source, source amount/unit, serving basis, form, ratio and fingerprint columns. Keep the singular citrulline field for five-state absence, unknown and conflict facts.",
+      "review": "Reuse the existing authenticated review; each component remains independently reviewable and changes to amount, unit, form, serving or evidence invalidate approval.",
+      "planner_and_apply": "Group same-variant component candidates into a deterministically ordered nutrition_override.citrulline_components array. Reject duplicate form/ratio entries, mismatched serving or source revision, a mixed singular/plural write without an explicit reviewed transition, and any attempt to sum components as pure L-citrulline.",
+      "presentation": "Render every applied, approved component as a separate line under the shared serving. Reconstruct approval against exact component candidates, hide private provenance, and keep existing singular citrulline rendering compatible.",
+      "backward_compatibility": "Do not backfill or reinterpret existing singular facts. For these nine variants, a later approved plan adds only citrulline_components while preserving the rest of each current override."
+    },
+    "completion_criteria": [
+      "Before the new migration, component candidates fail with the specific migration-required error while existing product and structured-fact reads still work.",
+      "After the migration, direct PostgreSQL checks reject NULL or incomplete amount, unit, form, source quantity and serving combinations; no global NOT NULL is added.",
+      "Store and review preserve one fingerprint and one approval per component, and evidence, form, amount, unit or serving changes invalidate prior approval.",
+      "The planner emits a stable component array and rejects duplicates, mixed servings, mixed source revisions and an unreviewed singular-to-plural transition.",
+      "Controlled apply changes only the exact variant override, preserves all existing facts, and its replay protection produces zero extra writes.",
+      "Public presentation proves each component against approved applied evidence, displays compound masses separately, and does not expose private URI or reviewer data.",
+      "Isolated pre/post-migration tests plus required project quality gates pass; production migration and the nine-variant candidate execution remain separately authorized."
+    ]
+  },
+  "production_writes": {
+    "candidate_rows_inserted": 3,
+    "candidate_rows_reviewed": 3,
+    "variant_overrides_updated": 1,
+    "product_rows_updated": 0,
+    "other_catalogue_rows_updated": 0,
+    "migrations": 0
+  }
+}
