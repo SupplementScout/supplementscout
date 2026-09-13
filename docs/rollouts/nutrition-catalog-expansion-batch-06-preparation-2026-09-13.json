@@ -1,0 +1,1102 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-expansion-batch-06-preparation-evidence-v1",
+  "status": "READY_FOR_OWNER_DECISION_PARTIAL_VARIANT",
+  "prepared_at": "2026-09-13T09:29:34.792Z",
+  "production_checkpoint": {
+    "captured_at": "2026-09-13T09:11:54.124Z",
+    "environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "snapshot_sha256": "e1ef512a2737dd70dc83476723694b0f571d557cd2187f74fccccad36026bf10",
+    "excluded_applied_variants": 67,
+    "database_writes": 0
+  },
+  "scope": {
+    "organizational_limit": 50,
+    "assessed_variants": 47,
+    "ready_variants": 1,
+    "partial_ready_variants": 1,
+    "blocked_or_deferred_variants": 46,
+    "candidate_facts": 3,
+    "unique_official_dose_tables": 1,
+    "variants_with_all_four_tracked_ingredients_resolved": 0,
+    "excluded_applied_variants": 67,
+    "stop_reason": "The next intact current-offer family would exceed the 50-variant organizational limit; known blocks were not reopened merely to fill the cap."
+  },
+  "policy_evidence": {
+    "serving_wording": "Preserve qualifiers such as approximately verbatim in serving_basis_text and flag the approximate basis. Do not normalize an approximate scoop into an exact manufacturer claim. The prepared Apex serving is explicitly 1 Scoop (25g), so no approximate qualifier is added.",
+    "partial_fact_rule": "A supported fact is prepared even when another tracked ingredient remains unresolved; omission is never converted to confirmed absence.",
+    "shared_table_rule": "One official table may support exact variants of the same product/revision/market only where the manufacturer context binds those variants."
+  },
+  "pilot_reconciliation": {
+    "counts": {
+      "COMPLETE_FIVE_FACTS": 9,
+      "PARTIAL_APPLIED_FACTS": 2,
+      "NO_APPLIED_FACTS": 14
+    },
+    "rows": [
+      {
+        "product_id": "17",
+        "variant_id": "714",
+        "status": "NO_APPLIED_FACTS",
+        "applied_fields": []
+      },
+      {
+        "product_id": "38",
+        "variant_id": "726",
+        "status": "COMPLETE_FIVE_FACTS",
+        "applied_fields": [
+          "caffeine",
+          "creatine",
+          "citrulline",
+          "beta_alanine",
+          "serving_size_g"
+        ]
+      },
+      {
+        "product_id": "55",
+        "variant_id": "1029",
+        "status": "NO_APPLIED_FACTS",
+        "applied_fields": []
+      },
+      {
+        "product_id": "58",
+        "variant_id": "1007",
+        "status": "NO_APPLIED_FACTS",
+        "applied_fields": []
+      },
+      {
+        "product_id": "215",
+        "variant_id": "1016",
+        "status": "COMPLETE_FIVE_FACTS",
+        "applied_fields": [
+          "caffeine",
+          "creatine",
+          "citrulline",
+          "beta_alanine",
+          "serving_size_g"
+        ]
+      },
+      {
+        "product_id": "294",
+        "variant_id": "1059",
+        "status": "NO_APPLIED_FACTS",
+        "applied_fields": []
+      },
+      {
+        "product_id": "295",
+        "variant_id": "1041",
+        "status": "NO_APPLIED_FACTS",
+        "applied_fields": []
+      },
+      {
+        "product_id": "481",
+        "variant_id": "760",
+        "status": "COMPLETE_FIVE_FACTS",
+        "applied_fields": [
+          "caffeine",
+          "creatine",
+          "citrulline",
+          "beta_alanine",
+          "serving_size_g"
+        ]
+      },
+      {
+        "product_id": "481",
+        "variant_id": "761",
+        "status": "COMPLETE_FIVE_FACTS",
+        "applied_fields": [
+          "caffeine",
+          "creatine",
+          "citrulline",
+          "beta_alanine",
+          "serving_size_g"
+        ]
+      },
+      {
+        "product_id": "744",
+        "variant_id": "815",
+        "status": "COMPLETE_FIVE_FACTS",
+        "applied_fields": [
+          "caffeine",
+          "creatine",
+          "citrulline",
+          "beta_alanine",
+          "serving_size_g"
+        ]
+      },
+      {
+        "product_id": "744",
+        "variant_id": "816",
+        "status": "COMPLETE_FIVE_FACTS",
+        "applied_fields": [
+          "caffeine",
+          "creatine",
+          "citrulline",
+          "beta_alanine",
+          "serving_size_g"
+        ]
+      },
+      {
+        "product_id": "756",
+        "variant_id": "885",
+        "status": "NO_APPLIED_FACTS",
+        "applied_fields": []
+      },
+      {
+        "product_id": "756",
+        "variant_id": "1974",
+        "status": "NO_APPLIED_FACTS",
+        "applied_fields": []
+      },
+      {
+        "product_id": "757",
+        "variant_id": "887",
+        "status": "NO_APPLIED_FACTS",
+        "applied_fields": []
+      },
+      {
+        "product_id": "881",
+        "variant_id": "1383",
+        "status": "COMPLETE_FIVE_FACTS",
+        "applied_fields": [
+          "caffeine",
+          "creatine",
+          "citrulline",
+          "beta_alanine",
+          "serving_size_g"
+        ]
+      },
+      {
+        "product_id": "881",
+        "variant_id": "1384",
+        "status": "COMPLETE_FIVE_FACTS",
+        "applied_fields": [
+          "caffeine",
+          "creatine",
+          "citrulline",
+          "beta_alanine",
+          "serving_size_g"
+        ]
+      },
+      {
+        "product_id": "899",
+        "variant_id": "1487",
+        "status": "NO_APPLIED_FACTS",
+        "applied_fields": []
+      },
+      {
+        "product_id": "957",
+        "variant_id": "1864",
+        "status": "COMPLETE_FIVE_FACTS",
+        "applied_fields": [
+          "caffeine",
+          "creatine",
+          "citrulline",
+          "beta_alanine",
+          "serving_size_g"
+        ]
+      },
+      {
+        "product_id": "961",
+        "variant_id": "1879",
+        "status": "NO_APPLIED_FACTS",
+        "applied_fields": []
+      },
+      {
+        "product_id": "1249",
+        "variant_id": "3671",
+        "status": "NO_APPLIED_FACTS",
+        "applied_fields": []
+      },
+      {
+        "product_id": "1252",
+        "variant_id": "3674",
+        "status": "NO_APPLIED_FACTS",
+        "applied_fields": []
+      },
+      {
+        "product_id": "1254",
+        "variant_id": "3676",
+        "status": "PARTIAL_APPLIED_FACTS",
+        "applied_fields": [
+          "caffeine",
+          "creatine",
+          "beta_alanine",
+          "serving_size_g"
+        ]
+      },
+      {
+        "product_id": "1275",
+        "variant_id": "3755",
+        "status": "NO_APPLIED_FACTS",
+        "applied_fields": []
+      },
+      {
+        "product_id": "1279",
+        "variant_id": "3759",
+        "status": "PARTIAL_APPLIED_FACTS",
+        "applied_fields": [
+          "caffeine",
+          "creatine",
+          "beta_alanine",
+          "serving_size_g"
+        ]
+      },
+      {
+        "product_id": "1283",
+        "variant_id": "3763",
+        "status": "NO_APPLIED_FACTS",
+        "applied_fields": []
+      }
+    ],
+    "applied_any": 11,
+    "partial_variant_ids": [
+      "3676",
+      "3759"
+    ]
+  },
+  "citrulline_model_gap": {
+    "variants": 9,
+    "separately_disclosed_component_masses": 9,
+    "aggregate_blend_mass_only": 0,
+    "rows": [
+      {
+        "variant_id": "3672",
+        "product_id": "1250",
+        "evidence_shape": "SEPARATELY_DISCLOSED_INGREDIENT_MASSES",
+        "aggregate_blend_mass_only": false,
+        "reason": "Citrulline Malate 2.5 g plus L-Citrulline 500 mg per serving cannot be preserved in the current single-form field."
+      },
+      {
+        "variant_id": "3721",
+        "product_id": "1250",
+        "evidence_shape": "SEPARATELY_DISCLOSED_INGREDIENT_MASSES",
+        "aggregate_blend_mass_only": false,
+        "reason": "Citrulline Malate 2.5 g plus L-Citrulline 500 mg per serving cannot be preserved in the current single-form field."
+      },
+      {
+        "variant_id": "3722",
+        "product_id": "1250",
+        "evidence_shape": "SEPARATELY_DISCLOSED_INGREDIENT_MASSES",
+        "aggregate_blend_mass_only": false,
+        "reason": "Citrulline Malate 2.5 g plus L-Citrulline 500 mg per serving cannot be preserved in the current single-form field."
+      },
+      {
+        "variant_id": "3676",
+        "product_id": "1254",
+        "evidence_shape": "SEPARATELY_DISCLOSED_INGREDIENT_MASSES",
+        "aggregate_blend_mass_only": false,
+        "reason": "Citrulline Malate 3 g plus L-Citrulline 2 g per serving cannot be preserved in the current single-form field."
+      },
+      {
+        "variant_id": "3725",
+        "product_id": "1254",
+        "evidence_shape": "SEPARATELY_DISCLOSED_INGREDIENT_MASSES",
+        "aggregate_blend_mass_only": false,
+        "reason": "Citrulline Malate 3 g plus L-Citrulline 2 g per serving cannot be preserved in the current single-form field."
+      },
+      {
+        "variant_id": "3726",
+        "product_id": "1254",
+        "evidence_shape": "SEPARATELY_DISCLOSED_INGREDIENT_MASSES",
+        "aggregate_blend_mass_only": false,
+        "reason": "Citrulline Malate 3 g plus L-Citrulline 2 g per serving cannot be preserved in the current single-form field."
+      },
+      {
+        "variant_id": "3759",
+        "product_id": "1279",
+        "evidence_shape": "SEPARATELY_DISCLOSED_INGREDIENT_MASSES",
+        "aggregate_blend_mass_only": false,
+        "reason": "Citrulline Malate 2.5 g plus L-Citrulline 500 mg per serving cannot be preserved in the current single-form field."
+      },
+      {
+        "variant_id": "3894",
+        "product_id": "1279",
+        "evidence_shape": "SEPARATELY_DISCLOSED_INGREDIENT_MASSES",
+        "aggregate_blend_mass_only": false,
+        "reason": "Citrulline Malate 2.5 g plus L-Citrulline 500 mg per serving cannot be preserved in the current single-form field."
+      },
+      {
+        "variant_id": "3895",
+        "product_id": "1279",
+        "evidence_shape": "SEPARATELY_DISCLOSED_INGREDIENT_MASSES",
+        "aggregate_blend_mass_only": false,
+        "reason": "Citrulline Malate 2.5 g plus L-Citrulline 500 mg per serving cannot be preserved in the current single-form field."
+      }
+    ]
+  },
+  "ready_package": {
+    "product_id": "1283",
+    "variant_id": "3763",
+    "product_name": "Apex Formulas Apex Pump 625g",
+    "variant_name": "Raspberry Rush",
+    "source": {
+      "product_id": "1283",
+      "variant_id": "3763",
+      "product_name": "Apex Formulas Apex Pump 625g",
+      "variant_name": "Raspberry Rush",
+      "official_url": "https://apexformulas.co.uk/products/apex-pump",
+      "market": "GB",
+      "applicability_basis": "exact manufacturer product presentation and retained Raspberry Rush pack/table images",
+      "serving": {
+        "text": "Serving Size 1 Scoop (25g)",
+        "value_g": 25,
+        "approximate": false
+      },
+      "prepared": {
+        "serving_size_g": {
+          "value": 25,
+          "source_text": "Serving Size 1 Scoop (25g)"
+        },
+        "caffeine_per_serving_mg": {
+          "information_state": "confirmed_absent",
+          "value": null,
+          "source_text": "Non-Stim Pump Pre-Workout / without stimulants"
+        },
+        "citrulline_per_serving_mg": {
+          "information_state": "present_with_amount",
+          "value": 6000,
+          "unit": "mg",
+          "source_quantity": "6000 mg",
+          "form": "l_citrulline"
+        }
+      },
+      "unresolved": [
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "reason": "No explicit beta-alanine absence; omission is not confirmed absence."
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "reason": "No explicit creatine absence; omission is not confirmed absence."
+        }
+      ],
+      "retained_files": [
+        {
+          "id": "manufacturer-01-2a58d72e86c8c7a4552e",
+          "path": "tmp/nutrition-catalog-batch-06-2026-09-13/raw/01-p1283-apex-formulas-apex-pump-625g-2a58d72e86c8.html",
+          "sha256": "0ff89fea8c70b1b7e0be3da45249dc6c6bb818c7e94f6e2bead37108965ab236",
+          "content_type": "text/html",
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/0ff89fea8c70b1b7e0be3da45249dc6c6bb818c7e94f6e2bead37108965ab236/01-p1283-apex-formulas-apex-pump-625g-2a58d72e86c8.html",
+          "archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/0ff89fea8c70b1b7e0be3da45249dc6c6bb818c7e94f6e2bead37108965ab236/01-p1283-apex-formulas-apex-pump-625g-2a58d72e86c8.html"
+        },
+        {
+          "id": "apex-front",
+          "path": "tmp/nutrition-catalog-batch-06-2026-09-13/raw/02-p1283-apex-pump-raspberry-rush-front.png",
+          "sha256": "e830ae9b8c32ea040f1979846b634e80a72b20418ab6c6d9967cb6023bc565e2",
+          "content_type": "image/png",
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/e830ae9b8c32ea040f1979846b634e80a72b20418ab6c6d9967cb6023bc565e2/02-p1283-apex-pump-raspberry-rush-front.png",
+          "archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/e830ae9b8c32ea040f1979846b634e80a72b20418ab6c6d9967cb6023bc565e2/02-p1283-apex-pump-raspberry-rush-front.png"
+        },
+        {
+          "id": "apex-table",
+          "path": "tmp/nutrition-catalog-batch-06-2026-09-13/raw/03-p1283-apex-pump-raspberry-rush-ingredient-panel.png",
+          "sha256": "83738125690f43db923934da2e3fa0080f7031b4f20af701eaf9bc90b91006fa",
+          "content_type": "image/png",
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/83738125690f43db923934da2e3fa0080f7031b4f20af701eaf9bc90b91006fa/03-p1283-apex-pump-raspberry-rush-ingredient-panel.png",
+          "archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/83738125690f43db923934da2e3fa0080f7031b4f20af701eaf9bc90b91006fa/03-p1283-apex-pump-raspberry-rush-ingredient-panel.png"
+        },
+        {
+          "id": "apex-directions",
+          "path": "tmp/nutrition-catalog-batch-06-2026-09-13/raw/04-p1283-apex-pump-raspberry-rush-directions.png",
+          "sha256": "93316037eb67831bc6f32a250d1ebdd6d1ca8251b3f3720321dcc06cb40d6401",
+          "content_type": "image/png",
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/93316037eb67831bc6f32a250d1ebdd6d1ca8251b3f3720321dcc06cb40d6401/04-p1283-apex-pump-raspberry-rush-directions.png",
+          "archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/93316037eb67831bc6f32a250d1ebdd6d1ca8251b3f3720321dcc06cb40d6401/04-p1283-apex-pump-raspberry-rush-directions.png"
+        }
+      ]
+    },
+    "artifact": {
+      "product_id": "1283",
+      "path": "tmp/nutrition-catalog-batch-06-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-06-1283-20260913.json",
+      "sha256": "47bd22a783b9056af07ea2cc976c6db6336b03de556ed59845a13c1ff0dc64ad",
+      "artifact_fingerprint": "5bbfb31ab0c237fdaa9da1d9d96cde2314cf5fa71f0af20cabbdd7fa34c71933",
+      "variants": 1,
+      "candidates": 3,
+      "unique_candidate_fingerprints": 3
+    },
+    "candidate_fingerprints": [
+      {
+        "field_name": "serving_size_g",
+        "fingerprint": "088241b20942a7a60e60c73509900bea32cbe11cfa6e30be51a3e96ac5a03e57"
+      },
+      {
+        "field_name": "caffeine_per_serving_mg",
+        "fingerprint": "fd72f3bfe4332dbe77f1844d86edc0b0be8d9a451204d06427faa9ddd443f7e9"
+      },
+      {
+        "field_name": "citrulline_per_serving_mg",
+        "fingerprint": "a2f53635080787407b6bfb58c9ee6cbcad724eee17e8123203db70f090586845"
+      }
+    ],
+    "validation": {
+      "result": "PASS",
+      "mode": "DRY_RUN_NO_DATABASE",
+      "candidate_rows": 3,
+      "product_updates": 0,
+      "verified_csv_files": 0,
+      "database_writes": 0
+    }
+  },
+  "deferred_scope": [
+    {
+      "product_id": "1276",
+      "product_name": "Gorillalpha Ibiza Juice Pre-Workout 480g",
+      "variant_id": "3756",
+      "variant_name": "Cherry",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://www.gorillalpha.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "1276",
+      "product_name": "Gorillalpha Ibiza Juice Pre-Workout 480g",
+      "variant_id": "3883",
+      "variant_name": "Ibiza Soda Pop / 480g",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://www.gorillalpha.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "1276",
+      "product_name": "Gorillalpha Ibiza Juice Pre-Workout 480g",
+      "variant_id": "3884",
+      "variant_name": "Peach Daquiri / 480g",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://www.gorillalpha.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "1276",
+      "product_name": "Gorillalpha Ibiza Juice Pre-Workout 480g",
+      "variant_id": "3885",
+      "variant_name": "Strawberry Coconut / 480g",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://www.gorillalpha.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "1276",
+      "product_name": "Gorillalpha Ibiza Juice Pre-Workout 480g",
+      "variant_id": "3992",
+      "variant_name": "Cherry Cola",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://www.gorillalpha.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "1276",
+      "product_name": "Gorillalpha Ibiza Juice Pre-Workout 480g",
+      "variant_id": "3993",
+      "variant_name": "Grape Soda",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://www.gorillalpha.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "1276",
+      "product_name": "Gorillalpha Ibiza Juice Pre-Workout 480g",
+      "variant_id": "3994",
+      "variant_name": "Ibiza Juice Blue Strawberry Lemonade",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://www.gorillalpha.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "1276",
+      "product_name": "Gorillalpha Ibiza Juice Pre-Workout 480g",
+      "variant_id": "3995",
+      "variant_name": "Pineapple Strawberry",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://www.gorillalpha.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "1280",
+      "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+      "variant_id": "3760",
+      "variant_name": "Coconut Cola",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://www.gorillalpha.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "1280",
+      "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+      "variant_id": "3856",
+      "variant_name": "Ultimate Energy / 480g",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://www.gorillalpha.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "1280",
+      "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+      "variant_id": "3996",
+      "variant_name": "Apple Bubble Gum",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://www.gorillalpha.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "1280",
+      "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+      "variant_id": "3997",
+      "variant_name": "Apple Candy",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://www.gorillalpha.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "1280",
+      "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+      "variant_id": "3998",
+      "variant_name": "Bubble Gum Blast",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://www.gorillalpha.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "1280",
+      "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+      "variant_id": "3999",
+      "variant_name": "Caribbean Crush",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://www.gorillalpha.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "1280",
+      "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+      "variant_id": "4000",
+      "variant_name": "Cherry Bomb Lemonade",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://www.gorillalpha.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "1280",
+      "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+      "variant_id": "4001",
+      "variant_name": "Jungle Juice",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://www.gorillalpha.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "1280",
+      "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+      "variant_id": "4002",
+      "variant_name": "Mango Passionfruit",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://www.gorillalpha.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "1280",
+      "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+      "variant_id": "4003",
+      "variant_name": "Orange Mango",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://www.gorillalpha.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "1280",
+      "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+      "variant_id": "4004",
+      "variant_name": "Passion Fruit",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://www.gorillalpha.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "1280",
+      "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+      "variant_id": "4005",
+      "variant_name": "Strawberry Laces",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://www.gorillalpha.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "1280",
+      "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+      "variant_id": "4006",
+      "variant_name": "Ultimate Hulk Juice",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://www.gorillalpha.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "1280",
+      "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+      "variant_id": "4007",
+      "variant_name": "Ultimate Juice",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://www.gorillalpha.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "1280",
+      "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+      "variant_id": "4008",
+      "variant_name": "Ultimate Lemonade",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://www.gorillalpha.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "1280",
+      "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+      "variant_id": "4009",
+      "variant_name": "Ultimate Raspberry",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://www.gorillalpha.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "62",
+      "product_name": "HR Labs Defib Pre-Workout",
+      "variant_id": "1031",
+      "variant_name": "Jelly Bean / 460g",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://hr-labs.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "62",
+      "product_name": "HR Labs Defib Pre-Workout",
+      "variant_id": "1616",
+      "variant_name": "Cherryade / 460g",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://hr-labs.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "62",
+      "product_name": "HR Labs Defib Pre-Workout",
+      "variant_id": "1617",
+      "variant_name": "Fizzy Candy Crush / 460g",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://hr-labs.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "62",
+      "product_name": "HR Labs Defib Pre-Workout",
+      "variant_id": "1618",
+      "variant_name": "Iced Blue Slush / 460g",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://hr-labs.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "62",
+      "product_name": "HR Labs Defib Pre-Workout",
+      "variant_id": "2646",
+      "variant_name": "Fizzy Bubblegum Bottles / 420g (V3)",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://hr-labs.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "62",
+      "product_name": "HR Labs Defib Pre-Workout",
+      "variant_id": "2649",
+      "variant_name": "Lemon Fizz Bombs / 420g (V3)",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://hr-labs.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "761",
+      "product_name": "HR Labs Proven 20 servings",
+      "variant_id": "907",
+      "variant_name": "Classic Cola / 20 servings",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://hr-labs.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "761",
+      "product_name": "HR Labs Proven 20 servings",
+      "variant_id": "909",
+      "variant_name": "Frootz / 20 servings",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION",
+        "source": "https://hr-labs.co.uk/policies/terms-of-service",
+        "detail": "Current official terms prohibit spider/crawl/scrape and reproduction or exploitation without permission."
+      }
+    },
+    {
+      "product_id": "1061",
+      "product_name": "USN 3XT Dynamite Pre-Workout 375g",
+      "variant_id": "2235",
+      "variant_name": "Blue Burst / 375g",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COMMERCIAL_REUSE_AND_DATA_MINING",
+        "source": "https://www.usn.co.uk/pages/terms-conditions",
+        "detail": "Current official terms prohibit commercial reuse and text/data mining or web scraping without permission."
+      }
+    },
+    {
+      "product_id": "1061",
+      "product_name": "USN 3XT Dynamite Pre-Workout 375g",
+      "variant_id": "2236",
+      "variant_name": "Candy Pop / 375g",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COMMERCIAL_REUSE_AND_DATA_MINING",
+        "source": "https://www.usn.co.uk/pages/terms-conditions",
+        "detail": "Current official terms prohibit commercial reuse and text/data mining or web scraping without permission."
+      }
+    },
+    {
+      "product_id": "1061",
+      "product_name": "USN 3XT Dynamite Pre-Workout 375g",
+      "variant_id": "2237",
+      "variant_name": "Hawaiian Pump / 375g",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COMMERCIAL_REUSE_AND_DATA_MINING",
+        "source": "https://www.usn.co.uk/pages/terms-conditions",
+        "detail": "Current official terms prohibit commercial reuse and text/data mining or web scraping without permission."
+      }
+    },
+    {
+      "product_id": "1178",
+      "product_name": "NXT Nutrition TNT Nuclear Pump Stim-Free 500g",
+      "variant_id": "3476",
+      "variant_name": "Blue Raspberry",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "CURRENT_MANUFACTURER_VARIANTS_DO_NOT_BIND_TO_CATALOGUE_VARIANTS",
+        "source": "https://nxtnutrition.co.uk/collections/pre-workout/products/tnt-nuclear-pump",
+        "detail": "The current official page lists Fizzy Cola Bottles, Icy Blue and Tropical Delight, while the seven current catalogue variants use a different flavour set; exact current applicability is unresolved."
+      }
+    },
+    {
+      "product_id": "1178",
+      "product_name": "NXT Nutrition TNT Nuclear Pump Stim-Free 500g",
+      "variant_id": "3523",
+      "variant_name": "Cola",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "CURRENT_MANUFACTURER_VARIANTS_DO_NOT_BIND_TO_CATALOGUE_VARIANTS",
+        "source": "https://nxtnutrition.co.uk/collections/pre-workout/products/tnt-nuclear-pump",
+        "detail": "The current official page lists Fizzy Cola Bottles, Icy Blue and Tropical Delight, while the seven current catalogue variants use a different flavour set; exact current applicability is unresolved."
+      }
+    },
+    {
+      "product_id": "1178",
+      "product_name": "NXT Nutrition TNT Nuclear Pump Stim-Free 500g",
+      "variant_id": "3524",
+      "variant_name": "Ice Burst",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "CURRENT_MANUFACTURER_VARIANTS_DO_NOT_BIND_TO_CATALOGUE_VARIANTS",
+        "source": "https://nxtnutrition.co.uk/collections/pre-workout/products/tnt-nuclear-pump",
+        "detail": "The current official page lists Fizzy Cola Bottles, Icy Blue and Tropical Delight, while the seven current catalogue variants use a different flavour set; exact current applicability is unresolved."
+      }
+    },
+    {
+      "product_id": "1178",
+      "product_name": "NXT Nutrition TNT Nuclear Pump Stim-Free 500g",
+      "variant_id": "3525",
+      "variant_name": "Mixed Candy",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "CURRENT_MANUFACTURER_VARIANTS_DO_NOT_BIND_TO_CATALOGUE_VARIANTS",
+        "source": "https://nxtnutrition.co.uk/collections/pre-workout/products/tnt-nuclear-pump",
+        "detail": "The current official page lists Fizzy Cola Bottles, Icy Blue and Tropical Delight, while the seven current catalogue variants use a different flavour set; exact current applicability is unresolved."
+      }
+    },
+    {
+      "product_id": "1178",
+      "product_name": "NXT Nutrition TNT Nuclear Pump Stim-Free 500g",
+      "variant_id": "3526",
+      "variant_name": "Pear Drops",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "CURRENT_MANUFACTURER_VARIANTS_DO_NOT_BIND_TO_CATALOGUE_VARIANTS",
+        "source": "https://nxtnutrition.co.uk/collections/pre-workout/products/tnt-nuclear-pump",
+        "detail": "The current official page lists Fizzy Cola Bottles, Icy Blue and Tropical Delight, while the seven current catalogue variants use a different flavour set; exact current applicability is unresolved."
+      }
+    },
+    {
+      "product_id": "1178",
+      "product_name": "NXT Nutrition TNT Nuclear Pump Stim-Free 500g",
+      "variant_id": "3527",
+      "variant_name": "Pineapple",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "CURRENT_MANUFACTURER_VARIANTS_DO_NOT_BIND_TO_CATALOGUE_VARIANTS",
+        "source": "https://nxtnutrition.co.uk/collections/pre-workout/products/tnt-nuclear-pump",
+        "detail": "The current official page lists Fizzy Cola Bottles, Icy Blue and Tropical Delight, while the seven current catalogue variants use a different flavour set; exact current applicability is unresolved."
+      }
+    },
+    {
+      "product_id": "1178",
+      "product_name": "NXT Nutrition TNT Nuclear Pump Stim-Free 500g",
+      "variant_id": "3528",
+      "variant_name": "Strawberry Lime",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "CURRENT_MANUFACTURER_VARIANTS_DO_NOT_BIND_TO_CATALOGUE_VARIANTS",
+        "source": "https://nxtnutrition.co.uk/collections/pre-workout/products/tnt-nuclear-pump",
+        "detail": "The current official page lists Fizzy Cola Bottles, Icy Blue and Tropical Delight, while the seven current catalogue variants use a different flavour set; exact current applicability is unresolved."
+      }
+    },
+    {
+      "product_id": "1245",
+      "product_name": "NXT TNT Nuclear Pre-Workout 240g",
+      "variant_id": "3667",
+      "variant_name": "Ice Blast",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "CURRENT_MANUFACTURER_VARIANTS_DO_NOT_BIND_TO_CATALOGUE_VARIANTS",
+        "source": "https://nxtnutrition.co.uk/collections/pre-workout/products/tnt-nuclear-pre",
+        "detail": "The current official page uses a mixed 6 g/12 g serving presentation and current flavour set that does not establish the exact catalogue version for all four variants."
+      }
+    },
+    {
+      "product_id": "1245",
+      "product_name": "NXT TNT Nuclear Pre-Workout 240g",
+      "variant_id": "3710",
+      "variant_name": "Ice Blue / 240g",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "CURRENT_MANUFACTURER_VARIANTS_DO_NOT_BIND_TO_CATALOGUE_VARIANTS",
+        "source": "https://nxtnutrition.co.uk/collections/pre-workout/products/tnt-nuclear-pre",
+        "detail": "The current official page uses a mixed 6 g/12 g serving presentation and current flavour set that does not establish the exact catalogue version for all four variants."
+      }
+    },
+    {
+      "product_id": "1245",
+      "product_name": "NXT TNT Nuclear Pre-Workout 240g",
+      "variant_id": "3711",
+      "variant_name": "Fizzy Cola Bottles / 240g",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "CURRENT_MANUFACTURER_VARIANTS_DO_NOT_BIND_TO_CATALOGUE_VARIANTS",
+        "source": "https://nxtnutrition.co.uk/collections/pre-workout/products/tnt-nuclear-pre",
+        "detail": "The current official page uses a mixed 6 g/12 g serving presentation and current flavour set that does not establish the exact catalogue version for all four variants."
+      }
+    },
+    {
+      "product_id": "1245",
+      "product_name": "NXT TNT Nuclear Pre-Workout 240g",
+      "variant_id": "3712",
+      "variant_name": "Watermelon Strawberry / 240g",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "CURRENT_MANUFACTURER_VARIANTS_DO_NOT_BIND_TO_CATALOGUE_VARIANTS",
+        "source": "https://nxtnutrition.co.uk/collections/pre-workout/products/tnt-nuclear-pre",
+        "detail": "The current official page uses a mixed 6 g/12 g serving presentation and current flavour set that does not establish the exact catalogue version for all four variants."
+      }
+    }
+  ],
+  "archive": {
+    "precheck": {
+      "result": "NO_EXACT_PATH_DUPLICATES",
+      "exact_paths": [],
+      "matching_hashes": [],
+      "objects_checked": 32,
+      "storage_writes": 0
+    },
+    "upload": {
+      "result": "UPLOAD_PASS",
+      "uploaded": [
+        {
+          "id": "manufacturer-01-2a58d72e86c8c7a4552e",
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/0ff89fea8c70b1b7e0be3da45249dc6c6bb818c7e94f6e2bead37108965ab236/01-p1283-apex-formulas-apex-pump-625g-2a58d72e86c8.html",
+          "sha256": "0ff89fea8c70b1b7e0be3da45249dc6c6bb818c7e94f6e2bead37108965ab236",
+          "bytes": 221788
+        },
+        {
+          "id": "apex-front",
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/e830ae9b8c32ea040f1979846b634e80a72b20418ab6c6d9967cb6023bc565e2/02-p1283-apex-pump-raspberry-rush-front.png",
+          "sha256": "e830ae9b8c32ea040f1979846b634e80a72b20418ab6c6d9967cb6023bc565e2",
+          "bytes": 1280630
+        },
+        {
+          "id": "apex-table",
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/83738125690f43db923934da2e3fa0080f7031b4f20af701eaf9bc90b91006fa/03-p1283-apex-pump-raspberry-rush-ingredient-panel.png",
+          "sha256": "83738125690f43db923934da2e3fa0080f7031b4f20af701eaf9bc90b91006fa",
+          "bytes": 3370854
+        },
+        {
+          "id": "apex-directions",
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/93316037eb67831bc6f32a250d1ebdd6d1ca8251b3f3720321dcc06cb40d6401/04-p1283-apex-pump-raspberry-rush-directions.png",
+          "sha256": "93316037eb67831bc6f32a250d1ebdd6d1ca8251b3f3720321dcc06cb40d6401",
+          "bytes": 2169005
+        },
+        {
+          "id": "context-manifest",
+          "object_path": "manifests/nut-03/catalog-expansion-batch-06/2eb59c14837c844180da1fb5962d62350ec3e7f612ba64c9689613908a6764b4/source-context-manifest.json",
+          "sha256": "2eb59c14837c844180da1fb5962d62350ec3e7f612ba64c9689613908a6764b4",
+          "bytes": 38311
+        }
+      ],
+      "storage_writes": 5,
+      "database_writes": 0
+    },
+    "readback": {
+      "result": "READBACK_PASS",
+      "bucket": "nutrition-sources",
+      "bucket_public": false,
+      "retained_without_automatic_expiry": true,
+      "readback": [
+        {
+          "id": "manufacturer-01-2a58d72e86c8c7a4552e",
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/0ff89fea8c70b1b7e0be3da45249dc6c6bb818c7e94f6e2bead37108965ab236/01-p1283-apex-formulas-apex-pump-625g-2a58d72e86c8.html",
+          "durable_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/0ff89fea8c70b1b7e0be3da45249dc6c6bb818c7e94f6e2bead37108965ab236/01-p1283-apex-formulas-apex-pump-625g-2a58d72e86c8.html",
+          "sha256": "0ff89fea8c70b1b7e0be3da45249dc6c6bb818c7e94f6e2bead37108965ab236",
+          "bytes": 221788
+        },
+        {
+          "id": "apex-front",
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/e830ae9b8c32ea040f1979846b634e80a72b20418ab6c6d9967cb6023bc565e2/02-p1283-apex-pump-raspberry-rush-front.png",
+          "durable_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/e830ae9b8c32ea040f1979846b634e80a72b20418ab6c6d9967cb6023bc565e2/02-p1283-apex-pump-raspberry-rush-front.png",
+          "sha256": "e830ae9b8c32ea040f1979846b634e80a72b20418ab6c6d9967cb6023bc565e2",
+          "bytes": 1280630
+        },
+        {
+          "id": "apex-table",
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/83738125690f43db923934da2e3fa0080f7031b4f20af701eaf9bc90b91006fa/03-p1283-apex-pump-raspberry-rush-ingredient-panel.png",
+          "durable_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/83738125690f43db923934da2e3fa0080f7031b4f20af701eaf9bc90b91006fa/03-p1283-apex-pump-raspberry-rush-ingredient-panel.png",
+          "sha256": "83738125690f43db923934da2e3fa0080f7031b4f20af701eaf9bc90b91006fa",
+          "bytes": 3370854
+        },
+        {
+          "id": "apex-directions",
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/93316037eb67831bc6f32a250d1ebdd6d1ca8251b3f3720321dcc06cb40d6401/04-p1283-apex-pump-raspberry-rush-directions.png",
+          "durable_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/93316037eb67831bc6f32a250d1ebdd6d1ca8251b3f3720321dcc06cb40d6401/04-p1283-apex-pump-raspberry-rush-directions.png",
+          "sha256": "93316037eb67831bc6f32a250d1ebdd6d1ca8251b3f3720321dcc06cb40d6401",
+          "bytes": 2169005
+        },
+        {
+          "id": "context-manifest",
+          "object_path": "manifests/nut-03/catalog-expansion-batch-06/2eb59c14837c844180da1fb5962d62350ec3e7f612ba64c9689613908a6764b4/source-context-manifest.json",
+          "durable_uri": "supabase-storage://nutrition-sources/manifests/nut-03/catalog-expansion-batch-06/2eb59c14837c844180da1fb5962d62350ec3e7f612ba64c9689613908a6764b4/source-context-manifest.json",
+          "sha256": "2eb59c14837c844180da1fb5962d62350ec3e7f612ba64c9689613908a6764b4",
+          "bytes": 38311
+        }
+      ],
+      "storage_writes": 0,
+      "database_writes": 0
+    },
+    "retained_without_automatic_expiry": true,
+    "private_bucket": true,
+    "note": "Private source retention is not represented as an independent backup."
+  },
+  "controls": {
+    "source_collection_requests": 1,
+    "source_archive_writes": 5,
+    "production_candidate_writes": 0,
+    "production_catalogue_writes": 0,
+    "review_writes": 0,
+    "plan_writes": 0,
+    "apply_writes": 0,
+    "code_changes": 0,
+    "schema_changes": 0
+  },
+  "next_step": "One owner decision may authorize controlled store -> review -> plan -> apply for only the three exact candidates of product 1283 / variant 3763; beta-alanine and creatine remain omitted until qualifying evidence exists."
+}
