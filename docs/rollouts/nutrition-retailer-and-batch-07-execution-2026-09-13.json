@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-retailer-and-batch-07-controlled-execution",
+  "status": "LIVE_VERIFIED",
+  "executed_at": "2026-09-13T15:47:06.456Z",
+   "production": {
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "environment": "PRODUCTION",
+    "applied_variant_count_before": 68,
+    "applied_variant_count_after": 89
+  },
+  "authorization": {
+    "scope": "Store, authenticated review, explicit-ID plan and guarded apply for exactly 84 candidates and 21 exact variants; the owner explicitly revoked the earlier preparation-only restriction for this set.",
+    "product_updates_allowed": 0,
+    "target_variant_updates_allowed": 21,
+    "creatine_candidates_allowed": 0
+  },
+  "inputs": [
+    {
+      "product_id": "778",
+      "variant_ids": ["972", "1978", "4082", "4084", "4088", "4089"],
+      "candidate_count": 24,
+      "artifact": "tmp/nutrition-retailer-source-batch-01-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-retailer-batch-01-778-20260913.json",
+      "artifact_sha256": "5fe522ec843a8e3f5ed0e715cd455120367c050c5d015405c32024a9d270bc58",
+      "artifact_fingerprint": "dc2e1c89c6a485d34f20d8f3b587279157702c423f1e5ca4169fea40489835ad",
+      "candidate_ids": ["1037", "1038", "1039", "1040", "1041", "1042", "1043", "1044", "1045", "1046", "1047", "1048", "1049", "1050", "1051", "1052", "1053", "1054", "1055", "1056", "1057", "1058", "1059", "1060"]
+    },
+    {
+      "product_id": "763",
+      "variant_ids": ["920", "921", "4100", "4102", "4103", "4104", "4105", "4106", "4108"],
+      "candidate_count": 36,
+      "artifact": "tmp/nutrition-retailer-source-batch-01-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-retailer-batch-01-763-20260913.json",
+      "artifact_sha256": "be2d40d5036afb085ca559a742c2c12505e846a306a8aeafecf02067ac6bedf8",
+      "artifact_fingerprint": "fe4f930b08010c19fa167bd84cd4bc0abc8626f984ea4c4484057126d500ec11",
+      "candidate_ids": ["1061", "1062", "1063", "1064", "1065", "1066", "1067", "1068", "1069", "1070", "1071", "1072", "1073", "1074", "1075", "1076", "1077", "1078", "1079", "1080", "1081", "1082", "1083", "1084", "1085", "1086", "1087", "1088", "1089", "1090", "1091", "1092", "1093", "1094", "1095", "1096"]
+    },
+    {
+      "product_id": "903",
+      "variant_ids": ["1499", "1500", "1501", "1502"],
+      "candidate_count": 16,
+      "artifact": "tmp/nutrition-retailer-source-batch-01-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-retailer-batch-01-903-20260913.json",
+      "artifact_sha256": "02333210961084146578fd6973f042fe80cdafbb6c7a43b0428395e344a2ced3",
+      "artifact_fingerprint": "6538ba14913552b5bf2c15f71b40a6f423d30ead957d3c1860d6cece26b5af1d",
+      "candidate_ids": ["1097", "1098", "1099", "1100", "1101", "1102", "1103", "1104", "1105", "1106", "1107", "1108", "1109", "1110", "1111", "1112"]
+    },
+    {
+      "product_id": "1282",
+      "variant_ids": ["3762", "3870"],
+      "candidate_count": 8,
+      "artifact": "tmp/nutrition-catalog-batch-07-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-07-twp-1282-20260913.json",
+      "artifact_sha256": "3b92426c5158d24d56038867daf0cbc5b3b594e041e39891270a8b49367e82de",
+      "artifact_fingerprint": "d013169f03a7bb50d22624c15d866411c8e79877cc424bd8617b1d28213b4219",
+      "candidate_ids": ["1113", "1114", "1115", "1116", "1117", "1118", "1119", "1120"]
+    }
+  ],
+  "input_controls": {
+    "candidate_fingerprints": 84,
+    "candidate_fingerprints_unique": 84,
+    "preflight_existing_target_candidates": 0,
+    "preflight_nonempty_target_overrides": 0,
+    "private_archive_readback": {
+      "result": "PASS",
+      "bucket_private": true,
+      "objects_read_and_hash_matched": 7
+    },
+    "dry_runs": [
+      {"product_id": "778", "candidate_rows": 24, "product_updates": 0, "database_writes": 0},
+      {"product_id": "763", "candidate_rows": 36, "product_updates": 0, "database_writes": 0},
+      {"product_id": "903", "candidate_rows": 16, "product_updates": 0, "database_writes": 0},
+      {"product_id": "1282", "candidate_rows": 8, "product_updates": 0, "database_writes": 0}
+    ]
+  },
+  "review": {
+    "method": "existing authenticated admin review route",
+    "approved": 84,
+    "pending_target_candidates_after_review": 0,
+    "reviewed_by": "admin-panel",
+    "evidence_unchanged": true
+  },
+  "plans": [
+    {
+      "product_id": "778",
+      "path": "tmp/nutrition-approved-plan/NCR1-retailer-batch-01-778-20260913-e29d150c5841.json",
+      "sha256": "3ac15500c8f3cf08d015d864db1fa4731fe9698c16903e70e4de15242889295c",
+      "plan_fingerprint": "e29d150c5841a1e44b21edaeaf13d70c51434a84171cd3bcf72a1fad76fe627b",
+      "product_updates": 0,
+      "variant_updates": 6
+    },
+    {
+      "product_id": "763",
+      "path": "tmp/nutrition-approved-plan/NCR1-retailer-batch-01-763-20260913-ffd4689893ee.json",
+      "sha256": "400a54c95d591373e5a56181048f685b47cf8258c4ff45d9981e1c8b2f48c196",
+      "plan_fingerprint": "ffd4689893ee0210af5c3760ac7f03eaee68480e3952c1e5fc76f05de1b071d3",
+      "product_updates": 0,
+      "variant_updates": 9
+    },
+    {
+      "product_id": "903",
+      "path": "tmp/nutrition-approved-plan/NCR1-retailer-batch-01-903-20260913-ab36d7811bd3.json",
+      "sha256": "5b8309f40f080a85661a9880111b4ff7701b4a554410230c07e5bb81eef5a57f",
+      "plan_fingerprint": "ab36d7811bd39ce91f8730f809ddcf8e1f0721c842031792f83f3732060ed141",
+      "product_updates": 0,
+      "variant_updates": 4
+    },
+    {
+      "product_id": "1282",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-batch-07-twp-1282-20260913-c6fbf86c32d9.json",
+      "sha256": "346f856053da519cdb5cad8e1fbde2dcf04f2ad5c085def8409ae8d691402c98",
+      "plan_fingerprint": "c6fbf86c32d91cc400f616918dcf5c3fb4ccb388265d6f85c6f177d2e677888e",
+      "product_updates": 0,
+      "variant_updates": 2
+    }
+  ],
+  "apply": {
+    "result": "PASS",
+    "changed_products": 0,
+    "changed_variants": 21,
+    "fields_per_variant": ["serving_size_g", "caffeine", "beta_alanine", "citrulline"],
+    "audit_sha256": {
+      "778": "f08e31b44cf936beda24e4be52a6683cd6844709536873a73eff275511bfa657",
+      "763": "ae83c81aa3579756b30443001093e2e10d1e33d7f4662496d905bd017cc531d2",
+      "903": "9b3a7747e3685bb25b5dff01251f7bf1132392b26fbe96f7556dd0e469e1fe36",
+      "1282": "7ce31614ab0fa545a0177c98216098debbd34a0dc821c50da03f6c13b2396f9d"
+    }
+  },
+  "independent_readback": {
+    "result": "PASS",
+    "whole_override_matches_plan_after": 21,
+    "approved_candidates_preserved": 84,
+    "full_product_table_sha256": "54ca4527908c69a05a19affcb7ad12a99613054de5058797f599c29e265e2392",
+    "all_other_variants_sha256": "c133236ce1149a8400fc0adcabe69bf608809882d54094682eb475799d7a9421",
+    "target_variant_metadata_sha256": "fc2c19704997e3039d69bf5ed6b79aff783db4a51ff556f146df8e68480ed06e",
+    "non_target_candidate_queue_sha256": "0e2be1f25f18ec9400013d0cada8ee563fbeb0ec1eef797ce30745a8992fec7b",
+    "queue_counts": {"approved": 1098, "pending": 16, "rejected": 6}
+  },
+  "replay_protection": {
+    "result": "PASS_SAFE_REJECTION",
+    "attempts": 4,
+    "additional_writes": 0,
+    "reason": "Each exact plan was rejected because its first target override no longer matched the sealed empty before state. A subsequent independent read matched the prior after state."
+  },
+  "public_readback": {
+    "result": "PASS",
+    "exact_variant_pages": 21,
+    "variant_switching": "PASS",
+    "current_offer_target_variants": 21,
+    "caffeine_free_target_links": 0,
+    "retailer_source_label": "Retailer source",
+    "twp_source_label": "Product label",
+    "private_archive_uris_exposed": 0,
+    "reviewer_metadata_exposed": 0,
+    "examples": [
+      "https://www.supplementscout.co.uk/product/naughty-boy-energy-pre-workout-30-servings?variant=972",
+      "https://www.supplementscout.co.uk/product/naughty-boy-menace-v2-60-servings?variant=920",
+      "https://www.supplementscout.co.uk/product/time-4-pre-workout-professional-300g?variant=1499",
+      "https://www.supplementscout.co.uk/product/twp-hustle-520g?variant=3762"
+    ]
+  },
+  "quality": {
+    "verify_project_before": "PASS",
+    "focused_nutrition_tests": "PASS: 10/10",
+    "verify_quick": "PASS: 377 passed, 3 skipped, 0 failed",
+    "verify_full": "FAIL",
+    "verify_full_detail": "Existing unrelated Whey Okay evidence hash mismatch and OstroVit manifest line-ending fixture comparison failed. These fixtures were not changed in this task and the full gate is not reported as passed."
+  },
+  "coverage": {
+    "newly_applied_exact_variants": 21,
+    "new_complete_four_ingredient_variants": 0,
+    "new_partial_variants": 21,
+    "remaining_field_for_all_new_variants": "creatine",
+    "distinct_applied_variants_total": 89,
+    "current_offer_catalogue": {"variants": 404, "complete": 56, "partial": 25, "none": 323},
+    "frozen_pilot": {"complete": 11, "partial": 1, "without_applied_facts": 13},
+    "stinger_demonstration": 1
+  },
+  "follow_up": {
+    "manual_verification_questions": "docs/rollouts/nutrition-owner-manual-verification-questions-2026-09-13.md",
+    "nut_03_status": "IN PROGRESS"
+  }
+}
