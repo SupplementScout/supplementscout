@@ -1,0 +1,2517 @@
+{
+  "kind": "nutrition-citrulline-components-production-execution-v1",
+  "status": "LIVE_VERIFIED",
+  "recorded_at": "2026-09-13T13:02:11.219Z",
+  "authorization": {
+    "scope": "store -> authenticated review -> explicit plan -> controlled apply for exactly 18 candidates",
+    "exact_products": [
+      "1250",
+      "1254",
+      "1279"
+    ],
+    "exact_variants": [
+      "3672",
+      "3721",
+      "3722",
+      "3676",
+      "3725",
+      "3726",
+      "3759",
+      "3894",
+      "3895"
+    ],
+    "allowed_catalogue_change": "nutrition_override.citrulline_components only on the nine exact variants"
+  },
+  "target": {
+    "environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "verified": true
+  },
+  "artifact": {
+    "path": "tmp/nutrition-citrulline-components-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-citrulline-components-bulk-1250-1254-1279-20260913.json",
+    "sha256": "88e70433f68c802f59e48c145b72ac8c8ffdb90f03fb6f4e3400132ad3bb3474",
+    "artifact_fingerprint": "62eaed138ac27509fce9c620f4d142060e5b2a0503b59ea2cf0b86a44f245973",
+    "candidates": 18,
+    "unique_candidate_fingerprints": 18,
+    "dry_run": {
+      "result": "DRY_RUN_NO_DATABASE",
+      "candidate_rows": 18,
+      "product_updates": 0,
+      "database_writes": 0
+    }
+  },
+  "source_archive_readback": {
+    "result": "READBACK_PASS",
+    "captured_at": "2026-09-13T12:44:32.623Z",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "bucket": "nutrition-sources",
+    "bucket_public": false,
+    "objects_checked": 3,
+    "hashes_matched": 3,
+    "readback": [
+      {
+        "object_path": "snapshots/nut-03/catalog-expansion-batch-05/bulk/1250/4c5ca745d34fe8c07cee9f8dc424db9163bd896576d6c324f70d0d4b3998af16/01-p1250-bulk-dope-pre-workout-510g-c7e27ecccad2.html",
+        "durable_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/bulk/1250/4c5ca745d34fe8c07cee9f8dc424db9163bd896576d6c324f70d0d4b3998af16/01-p1250-bulk-dope-pre-workout-510g-c7e27ecccad2.html",
+        "sha256": "4c5ca745d34fe8c07cee9f8dc424db9163bd896576d6c324f70d0d4b3998af16",
+        "bytes": 62424
+      },
+      {
+        "object_path": "snapshots/nut-03/catalog-expansion-batch-05/bulk/1254/f55f6485844ea6f6edf31992b83e73ea877649d8c2237e10c757488cf5875b75/02-p1254-bulk-dope-max-pre-workout-563g-f58423904015.html",
+        "durable_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/bulk/1254/f55f6485844ea6f6edf31992b83e73ea877649d8c2237e10c757488cf5875b75/02-p1254-bulk-dope-max-pre-workout-563g-f58423904015.html",
+        "sha256": "f55f6485844ea6f6edf31992b83e73ea877649d8c2237e10c757488cf5875b75",
+        "bytes": 52723
+      },
+      {
+        "object_path": "snapshots/nut-03/catalog-expansion-batch-05/bulk/1279/8b9d3ff1d906372ab4a7941ca6a1e4a200ee9b856c707e3f1e41f343bfba7d15/03-p1279-bulk-dope-caffeine-free-pre-workout-510g-ae81e4cc981d.html",
+        "durable_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/bulk/1279/8b9d3ff1d906372ab4a7941ca6a1e4a200ee9b856c707e3f1e41f343bfba7d15/03-p1279-bulk-dope-caffeine-free-pre-workout-510g-ae81e4cc981d.html",
+        "sha256": "8b9d3ff1d906372ab4a7941ca6a1e4a200ee9b856c707e3f1e41f343bfba7d15",
+        "bytes": 53824
+      }
+    ],
+    "storage_writes": 0,
+    "database_writes": 0
+  },
+  "preflight": {
+    "captured_at": "2026-09-13T12:44:17.274Z",
+    "migration_present": [
+      {
+        "version": "20260913110000",
+        "name": "add_nutrition_candidate_citrulline_components"
+      }
+    ],
+    "existing_artifact_fingerprint_rows": 0,
+    "queue_status_counts": {
+      "pending": 16,
+      "approved": 996,
+      "rejected": 6
+    },
+    "exact_variant_ownership_and_empty_component_targets_verified": true,
+    "catalogue_writes": 0
+  },
+  "store": {
+    "result": "CANDIDATE_TABLE_WRITE_ONLY",
+    "new_rows": 18,
+    "existing_identical_rows": 0,
+    "product_updates": 0,
+    "ids": [
+      "1019",
+      "1020",
+      "1021",
+      "1022",
+      "1023",
+      "1024",
+      "1025",
+      "1026",
+      "1027",
+      "1028",
+      "1029",
+      "1030",
+      "1031",
+      "1032",
+      "1033",
+      "1034",
+      "1035",
+      "1036"
+    ],
+    "poststore_queue_status_counts": {
+      "pending": 34,
+      "approved": 996,
+      "rejected": 6
+    },
+    "exact_rows_read_back": true,
+    "duplicate_fingerprints": 0
+  },
+  "review": {
+    "result": "PASS",
+    "mechanism": "authenticated admin-panel individual review",
+    "newly_approved": 18,
+    "already_approved": 0,
+    "ids": [
+      "1019",
+      "1020",
+      "1021",
+      "1022",
+      "1023",
+      "1024",
+      "1025",
+      "1026",
+      "1027",
+      "1028",
+      "1029",
+      "1030",
+      "1031",
+      "1032",
+      "1033",
+      "1034",
+      "1035",
+      "1036"
+    ],
+    "postreview_queue_status_counts": {
+      "pending": 16,
+      "approved": 1014,
+      "rejected": 6
+    },
+    "approved_values_and_evidence_read_back": true
+  },
+  "candidates": [
+    {
+      "id": "1019",
+      "product_id": "1250",
+      "product_variant_id": "3672",
+      "field": "citrulline_component_per_serving_mg",
+      "information_state": "present_with_amount",
+      "approved_value": 2500,
+      "source_quantity_value": 2.5,
+      "source_quantity_unit": "g",
+      "ingredient_form": "citrulline_malate",
+      "ingredient_ratio": null,
+      "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+      "serving_basis_value": 17,
+      "serving_basis_unit": "g",
+      "source_url": "https://www.bulk.com/uk/products/dope-pre-workout/bble-dope",
+      "source_file_sha256": "4c5ca745d34fe8c07cee9f8dc424db9163bd896576d6c324f70d0d4b3998af16",
+      "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/bulk/1250/4c5ca745d34fe8c07cee9f8dc424db9163bd896576d6c324f70d0d4b3998af16/01-p1250-bulk-dope-pre-workout-510g-c7e27ecccad2.html",
+      "source_locator": "html:01-p1250-bulk-dope-pre-workout-510g-c7e27ecccad2.html#active-table/citrulline_component_per_serving_mg/citrulline_malate | context:source-context-manifest.json#product-1250/variant-3672",
+      "candidate_fingerprint": "9eb694c2ef7b7c02165b08e12e26162b327b5cf12670bbe73a3f8efa2696a698",
+      "status": "approved",
+      "reviewed_at": "2026-09-13T12:47:01.611+00:00",
+      "reviewed_by": "admin-panel",
+      "review_note": "Owner-authorized multi-component citrulline review; exact artifact SHA-256 88e70433f68c802f59e48c145b72ac8c8ffdb90f03fb6f4e3400132ad3bb3474; artifact fingerprint 62eaed138ac27509fce9c620f4d142060e5b2a0503b59ea2cf0b86a44f245973; retained common manufacturer table and exact-variant binding."
+    },
+    {
+      "id": "1020",
+      "product_id": "1250",
+      "product_variant_id": "3672",
+      "field": "citrulline_component_per_serving_mg",
+      "information_state": "present_with_amount",
+      "approved_value": 500,
+      "source_quantity_value": 500,
+      "source_quantity_unit": "mg",
+      "ingredient_form": "l_citrulline",
+      "ingredient_ratio": null,
+      "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+      "serving_basis_value": 17,
+      "serving_basis_unit": "g",
+      "source_url": "https://www.bulk.com/uk/products/dope-pre-workout/bble-dope",
+      "source_file_sha256": "4c5ca745d34fe8c07cee9f8dc424db9163bd896576d6c324f70d0d4b3998af16",
+      "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/bulk/1250/4c5ca745d34fe8c07cee9f8dc424db9163bd896576d6c324f70d0d4b3998af16/01-p1250-bulk-dope-pre-workout-510g-c7e27ecccad2.html",
+      "source_locator": "html:01-p1250-bulk-dope-pre-workout-510g-c7e27ecccad2.html#active-table/citrulline_component_per_serving_mg/l_citrulline | context:source-context-manifest.json#product-1250/variant-3672",
+      "candidate_fingerprint": "0607995f44f4accb29ca265c6a01ac5ab27a96e105ce492d4a1a62fdbaf50918",
+      "status": "approved",
+      "reviewed_at": "2026-09-13T12:47:02.241+00:00",
+      "reviewed_by": "admin-panel",
+      "review_note": "Owner-authorized multi-component citrulline review; exact artifact SHA-256 88e70433f68c802f59e48c145b72ac8c8ffdb90f03fb6f4e3400132ad3bb3474; artifact fingerprint 62eaed138ac27509fce9c620f4d142060e5b2a0503b59ea2cf0b86a44f245973; retained common manufacturer table and exact-variant binding."
+    },
+    {
+      "id": "1021",
+      "product_id": "1250",
+      "product_variant_id": "3721",
+      "field": "citrulline_component_per_serving_mg",
+      "information_state": "present_with_amount",
+      "approved_value": 2500,
+      "source_quantity_value": 2.5,
+      "source_quantity_unit": "g",
+      "ingredient_form": "citrulline_malate",
+      "ingredient_ratio": null,
+      "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+      "serving_basis_value": 17,
+      "serving_basis_unit": "g",
+      "source_url": "https://www.bulk.com/uk/products/dope-pre-workout/bble-dope",
+      "source_file_sha256": "4c5ca745d34fe8c07cee9f8dc424db9163bd896576d6c324f70d0d4b3998af16",
+      "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/bulk/1250/4c5ca745d34fe8c07cee9f8dc424db9163bd896576d6c324f70d0d4b3998af16/01-p1250-bulk-dope-pre-workout-510g-c7e27ecccad2.html",
+      "source_locator": "html:01-p1250-bulk-dope-pre-workout-510g-c7e27ecccad2.html#active-table/citrulline_component_per_serving_mg/citrulline_malate | context:source-context-manifest.json#product-1250/variant-3721",
+      "candidate_fingerprint": "1fd038ccc1490c11ce1ef578ffac44689a54f82a420929785def11306e3349d5",
+      "status": "approved",
+      "reviewed_at": "2026-09-13T12:47:03.09+00:00",
+      "reviewed_by": "admin-panel",
+      "review_note": "Owner-authorized multi-component citrulline review; exact artifact SHA-256 88e70433f68c802f59e48c145b72ac8c8ffdb90f03fb6f4e3400132ad3bb3474; artifact fingerprint 62eaed138ac27509fce9c620f4d142060e5b2a0503b59ea2cf0b86a44f245973; retained common manufacturer table and exact-variant binding."
+    },
+    {
+      "id": "1022",
+      "product_id": "1250",
+      "product_variant_id": "3721",
+      "field": "citrulline_component_per_serving_mg",
+      "information_state": "present_with_amount",
+      "approved_value": 500,
+      "source_quantity_value": 500,
+      "source_quantity_unit": "mg",
+      "ingredient_form": "l_citrulline",
+      "ingredient_ratio": null,
+      "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+      "serving_basis_value": 17,
+      "serving_basis_unit": "g",
+      "source_url": "https://www.bulk.com/uk/products/dope-pre-workout/bble-dope",
+      "source_file_sha256": "4c5ca745d34fe8c07cee9f8dc424db9163bd896576d6c324f70d0d4b3998af16",
+      "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/bulk/1250/4c5ca745d34fe8c07cee9f8dc424db9163bd896576d6c324f70d0d4b3998af16/01-p1250-bulk-dope-pre-workout-510g-c7e27ecccad2.html",
+      "source_locator": "html:01-p1250-bulk-dope-pre-workout-510g-c7e27ecccad2.html#active-table/citrulline_component_per_serving_mg/l_citrulline | context:source-context-manifest.json#product-1250/variant-3721",
+      "candidate_fingerprint": "6c2754320596841ef5f0570cb66ce6e6cfaaff50bb8fee223e2e27dba4be8393",
+      "status": "approved",
+      "reviewed_at": "2026-09-13T12:47:03.856+00:00",
+      "reviewed_by": "admin-panel",
+      "review_note": "Owner-authorized multi-component citrulline review; exact artifact SHA-256 88e70433f68c802f59e48c145b72ac8c8ffdb90f03fb6f4e3400132ad3bb3474; artifact fingerprint 62eaed138ac27509fce9c620f4d142060e5b2a0503b59ea2cf0b86a44f245973; retained common manufacturer table and exact-variant binding."
+    },
+    {
+      "id": "1023",
+      "product_id": "1250",
+      "product_variant_id": "3722",
+      "field": "citrulline_component_per_serving_mg",
+      "information_state": "present_with_amount",
+      "approved_value": 2500,
+      "source_quantity_value": 2.5,
+      "source_quantity_unit": "g",
+      "ingredient_form": "citrulline_malate",
+      "ingredient_ratio": null,
+      "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+      "serving_basis_value": 17,
+      "serving_basis_unit": "g",
+      "source_url": "https://www.bulk.com/uk/products/dope-pre-workout/bble-dope",
+      "source_file_sha256": "4c5ca745d34fe8c07cee9f8dc424db9163bd896576d6c324f70d0d4b3998af16",
+      "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/bulk/1250/4c5ca745d34fe8c07cee9f8dc424db9163bd896576d6c324f70d0d4b3998af16/01-p1250-bulk-dope-pre-workout-510g-c7e27ecccad2.html",
+      "source_locator": "html:01-p1250-bulk-dope-pre-workout-510g-c7e27ecccad2.html#active-table/citrulline_component_per_serving_mg/citrulline_malate | context:source-context-manifest.json#product-1250/variant-3722",
+      "candidate_fingerprint": "4d31135ac5f1b656ec0d52b5b21eacde6235f6a8922bd71f7db98c2e4d18b096",
+      "status": "approved",
+      "reviewed_at": "2026-09-13T12:47:04.501+00:00",
+      "reviewed_by": "admin-panel",
+      "review_note": "Owner-authorized multi-component citrulline review; exact artifact SHA-256 88e70433f68c802f59e48c145b72ac8c8ffdb90f03fb6f4e3400132ad3bb3474; artifact fingerprint 62eaed138ac27509fce9c620f4d142060e5b2a0503b59ea2cf0b86a44f245973; retained common manufacturer table and exact-variant binding."
+    },
+    {
+      "id": "1024",
+      "product_id": "1250",
+      "product_variant_id": "3722",
+      "field": "citrulline_component_per_serving_mg",
+      "information_state": "present_with_amount",
+      "approved_value": 500,
+      "source_quantity_value": 500,
+      "source_quantity_unit": "mg",
+      "ingredient_form": "l_citrulline",
+      "ingredient_ratio": null,
+      "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+      "serving_basis_value": 17,
+      "serving_basis_unit": "g",
+      "source_url": "https://www.bulk.com/uk/products/dope-pre-workout/bble-dope",
+      "source_file_sha256": "4c5ca745d34fe8c07cee9f8dc424db9163bd896576d6c324f70d0d4b3998af16",
+      "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/bulk/1250/4c5ca745d34fe8c07cee9f8dc424db9163bd896576d6c324f70d0d4b3998af16/01-p1250-bulk-dope-pre-workout-510g-c7e27ecccad2.html",
+      "source_locator": "html:01-p1250-bulk-dope-pre-workout-510g-c7e27ecccad2.html#active-table/citrulline_component_per_serving_mg/l_citrulline | context:source-context-manifest.json#product-1250/variant-3722",
+      "candidate_fingerprint": "f1670223bb5df81262aa686b691ef896d0b40337a961378e1c650bb10eac70aa",
+      "status": "approved",
+      "reviewed_at": "2026-09-13T12:47:05.118+00:00",
+      "reviewed_by": "admin-panel",
+      "review_note": "Owner-authorized multi-component citrulline review; exact artifact SHA-256 88e70433f68c802f59e48c145b72ac8c8ffdb90f03fb6f4e3400132ad3bb3474; artifact fingerprint 62eaed138ac27509fce9c620f4d142060e5b2a0503b59ea2cf0b86a44f245973; retained common manufacturer table and exact-variant binding."
+    },
+    {
+      "id": "1025",
+      "product_id": "1254",
+      "product_variant_id": "3676",
+      "field": "citrulline_component_per_serving_mg",
+      "information_state": "present_with_amount",
+      "approved_value": 3000,
+      "source_quantity_value": 3,
+      "source_quantity_unit": "g",
+      "ingredient_form": "citrulline_malate",
+      "ingredient_ratio": null,
+      "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+      "serving_basis_value": 22.5,
+      "serving_basis_unit": "g",
+      "source_url": "https://www.bulk.com/uk/products/dope-max-pre-workout/bble-dmax",
+      "source_file_sha256": "f55f6485844ea6f6edf31992b83e73ea877649d8c2237e10c757488cf5875b75",
+      "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/bulk/1254/f55f6485844ea6f6edf31992b83e73ea877649d8c2237e10c757488cf5875b75/02-p1254-bulk-dope-max-pre-workout-563g-f58423904015.html",
+      "source_locator": "html:02-p1254-bulk-dope-max-pre-workout-563g-f58423904015.html#active-table/citrulline_component_per_serving_mg/citrulline_malate | context:source-context-manifest.json#product-1254/variant-3676",
+      "candidate_fingerprint": "fc31a6ea807994bbaf335bddab70b5fa939e3eafa8d1b1e554c80c003924bc87",
+      "status": "approved",
+      "reviewed_at": "2026-09-13T12:47:05.639+00:00",
+      "reviewed_by": "admin-panel",
+      "review_note": "Owner-authorized multi-component citrulline review; exact artifact SHA-256 88e70433f68c802f59e48c145b72ac8c8ffdb90f03fb6f4e3400132ad3bb3474; artifact fingerprint 62eaed138ac27509fce9c620f4d142060e5b2a0503b59ea2cf0b86a44f245973; retained common manufacturer table and exact-variant binding."
+    },
+    {
+      "id": "1026",
+      "product_id": "1254",
+      "product_variant_id": "3676",
+      "field": "citrulline_component_per_serving_mg",
+      "information_state": "present_with_amount",
+      "approved_value": 2000,
+      "source_quantity_value": 2,
+      "source_quantity_unit": "g",
+      "ingredient_form": "l_citrulline",
+      "ingredient_ratio": null,
+      "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+      "serving_basis_value": 22.5,
+      "serving_basis_unit": "g",
+      "source_url": "https://www.bulk.com/uk/products/dope-max-pre-workout/bble-dmax",
+      "source_file_sha256": "f55f6485844ea6f6edf31992b83e73ea877649d8c2237e10c757488cf5875b75",
+      "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/bulk/1254/f55f6485844ea6f6edf31992b83e73ea877649d8c2237e10c757488cf5875b75/02-p1254-bulk-dope-max-pre-workout-563g-f58423904015.html",
+      "source_locator": "html:02-p1254-bulk-dope-max-pre-workout-563g-f58423904015.html#active-table/citrulline_component_per_serving_mg/l_citrulline | context:source-context-manifest.json#product-1254/variant-3676",
+      "candidate_fingerprint": "bf8996b0a2a2e77270d28ebe91dba9105c83d6cc3bd286cac6eb95227a0c1337",
+      "status": "approved",
+      "reviewed_at": "2026-09-13T12:47:06.168+00:00",
+      "reviewed_by": "admin-panel",
+      "review_note": "Owner-authorized multi-component citrulline review; exact artifact SHA-256 88e70433f68c802f59e48c145b72ac8c8ffdb90f03fb6f4e3400132ad3bb3474; artifact fingerprint 62eaed138ac27509fce9c620f4d142060e5b2a0503b59ea2cf0b86a44f245973; retained common manufacturer table and exact-variant binding."
+    },
+    {
+      "id": "1027",
+      "product_id": "1254",
+      "product_variant_id": "3725",
+      "field": "citrulline_component_per_serving_mg",
+      "information_state": "present_with_amount",
+      "approved_value": 3000,
+      "source_quantity_value": 3,
+      "source_quantity_unit": "g",
+      "ingredient_form": "citrulline_malate",
+      "ingredient_ratio": null,
+      "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+      "serving_basis_value": 22.5,
+      "serving_basis_unit": "g",
+      "source_url": "https://www.bulk.com/uk/products/dope-max-pre-workout/bble-dmax",
+      "source_file_sha256": "f55f6485844ea6f6edf31992b83e73ea877649d8c2237e10c757488cf5875b75",
+      "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/bulk/1254/f55f6485844ea6f6edf31992b83e73ea877649d8c2237e10c757488cf5875b75/02-p1254-bulk-dope-max-pre-workout-563g-f58423904015.html",
+      "source_locator": "html:02-p1254-bulk-dope-max-pre-workout-563g-f58423904015.html#active-table/citrulline_component_per_serving_mg/citrulline_malate | context:source-context-manifest.json#product-1254/variant-3725",
+      "candidate_fingerprint": "1242ab2c0a71ea2c6f7cd8ae57c8f4be1e2309b229f67c0ef5196fd82fbd06b9",
+      "status": "approved",
+      "reviewed_at": "2026-09-13T12:47:07.163+00:00",
+      "reviewed_by": "admin-panel",
+      "review_note": "Owner-authorized multi-component citrulline review; exact artifact SHA-256 88e70433f68c802f59e48c145b72ac8c8ffdb90f03fb6f4e3400132ad3bb3474; artifact fingerprint 62eaed138ac27509fce9c620f4d142060e5b2a0503b59ea2cf0b86a44f245973; retained common manufacturer table and exact-variant binding."
+    },
+    {
+      "id": "1028",
+      "product_id": "1254",
+      "product_variant_id": "3725",
+      "field": "citrulline_component_per_serving_mg",
+      "information_state": "present_with_amount",
+      "approved_value": 2000,
+      "source_quantity_value": 2,
+      "source_quantity_unit": "g",
+      "ingredient_form": "l_citrulline",
+      "ingredient_ratio": null,
+      "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+      "serving_basis_value": 22.5,
+      "serving_basis_unit": "g",
+      "source_url": "https://www.bulk.com/uk/products/dope-max-pre-workout/bble-dmax",
+      "source_file_sha256": "f55f6485844ea6f6edf31992b83e73ea877649d8c2237e10c757488cf5875b75",
+      "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/bulk/1254/f55f6485844ea6f6edf31992b83e73ea877649d8c2237e10c757488cf5875b75/02-p1254-bulk-dope-max-pre-workout-563g-f58423904015.html",
+      "source_locator": "html:02-p1254-bulk-dope-max-pre-workout-563g-f58423904015.html#active-table/citrulline_component_per_serving_mg/l_citrulline | context:source-context-manifest.json#product-1254/variant-3725",
+      "candidate_fingerprint": "b8cef13e67c0913a41a63fba9c67dfd896e9e6a61384720a7cba0a9f2f9d42fb",
+      "status": "approved",
+      "reviewed_at": "2026-09-13T12:47:07.992+00:00",
+      "reviewed_by": "admin-panel",
+      "review_note": "Owner-authorized multi-component citrulline review; exact artifact SHA-256 88e70433f68c802f59e48c145b72ac8c8ffdb90f03fb6f4e3400132ad3bb3474; artifact fingerprint 62eaed138ac27509fce9c620f4d142060e5b2a0503b59ea2cf0b86a44f245973; retained common manufacturer table and exact-variant binding."
+    },
+    {
+      "id": "1029",
+      "product_id": "1254",
+      "product_variant_id": "3726",
+      "field": "citrulline_component_per_serving_mg",
+      "information_state": "present_with_amount",
+      "approved_value": 3000,
+      "source_quantity_value": 3,
+      "source_quantity_unit": "g",
+      "ingredient_form": "citrulline_malate",
+      "ingredient_ratio": null,
+      "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+      "serving_basis_value": 22.5,
+      "serving_basis_unit": "g",
+      "source_url": "https://www.bulk.com/uk/products/dope-max-pre-workout/bble-dmax",
+      "source_file_sha256": "f55f6485844ea6f6edf31992b83e73ea877649d8c2237e10c757488cf5875b75",
+      "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/bulk/1254/f55f6485844ea6f6edf31992b83e73ea877649d8c2237e10c757488cf5875b75/02-p1254-bulk-dope-max-pre-workout-563g-f58423904015.html",
+      "source_locator": "html:02-p1254-bulk-dope-max-pre-workout-563g-f58423904015.html#active-table/citrulline_component_per_serving_mg/citrulline_malate | context:source-context-manifest.json#product-1254/variant-3726",
+      "candidate_fingerprint": "af5bd0b6db9131b3938836c7e1ed7300f64fe4497c5ca8eed1fa35353cb526e4",
+      "status": "approved",
+      "reviewed_at": "2026-09-13T12:47:08.748+00:00",
+      "reviewed_by": "admin-panel",
+      "review_note": "Owner-authorized multi-component citrulline review; exact artifact SHA-256 88e70433f68c802f59e48c145b72ac8c8ffdb90f03fb6f4e3400132ad3bb3474; artifact fingerprint 62eaed138ac27509fce9c620f4d142060e5b2a0503b59ea2cf0b86a44f245973; retained common manufacturer table and exact-variant binding."
+    },
+    {
+      "id": "1030",
+      "product_id": "1254",
+      "product_variant_id": "3726",
+      "field": "citrulline_component_per_serving_mg",
+      "information_state": "present_with_amount",
+      "approved_value": 2000,
+      "source_quantity_value": 2,
+      "source_quantity_unit": "g",
+      "ingredient_form": "l_citrulline",
+      "ingredient_ratio": null,
+      "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+      "serving_basis_value": 22.5,
+      "serving_basis_unit": "g",
+      "source_url": "https://www.bulk.com/uk/products/dope-max-pre-workout/bble-dmax",
+      "source_file_sha256": "f55f6485844ea6f6edf31992b83e73ea877649d8c2237e10c757488cf5875b75",
+      "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/bulk/1254/f55f6485844ea6f6edf31992b83e73ea877649d8c2237e10c757488cf5875b75/02-p1254-bulk-dope-max-pre-workout-563g-f58423904015.html",
+      "source_locator": "html:02-p1254-bulk-dope-max-pre-workout-563g-f58423904015.html#active-table/citrulline_component_per_serving_mg/l_citrulline | context:source-context-manifest.json#product-1254/variant-3726",
+      "candidate_fingerprint": "bff63f57a3b5f67801a1d683b548ecafa31d7433cb11643492ad94a8e30fd6d9",
+      "status": "approved",
+      "reviewed_at": "2026-09-13T12:47:09.207+00:00",
+      "reviewed_by": "admin-panel",
+      "review_note": "Owner-authorized multi-component citrulline review; exact artifact SHA-256 88e70433f68c802f59e48c145b72ac8c8ffdb90f03fb6f4e3400132ad3bb3474; artifact fingerprint 62eaed138ac27509fce9c620f4d142060e5b2a0503b59ea2cf0b86a44f245973; retained common manufacturer table and exact-variant binding."
+    },
+    {
+      "id": "1031",
+      "product_id": "1279",
+      "product_variant_id": "3759",
+      "field": "citrulline_component_per_serving_mg",
+      "information_state": "present_with_amount",
+      "approved_value": 2500,
+      "source_quantity_value": 2.5,
+      "source_quantity_unit": "g",
+      "ingredient_form": "citrulline_malate",
+      "ingredient_ratio": null,
+      "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+      "serving_basis_value": 17,
+      "serving_basis_unit": "g",
+      "source_url": "https://www.bulk.com/uk/products/dope-pre-workout-caffeine-free/bble-docf",
+      "source_file_sha256": "8b9d3ff1d906372ab4a7941ca6a1e4a200ee9b856c707e3f1e41f343bfba7d15",
+      "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/bulk/1279/8b9d3ff1d906372ab4a7941ca6a1e4a200ee9b856c707e3f1e41f343bfba7d15/03-p1279-bulk-dope-caffeine-free-pre-workout-510g-ae81e4cc981d.html",
+      "source_locator": "html:03-p1279-bulk-dope-caffeine-free-pre-workout-510g-ae81e4cc981d.html#active-table/citrulline_component_per_serving_mg/citrulline_malate | context:source-context-manifest.json#product-1279/variant-3759",
+      "candidate_fingerprint": "9be83ac1e631ea825784e8073c828554f083893f62bbd4a3f5db318676ba9b67",
+      "status": "approved",
+      "reviewed_at": "2026-09-13T12:47:09.601+00:00",
+      "reviewed_by": "admin-panel",
+      "review_note": "Owner-authorized multi-component citrulline review; exact artifact SHA-256 88e70433f68c802f59e48c145b72ac8c8ffdb90f03fb6f4e3400132ad3bb3474; artifact fingerprint 62eaed138ac27509fce9c620f4d142060e5b2a0503b59ea2cf0b86a44f245973; retained common manufacturer table and exact-variant binding."
+    },
+    {
+      "id": "1032",
+      "product_id": "1279",
+      "product_variant_id": "3759",
+      "field": "citrulline_component_per_serving_mg",
+      "information_state": "present_with_amount",
+      "approved_value": 500,
+      "source_quantity_value": 500,
+      "source_quantity_unit": "mg",
+      "ingredient_form": "l_citrulline",
+      "ingredient_ratio": null,
+      "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+      "serving_basis_value": 17,
+      "serving_basis_unit": "g",
+      "source_url": "https://www.bulk.com/uk/products/dope-pre-workout-caffeine-free/bble-docf",
+      "source_file_sha256": "8b9d3ff1d906372ab4a7941ca6a1e4a200ee9b856c707e3f1e41f343bfba7d15",
+      "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/bulk/1279/8b9d3ff1d906372ab4a7941ca6a1e4a200ee9b856c707e3f1e41f343bfba7d15/03-p1279-bulk-dope-caffeine-free-pre-workout-510g-ae81e4cc981d.html",
+      "source_locator": "html:03-p1279-bulk-dope-caffeine-free-pre-workout-510g-ae81e4cc981d.html#active-table/citrulline_component_per_serving_mg/l_citrulline | context:source-context-manifest.json#product-1279/variant-3759",
+      "candidate_fingerprint": "cca38a503b771eb8c3593faa25007e155a94905ffa5552239f9f3da167313988",
+      "status": "approved",
+      "reviewed_at": "2026-09-13T12:47:09.982+00:00",
+      "reviewed_by": "admin-panel",
+      "review_note": "Owner-authorized multi-component citrulline review; exact artifact SHA-256 88e70433f68c802f59e48c145b72ac8c8ffdb90f03fb6f4e3400132ad3bb3474; artifact fingerprint 62eaed138ac27509fce9c620f4d142060e5b2a0503b59ea2cf0b86a44f245973; retained common manufacturer table and exact-variant binding."
+    },
+    {
+      "id": "1033",
+      "product_id": "1279",
+      "product_variant_id": "3894",
+      "field": "citrulline_component_per_serving_mg",
+      "information_state": "present_with_amount",
+      "approved_value": 2500,
+      "source_quantity_value": 2.5,
+      "source_quantity_unit": "g",
+      "ingredient_form": "citrulline_malate",
+      "ingredient_ratio": null,
+      "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+      "serving_basis_value": 17,
+      "serving_basis_unit": "g",
+      "source_url": "https://www.bulk.com/uk/products/dope-pre-workout-caffeine-free/bble-docf",
+      "source_file_sha256": "8b9d3ff1d906372ab4a7941ca6a1e4a200ee9b856c707e3f1e41f343bfba7d15",
+      "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/bulk/1279/8b9d3ff1d906372ab4a7941ca6a1e4a200ee9b856c707e3f1e41f343bfba7d15/03-p1279-bulk-dope-caffeine-free-pre-workout-510g-ae81e4cc981d.html",
+      "source_locator": "html:03-p1279-bulk-dope-caffeine-free-pre-workout-510g-ae81e4cc981d.html#active-table/citrulline_component_per_serving_mg/citrulline_malate | context:source-context-manifest.json#product-1279/variant-3894",
+      "candidate_fingerprint": "b55f17afefe88956923d0dcc843f6cccb6406ea85b18547fbba299f145d32409",
+      "status": "approved",
+      "reviewed_at": "2026-09-13T12:47:10.378+00:00",
+      "reviewed_by": "admin-panel",
+      "review_note": "Owner-authorized multi-component citrulline review; exact artifact SHA-256 88e70433f68c802f59e48c145b72ac8c8ffdb90f03fb6f4e3400132ad3bb3474; artifact fingerprint 62eaed138ac27509fce9c620f4d142060e5b2a0503b59ea2cf0b86a44f245973; retained common manufacturer table and exact-variant binding."
+    },
+    {
+      "id": "1034",
+      "product_id": "1279",
+      "product_variant_id": "3894",
+      "field": "citrulline_component_per_serving_mg",
+      "information_state": "present_with_amount",
+      "approved_value": 500,
+      "source_quantity_value": 500,
+      "source_quantity_unit": "mg",
+      "ingredient_form": "l_citrulline",
+      "ingredient_ratio": null,
+      "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+      "serving_basis_value": 17,
+      "serving_basis_unit": "g",
+      "source_url": "https://www.bulk.com/uk/products/dope-pre-workout-caffeine-free/bble-docf",
+      "source_file_sha256": "8b9d3ff1d906372ab4a7941ca6a1e4a200ee9b856c707e3f1e41f343bfba7d15",
+      "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/bulk/1279/8b9d3ff1d906372ab4a7941ca6a1e4a200ee9b856c707e3f1e41f343bfba7d15/03-p1279-bulk-dope-caffeine-free-pre-workout-510g-ae81e4cc981d.html",
+      "source_locator": "html:03-p1279-bulk-dope-caffeine-free-pre-workout-510g-ae81e4cc981d.html#active-table/citrulline_component_per_serving_mg/l_citrulline | context:source-context-manifest.json#product-1279/variant-3894",
+      "candidate_fingerprint": "36b636487c69fbe7c5cf93de8f7d9e518ccd8bb4cc6115d8eaf294497a0e663e",
+      "status": "approved",
+      "reviewed_at": "2026-09-13T12:47:10.855+00:00",
+      "reviewed_by": "admin-panel",
+      "review_note": "Owner-authorized multi-component citrulline review; exact artifact SHA-256 88e70433f68c802f59e48c145b72ac8c8ffdb90f03fb6f4e3400132ad3bb3474; artifact fingerprint 62eaed138ac27509fce9c620f4d142060e5b2a0503b59ea2cf0b86a44f245973; retained common manufacturer table and exact-variant binding."
+    },
+    {
+      "id": "1035",
+      "product_id": "1279",
+      "product_variant_id": "3895",
+      "field": "citrulline_component_per_serving_mg",
+      "information_state": "present_with_amount",
+      "approved_value": 2500,
+      "source_quantity_value": 2.5,
+      "source_quantity_unit": "g",
+      "ingredient_form": "citrulline_malate",
+      "ingredient_ratio": null,
+      "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+      "serving_basis_value": 17,
+      "serving_basis_unit": "g",
+      "source_url": "https://www.bulk.com/uk/products/dope-pre-workout-caffeine-free/bble-docf",
+      "source_file_sha256": "8b9d3ff1d906372ab4a7941ca6a1e4a200ee9b856c707e3f1e41f343bfba7d15",
+      "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/bulk/1279/8b9d3ff1d906372ab4a7941ca6a1e4a200ee9b856c707e3f1e41f343bfba7d15/03-p1279-bulk-dope-caffeine-free-pre-workout-510g-ae81e4cc981d.html",
+      "source_locator": "html:03-p1279-bulk-dope-caffeine-free-pre-workout-510g-ae81e4cc981d.html#active-table/citrulline_component_per_serving_mg/citrulline_malate | context:source-context-manifest.json#product-1279/variant-3895",
+      "candidate_fingerprint": "559ce4948103cb38d00424dcc1b6317e2e18d517e141f073a52addbe7b25b55c",
+      "status": "approved",
+      "reviewed_at": "2026-09-13T12:47:11.529+00:00",
+      "reviewed_by": "admin-panel",
+      "review_note": "Owner-authorized multi-component citrulline review; exact artifact SHA-256 88e70433f68c802f59e48c145b72ac8c8ffdb90f03fb6f4e3400132ad3bb3474; artifact fingerprint 62eaed138ac27509fce9c620f4d142060e5b2a0503b59ea2cf0b86a44f245973; retained common manufacturer table and exact-variant binding."
+    },
+    {
+      "id": "1036",
+      "product_id": "1279",
+      "product_variant_id": "3895",
+      "field": "citrulline_component_per_serving_mg",
+      "information_state": "present_with_amount",
+      "approved_value": 500,
+      "source_quantity_value": 500,
+      "source_quantity_unit": "mg",
+      "ingredient_form": "l_citrulline",
+      "ingredient_ratio": null,
+      "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+      "serving_basis_value": 17,
+      "serving_basis_unit": "g",
+      "source_url": "https://www.bulk.com/uk/products/dope-pre-workout-caffeine-free/bble-docf",
+      "source_file_sha256": "8b9d3ff1d906372ab4a7941ca6a1e4a200ee9b856c707e3f1e41f343bfba7d15",
+      "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/bulk/1279/8b9d3ff1d906372ab4a7941ca6a1e4a200ee9b856c707e3f1e41f343bfba7d15/03-p1279-bulk-dope-caffeine-free-pre-workout-510g-ae81e4cc981d.html",
+      "source_locator": "html:03-p1279-bulk-dope-caffeine-free-pre-workout-510g-ae81e4cc981d.html#active-table/citrulline_component_per_serving_mg/l_citrulline | context:source-context-manifest.json#product-1279/variant-3895",
+      "candidate_fingerprint": "02e1044cab778722ff7eed5a2c29b52d8a2f6bc365c72b838bc950f134ca86d2",
+      "status": "approved",
+      "reviewed_at": "2026-09-13T12:47:11.997+00:00",
+      "reviewed_by": "admin-panel",
+      "review_note": "Owner-authorized multi-component citrulline review; exact artifact SHA-256 88e70433f68c802f59e48c145b72ac8c8ffdb90f03fb6f4e3400132ad3bb3474; artifact fingerprint 62eaed138ac27509fce9c620f4d142060e5b2a0503b59ea2cf0b86a44f245973; retained common manufacturer table and exact-variant binding."
+    }
+  ],
+  "plan": {
+    "path": "tmp/nutrition-approved-plan/NCR1-citrulline-components-bulk-1250-1254-1279-20260913-45f8c3ae73b2.json",
+    "sha256": "5a7a91ef9b29c5fe0266e2c400525decc7c51d6b071fe702c8d877ef37a21a2f",
+    "plan_fingerprint": "45f8c3ae73b2a98c930366ee080c73d8a92ec4b0a68714027fdaf45c493d0e03",
+    "approved_candidate_ids": [
+      "1019",
+      "1020",
+      "1021",
+      "1022",
+      "1023",
+      "1024",
+      "1025",
+      "1026",
+      "1027",
+      "1028",
+      "1029",
+      "1030",
+      "1031",
+      "1032",
+      "1033",
+      "1034",
+      "1035",
+      "1036"
+    ],
+    "blockers": [],
+    "product_updates": 0,
+    "variant_updates": 9,
+    "exact_variant_updates": [
+      {
+        "product_id": "1250",
+        "product_variant_id": "3672",
+        "before_nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 200,
+            "source_quantity_value": 200
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3.2
+          },
+          "serving_size_g": 17
+        },
+        "after_nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 200,
+            "source_quantity_value": 200
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3.2
+          },
+          "serving_size_g": 17,
+          "citrulline_components": [
+            {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 2500,
+              "source_quantity_value": 2.5,
+              "source_quantity_unit": "g",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+              "serving_basis_value": 17,
+              "serving_basis_unit": "g",
+              "ingredient_form": "citrulline_malate"
+            },
+            {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 500,
+              "source_quantity_value": 500,
+              "source_quantity_unit": "mg",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+              "serving_basis_value": 17,
+              "serving_basis_unit": "g",
+              "ingredient_form": "l_citrulline"
+            }
+          ]
+        },
+        "changed_keys": [
+          "citrulline_components"
+        ]
+      },
+      {
+        "product_id": "1254",
+        "product_variant_id": "3676",
+        "before_nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 200,
+            "source_quantity_value": 200
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 5000,
+            "source_quantity_value": 5
+          },
+          "serving_size_g": 22.5
+        },
+        "after_nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 200,
+            "source_quantity_value": 200
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 5000,
+            "source_quantity_value": 5
+          },
+          "serving_size_g": 22.5,
+          "citrulline_components": [
+            {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 3000,
+              "source_quantity_value": 3,
+              "source_quantity_unit": "g",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+              "serving_basis_value": 22.5,
+              "serving_basis_unit": "g",
+              "ingredient_form": "citrulline_malate"
+            },
+            {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 2000,
+              "source_quantity_value": 2,
+              "source_quantity_unit": "g",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+              "serving_basis_value": 22.5,
+              "serving_basis_unit": "g",
+              "ingredient_form": "l_citrulline"
+            }
+          ]
+        },
+        "changed_keys": [
+          "citrulline_components"
+        ]
+      },
+      {
+        "product_id": "1250",
+        "product_variant_id": "3721",
+        "before_nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 200,
+            "source_quantity_value": 200
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3.2
+          },
+          "serving_size_g": 17
+        },
+        "after_nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 200,
+            "source_quantity_value": 200
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3.2
+          },
+          "serving_size_g": 17,
+          "citrulline_components": [
+            {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 2500,
+              "source_quantity_value": 2.5,
+              "source_quantity_unit": "g",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+              "serving_basis_value": 17,
+              "serving_basis_unit": "g",
+              "ingredient_form": "citrulline_malate"
+            },
+            {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 500,
+              "source_quantity_value": 500,
+              "source_quantity_unit": "mg",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+              "serving_basis_value": 17,
+              "serving_basis_unit": "g",
+              "ingredient_form": "l_citrulline"
+            }
+          ]
+        },
+        "changed_keys": [
+          "citrulline_components"
+        ]
+      },
+      {
+        "product_id": "1250",
+        "product_variant_id": "3722",
+        "before_nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 200,
+            "source_quantity_value": 200
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3.2
+          },
+          "serving_size_g": 17
+        },
+        "after_nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 200,
+            "source_quantity_value": 200
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3.2
+          },
+          "serving_size_g": 17,
+          "citrulline_components": [
+            {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 2500,
+              "source_quantity_value": 2.5,
+              "source_quantity_unit": "g",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+              "serving_basis_value": 17,
+              "serving_basis_unit": "g",
+              "ingredient_form": "citrulline_malate"
+            },
+            {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 500,
+              "source_quantity_value": 500,
+              "source_quantity_unit": "mg",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+              "serving_basis_value": 17,
+              "serving_basis_unit": "g",
+              "ingredient_form": "l_citrulline"
+            }
+          ]
+        },
+        "changed_keys": [
+          "citrulline_components"
+        ]
+      },
+      {
+        "product_id": "1254",
+        "product_variant_id": "3725",
+        "before_nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 200,
+            "source_quantity_value": 200
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 5000,
+            "source_quantity_value": 5
+          },
+          "serving_size_g": 22.5
+        },
+        "after_nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 200,
+            "source_quantity_value": 200
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 5000,
+            "source_quantity_value": 5
+          },
+          "serving_size_g": 22.5,
+          "citrulline_components": [
+            {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 3000,
+              "source_quantity_value": 3,
+              "source_quantity_unit": "g",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+              "serving_basis_value": 22.5,
+              "serving_basis_unit": "g",
+              "ingredient_form": "citrulline_malate"
+            },
+            {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 2000,
+              "source_quantity_value": 2,
+              "source_quantity_unit": "g",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+              "serving_basis_value": 22.5,
+              "serving_basis_unit": "g",
+              "ingredient_form": "l_citrulline"
+            }
+          ]
+        },
+        "changed_keys": [
+          "citrulline_components"
+        ]
+      },
+      {
+        "product_id": "1254",
+        "product_variant_id": "3726",
+        "before_nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 200,
+            "source_quantity_value": 200
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 5000,
+            "source_quantity_value": 5
+          },
+          "serving_size_g": 22.5
+        },
+        "after_nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 200,
+            "source_quantity_value": 200
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 5000,
+            "source_quantity_value": 5
+          },
+          "serving_size_g": 22.5,
+          "citrulline_components": [
+            {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 3000,
+              "source_quantity_value": 3,
+              "source_quantity_unit": "g",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+              "serving_basis_value": 22.5,
+              "serving_basis_unit": "g",
+              "ingredient_form": "citrulline_malate"
+            },
+            {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 2000,
+              "source_quantity_value": 2,
+              "source_quantity_unit": "g",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+              "serving_basis_value": 22.5,
+              "serving_basis_unit": "g",
+              "ingredient_form": "l_citrulline"
+            }
+          ]
+        },
+        "changed_keys": [
+          "citrulline_components"
+        ]
+      },
+      {
+        "product_id": "1279",
+        "product_variant_id": "3759",
+        "before_nutrition_override": {
+          "caffeine": {
+            "information_state": "confirmed_absent"
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3.2
+          },
+          "serving_size_g": 17
+        },
+        "after_nutrition_override": {
+          "caffeine": {
+            "information_state": "confirmed_absent"
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3.2
+          },
+          "serving_size_g": 17,
+          "citrulline_components": [
+            {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 2500,
+              "source_quantity_value": 2.5,
+              "source_quantity_unit": "g",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+              "serving_basis_value": 17,
+              "serving_basis_unit": "g",
+              "ingredient_form": "citrulline_malate"
+            },
+            {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 500,
+              "source_quantity_value": 500,
+              "source_quantity_unit": "mg",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+              "serving_basis_value": 17,
+              "serving_basis_unit": "g",
+              "ingredient_form": "l_citrulline"
+            }
+          ]
+        },
+        "changed_keys": [
+          "citrulline_components"
+        ]
+      },
+      {
+        "product_id": "1279",
+        "product_variant_id": "3894",
+        "before_nutrition_override": {
+          "caffeine": {
+            "information_state": "confirmed_absent"
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3.2
+          },
+          "serving_size_g": 17
+        },
+        "after_nutrition_override": {
+          "caffeine": {
+            "information_state": "confirmed_absent"
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3.2
+          },
+          "serving_size_g": 17,
+          "citrulline_components": [
+            {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 2500,
+              "source_quantity_value": 2.5,
+              "source_quantity_unit": "g",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+              "serving_basis_value": 17,
+              "serving_basis_unit": "g",
+              "ingredient_form": "citrulline_malate"
+            },
+            {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 500,
+              "source_quantity_value": 500,
+              "source_quantity_unit": "mg",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+              "serving_basis_value": 17,
+              "serving_basis_unit": "g",
+              "ingredient_form": "l_citrulline"
+            }
+          ]
+        },
+        "changed_keys": [
+          "citrulline_components"
+        ]
+      },
+      {
+        "product_id": "1279",
+        "product_variant_id": "3895",
+        "before_nutrition_override": {
+          "caffeine": {
+            "information_state": "confirmed_absent"
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3.2
+          },
+          "serving_size_g": 17
+        },
+        "after_nutrition_override": {
+          "caffeine": {
+            "information_state": "confirmed_absent"
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3.2
+          },
+          "serving_size_g": 17,
+          "citrulline_components": [
+            {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 2500,
+              "source_quantity_value": 2.5,
+              "source_quantity_unit": "g",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+              "serving_basis_value": 17,
+              "serving_basis_unit": "g",
+              "ingredient_form": "citrulline_malate"
+            },
+            {
+              "information_state": "present_with_amount",
+              "amount_per_serving_mg": 500,
+              "source_quantity_value": 500,
+              "source_quantity_unit": "mg",
+              "quantity_basis": "per_serving",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+              "serving_basis_value": 17,
+              "serving_basis_unit": "g",
+              "ingredient_form": "l_citrulline"
+            }
+          ]
+        },
+        "changed_keys": [
+          "citrulline_components"
+        ]
+      }
+    ],
+    "preapply_fresh_read": "PASS"
+  },
+  "apply": {
+    "result": "APPLIED_REVIEWED_NUTRITION_FIELDS",
+    "audit_path": "tmp/nutrition-approved-plan/NCR1-citrulline-components-bulk-1250-1254-1279-20260913-45f8c3ae73b2-audit.json",
+    "audit_sha256": "a65ffe3ea840a2e1e06227d3bf6efde519bc029edc2dadb7de20e30e4265a735",
+    "product_rows_updated": 0,
+    "variant_overrides_updated": 9,
+    "changed_key_per_variant": "citrulline_components",
+    "replay": {
+      "status": "NOT_RUN",
+      "reason": "A second production apply was outside this execution's required post-apply readback scope."
+    }
+  },
+  "independent_postapply_readback": {
+    "result": "PASS",
+    "captured_at": "2026-09-13T12:54:35.434Z",
+    "target_environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "plan": {
+      "path": "tmp/nutrition-approved-plan/NCR1-citrulline-components-bulk-1250-1254-1279-20260913-45f8c3ae73b2.json",
+      "sha256": "5a7a91ef9b29c5fe0266e2c400525decc7c51d6b071fe702c8d877ef37a21a2f",
+      "fingerprint": "45f8c3ae73b2a98c930366ee080c73d8a92ec4b0a68714027fdaf45c493d0e03"
+    },
+    "candidate_ids": [
+      "1019",
+      "1020",
+      "1021",
+      "1022",
+      "1023",
+      "1024",
+      "1025",
+      "1026",
+      "1027",
+      "1028",
+      "1029",
+      "1030",
+      "1031",
+      "1032",
+      "1033",
+      "1034",
+      "1035",
+      "1036"
+    ],
+    "candidate_approvals_and_evidence_unchanged": true,
+    "whole_overrides_match_plan_after": true,
+    "preservation": {
+      "full_product_table_sha256": "54ca4527908c69a05a19affcb7ad12a99613054de5058797f599c29e265e2392",
+      "all_other_variants_sha256": "08313b84c1c57703faf66abc7bb357f6a14b5a59f74994dd5d80976dd6058f89",
+      "target_variant_metadata_sha256": "eb8723c45f5b4fab274a32e3bc355d809bedc08320b0eae670f72535006d1232",
+      "non_package_candidate_queue_sha256": "18e93437f99284c9c1f6e72b9d96be35b45ac34f95ad263fa6ef42ab08eb76a7",
+      "product_count": 1337,
+      "other_variant_count": 3623,
+      "non_package_candidate_count": 1018
+    },
+    "variants": [
+      {
+        "id": "3672",
+        "product_id": "1250",
+        "display_name": "Blue Raspberry",
+        "nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 200,
+            "source_quantity_value": 200
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3.2
+          },
+          "serving_size_g": 17,
+          "citrulline_components": [
+            {
+              "quantity_basis": "per_serving",
+              "ingredient_form": "citrulline_malate",
+              "information_state": "present_with_amount",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+              "serving_basis_unit": "g",
+              "serving_basis_value": 17,
+              "source_quantity_unit": "g",
+              "amount_per_serving_mg": 2500,
+              "source_quantity_value": 2.5
+            },
+            {
+              "quantity_basis": "per_serving",
+              "ingredient_form": "l_citrulline",
+              "information_state": "present_with_amount",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+              "serving_basis_unit": "g",
+              "serving_basis_value": 17,
+              "source_quantity_unit": "mg",
+              "amount_per_serving_mg": 500,
+              "source_quantity_value": 500
+            }
+          ]
+        }
+      },
+      {
+        "id": "3676",
+        "product_id": "1254",
+        "display_name": "Blue Raspberry",
+        "nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 200,
+            "source_quantity_value": 200
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 5000,
+            "source_quantity_value": 5
+          },
+          "serving_size_g": 22.5,
+          "citrulline_components": [
+            {
+              "quantity_basis": "per_serving",
+              "ingredient_form": "citrulline_malate",
+              "information_state": "present_with_amount",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+              "serving_basis_unit": "g",
+              "serving_basis_value": 22.5,
+              "source_quantity_unit": "g",
+              "amount_per_serving_mg": 3000,
+              "source_quantity_value": 3
+            },
+            {
+              "quantity_basis": "per_serving",
+              "ingredient_form": "l_citrulline",
+              "information_state": "present_with_amount",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+              "serving_basis_unit": "g",
+              "serving_basis_value": 22.5,
+              "source_quantity_unit": "g",
+              "amount_per_serving_mg": 2000,
+              "source_quantity_value": 2
+            }
+          ]
+        }
+      },
+      {
+        "id": "3721",
+        "product_id": "1250",
+        "display_name": "Fruit Punch / 510g",
+        "nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 200,
+            "source_quantity_value": 200
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3.2
+          },
+          "serving_size_g": 17,
+          "citrulline_components": [
+            {
+              "quantity_basis": "per_serving",
+              "ingredient_form": "citrulline_malate",
+              "information_state": "present_with_amount",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+              "serving_basis_unit": "g",
+              "serving_basis_value": 17,
+              "source_quantity_unit": "g",
+              "amount_per_serving_mg": 2500,
+              "source_quantity_value": 2.5
+            },
+            {
+              "quantity_basis": "per_serving",
+              "ingredient_form": "l_citrulline",
+              "information_state": "present_with_amount",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+              "serving_basis_unit": "g",
+              "serving_basis_value": 17,
+              "source_quantity_unit": "mg",
+              "amount_per_serving_mg": 500,
+              "source_quantity_value": 500
+            }
+          ]
+        }
+      },
+      {
+        "id": "3722",
+        "product_id": "1250",
+        "display_name": "Strawberry & Lime / 510g",
+        "nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 200,
+            "source_quantity_value": 200
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3.2
+          },
+          "serving_size_g": 17,
+          "citrulline_components": [
+            {
+              "quantity_basis": "per_serving",
+              "ingredient_form": "citrulline_malate",
+              "information_state": "present_with_amount",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+              "serving_basis_unit": "g",
+              "serving_basis_value": 17,
+              "source_quantity_unit": "g",
+              "amount_per_serving_mg": 2500,
+              "source_quantity_value": 2.5
+            },
+            {
+              "quantity_basis": "per_serving",
+              "ingredient_form": "l_citrulline",
+              "information_state": "present_with_amount",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+              "serving_basis_unit": "g",
+              "serving_basis_value": 17,
+              "source_quantity_unit": "mg",
+              "amount_per_serving_mg": 500,
+              "source_quantity_value": 500
+            }
+          ]
+        }
+      },
+      {
+        "id": "3725",
+        "product_id": "1254",
+        "display_name": "Sour Apple / 563g",
+        "nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 200,
+            "source_quantity_value": 200
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 5000,
+            "source_quantity_value": 5
+          },
+          "serving_size_g": 22.5,
+          "citrulline_components": [
+            {
+              "quantity_basis": "per_serving",
+              "ingredient_form": "citrulline_malate",
+              "information_state": "present_with_amount",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+              "serving_basis_unit": "g",
+              "serving_basis_value": 22.5,
+              "source_quantity_unit": "g",
+              "amount_per_serving_mg": 3000,
+              "source_quantity_value": 3
+            },
+            {
+              "quantity_basis": "per_serving",
+              "ingredient_form": "l_citrulline",
+              "information_state": "present_with_amount",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+              "serving_basis_unit": "g",
+              "serving_basis_value": 22.5,
+              "source_quantity_unit": "g",
+              "amount_per_serving_mg": 2000,
+              "source_quantity_value": 2
+            }
+          ]
+        }
+      },
+      {
+        "id": "3726",
+        "product_id": "1254",
+        "display_name": "Strawberry & Lime / 563g",
+        "nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 200,
+            "source_quantity_value": 200
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 5000,
+            "source_quantity_value": 5
+          },
+          "serving_size_g": 22.5,
+          "citrulline_components": [
+            {
+              "quantity_basis": "per_serving",
+              "ingredient_form": "citrulline_malate",
+              "information_state": "present_with_amount",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+              "serving_basis_unit": "g",
+              "serving_basis_value": 22.5,
+              "source_quantity_unit": "g",
+              "amount_per_serving_mg": 3000,
+              "source_quantity_value": 3
+            },
+            {
+              "quantity_basis": "per_serving",
+              "ingredient_form": "l_citrulline",
+              "information_state": "present_with_amount",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 22.5 g)",
+              "serving_basis_unit": "g",
+              "serving_basis_value": 22.5,
+              "source_quantity_unit": "g",
+              "amount_per_serving_mg": 2000,
+              "source_quantity_value": 2
+            }
+          ]
+        }
+      },
+      {
+        "id": "3759",
+        "product_id": "1279",
+        "display_name": "Blue Raspberry",
+        "nutrition_override": {
+          "caffeine": {
+            "information_state": "confirmed_absent"
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3.2
+          },
+          "serving_size_g": 17,
+          "citrulline_components": [
+            {
+              "quantity_basis": "per_serving",
+              "ingredient_form": "citrulline_malate",
+              "information_state": "present_with_amount",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+              "serving_basis_unit": "g",
+              "serving_basis_value": 17,
+              "source_quantity_unit": "g",
+              "amount_per_serving_mg": 2500,
+              "source_quantity_value": 2.5
+            },
+            {
+              "quantity_basis": "per_serving",
+              "ingredient_form": "l_citrulline",
+              "information_state": "present_with_amount",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+              "serving_basis_unit": "g",
+              "serving_basis_value": 17,
+              "source_quantity_unit": "mg",
+              "amount_per_serving_mg": 500,
+              "source_quantity_value": 500
+            }
+          ]
+        }
+      },
+      {
+        "id": "3894",
+        "product_id": "1279",
+        "display_name": "Fruit Punch / 510g",
+        "nutrition_override": {
+          "caffeine": {
+            "information_state": "confirmed_absent"
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3.2
+          },
+          "serving_size_g": 17,
+          "citrulline_components": [
+            {
+              "quantity_basis": "per_serving",
+              "ingredient_form": "citrulline_malate",
+              "information_state": "present_with_amount",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+              "serving_basis_unit": "g",
+              "serving_basis_value": 17,
+              "source_quantity_unit": "g",
+              "amount_per_serving_mg": 2500,
+              "source_quantity_value": 2.5
+            },
+            {
+              "quantity_basis": "per_serving",
+              "ingredient_form": "l_citrulline",
+              "information_state": "present_with_amount",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+              "serving_basis_unit": "g",
+              "serving_basis_value": 17,
+              "source_quantity_unit": "mg",
+              "amount_per_serving_mg": 500,
+              "source_quantity_value": 500
+            }
+          ]
+        }
+      },
+      {
+        "id": "3895",
+        "product_id": "1279",
+        "display_name": "Strawberry & Lime / 510g",
+        "nutrition_override": {
+          "caffeine": {
+            "information_state": "confirmed_absent"
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3400,
+            "source_quantity_value": 3.4
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 17,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3.2
+          },
+          "serving_size_g": 17,
+          "citrulline_components": [
+            {
+              "quantity_basis": "per_serving",
+              "ingredient_form": "citrulline_malate",
+              "information_state": "present_with_amount",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+              "serving_basis_unit": "g",
+              "serving_basis_value": 17,
+              "source_quantity_unit": "g",
+              "amount_per_serving_mg": 2500,
+              "source_quantity_value": 2.5
+            },
+            {
+              "quantity_basis": "per_serving",
+              "ingredient_form": "l_citrulline",
+              "information_state": "present_with_amount",
+              "serving_basis_text": "1 slightly heaped scoop (approximately 17 g)",
+              "serving_basis_unit": "g",
+              "serving_basis_value": 17,
+              "source_quantity_unit": "mg",
+              "amount_per_serving_mg": 500,
+              "source_quantity_value": 500
+            }
+          ]
+        }
+      }
+    ],
+    "database_writes": 0
+  },
+  "public_production_readback": {
+    "result": "PASS",
+    "checked_at": "2026-09-13T12:59:12.419Z",
+    "target_environment": "PUBLIC_PRODUCTION",
+    "products": [
+      {
+        "id": "1250",
+        "name": "Bulk Dope Pre Workout 510g",
+        "slug": "bulk-dope-pre-workout-510g",
+        "nutrition_verified": false,
+        "legacy_creatine_per_serving_g": null
+      },
+      {
+        "id": "1254",
+        "name": "Bulk Dope Max Pre-Workout 563g",
+        "slug": "bulk-dope-max-pre-workout-563g",
+        "nutrition_verified": false,
+        "legacy_creatine_per_serving_g": null
+      },
+      {
+        "id": "1279",
+        "name": "Bulk Dope Caffeine Free Pre-Workout 510g",
+        "slug": "bulk-dope-caffeine-free-pre-workout-510g",
+        "nutrition_verified": false,
+        "legacy_creatine_per_serving_g": null
+      }
+    ],
+    "product_pages": [
+      {
+        "product_id": "1250",
+        "product_variant_id": "3672",
+        "display_name": "Blue Raspberry",
+        "url": "https://www.supplementscout.co.uk/product/bulk-dope-pre-workout-510g?variant=3672",
+        "http_status": 200,
+        "cache_control": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "vercel_id_present": true,
+        "checks": {
+          "exact_variant": true,
+          "reviewed_section": true,
+          "two_components": true,
+          "first_component": true,
+          "second_component": true,
+          "approximate_serving_preserved": true,
+          "no_pure_total": true,
+          "source_kind": true,
+          "private_source_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1250",
+        "product_variant_id": "3721",
+        "display_name": "Fruit Punch / 510g",
+        "url": "https://www.supplementscout.co.uk/product/bulk-dope-pre-workout-510g?variant=3721",
+        "http_status": 200,
+        "cache_control": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "vercel_id_present": true,
+        "checks": {
+          "exact_variant": true,
+          "reviewed_section": true,
+          "two_components": true,
+          "first_component": true,
+          "second_component": true,
+          "approximate_serving_preserved": true,
+          "no_pure_total": true,
+          "source_kind": true,
+          "private_source_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1250",
+        "product_variant_id": "3722",
+        "display_name": "Strawberry & Lime / 510g",
+        "url": "https://www.supplementscout.co.uk/product/bulk-dope-pre-workout-510g?variant=3722",
+        "http_status": 200,
+        "cache_control": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "vercel_id_present": true,
+        "checks": {
+          "exact_variant": true,
+          "reviewed_section": true,
+          "two_components": true,
+          "first_component": true,
+          "second_component": true,
+          "approximate_serving_preserved": true,
+          "no_pure_total": true,
+          "source_kind": true,
+          "private_source_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1254",
+        "product_variant_id": "3676",
+        "display_name": "Blue Raspberry",
+        "url": "https://www.supplementscout.co.uk/product/bulk-dope-max-pre-workout-563g?variant=3676",
+        "http_status": 200,
+        "cache_control": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "vercel_id_present": true,
+        "checks": {
+          "exact_variant": true,
+          "reviewed_section": true,
+          "two_components": true,
+          "first_component": true,
+          "second_component": true,
+          "approximate_serving_preserved": true,
+          "no_pure_total": true,
+          "source_kind": true,
+          "private_source_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1254",
+        "product_variant_id": "3725",
+        "display_name": "Sour Apple / 563g",
+        "url": "https://www.supplementscout.co.uk/product/bulk-dope-max-pre-workout-563g?variant=3725",
+        "http_status": 200,
+        "cache_control": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "vercel_id_present": true,
+        "checks": {
+          "exact_variant": true,
+          "reviewed_section": true,
+          "two_components": true,
+          "first_component": true,
+          "second_component": true,
+          "approximate_serving_preserved": true,
+          "no_pure_total": true,
+          "source_kind": true,
+          "private_source_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1254",
+        "product_variant_id": "3726",
+        "display_name": "Strawberry & Lime / 563g",
+        "url": "https://www.supplementscout.co.uk/product/bulk-dope-max-pre-workout-563g?variant=3726",
+        "http_status": 200,
+        "cache_control": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "vercel_id_present": true,
+        "checks": {
+          "exact_variant": true,
+          "reviewed_section": true,
+          "two_components": true,
+          "first_component": true,
+          "second_component": true,
+          "approximate_serving_preserved": true,
+          "no_pure_total": true,
+          "source_kind": true,
+          "private_source_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1279",
+        "product_variant_id": "3759",
+        "display_name": "Blue Raspberry",
+        "url": "https://www.supplementscout.co.uk/product/bulk-dope-caffeine-free-pre-workout-510g?variant=3759",
+        "http_status": 200,
+        "cache_control": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "vercel_id_present": true,
+        "checks": {
+          "exact_variant": true,
+          "reviewed_section": true,
+          "two_components": true,
+          "first_component": true,
+          "second_component": true,
+          "approximate_serving_preserved": true,
+          "no_pure_total": true,
+          "source_kind": true,
+          "private_source_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1279",
+        "product_variant_id": "3894",
+        "display_name": "Fruit Punch / 510g",
+        "url": "https://www.supplementscout.co.uk/product/bulk-dope-caffeine-free-pre-workout-510g?variant=3894",
+        "http_status": 200,
+        "cache_control": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "vercel_id_present": true,
+        "checks": {
+          "exact_variant": true,
+          "reviewed_section": true,
+          "two_components": true,
+          "first_component": true,
+          "second_component": true,
+          "approximate_serving_preserved": true,
+          "no_pure_total": true,
+          "source_kind": true,
+          "private_source_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1279",
+        "product_variant_id": "3895",
+        "display_name": "Strawberry & Lime / 510g",
+        "url": "https://www.supplementscout.co.uk/product/bulk-dope-caffeine-free-pre-workout-510g?variant=3895",
+        "http_status": 200,
+        "cache_control": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "vercel_id_present": true,
+        "checks": {
+          "exact_variant": true,
+          "reviewed_section": true,
+          "two_components": true,
+          "first_component": true,
+          "second_component": true,
+          "approximate_serving_preserved": true,
+          "no_pure_total": true,
+          "source_kind": true,
+          "private_source_absent": true,
+          "reviewer_absent": true
+        }
+      }
+    ],
+    "offer_evidence": [
+      {
+        "product_id": "1250",
+        "product_variant_id": "3672",
+        "observed_offers": 1,
+        "current_in_stock_offers": 1
+      },
+      {
+        "product_id": "1250",
+        "product_variant_id": "3721",
+        "observed_offers": 1,
+        "current_in_stock_offers": 1
+      },
+      {
+        "product_id": "1250",
+        "product_variant_id": "3722",
+        "observed_offers": 1,
+        "current_in_stock_offers": 1
+      },
+      {
+        "product_id": "1254",
+        "product_variant_id": "3676",
+        "observed_offers": 1,
+        "current_in_stock_offers": 1
+      },
+      {
+        "product_id": "1254",
+        "product_variant_id": "3725",
+        "observed_offers": 1,
+        "current_in_stock_offers": 1
+      },
+      {
+        "product_id": "1254",
+        "product_variant_id": "3726",
+        "observed_offers": 1,
+        "current_in_stock_offers": 1
+      },
+      {
+        "product_id": "1279",
+        "product_variant_id": "3759",
+        "observed_offers": 1,
+        "current_in_stock_offers": 1
+      },
+      {
+        "product_id": "1279",
+        "product_variant_id": "3894",
+        "observed_offers": 1,
+        "current_in_stock_offers": 1
+      },
+      {
+        "product_id": "1279",
+        "product_variant_id": "3895",
+        "observed_offers": 1,
+        "current_in_stock_offers": 1
+      }
+    ],
+    "caffeine_free_search": {
+      "url": "https://www.supplementscout.co.uk/search?q=pre%20workout&caffeine=free",
+      "http_status": 200,
+      "exact_target_links": [
+        {
+          "href": "/product/bulk-dope-caffeine-free-pre-workout-510g?variant=3759",
+          "variant_id": "3759"
+        }
+      ],
+      "grouped_caffeine_free_cards": 1,
+      "caffeinated_target_links": [],
+      "grouping": "one card per product; exact qualifying variant selected from current available offers"
+    }
+  },
+  "coverage_after_apply": {
+    "result": "PASS",
+    "captured_at": "2026-09-13T12:59:50.447Z",
+    "target_environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "distinct_variants_with_applied_facts": 68,
+    "frozen_pilot": {
+      "denominator": 25,
+      "complete": 11,
+      "partial": 1,
+      "none": 13,
+      "complete_variant_ids": [
+        "726",
+        "760",
+        "761",
+        "815",
+        "816",
+        "1016",
+        "1383",
+        "1384",
+        "1864",
+        "3676",
+        "3759"
+      ],
+      "partial_variant_ids": [
+        "3763"
+      ],
+      "no_applied_fact_variant_ids": [
+        "714",
+        "885",
+        "887",
+        "1007",
+        "1029",
+        "1041",
+        "1059",
+        "1487",
+        "1879",
+        "1974",
+        "3671",
+        "3674",
+        "3755"
+      ],
+      "promoted_from_partial_to_complete": [
+        "3676",
+        "3759"
+      ],
+      "remaining_partial": [
+        "3763"
+      ]
+    },
+    "target_component_variants": [
+      {
+        "product_id": "1250",
+        "product_variant_id": "3672",
+        "completeness": "complete",
+        "component_count": 2
+      },
+      {
+        "product_id": "1254",
+        "product_variant_id": "3676",
+        "completeness": "complete",
+        "component_count": 2
+      },
+      {
+        "product_id": "1250",
+        "product_variant_id": "3721",
+        "completeness": "complete",
+        "component_count": 2
+      },
+      {
+        "product_id": "1250",
+        "product_variant_id": "3722",
+        "completeness": "complete",
+        "component_count": 2
+      },
+      {
+        "product_id": "1254",
+        "product_variant_id": "3725",
+        "completeness": "complete",
+        "component_count": 2
+      },
+      {
+        "product_id": "1254",
+        "product_variant_id": "3726",
+        "completeness": "complete",
+        "component_count": 2
+      },
+      {
+        "product_id": "1279",
+        "product_variant_id": "3759",
+        "completeness": "complete",
+        "component_count": 2
+      },
+      {
+        "product_id": "1279",
+        "product_variant_id": "3894",
+        "completeness": "complete",
+        "component_count": 2
+      },
+      {
+        "product_id": "1279",
+        "product_variant_id": "3895",
+        "completeness": "complete",
+        "component_count": 2
+      }
+    ]
+  },
+  "production_writes": {
+    "candidate_rows_inserted": 18,
+    "candidate_rows_reviewed": 18,
+    "variant_overrides_updated": 9,
+    "product_rows_updated": 0,
+    "other_variant_rows_updated": 0,
+    "migrations": 0
+  },
+  "conclusions": {
+    "exact_component_variants_live": 9,
+    "distinct_applied_preworkout_variants_unchanged": 68,
+    "frozen_pilot_complete": 11,
+    "frozen_pilot_partial": 1,
+    "frozen_pilot_without_applied_facts": 13,
+    "pilot_variants_promoted_to_complete": [
+      "3676",
+      "3759"
+    ],
+    "remaining_partial_pilot_variant": "3763",
+    "compounds_not_summed_as_pure_l_citrulline": true,
+    "malate_ratio_not_invented": true
+  }
+}
