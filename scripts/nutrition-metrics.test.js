@@ -233,6 +233,40 @@ test("applied pre-workout facts require an exact approved candidate match", () =
   );
 });
 
+test("applied pre-workout facts preserve retailer source provenance", () => {
+  const override = {
+    caffeine: {
+      information_state: "present_with_amount",
+      amount_per_serving_mg: 200,
+      source_quantity_value: 200,
+      source_quantity_unit: "mg",
+      quantity_basis: "per_serving",
+      serving_basis_value: 13,
+      serving_basis_unit: "g",
+      serving_basis_text: "1 serving (13 g)",
+    },
+  };
+  const candidate = reviewedCandidate({
+    proposed_field: "caffeine_per_serving_mg",
+    proposed_value: 200,
+    proposed_unit: "mg",
+    approved_value: 200,
+    information_state: "present_with_amount",
+    source_quantity_value: 200,
+    source_quantity_unit: "mg",
+    quantity_basis: "per_serving",
+    serving_basis_value: 13,
+    serving_basis_unit: "g",
+    serving_basis_text: "1 serving (13 g)",
+    warning_flags: ["RETAILER_SOURCE"],
+    source_locator: "html:retailer-product.html#active-table/caffeine",
+    source_type: "retailer_product_page",
+  });
+
+  const result = resolveAppliedPreWorkoutFacts("411", "1047", override, [candidate]);
+  assert.deepEqual(result.facts[0].sourceKinds, ["retailer_source"]);
+});
+
 test("applied facts fail closed on drift and malformed ingredient forms", () => {
   const candidate = reviewedCandidate({
     product_id: "38",

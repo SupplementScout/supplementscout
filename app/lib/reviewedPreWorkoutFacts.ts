@@ -8,6 +8,7 @@ export type PreWorkoutInformationState =
 export type PublicNutritionSourceKind =
   | "product_label"
   | "brand_owner_statement"
+  | "retailer_source"
   | "manufacturer_source";
 
 export type AppliedPreWorkoutFactKey =
@@ -55,6 +56,7 @@ export type ReviewedNutritionCandidate = {
   ingredient_ratio: string | null;
   warning_flags: unknown;
   source_locator: string | null;
+  source_type?: string | null;
   source_url?: string | null;
   source_file_sha256?: string | null;
   source_archive_uri?: string | null;
@@ -104,6 +106,9 @@ function sourceKind(candidate: ReviewedNutritionCandidate): PublicNutritionSourc
     return "brand_owner_statement";
   }
   if (candidate.source_locator?.startsWith("image:")) return "product_label";
+  if (["retailer_product_page", "retailer_feed"].includes(candidate.source_type || "")) {
+    return "retailer_source";
+  }
   return "manufacturer_source";
 }
 
@@ -373,6 +378,7 @@ export function resolveAppliedPreWorkoutFacts(
 export function nutritionSourceKindLabel(kind: PublicNutritionSourceKind) {
   if (kind === "product_label") return "Product label";
   if (kind === "brand_owner_statement") return "Brand owner statement";
+  if (kind === "retailer_source") return "Retailer source";
   return "Manufacturer source";
 }
 

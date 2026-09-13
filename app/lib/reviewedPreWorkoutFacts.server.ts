@@ -32,6 +32,7 @@ const CANDIDATE_SELECT = [
   "ingredient_ratio",
   "warning_flags",
   "source_locator",
+  "source_type",
   "source_url",
   "source_file_sha256",
   "source_archive_uri",
