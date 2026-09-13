@@ -1,0 +1,1265 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-expansion-batch-07-preparation-evidence-v1",
+  "status": "READY_FOR_OWNER_DECISION_PARTIAL_VARIANTS",
+  "prepared_at": "2026-09-13T13:32:15.617Z",
+  "production_checkpoint": {
+    "captured_at": "2026-09-13T13:13:23.069Z",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "environment": "PRODUCTION",
+    "database_identity": "supplementscout-production:aftboxmrdgyhizicfsfu",
+    "active_preworkout_variants": 575,
+    "active_variants_with_current_available_offer": 404,
+    "available_coverage": {
+      "complete": 56,
+      "partial": 4,
+      "none": 344
+    },
+    "snapshot_sha256": "606a3c1983509b5ffc083794338b570010eac7ad3efc554c2a9195e1db1e0916",
+    "database_writes": 0
+  },
+  "available_catalogue_coverage": {
+    "denominator": "active exact Pre Workout variants with at least one in-stock offer checked within 24 hours",
+    "total": 404,
+    "complete": 56,
+    "partial": 4,
+    "no_applied_facts": 344,
+    "applied_any": 60,
+    "all_active_preworkout_variants": 575
+  },
+  "historical_checkpoint": {
+    "distinct_applied_preworkout_variants_all_offer_states": 68,
+    "frozen_pilot": {
+      "complete": 11,
+      "partial": 1,
+      "none": 13,
+      "denominator": 25
+    },
+    "just_completed_citrulline_component_variants": [
+      "3672",
+      "3721",
+      "3722",
+      "3676",
+      "3725",
+      "3726",
+      "3759",
+      "3894",
+      "3895"
+    ],
+    "remaining_variants_blocked_only_by_the_old_component_model": 0
+  },
+  "scope": {
+    "organizational_limit": 50,
+    "assessed_variants": 50,
+    "product_families": 8,
+    "ready_variants": 2,
+    "partial_ready_variants": 2,
+    "variants_with_all_four_tracked_ingredients_resolved": 0,
+    "blocked_variants": 48,
+    "candidate_facts": 8,
+    "unique_official_dose_tables": 1,
+    "stop_reason": "The closed scope reached the 50 exact-variant organizational limit."
+  },
+  "ready_package": {
+    "product_id": "1282",
+    "product_name": "TWP Hustle 520g",
+    "formula_version": "Hustle V2 2025",
+    "applicability_basis": "wspólna tabela producenta dla wariantów produktu",
+    "variants": [
+      {
+        "product_id": "1282",
+        "variant_id": "3762",
+        "name": "Bubblegum Grape",
+        "pack": "520 g",
+        "current_available_offers": 1
+      },
+      {
+        "product_id": "1282",
+        "variant_id": "3870",
+        "name": "Pink Lemonade / 520g",
+        "pack": "520 g",
+        "current_available_offers": 1
+      }
+    ],
+    "proposed_values_per_variant": {
+      "serving_size_g": {
+        "value": 13,
+        "source_text": "Serving Size: 13g or 26g; Servings Per Container: 20 or 40; selected product size: 40 Servings."
+      },
+      "caffeine_per_serving_mg": {
+        "information_state": "present_with_amount",
+        "value": 150,
+        "source_quantity_value": 150,
+        "source_quantity_unit": "mg",
+        "source_text": "Caffeine Anhydrous 150.00mg per 13g serving."
+      },
+      "beta_alanine_per_serving_mg": {
+        "information_state": "present_with_amount",
+        "value": 1600,
+        "source_quantity_value": 1.6,
+        "source_quantity_unit": "g",
+        "source_text": "Beta Alanine 1.60g per 13g serving."
+      },
+      "citrulline_per_serving_mg": {
+        "information_state": "present_with_amount",
+        "value": 4000,
+        "source_quantity_value": 4,
+        "source_quantity_unit": "g",
+        "ingredient_form": "l_citrulline",
+        "source_text": "L-Citrulline 4.00g per 13g serving."
+      }
+    },
+    "unresolved_fields_per_variant": [
+      {
+        "field": "creatine_declared_form_per_serving_mg",
+        "reason": "Creatine is omitted from the table and ingredient list, but the official page does not explicitly confirm absence; omission is not confirmed absence."
+      }
+    ],
+    "candidates": [
+      {
+        "product_id": "1282",
+        "product_variant_id": "3762",
+        "field_name": "serving_size_g",
+        "information_state": null,
+        "proposed_value": 13,
+        "proposed_unit": "g",
+        "source_quantity_value": null,
+        "source_quantity_unit": null,
+        "serving_basis_text": null,
+        "ingredient_form": null,
+        "ingredient_ratio": null,
+        "source_url": "https://twpnutrition.com/products/hustle",
+        "source_file_sha256": "2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-07/twp/1282/2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664/hustle-v2-2025-specs.jpg",
+        "source_locator": "image:hustle-v2-2025-specs.jpg#serving-size-and-count | context:source-context-manifest.json#variant-3762",
+        "candidate_fingerprint": "5fdcc4fdb508d0426eb987444c9f57ee9161573898bf4bad806ad08920851255",
+        "review_status": "PENDING"
+      },
+      {
+        "product_id": "1282",
+        "product_variant_id": "3762",
+        "field_name": "caffeine_per_serving_mg",
+        "information_state": "present_with_amount",
+        "proposed_value": 150,
+        "proposed_unit": "mg",
+        "source_quantity_value": 150,
+        "source_quantity_unit": "mg",
+        "serving_basis_text": "40 Servings option; Supplement Facts Serving Size: 13g or 26g; Per 13g Serving column",
+        "ingredient_form": null,
+        "ingredient_ratio": null,
+        "source_url": "https://twpnutrition.com/products/hustle",
+        "source_file_sha256": "2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-07/twp/1282/2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664/hustle-v2-2025-specs.jpg",
+        "source_locator": "image:hustle-v2-2025-specs.jpg#caffeine-anhydrous | context:source-context-manifest.json#variant-3762",
+        "candidate_fingerprint": "a8f49ea66548735c48417686b3322b0e1c0c9658c64ec8c9bf1f392ec9b82bed",
+        "review_status": "PENDING"
+      },
+      {
+        "product_id": "1282",
+        "product_variant_id": "3762",
+        "field_name": "beta_alanine_per_serving_mg",
+        "information_state": "present_with_amount",
+        "proposed_value": 1600,
+        "proposed_unit": "mg",
+        "source_quantity_value": 1.6,
+        "source_quantity_unit": "g",
+        "serving_basis_text": "40 Servings option; Supplement Facts Serving Size: 13g or 26g; Per 13g Serving column",
+        "ingredient_form": null,
+        "ingredient_ratio": null,
+        "source_url": "https://twpnutrition.com/products/hustle",
+        "source_file_sha256": "2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-07/twp/1282/2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664/hustle-v2-2025-specs.jpg",
+        "source_locator": "image:hustle-v2-2025-specs.jpg#beta-alanine | context:source-context-manifest.json#variant-3762",
+        "candidate_fingerprint": "ea6568c7c7170a8f6e0adc37cbc299b247a3669d69c3360d3c9aaf65bf62fcf5",
+        "review_status": "PENDING"
+      },
+      {
+        "product_id": "1282",
+        "product_variant_id": "3762",
+        "field_name": "citrulline_per_serving_mg",
+        "information_state": "present_with_amount",
+        "proposed_value": 4000,
+        "proposed_unit": "mg",
+        "source_quantity_value": 4,
+        "source_quantity_unit": "g",
+        "serving_basis_text": "40 Servings option; Supplement Facts Serving Size: 13g or 26g; Per 13g Serving column",
+        "ingredient_form": "l_citrulline",
+        "ingredient_ratio": null,
+        "source_url": "https://twpnutrition.com/products/hustle",
+        "source_file_sha256": "2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-07/twp/1282/2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664/hustle-v2-2025-specs.jpg",
+        "source_locator": "image:hustle-v2-2025-specs.jpg#l-citrulline | context:source-context-manifest.json#variant-3762",
+        "candidate_fingerprint": "06dffeb2ade0d6e92c42c835688f483b455a03b6fc9b8d5a1b9cdc66134c02a4",
+        "review_status": "PENDING"
+      },
+      {
+        "product_id": "1282",
+        "product_variant_id": "3870",
+        "field_name": "serving_size_g",
+        "information_state": null,
+        "proposed_value": 13,
+        "proposed_unit": "g",
+        "source_quantity_value": null,
+        "source_quantity_unit": null,
+        "serving_basis_text": null,
+        "ingredient_form": null,
+        "ingredient_ratio": null,
+        "source_url": "https://twpnutrition.com/products/hustle",
+        "source_file_sha256": "2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-07/twp/1282/2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664/hustle-v2-2025-specs.jpg",
+        "source_locator": "image:hustle-v2-2025-specs.jpg#serving-size-and-count | context:source-context-manifest.json#variant-3870",
+        "candidate_fingerprint": "ea3b44cb2a24e3eafff677c1a70cdfff1bd9d984b1bcf194a4f27cdd179d9f9d",
+        "review_status": "PENDING"
+      },
+      {
+        "product_id": "1282",
+        "product_variant_id": "3870",
+        "field_name": "caffeine_per_serving_mg",
+        "information_state": "present_with_amount",
+        "proposed_value": 150,
+        "proposed_unit": "mg",
+        "source_quantity_value": 150,
+        "source_quantity_unit": "mg",
+        "serving_basis_text": "40 Servings option; Supplement Facts Serving Size: 13g or 26g; Per 13g Serving column",
+        "ingredient_form": null,
+        "ingredient_ratio": null,
+        "source_url": "https://twpnutrition.com/products/hustle",
+        "source_file_sha256": "2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-07/twp/1282/2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664/hustle-v2-2025-specs.jpg",
+        "source_locator": "image:hustle-v2-2025-specs.jpg#caffeine-anhydrous | context:source-context-manifest.json#variant-3870",
+        "candidate_fingerprint": "19c9bbbc1f42501e44914d074c3aa73da4f0672ea07353aa69ca7dcac588029b",
+        "review_status": "PENDING"
+      },
+      {
+        "product_id": "1282",
+        "product_variant_id": "3870",
+        "field_name": "beta_alanine_per_serving_mg",
+        "information_state": "present_with_amount",
+        "proposed_value": 1600,
+        "proposed_unit": "mg",
+        "source_quantity_value": 1.6,
+        "source_quantity_unit": "g",
+        "serving_basis_text": "40 Servings option; Supplement Facts Serving Size: 13g or 26g; Per 13g Serving column",
+        "ingredient_form": null,
+        "ingredient_ratio": null,
+        "source_url": "https://twpnutrition.com/products/hustle",
+        "source_file_sha256": "2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-07/twp/1282/2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664/hustle-v2-2025-specs.jpg",
+        "source_locator": "image:hustle-v2-2025-specs.jpg#beta-alanine | context:source-context-manifest.json#variant-3870",
+        "candidate_fingerprint": "da13c44c1516ecf4c54ef4fec9742974fac9899a1346b1fddd97759ab65ea480",
+        "review_status": "PENDING"
+      },
+      {
+        "product_id": "1282",
+        "product_variant_id": "3870",
+        "field_name": "citrulline_per_serving_mg",
+        "information_state": "present_with_amount",
+        "proposed_value": 4000,
+        "proposed_unit": "mg",
+        "source_quantity_value": 4,
+        "source_quantity_unit": "g",
+        "serving_basis_text": "40 Servings option; Supplement Facts Serving Size: 13g or 26g; Per 13g Serving column",
+        "ingredient_form": "l_citrulline",
+        "ingredient_ratio": null,
+        "source_url": "https://twpnutrition.com/products/hustle",
+        "source_file_sha256": "2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-07/twp/1282/2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664/hustle-v2-2025-specs.jpg",
+        "source_locator": "image:hustle-v2-2025-specs.jpg#l-citrulline | context:source-context-manifest.json#variant-3870",
+        "candidate_fingerprint": "5cf4139edcd342143eb997f0484ca28b55c7991eb5246e449105d16c86e81cad",
+        "review_status": "PENDING"
+      }
+    ],
+    "artifact": {
+      "product_id": "1282",
+      "path": "tmp/nutrition-catalog-batch-07-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-07-twp-1282-20260913.json",
+      "sha256": "3b92426c5158d24d56038867daf0cbc5b3b594e041e39891270a8b49367e82de",
+      "artifact_fingerprint": "d013169f03a7bb50d22624c15d866411c8e79877cc424bd8617b1d28213b4219",
+      "variants": 2,
+      "candidates": 8,
+      "unique_candidate_fingerprints": 8
+    },
+    "dry_run": {
+      "command": "npm run nutrition:candidates:store -- --dry-run --input=tmp/nutrition-batch-07/tmp/nutrition-catalog-batch-07-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-07-twp-1282-20260913.json",
+      "result": "DRY_RUN_NO_DATABASE",
+      "candidate_rows": 8,
+      "product_updates": 0,
+      "database_writes": 0
+    }
+  },
+  "source_evidence": {
+    "official_product_url": "https://twpnutrition.com/products/hustle",
+    "context": "The official product page lists 40 Servings / Pink Lemonade and 40 Servings / Bubblegum Grape in one variant selector and embeds one Hustle V2 2025 Supplement Facts image in the shared gallery.",
+    "package_binding": "Catalogue pack 520 g equals 40 servings at the official 13 g serving; the 26 g table column is the 20-serving dose and is not used.",
+    "source_files": [
+      {
+        "id": "official-product-page",
+        "path": "tmp/nutrition-catalog-batch-07-2026-09-13/source-work/twp-hustle/official-product-page.html",
+        "sha256": "8607cd74a43d8705bf45fb94e6a2a28b0fe77aff1e405489e6775a911424ca3c",
+        "bytes": 397158,
+        "content_type": "text/html",
+        "object_path": "snapshots/nut-03/catalog-expansion-batch-07/twp/1282/8607cd74a43d8705bf45fb94e6a2a28b0fe77aff1e405489e6775a911424ca3c/official-product-page.html",
+        "archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-07/twp/1282/8607cd74a43d8705bf45fb94e6a2a28b0fe77aff1e405489e6775a911424ca3c/official-product-page.html"
+      },
+      {
+        "id": "current-v2-table",
+        "path": "tmp/nutrition-catalog-batch-07-2026-09-13/source-work/twp-hustle/hustle-v2-2025-specs.jpg",
+        "sha256": "2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664",
+        "bytes": 164645,
+        "content_type": "image/jpeg",
+        "object_path": "snapshots/nut-03/catalog-expansion-batch-07/twp/1282/2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664/hustle-v2-2025-specs.jpg",
+        "archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-07/twp/1282/2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664/hustle-v2-2025-specs.jpg"
+      },
+      {
+        "id": "terms",
+        "path": "tmp/nutrition-catalog-batch-07-2026-09-13/source-work/twp-hustle/terms-conditions.html",
+        "sha256": "11faa96f6bbe26781f6cdb9b62c34b6ae251ef2b842a8be3300e1db86a58b8c1",
+        "bytes": 144168,
+        "content_type": "text/html",
+        "object_path": "snapshots/nut-03/catalog-expansion-batch-07/twp/1282/11faa96f6bbe26781f6cdb9b62c34b6ae251ef2b842a8be3300e1db86a58b8c1/terms-conditions.html",
+        "archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-07/twp/1282/11faa96f6bbe26781f6cdb9b62c34b6ae251ef2b842a8be3300e1db86a58b8c1/terms-conditions.html"
+      },
+      {
+        "id": "robots",
+        "path": "tmp/nutrition-catalog-batch-07-2026-09-13/source-work/twp-hustle/robots.txt",
+        "sha256": "1bb194a332969029f1d9a232d7618f1950e64922cc71c15ce81e27dffd82afe5",
+        "bytes": 3632,
+        "content_type": "text/plain",
+        "object_path": "snapshots/nut-03/catalog-expansion-batch-07/twp/1282/1bb194a332969029f1d9a232d7618f1950e64922cc71c15ce81e27dffd82afe5/robots.txt",
+        "archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-07/twp/1282/1bb194a332969029f1d9a232d7618f1950e64922cc71c15ce81e27dffd82afe5/robots.txt"
+      }
+    ],
+    "context_manifest": {
+      "path": "tmp/nutrition-catalog-batch-07-2026-09-13/source-context-manifest.json",
+      "sha256": "c4ce8f40108f8b480a8728fcd126de96c52141def2db4d0c3eb8444545568057",
+      "object_path": "manifests/nut-03/catalog-expansion-batch-07/c4ce8f40108f8b480a8728fcd126de96c52141def2db4d0c3eb8444545568057/source-context-manifest.json",
+      "archive_uri": "supabase-storage://nutrition-sources/manifests/nut-03/catalog-expansion-batch-07/c4ce8f40108f8b480a8728fcd126de96c52141def2db4d0c3eb8444545568057/source-context-manifest.json"
+    },
+    "duplicate_precheck": {
+      "result": "NO_EXACT_PATH_DUPLICATES",
+      "exact_paths": [],
+      "matching_hash_paths": [],
+      "objects_checked": 38,
+      "storage_writes": 0,
+      "database_writes": 0
+    },
+    "upload": {
+      "result": "UPLOAD_PASS",
+      "uploaded": [
+        {
+          "id": "official-product-page",
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-07/twp/1282/8607cd74a43d8705bf45fb94e6a2a28b0fe77aff1e405489e6775a911424ca3c/official-product-page.html",
+          "sha256": "8607cd74a43d8705bf45fb94e6a2a28b0fe77aff1e405489e6775a911424ca3c",
+          "bytes": 397158
+        },
+        {
+          "id": "current-v2-table",
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-07/twp/1282/2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664/hustle-v2-2025-specs.jpg",
+          "sha256": "2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664",
+          "bytes": 164645
+        },
+        {
+          "id": "terms",
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-07/twp/1282/11faa96f6bbe26781f6cdb9b62c34b6ae251ef2b842a8be3300e1db86a58b8c1/terms-conditions.html",
+          "sha256": "11faa96f6bbe26781f6cdb9b62c34b6ae251ef2b842a8be3300e1db86a58b8c1",
+          "bytes": 144168
+        },
+        {
+          "id": "robots",
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-07/twp/1282/1bb194a332969029f1d9a232d7618f1950e64922cc71c15ce81e27dffd82afe5/robots.txt",
+          "sha256": "1bb194a332969029f1d9a232d7618f1950e64922cc71c15ce81e27dffd82afe5",
+          "bytes": 3632
+        },
+        {
+          "id": "context-manifest",
+          "object_path": "manifests/nut-03/catalog-expansion-batch-07/c4ce8f40108f8b480a8728fcd126de96c52141def2db4d0c3eb8444545568057/source-context-manifest.json",
+          "sha256": "c4ce8f40108f8b480a8728fcd126de96c52141def2db4d0c3eb8444545568057",
+          "bytes": 37763
+        }
+      ],
+      "reused": [],
+      "storage_writes": 5,
+      "database_writes": 0
+    },
+    "readback": {
+      "result": "READBACK_PASS",
+      "project_ref": "aftboxmrdgyhizicfsfu",
+      "bucket": "nutrition-sources",
+      "bucket_public": false,
+      "retained_without_automatic_expiry": true,
+      "readback": [
+        {
+          "id": "official-product-page",
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-07/twp/1282/8607cd74a43d8705bf45fb94e6a2a28b0fe77aff1e405489e6775a911424ca3c/official-product-page.html",
+          "durable_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-07/twp/1282/8607cd74a43d8705bf45fb94e6a2a28b0fe77aff1e405489e6775a911424ca3c/official-product-page.html",
+          "sha256": "8607cd74a43d8705bf45fb94e6a2a28b0fe77aff1e405489e6775a911424ca3c",
+          "bytes": 397158
+        },
+        {
+          "id": "current-v2-table",
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-07/twp/1282/2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664/hustle-v2-2025-specs.jpg",
+          "durable_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-07/twp/1282/2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664/hustle-v2-2025-specs.jpg",
+          "sha256": "2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664",
+          "bytes": 164645
+        },
+        {
+          "id": "terms",
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-07/twp/1282/11faa96f6bbe26781f6cdb9b62c34b6ae251ef2b842a8be3300e1db86a58b8c1/terms-conditions.html",
+          "durable_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-07/twp/1282/11faa96f6bbe26781f6cdb9b62c34b6ae251ef2b842a8be3300e1db86a58b8c1/terms-conditions.html",
+          "sha256": "11faa96f6bbe26781f6cdb9b62c34b6ae251ef2b842a8be3300e1db86a58b8c1",
+          "bytes": 144168
+        },
+        {
+          "id": "robots",
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-07/twp/1282/1bb194a332969029f1d9a232d7618f1950e64922cc71c15ce81e27dffd82afe5/robots.txt",
+          "durable_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-07/twp/1282/1bb194a332969029f1d9a232d7618f1950e64922cc71c15ce81e27dffd82afe5/robots.txt",
+          "sha256": "1bb194a332969029f1d9a232d7618f1950e64922cc71c15ce81e27dffd82afe5",
+          "bytes": 3632
+        },
+        {
+          "id": "context-manifest",
+          "object_path": "manifests/nut-03/catalog-expansion-batch-07/c4ce8f40108f8b480a8728fcd126de96c52141def2db4d0c3eb8444545568057/source-context-manifest.json",
+          "durable_uri": "supabase-storage://nutrition-sources/manifests/nut-03/catalog-expansion-batch-07/c4ce8f40108f8b480a8728fcd126de96c52141def2db4d0c3eb8444545568057/source-context-manifest.json",
+          "sha256": "c4ce8f40108f8b480a8728fcd126de96c52141def2db4d0c3eb8444545568057",
+          "bytes": 37763
+        }
+      ],
+      "storage_writes": 0,
+      "database_writes": 0
+    },
+    "retained_without_automatic_expiry": true,
+    "private_bucket": true,
+    "note": "Private source retention is not represented as an independent backup."
+  },
+  "blocked_families": [
+    {
+      "product_id": "24",
+      "product_name": "PEScience Prolific 280g",
+      "variant_ids": [
+        "1004",
+        "1581",
+        "1582",
+        "1583",
+        "1584",
+        "1585"
+      ],
+      "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION_AND_COMMERCIAL_USE",
+      "variants": 6,
+      "source_url": "https://pescience.com/policies/terms-of-service",
+      "detail": "Official terms prohibit scraping/crawling/automated extraction and commercial use."
+    },
+    {
+      "product_id": "169",
+      "product_name": "Redcon1 Total War 400g",
+      "variant_ids": [
+        "1015",
+        "1647",
+        "1648",
+        "1649",
+        "1650",
+        "1651",
+        "1652",
+        "1653",
+        "1654"
+      ],
+      "code": "OFFICIAL_TERMS_PROHIBIT_COMMERCIAL_COPYING",
+      "variants": 9,
+      "source_url": "https://redcon1.com/policies/terms-of-service",
+      "detail": "Official terms limit site content to personal non-commercial use and prohibit commercial copying."
+    },
+    {
+      "product_id": "763",
+      "product_name": "Naughty Boy Menace V2 60 servings",
+      "variant_ids": [
+        "920",
+        "921",
+        "4100",
+        "4101",
+        "4102",
+        "4103",
+        "4104",
+        "4105",
+        "4106",
+        "4107",
+        "4108"
+      ],
+      "code": "OFFICIAL_TERMS_PROHIBIT_COPYING_AND_AUTOMATED_EXTRACTION",
+      "variants": 11,
+      "source_url": "https://naughtyboylifestyle.com/policies/terms-of-service",
+      "detail": "Official terms prohibit reproduction/copying/exploitation and spider, crawl or scrape access."
+    },
+    {
+      "product_id": "778",
+      "product_name": "Naughty Boy Energy Pre-Workout 30 servings",
+      "variant_ids": [
+        "971",
+        "972",
+        "1978",
+        "4081",
+        "4082",
+        "4083",
+        "4084",
+        "4085",
+        "4086",
+        "4087",
+        "4088",
+        "4089"
+      ],
+      "code": "OFFICIAL_TERMS_PROHIBIT_COPYING_AND_AUTOMATED_EXTRACTION",
+      "variants": 12,
+      "source_url": "https://naughtyboylifestyle.com/policies/terms-of-service",
+      "detail": "Official terms prohibit reproduction/copying/exploitation and spider, crawl or scrape access."
+    },
+    {
+      "product_id": "903",
+      "product_name": "Time 4 Pre Workout Professional 300g",
+      "variant_ids": [
+        "1499",
+        "1500",
+        "1501",
+        "1502"
+      ],
+      "code": "OFFICIAL_TERMS_PROHIBIT_REPRODUCTION",
+      "variants": 4,
+      "source_url": "https://www.time4nutrition.co.uk/terms-conditions/",
+      "detail": "Official terms state that reproduction is prohibited without permission."
+    },
+    {
+      "product_id": "1246",
+      "product_name": "Skill Nutrition Pre-Workout - 400g",
+      "variant_ids": [
+        "3668",
+        "3713"
+      ],
+      "code": "WRITTEN_PERMISSION_REQUIRED_FOR_COPYING",
+      "variants": 2,
+      "source_url": "https://skillnutrition.com/regulamin",
+      "detail": "Official terms prohibit copying or recording site content and photographs without written permission."
+    },
+    {
+      "product_id": "1249",
+      "product_name": "Animal Fury Pre Workout 491g",
+      "variant_ids": [
+        "3671",
+        "3717",
+        "3719",
+        "3720"
+      ],
+      "code": "WRITTEN_PERMISSION_REQUIRED_FOR_COPYING_OR_SCRAPING",
+      "variants": 4,
+      "source_url": "https://www.animalpak.com/pages/terms",
+      "detail": "Official terms restrict copying and scraping to personal/non-commercial use unless written permission is obtained."
+    }
+  ],
+  "blocked_variant_count_by_reason": {
+    "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION_AND_COMMERCIAL_USE": 6,
+    "OFFICIAL_TERMS_PROHIBIT_COMMERCIAL_COPYING": 9,
+    "OFFICIAL_TERMS_PROHIBIT_COPYING_AND_AUTOMATED_EXTRACTION": 23,
+    "OFFICIAL_TERMS_PROHIBIT_REPRODUCTION": 4,
+    "WRITTEN_PERMISSION_REQUIRED_FOR_COPYING": 2,
+    "WRITTEN_PERMISSION_REQUIRED_FOR_COPYING_OR_SCRAPING": 4
+  },
+  "assessed_variants": [
+    {
+      "product_id": "1249",
+      "product_name": "Animal Fury Pre Workout 491g",
+      "variant_id": "3671",
+      "variant_name": "Blue Raspberry",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "WRITTEN_PERMISSION_REQUIRED_FOR_COPYING_OR_SCRAPING",
+        "variants": 4,
+        "source_url": "https://www.animalpak.com/pages/terms",
+        "detail": "Official terms restrict copying and scraping to personal/non-commercial use unless written permission is obtained."
+      }
+    },
+    {
+      "product_id": "1249",
+      "product_name": "Animal Fury Pre Workout 491g",
+      "variant_id": "3717",
+      "variant_name": "Green Apple / 491g",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "WRITTEN_PERMISSION_REQUIRED_FOR_COPYING_OR_SCRAPING",
+        "variants": 4,
+        "source_url": "https://www.animalpak.com/pages/terms",
+        "detail": "Official terms restrict copying and scraping to personal/non-commercial use unless written permission is obtained."
+      }
+    },
+    {
+      "product_id": "1249",
+      "product_name": "Animal Fury Pre Workout 491g",
+      "variant_id": "3719",
+      "variant_name": "Kiwi Lime / 491g",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "WRITTEN_PERMISSION_REQUIRED_FOR_COPYING_OR_SCRAPING",
+        "variants": 4,
+        "source_url": "https://www.animalpak.com/pages/terms",
+        "detail": "Official terms restrict copying and scraping to personal/non-commercial use unless written permission is obtained."
+      }
+    },
+    {
+      "product_id": "1249",
+      "product_name": "Animal Fury Pre Workout 491g",
+      "variant_id": "3720",
+      "variant_name": "Watermelon / 491g",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "WRITTEN_PERMISSION_REQUIRED_FOR_COPYING_OR_SCRAPING",
+        "variants": 4,
+        "source_url": "https://www.animalpak.com/pages/terms",
+        "detail": "Official terms restrict copying and scraping to personal/non-commercial use unless written permission is obtained."
+      }
+    },
+    {
+      "product_id": "778",
+      "product_name": "Naughty Boy Energy Pre-Workout 30 servings",
+      "variant_id": "971",
+      "variant_name": "Fizzy Peach Sweets / 30 servings",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COPYING_AND_AUTOMATED_EXTRACTION",
+        "variants": 12,
+        "source_url": "https://naughtyboylifestyle.com/policies/terms-of-service",
+        "detail": "Official terms prohibit reproduction/copying/exploitation and spider, crawl or scrape access."
+      }
+    },
+    {
+      "product_id": "778",
+      "product_name": "Naughty Boy Energy Pre-Workout 30 servings",
+      "variant_id": "972",
+      "variant_name": "Pineapple Crush / 30 servings",
+      "current_available_offers": 2,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COPYING_AND_AUTOMATED_EXTRACTION",
+        "variants": 12,
+        "source_url": "https://naughtyboylifestyle.com/policies/terms-of-service",
+        "detail": "Official terms prohibit reproduction/copying/exploitation and spider, crawl or scrape access."
+      }
+    },
+    {
+      "product_id": "778",
+      "product_name": "Naughty Boy Energy Pre-Workout 30 servings",
+      "variant_id": "1978",
+      "variant_name": "Strawberry Mango / 30servings",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COPYING_AND_AUTOMATED_EXTRACTION",
+        "variants": 12,
+        "source_url": "https://naughtyboylifestyle.com/policies/terms-of-service",
+        "detail": "Official terms prohibit reproduction/copying/exploitation and spider, crawl or scrape access."
+      }
+    },
+    {
+      "product_id": "778",
+      "product_name": "Naughty Boy Energy Pre-Workout 30 servings",
+      "variant_id": "4081",
+      "variant_name": "Blue Raspberry Bon Bon",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COPYING_AND_AUTOMATED_EXTRACTION",
+        "variants": 12,
+        "source_url": "https://naughtyboylifestyle.com/policies/terms-of-service",
+        "detail": "Official terms prohibit reproduction/copying/exploitation and spider, crawl or scrape access."
+      }
+    },
+    {
+      "product_id": "778",
+      "product_name": "Naughty Boy Energy Pre-Workout 30 servings",
+      "variant_id": "4082",
+      "variant_name": "Candy Bubblegum",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COPYING_AND_AUTOMATED_EXTRACTION",
+        "variants": 12,
+        "source_url": "https://naughtyboylifestyle.com/policies/terms-of-service",
+        "detail": "Official terms prohibit reproduction/copying/exploitation and spider, crawl or scrape access."
+      }
+    },
+    {
+      "product_id": "778",
+      "product_name": "Naughty Boy Energy Pre-Workout 30 servings",
+      "variant_id": "4083",
+      "variant_name": "Citrus Dream",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COPYING_AND_AUTOMATED_EXTRACTION",
+        "variants": 12,
+        "source_url": "https://naughtyboylifestyle.com/policies/terms-of-service",
+        "detail": "Official terms prohibit reproduction/copying/exploitation and spider, crawl or scrape access."
+      }
+    },
+    {
+      "product_id": "778",
+      "product_name": "Naughty Boy Energy Pre-Workout 30 servings",
+      "variant_id": "4084",
+      "variant_name": "Orange & Passion Fruit",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COPYING_AND_AUTOMATED_EXTRACTION",
+        "variants": 12,
+        "source_url": "https://naughtyboylifestyle.com/policies/terms-of-service",
+        "detail": "Official terms prohibit reproduction/copying/exploitation and spider, crawl or scrape access."
+      }
+    },
+    {
+      "product_id": "778",
+      "product_name": "Naughty Boy Energy Pre-Workout 30 servings",
+      "variant_id": "4085",
+      "variant_name": "Pick N Mix",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COPYING_AND_AUTOMATED_EXTRACTION",
+        "variants": 12,
+        "source_url": "https://naughtyboylifestyle.com/policies/terms-of-service",
+        "detail": "Official terms prohibit reproduction/copying/exploitation and spider, crawl or scrape access."
+      }
+    },
+    {
+      "product_id": "778",
+      "product_name": "Naughty Boy Energy Pre-Workout 30 servings",
+      "variant_id": "4086",
+      "variant_name": "Pink Lemonade",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COPYING_AND_AUTOMATED_EXTRACTION",
+        "variants": 12,
+        "source_url": "https://naughtyboylifestyle.com/policies/terms-of-service",
+        "detail": "Official terms prohibit reproduction/copying/exploitation and spider, crawl or scrape access."
+      }
+    },
+    {
+      "product_id": "778",
+      "product_name": "Naughty Boy Energy Pre-Workout 30 servings",
+      "variant_id": "4087",
+      "variant_name": "Rocket Ice Lolly",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COPYING_AND_AUTOMATED_EXTRACTION",
+        "variants": 12,
+        "source_url": "https://naughtyboylifestyle.com/policies/terms-of-service",
+        "detail": "Official terms prohibit reproduction/copying/exploitation and spider, crawl or scrape access."
+      }
+    },
+    {
+      "product_id": "778",
+      "product_name": "Naughty Boy Energy Pre-Workout 30 servings",
+      "variant_id": "4088",
+      "variant_name": "Tropical Punch",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COPYING_AND_AUTOMATED_EXTRACTION",
+        "variants": 12,
+        "source_url": "https://naughtyboylifestyle.com/policies/terms-of-service",
+        "detail": "Official terms prohibit reproduction/copying/exploitation and spider, crawl or scrape access."
+      }
+    },
+    {
+      "product_id": "778",
+      "product_name": "Naughty Boy Energy Pre-Workout 30 servings",
+      "variant_id": "4089",
+      "variant_name": "Ultra Energy",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COPYING_AND_AUTOMATED_EXTRACTION",
+        "variants": 12,
+        "source_url": "https://naughtyboylifestyle.com/policies/terms-of-service",
+        "detail": "Official terms prohibit reproduction/copying/exploitation and spider, crawl or scrape access."
+      }
+    },
+    {
+      "product_id": "763",
+      "product_name": "Naughty Boy Menace V2 60 servings",
+      "variant_id": "920",
+      "variant_name": "Gotti Grape / 60 servings",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COPYING_AND_AUTOMATED_EXTRACTION",
+        "variants": 11,
+        "source_url": "https://naughtyboylifestyle.com/policies/terms-of-service",
+        "detail": "Official terms prohibit reproduction/copying/exploitation and spider, crawl or scrape access."
+      }
+    },
+    {
+      "product_id": "763",
+      "product_name": "Naughty Boy Menace V2 60 servings",
+      "variant_id": "921",
+      "variant_name": "Sour Gummy Bears / 60 servings",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COPYING_AND_AUTOMATED_EXTRACTION",
+        "variants": 11,
+        "source_url": "https://naughtyboylifestyle.com/policies/terms-of-service",
+        "detail": "Official terms prohibit reproduction/copying/exploitation and spider, crawl or scrape access."
+      }
+    },
+    {
+      "product_id": "763",
+      "product_name": "Naughty Boy Menace V2 60 servings",
+      "variant_id": "4100",
+      "variant_name": "Blueberry Pineapple",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COPYING_AND_AUTOMATED_EXTRACTION",
+        "variants": 11,
+        "source_url": "https://naughtyboylifestyle.com/policies/terms-of-service",
+        "detail": "Official terms prohibit reproduction/copying/exploitation and spider, crawl or scrape access."
+      }
+    },
+    {
+      "product_id": "763",
+      "product_name": "Naughty Boy Menace V2 60 servings",
+      "variant_id": "4101",
+      "variant_name": "Candy Bubble Gum",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COPYING_AND_AUTOMATED_EXTRACTION",
+        "variants": 11,
+        "source_url": "https://naughtyboylifestyle.com/policies/terms-of-service",
+        "detail": "Official terms prohibit reproduction/copying/exploitation and spider, crawl or scrape access."
+      }
+    },
+    {
+      "product_id": "763",
+      "product_name": "Naughty Boy Menace V2 60 servings",
+      "variant_id": "4102",
+      "variant_name": "Cherry Razz",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COPYING_AND_AUTOMATED_EXTRACTION",
+        "variants": 11,
+        "source_url": "https://naughtyboylifestyle.com/policies/terms-of-service",
+        "detail": "Official terms prohibit reproduction/copying/exploitation and spider, crawl or scrape access."
+      }
+    },
+    {
+      "product_id": "763",
+      "product_name": "Naughty Boy Menace V2 60 servings",
+      "variant_id": "4103",
+      "variant_name": "Energy",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COPYING_AND_AUTOMATED_EXTRACTION",
+        "variants": 11,
+        "source_url": "https://naughtyboylifestyle.com/policies/terms-of-service",
+        "detail": "Official terms prohibit reproduction/copying/exploitation and spider, crawl or scrape access."
+      }
+    },
+    {
+      "product_id": "763",
+      "product_name": "Naughty Boy Menace V2 60 servings",
+      "variant_id": "4104",
+      "variant_name": "Fizzy Cola Bottles",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COPYING_AND_AUTOMATED_EXTRACTION",
+        "variants": 11,
+        "source_url": "https://naughtyboylifestyle.com/policies/terms-of-service",
+        "detail": "Official terms prohibit reproduction/copying/exploitation and spider, crawl or scrape access."
+      }
+    },
+    {
+      "product_id": "763",
+      "product_name": "Naughty Boy Menace V2 60 servings",
+      "variant_id": "4105",
+      "variant_name": "Fruit Twist",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COPYING_AND_AUTOMATED_EXTRACTION",
+        "variants": 11,
+        "source_url": "https://naughtyboylifestyle.com/policies/terms-of-service",
+        "detail": "Official terms prohibit reproduction/copying/exploitation and spider, crawl or scrape access."
+      }
+    },
+    {
+      "product_id": "763",
+      "product_name": "Naughty Boy Menace V2 60 servings",
+      "variant_id": "4106",
+      "variant_name": "Pink Lemonade",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COPYING_AND_AUTOMATED_EXTRACTION",
+        "variants": 11,
+        "source_url": "https://naughtyboylifestyle.com/policies/terms-of-service",
+        "detail": "Official terms prohibit reproduction/copying/exploitation and spider, crawl or scrape access."
+      }
+    },
+    {
+      "product_id": "763",
+      "product_name": "Naughty Boy Menace V2 60 servings",
+      "variant_id": "4107",
+      "variant_name": "Sour Blue Razz",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COPYING_AND_AUTOMATED_EXTRACTION",
+        "variants": 11,
+        "source_url": "https://naughtyboylifestyle.com/policies/terms-of-service",
+        "detail": "Official terms prohibit reproduction/copying/exploitation and spider, crawl or scrape access."
+      }
+    },
+    {
+      "product_id": "763",
+      "product_name": "Naughty Boy Menace V2 60 servings",
+      "variant_id": "4108",
+      "variant_name": "Strawberry Sweets",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COPYING_AND_AUTOMATED_EXTRACTION",
+        "variants": 11,
+        "source_url": "https://naughtyboylifestyle.com/policies/terms-of-service",
+        "detail": "Official terms prohibit reproduction/copying/exploitation and spider, crawl or scrape access."
+      }
+    },
+    {
+      "product_id": "24",
+      "product_name": "PEScience Prolific 280g",
+      "variant_id": "1004",
+      "variant_name": "Mango Splash / 280g",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION_AND_COMMERCIAL_USE",
+        "variants": 6,
+        "source_url": "https://pescience.com/policies/terms-of-service",
+        "detail": "Official terms prohibit scraping/crawling/automated extraction and commercial use."
+      }
+    },
+    {
+      "product_id": "24",
+      "product_name": "PEScience Prolific 280g",
+      "variant_id": "1581",
+      "variant_name": "Melon Berry Twist / 280g",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION_AND_COMMERCIAL_USE",
+        "variants": 6,
+        "source_url": "https://pescience.com/policies/terms-of-service",
+        "detail": "Official terms prohibit scraping/crawling/automated extraction and commercial use."
+      }
+    },
+    {
+      "product_id": "24",
+      "product_name": "PEScience Prolific 280g",
+      "variant_id": "1582",
+      "variant_name": "Guava Pineapple Punch / 280g",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION_AND_COMMERCIAL_USE",
+        "variants": 6,
+        "source_url": "https://pescience.com/policies/terms-of-service",
+        "detail": "Official terms prohibit scraping/crawling/automated extraction and commercial use."
+      }
+    },
+    {
+      "product_id": "24",
+      "product_name": "PEScience Prolific 280g",
+      "variant_id": "1583",
+      "variant_name": "Raspberry Lemonade / 280g",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION_AND_COMMERCIAL_USE",
+        "variants": 6,
+        "source_url": "https://pescience.com/policies/terms-of-service",
+        "detail": "Official terms prohibit scraping/crawling/automated extraction and commercial use."
+      }
+    },
+    {
+      "product_id": "24",
+      "product_name": "PEScience Prolific 280g",
+      "variant_id": "1584",
+      "variant_name": "Sour Green Apple / 280g",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION_AND_COMMERCIAL_USE",
+        "variants": 6,
+        "source_url": "https://pescience.com/policies/terms-of-service",
+        "detail": "Official terms prohibit scraping/crawling/automated extraction and commercial use."
+      }
+    },
+    {
+      "product_id": "24",
+      "product_name": "PEScience Prolific 280g",
+      "variant_id": "1585",
+      "variant_name": "Sour Peach Candy / 280g",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_AUTOMATED_EXTRACTION_AND_COMMERCIAL_USE",
+        "variants": 6,
+        "source_url": "https://pescience.com/policies/terms-of-service",
+        "detail": "Official terms prohibit scraping/crawling/automated extraction and commercial use."
+      }
+    },
+    {
+      "product_id": "169",
+      "product_name": "Redcon1 Total War 400g",
+      "variant_id": "1015",
+      "variant_name": "Blue Raspberry / 400g",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COMMERCIAL_COPYING",
+        "variants": 9,
+        "source_url": "https://redcon1.com/policies/terms-of-service",
+        "detail": "Official terms limit site content to personal non-commercial use and prohibit commercial copying."
+      }
+    },
+    {
+      "product_id": "169",
+      "product_name": "Redcon1 Total War 400g",
+      "variant_id": "1647",
+      "variant_name": "Green Apple / 400g",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COMMERCIAL_COPYING",
+        "variants": 9,
+        "source_url": "https://redcon1.com/policies/terms-of-service",
+        "detail": "Official terms limit site content to personal non-commercial use and prohibit commercial copying."
+      }
+    },
+    {
+      "product_id": "169",
+      "product_name": "Redcon1 Total War 400g",
+      "variant_id": "1648",
+      "variant_name": "Blue Lemonade / 400g",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COMMERCIAL_COPYING",
+        "variants": 9,
+        "source_url": "https://redcon1.com/policies/terms-of-service",
+        "detail": "Official terms limit site content to personal non-commercial use and prohibit commercial copying."
+      }
+    },
+    {
+      "product_id": "169",
+      "product_name": "Redcon1 Total War 400g",
+      "variant_id": "1649",
+      "variant_name": "Pineapple Juice / 400g",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COMMERCIAL_COPYING",
+        "variants": 9,
+        "source_url": "https://redcon1.com/policies/terms-of-service",
+        "detail": "Official terms limit site content to personal non-commercial use and prohibit commercial copying."
+      }
+    },
+    {
+      "product_id": "169",
+      "product_name": "Redcon1 Total War 400g",
+      "variant_id": "1650",
+      "variant_name": "Sour Gummy / 400g",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COMMERCIAL_COPYING",
+        "variants": 9,
+        "source_url": "https://redcon1.com/policies/terms-of-service",
+        "detail": "Official terms limit site content to personal non-commercial use and prohibit commercial copying."
+      }
+    },
+    {
+      "product_id": "169",
+      "product_name": "Redcon1 Total War 400g",
+      "variant_id": "1651",
+      "variant_name": "Strawberry Kiwi / 400g",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COMMERCIAL_COPYING",
+        "variants": 9,
+        "source_url": "https://redcon1.com/policies/terms-of-service",
+        "detail": "Official terms limit site content to personal non-commercial use and prohibit commercial copying."
+      }
+    },
+    {
+      "product_id": "169",
+      "product_name": "Redcon1 Total War 400g",
+      "variant_id": "1652",
+      "variant_name": "Tigers Blood / 400g",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COMMERCIAL_COPYING",
+        "variants": 9,
+        "source_url": "https://redcon1.com/policies/terms-of-service",
+        "detail": "Official terms limit site content to personal non-commercial use and prohibit commercial copying."
+      }
+    },
+    {
+      "product_id": "169",
+      "product_name": "Redcon1 Total War 400g",
+      "variant_id": "1653",
+      "variant_name": "Watermelon / 400g",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COMMERCIAL_COPYING",
+        "variants": 9,
+        "source_url": "https://redcon1.com/policies/terms-of-service",
+        "detail": "Official terms limit site content to personal non-commercial use and prohibit commercial copying."
+      }
+    },
+    {
+      "product_id": "169",
+      "product_name": "Redcon1 Total War 400g",
+      "variant_id": "1654",
+      "variant_name": "Rainbow Candy / 400g",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_COMMERCIAL_COPYING",
+        "variants": 9,
+        "source_url": "https://redcon1.com/policies/terms-of-service",
+        "detail": "Official terms limit site content to personal non-commercial use and prohibit commercial copying."
+      }
+    },
+    {
+      "product_id": "1246",
+      "product_name": "Skill Nutrition Pre-Workout - 400g",
+      "variant_id": "3668",
+      "variant_name": "Sour Gummies",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "WRITTEN_PERMISSION_REQUIRED_FOR_COPYING",
+        "variants": 2,
+        "source_url": "https://skillnutrition.com/regulamin",
+        "detail": "Official terms prohibit copying or recording site content and photographs without written permission."
+      }
+    },
+    {
+      "product_id": "1246",
+      "product_name": "Skill Nutrition Pre-Workout - 400g",
+      "variant_id": "3713",
+      "variant_name": "Berry Blast / 400g",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "WRITTEN_PERMISSION_REQUIRED_FOR_COPYING",
+        "variants": 2,
+        "source_url": "https://skillnutrition.com/regulamin",
+        "detail": "Official terms prohibit copying or recording site content and photographs without written permission."
+      }
+    },
+    {
+      "product_id": "903",
+      "product_name": "Time 4 Pre Workout Professional 300g",
+      "variant_id": "1499",
+      "variant_name": "Bubble Gum / 300g",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_REPRODUCTION",
+        "variants": 4,
+        "source_url": "https://www.time4nutrition.co.uk/terms-conditions/",
+        "detail": "Official terms state that reproduction is prohibited without permission."
+      }
+    },
+    {
+      "product_id": "903",
+      "product_name": "Time 4 Pre Workout Professional 300g",
+      "variant_id": "1500",
+      "variant_name": "Candy Floss / 300g",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_REPRODUCTION",
+        "variants": 4,
+        "source_url": "https://www.time4nutrition.co.uk/terms-conditions/",
+        "detail": "Official terms state that reproduction is prohibited without permission."
+      }
+    },
+    {
+      "product_id": "903",
+      "product_name": "Time 4 Pre Workout Professional 300g",
+      "variant_id": "1501",
+      "variant_name": "Tropical / 300g",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_REPRODUCTION",
+        "variants": 4,
+        "source_url": "https://www.time4nutrition.co.uk/terms-conditions/",
+        "detail": "Official terms state that reproduction is prohibited without permission."
+      }
+    },
+    {
+      "product_id": "903",
+      "product_name": "Time 4 Pre Workout Professional 300g",
+      "variant_id": "1502",
+      "variant_name": "Raspberryade / 300g",
+      "current_available_offers": 1,
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "OFFICIAL_TERMS_PROHIBIT_REPRODUCTION",
+        "variants": 4,
+        "source_url": "https://www.time4nutrition.co.uk/terms-conditions/",
+        "detail": "Official terms state that reproduction is prohibited without permission."
+      }
+    },
+    {
+      "product_id": "1282",
+      "product_name": "TWP Hustle 520g",
+      "variant_id": "3762",
+      "variant_name": "Bubblegum Grape",
+      "current_available_offers": 1,
+      "status": "READY_PARTIAL",
+      "source_url": "https://twpnutrition.com/products/hustle"
+    },
+    {
+      "product_id": "1282",
+      "product_name": "TWP Hustle 520g",
+      "variant_id": "3870",
+      "variant_name": "Pink Lemonade / 520g",
+      "current_available_offers": 1,
+      "status": "READY_PARTIAL",
+      "source_url": "https://twpnutrition.com/products/hustle"
+    }
+  ],
+  "controls": {
+    "public_source_requests": 5,
+    "source_archive_writes": 5,
+    "production_candidate_writes": 0,
+    "production_catalogue_writes": 0,
+    "review_writes": 0,
+    "plan_writes": 0,
+    "apply_writes": 0,
+    "code_changes": 0,
+    "schema_changes": 0
+  },
+  "next_step": "One owner decision may authorize controlled store -> review -> plan -> apply for exactly the eight candidates of product 1282 / variants 3762 and 3870; creatine stays unresolved and outside that package."
+}

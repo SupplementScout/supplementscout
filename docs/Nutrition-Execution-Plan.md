@@ -68,6 +68,14 @@
   readback, stale-plan replay protection, its exact public page and the grouped
   caffeine-free result all pass. Beta-alanine and creatine remain unresolved;
   the other 49 scoped variants retain their recorded access or version gaps.
+- Catalogue expansion batch 07 is `READY FOR OWNER DECISION` for two partial
+  exact variants in its closed 50-variant scope: product `1282`, variants `3762`
+  and `3870`. One retained TWP Hustle V2 2025 manufacturer table supports eight
+  pending candidates: 13 g serving size, 150 mg caffeine, 1600 mg beta-alanine
+  and 4000 mg free-form L-citrulline for each variant. Creatine remains
+  unresolved and has no candidate. The other 48 scoped variants retain explicit
+  terms or written-permission blocks; no production candidate or catalogue write
+  ran.
 - The exact GYM HIGH demonstration exception for product `411` / variant `1047`
   is also `LIVE VERIFIED`: candidates `701`-`705` were stored, reviewed and
   applied through the existing guarded path. Its bounded exception now also
@@ -80,6 +88,11 @@
   variant (`3763`) and 13 with no applied facts. The separately
   completed GYM HIGH demonstration remains outside its denominator, and the
   distinct applied total is 68 variants, 13 September 2026.
+- Available-catalogue checkpoint at `2026-09-13T13:13:23.069Z`: 404 active
+  exact Pre Workout variants have an in-stock offer checked within 24 hours.
+  Of these, 56 have complete applied facts, four are partial and 344 have no
+  applied facts. This current-offer denominator is tracked separately from the
+  frozen 25-variant pilot and the 68 applied variants across all offer states.
 - Branch: `main`; the component implementation was fast-forwarded from
   `codex/nut-citrulline-components` at full commit
   `e013facbc3bf708b810a6442e2604deb9c423cb7`. Vercel production deployment
@@ -468,6 +481,7 @@ implementation or any nutrition catalogue write.
 | NUT-03-CATALOG-BATCH-04 | `LIVE VERIFIED` | NUT-03 deployed path + preparation and exact owner execution authorization | Carry only the unchanged 30-candidate ready subset through existing controls for product `528` variants `976`, `977`, `1847`, `1848` and product `1248` variants `3670`, `3716`. | Candidates `941`-`970` each exist once and are approved. Two zero-product-update plans applied only six exact overrides. Independent and replay readbacks and all six public pages passed. Two PhD variants resolve all four ingredients; four Nutrend variants retain creatine as `no_information`. See `docs/rollouts/nutrition-catalog-expansion-batch-04-execution-2026-09-13.json`. |
 | NUT-03-CATALOG-BATCH-05 | `LIVE VERIFIED` | NUT-03 deployed path + preparation and exact owner execution authorization | Carry only the unchanged 45 supported candidates for product `1247` variants `3669`, `3714`, `3715`; product `1250` variants `3672`, `3721`, `3722`; product `1254` variants `3676`, `3725`, `3726`; and product `1279` variants `3759`, `3894`, `3895`. | Candidates `971`-`1015` each exist once and are approved. Four zero-blocker, zero-product-update plans changed only the 12 exact overrides. Independent readback matched every complete `after`, and four stale-before replays failed closed. All 12 public pages pass; only the confirmed caffeine-free family qualifies for one grouped filter card. Unsupported facts remain omitted. See `docs/rollouts/nutrition-catalog-expansion-batch-05-execution-2026-09-13.json`. |
 | NUT-03-CATALOG-BATCH-06 | `LIVE VERIFIED` | NUT-03 deployed path + preparation and exact owner execution authorization | Carry only the unchanged three-candidate supported subset through existing controls for product `1283` / variant `3763`; leave beta-alanine, creatine and the 49 recorded blockers untouched. | Candidates `1016`-`1018` each exist once and are approved. One zero-blocker, zero-product-update plan applied only serving size, caffeine and L-citrulline to exact variant `3763`. Independent readback matched the whole `after`; exact replay failed closed with no second write. The public exact-variant page and caffeine-free filter pass. See `docs/rollouts/nutrition-catalog-expansion-batch-06-execution-2026-09-13.json`. |
+| NUT-03-CATALOG-BATCH-07 | `READY FOR OWNER DECISION` | NUT-03 deployed path + closed 50-variant preparation authorization | Carry only the unchanged eight-candidate partial subset for product `1282`, variants `3762` and `3870`, through store/review/plan/apply after one owner decision; keep creatine and all 48 blocked variants outside execution. | One archived TWP Hustle V2 2025 table supports serving size, caffeine, beta-alanine and free-form L-citrulline for both exact variants. The dry-run passes with eight unique fingerprints, zero product updates and zero database writes. See `docs/rollouts/nutrition-catalog-expansion-batch-07-preparation-2026-09-13.json`. |
 | NUT-03-CITRULLINE-COMPONENTS | `LIVE VERIFIED` | Batch 06 design + owner deployment, migration and exact data-write authorization | Preserve separately declared citrulline forms through the existing guarded path without summing them as pure L-citrulline. | Commit `e013facbc3bf708b810a6442e2604deb9c423cb7` and migration `20260913110000` are live. Candidates `1019`-`1036` each exist once and are approved. Plan `45f8c3ae...` added only `citrulline_components` to nine exact overrides. Independent readback matched the whole `after`, all nine public pages show two components, and the caffeine-free grouping still passes. See `docs/rollouts/nutrition-citrulline-components-execution-2026-09-13.json`. |
 | NUT-03 | `IN PROGRESS` | Organizational packages up to 50 exact variants + separate owner write authorization | Review pilot evidence, quantities/units and exact applicability in one owner-decision package while retaining existing technical sub-batch limits; separately approve candidate storage, review, planning and guarded apply. | Pilot progress is 11 complete, one partial (`3763`) and 13 without applied facts out of 25. Stinger is one separate demonstration. All tracked scopes still contain 68 distinct variants with applied facts; this package completed two previously partial pilot variants without counting any variant twice. NUT-03 and MVP remain open. |
 | NUT-04A | `LIVE VERIFIED` | Early owner authorization + exact applied facts | Reuse existing product pages and search to present exact-variant applied facts and add a confirmed caffeine-free filter. A fact is public only when an approved candidate for the same product/variant reconstructs the current override exactly. Expose only source kind; never private URI, reviewer metadata or raw archive material. | Commit 58c83cb deployed successfully. Public readback passed for variants 726, 727 and 1047, the exact-variant caffeine-free result, source redaction and the existing pre-workout link. A 390 x 844 browser check found no horizontal overflow; contract tests pass for variant switching, filter reset and pagination. NUT-03 and the frozen pilot remain unchanged. |
@@ -3015,6 +3029,61 @@ the existing production path:
   [nutrition-citrulline-components-execution-2026-09-13.json](rollouts/nutrition-citrulline-components-execution-2026-09-13.json),
   SHA-256 `039700542740b1b426678162da6eaa37608ad9bb4b4a25239c32a8cdec112134`.
 
-One next step is to prepare the next closed NUT-03 family package only when its
-official evidence is available, without reopening recorded blockers or
-reprocessing these 68 variants.
+## NUT-03 catalogue expansion batch 07 preparation
+
+13 September 2026, preparation only; no candidate, review, plan, apply or
+catalogue write:
+
+- A fresh read-only production snapshot confirms 575 active Pre Workout
+  variants and 404 with at least one in-stock offer checked within 24 hours.
+  Current-offer coverage is 56 complete, four partial and 344 without applied
+  facts. The all-offer-state applied total remains 68. The frozen pilot remains
+  11 complete, one partial (`3763`) and 13 without applied facts.
+- The nine variants whose only former blocker was separately quantified
+  citrulline components (`3672`, `3721`, `3722`, `3676`, `3725`, `3726`,
+  `3759`, `3894`, `3895`) already have those components applied. They were
+  excluded; zero further variants remain blocked solely by the retired model
+  limitation.
+- The closed scope reaches the 50-variant organizational cap across eight
+  product families. Two exact variants are ready as partial packages: TWP
+  Hustle 520 g product `1282`, Bubblegum Grape variant `3762` and Pink Lemonade
+  variant `3870`. The official page lists both under the 40 Servings selector
+  and embeds one common `Hustle V2 2025` Supplement Facts table. The 13 g column
+  is used; the 26 g / 20-serving column is not mixed into these variants.
+- Each ready variant has four pending proposals: `serving_size_g=13`, caffeine
+  150 mg, beta-alanine 1600 mg sourced as 1.60 g, and free-form L-citrulline
+  4000 mg sourced as 4.00 g, all per the 13 g serving. The official material
+  does not explicitly confirm creatine absence, so creatine remains unresolved
+  and no zero or absence candidate was fabricated. Thus two variants are ready
+  partially and zero resolve all four tracked ingredient states.
+- Official TWP Terms & Conditions contain no decisive prohibition on the
+  retained use, and `robots.txt` allows the public product and page paths used.
+  Duplicate preflight found no existing content-addressed object. The current
+  page, current V2 table, terms, robots and source-context manifest were stored
+  once in private `nutrition-sources`; fresh readback reproduced all five hashes.
+  Retention has no automatic expiry and is not described as an independent
+  backup.
+- The ignored candidate artifact is
+  `tmp/nutrition-catalog-batch-07-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-07-twp-1282-20260913.json`,
+  SHA-256 `3b92426c5158d24d56038867daf0cbc5b3b594e041e39891270a8b49367e82de`,
+  artifact fingerprint
+  `d013169f03a7bb50d22624c15d866411c8e79877cc424bd8617b1d28213b4219`.
+  Its eight candidate fingerprints are unique. Existing
+  `nutrition:candidates:store --dry-run` returns `DRY_RUN_NO_DATABASE`, eight
+  candidate rows, zero product updates and zero database writes.
+- The other 48 variants are isolated by their manufacturers' current terms:
+  23 Naughty Boy variants prohibit copying and automated extraction, nine
+  Redcon1 variants prohibit commercial copying, six PEScience variants prohibit
+  automated extraction and commercial use, four Time4 Nutrition variants
+  prohibit reproduction, four Animal variants require written permission for
+  copying or scraping, and two Skill Nutrition variants require written
+  permission for copying. No blocked source was downloaded or archived.
+- Complete machine-readable evidence is
+  [nutrition-catalog-expansion-batch-07-preparation-2026-09-13.json](rollouts/nutrition-catalog-expansion-batch-07-preparation-2026-09-13.json),
+  SHA-256 `b0d6c51802fd11da843b9ce2d7f99f8b6640536e5a6982acac53dc91b617b905`.
+  NUT-03 and the MVP remain `IN PROGRESS`.
+
+One next step is one owner decision on controlled store -> authenticated review
+-> explicit-ID plan -> apply for exactly the unchanged eight TWP candidates of
+variants `3762` and `3870`; creatine and all 48 blocked variants remain outside
+that decision.
