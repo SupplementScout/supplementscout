@@ -76,6 +76,14 @@
   unresolved and has no candidate. The other 48 scoped variants retain explicit
   terms or written-permission blocks; no production candidate or catalogue write
   ran.
+- Retailer-source batch 01 is separately `READY FOR OWNER DECISION` for 19
+  partial exact variants across products `778`, `763` and `903`. Three retained
+  retailer product tables support 76 pending candidates: one serving fact plus
+  caffeine, beta-alanine and cytrulline for each variant. Creatine remains
+  `no_information` and has no candidate. The bounded review assessed 48 current-
+  offer variants across seven formerly blocked families; 29 retain explicit
+  access, version, pack or flavour-context gaps. Batch 07 variants `3762` and
+  `3870` remain unapplied in their separate package.
 - The exact GYM HIGH demonstration exception for product `411` / variant `1047`
   is also `LIVE VERIFIED`: candidates `701`-`705` were stored, reviewed and
   applied through the existing guarded path. Its bounded exception now also
@@ -88,7 +96,7 @@
   variant (`3763`) and 13 with no applied facts. The separately
   completed GYM HIGH demonstration remains outside its denominator, and the
   distinct applied total is 68 variants, 13 September 2026.
-- Available-catalogue checkpoint at `2026-09-13T13:13:23.069Z`: 404 active
+- Available-catalogue checkpoint at `2026-09-13T13:47:19.419Z`: 404 active
   exact Pre Workout variants have an in-stock offer checked within 24 hours.
   Of these, 56 have complete applied facts, four are partial and 344 have no
   applied facts. This current-offer denominator is tracked separately from the
@@ -233,12 +241,12 @@
   production candidates `701`-`705`, approved through the authenticated review
   path and applied only to variant `1047`. Independent readback matches the plan,
   while exact replay fails closed before a second write.
-- One next step: one owner decision on store -> review -> plan -> apply for the
-  exact 18-candidate component package prepared below. It targets only the nine
-  variants whose retained tables disclose separate citrulline-malate and
-  L-citrulline masses. Do not reopen recorded access, version or evidence gaps
-  without a new premise. NUT-03 remains `IN PROGRESS`; 68 distinct variants
-  still have applied facts because this step made no nutrition-data write.
+- One next step: one owner decision on controlled store -> authenticated review
+  -> explicit-ID plan -> apply for exactly the 76 candidates of retailer-source
+  batch 01. That decision would cover only its 19 listed variants; creatine, its
+  29 blocked variants and the separate eight-candidate Batch 07 package remain
+  outside it. NUT-03 remains `IN PROGRESS`; 68 distinct variants still have
+  applied facts because this preparation made no nutrition-data write.
 
 ## Authority and scope
 
@@ -3087,3 +3095,67 @@ One next step is one owner decision on controlled store -> authenticated review
 -> explicit-ID plan -> apply for exactly the unchanged eight TWP candidates of
 variants `3762` and `3870`; creatine and all 48 blocked variants remain outside
 that decision.
+
+## NUT-03 retailer-source batch 01 preparation
+
+13 September 2026, preparation and private source retention only; no candidate,
+review, plan, apply or catalogue write:
+
+- A fresh read-only production snapshot confirms project
+  `aftboxmrdgyhizicfsfu`, 575 active Pre Workout variants, 404 with a current
+  in-stock offer and 68 variants with any applied override. Current-offer
+  coverage is 56 complete, four partial and 344 without applied facts. Batch 07
+  variants `3762` and `3870` still have empty overrides; that prepared TWP
+  package remains separate and was excluded.
+- Retailer evidence is now an allowed fallback under the process rules. A
+  readable manufacturer label hosted by a retailer is recorded separately from
+  a retailer-authored active table. Each source must bind the product version,
+  market, pack, serving and exact variant context. A second retailer is used for
+  comparison when accessible, but copied content is not independent evidence and
+  its absence does not block a readable exact-version table. Each retailer's
+  terms and robots rules apply independently; catalogue or affiliate presence is
+  not blanket copying permission.
+- The closed review assessed 48 current-offer, previously unapplied variants in
+  seven families. Three qualifying retailer tables support 19 partial variants:
+  product `778` variants `972`, `1978`, `4082`, `4084`, `4088`, `4089`;
+  product `763` variants `920`, `921`, `4100`, `4102`-`4106`, `4108`; and
+  product `903` variants `1499`-`1502`. These exact IDs remain strings.
+- Product `778` uses one Ambiactive 390 g / 30-serving table: 13 g serving,
+  200 mg caffeine, 3200 mg beta-alanine and 4000 mg free-form L-citrulline.
+  Product `763` uses the one-scoop column of one Ambiactive Menace V2 420 g
+  table: 7 g serving, 200 mg caffeine, 1600 mg beta-alanine and 3000 mg
+  citrulline malate 2:1. Product `903` uses one Matrix Nutrition 300 g table:
+  one level 12 g scoop, 350 mg caffeine, beta-alanine sourced as 3.2 g and
+  citrulline malate sourced as 3.5 g; the malate ratio is not stated. No source
+  explicitly confirms creatine absence, so creatine remains `no_information`
+  for all 19 and no fifth candidate was fabricated.
+- The two Ambiactive product pages and the Matrix Nutrition page, their reviewed
+  terms and robots files, and one source-context manifest were content-addressed
+  after a zero-duplicate precheck. Eight objects were written once to private
+  `nutrition-sources`. Fresh readback reproduced every SHA-256, confirmed the
+  bucket is private and found no automatic expiry. This retention is evidence
+  storage, not a separate backup.
+- Three ignored artifacts contain 24, 36 and 16 candidates respectively, 76
+  unique candidate fingerprints in total. Each preserves the exact variant,
+  retailer source type, original quantity/unit, serving basis, ingredient form,
+  optional malate ratio, durable private URI and source hash. All remain
+  `PENDING`. Three existing `nutrition:candidates:store --dry-run` executions
+  returned `DRY_RUN_NO_DATABASE`, the expected row counts, zero product updates
+  and zero database writes.
+- The other 29 assessed variants retain concrete gaps: six Energy and two
+  Menace flavours are absent from the qualifying retained flavour context; six
+  PEScience sources have restrictive reuse terms; nine Redcon1 variants have a
+  250 mg versus 320 mg formula-generation conflict; four Animal variants have
+  conflicting pack and serving versions; and two Skill variants lack an exact
+  flavour-table binding. Confirmed facts for the ready variants proceed without
+  converting these omissions or conflicts into zeros.
+- Complete evidence is
+  [nutrition-retailer-source-batch-01-preparation-2026-09-13.json](rollouts/nutrition-retailer-source-batch-01-preparation-2026-09-13.json),
+  SHA-256
+  `144d7fa54accdd59236708e792465485cdbd3d87b2165b730f75e49bb9af90c4`.
+  NUT-03 and the MVP remain `IN PROGRESS`.
+
+One next step is one owner decision on controlled store -> authenticated review
+-> explicit-ID plan -> apply for exactly the unchanged 76-candidate package of
+the 19 variants listed above. Creatine, all 29 blocked variants and the separate
+Batch 07 package remain outside that decision.

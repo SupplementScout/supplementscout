@@ -1,0 +1,1460 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-retailer-source-batch-01-preparation-evidence",
+  "status": "READY_FOR_OWNER_DECISION_PARTIAL_FACTS",
+  "generated_at": "2026-09-13T14:06:28.045Z",
+  "production_checkpoint": {
+    "captured_at": "2026-09-13T13:47:19.419Z",
+    "target": {
+      "project_ref": "aftboxmrdgyhizicfsfu",
+      "database_oid": "5",
+      "database_identity": "supplementscout-production:aftboxmrdgyhizicfsfu",
+      "target_environment": "PRODUCTION",
+      "database_system_identifier": "7642734024280108049"
+    },
+    "snapshot_sha256": "497b0bef6107f5ee4153702a0b79696267788e059483b5b20f7a52f89aff940a",
+    "active_preworkout_variants": 575,
+    "active_variants_with_current_available_offer": 404,
+    "current_offer_coverage": {
+      "complete": 56,
+      "partial": 4,
+      "none": 344
+    },
+    "applied_variant_count": 68,
+    "batch_07_separate_unapplied_variant_ids": [
+      "3762",
+      "3870"
+    ],
+    "database_writes": 0
+  },
+  "boundaries": {
+    "family_limit": 10,
+    "variant_limit": 50,
+    "assessed_families": 7,
+    "assessed_variants": 48,
+    "ready_families": 3,
+    "ready_variants": 19,
+    "complete_four_ingredient_variants": 0,
+    "partial_ready_variants": 19,
+    "unresolved_variants": 29,
+    "candidate_count": 76,
+    "unique_candidate_fingerprints": 76,
+    "unique_qualifying_tables": 3,
+    "stop_reason": "The bounded alternative-retailer review exhausted the seven selected prior-blocked families. Only three sources passed access, exact-version and flavour-context checks; the remaining 29 retain explicit blockers."
+  },
+  "batch_07_separation": {
+    "product_id": "1282",
+    "variant_ids": [
+      "3762",
+      "3870"
+    ],
+    "production_status": "NOT_APPLIED",
+    "action": "Kept in the previously prepared Batch 07 package and excluded from this retailer-source batch."
+  },
+  "source_policy": {
+    "rule": "A readable manufacturer label hosted by a retailer is distinguished from a retailer-authored table. Either may support a candidate when the exact product version, market, pack, serving basis and variant applicability are established under that retailer source context.",
+    "comparison": "Compare a second retailer when available. A missing second source does not block an exact readable table, and copied images or descriptions are not independent confirmation.",
+    "absence": "Omission from an active table is not confirmed absence; inspect ingredients and declarations, then retain no_information if no explicit conclusion is supported.",
+    "access": "Assess each retailer terms and robots rules independently. Catalogue or affiliate presence does not grant blanket copying rights."
+  },
+  "source_access_review": [
+    {
+      "domain": "ambiactive.com",
+      "result": "QUALIFYING_FOR_PRIVATE_EVIDENCE_ARCHIVE",
+      "basis": "Public product paths and robots access were available; the reviewed store rules contained no content-copying or automated-access prohibition."
+    },
+    {
+      "domain": "matrix-nutrition.co.uk",
+      "result": "QUALIFYING_FOR_PRIVATE_EVIDENCE_ARCHIVE",
+      "basis": "Public product paths and robots access were available; reviewed sales terms contained no content-copying or automated-access prohibition."
+    },
+    {
+      "domain": "dolphinfitness.co.uk",
+      "result": "COMPARISON_ONLY_NOT_ARCHIVED",
+      "basis": "Terms prohibit reproduction without permission."
+    },
+    {
+      "domain": "fithouse.uk",
+      "result": "BLOCKED",
+      "basis": "Terms prohibit copying/exploitation and spider, crawl or scrape access."
+    },
+    {
+      "domain": "jonssupplements.co.uk",
+      "result": "COMPARISON_ONLY_NOT_ARCHIVED",
+      "basis": "Terms prohibit copying/exploitation and spider, crawl or scrape access."
+    },
+    {
+      "domain": "10reps.co.uk",
+      "result": "BLOCKED",
+      "basis": "Terms require written permission for reproduction of site content and images."
+    },
+    {
+      "domain": "wheyokay.com",
+      "result": "NOT_QUALIFYING_WITHOUT_CLARIFICATION",
+      "basis": "Terms allow private download but require written consent for reproduction; not used as a retained catalogue-evidence source."
+    }
+  ],
+  "ready_groups": [
+    {
+      "product_id": "778",
+      "product_name": "Naughty Boy Energy Pre-Workout 30 servings",
+      "variants": [
+        {
+          "variant_id": "972",
+          "variant_name": "Pineapple Crush / 30 servings"
+        },
+        {
+          "variant_id": "1978",
+          "variant_name": "Strawberry Mango / 30servings"
+        },
+        {
+          "variant_id": "4082",
+          "variant_name": "Candy Bubblegum"
+        },
+        {
+          "variant_id": "4084",
+          "variant_name": "Orange & Passion Fruit"
+        },
+        {
+          "variant_id": "4088",
+          "variant_name": "Tropical Punch"
+        },
+        {
+          "variant_id": "4089",
+          "variant_name": "Ultra Energy"
+        }
+      ],
+      "applicability_basis": "shared retailer product table for listed variants of the same product version",
+      "source": {
+        "retailer": "Ambiactive",
+        "source_type": "retailer_product_page",
+        "url": "https://www.ambiactive.com/produktas/naughty-boy-energy-pre-workout-390-g/",
+        "sha256": "83af67170760968617ff7296325d2ac6ff7ff03f2fe1575dc0c9fa9019d1bc3f",
+        "archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/retailer-source-batch-01/ambiactive/778/83af67170760968617ff7296325d2ac6ff7ff03f2fe1575dc0c9fa9019d1bc3f/naughty-boy-energy-390g.html",
+        "check_date": "2026-09-13",
+        "context": "The retailer page presents one 390 g / 30-serving product, one 13 g table and these six flavour selectors in the same product context."
+      },
+      "comparison": {
+        "retailer": "Dolphin Fitness",
+        "url": "https://www.dolphinfitness.co.uk/en/naughty-boy-energy-pre-workout-30-servings/351467",
+        "result": "Values and 30-serving presentation agree, but its terms prohibit reproduction; it is comparison evidence only and is not archived or counted as an independent retained source."
+      },
+      "proposed_facts_per_variant": {
+        "serving_size_g": {
+          "value": 13,
+          "source_text": "1 porcija (13 g)"
+        },
+        "caffeine": {
+          "field": "caffeine_per_serving_mg",
+          "value": 200,
+          "sourceValue": 200,
+          "sourceUnit": "mg",
+          "form": null,
+          "ratio": null,
+          "text": "Bevandenis kofeinas 200 mg."
+        },
+        "beta_alanine": {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 3200,
+          "sourceValue": 3200,
+          "sourceUnit": "mg",
+          "form": null,
+          "ratio": null,
+          "text": "Beta alaninas 3200 mg."
+        },
+        "citrulline": {
+          "field": "citrulline_per_serving_mg",
+          "value": 4000,
+          "sourceValue": 4000,
+          "sourceUnit": "mg",
+          "form": "l_citrulline",
+          "ratio": null,
+          "text": "L-Citrulinas (veganiškas fermentuotas) 4000 mg."
+        }
+      },
+      "unresolved_fields_per_variant": [
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "reason": "Creatine is omitted from the active table and no explicit absence declaration appears on the qualifying source; omission remains no_information."
+        }
+      ],
+      "artifact": {
+        "product_id": "778",
+        "path": "tmp/nutrition-retailer-source-batch-01-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-retailer-batch-01-778-20260913.json",
+        "sha256": "5fe522ec843a8e3f5ed0e715cd455120367c050c5d015405c32024a9d270bc58",
+        "artifact_fingerprint": "dc2e1c89c6a485d34f20d8f3b587279157702c423f1e5ca4169fea40489835ad",
+        "variant_ids": [
+          "1978",
+          "4082",
+          "4084",
+          "4088",
+          "4089",
+          "972"
+        ],
+        "variants": 6,
+        "candidates": 24,
+        "unique_candidate_fingerprints": 24,
+        "source_manifest_sha256": "3a5008a307d9a0e2b523d4db6b00f80e18de36d64240e05c1121930774332043",
+        "candidate_fingerprints": [
+          {
+            "variant_id": "972",
+            "field_name": "beta_alanine_per_serving_mg",
+            "candidate_fingerprint": "47eddceee57597d15976950928b3baf3cc8329905813333c88ac018d1e208e29"
+          },
+          {
+            "variant_id": "972",
+            "field_name": "caffeine_per_serving_mg",
+            "candidate_fingerprint": "cb9541ef602f8fd5e9d69f931d1e975e701a90658185f788769a397f07086bd1"
+          },
+          {
+            "variant_id": "972",
+            "field_name": "citrulline_per_serving_mg",
+            "candidate_fingerprint": "2b55dc4d10b32fb0b6ad3c0f4793f41d1ea5d058cacbba27d8c56b7a9944f9ed"
+          },
+          {
+            "variant_id": "972",
+            "field_name": "serving_size_g",
+            "candidate_fingerprint": "ce05aba00b678f376057a5cc65873d6b5f9dfe77a0394a6f12c9554045730228"
+          },
+          {
+            "variant_id": "1978",
+            "field_name": "beta_alanine_per_serving_mg",
+            "candidate_fingerprint": "e116f9d6e173bc769234780a3c0ee0c02dc2372965becf7b2e96a7265b8adcd4"
+          },
+          {
+            "variant_id": "1978",
+            "field_name": "caffeine_per_serving_mg",
+            "candidate_fingerprint": "076fc45e3774348e3994bef708d852b63bce782ae701b0b74862fa6b1173aeec"
+          },
+          {
+            "variant_id": "1978",
+            "field_name": "citrulline_per_serving_mg",
+            "candidate_fingerprint": "419246967fe9be1d0248b8c24ec0b8759cc6cd4d4d1d3ab8a6decb342814434e"
+          },
+          {
+            "variant_id": "1978",
+            "field_name": "serving_size_g",
+            "candidate_fingerprint": "decc3663eda2e60d82b889cebe99542ebb3da8115defb557edfcc49e7ae6d228"
+          },
+          {
+            "variant_id": "4082",
+            "field_name": "beta_alanine_per_serving_mg",
+            "candidate_fingerprint": "4b4c09ad2a995251a74b7ec43dc26ca118888de28d3b1d5d36fa0def8147696c"
+          },
+          {
+            "variant_id": "4082",
+            "field_name": "caffeine_per_serving_mg",
+            "candidate_fingerprint": "49de647d0de5702dac2daa547bc1039e99ff35c3e2058ddaf3d63a021c5ecaaf"
+          },
+          {
+            "variant_id": "4082",
+            "field_name": "citrulline_per_serving_mg",
+            "candidate_fingerprint": "29ba6d6f75fb4d8f0a98040416afd4ef84daa40b7b67e76b7b07f65f193c29f5"
+          },
+          {
+            "variant_id": "4082",
+            "field_name": "serving_size_g",
+            "candidate_fingerprint": "2b0c0dff5794400baaf60e44c1da10d0d1b934bf3f2b92d2f9412d0c1853f48c"
+          },
+          {
+            "variant_id": "4084",
+            "field_name": "beta_alanine_per_serving_mg",
+            "candidate_fingerprint": "97147a917513f98cbbdc7c2f5b5fd4ff4307f89cdee6265b9d4abda90cc02523"
+          },
+          {
+            "variant_id": "4084",
+            "field_name": "caffeine_per_serving_mg",
+            "candidate_fingerprint": "630b1b070f8870a7d34eb74532da9f5373b858ff73b131915293b849240328d7"
+          },
+          {
+            "variant_id": "4084",
+            "field_name": "citrulline_per_serving_mg",
+            "candidate_fingerprint": "16f5cf2e997f73f00acbddcfab043d3a011341eea35f8b0a9e07e2eda2005e75"
+          },
+          {
+            "variant_id": "4084",
+            "field_name": "serving_size_g",
+            "candidate_fingerprint": "85f2374d6431c4fe1b4640fa6d287dec9fc5c1d23d9826f5abd0027a9a35d36a"
+          },
+          {
+            "variant_id": "4088",
+            "field_name": "beta_alanine_per_serving_mg",
+            "candidate_fingerprint": "09c06bc6fd701e34d017b2e463f925dbbf3745fe67ed97f9a4c863add2bf799b"
+          },
+          {
+            "variant_id": "4088",
+            "field_name": "caffeine_per_serving_mg",
+            "candidate_fingerprint": "e443c7ab22aef5d14fc421099b2ac6a086d16dbe8898445b5556286a4738d4cf"
+          },
+          {
+            "variant_id": "4088",
+            "field_name": "citrulline_per_serving_mg",
+            "candidate_fingerprint": "a1014a9e19c0002c65a74036771377731ceb41a6df72393c7d5685298a9be668"
+          },
+          {
+            "variant_id": "4088",
+            "field_name": "serving_size_g",
+            "candidate_fingerprint": "47c3e9f1d0a640bc3f5cecc1d63e261fd6f4566fa6c25ebf3d4cc8b860756aaa"
+          },
+          {
+            "variant_id": "4089",
+            "field_name": "beta_alanine_per_serving_mg",
+            "candidate_fingerprint": "3077e2f05e4c9c3f8f60bc4eabc9eb7834a98189fe1935b3436f8ce202629ac6"
+          },
+          {
+            "variant_id": "4089",
+            "field_name": "caffeine_per_serving_mg",
+            "candidate_fingerprint": "9852e343866c4d2d83ad4ba3ca555e6de7883706bada5a1308dd5ddb2e9c4bd3"
+          },
+          {
+            "variant_id": "4089",
+            "field_name": "citrulline_per_serving_mg",
+            "candidate_fingerprint": "88b9aef52fbe0037306f95169999ead32ccbd0729476875254e02fcc866125f2"
+          },
+          {
+            "variant_id": "4089",
+            "field_name": "serving_size_g",
+            "candidate_fingerprint": "4002eaa3bf153d9e3880c22126120fedcc1e6a8466ad33ed1d1a52fbefd7e566"
+          }
+        ],
+        "dry_run": {
+          "command": "npm run nutrition:candidates:store -- --dry-run --input=tmp/nutrition-retailer-source-batch-01-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-retailer-batch-01-778-20260913.json",
+          "result": "PASS",
+          "mode": "DRY_RUN_NO_DATABASE",
+          "candidate_rows": 24,
+          "product_updates": 0,
+          "database_writes": 0
+        }
+      }
+    },
+    {
+      "product_id": "763",
+      "product_name": "Naughty Boy Menace V2 60 servings",
+      "variants": [
+        {
+          "variant_id": "920",
+          "variant_name": "Gotti Grape / 60 servings"
+        },
+        {
+          "variant_id": "921",
+          "variant_name": "Sour Gummy Bears / 60 servings"
+        },
+        {
+          "variant_id": "4100",
+          "variant_name": "Blueberry Pineapple"
+        },
+        {
+          "variant_id": "4102",
+          "variant_name": "Cherry Razz"
+        },
+        {
+          "variant_id": "4103",
+          "variant_name": "Energy"
+        },
+        {
+          "variant_id": "4104",
+          "variant_name": "Fizzy Cola Bottles"
+        },
+        {
+          "variant_id": "4105",
+          "variant_name": "Fruit Twist"
+        },
+        {
+          "variant_id": "4106",
+          "variant_name": "Pink Lemonade"
+        },
+        {
+          "variant_id": "4108",
+          "variant_name": "Strawberry Sweets"
+        }
+      ],
+      "applicability_basis": "shared retailer product table for listed variants of the same product version",
+      "source": {
+        "retailer": "Ambiactive",
+        "source_type": "retailer_product_page",
+        "url": "https://www.ambiactive.com/produktas/naughty-boy-menace-v2-pre-workout-420-g/",
+        "sha256": "7beaaba373003c3b0f6d77753363b33fc74406d35af230589a725013015f3597",
+        "archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/retailer-source-batch-01/ambiactive/763/7beaaba373003c3b0f6d77753363b33fc74406d35af230589a725013015f3597/naughty-boy-menace-v2-420g.html",
+        "check_date": "2026-09-13",
+        "context": "The retailer page presents one Menace V2 420 g / 60-or-30-serving product, one 1-scoop/2-scoop table and these nine catalogue-matching flavours in the same context."
+      },
+      "comparison": {
+        "retailer": "Dolphin Fitness",
+        "url": "https://www.dolphinfitness.co.uk/en/naughty-boy-menace-v2-pre-workout-60-servings/443444",
+        "result": "The 1-scoop values and product version agree, but its terms prohibit reproduction; it is comparison evidence only and is not archived or counted as an independent retained source."
+      },
+      "proposed_facts_per_variant": {
+        "serving_size_g": {
+          "value": 7,
+          "source_text": "1 kaušelis (7 g)"
+        },
+        "caffeine": {
+          "field": "caffeine_per_serving_mg",
+          "value": 200,
+          "sourceValue": 200,
+          "sourceUnit": "mg",
+          "form": null,
+          "ratio": null,
+          "text": "Bevandenis kofeinas 200 mg in the 1-scoop column."
+        },
+        "beta_alanine": {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 1600,
+          "sourceValue": 1600,
+          "sourceUnit": "mg",
+          "form": null,
+          "ratio": null,
+          "text": "MAXed beta-alaninas 1600 mg in the 1-scoop column."
+        },
+        "citrulline": {
+          "field": "citrulline_per_serving_mg",
+          "value": 3000,
+          "sourceValue": 3000,
+          "sourceUnit": "mg",
+          "form": "citrulline_malate",
+          "ratio": "2:1",
+          "text": "MAXed L-citrulino malatas 2:1 3000 mg in the 1-scoop column."
+        }
+      },
+      "unresolved_fields_per_variant": [
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "reason": "Creatine is omitted from the active table and no explicit absence declaration appears on the qualifying source; omission remains no_information."
+        }
+      ],
+      "artifact": {
+        "product_id": "763",
+        "path": "tmp/nutrition-retailer-source-batch-01-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-retailer-batch-01-763-20260913.json",
+        "sha256": "be2d40d5036afb085ca559a742c2c12505e846a306a8aeafecf02067ac6bedf8",
+        "artifact_fingerprint": "fe4f930b08010c19fa167bd84cd4bc0abc8626f984ea4c4484057126d500ec11",
+        "variant_ids": [
+          "920",
+          "921",
+          "4100",
+          "4102",
+          "4103",
+          "4104",
+          "4105",
+          "4106",
+          "4108"
+        ],
+        "variants": 9,
+        "candidates": 36,
+        "unique_candidate_fingerprints": 36,
+        "source_manifest_sha256": "3a5008a307d9a0e2b523d4db6b00f80e18de36d64240e05c1121930774332043",
+        "candidate_fingerprints": [
+          {
+            "variant_id": "920",
+            "field_name": "beta_alanine_per_serving_mg",
+            "candidate_fingerprint": "599b3475c4358c328b45fa4ad0b6cfe082eb2bc720400d7eb33132af64839412"
+          },
+          {
+            "variant_id": "920",
+            "field_name": "caffeine_per_serving_mg",
+            "candidate_fingerprint": "4f67c9cde264b48611dd94e808c8346035f4da17991797930df88a5a1e1373bc"
+          },
+          {
+            "variant_id": "920",
+            "field_name": "citrulline_per_serving_mg",
+            "candidate_fingerprint": "e6d27d02ebf820e57c4c6dd74edc5f0a1a0506fa551ed1bb4be72cff945e0a85"
+          },
+          {
+            "variant_id": "920",
+            "field_name": "serving_size_g",
+            "candidate_fingerprint": "363f7eeb4082d5a9066dd09fd24e7b79f185142ae36303386b49060a22fb3f80"
+          },
+          {
+            "variant_id": "921",
+            "field_name": "beta_alanine_per_serving_mg",
+            "candidate_fingerprint": "b3e5c2dd712b57e400c10259497946ed705268c83cdf579cd3ee6f617c67659d"
+          },
+          {
+            "variant_id": "921",
+            "field_name": "caffeine_per_serving_mg",
+            "candidate_fingerprint": "bf15e199939bb93c6b08993deb8f7ce69001777f40153520a6eadde1808129f9"
+          },
+          {
+            "variant_id": "921",
+            "field_name": "citrulline_per_serving_mg",
+            "candidate_fingerprint": "270d43f67deb589dd07faf4bbeb9ee67d5155d61f1f27c42de21a9c2aded6c2a"
+          },
+          {
+            "variant_id": "921",
+            "field_name": "serving_size_g",
+            "candidate_fingerprint": "df1ec4c811f8f9e88338183805979fe1ad643229c1f3fd48497d078fc01ecab5"
+          },
+          {
+            "variant_id": "4100",
+            "field_name": "beta_alanine_per_serving_mg",
+            "candidate_fingerprint": "8c6709d947717fbe779c738fc6013b3342714a1fb225b8e137dc2891144bbbea"
+          },
+          {
+            "variant_id": "4100",
+            "field_name": "caffeine_per_serving_mg",
+            "candidate_fingerprint": "bfe4444d00605be84f174bf19162d7cbfafeb8e6bd5b20846209eff923a25657"
+          },
+          {
+            "variant_id": "4100",
+            "field_name": "citrulline_per_serving_mg",
+            "candidate_fingerprint": "58101681efb19881cfa787d995e9fc5caa8137f6d33b32c8283f70de7551344e"
+          },
+          {
+            "variant_id": "4100",
+            "field_name": "serving_size_g",
+            "candidate_fingerprint": "5709fc3cfa5e6694bb8c008e25052ad0486bf94515793dead4834b0891fb8885"
+          },
+          {
+            "variant_id": "4102",
+            "field_name": "beta_alanine_per_serving_mg",
+            "candidate_fingerprint": "272c1fd885fd33e507a80a9cb78bde6f08d9c691d32f422e24020a282df22c5a"
+          },
+          {
+            "variant_id": "4102",
+            "field_name": "caffeine_per_serving_mg",
+            "candidate_fingerprint": "50b56400857949a64bc19fbb9d3a4457874a727a5c05a49a8223950341d4f5f2"
+          },
+          {
+            "variant_id": "4102",
+            "field_name": "citrulline_per_serving_mg",
+            "candidate_fingerprint": "51313c280e84d65ae029d95648b4633ece8be9bda04464438af6929229d1cb37"
+          },
+          {
+            "variant_id": "4102",
+            "field_name": "serving_size_g",
+            "candidate_fingerprint": "f0954e6347a5055947a319f4df7e50b969e4b1f00dba669ba8e2aa20198cf8e5"
+          },
+          {
+            "variant_id": "4103",
+            "field_name": "beta_alanine_per_serving_mg",
+            "candidate_fingerprint": "d3ed48a24ec07a537cf422bf1a87995bca7d68cdcbe245f14f2308a697f991ee"
+          },
+          {
+            "variant_id": "4103",
+            "field_name": "caffeine_per_serving_mg",
+            "candidate_fingerprint": "d6aac99be063ecdc51ec3a806353a75160429385bdc884d09e23e19c31b59e8f"
+          },
+          {
+            "variant_id": "4103",
+            "field_name": "citrulline_per_serving_mg",
+            "candidate_fingerprint": "6aa463b01f86b5bb25ee3ee49dde987fac6ac4698dfca0c2210840a4be4d2ef5"
+          },
+          {
+            "variant_id": "4103",
+            "field_name": "serving_size_g",
+            "candidate_fingerprint": "e3efb6def3d30fb4ea90e9be69c343e33d51e62e5213a53b2511a9702bc16936"
+          },
+          {
+            "variant_id": "4104",
+            "field_name": "beta_alanine_per_serving_mg",
+            "candidate_fingerprint": "50b8c08fe4502221af7f2e350f2778ae49a21ec3f98652c58945264169592045"
+          },
+          {
+            "variant_id": "4104",
+            "field_name": "caffeine_per_serving_mg",
+            "candidate_fingerprint": "7f982fcf70a896f43084eaf84ca281f38a4afaf2780ff49c16d316ad960eec6e"
+          },
+          {
+            "variant_id": "4104",
+            "field_name": "citrulline_per_serving_mg",
+            "candidate_fingerprint": "0eee6ac3b7a71f8737bc1b4b473f25d21bb722014d05ef67f5f7be0e798e27a1"
+          },
+          {
+            "variant_id": "4104",
+            "field_name": "serving_size_g",
+            "candidate_fingerprint": "781d8b807beaf8dda5b3947cc610721aa4b131f13e77ebf2cee7835fd7939582"
+          },
+          {
+            "variant_id": "4105",
+            "field_name": "beta_alanine_per_serving_mg",
+            "candidate_fingerprint": "ea1e6dd876b9825783da2d69b7904765eb1ddb511db5cf34d3cf51a1a08d6927"
+          },
+          {
+            "variant_id": "4105",
+            "field_name": "caffeine_per_serving_mg",
+            "candidate_fingerprint": "e291bc310d19d4454723ee9ca9893c1972f7a1c3267dfe43466d341eaf82c13c"
+          },
+          {
+            "variant_id": "4105",
+            "field_name": "citrulline_per_serving_mg",
+            "candidate_fingerprint": "65ca57ca9ef1f2d946bf313e3f3f92b8cb58d4b708a6d2cc6a020c86f76e6b15"
+          },
+          {
+            "variant_id": "4105",
+            "field_name": "serving_size_g",
+            "candidate_fingerprint": "2bebf39a7ec56e2494556b3b075697ae05196ef2dbd18f25628cb3335848d6ef"
+          },
+          {
+            "variant_id": "4106",
+            "field_name": "beta_alanine_per_serving_mg",
+            "candidate_fingerprint": "4509577a9fe4662228e016fc6ce7bca271dff9caeaa0081f4aa69c312ce6eead"
+          },
+          {
+            "variant_id": "4106",
+            "field_name": "caffeine_per_serving_mg",
+            "candidate_fingerprint": "9add7b5efa3f60d0a222f0ca6b93cc392851348256986796fa186d8c8b9ba888"
+          },
+          {
+            "variant_id": "4106",
+            "field_name": "citrulline_per_serving_mg",
+            "candidate_fingerprint": "fa5ed1fa31aabca3a63e3ad43085a4ccdceafd8300119cff01aa0b260b84bce2"
+          },
+          {
+            "variant_id": "4106",
+            "field_name": "serving_size_g",
+            "candidate_fingerprint": "86064b19717de28f2de62f00fa63113ebaf1efc6b06838a712ac3703def21b5a"
+          },
+          {
+            "variant_id": "4108",
+            "field_name": "beta_alanine_per_serving_mg",
+            "candidate_fingerprint": "dc0dc6af7b482c7395134041ae7ec3de7ccb5b360130256c518f28d4db0f33c8"
+          },
+          {
+            "variant_id": "4108",
+            "field_name": "caffeine_per_serving_mg",
+            "candidate_fingerprint": "a33db4528341ab382c9b9cce1f89fca3c7038815b6d04437558ad6d5b9e66d06"
+          },
+          {
+            "variant_id": "4108",
+            "field_name": "citrulline_per_serving_mg",
+            "candidate_fingerprint": "2ca030ef3a80db86a3ea46aa38ebf26446961a7e6246f62abd0009c66b90384a"
+          },
+          {
+            "variant_id": "4108",
+            "field_name": "serving_size_g",
+            "candidate_fingerprint": "5bb70d0bad404f29fa1c7445678259204602c34564f3a72f24200435a49f5230"
+          }
+        ],
+        "dry_run": {
+          "command": "npm run nutrition:candidates:store -- --dry-run --input=tmp/nutrition-retailer-source-batch-01-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-retailer-batch-01-763-20260913.json",
+          "result": "PASS",
+          "mode": "DRY_RUN_NO_DATABASE",
+          "candidate_rows": 36,
+          "product_updates": 0,
+          "database_writes": 0
+        }
+      }
+    },
+    {
+      "product_id": "903",
+      "product_name": "Time 4 Pre Workout Professional 300g",
+      "variants": [
+        {
+          "variant_id": "1499",
+          "variant_name": "Bubble Gum / 300g"
+        },
+        {
+          "variant_id": "1500",
+          "variant_name": "Candy Floss / 300g"
+        },
+        {
+          "variant_id": "1501",
+          "variant_name": "Tropical / 300g"
+        },
+        {
+          "variant_id": "1502",
+          "variant_name": "Raspberryade / 300g"
+        }
+      ],
+      "applicability_basis": "shared retailer product table for listed variants of the same product version",
+      "source": {
+        "retailer": "Matrix Nutrition",
+        "source_type": "retailer_product_page",
+        "url": "https://www.matrix-nutrition.co.uk/products/time-4-pre-workout-professional",
+        "sha256": "9aacf9d93fe2d7b9fd645ce875d99ec976b73d4795f96b6c2d3af9f30a98dff3",
+        "archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/retailer-source-batch-01/matrix-nutrition/903/9aacf9d93fe2d7b9fd645ce875d99ec976b73d4795f96b6c2d3af9f30a98dff3/time4-pre-workout-professional-300g.html",
+        "check_date": "2026-09-13",
+        "context": "The retailer page presents one 300 g / 25-serving product, one 12 g table and Raspberryade, Candyfloss, Tropical and Bubblegum selectors in the same context."
+      },
+      "comparison": {
+        "retailer": "Jon's Supplements",
+        "url": "https://jonssupplements.co.uk/products/time-4-pre-workout-professional",
+        "result": "Product and flavour context agree, but the comparison appears manufacturer-derived and the retailer terms prohibit reproduction; it is not archived or treated as independent confirmation."
+      },
+      "proposed_facts_per_variant": {
+        "serving_size_g": {
+          "value": 12,
+          "source_text": "1 level scoop (12 g)"
+        },
+        "caffeine": {
+          "field": "caffeine_per_serving_mg",
+          "value": 350,
+          "sourceValue": 350,
+          "sourceUnit": "mg",
+          "form": null,
+          "ratio": null,
+          "text": "Caffeine Anhydrous 350 mg per 1 Level Scoop (12g)."
+        },
+        "beta_alanine": {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 3200,
+          "sourceValue": 3.2,
+          "sourceUnit": "g",
+          "form": null,
+          "ratio": null,
+          "text": "Beta Alanine 3.2 g per 1 Level Scoop (12g)."
+        },
+        "citrulline": {
+          "field": "citrulline_per_serving_mg",
+          "value": 3500,
+          "sourceValue": 3.5,
+          "sourceUnit": "g",
+          "form": "citrulline_malate",
+          "ratio": null,
+          "text": "Citrulline Malate 3.5 g per 1 Level Scoop (12g); ratio is not stated."
+        }
+      },
+      "unresolved_fields_per_variant": [
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "reason": "Creatine is omitted from the active table and no explicit absence declaration appears on the qualifying source; omission remains no_information."
+        }
+      ],
+      "artifact": {
+        "product_id": "903",
+        "path": "tmp/nutrition-retailer-source-batch-01-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-retailer-batch-01-903-20260913.json",
+        "sha256": "02333210961084146578fd6973f042fe80cdafbb6c7a43b0428395e344a2ced3",
+        "artifact_fingerprint": "6538ba14913552b5bf2c15f71b40a6f423d30ead957d3c1860d6cece26b5af1d",
+        "variant_ids": [
+          "1499",
+          "1500",
+          "1501",
+          "1502"
+        ],
+        "variants": 4,
+        "candidates": 16,
+        "unique_candidate_fingerprints": 16,
+        "source_manifest_sha256": "3a5008a307d9a0e2b523d4db6b00f80e18de36d64240e05c1121930774332043",
+        "candidate_fingerprints": [
+          {
+            "variant_id": "1499",
+            "field_name": "beta_alanine_per_serving_mg",
+            "candidate_fingerprint": "a38d50ab15f798c1e87931cd256fe3692f4abf0103614ee75ae7bfef8b0a0407"
+          },
+          {
+            "variant_id": "1499",
+            "field_name": "caffeine_per_serving_mg",
+            "candidate_fingerprint": "7a56e875192e7caa2d9ca99cb75a8c52beeee9a95a8321d6b52c8e436eec73eb"
+          },
+          {
+            "variant_id": "1499",
+            "field_name": "citrulline_per_serving_mg",
+            "candidate_fingerprint": "733e941db68961427bc5fc3700b933f7441a1b11e69da607034bf80730721c1d"
+          },
+          {
+            "variant_id": "1499",
+            "field_name": "serving_size_g",
+            "candidate_fingerprint": "b2308454ab22a5cf056c81217cab34caa4d91321694545110b5c0e2f6c670061"
+          },
+          {
+            "variant_id": "1500",
+            "field_name": "beta_alanine_per_serving_mg",
+            "candidate_fingerprint": "df88e16a7796a6d23d90163737fb000884f3b6a28f2c47776f606894d303a2e1"
+          },
+          {
+            "variant_id": "1500",
+            "field_name": "caffeine_per_serving_mg",
+            "candidate_fingerprint": "ed48f1bfa7808a40d5c15b835ea280e089d8e4fb6189a18fad0f96ade0280c07"
+          },
+          {
+            "variant_id": "1500",
+            "field_name": "citrulline_per_serving_mg",
+            "candidate_fingerprint": "dcb9b88d0c91ead9520a33ac2b8764c0b76713f2d5fa3bbd6cf705abad5fc48b"
+          },
+          {
+            "variant_id": "1500",
+            "field_name": "serving_size_g",
+            "candidate_fingerprint": "a384cf6252c2d2d25361d44f51d7b3c74433fe459cb5bcdeb78d38215cba291d"
+          },
+          {
+            "variant_id": "1501",
+            "field_name": "beta_alanine_per_serving_mg",
+            "candidate_fingerprint": "3fe4ffdcefd598b909319de94b791f60084c10c45cb5c1012043a1036ae02240"
+          },
+          {
+            "variant_id": "1501",
+            "field_name": "caffeine_per_serving_mg",
+            "candidate_fingerprint": "15905007146434766da0d1da1e25aff4ea394edd211eb61df157909c4a3988a0"
+          },
+          {
+            "variant_id": "1501",
+            "field_name": "citrulline_per_serving_mg",
+            "candidate_fingerprint": "d120c2201648c8d22132edf783c3f1de47d58f7186bfd3213836929744f231c2"
+          },
+          {
+            "variant_id": "1501",
+            "field_name": "serving_size_g",
+            "candidate_fingerprint": "6958724a1f646fd4db9659486439b1f4330d9804883a2f12b1b9cb9455870f54"
+          },
+          {
+            "variant_id": "1502",
+            "field_name": "beta_alanine_per_serving_mg",
+            "candidate_fingerprint": "1dbcba8725f21076fae1e368c759e8cad96e4fca71bb8c2b59db724a703c7db2"
+          },
+          {
+            "variant_id": "1502",
+            "field_name": "caffeine_per_serving_mg",
+            "candidate_fingerprint": "644af82b95c114f5bfbfbeac1c6608b2c77cf7c85dde1fe26c147efbbcfb6b7a"
+          },
+          {
+            "variant_id": "1502",
+            "field_name": "citrulline_per_serving_mg",
+            "candidate_fingerprint": "c59dc50d0c1bf445b35c43aaff839d2808203272f6a48f7e07442b913879bbca"
+          },
+          {
+            "variant_id": "1502",
+            "field_name": "serving_size_g",
+            "candidate_fingerprint": "7af29511245adc37af625bc2137ba01a404066b12d2487e0bffb1d3e9febacbe"
+          }
+        ],
+        "dry_run": {
+          "command": "npm run nutrition:candidates:store -- --dry-run --input=tmp/nutrition-retailer-source-batch-01-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-retailer-batch-01-903-20260913.json",
+          "result": "PASS",
+          "mode": "DRY_RUN_NO_DATABASE",
+          "candidate_rows": 16,
+          "product_updates": 0,
+          "database_writes": 0
+        }
+      }
+    }
+  ],
+  "blocked_groups": [
+    {
+      "product_id": "778",
+      "variant_ids": [
+        "971",
+        "4081",
+        "4083",
+        "4085",
+        "4086",
+        "4087"
+      ],
+      "code": "QUALIFYING_RETAILER_CONTEXT_DOES_NOT_LIST_FLAVOUR",
+      "detail": "The retained Ambiactive page does not list these flavours. Dolphin lists them but its terms prohibit reproduction, so no qualifying archived source binds them."
+    },
+    {
+      "product_id": "763",
+      "variant_ids": [
+        "4101",
+        "4107"
+      ],
+      "code": "QUALIFYING_RETAILER_CONTEXT_DOES_NOT_LIST_FLAVOUR",
+      "detail": "The retained Ambiactive page does not list Candy Bubble Gum or Sour Blue Razz. Dolphin lists them but its terms prohibit reproduction."
+    },
+    {
+      "product_id": "24",
+      "variant_ids": [
+        "1004",
+        "1581",
+        "1582",
+        "1583",
+        "1584",
+        "1585"
+      ],
+      "code": "RETAILER_REUSE_TERMS_PROHIBIT_ARCHIVE",
+      "detail": "Dolphin and GNC expose matching retailer evidence, but their terms restrict reproduction or commercial reuse; no qualifying retained evidence was available."
+    },
+    {
+      "product_id": "169",
+      "variant_ids": [
+        "1015",
+        "1647",
+        "1648",
+        "1649",
+        "1650",
+        "1651",
+        "1652",
+        "1653",
+        "1654"
+      ],
+      "code": "FORMULA_GENERATION_CONFLICT",
+      "detail": "A 400 g retailer source shows an older 250 mg caffeine formula while current sources show a materially different 320 mg generation. Exact catalogue formula is unresolved."
+    },
+    {
+      "product_id": "1249",
+      "variant_ids": [
+        "3671",
+        "3717",
+        "3719",
+        "3720"
+      ],
+      "code": "PACK_AND_SERVING_VERSION_CONFLICT",
+      "detail": "Retailer sources present 491 g, 492 g and 495 g versions with 16.1 g or 16.5 g serving bases and flavour-dependent context; exact catalogue version is unresolved."
+    },
+    {
+      "product_id": "1246",
+      "variant_ids": [
+        "3668",
+        "3713"
+      ],
+      "code": "SOURCE_DOES_NOT_BIND_EXACT_FLAVOUR_TABLE",
+      "detail": "The available retailer table is stated for Tropical Punch, while preserved official evidence gives different serving masses for Sour Gummies and Berry Blast. The raw retailer source also has restrictive terms."
+    }
+  ],
+  "artifacts": [
+    {
+      "product_id": "778",
+      "path": "tmp/nutrition-retailer-source-batch-01-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-retailer-batch-01-778-20260913.json",
+      "sha256": "5fe522ec843a8e3f5ed0e715cd455120367c050c5d015405c32024a9d270bc58",
+      "artifact_fingerprint": "dc2e1c89c6a485d34f20d8f3b587279157702c423f1e5ca4169fea40489835ad",
+      "variant_ids": [
+        "1978",
+        "4082",
+        "4084",
+        "4088",
+        "4089",
+        "972"
+      ],
+      "variants": 6,
+      "candidates": 24,
+      "unique_candidate_fingerprints": 24,
+      "source_manifest_sha256": "3a5008a307d9a0e2b523d4db6b00f80e18de36d64240e05c1121930774332043",
+      "candidate_fingerprints": [
+        {
+          "variant_id": "972",
+          "field_name": "beta_alanine_per_serving_mg",
+          "candidate_fingerprint": "47eddceee57597d15976950928b3baf3cc8329905813333c88ac018d1e208e29"
+        },
+        {
+          "variant_id": "972",
+          "field_name": "caffeine_per_serving_mg",
+          "candidate_fingerprint": "cb9541ef602f8fd5e9d69f931d1e975e701a90658185f788769a397f07086bd1"
+        },
+        {
+          "variant_id": "972",
+          "field_name": "citrulline_per_serving_mg",
+          "candidate_fingerprint": "2b55dc4d10b32fb0b6ad3c0f4793f41d1ea5d058cacbba27d8c56b7a9944f9ed"
+        },
+        {
+          "variant_id": "972",
+          "field_name": "serving_size_g",
+          "candidate_fingerprint": "ce05aba00b678f376057a5cc65873d6b5f9dfe77a0394a6f12c9554045730228"
+        },
+        {
+          "variant_id": "1978",
+          "field_name": "beta_alanine_per_serving_mg",
+          "candidate_fingerprint": "e116f9d6e173bc769234780a3c0ee0c02dc2372965becf7b2e96a7265b8adcd4"
+        },
+        {
+          "variant_id": "1978",
+          "field_name": "caffeine_per_serving_mg",
+          "candidate_fingerprint": "076fc45e3774348e3994bef708d852b63bce782ae701b0b74862fa6b1173aeec"
+        },
+        {
+          "variant_id": "1978",
+          "field_name": "citrulline_per_serving_mg",
+          "candidate_fingerprint": "419246967fe9be1d0248b8c24ec0b8759cc6cd4d4d1d3ab8a6decb342814434e"
+        },
+        {
+          "variant_id": "1978",
+          "field_name": "serving_size_g",
+          "candidate_fingerprint": "decc3663eda2e60d82b889cebe99542ebb3da8115defb557edfcc49e7ae6d228"
+        },
+        {
+          "variant_id": "4082",
+          "field_name": "beta_alanine_per_serving_mg",
+          "candidate_fingerprint": "4b4c09ad2a995251a74b7ec43dc26ca118888de28d3b1d5d36fa0def8147696c"
+        },
+        {
+          "variant_id": "4082",
+          "field_name": "caffeine_per_serving_mg",
+          "candidate_fingerprint": "49de647d0de5702dac2daa547bc1039e99ff35c3e2058ddaf3d63a021c5ecaaf"
+        },
+        {
+          "variant_id": "4082",
+          "field_name": "citrulline_per_serving_mg",
+          "candidate_fingerprint": "29ba6d6f75fb4d8f0a98040416afd4ef84daa40b7b67e76b7b07f65f193c29f5"
+        },
+        {
+          "variant_id": "4082",
+          "field_name": "serving_size_g",
+          "candidate_fingerprint": "2b0c0dff5794400baaf60e44c1da10d0d1b934bf3f2b92d2f9412d0c1853f48c"
+        },
+        {
+          "variant_id": "4084",
+          "field_name": "beta_alanine_per_serving_mg",
+          "candidate_fingerprint": "97147a917513f98cbbdc7c2f5b5fd4ff4307f89cdee6265b9d4abda90cc02523"
+        },
+        {
+          "variant_id": "4084",
+          "field_name": "caffeine_per_serving_mg",
+          "candidate_fingerprint": "630b1b070f8870a7d34eb74532da9f5373b858ff73b131915293b849240328d7"
+        },
+        {
+          "variant_id": "4084",
+          "field_name": "citrulline_per_serving_mg",
+          "candidate_fingerprint": "16f5cf2e997f73f00acbddcfab043d3a011341eea35f8b0a9e07e2eda2005e75"
+        },
+        {
+          "variant_id": "4084",
+          "field_name": "serving_size_g",
+          "candidate_fingerprint": "85f2374d6431c4fe1b4640fa6d287dec9fc5c1d23d9826f5abd0027a9a35d36a"
+        },
+        {
+          "variant_id": "4088",
+          "field_name": "beta_alanine_per_serving_mg",
+          "candidate_fingerprint": "09c06bc6fd701e34d017b2e463f925dbbf3745fe67ed97f9a4c863add2bf799b"
+        },
+        {
+          "variant_id": "4088",
+          "field_name": "caffeine_per_serving_mg",
+          "candidate_fingerprint": "e443c7ab22aef5d14fc421099b2ac6a086d16dbe8898445b5556286a4738d4cf"
+        },
+        {
+          "variant_id": "4088",
+          "field_name": "citrulline_per_serving_mg",
+          "candidate_fingerprint": "a1014a9e19c0002c65a74036771377731ceb41a6df72393c7d5685298a9be668"
+        },
+        {
+          "variant_id": "4088",
+          "field_name": "serving_size_g",
+          "candidate_fingerprint": "47c3e9f1d0a640bc3f5cecc1d63e261fd6f4566fa6c25ebf3d4cc8b860756aaa"
+        },
+        {
+          "variant_id": "4089",
+          "field_name": "beta_alanine_per_serving_mg",
+          "candidate_fingerprint": "3077e2f05e4c9c3f8f60bc4eabc9eb7834a98189fe1935b3436f8ce202629ac6"
+        },
+        {
+          "variant_id": "4089",
+          "field_name": "caffeine_per_serving_mg",
+          "candidate_fingerprint": "9852e343866c4d2d83ad4ba3ca555e6de7883706bada5a1308dd5ddb2e9c4bd3"
+        },
+        {
+          "variant_id": "4089",
+          "field_name": "citrulline_per_serving_mg",
+          "candidate_fingerprint": "88b9aef52fbe0037306f95169999ead32ccbd0729476875254e02fcc866125f2"
+        },
+        {
+          "variant_id": "4089",
+          "field_name": "serving_size_g",
+          "candidate_fingerprint": "4002eaa3bf153d9e3880c22126120fedcc1e6a8466ad33ed1d1a52fbefd7e566"
+        }
+      ],
+      "dry_run": {
+        "command": "npm run nutrition:candidates:store -- --dry-run --input=tmp/nutrition-retailer-source-batch-01-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-retailer-batch-01-778-20260913.json",
+        "result": "PASS",
+        "mode": "DRY_RUN_NO_DATABASE",
+        "candidate_rows": 24,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "763",
+      "path": "tmp/nutrition-retailer-source-batch-01-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-retailer-batch-01-763-20260913.json",
+      "sha256": "be2d40d5036afb085ca559a742c2c12505e846a306a8aeafecf02067ac6bedf8",
+      "artifact_fingerprint": "fe4f930b08010c19fa167bd84cd4bc0abc8626f984ea4c4484057126d500ec11",
+      "variant_ids": [
+        "920",
+        "921",
+        "4100",
+        "4102",
+        "4103",
+        "4104",
+        "4105",
+        "4106",
+        "4108"
+      ],
+      "variants": 9,
+      "candidates": 36,
+      "unique_candidate_fingerprints": 36,
+      "source_manifest_sha256": "3a5008a307d9a0e2b523d4db6b00f80e18de36d64240e05c1121930774332043",
+      "candidate_fingerprints": [
+        {
+          "variant_id": "920",
+          "field_name": "beta_alanine_per_serving_mg",
+          "candidate_fingerprint": "599b3475c4358c328b45fa4ad0b6cfe082eb2bc720400d7eb33132af64839412"
+        },
+        {
+          "variant_id": "920",
+          "field_name": "caffeine_per_serving_mg",
+          "candidate_fingerprint": "4f67c9cde264b48611dd94e808c8346035f4da17991797930df88a5a1e1373bc"
+        },
+        {
+          "variant_id": "920",
+          "field_name": "citrulline_per_serving_mg",
+          "candidate_fingerprint": "e6d27d02ebf820e57c4c6dd74edc5f0a1a0506fa551ed1bb4be72cff945e0a85"
+        },
+        {
+          "variant_id": "920",
+          "field_name": "serving_size_g",
+          "candidate_fingerprint": "363f7eeb4082d5a9066dd09fd24e7b79f185142ae36303386b49060a22fb3f80"
+        },
+        {
+          "variant_id": "921",
+          "field_name": "beta_alanine_per_serving_mg",
+          "candidate_fingerprint": "b3e5c2dd712b57e400c10259497946ed705268c83cdf579cd3ee6f617c67659d"
+        },
+        {
+          "variant_id": "921",
+          "field_name": "caffeine_per_serving_mg",
+          "candidate_fingerprint": "bf15e199939bb93c6b08993deb8f7ce69001777f40153520a6eadde1808129f9"
+        },
+        {
+          "variant_id": "921",
+          "field_name": "citrulline_per_serving_mg",
+          "candidate_fingerprint": "270d43f67deb589dd07faf4bbeb9ee67d5155d61f1f27c42de21a9c2aded6c2a"
+        },
+        {
+          "variant_id": "921",
+          "field_name": "serving_size_g",
+          "candidate_fingerprint": "df1ec4c811f8f9e88338183805979fe1ad643229c1f3fd48497d078fc01ecab5"
+        },
+        {
+          "variant_id": "4100",
+          "field_name": "beta_alanine_per_serving_mg",
+          "candidate_fingerprint": "8c6709d947717fbe779c738fc6013b3342714a1fb225b8e137dc2891144bbbea"
+        },
+        {
+          "variant_id": "4100",
+          "field_name": "caffeine_per_serving_mg",
+          "candidate_fingerprint": "bfe4444d00605be84f174bf19162d7cbfafeb8e6bd5b20846209eff923a25657"
+        },
+        {
+          "variant_id": "4100",
+          "field_name": "citrulline_per_serving_mg",
+          "candidate_fingerprint": "58101681efb19881cfa787d995e9fc5caa8137f6d33b32c8283f70de7551344e"
+        },
+        {
+          "variant_id": "4100",
+          "field_name": "serving_size_g",
+          "candidate_fingerprint": "5709fc3cfa5e6694bb8c008e25052ad0486bf94515793dead4834b0891fb8885"
+        },
+        {
+          "variant_id": "4102",
+          "field_name": "beta_alanine_per_serving_mg",
+          "candidate_fingerprint": "272c1fd885fd33e507a80a9cb78bde6f08d9c691d32f422e24020a282df22c5a"
+        },
+        {
+          "variant_id": "4102",
+          "field_name": "caffeine_per_serving_mg",
+          "candidate_fingerprint": "50b56400857949a64bc19fbb9d3a4457874a727a5c05a49a8223950341d4f5f2"
+        },
+        {
+          "variant_id": "4102",
+          "field_name": "citrulline_per_serving_mg",
+          "candidate_fingerprint": "51313c280e84d65ae029d95648b4633ece8be9bda04464438af6929229d1cb37"
+        },
+        {
+          "variant_id": "4102",
+          "field_name": "serving_size_g",
+          "candidate_fingerprint": "f0954e6347a5055947a319f4df7e50b969e4b1f00dba669ba8e2aa20198cf8e5"
+        },
+        {
+          "variant_id": "4103",
+          "field_name": "beta_alanine_per_serving_mg",
+          "candidate_fingerprint": "d3ed48a24ec07a537cf422bf1a87995bca7d68cdcbe245f14f2308a697f991ee"
+        },
+        {
+          "variant_id": "4103",
+          "field_name": "caffeine_per_serving_mg",
+          "candidate_fingerprint": "d6aac99be063ecdc51ec3a806353a75160429385bdc884d09e23e19c31b59e8f"
+        },
+        {
+          "variant_id": "4103",
+          "field_name": "citrulline_per_serving_mg",
+          "candidate_fingerprint": "6aa463b01f86b5bb25ee3ee49dde987fac6ac4698dfca0c2210840a4be4d2ef5"
+        },
+        {
+          "variant_id": "4103",
+          "field_name": "serving_size_g",
+          "candidate_fingerprint": "e3efb6def3d30fb4ea90e9be69c343e33d51e62e5213a53b2511a9702bc16936"
+        },
+        {
+          "variant_id": "4104",
+          "field_name": "beta_alanine_per_serving_mg",
+          "candidate_fingerprint": "50b8c08fe4502221af7f2e350f2778ae49a21ec3f98652c58945264169592045"
+        },
+        {
+          "variant_id": "4104",
+          "field_name": "caffeine_per_serving_mg",
+          "candidate_fingerprint": "7f982fcf70a896f43084eaf84ca281f38a4afaf2780ff49c16d316ad960eec6e"
+        },
+        {
+          "variant_id": "4104",
+          "field_name": "citrulline_per_serving_mg",
+          "candidate_fingerprint": "0eee6ac3b7a71f8737bc1b4b473f25d21bb722014d05ef67f5f7be0e798e27a1"
+        },
+        {
+          "variant_id": "4104",
+          "field_name": "serving_size_g",
+          "candidate_fingerprint": "781d8b807beaf8dda5b3947cc610721aa4b131f13e77ebf2cee7835fd7939582"
+        },
+        {
+          "variant_id": "4105",
+          "field_name": "beta_alanine_per_serving_mg",
+          "candidate_fingerprint": "ea1e6dd876b9825783da2d69b7904765eb1ddb511db5cf34d3cf51a1a08d6927"
+        },
+        {
+          "variant_id": "4105",
+          "field_name": "caffeine_per_serving_mg",
+          "candidate_fingerprint": "e291bc310d19d4454723ee9ca9893c1972f7a1c3267dfe43466d341eaf82c13c"
+        },
+        {
+          "variant_id": "4105",
+          "field_name": "citrulline_per_serving_mg",
+          "candidate_fingerprint": "65ca57ca9ef1f2d946bf313e3f3f92b8cb58d4b708a6d2cc6a020c86f76e6b15"
+        },
+        {
+          "variant_id": "4105",
+          "field_name": "serving_size_g",
+          "candidate_fingerprint": "2bebf39a7ec56e2494556b3b075697ae05196ef2dbd18f25628cb3335848d6ef"
+        },
+        {
+          "variant_id": "4106",
+          "field_name": "beta_alanine_per_serving_mg",
+          "candidate_fingerprint": "4509577a9fe4662228e016fc6ce7bca271dff9caeaa0081f4aa69c312ce6eead"
+        },
+        {
+          "variant_id": "4106",
+          "field_name": "caffeine_per_serving_mg",
+          "candidate_fingerprint": "9add7b5efa3f60d0a222f0ca6b93cc392851348256986796fa186d8c8b9ba888"
+        },
+        {
+          "variant_id": "4106",
+          "field_name": "citrulline_per_serving_mg",
+          "candidate_fingerprint": "fa5ed1fa31aabca3a63e3ad43085a4ccdceafd8300119cff01aa0b260b84bce2"
+        },
+        {
+          "variant_id": "4106",
+          "field_name": "serving_size_g",
+          "candidate_fingerprint": "86064b19717de28f2de62f00fa63113ebaf1efc6b06838a712ac3703def21b5a"
+        },
+        {
+          "variant_id": "4108",
+          "field_name": "beta_alanine_per_serving_mg",
+          "candidate_fingerprint": "dc0dc6af7b482c7395134041ae7ec3de7ccb5b360130256c518f28d4db0f33c8"
+        },
+        {
+          "variant_id": "4108",
+          "field_name": "caffeine_per_serving_mg",
+          "candidate_fingerprint": "a33db4528341ab382c9b9cce1f89fca3c7038815b6d04437558ad6d5b9e66d06"
+        },
+        {
+          "variant_id": "4108",
+          "field_name": "citrulline_per_serving_mg",
+          "candidate_fingerprint": "2ca030ef3a80db86a3ea46aa38ebf26446961a7e6246f62abd0009c66b90384a"
+        },
+        {
+          "variant_id": "4108",
+          "field_name": "serving_size_g",
+          "candidate_fingerprint": "5bb70d0bad404f29fa1c7445678259204602c34564f3a72f24200435a49f5230"
+        }
+      ],
+      "dry_run": {
+        "command": "npm run nutrition:candidates:store -- --dry-run --input=tmp/nutrition-retailer-source-batch-01-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-retailer-batch-01-763-20260913.json",
+        "result": "PASS",
+        "mode": "DRY_RUN_NO_DATABASE",
+        "candidate_rows": 36,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "903",
+      "path": "tmp/nutrition-retailer-source-batch-01-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-retailer-batch-01-903-20260913.json",
+      "sha256": "02333210961084146578fd6973f042fe80cdafbb6c7a43b0428395e344a2ced3",
+      "artifact_fingerprint": "6538ba14913552b5bf2c15f71b40a6f423d30ead957d3c1860d6cece26b5af1d",
+      "variant_ids": [
+        "1499",
+        "1500",
+        "1501",
+        "1502"
+      ],
+      "variants": 4,
+      "candidates": 16,
+      "unique_candidate_fingerprints": 16,
+      "source_manifest_sha256": "3a5008a307d9a0e2b523d4db6b00f80e18de36d64240e05c1121930774332043",
+      "candidate_fingerprints": [
+        {
+          "variant_id": "1499",
+          "field_name": "beta_alanine_per_serving_mg",
+          "candidate_fingerprint": "a38d50ab15f798c1e87931cd256fe3692f4abf0103614ee75ae7bfef8b0a0407"
+        },
+        {
+          "variant_id": "1499",
+          "field_name": "caffeine_per_serving_mg",
+          "candidate_fingerprint": "7a56e875192e7caa2d9ca99cb75a8c52beeee9a95a8321d6b52c8e436eec73eb"
+        },
+        {
+          "variant_id": "1499",
+          "field_name": "citrulline_per_serving_mg",
+          "candidate_fingerprint": "733e941db68961427bc5fc3700b933f7441a1b11e69da607034bf80730721c1d"
+        },
+        {
+          "variant_id": "1499",
+          "field_name": "serving_size_g",
+          "candidate_fingerprint": "b2308454ab22a5cf056c81217cab34caa4d91321694545110b5c0e2f6c670061"
+        },
+        {
+          "variant_id": "1500",
+          "field_name": "beta_alanine_per_serving_mg",
+          "candidate_fingerprint": "df88e16a7796a6d23d90163737fb000884f3b6a28f2c47776f606894d303a2e1"
+        },
+        {
+          "variant_id": "1500",
+          "field_name": "caffeine_per_serving_mg",
+          "candidate_fingerprint": "ed48f1bfa7808a40d5c15b835ea280e089d8e4fb6189a18fad0f96ade0280c07"
+        },
+        {
+          "variant_id": "1500",
+          "field_name": "citrulline_per_serving_mg",
+          "candidate_fingerprint": "dcb9b88d0c91ead9520a33ac2b8764c0b76713f2d5fa3bbd6cf705abad5fc48b"
+        },
+        {
+          "variant_id": "1500",
+          "field_name": "serving_size_g",
+          "candidate_fingerprint": "a384cf6252c2d2d25361d44f51d7b3c74433fe459cb5bcdeb78d38215cba291d"
+        },
+        {
+          "variant_id": "1501",
+          "field_name": "beta_alanine_per_serving_mg",
+          "candidate_fingerprint": "3fe4ffdcefd598b909319de94b791f60084c10c45cb5c1012043a1036ae02240"
+        },
+        {
+          "variant_id": "1501",
+          "field_name": "caffeine_per_serving_mg",
+          "candidate_fingerprint": "15905007146434766da0d1da1e25aff4ea394edd211eb61df157909c4a3988a0"
+        },
+        {
+          "variant_id": "1501",
+          "field_name": "citrulline_per_serving_mg",
+          "candidate_fingerprint": "d120c2201648c8d22132edf783c3f1de47d58f7186bfd3213836929744f231c2"
+        },
+        {
+          "variant_id": "1501",
+          "field_name": "serving_size_g",
+          "candidate_fingerprint": "6958724a1f646fd4db9659486439b1f4330d9804883a2f12b1b9cb9455870f54"
+        },
+        {
+          "variant_id": "1502",
+          "field_name": "beta_alanine_per_serving_mg",
+          "candidate_fingerprint": "1dbcba8725f21076fae1e368c759e8cad96e4fca71bb8c2b59db724a703c7db2"
+        },
+        {
+          "variant_id": "1502",
+          "field_name": "caffeine_per_serving_mg",
+          "candidate_fingerprint": "644af82b95c114f5bfbfbeac1c6608b2c77cf7c85dde1fe26c147efbbcfb6b7a"
+        },
+        {
+          "variant_id": "1502",
+          "field_name": "citrulline_per_serving_mg",
+          "candidate_fingerprint": "c59dc50d0c1bf445b35c43aaff839d2808203272f6a48f7e07442b913879bbca"
+        },
+        {
+          "variant_id": "1502",
+          "field_name": "serving_size_g",
+          "candidate_fingerprint": "7af29511245adc37af625bc2137ba01a404066b12d2487e0bffb1d3e9febacbe"
+        }
+      ],
+      "dry_run": {
+        "command": "npm run nutrition:candidates:store -- --dry-run --input=tmp/nutrition-retailer-source-batch-01-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-retailer-batch-01-903-20260913.json",
+        "result": "PASS",
+        "mode": "DRY_RUN_NO_DATABASE",
+        "candidate_rows": 16,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    }
+  ],
+  "source_archive": {
+    "bucket": "nutrition-sources",
+    "private": true,
+    "retained_without_automatic_expiry": true,
+    "duplicate_precheck": {
+      "result": "NO_EXACT_PATH_DUPLICATES",
+      "exact_paths": [],
+      "matching_hash_paths": [],
+      "objects_checked": 43,
+      "bucket_public": false,
+      "storage_writes": 0,
+      "database_writes": 0
+    },
+    "upload": {
+      "result": "UPLOAD_PASS",
+      "uploaded": 8,
+      "reused": 0,
+      "storage_writes": 8,
+      "database_writes": 0
+    },
+    "readback": {
+      "result": "READBACK_PASS",
+      "project_ref": "aftboxmrdgyhizicfsfu",
+      "bucket": "nutrition-sources",
+      "bucket_public": false,
+      "retained_without_automatic_expiry": true,
+      "readback": [
+        {
+          "id": "energy",
+          "object_path": "snapshots/nut-03/retailer-source-batch-01/ambiactive/778/83af67170760968617ff7296325d2ac6ff7ff03f2fe1575dc0c9fa9019d1bc3f/naughty-boy-energy-390g.html",
+          "durable_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/retailer-source-batch-01/ambiactive/778/83af67170760968617ff7296325d2ac6ff7ff03f2fe1575dc0c9fa9019d1bc3f/naughty-boy-energy-390g.html",
+          "sha256": "83af67170760968617ff7296325d2ac6ff7ff03f2fe1575dc0c9fa9019d1bc3f",
+          "bytes": 338975
+        },
+        {
+          "id": "menace",
+          "object_path": "snapshots/nut-03/retailer-source-batch-01/ambiactive/763/7beaaba373003c3b0f6d77753363b33fc74406d35af230589a725013015f3597/naughty-boy-menace-v2-420g.html",
+          "durable_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/retailer-source-batch-01/ambiactive/763/7beaaba373003c3b0f6d77753363b33fc74406d35af230589a725013015f3597/naughty-boy-menace-v2-420g.html",
+          "sha256": "7beaaba373003c3b0f6d77753363b33fc74406d35af230589a725013015f3597",
+          "bytes": 357547
+        },
+        {
+          "id": "time4",
+          "object_path": "snapshots/nut-03/retailer-source-batch-01/matrix-nutrition/903/9aacf9d93fe2d7b9fd645ce875d99ec976b73d4795f96b6c2d3af9f30a98dff3/time4-pre-workout-professional-300g.html",
+          "durable_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/retailer-source-batch-01/matrix-nutrition/903/9aacf9d93fe2d7b9fd645ce875d99ec976b73d4795f96b6c2d3af9f30a98dff3/time4-pre-workout-professional-300g.html",
+          "sha256": "9aacf9d93fe2d7b9fd645ce875d99ec976b73d4795f96b6c2d3af9f30a98dff3",
+          "bytes": 244379
+        },
+        {
+          "id": "ambiactive-terms.html-3",
+          "object_path": "snapshots/nut-03/retailer-source-batch-01/ambiactive/access/067e65afd73030a2d8058392bb4c792c6dca43527d228d06812d8eadc49cee6a/terms.html",
+          "durable_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/retailer-source-batch-01/ambiactive/access/067e65afd73030a2d8058392bb4c792c6dca43527d228d06812d8eadc49cee6a/terms.html",
+          "sha256": "067e65afd73030a2d8058392bb4c792c6dca43527d228d06812d8eadc49cee6a",
+          "bytes": 285443
+        },
+        {
+          "id": "ambiactive-robots.txt-4",
+          "object_path": "snapshots/nut-03/retailer-source-batch-01/ambiactive/access/8ce08e1e54f719cde716d82f78d30ce4a445bf653daa499f80ee60ed40d089dc/robots.txt",
+          "durable_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/retailer-source-batch-01/ambiactive/access/8ce08e1e54f719cde716d82f78d30ce4a445bf653daa499f80ee60ed40d089dc/robots.txt",
+          "sha256": "8ce08e1e54f719cde716d82f78d30ce4a445bf653daa499f80ee60ed40d089dc",
+          "bytes": 343
+        },
+        {
+          "id": "matrix-terms.html-5",
+          "object_path": "snapshots/nut-03/retailer-source-batch-01/matrix/access/7a90ff0c69678029ff0e06fccdba871eb775d06520df8feaeef59bc61ff9a08f/terms.html",
+          "durable_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/retailer-source-batch-01/matrix/access/7a90ff0c69678029ff0e06fccdba871eb775d06520df8feaeef59bc61ff9a08f/terms.html",
+          "sha256": "7a90ff0c69678029ff0e06fccdba871eb775d06520df8feaeef59bc61ff9a08f",
+          "bytes": 144463
+        },
+        {
+          "id": "matrix-robots.txt-6",
+          "object_path": "snapshots/nut-03/retailer-source-batch-01/matrix/access/81e73a988d0b07b98fe7547fc5cbe49a1748802c33aa12c5a722124a2ff69488/robots.txt",
+          "durable_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/retailer-source-batch-01/matrix/access/81e73a988d0b07b98fe7547fc5cbe49a1748802c33aa12c5a722124a2ff69488/robots.txt",
+          "sha256": "81e73a988d0b07b98fe7547fc5cbe49a1748802c33aa12c5a722124a2ff69488",
+          "bytes": 3672
+        },
+        {
+          "id": "context-manifest",
+          "object_path": "manifests/nut-03/retailer-source-batch-01/3a5008a307d9a0e2b523d4db6b00f80e18de36d64240e05c1121930774332043/source-context-manifest.json",
+          "durable_uri": "supabase-storage://nutrition-sources/manifests/nut-03/retailer-source-batch-01/3a5008a307d9a0e2b523d4db6b00f80e18de36d64240e05c1121930774332043/source-context-manifest.json",
+          "sha256": "3a5008a307d9a0e2b523d4db6b00f80e18de36d64240e05c1121930774332043",
+          "bytes": 38836
+        }
+      ],
+      "storage_writes": 0,
+      "database_writes": 0
+    }
+  },
+  "controls": {
+    "public_source_collection_completed": true,
+    "source_archive_writes": 8,
+    "production_candidate_writes": 0,
+    "production_catalogue_writes": 0,
+    "review_writes": 0,
+    "plan_writes": 0,
+    "apply_writes": 0,
+    "code_changes": 0,
+    "schema_changes": 0
+  },
+  "next_step": "One owner decision may authorize controlled store -> authenticated review -> explicit-ID plan -> apply for exactly 76 candidates in the three hash-bound artifacts, covering only the 19 listed variants; creatine and all 29 blocked variants remain outside that authorization."
+}

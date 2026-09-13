@@ -166,6 +166,36 @@ list never proves absence. Known contradictions retain
 `conflicting_information` or an unresolved source disposition and are not
 overridden by this rule.
 
+### Retailer-hosted nutrition evidence
+
+Retailer pages may be used when an official manufacturer source is inaccessible
+or does not bind the catalogue version. Start with retailers and product URLs
+already mapped in the catalogue. A source review must distinguish a readable
+manufacturer label hosted by the retailer from an active-ingredient table written
+or transcribed by the retailer; record the actual source type and never describe
+the retailer page as an official manufacturer page.
+
+The source must establish the product, formula generation, market, pack, serving
+basis and applicability to each exact variant. The shared-table rule also applies
+to flavours presented together by the retailer for the same recipe. Do not join
+different generations on name alone. A readable table with an ingredient, amount
+and serving basis may support that value. For an omitted ingredient, inspect the
+available full ingredients and explicit declarations; omission remains
+`no_information` unless the evidence proves absence or a conflict.
+
+Compare a second retailer when an accessible source exists. A missing comparison
+does not block a clearly readable label whose exact-version applicability is
+established. Two pages using the same image or copied description are one evidence
+line, not independent confirmation. Conflicting values must be reconciled to a
+version and serving basis or left unresolved; supported facts from the same exact
+variant may still proceed.
+
+Assess each retailer's terms, robots policy and access separately. Catalogue or
+affiliate participation does not grant a general right to copy content. Archive
+only the materials permitted for the planned private evidence use, preserve their
+hashes and durable private URIs, and do not bypass access controls. A retailer may
+remain comparison-only when its terms do not permit retaining the raw page.
+
 The standard extractor does not fetch product-gallery images. The separate,
 local-only OCR canary can inspect images embedded in an explicitly listed
 official manufacturer product page. It never follows product links or crawls a
@@ -583,9 +613,12 @@ An existing pack-size change is a variant transition, not a product correction.
 Create or review the new `product_variants` row with its own size and GTIN, keep
 the old variant while any retailer still sells it, and rebind each retailer
 mapping/offer only after its size, SKU or GTIN identifies the new pack. A
-retailer page or feed may establish commercial pack identity, but official
-manufacturer evidence remains required for nutrition values. Ambiguous
-same-URL transitions stay in review and are never rebound automatically.
+retailer page or feed may establish commercial pack identity. Nutrition values
+require a qualifying source under the evidence rules above: an official
+manufacturer table, a readable manufacturer label hosted by a retailer, or a
+retailer-published active-ingredient table whose exact formula and serving context
+are established. Ambiguous same-URL transitions stay in review and are never
+rebound automatically.
 
 If the formulation is unchanged, `serving_size_g` and
 `protein_per_serving_g` may remain shared. `net_weight_g` and
