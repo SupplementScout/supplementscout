@@ -45,17 +45,24 @@
   overrides, with zero product updates. Four Nutrend variants retain creatine as
   `no_information`; two PhD variants have all four tracked ingredient states
   resolved. The distinct applied total is now 55.
+- Catalogue expansion batch 05 is `READY FOR OWNER DECISION`: a fresh read-only
+  production snapshot confirmed the same 55 applied variants, then excluded
+  them. The closed 50-variant assessment produced 45 pending candidate facts for
+  12 exact variants across products `1247`, `1250`, `1254` and `1279`; 38
+  assessed variants retain recorded access or formula-version blockers. All four
+  artifacts pass the existing no-database dry-run. No candidate, review, plan,
+  apply or catalogue write ran.
 - The exact GYM HIGH demonstration exception for product `411` / variant `1047`
   is also `LIVE VERIFIED`: candidates `701`-`705` were stored, reviewed and
   applied through the existing guarded path. Its bounded exception now also
   permits NUT-04A to present those applied facts publicly. This remains outside
   the frozen pilot denominator and does not authorize any other GYM HIGH item.
 - Owner/session: Codex, owner-authorized NUT-03 preparation in organizational
-  packages of at most 50 exact variants. The owner authorized the unchanged
-  30-candidate Batch 04 set through store, review, plan and apply; production,
-  replay and public readbacks are complete. The frozen pilot remains 9/25, the
-  separately completed GYM HIGH demonstration remains outside its denominator,
-  and the distinct applied total is 55 variants, 13 September 2026.
+  packages of at most 50 exact variants. Batch 05 preparation is complete for
+  one hash-bound 45-candidate package and awaits one owner decision on further
+  controlled execution. The frozen pilot remains 9/25, the separately completed
+  GYM HIGH demonstration remains outside its denominator, and the distinct
+  applied total remains 55 variants, 13 September 2026.
 - Branch: `main`; the NUT-04A session started at
   `805717043dd2b7121a435954a2441e6182d6304e`; remote `main` matched before work.
 - Production readback at `2026-09-11T12:58:26.063Z`: public `anon` SELECT against
@@ -2560,3 +2567,98 @@ ready subset:
   remains `IN PROGRESS`. One next step is another independent catalogue-family
   preparation package based on new qualifying evidence, without reopening known
   blocks absent a new premise.
+
+## NUT-03 catalogue expansion batch 05 preparation
+
+13 September 2026, preparation of one closed package under the 50-exact-variant
+organizational ceiling:
+
+- A fresh forced-read-only production snapshot at
+  `2026-09-13T07:52:21.978Z` confirmed project
+  `aftboxmrdgyhizicfsfu`, 141 active unmerged Pre Workout products, 575 active
+  variants and exactly 55 variants with a non-empty `nutrition_override`. All 55
+  were excluded. A second read-only preflight confirmed the 12 selected active,
+  non-default product-variant bindings, zero existing candidates for them and an
+  empty override for each target. Both reads made zero database writes.
+- The existing evidence rules already made the official manufacturer page the
+  primary source and permitted one common table for flavours in the same product,
+  recipe, market and serving context. The process guide now also states the two
+  missing decisions explicitly: a readable official `Supplement Facts`,
+  `Nutritional Information` or `Active Ingredients` table is sufficient proof of
+  the displayed ingredient amount and serving basis without a second statement;
+  and one unsupported fact does not block supported facts for that variant. The
+  unresolved evidence and omission reason remain recorded, and an artifact is not
+  padded to five candidates.
+- Product `1250`, Bulk Dope Pre Workout 510 g, contributes variants `3672`,
+  `3721`, `3722`. Each proposes the approximate serving `1 slightly heaped scoop
+  (approximately 17 g)`, caffeine 200 mg, beta-alanine 3200 mg from source
+  `3.2 g`, and creatine monohydrate 3400 mg from source `3.4 g`. Citrulline is
+  omitted because the one serving contains two separately declared forms:
+  citrulline malate 2.5 g and L-citrulline 500 mg, which the current single-form
+  field cannot preserve faithfully.
+- Product `1254`, Bulk Dope Max Pre-Workout 563 g, contributes variants `3676`,
+  `3725`, `3726`. Each proposes the approximate serving `1 slightly heaped scoop
+  (approximately 22.5 g)`, caffeine 200 mg, beta-alanine 5000 mg from source
+  `5.0 g`, and creatine monohydrate 3400 mg from source `3.4 g`. Citrulline is
+  omitted because the table separately declares citrulline malate 3.0 g and
+  L-citrulline 2.0 g per serving.
+- Product `1279`, Bulk Dope Caffeine Free Pre-Workout 510 g, contributes variants
+  `3759`, `3894`, `3895`. Each proposes the approximate serving `1 slightly
+  heaped scoop (approximately 17 g)`, caffeine `confirmed_absent` with null amount
+  from the manufacturer's caffeine-free/stimulant-free declaration,
+  beta-alanine 3200 mg from source `3.2 g`, and creatine monohydrate 3400 mg from
+  source `3.4 g`. Its citrulline candidate is omitted because the table declares
+  citrulline malate 2.5 g plus L-citrulline 500 mg.
+- Product `1247`, Muscle Moose Pre-Workout Zero Itch Formula 280 g, contributes
+  exact manufacturer flavour pages for variants `3669`, `3714`, `3715`. Every
+  page proposes serving 14 g, total caffeine 197 mg and free-form L-citrulline
+  3000 mg. Beta-alanine and creatine are absent from the table and full ingredient
+  list, but no explicit absence is declared; both fields therefore remain
+  unresolved and have no candidate. The product name is not used as absence
+  evidence.
+- Six official dose-table snapshots support the 12 variants: three common Bulk
+  pages each support three flavours, and three exact Muscle Moose flavour pages
+  each support one variant. A private-archive duplicate check found no intended
+  path. The six HTML snapshots and one source-context manifest were written once
+  with overwrite disabled. A fresh readback from private bucket
+  `nutrition-sources` reproduced all seven hashes and confirmed no automatic
+  expiry. The context manifest SHA-256 is
+  `836c7ab8ba849dcf8a4cee41523ee962f6c0551b055206d66452daa98521a39c`.
+  Private retention is not represented as a backup.
+- Four ignored candidate artifacts contain 45 pending facts and 45 unique
+  fingerprints. Product `1247`: nine candidates, SHA-256
+  `71938591986ba368271d1e5c7a7619c48fc94d0b05e2a7cd9297e14fff95d194`,
+  artifact fingerprint
+  `bd4f77cdc64fe76b033d35f8c7f44e0b957f6d4d2725cfa0fc0ae7b9bca79ece`.
+  Product `1250`: 12 candidates, SHA-256
+  `c793ad012536ef5e31466e1d65753e7a798b4f0ab2b1c9ddcf5db9418ecf8abf`,
+  fingerprint
+  `e41984e4705299ed488eb73a7d94924bbc3219c2240f5d849a0958202946fac2`.
+  Product `1254`: 12 candidates, SHA-256
+  `cce35d083edeee0000896a298770145891b70d3bbdbaaaf0121b89e4ab9e677e`,
+  fingerprint
+  `a59bf8339554a7d3986d2d760d7bc964e4c95ac98443a70a0aa6a4301515f117`.
+  Product `1279`: 12 candidates, SHA-256
+  `7d6f86ef9a407cce4522841086205f30ceca20900ffb966ce7e42f0780e9cc03`,
+  fingerprint
+  `05aabee2901e8c4991f2a4741f887b517e09ba448f46ff9d8125f345c75746a2`.
+  The four `nutrition:candidates:store --dry-run` checks passed with 9, 12, 12
+  and 12 rows respectively, zero product updates and zero database writes.
+- The assessment reached its 50-variant ceiling: 12 are ready and 38 retain
+  specific recorded blockers. Those are eight Dorian Yates variants, 12 Naughty
+  Boy variants, nine Trained By JP variants and six PEScience variants excluded
+  by their reviewed source-use conditions, plus three Conteh variants whose
+  current official 16 g formula is not bound to the catalogue's 375 g version.
+  Known pilot, PER4M, Applied-version, Strom/Warrior and GYM HIGH deferrals were
+  not reopened without new evidence. No ready variant resolves all four tracked
+  ingredients because Bulk's two-form citrulline blend and Muscle Moose's two
+  explicit absence gaps remain outside the candidates.
+- The machine-readable owner package is
+  [nutrition-catalog-expansion-batch-05-preparation-2026-09-13.json](rollouts/nutrition-catalog-expansion-batch-05-preparation-2026-09-13.json),
+  SHA-256
+  `2a403d83613073a4708aa9267d821c70892db5b48c81bdcfcca25d0cec8d2f51`.
+  One next step is one owner decision on controlled store -> authenticated review
+  -> exact-ID plans -> guarded apply for exactly the unchanged 45 fingerprints in
+  these four artifacts. The unresolved fields remain excluded. No production
+  candidate store, review, plan, apply or catalogue write ran. NUT-03 remains
+  `IN PROGRESS` and the distinct applied total remains 55.

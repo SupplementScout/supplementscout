@@ -1,0 +1,908 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-expansion-batch-05-preparation-evidence-v1",
+  "status": "READY_FOR_OWNER_DECISION",
+  "prepared_at": "2026-09-13T08:13:08.241Z",
+  "production_checkpoint": {
+    "captured_at": "2026-09-13T07:52:21.978Z",
+    "environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "applied_variant_count": 55,
+    "expected_applied_variant_count": 55,
+    "read_only": true,
+    "database_writes": 0
+  },
+  "scope": {
+    "organizational_limit": 50,
+    "assessed_variants": 50,
+    "ready_variants": 12,
+    "blocked_or_deferred_variants": 38,
+    "candidate_facts": 45,
+    "variants_with_all_four_tracked_ingredients_resolved": 0,
+    "unique_official_dose_tables": 6,
+    "excluded_applied_variants": 55
+  },
+  "rules_confirmed_or_added": {
+    "primary_dose_evidence": "A readable official manufacturer Supplement Facts, Nutritional Information or Active Ingredients table is sufficient evidence of an ingredient amount and serving basis; no second statement repeating the same dose is required.",
+    "shared_table_basis": "wspólna tabela producenta dla wariantów produktu",
+    "partial_candidate_rule": "An unsupported or conflicting tracked ingredient does not block candidates for other readable facts. Preserve the evidence and omission reason; do not manufacture five candidates per variant.",
+    "absence_rule": "Omission from a table, product name or ingredient list is not confirmed absence."
+  },
+  "production_preflight": {
+    "captured_at": "2026-09-13T08:06:03.212Z",
+    "target_environment": "PRODUCTION",
+    "exact_variant_memberships_confirmed": 12,
+    "existing_candidates": 0,
+    "nonempty_target_overrides": [],
+    "database_writes": 0
+  },
+  "ready_families": [
+    {
+      "product_id": "1247",
+      "product_name": "Muscle Moose Pre-Workout Zero Itch Formula 280g",
+      "variants": [
+        {
+          "product_id": "1247",
+          "variant_id": "3669",
+          "name": "Blue Raspberry",
+          "proposed": {
+            "serving": {
+              "value": 14,
+              "unit": "g",
+              "text": "1 serving (14 g)"
+            },
+            "caffeine": {
+              "information_state": "present_with_amount",
+              "value_mg": 197,
+              "source": "197 mg"
+            },
+            "beta_alanine": {
+              "candidate": false,
+              "state": "unresolved",
+              "reason": "No explicit absence; omission from the active table and full ingredients list is not confirmed absence."
+            },
+            "citrulline": {
+              "information_state": "present_with_amount",
+              "value_mg": 3000,
+              "source": "3,000 mg",
+              "ingredient_form": "l_citrulline"
+            },
+            "creatine": {
+              "candidate": false,
+              "state": "unresolved",
+              "reason": "No explicit absence; omission from the active table and full ingredients list is not confirmed absence."
+            },
+            "resolved_tracked_ingredients": 2
+          }
+        },
+        {
+          "product_id": "1247",
+          "variant_id": "3714",
+          "name": "Cloudy Lemonade / 280g",
+          "proposed": {
+            "serving": {
+              "value": 14,
+              "unit": "g",
+              "text": "1 serving (14 g)"
+            },
+            "caffeine": {
+              "information_state": "present_with_amount",
+              "value_mg": 197,
+              "source": "197 mg"
+            },
+            "beta_alanine": {
+              "candidate": false,
+              "state": "unresolved",
+              "reason": "No explicit absence; omission from the active table and full ingredients list is not confirmed absence."
+            },
+            "citrulline": {
+              "information_state": "present_with_amount",
+              "value_mg": 3000,
+              "source": "3,000 mg",
+              "ingredient_form": "l_citrulline"
+            },
+            "creatine": {
+              "candidate": false,
+              "state": "unresolved",
+              "reason": "No explicit absence; omission from the active table and full ingredients list is not confirmed absence."
+            },
+            "resolved_tracked_ingredients": 2
+          }
+        },
+        {
+          "product_id": "1247",
+          "variant_id": "3715",
+          "name": "Fruit Candy / 280g",
+          "proposed": {
+            "serving": {
+              "value": 14,
+              "unit": "g",
+              "text": "1 serving (14 g)"
+            },
+            "caffeine": {
+              "information_state": "present_with_amount",
+              "value_mg": 197,
+              "source": "197 mg"
+            },
+            "beta_alanine": {
+              "candidate": false,
+              "state": "unresolved",
+              "reason": "No explicit absence; omission from the active table and full ingredients list is not confirmed absence."
+            },
+            "citrulline": {
+              "information_state": "present_with_amount",
+              "value_mg": 3000,
+              "source": "3,000 mg",
+              "ingredient_form": "l_citrulline"
+            },
+            "creatine": {
+              "candidate": false,
+              "state": "unresolved",
+              "reason": "No explicit absence; omission from the active table and full ingredients list is not confirmed absence."
+            },
+            "resolved_tracked_ingredients": 2
+          }
+        }
+      ],
+      "source_records": [
+        {
+          "official_url": "https://musclemoose.co.uk/product/pre-workout-zero-itch-280g-blue-raspberry/",
+          "captured_at": "2026-09-13T08:02:04.465Z",
+          "applicability_basis": "exact official manufacturer flavour page and table",
+          "snapshot_sha256": "a49a2b8d464b3e59b78d6872030b580e6934d5832a9683849a2dcf316486ca2e",
+          "archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/muscle-moose/1247/a49a2b8d464b3e59b78d6872030b580e6934d5832a9683849a2dcf316486ca2e/04-p1247-muscle-moose-pre-workout-zero-itch-formula-280g-blue-raspberry-89a9a826a649.html"
+        },
+        {
+          "official_url": "https://musclemoose.co.uk/product/pre-workout-zero-itch-280g-cloudy-lemonade/",
+          "captured_at": "2026-09-13T08:02:04.465Z",
+          "applicability_basis": "exact official manufacturer flavour page and table",
+          "snapshot_sha256": "9f38e8432495b1032a0eadf7bbc7a7b42cc9898eac02907853437a3c48a0857b",
+          "archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/muscle-moose/1247/9f38e8432495b1032a0eadf7bbc7a7b42cc9898eac02907853437a3c48a0857b/05-p1247-muscle-moose-pre-workout-zero-itch-formula-280g-cloudy-lemonade-c6e753d74263.html"
+        },
+        {
+          "official_url": "https://musclemoose.co.uk/product/pre-workout-zero-itch-280g-fruit-candy/",
+          "captured_at": "2026-09-13T08:02:04.465Z",
+          "applicability_basis": "exact official manufacturer flavour page and table",
+          "snapshot_sha256": "e9d29a267670ae54e859ea2317a6bb0336da80db907fb7d64d21504b198d2088",
+          "archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/muscle-moose/1247/e9d29a267670ae54e859ea2317a6bb0336da80db907fb7d64d21504b198d2088/06-p1247-muscle-moose-pre-workout-zero-itch-formula-280g-fruit-candy-42a374397df9.html"
+        }
+      ],
+      "artifact": {
+        "product_id": "1247",
+        "path": "tmp/nutrition-catalog-batch-05-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-05-1247-20260913.json",
+        "sha256": "71938591986ba368271d1e5c7a7619c48fc94d0b05e2a7cd9297e14fff95d194",
+        "artifact_fingerprint": "bd4f77cdc64fe76b033d35f8c7f44e0b957f6d4d2725cfa0fc0ae7b9bca79ece",
+        "variants": 3,
+        "candidates": 9,
+        "unique_candidate_fingerprints": 9
+      },
+      "dry_run": {
+        "result": "PASS",
+        "mode": "DRY_RUN_NO_DATABASE",
+        "candidate_rows": 9,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "1250",
+      "product_name": "Bulk Dope Pre Workout 510g",
+      "variants": [
+        {
+          "product_id": "1250",
+          "variant_id": "3672",
+          "name": "Blue Raspberry",
+          "proposed": {
+            "serving": {
+              "value": 17,
+              "unit": "g",
+              "text": "1 slightly heaped scoop (approximately 17 g)",
+              "approximate": true
+            },
+            "caffeine": {
+              "information_state": "present_with_amount",
+              "value_mg": 200,
+              "source": "200 mg"
+            },
+            "beta_alanine": {
+              "information_state": "present_with_amount",
+              "value_mg": 3200,
+              "source": "3.2 g"
+            },
+            "citrulline": {
+              "candidate": false,
+              "state": "unsupported_by_current_model",
+              "reason": "One serving contains Citrulline Malate 2.5 g plus L-Citrulline 500 mg; the current field stores one form only."
+            },
+            "creatine": {
+              "information_state": "present_with_amount",
+              "value_mg": 3400,
+              "source": "3.4 g Creatine Monohydrate",
+              "ingredient_form": "creatine_monohydrate",
+              "amount_subject": "declared_ingredient_form"
+            },
+            "resolved_tracked_ingredients": 3
+          }
+        },
+        {
+          "product_id": "1250",
+          "variant_id": "3721",
+          "name": "Fruit Punch / 510g",
+          "proposed": {
+            "serving": {
+              "value": 17,
+              "unit": "g",
+              "text": "1 slightly heaped scoop (approximately 17 g)",
+              "approximate": true
+            },
+            "caffeine": {
+              "information_state": "present_with_amount",
+              "value_mg": 200,
+              "source": "200 mg"
+            },
+            "beta_alanine": {
+              "information_state": "present_with_amount",
+              "value_mg": 3200,
+              "source": "3.2 g"
+            },
+            "citrulline": {
+              "candidate": false,
+              "state": "unsupported_by_current_model",
+              "reason": "One serving contains Citrulline Malate 2.5 g plus L-Citrulline 500 mg; the current field stores one form only."
+            },
+            "creatine": {
+              "information_state": "present_with_amount",
+              "value_mg": 3400,
+              "source": "3.4 g Creatine Monohydrate",
+              "ingredient_form": "creatine_monohydrate",
+              "amount_subject": "declared_ingredient_form"
+            },
+            "resolved_tracked_ingredients": 3
+          }
+        },
+        {
+          "product_id": "1250",
+          "variant_id": "3722",
+          "name": "Strawberry & Lime / 510g",
+          "proposed": {
+            "serving": {
+              "value": 17,
+              "unit": "g",
+              "text": "1 slightly heaped scoop (approximately 17 g)",
+              "approximate": true
+            },
+            "caffeine": {
+              "information_state": "present_with_amount",
+              "value_mg": 200,
+              "source": "200 mg"
+            },
+            "beta_alanine": {
+              "information_state": "present_with_amount",
+              "value_mg": 3200,
+              "source": "3.2 g"
+            },
+            "citrulline": {
+              "candidate": false,
+              "state": "unsupported_by_current_model",
+              "reason": "One serving contains Citrulline Malate 2.5 g plus L-Citrulline 500 mg; the current field stores one form only."
+            },
+            "creatine": {
+              "information_state": "present_with_amount",
+              "value_mg": 3400,
+              "source": "3.4 g Creatine Monohydrate",
+              "ingredient_form": "creatine_monohydrate",
+              "amount_subject": "declared_ingredient_form"
+            },
+            "resolved_tracked_ingredients": 3
+          }
+        }
+      ],
+      "source_records": [
+        {
+          "official_url": "https://www.bulk.com/uk/products/dope-pre-workout/bble-dope",
+          "captured_at": "2026-09-13T08:02:04.465Z",
+          "applicability_basis": "wspólna tabela producenta dla wariantów produktu",
+          "snapshot_sha256": "4c5ca745d34fe8c07cee9f8dc424db9163bd896576d6c324f70d0d4b3998af16",
+          "archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/bulk/1250/4c5ca745d34fe8c07cee9f8dc424db9163bd896576d6c324f70d0d4b3998af16/01-p1250-bulk-dope-pre-workout-510g-c7e27ecccad2.html"
+        }
+      ],
+      "artifact": {
+        "product_id": "1250",
+        "path": "tmp/nutrition-catalog-batch-05-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-05-1250-20260913.json",
+        "sha256": "c793ad012536ef5e31466e1d65753e7a798b4f0ab2b1c9ddcf5db9418ecf8abf",
+        "artifact_fingerprint": "e41984e4705299ed488eb73a7d94924bbc3219c2240f5d849a0958202946fac2",
+        "variants": 3,
+        "candidates": 12,
+        "unique_candidate_fingerprints": 12
+      },
+      "dry_run": {
+        "result": "PASS",
+        "mode": "DRY_RUN_NO_DATABASE",
+        "candidate_rows": 12,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "1254",
+      "product_name": "Bulk Dope Max Pre-Workout 563g",
+      "variants": [
+        {
+          "product_id": "1254",
+          "variant_id": "3676",
+          "name": "Blue Raspberry",
+          "proposed": {
+            "serving": {
+              "value": 22.5,
+              "unit": "g",
+              "text": "1 slightly heaped scoop (approximately 22.5 g)",
+              "approximate": true
+            },
+            "caffeine": {
+              "information_state": "present_with_amount",
+              "value_mg": 200,
+              "source": "200 mg"
+            },
+            "beta_alanine": {
+              "information_state": "present_with_amount",
+              "value_mg": 5000,
+              "source": "5.0 g"
+            },
+            "citrulline": {
+              "candidate": false,
+              "state": "unsupported_by_current_model",
+              "reason": "One serving contains Citrulline Malate 3.0 g plus L-Citrulline 2.0 g; the current field stores one form only."
+            },
+            "creatine": {
+              "information_state": "present_with_amount",
+              "value_mg": 3400,
+              "source": "3.4 g Creatine Monohydrate",
+              "ingredient_form": "creatine_monohydrate",
+              "amount_subject": "declared_ingredient_form"
+            },
+            "resolved_tracked_ingredients": 3
+          }
+        },
+        {
+          "product_id": "1254",
+          "variant_id": "3725",
+          "name": "Sour Apple / 563g",
+          "proposed": {
+            "serving": {
+              "value": 22.5,
+              "unit": "g",
+              "text": "1 slightly heaped scoop (approximately 22.5 g)",
+              "approximate": true
+            },
+            "caffeine": {
+              "information_state": "present_with_amount",
+              "value_mg": 200,
+              "source": "200 mg"
+            },
+            "beta_alanine": {
+              "information_state": "present_with_amount",
+              "value_mg": 5000,
+              "source": "5.0 g"
+            },
+            "citrulline": {
+              "candidate": false,
+              "state": "unsupported_by_current_model",
+              "reason": "One serving contains Citrulline Malate 3.0 g plus L-Citrulline 2.0 g; the current field stores one form only."
+            },
+            "creatine": {
+              "information_state": "present_with_amount",
+              "value_mg": 3400,
+              "source": "3.4 g Creatine Monohydrate",
+              "ingredient_form": "creatine_monohydrate",
+              "amount_subject": "declared_ingredient_form"
+            },
+            "resolved_tracked_ingredients": 3
+          }
+        },
+        {
+          "product_id": "1254",
+          "variant_id": "3726",
+          "name": "Strawberry & Lime / 563g",
+          "proposed": {
+            "serving": {
+              "value": 22.5,
+              "unit": "g",
+              "text": "1 slightly heaped scoop (approximately 22.5 g)",
+              "approximate": true
+            },
+            "caffeine": {
+              "information_state": "present_with_amount",
+              "value_mg": 200,
+              "source": "200 mg"
+            },
+            "beta_alanine": {
+              "information_state": "present_with_amount",
+              "value_mg": 5000,
+              "source": "5.0 g"
+            },
+            "citrulline": {
+              "candidate": false,
+              "state": "unsupported_by_current_model",
+              "reason": "One serving contains Citrulline Malate 3.0 g plus L-Citrulline 2.0 g; the current field stores one form only."
+            },
+            "creatine": {
+              "information_state": "present_with_amount",
+              "value_mg": 3400,
+              "source": "3.4 g Creatine Monohydrate",
+              "ingredient_form": "creatine_monohydrate",
+              "amount_subject": "declared_ingredient_form"
+            },
+            "resolved_tracked_ingredients": 3
+          }
+        }
+      ],
+      "source_records": [
+        {
+          "official_url": "https://www.bulk.com/uk/products/dope-max-pre-workout/bble-dmax",
+          "captured_at": "2026-09-13T08:02:04.465Z",
+          "applicability_basis": "wspólna tabela producenta dla wariantów produktu",
+          "snapshot_sha256": "f55f6485844ea6f6edf31992b83e73ea877649d8c2237e10c757488cf5875b75",
+          "archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/bulk/1254/f55f6485844ea6f6edf31992b83e73ea877649d8c2237e10c757488cf5875b75/02-p1254-bulk-dope-max-pre-workout-563g-f58423904015.html"
+        }
+      ],
+      "artifact": {
+        "product_id": "1254",
+        "path": "tmp/nutrition-catalog-batch-05-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-05-1254-20260913.json",
+        "sha256": "cce35d083edeee0000896a298770145891b70d3bbdbaaaf0121b89e4ab9e677e",
+        "artifact_fingerprint": "a59bf8339554a7d3986d2d760d7bc964e4c95ac98443a70a0aa6a4301515f117",
+        "variants": 3,
+        "candidates": 12,
+        "unique_candidate_fingerprints": 12
+      },
+      "dry_run": {
+        "result": "PASS",
+        "mode": "DRY_RUN_NO_DATABASE",
+        "candidate_rows": 12,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "1279",
+      "product_name": "Bulk Dope Caffeine Free Pre-Workout 510g",
+      "variants": [
+        {
+          "product_id": "1279",
+          "variant_id": "3759",
+          "name": "Blue Raspberry",
+          "proposed": {
+            "serving": {
+              "value": 17,
+              "unit": "g",
+              "text": "1 slightly heaped scoop (approximately 17 g)",
+              "approximate": true
+            },
+            "caffeine": {
+              "information_state": "confirmed_absent",
+              "value_mg": null,
+              "source": "Dope Caffeine Free / stimulant-free manufacturer declaration"
+            },
+            "beta_alanine": {
+              "information_state": "present_with_amount",
+              "value_mg": 3200,
+              "source": "3.2 g"
+            },
+            "citrulline": {
+              "candidate": false,
+              "state": "unsupported_by_current_model",
+              "reason": "One serving contains Citrulline Malate 2.5 g plus L-Citrulline 500 mg; the current field stores one form only."
+            },
+            "creatine": {
+              "information_state": "present_with_amount",
+              "value_mg": 3400,
+              "source": "3.4 g Creatine Monohydrate",
+              "ingredient_form": "creatine_monohydrate",
+              "amount_subject": "declared_ingredient_form"
+            },
+            "resolved_tracked_ingredients": 3
+          }
+        },
+        {
+          "product_id": "1279",
+          "variant_id": "3894",
+          "name": "Fruit Punch / 510g",
+          "proposed": {
+            "serving": {
+              "value": 17,
+              "unit": "g",
+              "text": "1 slightly heaped scoop (approximately 17 g)",
+              "approximate": true
+            },
+            "caffeine": {
+              "information_state": "confirmed_absent",
+              "value_mg": null,
+              "source": "Dope Caffeine Free / stimulant-free manufacturer declaration"
+            },
+            "beta_alanine": {
+              "information_state": "present_with_amount",
+              "value_mg": 3200,
+              "source": "3.2 g"
+            },
+            "citrulline": {
+              "candidate": false,
+              "state": "unsupported_by_current_model",
+              "reason": "One serving contains Citrulline Malate 2.5 g plus L-Citrulline 500 mg; the current field stores one form only."
+            },
+            "creatine": {
+              "information_state": "present_with_amount",
+              "value_mg": 3400,
+              "source": "3.4 g Creatine Monohydrate",
+              "ingredient_form": "creatine_monohydrate",
+              "amount_subject": "declared_ingredient_form"
+            },
+            "resolved_tracked_ingredients": 3
+          }
+        },
+        {
+          "product_id": "1279",
+          "variant_id": "3895",
+          "name": "Strawberry & Lime / 510g",
+          "proposed": {
+            "serving": {
+              "value": 17,
+              "unit": "g",
+              "text": "1 slightly heaped scoop (approximately 17 g)",
+              "approximate": true
+            },
+            "caffeine": {
+              "information_state": "confirmed_absent",
+              "value_mg": null,
+              "source": "Dope Caffeine Free / stimulant-free manufacturer declaration"
+            },
+            "beta_alanine": {
+              "information_state": "present_with_amount",
+              "value_mg": 3200,
+              "source": "3.2 g"
+            },
+            "citrulline": {
+              "candidate": false,
+              "state": "unsupported_by_current_model",
+              "reason": "One serving contains Citrulline Malate 2.5 g plus L-Citrulline 500 mg; the current field stores one form only."
+            },
+            "creatine": {
+              "information_state": "present_with_amount",
+              "value_mg": 3400,
+              "source": "3.4 g Creatine Monohydrate",
+              "ingredient_form": "creatine_monohydrate",
+              "amount_subject": "declared_ingredient_form"
+            },
+            "resolved_tracked_ingredients": 3
+          }
+        }
+      ],
+      "source_records": [
+        {
+          "official_url": "https://www.bulk.com/uk/products/dope-pre-workout-caffeine-free/bble-docf",
+          "captured_at": "2026-09-13T08:02:04.465Z",
+          "applicability_basis": "wspólna tabela producenta dla wariantów produktu",
+          "snapshot_sha256": "8b9d3ff1d906372ab4a7941ca6a1e4a200ee9b856c707e3f1e41f343bfba7d15",
+          "archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/bulk/1279/8b9d3ff1d906372ab4a7941ca6a1e4a200ee9b856c707e3f1e41f343bfba7d15/03-p1279-bulk-dope-caffeine-free-pre-workout-510g-ae81e4cc981d.html"
+        }
+      ],
+      "artifact": {
+        "product_id": "1279",
+        "path": "tmp/nutrition-catalog-batch-05-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-05-1279-20260913.json",
+        "sha256": "7d6f86ef9a407cce4522841086205f30ceca20900ffb966ce7e42f0780e9cc03",
+        "artifact_fingerprint": "05aabee2901e8c4991f2a4741f887b517e09ba448f46ff9d8125f345c75746a2",
+        "variants": 3,
+        "candidates": 12,
+        "unique_candidate_fingerprints": 12
+      },
+      "dry_run": {
+        "result": "PASS",
+        "mode": "DRY_RUN_NO_DATABASE",
+        "candidate_rows": 12,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    }
+  ],
+  "unresolved_fields": [
+    {
+      "product_id": "1247",
+      "variant_id": "3669",
+      "prepared_fields": [
+        "serving_size_g",
+        "caffeine_per_serving_mg",
+        "citrulline_per_serving_mg"
+      ],
+      "unresolved_fields": [
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "reason": "Beta-alanine is absent from the Active Ingredients table and full ingredients list, but the manufacturer does not explicitly declare its absence; omission is not confirmed absence."
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "reason": "Creatine is absent from the Active Ingredients table and full ingredients list, but the manufacturer does not explicitly declare its absence; omission is not confirmed absence."
+        }
+      ]
+    },
+    {
+      "product_id": "1247",
+      "variant_id": "3714",
+      "prepared_fields": [
+        "serving_size_g",
+        "caffeine_per_serving_mg",
+        "citrulline_per_serving_mg"
+      ],
+      "unresolved_fields": [
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "reason": "Beta-alanine is absent from the Active Ingredients table and full ingredients list, but the manufacturer does not explicitly declare its absence; omission is not confirmed absence."
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "reason": "Creatine is absent from the Active Ingredients table and full ingredients list, but the manufacturer does not explicitly declare its absence; omission is not confirmed absence."
+        }
+      ]
+    },
+    {
+      "product_id": "1247",
+      "variant_id": "3715",
+      "prepared_fields": [
+        "serving_size_g",
+        "caffeine_per_serving_mg",
+        "citrulline_per_serving_mg"
+      ],
+      "unresolved_fields": [
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "reason": "Beta-alanine is absent from the Active Ingredients table and full ingredients list, but the manufacturer does not explicitly declare its absence; omission is not confirmed absence."
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "reason": "Creatine is absent from the Active Ingredients table and full ingredients list, but the manufacturer does not explicitly declare its absence; omission is not confirmed absence."
+        }
+      ]
+    },
+    {
+      "product_id": "1250",
+      "variant_id": "3672",
+      "prepared_fields": [
+        "serving_size_g",
+        "caffeine_per_serving_mg",
+        "beta_alanine_per_serving_mg",
+        "creatine_declared_form_per_serving_mg"
+      ],
+      "unresolved_fields": [
+        {
+          "field": "citrulline_per_serving_mg",
+          "reason": "Official table declares two components in one serving: Citrulline Malate 2.5 g and L-Citrulline 500 mg. The current single-form field cannot preserve both forms without losing meaning."
+        }
+      ]
+    },
+    {
+      "product_id": "1250",
+      "variant_id": "3721",
+      "prepared_fields": [
+        "serving_size_g",
+        "caffeine_per_serving_mg",
+        "beta_alanine_per_serving_mg",
+        "creatine_declared_form_per_serving_mg"
+      ],
+      "unresolved_fields": [
+        {
+          "field": "citrulline_per_serving_mg",
+          "reason": "Official table declares two components in one serving: Citrulline Malate 2.5 g and L-Citrulline 500 mg. The current single-form field cannot preserve both forms without losing meaning."
+        }
+      ]
+    },
+    {
+      "product_id": "1250",
+      "variant_id": "3722",
+      "prepared_fields": [
+        "serving_size_g",
+        "caffeine_per_serving_mg",
+        "beta_alanine_per_serving_mg",
+        "creatine_declared_form_per_serving_mg"
+      ],
+      "unresolved_fields": [
+        {
+          "field": "citrulline_per_serving_mg",
+          "reason": "Official table declares two components in one serving: Citrulline Malate 2.5 g and L-Citrulline 500 mg. The current single-form field cannot preserve both forms without losing meaning."
+        }
+      ]
+    },
+    {
+      "product_id": "1254",
+      "variant_id": "3676",
+      "prepared_fields": [
+        "serving_size_g",
+        "caffeine_per_serving_mg",
+        "beta_alanine_per_serving_mg",
+        "creatine_declared_form_per_serving_mg"
+      ],
+      "unresolved_fields": [
+        {
+          "field": "citrulline_per_serving_mg",
+          "reason": "Official table declares two components in one serving: Citrulline Malate 3.0 g and L-Citrulline 2.0 g. The current single-form field cannot preserve both forms without losing meaning."
+        }
+      ]
+    },
+    {
+      "product_id": "1254",
+      "variant_id": "3725",
+      "prepared_fields": [
+        "serving_size_g",
+        "caffeine_per_serving_mg",
+        "beta_alanine_per_serving_mg",
+        "creatine_declared_form_per_serving_mg"
+      ],
+      "unresolved_fields": [
+        {
+          "field": "citrulline_per_serving_mg",
+          "reason": "Official table declares two components in one serving: Citrulline Malate 3.0 g and L-Citrulline 2.0 g. The current single-form field cannot preserve both forms without losing meaning."
+        }
+      ]
+    },
+    {
+      "product_id": "1254",
+      "variant_id": "3726",
+      "prepared_fields": [
+        "serving_size_g",
+        "caffeine_per_serving_mg",
+        "beta_alanine_per_serving_mg",
+        "creatine_declared_form_per_serving_mg"
+      ],
+      "unresolved_fields": [
+        {
+          "field": "citrulline_per_serving_mg",
+          "reason": "Official table declares two components in one serving: Citrulline Malate 3.0 g and L-Citrulline 2.0 g. The current single-form field cannot preserve both forms without losing meaning."
+        }
+      ]
+    },
+    {
+      "product_id": "1279",
+      "variant_id": "3759",
+      "prepared_fields": [
+        "serving_size_g",
+        "caffeine_per_serving_mg",
+        "beta_alanine_per_serving_mg",
+        "creatine_declared_form_per_serving_mg"
+      ],
+      "unresolved_fields": [
+        {
+          "field": "citrulline_per_serving_mg",
+          "reason": "Official table declares two components in one serving: Citrulline Malate 2.5 g and L-Citrulline 500 mg. The current single-form field cannot preserve both forms without losing meaning."
+        }
+      ]
+    },
+    {
+      "product_id": "1279",
+      "variant_id": "3894",
+      "prepared_fields": [
+        "serving_size_g",
+        "caffeine_per_serving_mg",
+        "beta_alanine_per_serving_mg",
+        "creatine_declared_form_per_serving_mg"
+      ],
+      "unresolved_fields": [
+        {
+          "field": "citrulline_per_serving_mg",
+          "reason": "Official table declares two components in one serving: Citrulline Malate 2.5 g and L-Citrulline 500 mg. The current single-form field cannot preserve both forms without losing meaning."
+        }
+      ]
+    },
+    {
+      "product_id": "1279",
+      "variant_id": "3895",
+      "prepared_fields": [
+        "serving_size_g",
+        "caffeine_per_serving_mg",
+        "beta_alanine_per_serving_mg",
+        "creatine_declared_form_per_serving_mg"
+      ],
+      "unresolved_fields": [
+        {
+          "field": "citrulline_per_serving_mg",
+          "reason": "Official table declares two components in one serving: Citrulline Malate 2.5 g and L-Citrulline 500 mg. The current single-form field cannot preserve both forms without losing meaning."
+        }
+      ]
+    }
+  ],
+  "assessed_blocked_variants": [
+    {
+      "product_id": "19",
+      "variant_ids": [
+        "764",
+        "765",
+        "766",
+        "767",
+        "768",
+        "769",
+        "770",
+        "1579"
+      ],
+      "family": "Dorian Yates Blood & Guts 380g",
+      "reason": "OFFICIAL_TERMS_PROHIBIT_REPRODUCTION_AND_AUTOMATED_EXTRACTION"
+    },
+    {
+      "product_id": "778",
+      "variant_ids": [
+        "971",
+        "972",
+        "1978",
+        "4081",
+        "4082",
+        "4083",
+        "4084",
+        "4085",
+        "4086",
+        "4087",
+        "4088",
+        "4089"
+      ],
+      "family": "Naughty Boy Energy Pre-Workout",
+      "reason": "OFFICIAL_TERMS_REQUIRE_WRITTEN_PERMISSION_AND_PROHIBIT_SPIDER_CRAWL_SCRAPE"
+    },
+    {
+      "product_id": "878",
+      "variant_ids": [
+        "1361",
+        "1362",
+        "1363",
+        "1364",
+        "1365",
+        "1366",
+        "1367",
+        "1368",
+        "4080"
+      ],
+      "family": "Trained By JP DNFM PRE",
+      "reason": "OFFICIAL_TERMS_REQUIRE_EXPRESS_WRITTEN_PERMISSION_AND_PROHIBIT_SPIDER_CRAWL_SCRAPE"
+    },
+    {
+      "product_id": "24",
+      "variant_ids": [
+        "1004",
+        "1581",
+        "1582",
+        "1583",
+        "1584",
+        "1585"
+      ],
+      "family": "PEScience Prolific 280g",
+      "reason": "OFFICIAL_TERMS_PROHIBIT_SCRAPE_CRAWL_OR_AUTOMATED_EXTRACTION"
+    },
+    {
+      "product_id": "895",
+      "variant_ids": [
+        "1477",
+        "1478",
+        "1479"
+      ],
+      "family": "Conteh Sports Conviction ELITE 375g",
+      "reason": "CURRENT_OFFICIAL_FORMULA_AND_16G_SERVING_DO_NOT_BIND_TO_CATALOGUE_375G_VERSION"
+    }
+  ],
+  "archive": {
+    "precheck": "NO_EXACT_PATH_DUPLICATES",
+    "upload": "UPLOAD_PASS",
+    "uploaded_objects": 7,
+    "readback": "READBACK_PASS",
+    "readback_objects": 7,
+    "bucket": "nutrition-sources",
+    "private": true,
+    "retained_without_automatic_expiry": true,
+    "context_manifest": {
+      "path": "tmp/nutrition-catalog-batch-05-2026-09-13/source-context-manifest.json",
+      "sha256": "836c7ab8ba849dcf8a4cee41523ee962f6c0551b055206d66452daa98521a39c",
+      "archive_uri": "supabase-storage://nutrition-sources/manifests/nut-03/catalog-expansion-batch-05/836c7ab8ba849dcf8a4cee41523ee962f6c0551b055206d66452daa98521a39c/source-context-manifest.json",
+      "object_path": "manifests/nut-03/catalog-expansion-batch-05/836c7ab8ba849dcf8a4cee41523ee962f6c0551b055206d66452daa98521a39c/source-context-manifest.json"
+    }
+  },
+  "safety": {
+    "source_network_requests": 6,
+    "storage_writes": 7,
+    "production_candidate_writes": 0,
+    "production_catalogue_writes": 0,
+    "review_writes": 0,
+    "apply_writes": 0
+  },
+  "next_step": "Owner decides whether to authorize store -> review -> plan -> apply for the exact 45 candidate fingerprints in the four hash-bound artifacts; unresolved fields remain outside that authorization."
+}

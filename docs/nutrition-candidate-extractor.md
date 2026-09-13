@@ -126,6 +126,19 @@ serving, product version or market. A different pack size requires evidence of
 the same recipe and serving even when it does not automatically imply a different
 composition.
 
+A readable official manufacturer `Supplement Facts`, `Nutritional
+Information` or `Active Ingredients` table is sufficient evidence for the
+ingredient, declared amount and unambiguous serving basis shown in that table.
+Do not require a second marketing statement or separate declaration that merely
+repeats the same amount.
+
+Treat each tracked ingredient independently during preparation. If one fact is
+conflicting or cannot be represented faithfully by the current structured
+field, retain its evidence and a concrete omission reason, then prepare the
+other supported candidates for that exact variant. A candidate artifact does
+not need to contain five facts per variant. Do not simplify a multi-form blend
+into one form merely to fill the missing candidate.
+
 An explicit manufacturer `caffeine free` declaration may support
 `confirmed_absent`. Omission from a table, OCR output, product name or ingredient
 list never proves absence. Known contradictions retain
