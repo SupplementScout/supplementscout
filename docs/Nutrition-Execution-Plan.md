@@ -54,11 +54,11 @@
   retains its recorded unsupported fields rather than fabricated candidates.
   The distinct applied total is now 67.
 - Catalogue expansion batch 06 is prepared as one closed read-only package of
-  47 current-offer variants after excluding all 67 applied variants. Product
+  50 current-offer variants after excluding all 67 applied variants. Product
   `1283` / variant `3763` is ready with three supported candidates from one
   archived Apex Formulas table: serving 25 g, caffeine `confirmed_absent` and
   6000 mg free-form L-citrulline. Beta-alanine and creatine remain unresolved,
-  so this is a partial variant package. The other 46 variants retain exact
+  so this is a partial variant package. The other 49 variants retain exact
   access or current-version applicability blockers; known blocks were not
   reopened merely to fill the organizational cap.
 - The exact GYM HIGH demonstration exception for product `411` / variant `1047`
@@ -459,7 +459,7 @@ implementation or any nutrition catalogue write.
 | NUT-03-CATALOG-BATCH-03 | `LIVE VERIFIED` | NUT-03 deployed path + preparation and exact owner execution authorization | Prepare one closed package of at most 50 next incomplete exact variants, then carry only its unchanged ready subset through existing store/review/plan/apply controls. | Candidates `891`-`940` each exist once and are approved. Five zero-product-update plans applied the facts only to variants `1323`-`1330`, `1332`, `1333`. Independent readback matched all ten complete `after` objects, and five stale-before replays failed closed. All ten public pages pass; no Batch 03 variant enters the caffeine-free filter. Variant `1331` and nine Warrior variants remain unresolved and untouched. See `docs/rollouts/nutrition-catalog-expansion-batch-03-execution-2026-09-13.json`. |
 | NUT-03-CATALOG-BATCH-04 | `LIVE VERIFIED` | NUT-03 deployed path + preparation and exact owner execution authorization | Carry only the unchanged 30-candidate ready subset through existing controls for product `528` variants `976`, `977`, `1847`, `1848` and product `1248` variants `3670`, `3716`. | Candidates `941`-`970` each exist once and are approved. Two zero-product-update plans applied only six exact overrides. Independent and replay readbacks and all six public pages passed. Two PhD variants resolve all four ingredients; four Nutrend variants retain creatine as `no_information`. See `docs/rollouts/nutrition-catalog-expansion-batch-04-execution-2026-09-13.json`. |
 | NUT-03-CATALOG-BATCH-05 | `LIVE VERIFIED` | NUT-03 deployed path + preparation and exact owner execution authorization | Carry only the unchanged 45 supported candidates for product `1247` variants `3669`, `3714`, `3715`; product `1250` variants `3672`, `3721`, `3722`; product `1254` variants `3676`, `3725`, `3726`; and product `1279` variants `3759`, `3894`, `3895`. | Candidates `971`-`1015` each exist once and are approved. Four zero-blocker, zero-product-update plans changed only the 12 exact overrides. Independent readback matched every complete `after`, and four stale-before replays failed closed. All 12 public pages pass; only the confirmed caffeine-free family qualifies for one grouped filter card. Unsupported facts remain omitted. See `docs/rollouts/nutrition-catalog-expansion-batch-05-execution-2026-09-13.json`. |
-| NUT-03-CATALOG-BATCH-06 | `READY FOR OWNER DECISION` | NUT-03 deployed path + read-only preparation authorization | Assess up to 50 next current-offer exact variants while excluding 67 applied variants and known blocks without new evidence; preserve partial facts and exact serving wording. | The closed 47-variant scope yields one partial ready variant: product `1283` / variant `3763`, with three unique dry-run-valid candidates from one archived Apex Formulas table. Forty-six variants retain explicit access or version/applicability blockers. No candidate, review, plan, apply or catalogue write ran. See `docs/rollouts/nutrition-catalog-expansion-batch-06-preparation-2026-09-13.json`. |
+| NUT-03-CATALOG-BATCH-06 | `READY FOR OWNER DECISION` | NUT-03 deployed path + read-only preparation authorization | Assess up to 50 next current-offer exact variants while excluding 67 applied variants and known blocks without new evidence; preserve partial facts and exact serving wording. | The closed 50-variant scope yields one partial ready variant: product `1283` / variant `3763`, with three unique dry-run-valid candidates from one archived Apex Formulas table. Forty-nine variants retain explicit access or version/applicability blockers. No candidate, review, plan, apply or catalogue write ran. See `docs/rollouts/nutrition-catalog-expansion-batch-06-preparation-2026-09-13.json`. |
 | NUT-03 | `IN PROGRESS` | Organizational packages up to 50 exact variants + separate owner write authorization | Review pilot evidence, quantities/units and exact applicability in one owner-decision package while retaining existing technical sub-batch limits; separately approve candidate storage, review, planning and guarded apply. | Pilot progress is 9 complete, 2 partial (`3676`, `3759`) and 14 without applied facts out of 25. Stinger is one separate demonstration. Catalogue Batches 01-05 have applied 59 variants, including the two pilot overlaps; all tracked scopes therefore contain 67 distinct variants with applied facts. NUT-03 and MVP remain open. |
 | NUT-04A | `LIVE VERIFIED` | Early owner authorization + exact applied facts | Reuse existing product pages and search to present exact-variant applied facts and add a confirmed caffeine-free filter. A fact is public only when an approved candidate for the same product/variant reconstructs the current override exactly. Expose only source kind; never private URI, reviewer metadata or raw archive material. | Commit 58c83cb deployed successfully. Public readback passed for variants 726, 727 and 1047, the exact-variant caffeine-free result, source redaction and the existing pre-workout link. A 390 x 844 browser check found no horizontal overflow; contract tests pass for variant switching, filter reset and pagination. NUT-03 and the frozen pilot remain unchanged. |
 | NUT-04 | `PLANNED` | NUT-03 closure + NUT-04A | Close the presentation/filter stage after the frozen pilot decisions are accounted for; retain NUT-04A's existing product/search mechanisms and evidence threshold. | NUT-04A tests and live variant-switch checks must prove confirmed absence included, caffeine present excluded, missing/conflicting facts never treated as absent. Document the final coverage denominator, limits, evidence and operations. Publish image copies only with established rights; otherwise link to source. MVP closes only here. |
@@ -2752,8 +2752,7 @@ organizational limit:
   `aftboxmrdgyhizicfsfu`, 575 active pre-workout variants and exactly 67 variants
   with non-empty `nutrition_override`. Those 67 were excluded. The closed scope
   contains 47 current-offer variants across eight product families. It stops
-  below 50 because the next intact family would exceed the cap; known blocks
-  were not reopened just to fill it.
+  reaches the 50-variant organizational cap; known blocks were not reopened.
 - One exact variant is ready, partially: Apex Formulas product `1283`, variant
   `3763`, Raspberry Rush 625 g. The official page and retained pack/table images
   bind that flavour and show `Serving Size 1 Scoop (25g)`, free-form
@@ -2767,15 +2766,15 @@ organizational limit:
   They have no automatic expiry. This source retention is not described as a
   separate backup.
 - The candidate artifact is
-  `tmp/nutrition-catalog-batch-06-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-06-1283-20260913.json`,
+  `tmp/nutrition-catalog-batch-06-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-06-1283-20260913-v2.json`,
   SHA-256
-  `47bd22a783b9056af07ea2cc976c6db6336b03de556ed59845a13c1ff0dc64ad`,
+  `7def45fbd24c931a25a2ba13afe6e61a37ded013cf74a837a025977bd732ec55`,
   artifact fingerprint
-  `5bbfb31ab0c237fdaa9da1d9d96cde2314cf5fa71f0af20cabbdd7fa34c71933`.
+  `31e0d7c9ebb7d58bdc4070f0eec408b94c95df8e0b3a07f90c4f2cc12a516d4e`.
   Its three candidate fingerprints are unique. Existing
   `nutrition:candidates:store --dry-run` passes with three rows, zero product
   updates and zero database writes.
-- The remaining 46 scoped variants have explicit current access or
+- The remaining 49 scoped variants have explicit current access or
   version/applicability gaps recorded in the machine-readable report. A blocked
   family did not stop evaluation of later families. No model, schema, parser or
   identity was changed, and no production candidate store, review, plan, apply
@@ -2793,7 +2792,7 @@ organizational limit:
 - Machine-readable preparation evidence is
   [nutrition-catalog-expansion-batch-06-preparation-2026-09-13.json](rollouts/nutrition-catalog-expansion-batch-06-preparation-2026-09-13.json),
   SHA-256
-  `0b1004c6d6db85ebe5e4bcbab8a36a8c46af3cea58001656bc375de6aea64415`.
+  `da54c4e347975b9f1937786e8a2b3fd5dfbf4a694f2c5f4036c796ae4e5a2080`.
   One next step is one owner decision on controlled store -> authenticated
   review -> exact-ID plan -> guarded apply for only the three unchanged
   fingerprints of product `1283` / variant `3763`. Its two unresolved fields

@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "kind": "nutrition-catalog-expansion-batch-06-preparation-evidence-v1",
+  "kind": "nutrition-catalog-expansion-batch-06-preparation-evidence-v2",
   "status": "READY_FOR_OWNER_DECISION_PARTIAL_VARIANT",
-  "prepared_at": "2026-09-13T09:29:34.792Z",
+  "prepared_at": "2026-09-13T09:41:09.787Z",
   "production_checkpoint": {
     "captured_at": "2026-09-13T09:11:54.124Z",
     "environment": "PRODUCTION",
@@ -13,15 +13,15 @@
   },
   "scope": {
     "organizational_limit": 50,
-    "assessed_variants": 47,
+    "assessed_variants": 50,
     "ready_variants": 1,
     "partial_ready_variants": 1,
-    "blocked_or_deferred_variants": 46,
+    "blocked_or_deferred_variants": 49,
     "candidate_facts": 3,
     "unique_official_dose_tables": 1,
     "variants_with_all_four_tracked_ingredients_resolved": 0,
     "excluded_applied_variants": 67,
-    "stop_reason": "The next intact current-offer family would exceed the 50-variant organizational limit; known blocks were not reopened merely to fill the cap."
+    "stop_reason": "The closed scope reached the 50-exact-variant organizational limit."
   },
   "policy_evidence": {
     "serving_wording": "Preserve qualifiers such as approximately verbatim in serving_basis_text and flag the approximate basis. Do not normalize an approximate scoop into an exact manufacturer claim. The prepared Apex serving is explicitly 1 Scoop (25g), so no approximate qualifier is added.",
@@ -409,9 +409,9 @@
     },
     "artifact": {
       "product_id": "1283",
-      "path": "tmp/nutrition-catalog-batch-06-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-06-1283-20260913.json",
-      "sha256": "47bd22a783b9056af07ea2cc976c6db6336b03de556ed59845a13c1ff0dc64ad",
-      "artifact_fingerprint": "5bbfb31ab0c237fdaa9da1d9d96cde2314cf5fa71f0af20cabbdd7fa34c71933",
+      "path": "tmp/nutrition-catalog-batch-06-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-06-1283-20260913-v2.json",
+      "sha256": "7def45fbd24c931a25a2ba13afe6e61a37ded013cf74a837a025977bd732ec55",
+      "artifact_fingerprint": "31e0d7c9ebb7d58bdc4070f0eec408b94c95df8e0b3a07f90c4f2cc12a516d4e",
       "variants": 1,
       "candidates": 3,
       "unique_candidate_fingerprints": 3
@@ -419,15 +419,15 @@
     "candidate_fingerprints": [
       {
         "field_name": "serving_size_g",
-        "fingerprint": "088241b20942a7a60e60c73509900bea32cbe11cfa6e30be51a3e96ac5a03e57"
+        "fingerprint": "85603f39ad13f6b8885b2a81e4402e94ba5577e993d0b6c83b75187679831bb0"
       },
       {
         "field_name": "caffeine_per_serving_mg",
-        "fingerprint": "fd72f3bfe4332dbe77f1844d86edc0b0be8d9a451204d06427faa9ddd443f7e9"
+        "fingerprint": "67822f3176f7a72100ee5fbd552502d944e1a1898f66bf046c5f80ce476c3820"
       },
       {
         "field_name": "citrulline_per_serving_mg",
-        "fingerprint": "a2f53635080787407b6bfb58c9ee6cbcad724eee17e8123203db70f090586845"
+        "fingerprint": "25f0cda52f6626637f1a078c6f2262ecad0954111385ff0db9f3d5e355dc4dae"
       }
     ],
     "validation": {
@@ -991,19 +991,105 @@
         "source": "https://nxtnutrition.co.uk/collections/pre-workout/products/tnt-nuclear-pre",
         "detail": "The current official page uses a mixed 6 g/12 g serving presentation and current flavour set that does not establish the exact catalogue version for all four variants."
       }
+    },
+    {
+      "product_id": "979",
+      "product_name": "NMP Nutraceuticals Liberty Swell 25 servings",
+      "variant_id": "1915",
+      "variant_name": "Apple / 25servings",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "NO_CURRENT_OFFICIAL_MANUFACTURER_PAGE_FOUND",
+        "source": null,
+        "detail": "Bounded manufacturer-domain discovery found no current official NMP Nutraceuticals page binding the Liberty Swell catalogue flavours and serving; retailer pages are not substituted for a manufacturer source."
+      }
+    },
+    {
+      "product_id": "979",
+      "product_name": "NMP Nutraceuticals Liberty Swell 25 servings",
+      "variant_id": "1917",
+      "variant_name": "Grape / 25servings",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "NO_CURRENT_OFFICIAL_MANUFACTURER_PAGE_FOUND",
+        "source": null,
+        "detail": "Bounded manufacturer-domain discovery found no current official NMP Nutraceuticals page binding the Liberty Swell catalogue flavours and serving; retailer pages are not substituted for a manufacturer source."
+      }
+    },
+    {
+      "product_id": "980",
+      "product_name": "NMP Nutraceuticals Presidential Pre 50/25 Servings",
+      "variant_id": "1920",
+      "variant_name": "Orange Creamsicle (Trump's Taning Lotion)",
+      "status": "DEFERRED",
+      "blocker": {
+        "code": "NO_CURRENT_OFFICIAL_MANUFACTURER_PAGE_FOUND",
+        "source": null,
+        "detail": "Bounded manufacturer-domain discovery found no current official NMP Nutraceuticals page binding this Presidential Pre flavour and serving; retailer pages are not substituted for a manufacturer source."
+      }
     }
   ],
   "archive": {
     "precheck": {
-      "result": "NO_EXACT_PATH_DUPLICATES",
-      "exact_paths": [],
-      "matching_hashes": [],
-      "objects_checked": 32,
+      "result": "EXISTING_MATCHES_FOUND",
+      "exact_paths": [
+        {
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/0ff89fea8c70b1b7e0be3da45249dc6c6bb818c7e94f6e2bead37108965ab236/01-p1283-apex-formulas-apex-pump-625g-2a58d72e86c8.html",
+          "sha256": "0ff89fea8c70b1b7e0be3da45249dc6c6bb818c7e94f6e2bead37108965ab236",
+          "bytes": 221788
+        },
+        {
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/83738125690f43db923934da2e3fa0080f7031b4f20af701eaf9bc90b91006fa/03-p1283-apex-pump-raspberry-rush-ingredient-panel.png",
+          "sha256": "83738125690f43db923934da2e3fa0080f7031b4f20af701eaf9bc90b91006fa",
+          "bytes": 3370854
+        },
+        {
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/93316037eb67831bc6f32a250d1ebdd6d1ca8251b3f3720321dcc06cb40d6401/04-p1283-apex-pump-raspberry-rush-directions.png",
+          "sha256": "93316037eb67831bc6f32a250d1ebdd6d1ca8251b3f3720321dcc06cb40d6401",
+          "bytes": 2169005
+        },
+        {
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/e830ae9b8c32ea040f1979846b634e80a72b20418ab6c6d9967cb6023bc565e2/02-p1283-apex-pump-raspberry-rush-front.png",
+          "sha256": "e830ae9b8c32ea040f1979846b634e80a72b20418ab6c6d9967cb6023bc565e2",
+          "bytes": 1280630
+        }
+      ],
+      "matching_hashes": [
+        {
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/0ff89fea8c70b1b7e0be3da45249dc6c6bb818c7e94f6e2bead37108965ab236/01-p1283-apex-formulas-apex-pump-625g-2a58d72e86c8.html",
+          "sha256": "0ff89fea8c70b1b7e0be3da45249dc6c6bb818c7e94f6e2bead37108965ab236",
+          "bytes": 221788
+        },
+        {
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/83738125690f43db923934da2e3fa0080f7031b4f20af701eaf9bc90b91006fa/03-p1283-apex-pump-raspberry-rush-ingredient-panel.png",
+          "sha256": "83738125690f43db923934da2e3fa0080f7031b4f20af701eaf9bc90b91006fa",
+          "bytes": 3370854
+        },
+        {
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/93316037eb67831bc6f32a250d1ebdd6d1ca8251b3f3720321dcc06cb40d6401/04-p1283-apex-pump-raspberry-rush-directions.png",
+          "sha256": "93316037eb67831bc6f32a250d1ebdd6d1ca8251b3f3720321dcc06cb40d6401",
+          "bytes": 2169005
+        },
+        {
+          "object_path": "snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/e830ae9b8c32ea040f1979846b634e80a72b20418ab6c6d9967cb6023bc565e2/02-p1283-apex-pump-raspberry-rush-front.png",
+          "sha256": "e830ae9b8c32ea040f1979846b634e80a72b20418ab6c6d9967cb6023bc565e2",
+          "bytes": 1280630
+        }
+      ],
+      "objects_checked": 37,
       "storage_writes": 0
     },
     "upload": {
       "result": "UPLOAD_PASS",
       "uploaded": [
+        {
+          "id": "context-manifest",
+          "object_path": "manifests/nut-03/catalog-expansion-batch-06/6af6bbb633c9ca959b736b611f119c691a0fed2b3ccda2c6cb97cd2c8d6fb79a/source-context-manifest.json",
+          "sha256": "6af6bbb633c9ca959b736b611f119c691a0fed2b3ccda2c6cb97cd2c8d6fb79a",
+          "bytes": 39915
+        }
+      ],
+      "reused": [
         {
           "id": "manufacturer-01-2a58d72e86c8c7a4552e",
           "object_path": "snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/0ff89fea8c70b1b7e0be3da45249dc6c6bb818c7e94f6e2bead37108965ab236/01-p1283-apex-formulas-apex-pump-625g-2a58d72e86c8.html",
@@ -1027,15 +1113,9 @@
           "object_path": "snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/93316037eb67831bc6f32a250d1ebdd6d1ca8251b3f3720321dcc06cb40d6401/04-p1283-apex-pump-raspberry-rush-directions.png",
           "sha256": "93316037eb67831bc6f32a250d1ebdd6d1ca8251b3f3720321dcc06cb40d6401",
           "bytes": 2169005
-        },
-        {
-          "id": "context-manifest",
-          "object_path": "manifests/nut-03/catalog-expansion-batch-06/2eb59c14837c844180da1fb5962d62350ec3e7f612ba64c9689613908a6764b4/source-context-manifest.json",
-          "sha256": "2eb59c14837c844180da1fb5962d62350ec3e7f612ba64c9689613908a6764b4",
-          "bytes": 38311
         }
       ],
-      "storage_writes": 5,
+      "storage_writes": 1,
       "database_writes": 0
     },
     "readback": {
@@ -1074,10 +1154,10 @@
         },
         {
           "id": "context-manifest",
-          "object_path": "manifests/nut-03/catalog-expansion-batch-06/2eb59c14837c844180da1fb5962d62350ec3e7f612ba64c9689613908a6764b4/source-context-manifest.json",
-          "durable_uri": "supabase-storage://nutrition-sources/manifests/nut-03/catalog-expansion-batch-06/2eb59c14837c844180da1fb5962d62350ec3e7f612ba64c9689613908a6764b4/source-context-manifest.json",
-          "sha256": "2eb59c14837c844180da1fb5962d62350ec3e7f612ba64c9689613908a6764b4",
-          "bytes": 38311
+          "object_path": "manifests/nut-03/catalog-expansion-batch-06/6af6bbb633c9ca959b736b611f119c691a0fed2b3ccda2c6cb97cd2c8d6fb79a/source-context-manifest.json",
+          "durable_uri": "supabase-storage://nutrition-sources/manifests/nut-03/catalog-expansion-batch-06/6af6bbb633c9ca959b736b611f119c691a0fed2b3ccda2c6cb97cd2c8d6fb79a/source-context-manifest.json",
+          "sha256": "6af6bbb633c9ca959b736b611f119c691a0fed2b3ccda2c6cb97cd2c8d6fb79a",
+          "bytes": 39915
         }
       ],
       "storage_writes": 0,
@@ -1089,7 +1169,7 @@
   },
   "controls": {
     "source_collection_requests": 1,
-    "source_archive_writes": 5,
+    "source_archive_writes": 1,
     "production_candidate_writes": 0,
     "production_catalogue_writes": 0,
     "review_writes": 0,
