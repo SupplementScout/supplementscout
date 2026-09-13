@@ -7,6 +7,15 @@ these questions concern only unresolved fields or blocked assignments.
 
 ## Composition questions
 
+Owner response recorded on 13 September 2026: questions 1-4 were answered
+`nie ma w pełnym deklarowanym składzie` after review of the complete declared
+compositions. The retained sources now support 23 pending `confirmed_absent`
+proposals. The first production store attempt was rejected by the automatic
+approval control before execution because it compared the new product `528`
+scope with the prior 84-candidate authorization. No candidate or catalogue row
+was written. Keep questions 1-4 as answered but not operationally closed until
+the separately reauthorized guarded process succeeds.
+
 For every presence question, answer for the named formula with one of:
 `jest`, `nie ma w pełnym deklarowanym składzie`, or `nie da się ustalić`.
 If the answer is `jest`, also provide the exact declared form, original amount

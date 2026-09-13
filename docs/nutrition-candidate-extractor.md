@@ -161,10 +161,16 @@ not need to contain five facts per variant. Do not simplify a multi-form blend
 into one form merely to fill the missing candidate.
 
 An explicit manufacturer `caffeine free` declaration may support
-`confirmed_absent`. Omission from a table, OCR output, product name or ingredient
-list never proves absence. Known contradictions retain
-`conflicting_information` or an unresolved source disposition and are not
-overridden by this rule.
+`confirmed_absent`. A complete, readable declared ingredient list for the exact
+formula may also support `confirmed_absent` for a tracked ingredient when it
+names neither that ingredient nor any of its forms and contains no undisclosed
+blend that prevents the conclusion. Record this as a review inference from the
+complete declared composition, preserve the actual ingredient text, and do not
+invent an explicit `free from` quotation. Keep an owner review statement separate
+from manufacturer evidence and from any laboratory result. Omission from a
+partial table, OCR output, product name or incomplete ingredient list remains
+`no_information`. Known contradictions retain `conflicting_information` or an
+unresolved source disposition and are not overridden by this rule.
 
 ### Retailer-hosted nutrition evidence
 
@@ -180,8 +186,9 @@ basis and applicability to each exact variant. The shared-table rule also applie
 to flavours presented together by the retailer for the same recipe. Do not join
 different generations on name alone. A readable table with an ingredient, amount
 and serving basis may support that value. For an omitted ingredient, inspect the
-available full ingredients and explicit declarations; omission remains
-`no_information` unless the evidence proves absence or a conflict.
+available full ingredients and explicit declarations. A complete declared list
+may support the absence rule above; omission from an incomplete list remains
+`no_information` unless other evidence proves absence or a conflict.
 
 Compare a second retailer when an accessible source exists. A missing comparison
 does not block a clearly readable label whose exact-version applicability is

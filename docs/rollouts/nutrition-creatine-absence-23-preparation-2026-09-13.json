@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-creatine-absence-23-preparation",
+  "status": "READY_BLOCKED_BY_AUTOMATIC_APPROVAL",
+  "prepared_at": "2026-09-13T17:18:02.096Z",
+  "production": {
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "environment": "PRODUCTION",
+    "applied_variant_count": 89,
+    "candidate_writes": 0,
+    "review_writes": 0,
+    "catalogue_writes": 0
+  },
+  "scope": [
+    {"product_id":"763","variant_ids":["920","921","4100","4102","4103","4104","4105","4106","4108"],"candidate_count":9},
+    {"product_id":"778","variant_ids":["972","1978","4082","4084","4088","4089"],"candidate_count":6},
+    {"product_id":"528","variant_ids":["976","977","1847","1848"],"candidate_count":4,"prior_applied_state":"creatine no_information; retained in approval history"},
+    {"product_id":"903","variant_ids":["1499","1500","1501","1502"],"candidate_count":4}
+  ],
+  "decision": {
+    "field": "creatine_declared_form_per_serving_mg",
+    "information_state": "confirmed_absent",
+    "value_numeric": null,
+    "unit": null,
+    "ingredient_form": null,
+    "basis": "complete declared composition for the exact formula names neither creatine nor a creatine form and contains no undisclosed blend",
+    "limitations": [
+      "review inference, not an explicit manufacturer creatine-free quotation",
+      "project-owner review statement is not a brand-owner statement",
+      "not a laboratory result"
+    ]
+  },
+  "source_evidence": [
+    {"product_id":"763","source_type":"retailer_product_page","url":"https://www.ambiactive.com/produktas/naughty-boy-menace-v2-pre-workout-420-g/","sha256":"7beaaba373003c3b0f6d77753363b33fc74406d35af230589a725013015f3597","archive_status":"existing_hash_verified"},
+    {"product_id":"778","source_type":"retailer_product_page","url":"https://www.ambiactive.com/produktas/naughty-boy-energy-pre-workout-390-g/","sha256":"83af67170760968617ff7296325d2ac6ff7ff03f2fe1575dc0c9fa9019d1bc3f","archive_status":"existing_hash_verified"},
+    {"product_id":"528","source_type":"manufacturer_product_page","url":"https://www.nutrend.eu/product/pump-798/225-g-rainbow","sha256":"b646fe51ed86951bbb60b936797dbc483099d3b567a03fdabcda9bf2be0330b6","archive_status":"existing_hash_verified"},
+    {"product_id":"903","source_type":"owner_transcribed_official_page","url":"https://www.time4nutrition.co.uk/products/pre-workout-powder-and-shots/high-strength-pre-workout/","raw_page_sha256":"8848b33e56bf0fcff64ef870cfd664fe54b0623ae5d90bd23bc38479aa9954d0","review_record_sha256":"b5d5e3a96083f635990104e5aa3b507d08d67c0949ae186c351b38c6c506b049","archive_status":"bounded factual review archived; raw page local only because prior access review records reproduction restriction"}
+  ],
+  "separate_owner_attestation": {
+    "sha256": "d9fd76614f2cbf90e937d925922b8185296e3ff019127e45fea090fcff003d5b",
+    "archive_uri": "supabase-storage://nutrition-sources/attestations/nut-03/creatine-absence-23/d9fd76614f2cbf90e937d925922b8185296e3ff019127e45fea090fcff003d5b/project-owner-session-attestation.json"
+  },
+  "context_manifest": {
+    "sha256": "71c9ca4865eae5760b69b9efa0164b072fc00afb1d0a7656e86a5006e3a818c6",
+    "archive_uri": "supabase-storage://nutrition-sources/manifests/nut-03/creatine-absence-23/71c9ca4865eae5760b69b9efa0164b072fc00afb1d0a7656e86a5006e3a818c6/source-context-manifest.json"
+  },
+  "artifacts": [
+    {"product_id":"528","path":"tmp/nutrition-creatine-absence-23-2026-09-13/candidate-artifact/nutrition-candidates-NCR1-creatine-absence-23-528-20260913.json","sha256":"6785d6d3a8280c26b70432e4fe7a3a584743f39bb09a6898efa138f661aa02a5","artifact_fingerprint":"570b968c1a4a465eaff12a70451b98b67eedc6050ebd713c6ffd95a7052a7bec","candidate_count":4},
+    {"product_id":"763","path":"tmp/nutrition-creatine-absence-23-2026-09-13/candidate-artifact/nutrition-candidates-NCR1-creatine-absence-23-763-20260913.json","sha256":"c093ca26df1fcf0eca94496fd02fcb4d49a166fdeff7d4b35bab73f32f04995b","artifact_fingerprint":"170555388dd9ce50f334f06b39ccf0ffe0d2d56a336472bda04d655f6e9b1f30","candidate_count":9},
+    {"product_id":"778","path":"tmp/nutrition-creatine-absence-23-2026-09-13/candidate-artifact/nutrition-candidates-NCR1-creatine-absence-23-778-20260913.json","sha256":"7a6dfa557f9b5ad4d5491cfe38f244665542219f10814983dcb6660900017a7f","artifact_fingerprint":"2665b8e1141cea36b44b7e2bcc7355953f4d898f80e15a27161075a4b451a982","candidate_count":6},
+    {"product_id":"903","path":"tmp/nutrition-creatine-absence-23-2026-09-13/candidate-artifact/nutrition-candidates-NCR1-creatine-absence-23-903-20260913.json","sha256":"a8f02c729aae97d64e8cef0e2297f16c116affe42bc41d03fafbbb1c4c710aa3","artifact_fingerprint":"3423005f8c78ed337e4e4bd387ffc55078092974576865e1b2f3593d872617de","candidate_count":4}
+  ],
+  "validation": {
+    "candidate_count": 23,
+    "unique_candidate_fingerprints": 23,
+    "dry_runs": [
+      {"product_id":"528","result":"PASS","candidate_rows":4,"product_updates":0,"database_writes":0},
+      {"product_id":"763","result":"PASS","candidate_rows":9,"product_updates":0,"database_writes":0},
+      {"product_id":"778","result":"PASS","candidate_rows":6,"product_updates":0,"database_writes":0},
+      {"product_id":"903","result":"PASS","candidate_rows":4,"product_updates":0,"database_writes":0}
+    ],
+    "archive": {"bucket":"nutrition-sources","private":true,"new_objects":3,"hash_readback":"PASS"},
+    "production_prestore": {"new_candidate_fingerprints_found":0,"conflicting_target_creatine_presence":0,"result":"PASS"}
+  },
+  "automatic_approval_rejection": {
+    "operation": "nutrition:candidates:store for the product 528 artifact",
+    "executed": false,
+    "reason": "The reviewer compared product 528 with the earlier 84-candidate/21-variant scope, treated it as out of scope and required explicit approval after disclosure.",
+    "required_next_action": "Owner explicitly reauthorizes the 23-candidate production scope after receiving this rejection reason; resume at store without rebuilding the package."
+  },
+  "quality": {
+    "verify_project_before": "PASS",
+    "known_verify_full": "FAIL from the immediately preceding unchanged-code execution: unrelated Whey Okay evidence hash and OstroVit line-ending fixture failures; not reported as passed"
+  }
+}

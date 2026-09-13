@@ -3214,3 +3214,56 @@ One next step is to answer the grouped owner questions in
 starting with exact families where one creatine answer can complete the most
 current-offer variants. Do not repeat the recorded blocked-source audits without
 new evidence or permission.
+
+## NUT-03 creatine-absence completion package for 23 applied variants
+
+13 September 2026, evidence preparation complete; production candidate store
+blocked before execution by the automatic approval control:
+
+- The owner answered the first four grouped composition questions after checking
+  complete declared compositions. This is a project-owner review statement, not
+  a statement by Naughty Boy, Nutrend or Time 4 Nutrition and not a laboratory
+  result. The evidence rule now permits `confirmed_absent` from a complete
+  exact-formula declaration that names neither creatine nor any form and contains
+  no undisclosed blend; a partial-table omission still cannot prove absence.
+- Fresh production preflight confirmed project `aftboxmrdgyhizicfsfu`, 89
+  applied variants and all 23 exact active bindings: product `763` variants
+  `920`, `921`, `4100`, `4102`-`4106`, `4108`; product `778` variants `972`,
+  `1978`, `4082`, `4084`, `4088`, `4089`; product `528` variants `976`, `977`,
+  `1847`, `1848`; and product `903` variants `1499`-`1502`. No new fingerprint
+  existed and no target had a conflicting approved creatine-presence fact.
+- Existing archived full compositions qualify for products `763`, `778` and
+  `528`. The official Time 4 300 g page was read once and confirmed separate
+  Candyfloss, Bubble Gum, Tropical and Raspberryade lists, a shared 12 g serving
+  context and no creatine form. Because the prior access review records a site
+  reproduction restriction, the raw page remains local only; a bounded factual
+  review record was archived instead of copying the full page.
+- Three new evidence records were written once to private `nutrition-sources`
+  after a zero-duplicate precheck: project-owner attestation SHA-256
+  `d9fd76614f2cbf90e937d925922b8185296e3ff019127e45fea090fcff003d5b`,
+  Time 4 review SHA-256
+  `b5d5e3a96083f635990104e5aa3b507d08d67c0949ae186c351b38c6c506b049`
+  and context manifest SHA-256
+  `71c9ca4865eae5760b69b9efa0164b072fc00afb1d0a7656e86a5006e3a818c6`.
+  Upload readback matched all three hashes and the previously archived source
+  hashes; the bucket is private.
+- Four ignored artifacts contain exactly 23 unique pending fingerprints, one
+  `creatine_declared_form_per_serving_mg` proposal per exact variant. Every fact
+  is `confirmed_absent` with null numeric value, unit, serving quantity and form.
+  Their SHA-256 values are `6785d6d3a8280c26b70432e4fe7a3a584743f39bb09a6898efa138f661aa02a5`
+  (product `528`), `c093ca26df1fcf0eca94496fd02fcb4d49a166fdeff7d4b35bab73f32f04995b`
+  (`763`), `7a6dfa557f9b5ad4d5491cfe38f244665542219f10814983dcb6660900017a7f`
+  (`778`) and `a8f02c729aae97d64e8cef0e2297f16c116affe42bc41d03fafbbb1c4c710aa3`
+  (`903`). All four store dry-runs passed with zero product updates and zero
+  database writes.
+- The first production store command, starting with product `528`, was rejected
+  before execution by automatic approval review. It treated product `528` as
+  outside the previous 84-candidate/21-variant authorization and required an
+  explicit reauthorization after disclosure. The rejection must not be bypassed.
+  Production remains unchanged: none of the 23 candidates was stored, reviewed,
+  planned or applied; applied coverage remains 89.
+- Machine-readable evidence is
+  [nutrition-creatine-absence-23-preparation-2026-09-13.json](rollouts/nutrition-creatine-absence-23-preparation-2026-09-13.json).
+  NUT-03 remains `IN PROGRESS`. One next step is explicit owner reauthorization
+  after the rejection, followed by resumption at store without repeating source
+  collection or package preparation.
