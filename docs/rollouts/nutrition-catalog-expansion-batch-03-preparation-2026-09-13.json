@@ -1,0 +1,578 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-expansion-batch-03-preparation-v1",
+  "status": "READY_FOR_SINGLE_OWNER_DECISION_WITH_EXPLICIT_GAPS",
+  "generated_at": "2026-09-13T05:25:12.879Z",
+  "target_environment_read": "PRODUCTION",
+  "production_project_ref": "aftboxmrdgyhizicfsfu",
+  "authorization_boundary": {
+    "preparation_only": true,
+    "source_collection_and_private_archive": true,
+    "candidate_store": false,
+    "review": false,
+    "plan": false,
+    "apply": false,
+    "database_writes": 0
+  },
+  "baseline": {
+    "catalogue_read_at": "2026-09-13T04:22:57.695Z",
+    "preflight_read_at": "2026-09-13T05:16:27.731Z",
+    "active_preworkout_products": 141,
+    "active_preworkout_variants": 575,
+    "exact_applied_variants": 39,
+    "exact_applied_variant_ids": [
+      "726",
+      "727",
+      "728",
+      "760",
+      "761",
+      "762",
+      "763",
+      "815",
+      "816",
+      "1016",
+      "1047",
+      "1383",
+      "1384",
+      "1385",
+      "1386",
+      "1387",
+      "1388",
+      "1389",
+      "1390",
+      "1391",
+      "1392",
+      "1393",
+      "1394",
+      "1395",
+      "1663",
+      "1664",
+      "1665",
+      "1666",
+      "1667",
+      "1668",
+      "1669",
+      "1670",
+      "1671",
+      "1676",
+      "1864",
+      "1865",
+      "1866",
+      "2019",
+      "3603"
+    ],
+    "excluded_from_batch": true,
+    "known_blocked_rechecks": 0,
+    "production_preflight": {
+      "assessed_bindings": 20,
+      "existing_candidates": 0,
+      "nonempty_overrides": [],
+      "database_writes": 0
+    }
+  },
+  "closed_scope": {
+    "assessed_variants": 20,
+    "ready_variants": 10,
+    "unresolved_variants": 10,
+    "candidate_facts": 50,
+    "unique_candidate_fingerprints": 50,
+    "organizational_limit": 50,
+    "product_families_assessed": 6,
+    "ready_source_tables": 5,
+    "brands_assessed": 2
+  },
+  "source_review": {
+    "official_page_rule": "wspólna tabela producenta dla wariantów produktu",
+    "robots": {
+      "strom": "ALLOW_PUBLIC_PRODUCT_HTML",
+      "warrior": "ALLOW_PUBLIC_PRODUCT_HTML"
+    },
+    "terms": {
+      "strom": "NO_PRODUCT_PAGE_COLLECTION_PROHIBITION_FOUND_IN_LINKED STOREFRONT POLICIES",
+      "warrior": "NO_PRODUCT_PAGE_COLLECTION_PROHIBITION_FOUND_IN REVIEWED TERMS"
+    },
+    "initial_six_url_collector_result": "FAILED_CLOSED: Warrior HTML exceeds existing 2,000,000-byte limit; no file written by that attempt.",
+    "strom_retry": "Five explicit URLs collected in two technical groups; the first combined Strom attempt failed closed on HTTP 503 for VascuMAX and wrote no provenance, then both bounded groups passed.",
+    "manufacturer_permission_claimed": false
+  },
+  "archive": {
+    "bucket": "nutrition-sources",
+    "bucket_public": false,
+    "duplicate_precheck": "NO_DUPLICATES",
+    "objects_checked_before_upload": 16,
+    "uploaded_objects": 6,
+    "readback": "FRESH_PROCESS_READBACK_PASS",
+    "readback_objects": [
+      {
+        "object_path": "snapshots/nut-03/catalog-expansion-batch-03/strom/869/47a1cbdfc6327193ccb2fd0e7b9793dab94771664d2a96736bb176ba5cd9e230/01-p869-strom-stimumax-black-edition-360g-e7a8d6bc2211.html",
+        "sha256": "47a1cbdfc6327193ccb2fd0e7b9793dab94771664d2a96736bb176ba5cd9e230",
+        "bytes": 427419,
+        "result": "PASS"
+      },
+      {
+        "object_path": "snapshots/nut-03/catalog-expansion-batch-03/strom/870/a185591be61aff68b0b7b3a9fc0fa605971398908d10d5c13d3d8c97077c127b/02-p870-strom-stimumax-extreme-pre-workout-390g-8399de81af6f.html",
+        "sha256": "a185591be61aff68b0b7b3a9fc0fa605971398908d10d5c13d3d8c97077c127b",
+        "bytes": 431259,
+        "result": "PASS"
+      },
+      {
+        "object_path": "snapshots/nut-03/catalog-expansion-batch-03/strom/871/80ae870c635cd24c15fe1473e568d10c0966266514ab81df075d0afb14b462a7/03-p871-strom-stimumax-og-pre-workout-360g-4760de0c541f.html",
+        "sha256": "80ae870c635cd24c15fe1473e568d10c0966266514ab81df075d0afb14b462a7",
+        "bytes": 418043,
+        "result": "PASS"
+      },
+      {
+        "object_path": "snapshots/nut-03/catalog-expansion-batch-03/strom/872/ca6ae0c5d7acd9822d94fc5f34df10bb9742710b6bc9d9b68fda11bc1baf5c66/04-p872-strom-stimumax-pro-pre-workout-360g-70ab3530ed9d.html",
+        "sha256": "ca6ae0c5d7acd9822d94fc5f34df10bb9742710b6bc9d9b68fda11bc1baf5c66",
+        "bytes": 430914,
+        "result": "PASS"
+      },
+      {
+        "object_path": "snapshots/nut-03/catalog-expansion-batch-03/strom/873/a9539e3c6e6ee92bb3b67ed9fb90b9e909a6157770341871977267e60caf3f7a/01-p873-strom-vascumax-pro-470g-61e3205a2c7b.html",
+        "sha256": "a9539e3c6e6ee92bb3b67ed9fb90b9e909a6157770341871977267e60caf3f7a",
+        "bytes": 457238,
+        "result": "PASS"
+      },
+      {
+        "object_path": "manifests/nut-03/catalog-expansion-batch-03/strom/9fbe9d1c882e26f265532663afce9a9e5052da96c996a07a1fbd0c6e25bbb605/source-context-manifest.json",
+        "sha256": "9fbe9d1c882e26f265532663afce9a9e5052da96c996a07a1fbd0c6e25bbb605",
+        "bytes": 15656,
+        "result": "PASS"
+      }
+    ],
+    "storage_is_backup_claimed": false,
+    "database_writes": 0
+  },
+  "source_context_manifest": {
+    "path": "tmp/nutrition-catalog-batch-03-2026-09-13/source-context-manifest.json",
+    "sha256": "9fbe9d1c882e26f265532663afce9a9e5052da96c996a07a1fbd0c6e25bbb605",
+    "archive_uri": "supabase-storage://nutrition-sources/manifests/nut-03/catalog-expansion-batch-03/strom/9fbe9d1c882e26f265532663afce9a9e5052da96c996a07a1fbd0c6e25bbb605/source-context-manifest.json",
+    "object_path": "manifests/nut-03/catalog-expansion-batch-03/strom/9fbe9d1c882e26f265532663afce9a9e5052da96c996a07a1fbd0c6e25bbb605/source-context-manifest.json"
+  },
+  "ready_groups": [
+    {
+      "product_id": "869",
+      "product_name": "Strom StimuMAX Black Edition 360g",
+      "formula_key": "strom-stimumax-black-edition-360g-30-servings-12g",
+      "market": "GB",
+      "variants": [
+        {
+          "product_variant_id": "1323",
+          "name": "Green Apple / 360g"
+        },
+        {
+          "product_variant_id": "1324",
+          "name": "Lemon Pineapple / 360g"
+        }
+      ],
+      "proposed_facts": {
+        "serving_size_g": {
+          "value": 12,
+          "source": "1 scoop (12 g)"
+        },
+        "caffeine_per_serving_mg": {
+          "state": "present_with_amount",
+          "value": 250,
+          "source": "250 mg"
+        },
+        "beta_alanine_per_serving_mg": {
+          "state": "present_with_amount",
+          "value": 3200,
+          "source": "3200 mg"
+        },
+        "citrulline_per_serving_mg": {
+          "state": "present_with_amount",
+          "value": 6000,
+          "source": "6000 mg",
+          "form": "citrulline_malate",
+          "ratio": null
+        },
+        "creatine_declared_form_per_serving_mg": {
+          "state": "no_information",
+          "value": null,
+          "form": null
+        }
+      },
+      "source": {
+        "official_url": "https://www.stromsports.com/products/stimumax-black-edition",
+        "basis": "wspólna tabela producenta dla wariantów produktu",
+        "snapshot_sha256": "47a1cbdfc6327193ccb2fd0e7b9793dab94771664d2a96736bb176ba5cd9e230",
+        "snapshot_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-03/strom/869/47a1cbdfc6327193ccb2fd0e7b9793dab94771664d2a96736bb176ba5cd9e230/01-p869-strom-stimumax-black-edition-360g-e7a8d6bc2211.html"
+      }
+    },
+    {
+      "product_id": "870",
+      "product_name": "Strom StimuMAX Extreme Pre Workout 390g",
+      "formula_key": "strom-stimumax-extreme-390g-30-servings-13g",
+      "market": "GB",
+      "variants": [
+        {
+          "product_variant_id": "1325",
+          "name": "Acai Berry / 390g"
+        },
+        {
+          "product_variant_id": "1326",
+          "name": "Cherry Cola / 390g"
+        },
+        {
+          "product_variant_id": "1327",
+          "name": "Pina Colada / 390g"
+        }
+      ],
+      "proposed_facts": {
+        "serving_size_g": {
+          "value": 13,
+          "source": "1 scoop (13 g)"
+        },
+        "caffeine_per_serving_mg": {
+          "state": "present_with_amount",
+          "value": 300,
+          "source": "300 mg"
+        },
+        "beta_alanine_per_serving_mg": {
+          "state": "present_with_amount",
+          "value": 3200,
+          "source": "3200 mg"
+        },
+        "citrulline_per_serving_mg": {
+          "state": "present_with_amount",
+          "value": 6000,
+          "source": "6000 mg",
+          "form": "citrulline_malate",
+          "ratio": null
+        },
+        "creatine_declared_form_per_serving_mg": {
+          "state": "no_information",
+          "value": null,
+          "form": null
+        }
+      },
+      "source": {
+        "official_url": "https://www.stromsports.com/products/stimumax-extreme-30-servings",
+        "basis": "wspólna tabela producenta dla wariantów produktu",
+        "snapshot_sha256": "a185591be61aff68b0b7b3a9fc0fa605971398908d10d5c13d3d8c97077c127b",
+        "snapshot_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-03/strom/870/a185591be61aff68b0b7b3a9fc0fa605971398908d10d5c13d3d8c97077c127b/02-p870-strom-stimumax-extreme-pre-workout-390g-8399de81af6f.html"
+      }
+    },
+    {
+      "product_id": "871",
+      "product_name": "Strom StimuMAX OG Pre Workout 360g",
+      "formula_key": "strom-stimumax-og-360g-30-servings-12g",
+      "market": "GB",
+      "variants": [
+        {
+          "product_variant_id": "1328",
+          "name": "Cola / 360g"
+        }
+      ],
+      "proposed_facts": {
+        "serving_size_g": {
+          "value": 12,
+          "source": "1 scoop (12 g)"
+        },
+        "caffeine_per_serving_mg": {
+          "state": "present_with_amount",
+          "value": 250,
+          "source": "250 mg"
+        },
+        "beta_alanine_per_serving_mg": {
+          "state": "present_with_amount",
+          "value": 3200,
+          "source": "3200 mg"
+        },
+        "citrulline_per_serving_mg": {
+          "state": "present_with_amount",
+          "value": 6000,
+          "source": "6000 mg",
+          "form": "citrulline_malate",
+          "ratio": null
+        },
+        "creatine_declared_form_per_serving_mg": {
+          "state": "no_information",
+          "value": null,
+          "form": null
+        }
+      },
+      "source": {
+        "official_url": "https://www.stromsports.com/products/strom-presents-stimumax",
+        "basis": "wspólna tabela producenta dla wariantów produktu",
+        "snapshot_sha256": "80ae870c635cd24c15fe1473e568d10c0966266514ab81df075d0afb14b462a7",
+        "snapshot_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-03/strom/871/80ae870c635cd24c15fe1473e568d10c0966266514ab81df075d0afb14b462a7/03-p871-strom-stimumax-og-pre-workout-360g-4760de0c541f.html"
+      }
+    },
+    {
+      "product_id": "872",
+      "product_name": "Strom StimuMAX PRO Pre Workout 360g",
+      "formula_key": "strom-stimumax-pro-reformulated-360g-30-servings-12g",
+      "market": "GB",
+      "variants": [
+        {
+          "product_variant_id": "1329",
+          "name": "Strawberry Kiwi / 360g"
+        },
+        {
+          "product_variant_id": "1330",
+          "name": "Unicorn Pi55 / 360g"
+        }
+      ],
+      "proposed_facts": {
+        "serving_size_g": {
+          "value": 12,
+          "source": "1 scoop (12 g)"
+        },
+        "caffeine_per_serving_mg": {
+          "state": "present_with_amount",
+          "value": 250,
+          "source": "250 mg"
+        },
+        "beta_alanine_per_serving_mg": {
+          "state": "present_with_amount",
+          "value": 3200,
+          "source": "3200 mg"
+        },
+        "citrulline_per_serving_mg": {
+          "state": "present_with_amount",
+          "value": 6000,
+          "source": "6000 mg",
+          "form": "citrulline_malate",
+          "ratio": null
+        },
+        "creatine_declared_form_per_serving_mg": {
+          "state": "no_information",
+          "value": null,
+          "form": null
+        }
+      },
+      "source": {
+        "official_url": "https://www.stromsports.com/products/strom-presents-stimumaxpro-v2",
+        "basis": "wspólna tabela producenta dla wariantów produktu",
+        "snapshot_sha256": "ca6ae0c5d7acd9822d94fc5f34df10bb9742710b6bc9d9b68fda11bc1baf5c66",
+        "snapshot_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-03/strom/872/ca6ae0c5d7acd9822d94fc5f34df10bb9742710b6bc9d9b68fda11bc1baf5c66/04-p872-strom-stimumax-pro-pre-workout-360g-70ab3530ed9d.html"
+      }
+    },
+    {
+      "product_id": "873",
+      "product_name": "Strom VascuMAX PRO 470g",
+      "formula_key": "strom-vascumax-pro-470g-30-servings-15.7g",
+      "market": "GB",
+      "variants": [
+        {
+          "product_variant_id": "1332",
+          "name": "Cherry Cola / 470g"
+        },
+        {
+          "product_variant_id": "1333",
+          "name": "Strawberry Kiwi / 470g"
+        }
+      ],
+      "proposed_facts": {
+        "serving_size_g": {
+          "value": 15.7,
+          "source": "1 scoop (15.7 g)"
+        },
+        "caffeine_per_serving_mg": {
+          "state": "no_information",
+          "value": null
+        },
+        "beta_alanine_per_serving_mg": {
+          "state": "confirmed_absent",
+          "value": null
+        },
+        "citrulline_per_serving_mg": {
+          "state": "present_with_amount",
+          "value": 4000,
+          "source": "4000 mg",
+          "form": "citrulline_malate",
+          "ratio": "2:1"
+        },
+        "creatine_declared_form_per_serving_mg": {
+          "state": "no_information",
+          "value": null,
+          "form": null
+        }
+      },
+      "source": {
+        "official_url": "https://www.stromsports.com/products/vascumax",
+        "basis": "wspólna tabela producenta dla wariantów produktu",
+        "snapshot_sha256": "a9539e3c6e6ee92bb3b67ed9fb90b9e909a6157770341871977267e60caf3f7a",
+        "snapshot_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-03/strom/873/a9539e3c6e6ee92bb3b67ed9fb90b9e909a6157770341871977267e60caf3f7a/01-p873-strom-vascumax-pro-470g-61e3205a2c7b.html"
+      }
+    }
+  ],
+  "artifacts": [
+    {
+      "product_id": "869",
+      "path": "tmp/nutrition-catalog-batch-03-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-03-strom-869-20260913.json",
+      "sha256": "5615bb2b925a7bc86a9fb3bc8efcd41dca625a0c9aaa4c098f18a1ac77747e8f",
+      "artifact_fingerprint": "a1107ad3f6bfdb208cf40aec2ed1c8a027fea003291cab5724ed6d7165cca2c2",
+      "variants": 2,
+      "candidates": 10,
+      "unique_candidate_fingerprints": 10,
+      "validation": {
+        "mode": "DRY_RUN_NO_DATABASE",
+        "candidate_rows": 10,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "870",
+      "path": "tmp/nutrition-catalog-batch-03-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-03-strom-870-20260913.json",
+      "sha256": "6f4ab5f97bb140c90945fcf17075d83b51ff0017ce671c904f52f940b6941a60",
+      "artifact_fingerprint": "5f1aa2cde39ee2fd0ba051cb8ecfa534ab324c93d55d88b42153fccfebf5cf96",
+      "variants": 3,
+      "candidates": 15,
+      "unique_candidate_fingerprints": 15,
+      "validation": {
+        "mode": "DRY_RUN_NO_DATABASE",
+        "candidate_rows": 15,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "871",
+      "path": "tmp/nutrition-catalog-batch-03-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-03-strom-871-20260913.json",
+      "sha256": "c29f5a10c7ee0220eca2b5fa2c9db57609e28d1162c6b3c30672a0d7a443048d",
+      "artifact_fingerprint": "5bff2336be6b9aafbaf54c2bb38c5b9d3b2de0fc531666d51e7c1cbe978de912",
+      "variants": 1,
+      "candidates": 5,
+      "unique_candidate_fingerprints": 5,
+      "validation": {
+        "mode": "DRY_RUN_NO_DATABASE",
+        "candidate_rows": 5,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "872",
+      "path": "tmp/nutrition-catalog-batch-03-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-03-strom-872-20260913.json",
+      "sha256": "04b943d6101267d4d0fda8a0bc5fe2ddb4bb90abf0a9cf689ae78a1a07852d80",
+      "artifact_fingerprint": "0571eaddf004e9e17bf2988ed54650981effc7ac3a527c68ad8fda345a41843e",
+      "variants": 2,
+      "candidates": 10,
+      "unique_candidate_fingerprints": 10,
+      "validation": {
+        "mode": "DRY_RUN_NO_DATABASE",
+        "candidate_rows": 10,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "873",
+      "path": "tmp/nutrition-catalog-batch-03-2026-09-13/candidate-artifact/nutrition-candidates-ncr1-catalog-batch-03-strom-873-20260913.json",
+      "sha256": "f195f8368e8c8b9b230b7c3e1ee97055dede61c8b861069efb516e51c46d2ae9",
+      "artifact_fingerprint": "e77ab02edfb6edf175ccfa7879af334fe60bc3ae5b95c92971454359b8c27b9c",
+      "variants": 2,
+      "candidates": 10,
+      "unique_candidate_fingerprints": 10,
+      "validation": {
+        "mode": "DRY_RUN_NO_DATABASE",
+        "candidate_rows": 10,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    }
+  ],
+  "unresolved": [
+    {
+      "product_id": "873",
+      "product_variant_id": "1331",
+      "reason": "OFFICIAL_CURRENT_FLAVOUR_CONTEXT_MISMATCH",
+      "detail": "The current official VascuMAX page lists Unicorn Pi55, Strawberry Kiwi and Cherry Cola; catalogue variant 1331 is Acai Berry.",
+      "required_material": "An official VascuMAX 470 g / 30 serving source that lists Acai Berry under the same 15.7 g formula, or an exact Acai Berry label.",
+      "catalogue_name": "Acai Berry / 470g",
+      "status": "UNRESOLVED_NO_CANDIDATE_ARTIFACT"
+    },
+    {
+      "product_id": "56",
+      "product_variant_id": "1006",
+      "reason": "COLLECTOR_HTML_LIMIT",
+      "detail": "The official Warrior 392 g product page presents the shared table and flavour range, but exceeds the existing collector hard limit of 2,000,000 HTML bytes.",
+      "required_material": "A bounded official nutrition-table image or manufacturer snapshot already inside the collector limit; do not bypass or raise the existing limit in this data-only batch.",
+      "catalogue_name": "Blazin Berry / 392g",
+      "status": "UNRESOLVED_NO_CANDIDATE_ARTIFACT"
+    },
+    {
+      "product_id": "56",
+      "product_variant_id": "1601",
+      "reason": "COLLECTOR_HTML_LIMIT",
+      "detail": "The official Warrior 392 g product page presents the shared table and flavour range, but exceeds the existing collector hard limit of 2,000,000 HTML bytes.",
+      "required_material": "A bounded official nutrition-table image or manufacturer snapshot already inside the collector limit; do not bypass or raise the existing limit in this data-only batch.",
+      "catalogue_name": "Energy Burst / 392g",
+      "status": "UNRESOLVED_NO_CANDIDATE_ARTIFACT"
+    },
+    {
+      "product_id": "56",
+      "product_variant_id": "1602",
+      "reason": "COLLECTOR_HTML_LIMIT",
+      "detail": "The official Warrior 392 g product page presents the shared table and flavour range, but exceeds the existing collector hard limit of 2,000,000 HTML bytes.",
+      "required_material": "A bounded official nutrition-table image or manufacturer snapshot already inside the collector limit; do not bypass or raise the existing limit in this data-only batch.",
+      "catalogue_name": "Krazy Cola / 392g",
+      "status": "UNRESOLVED_NO_CANDIDATE_ARTIFACT"
+    },
+    {
+      "product_id": "56",
+      "product_variant_id": "1603",
+      "reason": "COLLECTOR_HTML_LIMIT",
+      "detail": "The official Warrior 392 g product page presents the shared table and flavour range, but exceeds the existing collector hard limit of 2,000,000 HTML bytes.",
+      "required_material": "A bounded official nutrition-table image or manufacturer snapshot already inside the collector limit; do not bypass or raise the existing limit in this data-only batch.",
+      "catalogue_name": "Savage Strawberry / 392g",
+      "status": "UNRESOLVED_NO_CANDIDATE_ARTIFACT"
+    },
+    {
+      "product_id": "56",
+      "product_variant_id": "1604",
+      "reason": "COLLECTOR_HTML_LIMIT",
+      "detail": "The official Warrior 392 g product page presents the shared table and flavour range, but exceeds the existing collector hard limit of 2,000,000 HTML bytes.",
+      "required_material": "A bounded official nutrition-table image or manufacturer snapshot already inside the collector limit; do not bypass or raise the existing limit in this data-only batch.",
+      "catalogue_name": "Wicked Watermelon / 392g",
+      "status": "UNRESOLVED_NO_CANDIDATE_ARTIFACT"
+    },
+    {
+      "product_id": "56",
+      "product_variant_id": "1605",
+      "reason": "COLLECTOR_HTML_LIMIT",
+      "detail": "The official Warrior 392 g product page presents the shared table and flavour range, but exceeds the existing collector hard limit of 2,000,000 HTML bytes.",
+      "required_material": "A bounded official nutrition-table image or manufacturer snapshot already inside the collector limit; do not bypass or raise the existing limit in this data-only batch.",
+      "catalogue_name": "Charged Cherry / 392g",
+      "status": "UNRESOLVED_NO_CANDIDATE_ARTIFACT"
+    },
+    {
+      "product_id": "56",
+      "product_variant_id": "1606",
+      "reason": "COLLECTOR_HTML_LIMIT",
+      "detail": "The official Warrior 392 g product page presents the shared table and flavour range, but exceeds the existing collector hard limit of 2,000,000 HTML bytes.",
+      "required_material": "A bounded official nutrition-table image or manufacturer snapshot already inside the collector limit; do not bypass or raise the existing limit in this data-only batch.",
+      "catalogue_name": "Blazin Blue Berry / 392g",
+      "status": "UNRESOLVED_NO_CANDIDATE_ARTIFACT"
+    },
+    {
+      "product_id": "56",
+      "product_variant_id": "3468",
+      "reason": "COLLECTOR_HTML_LIMIT",
+      "detail": "The official Warrior 392 g product page presents the shared table and flavour range, but exceeds the existing collector hard limit of 2,000,000 HTML bytes.",
+      "required_material": "A bounded official nutrition-table image or manufacturer snapshot already inside the collector limit; do not bypass or raise the existing limit in this data-only batch.",
+      "catalogue_name": "Lighting Lemonade",
+      "status": "UNRESOLVED_NO_CANDIDATE_ARTIFACT"
+    },
+    {
+      "product_id": "56",
+      "product_variant_id": "3469",
+      "reason": "COLLECTOR_HTML_LIMIT",
+      "detail": "The official Warrior 392 g product page presents the shared table and flavour range, but exceeds the existing collector hard limit of 2,000,000 HTML bytes.",
+      "required_material": "A bounded official nutrition-table image or manufacturer snapshot already inside the collector limit; do not bypass or raise the existing limit in this data-only batch.",
+      "catalogue_name": "Brutal Bubblegum",
+      "status": "UNRESOLVED_NO_CANDIDATE_ARTIFACT"
+    }
+  ],
+  "retained_blocks_not_rechecked": [
+    "16 remaining frozen-pilot variants without new evidence",
+    "28 PER4M exact variants awaiting permission/new evidence",
+    "product 215 variants 1672-1675 with formula-version gap",
+    "all other GYM HIGH products remain owner_deferred"
+  ],
+  "next_step": "One owner decision on controlled store -> authenticated review -> exact-ID plans -> guarded apply for only the unchanged 50 candidates across ready variants 1323-1330 and 1332-1333. Variant 1331 and all nine Warrior variants remain outside that write scope."
+}
