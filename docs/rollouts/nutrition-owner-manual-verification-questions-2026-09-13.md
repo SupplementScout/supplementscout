@@ -19,6 +19,12 @@ exact target has applied `creatine.confirmed_absent` with a null numeric value;
 the conclusion remains a review inference from the complete declared formula,
 not a laboratory result or a measured zero.
 
+A later, separate owner authorization and complete-declaration review closed
+questions 6, 9 and 11 through candidates `1144`-`1153`. These conclusions are
+also `confirmed_absent` with null numeric values. They remain review inferences
+from exact-formula declarations, not laboratory measurements or claims of
+measured 0 mg.
+
 For every presence question, answer for the named formula with one of:
 `jest`, `nie ma w pełnym deklarowanym składzie`, or `nie da się ustalić`.
 If the answer is `jest`, also provide the exact declared form, original amount
@@ -72,7 +78,7 @@ and unit, and the serving statement on which the amount is based.
    Required proof: the complete declared ingredient list or an exact-formula
    label/manufacturer statement with serving basis.
 
-6. **Muscle Moose Pre-Workout Zero Itch Formula, 280 g — product `1247`;
+6. **CLOSED — Muscle Moose Pre-Workout Zero Itch Formula, 280 g — product `1247`;
    variants `3669`, `3714`, `3715` (3 variants).** Missing facts: beta-alanine
    and creatine. Retained source snapshots have SHA-256
    `a49a2b8d464b3e59b78d6872030b580e6934d5832a9683849a2dcf316486ca2e`,
@@ -82,6 +88,9 @@ and unit, and the serving statement on which the amount is based.
    allowed answers applies to this exact 280 g formula? Required proof: a full
    ingredient list or label/manufacturer statement tied to the 14 g serving;
    for each present ingredient, include form, amount/unit and serving basis.
+   **Resolution:** candidates `1144`-`1149` were approved and applied as
+   `confirmed_absent` for beta-alanine and creatine. The exact flavour lists
+   contain Tri-Methyl Glycine, which is betaine rather than beta-alanine.
 
 7. **Strom StimuMAX Black Edition, 360 g — product `869`; variants `1323`,
    `1324` (2 variants).** Unresolved fact: creatine is `no_information`.
@@ -97,13 +106,15 @@ and unit, and the serving statement on which the amount is based.
    ingredients or an exact-formula label/manufacturer statement with serving
    basis.
 
-9. **TWP Hustle V2 2025, 520 g / 40 servings — product `1282`; variants `3762`,
+9. **CLOSED — TWP Hustle V2 2025, 520 g / 40 servings — product `1282`; variants `3762`,
    `3870` (2 variants).** Missing fact: creatine. Retained image SHA-256
    `2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664`
    and `nutrition-catalog-expansion-batch-07-preparation-2026-09-13.json`.
    **Question:** Does the exact Hustle V2 2025 520 g formula contain creatine?
    Required proof: the complete declared ingredient list or manufacturer
-   statement tied to the 13 g / 40-serving option.
+   statement tied to the 13 g / 40-serving option. **Resolution:** candidates
+   `1150` and `1151` were approved and applied as creatine
+   `confirmed_absent` from the complete Hustle V2 2025 label composition.
 
 10. **Strom StimuMAX OG, 360 g — product `871`; variant `1328` (1 variant).**
     Unresolved fact: creatine is `no_information`. Retained material: Batch 03
@@ -111,13 +122,16 @@ and unit, and the serving statement on which the amount is based.
     formula contain creatine? Required proof: complete ingredients or an
     exact-formula label/manufacturer statement with serving basis.
 
-11. **Apex Formulas Apex Pump, 625 g — product `1283`; variant `3763`
+11. **CLOSED — Apex Formulas Apex Pump, 625 g — product `1283`; variant `3763`
     (1 variant).** Missing facts: beta-alanine and creatine. Retained material:
     `nutrition-catalog-expansion-batch-06-execution-2026-09-13.json` and its
     archived source context. **Question:** For beta-alanine and creatine, which
     allowed answer applies to this exact formula? Required proof: a complete
     ingredient list or exact-formula label/manufacturer statement tied to the
     25 g serving; include form and amount only for an ingredient that is present.
+    **Resolution:** candidates `1152` and `1153` were approved and applied as
+    `confirmed_absent` for beta-alanine and creatine. The declared
+    Acetyl-L-Carnitine is not creatine.
 
 ## Formula and variant assignment questions
 

@@ -23,9 +23,9 @@
   candidate/review/plan/apply path now models
   creatine as the mass of its declared ingredient form against an exact serving,
   with the same five information states. Migration C is deployed in production.
-  The frozen pilot has eleven completed exact variants: `726`, `760`, `761`,
-  `815`, `816`, `1383`, `1384`, `1016`, `1864`, `3676` and `3759`. This is
-  11 of 25, not the full pilot.
+  The frozen pilot has twelve completed exact variants: `726`, `760`, `761`,
+  `815`, `816`, `1383`, `1384`, `1016`, `1864`, `3676`, `3759` and `3763`.
+  This is 12 of 25, not the full pilot.
 - Catalogue expansion batch 01 is a separate frozen denominator of 44 exact
   variants across five product families. Sixteen Applied Nutrition variants are
   `LIVE VERIFIED`: 80 candidates were stored, reviewed and applied through three
@@ -75,6 +75,15 @@
   to both exact overrides. Creatine remains unresolved. Independent and public
   readbacks and stale-plan replay protection pass. The other 48 scoped variants
   retain their recorded terms or written-permission blocks.
+- The separate missing-ingredient completion package is `LIVE VERIFIED` for ten
+  facts across six already-counted variants. Candidates `1144`-`1153` were
+  stored and approved, and three guarded plans added only the authorized
+  `confirmed_absent` beta-alanine and/or creatine facts to product `1247`
+  variants `3669`, `3714`, `3715`, product `1282` variants `3762`, `3870`, and
+  product `1283` variant `3763`. All six are now complete. The distinct applied
+  total remains 89; current-offer coverage is 404 variants: 81 complete, zero
+  partial and 323 without applied facts. The frozen pilot is 12 complete, zero
+  partial and 13 without applied facts.
 - Retailer-source batch 01 is `LIVE VERIFIED` for 19 partial exact variants
   across products `778`, `763` and `903`. Candidates `1037`-`1112` were stored
   and approved through authenticated review. Three zero-product-update plans
@@ -3331,3 +3340,75 @@ automatic-approval rejection:
 NUT-03 remains `IN PROGRESS`. One next step is to use a new answer or retained
 exact-formula proof for questions 5-19; do not repeat the completed questions
 1-4 or the earlier blocked-source audits without new evidence.
+
+## NUT-03 missing-ingredient completion for six existing variants
+
+13 September 2026, new and separate owner authorization for ten facts:
+
+- Fresh production preflight confirmed project `aftboxmrdgyhizicfsfu`, the six
+  exact active product-variant bindings and the existing partial overrides. None
+  of the ten new fingerprints existed. The distinct applied total was 89 before
+  the operation and remains 89 because these variants were already counted.
+- Retained complete declarations resolve the bounded questions. The Hustle V2
+  2025 label contains no creatine form; each exact Muscle Moose flavour page
+  contains neither beta-alanine nor a creatine form (`Tri-Methyl Glycine` is
+  betaine); and the Apex label contains neither beta-alanine nor a creatine form
+  (`Acetyl-L-Carnitine` is not creatine). No source contains an undisclosed blend
+  that blocks these conclusions. The results are review inferences from declared
+  compositions, not laboratory measurements or numeric zero claims.
+- Five retained source objects were read back from private `nutrition-sources`
+  with matching hashes. A bounded source-context manifest and the project-owner
+  session review record were written once, then read back with SHA-256
+  `5fb5ce88a4fcfe0b754bd63dc2bc9cd717e61db1efc46dea4b269c7d2d027146`
+  and `3e690593d005836a386762ecaa11ab9edc15dec3e2acefa3984c16ca38c547b2`.
+  The bucket remains private.
+- Three ignored artifacts contain six, two and two candidates. Their SHA-256 /
+  artifact fingerprint pairs are product `1247`
+  `4c3941cc40c9261acade2c8ce2b0e566a0cfb8c94fd45e25399bdd92b021a4df` /
+  `8e4a22cc8af35aedc66f918de7ef3df6a9d8bbd1cadc9caccb6ca814da7d8720`;
+  product `1282`
+  `3fac4cc319d6fcb8928751dfcadcd864cf0e228d87cd6c771cf9cbcf537db6e3` /
+  `a2d69ec1b7d81ef3c64417d5c29f8a5fbd70dfb18205418ca9508f0ccdb906cb`;
+  and product `1283`
+  `a45803550fab3d24ad24f5820d325ba0c50e711956a44a207752456cc11664f9` /
+  `6dce4ef3e2fd77a602dcec67c7ee2437b85a10c7792eb81894db50e371006c23`.
+  All three dry-runs passed with ten rows total, zero product updates and zero
+  database writes.
+- Controlled store created candidates `1144`-`1153`. Authenticated review
+  approved all ten as `confirmed_absent` with `approved_value=null`, preserving
+  exact variant, source URI, hash and fingerprint evidence. Three explicit-ID,
+  zero-product-update plans were sealed before apply: product `1247` SHA-256 /
+  fingerprint `7a608b5dc532b738c2e4dc6780cc7105d4e235d817fa91467e622aaa36f56980` /
+  `823b01f838ecf91717ae5956237f2f8b15f74ddf9e7101c6023cb1a7e7d1c1af`;
+  product `1282`
+  `a44000e3feb7fe728bd3a01aa5e348cb09092cf6be6aef99de0292725bc9ad07` /
+  `b87ac661defc1a2f90ac65213f0d47869d42e8ca4397e3f480cdb46958abe8dc`;
+  and product `1283`
+  `6a224ea82dc05055d07aa938ac5dc133ea19e59c527f5ee504429724fe2b51c7` /
+  `27b0cb7ad6d5539c20eec50a2f6250f57ff4782d75196ccd7aef75f4412bad4f`.
+- Guarded apply changed zero products and exactly ten facts in six target
+  `nutrition_override` objects. A new read-only connection matched every whole
+  override to the sealed `after`, preserved all approvals, evidence,
+  `nutrition_verified`, legacy creatine fields, all other variants and non-target
+  queue records. Replaying each plan was safely rejected because its sealed
+  `before` no longer matched; the final state remained unchanged.
+- All six public exact-variant pages show the new confirmed absences and preserve
+  their existing serving, caffeine and citrulline facts. TWP also preserves its
+  beta-alanine fact. Private archive URIs and reviewer metadata are absent. Only
+  caffeine-free Apex variant `3763` qualifies among these targets; TWP and
+  Muscle Moose remain excluded. All six have current offers.
+- Current-offer coverage is 404 exact variants: 81 complete, zero partial and
+  323 without applied facts. The frozen pilot is 12 complete, zero partial and
+  13 without applied facts. Questions 6, 9 and 11 in the grouped owner list are
+  now closed.
+- Complete machine-readable evidence is
+  [nutrition-missing-ingredients-10-execution-2026-09-13.json](rollouts/nutrition-missing-ingredients-10-execution-2026-09-13.json),
+  SHA-256 `641840e1afa3080067bc9ef978da4c72402159af8bcddb04e008994602f04003`.
+  `verify:project` passes before and after the documentation update. The latest
+  `verify:full` remains explicitly non-green on the unchanged unrelated Whey
+  Okay evidence-hash and OstroVit line-ending fixtures; it was not rerun or
+  reported as passed.
+
+NUT-03 remains `IN PROGRESS`. One next step is a new evidence-backed unresolved
+owner question or another bounded nutrition package; do not recount these six
+variants or repeat their completed evidence review.

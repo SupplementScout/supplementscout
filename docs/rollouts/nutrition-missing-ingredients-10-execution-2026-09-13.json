@@ -1,0 +1,568 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-missing-ingredients-10-execution",
+  "status": "COMPLETE",
+  "executed_at": "2026-09-13T18:45:51.201Z",
+  "production": {
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "environment": "PRODUCTION",
+    "distinct_applied_variant_count_before": 89,
+    "distinct_applied_variant_count_after": 89
+  },
+  "authorization": {
+    "scope": "new separate authorization for exactly 10 facts, unrelated to the prior 84- and 23-candidate packages",
+    "candidate_count": 10,
+    "variant_count": 6,
+    "facts": [
+      {
+        "product_id": "1282",
+        "variant_ids": [
+          "3762",
+          "3870"
+        ],
+        "fields": [
+          "creatine_declared_form_per_serving_mg"
+        ]
+      },
+      {
+        "product_id": "1247",
+        "variant_ids": [
+          "3669",
+          "3714",
+          "3715"
+        ],
+        "fields": [
+          "beta_alanine_per_serving_mg",
+          "creatine_declared_form_per_serving_mg"
+        ]
+      },
+      {
+        "product_id": "1283",
+        "variant_ids": [
+          "3763"
+        ],
+        "fields": [
+          "beta_alanine_per_serving_mg",
+          "creatine_declared_form_per_serving_mg"
+        ]
+      }
+    ],
+    "information_state": "confirmed_absent",
+    "value_numeric": null,
+    "limitations": [
+      "Inference from reviewed complete declared composition for the exact formula.",
+      "Not a laboratory result, not a measured 0 mg, and not a manufacturer statement issued by the project owner."
+    ]
+  },
+  "evidence_review": {
+    "result": "PASS",
+    "findings": [
+      "TWP full label composition names no creatine form and contains no undisclosed blend; the 520 g / 40-serving context selects the 13 g serving.",
+      "Each exact Muscle Moose flavour page contains a complete declared list; Tri-Methyl Glycine is betaine rather than beta-alanine, and neither beta-alanine nor a creatine form is named.",
+      "The Apex label contains a complete table and ingredient list; Acetyl-L-Carnitine is not creatine, and neither beta-alanine nor a creatine form is named."
+    ],
+    "source_context_manifest": {
+      "path": "tmp/nutrition-missing-10-2026-09-13/source-context-manifest.json",
+      "sha256": "5fb5ce88a4fcfe0b754bd63dc2bc9cd717e61db1efc46dea4b269c7d2d027146",
+      "archive_uri": "supabase-storage://nutrition-sources/manifests/nut-03/missing-ingredients-10/5fb5ce88a4fcfe0b754bd63dc2bc9cd717e61db1efc46dea4b269c7d2d027146/source-context-manifest.json"
+    },
+    "owner_review_context": {
+      "path": "tmp/nutrition-missing-10-2026-09-13/source/project-owner-session-attestation.json",
+      "sha256": "3e690593d005836a386762ecaa11ab9edc15dec3e2acefa3984c16ca38c547b2",
+      "archive_uri": "supabase-storage://nutrition-sources/attestations/nut-03/missing-ingredients-10/3e690593d005836a386762ecaa11ab9edc15dec3e2acefa3984c16ca38c547b2/project-owner-session-attestation.json"
+    },
+    "archive": {
+      "result": "PASS",
+      "bucket": "nutrition-sources",
+      "bucket_public": false,
+      "new_objects": 2,
+      "items": [
+        {
+          "id": "owner-attestation",
+          "uri": "supabase-storage://nutrition-sources/attestations/nut-03/missing-ingredients-10/3e690593d005836a386762ecaa11ab9edc15dec3e2acefa3984c16ca38c547b2/project-owner-session-attestation.json",
+          "sha256": "3e690593d005836a386762ecaa11ab9edc15dec3e2acefa3984c16ca38c547b2",
+          "existed_before": false,
+          "exists_after": true,
+          "bytes": 1381
+        },
+        {
+          "id": "context-manifest",
+          "uri": "supabase-storage://nutrition-sources/manifests/nut-03/missing-ingredients-10/5fb5ce88a4fcfe0b754bd63dc2bc9cd717e61db1efc46dea4b269c7d2d027146/source-context-manifest.json",
+          "sha256": "5fb5ce88a4fcfe0b754bd63dc2bc9cd717e61db1efc46dea4b269c7d2d027146",
+          "existed_before": false,
+          "exists_after": true,
+          "bytes": 3899
+        },
+        {
+          "id": "source-twp",
+          "uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-07/twp/1282/2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664/hustle-v2-2025-specs.jpg",
+          "sha256": "2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664",
+          "existed_before": true,
+          "exists_after": true,
+          "bytes": 164645
+        },
+        {
+          "id": "source-apex",
+          "uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/83738125690f43db923934da2e3fa0080f7031b4f20af701eaf9bc90b91006fa/03-p1283-apex-pump-raspberry-rush-ingredient-panel.png",
+          "sha256": "83738125690f43db923934da2e3fa0080f7031b4f20af701eaf9bc90b91006fa",
+          "existed_before": true,
+          "exists_after": true,
+          "bytes": 3370854
+        },
+        {
+          "id": "source-muscle-3669",
+          "uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/muscle-moose/1247/a49a2b8d464b3e59b78d6872030b580e6934d5832a9683849a2dcf316486ca2e/04-p1247-muscle-moose-pre-workout-zero-itch-formula-280g-blue-raspberry-89a9a826a649.html",
+          "sha256": "a49a2b8d464b3e59b78d6872030b580e6934d5832a9683849a2dcf316486ca2e",
+          "existed_before": true,
+          "exists_after": true,
+          "bytes": 243250
+        },
+        {
+          "id": "source-muscle-3714",
+          "uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/muscle-moose/1247/9f38e8432495b1032a0eadf7bbc7a7b42cc9898eac02907853437a3c48a0857b/05-p1247-muscle-moose-pre-workout-zero-itch-formula-280g-cloudy-lemonade-c6e753d74263.html",
+          "sha256": "9f38e8432495b1032a0eadf7bbc7a7b42cc9898eac02907853437a3c48a0857b",
+          "existed_before": true,
+          "exists_after": true,
+          "bytes": 243309
+        },
+        {
+          "id": "source-muscle-3715",
+          "uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/muscle-moose/1247/e9d29a267670ae54e859ea2317a6bb0336da80db907fb7d64d21504b198d2088/06-p1247-muscle-moose-pre-workout-zero-itch-formula-280g-fruit-candy-42a374397df9.html",
+          "sha256": "e9d29a267670ae54e859ea2317a6bb0336da80db907fb7d64d21504b198d2088",
+          "existed_before": true,
+          "exists_after": true,
+          "bytes": 243115
+        }
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "product_id": "1247",
+      "path": "tmp/nutrition-missing-10-2026-09-13/candidate-artifact/nutrition-candidates-NCR1-missing-ingredients-10-1247-20260913.json",
+      "sha256": "4c3941cc40c9261acade2c8ce2b0e566a0cfb8c94fd45e25399bdd92b021a4df",
+      "artifact_fingerprint": "8e4a22cc8af35aedc66f918de7ef3df6a9d8bbd1cadc9caccb6ca814da7d8720",
+      "candidate_count": 6,
+      "candidate_fingerprints": [
+        "1c14ec05ce1a6671615ebeba2ae77feeb9fa80b08a8252feb00cf8773daec90a",
+        "f508c5973f35053a14cdc784b13ae9e7c59a77d5ceaa1fe7501f4753a1ab8dd0",
+        "c01b9f49cf92e583876312a07420b47fe4e8ff1873fa4ce21862e260c6a3ea13",
+        "8230e81ca4a7cdedc36413ebd9606916d3267d5632fefd103fa5ef0e0ccffdb7",
+        "47e46bf3477c2cd5f2c111dc633dd839a0a1144b370cd89b423932b7ee37232e",
+        "d42c1d242c5825b8fcebd19a1de1aa706ef85e3a037f1bb3d04cfae65874940a"
+      ],
+      "dry_run": {
+        "result": "PASS",
+        "mode": "DRY_RUN_NO_DATABASE",
+        "candidate_rows": 6,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "1282",
+      "path": "tmp/nutrition-missing-10-2026-09-13/candidate-artifact/nutrition-candidates-NCR1-missing-ingredients-10-1282-20260913.json",
+      "sha256": "3fac4cc319d6fcb8928751dfcadcd864cf0e228d87cd6c771cf9cbcf537db6e3",
+      "artifact_fingerprint": "a2d69ec1b7d81ef3c64417d5c29f8a5fbd70dfb18205418ca9508f0ccdb906cb",
+      "candidate_count": 2,
+      "candidate_fingerprints": [
+        "f025ad14f2309eb78c16c6159fb98999a1aee2d6668ec903fbc6beec006e23d1",
+        "5b0210d69c8c7621c49777010cae6b5348bb2604ed3bb239a7c456be74ed3d8c"
+      ],
+      "dry_run": {
+        "result": "PASS",
+        "mode": "DRY_RUN_NO_DATABASE",
+        "candidate_rows": 2,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "1283",
+      "path": "tmp/nutrition-missing-10-2026-09-13/candidate-artifact/nutrition-candidates-NCR1-missing-ingredients-10-1283-20260913.json",
+      "sha256": "a45803550fab3d24ad24f5820d325ba0c50e711956a44a207752456cc11664f9",
+      "artifact_fingerprint": "6dce4ef3e2fd77a602dcec67c7ee2437b85a10c7792eb81894db50e371006c23",
+      "candidate_count": 2,
+      "candidate_fingerprints": [
+        "777eb1774a1a533a8ef744c7bde2f0b29b1bf245f867ef88cb3e7a2136c70105",
+        "4f87fcee44ece696972db649c78c6bd8cddc9c18c324b84b573123988d65b393"
+      ],
+      "dry_run": {
+        "result": "PASS",
+        "mode": "DRY_RUN_NO_DATABASE",
+        "candidate_rows": 2,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    }
+  ],
+  "store": {
+    "result": "PASS",
+    "new_records": 10,
+    "existing_records": 0,
+    "product_updates": 0,
+    "candidate_ids": [
+      "1144",
+      "1145",
+      "1146",
+      "1147",
+      "1148",
+      "1149",
+      "1150",
+      "1151",
+      "1152",
+      "1153"
+    ]
+  },
+  "review": {
+    "result": "PASS",
+    "reviewed_records": 10,
+    "status": "approved",
+    "approved_value": null,
+    "reviewed_by": "admin-panel",
+    "candidates": [
+      {
+        "id": "1144",
+        "product_id": "1247",
+        "product_variant_id": "3669",
+        "field": "beta_alanine_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T18:42:39.501+00:00",
+        "candidate_fingerprint": "1c14ec05ce1a6671615ebeba2ae77feeb9fa80b08a8252feb00cf8773daec90a",
+        "source_type": "manufacturer_product_page",
+        "source_url": "https://musclemoose.co.uk/product/pre-workout-zero-itch-280g-blue-raspberry/",
+        "source_file_sha256": "a49a2b8d464b3e59b78d6872030b580e6934d5832a9683849a2dcf316486ca2e",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/muscle-moose/1247/a49a2b8d464b3e59b78d6872030b580e6934d5832a9683849a2dcf316486ca2e/04-p1247-muscle-moose-pre-workout-zero-itch-formula-280g-blue-raspberry-89a9a826a649.html",
+        "source_locator": "html:product-page#ingredients | context:source-context-manifest.json#product-1247/variant-3669/beta_alanine_per_serving_mg"
+      },
+      {
+        "id": "1145",
+        "product_id": "1247",
+        "product_variant_id": "3669",
+        "field": "creatine_declared_form_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T18:42:40.413+00:00",
+        "candidate_fingerprint": "f508c5973f35053a14cdc784b13ae9e7c59a77d5ceaa1fe7501f4753a1ab8dd0",
+        "source_type": "manufacturer_product_page",
+        "source_url": "https://musclemoose.co.uk/product/pre-workout-zero-itch-280g-blue-raspberry/",
+        "source_file_sha256": "a49a2b8d464b3e59b78d6872030b580e6934d5832a9683849a2dcf316486ca2e",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/muscle-moose/1247/a49a2b8d464b3e59b78d6872030b580e6934d5832a9683849a2dcf316486ca2e/04-p1247-muscle-moose-pre-workout-zero-itch-formula-280g-blue-raspberry-89a9a826a649.html",
+        "source_locator": "html:product-page#ingredients | context:source-context-manifest.json#product-1247/variant-3669/creatine_declared_form_per_serving_mg"
+      },
+      {
+        "id": "1146",
+        "product_id": "1247",
+        "product_variant_id": "3714",
+        "field": "beta_alanine_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T18:42:41.289+00:00",
+        "candidate_fingerprint": "c01b9f49cf92e583876312a07420b47fe4e8ff1873fa4ce21862e260c6a3ea13",
+        "source_type": "manufacturer_product_page",
+        "source_url": "https://musclemoose.co.uk/product/pre-workout-zero-itch-280g-cloudy-lemonade/",
+        "source_file_sha256": "9f38e8432495b1032a0eadf7bbc7a7b42cc9898eac02907853437a3c48a0857b",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/muscle-moose/1247/9f38e8432495b1032a0eadf7bbc7a7b42cc9898eac02907853437a3c48a0857b/05-p1247-muscle-moose-pre-workout-zero-itch-formula-280g-cloudy-lemonade-c6e753d74263.html",
+        "source_locator": "html:product-page#ingredients | context:source-context-manifest.json#product-1247/variant-3714/beta_alanine_per_serving_mg"
+      },
+      {
+        "id": "1147",
+        "product_id": "1247",
+        "product_variant_id": "3714",
+        "field": "creatine_declared_form_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T18:42:42.09+00:00",
+        "candidate_fingerprint": "8230e81ca4a7cdedc36413ebd9606916d3267d5632fefd103fa5ef0e0ccffdb7",
+        "source_type": "manufacturer_product_page",
+        "source_url": "https://musclemoose.co.uk/product/pre-workout-zero-itch-280g-cloudy-lemonade/",
+        "source_file_sha256": "9f38e8432495b1032a0eadf7bbc7a7b42cc9898eac02907853437a3c48a0857b",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/muscle-moose/1247/9f38e8432495b1032a0eadf7bbc7a7b42cc9898eac02907853437a3c48a0857b/05-p1247-muscle-moose-pre-workout-zero-itch-formula-280g-cloudy-lemonade-c6e753d74263.html",
+        "source_locator": "html:product-page#ingredients | context:source-context-manifest.json#product-1247/variant-3714/creatine_declared_form_per_serving_mg"
+      },
+      {
+        "id": "1148",
+        "product_id": "1247",
+        "product_variant_id": "3715",
+        "field": "beta_alanine_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T18:42:42.633+00:00",
+        "candidate_fingerprint": "47e46bf3477c2cd5f2c111dc633dd839a0a1144b370cd89b423932b7ee37232e",
+        "source_type": "manufacturer_product_page",
+        "source_url": "https://musclemoose.co.uk/product/pre-workout-zero-itch-280g-fruit-candy/",
+        "source_file_sha256": "e9d29a267670ae54e859ea2317a6bb0336da80db907fb7d64d21504b198d2088",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/muscle-moose/1247/e9d29a267670ae54e859ea2317a6bb0336da80db907fb7d64d21504b198d2088/06-p1247-muscle-moose-pre-workout-zero-itch-formula-280g-fruit-candy-42a374397df9.html",
+        "source_locator": "html:product-page#ingredients | context:source-context-manifest.json#product-1247/variant-3715/beta_alanine_per_serving_mg"
+      },
+      {
+        "id": "1149",
+        "product_id": "1247",
+        "product_variant_id": "3715",
+        "field": "creatine_declared_form_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T18:42:43.132+00:00",
+        "candidate_fingerprint": "d42c1d242c5825b8fcebd19a1de1aa706ef85e3a037f1bb3d04cfae65874940a",
+        "source_type": "manufacturer_product_page",
+        "source_url": "https://musclemoose.co.uk/product/pre-workout-zero-itch-280g-fruit-candy/",
+        "source_file_sha256": "e9d29a267670ae54e859ea2317a6bb0336da80db907fb7d64d21504b198d2088",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-05/muscle-moose/1247/e9d29a267670ae54e859ea2317a6bb0336da80db907fb7d64d21504b198d2088/06-p1247-muscle-moose-pre-workout-zero-itch-formula-280g-fruit-candy-42a374397df9.html",
+        "source_locator": "html:product-page#ingredients | context:source-context-manifest.json#product-1247/variant-3715/creatine_declared_form_per_serving_mg"
+      },
+      {
+        "id": "1150",
+        "product_id": "1282",
+        "product_variant_id": "3762",
+        "field": "creatine_declared_form_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T18:42:49.907+00:00",
+        "candidate_fingerprint": "f025ad14f2309eb78c16c6159fb98999a1aee2d6668ec903fbc6beec006e23d1",
+        "source_type": "manufacturer_product_page",
+        "source_url": "https://twpnutrition.com/products/hustle",
+        "source_file_sha256": "2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-07/twp/1282/2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664/hustle-v2-2025-specs.jpg",
+        "source_locator": "image:hustle-v2-2025-specs.jpg#supplement-facts-and-ingredients | context:source-context-manifest.json#product-1282/variant-3762/creatine_declared_form_per_serving_mg"
+      },
+      {
+        "id": "1151",
+        "product_id": "1282",
+        "product_variant_id": "3870",
+        "field": "creatine_declared_form_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T18:42:50.276+00:00",
+        "candidate_fingerprint": "5b0210d69c8c7621c49777010cae6b5348bb2604ed3bb239a7c456be74ed3d8c",
+        "source_type": "manufacturer_product_page",
+        "source_url": "https://twpnutrition.com/products/hustle",
+        "source_file_sha256": "2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-07/twp/1282/2133accfb35beccdaf8a223b68b532fa1e4b7192a22825f36a248fcb06cd9664/hustle-v2-2025-specs.jpg",
+        "source_locator": "image:hustle-v2-2025-specs.jpg#supplement-facts-and-ingredients | context:source-context-manifest.json#product-1282/variant-3870/creatine_declared_form_per_serving_mg"
+      },
+      {
+        "id": "1152",
+        "product_id": "1283",
+        "product_variant_id": "3763",
+        "field": "beta_alanine_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T18:42:57.202+00:00",
+        "candidate_fingerprint": "777eb1774a1a533a8ef744c7bde2f0b29b1bf245f867ef88cb3e7a2136c70105",
+        "source_type": "manufacturer_product_page",
+        "source_url": "https://apexformulas.co.uk/products/apex-pump",
+        "source_file_sha256": "83738125690f43db923934da2e3fa0080f7031b4f20af701eaf9bc90b91006fa",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/83738125690f43db923934da2e3fa0080f7031b4f20af701eaf9bc90b91006fa/03-p1283-apex-pump-raspberry-rush-ingredient-panel.png",
+        "source_locator": "image:03-p1283-apex-pump-raspberry-rush-ingredient-panel.png#nutrition-and-ingredients | context:source-context-manifest.json#product-1283/variant-3763/beta_alanine_per_serving_mg"
+      },
+      {
+        "id": "1153",
+        "product_id": "1283",
+        "product_variant_id": "3763",
+        "field": "creatine_declared_form_per_serving_mg",
+        "status": "approved",
+        "approved_value": null,
+        "information_state": "confirmed_absent",
+        "reviewed_by": "admin-panel",
+        "reviewed_at": "2026-09-13T18:42:57.741+00:00",
+        "candidate_fingerprint": "4f87fcee44ece696972db649c78c6bd8cddc9c18c324b84b573123988d65b393",
+        "source_type": "manufacturer_product_page",
+        "source_url": "https://apexformulas.co.uk/products/apex-pump",
+        "source_file_sha256": "83738125690f43db923934da2e3fa0080f7031b4f20af701eaf9bc90b91006fa",
+        "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/catalog-expansion-batch-06/apex-formulas/1283/83738125690f43db923934da2e3fa0080f7031b4f20af701eaf9bc90b91006fa/03-p1283-apex-pump-raspberry-rush-ingredient-panel.png",
+        "source_locator": "image:03-p1283-apex-pump-raspberry-rush-ingredient-panel.png#nutrition-and-ingredients | context:source-context-manifest.json#product-1283/variant-3763/creatine_declared_form_per_serving_mg"
+      }
+    ]
+  },
+  "plans": [
+    {
+      "product_id": "1247",
+      "path": "tmp/nutrition-approved-plan/NCR1-missing-ingredients-10-1247-20260913-823b01f838ec.json",
+      "sha256": "7a608b5dc532b738c2e4dc6780cc7105d4e235d817fa91467e622aaa36f56980",
+      "plan_fingerprint": "823b01f838ecf91717ae5956237f2f8b15f74ddf9e7101c6023cb1a7e7d1c1af",
+      "source_candidate_ids": [
+        "1144",
+        "1145",
+        "1146",
+        "1147",
+        "1148",
+        "1149"
+      ],
+      "product_updates": 0,
+      "variant_updates": 3,
+      "changed_fields": [
+        "beta_alanine",
+        "creatine"
+      ],
+      "audit_path": "tmp/nutrition-approved-plan/NCR1-missing-ingredients-10-1247-20260913-823b01f838ec-audit.json",
+      "audit_sha256": "a00ca00c51d281998a6284edd5cd2b7e28b9a17a371683df7ac806d796a46c3d"
+    },
+    {
+      "product_id": "1282",
+      "path": "tmp/nutrition-approved-plan/NCR1-missing-ingredients-10-1282-20260913-b87ac661defc.json",
+      "sha256": "a44000e3feb7fe728bd3a01aa5e348cb09092cf6be6aef99de0292725bc9ad07",
+      "plan_fingerprint": "b87ac661defc1a2f90ac65213f0d47869d42e8ca4397e3f480cdb46958abe8dc",
+      "source_candidate_ids": [
+        "1150",
+        "1151"
+      ],
+      "product_updates": 0,
+      "variant_updates": 2,
+      "changed_fields": [
+        "creatine"
+      ],
+      "audit_path": "tmp/nutrition-approved-plan/NCR1-missing-ingredients-10-1282-20260913-b87ac661defc-audit.json",
+      "audit_sha256": "d98407f6fbaf51bac469772f9ea309b3cdcde2c01b7471d76eb4e4c613355523"
+    },
+    {
+      "product_id": "1283",
+      "path": "tmp/nutrition-approved-plan/NCR1-missing-ingredients-10-1283-20260913-27b0cb7ad6d5.json",
+      "sha256": "6a224ea82dc05055d07aa938ac5dc133ea19e59c527f5ee504429724fe2b51c7",
+      "plan_fingerprint": "27b0cb7ad6d5539c20eec50a2f6250f57ff4782d75196ccd7aef75f4412bad4f",
+      "source_candidate_ids": [
+        "1152",
+        "1153"
+      ],
+      "product_updates": 0,
+      "variant_updates": 1,
+      "changed_fields": [
+        "beta_alanine",
+        "creatine"
+      ],
+      "audit_path": "tmp/nutrition-approved-plan/NCR1-missing-ingredients-10-1283-20260913-27b0cb7ad6d5-audit.json",
+      "audit_sha256": "09159e4f89e7765cf36aea5d8802a5deb86568207f3d1a02a9ca5db9e0e74062"
+    }
+  ],
+  "apply": {
+    "result": "PASS",
+    "changed_products": 0,
+    "changed_variants": 6,
+    "changed_facts": 10,
+    "only_target": "product_variants.nutrition_override",
+    "replay": {
+      "result": "SAFE_REJECTION",
+      "reasons": [
+        "Variant 3669 nutrition override changed after plan generation",
+        "Variant 3762 nutrition override changed after plan generation",
+        "Variant 3763 nutrition override changed after plan generation"
+      ],
+      "final_state_unchanged": true
+    }
+  },
+  "independent_readback": {
+    "result": "PASS",
+    "full_override_matches_sealed_after": true,
+    "candidate_evidence_unchanged": true,
+    "approved_candidate_count": 10,
+    "preservation_sha256": {
+      "products": "54ca4527908c69a05a19affcb7ad12a99613054de5058797f599c29e265e2392",
+      "other_variants": "e23d3bd2c34d5e6e0f244ee1355cecd4ee7bca181e407b10ce47446d57f45f67",
+      "variant_metadata": "b374adfde238b09a9b0131870dd6f27930aa3d4ac158ff87c8a65aeae8ce4fb3",
+      "non_target_candidates": "0bc18f40417fa99573fa51b2f1bf330a9de3c7a781e2ab57718acebd307f4522"
+    },
+    "queue_status_counts": {
+      "approved": 1131,
+      "pending": 16,
+      "rejected": 6
+    },
+    "nutrition_verified_unchanged": true,
+    "legacy_creatine_per_serving_g_unchanged": true,
+    "products_unchanged": true
+  },
+  "public_readback": {
+    "result": "PASS",
+    "exact_variant_pages": 6,
+    "current_offer_variants": 6,
+    "pages": [
+      {
+        "product_id": "1247",
+        "variant_id": "3669",
+        "url": "https://www.supplementscout.co.uk/product/muscle-moose-pre-workout-zero-itch-formula-280g?variant=3669",
+        "status": 200
+      },
+      {
+        "product_id": "1247",
+        "variant_id": "3714",
+        "url": "https://www.supplementscout.co.uk/product/muscle-moose-pre-workout-zero-itch-formula-280g?variant=3714",
+        "status": 200
+      },
+      {
+        "product_id": "1247",
+        "variant_id": "3715",
+        "url": "https://www.supplementscout.co.uk/product/muscle-moose-pre-workout-zero-itch-formula-280g?variant=3715",
+        "status": 200
+      },
+      {
+        "product_id": "1282",
+        "variant_id": "3762",
+        "url": "https://www.supplementscout.co.uk/product/twp-hustle-520g?variant=3762",
+        "status": 200
+      },
+      {
+        "product_id": "1282",
+        "variant_id": "3870",
+        "url": "https://www.supplementscout.co.uk/product/twp-hustle-520g?variant=3870",
+        "status": 200
+      },
+      {
+        "product_id": "1283",
+        "variant_id": "3763",
+        "url": "https://www.supplementscout.co.uk/product/apex-formulas-apex-pump-625g?variant=3763",
+        "status": 200
+      }
+    ],
+    "caffeine_free_target_variant_ids": [
+      "3763"
+    ],
+    "private_archive_uris_exposed": 0,
+    "reviewer_metadata_exposed": 0
+  },
+  "coverage": {
+    "distinct_applied_variant_count": 89,
+    "not_incremented_for_existing_variants": true,
+    "variants_completed_by_this_package": 6,
+    "current_offer_catalogue": {
+      "variants": 404,
+      "complete": 81,
+      "partial": 0,
+      "none": 323
+    },
+    "frozen_pilot": {
+      "variants": 25,
+      "complete": 12,
+      "partial": 0,
+      "none": 13
+    }
+  },
+  "quality": {
+    "verify_project_before": "PASS",
+    "verify_project_after": "PASS",
+    "known_verify_full": "FAIL: unchanged unrelated Whey Okay evidence-hash and OstroVit line-ending fixture failures; not rerun and not reported as passed"
+  },
+  "owner_questions_closed": [
+    6,
+    9,
+    11
+  ],
+  "blockers": [],
+  "next_step": "Use a new evidence-backed unresolved owner question or prepare the next bounded nutrition package; do not recount these six existing variants or repeat their evidence review."
+}
