@@ -3789,3 +3789,82 @@ store -> authenticated review -> explicit-ID plan -> apply for exactly these
 five unchanged artifacts and 162 candidates. Resolving the eight Darkstims
 caffeine facts requires an unambiguous manufacturer total-caffeine-yield
 statement; the other 16 scoped gaps remain outside that decision.
+
+## NUT-03 catalogue next-50 execution checkpoint
+
+14 September 2026, production store and authenticated review completed; apply
+not run:
+
+- Fresh production preflight reconfirmed project `aftboxmrdgyhizicfsfu`, 141
+  applied variants, 34 active exact targets with unchanged empty overrides and
+  zero matches for the 162 authorized candidate fingerprints.
+- Controlled store created candidates `1396`-`1557`. Independent readback found
+  exactly one row for every fingerprint, all initially `PENDING`, and no
+  catalogue change. Authenticated review then approved all 162 rows through the
+  existing admin route. A further read matched their values, exact variants,
+  durable evidence, fingerprints and review metadata; the target overrides
+  remained unchanged.
+- Explicit-ID planning produced five blocker-free plans covering exactly 162
+  approved candidates, 34 variants and zero products. Product `56` plan SHA-256
+  / fingerprint is
+  `1a175788e46189a1b33a292837db326871dd69bbf77ff4cbfa0ae3174e1be7ae` /
+  `1c32943d73d60b78452ea108c770f87a1da765d36034434f468ead01288b9702`;
+  product `878` is
+  `44ceab8995cceba71f27a2abfc975d9d3bfa2df72892dcfe0daa0165e72327ba` /
+  `a33b2545217895f94759d7a1830cd754dcc482d783e574a53146cec53fac7855`;
+  product `880` is
+  `55e7fa1e6db08e2b8a4578380202772084f2137ae2699f5a6883740f26682267` /
+  `84d95d623e2b056a4b78acb9aa468bd8aade0743e7641b4799f6d461499852ea`;
+  product `1169` is
+  `f3483915235f1f4c1f388bb8f02272559687b38bb5320ec6f3fa70a476491e8f` /
+  `083c947fc63640d4f8e7aa958f1789e5bd449b510770a23d7c5eb3e1e0063adf`;
+  and product `1181` is
+  `45c1381b84bfb43c7fa300aa608a1bd801de64d929a1b77f10465a7c12b725bc` /
+  `ea9006e25e526ad73734d4ea264a6bbbb67096b0a9791471ff8c733c9b7b1141`.
+- The automatic approval review rejected the first apply before the command ran.
+  It found the short follow-up authorization insufficiently explicit about the
+  concrete product `56` plan and its values. No workaround was attempted. A new
+  read confirmed all 34 target overrides still match `before`, the applied total
+  remains 141 and all 162 candidates remain approved.
+
+Complete evidence is
+[nutrition-catalog-next-50-execution-checkpoint-2026-09-14.json](rollouts/nutrition-catalog-next-50-execution-checkpoint-2026-09-14.json).
+NUT-03 remains `IN PROGRESS`. One next step is explicit owner authorization of
+the five exact plans, their hashes, fingerprints and listed values, followed by
+guarded apply, independent readback, replay protection and public verification.
+
+## NUT-03 catalogue next-50 execution completion
+
+14 September 2026, resumed after renewed explicit owner authorization:
+
+- Guarded apply completed all five sealed plans without changing their content
+  or bypassing an application safeguard. It changed zero products and exactly
+  34 target `product_variants.nutrition_override` objects: nine Warrior Rage,
+  five DNFM, three Pumpage, nine C4 Original and eight Darkstims PRE V4 exact
+  variants. Candidate IDs `1396`-`1557` remain approved with their original
+  source evidence.
+- A new forced-read-only connection matched every whole override to its plan
+  `after`. Preservation hashes confirm no change to products, non-target
+  variants, `nutrition_verified`, legacy `creatine_per_serving_g`, pre-existing
+  target candidates or the non-target queue. The applied pre-workout total rose
+  from 141 to 175.
+- Replaying each of the five plans was safely rejected because its sealed
+  variant `before` had changed. A subsequent read matched the same final state,
+  confirming zero additional writes.
+- All 34 public exact-variant pages return 200, select the requested variant and
+  show the supported applied facts with manufacturer or retailer source labels.
+  They expose neither private archive URIs nor reviewer metadata. Twenty-nine
+  targets currently have an in-stock offer inside the application's 24-hour
+  freshness window. Pumpage variants `1374`, `1375`, `1376` have applied
+  caffeine `confirmed_absent`, but currently lack a fresh offer, so the
+  availability-aware caffeine-free filter correctly omits that family.
+- Of 404 current-offer catalogue variants, 141 are now complete, 26 partial and
+  237 have no applied facts. This batch contributed 26 complete and eight
+  partial variants; Darkstims caffeine remains deliberately unresolved.
+
+Complete machine-readable evidence is
+[nutrition-catalog-next-50-execution-2026-09-14.json](rollouts/nutrition-catalog-next-50-execution-2026-09-14.json),
+SHA-256 `a65dcc5f54619bbbeb4f2b8be8741e05793ad25552937fd073b398fda73be02e`.
+NUT-03 remains `IN PROGRESS`. One next step is to resolve the eight Darkstims
+caffeine facts only after an unambiguous total-caffeine-yield source, or prepare
+another evidence-backed family without repeating retained blockers.
