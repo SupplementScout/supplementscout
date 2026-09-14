@@ -1,0 +1,878 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-owner-images-batch-preparation-evidence-v1",
+  "status": "READY_FOR_ONE_OWNER_DECISION_NO_PRODUCTION_WRITE_AUTHORIZATION",
+  "prepared_at": "2026-09-14T06:35:45.547Z",
+  "input_handoff": {
+    "zip_path": "C:/Users/gogym/Downloads/SupplementScout-nutrition-25-images-2026-09-14.zip",
+    "zip_sha256": "94bb145533696ec19042d3a0596385f77d7e58a3164629ca08b5cccab3366956",
+    "zip_hash_result": "PASS",
+    "extracted_path": "tmp/nutrition-25-images-2026-09-14",
+    "manifest_sha256": "0b1f29fcb40abb1ce4896b645d3263d6f50051cacba501af9f76f9ce2a278b59",
+    "images": 25,
+    "unique_images": 24,
+    "image_hashes_result": "PASS",
+    "duplicate_source": {
+      "sha256": "58ce9cab462e18d5007d0619d12c2b693f0909f8f0d04cdfd73c4bf5cb788449",
+      "files": [
+        "fb535f3b-c98a-4e7b-bdc9-96e504a7eb57.png",
+        "b47614c3-ff41-4956-92c8-cf5e4201a3a2.png"
+      ]
+    },
+    "transcription_review": "Original images were manually inspected. Preliminary manifest transcription was used only as an index and did not replace review."
+  },
+  "production_preflight": {
+    "captured_at": "2026-09-14T06:22:14.195Z",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "environment": "PRODUCTION",
+    "existing_applied_preworkout_variants": 89,
+    "handoff_product_ids_checked": 15,
+    "catalogue_variants_checked": 114,
+    "existing_target_overrides": 0,
+    "existing_target_candidates": 0,
+    "snapshot_sha256": "e25ae925aab2490dcf3d1c14035d0cf3f451612b06aa4d788f3f4ef2656324f1",
+    "database_writes": 0
+  },
+  "archive": {
+    "bucket": "nutrition-sources",
+    "bucket_public": false,
+    "source_images_archived_once": 24,
+    "handoff_documents_archived": 2,
+    "source_context_archived": 1,
+    "objects_verified_by_fresh_readback": 27,
+    "readback_result": "PASS",
+    "source_context_uri": "supabase-storage://nutrition-sources/manifests/nut-03/owner-handoff-2026-09-14/7c35a028450698a8a827791bf1f19326cd475def8f0ba7a052a4ceb87bfe5144/source-context-manifest.json",
+    "source_context_sha256": "7c35a028450698a8a827791bf1f19326cd475def8f0ba7a052a4ceb87bfe5144",
+    "note": "The first upload stopped on unsupported README MIME after writing 24 images. The no-overwrite resume reused all 24, added README/manifest, then added the generated context manifest. Fresh readback matched all 27 object hashes. Storage is not represented as a backup."
+  },
+  "scope": {
+    "organizational_variant_limit": 50,
+    "assessed_handoff_product_families": 14,
+    "prepared_product_families": 7,
+    "prepared_variants": 47,
+    "complete_variants": 23,
+    "partial_variants": 24,
+    "candidate_facts": 199,
+    "unique_candidate_fingerprints": 199,
+    "unresolved_families": 8
+  },
+  "ready_products": [
+    {
+      "product_id": "24",
+      "product_name": "PEScience Prolific 280g",
+      "variant_ids": [
+        "1004",
+        "1581",
+        "1582",
+        "1583",
+        "1584",
+        "1585"
+      ],
+      "variant_names": [
+        {
+          "variant_id": "1004",
+          "display_name": "Mango Splash / 280g",
+          "flavour": "Mango Splash",
+          "size_value": 280,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "1581",
+          "display_name": "Melon Berry Twist / 280g",
+          "flavour": "Melon Berry Twist",
+          "size_value": 280,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "1582",
+          "display_name": "Guava Pineapple Punch / 280g",
+          "flavour": "Guava Pineapple Punch",
+          "size_value": 280,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "1583",
+          "display_name": "Raspberry Lemonade / 280g",
+          "flavour": "Raspberry Lemonade",
+          "size_value": 280,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "1584",
+          "display_name": "Sour Green Apple / 280g",
+          "flavour": "Sour Green Apple",
+          "size_value": 280,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "1585",
+          "display_name": "Sour Peach Candy / 280g",
+          "flavour": "Sour Peach Candy",
+          "size_value": 280,
+          "size_unit": "g"
+        }
+      ],
+      "variant_count": 6,
+      "complete_variants": 0,
+      "partial_variants": 6,
+      "proposed_values_per_variant": {
+        "serving": "2 scoops (14 g)",
+        "caffeine": "unresolved",
+        "beta_alanine": "confirmed_absent",
+        "citrulline": "unresolved",
+        "creatine": "unresolved"
+      },
+      "unresolved_fields": [
+        {
+          "field": "caffeine_per_serving_mg",
+          "reason": "The active-ingredient amounts are collapsed and not visible in the retained screenshot."
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "reason": "The active-ingredient amounts are collapsed and not visible in the retained screenshot."
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "reason": "The visible ingredient list contains excipients only and cannot establish creatine presence or absence."
+        }
+      ],
+      "applicability_basis": "retailer product page common presentation for the listed product flavours",
+      "source_url": "https://www.dolphinfitness.co.uk/en/pes-prolific-280g/135428",
+      "source_file_sha256": "598eac254b220e9c2330823c74bb0996a9f170cfb25d4b86794be942ed390ca8",
+      "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/owner-handoff-2026-09-14/598eac254b220e9c2330823c74bb0996a9f170cfb25d4b86794be942ed390ca8/f1ba6128-4004-409b-b8ad-8bf904ec140b.png",
+      "companion_sources": [],
+      "artifact_path": "tmp/nutrition-25-images-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-owner-images-20260914-24.json",
+      "artifact_sha256": "4c31a314ce379e3cef476acf6a77723bc5619b09757940937b13235a0904dc1e",
+      "artifact_fingerprint": "feab539533515676225ac8378a27d3a8c6b7c6d80c043a020fa7e5028e1fc277",
+      "candidates": 12,
+      "unique_candidate_fingerprints": 12,
+      "dry_run": {
+        "product_id": "24",
+        "artifact_path": "tmp/nutrition-25-images-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-owner-images-20260914-24.json",
+        "artifact_sha256": "4c31a314ce379e3cef476acf6a77723bc5619b09757940937b13235a0904dc1e",
+        "artifact_fingerprint": "feab539533515676225ac8378a27d3a8c6b7c6d80c043a020fa7e5028e1fc277",
+        "result": "PASS",
+        "mode": "DRY_RUN_NO_DATABASE",
+        "destination": "nutrition_candidates",
+        "candidate_rows": 12,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "761",
+      "product_name": "HR Labs Proven 20 servings",
+      "variant_ids": [
+        "907",
+        "909"
+      ],
+      "variant_names": [
+        {
+          "variant_id": "907",
+          "display_name": "Classic Cola / 20 servings",
+          "flavour": "Classic Cola",
+          "size_value": 20,
+          "size_unit": "servings"
+        },
+        {
+          "variant_id": "909",
+          "display_name": "Frootz / 20 servings",
+          "flavour": "Frootz",
+          "size_value": 20,
+          "size_unit": "servings"
+        }
+      ],
+      "variant_count": 2,
+      "complete_variants": 0,
+      "partial_variants": 2,
+      "proposed_values_per_variant": {
+        "serving": "1 serving (16 g)",
+        "caffeine": "unresolved (CognatiQ coffee fruit extract)",
+        "beta_alanine": "confirmed_absent",
+        "citrulline": "6000 mg citrulline_malate 2:1",
+        "creatine": "confirmed_absent"
+      },
+      "unresolved_fields": [
+        {
+          "field": "caffeine_per_serving_mg",
+          "reason": "No standalone caffeine amount is listed, but CognatiQ coffee fruit extract is present; the retained evidence does not establish total caffeine or confirmed absence."
+        }
+      ],
+      "applicability_basis": "wspólna tabela producenta dla wariantów produktu",
+      "source_url": "https://hr-labs.co.uk/products/proven-stim-free-performance-pre",
+      "source_file_sha256": "7731b2ddac22c395d46b7ab0bdbab61e09ac360c939edd8bd217a2e227b1e57a",
+      "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/owner-handoff-2026-09-14/7731b2ddac22c395d46b7ab0bdbab61e09ac360c939edd8bd217a2e227b1e57a/51c36207-0bbf-4ea5-a2a4-406bdc5a7a41.png",
+      "companion_sources": [],
+      "artifact_path": "tmp/nutrition-25-images-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-owner-images-20260914-761.json",
+      "artifact_sha256": "a5d1dcd4130352ebe5a50d35fb661fe4c16c0e6ded751a92c93b8acf3f1a3ca6",
+      "artifact_fingerprint": "5320f67deb39052cb9bf70a7b43f1ad9e9c117d0a25351d1e5cfcfea00e408de",
+      "candidates": 8,
+      "unique_candidate_fingerprints": 8,
+      "dry_run": {
+        "product_id": "761",
+        "artifact_path": "tmp/nutrition-25-images-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-owner-images-20260914-761.json",
+        "artifact_sha256": "a5d1dcd4130352ebe5a50d35fb661fe4c16c0e6ded751a92c93b8acf3f1a3ca6",
+        "artifact_fingerprint": "5320f67deb39052cb9bf70a7b43f1ad9e9c117d0a25351d1e5cfcfea00e408de",
+        "result": "PASS",
+        "mode": "DRY_RUN_NO_DATABASE",
+        "destination": "nutrition_candidates",
+        "candidate_rows": 8,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "789",
+      "product_name": "Per4m Pre-Workout Stim 570g",
+      "variant_ids": [
+        "1084",
+        "1085",
+        "1087",
+        "1088",
+        "1089",
+        "1090",
+        "1091",
+        "1092",
+        "1137",
+        "3594"
+      ],
+      "variant_names": [
+        {
+          "variant_id": "1084",
+          "display_name": "Blackberry / 570g",
+          "flavour": "Blackberry",
+          "size_value": 570,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "1085",
+          "display_name": "Berry Blast / 570g",
+          "flavour": "Berry Blast",
+          "size_value": 570,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "1087",
+          "display_name": "Lemon Sherbet Fizz / 570g",
+          "flavour": "Lemon Sherbet Fizz",
+          "size_value": 570,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "1088",
+          "display_name": "Orange & Mango / 570g",
+          "flavour": "Orange & Mango",
+          "size_value": 570,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "1089",
+          "display_name": "Passionfruit / 570g",
+          "flavour": "Passionfruit",
+          "size_value": 570,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "1090",
+          "display_name": "Pink Lemonade / 570g",
+          "flavour": "Pink Lemonade",
+          "size_value": 570,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "1091",
+          "display_name": "Rainbow Candy / 570g",
+          "flavour": "Rainbow Candy",
+          "size_value": 570,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "1092",
+          "display_name": "Watermelon Lemonade / 570g",
+          "flavour": "Watermelon Lemonade",
+          "size_value": 570,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "1137",
+          "display_name": "Strawberry Lime / 570g",
+          "flavour": "Strawberry Lime",
+          "size_value": 570,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "3594",
+          "display_name": "Passion Fruit / 570g",
+          "flavour": "Passion Fruit",
+          "size_value": 570,
+          "size_unit": "g"
+        }
+      ],
+      "variant_count": 10,
+      "complete_variants": 10,
+      "partial_variants": 0,
+      "proposed_values_per_variant": {
+        "serving": "daily dose 19 g",
+        "caffeine": "300 mg caffeine anhydrous",
+        "beta_alanine": "3200 mg",
+        "citrulline": "8000 mg l_citrulline",
+        "creatine": "confirmed_absent"
+      },
+      "unresolved_fields": [],
+      "applicability_basis": "wspólna tabela producenta dla wariantów produktu",
+      "source_url": "https://per4mbetter.com/products/passionfruit-pre-workout",
+      "source_file_sha256": "631cf5e5c5ccda49e0b2898b6452bca70f230dedf5f910491720eba0be713a61",
+      "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/owner-handoff-2026-09-14/631cf5e5c5ccda49e0b2898b6452bca70f230dedf5f910491720eba0be713a61/49ed7db0-c1b5-48c7-b44a-88235340fbfe.png",
+      "companion_sources": [
+        {
+          "sha256": "d32773aeedac8db9cdbdd255b23a4cbb03392587b2251a5f10a3c6741ce7910e",
+          "archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/owner-handoff-2026-09-14/d32773aeedac8db9cdbdd255b23a4cbb03392587b2251a5f10a3c6741ce7910e/76120791-a057-4327-b81d-8dc87229377b.png"
+        }
+      ],
+      "artifact_path": "tmp/nutrition-25-images-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-owner-images-20260914-789.json",
+      "artifact_sha256": "6a0277055e678296ad972dc9b736628b1d085aa50e60fbf1ece729acd67e5a18",
+      "artifact_fingerprint": "0c753592dfcd71a83dc96c746fce15ccdd6dc5333dd3493a44280631dbc963e2",
+      "candidates": 50,
+      "unique_candidate_fingerprints": 50,
+      "dry_run": {
+        "product_id": "789",
+        "artifact_path": "tmp/nutrition-25-images-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-owner-images-20260914-789.json",
+        "artifact_sha256": "6a0277055e678296ad972dc9b736628b1d085aa50e60fbf1ece729acd67e5a18",
+        "artifact_fingerprint": "0c753592dfcd71a83dc96c746fce15ccdd6dc5333dd3493a44280631dbc963e2",
+        "result": "PASS",
+        "mode": "DRY_RUN_NO_DATABASE",
+        "destination": "nutrition_candidates",
+        "candidate_rows": 50,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "882",
+      "product_name": "PER4M Energy Pre Workout 390g",
+      "variant_ids": [
+        "1396",
+        "1397",
+        "1398",
+        "1400",
+        "1401",
+        "1403",
+        "1404",
+        "1405",
+        "1406"
+      ],
+      "variant_names": [
+        {
+          "variant_id": "1396",
+          "display_name": "Cherry Fizz / 390g",
+          "flavour": "Cherry Fizz",
+          "size_value": 390,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "1397",
+          "display_name": "Pineapple Rings / 390g",
+          "flavour": "Pineapple Rings",
+          "size_value": 390,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "1398",
+          "display_name": "Gummy Worms / 390g",
+          "flavour": "Gummy Worms",
+          "size_value": 390,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "1400",
+          "display_name": "Pech Sweets / 390g",
+          "flavour": "Pech Sweets",
+          "size_value": 390,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "1401",
+          "display_name": "Raspberry Cherry / 390g",
+          "flavour": "Raspberry Cherry",
+          "size_value": 390,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "1403",
+          "display_name": "Fizzy Bubblegum Bottles / 390g",
+          "flavour": "Fizzy Bubblegum Bottles",
+          "size_value": 390,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "1404",
+          "display_name": "Lemon Sherbert Fizz / 390g",
+          "flavour": "Lemon Sherbert Fizz",
+          "size_value": 390,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "1405",
+          "display_name": "Blue Raspberry / 390g",
+          "flavour": "Blue Raspberry",
+          "size_value": 390,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "1406",
+          "display_name": "Blackberry / 390g",
+          "flavour": "Blackberry",
+          "size_value": 390,
+          "size_unit": "g"
+        }
+      ],
+      "variant_count": 9,
+      "complete_variants": 9,
+      "partial_variants": 0,
+      "proposed_values_per_variant": {
+        "serving": "1 scoop (6.5 g)",
+        "caffeine": "200 mg caffeine anhydrous",
+        "beta_alanine": "1600 mg",
+        "citrulline": "2500 mg citrulline_malate 2:1",
+        "creatine": "confirmed_absent"
+      },
+      "unresolved_fields": [],
+      "applicability_basis": "wspólna tabela producenta dla wariantów produktu",
+      "source_url": "https://per4mbetter.com/products/blue-raspberry-energy-preworkout",
+      "source_file_sha256": "301cb81a6ac144001bbdfd39d9f969d6269e7d36cec67d81d9edefe383fb3a3b",
+      "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/owner-handoff-2026-09-14/301cb81a6ac144001bbdfd39d9f969d6269e7d36cec67d81d9edefe383fb3a3b/7673a2ee-8680-43a3-994c-633d2c9a8d2b.png",
+      "companion_sources": [
+        {
+          "sha256": "ac044db1f6832dbfcf600b23d19af206eb850cda7ecf1f1aa8885f8c7f17e9dc",
+          "archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/owner-handoff-2026-09-14/ac044db1f6832dbfcf600b23d19af206eb850cda7ecf1f1aa8885f8c7f17e9dc/aed984b0-0c7f-4052-a016-18bea21676a7.png"
+        }
+      ],
+      "artifact_path": "tmp/nutrition-25-images-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-owner-images-20260914-882.json",
+      "artifact_sha256": "bd6101fc385fa2fdd8afb5c291d8d127e2ca41dd957bb027096187a64ab874e9",
+      "artifact_fingerprint": "a678860194db2668b078c8e159d4540e2a682d85923c6684a562292239cf498d",
+      "candidates": 45,
+      "unique_candidate_fingerprints": 45,
+      "dry_run": {
+        "product_id": "882",
+        "artifact_path": "tmp/nutrition-25-images-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-owner-images-20260914-882.json",
+        "artifact_sha256": "bd6101fc385fa2fdd8afb5c291d8d127e2ca41dd957bb027096187a64ab874e9",
+        "artifact_fingerprint": "a678860194db2668b078c8e159d4540e2a682d85923c6684a562292239cf498d",
+        "result": "PASS",
+        "mode": "DRY_RUN_NO_DATABASE",
+        "destination": "nutrition_candidates",
+        "candidate_rows": 45,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "1061",
+      "product_name": "USN 3XT Dynamite Pre-Workout 375g",
+      "variant_ids": [
+        "2235",
+        "2236",
+        "2237"
+      ],
+      "variant_names": [
+        {
+          "variant_id": "2235",
+          "display_name": "Blue Burst / 375g",
+          "flavour": "Blue Burst",
+          "size_value": 375,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "2236",
+          "display_name": "Candy Pop / 375g",
+          "flavour": "Candy Pop",
+          "size_value": 375,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "2237",
+          "display_name": "Hawaiian Pump / 375g",
+          "flavour": "Hawaiian Pump",
+          "size_value": 375,
+          "size_unit": "g"
+        }
+      ],
+      "variant_count": 3,
+      "complete_variants": 3,
+      "partial_variants": 0,
+      "proposed_values_per_variant": {
+        "serving": "1 serving (12.5 g)",
+        "caffeine": "250 mg natural caffeine",
+        "beta_alanine": "2000 mg",
+        "citrulline": "4000 mg citrulline_malate 2:1 compound mass",
+        "creatine": "3400 mg creatine_monohydrate compound mass"
+      },
+      "unresolved_fields": [],
+      "applicability_basis": "wspólna tabela producenta dla wariantów produktu",
+      "source_url": "https://uk.usn.global/products/3xt-dynamite-pre-workout",
+      "source_file_sha256": "9f9ea2b10019863037a9c3fc2578bfd0af4d71c5ede46025e442950aba411095",
+      "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/owner-handoff-2026-09-14/9f9ea2b10019863037a9c3fc2578bfd0af4d71c5ede46025e442950aba411095/a74eefbc-7929-40ef-b3eb-0c4177a6d746.png",
+      "companion_sources": [],
+      "artifact_path": "tmp/nutrition-25-images-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-owner-images-20260914-1061.json",
+      "artifact_sha256": "642144ac7c028980c8fecacc5a2c1b6a639516cfcb98967973149a7f36e7faa3",
+      "artifact_fingerprint": "eb8b5146a0fe0414b3c4ada57ff967f18b1bfa7b06f889206352d8b2f99ae3d4",
+      "candidates": 15,
+      "unique_candidate_fingerprints": 15,
+      "dry_run": {
+        "product_id": "1061",
+        "artifact_path": "tmp/nutrition-25-images-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-owner-images-20260914-1061.json",
+        "artifact_sha256": "642144ac7c028980c8fecacc5a2c1b6a639516cfcb98967973149a7f36e7faa3",
+        "artifact_fingerprint": "eb8b5146a0fe0414b3c4ada57ff967f18b1bfa7b06f889206352d8b2f99ae3d4",
+        "result": "PASS",
+        "mode": "DRY_RUN_NO_DATABASE",
+        "destination": "nutrition_candidates",
+        "candidate_rows": 15,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "1178",
+      "product_name": "NXT Nutrition TNT Nuclear Pump Stim-Free 500g",
+      "variant_ids": [
+        "3524"
+      ],
+      "variant_names": [
+        {
+          "variant_id": "3524",
+          "display_name": "Ice Burst",
+          "flavour": "Ice Burst",
+          "size_value": 500,
+          "size_unit": "g"
+        }
+      ],
+      "variant_count": 1,
+      "complete_variants": 1,
+      "partial_variants": 0,
+      "proposed_values_per_variant": {
+        "serving": "2 scoops (20 g)",
+        "caffeine": "confirmed_absent",
+        "beta_alanine": "confirmed_absent",
+        "citrulline": "6000 mg citrulline_malate; ratio not declared",
+        "creatine": "confirmed_absent"
+      },
+      "unresolved_fields": [],
+      "applicability_basis": "exact retailer-hosted manufacturer front and back label for Ice Burst",
+      "source_url": "https://www.10reps.co.uk/product/nxt-pump-500g/?attribute_flavours=Ice%20Burst",
+      "source_file_sha256": "85e7f4c76134f3b205a8a5b2536896280a2e5451c98b39d1fdd8bb5b0e366cb7",
+      "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/owner-handoff-2026-09-14/85e7f4c76134f3b205a8a5b2536896280a2e5451c98b39d1fdd8bb5b0e366cb7/nxt_nuclear_pump_500g_ice_burst_02.webp",
+      "companion_sources": [
+        {
+          "sha256": "800cd48abeda0082b7bf46ab816e0996e37b63335fbfec7907579472716b13a2",
+          "archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/owner-handoff-2026-09-14/800cd48abeda0082b7bf46ab816e0996e37b63335fbfec7907579472716b13a2/nxt_nuclear_pump_500g_ice_burst_01.webp"
+        }
+      ],
+      "artifact_path": "tmp/nutrition-25-images-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-owner-images-20260914-1178.json",
+      "artifact_sha256": "3c68e99d0d8bbcd58f71f0494c23d8be232a08a18151df3e25f833ca37dd1ecc",
+      "artifact_fingerprint": "d411c6835777e2239e6a0a46eb4ed6630d5a58e2f5f02d1a047c80b4344d5cc9",
+      "candidates": 5,
+      "unique_candidate_fingerprints": 5,
+      "dry_run": {
+        "product_id": "1178",
+        "artifact_path": "tmp/nutrition-25-images-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-owner-images-20260914-1178.json",
+        "artifact_sha256": "3c68e99d0d8bbcd58f71f0494c23d8be232a08a18151df3e25f833ca37dd1ecc",
+        "artifact_fingerprint": "d411c6835777e2239e6a0a46eb4ed6630d5a58e2f5f02d1a047c80b4344d5cc9",
+        "result": "PASS",
+        "mode": "DRY_RUN_NO_DATABASE",
+        "destination": "nutrition_candidates",
+        "candidate_rows": 5,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "1280",
+      "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+      "variant_ids": [
+        "3760",
+        "3856",
+        "3996",
+        "3997",
+        "3998",
+        "3999",
+        "4000",
+        "4001",
+        "4002",
+        "4003",
+        "4004",
+        "4005",
+        "4006",
+        "4007",
+        "4008",
+        "4009"
+      ],
+      "variant_names": [
+        {
+          "variant_id": "3760",
+          "display_name": "Coconut Cola",
+          "flavour": "Coconut Cola",
+          "size_value": 480,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "3856",
+          "display_name": "Ultimate Energy / 480g",
+          "flavour": "Ultimate Energy",
+          "size_value": 480,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "3996",
+          "display_name": "Apple Bubble Gum",
+          "flavour": "Apple Bubble Gum",
+          "size_value": 480,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "3997",
+          "display_name": "Apple Candy",
+          "flavour": "Apple Candy",
+          "size_value": 480,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "3998",
+          "display_name": "Bubble Gum Blast",
+          "flavour": "Bubble Gum Blast",
+          "size_value": 480,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "3999",
+          "display_name": "Caribbean Crush",
+          "flavour": "Caribbean Crush",
+          "size_value": 480,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "4000",
+          "display_name": "Cherry Bomb Lemonade",
+          "flavour": "Cherry Bomb Lemonade",
+          "size_value": 480,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "4001",
+          "display_name": "Jungle Juice",
+          "flavour": "Jungle Juice",
+          "size_value": 480,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "4002",
+          "display_name": "Mango Passionfruit",
+          "flavour": "Mango Passionfruit",
+          "size_value": 480,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "4003",
+          "display_name": "Orange Mango",
+          "flavour": "Orange Mango",
+          "size_value": 480,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "4004",
+          "display_name": "Passion Fruit",
+          "flavour": "Passion Fruit",
+          "size_value": 480,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "4005",
+          "display_name": "Strawberry Laces",
+          "flavour": "Strawberry Laces",
+          "size_value": 480,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "4006",
+          "display_name": "Ultimate Hulk Juice",
+          "flavour": "Ultimate Hulk Juice",
+          "size_value": 480,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "4007",
+          "display_name": "Ultimate Juice",
+          "flavour": "Ultimate Juice",
+          "size_value": 480,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "4008",
+          "display_name": "Ultimate Lemonade",
+          "flavour": "Ultimate Lemonade",
+          "size_value": 480,
+          "size_unit": "g"
+        },
+        {
+          "variant_id": "4009",
+          "display_name": "Ultimate Raspberry",
+          "flavour": "Ultimate Raspberry",
+          "size_value": 480,
+          "size_unit": "g"
+        }
+      ],
+      "variant_count": 16,
+      "complete_variants": 0,
+      "partial_variants": 16,
+      "proposed_values_per_variant": {
+        "serving": "1 scoop (12 g)",
+        "caffeine": "unresolved total (250 mg anhydrous + 15 mg di-caffeine malate compound)",
+        "beta_alanine": "2000 mg",
+        "citrulline": "4000 mg l_citrulline",
+        "creatine": "confirmed_absent"
+      },
+      "unresolved_fields": [
+        {
+          "field": "caffeine_per_serving_mg",
+          "reason": "The 12 g column declares 250 mg caffeine anhydrous plus 15 mg di-caffeine malate compound; actual total caffeine yield is not declared and compound mass cannot be counted as caffeine."
+        }
+      ],
+      "applicability_basis": "retailer-hosted manufacturer label shared by the listed product flavours",
+      "source_url": "https://www.10reps.co.uk/product/gorillalpha-yeti-juice-pre-workout/",
+      "source_file_sha256": "9bf7255932abe9bb15d8c7f312a5881278e44936d66de9b7d4b87d7ef4335233",
+      "source_archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/owner-handoff-2026-09-14/9bf7255932abe9bb15d8c7f312a5881278e44936d66de9b7d4b87d7ef4335233/gorillalpha-yeti-juice-pre-workout-480g-332477.jpg",
+      "companion_sources": [
+        {
+          "sha256": "7b30ac78f447981c657888a47ff0b6d967575f92f0e9506c59a923c03c741dd0",
+          "archive_uri": "supabase-storage://nutrition-sources/snapshots/nut-03/owner-handoff-2026-09-14/7b30ac78f447981c657888a47ff0b6d967575f92f0e9506c59a923c03c741dd0/gorillalpha-yeti-juice-pre-workout-480g-451031.webp"
+        }
+      ],
+      "artifact_path": "tmp/nutrition-25-images-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-owner-images-20260914-1280.json",
+      "artifact_sha256": "26a9537a6f1b4cc29ca5267e4f44d9e58fbdfbbefb1fb1c56a593ea62f36acd3",
+      "artifact_fingerprint": "7f2b2c38fdd41dda8760d47c2d08f5e1774e3562ec0a9c03f59cf2132cbc9868",
+      "candidates": 64,
+      "unique_candidate_fingerprints": 64,
+      "dry_run": {
+        "product_id": "1280",
+        "artifact_path": "tmp/nutrition-25-images-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-owner-images-20260914-1280.json",
+        "artifact_sha256": "26a9537a6f1b4cc29ca5267e4f44d9e58fbdfbbefb1fb1c56a593ea62f36acd3",
+        "artifact_fingerprint": "7f2b2c38fdd41dda8760d47c2d08f5e1774e3562ec0a9c03f59cf2132cbc9868",
+        "result": "PASS",
+        "mode": "DRY_RUN_NO_DATABASE",
+        "destination": "nutrition_candidates",
+        "candidate_rows": 64,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    }
+  ],
+  "unresolved_families": [
+    {
+      "product_id": "169",
+      "variants": [
+        "1015",
+        "1647",
+        "1648",
+        "1649",
+        "1650",
+        "1651",
+        "1652",
+        "1653",
+        "1654"
+      ],
+      "reason": "Catalogue 400 g conflicts with a 14.7 g × 30 table (441 g implied) and a 447 g front; total caffeine also includes an undecomposed di-caffeine malate amount."
+    },
+    {
+      "product_id": "1276",
+      "variants": [
+        "3756",
+        "3883",
+        "3884",
+        "3885",
+        "3992",
+        "3993",
+        "3994",
+        "3995"
+      ],
+      "reason": "Displayed headers say per 24 g and per 100 g while values double; serving basis is unresolved and the front flavour differs from the page flavour."
+    },
+    {
+      "product_id": "62",
+      "variants": [
+        "1031",
+        "1616",
+        "1617",
+        "1618",
+        "2646",
+        "2647",
+        "2649"
+      ],
+      "reason": "The supplied current V3/Fizzy Cola Bottles formula does not establish the catalogue flavour and pack-version mapping."
+    },
+    {
+      "product_id": "1249",
+      "variants": [
+        "3671",
+        "3717",
+        "3719",
+        "3720"
+      ],
+      "reason": "The 16.1 g × 30 declaration implies 483 g and is not enough to bind the catalogue 491 g version."
+    },
+    {
+      "product_id": "1246",
+      "variants": [
+        "3668",
+        "3713"
+      ],
+      "reason": "The source is Strawberry Pineapple 412 g; catalogue variants are Sour Gummies/Berry Blast 400 g."
+    },
+    {
+      "product_id": "979",
+      "variants": [
+        "1915",
+        "1917"
+      ],
+      "reason": "Retained tables conflict on an approximately 15 g versus 16 g serving; Grape also lacks exact recipe binding."
+    },
+    {
+      "product_id": "980",
+      "variants": [
+        "1920"
+      ],
+      "reason": "The retained table does not establish that it applies to catalogue flavour Orange Creamsicle."
+    },
+    {
+      "product_id": "1245",
+      "variants": [
+        "3667",
+        "3710",
+        "3711",
+        "3712"
+      ],
+      "reason": "No source image for this product occurs in the handoff."
+    }
+  ],
+  "controls": {
+    "exact_variant_ids_preserved_as_strings": true,
+    "source_hash_and_private_uri_preserved_per_candidate": true,
+    "compound_masses_not_converted_to_pure_ingredient": true,
+    "unresolved_facts_omitted_not_zeroed": true,
+    "images_committed_to_git": false,
+    "candidate_store_review_plan_apply_performed": false,
+    "production_writes": 0
+  },
+  "validation": {
+    "dry_run_results_path": "tmp/nutrition-25-images-2026-09-14/dry-run-results.json",
+    "dry_run_results_sha256": "55752488b8b6a3dc725bc87c0b4e617aa42aba54506c2b6217f9870d0315b4b3",
+    "dry_run_artifacts_passed": 7,
+    "dry_run_candidate_rows": 199,
+    "dry_run_product_updates": 0,
+    "dry_run_database_writes": 0,
+    "source_context_manifest_path": "tmp/nutrition-25-images-2026-09-14/source-context-manifest.json",
+    "source_context_manifest_sha256": "7c35a028450698a8a827791bf1f19326cd475def8f0ba7a052a4ceb87bfe5144"
+  },
+  "owner_decision_required": {
+    "action": "Authorize or reject production store -> authenticated review -> explicit-ID plan -> guarded apply for exactly the seven immutable artifacts and 199 fingerprints listed in this report.",
+    "reason": "No earlier production authorization covers this newly generated exact artifact set.",
+    "expected_catalogue_scope_if_later_authorized": "zero product updates; nutrition_override only for the 47 listed exact variants; unresolved facts remain absent from the plan"
+  }
+}

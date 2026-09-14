@@ -1,6 +1,6 @@
 # Nutrition Data Enrichment — Execution Plan
 
-**Status date:** 13 September 2026
+**Status date:** 14 September 2026
 
 ## Current checkpoint
 
@@ -84,6 +84,19 @@
   total remains 89; current-offer coverage is 404 variants: 81 complete, zero
   partial and 323 without applied facts. The frozen pilot is 12 complete, zero
   partial and 13 without applied facts.
+- The 14 September owner-image handoff is `READY FOR ONE OWNER DECISION`. Its
+  ZIP SHA-256 and all 25 source-file hashes passed; 24 source images are unique
+  and one HR Labs Defib image is duplicated byte-for-byte. The closed package
+  prepares 199 unique pending facts for 47 current-offer variants across seven
+  families. Twenty-three variants resolve all four tracked ingredients and 24
+  remain partial. Seven artifact dry-runs passed with zero product updates and
+  zero database writes. Eight other families retain explicit recipe, pack,
+  serving, flavour-binding or caffeine-yield gaps. Sources and the context
+  manifest have private archive readback; raw images remain outside Git. No
+  existing authorization covers these newly generated fingerprints, so no
+  candidate was stored, reviewed, planned or applied and the distinct applied
+  total remains 89. See
+  `docs/rollouts/nutrition-owner-images-batch-preparation-2026-09-14.json`.
 - Retailer-source batch 01 is `LIVE VERIFIED` for 19 partial exact variants
   across products `778`, `763` and `903`. Candidates `1037`-`1112` were stored
   and approved through authenticated review. Three zero-product-update plans
@@ -3412,3 +3425,98 @@ exact-formula proof for questions 5-19; do not repeat the completed questions
 NUT-03 remains `IN PROGRESS`. One next step is a new evidence-backed unresolved
 owner question or another bounded nutrition package; do not recount these six
 variants or repeat their completed evidence review.
+
+## NUT-03 owner-image handoff batch preparation
+
+14 September 2026, preparation and private archival only:
+
+- `C:/Users/gogym/Downloads/SupplementScout-nutrition-25-images-2026-09-14.zip`
+  matched the owner-supplied SHA-256
+  `94bb145533696ec19042d3a0596385f77d7e58a3164629ca08b5cccab3366956`.
+  Safe extraction created `tmp/nutrition-25-images-2026-09-14` without replacing
+  any existing file. `README.md`, `manifest.json` and every original were read;
+  all 25 declared file hashes and sizes match. Manual image review treated the
+  preliminary transcription only as an index. There are 24 unique images: the
+  two Defib files share SHA-256
+  `58ce9cab462e18d5007d0619d12c2b693f0909f8f0d04cdfd73c4bf5cb788449`.
+- Fresh read-only production preflight at `2026-09-14T06:22:14.195Z` confirmed
+  project `aftboxmrdgyhizicfsfu`, 89 previously applied pre-workout variants,
+  exact catalogue bindings for the assessed scope, zero existing candidates and
+  empty overrides for all 114 checked variants from the 15 requested product
+  IDs. The production snapshot SHA-256 is
+  `e25ae925aab2490dcf3d1c14035d0cf3f451612b06aa4d788f3f4ef2656324f1`;
+  the read made zero writes.
+- Private archive duplicate checking found none of the 24 source hashes in the
+  earlier 56 objects. The first upload stopped at the unsupported Markdown MIME
+  after writing the images. The no-overwrite resume reused those 24 objects,
+  added the handoff documents, and then added the reviewed source context.
+  A fresh process read 27 objects with matching hashes and confirmed the bucket
+  remains private. The source-context manifest is
+  `tmp/nutrition-25-images-2026-09-14/source-context-manifest.json`, SHA-256
+  `7c35a028450698a8a827791bf1f19326cd475def8f0ba7a052a4ceb87bfe5144`,
+  archived at its content-addressed `nutrition-sources` URI. Archive storage is
+  not represented as a backup.
+- The closed organizational scope contains 47 current-offer exact variants and
+  199 candidate facts across seven product families. Product `789` contributes
+  variants `1084`, `1085`, `1087`-`1092`, `1137`, `3594`; product `882`
+  variants `1396`-`1398`, `1400`, `1401`, `1403`-`1406`; product `1280`
+  variants `3760`, `3856`, `3996`-`4009`; product `761` variants `907`, `909`;
+  product `24` variants `1004`, `1581`-`1585`; product `1061` variants `2235`-
+  `2237`; and product `1178` exact Ice Burst variant `3524`. All IDs remain
+  strings and each candidate retains its exact variant, immutable source hash
+  and private archive URI.
+- Twenty-three variants are complete for caffeine, beta-alanine, citrulline and
+  creatine: the ten product `789` variants, nine product `882` variants, three
+  product `1061` variants and exact product `1178` variant `3524`. The remaining
+  24 are deliberately partial: 16 Yeti variants omit unresolved total caffeine,
+  two Proven variants omit caffeine because coffee-fruit extract prevents an
+  absence inference, and six PEScience variants retain only serving and the
+  retailer's explicit beta-alanine-free declaration because active amounts are
+  not visible. Compound values remain the masses declared for citrulline malate
+  or creatine monohydrate; no conversion to pure ingredients was made.
+- Seven artifacts contain 12, 8, 50, 45, 15, 5 and 64 rows. Their SHA-256 /
+  artifact fingerprint pairs are: product `24`
+  `4c31a314ce379e3cef476acf6a77723bc5619b09757940937b13235a0904dc1e` /
+  `feab539533515676225ac8378a27d3a8c6b7c6d80c043a020fa7e5028e1fc277`;
+  product `761`
+  `a5d1dcd4130352ebe5a50d35fb661fe4c16c0e6ded751a92c93b8acf3f1a3ca6` /
+  `5320f67deb39052cb9bf70a7b43f1ad9e9c117d0a25351d1e5cfcfea00e408de`;
+  product `789`
+  `6a0277055e678296ad972dc9b736628b1d085aa50e60fbf1ece729acd67e5a18` /
+  `0c753592dfcd71a83dc96c746fce15ccdd6dc5333dd3493a44280631dbc963e2`;
+  product `882`
+  `bd6101fc385fa2fdd8afb5c291d8d127e2ca41dd957bb027096187a64ab874e9` /
+  `a678860194db2668b078c8e159d4540e2a682d85923c6684a562292239cf498d`;
+  product `1061`
+  `642144ac7c028980c8fecacc5a2c1b6a639516cfcb98967973149a7f36e7faa3` /
+  `eb8b5146a0fe0414b3c4ada57ff967f18b1bfa7b06f889206352d8b2f99ae3d4`;
+  product `1178`
+  `3c68e99d0d8bbcd58f71f0494c23d8be232a08a18151df3e25f833ca37dd1ecc` /
+  `d411c6835777e2239e6a0a46eb4ed6630d5a58e2f5f02d1a047c80b4344d5cc9`;
+  and product `1280`
+  `26a9537a6f1b4cc29ca5267e4f44d9e58fbdfbbefb1fb1c56a593ea62f36acd3` /
+  `7f2b2c38fdd41dda8760d47c2d08f5e1774e3562ec0a9c03f59cf2132cbc9868`.
+  Every candidate fingerprint is unique across the package.
+- `nutrition:candidates:store --dry-run` passed separately for all seven
+  artifacts: 199 candidate rows total, zero product updates and zero database
+  writes. The result file SHA-256 is
+  `55752488b8b6a3dc725bc87c0b4e617aa42aba54506c2b6217f9870d0315b4b3`.
+  `verify:project` passed before this status change. No code changed, so the
+  code-only quick/full suites were not repeated.
+- Eight families remain outside the ready package. Total War has conflicting
+  400/441/447 g version evidence and unresolved caffeine yield; Ibiza has an
+  incoherent serving header and flavour mismatch; Defib lacks exact V3/catalogue
+  flavour-pack binding; Animal's 16.1 g × 30 declaration does not establish the
+  catalogue 491 g version; Skill supplies 412 g Strawberry Pineapple rather than
+  the two 400 g catalogue flavours; Liberty conflicts on approximately 15 g
+  versus 16 g and does not bind Grape; Presidential does not bind its table to
+  Orange Creamsicle; and no image for product `1245` occurs in this handoff.
+
+Complete evidence is
+[nutrition-owner-images-batch-preparation-2026-09-14.json](rollouts/nutrition-owner-images-batch-preparation-2026-09-14.json),
+SHA-256 `5203fd0f412ca1e54af1895c4b98e089a5fa33b69d30e612b0a070527551c680`.
+No candidate store, review, plan or apply was performed, so applied coverage
+remains 89. NUT-03 remains `IN PROGRESS`. One next step is one owner decision on
+production store → authenticated review → explicit-ID plans → guarded apply for
+exactly these seven immutable artifacts and 199 candidate fingerprints; any
+authorization must retain the partial-field exclusions above.
