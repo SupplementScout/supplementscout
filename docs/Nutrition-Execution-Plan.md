@@ -4367,3 +4367,40 @@ Complete evidence is
 SHA-256 `834b536e5ce9890c5c861691dcfd19c4d94c6a5f930a9f10d5a2fd1e029adf9d`.
 NUT-03 remains `IN PROGRESS`. One next step is continuous evidence-qualified
 family preparation without repeating retained blockers.
+
+## NUT-03 continuous catalogue preparation after 263 applied variants
+
+14 September 2026, preparation only:
+
+- The next continuous pass assessed 50 unprocessed catalogue variants and
+  qualified five exact variants across three families: Innovapharm MVPRE 365
+  product `845` variants `1229`, `2772`; Ghost Legend V4 product `6` variant
+  `1741`; and NMP Liberty Swell product `979` variants `1915`, `1917`.
+- Three immutable artifacts contain 25 PENDING candidates. All three existing
+  store dry-runs passed with 25 candidate rows, zero product updates and zero
+  database writes. Production preflight confirmed five correct product-variant
+  bindings, empty target overrides, 25 unique fingerprints and no matching
+  existing candidates.
+- Three factual reviews were written once to the private `nutrition-sources`
+  archive. Independent downloads matched SHA-256. No candidate, review or
+  catalogue record was written in production.
+- The package stopped below the 50-variant organizational ceiling because the
+  other 45 assessed targets retained specific generation, pack/serving,
+  flavour-applicability, current-offer or source-retention conflicts. Those
+  facts were not guessed or joined across incompatible versions.
+
+Artifact SHA-256 / fingerprint pairs are: product `845`
+`6978057ad9c40956f70d7eea5ba43b8ebf32a1006112ce959e32f13b4cddf82e` /
+`681b4fc5fac9c2256ea0966390a5288f90a1c3d2a2e7b38d98913811e98654fb`;
+product `6`
+`2dbb66758a836a468d69b305821b9bbff578a7a7207f85d21de37bd78fc4bbcf` /
+`2539988a2f7ded38d3b55c345b2f00209629fc85f1beb2af157b60f520c27b25`;
+and product `979`
+`b10a0ca6abea92338cf5df18ee77d52188244e3f4729071e61890b947c46eb66` /
+`3fa6d357d5a5a9e4744e22a4c47086155cb99cc1184193ce3437547290f05313`.
+Complete evidence is
+[nutrition-catalog-next-continuous-preparation-2026-09-14.json](rollouts/nutrition-catalog-next-continuous-preparation-2026-09-14.json),
+SHA-256 `b8017f9813d955a9034e63216b20634ec555334e77e33c8c3d36dd602cbb4f62`.
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
+store -> authenticated review -> explicit-ID plans -> guarded apply of exactly
+these three unchanged artifacts and 25 fingerprints.
