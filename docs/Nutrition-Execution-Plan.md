@@ -4047,3 +4047,37 @@ SHA-256 `ee64c72cf9f26ee7247fc4c01a35d1c313f10418d1f925cddf2194fb3fbc515a`.
 NUT-03 remains `IN PROGRESS`. One next step is to prepare the next exact-version
 family with an evidence-backed serving and shared-table context, without
 repeating retained blockers.
+
+## NUT-03 next catalogue family preparation
+
+14 September 2026, preparation only:
+
+- The read-only production scan started from 212 applied variants and assessed
+  12 active current-offer variants across two families. It did not repeat the
+  retained C4 195 g, Ibiza or other recorded blocker audits.
+- Redcon1 Total War 400 g remains excluded: accessible current and historical
+  evidence shows incompatible pack sizes, serving masses and caffeine totals,
+  so it does not establish the catalogue formula without guessing.
+- Product `482`, JNX Sports The Curse 250 g, is ready for variants `1022`,
+  `1697` and `1698`. The manufacturer groups Blue Raspberry, Fruit Punch and
+  Pina Colada in the same 250 g / 50-serving product, and matching
+  retailer-hosted manufacturer labels establish one 5 g scoop, caffeine 155 mg,
+  beta-alanine 1600 mg, L-citrulline 700 mg and creatine monohydrate 1000 mg.
+  Compound masses retain their declared forms.
+- The single artifact contains 15 unique PENDING fingerprints and passes the
+  existing store dry-run with zero product updates and zero database writes. A
+  fresh production preflight found all three target overrides empty and no
+  matching candidates. The project-authored factual review and context manifest
+  were stored once in private `nutrition-sources`; fresh downloads reproduced
+  both hashes.
+
+The artifact is
+`tmp/nutrition-catalog-next-preparation-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-next-20260914-482.json`,
+SHA-256 `89d96dff9a31bf1b761271245b5276423f90c5d2fd4f3fd84968a98aa420ad4b`,
+fingerprint `c082a64382f4ab4a1f6acf199bf188c5279b26e5f5f81a204f28a7449e02e613`.
+Complete evidence is
+[nutrition-catalog-next-preparation-2026-09-14.json](rollouts/nutrition-catalog-next-preparation-2026-09-14.json),
+SHA-256 `09568e510f493090b1a34d32e99aa410e566d70aed8f2a3ed9503705e2b17394`.
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
+controlled store -> authenticated review -> explicit-ID plan -> guarded apply
+for exactly this unchanged artifact and its 15 fingerprints.
