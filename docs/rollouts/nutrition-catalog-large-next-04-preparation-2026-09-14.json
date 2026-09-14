@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-large-next-04-preparation-v1",
+  "status": "READY_FOR_ONE_OWNER_DECISION",
+  "prepared_at": "2026-09-14T20:02:22.852Z",
+  "mode": "PREPARATION_ONLY",
+  "production_checkpoint": {
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "active_preworkout_variants": 575,
+    "applied_variants": 294,
+    "available_variants": 406,
+    "available_complete": 234,
+    "available_partial": 52,
+    "available_without_facts": 120
+  },
+  "scope": {
+    "organizational_limit_variants": 50,
+    "assessed_available_unfinished_variants": 120,
+    "ready_families": 1,
+    "ready_variants": 2,
+    "complete_variants": 2,
+    "candidate_facts": 10,
+    "unique_candidate_fingerprints": 10
+  },
+  "families": [
+    {
+      "product_id": "756",
+      "product": "10X Athletic PUMP Non-Stim Pre Workout 50 servings",
+      "variant_ids": ["885", "1974"],
+      "variant_names": ["Apple Attack / 50 servings", "Cobra Ki / 50servings"],
+      "facts_per_variant": {
+        "serving_size_g": 12,
+        "serving_basis": "1 scoop (12 g)",
+        "caffeine": "confirmed_absent",
+        "beta_alanine_mg": 3200,
+        "citrulline": {"form": "citrulline_malate", "ratio": "2:1", "mg": 8000},
+        "creatine": {"form": "creatine_monohydrate", "mg": 3000}
+      },
+      "applicability": "Common manufacturer table and flavour selector for the same 50-serving product version; no flavour-specific dosage table or exception is shown.",
+      "source": {
+        "type": "manufacturer_product_page",
+        "url": "https://www.10xathletic.com/products/10x-pump?variant=39604411498547",
+        "review_sha256": "fde709351fff55b82cfc4d84bf580f67e8f6324d4136e6f2d8405c77dca9b63d",
+        "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-large-next-04-2026-09-14/fde709351fff55b82cfc4d84bf580f67e8f6324d4136e6f2d8405c77dca9b63d/product-756-source-review.json",
+        "archive_readback": "PASS"
+      },
+      "artifact": {
+        "path": "tmp/nutrition-catalog-large-next-04-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-04-20260914-756.json",
+        "sha256": "f51f13405ab2856e2217ddd4233ef99f3ba250c26c4f44eb48af57e1b5a96250",
+        "fingerprint": "d83046ab504444c6a1a0a4f1077e04736ba5e79195e955e140a11e7623fa7aa5"
+      }
+    }
+  ],
+  "validation": {
+    "result": "PASS",
+    "dry_runs_passed": 1,
+    "candidate_rows": 10,
+    "product_updates": 0,
+    "database_writes": 0,
+    "production_preflight": {
+      "result": "PASS",
+      "variants": 2,
+      "unique_fingerprints": 10,
+      "existing_candidates": 0,
+      "target_overrides_empty": 2,
+      "database_writes": 0
+    }
+  },
+  "retained_blockers": [
+    {"product_id":"1181","variants":8,"reason":"Official Darkstims materials conflict between a 400 mg caffeine matrix and a 362.5 mg caffeine declaration for the same V4 context."},
+    {"product_id":"879","variants":5,"reason":"Current manufacturer serving basis differs from retained 400 g retailer material and the manufacturer states that nutritional content varies by flavour."},
+    {"product_id":"783","variants":2,"reason":"Retained label evidence does not bind the gram-defined serving to the exact Grape and Raspberry Creamthickle variants."},
+    {"product_id":"1249","variants":1,"reason":"Kiwi Lime is presented as 512 g in current source context while the catalogue variant is 491 g."},
+    {"product_id":"848","variants":3,"reason":"Current 380 g sources expose conflicting 14 g, 19 g and 20 g formula generations."},
+    {"product_id":"169","variants":9,"reason":"Retained 400 g formula-generation conflict."},
+    {"product_id":"27","variants":8,"reason":"Retained 195 g serving/formula conflict."},
+    {"product_id":"1276","variants":8,"reason":"No qualifying common dosage table for the exact Ibiza Juice variants."}
+  ],
+  "controls": {
+    "production_candidate_writes": 0,
+    "review_writes": 0,
+    "plan_writes": 0,
+    "catalogue_writes": 0,
+    "source_archive_writes": 1,
+    "code_changes": 0,
+    "schema_changes": 0
+  },
+  "next_step": "One owner decision may authorize controlled store -> authenticated review -> explicit-ID plan -> guarded apply for exactly 10 candidates in the unchanged artifact, limited to variants 885 and 1974."
+}

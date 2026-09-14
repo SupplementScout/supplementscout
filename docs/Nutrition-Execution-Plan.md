@@ -4296,6 +4296,39 @@ SHA-256 `297c55c81e36b67bac30ad7d4e16d916a3b65394426d2c79396741402305824a`.
 NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified
 multi-family preparation batch without repeating retained blockers.
 
+## NUT-03 next large catalogue preparation after 294 applied variants
+
+14 September 2026, preparation only:
+
+- A fresh production read confirmed 575 active pre-workout variants and 294
+  variants with applied nutrition facts. Of 406 variants with a current
+  available offer, 234 are complete, 52 partial and 120 have no applied facts.
+- The evidence-qualified pass prepared the two exact 10X Athletic PUMP
+  variants: product `756`, Apple Attack variant `885` and Cobra Ki variant
+  `1974`. The common manufacturer table gives one scoop / 12 g, caffeine
+  `confirmed_absent`, beta-alanine 3200 mg, citrulline malate 2:1 8000 mg and
+  creatine monohydrate 3000 mg.
+- The immutable artifact contains 10 PENDING candidates with 10 unique
+  fingerprints. The existing store dry-run passed with zero database writes,
+  and production preflight found correct bindings, empty target overrides and
+  no matching candidates. The factual review was archived once in the private
+  `nutrition-sources` bucket and its independent download matched SHA-256.
+- The batch stopped below the 50-variant ceiling because the remaining assessed
+  families retain concrete serving, pack, flavour-applicability or formula
+  generation conflicts. In particular, Darkstims V4 currently exposes
+  conflicting 400 mg and 362.5 mg caffeine declarations, so no value was
+  selected by guesswork.
+
+Artifact SHA-256 / fingerprint: product `756`
+`f51f13405ab2856e2217ddd4233ef99f3ba250c26c4f44eb48af57e1b5a96250` /
+`d83046ab504444c6a1a0a4f1077e04736ba5e79195e955e140a11e7623fa7aa5`.
+Complete evidence is
+[nutrition-catalog-large-next-04-preparation-2026-09-14.json](rollouts/nutrition-catalog-large-next-04-preparation-2026-09-14.json),
+SHA-256 `b2a2dc7e5b7a6ce36e8b96d5dcd3ec09e7d8c15a0749b94e73a828e813c64a25`.
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
+store -> authenticated review -> explicit-ID plan -> guarded apply of exactly
+these 10 unchanged candidates for variants `885` and `1974`.
+
 ## NUT-03 large catalogue batch 03 execution
 
 14 September 2026, production execution after explicit owner authorization:
