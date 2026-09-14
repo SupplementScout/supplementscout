@@ -84,19 +84,19 @@
   total remains 89; current-offer coverage is 404 variants: 81 complete, zero
   partial and 323 without applied facts. The frozen pilot is 12 complete, zero
   partial and 13 without applied facts.
-- The 14 September owner-image handoff is `READY FOR ONE OWNER DECISION`. Its
+- The 14 September owner-image handoff is `LIVE VERIFIED`. Its
   ZIP SHA-256 and all 25 source-file hashes passed; 24 source images are unique
   and one HR Labs Defib image is duplicated byte-for-byte. The closed package
-  prepares 199 unique pending facts for 47 current-offer variants across seven
+  stored and approved 199 unique facts for 47 current-offer variants across seven
   families. Twenty-three variants resolve all four tracked ingredients and 24
-  remain partial. Seven artifact dry-runs passed with zero product updates and
-  zero database writes. Eight other families retain explicit recipe, pack,
-  serving, flavour-binding or caffeine-yield gaps. Sources and the context
-  manifest have private archive readback; raw images remain outside Git. No
-  existing authorization covers these newly generated fingerprints, so no
-  candidate was stored, reviewed, planned or applied and the distinct applied
-  total remains 89. See
-  `docs/rollouts/nutrition-owner-images-batch-preparation-2026-09-14.json`.
+  remain partial. Seven guarded plans changed only the 47 exact
+  `nutrition_override` objects; independent readback and seven stale-before
+  replay checks pass. All 47 public variant pages show their exact applied facts
+  and only caffeine-free variant `3524` qualifies among this package. The
+  distinct applied total is 136; current-offer coverage is 404 variants: 104
+  complete, 24 partial and 276 without applied facts. Eight other families
+  retain explicit gaps. Sources remain private and raw images remain outside
+  Git. See `docs/rollouts/nutrition-owner-images-batch-execution-2026-09-14.json`.
 - Retailer-source batch 01 is `LIVE VERIFIED` for 19 partial exact variants
   across products `778`, `763` and `903`. Candidates `1037`-`1112` were stored
   and approved through authenticated review. Three zero-product-update plans
@@ -3515,8 +3515,76 @@ variants or repeat their completed evidence review.
 Complete evidence is
 [nutrition-owner-images-batch-preparation-2026-09-14.json](rollouts/nutrition-owner-images-batch-preparation-2026-09-14.json),
 SHA-256 `5203fd0f412ca1e54af1895c4b98e089a5fa33b69d30e612b0a070527551c680`.
-No candidate store, review, plan or apply was performed, so applied coverage
-remains 89. NUT-03 remains `IN PROGRESS`. One next step is one owner decision on
-production store → authenticated review → explicit-ID plans → guarded apply for
-exactly these seven immutable artifacts and 199 candidate fingerprints; any
-authorization must retain the partial-field exclusions above.
+At this preparation checkpoint no candidate store, review, plan or apply had
+been performed and applied coverage remained 89. The controlled execution below
+supersedes that pending-decision status while retaining every partial-field
+exclusion.
+
+## NUT-03 owner-image handoff controlled execution
+
+14 September 2026, production project `aftboxmrdgyhizicfsfu`:
+
+- Fresh pre-store readback reconfirmed 89 applied pre-workout variants, all 47
+  exact active product-variant bindings, empty target overrides and zero target
+  candidates. All seven authorized artifact hashes, artifact fingerprints and
+  199 unique candidate fingerprints matched the preparation report.
+- Controlled store created exactly candidates `1154`-`1352`. Authenticated
+  review approved all 199 through the existing admin route with the expected
+  numeric value or null absence value, review identity `admin-panel`, and
+  unchanged state, form, ratio, serving, source hash, archive URI and candidate
+  fingerprint. Each fingerprint exists once.
+- Seven explicit-ID plans had zero blockers and zero product updates. Their
+  SHA-256 / plan fingerprint pairs are product `24`
+  `3b121e97df48f2220593398e676b27b4dca95ff3f10c8e3bd2b4d2c4f8e84207` /
+  `2aa0bf5d1e7a9322dc0dffa2c0c4a6aea36ef40ccbb4be6db0a088e32c917a30`;
+  product `761`
+  `268e44ff0500a434b7b2e1fd277e159d7564f1133a6b902e8042997d0513a908` /
+  `3416c73a8ccab8a1350df7ff1951c1e15892329949ff0f3a1106b0e86b018b68`;
+  product `789`
+  `a53883d49d40d86bedb84143e194e69cbbd51703ead3b181daa15dc895c6179d` /
+  `d5c4ae4cae011e60a24d2a57692b60e9bb19db3fd5c20d24fd90c22b02809d2a`;
+  product `882`
+  `fb012aa58ae1bdd179bec37f86022762d30b4be8f05abe882c0a3d66e6c5abd6` /
+  `b489cb8b5ad106f124c270093bce5e34bb4035e471a92e5d34aab586f8f0c185`;
+  product `1061`
+  `dcbab3ef7fd103a8d4981187262738f8ac75129d8b27ee956db203ed91494647` /
+  `7cb6ccb7cf9ca01920f45562553eb9403508888870ae4a7a1d696dabbe878a90`;
+  product `1178`
+  `16c3fb18f5c7ebe9b1336c47b16c67a4bfff754ca8ab0634eb5bce7e202186ff` /
+  `cd35181fd14710498569f734545e07840387f95ad6355a954652331cd0f75fdc`;
+  and product `1280`
+  `46146bbf8263e2044f6c5780439e1808bddfe4519c15d0b177e863cb9953d546` /
+  `d90e14d461dd356e62c5709c681fb733c1410c19f62a2cdbb5032b6b0161b42a`.
+- The automatic approval control rejected the first apply attempt before command
+  execution because the earlier authorization did not enumerate these exact
+  plans and variants. After the owner explicitly authorized all seven listed
+  plan hashes, fingerprints and 47 variants, a new pre-apply read confirmed the
+  same sealed `before` state and all approvals. No rejected apply changed data.
+- Guarded apply then changed zero products and only the 47 authorized
+  `product_variants.nutrition_override` objects. A new read-only connection
+  matched every complete override to its plan `after`, retained all 199
+  approvals and their evidence, and matched preservation hashes for the whole
+  product table, every non-target variant, target metadata including
+  `nutrition_verified` and legacy creatine fields, and the non-target candidate
+  queue.
+- Replaying all seven exact plans was safely rejected because each target no
+  longer matched its sealed empty `before`. A subsequent independent read
+  matched the same final state and confirmed zero additional writes.
+- All 47 public exact-variant pages return 200, select the requested variant and
+  display exactly the applied supported facts. Unresolved fields remain absent.
+  Public source labels distinguish `Manufacturer source` and `Retailer source`;
+  private archive URIs and reviewer metadata are absent. Every target retains a
+  current offer. In the caffeine-free result, the only qualifying target is
+  exact NXT variant `3524`; repeated anchors inside its single grouped product
+  card resolve to that same variant ID.
+- The distinct applied pre-workout total is now 136. Current-offer coverage at
+  `2026-09-14T07:21:04.038Z` is 404 exact variants: 104 complete, 24 partial and
+  276 without applied facts. The frozen pilot remains 12 complete, zero partial
+  and 13 without applied facts; Stinger remains a separate demonstration.
+
+Complete machine-readable evidence is
+[nutrition-owner-images-batch-execution-2026-09-14.json](rollouts/nutrition-owner-images-batch-execution-2026-09-14.json),
+SHA-256 `01bcb47cc46fac726bab30e549214edb350b1e224b34f9ab1bb198de6248f7ae`.
+NUT-03 remains `IN PROGRESS`. One next step is to resolve one of the retained
+recipe, serving, pack, flavour-binding or caffeine-yield gaps with new evidence;
+do not repeat this completed 47-variant execution.
