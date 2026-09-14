@@ -1,0 +1,718 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-next-after-mega-preparation-v1",
+  "status": "READY_FOR_ONE_OWNER_DECISION",
+  "prepared_at": "2026-09-14T19:25:13.614Z",
+  "mode": "PREPARATION_ONLY",
+  "production_checkpoint_before": {
+    "applied_unique_variants": 275,
+    "all_active_variants": 575,
+    "available_variants": 406,
+    "available_complete": 223,
+    "available_partial": 44,
+    "available_without_facts": 139
+  },
+  "scope": {
+    "organizational_limit_variants": 50,
+    "families": 2,
+    "assessed_variants": 50,
+    "ready_variants": 9,
+    "complete_variants": 5,
+    "partial_variants": 4,
+    "candidate_facts": 41,
+    "unique_candidate_fingerprints": 41,
+    "excluded_or_blocked_assessed_variants": 41,
+    "unique_source_tables": 2
+  },
+  "families": [
+    {
+      "product_id": "1178",
+      "product": "NXT Nutrition TNT Nuclear Pump Stim-Free 500g",
+      "variant_ids": [
+        "3476",
+        "3525",
+        "3526",
+        "3527",
+        "3528"
+      ],
+      "candidate_count": 25,
+      "artifact": {
+        "path": "tmp/nutrition-next-after-mega-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-next-after-mega-20260914-1178.json",
+        "sha256": "d3b19b2e209ce51f840e2666e18f3c8342d46a1e88a196942c36e8b4b56bcc03",
+        "fingerprint": "6046db30a36ac74859dbcf28100fc32f6d4beac04150a041b89f2602af3152f0"
+      },
+      "unresolved": [],
+      "variants": [
+        {
+          "product_id": "1178",
+          "variant_id": "3476",
+          "display_name": "Blue Raspberry",
+          "facts": [
+            {
+              "field": "serving_size_g",
+              "information_state": "present_with_amount",
+              "normalized_value": 20,
+              "normalized_unit": "g",
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "2 scoops (20 g), matching 500 g / 25 servings",
+              "source_quantity_value": 20,
+              "source_quantity_unit": "g"
+            },
+            {
+              "field": "caffeine_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "Manufacturer calls the formula stimulant-free and without caffeine; the complete declared ingredients contain no caffeine source",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            },
+            {
+              "field": "beta_alanine_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "Complete declared ingredients contain no beta-alanine or undisclosed blend",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            },
+            {
+              "field": "citrulline_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 6000,
+              "normalized_unit": "mg",
+              "ingredient_form": "citrulline_malate",
+              "ingredient_ratio": null,
+              "source_text": "Each serving provides 6000 mg citrulline malate",
+              "source_quantity_value": 6000,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "creatine_declared_form_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "Complete declared ingredients contain no creatine form or undisclosed blend",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            }
+          ]
+        },
+        {
+          "product_id": "1178",
+          "variant_id": "3525",
+          "display_name": "Mixed Candy",
+          "facts": [
+            {
+              "field": "serving_size_g",
+              "information_state": "present_with_amount",
+              "normalized_value": 20,
+              "normalized_unit": "g",
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "2 scoops (20 g), matching 500 g / 25 servings",
+              "source_quantity_value": 20,
+              "source_quantity_unit": "g"
+            },
+            {
+              "field": "caffeine_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "Manufacturer calls the formula stimulant-free and without caffeine; the complete declared ingredients contain no caffeine source",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            },
+            {
+              "field": "beta_alanine_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "Complete declared ingredients contain no beta-alanine or undisclosed blend",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            },
+            {
+              "field": "citrulline_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 6000,
+              "normalized_unit": "mg",
+              "ingredient_form": "citrulline_malate",
+              "ingredient_ratio": null,
+              "source_text": "Each serving provides 6000 mg citrulline malate",
+              "source_quantity_value": 6000,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "creatine_declared_form_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "Complete declared ingredients contain no creatine form or undisclosed blend",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            }
+          ]
+        },
+        {
+          "product_id": "1178",
+          "variant_id": "3526",
+          "display_name": "Pear Drops",
+          "facts": [
+            {
+              "field": "serving_size_g",
+              "information_state": "present_with_amount",
+              "normalized_value": 20,
+              "normalized_unit": "g",
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "2 scoops (20 g), matching 500 g / 25 servings",
+              "source_quantity_value": 20,
+              "source_quantity_unit": "g"
+            },
+            {
+              "field": "caffeine_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "Manufacturer calls the formula stimulant-free and without caffeine; the complete declared ingredients contain no caffeine source",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            },
+            {
+              "field": "beta_alanine_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "Complete declared ingredients contain no beta-alanine or undisclosed blend",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            },
+            {
+              "field": "citrulline_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 6000,
+              "normalized_unit": "mg",
+              "ingredient_form": "citrulline_malate",
+              "ingredient_ratio": null,
+              "source_text": "Each serving provides 6000 mg citrulline malate",
+              "source_quantity_value": 6000,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "creatine_declared_form_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "Complete declared ingredients contain no creatine form or undisclosed blend",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            }
+          ]
+        },
+        {
+          "product_id": "1178",
+          "variant_id": "3527",
+          "display_name": "Pineapple",
+          "facts": [
+            {
+              "field": "serving_size_g",
+              "information_state": "present_with_amount",
+              "normalized_value": 20,
+              "normalized_unit": "g",
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "2 scoops (20 g), matching 500 g / 25 servings",
+              "source_quantity_value": 20,
+              "source_quantity_unit": "g"
+            },
+            {
+              "field": "caffeine_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "Manufacturer calls the formula stimulant-free and without caffeine; the complete declared ingredients contain no caffeine source",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            },
+            {
+              "field": "beta_alanine_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "Complete declared ingredients contain no beta-alanine or undisclosed blend",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            },
+            {
+              "field": "citrulline_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 6000,
+              "normalized_unit": "mg",
+              "ingredient_form": "citrulline_malate",
+              "ingredient_ratio": null,
+              "source_text": "Each serving provides 6000 mg citrulline malate",
+              "source_quantity_value": 6000,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "creatine_declared_form_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "Complete declared ingredients contain no creatine form or undisclosed blend",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            }
+          ]
+        },
+        {
+          "product_id": "1178",
+          "variant_id": "3528",
+          "display_name": "Strawberry Lime",
+          "facts": [
+            {
+              "field": "serving_size_g",
+              "information_state": "present_with_amount",
+              "normalized_value": 20,
+              "normalized_unit": "g",
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "2 scoops (20 g), matching 500 g / 25 servings",
+              "source_quantity_value": 20,
+              "source_quantity_unit": "g"
+            },
+            {
+              "field": "caffeine_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "Manufacturer calls the formula stimulant-free and without caffeine; the complete declared ingredients contain no caffeine source",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            },
+            {
+              "field": "beta_alanine_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "Complete declared ingredients contain no beta-alanine or undisclosed blend",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            },
+            {
+              "field": "citrulline_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 6000,
+              "normalized_unit": "mg",
+              "ingredient_form": "citrulline_malate",
+              "ingredient_ratio": null,
+              "source_text": "Each serving provides 6000 mg citrulline malate",
+              "source_quantity_value": 6000,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "creatine_declared_form_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "Complete declared ingredients contain no creatine form or undisclosed blend",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            }
+          ]
+        }
+      ],
+      "source": {
+        "type": "manufacturer_product_page",
+        "url": "https://nxtnutrition.com/en-gb/products/tnt-pump",
+        "applicability_basis": "Wspólna tabela producenta dla wersji 500 g / 25 porcji; strona produktu wymienia Blue Raspberry, Mixed Candy, Pear Drops, Pineapple Cooler i Strawberry Lime w tym samym kontekście produktu i nie wskazuje odrębnych dawek.",
+        "review_sha256": "3aa54b1b1e99835d8a455ebc63da052efc0ebc34c77eb176c2b58211636aabe5",
+        "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-next-after-mega-2026-09-14/3aa54b1b1e99835d8a455ebc63da052efc0ebc34c77eb176c2b58211636aabe5/product-1178-source-review.json"
+      }
+    },
+    {
+      "product_id": "295",
+      "product": "BioTech USA Black Blood NOX+ 330g",
+      "variant_ids": [
+        "1041",
+        "1776",
+        "1777",
+        "1778"
+      ],
+      "candidate_count": 16,
+      "artifact": {
+        "path": "tmp/nutrition-next-after-mega-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-next-after-mega-20260914-295.json",
+        "sha256": "a8dc66aac4c82a1f9ebe3fe01f52af35c4f6c36af88b62f33cbea2cda242a2d2",
+        "fingerprint": "44ceec62d5d12415daba53e29047eb0be81c414b590db25d65dd00cd6cd09938"
+      },
+      "unresolved": [
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "reason": "The table gives only 2613 mg of a combined buffered-creatine/creatine-citrate complex per portion and 1530 mg of creatine yield. The current single-form field cannot preserve both declared component forms and their individual masses, so no creatine candidate is created."
+        }
+      ],
+      "variants": [
+        {
+          "product_id": "295",
+          "variant_id": "1041",
+          "display_name": "Blood Orange / 330g",
+          "facts": [
+            {
+              "field": "serving_size_g",
+              "information_state": "present_with_amount",
+              "normalized_value": 9.5,
+              "normalized_unit": "g",
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "1 portion (9.5 g); daily use is two separately consumed portions",
+              "source_quantity_value": 9.5,
+              "source_quantity_unit": "g"
+            },
+            {
+              "field": "caffeine_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 150,
+              "normalized_unit": "mg",
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "150 mg anhydrous caffeine per 9.5 g portion",
+              "source_quantity_value": 150,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "beta_alanine_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 2000,
+              "normalized_unit": "mg",
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "Beta-alanine 2000 mg per 9.5 g portion",
+              "source_quantity_value": 2000,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "citrulline_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 1250,
+              "normalized_unit": "mg",
+              "ingredient_form": "citrulline_malate",
+              "ingredient_ratio": null,
+              "source_text": "L-citrulline malate 1250 mg per 9.5 g portion; ratio not declared",
+              "source_quantity_value": 1250,
+              "source_quantity_unit": "mg"
+            }
+          ]
+        },
+        {
+          "product_id": "295",
+          "variant_id": "1776",
+          "display_name": "Blueberry-Lime / 330g",
+          "facts": [
+            {
+              "field": "serving_size_g",
+              "information_state": "present_with_amount",
+              "normalized_value": 9.5,
+              "normalized_unit": "g",
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "1 portion (9.5 g); daily use is two separately consumed portions",
+              "source_quantity_value": 9.5,
+              "source_quantity_unit": "g"
+            },
+            {
+              "field": "caffeine_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 150,
+              "normalized_unit": "mg",
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "150 mg anhydrous caffeine per 9.5 g portion",
+              "source_quantity_value": 150,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "beta_alanine_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 2000,
+              "normalized_unit": "mg",
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "Beta-alanine 2000 mg per 9.5 g portion",
+              "source_quantity_value": 2000,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "citrulline_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 1250,
+              "normalized_unit": "mg",
+              "ingredient_form": "citrulline_malate",
+              "ingredient_ratio": null,
+              "source_text": "L-citrulline malate 1250 mg per 9.5 g portion; ratio not declared",
+              "source_quantity_value": 1250,
+              "source_quantity_unit": "mg"
+            }
+          ]
+        },
+        {
+          "product_id": "295",
+          "variant_id": "1777",
+          "display_name": "Tropical Fruit / 330g",
+          "facts": [
+            {
+              "field": "serving_size_g",
+              "information_state": "present_with_amount",
+              "normalized_value": 9.5,
+              "normalized_unit": "g",
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "1 portion (9.5 g); daily use is two separately consumed portions",
+              "source_quantity_value": 9.5,
+              "source_quantity_unit": "g"
+            },
+            {
+              "field": "caffeine_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 150,
+              "normalized_unit": "mg",
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "150 mg anhydrous caffeine per 9.5 g portion",
+              "source_quantity_value": 150,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "beta_alanine_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 2000,
+              "normalized_unit": "mg",
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "Beta-alanine 2000 mg per 9.5 g portion",
+              "source_quantity_value": 2000,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "citrulline_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 1250,
+              "normalized_unit": "mg",
+              "ingredient_form": "citrulline_malate",
+              "ingredient_ratio": null,
+              "source_text": "L-citrulline malate 1250 mg per 9.5 g portion; ratio not declared",
+              "source_quantity_value": 1250,
+              "source_quantity_unit": "mg"
+            }
+          ]
+        },
+        {
+          "product_id": "295",
+          "variant_id": "1778",
+          "display_name": "Ruby Berry / 330g",
+          "facts": [
+            {
+              "field": "serving_size_g",
+              "information_state": "present_with_amount",
+              "normalized_value": 9.5,
+              "normalized_unit": "g",
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "1 portion (9.5 g); daily use is two separately consumed portions",
+              "source_quantity_value": 9.5,
+              "source_quantity_unit": "g"
+            },
+            {
+              "field": "caffeine_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 150,
+              "normalized_unit": "mg",
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "150 mg anhydrous caffeine per 9.5 g portion",
+              "source_quantity_value": 150,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "beta_alanine_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 2000,
+              "normalized_unit": "mg",
+              "ingredient_form": null,
+              "ingredient_ratio": null,
+              "source_text": "Beta-alanine 2000 mg per 9.5 g portion",
+              "source_quantity_value": 2000,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "citrulline_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 1250,
+              "normalized_unit": "mg",
+              "ingredient_form": "citrulline_malate",
+              "ingredient_ratio": null,
+              "source_text": "L-citrulline malate 1250 mg per 9.5 g portion; ratio not declared",
+              "source_quantity_value": 1250,
+              "source_quantity_unit": "mg"
+            }
+          ]
+        }
+      ],
+      "source": {
+        "type": "manufacturer_product_page",
+        "url": "https://www.biotechusa.com/black-blood/",
+        "applicability_basis": "Wspólna tabela producenta dla Black Blood NOX+ 330 g; strona podaje jedną tabelę NOX+ i osobne pełne listy składników dla Blood Orange, Blueberry-Lime, Ruby Berry i Tropical Fruit bez różnic śledzonych dawek.",
+        "review_sha256": "1a1f8cfad9b686082f32d551e465942170dfad96bde9d1972da617d763220349",
+        "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-next-after-mega-2026-09-14/1a1f8cfad9b686082f32d551e465942170dfad96bde9d1972da617d763220349/product-295-source-review.json"
+      }
+    }
+  ],
+  "production_preflight": {
+    "result": "PASS",
+    "captured_at": "2026-09-14T19:24:17.008Z",
+    "target": {
+      "project_ref": "aftboxmrdgyhizicfsfu",
+      "database_oid": "5",
+      "database_identity": "supplementscout-production:aftboxmrdgyhizicfsfu",
+      "target_environment": "PRODUCTION",
+      "database_system_identifier": "7642734024280108049"
+    },
+    "variants": 9,
+    "candidate_fingerprints": 41,
+    "unique_candidate_fingerprints": 41,
+    "existing_candidates": [],
+    "before_overrides": [
+      {
+        "variant_id": "1041",
+        "keys": []
+      },
+      {
+        "variant_id": "1776",
+        "keys": []
+      },
+      {
+        "variant_id": "1777",
+        "keys": []
+      },
+      {
+        "variant_id": "1778",
+        "keys": []
+      },
+      {
+        "variant_id": "3476",
+        "keys": []
+      },
+      {
+        "variant_id": "3525",
+        "keys": []
+      },
+      {
+        "variant_id": "3526",
+        "keys": []
+      },
+      {
+        "variant_id": "3527",
+        "keys": []
+      },
+      {
+        "variant_id": "3528",
+        "keys": []
+      }
+    ],
+    "database_writes": 0
+  },
+  "archive": {
+    "bucket": "nutrition-sources",
+    "private": true,
+    "objects": [
+      {
+        "id": "product-1178-source-review.json",
+        "action": "reused",
+        "sha256": "3aa54b1b1e99835d8a455ebc63da052efc0ebc34c77eb176c2b58211636aabe5"
+      },
+      {
+        "id": "product-295-source-review.json",
+        "action": "reused",
+        "sha256": "1a1f8cfad9b686082f32d551e465942170dfad96bde9d1972da617d763220349"
+      }
+    ],
+    "hash_readback": "PASS"
+  },
+  "validation": {
+    "artifacts": 2,
+    "dry_runs_passed": 2,
+    "candidate_rows": 41,
+    "product_updates": 0,
+    "production_candidate_writes": 0,
+    "review_writes": 0,
+    "apply_writes": 0
+  },
+  "blockers": [
+    {
+      "product_id": "169",
+      "variants": 9,
+      "reason": "retained 400 g formula-generation conflict"
+    },
+    {
+      "product_id": "27",
+      "variants": 8,
+      "reason": "retained 195 g formula-generation conflict"
+    },
+    {
+      "product_id": "1276",
+      "variants": 8,
+      "reason": "official flavour pages do not expose a qualifying common dosage table"
+    },
+    {
+      "product_id": "778",
+      "variants": 6,
+      "reason": "new catalogue flavours are outside the retained retailer page flavour set"
+    },
+    {
+      "product_id": "840",
+      "variants": 5,
+      "reason": "no retained exact common-table applicability for the 420 g Original family"
+    },
+    {
+      "product_id": "295",
+      "variants": 4,
+      "field": "creatine_declared_form_per_serving_mg",
+      "reason": "Combined buffered-creatine/creatine-citrate complex has no per-component masses; the current single-form creatine fact cannot represent it faithfully."
+    },
+    {
+      "reason": "The remaining assessed variants retain documented generation, exact-pack, serving, flavour-applicability, access or source-retention gaps. No value was inferred to fill the 50-variant ceiling."
+    }
+  ],
+  "next_step": "One explicit owner decision authorizing controlled production store -> authenticated review -> explicit-ID plans -> guarded apply for exactly these two immutable artifacts and 41 fingerprints."
+}
