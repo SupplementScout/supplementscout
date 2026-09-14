@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-large-next-execution-v1",
+  "status": "APPLIED_AND_READ_BACK",
+  "executed_at": "2026-09-14T14:57:47.730Z",
+  "authorization_basis": "Owner continuation after reviewing the prepared immutable five-artifact package and confirming Mutant total caffeine interpretation.",
+  "scope": {
+    "products": 5,
+    "variants": 25,
+    "candidates": 106,
+    "product_updates": 0,
+    "variant_updates": 25
+  },
+  "store": {
+    "created_candidates": 106,
+    "candidate_ids": [
+      "1753",
+      "1754",
+      "1755",
+      "1756",
+      "1757",
+      "1758",
+      "1759",
+      "1760",
+      "1761",
+      "1762",
+      "1763",
+      "1764",
+      "1765",
+      "1766",
+      "1767",
+      "1768",
+      "1769",
+      "1770",
+      "1771",
+      "1772",
+      "1773",
+      "1774",
+      "1775",
+      "1776",
+      "1777",
+      "1778",
+      "1779",
+      "1780",
+      "1781",
+      "1782",
+      "1783",
+      "1784",
+      "1785",
+      "1786",
+      "1787",
+      "1788",
+      "1789",
+      "1790",
+      "1791",
+      "1792",
+      "1793",
+      "1794",
+      "1795",
+      "1796",
+      "1797",
+      "1798",
+      "1799",
+      "1800",
+      "1801",
+      "1802",
+      "1803",
+      "1804",
+      "1805",
+      "1806",
+      "1807",
+      "1808",
+      "1809",
+      "1810",
+      "1811",
+      "1812",
+      "1813",
+      "1814",
+      "1815",
+      "1816",
+      "1817",
+      "1818",
+      "1819",
+      "1820",
+      "1821",
+      "1822",
+      "1823",
+      "1824",
+      "1825",
+      "1826",
+      "1827",
+      "1828",
+      "1829",
+      "1830",
+      "1831",
+      "1832",
+      "1833",
+      "1834",
+      "1835",
+      "1836",
+      "1837",
+      "1838",
+      "1839",
+      "1840",
+      "1841",
+      "1842",
+      "1843",
+      "1844",
+      "1845",
+      "1846",
+      "1847",
+      "1848",
+      "1849",
+      "1850",
+      "1851",
+      "1852",
+      "1853",
+      "1854",
+      "1855",
+      "1856",
+      "1857",
+      "1858"
+    ],
+    "duplicate_candidates": 0
+  },
+  "review": {
+    "approved": 106,
+    "mechanism": "authenticated admin panel",
+    "evidence_changed": false
+  },
+  "plans": [
+    {
+      "product_id": "489",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-20260914-489-88bf920d951b.json",
+      "sha256": "ed1a1149c87bf0ab9686908ff883f3c8550a4d3ac67662a74867bcf0b88932ee",
+      "plan_fingerprint": "88bf920d951baab3026ce0e235a8d8cbc19452b347f9519d4bb34dbe1d285789",
+      "variants": 7,
+      "candidates": 21
+    },
+    {
+      "product_id": "58",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-20260914-58-f0c226e42b7d.json",
+      "sha256": "30db48b4345b13be5fd235c917e330308978a8cabb2b6957c2ed789be399a34c",
+      "plan_fingerprint": "f0c226e42b7dda287759cd23a23fbef745e0b250f99eb0af7671069027abbec3",
+      "variants": 6,
+      "candidates": 30
+    },
+    {
+      "product_id": "59",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-20260914-59-80714a04bb00.json",
+      "sha256": "87d9872d74a4c44ef10f12c6ccba1956a60e0462f00a23c5aa2744df00b3df51",
+      "plan_fingerprint": "80714a04bb006b1793a98c1361df2a7f9b87e732c5431e685bc581321aff71d5",
+      "variants": 4,
+      "candidates": 20
+    },
+    {
+      "product_id": "839",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-20260914-839-84785e29ff5d.json",
+      "sha256": "e06cd71a6e4f5d72176cd117340e694051b587ead13be90ed652767c16adf8fb",
+      "plan_fingerprint": "84785e29ff5d7d7a4b0b7f0ef8ee4e6dad0fab24fabcf0d20a1995083043c359",
+      "variants": 5,
+      "candidates": 20
+    },
+    {
+      "product_id": "842",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-20260914-842-224db5460c09.json",
+      "sha256": "5a8f3225dd77b026c49cb82aa030610a544c0a1d7cbcfe5cd5662411935e2cfb",
+      "plan_fingerprint": "224db5460c0949d5f4c1a47a7af04295f4d3c9d3a5095a5a74c1455e3ce35146",
+      "variants": 3,
+      "candidates": 15
+    }
+  ],
+  "apply": {
+    "plans_applied": 5,
+    "products_changed": 0,
+    "variants_changed": 25
+  },
+  "independent_readback": {
+    "result": "PASS",
+    "applied_variant_count": 240,
+    "coverage": {
+      "complete": 197,
+      "partial": 43,
+      "none": 335
+    },
+    "candidates_approved": 106,
+    "evidence_unchanged": true
+  },
+  "replay": {
+    "plans_checked": 5,
+    "safely_rejected_stale_before": 5,
+    "additional_writes": 0
+  },
+  "public_presentation": {
+    "result": "PASS",
+    "pages_checked": 25,
+    "caffeine_free_filter": {
+      "url": "https://www.supplementscout.co.uk/search?q=pre%20workout&caffeine=free",
+      "http_200": true,
+      "confirmed_filter_label": true,
+      "qualifying_variant_links": [
+        "1607",
+        "2767",
+        "2769"
+      ],
+      "nonqualifying_target_links": []
+    }
+  },
+  "unchanged": {
+    "products": true,
+    "nutrition_verified": true,
+    "legacy_creatine_per_serving_g": true
+  },
+  "remaining_gaps": {
+    "product_489": [
+      "citrulline combined with arginine in one disclosed blend mass",
+      "creatine unresolved"
+    ],
+    "product_839": [
+      "creatine unresolved"
+    ]
+  },
+  "next_step": "Continue with another multi-family preparation batch; do not repeat retained version and evidence blockers without new evidence."
+}

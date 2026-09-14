@@ -4159,3 +4159,50 @@ SHA-256 `e983dad72215a32e7708e9d7d71c6a6519300059cfe3ca2fea99a62c72e7f38d`.
 NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
 controlled store -> authenticated review -> explicit-ID plans -> guarded apply
 for exactly these five unchanged artifacts and 106 fingerprints.
+
+## NUT-03 larger catalogue batch execution
+
+14 September 2026, production execution after the owner continued with the
+immutable package and confirmed the Mutant caffeine interpretation:
+
+- The fresh preflight reconfirmed production project `aftboxmrdgyhizicfsfu`,
+  25 empty exact target overrides, 106 unique fingerprints and no matching
+  candidates. Controlled store created candidates `1753`-`1858`; authenticated
+  review approved all 106 with unchanged values and evidence.
+- Five explicit-ID plans contained zero product updates and exactly 25 variant
+  updates. Plan SHA-256 / fingerprint pairs are: product `489`
+  `ed1a1149c87bf0ab9686908ff883f3c8550a4d3ac67662a74867bcf0b88932ee` /
+  `88bf920d951baab3026ce0e235a8d8cbc19452b347f9519d4bb34dbe1d285789`;
+  product `58`
+  `30db48b4345b13be5fd235c917e330308978a8cabb2b6957c2ed789be399a34c` /
+  `f0c226e42b7dda287759cd23a23fbef745e0b250f99eb0af7671069027abbec3`;
+  product `59`
+  `87d9872d74a4c44ef10f12c6ccba1956a60e0462f00a23c5aa2744df00b3df51` /
+  `80714a04bb006b1793a98c1361df2a7f9b87e732c5431e685bc581321aff71d5`;
+  product `839`
+  `e06cd71a6e4f5d72176cd117340e694051b587ead13be90ed652767c16adf8fb` /
+  `84785e29ff5d7d7a4b0b7f0ef8ee4e6dad0fab24fabcf0d20a1995083043c359`;
+  and product `842`
+  `5a8f3225dd77b026c49cb82aa030610a544c0a1d7cbcfe5cd5662411935e2cfb` /
+  `224db5460c0949d5f4c1a47a7af04295f4d3c9d3a5095a5a74c1455e3ce35146`.
+- Guarded apply changed only the planned 25 `nutrition_override` objects. A new
+  read-only connection matched every whole override to its plan `after`, found
+  all 106 candidates still approved with unchanged evidence, and confirmed no
+  product, `nutrition_verified` or legacy `creatine_per_serving_g` change.
+  Applied coverage rose from 215 to 240 variants: 197 complete, 43 partial and
+  335 with no applied facts.
+- Replaying all five unchanged plans was safely rejected on stale sealed
+  `before`, with zero additional writes. All 25 exact public pages returned 200,
+  selected the correct variant, displayed the expected facts and source type,
+  and exposed no private URI or reviewer metadata. The caffeine-free filter
+  includes available qualifying variants and excludes Mutant Madness and 5150.
+- The seven Mutant variants retain unresolved citrulline and creatine; five
+  Pitbull Pump variants retain unresolved creatine. These explicit gaps account
+  for the twelve partial variants and were not converted to zeros or absence.
+
+Complete evidence is
+[nutrition-catalog-large-next-execution-2026-09-14.json](rollouts/nutrition-catalog-large-next-execution-2026-09-14.json),
+SHA-256 `8d1e717285ba67bb7bb98851a7cb873a9a6f6e182f5428781f16bf795b921198`.
+NUT-03 remains `IN PROGRESS`. One next step is another multi-family preparation
+batch, retaining recorded version and evidence blockers until new evidence
+appears.
