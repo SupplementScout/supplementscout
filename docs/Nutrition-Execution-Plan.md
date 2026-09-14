@@ -4339,6 +4339,42 @@ NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
 store -> authenticated review -> explicit-ID plans -> guarded apply of exactly
 these five unchanged artifacts and 34 fingerprints.
 
+## NUT-03 mega catalogue execution after 268 applied variants
+
+14 September 2026, production execution after explicit owner authorization:
+
+- Controlled store created 34 candidates, IDs `1999`-`2032`, for seven exact
+  variants. Authenticated review approved the unchanged set. Five explicit-ID
+  plans contained zero product updates and seven variant updates.
+- Plan SHA-256 / fingerprint pairs are: product `779`
+  `3e18a0afb01f538a8b1cc48497124d19d311caebcd59abdf68db1afb1bf12759` /
+  `e5ebc9c637764c5379684d4893941973148bad6d87355f01b4958004769d364d`;
+  product `777` `bbc1820cefa6dcc02a28a9e6b1e44c9bae5e1e5e15679a36effc1983efa71f22` /
+  `b57792fc55c3111c8cec01fe65351da35a029a4f0505df89d0e26587b8c8f15e`;
+  product `853` `7364930ad82e195c0786f82fa05ff6a16c4a0e5d845a36a0926ac9f8931b4637` /
+  `9324e1d9b42a42161287bfa5ed8f5334496aa39aaef41554a43f95b77afe5fd9`;
+  product `1178` `82a9fa8b97edd8f827babdaddb74ae397a84b1f6cda86d1e2b79bf9ece537f03` /
+  `4a6e0b0ba6c7d0efbe43c45fc11837eb026aefb2e872866e20cc24e208f0f619`;
+  and product `1284`
+  `eae5cccb412cac915192fd19f3746ed456f505bd2d5b816032160f58d09357f7` /
+  `22020456a98e9d09e41cbf7fc85aff3e9b826f5066395d6abe49fbe3c264cd79`.
+- Guarded apply changed only the planned overrides. Independent readback matched
+  every whole override to `after`, confirmed all 34 approvals and unchanged
+  evidence, and found no product, verification-flag or legacy-creatine change.
+  Coverage is now 275 applied variants: 231 complete, 44 partial and 300 without
+  applied facts. NOVA remains partial because total caffeine was intentionally
+  excluded rather than derived from compound mass.
+- All seven exact public pages passed. Three caffeine-free families appear in
+  the existing filter, N1 Pro is excluded, and NOVA with unresolved caffeine is
+  not treated as caffeine-free. Replaying all five plans was safely rejected on
+  stale sealed `before`, with zero extra writes.
+
+Complete evidence is
+[nutrition-catalog-mega-next-execution-2026-09-14.json](rollouts/nutrition-catalog-mega-next-execution-2026-09-14.json),
+SHA-256 `5de562c6f9b5c0166090e2c4a1be594a0e247b31b2f9e822c88bfa0919fdce6f`.
+NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified
+multi-family preparation batch without repeating retained blockers.
+
 ## NUT-03 high-volume continuation preparation
 
 14 September 2026, preparation only:

@@ -1,0 +1,778 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-mega-next-execution-v1",
+  "status": "APPLIED_AND_VERIFIED",
+  "executed_at": "2026-09-14T19:10:59.327Z",
+  "authorization": {
+    "scope": "production store -> authenticated review -> explicit-ID plan -> guarded apply",
+    "preparation_report": "docs/rollouts/nutrition-catalog-mega-next-preparation-2026-09-14.json",
+    "preparation_report_sha256": "39225f624813ce61c771b6517d0930de90f9deb95c175ebb71d6dbbe955d11be",
+    "candidate_artifacts": [
+      {
+        "product_id": "779",
+        "variant_ids": [
+          "974",
+          "975"
+        ],
+        "artifact": {
+          "path": "tmp/nutrition-mega-next-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-mega-next-20260914-779.json",
+          "sha256": "f9e20091bd7666615c2ebbb88ee79f7d37bbcb2ca485a2139576c97f1ea4d708",
+          "fingerprint": "fe56a8cd2f040128ab321475163af1e1e15c5e09aac8e70f534b72dabb5e9508"
+        }
+      },
+      {
+        "product_id": "777",
+        "variant_ids": [
+          "968",
+          "969"
+        ],
+        "artifact": {
+          "path": "tmp/nutrition-mega-next-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-mega-next-20260914-777.json",
+          "sha256": "fb79e35d4cf66dbdc7ee251ce778d95bb6a8b17ad8fa6c7d72a89944a231368a",
+          "fingerprint": "e7003ca820b6001279181f36a5fc966297942984751f124e815ded2bba0e3285"
+        }
+      },
+      {
+        "product_id": "853",
+        "variant_ids": [
+          "2777"
+        ],
+        "artifact": {
+          "path": "tmp/nutrition-mega-next-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-mega-next-20260914-853.json",
+          "sha256": "5000878f0f2b18e03e535a79990ad125360e2e88abbf4baa49f6bdd11e4c737a",
+          "fingerprint": "0f8c27fd37d2d643622cc757f00ba2e659386f5354bc6bac5c64bed1380f74ff"
+        }
+      },
+      {
+        "product_id": "1178",
+        "variant_ids": [
+          "3523"
+        ],
+        "artifact": {
+          "path": "tmp/nutrition-mega-next-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-mega-next-20260914-1178.json",
+          "sha256": "24a4af71a3f907faa7ca3de5f16d75033a60029db3d5d31ee61f662f85316bbb",
+          "fingerprint": "d863a6eb3b765659a404dea0e57a95605663ec517f958b92003c39032f975c02"
+        }
+      },
+      {
+        "product_id": "1284",
+        "variant_ids": [
+          "3764"
+        ],
+        "artifact": {
+          "path": "tmp/nutrition-mega-next-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-mega-next-20260914-1284.json",
+          "sha256": "2d560afe2f118cb1ace120ff1cb10d34d273b3013c72032859c65fc762a07670",
+          "fingerprint": "7da752f86a490b4c899cba98c3fb78273bdda946ef65f616af925f78207731af"
+        }
+      }
+    ]
+  },
+  "store": {
+    "result": "PASS",
+    "candidate_rows": 34,
+    "product_updates": 0,
+    "candidate_ids": [
+      "1999",
+      "2000",
+      "2001",
+      "2002",
+      "2003",
+      "2004",
+      "2005",
+      "2006",
+      "2007",
+      "2008",
+      "2009",
+      "2010",
+      "2011",
+      "2012",
+      "2013",
+      "2014",
+      "2015",
+      "2016",
+      "2017",
+      "2018",
+      "2019",
+      "2020",
+      "2021",
+      "2022",
+      "2023",
+      "2024",
+      "2025",
+      "2026",
+      "2027",
+      "2028",
+      "2029",
+      "2030",
+      "2031",
+      "2032"
+    ]
+  },
+  "review": {
+    "result": "PASS",
+    "authenticated_panel": true,
+    "approved": 34,
+    "reviews": [
+      {
+        "product_id": "779",
+        "candidate_ids": [
+          "1999",
+          "2000",
+          "2001",
+          "2002",
+          "2003",
+          "2004",
+          "2005",
+          "2006",
+          "2007",
+          "2008"
+        ],
+        "reviewed_by": "admin-panel"
+      },
+      {
+        "product_id": "777",
+        "candidate_ids": [
+          "2009",
+          "2010",
+          "2011",
+          "2012",
+          "2013",
+          "2014",
+          "2015",
+          "2016",
+          "2017",
+          "2018"
+        ],
+        "reviewed_by": "admin-panel"
+      },
+      {
+        "product_id": "853",
+        "candidate_ids": [
+          "2019",
+          "2020",
+          "2021",
+          "2022",
+          "2023"
+        ],
+        "reviewed_by": "admin-panel"
+      },
+      {
+        "product_id": "1178",
+        "candidate_ids": [
+          "2024",
+          "2025",
+          "2026",
+          "2027",
+          "2028"
+        ],
+        "reviewed_by": "admin-panel"
+      },
+      {
+        "product_id": "1284",
+        "candidate_ids": [
+          "2029",
+          "2030",
+          "2031",
+          "2032"
+        ],
+        "reviewed_by": "admin-panel"
+      }
+    ]
+  },
+  "plans": {
+    "result": "PASS",
+    "product_updates": 0,
+    "variant_updates": 7,
+    "total_candidates": 34,
+    "total_variants": 7,
+    "plans": [
+      {
+        "product_id": "779",
+        "path": "tmp/nutrition-approved-plan/NCR1-catalog-mega-next-20260914-779-e5ebc9c63776.json",
+        "sha256": "3e18a0afb01f538a8b1cc48497124d19d311caebcd59abdf68db1afb1bf12759",
+        "fingerprint": "e5ebc9c637764c5379684d4893941973148bad6d87355f01b4958004769d364d",
+        "candidates": 10,
+        "variants": 2
+      },
+      {
+        "product_id": "777",
+        "path": "tmp/nutrition-approved-plan/NCR1-catalog-mega-next-20260914-777-b57792fc55c3.json",
+        "sha256": "bbc1820cefa6dcc02a28a9e6b1e44c9bae5e1e5e15679a36effc1983efa71f22",
+        "fingerprint": "b57792fc55c3111c8cec01fe65351da35a029a4f0505df89d0e26587b8c8f15e",
+        "candidates": 10,
+        "variants": 2
+      },
+      {
+        "product_id": "853",
+        "path": "tmp/nutrition-approved-plan/NCR1-catalog-mega-next-20260914-853-9324e1d9b42a.json",
+        "sha256": "7364930ad82e195c0786f82fa05ff6a16c4a0e5d845a36a0926ac9f8931b4637",
+        "fingerprint": "9324e1d9b42a42161287bfa5ed8f5334496aa39aaef41554a43f95b77afe5fd9",
+        "candidates": 5,
+        "variants": 1
+      },
+      {
+        "product_id": "1178",
+        "path": "tmp/nutrition-approved-plan/NCR1-catalog-mega-next-20260914-1178-4a6e0b0ba6c7.json",
+        "sha256": "82a9fa8b97edd8f827babdaddb74ae397a84b1f6cda86d1e2b79bf9ece537f03",
+        "fingerprint": "4a6e0b0ba6c7d0efbe43c45fc11837eb026aefb2e872866e20cc24e208f0f619",
+        "candidates": 5,
+        "variants": 1
+      },
+      {
+        "product_id": "1284",
+        "path": "tmp/nutrition-approved-plan/NCR1-catalog-mega-next-20260914-1284-22020456a98e.json",
+        "sha256": "eae5cccb412cac915192fd19f3746ed456f505bd2d5b816032160f58d09357f7",
+        "fingerprint": "22020456a98e9d09e41cbf7fc85aff3e9b826f5066395d6abe49fbe3c264cd79",
+        "candidates": 4,
+        "variants": 1
+      }
+    ]
+  },
+  "apply": {
+    "result": "PASS",
+    "changed_products": 0,
+    "changed_variants": 7,
+    "target_field": "product_variants.nutrition_override"
+  },
+  "independent_readback": {
+    "result": "PASS",
+    "captured_at": "2026-09-14T19:08:50.728Z",
+    "target_environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "database_writes": 0,
+    "applied_variant_count": 275,
+    "coverage": {
+      "complete": 231,
+      "partial": 44,
+      "none": 300
+    },
+    "queue_after": {
+      "approved": 2010,
+      "pending": 16,
+      "rejected": 6
+    },
+    "plans": [
+      {
+        "product_id": "779",
+        "path": "tmp/nutrition-approved-plan/NCR1-catalog-mega-next-20260914-779-e5ebc9c63776.json",
+        "sha256": "3e18a0afb01f538a8b1cc48497124d19d311caebcd59abdf68db1afb1bf12759",
+        "fingerprint": "e5ebc9c637764c5379684d4893941973148bad6d87355f01b4958004769d364d",
+        "candidates": 10,
+        "variants": 2
+      },
+      {
+        "product_id": "777",
+        "path": "tmp/nutrition-approved-plan/NCR1-catalog-mega-next-20260914-777-b57792fc55c3.json",
+        "sha256": "bbc1820cefa6dcc02a28a9e6b1e44c9bae5e1e5e15679a36effc1983efa71f22",
+        "fingerprint": "b57792fc55c3111c8cec01fe65351da35a029a4f0505df89d0e26587b8c8f15e",
+        "candidates": 10,
+        "variants": 2
+      },
+      {
+        "product_id": "853",
+        "path": "tmp/nutrition-approved-plan/NCR1-catalog-mega-next-20260914-853-9324e1d9b42a.json",
+        "sha256": "7364930ad82e195c0786f82fa05ff6a16c4a0e5d845a36a0926ac9f8931b4637",
+        "fingerprint": "9324e1d9b42a42161287bfa5ed8f5334496aa39aaef41554a43f95b77afe5fd9",
+        "candidates": 5,
+        "variants": 1
+      },
+      {
+        "product_id": "1178",
+        "path": "tmp/nutrition-approved-plan/NCR1-catalog-mega-next-20260914-1178-4a6e0b0ba6c7.json",
+        "sha256": "82a9fa8b97edd8f827babdaddb74ae397a84b1f6cda86d1e2b79bf9ece537f03",
+        "fingerprint": "4a6e0b0ba6c7d0efbe43c45fc11837eb026aefb2e872866e20cc24e208f0f619",
+        "candidates": 5,
+        "variants": 1
+      },
+      {
+        "product_id": "1284",
+        "path": "tmp/nutrition-approved-plan/NCR1-catalog-mega-next-20260914-1284-22020456a98e.json",
+        "sha256": "eae5cccb412cac915192fd19f3746ed456f505bd2d5b816032160f58d09357f7",
+        "fingerprint": "22020456a98e9d09e41cbf7fc85aff3e9b826f5066395d6abe49fbe3c264cd79",
+        "candidates": 4,
+        "variants": 1
+      }
+    ],
+    "variants": [
+      {
+        "product_id": "777",
+        "product_variant_id": "968",
+        "product_name": "N1 Pro Maximum Strength Pre-Workout 15 servings",
+        "display_name": "Forest Berries / 15 servings",
+        "slug": "n1-pro-maximum-strength-pre-workout-15-servings",
+        "nutrition_verified": false,
+        "legacy_creatine_per_serving_g": null,
+        "nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "Full serving column 20 g",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 20,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 230,
+            "source_quantity_value": 230
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "Full serving column 20 g",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 20,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 3000,
+            "source_quantity_value": 3000
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "citrulline_malate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "Full serving column 20 g",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 20,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 5000,
+            "source_quantity_value": 5000
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "Full serving column 20 g",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 20,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 3500,
+            "source_quantity_value": 3500
+          },
+          "serving_size_g": 20
+        },
+        "after_match": true
+      },
+      {
+        "product_id": "777",
+        "product_variant_id": "969",
+        "product_name": "N1 Pro Maximum Strength Pre-Workout 15 servings",
+        "display_name": "Green Lemonade / 15 servings",
+        "slug": "n1-pro-maximum-strength-pre-workout-15-servings",
+        "nutrition_verified": false,
+        "legacy_creatine_per_serving_g": null,
+        "nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "Full serving column 20 g",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 20,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 230,
+            "source_quantity_value": 230
+          },
+          "creatine": {
+            "amount_subject": "declared_ingredient_form",
+            "quantity_basis": "per_serving",
+            "ingredient_form": "creatine_monohydrate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "Full serving column 20 g",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 20,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 3000,
+            "source_quantity_value": 3000
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "citrulline_malate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "Full serving column 20 g",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 20,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 5000,
+            "source_quantity_value": 5000
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "Full serving column 20 g",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 20,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 3500,
+            "source_quantity_value": 3500
+          },
+          "serving_size_g": 20
+        },
+        "after_match": true
+      },
+      {
+        "product_id": "779",
+        "product_variant_id": "974",
+        "product_name": "Naughty Boy Pump 25 servings",
+        "display_name": "Pineapple Crush / 25 servings",
+        "slug": "naughty-boy-pump-25-servings",
+        "nutrition_verified": false,
+        "legacy_creatine_per_serving_g": null,
+        "nutrition_override": {
+          "caffeine": {
+            "information_state": "confirmed_absent"
+          },
+          "creatine": {
+            "information_state": "confirmed_absent"
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "citrulline_malate",
+            "ingredient_ratio": "2:1",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (16 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 16,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 6000,
+            "source_quantity_value": 6000
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (16 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 16,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3200
+          },
+          "serving_size_g": 16
+        },
+        "after_match": true
+      },
+      {
+        "product_id": "779",
+        "product_variant_id": "975",
+        "product_name": "Naughty Boy Pump 25 servings",
+        "display_name": "Strawberry Mango / 25 servings",
+        "slug": "naughty-boy-pump-25-servings",
+        "nutrition_verified": false,
+        "legacy_creatine_per_serving_g": null,
+        "nutrition_override": {
+          "caffeine": {
+            "information_state": "confirmed_absent"
+          },
+          "creatine": {
+            "information_state": "confirmed_absent"
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "citrulline_malate",
+            "ingredient_ratio": "2:1",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (16 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 16,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 6000,
+            "source_quantity_value": 6000
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (16 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 16,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3200
+          },
+          "serving_size_g": 16
+        },
+        "after_match": true
+      },
+      {
+        "product_id": "853",
+        "product_variant_id": "2777",
+        "product_name": "Efectiv Project Pump Pre Workout 440g",
+        "display_name": "Cherry Breeze / 440g",
+        "slug": "efectiv-project-pump-pre-workout-440g",
+        "nutrition_verified": false,
+        "legacy_creatine_per_serving_g": null,
+        "nutrition_override": {
+          "caffeine": {
+            "information_state": "confirmed_absent"
+          },
+          "creatine": {
+            "information_state": "confirmed_absent"
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "l_citrulline",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "Full table column Per 22 g",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 5000,
+            "source_quantity_value": 5000
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "Full table column Per 22 g",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3200
+          },
+          "serving_size_g": 22
+        },
+        "after_match": true
+      },
+      {
+        "product_id": "1178",
+        "product_variant_id": "3523",
+        "product_name": "NXT Nutrition TNT Nuclear Pump Stim-Free 500g",
+        "display_name": "Cola",
+        "slug": "nxt-nutrition-tnt-nuclear-pump-stim-free-500g",
+        "nutrition_verified": false,
+        "legacy_creatine_per_serving_g": null,
+        "nutrition_override": {
+          "caffeine": {
+            "information_state": "confirmed_absent"
+          },
+          "creatine": {
+            "information_state": "confirmed_absent"
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "citrulline_malate",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "2 scoops (20 g), matching 500 g / 25 servings",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 20,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 6000,
+            "source_quantity_value": 6000
+          },
+          "beta_alanine": {
+            "information_state": "confirmed_absent"
+          },
+          "serving_size_g": 20
+        },
+        "after_match": true
+      },
+      {
+        "product_id": "1284",
+        "product_variant_id": "3764",
+        "product_name": "The Formula NOVA High-Stim Pre-Workout Powder 450g",
+        "display_name": "Sour Cherry",
+        "slug": "the-formula-nova-high-stim-pre-workout-powder-450g",
+        "nutrition_verified": false,
+        "legacy_creatine_per_serving_g": null,
+        "nutrition_override": {
+          "creatine": {
+            "information_state": "confirmed_absent"
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "l_citrulline",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "Serving Size 22.5 g (Approx. 2 Scoops)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22.5,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 4000,
+            "source_quantity_value": 4000
+          },
+          "beta_alanine": {
+            "information_state": "confirmed_absent"
+          },
+          "serving_size_g": 22.5
+        },
+        "after_match": true
+      }
+    ],
+    "candidates": {
+      "ids": [
+        "1999",
+        "2000",
+        "2001",
+        "2002",
+        "2003",
+        "2004",
+        "2005",
+        "2006",
+        "2007",
+        "2008",
+        "2009",
+        "2010",
+        "2011",
+        "2012",
+        "2013",
+        "2014",
+        "2015",
+        "2016",
+        "2017",
+        "2018",
+        "2019",
+        "2020",
+        "2021",
+        "2022",
+        "2023",
+        "2024",
+        "2025",
+        "2026",
+        "2027",
+        "2028",
+        "2029",
+        "2030",
+        "2031",
+        "2032"
+      ],
+      "approved": 34,
+      "evidence_unchanged": true
+    }
+  },
+  "replay_protection": {
+    "result": "PASS",
+    "behavior": "SAFE_REJECTION_STALE_BEFORE",
+    "additional_writes": 0,
+    "errors": [
+      {
+        "product_id": "779",
+        "message": "Variant 974 nutrition override changed after plan generation"
+      },
+      {
+        "product_id": "777",
+        "message": "Variant 968 nutrition override changed after plan generation"
+      },
+      {
+        "product_id": "853",
+        "message": "Variant 2777 nutrition override changed after plan generation"
+      },
+      {
+        "product_id": "1178",
+        "message": "Variant 3523 nutrition override changed after plan generation"
+      },
+      {
+        "product_id": "1284",
+        "message": "Variant 3764 nutrition override changed after plan generation"
+      }
+    ]
+  },
+  "public_presentation": {
+    "result": "PASS",
+    "checked_at": "2026-09-14T19:09:55.264Z",
+    "pages": [
+      {
+        "product_id": "777",
+        "product_variant_id": "968",
+        "url": "https://www.supplementscout.co.uk/product/n1-pro-maximum-strength-pre-workout-15-servings?variant=968",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "facts": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "777",
+        "product_variant_id": "969",
+        "url": "https://www.supplementscout.co.uk/product/n1-pro-maximum-strength-pre-workout-15-servings?variant=969",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "facts": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "779",
+        "product_variant_id": "974",
+        "url": "https://www.supplementscout.co.uk/product/naughty-boy-pump-25-servings?variant=974",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "facts": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "779",
+        "product_variant_id": "975",
+        "url": "https://www.supplementscout.co.uk/product/naughty-boy-pump-25-servings?variant=975",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "facts": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "853",
+        "product_variant_id": "2777",
+        "url": "https://www.supplementscout.co.uk/product/efectiv-project-pump-pre-workout-440g?variant=2777",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "facts": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1178",
+        "product_variant_id": "3523",
+        "url": "https://www.supplementscout.co.uk/product/nxt-nutrition-tnt-nuclear-pump-stim-free-500g?variant=3523",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "facts": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1284",
+        "product_variant_id": "3764",
+        "url": "https://www.supplementscout.co.uk/product/the-formula-nova-high-stim-pre-workout-powder-450g?variant=3764",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "facts": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      }
+    ],
+    "caffeine_free_filter": {
+      "url": "https://www.supplementscout.co.uk/search?q=pre%20workout&caffeine=free",
+      "http_200": true,
+      "stimulant_target_links": [],
+      "unknown_nova_visible": false,
+      "qualifying_families_visible": [
+        "naughty-boy-pump-25-servings",
+        "efectiv-project-pump-pre-workout-440g",
+        "nxt-nutrition-tnt-nuclear-pump-stim-free-500g"
+      ]
+    },
+    "database_writes": 0
+  },
+  "final_coverage": {
+    "applied_unique_variants": 275,
+    "complete": 231,
+    "partial": 44,
+    "no_applied_facts": 300
+  },
+  "unchanged": {
+    "products": true,
+    "nutrition_verified": true,
+    "legacy_creatine_per_serving_g": true,
+    "other_variants": true
+  },
+  "next_step": "Continue with another evidence-qualified multi-family preparation batch without repeating retained blockers."
+}
