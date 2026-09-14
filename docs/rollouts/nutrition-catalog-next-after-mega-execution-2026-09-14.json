@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-next-after-mega-execution-v1",
+  "status": "APPLIED_AND_READ_BACK",
+  "executed_at": "2026-09-14T19:34:36.816Z",
+  "authorization_basis": "Explicit owner approval to continue the prepared package through production store, authenticated review, explicit-ID planning and guarded apply.",
+  "target": {
+    "environment": "PRODUCTION",
+    "supabase_project_ref": "aftboxmrdgyhizicfsfu"
+  },
+  "scope": {
+    "products": 2,
+    "variants": 9,
+    "candidates": 41,
+    "product_updates": 0,
+    "variant_updates": 9
+  },
+  "artifacts": [
+    {
+      "product_id": "1178",
+      "candidate_count": 25,
+      "sha256": "d3b19b2e209ce51f840e2666e18f3c8342d46a1e88a196942c36e8b4b56bcc03",
+      "fingerprint": "6046db30a36ac74859dbcf28100fc32f6d4beac04150a041b89f2602af3152f0"
+    },
+    {
+      "product_id": "295",
+      "candidate_count": 16,
+      "sha256": "a8dc66aac4c82a1f9ebe3fe01f52af35c4f6c36af88b62f33cbea2cda242a2d2",
+      "fingerprint": "44ceec62d5d12415daba53e29047eb0be81c414b590db25d65dd00cd6cd09938"
+    }
+  ],
+  "store": {
+    "created_candidates": 41,
+    "candidate_ids": "2033-2073",
+    "duplicate_candidates": 0
+  },
+  "review": {
+    "approved": 41,
+    "mechanism": "authenticated admin panel",
+    "evidence_changed": false
+  },
+  "plans": [
+    {
+      "product_id": "1178",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-next-after-mega-20260914-1178-359ca4828acc.json",
+      "sha256": "91c36acfadc0c8d0cd1546ae2bef4670acfd8475fd970011345d4d599410f1da",
+      "fingerprint": "359ca4828acc7e9edc2b8b1502c50a7d92eda6973bed69102fad981bb354e11e",
+      "candidates": 25,
+      "variants": 5
+    },
+    {
+      "product_id": "295",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-next-after-mega-20260914-295-fbb0dc8c846a.json",
+      "sha256": "6efc78ae16d5dc603906e9014441a791fb8206f3d17a74c5434ceefd947965ee",
+      "fingerprint": "fbb0dc8c846a50cb87926d8ac80ef20fa604c627e396eff74ac492474f7908be",
+      "candidates": 16,
+      "variants": 4
+    }
+  ],
+  "apply": {
+    "plans_applied": 2,
+    "products_changed": 0,
+    "variants_changed": 9
+  },
+  "independent_readback": {
+    "result": "PASS",
+    "applied_variant_count": 284,
+    "coverage": {
+      "complete": 236,
+      "partial": 48,
+      "none": 291
+    },
+    "candidates_approved": 41,
+    "whole_overrides_match_plans": 9,
+    "evidence_unchanged": true
+  },
+  "replay": {
+    "plans_checked": 2,
+    "safely_rejected_stale_before": 2,
+    "additional_writes": 0
+  },
+  "public_presentation": {
+    "result": "PASS",
+    "pages_checked": 9,
+    "caffeine_free_filter": {
+      "url": "https://www.supplementscout.co.uk/search?q=pre%20workout&caffeine=free",
+      "qualifying_product_1178_visible": true,
+      "stimulant_product_295_absent": true
+    }
+  },
+  "unchanged": {
+    "products": true,
+    "nutrition_verified": true,
+    "legacy_creatine_per_serving_g": true
+  },
+  "next_step": "Prepare another evidence-qualified multi-family batch without repeating retained blockers."
+}

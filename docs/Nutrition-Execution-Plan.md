@@ -4296,6 +4296,38 @@ SHA-256 `297c55c81e36b67bac30ad7d4e16d916a3b65394426d2c79396741402305824a`.
 NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified
 multi-family preparation batch without repeating retained blockers.
 
+## NUT-03 catalogue continuation after mega batch execution
+
+14 September 2026, production execution after explicit owner authorization:
+
+- Controlled store created 41 candidates, IDs `2033`-`2073`, for NXT Nutrition
+  product `1178` variants `3476`, `3525`-`3528` and BioTech USA product `295`
+  variants `1041`, `1776`-`1778`. Authenticated review approved the unchanged
+  set.
+- Two explicit-ID plans contained zero product updates and nine exact
+  `nutrition_override` updates. Plan SHA-256 / fingerprint pairs are product
+  `1178` `91c36acfadc0c8d0cd1546ae2bef4670acfd8475fd970011345d4d599410f1da` /
+  `359ca4828acc7e9edc2b8b1502c50a7d92eda6973bed69102fad981bb354e11e`;
+  and product `295`
+  `6efc78ae16d5dc603906e9014441a791fb8206f3d17a74c5434ceefd947965ee` /
+  `fbb0dc8c846a50cb87926d8ac80ef20fa604c627e396eff74ac492474f7908be`.
+- Guarded apply changed only the nine planned variant overrides. Independent
+  readback matched every whole override to its sealed `after`, confirmed all 41
+  approvals and unchanged evidence, and found no product, verification-flag or
+  legacy-creatine change. Applied coverage is now 284 variants: 236 complete,
+  48 partial and 291 without applied facts.
+- All nine exact public variant pages passed. Product `1178` is visible in the
+  caffeine-free filter using existing grouping, while caffeinated product `295`
+  is absent. Replaying both plans was safely rejected on stale sealed `before`,
+  with zero extra writes.
+
+Complete evidence is
+[nutrition-catalog-next-after-mega-execution-2026-09-14.json](rollouts/nutrition-catalog-next-after-mega-execution-2026-09-14.json).
+Its SHA-256 is
+`aee39990bcdea375a21601e794f00feb8222dd4e73eda50115e8aea70927a4a2`.
+NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified
+multi-family preparation batch without repeating retained blockers.
+
 ## NUT-03 mega catalogue preparation after 268 applied variants
 
 14 September 2026, preparation only:
