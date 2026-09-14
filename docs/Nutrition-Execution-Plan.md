@@ -4252,3 +4252,46 @@ SHA-256 `4cf55c03312f7a2861a374315bf28c8c6fa12f9f764db04c945a160e0c64cb5d`.
 NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
 controlled store -> authenticated review -> explicit-ID plans -> guarded apply
 for exactly these five unchanged artifacts and 80 fingerprints.
+
+## NUT-03 next exact-version catalogue batch execution
+
+14 September 2026, production execution after explicit owner authorization:
+
+- Controlled store created exactly 80 candidates, IDs `1859`-`1938`, for the
+  five unchanged artifacts and 16 exact variants. Authenticated review approved
+  all 80 after comparing every stored field and evidence fingerprint with its
+  artifact.
+- Five explicit-ID plans contained zero product updates and exactly 16 variant
+  updates. Plan SHA-256 / fingerprint pairs are: product `1162`
+  `c041057ff6ec1268b3e7a735ac90759f4913f0a2cc216ea296749338f6305079` /
+  `e7081dd499cc69ca9c473a99da475890992f9500fbbb0bde477c076859412871`;
+  product `1171`
+  `bea4509c4979cbf7fc3bc5a67b2615e6892346f2058e12ea3201a43634ad2f3a` /
+  `1c96c7a86043bb3845fc4e3f41b50acbc2a9f7fbbb95d357cc8ee2cf53ff5f44`;
+  product `1278`
+  `07a333d69a62814b167acc8ada888da250399a3cb3b3820090593ae23c982d58` /
+  `0afab219723d540cac292b463f3cf5f395e6b908bed06083b22c57061981fc97`;
+  product `449`
+  `f2b47353cd5a243605170d113937417445ffc2f6e0ec2fb2dec8dc2aeecb57c6` /
+  `0f04133acd53eee3787613eca8a3da6fbbd67bd3a2236875dd1c956379fe69dc`;
+  and product `847`
+  `06b9c311db100567a0429e9ecdda14c9278e04c5cf3ede09973ff62f4bb30141` /
+  `427e7f8934c643f5915a0c5e1fcf0b70b47e0c64fac018e07de6fa0e271dbf37`.
+- Guarded apply changed only the planned 16 `nutrition_override` objects. A new
+  read-only connection matched every whole override to its plan `after`, found
+  all 80 candidates approved with unchanged evidence, and confirmed no product,
+  `nutrition_verified` or legacy `creatine_per_serving_g` change. Applied
+  coverage rose from 240 to 256 variants: 213 complete, 43 partial and 319 with
+  no applied facts.
+- Replaying every unchanged plan was safely rejected on stale sealed `before`,
+  with zero additional writes. All 16 exact public pages returned 200, selected
+  the intended variants, displayed their expected facts and source type, and
+  exposed no private evidence URI or reviewer metadata. The caffeine-free
+  search excluded all stimulant targets; qualifying results remain governed by
+  available offers and existing card grouping.
+
+Complete evidence is
+[nutrition-catalog-large-next-02-execution-2026-09-14.json](rollouts/nutrition-catalog-large-next-02-execution-2026-09-14.json),
+SHA-256 `297c55c81e36b67bac30ad7d4e16d916a3b65394426d2c79396741402305824a`.
+NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified
+multi-family preparation batch without repeating retained blockers.
