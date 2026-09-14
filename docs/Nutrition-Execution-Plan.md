@@ -3868,3 +3868,45 @@ SHA-256 `a65dcc5f54619bbbeb4f2b8be8741e05793ad25552937fd073b398fda73be02e`.
 NUT-03 remains `IN PROGRESS`. One next step is to resolve the eight Darkstims
 caffeine facts only after an unambiguous total-caffeine-yield source, or prepare
 another evidence-backed family without repeating retained blockers.
+
+## NUT-03 emergency catalogue batch preparation
+
+14 September 2026, preparation only:
+
+- A fresh read-only production preflight reconfirmed project
+  `aftboxmrdgyhizicfsfu`, 18 active exact targets with empty overrides and zero
+  existing candidates for the generated fingerprints. No catalogue or
+  candidate write occurred.
+- The bounded pass assessed 31 variants across five families. It prepared 90
+  unique pending candidates for 18 variants: seven Cellucor C4 Original 390 g,
+  four exact GHOST Legend V4 flavours and seven DY Nutrition Blood & Guts 380 g
+  flavours. Eleven variants have all five tracked facts. The seven Blood & Guts
+  variants retain `conflicting_information` for total caffeine while their
+  serving, beta-alanine, citrulline-malate and creatine-absence facts remain
+  independently usable.
+- Three dry-runs pass for 35, 20 and 35 rows with zero product updates and zero
+  database writes. All five project-authored evidence/context records were
+  stored once in private `nutrition-sources`; independent downloads reproduced
+  their hashes. Raw GHOST and WheyOkay images remain local because the reviewed
+  terms do not permit treating them as reusable commercial archive material.
+- C4 195 g remains blocked by conflicting 6 g/creatine-nitrate and 6.5
+  g/creatine-monohydrate evidence. GHOST variant `1741` needs an exact identity
+  binding to the WARHEADS flavour. The NXT TNT Nuclear 240 g retailer page says
+  its table covers one unspecified flavour and warns that flavours may differ,
+  so variants `3667`, `3710`, `3711`, `3712` remain unassigned.
+
+The artifacts and their SHA-256 / fingerprint pairs are: product `175`
+`7ed925af17b7a124c4172bb08eb2a473aca74a35bf0aa07f9b0c8ba3bfc70e71` /
+`650d3553b627698c72779f9dac37a59d0b0d569973100b275dbb6529f4850f77`;
+product `6`
+`8165b4e05ea5865e812f1007d7eb3bc1f74f45af05e409b6f0a359e9f60856db` /
+`b0f8b3c3f8b8d78c4de014439765890c415d2d8692c6a8b87ddc03d69bccabbc`;
+and product `19`
+`334500330c578f083ea617389159f884c75d76449e58ffa914b2ef024e3e77c8` /
+`cd3f0172a4d20f11e0c5d2878ddc5edad9f45230a672d876ce89f4fb2641b1a4`.
+Complete machine-readable evidence is
+[nutrition-emergency-catalog-batch-preparation-2026-09-14.json](rollouts/nutrition-emergency-catalog-batch-preparation-2026-09-14.json),
+SHA-256 `f95e00222fc2bba4651012e821e5e2a106763d6914aa088c4be04e815c1ad673`.
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
+store -> authenticated review -> explicit-ID plan -> guarded apply for exactly
+these three unchanged artifacts and 90 candidate fingerprints.
