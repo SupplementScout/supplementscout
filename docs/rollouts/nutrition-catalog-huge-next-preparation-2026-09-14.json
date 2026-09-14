@@ -1,0 +1,409 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-huge-next-preparation-v1",
+  "status": "READY_FOR_ONE_OWNER_DECISION",
+  "prepared_at": "2026-09-14T17:26:21.743Z",
+  "mode": "PREPARATION_ONLY",
+  "production_preflight": {
+    "result": "PASS",
+    "captured_at": "2026-09-14T17:25:34.596Z",
+    "target": {
+      "project_ref": "aftboxmrdgyhizicfsfu",
+      "database_oid": "5",
+      "database_identity": "supplementscout-production:aftboxmrdgyhizicfsfu",
+      "target_environment": "PRODUCTION",
+      "database_system_identifier": "7642734024280108049"
+    },
+    "variants": 7,
+    "candidate_fingerprints": 35,
+    "unique_candidate_fingerprints": 35,
+    "existing_candidates": 0,
+    "before_overrides_nonempty": 0,
+    "database_writes": 0
+  },
+  "scope": {
+    "organizational_limit_variants": 50,
+    "families": 4,
+    "assessed_variants": 50,
+    "ready_variants": 7,
+    "complete_variants": 7,
+    "partial_variants": 0,
+    "candidate_facts": 35,
+    "unique_candidate_fingerprints": 35,
+    "excluded_variants_after_short_recognition": 43
+  },
+  "families": [
+    {
+      "product_id": "961",
+      "product": "Cellucor C4 Original – Energy, Focus & Performance Pre-Workout 30 servings",
+      "variant_ids": [
+        "1879",
+        "1880"
+      ],
+      "candidate_count": 10,
+      "artifact": {
+        "path": "tmp/nutrition-huge-next-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-huge-next-20260914-961.json",
+        "sha256": "c832a06c0e53f80d3a2861aacc4b9d1bdea3f942e112bf35cbe11a82703af2cf",
+        "fingerprint": "3471dc9fe3558dd9170b3d2a777762084d0d9a3dbe499cbfd6fcf7a17b65a745"
+      },
+      "unresolved": [],
+      "completeness": "COMPLETE",
+      "variants": [
+        {
+          "id": "1879",
+          "display_name": "Millions Cola / 30servings"
+        },
+        {
+          "id": "1880",
+          "display_name": "Sour Batch Bros / 30servings"
+        }
+      ],
+      "facts": [
+        {
+          "field": "serving_size_g",
+          "value": 6.9,
+          "unit": "g",
+          "ingredient_form": null,
+          "source_text": "1 scoop (6.9 g)",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 150,
+          "unit": "mg",
+          "ingredient_form": null,
+          "source_text": "Caffeine 150 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 1600,
+          "unit": "mg",
+          "ingredient_form": null,
+          "source_text": "CarnoSyn Beta-Alanine 1600 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "ingredient_form": null,
+          "source_text": "Complete declared formula contains no citrulline form or undisclosed blend",
+          "information_state": "confirmed_absent",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": 1500,
+          "unit": "mg",
+          "ingredient_form": "creatine_monohydrate",
+          "source_text": "Micronized Creatine Monohydrate 1500 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        }
+      ],
+      "source": {
+        "url": "https://www.cellucor.uk/product/c4-original",
+        "type": "manufacturer_product_page",
+        "applicability_basis": "manufacturer shared table for the current 30-serving C4 Original formula and listed flavours",
+        "review_sha256": "7bf60743faa2b625fe7ae64a439636a9d6d642763aea67cc2743d5d408a9efb9",
+        "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-huge-next-2026-09-14/7bf60743faa2b625fe7ae64a439636a9d6d642763aea67cc2743d5d408a9efb9/product-961-source-review.json"
+      },
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 10,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "1332",
+      "product": "Cellucor C4 Ultimate Pre-Workout",
+      "variant_ids": [
+        "3927",
+        "3939"
+      ],
+      "candidate_count": 10,
+      "artifact": {
+        "path": "tmp/nutrition-huge-next-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-huge-next-20260914-1332.json",
+        "sha256": "79a9afa9899c74ed0291cb860573bd0e2934975d2f7523cae1a2979bb98ee627",
+        "fingerprint": "16ed8c1c3b1fe51aa932133b0a9623fa868c3771577be6a28f141a43dda442e4"
+      },
+      "unresolved": [],
+      "completeness": "COMPLETE",
+      "variants": [
+        {
+          "id": "3927",
+          "display_name": "Lemon Twist / 20 servings"
+        },
+        {
+          "id": "3939",
+          "display_name": "Tutti Frutti / 20 servings"
+        }
+      ],
+      "facts": [
+        {
+          "field": "serving_size_g",
+          "value": 9.5,
+          "unit": "g",
+          "ingredient_form": null,
+          "source_text": "1 scoop (9.5 g)",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 150,
+          "unit": "mg",
+          "ingredient_form": null,
+          "source_text": "Caffeine 150 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 2400,
+          "unit": "mg",
+          "ingredient_form": null,
+          "source_text": "CarnoSyn Beta-Alanine 2400 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 3000,
+          "unit": "mg",
+          "ingredient_form": "l_citrulline",
+          "source_text": "L-Citrulline 3000 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "ingredient_form": null,
+          "source_text": "Complete declared formula contains no creatine form or undisclosed blend",
+          "information_state": "confirmed_absent",
+          "ingredient_ratio": null
+        }
+      ],
+      "source": {
+        "url": "https://www.cellucor.uk/product/c4-ultimate",
+        "type": "manufacturer_product_page",
+        "applicability_basis": "manufacturer shared table for the current C4 Ultimate powder and listed flavours",
+        "review_sha256": "f7bf7bacc48d9696b736343dc6a792f1b7bd56219753a50c3933f1e6216b07fc",
+        "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-huge-next-2026-09-14/f7bf7bacc48d9696b736343dc6a792f1b7bd56219753a50c3933f1e6216b07fc/product-1332-source-review.json"
+      },
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 10,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "17",
+      "product": "Optimum Nutrition Gold Standard Pre-Workout 330g",
+      "variant_ids": [
+        "1731"
+      ],
+      "candidate_count": 5,
+      "artifact": {
+        "path": "tmp/nutrition-huge-next-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-huge-next-20260914-17.json",
+        "sha256": "4e8e5cdb4d18593a248219aca5c50c08e1d5c3a83cce0a8df878933febaab4f7",
+        "fingerprint": "d78150e3d97be7e639ca93569140c3cf8f767a3a4fcc0975db164325646235f6"
+      },
+      "unresolved": [],
+      "completeness": "COMPLETE",
+      "variants": [
+        {
+          "id": "1731",
+          "display_name": "Pink Lemonade / 330g"
+        }
+      ],
+      "facts": [
+        {
+          "field": "serving_size_g",
+          "value": 11,
+          "unit": "g",
+          "ingredient_form": null,
+          "source_text": "1 level scoop (11 g)",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 175,
+          "unit": "mg",
+          "ingredient_form": null,
+          "source_text": "Caffeine 175 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 1500,
+          "unit": "mg",
+          "ingredient_form": null,
+          "source_text": "Beta-alanine 1.5 g",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 750,
+          "unit": "mg",
+          "ingredient_form": "l_citrulline",
+          "source_text": "Citrulline 750 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": 3400,
+          "unit": "mg",
+          "ingredient_form": "creatine_monohydrate",
+          "source_text": "Creatine monohydrate 3.4 g",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        }
+      ],
+      "source": {
+        "url": "https://www.optimumnutrition.com/en-gb/products/gold-standard-pre-workout-powder-eu",
+        "type": "manufacturer_product_page",
+        "applicability_basis": "manufacturer shared table for exact 330 g / 30-serving EU formula and listed flavours",
+        "review_sha256": "8d0b43eee85fd6bf6dbcfe18e7b4d405a929c9154bbe0fd306b2d2c009b45043",
+        "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-huge-next-2026-09-14/8d0b43eee85fd6bf6dbcfe18e7b4d405a929c9154bbe0fd306b2d2c009b45043/product-17-source-review.json"
+      },
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 5,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "757",
+      "product": "10X Extreme Stim Pre Workout 600g",
+      "variant_ids": [
+        "887",
+        "888"
+      ],
+      "candidate_count": 10,
+      "artifact": {
+        "path": "tmp/nutrition-huge-next-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-huge-next-20260914-757.json",
+        "sha256": "c46cde88ff4adf753db31cd673be8e9c4fdf58d1a62cb775b00b0f5e3b43ae5a",
+        "fingerprint": "864e50f34229adf74e4d5077c01ba30fd0591fa185ec9b887c3878b2189af8f6"
+      },
+      "unresolved": [],
+      "completeness": "COMPLETE",
+      "variants": [
+        {
+          "id": "887",
+          "display_name": "Apple Attack / 600g"
+        },
+        {
+          "id": "888",
+          "display_name": "Cobra Ki / 600g"
+        }
+      ],
+      "facts": [
+        {
+          "field": "serving_size_g",
+          "value": 12,
+          "unit": "g",
+          "ingredient_form": null,
+          "source_text": "approximately 12 g per scoop",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 400,
+          "unit": "mg",
+          "ingredient_form": null,
+          "source_text": "Caffeine Anhydrous 400 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 3200,
+          "unit": "mg",
+          "ingredient_form": null,
+          "source_text": "Beta-Alanine 3200 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 8000,
+          "unit": "mg",
+          "ingredient_form": "citrulline_malate",
+          "source_text": "Citrulline Malate 2:1 8000 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": "2:1"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": 3000,
+          "unit": "mg",
+          "ingredient_form": "creatine_monohydrate",
+          "source_text": "Creatine Monohydrate 3000 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        }
+      ],
+      "source": {
+        "url": "https://fithouse.uk/products/10x-extreme-stim-pre-workout-600g",
+        "type": "retailer_product_page",
+        "applicability_basis": "retailer shared table for exact 600 g / 50-serving formula and listed catalogue flavours",
+        "review_sha256": "3bc3841c72f8cc5aec4be52bd5a314167949975ea4396a17b8b85b2a758caa09",
+        "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-huge-next-2026-09-14/3bc3841c72f8cc5aec4be52bd5a314167949975ea4396a17b8b85b2a758caa09/product-757-source-review.json"
+      },
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 10,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    }
+  ],
+  "archive": {
+    "result": "PASS",
+    "bucket": "nutrition-sources",
+    "bucket_public": false,
+    "verified_objects": 4,
+    "hashes_match": true
+  },
+  "exclusions": [
+    {
+      "product_id": "169",
+      "reason": "400 g identity conflicts with available current/historical serving and pack evidence"
+    },
+    {
+      "product_id": "879",
+      "reason": "manufacturer warns flavour contents vary and visible table does not bind targets"
+    },
+    {
+      "product_id": "1178",
+      "reason": "retained access and flavour-identity blocker"
+    },
+    {
+      "product_id": "1275",
+      "reason": "catalogue 520 g versus current 550 g formula"
+    }
+  ],
+  "controls": {
+    "all_artifact_dry_runs": "PASS",
+    "source_reviews_archived_and_hash_read_back": true,
+    "candidate_database_writes": 0,
+    "catalogue_database_writes": 0
+  },
+  "production_writes": 0,
+  "next_step": "One owner decision for controlled store, authenticated review, explicit-ID plans and guarded apply of exactly these four unchanged artifacts and 35 fingerprints."
+}

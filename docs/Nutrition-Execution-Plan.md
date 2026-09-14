@@ -4295,3 +4295,44 @@ Complete evidence is
 SHA-256 `297c55c81e36b67bac30ad7d4e16d916a3b65394426d2c79396741402305824a`.
 NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified
 multi-family preparation batch without repeating retained blockers.
+
+## NUT-03 high-volume continuation preparation
+
+14 September 2026, preparation only:
+
+- A continuous pass assessed the next 50 unprocessed catalogue variants after
+  coverage reached 256. Exact version, serving or retained-access conflicts
+  were skipped without stopping the remaining work. Seven variants qualified:
+  C4 Original 30 servings (`1879`, `1880`), C4 Ultimate (`3927`, `3939`),
+  Optimum Nutrition Gold Standard 330 g (`1731`) and 10X Extreme Stim 600 g
+  (`887`, `888`). All seven have all five tracked facts.
+- Four immutable artifacts contain 35 PENDING candidates. All store dry-runs
+  pass with zero product updates and zero database writes. Production preflight
+  confirmed seven empty exact target overrides, 35 unique fingerprints and no
+  matching candidates. Four factual reviews were archived privately and their
+  hashes passed independent readback.
+- The evidence-qualified package stopped below the 50-variant ceiling because
+  43 assessed targets retained concrete formula-generation, pack/serving,
+  flavour-applicability or source-retention conflicts. Older C4 195 g and C4
+  Ripped 180 g catalogue packs were not joined to different current official
+  pack formulas; retained Total War, NXT and other recorded blockers were not
+  guessed or re-audited.
+
+Artifact SHA-256 / fingerprint pairs are: product `961`
+`c832a06c0e53f80d3a2861aacc4b9d1bdea3f942e112bf35cbe11a82703af2cf` /
+`3471dc9fe3558dd9170b3d2a777762084d0d9a3dbe499cbfd6fcf7a17b65a745`;
+product `1332`
+`79a9afa9899c74ed0291cb860573bd0e2934975d2f7523cae1a2979bb98ee627` /
+`16ed8c1c3b1fe51aa932133b0a9623fa868c3771577be6a28f141a43dda442e4`;
+product `17`
+`4e8e5cdb4d18593a248219aca5c50c08e1d5c3a83cce0a8df878933febaab4f7` /
+`d78150e3d97be7e639ca93569140c3cf8f767a3a4fcc0975db164325646235f6`;
+and product `757`
+`c46cde88ff4adf753db31cd673be8e9c4fdf58d1a62cb775b00b0f5e3b43ae5a` /
+`864e50f34229adf74e4d5077c01ba30fd0591fa185ec9b887c3878b2189af8f6`.
+Complete evidence is
+[nutrition-catalog-huge-next-preparation-2026-09-14.json](rollouts/nutrition-catalog-huge-next-preparation-2026-09-14.json),
+SHA-256 `3ae2fdf6e9fb7b145eb2851e7a68869e513b30367d347588b4c6ea89e59b4e3a`.
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
+store -> authenticated review -> explicit-ID plans -> guarded apply of exactly
+these four unchanged artifacts and 35 fingerprints.
