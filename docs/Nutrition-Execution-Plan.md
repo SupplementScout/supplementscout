@@ -3657,3 +3657,64 @@ controlled store -> authenticated review -> explicit-ID plan -> apply for
 exactly these four unchanged artifacts and 43 candidates. The unresolved Defib
 citrulline, Animal Kiwi Lime, Yeti caffeine yield and the earlier recipe/pack/
 flavour-binding gaps remain outside that decision.
+
+## NUT-03 targeted public-source gap completion execution
+
+14 September 2026, owner-authorized production store, review, plan and apply of
+the unchanged 43-candidate preparation package:
+
+- A fresh read-only production preflight confirmed project
+  `aftboxmrdgyhizicfsfu`, the expected 136 applied variants, all 13 active exact
+  product-variant bindings and zero matches for the 43 candidate fingerprints.
+  The target overrides still matched the preparation state: six Prolific and
+  two Proven variants retained their earlier partial facts, while both Defib V3
+  and three Animal Fury targets remained empty.
+- Controlled store created candidates `1353`-`1395` only in
+  `nutrition_candidates`. A new read found exactly one row for every fingerprint
+  and no catalogue change. Authenticated review through the existing admin route
+  approved all 43 rows as `admin-panel`; a separate read matched every proposed
+  and approved value, exact variant, durable archive URI, source hash,
+  fingerprint and review timestamp.
+- Explicit-ID planning produced four blocker-free plans with zero product
+  updates. Product `24` plan SHA-256 / fingerprint is
+  `b4592297905d8bb3dcf9d39cbb493befc503a053f0f05068dda08b9ea7ac73c3` /
+  `c9aee8e4a25272eb1c4792c554dd57fa77604c74c83b13364aff8aaea3f8f354`;
+  product `62` is
+  `dc16e460321ff21331e29e93341075f10ce70e9b7eb5d81477cd8197c92a5b4c` /
+  `8d4073b970dbd936ac74ee926205796902dd2dc9265dccbc681f450dadf98ff5`;
+  product `761` is
+  `f2101a18bf797dd003bc9ea529da3173e7dc6a26a1ebd351b836d9a22ed6d5a5` /
+  `e155bd84b7a3a25a4ea56821d6c89454b68b362cebf980af8755aa2d96728ef0`;
+  and product `1249` is
+  `7628e71975d14e48dd8ef8c79a63ded50759ac80ddbe6499b19566a1b29a16c1` /
+  `5c668518ff1af39640c5857216e71cdd8c49358e378bc9be2fd897af96daaa8e`.
+- Guarded transactional apply changed zero products and only the planned 13
+  `product_variants.nutrition_override` objects. A new forced-read-only
+  connection matched every whole override to the corresponding plan `after`,
+  retained all approvals and evidence, and matched preservation hashes for
+  products, every other variant, target metadata and legacy fields, pre-existing
+  target candidates and the non-target queue.
+- Eleven targets are now complete for the four tracked ingredients plus serving:
+  Prolific `1004`, `1581`-`1585`; Proven `907`, `909`; and Animal Fury `3671`,
+  `3717`, `3720`. Defib V3 `2646` and `2649` are partial: their serving,
+  caffeine, beta-alanine and creatine absence are applied, while citrulline stays
+  unresolved because the source does not say whether 8 g is malate compound mass
+  or L-citrulline yield.
+- Replaying each exact plan was safely rejected on its changed sealed `before`.
+  A subsequent independent read reproduced the complete final state, proving no
+  second write. All 13 public exact-variant pages return 200, select the requested
+  variant, show only the applied facts and expose neither private URI nor reviewer
+  metadata. Source labels distinguish manufacturer and retailer evidence.
+  Proven variants `907` and `909` qualify for caffeine-free search; existing
+  product grouping renders one card linked to exact qualifying variant `907`.
+- The distinct all-offer-state applied total is now 141. Current-offer coverage
+  is 404 exact variants: 115 complete, 18 partial and 271 without applied facts.
+  Frozen-pilot variant `3671` moves to complete, making the pilot 13 complete,
+  zero partial and 12 without applied facts. Stinger remains one separate case.
+
+Complete machine-readable evidence is
+[nutrition-gap-completion-execution-2026-09-14.json](rollouts/nutrition-gap-completion-execution-2026-09-14.json).
+NUT-03 remains `IN PROGRESS`. One next step is to resolve Defib V3 citrulline only
+after obtaining an exact compound-mass-versus-yield statement, or continue with
+another family supported by new exact evidence; do not repeat the exhausted gap
+searches.
