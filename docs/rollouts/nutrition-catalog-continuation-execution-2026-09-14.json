@@ -1,0 +1,122 @@
+{
+  "schema_version": "nutrition-execution-report-v1",
+  "executed_at": "2026-09-14",
+  "environment": {
+    "name": "production",
+    "supabase_project_ref": "aftboxmrdgyhizicfsfu"
+  },
+  "authorization": {
+    "scope": "store -> authenticated review -> explicit-ID plan -> guarded apply",
+    "preparation_report": "docs/rollouts/nutrition-catalog-continuation-preparation-2026-09-14.json",
+    "preparation_report_sha256": "5468cbd15300903f7bf3a2e775dbf23e668a46f2bf5051d99082fe65b7d35ca4",
+    "candidate_count": 90,
+    "variant_count": 19
+  },
+  "result": "PASS",
+  "store_and_review": {
+    "created": 90,
+    "already_present": 0,
+    "approved": 90,
+    "candidate_id_ranges": [
+      { "product_id": "17", "variant_ids": ["714", "715", "716", "717"], "candidate_ids": "1648-1667" },
+      { "product_id": "49", "variant_ids": ["1028", "1596", "1597", "1598"], "candidate_ids": "1668-1687" },
+      { "product_id": "55", "variant_ids": ["1029", "1599", "1600"], "candidate_ids": "1688-1702" },
+      { "product_id": "294", "variant_ids": ["1059", "1774", "1775"], "candidate_ids": "1703-1717" },
+      { "product_id": "520", "variant_ids": ["1025", "1700", "1701", "1702", "1703"], "candidate_ids": "1718-1737" }
+    ],
+    "final_status": "APPROVED",
+    "evidence_unchanged": true
+  },
+  "plans": [
+    {
+      "product_id": "17",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-continuation-20260914-17-ce782616eff4.json",
+      "sha256": "a92d0aef0d2661cb6f57aeed090fee96aacbc94e6980c46f416a9af05765a817",
+      "fingerprint": "ce782616eff4c5285489e6488dbe2f0184f39d736bfe420f66449cd9f42b238c",
+      "candidate_ids": "1648-1667",
+      "variant_ids": ["714", "715", "716", "717"]
+    },
+    {
+      "product_id": "49",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-continuation-20260914-49-cc1552a758f7.json",
+      "sha256": "aaf77d197c03bb6591f9ba51af298fbd17ebb7a99c64f2b473dca0e8cde7ddc0",
+      "fingerprint": "cc1552a758f7972173802bb4f1eae70f08387a0d4d1c6d0cb36dbc2893650c54",
+      "candidate_ids": "1668-1687",
+      "variant_ids": ["1028", "1596", "1597", "1598"]
+    },
+    {
+      "product_id": "55",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-continuation-20260914-55-3cfb4d0bc134.json",
+      "sha256": "3b28e2a052e731bb748040984e2e5f85f09aa4e73d40712ff5e07225a7ed839c",
+      "fingerprint": "3cfb4d0bc134c3310bbcf810519c17f51ecae76f4076ea3ef9d03dce12c1b276",
+      "candidate_ids": "1688-1702",
+      "variant_ids": ["1029", "1599", "1600"]
+    },
+    {
+      "product_id": "294",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-continuation-20260914-294-6c9ccf5daa82.json",
+      "sha256": "20d9233278042b7f422dbdb99b74760085967555cf051592a686f019b5855b29",
+      "fingerprint": "6c9ccf5daa8296c28306ca1751f9ec2f0824b644dc67a8b12ded70c9f4712118",
+      "candidate_ids": "1703-1717",
+      "variant_ids": ["1059", "1774", "1775"]
+    },
+    {
+      "product_id": "520",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-continuation-20260914-520-8e6b5b2749be.json",
+      "sha256": "26c7f1215eb805c53e02577f8f9351bbb88ee7cbd249c021cf7e2c04347d62f1",
+      "fingerprint": "8e6b5b2749be81285f453ad3057be0f7ba5e7b06ae451b8b79526d8b3cdc283f",
+      "candidate_ids": "1718-1737",
+      "variant_ids": ["1025", "1700", "1701", "1702", "1703"]
+    }
+  ],
+  "apply": {
+    "plans_applied": 5,
+    "product_updates": 0,
+    "variant_updates": 19,
+    "target_column": "product_variants.nutrition_override",
+    "whole_override_matches_planned_after": 19,
+    "unexpected_changes": 0,
+    "nutrition_verified_changed": false,
+    "legacy_creatine_per_serving_g_changed": false
+  },
+  "independent_readback": {
+    "new_connection": true,
+    "result": "PASS",
+    "queue_before": { "approved": 1625, "pending": 16, "rejected": 6 },
+    "queue_after": { "approved": 1715, "pending": 16, "rejected": 6 },
+    "applied_variants_before": 193,
+    "applied_variants_after": 212,
+    "coverage_after": { "complete_state_keys": 181, "partial": 31, "none": 363 },
+    "owner_facing_fully_resolved": 174,
+    "note": "Five Redweiler variants are partial because the source declares two creatine forms separately and the approved artifact intentionally omitted creatine."
+  },
+  "replay_protection": {
+    "result": "PASS",
+    "behavior": "safe_rejection",
+    "plans_replayed": 5,
+    "additional_writes": 0,
+    "reason": "Each sealed before state became stale after the successful apply; the guarded mechanism rejected every replay."
+  },
+  "public_verification": {
+    "result": "PASS",
+    "exact_variant_pages_checked": 19,
+    "http_200": 19,
+    "expected_facts_visible": 19,
+    "private_source_uri_exposed": false,
+    "reviewer_metadata_exposed": false,
+    "caffeine_free_filter": {
+      "url": "https://www.supplementscout.co.uk/search?q=pre%20workout&caffeine=free",
+      "confirmed_filter_label": true,
+      "ghost_pump_present": true,
+      "qualifying_variant_link_observed": "1596",
+      "nonqualifying_target_links": 0
+    }
+  },
+  "remaining_scope": {
+    "nut_03_status": "IN PROGRESS",
+    "unresolved_in_this_batch": [
+      "Creatine for product 520 variants 1025 and 1700-1703 requires a representation that preserves separately declared creatine monohydrate and creatine malate."
+    ],
+    "next_step": "Prepare the next exact-version family with evidence-backed serving and shared-table context without re-auditing retained blockers."
+  }
+}

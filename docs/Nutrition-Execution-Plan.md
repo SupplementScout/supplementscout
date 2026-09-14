@@ -4011,3 +4011,39 @@ NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
 controlled store -> authenticated review -> explicit-ID plan -> guarded apply
 for exactly these five unchanged artifacts and 90 candidate fingerprints;
 Redweiler creatine remains excluded.
+
+## NUT-03 catalogue continuation execution
+
+14 September 2026, production execution after exact owner authorization:
+
+- A fresh production preflight reconfirmed project `aftboxmrdgyhizicfsfu`, all
+  19 exact product-variant bindings, 90 unique candidate fingerprints, empty
+  target overrides and no existing matching candidates. The controlled store
+  created candidates `1648`-`1737`; authenticated review approved exactly those
+  90 records with their evidence unchanged.
+- Five explicit-ID plans contained zero product updates and exactly 19 variant
+  updates. Guarded apply completed all five: products `17`, `49`, `55` and
+  `294` received the five approved facts, while product `520` received four.
+  Redweiler creatine remains deliberately unresolved because its source
+  separately declares creatine monohydrate and creatine malate.
+- A new read-only connection matched all 19 complete overrides to their sealed
+  plan `after`, retained all 90 approvals and evidence records, and found no
+  change to products, `nutrition_verified` or legacy
+  `creatine_per_serving_g`. Applied coverage rose from 193 to 212 variants:
+  181 now contain all five state keys, 31 are partial and 363 have no applied
+  facts. Excluding the seven retained Blood & Guts caffeine conflicts, 174
+  variants have fully resolved owner-facing ingredient outcomes.
+- Replaying every unchanged plan was safely rejected because its sealed
+  `before` was stale after the successful apply. A second independent read
+  confirmed zero additional writes and the identical final state.
+- All 19 public exact-variant pages return 200, select the requested variant,
+  show the expected facts and source type, and expose neither private archive
+  URIs nor reviewer metadata. The availability-aware caffeine-free filter shows
+  GHOST PUMP and excludes all target variants with declared caffeine.
+
+Complete machine-readable evidence is
+[nutrition-catalog-continuation-execution-2026-09-14.json](rollouts/nutrition-catalog-continuation-execution-2026-09-14.json),
+SHA-256 `ee64c72cf9f26ee7247fc4c01a35d1c313f10418d1f925cddf2194fb3fbc515a`.
+NUT-03 remains `IN PROGRESS`. One next step is to prepare the next exact-version
+family with an evidence-backed serving and shared-table context, without
+repeating retained blockers.
