@@ -4296,6 +4296,49 @@ SHA-256 `297c55c81e36b67bac30ad7d4e16d916a3b65394426d2c79396741402305824a`.
 NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified
 multi-family preparation batch without repeating retained blockers.
 
+## NUT-03 large catalogue preparation after 284 applied variants
+
+14 September 2026, preparation only:
+
+- Production readback confirmed 575 active pre-workout variants and 284 with
+  applied facts. Among 406 variants with a current available offer, 228 are
+  complete, 48 partial and 130 have no applied facts.
+- Four families qualified: Adapt product `1252` variants `3674`, `3724`; Bloom
+  product `1251` variants `3673`, `3723`; Naughty Boy product `763` variants
+  `4101`, `4107`; and Darkstims product `1275` variants `3755`, `3913`-`3915`.
+  This is ten exact variants and 38 PENDING facts. Six variants have all five
+  tracked facts; four Darkstims variants have supported caffeine and creatine
+  absence only.
+- All four store dry-runs passed with 38 unique fingerprints, zero product
+  updates and zero database writes. Read-only production preflight confirmed
+  exact bindings, empty target overrides and no matching candidates. Four
+  factual reviews were stored once in private `nutrition-sources`; independent
+  downloads matched their SHA-256 values.
+- The batch stopped below 50 because the next large families retain concrete
+  formula-generation, pack, serving, common-table applicability or source
+  retention conflicts. Darkstims still lacks a gram-defined serving, and its
+  citrulline-nitrate component is outside the deployed form set.
+
+Artifact SHA-256 / fingerprint pairs are: product `1252`
+`bd7d9beb52ef1fa71006d04b9e48421f398de64489acb203055a820b6d58b383` /
+`2abf347808d2fda6951597bcf52c0dcaada336a33bd5572d1a8596cb2872e8d0`;
+product `1251`
+`e7916e8b08edccacf9aef4fcaaa08621d226feee0b6c7ef1d7c329567b9ee866` /
+`48058b7aeaabe213579e1b5d84989b1b381e89dff4f6a9c9106842121c218471`;
+product `763`
+`d09c23e75a0ceeb586c06b98ab6ee5762e2f58d170195ddebf3b47cc4c127dfb` /
+`cff018fc00ee78856287f27b4b20368cf103a734c56f9cf168349ecffb9486b8`;
+and product `1275`
+`4f623abb3293c33a0b4de6c5c64814f98a383d4739ba2067e5e8d622bcf330bd` /
+`fc24a18863024237b99853405645434ee32dcd9792c6187292db85578aa8303d`.
+Complete evidence is
+[nutrition-catalog-large-next-03-preparation-2026-09-14.json](rollouts/nutrition-catalog-large-next-03-preparation-2026-09-14.json).
+Its SHA-256 is
+`62e74d6996c7cb5b785f5b24764713fc1ab51eb391766a3ac6176fa426e28cf3`.
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
+store -> authenticated review -> explicit-ID plans -> guarded apply of exactly
+these four unchanged artifacts and 38 fingerprints.
+
 ## NUT-03 catalogue continuation after mega batch execution
 
 14 September 2026, production execution after explicit owner authorization:

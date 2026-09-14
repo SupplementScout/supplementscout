@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-large-next-03-preparation-v1",
+  "status": "READY_FOR_ONE_OWNER_DECISION",
+  "prepared_at": "2026-09-14T19:44:23.507Z",
+  "mode": "PREPARATION_ONLY",
+  "production_checkpoint": {
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "active_preworkout_variants": 575,
+    "applied_variants": 284,
+    "available_variants": 406,
+    "available_complete": 228,
+    "available_partial": 48,
+    "available_without_facts": 130
+  },
+  "scope": {
+    "organizational_limit_variants": 50,
+    "families": 4,
+    "ready_variants": 10,
+    "complete_variants": 6,
+    "partial_variants": 4,
+    "candidate_facts": 38,
+    "unique_candidate_fingerprints": 38
+  },
+  "families": [
+    {
+      "product_id": "1252",
+      "product": "Adapt Nutrition PreTRAIN X 350g",
+      "variant_ids": ["3674", "3724"],
+      "facts_per_variant": {"serving_size_g":14,"caffeine_mg":350,"beta_alanine_mg":3200,"citrulline":{"form":"l_citrulline","mg":4500},"creatine":"confirmed_absent"},
+      "source": "https://www.activesportsnutrition.co.uk/adapt-pre-train-x",
+      "artifact": {"path":"tmp/nutrition-catalog-large-next-03-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-03-20260914-1252.json","sha256":"bd7d9beb52ef1fa71006d04b9e48421f398de64489acb203055a820b6d58b383","fingerprint":"2abf347808d2fda6951597bcf52c0dcaada336a33bd5572d1a8596cb2872e8d0"}
+    },
+    {
+      "product_id": "1251",
+      "product": "Bloom Pre-Workout 186g",
+      "variant_ids": ["3673", "3723"],
+      "facts_per_variant": {"serving_size_g":6,"caffeine_mg":150,"beta_alanine_mg":1600,"citrulline":{"form":"l_citrulline","mg":1000},"creatine":"confirmed_absent"},
+      "source": "https://www.hollandandbarrett.com/shop/product/bloom-pre-workout-raspberry-lemonade-186g-6100012823",
+      "artifact": {"path":"tmp/nutrition-catalog-large-next-03-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-03-20260914-1251.json","sha256":"e7916e8b08edccacf9aef4fcaaa08621d226feee0b6c7ef1d7c329567b9ee866","fingerprint":"48058b7aeaabe213579e1b5d84989b1b381e89dff4f6a9c9106842121c218471"}
+    },
+    {
+      "product_id": "763",
+      "product": "Naughty Boy Menace V2 60 servings",
+      "variant_ids": ["4101", "4107"],
+      "facts_per_variant": {"serving_size_g":14,"caffeine_mg":400,"beta_alanine_mg":3200,"citrulline":{"form":"citrulline_malate","ratio":"2:1","mg":6000},"creatine":"confirmed_absent"},
+      "source": "https://naughtyboylifestyle.com/products/naughty-boy-menace%C2%AE-v2-pre-workout",
+      "artifact": {"path":"tmp/nutrition-catalog-large-next-03-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-03-20260914-763.json","sha256":"d09c23e75a0ceeb586c06b98ab6ee5762e2f58d170195ddebf3b47cc4c127dfb","fingerprint":"cff018fc00ee78856287f27b4b20368cf103a734c56f9cf168349ecffb9486b8"}
+    },
+    {
+      "product_id": "1275",
+      "product": "Darkstims Pump V2 Stim-Free Pre-Workout 520g",
+      "variant_ids": ["3755", "3913", "3914", "3915"],
+      "facts_per_variant": {"caffeine":"confirmed_absent","creatine":"confirmed_absent"},
+      "unresolved": ["serving gram mass is not stated","beta-alanine cannot be bound to a gram-defined serving","citrulline nitrate is unsupported by the current component form set"],
+      "source": "https://www.darkstims.com/pages/pump-v2",
+      "artifact": {"path":"tmp/nutrition-catalog-large-next-03-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-03-20260914-1275.json","sha256":"4f623abb3293c33a0b4de6c5c64814f98a383d4739ba2067e5e8d622bcf330bd","fingerprint":"fc24a18863024237b99853405645434ee32dcd9792c6187292db85578aa8303d"}
+    }
+  ],
+  "archive": {"bucket":"nutrition-sources","private":true,"objects":4,"hash_readback":"PASS"},
+  "production_preflight": {"result":"PASS","variants":10,"unique_fingerprints":38,"existing_candidates":0,"nonempty_target_overrides":0,"database_writes":0},
+  "validation": {"result":"PASS","artifacts":4,"dry_runs_passed":4,"candidate_rows":38,"product_updates":0,"database_writes":0},
+  "retained_blockers": [
+    "Redcon1 Total War 400 g: current official formula/pack evidence conflicts with retained catalogue generation.",
+    "Cellucor C4 Original 195 g: retained 6 g and 6.5 g formula conflict remains unresolved.",
+    "Gorillalpha Ibiza Juice: current pages mix OG and Ultimate generations without one exact common dosage table.",
+    "Other assessed families lack exact pack, serving, common-table applicability or permitted retained source evidence."
+  ],
+  "next_step": "One owner decision for production store -> authenticated review -> explicit-ID plans -> guarded apply of these four unchanged artifacts and 38 fingerprints."
+}
