@@ -1,0 +1,28 @@
+{
+  "schema_version": "nutrition-execution-report-v1",
+  "executed_at": "2026-09-14",
+  "environment": { "name": "production", "supabase_project_ref": "aftboxmrdgyhizicfsfu" },
+  "result": "PASS",
+  "authorized_artifact": {
+    "path": "tmp/nutrition-catalog-next-preparation-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-next-20260914-482.json",
+    "sha256": "89d96dff9a31bf1b761271245b5276423f90c5d2fd4f3fd84968a98aa420ad4b",
+    "artifact_fingerprint": "c082a64382f4ab4a1f6acf199bf188c5279b26e5f5f81a204f28a7449e02e613"
+  },
+  "scope": { "product_id": "482", "variant_ids": ["1022", "1697", "1698"], "candidate_count": 15 },
+  "store_review": { "created": 15, "already_present": 0, "candidate_ids": ["1738", "1739", "1740", "1741", "1742", "1743", "1744", "1745", "1746", "1747", "1748", "1749", "1750", "1751", "1752"], "approved": 15, "status": "APPROVED", "evidence_unchanged": true },
+  "plan": {
+    "path": "tmp/nutrition-approved-plan/NCR1-catalog-next-20260914-482-26fc6f401106.json",
+    "sha256": "9c990e7e21ad9e7914b96872cf8154706fd4d25c67bb4229bb5efc2ca363149b",
+    "fingerprint": "26fc6f401106e39ec087e38464e4dc3f3e1718ab001a07ad0dc631e88ca557fb",
+    "product_updates": 0,
+    "variant_updates": 3,
+    "before_overrides_empty": true
+  },
+  "apply": { "status": "APPLIED_REVIEWED_NUTRITION_FIELDS", "changed_products": 0, "changed_variants": 3, "fields_per_variant": ["serving_size_g", "caffeine", "beta_alanine", "citrulline", "creatine"] },
+  "independent_readback": { "new_connection": true, "result": "PASS", "whole_overrides_match_plan_after": 3, "approved_candidates": 15, "evidence_unchanged": true, "applied_variants": 215, "coverage": { "complete": 184, "partial": 31, "none": 360 }, "queue": { "approved": 1730, "pending": 16, "rejected": 6 } },
+  "replay_protection": { "result": "PASS", "behavior": "safe_rejection", "message": "Variant 1022 nutrition override changed after plan generation", "additional_writes": 0 },
+  "public_verification": { "result": "PASS", "exact_variant_pages": 3, "expected_facts_visible": 3, "private_evidence_exposed": false, "caffeine_free_filter": "All three caffeinated variants excluded" },
+  "catalogue_guards": { "nutrition_verified_changed": false, "legacy_creatine_per_serving_g_changed": false, "other_variants_changed": 0 },
+  "nut_03_status": "IN PROGRESS",
+  "next_step": "Prepare another exact-version family, retaining known blockers until new evidence appears."
+}

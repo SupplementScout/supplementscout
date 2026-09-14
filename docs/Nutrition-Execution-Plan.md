@@ -4081,3 +4081,33 @@ SHA-256 `09568e510f493090b1a34d32e99aa410e566d70aed8f2a3ed9503705e2b17394`.
 NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
 controlled store -> authenticated review -> explicit-ID plan -> guarded apply
 for exactly this unchanged artifact and its 15 fingerprints.
+
+## NUT-03 JNX The Curse execution
+
+14 September 2026, production execution after explicit owner authorization:
+
+- A fresh preflight reconfirmed production project `aftboxmrdgyhizicfsfu`, the
+  unchanged artifact hash and fingerprint, three empty target overrides and no
+  existing candidate fingerprint. Controlled store created candidates
+  `1738`-`1752`; authenticated review approved exactly those 15 records.
+- The sealed plan SHA-256 / fingerprint is
+  `9c990e7e21ad9e7914b96872cf8154706fd4d25c67bb4229bb5efc2ca363149b` /
+  `26fc6f401106e39ec087e38464e4dc3f3e1718ab001a07ad0dc631e88ca557fb`.
+  It contained zero product updates, three empty `before` overrides and exactly
+  the five authorized facts for variants `1022`, `1697` and `1698`.
+- Guarded apply updated only those three `nutrition_override` objects. A new
+  read-only connection matched every whole override to the plan `after`, found
+  all 15 candidates approved with unchanged evidence and advanced applied
+  coverage from 212 to 215 variants: 184 complete, 31 partial and 360 without
+  applied facts. Products, `nutrition_verified` and legacy
+  `creatine_per_serving_g` remained unchanged.
+- Replaying the same plan was safely rejected on its stale sealed `before`, with
+  zero additional writes. All three exact public pages return the expected
+  serving, caffeine, beta-alanine, L-citrulline and creatine-monohydrate facts;
+  the caffeine-free filter correctly excludes all three.
+
+Complete evidence is
+[nutrition-catalog-next-execution-2026-09-14.json](rollouts/nutrition-catalog-next-execution-2026-09-14.json),
+SHA-256 `ee7a07010a22772b726c2f89031f3a17dc8592229272bd331c9b0c4b07938ac0`.
+NUT-03 remains `IN PROGRESS`. One next step is to prepare another exact-version
+family while retaining known blockers until new evidence appears.
