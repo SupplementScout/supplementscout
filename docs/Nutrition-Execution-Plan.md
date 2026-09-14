@@ -4206,3 +4206,49 @@ SHA-256 `8d1e717285ba67bb7bb98851a7cb873a9a6f6e182f5428781f16bf795b921198`.
 NUT-03 remains `IN PROGRESS`. One next step is another multi-family preparation
 batch, retaining recorded version and evidence blockers until new evidence
 appears.
+
+## NUT-03 next exact-version catalogue batch preparation
+
+14 September 2026, preparation only:
+
+- A fresh read-only production preflight started from 240 applied variants and
+  confirmed 16 exact targets with current offers, empty overrides, 80 unique
+  candidate fingerprints and no matching candidate records. The target is
+  production project `aftboxmrdgyhizicfsfu`; the preflight made no database
+  writes.
+- The closed package covers five families and 16 variants: C4 Original 60
+  Servings (`3277`, `3444`, `3445`, `3447`), QHUSH Black 220 g (`1021`,
+  `1787`, `1788`), AK-47 Labs 240 g (`3233`, `3263`, `3267`), Jack3d Advanced
+  315 g (`3758`, `3875`, `3877`) and HyperMax'D Out 480 g (`1232`, `1233`,
+  `2774`). All 16 have all five tracked facts.
+- Five artifacts contain 80 PENDING candidates. Each artifact passes the
+  existing offline store dry-run, totalling zero product updates and zero
+  database writes. Five factual source reviews were archived once in private
+  `nutrition-sources`; independent downloads reproduced all hashes.
+- The package stops at 16 rather than padding the organizational limit of 50.
+  Short recognition retained exact-version or evidence blockers including
+  Total War 400 g, products whose manufacturer states flavour contents vary,
+  NXT access/identity cases and the catalogue 520 g versus current 550 g
+  formula. None was converted into guessed data.
+
+Artifact SHA-256 / fingerprint pairs are: product `1171`
+`fa5c80c8c99e86c8e54d04dbc730798d3645fd3e549384b0d956f0690b5d80c9` /
+`446065f57e89f925e40e1cb450d9d99ac06107db9a87814cf90683a54d44a776`;
+product `449`
+`f93a836e9aae25b524dc67d6b9111cb58c3c412dcf113b40d19922929b5ca75c` /
+`2877b14b463e8fa48af0e4a12b570e722e5d432e306b6bde7b2d799655b62172`;
+product `1162`
+`fbbc4c41f8fe0f72e82c62cef65e203c271ce099a02ee6a0fee9e34b1cc4f8d4` /
+`30954d42a061ce5fba624bf0f9384222f85a943f14c1cb6080487688a986a0b4`;
+product `1278`
+`301782160101a92941e0661a5e5d9bd468aa4654cdf81ad3a0c3e68aa84ceda1` /
+`f63160aed438071aeecc7aac09e0154a6b081cfa32dbb257f43f871bcf62731d`;
+and product `847`
+`3dad6942d892d8048fecb30c3cbd1429daa382f41b6306401cab24f04b52dceb` /
+`ebc1ce033d3ef6c18cdd390dd4855eefca0195e7b13084835dfe4e421571ed32`.
+Complete evidence is
+[nutrition-catalog-large-next-02-preparation-2026-09-14.json](rollouts/nutrition-catalog-large-next-02-preparation-2026-09-14.json),
+SHA-256 `4cf55c03312f7a2861a374315bf28c8c6fa12f9f764db04c945a160e0c64cb5d`.
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
+controlled store -> authenticated review -> explicit-ID plans -> guarded apply
+for exactly these five unchanged artifacts and 80 fingerprints.
