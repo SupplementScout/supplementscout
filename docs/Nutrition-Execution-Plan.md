@@ -4336,3 +4336,34 @@ SHA-256 `3ae2fdf6e9fb7b145eb2851e7a68869e513b30367d347588b4c6ea89e59b4e3a`.
 NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
 store -> authenticated review -> explicit-ID plans -> guarded apply of exactly
 these four unchanged artifacts and 35 fingerprints.
+
+## NUT-03 high-volume continuation execution
+
+14 September 2026, production execution after explicit owner authorization:
+
+- Controlled store created 35 candidates, IDs `1939`-`1973`, for seven exact
+  variants. Authenticated review approved the unchanged set. Four explicit-ID
+  plans contained zero product updates and seven variant updates.
+- Plan SHA-256 / fingerprint pairs are: product `1332`
+  `a0b5761810bfc21dae8198b0afc49acd78a2f8c33786bd135ce552fe08b54e63` /
+  `dde2bd2c09f20c2bcb1c47ea4133bb263b53ebdd1baebd4318b42c499b2bc579`;
+  product `17` `4a8b3cb254b2bf2ac58683138e5620b9091caed43f1cf19d0c57c036e15d6eba` /
+  `a18e946df79e18a0eff0d00c9a11367c0862ac9aa31bc54cc6d07877ffe5a702`;
+  product `757` `ea35a5b62123812fc109eac208806f89f06dff068d71e5f131fc99f7189ae3fe` /
+  `8354f3ea59e99834fe928255ca114cb2c662f36099e305307e79adfb5e69ff14`;
+  and product `961` `3285a4526af11bf1cd0de68431d87f4565ae6922e85cba32553a488d02a02bb2` /
+  `4a1fa4c665ce7d41ac46ed3aac814873580deecca33d1a15886a7fcef24b8959`.
+- Guarded apply changed only the seven planned `nutrition_override` objects.
+  Independent readback matched every whole override to `after`, confirmed all
+  35 approvals and unchanged evidence, and found no product, verification-flag
+  or legacy-creatine change. Coverage is now 263 applied: 220 complete, 43
+  partial and 312 without facts.
+- All seven public pages passed exact-variant and fact checks. No target appeared
+  in the caffeine-free filter. Replaying all four plans was safely rejected on
+  stale sealed `before`, with zero extra writes.
+
+Complete evidence is
+[nutrition-catalog-huge-next-execution-2026-09-14.json](rollouts/nutrition-catalog-huge-next-execution-2026-09-14.json),
+SHA-256 `834b536e5ce9890c5c861691dcfd19c4d94c6a5f930a9f10d5a2fd1e029adf9d`.
+NUT-03 remains `IN PROGRESS`. One next step is continuous evidence-qualified
+family preparation without repeating retained blockers.
