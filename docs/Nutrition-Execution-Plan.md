@@ -4296,6 +4296,30 @@ SHA-256 `297c55c81e36b67bac30ad7d4e16d916a3b65394426d2c79396741402305824a`.
 NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified
 multi-family preparation batch without repeating retained blockers.
 
+## NUT-03 large catalogue batch 03 execution
+
+14 September 2026, production execution after explicit owner authorization:
+
+- Controlled store created 38 candidates, IDs `2074`-`2111`, for ten exact
+  variants across products `1251`, `1252`, `1275` and `763`. Authenticated
+  review approved the unchanged set.
+- Four explicit-ID plans contained zero product updates and ten exact variant
+  updates. Guarded apply changed only the planned `nutrition_override` objects.
+  Independent readback matched all ten complete overrides to their sealed
+  `after`, confirmed all approvals and unchanged evidence, and found no change
+  to products, `nutrition_verified` or legacy creatine.
+- Applied coverage is now 294 variants: 242 complete, 52 partial and 281 without
+  applied facts. All ten exact public pages passed. Darkstims is visible in the
+  caffeine-free filter; Adapt, Bloom and Menace are excluded. Replaying all four
+  plans was safely rejected on stale sealed `before`, with zero extra writes.
+
+Complete evidence is
+[nutrition-catalog-large-next-03-execution-2026-09-14.json](rollouts/nutrition-catalog-large-next-03-execution-2026-09-14.json).
+Its SHA-256 is
+`99899c7bd531ebdfd413f6815dc29b46db5095b16ac96a0ccf9a55a778e647b8`.
+NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified
+multi-family preparation batch without repeating retained blockers.
+
 ## NUT-03 large catalogue preparation after 284 applied variants
 
 14 September 2026, preparation only:

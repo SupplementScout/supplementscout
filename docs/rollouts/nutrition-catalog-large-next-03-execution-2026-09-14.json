@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-large-next-03-execution-v1",
+  "status": "APPLIED_AND_READ_BACK",
+  "executed_at": "2026-09-14T19:50:00Z",
+  "authorization": "Owner authorized production store -> review -> plan -> apply of exactly four prepared artifacts, 38 candidates and 10 variants.",
+  "target": {"environment":"PRODUCTION","project_ref":"aftboxmrdgyhizicfsfu"},
+  "scope": {"products":4,"variants":10,"candidates":38,"product_updates":0,"variant_updates":10},
+  "store": {"result":"PASS","created":38,"duplicate_candidates":0,"candidate_ids":"2074-2111"},
+  "review": {"result":"PASS","approved":38,"mechanism":"authenticated admin panel","evidence_changed":false},
+  "plans": [
+    {"product_id":"1252","path":"tmp/nutrition-approved-plan/NCR1-catalog-large-next-03-20260914-1252-0a5b8b695cd0.json","sha256":"d1ec0615180d733fd11c81edb541d349362ba69feb2881da939ceef93acefc86","fingerprint":"0a5b8b695cd03f2be403c95b2b103ea09e3bd06ebe7dd6b8b9f4278529eaf3c8","candidates":10,"variants":2},
+    {"product_id":"1251","path":"tmp/nutrition-approved-plan/NCR1-catalog-large-next-03-20260914-1251-7ef5765fe0cf.json","sha256":"2012341fa03befb7ffcf83762677f32425aab1d391bc3ea3c73d6daac7e070ba","fingerprint":"7ef5765fe0cf154eb04a9fffb85b3c20bdaff68cc8a5dbd50ec7094aea1879c7","candidates":10,"variants":2},
+    {"product_id":"763","path":"tmp/nutrition-approved-plan/NCR1-catalog-large-next-03-20260914-763-cd0fb097e1f2.json","sha256":"a2f8aacd0ee7e64418da7f82b7655f44153f7eef12ab2654c2e02d6c1e5e22fb","fingerprint":"cd0fb097e1f2cf8f55252a03d766d124724f3f8d52f504def7eef2659a5be6fe","candidates":10,"variants":2},
+    {"product_id":"1275","path":"tmp/nutrition-approved-plan/NCR1-catalog-large-next-03-20260914-1275-32f19f48d306.json","sha256":"bccf9ae94e8bc8893928bf9f80b50c0f0d1ba331e75478e0970a72757ca5f432","fingerprint":"32f19f48d3060327e3e9a48444cb0fac72153e0ce2a2ae3a6d60f8b699229b19","candidates":8,"variants":4}
+  ],
+  "apply": {"result":"PASS","plans_applied":4,"products_changed":0,"variants_changed":10},
+  "independent_readback": {"result":"PASS","whole_overrides_match_after":10,"approved_candidates":38,"evidence_unchanged":true,"coverage":{"applied":294,"complete":242,"partial":52,"none":281}},
+  "public_presentation": {"result":"PASS","pages_checked":10,"caffeine_free_filter":{"darkstims_visible":true,"stimulant_families_absent":true}},
+  "replay": {"result":"PASS","plans_checked":4,"safely_rejected_stale_before":4,"additional_writes":0},
+  "unchanged": {"products":true,"nutrition_verified":true,"legacy_creatine_per_serving_g":true,"other_variants":true},
+  "next_step": "Prepare the next evidence-qualified multi-family batch without repeating retained blockers."
+}
