@@ -4111,3 +4111,51 @@ Complete evidence is
 SHA-256 `ee7a07010a22772b726c2f89031f3a17dc8592229272bd331c9b0c4b07938ac0`.
 NUT-03 remains `IN PROGRESS`. One next step is to prepare another exact-version
 family while retaining known blockers until new evidence appears.
+
+## NUT-03 larger catalogue batch preparation
+
+14 September 2026, preparation only:
+
+- A fresh read-only production preflight started from 215 applied variants and
+  confirmed 25 exact active targets with current offers, empty overrides, 106
+  unique candidate fingerprints and no matching candidate records. The target
+  remains production project `aftboxmrdgyhizicfsfu`; the preflight made no
+  database writes.
+- One closed package covers five families and 25 variants: Mutant Madness 225 g
+  (`1023`, `1792`-`1797`), Full As F*ck 387 g (`1007`, `1607`-`1611`), 5150
+  375 g (`1030`, `1612`-`1614`), Pitbull Pump (`1217`-`1220`, `2767`) and Mega
+  Pump Elite (`1221`, `1251`, `2769`). Thirteen variants have all five tracked
+  facts; twelve retain explicit gaps while keeping their supported facts.
+- Five artifacts contain 106 PENDING candidates. Every artifact passes the
+  existing offline store dry-run, totalling zero product updates and zero
+  database writes. Five factual reviews were archived once in private
+  `nutrition-sources`; independent downloads reproduced all hashes.
+- Mutant Madness retains unresolved citrulline because its table gives one
+  combined citrulline-malate/arginine mass, and retains unresolved creatine.
+  Pitbull Pump retains unresolved creatine because the accessible page is not a
+  complete legal ingredient declaration. Known version conflicts for Total
+  War 400 g, Conviction Elite 375 g, Pharma Grade PRE and Darkstims Pump V2
+  remain excluded rather than being guessed. This is why the evidence-qualified
+  package stops at 25 variants instead of padding the organizational limit of 50.
+
+Artifact SHA-256 / fingerprint pairs are: product `489`
+`adafa27a691aa4ba24b70c8860635d3a78aacf99426b170b13297c83ef507598` /
+`9dc872e66726004bb580950f6cae867cb20429d6aa6fa1f33d09224e02e21a71`;
+product `58`
+`30ae13d687e528abdb51f4a70dbc316edd69abfaa735603df2e920c829f631f3` /
+`cdc2648f4c94d5ff6118d732d7e9b1d702d9241d8f292677526175ec72ffe103`;
+product `59`
+`82865bc3533aa98595b0fda05d1c3277a2c1c756bb67b190b7a137c0394e29f1` /
+`d6f0453e3b22cac272c7741d4065b974b12eeb74c98d0aa38b412e7d75048b6c`;
+product `839`
+`fd4c7cfeb6afe6c7de01427327230682132cddd225c5fc8b45bfa69d5c849f4d` /
+`6ad1c50cc9e0fa8ce740ea847b12299ed9e98a073ef46c1f3192332fce118f0b`;
+and product `842`
+`aa0aefef62e1a2d44a173fc0010e7ae063e29b04e79161011eea95584958b472` /
+`1a0474ba019a0f9d7763d2ebe1bc5eb8d3ea78eab1dfc2a1cfa226f89b63fa53`.
+Complete evidence is
+[nutrition-catalog-large-next-preparation-2026-09-14.json](rollouts/nutrition-catalog-large-next-preparation-2026-09-14.json),
+SHA-256 `e983dad72215a32e7708e9d7d71c6a6519300059cfe3ca2fea99a62c72e7f38d`.
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
+controlled store -> authenticated review -> explicit-ID plans -> guarded apply
+for exactly these five unchanged artifacts and 106 fingerprints.
