@@ -4296,6 +4296,49 @@ SHA-256 `297c55c81e36b67bac30ad7d4e16d916a3b65394426d2c79396741402305824a`.
 NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified
 multi-family preparation batch without repeating retained blockers.
 
+## NUT-03 mega catalogue preparation after 268 applied variants
+
+14 September 2026, preparation only:
+
+- A continuous pass assessed 50 unprocessed variants and qualified seven exact
+  variants across five families: Naughty Boy Pump product `779` variants `974`,
+  `975`; N1 Pro product `777` variants `968`, `969`; Efectiv Project Pump
+  product `853` variant `2777`; NXT TNT Nuclear Pump product `1178` variant
+  `3523`; and The Formula NOVA product `1284` variant `3764`.
+- Five immutable artifacts contain 34 PENDING candidates. Six variants have all
+  five tracked facts. NOVA has four supported facts; caffeine remains excluded
+  because the table gives caffeine-ingredient masses that cannot safely be
+  treated as total active caffeine without a declared yield.
+- All five store dry-runs passed with zero product updates and zero database
+  writes. Production preflight confirmed seven empty exact target overrides,
+  34 unique fingerprints and no matching candidates. Five reviews were stored
+  once in the private `nutrition-sources` archive and passed SHA-256 readback.
+- The package stopped below the 50-variant ceiling because 43 assessed targets
+  retained exact formula-generation, package/serving, flavour-applicability or
+  source conflicts. Known blocked families were not forced into the batch.
+
+Artifact SHA-256 / fingerprint pairs are: product `779`
+`f9e20091bd7666615c2ebbb88ee79f7d37bbcb2ca485a2139576c97f1ea4d708` /
+`fe56a8cd2f040128ab321475163af1e1e15c5e09aac8e70f534b72dabb5e9508`;
+product `777`
+`fb79e35d4cf66dbdc7ee251ce778d95bb6a8b17ad8fa6c7d72a89944a231368a` /
+`e7003ca820b6001279181f36a5fc966297942984751f124e815ded2bba0e3285`;
+product `853`
+`5000878f0f2b18e03e535a79990ad125360e2e88abbf4baa49f6bdd11e4c737a` /
+`0f8c27fd37d2d643622cc757f00ba2e659386f5354bc6bac5c64bed1380f74ff`;
+product `1178`
+`24a4af71a3f907faa7ca3de5f16d75033a60029db3d5d31ee61f662f85316bbb` /
+`d863a6eb3b765659a404dea0e57a95605663ec517f958b92003c39032f975c02`;
+and product `1284`
+`2d560afe2f118cb1ace120ff1cb10d34d273b3013c72032859c65fc762a07670` /
+`7da752f86a490b4c899cba98c3fb78273bdda946ef65f616af925f78207731af`.
+Complete evidence is
+[nutrition-catalog-mega-next-preparation-2026-09-14.json](rollouts/nutrition-catalog-mega-next-preparation-2026-09-14.json),
+SHA-256 `39225f624813ce61c771b6517d0930de90f9deb95c175ebb71d6dbbe955d11be`.
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
+store -> authenticated review -> explicit-ID plans -> guarded apply of exactly
+these five unchanged artifacts and 34 fingerprints.
+
 ## NUT-03 high-volume continuation preparation
 
 14 September 2026, preparation only:

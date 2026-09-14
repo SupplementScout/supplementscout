@@ -1,0 +1,646 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-mega-next-preparation-v1",
+  "status": "READY_FOR_ONE_OWNER_DECISION",
+  "prepared_at": "2026-09-14T18:31:14.436Z",
+  "mode": "PREPARATION_ONLY",
+  "production_checkpoint_before": {
+    "applied_unique_variants": 268,
+    "complete": 225,
+    "partial": 43,
+    "no_applied_facts": 307
+  },
+  "scope": {
+    "organizational_limit_variants": 50,
+    "families": 5,
+    "assessed_variants": 50,
+    "ready_variants": 7,
+    "complete_variants": 6,
+    "partial_variants": 1,
+    "candidate_facts": 34,
+    "unique_candidate_fingerprints": 34,
+    "excluded_or_blocked_assessed_variants": 43
+  },
+  "families": [
+    {
+      "product_id": "779",
+      "product": "Naughty Boy Pump 25 servings",
+      "variant_ids": [
+        "974",
+        "975"
+      ],
+      "candidate_count": 10,
+      "artifact": {
+        "path": "tmp/nutrition-mega-next-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-mega-next-20260914-779.json",
+        "sha256": "f9e20091bd7666615c2ebbb88ee79f7d37bbcb2ca485a2139576c97f1ea4d708",
+        "fingerprint": "fe56a8cd2f040128ab321475163af1e1e15c5e09aac8e70f534b72dabb5e9508"
+      },
+      "unresolved": [],
+      "variants": [
+        {
+          "product_id": "779",
+          "variant_id": "974",
+          "display_name": "Pineapple Crush / 25 servings",
+          "facts": [
+            {
+              "field": "serving_size_g",
+              "information_state": "present_with_amount",
+              "normalized_value": 16,
+              "normalized_unit": "g",
+              "ingredient_form": null,
+              "source_text": "1 scoop (16 g)",
+              "source_quantity_value": 16,
+              "source_quantity_unit": "g"
+            },
+            {
+              "field": "caffeine_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "source_text": "Manufacturer states ZERO stimulants and complete ingredients list contains no caffeine source",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            },
+            {
+              "field": "beta_alanine_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 3200,
+              "normalized_unit": "mg",
+              "ingredient_form": null,
+              "source_text": "Beta-Alanine 3200 mg",
+              "source_quantity_value": 3200,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "citrulline_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 6000,
+              "normalized_unit": "mg",
+              "ingredient_form": "citrulline_malate",
+              "source_text": "L-Citrulline Malate 2:1 6000 mg",
+              "source_quantity_value": 6000,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "creatine_declared_form_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "source_text": "Complete transparent ingredients list contains no creatine form or undisclosed blend",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            }
+          ]
+        },
+        {
+          "product_id": "779",
+          "variant_id": "975",
+          "display_name": "Strawberry Mango / 25 servings",
+          "facts": [
+            {
+              "field": "serving_size_g",
+              "information_state": "present_with_amount",
+              "normalized_value": 16,
+              "normalized_unit": "g",
+              "ingredient_form": null,
+              "source_text": "1 scoop (16 g)",
+              "source_quantity_value": 16,
+              "source_quantity_unit": "g"
+            },
+            {
+              "field": "caffeine_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "source_text": "Manufacturer states ZERO stimulants and complete ingredients list contains no caffeine source",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            },
+            {
+              "field": "beta_alanine_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 3200,
+              "normalized_unit": "mg",
+              "ingredient_form": null,
+              "source_text": "Beta-Alanine 3200 mg",
+              "source_quantity_value": 3200,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "citrulline_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 6000,
+              "normalized_unit": "mg",
+              "ingredient_form": "citrulline_malate",
+              "source_text": "L-Citrulline Malate 2:1 6000 mg",
+              "source_quantity_value": 6000,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "creatine_declared_form_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "source_text": "Complete transparent ingredients list contains no creatine form or undisclosed blend",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            }
+          ]
+        }
+      ],
+      "source": {
+        "type": "manufacturer_product_page",
+        "url": "https://naughtyboylifestyle.com/products/naughty-boy-pump-pre-workout-25-servings",
+        "applicability_basis": "manufacturer shared transparent table for the 400 g / 25-serving formula, corroborated by retailer flavour context for Pineapple Crush and Strawberry Mango",
+        "review_sha256": "c8b455ed4d46b154c9c6852a07eb6e7038b3f5440ddd5c68e7bf48ad7e110836",
+        "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-mega-next-2026-09-14/c8b455ed4d46b154c9c6852a07eb6e7038b3f5440ddd5c68e7bf48ad7e110836/product-779-source-review.json"
+      }
+    },
+    {
+      "product_id": "777",
+      "product": "N1 Pro Maximum Strength Pre-Workout 15 servings",
+      "variant_ids": [
+        "968",
+        "969"
+      ],
+      "candidate_count": 10,
+      "artifact": {
+        "path": "tmp/nutrition-mega-next-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-mega-next-20260914-777.json",
+        "sha256": "fb79e35d4cf66dbdc7ee251ce778d95bb6a8b17ad8fa6c7d72a89944a231368a",
+        "fingerprint": "e7003ca820b6001279181f36a5fc966297942984751f124e815ded2bba0e3285"
+      },
+      "unresolved": [],
+      "variants": [
+        {
+          "product_id": "777",
+          "variant_id": "968",
+          "display_name": "Forest Berries / 15 servings",
+          "facts": [
+            {
+              "field": "serving_size_g",
+              "information_state": "present_with_amount",
+              "normalized_value": 20,
+              "normalized_unit": "g",
+              "ingredient_form": null,
+              "source_text": "Full serving column 20 g",
+              "source_quantity_value": 20,
+              "source_quantity_unit": "g"
+            },
+            {
+              "field": "caffeine_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 230,
+              "normalized_unit": "mg",
+              "ingredient_form": null,
+              "source_text": "Caffeine 230 mg per 20 g",
+              "source_quantity_value": 230,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "beta_alanine_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 3500,
+              "normalized_unit": "mg",
+              "ingredient_form": null,
+              "source_text": "Beta-alanine 3500 mg per 20 g",
+              "source_quantity_value": 3500,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "citrulline_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 5000,
+              "normalized_unit": "mg",
+              "ingredient_form": "citrulline_malate",
+              "source_text": "L-citrulline malate 5000 mg per 20 g",
+              "source_quantity_value": 5000,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "creatine_declared_form_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 3000,
+              "normalized_unit": "mg",
+              "ingredient_form": "creatine_monohydrate",
+              "source_text": "Creatine 3000 mg per 20 g; ingredients identify creatine monohydrate",
+              "source_quantity_value": 3000,
+              "source_quantity_unit": "mg"
+            }
+          ]
+        },
+        {
+          "product_id": "777",
+          "variant_id": "969",
+          "display_name": "Green Lemonade / 15 servings",
+          "facts": [
+            {
+              "field": "serving_size_g",
+              "information_state": "present_with_amount",
+              "normalized_value": 20,
+              "normalized_unit": "g",
+              "ingredient_form": null,
+              "source_text": "Full serving column 20 g",
+              "source_quantity_value": 20,
+              "source_quantity_unit": "g"
+            },
+            {
+              "field": "caffeine_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 230,
+              "normalized_unit": "mg",
+              "ingredient_form": null,
+              "source_text": "Caffeine 230 mg per 20 g",
+              "source_quantity_value": 230,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "beta_alanine_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 3500,
+              "normalized_unit": "mg",
+              "ingredient_form": null,
+              "source_text": "Beta-alanine 3500 mg per 20 g",
+              "source_quantity_value": 3500,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "citrulline_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 5000,
+              "normalized_unit": "mg",
+              "ingredient_form": "citrulline_malate",
+              "source_text": "L-citrulline malate 5000 mg per 20 g",
+              "source_quantity_value": 5000,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "creatine_declared_form_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 3000,
+              "normalized_unit": "mg",
+              "ingredient_form": "creatine_monohydrate",
+              "source_text": "Creatine 3000 mg per 20 g; ingredients identify creatine monohydrate",
+              "source_quantity_value": 3000,
+              "source_quantity_unit": "mg"
+            }
+          ]
+        }
+      ],
+      "source": {
+        "type": "manufacturer_product_page",
+        "url": "https://www.nutrend.eu/product/n1-pro-797/300-g-forest-berries",
+        "applicability_basis": "manufacturer shared 300 g formula and flavour selector explicitly covering Forest Berries and Green Lemonade",
+        "review_sha256": "a8d492186c4a259dc03c098475f486e68a369a3cdb812852babce2b60b79f406",
+        "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-mega-next-2026-09-14/a8d492186c4a259dc03c098475f486e68a369a3cdb812852babce2b60b79f406/product-777-source-review.json"
+      }
+    },
+    {
+      "product_id": "853",
+      "product": "Efectiv Project Pump Pre Workout 440g",
+      "variant_ids": [
+        "2777"
+      ],
+      "candidate_count": 5,
+      "artifact": {
+        "path": "tmp/nutrition-mega-next-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-mega-next-20260914-853.json",
+        "sha256": "5000878f0f2b18e03e535a79990ad125360e2e88abbf4baa49f6bdd11e4c737a",
+        "fingerprint": "0f8c27fd37d2d643622cc757f00ba2e659386f5354bc6bac5c64bed1380f74ff"
+      },
+      "unresolved": [],
+      "variants": [
+        {
+          "product_id": "853",
+          "variant_id": "2777",
+          "display_name": "Cherry Breeze / 440g",
+          "facts": [
+            {
+              "field": "serving_size_g",
+              "information_state": "present_with_amount",
+              "normalized_value": 22,
+              "normalized_unit": "g",
+              "ingredient_form": null,
+              "source_text": "Full table column Per 22 g",
+              "source_quantity_value": 22,
+              "source_quantity_unit": "g"
+            },
+            {
+              "field": "caffeine_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "source_text": "Complete declared ingredients contain no caffeine source or undisclosed blend",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            },
+            {
+              "field": "beta_alanine_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 3200,
+              "normalized_unit": "mg",
+              "ingredient_form": null,
+              "source_text": "Beta Alanine 3200 mg per 22 g",
+              "source_quantity_value": 3200,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "citrulline_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 5000,
+              "normalized_unit": "mg",
+              "ingredient_form": "l_citrulline",
+              "source_text": "L-Citrulline 5000 mg per 22 g",
+              "source_quantity_value": 5000,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "creatine_declared_form_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "source_text": "Complete declared ingredients contain no creatine form or undisclosed blend",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            }
+          ]
+        }
+      ],
+      "source": {
+        "type": "manufacturer_product_page",
+        "url": "https://efectivwholesale.com/products/efectiv-nutrition-project-pump-pre-workout-440g",
+        "applicability_basis": "manufacturer wholesale exact 440 g table with full 22 g serving and complete ingredients",
+        "review_sha256": "3f1bfc57262841f310306953037f9ec1b6ac6511c113c39986df59e97b0bdde7",
+        "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-mega-next-2026-09-14/3f1bfc57262841f310306953037f9ec1b6ac6511c113c39986df59e97b0bdde7/product-853-source-review.json"
+      }
+    },
+    {
+      "product_id": "1178",
+      "product": "NXT Nutrition TNT Nuclear Pump Stim-Free 500g",
+      "variant_ids": [
+        "3523"
+      ],
+      "candidate_count": 5,
+      "artifact": {
+        "path": "tmp/nutrition-mega-next-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-mega-next-20260914-1178.json",
+        "sha256": "24a4af71a3f907faa7ca3de5f16d75033a60029db3d5d31ee61f662f85316bbb",
+        "fingerprint": "d863a6eb3b765659a404dea0e57a95605663ec517f958b92003c39032f975c02"
+      },
+      "unresolved": [],
+      "variants": [
+        {
+          "product_id": "1178",
+          "variant_id": "3523",
+          "display_name": "Cola",
+          "facts": [
+            {
+              "field": "serving_size_g",
+              "information_state": "present_with_amount",
+              "normalized_value": 20,
+              "normalized_unit": "g",
+              "ingredient_form": null,
+              "source_text": "2 scoops (20 g), matching 500 g / 25 servings",
+              "source_quantity_value": 20,
+              "source_quantity_unit": "g"
+            },
+            {
+              "field": "caffeine_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "source_text": "Manufacturer calls formula stimulant-free and without caffeine; complete ingredients contain no caffeine source",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            },
+            {
+              "field": "beta_alanine_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "source_text": "Complete declared ingredients contain no beta-alanine or undisclosed blend",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            },
+            {
+              "field": "citrulline_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 6000,
+              "normalized_unit": "mg",
+              "ingredient_form": "citrulline_malate",
+              "source_text": "Each serving provides 6000 mg citrulline malate",
+              "source_quantity_value": 6000,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "creatine_declared_form_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "source_text": "Complete declared ingredients contain no creatine form or undisclosed blend",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            }
+          ]
+        }
+      ],
+      "source": {
+        "type": "manufacturer_product_page",
+        "url": "https://nxtnutrition.com/en-gb/products/tnt-pump",
+        "applicability_basis": "manufacturer exact 500 g / 25-serving shared table; catalogue Cola maps to manufacturer Fizzy Cola Bottles",
+        "review_sha256": "0071efd6165c98de12a3ce1ccf3270a02a785f2c3363820a97b602eb7bf5007a",
+        "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-mega-next-2026-09-14/0071efd6165c98de12a3ce1ccf3270a02a785f2c3363820a97b602eb7bf5007a/product-1178-source-review.json"
+      }
+    },
+    {
+      "product_id": "1284",
+      "product": "The Formula NOVA High-Stim Pre-Workout Powder 450g",
+      "variant_ids": [
+        "3764"
+      ],
+      "candidate_count": 4,
+      "artifact": {
+        "path": "tmp/nutrition-mega-next-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-mega-next-20260914-1284.json",
+        "sha256": "2d560afe2f118cb1ace120ff1cb10d34d273b3013c72032859c65fc762a07670",
+        "fingerprint": "7da752f86a490b4c899cba98c3fb78273bdda946ef65f616af925f78207731af"
+      },
+      "unresolved": [
+        {
+          "field": "caffeine_per_serving_mg",
+          "reason": "Table gives 175 mg caffeine anhydrous plus 50 mg di-caffeine malate ingredient mass, while marketing gives a total caffeine claim; total active caffeine cannot be derived from compound mass without a declared yield."
+        }
+      ],
+      "variants": [
+        {
+          "product_id": "1284",
+          "variant_id": "3764",
+          "display_name": "Sour Cherry",
+          "facts": [
+            {
+              "field": "serving_size_g",
+              "information_state": "present_with_amount",
+              "normalized_value": 22.5,
+              "normalized_unit": "g",
+              "ingredient_form": null,
+              "source_text": "Serving Size 22.5 g (Approx. 2 Scoops)",
+              "source_quantity_value": 22.5,
+              "source_quantity_unit": "g"
+            },
+            {
+              "field": "beta_alanine_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "source_text": "Complete ingredients list contains no beta-alanine or undisclosed blend",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            },
+            {
+              "field": "citrulline_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 4000,
+              "normalized_unit": "mg",
+              "ingredient_form": "l_citrulline",
+              "source_text": "L-Citrulline 4000 mg per stated serving",
+              "source_quantity_value": 4000,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "creatine_declared_form_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "source_text": "Complete ingredients list contains no creatine form or undisclosed blend",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            }
+          ]
+        }
+      ],
+      "source": {
+        "type": "retailer_product_page",
+        "url": "https://www.10reps.co.uk/product/the-formula-nova-high-stim-pre-workout/",
+        "applicability_basis": "retailer exact NOVA 450 g Sour Cherry table; caffeine excluded because ingredient mass and total caffeine claims are not equivalent",
+        "review_sha256": "3a3696109ea7cccb9975877a8d95dd58a751d5ef40d7ba0cb5e856df8d31f163",
+        "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-mega-next-2026-09-14/3a3696109ea7cccb9975877a8d95dd58a751d5ef40d7ba0cb5e856df8d31f163/product-1284-source-review.json"
+      }
+    }
+  ],
+  "production_preflight": {
+    "result": "PASS",
+    "captured_at": "2026-09-14T18:29:22.482Z",
+    "target": {
+      "project_ref": "aftboxmrdgyhizicfsfu",
+      "database_oid": "5",
+      "database_identity": "supplementscout-production:aftboxmrdgyhizicfsfu",
+      "target_environment": "PRODUCTION",
+      "database_system_identifier": "7642734024280108049"
+    },
+    "variants": 7,
+    "candidate_fingerprints": 34,
+    "unique_candidate_fingerprints": 34,
+    "existing_candidates": [],
+    "before_overrides": [
+      {
+        "variant_id": "968",
+        "keys": []
+      },
+      {
+        "variant_id": "969",
+        "keys": []
+      },
+      {
+        "variant_id": "974",
+        "keys": []
+      },
+      {
+        "variant_id": "975",
+        "keys": []
+      },
+      {
+        "variant_id": "2777",
+        "keys": []
+      },
+      {
+        "variant_id": "3523",
+        "keys": []
+      },
+      {
+        "variant_id": "3764",
+        "keys": []
+      }
+    ],
+    "database_writes": 0
+  },
+  "archive": {
+    "bucket": "nutrition-sources",
+    "private": true,
+    "objects": [
+      {
+        "id": "product-779-source-review.json",
+        "action": "reused",
+        "sha256": "c8b455ed4d46b154c9c6852a07eb6e7038b3f5440ddd5c68e7bf48ad7e110836"
+      },
+      {
+        "id": "product-777-source-review.json",
+        "action": "reused",
+        "sha256": "a8d492186c4a259dc03c098475f486e68a369a3cdb812852babce2b60b79f406"
+      },
+      {
+        "id": "product-853-source-review.json",
+        "action": "reused",
+        "sha256": "3f1bfc57262841f310306953037f9ec1b6ac6511c113c39986df59e97b0bdde7"
+      },
+      {
+        "id": "product-1178-source-review.json",
+        "action": "reused",
+        "sha256": "0071efd6165c98de12a3ce1ccf3270a02a785f2c3363820a97b602eb7bf5007a"
+      },
+      {
+        "id": "product-1284-source-review.json",
+        "action": "reused",
+        "sha256": "3a3696109ea7cccb9975877a8d95dd58a751d5ef40d7ba0cb5e856df8d31f163"
+      }
+    ],
+    "hash_readback": "PASS"
+  },
+  "validation": {
+    "artifacts": 5,
+    "dry_runs_passed": 5,
+    "candidate_rows": 34,
+    "product_updates": 0,
+    "production_candidate_writes": 0,
+    "review_writes": 0,
+    "apply_writes": 0
+  },
+  "blockers": [
+    {
+      "product_id": "169",
+      "reason": "400 g identity conflicts with available current/historical serving and pack evidence"
+    },
+    {
+      "product_id": "879",
+      "reason": "manufacturer warns flavour contents vary and visible table does not bind targets"
+    },
+    {
+      "product_id": "1178",
+      "reason": "retained access and flavour-identity blocker"
+    },
+    {
+      "product_id": "1275",
+      "reason": "catalogue 520 g versus current 550 g formula"
+    },
+    {
+      "reason": "Other assessed variants retained exact formula-generation, pack/serving, flavour-applicability, current-offer or source-retention conflicts; no value was inferred to fill the 50-variant ceiling."
+    }
+  ],
+  "next_step": "One explicit owner decision authorizing controlled production store -> authenticated review -> explicit-ID plans -> guarded apply for exactly these five immutable artifacts and 34 fingerprints."
+}
