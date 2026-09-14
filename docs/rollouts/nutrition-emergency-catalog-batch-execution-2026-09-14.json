@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition_emergency_catalog_batch_execution",
+  "date": "2026-09-14",
+  "status": "LIVE_VERIFIED",
+  "authorization": {
+    "scope": "Production store -> authenticated review -> explicit-ID plan -> controlled apply for the three unchanged preparation artifacts",
+    "candidate_count": 90,
+    "variant_count": 18,
+    "product_ids": ["175", "6", "19"]
+  },
+  "preflight": {
+    "captured_at": "2026-09-14T11:25:32.200Z",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "target_environment": "PRODUCTION",
+    "active_exact_variants": 18,
+    "non_empty_target_overrides": 0,
+    "existing_matching_candidates": 0,
+    "result": "PASS"
+  },
+  "store_and_review": [
+    {"product_id": "175", "artifact_sha256": "7ed925af17b7a124c4172bb08eb2a473aca74a35bf0aa07f9b0c8ba3bfc70e71", "artifact_fingerprint": "650d3553b627698c72779f9dac37a59d0b0d569973100b275dbb6529f4850f77", "candidate_ids": "1558-1592", "stored": 35, "approved": 35},
+    {"product_id": "6", "artifact_sha256": "8165b4e05ea5865e812f1007d7eb3bc1f74f45af05e409b6f0a359e9f60856db", "artifact_fingerprint": "b0f8b3c3f8b8d78c4de014439765890c415d2d8692c6a8b87ddc03d69bccabbc", "candidate_ids": "1593-1612", "stored": 20, "approved": 20},
+    {"product_id": "19", "artifact_sha256": "334500330c578f083ea617389159f884c75d76449e58ffa914b2ef024e3e77c8", "artifact_fingerprint": "cd3f0172a4d20f11e0c5d2878ddc5edad9f45230a672d876ce89f4fb2641b1a4", "candidate_ids": "1613-1647", "stored": 35, "approved": 35}
+  ],
+  "plans": [
+    {"product_id": "175", "path": "tmp/nutrition-approved-plan/NCR1-emergency-batch-20260914-175-f51d61ffe678.json", "sha256": "b986e9a7a710bf3c8617635e3a5f1decbe490b5b489a1d1ba8fc3d2b99f7fcc7", "fingerprint": "f51d61ffe678b951d1b2dc065bed76aeb31648f31d1431f104805e3c3dea6a62", "candidate_count": 35, "product_updates": 0, "variant_ids": ["1655", "1656", "1657", "1658", "1659", "1660", "1661"]},
+    {"product_id": "6", "path": "tmp/nutrition-approved-plan/NCR1-emergency-batch-20260914-6-059b1517e9d9.json", "sha256": "00a2d345ff02182cce6b30bf7fc6ba55d91360114da7333fe3aad837fbf2d38c", "fingerprint": "059b1517e9d92bee82ce2b19adfb426c781592307a7c6afdc34c8feaa2408564", "candidate_count": 20, "product_updates": 0, "variant_ids": ["1001", "1738", "1739", "1740"]},
+    {"product_id": "19", "path": "tmp/nutrition-approved-plan/NCR1-emergency-batch-20260914-19-116813f400f2.json", "sha256": "ccab3ec1422424878984e51522b922aaa13c636ebfaf4652e1ca276973b77f1b", "fingerprint": "116813f400f23bfc19d1c8044027eac8881d4193b718efded71f0c2b8282243c", "candidate_count": 35, "product_updates": 0, "variant_ids": ["764", "765", "766", "767", "768", "769", "770"]}
+  ],
+  "apply": {
+    "result": "PASS",
+    "changed_products": 0,
+    "changed_variants": 18,
+    "changed_fields_per_variant": ["serving_size_g", "caffeine", "beta_alanine", "citrulline", "creatine"],
+    "audit_sha256": {
+      "175": "7cfd058b999046969d4f83659b263e92918bd1bdd7d69c001fb3fbe36b5a2381",
+      "6": "5795977bf853f95e78904a07372d940b69e71b9365454597115c6d072bda92ca",
+      "19": "e43b3b33f834982c19021acd2f74ef015e3c5f385f3380468b9452016aaf4e82"
+    }
+  },
+  "independent_readback": {
+    "result": "PASS",
+    "whole_overrides_match_plan_after": 18,
+    "approved_candidates": 90,
+    "candidate_evidence_unchanged": true,
+    "nutrition_verified_changed": false,
+    "legacy_creatine_per_serving_g_changed": false,
+    "applied_variant_count_before": 175,
+    "applied_variant_count_after": 193,
+    "active_catalogue_coverage_after": {"complete_by_applied_state_keys": 167, "partial": 26, "none": 382},
+    "owner_facing_resolution": {"all_four_ingredients_resolved": 160, "contains_explicit_conflict_state": 7}
+  },
+  "replay_protection": {
+    "result": "PASS_SAFE_REJECTION",
+    "writes": 0,
+    "rejections": [
+      "Variant 1655 nutrition override changed after plan generation",
+      "Variant 1001 nutrition override changed after plan generation",
+      "Variant 764 nutrition override changed after plan generation"
+    ],
+    "post_replay_state_unchanged": true
+  },
+  "public_readback": {
+    "result": "PASS",
+    "pages_checked": 18,
+    "http_200": 18,
+    "exact_variant_selected": 18,
+    "expected_facts_visible": 18,
+    "private_archive_uri_exposed": false,
+    "reviewer_metadata_exposed": false,
+    "caffeine_free_filter": "PASS: none of the 18 targets qualifies because caffeine is present or conflicting, never confirmed_absent"
+  },
+  "remaining_known_gaps": [
+    "Seven Blood & Guts variants retain an explicit total-caffeine conflict even though the applied-state-key coverage classifier counts them as complete.",
+    "C4 195 g remains blocked by conflicting formula evidence.",
+    "GHOST variant 1741 still needs an exact flavour identity binding.",
+    "NXT TNT Nuclear 240 g still needs a table bound to an identified catalogue flavour."
+  ],
+  "next_step": "Continue preparation with a new family whose exact version, serving and common-table applicability can be proved; do not repeat the retained blockers without new evidence."
+}

@@ -3910,3 +3910,49 @@ SHA-256 `f95e00222fc2bba4651012e821e5e2a106763d6914aa088c4be04e815c1ad673`.
 NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
 store -> authenticated review -> explicit-ID plan -> guarded apply for exactly
 these three unchanged artifacts and 90 candidate fingerprints.
+
+## NUT-03 emergency catalogue batch execution
+
+14 September 2026, production execution after exact owner authorization:
+
+- A fresh preflight reconfirmed production project `aftboxmrdgyhizicfsfu`, 18
+  active exact targets with empty overrides and no existing copy of any of the
+  90 candidate fingerprints. Controlled store created candidates `1558`-`1647`
+  exactly once, with zero product or variant updates.
+- Authenticated review compared every stored field, information state, exact
+  variant, source URI, source hash and fingerprint with the immutable artifacts,
+  then approved all 90 candidates. No differing or pre-approved record was
+  encountered.
+- Three explicit-ID plans contained zero product updates, no blockers and 18
+  variant updates. Product `175` plan SHA-256 / fingerprint is
+  `b986e9a7a710bf3c8617635e3a5f1decbe490b5b489a1d1ba8fc3d2b99f7fcc7` /
+  `f51d61ffe678b951d1b2dc065bed76aeb31648f31d1431f104805e3c3dea6a62`;
+  product `6` is
+  `00a2d345ff02182cce6b30bf7fc6ba55d91360114da7333fe3aad837fbf2d38c` /
+  `059b1517e9d92bee82ce2b19adfb426c781592307a7c6afdc34c8feaa2408564`;
+  and product `19` is
+  `ccab3ec1422424878984e51522b922aaa13c636ebfaf4652e1ca276973b77f1b` /
+  `116813f400f23bfc19d1c8044027eac8881d4193b718efded71f0c2b8282243c`.
+- Guarded apply changed exactly the 18 planned `nutrition_override` objects and
+  zero products. A new read-only connection matched every whole override to the
+  corresponding plan `after`, retained all 90 approved evidence records and
+  confirmed unchanged `nutrition_verified` and legacy
+  `creatine_per_serving_g`. Applied exact-variant coverage rose from 175 to 193.
+- Replaying each unchanged plan was safely rejected on its stale sealed
+  `before`; a subsequent read proved zero additional writes. All 18 public URLs
+  return 200, select the requested variant, show the expected facts and source
+  type, and expose neither private URIs nor reviewer metadata. None qualifies
+  for the caffeine-free filter: C4 and GHOST contain caffeine, while Blood &
+  Guts preserves `conflicting_information`.
+- The catalogue now has 167 variants containing all five applied state keys, 26
+  partial variants and 382 with no applied facts. Seven of the 167 retain an
+  explicit Blood & Guts total-caffeine conflict, so owner-facing fully resolved
+  coverage is 160 rather than treating that conflict as a known dose.
+
+Complete evidence is
+[nutrition-emergency-catalog-batch-execution-2026-09-14.json](rollouts/nutrition-emergency-catalog-batch-execution-2026-09-14.json),
+SHA-256 `9e1f91e558f5543426510a4471a34003f7c8c054363b91de0cdf7aae1b006651`.
+NUT-03 remains `IN PROGRESS`. One next step is to prepare another exact-version
+family with a provable serving and shared-table context, while retaining the
+known C4 195 g, GHOST `1741`, NXT 240 g and Blood & Guts caffeine gaps until new
+evidence appears.
