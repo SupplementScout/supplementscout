@@ -3956,3 +3956,58 @@ NUT-03 remains `IN PROGRESS`. One next step is to prepare another exact-version
 family with a provable serving and shared-table context, while retaining the
 known C4 195 g, GHOST `1741`, NXT 240 g and Blood & Guts caffeine gaps until new
 evidence appears.
+
+## NUT-03 catalogue continuation preparation
+
+14 September 2026, preparation only:
+
+- A fresh read-only production preflight reconfirmed project
+  `aftboxmrdgyhizicfsfu`, 19 active exact targets with empty overrides and no
+  existing nutrition candidates. The baseline remains 193 applied unique
+  variants: 167 with all five applied state keys, 26 partial and 382 without
+  applied facts. Seven applied Blood & Guts variants retain an explicit
+  caffeine conflict, so 160 variants have all four ingredient outcomes
+  resolved for owner-facing coverage.
+- The bounded pass assessed 27 variants and prepared 90 unique pending
+  candidates for 19 variants across five families. Four Optimum Nutrition Gold
+  Standard Pre-Workout 330 g, four GHOST PUMP, three BioTechUSA Nitrox Therapy
+  340 g and three BioTechUSA Black Blood CAF+ 300 g variants have all five
+  tracked facts. Five Olimp Redweiler 480 g variants have serving, caffeine,
+  beta-alanine and citrulline-malate candidates; creatine is intentionally
+  omitted because the source separately quantifies monohydrate and creatine
+  malate and the current single-form creatine field cannot represent both.
+- All five artifacts pass the existing offline store dry-run: 20, 20, 15, 15
+  and 20 rows, with 90 unique fingerprints, zero product updates and zero
+  database writes. Five project-authored factual reviews plus the context
+  manifest were stored once in private `nutrition-sources`; independent
+  downloads reproduced every SHA-256. Locally inspected source pages and GHOST
+  panels remain outside Git.
+- Eight inspected variants remain excluded: four BioTechUSA NOX+ catalogue
+  variants have an unresolved 330 g versus current 340 g formula difference;
+  four CNP Full Tilt V2 catalogue flavours do not match the current official
+  Loaded Pre 570 g flavour identities. Reflex Muscle Bomb 600 g remains outside
+  the ready scope because the current official page is a different 40-serving
+  presentation and separately presents a caffeine-free Lemon Sherbet version.
+
+Artifact SHA-256 / fingerprint pairs are: product `17`
+`347496fce5b2aa493e3dbb5d6a375a9f91c47d1986dcc6cab0c9da2464bc411b` /
+`07437de750a2a44cabba6de6a0ebabbb43a229edb17d3ad340c272330b46be3b`;
+product `49`
+`fcb91f10cf750290be5d87c9aede77ae58b8bb70640e6f6aa095423de6fffc69` /
+`a805509f97e288c17b2822c6bbedd34cd395747eda55c8ba9cd697388c7b06d3`;
+product `55`
+`8ba3e72725d59b9cfbbd89b9d76c948c5f3aeedc03e85523bbcde61f3a3fe522` /
+`25796fde98a6538e9a0e665de70310349a05100561edde49b180ef4d3a0b2fa6`;
+product `294`
+`ea7ab6546094a5fa10e9490d07e953629c7dbb24e2023eca953a2a8341344335` /
+`748b72f967ad1f1ca534f53a46023c4a4ed166fe02edec2ff37732de699f4ce4`;
+and product `520`
+`3db05816f98f44d756e691e5445d3c76804d79f7fae88e187e8b913bc63a714a` /
+`1ff9b7cd767cc73a845999c988a4a7a4fbb5397f324bad024b463517828311ca`.
+Complete evidence is
+[nutrition-catalog-continuation-preparation-2026-09-14.json](rollouts/nutrition-catalog-continuation-preparation-2026-09-14.json),
+SHA-256 `5468cbd15300903f7bf3a2e775dbf23e668a46f2bf5051d99082fe65b7d35ca4`.
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
+controlled store -> authenticated review -> explicit-ID plan -> guarded apply
+for exactly these five unchanged artifacts and 90 candidate fingerprints;
+Redweiler creatine remains excluded.

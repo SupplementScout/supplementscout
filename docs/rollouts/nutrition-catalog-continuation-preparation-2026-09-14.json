@@ -1,0 +1,1448 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-continuation-preparation-v1",
+  "generated_at": "2026-09-14T12:03:51.027Z",
+  "status": "READY_FOR_ONE_OWNER_DECISION",
+  "production_checkpoint_before": {
+    "applied_unique_variants": 193,
+    "active_preworkout_variants": 575,
+    "complete_by_applied_state_keys": 167,
+    "owner_facing_all_four_ingredients_resolved": 160,
+    "partial": 26,
+    "no_applied_facts": 382
+  },
+  "scope": {
+    "assessed_variants": 27,
+    "ready_variants": 19,
+    "complete_ready_variants": 14,
+    "partial_ready_variants": 5,
+    "candidate_facts": 90,
+    "unique_candidate_fingerprints": 90,
+    "production_candidate_writes": 0,
+    "production_catalogue_writes": 0
+  },
+  "artifacts": [
+    {
+      "product_id": "17",
+      "path": "tmp/nutrition-catalog-continuation-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-continuation-20260914-17.json",
+      "sha256": "347496fce5b2aa493e3dbb5d6a375a9f91c47d1986dcc6cab0c9da2464bc411b",
+      "artifact_fingerprint": "07437de750a2a44cabba6de6a0ebabbb43a229edb17d3ad340c272330b46be3b",
+      "variant_ids": [
+        "714",
+        "715",
+        "716",
+        "717"
+      ],
+      "candidates": 20,
+      "unique_candidate_fingerprints": 20
+    },
+    {
+      "product_id": "49",
+      "path": "tmp/nutrition-catalog-continuation-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-continuation-20260914-49.json",
+      "sha256": "fcb91f10cf750290be5d87c9aede77ae58b8bb70640e6f6aa095423de6fffc69",
+      "artifact_fingerprint": "a805509f97e288c17b2822c6bbedd34cd395747eda55c8ba9cd697388c7b06d3",
+      "variant_ids": [
+        "1028",
+        "1596",
+        "1597",
+        "1598"
+      ],
+      "candidates": 20,
+      "unique_candidate_fingerprints": 20
+    },
+    {
+      "product_id": "55",
+      "path": "tmp/nutrition-catalog-continuation-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-continuation-20260914-55.json",
+      "sha256": "8ba3e72725d59b9cfbbd89b9d76c948c5f3aeedc03e85523bbcde61f3a3fe522",
+      "artifact_fingerprint": "25796fde98a6538e9a0e665de70310349a05100561edde49b180ef4d3a0b2fa6",
+      "variant_ids": [
+        "1029",
+        "1599",
+        "1600"
+      ],
+      "candidates": 15,
+      "unique_candidate_fingerprints": 15
+    },
+    {
+      "product_id": "294",
+      "path": "tmp/nutrition-catalog-continuation-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-continuation-20260914-294.json",
+      "sha256": "ea7ab6546094a5fa10e9490d07e953629c7dbb24e2023eca953a2a8341344335",
+      "artifact_fingerprint": "748b72f967ad1f1ca534f53a46023c4a4ed166fe02edec2ff37732de699f4ce4",
+      "variant_ids": [
+        "1059",
+        "1774",
+        "1775"
+      ],
+      "candidates": 15,
+      "unique_candidate_fingerprints": 15
+    },
+    {
+      "product_id": "520",
+      "path": "tmp/nutrition-catalog-continuation-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-continuation-20260914-520.json",
+      "sha256": "3db05816f98f44d756e691e5445d3c76804d79f7fae88e187e8b913bc63a714a",
+      "artifact_fingerprint": "1ff9b7cd767cc73a845999c988a4a7a4fbb5397f324bad024b463517828311ca",
+      "variant_ids": [
+        "1025",
+        "1700",
+        "1701",
+        "1702",
+        "1703"
+      ],
+      "candidates": 20,
+      "unique_candidate_fingerprints": 20
+    }
+  ],
+  "durable_evidence": {
+    "bucket": "nutrition-sources",
+    "private": true,
+    "retained_without_automatic_expiry": true,
+    "hash_readback": "PASS",
+    "objects": [
+      {
+        "id": "review-17",
+        "object_path": "evidence/nut-03/catalog-continuation-2026-09-14/9d2f8313e93a100f5a780484b82824da7c9cac7381870344df85a93774d26262/optimum-gold-standard-pre-330g-official-review.json",
+        "durable_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-continuation-2026-09-14/9d2f8313e93a100f5a780484b82824da7c9cac7381870344df85a93774d26262/optimum-gold-standard-pre-330g-official-review.json",
+        "sha256": "9d2f8313e93a100f5a780484b82824da7c9cac7381870344df85a93774d26262",
+        "bytes": 1624
+      },
+      {
+        "id": "review-49",
+        "object_path": "evidence/nut-03/catalog-continuation-2026-09-14/b1f9b218bf6e14bcb700f607d55442d6e938bc505a5a9770f56c817861f79550/ghost-pump-350g-official-panels-review.json",
+        "durable_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-continuation-2026-09-14/b1f9b218bf6e14bcb700f607d55442d6e938bc505a5a9770f56c817861f79550/ghost-pump-350g-official-panels-review.json",
+        "sha256": "b1f9b218bf6e14bcb700f607d55442d6e938bc505a5a9770f56c817861f79550",
+        "bytes": 2031
+      },
+      {
+        "id": "review-55",
+        "object_path": "evidence/nut-03/catalog-continuation-2026-09-14/00c16c2f2e93cf9f1b7bc5613484e2c3584d9f76ee3cb7c4dba90ef651f2ac1c/biotech-nitrox-therapy-340g-official-review.json",
+        "durable_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-continuation-2026-09-14/00c16c2f2e93cf9f1b7bc5613484e2c3584d9f76ee3cb7c4dba90ef651f2ac1c/biotech-nitrox-therapy-340g-official-review.json",
+        "sha256": "00c16c2f2e93cf9f1b7bc5613484e2c3584d9f76ee3cb7c4dba90ef651f2ac1c",
+        "bytes": 1445
+      },
+      {
+        "id": "review-294",
+        "object_path": "evidence/nut-03/catalog-continuation-2026-09-14/35065fe77730349ddb992856e64e66c236ba3ec90e7196bd534e072070873411/biotech-black-blood-caf-300g-official-review.json",
+        "durable_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-continuation-2026-09-14/35065fe77730349ddb992856e64e66c236ba3ec90e7196bd534e072070873411/biotech-black-blood-caf-300g-official-review.json",
+        "sha256": "35065fe77730349ddb992856e64e66c236ba3ec90e7196bd534e072070873411",
+        "bytes": 1400
+      },
+      {
+        "id": "review-520",
+        "object_path": "evidence/nut-03/catalog-continuation-2026-09-14/ec92d5b1dd2b783bef3ea9bd253109c9757b3eb442fcf036feba482846095156/olimp-redweiler-480g-official-review.json",
+        "durable_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-continuation-2026-09-14/ec92d5b1dd2b783bef3ea9bd253109c9757b3eb442fcf036feba482846095156/olimp-redweiler-480g-official-review.json",
+        "sha256": "ec92d5b1dd2b783bef3ea9bd253109c9757b3eb442fcf036feba482846095156",
+        "bytes": 1670
+      },
+      {
+        "id": "context",
+        "object_path": "manifests/nut-03/catalog-continuation-2026-09-14/dbf8003f4b388346f381a49101e7452df0480111d29e9f69f15147809cccfd27/source-context-manifest.json",
+        "durable_uri": "supabase-storage://nutrition-sources/manifests/nut-03/catalog-continuation-2026-09-14/dbf8003f4b388346f381a49101e7452df0480111d29e9f69f15147809cccfd27/source-context-manifest.json",
+        "sha256": "dbf8003f4b388346f381a49101e7452df0480111d29e9f69f15147809cccfd27",
+        "bytes": 4072
+      }
+    ]
+  },
+  "dry_run": {
+    "result": "PASS",
+    "artifacts_validated": 5,
+    "candidate_rows": 90,
+    "product_updates": 0,
+    "database_writes": 0
+  },
+  "variants": [
+    {
+      "product_id": "17",
+      "product_variant_id": "714",
+      "product_name": "Optimum Nutrition Gold Standard Pre-Workout 330g",
+      "variant_name": "Blue Raspberry / 330g",
+      "candidates": [
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 1500,
+          "unit": "mg",
+          "source_quantity_value": 1.5,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "11 g (~1 level scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "4c742a890327dd2c1fea686882e3ef79a350cc887802c45ed598cf8bfcc8d433"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 175,
+          "unit": "mg",
+          "source_quantity_value": 175,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "11 g (~1 level scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "5238b9aadb187360f0c1b4afd88aa7589b1c565f5277ed5ea0b5235e79939b3a"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 750,
+          "unit": "mg",
+          "source_quantity_value": 750,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "11 g (~1 level scoop)",
+          "ingredient_form": "l_citrulline",
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "7a5992396b01a68caa635c8a1e248df5ba624de26d646d675f8764ac64602535"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 3400,
+          "unit": "mg",
+          "source_quantity_value": 3.4,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "11 g (~1 level scoop)",
+          "ingredient_form": "creatine_monohydrate",
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "e55e70b2073b715310f2b52ab1986bcd7dcad6698608936aa54afd943edd4c7a"
+        },
+        {
+          "field": "serving_size_g",
+          "information_state": null,
+          "value": 11,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "695825c3d0bcf529118cbb5240f03e909f157a233a6ae1f7ca49906fd132d47f"
+        }
+      ],
+      "unresolved_fields": []
+    },
+    {
+      "product_id": "17",
+      "product_variant_id": "715",
+      "product_name": "Optimum Nutrition Gold Standard Pre-Workout 330g",
+      "variant_name": "Fruit Punch / 330g",
+      "candidates": [
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 1500,
+          "unit": "mg",
+          "source_quantity_value": 1.5,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "11 g (~1 level scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "ecb6155931de6e35fd1e58ddbffc9e579a337434da297846b768ebb633a3e228"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 175,
+          "unit": "mg",
+          "source_quantity_value": 175,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "11 g (~1 level scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "969ba1bcbe0dcfb85efaee1bb69ac7aceb79a604edf7b133c45b1d41fde9ac72"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 750,
+          "unit": "mg",
+          "source_quantity_value": 750,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "11 g (~1 level scoop)",
+          "ingredient_form": "l_citrulline",
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "771ea7af1576c0c8019d2c1adc0ace4970693a3d67fa297e8b8c6c2bfeff4af7"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 3400,
+          "unit": "mg",
+          "source_quantity_value": 3.4,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "11 g (~1 level scoop)",
+          "ingredient_form": "creatine_monohydrate",
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "16a71357421cda9db12eb186e36aa73fa8d093ae9a966f3faeae14381c0af86c"
+        },
+        {
+          "field": "serving_size_g",
+          "information_state": null,
+          "value": 11,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "d8100b74ac22a4a85bb14cd93f2115739a7eed5f56025514a321bb95c295994a"
+        }
+      ],
+      "unresolved_fields": []
+    },
+    {
+      "product_id": "17",
+      "product_variant_id": "716",
+      "product_name": "Optimum Nutrition Gold Standard Pre-Workout 330g",
+      "variant_name": "Green Apple / 330g",
+      "candidates": [
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 1500,
+          "unit": "mg",
+          "source_quantity_value": 1.5,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "11 g (~1 level scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "57b6a7fa6b1214b40d920db556f371b8c2474a6741ce3639b68507e46f0979b4"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 175,
+          "unit": "mg",
+          "source_quantity_value": 175,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "11 g (~1 level scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "789f37817083cbd3b4a44c402ffa0fa9f2b96c4503c1da14f39060e6f535556d"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 750,
+          "unit": "mg",
+          "source_quantity_value": 750,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "11 g (~1 level scoop)",
+          "ingredient_form": "l_citrulline",
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "bec6be11ed6c19a012e7bcdeb5fa0f350b7c93a7f578accb444445dce408a5d9"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 3400,
+          "unit": "mg",
+          "source_quantity_value": 3.4,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "11 g (~1 level scoop)",
+          "ingredient_form": "creatine_monohydrate",
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "197ee0090b5cd61a5e5d4e9a1a2a788c1cb24e4e5628ff8ca650b7042a3db5e6"
+        },
+        {
+          "field": "serving_size_g",
+          "information_state": null,
+          "value": 11,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "5eb600110074f81f241378a4ff1071baa89a0344464b7d3cee07ae7d7a18b8dc"
+        }
+      ],
+      "unresolved_fields": []
+    },
+    {
+      "product_id": "17",
+      "product_variant_id": "717",
+      "product_name": "Optimum Nutrition Gold Standard Pre-Workout 330g",
+      "variant_name": "Watermelon / 330g",
+      "candidates": [
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 1500,
+          "unit": "mg",
+          "source_quantity_value": 1.5,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "11 g (~1 level scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "6014069d3cd80c9e83141f290ff09c43340dd99e55043b11a1ba48221ec636c2"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 175,
+          "unit": "mg",
+          "source_quantity_value": 175,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "11 g (~1 level scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "e6903762744bc6fb30c4137bea38b1d161c3a0be0733351cb50b71a9b7d10bae"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 750,
+          "unit": "mg",
+          "source_quantity_value": 750,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "11 g (~1 level scoop)",
+          "ingredient_form": "l_citrulline",
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "fab84909a3989084024dd981d4370ffbf941cfa1495f071a4151233eace6fd26"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 3400,
+          "unit": "mg",
+          "source_quantity_value": 3.4,
+          "source_quantity_unit": "g",
+          "serving_basis_text": "11 g (~1 level scoop)",
+          "ingredient_form": "creatine_monohydrate",
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "b71683873150cd6f4ec01f88cebaf925ca9a030314b1aeae66fdfff7a29fe9a8"
+        },
+        {
+          "field": "serving_size_g",
+          "information_state": null,
+          "value": 11,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "6a8fd6a4f43cfa52faacb496ba0f0292f505e007878faeb1e483d6d203b2aa73"
+        }
+      ],
+      "unresolved_fields": []
+    },
+    {
+      "product_id": "49",
+      "product_variant_id": "1028",
+      "product_name": "Ghost Pump Nitric Oxide 350g",
+      "variant_name": "Pineapple / 350g",
+      "candidates": [
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "information_state": "confirmed_absent",
+          "value": null,
+          "unit": null,
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "d49e902c0a0f70e74fabdaac1385d1f6c9001963831086c374be1052fb3c8541"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "information_state": "confirmed_absent",
+          "value": null,
+          "unit": null,
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "5f39bd980862eaf5f7aad83cb8c698d0916c4b1cf9bd3b3854026625dc17412a"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 6000,
+          "unit": "mg",
+          "source_quantity_value": 6000,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "2 scoops (17.5 g)",
+          "ingredient_form": "l_citrulline",
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "cb9435073868e6e95db68b1ea756fcb46385696eb38c1face013a4a76475cc21"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "information_state": "confirmed_absent",
+          "value": null,
+          "unit": null,
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "b35c7f19e7f88c5940d3a8bf7c3f6e33109f9b26c5b94df399eef01fb4625bb2"
+        },
+        {
+          "field": "serving_size_g",
+          "information_state": null,
+          "value": 17.5,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "e202b7832f3d7e4ec1a613725bc5533d40fb6302441b0cb6bbc248f59918f7ff"
+        }
+      ],
+      "unresolved_fields": []
+    },
+    {
+      "product_id": "49",
+      "product_variant_id": "1596",
+      "product_name": "Ghost Pump Nitric Oxide 350g",
+      "variant_name": "Warheads Sour Watermelon / 350g",
+      "candidates": [
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "information_state": "confirmed_absent",
+          "value": null,
+          "unit": null,
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "3ea6bcadc140fe8b00fc1c1b3360b147f0171a4e2296a3580e635aa9da1ab753"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "information_state": "confirmed_absent",
+          "value": null,
+          "unit": null,
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "d99cb5cf9c96e63168e1849c62200c96739f30f923f780728efdf2a3fd5db400"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 6000,
+          "unit": "mg",
+          "source_quantity_value": 6000,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "2 scoops (17.5 g)",
+          "ingredient_form": "l_citrulline",
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "314980075ec3bf992b9a0fbc51772283a2b6ffc0ef9cdc52b38ec16282f88286"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "information_state": "confirmed_absent",
+          "value": null,
+          "unit": null,
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "815c24864a7ab2b23a7457ab817cf54c8267acffec2d41e14e599bad959f8fa5"
+        },
+        {
+          "field": "serving_size_g",
+          "information_state": null,
+          "value": 17.5,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "2a2cb89ee33cf8004c7e782187a34b51af7ba105ad81436d9102b7fb6b1d88f2"
+        }
+      ],
+      "unresolved_fields": []
+    },
+    {
+      "product_id": "49",
+      "product_variant_id": "1597",
+      "product_name": "Ghost Pump Nitric Oxide 350g",
+      "variant_name": "Natty / 350g",
+      "candidates": [
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "information_state": "confirmed_absent",
+          "value": null,
+          "unit": null,
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "a90302d052b2080daf4e4945999cf3547627b1fd9b62f8b7bff2a219824804ea"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "information_state": "confirmed_absent",
+          "value": null,
+          "unit": null,
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "6834691c0ce11186ff0a7cfbdbf6cb1df9ede1a721435af41aabf9bdc669bd41"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 6000,
+          "unit": "mg",
+          "source_quantity_value": 6000,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "2 scoops (13.5 g)",
+          "ingredient_form": "l_citrulline",
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "612a29a76e943d32b62dfd3e6809cb96ff567e8e523c23173f1b916d425336c4"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "information_state": "confirmed_absent",
+          "value": null,
+          "unit": null,
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "8d9bc0de6b3b1f4658a48023dc36f29a72218281f00d3ee35a7f18e6b2732947"
+        },
+        {
+          "field": "serving_size_g",
+          "information_state": null,
+          "value": 13.5,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "1c6868a9f372c2da0e76e3acb0dfcfc338cb8020274c66df2635eeefcb21c4f3"
+        }
+      ],
+      "unresolved_fields": []
+    },
+    {
+      "product_id": "49",
+      "product_variant_id": "1598",
+      "product_name": "Ghost Pump Nitric Oxide 350g",
+      "variant_name": "Peach / 350g",
+      "candidates": [
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "information_state": "confirmed_absent",
+          "value": null,
+          "unit": null,
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "9f21850c19ac03a9451f2e434b4199456f933989b2189a601d843ee9ea6de404"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "information_state": "confirmed_absent",
+          "value": null,
+          "unit": null,
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "eb58f7064796fa4931a5077eab81c2093df326ce9eacaf51f87413a58c330ba2"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 6000,
+          "unit": "mg",
+          "source_quantity_value": 6000,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "2 scoops (17 g)",
+          "ingredient_form": "l_citrulline",
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "ee9dea2930b5b7890fb7039c6ec964103fc5dff190fa82ab6ec37be49bd91079"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "information_state": "confirmed_absent",
+          "value": null,
+          "unit": null,
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "59951fd86af54ffd531cc02cf8b2d95934c2758997310b4e6ca5ca80cf97c022"
+        },
+        {
+          "field": "serving_size_g",
+          "information_state": null,
+          "value": 17,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "d023079441ea1972cf2f9558e9cf7079121ad35f12db349ed36e0767af7cba33"
+        }
+      ],
+      "unresolved_fields": []
+    },
+    {
+      "product_id": "55",
+      "product_variant_id": "1029",
+      "product_name": "BioTech USA Nitrox Therapy 340g",
+      "variant_name": "Blue Grape / 340g",
+      "candidates": [
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 1400,
+          "unit": "mg",
+          "source_quantity_value": 1400,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 serving (17 g = 1 level scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "33c32107ef17019430662efc69726e00b5bd67cc29e1a1992afcb048da15b146"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 200,
+          "unit": "mg",
+          "source_quantity_value": 200,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 serving (17 g = 1 level scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "3893d449ce22e400c52d5f669b43398e6102bfaceb5534669178b5af860e05e5"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 1000,
+          "unit": "mg",
+          "source_quantity_value": 1000,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 serving (17 g = 1 level scoop)",
+          "ingredient_form": "l_citrulline",
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "9e3a417d1441e36cec47c833e2005a89ef0d452d8ab3e5854a7c617332bfa963"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "information_state": "confirmed_absent",
+          "value": null,
+          "unit": null,
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "8c718bef0316c29ba0310ba77675ef92e1f4cf96c8504f03d91d37de25f502d6"
+        },
+        {
+          "field": "serving_size_g",
+          "information_state": null,
+          "value": 17,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "957fa94f0bbd30f3dde6d625b807576ec4eb3aeac312e43048c1c38d6db7dc86"
+        }
+      ],
+      "unresolved_fields": []
+    },
+    {
+      "product_id": "55",
+      "product_variant_id": "1599",
+      "product_name": "BioTech USA Nitrox Therapy 340g",
+      "variant_name": "Tropical Fruit / 340g",
+      "candidates": [
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 1400,
+          "unit": "mg",
+          "source_quantity_value": 1400,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 serving (17 g = 1 level scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "ba66cf409cee642d47c1289c25cd3f8111cc538f65c5c920d4c4493109bd5eed"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 200,
+          "unit": "mg",
+          "source_quantity_value": 200,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 serving (17 g = 1 level scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "1a92df7dffa2de63b3fee9ede25affafa2da7a9f4644682a744fc96a2a32db2a"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 1000,
+          "unit": "mg",
+          "source_quantity_value": 1000,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 serving (17 g = 1 level scoop)",
+          "ingredient_form": "l_citrulline",
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "a94b95486cb15a000c3a1c45873810cdcd0bdf75f6a50cc4c6c72333d3e790c1"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "information_state": "confirmed_absent",
+          "value": null,
+          "unit": null,
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "f84184dffe6c43b5defc45ebf8a84df82b7e81e07e5d0b3ac75ba51ad0ffef5b"
+        },
+        {
+          "field": "serving_size_g",
+          "information_state": null,
+          "value": 17,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "4a3ce0f7e7800fe0498c3fb19e4f6ec08022935ad0672cc21f2c02d079a975f8"
+        }
+      ],
+      "unresolved_fields": []
+    },
+    {
+      "product_id": "55",
+      "product_variant_id": "1600",
+      "product_name": "BioTech USA Nitrox Therapy 340g",
+      "variant_name": "Peach / 340g",
+      "candidates": [
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 1400,
+          "unit": "mg",
+          "source_quantity_value": 1400,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 serving (17 g = 1 level scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "37fc8bd022480160c0f07f99361dbd14b4e435625e00ca155664c5487face96b"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 200,
+          "unit": "mg",
+          "source_quantity_value": 200,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 serving (17 g = 1 level scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "777365b7ce15d283695207bc1e9793c4788c58052287b05f30dd16504ad84d39"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 1000,
+          "unit": "mg",
+          "source_quantity_value": 1000,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 serving (17 g = 1 level scoop)",
+          "ingredient_form": "l_citrulline",
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "9e0d4f5839227d1d93aca1943fd61962e827a7152a3c5ef674d1e2bfb5807dc2"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "information_state": "confirmed_absent",
+          "value": null,
+          "unit": null,
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "56e2144d4dc0040ba1f14ba64df08dad04ae792a5ee9c835f383a537841d785a"
+        },
+        {
+          "field": "serving_size_g",
+          "information_state": null,
+          "value": 17,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "1bb87041f9afe2940311e18a0c3ed62d8b6c91513251912cf524472f9d0f5cf9"
+        }
+      ],
+      "unresolved_fields": []
+    },
+    {
+      "product_id": "294",
+      "product_variant_id": "1059",
+      "product_name": "BioTech USA Black Blood CAF+ 300g",
+      "variant_name": "Cola / 300g",
+      "candidates": [
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 1050,
+          "unit": "mg",
+          "source_quantity_value": 1050,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 serving (7.5 g = 1.5 scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "f8524eb79720bc580d62744676a5fddd92547df8eecede3ac9d8535966fdc795"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 200,
+          "unit": "mg",
+          "source_quantity_value": 200,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 serving (7.5 g = 1.5 scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "9a3f424d0846a35974439f730f4fcdcb0c51948782a3895f2d0823a26da47d62"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 1000,
+          "unit": "mg",
+          "source_quantity_value": 1000,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 serving (7.5 g = 1.5 scoop)",
+          "ingredient_form": "l_citrulline",
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "86e3151549f37349dd00d5b26ac301fd39ff18dbe8ace5d888c73ffbcd802ef7"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "information_state": "confirmed_absent",
+          "value": null,
+          "unit": null,
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "0d0d1f6cb832e61c1d863d1b70d7b044666e27a36c5f7063e00f53d4fb16d65a"
+        },
+        {
+          "field": "serving_size_g",
+          "information_state": null,
+          "value": 7.5,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "1c7ae4c00f0ce96b206152912682df96a5f291339a318097327d4778d39b517d"
+        }
+      ],
+      "unresolved_fields": []
+    },
+    {
+      "product_id": "294",
+      "product_variant_id": "1774",
+      "product_name": "BioTech USA Black Blood CAF+ 300g",
+      "variant_name": "Blueberry / 300g",
+      "candidates": [
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 1050,
+          "unit": "mg",
+          "source_quantity_value": 1050,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 serving (7.5 g = 1.5 scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "d9710d28a6e09c2eaf743bef1d8df1dcd32a5af084c61b78b96cb6b14b47d4d5"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 200,
+          "unit": "mg",
+          "source_quantity_value": 200,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 serving (7.5 g = 1.5 scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "e81b59600b37ef1d150ef3cc95c165b1ecf57ac6cbe2f6d864b8ebf8d0c93f1f"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 1000,
+          "unit": "mg",
+          "source_quantity_value": 1000,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 serving (7.5 g = 1.5 scoop)",
+          "ingredient_form": "l_citrulline",
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "cc2ff83c0a56aa02601e09a434415e4d468eef231d0753c7cb8d4bf879df448a"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "information_state": "confirmed_absent",
+          "value": null,
+          "unit": null,
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "75e13c70328861eb27a92b0f6841122326618785c46a21fb4e74310ec79a1ea9"
+        },
+        {
+          "field": "serving_size_g",
+          "information_state": null,
+          "value": 7.5,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "4850ef4f40645088b78da1591bc820f8cbf760aaabfc03806fe5cf6a14871b0e"
+        }
+      ],
+      "unresolved_fields": []
+    },
+    {
+      "product_id": "294",
+      "product_variant_id": "1775",
+      "product_name": "BioTech USA Black Blood CAF+ 300g",
+      "variant_name": "Blue Grapes / 300g",
+      "candidates": [
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 1050,
+          "unit": "mg",
+          "source_quantity_value": 1050,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 serving (7.5 g = 1.5 scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "bdf31b3ac6570a94175c6da355a1e41a32ad3409f56457681b6ae09ccf826db3"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 200,
+          "unit": "mg",
+          "source_quantity_value": 200,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 serving (7.5 g = 1.5 scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "fca4bf5ebf47730835176cf99dd10a6d461a9758349c48c4e6ad0030c5b0515f"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 1000,
+          "unit": "mg",
+          "source_quantity_value": 1000,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 serving (7.5 g = 1.5 scoop)",
+          "ingredient_form": "l_citrulline",
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "9212dae0c25a57fedb703e47a3920fc74fdaf68fb847ab0288e8c30c90c371cc"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "information_state": "confirmed_absent",
+          "value": null,
+          "unit": null,
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "0d644d70f09852f38577d9f25b8c880e01f8a03c336ed552340ef02fae8c226e"
+        },
+        {
+          "field": "serving_size_g",
+          "information_state": null,
+          "value": 7.5,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "694cadaf62af2b7f8a5032c7bad30f1a7e739c75b8ded42082930b807ca98315"
+        }
+      ],
+      "unresolved_fields": []
+    },
+    {
+      "product_id": "520",
+      "product_variant_id": "1025",
+      "product_name": "Olimp Redweiler Preworkout 480g",
+      "variant_name": "Blueberry / 480g",
+      "candidates": [
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 1100,
+          "unit": "mg",
+          "source_quantity_value": 1100,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 portion (6 g = 1/2 scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "e2104ff99e005eca8569139476242aad3a757e0f24116cb48bca5d36ec86c2cb"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 100,
+          "unit": "mg",
+          "source_quantity_value": 100,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 portion (6 g = 1/2 scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "daf066267448e9456dffd2a76c2da4bbb627359a20999a51102cbc950ef4caf4"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 750,
+          "unit": "mg",
+          "source_quantity_value": 750,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 portion (6 g = 1/2 scoop)",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "c88ca977e46f1d7bce7be50d6a7b1fb8f0b2afa2d4bcba8d753e8811df3d1e8e"
+        },
+        {
+          "field": "serving_size_g",
+          "information_state": null,
+          "value": 6,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "1ddc88670a43d968b8c460f8f1bb00cfca264ab9f463d1a71552d4a901026b17"
+        }
+      ],
+      "unresolved_fields": [
+        "creatine_declared_form_per_serving_mg: two separately quantified forms cannot be represented faithfully by current single-form creatine field"
+      ]
+    },
+    {
+      "product_id": "520",
+      "product_variant_id": "1700",
+      "product_name": "Olimp Redweiler Preworkout 480g",
+      "variant_name": "Cola / 480g",
+      "candidates": [
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 1100,
+          "unit": "mg",
+          "source_quantity_value": 1100,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 portion (6 g = 1/2 scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "76a164a18ec0c4d2d04a56560289ecac55ef698d12de3b96bc5364efb644ade7"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 100,
+          "unit": "mg",
+          "source_quantity_value": 100,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 portion (6 g = 1/2 scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "6b3021f14b8aae283fb59113d1abfa0a029f51809552592a0005da1e6327c174"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 750,
+          "unit": "mg",
+          "source_quantity_value": 750,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 portion (6 g = 1/2 scoop)",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "e1fb3c26a5be5707f59a99b3be7fe4e846d970f61546a37d2e3512cdaace6b0d"
+        },
+        {
+          "field": "serving_size_g",
+          "information_state": null,
+          "value": 6,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "329a361b9c9e5d41399dc1b3c2ce40847690211c2da1576f75d242da644945b0"
+        }
+      ],
+      "unresolved_fields": [
+        "creatine_declared_form_per_serving_mg: two separately quantified forms cannot be represented faithfully by current single-form creatine field"
+      ]
+    },
+    {
+      "product_id": "520",
+      "product_variant_id": "1701",
+      "product_name": "Olimp Redweiler Preworkout 480g",
+      "variant_name": "Lime Crime Mint / 480g",
+      "candidates": [
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 1100,
+          "unit": "mg",
+          "source_quantity_value": 1100,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 portion (6 g = 1/2 scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "ff75df65549012a41a1cdb51dda2fe99b4f66ae15b5a3c2ebba367190b340bf3"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 100,
+          "unit": "mg",
+          "source_quantity_value": 100,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 portion (6 g = 1/2 scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "c4f563f124b1c3c8e0ee44f0460f3e9a2f9480162a43aebbae0886efdddc4b21"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 750,
+          "unit": "mg",
+          "source_quantity_value": 750,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 portion (6 g = 1/2 scoop)",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "0efff435f7f9ff7fd089b016b3fbd4b21ff25558a7cc1a7a684a2d70c03618aa"
+        },
+        {
+          "field": "serving_size_g",
+          "information_state": null,
+          "value": 6,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "c5d4f09229d507edb8349aa2faf1b4f1786268dce4919670fb413f98e78e5fb7"
+        }
+      ],
+      "unresolved_fields": [
+        "creatine_declared_form_per_serving_mg: two separately quantified forms cannot be represented faithfully by current single-form creatine field"
+      ]
+    },
+    {
+      "product_id": "520",
+      "product_variant_id": "1702",
+      "product_name": "Olimp Redweiler Preworkout 480g",
+      "variant_name": "Orange / 480g",
+      "candidates": [
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 1100,
+          "unit": "mg",
+          "source_quantity_value": 1100,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 portion (6 g = 1/2 scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "094c144ab39b4bd1dd33943474e31d64911cbdf784eb0d9ea6d658b7bf32031a"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 100,
+          "unit": "mg",
+          "source_quantity_value": 100,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 portion (6 g = 1/2 scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "18318b23f883a7e481b8fd3dcaf6b6c189261344d5738544e1dcf402e89eb48f"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 750,
+          "unit": "mg",
+          "source_quantity_value": 750,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 portion (6 g = 1/2 scoop)",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "ce60d48365be65e049568018409871d86be4c60f64955732ba02ea62c40b94db"
+        },
+        {
+          "field": "serving_size_g",
+          "information_state": null,
+          "value": 6,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "62b8e660a9676d3f0417035b8a5293aab15dc037f54ab1ce157f7538ed9dd707"
+        }
+      ],
+      "unresolved_fields": [
+        "creatine_declared_form_per_serving_mg: two separately quantified forms cannot be represented faithfully by current single-form creatine field"
+      ]
+    },
+    {
+      "product_id": "520",
+      "product_variant_id": "1703",
+      "product_name": "Olimp Redweiler Preworkout 480g",
+      "variant_name": "Red Punch / 480g",
+      "candidates": [
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 1100,
+          "unit": "mg",
+          "source_quantity_value": 1100,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 portion (6 g = 1/2 scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "22c225d7211cecd82d6eb06c6087029af12aa9ed397a2bb6c8cdd195443c42ed"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 100,
+          "unit": "mg",
+          "source_quantity_value": 100,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 portion (6 g = 1/2 scoop)",
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "6784a339c31f1a982247e0a6582a44d5955796fa53d37f33e89670acce06400c"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "information_state": "present_with_amount",
+          "value": 750,
+          "unit": "mg",
+          "source_quantity_value": 750,
+          "source_quantity_unit": "mg",
+          "serving_basis_text": "1 portion (6 g = 1/2 scoop)",
+          "ingredient_form": "citrulline_malate",
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "349cd489d1f43dad90bbe56b6d490fdadccb0cceb5e97220afe3ed13ffad20cc"
+        },
+        {
+          "field": "serving_size_g",
+          "information_state": null,
+          "value": 6,
+          "unit": "g",
+          "source_quantity_value": null,
+          "source_quantity_unit": null,
+          "serving_basis_text": null,
+          "ingredient_form": null,
+          "ingredient_ratio": null,
+          "candidate_fingerprint": "0ac7d70b7caaf7744c4c0cfcfbf56200c78a5ef75691d16537c30e0a35f14d50"
+        }
+      ],
+      "unresolved_fields": [
+        "creatine_declared_form_per_serving_mg: two separately quantified forms cannot be represented faithfully by current single-form creatine field"
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "product_id": "295",
+      "variant_ids": [
+        "1041",
+        "1776",
+        "1777",
+        "1778"
+      ],
+      "reason": "Manufacturer sources conflict between exact 330 g legacy formula and current 340 g formula; the multi-form creatine complex is also not faithfully representable by one creatine field."
+    },
+    {
+      "product_id": "899",
+      "variant_ids": [
+        "1487",
+        "1488",
+        "2016",
+        "2017"
+      ],
+      "reason": "Current official 570 g page is Loaded Pre with different flavour identities from catalogue Full Tilt V2; no identity merge is inferred."
+    },
+    {
+      "product_id": "291",
+      "variant_ids": [
+        "1040",
+        "1691",
+        "1692",
+        "1693"
+      ],
+      "reason": "Current official product is 40 servings / 10 g, while catalogue family is 600 g; Lemon Sherbet also has a separate caffeine-free presentation."
+    }
+  ],
+  "next_step": "One explicit owner decision authorizing controlled production store -> authenticated review -> plan -> apply for exactly the five artifact hashes and 90 candidate fingerprints listed here. Redweiler creatine remains excluded."
+}
