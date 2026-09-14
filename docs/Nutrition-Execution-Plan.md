@@ -3588,3 +3588,72 @@ SHA-256 `01bcb47cc46fac726bab30e549214edb350b1e224b34f9ab1bb198de6248f7ae`.
 NUT-03 remains `IN PROGRESS`. One next step is to resolve one of the retained
 recipe, serving, pack, flavour-binding or caffeine-yield gaps with new evidence;
 do not repeat this completed 47-variant execution.
+
+## NUT-03 targeted public-source gap completion preparation
+
+14 September 2026, public-source collection, private evidence retention and
+candidate dry-run only:
+
+- Fresh read-only production preflight reconfirmed project
+  `aftboxmrdgyhizicfsfu`, 136 applied pre-workout variants and all 13 selected
+  exact product-variant bindings with current offers. Existing applied facts
+  were excluded. The 43 new candidate fingerprints collide with none of the 20
+  earlier target candidates; the read made zero database writes.
+- The bounded package completes the remaining supported fields for six
+  PEScience Prolific variants (`1004`, `1581`-`1585`), two HR Labs Proven
+  variants (`907`, `909`) and three Animal Fury variants (`3671`, `3717`,
+  `3720`). Two current Defib V3 variants (`2646`, `2649`) receive supported
+  serving, caffeine, beta-alanine and creatine-absence proposals while
+  citrulline remains explicitly unresolved.
+- Prolific uses the current Dolphin 280 g common product page: 2 scoops / 14 g,
+  caffeine 320 mg from the declared two forms, free-form L-citrulline 6 g and
+  creatine `confirmed_absent` from the complete active plus Other Ingredients
+  declaration. The already applied serving and beta-alanine absence are not
+  repeated. Proven adds only caffeine `confirmed_absent`, based on the
+  manufacturer's explicit stim-free/no-caffeine declaration; its four earlier
+  facts are unchanged.
+- Defib V3 proposes 2 scoops / 21 g, caffeine 400 mg, beta-alanine 3.2 g and
+  creatine `confirmed_absent` from each target flavour's complete declaration.
+  The page's “8 g Citrulline” wording does not identify whether that value is
+  malate mass or L-citrulline yield, so no citrulline candidate was fabricated.
+- The current Animal manufacturer page presents Blue Raspberry, Green Apple
+  and Watermelon together with one formula. Combined with the retained literal
+  16.1 g label serving, it supports caffeine 350 mg, beta-alanine 2 g,
+  citrulline malate 6 g with no declared ratio and the manufacturer's explicit
+  creatine-free state. Kiwi Lime remains excluded because it is absent from the
+  current manufacturer flavour context.
+- Access checks were enforced per source. Dolphin and HR Labs prohibit raw-page
+  copying, so their pages were not archived; only project-authored bounded
+  factual review records with source URLs and check dates were retained. The
+  Animal product route is allowed by `robots.txt`, and its reviewed sales terms
+  contain no separate copying or automated-extraction prohibition. The Animal
+  page, product JSON, one manufacturer graphic, terms and robots file were
+  retained once. Duplicate precheck found no matching object. Fresh readback
+  reproduced all ten new object hashes and confirmed private
+  `nutrition-sources` storage without automatic expiry.
+- Four ignored artifacts contain 18, eight, two and 15 rows. Their SHA-256 /
+  artifact fingerprint pairs are product `24`
+  `7ced4a0643defe8589d717d26e23ed52c1d3d9098945231c25c3cff547ca54bf` /
+  `17d1303a158032808828ad069d5ab7f8863f32956f2b62743a2d540afe54a2e9`;
+  product `62`
+  `a11fdf93915f52561c3d6817a4c3ba837e06924aecb98e20cb1b48dc70558891` /
+  `752780727bdc2c8b3a70744de05ebf73f989122220c10d055f443dd094301af6`;
+  product `761`
+  `9e89ee845613ad076c44cd6114920fcab0cd69a281314a3ebfbcfa999448b7ef` /
+  `f256d00a36acae26ad704848d8d9d1ce2a323f34296729c925024bc712991b03`;
+  and product `1249`
+  `553a45fc9f223633e90b35d3058e25ee96af57a39876984f44b97df3fdf2c976` /
+  `b70359597b0f81b4bb77fd1a5a3ca7a3be85b05afc0b0d7a19e2d070734ae82a`.
+  All 43 candidate fingerprints are unique.
+- Four existing `nutrition:candidates:store --dry-run` validations pass with 43
+  rows, zero product updates and zero database writes. No candidate was stored,
+  reviewed, planned or applied. Applied coverage remains 136.
+- Complete machine-readable evidence is
+  [nutrition-gap-completion-preparation-2026-09-14.json](rollouts/nutrition-gap-completion-preparation-2026-09-14.json),
+  SHA-256 `5c139e49da41be08d4815b694f88d6f09abc3f3bd721d9454b859acd9f754cba`.
+
+NUT-03 remains `IN PROGRESS`. One next step is one explicit owner decision on
+controlled store -> authenticated review -> explicit-ID plan -> apply for
+exactly these four unchanged artifacts and 43 candidates. The unresolved Defib
+citrulline, Animal Kiwi Lime, Yeti caffeine yield and the earlier recipe/pack/
+flavour-binding gaps remain outside that decision.

@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-gap-completion-preparation-evidence-v1",
+  "status": "READY_FOR_ONE_OWNER_DECISION_NO_PRODUCTION_CANDIDATE_WRITE_AUTHORIZATION",
+  "prepared_at": "2026-09-14T07:54:06.580Z",
+  "production_preflight": {
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "environment": "PRODUCTION",
+    "captured_at": "2026-09-14T07:51:11.413Z",
+    "applied_preworkout_variants": 136,
+    "target_variants": 13,
+    "target_variants_with_current_offer": 13,
+    "existing_target_candidates": 20,
+    "new_candidate_fingerprint_collisions": 0,
+    "snapshot_sha256": "7ae5e99cd965d62869462afd3fcf2eded0a8bf1f340112cdea3e4c6bc83c839d",
+    "database_writes": 0
+  },
+  "scope": {
+    "product_families": 4,
+    "variants": 13,
+    "new_candidates": 43,
+    "unique_candidate_fingerprints": 43,
+    "variants_complete_after_future_apply": 11,
+    "variants_partial_after_future_apply": 2,
+    "production_candidate_writes": 0
+  },
+  "products": [
+    {
+      "product_id": "24",
+      "product_name": "PEScience Prolific 280g",
+      "variant_ids": ["1004", "1581", "1582", "1583", "1584", "1585"],
+      "candidate_count": 18,
+      "facts_per_variant": {
+        "caffeine": "320 mg per 2 scoops (14 g), caffeine anhydrous plus dicaffeine malate",
+        "citrulline": "6000 mg L-citrulline per 2 scoops (14 g), source quantity 6 g",
+        "creatine": "confirmed_absent, numeric value null"
+      },
+      "already_applied_and_not_repeated": ["serving_size_g 14 g", "beta_alanine confirmed_absent"],
+      "source": {
+        "url": "https://www.dolphinfitness.co.uk/en/pes-prolific-280g/135428",
+        "type": "retailer_product_page",
+        "comparison": "The current retailer page lists all six exact flavours, one 280 g / 14 g table and a complete active-plus-other-ingredients declaration.",
+        "access": "Dolphin terms prohibit reproduction. The raw page was not retained; only this project-authored factual review was archived.",
+        "factual_review_sha256": "d75fd920e7741abdba76b184aeb85e80a146ed28f1116443fa4b5a329a03c714"
+      },
+      "artifact": {
+        "path": "tmp/nutrition-gap-completion-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-gap-completion-20260914-24.json",
+        "sha256": "7ced4a0643defe8589d717d26e23ed52c1d3d9098945231c25c3cff547ca54bf",
+        "fingerprint": "17d1303a158032808828ad069d5ab7f8863f32956f2b62743a2d540afe54a2e9"
+      }
+    },
+    {
+      "product_id": "761",
+      "product_name": "HR Labs Proven 20 servings",
+      "variant_ids": ["907", "909"],
+      "candidate_count": 2,
+      "facts_per_variant": {
+        "caffeine": "confirmed_absent, numeric value null, based on the manufacturer's explicit stim-free/no-caffeine declaration"
+      },
+      "already_applied_and_not_repeated": ["serving_size_g 16 g", "beta_alanine confirmed_absent", "citrulline malate 2:1 6000 mg", "creatine confirmed_absent"],
+      "source": {
+        "url": "https://hr-labs.co.uk/products/proven-stim-free-performance-pre",
+        "type": "manufacturer_product_page",
+        "comparison": "The manufacturer page binds Classic Cola and Frootz to the same 20-serving product and explicitly presents it as stim free with no caffeine.",
+        "access": "HR Labs terms prohibit copying and scraping. The raw page was not retained; only this project-authored factual review was archived.",
+        "factual_review_sha256": "159e78660c69b9ed28c96b5ed7d24726b56aeb1370d2c5fd2c199f12f4618d5c"
+      },
+      "artifact": {
+        "path": "tmp/nutrition-gap-completion-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-gap-completion-20260914-761.json",
+        "sha256": "9e89ee845613ad076c44cd6114920fcab0cd69a281314a3ebfbcfa999448b7ef",
+        "fingerprint": "f256d00a36acae26ad704848d8d9d1ce2a323f34296729c925024bc712991b03"
+      }
+    },
+    {
+      "product_id": "62",
+      "product_name": "HR Labs Defib Pre-Workout",
+      "variant_ids": ["2646", "2649"],
+      "candidate_count": 8,
+      "facts_per_variant": {
+        "serving": "2 scoops / 21 g",
+        "caffeine": "400 mg",
+        "beta_alanine": "3200 mg, source quantity 3.2 g",
+        "creatine": "confirmed_absent, numeric value null"
+      },
+      "unresolved": {
+        "citrulline": "The page markets 8 g Citrulline while its ingredient list names Citrulline Malate 2:1; it does not state unambiguously whether 8 g is malate mass or L-citrulline yield."
+      },
+      "source": {
+        "url": "https://hr-labs.co.uk/products/defib-complete-pre-workout",
+        "type": "manufacturer_product_page",
+        "comparison": "The current V3 page lists both target flavours, 40/20 servings, a 10.5/21 g direction and complete flavour-specific ingredients.",
+        "access": "HR Labs terms prohibit copying and scraping. The raw page was not retained; only this project-authored factual review was archived.",
+        "factual_review_sha256": "ca4cf390f4e703545a9656e954a4a7b5267b90ddf3488ba454a8411445e600fe"
+      },
+      "artifact": {
+        "path": "tmp/nutrition-gap-completion-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-gap-completion-20260914-62.json",
+        "sha256": "a11fdf93915f52561c3d6817a4c3ba837e06924aecb98e20cb1b48dc70558891",
+        "fingerprint": "752780727bdc2c8b3a70744de05ebf73f989122220c10d055f443dd094301af6"
+      }
+    },
+    {
+      "product_id": "1249",
+      "product_name": "Animal Fury Pre Workout 491g",
+      "variant_ids": ["3671", "3717", "3720"],
+      "candidate_count": 15,
+      "facts_per_variant": {
+        "serving": "1 scoop / 16.1 g",
+        "caffeine": "350 mg caffeine anhydrous",
+        "beta_alanine": "2000 mg, source quantity 2 g",
+        "citrulline": "6000 mg citrulline malate, source quantity 6 g, ratio not declared",
+        "creatine": "confirmed_absent, numeric value null, based on the manufacturer's explicit creatine-free declaration"
+      },
+      "source": {
+        "url": "https://uk.animalpak.com/products/animal-fury",
+        "type": "manufacturer_product_page plus retained manufacturer label context",
+        "comparison": "The manufacturer common product presentation lists Blue Raspberry, Green Apple and Watermelon with the same tracked doses; the retained label supplies the literal 16.1 g serving.",
+        "factual_review_sha256": "e13b5c22d9cbae644deaeedbdf9ed731c2b285fbf26d92228c579e739f216d42",
+        "raw_page_sha256": "ddb8d82128d0be9f1c5295a17a04988a4ecc8b0ac096789f8e373c8e1c3707a2",
+        "product_json_sha256": "8a00385fcfd5298d57754a7743e79c8a965d7f7e882d52de921b7ae7a1324186",
+        "manufacturer_graphic_sha256": "50f59af3aedaeca2a860f564aba906d70b7d10ccbdba6b4fb2fae50975d0a32a",
+        "retained_label_sha256": "7ed89ba996e8e4b2cd53a18c778bbbb986632d75cccf9eee28dad4f436983253"
+      },
+      "artifact": {
+        "path": "tmp/nutrition-gap-completion-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-gap-completion-20260914-1249.json",
+        "sha256": "553a45fc9f223633e90b35d3058e25ee96af57a39876984f44b97df3fdf2c976",
+        "fingerprint": "b70359597b0f81b4bb77fd1a5a3ca7a3be85b05afc0b0d7a19e2d070734ae82a"
+      }
+    }
+  ],
+  "archive": {
+    "bucket": "nutrition-sources",
+    "public": false,
+    "duplicate_precheck": "PASS_NO_MATCHES",
+    "objects_written": 10,
+    "fresh_readback": "PASS_ALL_HASHES",
+    "retained_without_automatic_expiry": true,
+    "context_manifest_sha256": "6d34b2b22881d0861091f68180362b5aa4e6de317c4fef728a272eb67c6fc9bc"
+  },
+  "validation": {
+    "command": "npm run nutrition:candidates:store -- --dry-run --input=<artifact>",
+    "artifacts_checked": 4,
+    "result": "PASS",
+    "candidate_rows": 43,
+    "product_updates": 0,
+    "database_writes": 0,
+    "result_file_sha256": "6fd3ec55819c1777434fb42a7438da086d8d5e34b96eca0f8c5b67bbc221992f"
+  },
+  "remaining_gaps": [
+    {"product_id": "62", "variant_ids": ["2646", "2649"], "field": "citrulline", "needed": "An exact V3 table stating whether 8 g is citrulline-malate mass or L-citrulline yield."},
+    {"product_id": "1249", "variant_ids": ["3719"], "field": "variant applicability", "needed": "A current Animal Fury source that includes Kiwi Lime in the same formula context."},
+    {"product_id": "1280", "variant_count": 16, "field": "total caffeine", "needed": "A declared total caffeine amount, or the caffeine yield of the named di-caffeine-malate quantity."},
+    {"families": ["Redcon1 Total War", "Gorillalpha Ibiza", "Skill Nutrition Pre-Workout", "Liberty Swell", "Presidential Pre", "NXT TNT Nuclear Pre 240g"], "needed": "Their previously recorded exact recipe, serving, pack or flavour-binding evidence remains unresolved; restrictive sources were not copied."}
+  ],
+  "next_step": "One explicit owner decision for controlled store -> authenticated review -> explicit-ID plan -> apply of exactly the four unchanged artifacts and 43 candidates listed here."
+}
