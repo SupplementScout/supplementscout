@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-large-next-04-execution-v1",
+  "status": "APPLIED_AND_READ_BACK",
+  "executed_at": "2026-09-14T20:08:00Z",
+  "authorization": "Owner authorized production store -> review -> plan -> apply of the unchanged 10-candidate artifact for product 756 variants 885 and 1974.",
+  "target": {"environment":"PRODUCTION","project_ref":"aftboxmrdgyhizicfsfu"},
+  "scope": {"products":1,"variants":2,"candidates":10,"product_updates":0,"variant_updates":2},
+  "artifact": {
+    "path": "tmp/nutrition-catalog-large-next-04-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-04-20260914-756.json",
+    "sha256": "f51f13405ab2856e2217ddd4233ef99f3ba250c26c4f44eb48af57e1b5a96250",
+    "fingerprint": "d83046ab504444c6a1a0a4f1077e04736ba5e79195e955e140a11e7623fa7aa5"
+  },
+  "store": {"result":"PASS","created":10,"duplicate_candidates":0,"candidate_ids":["2112","2113","2114","2115","2116","2117","2118","2119","2120","2121"]},
+  "review": {"result":"PASS","approved":10,"mechanism":"authenticated admin panel","evidence_changed":false},
+  "plan": {
+    "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-04-20260914-756-ef6c0f3f19d7.json",
+    "sha256": "5c8443f8cae4e0e1bb981580243abfddc54bfbe01d9aacb6411b9d2cac2c0ba2",
+    "fingerprint": "ef6c0f3f19d7cf14e84b2fc667ec7d8f7218b072d04d283aa5089acfcb7b5298",
+    "candidate_ids": ["2112","2113","2114","2115","2116","2117","2118","2119","2120","2121"],
+    "product_updates": 0,
+    "variant_updates": 2,
+    "before": {"885":{},"1974":{}},
+    "fields": ["serving_size_g","caffeine","beta_alanine","citrulline","creatine"]
+  },
+  "apply": {
+    "result":"PASS",
+    "products_changed":0,
+    "variants_changed":["885","1974"],
+    "audit_sha256":"0164caca59fada61637799314e453888a41be8c0c89818ee530e69a832e39a76"
+  },
+  "independent_readback": {
+    "result":"PASS",
+    "whole_overrides_match_after":2,
+    "approved_candidates":10,
+    "evidence_unchanged":true,
+    "coverage":{"applied":296,"complete":244,"partial":52,"none":279},
+    "sha256":"75f48dc640ea3d7e0e654f47fe3b719208623c89e065e96cfe6b32fa86b1bd46"
+  },
+  "public_presentation": {
+    "result":"PASS",
+    "pages_checked":2,
+    "variant_pages":[
+      "https://www.supplementscout.co.uk/product/10x-athletic-pump-non-stim-pre-workout-50-servings?variant=885",
+      "https://www.supplementscout.co.uk/product/10x-athletic-pump-non-stim-pre-workout-50-servings?variant=1974"
+    ],
+    "caffeine_free_filter_visible":true,
+    "sha256":"208e9cdb4515b550abbb91c54135c392c9c36e9d5ac23aeebaef2ec798c17345"
+  },
+  "replay": {
+    "result":"PASS_SAFE_REJECTION",
+    "reason":"Variant 885 nutrition override changed after plan generation",
+    "additional_writes":0,
+    "sha256":"821a03941f092ead813c38e44d86e97833675435b1f98314b40012d781bec216"
+  },
+  "unchanged": {"products":true,"nutrition_verified":true,"legacy_creatine_per_serving_g":true,"other_variants":true},
+  "next_step": "Prepare another evidence-qualified multi-family batch without repeating the retained formula, serving and pack conflicts."
+}

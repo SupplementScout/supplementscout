@@ -4329,6 +4329,33 @@ NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
 store -> authenticated review -> explicit-ID plan -> guarded apply of exactly
 these 10 unchanged candidates for variants `885` and `1974`.
 
+## NUT-03 next large catalogue execution after 294 applied variants
+
+14 September 2026, production execution after explicit owner authorization:
+
+- Controlled store created candidates `2112`-`2121` for product `756`, variants
+  `885` and `1974`. Authenticated review approved the unchanged ten-record set.
+- The explicit-ID plan contained zero product updates and two exact variant
+  updates. Its SHA-256 is
+  `5c8443f8cae4e0e1bb981580243abfddc54bfbe01d9aacb6411b9d2cac2c0ba2`
+  and fingerprint is
+  `ef6c0f3f19d7cf14e84b2fc667ec7d8f7218b072d04d283aa5089acfcb7b5298`.
+- Guarded apply wrote only serving size, caffeine, beta-alanine, citrulline and
+  creatine facts to both planned `nutrition_override` objects. Independent
+  readback matched both whole overrides to the sealed `after`, confirmed all
+  approvals and unchanged evidence, and found no product, verification-flag or
+  legacy-creatine change.
+- Applied coverage is now 296 variants: 244 complete, 52 partial and 279 without
+  facts. Both exact public pages passed and the common product is visible in the
+  caffeine-free filter. Replaying the plan was safely rejected because the
+  sealed `before` no longer matched, with zero additional writes.
+
+Complete evidence is
+[nutrition-catalog-large-next-04-execution-2026-09-14.json](rollouts/nutrition-catalog-large-next-04-execution-2026-09-14.json),
+SHA-256 `25bb8f05ed37466d20425b5b6815eb8ddb2a4545d5afa63c50e030768a535c3c`.
+NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified
+multi-family preparation batch without repeating retained conflicts.
+
 ## NUT-03 large catalogue batch 03 execution
 
 14 September 2026, production execution after explicit owner authorization:
