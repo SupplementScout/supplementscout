@@ -4404,3 +4404,35 @@ SHA-256 `b8017f9813d955a9034e63216b20634ec555334e77e33c8c3d36dd602cbb4f62`.
 NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
 store -> authenticated review -> explicit-ID plans -> guarded apply of exactly
 these three unchanged artifacts and 25 fingerprints.
+
+## NUT-03 continuous catalogue execution after 263 applied variants
+
+14 September 2026, production execution after explicit owner authorization:
+
+- Controlled store created 25 candidates, IDs `1974`-`1998`, for product `845`
+  variants `1229`, `2772`; product `6` variant `1741`; and product `979`
+  variants `1915`, `1917`. Authenticated review approved the unchanged set.
+- Three explicit-ID plans contained zero product updates and five exact
+  `nutrition_override` updates. Plan SHA-256 / fingerprint pairs are: product
+  `845` `ccae846cd919b2cfc74a3a3bc3217a095ec286168efcd2a6d6bc80307aed6672` /
+  `81257be480e4b37a120aa9aaed32217a82d31b5225150c392eb5d11916f7ff1e`;
+  product `6` `c06482d87efc3d175c23ec7a4c341ba962cbd3aac41a087a892dc4368c63a707` /
+  `3f6e6e8be3b54dc28f4f9639e3a271c10cb141a7e8a6dfcbe357d3358f563f3f`;
+  and product `979`
+  `d478f2aea7a7547b37ce9366fe6f523831012f038cdaeda894e3ed2ec663e778` /
+  `e855b63b0b40010557c1a0a9a22b646e0db2f737655ea31ba949c029a4574413`.
+- Guarded apply changed only the five planned variant overrides. Independent
+  readback matched every whole override to its sealed `after`, confirmed all 25
+  approvals and unchanged evidence, and found no product, verification-flag or
+  legacy-creatine change. Applied coverage is now 268 variants: 225 complete,
+  43 partial and 307 without applied facts.
+- All five exact public variant pages passed. Liberty Swell is visible under
+  the caffeine-free filter using existing product-card grouping; the three
+  stimulant variants are excluded. Replaying all three plans was safely
+  rejected on stale sealed `before`, with zero extra writes.
+
+Complete evidence is
+[nutrition-catalog-next-continuous-execution-2026-09-14.json](rollouts/nutrition-catalog-next-continuous-execution-2026-09-14.json),
+SHA-256 `d3183bbdcfabad256fcfb4a41378ed28222a26ff68a3716f80e9e2f2820998d3`.
+NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified
+multi-family preparation batch without repeating retained blockers.

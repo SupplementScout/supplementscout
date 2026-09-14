@@ -1,0 +1,559 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-next-continuous-execution-v1",
+  "status": "APPLIED_AND_VERIFIED",
+  "executed_at": "2026-09-14T18:03:24.033Z",
+  "authorization": {
+    "scope": "production store -> authenticated review -> explicit-ID plan -> guarded apply",
+    "preparation_report": "docs/rollouts/nutrition-catalog-next-continuous-preparation-2026-09-14.json",
+    "preparation_report_sha256": "b8017f9813d955a9034e63216b20634ec555334e77e33c8c3d36dd602cbb4f62",
+    "candidate_artifacts": [
+      {
+        "product_id": "845",
+        "variant_ids": [
+          "1229",
+          "2772"
+        ],
+        "artifact": {
+          "path": "tmp/nutrition-next-continuous-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-next-continuous-20260914-845.json",
+          "sha256": "6978057ad9c40956f70d7eea5ba43b8ebf32a1006112ce959e32f13b4cddf82e",
+          "fingerprint": "681b4fc5fac9c2256ea0966390a5288f90a1c3d2a2e7b38d98913811e98654fb"
+        }
+      },
+      {
+        "product_id": "6",
+        "variant_ids": [
+          "1741"
+        ],
+        "artifact": {
+          "path": "tmp/nutrition-next-continuous-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-next-continuous-20260914-6.json",
+          "sha256": "2dbb66758a836a468d69b305821b9bbff578a7a7207f85d21de37bd78fc4bbcf",
+          "fingerprint": "2539988a2f7ded38d3b55c345b2f00209629fc85f1beb2af157b60f520c27b25"
+        }
+      },
+      {
+        "product_id": "979",
+        "variant_ids": [
+          "1915",
+          "1917"
+        ],
+        "artifact": {
+          "path": "tmp/nutrition-next-continuous-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-next-continuous-20260914-979.json",
+          "sha256": "b10a0ca6abea92338cf5df18ee77d52188244e3f4729071e61890b947c46eb66",
+          "fingerprint": "3fa6d357d5a5a9e4744e22a4c47086155cb99cc1184193ce3437547290f05313"
+        }
+      }
+    ]
+  },
+  "store": {
+    "result": "PASS",
+    "candidate_rows": 25,
+    "product_updates": 0,
+    "candidate_ids": [
+      "1974",
+      "1975",
+      "1976",
+      "1977",
+      "1978",
+      "1979",
+      "1980",
+      "1981",
+      "1982",
+      "1983",
+      "1984",
+      "1985",
+      "1986",
+      "1987",
+      "1988",
+      "1989",
+      "1990",
+      "1991",
+      "1992",
+      "1993",
+      "1994",
+      "1995",
+      "1996",
+      "1997",
+      "1998"
+    ]
+  },
+  "review": {
+    "result": "PASS",
+    "authenticated_panel": true,
+    "approved": 25,
+    "reviews": [
+      {
+        "product_id": "845",
+        "candidate_ids": [
+          "1974",
+          "1975",
+          "1976",
+          "1977",
+          "1978",
+          "1979",
+          "1980",
+          "1981",
+          "1982",
+          "1983"
+        ],
+        "reviewed_by": "admin-panel"
+      },
+      {
+        "product_id": "6",
+        "candidate_ids": [
+          "1984",
+          "1985",
+          "1986",
+          "1987",
+          "1988"
+        ],
+        "reviewed_by": "admin-panel"
+      },
+      {
+        "product_id": "979",
+        "candidate_ids": [
+          "1989",
+          "1990",
+          "1991",
+          "1992",
+          "1993",
+          "1994",
+          "1995",
+          "1996",
+          "1997",
+          "1998"
+        ],
+        "reviewed_by": "admin-panel"
+      }
+    ]
+  },
+  "plans": {
+    "result": "PASS",
+    "product_updates": 0,
+    "variant_updates": 5,
+    "total_candidates": 25,
+    "total_variants": 5,
+    "plans": [
+      {
+        "product_id": "845",
+        "path": "tmp/nutrition-approved-plan/NCR1-catalog-next-continuous-20260914-845-81257be480e4.json",
+        "sha256": "ccae846cd919b2cfc74a3a3bc3217a095ec286168efcd2a6d6bc80307aed6672",
+        "fingerprint": "81257be480e4b37a120aa9aaed32217a82d31b5225150c392eb5d11916f7ff1e",
+        "candidates": 10,
+        "variants": 2
+      },
+      {
+        "product_id": "6",
+        "path": "tmp/nutrition-approved-plan/NCR1-catalog-next-continuous-20260914-6-3f6e6e8be3b5.json",
+        "sha256": "c06482d87efc3d175c23ec7a4c341ba962cbd3aac41a087a892dc4368c63a707",
+        "fingerprint": "3f6e6e8be3b54dc28f4f9639e3a271c10cb141a7e8a6dfcbe357d3358f563f3f",
+        "candidates": 5,
+        "variants": 1
+      },
+      {
+        "product_id": "979",
+        "path": "tmp/nutrition-approved-plan/NCR1-catalog-next-continuous-20260914-979-e855b63b0b40.json",
+        "sha256": "d478f2aea7a7547b37ce9366fe6f523831012f038cdaeda894e3ed2ec663e778",
+        "fingerprint": "e855b63b0b40010557c1a0a9a22b646e0db2f737655ea31ba949c029a4574413",
+        "candidates": 10,
+        "variants": 2
+      }
+    ]
+  },
+  "apply": {
+    "result": "PASS",
+    "changed_products": 0,
+    "changed_variants": 5,
+    "target_field": "product_variants.nutrition_override"
+  },
+  "independent_readback": {
+    "result": "PASS",
+    "captured_at": "2026-09-14T18:00:40.026Z",
+    "target_environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "database_writes": 0,
+    "applied_variant_count": 268,
+    "coverage": {
+      "complete": 225,
+      "partial": 43,
+      "none": 307
+    },
+    "queue_after": {
+      "approved": 1976,
+      "pending": 16,
+      "rejected": 6
+    },
+    "plans": [
+      {
+        "product_id": "845",
+        "path": "tmp/nutrition-approved-plan/NCR1-catalog-next-continuous-20260914-845-81257be480e4.json",
+        "sha256": "ccae846cd919b2cfc74a3a3bc3217a095ec286168efcd2a6d6bc80307aed6672",
+        "fingerprint": "81257be480e4b37a120aa9aaed32217a82d31b5225150c392eb5d11916f7ff1e",
+        "candidates": 10,
+        "variants": 2
+      },
+      {
+        "product_id": "6",
+        "path": "tmp/nutrition-approved-plan/NCR1-catalog-next-continuous-20260914-6-3f6e6e8be3b5.json",
+        "sha256": "c06482d87efc3d175c23ec7a4c341ba962cbd3aac41a087a892dc4368c63a707",
+        "fingerprint": "3f6e6e8be3b54dc28f4f9639e3a271c10cb141a7e8a6dfcbe357d3358f563f3f",
+        "candidates": 5,
+        "variants": 1
+      },
+      {
+        "product_id": "979",
+        "path": "tmp/nutrition-approved-plan/NCR1-catalog-next-continuous-20260914-979-e855b63b0b40.json",
+        "sha256": "d478f2aea7a7547b37ce9366fe6f523831012f038cdaeda894e3ed2ec663e778",
+        "fingerprint": "e855b63b0b40010557c1a0a9a22b646e0db2f737655ea31ba949c029a4574413",
+        "candidates": 10,
+        "variants": 2
+      }
+    ],
+    "variants": [
+      {
+        "product_id": "845",
+        "product_variant_id": "1229",
+        "product_name": "Innovapharm MVPRE 365 Pre-Workout 460g",
+        "display_name": "Monkey Punch / 460g",
+        "slug": "innovapharm-mvpre-365-pre-workout-460g",
+        "nutrition_verified": false,
+        "legacy_creatine_per_serving_g": null,
+        "nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (23 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 23,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 250,
+            "source_quantity_value": 250
+          },
+          "creatine": {
+            "information_state": "confirmed_absent"
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "l_citrulline",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (23 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 23,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 10000,
+            "source_quantity_value": 10
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (23 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 23,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3.2
+          },
+          "serving_size_g": 23
+        },
+        "after_match": true
+      },
+      {
+        "product_id": "6",
+        "product_variant_id": "1741",
+        "product_name": "Ghost Legend V4 Pre-Workout 660g",
+        "display_name": "Sour Watermelon / 660g",
+        "slug": "ghost-legend-v4-pre-workout-660g",
+        "nutrition_verified": false,
+        "legacy_creatine_per_serving_g": null,
+        "nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (22 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 300,
+            "source_quantity_value": 300
+          },
+          "creatine": {
+            "information_state": "confirmed_absent"
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "l_citrulline",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (22 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 6000,
+            "source_quantity_value": 6000
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (22 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 22,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3200
+          },
+          "serving_size_g": 22
+        },
+        "after_match": true
+      },
+      {
+        "product_id": "979",
+        "product_variant_id": "1915",
+        "product_name": "NMP Nutraceuticals Liberty Swell 25 servings",
+        "display_name": "Apple / 25servings",
+        "slug": "nmp-nutraceuticals-liberty-swell-25-servings",
+        "nutrition_verified": false,
+        "legacy_creatine_per_serving_g": null,
+        "nutrition_override": {
+          "caffeine": {
+            "information_state": "confirmed_absent"
+          },
+          "creatine": {
+            "information_state": "confirmed_absent"
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "l_citrulline",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (16 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 16,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 6000,
+            "source_quantity_value": 6000
+          },
+          "beta_alanine": {
+            "information_state": "confirmed_absent"
+          },
+          "serving_size_g": 16
+        },
+        "after_match": true
+      },
+      {
+        "product_id": "979",
+        "product_variant_id": "1917",
+        "product_name": "NMP Nutraceuticals Liberty Swell 25 servings",
+        "display_name": "Grape / 25servings",
+        "slug": "nmp-nutraceuticals-liberty-swell-25-servings",
+        "nutrition_verified": false,
+        "legacy_creatine_per_serving_g": null,
+        "nutrition_override": {
+          "caffeine": {
+            "information_state": "confirmed_absent"
+          },
+          "creatine": {
+            "information_state": "confirmed_absent"
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "l_citrulline",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (16 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 16,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 6000,
+            "source_quantity_value": 6000
+          },
+          "beta_alanine": {
+            "information_state": "confirmed_absent"
+          },
+          "serving_size_g": 16
+        },
+        "after_match": true
+      },
+      {
+        "product_id": "845",
+        "product_variant_id": "2772",
+        "product_name": "Innovapharm MVPRE 365 Pre-Workout 460g",
+        "display_name": "Bahama Mama / 460g",
+        "slug": "innovapharm-mvpre-365-pre-workout-460g",
+        "nutrition_verified": false,
+        "legacy_creatine_per_serving_g": null,
+        "nutrition_override": {
+          "caffeine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (23 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 23,
+            "source_quantity_unit": "mg",
+            "amount_per_serving_mg": 250,
+            "source_quantity_value": 250
+          },
+          "creatine": {
+            "information_state": "confirmed_absent"
+          },
+          "citrulline": {
+            "quantity_basis": "per_serving",
+            "ingredient_form": "l_citrulline",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (23 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 23,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 10000,
+            "source_quantity_value": 10
+          },
+          "beta_alanine": {
+            "quantity_basis": "per_serving",
+            "information_state": "present_with_amount",
+            "serving_basis_text": "1 scoop (23 g)",
+            "serving_basis_unit": "g",
+            "serving_basis_value": 23,
+            "source_quantity_unit": "g",
+            "amount_per_serving_mg": 3200,
+            "source_quantity_value": 3.2
+          },
+          "serving_size_g": 23
+        },
+        "after_match": true
+      }
+    ],
+    "candidates": {
+      "ids": [
+        "1974",
+        "1975",
+        "1976",
+        "1977",
+        "1978",
+        "1979",
+        "1980",
+        "1981",
+        "1982",
+        "1983",
+        "1984",
+        "1985",
+        "1986",
+        "1987",
+        "1988",
+        "1989",
+        "1990",
+        "1991",
+        "1992",
+        "1993",
+        "1994",
+        "1995",
+        "1996",
+        "1997",
+        "1998"
+      ],
+      "approved": 25,
+      "evidence_unchanged": true
+    }
+  },
+  "replay_protection": {
+    "result": "PASS",
+    "behavior": "SAFE_REJECTION_STALE_BEFORE",
+    "additional_writes": 0,
+    "errors": [
+      {
+        "product_id": "845",
+        "message": "Variant 1229 nutrition override changed after plan generation"
+      },
+      {
+        "product_id": "6",
+        "message": "Variant 1741 nutrition override changed after plan generation"
+      },
+      {
+        "product_id": "979",
+        "message": "Variant 1915 nutrition override changed after plan generation"
+      }
+    ]
+  },
+  "public_presentation": {
+    "result": "PASS",
+    "checked_at": "2026-09-14T18:01:35.858Z",
+    "pages": [
+      {
+        "product_id": "845",
+        "product_variant_id": "1229",
+        "url": "https://www.supplementscout.co.uk/product/innovapharm-mvpre-365-pre-workout-460g?variant=1229",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "facts": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "6",
+        "product_variant_id": "1741",
+        "url": "https://www.supplementscout.co.uk/product/ghost-legend-v4-pre-workout-660g?variant=1741",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "facts": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "979",
+        "product_variant_id": "1915",
+        "url": "https://www.supplementscout.co.uk/product/nmp-nutraceuticals-liberty-swell-25-servings?variant=1915",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "facts": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "979",
+        "product_variant_id": "1917",
+        "url": "https://www.supplementscout.co.uk/product/nmp-nutraceuticals-liberty-swell-25-servings?variant=1917",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "facts": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "845",
+        "product_variant_id": "2772",
+        "url": "https://www.supplementscout.co.uk/product/innovapharm-mvpre-365-pre-workout-460g?variant=2772",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "facts": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      }
+    ],
+    "caffeine_free_filter": {
+      "url": "https://www.supplementscout.co.uk/search?q=pre%20workout&caffeine=free",
+      "http_200": true,
+      "stimulant_target_links": [],
+      "liberty_family_visible": true,
+      "grouping_note": "Two qualifying Liberty Swell variants may share one product card under existing grouping."
+    },
+    "database_writes": 0
+  },
+  "final_coverage": {
+    "applied_unique_variants": 268,
+    "complete": 225,
+    "partial": 43,
+    "no_applied_facts": 307
+  },
+  "unchanged": {
+    "products": true,
+    "nutrition_verified": true,
+    "legacy_creatine_per_serving_g": true,
+    "other_variants": true
+  },
+  "next_step": "Continue with another evidence-qualified multi-family preparation batch without repeating retained blockers."
+}
