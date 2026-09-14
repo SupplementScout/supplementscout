@@ -3718,3 +3718,74 @@ NUT-03 remains `IN PROGRESS`. One next step is to resolve Defib V3 citrulline on
 after obtaining an exact compound-mass-versus-yield statement, or continue with
 another family supported by new exact evidence; do not repeat the exhausted gap
 searches.
+
+## NUT-03 catalogue next-50 public-source preparation
+
+14 September 2026, owner-directed public collection, private evidence retention
+and candidate dry-run only:
+
+- A fresh read-only production preflight confirmed 141 applied pre-workout
+  variants, all 34 selected active exact product-variant bindings, a current
+  offer for every selected variant, empty target overrides and no existing
+  target candidates. No catalogue or candidate row was written.
+- The closed organizational scope assessed 50 exact variants. Thirty-four are
+  ready: 26 complete variants and eight partial Darkstims PRE V4 variants. Five
+  artifacts contain 162 unique candidate fingerprints. The remaining 16 exact
+  variants retain concrete flavour-formula, version, permission or pack gaps.
+- Nine Warrior Rage variants use the current common 392 g / 45-serving
+  manufacturer presentation: 1.5 scoops / 8.7 g, caffeine 300 mg,
+  beta-alanine 1500 mg, citrulline malate 2:1 500 mg and creatine gluconate
+  2560 mg. The quantities remain masses of the declared ingredient forms.
+- Five DNFM new-flavour variants use the table that the manufacturer explicitly
+  limits to Cherry Sweets, Rocket Lolly, Sherbet Razz, Strawberry Bubblegum and
+  Orange & Mango Crush: 2 scoops / 16 g, caffeine 400 mg, beta-alanine 3500 mg,
+  free-form L-citrulline 6000 mg and creatine `confirmed_absent`. Four older
+  flavours remain outside the assignment.
+- Three Pumpage variants use 1 scoop / 10 g, free-form L-citrulline 3000 mg and
+  the complete stim-free declaration supporting `confirmed_absent` caffeine,
+  beta-alanine and creatine. The source image was inspected manually; no OCR or
+  new parser was used.
+- Nine Cellucor C4 Original 30-serving variants use the current exact retailer
+  offer and its published active table plus complete ingredients list: 1 level
+  scoop / 6.8 g, caffeine 150 mg, beta-alanine 1600 mg, citrulline
+  `confirmed_absent` and creatine monohydrate 1500 mg. The source remains
+  labelled as retailer evidence rather than manufacturer evidence.
+- Eight Darkstims PRE V4 variants have supported serving 20 g, beta-alanine
+  3500 mg, free-form L-citrulline 8000 mg and creatine `confirmed_absent`.
+  Caffeine is intentionally omitted: the current pages conflict between a
+  400 mg dual-source matrix and 362.5 mg total caffeine, while 150 mg
+  di-caffeine-malate compound mass cannot be counted as 150 mg pure caffeine.
+- Terms and robots rules were reviewed per domain. The bounded Warrior snapshot
+  and six project-authored evidence/manifest records were stored once in the
+  existing private `nutrition-sources` archive. TBJP and Darkstims raw pages and
+  images were not designated for private archive because their terms prohibit
+  scraping/copying. Independent archive readback reproduced all seven SHA-256
+  hashes; the bucket remains private and objects do not expire automatically.
+- All five `nutrition:candidates:store --dry-run` validations pass: 45, 25, 15,
+  45 and 32 rows, respectively, with zero product updates and zero database
+  writes. No production store, review, plan or apply occurred.
+
+Artifact SHA-256 / fingerprint pairs are product `56`
+`7463cc1faee0e7d4a5a9af1fe440bdcb35f9c9ff8ddf0d1aa0d3150b35b5fd04` /
+`dc73e4c36795da8143b22c0bff760cb812b9854165ecff152221a4dc88dd2cfa`;
+product `878`
+`e6a366d73a45b63d07a260ffa3ef0251672687573fd0988767f1387c59ba7796` /
+`1d76f6a8be4612236103e12aa7874648f1455ab868c8ea0a2cd71f52df58dec7`;
+product `880`
+`62968ac4e846cd9f5ec86c97148c6217344084379b8e8abedc003d2851997398` /
+`f36f538c72ae3b3fdd9989795c8405b5e060f91dad3bcc01b17580652aa406e4`;
+product `1169`
+`3b1938d60c87d8f3d47bae16caa7d8b68f4d234254fc10a40d638e2b00a2d656` /
+`44af97835da0f4c83778110caaf3a05cd6a47d7fb244ad9dc920c7d6f4610414`;
+and product `1181`
+`183d5b2e103b4c48b0f1d2dcc10c46074e5df49680e3a77e3276a6da68ceea23` /
+`420eb821035295dc90180ea7c07d80bdcf95699a3f293068a666877d869a5a27`.
+
+Complete machine-readable evidence is
+[nutrition-catalog-next-50-preparation-2026-09-14.json](rollouts/nutrition-catalog-next-50-preparation-2026-09-14.json),
+SHA-256 `04a74dafac5db8716040f8832da039f4ef6562f5b984caa93c2578d4174d94b6`.
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision on controlled
+store -> authenticated review -> explicit-ID plan -> apply for exactly these
+five unchanged artifacts and 162 candidates. Resolving the eight Darkstims
+caffeine facts requires an unambiguous manufacturer total-caffeine-yield
+statement; the other 16 scoped gaps remain outside that decision.

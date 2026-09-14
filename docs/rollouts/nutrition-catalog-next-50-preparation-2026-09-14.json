@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-next-50-preparation-evidence-v1",
+  "status": "READY_FOR_ONE_OWNER_DECISION",
+  "prepared_at": "2026-09-14T09:04:27.003Z",
+  "mode": "PREPARATION_ONLY",
+  "production_preflight": {
+    "applied_variants": 141,
+    "selected_exact_variants": 34,
+    "selected_variants_with_current_offers": 34,
+    "existing_target_candidates": 0,
+    "database_writes": 0
+  },
+  "closed_scope": {
+    "assessed_variants": 50,
+    "ready_variants": 34,
+    "complete_ready_variants": 26,
+    "partial_ready_variants": 8,
+    "blocked_variants": 16,
+    "candidate_facts": 162,
+    "unique_candidate_fingerprints": 162
+  },
+  "families": [
+    {
+      "product_id": "56",
+      "product": "Warrior Rage Unleash Hell Pre Workout 392g",
+      "variant_ids": ["1006", "1601", "1602", "1603", "1604", "1605", "1606", "3468", "3469"],
+      "completeness": "COMPLETE",
+      "candidate_count": 45,
+      "serving": "1.5 scoops (8.7 g)",
+      "facts": {
+        "caffeine": { "information_state": "present_with_amount", "amount_per_serving_mg": 300 },
+        "beta_alanine": { "information_state": "present_with_amount", "amount_per_serving_mg": 1500 },
+        "citrulline": { "information_state": "present_with_amount", "amount_per_serving_mg": 500, "ingredient_form": "citrulline_malate", "ingredient_ratio": "2:1" },
+        "creatine": { "information_state": "present_with_amount", "amount_per_serving_mg": 2560, "ingredient_form": "creatine_gluconate", "amount_subject": "declared_ingredient_form" }
+      },
+      "source": "https://teamwarrior.com/products/warrior-rage-pre-workout-powder",
+      "source_basis": "wspólna tabela producenta dla wariantów produktu",
+      "artifact": {
+        "path": "tmp/nutrition-next-50-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-next-50-20260914-56.json",
+        "sha256": "7463cc1faee0e7d4a5a9af1fe440bdcb35f9c9ff8ddf0d1aa0d3150b35b5fd04",
+        "fingerprint": "dc73e4c36795da8143b22c0bff760cb812b9854165ecff152221a4dc88dd2cfa"
+      }
+    },
+    {
+      "product_id": "878",
+      "product": "Trained By JP DNFM PRE 40 Servings",
+      "variant_ids": ["1363", "1364", "1365", "1367", "4080"],
+      "completeness": "COMPLETE",
+      "candidate_count": 25,
+      "serving": "2 scoops (16 g)",
+      "facts": {
+        "caffeine": { "information_state": "present_with_amount", "amount_per_serving_mg": 400 },
+        "beta_alanine": { "information_state": "present_with_amount", "amount_per_serving_mg": 3500 },
+        "citrulline": { "information_state": "present_with_amount", "amount_per_serving_mg": 6000, "ingredient_form": "l_citrulline" },
+        "creatine": { "information_state": "confirmed_absent", "amount_per_serving_mg": null }
+      },
+      "source": "https://www.tb-jp.com/products/dnfm-new-pre-workout-stim",
+      "source_basis": "wspólna tabela producenta wyraźnie ograniczona do pięciu nowych smaków",
+      "artifact": {
+        "path": "tmp/nutrition-next-50-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-next-50-20260914-878.json",
+        "sha256": "e6a366d73a45b63d07a260ffa3ef0251672687573fd0988767f1387c59ba7796",
+        "fingerprint": "1d76f6a8be4612236103e12aa7874648f1455ab868c8ea0a2cd71f52df58dec7"
+      }
+    },
+    {
+      "product_id": "880",
+      "product": "Trained By JP Pumpage Pre Workout 400g",
+      "variant_ids": ["1374", "1375", "1376"],
+      "completeness": "COMPLETE",
+      "candidate_count": 15,
+      "serving": "1 scoop (10 g)",
+      "facts": {
+        "caffeine": { "information_state": "confirmed_absent", "amount_per_serving_mg": null },
+        "beta_alanine": { "information_state": "confirmed_absent", "amount_per_serving_mg": null },
+        "citrulline": { "information_state": "present_with_amount", "amount_per_serving_mg": 3000, "ingredient_form": "l_citrulline" },
+        "creatine": { "information_state": "confirmed_absent", "amount_per_serving_mg": null }
+      },
+      "source": "https://www.tb-jp.com/products/pumpage",
+      "source_basis": "wspólna tabela producenta i pełna deklaracja składników dla produktu",
+      "artifact": {
+        "path": "tmp/nutrition-next-50-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-next-50-20260914-880.json",
+        "sha256": "62968ac4e846cd9f5ec86c97148c6217344084379b8e8abedc003d2851997398",
+        "fingerprint": "f36f538c72ae3b3fdd9989795c8405b5e060f91dad3bcc01b17580652aa406e4"
+      }
+    },
+    {
+      "product_id": "1169",
+      "product": "Cellucor C4 Original Pre-Workout Powder 30 Servings",
+      "variant_ids": ["3408", "3409", "3411", "3412", "3413", "3415", "3416", "3417", "3418"],
+      "completeness": "COMPLETE",
+      "candidate_count": 45,
+      "serving": "1 level scoop (6.8 g)",
+      "facts": {
+        "caffeine": { "information_state": "present_with_amount", "amount_per_serving_mg": 150 },
+        "beta_alanine": { "information_state": "present_with_amount", "amount_per_serving_mg": 1600 },
+        "citrulline": { "information_state": "confirmed_absent", "amount_per_serving_mg": null },
+        "creatine": { "information_state": "present_with_amount", "amount_per_serving_mg": 1500, "ingredient_form": "creatine_monohydrate", "amount_subject": "declared_ingredient_form" }
+      },
+      "source": "https://www.10reps.co.uk/product/cellucor-c4-original-pre-workout-powder-30-servings/",
+      "source_basis": "tabela składników aktywnych i pełna lista składników opublikowane przez retailera obecnego w katalogu",
+      "artifact": {
+        "path": "tmp/nutrition-next-50-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-next-50-20260914-1169.json",
+        "sha256": "3b1938d60c87d8f3d47bae16caa7d8b68f4d234254fc10a40d638e2b00a2d656",
+        "fingerprint": "44af97835da0f4c83778110caaf3a05cd6a47d7fb244ad9dc920c7d6f4610414"
+      }
+    },
+    {
+      "product_id": "1181",
+      "product": "Darkstims Pre V4 Pre-Workout 500g",
+      "variant_ids": ["3479", "3544", "3545", "3546", "3547", "3548", "3549", "3550"],
+      "completeness": "PARTIAL",
+      "candidate_count": 32,
+      "serving": "1 scoop (20 g)",
+      "facts": {
+        "caffeine": { "information_state": "conflicting_information", "candidate_created": false },
+        "beta_alanine": { "information_state": "present_with_amount", "amount_per_serving_mg": 3500 },
+        "citrulline": { "information_state": "present_with_amount", "amount_per_serving_mg": 8000, "ingredient_form": "l_citrulline" },
+        "creatine": { "information_state": "confirmed_absent", "amount_per_serving_mg": null }
+      },
+      "source": "https://www.darkstims.com/products/darkstimspre",
+      "source_basis": "wspólna tabela producenta dla wariantów produktu",
+      "unresolved": "The product page calls 250 mg caffeine anhydrous plus 150 mg di-caffeine malate a 400 mg caffeine matrix, while another manufacturer page states 362.5 mg caffeine. Compound mass is not pure caffeine yield.",
+      "artifact": {
+        "path": "tmp/nutrition-next-50-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-next-50-20260914-1181.json",
+        "sha256": "183d5b2e103b4c48b0f1d2dcc10c46074e5df49680e3a77e3276a6da68ceea23",
+        "fingerprint": "420eb821035295dc90180ea7c07d80bdcf95699a3f293068a666877d869a5a27"
+      }
+    }
+  ],
+  "blocked_scope": [
+    { "product_id": "878", "variant_ids": ["1361", "1362", "1366", "1368"], "reason": "Official table is explicitly scoped to five new flavours; the older formula is not established." },
+    { "product_id": "879", "variant_ids": ["1369", "1370", "1371", "1372", "1373"], "reason": "Manufacturer states that contents vary by flavour and the visible table does not bind each target flavour." },
+    { "product_id": "1178", "variant_ids": ["3476", "3523", "3525", "3526", "3527", "3528"], "reason": "Current manufacturer context uses different flavour identities, and current terms prohibit network-server retention/commercial reuse without written permission." },
+    { "product_id": "1275", "variant_ids": ["3755"], "reason": "Current manufacturer label is 550 g with a 27.5 g serving; catalogue target is 520 g." }
+  ],
+  "source_retention": {
+    "private_bucket": true,
+    "bucket_public": false,
+    "objects_written": 7,
+    "objects_read_back_with_matching_sha256": 7,
+    "raw_manufacturer_snapshot_archived": "Warrior only",
+    "restricted_sources": "For TBJP and Darkstims, only project-authored factual review records were archived; raw pages/images were not designated for archive because the reviewed terms prohibit scraping/copying. The 10 Reps evidence is retained as a project-authored retailer-source review."
+  },
+  "validation": {
+    "artifacts": 5,
+    "dry_runs_passed": 5,
+    "candidate_rows": 162,
+    "product_updates": 0,
+    "database_writes": 0,
+    "production_store_review_plan_apply_performed": false
+  },
+  "next_step": "One owner decision on controlled store -> authenticated review -> explicit-ID plan -> apply for the five unchanged artifacts and exactly 162 candidates."
+}
