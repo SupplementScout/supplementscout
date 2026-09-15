@@ -4864,6 +4864,41 @@ Complete evidence is
 NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified large
 preparation batch without repeating retained blockers.
 
+## NUT-03 large catalogue Batch 12 preparation
+
+15 September 2026, a fresh read-only production snapshot confirmed `575`
+active pre-workout variants and `392` with applied facts (`355` complete and
+`37` partial). Of `352` variants with a current available offer, `52` still had
+no applied fact. Batch 12 excludes every applied variant and all retained
+default-identity, access and formula-generation blocks.
+
+The closed package contains `9` exact variants and `45` pending candidate facts:
+product `778` variants `4081`, `4083`, `4085`, `4086`, `4087`; product `845`
+variant `1228`; product `880` variant `1377`; product `1278` variant `3876`;
+and product `884` variant `1415`. It extends only previously accepted exact
+families or a current manufacturer common table. All nine variants have an
+exact serving plus resolved caffeine, beta-alanine, citrulline and creatine
+states.
+
+Fresh production preflight against `aftboxmrdgyhizicfsfu` passed all `9`
+product-variant bindings and all `45` unique fingerprints. It found no matching
+candidate and an empty override for every target. All five artifacts passed
+`nutrition:candidates:store --dry-run`, with zero product or database writes.
+Five factual-review objects were stored once in private `nutrition-sources` and
+passed SHA-256 readback.
+
+The package stopped below the 50-variant ceiling because remaining current-offer
+families retain exact-generation, gram-serving, identity or dose-conflict
+blocks. In particular, Redcon1 400 g, HR Labs generations and Gorillalpha Ibiza
+Juice were not inferred across conflicting formula evidence; ambiguous default
+variants remain excluded. Complete evidence is
+[nutrition-catalog-large-next-12-preparation-2026-09-15.json](rollouts/nutrition-catalog-large-next-12-preparation-2026-09-15.json)
+(SHA-256
+`97259a3b6765a27c3ddb51ad4447df9a718cbc19f5c0ba9f1bf074012e932fd1`).
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
+controlled `store -> review -> plan -> apply` for exactly these `45` candidates
+and `9` variants, bound to the listed artifact hashes and fingerprints.
+
 ## NUT-03 large catalogue Batch 11 execution
 
 15 September 2026, the owner authorized the exact `115`-candidate preparation
