@@ -1,0 +1,277 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-large-next-09-execution-report-v1",
+  "date": "2026-09-15",
+  "status": "LIVE_VERIFIED",
+  "authorization": {
+    "scope": "store -> authenticated review -> plan -> apply",
+    "candidates": 40,
+    "variants": 8,
+    "variant_ids": [
+      "994",
+      "1980",
+      "950",
+      "951",
+      "952",
+      "1873",
+      "1874",
+      "1875"
+    ]
+  },
+  "preflight": {
+    "result": "PASS",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "target_environment": "PRODUCTION",
+    "unique_candidate_fingerprints": 40,
+    "existing_candidates": 0,
+    "empty_target_overrides": 8,
+    "database_writes": 0
+  },
+  "store": {
+    "created": 40,
+    "product_updates": 0,
+    "candidate_ids": [
+      "2342",
+      "2343",
+      "2344",
+      "2345",
+      "2346",
+      "2347",
+      "2348",
+      "2349",
+      "2350",
+      "2351",
+      "2352",
+      "2353",
+      "2354",
+      "2355",
+      "2356",
+      "2357",
+      "2358",
+      "2359",
+      "2360",
+      "2361",
+      "2362",
+      "2363",
+      "2364",
+      "2365",
+      "2366",
+      "2367",
+      "2368",
+      "2369",
+      "2370",
+      "2371",
+      "2372",
+      "2373",
+      "2374",
+      "2375",
+      "2376",
+      "2377",
+      "2378",
+      "2379",
+      "2380",
+      "2381"
+    ]
+  },
+  "review": {
+    "result": "PASS",
+    "approved": 40,
+    "already_approved": 0,
+    "reviewed_by": "admin-panel"
+  },
+  "plans": [
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-09-20260915-783-994-8fed297f5c9e.json",
+      "sha256": "35176cd0e5a63adaae2eb6a2475db4896712b8c03650ad75b84a8b4a9620b311",
+      "plan_fingerprint": "8fed297f5c9eb7a41acc1234a0a56ff81bd62ebcee4a30f4a1312d350cb5e23a",
+      "candidate_ids": [
+        "2342",
+        "2343",
+        "2344",
+        "2345",
+        "2346"
+      ],
+      "variant_ids": [
+        "994"
+      ],
+      "product_updates": 0,
+      "variant_updates": 1
+    },
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-09-20260915-783-1980-833b1487d6ff.json",
+      "sha256": "93226791431a1ca7a53186d56c52fe555ee2811391fc1ae115aa238b8e565333",
+      "plan_fingerprint": "833b1487d6ff1d67d654d4c7d8d08195bf2ec27e00c66de2c38be23f8458af01",
+      "candidate_ids": [
+        "2347",
+        "2348",
+        "2349",
+        "2350",
+        "2351"
+      ],
+      "variant_ids": [
+        "1980"
+      ],
+      "product_updates": 0,
+      "variant_updates": 1
+    },
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-09-20260915-772-f16c88d3c3ee.json",
+      "sha256": "5cfa0d60974e368f51db58c0950f927744f6163ff03e25bdb3113fdc96b0a831",
+      "plan_fingerprint": "f16c88d3c3ee59d25386dab14cc3c389bccc78ec4a2ed1c6f5e8972558e6f566",
+      "candidate_ids": [
+        "2352",
+        "2353",
+        "2354",
+        "2355",
+        "2356",
+        "2357",
+        "2358",
+        "2359",
+        "2360",
+        "2361",
+        "2362",
+        "2363",
+        "2364",
+        "2365",
+        "2366"
+      ],
+      "variant_ids": [
+        "950",
+        "951",
+        "952"
+      ],
+      "product_updates": 0,
+      "variant_updates": 3
+    },
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-09-20260915-959-03784b0c7e7a.json",
+      "sha256": "fa5b9922e7d5c09290121b81b3b9a5053e66ae85da034c2081a05cc1e1aa2499",
+      "plan_fingerprint": "03784b0c7e7a19efe8a012d74186e504efdfc431d1942979174b95ff40a37701",
+      "candidate_ids": [
+        "2367",
+        "2368",
+        "2369",
+        "2370",
+        "2371",
+        "2372",
+        "2373",
+        "2374",
+        "2375",
+        "2376",
+        "2377",
+        "2378",
+        "2379",
+        "2380",
+        "2381"
+      ],
+      "variant_ids": [
+        "1873",
+        "1874",
+        "1875"
+      ],
+      "product_updates": 0,
+      "variant_updates": 3
+    }
+  ],
+  "apply": {
+    "result": "PASS",
+    "product_updates": 0,
+    "variant_updates": 8,
+    "variant_ids": [
+      "950",
+      "951",
+      "952",
+      "994",
+      "1873",
+      "1874",
+      "1875",
+      "1980"
+    ]
+  },
+  "independent_readback": {
+    "result": "PASS",
+    "whole_override_matches": 8,
+    "approved_candidates": 40,
+    "evidence_unchanged": true,
+    "coverage": {
+      "complete": 307,
+      "partial": 37,
+      "none": 231
+    },
+    "applied_unique_variants": 344,
+    "queue_after": {
+      "approved": 2359,
+      "pending": 16,
+      "rejected": 6
+    },
+    "private_fields_not_public": true
+  },
+  "public_readback": {
+    "result": "PASS",
+    "pages": [
+      {
+        "product_id": "772",
+        "product_variant_id": "950",
+        "url": "https://www.supplementscout.co.uk/product/bucked-up-bamf-pre-workout-20-servings?variant=950"
+      },
+      {
+        "product_id": "772",
+        "product_variant_id": "951",
+        "url": "https://www.supplementscout.co.uk/product/bucked-up-bamf-pre-workout-20-servings?variant=951"
+      },
+      {
+        "product_id": "772",
+        "product_variant_id": "952",
+        "url": "https://www.supplementscout.co.uk/product/bucked-up-bamf-pre-workout-20-servings?variant=952"
+      },
+      {
+        "product_id": "783",
+        "product_variant_id": "994",
+        "url": "https://www.supplementscout.co.uk/product/raw-nutrition-essential-bum-pre-workout-30-servings?variant=994"
+      },
+      {
+        "product_id": "959",
+        "product_variant_id": "1873",
+        "url": "https://www.supplementscout.co.uk/product/black-magic-bzrk-pre-workout-25-servings?variant=1873"
+      },
+      {
+        "product_id": "959",
+        "product_variant_id": "1874",
+        "url": "https://www.supplementscout.co.uk/product/black-magic-bzrk-pre-workout-25-servings?variant=1874"
+      },
+      {
+        "product_id": "959",
+        "product_variant_id": "1875",
+        "url": "https://www.supplementscout.co.uk/product/black-magic-bzrk-pre-workout-25-servings?variant=1875"
+      },
+      {
+        "product_id": "783",
+        "product_variant_id": "1980",
+        "url": "https://www.supplementscout.co.uk/product/raw-nutrition-essential-bum-pre-workout-30-servings?variant=1980"
+      }
+    ],
+    "caffeine_free_filter": {
+      "url": "https://www.supplementscout.co.uk/search?q=pre%20workout&caffeine=free",
+      "http_200": true,
+      "target_products_visible": []
+    }
+  },
+  "replay": {
+    "result": "PASS_SAFE_REJECTION",
+    "plans_checked": 4,
+    "additional_writes": 0,
+    "reasons": [
+      "Variant 994 nutrition override changed after plan generation",
+      "Variant 1980 nutrition override changed after plan generation",
+      "Variant 950 nutrition override changed after plan generation",
+      "Variant 1873 nutrition override changed after plan generation"
+    ]
+  },
+  "controls": {
+    "nutrition_verified_unchanged": true,
+    "legacy_creatine_per_serving_g_unchanged": true,
+    "main_products_unchanged": true,
+    "other_variants_unchanged": true
+  },
+  "next_step": "Prepare another evidence-qualified large batch without repeating retained blockers."
+}

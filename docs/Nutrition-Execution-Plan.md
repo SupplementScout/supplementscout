@@ -4912,6 +4912,44 @@ controlled `store -> authenticated review -> plan -> apply` for exactly these
 40 candidates and eight variants, bound to the artifact hashes and fingerprints
 above.
 
+## NUT-03 large catalogue Batch 09 execution
+
+15 September 2026, production execution after explicit owner authorization:
+
+- Fresh read-only preflight confirmed production project
+  `aftboxmrdgyhizicfsfu`, all eight exact product-variant bindings, 40 unique
+  fingerprints, no existing matching candidates and empty target overrides.
+- Controlled store created candidate IDs `2342`-`2381` with zero product
+  updates. Authenticated admin review approved all 40 unchanged candidates.
+- Four explicit-ID plans contained zero product updates and eight variant
+  updates. Their SHA-256 / plan fingerprints are:
+  - RAW variant `994`: `35176cd0e5a63adaae2eb6a2475db4896712b8c03650ad75b84a8b4a9620b311`
+    / `8fed297f5c9eb7a41acc1234a0a56ff81bd62ebcee4a30f4a1312d350cb5e23a`;
+  - RAW variant `1980`: `93226791431a1ca7a53186d56c52fe555ee2811391fc1ae115aa238b8e565333`
+    / `833b1487d6ff1d67d654d4c7d8d08195bf2ec27e00c66de2c38be23f8458af01`;
+  - BAMF variants `950`-`952`: `5cfa0d60974e368f51db58c0950f927744f6163ff03e25bdb3113fdc96b0a831`
+    / `f16c88d3c3ee59d25386dab14cc3c389bccc78ec4a2ed1c6f5e8972558e6f566`;
+  - BZRK variants `1873`-`1875`: `fa5b9922e7d5c09290121b81b3b9a5053e66ae85da034c2081a05cc1e1aa2499`
+    / `03784b0c7e7a19efe8a012d74186e504efdfc431d1942979174b95ff40a37701`.
+- Guarded apply changed only `nutrition_override` for variants `994`, `1980`,
+  `950`, `951`, `952`, `1873`, `1874`, and `1875`. Independent readback
+  matched all whole overrides and all 40 approved candidates to their immutable
+  evidence. Products, `nutrition_verified`, legacy creatine values and other
+  variants were not changed.
+- Applied coverage is now `344` unique variants: `307` complete, `37` partial
+  and `231` without applied facts. Public readback passed for all eight exact
+  variant pages; private evidence remained hidden and none of these
+  caffeine-containing variants appeared in the caffeine-free filter.
+- Replay of all four plans was safely rejected because their sealed `before`
+  states were stale after apply. It produced zero additional writes.
+
+Complete evidence is
+[nutrition-catalog-large-next-09-execution-2026-09-15.json](rollouts/nutrition-catalog-large-next-09-execution-2026-09-15.json)
+(SHA-256
+`63c86b051301009a801e2f318d410bd71ecae0c9b903410d08d4d0890e4573cb`).
+NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified large
+preparation batch without repeating retained blockers.
+
 ## NUT-03 large catalogue Batch 07 preparation
 
 Batch 07 continues the large-package workflow without reopening retained
