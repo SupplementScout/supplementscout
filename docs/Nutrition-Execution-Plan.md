@@ -4794,3 +4794,42 @@ Complete evidence is
 SHA-256 `d3183bbdcfabad256fcfb4a41378ed28222a26ff68a3716f80e9e2f2820998d3`.
 NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified
 multi-family preparation batch without repeating retained blockers.
+
+## NUT-03 large catalogue Batch 06 preparation
+
+15 September 2026, preparation only:
+
+- Fresh production readback confirmed 575 active pre-workout variants and 305
+  with applied facts: 251 complete, 54 partial and 270 without applied facts.
+- The closed package enriches 24 already-applied exact variants across three
+  families. Yeti Juice product `1280` contributes 16 caffeine facts, Mutant
+  Madness product `489` contributes seven citrulline facts, and NOVA product
+  `1284` contributes one caffeine fact. Every proposal uses
+  `present_amount_not_disclosed`; no compound or blend mass is represented as
+  pure caffeine or as the mass of citrulline alone.
+- Three immutable artifacts contain 24 PENDING candidates. All store dry-runs
+  passed with 24 rows, zero product updates and zero database writes. Read-only
+  production preflight confirmed 24 exact bindings, 24 unique fingerprints and
+  no matching candidates.
+- Three factual reviews were stored once in private `nutrition-sources` and
+  passed SHA-256 readback. The package contains no production candidate,
+  review, plan or catalogue write.
+- The batch stopped at 24 variants because the next retained families require
+  an exact generation/serving decision, a declared active-caffeine yield or a
+  model capable of preserving multiple creatine forms. Mutant creatine remains
+  unresolved; that gap does not invalidate its supported citrulline-presence
+  proposal.
+
+Artifact SHA-256 / fingerprint pairs are: product `1280`
+`c296e9a822720bab00cb26aa10b929431d6ed41a171c13003d6e81376ad95d21` /
+`054c3d034d50a2f15972f410e1d75c21d61375468ffad711e9fc11d612e25881`;
+product `489` `36ef08092595903e50327aa2602352ef29dcbcee83e29f832754fca63b9bbd09` /
+`605ebc1001edeafa96db94b49d62b0c892fcf89a8fcc07510660084d3427ccf4`;
+and product `1284`
+`bf9953bc43a18ec4f46c0e8cc75b7f283d1a09c78e663eac9e2935e8cf7876a0` /
+`5fffed83583d8624521689318f57b392f1a882e7ef5045627f7cdf1dc15c8b0b`.
+Complete evidence is
+[nutrition-catalog-large-next-06-preparation-2026-09-15.json](rollouts/nutrition-catalog-large-next-06-preparation-2026-09-15.json).
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
+store -> authenticated review -> explicit-ID plans -> guarded apply of exactly
+these three unchanged artifacts and 24 fingerprints.
