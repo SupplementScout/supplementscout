@@ -1,0 +1,466 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-large-next-11-preparation-report-v1",
+  "date": "2026-09-15",
+  "status": "READY_FOR_OWNER_DECISION",
+  "production": {
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "candidate_store_review_plan_apply_writes": 0,
+    "catalogue_writes": 0
+  },
+  "checkpoint": {
+    "active_preworkout_variants": 575,
+    "applied_unique_variants": 369,
+    "complete": 332,
+    "partial": 37,
+    "no_applied_facts": 206
+  },
+  "scope": {
+    "families": 4,
+    "artifacts": 4,
+    "variants": 23,
+    "candidate_facts": 115,
+    "fully_resolved_four_ingredients": 23,
+    "partial_four_ingredients": 0,
+    "variant_ids": [
+      "1586",
+      "1587",
+      "1588",
+      "1589",
+      "1590",
+      "1591",
+      "1592",
+      "1593",
+      "3275",
+      "3410",
+      "3414",
+      "3419",
+      "3438",
+      "3439",
+      "3440",
+      "3441",
+      "3442",
+      "3443",
+      "3446",
+      "3448",
+      "1421",
+      "1422",
+      "2700"
+    ]
+  },
+  "families": [
+    {
+      "product_id": "27",
+      "artifact_key": "27",
+      "product": "Cellucor C4 Original 195g",
+      "variant_ids": [
+        "1586",
+        "1587",
+        "1588",
+        "1589",
+        "1590",
+        "1591",
+        "1592",
+        "1593"
+      ],
+      "candidate_count": 40,
+      "artifact": {
+        "path": "tmp/nutrition-catalog-large-next-11-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-11-20260915-27.json",
+        "sha256": "a92b6b890b4221697cbdc4ccce6648968671f864fd1cd456994cefcc85739320",
+        "fingerprint": "7deb83d715b4c0cb4ea37d15dac0e6839f6a1793b8e1e04d626db109494f7467"
+      },
+      "unresolved": [],
+      "source": {
+        "type": "retailer_product_page",
+        "url": "https://www.dolphinfitness.co.uk/en/cellucor-c4-original-60-servings/158666/pink-lemonade",
+        "assignment_basis": "Retailer presents the 195 g / 30-serving and 408 g / 60-serving generations separately, with one common active table for the listed C4 Original flavour family. This group uses only the 195 g, 6.5 g serving generation.",
+        "context": [
+          "Exact 195 g / 30-serving generation",
+          "Common retailer page lists the flavour family and identifies the table as based on Fruit Punch",
+          "No separate tracked-dose table is shown for another listed flavour"
+        ]
+      },
+      "proposed_facts": [
+        {
+          "field": "serving_size_g",
+          "value": 6.5,
+          "unit": "g",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 6.5,
+          "source_unit": "g",
+          "evidence": "Container 195 g; serving size 1 scoop (6.5 g); 30 servings"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 150,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 150,
+          "source_unit": "mg",
+          "evidence": "Caffeine 150 mg per 6.5 g serving"
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 1600,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 1600,
+          "source_unit": "mg",
+          "evidence": "CarnoSyn Beta-Alanine 1600 mg per serving"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "confirmed_absent",
+          "ratio": null,
+          "source_value": null,
+          "source_unit": null,
+          "evidence": "Complete declared active table and ingredients contain no citrulline form or undisclosed active blend"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": 1500,
+          "unit": "mg",
+          "form": "creatine_monohydrate",
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 1500,
+          "source_unit": "mg",
+          "evidence": "Creatine Monohydrate 1500 mg per serving"
+        }
+      ],
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 40,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "1169",
+      "artifact_key": "1169",
+      "product": "Cellucor C4 Original Pre-Workout Powder 30 Servings",
+      "variant_ids": [
+        "3275",
+        "3410",
+        "3414",
+        "3419"
+      ],
+      "candidate_count": 20,
+      "artifact": {
+        "path": "tmp/nutrition-catalog-large-next-11-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-11-20260915-1169.json",
+        "sha256": "42ea7a3a9b7dc2f0bdfca47bfff22c26cf336fd17df880c9ad793888cf66dfbe",
+        "fingerprint": "bbf18511dc9d5f9c8d7afaa92568e2338347327a1f50b5cae5d7f7930172648d"
+      },
+      "unresolved": [],
+      "source": {
+        "type": "retailer_product_page",
+        "url": "https://www.dolphinfitness.co.uk/en/cellucor-c4-original-60-servings/158666/pink-lemonade",
+        "assignment_basis": "The catalogue 30-serving family matches the retailer's 195 g / 30-serving generation and common C4 Original table.",
+        "context": [
+          "Exact 195 g / 30-serving generation",
+          "Only previously unprocessed exact flavours are selected",
+          "No separate tracked-dose table is shown for another listed flavour"
+        ]
+      },
+      "proposed_facts": [
+        {
+          "field": "serving_size_g",
+          "value": 6.5,
+          "unit": "g",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 6.5,
+          "source_unit": "g",
+          "evidence": "Container 195 g; serving size 1 scoop (6.5 g); 30 servings"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 150,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 150,
+          "source_unit": "mg",
+          "evidence": "Caffeine 150 mg per 6.5 g serving"
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 1600,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 1600,
+          "source_unit": "mg",
+          "evidence": "CarnoSyn Beta-Alanine 1600 mg per serving"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "confirmed_absent",
+          "ratio": null,
+          "source_value": null,
+          "source_unit": null,
+          "evidence": "Complete declared active table and ingredients contain no citrulline form or undisclosed active blend"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": 1500,
+          "unit": "mg",
+          "form": "creatine_monohydrate",
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 1500,
+          "source_unit": "mg",
+          "evidence": "Creatine Monohydrate 1500 mg per serving"
+        }
+      ],
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 20,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "1171",
+      "artifact_key": "1171",
+      "product": "Cellucor C4 Original Pre-Workout Powder 60 Servings",
+      "variant_ids": [
+        "3438",
+        "3439",
+        "3440",
+        "3441",
+        "3442",
+        "3443",
+        "3446",
+        "3448"
+      ],
+      "candidate_count": 40,
+      "artifact": {
+        "path": "tmp/nutrition-catalog-large-next-11-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-11-20260915-1171.json",
+        "sha256": "a3f4890869d4a09dfef7ce35b3c5f02e46d143a4d7731ba58c6102b4aeae8449",
+        "fingerprint": "eb202cb7b734bf99f1e5d6a83c6aceead6209d27fc0d02eb8eeb78e66455c2c9"
+      },
+      "unresolved": [],
+      "source": {
+        "type": "retailer_product_page",
+        "url": "https://www.dolphinfitness.co.uk/en/cellucor-c4-original-60-servings/158666/pink-lemonade",
+        "assignment_basis": "The catalogue 60-serving family matches the retailer's 408 g / 60-serving generation and common C4 Original table. This group uses only the 6.8 g serving generation.",
+        "context": [
+          "Exact 408 g / 60-serving generation",
+          "Only previously unprocessed exact flavours are selected",
+          "No separate tracked-dose table is shown for another listed flavour"
+        ]
+      },
+      "proposed_facts": [
+        {
+          "field": "serving_size_g",
+          "value": 6.8,
+          "unit": "g",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 6.8,
+          "source_unit": "g",
+          "evidence": "Container 408 g; serving size 1 scoop (6.8 g); 60 servings"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 150,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 150,
+          "source_unit": "mg",
+          "evidence": "Caffeine 150 mg per 6.8 g serving"
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 1600,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 1600,
+          "source_unit": "mg",
+          "evidence": "CarnoSyn Beta-Alanine 1600 mg per serving"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "confirmed_absent",
+          "ratio": null,
+          "source_value": null,
+          "source_unit": null,
+          "evidence": "Complete declared active table and ingredients contain no citrulline form or undisclosed active blend"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": 1500,
+          "unit": "mg",
+          "form": "creatine_monohydrate",
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 1500,
+          "source_unit": "mg",
+          "evidence": "Creatine Monohydrate 1500 mg per serving"
+        }
+      ],
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 40,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "885",
+      "artifact_key": "885",
+      "product": "Innovapharm MVPRE 3.0 Pre Workout 437g",
+      "variant_ids": [
+        "1421",
+        "1422",
+        "2700"
+      ],
+      "candidate_count": 15,
+      "artifact": {
+        "path": "tmp/nutrition-catalog-large-next-11-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-11-20260915-885.json",
+        "sha256": "f861d5b57f9ea281fbb4e427c848723f5d62608b65995e678548132090f87f86",
+        "fingerprint": "666051cf5cb3d04eedc051a5285b78d39b7313aa83439de19c5fe5c1f3b54815"
+      },
+      "unresolved": [],
+      "source": {
+        "type": "retailer_product_page",
+        "url": "https://supplementcontainer.com/products/innovapharm-mvpre-3-0-437g",
+        "assignment_basis": "Exact 437 g retailer label is based on Rainbow Rock Candy; retained manufacturer context groups the remaining three catalogue flavours in the same MVPre 3.0 generation.",
+        "context": [
+          "Exact 437 g retailer generation",
+          "Same retained common-recipe evidence previously accepted for variants 1419 and 1420",
+          "No source indicates tracked-dose differences for Rocket Pop, Sweet Apple Punch or Watermelon Lemonade"
+        ]
+      },
+      "proposed_facts": [
+        {
+          "field": "serving_size_g",
+          "value": 21.6,
+          "unit": "g",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 21.6,
+          "source_unit": "g",
+          "evidence": "Serving size 1 scoop (21.6 g)"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 350,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 350,
+          "source_unit": "mg",
+          "evidence": "Caffeine Anhydrous 350 mg per full serving"
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 3200,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 3.2,
+          "source_unit": "g",
+          "evidence": "Beta-Alanine 3.20 g per full serving"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 10000,
+          "unit": "mg",
+          "form": "l_citrulline",
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 10,
+          "source_unit": "g",
+          "evidence": "L-Citrulline 10 g per full serving"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "confirmed_absent",
+          "ratio": null,
+          "source_value": null,
+          "source_unit": null,
+          "evidence": "Complete formula ingredients contain no creatine form or undisclosed blend"
+        }
+      ],
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 15,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    }
+  ],
+  "archive": {
+    "bucket": "nutrition-sources",
+    "private": true,
+    "readback": "PASS",
+    "items": [
+      {
+        "id": "product-27-source-review.json",
+        "action": "reused",
+        "sha256": "729f02e7e41f73407baa45f70a2a81e4ae015c48cdb5f9c927f0525bd21308b7"
+      },
+      {
+        "id": "product-1169-source-review.json",
+        "action": "reused",
+        "sha256": "7d793fb840b493a582801158d833094f99559bd03dd82d897db1858c60def522"
+      },
+      {
+        "id": "product-1171-source-review.json",
+        "action": "reused",
+        "sha256": "81745a541226bf9d307f25e554989dc91bbea785bd53a8f1fbf9e13223d05612"
+      },
+      {
+        "id": "product-885-source-review.json",
+        "action": "reused",
+        "sha256": "e31742cfdc0453cf5b060fb5d2797f02f88800752f3d8dae7d597bfa7d96246f"
+      }
+    ]
+  },
+  "unresolved": [],
+  "controls": {
+    "production_preflight": "PASS",
+    "unique_candidate_fingerprints": 115,
+    "existing_candidates": 0,
+    "dry_runs": "4/4 PASS",
+    "source_readback": "4/4 SHA-256 MATCH",
+    "production_writes": 0
+  },
+  "batch_limit": {
+    "requested_max_variants": 50,
+    "prepared_variants": 23,
+    "reason_for_stopping": "The remaining high-volume families require a new exact generation, serving-mass or identity proof. Redcon1 400 g and HR Labs generations were not inferred from conflicting or incomplete current materials, and default variants remain excluded."
+  },
+  "next_step": "One owner decision authorizing controlled store -> authenticated review -> plan -> apply for exactly these 115 candidates and 23 variants, bound to the listed artifact hashes and fingerprints."
+}

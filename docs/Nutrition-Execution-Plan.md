@@ -4864,6 +4864,45 @@ Complete evidence is
 NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified large
 preparation batch without repeating retained blockers.
 
+## NUT-03 large catalogue Batch 11 preparation
+
+15 September 2026, one closed owner-decision package was prepared after the
+live-verified Batch 10 checkpoint of `369` applied unique variants (`332`
+complete, `37` partial and `206` without applied facts). The new scope excludes
+all applied variants, ambiguous default variants and retained access, identity,
+pack-size and formula-generation blocks.
+
+The package contains `23` exact variants and `115` pending candidate facts:
+product `27` variants `1586`-`1593`; product `1169` variants `3275`, `3410`,
+`3414`, `3419`; product `1171` variants `3438`-`3443`, `3446`, `3448`; and
+product `885` variants `1421`, `1422`, `2700`. The two Cellucor generations are
+kept separate: the 195 g / 30-serving rows use a 6.5 g scoop, while the 408 g /
+60-serving rows use a 6.8 g scoop. Both retain the declared 150 mg caffeine,
+1600 mg beta-alanine and 1500 mg creatine-monohydrate mass; complete declared
+ingredients support confirmed citrulline absence. The remaining MVPre 3.0
+variants retain the accepted 437 g common-recipe evidence and its 21.6 g scoop,
+350 mg caffeine, 3200 mg beta-alanine, 10000 mg free L-citrulline and confirmed
+creatine absence.
+
+Fresh production preflight against `aftboxmrdgyhizicfsfu` passed for all `23`
+product-variant bindings and all `115` unique fingerprints. It found no matching
+candidate and an empty target override for every variant. All four artifacts
+passed `nutrition:candidates:store --dry-run`, with zero product or database
+writes. Four factual-review objects were stored once in the private
+`nutrition-sources` bucket and passed independent SHA-256 readback.
+
+The organisational target remained up to `50` variants. Preparation stopped at
+`23` because the remaining high-volume Redcon1 and HR Labs families still lack
+a non-conflicting exact generation and gram-serving proof, while ambiguous
+default variants remain excluded. Complete preparation evidence is
+[nutrition-catalog-large-next-11-preparation-2026-09-15.json](rollouts/nutrition-catalog-large-next-11-preparation-2026-09-15.json)
+(SHA-256
+`197b9b4a7ace44876de04272259ffb626c164328cf80e2e0961d502303316a54`).
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
+controlled `store -> review -> plan -> apply` for exactly these `115`
+candidates and `23` variants, bound to the artifact hashes and fingerprints in
+the preparation report.
+
 ## NUT-03 large catalogue Batch 10 preparation
 
 On 15 September 2026 a fresh production read confirmed `575` active pre-workout
