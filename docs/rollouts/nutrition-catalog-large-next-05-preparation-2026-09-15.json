@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-large-next-05-preparation-v1",
+  "status": "READY_FOR_ONE_OWNER_DECISION",
+  "prepared_at": "2026-09-15T05:37:12.838Z",
+  "mode": "PREPARATION_ONLY",
+  "production_checkpoint": {
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "active_preworkout_variants": 575,
+    "applied_variants": 296,
+    "available_variants": 406,
+    "available_complete": 236,
+    "available_partial": 52,
+    "available_without_facts": 118
+  },
+  "scope": {
+    "organizational_limit_variants": 50,
+    "families": 4,
+    "ready_variants": 9,
+    "complete_variants_after_apply": 7,
+    "partial_variants_after_apply": 2,
+    "candidate_facts": 41,
+    "unique_candidate_fingerprints": 41
+  },
+  "families": [
+    {
+      "product_id":"884",
+      "variant_ids":["1414","1416","1417","1418"],
+      "facts_per_variant":{"serving_size_g":20,"caffeine_mg":600,"beta_alanine_mg":3500,"citrulline":{"form":"l_citrulline","mg":8000},"creatine":"confirmed_absent"},
+      "source":"https://proteinmafia.com/product/gas-mark-10-no-games-high-stim-only-preworkout-3/",
+      "manufacturer_context":"https://www.gasmark10.com/products/stim-pump-copy",
+      "artifact":{"path":"tmp/nutrition-catalog-large-next-05-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-05-20260915-884.json","sha256":"2da1d522a59724ecee9ca8795fb718cac6a3cc0a3d072f18ddf38e5c83794706","fingerprint":"092453178a8dd91332d19b107e23f8568062877a63608621ce8f29a5dc2c3003"},
+      "source_review_sha256":"e14d257caee726dd04ef5b1eaf5f21f438a7319832aa8dda8f525d9572e814da"
+    },
+    {
+      "product_id":"1281",
+      "variant_ids":["3761","3916"],
+      "facts_per_variant":{"serving_size_g":18,"serving_basis":"2 scoops","caffeine_mg":400,"beta_alanine_mg":3200,"citrulline":"confirmed_absent","creatine":"confirmed_absent"},
+      "source":"https://www.liftupsupplements.com/products/murdered-out-shook-450g",
+      "artifact":{"path":"tmp/nutrition-catalog-large-next-05-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-05-20260915-1281.json","sha256":"67ce0cdfbb070c4b1dd32704a6e2acd3be0bb7f18e2cb245dae4e6da4bbd6d98","fingerprint":"e6c1130d2e489a8981f02773f933e713ea41429e618aeec1c2872bd6ecec7dbe"},
+      "source_review_sha256":"ae28e5cdf14875f409ef6cb053b85b8b4fd98ac31dbd3c005efb51c2ea4d8aa6"
+    },
+    {
+      "product_id":"19",
+      "variant_ids":["1579"],
+      "facts_per_variant":{"serving_size_g":19,"serving_basis":"2 heaping scoops","caffeine_total_mg":372,"beta_alanine_mg":5500,"citrulline":{"form":"citrulline_malate","ratio":"2:1","declared_compound_mg":5985,"separately_declared_l_citrulline_yield_mg":4085},"creatine":"confirmed_absent"},
+      "source":"https://vikingsupplements.eu/product/blood-and-guts-pear-kiwi-380g/",
+      "caffeine_basis":"350 mg anhydrous plus 13 mg from green tea plus 9 mg from guarana",
+      "artifact":{"path":"tmp/nutrition-catalog-large-next-05-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-05-20260915-19.json","sha256":"7a95b810d7ca98928d4b4ceb25e71d7681e671725377023756c3873b388ee4f6","fingerprint":"0d496c099d477928e58fbc0756417e14b880903a257b331978933028e611c466"},
+      "source_review_sha256":"289e7183e2611af0f648a3230f53d72930dc965cd6896271776c00b0ca0f6f94"
+    },
+    {
+      "product_id":"893",
+      "variant_ids":["1473","1474"],
+      "facts_per_variant":{"caffeine":"confirmed_absent","beta_alanine":"confirmed_absent","creatine":"confirmed_absent"},
+      "unresolved":{"serving_size_g":"conflict between 13.8 g and 16 g","citrulline":"4000 mg is shown but cannot be attached to one undisputed gram-defined serving"},
+      "source":"https://jonssupplements.co.uk/products/conteh-sports-essentials-the-pump-414g",
+      "artifact":{"path":"tmp/nutrition-catalog-large-next-05-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-05-20260915-893.json","sha256":"a99ad5377f9139c667e165a672ab2a354d72d6a7acf31e23600e8e0ff18a4ac0","fingerprint":"771f77a93c7c1e17b4ec3ade3c9c89925feecaaf84409c204b2d32a5852458dd"},
+      "source_review_sha256":"a519a9c05ed3d76244c9e717a65d1d6af20b73047591c8284e6b8327c971324b"
+    }
+  ],
+  "validation":{"result":"PASS","dry_runs_passed":4,"candidate_rows":41,"product_updates":0,"database_writes":0,"production_preflight":{"result":"PASS","variants":9,"unique_fingerprints":41,"existing_candidates":0,"empty_target_overrides":9,"database_writes":0}},
+  "archive":{"bucket":"nutrition-sources","private":true,"final_objects":4,"hash_readback":"PASS"},
+  "retained_blockers":[
+    "Darkstims V4: conflicting 400 mg and 362.5 mg caffeine declarations.",
+    "TBJP PrePare Pro: current serving basis conflicts with retained 400 g material and manufacturer says nutrition varies by flavour.",
+    "Pharma Grade PRE 380 g: conflicting 14 g, 19 g and 20 g formula generations.",
+    "NXT TNT Nuclear 240 g: current official table is for a different 420 g generation.",
+    "Cellucor C4 Original 195 g and Redcon1 Total War 400 g retain earlier generation conflicts."
+  ],
+  "controls":{"production_candidate_writes":0,"review_writes":0,"plan_writes":0,"catalogue_writes":0,"source_archive_writes":4,"code_changes":0,"schema_changes":0},
+  "next_step":"One owner decision may authorize controlled store -> authenticated review -> explicit-ID plans -> guarded apply of exactly 41 candidates in these four unchanged artifacts for the nine listed variants."
+}

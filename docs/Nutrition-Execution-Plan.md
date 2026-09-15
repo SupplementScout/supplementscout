@@ -4356,6 +4356,50 @@ SHA-256 `25bb8f05ed37466d20425b5b6815eb8ddb2a4545d5afa63c50e030768a535c3c`.
 NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified
 multi-family preparation batch without repeating retained conflicts.
 
+## NUT-03 large catalogue preparation after 296 applied variants
+
+15 September 2026, preparation only:
+
+- Fresh production readback confirmed 575 active pre-workout variants and 296
+  with applied facts. Among 406 variants with a current available offer, 236
+  are complete, 52 partial and 118 have no applied facts.
+- The next package contains 41 PENDING candidates for nine exact variants in
+  four families: Gas Mark 10 No Games product `884` variants `1414`, `1416`,
+  `1417`, `1418`; Murdered Out SHOOK product `1281` variants `3761`, `3916`;
+  Dorian Yates Blood & Guts product `19` variant `1579`; and Conteh Sports The
+  Pump product `893` variants `1473`, `1474`.
+- Seven variants have five proposed facts and would become complete. The two
+  Conteh variants have only the independently supported absence facts for
+  caffeine, beta-alanine and creatine. Their serving size and quantified
+  citrulline remain excluded because exact-pack sources conflict between 13.8 g
+  and 16 g serving bases.
+- All four existing store dry-runs passed: 41 rows, zero product updates and
+  zero database writes. Production preflight confirmed nine exact bindings, 41
+  unique fingerprints, empty target overrides and no matching candidates. Four
+  factual reviews were archived privately and downloaded with matching hashes.
+- The batch stopped below 50 variants because further current-offer families
+  retain documented formula-generation, pack, serving or flavour-context
+  conflicts. Those values were not guessed.
+
+Artifact SHA-256 / fingerprint pairs are: product `884`
+`2da1d522a59724ecee9ca8795fb718cac6a3cc0a3d072f18ddf38e5c83794706` /
+`092453178a8dd91332d19b107e23f8568062877a63608621ce8f29a5dc2c3003`;
+product `1281`
+`67ce0cdfbb070c4b1dd32704a6e2acd3be0bb7f18e2cb245dae4e6da4bbd6d98` /
+`e6c1130d2e489a8981f02773f933e713ea41429e618aeec1c2872bd6ecec7dbe`;
+product `19`
+`7a95b810d7ca98928d4b4ceb25e71d7681e671725377023756c3873b388ee4f6` /
+`0d496c099d477928e58fbc0756417e14b880903a257b331978933028e611c466`;
+and product `893`
+`a99ad5377f9139c667e165a672ab2a354d72d6a7acf31e23600e8e0ff18a4ac0` /
+`771f77a93c7c1e17b4ec3ade3c9c89925feecaaf84409c204b2d32a5852458dd`.
+Complete evidence is
+[nutrition-catalog-large-next-05-preparation-2026-09-15.json](rollouts/nutrition-catalog-large-next-05-preparation-2026-09-15.json),
+SHA-256 `b5d25035fa6cc8c427444d83aea048e02252866d040a23cf1edcb996f60545ea`.
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
+store -> authenticated review -> explicit-ID plans -> guarded apply of exactly
+these 41 unchanged candidates for the nine listed variants.
+
 ## NUT-03 large catalogue batch 03 execution
 
 14 September 2026, production execution after explicit owner authorization:
