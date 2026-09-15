@@ -4975,3 +4975,33 @@ Complete preparation evidence is
 `fb21f0da2a006db6f1bd92f991c7171fe5b124e9b01b2be423a595d75c5efe1e`).
 NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
 `store -> review -> plan -> apply` of these exact `75` candidates.
+
+## NUT-03 large catalogue Batch 08 execution
+
+15 September 2026, production execution after explicit owner authorization:
+
+- The first read-only preflight correctly exposed three preserved but excluded
+  working artifacts in the directory and stopped before writing. The scoped
+  preflight was then bound to the four-item authorized package index and passed
+  with `15` variants, `75` unique fingerprints, no existing candidates and `15`
+  empty target overrides.
+- Controlled store created candidates `2267`-`2341`; authenticated review
+  approved all `75` unchanged rows. Four explicit-ID plans contained zero
+  product updates and `15` variant updates.
+- Guarded apply changed only the planned facts in variants `3260`, `3261`,
+  `3262`, `3264`, `3265`, `3266`, `3268`, `358`, `1045`, `953`, `954`, `955`,
+  `1976`, `3718`, and `3719`.
+- Independent readback matched all whole overrides to the sealed `after` values
+  and confirmed unchanged evidence. Applied coverage is now `336` unique
+  variants: `299` complete, `37` partial and `239` without applied facts.
+- Public readback passed for `15/15` exact variant pages. No private evidence is
+  exposed and no target is incorrectly present in the caffeine-free filter.
+  Replay of all four plans was safely rejected on stale `before`, with zero
+  additional writes.
+
+Complete evidence is
+[nutrition-catalog-large-next-08-execution-2026-09-15.json](rollouts/nutrition-catalog-large-next-08-execution-2026-09-15.json)
+(SHA-256
+`2d2712d0dd001bc1e7e12edc3b52700628976806e9a7da90432ae2735140b1b2`).
+NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified large
+preparation batch without repeating retained blockers.
