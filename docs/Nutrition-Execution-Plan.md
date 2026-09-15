@@ -4864,6 +4864,46 @@ Complete evidence is
 NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified large
 preparation batch without repeating retained blockers.
 
+## NUT-03 large catalogue Batch 13 execution
+
+15 September 2026, the owner authorized the exact `33`-candidate Batch 13
+package for production `store -> authenticated review -> plan -> apply`.
+
+- Fresh preflight confirmed production project `aftboxmrdgyhizicfsfu`, all
+  seven product-variant bindings, `33` unique fingerprints, no matching
+  candidate and an empty target override for every variant.
+- Controlled store created candidates `2667`-`2699` and updated no product.
+  Authenticated review approved all `33` unchanged records.
+- Four explicit-ID plans contained zero blockers, zero product updates and
+  exactly seven variant updates. Plan SHA-256 / fingerprints are: product `26`
+  `40e31fcc92367ba5f7cd9d65bacce2a7d3e949ceabe9fdbf744d6133c30e15b1` /
+  `5c945b914fe23ddd06accba87786a029387de52f4aa82cb957e07c21948cbd0e`;
+  product `63`
+  `7712f334806157256005217367aeb31ed6eaddcfe7be286188c187f9b890b354` /
+  `f2b6d59250a68e16a7f99e4c9d54f2351a707e12efd5a78bb9329f302831a7ea`;
+  product `61`
+  `824c9cff51456455ba8070de61d83447beb5681a1f074b6cbe12f0c17da99616` /
+  `4baba246014cb1cca022d98b86b2e2d07dc95b1cc97386d6fcd44302fabc7ee4`;
+  and product `451`
+  `f7be4f2a0a1e1261934611d07912eadec8b0e9ccee303d4a61710ab43168fd56` /
+  `b7fcb8e60eb457b09123d962d64d77d61ba419094ae36bfc9be234b0f517137a`.
+- Guarded apply changed only `nutrition_override` for variants `1026`, `1732`,
+  `1032`, `1619`, `1051`, `1615` and `1789`. A new read-only connection
+  matched every whole override to its sealed `after`, confirmed all approvals
+  and unchanged evidence, and found `408` applied variants: `369` complete,
+  `39` partial and `167` without facts.
+- Public readback passed for all seven exact variant pages. The caffeine-free
+  filter includes the PEScience family with applied `confirmed_absent` caffeine
+  and excludes the other target families. Replay of all four plans was safely
+  rejected on stale `before`, with zero additional writes.
+
+Complete evidence is
+[nutrition-catalog-large-next-13-execution-2026-09-15.json](rollouts/nutrition-catalog-large-next-13-execution-2026-09-15.json)
+(SHA-256
+`4796fcf7592632e479abaeccb467fd6eeea7272ae9181dde70c9f1ca75847a06`).
+NUT-03 remains `IN PROGRESS`. One next step is another large preparation batch
+excluding all `408` applied variants and retained blockers.
+
 ## NUT-03 large catalogue Batch 13 preparation
 
 15 September 2026, a fresh production read confirmed `575` active pre-workout
