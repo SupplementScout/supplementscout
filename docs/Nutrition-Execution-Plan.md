@@ -4864,6 +4864,38 @@ Complete evidence is
 NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified large
 preparation batch without repeating retained blockers.
 
+## NUT-03 large catalogue Batch 15 execution
+
+15 September 2026, production execution after explicit owner authorization:
+
+- Fresh read-only preflight confirmed the production target, all `20` exact
+  product-variant bindings, `99` unique candidate fingerprints, no matching
+  existing candidates and empty target overrides.
+- Controlled store created candidates `2705`-`2803`. Authenticated review
+  approved all `99` unchanged candidates. Eleven explicit-ID plans contained
+  zero product updates and exactly `20` variant updates.
+- Guarded apply changed only `nutrition_override` for variants `1672`-`1675`,
+  `2454`-`2456`, `1896`-`1899`, `1919`, `1920`, `1055`, `426`, `152`, `246`,
+  `551`, `45`, and `2234`. Products, `nutrition_verified`, legacy creatine
+  values and every other variant remained unchanged.
+- Independent readback matched all `20` whole overrides to their sealed
+  `after` values and all `99` approved candidates to unchanged evidence.
+  Applied coverage is now `429` unique variants: `389` complete, `40` partial
+  and `146` without applied facts.
+- Public readback passed for all `20` exact variant pages. The caffeine-free
+  filter passed with current offer availability and grouping applied; private
+  archive locations and reviewer metadata were not exposed.
+- Replay of all eleven plans was safely rejected because their sealed `before`
+  states were stale after apply. It produced zero additional writes.
+
+The eleven plan SHA-256 / fingerprint pairs are recorded in the execution
+report. Complete evidence is
+[nutrition-catalog-large-next-15-execution-2026-09-15.json](rollouts/nutrition-catalog-large-next-15-execution-2026-09-15.json)
+(SHA-256
+`87f3f50dee5276212b7224b7d0b9b59d8acc9a5fef5883f5efb83a068bca16d9`).
+NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified large
+preparation batch without reopening retained blockers.
+
 ## NUT-03 large catalogue Batch 14 preparation
 
 15 September 2026, a fresh production read confirmed `575` active pre-workout
