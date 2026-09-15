@@ -4400,6 +4400,41 @@ NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
 store -> authenticated review -> explicit-ID plans -> guarded apply of exactly
 these 41 unchanged candidates for the nine listed variants.
 
+## NUT-03 large catalogue execution after 296 applied variants
+
+15 September 2026, production execution after explicit owner authorization:
+
+- Controlled store created 41 candidates, IDs `2122`-`2162`, for nine exact
+  variants across products `884`, `1281`, `19` and `893`. Authenticated review
+  approved the unchanged set.
+- Four explicit-ID plans contained zero product updates and nine variant
+  updates. Their SHA-256 / fingerprint pairs are: product `884`
+  `134043352334074432e397a64b4f5e315122b9f31cfe61b8f7a4ba7272308e7a` /
+  `432c8cc359e9fac06b723d85dfb0c33a4ebed697eeb3ed5ecc722d8954dda7c1`;
+  product `1281`
+  `529781582e07d76babb04b69b2aafcd8c411528095b20bf84a6f39d9de463835` /
+  `e2a9ac14e903c5748a84ec8c6dc73c5abc499d8d7da96bc99e5fc0a0beaab781`;
+  product `19`
+  `4a0540392c7b2a3347bbfbfd3bdf80e185c5fad61d01f18b0768b6fb685e8636` /
+  `c8dacbf3933ecf90405352dbbdba4cd2ba6dfcf366b682b269567847f11644da`;
+  and product `893`
+  `0468c08a0a1addfd0d21d48433623f16f63a17c904ead3eeae4e512774352dd2` /
+  `972664047e5ff4622f4f3b57ec197d847d3e5a587c92dfea980a3ad222131743`.
+- Guarded apply changed only the nine planned `nutrition_override` objects.
+  Independent readback matched each whole override to its sealed `after`,
+  confirmed all 41 approvals and unchanged evidence, and found no product,
+  verification-flag or legacy-creatine change.
+- Applied coverage is now 305 variants: 251 complete, 54 partial and 270 without
+  facts. All nine public pages passed. Conteh The Pump appears in the
+  caffeine-free filter; the stimulant products do not. Replaying all four plans
+  was safely rejected on stale sealed `before`, with zero additional writes.
+
+Complete evidence is
+[nutrition-catalog-large-next-05-execution-2026-09-15.json](rollouts/nutrition-catalog-large-next-05-execution-2026-09-15.json),
+SHA-256 `84bb0f4d239aa5bcb359c1c55854c229b147e359c6e87059e257a3395c631f1f`.
+NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified large
+preparation batch without repeating retained formula, serving and pack conflicts.
+
 ## NUT-03 large catalogue batch 03 execution
 
 14 September 2026, production execution after explicit owner authorization:
