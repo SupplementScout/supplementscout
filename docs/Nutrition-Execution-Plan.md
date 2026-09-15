@@ -4906,6 +4906,68 @@ NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
 `store -> authenticated review -> explicit-ID plan -> guarded apply` of exactly
 these five candidates for product `1253`, variant `3675`.
 
+## NUT-03 large catalogue Batch 15 preparation
+
+15 September 2026, preparation continued as a single large owner package. A
+fresh production preflight excluded all `409` applied variants and retained
+blocks, confirmed `20` exact target variants with empty overrides, `99` unique
+candidate fingerprints and no matching existing candidate.
+
+The closed package contains `20` variants across `11` product families and `99`
+pending facts:
+
+- product `215`, variants `1672`-`1675`: ABE Ultimate 315 g, 10.5 g serving,
+  caffeine 200 mg, beta-alanine 2000 mg, citrulline malate 2:1 4000 mg and
+  creatine monohydrate 3250 mg;
+- product `1125`, variants `2454`-`2456`: Angel Dust PUMP, 17.5 g serving,
+  caffeine 300 mg, beta-alanine 2500 mg, citrulline malate 6000 mg and creatine
+  nitrate 1000 mg;
+- product `971`, variants `1896`-`1899`: Stim Thug, 17.5 g serving, citrulline
+  malate 7000 mg and creatine `confirmed_absent`; caffeine is present without a
+  disclosed total yield and beta-alanine remains conflicting;
+- product `980`, variants `1919` and `1920`: Presidential Pre, 13 g serving,
+  caffeine 400 mg and free-form L-citrulline 6000 mg; beta-alanine and creatine
+  remain `no_information`;
+- product `170`, variant `1055`: Big Noise Watermelon 315 g, 10.5 g serving,
+  with caffeine, beta-alanine, citrulline and creatine `confirmed_absent` from
+  the complete label;
+- product `520`, variant `426`: R-Weiler 480 g, 18 g daily basis, caffeine
+  300 mg, beta-alanine 2400 mg and citrulline malate 2250 mg. Its two separately
+  quantified creatine forms are deliberately omitted because the current
+  single creatine fact cannot preserve both;
+- product `24`, variant `152`: legacy Prolific 280 g, 7 g serving, caffeine
+  160 mg, free L-citrulline 3000 mg, beta-alanine and creatine
+  `confirmed_absent`;
+- product `294`, variant `246`: Black Blood CAF+ 300 g, 7.5 g serving, total
+  caffeine 200 mg, beta-alanine 1050 mg, free L-citrulline 1000 mg and creatine
+  `confirmed_absent`;
+- product `449`, variant `551`: Qhush Black 220 g, 11 g serving, caffeine
+  250 mg, beta-alanine 2500 mg, citrulline malate 2:1 4000 mg and creatine
+  `confirmed_absent`;
+- product `54`, variant `45`: Game Day 510 g, 17 g serving, beta-alanine
+  3200 mg, free L-citrulline 6000 mg and creatine hydrochloride 2000 mg; the
+  408 mg caffeine blend is retained as `present_amount_not_disclosed` rather
+  than converted to caffeine yield;
+- product `1061`, variant `2234`: 3XT Dynamite 375 g, 12.5 g serving, caffeine
+  250 mg, beta-alanine 2000 mg, citrulline malate 2:1 4000 mg and creatine
+  monohydrate 3400 mg.
+
+All `11` artifacts passed `nutrition:candidates:store --dry-run`: `99` candidate
+rows, zero product updates and zero database writes. Eleven bounded factual
+reviews were stored once in the private nutrition archive after duplicate
+precheck and every object passed SHA-256 readback. Twelve variants resolve all
+four tracked ingredients; eight retain the explicit limitations above without
+blocking their supported facts.
+
+Complete preparation evidence and all artifact SHA-256 / fingerprint pairs are
+in
+[nutrition-catalog-large-next-15-preparation-2026-09-15.json](rollouts/nutrition-catalog-large-next-15-preparation-2026-09-15.json)
+(SHA-256
+`b5122d64259be1d5997709cd2335aad66adacc12f299651f6bb02e274aaccca8`).
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
+`store -> authenticated review -> explicit-ID plans -> guarded apply` of
+exactly these `99` candidates for the listed `20` variants.
+
 ## NUT-03 large catalogue Batch 14 execution
 
 15 September 2026, the owner authorized the exact five-candidate Batch 14
