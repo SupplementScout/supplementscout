@@ -4833,3 +4833,68 @@ Complete evidence is
 NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
 store -> authenticated review -> explicit-ID plans -> guarded apply of exactly
 these three unchanged artifacts and 24 fingerprints.
+
+## NUT-03 large catalogue Batch 06 execution
+
+15 September 2026, production execution after explicit owner authorization:
+
+- Controlled store created 24 candidates, IDs `2163`-`2186`, for 24 exact
+  variants. Authenticated review approved the unchanged set. Three explicit-ID
+  plans contained zero product updates and 24 variant updates.
+- Plan SHA-256 / fingerprint pairs are: product `1280`
+  `cd6949ab8fbd1572590c079ab82544ecbe96e24327f1e605606e4c070e3da00a` /
+  `03328ce458f630e4e85409d9c9701b977fcb40d6b0d767c856caa43e70042454`;
+  product `489` `f6feff0532664730d4716316d5d585b69f15856342509f275253f560415c2ce3` /
+  `0dec63399fafd79d2b06e97dd05e91db7e5041b26e3967a86beef05a3e7685b5`;
+  and product `1284`
+  `d25902978ab27043a82634483a682de149b7e806f62193a8031d0be6edfa16c6` /
+  `b8bcce1162893e954c2bed0fdf6e5b2ef284a9beee253c2c9d65970dc28f424a`.
+- Guarded apply changed only the planned facts in the 24 exact overrides.
+  Independent readback matched every whole override to `after`, confirmed all
+  approvals and unchanged evidence, and found no product, verification-flag or
+  legacy-creatine change. Applied coverage remains 305 unique variants; data
+  quality is now 268 complete, 37 partial and 270 without facts.
+- All 24 public pages show the applied `Present; amount not disclosed` state
+  without exposing private evidence. None is incorrectly included in the
+  caffeine-free filter. Replaying all three plans was safely rejected on stale
+  sealed `before`, with zero extra writes.
+
+Complete evidence is
+[nutrition-catalog-large-next-06-execution-2026-09-15.json](rollouts/nutrition-catalog-large-next-06-execution-2026-09-15.json).
+NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified large
+preparation batch without repeating retained blockers.
+
+## NUT-03 large catalogue Batch 07 preparation
+
+Batch 07 continues the large-package workflow without reopening retained
+access, identity, or formula-generation blocks. A fresh production read on 15
+September 2026 confirmed `305` unique variants with applied facts. The active
+pre-workout catalogue contains `575` variants, including `406` with a current
+offer: `260` complete, `37` partial, and `109` without applied structured facts.
+
+The closed scope contains `16` new exact variants and `80` pending candidate
+facts: product `899` variants `1487`, `1488`, `2016`, `2017`; product `1277`
+variants `3757`, `3872`, `3873`, `3874`; product `878` variants `1361`, `1362`,
+`1366`, `1368`; product `1246` variants `3668`, `3713`; and product `1255`
+variants `3677`, `3727`.
+
+Five factual-review objects were deduplicated, stored in private
+`nutrition-sources`, and read back with matching SHA-256 values. Every artifact
+passed `nutrition:candidates:store --dry-run`; the combined result is `80`
+candidate rows, `0` product updates and `0` database writes. Detailed evidence
+is in
+[nutrition-catalog-large-next-07-preparation-2026-09-15.json](rollouts/nutrition-catalog-large-next-07-preparation-2026-09-15.json)
+(SHA-256
+`dd0439f9ea7ec2a070960a602ad2745f1e6ba708988dfe387a6c08a7f9ff2819`).
+
+Product `899` keeps caffeine as `conflicting_information` because exact-pack
+retailer tables disagree. Product `1255` keeps L-citrulline as
+`present_amount_not_disclosed` because `6000 mg` belongs to a three-ingredient
+blend. Product `1277` records the separately declared `9000 mg` free
+L-citrulline; its additional citrulline-nitrate component remains outside the
+current form enum and is not added to that value. These limitations do not
+block the supported facts.
+
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
+`store -> review -> plan -> apply` of these exact `80` candidates, preserving
+the stated information states and omitted nitrate component unchanged.
