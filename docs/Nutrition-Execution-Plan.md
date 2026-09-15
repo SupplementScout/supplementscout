@@ -4864,6 +4864,48 @@ Complete evidence is
 NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified large
 preparation batch without repeating retained blockers.
 
+## NUT-03 large catalogue Batch 14 preparation
+
+15 September 2026, a fresh production read confirmed `575` active pre-workout
+variants and `408` with applied facts (`369` complete and `39` partial). Among
+`352` variants with a current available offer, `280` are complete, `32` partial
+and `40` have no applied facts. Batch 14 excludes all applied variants and does
+not reopen retained identity, generation, serving, access or owner-deferred
+blocks without new evidence.
+
+The closed package contains one exact variant and five pending facts: HIT
+Supplements Pre-Workout 375 g, product `1253`, Electric Orange variant `3675`.
+The retained retailer page and readable manufacturer-label image agree on the
+exact flavour, 375 g pack and 30 servings. Proposed facts are one scoop / 12.5 g,
+caffeine 250 mg, beta-alanine 2000 mg, citrulline malate 2:1 3500 mg, and
+creatine `confirmed_absent` from the complete declared ingredients list. The
+artifact is
+`tmp/nutrition-catalog-large-next-14-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-14-20260915-1253.json`,
+SHA-256 `dd9737d32757a996936ea11cc5a0a259e55d9cdcd111563ebaecebc393c19686`,
+artifact fingerprint
+`8dd8179602a73d434c8b97da147f649708800b4458bd0d4c8d13c63ca8f77f41`.
+Its dry-run passed with five candidates, zero product updates and zero database
+writes. Production preflight confirmed the product-variant binding, five unique
+fingerprints, no matching candidates and an empty target override. The factual
+review was stored once in the private nutrition archive; readback matched
+SHA-256 `8fbcccd2d9be99b858e683df91af39d94ae9d4928bf49294022d650375328a05`.
+
+The organisational limit remained 50 variants. The package stopped at one
+because every other current-offer family without applied facts retains a
+specific documented block: conflicting pack generation for products `20` and
+`917`; unresolved generation or dose conflicts for `62`, `169`, `840` and
+`1276`; owner-deferred PER4M products `789` and `882`; identity or product-type
+ambiguity for `53` and `1333`; and the distinct 315 g generation of product
+`215`. Those sources were not re-audited.
+
+Complete preparation evidence is
+[nutrition-catalog-large-next-14-preparation-2026-09-15.json](rollouts/nutrition-catalog-large-next-14-preparation-2026-09-15.json)
+(SHA-256
+`65737506455659b54c8e21df82eb3c162a6a93149a225ad63ef0fb16c2b52927`).
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
+`store -> authenticated review -> explicit-ID plan -> guarded apply` of exactly
+these five candidates for product `1253`, variant `3675`.
+
 ## NUT-03 large catalogue Batch 13 execution
 
 15 September 2026, the owner authorized the exact `33`-candidate Batch 13
