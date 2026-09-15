@@ -1,0 +1,858 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-large-next-10-preparation-report-v1",
+  "date": "2026-09-15",
+  "status": "READY_FOR_OWNER_DECISION",
+  "production": {
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "candidate_store_review_plan_apply_writes": 0,
+    "catalogue_writes": 0
+  },
+  "checkpoint": {
+    "active_preworkout_variants": 575,
+    "current_offer_variants": 409,
+    "applied_unique_variants": 344,
+    "complete": 307,
+    "partial": 37,
+    "no_applied_facts": 231,
+    "current_offer_coverage": {
+      "complete": 283,
+      "partial": 37,
+      "none": 89
+    }
+  },
+  "scope": {
+    "families": 8,
+    "artifacts": 8,
+    "variants": 25,
+    "candidate_facts": 125,
+    "fully_resolved_four_ingredients": 19,
+    "partial_four_ingredients": 6,
+    "variant_ids": [
+      "1040",
+      "1691",
+      "1692",
+      "1693",
+      "1477",
+      "1478",
+      "1479",
+      "1234",
+      "1235",
+      "2775",
+      "958",
+      "959",
+      "1419",
+      "1420",
+      "1369",
+      "1370",
+      "1371",
+      "1372",
+      "1373",
+      "3667",
+      "3710",
+      "3711",
+      "3712",
+      "3678",
+      "3728"
+    ]
+  },
+  "families": [
+    {
+      "product_id": "291",
+      "artifact_key": "291",
+      "product": "Reflex Muscle Bomb Pre-Workout 600g",
+      "variant_ids": [
+        "1040",
+        "1691",
+        "1692",
+        "1693"
+      ],
+      "candidate_count": 20,
+      "artifact": {
+        "path": "tmp/nutrition-catalog-large-next-10-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-10-20260915-291.json",
+        "sha256": "79faf14a99e138280c0539f7b706866177cee8925e0bb54f5345d3054215a680",
+        "fingerprint": "34e762e091f6a6800aeaddf7f7759c1b0a09aadc05750662373a5e2777e84eee"
+      },
+      "unresolved": [],
+      "source": {
+        "type": "retailer_product_page",
+        "url": "https://wheyokay.com/reflex-muscle-bomb-pre-workout-600g-1927-p.asp",
+        "assignment_basis": "Exact 600 g / 20-serving formula corroborated by a complete same-generation 30 g table and ingredient list.",
+        "context": [
+          "Exact 600 g generation",
+          "Common listing covers the four catalogue flavours"
+        ]
+      },
+      "proposed_facts": [
+        {
+          "field": "serving_size_g",
+          "value": 30,
+          "unit": "g",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 30,
+          "source_unit": "g",
+          "evidence": "Serving size 30 g; 20 servings from 600 g"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 250,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 250,
+          "source_unit": "mg",
+          "evidence": "Caffeine 250 mg per 30 g serving"
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 3200,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 3.2,
+          "source_unit": "g",
+          "evidence": "Beta-alanine 3.2 g per 30 g serving"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 8000,
+          "unit": "mg",
+          "form": "citrulline_malate",
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 8,
+          "source_unit": "g",
+          "evidence": "Citrulline malate 8 g per 30 g serving"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "confirmed_absent",
+          "ratio": null,
+          "source_value": null,
+          "source_unit": null,
+          "evidence": "Complete declared ingredients contain no creatine form or undisclosed blend"
+        }
+      ],
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 20,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "895",
+      "artifact_key": "895",
+      "product": "Conteh Sports Conviction ELITE Pre-Workout 375g",
+      "variant_ids": [
+        "1477",
+        "1478",
+        "1479"
+      ],
+      "candidate_count": 15,
+      "artifact": {
+        "path": "tmp/nutrition-catalog-large-next-10-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-10-20260915-895.json",
+        "sha256": "87d24ac9df8b37f574ea303e46b43a273a124b939f2176debb2b51b585a2f4a8",
+        "fingerprint": "c31bff72e81a9a7f8afa3c482cefcd8da32a98e2f5c9004502d677125b52ec73"
+      },
+      "unresolved": [],
+      "source": {
+        "type": "manufacturer_product_page",
+        "url": "https://contehsports.com/products/conviction-elite-pre-workout",
+        "assignment_basis": "Manufacturer presents one transparent 16 g table with the listed Conviction Elite flavours.",
+        "context": [
+          "375 g catalogue generation",
+          "Manufacturer common table lists the flavour family"
+        ]
+      },
+      "proposed_facts": [
+        {
+          "field": "serving_size_g",
+          "value": 16,
+          "unit": "g",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 16,
+          "source_unit": "g",
+          "evidence": "One level scoop (16 g)"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 350,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 350,
+          "source_unit": "mg",
+          "evidence": "Caffeine Anhydrous 350 mg per 16 g serving"
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 3200,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 3200,
+          "source_unit": "mg",
+          "evidence": "Beta Alanine 3200 mg per 16 g serving"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 6000,
+          "unit": "mg",
+          "form": "citrulline_malate",
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 6000,
+          "source_unit": "mg",
+          "evidence": "Citrulline Malate 6000 mg per 16 g serving"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "confirmed_absent",
+          "ratio": null,
+          "source_value": null,
+          "source_unit": null,
+          "evidence": "Fully transparent table and ingredients contain no creatine form or undisclosed blend"
+        }
+      ],
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 15,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "848",
+      "artifact_key": "848",
+      "product": "Pharma Grade PRE 380g",
+      "variant_ids": [
+        "1234",
+        "1235",
+        "2775"
+      ],
+      "candidate_count": 15,
+      "artifact": {
+        "path": "tmp/nutrition-catalog-large-next-10-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-10-20260915-848.json",
+        "sha256": "a6c84de242f8b8db86daba88d04a3ee202e1732301093c82d3f9ca8121219a95",
+        "fingerprint": "2200ebc665a2f7f0054ab815fce77d5e4f2e376cde991cd5feca0b1b65083465"
+      },
+      "unresolved": [],
+      "source": {
+        "type": "retailer_product_page",
+        "url": "https://jonssupplements.co.uk/products/pharma-grade-pre-380g",
+        "assignment_basis": "Current catalogue retailer provides the exact 380 g common page, three flavours and the 19 g advanced-serving table.",
+        "context": [
+          "Exact 380 g listing",
+          "Blue Raz, Cherry Lime and Sour Gummy share the displayed table"
+        ]
+      },
+      "proposed_facts": [
+        {
+          "field": "serving_size_g",
+          "value": 19,
+          "unit": "g",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 19,
+          "source_unit": "g",
+          "evidence": "Advanced serving 2 scoops (19 g)"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 350,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 350,
+          "source_unit": "mg",
+          "evidence": "Caffeine Anhydrous 350 mg per 19 g serving"
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 3200,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 3200,
+          "source_unit": "mg",
+          "evidence": "Beta-Alanine 3200 mg per 19 g serving"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 8000,
+          "unit": "mg",
+          "form": "l_citrulline",
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 8000,
+          "source_unit": "mg",
+          "evidence": "L-Citrulline 8000 mg per 19 g serving"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "confirmed_absent",
+          "ratio": null,
+          "source_value": null,
+          "source_unit": null,
+          "evidence": "Complete ingredients contain no creatine form or undisclosed blend"
+        }
+      ],
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 15,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "774",
+      "artifact_key": "774",
+      "product": "Ibiza Juice OG Pre-Workout 40 servings",
+      "variant_ids": [
+        "958",
+        "959"
+      ],
+      "candidate_count": 10,
+      "artifact": {
+        "path": "tmp/nutrition-catalog-large-next-10-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-10-20260915-774.json",
+        "sha256": "68e934691a902f74ebe4f6e13fc066e0b1cffc81b6543b0edddcba0d0cff5824",
+        "fingerprint": "9a101b2a6faab0f5a59facfa1517fdf4dff0b4c294cd3caace07590b48c68334"
+      },
+      "unresolved": [],
+      "source": {
+        "type": "retailer_product_page",
+        "url": "https://fithouse.uk/products/ibiza-juice-og-high-stimulant-energy-amp-focus-pre-workout-40-servings",
+        "assignment_basis": "Exact 40-serving page presents one 12 g table and both catalogue flavours.",
+        "context": [
+          "Pacha Fruit Strawberry Watermelon and Peach Daiquiri appear under one exact product table",
+          "Compound mass is not converted to pure caffeine"
+        ]
+      },
+      "proposed_facts": [
+        {
+          "field": "serving_size_g",
+          "value": 12,
+          "unit": "g",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 12,
+          "source_unit": "g",
+          "evidence": "Serving size 1 scoop (12 g); 40 servings"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "present_amount_not_disclosed",
+          "ratio": null,
+          "source_value": null,
+          "source_unit": null,
+          "evidence": "250 mg caffeine anhydrous plus 15 mg di-caffeine malate are declared, but total caffeine mass is not disclosed"
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 2000,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 2000,
+          "source_unit": "mg",
+          "evidence": "Beta-Alanine 2000 mg per 12 g serving"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 4000,
+          "unit": "mg",
+          "form": "l_citrulline",
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 4000,
+          "source_unit": "mg",
+          "evidence": "L-Citrulline 4000 mg per 12 g serving"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "confirmed_absent",
+          "ratio": null,
+          "source_value": null,
+          "source_unit": null,
+          "evidence": "Complete exact-formula ingredients contain no creatine form or undisclosed blend"
+        }
+      ],
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 10,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "885",
+      "artifact_key": "885",
+      "product": "Innovapharm MVPRE 3.0 Pre Workout 437g",
+      "variant_ids": [
+        "1419",
+        "1420"
+      ],
+      "candidate_count": 10,
+      "artifact": {
+        "path": "tmp/nutrition-catalog-large-next-10-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-10-20260915-885.json",
+        "sha256": "e7c6bb13822869d3b565f90606a3d2347fdb5b75c1a233c0578208bafc20edc4",
+        "fingerprint": "2519c350ea6c992c2078cee94caf2f226caa107c5b145cee986cd66e2168d5ce"
+      },
+      "unresolved": [],
+      "source": {
+        "type": "retailer_product_page",
+        "url": "https://supplementcontainer.com/products/innovapharm-mvpre-3-0-437g",
+        "assignment_basis": "Exact 437 g retailer label is based on Rainbow Rock Candy; manufacturer groups Rainbow Rock Candy and Jungle Juice in the same MVPre 3.0 product generation.",
+        "context": [
+          "Exact 437 g retailer generation",
+          "Manufacturer product context groups both selected flavours"
+        ]
+      },
+      "proposed_facts": [
+        {
+          "field": "serving_size_g",
+          "value": 21.6,
+          "unit": "g",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 21.6,
+          "source_unit": "g",
+          "evidence": "Serving size 1 scoop (21.6 g)"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 350,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 350,
+          "source_unit": "mg",
+          "evidence": "Caffeine Anhydrous 350 mg per full serving"
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 3200,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 3.2,
+          "source_unit": "g",
+          "evidence": "Beta-Alanine 3.20 g per full serving"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 10000,
+          "unit": "mg",
+          "form": "l_citrulline",
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 10,
+          "source_unit": "g",
+          "evidence": "L-Citrulline 10 g per full serving"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "confirmed_absent",
+          "ratio": null,
+          "source_value": null,
+          "source_unit": null,
+          "evidence": "Complete formula ingredients contain no creatine form or undisclosed blend"
+        }
+      ],
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 10,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "879",
+      "artifact_key": "879",
+      "product": "Trained By JP PrePare Pro 400g",
+      "variant_ids": [
+        "1369",
+        "1370",
+        "1371",
+        "1372",
+        "1373"
+      ],
+      "candidate_count": 25,
+      "artifact": {
+        "path": "tmp/nutrition-catalog-large-next-10-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-10-20260915-879.json",
+        "sha256": "bb6a3e7e287a804a8e4394be4630163731e00df32eb60ce7932f4745c18ec51f",
+        "fingerprint": "645767baab369f545bba15615659f13badb1a16b2c8ebfc9f20127fb2f81e906"
+      },
+      "unresolved": [],
+      "source": {
+        "type": "retailer_product_page",
+        "url": "https://proteinbargainwholesale.co.uk/products/trained-by-jp-prepare-pro-340g-pre-workout",
+        "assignment_basis": "Retailer presents the 400 g product, shared 19 g full-serving table and complete ingredients for the catalogue flavour family.",
+        "context": [
+          "400 g listing despite legacy URL slug",
+          "Colourings may vary but the active table is common"
+        ]
+      },
+      "proposed_facts": [
+        {
+          "field": "serving_size_g",
+          "value": 19,
+          "unit": "g",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 19,
+          "source_unit": "g",
+          "evidence": "Full serving 2 heaped scoops (19 g)"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 350,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 350,
+          "source_unit": "mg",
+          "evidence": "Total Caffeine 350 mg per 19 g serving"
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "confirmed_absent",
+          "ratio": null,
+          "source_value": null,
+          "source_unit": null,
+          "evidence": "Complete declared ingredients contain no beta-alanine or undisclosed active blend"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 6000,
+          "unit": "mg",
+          "form": "l_citrulline",
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 6000,
+          "source_unit": "mg",
+          "evidence": "L-Citrulline 6000 mg per 19 g serving"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "confirmed_absent",
+          "ratio": null,
+          "source_value": null,
+          "source_unit": null,
+          "evidence": "Complete declared ingredients contain no creatine form or undisclosed blend"
+        }
+      ],
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 25,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "1245",
+      "artifact_key": "1245",
+      "product": "NXT TNT Nuclear Pre-Workout 240g",
+      "variant_ids": [
+        "3667",
+        "3710",
+        "3711",
+        "3712"
+      ],
+      "candidate_count": 20,
+      "artifact": {
+        "path": "tmp/nutrition-catalog-large-next-10-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-10-20260915-1245.json",
+        "sha256": "e61748f85259cacb10133f13ae22289d40cb95cda76cb839f463e4594532fdf4",
+        "fingerprint": "bdcd267ddac1baa4ce80050b6bc690667af6b77a0f590ce313d1ffabe00fd93d"
+      },
+      "unresolved": [],
+      "source": {
+        "type": "retailer_product_page",
+        "url": "https://www.dolphinfitness.co.uk/en/nxt-nutrition-nuclear-pre-240g/222826/fizzy-cola-bottles",
+        "assignment_basis": "Exact 240 g table provides 6 g and 12 g columns; the full 12 g serving is used consistently for the common flavour listing.",
+        "context": [
+          "Exact 240 g generation",
+          "Only the 12 g column is used",
+          "Creatine remains unresolved rather than zero"
+        ]
+      },
+      "proposed_facts": [
+        {
+          "field": "serving_size_g",
+          "value": 12,
+          "unit": "g",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 12,
+          "source_unit": "g",
+          "evidence": "Full serving 12 g; 20 full servings from 240 g"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 350,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 350,
+          "source_unit": "mg",
+          "evidence": "Caffeine 350 mg per 12 g serving"
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 3000,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 3000,
+          "source_unit": "mg",
+          "evidence": "Beta Alanine 3000 mg per 12 g serving"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 1000,
+          "unit": "mg",
+          "form": "citrulline_malate",
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 1000,
+          "source_unit": "mg",
+          "evidence": "Citrulline Malate 1000 mg per 12 g serving"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "no_information",
+          "ratio": null,
+          "source_value": null,
+          "source_unit": null,
+          "evidence": "The retained source does not provide a complete ingredient declaration sufficient to establish creatine absence"
+        }
+      ],
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 20,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "1256",
+      "artifact_key": "1256",
+      "product": "Naughty Boy Menace 210g",
+      "variant_ids": [
+        "3678",
+        "3728"
+      ],
+      "candidate_count": 10,
+      "artifact": {
+        "path": "tmp/nutrition-catalog-large-next-10-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-10-20260915-1256.json",
+        "sha256": "ef02566029425287bba668761c43a4ce2daf5f081368b70ca87d8c9aaf167298",
+        "fingerprint": "88594e6d191c86588c5811466a90dd3ed130a0cb9f719036b72574433df11f02"
+      },
+      "unresolved": [],
+      "source": {
+        "type": "manufacturer_product_page",
+        "url": "https://naughtyboylifestyle.com/products/naughty-boy-menace%C2%AE-v2-pre-workout",
+        "assignment_basis": "Manufacturer presents one Menace V2 active table and representative complete ingredients for the flavour family.",
+        "context": [
+          "210 g / 30 one-scoop serving generation",
+          "Only flavour colour ingredients may vary"
+        ]
+      },
+      "proposed_facts": [
+        {
+          "field": "serving_size_g",
+          "value": 7,
+          "unit": "g",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 7,
+          "source_unit": "g",
+          "evidence": "One scoop (7 g)"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 200,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 200,
+          "source_unit": "mg",
+          "evidence": "Caffeine Anhydrous 200 mg per 7 g serving"
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 1600,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 1600,
+          "source_unit": "mg",
+          "evidence": "Beta-Alanine 1600 mg per 7 g serving"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 3000,
+          "unit": "mg",
+          "form": "citrulline_malate",
+          "information_state": "present_with_amount",
+          "ratio": "2:1",
+          "source_value": 3000,
+          "source_unit": "mg",
+          "evidence": "L-Citrulline Malate 2:1 3000 mg per 7 g serving"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "confirmed_absent",
+          "ratio": null,
+          "source_value": null,
+          "source_unit": null,
+          "evidence": "Representative complete ingredients contain no creatine form or undisclosed blend"
+        }
+      ],
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 10,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    }
+  ],
+  "archive": {
+    "bucket": "nutrition-sources",
+    "private": true,
+    "readback": "PASS",
+    "items": [
+      {
+        "id": "product-291-source-review.json",
+        "action": "reused",
+        "sha256": "4f0da02b692e9b38fa12372c90964289ae2b8be078003580f772895351ef0b06"
+      },
+      {
+        "id": "product-895-source-review.json",
+        "action": "reused",
+        "sha256": "d51681e69620ad6c5188dd333eebeb5fa40ef6aad45c97a965776a69e4e815b9"
+      },
+      {
+        "id": "product-848-source-review.json",
+        "action": "reused",
+        "sha256": "497e3a8e88e805bb79e8ec049802d7c15767de4c5e8855b387491ef4780f69df"
+      },
+      {
+        "id": "product-774-source-review.json",
+        "action": "reused",
+        "sha256": "5b823f2d796b35671ec9374d643b3ef0e7342e761c8bd7e4158f1fa0c050f52e"
+      },
+      {
+        "id": "product-885-source-review.json",
+        "action": "reused",
+        "sha256": "6b938d1cec74e5a65793688f1b9be728e37a36eeadf9b4728f77e570ffafd5ab"
+      },
+      {
+        "id": "product-879-source-review.json",
+        "action": "reused",
+        "sha256": "6dfe234db6fb78b59e6377c59abccf9d6bb8db39e93b0cf6a8beae973df99b2b"
+      },
+      {
+        "id": "product-1245-source-review.json",
+        "action": "reused",
+        "sha256": "07ab864d1897d855c6520f74c22d663ba2fbf349f98e9412aaac659243fc2633"
+      },
+      {
+        "id": "product-1256-source-review.json",
+        "action": "reused",
+        "sha256": "82af32654f7df5d136d10aa6f5d7c8c3f71fef6135861b9dbc523553416a9595"
+      }
+    ]
+  },
+  "unresolved": [
+    {
+      "product_id": "774",
+      "variant_ids": [
+        "958",
+        "959"
+      ],
+      "field": "caffeine_per_serving_mg",
+      "state": "present_amount_not_disclosed",
+      "reason": "250 mg caffeine anhydrous and 15 mg di-caffeine malate are declared, but compound mass is not pure caffeine mass."
+    },
+    {
+      "product_id": "1245",
+      "variant_ids": [
+        "3667",
+        "3710",
+        "3711",
+        "3712"
+      ],
+      "field": "creatine_declared_form_per_serving_mg",
+      "state": "no_information",
+      "reason": "Exact retained table lacks the complete declaration required to prove absence."
+    }
+  ],
+  "controls": {
+    "unique_candidate_fingerprints": 125,
+    "dry_runs": "8/8 PASS",
+    "source_readback": "8/8 SHA-256 MATCH",
+    "production_writes": 0
+  },
+  "batch_limit": {
+    "requested_max_variants": 50,
+    "prepared_variants": 25,
+    "reason_for_stopping": "After these eight families, the remaining current-offer variants are retained access, identity, pack-size or formula-generation blocks, or lack an exact gram serving. No blocked family was re-audited without new evidence."
+  },
+  "next_step": "One owner decision authorizing controlled store -> authenticated review -> plan -> apply for exactly these 125 candidates and 25 variants, bound to the listed artifact hashes and fingerprints."
+}

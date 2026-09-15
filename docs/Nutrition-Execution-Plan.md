@@ -4864,6 +4864,49 @@ Complete evidence is
 NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified large
 preparation batch without repeating retained blockers.
 
+## NUT-03 large catalogue Batch 10 preparation
+
+On 15 September 2026 a fresh production read confirmed `575` active pre-workout
+variants, including `409` with a current available offer. Applied coverage was
+`344` unique variants: `307` complete, `37` partial and `231` without applied
+facts. Among current-offer variants, `283` were complete, `37` partial and `89`
+had no applied facts.
+
+Batch 10 prepared eight families, 25 exact unapplied variants and 125 pending
+candidates: product `291` variants `1040`, `1691`, `1692`, `1693`; product
+`895` variants `1477`, `1478`, `1479`; product `848` variants `1234`, `1235`,
+`2775`; product `774` variants `958`, `959`; product `885` variants `1419`,
+`1420`; product `879` variants `1369`-`1373`; product `1245` variants `3667`,
+`3710`, `3711`, `3712`; and product `1256` variants `3678`, `3728`.
+
+Nineteen variants have all four tracked ingredients resolved by disclosed
+amount or confirmed absence. Six retain explicit partial states: Ibiza Juice
+variants `958`, `959` use `present_amount_not_disclosed` for total caffeine
+because di-caffeine-malate compound mass is not pure caffeine mass; NXT variants
+`3667`, `3710`, `3711`, `3712` use `no_information` for creatine because the
+exact retained table does not provide the complete declaration needed to prove
+absence. Their other supported facts remain eligible.
+
+All eight artifacts passed `nutrition:candidates:store --dry-run`: 125 rows,
+zero product updates and zero database writes. All 125 candidate fingerprints
+are unique. Eight evidence reviews were stored once in private
+`nutrition-sources`; fresh readback matched all SHA-256 values. No production
+candidate, review, plan, apply or catalogue write ran.
+
+The organisational maximum was 50 variants. Preparation stopped at 25 because
+the remaining current-offer families retain documented access, identity,
+pack-size, formula-generation or exact gram-serving blocks. Those sources were
+not re-audited without new evidence.
+
+Complete values, sources, artifact paths, SHA-256 values and fingerprints are in
+[nutrition-catalog-large-next-10-preparation-2026-09-15.json](rollouts/nutrition-catalog-large-next-10-preparation-2026-09-15.json)
+(SHA-256
+`06a30a3e71e3be7ff5891f4846cc4896b452961b7041e7a1c1201e7bc3ff2b26`).
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
+controlled `store -> authenticated review -> plan -> apply` for exactly these
+125 candidates and 25 variants, bound to the artifact hashes and fingerprints
+in the report.
+
 ## NUT-03 large catalogue Batch 09 preparation
 
 On 15 September 2026 the next evidence-qualified package prepared three product
