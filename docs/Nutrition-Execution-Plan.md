@@ -4945,3 +4945,33 @@ Complete evidence is
 `dc245f0daa1e5a9789d0b99daff897aa8559b0d2829215f1b1aa992a636fa51c`).
 NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified large
 preparation batch without repeating retained blockers.
+
+## NUT-03 large catalogue Batch 08 preparation
+
+After Batch 07, a fresh production read confirmed `321` applied unique variants.
+Of `406` active pre-workout variants with a current offer, `276` are complete,
+`37` partial and `93` have no applied facts. Batch 08 excludes all applied
+variants and retained access, identity, pack and formula-generation blocks.
+
+The validated closed scope contains `15` exact variants and `75` candidate
+facts: product `1162` variants `3260`, `3261`, `3262`, `3264`, `3265`, `3266`,
+`3268`; product `368` variants `358`, `1045`; product `773` variants `953`,
+`954`, `955`, `1976`; and product `1249` variants `3718`, `3719`. All four
+artifacts passed `nutrition:candidates:store --dry-run`, with zero product or
+database writes. Four factual-review objects were stored once in private
+`nutrition-sources` and passed hash readback.
+
+The organisational target remained up to `50` variants. The batch stopped at
+`15` because the next three otherwise promising families failed the exact gram
+serving requirement: RAW Essential has flavour-specific pack weights, BAMF does
+not expose a common gram serving for the catalogue flavours, and BZRK sources
+disagree on scoop mass while caffeine and beta-alanine also occur in
+non-separable blends. Their working evidence remains preserved and excluded
+from the authorised artifact index.
+
+Complete preparation evidence is
+[nutrition-catalog-large-next-08-preparation-2026-09-15.json](rollouts/nutrition-catalog-large-next-08-preparation-2026-09-15.json)
+(SHA-256
+`fb21f0da2a006db6f1bd92f991c7171fe5b124e9b01b2be423a595d75c5efe1e`).
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
+`store -> review -> plan -> apply` of these exact `75` candidates.
