@@ -4864,6 +4864,60 @@ Complete evidence is
 NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified large
 preparation batch without repeating retained blockers.
 
+## NUT-03 large catalogue Batch 13 preparation
+
+15 September 2026, a fresh production read confirmed `575` active pre-workout
+variants and `401` with applied facts (`364` complete and `37` partial). Among
+`352` variants with a current available offer, `275` are complete, `30` partial
+and `47` have no applied facts. Batch 13 excludes all applied variants and the
+retained identity, generation, serving and conflicting-dose blocks.
+
+The closed package contains `7` exact variants and `33` pending facts:
+
+- PEScience High Volume 252 g, product `26`, variants `1026` and `1732`: one
+  scoop / 14 g, caffeine and beta-alanine `confirmed_absent`, free-form
+  L-citrulline 6000 mg, and creatine `no_information`.
+- MuscleTech Vapor X5 Next Gen 264 g, product `63`, variants `1032` and `1619`:
+  one scoop / 9 g, caffeine 190 mg, beta-alanine 1.6 g / 1600 mg, citrulline
+  `confirmed_absent`, and creatine monohydrate 1.5 g / 1500 mg.
+- Stay Lean Engage 300 g, product `61`, variants `1051` and `1615`: 10 g,
+  caffeine 250 mg, beta-alanine 1800 mg and creatine `no_information`.
+  Citrulline is deliberately omitted: the source declares one combined 3500 mg
+  amount for malate 2:1 and nitrate without separate component masses.
+- Naughty Boy Winter Soldier Sick Pump 325 g, product `451`, variant `1789`:
+  one scoop / 13 g and free-form L-citrulline 6000 mg. Caffeine, beta-alanine
+  and creatine remain `no_information` because the retained active table is not
+  a complete formula declaration.
+
+Artifact SHA-256 / fingerprints are: product `26`
+`5c734b1d037eea60457fb571e03a5a18f9e013fa9f1d4630831dd839433501b1` /
+`68e25a035a184e55007d22a3a70c8fd385b9796d31edff030e6b7378e4f89121`;
+product `63`
+`de8af7d2402c8dabfc13d486122aecfc847bf7ea134fe148d6877f07fd734db6` /
+`5176ccb4268c4282cc163f5057ad40d0653932182f27d86f2db9d127df6d4df4`;
+product `61`
+`e37bef60990fc547c4c58d9c6bf44bac04b45550340b43714fb2673b329464c8` /
+`e7568dc0150d035180efb3d9ba1de67e48d52fcb11d93bf3d306607e196f1a80`;
+and product `451`
+`db5396cff2fa27b32eea616142561de3e537c810a0149ac2c0ceb740812194a1` /
+`4b180ce82afc156a0ec6443c81996641f4524802349b4bfa9cef05da44844c77`.
+
+All four artifacts passed `nutrition:candidates:store --dry-run`: `33` rows,
+zero product updates and zero database writes. Fresh production preflight passed
+all seven bindings and 33 unique fingerprints, found no matching candidates and
+empty target overrides. Four evidence reviews were stored once in private
+`nutrition-sources`; readback matched every SHA-256.
+
+The package stopped below 50 variants because the remaining current-offer
+families retain recorded exact-generation, gram-serving, identity or dose
+conflicts. Complete evidence is
+[nutrition-catalog-large-next-13-preparation-2026-09-15.json](rollouts/nutrition-catalog-large-next-13-preparation-2026-09-15.json)
+(SHA-256
+`c9d45ab6965f5091eb55494f19e034a244fcaf8079f9e81a63a059068e5ac779`).
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
+controlled `store -> authenticated review -> plan -> apply` for exactly these
+`33` candidates and seven variants.
+
 ## NUT-03 large catalogue Batch 12 execution
 
 15 September 2026, the owner authorized the exact `45`-candidate Batch 12
