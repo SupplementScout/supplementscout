@@ -1,0 +1,412 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-large-next-09-preparation-report-v1",
+  "date": "2026-09-15",
+  "status": "READY_FOR_OWNER_DECISION",
+  "production": {
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "candidate_store_review_plan_apply_writes": 0,
+    "catalogue_writes": 0
+  },
+  "checkpoint": {
+    "applied_unique_variants": 336,
+    "complete": 299,
+    "partial": 37,
+    "no_applied_facts": 239
+  },
+  "scope": {
+    "families": 3,
+    "artifacts": 4,
+    "variants": 8,
+    "candidate_facts": 40,
+    "variant_ids": [
+      "994",
+      "1980",
+      "950",
+      "951",
+      "952",
+      "1873",
+      "1874",
+      "1875"
+    ]
+  },
+  "families": [
+    {
+      "product_id": "783",
+      "artifact_key": "783-994",
+      "product": "RAW Nutrition Essential BUM Pre-Workout 30 servings",
+      "variant_ids": [
+        "994"
+      ],
+      "candidate_count": 5,
+      "artifact": {
+        "path": "tmp/nutrition-catalog-large-next-09-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-09-20260915-783-994.json",
+        "sha256": "5473b3f746e0c8ed6878709e28678d48284b1c7a02f5215903ab6768684fa404",
+        "fingerprint": "3e1e1c88d24737520d9e405feaa201897d32757d8b43d72efd9790fc882e0b7c"
+      },
+      "unresolved": [],
+      "source": {
+        "type": "manufacturer_product_page",
+        "url": "https://getrawnutrition.com/pages/essential-pre-supplement-facts",
+        "assignment_basis": "Manufacturer publishes a flavour-specific Grape label; retailer label transcription supplies the exact 14.1 g scoop."
+      },
+      "proposed_facts": [
+        {
+          "field": "serving_size_g",
+          "value": 14.1,
+          "unit": "g",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 14.1,
+          "source_unit": "g",
+          "evidence": "Grape serving size 1 scoop (14.1 g)"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 200,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 200,
+          "source_unit": "mg",
+          "evidence": "Natural caffeine 200 mg per 14.1 g scoop"
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 3200,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 3.2,
+          "source_unit": "g",
+          "evidence": "Beta Alanine 3.2 g per scoop"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 4000,
+          "unit": "mg",
+          "form": "l_citrulline",
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 4,
+          "source_unit": "g",
+          "evidence": "L-Citrulline 4 g per scoop"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "confirmed_absent",
+          "ratio": null,
+          "source_value": null,
+          "source_unit": null,
+          "evidence": "Complete flavour-specific Supplement Facts and other ingredients contain no creatine form or undisclosed blend"
+        }
+      ],
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 5,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "783",
+      "artifact_key": "783-1980",
+      "product": "RAW Nutrition Essential BUM Pre-Workout 30 servings",
+      "variant_ids": [
+        "1980"
+      ],
+      "candidate_count": 5,
+      "artifact": {
+        "path": "tmp/nutrition-catalog-large-next-09-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-09-20260915-783-1980.json",
+        "sha256": "53a8f8e3b2e4854dad38e7aa62e203a4565cb6bc93ae386595e4891553c5f447",
+        "fingerprint": "68dbc2b12effcda039970538a4760ba881ea3091a73cd61485f55df000f99f07"
+      },
+      "unresolved": [],
+      "source": {
+        "type": "manufacturer_product_page",
+        "url": "https://getrawnutrition.com/pages/essential-pre-supplement-facts",
+        "assignment_basis": "Manufacturer publishes a flavour-specific Raspberry Creamthickle label with an exact 13.1 g scoop."
+      },
+      "proposed_facts": [
+        {
+          "field": "serving_size_g",
+          "value": 13.1,
+          "unit": "g",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 13.1,
+          "source_unit": "g",
+          "evidence": "Raspberry Creamthickle serving size 1 scoop (13.1 g)"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 200,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 200,
+          "source_unit": "mg",
+          "evidence": "Natural caffeine 200 mg per 13.1 g scoop"
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 3200,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 3.2,
+          "source_unit": "g",
+          "evidence": "Beta Alanine 3.2 g per scoop"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 4000,
+          "unit": "mg",
+          "form": "l_citrulline",
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 4,
+          "source_unit": "g",
+          "evidence": "L-Citrulline 4 g per scoop"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "confirmed_absent",
+          "ratio": null,
+          "source_value": null,
+          "source_unit": null,
+          "evidence": "Complete flavour-specific Supplement Facts and other ingredients contain no creatine form or undisclosed blend"
+        }
+      ],
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 5,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "772",
+      "artifact_key": "772",
+      "product": "Bucked Up BAMF Pre-Workout 20 servings",
+      "variant_ids": [
+        "950",
+        "951",
+        "952"
+      ],
+      "candidate_count": 15,
+      "artifact": {
+        "path": "tmp/nutrition-catalog-large-next-09-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-09-20260915-772.json",
+        "sha256": "2770aefca23fd83a149cbf13d5dd23fbbec5edc4b7901821a11887948d015ec1",
+        "fingerprint": "9e70769272d9e48089702dfd59f19938ff72186e1ce9c2e097b222c08f27b65f"
+      },
+      "unresolved": [],
+      "source": {
+        "type": "retailer_product_page",
+        "url": "https://www.dolphinfitness.co.uk/en/bucked-up-bamf-30-servings/436673/jungle-juice",
+        "assignment_basis": "Exact BAMF 190 g / 20-serving Jungle Juice table and retained common-recipe assignment for the catalogue flavours."
+      },
+      "proposed_facts": [
+        {
+          "field": "serving_size_g",
+          "value": 9.5,
+          "unit": "g",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 9.5,
+          "source_unit": "g",
+          "evidence": "Serving size 9.5 g (1 scoop); 20 servings from 190 g"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 200,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 200,
+          "source_unit": "mg",
+          "evidence": "Caffeine Anhydrous 200 mg per 9.5 g serving"
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 1000,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 1000,
+          "source_unit": "mg",
+          "evidence": "Beta-Alanine 1000 mg per serving"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 6000,
+          "unit": "mg",
+          "form": "citrulline_malate",
+          "information_state": "present_with_amount",
+          "ratio": "2:1",
+          "source_value": 6000,
+          "source_unit": "mg",
+          "evidence": "Citrulline Malate 2:1 6000 mg per serving"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "confirmed_absent",
+          "ratio": null,
+          "source_value": null,
+          "source_unit": null,
+          "evidence": "Manufacturer describes BAMF as creatine-free and exact retailer formula contains no creatine blend"
+        }
+      ],
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 15,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "959",
+      "artifact_key": "959",
+      "product": "Black Magic BZRK Pre-Workout 25 Servings",
+      "variant_ids": [
+        "1873",
+        "1874",
+        "1875"
+      ],
+      "candidate_count": 15,
+      "artifact": {
+        "path": "tmp/nutrition-catalog-large-next-09-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-09-20260915-959.json",
+        "sha256": "3ef600d7a8f6e187d3028b73a8092fcb13013a253e2cca82e53fd12d68b1e31f",
+        "fingerprint": "48cd7649426fda62e591c8976fca728ec60f9cc412b388db4b3b21bfd21b4326"
+      },
+      "unresolved": [],
+      "source": {
+        "type": "retailer_product_page",
+        "url": "https://www.liftupsupplements.com/products/black-magic-bzrk-pre-workout-487-5g",
+        "assignment_basis": "Exact BZRK 487.5 g / 25-serving common table with 20.17 g scoop."
+      },
+      "proposed_facts": [
+        {
+          "field": "serving_size_g",
+          "value": 20.17,
+          "unit": "g",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "source_value": 20.17,
+          "source_unit": "g",
+          "evidence": "Serving size 1 scoop (20.17 g)"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "present_amount_not_disclosed",
+          "ratio": null,
+          "source_value": null,
+          "source_unit": null,
+          "evidence": "Caffeine Anhydrous and ZumXR occur inside the 1620 mg POSSESSED MATRIX; active caffeine amount is not disclosed"
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "present_amount_not_disclosed",
+          "ratio": null,
+          "source_value": null,
+          "source_unit": null,
+          "evidence": "BetaO beta-alanine/orotic-acid compound is 3200 mg; beta-alanine mass is not separately disclosed"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 7000,
+          "unit": "mg",
+          "form": "citrulline_malate",
+          "information_state": "present_with_amount",
+          "ratio": "2:1",
+          "source_value": 7000,
+          "source_unit": "mg",
+          "evidence": "L-Citrulline DL-Malate 2:1 7000 mg per 20.17 g serving"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "confirmed_absent",
+          "ratio": null,
+          "source_value": null,
+          "source_unit": null,
+          "evidence": "Retailer explicitly describes the exact BZRK formula as creatine-free"
+        }
+      ],
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 15,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    }
+  ],
+  "archive": {
+    "bucket": "nutrition-sources",
+    "private": true,
+    "readback": "PASS",
+    "items": [
+      {
+        "id": "product-783-994-source-review.json",
+        "action": "reused",
+        "sha256": "f568415d4b8b025f16b9fbb773b070821fd50eb2184f2df252b85b332f3215d0"
+      },
+      {
+        "id": "product-783-1980-source-review.json",
+        "action": "reused",
+        "sha256": "17187e7b477e5303b78b2259516e2bcedb7de90ae78e8424b8a436bee095de5c"
+      },
+      {
+        "id": "product-772-source-review.json",
+        "action": "reused",
+        "sha256": "d9936af1e9bb2557af950ef4fcab9a7ac156bf0e142fa7a45970edd3b612cdee"
+      },
+      {
+        "id": "product-959-source-review.json",
+        "action": "reused",
+        "sha256": "24eb272a77d39deec0c855a0d9b8c4cc1af263a962a11a6dd5d660c22211213c"
+      }
+    ]
+  },
+  "exclusions": [
+    {
+      "product_id": "783",
+      "variant_id": "993",
+      "reason": "Ambiguous default variant; only exact flavour-specific labels qualify."
+    }
+  ],
+  "controls": {
+    "unique_candidate_fingerprints": 40,
+    "dry_runs": "4/4 PASS",
+    "source_readback": "4/4 SHA-256 MATCH",
+    "production_writes": 0
+  },
+  "next_step": "One owner decision authorizing controlled store -> authenticated review -> plan -> apply for exactly these 40 candidates and 8 variants, bound to the listed artifact hashes and fingerprints."
+}

@@ -4864,6 +4864,54 @@ Complete evidence is
 NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified large
 preparation batch without repeating retained blockers.
 
+## NUT-03 large catalogue Batch 09 preparation
+
+On 15 September 2026 the next evidence-qualified package prepared three product
+families covering eight exact, previously unapplied variants and 40 pending
+facts. The production checkpoint remains 336 applied unique variants: 299
+complete, 37 partial and 239 without applied facts. This preparation made no
+candidate or catalogue database writes.
+
+- RAW Nutrition Essential BUM, product `783`: flavour-specific manufacturer
+  labels support Grape variant `994` at one scoop / 14.1 g and Raspberry
+  Creamthickle variant `1980` at one scoop / 13.1 g. Each proposes caffeine
+  200 mg, beta-alanine 3.2 g / 3200 mg, free-form L-citrulline 4 g / 4000 mg
+  and creatine `confirmed_absent`. Ambiguous default variant `993` remains
+  excluded; the serving masses are not transferred between flavours.
+- Bucked Up BAMF, product `772`, variants `950`, `951`, `952`: the exact 190 g,
+  20-serving retailer table and retained common-recipe context support one scoop
+  / 9.5 g, caffeine 200 mg, beta-alanine 1000 mg, citrulline malate 2:1 6000 mg
+  and creatine `confirmed_absent`.
+- Black Magic BZRK, product `959`, variants `1873`, `1874`, `1875`: the exact
+  487.5 g, 25-serving common table supports one scoop / 20.17 g, citrulline
+  malate 2:1 7000 mg and creatine `confirmed_absent`. Caffeine and beta-alanine
+  remain `present_amount_not_disclosed`: their sources appear in compound or
+  proprietary matrices whose separate active masses are not disclosed.
+
+Four artifacts contain five candidates per exact variant. Their SHA-256 /
+artifact fingerprints are:
+
+- variant `994`: `5473b3f746e0c8ed6878709e28678d48284b1c7a02f5215903ab6768684fa404`
+  / `3e1e1c88d24737520d9e405feaa201897d32757d8b43d72efd9790fc882e0b7c`;
+- variant `1980`: `53a8f8e3b2e4854dad38e7aa62e203a4565cb6bc93ae386595e4891553c5f447`
+  / `68dbc2b12effcda039970538a4760ba881ea3091a73cd61485f55df000f99f07`;
+- product `772`: `2770aefca23fd83a149cbf13d5dd23fbbec5edc4b7901821a11887948d015ec1`
+  / `9e70769272d9e48089702dfd59f19938ff72186e1ce9c2e097b222c08f27b65f`;
+- product `959`: `3ef600d7a8f6e187d3028b73a8092fcb13013a253e2cca82e53fd12d68b1e31f`
+  / `48cd7649426fda62e591c8976fca728ec60f9cc412b388db4b3b21bfd21b4326`.
+
+All four `nutrition:candidates:store --dry-run` checks passed: 40 rows, zero
+product updates and zero database writes. Four evidence reviews were stored
+once in the private `nutrition-sources` bucket; a fresh readback matched every
+SHA-256. The detailed package is
+[nutrition-catalog-large-next-09-preparation-2026-09-15.json](rollouts/nutrition-catalog-large-next-09-preparation-2026-09-15.json),
+SHA-256 `f20d7f872ae67be75c74dae69a9b2177ae6ec809cf92134f9d937c47a2942607`.
+
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
+controlled `store -> authenticated review -> plan -> apply` for exactly these
+40 candidates and eight variants, bound to the artifact hashes and fingerprints
+above.
+
 ## NUT-03 large catalogue Batch 07 preparation
 
 Batch 07 continues the large-package workflow without reopening retained
