@@ -4864,6 +4864,50 @@ Complete evidence is
 NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified large
 preparation batch without repeating retained blockers.
 
+## NUT-03 large catalogue Batch 12 execution
+
+15 September 2026, the owner authorized the exact `45`-candidate Batch 12
+package for production `store -> authenticated review -> plan -> apply`.
+
+- Fresh preflight confirmed production project `aftboxmrdgyhizicfsfu`, all `9`
+  exact product-variant bindings, `45` unique fingerprints, no matching existing
+  candidates and an empty `nutrition_override` on every target.
+- Controlled store created candidates `2622`-`2666` and changed no product.
+  Authenticated review approved all `45` unchanged records. Five explicit-ID
+  plans had zero blockers, zero product updates and exactly nine variant updates:
+  `4081`, `4083`, `4085`, `4086`, `4087`, `1228`, `1377`, `3876` and `1415`.
+- Plan SHA-256 / fingerprint pairs are: product `778`
+  `475d236434892beb1bbfbf6e0b79b1a2c62f9f52b43b324198de7f540dfc1678` /
+  `52b190d0e3597ded58d644f4810d61912b77b78ff6e9f61168ac2ab355457619`;
+  product `845`
+  `59ded4de7a449efc9a98bcf64fd2ee6563a6a6ac5204fe1380db03bffd39b9b5` /
+  `e1c3296e10ee303899ea5e309882671bd5e005056933a378c10a5d32bc680dec`;
+  product `880`
+  `99211bef340b4fc475f2c1d317ab6f73f4a3fa51ab516751890c49f2b7db5ddc` /
+  `0ace9a5211d4716f792bf0b2f74581f27405ff94627252ddfcd74551d3ab24d0`;
+  product `1278`
+  `dc66e12743adedaf86767bf6ac38d999ce43fcc5514f3acd127b64eb625b5923` /
+  `c2e38474e35bf690f0393239a2f6ee19e2245f359be93126dd673c8becb91f8f`;
+  and product `884`
+  `eafd255fe4ed27e746668c7d83c5d980eca619de782c11ce3fb0a882ee4c417d` /
+  `a8742fc2b23071dda105e80c7512d757dbd082961e1955983be678ce3442f51b`.
+- Guarded apply changed only the planned five facts in those nine exact variant
+  overrides. A new read-only connection matched the resulting records, found
+  all `45` candidates `APPROVED` with unchanged evidence and confirmed `401`
+  applied variants: `364` complete, `37` partial and `174` without facts.
+- Public readback passed for `9/9` exact variant pages. Variant `1377`, with an
+  applied `confirmed_absent` caffeine fact, appears in the caffeine-free filter;
+  none of the eight caffeine-containing targets appears there. Replaying all
+  five sealed plans was safely rejected on stale `before`, with zero extra
+  writes.
+
+Complete evidence is
+[nutrition-catalog-large-next-12-execution-2026-09-15.json](rollouts/nutrition-catalog-large-next-12-execution-2026-09-15.json)
+(SHA-256
+`383f0cc3695d6f9085a09d3d6c2aa30f9dea42606a1d0979cb7faa9c99ecbc1e`).
+NUT-03 remains `IN PROGRESS`. One next step is another large preparation batch
+excluding all `401` applied variants and retained blockers.
+
 ## NUT-03 large catalogue Batch 12 preparation
 
 15 September 2026, a fresh read-only production snapshot confirmed `575`
