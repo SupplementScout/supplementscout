@@ -262,6 +262,8 @@ const CONTRACTS = Object.freeze({
         "0bb7c151f5458302ff4f560d6ffa9f75db494f199343b3a4a385e3eff478e3c5",
       "20260908210000_reuse_atomic_price_history_and_close_jons_retry.sql":
         "f94b4218264c5b321d682f07361b51a0915f5e469915bb351d98bf2f9d35c4b9",
+      "20260919113000_supersede_interrupted_jons_refresh.sql":
+        "4f3cf75333c9ffa83e660d1851f7cf308edcec3c850d5b88a27d43db8e3db676",
     }),
     pending: Object.freeze([
       Object.freeze({
@@ -320,6 +322,10 @@ const CONTRACTS = Object.freeze({
       Object.freeze({
         filename: "20260913110000_add_nutrition_candidate_citrulline_components.sql",
         sha256: "76dd8390e19f45dd8ffcc69bafe9721abc6dedff6db280fdc6f75e3938258ac4",
+      }),
+      Object.freeze({
+        filename: "20260919113000_supersede_interrupted_jons_refresh.sql",
+        sha256: "4f3cf75333c9ffa83e660d1851f7cf308edcec3c850d5b88a27d43db8e3db676",
       }),
     ]),
   }),

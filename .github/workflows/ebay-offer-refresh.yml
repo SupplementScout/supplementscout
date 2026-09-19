@@ -91,7 +91,7 @@ permissions:
   actions: read
 
 concurrency:
-  group: ebay-offer-refresh
+  group: retailer-offer-production-write
   cancel-in-progress: false
 
 jobs:
