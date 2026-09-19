@@ -42,3 +42,14 @@ test('sequential parent approval preserves the applied 10 Reps batch and fixes b
   assert.match(automation,/prepareSequentialParentApproval/);
   assert.doesNotMatch(repair,/\b(?:insert into|update|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history|retailers)\b/i);
 });
+test('approver identity repair uses the effective role and closes only the empty retry',()=>{
+  const repair=fs.readFileSync(path.join(process.cwd(),'supabase/migrations/20260919210000_fix_sequential_parent_approver_identity.sql'),'utf8');
+  assert.match(repair,/720ff2b5-358a-4c15-b1c1-49262da8d254/);
+  assert.match(repair,/status='PLANNED'\)<>19/);
+  assert.match(repair,/<>935/);
+  assert.match(repair,/v_effective_role text:=current_setting\('role',true\)/);
+  assert.match(repair,/v_effective_role is distinct from 'retailer_catalogue_production_approver'/);
+  assert.doesNotMatch(repair,/if current_user<>'retailer_catalogue_production_approver'/);
+  assert.match(repair,/v_parent\.retailer_id not in \(7,14\)/);
+  assert.doesNotMatch(repair,/\b(?:insert into|update|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history|retailers)\b/i);
+});
