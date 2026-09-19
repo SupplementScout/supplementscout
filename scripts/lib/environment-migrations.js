@@ -126,6 +126,7 @@ const EXCLUSIONS = Object.freeze({
     "20260919113000_supersede_interrupted_jons_refresh",
     "20260919120000_supersede_interrupted_10reps_refresh",
     "20260919193000_extend_sequential_refresh_window",
+    "20260919200000_extend_10reps_simply_refresh_window",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",

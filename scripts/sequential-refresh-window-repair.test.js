@@ -22,3 +22,11 @@ test('parent window is bounded while every child receives a fresh short approval
   assert.match(automation,/Date\.parse\(parentExpiresAt\)<=Date\.now\(\)\+45\*60000/);
   assert.match(rollback,/Forward-only/);
 });
+test('dedicated 10 Reps and Simply registrations receive the same bounded parent window',()=>{
+  const dedicated=fs.readFileSync(path.join(process.cwd(),'supabase/migrations/20260919200000_extend_10reps_simply_refresh_window.sql'),'utf8');
+  assert.match(dedicated,/register_10reps_offer_sync_control_plan/);
+  assert.match(dedicated,/register_simply_supplements_offer_sync_control_plan/);
+  assert.match(dedicated,/15 minutes/);
+  assert.match(dedicated,/45 minutes/);
+  assert.doesNotMatch(dedicated,/\b(?:insert into|update|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history|retailers)\b/i);
+});
