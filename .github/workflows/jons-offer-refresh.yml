@@ -31,7 +31,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: jons-offer-refresh
+  group: retailer-offer-production-write
   cancel-in-progress: false
 
 jobs:

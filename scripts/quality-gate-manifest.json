@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 300,
-    "sha256": "ad282585d2e39d0d7b0643590afae25159dea0860dab4bf85b6e453b124a8266"
+    "count": 301,
+    "sha256": "37c24e583219cbe8668429d75d18b2d1cc33de81facb87b754f8a69736eae2b1"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
