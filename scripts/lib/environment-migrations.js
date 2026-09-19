@@ -128,6 +128,7 @@ const EXCLUSIONS = Object.freeze({
     "20260919193000_extend_sequential_refresh_window",
     "20260919200000_extend_10reps_simply_refresh_window",
     "20260919203000_prepare_sequential_parent_approval",
+    "20260919210000_fix_sequential_parent_approver_identity",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",
