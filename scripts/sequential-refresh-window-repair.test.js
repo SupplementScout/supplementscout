@@ -30,3 +30,15 @@ test('dedicated 10 Reps and Simply registrations receive the same bounded parent
   assert.match(dedicated,/45 minutes/);
   assert.doesNotMatch(dedicated,/\b(?:insert into|update|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history|retailers)\b/i);
 });
+test('sequential parent approval preserves the applied 10 Reps batch and fixes both long retailers',()=>{
+  const repair=fs.readFileSync(path.join(process.cwd(),'supabase/migrations/20260919203000_prepare_sequential_parent_approval.sql'),'utf8');
+  assert.match(repair,/6bf06253-9309-4ec7-98ae-003047d946cb/);
+  assert.match(repair,/status='APPLIED'\)<>1/);
+  assert.match(repair,/status='PLANNED'\)<>18/);
+  assert.match(repair,/preserved_refreshed_offers',50/);
+  assert.match(repair,/v_parent\.retailer_id not in \(7,14\)/);
+  assert.match(repair,/prepare_sequential_retailer_offer_sync_parent_approval/);
+  assert.match(repair,/PARTIALLY_APPLIED/);
+  assert.match(automation,/prepareSequentialParentApproval/);
+  assert.doesNotMatch(repair,/\b(?:insert into|update|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history|retailers)\b/i);
+});
