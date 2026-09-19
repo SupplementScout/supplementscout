@@ -258,9 +258,9 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the deployed cleanup and exact pending sequential repair", () => {
+test("production records the deployed ledger and exact pending Simply validator", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending.map(({filename})=>filename), ["20260919220000_allow_simply_confirmed_aggregate_price_wave.sql"]);
   assert.equal(contract.ledgerCount, 214);
   assert.equal(
     contract.ledgerFingerprint,
@@ -375,7 +375,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger with the pending sequential repair", () => {
+test("production binds its exact ledger with the pending Simply aggregate-price validator", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -403,9 +403,9 @@ test("production binds its exact ledger with the pending sequential repair", () 
   });
   assert.equal(result.ledger_count, 214);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 214);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.selected_files.length, 215);
+  assert.deepEqual(result.pending_files, ["20260919220000_allow_simply_confirmed_aggregate_price_wave.sql"]);
+  assert.deepEqual(result.pending_sha256s, {"20260919220000_allow_simply_confirmed_aggregate_price_wave.sql":"f8a77042ddfd8ca6cd9bc5f2e7b398ca8e352f67310eacae369f187c7577ec22"});
   assert.ok(result.selected_files.includes(NUTRITION_CITRULLINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(JONS_INTERRUPTED_REFRESH_MIGRATION));
   assert.ok(result.selected_files.includes(TEN_REPS_INTERRUPTED_REFRESH_MIGRATION));
