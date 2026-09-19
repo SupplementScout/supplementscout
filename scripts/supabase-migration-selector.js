@@ -271,7 +271,7 @@ const CONTRACTS = Object.freeze({
       "20260919200000_extend_10reps_simply_refresh_window.sql":
         "acb3757d3271619a13dcb98d22c71051045f12dc942834a412473b0e4f7b75e9",
       "20260919203000_prepare_sequential_parent_approval.sql":
-        "c3096152f4f048470c5ce0d10ada6f6968a627dc73d51edece1ab8f96e8d0b99",
+        "c394abc4f73be5c83c45c46f1711371883ac9cf29734ed7e81ad9b805bec54b9",
     }),
     pending: Object.freeze([
       Object.freeze({
@@ -329,7 +329,7 @@ const CONTRACTS = Object.freeze({
     pending: Object.freeze([
       Object.freeze({
         filename: "20260919203000_prepare_sequential_parent_approval.sql",
-        sha256: "c3096152f4f048470c5ce0d10ada6f6968a627dc73d51edece1ab8f96e8d0b99",
+        sha256: "c394abc4f73be5c83c45c46f1711371883ac9cf29734ed7e81ad9b805bec54b9",
       }),
     ]),
   }),

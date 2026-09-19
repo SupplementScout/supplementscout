@@ -105,24 +105,4 @@ $prepare$;
 alter function public.prepare_sequential_retailer_offer_sync_parent_approval(jsonb) owner to postgres;
 revoke all on function public.prepare_sequential_retailer_offer_sync_parent_approval(jsonb) from public,anon,authenticated,service_role;
 grant execute on function public.prepare_sequential_retailer_offer_sync_parent_approval(jsonb) to retailer_catalogue_production_approver;
-
-do $patch_approval$
-declare
-  v_definition text:=pg_get_functiondef('public.retailer_offer_sync_approve_batch_internal(jsonb)'::regprocedure);
-  v_status_anchor text:=$a$v_child.status<>'PLANNED' or v_parent.status<>'PLANNED' or$a$;
-  v_call_anchor text:=$a$v_parent_approval:=public.approve_retailer_catalogue_parent_plan(v_parent.id,v_parent.parent_plan_fingerprint,trim(p_request->>'approved_by'),(p_request->>'expires_at')::timestamptz);$a$;
-  v_call_replacement text:=$a$if v_parent.status in ('APPROVED','PARTIALLY_APPLIED') and v_parent.approved_by=trim(p_request->>'approved_by') and v_parent.approval_expires_at>now() then
-    v_parent_approval:=jsonb_build_object('parent_plan_id',v_parent.id,'approval_id',v_parent.approval_id,'status',v_parent.status,'noop',true);
-  else
-    v_parent_approval:=public.approve_retailer_catalogue_parent_plan(v_parent.id,v_parent.parent_plan_fingerprint,trim(p_request->>'approved_by'),(p_request->>'expires_at')::timestamptz);
-  end if;$a$;
-begin
-  if strpos(v_definition,v_status_anchor)=0 or strpos(v_definition,v_call_anchor)=0 then
-    raise exception 'production mixed approval patch precondition mismatch';
-  end if;
-  v_definition:=replace(v_definition,v_status_anchor,$a$v_child.status<>'PLANNED' or v_parent.status not in ('PLANNED','APPROVED','PARTIALLY_APPLIED') or$a$);
-  v_definition:=replace(v_definition,v_call_anchor,v_call_replacement);
-  execute v_definition;
-end
-$patch_approval$;
 commit;
