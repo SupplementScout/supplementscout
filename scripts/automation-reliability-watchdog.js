@@ -628,6 +628,7 @@ async function contractFromArtifacts(repository, runId, token, options = {}) {
     const reviewScopeCandidates = [];
     for (const artifact of listing.artifacts || []) {
       if (artifact.expired) continue;
+      if (!artifactBelongsToProfile(options.profile, artifact)) continue;
       const response = await fetch(artifact.archive_download_url, {
         headers: {
           accept: "application/vnd.github+json",
@@ -676,6 +677,15 @@ async function contractFromArtifacts(repository, runId, token, options = {}) {
   } finally {
     fs.rmSync(directory, { recursive: true, force: true });
   }
+}
+
+function artifactBelongsToProfile(profile, artifact) {
+  const sharedWorkflowPrefixes = {
+    "9": "fit-house-offer-refresh-",
+    "14": "10reps-offer-refresh-",
+  };
+  const prefix = sharedWorkflowPrefixes[String(profile?.id)];
+  return !prefix || String(artifact?.name || "").startsWith(prefix);
 }
 
 async function databaseEvidence(config, env, dependencies = {}) {
@@ -836,6 +846,7 @@ module.exports = {
   VALIDATOR_LOGIN,
   VALIDATOR_ROLE,
   applyMonitoredBacklog,
+  artifactBelongsToProfile,
   buildEbaySplitRunAttestation,
   buildEbaySplitRunEvidence,
   contractFromArtifacts,
