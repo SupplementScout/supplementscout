@@ -260,11 +260,11 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
 
 test("production records the deployed cleanup and exact pending sequential repair", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{filename:SEQUENTIAL_APPROVER_IDENTITY_MIGRATION,sha256:SEQUENTIAL_APPROVER_IDENTITY_SHA256}]);
-  assert.equal(contract.ledgerCount, 213);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 214);
   assert.equal(
     contract.ledgerFingerprint,
-    "cdee03bb9e2f9c41aafaeb518ba72320a1eb501f5dca81abc4951dd89d88f7f0",
+    "989bdbed9791cba9712948c54085578976af92b71c76fdcc5708ed4aacc805c6",
   );
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_VARIANT_PROVENANCE_MIGRATION)), NUTRITION_VARIANT_PROVENANCE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_PREWORKOUT_FACTS_MIGRATION)), NUTRITION_PREWORKOUT_FACTS_SHA256);
@@ -274,6 +274,7 @@ test("production records the deployed cleanup and exact pending sequential repai
   assert.equal(sha256File(path.join(SOURCE, TEN_REPS_INTERRUPTED_REFRESH_MIGRATION)), TEN_REPS_INTERRUPTED_REFRESH_SHA256);
   assert.equal(sha256File(path.join(SOURCE, DEDICATED_REFRESH_WINDOW_MIGRATION)), DEDICATED_REFRESH_WINDOW_SHA256);
   assert.equal(sha256File(path.join(SOURCE, SEQUENTIAL_PARENT_APPROVAL_MIGRATION)), SEQUENTIAL_PARENT_APPROVAL_SHA256);
+  assert.equal(sha256File(path.join(SOURCE, SEQUENTIAL_APPROVER_IDENTITY_MIGRATION)), SEQUENTIAL_APPROVER_IDENTITY_SHA256);
   assert.equal(sha256File(path.join(SOURCE, SEQUENTIAL_REFRESH_WINDOW_MIGRATION)), SEQUENTIAL_REFRESH_WINDOW_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TEN_REPS_SYNC_REGISTRATION_MIGRATION)), TEN_REPS_SYNC_REGISTRATION_SHA256);
   assert.equal(sha256File(path.join(SOURCE, INTERRUPTED_SHARED_REFRESH_MIGRATION)), INTERRUPTED_SHARED_REFRESH_SHA256);
@@ -400,11 +401,11 @@ test("production binds its exact ledger with the pending sequential repair", () 
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 213);
+  assert.equal(result.ledger_count, 214);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 214);
-  assert.deepEqual(result.pending_files, [SEQUENTIAL_APPROVER_IDENTITY_MIGRATION]);
-  assert.deepEqual(result.pending_sha256s, {[SEQUENTIAL_APPROVER_IDENTITY_MIGRATION]:SEQUENTIAL_APPROVER_IDENTITY_SHA256});
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(NUTRITION_CITRULLINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(JONS_INTERRUPTED_REFRESH_MIGRATION));
   assert.ok(result.selected_files.includes(TEN_REPS_INTERRUPTED_REFRESH_MIGRATION));
