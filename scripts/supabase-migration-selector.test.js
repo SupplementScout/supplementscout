@@ -248,22 +248,13 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records nutrition migrations A, B and C as deployed with exact pending files", () => {
+test("production records nutrition components and Jon's cleanup as deployed", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [
-    {
-      filename: NUTRITION_CITRULLINE_COMPONENTS_MIGRATION,
-      sha256: NUTRITION_CITRULLINE_COMPONENTS_SHA256,
-    },
-    {
-      filename: JONS_INTERRUPTED_REFRESH_MIGRATION,
-      sha256: JONS_INTERRUPTED_REFRESH_SHA256,
-    },
-  ]);
-  assert.equal(contract.ledgerCount, 207);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 209);
   assert.equal(
     contract.ledgerFingerprint,
-    "13cd90548a2ee62b5ba065258a48ac123798c41141c1680dd051161fa356791b",
+    "6794c18aa047b8227bc97ad68df972233a9b40a572d88140124b2f39c4b3ec59",
   );
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_VARIANT_PROVENANCE_MIGRATION)), NUTRITION_VARIANT_PROVENANCE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_PREWORKOUT_FACTS_MIGRATION)), NUTRITION_PREWORKOUT_FACTS_SHA256);
@@ -369,7 +360,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger with the approved pending files", () => {
+test("production binds its exact fully deployed ledger", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -395,14 +386,11 @@ test("production binds its exact ledger with the approved pending files", () => 
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 207);
+  assert.equal(result.ledger_count, 209);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 209);
-  assert.deepEqual(result.pending_files, [NUTRITION_CITRULLINE_COMPONENTS_MIGRATION, JONS_INTERRUPTED_REFRESH_MIGRATION]);
-  assert.deepEqual(result.pending_sha256s, {
-    [NUTRITION_CITRULLINE_COMPONENTS_MIGRATION]: NUTRITION_CITRULLINE_COMPONENTS_SHA256,
-    [JONS_INTERRUPTED_REFRESH_MIGRATION]: JONS_INTERRUPTED_REFRESH_SHA256,
-  });
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(NUTRITION_CITRULLINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(JONS_INTERRUPTED_REFRESH_MIGRATION));
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_CATALOGUE_COUNT_MIGRATION)), REVIEWED_CATALOGUE_COUNT_SHA256);

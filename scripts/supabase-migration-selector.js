@@ -299,9 +299,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 207,
+    ledgerCount: 209,
     ledgerFingerprint:
-      "13cd90548a2ee62b5ba065258a48ac123798c41141c1680dd051161fa356791b",
+      "6794c18aa047b8227bc97ad68df972233a9b40a572d88140124b2f39c4b3ec59",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -318,16 +318,7 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260913110000_add_nutrition_candidate_citrulline_components.sql",
-        sha256: "76dd8390e19f45dd8ffcc69bafe9721abc6dedff6db280fdc6f75e3938258ac4",
-      }),
-      Object.freeze({
-        filename: "20260919113000_supersede_interrupted_jons_refresh.sql",
-        sha256: "4f3cf75333c9ffa83e660d1851f7cf308edcec3c850d5b88a27d43db8e3db676",
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
 });
 
