@@ -83,6 +83,12 @@ test("Simply holds a confirmed aggregate price wave while unchanged and stock-on
   assert.deepEqual(isolated.quarantined_rows.map((row) => [row.offer_id, row.reason]), [["5", "SOURCE_VARIANT_MISSING"], ["2", "MASS_PRICE"], ["3", "MASS_PRICE"]]);
 });
 
+test("aggregate confirmation covers every price row, not only hard price anomalies", () => {
+  assert.match(automation, /confirmedPriceOfferIds=\(classification\.rows\|\|\[\]\)\.filter\(row=>Boolean\(row\.changed_fields\?\.price\)\)/);
+  assert.match(automation, /confirmed_offer_ids:confirmedPriceOfferIds/);
+  assert.doesNotMatch(automation, /confirmed_offer_ids:hardPriceOfferIds/);
+});
+
 test("scheduled workflow reuses protected roles and contains no Awin credential", () => {
   assert.match(workflow, /cron: "7 5 \* \* \*"/);
   assert.match(workflow, /permissions:\s*\n\s*contents: read/);

@@ -459,8 +459,9 @@ async function buildRun(target,state,diagnostic=null,reviewed=null,isolateUnsafe
         classification=classifyExistingOffers({targets,sourceVariants:secondReconciled.sourceVariants,policy,guardScope:{name:config.guard_scope_name,retailer:config.retailer_name},sourceCapturedAt:capturedAt,now:new Date(capturedAt),sourceProductCount:secondSnapshot.products.length,previousSourceProductCount:config.source_baseline.product_count,reviewedPriceAnomalyOfferIds:hardPriceOfferIds,quarantineUnsafeRows:true});
         const confirmedObserved=new Set((classification.rows||[]).filter(row=>row.changed_fields.price&&hardPriceOfferIds.includes(String(row.offer_id))).map(row=>String(row.offer_id)));
         invariant(confirmedObserved.size===hardPriceOfferIds.length,`confirmed ${config.retailer_name} price scope changed during reclassification`);
-        automaticPriceConfirmation={kind:"retailer-two-capture-price-confirmation-v1",retailer_id:String(config.retailer_id),retailer_slug:config.retailer_slug,first_source_fingerprint:snapshot.semantic_source_fingerprint,second_source_fingerprint:secondSnapshot.semantic_source_fingerprint,first_mapped_fingerprint:firstMappedFingerprint,second_mapped_fingerprint:secondMappedFingerprint,second_captured_at:secondCapturedAt,confirmed_offer_ids:hardPriceOfferIds};
       }
+      const confirmedPriceOfferIds=(classification.rows||[]).filter(row=>Boolean(row.changed_fields?.price)).map(row=>String(row.offer_id)).sort((a,b)=>Number(a)-Number(b));
+      if(confirmedPriceOfferIds.length)automaticPriceConfirmation={kind:"retailer-two-capture-price-confirmation-v1",retailer_id:String(config.retailer_id),retailer_slug:config.retailer_slug,first_source_fingerprint:snapshot.semantic_source_fingerprint,second_source_fingerprint:secondSnapshot.semantic_source_fingerprint,first_mapped_fingerprint:firstMappedFingerprint,second_mapped_fingerprint:secondMappedFingerprint,second_captured_at:secondCapturedAt,confirmed_offer_ids:confirmedPriceOfferIds};
       if(classification.reason==="MASS_PRICE")classification=isolateAggregatePriceChanges(classification);
     }
   }
