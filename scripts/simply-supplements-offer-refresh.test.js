@@ -84,9 +84,13 @@ test("Simply holds a confirmed aggregate price wave while unchanged and stock-on
 });
 
 test("aggregate confirmation covers every price row, not only hard price anomalies", () => {
-  assert.match(automation, /confirmedPriceOfferIds=\(classification\.rows\|\|\[\]\)\.filter\(row=>Boolean\(row\.changed_fields\?\.price\)\)/);
+  assert.match(automation, /config\.retailer_id===7\?\(classification\.rows\|\|\[\]\)\.filter\(row=>Boolean\(row\.changed_fields\?\.price\)\)/);
   assert.match(automation, /confirmed_offer_ids:confirmedPriceOfferIds/);
   assert.doesNotMatch(automation, /confirmed_offer_ids:hardPriceOfferIds/);
+  const migration = fs.readFileSync(path.join(ROOT, "supabase/migrations/20260919220000_allow_simply_confirmed_aggregate_price_wave.sql"), "utf8");
+  assert.match(migration, /v_kind='retailer-two-capture-price-confirmation-v2' and p_retailer_id='7'/);
+  assert.match(migration, /where \(value#>>'\{changed_fields,price\}'\)::boolean/);
+  assert.doesNotMatch(migration, /(?:insert into|delete from|update) public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
 });
 
 test("scheduled workflow reuses protected roles and contains no Awin credential", () => {
