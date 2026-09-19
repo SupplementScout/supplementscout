@@ -40,6 +40,8 @@ const NUTRITION_CITRULLINE_COMPONENTS_MIGRATION = "20260913110000_add_nutrition_
 const NUTRITION_CITRULLINE_COMPONENTS_SHA256 = "76dd8390e19f45dd8ffcc69bafe9721abc6dedff6db280fdc6f75e3938258ac4";
 const JONS_INTERRUPTED_REFRESH_MIGRATION = "20260919113000_supersede_interrupted_jons_refresh.sql";
 const JONS_INTERRUPTED_REFRESH_SHA256 = "4f3cf75333c9ffa83e660d1851f7cf308edcec3c850d5b88a27d43db8e3db676";
+const TEN_REPS_INTERRUPTED_REFRESH_MIGRATION = "20260919120000_supersede_interrupted_10reps_refresh.sql";
+const TEN_REPS_INTERRUPTED_REFRESH_SHA256 = "61eb2057f6f0b83cb690ef30b0e2b4bad842b612d585709ae716478b59a188f0";
 const REVIEWED_VARIANT_REBIND_MIGRATION = "20260901090000_add_reviewed_variant_create_rebind_offer_update.sql";
 const REVIEWED_VARIANT_REBIND_SHA256 = "a8e279a8efacab24fa14b671e9ecdc211933b27f2460efc4ddf6833e789ca2b7";
 const REVIEWED_VARIANT_DIGEST_FIX_MIGRATION = "20260901100000_fix_reviewed_variant_digest_schema_resolution.sql";
@@ -248,9 +250,9 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records nutrition components and Jon's cleanup as deployed", () => {
+test("production records deployed migrations and the exact pending 10 Reps cleanup", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{filename:TEN_REPS_INTERRUPTED_REFRESH_MIGRATION,sha256:TEN_REPS_INTERRUPTED_REFRESH_SHA256}]);
   assert.equal(contract.ledgerCount, 209);
   assert.equal(
     contract.ledgerFingerprint,
@@ -261,6 +263,7 @@ test("production records nutrition components and Jon's cleanup as deployed", ()
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_STRUCTURED_CREATINE_MIGRATION)), NUTRITION_STRUCTURED_CREATINE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_CITRULLINE_COMPONENTS_MIGRATION)), NUTRITION_CITRULLINE_COMPONENTS_SHA256);
   assert.equal(sha256File(path.join(SOURCE, JONS_INTERRUPTED_REFRESH_MIGRATION)), JONS_INTERRUPTED_REFRESH_SHA256);
+  assert.equal(sha256File(path.join(SOURCE, TEN_REPS_INTERRUPTED_REFRESH_MIGRATION)), TEN_REPS_INTERRUPTED_REFRESH_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TEN_REPS_SYNC_REGISTRATION_MIGRATION)), TEN_REPS_SYNC_REGISTRATION_SHA256);
   assert.equal(sha256File(path.join(SOURCE, INTERRUPTED_SHARED_REFRESH_MIGRATION)), INTERRUPTED_SHARED_REFRESH_SHA256);
   assert.equal(sha256File(path.join(SOURCE, EXPIRED_DISCOUNT_JONS_MIGRATION)), EXPIRED_DISCOUNT_JONS_SHA256);
@@ -360,7 +363,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact fully deployed ledger", () => {
+test("production binds its exact ledger with the pending 10 Reps cleanup", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -388,11 +391,12 @@ test("production binds its exact fully deployed ledger", () => {
   });
   assert.equal(result.ledger_count, 209);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 209);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.selected_files.length, 210);
+  assert.deepEqual(result.pending_files, [TEN_REPS_INTERRUPTED_REFRESH_MIGRATION]);
+  assert.deepEqual(result.pending_sha256s, {[TEN_REPS_INTERRUPTED_REFRESH_MIGRATION]:TEN_REPS_INTERRUPTED_REFRESH_SHA256});
   assert.ok(result.selected_files.includes(NUTRITION_CITRULLINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(JONS_INTERRUPTED_REFRESH_MIGRATION));
+  assert.ok(result.selected_files.includes(TEN_REPS_INTERRUPTED_REFRESH_MIGRATION));
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_CATALOGUE_COUNT_MIGRATION)), REVIEWED_CATALOGUE_COUNT_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_ENERGY_MIGRATION)), REVIEWED_ENERGY_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_EXISTING_CATEGORIES_MIGRATION)), REVIEWED_EXISTING_CATEGORIES_SHA256);
