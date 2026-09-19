@@ -250,13 +250,13 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records deployed migrations and the exact pending 10 Reps cleanup", () => {
+test("production records the deployed 10 Reps cleanup", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{filename:TEN_REPS_INTERRUPTED_REFRESH_MIGRATION,sha256:TEN_REPS_INTERRUPTED_REFRESH_SHA256}]);
-  assert.equal(contract.ledgerCount, 209);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 210);
   assert.equal(
     contract.ledgerFingerprint,
-    "6794c18aa047b8227bc97ad68df972233a9b40a572d88140124b2f39c4b3ec59",
+    "ec0a14614ab09d7726692bc2a276a3039374daf647650f28fa6328d18b65874e",
   );
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_VARIANT_PROVENANCE_MIGRATION)), NUTRITION_VARIANT_PROVENANCE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_PREWORKOUT_FACTS_MIGRATION)), NUTRITION_PREWORKOUT_FACTS_SHA256);
@@ -363,7 +363,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger with the pending 10 Reps cleanup", () => {
+test("production binds its exact ledger including the deployed 10 Reps cleanup", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -389,11 +389,11 @@ test("production binds its exact ledger with the pending 10 Reps cleanup", () =>
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 209);
+  assert.equal(result.ledger_count, 210);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 210);
-  assert.deepEqual(result.pending_files, [TEN_REPS_INTERRUPTED_REFRESH_MIGRATION]);
-  assert.deepEqual(result.pending_sha256s, {[TEN_REPS_INTERRUPTED_REFRESH_MIGRATION]:TEN_REPS_INTERRUPTED_REFRESH_SHA256});
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(NUTRITION_CITRULLINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(JONS_INTERRUPTED_REFRESH_MIGRATION));
   assert.ok(result.selected_files.includes(TEN_REPS_INTERRUPTED_REFRESH_MIGRATION));
