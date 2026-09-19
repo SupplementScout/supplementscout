@@ -46,6 +46,8 @@ const SEQUENTIAL_REFRESH_WINDOW_MIGRATION = "20260919193000_extend_sequential_re
 const SEQUENTIAL_REFRESH_WINDOW_SHA256 = "9ff531d9e06725a309002cdc85a3e22fddd5ee6444b39701e000445492747b97";
 const DEDICATED_REFRESH_WINDOW_MIGRATION = "20260919200000_extend_10reps_simply_refresh_window.sql";
 const DEDICATED_REFRESH_WINDOW_SHA256 = "acb3757d3271619a13dcb98d22c71051045f12dc942834a412473b0e4f7b75e9";
+const SEQUENTIAL_PARENT_APPROVAL_MIGRATION = "20260919203000_prepare_sequential_parent_approval.sql";
+const SEQUENTIAL_PARENT_APPROVAL_SHA256 = "c3096152f4f048470c5ce0d10ada6f6968a627dc73d51edece1ab8f96e8d0b99";
 const REVIEWED_VARIANT_REBIND_MIGRATION = "20260901090000_add_reviewed_variant_create_rebind_offer_update.sql";
 const REVIEWED_VARIANT_REBIND_SHA256 = "a8e279a8efacab24fa14b671e9ecdc211933b27f2460efc4ddf6833e789ca2b7";
 const REVIEWED_VARIANT_DIGEST_FIX_MIGRATION = "20260901100000_fix_reviewed_variant_digest_schema_resolution.sql";
@@ -256,11 +258,11 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
 
 test("production records the deployed cleanup and exact pending sequential repair", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{filename:DEDICATED_REFRESH_WINDOW_MIGRATION,sha256:DEDICATED_REFRESH_WINDOW_SHA256}]);
-  assert.equal(contract.ledgerCount, 211);
+  assert.deepEqual(contract.pending, [{filename:SEQUENTIAL_PARENT_APPROVAL_MIGRATION,sha256:SEQUENTIAL_PARENT_APPROVAL_SHA256}]);
+  assert.equal(contract.ledgerCount, 212);
   assert.equal(
     contract.ledgerFingerprint,
-    "a8e673672f2c31fda58333863b60f1099cc5be09551194f359a8980392d53439",
+    "ea010226a6a1d43401c0560d1a97a96c688b191e87126d846691135ad30d8f54",
   );
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_VARIANT_PROVENANCE_MIGRATION)), NUTRITION_VARIANT_PROVENANCE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_PREWORKOUT_FACTS_MIGRATION)), NUTRITION_PREWORKOUT_FACTS_SHA256);
@@ -268,6 +270,7 @@ test("production records the deployed cleanup and exact pending sequential repai
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_CITRULLINE_COMPONENTS_MIGRATION)), NUTRITION_CITRULLINE_COMPONENTS_SHA256);
   assert.equal(sha256File(path.join(SOURCE, JONS_INTERRUPTED_REFRESH_MIGRATION)), JONS_INTERRUPTED_REFRESH_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TEN_REPS_INTERRUPTED_REFRESH_MIGRATION)), TEN_REPS_INTERRUPTED_REFRESH_SHA256);
+  assert.equal(sha256File(path.join(SOURCE, DEDICATED_REFRESH_WINDOW_MIGRATION)), DEDICATED_REFRESH_WINDOW_SHA256);
   assert.equal(sha256File(path.join(SOURCE, SEQUENTIAL_REFRESH_WINDOW_MIGRATION)), SEQUENTIAL_REFRESH_WINDOW_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TEN_REPS_SYNC_REGISTRATION_MIGRATION)), TEN_REPS_SYNC_REGISTRATION_SHA256);
   assert.equal(sha256File(path.join(SOURCE, INTERRUPTED_SHARED_REFRESH_MIGRATION)), INTERRUPTED_SHARED_REFRESH_SHA256);
@@ -394,11 +397,11 @@ test("production binds its exact ledger with the pending sequential repair", () 
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 211);
+  assert.equal(result.ledger_count, 212);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 212);
-  assert.deepEqual(result.pending_files, [DEDICATED_REFRESH_WINDOW_MIGRATION]);
-  assert.deepEqual(result.pending_sha256s, {[DEDICATED_REFRESH_WINDOW_MIGRATION]:DEDICATED_REFRESH_WINDOW_SHA256});
+  assert.equal(result.selected_files.length, 213);
+  assert.deepEqual(result.pending_files, [SEQUENTIAL_PARENT_APPROVAL_MIGRATION]);
+  assert.deepEqual(result.pending_sha256s, {[SEQUENTIAL_PARENT_APPROVAL_MIGRATION]:SEQUENTIAL_PARENT_APPROVAL_SHA256});
   assert.ok(result.selected_files.includes(NUTRITION_CITRULLINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(JONS_INTERRUPTED_REFRESH_MIGRATION));
   assert.ok(result.selected_files.includes(TEN_REPS_INTERRUPTED_REFRESH_MIGRATION));
