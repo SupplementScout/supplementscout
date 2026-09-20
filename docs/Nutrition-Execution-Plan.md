@@ -5867,3 +5867,32 @@ zero product updates. Full evidence is in
 NUT-03 remains `IN PROGRESS`. One next step is one explicit authorization for
 production `store -> authenticated review -> explicit-ID plan -> guarded apply`
 of exactly these `16` candidates for variants `2646`, `2649`, `4101`, `4107`.
+
+## NUT-03 one-scoop serving-basis correction execution
+
+20 September 2026, after explicit owner authorization, the two prepared
+artifacts passed a fresh production preflight for project
+`aftboxmrdgyhizicfsfu`: four exact bindings, `16` unique fingerprints and zero
+matching candidates. Store created candidates `2995`-`3010`, and authenticated
+review approved all `16` unchanged records.
+
+Two explicit-ID plans contained zero product updates and exactly four variant
+updates. Guarded apply changed only `serving_size_g`, caffeine, beta-alanine and
+citrulline in `nutrition_override` for Defib `2646`, `2649` and Menace V2
+`4101`, `4107`. The catalogue now uses one scoop: Defib `10.5 g`, `200 mg`,
+`1600 mg`, `4000 mg` citrulline malate; Menace V2 `7 g`, `200 mg`, `1600 mg`,
+`3000 mg` citrulline malate. Existing creatine facts, products,
+`nutrition_verified`, legacy fields and all other variants were preserved.
+
+Independent production readback matched every whole override to its plan and
+confirmed all approvals and evidence unchanged. Coverage remains `469/575`
+applied variants, with `428` complete, `41` partial and `106` without applied
+facts. All four public variant pages passed. Both exact-plan replays were safely
+rejected on stale `before`, with zero additional writes. Complete evidence is
+in
+[nutrition-serving-basis-correction-execution-2026-09-20.json](rollouts/nutrition-serving-basis-correction-execution-2026-09-20.json).
+(SHA-256
+`1a875466de889bfb0ae20fda65546dc223efa011b9789797846661394e937435`).
+NUT-03 remains `IN PROGRESS`. One next step is targeted formula-generation
+evidence for products `878`, `1162` and `1249`, or the separately prepared Stim
+Thug correction.
