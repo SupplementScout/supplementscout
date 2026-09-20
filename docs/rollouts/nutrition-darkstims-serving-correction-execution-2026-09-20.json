@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-darkstims-serving-correction-execution-v1",
+  "executed_at": "2026-09-20T19:22:29.127Z",
+  "target": "PRODUCTION aftboxmrdgyhizicfsfu",
+  "artifact": {
+    "sha256": "241c3163e7c2cab0b22324b38cec3b6fb7420457970cb4234c55b75f1bb583a3",
+    "fingerprint": "d44c407642bd40af2e70e4278bae6dd8175a4a310fdba66034eef3543e4041ac"
+  },
+  "candidates": {
+    "ids": [
+      "3166",
+      "3167",
+      "3168",
+      "3169",
+      "3170",
+      "3171",
+      "3172",
+      "3173",
+      "3174",
+      "3175",
+      "3176",
+      "3177",
+      "3178",
+      "3179",
+      "3180",
+      "3181"
+    ],
+    "status": "APPROVED",
+    "count": 16
+  },
+  "plan": {
+    "path": "tmp/nutrition-approved-plan/NCR1-darkstims-serving-correction-20260920-1275-456756369c94.json",
+    "sha256": "8ec3a8d96dfcbaeb8697b592578072d25099892339aac720a792469372e4dc29",
+    "fingerprint": "456756369c9475a21bdb4a3d1ac6fe950cc17d928f1f2e0713ec52dc19fa152f",
+    "products": 0,
+    "variants": 4,
+    "blockers": []
+  },
+  "apply": {
+    "changed_products": [],
+    "changed_variants": [
+      "3755",
+      "3913",
+      "3914",
+      "3915"
+    ],
+    "fields": [
+      "serving_size_g",
+      "beta_alanine",
+      "citrulline_components"
+    ]
+  },
+  "readback": {
+    "result": "PASS",
+    "whole_after_match": true,
+    "evidence_unchanged": true,
+    "approved": 16
+  },
+  "public_readback": {
+    "result": "PASS",
+    "pages": [
+      {
+        "variant_id": "3755",
+        "url": "https://www.supplementscout.co.uk/product/darkstims-pump-v2-stim-free-pre-workout-520g?variant=3755",
+        "checks": {
+          "http_200": true,
+          "serving_27_5": true,
+          "two_scoops": true,
+          "beta": true,
+          "l_citrulline": true,
+          "nitrate": true,
+          "private_absent": true
+        }
+      },
+      {
+        "variant_id": "3913",
+        "url": "https://www.supplementscout.co.uk/product/darkstims-pump-v2-stim-free-pre-workout-520g?variant=3913",
+        "checks": {
+          "http_200": true,
+          "serving_27_5": true,
+          "two_scoops": true,
+          "beta": true,
+          "l_citrulline": true,
+          "nitrate": true,
+          "private_absent": true
+        }
+      },
+      {
+        "variant_id": "3914",
+        "url": "https://www.supplementscout.co.uk/product/darkstims-pump-v2-stim-free-pre-workout-520g?variant=3914",
+        "checks": {
+          "http_200": true,
+          "serving_27_5": true,
+          "two_scoops": true,
+          "beta": true,
+          "l_citrulline": true,
+          "nitrate": true,
+          "private_absent": true
+        }
+      },
+      {
+        "variant_id": "3915",
+        "url": "https://www.supplementscout.co.uk/product/darkstims-pump-v2-stim-free-pre-workout-520g?variant=3915",
+        "checks": {
+          "http_200": true,
+          "serving_27_5": true,
+          "two_scoops": true,
+          "beta": true,
+          "l_citrulline": true,
+          "nitrate": true,
+          "private_absent": true
+        }
+      }
+    ],
+    "database_writes": 0
+  },
+  "current_offer_coverage": {
+    "total": 369,
+    "complete": 350,
+    "partial": 2,
+    "none": 17
+  },
+  "replay_protection": "Current targets equal plan after and differ from guarded before; stale-plan replay would fail before-state validation.",
+  "unplanned_changes": 0
+}
