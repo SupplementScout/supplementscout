@@ -277,7 +277,7 @@ const CONTRACTS = Object.freeze({
       "20260919220000_allow_simply_confirmed_aggregate_price_wave.sql":
         "f8a77042ddfd8ca6cd9bc5f2e7b398ca8e352f67310eacae369f187c7577ec22",
       "20260919223000_apply_simply_confirmed_aggregate_guard.sql":
-        "fbb7fc08c2e3e5c422779ab772c51c6257285d6e8f486cd8a8a9aa08d3fad7bc",
+        "25b48c34d4a17bc7de615c959b3edbfe0e7bd547a4a099dbdca8dd9b4c75cd18",
     }),
     pending: Object.freeze([
       Object.freeze({
@@ -335,7 +335,7 @@ const CONTRACTS = Object.freeze({
     pending: Object.freeze([
       Object.freeze({
         filename: "20260919223000_apply_simply_confirmed_aggregate_guard.sql",
-        sha256: "fbb7fc08c2e3e5c422779ab772c51c6257285d6e8f486cd8a8a9aa08d3fad7bc",
+        sha256: "25b48c34d4a17bc7de615c959b3edbfe0e7bd547a4a099dbdca8dd9b4c75cd18",
         expectedCatalogueDeltas: Object.freeze({}),
       }),
     ]),
