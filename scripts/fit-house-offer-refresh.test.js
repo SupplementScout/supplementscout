@@ -466,6 +466,30 @@ test("price and other changes are spread below per-child database guard ratios",
   }
 });
 
+test("two-capture confirmed prices bypass only the duplicate per-child ratio check", () => {
+  const rows = Array.from({ length: 119 }, (_, index) => ({
+    offer_id: String(index + 1),
+    action: index < 31 ? "UPDATE_PRICE" : "VERIFY_NO_CHANGE",
+    changed_fields: { price: index < 31 },
+    atomic_plan: {
+      expected_state: { offer: { in_stock: true } },
+      offer: { values: { in_stock: true } },
+    },
+  }));
+  assert.throws(() => balancedExecutionBatches(rows, 50, 3), /price-change ratio drift/);
+  const confirmed = rows.slice(0, 31).map((row) => row.offer_id);
+  const batches = balancedExecutionBatches(rows, 50, 3, confirmed);
+  assert.equal(batches.flat().length, 119);
+  assert.throws(
+    () => balancedExecutionBatches(rows, 50, 3, [...confirmed, "999"]),
+    /confirmed price scope drift/,
+  );
+  assert.throws(
+    () => balancedExecutionBatches(rows, 50, 3, confirmed.slice(0, 1)),
+    /price-change ratio drift/,
+  );
+});
+
 test("new unavailable rows are split within the database validator limit", () => {
   const rows = Array.from({ length: 286 }, (_, index) => ({
     offer_id: String(index + 1),

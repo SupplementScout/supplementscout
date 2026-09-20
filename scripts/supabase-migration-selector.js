@@ -262,6 +262,22 @@ const CONTRACTS = Object.freeze({
         "0bb7c151f5458302ff4f560d6ffa9f75db494f199343b3a4a385e3eff478e3c5",
       "20260908210000_reuse_atomic_price_history_and_close_jons_retry.sql":
         "f94b4218264c5b321d682f07361b51a0915f5e469915bb351d98bf2f9d35c4b9",
+      "20260919113000_supersede_interrupted_jons_refresh.sql":
+        "4f3cf75333c9ffa83e660d1851f7cf308edcec3c850d5b88a27d43db8e3db676",
+      "20260919120000_supersede_interrupted_10reps_refresh.sql":
+        "61eb2057f6f0b83cb690ef30b0e2b4bad842b612d585709ae716478b59a188f0",
+      "20260919193000_extend_sequential_refresh_window.sql":
+        "9ff531d9e06725a309002cdc85a3e22fddd5ee6444b39701e000445492747b97",
+      "20260919200000_extend_10reps_simply_refresh_window.sql":
+        "acb3757d3271619a13dcb98d22c71051045f12dc942834a412473b0e4f7b75e9",
+      "20260919203000_prepare_sequential_parent_approval.sql":
+        "c394abc4f73be5c83c45c46f1711371883ac9cf29734ed7e81ad9b805bec54b9",
+      "20260919210000_fix_sequential_parent_approver_identity.sql":
+        "8e2235061b90f88a22740f654e0fd87e1a9ffddd9915194dec3ba5ece2fe1659",
+      "20260919220000_allow_simply_confirmed_aggregate_price_wave.sql":
+        "f8a77042ddfd8ca6cd9bc5f2e7b398ca8e352f67310eacae369f187c7577ec22",
+      "20260919223000_apply_simply_confirmed_aggregate_guard.sql":
+        "25b48c34d4a17bc7de615c959b3edbfe0e7bd547a4a099dbdca8dd9b4c75cd18",
     }),
     pending: Object.freeze([
       Object.freeze({
@@ -301,9 +317,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 207,
+    ledgerCount: 216,
     ledgerFingerprint:
-      "13cd90548a2ee62b5ba065258a48ac123798c41141c1680dd051161fa356791b",
+      "5c11467fad13986ca7f3ba92c73e4d3a68e101b7de6e4e31013cc30017de4554",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -321,10 +337,6 @@ const CONTRACTS = Object.freeze({
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
     pending: Object.freeze([
-      Object.freeze({
-        filename: "20260913110000_add_nutrition_candidate_citrulline_components.sql",
-        sha256: "76dd8390e19f45dd8ffcc69bafe9721abc6dedff6db280fdc6f75e3938258ac4",
-      }),
       Object.freeze({
         filename: "20260920150000_add_nutrition_candidate_creatine_components.sql",
         sha256: "c68dac262928ac1ebf971fd8cb838468f38376ebb7c43d8f426884adc200200b",

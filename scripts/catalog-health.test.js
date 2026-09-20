@@ -57,6 +57,7 @@ const {
 } = require(path.join(process.cwd(), "app", "admin", "lib", "catalogHealth.ts"));
 const {
   applyMonitoredBacklog,
+  artifactBelongsToProfile,
   buildEbaySplitRunAttestation,
   correlateEvidence,
   evaluateRetailer,
@@ -68,6 +69,44 @@ const {
   validateEbayApplyArtifacts,
   validateEbayIdempotencyArtifacts,
 } = require("./automation-reliability-watchdog");
+
+test("watchdog isolates artifacts for jobs sharing one workflow", () => {
+  assert.equal(
+    artifactBelongsToProfile(
+      { id: 9 },
+      { name: "fit-house-offer-refresh-35320273158-1" },
+    ),
+    true,
+  );
+  assert.equal(
+    artifactBelongsToProfile(
+      { id: 9 },
+      { name: "10reps-offer-refresh-35320273158-1" },
+    ),
+    false,
+  );
+  assert.equal(
+    artifactBelongsToProfile(
+      { id: 14 },
+      { name: "10reps-offer-refresh-35320273158-1" },
+    ),
+    true,
+  );
+  assert.equal(
+    artifactBelongsToProfile(
+      { id: 14 },
+      { name: "fit-house-offer-refresh-35320273158-1" },
+    ),
+    false,
+  );
+  assert.equal(
+    artifactBelongsToProfile(
+      { id: 7 },
+      { name: "simply-supplements-offer-refresh-35330700189-1" },
+    ),
+    true,
+  );
+});
 const {
   PROFILES: postflightProfiles,
   approvedOfferIds,

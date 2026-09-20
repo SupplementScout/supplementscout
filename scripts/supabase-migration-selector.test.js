@@ -40,6 +40,18 @@ const NUTRITION_CITRULLINE_COMPONENTS_MIGRATION = "20260913110000_add_nutrition_
 const NUTRITION_CITRULLINE_COMPONENTS_SHA256 = "76dd8390e19f45dd8ffcc69bafe9721abc6dedff6db280fdc6f75e3938258ac4";
 const NUTRITION_CREATINE_COMPONENTS_MIGRATION = "20260920150000_add_nutrition_candidate_creatine_components.sql";
 const NUTRITION_CREATINE_COMPONENTS_SHA256 = "c68dac262928ac1ebf971fd8cb838468f38376ebb7c43d8f426884adc200200b";
+const JONS_INTERRUPTED_REFRESH_MIGRATION = "20260919113000_supersede_interrupted_jons_refresh.sql";
+const JONS_INTERRUPTED_REFRESH_SHA256 = "4f3cf75333c9ffa83e660d1851f7cf308edcec3c850d5b88a27d43db8e3db676";
+const TEN_REPS_INTERRUPTED_REFRESH_MIGRATION = "20260919120000_supersede_interrupted_10reps_refresh.sql";
+const TEN_REPS_INTERRUPTED_REFRESH_SHA256 = "61eb2057f6f0b83cb690ef30b0e2b4bad842b612d585709ae716478b59a188f0";
+const SEQUENTIAL_REFRESH_WINDOW_MIGRATION = "20260919193000_extend_sequential_refresh_window.sql";
+const SEQUENTIAL_REFRESH_WINDOW_SHA256 = "9ff531d9e06725a309002cdc85a3e22fddd5ee6444b39701e000445492747b97";
+const DEDICATED_REFRESH_WINDOW_MIGRATION = "20260919200000_extend_10reps_simply_refresh_window.sql";
+const DEDICATED_REFRESH_WINDOW_SHA256 = "acb3757d3271619a13dcb98d22c71051045f12dc942834a412473b0e4f7b75e9";
+const SEQUENTIAL_PARENT_APPROVAL_MIGRATION = "20260919203000_prepare_sequential_parent_approval.sql";
+const SEQUENTIAL_PARENT_APPROVAL_SHA256 = "c394abc4f73be5c83c45c46f1711371883ac9cf29734ed7e81ad9b805bec54b9";
+const SEQUENTIAL_APPROVER_IDENTITY_MIGRATION = "20260919210000_fix_sequential_parent_approver_identity.sql";
+const SEQUENTIAL_APPROVER_IDENTITY_SHA256 = "8e2235061b90f88a22740f654e0fd87e1a9ffddd9915194dec3ba5ece2fe1659";
 const REVIEWED_VARIANT_REBIND_MIGRATION = "20260901090000_add_reviewed_variant_create_rebind_offer_update.sql";
 const REVIEWED_VARIANT_REBIND_SHA256 = "a8e279a8efacab24fa14b671e9ecdc211933b27f2460efc4ddf6833e789ca2b7";
 const REVIEWED_VARIANT_DIGEST_FIX_MIGRATION = "20260901100000_fix_reviewed_variant_digest_schema_resolution.sql";
@@ -248,22 +260,25 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records nutrition migrations A, B and C as deployed and component migrations as pending", () => {
+test("production records the deployed ledger and exact pending creatine component migration", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [
-    { filename: NUTRITION_CITRULLINE_COMPONENTS_MIGRATION, sha256: NUTRITION_CITRULLINE_COMPONENTS_SHA256 },
-    { filename: NUTRITION_CREATINE_COMPONENTS_MIGRATION, sha256: NUTRITION_CREATINE_COMPONENTS_SHA256 },
-  ]);
-  assert.equal(contract.ledgerCount, 207);
+  assert.deepEqual(contract.pending, [{ filename: NUTRITION_CREATINE_COMPONENTS_MIGRATION, sha256: NUTRITION_CREATINE_COMPONENTS_SHA256 }]);
+  assert.equal(contract.ledgerCount, 216);
   assert.equal(
     contract.ledgerFingerprint,
-    "13cd90548a2ee62b5ba065258a48ac123798c41141c1680dd051161fa356791b",
+    "5c11467fad13986ca7f3ba92c73e4d3a68e101b7de6e4e31013cc30017de4554",
   );
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_VARIANT_PROVENANCE_MIGRATION)), NUTRITION_VARIANT_PROVENANCE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_PREWORKOUT_FACTS_MIGRATION)), NUTRITION_PREWORKOUT_FACTS_SHA256);
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_STRUCTURED_CREATINE_MIGRATION)), NUTRITION_STRUCTURED_CREATINE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_CITRULLINE_COMPONENTS_MIGRATION)), NUTRITION_CITRULLINE_COMPONENTS_SHA256);
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_CREATINE_COMPONENTS_MIGRATION)), NUTRITION_CREATINE_COMPONENTS_SHA256);
+  assert.equal(sha256File(path.join(SOURCE, JONS_INTERRUPTED_REFRESH_MIGRATION)), JONS_INTERRUPTED_REFRESH_SHA256);
+  assert.equal(sha256File(path.join(SOURCE, TEN_REPS_INTERRUPTED_REFRESH_MIGRATION)), TEN_REPS_INTERRUPTED_REFRESH_SHA256);
+  assert.equal(sha256File(path.join(SOURCE, DEDICATED_REFRESH_WINDOW_MIGRATION)), DEDICATED_REFRESH_WINDOW_SHA256);
+  assert.equal(sha256File(path.join(SOURCE, SEQUENTIAL_PARENT_APPROVAL_MIGRATION)), SEQUENTIAL_PARENT_APPROVAL_SHA256);
+  assert.equal(sha256File(path.join(SOURCE, SEQUENTIAL_APPROVER_IDENTITY_MIGRATION)), SEQUENTIAL_APPROVER_IDENTITY_SHA256);
+  assert.equal(sha256File(path.join(SOURCE, SEQUENTIAL_REFRESH_WINDOW_MIGRATION)), SEQUENTIAL_REFRESH_WINDOW_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TEN_REPS_SYNC_REGISTRATION_MIGRATION)), TEN_REPS_SYNC_REGISTRATION_SHA256);
   assert.equal(sha256File(path.join(SOURCE, INTERRUPTED_SHARED_REFRESH_MIGRATION)), INTERRUPTED_SHARED_REFRESH_SHA256);
   assert.equal(sha256File(path.join(SOURCE, EXPIRED_DISCOUNT_JONS_MIGRATION)), EXPIRED_DISCOUNT_JONS_SHA256);
@@ -363,7 +378,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger with both component migrations pending", () => {
+test("production binds its exact ledger with the pending creatine component migration", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -389,18 +404,17 @@ test("production binds its exact ledger with both component migrations pending",
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 207);
+  assert.equal(result.ledger_count, 216);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 209);
-  assert.deepEqual(result.pending_files, [NUTRITION_CITRULLINE_COMPONENTS_MIGRATION, NUTRITION_CREATINE_COMPONENTS_MIGRATION]);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {
-    [NUTRITION_CITRULLINE_COMPONENTS_MIGRATION]: NUTRITION_CITRULLINE_COMPONENTS_SHA256,
-    [NUTRITION_CREATINE_COMPONENTS_MIGRATION]: NUTRITION_CREATINE_COMPONENTS_SHA256,
-  });
+  assert.equal(result.selected_files.length, 217);
+  assert.deepEqual(result.pending_files, [NUTRITION_CREATINE_COMPONENTS_MIGRATION]);
+  assert.equal(result.pending_file, NUTRITION_CREATINE_COMPONENTS_MIGRATION);
+  assert.equal(result.pending_sha256, NUTRITION_CREATINE_COMPONENTS_SHA256);
+  assert.deepEqual(result.pending_sha256s, { [NUTRITION_CREATINE_COMPONENTS_MIGRATION]: NUTRITION_CREATINE_COMPONENTS_SHA256 });
   assert.ok(result.selected_files.includes(NUTRITION_CITRULLINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(NUTRITION_CREATINE_COMPONENTS_MIGRATION));
+  assert.ok(result.selected_files.includes(JONS_INTERRUPTED_REFRESH_MIGRATION));
+  assert.ok(result.selected_files.includes(TEN_REPS_INTERRUPTED_REFRESH_MIGRATION));
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_CATALOGUE_COUNT_MIGRATION)), REVIEWED_CATALOGUE_COUNT_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_ENERGY_MIGRATION)), REVIEWED_ENERGY_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_EXISTING_CATEGORIES_MIGRATION)), REVIEWED_EXISTING_CATEGORIES_SHA256);
