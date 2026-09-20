@@ -405,7 +405,7 @@ test("production binds its exact ledger with the pending Simply aggregate-price 
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 216);
   assert.deepEqual(result.pending_files, ["20260919223000_apply_simply_confirmed_aggregate_guard.sql"]);
-  assert.deepEqual(result.pending_sha256s, {"20260919223000_apply_simply_confirmed_aggregate_guard.sql":"fbb7fc08c2e3e5c422779ab772c51c6257285d6e8f486cd8a8a9aa08d3fad7bc"});
+  assert.deepEqual(result.pending_sha256s, {"20260919223000_apply_simply_confirmed_aggregate_guard.sql":"25b48c34d4a17bc7de615c959b3edbfe0e7bd547a4a099dbdca8dd9b4c75cd18"});
   assert.ok(result.selected_files.includes(NUTRITION_CITRULLINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(JONS_INTERRUPTED_REFRESH_MIGRATION));
   assert.ok(result.selected_files.includes(TEN_REPS_INTERRUPTED_REFRESH_MIGRATION));
