@@ -6117,3 +6117,31 @@ remains `IN PROGRESS`. One next step is one owner decision for controlled
 `store -> authenticated review -> explicit-ID plans -> guarded apply` of exactly
 these `40` candidates across `12` variants. Successful apply would raise
 current-offer completeness to `341/369` (`92.4%`) and leave `28` blocked.
+
+## NUT-03 current-offer remainder execution
+
+20 September 2026, after explicit owner authorization, production preflight
+confirmed all three artifact hashes, `40` unique fingerprints, `12` exact
+variant bindings and zero duplicates. Store created candidates `3104`-`3143`,
+and authenticated review approved all `40` with unchanged values and evidence.
+
+Three zero-blocker plans contained zero product updates and only the authorized
+variant `nutrition_override` changes. Guarded apply completed five PER4M PRE
+570 g variants, two PER4M Energy 390 g variants and five Pitbull Pump variants.
+Products, other variants, `nutrition_verified`, legacy
+`creatine_per_serving_g` and unrelated override facts were not written.
+
+Independent readback matched all `12` complete plan-after objects and all `40`
+approved evidence records. All `12` public exact-variant pages show the expected
+facts. Current-offer coverage is now `341/369` complete (`92.4%`), `11` partial
+and `17` without applied facts; any-data coverage is `352/369` (`95.4%`). Every
+exact plan replay failed closed against its stale before-state and made zero
+additional writes.
+
+Candidate IDs, plan SHA-256/fingerprint pairs and readback evidence are in
+[nutrition-current-offer-remainder-execution-2026-09-20.json](rollouts/nutrition-current-offer-remainder-execution-2026-09-20.json)
+(SHA-256
+`c1f499b4ce95017612b34ccc87b519f03aa6e9784e88dff005685bb12b0d346a`).
+NUT-03 remains `IN PROGRESS`. The practical current-offer remainder is `28`
+variants (`11` partial and `17` without applied facts), each requiring new exact
+evidence or model support rather than another identical audit.
