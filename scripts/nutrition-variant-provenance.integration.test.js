@@ -14,6 +14,7 @@ const migrations = [
   "20260911130000_add_nutrition_candidate_preworkout_facts.sql",
   "20260911150000_add_nutrition_candidate_structured_creatine.sql",
   "20260913110000_add_nutrition_candidate_citrulline_components.sql",
+  "20260920150000_add_nutrition_candidate_creatine_components.sql",
 ];
 function run(command, args, options = {}) {
   return spawnSync(command, args, { cwd: root, encoding: "utf8", timeout: options.timeout || 180_000, input: options.input });
@@ -565,6 +566,58 @@ test("variant candidate migration preserves legacy rows and enforces exact immut
       select count(*) from public.nutrition_candidates
       where proposed_field='citrulline_component_per_serving_mg';
     `), "citrulline component duplicate count").stdout.trim(), "2");
+
+    const beforeCreatineComponents = sql(container, insertStructuredCandidate({
+      fingerprint: "c".repeat(64), field: "creatine_component_per_serving_mg",
+      value: 750, sourceValue: 750, sourceUnit: "mg", form: "creatine_monohydrate",
+    }));
+    assert.notEqual(beforeCreatineComponents.status, 0);
+    assert.match(output(beforeCreatineComponents), /nutrition_candidates_(?:proposed_field_check|fact_shape_check)/);
+
+    ok(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-f", `/workspace/supabase/migrations/${migrations[7]}`]), migrations[7]);
+    const creatineConstraintReadback = ok(sql(container, `
+      select count(*)::text||'|'||bool_and(lower(pg_get_constraintdef(oid)) like '%is true%')::text
+      from pg_constraint
+      where conrelid='public.nutrition_candidates'::regclass
+        and conname in (
+          'nutrition_candidates_proposed_field_check',
+          'nutrition_candidates_fact_shape_check',
+          'nutrition_candidates_proposed_unit_check'
+        )
+        and position('creatine_component_per_serving_mg' in pg_get_constraintdef(oid)) > 0;
+    `), "creatine component constraint readback").stdout.trim();
+    assert.equal(creatineConstraintReadback, "3|true");
+
+    for (const [name, values] of [
+      ["creatine-component-missing-value", { proposedValue: null, form: "creatine_monohydrate" }],
+      ["creatine-component-missing-source-unit", { sourceUnit: null, form: "creatine_monohydrate" }],
+      ["creatine-component-missing-serving", { servingText: null, form: "creatine_monohydrate" }],
+      ["creatine-component-missing-form", {}],
+      ["creatine-component-nonquantified", {
+        proposedValue: null, proposedUnit: null, informationState: "present_amount_not_disclosed",
+        sourceValue: null, sourceUnit: null, quantityBasis: null,
+        servingValue: null, servingUnit: null, servingText: null, form: "creatine_monohydrate",
+      }],
+      ["creatine-component-partial-serving", { servingUnit: null, form: "creatine_monohydrate" }],
+    ]) {
+      const result = sql(container, insertDirectFact({ name, field: "creatine_component_per_serving_mg", ...values }));
+      assert.notEqual(result.status, 0, `${name} must be rejected directly by PostgreSQL`);
+      assert.match(output(result), /nutrition_candidates_(?:fact_shape_check|proposed_unit_check)/);
+    }
+
+    for (const fact of [
+      { fingerprint: "c".repeat(64), field: "creatine_component_per_serving_mg", value: 750, sourceValue: 750, sourceUnit: "mg", form: "creatine_monohydrate" },
+      { fingerprint: "d".repeat(64), field: "creatine_component_per_serving_mg", value: 350, sourceValue: 350, sourceUnit: "mg", form: "creatine_malate" },
+    ]) ok(sql(container, insertStructuredCandidate(fact)), `structured creatine component ${fact.form}`);
+
+    ok(sql(container, insertStructuredCandidate({
+      fingerprint: "e".repeat(64), field: "citrulline_component_per_serving_mg",
+      value: 2000, sourceValue: 2000, sourceUnit: "mg", form: "citrulline_nitrate",
+    })), "structured citrulline nitrate component");
+    assert.equal(ok(sql(container, `
+      select count(*) from public.nutrition_candidates
+      where proposed_field='creatine_component_per_serving_mg';
+    `), "creatine component count").stdout.trim(), "2");
 
     const postComponentLegacyName = "post-component-legacy-product-path";
     ok(sql(container, insertDirectFact({

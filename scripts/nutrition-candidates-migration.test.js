@@ -23,6 +23,10 @@ const structuredCreatineMigration = fs.readFileSync(path.join(
   process.cwd(), "supabase", "migrations",
   "20260911150000_add_nutrition_candidate_structured_creatine.sql"
 ), "utf8").replace(/\s+/g, " ").trim().toLowerCase();
+const creatineComponentsMigration = fs.readFileSync(path.join(
+  process.cwd(), "supabase", "migrations",
+  "20260920150000_add_nutrition_candidate_creatine_components.sql"
+), "utf8").replace(/\s+/g, " ").trim().toLowerCase();
 
 test("nutrition candidates migration is transactional and candidate-only", () => {
   assert.match(sql, /^begin;/);
@@ -138,4 +142,23 @@ test("NUT-03B migration adds structured declared-form creatine without changing 
   ]);
   assert.doesNotMatch(structuredCreatineMigration, /\b(?:insert into|update|delete from) public\.(?:products|product_variants)/);
   assert.match(structuredCreatineMigration, /commit;$/);
+});
+
+test("forward migration adds NULL-safe creatine components and citrulline nitrate only", () => {
+  assert.match(creatineComponentsMigration, /^begin;/);
+  assert.match(creatineComponentsMigration, /'creatine_component_per_serving_mg'/);
+  assert.match(creatineComponentsMigration, /'citrulline_nitrate'/);
+  assert.match(creatineComponentsMigration, /proposed_field = 'creatine_component_per_serving_mg' and information_state = 'present_with_amount'/);
+  assert.match(creatineComponentsMigration, /ingredient_form ~ '\^creatine_\[a-z0-9\]\+/);
+  assert.match(creatineComponentsMigration, /ingredient_ratio is null/);
+  const hardenedChecks = [...creatineComponentsMigration.matchAll(
+    /add constraint (nutrition_candidates_[a-z_]+) check \(\([\s\S]*?\) is true\)(?:,|;)/g,
+  )].map((match) => match[1]);
+  assert.deepEqual(hardenedChecks, [
+    "nutrition_candidates_proposed_field_check",
+    "nutrition_candidates_fact_shape_check",
+    "nutrition_candidates_proposed_unit_check",
+  ]);
+  assert.doesNotMatch(creatineComponentsMigration, /\b(?:insert into|update|delete from) public\.(?:products|product_variants)/);
+  assert.match(creatineComponentsMigration, /commit;$/);
 });

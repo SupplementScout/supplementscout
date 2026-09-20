@@ -1,4 +1,6 @@
 const CREATINE_CANDIDATE_FIELD = "creatine_declared_form_per_serving_mg";
+const CREATINE_COMPONENT_CANDIDATE_FIELD = "creatine_component_per_serving_mg";
+const CREATINE_COMPONENT_TARGET_FIELD = "creatine_components";
 const CITRULLINE_COMPONENT_CANDIDATE_FIELD = "citrulline_component_per_serving_mg";
 const CITRULLINE_COMPONENT_TARGET_FIELD = "citrulline_components";
 const PREWORKOUT_INGREDIENT_FIELDS = Object.freeze([
@@ -7,6 +9,7 @@ const PREWORKOUT_INGREDIENT_FIELDS = Object.freeze([
   CITRULLINE_COMPONENT_CANDIDATE_FIELD,
   "beta_alanine_per_serving_mg",
   CREATINE_CANDIDATE_FIELD,
+  CREATINE_COMPONENT_CANDIDATE_FIELD,
 ]);
 const PREWORKOUT_FIELD_SET = new Set(PREWORKOUT_INGREDIENT_FIELDS);
 const INFORMATION_STATES = Object.freeze([
@@ -17,7 +20,7 @@ const INFORMATION_STATES = Object.freeze([
   "conflicting_information",
 ]);
 const INFORMATION_STATE_SET = new Set(INFORMATION_STATES);
-const CITRULLINE_FORMS = Object.freeze(["l_citrulline", "citrulline_malate"]);
+const CITRULLINE_FORMS = Object.freeze(["l_citrulline", "citrulline_malate", "citrulline_nitrate"]);
 const CITRULLINE_FORM_SET = new Set(CITRULLINE_FORMS);
 const CREATINE_FORM_NOT_DISCLOSED = "creatine_form_not_disclosed";
 const CREATINE_FORM_PATTERN = /^creatine_[a-z0-9]+(?:_[a-z0-9]+)*$/;
@@ -27,6 +30,7 @@ const TARGET_FIELD_BY_CANDIDATE_FIELD = Object.freeze({
   [CITRULLINE_COMPONENT_CANDIDATE_FIELD]: CITRULLINE_COMPONENT_TARGET_FIELD,
   beta_alanine_per_serving_mg: "beta_alanine",
   [CREATINE_CANDIDATE_FIELD]: "creatine",
+  [CREATINE_COMPONENT_CANDIDATE_FIELD]: CREATINE_COMPONENT_TARGET_FIELD,
 });
 
 function finitePositive(value) {
@@ -81,7 +85,8 @@ function validatePreworkoutIngredientCandidate(candidate) {
     if (present && !CITRULLINE_FORM_SET.has(form)) return false;
     if (!present && form !== null) return false;
     if (!ratioValid(ratio) || (ratio !== null && form !== "citrulline_malate")) return false;
-  } else if (candidate.field_name === CREATINE_CANDIDATE_FIELD) {
+  } else if ([CREATINE_CANDIDATE_FIELD, CREATINE_COMPONENT_CANDIDATE_FIELD].includes(candidate.field_name)) {
+    if (candidate.field_name === CREATINE_COMPONENT_CANDIDATE_FIELD && !quantified) return false;
     if (present && !creatineFormValid(form)) return false;
     if (!present && form !== null) return false;
     if (ratio !== null) return false;
@@ -112,7 +117,7 @@ function ingredientFact(candidate, approvedValue = candidate.approved_value) {
       quantity_basis: "per_serving",
       serving_basis_text: candidate.serving_basis_text,
     });
-    if (candidate.field_name === CREATINE_CANDIDATE_FIELD) {
+    if ([CREATINE_CANDIDATE_FIELD, CREATINE_COMPONENT_CANDIDATE_FIELD].includes(candidate.field_name)) {
       fact.amount_subject = "declared_ingredient_form";
     }
     if (candidate.serving_basis_value != null) {
@@ -131,6 +136,8 @@ module.exports = {
   CITRULLINE_COMPONENT_CANDIDATE_FIELD,
   CITRULLINE_COMPONENT_TARGET_FIELD,
   CITRULLINE_FORMS,
+  CREATINE_COMPONENT_CANDIDATE_FIELD,
+  CREATINE_COMPONENT_TARGET_FIELD,
   CREATINE_CANDIDATE_FIELD,
   CREATINE_FORM_NOT_DISCLOSED,
   INFORMATION_STATES,

@@ -12,6 +12,7 @@ const {
 } = require("./lib/nutrition-candidates");
 const {
   CITRULLINE_COMPONENT_CANDIDATE_FIELD,
+  CREATINE_COMPONENT_CANDIDATE_FIELD,
   CREATINE_CANDIDATE_FIELD,
   PREWORKOUT_FIELD_SET,
   validatePreworkoutIngredientCandidate,
@@ -181,6 +182,10 @@ async function storeRows(rows, dependencies = {}) {
   if (rows.some((row) => row.proposed_field === CITRULLINE_COMPONENT_CANDIDATE_FIELD) &&
       isPreCitrullineComponentsConstraint(current.error)) {
     fail("Multi-component citrulline candidate migration is required before component candidates can be stored");
+  }
+  if (rows.some((row) => row.proposed_field === CREATINE_COMPONENT_CANDIDATE_FIELD) &&
+      isPreCitrullineComponentsConstraint(current.error)) {
+    fail("Multi-component creatine candidate migration is required before component candidates can be stored");
   }
   if (rows.some((row) => row.proposed_field === CREATINE_CANDIDATE_FIELD) &&
       isPreNut03bCreatineConstraint(current.error)) {

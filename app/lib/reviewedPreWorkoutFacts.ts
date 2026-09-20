@@ -17,6 +17,7 @@ export type AppliedPreWorkoutFactKey =
   | "beta_alanine"
   | "citrulline"
   | "citrulline_component"
+  | "creatine_component"
   | "creatine";
 
 export type AppliedPreWorkoutFact = {
@@ -150,7 +151,7 @@ function structuredFact(candidate: ReviewedNutritionCandidate) {
       quantity_basis: "per_serving",
       serving_basis_text: candidate.serving_basis_text,
     });
-    if (candidate.proposed_field === "creatine_declared_form_per_serving_mg") {
+    if (["creatine_declared_form_per_serving_mg", "creatine_component_per_serving_mg"].includes(candidate.proposed_field)) {
       fact.amount_subject = "declared_ingredient_form";
     }
     if (servingValue !== null) {
@@ -170,7 +171,7 @@ function structuredFact(candidate: ReviewedNutritionCandidate) {
       return null;
     }
     if (present) {
-      if (!["l_citrulline", "citrulline_malate"].includes(candidate.ingredient_form || "")) {
+      if (!["l_citrulline", "citrulline_malate", "citrulline_nitrate"].includes(candidate.ingredient_form || "")) {
         return null;
       }
       if (
@@ -185,7 +186,8 @@ function structuredFact(candidate: ReviewedNutritionCandidate) {
     } else if (candidate.ingredient_form !== null || candidate.ingredient_ratio !== null) {
       return null;
     }
-  } else if (candidate.proposed_field === "creatine_declared_form_per_serving_mg") {
+  } else if (["creatine_declared_form_per_serving_mg", "creatine_component_per_serving_mg"].includes(candidate.proposed_field)) {
+    if (candidate.proposed_field === "creatine_component_per_serving_mg" && state !== "present_with_amount") return null;
     if (present) {
       if (!/^creatine_[a-z0-9]+(?:_[a-z0-9]+)*$/.test(candidate.ingredient_form || "")) {
         return null;
@@ -253,6 +255,9 @@ export function resolveAppliedPreWorkoutFacts(
   const hasSingularCitrulline = isRecord(override.citrulline);
   const hasCitrullineComponents = Array.isArray(override.citrulline_components);
   const citrullineRepresentationConflict = hasSingularCitrulline && hasCitrullineComponents;
+  const hasSingularCreatine = isRecord(override.creatine);
+  const hasCreatineComponents = Array.isArray(override.creatine_components);
+  const creatineRepresentationConflict = hasSingularCreatine && hasCreatineComponents;
 
   const servingSize = finitePositive(override.serving_size_g);
   const servingCandidates = matchingCandidates(
@@ -268,7 +273,8 @@ export function resolveAppliedPreWorkoutFacts(
 
   const structuredMatches = new Map<AppliedPreWorkoutFactKey, ReviewedNutritionCandidate[]>();
   for (const [candidateField, targetField] of Object.entries(STRUCTURED_FIELDS)) {
-    if (targetField === "citrulline" && citrullineRepresentationConflict) continue;
+    if ((targetField === "citrulline" && citrullineRepresentationConflict) ||
+        (targetField === "creatine" && creatineRepresentationConflict)) continue;
     const applied = override[targetField];
     if (!isRecord(applied)) continue;
     const matches = matchingCandidates(
@@ -281,6 +287,23 @@ export function resolveAppliedPreWorkoutFacts(
       return expected !== null && canonical(expected) === canonical(applied);
     });
     if (matches.length > 0) structuredMatches.set(targetField, matches);
+  }
+
+  const creatineComponentMatches: Array<{ applied: Record<string, unknown>; candidate: ReviewedNutritionCandidate }> = [];
+  if (!creatineRepresentationConflict && hasCreatineComponents) {
+    const appliedComponents = (override.creatine_components as unknown[]).filter(isRecord);
+    const candidatePool = matchingCandidates(candidates, exactProductId, exactVariantId, "creatine_component_per_serving_mg");
+    const used = new Set<number>();
+    for (const applied of appliedComponents) {
+      const index = candidatePool.findIndex((candidate, candidateIndex) =>
+        !used.has(candidateIndex) && canonical(structuredFact(candidate)) === canonical(applied));
+      if (index >= 0) { used.add(index); creatineComponentMatches.push({ applied, candidate: candidatePool[index] }); }
+    }
+    const contexts = new Set(creatineComponentMatches.map(({ candidate }) => componentSourceContext(candidate)));
+    const identities = new Set(creatineComponentMatches.map(({ applied }) => componentIdentity(applied)));
+    if (appliedComponents.length < 2 || appliedComponents.length !== (override.creatine_components as unknown[]).length ||
+        creatineComponentMatches.length !== appliedComponents.length || contexts.size !== 1 || contexts.has(null) ||
+        identities.size !== appliedComponents.length) creatineComponentMatches.length = 0;
   }
 
   const componentMatches: Array<{
@@ -319,7 +342,11 @@ export function resolveAppliedPreWorkoutFacts(
   }
 
   if (servingSize !== null && servingCandidates.length > 0) {
-    const servingBasisText = [...structuredMatches.values(), componentMatches.map(({ candidate }) => candidate)]
+    const servingBasisText = [
+      ...structuredMatches.values(),
+      componentMatches.map(({ candidate }) => candidate),
+      creatineComponentMatches.map(({ candidate }) => candidate),
+    ]
       .flat()
       .find((candidate) => finitePositive(candidate.serving_basis_value) === servingSize)
       ?.serving_basis_text || null;
@@ -364,6 +391,16 @@ export function resolveAppliedPreWorkoutFacts(
       sourceKinds: uniqueSources([candidate]),
     });
   }
+  for (const { applied, candidate } of creatineComponentMatches) {
+    facts.push({
+      key: "creatine_component", informationState: "present_with_amount",
+      amountPerServingMg: finitePositive(applied.amount_per_serving_mg),
+      servingSizeG: finitePositive(applied.serving_basis_value),
+      servingBasisText: typeof applied.serving_basis_text === "string" ? applied.serving_basis_text : null,
+      ingredientForm: typeof applied.ingredient_form === "string" ? applied.ingredient_form : null,
+      ingredientRatio: null, sourceKinds: uniqueSources([candidate]),
+    });
+  }
 
   return {
     productId: exactProductId,
@@ -385,6 +422,7 @@ export function nutritionSourceKindLabel(kind: PublicNutritionSourceKind) {
 export function ingredientFormLabel(form: string | null) {
   if (form === "l_citrulline") return "L-citrulline (free form)";
   if (form === "citrulline_malate") return "Citrulline malate";
+  if (form === "citrulline_nitrate") return "Citrulline nitrate";
   if (form === "creatine_monohydrate") return "Creatine monohydrate";
   if (form === "creatine_form_not_disclosed") return "Form not disclosed";
   return form ? form.replaceAll("_", " ") : null;

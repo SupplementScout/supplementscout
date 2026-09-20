@@ -6145,3 +6145,44 @@ Candidate IDs, plan SHA-256/fingerprint pairs and readback evidence are in
 NUT-03 remains `IN PROGRESS`. The practical current-offer remainder is `28`
 variants (`11` partial and `17` without applied facts), each requiring new exact
 evidence or model support rather than another identical audit.
+
+## NUT-03 model extension for declared compound components
+
+20 September 2026, the smallest forward-only extension needed for the retained
+Olimp and Darkstims evidence is `CODE COMPLETE` and remains undeployed. The
+existing candidate -> review -> plan -> apply path now supports separately
+quantified creatine forms through `creatine_component_per_serving_mg` and
+`nutrition_override.creatine_components`. It also accepts
+`citrulline_nitrate` as a declared citrulline form. Components retain their own
+mass, source unit, exact serving, exact variant and immutable evidence; the
+planner requires at least two distinct forms in one source and serving context,
+preserves unrelated override facts, blocks singular/component coexistence and
+never derives a pure-creatine or pure-L-citrulline total. Public presentation
+reconstructs only applied component sets backed by exact approved candidates
+and exposes no private evidence URI.
+
+Forward migration
+`20260920150000_add_nutrition_candidate_creatine_components.sql` has normalized
+SHA-256 `c68dac262928ac1ebf971fd8cb838468f38376ebb7c43d8f426884adc200200b`.
+Its three recreated CHECK constraints use `IS TRUE`, retain all five states for
+singular facts and require component rows to be fully quantified. Unit,
+planner, apply-contract, presentation, migration and selector tests pass;
+`verify:quick` is green. `verify:full` remains non-green on the existing,
+unrelated Whey Okay evidence hash and reviewed-manifest byte/line-ending
+fixtures and is not reported as passed. The direct PostgreSQL suite is prepared
+to reject incomplete rows and verify both
+new forms, but was skipped locally because Docker is unavailable; production
+migration and nutrition writes remain unauthorized and were not attempted.
+
+This change makes the retained two-form Redweiler evidence representable for
+variants `1025`, `1700`-`1703`. It does not resolve the conflicting Darkstims
+serving declarations, so variants `3755`, `3913`-`3915` remain blocked pending
+one exact formula/serving basis. Animal Pump variant `119` remains a separate
+pack-serving design gap because one pack has no faithful gram-serving value in
+the current public completeness contract. NUT-03 remains `IN PROGRESS` and
+current production coverage remains `341/369` complete, `11` partial and `17`
+without applied facts. One next step is owner authorization to publish this code
+and apply only the hash-bound forward migration, followed by a separate
+candidate package for the five Redweiler variants.
+
+Machine-readable preparation evidence: [nutrition-compound-components-extension-preparation-2026-09-20.json](rollouts/nutrition-compound-components-extension-preparation-2026-09-20.json), SHA-256 `e48df06ba09b429a712588b44af2785a17932a4bf85acedfae50c059a3f2679d`.
