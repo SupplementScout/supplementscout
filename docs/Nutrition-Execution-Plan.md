@@ -5983,3 +5983,28 @@ NUT-03 remains `IN PROGRESS`. One next step is either exact formula-generation
 labels for AK-47 and Kiwi Lime, or a separately authorized design decision for
 explicitly revoking a previously approved numeric fact when later evidence is
 conflicting.
+
+## NUT-03 Animal Fury owner-label correction
+
+20 September 2026, the owner supplied a manufacturer-label image for Animal
+Fury and separately confirmed that the other flavours use the same values. The
+image itself shows Watermelon and declares one scoop (`16.4 g`), caffeine
+anhydrous `350 mg`, beta-alanine `2000 mg` and citrulline malate `6000 mg`.
+The cross-flavour applicability is retained as an owner statement from this
+session and is not described as text printed on every flavour label.
+
+The source image was stored once in private `nutrition-sources`; SHA-256
+readback passed. The existing path created and authenticated-review approved
+candidates `3061`-`3080`, then applied one explicit-ID plan to variants `3671`,
+`3717`, `3718`, `3719` and `3720`. All five now use the same `16.4 g` serving
+basis and declared amounts. In particular, Kiwi Lime `3719` now records
+`citrulline_malate`, not L-citrulline. The existing separately evidenced
+confirmed absence of creatine was preserved.
+
+Independent whole-override and candidate-evidence readback passed, as did all
+five public variant pages. Replaying the exact plan was safely rejected on its
+stale `before`, with no additional write. Complete evidence is in
+[nutrition-animal-fury-owner-label-correction-execution-2026-09-20.json](rollouts/nutrition-animal-fury-owner-label-correction-execution-2026-09-20.json).
+NUT-03 remains `IN PROGRESS`. Animal Fury no longer requires another formula
+binding review; the remaining targeted formula conflict is AK-47 product
+`1162`.

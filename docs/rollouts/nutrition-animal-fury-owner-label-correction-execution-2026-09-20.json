@@ -1,0 +1,62 @@
+{
+  "kind": "nutrition-animal-fury-owner-label-correction-execution-v1",
+  "date": "2026-09-20",
+  "target": { "environment": "PRODUCTION", "project_ref": "aftboxmrdgyhizicfsfu" },
+  "scope": {
+    "product_id": "1249",
+    "variant_ids": ["3671", "3717", "3718", "3719", "3720"],
+    "candidate_ids": ["3061", "3062", "3063", "3064", "3065", "3066", "3067", "3068", "3069", "3070", "3071", "3072", "3073", "3074", "3075", "3076", "3077", "3078", "3079", "3080"],
+    "candidate_count": 20,
+    "product_updates": 0,
+    "variant_updates": 5
+  },
+  "evidence": {
+    "label_kind": "owner-supplied manufacturer label image",
+    "label_flavour_visible": "Watermelon",
+    "owner_session_statement": "Owner checked the other flavours and confirmed that they have the same values.",
+    "separation_note": "The common-flavour applicability is an owner statement from this session; the quantities and serving basis are read from the image.",
+    "source_sha256": "dd58e8a14467efcf9bac75387ee2907f80c14a7cc2220a2aded4a8384551444d",
+    "archive_uri": "supabase-storage://nutrition-sources/labels/nut-03/animal-fury-owner-label-2026-09-20/dd58e8a14467efcf9bac75387ee2907f80c14a7cc2220a2aded4a8384551444d/animal-fury-watermelon-common-label.webp",
+    "archive_readback": "PASS"
+  },
+  "approved_facts_per_variant": {
+    "serving": "1 scoop (16.4 g); 30 servings",
+    "caffeine": "Caffeine Anhydrous 350 mg",
+    "beta_alanine": "Beta Alanine 2000 mg",
+    "citrulline": "Citrulline Malate 6000 mg; ratio not declared",
+    "creatine": "Existing separately evidenced confirmed_absent fact preserved unchanged"
+  },
+  "artifact": {
+    "path": "tmp/nutrition-animal-fury-owner-label-2026-09-20/candidate-artifact/nutrition-candidates-ncr1-animal-fury-owner-label-20260920-1249.json",
+    "sha256": "7f21e415934645b54ef06edc15c2a8248b882aac2d89eefa6604a671d8fab8c0",
+    "fingerprint": "7468f1cf4f0ae27e3bef0c3ec94ab3575318cb627050dad4c50266474232e353",
+    "dry_run": "PASS: 20 candidate rows, zero database writes, zero product updates"
+  },
+  "plan": {
+    "path": "tmp/nutrition-approved-plan/NCR1-animal-fury-owner-label-20260920-1249-c9071fd04418.json",
+    "sha256": "5888a8f2164168453b8a6732d736447a9ce68886b6b21f40d0cc457abc619706",
+    "fingerprint": "c9071fd04418f78067fd4604234fe4bfe5ce6aba7ec82efac374d44d54ee7cd5",
+    "planned_product_updates": 0,
+    "planned_variant_updates": 5
+  },
+  "execution": {
+    "store": "PASS: candidates 3061-3080 created",
+    "authenticated_review": "PASS: all 20 approved unchanged",
+    "apply": "PASS: only nutrition_override for five scoped variants changed",
+    "independent_whole_override_readback": "PASS",
+    "candidate_approval_and_evidence_readback": "PASS",
+    "public_pages": "PASS: all five returned HTTP 200 and showed the four corrected facts",
+    "exact_plan_replay": "SAFE_REJECTION: Variant 3671 nutrition override changed after plan generation; zero additional writes"
+  },
+  "protected_data": {
+    "products": "unchanged",
+    "other_variants": "unchanged",
+    "nutrition_verified": "unchanged false",
+    "legacy_creatine_per_serving_g": "unchanged null"
+  },
+  "supersedes": [
+    "The earlier unresolved common-formula binding for Kiwi Lime variant 3719.",
+    "The earlier 16.1 g / 16.5 g mixed serving bases and the L-citrulline form previously stored for variant 3719."
+  ],
+  "status": "PASS"
+}
