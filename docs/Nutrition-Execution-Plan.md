@@ -6008,3 +6008,43 @@ stale `before`, with no additional write. Complete evidence is in
 NUT-03 remains `IN PROGRESS`. Animal Fury no longer requires another formula
 binding review; the remaining targeted formula conflict is AK-47 product
 `1162`.
+
+## NUT-03 current-offer priority package
+
+20 September 2026, a fresh production read counted `575` active pre-workout
+variants. `369` have a current available offer: `308` complete, `37` partial
+and `24` without applied facts. The practical remaining scope is therefore `61`
+variants across `16` families. It is one owner-facing package, internally split
+by source and product to retain existing request, artifact and transaction
+limits.
+
+Four retained sources resolve `23` missing facts for `21` partial variants.
+Darkstims PRE V4 variants `3479`, `3544`-`3550` receive the official declared
+`362.5 mg` caffeine amount per `20 g` scoop. BioTech Black Blood NOX+ variants
+`1041`, `1776`-`1778` retain `2613 mg` of the declared buffered-creatine and
+creatine-citrate complex per `9.5 g` portion; this is compound mass and is not
+the separately declared `1530 mg` pure-creatine equivalent. Mutant Madness
+variants `1023`, `1792`-`1797` receive `confirmed_absent` creatine from the
+complete exact-225 g retailer declaration, with a null numeric value. Conteh
+The Pump variants `1473` and `1474` receive the `13.8 g` serving and `4000 mg`
+free-form L-citrulline.
+
+All four artifacts passed the existing candidate-store dry-run (`23` unique
+fingerprints, zero writes). Four project-authored factual reviews were stored
+once in private `nutrition-sources`; readback matched every SHA-256. The other
+`40` variants remain separated by exact recorded reasons: generation or pack
+conflicts, missing complete declarations, combined multi-form amounts, or data
+shapes the current model cannot preserve. No value was inferred to fill the
+organizational scope.
+
+Complete values, exact variant lists, artifact SHA-256/fingerprint pairs and
+all blockers are in
+[nutrition-current-offer-priority-preparation-2026-09-20.json](rollouts/nutrition-current-offer-priority-preparation-2026-09-20.json)
+(SHA-256
+`48bfa80ea91be5a2a870f19bc3fc7554840d2f08536994e25e3d079cf475e99f`).
+No production candidate, review, plan or catalogue write occurred. NUT-03
+remains `IN PROGRESS`. One next step is one owner decision for controlled
+`store -> authenticated review -> explicit-ID plans -> guarded apply` of exactly
+these `23` candidates across `21` variants. A successful apply would raise
+current-offer completeness to `329/369` (`89.2%`), leaving `16` partial and `24`
+without applied facts.

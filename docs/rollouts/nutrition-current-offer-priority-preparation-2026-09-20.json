@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-current-offer-priority-preparation-v1",
+  "status": "READY_FOR_ONE_OWNER_DECISION",
+  "prepared_at": "2026-09-20T12:53:38.190Z",
+  "production_checkpoint": {
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "captured_at": "2026-09-20T12:45:43.091Z",
+    "active_preworkout_variants": 575,
+    "current_offer_variants": 369,
+    "current_offer_coverage": { "complete": 308, "partial": 37, "none": 24 }
+  },
+  "scope": {
+    "organizational_variants": 61,
+    "families": 16,
+    "ready_variants": 21,
+    "ready_candidates": 23,
+    "ready_families": 4,
+    "blocked_variants": 40,
+    "blocked_families": 12
+  },
+  "ready": [
+    {
+      "product_id": "1181",
+      "variant_ids": ["3479", "3544", "3545", "3546", "3547", "3548", "3549", "3550"],
+      "fact": { "field": "caffeine_per_serving_mg", "information_state": "present_with_amount", "value": 362.5, "unit": "mg", "basis": "1 scoop (20 g)" },
+      "source": { "type": "manufacturer_product_page", "url": "https://www.darkstims.com/pages/best-pre-workout-uk", "assignment": "official shared product page lists all eight flavours and one common 20 g PRE V4 formula" },
+      "artifact": { "path": "tmp/nutrition-current-offer-priority-2026-09-20/candidate-artifact/nutrition-candidates-ncr1-current-offer-priority-20260920-1181.json", "sha256": "0a260ab4f11159c1b119fb2db880be95a0a34a6d971b50027c14dffee44a51d1", "fingerprint": "7852dcd8e1658c84657f415f172380b1944e74050b24d1ef9d539db7a44bc2d4", "candidate_count": 8, "dry_run": "PASS" }
+    },
+    {
+      "product_id": "295",
+      "variant_ids": ["1041", "1776", "1777", "1778"],
+      "fact": { "field": "creatine_declared_form_per_serving_mg", "information_state": "present_with_amount", "value": 2613, "unit": "mg", "ingredient_form": "creatine_complex_buffered_creatine_and_creatine_citrate", "basis": "1 portion (9.5 g)", "meaning": "declared creatine-complex mass; not the 1530 mg pure-creatine equivalent" },
+      "source": { "type": "manufacturer_product_page", "url": "https://biotechusa.com/black-blood/", "assignment": "official common 330 g table for the listed variants" },
+      "artifact": { "path": "tmp/nutrition-current-offer-priority-2026-09-20/candidate-artifact/nutrition-candidates-ncr1-current-offer-priority-20260920-295.json", "sha256": "ef8027401e08e1f1fb143a94425251c1d37db6e2c0d511f177b0da9ad1f3a1d8", "fingerprint": "dfecc80ad8d1c58f76718c9c36202fa9f1dc0155b3498dfaba46ccaed1988978", "candidate_count": 4, "dry_run": "PASS" }
+    },
+    {
+      "product_id": "489",
+      "variant_ids": ["1023", "1792", "1793", "1794", "1795", "1796", "1797"],
+      "fact": { "field": "creatine_declared_form_per_serving_mg", "information_state": "confirmed_absent", "value": null, "basis": "1 scoop (7.5 g)", "meaning": "absence from complete declared composition; not laboratory 0 mg" },
+      "source": { "type": "retailer_product_page", "url": "https://www.dolphinfitness.co.uk/en/mutant-madness-30-servings/186216/fruit-punch", "assignment": "exact 225 g / 30-serving shared formula and complete active/other-ingredients declaration for all seven listed flavours" },
+      "artifact": { "path": "tmp/nutrition-current-offer-priority-2026-09-20/candidate-artifact/nutrition-candidates-ncr1-current-offer-priority-20260920-489.json", "sha256": "c388345959f4b434ab6cd3e1ae18466f48bf6bfe61bb44740221e13211a8e857", "fingerprint": "700564b8479a00b0acf2223c15a460ddb91ae2f8d4dc394b106a719642130561", "candidate_count": 7, "dry_run": "PASS" }
+    },
+    {
+      "product_id": "893",
+      "variant_ids": ["1473", "1474"],
+      "facts": [
+        { "field": "serving_size_g", "value": 13.8, "unit": "g" },
+        { "field": "citrulline_per_serving_mg", "information_state": "present_with_amount", "value": 4000, "unit": "mg", "ingredient_form": "l_citrulline", "basis": "1 serving (13.8 g)" }
+      ],
+      "source": { "type": "retailer_product_page", "url": "https://www.dolphinfitness.co.uk/en/conteh-sports-the-pump-414g/452078", "assignment": "exact 414 g / 30-serving shared table lists both target flavours" },
+      "artifact": { "path": "tmp/nutrition-current-offer-priority-2026-09-20/candidate-artifact/nutrition-candidates-ncr1-current-offer-priority-20260920-893.json", "sha256": "f99d4fcb6c7447363e1f71c24d5db98e420237495548ce43a4d5b8173a19270f", "fingerprint": "57e95576eb3af66aeb81d5b90fd2ef2e093f9462da160c4980fbc337adadcf19", "candidate_count": 4, "dry_run": "PASS" }
+    }
+  ],
+  "archive": {
+    "bucket": "nutrition-sources",
+    "private": true,
+    "objects": 4,
+    "readback": "PASS_SHA256_MATCH",
+    "source_review_sha256": [
+      "e018799fe9d798588150c2df3e74f2bbef5e0cd6f531e53e8b37ca0d76403465",
+      "7c2332c9f78614cb1d4faa126d9d10d5f2e94caf52721fc3027a4796c623b4f1",
+      "b7c7ad3c7f9ad4e326a968e6060642424195e16191e71e2ce6a17c1cad08e337",
+      "0bb4e518a5dec41208c4b22c64bc497bdc72479ccad17d7bf1df8e73093f6b4e"
+    ]
+  },
+  "blockers": [
+    { "product_id": "20", "variant_ids": ["1580"], "reason": "248 g generation is not bound by available current/older formula evidence" },
+    { "product_id": "53", "variant_ids": ["119"], "reason": "pack-format serving is not representable by required serving_size_g and exact generation is unresolved" },
+    { "product_id": "61", "variant_ids": ["1051", "1615"], "reason": "combined 3500 mg citrulline-malate/nitrate mass lacks component amounts" },
+    { "product_id": "62", "variant_ids": ["1031", "1616", "1617", "1618"], "reason": "460 g generation must not inherit the distinct 420 g V3 formula" },
+    { "product_id": "169", "variant_ids": ["1015", "1647", "1648", "1649", "1650", "1651", "1652", "1653", "1654"], "reason": "400 g identity has unresolved 250 mg versus 320 mg caffeine generation conflict" },
+    { "product_id": "520", "variant_ids": ["1025", "1700", "1701", "1702", "1703"], "reason": "two separately quantified creatine forms cannot be faithfully retained by the current single-form field" },
+    { "product_id": "789", "variant_ids": ["3588", "3589", "3590", "3592", "3593"], "reason": "no exact complete retained table binds current 570 g offers" },
+    { "product_id": "839", "variant_ids": ["1217", "1218", "1219", "1220", "2767"], "reason": "current page is not a complete declaration, so creatine omission does not prove absence" },
+    { "product_id": "882", "variant_ids": ["1399", "1402"], "reason": "no exact complete retained table binds current 390 g offers" },
+    { "product_id": "917", "variant_ids": ["2949"], "reason": "catalogue 165 g display conflicts with current 180/189 g generation and serving text" },
+    { "product_id": "1275", "variant_ids": ["3755", "3913", "3914", "3915"], "reason": "exact serving mass is absent and citrulline nitrate is outside the current form enum" },
+    { "product_id": "1333", "variant_ids": ["3928"], "reason": "no reliable exact gel-format serving table is retained" }
+  ],
+  "projected_after_authorized_apply": {
+    "current_offer_complete": 329,
+    "current_offer_partial": 16,
+    "current_offer_none": 24,
+    "current_offer_complete_percent": 89.2,
+    "current_offer_any_data_percent": 93.5
+  },
+  "controls": {
+    "dry_runs": "4/4 PASS",
+    "unique_candidate_fingerprints": 23,
+    "production_candidate_writes": 0,
+    "review_writes": 0,
+    "plan_writes": 0,
+    "catalogue_writes": 0
+  },
+  "next_step": "One explicit owner decision authorizing production store -> authenticated review -> explicit-ID plans -> guarded apply for exactly these four artifacts, 23 candidates and 21 variants."
+}
