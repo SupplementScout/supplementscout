@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-current-offer-final-23-execution-v1",
+  "executed_at": "2026-09-20T17:06:54.212Z",
+  "target": {
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "environment": "PRODUCTION"
+  },
+  "authorization": {
+    "candidates": 12,
+    "product_id": "1275",
+    "variant_ids": [
+      "3755",
+      "3913",
+      "3914",
+      "3915"
+    ],
+    "artifact_sha256": "0e58a4a06c201841f6f760a7f344f3dc230254bdfbb3dd7e6a6753ba527fb06f",
+    "artifact_fingerprint": "042e633ebefaccc348ba32216096f54b7726c3b125bdaa35358bfe785c7ee2f4"
+  },
+  "store": {
+    "candidate_rows": 12,
+    "product_updates": 0,
+    "candidate_ids": [
+      "3154",
+      "3155",
+      "3156",
+      "3157",
+      "3158",
+      "3159",
+      "3160",
+      "3161",
+      "3162",
+      "3163",
+      "3164",
+      "3165"
+    ]
+  },
+  "review": {
+    "approved": 12,
+    "reviewed_by": "authenticated admin panel",
+    "candidate_ids": [
+      "3154",
+      "3155",
+      "3156",
+      "3157",
+      "3158",
+      "3159",
+      "3160",
+      "3161",
+      "3162",
+      "3163",
+      "3164",
+      "3165"
+    ]
+  },
+  "plan": {
+    "path": "tmp/nutrition-approved-plan/NCR1-current-offer-final-23-20260920-1275-d6082e365a65.json",
+    "sha256": "f768c353be176e8353cb25df05716e4d52b8c75dff72700a13e4f451791e2f9d",
+    "plan_fingerprint": "d6082e365a6559cf66d284990a56509e2c50c062bffa6d8f0ee3c4f7709f5d83",
+    "planned_products": 0,
+    "planned_variants": 4,
+    "blockers": []
+  },
+  "apply": {
+    "status": "APPLIED_REVIEWED_NUTRITION_FIELDS",
+    "changed_products": [],
+    "changed_variants": [
+      {
+        "product_id": "1275",
+        "product_variant_id": "3755",
+        "fields": [
+          "beta_alanine",
+          "citrulline_components"
+        ]
+      },
+      {
+        "product_id": "1275",
+        "product_variant_id": "3913",
+        "fields": [
+          "beta_alanine",
+          "citrulline_components"
+        ]
+      },
+      {
+        "product_id": "1275",
+        "product_variant_id": "3914",
+        "fields": [
+          "beta_alanine",
+          "citrulline_components"
+        ]
+      },
+      {
+        "product_id": "1275",
+        "product_variant_id": "3915",
+        "fields": [
+          "beta_alanine",
+          "citrulline_components"
+        ]
+      }
+    ],
+    "audit": "tmp/nutrition-approved-plan/NCR1-current-offer-final-23-20260920-1275-d6082e365a65-audit.json"
+  },
+  "independent_readback": {
+    "result": "PASS",
+    "approved_candidates": 12,
+    "evidence_unchanged": true,
+    "whole_after_matches": true,
+    "nutrition_verified": [
+      {
+        "variant_id": "3755",
+        "value": false
+      },
+      {
+        "variant_id": "3913",
+        "value": false
+      },
+      {
+        "variant_id": "3914",
+        "value": false
+      },
+      {
+        "variant_id": "3915",
+        "value": false
+      }
+    ],
+    "legacy_creatine_per_serving_g": [
+      {
+        "variant_id": "3755",
+        "value": null
+      },
+      {
+        "variant_id": "3913",
+        "value": null
+      },
+      {
+        "variant_id": "3914",
+        "value": null
+      },
+      {
+        "variant_id": "3915",
+        "value": null
+      }
+    ]
+  },
+  "replay_protection": {
+    "result": "PASS_READ_ONLY",
+    "reason": "Every target now equals plan after and differs from guarded before; rerunning the stale plan would fail the transactional before-state check. No mutation replay was invoked."
+  },
+  "public_readback": {
+    "result": "PASS",
+    "checked_at": "2026-09-20T17:05:30.717Z",
+    "pages": [
+      {
+        "product_id": "1275",
+        "product_variant_id": "3755",
+        "url": "https://www.supplementscout.co.uk/product/darkstims-pump-v2-stim-free-pre-workout-520g?variant=3755",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "beta_heading": true,
+          "beta_5000_visible": true,
+          "l_citrulline_visible": true,
+          "nitrate_visible": true,
+          "mass_8000_visible": true,
+          "mass_2000_visible": true,
+          "serving_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1275",
+        "product_variant_id": "3913",
+        "url": "https://www.supplementscout.co.uk/product/darkstims-pump-v2-stim-free-pre-workout-520g?variant=3913",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "beta_heading": true,
+          "beta_5000_visible": true,
+          "l_citrulline_visible": true,
+          "nitrate_visible": true,
+          "mass_8000_visible": true,
+          "mass_2000_visible": true,
+          "serving_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1275",
+        "product_variant_id": "3914",
+        "url": "https://www.supplementscout.co.uk/product/darkstims-pump-v2-stim-free-pre-workout-520g?variant=3914",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "beta_heading": true,
+          "beta_5000_visible": true,
+          "l_citrulline_visible": true,
+          "nitrate_visible": true,
+          "mass_8000_visible": true,
+          "mass_2000_visible": true,
+          "serving_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1275",
+        "product_variant_id": "3915",
+        "url": "https://www.supplementscout.co.uk/product/darkstims-pump-v2-stim-free-pre-workout-520g?variant=3915",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "beta_heading": true,
+          "beta_5000_visible": true,
+          "l_citrulline_visible": true,
+          "nitrate_visible": true,
+          "mass_8000_visible": true,
+          "mass_2000_visible": true,
+          "serving_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      }
+    ],
+    "caffeine_free_filter": {
+      "url": "https://www.supplementscout.co.uk/search?q=pre%20workout&caffeine=free",
+      "http_200": true,
+      "darkstims_family_present": true,
+      "present_variant_ids": [
+        "3755",
+        "3913",
+        "3914",
+        "3915"
+      ]
+    },
+    "database_writes": 0
+  },
+  "current_offer_coverage": {
+    "total": 369,
+    "complete": 346,
+    "partial": 6,
+    "none": 17
+  },
+  "completion_note": "All four variants remain partial because exact serving_size_g is unresolved; three supported ingredient facts were added to each.",
+  "production_scope": {
+    "products_changed": 0,
+    "variants_changed": 4,
+    "candidates_created": 12,
+    "other_variants_changed": 0
+  }
+}

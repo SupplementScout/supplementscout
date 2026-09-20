@@ -6294,3 +6294,43 @@ serving-size completeness. Full evidence and blocker counts are in
 One next step is one owner decision for controlled
 `store -> authenticated review -> explicit-ID plan -> guarded apply` of exactly
 these `12` unchanged candidates. NUT-03 remains `IN PROGRESS`.
+
+## NUT-03 final current-offer remainder execution
+
+20 September 2026, explicit owner authorization advanced the unchanged
+Darkstims artifact through the existing production path. Preflight reconfirmed
+project `aftboxmrdgyhizicfsfu`, the artifact and archive hashes, `12` unique
+fingerprints, four exact product-variant bindings, zero duplicate candidates and
+unchanged before-state. Store created candidates `3154`-`3165`; authenticated
+review approved all `12` without changing their values, forms, serving text or
+evidence.
+
+The guarded plan has SHA-256
+`f768c353be176e8353cb25df05716e4d52b8c75dff72700a13e4f451791e2f9d`
+and fingerprint
+`d6082e365a6559cf66d284990a56509e2c50c062bffa6d8f0ee3c4f7709f5d83`.
+It contained zero product updates, four variant updates and zero blockers.
+Controlled apply changed only `beta_alanine` and `citrulline_components` in the
+`nutrition_override` of variants `3755`, `3913`, `3914` and `3915`, retaining
+the prior confirmed-absent caffeine and creatine facts. It did not add a gram
+serving, alter `nutrition_verified`, touch legacy creatine or update another
+variant.
+
+A fresh read-only connection matched all four complete plan-after objects and
+all `12` approved candidate evidence records. The public exact-variant pages
+show `5000 mg` beta-alanine, `8000 mg` L-citrulline and `2000 mg` citrulline
+nitrate per `1 scoop`, without exposing private provenance. All four remain
+correctly represented by the caffeine-free result. Read-only replay evidence
+shows every target equals the planned after-state and differs from the guarded
+before-state; no second mutation was invoked.
+
+Current-offer coverage remains `346/369` complete, `6` partial and `17` without
+facts because the four improved variants still lack an unambiguous
+`serving_size_g`. The practical unresolved set is `19` other variants plus this
+one shared Darkstims serving-mass question. Machine-readable evidence is in
+[nutrition-current-offer-final-23-execution-2026-09-20.json](rollouts/nutrition-current-offer-final-23-execution-2026-09-20.json)
+(SHA-256
+`4c88d5f654c5d92516f2a45b0ee9ad388baf916dc5f3faca2920ac1c842b1514`).
+NUT-03 remains `IN PROGRESS`; one next step is obtaining one authoritative
+gram mass for the current Pump V2 scoop or new exact evidence for one of the
+remaining `19` blocked variants.
