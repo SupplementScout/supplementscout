@@ -5954,3 +5954,32 @@ NUT-03 remains `IN PROGRESS`. One next step is one explicit decision for
 production `store -> authenticated review -> explicit-ID plans -> guarded
 apply` of exactly `32` candidates across `16` variants; `3719` remains out of
 scope.
+
+## NUT-03 three-family targeted resolution execution
+
+20 September 2026, after explicit owner authorization, production preflight
+confirmed `32` unique candidate fingerprints, `16` exact variant bindings and
+zero duplicates. Store created candidates `3029`-`3060`, and authenticated
+review approved all `32` unchanged records.
+
+The controlled planner allowed two independent plans and correctly blocked the
+AK-47 portion. Guarded apply used `22` candidates to update five DNFM variants
+`1363`, `1364`, `1365`, `1367`, `4080` to the one-scoop `8 g` column and Animal
+Fury Ice Pop `3718` to `16.1 g` with `6000 mg` citrulline malate. No product,
+other variant, `nutrition_verified` or legacy field changed. Independent whole-
+override readback and all six public pages passed; both plan replays were safely
+rejected with zero additional writes.
+
+AK-47 candidates `3049`-`3058` remain approved but unapplied. The planner
+reported `INDETERMINATE_STATE_WOULD_OVERWRITE_APPROVED_FACT` for all ten exact
+variants because `conflicting_information` cannot automatically replace an
+approved numeric beta-alanine fact. This guard was not bypassed. Animal Fury
+Kiwi Lime `3719` also remains unchanged for lack of an exact current formula
+binding. Complete evidence is in
+[nutrition-three-family-resolution-execution-2026-09-20.json](rollouts/nutrition-three-family-resolution-execution-2026-09-20.json).
+(SHA-256
+`559b4e77832c95038bddcab79bfb3851ec89b0e2d866b13740f96361858689c7`).
+NUT-03 remains `IN PROGRESS`. One next step is either exact formula-generation
+labels for AK-47 and Kiwi Lime, or a separately authorized design decision for
+explicitly revoking a previously approved numeric fact when later evidence is
+conflicting.
