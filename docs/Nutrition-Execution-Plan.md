@@ -6048,3 +6048,39 @@ remains `IN PROGRESS`. One next step is one owner decision for controlled
 these `23` candidates across `21` variants. A successful apply would raise
 current-offer completeness to `329/369` (`89.2%`), leaving `16` partial and `24`
 without applied facts.
+
+## NUT-03 current-offer priority execution
+
+20 September 2026, following the owner's explicit authorization, production
+preflight revalidated the four immutable artifacts, all `23` unique candidate
+fingerprints, `21` exact variant bindings and zero existing duplicates. Store
+created candidate IDs `3081`-`3103`; authenticated review approved all `23`
+without changing their values or evidence.
+
+Four explicit-ID plans contained zero product updates, zero blockers and only
+the authorized `nutrition_override` changes. Guarded apply completed all four:
+eight Darkstims variants received the declared `362.5 mg` caffeine fact, four
+Black Blood variants received the declared `2613 mg` creatine-complex mass,
+seven Mutant Madness variants received null-valued `confirmed_absent` creatine,
+and two Conteh variants received the `13.8 g` serving and `4000 mg` free-form
+L-citrulline. Products, `nutrition_verified`, legacy
+`creatine_per_serving_g`, other variants and unrelated override facts were not
+written.
+
+A new read-only connection matched all `21` complete planned after objects,
+all `23` approvals and their unchanged evidence. All `21` public variant pages
+show the expected fact. Current-offer coverage is now `329/369` complete
+(`89.2%`), `16` partial and `24` with no applied facts; any-data coverage remains
+`345/369` (`93.5%`). Replay of every exact plan failed closed against its stale
+before-state and made zero additional writes.
+
+Complete candidate IDs, plan SHA-256/fingerprint pairs and readback evidence are
+in
+[nutrition-current-offer-priority-execution-2026-09-20.json](rollouts/nutrition-current-offer-priority-execution-2026-09-20.json)
+(SHA-256
+`3919b61d2ef2f205360192349a55cfe90ad5a35feb3b1f17fe54da9e4d3e8dc7`).
+NUT-03 remains `IN PROGRESS`. The practical current-offer remainder is `40`
+variants: `16` partial and `24` without applied facts, retaining the exact
+blockers recorded in the preparation report. One next step is a targeted source
+or model-resolution package for those blockers rather than repeating the same
+source audit.
