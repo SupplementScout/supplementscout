@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-darkstims-serving-correction-preparation-v1",
+  "prepared_at": "2026-09-20T19:12:33.943Z",
+  "requested_operation": {
+    "artifact_sha256": "510751c42e585646dd67308592ec78db3d72c6233df24b914a71af39a23fa56f",
+    "candidates": 4,
+    "result": "STOPPED_BEFORE_STORE",
+    "reason": "Label-confirmed full ingredient amounts are per 2 level scoops (27.5 g), while the currently applied ingredient facts retain serving_basis_text 1 scoop. Applying serving_size_g alone would create contradictory serving context."
+  },
+  "corrected_package": {
+    "artifact": "tmp/nutrition-darkstims-serving-2026-09-20/candidate-artifact/nutrition-candidates-ncr1-darkstims-serving-correction-20260920-1275.json",
+    "sha256": "241c3163e7c2cab0b22324b38cec3b6fb7420457970cb4234c55b75f1bb583a3",
+    "fingerprint": "d44c407642bd40af2e70e4278bae6dd8175a4a310fdba66034eef3543e4041ac",
+    "candidates": 16,
+    "variant_ids": [
+      "3755",
+      "3913",
+      "3914",
+      "3915"
+    ],
+    "facts_per_variant": [
+      "serving_size_g 27.5",
+      "beta-alanine 5000 mg per 2 level scoops (27.5 g)",
+      "L-citrulline 8000 mg per 2 level scoops (27.5 g)",
+      "citrulline nitrate 2000 mg per 2 level scoops (27.5 g)"
+    ]
+  },
+  "validation": {
+    "result": "PASS",
+    "candidate_rows": 16,
+    "product_updates": 0,
+    "database_writes": 0
+  },
+  "production_writes": 0
+}
