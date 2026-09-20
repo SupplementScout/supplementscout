@@ -6084,3 +6084,36 @@ variants: `16` partial and `24` without applied facts, retaining the exact
 blockers recorded in the preparation report. One next step is a targeted source
 or model-resolution package for those blockers rather than repeating the same
 source audit.
+
+## NUT-03 current-offer remainder package
+
+20 September 2026, the complete `40`-variant current-offer remainder was
+reassessed as one organizational package without repeating exhausted source
+paths. Three newly qualifying exact retailer declarations resolve `40` facts
+for `12` variants. PER4M PRE 570 g variants `3588`, `3589`, `3590`, `3592` and
+`3593` receive a `19 g` serving, `300 mg` caffeine, `3200 mg` beta-alanine,
+`8000 mg` L-citrulline and null-valued `confirmed_absent` creatine. PER4M
+Energy 390 g variants `1399` and `1402` receive a `6.5 g` serving, `200 mg`
+caffeine, `1600 mg` beta-alanine, `2500 mg` citrulline malate 2:1 and the same
+reviewed creatine-absence state. Pitbull Pump variants `1217`-`1220` and `2767`
+receive only the missing null-valued `confirmed_absent` creatine fact; their
+previously applied `18 g`, caffeine-free, L-citrulline and beta-alanine facts
+remain unchanged.
+
+Each absence is a review inference from a complete declared composition, not a
+laboratory result or numeric zero. All three artifacts passed dry-run (`40`
+unique fingerprints, zero writes). Three factual reviews were archived once in
+private `nutrition-sources`, and every SHA-256 readback matched.
+
+The other `28` variants remain blocked by exact, non-interchangeable reasons:
+formula-generation or package conflicts, an undisclosed combined ingredient
+mass, or a structure the current model cannot preserve faithfully. Full values,
+artifact SHA-256/fingerprint pairs and the blocker counts are in
+[nutrition-current-offer-remainder-preparation-2026-09-20.json](rollouts/nutrition-current-offer-remainder-preparation-2026-09-20.json)
+(SHA-256
+`36f8650212ec8bb452bd1ee569c034658798a8647ab08cc3c5e576596f02f45a`).
+No production candidate, review, plan or catalogue write occurred. NUT-03
+remains `IN PROGRESS`. One next step is one owner decision for controlled
+`store -> authenticated review -> explicit-ID plans -> guarded apply` of exactly
+these `40` candidates across `12` variants. Successful apply would raise
+current-offer completeness to `341/369` (`92.4%`) and leave `28` blocked.

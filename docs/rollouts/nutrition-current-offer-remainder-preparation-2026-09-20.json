@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-current-offer-remainder-preparation-v1",
+  "status": "READY_FOR_ONE_OWNER_DECISION",
+  "production_checkpoint": { "project_ref": "aftboxmrdgyhizicfsfu", "current_offer_variants": 369, "complete": 329, "partial": 16, "none": 24 },
+  "scope": { "assessed_remaining_variants": 40, "ready_variants": 12, "ready_candidates": 40, "ready_families": 3, "blocked_variants": 28 },
+  "families": [
+    {
+      "product_id": "789",
+      "variant_ids": ["3588", "3589", "3590", "3592", "3593"],
+      "product": "PER4M PRE 570 g",
+      "facts_per_variant": [
+        { "field": "serving_size_g", "value": 19, "unit": "g", "basis": "1 scoop" },
+        { "field": "caffeine_per_serving_mg", "value": 300, "unit": "mg" },
+        { "field": "beta_alanine_per_serving_mg", "value": 3200, "unit": "mg" },
+        { "field": "citrulline_per_serving_mg", "value": 8000, "unit": "mg", "form": "l_citrulline" },
+        { "field": "creatine_declared_form_per_serving_mg", "information_state": "confirmed_absent", "value": null, "basis": "review inference from complete active table and flavour-specific other ingredients; not laboratory zero" }
+      ],
+      "source": { "type": "retailer_product_page", "url": "https://gettheedgenutrition.com/products/per4m-pre-workout-570g", "assignment": "exact 570 g / 30-serving shared formula and listed flavours" },
+      "artifact": { "path": "tmp/nutrition-current-offer-remainder-2026-09-20/candidate-artifact/nutrition-candidates-ncr1-current-offer-remainder-20260920-789.json", "sha256": "de58c7d0859b44a8f18a4acd4270d2a4a35ab8f54382949c3d4bb85f8212e504", "fingerprint": "9eec405630ebcc6a4e5cfab3197b4a98d40102fb840ae2e18b02eb0e2f2d3986", "candidates": 25, "dry_run": "PASS" }
+    },
+    {
+      "product_id": "882",
+      "variant_ids": ["1399", "1402"],
+      "product": "PER4M Energy 390 g",
+      "facts_per_variant": [
+        { "field": "serving_size_g", "value": 6.5, "unit": "g", "basis": "1 scoop" },
+        { "field": "caffeine_per_serving_mg", "value": 200, "unit": "mg" },
+        { "field": "beta_alanine_per_serving_mg", "value": 1600, "unit": "mg" },
+        { "field": "citrulline_per_serving_mg", "value": 2500, "unit": "mg", "form": "citrulline_malate", "ratio": "2:1" },
+        { "field": "creatine_declared_form_per_serving_mg", "information_state": "confirmed_absent", "value": null, "basis": "review inference from complete active table and ingredients; not laboratory zero" }
+      ],
+      "source": { "type": "retailer_product_page", "url": "https://www.dolphinfitness.co.uk/en/per4m-energy-pre-workout-390g/445166/blue-raspberry", "assignment": "exact 390 g / 60-serving formula, cross-checked against current PER4M flavour line" },
+      "artifact": { "path": "tmp/nutrition-current-offer-remainder-2026-09-20/candidate-artifact/nutrition-candidates-ncr1-current-offer-remainder-20260920-882.json", "sha256": "771a72c07c459a6c2e90fa6a49d5d5c380a930f30878d7e5de618cfedd15d43a", "fingerprint": "e99021b5957719e0942d729baf8c1040ac51e3b63cedf6a4d4298efee0369a8d", "candidates": 10, "dry_run": "PASS" }
+    },
+    {
+      "product_id": "839",
+      "variant_ids": ["1217", "1218", "1219", "1220", "2767"],
+      "product": "Gas Mark 10 Pitbull Pump",
+      "facts_per_variant": [
+        { "field": "creatine_declared_form_per_serving_mg", "information_state": "confirmed_absent", "value": null, "basis": "review inference from complete 18 g nutritionals and ingredients; not laboratory zero" }
+      ],
+      "source": { "type": "retailer_product_page", "url": "https://www.adbodytech.co.uk/gas-mark-10-pitbull-pump-workout-25-servings-4126-p.asp", "assignment": "exact 25-serving / 18 g shared product formula" },
+      "artifact": { "path": "tmp/nutrition-current-offer-remainder-2026-09-20/candidate-artifact/nutrition-candidates-ncr1-current-offer-remainder-20260920-839.json", "sha256": "80da4354d48c28984aa85f60a9ef0c5bde3d4893d48268e52afbc1395228bbeb", "fingerprint": "a295a42c13b0d99671c2257a42aa52596bf4d13c7ab00512e756d166b5e5392a", "candidates": 5, "dry_run": "PASS" }
+    }
+  ],
+  "archive": { "bucket": "nutrition-sources", "private": true, "objects": 3, "readback": "PASS_SHA256_MATCH", "source_review_sha256": ["c04ad0004208f08297a6b250cce362111814f51e3ca1a49f68e333fca9cda9e4", "8b59fffd28891390daecc3317fc1fead4b2c01eee25e4bf49dd4b448302cc55d", "e78dfe7060ec14781ba04d9f7330f5df13dc8b6a6997faabb7f04e02d7659758"] },
+  "remaining_blockers": [
+    { "product_id": "20", "variants": 1, "reason": "248 g formula generation is unresolved" },
+    { "product_id": "53", "variants": 1, "reason": "pack serving is not a gram serving and exact generation remains unresolved" },
+    { "product_id": "61", "variants": 2, "reason": "combined malate/nitrate citrulline mass lacks component amounts" },
+    { "product_id": "62", "variants": 4, "reason": "460 g generation differs from the available 420 g V3 evidence" },
+    { "product_id": "169", "variants": 9, "reason": "400 g generation has unresolved 250 mg versus 320 mg caffeine evidence" },
+    { "product_id": "520", "variants": 5, "reason": "two separately quantified creatine forms need a component-capable creatine model" },
+    { "product_id": "917", "variants": 1, "reason": "165 g catalogue identity conflicts with current 180/189 g evidence" },
+    { "product_id": "1275", "variants": 4, "reason": "23.5 g versus 27.5 g serving conflict and unsupported citrulline-nitrate form" },
+    { "product_id": "1333", "variants": 1, "reason": "70 g catalogue gel identity conflicts with available 48/50 g evidence" }
+  ],
+  "projected_after_authorized_apply": { "complete": 341, "partial": 11, "none": 17, "complete_percent": 92.4, "any_data_percent": 95.4 },
+  "controls": { "dry_runs": "3/3 PASS", "unique_candidate_fingerprints": 40, "production_candidate_writes": 0, "review_writes": 0, "plan_writes": 0, "catalogue_writes": 0 },
+  "next_step": "One owner decision authorizing controlled production store -> authenticated review -> explicit-ID plans -> guarded apply for exactly these 40 candidates and 12 variants."
+}
