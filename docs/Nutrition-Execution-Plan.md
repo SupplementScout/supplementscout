@@ -5598,3 +5598,43 @@ Complete evidence is
 `2d2712d0dd001bc1e7e12edc3b52700628976806e9a7da90432ae2735140b1b2`).
 NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified large
 preparation batch without repeating retained blockers.
+
+## NUT-03 large catalogue Batch 16 preparation
+
+20 September 2026, a fresh production read confirmed `575` active pre-workout
+variants: `429` have applied facts (`389` complete and `40` partial) and `146`
+have no applied facts. Batch 16 excludes every applied variant, retained PER4M
+and GYM HIGH deferrals, and previously exhausted access or identity blocks.
+
+The closed package contains `20` exact variants and `100` pending candidate
+facts across five product families:
+
+- HR Labs DEFIB Original, product `840`, variants `1243`, `1244`, `1245`,
+  `1246`, `2768`;
+- HR Labs DEFIB V3 420 g, product `62`, variants `2645`, `2647`, `2648`,
+  `2650`, `2651`;
+- Gorillalpha Ibiza Juice 480 g, product `1276`, variants `3756`, `3883`,
+  `3884`, `3885`, `3992`, `3993`, `3994`, `3995`;
+- Ghost Legend V4 660 g, product `6`, variant `8`;
+- Naughty Boy Winter Soldier SickPump 325 g, product `451`, variant `458`.
+
+All five artifacts passed the existing candidate-store dry-run: `100` unique
+fingerprints, zero product updates and zero database writes. Fresh production
+preflight confirmed all exact product-variant bindings, no matching candidates
+and an empty target override for all `20` variants. Five factual reviews were
+stored once in the private archive and passed SHA-256 readback.
+
+Twelve variants have all four tracked ingredients resolved. Eight Ibiza Juice
+variants deliberately retain `conflicting_information` for caffeine and
+L-citrulline and `no_information` for creatine because two retained 480 g tables
+represent incompatible formulas. Their common 12 g serving and beta-alanine
+2000 mg remain supported. Total War 400 g was excluded because its sources
+conflict on generation, serving and caffeine; no convenient value was selected.
+
+Complete preparation evidence is
+[nutrition-catalog-large-next-16-preparation-2026-09-20.json](rollouts/nutrition-catalog-large-next-16-preparation-2026-09-20.json)
+(SHA-256
+`637e78d4ff5b3f3f18f153c2ad2a90688b2206d1e382a4dac06732149b96bb1a`).
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
+controlled production `store -> authenticated review -> explicit-ID plan ->
+guarded apply` for exactly these `100` candidates and `20` variants.

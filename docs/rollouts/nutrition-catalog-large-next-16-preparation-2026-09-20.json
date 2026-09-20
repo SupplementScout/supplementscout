@@ -1,0 +1,509 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-large-next-16-preparation-report-v1",
+  "date": "2026-09-20",
+  "status": "READY_FOR_OWNER_DECISION",
+  "checkpoint": {
+    "active_preworkout_variants": 575,
+    "applied_unique_variants": 429,
+    "complete": 389,
+    "partial": 40,
+    "no_applied_facts": 146
+  },
+  "scope": {
+    "families": 5,
+    "variants": 20,
+    "candidate_facts": 100,
+    "fully_resolved_four_ingredients": 12,
+    "partial_four_ingredients": 8,
+    "variant_ids": [
+      "1243",
+      "1244",
+      "1245",
+      "1246",
+      "2768",
+      "2645",
+      "2647",
+      "2648",
+      "2650",
+      "2651",
+      "3756",
+      "3883",
+      "3884",
+      "3885",
+      "3992",
+      "3993",
+      "3994",
+      "3995",
+      "8",
+      "458"
+    ]
+  },
+  "families": [
+    {
+      "product_id": "840",
+      "product": "840",
+      "product_name": "HR Labs DEFIB Original 420g",
+      "variant_ids": [
+        "1243",
+        "1244",
+        "1245",
+        "1246",
+        "2768"
+      ],
+      "candidate_count": 25,
+      "source": {
+        "type": "retailer_product_page",
+        "url": "https://jonssupplements.co.uk/products/hr-labs-defib-original-420g",
+        "basis": "The current retailer page presents the exact DEFIB Original 420 g generation, its five listed flavours, 20/40 serving format and a complete transparent active formula; the manufacturer direction confirms one scoop is 10.5 g.",
+        "context": [
+          "Exact 420 g current DEFIB Original generation",
+          "Blue Slush, Fizzy Bubblegum, Fizzy Cola Bottles, Gummy Bears and Pink Lemonade are listed together",
+          "Absence is a declared-composition inference, not a laboratory zero"
+        ]
+      },
+      "proposed_facts": [
+        {
+          "field": "serving_size_g",
+          "value": 10.5,
+          "unit": "g",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "evidence": "One scoop (10.5 g); 420 g; 20/40 servings"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 200,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "evidence": "Caffeine Anhydrous 200 mg per one-scoop serving"
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 1600,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "evidence": "Beta Alanine 1600 mg per one-scoop serving"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 4000,
+          "unit": "mg",
+          "form": "citrulline_malate",
+          "information_state": "present_with_amount",
+          "ratio": "2:1",
+          "evidence": "Citrulline Malate 2:1 4000 mg per one-scoop serving"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "confirmed_absent",
+          "ratio": null,
+          "evidence": "The complete transparent 12-active formula and declared ingredients contain no creatine form"
+        }
+      ],
+      "artifact": {
+        "path": "tmp/nutrition-catalog-large-next-16-2026-09-20/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-16-20260920-840.json",
+        "sha256": "1ac1428cdea18f49293241a135bd3daec3de14f1c7133d2c7e160b7c7053b974",
+        "fingerprint": "d2065146d553441fc515f9c869b5aaef93d60991ebb8fa33994bdaf463b1b9e1"
+      },
+      "unresolved": []
+    },
+    {
+      "product_id": "62",
+      "product": "62",
+      "product_name": "HR Labs Defib Pre-Workout",
+      "variant_ids": [
+        "2645",
+        "2647",
+        "2648",
+        "2650",
+        "2651"
+      ],
+      "candidate_count": 25,
+      "source": {
+        "type": "retailer_product_page",
+        "url": "https://www.dolphinfitness.co.uk/en/hr-labs-defib-v3-420g/347105/dr-defib",
+        "basis": "The exact 420 g V3 retailer table gives one scoop as 10.5 g and a complete formula; retained catalogue and retailer context bind the five 420 g V3 flavours.",
+        "context": [
+          "Exact V3 420 g generation",
+          "Cherryade, Jelly Bean, Iced Blue Slush, Pink Lemonade and Gummy Bears catalogue variants",
+          "One-scoop basis is used consistently"
+        ]
+      },
+      "proposed_facts": [
+        {
+          "field": "serving_size_g",
+          "value": 10.5,
+          "unit": "g",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "evidence": "Serving Size 1 Scoop (10.5 g); container 420 g; 40 servings"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 200,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "evidence": "Caffeine Anhydrous 200 mg per 10.5 g serving"
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 1600,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "evidence": "Beta Alanine 1600 mg per 10.5 g serving"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 4000,
+          "unit": "mg",
+          "form": "citrulline_malate",
+          "information_state": "present_with_amount",
+          "ratio": "2:1",
+          "evidence": "Citrulline Malate 2:1 4000 mg per 10.5 g serving"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "confirmed_absent",
+          "ratio": null,
+          "evidence": "The complete active table and ingredient declaration contain no creatine form"
+        }
+      ],
+      "artifact": {
+        "path": "tmp/nutrition-catalog-large-next-16-2026-09-20/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-16-20260920-62-v3.json",
+        "sha256": "0320a9eb7b5b2d636acf97ee45834db5890264c11c291dd0156fdd5d7b30ad72",
+        "fingerprint": "497075dd4312f6b3bfa9bfe91846147c9c3532421b4e630d44d5cdfcb5eb089f"
+      },
+      "unresolved": []
+    },
+    {
+      "product_id": "1276",
+      "product": "1276",
+      "product_name": "Gorillalpha Ibiza Juice Pre-Workout 480g",
+      "variant_ids": [
+        "3756",
+        "3883",
+        "3884",
+        "3885",
+        "3992",
+        "3993",
+        "3994",
+        "3995"
+      ],
+      "candidate_count": 40,
+      "source": {
+        "type": "retailer_product_page",
+        "url": "https://www.10reps.co.uk/product/gorillalpha-ibiza-juice/?attribute_flavours=Cherry",
+        "basis": "The mapped retailer presents all eight exact catalogue flavours under one Ibiza Juice 480 g product. Two retained retailer tables disagree on the stimulant and citrulline formula, so only the common serving and beta-alanine amount are numeric.",
+        "context": [
+          "Eight exact flavour URLs retained in the catalogue mapping",
+          "Lift Up and London Supplements pages represent incompatible Ibiza Juice formulas",
+          "No value is selected by majority or arithmetic"
+        ]
+      },
+      "proposed_facts": [
+        {
+          "field": "serving_size_g",
+          "value": 12,
+          "unit": "g",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "evidence": "Serving basis across retained 480 g tables: 1 scoop (12 g)"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "conflicting_information",
+          "ratio": null,
+          "evidence": "Retained tables disagree on caffeine sources and compound amounts for the 480 g Ibiza Juice generation"
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 2000,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "evidence": "Beta-Alanine 2000 mg per 1 scoop (12 g) in both retained tables"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "conflicting_information",
+          "ratio": null,
+          "evidence": "Retained tables disagree between L-Citrulline 2000 mg and 4000 mg per 12 g scoop"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "no_information",
+          "ratio": null,
+          "evidence": "The compared retailer disclosures do not provide a stable complete declaration sufficient to resolve creatine"
+        }
+      ],
+      "artifact": {
+        "path": "tmp/nutrition-catalog-large-next-16-2026-09-20/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-16-20260920-1276.json",
+        "sha256": "c734b0bb1819b9022186260899cdb57f1e71c9a914767e04f14a916b08548f9e",
+        "fingerprint": "b6aa1c4c891f06e7d1311ae864df99146263d857c38942816fe03d0c60909009"
+      },
+      "unresolved": [
+        "Caffeine and L-citrulline remain conflicting between retained 480 g retailer tables; creatine remains no_information."
+      ]
+    },
+    {
+      "product_id": "6",
+      "product": "6",
+      "product_name": "Ghost Legend V4 Pre-Workout 660g",
+      "variant_ids": [
+        "8"
+      ],
+      "candidate_count": 5,
+      "source": {
+        "type": "retailer_product_page",
+        "url": "https://www.dolphinfitness.co.uk/en/ghost-legend-v4-30-servings/440574",
+        "basis": "The retailer page identifies Ghost Legend V4, the exact 660 g / 30-serving generation and its complete Blue Raspberry active table.",
+        "context": [
+          "Exact Legend V4 660 g generation",
+          "Default catalogue variant is the mapped product-level Blue Raspberry offer",
+          "Absence is a declared-composition inference"
+        ]
+      },
+      "proposed_facts": [
+        {
+          "field": "serving_size_g",
+          "value": 22,
+          "unit": "g",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "evidence": "Serving Size: 1 Scoop (22 g); container 660 g; 30 servings"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 300,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "evidence": "Natural Caffeine 300 mg per 22 g serving"
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 3200,
+          "unit": "mg",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "evidence": "Beta-Alanine 3200 mg per 22 g serving"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 6000,
+          "unit": "mg",
+          "form": "l_citrulline",
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "evidence": "L-Citrulline Vegan Fermented 6000 mg per 22 g serving"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "confirmed_absent",
+          "ratio": null,
+          "evidence": "The complete active and other-ingredient declarations contain no creatine form"
+        }
+      ],
+      "artifact": {
+        "path": "tmp/nutrition-catalog-large-next-16-2026-09-20/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-16-20260920-6.json",
+        "sha256": "c4500c6ece34bf6878989f9be79ef57b4ae6dcd9276d45db3432148b96c56f2d",
+        "fingerprint": "6f58ba69b4244cb1f9e881bf1db8a5b7dfa2b75b750718b294490553f49f6504"
+      },
+      "unresolved": []
+    },
+    {
+      "product_id": "451",
+      "product": "451",
+      "product_name": "Naughty Boy Winter Soldier Sick Pump 325g",
+      "variant_ids": [
+        "458"
+      ],
+      "candidate_count": 5,
+      "source": {
+        "type": "retailer_product_page",
+        "url": "https://hlsupps.com/en/products/naughty-boy-winter-soldier-sick-pump-325g-5034.html",
+        "basis": "The retailer page identifies the exact Winter Soldier SickPump 325 g generation and gives a complete 13 g formula; the mapped catalogue row is the product default.",
+        "context": [
+          "Exact 325 g Winter Soldier SickPump generation",
+          "Complete active and other ingredient list",
+          "Absence states are composition inferences, not laboratory zeros"
+        ]
+      },
+      "proposed_facts": [
+        {
+          "field": "serving_size_g",
+          "value": 13,
+          "unit": "g",
+          "form": null,
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "evidence": "1 serving / 1 scoop: 13 g; 325 g pack"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "confirmed_absent",
+          "ratio": null,
+          "evidence": "The product is explicitly stimulant-free and the complete formula contains no caffeine source"
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "confirmed_absent",
+          "ratio": null,
+          "evidence": "The complete declared composition contains no beta-alanine"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 6000,
+          "unit": "mg",
+          "form": "l_citrulline",
+          "information_state": "present_with_amount",
+          "ratio": null,
+          "evidence": "L-Citrulline (Vegan Fermented) 6000 mg per 13 g serving"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "form": null,
+          "information_state": "confirmed_absent",
+          "ratio": null,
+          "evidence": "The complete declared composition contains no creatine form"
+        }
+      ],
+      "artifact": {
+        "path": "tmp/nutrition-catalog-large-next-16-2026-09-20/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-16-20260920-451.json",
+        "sha256": "0362f01d5fe20d016bfd7be5366824ef6c9fc677377fb9cd800cee20e84a6754",
+        "fingerprint": "aff3de8b75c4d395d2e0b02d5785a6a3f02a29af6f797d5af4b8aee2dd88fd8e"
+      },
+      "unresolved": []
+    }
+  ],
+  "evidence_archive": {
+    "public": false,
+    "objects": [
+      {
+        "id": "product-840-source-review.json",
+        "sha256": "623cee606eab7c7243664b449d4083672a6148e86ec5ffa1ef78d7f0749b8e5d",
+        "readback": true
+      },
+      {
+        "id": "product-62-v3-source-review.json",
+        "sha256": "5afbc67c7d95a95eed4b335a2f251fd4cf9ce86082de723074b727d207f5cbf4",
+        "readback": true
+      },
+      {
+        "id": "product-1276-source-review.json",
+        "sha256": "cea43a97b16f450f8ac8fd884d095ba31faa49cc566e8e57c17b9dc6422960f8",
+        "readback": true
+      },
+      {
+        "id": "product-6-source-review.json",
+        "sha256": "7d682c4703d78c316a35f05f737cf3e279a36bd42c4d381d154a235df251037e",
+        "readback": true
+      },
+      {
+        "id": "product-451-source-review.json",
+        "sha256": "e90fa35abb7dccda38775fe8f3871b7f1bb75f55ce38d2d35fa7ada561a0f119",
+        "readback": true
+      }
+    ],
+    "readback": "PASS_SHA256_MATCH"
+  },
+  "production_preflight": {
+    "result": "PASS",
+    "variants": 20,
+    "unique_candidate_fingerprints": 100,
+    "existing_candidates": 0,
+    "target_overrides_empty": 20,
+    "database_writes": 0
+  },
+  "validation": {
+    "dry_runs": 5,
+    "passed": 5,
+    "candidate_rows": 100,
+    "product_updates": 0,
+    "database_writes": 0
+  },
+  "exceptions": [
+    {
+      "product_id": "1276",
+      "variant_ids": [
+        "3756",
+        "3883",
+        "3884",
+        "3885",
+        "3992",
+        "3993",
+        "3994",
+        "3995"
+      ],
+      "fields": [
+        "caffeine",
+        "citrulline",
+        "creatine"
+      ],
+      "reason": "Two retained 480 g retailer tables disagree on caffeine and L-citrulline; creatine remains no_information. The package preserves these states without choosing a value."
+    }
+  ],
+  "excluded": [
+    {
+      "product_id": "169",
+      "reason": "Total War 400 g sources conflict on formula generation, serving mass and caffeine amount."
+    },
+    {
+      "brands": [
+        "Per4m"
+      ],
+      "reason": "Retained owner deferral; no new evidence reopens it."
+    },
+    {
+      "brand": "GYM HIGH",
+      "reason": "Only the previously authorized Stinger variant remains in scope; other products stay deferred."
+    }
+  ],
+  "production_writes": {
+    "candidate_rows": 0,
+    "catalogue_rows": 0
+  },
+  "next_step": "One owner decision for controlled production store -> authenticated review -> explicit-ID plans -> guarded apply of exactly 100 candidates for the 20 listed variants."
+}
