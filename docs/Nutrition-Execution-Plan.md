@@ -5638,3 +5638,52 @@ Complete preparation evidence is
 NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
 controlled production `store -> authenticated review -> explicit-ID plan ->
 guarded apply` for exactly these `100` candidates and `20` variants.
+
+## NUT-03 large catalogue Batch 16 execution
+
+20 September 2026, production execution after explicit owner authorization:
+
+- Fresh read-only preflight confirmed production, all `20` exact bindings,
+  `100` unique fingerprints, no matching candidates and empty target overrides.
+- Controlled store created candidates `2804`-`2903`; authenticated review
+  approved all `100` unchanged records with the correct preparation-report
+  binding. Five explicit-ID plans contained zero product updates and exactly
+  `20` variant updates.
+- Guarded apply changed only `nutrition_override` for variants `1243`, `1244`,
+  `1245`, `1246`, `2768`, `2645`, `2647`, `2648`, `2650`, `2651`, `3756`,
+  `3883`, `3884`, `3885`, `3992`, `3993`, `3994`, `3995`, `8`, and `458`.
+  Products, `nutrition_verified`, legacy creatine fields and other variants were
+  unchanged.
+- Independent readback matched every whole override to the sealed `after` state
+  and all `100` candidates to unchanged evidence. Applied coverage is now `449`
+  variants: `409` structurally complete, `40` partial and `126` without applied
+  facts. Twelve targets have all four tracked ingredients resolved; eight Ibiza
+  Juice targets retain explicit conflicts/no-information states.
+- Public readback passed for all `20` exact pages and the caffeine-free filter
+  with current offer availability. Private evidence and reviewer data remained
+  hidden.
+- Replay of all five plans was safely rejected on stale `before`, producing zero
+  additional writes.
+
+Plan SHA-256 / fingerprint pairs are: product `840`
+`d4370d6387c6dfa96f1c5818e1f03d6604e9960533f8fe93b650d8b214a89c40` /
+`05c951acc249d14b5e95d69424086622cbd9a363f471a3f1bcf35ccc222870d9`;
+product `62` V3
+`9df91caf2663901874eec19179b05fec3da22ae9d462304dc803ef40f4bf444d` /
+`511787f3f45a12659ac38c0ddc9cbaaa1dae076fad47a592d1116f97d6488797`;
+product `1276`
+`7696549d1b73ee3922063c79f022abfbf58c30f894a77dbff746f29b5ded36a0` /
+`d8dc7cb37fb634c68fcecc96fb38a7e79384dd8c5446849781842310ed6bcab4`;
+product `6`
+`0a5c49617f6c17135c7c0f7ed1176f9f0d5137fa30cd3de0a4865d6713a90905` /
+`44a4e81da270aa5b229191f497fd1024982bda37f68d5d8e16c99a6892912c00`;
+and product `451`
+`069e8a41e0f0973bad134bd963c76fb6f70932235c564f304ed2f23f1ee2b538` /
+`f56d632fd476d49a6cfd8b970254ea9fd529565a0cda3813d361ce2d419cdfaf`.
+
+Complete evidence is
+[nutrition-catalog-large-next-16-execution-2026-09-20.json](rollouts/nutrition-catalog-large-next-16-execution-2026-09-20.json)
+(SHA-256
+`b6be71b2984345993e7b2f40fa99853cc31e491dbcd4b9f638233ac9f9589e15`).
+NUT-03 remains `IN PROGRESS`. One next step is another large preparation batch
+that excludes all `449` applied variants and retained blockers.
