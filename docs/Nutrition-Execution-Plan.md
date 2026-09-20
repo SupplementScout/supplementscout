@@ -5816,3 +5816,34 @@ Complete audit evidence is
 NUT-03 remains `IN PROGRESS`. One next step is a targeted review of the `11`
 mixed-signature families and five high-caffeine variants, producing one
 correction package only for demonstrated discrepancies.
+
+## NUT-03 applied-catalogue targeted review
+
+20 September 2026, the retained evidence for all `11` mixed-signature families
+and five manually flagged high-caffeine variants was reviewed without another
+collection pass or any production write. Four families (`6`, `49`, `783`,
+`1169`) have supported flavour- or pack-specific serving weights, and two
+families (`19`, `1280`) already preserve explicit uncertainty or deliberately
+variant-specific evidence. These are not demonstrated transcription errors.
+
+The five Gas Mark 10 No Games variants `1414`-`1418` retain `600 mg` caffeine:
+the archived complete formula explicitly declares that amount on a `20 g`
+serving, so it was not confused with the `600 g` pack size. Two families need a
+single catalogue serving-basis decision before correction: HR Labs Defib
+variants `2645`-`2651` mix the declared one-scoop `10.5 g` basis with an
+advanced two-scoop `21 g` basis, and Naughty Boy Menace V2 variants `919` and
+`4100`-`4108` mix the manufacturer's one-scoop `7 g` and two-scoop `14 g`
+bases. The recommended catalogue basis is one scoop for both because their
+catalogue identities are respectively 40 and 60 one-scoop servings.
+
+Three families (`878`, `1162`, `1249`) retain material source differences that
+could represent formula generations or flavour-scoped tables. They require an
+exact generation/label link before a correction; no value was selected by
+majority. Complete findings are in
+[nutrition-applied-catalogue-targeted-review-2026-09-20.json](rollouts/nutrition-applied-catalogue-targeted-review-2026-09-20.json).
+(SHA-256
+`a89bf10fe2498eaed286dd4e9113f3e14b28a9f6a3e843c3dcdfce8032d3bca9`).
+NUT-03 remains `IN PROGRESS`. One next step is the owner's serving-basis
+decision for products `62` and `763`; after that decision, prepare only the
+corresponding correction candidates while the other three families remain on
+targeted evidence review.
