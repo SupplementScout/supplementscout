@@ -6202,3 +6202,28 @@ authorize their production store, review or apply.
 Machine-readable preparation evidence: [nutrition-compound-components-extension-preparation-2026-09-20.json](rollouts/nutrition-compound-components-extension-preparation-2026-09-20.json), SHA-256 `e48df06ba09b429a712588b44af2785a17932a4bf85acedfae50c059a3f2679d`.
 
 Machine-readable rollout evidence: [nutrition-compound-components-extension-rollout-2026-09-20.json](rollouts/nutrition-compound-components-extension-rollout-2026-09-20.json).
+
+## NUT-03 Redweiler creatine-component preparation
+
+20 September 2026, the first bounded package using the deployed creatine
+component model is `CODE COMPLETE` for product `520`, variants `1025`, `1700`,
+`1701`, `1702` and `1703`. Fresh production readback confirmed all five exact
+480 g identities, two current offers per variant, their already applied 6 g
+serving context and no existing component candidates. The retained common
+manufacturer review and private archive object still match SHA-256
+`ec92d5b1dd2b783bef3ea9bd253109c9757b3eb442fcf036feba482846095156`.
+
+The offline artifact contains exactly ten pending candidates: 750 mg creatine
+monohydrate and 350 mg creatine malate for each exact variant, on `1 portion
+(6 g = 1/2 scoop)`. These are separate declared compound masses; they are not
+summed or converted to pure creatine. All ten fingerprints are unique. Existing
+dry-run returned `DRY_RUN_NO_DATABASE`, ten candidate rows, zero product updates
+and zero writes. Artifact SHA-256 is
+`2dbe755f357cb2992fa7dcdb6e1d685e3965c786b0b265560bf0ca1b0f77e924`;
+artifact fingerprint is
+`a946ef5b05cae07095ad93a68e8116dbb871acb15e4af10bd1c6acc86acacea0`.
+No store, review, plan or apply occurred. One next step is one explicit owner
+decision for the unchanged ten-candidate artifact through the existing guarded
+path.
+
+Machine-readable evidence: [nutrition-redweiler-creatine-components-preparation-2026-09-20.json](rollouts/nutrition-redweiler-creatine-components-preparation-2026-09-20.json).

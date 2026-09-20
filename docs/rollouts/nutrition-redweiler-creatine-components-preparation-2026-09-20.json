@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-creatine-components-preparation-v1",
+  "status": "READY_FOR_OWNER_DECISION",
+  "date": "2026-09-20",
+  "scope": {
+    "product_id": "520",
+    "variant_ids": ["1025", "1700", "1701", "1702", "1703"],
+    "variants": 5,
+    "candidate_facts": 10,
+    "production_writes": 0
+  },
+  "production_preflight": {
+    "result": "PASS_READ_ONLY",
+    "exact_variant_bindings": 5,
+    "existing_component_candidates": 0,
+    "existing_overrides": "Each target has serving 6 g, caffeine 100 mg, beta-alanine 1100 mg and citrulline malate 750 mg on the same source and serving context.",
+    "in_stock_offers_per_variant": 2
+  },
+  "source": {
+    "type": "manufacturer_product_page",
+    "url": "https://olimpsport.ae/products/redweiler-480-g/",
+    "applicability": "wspólna tabela producenta dla wariantów produktu",
+    "local_review": "tmp/nutrition-catalog-continuation-2026-09-14/evidence/olimp-redweiler-480g-official-review.json",
+    "sha256": "ec92d5b1dd2b783bef3ea9bd253109c9757b3eb442fcf036feba482846095156",
+    "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-continuation-2026-09-14/ec92d5b1dd2b783bef3ea9bd253109c9757b3eb442fcf036feba482846095156/olimp-redweiler-480g-official-review.json",
+    "archive_readback": "PASS_SHA256_MATCH"
+  },
+  "facts_per_variant": {
+    "serving_basis": "1 portion (6 g = 1/2 scoop)",
+    "components": [
+      { "field": "creatine_component_per_serving_mg", "form": "creatine_monohydrate", "declared_mass_mg": 750, "source_unit": "mg" },
+      { "field": "creatine_component_per_serving_mg", "form": "creatine_malate", "declared_mass_mg": 350, "source_unit": "mg" }
+    ],
+    "interpretation": "Declared compound masses remain separate and are not summed or converted to pure creatine."
+  },
+  "artifact": {
+    "path": "tmp/nutrition-redweiler-components-2026-09-20/candidate-artifact/nutrition-candidates-ncr1-redweiler-creatine-components-520-20260920.json",
+    "sha256": "2dbe755f357cb2992fa7dcdb6e1d685e3965c786b0b265560bf0ca1b0f77e924",
+    "fingerprint": "a946ef5b05cae07095ad93a68e8116dbb871acb15e4af10bd1c6acc86acacea0",
+    "candidate_fingerprints": [
+      "5ca1e8128313336bc28cfd848217db51aa3739e65ca0406831af98c0056453f5",
+      "62aa5a1942aafcca75650137e48c4f2a309826c820d5f9eeafa1676e22ea8f89",
+      "040ffe458d31d91c17249660a4f27176e106ec12f550095d4c994a6d7095c18b",
+      "5dc8f54cccee4717e4d5690241ffd61285d92fd89e85f6c48b83946342a1239c",
+      "db6d85e278106d84bfddf7a17326e294b539990b9319b7bc6be0b16fce2013f7",
+      "2c0a9cb598ecbca32bca74eba69754ee0262ab8f879e8983c8ff086c58dbab34",
+      "4a779d4f6f6c5839ad3da43ec20e6aaa1922e982a799018089f55f9d43313923",
+      "7c5c1a77c56543025ada6878c29735be869c702dbf93ff68206f045295b82a18",
+      "4a353dc3f7c002ef166e9ab58c8a70a1fe208e43b28fb975230d68a8553d9635",
+      "c6a010da326dfe0cc96428b7c18f214bd317441a0172e8698899a4d0d363cc84"
+    ]
+  },
+  "dry_run": {
+    "result": "PASS",
+    "mode": "DRY_RUN_NO_DATABASE",
+    "candidate_rows": 10,
+    "unique_fingerprints": 10,
+    "product_updates": 0,
+    "database_writes": 0
+  },
+  "next_step": "One owner decision may authorize production store, authenticated review, explicit-ID plan and guarded apply of exactly this unchanged ten-candidate artifact."
+}
