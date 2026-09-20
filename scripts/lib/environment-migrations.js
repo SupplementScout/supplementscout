@@ -130,6 +130,7 @@ const EXCLUSIONS = Object.freeze({
     "20260919203000_prepare_sequential_parent_approval",
     "20260919210000_fix_sequential_parent_approver_identity",
     "20260919220000_allow_simply_confirmed_aggregate_price_wave",
+    "20260919223000_apply_simply_confirmed_aggregate_guard",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",

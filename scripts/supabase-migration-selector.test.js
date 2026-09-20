@@ -260,7 +260,7 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
 
 test("production records the deployed ledger and exact pending Simply validator", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending.map(({filename})=>filename), ["20260919223000_apply_simply_confirmed_aggregate_guard.sql"]);
   assert.equal(contract.ledgerCount, 215);
   assert.equal(
     contract.ledgerFingerprint,
@@ -403,9 +403,9 @@ test("production binds its exact ledger with the pending Simply aggregate-price 
   });
   assert.equal(result.ledger_count, 215);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 215);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.selected_files.length, 216);
+  assert.deepEqual(result.pending_files, ["20260919223000_apply_simply_confirmed_aggregate_guard.sql"]);
+  assert.deepEqual(result.pending_sha256s, {"20260919223000_apply_simply_confirmed_aggregate_guard.sql":"fbb7fc08c2e3e5c422779ab772c51c6257285d6e8f486cd8a8a9aa08d3fad7bc"});
   assert.ok(result.selected_files.includes(NUTRITION_CITRULLINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(JONS_INTERRUPTED_REFRESH_MIGRATION));
   assert.ok(result.selected_files.includes(TEN_REPS_INTERRUPTED_REFRESH_MIGRATION));
