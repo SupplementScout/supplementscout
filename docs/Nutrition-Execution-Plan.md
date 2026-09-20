@@ -5896,3 +5896,28 @@ in
 NUT-03 remains `IN PROGRESS`. One next step is targeted formula-generation
 evidence for products `878`, `1162` and `1249`, or the separately prepared Stim
 Thug correction.
+
+## NUT-03 Stim Thug label correction execution
+
+20 September 2026, after explicit owner authorization, the prepared Stim Thug
+artifact passed a fresh production preflight: exact product `971` bindings for
+variants `1895`-`1900`, `18` unique fingerprints and zero matching candidates.
+Store created candidates `3011`-`3028`, and authenticated review approved all
+`18` unchanged records.
+
+The explicit-ID plan contained zero product updates and six variant updates.
+Guarded apply changed only serving size, caffeine and beta-alanine in each
+target `nutrition_override`: one scoop is now `17.2 g`, caffeine anhydrous is
+`350 mg`, and beta-alanine is `3500 mg`. Existing citrulline malate `7000 mg`,
+confirmed-absent creatine, products, `nutrition_verified`, legacy fields and
+all other variants were preserved.
+
+Independent production readback matched all six whole overrides to the plan
+and confirmed every approval and evidence reference unchanged. All six public
+variant pages passed. Replaying the exact plan was safely rejected on stale
+`before`, with zero additional writes. Complete evidence is in
+[nutrition-stim-thug-label-correction-execution-2026-09-20.json](rollouts/nutrition-stim-thug-label-correction-execution-2026-09-20.json).
+(SHA-256
+`6dc0aaf9338e17372a0581bd7f7458bf4701245549398819a373c35d21d1f0ff`).
+NUT-03 remains `IN PROGRESS`. One next step is targeted formula-generation
+evidence for products `878`, `1162` and `1249`.
