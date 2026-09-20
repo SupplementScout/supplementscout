@@ -6227,3 +6227,33 @@ decision for the unchanged ten-candidate artifact through the existing guarded
 path.
 
 Machine-readable evidence: [nutrition-redweiler-creatine-components-preparation-2026-09-20.json](rollouts/nutrition-redweiler-creatine-components-preparation-2026-09-20.json).
+
+## NUT-03 Redweiler creatine-component execution
+
+20 September 2026, after explicit owner authorization, production preflight
+reconfirmed the unchanged artifact, ten unique fingerprints, five exact
+product-variant bindings, the private archive hash and zero duplicates. Store
+created candidates `3144`-`3153`; authenticated review approved all ten without
+changing their amounts, forms, serving context or evidence.
+
+Plan SHA-256
+`deca5bda15876fbde5e6f4c9e93c585c9875413401e8a06efcd33b62939d1c2c`
+with fingerprint
+`7cfc1aa037b431af3378fc16d417b5b66458f35df2d9073ece2ca174dc8c7fa1`
+had zero blockers and product updates. Controlled apply changed only
+`nutrition_override.creatine_components` on variants `1025`, `1700`, `1701`,
+`1702` and `1703`, adding separate 350 mg creatine-malate and 750 mg
+creatine-monohydrate masses on the existing 6 g serving context. It preserved
+all other override facts, products, `nutrition_verified` and legacy creatine.
+
+A fresh connection matched all five complete plan-after objects and all ten
+approved evidence records. All five public exact-variant pages display both
+forms and amounts without private provenance. The caffeinated family remains
+outside the caffeine-free filter. Current-offer coverage is now `346/369`
+complete (`93.8%`), `6` partial and `17` without facts; any-data coverage is
+`352/369` (`95.4%`). A production replay invocation was not executed because
+automatic approval review rejected that separate mutation test; read-only
+evidence confirms all five targets now differ from the stale plan-before state
+and no additional write occurred.
+
+Machine-readable execution evidence: [nutrition-redweiler-creatine-components-execution-2026-09-20.json](rollouts/nutrition-redweiler-creatine-components-execution-2026-09-20.json).

@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-creatine-components-production-execution-v1",
+  "status": "LIVE_VERIFIED",
+  "date": "2026-09-20",
+  "authorization": "Production store, authenticated review, explicit-ID plan and guarded apply for exactly ten candidates in the unchanged Redweiler artifact.",
+  "target": { "environment": "PRODUCTION", "project_ref": "aftboxmrdgyhizicfsfu" },
+  "artifact": {
+    "path": "tmp/nutrition-redweiler-components-2026-09-20/candidate-artifact/nutrition-candidates-ncr1-redweiler-creatine-components-520-20260920.json",
+    "sha256": "2dbe755f357cb2992fa7dcdb6e1d685e3965c786b0b265560bf0ca1b0f77e924",
+    "fingerprint": "a946ef5b05cae07095ad93a68e8116dbb871acb15e4af10bd1c6acc86acacea0",
+    "candidate_count": 10,
+    "unique_fingerprints": 10
+  },
+  "preflight": {
+    "result": "PASS",
+    "archive_sha256": "ec92d5b1dd2b783bef3ea9bd253109c9757b3eb442fcf036feba482846095156",
+    "archive_readback": "PASS",
+    "exact_variant_bindings": 5,
+    "existing_target_candidates": 0,
+    "before_state_match": 5,
+    "queue_before": { "total": 3143, "pending": 16, "approved": 3121, "rejected": 6 }
+  },
+  "store": { "result": "PASS", "new_candidates": 10, "product_updates": 0 },
+  "review": {
+    "result": "PASS",
+    "reviewed_by": "admin-panel",
+    "approved": 10,
+    "candidate_ids": ["3144", "3145", "3146", "3147", "3148", "3149", "3150", "3151", "3152", "3153"]
+  },
+  "plan": {
+    "path": "tmp/nutrition-approved-plan/NCR1-redweiler-creatine-components-20260920-520-7cfc1aa037b4.json",
+    "sha256": "deca5bda15876fbde5e6f4c9e93c585c9875413401e8a06efcd33b62939d1c2c",
+    "fingerprint": "7cfc1aa037b431af3378fc16d417b5b66458f35df2d9073ece2ca174dc8c7fa1",
+    "blockers": 0,
+    "product_updates": 0,
+    "variant_updates": 5,
+    "changed_field": "creatine_components"
+  },
+  "apply": {
+    "result": "PASS",
+    "status": "APPLIED_REVIEWED_NUTRITION_FIELDS",
+    "product_updates": 0,
+    "variant_ids": ["1025", "1700", "1701", "1702", "1703"],
+    "facts_per_variant": [
+      { "form": "creatine_malate", "declared_mass_mg": 350 },
+      { "form": "creatine_monohydrate", "declared_mass_mg": 750 }
+    ],
+    "serving_basis": "1 portion (6 g = 1/2 scoop)"
+  },
+  "independent_readback": {
+    "result": "PASS",
+    "whole_override_matches_after": 5,
+    "approved_candidates": 10,
+    "evidence_unchanged": true,
+    "queue_after": { "total": 3153, "pending": 16, "approved": 3131, "rejected": 6 },
+    "public_pages_passed": 5,
+    "private_evidence_redacted": true,
+    "caffeine_free_filter": "PASS_EXCLUDED_AS_CAFFEINATED",
+    "current_offer_coverage": { "total": 369, "complete": 346, "partial": 6, "none": 17 }
+  },
+  "replay": {
+    "result": "NOT_EXECUTED_AUTOMATIC_APPROVAL_REJECTION",
+    "read_only_stale_before_evidence": "All five current overrides match plan after and differ from plan before.",
+    "additional_writes": 0
+  },
+  "scope_guards": {
+    "products_unchanged": true,
+    "nutrition_verified_unchanged": true,
+    "legacy_creatine_per_serving_g_unchanged": true,
+    "other_override_facts_preserved": true
+  },
+  "next_step": "Continue the remaining exact-evidence blockers; do not repeat these five completed variants."
+}
