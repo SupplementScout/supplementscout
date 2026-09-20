@@ -5756,3 +5756,28 @@ pairs, is
 `9b987f523cf37003f7014a582e53702c1af82cf647ed0cd539e0fe76fe92888d`).
 NUT-03 remains `IN PROGRESS`. One next step is another large preparation batch
 that excludes all `469` applied variants and retained blockers.
+
+## NUT-03 Stim Thug label correction preparation
+
+20 September 2026, the owner supplied a readable Kilo Labs Stim Thug
+Supplement Facts table and confirmed that it applies to all six exact product
+`971` variants `1895`-`1900`. The panel states one scoop (`17.2 g`), caffeine
+anhydrous `350 mg`, beta-alanine `3500 mg` and citrulline malate `7000 mg`.
+The retained retailer page independently confirms the caffeine and beta-alanine
+amounts. This supersedes the earlier unresolved caffeine and beta-alanine
+assessment for this exact product family; it is a declared-label correction,
+not a laboratory measurement.
+
+A correction artifact contains `18` pending candidates: serving size, caffeine
+and beta-alanine for each of six variants. It preserves the already applied
+citrulline malate and confirmed-absent creatine facts. Candidate-store dry-run,
+six exact product-variant bindings, `18` unique fingerprints and zero matching
+candidates all passed. The factual review was written once to private
+`nutrition-sources` and passed SHA-256 readback. No production candidate or
+catalogue write occurred.
+
+Complete preparation evidence is
+[nutrition-stim-thug-label-correction-preparation-2026-09-20.json](rollouts/nutrition-stim-thug-label-correction-preparation-2026-09-20.json).
+NUT-03 remains `IN PROGRESS`. One next step is one explicit owner decision for
+controlled `store -> authenticated review -> explicit-ID plan -> guarded apply`
+of exactly these `18` candidates for variants `1895`-`1900`.

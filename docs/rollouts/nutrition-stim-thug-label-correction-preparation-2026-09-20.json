@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-stim-thug-label-correction-preparation-report-v1",
+  "date": "2026-09-20",
+  "status": "READY_FOR_OWNER_DECISION",
+  "product_id": "971",
+  "variant_ids": ["1895", "1896", "1897", "1898", "1899", "1900"],
+  "scope": {
+    "variants": 6,
+    "candidate_facts": 18,
+    "fields_per_variant": ["serving_size_g", "caffeine_per_serving_mg", "beta_alanine_per_serving_mg"]
+  },
+  "proposed_values": {
+    "serving_size_g": 17.2,
+    "serving_description": "1 scoop (17.2 g); 20 servings",
+    "caffeine_per_serving_mg": 350,
+    "caffeine_form": "caffeine anhydrous",
+    "beta_alanine_per_serving_mg": 3500
+  },
+  "preserved_values": {
+    "citrulline": "Citrulline malate 7000 mg remains unchanged",
+    "creatine": "confirmed_absent remains unchanged"
+  },
+  "evidence": {
+    "basis": "Owner-supplied Supplement Facts image plus owner confirmation that the table applies to all six variants; retained retailer page independently confirms caffeine anhydrous 350 mg and beta alanine 3500 mg.",
+    "not_laboratory_measurement": true,
+    "review_sha256": "3854d78bc52bd1001bba37fc439b66fe4b82b89ceca7e4dba520015bd4de7e77",
+    "private_archive_readback": "PASS_SHA256_MATCH"
+  },
+  "artifact": {
+    "path": "tmp/nutrition-stim-thug-label-correction-2026-09-20/candidate-artifact/nutrition-candidates-ncr1-stim-thug-label-correction-971-20260920.json",
+    "sha256": "97c75e9be45b6070baa3ebbab7ebd648e1cd91c752d5fc3cd8f3bad644117702",
+    "fingerprint": "15b7a40c10d44c318ad9f64615fb8c92174bf475e675685ba5824904694efeb7"
+  },
+  "validation": {
+    "dry_run": "PASS",
+    "candidate_rows": 18,
+    "product_updates": 0,
+    "database_writes": 0,
+    "production_preflight": "PASS",
+    "existing_candidate_fingerprints": 0
+  },
+  "next_step": "One explicit owner decision for controlled production store, authenticated review, explicit-ID plan and guarded apply of exactly 18 candidates for variants 1895-1900."
+}
