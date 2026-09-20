@@ -260,13 +260,13 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the deployed ledger and exact pending creatine component migration", () => {
+test("production records the deployed creatine component migration", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{ filename: NUTRITION_CREATINE_COMPONENTS_MIGRATION, sha256: NUTRITION_CREATINE_COMPONENTS_SHA256 }]);
-  assert.equal(contract.ledgerCount, 216);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 217);
   assert.equal(
     contract.ledgerFingerprint,
-    "5c11467fad13986ca7f3ba92c73e4d3a68e101b7de6e4e31013cc30017de4554",
+    "9a551c6dbec00525def65ad332ccb76a4e5b115f7d5a3bb935562150379b14b3",
   );
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_VARIANT_PROVENANCE_MIGRATION)), NUTRITION_VARIANT_PROVENANCE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_PREWORKOUT_FACTS_MIGRATION)), NUTRITION_PREWORKOUT_FACTS_SHA256);
@@ -378,7 +378,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger with the pending creatine component migration", () => {
+test("production binds its exact ledger after the creatine component migration", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -404,13 +404,13 @@ test("production binds its exact ledger with the pending creatine component migr
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 216);
+  assert.equal(result.ledger_count, 217);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 217);
-  assert.deepEqual(result.pending_files, [NUTRITION_CREATINE_COMPONENTS_MIGRATION]);
-  assert.equal(result.pending_file, NUTRITION_CREATINE_COMPONENTS_MIGRATION);
-  assert.equal(result.pending_sha256, NUTRITION_CREATINE_COMPONENTS_SHA256);
-  assert.deepEqual(result.pending_sha256s, { [NUTRITION_CREATINE_COMPONENTS_MIGRATION]: NUTRITION_CREATINE_COMPONENTS_SHA256 });
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(NUTRITION_CITRULLINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(NUTRITION_CREATINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(JONS_INTERRUPTED_REFRESH_MIGRATION));
