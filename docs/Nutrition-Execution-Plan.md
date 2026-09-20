@@ -6364,3 +6364,29 @@ plan -> guarded apply` of exactly these four unchanged serving candidates.
 Successful apply would make all four Darkstims variants complete and move
 current-offer coverage to `350/369` complete, `2` partial and `17` without
 facts. NUT-03 remains `IN PROGRESS`.
+
+### Darkstims serving-context correction
+
+The authorized four-candidate serving apply was stopped during production
+preflight before store. The new label proves that the displayed `5000 mg`
+beta-alanine, `8000 mg` L-citrulline and `2000 mg` citrulline nitrate amounts
+belong to `2 level scoops (27.5 g)`, while the already applied ingredient facts
+retain the earlier website-derived `1 scoop` basis. Adding only
+`serving_size_g = 27.5` would leave contradictory serving context.
+
+A corrected replacement artifact therefore contains `16` pending candidates:
+the serving size plus the same three ingredient amounts with the label-confirmed
+serving basis for each of variants `3755`, `3913`, `3914` and `3915`. Values and
+forms are unchanged. Dry-run passed with zero writes. Artifact SHA-256 is
+`241c3163e7c2cab0b22324b38cec3b6fb7420457970cb4234c55b75f1bb583a3`;
+fingerprint is
+`d44c407642bd40af2e70e4278bae6dd8175a4a310fdba66034eef3543e4041ac`.
+No candidate from either package was stored in this correction turn.
+
+Machine-readable evidence is in
+[nutrition-darkstims-serving-correction-preparation-2026-09-20.json](rollouts/nutrition-darkstims-serving-correction-preparation-2026-09-20.json)
+(SHA-256
+`f7f0b7da466521213d05ac5a7e0b79d3ca91f314a509410a1ef2217abc4456cd`).
+One next step is explicit owner authorization for the corrected `16`-candidate
+artifact through store, authenticated review, explicit-ID plan and guarded
+apply. The earlier four-candidate authorization must not be reused.
