@@ -5921,3 +5921,36 @@ variant pages passed. Replaying the exact plan was safely rejected on stale
 `6dc0aaf9338e17372a0581bd7f7458bf4701245549398819a373c35d21d1f0ff`).
 NUT-03 remains `IN PROGRESS`. One next step is targeted formula-generation
 evidence for products `878`, `1162` and `1249`.
+
+## NUT-03 three-family targeted resolution preparation
+
+20 September 2026, a limited review of retained evidence plus the current exact
+product pages resolved most of the three remaining mixed-signature families.
+No production candidate or catalogue write occurred.
+
+For DNFM product `878`, the manufacturer page names the five new flavours and
+declares both `8 g` and `16 g` columns while identifying one scoop as `8 g` and
+the product as 40 servings. A `20`-candidate correction therefore moves only
+variants `1363`, `1364`, `1365`, `1367`, `4080` to the one-scoop column: caffeine
+`200 mg`, beta-alanine `1750 mg` and L-citrulline `3000 mg`. Existing creatine
+absence remains unchanged.
+
+For AK-47 product `1162`, two sources describe the same 240 g, 2 g-serving
+identity and overlapping flavours but declare beta-alanine as `500 mg` and
+`935 mg`. Ten candidates preserve `conflicting_information` with no numeric
+value instead of choosing a retailer by majority. For Animal Fury product
+`1249`, the current retailer page lists Ice Pop and now agrees with the
+`16.1 g` / `6000 mg` citrulline-malate formula; two correction candidates cover
+only variant `3718`. Kiwi Lime `3719` remains excluded because the current page
+does not list it.
+
+All three artifacts passed candidate-store dry-run. Two new factual reviews
+were stored once in private `nutrition-sources` and passed SHA-256 readback.
+Complete evidence is in
+[nutrition-three-family-resolution-preparation-2026-09-20.json](rollouts/nutrition-three-family-resolution-preparation-2026-09-20.json).
+(SHA-256
+`df67db28844da01cb04e43bbc299e9b6391c0cf0372d497689d733a0268f920a`).
+NUT-03 remains `IN PROGRESS`. One next step is one explicit decision for
+production `store -> authenticated review -> explicit-ID plans -> guarded
+apply` of exactly `32` candidates across `16` variants; `3719` remains out of
+scope.

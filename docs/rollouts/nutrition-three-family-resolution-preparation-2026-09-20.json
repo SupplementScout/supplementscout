@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-three-family-resolution-preparation-v1",
+  "date": "2026-09-20",
+  "status": "READY_FOR_OWNER_DECISION",
+  "scope": {
+    "families_reviewed": 3,
+    "variants_reviewed": 19,
+    "variants_with_candidates": 16,
+    "candidates": 32,
+    "production_candidate_writes": 0,
+    "production_catalogue_writes": 0
+  },
+  "families": [
+    {
+      "product_id": "878",
+      "product_name": "Trained By JP DNFM PRE 40 Servings",
+      "decision": "CORRECTION_PREPARED",
+      "basis": "The current manufacturer page names the five new flavours, declares both 8 g and 16 g columns, identifies one scoop as 8 g and presents 40 servings on that basis.",
+      "variant_ids": ["1363", "1364", "1365", "1367", "4080"],
+      "proposed_facts_per_variant": {
+        "serving_size_g": 8,
+        "caffeine_per_serving_mg": 200,
+        "beta_alanine_per_serving_mg": 1750,
+        "citrulline_per_serving_mg": 3000,
+        "citrulline_form": "l_citrulline"
+      },
+      "preserved": "Existing confirmed-absent creatine fact",
+      "source_url": "https://www.tb-jp.com/products/dnfm-new-pre-workout-stim",
+      "artifact": {
+        "path": "tmp/nutrition-three-family-resolution-2026-09-20/candidate-artifact/nutrition-candidates-ncr1-three-family-resolution-20260920-878.json",
+        "sha256": "f31f47a86d748f4978a2a06e21f483fbd0f90b9b2173210d1722279582a5473a",
+        "artifact_fingerprint": "2882eee5f58f0ad8cf7d10373c796def0cb3038ede2f827577fc25c60cede020",
+        "candidate_count": 20,
+        "dry_run": "PASS"
+      }
+    },
+    {
+      "product_id": "1162",
+      "product_name": "AK-47 Labs Pre-Workout 240g",
+      "decision": "CONFLICT_STATE_PREPARED",
+      "basis": "Two current/retained retailer pages describe the same 240 g, 2 g-serving identity and overlapping flavours but declare beta-alanine as 500 mg and 935 mg. No exact formula-generation discriminator is available.",
+      "variant_ids": ["3233", "3260", "3261", "3262", "3263", "3264", "3265", "3266", "3267", "3268"],
+      "proposed_fact_per_variant": {
+        "field": "beta_alanine_per_serving_mg",
+        "information_state": "conflicting_information",
+        "value_numeric": null
+      },
+      "sources": [
+        "https://www.10reps.co.uk/product/ak-47-labs-pre-workout-240g/",
+        "https://www.fitadium.com/en/5710-ak-47-pre-workout-240g.html"
+      ],
+      "archived_review_sha256": "76a4ccde3755ff5f201b3d083f2395e4e277121a6fad393a044c674b024c846d",
+      "artifact": {
+        "path": "tmp/nutrition-three-family-resolution-2026-09-20/candidate-artifact/nutrition-candidates-ncr1-three-family-resolution-20260920-1162.json",
+        "sha256": "bc7e3f6df1b2ec2d0665930e4020a526a2c603c7020eb09cf66dddd1d398f9cc",
+        "artifact_fingerprint": "9a8199d068712a1bbf3e61eafeecec5871cdaf71958c43a4f1e13648aeb57d12",
+        "candidate_count": 10,
+        "dry_run": "PASS"
+      }
+    },
+    {
+      "product_id": "1249",
+      "product_name": "Animal Fury Pre Workout 491g",
+      "decision": "PARTIAL_CORRECTION_PREPARED",
+      "basis": "The current retailer page lists Ice Pop in the common product context and now declares 1 scoop/16.1 g and Citrulline Malate 6000 mg. Kiwi Lime is no longer listed and remains unresolved.",
+      "variant_ids_with_candidates": ["3718"],
+      "proposed_facts": {
+        "serving_size_g": 16.1,
+        "citrulline_per_serving_mg": 6000,
+        "citrulline_form": "citrulline_malate"
+      },
+      "unresolved": [{"variant_id":"3719","reason":"Current page does not list Kiwi Lime and no exact current formula-generation evidence binds it."}],
+      "source_url": "https://www.liftupsupplements.com/products/animal-fury-491g",
+      "archived_review_sha256": "923812c8e34df5ce4e211f4a2853fd35c30e4549ca0366146e2fe1154a52614d",
+      "artifact": {
+        "path": "tmp/nutrition-three-family-resolution-2026-09-20/candidate-artifact/nutrition-candidates-ncr1-three-family-resolution-20260920-1249.json",
+        "sha256": "1128608b93fc49f18f12a76cbc77c2d95ef97043ba9ed1eee3b62f23d3286e84",
+        "artifact_fingerprint": "f5865ccf2554b97ae636a05de320853ad923ba17c72245b69e52d0e193dad52b",
+        "candidate_count": 2,
+        "dry_run": "PASS"
+      }
+    }
+  ],
+  "archive": {
+    "new_evidence_objects": 2,
+    "duplicate_copies": 0,
+    "readback": "PASS",
+    "private_bucket": "nutrition-sources"
+  },
+  "next_step": "One explicit decision for production store -> authenticated review -> explicit-ID plans -> guarded apply of exactly 32 candidates across 16 variants. Variant 3719 remains excluded."
+}
