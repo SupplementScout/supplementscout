@@ -6390,3 +6390,31 @@ Machine-readable evidence is in
 One next step is explicit owner authorization for the corrected `16`-candidate
 artifact through store, authenticated review, explicit-ID plan and guarded
 apply. The earlier four-candidate authorization must not be reused.
+
+### Darkstims serving-context correction execution
+
+20 September 2026, explicit owner authorization advanced the corrected
+`16`-candidate artifact through production store, authenticated review, plan
+and guarded apply. Candidates `3166`-`3181` were created and approved with the
+unchanged manufacturer-label image and exact variant bindings.
+
+The zero-product-update plan has SHA-256
+`8ec3a8d96dfcbaeb8697b592578072d25099892339aac720a792469372e4dc29`
+and fingerprint
+`456756369c9475a21bdb4a3d1ac6fe950cc17d928f1f2e0713ec52dc19fa152f`.
+It changed only `serving_size_g`, `beta_alanine` and
+`citrulline_components` on variants `3755`, `3913`, `3914` and `3915`.
+Each now records `27.5 g`, `2 level scoops (27.5 g)`, `5000 mg`
+beta-alanine, `8000 mg` L-citrulline and `2000 mg` citrulline nitrate.
+The existing confirmed-absent caffeine and creatine facts remain unchanged.
+
+Fresh production readback matched every complete plan-after object and all
+`16` approved evidence records. All four public pages display the corrected
+serving and ingredient context without private provenance. Current-offer
+coverage is now `350/369` complete (`94.9%`), `2` partial and `17` without
+facts. Machine-readable evidence is in
+[nutrition-darkstims-serving-correction-execution-2026-09-20.json](rollouts/nutrition-darkstims-serving-correction-execution-2026-09-20.json)
+(SHA-256
+`b8f7f4e40f5bccd060687d534b2f43663d4a2261ccee2bf24ecaf32c218c7103`).
+NUT-03 remains `IN PROGRESS`; the practical current-offer remainder is `19`
+variants with exact evidence or identity blockers.
