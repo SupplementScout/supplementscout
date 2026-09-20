@@ -5847,3 +5847,23 @@ NUT-03 remains `IN PROGRESS`. One next step is the owner's serving-basis
 decision for products `62` and `763`; after that decision, prepare only the
 corresponding correction candidates while the other three families remain on
 targeted evidence review.
+
+## NUT-03 one-scoop serving-basis correction preparation
+
+20 September 2026, the owner selected the declared one-scoop catalogue basis
+for HR Labs Defib and Naughty Boy Menace V2. A limited correction package now
+contains `16` pending candidates for only the four variants currently using a
+two-scoop basis: Defib `2646`, `2649` and Menace V2 `4101`, `4107`.
+
+Defib proposals use one scoop (`10.5 g`), caffeine `200 mg`, beta-alanine
+`1600 mg` and citrulline malate `4000 mg`. Menace V2 proposals use one scoop
+(`7 g`), caffeine `200 mg`, beta-alanine `1600 mg` and citrulline malate
+`3000 mg`. Existing creatine facts and every other override field remain out
+of scope. Both candidate-store dry-runs passed with zero database writes and
+zero product updates. Full evidence is in
+[nutrition-serving-basis-correction-preparation-2026-09-20.json](rollouts/nutrition-serving-basis-correction-preparation-2026-09-20.json).
+(SHA-256
+`47f176932abeb81632a063a5db5276f7a5fc0248fdb8a8282615cfa25467c066`).
+NUT-03 remains `IN PROGRESS`. One next step is one explicit authorization for
+production `store -> authenticated review -> explicit-ID plan -> guarded apply`
+of exactly these `16` candidates for variants `2646`, `2649`, `4101`, `4107`.

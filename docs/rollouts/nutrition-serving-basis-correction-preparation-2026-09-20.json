@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-serving-basis-correction-preparation-v1",
+  "date": "2026-09-20",
+  "status": "READY_FOR_OWNER_APPLY_DECISION",
+  "owner_decision": "Use the declared one-scoop serving as the catalogue presentation for HR Labs Defib and Naughty Boy Menace V2.",
+  "scope": {
+    "products": 2,
+    "variants": 4,
+    "candidates": 16,
+    "variant_ids": ["2646", "2649", "4101", "4107"],
+    "production_writes": 0
+  },
+  "artifacts": [
+    {
+      "product_id": "62",
+      "product_name": "HR Labs Defib Pre-Workout",
+      "variant_ids": ["2646", "2649"],
+      "path": "tmp/nutrition-serving-basis-correction-2026-09-20/candidate-artifact/nutrition-candidates-ncr1-serving-basis-correction-20260920-62.json",
+      "sha256": "1bda7a297aa07e23af39cc7b2fb4ba2498f12d1206ae98835ac8dcb595c4d231",
+      "artifact_fingerprint": "944263d97063d42f85902629a1d612892547ade81d748b7000ce2eaaaa283720",
+      "candidate_count": 8,
+      "proposed_facts_per_variant": {
+        "serving_size_g": 10.5,
+        "serving_basis": "1 scoop (10.5 g)",
+        "caffeine_per_serving_mg": 200,
+        "beta_alanine_per_serving_mg": 1600,
+        "citrulline_per_serving_mg": 4000,
+        "citrulline_form": "citrulline_malate"
+      },
+      "dry_run": "PASS: 8 candidates, 0 product updates, 0 database writes"
+    },
+    {
+      "product_id": "763",
+      "product_name": "Naughty Boy Menace V2 60 servings",
+      "variant_ids": ["4101", "4107"],
+      "path": "tmp/nutrition-serving-basis-correction-2026-09-20/candidate-artifact/nutrition-candidates-ncr1-serving-basis-correction-20260920-763.json",
+      "sha256": "0a5fce74353688934d332cad67bd791a159364ddf5e1ece94b74bcfcba0efc54",
+      "artifact_fingerprint": "8bfdb9139fd6134e7b8658b1c2b739df8afead68b0b1eafce0556a7f34af2fb6",
+      "candidate_count": 8,
+      "proposed_facts_per_variant": {
+        "serving_size_g": 7,
+        "serving_basis": "1 scoop (7 g)",
+        "caffeine_per_serving_mg": 200,
+        "beta_alanine_per_serving_mg": 1600,
+        "citrulline_per_serving_mg": 3000,
+        "citrulline_form": "citrulline_malate"
+      },
+      "dry_run": "PASS: 8 candidates, 0 product updates, 0 database writes"
+    }
+  ],
+  "preserved_facts": "Existing creatine states and every nutrition_override field outside the four listed facts remain outside the correction.",
+  "next_step": "One explicit authorization for production store -> authenticated review -> explicit-ID plan -> guarded apply of exactly these 16 candidates and four variants."
+}
