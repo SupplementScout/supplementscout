@@ -5687,3 +5687,37 @@ Complete evidence is
 `b6be71b2984345993e7b2f40fa99853cc31e491dbcd4b9f638233ac9f9589e15`).
 NUT-03 remains `IN PROGRESS`. One next step is another large preparation batch
 that excludes all `449` applied variants and retained blockers.
+
+## NUT-03 large catalogue Batch 17 preparation
+
+20 September 2026, a new production read confirmed `575` active pre-workout
+variants: `449` have applied facts (`409` structurally complete and `40`
+partial), while `126` have no applied facts. The preparation reused accepted,
+archived formula evidence for previously unprocessed variants in those exact
+product families. It did not repeat source collection and kept the separate HR
+Labs DEFIB 460 g generation, PER4M, GYM HIGH and other retained identity or
+formula blocks outside the package.
+
+The closed package contains `20` exact variants from `18` product families and
+`91` pending candidate facts. The exact variant IDs are `16`, `79`, `96`,
+`132`, `134`, `280`, `489`, `886`, `919`, `957`, `970`, `971`, `1187`,
+`1192`, `1195`, `1895`, `1900`, `1918`, `2453`, and `3855`. All `18`
+artifacts passed the existing candidate-store dry-run. Fresh production
+preflight confirmed `91` unique fingerprints, correct product-variant bindings,
+no matching candidates and empty target overrides. Eighteen factual-review
+objects were stored once in private `nutrition-sources` and passed SHA-256
+readback.
+
+Twelve variants resolve all four tracked ingredients. Eight remain deliberately
+partial where the retained disclosure reports a compound without usable yield,
+a non-separable citrulline blend, a source conflict or no information. Those
+facts were omitted or assigned the explicit existing information state; no zero
+or convenient amount was invented. There were no candidate or catalogue writes.
+
+Complete preparation evidence is
+[nutrition-catalog-large-next-17-preparation-2026-09-20.json](rollouts/nutrition-catalog-large-next-17-preparation-2026-09-20.json)
+(SHA-256
+`f8e6d61f5fce4918a61b8c218e50a1746a92017b50ed26f0e24df181391f167a`).
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
+controlled production `store -> authenticated review -> explicit-ID plan ->
+guarded apply` for exactly these `91` candidates and `20` variants.
