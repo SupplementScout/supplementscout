@@ -91,6 +91,10 @@ test("aggregate confirmation covers every price row, not only hard price anomali
   assert.match(migration, /v_kind='retailer-two-capture-price-confirmation-v2' and p_retailer_id='7'/);
   assert.match(migration, /where \(value#>>'\{changed_fields,price\}'\)::boolean/);
   assert.doesNotMatch(migration, /(?:insert into|delete from|update) public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
+  const guardMigration = fs.readFileSync(path.join(ROOT, "supabase/migrations/20260919223000_apply_simply_confirmed_aggregate_guard.sql"), "utf8");
+  assert.match(guardMigration, /v_changed-v_price_changed/);
+  assert.match(guardMigration, /app\.simply_aggregate_price_confirmation/);
+  assert.doesNotMatch(guardMigration, /(?:insert into|delete from|update) public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
 });
 
 test("scheduled workflow reuses protected roles and contains no Awin credential", () => {
