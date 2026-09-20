@@ -5721,3 +5721,38 @@ Complete preparation evidence is
 NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
 controlled production `store -> authenticated review -> explicit-ID plan ->
 guarded apply` for exactly these `91` candidates and `20` variants.
+
+## NUT-03 large catalogue Batch 17 execution
+
+20 September 2026, production execution after explicit owner authorization:
+
+- A repeated read-only preflight confirmed the production project, all `20`
+  exact product-variant bindings, `91` unique fingerprints, no matching
+  candidates and empty target overrides. The first store attempt failed on a
+  network connection before creating records; a read-only preflight confirmed
+  zero partial writes before the controlled resume.
+- Controlled store created candidates `2904`-`2994`. Authenticated review
+  approved all `91` unchanged records. Eighteen explicit-ID plans contained
+  zero product updates and exactly `20` variant updates.
+- Guarded apply changed only the sealed `nutrition_override` after-states for
+  variants `16`, `79`, `96`, `132`, `134`, `280`, `489`, `886`, `919`, `957`,
+  `970`, `971`, `1187`, `1192`, `1195`, `1895`, `1900`, `1918`, `2453`, and
+  `3855`. Products, `nutrition_verified`, legacy creatine fields and all other
+  variants were unchanged.
+- Independent readback matched every whole override to its plan and confirmed
+  all `91` approvals and evidence references unchanged. Applied coverage is now
+  `469` of `575` active pre-workout variants (`81.6%`): `426` structurally
+  complete, `43` partial and `106` without applied facts.
+- Public readback passed for all `20` exact variant pages and the caffeine-free
+  filter. The check requires only sections actually present in a partial
+  override and still verifies exact variant selection and absence of private
+  evidence. Replaying all `18` plans was safely rejected on stale `before`,
+  producing zero additional writes.
+
+Complete evidence, including candidate IDs and all plan SHA-256/fingerprint
+pairs, is
+[nutrition-catalog-large-next-17-execution-2026-09-20.json](rollouts/nutrition-catalog-large-next-17-execution-2026-09-20.json)
+(SHA-256
+`9b987f523cf37003f7014a582e53702c1af82cf647ed0cd539e0fe76fe92888d`).
+NUT-03 remains `IN PROGRESS`. One next step is another large preparation batch
+that excludes all `469` applied variants and retained blockers.
