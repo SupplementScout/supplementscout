@@ -5781,3 +5781,38 @@ Complete preparation evidence is
 NUT-03 remains `IN PROGRESS`. One next step is one explicit owner decision for
 controlled `store -> authenticated review -> explicit-ID plan -> guarded apply`
 of exactly these `18` candidates for variants `1895`-`1900`.
+
+## NUT-03 applied-catalogue quality audit
+
+20 September 2026, a production read-only audit examined all `469` variants
+with applied nutrition facts and `2299` approved candidates supporting their
+current override values. Every current fact has a matching approved candidate;
+no product-variant mismatch, serving-basis mismatch, missing SHA-256 or missing
+private archive URI was found. Fresh readback of all `157` distinct evidence
+objects in private `nutrition-sources` passed: zero missing objects and zero hash
+mismatches.
+
+This proves process and evidence integrity, not independent correctness of every
+transcription. The audit identified `316` variants without an automatic risk
+flag and `153` needing targeted attention. The latter include `84` variants
+with deliberately explicit unresolved states, `73` variants across `11`
+same-product/same-size groups with differing fact signatures, and five No Games
+variants declaring `600 mg` caffeine that warrant manual high-dose confirmation.
+These queues overlap. Many mixed signatures are plausibly documented
+flavour-specific scoop weights, half/full serving choices or separate formula
+contexts; none is automatically labelled an error.
+
+Evidence depth is uneven. Current candidates for `333` variants point to an
+archived factual-review JSON rather than directly to a raw label asset, and
+`241` variants currently rely only on retailer evidence. Those records retain
+source URLs, excerpts, hashes and private archive URIs, but the flags require a
+targeted label-context review before claiming full manual verification. The
+pending six-variant Stim Thug correction remains prepared and unapplied.
+
+Complete audit evidence is
+[nutrition-applied-catalogue-quality-audit-2026-09-20.json](rollouts/nutrition-applied-catalogue-quality-audit-2026-09-20.json)
+(SHA-256
+`ebaf167913347f22f6065f25459e5833efa5a55c96e027e085517e314f3e8ffe`).
+NUT-03 remains `IN PROGRESS`. One next step is a targeted review of the `11`
+mixed-signature families and five high-caffeine variants, producing one
+correction package only for demonstrated discrepancies.
