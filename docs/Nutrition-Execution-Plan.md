@@ -6334,3 +6334,33 @@ one shared Darkstims serving-mass question. Machine-readable evidence is in
 NUT-03 remains `IN PROGRESS`; one next step is obtaining one authoritative
 gram mass for the current Pump V2 scoop or new exact evidence for one of the
 remaining `19` blocked variants.
+
+## NUT-03 Darkstims serving preparation
+
+20 September 2026, the owner supplied the retained current Pump V2 formula-panel
+image. Visual review confirms `SERVING SIZE: 2 LEVEL SCOOPS` and `1 Serving
+(27.5g)`, alongside the already applied ingredient amounts. The original WEBP
+has SHA-256
+`9aac148b94660d475228edec2580a4d57d8d7c36193730180b8fb5a3d3515fb9`.
+It was stored once in private `nutrition-sources`; independent archive readback
+matched the same hash.
+
+One offline artifact now contains exactly four pending `serving_size_g = 27.5`
+candidates for product `1275`, variants `3755`, `3913`, `3914` and `3915`.
+The shared manufacturer-label context binds the same current formula panel to
+the four variants. Dry-run passed with four candidate rows, zero product updates
+and zero database writes. Artifact SHA-256 is
+`510751c42e585646dd67308592ec78db3d72c6233df24b914a71af39a23fa56f`;
+artifact fingerprint is
+`858cc881241cba74397a9a9925121ecdf52146d87ea5bb850244b1dd0061f28f`.
+
+Machine-readable preparation evidence is in
+[nutrition-darkstims-serving-preparation-2026-09-20.json](rollouts/nutrition-darkstims-serving-preparation-2026-09-20.json)
+(SHA-256
+`6d26b0e51e1081eab9abc72e62f172f92a24f7d5c9b1f91fb2f37875c71e8a4b`).
+No production candidate, review, plan or apply occurred. One next step is one
+owner decision for controlled `store -> authenticated review -> explicit-ID
+plan -> guarded apply` of exactly these four unchanged serving candidates.
+Successful apply would make all four Darkstims variants complete and move
+current-offer coverage to `350/369` complete, `2` partial and `17` without
+facts. NUT-03 remains `IN PROGRESS`.

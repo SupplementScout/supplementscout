@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-darkstims-serving-preparation-v1",
+  "prepared_at": "2026-09-20T19:06:50.421Z",
+  "source": {
+    "local_original": "C:/Users/gogym/Downloads/PUMP_FORMULA-PANEL_AI_FINAL_2048.webp",
+    "sha256": "9aac148b94660d475228edec2580a4d57d8d7c36193730180b8fb5a3d3515fb9",
+    "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/darkstims-serving-2026-09-20/9aac148b94660d475228edec2580a4d57d8d7c36193730180b8fb5a3d3515fb9/PUMP_FORMULA-PANEL_AI_FINAL_2048.webp",
+    "archive_private": true,
+    "archive_readback": "PASS",
+    "label_text": [
+      "SERVING SIZE: 2 LEVEL SCOOPS",
+      "1 Serving (27.5g)"
+    ]
+  },
+  "scope": {
+    "product_id": "1275",
+    "variant_ids": [
+      "3755",
+      "3913",
+      "3914",
+      "3915"
+    ],
+    "candidate_facts": 4
+  },
+  "proposal": {
+    "field": "serving_size_g",
+    "value": 27.5,
+    "unit": "g",
+    "serving_description": "2 level scoops (27.5 g)"
+  },
+  "artifact": {
+    "path": "tmp/nutrition-darkstims-serving-2026-09-20/candidate-artifact/nutrition-candidates-ncr1-darkstims-serving-20260920-1275.json",
+    "sha256": "510751c42e585646dd67308592ec78db3d72c6233df24b914a71af39a23fa56f",
+    "fingerprint": "858cc881241cba74397a9a9925121ecdf52146d87ea5bb850244b1dd0061f28f"
+  },
+  "validation": {
+    "result": "PASS",
+    "mode": "DRY_RUN_NO_DATABASE",
+    "candidate_rows": 4,
+    "product_updates": 0,
+    "database_writes": 0
+  },
+  "production_writes": 0,
+  "projected_current_offer_coverage_after_apply": {
+    "total": 369,
+    "complete": 350,
+    "partial": 2,
+    "none": 17
+  }
+}
