@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-current-offer-final-23-preparation-v1",
+  "prepared_at": "2026-09-20T16:57:02.887Z",
+  "production_checkpoint": {
+    "current_offer_variants": 369,
+    "complete": 346,
+    "partial": 6,
+    "none": 17
+  },
+  "scope": {
+    "assessed_variants": 23,
+    "prepared_variants": 4,
+    "prepared_candidates": 12,
+    "unresolved_variants": 19,
+    "unique_source_tables": 1
+  },
+  "prepared": [
+    {
+      "product_id": "1275",
+      "variant_ids": [
+        "3755",
+        "3913",
+        "3914",
+        "3915"
+      ],
+      "proposed_facts_per_variant": [
+        "beta-alanine 5000 mg per 1 scoop",
+        "L-citrulline 8000 mg per 1 scoop",
+        "citrulline nitrate 2000 mg per 1 scoop"
+      ],
+      "unresolved_per_variant": [
+        "serving_size_g"
+      ],
+      "artifact": "tmp/nutrition-current-offer-final-23-2026-09-20/candidate-artifact/nutrition-candidates-ncr1-current-offer-final-23-20260920-1275.json",
+      "artifact_sha256": "0e58a4a06c201841f6f760a7f344f3dc230254bdfbb3dd7e6a6753ba527fb06f",
+      "artifact_fingerprint": "042e633ebefaccc348ba32216096f54b7726c3b125bdaa35358bfe785c7ee2f4",
+      "source_review": "tmp/nutrition-current-offer-final-23-2026-09-20/evidence/product-1275-component-source-review.json",
+      "source_review_sha256": "69bb8c384253f0ace059ba0a6a570585d7d7e65718a4fbdb5f02cff6b1f5f141",
+      "source_archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/current-offer-final-23-2026-09-20/69bb8c384253f0ace059ba0a6a570585d7d7e65718a4fbdb5f02cff6b1f5f141/product-1275-component-source-review.json"
+    }
+  ],
+  "blockers": [
+    {
+      "product_id": "20",
+      "variant_ids": [
+        "1580"
+      ],
+      "reason": "Exact 248 g Slush Puppy Cherry generation is not bound to the available older ~5 g or newer 13 g formula evidence."
+    },
+    {
+      "product_id": "53",
+      "variant_ids": [
+        "119"
+      ],
+      "reason": "Serving is one pack rather than a gram-defined serving; beta-alanine and citrulline remain inside blends without individual declared masses."
+    },
+    {
+      "product_id": "61",
+      "variant_ids": [
+        "1051",
+        "1615"
+      ],
+      "reason": "The source discloses only a combined citrulline-malate/citrulline-nitrate mass, not separate component masses."
+    },
+    {
+      "product_id": "62",
+      "variant_ids": [
+        "1031",
+        "1616",
+        "1617",
+        "1618"
+      ],
+      "reason": "Catalogue 460 g generation is not established by the available current 420 g V3 evidence."
+    },
+    {
+      "product_id": "169",
+      "variant_ids": [
+        "1015",
+        "1647",
+        "1648",
+        "1649",
+        "1650",
+        "1651",
+        "1652",
+        "1653",
+        "1654"
+      ],
+      "reason": "Exact 400 g generation remains unresolved because retained/current sources conflict on 250 mg versus 320 mg total caffeine and serving context."
+    },
+    {
+      "product_id": "917",
+      "variant_ids": [
+        "2949"
+      ],
+      "reason": "Exact variant is 165 g while current official evidence is internally 5.5 g/30 servings versus 6.3 g and 189 g; 180 g catalogue family identity also conflicts."
+    },
+    {
+      "product_id": "1333",
+      "variant_ids": [
+        "3928"
+      ],
+      "reason": "Exact 24 x 70 g gel variant is not bound to the available 48/50 g formula evidence."
+    }
+  ],
+  "production_writes": 0,
+  "archive": {
+    "bucket": "nutrition-sources",
+    "private": true,
+    "state": "uploaded",
+    "sha256": "69bb8c384253f0ace059ba0a6a570585d7d7e65718a4fbdb5f02cff6b1f5f141",
+    "readback": "PASS"
+  },
+  "validation": {
+    "command": "npm run nutrition:candidates:store -- --dry-run --input=tmp/nutrition-current-offer-final-23-2026-09-20/candidate-artifact/nutrition-candidates-ncr1-current-offer-final-23-20260920-1275.json",
+    "result": "PASS",
+    "mode": "DRY_RUN_NO_DATABASE",
+    "candidate_rows": 12,
+    "product_updates": 0,
+    "database_writes": 0
+  }
+}

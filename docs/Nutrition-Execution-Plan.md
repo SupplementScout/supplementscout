@@ -6257,3 +6257,40 @@ evidence confirms all five targets now differ from the stale plan-before state
 and no additional write occurred.
 
 Machine-readable execution evidence: [nutrition-redweiler-creatine-components-execution-2026-09-20.json](rollouts/nutrition-redweiler-creatine-components-execution-2026-09-20.json).
+
+## NUT-03 final current-offer remainder preparation
+
+20 September 2026, all `23` still-incomplete variants with current offers were
+reconciled against the retained blocker register and fresh exact-source context.
+One newly representable partial package is `CODE COMPLETE` for Darkstims Pump V2
+product `1275`, variants `3755`, `3913`, `3914` and `3915`. The official UK
+manufacturer page presents these flavours with one disclosed formula and states,
+per `1 scoop`, `5000 mg` beta-alanine, `8000 mg` L-citrulline and `2000 mg`
+citrulline nitrate. The two citrulline forms remain separate components and are
+not summed as pure L-citrulline.
+
+The artifact contains exactly `12` pending candidates with `12` unique
+fingerprints. Dry-run passed with zero product updates and zero database writes.
+The factual review was archived once in private `nutrition-sources`; readback
+matched SHA-256
+`69bb8c384253f0ace059ba0a6a570585d7d7e65718a4fbdb5f02cff6b1f5f141`.
+Artifact SHA-256 is
+`0e58a4a06c201841f6f760a7f344f3dc230254bdfbb3dd7e6a6753ba527fb06f`
+and artifact fingerprint is
+`042e633ebefaccc348ba32216096f54b7726c3b125bdaa35358bfe785c7ee2f4`.
+The exact scoop mass remains unresolved because retained evidence conflicts at
+`23.5 g` versus `27.5 g`; no `serving_size_g` candidate was fabricated.
+
+The other `19` variants retain concrete formula-generation, pack identity,
+combined-mass or caffeine-conflict blockers. They were not re-audited through
+already exhausted paths and no unsupported candidates were created. Production
+coverage therefore remains `346/369` complete, `6` partial and `17` without
+facts until a later controlled apply; applying this package would improve three
+ingredient facts on four already-partial variants without resolving their
+serving-size completeness. Full evidence and blocker counts are in
+[nutrition-current-offer-final-23-preparation-2026-09-20.json](rollouts/nutrition-current-offer-final-23-preparation-2026-09-20.json)
+(SHA-256
+`825eecbfe0919c86ce119e694ca75e41505121016db0b02524273c765e8a1d43`).
+One next step is one owner decision for controlled
+`store -> authenticated review -> explicit-ID plan -> guarded apply` of exactly
+these `12` unchanged candidates. NUT-03 remains `IN PROGRESS`.
