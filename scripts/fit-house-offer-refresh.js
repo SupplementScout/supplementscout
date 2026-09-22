@@ -471,7 +471,8 @@ async function buildRun(target,state,diagnostic=null,reviewed=null,isolateUnsafe
   const classified=reviewed?classifiedRaw:authorizeOwnerApprovedMissingVariant(classifiedRaw,ownerApprovedMissing?{...ownerApprovedMissing,newUnavailableCount:legacyApprovedNewUnavailableCount}:null);
   if(ownerApprovedSix?.newUnavailableCount){
     const changed=(classified.rows||[]).filter(row=>row.action!=="VERIFY_NO_CHANGE"),approved=new Set(ownerApprovedSix.approved_rows.map(row=>row.offer_id));
-    invariant(["MASS_OOS",null].includes(classified.reason)&&changed.length===ownerApprovedSix.newUnavailableCount&&changed.every(row=>approved.has(String(row.offer_id))&&row.action==="UPDATE_STOCK"&&row.target.in_stock===true&&row.source.in_stock===false&&!row.changed_fields.price&&!row.changed_fields.url),"Fit House six-offer classifier scope mismatch");
+    if(!(["MASS_OOS",null].includes(classified.reason)&&changed.length===ownerApprovedSix.newUnavailableCount&&changed.every(row=>approved.has(String(row.offer_id))&&row.action==="UPDATE_STOCK"&&row.target.in_stock===true&&row.source.in_stock===false&&!row.changed_fields.price&&!row.changed_fields.url)))
+      throw new RefreshError("FIT_HOUSE_SIX_SCOPE_MISMATCH","Fit House six-offer classifier scope mismatch","CLASSIFIER",{classifier:classificationDiagnostic(classified),approved_offer_ids:[...approved],approved_new_oos_count:ownerApprovedSix.newUnavailableCount,registration_attempted:false});
     classified.state="DRY_RUN_READY";classified.reason=null;
   }
   let massOosAuthorization;
