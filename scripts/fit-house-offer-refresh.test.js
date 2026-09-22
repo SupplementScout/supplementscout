@@ -17,16 +17,36 @@ const {
   freshCapturedAt,
   loadAuditedMissingVariantManifest,
   loadOwnerApprovedMissingVariantManifest,
+  loadOwnerApprovedSixAbsentManifest,
   loadReviewedMassOosManifest,
   mappedOfferSourceFingerprint,
   parseArgs,
   reconcileAuditedMissingVariants,
   reconcileMissingMappedVariants,
   reconcileOwnerApprovedMissingVariant,
+  reconcileOwnerApprovedSixAbsent,
   requireAuditedMissingOwnerApproval,
   safeUpdateDisabled,
   sourceHealth,
 } = require("./fit-house-offer-refresh");
+
+test("six approved source absences are exact, preserve 939, and bind the live OOS baseline", () => {
+  const reviewed=loadOwnerApprovedSixAbsentManifest(),rows=reviewed.manifest.rows;
+  const records=rows.map(row=>({product:{id:row.canonical_product_id},variant:{id:row.canonical_variant_id},mapping:{id:row.mapping_id,external_product_id:row.external_product_id,external_variant_id:row.external_variant_id,external_sku:null,external_url:row.url},offer:{id:row.offer_id,price:row.old_price,in_stock:row.old_stock,url:row.url,shipping_cost:"3.99",total_price:(Number(row.old_price)+3.99).toFixed(2)}}));
+  const padding=Array.from({length:103},(_,i)=>({offer:{id:String(20000+i),in_stock:false}}));
+  const scope=[...records,...padding],fingerprint=reviewed.manifest.source_snapshot_fingerprint;
+  const first=reconcileOwnerApprovedSixAbsent(scope,[],fingerprint,reviewed);
+  assert.equal(first.newUnavailableCount,6);
+  assert.deepEqual(first.approved_rows.map(row=>row.offer_id),["718","749","757","759","913","940"]);
+  assert.equal(first.sourceVariants.length,7);
+  assert.equal(first.sourceVariants.find(row=>row.external_variant_id===rows[5].external_variant_id).in_stock,false);
+  for(const record of records)if(record.offer.id!=="939")record.offer.in_stock=false;
+  assert.equal(reconcileOwnerApprovedSixAbsent(scope,[],fingerprint,reviewed).newUnavailableCount,0);
+  assert.throws(()=>reconcileOwnerApprovedSixAbsent(scope,[{external_variant_id:rows[0].external_variant_id}],fingerprint,reviewed),/source identity returned/);
+  assert.throws(()=>reconcileOwnerApprovedSixAbsent(scope,[],"0".repeat(64),reviewed),/source fingerprint changed/);
+  records[0].mapping.external_product_id="wrong";
+  assert.throws(()=>reconcileOwnerApprovedSixAbsent(scope,[],fingerprint,reviewed),/identity\/state drift/);
+});
 
 test("confirmation-only execution stops changed or incomplete live plans before registration", () => {
   const rows=Array.from({length:286},(_,i)=>({offer_id:String(i),action:"VERIFY_NO_CHANGE"}));
