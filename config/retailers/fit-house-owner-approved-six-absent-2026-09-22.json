@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "kind": "fit-house-owner-approved-absent-offers-v1",
+  "authority": "owner-chat-2026-09-22-six-fit-house-offers-oos",
+  "retailer_id": "9",
+  "retailer_slug": "fit-house",
+  "source_snapshot_fingerprint": "ebe563f0f620ff4b501c1e8f56adfe51d854ff912e5089149688d5d0a60c43c1",
+  "approved_offer_ids": ["718", "749", "757", "759", "913", "940"],
+  "preserve_oos_offer_id": "939",
+  "rows": [
+    {"mapping_id":"742","offer_id":"718","canonical_product_id":"699","canonical_variant_id":"3060","external_product_id":"9058975187184","external_variant_id":"46667614945520","old_price":"12.99","old_stock":true,"url":"https://fithouse.uk/products/now-foods-choline-inositol-100-veg-caps?variant=46667614945520"},
+    {"mapping_id":"863","offer_id":"749","canonical_product_id":"730","canonical_variant_id":"3074","external_product_id":"9347614343408","external_variant_id":"47199795413232","old_price":"16.99","old_stock":true,"url":"https://fithouse.uk/products/now-foods-5-htp-double-strength-200-mg-60-veg-capsules?variant=47199795413232"},
+    {"mapping_id":"871","offer_id":"757","canonical_product_id":"768","canonical_variant_id":"933","external_product_id":"9041428283632","external_variant_id":"46620421816560","old_price":"11.99","old_stock":true,"url":"https://fithouse.uk/products/7-nutrition-beta-alanine-250g-unflavoured?variant=46620421816560"},
+    {"mapping_id":"873","offer_id":"759","canonical_product_id":"740","canonical_variant_id":"3021","external_product_id":"9168824172784","external_variant_id":"46969725714672","old_price":"11.99","old_stock":true,"url":"https://fithouse.uk/products/7-nutrition-berberine-stack-90-vege-caps?variant=46969725714672"},
+    {"mapping_id":"1099","offer_id":"913","canonical_product_id":"502","canonical_variant_id":"914","external_product_id":"9674414915824","external_variant_id":"48123945124080","old_price":"2.50","old_stock":true,"url":"https://fithouse.uk/products/lenny-larrys-fitzels-protein-pretzels-85-g?variant=48123945124080"},
+    {"mapping_id":"1125","offer_id":"939","canonical_product_id":"766","canonical_variant_id":"926","external_product_id":"10021385273584","external_variant_id":"49719663100144","old_price":"9.99","old_stock":false,"url":"https://fithouse.uk/products/ostrovit-carbo-1000-g?variant=49719663100144"},
+    {"mapping_id":"1126","offer_id":"940","canonical_product_id":"766","canonical_variant_id":"928","external_product_id":"10021385273584","external_variant_id":"49719663067376","old_price":"9.99","old_stock":true,"url":"https://fithouse.uk/products/ostrovit-carbo-1000-g?variant=49719663067376"}
+  ]
+}
