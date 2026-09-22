@@ -940,9 +940,7 @@ test("eBay refresh workflow is scheduled, default dry-run and has no push trigge
   assert.match(workflow, /--profile=ebay-uk/);
   assert.match(workflow, /Verify fresh no-op after apply/);
   const idempotencyStep = workflow.match(/- name: Verify fresh no-op after apply[\s\S]*?run: npm run ebay:refresh[^\n]+/)?.[0] || "";
-  assert.match(idempotencyStep, /github\.event_name == 'workflow_dispatch'/);
-  assert.match(idempotencyStep, /--emit-approval-contract=true/);
-  assert.doesNotMatch(idempotencyStep, /run: npm run ebay:refresh -- --target=production --mode=dry-run --emit-approval-contract=true/);
+  assert.match(idempotencyStep, /run: npm run ebay:refresh -- --target=production --mode=dry-run --emit-approval-contract=true/);
   assert.match(workflow, /refresh:[\s\S]{0,300}?timeout-minutes: 40/);
   const applyStep = workflow.match(/- name: Apply exact approved existing-offer refresh[\s\S]*?run: npm run ebay:refresh -- --target=production --mode=execute-apply/)?.[0] || "";
   assert.match(applyStep, /EBAY_CANARY_APPROVER_DATABASE_URL/);

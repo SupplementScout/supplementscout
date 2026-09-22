@@ -30,6 +30,14 @@ test('dedicated 10 Reps and Simply registrations receive the same bounded parent
   assert.match(dedicated,/45 minutes/);
   assert.doesNotMatch(dedicated,/\b(?:insert into|update|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history|retailers)\b/i);
 });
+test('Discount, Dolphin and KIOR registrations accept the existing 44-minute parent without business writes',()=>{
+  const dedicated=fs.readFileSync(path.join(process.cwd(),'supabase/migrations/20260922122000_extend_three_dedicated_refresh_windows.sql'),'utf8');
+  for(const name of ['discount_supplements','dolphin_vegan_protein','kior'])assert.match(dedicated,new RegExp(`register_${name}_offer_sync_control_plan`));
+  assert.match(dedicated,/15 minutes/);
+  assert.match(dedicated,/45 minutes/);
+  assert.match(dedicated,/retailer_catalogue_business_counts\(\) is distinct from v_before/);
+  assert.doesNotMatch(dedicated,/\b(?:insert into|update|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history|retailers)\b/i);
+});
 test('sequential parent approval preserves the applied 10 Reps batch and fixes both long retailers',()=>{
   const repair=fs.readFileSync(path.join(process.cwd(),'supabase/migrations/20260919203000_prepare_sequential_parent_approval.sql'),'utf8');
   assert.match(repair,/6bf06253-9309-4ec7-98ae-003047d946cb/);

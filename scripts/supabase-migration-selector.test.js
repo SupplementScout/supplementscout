@@ -260,9 +260,9 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the deployed creatine component migration", () => {
+test("production records creatine components and the pending dedicated refresh repair", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{ filename: "20260922122000_extend_three_dedicated_refresh_windows.sql", sha256: "1bb146541823a3d36d5b832ea093b1180406f40a892e3b3697a5ccc5f090081b" }]);
   assert.equal(contract.ledgerCount, 217);
   assert.equal(
     contract.ledgerFingerprint,
@@ -406,11 +406,9 @@ test("production binds its exact ledger after the creatine component migration",
   });
   assert.equal(result.ledger_count, 217);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 217);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.selected_files.length, 218);
+  assert.deepEqual(result.pending_files, ["20260922122000_extend_three_dedicated_refresh_windows.sql"]);
+  assert.deepEqual(result.pending_sha256s, { "20260922122000_extend_three_dedicated_refresh_windows.sql": "1bb146541823a3d36d5b832ea093b1180406f40a892e3b3697a5ccc5f090081b" });
   assert.ok(result.selected_files.includes(NUTRITION_CITRULLINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(NUTRITION_CREATINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(JONS_INTERRUPTED_REFRESH_MIGRATION));
