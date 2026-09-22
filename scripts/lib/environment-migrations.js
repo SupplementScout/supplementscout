@@ -8,6 +8,7 @@ const ROOT = path.resolve(__dirname, "../..");
 const MIGRATION_FILE = /^\d{14}_[a-z0-9_]+\.sql$/;
 const EXCLUSIONS = Object.freeze({
   STAGING: Object.freeze([
+    "20260922170000_allow_fit_house_parent_approval_and_supersede_failed_plan",
     "20260922160000_allow_owner_approved_fit_house_six_oos",
     "20260909094000_bind_fit_house_104_runtime_policy",
     "20260909093000_apply_reviewed_fit_house_944_oos",

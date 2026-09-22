@@ -35,6 +35,8 @@ const CONTRACTS = Object.freeze({
       "b37337a9cfd316890034ce12df7571230268b2a27e2a6fc0462d0a7e8ea26c2a",
     excluded: Object.freeze({
       "20260922160000_allow_owner_approved_fit_house_six_oos.sql": "be780721eee14c19761546107b7f249e9bea0c451a54732dfd259a7b348132fa",
+      "20260922170000_allow_fit_house_parent_approval_and_supersede_failed_plan.sql": "91c065b0dece55d7908e5dacb5509d1b0d66e26a4d132e8d2969e4db9369251f",
+      "20260922170000_allow_fit_house_parent_approval_and_supersede_failed_plan.sql": "91c065b0dece55d7908e5dacb5509d1b0d66e26a4d132e8d2969e4db9369251f",
       "20260909094000_bind_fit_house_104_runtime_policy.sql": "505381d29212fd63f40e1e975a2bd3a207ae7240ad7dbf50ee61ef02db244136",
       "20260909093000_apply_reviewed_fit_house_944_oos.sql": "98d298f7025bd8fc6de04ac97a201acdea1369be86397b7e2db5ffcbd4f587e0",
       "20260717130000_add_local_retailer_catalogue_child_executor.sql":
@@ -324,9 +326,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 220,
+    ledgerCount: 221,
     ledgerFingerprint:
-      "67df1e021bdd059657b726cdc12db3aa8ae6a91fb682419ff3345978406e3221",
+      "bf85cbe78934ab3b4e344abd1027b28d687d2cef7e9429c4434426e03a21bc94",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -345,8 +347,8 @@ const CONTRACTS = Object.freeze({
     }),
     pending: Object.freeze([
       Object.freeze({
-        filename: "20260922160000_allow_owner_approved_fit_house_six_oos.sql",
-        sha256: "be780721eee14c19761546107b7f249e9bea0c451a54732dfd259a7b348132fa",
+        filename: "20260922170000_allow_fit_house_parent_approval_and_supersede_failed_plan.sql",
+        sha256: "91c065b0dece55d7908e5dacb5509d1b0d66e26a4d132e8d2969e4db9369251f",
       }),
     ]),
   }),

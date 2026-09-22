@@ -15,6 +15,10 @@ const expiredPlanRepair = fs.readFileSync(path.join(
   process.cwd(),
   "supabase/migrations/20260903101000_supersede_expired_fit_house_control_plan.sql",
 ), "utf8");
+const parentApprovalRepair = fs.readFileSync(path.join(
+  process.cwd(),
+  "supabase/migrations/20260922170000_allow_fit_house_parent_approval_and_supersede_failed_plan.sql",
+), "utf8");
 
 test("migration is hash-bound and transactional", () => {
   const repositoryBytes = fs.readFileSync(file, "utf8").replaceAll("\r\n", "\n");
@@ -35,7 +39,13 @@ test("migration is hash-bound and transactional", () => {
     ),
     false,
   );
-  assert.equal(selector.CONTRACTS.PRODUCTION.ledgerCount, 220);
+  assert.equal(selector.CONTRACTS.PRODUCTION.ledgerCount, 221);
+  assert.match(parentApprovalRepair, /md5\(v_definition\)<>'c0a21cce669814ae4f900c9858081754'/);
+  assert.match(parentApprovalRepair, /retailer_id not in \(4,5,7,8,9,14\)/);
+  assert.match(parentApprovalRepair, /when 9 then 'fit-house'/);
+  assert.match(parentApprovalRepair, /ab47be4a-abed-41b0-8c24-58015005840b/);
+  assert.match(parentApprovalRepair, /14a2fea85d813474c14a56fea704e3d9c7316fa99d1887774f29fd1f883a140e/);
+  assert.match(parentApprovalRepair, /v_after is distinct from v_before/);
   assert.match(sql, /^begin;/i);
   assert.match(sql, /commit;\s*$/i);
 });
