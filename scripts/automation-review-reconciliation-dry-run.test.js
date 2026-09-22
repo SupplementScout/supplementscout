@@ -371,12 +371,8 @@ test("normal catalogue refresh publishes its fresh review cards through the guar
   const idempotencyStep = workflow.match(
     /- name: Verify fresh no-op after apply[\s\S]*?run: npm run ebay:refresh[^\n]+/,
   )?.[0] || "";
-  assert.match(idempotencyStep, /github\.event_name == 'workflow_dispatch'/);
-  assert.match(idempotencyStep, /--emit-approval-contract=true/);
-  assert.doesNotMatch(
-    idempotencyStep,
-    /run: npm run ebay:refresh -- --target=production --mode=dry-run --emit-approval-contract=true/,
-  );
+  assert.match(idempotencyStep, /run: npm run ebay:refresh -- --target=production --mode=dry-run --emit-approval-contract=true/);
+  assert.match(workflow, /refresh-review-queue:[\s\S]*?if: \$\{\{[^\n]*needs\.refresh\.outputs\.contract_sha256 != ''[^\n]*needs\.refresh\.outputs\.report_sha256 != ''[^\n]*needs\.refresh\.outputs\.content_sha256 != ''[^\n]*needs\.refresh\.outputs\.review_scope_fingerprint != ''/);
   assert.match(workflow, /source-run-id=\$\{\{ github\.run_id \}\}/);
   assert.match(workflow, /source-artifact-id=\$\{\{ needs\.refresh\.outputs\.artifact_id \}\}/);
   assert.match(workflow, /Publish fresh cards to Automation Review Queue/);
