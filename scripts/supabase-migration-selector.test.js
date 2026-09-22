@@ -260,13 +260,16 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records creatine components and the pending dedicated refresh repair", () => {
+test("production records the dedicated refresh repair and selects the two guarded follow-ups", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{ filename: "20260922122000_extend_three_dedicated_refresh_windows.sql", sha256: "1bb146541823a3d36d5b832ea093b1180406f40a892e3b3697a5ccc5f090081b" }]);
-  assert.equal(contract.ledgerCount, 217);
+  assert.deepEqual(contract.pending, [
+    { filename: "20260922140000_extend_three_sequential_parent_approvals.sql", sha256: "600ef1fa27f907fdaf9836916edbd429f531319e45f06fa065f37d375187dd8c" },
+    { filename: "20260922141000_supersede_three_failed_refresh_plans.sql", sha256: "6557383d44534eca07935b846a6435e56925f6ecf105327e7350763888051204" },
+  ]);
+  assert.equal(contract.ledgerCount, 218);
   assert.equal(
     contract.ledgerFingerprint,
-    "9a551c6dbec00525def65ad332ccb76a4e5b115f7d5a3bb935562150379b14b3",
+    "14014c287c827d3ba9b112f6983fdef7c718e1e78621026e0a731c9c4b1b5750",
   );
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_VARIANT_PROVENANCE_MIGRATION)), NUTRITION_VARIANT_PROVENANCE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_PREWORKOUT_FACTS_MIGRATION)), NUTRITION_PREWORKOUT_FACTS_SHA256);
@@ -404,11 +407,14 @@ test("production binds its exact ledger after the creatine component migration",
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 217);
+  assert.equal(result.ledger_count, 218);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 218);
-  assert.deepEqual(result.pending_files, ["20260922122000_extend_three_dedicated_refresh_windows.sql"]);
-  assert.deepEqual(result.pending_sha256s, { "20260922122000_extend_three_dedicated_refresh_windows.sql": "1bb146541823a3d36d5b832ea093b1180406f40a892e3b3697a5ccc5f090081b" });
+  assert.equal(result.selected_files.length, 220);
+  assert.deepEqual(result.pending_files, ["20260922140000_extend_three_sequential_parent_approvals.sql", "20260922141000_supersede_three_failed_refresh_plans.sql"]);
+  assert.deepEqual(result.pending_sha256s, {
+    "20260922140000_extend_three_sequential_parent_approvals.sql": "600ef1fa27f907fdaf9836916edbd429f531319e45f06fa065f37d375187dd8c",
+    "20260922141000_supersede_three_failed_refresh_plans.sql": "6557383d44534eca07935b846a6435e56925f6ecf105327e7350763888051204",
+  });
   assert.ok(result.selected_files.includes(NUTRITION_CITRULLINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(NUTRITION_CREATINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(JONS_INTERRUPTED_REFRESH_MIGRATION));
