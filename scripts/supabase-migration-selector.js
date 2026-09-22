@@ -324,9 +324,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 218,
+    ledgerCount: 220,
     ledgerFingerprint:
-      "14014c287c827d3ba9b112f6983fdef7c718e1e78621026e0a731c9c4b1b5750",
+      "67df1e021bdd059657b726cdc12db3aa8ae6a91fb682419ff3345978406e3221",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -345,12 +345,8 @@ const CONTRACTS = Object.freeze({
     }),
     pending: Object.freeze([
       Object.freeze({
-        filename: "20260922140000_extend_three_sequential_parent_approvals.sql",
-        sha256: "600ef1fa27f907fdaf9836916edbd429f531319e45f06fa065f37d375187dd8c",
-      }),
-      Object.freeze({
-        filename: "20260922141000_supersede_three_failed_refresh_plans.sql",
-        sha256: "6557383d44534eca07935b846a6435e56925f6ecf105327e7350763888051204",
+        filename: "20260922160000_allow_owner_approved_fit_house_six_oos.sql",
+        sha256: "be780721eee14c19761546107b7f249e9bea0c451a54732dfd259a7b348132fa",
       }),
     ]),
   }),

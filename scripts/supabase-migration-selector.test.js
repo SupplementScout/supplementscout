@@ -260,16 +260,15 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the dedicated refresh repair and selects the two guarded follow-ups", () => {
+test("production records both guarded follow-ups and selects only the Fit House six-offer migration", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.deepEqual(contract.pending, [
-    { filename: "20260922140000_extend_three_sequential_parent_approvals.sql", sha256: "600ef1fa27f907fdaf9836916edbd429f531319e45f06fa065f37d375187dd8c" },
-    { filename: "20260922141000_supersede_three_failed_refresh_plans.sql", sha256: "6557383d44534eca07935b846a6435e56925f6ecf105327e7350763888051204" },
+    { filename: "20260922160000_allow_owner_approved_fit_house_six_oos.sql", sha256: "be780721eee14c19761546107b7f249e9bea0c451a54732dfd259a7b348132fa" },
   ]);
-  assert.equal(contract.ledgerCount, 218);
+  assert.equal(contract.ledgerCount, 220);
   assert.equal(
     contract.ledgerFingerprint,
-    "14014c287c827d3ba9b112f6983fdef7c718e1e78621026e0a731c9c4b1b5750",
+    "67df1e021bdd059657b726cdc12db3aa8ae6a91fb682419ff3345978406e3221",
   );
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_VARIANT_PROVENANCE_MIGRATION)), NUTRITION_VARIANT_PROVENANCE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_PREWORKOUT_FACTS_MIGRATION)), NUTRITION_PREWORKOUT_FACTS_SHA256);
@@ -381,7 +380,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger after the creatine component migration", () => {
+test("production binds its exact 220-row ledger before the Fit House six-offer migration", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -407,13 +406,12 @@ test("production binds its exact ledger after the creatine component migration",
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 218);
+  assert.equal(result.ledger_count, 220);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 220);
-  assert.deepEqual(result.pending_files, ["20260922140000_extend_three_sequential_parent_approvals.sql", "20260922141000_supersede_three_failed_refresh_plans.sql"]);
+  assert.equal(result.selected_files.length, 221);
+  assert.deepEqual(result.pending_files, ["20260922160000_allow_owner_approved_fit_house_six_oos.sql"]);
   assert.deepEqual(result.pending_sha256s, {
-    "20260922140000_extend_three_sequential_parent_approvals.sql": "600ef1fa27f907fdaf9836916edbd429f531319e45f06fa065f37d375187dd8c",
-    "20260922141000_supersede_three_failed_refresh_plans.sql": "6557383d44534eca07935b846a6435e56925f6ecf105327e7350763888051204",
+    "20260922160000_allow_owner_approved_fit_house_six_oos.sql": "be780721eee14c19761546107b7f249e9bea0c451a54732dfd259a7b348132fa",
   });
   assert.ok(result.selected_files.includes(NUTRITION_CITRULLINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(NUTRITION_CREATINE_COMPONENTS_MIGRATION));
