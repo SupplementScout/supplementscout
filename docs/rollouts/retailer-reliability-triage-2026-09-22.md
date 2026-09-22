@@ -116,3 +116,55 @@ Jon's Supplements, eBay UK and 10 Reps. No scope, monitored baseline or
 review-row approval was widened by this closeout. The next retailer work is
 exact assessment of the residual Discount/Dolphin offers and the independent
 Fit House and review-backlog failures; SEO-15 remains the next SEO task.
+
+## Fresh residual audit — later on 22 September 2026
+
+The existing production-readonly [Discount full-catalog run](https://github.com/SupplementScout/supplementscout/actions/runs/35738234329)
+captured the complete Shopify source and classified all 47 offers outside the
+approved 109-offer refresh. The exact current split is 24 `SAFE_UPDATE`, 17
+`OUT_OF_STOCK`, three `MISSING_FROM_SOURCE` (`871`, `873`, `875`), one
+`NO_CHANGE` (`865`) and two unmapped identity cases (`10`, `764`). Across the
+matched offers, 37 have a current price or stock difference, four are already
+out of stock with no new commercial difference, and the other four are the
+three source-absent rows plus the one no-change row. The two unmapped offers
+still have null source product/variant IDs in the production database. This is
+fresh classification, **not** owner approval for any commercial or identity
+write. The historical 30 August split has been superseded for decisions.
+
+Dolphin offers `8` and `9` remain outside the approved one-offer refresh.
+Read-only production records still have null external product and variant IDs
+for both. Their saved generic catalogue variants cannot be assigned to a
+specific flavour merely from a retailer page. Preserve both for exact owner
+identity review.
+
+Fresh read-only [Jon's run](https://github.com/SupplementScout/supplementscout/actions/runs/35738156128)
+found four source-absent review offers (`1209`, `1456`, `1457`, `1458`) and ten
+stock differences among its 502 executable rows; it made no offer writes.
+The shared [Fit House/10 Reps run](https://github.com/SupplementScout/supplementscout/actions/runs/35739451308)
+found the same seven unallowlisted Fit House missing variants and stopped before
+registration or writes. Its independent 10 Reps job passed a 935-row no-change
+dry-run with 15 source-absent review offers. Missing source variants alone do
+not authorise OOS changes or new identities.
+
+The manual [eBay dry-run](https://github.com/SupplementScout/supplementscout/actions/runs/35738147995)
+captured 237 offers: 159 `VERIFY_NO_CHANGE` executable rows and 78 review rows.
+It made zero catalogue writes. Its workflow also started the separate Review
+Queue publication job despite `operation=dry-run`: the queue RPC made 183
+control writes, comprising 22 created, 56 refreshed, 10 superseded and three
+resolved cards, plus their audit/publication records. Independent read-only
+counts after the job remained products/variants/mappings/offers/history
+`1337/3632/3758/3758/20706`; queue rows increased from 955 to 977, audit
+events from 1673 to 1764 and publications from 15 to 16. No review card was
+approved or catalogue offer applied. [PR #73](https://github.com/SupplementScout/supplementscout/pull/73)
+merged as `5c2e45c` and now prevents this queue job from starting on manual
+dry-runs; its GitHub full gate passed. Future manual diagnostics must verify
+the job condition before dispatch.
+
+Next active retailer decision package: review the seven exact Fit House source
+absences against fresh direct product/variant evidence, then seek an owner
+disposition for each. In parallel, the 37 current Discount commercial changes
+and two Dolphin identities need separate exact owner review through existing
+guarded paths; do not widen the 109/1 approved refresh scopes or monitored
+baselines. Jon's four and 10 Reps fifteen missing variants, and eBay's 78
+review rows, remain isolated for their own row-level decisions. No broad
+commercial apply or automatic OOS transition is approved by this audit.
