@@ -11,6 +11,7 @@ const {
   applyOwnerApprovedMissingVariantGuardBaseline,
   applyReviewedOffer697GuardProof,
   authorizeOwnerApprovedMissingVariant,
+  authorizeOwnerApprovedSixStockOnly,
   authorizeReviewedMassOos,
   balancedExecutionBatches,
   enforceConfirmationOnly,
@@ -27,8 +28,34 @@ const {
   reconcileOwnerApprovedSixAbsent,
   requireAuditedMissingOwnerApproval,
   safeUpdateDisabled,
+  selectOwnerApprovedSixExecutionRows,
   sourceHealth,
 } = require("./fit-house-offer-refresh");
+
+test("six exact stock changes are executable while ten unrelated Fit House changes stay deferred", () => {
+  const manifest=loadOwnerApprovedSixAbsentManifest().manifest;
+  const approved=manifest.rows.filter(row=>row.old_stock);
+  const selected=approved.map(row=>({offer_id:row.offer_id,external_variant_id:row.external_variant_id,action:"UPDATE_STOCK",target:{in_stock:true},source:{in_stock:false},changed_fields:{stock:true,price:false,url:false}}));
+  const unrelatedIds=["735","921","944","951","954","963","972","983","1904","1938"];
+  const other=unrelatedIds.map((id,index)=>({offer_id:id,external_variant_id:`other-${id}`,action:"UPDATE_STOCK",target:{in_stock:index>=3},source:{in_stock:index<3},changed_fields:{stock:true,price:false,url:false}}));
+  const stable=Array.from({length:270},(_,i)=>({offer_id:`stable-${i}`,action:"VERIFY_NO_CHANGE",target:{in_stock:true},source:{in_stock:true},changed_fields:{stock:false,price:false,url:false}}));
+  const classified={state:"BLOCKED",reason:"MASS_OOS",rows:[...selected,...other,...stable]};
+  const owner={approved_rows:approved,newUnavailableCount:6};
+  const result=authorizeOwnerApprovedSixStockOnly(classified,owner);
+  assert.equal(result.state,"DRY_RUN_READY");
+  assert.deepEqual(result.deferred_changed_offer_ids,unrelatedIds);
+  assert.deepEqual(selectOwnerApprovedSixExecutionRows(result,owner).map(row=>row.offer_id),approved.map(row=>row.offer_id));
+  assert.doesNotThrow(()=>requireAuditedMissingOwnerApproval({sha256:"audit"},{newUnavailableCount:6,missingVariantIds:approved.map(row=>row.external_variant_id),manifest_sha256:"audit",review_status:"OWNER_OOS_APPROVAL_REQUIRED"},result,null,{approved_rows:approved,newUnavailableCount:6}));
+  const changedPrice=structuredClone(classified);changedPrice.rows[0].changed_fields.price=true;
+  assert.throws(()=>authorizeOwnerApprovedSixStockOnly(changedPrice,owner),error=>error.code==="FIT_HOUSE_SIX_SCOPE_MISMATCH");
+  const extraMissing=structuredClone(classified);extraMissing.rows[6].external_variant_id="extra-missing";
+  assert.throws(()=>requireAuditedMissingOwnerApproval({sha256:"audit"},{newUnavailableCount:7,missingVariantIds:[...approved.map(row=>row.external_variant_id),"extra-missing"],manifest_sha256:"audit",review_status:"OWNER_OOS_APPROVAL_REQUIRED"},extraMissing,null,{approved_rows:approved,newUnavailableCount:6}),error=>error.code==="OWNER_OOS_APPROVAL_REQUIRED");
+  const replay=structuredClone(classified);
+  for(const row of replay.rows.slice(0,6)){row.action="VERIFY_NO_CHANGE";row.target.in_stock=false;row.changed_fields.stock=false}
+  const replayAuthorized=authorizeOwnerApprovedSixStockOnly(replay,{...owner,newUnavailableCount:0});
+  assert.deepEqual(selectOwnerApprovedSixExecutionRows(replayAuthorized,{...owner,newUnavailableCount:0}),[]);
+  assert.deepEqual(replayAuthorized.deferred_changed_offer_ids,unrelatedIds);
+});
 
 test("six approved source absences are exact, preserve 939, and bind the live OOS baseline", () => {
   const reviewed=loadOwnerApprovedSixAbsentManifest(),rows=reviewed.manifest.rows;
@@ -244,7 +271,7 @@ test("owner-approved Fit House absence becomes exact OOS once and is replay-safe
   assert.deepEqual(first.missingVariantIds, [row.external_variant_id]);
   assert.equal(first.sourceVariants[0].in_stock, false);
   assert.equal(first.sourceVariants[0].owner_approved_source_absent, true);
-  const classification = { rows: [{ offer_id: row.offer_id, target: { in_stock: true }, source: { in_stock: false } }] };
+  const classification = { rows: [{ offer_id: row.offer_id, external_variant_id:row.external_variant_id, target: { in_stock: true }, source: { in_stock: false } }] };
   assert.doesNotThrow(() => requireAuditedMissingOwnerApproval(loadAuditedMissingVariantManifest(), first, classification, null, first));
 
   record.offer.in_stock = false;
