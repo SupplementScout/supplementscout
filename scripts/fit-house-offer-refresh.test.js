@@ -30,7 +30,14 @@ const {
   safeUpdateDisabled,
   selectOwnerApprovedSixExecutionRows,
   sourceHealth,
+  validationGuardSummary,
 } = require("./fit-house-offer-refresh");
+
+test("validator diagnostic records only batch guard numbers and limits before the RPC",()=>{
+  const request={artifact:{rows:Array.from({length:22},()=>({}))},guardrails:{new_oos_count:3,total_oos_count:3,previous_oos_count:0,changed_row_count:3,limits:{maximum_new_oos_count:"3",maximum_oos_increase_ratio:"0.15",maximum_total_oos_ratio:"0.35",maximum_changed_record_ratio:"0.25"}}};
+  assert.deepEqual(validationGuardSummary(request,2),{batch_index:2,batch_size:22,new_oos_count:3,total_oos_count:3,previous_oos_count:0,changed_row_count:3,limits:request.guardrails.limits});
+  assert.ok(3/22<Number(request.guardrails.limits.maximum_oos_increase_ratio));
+});
 
 test("six exact stock changes are executable while ten unrelated Fit House changes stay deferred", () => {
   const manifest=loadOwnerApprovedSixAbsentManifest().manifest;
@@ -45,13 +52,13 @@ test("six exact stock changes are executable while ten unrelated Fit House chang
   assert.equal(result.state,"DRY_RUN_READY");
   assert.deepEqual(result.deferred_changed_offer_ids,unrelatedIds);
   const execution=selectOwnerApprovedSixExecutionRows(result,owner);
-  assert.equal(execution.length,40);
+  assert.equal(execution.length,44);
   assert.deepEqual(execution.filter(row=>row.action==="UPDATE_STOCK").map(row=>row.offer_id),approved.map(row=>row.offer_id));
-  assert.deepEqual(execution.filter(row=>row.action==="VERIFY_NO_CHANGE").map(row=>row.offer_id),stable.slice(0,34).map(row=>row.offer_id));
+  assert.deepEqual(execution.filter(row=>row.action==="VERIFY_NO_CHANGE").map(row=>row.offer_id),stable.slice(0,38).map(row=>row.offer_id));
   const batches=balancedExecutionBatches(execution.map(row=>({...row,atomic_plan:{expected_state:{offer:{in_stock:row.target.in_stock}},offer:{values:{in_stock:row.source.in_stock}}}})),50,3);
-  assert.deepEqual(batches.map(batch=>batch.length),[20,20]);
+  assert.deepEqual(batches.map(batch=>batch.length),[22,22]);
   assert.deepEqual(batches.map(batch=>batch.filter(row=>row.action==="UPDATE_STOCK").length),[3,3]);
-  assert.ok(batches.every(batch=>batch.filter(row=>row.action==="UPDATE_STOCK").length/batch.length<=0.15));
+  assert.ok(batches.every(batch=>batch.filter(row=>row.action==="UPDATE_STOCK").length/batch.length<0.15));
   assert.throws(()=>selectOwnerApprovedSixExecutionRows({...result,rows:[...selected,...other,...stable.slice(0,30)]},owner),/confirmation scope mismatch/);
   assert.doesNotThrow(()=>requireAuditedMissingOwnerApproval({sha256:"audit"},{newUnavailableCount:6,missingVariantIds:approved.map(row=>row.external_variant_id),manifest_sha256:"audit",review_status:"OWNER_OOS_APPROVAL_REQUIRED"},result,null,{approved_rows:approved,newUnavailableCount:6}));
   const changedPrice=structuredClone(classified);changedPrice.rows[0].changed_fields.price=true;
@@ -121,7 +128,7 @@ test("manual Fit House confirmation mode is scoped and runs its guard before reg
   assert.match(workflow,/FIT_HOUSE_REFRESH_CONFIRMATIONS_ONLY:.*inputs\.confirmations_only/);
   const source=fs.readFileSync(path.join(__dirname,"fit-house-offer-refresh.js"),"utf8");
   const execution=source.slice(source.indexOf("async function executeRefresh("));
-  assert(execution.indexOf("enforceConfirmationOnly(run,")<execution.indexOf("await validate(run)"));
+  assert(execution.indexOf("enforceConfirmationOnly(run,")<execution.indexOf("await validate(run,diagnostic)"));
   assert(execution.indexOf("enforceConfirmationOnly(run,")<execution.indexOf("await register(run,"));
 });
 
