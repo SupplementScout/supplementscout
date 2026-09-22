@@ -5,12 +5,33 @@ const path = require("node:path");
 const test = require("node:test");
 const config = require("../config/retailers/fit-house-offer-sync.json");
 const { sha256 } = require("./lib/shopify-snapshot-reader");
+const { CONTRACTS, sha256File } = require("./supabase-migration-selector");
 
 const migrationPath = path.resolve("supabase/migrations/20260811010000_add_fit_house_stable_oos_validator.sql");
 const rollbackPath = path.resolve("supabase/rollbacks/20260811010000_add_fit_house_stable_oos_validator.sql");
 const migration = fs.readFileSync(migrationPath, "utf8");
 const rollback = fs.readFileSync(rollbackPath, "utf8");
 const POLICY = "6838770659dc772a3454846ad8e2e9e9620839b3ca688b118e9337231e520db6";
+const sixMigrationPath = path.resolve("supabase/migrations/20260922160000_allow_owner_approved_fit_house_six_oos.sql");
+const sixMigration = fs.readFileSync(sixMigrationPath, "utf8");
+
+test("six-offer production exception is owner, source, row and validator-definition bound",()=>{
+  assert.equal(sha256File(sixMigrationPath),CONTRACTS.STAGING.excluded[path.basename(sixMigrationPath)]);
+  const owner=JSON.parse(fs.readFileSync(path.resolve("config/retailers/fit-house-owner-approved-six-absent-2026-09-22.json"),"utf8"));
+  const embedded=[...sixMigration.matchAll(/v_rows constant jsonb := '(\[[\s\S]*?\])'::jsonb/g)].map(match=>JSON.parse(match[1]));
+  assert.equal(embedded.length,2);
+  for(const [index,rows] of embedded.entries()){
+    const expected=index===0?owner.rows:owner.rows.filter(row=>owner.approved_offer_ids.includes(row.offer_id));
+    assert.deepEqual(rows.map(row=>({offer_id:row.offer_id,mapping_id:row.mapping_id,product_id:row.product_id,variant_id:row.variant_id,external_product_id:row.external_product_id,external_variant_id:row.external_variant_id,price:Number(row.price),url:row.url})),expected.map(row=>({offer_id:row.offer_id,mapping_id:row.mapping_id,product_id:row.canonical_product_id,variant_id:row.canonical_variant_id,external_product_id:row.external_product_id,external_variant_id:row.external_variant_id,price:Number(row.old_price),url:row.url})));
+  }
+  for(const token of ["718","749","757","759","913","940","939","104+v_applied","ebe563f0f620ff4b501c1e8f56adfe51d854ff912e5089149688d5d0a60c43c1","28ee622dcc83d5398d160d83b4e2e920","3ece3becc90ebaff950c173905789621","a9e191f447a1efda3cf788019b5bd79a","49d36240cb3f7c9fed12f63b145e93f0"])
+    assert.ok(sixMigration.includes(token),`missing ${token}`);
+  assert.match(sixMigration,/v_record\.proname='validate_fit_house_stable_oos_read_only' then[\s\S]+fit_house_six_oos_owner_exception\(p_request\)/);
+  assert.match(sixMigration,/v_old_baseline,'not public\.fit_house_six_oos_baseline_exact\(\)'/);
+  assert.match(sixMigration,/v_row->>'offer_id'='939'[\s\S]+if v_stock then return false/);
+  assert.match(sixMigration,/v_changes between 1 and 3/);
+  assert.doesNotMatch(sixMigration,/(?:insert into|update|delete from) public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
+});
 
 test("stable Fit House OOS policy fingerprint binds exact owner baseline without raising 35 percent", () => {
   const effective = { ...config.guardrails, required_matched_offers: config.approved_mapping_count, store_url: config.store_url };

@@ -34,6 +34,7 @@ const CONTRACTS = Object.freeze({
     ledgerFingerprint:
       "b37337a9cfd316890034ce12df7571230268b2a27e2a6fc0462d0a7e8ea26c2a",
     excluded: Object.freeze({
+      "20260922160000_allow_owner_approved_fit_house_six_oos.sql": "be780721eee14c19761546107b7f249e9bea0c451a54732dfd259a7b348132fa",
       "20260909094000_bind_fit_house_104_runtime_policy.sql": "505381d29212fd63f40e1e975a2bd3a207ae7240ad7dbf50ee61ef02db244136",
       "20260909093000_apply_reviewed_fit_house_944_oos.sql": "98d298f7025bd8fc6de04ac97a201acdea1369be86397b7e2db5ffcbd4f587e0",
       "20260717130000_add_local_retailer_catalogue_child_executor.sql":
