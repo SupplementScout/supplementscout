@@ -249,7 +249,7 @@ function loadOwnerApprovedSixAbsentManifest(){
   const bytes=fs.readFileSync(file),sha256=crypto.createHash("sha256").update(bytes).digest("hex");
   invariant(sha256==="967f378d7bb13f1ab71478843b776486ae6b0add65d3378f4c60ab3bd2296e07","Fit House six-offer owner manifest SHA mismatch");
   const manifest=JSON.parse(bytes),approved=["718","749","757","759","913","940"],all=[...approved,"939"].sort((a,b)=>Number(a)-Number(b));
-  invariant(manifest.schema_version===1&&manifest.kind==="fit-house-owner-approved-absent-offers-v1"&&manifest.authority==="owner-chat-2026-09-22-six-fit-house-offers-oos"&&manifest.retailer_id==="9"&&manifest.retailer_slug==="fit-house"&&manifest.source_snapshot_fingerprint==="ebe563f0f620ff4b501c1e8f56adfe51d854ff912e5089149688d5d0a60c43c1"&&JSON.stringify(manifest.approved_offer_ids)===JSON.stringify(approved)&&manifest.preserve_oos_offer_id==="939"&&manifest.rows.length===7&&JSON.stringify(manifest.rows.map(row=>row.offer_id))===JSON.stringify(all),"Fit House six-offer owner manifest scope mismatch");
+  invariant(manifest.schema_version===1&&manifest.kind==="fit-house-owner-approved-absent-offers-v1"&&manifest.authority==="owner-chat-2026-09-22-six-fit-house-offers-oos"&&manifest.retailer_id==="9"&&manifest.retailer_slug==="fit-house"&&manifest.source_snapshot_fingerprint==="ebe563f0f620ff4b501c1e8f56adfe51d854ff912e5089149688d5d0a60c43c1"&&JSON.stringify(manifest.approved_offer_ids)===JSON.stringify(approved)&&manifest.preserve_oos_offer_id==="939"&&manifest.rows.length===7&&JSON.stringify(manifest.rows.map(row=>row.offer_id))===JSON.stringify(all)&&manifest.rows.every(row=>row.old_stock===(row.offer_id!=="939")),"Fit House six-offer owner manifest scope mismatch");
   return{manifest,sha256};
 }
 
