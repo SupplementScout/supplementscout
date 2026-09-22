@@ -73,3 +73,46 @@ reviewed missing-variant mechanism remains the route for an exact owner decision
 `npm run verify:project`, `npm run verify:inventory`, `npm run verify:quick`
 and `npm run verify:full` pass after the code and migration preparation. Full
 verification uses isolated build credentials and did not write production.
+
+## Production closeout — 22 September 2026
+
+The owner approved PR #70 and its single production migration. The PR was
+squash-merged as `7baef37`; the full main quality gate passed in run
+`35729414683`. Migration `20260922122000_extend_three_dedicated_refresh_windows`
+passed rehearsal, apply and independent read-only verification. The production
+ledger increased from 217 to 218 with no business-table count changes.
+
+Fresh dry-runs for Discount (`35729541988`), Dolphin (`35729545947`) and KIOR
+(`35729549609`) passed. Owner-authorised apply runs `35730589993`,
+`35730593515` and `35730597686` then stopped before any business write: the
+shared sequential parent approval function still allowed only Simply and
+10 Reps. A read-only production query found exactly three unapproved PLANNED
+parents with five PLANNED children, zero approvals and zero apply runs.
+
+The owner separately approved PR #71 and its two-migration recovery. The PR
+was squash-merged as `6ae4006`; the full main quality gate passed in run
+`35733790817`. After all three exact plans expired, migrations
+`20260922140000_extend_three_sequential_parent_approvals` and
+`20260922141000_supersede_three_failed_refresh_plans` passed a rollback-only
+rehearsal, atomic apply and independent read-only postflight. The production
+ledger increased from 218 to 220. Products, variants, mappings, offers and
+price-history row counts stayed at 1,337 / 3,632 / 3,758 / 3,758 / 20,706.
+
+The owner-authorised fresh apply runs then passed their DB postflight and
+independent idempotency checks:
+
+| Retailer | Run | Executed scope | Commercial change |
+|---|---|---:|---|
+| Discount Supplements | `35735652911` | 109 offers | Two exact offers, `793` and `814`, changed from in stock to out of stock; no price change. |
+| Dolphin Fitness | `35736074304` | 1 offer | No price or stock change. |
+| KIOR Health | `35736370835` | 11 offers | No price or stock change. |
+
+The read-only watchdog run `35736662308` reported zero database writes.
+KIOR now has 0/11 offers older than 48 hours. Discount has 47/156 older
+offers outside the approved 109-offer execution scope; Dolphin has 2/3 outside
+its approved one-offer scope. Both are now `PASS_WITH_MONITORED_BACKLOG`, not
+fully fresh. The watchdog still reports four separate failures: Fit House,
+Jon's Supplements, eBay UK and 10 Reps. No scope, monitored baseline or
+review-row approval was widened by this closeout. The next retailer work is
+exact assessment of the residual Discount/Dolphin offers and the independent
+Fit House and review-backlog failures; SEO-15 remains the next SEO task.
