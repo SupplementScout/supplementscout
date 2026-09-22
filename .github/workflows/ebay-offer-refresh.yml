@@ -264,7 +264,7 @@ jobs:
 
   refresh-review-queue:
     needs: refresh
-    if: ${{ needs.refresh.result == 'success' && needs.refresh.outputs.artifact_id != '' && needs.refresh.outputs.artifact_digest != '' && needs.refresh.outputs.contract_sha256 != '' && needs.refresh.outputs.report_sha256 != '' && needs.refresh.outputs.content_sha256 != '' && needs.refresh.outputs.review_scope_fingerprint != '' && github.ref == 'refs/heads/main' }}
+    if: ${{ needs.refresh.result == 'success' && ((github.event_name == 'schedule' && vars.EBAY_REFRESH_ENABLED == 'true') || (github.event_name == 'workflow_dispatch' && inputs.operation == 'apply')) && needs.refresh.outputs.artifact_id != '' && needs.refresh.outputs.artifact_digest != '' && needs.refresh.outputs.contract_sha256 != '' && needs.refresh.outputs.report_sha256 != '' && needs.refresh.outputs.content_sha256 != '' && needs.refresh.outputs.review_scope_fingerprint != '' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment: production-readonly

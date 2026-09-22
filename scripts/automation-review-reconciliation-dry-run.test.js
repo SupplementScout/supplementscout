@@ -368,6 +368,10 @@ test("workflow exposes a dry-run-only Review Queue reconciliation path", () => {
 test("normal catalogue refresh publishes its fresh review cards through the guarded queue RPC", () => {
   const workflow = fs.readFileSync(path.join(process.cwd(), ".github/workflows/ebay-offer-refresh.yml"), "utf8");
   assert.match(workflow, /refresh-review-queue:[\s\S]*needs: refresh/);
+  const queueJobCondition = workflow.match(/refresh-review-queue:\s*\n\s*needs: refresh\s*\n\s*if: ([^\n]+)/)?.[1] || "";
+  assert.match(queueJobCondition, /github\.event_name == 'workflow_dispatch' && inputs\.operation == 'apply'/);
+  assert.match(queueJobCondition, /github\.event_name == 'schedule' && vars\.EBAY_REFRESH_ENABLED == 'true'/);
+  assert.doesNotMatch(queueJobCondition, /inputs\.operation == 'dry-run'/);
   const idempotencyStep = workflow.match(
     /- name: Verify fresh no-op after apply[\s\S]*?run: npm run ebay:refresh[^\n]+/,
   )?.[0] || "";
