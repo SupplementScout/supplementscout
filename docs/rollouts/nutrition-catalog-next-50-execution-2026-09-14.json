@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition_catalog_next_50_execution",
+  "captured_on": "2026-09-14",
+  "target_environment": "PRODUCTION",
+  "project_ref": "aftboxmrdgyhizicfsfu",
+  "result": "PASS",
+  "scope": {
+    "products": ["56", "878", "880", "1169", "1181"],
+    "variants": 34,
+    "candidates": 162,
+    "candidate_ids": "1396-1557",
+    "product_updates": 0,
+    "variant_updates": 34,
+    "destination": "product_variants.nutrition_override"
+  },
+  "stages": {
+    "preflight": {
+      "result": "PASS",
+      "applied_variants_before": 141,
+      "exact_target_variants": 34,
+      "existing_candidate_fingerprints": 0,
+      "snapshot_sha256": "364f8f7bce39ca75025c8a0a075f7c62b83fa9c6129decdbc2e188190fc78540"
+    },
+    "store": {
+      "result": "PASS",
+      "created": 162,
+      "duplicates": 0,
+      "catalogue_writes": 0,
+      "post_store_snapshot_sha256": "1d7d916f53b8ec0160e61c2159dc173b1edad66a3c2c926eb08dcc0571eb7842"
+    },
+    "review": {
+      "result": "PASS",
+      "approved": 162,
+      "already_approved": 0,
+      "mechanism": "authenticated admin review route"
+    },
+    "plan": {
+      "result": "PASS",
+      "plans": 5,
+      "planned_candidates": 162,
+      "planned_variants": 34,
+      "planned_products": 0,
+      "blockers": 0
+    },
+    "apply": {
+      "result": "PASS",
+      "changed_variants": 34,
+      "changed_products": 0,
+      "note": "An initial automatic approval rejection occurred before command execution. The owner then explicitly renewed overriding authorization for all five concrete plans; guarded apply completed without bypassing any application safeguard."
+    },
+    "independent_readback": {
+      "result": "PASS",
+      "whole_override_matches_plan_after": true,
+      "approvals_and_evidence_unchanged": true,
+      "outside_scope_preservation": true,
+      "applied_variants_after": 175
+    },
+    "replay_protection": {
+      "result": "PASS_SAFE_REJECTION",
+      "plans_retried": 5,
+      "additional_writes": 0,
+      "reason": "Each plan was rejected because the sealed variant before state had changed."
+    },
+    "public_readback": {
+      "result": "PASS",
+      "exact_variant_pages": 34,
+      "correct_selected_variant": 34,
+      "private_uri_exposed": false,
+      "reviewer_metadata_exposed": false,
+      "source_labels": ["Manufacturer source", "Retailer source"],
+      "variants_with_fresh_in_stock_offer": 29,
+      "variants_without_fresh_in_stock_offer": 5,
+      "caffeine_free_fact_variant_ids": ["1374", "1375", "1376"],
+      "caffeine_free_filter_target_links": [],
+      "filter_explanation": "Pumpage variants have applied confirmed_absent caffeine facts but no offer inside the application's 24-hour freshness window, so the availability-aware filter correctly omits the family."
+    }
+  },
+  "plans": [
+    {
+      "product_id": "56",
+      "variant_ids": ["1006", "1601", "1602", "1603", "1604", "1605", "1606", "3468", "3469"],
+      "candidate_ids": "1396-1440",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-next-50-20260914-56-1c32943d73d6.json",
+      "sha256": "1a175788e46189a1b33a292837db326871dd69bbf77ff4cbfa0ae3174e1be7ae",
+      "plan_fingerprint": "1c32943d73d60b78452ea108c770f87a1da765d36034434f468ead01288b9702",
+      "audit_sha256": "5ac8ebaa5423d7e168b4e95fe343ec35ea61d789ef0fce69a6aa4c8aba9f7346"
+    },
+    {
+      "product_id": "878",
+      "variant_ids": ["1363", "1364", "1365", "1367", "4080"],
+      "candidate_ids": "1441-1465",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-next-50-20260914-878-a33b25452178.json",
+      "sha256": "44ceab8995cceba71f27a2abfc975d9d3bfa2df72892dcfe0daa0165e72327ba",
+      "plan_fingerprint": "a33b2545217895f94759d7a1830cd754dcc482d783e574a53146cec53fac7855",
+      "audit_sha256": "de5a2d8250e172ecd3ad0b8fb6b3b23d0ef89db1b067b7232c9ff3313481f396"
+    },
+    {
+      "product_id": "880",
+      "variant_ids": ["1374", "1375", "1376"],
+      "candidate_ids": "1466-1480",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-next-50-20260914-880-84d95d623e2b.json",
+      "sha256": "55e7fa1e6db08e2b8a4578380202772084f2137ae2699f5a6883740f26682267",
+      "plan_fingerprint": "84d95d623e2b056a4b78acb9aa468bd8aade0743e7641b4799f6d461499852ea",
+      "audit_sha256": "5e3e4f986844674f9019335db1bfec75aaf5a03e7820ea48246f2d01891423b3"
+    },
+    {
+      "product_id": "1169",
+      "variant_ids": ["3408", "3409", "3411", "3412", "3413", "3415", "3416", "3417", "3418"],
+      "candidate_ids": "1481-1525",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-next-50-20260914-1169-083c947fc636.json",
+      "sha256": "f3483915235f1f4c1f388bb8f02272559687b38bb5320ec6f3fa70a476491e8f",
+      "plan_fingerprint": "083c947fc63640d4f8e7aa958f1789e5bd449b510770a23d7c5eb3e1e0063adf",
+      "audit_sha256": "f05a57427205062841637e7bb922562556c1b0a4eccaf7dc62a70e0c4c563714"
+    },
+    {
+      "product_id": "1181",
+      "variant_ids": ["3479", "3544", "3545", "3546", "3547", "3548", "3549", "3550"],
+      "candidate_ids": "1526-1557",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-next-50-20260914-1181-ea9006e25e52.json",
+      "sha256": "45c1381b84bfb43c7fa300aa608a1bd801de64d929a1b77f10465a7c12b725bc",
+      "plan_fingerprint": "ea9006e25e526ad73734d4ea264a6bbbb67096b0a9791471ff8c733c9b7b1141",
+      "audit_sha256": "3e4c21542d80af29d93383f0a9f434f469c7fc64be1917ed9649d890899bdaa5"
+    }
+  ],
+  "coverage": {
+    "all_active_preworkout_variants_with_applied_facts": 175,
+    "increase": 34,
+    "current_offer_catalogue_variants": 404,
+    "complete": 141,
+    "partial": 26,
+    "without_applied_facts": 237,
+    "batch_complete": 26,
+    "batch_partial": 8
+  },
+  "unchanged": {
+    "products": true,
+    "non_target_variants": true,
+    "nutrition_verified": true,
+    "legacy_creatine_per_serving_g": true,
+    "pre_existing_target_candidates": true,
+    "non_target_queue": true
+  },
+  "next_step": "Resolve the eight Darkstims caffeine facts only after an unambiguous total-caffeine-yield source, or prepare another evidence-backed family without repeating retained blockers."
+}

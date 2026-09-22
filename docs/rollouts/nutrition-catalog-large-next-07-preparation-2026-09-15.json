@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-large-next-07-preparation-report",
+  "date": "2026-09-15",
+  "status": "READY_FOR_ONE_OWNER_DECISION",
+  "production_checkpoint": {
+    "applied_unique_variants": 305,
+    "active_preworkout_variants": 575,
+    "active_variants_with_current_offers": 406,
+    "current_offer_complete": 260,
+    "current_offer_partial": 37,
+    "current_offer_without_applied_facts": 109
+  },
+  "scope": {
+    "families": 5,
+    "variants": 16,
+    "candidate_facts": 80,
+    "variants_with_all_four_ingredient_amount_or_absence_questions_resolved": 6,
+    "production_candidate_writes": 0,
+    "production_catalog_writes": 0
+  },
+  "families": [
+    {
+      "product_id": "899",
+      "variant_ids": ["1487", "1488", "2016", "2017"],
+      "values": {"serving_size_g": 19, "caffeine_per_serving_mg": {"information_state": "conflicting_information", "value": null}, "beta_alanine_per_serving_mg": 3200, "citrulline_per_serving_mg": {"value": 4000, "form": "l_citrulline"}, "creatine_declared_form_per_serving_mg": {"value": 3000, "form": "creatine_monohydrate"}},
+      "source": "https://www.dolphinfitness.co.uk/en/cnp-full-tilt-v2-300g/419885?b=525",
+      "source_comparison": "Dolphin and Outfit report 400 mg total caffeine; another exact-pack retailer reports a conflicting 200 mg caffeine-source total, so caffeine remains conflicting_information.",
+      "artifact": {"path": "tmp/nutrition-catalog-large-next-07-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-07-20260915-899.json", "sha256": "d2a2953b0f2d824d7ae3712acea0ee3e26a3d3a96cf3f147ebb80e43eec276e3", "fingerprint": "bd3c372acf9248308790b9a75a58b08e81f89bdc9c94f3c61773be9aab9e9158"},
+      "dry_run": {"result": "PASS", "candidate_rows": 20, "product_updates": 0}
+    },
+    {
+      "product_id": "1277",
+      "variant_ids": ["3757", "3872", "3873", "3874"],
+      "values": {"serving_size_g": 24, "caffeine_per_serving_mg": 350, "beta_alanine_per_serving_mg": {"information_state": "confirmed_absent", "value": null}, "citrulline_per_serving_mg": {"value": 9000, "form": "l_citrulline"}, "creatine_declared_form_per_serving_mg": {"information_state": "confirmed_absent", "value": null}},
+      "source": "https://www.theformula.shop/products/neuphoric",
+      "source_comparison": "Manufacturer total caffeine and exact 480 g retailer table agree; separate 2000 mg citrulline nitrate is retained in evidence and omitted because that form is outside the current enum.",
+      "artifact": {"path": "tmp/nutrition-catalog-large-next-07-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-07-20260915-1277.json", "sha256": "75c8d1d899478de5b11fea1ff6d9b63cdf0f52d6c2c204eafec1b0edb33d0dac", "fingerprint": "169eaf5e068a2b62a2966cb9600ce7a6d6bdaee09f9b3b7986b7e072f85ee542"},
+      "dry_run": {"result": "PASS", "candidate_rows": 20, "product_updates": 0}
+    },
+    {
+      "product_id": "878",
+      "variant_ids": ["1361", "1362", "1366", "1368"],
+      "values": {"serving_size_g": 8, "caffeine_per_serving_mg": 200, "beta_alanine_per_serving_mg": 1750, "citrulline_per_serving_mg": {"value": 3000, "form": "l_citrulline"}, "creatine_declared_form_per_serving_mg": {"information_state": "confirmed_absent", "value": null}},
+      "source": "https://www.pps-shop.fi/en/nutritional-supplements/trained-by-jp-dnfm-320g/p/10850/",
+      "source_comparison": "Multiple exact 320 g / 40-serving retailer presentations agree; retained common-recipe evidence covers the four catalogue flavours.",
+      "artifact": {"path": "tmp/nutrition-catalog-large-next-07-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-07-20260915-878.json", "sha256": "7c0ae6e9635aa9771186856ab0596f5530508d3f9980064d8ed6940753a6cab4", "fingerprint": "aac5477da951089372f610ea0d162153fc1ef84ace8118a612060501a1256489"},
+      "dry_run": {"result": "PASS", "candidate_rows": 20, "product_updates": 0}
+    },
+    {
+      "product_id": "1246",
+      "variant_ids": ["3668", "3713"],
+      "values": {"serving_size_g": 16, "caffeine_per_serving_mg": 300, "beta_alanine_per_serving_mg": 2400, "citrulline_per_serving_mg": {"value": 6000, "form": "citrulline_malate", "ratio": "2:1"}, "creatine_declared_form_per_serving_mg": {"value": 3000, "form": "creatine_monohydrate"}},
+      "source": "https://skillnutrition.com/p-skill-pre-workout-sour-gummies-400g",
+      "source_comparison": "Manufacturer formula plus exact retailer 400 g page; Sour Gummies and Berry Blast share the page, while the newer 412 g presentation remains a distinct pack context.",
+      "artifact": {"path": "tmp/nutrition-catalog-large-next-07-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-07-20260915-1246.json", "sha256": "b3872b306a9ed430bde7a251863a29575c1b4adf58bcbccac9f869e72de5e829", "fingerprint": "7bae0e99c0f302869ded896c6c5ddb6ee388b005b46f0806d8875e221d696a65"},
+      "dry_run": {"result": "PASS", "candidate_rows": 10, "product_updates": 0}
+    },
+    {
+      "product_id": "1255",
+      "variant_ids": ["3677", "3727"],
+      "values": {"serving_size_g": 20.3, "caffeine_per_serving_mg": 300, "beta_alanine_per_serving_mg": 3200, "citrulline_per_serving_mg": {"information_state": "present_amount_not_disclosed", "value": null, "form": "l_citrulline"}, "creatine_declared_form_per_serving_mg": {"information_state": "confirmed_absent", "value": null}},
+      "source": "https://www.iherb.com/pr/animal-primal-preworkout-powder-strawberry-watermelon-17-9-oz-507-5-g/114851",
+      "source_comparison": "Exact 507.5 g page presents both flavours; 6000 mg belongs to a three-ingredient pump blend and is not assigned to L-citrulline.",
+      "artifact": {"path": "tmp/nutrition-catalog-large-next-07-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-07-20260915-1255.json", "sha256": "331a58a6d0ad4bafb2799772bcc4c087435d4285c2d45946319028d3708767cd", "fingerprint": "9e0b8814f47826959d2c30cc5b0a46fa9477121fb0f6c61e2e1d954aa075bf63"},
+      "dry_run": {"result": "PASS", "candidate_rows": 10, "product_updates": 0}
+    }
+  ],
+  "archive": {
+    "bucket": "nutrition-sources",
+    "public": false,
+    "objects_uploaded": 5,
+    "readback": "PASS",
+    "manifest_path": "tmp/nutrition-catalog-large-next-07-2026-09-15/source-context-manifest.json",
+    "manifest_sha256": "f67098da6bea58a95f37b7fde851e7e74e2c02c052782cb11e6e569bfaa69dea"
+  },
+  "remaining_blocks": [
+    {"product_id": "169", "variants": 9, "reason": "retained 400 g formula-generation conflict"},
+    {"product_id": "27", "variants": 8, "reason": "retained 195 g formula-generation conflict"},
+    {"product_id": "1276", "variants": 8, "reason": "retained generation and common-table conflict"},
+    {"product_id": "778", "variants": 6, "reason": "remaining flavours are outside retained source applicability"},
+    {"product_id": "840", "variants": 5, "reason": "no exact common-table applicability for the Original 420 g family"}
+  ],
+  "next_step": "One owner decision may authorize store -> review -> plan -> apply for these exact 80 candidates; conflicts and undisclosed amounts must remain their stated information states."
+}

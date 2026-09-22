@@ -1,0 +1,999 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-large-next-10-execution-report-v1",
+  "date": "2026-09-15",
+  "status": "LIVE_VERIFIED",
+  "authorization": {
+    "scope": "store -> authenticated review -> plan -> apply resumed after explicit owner authorization",
+    "candidates": 125,
+    "variants": 25,
+    "variant_ids": [
+      "958",
+      "959",
+      "1040",
+      "1234",
+      "1235",
+      "1369",
+      "1370",
+      "1371",
+      "1372",
+      "1373",
+      "1419",
+      "1420",
+      "1477",
+      "1478",
+      "1479",
+      "1691",
+      "1692",
+      "1693",
+      "2775",
+      "3667",
+      "3678",
+      "3710",
+      "3711",
+      "3712",
+      "3728"
+    ]
+  },
+  "preflight": {
+    "result": "PASS",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "target_environment": "PRODUCTION",
+    "unique_candidate_fingerprints": 125,
+    "existing_candidates": 0,
+    "empty_target_overrides": 25,
+    "database_writes": 0
+  },
+  "artifacts": [
+    {
+      "candidates": 20,
+      "path": "tmp/nutrition-catalog-large-next-10-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-10-20260915-291.json",
+      "sha256": "79faf14a99e138280c0539f7b706866177cee8925e0bb54f5345d3054215a680",
+      "product_id": "291",
+      "artifact_key": "291",
+      "artifact_fingerprint": "34e762e091f6a6800aeaddf7f7759c1b0a09aadc05750662373a5e2777e84eee"
+    },
+    {
+      "candidates": 15,
+      "path": "tmp/nutrition-catalog-large-next-10-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-10-20260915-895.json",
+      "sha256": "87d24ac9df8b37f574ea303e46b43a273a124b939f2176debb2b51b585a2f4a8",
+      "product_id": "895",
+      "artifact_key": "895",
+      "artifact_fingerprint": "c31bff72e81a9a7f8afa3c482cefcd8da32a98e2f5c9004502d677125b52ec73"
+    },
+    {
+      "candidates": 15,
+      "path": "tmp/nutrition-catalog-large-next-10-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-10-20260915-848.json",
+      "sha256": "a6c84de242f8b8db86daba88d04a3ee202e1732301093c82d3f9ca8121219a95",
+      "product_id": "848",
+      "artifact_key": "848",
+      "artifact_fingerprint": "2200ebc665a2f7f0054ab815fce77d5e4f2e376cde991cd5feca0b1b65083465"
+    },
+    {
+      "candidates": 10,
+      "path": "tmp/nutrition-catalog-large-next-10-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-10-20260915-774.json",
+      "sha256": "68e934691a902f74ebe4f6e13fc066e0b1cffc81b6543b0edddcba0d0cff5824",
+      "product_id": "774",
+      "artifact_key": "774",
+      "artifact_fingerprint": "9a101b2a6faab0f5a59facfa1517fdf4dff0b4c294cd3caace07590b48c68334"
+    },
+    {
+      "candidates": 10,
+      "path": "tmp/nutrition-catalog-large-next-10-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-10-20260915-885.json",
+      "sha256": "e7c6bb13822869d3b565f90606a3d2347fdb5b75c1a233c0578208bafc20edc4",
+      "product_id": "885",
+      "artifact_key": "885",
+      "artifact_fingerprint": "2519c350ea6c992c2078cee94caf2f226caa107c5b145cee986cd66e2168d5ce"
+    },
+    {
+      "candidates": 25,
+      "path": "tmp/nutrition-catalog-large-next-10-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-10-20260915-879.json",
+      "sha256": "bb6a3e7e287a804a8e4394be4630163731e00df32eb60ce7932f4745c18ec51f",
+      "product_id": "879",
+      "artifact_key": "879",
+      "artifact_fingerprint": "645767baab369f545bba15615659f13badb1a16b2c8ebfc9f20127fb2f81e906"
+    },
+    {
+      "candidates": 20,
+      "path": "tmp/nutrition-catalog-large-next-10-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-10-20260915-1245.json",
+      "sha256": "e61748f85259cacb10133f13ae22289d40cb95cda76cb839f463e4594532fdf4",
+      "product_id": "1245",
+      "artifact_key": "1245",
+      "artifact_fingerprint": "bdcd267ddac1baa4ce80050b6bc690667af6b77a0f590ce313d1ffabe00fd93d"
+    },
+    {
+      "candidates": 10,
+      "path": "tmp/nutrition-catalog-large-next-10-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-10-20260915-1256.json",
+      "sha256": "ef02566029425287bba668761c43a4ce2daf5f081368b70ca87d8c9aaf167298",
+      "product_id": "1256",
+      "artifact_key": "1256",
+      "artifact_fingerprint": "88594e6d191c86588c5811466a90dd3ed130a0cb9f719036b72574433df11f02"
+    }
+  ],
+  "store": {
+    "created": 125,
+    "product_updates": 0,
+    "candidate_ids": [
+      "2382",
+      "2383",
+      "2384",
+      "2385",
+      "2386",
+      "2387",
+      "2388",
+      "2389",
+      "2390",
+      "2391",
+      "2392",
+      "2393",
+      "2394",
+      "2395",
+      "2396",
+      "2397",
+      "2398",
+      "2399",
+      "2400",
+      "2401",
+      "2402",
+      "2403",
+      "2404",
+      "2405",
+      "2406",
+      "2407",
+      "2408",
+      "2409",
+      "2410",
+      "2411",
+      "2412",
+      "2413",
+      "2414",
+      "2415",
+      "2416",
+      "2417",
+      "2418",
+      "2419",
+      "2420",
+      "2421",
+      "2422",
+      "2423",
+      "2424",
+      "2425",
+      "2426",
+      "2427",
+      "2428",
+      "2429",
+      "2430",
+      "2431",
+      "2432",
+      "2433",
+      "2434",
+      "2435",
+      "2436",
+      "2437",
+      "2438",
+      "2439",
+      "2440",
+      "2441",
+      "2442",
+      "2443",
+      "2444",
+      "2445",
+      "2446",
+      "2447",
+      "2448",
+      "2449",
+      "2450",
+      "2451",
+      "2452",
+      "2453",
+      "2454",
+      "2455",
+      "2456",
+      "2457",
+      "2458",
+      "2459",
+      "2460",
+      "2461",
+      "2462",
+      "2463",
+      "2464",
+      "2465",
+      "2466",
+      "2467",
+      "2468",
+      "2469",
+      "2470",
+      "2471",
+      "2472",
+      "2473",
+      "2474",
+      "2475",
+      "2476",
+      "2477",
+      "2478",
+      "2479",
+      "2480",
+      "2481",
+      "2482",
+      "2483",
+      "2484",
+      "2485",
+      "2486",
+      "2487",
+      "2488",
+      "2489",
+      "2490",
+      "2491",
+      "2492",
+      "2493",
+      "2494",
+      "2495",
+      "2496",
+      "2497",
+      "2498",
+      "2499",
+      "2500",
+      "2501",
+      "2502",
+      "2503",
+      "2504",
+      "2505",
+      "2506"
+    ]
+  },
+  "review": {
+    "result": "PASS",
+    "approved": 125,
+    "already_approved": 0,
+    "reviewed_by": "admin-panel",
+    "review_files": [
+      "review-1245.json",
+      "review-1256.json",
+      "review-291.json",
+      "review-774.json",
+      "review-848.json",
+      "review-879.json",
+      "review-885.json",
+      "review-895.json"
+    ]
+  },
+  "plans": [
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-10-20260915-1245-fe692850dd7f.json",
+      "sha256": "39b491d430d53c081d03a63c461af1e72cc7e975612d49fc0fee80b6984f8f1e",
+      "plan_fingerprint": "fe692850dd7f7b144457998298be88aaed8b12a2b2c24615f97b32185821bd5e",
+      "candidate_count": 20,
+      "variant_count": 4,
+      "candidate_ids": [
+        "2477",
+        "2478",
+        "2479",
+        "2480",
+        "2481",
+        "2482",
+        "2483",
+        "2484",
+        "2485",
+        "2486",
+        "2487",
+        "2488",
+        "2489",
+        "2490",
+        "2491",
+        "2492",
+        "2493",
+        "2494",
+        "2495",
+        "2496"
+      ],
+      "variant_ids": [
+        "3667",
+        "3710",
+        "3711",
+        "3712"
+      ],
+      "product_updates": 0,
+      "variant_updates": 4
+    },
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-10-20260915-1256-d7abd6a22e4f.json",
+      "sha256": "96a4760d6a28dfd64168b25a3e55cba09f6f02d8ff91178441c40dfd0b3bd5df",
+      "plan_fingerprint": "d7abd6a22e4f1a41f149b4e70301130880157f32a0d7036d8ba0ae4699216859",
+      "candidate_count": 10,
+      "variant_count": 2,
+      "candidate_ids": [
+        "2497",
+        "2498",
+        "2499",
+        "2500",
+        "2501",
+        "2502",
+        "2503",
+        "2504",
+        "2505",
+        "2506"
+      ],
+      "variant_ids": [
+        "3678",
+        "3728"
+      ],
+      "product_updates": 0,
+      "variant_updates": 2
+    },
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-10-20260915-291-8cfc7fac78de.json",
+      "sha256": "b9ee939b57d69b5419963dbf9ea75ec8b72e40f7634283822c971cbccb1696d8",
+      "plan_fingerprint": "8cfc7fac78de2039c40384688997faa881cec8a847d852d7e05bae5dc170be2a",
+      "candidate_count": 20,
+      "variant_count": 4,
+      "candidate_ids": [
+        "2382",
+        "2383",
+        "2384",
+        "2385",
+        "2386",
+        "2387",
+        "2388",
+        "2389",
+        "2390",
+        "2391",
+        "2392",
+        "2393",
+        "2394",
+        "2395",
+        "2396",
+        "2397",
+        "2398",
+        "2399",
+        "2400",
+        "2401"
+      ],
+      "variant_ids": [
+        "1040",
+        "1691",
+        "1692",
+        "1693"
+      ],
+      "product_updates": 0,
+      "variant_updates": 4
+    },
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-10-20260915-774-8c98f7ac2b55.json",
+      "sha256": "5a75c262e1197196e4997baee65fed920595bb92069f2d2e5006a360ca5b6cc6",
+      "plan_fingerprint": "8c98f7ac2b55b794789c04c45ba69fc0d21dccd05a46161aa4d2d964d5d66a42",
+      "candidate_count": 10,
+      "variant_count": 2,
+      "candidate_ids": [
+        "2432",
+        "2433",
+        "2434",
+        "2435",
+        "2436",
+        "2437",
+        "2438",
+        "2439",
+        "2440",
+        "2441"
+      ],
+      "variant_ids": [
+        "958",
+        "959"
+      ],
+      "product_updates": 0,
+      "variant_updates": 2
+    },
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-10-20260915-848-6d6ac79b7914.json",
+      "sha256": "26b21cdb0f0735312ed9a2b519bff073c096f7c602d6f9d5f808c9e172894704",
+      "plan_fingerprint": "6d6ac79b7914549db31304e649a57bb619340ea0327c0dcd469803230c899226",
+      "candidate_count": 15,
+      "variant_count": 3,
+      "candidate_ids": [
+        "2417",
+        "2418",
+        "2419",
+        "2420",
+        "2421",
+        "2422",
+        "2423",
+        "2424",
+        "2425",
+        "2426",
+        "2427",
+        "2428",
+        "2429",
+        "2430",
+        "2431"
+      ],
+      "variant_ids": [
+        "1234",
+        "1235",
+        "2775"
+      ],
+      "product_updates": 0,
+      "variant_updates": 3
+    },
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-10-20260915-879-a9e48ef1b0cd.json",
+      "sha256": "36bd46bdaf3d00dc28837d3daa81644f741d3652e5b849a906095a95add810e5",
+      "plan_fingerprint": "a9e48ef1b0cddf45298299b7531e763b4a789454cec3d4be695bf8128017c3bc",
+      "candidate_count": 25,
+      "variant_count": 5,
+      "candidate_ids": [
+        "2452",
+        "2453",
+        "2454",
+        "2455",
+        "2456",
+        "2457",
+        "2458",
+        "2459",
+        "2460",
+        "2461",
+        "2462",
+        "2463",
+        "2464",
+        "2465",
+        "2466",
+        "2467",
+        "2468",
+        "2469",
+        "2470",
+        "2471",
+        "2472",
+        "2473",
+        "2474",
+        "2475",
+        "2476"
+      ],
+      "variant_ids": [
+        "1369",
+        "1370",
+        "1371",
+        "1372",
+        "1373"
+      ],
+      "product_updates": 0,
+      "variant_updates": 5
+    },
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-10-20260915-885-80db0b4e53bf.json",
+      "sha256": "0cfcc42c339f66f5a833e7b671db867fc1d4564673ee667594960f5477edba65",
+      "plan_fingerprint": "80db0b4e53bf0db0e9ee5ed7a4ca378f0d9704e681ef7f6d01a2dd2e4039ba26",
+      "candidate_count": 10,
+      "variant_count": 2,
+      "candidate_ids": [
+        "2442",
+        "2443",
+        "2444",
+        "2445",
+        "2446",
+        "2447",
+        "2448",
+        "2449",
+        "2450",
+        "2451"
+      ],
+      "variant_ids": [
+        "1419",
+        "1420"
+      ],
+      "product_updates": 0,
+      "variant_updates": 2
+    },
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-10-20260915-895-0a0a8f8bd92e.json",
+      "sha256": "2294e72037404471862ab2a43da8bc155b7ceb7904e895a2acd238d5416037b3",
+      "plan_fingerprint": "0a0a8f8bd92e77fa132ccb43d101f454f1991136d146a076ec674ae79e3bb390",
+      "candidate_count": 15,
+      "variant_count": 3,
+      "candidate_ids": [
+        "2402",
+        "2403",
+        "2404",
+        "2405",
+        "2406",
+        "2407",
+        "2408",
+        "2409",
+        "2410",
+        "2411",
+        "2412",
+        "2413",
+        "2414",
+        "2415",
+        "2416"
+      ],
+      "variant_ids": [
+        "1477",
+        "1478",
+        "1479"
+      ],
+      "product_updates": 0,
+      "variant_updates": 3
+    }
+  ],
+  "apply": {
+    "result": "PASS",
+    "plans_applied": 8,
+    "changed_products": 0,
+    "changed_variants": 25,
+    "audit_files": [
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-10-20260915-1245-fe692850dd7f-audit.json",
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-10-20260915-1256-d7abd6a22e4f-audit.json",
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-10-20260915-291-8cfc7fac78de-audit.json",
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-10-20260915-774-8c98f7ac2b55-audit.json",
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-10-20260915-848-6d6ac79b7914-audit.json",
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-10-20260915-879-a9e48ef1b0cd-audit.json",
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-10-20260915-885-80db0b4e53bf-audit.json",
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-10-20260915-895-0a0a8f8bd92e-audit.json"
+    ]
+  },
+  "independent_readback": {
+    "result": "PASS",
+    "target_environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "applied_variant_count": 369,
+    "coverage": {
+      "complete": 332,
+      "partial": 37,
+      "none": 206
+    },
+    "queue_after": {
+      "approved": 2484,
+      "pending": 16,
+      "rejected": 6
+    },
+    "variants": 25,
+    "candidates": {
+      "approved": 125,
+      "evidence_unchanged": true
+    },
+    "all_after_match": true,
+    "nutrition_verified_unchanged": true,
+    "legacy_creatine_unchanged": true
+  },
+  "public_readback": {
+    "result": "PASS",
+    "checked_at": "2026-09-15T08:30:00.302Z",
+    "pages": [
+      {
+        "product_id": "774",
+        "product_variant_id": "958",
+        "url": "https://www.supplementscout.co.uk/product/ibiza-juice-og-pre-workout-40-servings?variant=958",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "774",
+        "product_variant_id": "959",
+        "url": "https://www.supplementscout.co.uk/product/ibiza-juice-og-pre-workout-40-servings?variant=959",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "291",
+        "product_variant_id": "1040",
+        "url": "https://www.supplementscout.co.uk/product/reflex-muscle-bomb-pre-workout-600g?variant=1040",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "848",
+        "product_variant_id": "1234",
+        "url": "https://www.supplementscout.co.uk/product/pharma-grade-pre-380g?variant=1234",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "848",
+        "product_variant_id": "1235",
+        "url": "https://www.supplementscout.co.uk/product/pharma-grade-pre-380g?variant=1235",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "879",
+        "product_variant_id": "1369",
+        "url": "https://www.supplementscout.co.uk/product/trained-by-jp-prepare-pro-400g?variant=1369",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "879",
+        "product_variant_id": "1370",
+        "url": "https://www.supplementscout.co.uk/product/trained-by-jp-prepare-pro-400g?variant=1370",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "879",
+        "product_variant_id": "1371",
+        "url": "https://www.supplementscout.co.uk/product/trained-by-jp-prepare-pro-400g?variant=1371",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "879",
+        "product_variant_id": "1372",
+        "url": "https://www.supplementscout.co.uk/product/trained-by-jp-prepare-pro-400g?variant=1372",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "879",
+        "product_variant_id": "1373",
+        "url": "https://www.supplementscout.co.uk/product/trained-by-jp-prepare-pro-400g?variant=1373",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "885",
+        "product_variant_id": "1419",
+        "url": "https://www.supplementscout.co.uk/product/innovapharm-mvpre-3-0-pre-workout-437g?variant=1419",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "885",
+        "product_variant_id": "1420",
+        "url": "https://www.supplementscout.co.uk/product/innovapharm-mvpre-3-0-pre-workout-437g?variant=1420",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "895",
+        "product_variant_id": "1477",
+        "url": "https://www.supplementscout.co.uk/product/conteh-sports-conviction-elite-pre-workout-375g?variant=1477",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "895",
+        "product_variant_id": "1478",
+        "url": "https://www.supplementscout.co.uk/product/conteh-sports-conviction-elite-pre-workout-375g?variant=1478",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "895",
+        "product_variant_id": "1479",
+        "url": "https://www.supplementscout.co.uk/product/conteh-sports-conviction-elite-pre-workout-375g?variant=1479",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "291",
+        "product_variant_id": "1691",
+        "url": "https://www.supplementscout.co.uk/product/reflex-muscle-bomb-pre-workout-600g?variant=1691",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "291",
+        "product_variant_id": "1692",
+        "url": "https://www.supplementscout.co.uk/product/reflex-muscle-bomb-pre-workout-600g?variant=1692",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "291",
+        "product_variant_id": "1693",
+        "url": "https://www.supplementscout.co.uk/product/reflex-muscle-bomb-pre-workout-600g?variant=1693",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "848",
+        "product_variant_id": "2775",
+        "url": "https://www.supplementscout.co.uk/product/pharma-grade-pre-380g?variant=2775",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1245",
+        "product_variant_id": "3667",
+        "url": "https://www.supplementscout.co.uk/product/nxt-tnt-nuclear-pre-workout-240g?variant=3667",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1256",
+        "product_variant_id": "3678",
+        "url": "https://www.supplementscout.co.uk/product/naughty-boy-menace-210g?variant=3678",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1245",
+        "product_variant_id": "3710",
+        "url": "https://www.supplementscout.co.uk/product/nxt-tnt-nuclear-pre-workout-240g?variant=3710",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1245",
+        "product_variant_id": "3711",
+        "url": "https://www.supplementscout.co.uk/product/nxt-tnt-nuclear-pre-workout-240g?variant=3711",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1245",
+        "product_variant_id": "3712",
+        "url": "https://www.supplementscout.co.uk/product/nxt-tnt-nuclear-pre-workout-240g?variant=3712",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1256",
+        "product_variant_id": "3728",
+        "url": "https://www.supplementscout.co.uk/product/naughty-boy-menace-210g?variant=3728",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      }
+    ],
+    "caffeine_free_filter": {
+      "url": "https://www.supplementscout.co.uk/search?q=pre%20workout&caffeine=free",
+      "http_200": true,
+      "target_products_visible": []
+    },
+    "database_writes": 0
+  },
+  "replay": {
+    "result": "PASS_SAFE_REJECTION",
+    "plans_checked": 8,
+    "safely_rejected_stale_before": 8,
+    "additional_writes": 0,
+    "reasons": [
+      "Variant 3667 nutrition override changed after plan generation",
+      "Variant 3678 nutrition override changed after plan generation",
+      "Variant 1040 nutrition override changed after plan generation",
+      "Variant 958 nutrition override changed after plan generation",
+      "Variant 1234 nutrition override changed after plan generation",
+      "Variant 1369 nutrition override changed after plan generation",
+      "Variant 1419 nutrition override changed after plan generation",
+      "Variant 1477 nutrition override changed after plan generation"
+    ]
+  },
+  "notes": [
+    "Plan replay script checks all eight Batch 10 plans in one invocation; repeated loop invocations after the first hit only the local replay-results.json EEXIST guard and did not indicate a data-write failure.",
+    "Owner completeness: 19 variants have all four tracked ingredients resolved; 6 variants have honest partial facts because product 774 has total caffeine present_amount_not_disclosed and product 1245 has creatine no_information. Structural coverage counts all 25 as applied because each has an override entry."
+  ],
+  "validation": {
+    "verify_project_before_ledger": "PASS"
+  },
+  "production_writes": {
+    "candidate_rows_created": 125,
+    "variant_overrides_updated": 25,
+    "product_rows_updated": 0,
+    "other_variants_updated": 0,
+    "migrations": 0,
+    "code_changes": 0
+  }
+}

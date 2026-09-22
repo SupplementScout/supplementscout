@@ -254,6 +254,27 @@ function citrullineComponents() {
   ];
 }
 
+function creatineComponents() {
+  return [
+    structuredCandidate({
+      id: "21", candidate_fingerprint: "3".repeat(64),
+      proposed_field: "creatine_component_per_serving_mg",
+      proposed_value: 750, approved_value: 750,
+      source_quantity_value: 750, source_quantity_unit: "mg",
+      serving_basis_value: 6, serving_basis_text: "1 scoop (6 g)",
+      ingredient_form: "creatine_monohydrate",
+    }),
+    structuredCandidate({
+      id: "22", candidate_fingerprint: "4".repeat(64),
+      proposed_field: "creatine_component_per_serving_mg",
+      proposed_value: 350, approved_value: 350,
+      source_quantity_value: 350, source_quantity_unit: "mg",
+      serving_basis_value: 6, serving_basis_text: "1 scoop (6 g)",
+      ingredient_form: "creatine_malate",
+    }),
+  ];
+}
+
 test("planner groups two declared citrulline components without summing and preserves other facts", () => {
   const existing = {
     serving_size_g: 17,
@@ -329,6 +350,43 @@ test("planner blocks incomplete, duplicate, mixed-context and singular-plus-comp
   assert.equal(coexistence.status, "BLOCKED");
   assert.ok(coexistence.blockers.some((blocker) =>
     blocker.code === "CITRULLINE_SINGLE_AND_COMPONENTS_REQUIRE_REVIEWED_TRANSITION"));
+});
+
+test("planner preserves separate creatine compound masses and blocks singular coexistence", () => {
+  const input = pumpInputs({ serving_size_g: 6, caffeine: { information_state: "confirmed_absent" } });
+  const components = creatineComponents();
+  const plan = buildApprovedPlan(components, input.products, runId,
+    "2026-09-20T15:00:00.000Z", input.variants);
+  assert.equal(plan.status, "READY_FOR_EXPLICIT_APPLY");
+  assert.deepEqual(plan.variant_updates[0].changes.creatine_components.after.map((item) => [
+    item.ingredient_form, item.amount_per_serving_mg, item.amount_subject,
+  ]), [
+    ["creatine_malate", 350, "declared_ingredient_form"],
+    ["creatine_monohydrate", 750, "declared_ingredient_form"],
+  ]);
+  assert.equal(plan.variant_updates[0].after_nutrition_override.caffeine.information_state, "confirmed_absent");
+  assert.equal(validatePlan(plan), plan);
+  assert.doesNotThrow(() => apply.verifyCandidates(plan, components));
+
+  const singular = pumpInputs({ creatine: { information_state: "present_with_amount", amount_per_serving_mg: 922.5 } });
+  const blocked = buildApprovedPlan(components, singular.products, runId,
+    "2026-09-20T15:00:00.000Z", singular.variants);
+  assert.ok(blocked.blockers.some((item) => item.code === "CREATINE_SINGLE_AND_COMPONENTS_REQUIRE_REVIEWED_TRANSITION"));
+});
+
+test("planner accepts citrulline nitrate as a declared component without a ratio", () => {
+  const input = pumpInputs({ serving_size_g: 27.5 });
+  const components = citrullineComponents().map((row, index) => ({
+    ...row,
+    serving_basis_value: 27.5,
+    serving_basis_text: "2 scoops (27.5 g)",
+    ...(index === 1 ? { ingredient_form: "citrulline_nitrate", ingredient_ratio: null } : {}),
+  }));
+  const plan = buildApprovedPlan(components, input.products, runId,
+    "2026-09-20T15:00:00.000Z", input.variants);
+  assert.equal(plan.status, "READY_FOR_EXPLICIT_APPLY");
+  assert.ok(plan.variant_updates[0].changes.citrulline_components.after.some(
+    (item) => item.ingredient_form === "citrulline_nitrate"));
 });
 
 test("structured creatine plan preserves declared-form mass without changing legacy creatine semantics", () => {

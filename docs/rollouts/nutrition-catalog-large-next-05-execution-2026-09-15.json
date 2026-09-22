@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-large-next-05-execution-v1",
+  "status": "APPLIED_AND_READ_BACK",
+  "executed_at": "2026-09-15T05:42:00Z",
+  "authorization": "Owner authorized production store -> review -> plan -> apply of exactly 41 candidates in the four unchanged Batch 05 artifacts for nine variants.",
+  "target": {"environment":"PRODUCTION","project_ref":"aftboxmrdgyhizicfsfu"},
+  "scope": {"products":4,"variants":9,"candidates":41,"product_updates":0,"variant_updates":9},
+  "store": {"result":"PASS","created":41,"duplicate_candidates":0,"candidate_ids":"2122-2162"},
+  "review": {"result":"PASS","approved":41,"mechanism":"authenticated admin panel","evidence_changed":false},
+  "plans": [
+    {"product_id":"884","path":"tmp/nutrition-approved-plan/NCR1-catalog-large-next-05-20260915-884-432c8cc359e9.json","sha256":"134043352334074432e397a64b4f5e315122b9f31cfe61b8f7a4ba7272308e7a","fingerprint":"432c8cc359e9fac06b723d85dfb0c33a4ebed697eeb3ed5ecc722d8954dda7c1","candidates":20,"variants":4},
+    {"product_id":"1281","path":"tmp/nutrition-approved-plan/NCR1-catalog-large-next-05-20260915-1281-e2a9ac14e903.json","sha256":"529781582e07d76babb04b69b2aafcd8c411528095b20bf84a6f39d9de463835","fingerprint":"e2a9ac14e903c5748a84ec8c6dc73c5abc499d8d7da96bc99e5fc0a0beaab781","candidates":10,"variants":2},
+    {"product_id":"19","path":"tmp/nutrition-approved-plan/NCR1-catalog-large-next-05-20260915-19-c8dacbf3933e.json","sha256":"4a0540392c7b2a3347bbfbfd3bdf80e185c5fad61d01f18b0768b6fb685e8636","fingerprint":"c8dacbf3933ecf90405352dbbdba4cd2ba6dfcf366b682b269567847f11644da","candidates":5,"variants":1},
+    {"product_id":"893","path":"tmp/nutrition-approved-plan/NCR1-catalog-large-next-05-20260915-893-972664047e5f.json","sha256":"0468c08a0a1addfd0d21d48433623f16f63a17c904ead3eeae4e512774352dd2","fingerprint":"972664047e5ff4622f4f3b57ec197d847d3e5a587c92dfea980a3ad222131743","candidates":6,"variants":2}
+  ],
+  "apply": {"result":"PASS","plans_applied":4,"products_changed":0,"variants_changed":["1414","1416","1417","1418","3761","3916","1579","1473","1474"]},
+  "independent_readback": {"result":"PASS","whole_overrides_match_after":9,"approved_candidates":41,"evidence_unchanged":true,"coverage":{"applied":305,"complete":251,"partial":54,"none":270},"sha256":"3ab1b2295e639484d037255e01dd049afa5b940cb53aba0746cd2016d892bff6"},
+  "public_presentation": {"result":"PASS","pages_checked":9,"conteh_in_caffeine_free_filter":true,"stimulant_targets_in_caffeine_free_filter":false,"sha256":"a801ea0f4ebefcbcc5fb65782f1d011366b461e7951cb6032186015ab970e39d"},
+  "replay": {"result":"PASS_SAFE_REJECTION","plans_checked":4,"safely_rejected_stale_before":4,"additional_writes":0,"sha256":"94982335936b98b2cc3c47c417a470871c5dd048d7c94b68e763f6ad46dc24ef"},
+  "unchanged": {"products":true,"nutrition_verified":true,"legacy_creatine_per_serving_g":true,"other_variants":true},
+  "next_step": "Prepare the next evidence-qualified large batch while retaining known formula, serving and pack conflicts."
+}

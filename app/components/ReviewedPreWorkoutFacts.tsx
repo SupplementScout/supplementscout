@@ -11,6 +11,7 @@ const FACT_LABELS: Record<AppliedPreWorkoutFact["key"], string> = {
   beta_alanine: "Beta-alanine",
   citrulline: "Citrulline",
   citrulline_component: "Citrulline blend component",
+  creatine_component: "Creatine blend component",
   creatine: "Creatine",
 };
 
@@ -35,7 +36,7 @@ function factValue(fact: AppliedPreWorkoutFact) {
   const form = ingredientFormLabel(fact.ingredientForm);
   const ratio = fact.ingredientRatio ? ` ${fact.ingredientRatio}` : "";
   const serving = fact.servingBasisText ? ` per ${fact.servingBasisText}` : " per serving";
-  const subject = fact.key === "creatine" && form
+  const subject = ["creatine", "creatine_component"].includes(fact.key) && form
     ? ` of ${form} (declared form mass)`
     : ["citrulline", "citrulline_component"].includes(fact.key) && form
       ? ` of ${form}${ratio}${fact.ingredientForm === "citrulline_malate" ? " (declared malate mass)" : ""}`

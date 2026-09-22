@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-serving-basis-correction-execution-v1",
+  "date": "2026-09-20",
+  "status": "LIVE_VERIFIED",
+  "authorization": {
+    "scope": "production store -> authenticated review -> explicit-ID plan -> guarded apply",
+    "candidates": 16,
+    "products": ["62", "763"],
+    "variant_ids": ["2646", "2649", "4101", "4107"]
+  },
+  "preflight": {
+    "result": "PASS",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "target_environment": "PRODUCTION",
+    "unique_candidate_fingerprints": 16,
+    "existing_candidates": 0,
+    "exact_product_variant_bindings": 4,
+    "before_state_matched_two_scoop_facts": true,
+    "database_writes": 0
+  },
+  "artifacts": [
+    {
+      "product_id": "62",
+      "sha256": "1bda7a297aa07e23af39cc7b2fb4ba2498f12d1206ae98835ac8dcb595c4d231",
+      "artifact_fingerprint": "944263d97063d42f85902629a1d612892547ade81d748b7000ce2eaaaa283720"
+    },
+    {
+      "product_id": "763",
+      "sha256": "0a5fce74353688934d332cad67bd791a159364ddf5e1ece94b74bcfcba0efc54",
+      "artifact_fingerprint": "8bfdb9139fd6134e7b8658b1c2b739df8afead68b0b1eafce0556a7f34af2fb6"
+    }
+  ],
+  "store_and_review": {
+    "created": 16,
+    "approved": 16,
+    "candidate_ids": ["2995", "2996", "2997", "2998", "2999", "3000", "3001", "3002", "3003", "3004", "3005", "3006", "3007", "3008", "3009", "3010"],
+    "reviewed_by": "admin-panel"
+  },
+  "plans": [
+    {
+      "product_id": "62",
+      "path": "tmp/nutrition-approved-plan/NCR1-serving-basis-correction-20260920-62-9a5f1d99ee27.json",
+      "sha256": "6a1ec8eed126e41f02cec7a7eb96781fd12c7c6a0f4c406311f5d4ad7e6893ad",
+      "plan_fingerprint": "9a5f1d99ee270c72608eae13a59e6ab049a601771c5352b1edc3f4ded0c7dea6",
+      "candidate_count": 8,
+      "variant_ids": ["2646", "2649"],
+      "product_updates": 0,
+      "variant_updates": 2
+    },
+    {
+      "product_id": "763",
+      "path": "tmp/nutrition-approved-plan/NCR1-serving-basis-correction-20260920-763-06e488ed85e1.json",
+      "sha256": "1a25ae8f703d8b3aa738e3e2e44a754263d0e02a9671a683a0dbe71b1f269577",
+      "plan_fingerprint": "06e488ed85e10f97791ba3718da31043a940d16dc3191db3de02fc2f0bd2f4cb",
+      "candidate_count": 8,
+      "variant_ids": ["4101", "4107"],
+      "product_updates": 0,
+      "variant_updates": 2
+    }
+  ],
+  "apply": {
+    "result": "PASS",
+    "changed_products": 0,
+    "changed_variants": 4,
+    "changed_fields": ["serving_size_g", "caffeine", "beta_alanine", "citrulline"],
+    "final_facts": {
+      "2646,2649": "1 scoop / 10.5 g; caffeine 200 mg; beta-alanine 1600 mg; citrulline malate 4000 mg",
+      "4101,4107": "1 scoop / 7 g; caffeine 200 mg; beta-alanine 1600 mg; citrulline malate 3000 mg"
+    },
+    "preserved": ["creatine", "nutrition_verified", "legacy creatine_per_serving_g", "products", "other variants", "all unrelated override fields"]
+  },
+  "independent_readback": {
+    "result": "PASS",
+    "whole_override_after_match": 4,
+    "approved_candidates": 16,
+    "evidence_unchanged": true,
+    "coverage": {
+      "active_preworkout_variants": 575,
+      "applied": 469,
+      "complete": 428,
+      "partial": 41,
+      "none": 106
+    }
+  },
+  "idempotency": {
+    "result": "PASS_SAFE_REJECTION",
+    "plans_checked": 2,
+    "additional_writes": 0,
+    "reason": "Both plans were rejected because their sealed before state was stale after the successful first apply."
+  },
+  "public_readback": {
+    "result": "PASS",
+    "pages_checked": 4,
+    "urls": [
+      "https://www.supplementscout.co.uk/product/hr-labs-defib-pre-workout?variant=2646",
+      "https://www.supplementscout.co.uk/product/hr-labs-defib-pre-workout?variant=2649",
+      "https://www.supplementscout.co.uk/product/naughty-boy-menace-v2-60-servings?variant=4101",
+      "https://www.supplementscout.co.uk/product/naughty-boy-menace-v2-60-servings?variant=4107"
+    ],
+    "private_evidence_not_exposed": true,
+    "caffeine_free_filter": "PASS; all four contain caffeine and do not qualify"
+  },
+  "next_step": "Continue targeted evidence review for products 878, 1162 and 1249, or separately authorize the already prepared Stim Thug correction."
+}

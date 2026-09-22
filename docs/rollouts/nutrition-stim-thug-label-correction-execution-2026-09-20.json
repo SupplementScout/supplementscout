@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-stim-thug-label-correction-execution-v1",
+  "date": "2026-09-20",
+  "status": "LIVE_VERIFIED",
+  "authorization": {
+    "candidates": 18,
+    "product_id": "971",
+    "variant_ids": ["1895", "1896", "1897", "1898", "1899", "1900"],
+    "scope": "production store -> authenticated review -> explicit-ID plan -> guarded apply"
+  },
+  "artifact": {
+    "path": "tmp/nutrition-stim-thug-label-correction-2026-09-20/candidate-artifact/nutrition-candidates-ncr1-stim-thug-label-correction-971-20260920.json",
+    "sha256": "97c75e9be45b6070baa3ebbab7ebd648e1cd91c752d5fc3cd8f3bad644117702",
+    "artifact_fingerprint": "15b7a40c10d44c318ad9f64615fb8c92174bf475e675685ba5824904694efeb7"
+  },
+  "preflight": {
+    "result": "PASS",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "target_environment": "PRODUCTION",
+    "exact_product_variant_bindings": 6,
+    "unique_candidate_fingerprints": 18,
+    "existing_candidates": 0,
+    "before_state": "17.5 g serving, caffeine present without disclosed amount, conflicting beta-alanine, 7000 mg citrulline malate and confirmed-absent creatine",
+    "database_writes": 0
+  },
+  "store_and_review": {
+    "created": 18,
+    "approved": 18,
+    "candidate_ids": ["3011", "3012", "3013", "3014", "3015", "3016", "3017", "3018", "3019", "3020", "3021", "3022", "3023", "3024", "3025", "3026", "3027", "3028"],
+    "reviewed_by": "admin-panel"
+  },
+  "plan": {
+    "path": "tmp/nutrition-approved-plan/NCR1-stim-thug-label-correction-971-20260920-b4678b279e66.json",
+    "sha256": "dbe59a0c33baa85c25d93e0827f495e2dd8f6416bd7163cd2ba2908597b95a1a",
+    "plan_fingerprint": "b4678b279e66961e7f457aaa942c35d0cb40a51b36f203ae2f5273e2efbcb794",
+    "candidate_count": 18,
+    "product_updates": 0,
+    "variant_updates": 6
+  },
+  "apply": {
+    "result": "PASS",
+    "changed_products": 0,
+    "changed_variants": 6,
+    "changed_fields": ["serving_size_g", "caffeine", "beta_alanine"],
+    "final_values_per_variant": {
+      "serving_size_g": 17.2,
+      "serving_basis": "1 scoop (17.2 g)",
+      "caffeine_per_serving_mg": 350,
+      "caffeine_form": "caffeine_anhydrous",
+      "beta_alanine_per_serving_mg": 3500
+    },
+    "preserved": {
+      "citrulline": "citrulline malate 7000 mg",
+      "creatine": "confirmed_absent",
+      "other_data": ["products", "other variants", "nutrition_verified", "legacy creatine_per_serving_g"]
+    }
+  },
+  "independent_readback": {
+    "result": "PASS",
+    "whole_override_after_match": 6,
+    "approved_candidates": 18,
+    "evidence_unchanged": true,
+    "coverage": {
+      "active_preworkout_variants": 575,
+      "applied": 469,
+      "complete": 428,
+      "partial": 41,
+      "none": 106
+    }
+  },
+  "idempotency": {
+    "result": "PASS_SAFE_REJECTION",
+    "plans_checked": 1,
+    "additional_writes": 0,
+    "reason": "The exact replay was rejected because its sealed before state was stale after successful apply."
+  },
+  "public_readback": {
+    "result": "PASS",
+    "pages_checked": 6,
+    "base_url": "https://www.supplementscout.co.uk/product/kilo-labs-stim-thug-20-servings",
+    "variant_ids": ["1895", "1896", "1897", "1898", "1899", "1900"],
+    "private_evidence_not_exposed": true,
+    "caffeine_free_filter": "PASS; the product contains caffeine and does not qualify"
+  },
+  "next_step": "Continue targeted formula-generation evidence review for products 878, 1162 and 1249."
+}

@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition_catalog_next_50_execution_checkpoint",
+  "captured_on": "2026-09-14",
+  "target_environment": "PRODUCTION",
+  "project_ref": "aftboxmrdgyhizicfsfu",
+  "status": "APPLY_BLOCKED_PENDING_EXPLICIT_PLAN_AUTHORIZATION",
+  "authorized_scope": {
+    "products": 5,
+    "variants": 34,
+    "candidates": 162,
+    "candidate_ids": "1396-1557",
+    "product_updates": 0,
+    "target": "product_variants.nutrition_override only"
+  },
+  "completed_stages": {
+    "preflight": {
+      "result": "PASS",
+      "applied_variants_before": 141,
+      "target_variants": 34,
+      "existing_exact_candidate_fingerprints": 0,
+      "snapshot_sha256": "364f8f7bce39ca75025c8a0a075f7c62b83fa9c6129decdbc2e188190fc78540"
+    },
+    "store": {
+      "result": "PASS",
+      "new_candidates": 162,
+      "duplicate_fingerprints": 0,
+      "catalogue_writes": 0,
+      "post_store_snapshot_sha256": "1d7d916f53b8ec0160e61c2159dc173b1edad66a3c2c926eb08dcc0571eb7842"
+    },
+    "review": {
+      "result": "PASS",
+      "approved": 162,
+      "already_approved": 0,
+      "review_path": "authenticated admin review route",
+      "applied_variants_after_review": 141
+    },
+    "planning": {
+      "result": "PASS",
+      "plans": 5,
+      "planned_candidates": 162,
+      "planned_variants": 34,
+      "planned_products": 0,
+      "blockers": 0,
+      "before_state_matches": true
+    }
+  },
+  "plans": [
+    {
+      "product_id": "56",
+      "variant_ids": ["1006", "1601", "1602", "1603", "1604", "1605", "1606", "3468", "3469"],
+      "candidate_ids": "1396-1440",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-next-50-20260914-56-1c32943d73d6.json",
+      "sha256": "1a175788e46189a1b33a292837db326871dd69bbf77ff4cbfa0ae3174e1be7ae",
+      "plan_fingerprint": "1c32943d73d60b78452ea108c770f87a1da765d36034434f468ead01288b9702",
+      "facts": "serving 8.7 g / 1.5 scoops; caffeine 300 mg; beta-alanine 1500 mg; citrulline malate 2:1 500 mg; creatine gluconate 2560 mg"
+    },
+    {
+      "product_id": "878",
+      "variant_ids": ["1363", "1364", "1365", "1367", "4080"],
+      "candidate_ids": "1441-1465",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-next-50-20260914-878-a33b25452178.json",
+      "sha256": "44ceab8995cceba71f27a2abfc975d9d3bfa2df72892dcfe0daa0165e72327ba",
+      "plan_fingerprint": "a33b2545217895f94759d7a1830cd754dcc482d783e574a53146cec53fac7855",
+      "facts": "serving 16 g / 2 scoops; caffeine 400 mg; beta-alanine 3500 mg; free-form L-citrulline 6000 mg; creatine confirmed_absent"
+    },
+    {
+      "product_id": "880",
+      "variant_ids": ["1374", "1375", "1376"],
+      "candidate_ids": "1466-1480",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-next-50-20260914-880-84d95d623e2b.json",
+      "sha256": "55e7fa1e6db08e2b8a4578380202772084f2137ae2699f5a6883740f26682267",
+      "plan_fingerprint": "84d95d623e2b056a4b78acb9aa468bd8aade0743e7641b4799f6d461499852ea",
+      "facts": "serving 10 g / 1 scoop; caffeine confirmed_absent; beta-alanine confirmed_absent; free-form L-citrulline 3000 mg; creatine confirmed_absent"
+    },
+    {
+      "product_id": "1169",
+      "variant_ids": ["3408", "3409", "3411", "3412", "3413", "3415", "3416", "3417", "3418"],
+      "candidate_ids": "1481-1525",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-next-50-20260914-1169-083c947fc636.json",
+      "sha256": "f3483915235f1f4c1f388bb8f02272559687b38bb5320ec6f3fa70a476491e8f",
+      "plan_fingerprint": "083c947fc63640d4f8e7aa958f1789e5bd449b510770a23d7c5eb3e1e0063adf",
+      "facts": "serving 6.8 g / 1 level scoop; caffeine 150 mg; beta-alanine 1600 mg; citrulline confirmed_absent; creatine monohydrate 1500 mg"
+    },
+    {
+      "product_id": "1181",
+      "variant_ids": ["3479", "3544", "3545", "3546", "3547", "3548", "3549", "3550"],
+      "candidate_ids": "1526-1557",
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-next-50-20260914-1181-ea9006e25e52.json",
+      "sha256": "45c1381b84bfb43c7fa300aa608a1bd801de64d929a1b77f10465a7c12b725bc",
+      "plan_fingerprint": "ea9006e25e526ad73734d4ea264a6bbbb67096b0a9791471ff8c733c9b7b1141",
+      "facts": "serving 20 g / 1 scoop; beta-alanine 3500 mg; free-form L-citrulline 8000 mg; creatine confirmed_absent; caffeine unresolved and excluded"
+    }
+  ],
+  "apply": {
+    "result": "NOT_RUN",
+    "rejected_operation": "nutrition:approved-apply for the product 56 plan",
+    "automatic_review_reason": "The trusted authorization did not explicitly identify this concrete plan and its values.",
+    "workaround_attempted": false,
+    "post_rejection_readback": {
+      "result": "PASS",
+      "applied_variants": 141,
+      "target_overrides_match_before": true,
+      "approved_candidates": 162
+    }
+  },
+  "public_readback": {
+    "status": "NOT_APPLICABLE_BEFORE_APPLY"
+  },
+  "next_step": "Obtain explicit owner authorization for the five exact plan paths, SHA-256 values, fingerprints and listed facts, then run guarded apply, independent readback, replay protection and public checks."
+}

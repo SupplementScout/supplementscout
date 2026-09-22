@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-three-family-resolution-execution-v1",
+  "date": "2026-09-20",
+  "status": "PARTIAL_APPLY_WITH_GUARDED_BLOCK",
+  "authorization": {
+    "candidate_count": 32,
+    "variant_count": 16,
+    "product_ids": ["878", "1162", "1249"]
+  },
+  "preflight": {
+    "result": "PASS",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "target_environment": "PRODUCTION",
+    "unique_candidate_fingerprints": 32,
+    "existing_candidates": 0,
+    "exact_product_variant_bindings": 16
+  },
+  "store_and_review": {
+    "created": 32,
+    "approved": 32,
+    "candidate_ids": ["3029", "3030", "3031", "3032", "3033", "3034", "3035", "3036", "3037", "3038", "3039", "3040", "3041", "3042", "3043", "3044", "3045", "3046", "3047", "3048", "3049", "3050", "3051", "3052", "3053", "3054", "3055", "3056", "3057", "3058", "3059", "3060"],
+    "reviewed_by": "admin-panel"
+  },
+  "plans": {
+    "ready_and_applied": [
+      {
+        "product_id": "878",
+        "path": "tmp/nutrition-approved-plan/NCR1-three-family-resolution-20260920-878-746c1c68a079.json",
+        "sha256": "d7d1f43cff614a13bdb8a76aa0ba90ac858b8750f591fced40c14d6ad20d0b8c",
+        "plan_fingerprint": "746c1c68a0796d1bcde01fd2e93ab024231a1fb9745d780d851864a9b8330a8b",
+        "candidates": 20,
+        "variants": 5
+      },
+      {
+        "product_id": "1249",
+        "path": "tmp/nutrition-approved-plan/NCR1-three-family-resolution-20260920-1249-b7bfca3949f6.json",
+        "sha256": "99ae305d52133ad52190ffdcfe842b7c7128d420bdc21bbd5b65cd57492e8686",
+        "plan_fingerprint": "b7bfca3949f657dd109416579ce5133b9bd014d138ae53ed475b39f7210de81e",
+        "candidates": 2,
+        "variants": 1
+      }
+    ],
+    "blocked_not_applied": {
+      "product_id": "1162",
+      "candidate_ids": ["3049", "3050", "3051", "3052", "3053", "3054", "3055", "3056", "3057", "3058"],
+      "variant_ids": ["3233", "3260", "3261", "3262", "3263", "3264", "3265", "3266", "3267", "3268"],
+      "blocker": "INDETERMINATE_STATE_WOULD_OVERWRITE_APPROVED_FACT",
+      "explanation": "The planner correctly prevents conflicting_information from automatically replacing an already approved numeric beta-alanine fact.",
+      "catalogue_writes": 0
+    }
+  },
+  "apply": {
+    "result": "PASS_FOR_UNBLOCKED_SCOPE",
+    "candidate_count_applied": 22,
+    "variant_count_applied": 6,
+    "changed_products": 0,
+    "variants": {
+      "1363,1364,1365,1367,4080": "one scoop 8 g; caffeine 200 mg; beta-alanine 1750 mg; L-citrulline 3000 mg",
+      "3718": "one scoop 16.1 g; citrulline malate 6000 mg"
+    },
+    "excluded_variant_ids": ["3233", "3260", "3261", "3262", "3263", "3264", "3265", "3266", "3267", "3268", "3719"]
+  },
+  "independent_readback": {
+    "result": "PASS",
+    "whole_override_after_match": 6,
+    "applied_candidate_approvals_unchanged": 22,
+    "evidence_unchanged": true,
+    "coverage": {"active_preworkout_variants":575,"applied":469,"complete":428,"partial":41,"none":106}
+  },
+  "idempotency": {
+    "result": "PASS_SAFE_REJECTION",
+    "plans_checked": 2,
+    "additional_writes": 0
+  },
+  "public_readback": {
+    "result": "PASS",
+    "pages_checked": 6,
+    "private_evidence_not_exposed": true,
+    "caffeine_free_filter": "PASS"
+  },
+  "remaining_blockers": [
+    {"product_id":"1162","variants":10,"reason":"A separate explicit resolution is required because the controlled planner protects approved numeric facts from replacement by an indeterminate conflict state."},
+    {"product_id":"1249","variant_id":"3719","reason":"No exact current source binds Kiwi Lime to either Animal Fury formula generation."}
+  ],
+  "next_step": "Decide whether AK-47 numeric beta-alanine facts should be explicitly revoked/replaced through a separately authorized conflict-resolution mechanism; otherwise leave them unchanged and obtain exact generation labels."
+}

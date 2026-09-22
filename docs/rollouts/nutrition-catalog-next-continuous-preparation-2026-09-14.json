@@ -1,0 +1,472 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-next-continuous-preparation-v1",
+  "status": "READY_FOR_ONE_OWNER_DECISION",
+  "prepared_at": "2026-09-14T17:50:55.005Z",
+  "mode": "PREPARATION_ONLY",
+  "production_checkpoint_before": {
+    "applied_unique_variants": 263,
+    "complete": 220,
+    "partial": 43,
+    "no_applied_facts": 312
+  },
+  "scope": {
+    "organizational_limit_variants": 50,
+    "families": 3,
+    "assessed_variants": 50,
+    "ready_variants": 5,
+    "complete_variants": 5,
+    "candidate_facts": 25,
+    "unique_candidate_fingerprints": 25,
+    "excluded_or_blocked_assessed_variants": 45
+  },
+  "families": [
+    {
+      "product_id": "845",
+      "product": "Innovapharm MVPRE 365 Pre-Workout 460g",
+      "variant_ids": [
+        "1229",
+        "2772"
+      ],
+      "candidate_count": 10,
+      "artifact": {
+        "path": "tmp/nutrition-next-continuous-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-next-continuous-20260914-845.json",
+        "sha256": "6978057ad9c40956f70d7eea5ba43b8ebf32a1006112ce959e32f13b4cddf82e",
+        "fingerprint": "681b4fc5fac9c2256ea0966390a5288f90a1c3d2a2e7b38d98913811e98654fb"
+      },
+      "unresolved": [],
+      "variants": [
+        {
+          "product_id": "845",
+          "variant_id": "1229",
+          "display_name": "Bahama Mama / 460g",
+          "facts": [
+            {
+              "field": "serving_size_g",
+              "information_state": "present_with_amount",
+              "normalized_value": 23,
+              "normalized_unit": "g",
+              "ingredient_form": null,
+              "source_text": "1 scoop (23 g)",
+              "source_quantity_value": 23,
+              "source_quantity_unit": "g"
+            },
+            {
+              "field": "caffeine_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 250,
+              "normalized_unit": "mg",
+              "ingredient_form": null,
+              "source_text": "Caffeine Anhydrous 250 mg",
+              "source_quantity_value": 250,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "beta_alanine_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 3200,
+              "normalized_unit": "mg",
+              "ingredient_form": null,
+              "source_text": "Beta-Alanine 3.2 g",
+              "source_quantity_value": 3.2,
+              "source_quantity_unit": "g"
+            },
+            {
+              "field": "citrulline_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 10000,
+              "normalized_unit": "mg",
+              "ingredient_form": "l_citrulline",
+              "source_text": "L-Citrulline 10 g",
+              "source_quantity_value": 10,
+              "source_quantity_unit": "g"
+            },
+            {
+              "field": "creatine_declared_form_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "source_text": "Complete declared active formula and ingredients contain no creatine form or undisclosed blend",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            }
+          ]
+        },
+        {
+          "product_id": "845",
+          "variant_id": "2772",
+          "display_name": "Monkey Punch / 460g",
+          "facts": [
+            {
+              "field": "serving_size_g",
+              "information_state": "present_with_amount",
+              "normalized_value": 23,
+              "normalized_unit": "g",
+              "ingredient_form": null,
+              "source_text": "1 scoop (23 g)",
+              "source_quantity_value": 23,
+              "source_quantity_unit": "g"
+            },
+            {
+              "field": "caffeine_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 250,
+              "normalized_unit": "mg",
+              "ingredient_form": null,
+              "source_text": "Caffeine Anhydrous 250 mg",
+              "source_quantity_value": 250,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "beta_alanine_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 3200,
+              "normalized_unit": "mg",
+              "ingredient_form": null,
+              "source_text": "Beta-Alanine 3.2 g",
+              "source_quantity_value": 3.2,
+              "source_quantity_unit": "g"
+            },
+            {
+              "field": "citrulline_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 10000,
+              "normalized_unit": "mg",
+              "ingredient_form": "l_citrulline",
+              "source_text": "L-Citrulline 10 g",
+              "source_quantity_value": 10,
+              "source_quantity_unit": "g"
+            },
+            {
+              "field": "creatine_declared_form_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "source_text": "Complete declared active formula and ingredients contain no creatine form or undisclosed blend",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            }
+          ]
+        }
+      ],
+      "source": {
+        "type": "retailer_product_page",
+        "url": "https://www.evolutionsupplements.co.uk/products/innovapharm-mvpre-365",
+        "applicability_basis": "retailer shared table for exact 460 g / 20-serving formula and listed catalogue flavours",
+        "review_sha256": "0212af1874eda92ccfc20a6649e4772a48a31b4d25cd510ce6f0c41579bed78c",
+        "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-next-continuous-2026-09-14/0212af1874eda92ccfc20a6649e4772a48a31b4d25cd510ce6f0c41579bed78c/product-845-source-review.json"
+      }
+    },
+    {
+      "product_id": "6",
+      "product": "Ghost Legend V4 Pre-Workout 660g",
+      "variant_ids": [
+        "1741"
+      ],
+      "candidate_count": 5,
+      "artifact": {
+        "path": "tmp/nutrition-next-continuous-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-next-continuous-20260914-6.json",
+        "sha256": "2dbb66758a836a468d69b305821b9bbff578a7a7207f85d21de37bd78fc4bbcf",
+        "fingerprint": "2539988a2f7ded38d3b55c345b2f00209629fc85f1beb2af157b60f520c27b25"
+      },
+      "unresolved": [],
+      "variants": [
+        {
+          "product_id": "6",
+          "variant_id": "1741",
+          "display_name": "Sour Watermelon / 660g",
+          "facts": [
+            {
+              "field": "serving_size_g",
+              "information_state": "present_with_amount",
+              "normalized_value": 22,
+              "normalized_unit": "g",
+              "ingredient_form": null,
+              "source_text": "1 scoop (22 g)",
+              "source_quantity_value": 22,
+              "source_quantity_unit": "g"
+            },
+            {
+              "field": "caffeine_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 300,
+              "normalized_unit": "mg",
+              "ingredient_form": null,
+              "source_text": "Natural Caffeine 300 mg",
+              "source_quantity_value": 300,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "beta_alanine_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 3200,
+              "normalized_unit": "mg",
+              "ingredient_form": null,
+              "source_text": "Beta-Alanine 3200 mg",
+              "source_quantity_value": 3200,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "citrulline_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 6000,
+              "normalized_unit": "mg",
+              "ingredient_form": "l_citrulline",
+              "source_text": "L-Citrulline (Vegan Fermented) 6000 mg",
+              "source_quantity_value": 6000,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "creatine_declared_form_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "source_text": "Complete Supplement Facts and other ingredients contain no creatine form or undisclosed blend",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            }
+          ]
+        }
+      ],
+      "source": {
+        "type": "manufacturer_product_page",
+        "url": "https://www.ghostlifestyle.com/products/ghost-legend-v4",
+        "applicability_basis": "manufacturer formula plus exact Sour Watermelon 660 g / 30-serving label context",
+        "review_sha256": "3ea678a050adb2149116d44f6741e509a629038cec3f87402d12948ec98a039f",
+        "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-next-continuous-2026-09-14/3ea678a050adb2149116d44f6741e509a629038cec3f87402d12948ec98a039f/product-6-source-review.json"
+      }
+    },
+    {
+      "product_id": "979",
+      "product": "NMP Nutraceuticals Liberty Swell 25 servings",
+      "variant_ids": [
+        "1915",
+        "1917"
+      ],
+      "candidate_count": 10,
+      "artifact": {
+        "path": "tmp/nutrition-next-continuous-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-next-continuous-20260914-979.json",
+        "sha256": "b10a0ca6abea92338cf5df18ee77d52188244e3f4729071e61890b947c46eb66",
+        "fingerprint": "3fa6d357d5a5a9e4744e22a4c47086155cb99cc1184193ce3437547290f05313"
+      },
+      "unresolved": [],
+      "variants": [
+        {
+          "product_id": "979",
+          "variant_id": "1915",
+          "display_name": "Apple / 25servings",
+          "facts": [
+            {
+              "field": "serving_size_g",
+              "information_state": "present_with_amount",
+              "normalized_value": 16,
+              "normalized_unit": "g",
+              "ingredient_form": null,
+              "source_text": "1 scoop (16 g)",
+              "source_quantity_value": 16,
+              "source_quantity_unit": "g"
+            },
+            {
+              "field": "caffeine_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "source_text": "Retailer explicitly describes the complete formula as caffeine-free and stimulant-free",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            },
+            {
+              "field": "beta_alanine_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "source_text": "Complete transparent formula and other ingredients contain no beta-alanine or undisclosed blend",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            },
+            {
+              "field": "citrulline_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 6000,
+              "normalized_unit": "mg",
+              "ingredient_form": "l_citrulline",
+              "source_text": "L-Citrulline 6000 mg",
+              "source_quantity_value": 6000,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "creatine_declared_form_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "source_text": "Complete transparent formula and other ingredients contain no creatine form or undisclosed blend",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            }
+          ]
+        },
+        {
+          "product_id": "979",
+          "variant_id": "1917",
+          "display_name": "Grape / 25servings",
+          "facts": [
+            {
+              "field": "serving_size_g",
+              "information_state": "present_with_amount",
+              "normalized_value": 16,
+              "normalized_unit": "g",
+              "ingredient_form": null,
+              "source_text": "1 scoop (16 g)",
+              "source_quantity_value": 16,
+              "source_quantity_unit": "g"
+            },
+            {
+              "field": "caffeine_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "source_text": "Retailer explicitly describes the complete formula as caffeine-free and stimulant-free",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            },
+            {
+              "field": "beta_alanine_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "source_text": "Complete transparent formula and other ingredients contain no beta-alanine or undisclosed blend",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            },
+            {
+              "field": "citrulline_per_serving_mg",
+              "information_state": "present_with_amount",
+              "normalized_value": 6000,
+              "normalized_unit": "mg",
+              "ingredient_form": "l_citrulline",
+              "source_text": "L-Citrulline 6000 mg",
+              "source_quantity_value": 6000,
+              "source_quantity_unit": "mg"
+            },
+            {
+              "field": "creatine_declared_form_per_serving_mg",
+              "information_state": "confirmed_absent",
+              "normalized_value": null,
+              "normalized_unit": null,
+              "ingredient_form": null,
+              "source_text": "Complete transparent formula and other ingredients contain no creatine form or undisclosed blend",
+              "source_quantity_value": null,
+              "source_quantity_unit": null
+            }
+          ]
+        }
+      ],
+      "source": {
+        "type": "retailer_product_page",
+        "url": "https://crossthelimits.co.uk/mnp-nutraceuticals-liberty-swell-pre-workout-25-servings/",
+        "applicability_basis": "retailer shared transparent table for exact 400 g / 25-serving formula and listed catalogue flavours, corroborated by a second retailer",
+        "review_sha256": "bc6221fe578d649879dab76b0f2a2b4d0cbff40d68ebfb1e2523920edd74f556",
+        "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-next-continuous-2026-09-14/bc6221fe578d649879dab76b0f2a2b4d0cbff40d68ebfb1e2523920edd74f556/product-979-source-review.json"
+      }
+    }
+  ],
+  "production_preflight": {
+    "result": "PASS",
+    "captured_at": "2026-09-14T17:48:21.742Z",
+    "target": {
+      "project_ref": "aftboxmrdgyhizicfsfu",
+      "database_oid": "5",
+      "database_identity": "supplementscout-production:aftboxmrdgyhizicfsfu",
+      "target_environment": "PRODUCTION",
+      "database_system_identifier": "7642734024280108049"
+    },
+    "variants": 5,
+    "candidate_fingerprints": 25,
+    "unique_candidate_fingerprints": 25,
+    "existing_candidates": [],
+    "before_overrides": [
+      {
+        "variant_id": "1229",
+        "keys": []
+      },
+      {
+        "variant_id": "1741",
+        "keys": []
+      },
+      {
+        "variant_id": "1915",
+        "keys": []
+      },
+      {
+        "variant_id": "1917",
+        "keys": []
+      },
+      {
+        "variant_id": "2772",
+        "keys": []
+      }
+    ],
+    "database_writes": 0
+  },
+  "archive": {
+    "bucket": "nutrition-sources",
+    "private": true,
+    "objects": [
+      {
+        "id": "product-845-source-review.json",
+        "action": "reused",
+        "sha256": "0212af1874eda92ccfc20a6649e4772a48a31b4d25cd510ce6f0c41579bed78c"
+      },
+      {
+        "id": "product-6-source-review.json",
+        "action": "reused",
+        "sha256": "3ea678a050adb2149116d44f6741e509a629038cec3f87402d12948ec98a039f"
+      },
+      {
+        "id": "product-979-source-review.json",
+        "action": "reused",
+        "sha256": "bc6221fe578d649879dab76b0f2a2b4d0cbff40d68ebfb1e2523920edd74f556"
+      }
+    ],
+    "hash_readback": "PASS"
+  },
+  "validation": {
+    "artifacts": 3,
+    "dry_runs_passed": 3,
+    "candidate_rows": 25,
+    "product_updates": 0,
+    "production_candidate_writes": 0,
+    "review_writes": 0,
+    "apply_writes": 0
+  },
+  "blockers": [
+    {
+      "product_id": "169",
+      "reason": "400 g identity conflicts with available current/historical serving and pack evidence"
+    },
+    {
+      "product_id": "879",
+      "reason": "manufacturer warns flavour contents vary and visible table does not bind targets"
+    },
+    {
+      "product_id": "1178",
+      "reason": "retained access and flavour-identity blocker"
+    },
+    {
+      "product_id": "1275",
+      "reason": "catalogue 520 g versus current 550 g formula"
+    },
+    {
+      "reason": "Other assessed variants retained exact formula-generation, pack/serving, flavour-applicability, current-offer or source-retention conflicts; no value was inferred to fill the 50-variant ceiling."
+    }
+  ],
+  "next_step": "One explicit owner decision authorizing controlled production store -> authenticated review -> explicit-ID plans -> guarded apply for exactly these three immutable artifacts and 25 fingerprints."
+}

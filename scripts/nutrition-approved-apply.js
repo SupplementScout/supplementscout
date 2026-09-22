@@ -13,6 +13,8 @@ const {
   CITRULLINE_COMPONENT_CANDIDATE_FIELD,
   CITRULLINE_COMPONENT_TARGET_FIELD,
   CREATINE_CANDIDATE_FIELD,
+  CREATINE_COMPONENT_CANDIDATE_FIELD,
+  CREATINE_COMPONENT_TARGET_FIELD,
   TARGET_FIELD_BY_CANDIDATE_FIELD,
   ingredientFact,
 } = (() => {
@@ -22,6 +24,8 @@ const {
     CITRULLINE_COMPONENT_CANDIDATE_FIELD: facts.CITRULLINE_COMPONENT_CANDIDATE_FIELD,
     CITRULLINE_COMPONENT_TARGET_FIELD: facts.CITRULLINE_COMPONENT_TARGET_FIELD,
     CREATINE_CANDIDATE_FIELD: facts.CREATINE_CANDIDATE_FIELD,
+    CREATINE_COMPONENT_CANDIDATE_FIELD: facts.CREATINE_COMPONENT_CANDIDATE_FIELD,
+    CREATINE_COMPONENT_TARGET_FIELD: facts.CREATINE_COMPONENT_TARGET_FIELD,
     TARGET_FIELD_BY_CANDIDATE_FIELD: facts.TARGET_FIELD_BY_CANDIDATE_FIELD,
     ingredientFact: facts.ingredientFact,
   };
@@ -92,7 +96,7 @@ function verifyCandidates(plan, candidates) {
           }, snapshot.approved_value)
           : null;
         const structuredFactMatches = !structured || (
-          field === CITRULLINE_COMPONENT_TARGET_FIELD
+          [CITRULLINE_COMPONENT_TARGET_FIELD, CREATINE_COMPONENT_TARGET_FIELD].includes(field)
             ? Array.isArray(change.after) && change.after.some((component) =>
               canonicalJson(component) === canonicalJson(expectedStructuredFact))
             : canonicalJson(expectedStructuredFact) === canonicalJson(change.after)
@@ -233,6 +237,21 @@ async function citrullineComponentsSchemaAvailable(client) {
   return Number(result.rows[0]?.matching_constraints) === 3;
 }
 
+async function creatineComponentsSchemaAvailable(client) {
+  const result = await client.query(`
+    select count(*)::int matching_constraints
+    from pg_constraint
+    where conrelid='public.nutrition_candidates'::regclass
+      and conname=any($1::text[])
+      and position($2 in pg_get_constraintdef(oid)) > 0
+  `, [[
+    "nutrition_candidates_proposed_field_check",
+    "nutrition_candidates_fact_shape_check",
+    "nutrition_candidates_proposed_unit_check",
+  ], CREATINE_COMPONENT_CANDIDATE_FIELD]);
+  return Number(result.rows[0]?.matching_constraints) === 3;
+}
+
 async function applyTransaction(plan, dependencies = {}) {
   const envFile = dependencies.envFile || path.join(
     process.env.USERPROFILE || "",
@@ -285,6 +304,12 @@ async function applyTransaction(plan, dependencies = {}) {
     );
     if (hasCitrullineComponentUpdates && !await citrullineComponentsSchemaAvailable(client)) {
       fail("Multi-component citrulline migration is required before component updates can be applied");
+    }
+    const hasCreatineComponentUpdates = plan.variant_updates.some((variant) =>
+      Object.hasOwn(variant.changes, CREATINE_COMPONENT_TARGET_FIELD)
+    );
+    if (hasCreatineComponentUpdates && !await creatineComponentsSchemaAvailable(client)) {
+      fail("Multi-component creatine migration is required before component updates can be applied");
     }
     const candidateResult = await client.query(preworkoutFactsAvailable ? `
       select id,product_id,product_variant_id,proposed_field,proposed_value,approved_value,proposed_unit,status,run_id,candidate_fingerprint,source_file_sha256,source_archive_uri,

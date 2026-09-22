@@ -1,0 +1,399 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-large-next-13-execution-report-v1",
+  "date": "2026-09-15",
+  "status": "LIVE_VERIFIED",
+  "authorization": {
+    "scope": "store -> authenticated review -> plan -> apply after explicit owner authorization",
+    "candidates": 33,
+    "variants": 7,
+    "variant_ids": [
+      "1026",
+      "1032",
+      "1051",
+      "1615",
+      "1619",
+      "1732",
+      "1789"
+    ]
+  },
+  "preflight": {
+    "result": "PASS",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "target_environment": "PRODUCTION",
+    "unique_candidate_fingerprints": 33,
+    "existing_candidates": 0,
+    "empty_target_overrides": 7,
+    "database_writes": 0
+  },
+  "artifacts": [
+    {
+      "candidates": 10,
+      "path": "tmp/nutrition-catalog-large-next-13-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-13-20260915-26.json",
+      "sha256": "5c734b1d037eea60457fb571e03a5a18f9e013fa9f1d4630831dd839433501b1",
+      "product_id": "26",
+      "artifact_key": "26",
+      "artifact_fingerprint": "68e25a035a184e55007d22a3a70c8fd385b9796d31edff030e6b7378e4f89121"
+    },
+    {
+      "candidates": 10,
+      "path": "tmp/nutrition-catalog-large-next-13-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-13-20260915-63.json",
+      "sha256": "de8af7d2402c8dabfc13d486122aecfc847bf7ea134fe148d6877f07fd734db6",
+      "product_id": "63",
+      "artifact_key": "63",
+      "artifact_fingerprint": "5176ccb4268c4282cc163f5057ad40d0653932182f27d86f2db9d127df6d4df4"
+    },
+    {
+      "candidates": 8,
+      "path": "tmp/nutrition-catalog-large-next-13-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-13-20260915-61.json",
+      "sha256": "e37bef60990fc547c4c58d9c6bf44bac04b45550340b43714fb2673b329464c8",
+      "product_id": "61",
+      "artifact_key": "61",
+      "artifact_fingerprint": "e7568dc0150d035180efb3d9ba1de67e48d52fcb11d93bf3d306607e196f1a80"
+    },
+    {
+      "candidates": 5,
+      "path": "tmp/nutrition-catalog-large-next-13-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-13-20260915-451.json",
+      "sha256": "db5396cff2fa27b32eea616142561de3e537c810a0149ac2c0ceb740812194a1",
+      "product_id": "451",
+      "artifact_key": "451",
+      "artifact_fingerprint": "4b180ce82afc156a0ec6443c81996641f4524802349b4bfa9cef05da44844c77"
+    }
+  ],
+  "store": {
+    "created": 33,
+    "product_updates": 0,
+    "candidate_ids": [
+      "2667",
+      "2668",
+      "2669",
+      "2670",
+      "2671",
+      "2672",
+      "2673",
+      "2674",
+      "2675",
+      "2676",
+      "2677",
+      "2678",
+      "2679",
+      "2680",
+      "2681",
+      "2682",
+      "2683",
+      "2684",
+      "2685",
+      "2686",
+      "2687",
+      "2688",
+      "2689",
+      "2690",
+      "2691",
+      "2692",
+      "2693",
+      "2694",
+      "2695",
+      "2696",
+      "2697",
+      "2698",
+      "2699"
+    ]
+  },
+  "review": {
+    "result": "PASS",
+    "approved": 33,
+    "already_approved": 0,
+    "reviewed_by": "admin-panel",
+    "review_files": [
+      "review-26.json",
+      "review-451.json",
+      "review-61.json",
+      "review-63.json"
+    ]
+  },
+  "plans": [
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-13-20260915-26-5c945b914fe2.json",
+      "sha256": "40e31fcc92367ba5f7cd9d65bacce2a7d3e949ceabe9fdbf744d6133c30e15b1",
+      "plan_fingerprint": "5c945b914fe23ddd06accba87786a029387de52f4aa82cb957e07c21948cbd0e",
+      "candidate_count": 10,
+      "variant_count": 2,
+      "candidate_ids": [
+        "2667",
+        "2668",
+        "2669",
+        "2670",
+        "2671",
+        "2672",
+        "2673",
+        "2674",
+        "2675",
+        "2676"
+      ],
+      "variant_ids": [
+        "1026",
+        "1732"
+      ],
+      "product_updates": 0,
+      "variant_updates": 2
+    },
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-13-20260915-451-b7fcb8e60eb4.json",
+      "sha256": "f7be4f2a0a1e1261934611d07912eadec8b0e9ccee303d4a61710ab43168fd56",
+      "plan_fingerprint": "b7fcb8e60eb457b09123d962d64d77d61ba419094ae36bfc9be234b0f517137a",
+      "candidate_count": 5,
+      "variant_count": 1,
+      "candidate_ids": [
+        "2695",
+        "2696",
+        "2697",
+        "2698",
+        "2699"
+      ],
+      "variant_ids": [
+        "1789"
+      ],
+      "product_updates": 0,
+      "variant_updates": 1
+    },
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-13-20260915-61-4baba246014c.json",
+      "sha256": "824c9cff51456455ba8070de61d83447beb5681a1f074b6cbe12f0c17da99616",
+      "plan_fingerprint": "4baba246014cb1cca022d98b86b2e2d07dc95b1cc97386d6fcd44302fabc7ee4",
+      "candidate_count": 8,
+      "variant_count": 2,
+      "candidate_ids": [
+        "2687",
+        "2688",
+        "2689",
+        "2690",
+        "2691",
+        "2692",
+        "2693",
+        "2694"
+      ],
+      "variant_ids": [
+        "1051",
+        "1615"
+      ],
+      "product_updates": 0,
+      "variant_updates": 2
+    },
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-13-20260915-63-f2b6d59250a6.json",
+      "sha256": "7712f334806157256005217367aeb31ed6eaddcfe7be286188c187f9b890b354",
+      "plan_fingerprint": "f2b6d59250a68e16a7f99e4c9d54f2351a707e12efd5a78bb9329f302831a7ea",
+      "candidate_count": 10,
+      "variant_count": 2,
+      "candidate_ids": [
+        "2677",
+        "2678",
+        "2679",
+        "2680",
+        "2681",
+        "2682",
+        "2683",
+        "2684",
+        "2685",
+        "2686"
+      ],
+      "variant_ids": [
+        "1032",
+        "1619"
+      ],
+      "product_updates": 0,
+      "variant_updates": 2
+    }
+  ],
+  "apply": {
+    "result": "PASS",
+    "plans_applied": 4,
+    "changed_products": 0,
+    "changed_variants": 7,
+    "audit_files": [
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-13-20260915-26-5c945b914fe2-audit.json",
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-13-20260915-451-b7fcb8e60eb4-audit.json",
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-13-20260915-61-4baba246014c-audit.json",
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-13-20260915-63-f2b6d59250a6-audit.json"
+    ]
+  },
+  "independent_readback": {
+    "result": "PASS",
+    "target_environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "applied_variant_count": 408,
+    "coverage": {
+      "complete": 369,
+      "partial": 39,
+      "none": 167
+    },
+    "queue_after": {
+      "approved": 2677,
+      "pending": 16,
+      "rejected": 6
+    },
+    "variants": 7,
+    "candidates": {
+      "approved": 33,
+      "evidence_unchanged": true
+    },
+    "all_after_match": true,
+    "nutrition_verified_unchanged": true,
+    "legacy_creatine_unchanged": true
+  },
+  "public_readback": {
+    "result": "PASS",
+    "checked_at": "2026-09-15T09:57:53.694Z",
+    "pages": [
+      {
+        "product_id": "26",
+        "product_variant_id": "1026",
+        "url": "https://www.supplementscout.co.uk/product/pescience-high-volume-252g?variant=1026",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "63",
+        "product_variant_id": "1032",
+        "url": "https://www.supplementscout.co.uk/product/muscletech-vapor-x5-next-gen-264g?variant=1032",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "61",
+        "product_variant_id": "1051",
+        "url": "https://www.supplementscout.co.uk/product/stay-lean-engage-natural-pre-workout-300g?variant=1051",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "61",
+        "product_variant_id": "1615",
+        "url": "https://www.supplementscout.co.uk/product/stay-lean-engage-natural-pre-workout-300g?variant=1615",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "63",
+        "product_variant_id": "1619",
+        "url": "https://www.supplementscout.co.uk/product/muscletech-vapor-x5-next-gen-264g?variant=1619",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "26",
+        "product_variant_id": "1732",
+        "url": "https://www.supplementscout.co.uk/product/pescience-high-volume-252g?variant=1732",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "451",
+        "product_variant_id": "1789",
+        "url": "https://www.supplementscout.co.uk/product/naughty-boy-winter-soldier-sick-pump-325g?variant=1789",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      }
+    ],
+    "caffeine_free_filter": {
+      "url": "https://www.supplementscout.co.uk/search?q=pre%20workout&caffeine=free",
+      "http_200": true,
+      "expected_target_products_visible": [
+        "pescience-high-volume-252g"
+      ],
+      "missing_expected": [],
+      "disallowed_target_products_visible": []
+    },
+    "database_writes": 0
+  },
+  "replay": {
+    "result": "PASS_SAFE_REJECTION",
+    "plans_checked": 4,
+    "safely_rejected_stale_before": 4,
+    "additional_writes": 0,
+    "reasons": [
+      "Variant 1026 nutrition override changed after plan generation",
+      "Variant 1789 nutrition override changed after plan generation",
+      "Variant 1051 nutrition override changed after plan generation",
+      "Variant 1032 nutrition override changed after plan generation"
+    ]
+  },
+  "notes": [
+    "Five variants remain partial where retained evidence cannot resolve every tracked ingredient; the unresolved fields were not guessed.",
+    "The controlled write is limited to the exact nutrition_override after-state for the 7 variants."
+  ],
+  "validation": {
+    "verify_project_before_ledger": "PASS"
+  },
+  "production_writes": {
+    "candidate_rows_created": 33,
+    "variant_overrides_updated": 7,
+    "product_rows_updated": 0,
+    "other_variants_updated": 0,
+    "migrations": 0,
+    "code_changes": 0
+  }
+}

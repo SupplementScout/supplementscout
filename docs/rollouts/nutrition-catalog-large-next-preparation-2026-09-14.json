@@ -1,0 +1,553 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-large-next-preparation-v1",
+  "status": "READY_FOR_ONE_OWNER_DECISION",
+  "prepared_at": "2026-09-14T14:29:00.694Z",
+  "mode": "PREPARATION_ONLY",
+  "production_preflight": {
+    "result": "PASS",
+    "captured_at": "2026-09-14T14:27:50.876Z",
+    "target": {
+      "project_ref": "aftboxmrdgyhizicfsfu",
+      "database_oid": "5",
+      "database_identity": "supplementscout-production:aftboxmrdgyhizicfsfu",
+      "target_environment": "PRODUCTION",
+      "database_system_identifier": "7642734024280108049"
+    },
+    "variants": 25,
+    "candidate_fingerprints": 106,
+    "unique_candidate_fingerprints": 106,
+    "existing_candidates": 0,
+    "before_overrides_nonempty": 0,
+    "database_writes": 0
+  },
+  "scope": {
+    "organizational_limit_variants": 50,
+    "families": 5,
+    "assessed_variants": 45,
+    "ready_variants": 25,
+    "complete_variants": 13,
+    "partial_variants": 12,
+    "candidate_facts": 106,
+    "unique_candidate_fingerprints": 106,
+    "blocked_or_excluded_variants": 20
+  },
+  "families": [
+    {
+      "product_id": "489",
+      "product": "Mutant Madness Pre Workout 225g",
+      "variant_ids": [
+        "1023",
+        "1792",
+        "1793",
+        "1794",
+        "1795",
+        "1796",
+        "1797"
+      ],
+      "candidate_count": 21,
+      "artifact": {
+        "path": "tmp/nutrition-large-next-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-20260914-489.json",
+        "sha256": "adafa27a691aa4ba24b70c8860635d3a78aacf99426b170b13297c83ef507598",
+        "fingerprint": "9dc872e66726004bb580950f6cae867cb20429d6aa6fa1f33d09224e02e21a71"
+      },
+      "unresolved": [
+        {
+          "field": "citrulline",
+          "reason": "The source declares one 1500 mg L-Citrulline Malate / L-Arginine HCl 2:1 blend, not separate citrulline mass."
+        },
+        {
+          "field": "creatine",
+          "reason": "No reliable declared creatine outcome for this exact 225 g formula."
+        }
+      ],
+      "completeness": "PARTIAL",
+      "variants": [
+        {
+          "id": "1023",
+          "display_name": "Blue Raspberry / 225g"
+        },
+        {
+          "id": "1792",
+          "display_name": "Fruit Punch / 225g"
+        },
+        {
+          "id": "1793",
+          "display_name": "Orange Rush / 225g"
+        },
+        {
+          "id": "1794",
+          "display_name": "Peach Mango / 225g"
+        },
+        {
+          "id": "1795",
+          "display_name": "Pineapple Passion / 225g"
+        },
+        {
+          "id": "1796",
+          "display_name": "Roadside Lemonade / 225g"
+        },
+        {
+          "id": "1797",
+          "display_name": "Sweet Iced Tea / 225g"
+        }
+      ],
+      "facts": [
+        {
+          "field": "serving_size_g",
+          "value": 7.5,
+          "unit": "g",
+          "ingredient_form": null,
+          "source_text": "Serving Size 7.5 g",
+          "information_state": "present_with_amount"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 330,
+          "unit": "mg",
+          "ingredient_form": null,
+          "source_text": "Total Caffeine 330 mg",
+          "information_state": "present_with_amount"
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 1250,
+          "unit": "mg",
+          "ingredient_form": null,
+          "source_text": "Beta-Alanine CarnoSyn 1250 mg",
+          "information_state": "present_with_amount"
+        }
+      ],
+      "source": {
+        "url": "https://www.dolphinfitness.co.uk/en/mutant-madness-30-servings/186216/fruit-punch",
+        "type": "retailer_product_page",
+        "applicability_basis": "retailer table for exact 225 g / 30 serving formula; manufacturer product context groups the catalogue flavours",
+        "review_sha256": "7eb5dbddb4a6d8bf558667f702c47280a1f51f2406bf036a28c4b022d17dba60",
+        "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-large-next-2026-09-14/7eb5dbddb4a6d8bf558667f702c47280a1f51f2406bf036a28c4b022d17dba60/product-489-source-review.json"
+      },
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 21,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "58",
+      "product": "5 Nutrition Rich Piana  Full As F*ck 387g",
+      "variant_ids": [
+        "1007",
+        "1607",
+        "1608",
+        "1609",
+        "1610",
+        "1611"
+      ],
+      "candidate_count": 30,
+      "artifact": {
+        "path": "tmp/nutrition-large-next-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-20260914-58.json",
+        "sha256": "30ae13d687e528abdb51f4a70dbc316edd69abfaa735603df2e920c829f631f3",
+        "fingerprint": "cdc2648f4c94d5ff6118d732d7e9b1d702d9241d8f292677526175ec72ffe103"
+      },
+      "unresolved": [],
+      "completeness": "COMPLETE",
+      "variants": [
+        {
+          "id": "1007",
+          "display_name": "Beach Blast / 387g"
+        },
+        {
+          "id": "1607",
+          "display_name": "Blue Raspberry / 387g"
+        },
+        {
+          "id": "1608",
+          "display_name": "Fruit Punch / 387g"
+        },
+        {
+          "id": "1609",
+          "display_name": "Push Pop / 387g"
+        },
+        {
+          "id": "1610",
+          "display_name": "Southern Sweet Tea / 387g"
+        },
+        {
+          "id": "1611",
+          "display_name": "Wild Berry / 387g"
+        }
+      ],
+      "facts": [
+        {
+          "field": "serving_size_g",
+          "value": 12.9,
+          "unit": "g",
+          "ingredient_form": null,
+          "source_text": "1 scoop (12.9 g)",
+          "information_state": "present_with_amount"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "ingredient_form": null,
+          "source_text": "Manufacturer describes Full As F*ck as stimulant-free",
+          "information_state": "confirmed_absent"
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "ingredient_form": null,
+          "source_text": "Complete declared formula contains no beta-alanine or undisclosed blend",
+          "information_state": "confirmed_absent"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 6000,
+          "unit": "mg",
+          "ingredient_form": "l_citrulline",
+          "source_text": "L-Citrulline 6000 mg",
+          "information_state": "present_with_amount"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "ingredient_form": null,
+          "source_text": "Complete declared formula contains no creatine form or undisclosed blend",
+          "information_state": "confirmed_absent"
+        }
+      ],
+      "source": {
+        "url": "https://www.bodyandfit.com/en-row/products/full-as-f-ck",
+        "type": "retailer_product_page",
+        "applicability_basis": "retailer table and complete ingredients for exact 387 g / 30 serving formula, supported by manufacturer stimulant-free statement",
+        "review_sha256": "63e3ab28ba7137a7be46bca5ca4d5148f67f35c76c9620f3dd98764df55e014e",
+        "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-large-next-2026-09-14/63e3ab28ba7137a7be46bca5ca4d5148f67f35c76c9620f3dd98764df55e014e/product-58-source-review.json"
+      },
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 30,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "59",
+      "product": "5% Nutrition Rich Piana 5150 375g",
+      "variant_ids": [
+        "1030",
+        "1612",
+        "1613",
+        "1614"
+      ],
+      "candidate_count": 20,
+      "artifact": {
+        "path": "tmp/nutrition-large-next-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-20260914-59.json",
+        "sha256": "82865bc3533aa98595b0fda05d1c3277a2c1c756bb67b190b7a137c0394e29f1",
+        "fingerprint": "d6f0453e3b22cac272c7741d4065b974b12eeb74c98d0aa38b412e7d75048b6c"
+      },
+      "unresolved": [],
+      "completeness": "COMPLETE",
+      "variants": [
+        {
+          "id": "1030",
+          "display_name": "Blue Ice / 375g"
+        },
+        {
+          "id": "1612",
+          "display_name": "Green Apple / 375g"
+        },
+        {
+          "id": "1613",
+          "display_name": "Tropical Rage / 375g"
+        },
+        {
+          "id": "1614",
+          "display_name": "Wild Berry / 375g"
+        }
+      ],
+      "facts": [
+        {
+          "field": "serving_size_g",
+          "value": 12.5,
+          "unit": "g",
+          "ingredient_form": null,
+          "source_text": "Serving Size 12.5 g",
+          "information_state": "present_with_amount"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 400,
+          "unit": "mg",
+          "ingredient_form": null,
+          "source_text": "Total caffeine 400 mg",
+          "information_state": "present_with_amount"
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 3000,
+          "unit": "mg",
+          "ingredient_form": null,
+          "source_text": "Beta-Alanine 3000 mg",
+          "information_state": "present_with_amount"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 4000,
+          "unit": "mg",
+          "ingredient_form": "l_citrulline",
+          "source_text": "L-Citrulline 4000 mg",
+          "information_state": "present_with_amount"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "ingredient_form": null,
+          "source_text": "Complete Supplement Facts and ingredients contain no creatine form or undisclosed blend",
+          "information_state": "confirmed_absent"
+        }
+      ],
+      "source": {
+        "url": "https://5percentnutrition.com/products/5150-high-stimulant-pre-workout",
+        "type": "manufacturer_product_page",
+        "applicability_basis": "manufacturer common formula and flavour presentation, exact 375 g / 30 serving market context confirmed by matching retailer label",
+        "review_sha256": "2833f2255c17e940c4fe353c1cc10eed6be32b96c040c291150b984aa9fe591e",
+        "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-large-next-2026-09-14/2833f2255c17e940c4fe353c1cc10eed6be32b96c040c291150b984aa9fe591e/product-59-source-review.json"
+      },
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 20,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "839",
+      "product": "Gas Mark 10 Pitbull Pump Pre Workout 25 Servings",
+      "variant_ids": [
+        "1217",
+        "1218",
+        "1219",
+        "1220",
+        "2767"
+      ],
+      "candidate_count": 20,
+      "artifact": {
+        "path": "tmp/nutrition-large-next-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-20260914-839.json",
+        "sha256": "fd4c7cfeb6afe6c7de01427327230682132cddd225c5fc8b45bfa69d5c849f4d",
+        "fingerprint": "6ad1c50cc9e0fa8ce740ea847b12299ed9e98a073ef46c1f3192332fce118f0b"
+      },
+      "unresolved": [
+        {
+          "field": "creatine",
+          "reason": "The accessible page does not expose a complete legal ingredients list sufficient to confirm absence."
+        }
+      ],
+      "completeness": "PARTIAL",
+      "variants": [
+        {
+          "id": "1217",
+          "display_name": "Cherry Bubblegum / 25servings"
+        },
+        {
+          "id": "1218",
+          "display_name": "Lemon sherbet / 25servings"
+        },
+        {
+          "id": "1219",
+          "display_name": "Sherbert Candy / 25servings"
+        },
+        {
+          "id": "1220",
+          "display_name": "Strawberry Banana / 25servings"
+        },
+        {
+          "id": "2767",
+          "display_name": "Strawberry Laces / 25servings"
+        }
+      ],
+      "facts": [
+        {
+          "field": "serving_size_g",
+          "value": 18,
+          "unit": "g",
+          "ingredient_form": null,
+          "source_text": "Mix 1 scoop (18 g)",
+          "information_state": "present_with_amount"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "ingredient_form": null,
+          "source_text": "Manufacturer explicitly calls the formula stimulant-free and without caffeine",
+          "information_state": "confirmed_absent"
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 3500,
+          "unit": "mg",
+          "ingredient_form": null,
+          "source_text": "Beta Alanine 3500 mg",
+          "information_state": "present_with_amount"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 6000,
+          "unit": "mg",
+          "ingredient_form": "l_citrulline",
+          "source_text": "L-Citrulline 6000 mg",
+          "information_state": "present_with_amount"
+        }
+      ],
+      "source": {
+        "url": "https://www.gasmark10.com/products/pitbull-pump",
+        "type": "manufacturer_product_page",
+        "applicability_basis": "manufacturer common product page lists the catalogue flavours and one shared formula",
+        "review_sha256": "9531fd04436d4b17a6d5ed6895b2bb9756e5a0a04c0c6ecb754531b0392d38fa",
+        "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-large-next-2026-09-14/9531fd04436d4b17a6d5ed6895b2bb9756e5a0a04c0c6ecb754531b0392d38fa/product-839-source-review.json"
+      },
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 20,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "842",
+      "product": "Conteh Sports Mega Pump Elite 30 Servings",
+      "variant_ids": [
+        "1221",
+        "1251",
+        "2769"
+      ],
+      "candidate_count": 15,
+      "artifact": {
+        "path": "tmp/nutrition-large-next-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-20260914-842.json",
+        "sha256": "aa0aefef62e1a2d44a173fc0010e7ae063e29b04e79161011eea95584958b472",
+        "fingerprint": "1a0474ba019a0f9d7763d2ebe1bc5eb8d3ea78eab1dfc2a1cfa226f89b63fa53"
+      },
+      "unresolved": [],
+      "completeness": "COMPLETE",
+      "variants": [
+        {
+          "id": "1221",
+          "display_name": "Fruit Burst / 30servings"
+        },
+        {
+          "id": "1251",
+          "display_name": "Peach / 30servings"
+        },
+        {
+          "id": "2769",
+          "display_name": "Raspberry Twist / 30servings"
+        }
+      ],
+      "facts": [
+        {
+          "field": "serving_size_g",
+          "value": 19.5,
+          "unit": "g",
+          "ingredient_form": null,
+          "source_text": "Per 19.5 g Serving",
+          "information_state": "present_with_amount"
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "ingredient_form": null,
+          "source_text": "Manufacturer states Non-stimulant formula",
+          "information_state": "confirmed_absent"
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "ingredient_form": null,
+          "source_text": "Complete transparent formula contains no beta-alanine or undisclosed blend",
+          "information_state": "confirmed_absent"
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 5000,
+          "unit": "mg",
+          "ingredient_form": "l_citrulline",
+          "source_text": "L-Citrulline 5000 mg",
+          "information_state": "present_with_amount"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "ingredient_form": null,
+          "source_text": "Complete transparent formula contains no creatine form or undisclosed blend",
+          "information_state": "confirmed_absent"
+        }
+      ],
+      "source": {
+        "url": "https://contehsports.com/products/the-preworkout-stack",
+        "type": "manufacturer_product_page",
+        "applicability_basis": "manufacturer common table for Mega Pump Elite and exact catalogue flavour names",
+        "review_sha256": "a3de74ad7933163da377913ecca8ea21e6f81924d5372d76444f3b04dfd796f1",
+        "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-large-next-2026-09-14/a3de74ad7933163da377913ecca8ea21e6f81924d5372d76444f3b04dfd796f1/product-842-source-review.json"
+      },
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 15,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    }
+  ],
+  "archive": {
+    "bucket": "nutrition-sources",
+    "private": true,
+    "project_authored_reviews_written": 5,
+    "readback_hashes_match": 5
+  },
+  "excluded": [
+    {
+      "product_id": "169",
+      "reason": "400 g identity conflicts with available current/historical serving and pack evidence"
+    },
+    {
+      "product_id": "879",
+      "reason": "manufacturer warns flavour contents vary and visible table does not bind targets"
+    },
+    {
+      "product_id": "1178",
+      "reason": "retained access and flavour-identity blocker"
+    },
+    {
+      "product_id": "1275",
+      "reason": "catalogue 520 g versus current 550 g formula"
+    },
+    {
+      "product_id": "895",
+      "reason": "current 16 g formula remains unbound to catalogue 375 g version"
+    },
+    {
+      "product_id": "848",
+      "reason": "retailer evidence conflicts on caffeine and serving presentation"
+    },
+    {
+      "product_id": "884",
+      "reason": "current page does not expose an exact gram serving basis"
+    }
+  ],
+  "validation": {
+    "artifacts": 5,
+    "dry_runs_passed": 5,
+    "candidate_rows": 106,
+    "product_updates": 0,
+    "production_candidate_writes": 0,
+    "review_writes": 0,
+    "apply_writes": 0
+  },
+  "next_step": "One owner decision authorizing controlled store -> authenticated review -> explicit-ID plans -> guarded apply for exactly these five immutable artifacts and 106 fingerprints."
+}

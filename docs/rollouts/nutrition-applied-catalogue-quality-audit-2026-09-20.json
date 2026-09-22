@@ -1,0 +1,4760 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-applied-catalogue-quality-audit-v1",
+  "date": "2026-09-20",
+  "status": "READ_ONLY_AUDIT_COMPLETE",
+  "scope": {
+    "active_preworkout_variants": 575,
+    "applied_variants": 469,
+    "approved_candidates_examined": 2299,
+    "distinct_evidence_objects": 157
+  },
+  "technical_integrity": {
+    "variants_without_matching_approved_candidate": 0,
+    "variants_with_serving_basis_mismatch": 0,
+    "variants_missing_hash_or_private_archive_uri": 0,
+    "archive_readback": {
+      "result": "PASS",
+      "objects": 157,
+      "passed": 157,
+      "missing": 0,
+      "hash_mismatch": 0
+    }
+  },
+  "interpretation": {
+    "variants_without_automatic_attention_flags": 316,
+    "variants_requiring_targeted_attention": 153,
+    "note": "No automatic flag is not equivalent to independent manual confirmation of every label."
+  },
+  "evidence_depth": {
+    "manufacturer_source_objects": 57,
+    "retailer_source_objects": 82,
+    "owner_transcribed_source_objects": 18,
+    "variants_whose_current_candidate_points_to_review_json_not_raw_asset": 333,
+    "variants_with_retailer_only_current_evidence": 241,
+    "note": "A review JSON preserves the source URL, excerpt, hash and archive URI but is not itself a raw label image. This is a depth-of-evidence flag, not proof of an incorrect value."
+  },
+  "targeted_review_queues": {
+    "explicit_unresolved": {
+      "variants": 84,
+      "products": 21,
+      "with_current_offer": 65,
+      "state_counts": {
+        "creatine:NO_INFORMATION": 32,
+        "caffeine:PRESENT_AMOUNT_NOT_DISCLOSED": 31,
+        "citrulline:PRESENT_AMOUNT_NOT_DISCLOSED": 10,
+        "caffeine:CONFLICTING_INFORMATION": 19,
+        "caffeine:NO_INFORMATION": 3,
+        "beta_alanine:NO_INFORMATION": 4,
+        "beta_alanine:PRESENT_AMOUNT_NOT_DISCLOSED": 3,
+        "beta_alanine:CONFLICTING_INFORMATION": 6,
+        "citrulline:CONFLICTING_INFORMATION": 8
+      },
+      "items": [
+        {
+          "product_id": "26",
+          "product_variant_id": "16",
+          "product_name": "PEScience High Volume 252g",
+          "display_name": "Default",
+          "in_stock_offers": 0,
+          "states": [
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "54",
+          "product_variant_id": "45",
+          "product_name": "MAN Sports Game Day Performance Energy 510g",
+          "display_name": "Default",
+          "in_stock_offers": 0,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "61",
+          "product_variant_id": "132",
+          "product_name": "Stay Lean Engage Natural Pre Workout 300g",
+          "display_name": "Default",
+          "in_stock_offers": 0,
+          "states": [
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "489",
+          "product_variant_id": "489",
+          "product_name": "Mutant Madness Pre Workout 225g",
+          "display_name": "Default",
+          "in_stock_offers": 0,
+          "states": [
+            {
+              "field": "citrulline",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "19",
+          "product_variant_id": "764",
+          "product_name": "Dorian Yates Blood & Guts Pre Workout 380g",
+          "display_name": "Blueberry / 380g",
+          "in_stock_offers": 2,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "CONFLICTING_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "19",
+          "product_variant_id": "765",
+          "product_name": "Dorian Yates Blood & Guts Pre Workout 380g",
+          "display_name": "Bubblegum / 380g",
+          "in_stock_offers": 3,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "CONFLICTING_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "19",
+          "product_variant_id": "766",
+          "product_name": "Dorian Yates Blood & Guts Pre Workout 380g",
+          "display_name": "Cola / 380g",
+          "in_stock_offers": 2,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "CONFLICTING_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "19",
+          "product_variant_id": "767",
+          "product_name": "Dorian Yates Blood & Guts Pre Workout 380g",
+          "display_name": "Mango / 380g",
+          "in_stock_offers": 2,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "CONFLICTING_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "19",
+          "product_variant_id": "768",
+          "product_name": "Dorian Yates Blood & Guts Pre Workout 380g",
+          "display_name": "Mojito / 380g",
+          "in_stock_offers": 3,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "CONFLICTING_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "19",
+          "product_variant_id": "769",
+          "product_name": "Dorian Yates Blood & Guts Pre Workout 380g",
+          "display_name": "Strawberry / 380g",
+          "in_stock_offers": 3,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "CONFLICTING_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "19",
+          "product_variant_id": "770",
+          "product_name": "Dorian Yates Blood & Guts Pre Workout 380g",
+          "display_name": "Watermelon / 380g",
+          "in_stock_offers": 2,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "CONFLICTING_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "774",
+          "product_variant_id": "957",
+          "product_name": "Ibiza Juice OG Pre-Workout 40 servings",
+          "display_name": "Default",
+          "in_stock_offers": 0,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "774",
+          "product_variant_id": "958",
+          "product_name": "Ibiza Juice OG Pre-Workout 40 servings",
+          "display_name": "Pacha fruit Strawberry Watermelon / 40 servings",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "774",
+          "product_variant_id": "959",
+          "product_name": "Ibiza Juice OG Pre-Workout 40 servings",
+          "display_name": "Peach Daiquiri / 40 servings",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "489",
+          "product_variant_id": "1023",
+          "product_name": "Mutant Madness Pre Workout 225g",
+          "display_name": "Blue Raspberry / 225g",
+          "in_stock_offers": 2,
+          "states": [
+            {
+              "field": "citrulline",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "26",
+          "product_variant_id": "1026",
+          "product_name": "PEScience High Volume 252g",
+          "display_name": "Cotton Candy / 252g",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "61",
+          "product_variant_id": "1051",
+          "product_name": "Stay Lean Engage Natural Pre Workout 300g",
+          "display_name": "Cola & Lime / 300g",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "869",
+          "product_variant_id": "1323",
+          "product_name": "Strom StimuMAX Black Edition 360g",
+          "display_name": "Green Apple / 360g",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "869",
+          "product_variant_id": "1324",
+          "product_name": "Strom StimuMAX Black Edition 360g",
+          "display_name": "Lemon Pineapple / 360g",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "870",
+          "product_variant_id": "1325",
+          "product_name": "Strom StimuMAX Extreme Pre Workout 390g",
+          "display_name": "Acai Berry / 390g",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "870",
+          "product_variant_id": "1326",
+          "product_name": "Strom StimuMAX Extreme Pre Workout 390g",
+          "display_name": "Cherry Cola / 390g",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "870",
+          "product_variant_id": "1327",
+          "product_name": "Strom StimuMAX Extreme Pre Workout 390g",
+          "display_name": "Pina Colada / 390g",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "871",
+          "product_variant_id": "1328",
+          "product_name": "Strom StimuMAX OG Pre Workout 360g",
+          "display_name": "Cola / 360g",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "872",
+          "product_variant_id": "1329",
+          "product_name": "Strom StimuMAX PRO Pre Workout 360g",
+          "display_name": "Strawberry Kiwi / 360g",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "872",
+          "product_variant_id": "1330",
+          "product_name": "Strom StimuMAX PRO Pre Workout 360g",
+          "display_name": "Unicorn Pi55 / 360g",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "873",
+          "product_variant_id": "1332",
+          "product_name": "Strom VascuMAX PRO 470g",
+          "display_name": "Cherry Cola / 470g",
+          "in_stock_offers": 0,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "NO_INFORMATION"
+            },
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "873",
+          "product_variant_id": "1333",
+          "product_name": "Strom VascuMAX PRO 470g",
+          "display_name": "Strawberry Kiwi / 470g",
+          "in_stock_offers": 0,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "NO_INFORMATION"
+            },
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "899",
+          "product_variant_id": "1487",
+          "product_name": "CNP Professional Full Tilt V2 Stim Pre Workout 570g",
+          "display_name": "Cherry Berry Bomb / 570g",
+          "in_stock_offers": 2,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "CONFLICTING_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "899",
+          "product_variant_id": "1488",
+          "product_name": "CNP Professional Full Tilt V2 Stim Pre Workout 570g",
+          "display_name": "Blue Razz Riot / 570g",
+          "in_stock_offers": 2,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "CONFLICTING_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "61",
+          "product_variant_id": "1615",
+          "product_name": "Stay Lean Engage Natural Pre Workout 300g",
+          "display_name": "Pineapple Crush / 300g",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "26",
+          "product_variant_id": "1732",
+          "product_name": "PEScience High Volume 252g",
+          "display_name": "Paradise Cooler / 252g",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "451",
+          "product_variant_id": "1789",
+          "product_name": "Naughty Boy Winter Soldier Sick Pump 325g",
+          "display_name": "Militant Star Fruit / 325g",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "NO_INFORMATION"
+            },
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            },
+            {
+              "field": "beta_alanine",
+              "state": "NO_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "489",
+          "product_variant_id": "1792",
+          "product_name": "Mutant Madness Pre Workout 225g",
+          "display_name": "Roadside Lemonade / 225g",
+          "in_stock_offers": 2,
+          "states": [
+            {
+              "field": "citrulline",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "489",
+          "product_variant_id": "1793",
+          "product_name": "Mutant Madness Pre Workout 225g",
+          "display_name": "Orange Rush / 225g",
+          "in_stock_offers": 2,
+          "states": [
+            {
+              "field": "citrulline",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "489",
+          "product_variant_id": "1794",
+          "product_name": "Mutant Madness Pre Workout 225g",
+          "display_name": "Pineapple Passion / 225g",
+          "in_stock_offers": 2,
+          "states": [
+            {
+              "field": "citrulline",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "489",
+          "product_variant_id": "1795",
+          "product_name": "Mutant Madness Pre Workout 225g",
+          "display_name": "Fruit Punch / 225g",
+          "in_stock_offers": 2,
+          "states": [
+            {
+              "field": "citrulline",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "489",
+          "product_variant_id": "1796",
+          "product_name": "Mutant Madness Pre Workout 225g",
+          "display_name": "Sweet Iced Tea / 225g",
+          "in_stock_offers": 2,
+          "states": [
+            {
+              "field": "citrulline",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "489",
+          "product_variant_id": "1797",
+          "product_name": "Mutant Madness Pre Workout 225g",
+          "display_name": "Peach Mango / 225g",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "citrulline",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "959",
+          "product_variant_id": "1873",
+          "product_name": "Black Magic BZRK Pre-Workout 25 Servings",
+          "display_name": "Cherry Lime / 25servings",
+          "in_stock_offers": 0,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            },
+            {
+              "field": "beta_alanine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "959",
+          "product_variant_id": "1874",
+          "product_name": "Black Magic BZRK Pre-Workout 25 Servings",
+          "display_name": "Default",
+          "in_stock_offers": 0,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            },
+            {
+              "field": "beta_alanine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "959",
+          "product_variant_id": "1875",
+          "product_name": "Black Magic BZRK Pre-Workout 25 Servings",
+          "display_name": "Peach Rings / 25servings",
+          "in_stock_offers": 0,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            },
+            {
+              "field": "beta_alanine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "971",
+          "product_variant_id": "1895",
+          "product_name": "Kilo Labs Stim Thug 20 servings",
+          "display_name": "Default",
+          "in_stock_offers": 0,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            },
+            {
+              "field": "beta_alanine",
+              "state": "CONFLICTING_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "971",
+          "product_variant_id": "1896",
+          "product_name": "Kilo Labs Stim Thug 20 servings",
+          "display_name": "It Was All A Dream / 20servings",
+          "in_stock_offers": 0,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            },
+            {
+              "field": "beta_alanine",
+              "state": "CONFLICTING_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "971",
+          "product_variant_id": "1897",
+          "product_name": "Kilo Labs Stim Thug 20 servings",
+          "display_name": "Mother Pucker / 20servings",
+          "in_stock_offers": 0,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            },
+            {
+              "field": "beta_alanine",
+              "state": "CONFLICTING_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "971",
+          "product_variant_id": "1898",
+          "product_name": "Kilo Labs Stim Thug 20 servings",
+          "display_name": "Slay My Name - Dragonfruit / 20servings",
+          "in_stock_offers": 0,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            },
+            {
+              "field": "beta_alanine",
+              "state": "CONFLICTING_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "971",
+          "product_variant_id": "1899",
+          "product_name": "Kilo Labs Stim Thug 20 servings",
+          "display_name": "Still Sippin - Watermelon & Peach / 20servings",
+          "in_stock_offers": 0,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            },
+            {
+              "field": "beta_alanine",
+              "state": "CONFLICTING_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "971",
+          "product_variant_id": "1900",
+          "product_name": "Kilo Labs Stim Thug 20 servings",
+          "display_name": "Strawberry Lemonade / 20servings",
+          "in_stock_offers": 0,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            },
+            {
+              "field": "beta_alanine",
+              "state": "CONFLICTING_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "980",
+          "product_variant_id": "1918",
+          "product_name": "NMP Nutraceuticals Presidential Pre 50/25 Servings",
+          "display_name": "Default",
+          "in_stock_offers": 0,
+          "states": [
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            },
+            {
+              "field": "beta_alanine",
+              "state": "NO_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "980",
+          "product_variant_id": "1919",
+          "product_name": "NMP Nutraceuticals Presidential Pre 50/25 Servings",
+          "display_name": "Kiwi (Kennedy's Kiwi)",
+          "in_stock_offers": 0,
+          "states": [
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            },
+            {
+              "field": "beta_alanine",
+              "state": "NO_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "980",
+          "product_variant_id": "1920",
+          "product_name": "NMP Nutraceuticals Presidential Pre 50/25 Servings",
+          "display_name": "Orange Creamsicle (Trump's Taning Lotion)",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            },
+            {
+              "field": "beta_alanine",
+              "state": "NO_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "899",
+          "product_variant_id": "2016",
+          "product_name": "CNP Professional Full Tilt V2 Stim Pre Workout 570g",
+          "display_name": "Green Gummy Machine / 570g",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "CONFLICTING_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "899",
+          "product_variant_id": "2017",
+          "product_name": "CNP Professional Full Tilt V2 Stim Pre Workout 570g",
+          "display_name": "Orange Outlaw / 570g",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "CONFLICTING_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "1245",
+          "product_variant_id": "3667",
+          "product_name": "NXT TNT Nuclear Pre-Workout 240g",
+          "display_name": "Ice Blast",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "1255",
+          "product_variant_id": "3677",
+          "product_name": "Animal Primal Pre-Workout 507g",
+          "display_name": "Fruit Punch",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "citrulline",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "1245",
+          "product_variant_id": "3710",
+          "product_name": "NXT TNT Nuclear Pre-Workout 240g",
+          "display_name": "Ice Blue / 240g",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "1245",
+          "product_variant_id": "3711",
+          "product_name": "NXT TNT Nuclear Pre-Workout 240g",
+          "display_name": "Fizzy Cola Bottles / 240g",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "1245",
+          "product_variant_id": "3712",
+          "product_name": "NXT TNT Nuclear Pre-Workout 240g",
+          "display_name": "Watermelon Strawberry / 240g",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "1255",
+          "product_variant_id": "3727",
+          "product_name": "Animal Primal Pre-Workout 507g",
+          "display_name": "Strawberry Watermelon / 507g",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "citrulline",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "1276",
+          "product_variant_id": "3756",
+          "product_name": "Gorillalpha Ibiza Juice Pre-Workout 480g",
+          "display_name": "Cherry",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "CONFLICTING_INFORMATION"
+            },
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            },
+            {
+              "field": "citrulline",
+              "state": "CONFLICTING_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "1280",
+          "product_variant_id": "3760",
+          "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+          "display_name": "Coconut Cola",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "1284",
+          "product_variant_id": "3764",
+          "product_name": "The Formula NOVA High-Stim Pre-Workout Powder 450g",
+          "display_name": "Sour Cherry",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "1280",
+          "product_variant_id": "3855",
+          "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+          "display_name": "Absolute Energy / 480g",
+          "in_stock_offers": 0,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "1280",
+          "product_variant_id": "3856",
+          "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+          "display_name": "Ultimate Energy / 480g",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "1276",
+          "product_variant_id": "3883",
+          "product_name": "Gorillalpha Ibiza Juice Pre-Workout 480g",
+          "display_name": "Ibiza Soda Pop / 480g",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "CONFLICTING_INFORMATION"
+            },
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            },
+            {
+              "field": "citrulline",
+              "state": "CONFLICTING_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "1276",
+          "product_variant_id": "3884",
+          "product_name": "Gorillalpha Ibiza Juice Pre-Workout 480g",
+          "display_name": "Peach Daquiri / 480g",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "CONFLICTING_INFORMATION"
+            },
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            },
+            {
+              "field": "citrulline",
+              "state": "CONFLICTING_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "1276",
+          "product_variant_id": "3885",
+          "product_name": "Gorillalpha Ibiza Juice Pre-Workout 480g",
+          "display_name": "Strawberry Coconut / 480g",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "CONFLICTING_INFORMATION"
+            },
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            },
+            {
+              "field": "citrulline",
+              "state": "CONFLICTING_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "1276",
+          "product_variant_id": "3992",
+          "product_name": "Gorillalpha Ibiza Juice Pre-Workout 480g",
+          "display_name": "Cherry Cola",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "CONFLICTING_INFORMATION"
+            },
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            },
+            {
+              "field": "citrulline",
+              "state": "CONFLICTING_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "1276",
+          "product_variant_id": "3993",
+          "product_name": "Gorillalpha Ibiza Juice Pre-Workout 480g",
+          "display_name": "Grape Soda",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "CONFLICTING_INFORMATION"
+            },
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            },
+            {
+              "field": "citrulline",
+              "state": "CONFLICTING_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "1276",
+          "product_variant_id": "3994",
+          "product_name": "Gorillalpha Ibiza Juice Pre-Workout 480g",
+          "display_name": "Ibiza Juice Blue Strawberry Lemonade",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "CONFLICTING_INFORMATION"
+            },
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            },
+            {
+              "field": "citrulline",
+              "state": "CONFLICTING_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "1276",
+          "product_variant_id": "3995",
+          "product_name": "Gorillalpha Ibiza Juice Pre-Workout 480g",
+          "display_name": "Pineapple Strawberry",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "CONFLICTING_INFORMATION"
+            },
+            {
+              "field": "creatine",
+              "state": "NO_INFORMATION"
+            },
+            {
+              "field": "citrulline",
+              "state": "CONFLICTING_INFORMATION"
+            }
+          ]
+        },
+        {
+          "product_id": "1280",
+          "product_variant_id": "3996",
+          "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+          "display_name": "Apple Bubble Gum",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "1280",
+          "product_variant_id": "3997",
+          "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+          "display_name": "Apple Candy",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "1280",
+          "product_variant_id": "3998",
+          "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+          "display_name": "Bubble Gum Blast",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "1280",
+          "product_variant_id": "3999",
+          "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+          "display_name": "Caribbean Crush",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "1280",
+          "product_variant_id": "4000",
+          "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+          "display_name": "Cherry Bomb Lemonade",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "1280",
+          "product_variant_id": "4001",
+          "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+          "display_name": "Jungle Juice",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "1280",
+          "product_variant_id": "4002",
+          "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+          "display_name": "Mango Passionfruit",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "1280",
+          "product_variant_id": "4003",
+          "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+          "display_name": "Orange Mango",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "1280",
+          "product_variant_id": "4004",
+          "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+          "display_name": "Passion Fruit",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "1280",
+          "product_variant_id": "4005",
+          "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+          "display_name": "Strawberry Laces",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "1280",
+          "product_variant_id": "4006",
+          "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+          "display_name": "Ultimate Hulk Juice",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "1280",
+          "product_variant_id": "4007",
+          "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+          "display_name": "Ultimate Juice",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "1280",
+          "product_variant_id": "4008",
+          "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+          "display_name": "Ultimate Lemonade",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        },
+        {
+          "product_id": "1280",
+          "product_variant_id": "4009",
+          "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+          "display_name": "Ultimate Raspberry",
+          "in_stock_offers": 1,
+          "states": [
+            {
+              "field": "caffeine",
+              "state": "PRESENT_AMOUNT_NOT_DISCLOSED"
+            }
+          ]
+        }
+      ]
+    },
+    "same_product_same_size_mixed_signatures": {
+      "families": 11,
+      "variants": 73,
+      "note": "Many differences are plausibly flavour-specific scoop weights, half/full serving choices or documented generations; each group needs label-context review before any correction.",
+      "groups": [
+        {
+          "product_id": "6",
+          "product_name": "Ghost Legend V4 Pre-Workout 660g",
+          "size_group": "660g",
+          "variants": [
+            {
+              "variant_id": "1001",
+              "display_name": "Orange Cream / 660g",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 300,
+                  "serving": 22,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6000,
+                  "serving": 22,
+                  "form": "l_citrulline",
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 3200,
+                  "serving": 22,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 22,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "1738",
+              "display_name": "Warheads Sour Watermelon / 660g",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 300,
+                  "serving": 22,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6000,
+                  "serving": 22,
+                  "form": "l_citrulline",
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 3200,
+                  "serving": 22,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 22,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "1739",
+              "display_name": "Welch's Grape / 660g",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 300,
+                  "serving": 21,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6000,
+                  "serving": 21,
+                  "form": "l_citrulline",
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 3200,
+                  "serving": 21,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 21,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "1740",
+              "display_name": "Blue Raspberry / 660g",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 300,
+                  "serving": 21.5,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6000,
+                  "serving": 21.5,
+                  "form": "l_citrulline",
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 3200,
+                  "serving": 21.5,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 21.5,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "1741",
+              "display_name": "Sour Watermelon / 660g",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 300,
+                  "serving": 22,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6000,
+                  "serving": 22,
+                  "form": "l_citrulline",
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 3200,
+                  "serving": 22,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 22,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "product_id": "19",
+          "product_name": "Dorian Yates Blood & Guts Pre Workout 380g",
+          "size_group": "380g",
+          "variants": [
+            {
+              "variant_id": "764",
+              "display_name": "Blueberry / 380g",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "conflicting_information",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6004,
+                  "serving": 19,
+                  "form": "citrulline_malate",
+                  "ratio": "2:1"
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 5500,
+                  "serving": 19,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 19,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "765",
+              "display_name": "Bubblegum / 380g",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "conflicting_information",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6004,
+                  "serving": 19,
+                  "form": "citrulline_malate",
+                  "ratio": "2:1"
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 5500,
+                  "serving": 19,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 19,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "766",
+              "display_name": "Cola / 380g",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "conflicting_information",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6004,
+                  "serving": 19,
+                  "form": "citrulline_malate",
+                  "ratio": "2:1"
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 5500,
+                  "serving": 19,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 19,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "767",
+              "display_name": "Mango / 380g",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "conflicting_information",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6004,
+                  "serving": 19,
+                  "form": "citrulline_malate",
+                  "ratio": "2:1"
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 5500,
+                  "serving": 19,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 19,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "768",
+              "display_name": "Mojito / 380g",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "conflicting_information",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6004,
+                  "serving": 19,
+                  "form": "citrulline_malate",
+                  "ratio": "2:1"
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 5500,
+                  "serving": 19,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 19,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "769",
+              "display_name": "Strawberry / 380g",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "conflicting_information",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6004,
+                  "serving": 19,
+                  "form": "citrulline_malate",
+                  "ratio": "2:1"
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 5500,
+                  "serving": 19,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 19,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "770",
+              "display_name": "Watermelon / 380g",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "conflicting_information",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6004,
+                  "serving": 19,
+                  "form": "citrulline_malate",
+                  "ratio": "2:1"
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 5500,
+                  "serving": 19,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 19,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "1579",
+              "display_name": "Pear-Kiwi / 380g",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 372,
+                  "serving": 19,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 5985,
+                  "serving": 19,
+                  "form": "citrulline_malate",
+                  "ratio": "2:1"
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 5500,
+                  "serving": 19,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 19,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "product_id": "49",
+          "product_name": "Ghost Pump Nitric Oxide 350g",
+          "size_group": "350g",
+          "variants": [
+            {
+              "variant_id": "1028",
+              "display_name": "Pineapple / 350g",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6000,
+                  "serving": 17.5,
+                  "form": "l_citrulline",
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 17.5,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "1596",
+              "display_name": "Warheads Sour Watermelon / 350g",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6000,
+                  "serving": 17.5,
+                  "form": "l_citrulline",
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 17.5,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "1597",
+              "display_name": "Natty / 350g",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6000,
+                  "serving": 13.5,
+                  "form": "l_citrulline",
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 13.5,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "1598",
+              "display_name": "Peach / 350g",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6000,
+                  "serving": 17,
+                  "form": "l_citrulline",
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 17,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "product_id": "62",
+          "product_name": "HR Labs Defib Pre-Workout",
+          "size_group": "420g",
+          "variants": [
+            {
+              "variant_id": "2645",
+              "display_name": "Cherryade / 420g (V3)",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 10.5,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 4000,
+                  "serving": 10.5,
+                  "form": "citrulline_malate",
+                  "ratio": "2:1"
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1600,
+                  "serving": 10.5,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 10.5,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "2646",
+              "display_name": "Fizzy Bubblegum Bottles / 420g (V3)",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 400,
+                  "serving": 21,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 3200,
+                  "serving": 21,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 21,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "2647",
+              "display_name": "Jelly Bean / 420g (V3)",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 10.5,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 4000,
+                  "serving": 10.5,
+                  "form": "citrulline_malate",
+                  "ratio": "2:1"
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1600,
+                  "serving": 10.5,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 10.5,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "2648",
+              "display_name": "Iced Blue Slush / 420g (V3)",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 10.5,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 4000,
+                  "serving": 10.5,
+                  "form": "citrulline_malate",
+                  "ratio": "2:1"
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1600,
+                  "serving": 10.5,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 10.5,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "2649",
+              "display_name": "Lemon Fizz Bombs / 420g (V3)",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 400,
+                  "serving": 21,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 3200,
+                  "serving": 21,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 21,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "2650",
+              "display_name": "Pink Lemonade / 420g (V3)",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 10.5,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 4000,
+                  "serving": 10.5,
+                  "form": "citrulline_malate",
+                  "ratio": "2:1"
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1600,
+                  "serving": 10.5,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 10.5,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "2651",
+              "display_name": "Gummy Bears / 420g (V3)",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 10.5,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 4000,
+                  "serving": 10.5,
+                  "form": "citrulline_malate",
+                  "ratio": "2:1"
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1600,
+                  "serving": 10.5,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 10.5,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "product_id": "763",
+          "product_name": "Naughty Boy Menace V2 60 servings",
+          "size_group": "unspecified",
+          "variants": [
+            {
+              "variant_id": "919",
+              "display_name": "Default",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 400,
+                  "serving": 14,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6000,
+                  "serving": 14,
+                  "form": "citrulline_malate",
+                  "ratio": "2:1"
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 3200,
+                  "serving": 14,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 14,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "4100",
+              "display_name": "Blueberry Pineapple",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 7,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 3000,
+                  "serving": 7,
+                  "form": "citrulline_malate",
+                  "ratio": "2:1"
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1600,
+                  "serving": 7,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 7,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "4101",
+              "display_name": "Candy Bubble Gum",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 400,
+                  "serving": 14,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6000,
+                  "serving": 14,
+                  "form": "citrulline_malate",
+                  "ratio": "2:1"
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 3200,
+                  "serving": 14,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 14,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "4102",
+              "display_name": "Cherry Razz",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 7,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 3000,
+                  "serving": 7,
+                  "form": "citrulline_malate",
+                  "ratio": "2:1"
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1600,
+                  "serving": 7,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 7,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "4103",
+              "display_name": "Energy",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 7,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 3000,
+                  "serving": 7,
+                  "form": "citrulline_malate",
+                  "ratio": "2:1"
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1600,
+                  "serving": 7,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 7,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "4104",
+              "display_name": "Fizzy Cola Bottles",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 7,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 3000,
+                  "serving": 7,
+                  "form": "citrulline_malate",
+                  "ratio": "2:1"
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1600,
+                  "serving": 7,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 7,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "4105",
+              "display_name": "Fruit Twist",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 7,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 3000,
+                  "serving": 7,
+                  "form": "citrulline_malate",
+                  "ratio": "2:1"
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1600,
+                  "serving": 7,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 7,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "4106",
+              "display_name": "Pink Lemonade",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 7,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 3000,
+                  "serving": 7,
+                  "form": "citrulline_malate",
+                  "ratio": "2:1"
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1600,
+                  "serving": 7,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 7,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "4107",
+              "display_name": "Sour Blue Razz",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 400,
+                  "serving": 14,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6000,
+                  "serving": 14,
+                  "form": "citrulline_malate",
+                  "ratio": "2:1"
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 3200,
+                  "serving": 14,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 14,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "4108",
+              "display_name": "Strawberry Sweets",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 7,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 3000,
+                  "serving": 7,
+                  "form": "citrulline_malate",
+                  "ratio": "2:1"
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1600,
+                  "serving": 7,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 7,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "product_id": "783",
+          "product_name": "RAW Nutrition Essential BUM Pre-Workout 30 servings",
+          "size_group": "30servings",
+          "variants": [
+            {
+              "variant_id": "994",
+              "display_name": "Grape / 30 servings",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 14.1,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 4000,
+                  "serving": 14.1,
+                  "form": "l_citrulline",
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 3200,
+                  "serving": 14.1,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 14.1,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "1980",
+              "display_name": "Raspberry Creamthickle / 30servings",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 13.1,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 4000,
+                  "serving": 13.1,
+                  "form": "l_citrulline",
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 3200,
+                  "serving": 13.1,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 13.1,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "product_id": "878",
+          "product_name": "Trained By JP DNFM PRE 40 Servings",
+          "size_group": "40servings",
+          "variants": [
+            {
+              "variant_id": "1361",
+              "display_name": "Apple Sourz / 40 servings",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 8,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 3000,
+                  "serving": 8,
+                  "form": "l_citrulline",
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1750,
+                  "serving": 8,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 8,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "1362",
+              "display_name": "Candy / 40 servings",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 8,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 3000,
+                  "serving": 8,
+                  "form": "l_citrulline",
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1750,
+                  "serving": 8,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 8,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "1363",
+              "display_name": "Cherry Sweets / 40 servings",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 400,
+                  "serving": 16,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6000,
+                  "serving": 16,
+                  "form": "l_citrulline",
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 3500,
+                  "serving": 16,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 16,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "1364",
+              "display_name": "Rocket Lolly / 40 servings",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 400,
+                  "serving": 16,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6000,
+                  "serving": 16,
+                  "form": "l_citrulline",
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 3500,
+                  "serving": 16,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 16,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "1365",
+              "display_name": "Sherbert Razz / 40 servings",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 400,
+                  "serving": 16,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6000,
+                  "serving": 16,
+                  "form": "l_citrulline",
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 3500,
+                  "serving": 16,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 16,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "1366",
+              "display_name": "Sour Cherry / 40 servings",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 8,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 3000,
+                  "serving": 8,
+                  "form": "l_citrulline",
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1750,
+                  "serving": 8,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 8,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "1367",
+              "display_name": "Strawberry Bubblegum / 40 servings",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 400,
+                  "serving": 16,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6000,
+                  "serving": 16,
+                  "form": "l_citrulline",
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 3500,
+                  "serving": 16,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 16,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "1368",
+              "display_name": "Tangy Orange / 40 servings",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 8,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 3000,
+                  "serving": 8,
+                  "form": "l_citrulline",
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1750,
+                  "serving": 8,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 8,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "product_id": "1162",
+          "product_name": "AK-47 Labs Pre-Workout 240g",
+          "size_group": "unspecified",
+          "variants": [
+            {
+              "variant_id": "3233",
+              "display_name": "Cotton Candy",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 2,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 500,
+                  "serving": 2,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 2,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "3260",
+              "display_name": "Blue Lemonade",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 2,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 935,
+                  "serving": 2,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 2,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "3261",
+              "display_name": "Blue Raspberry",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 2,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 935,
+                  "serving": 2,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 2,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "3262",
+              "display_name": "Pineapple Punch",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 2,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 935,
+                  "serving": 2,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 2,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "3263",
+              "display_name": "Sunshine Orange",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 2,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 500,
+                  "serving": 2,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 2,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "3264",
+              "display_name": "Tigers Blood",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 2,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 935,
+                  "serving": 2,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 2,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "3265",
+              "display_name": "Watermelon",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 2,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 935,
+                  "serving": 2,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 2,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "3266",
+              "display_name": "Sour Gummy Bear",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 2,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 935,
+                  "serving": 2,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 2,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "3267",
+              "display_name": "Fruit Punch",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 2,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 500,
+                  "serving": 2,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 2,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "3268",
+              "display_name": "Rainbow Candy",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 200,
+                  "serving": 2,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 935,
+                  "serving": 2,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 2,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "product_id": "1169",
+          "product_name": "Cellucor C4 Original Pre-Workout Powder 30 Servings",
+          "size_group": "unspecified",
+          "variants": [
+            {
+              "variant_id": "3275",
+              "display_name": "Cherry Limeade",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 150,
+                  "serving": 6.5,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "present_with_amount",
+                  "amount": 1500,
+                  "serving": 6.5,
+                  "form": "creatine_monohydrate",
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1600,
+                  "serving": 6.5,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 6.5,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "3408",
+              "display_name": "Cosmic Rainbow",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 150,
+                  "serving": 6.8,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "present_with_amount",
+                  "amount": 1500,
+                  "serving": 6.8,
+                  "form": "creatine_monohydrate",
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1600,
+                  "serving": 6.8,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 6.8,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "3409",
+              "display_name": "Frozen Bombsicle",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 150,
+                  "serving": 6.8,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "present_with_amount",
+                  "amount": 1500,
+                  "serving": 6.8,
+                  "form": "creatine_monohydrate",
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1600,
+                  "serving": 6.8,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 6.8,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "3410",
+              "display_name": "Fruit Punch",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 150,
+                  "serving": 6.5,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "present_with_amount",
+                  "amount": 1500,
+                  "serving": 6.5,
+                  "form": "creatine_monohydrate",
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1600,
+                  "serving": 6.5,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 6.5,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "3411",
+              "display_name": "Green Apple",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 150,
+                  "serving": 6.8,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "present_with_amount",
+                  "amount": 1500,
+                  "serving": 6.8,
+                  "form": "creatine_monohydrate",
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1600,
+                  "serving": 6.8,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 6.8,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "3412",
+              "display_name": "Icy Blue Razz",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 150,
+                  "serving": 6.8,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "present_with_amount",
+                  "amount": 1500,
+                  "serving": 6.8,
+                  "form": "creatine_monohydrate",
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1600,
+                  "serving": 6.8,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 6.8,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "3413",
+              "display_name": "Millions Bubblegum",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 150,
+                  "serving": 6.8,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "present_with_amount",
+                  "amount": 1500,
+                  "serving": 6.8,
+                  "form": "creatine_monohydrate",
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1600,
+                  "serving": 6.8,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 6.8,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "3414",
+              "display_name": "Millions Cola",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 150,
+                  "serving": 6.5,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "present_with_amount",
+                  "amount": 1500,
+                  "serving": 6.5,
+                  "form": "creatine_monohydrate",
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1600,
+                  "serving": 6.5,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 6.5,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "3415",
+              "display_name": "Orange Burst",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 150,
+                  "serving": 6.8,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "present_with_amount",
+                  "amount": 1500,
+                  "serving": 6.8,
+                  "form": "creatine_monohydrate",
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1600,
+                  "serving": 6.8,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 6.8,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "3416",
+              "display_name": "Pineapple Head",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 150,
+                  "serving": 6.8,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "present_with_amount",
+                  "amount": 1500,
+                  "serving": 6.8,
+                  "form": "creatine_monohydrate",
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1600,
+                  "serving": 6.8,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 6.8,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "3417",
+              "display_name": "Pink Lemonade",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 150,
+                  "serving": 6.8,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "present_with_amount",
+                  "amount": 1500,
+                  "serving": 6.8,
+                  "form": "creatine_monohydrate",
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1600,
+                  "serving": 6.8,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 6.8,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "3418",
+              "display_name": "Strawberry Margarita",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 150,
+                  "serving": 6.8,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "present_with_amount",
+                  "amount": 1500,
+                  "serving": 6.8,
+                  "form": "creatine_monohydrate",
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1600,
+                  "serving": 6.8,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 6.8,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "3419",
+              "display_name": "Watermelon",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 150,
+                  "serving": 6.5,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "present_with_amount",
+                  "amount": 1500,
+                  "serving": 6.5,
+                  "form": "creatine_monohydrate",
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 1600,
+                  "serving": 6.5,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 6.5,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "product_id": "1249",
+          "product_name": "Animal Fury Pre Workout 491g",
+          "size_group": "491g",
+          "variants": [
+            {
+              "variant_id": "3717",
+              "display_name": "Green Apple / 491g",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 350,
+                  "serving": 16.1,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6000,
+                  "serving": 16.1,
+                  "form": "citrulline_malate",
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 2000,
+                  "serving": 16.1,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 16.1,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "3718",
+              "display_name": "Ice Pop / 491g",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 350,
+                  "serving": 16.5,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6000,
+                  "serving": 16.5,
+                  "form": "l_citrulline",
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 2000,
+                  "serving": 16.5,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 16.5,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "3719",
+              "display_name": "Kiwi Lime / 491g",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 350,
+                  "serving": 16.5,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6000,
+                  "serving": 16.5,
+                  "form": "l_citrulline",
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 2000,
+                  "serving": 16.5,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 16.5,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "3720",
+              "display_name": "Watermelon / 491g",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_with_amount",
+                  "amount": 350,
+                  "serving": 16.1,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 6000,
+                  "serving": 16.1,
+                  "form": "citrulline_malate",
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 2000,
+                  "serving": 16.1,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 16.1,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "product_id": "1280",
+          "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+          "size_group": "480g",
+          "variants": [
+            {
+              "variant_id": "3855",
+              "display_name": "Absolute Energy / 480g",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_amount_not_disclosed",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            },
+            {
+              "variant_id": "3856",
+              "display_name": "Ultimate Energy / 480g",
+              "facts": [
+                {
+                  "field": "caffeine",
+                  "state": "present_amount_not_disclosed",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "creatine",
+                  "state": "confirmed_absent",
+                  "amount": null,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "citrulline",
+                  "state": "present_with_amount",
+                  "amount": 4000,
+                  "serving": 12,
+                  "form": "l_citrulline",
+                  "ratio": null
+                },
+                {
+                  "field": "beta_alanine",
+                  "state": "present_with_amount",
+                  "amount": 2000,
+                  "serving": 12,
+                  "form": null,
+                  "ratio": null
+                },
+                {
+                  "field": "serving_size_g",
+                  "state": null,
+                  "amount": 12,
+                  "serving": null,
+                  "form": null,
+                  "ratio": null
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "high_caffeine_manual_check": {
+      "variants": 5,
+      "items": [
+        {
+          "product_id": "884",
+          "product_variant_id": "1414",
+          "product_name": "Gas Mark 10 No Games Pre Workout 30 Servings",
+          "display_name": "Apple Mango / 30 servings",
+          "caffeine_mg": 600,
+          "sources": [
+            {
+              "type": "retailer_product_page",
+              "url": "https://proteinmafia.com/product/gas-mark-10-no-games-high-stim-only-preworkout-3/",
+              "sha256": "e14d257caee726dd04ef5b1eaf5f21f438a7319832aa8dda8f525d9572e814da"
+            }
+          ]
+        },
+        {
+          "product_id": "884",
+          "product_variant_id": "1415",
+          "product_name": "Gas Mark 10 No Games Pre Workout 30 Servings",
+          "display_name": "Cherry Bubblegum / 30 servings",
+          "caffeine_mg": 600,
+          "sources": [
+            {
+              "type": "retailer_product_page",
+              "url": "https://proteinmafia.com/product/gas-mark-10-no-games-high-stim-only-preworkout-3/",
+              "sha256": "ff1e04f74a34de03ec3ec4b111bb05fcaf16c4305344a836262be8aaf5fe7241"
+            }
+          ]
+        },
+        {
+          "product_id": "884",
+          "product_variant_id": "1416",
+          "product_name": "Gas Mark 10 No Games Pre Workout 30 Servings",
+          "display_name": "Rainbow Skitles / 30 servings",
+          "caffeine_mg": 600,
+          "sources": [
+            {
+              "type": "retailer_product_page",
+              "url": "https://proteinmafia.com/product/gas-mark-10-no-games-high-stim-only-preworkout-3/",
+              "sha256": "e14d257caee726dd04ef5b1eaf5f21f438a7319832aa8dda8f525d9572e814da"
+            }
+          ]
+        },
+        {
+          "product_id": "884",
+          "product_variant_id": "1417",
+          "product_name": "Gas Mark 10 No Games Pre Workout 30 Servings",
+          "display_name": "Lemon Sherbert / 30 servings",
+          "caffeine_mg": 600,
+          "sources": [
+            {
+              "type": "retailer_product_page",
+              "url": "https://proteinmafia.com/product/gas-mark-10-no-games-high-stim-only-preworkout-3/",
+              "sha256": "e14d257caee726dd04ef5b1eaf5f21f438a7319832aa8dda8f525d9572e814da"
+            }
+          ]
+        },
+        {
+          "product_id": "884",
+          "product_variant_id": "1418",
+          "product_name": "Gas Mark 10 No Games Pre Workout 30 Servings",
+          "display_name": "Strawberry Banana / 30 servings",
+          "caffeine_mg": 600,
+          "sources": [
+            {
+              "type": "retailer_product_page",
+              "url": "https://proteinmafia.com/product/gas-mark-10-no-games-high-stim-only-preworkout-3/",
+              "sha256": "e14d257caee726dd04ef5b1eaf5f21f438a7319832aa8dda8f525d9572e814da"
+            }
+          ]
+        }
+      ]
+    },
+    "known_pending_correction": {
+      "product_id": "971",
+      "variant_ids": [
+        "1895",
+        "1896",
+        "1897",
+        "1898",
+        "1899",
+        "1900"
+      ],
+      "reason": "Owner supplied a common Stim Thug panel showing 17.2 g, caffeine anhydrous 350 mg and beta-alanine 3500 mg. A validated 18-candidate correction artifact is prepared but not yet stored or applied."
+    }
+  },
+  "production_writes": 0,
+  "next_step": "Review the 11 mixed-signature families and five high-caffeine variants against retained evidence, then present one correction package only for demonstrated discrepancies. Explicit unresolved states remain visible and are not silently converted."
+}

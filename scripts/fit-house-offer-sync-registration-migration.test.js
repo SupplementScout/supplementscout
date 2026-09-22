@@ -26,6 +26,7 @@ test("migration is hash-bound and transactional", () => {
     "20260911130000_add_nutrition_candidate_preworkout_facts.sql",
     "20260911150000_add_nutrition_candidate_structured_creatine.sql",
     "20260913110000_add_nutrition_candidate_citrulline_components.sql",
+    "20260920150000_add_nutrition_candidate_creatine_components.sql",
   ]);
   assert.equal(selector.CONTRACTS.STAGING.ledgerCount, 94);
   assert.equal(

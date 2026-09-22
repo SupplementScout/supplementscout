@@ -1,0 +1,193 @@
+﻿{
+    "schema_version":  1,
+    "kind":  "nutrition-catalog-large-next-14-preparation-report-v1",
+    "date":  "2026-09-15",
+    "status":  "READY_FOR_OWNER_DECISION",
+    "production":  {
+                       "candidate_store_review_plan_apply_writes":  0,
+                       "catalogue_writes":  0,
+                       "private_archive_objects_added":  1
+                   },
+    "checkpoint":  {
+                       "active_preworkout_variants":  575,
+                       "current_offer_variants":  352,
+                       "applied_unique_variants":  408,
+                       "complete":  369,
+                       "partial":  39,
+                       "no_applied_facts":  167,
+                       "current_offer_coverage":  {
+                                                      "complete":  280,
+                                                      "partial":  32,
+                                                      "none":  40
+                                                  }
+                   },
+    "scope":  {
+                  "families":  1,
+                  "artifacts":  1,
+                  "variants":  1,
+                  "candidate_facts":  5,
+                  "fully_resolved_four_ingredients":  1,
+                  "partial_four_ingredients":  0,
+                  "variant_ids":  [
+                                      "3675"
+                                  ]
+              },
+    "families":  [
+                     {
+                         "product_id":  "1253",
+                         "artifact_key":  "1253",
+                         "product":  "HIT Supplements Pre-Workout 375g",
+                         "variant_ids":  [
+                                             "3675"
+                                         ],
+                         "candidate_count":  5,
+                         "artifact":  {
+                                          "path":  "tmp/nutrition-catalog-large-next-14-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-14-20260915-1253.json",
+                                          "sha256":  "dd9737d32757a996936ea11cc5a0a259e55d9cdcd111563ebaecebc393c19686",
+                                          "fingerprint":  "8dd8179602a73d434c8b97da147f649708800b4458bd0d4c8d13c63ca8f77f41"
+                                      },
+                         "unresolved":  [
+
+                                        ],
+                         "source":  {
+                                        "type":  "retailer_product_page",
+                                        "url":  "https://www.10reps.co.uk/product/hit-pre-workout/?attribute_flavours=Electric%20Orange",
+                                        "assignment_basis":  "The retailer page identifies HIT Pre-Workout Electric Orange and supplies a readable manufacturer-label image for the exact 375 g / 30-serving generation.",
+                                        "context":  [
+                                                        "Exact Electric Orange selection on the retained retailer page",
+                                                        "One 12.5 g serving and 30 servings agree with the exact 375 g catalogue pack",
+                                                        "The retained manufacturer-label image supplies the active table and complete ingredients declaration"
+                                                    ]
+                                    },
+                         "proposed_facts":  [
+                                                {
+                                                    "field":  "serving_size_g",
+                                                    "value":  12.5,
+                                                    "unit":  "g",
+                                                    "form":  null,
+                                                    "information_state":  "present_with_amount",
+                                                    "ratio":  null,
+                                                    "source_value":  12.5,
+                                                    "source_unit":  "g",
+                                                    "evidence":  "Serving Size: 1 Scoop (12.5g); Servings Per Container: 30"
+                                                },
+                                                {
+                                                    "field":  "caffeine_per_serving_mg",
+                                                    "value":  250,
+                                                    "unit":  "mg",
+                                                    "form":  null,
+                                                    "information_state":  "present_with_amount",
+                                                    "ratio":  null,
+                                                    "source_value":  250,
+                                                    "source_unit":  "mg",
+                                                    "evidence":  "Caffeine Anhydrous 250mg per 1 scoop"
+                                                },
+                                                {
+                                                    "field":  "beta_alanine_per_serving_mg",
+                                                    "value":  2000,
+                                                    "unit":  "mg",
+                                                    "form":  null,
+                                                    "information_state":  "present_with_amount",
+                                                    "ratio":  null,
+                                                    "source_value":  2000,
+                                                    "source_unit":  "mg",
+                                                    "evidence":  "Beta Alanine 2000mg per 1 scoop"
+                                                },
+                                                {
+                                                    "field":  "citrulline_per_serving_mg",
+                                                    "value":  3500,
+                                                    "unit":  "mg",
+                                                    "form":  "citrulline_malate",
+                                                    "information_state":  "present_with_amount",
+                                                    "ratio":  "2:1",
+                                                    "source_value":  3500,
+                                                    "source_unit":  "mg",
+                                                    "evidence":  "L-Citrulline DL-Malate 2:1 3500mg per 1 scoop"
+                                                },
+                                                {
+                                                    "field":  "creatine_declared_form_per_serving_mg",
+                                                    "value":  null,
+                                                    "unit":  null,
+                                                    "form":  null,
+                                                    "information_state":  "confirmed_absent",
+                                                    "ratio":  null,
+                                                    "source_value":  null,
+                                                    "source_unit":  null,
+                                                    "evidence":  "The complete declared ingredients list contains no creatine form and no undisclosed blend"
+                                                }
+                                            ],
+                         "dry_run":  {
+                                         "result":  "PASS",
+                                         "candidate_rows":  5,
+                                         "product_updates":  0,
+                                         "database_writes":  0
+                                     }
+                     }
+                 ],
+    "evidence_archive":  {
+                             "public":  false,
+                             "review_sha256":  "8fbcccd2d9be99b858e683df91af39d94ae9d4928bf49294022d650375328a05",
+                             "precheck":  "missing",
+                             "upload":  "uploaded",
+                             "readback":  "PASS_SHA256_MATCH"
+                         },
+    "production_preflight":  {
+                                 "result":  "PASS",
+                                 "variants":  1,
+                                 "unique_candidate_fingerprints":  5,
+                                 "existing_candidates":  0,
+                                 "target_overrides_empty":  1,
+                                 "database_writes":  0
+                             },
+    "retained_blocks":  [
+                            {
+                                "product_id":  "20",
+                                "variant_ids":  [
+                                                    "1580"
+                                                ],
+                                "reason":  "Exact catalogue pack is 248 g; retained label declares 5 g x 40 or 10 g x 20, which is a 200 g generation."
+                            },
+                            {
+                                "product_id":  "917",
+                                "variant_ids":  [
+                                                    "2949"
+                                                ],
+                                "reason":  "Catalogue variant is 165 g; available retailer evidence is the distinct 180 g / 30-serving generation."
+                            },
+                            {
+                                "product_ids":  [
+                                                    "62",
+                                                    "169",
+                                                    "840",
+                                                    "1276"
+                                                ],
+                                "reason":  "Existing register retains unresolved generation or dose conflicts; no new evidence resolves them."
+                            },
+                            {
+                                "product_ids":  [
+                                                    "789",
+                                                    "882"
+                                                ],
+                                "reason":  "PER4M remains owner-deferred."
+                            },
+                            {
+                                "product_ids":  [
+                                                    "53",
+                                                    "1333"
+                                                ],
+                                "reason":  "Existing identity or product-type ambiguity remains unresolved."
+                            },
+                            {
+                                "product_id":  "215",
+                                "variant_ids":  [
+                                                    "1672",
+                                                    "1673",
+                                                    "1674",
+                                                    "1675"
+                                                ],
+                                "reason":  "Exact 315 g generation remains distinct from the accepted 375 g recipe."
+                            }
+                        ],
+    "stop_reason":  "After excluding all 408 applied variants, only product 1253 variant 3675 had a current offer plus evidence resolving exact identity, generation, serving and all four tracked ingredients. Every other current-offer/no-facts family retains a concrete documented block and was not re-audited.",
+    "next_step":  "Owner decision for production store -\u003e authenticated review -\u003e explicit-ID plan -\u003e guarded apply of exactly five candidates for product 1253 variant 3675."
+}

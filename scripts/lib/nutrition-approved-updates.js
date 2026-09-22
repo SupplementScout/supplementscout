@@ -8,6 +8,8 @@ const { createCandidateSupabase } = require("../store-nutrition-candidates");
 const {
   CITRULLINE_COMPONENT_CANDIDATE_FIELD,
   CITRULLINE_COMPONENT_TARGET_FIELD,
+  CREATINE_COMPONENT_CANDIDATE_FIELD,
+  CREATINE_COMPONENT_TARGET_FIELD,
   PREWORKOUT_FIELD_SET,
   TARGET_FIELD_BY_CANDIDATE_FIELD,
   ingredientFact,
@@ -18,7 +20,8 @@ const AUDIT_KIND = "nutrition-approved-update-audit-v2";
 const DERIVED_FIELDS = Object.freeze(["nutrition_verified"]);
 const NUT02B_PREWORKOUT_TARGET_FIELDS = Object.freeze(["caffeine", "citrulline", "beta_alanine"]);
 const NUT03B_PREWORKOUT_TARGET_FIELDS = Object.freeze([...NUT02B_PREWORKOUT_TARGET_FIELDS, "creatine"]);
-const PREWORKOUT_TARGET_FIELDS = Object.freeze([...NUT03B_PREWORKOUT_TARGET_FIELDS, CITRULLINE_COMPONENT_TARGET_FIELD]);
+const COMPONENT_TARGET_FIELDS = Object.freeze([CITRULLINE_COMPONENT_TARGET_FIELD, CREATINE_COMPONENT_TARGET_FIELD]);
+const PREWORKOUT_TARGET_FIELDS = Object.freeze([...NUT03B_PREWORKOUT_TARGET_FIELDS, ...COMPONENT_TARGET_FIELDS]);
 const LEGACY_ALLOWED_FIELDS = Object.freeze([...FIELDS, ...DERIVED_FIELDS]);
 const NUT02B_ALLOWED_FIELDS = Object.freeze([...LEGACY_ALLOWED_FIELDS, ...NUT02B_PREWORKOUT_TARGET_FIELDS]);
 const NUT03B_ALLOWED_FIELDS = Object.freeze([...LEGACY_ALLOWED_FIELDS, ...NUT03B_PREWORKOUT_TARGET_FIELDS]);
@@ -53,7 +56,7 @@ function canonicalJson(value) {
   if (value && typeof value === "object") return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(",")}}`;
   return JSON.stringify(value);
 }
-function citrullineComponentContext(candidate) {
+function componentContext(candidate) {
   return canonicalJson({
     source_url: String(candidate.source_url),
     source_file_sha256: String(candidate.source_file_sha256),
@@ -63,7 +66,7 @@ function citrullineComponentContext(candidate) {
     serving_basis_unit: candidate.serving_basis_unit == null ? null : String(candidate.serving_basis_unit),
   });
 }
-function sortCitrullineComponents(components) {
+function sortComponents(components) {
   return [...components].sort((left, right) =>
     String(left.ingredient_form).localeCompare(String(right.ingredient_form)) ||
     String(left.ingredient_ratio || "").localeCompare(String(right.ingredient_ratio || "")) ||
@@ -73,13 +76,13 @@ function sortCitrullineComponents(components) {
 function componentIdentity(component) {
   return `${component.ingredient_form}|${component.ingredient_ratio || ""}`;
 }
-function componentSetIssue(items) {
-  if (items.length < 2) return "CITRULLINE_COMPONENT_SET_REQUIRES_MULTIPLE_COMPONENTS";
-  if (new Set(items.map((item) => citrullineComponentContext(item.candidate || item))).size !== 1) {
-    return "CITRULLINE_COMPONENT_CONTEXT_MISMATCH";
+function componentSetIssue(items, kind = "CITRULLINE") {
+  if (items.length < 2) return `${kind}_COMPONENT_SET_REQUIRES_MULTIPLE_COMPONENTS`;
+  if (new Set(items.map((item) => componentContext(item.candidate || item))).size !== 1) {
+    return `${kind}_COMPONENT_CONTEXT_MISMATCH`;
   }
   const identities = items.map((item) => componentIdentity(item.value || item));
-  if (new Set(identities).size !== identities.length) return "DUPLICATE_CITRULLINE_COMPONENT";
+  if (new Set(identities).size !== identities.length) return `DUPLICATE_${kind}_COMPONENT`;
   return null;
 }
 function candidateEvidence(candidate) {
@@ -185,7 +188,7 @@ function buildApprovedPlan(candidates, products, runId, generatedAt = new Date()
   for (const group of groups.values()) {
     const first = group[0];
     const values = new Set(group.map((item) => canonicalJson(item.value)));
-    const componentGroup = first.field === CITRULLINE_COMPONENT_TARGET_FIELD;
+    const componentGroup = COMPONENT_TARGET_FIELDS.includes(first.field);
     if (!componentGroup && values.size !== 1) {
       blockers.push({
         code: "CONFLICTING_APPROVED_VALUES", product_id: first.productId,
@@ -211,7 +214,8 @@ function buildApprovedPlan(candidates, products, runId, generatedAt = new Date()
       }
     }
 
-    const componentIssue = componentGroup ? componentSetIssue(group) : null;
+    const componentKind = first.field === CREATINE_COMPONENT_TARGET_FIELD ? "CREATINE" : "CITRULLINE";
+    const componentIssue = componentGroup ? componentSetIssue(group, componentKind) : null;
     if (componentIssue) {
       blockers.push({
         code: componentIssue,
@@ -224,7 +228,7 @@ function buildApprovedPlan(candidates, products, runId, generatedAt = new Date()
     }
     const { productId, variantId, field } = first;
     const value = componentGroup
-      ? sortCitrullineComponents(group.map((item) => item.value))
+      ? sortComponents(group.map((item) => item.value))
       : first.value;
     const product = productById.get(productId);
     if (!product) {
@@ -250,8 +254,9 @@ function buildApprovedPlan(candidates, products, runId, generatedAt = new Date()
       }
       const update = changesByVariant.get(variantId);
       if (componentGroup) {
-        if (Object.hasOwn(update.before_nutrition_override, "citrulline")) {
-          blockers.push({ code: "CITRULLINE_SINGLE_AND_COMPONENTS_REQUIRE_REVIEWED_TRANSITION", product_id: productId, product_variant_id: variantId, field });
+        const singularField = field === CREATINE_COMPONENT_TARGET_FIELD ? "creatine" : "citrulline";
+        if (Object.hasOwn(update.before_nutrition_override, singularField)) {
+          blockers.push({ code: `${singularField.toUpperCase()}_SINGLE_AND_COMPONENTS_REQUIRE_REVIEWED_TRANSITION`, product_id: productId, product_variant_id: variantId, field });
           continue;
         }
         const beforeRaw = Object.hasOwn(update.before_nutrition_override, field)
@@ -341,6 +346,15 @@ function buildApprovedPlan(candidates, products, runId, generatedAt = new Date()
         field: CITRULLINE_COMPONENT_TARGET_FIELD,
       });
     }
+    if (Object.hasOwn(update.after_nutrition_override, "creatine") &&
+        Object.hasOwn(update.after_nutrition_override, CREATINE_COMPONENT_TARGET_FIELD)) {
+      blockers.push({
+        code: "CREATINE_SINGLE_AND_COMPONENTS_REQUIRE_REVIEWED_TRANSITION",
+        product_id: update.product_id,
+        product_variant_id: update.product_variant_id,
+        field: CREATINE_COMPONENT_TARGET_FIELD,
+      });
+    }
   }
 
   const productUpdates = [...changesByProduct.values()].sort((a, b) => Number(a.product_id) - Number(b.product_id));
@@ -416,8 +430,8 @@ function validateChanges(changes, productId, variantId) {
       evidenceOk && change.evidence.every((row) => NUTRITION_SOURCE_FIELDS.has(row.source_field));
     const numericChange = FIELDS.includes(field) && Number.isFinite(change?.after) && change.after > 0 &&
       (change.before === null || Number.isFinite(change.before)) && evidenceOk;
-    const componentFacts = field === CITRULLINE_COMPONENT_TARGET_FIELD && evidenceOk
-      ? sortCitrullineComponents(change.evidence.map((row) => ingredientFact({
+    const componentFacts = COMPONENT_TARGET_FIELDS.includes(field) && evidenceOk
+      ? sortComponents(change.evidence.map((row) => ingredientFact({
         ...row, field_name: row.source_field,
         value_numeric: row.proposed_value,
         unit: row.source_value == null ? null : "mg",
@@ -426,12 +440,15 @@ function validateChanges(changes, productId, variantId) {
         basis: row.quantity_basis,
       }, row.source_value)))
       : null;
-    const componentChange = field === CITRULLINE_COMPONENT_TARGET_FIELD && variantId !== null &&
+    const componentSourceField = field === CREATINE_COMPONENT_TARGET_FIELD
+      ? CREATINE_COMPONENT_CANDIDATE_FIELD : CITRULLINE_COMPONENT_CANDIDATE_FIELD;
+    const componentKind = field === CREATINE_COMPONENT_TARGET_FIELD ? "CREATINE" : "CITRULLINE";
+    const componentChange = COMPONENT_TARGET_FIELDS.includes(field) && variantId !== null &&
       Array.isArray(change?.after) && (change.before === null || Array.isArray(change.before)) &&
-      evidenceOk && change.evidence.every((row) => row.source_field === CITRULLINE_COMPONENT_CANDIDATE_FIELD) &&
-      componentSetIssue(change.evidence.map((candidate, index) => ({ candidate, value: componentFacts[index] }))) === null &&
+      evidenceOk && change.evidence.every((row) => row.source_field === componentSourceField) &&
+      componentSetIssue(change.evidence.map((candidate, index) => ({ candidate, value: componentFacts[index] })), componentKind) === null &&
       canonicalJson(componentFacts) === canonicalJson(change.after);
-    const structuredChange = PREWORKOUT_TARGET_FIELDS.includes(field) && field !== CITRULLINE_COMPONENT_TARGET_FIELD && variantId !== null &&
+    const structuredChange = PREWORKOUT_TARGET_FIELDS.includes(field) && !COMPONENT_TARGET_FIELDS.includes(field) && variantId !== null &&
       change?.after && typeof change.after === "object" && !Array.isArray(change.after) &&
       (change.before === null || (change.before && typeof change.before === "object" && !Array.isArray(change.before))) &&
       evidenceOk && change.evidence.every((row) => TARGET_FIELD_BY_CANDIDATE_FIELD[row.source_field] === field) &&
@@ -475,6 +492,10 @@ function validatePlan(plan) {
     if (Object.hasOwn(update.after_nutrition_override, "citrulline") &&
         Object.hasOwn(update.after_nutrition_override, CITRULLINE_COMPONENT_TARGET_FIELD)) {
       fail("Singular citrulline and citrulline components cannot coexist in one variant override");
+    }
+    if (Object.hasOwn(update.after_nutrition_override, "creatine") &&
+        Object.hasOwn(update.after_nutrition_override, CREATINE_COMPONENT_TARGET_FIELD)) {
+      fail("Singular creatine and creatine components cannot coexist in one variant override");
     }
     const expected = { ...update.before_nutrition_override };
     for (const [field, change] of Object.entries(update.changes)) expected[field] = change.after;

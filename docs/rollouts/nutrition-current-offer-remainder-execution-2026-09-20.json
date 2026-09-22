@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-current-offer-remainder-execution-v1",
+  "status": "LIVE_VERIFIED",
+  "target": { "environment": "PRODUCTION", "project_ref": "aftboxmrdgyhizicfsfu" },
+  "authorization": { "candidates": 40, "variants": 12, "products": ["789", "882", "839"], "stages": ["store", "authenticated_review", "plan", "guarded_apply"] },
+  "preflight": { "result": "PASS", "variant_bindings": 12, "unique_fingerprints": 40, "existing_duplicates": 0 },
+  "candidate_ids": {
+    "789": ["3104", "3105", "3106", "3107", "3108", "3109", "3110", "3111", "3112", "3113", "3114", "3115", "3116", "3117", "3118", "3119", "3120", "3121", "3122", "3123", "3124", "3125", "3126", "3127", "3128"],
+    "882": ["3129", "3130", "3131", "3132", "3133", "3134", "3135", "3136", "3137", "3138"],
+    "839": ["3139", "3140", "3141", "3142", "3143"]
+  },
+  "review": { "result": "PASS", "approved": 40, "changed_values": 0, "evidence_unchanged": true },
+  "plans": [
+    { "product_id": "789", "path": "tmp/nutrition-approved-plan/NCR1-current-offer-remainder-20260920-789-696e6500d3f4.json", "sha256": "a582b08c64641714ec2e685adf1b361e2409282e8706efaa5b95d4f45db54945", "fingerprint": "696e6500d3f4168c0feb5ae3ace952d11e243c6e5e0c605adfdaa12be6845648", "candidates": 25, "variant_updates": 5, "product_updates": 0, "blockers": 0 },
+    { "product_id": "882", "path": "tmp/nutrition-approved-plan/NCR1-current-offer-remainder-20260920-882-d1d5bb077db1.json", "sha256": "3aade0802fa313780dfd00fd65f3f8d1c600bf56dd082d0e433540bdd3dbe0b8", "fingerprint": "d1d5bb077db1df28876eb7ac53a1cea912f0b0815c5efe067acd27c8ef4ab271", "candidates": 10, "variant_updates": 2, "product_updates": 0, "blockers": 0 },
+    { "product_id": "839", "path": "tmp/nutrition-approved-plan/NCR1-current-offer-remainder-20260920-839-a475a48f9976.json", "sha256": "6981c759276a6727ce8bec4febc48ceec3983161e746e49bdc17ac4a4d3bc964", "fingerprint": "a475a48f99760a014e84127fcbf46bf5869e78ef133e1b634b64dd8238780298", "candidates": 5, "variant_updates": 5, "product_updates": 0, "blockers": 0 }
+  ],
+  "apply": { "result": "PASS", "changed_products": 0, "changed_variants": 12, "variant_ids": ["3588", "3589", "3590", "3592", "3593", "1399", "1402", "1217", "1218", "1219", "1220", "2767"], "only_target": "product_variants.nutrition_override" },
+  "independent_readback": { "result": "PASS", "whole_override_matches_after": 12, "approved_candidates": 40, "public_pages_passed": 12, "current_offer_coverage": { "total": 369, "complete": 341, "partial": 11, "none": 17, "complete_percent": 92.4, "any_data_percent": 95.4 } },
+  "replay": { "result": "SAFE_REJECTION", "plans_checked": 3, "additional_writes": 0, "reason": "stale before-state after successful apply" },
+  "remaining": { "current_offer_incomplete": 28, "partial": 11, "none": 17, "requires_new_exact_evidence_or_model_support": true },
+  "controls": { "products_unchanged": true, "nutrition_verified_not_written": true, "legacy_creatine_per_serving_g_not_written": true, "code_changes": 0, "schema_changes": 0 }
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-large-next-06-execution-v1",
+  "status": "APPLIED_AND_READ_BACK",
+  "executed_at": "2026-09-15T06:31:00Z",
+  "authorization": "Owner authorized production store -> review -> plan -> apply of exactly 24 candidates in the three unchanged Batch 06 artifacts.",
+  "target": {"environment":"PRODUCTION","project_ref":"aftboxmrdgyhizicfsfu"},
+  "scope": {"products":3,"variants":24,"candidates":24,"product_updates":0,"variant_updates":24},
+  "store": {"result":"PASS","created":24,"duplicate_candidates":0,"candidate_ids":"2163-2186"},
+  "review": {"result":"PASS","approved":24,"mechanism":"authenticated admin panel","evidence_changed":false},
+  "plans": [
+    {"product_id":"1280","path":"tmp/nutrition-approved-plan/NCR1-catalog-large-next-06-20260915-1280-03328ce458f6.json","sha256":"cd6949ab8fbd1572590c079ab82544ecbe96e24327f1e605606e4c070e3da00a","fingerprint":"03328ce458f630e4e85409d9c9701b977fcb40d6b0d767c856caa43e70042454","candidates":16,"variants":16},
+    {"product_id":"489","path":"tmp/nutrition-approved-plan/NCR1-catalog-large-next-06-20260915-489-0dec63399faf.json","sha256":"f6feff0532664730d4716316d5d585b69f15856342509f275253f560415c2ce3","fingerprint":"0dec63399fafd79d2b06e97dd05e91db7e5041b26e3967a86beef05a3e7685b5","candidates":7,"variants":7},
+    {"product_id":"1284","path":"tmp/nutrition-approved-plan/NCR1-catalog-large-next-06-20260915-1284-b8bcce116289.json","sha256":"d25902978ab27043a82634483a682de149b7e806f62193a8031d0be6edfa16c6","fingerprint":"b8bcce1162893e954c2bed0fdf6e5b2ef284a9beee253c2c9d65970dc28f424a","candidates":1,"variants":1}
+  ],
+  "apply": {"result":"PASS","plans_applied":3,"products_changed":0,"variants_changed":["3760","3856","3996","3997","3998","3999","4000","4001","4002","4003","4004","4005","4006","4007","4008","4009","1023","1792","1793","1794","1795","1796","1797","3764"]},
+  "independent_readback": {"result":"PASS","whole_overrides_match_after":24,"approved_candidates":24,"evidence_unchanged":true,"coverage":{"applied":305,"complete":268,"partial":37,"none":270},"sha256":"014f83138554e17e2e9968772477d67215af1f0024c93d8e43cb9c6d915c127f"},
+  "public_presentation": {"result":"PASS","pages_checked":24,"amount_not_disclosed_visible":true,"targets_in_caffeine_free_filter":false,"sha256":"037236a50ea2d729ff941749c4357ff1c46531a35a865e34c683643d56208c83"},
+  "replay": {"result":"PASS_SAFE_REJECTION","plans_checked":3,"safely_rejected_stale_before":3,"additional_writes":0,"sha256":"cdbe3a612820cb8e5124821c8034ffaffd4e32d5c96df6c9c8808a106593e25a"},
+  "unchanged": {"products":true,"nutrition_verified":true,"legacy_creatine_per_serving_g":true,"other_variants":true},
+  "remaining_gap": {"variants":7,"product_id":"489","field":"creatine","reason":"The retained evidence does not establish one creatine outcome consistently across all seven catalogue flavours."},
+  "next_step": "Prepare the next evidence-qualified large batch without repeating retained generation, serving, active-yield or multi-form blockers."
+}

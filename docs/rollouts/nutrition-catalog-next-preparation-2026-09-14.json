@@ -1,0 +1,49 @@
+{
+  "schema_version": "nutrition-preparation-report-v1",
+  "prepared_at": "2026-09-14",
+  "environment": { "name": "production_read_only", "supabase_project_ref": "aftboxmrdgyhizicfsfu" },
+  "baseline": { "applied_variants": 212, "complete_state_keys": 181, "partial": 31, "none": 363 },
+  "scope": { "families_assessed": 2, "variants_assessed": 12, "families_ready": 1, "variants_ready": 3, "candidate_facts": 15 },
+  "ready_family": {
+    "product_id": "482",
+    "product": "JNX Sports The Curse 250g",
+    "variant_ids": ["1022", "1697", "1698"],
+    "variants": ["Blue Raspberry / 250g", "Fruit Punch / 250g", "Pina Colada / 250g"],
+    "applicability": "The manufacturer presents all three flavours in one 250 g / 50-serving product context; matching retailer-hosted manufacturer label data for Blue Raspberry and Pina Colada supplies the same EU-formula facts and no tracked-dose exception is shown for Fruit Punch.",
+    "proposed_facts_per_variant": [
+      { "field": "serving_size_g", "value": 5, "source_value": 5, "source_unit": "g", "basis": "1 scoop (5 g)" },
+      { "field": "caffeine_per_serving_mg", "information_state": "present_with_amount", "value": 155, "source_value": 155, "source_unit": "mg" },
+      { "field": "beta_alanine_per_serving_mg", "information_state": "present_with_amount", "value": 1600, "source_value": 1600, "source_unit": "mg" },
+      { "field": "citrulline_per_serving_mg", "information_state": "present_with_amount", "value": 700, "source_value": 700, "source_unit": "mg", "ingredient_form": "l_citrulline" },
+      { "field": "creatine_declared_form_per_serving_mg", "information_state": "present_with_amount", "value": 1000, "source_value": 1000, "source_unit": "mg", "ingredient_form": "creatine_monohydrate", "amount_subject": "declared_ingredient_form" }
+    ]
+  },
+  "sources": [
+    { "url": "https://www.jnxsports.com/products/the-curse-pre-workout", "type": "manufacturer_product_page", "role": "product, formula and shared flavour context" },
+    { "url": "https://uk.iherb.com/pr/jnx-sports-the-curse-pre-workout-blue-raspberry-8-8-oz-250-g/95820", "type": "retailer_hosted_manufacturer_label", "role": "250 g Blue Raspberry table" },
+    { "url": "https://www.iherb.com/pr/jnx-sports-the-curse-pre-workout-pina-colada-8-8-oz-250-g/95824", "type": "retailer_hosted_manufacturer_label", "role": "250 g Pina Colada comparison" }
+  ],
+  "archive": {
+    "private_bucket": "nutrition-sources",
+    "bucket_public": false,
+    "review_sha256": "9060234e43f1c373d01bcc8f4399c4d932cd080b53886fe22fd273e1145a6d46",
+    "context_manifest_sha256": "9315cf067fa8a7f1e5ed59422be3e4af379f163354368826870f7e17428f94dc",
+    "readback_hashes_match": true,
+    "stored_material": "project-authored factual review and source context manifest"
+  },
+  "artifact": {
+    "path": "tmp/nutrition-catalog-next-preparation-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-next-20260914-482.json",
+    "sha256": "89d96dff9a31bf1b761271245b5276423f90c5d2fd4f3fd84968a98aa420ad4b",
+    "artifact_fingerprint": "c082a64382f4ab4a1f6acf199bf188c5279b26e5f5f81a204f28a7449e02e613",
+    "candidate_fingerprints": 15,
+    "unique_candidate_fingerprints": 15
+  },
+  "validation": { "nutrition_candidates_store_dry_run": "PASS", "candidate_rows": 15, "product_updates": 0, "database_writes": 0, "production_preflight": "PASS", "existing_candidates": 0 },
+  "retained_blockers": [
+    { "product_id": "169", "variant_count": 9, "reason": "The 400 g catalogue identity conflicts with current 14.1/14.9 g and 320 mg presentations and older 441/447 g labels; no dose was guessed." },
+    { "product_id": "27", "variant_count": 8, "reason": "Known C4 195 g conflict remains retained and was not re-audited." },
+    { "product_id": "1276", "variant_count": 8, "reason": "Known Ibiza version and caffeine-yield gaps remain retained and were not re-audited." }
+  ],
+  "production_writes": { "nutrition_candidates": 0, "catalogue": 0 },
+  "next_step": "One owner decision may authorize store -> authenticated review -> explicit-ID plan -> guarded apply for exactly this unchanged 15-candidate artifact."
+}

@@ -1,0 +1,530 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-large-next-02-preparation-v1",
+  "status": "READY_FOR_ONE_OWNER_DECISION",
+  "prepared_at": "2026-09-14T15:22:18.185Z",
+  "mode": "PREPARATION_ONLY",
+  "production_preflight": {
+    "result": "PASS",
+    "captured_at": "2026-09-14T15:18:37.503Z",
+    "target": {
+      "project_ref": "aftboxmrdgyhizicfsfu",
+      "database_oid": "5",
+      "database_identity": "supplementscout-production:aftboxmrdgyhizicfsfu",
+      "target_environment": "PRODUCTION",
+      "database_system_identifier": "7642734024280108049"
+    },
+    "variants": 16,
+    "candidate_fingerprints": 80,
+    "unique_candidate_fingerprints": 80,
+    "existing_candidates": 0,
+    "before_overrides_nonempty": 0,
+    "database_writes": 0
+  },
+  "scope": {
+    "organizational_limit_variants": 50,
+    "families": 5,
+    "assessed_variants": 35,
+    "ready_variants": 16,
+    "complete_variants": 16,
+    "partial_variants": 0,
+    "candidate_facts": 80,
+    "unique_candidate_fingerprints": 80,
+    "excluded_variants_after_short_recognition": 19
+  },
+  "families": [
+    {
+      "product_id": "1171",
+      "product": "Cellucor C4 Original Pre-Workout Powder 60 Servings",
+      "variant_ids": [
+        "3277",
+        "3444",
+        "3445",
+        "3447"
+      ],
+      "candidate_count": 20,
+      "artifact": {
+        "path": "tmp/nutrition-large-next-02-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-02-20260914-1171.json",
+        "sha256": "fa5c80c8c99e86c8e54d04dbc730798d3645fd3e549384b0d956f0690b5d80c9",
+        "fingerprint": "446065f57e89f925e40e1cb450d9d99ac06107db9a87814cf90683a54d44a776"
+      },
+      "unresolved": [],
+      "completeness": "COMPLETE",
+      "variants": [
+        {
+          "id": "3277",
+          "display_name": "Cosmic Rainbow"
+        },
+        {
+          "id": "3444",
+          "display_name": "Orange Burst"
+        },
+        {
+          "id": "3445",
+          "display_name": "Pineapple Head"
+        },
+        {
+          "id": "3447",
+          "display_name": "Strawberry Margarita"
+        }
+      ],
+      "facts": [
+        {
+          "field": "serving_size_g",
+          "value": 6.8,
+          "unit": "g",
+          "ingredient_form": null,
+          "source_text": "1 level scoop (6.8 g)",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 150,
+          "unit": "mg",
+          "ingredient_form": null,
+          "source_text": "Caffeine 150 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 1600,
+          "unit": "mg",
+          "ingredient_form": null,
+          "source_text": "CarnoSyn Beta-Alanine 1600 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "ingredient_form": null,
+          "source_text": "Complete formula contains no citrulline form or undisclosed blend",
+          "information_state": "confirmed_absent",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": 1500,
+          "unit": "mg",
+          "ingredient_form": "creatine_monohydrate",
+          "source_text": "Micronised Creatine Monohydrate 1500 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        }
+      ],
+      "source": {
+        "url": "https://www.10reps.co.uk/product/c4-original-pre-workout-powder-60/",
+        "type": "retailer_product_page",
+        "applicability_basis": "retailer shared table for the exact 60-serving UK formula and listed flavours",
+        "review_sha256": "7593664b43b200eec97d899c655bacff411c39087ac9c7a8bdd23d4294de8598",
+        "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-large-next-02-2026-09-14/7593664b43b200eec97d899c655bacff411c39087ac9c7a8bdd23d4294de8598/product-1171-source-review.json"
+      },
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 20,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "449",
+      "product": "USN QHUSH Black Pre-workout 220g",
+      "variant_ids": [
+        "1021",
+        "1787",
+        "1788"
+      ],
+      "candidate_count": 15,
+      "artifact": {
+        "path": "tmp/nutrition-large-next-02-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-02-20260914-449.json",
+        "sha256": "f93a836e9aae25b524dc67d6b9111cb58c3c412dcf113b40d19922929b5ca75c",
+        "fingerprint": "2877b14b463e8fa48af0e4a12b570e722e5d432e306b6bde7b2d799655b62172"
+      },
+      "unresolved": [],
+      "completeness": "COMPLETE",
+      "variants": [
+        {
+          "id": "1021",
+          "display_name": "Berry Blaze / 220g"
+        },
+        {
+          "id": "1787",
+          "display_name": "Blue Raspberry / 220g"
+        },
+        {
+          "id": "1788",
+          "display_name": "Frosted Lemon / 220g"
+        }
+      ],
+      "facts": [
+        {
+          "field": "serving_size_g",
+          "value": 11,
+          "unit": "g",
+          "ingredient_form": null,
+          "source_text": "1 scoop (11 g)",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 250,
+          "unit": "mg",
+          "ingredient_form": null,
+          "source_text": "Caffeine 250 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 2500,
+          "unit": "mg",
+          "ingredient_form": null,
+          "source_text": "Beta Alanine 2500 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 4000,
+          "unit": "mg",
+          "ingredient_form": "citrulline_malate",
+          "source_text": "L-Citrulline-DL-Malate (2:1) 4000 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": "2:1"
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "ingredient_form": null,
+          "source_text": "Complete declared ingredients contain no creatine form or undisclosed blend",
+          "information_state": "confirmed_absent",
+          "ingredient_ratio": null
+        }
+      ],
+      "source": {
+        "url": "https://usn.global/products/qhush-black",
+        "type": "manufacturer_product_page",
+        "applicability_basis": "manufacturer table for the exact 220 g formula and shared flavour presentation",
+        "review_sha256": "d38ccc702445806f8bdd023201a257d61ee8c2d94505ec66e1895519e1d42802",
+        "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-large-next-02-2026-09-14/d38ccc702445806f8bdd023201a257d61ee8c2d94505ec66e1895519e1d42802/product-449-source-review.json"
+      },
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 15,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "1162",
+      "product": "AK-47 Labs Pre-Workout 240g",
+      "variant_ids": [
+        "3233",
+        "3263",
+        "3267"
+      ],
+      "candidate_count": 15,
+      "artifact": {
+        "path": "tmp/nutrition-large-next-02-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-02-20260914-1162.json",
+        "sha256": "fbbc4c41f8fe0f72e82c62cef65e203c271ce099a02ee6a0fee9e34b1cc4f8d4",
+        "fingerprint": "30954d42a061ce5fba624bf0f9384222f85a943f14c1cb6080487688a986a0b4"
+      },
+      "unresolved": [],
+      "completeness": "COMPLETE",
+      "variants": [
+        {
+          "id": "3233",
+          "display_name": "Cotton Candy"
+        },
+        {
+          "id": "3263",
+          "display_name": "Fruit Punch"
+        },
+        {
+          "id": "3267",
+          "display_name": "Sunshine Orange"
+        }
+      ],
+      "facts": [
+        {
+          "field": "serving_size_g",
+          "value": 2,
+          "unit": "g",
+          "ingredient_form": null,
+          "source_text": "Half scoop (2 g)",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 200,
+          "unit": "mg",
+          "ingredient_form": null,
+          "source_text": "Caffeine 200 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 500,
+          "unit": "mg",
+          "ingredient_form": null,
+          "source_text": "Beta-Alanine 500 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "ingredient_form": null,
+          "source_text": "Complete declared ingredients contain no citrulline form or undisclosed blend",
+          "information_state": "confirmed_absent",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "ingredient_form": null,
+          "source_text": "Complete declared ingredients contain no creatine form or undisclosed blend",
+          "information_state": "confirmed_absent",
+          "ingredient_ratio": null
+        }
+      ],
+      "source": {
+        "url": "https://www.10reps.co.uk/product/ak-47-labs-pre-workout-240g/",
+        "type": "retailer_product_page",
+        "applicability_basis": "retailer flavour-specific tables and complete ingredients for exact 240 g product",
+        "review_sha256": "91def745770c3c6bf827e4a87fe5744396884e8cc0b13f8f307e6cdac2684c7e",
+        "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-large-next-02-2026-09-14/91def745770c3c6bf827e4a87fe5744396884e8cc0b13f8f307e6cdac2684c7e/product-1162-source-review.json"
+      },
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 15,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "1278",
+      "product": "USP Labs Jack3d Advanced Formula 315g",
+      "variant_ids": [
+        "3758",
+        "3875",
+        "3877"
+      ],
+      "candidate_count": 15,
+      "artifact": {
+        "path": "tmp/nutrition-large-next-02-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-02-20260914-1278.json",
+        "sha256": "301782160101a92941e0661a5e5d9bd468aa4654cdf81ad3a0c3e68aa84ceda1",
+        "fingerprint": "f63160aed438071aeecc7aac09e0154a6b081cfa32dbb257f43f871bcf62731d"
+      },
+      "unresolved": [],
+      "completeness": "COMPLETE",
+      "variants": [
+        {
+          "id": "3758",
+          "display_name": "Energy Drink"
+        },
+        {
+          "id": "3875",
+          "display_name": "Strawberry Vanilla / 315g"
+        },
+        {
+          "id": "3877",
+          "display_name": "White Energy / 315g"
+        }
+      ],
+      "facts": [
+        {
+          "field": "serving_size_g",
+          "value": 7,
+          "unit": "g",
+          "ingredient_form": null,
+          "source_text": "1 scoop (7 g)",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 130,
+          "unit": "mg",
+          "ingredient_form": null,
+          "source_text": "Caffeine 130 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 2000,
+          "unit": "mg",
+          "ingredient_form": null,
+          "source_text": "Beta-Alanine 2000 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 2000,
+          "unit": "mg",
+          "ingredient_form": "l_citrulline",
+          "source_text": "L-Citrulline (Free-Form) 2000 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": 1000,
+          "unit": "mg",
+          "ingredient_form": "creatine_monohydrate",
+          "source_text": "Creatine Monohydrate 1000 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        }
+      ],
+      "source": {
+        "url": "https://www.10reps.co.uk/product/usp-labs-jack3d/",
+        "type": "retailer_product_page",
+        "applicability_basis": "retailer table for the 315 g / 45-serving EU formula and listed flavours, corroborated by a second exact-pack table",
+        "review_sha256": "fe88cb5534fc1a3dbd31672c9e3913ada6e95e6cb538ba7a06ac920378e4c3dd",
+        "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-large-next-02-2026-09-14/fe88cb5534fc1a3dbd31672c9e3913ada6e95e6cb538ba7a06ac920378e4c3dd/product-1278-source-review.json"
+      },
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 15,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    },
+    {
+      "product_id": "847",
+      "product": "Performax Labs HyperMax'D Out 480g",
+      "variant_ids": [
+        "1232",
+        "1233",
+        "2774"
+      ],
+      "candidate_count": 15,
+      "artifact": {
+        "path": "tmp/nutrition-large-next-02-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-02-20260914-847.json",
+        "sha256": "3dad6942d892d8048fecb30c3cbd1429daa382f41b6306401cab24f04b52dceb",
+        "fingerprint": "ebc1ce033d3ef6c18cdd390dd4855eefca0195e7b13084835dfe4e421571ed32"
+      },
+      "unresolved": [],
+      "completeness": "COMPLETE",
+      "variants": [
+        {
+          "id": "1232",
+          "display_name": "Anaconda Apple / 480g"
+        },
+        {
+          "id": "1233",
+          "display_name": "Blue Shark Splash / 480g"
+        },
+        {
+          "id": "2774",
+          "display_name": "Tiger's Blood / 480g"
+        }
+      ],
+      "facts": [
+        {
+          "field": "serving_size_g",
+          "value": 24,
+          "unit": "g",
+          "ingredient_form": null,
+          "source_text": "Per serving (24 g)",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "caffeine_per_serving_mg",
+          "value": 400,
+          "unit": "mg",
+          "ingredient_form": null,
+          "source_text": "Caffeine Anhydrous 400 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "beta_alanine_per_serving_mg",
+          "value": 3200,
+          "unit": "mg",
+          "ingredient_form": null,
+          "source_text": "Beta-Alanine 3200 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "citrulline_per_serving_mg",
+          "value": 8000,
+          "unit": "mg",
+          "ingredient_form": "l_citrulline",
+          "source_text": "L-Citrulline 8000 mg",
+          "information_state": "present_with_amount",
+          "ingredient_ratio": null
+        },
+        {
+          "field": "creatine_declared_form_per_serving_mg",
+          "value": null,
+          "unit": null,
+          "ingredient_form": null,
+          "source_text": "Complete transparent formula contains no creatine form or undisclosed blend",
+          "information_state": "confirmed_absent",
+          "ingredient_ratio": null
+        }
+      ],
+      "source": {
+        "url": "https://jonssupplements.co.uk/products/performax-labs-hypermaxd-out-480g",
+        "type": "retailer_product_page",
+        "applicability_basis": "retailer transparent table and complete ingredients for exact 480 g product and listed flavours",
+        "review_sha256": "4cf3ef0248a0283310d301690f23188d44bbebc0bcd87c8b231589f0de1f7373",
+        "archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/catalog-large-next-02-2026-09-14/4cf3ef0248a0283310d301690f23188d44bbebc0bcd87c8b231589f0de1f7373/product-847-source-review.json"
+      },
+      "dry_run": {
+        "result": "PASS",
+        "candidate_rows": 15,
+        "product_updates": 0,
+        "database_writes": 0
+      }
+    }
+  ],
+  "archive": {
+    "result": "PASS",
+    "bucket": "nutrition-sources",
+    "bucket_public": false,
+    "verified_objects": 5,
+    "hashes_match": true
+  },
+  "exclusions": [
+    {
+      "product_id": "169",
+      "reason": "400 g identity conflicts with available current/historical serving and pack evidence"
+    },
+    {
+      "product_id": "879",
+      "reason": "manufacturer warns flavour contents vary and visible table does not bind targets"
+    },
+    {
+      "product_id": "1178",
+      "reason": "retained access and flavour-identity blocker"
+    },
+    {
+      "product_id": "1275",
+      "reason": "catalogue 520 g versus current 550 g formula"
+    }
+  ],
+  "controls": {
+    "all_artifact_dry_runs": "PASS",
+    "source_reviews_archived_and_hash_read_back": true,
+    "candidate_database_writes": 0,
+    "catalogue_database_writes": 0
+  },
+  "production_writes": 0,
+  "next_step": "One owner decision for controlled store, authenticated review, explicit-ID plans and guarded apply of exactly these five unchanged artifacts and 80 fingerprints."
+}

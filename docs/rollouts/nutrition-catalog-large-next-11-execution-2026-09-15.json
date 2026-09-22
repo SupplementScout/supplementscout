@@ -1,0 +1,847 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-large-next-11-execution-report-v1",
+  "date": "2026-09-15",
+  "status": "LIVE_VERIFIED",
+  "authorization": {
+    "scope": "store -> authenticated review -> plan -> apply after explicit owner authorization",
+    "candidates": 115,
+    "variants": 23,
+    "variant_ids": [
+      "1421",
+      "1422",
+      "1586",
+      "1587",
+      "1588",
+      "1589",
+      "1590",
+      "1591",
+      "1592",
+      "1593",
+      "2700",
+      "3275",
+      "3410",
+      "3414",
+      "3419",
+      "3438",
+      "3439",
+      "3440",
+      "3441",
+      "3442",
+      "3443",
+      "3446",
+      "3448"
+    ]
+  },
+  "preflight": {
+    "result": "PASS",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "target_environment": "PRODUCTION",
+    "unique_candidate_fingerprints": 115,
+    "existing_candidates": 0,
+    "empty_target_overrides": 23,
+    "database_writes": 0
+  },
+  "artifacts": [
+    {
+      "candidates": 40,
+      "path": "tmp/nutrition-catalog-large-next-11-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-11-20260915-27.json",
+      "sha256": "a92b6b890b4221697cbdc4ccce6648968671f864fd1cd456994cefcc85739320",
+      "product_id": "27",
+      "artifact_key": "27",
+      "artifact_fingerprint": "7deb83d715b4c0cb4ea37d15dac0e6839f6a1793b8e1e04d626db109494f7467"
+    },
+    {
+      "candidates": 20,
+      "path": "tmp/nutrition-catalog-large-next-11-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-11-20260915-1169.json",
+      "sha256": "42ea7a3a9b7dc2f0bdfca47bfff22c26cf336fd17df880c9ad793888cf66dfbe",
+      "product_id": "1169",
+      "artifact_key": "1169",
+      "artifact_fingerprint": "bbf18511dc9d5f9c8d7afaa92568e2338347327a1f50b5cae5d7f7930172648d"
+    },
+    {
+      "candidates": 40,
+      "path": "tmp/nutrition-catalog-large-next-11-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-11-20260915-1171.json",
+      "sha256": "a3f4890869d4a09dfef7ce35b3c5f02e46d143a4d7731ba58c6102b4aeae8449",
+      "product_id": "1171",
+      "artifact_key": "1171",
+      "artifact_fingerprint": "eb202cb7b734bf99f1e5d6a83c6aceead6209d27fc0d02eb8eeb78e66455c2c9"
+    },
+    {
+      "candidates": 15,
+      "path": "tmp/nutrition-catalog-large-next-11-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-11-20260915-885.json",
+      "sha256": "f861d5b57f9ea281fbb4e427c848723f5d62608b65995e678548132090f87f86",
+      "product_id": "885",
+      "artifact_key": "885",
+      "artifact_fingerprint": "666051cf5cb3d04eedc051a5285b78d39b7313aa83439de19c5fe5c1f3b54815"
+    }
+  ],
+  "store": {
+    "created": 115,
+    "product_updates": 0,
+    "candidate_ids": [
+      "2507",
+      "2508",
+      "2509",
+      "2510",
+      "2511",
+      "2512",
+      "2513",
+      "2514",
+      "2515",
+      "2516",
+      "2517",
+      "2518",
+      "2519",
+      "2520",
+      "2521",
+      "2522",
+      "2523",
+      "2524",
+      "2525",
+      "2526",
+      "2527",
+      "2528",
+      "2529",
+      "2530",
+      "2531",
+      "2532",
+      "2533",
+      "2534",
+      "2535",
+      "2536",
+      "2537",
+      "2538",
+      "2539",
+      "2540",
+      "2541",
+      "2542",
+      "2543",
+      "2544",
+      "2545",
+      "2546",
+      "2547",
+      "2548",
+      "2549",
+      "2550",
+      "2551",
+      "2552",
+      "2553",
+      "2554",
+      "2555",
+      "2556",
+      "2557",
+      "2558",
+      "2559",
+      "2560",
+      "2561",
+      "2562",
+      "2563",
+      "2564",
+      "2565",
+      "2566",
+      "2567",
+      "2568",
+      "2569",
+      "2570",
+      "2571",
+      "2572",
+      "2573",
+      "2574",
+      "2575",
+      "2576",
+      "2577",
+      "2578",
+      "2579",
+      "2580",
+      "2581",
+      "2582",
+      "2583",
+      "2584",
+      "2585",
+      "2586",
+      "2587",
+      "2588",
+      "2589",
+      "2590",
+      "2591",
+      "2592",
+      "2593",
+      "2594",
+      "2595",
+      "2596",
+      "2597",
+      "2598",
+      "2599",
+      "2600",
+      "2601",
+      "2602",
+      "2603",
+      "2604",
+      "2605",
+      "2606",
+      "2607",
+      "2608",
+      "2609",
+      "2610",
+      "2611",
+      "2612",
+      "2613",
+      "2614",
+      "2615",
+      "2616",
+      "2617",
+      "2618",
+      "2619",
+      "2620",
+      "2621"
+    ]
+  },
+  "review": {
+    "result": "PASS",
+    "approved": 115,
+    "already_approved": 0,
+    "reviewed_by": "admin-panel",
+    "review_files": [
+      "review-1169.json",
+      "review-1171.json",
+      "review-27.json",
+      "review-885.json"
+    ]
+  },
+  "plans": [
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-11-20260915-1169-bae9a4d71158.json",
+      "sha256": "49b3154f4ba764b97dd8863715b6d50b0ab96faf91280958d3ccbaf375fb1cb6",
+      "plan_fingerprint": "bae9a4d7115866b411e6460667b52c3187fd21dd1b9e1896b0d9605bc440a746",
+      "candidate_count": 20,
+      "variant_count": 4,
+      "candidate_ids": [
+        "2547",
+        "2548",
+        "2549",
+        "2550",
+        "2551",
+        "2552",
+        "2553",
+        "2554",
+        "2555",
+        "2556",
+        "2557",
+        "2558",
+        "2559",
+        "2560",
+        "2561",
+        "2562",
+        "2563",
+        "2564",
+        "2565",
+        "2566"
+      ],
+      "variant_ids": [
+        "3275",
+        "3410",
+        "3414",
+        "3419"
+      ],
+      "product_updates": 0,
+      "variant_updates": 4
+    },
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-11-20260915-1171-5957fc3b23a2.json",
+      "sha256": "f861b37b5c00741eb7f9e0a169ad2af6fe3f60fa9a2e25998efbdaaaf9bbad9d",
+      "plan_fingerprint": "5957fc3b23a2918cfbcf6386f7139953dd2f1f1cdfdf78905d6c90e86441fad2",
+      "candidate_count": 40,
+      "variant_count": 8,
+      "candidate_ids": [
+        "2567",
+        "2568",
+        "2569",
+        "2570",
+        "2571",
+        "2572",
+        "2573",
+        "2574",
+        "2575",
+        "2576",
+        "2577",
+        "2578",
+        "2579",
+        "2580",
+        "2581",
+        "2582",
+        "2583",
+        "2584",
+        "2585",
+        "2586",
+        "2587",
+        "2588",
+        "2589",
+        "2590",
+        "2591",
+        "2592",
+        "2593",
+        "2594",
+        "2595",
+        "2596",
+        "2597",
+        "2598",
+        "2599",
+        "2600",
+        "2601",
+        "2602",
+        "2603",
+        "2604",
+        "2605",
+        "2606"
+      ],
+      "variant_ids": [
+        "3438",
+        "3439",
+        "3440",
+        "3441",
+        "3442",
+        "3443",
+        "3446",
+        "3448"
+      ],
+      "product_updates": 0,
+      "variant_updates": 8
+    },
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-11-20260915-27-2d3d1aee5dd0.json",
+      "sha256": "769d826f5395866c0f97f992b1cd82fddbc4901c2a6af2b6d9151bb5dc7144f2",
+      "plan_fingerprint": "2d3d1aee5dd00bdd1536f0b7fd2c4d01fa67925676ae7ef1b3e22f9bbd9c5ff5",
+      "candidate_count": 40,
+      "variant_count": 8,
+      "candidate_ids": [
+        "2507",
+        "2508",
+        "2509",
+        "2510",
+        "2511",
+        "2512",
+        "2513",
+        "2514",
+        "2515",
+        "2516",
+        "2517",
+        "2518",
+        "2519",
+        "2520",
+        "2521",
+        "2522",
+        "2523",
+        "2524",
+        "2525",
+        "2526",
+        "2527",
+        "2528",
+        "2529",
+        "2530",
+        "2531",
+        "2532",
+        "2533",
+        "2534",
+        "2535",
+        "2536",
+        "2537",
+        "2538",
+        "2539",
+        "2540",
+        "2541",
+        "2542",
+        "2543",
+        "2544",
+        "2545",
+        "2546"
+      ],
+      "variant_ids": [
+        "1586",
+        "1587",
+        "1588",
+        "1589",
+        "1590",
+        "1591",
+        "1592",
+        "1593"
+      ],
+      "product_updates": 0,
+      "variant_updates": 8
+    },
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-11-20260915-885-49aa249b97e4.json",
+      "sha256": "6ad9074a644229b9ed22f1001dc452325bb3615d1d39e2aa5cd7f641aeb2aeb4",
+      "plan_fingerprint": "49aa249b97e442aa3d42445c8242ee9390b40084323d5e809d1fc60178c9593e",
+      "candidate_count": 15,
+      "variant_count": 3,
+      "candidate_ids": [
+        "2607",
+        "2608",
+        "2609",
+        "2610",
+        "2611",
+        "2612",
+        "2613",
+        "2614",
+        "2615",
+        "2616",
+        "2617",
+        "2618",
+        "2619",
+        "2620",
+        "2621"
+      ],
+      "variant_ids": [
+        "1421",
+        "1422",
+        "2700"
+      ],
+      "product_updates": 0,
+      "variant_updates": 3
+    }
+  ],
+  "apply": {
+    "result": "PASS",
+    "plans_applied": 4,
+    "changed_products": 0,
+    "changed_variants": 23,
+    "audit_files": [
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-11-20260915-1169-bae9a4d71158-audit.json",
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-11-20260915-1171-5957fc3b23a2-audit.json",
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-11-20260915-27-2d3d1aee5dd0-audit.json",
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-11-20260915-885-49aa249b97e4-audit.json"
+    ]
+  },
+  "independent_readback": {
+    "result": "PASS",
+    "target_environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "applied_variant_count": 392,
+    "coverage": {
+      "complete": 355,
+      "partial": 37,
+      "none": 183
+    },
+    "queue_after": {
+      "approved": 2599,
+      "pending": 16,
+      "rejected": 6
+    },
+    "variants": 23,
+    "candidates": {
+      "approved": 115,
+      "evidence_unchanged": true
+    },
+    "all_after_match": true,
+    "nutrition_verified_unchanged": true,
+    "legacy_creatine_unchanged": true
+  },
+  "public_readback": {
+    "result": "PASS",
+    "checked_at": "2026-09-15T08:56:09.222Z",
+    "pages": [
+      {
+        "product_id": "885",
+        "product_variant_id": "1421",
+        "url": "https://www.supplementscout.co.uk/product/innovapharm-mvpre-3-0-pre-workout-437g?variant=1421",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "885",
+        "product_variant_id": "1422",
+        "url": "https://www.supplementscout.co.uk/product/innovapharm-mvpre-3-0-pre-workout-437g?variant=1422",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "27",
+        "product_variant_id": "1586",
+        "url": "https://www.supplementscout.co.uk/product/cellucor-c4-original-195g?variant=1586",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "27",
+        "product_variant_id": "1587",
+        "url": "https://www.supplementscout.co.uk/product/cellucor-c4-original-195g?variant=1587",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "27",
+        "product_variant_id": "1588",
+        "url": "https://www.supplementscout.co.uk/product/cellucor-c4-original-195g?variant=1588",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "27",
+        "product_variant_id": "1589",
+        "url": "https://www.supplementscout.co.uk/product/cellucor-c4-original-195g?variant=1589",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "27",
+        "product_variant_id": "1590",
+        "url": "https://www.supplementscout.co.uk/product/cellucor-c4-original-195g?variant=1590",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "27",
+        "product_variant_id": "1591",
+        "url": "https://www.supplementscout.co.uk/product/cellucor-c4-original-195g?variant=1591",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "27",
+        "product_variant_id": "1592",
+        "url": "https://www.supplementscout.co.uk/product/cellucor-c4-original-195g?variant=1592",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "27",
+        "product_variant_id": "1593",
+        "url": "https://www.supplementscout.co.uk/product/cellucor-c4-original-195g?variant=1593",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "885",
+        "product_variant_id": "2700",
+        "url": "https://www.supplementscout.co.uk/product/innovapharm-mvpre-3-0-pre-workout-437g?variant=2700",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1169",
+        "product_variant_id": "3275",
+        "url": "https://www.supplementscout.co.uk/product/cellucor-c4-original-pre-workout-30-servings?variant=3275",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1169",
+        "product_variant_id": "3410",
+        "url": "https://www.supplementscout.co.uk/product/cellucor-c4-original-pre-workout-30-servings?variant=3410",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1169",
+        "product_variant_id": "3414",
+        "url": "https://www.supplementscout.co.uk/product/cellucor-c4-original-pre-workout-30-servings?variant=3414",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1169",
+        "product_variant_id": "3419",
+        "url": "https://www.supplementscout.co.uk/product/cellucor-c4-original-pre-workout-30-servings?variant=3419",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1171",
+        "product_variant_id": "3438",
+        "url": "https://www.supplementscout.co.uk/product/cellucor-c4-original-pre-workout-60-servings?variant=3438",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1171",
+        "product_variant_id": "3439",
+        "url": "https://www.supplementscout.co.uk/product/cellucor-c4-original-pre-workout-60-servings?variant=3439",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1171",
+        "product_variant_id": "3440",
+        "url": "https://www.supplementscout.co.uk/product/cellucor-c4-original-pre-workout-60-servings?variant=3440",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1171",
+        "product_variant_id": "3441",
+        "url": "https://www.supplementscout.co.uk/product/cellucor-c4-original-pre-workout-60-servings?variant=3441",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1171",
+        "product_variant_id": "3442",
+        "url": "https://www.supplementscout.co.uk/product/cellucor-c4-original-pre-workout-60-servings?variant=3442",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1171",
+        "product_variant_id": "3443",
+        "url": "https://www.supplementscout.co.uk/product/cellucor-c4-original-pre-workout-60-servings?variant=3443",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1171",
+        "product_variant_id": "3446",
+        "url": "https://www.supplementscout.co.uk/product/cellucor-c4-original-pre-workout-60-servings?variant=3446",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1171",
+        "product_variant_id": "3448",
+        "url": "https://www.supplementscout.co.uk/product/cellucor-c4-original-pre-workout-60-servings?variant=3448",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      }
+    ],
+    "caffeine_free_filter": {
+      "url": "https://www.supplementscout.co.uk/search?q=pre%20workout&caffeine=free",
+      "http_200": true,
+      "target_products_visible": []
+    },
+    "database_writes": 0
+  },
+  "replay": {
+    "result": "PASS_SAFE_REJECTION",
+    "plans_checked": 4,
+    "safely_rejected_stale_before": 4,
+    "additional_writes": 0,
+    "reasons": [
+      "Variant 3275 nutrition override changed after plan generation",
+      "Variant 3438 nutrition override changed after plan generation",
+      "Variant 1586 nutrition override changed after plan generation",
+      "Variant 1421 nutrition override changed after plan generation"
+    ]
+  },
+  "notes": [
+    "All 23 variants have the serving and all four tracked ingredient states resolved. Cellucor 195 g and 408 g serving bases remain distinct.",
+    "The controlled write is limited to the exact nutrition_override after-state for the 23 variants."
+  ],
+  "validation": {
+    "verify_project_before_ledger": "PASS"
+  },
+  "production_writes": {
+    "candidate_rows_created": 115,
+    "variant_overrides_updated": 23,
+    "product_rows_updated": 0,
+    "other_variants_updated": 0,
+    "migrations": 0,
+    "code_changes": 0
+  }
+}

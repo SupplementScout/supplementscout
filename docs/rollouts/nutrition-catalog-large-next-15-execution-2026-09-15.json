@@ -1,0 +1,930 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-large-next-15-execution-report-v1",
+  "date": "2026-09-15",
+  "status": "LIVE_VERIFIED",
+  "authorization": {
+    "scope": "store -> authenticated review -> plan -> apply after explicit owner authorization",
+    "candidates": 99,
+    "variants": 20,
+    "variant_ids": [
+      "45",
+      "152",
+      "246",
+      "426",
+      "551",
+      "1055",
+      "1672",
+      "1673",
+      "1674",
+      "1675",
+      "1896",
+      "1897",
+      "1898",
+      "1899",
+      "1919",
+      "1920",
+      "2234",
+      "2454",
+      "2455",
+      "2456"
+    ]
+  },
+  "preflight": {
+    "result": "PASS",
+    "target_environment": "PRODUCTION",
+    "unique_candidate_fingerprints": 99,
+    "existing_candidates": 0,
+    "empty_target_overrides": 20,
+    "database_writes": 0
+  },
+  "artifacts": [
+    {
+      "candidates": 20,
+      "path": "tmp/nutrition-catalog-large-next-15-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-15-20260915-215.json",
+      "sha256": "fadfaff6152e3a1436961a4ff621e281e4f9b27f425569549c5ae0ab314907fb",
+      "product_id": "215",
+      "artifact_key": "215",
+      "artifact_fingerprint": "b2065f6ab8403490ca84f1c73a34d6407ef09407724e59bef51b1c9929b7c920"
+    },
+    {
+      "candidates": 15,
+      "path": "tmp/nutrition-catalog-large-next-15-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-15-20260915-1125.json",
+      "sha256": "75680467b558c9b62a590a75337749894e77f352b61e3268d8b8e68b0f72a2c6",
+      "product_id": "1125",
+      "artifact_key": "1125",
+      "artifact_fingerprint": "fb2457ce50670973ef236cb06f68abf030b9b018da18010aa8076b3d558b58c9"
+    },
+    {
+      "candidates": 20,
+      "path": "tmp/nutrition-catalog-large-next-15-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-15-20260915-971.json",
+      "sha256": "a6ce5a72b256f97651797c02a3f40bfc25a204ccfb531eb677634eacc53ac387",
+      "product_id": "971",
+      "artifact_key": "971",
+      "artifact_fingerprint": "91ede4d24aa9f9f7c2eee8e9fbeab8a1ef6ee89bf983a10c085c2252ae30890e"
+    },
+    {
+      "candidates": 10,
+      "path": "tmp/nutrition-catalog-large-next-15-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-15-20260915-980.json",
+      "sha256": "568d210c27a4dd6f64187226485f1fbc1bca05d4fa3fe89573415f398cfa9a02",
+      "product_id": "980",
+      "artifact_key": "980",
+      "artifact_fingerprint": "cc6f3c619343038d0ec6dd4ce094f744f4a8e49f53f8ce6952a494fc290770c9"
+    },
+    {
+      "candidates": 5,
+      "path": "tmp/nutrition-catalog-large-next-15-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-15-20260915-170.json",
+      "sha256": "5bc1239413c2eded551083dbc9c5f6d3cb51b162080984f5837430f5a4f39909",
+      "product_id": "170",
+      "artifact_key": "170",
+      "artifact_fingerprint": "22294b7cec99a6fca77745c3ba4416f36a0a6127d7e4005ad74ec104f6cc5410"
+    },
+    {
+      "candidates": 4,
+      "path": "tmp/nutrition-catalog-large-next-15-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-15-20260915-520.json",
+      "sha256": "e5426f6616daa3578b537375360987217011fb229189e5c6422a29671ca37a8f",
+      "product_id": "520",
+      "artifact_key": "520",
+      "artifact_fingerprint": "1c013145539a80c179ff83177667da6f016dd17f313ee0a31bd163160def6b0a"
+    },
+    {
+      "candidates": 5,
+      "path": "tmp/nutrition-catalog-large-next-15-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-15-20260915-24.json",
+      "sha256": "112a573dbbc66829beee060ae29fffb8bb342d080511f2a300c2f1dfa0ce4c2e",
+      "product_id": "24",
+      "artifact_key": "24",
+      "artifact_fingerprint": "a3bdf3df894e7d2f9ba5c12808da699d96a8593777588f41eaa5f02c286b9717"
+    },
+    {
+      "candidates": 5,
+      "path": "tmp/nutrition-catalog-large-next-15-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-15-20260915-294.json",
+      "sha256": "5e0b802dc77912476172d5d3e1bace94978ee85a8f526812d08b38582f39e51d",
+      "product_id": "294",
+      "artifact_key": "294",
+      "artifact_fingerprint": "4f293a41beb901290ac1d834972b0b403ce558e49e31d586ae716e09f39523be"
+    },
+    {
+      "candidates": 5,
+      "path": "tmp/nutrition-catalog-large-next-15-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-15-20260915-449.json",
+      "sha256": "4da0c895f276864d55523b6dafd07b55340c1e2f63bb3805c7c34ff8cb048911",
+      "product_id": "449",
+      "artifact_key": "449",
+      "artifact_fingerprint": "3af750f4033c0e34989d03083ec8d8047dd1f806bb34effe6d61e1c4c61eab0f"
+    },
+    {
+      "candidates": 5,
+      "path": "tmp/nutrition-catalog-large-next-15-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-15-20260915-54.json",
+      "sha256": "caa35dfe4fe03897f7975be0370c71d000f641f6e3123f550ae627f03140628c",
+      "product_id": "54",
+      "artifact_key": "54",
+      "artifact_fingerprint": "2911e50c9a2aacec1206182e13865e90e440222684a11e08c95344758b948420"
+    },
+    {
+      "candidates": 5,
+      "path": "tmp/nutrition-catalog-large-next-15-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-15-20260915-1061.json",
+      "sha256": "555ce8fecf5ba7e4ed07ab208fc199fab5828d5f0d622f01db7b21e626c05bda",
+      "product_id": "1061",
+      "artifact_key": "1061",
+      "artifact_fingerprint": "5da400861b1c8377ee7d45e3763fb41eda07992b4065aa89ba45244e57ec4c8a"
+    }
+  ],
+  "store": {
+    "created": 99,
+    "product_updates": 0,
+    "candidate_ids": [
+      "2705",
+      "2706",
+      "2707",
+      "2708",
+      "2709",
+      "2710",
+      "2711",
+      "2712",
+      "2713",
+      "2714",
+      "2715",
+      "2716",
+      "2717",
+      "2718",
+      "2719",
+      "2720",
+      "2721",
+      "2722",
+      "2723",
+      "2724",
+      "2725",
+      "2726",
+      "2727",
+      "2728",
+      "2729",
+      "2730",
+      "2731",
+      "2732",
+      "2733",
+      "2734",
+      "2735",
+      "2736",
+      "2737",
+      "2738",
+      "2739",
+      "2740",
+      "2741",
+      "2742",
+      "2743",
+      "2744",
+      "2745",
+      "2746",
+      "2747",
+      "2748",
+      "2749",
+      "2750",
+      "2751",
+      "2752",
+      "2753",
+      "2754",
+      "2755",
+      "2756",
+      "2757",
+      "2758",
+      "2759",
+      "2760",
+      "2761",
+      "2762",
+      "2763",
+      "2764",
+      "2765",
+      "2766",
+      "2767",
+      "2768",
+      "2769",
+      "2770",
+      "2771",
+      "2772",
+      "2773",
+      "2774",
+      "2775",
+      "2776",
+      "2777",
+      "2778",
+      "2779",
+      "2780",
+      "2781",
+      "2782",
+      "2783",
+      "2784",
+      "2785",
+      "2786",
+      "2787",
+      "2788",
+      "2789",
+      "2790",
+      "2791",
+      "2792",
+      "2793",
+      "2794",
+      "2795",
+      "2796",
+      "2797",
+      "2798",
+      "2799",
+      "2800",
+      "2801",
+      "2802",
+      "2803"
+    ]
+  },
+  "review": {
+    "result": "PASS",
+    "approved": 99,
+    "already_approved": 0,
+    "reviewed_by": "admin-panel",
+    "review_files": [
+      "review-1061.json",
+      "review-1125.json",
+      "review-170.json",
+      "review-215.json",
+      "review-24.json",
+      "review-294.json",
+      "review-449.json",
+      "review-520.json",
+      "review-54.json",
+      "review-971.json",
+      "review-980.json"
+    ]
+  },
+  "plans": [
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-15-20260915-1061-283d6d626692.json",
+      "sha256": "c590f594cdac95f1276dd6baf098ce7a0afd51eb5dfd6afc96b2cf1c87d798ed",
+      "plan_fingerprint": "283d6d626692fa5e47fd003962cbe025019294e84241363f75fa7d4178f5ee36",
+      "candidate_count": 5,
+      "variant_count": 1,
+      "candidate_ids": [
+        "2799",
+        "2800",
+        "2801",
+        "2802",
+        "2803"
+      ],
+      "variant_ids": [
+        "2234"
+      ],
+      "product_updates": 0,
+      "variant_updates": 1
+    },
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-15-20260915-1125-2d4bc61c5a0c.json",
+      "sha256": "c38095ee617c3074a6e592b8a9f6dc05eb636fe6881e9e2490b41c9df0d2a7f8",
+      "plan_fingerprint": "2d4bc61c5a0c6641b326aa4eb15dee543d035e2c108e8294fbce0c533039991c",
+      "candidate_count": 15,
+      "variant_count": 3,
+      "candidate_ids": [
+        "2725",
+        "2726",
+        "2727",
+        "2728",
+        "2729",
+        "2730",
+        "2731",
+        "2732",
+        "2733",
+        "2734",
+        "2735",
+        "2736",
+        "2737",
+        "2738",
+        "2739"
+      ],
+      "variant_ids": [
+        "2454",
+        "2455",
+        "2456"
+      ],
+      "product_updates": 0,
+      "variant_updates": 3
+    },
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-15-20260915-170-1ad72f0b80aa.json",
+      "sha256": "9ae0d1c1f432804910088c8acb9a85c441aa85950fa83db9fe047545bb7c4fc5",
+      "plan_fingerprint": "1ad72f0b80aa8b825bb32481b977864aefaab4b1ba62ee3f2afe8284f9c290c3",
+      "candidate_count": 5,
+      "variant_count": 1,
+      "candidate_ids": [
+        "2770",
+        "2771",
+        "2772",
+        "2773",
+        "2774"
+      ],
+      "variant_ids": [
+        "1055"
+      ],
+      "product_updates": 0,
+      "variant_updates": 1
+    },
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-15-20260915-215-3343ff7c5abb.json",
+      "sha256": "4fbf0964d46ea4fc883cf759fbe1d6a93a387408d0215994065cadd8384d6303",
+      "plan_fingerprint": "3343ff7c5abb9f977949b2a541140280d07bda271fec6139ea5cdcd32fa57b8a",
+      "candidate_count": 20,
+      "variant_count": 4,
+      "candidate_ids": [
+        "2705",
+        "2706",
+        "2707",
+        "2708",
+        "2709",
+        "2710",
+        "2711",
+        "2712",
+        "2713",
+        "2714",
+        "2715",
+        "2716",
+        "2717",
+        "2718",
+        "2719",
+        "2720",
+        "2721",
+        "2722",
+        "2723",
+        "2724"
+      ],
+      "variant_ids": [
+        "1672",
+        "1673",
+        "1674",
+        "1675"
+      ],
+      "product_updates": 0,
+      "variant_updates": 4
+    },
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-15-20260915-24-a561301020b1.json",
+      "sha256": "585513b74ca802f0b27888091ff5eaecb504df4f69630f1e185bd3b48ed39179",
+      "plan_fingerprint": "a561301020b11d8f2fd78b5d4910f486398c3b0b7fa23545c6f8fab85dacf750",
+      "candidate_count": 5,
+      "variant_count": 1,
+      "candidate_ids": [
+        "2779",
+        "2780",
+        "2781",
+        "2782",
+        "2783"
+      ],
+      "variant_ids": [
+        "152"
+      ],
+      "product_updates": 0,
+      "variant_updates": 1
+    },
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-15-20260915-294-29576c83a6aa.json",
+      "sha256": "54371e12d9c82ff02261e6fca1971f93807189a3e10921e73d453d3b9426175f",
+      "plan_fingerprint": "29576c83a6aa651a5e0875487c7ee61396548875bd7a544d4e26bd284c2fb05d",
+      "candidate_count": 5,
+      "variant_count": 1,
+      "candidate_ids": [
+        "2784",
+        "2785",
+        "2786",
+        "2787",
+        "2788"
+      ],
+      "variant_ids": [
+        "246"
+      ],
+      "product_updates": 0,
+      "variant_updates": 1
+    },
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-15-20260915-449-cd8d34325c65.json",
+      "sha256": "3f57d88be427cc159ad2cc312a63991a30bc7b05cdea294eaca5d317c282e279",
+      "plan_fingerprint": "cd8d34325c65cb22d29157e832b0019d913e2c88f453dddce5d92d2cd58e371f",
+      "candidate_count": 5,
+      "variant_count": 1,
+      "candidate_ids": [
+        "2789",
+        "2790",
+        "2791",
+        "2792",
+        "2793"
+      ],
+      "variant_ids": [
+        "551"
+      ],
+      "product_updates": 0,
+      "variant_updates": 1
+    },
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-15-20260915-520-a18f288d19db.json",
+      "sha256": "e112524ce14fb964b16187ffa9c02a37e470d3621f827404a0339e61fed7ddf0",
+      "plan_fingerprint": "a18f288d19dbca4a62228d6993bcdeba375418df4f2119f68087513ed11526d8",
+      "candidate_count": 4,
+      "variant_count": 1,
+      "candidate_ids": [
+        "2775",
+        "2776",
+        "2777",
+        "2778"
+      ],
+      "variant_ids": [
+        "426"
+      ],
+      "product_updates": 0,
+      "variant_updates": 1
+    },
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-15-20260915-54-d150eb3957dd.json",
+      "sha256": "bd704efe6a84cac7331a06ca1c682a6c3fd3043c96866fd643c668c852002c4a",
+      "plan_fingerprint": "d150eb3957ddbbfa603d56101c5e2f52d91536ab91e0bd549efefa94d901f7cb",
+      "candidate_count": 5,
+      "variant_count": 1,
+      "candidate_ids": [
+        "2794",
+        "2795",
+        "2796",
+        "2797",
+        "2798"
+      ],
+      "variant_ids": [
+        "45"
+      ],
+      "product_updates": 0,
+      "variant_updates": 1
+    },
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-15-20260915-971-f3f49c1b0200.json",
+      "sha256": "a67d3960ed1bc0ad85b5d370c39c700e3c870bef423a7a8c6cce8846b29d70ba",
+      "plan_fingerprint": "f3f49c1b0200324365eedac7e13694723b1bb20fa00460294a9f1e0eb777f7bd",
+      "candidate_count": 20,
+      "variant_count": 4,
+      "candidate_ids": [
+        "2740",
+        "2741",
+        "2742",
+        "2743",
+        "2744",
+        "2745",
+        "2746",
+        "2747",
+        "2748",
+        "2749",
+        "2750",
+        "2751",
+        "2752",
+        "2753",
+        "2754",
+        "2755",
+        "2756",
+        "2757",
+        "2758",
+        "2759"
+      ],
+      "variant_ids": [
+        "1896",
+        "1897",
+        "1898",
+        "1899"
+      ],
+      "product_updates": 0,
+      "variant_updates": 4
+    },
+    {
+      "path": "tmp/nutrition-approved-plan/NCR1-catalog-large-next-15-20260915-980-e731e8ecd9a1.json",
+      "sha256": "a27f35953859b4416c0e469f506c1d32d2c29bd24be61537c6501fb47bea977c",
+      "plan_fingerprint": "e731e8ecd9a131855e1b61b35405d3af48bed9735fa4ebe3e9231cc230921656",
+      "candidate_count": 10,
+      "variant_count": 2,
+      "candidate_ids": [
+        "2760",
+        "2761",
+        "2762",
+        "2763",
+        "2764",
+        "2765",
+        "2766",
+        "2767",
+        "2768",
+        "2769"
+      ],
+      "variant_ids": [
+        "1919",
+        "1920"
+      ],
+      "product_updates": 0,
+      "variant_updates": 2
+    }
+  ],
+  "apply": {
+    "result": "PASS",
+    "plans_applied": 11,
+    "changed_products": 0,
+    "changed_variants": 20,
+    "audit_files": [
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-15-20260915-1061-283d6d626692-audit.json",
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-15-20260915-1125-2d4bc61c5a0c-audit.json",
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-15-20260915-170-1ad72f0b80aa-audit.json",
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-15-20260915-215-3343ff7c5abb-audit.json",
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-15-20260915-24-a561301020b1-audit.json",
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-15-20260915-294-29576c83a6aa-audit.json",
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-15-20260915-449-cd8d34325c65-audit.json",
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-15-20260915-520-a18f288d19db-audit.json",
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-15-20260915-54-d150eb3957dd-audit.json",
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-15-20260915-971-f3f49c1b0200-audit.json",
+      "tmp/nutrition-approved-plan/NCR1-catalog-large-next-15-20260915-980-e731e8ecd9a1-audit.json"
+    ]
+  },
+  "independent_readback": {
+    "result": "PASS",
+    "target_environment": "PRODUCTION",
+    "applied_variant_count": 429,
+    "coverage": {
+      "complete": 389,
+      "partial": 40,
+      "none": 146
+    },
+    "queue_after": {
+      "approved": 2781,
+      "pending": 16,
+      "rejected": 6
+    },
+    "variants": 20,
+    "candidates": {
+      "approved": 99,
+      "evidence_unchanged": true
+    },
+    "all_after_match": true,
+    "nutrition_verified_unchanged": true,
+    "legacy_creatine_unchanged": true
+  },
+  "public_readback": {
+    "result": "PASS",
+    "checked_at": "2026-09-15T11:27:17.290Z",
+    "pages": [
+      {
+        "product_id": "54",
+        "product_variant_id": "45",
+        "url": "https://www.supplementscout.co.uk/product/man-sports-game-day-performance-energy-510g?variant=45",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "24",
+        "product_variant_id": "152",
+        "url": "https://www.supplementscout.co.uk/product/pescience-prolific-280g?variant=152",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "294",
+        "product_variant_id": "246",
+        "url": "https://www.supplementscout.co.uk/product/biotech-usa-black-blood-caf-300g?variant=246",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "520",
+        "product_variant_id": "426",
+        "url": "https://www.supplementscout.co.uk/product/olimp-redweiler-preworkout-480g?variant=426",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "449",
+        "product_variant_id": "551",
+        "url": "https://www.supplementscout.co.uk/product/usn-qhush-black-pre-workout-220g?variant=551",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "170",
+        "product_variant_id": "1055",
+        "url": "https://www.supplementscout.co.uk/product/redcon1-big-noise-pre-workout-315g?variant=1055",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "215",
+        "product_variant_id": "1672",
+        "url": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-ultimate-pre-workout-315g?variant=1672",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "215",
+        "product_variant_id": "1673",
+        "url": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-ultimate-pre-workout-315g?variant=1673",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "215",
+        "product_variant_id": "1674",
+        "url": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-ultimate-pre-workout-315g?variant=1674",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "215",
+        "product_variant_id": "1675",
+        "url": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-ultimate-pre-workout-315g?variant=1675",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "971",
+        "product_variant_id": "1896",
+        "url": "https://www.supplementscout.co.uk/product/kilo-labs-stim-thug-20-servings?variant=1896",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "971",
+        "product_variant_id": "1897",
+        "url": "https://www.supplementscout.co.uk/product/kilo-labs-stim-thug-20-servings?variant=1897",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "971",
+        "product_variant_id": "1898",
+        "url": "https://www.supplementscout.co.uk/product/kilo-labs-stim-thug-20-servings?variant=1898",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "971",
+        "product_variant_id": "1899",
+        "url": "https://www.supplementscout.co.uk/product/kilo-labs-stim-thug-20-servings?variant=1899",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "980",
+        "product_variant_id": "1919",
+        "url": "https://www.supplementscout.co.uk/product/nmp-nutraceuticals-presidential-pre-50-25-servings?variant=1919",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "980",
+        "product_variant_id": "1920",
+        "url": "https://www.supplementscout.co.uk/product/nmp-nutraceuticals-presidential-pre-50-25-servings?variant=1920",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1061",
+        "product_variant_id": "2234",
+        "url": "https://www.supplementscout.co.uk/product/usn-3xt-dynamite-pre-workout-375g?variant=2234",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1125",
+        "product_variant_id": "2454",
+        "url": "https://www.supplementscout.co.uk/product/skull-labs-angel-dust-pump-pre-workout?variant=2454",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1125",
+        "product_variant_id": "2455",
+        "url": "https://www.supplementscout.co.uk/product/skull-labs-angel-dust-pump-pre-workout?variant=2455",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      },
+      {
+        "product_id": "1125",
+        "product_variant_id": "2456",
+        "url": "https://www.supplementscout.co.uk/product/skull-labs-angel-dust-pump-pre-workout?variant=2456",
+        "checks": {
+          "http_200": true,
+          "exact_variant": true,
+          "serving_visible": true,
+          "caffeine_visible": true,
+          "beta_visible": true,
+          "citrulline_visible": true,
+          "creatine_visible": true,
+          "private_uri_absent": true,
+          "reviewer_absent": true
+        }
+      }
+    ],
+    "caffeine_free_filter": {
+      "url": "https://www.supplementscout.co.uk/search?q=pre%20workout&caffeine=free",
+      "http_200": true,
+      "availability_basis_url": "https://www.supplementscout.co.uk/search?q=pre%20workout",
+      "expected_target_products_visible": [],
+      "missing_expected": [],
+      "disallowed_target_products_visible": []
+    },
+    "database_writes": 0
+  },
+  "replay": {
+    "result": "PASS_SAFE_REJECTION",
+    "plans_checked": 11,
+    "safely_rejected_stale_before": 11,
+    "additional_writes": 0,
+    "reasons": [
+      "Variant 2234 nutrition override changed after plan generation",
+      "Variant 2454 nutrition override changed after plan generation",
+      "Variant 1055 nutrition override changed after plan generation",
+      "Variant 1672 nutrition override changed after plan generation",
+      "Variant 152 nutrition override changed after plan generation",
+      "Variant 246 nutrition override changed after plan generation",
+      "Variant 551 nutrition override changed after plan generation",
+      "Variant 426 nutrition override changed after plan generation",
+      "Variant 45 nutrition override changed after plan generation",
+      "Variant 1896 nutrition override changed after plan generation",
+      "Variant 1919 nutrition override changed after plan generation"
+    ]
+  },
+  "notes": [
+    "Twelve target variants are complete and eight retain explicit partial or unresolved facts.",
+    "The controlled writes were limited to the sealed nutrition_override after-states for the 20 authorized variants."
+  ],
+  "validation": {
+    "verify_project_before_ledger": "PASS"
+  },
+  "production_writes": {
+    "candidate_rows_created": 99,
+    "variant_overrides_updated": 20,
+    "product_rows_updated": 0,
+    "other_variants_updated": 0,
+    "migrations": 0,
+    "code_changes": 0
+  }
+}

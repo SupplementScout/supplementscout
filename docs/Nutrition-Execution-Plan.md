@@ -1,6 +1,6 @@
 # Nutrition Data Enrichment — Execution Plan
 
-**Status date:** 13 September 2026
+**Status date:** 14 September 2026
 
 ## Current checkpoint
 
@@ -84,6 +84,19 @@
   total remains 89; current-offer coverage is 404 variants: 81 complete, zero
   partial and 323 without applied facts. The frozen pilot is 12 complete, zero
   partial and 13 without applied facts.
+- The 14 September owner-image handoff is `LIVE VERIFIED`. Its
+  ZIP SHA-256 and all 25 source-file hashes passed; 24 source images are unique
+  and one HR Labs Defib image is duplicated byte-for-byte. The closed package
+  stored and approved 199 unique facts for 47 current-offer variants across seven
+  families. Twenty-three variants resolve all four tracked ingredients and 24
+  remain partial. Seven guarded plans changed only the 47 exact
+  `nutrition_override` objects; independent readback and seven stale-before
+  replay checks pass. All 47 public variant pages show their exact applied facts
+  and only caffeine-free variant `3524` qualifies among this package. The
+  distinct applied total is 136; current-offer coverage is 404 variants: 104
+  complete, 24 partial and 276 without applied facts. Eight other families
+  retain explicit gaps. Sources remain private and raw images remain outside
+  Git. See `docs/rollouts/nutrition-owner-images-batch-execution-2026-09-14.json`.
 - Retailer-source batch 01 is `LIVE VERIFIED` for 19 partial exact variants
   across products `778`, `763` and `903`. Candidates `1037`-`1112` were stored
   and approved through authenticated review. Three zero-product-update plans
@@ -498,7 +511,7 @@ implementation or any nutrition catalogue write.
 | NUT-03-CATALOG-BATCH-07 | `LIVE VERIFIED` | NUT-03 deployed path + exact owner execution authorization | Carry only the unchanged eight-candidate partial subset for product `1282`, variants `3762` and `3870`, through store/review/plan/apply; keep creatine and all 48 blocked variants outside execution. | Candidates `1113`-`1120` each exist once and are approved. One zero-product-update plan applied four supported facts to both exact overrides. Independent whole-override readback, stale-before replay protection and both public pages pass; creatine remains unresolved. See `docs/rollouts/nutrition-retailer-and-batch-07-execution-2026-09-13.json`. |
 | NUT-03-RETAILER-SOURCE-BATCH-01 | `LIVE VERIFIED` | Retailer-source preparation + exact owner execution authorization | Carry only the unchanged 76-candidate subset for products `778`, `763` and `903` through existing controls; retain real retailer provenance and leave creatine plus all 29 blockers outside execution. | Candidates `1037`-`1112` each exist once and are approved. Three zero-product-update plans applied only four supported facts to 19 exact overrides. Independent readback, three stale-before replays and all 19 public pages pass; retailer sources are labelled accurately and all caffeinated targets remain outside the caffeine-free filter. See `docs/rollouts/nutrition-retailer-and-batch-07-execution-2026-09-13.json`. |
 | NUT-03-CITRULLINE-COMPONENTS | `LIVE VERIFIED` | Batch 06 design + owner deployment, migration and exact data-write authorization | Preserve separately declared citrulline forms through the existing guarded path without summing them as pure L-citrulline. | Commit `e013facbc3bf708b810a6442e2604deb9c423cb7` and migration `20260913110000` are live. Candidates `1019`-`1036` each exist once and are approved. Plan `45f8c3ae...` added only `citrulline_components` to nine exact overrides. Independent readback matched the whole `after`, all nine public pages show two components, and the caffeine-free grouping still passes. See `docs/rollouts/nutrition-citrulline-components-execution-2026-09-13.json`. |
-| NUT-03 | `IN PROGRESS` | Organizational packages up to 50 exact variants + separate owner write authorization | Review pilot evidence, quantities/units and exact applicability in one owner-decision package while retaining existing technical sub-batch limits; separately approve candidate storage, review, planning and guarded apply. | Pilot progress remains 11 complete, one partial (`3763`) and 13 without applied facts out of 25. Stinger is one separate demonstration. All tracked scopes now contain 89 distinct variants with applied facts; the newest 21 are partial because creatine remains unresolved. NUT-03 and MVP remain open. |
+| NUT-03 | `IN PROGRESS` | Organizational packages up to 50 exact variants + separate owner write authorization | Review pilot evidence, quantities/units and exact applicability in one owner-decision package while retaining existing technical sub-batch limits; separately approve candidate storage, review, planning and guarded apply. | Pilot progress remains 11 complete, one partial (`3763`) and 13 without applied facts out of 25. Stinger is one separate demonstration. All tracked scopes now contain 392 distinct variants with applied facts: 355 structurally complete, 37 partial and 183 without applied facts. NUT-03 and MVP remain open. |
 | NUT-04A | `LIVE VERIFIED` | Early owner authorization + exact applied facts | Reuse existing product pages and search to present exact-variant applied facts and add a confirmed caffeine-free filter. A fact is public only when an approved candidate for the same product/variant reconstructs the current override exactly. Expose only source kind; never private URI, reviewer metadata or raw archive material. | Commit 58c83cb deployed successfully. Public readback passed for variants 726, 727 and 1047, the exact-variant caffeine-free result, source redaction and the existing pre-workout link. A 390 x 844 browser check found no horizontal overflow; contract tests pass for variant switching, filter reset and pagination. NUT-03 and the frozen pilot remain unchanged. |
 | NUT-04 | `PLANNED` | NUT-03 closure + NUT-04A | Close the presentation/filter stage after the frozen pilot decisions are accounted for; retain NUT-04A's existing product/search mechanisms and evidence threshold. | NUT-04A tests and live variant-switch checks must prove confirmed absence included, caffeine present excluded, missing/conflicting facts never treated as absent. Document the final coverage denominator, limits, evidence and operations. Publish image copies only with established rights; otherwise link to source. MVP closes only here. |
 | NUT-05 | `DEFERRED` | NUT-04 closure | Subsequent bounded batches/categories in the same process | Review extraction yield, review time and missing-source rate before expansion; every batch has a fixed denominator and closure. No expansion of an active batch. |
@@ -3412,3 +3425,2912 @@ exact-formula proof for questions 5-19; do not repeat the completed questions
 NUT-03 remains `IN PROGRESS`. One next step is a new evidence-backed unresolved
 owner question or another bounded nutrition package; do not recount these six
 variants or repeat their completed evidence review.
+
+## NUT-03 owner-image handoff batch preparation
+
+14 September 2026, preparation and private archival only:
+
+- `C:/Users/gogym/Downloads/SupplementScout-nutrition-25-images-2026-09-14.zip`
+  matched the owner-supplied SHA-256
+  `94bb145533696ec19042d3a0596385f77d7e58a3164629ca08b5cccab3366956`.
+  Safe extraction created `tmp/nutrition-25-images-2026-09-14` without replacing
+  any existing file. `README.md`, `manifest.json` and every original were read;
+  all 25 declared file hashes and sizes match. Manual image review treated the
+  preliminary transcription only as an index. There are 24 unique images: the
+  two Defib files share SHA-256
+  `58ce9cab462e18d5007d0619d12c2b693f0909f8f0d04cdfd73c4bf5cb788449`.
+- Fresh read-only production preflight at `2026-09-14T06:22:14.195Z` confirmed
+  project `aftboxmrdgyhizicfsfu`, 89 previously applied pre-workout variants,
+  exact catalogue bindings for the assessed scope, zero existing candidates and
+  empty overrides for all 114 checked variants from the 15 requested product
+  IDs. The production snapshot SHA-256 is
+  `e25ae925aab2490dcf3d1c14035d0cf3f451612b06aa4d788f3f4ef2656324f1`;
+  the read made zero writes.
+- Private archive duplicate checking found none of the 24 source hashes in the
+  earlier 56 objects. The first upload stopped at the unsupported Markdown MIME
+  after writing the images. The no-overwrite resume reused those 24 objects,
+  added the handoff documents, and then added the reviewed source context.
+  A fresh process read 27 objects with matching hashes and confirmed the bucket
+  remains private. The source-context manifest is
+  `tmp/nutrition-25-images-2026-09-14/source-context-manifest.json`, SHA-256
+  `7c35a028450698a8a827791bf1f19326cd475def8f0ba7a052a4ceb87bfe5144`,
+  archived at its content-addressed `nutrition-sources` URI. Archive storage is
+  not represented as a backup.
+- The closed organizational scope contains 47 current-offer exact variants and
+  199 candidate facts across seven product families. Product `789` contributes
+  variants `1084`, `1085`, `1087`-`1092`, `1137`, `3594`; product `882`
+  variants `1396`-`1398`, `1400`, `1401`, `1403`-`1406`; product `1280`
+  variants `3760`, `3856`, `3996`-`4009`; product `761` variants `907`, `909`;
+  product `24` variants `1004`, `1581`-`1585`; product `1061` variants `2235`-
+  `2237`; and product `1178` exact Ice Burst variant `3524`. All IDs remain
+  strings and each candidate retains its exact variant, immutable source hash
+  and private archive URI.
+- Twenty-three variants are complete for caffeine, beta-alanine, citrulline and
+  creatine: the ten product `789` variants, nine product `882` variants, three
+  product `1061` variants and exact product `1178` variant `3524`. The remaining
+  24 are deliberately partial: 16 Yeti variants omit unresolved total caffeine,
+  two Proven variants omit caffeine because coffee-fruit extract prevents an
+  absence inference, and six PEScience variants retain only serving and the
+  retailer's explicit beta-alanine-free declaration because active amounts are
+  not visible. Compound values remain the masses declared for citrulline malate
+  or creatine monohydrate; no conversion to pure ingredients was made.
+- Seven artifacts contain 12, 8, 50, 45, 15, 5 and 64 rows. Their SHA-256 /
+  artifact fingerprint pairs are: product `24`
+  `4c31a314ce379e3cef476acf6a77723bc5619b09757940937b13235a0904dc1e` /
+  `feab539533515676225ac8378a27d3a8c6b7c6d80c043a020fa7e5028e1fc277`;
+  product `761`
+  `a5d1dcd4130352ebe5a50d35fb661fe4c16c0e6ded751a92c93b8acf3f1a3ca6` /
+  `5320f67deb39052cb9bf70a7b43f1ad9e9c117d0a25351d1e5cfcfea00e408de`;
+  product `789`
+  `6a0277055e678296ad972dc9b736628b1d085aa50e60fbf1ece729acd67e5a18` /
+  `0c753592dfcd71a83dc96c746fce15ccdd6dc5333dd3493a44280631dbc963e2`;
+  product `882`
+  `bd6101fc385fa2fdd8afb5c291d8d127e2ca41dd957bb027096187a64ab874e9` /
+  `a678860194db2668b078c8e159d4540e2a682d85923c6684a562292239cf498d`;
+  product `1061`
+  `642144ac7c028980c8fecacc5a2c1b6a639516cfcb98967973149a7f36e7faa3` /
+  `eb8b5146a0fe0414b3c4ada57ff967f18b1bfa7b06f889206352d8b2f99ae3d4`;
+  product `1178`
+  `3c68e99d0d8bbcd58f71f0494c23d8be232a08a18151df3e25f833ca37dd1ecc` /
+  `d411c6835777e2239e6a0a46eb4ed6630d5a58e2f5f02d1a047c80b4344d5cc9`;
+  and product `1280`
+  `26a9537a6f1b4cc29ca5267e4f44d9e58fbdfbbefb1fb1c56a593ea62f36acd3` /
+  `7f2b2c38fdd41dda8760d47c2d08f5e1774e3562ec0a9c03f59cf2132cbc9868`.
+  Every candidate fingerprint is unique across the package.
+- `nutrition:candidates:store --dry-run` passed separately for all seven
+  artifacts: 199 candidate rows total, zero product updates and zero database
+  writes. The result file SHA-256 is
+  `55752488b8b6a3dc725bc87c0b4e617aa42aba54506c2b6217f9870d0315b4b3`.
+  `verify:project` passed before this status change. No code changed, so the
+  code-only quick/full suites were not repeated.
+- Eight families remain outside the ready package. Total War has conflicting
+  400/441/447 g version evidence and unresolved caffeine yield; Ibiza has an
+  incoherent serving header and flavour mismatch; Defib lacks exact V3/catalogue
+  flavour-pack binding; Animal's 16.1 g × 30 declaration does not establish the
+  catalogue 491 g version; Skill supplies 412 g Strawberry Pineapple rather than
+  the two 400 g catalogue flavours; Liberty conflicts on approximately 15 g
+  versus 16 g and does not bind Grape; Presidential does not bind its table to
+  Orange Creamsicle; and no image for product `1245` occurs in this handoff.
+
+Complete evidence is
+[nutrition-owner-images-batch-preparation-2026-09-14.json](rollouts/nutrition-owner-images-batch-preparation-2026-09-14.json),
+SHA-256 `5203fd0f412ca1e54af1895c4b98e089a5fa33b69d30e612b0a070527551c680`.
+At this preparation checkpoint no candidate store, review, plan or apply had
+been performed and applied coverage remained 89. The controlled execution below
+supersedes that pending-decision status while retaining every partial-field
+exclusion.
+
+## NUT-03 owner-image handoff controlled execution
+
+14 September 2026, production project `aftboxmrdgyhizicfsfu`:
+
+- Fresh pre-store readback reconfirmed 89 applied pre-workout variants, all 47
+  exact active product-variant bindings, empty target overrides and zero target
+  candidates. All seven authorized artifact hashes, artifact fingerprints and
+  199 unique candidate fingerprints matched the preparation report.
+- Controlled store created exactly candidates `1154`-`1352`. Authenticated
+  review approved all 199 through the existing admin route with the expected
+  numeric value or null absence value, review identity `admin-panel`, and
+  unchanged state, form, ratio, serving, source hash, archive URI and candidate
+  fingerprint. Each fingerprint exists once.
+- Seven explicit-ID plans had zero blockers and zero product updates. Their
+  SHA-256 / plan fingerprint pairs are product `24`
+  `3b121e97df48f2220593398e676b27b4dca95ff3f10c8e3bd2b4d2c4f8e84207` /
+  `2aa0bf5d1e7a9322dc0dffa2c0c4a6aea36ef40ccbb4be6db0a088e32c917a30`;
+  product `761`
+  `268e44ff0500a434b7b2e1fd277e159d7564f1133a6b902e8042997d0513a908` /
+  `3416c73a8ccab8a1350df7ff1951c1e15892329949ff0f3a1106b0e86b018b68`;
+  product `789`
+  `a53883d49d40d86bedb84143e194e69cbbd51703ead3b181daa15dc895c6179d` /
+  `d5c4ae4cae011e60a24d2a57692b60e9bb19db3fd5c20d24fd90c22b02809d2a`;
+  product `882`
+  `fb012aa58ae1bdd179bec37f86022762d30b4be8f05abe882c0a3d66e6c5abd6` /
+  `b489cb8b5ad106f124c270093bce5e34bb4035e471a92e5d34aab586f8f0c185`;
+  product `1061`
+  `dcbab3ef7fd103a8d4981187262738f8ac75129d8b27ee956db203ed91494647` /
+  `7cb6ccb7cf9ca01920f45562553eb9403508888870ae4a7a1d696dabbe878a90`;
+  product `1178`
+  `16c3fb18f5c7ebe9b1336c47b16c67a4bfff754ca8ab0634eb5bce7e202186ff` /
+  `cd35181fd14710498569f734545e07840387f95ad6355a954652331cd0f75fdc`;
+  and product `1280`
+  `46146bbf8263e2044f6c5780439e1808bddfe4519c15d0b177e863cb9953d546` /
+  `d90e14d461dd356e62c5709c681fb733c1410c19f62a2cdbb5032b6b0161b42a`.
+- The automatic approval control rejected the first apply attempt before command
+  execution because the earlier authorization did not enumerate these exact
+  plans and variants. After the owner explicitly authorized all seven listed
+  plan hashes, fingerprints and 47 variants, a new pre-apply read confirmed the
+  same sealed `before` state and all approvals. No rejected apply changed data.
+- Guarded apply then changed zero products and only the 47 authorized
+  `product_variants.nutrition_override` objects. A new read-only connection
+  matched every complete override to its plan `after`, retained all 199
+  approvals and their evidence, and matched preservation hashes for the whole
+  product table, every non-target variant, target metadata including
+  `nutrition_verified` and legacy creatine fields, and the non-target candidate
+  queue.
+- Replaying all seven exact plans was safely rejected because each target no
+  longer matched its sealed empty `before`. A subsequent independent read
+  matched the same final state and confirmed zero additional writes.
+- All 47 public exact-variant pages return 200, select the requested variant and
+  display exactly the applied supported facts. Unresolved fields remain absent.
+  Public source labels distinguish `Manufacturer source` and `Retailer source`;
+  private archive URIs and reviewer metadata are absent. Every target retains a
+  current offer. In the caffeine-free result, the only qualifying target is
+  exact NXT variant `3524`; repeated anchors inside its single grouped product
+  card resolve to that same variant ID.
+- The distinct applied pre-workout total is now 136. Current-offer coverage at
+  `2026-09-14T07:21:04.038Z` is 404 exact variants: 104 complete, 24 partial and
+  276 without applied facts. The frozen pilot remains 12 complete, zero partial
+  and 13 without applied facts; Stinger remains a separate demonstration.
+
+Complete machine-readable evidence is
+[nutrition-owner-images-batch-execution-2026-09-14.json](rollouts/nutrition-owner-images-batch-execution-2026-09-14.json),
+SHA-256 `01bcb47cc46fac726bab30e549214edb350b1e224b34f9ab1bb198de6248f7ae`.
+NUT-03 remains `IN PROGRESS`. One next step is to resolve one of the retained
+recipe, serving, pack, flavour-binding or caffeine-yield gaps with new evidence;
+do not repeat this completed 47-variant execution.
+
+## NUT-03 targeted public-source gap completion preparation
+
+14 September 2026, public-source collection, private evidence retention and
+candidate dry-run only:
+
+- Fresh read-only production preflight reconfirmed project
+  `aftboxmrdgyhizicfsfu`, 136 applied pre-workout variants and all 13 selected
+  exact product-variant bindings with current offers. Existing applied facts
+  were excluded. The 43 new candidate fingerprints collide with none of the 20
+  earlier target candidates; the read made zero database writes.
+- The bounded package completes the remaining supported fields for six
+  PEScience Prolific variants (`1004`, `1581`-`1585`), two HR Labs Proven
+  variants (`907`, `909`) and three Animal Fury variants (`3671`, `3717`,
+  `3720`). Two current Defib V3 variants (`2646`, `2649`) receive supported
+  serving, caffeine, beta-alanine and creatine-absence proposals while
+  citrulline remains explicitly unresolved.
+- Prolific uses the current Dolphin 280 g common product page: 2 scoops / 14 g,
+  caffeine 320 mg from the declared two forms, free-form L-citrulline 6 g and
+  creatine `confirmed_absent` from the complete active plus Other Ingredients
+  declaration. The already applied serving and beta-alanine absence are not
+  repeated. Proven adds only caffeine `confirmed_absent`, based on the
+  manufacturer's explicit stim-free/no-caffeine declaration; its four earlier
+  facts are unchanged.
+- Defib V3 proposes 2 scoops / 21 g, caffeine 400 mg, beta-alanine 3.2 g and
+  creatine `confirmed_absent` from each target flavour's complete declaration.
+  The page's “8 g Citrulline” wording does not identify whether that value is
+  malate mass or L-citrulline yield, so no citrulline candidate was fabricated.
+- The current Animal manufacturer page presents Blue Raspberry, Green Apple
+  and Watermelon together with one formula. Combined with the retained literal
+  16.1 g label serving, it supports caffeine 350 mg, beta-alanine 2 g,
+  citrulline malate 6 g with no declared ratio and the manufacturer's explicit
+  creatine-free state. Kiwi Lime remains excluded because it is absent from the
+  current manufacturer flavour context.
+- Access checks were enforced per source. Dolphin and HR Labs prohibit raw-page
+  copying, so their pages were not archived; only project-authored bounded
+  factual review records with source URLs and check dates were retained. The
+  Animal product route is allowed by `robots.txt`, and its reviewed sales terms
+  contain no separate copying or automated-extraction prohibition. The Animal
+  page, product JSON, one manufacturer graphic, terms and robots file were
+  retained once. Duplicate precheck found no matching object. Fresh readback
+  reproduced all ten new object hashes and confirmed private
+  `nutrition-sources` storage without automatic expiry.
+- Four ignored artifacts contain 18, eight, two and 15 rows. Their SHA-256 /
+  artifact fingerprint pairs are product `24`
+  `7ced4a0643defe8589d717d26e23ed52c1d3d9098945231c25c3cff547ca54bf` /
+  `17d1303a158032808828ad069d5ab7f8863f32956f2b62743a2d540afe54a2e9`;
+  product `62`
+  `a11fdf93915f52561c3d6817a4c3ba837e06924aecb98e20cb1b48dc70558891` /
+  `752780727bdc2c8b3a70744de05ebf73f989122220c10d055f443dd094301af6`;
+  product `761`
+  `9e89ee845613ad076c44cd6114920fcab0cd69a281314a3ebfbcfa999448b7ef` /
+  `f256d00a36acae26ad704848d8d9d1ce2a323f34296729c925024bc712991b03`;
+  and product `1249`
+  `553a45fc9f223633e90b35d3058e25ee96af57a39876984f44b97df3fdf2c976` /
+  `b70359597b0f81b4bb77fd1a5a3ca7a3be85b05afc0b0d7a19e2d070734ae82a`.
+  All 43 candidate fingerprints are unique.
+- Four existing `nutrition:candidates:store --dry-run` validations pass with 43
+  rows, zero product updates and zero database writes. No candidate was stored,
+  reviewed, planned or applied. Applied coverage remains 136.
+- Complete machine-readable evidence is
+  [nutrition-gap-completion-preparation-2026-09-14.json](rollouts/nutrition-gap-completion-preparation-2026-09-14.json),
+  SHA-256 `5c139e49da41be08d4815b694f88d6f09abc3f3bd721d9454b859acd9f754cba`.
+
+NUT-03 remains `IN PROGRESS`. One next step is one explicit owner decision on
+controlled store -> authenticated review -> explicit-ID plan -> apply for
+exactly these four unchanged artifacts and 43 candidates. The unresolved Defib
+citrulline, Animal Kiwi Lime, Yeti caffeine yield and the earlier recipe/pack/
+flavour-binding gaps remain outside that decision.
+
+## NUT-03 targeted public-source gap completion execution
+
+14 September 2026, owner-authorized production store, review, plan and apply of
+the unchanged 43-candidate preparation package:
+
+- A fresh read-only production preflight confirmed project
+  `aftboxmrdgyhizicfsfu`, the expected 136 applied variants, all 13 active exact
+  product-variant bindings and zero matches for the 43 candidate fingerprints.
+  The target overrides still matched the preparation state: six Prolific and
+  two Proven variants retained their earlier partial facts, while both Defib V3
+  and three Animal Fury targets remained empty.
+- Controlled store created candidates `1353`-`1395` only in
+  `nutrition_candidates`. A new read found exactly one row for every fingerprint
+  and no catalogue change. Authenticated review through the existing admin route
+  approved all 43 rows as `admin-panel`; a separate read matched every proposed
+  and approved value, exact variant, durable archive URI, source hash,
+  fingerprint and review timestamp.
+- Explicit-ID planning produced four blocker-free plans with zero product
+  updates. Product `24` plan SHA-256 / fingerprint is
+  `b4592297905d8bb3dcf9d39cbb493befc503a053f0f05068dda08b9ea7ac73c3` /
+  `c9aee8e4a25272eb1c4792c554dd57fa77604c74c83b13364aff8aaea3f8f354`;
+  product `62` is
+  `dc16e460321ff21331e29e93341075f10ce70e9b7eb5d81477cd8197c92a5b4c` /
+  `8d4073b970dbd936ac74ee926205796902dd2dc9265dccbc681f450dadf98ff5`;
+  product `761` is
+  `f2101a18bf797dd003bc9ea529da3173e7dc6a26a1ebd351b836d9a22ed6d5a5` /
+  `e155bd84b7a3a25a4ea56821d6c89454b68b362cebf980af8755aa2d96728ef0`;
+  and product `1249` is
+  `7628e71975d14e48dd8ef8c79a63ded50759ac80ddbe6499b19566a1b29a16c1` /
+  `5c668518ff1af39640c5857216e71cdd8c49358e378bc9be2fd897af96daaa8e`.
+- Guarded transactional apply changed zero products and only the planned 13
+  `product_variants.nutrition_override` objects. A new forced-read-only
+  connection matched every whole override to the corresponding plan `after`,
+  retained all approvals and evidence, and matched preservation hashes for
+  products, every other variant, target metadata and legacy fields, pre-existing
+  target candidates and the non-target queue.
+- Eleven targets are now complete for the four tracked ingredients plus serving:
+  Prolific `1004`, `1581`-`1585`; Proven `907`, `909`; and Animal Fury `3671`,
+  `3717`, `3720`. Defib V3 `2646` and `2649` are partial: their serving,
+  caffeine, beta-alanine and creatine absence are applied, while citrulline stays
+  unresolved because the source does not say whether 8 g is malate compound mass
+  or L-citrulline yield.
+- Replaying each exact plan was safely rejected on its changed sealed `before`.
+  A subsequent independent read reproduced the complete final state, proving no
+  second write. All 13 public exact-variant pages return 200, select the requested
+  variant, show only the applied facts and expose neither private URI nor reviewer
+  metadata. Source labels distinguish manufacturer and retailer evidence.
+  Proven variants `907` and `909` qualify for caffeine-free search; existing
+  product grouping renders one card linked to exact qualifying variant `907`.
+- The distinct all-offer-state applied total is now 141. Current-offer coverage
+  is 404 exact variants: 115 complete, 18 partial and 271 without applied facts.
+  Frozen-pilot variant `3671` moves to complete, making the pilot 13 complete,
+  zero partial and 12 without applied facts. Stinger remains one separate case.
+
+Complete machine-readable evidence is
+[nutrition-gap-completion-execution-2026-09-14.json](rollouts/nutrition-gap-completion-execution-2026-09-14.json).
+NUT-03 remains `IN PROGRESS`. One next step is to resolve Defib V3 citrulline only
+after obtaining an exact compound-mass-versus-yield statement, or continue with
+another family supported by new exact evidence; do not repeat the exhausted gap
+searches.
+
+## NUT-03 catalogue next-50 public-source preparation
+
+14 September 2026, owner-directed public collection, private evidence retention
+and candidate dry-run only:
+
+- A fresh read-only production preflight confirmed 141 applied pre-workout
+  variants, all 34 selected active exact product-variant bindings, a current
+  offer for every selected variant, empty target overrides and no existing
+  target candidates. No catalogue or candidate row was written.
+- The closed organizational scope assessed 50 exact variants. Thirty-four are
+  ready: 26 complete variants and eight partial Darkstims PRE V4 variants. Five
+  artifacts contain 162 unique candidate fingerprints. The remaining 16 exact
+  variants retain concrete flavour-formula, version, permission or pack gaps.
+- Nine Warrior Rage variants use the current common 392 g / 45-serving
+  manufacturer presentation: 1.5 scoops / 8.7 g, caffeine 300 mg,
+  beta-alanine 1500 mg, citrulline malate 2:1 500 mg and creatine gluconate
+  2560 mg. The quantities remain masses of the declared ingredient forms.
+- Five DNFM new-flavour variants use the table that the manufacturer explicitly
+  limits to Cherry Sweets, Rocket Lolly, Sherbet Razz, Strawberry Bubblegum and
+  Orange & Mango Crush: 2 scoops / 16 g, caffeine 400 mg, beta-alanine 3500 mg,
+  free-form L-citrulline 6000 mg and creatine `confirmed_absent`. Four older
+  flavours remain outside the assignment.
+- Three Pumpage variants use 1 scoop / 10 g, free-form L-citrulline 3000 mg and
+  the complete stim-free declaration supporting `confirmed_absent` caffeine,
+  beta-alanine and creatine. The source image was inspected manually; no OCR or
+  new parser was used.
+- Nine Cellucor C4 Original 30-serving variants use the current exact retailer
+  offer and its published active table plus complete ingredients list: 1 level
+  scoop / 6.8 g, caffeine 150 mg, beta-alanine 1600 mg, citrulline
+  `confirmed_absent` and creatine monohydrate 1500 mg. The source remains
+  labelled as retailer evidence rather than manufacturer evidence.
+- Eight Darkstims PRE V4 variants have supported serving 20 g, beta-alanine
+  3500 mg, free-form L-citrulline 8000 mg and creatine `confirmed_absent`.
+  Caffeine is intentionally omitted: the current pages conflict between a
+  400 mg dual-source matrix and 362.5 mg total caffeine, while 150 mg
+  di-caffeine-malate compound mass cannot be counted as 150 mg pure caffeine.
+- Terms and robots rules were reviewed per domain. The bounded Warrior snapshot
+  and six project-authored evidence/manifest records were stored once in the
+  existing private `nutrition-sources` archive. TBJP and Darkstims raw pages and
+  images were not designated for private archive because their terms prohibit
+  scraping/copying. Independent archive readback reproduced all seven SHA-256
+  hashes; the bucket remains private and objects do not expire automatically.
+- All five `nutrition:candidates:store --dry-run` validations pass: 45, 25, 15,
+  45 and 32 rows, respectively, with zero product updates and zero database
+  writes. No production store, review, plan or apply occurred.
+
+Artifact SHA-256 / fingerprint pairs are product `56`
+`7463cc1faee0e7d4a5a9af1fe440bdcb35f9c9ff8ddf0d1aa0d3150b35b5fd04` /
+`dc73e4c36795da8143b22c0bff760cb812b9854165ecff152221a4dc88dd2cfa`;
+product `878`
+`e6a366d73a45b63d07a260ffa3ef0251672687573fd0988767f1387c59ba7796` /
+`1d76f6a8be4612236103e12aa7874648f1455ab868c8ea0a2cd71f52df58dec7`;
+product `880`
+`62968ac4e846cd9f5ec86c97148c6217344084379b8e8abedc003d2851997398` /
+`f36f538c72ae3b3fdd9989795c8405b5e060f91dad3bcc01b17580652aa406e4`;
+product `1169`
+`3b1938d60c87d8f3d47bae16caa7d8b68f4d234254fc10a40d638e2b00a2d656` /
+`44af97835da0f4c83778110caaf3a05cd6a47d7fb244ad9dc920c7d6f4610414`;
+and product `1181`
+`183d5b2e103b4c48b0f1d2dcc10c46074e5df49680e3a77e3276a6da68ceea23` /
+`420eb821035295dc90180ea7c07d80bdcf95699a3f293068a666877d869a5a27`.
+
+Complete machine-readable evidence is
+[nutrition-catalog-next-50-preparation-2026-09-14.json](rollouts/nutrition-catalog-next-50-preparation-2026-09-14.json),
+SHA-256 `04a74dafac5db8716040f8832da039f4ef6562f5b984caa93c2578d4174d94b6`.
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision on controlled
+store -> authenticated review -> explicit-ID plan -> apply for exactly these
+five unchanged artifacts and 162 candidates. Resolving the eight Darkstims
+caffeine facts requires an unambiguous manufacturer total-caffeine-yield
+statement; the other 16 scoped gaps remain outside that decision.
+
+## NUT-03 catalogue next-50 execution checkpoint
+
+14 September 2026, production store and authenticated review completed; apply
+not run:
+
+- Fresh production preflight reconfirmed project `aftboxmrdgyhizicfsfu`, 141
+  applied variants, 34 active exact targets with unchanged empty overrides and
+  zero matches for the 162 authorized candidate fingerprints.
+- Controlled store created candidates `1396`-`1557`. Independent readback found
+  exactly one row for every fingerprint, all initially `PENDING`, and no
+  catalogue change. Authenticated review then approved all 162 rows through the
+  existing admin route. A further read matched their values, exact variants,
+  durable evidence, fingerprints and review metadata; the target overrides
+  remained unchanged.
+- Explicit-ID planning produced five blocker-free plans covering exactly 162
+  approved candidates, 34 variants and zero products. Product `56` plan SHA-256
+  / fingerprint is
+  `1a175788e46189a1b33a292837db326871dd69bbf77ff4cbfa0ae3174e1be7ae` /
+  `1c32943d73d60b78452ea108c770f87a1da765d36034434f468ead01288b9702`;
+  product `878` is
+  `44ceab8995cceba71f27a2abfc975d9d3bfa2df72892dcfe0daa0165e72327ba` /
+  `a33b2545217895f94759d7a1830cd754dcc482d783e574a53146cec53fac7855`;
+  product `880` is
+  `55e7fa1e6db08e2b8a4578380202772084f2137ae2699f5a6883740f26682267` /
+  `84d95d623e2b056a4b78acb9aa468bd8aade0743e7641b4799f6d461499852ea`;
+  product `1169` is
+  `f3483915235f1f4c1f388bb8f02272559687b38bb5320ec6f3fa70a476491e8f` /
+  `083c947fc63640d4f8e7aa958f1789e5bd449b510770a23d7c5eb3e1e0063adf`;
+  and product `1181` is
+  `45c1381b84bfb43c7fa300aa608a1bd801de64d929a1b77f10465a7c12b725bc` /
+  `ea9006e25e526ad73734d4ea264a6bbbb67096b0a9791471ff8c733c9b7b1141`.
+- The automatic approval review rejected the first apply before the command ran.
+  It found the short follow-up authorization insufficiently explicit about the
+  concrete product `56` plan and its values. No workaround was attempted. A new
+  read confirmed all 34 target overrides still match `before`, the applied total
+  remains 141 and all 162 candidates remain approved.
+
+Complete evidence is
+[nutrition-catalog-next-50-execution-checkpoint-2026-09-14.json](rollouts/nutrition-catalog-next-50-execution-checkpoint-2026-09-14.json).
+NUT-03 remains `IN PROGRESS`. One next step is explicit owner authorization of
+the five exact plans, their hashes, fingerprints and listed values, followed by
+guarded apply, independent readback, replay protection and public verification.
+
+## NUT-03 catalogue next-50 execution completion
+
+14 September 2026, resumed after renewed explicit owner authorization:
+
+- Guarded apply completed all five sealed plans without changing their content
+  or bypassing an application safeguard. It changed zero products and exactly
+  34 target `product_variants.nutrition_override` objects: nine Warrior Rage,
+  five DNFM, three Pumpage, nine C4 Original and eight Darkstims PRE V4 exact
+  variants. Candidate IDs `1396`-`1557` remain approved with their original
+  source evidence.
+- A new forced-read-only connection matched every whole override to its plan
+  `after`. Preservation hashes confirm no change to products, non-target
+  variants, `nutrition_verified`, legacy `creatine_per_serving_g`, pre-existing
+  target candidates or the non-target queue. The applied pre-workout total rose
+  from 141 to 175.
+- Replaying each of the five plans was safely rejected because its sealed
+  variant `before` had changed. A subsequent read matched the same final state,
+  confirming zero additional writes.
+- All 34 public exact-variant pages return 200, select the requested variant and
+  show the supported applied facts with manufacturer or retailer source labels.
+  They expose neither private archive URIs nor reviewer metadata. Twenty-nine
+  targets currently have an in-stock offer inside the application's 24-hour
+  freshness window. Pumpage variants `1374`, `1375`, `1376` have applied
+  caffeine `confirmed_absent`, but currently lack a fresh offer, so the
+  availability-aware caffeine-free filter correctly omits that family.
+- Of 404 current-offer catalogue variants, 141 are now complete, 26 partial and
+  237 have no applied facts. This batch contributed 26 complete and eight
+  partial variants; Darkstims caffeine remains deliberately unresolved.
+
+Complete machine-readable evidence is
+[nutrition-catalog-next-50-execution-2026-09-14.json](rollouts/nutrition-catalog-next-50-execution-2026-09-14.json),
+SHA-256 `a65dcc5f54619bbbeb4f2b8be8741e05793ad25552937fd073b398fda73be02e`.
+NUT-03 remains `IN PROGRESS`. One next step is to resolve the eight Darkstims
+caffeine facts only after an unambiguous total-caffeine-yield source, or prepare
+another evidence-backed family without repeating retained blockers.
+
+## NUT-03 emergency catalogue batch preparation
+
+14 September 2026, preparation only:
+
+- A fresh read-only production preflight reconfirmed project
+  `aftboxmrdgyhizicfsfu`, 18 active exact targets with empty overrides and zero
+  existing candidates for the generated fingerprints. No catalogue or
+  candidate write occurred.
+- The bounded pass assessed 31 variants across five families. It prepared 90
+  unique pending candidates for 18 variants: seven Cellucor C4 Original 390 g,
+  four exact GHOST Legend V4 flavours and seven DY Nutrition Blood & Guts 380 g
+  flavours. Eleven variants have all five tracked facts. The seven Blood & Guts
+  variants retain `conflicting_information` for total caffeine while their
+  serving, beta-alanine, citrulline-malate and creatine-absence facts remain
+  independently usable.
+- Three dry-runs pass for 35, 20 and 35 rows with zero product updates and zero
+  database writes. All five project-authored evidence/context records were
+  stored once in private `nutrition-sources`; independent downloads reproduced
+  their hashes. Raw GHOST and WheyOkay images remain local because the reviewed
+  terms do not permit treating them as reusable commercial archive material.
+- C4 195 g remains blocked by conflicting 6 g/creatine-nitrate and 6.5
+  g/creatine-monohydrate evidence. GHOST variant `1741` needs an exact identity
+  binding to the WARHEADS flavour. The NXT TNT Nuclear 240 g retailer page says
+  its table covers one unspecified flavour and warns that flavours may differ,
+  so variants `3667`, `3710`, `3711`, `3712` remain unassigned.
+
+The artifacts and their SHA-256 / fingerprint pairs are: product `175`
+`7ed925af17b7a124c4172bb08eb2a473aca74a35bf0aa07f9b0c8ba3bfc70e71` /
+`650d3553b627698c72779f9dac37a59d0b0d569973100b275dbb6529f4850f77`;
+product `6`
+`8165b4e05ea5865e812f1007d7eb3bc1f74f45af05e409b6f0a359e9f60856db` /
+`b0f8b3c3f8b8d78c4de014439765890c415d2d8692c6a8b87ddc03d69bccabbc`;
+and product `19`
+`334500330c578f083ea617389159f884c75d76449e58ffa914b2ef024e3e77c8` /
+`cd3f0172a4d20f11e0c5d2878ddc5edad9f45230a672d876ce89f4fb2641b1a4`.
+Complete machine-readable evidence is
+[nutrition-emergency-catalog-batch-preparation-2026-09-14.json](rollouts/nutrition-emergency-catalog-batch-preparation-2026-09-14.json),
+SHA-256 `f95e00222fc2bba4651012e821e5e2a106763d6914aa088c4be04e815c1ad673`.
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
+store -> authenticated review -> explicit-ID plan -> guarded apply for exactly
+these three unchanged artifacts and 90 candidate fingerprints.
+
+## NUT-03 emergency catalogue batch execution
+
+14 September 2026, production execution after exact owner authorization:
+
+- A fresh preflight reconfirmed production project `aftboxmrdgyhizicfsfu`, 18
+  active exact targets with empty overrides and no existing copy of any of the
+  90 candidate fingerprints. Controlled store created candidates `1558`-`1647`
+  exactly once, with zero product or variant updates.
+- Authenticated review compared every stored field, information state, exact
+  variant, source URI, source hash and fingerprint with the immutable artifacts,
+  then approved all 90 candidates. No differing or pre-approved record was
+  encountered.
+- Three explicit-ID plans contained zero product updates, no blockers and 18
+  variant updates. Product `175` plan SHA-256 / fingerprint is
+  `b986e9a7a710bf3c8617635e3a5f1decbe490b5b489a1d1ba8fc3d2b99f7fcc7` /
+  `f51d61ffe678b951d1b2dc065bed76aeb31648f31d1431f104805e3c3dea6a62`;
+  product `6` is
+  `00a2d345ff02182cce6b30bf7fc6ba55d91360114da7333fe3aad837fbf2d38c` /
+  `059b1517e9d92bee82ce2b19adfb426c781592307a7c6afdc34c8feaa2408564`;
+  and product `19` is
+  `ccab3ec1422424878984e51522b922aaa13c636ebfaf4652e1ca276973b77f1b` /
+  `116813f400f23bfc19d1c8044027eac8881d4193b718efded71f0c2b8282243c`.
+- Guarded apply changed exactly the 18 planned `nutrition_override` objects and
+  zero products. A new read-only connection matched every whole override to the
+  corresponding plan `after`, retained all 90 approved evidence records and
+  confirmed unchanged `nutrition_verified` and legacy
+  `creatine_per_serving_g`. Applied exact-variant coverage rose from 175 to 193.
+- Replaying each unchanged plan was safely rejected on its stale sealed
+  `before`; a subsequent read proved zero additional writes. All 18 public URLs
+  return 200, select the requested variant, show the expected facts and source
+  type, and expose neither private URIs nor reviewer metadata. None qualifies
+  for the caffeine-free filter: C4 and GHOST contain caffeine, while Blood &
+  Guts preserves `conflicting_information`.
+- The catalogue now has 167 variants containing all five applied state keys, 26
+  partial variants and 382 with no applied facts. Seven of the 167 retain an
+  explicit Blood & Guts total-caffeine conflict, so owner-facing fully resolved
+  coverage is 160 rather than treating that conflict as a known dose.
+
+Complete evidence is
+[nutrition-emergency-catalog-batch-execution-2026-09-14.json](rollouts/nutrition-emergency-catalog-batch-execution-2026-09-14.json),
+SHA-256 `9e1f91e558f5543426510a4471a34003f7c8c054363b91de0cdf7aae1b006651`.
+NUT-03 remains `IN PROGRESS`. One next step is to prepare another exact-version
+family with a provable serving and shared-table context, while retaining the
+known C4 195 g, GHOST `1741`, NXT 240 g and Blood & Guts caffeine gaps until new
+evidence appears.
+
+## NUT-03 catalogue continuation preparation
+
+14 September 2026, preparation only:
+
+- A fresh read-only production preflight reconfirmed project
+  `aftboxmrdgyhizicfsfu`, 19 active exact targets with empty overrides and no
+  existing nutrition candidates. The baseline remains 193 applied unique
+  variants: 167 with all five applied state keys, 26 partial and 382 without
+  applied facts. Seven applied Blood & Guts variants retain an explicit
+  caffeine conflict, so 160 variants have all four ingredient outcomes
+  resolved for owner-facing coverage.
+- The bounded pass assessed 27 variants and prepared 90 unique pending
+  candidates for 19 variants across five families. Four Optimum Nutrition Gold
+  Standard Pre-Workout 330 g, four GHOST PUMP, three BioTechUSA Nitrox Therapy
+  340 g and three BioTechUSA Black Blood CAF+ 300 g variants have all five
+  tracked facts. Five Olimp Redweiler 480 g variants have serving, caffeine,
+  beta-alanine and citrulline-malate candidates; creatine is intentionally
+  omitted because the source separately quantifies monohydrate and creatine
+  malate and the current single-form creatine field cannot represent both.
+- All five artifacts pass the existing offline store dry-run: 20, 20, 15, 15
+  and 20 rows, with 90 unique fingerprints, zero product updates and zero
+  database writes. Five project-authored factual reviews plus the context
+  manifest were stored once in private `nutrition-sources`; independent
+  downloads reproduced every SHA-256. Locally inspected source pages and GHOST
+  panels remain outside Git.
+- Eight inspected variants remain excluded: four BioTechUSA NOX+ catalogue
+  variants have an unresolved 330 g versus current 340 g formula difference;
+  four CNP Full Tilt V2 catalogue flavours do not match the current official
+  Loaded Pre 570 g flavour identities. Reflex Muscle Bomb 600 g remains outside
+  the ready scope because the current official page is a different 40-serving
+  presentation and separately presents a caffeine-free Lemon Sherbet version.
+
+Artifact SHA-256 / fingerprint pairs are: product `17`
+`347496fce5b2aa493e3dbb5d6a375a9f91c47d1986dcc6cab0c9da2464bc411b` /
+`07437de750a2a44cabba6de6a0ebabbb43a229edb17d3ad340c272330b46be3b`;
+product `49`
+`fcb91f10cf750290be5d87c9aede77ae58b8bb70640e6f6aa095423de6fffc69` /
+`a805509f97e288c17b2822c6bbedd34cd395747eda55c8ba9cd697388c7b06d3`;
+product `55`
+`8ba3e72725d59b9cfbbd89b9d76c948c5f3aeedc03e85523bbcde61f3a3fe522` /
+`25796fde98a6538e9a0e665de70310349a05100561edde49b180ef4d3a0b2fa6`;
+product `294`
+`ea7ab6546094a5fa10e9490d07e953629c7dbb24e2023eca953a2a8341344335` /
+`748b72f967ad1f1ca534f53a46023c4a4ed166fe02edec2ff37732de699f4ce4`;
+and product `520`
+`3db05816f98f44d756e691e5445d3c76804d79f7fae88e187e8b913bc63a714a` /
+`1ff9b7cd767cc73a845999c988a4a7a4fbb5397f324bad024b463517828311ca`.
+Complete evidence is
+[nutrition-catalog-continuation-preparation-2026-09-14.json](rollouts/nutrition-catalog-continuation-preparation-2026-09-14.json),
+SHA-256 `5468cbd15300903f7bf3a2e775dbf23e668a46f2bf5051d99082fe65b7d35ca4`.
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
+controlled store -> authenticated review -> explicit-ID plan -> guarded apply
+for exactly these five unchanged artifacts and 90 candidate fingerprints;
+Redweiler creatine remains excluded.
+
+## NUT-03 catalogue continuation execution
+
+14 September 2026, production execution after exact owner authorization:
+
+- A fresh production preflight reconfirmed project `aftboxmrdgyhizicfsfu`, all
+  19 exact product-variant bindings, 90 unique candidate fingerprints, empty
+  target overrides and no existing matching candidates. The controlled store
+  created candidates `1648`-`1737`; authenticated review approved exactly those
+  90 records with their evidence unchanged.
+- Five explicit-ID plans contained zero product updates and exactly 19 variant
+  updates. Guarded apply completed all five: products `17`, `49`, `55` and
+  `294` received the five approved facts, while product `520` received four.
+  Redweiler creatine remains deliberately unresolved because its source
+  separately declares creatine monohydrate and creatine malate.
+- A new read-only connection matched all 19 complete overrides to their sealed
+  plan `after`, retained all 90 approvals and evidence records, and found no
+  change to products, `nutrition_verified` or legacy
+  `creatine_per_serving_g`. Applied coverage rose from 193 to 212 variants:
+  181 now contain all five state keys, 31 are partial and 363 have no applied
+  facts. Excluding the seven retained Blood & Guts caffeine conflicts, 174
+  variants have fully resolved owner-facing ingredient outcomes.
+- Replaying every unchanged plan was safely rejected because its sealed
+  `before` was stale after the successful apply. A second independent read
+  confirmed zero additional writes and the identical final state.
+- All 19 public exact-variant pages return 200, select the requested variant,
+  show the expected facts and source type, and expose neither private archive
+  URIs nor reviewer metadata. The availability-aware caffeine-free filter shows
+  GHOST PUMP and excludes all target variants with declared caffeine.
+
+Complete machine-readable evidence is
+[nutrition-catalog-continuation-execution-2026-09-14.json](rollouts/nutrition-catalog-continuation-execution-2026-09-14.json),
+SHA-256 `ee64c72cf9f26ee7247fc4c01a35d1c313f10418d1f925cddf2194fb3fbc515a`.
+NUT-03 remains `IN PROGRESS`. One next step is to prepare the next exact-version
+family with an evidence-backed serving and shared-table context, without
+repeating retained blockers.
+
+## NUT-03 next catalogue family preparation
+
+14 September 2026, preparation only:
+
+- The read-only production scan started from 212 applied variants and assessed
+  12 active current-offer variants across two families. It did not repeat the
+  retained C4 195 g, Ibiza or other recorded blocker audits.
+- Redcon1 Total War 400 g remains excluded: accessible current and historical
+  evidence shows incompatible pack sizes, serving masses and caffeine totals,
+  so it does not establish the catalogue formula without guessing.
+- Product `482`, JNX Sports The Curse 250 g, is ready for variants `1022`,
+  `1697` and `1698`. The manufacturer groups Blue Raspberry, Fruit Punch and
+  Pina Colada in the same 250 g / 50-serving product, and matching
+  retailer-hosted manufacturer labels establish one 5 g scoop, caffeine 155 mg,
+  beta-alanine 1600 mg, L-citrulline 700 mg and creatine monohydrate 1000 mg.
+  Compound masses retain their declared forms.
+- The single artifact contains 15 unique PENDING fingerprints and passes the
+  existing store dry-run with zero product updates and zero database writes. A
+  fresh production preflight found all three target overrides empty and no
+  matching candidates. The project-authored factual review and context manifest
+  were stored once in private `nutrition-sources`; fresh downloads reproduced
+  both hashes.
+
+The artifact is
+`tmp/nutrition-catalog-next-preparation-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-catalog-next-20260914-482.json`,
+SHA-256 `89d96dff9a31bf1b761271245b5276423f90c5d2fd4f3fd84968a98aa420ad4b`,
+fingerprint `c082a64382f4ab4a1f6acf199bf188c5279b26e5f5f81a204f28a7449e02e613`.
+Complete evidence is
+[nutrition-catalog-next-preparation-2026-09-14.json](rollouts/nutrition-catalog-next-preparation-2026-09-14.json),
+SHA-256 `09568e510f493090b1a34d32e99aa410e566d70aed8f2a3ed9503705e2b17394`.
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
+controlled store -> authenticated review -> explicit-ID plan -> guarded apply
+for exactly this unchanged artifact and its 15 fingerprints.
+
+## NUT-03 JNX The Curse execution
+
+14 September 2026, production execution after explicit owner authorization:
+
+- A fresh preflight reconfirmed production project `aftboxmrdgyhizicfsfu`, the
+  unchanged artifact hash and fingerprint, three empty target overrides and no
+  existing candidate fingerprint. Controlled store created candidates
+  `1738`-`1752`; authenticated review approved exactly those 15 records.
+- The sealed plan SHA-256 / fingerprint is
+  `9c990e7e21ad9e7914b96872cf8154706fd4d25c67bb4229bb5efc2ca363149b` /
+  `26fc6f401106e39ec087e38464e4dc3f3e1718ab001a07ad0dc631e88ca557fb`.
+  It contained zero product updates, three empty `before` overrides and exactly
+  the five authorized facts for variants `1022`, `1697` and `1698`.
+- Guarded apply updated only those three `nutrition_override` objects. A new
+  read-only connection matched every whole override to the plan `after`, found
+  all 15 candidates approved with unchanged evidence and advanced applied
+  coverage from 212 to 215 variants: 184 complete, 31 partial and 360 without
+  applied facts. Products, `nutrition_verified` and legacy
+  `creatine_per_serving_g` remained unchanged.
+- Replaying the same plan was safely rejected on its stale sealed `before`, with
+  zero additional writes. All three exact public pages return the expected
+  serving, caffeine, beta-alanine, L-citrulline and creatine-monohydrate facts;
+  the caffeine-free filter correctly excludes all three.
+
+Complete evidence is
+[nutrition-catalog-next-execution-2026-09-14.json](rollouts/nutrition-catalog-next-execution-2026-09-14.json),
+SHA-256 `ee7a07010a22772b726c2f89031f3a17dc8592229272bd331c9b0c4b07938ac0`.
+NUT-03 remains `IN PROGRESS`. One next step is to prepare another exact-version
+family while retaining known blockers until new evidence appears.
+
+## NUT-03 larger catalogue batch preparation
+
+14 September 2026, preparation only:
+
+- A fresh read-only production preflight started from 215 applied variants and
+  confirmed 25 exact active targets with current offers, empty overrides, 106
+  unique candidate fingerprints and no matching candidate records. The target
+  remains production project `aftboxmrdgyhizicfsfu`; the preflight made no
+  database writes.
+- One closed package covers five families and 25 variants: Mutant Madness 225 g
+  (`1023`, `1792`-`1797`), Full As F*ck 387 g (`1007`, `1607`-`1611`), 5150
+  375 g (`1030`, `1612`-`1614`), Pitbull Pump (`1217`-`1220`, `2767`) and Mega
+  Pump Elite (`1221`, `1251`, `2769`). Thirteen variants have all five tracked
+  facts; twelve retain explicit gaps while keeping their supported facts.
+- Five artifacts contain 106 PENDING candidates. Every artifact passes the
+  existing offline store dry-run, totalling zero product updates and zero
+  database writes. Five factual reviews were archived once in private
+  `nutrition-sources`; independent downloads reproduced all hashes.
+- Mutant Madness retains unresolved citrulline because its table gives one
+  combined citrulline-malate/arginine mass, and retains unresolved creatine.
+  Pitbull Pump retains unresolved creatine because the accessible page is not a
+  complete legal ingredient declaration. Known version conflicts for Total
+  War 400 g, Conviction Elite 375 g, Pharma Grade PRE and Darkstims Pump V2
+  remain excluded rather than being guessed. This is why the evidence-qualified
+  package stops at 25 variants instead of padding the organizational limit of 50.
+
+Artifact SHA-256 / fingerprint pairs are: product `489`
+`adafa27a691aa4ba24b70c8860635d3a78aacf99426b170b13297c83ef507598` /
+`9dc872e66726004bb580950f6cae867cb20429d6aa6fa1f33d09224e02e21a71`;
+product `58`
+`30ae13d687e528abdb51f4a70dbc316edd69abfaa735603df2e920c829f631f3` /
+`cdc2648f4c94d5ff6118d732d7e9b1d702d9241d8f292677526175ec72ffe103`;
+product `59`
+`82865bc3533aa98595b0fda05d1c3277a2c1c756bb67b190b7a137c0394e29f1` /
+`d6f0453e3b22cac272c7741d4065b974b12eeb74c98d0aa38b412e7d75048b6c`;
+product `839`
+`fd4c7cfeb6afe6c7de01427327230682132cddd225c5fc8b45bfa69d5c849f4d` /
+`6ad1c50cc9e0fa8ce740ea847b12299ed9e98a073ef46c1f3192332fce118f0b`;
+and product `842`
+`aa0aefef62e1a2d44a173fc0010e7ae063e29b04e79161011eea95584958b472` /
+`1a0474ba019a0f9d7763d2ebe1bc5eb8d3ea78eab1dfc2a1cfa226f89b63fa53`.
+Complete evidence is
+[nutrition-catalog-large-next-preparation-2026-09-14.json](rollouts/nutrition-catalog-large-next-preparation-2026-09-14.json),
+SHA-256 `e983dad72215a32e7708e9d7d71c6a6519300059cfe3ca2fea99a62c72e7f38d`.
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
+controlled store -> authenticated review -> explicit-ID plans -> guarded apply
+for exactly these five unchanged artifacts and 106 fingerprints.
+
+## NUT-03 larger catalogue batch execution
+
+14 September 2026, production execution after the owner continued with the
+immutable package and confirmed the Mutant caffeine interpretation:
+
+- The fresh preflight reconfirmed production project `aftboxmrdgyhizicfsfu`,
+  25 empty exact target overrides, 106 unique fingerprints and no matching
+  candidates. Controlled store created candidates `1753`-`1858`; authenticated
+  review approved all 106 with unchanged values and evidence.
+- Five explicit-ID plans contained zero product updates and exactly 25 variant
+  updates. Plan SHA-256 / fingerprint pairs are: product `489`
+  `ed1a1149c87bf0ab9686908ff883f3c8550a4d3ac67662a74867bcf0b88932ee` /
+  `88bf920d951baab3026ce0e235a8d8cbc19452b347f9519d4bb34dbe1d285789`;
+  product `58`
+  `30db48b4345b13be5fd235c917e330308978a8cabb2b6957c2ed789be399a34c` /
+  `f0c226e42b7dda287759cd23a23fbef745e0b250f99eb0af7671069027abbec3`;
+  product `59`
+  `87d9872d74a4c44ef10f12c6ccba1956a60e0462f00a23c5aa2744df00b3df51` /
+  `80714a04bb006b1793a98c1361df2a7f9b87e732c5431e685bc581321aff71d5`;
+  product `839`
+  `e06cd71a6e4f5d72176cd117340e694051b587ead13be90ed652767c16adf8fb` /
+  `84785e29ff5d7d7a4b0b7f0ef8ee4e6dad0fab24fabcf0d20a1995083043c359`;
+  and product `842`
+  `5a8f3225dd77b026c49cb82aa030610a544c0a1d7cbcfe5cd5662411935e2cfb` /
+  `224db5460c0949d5f4c1a47a7af04295f4d3c9d3a5095a5a74c1455e3ce35146`.
+- Guarded apply changed only the planned 25 `nutrition_override` objects. A new
+  read-only connection matched every whole override to its plan `after`, found
+  all 106 candidates still approved with unchanged evidence, and confirmed no
+  product, `nutrition_verified` or legacy `creatine_per_serving_g` change.
+  Applied coverage rose from 215 to 240 variants: 197 complete, 43 partial and
+  335 with no applied facts.
+- Replaying all five unchanged plans was safely rejected on stale sealed
+  `before`, with zero additional writes. All 25 exact public pages returned 200,
+  selected the correct variant, displayed the expected facts and source type,
+  and exposed no private URI or reviewer metadata. The caffeine-free filter
+  includes available qualifying variants and excludes Mutant Madness and 5150.
+- The seven Mutant variants retain unresolved citrulline and creatine; five
+  Pitbull Pump variants retain unresolved creatine. These explicit gaps account
+  for the twelve partial variants and were not converted to zeros or absence.
+
+Complete evidence is
+[nutrition-catalog-large-next-execution-2026-09-14.json](rollouts/nutrition-catalog-large-next-execution-2026-09-14.json),
+SHA-256 `8d1e717285ba67bb7bb98851a7cb873a9a6f6e182f5428781f16bf795b921198`.
+NUT-03 remains `IN PROGRESS`. One next step is another multi-family preparation
+batch, retaining recorded version and evidence blockers until new evidence
+appears.
+
+## NUT-03 next exact-version catalogue batch preparation
+
+14 September 2026, preparation only:
+
+- A fresh read-only production preflight started from 240 applied variants and
+  confirmed 16 exact targets with current offers, empty overrides, 80 unique
+  candidate fingerprints and no matching candidate records. The target is
+  production project `aftboxmrdgyhizicfsfu`; the preflight made no database
+  writes.
+- The closed package covers five families and 16 variants: C4 Original 60
+  Servings (`3277`, `3444`, `3445`, `3447`), QHUSH Black 220 g (`1021`,
+  `1787`, `1788`), AK-47 Labs 240 g (`3233`, `3263`, `3267`), Jack3d Advanced
+  315 g (`3758`, `3875`, `3877`) and HyperMax'D Out 480 g (`1232`, `1233`,
+  `2774`). All 16 have all five tracked facts.
+- Five artifacts contain 80 PENDING candidates. Each artifact passes the
+  existing offline store dry-run, totalling zero product updates and zero
+  database writes. Five factual source reviews were archived once in private
+  `nutrition-sources`; independent downloads reproduced all hashes.
+- The package stops at 16 rather than padding the organizational limit of 50.
+  Short recognition retained exact-version or evidence blockers including
+  Total War 400 g, products whose manufacturer states flavour contents vary,
+  NXT access/identity cases and the catalogue 520 g versus current 550 g
+  formula. None was converted into guessed data.
+
+Artifact SHA-256 / fingerprint pairs are: product `1171`
+`fa5c80c8c99e86c8e54d04dbc730798d3645fd3e549384b0d956f0690b5d80c9` /
+`446065f57e89f925e40e1cb450d9d99ac06107db9a87814cf90683a54d44a776`;
+product `449`
+`f93a836e9aae25b524dc67d6b9111cb58c3c412dcf113b40d19922929b5ca75c` /
+`2877b14b463e8fa48af0e4a12b570e722e5d432e306b6bde7b2d799655b62172`;
+product `1162`
+`fbbc4c41f8fe0f72e82c62cef65e203c271ce099a02ee6a0fee9e34b1cc4f8d4` /
+`30954d42a061ce5fba624bf0f9384222f85a943f14c1cb6080487688a986a0b4`;
+product `1278`
+`301782160101a92941e0661a5e5d9bd468aa4654cdf81ad3a0c3e68aa84ceda1` /
+`f63160aed438071aeecc7aac09e0154a6b081cfa32dbb257f43f871bcf62731d`;
+and product `847`
+`3dad6942d892d8048fecb30c3cbd1429daa382f41b6306401cab24f04b52dceb` /
+`ebc1ce033d3ef6c18cdd390dd4855eefca0195e7b13084835dfe4e421571ed32`.
+Complete evidence is
+[nutrition-catalog-large-next-02-preparation-2026-09-14.json](rollouts/nutrition-catalog-large-next-02-preparation-2026-09-14.json),
+SHA-256 `4cf55c03312f7a2861a374315bf28c8c6fa12f9f764db04c945a160e0c64cb5d`.
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
+controlled store -> authenticated review -> explicit-ID plans -> guarded apply
+for exactly these five unchanged artifacts and 80 fingerprints.
+
+## NUT-03 next exact-version catalogue batch execution
+
+14 September 2026, production execution after explicit owner authorization:
+
+- Controlled store created exactly 80 candidates, IDs `1859`-`1938`, for the
+  five unchanged artifacts and 16 exact variants. Authenticated review approved
+  all 80 after comparing every stored field and evidence fingerprint with its
+  artifact.
+- Five explicit-ID plans contained zero product updates and exactly 16 variant
+  updates. Plan SHA-256 / fingerprint pairs are: product `1162`
+  `c041057ff6ec1268b3e7a735ac90759f4913f0a2cc216ea296749338f6305079` /
+  `e7081dd499cc69ca9c473a99da475890992f9500fbbb0bde477c076859412871`;
+  product `1171`
+  `bea4509c4979cbf7fc3bc5a67b2615e6892346f2058e12ea3201a43634ad2f3a` /
+  `1c96c7a86043bb3845fc4e3f41b50acbc2a9f7fbbb95d357cc8ee2cf53ff5f44`;
+  product `1278`
+  `07a333d69a62814b167acc8ada888da250399a3cb3b3820090593ae23c982d58` /
+  `0afab219723d540cac292b463f3cf5f395e6b908bed06083b22c57061981fc97`;
+  product `449`
+  `f2b47353cd5a243605170d113937417445ffc2f6e0ec2fb2dec8dc2aeecb57c6` /
+  `0f04133acd53eee3787613eca8a3da6fbbd67bd3a2236875dd1c956379fe69dc`;
+  and product `847`
+  `06b9c311db100567a0429e9ecdda14c9278e04c5cf3ede09973ff62f4bb30141` /
+  `427e7f8934c643f5915a0c5e1fcf0b70b47e0c64fac018e07de6fa0e271dbf37`.
+- Guarded apply changed only the planned 16 `nutrition_override` objects. A new
+  read-only connection matched every whole override to its plan `after`, found
+  all 80 candidates approved with unchanged evidence, and confirmed no product,
+  `nutrition_verified` or legacy `creatine_per_serving_g` change. Applied
+  coverage rose from 240 to 256 variants: 213 complete, 43 partial and 319 with
+  no applied facts.
+- Replaying every unchanged plan was safely rejected on stale sealed `before`,
+  with zero additional writes. All 16 exact public pages returned 200, selected
+  the intended variants, displayed their expected facts and source type, and
+  exposed no private evidence URI or reviewer metadata. The caffeine-free
+  search excluded all stimulant targets; qualifying results remain governed by
+  available offers and existing card grouping.
+
+Complete evidence is
+[nutrition-catalog-large-next-02-execution-2026-09-14.json](rollouts/nutrition-catalog-large-next-02-execution-2026-09-14.json),
+SHA-256 `297c55c81e36b67bac30ad7d4e16d916a3b65394426d2c79396741402305824a`.
+NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified
+multi-family preparation batch without repeating retained blockers.
+
+## NUT-03 next large catalogue preparation after 294 applied variants
+
+14 September 2026, preparation only:
+
+- A fresh production read confirmed 575 active pre-workout variants and 294
+  variants with applied nutrition facts. Of 406 variants with a current
+  available offer, 234 are complete, 52 partial and 120 have no applied facts.
+- The evidence-qualified pass prepared the two exact 10X Athletic PUMP
+  variants: product `756`, Apple Attack variant `885` and Cobra Ki variant
+  `1974`. The common manufacturer table gives one scoop / 12 g, caffeine
+  `confirmed_absent`, beta-alanine 3200 mg, citrulline malate 2:1 8000 mg and
+  creatine monohydrate 3000 mg.
+- The immutable artifact contains 10 PENDING candidates with 10 unique
+  fingerprints. The existing store dry-run passed with zero database writes,
+  and production preflight found correct bindings, empty target overrides and
+  no matching candidates. The factual review was archived once in the private
+  `nutrition-sources` bucket and its independent download matched SHA-256.
+- The batch stopped below the 50-variant ceiling because the remaining assessed
+  families retain concrete serving, pack, flavour-applicability or formula
+  generation conflicts. In particular, Darkstims V4 currently exposes
+  conflicting 400 mg and 362.5 mg caffeine declarations, so no value was
+  selected by guesswork.
+
+Artifact SHA-256 / fingerprint: product `756`
+`f51f13405ab2856e2217ddd4233ef99f3ba250c26c4f44eb48af57e1b5a96250` /
+`d83046ab504444c6a1a0a4f1077e04736ba5e79195e955e140a11e7623fa7aa5`.
+Complete evidence is
+[nutrition-catalog-large-next-04-preparation-2026-09-14.json](rollouts/nutrition-catalog-large-next-04-preparation-2026-09-14.json),
+SHA-256 `b2a2dc7e5b7a6ce36e8b96d5dcd3ec09e7d8c15a0749b94e73a828e813c64a25`.
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
+store -> authenticated review -> explicit-ID plan -> guarded apply of exactly
+these 10 unchanged candidates for variants `885` and `1974`.
+
+## NUT-03 next large catalogue execution after 294 applied variants
+
+14 September 2026, production execution after explicit owner authorization:
+
+- Controlled store created candidates `2112`-`2121` for product `756`, variants
+  `885` and `1974`. Authenticated review approved the unchanged ten-record set.
+- The explicit-ID plan contained zero product updates and two exact variant
+  updates. Its SHA-256 is
+  `5c8443f8cae4e0e1bb981580243abfddc54bfbe01d9aacb6411b9d2cac2c0ba2`
+  and fingerprint is
+  `ef6c0f3f19d7cf14e84b2fc667ec7d8f7218b072d04d283aa5089acfcb7b5298`.
+- Guarded apply wrote only serving size, caffeine, beta-alanine, citrulline and
+  creatine facts to both planned `nutrition_override` objects. Independent
+  readback matched both whole overrides to the sealed `after`, confirmed all
+  approvals and unchanged evidence, and found no product, verification-flag or
+  legacy-creatine change.
+- Applied coverage is now 296 variants: 244 complete, 52 partial and 279 without
+  facts. Both exact public pages passed and the common product is visible in the
+  caffeine-free filter. Replaying the plan was safely rejected because the
+  sealed `before` no longer matched, with zero additional writes.
+
+Complete evidence is
+[nutrition-catalog-large-next-04-execution-2026-09-14.json](rollouts/nutrition-catalog-large-next-04-execution-2026-09-14.json),
+SHA-256 `25bb8f05ed37466d20425b5b6815eb8ddb2a4545d5afa63c50e030768a535c3c`.
+NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified
+multi-family preparation batch without repeating retained conflicts.
+
+## NUT-03 large catalogue preparation after 296 applied variants
+
+15 September 2026, preparation only:
+
+- Fresh production readback confirmed 575 active pre-workout variants and 296
+  with applied facts. Among 406 variants with a current available offer, 236
+  are complete, 52 partial and 118 have no applied facts.
+- The next package contains 41 PENDING candidates for nine exact variants in
+  four families: Gas Mark 10 No Games product `884` variants `1414`, `1416`,
+  `1417`, `1418`; Murdered Out SHOOK product `1281` variants `3761`, `3916`;
+  Dorian Yates Blood & Guts product `19` variant `1579`; and Conteh Sports The
+  Pump product `893` variants `1473`, `1474`.
+- Seven variants have five proposed facts and would become complete. The two
+  Conteh variants have only the independently supported absence facts for
+  caffeine, beta-alanine and creatine. Their serving size and quantified
+  citrulline remain excluded because exact-pack sources conflict between 13.8 g
+  and 16 g serving bases.
+- All four existing store dry-runs passed: 41 rows, zero product updates and
+  zero database writes. Production preflight confirmed nine exact bindings, 41
+  unique fingerprints, empty target overrides and no matching candidates. Four
+  factual reviews were archived privately and downloaded with matching hashes.
+- The batch stopped below 50 variants because further current-offer families
+  retain documented formula-generation, pack, serving or flavour-context
+  conflicts. Those values were not guessed.
+
+Artifact SHA-256 / fingerprint pairs are: product `884`
+`2da1d522a59724ecee9ca8795fb718cac6a3cc0a3d072f18ddf38e5c83794706` /
+`092453178a8dd91332d19b107e23f8568062877a63608621ce8f29a5dc2c3003`;
+product `1281`
+`67ce0cdfbb070c4b1dd32704a6e2acd3be0bb7f18e2cb245dae4e6da4bbd6d98` /
+`e6c1130d2e489a8981f02773f933e713ea41429e618aeec1c2872bd6ecec7dbe`;
+product `19`
+`7a95b810d7ca98928d4b4ceb25e71d7681e671725377023756c3873b388ee4f6` /
+`0d496c099d477928e58fbc0756417e14b880903a257b331978933028e611c466`;
+and product `893`
+`a99ad5377f9139c667e165a672ab2a354d72d6a7acf31e23600e8e0ff18a4ac0` /
+`771f77a93c7c1e17b4ec3ade3c9c89925feecaaf84409c204b2d32a5852458dd`.
+Complete evidence is
+[nutrition-catalog-large-next-05-preparation-2026-09-15.json](rollouts/nutrition-catalog-large-next-05-preparation-2026-09-15.json),
+SHA-256 `b5d25035fa6cc8c427444d83aea048e02252866d040a23cf1edcb996f60545ea`.
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
+store -> authenticated review -> explicit-ID plans -> guarded apply of exactly
+these 41 unchanged candidates for the nine listed variants.
+
+## NUT-03 large catalogue execution after 296 applied variants
+
+15 September 2026, production execution after explicit owner authorization:
+
+- Controlled store created 41 candidates, IDs `2122`-`2162`, for nine exact
+  variants across products `884`, `1281`, `19` and `893`. Authenticated review
+  approved the unchanged set.
+- Four explicit-ID plans contained zero product updates and nine variant
+  updates. Their SHA-256 / fingerprint pairs are: product `884`
+  `134043352334074432e397a64b4f5e315122b9f31cfe61b8f7a4ba7272308e7a` /
+  `432c8cc359e9fac06b723d85dfb0c33a4ebed697eeb3ed5ecc722d8954dda7c1`;
+  product `1281`
+  `529781582e07d76babb04b69b2aafcd8c411528095b20bf84a6f39d9de463835` /
+  `e2a9ac14e903c5748a84ec8c6dc73c5abc499d8d7da96bc99e5fc0a0beaab781`;
+  product `19`
+  `4a0540392c7b2a3347bbfbfd3bdf80e185c5fad61d01f18b0768b6fb685e8636` /
+  `c8dacbf3933ecf90405352dbbdba4cd2ba6dfcf366b682b269567847f11644da`;
+  and product `893`
+  `0468c08a0a1addfd0d21d48433623f16f63a17c904ead3eeae4e512774352dd2` /
+  `972664047e5ff4622f4f3b57ec197d847d3e5a587c92dfea980a3ad222131743`.
+- Guarded apply changed only the nine planned `nutrition_override` objects.
+  Independent readback matched each whole override to its sealed `after`,
+  confirmed all 41 approvals and unchanged evidence, and found no product,
+  verification-flag or legacy-creatine change.
+- Applied coverage is now 305 variants: 251 complete, 54 partial and 270 without
+  facts. All nine public pages passed. Conteh The Pump appears in the
+  caffeine-free filter; the stimulant products do not. Replaying all four plans
+  was safely rejected on stale sealed `before`, with zero additional writes.
+
+Complete evidence is
+[nutrition-catalog-large-next-05-execution-2026-09-15.json](rollouts/nutrition-catalog-large-next-05-execution-2026-09-15.json),
+SHA-256 `84bb0f4d239aa5bcb359c1c55854c229b147e359c6e87059e257a3395c631f1f`.
+NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified large
+preparation batch without repeating retained formula, serving and pack conflicts.
+
+## NUT-03 large catalogue batch 03 execution
+
+14 September 2026, production execution after explicit owner authorization:
+
+- Controlled store created 38 candidates, IDs `2074`-`2111`, for ten exact
+  variants across products `1251`, `1252`, `1275` and `763`. Authenticated
+  review approved the unchanged set.
+- Four explicit-ID plans contained zero product updates and ten exact variant
+  updates. Guarded apply changed only the planned `nutrition_override` objects.
+  Independent readback matched all ten complete overrides to their sealed
+  `after`, confirmed all approvals and unchanged evidence, and found no change
+  to products, `nutrition_verified` or legacy creatine.
+- Applied coverage is now 294 variants: 242 complete, 52 partial and 281 without
+  applied facts. All ten exact public pages passed. Darkstims is visible in the
+  caffeine-free filter; Adapt, Bloom and Menace are excluded. Replaying all four
+  plans was safely rejected on stale sealed `before`, with zero extra writes.
+
+Complete evidence is
+[nutrition-catalog-large-next-03-execution-2026-09-14.json](rollouts/nutrition-catalog-large-next-03-execution-2026-09-14.json).
+Its SHA-256 is
+`99899c7bd531ebdfd413f6815dc29b46db5095b16ac96a0ccf9a55a778e647b8`.
+NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified
+multi-family preparation batch without repeating retained blockers.
+
+## NUT-03 large catalogue preparation after 284 applied variants
+
+14 September 2026, preparation only:
+
+- Production readback confirmed 575 active pre-workout variants and 284 with
+  applied facts. Among 406 variants with a current available offer, 228 are
+  complete, 48 partial and 130 have no applied facts.
+- Four families qualified: Adapt product `1252` variants `3674`, `3724`; Bloom
+  product `1251` variants `3673`, `3723`; Naughty Boy product `763` variants
+  `4101`, `4107`; and Darkstims product `1275` variants `3755`, `3913`-`3915`.
+  This is ten exact variants and 38 PENDING facts. Six variants have all five
+  tracked facts; four Darkstims variants have supported caffeine and creatine
+  absence only.
+- All four store dry-runs passed with 38 unique fingerprints, zero product
+  updates and zero database writes. Read-only production preflight confirmed
+  exact bindings, empty target overrides and no matching candidates. Four
+  factual reviews were stored once in private `nutrition-sources`; independent
+  downloads matched their SHA-256 values.
+- The batch stopped below 50 because the next large families retain concrete
+  formula-generation, pack, serving, common-table applicability or source
+  retention conflicts. Darkstims still lacks a gram-defined serving, and its
+  citrulline-nitrate component is outside the deployed form set.
+
+Artifact SHA-256 / fingerprint pairs are: product `1252`
+`bd7d9beb52ef1fa71006d04b9e48421f398de64489acb203055a820b6d58b383` /
+`2abf347808d2fda6951597bcf52c0dcaada336a33bd5572d1a8596cb2872e8d0`;
+product `1251`
+`e7916e8b08edccacf9aef4fcaaa08621d226feee0b6c7ef1d7c329567b9ee866` /
+`48058b7aeaabe213579e1b5d84989b1b381e89dff4f6a9c9106842121c218471`;
+product `763`
+`d09c23e75a0ceeb586c06b98ab6ee5762e2f58d170195ddebf3b47cc4c127dfb` /
+`cff018fc00ee78856287f27b4b20368cf103a734c56f9cf168349ecffb9486b8`;
+and product `1275`
+`4f623abb3293c33a0b4de6c5c64814f98a383d4739ba2067e5e8d622bcf330bd` /
+`fc24a18863024237b99853405645434ee32dcd9792c6187292db85578aa8303d`.
+Complete evidence is
+[nutrition-catalog-large-next-03-preparation-2026-09-14.json](rollouts/nutrition-catalog-large-next-03-preparation-2026-09-14.json).
+Its SHA-256 is
+`62e74d6996c7cb5b785f5b24764713fc1ab51eb391766a3ac6176fa426e28cf3`.
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
+store -> authenticated review -> explicit-ID plans -> guarded apply of exactly
+these four unchanged artifacts and 38 fingerprints.
+
+## NUT-03 catalogue continuation after mega batch execution
+
+14 September 2026, production execution after explicit owner authorization:
+
+- Controlled store created 41 candidates, IDs `2033`-`2073`, for NXT Nutrition
+  product `1178` variants `3476`, `3525`-`3528` and BioTech USA product `295`
+  variants `1041`, `1776`-`1778`. Authenticated review approved the unchanged
+  set.
+- Two explicit-ID plans contained zero product updates and nine exact
+  `nutrition_override` updates. Plan SHA-256 / fingerprint pairs are product
+  `1178` `91c36acfadc0c8d0cd1546ae2bef4670acfd8475fd970011345d4d599410f1da` /
+  `359ca4828acc7e9edc2b8b1502c50a7d92eda6973bed69102fad981bb354e11e`;
+  and product `295`
+  `6efc78ae16d5dc603906e9014441a791fb8206f3d17a74c5434ceefd947965ee` /
+  `fbb0dc8c846a50cb87926d8ac80ef20fa604c627e396eff74ac492474f7908be`.
+- Guarded apply changed only the nine planned variant overrides. Independent
+  readback matched every whole override to its sealed `after`, confirmed all 41
+  approvals and unchanged evidence, and found no product, verification-flag or
+  legacy-creatine change. Applied coverage is now 284 variants: 236 complete,
+  48 partial and 291 without applied facts.
+- All nine exact public variant pages passed. Product `1178` is visible in the
+  caffeine-free filter using existing grouping, while caffeinated product `295`
+  is absent. Replaying both plans was safely rejected on stale sealed `before`,
+  with zero extra writes.
+
+Complete evidence is
+[nutrition-catalog-next-after-mega-execution-2026-09-14.json](rollouts/nutrition-catalog-next-after-mega-execution-2026-09-14.json).
+Its SHA-256 is
+`aee39990bcdea375a21601e794f00feb8222dd4e73eda50115e8aea70927a4a2`.
+NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified
+multi-family preparation batch without repeating retained blockers.
+
+## NUT-03 mega catalogue preparation after 268 applied variants
+
+14 September 2026, preparation only:
+
+- A continuous pass assessed 50 unprocessed variants and qualified seven exact
+  variants across five families: Naughty Boy Pump product `779` variants `974`,
+  `975`; N1 Pro product `777` variants `968`, `969`; Efectiv Project Pump
+  product `853` variant `2777`; NXT TNT Nuclear Pump product `1178` variant
+  `3523`; and The Formula NOVA product `1284` variant `3764`.
+- Five immutable artifacts contain 34 PENDING candidates. Six variants have all
+  five tracked facts. NOVA has four supported facts; caffeine remains excluded
+  because the table gives caffeine-ingredient masses that cannot safely be
+  treated as total active caffeine without a declared yield.
+- All five store dry-runs passed with zero product updates and zero database
+  writes. Production preflight confirmed seven empty exact target overrides,
+  34 unique fingerprints and no matching candidates. Five reviews were stored
+  once in the private `nutrition-sources` archive and passed SHA-256 readback.
+- The package stopped below the 50-variant ceiling because 43 assessed targets
+  retained exact formula-generation, package/serving, flavour-applicability or
+  source conflicts. Known blocked families were not forced into the batch.
+
+Artifact SHA-256 / fingerprint pairs are: product `779`
+`f9e20091bd7666615c2ebbb88ee79f7d37bbcb2ca485a2139576c97f1ea4d708` /
+`fe56a8cd2f040128ab321475163af1e1e15c5e09aac8e70f534b72dabb5e9508`;
+product `777`
+`fb79e35d4cf66dbdc7ee251ce778d95bb6a8b17ad8fa6c7d72a89944a231368a` /
+`e7003ca820b6001279181f36a5fc966297942984751f124e815ded2bba0e3285`;
+product `853`
+`5000878f0f2b18e03e535a79990ad125360e2e88abbf4baa49f6bdd11e4c737a` /
+`0f8c27fd37d2d643622cc757f00ba2e659386f5354bc6bac5c64bed1380f74ff`;
+product `1178`
+`24a4af71a3f907faa7ca3de5f16d75033a60029db3d5d31ee61f662f85316bbb` /
+`d863a6eb3b765659a404dea0e57a95605663ec517f958b92003c39032f975c02`;
+and product `1284`
+`2d560afe2f118cb1ace120ff1cb10d34d273b3013c72032859c65fc762a07670` /
+`7da752f86a490b4c899cba98c3fb78273bdda946ef65f616af925f78207731af`.
+Complete evidence is
+[nutrition-catalog-mega-next-preparation-2026-09-14.json](rollouts/nutrition-catalog-mega-next-preparation-2026-09-14.json),
+SHA-256 `39225f624813ce61c771b6517d0930de90f9deb95c175ebb71d6dbbe955d11be`.
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
+store -> authenticated review -> explicit-ID plans -> guarded apply of exactly
+these five unchanged artifacts and 34 fingerprints.
+
+## NUT-03 mega catalogue execution after 268 applied variants
+
+14 September 2026, production execution after explicit owner authorization:
+
+- Controlled store created 34 candidates, IDs `1999`-`2032`, for seven exact
+  variants. Authenticated review approved the unchanged set. Five explicit-ID
+  plans contained zero product updates and seven variant updates.
+- Plan SHA-256 / fingerprint pairs are: product `779`
+  `3e18a0afb01f538a8b1cc48497124d19d311caebcd59abdf68db1afb1bf12759` /
+  `e5ebc9c637764c5379684d4893941973148bad6d87355f01b4958004769d364d`;
+  product `777` `bbc1820cefa6dcc02a28a9e6b1e44c9bae5e1e5e15679a36effc1983efa71f22` /
+  `b57792fc55c3111c8cec01fe65351da35a029a4f0505df89d0e26587b8c8f15e`;
+  product `853` `7364930ad82e195c0786f82fa05ff6a16c4a0e5d845a36a0926ac9f8931b4637` /
+  `9324e1d9b42a42161287bfa5ed8f5334496aa39aaef41554a43f95b77afe5fd9`;
+  product `1178` `82a9fa8b97edd8f827babdaddb74ae397a84b1f6cda86d1e2b79bf9ece537f03` /
+  `4a6e0b0ba6c7d0efbe43c45fc11837eb026aefb2e872866e20cc24e208f0f619`;
+  and product `1284`
+  `eae5cccb412cac915192fd19f3746ed456f505bd2d5b816032160f58d09357f7` /
+  `22020456a98e9d09e41cbf7fc85aff3e9b826f5066395d6abe49fbe3c264cd79`.
+- Guarded apply changed only the planned overrides. Independent readback matched
+  every whole override to `after`, confirmed all 34 approvals and unchanged
+  evidence, and found no product, verification-flag or legacy-creatine change.
+  Coverage is now 275 applied variants: 231 complete, 44 partial and 300 without
+  applied facts. NOVA remains partial because total caffeine was intentionally
+  excluded rather than derived from compound mass.
+- All seven exact public pages passed. Three caffeine-free families appear in
+  the existing filter, N1 Pro is excluded, and NOVA with unresolved caffeine is
+  not treated as caffeine-free. Replaying all five plans was safely rejected on
+  stale sealed `before`, with zero extra writes.
+
+Complete evidence is
+[nutrition-catalog-mega-next-execution-2026-09-14.json](rollouts/nutrition-catalog-mega-next-execution-2026-09-14.json),
+SHA-256 `5de562c6f9b5c0166090e2c4a1be594a0e247b31b2f9e822c88bfa0919fdce6f`.
+NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified
+multi-family preparation batch without repeating retained blockers.
+
+## NUT-03 catalogue preparation after 275 applied variants
+
+14 September 2026, preparation only:
+
+- A fresh read-only production snapshot confirmed 575 active pre-workout
+  variants and 275 with applied facts. Of 406 variants with a current available
+  offer, 223 are complete, 44 partial and 139 have no applied facts.
+- The next closed pass assessed 50 unprocessed variants and qualified nine exact
+  variants across two manufacturer families. NXT Nuclear Pump product `1178`
+  contributes variants `3476`, `3525`, `3526`, `3527` and `3528`; BioTech USA
+  Black Blood NOX+ product `295` contributes variants `1041`, `1776`, `1777`
+  and `1778`.
+- Two immutable artifacts contain 41 PENDING candidates. All five facts are
+  supported for the five NXT variants. The four BioTech variants contain the
+  supported serving, caffeine, beta-alanine and citrulline-malate facts; their
+  creatine fact is intentionally omitted because the source declares only the
+  combined mass of buffered creatine and creatine citrate, without individual
+  component masses that the current single-form model could preserve.
+- Both existing store dry-runs passed with 41 rows, zero product updates and
+  zero database writes. Production preflight confirmed nine empty exact target
+  overrides, 41 unique fingerprints and no matching existing candidates. Two
+  bounded factual reviews were stored once in private `nutrition-sources` and
+  passed SHA-256 readback.
+- The package stopped below the 50-variant ceiling because the other 41 assessed
+  variants retain recorded formula-generation, exact-pack, serving,
+  flavour-applicability, access or source-retention gaps. No blocked value was
+  inferred or joined across incompatible versions.
+
+Artifact SHA-256 / fingerprint pairs are: product `1178`
+`d3b19b2e209ce51f840e2666e18f3c8342d46a1e88a196942c36e8b4b56bcc03` /
+`6046db30a36ac74859dbcf28100fc32f6d4beac04150a041b89f2602af3152f0`;
+and product `295`
+`a8dc66aac4c82a1f9ebe3fe01f52af35c4f6c36af88b62f33cbea2cda242a2d2` /
+`44ceec62d5d12415daba53e29047eb0be81c414b590db25d65dd00cd6cd09938`.
+Complete evidence is
+[nutrition-catalog-next-after-mega-preparation-2026-09-14.json](rollouts/nutrition-catalog-next-after-mega-preparation-2026-09-14.json),
+SHA-256 `8183dbfdd4c4ae8699dd5384565b605ee597739b1466b237445973e44e2624cb`.
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
+store -> authenticated review -> explicit-ID plans -> guarded apply of exactly
+these two unchanged artifacts and 41 fingerprints.
+
+## NUT-03 high-volume continuation preparation
+
+14 September 2026, preparation only:
+
+- A continuous pass assessed the next 50 unprocessed catalogue variants after
+  coverage reached 256. Exact version, serving or retained-access conflicts
+  were skipped without stopping the remaining work. Seven variants qualified:
+  C4 Original 30 servings (`1879`, `1880`), C4 Ultimate (`3927`, `3939`),
+  Optimum Nutrition Gold Standard 330 g (`1731`) and 10X Extreme Stim 600 g
+  (`887`, `888`). All seven have all five tracked facts.
+- Four immutable artifacts contain 35 PENDING candidates. All store dry-runs
+  pass with zero product updates and zero database writes. Production preflight
+  confirmed seven empty exact target overrides, 35 unique fingerprints and no
+  matching candidates. Four factual reviews were archived privately and their
+  hashes passed independent readback.
+- The evidence-qualified package stopped below the 50-variant ceiling because
+  43 assessed targets retained concrete formula-generation, pack/serving,
+  flavour-applicability or source-retention conflicts. Older C4 195 g and C4
+  Ripped 180 g catalogue packs were not joined to different current official
+  pack formulas; retained Total War, NXT and other recorded blockers were not
+  guessed or re-audited.
+
+Artifact SHA-256 / fingerprint pairs are: product `961`
+`c832a06c0e53f80d3a2861aacc4b9d1bdea3f942e112bf35cbe11a82703af2cf` /
+`3471dc9fe3558dd9170b3d2a777762084d0d9a3dbe499cbfd6fcf7a17b65a745`;
+product `1332`
+`79a9afa9899c74ed0291cb860573bd0e2934975d2f7523cae1a2979bb98ee627` /
+`16ed8c1c3b1fe51aa932133b0a9623fa868c3771577be6a28f141a43dda442e4`;
+product `17`
+`4e8e5cdb4d18593a248219aca5c50c08e1d5c3a83cce0a8df878933febaab4f7` /
+`d78150e3d97be7e639ca93569140c3cf8f767a3a4fcc0975db164325646235f6`;
+and product `757`
+`c46cde88ff4adf753db31cd673be8e9c4fdf58d1a62cb775b00b0f5e3b43ae5a` /
+`864e50f34229adf74e4d5077c01ba30fd0591fa185ec9b887c3878b2189af8f6`.
+Complete evidence is
+[nutrition-catalog-huge-next-preparation-2026-09-14.json](rollouts/nutrition-catalog-huge-next-preparation-2026-09-14.json),
+SHA-256 `3ae2fdf6e9fb7b145eb2851e7a68869e513b30367d347588b4c6ea89e59b4e3a`.
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
+store -> authenticated review -> explicit-ID plans -> guarded apply of exactly
+these four unchanged artifacts and 35 fingerprints.
+
+## NUT-03 high-volume continuation execution
+
+14 September 2026, production execution after explicit owner authorization:
+
+- Controlled store created 35 candidates, IDs `1939`-`1973`, for seven exact
+  variants. Authenticated review approved the unchanged set. Four explicit-ID
+  plans contained zero product updates and seven variant updates.
+- Plan SHA-256 / fingerprint pairs are: product `1332`
+  `a0b5761810bfc21dae8198b0afc49acd78a2f8c33786bd135ce552fe08b54e63` /
+  `dde2bd2c09f20c2bcb1c47ea4133bb263b53ebdd1baebd4318b42c499b2bc579`;
+  product `17` `4a8b3cb254b2bf2ac58683138e5620b9091caed43f1cf19d0c57c036e15d6eba` /
+  `a18e946df79e18a0eff0d00c9a11367c0862ac9aa31bc54cc6d07877ffe5a702`;
+  product `757` `ea35a5b62123812fc109eac208806f89f06dff068d71e5f131fc99f7189ae3fe` /
+  `8354f3ea59e99834fe928255ca114cb2c662f36099e305307e79adfb5e69ff14`;
+  and product `961` `3285a4526af11bf1cd0de68431d87f4565ae6922e85cba32553a488d02a02bb2` /
+  `4a1fa4c665ce7d41ac46ed3aac814873580deecca33d1a15886a7fcef24b8959`.
+- Guarded apply changed only the seven planned `nutrition_override` objects.
+  Independent readback matched every whole override to `after`, confirmed all
+  35 approvals and unchanged evidence, and found no product, verification-flag
+  or legacy-creatine change. Coverage is now 263 applied: 220 complete, 43
+  partial and 312 without facts.
+- All seven public pages passed exact-variant and fact checks. No target appeared
+  in the caffeine-free filter. Replaying all four plans was safely rejected on
+  stale sealed `before`, with zero extra writes.
+
+Complete evidence is
+[nutrition-catalog-huge-next-execution-2026-09-14.json](rollouts/nutrition-catalog-huge-next-execution-2026-09-14.json),
+SHA-256 `834b536e5ce9890c5c861691dcfd19c4d94c6a5f930a9f10d5a2fd1e029adf9d`.
+NUT-03 remains `IN PROGRESS`. One next step is continuous evidence-qualified
+family preparation without repeating retained blockers.
+
+## NUT-03 continuous catalogue preparation after 263 applied variants
+
+14 September 2026, preparation only:
+
+- The next continuous pass assessed 50 unprocessed catalogue variants and
+  qualified five exact variants across three families: Innovapharm MVPRE 365
+  product `845` variants `1229`, `2772`; Ghost Legend V4 product `6` variant
+  `1741`; and NMP Liberty Swell product `979` variants `1915`, `1917`.
+- Three immutable artifacts contain 25 PENDING candidates. All three existing
+  store dry-runs passed with 25 candidate rows, zero product updates and zero
+  database writes. Production preflight confirmed five correct product-variant
+  bindings, empty target overrides, 25 unique fingerprints and no matching
+  existing candidates.
+- Three factual reviews were written once to the private `nutrition-sources`
+  archive. Independent downloads matched SHA-256. No candidate, review or
+  catalogue record was written in production.
+- The package stopped below the 50-variant organizational ceiling because the
+  other 45 assessed targets retained specific generation, pack/serving,
+  flavour-applicability, current-offer or source-retention conflicts. Those
+  facts were not guessed or joined across incompatible versions.
+
+Artifact SHA-256 / fingerprint pairs are: product `845`
+`6978057ad9c40956f70d7eea5ba43b8ebf32a1006112ce959e32f13b4cddf82e` /
+`681b4fc5fac9c2256ea0966390a5288f90a1c3d2a2e7b38d98913811e98654fb`;
+product `6`
+`2dbb66758a836a468d69b305821b9bbff578a7a7207f85d21de37bd78fc4bbcf` /
+`2539988a2f7ded38d3b55c345b2f00209629fc85f1beb2af157b60f520c27b25`;
+and product `979`
+`b10a0ca6abea92338cf5df18ee77d52188244e3f4729071e61890b947c46eb66` /
+`3fa6d357d5a5a9e4744e22a4c47086155cb99cc1184193ce3437547290f05313`.
+Complete evidence is
+[nutrition-catalog-next-continuous-preparation-2026-09-14.json](rollouts/nutrition-catalog-next-continuous-preparation-2026-09-14.json),
+SHA-256 `b8017f9813d955a9034e63216b20634ec555334e77e33c8c3d36dd602cbb4f62`.
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
+store -> authenticated review -> explicit-ID plans -> guarded apply of exactly
+these three unchanged artifacts and 25 fingerprints.
+
+## NUT-03 continuous catalogue execution after 263 applied variants
+
+14 September 2026, production execution after explicit owner authorization:
+
+- Controlled store created 25 candidates, IDs `1974`-`1998`, for product `845`
+  variants `1229`, `2772`; product `6` variant `1741`; and product `979`
+  variants `1915`, `1917`. Authenticated review approved the unchanged set.
+- Three explicit-ID plans contained zero product updates and five exact
+  `nutrition_override` updates. Plan SHA-256 / fingerprint pairs are: product
+  `845` `ccae846cd919b2cfc74a3a3bc3217a095ec286168efcd2a6d6bc80307aed6672` /
+  `81257be480e4b37a120aa9aaed32217a82d31b5225150c392eb5d11916f7ff1e`;
+  product `6` `c06482d87efc3d175c23ec7a4c341ba962cbd3aac41a087a892dc4368c63a707` /
+  `3f6e6e8be3b54dc28f4f9639e3a271c10cb141a7e8a6dfcbe357d3358f563f3f`;
+  and product `979`
+  `d478f2aea7a7547b37ce9366fe6f523831012f038cdaeda894e3ed2ec663e778` /
+  `e855b63b0b40010557c1a0a9a22b646e0db2f737655ea31ba949c029a4574413`.
+- Guarded apply changed only the five planned variant overrides. Independent
+  readback matched every whole override to its sealed `after`, confirmed all 25
+  approvals and unchanged evidence, and found no product, verification-flag or
+  legacy-creatine change. Applied coverage is now 268 variants: 225 complete,
+  43 partial and 307 without applied facts.
+- All five exact public variant pages passed. Liberty Swell is visible under
+  the caffeine-free filter using existing product-card grouping; the three
+  stimulant variants are excluded. Replaying all three plans was safely
+  rejected on stale sealed `before`, with zero extra writes.
+
+Complete evidence is
+[nutrition-catalog-next-continuous-execution-2026-09-14.json](rollouts/nutrition-catalog-next-continuous-execution-2026-09-14.json),
+SHA-256 `d3183bbdcfabad256fcfb4a41378ed28222a26ff68a3716f80e9e2f2820998d3`.
+NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified
+multi-family preparation batch without repeating retained blockers.
+
+## NUT-03 large catalogue Batch 06 preparation
+
+15 September 2026, preparation only:
+
+- Fresh production readback confirmed 575 active pre-workout variants and 305
+  with applied facts: 251 complete, 54 partial and 270 without applied facts.
+- The closed package enriches 24 already-applied exact variants across three
+  families. Yeti Juice product `1280` contributes 16 caffeine facts, Mutant
+  Madness product `489` contributes seven citrulline facts, and NOVA product
+  `1284` contributes one caffeine fact. Every proposal uses
+  `present_amount_not_disclosed`; no compound or blend mass is represented as
+  pure caffeine or as the mass of citrulline alone.
+- Three immutable artifacts contain 24 PENDING candidates. All store dry-runs
+  passed with 24 rows, zero product updates and zero database writes. Read-only
+  production preflight confirmed 24 exact bindings, 24 unique fingerprints and
+  no matching candidates.
+- Three factual reviews were stored once in private `nutrition-sources` and
+  passed SHA-256 readback. The package contains no production candidate,
+  review, plan or catalogue write.
+- The batch stopped at 24 variants because the next retained families require
+  an exact generation/serving decision, a declared active-caffeine yield or a
+  model capable of preserving multiple creatine forms. Mutant creatine remains
+  unresolved; that gap does not invalidate its supported citrulline-presence
+  proposal.
+
+Artifact SHA-256 / fingerprint pairs are: product `1280`
+`c296e9a822720bab00cb26aa10b929431d6ed41a171c13003d6e81376ad95d21` /
+`054c3d034d50a2f15972f410e1d75c21d61375468ffad711e9fc11d612e25881`;
+product `489` `36ef08092595903e50327aa2602352ef29dcbcee83e29f832754fca63b9bbd09` /
+`605ebc1001edeafa96db94b49d62b0c892fcf89a8fcc07510660084d3427ccf4`;
+and product `1284`
+`bf9953bc43a18ec4f46c0e8cc75b7f283d1a09c78e663eac9e2935e8cf7876a0` /
+`5fffed83583d8624521689318f57b392f1a882e7ef5045627f7cdf1dc15c8b0b`.
+Complete evidence is
+[nutrition-catalog-large-next-06-preparation-2026-09-15.json](rollouts/nutrition-catalog-large-next-06-preparation-2026-09-15.json).
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
+store -> authenticated review -> explicit-ID plans -> guarded apply of exactly
+these three unchanged artifacts and 24 fingerprints.
+
+## NUT-03 large catalogue Batch 06 execution
+
+15 September 2026, production execution after explicit owner authorization:
+
+- Controlled store created 24 candidates, IDs `2163`-`2186`, for 24 exact
+  variants. Authenticated review approved the unchanged set. Three explicit-ID
+  plans contained zero product updates and 24 variant updates.
+- Plan SHA-256 / fingerprint pairs are: product `1280`
+  `cd6949ab8fbd1572590c079ab82544ecbe96e24327f1e605606e4c070e3da00a` /
+  `03328ce458f630e4e85409d9c9701b977fcb40d6b0d767c856caa43e70042454`;
+  product `489` `f6feff0532664730d4716316d5d585b69f15856342509f275253f560415c2ce3` /
+  `0dec63399fafd79d2b06e97dd05e91db7e5041b26e3967a86beef05a3e7685b5`;
+  and product `1284`
+  `d25902978ab27043a82634483a682de149b7e806f62193a8031d0be6edfa16c6` /
+  `b8bcce1162893e954c2bed0fdf6e5b2ef284a9beee253c2c9d65970dc28f424a`.
+- Guarded apply changed only the planned facts in the 24 exact overrides.
+  Independent readback matched every whole override to `after`, confirmed all
+  approvals and unchanged evidence, and found no product, verification-flag or
+  legacy-creatine change. Applied coverage remains 305 unique variants; data
+  quality is now 268 complete, 37 partial and 270 without facts.
+- All 24 public pages show the applied `Present; amount not disclosed` state
+  without exposing private evidence. None is incorrectly included in the
+  caffeine-free filter. Replaying all three plans was safely rejected on stale
+  sealed `before`, with zero extra writes.
+
+Complete evidence is
+[nutrition-catalog-large-next-06-execution-2026-09-15.json](rollouts/nutrition-catalog-large-next-06-execution-2026-09-15.json).
+NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified large
+preparation batch without repeating retained blockers.
+
+## NUT-03 large catalogue Batch 15 execution
+
+15 September 2026, production execution after explicit owner authorization:
+
+- Fresh read-only preflight confirmed the production target, all `20` exact
+  product-variant bindings, `99` unique candidate fingerprints, no matching
+  existing candidates and empty target overrides.
+- Controlled store created candidates `2705`-`2803`. Authenticated review
+  approved all `99` unchanged candidates. Eleven explicit-ID plans contained
+  zero product updates and exactly `20` variant updates.
+- Guarded apply changed only `nutrition_override` for variants `1672`-`1675`,
+  `2454`-`2456`, `1896`-`1899`, `1919`, `1920`, `1055`, `426`, `152`, `246`,
+  `551`, `45`, and `2234`. Products, `nutrition_verified`, legacy creatine
+  values and every other variant remained unchanged.
+- Independent readback matched all `20` whole overrides to their sealed
+  `after` values and all `99` approved candidates to unchanged evidence.
+  Applied coverage is now `429` unique variants: `389` complete, `40` partial
+  and `146` without applied facts.
+- Public readback passed for all `20` exact variant pages. The caffeine-free
+  filter passed with current offer availability and grouping applied; private
+  archive locations and reviewer metadata were not exposed.
+- Replay of all eleven plans was safely rejected because their sealed `before`
+  states were stale after apply. It produced zero additional writes.
+
+The eleven plan SHA-256 / fingerprint pairs are recorded in the execution
+report. Complete evidence is
+[nutrition-catalog-large-next-15-execution-2026-09-15.json](rollouts/nutrition-catalog-large-next-15-execution-2026-09-15.json)
+(SHA-256
+`87f3f50dee5276212b7224b7d0b9b59d8acc9a5fef5883f5efb83a068bca16d9`).
+NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified large
+preparation batch without reopening retained blockers.
+
+## NUT-03 large catalogue Batch 14 preparation
+
+15 September 2026, a fresh production read confirmed `575` active pre-workout
+variants and `408` with applied facts (`369` complete and `39` partial). Among
+`352` variants with a current available offer, `280` are complete, `32` partial
+and `40` have no applied facts. Batch 14 excludes all applied variants and does
+not reopen retained identity, generation, serving, access or owner-deferred
+blocks without new evidence.
+
+The closed package contains one exact variant and five pending facts: HIT
+Supplements Pre-Workout 375 g, product `1253`, Electric Orange variant `3675`.
+The retained retailer page and readable manufacturer-label image agree on the
+exact flavour, 375 g pack and 30 servings. Proposed facts are one scoop / 12.5 g,
+caffeine 250 mg, beta-alanine 2000 mg, citrulline malate 2:1 3500 mg, and
+creatine `confirmed_absent` from the complete declared ingredients list. The
+artifact is
+`tmp/nutrition-catalog-large-next-14-2026-09-15/candidate-artifact/nutrition-candidates-ncr1-catalog-large-next-14-20260915-1253.json`,
+SHA-256 `dd9737d32757a996936ea11cc5a0a259e55d9cdcd111563ebaecebc393c19686`,
+artifact fingerprint
+`8dd8179602a73d434c8b97da147f649708800b4458bd0d4c8d13c63ca8f77f41`.
+Its dry-run passed with five candidates, zero product updates and zero database
+writes. Production preflight confirmed the product-variant binding, five unique
+fingerprints, no matching candidates and an empty target override. The factual
+review was stored once in the private nutrition archive; readback matched
+SHA-256 `8fbcccd2d9be99b858e683df91af39d94ae9d4928bf49294022d650375328a05`.
+
+The organisational limit remained 50 variants. The package stopped at one
+because every other current-offer family without applied facts retains a
+specific documented block: conflicting pack generation for products `20` and
+`917`; unresolved generation or dose conflicts for `62`, `169`, `840` and
+`1276`; owner-deferred PER4M products `789` and `882`; identity or product-type
+ambiguity for `53` and `1333`; and the distinct 315 g generation of product
+`215`. Those sources were not re-audited.
+
+Complete preparation evidence is
+[nutrition-catalog-large-next-14-preparation-2026-09-15.json](rollouts/nutrition-catalog-large-next-14-preparation-2026-09-15.json)
+(SHA-256
+`65737506455659b54c8e21df82eb3c162a6a93149a225ad63ef0fb16c2b52927`).
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
+`store -> authenticated review -> explicit-ID plan -> guarded apply` of exactly
+these five candidates for product `1253`, variant `3675`.
+
+## NUT-03 large catalogue Batch 15 preparation
+
+15 September 2026, preparation continued as a single large owner package. A
+fresh production preflight excluded all `409` applied variants and retained
+blocks, confirmed `20` exact target variants with empty overrides, `99` unique
+candidate fingerprints and no matching existing candidate.
+
+The closed package contains `20` variants across `11` product families and `99`
+pending facts:
+
+- product `215`, variants `1672`-`1675`: ABE Ultimate 315 g, 10.5 g serving,
+  caffeine 200 mg, beta-alanine 2000 mg, citrulline malate 2:1 4000 mg and
+  creatine monohydrate 3250 mg;
+- product `1125`, variants `2454`-`2456`: Angel Dust PUMP, 17.5 g serving,
+  caffeine 300 mg, beta-alanine 2500 mg, citrulline malate 6000 mg and creatine
+  nitrate 1000 mg;
+- product `971`, variants `1896`-`1899`: Stim Thug, 17.5 g serving, citrulline
+  malate 7000 mg and creatine `confirmed_absent`; caffeine is present without a
+  disclosed total yield and beta-alanine remains conflicting;
+- product `980`, variants `1919` and `1920`: Presidential Pre, 13 g serving,
+  caffeine 400 mg and free-form L-citrulline 6000 mg; beta-alanine and creatine
+  remain `no_information`;
+- product `170`, variant `1055`: Big Noise Watermelon 315 g, 10.5 g serving,
+  with caffeine, beta-alanine, citrulline and creatine `confirmed_absent` from
+  the complete label;
+- product `520`, variant `426`: R-Weiler 480 g, 18 g daily basis, caffeine
+  300 mg, beta-alanine 2400 mg and citrulline malate 2250 mg. Its two separately
+  quantified creatine forms are deliberately omitted because the current
+  single creatine fact cannot preserve both;
+- product `24`, variant `152`: legacy Prolific 280 g, 7 g serving, caffeine
+  160 mg, free L-citrulline 3000 mg, beta-alanine and creatine
+  `confirmed_absent`;
+- product `294`, variant `246`: Black Blood CAF+ 300 g, 7.5 g serving, total
+  caffeine 200 mg, beta-alanine 1050 mg, free L-citrulline 1000 mg and creatine
+  `confirmed_absent`;
+- product `449`, variant `551`: Qhush Black 220 g, 11 g serving, caffeine
+  250 mg, beta-alanine 2500 mg, citrulline malate 2:1 4000 mg and creatine
+  `confirmed_absent`;
+- product `54`, variant `45`: Game Day 510 g, 17 g serving, beta-alanine
+  3200 mg, free L-citrulline 6000 mg and creatine hydrochloride 2000 mg; the
+  408 mg caffeine blend is retained as `present_amount_not_disclosed` rather
+  than converted to caffeine yield;
+- product `1061`, variant `2234`: 3XT Dynamite 375 g, 12.5 g serving, caffeine
+  250 mg, beta-alanine 2000 mg, citrulline malate 2:1 4000 mg and creatine
+  monohydrate 3400 mg.
+
+All `11` artifacts passed `nutrition:candidates:store --dry-run`: `99` candidate
+rows, zero product updates and zero database writes. Eleven bounded factual
+reviews were stored once in the private nutrition archive after duplicate
+precheck and every object passed SHA-256 readback. Twelve variants resolve all
+four tracked ingredients; eight retain the explicit limitations above without
+blocking their supported facts.
+
+Complete preparation evidence and all artifact SHA-256 / fingerprint pairs are
+in
+[nutrition-catalog-large-next-15-preparation-2026-09-15.json](rollouts/nutrition-catalog-large-next-15-preparation-2026-09-15.json)
+(SHA-256
+`b5122d64259be1d5997709cd2335aad66adacc12f299651f6bb02e274aaccca8`).
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
+`store -> authenticated review -> explicit-ID plans -> guarded apply` of
+exactly these `99` candidates for the listed `20` variants.
+
+## NUT-03 large catalogue Batch 14 execution
+
+15 September 2026, the owner authorized the exact five-candidate Batch 14
+package for production `store -> authenticated review -> plan -> apply`.
+
+- Fresh preflight confirmed the production target, exact artifact SHA-256, five
+  unique fingerprints, the product `1253` / variant `3675` binding, no matching
+  candidates, an empty target override and unchanged archived evidence.
+- Controlled store created candidates `2700`-`2704` and updated no product.
+  Authenticated review approved all five unchanged records.
+- The explicit-ID plan contained zero blockers, zero product updates and exactly
+  one variant update. Its SHA-256 is
+  `cf766168b43cc86ff713b2ca1a5e57a5b65f011cadfa3f3f0e30f7b8e0b89ce8`;
+  plan fingerprint is
+  `6ef161ac15bcc8978d3ea8f0fbaf38cbe6f17772122ec9417ec7f3e8e60eb3ff`.
+- Guarded apply changed only `product_variants.nutrition_override` for variant
+  `3675`: serving 12.5 g, caffeine 250 mg, beta-alanine 2000 mg, citrulline
+  malate 2:1 3500 mg and creatine `confirmed_absent`. It changed no product,
+  other variant, `nutrition_verified`, legacy creatine field, code or migration.
+- A new read-only connection matched the complete override to the sealed plan,
+  confirmed all five approvals and unchanged evidence. Coverage is now `409`
+  applied unique variants: `370` complete, `39` partial and `166` without
+  applied facts.
+- The exact public variant page passed all fact-display checks and exposed no
+  private source or reviewer data. Because it contains 250 mg caffeine, it does
+  not qualify for the caffeine-free filter.
+- Replaying the same plan was safely rejected because its sealed `before` no
+  longer matched; the replay produced zero additional writes.
+
+Complete evidence is
+[nutrition-catalog-large-next-14-execution-2026-09-15.json](rollouts/nutrition-catalog-large-next-14-execution-2026-09-15.json)
+(SHA-256
+`9a7ea4dad3c2e074397de47bbc2efb44b91197a1c4413f7e52b9bedc6b7bd9c0`).
+NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified
+preparation batch that excludes all `409` applied variants and does not repeat
+retained blockers without new evidence.
+
+## NUT-03 large catalogue Batch 13 execution
+
+15 September 2026, the owner authorized the exact `33`-candidate Batch 13
+package for production `store -> authenticated review -> plan -> apply`.
+
+- Fresh preflight confirmed production project `aftboxmrdgyhizicfsfu`, all
+  seven product-variant bindings, `33` unique fingerprints, no matching
+  candidate and an empty target override for every variant.
+- Controlled store created candidates `2667`-`2699` and updated no product.
+  Authenticated review approved all `33` unchanged records.
+- Four explicit-ID plans contained zero blockers, zero product updates and
+  exactly seven variant updates. Plan SHA-256 / fingerprints are: product `26`
+  `40e31fcc92367ba5f7cd9d65bacce2a7d3e949ceabe9fdbf744d6133c30e15b1` /
+  `5c945b914fe23ddd06accba87786a029387de52f4aa82cb957e07c21948cbd0e`;
+  product `63`
+  `7712f334806157256005217367aeb31ed6eaddcfe7be286188c187f9b890b354` /
+  `f2b6d59250a68e16a7f99e4c9d54f2351a707e12efd5a78bb9329f302831a7ea`;
+  product `61`
+  `824c9cff51456455ba8070de61d83447beb5681a1f074b6cbe12f0c17da99616` /
+  `4baba246014cb1cca022d98b86b2e2d07dc95b1cc97386d6fcd44302fabc7ee4`;
+  and product `451`
+  `f7be4f2a0a1e1261934611d07912eadec8b0e9ccee303d4a61710ab43168fd56` /
+  `b7fcb8e60eb457b09123d962d64d77d61ba419094ae36bfc9be234b0f517137a`.
+- Guarded apply changed only `nutrition_override` for variants `1026`, `1732`,
+  `1032`, `1619`, `1051`, `1615` and `1789`. A new read-only connection
+  matched every whole override to its sealed `after`, confirmed all approvals
+  and unchanged evidence, and found `408` applied variants: `369` complete,
+  `39` partial and `167` without facts.
+- Public readback passed for all seven exact variant pages. The caffeine-free
+  filter includes the PEScience family with applied `confirmed_absent` caffeine
+  and excludes the other target families. Replay of all four plans was safely
+  rejected on stale `before`, with zero additional writes.
+
+Complete evidence is
+[nutrition-catalog-large-next-13-execution-2026-09-15.json](rollouts/nutrition-catalog-large-next-13-execution-2026-09-15.json)
+(SHA-256
+`4796fcf7592632e479abaeccb467fd6eeea7272ae9181dde70c9f1ca75847a06`).
+NUT-03 remains `IN PROGRESS`. One next step is another large preparation batch
+excluding all `408` applied variants and retained blockers.
+
+## NUT-03 large catalogue Batch 13 preparation
+
+15 September 2026, a fresh production read confirmed `575` active pre-workout
+variants and `401` with applied facts (`364` complete and `37` partial). Among
+`352` variants with a current available offer, `275` are complete, `30` partial
+and `47` have no applied facts. Batch 13 excludes all applied variants and the
+retained identity, generation, serving and conflicting-dose blocks.
+
+The closed package contains `7` exact variants and `33` pending facts:
+
+- PEScience High Volume 252 g, product `26`, variants `1026` and `1732`: one
+  scoop / 14 g, caffeine and beta-alanine `confirmed_absent`, free-form
+  L-citrulline 6000 mg, and creatine `no_information`.
+- MuscleTech Vapor X5 Next Gen 264 g, product `63`, variants `1032` and `1619`:
+  one scoop / 9 g, caffeine 190 mg, beta-alanine 1.6 g / 1600 mg, citrulline
+  `confirmed_absent`, and creatine monohydrate 1.5 g / 1500 mg.
+- Stay Lean Engage 300 g, product `61`, variants `1051` and `1615`: 10 g,
+  caffeine 250 mg, beta-alanine 1800 mg and creatine `no_information`.
+  Citrulline is deliberately omitted: the source declares one combined 3500 mg
+  amount for malate 2:1 and nitrate without separate component masses.
+- Naughty Boy Winter Soldier Sick Pump 325 g, product `451`, variant `1789`:
+  one scoop / 13 g and free-form L-citrulline 6000 mg. Caffeine, beta-alanine
+  and creatine remain `no_information` because the retained active table is not
+  a complete formula declaration.
+
+Artifact SHA-256 / fingerprints are: product `26`
+`5c734b1d037eea60457fb571e03a5a18f9e013fa9f1d4630831dd839433501b1` /
+`68e25a035a184e55007d22a3a70c8fd385b9796d31edff030e6b7378e4f89121`;
+product `63`
+`de8af7d2402c8dabfc13d486122aecfc847bf7ea134fe148d6877f07fd734db6` /
+`5176ccb4268c4282cc163f5057ad40d0653932182f27d86f2db9d127df6d4df4`;
+product `61`
+`e37bef60990fc547c4c58d9c6bf44bac04b45550340b43714fb2673b329464c8` /
+`e7568dc0150d035180efb3d9ba1de67e48d52fcb11d93bf3d306607e196f1a80`;
+and product `451`
+`db5396cff2fa27b32eea616142561de3e537c810a0149ac2c0ceb740812194a1` /
+`4b180ce82afc156a0ec6443c81996641f4524802349b4bfa9cef05da44844c77`.
+
+All four artifacts passed `nutrition:candidates:store --dry-run`: `33` rows,
+zero product updates and zero database writes. Fresh production preflight passed
+all seven bindings and 33 unique fingerprints, found no matching candidates and
+empty target overrides. Four evidence reviews were stored once in private
+`nutrition-sources`; readback matched every SHA-256.
+
+The package stopped below 50 variants because the remaining current-offer
+families retain recorded exact-generation, gram-serving, identity or dose
+conflicts. Complete evidence is
+[nutrition-catalog-large-next-13-preparation-2026-09-15.json](rollouts/nutrition-catalog-large-next-13-preparation-2026-09-15.json)
+(SHA-256
+`c9d45ab6965f5091eb55494f19e034a244fcaf8079f9e81a63a059068e5ac779`).
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
+controlled `store -> authenticated review -> plan -> apply` for exactly these
+`33` candidates and seven variants.
+
+## NUT-03 large catalogue Batch 12 execution
+
+15 September 2026, the owner authorized the exact `45`-candidate Batch 12
+package for production `store -> authenticated review -> plan -> apply`.
+
+- Fresh preflight confirmed production project `aftboxmrdgyhizicfsfu`, all `9`
+  exact product-variant bindings, `45` unique fingerprints, no matching existing
+  candidates and an empty `nutrition_override` on every target.
+- Controlled store created candidates `2622`-`2666` and changed no product.
+  Authenticated review approved all `45` unchanged records. Five explicit-ID
+  plans had zero blockers, zero product updates and exactly nine variant updates:
+  `4081`, `4083`, `4085`, `4086`, `4087`, `1228`, `1377`, `3876` and `1415`.
+- Plan SHA-256 / fingerprint pairs are: product `778`
+  `475d236434892beb1bbfbf6e0b79b1a2c62f9f52b43b324198de7f540dfc1678` /
+  `52b190d0e3597ded58d644f4810d61912b77b78ff6e9f61168ac2ab355457619`;
+  product `845`
+  `59ded4de7a449efc9a98bcf64fd2ee6563a6a6ac5204fe1380db03bffd39b9b5` /
+  `e1c3296e10ee303899ea5e309882671bd5e005056933a378c10a5d32bc680dec`;
+  product `880`
+  `99211bef340b4fc475f2c1d317ab6f73f4a3fa51ab516751890c49f2b7db5ddc` /
+  `0ace9a5211d4716f792bf0b2f74581f27405ff94627252ddfcd74551d3ab24d0`;
+  product `1278`
+  `dc66e12743adedaf86767bf6ac38d999ce43fcc5514f3acd127b64eb625b5923` /
+  `c2e38474e35bf690f0393239a2f6ee19e2245f359be93126dd673c8becb91f8f`;
+  and product `884`
+  `eafd255fe4ed27e746668c7d83c5d980eca619de782c11ce3fb0a882ee4c417d` /
+  `a8742fc2b23071dda105e80c7512d757dbd082961e1955983be678ce3442f51b`.
+- Guarded apply changed only the planned five facts in those nine exact variant
+  overrides. A new read-only connection matched the resulting records, found
+  all `45` candidates `APPROVED` with unchanged evidence and confirmed `401`
+  applied variants: `364` complete, `37` partial and `174` without facts.
+- Public readback passed for `9/9` exact variant pages. Variant `1377`, with an
+  applied `confirmed_absent` caffeine fact, appears in the caffeine-free filter;
+  none of the eight caffeine-containing targets appears there. Replaying all
+  five sealed plans was safely rejected on stale `before`, with zero extra
+  writes.
+
+Complete evidence is
+[nutrition-catalog-large-next-12-execution-2026-09-15.json](rollouts/nutrition-catalog-large-next-12-execution-2026-09-15.json)
+(SHA-256
+`383f0cc3695d6f9085a09d3d6c2aa30f9dea42606a1d0979cb7faa9c99ecbc1e`).
+NUT-03 remains `IN PROGRESS`. One next step is another large preparation batch
+excluding all `401` applied variants and retained blockers.
+
+## NUT-03 large catalogue Batch 12 preparation
+
+15 September 2026, a fresh read-only production snapshot confirmed `575`
+active pre-workout variants and `392` with applied facts (`355` complete and
+`37` partial). Of `352` variants with a current available offer, `52` still had
+no applied fact. Batch 12 excludes every applied variant and all retained
+default-identity, access and formula-generation blocks.
+
+The closed package contains `9` exact variants and `45` pending candidate facts:
+product `778` variants `4081`, `4083`, `4085`, `4086`, `4087`; product `845`
+variant `1228`; product `880` variant `1377`; product `1278` variant `3876`;
+and product `884` variant `1415`. It extends only previously accepted exact
+families or a current manufacturer common table. All nine variants have an
+exact serving plus resolved caffeine, beta-alanine, citrulline and creatine
+states.
+
+Fresh production preflight against `aftboxmrdgyhizicfsfu` passed all `9`
+product-variant bindings and all `45` unique fingerprints. It found no matching
+candidate and an empty override for every target. All five artifacts passed
+`nutrition:candidates:store --dry-run`, with zero product or database writes.
+Five factual-review objects were stored once in private `nutrition-sources` and
+passed SHA-256 readback.
+
+The package stopped below the 50-variant ceiling because remaining current-offer
+families retain exact-generation, gram-serving, identity or dose-conflict
+blocks. In particular, Redcon1 400 g, HR Labs generations and Gorillalpha Ibiza
+Juice were not inferred across conflicting formula evidence; ambiguous default
+variants remain excluded. Complete evidence is
+[nutrition-catalog-large-next-12-preparation-2026-09-15.json](rollouts/nutrition-catalog-large-next-12-preparation-2026-09-15.json)
+(SHA-256
+`97259a3b6765a27c3ddb51ad4447df9a718cbc19f5c0ba9f1bf074012e932fd1`).
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
+controlled `store -> review -> plan -> apply` for exactly these `45` candidates
+and `9` variants, bound to the listed artifact hashes and fingerprints.
+
+## NUT-03 large catalogue Batch 11 execution
+
+15 September 2026, the owner authorized the exact `115`-candidate preparation
+package for production `store -> authenticated review -> plan -> apply`.
+
+- Fresh preflight confirmed project `aftboxmrdgyhizicfsfu`, all `23` exact
+  product-variant bindings, `115` unique fingerprints, no existing matching
+  candidates and an empty override on every target.
+- Controlled store created candidates `2507`-`2621` and changed no product.
+  Authenticated review approved all `115` unchanged rows. A transient HTTP 409
+  during product `885` review was resolved by a fresh read showing the affected
+  row and all 15 family rows already approved; no approval was duplicated.
+- Four explicit-ID plans had zero blockers and zero product updates. Guarded
+  apply changed only the complete five-fact `nutrition_override` of the 23
+  authorized variants.
+- A new read-only connection matched every whole override to its sealed `after`,
+  found all `115` candidates approved with unchanged source evidence, and
+  confirmed coverage of `392` applied variants: `355` complete, `37` partial
+  and `183` without applied facts.
+- Public readback passed on `23/23` exact variant pages. The caffeine-free filter
+  returned HTTP 200 and included none of these caffeine-containing variants.
+  Replay of all four plans was safely rejected on stale `before`, producing zero
+  additional writes.
+
+Plan SHA-256 / fingerprint pairs are: product `27`
+`769d826f5395866c0f97f992b1cd82fddbc4901c2a6af2b6d9151bb5dc7144f2` /
+`2d3d1aee5dd00bdd1536f0b7fd2c4d01fa67925676ae7ef1b3e22f9bbd9c5ff5`;
+product `1169`
+`49b3154f4ba764b97dd8863715b6d50b0ab96faf91280958d3ccbaf375fb1cb6` /
+`bae9a4d7115866b411e6460667b52c3187fd21dd1b9e1896b0d9605bc440a746`;
+product `1171`
+`f861b37b5c00741eb7f9e0a169ad2af6fe3f60fa9a2e25998efbdaaaf9bbad9d` /
+`5957fc3b23a2918cfbcf6386f7139953dd2f1f1cdfdf78905d6c90e86441fad2`;
+and product `885`
+`6ad9074a644229b9ed22f1001dc452325bb3615d1d39e2aa5cd7f641aeb2aeb4` /
+`49aa249b97e442aa3d42445c8242ee9390b40084323d5e809d1fc60178c9593e`.
+
+Complete evidence is
+[nutrition-catalog-large-next-11-execution-2026-09-15.json](rollouts/nutrition-catalog-large-next-11-execution-2026-09-15.json)
+(SHA-256
+`1a0952cd0f5087069aaae13e2bf5793c492a60d9748cb95809961b38ded2a904`).
+NUT-03 remains `IN PROGRESS`. One next step is another large preparation batch
+excluding all `392` applied variants and retained blockers.
+
+## NUT-03 large catalogue Batch 11 preparation
+
+15 September 2026, one closed owner-decision package was prepared after the
+live-verified Batch 10 checkpoint of `369` applied unique variants (`332`
+complete, `37` partial and `206` without applied facts). The new scope excludes
+all applied variants, ambiguous default variants and retained access, identity,
+pack-size and formula-generation blocks.
+
+The package contains `23` exact variants and `115` pending candidate facts:
+product `27` variants `1586`-`1593`; product `1169` variants `3275`, `3410`,
+`3414`, `3419`; product `1171` variants `3438`-`3443`, `3446`, `3448`; and
+product `885` variants `1421`, `1422`, `2700`. The two Cellucor generations are
+kept separate: the 195 g / 30-serving rows use a 6.5 g scoop, while the 408 g /
+60-serving rows use a 6.8 g scoop. Both retain the declared 150 mg caffeine,
+1600 mg beta-alanine and 1500 mg creatine-monohydrate mass; complete declared
+ingredients support confirmed citrulline absence. The remaining MVPre 3.0
+variants retain the accepted 437 g common-recipe evidence and its 21.6 g scoop,
+350 mg caffeine, 3200 mg beta-alanine, 10000 mg free L-citrulline and confirmed
+creatine absence.
+
+Fresh production preflight against `aftboxmrdgyhizicfsfu` passed for all `23`
+product-variant bindings and all `115` unique fingerprints. It found no matching
+candidate and an empty target override for every variant. All four artifacts
+passed `nutrition:candidates:store --dry-run`, with zero product or database
+writes. Four factual-review objects were stored once in the private
+`nutrition-sources` bucket and passed independent SHA-256 readback.
+
+The organisational target remained up to `50` variants. Preparation stopped at
+`23` because the remaining high-volume Redcon1 and HR Labs families still lack
+a non-conflicting exact generation and gram-serving proof, while ambiguous
+default variants remain excluded. Complete preparation evidence is
+[nutrition-catalog-large-next-11-preparation-2026-09-15.json](rollouts/nutrition-catalog-large-next-11-preparation-2026-09-15.json)
+(SHA-256
+`197b9b4a7ace44876de04272259ffb626c164328cf80e2e0961d502303316a54`).
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
+controlled `store -> review -> plan -> apply` for exactly these `115`
+candidates and `23` variants, bound to the artifact hashes and fingerprints in
+the preparation report.
+
+## NUT-03 large catalogue Batch 10 preparation
+
+On 15 September 2026 a fresh production read confirmed `575` active pre-workout
+variants, including `409` with a current available offer. Applied coverage was
+`344` unique variants: `307` complete, `37` partial and `231` without applied
+facts. Among current-offer variants, `283` were complete, `37` partial and `89`
+had no applied facts.
+
+Batch 10 prepared eight families, 25 exact unapplied variants and 125 pending
+candidates: product `291` variants `1040`, `1691`, `1692`, `1693`; product
+`895` variants `1477`, `1478`, `1479`; product `848` variants `1234`, `1235`,
+`2775`; product `774` variants `958`, `959`; product `885` variants `1419`,
+`1420`; product `879` variants `1369`-`1373`; product `1245` variants `3667`,
+`3710`, `3711`, `3712`; and product `1256` variants `3678`, `3728`.
+
+Nineteen variants have all four tracked ingredients resolved by disclosed
+amount or confirmed absence. Six retain explicit partial states: Ibiza Juice
+variants `958`, `959` use `present_amount_not_disclosed` for total caffeine
+because di-caffeine-malate compound mass is not pure caffeine mass; NXT variants
+`3667`, `3710`, `3711`, `3712` use `no_information` for creatine because the
+exact retained table does not provide the complete declaration needed to prove
+absence. Their other supported facts remain eligible.
+
+All eight artifacts passed `nutrition:candidates:store --dry-run`: 125 rows,
+zero product updates and zero database writes. All 125 candidate fingerprints
+are unique. Eight evidence reviews were stored once in private
+`nutrition-sources`; fresh readback matched all SHA-256 values. No production
+candidate, review, plan, apply or catalogue write ran.
+
+The organisational maximum was 50 variants. Preparation stopped at 25 because
+the remaining current-offer families retain documented access, identity,
+pack-size, formula-generation or exact gram-serving blocks. Those sources were
+not re-audited without new evidence.
+
+Complete values, sources, artifact paths, SHA-256 values and fingerprints are in
+[nutrition-catalog-large-next-10-preparation-2026-09-15.json](rollouts/nutrition-catalog-large-next-10-preparation-2026-09-15.json)
+(SHA-256
+`06a30a3e71e3be7ff5891f4846cc4896b452961b7041e7a1c1201e7bc3ff2b26`).
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
+controlled `store -> authenticated review -> plan -> apply` for exactly these
+125 candidates and 25 variants, bound to the artifact hashes and fingerprints
+in the report.
+
+## NUT-03 large catalogue Batch 10 execution
+
+On 15 September 2026 the owner explicitly re-authorized resuming Batch 10 after
+the automatic approval review requested a clearer retry instruction. The
+remaining 90 reviews were completed without repeating the already approved
+product `291` and `895` rows. The full unchanged package then completed
+controlled `store -> authenticated review -> plan -> apply` for 125 candidates
+and 25 exact variants.
+
+Production candidates `2382`-`2506` each exist once and are approved. Eight
+zero-blocker plans have zero product updates and 25 exact variant updates:
+products `291`, `895`, `848`, `774`, `885`, `879`, `1245` and `1256`. Controlled
+apply changed only `product_variants.nutrition_override`; it did not change
+product rows, `nutrition_verified`, legacy creatine fields, migrations or code.
+
+Fresh production readback matched every planned `after` override and preserved
+candidate evidence. Coverage is now `369` applied unique variants: `332`
+structurally complete, `37` partial and `206` without applied facts. Owner-level
+ingredient resolution for this package is 19 fully resolved variants and six
+honest partial variants: `958`, `959` retain undisclosed total caffeine, while
+`3667`, `3710`, `3711`, `3712` retain creatine `no_information`.
+
+Public readback passed for all 25 exact variant pages. The caffeine-free filter
+returned HTTP 200 and did not include any target product, as Batch 10 contains no
+qualifying confirmed caffeine-free target. Stale-before replay checked all eight
+plans, safely rejected them and made zero additional writes.
+
+Complete execution evidence is in
+[nutrition-catalog-large-next-10-execution-2026-09-15.json](rollouts/nutrition-catalog-large-next-10-execution-2026-09-15.json)
+(SHA-256
+`bc432b441e9aea290f653519e329367c9f6f63126b19b8de0d12502bd85fd851`).
+NUT-03 remains `IN PROGRESS`. One next step is another large evidence-qualified
+preparation batch that excludes the 369 applied variants and does not repeat
+retained blockers without new evidence.
+
+## NUT-03 large catalogue Batch 09 preparation
+
+On 15 September 2026 the next evidence-qualified package prepared three product
+families covering eight exact, previously unapplied variants and 40 pending
+facts. The production checkpoint remains 336 applied unique variants: 299
+complete, 37 partial and 239 without applied facts. This preparation made no
+candidate or catalogue database writes.
+
+- RAW Nutrition Essential BUM, product `783`: flavour-specific manufacturer
+  labels support Grape variant `994` at one scoop / 14.1 g and Raspberry
+  Creamthickle variant `1980` at one scoop / 13.1 g. Each proposes caffeine
+  200 mg, beta-alanine 3.2 g / 3200 mg, free-form L-citrulline 4 g / 4000 mg
+  and creatine `confirmed_absent`. Ambiguous default variant `993` remains
+  excluded; the serving masses are not transferred between flavours.
+- Bucked Up BAMF, product `772`, variants `950`, `951`, `952`: the exact 190 g,
+  20-serving retailer table and retained common-recipe context support one scoop
+  / 9.5 g, caffeine 200 mg, beta-alanine 1000 mg, citrulline malate 2:1 6000 mg
+  and creatine `confirmed_absent`.
+- Black Magic BZRK, product `959`, variants `1873`, `1874`, `1875`: the exact
+  487.5 g, 25-serving common table supports one scoop / 20.17 g, citrulline
+  malate 2:1 7000 mg and creatine `confirmed_absent`. Caffeine and beta-alanine
+  remain `present_amount_not_disclosed`: their sources appear in compound or
+  proprietary matrices whose separate active masses are not disclosed.
+
+Four artifacts contain five candidates per exact variant. Their SHA-256 /
+artifact fingerprints are:
+
+- variant `994`: `5473b3f746e0c8ed6878709e28678d48284b1c7a02f5215903ab6768684fa404`
+  / `3e1e1c88d24737520d9e405feaa201897d32757d8b43d72efd9790fc882e0b7c`;
+- variant `1980`: `53a8f8e3b2e4854dad38e7aa62e203a4565cb6bc93ae386595e4891553c5f447`
+  / `68dbc2b12effcda039970538a4760ba881ea3091a73cd61485f55df000f99f07`;
+- product `772`: `2770aefca23fd83a149cbf13d5dd23fbbec5edc4b7901821a11887948d015ec1`
+  / `9e70769272d9e48089702dfd59f19938ff72186e1ce9c2e097b222c08f27b65f`;
+- product `959`: `3ef600d7a8f6e187d3028b73a8092fcb13013a253e2cca82e53fd12d68b1e31f`
+  / `48cd7649426fda62e591c8976fca728ec60f9cc412b388db4b3b21bfd21b4326`.
+
+All four `nutrition:candidates:store --dry-run` checks passed: 40 rows, zero
+product updates and zero database writes. Four evidence reviews were stored
+once in the private `nutrition-sources` bucket; a fresh readback matched every
+SHA-256. The detailed package is
+[nutrition-catalog-large-next-09-preparation-2026-09-15.json](rollouts/nutrition-catalog-large-next-09-preparation-2026-09-15.json),
+SHA-256 `f20d7f872ae67be75c74dae69a9b2177ae6ec809cf92134f9d937c47a2942607`.
+
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
+controlled `store -> authenticated review -> plan -> apply` for exactly these
+40 candidates and eight variants, bound to the artifact hashes and fingerprints
+above.
+
+## NUT-03 large catalogue Batch 09 execution
+
+15 September 2026, production execution after explicit owner authorization:
+
+- Fresh read-only preflight confirmed production project
+  `aftboxmrdgyhizicfsfu`, all eight exact product-variant bindings, 40 unique
+  fingerprints, no existing matching candidates and empty target overrides.
+- Controlled store created candidate IDs `2342`-`2381` with zero product
+  updates. Authenticated admin review approved all 40 unchanged candidates.
+- Four explicit-ID plans contained zero product updates and eight variant
+  updates. Their SHA-256 / plan fingerprints are:
+  - RAW variant `994`: `35176cd0e5a63adaae2eb6a2475db4896712b8c03650ad75b84a8b4a9620b311`
+    / `8fed297f5c9eb7a41acc1234a0a56ff81bd62ebcee4a30f4a1312d350cb5e23a`;
+  - RAW variant `1980`: `93226791431a1ca7a53186d56c52fe555ee2811391fc1ae115aa238b8e565333`
+    / `833b1487d6ff1d67d654d4c7d8d08195bf2ec27e00c66de2c38be23f8458af01`;
+  - BAMF variants `950`-`952`: `5cfa0d60974e368f51db58c0950f927744f6163ff03e25bdb3113fdc96b0a831`
+    / `f16c88d3c3ee59d25386dab14cc3c389bccc78ec4a2ed1c6f5e8972558e6f566`;
+  - BZRK variants `1873`-`1875`: `fa5b9922e7d5c09290121b81b3b9a5053e66ae85da034c2081a05cc1e1aa2499`
+    / `03784b0c7e7a19efe8a012d74186e504efdfc431d1942979174b95ff40a37701`.
+- Guarded apply changed only `nutrition_override` for variants `994`, `1980`,
+  `950`, `951`, `952`, `1873`, `1874`, and `1875`. Independent readback
+  matched all whole overrides and all 40 approved candidates to their immutable
+  evidence. Products, `nutrition_verified`, legacy creatine values and other
+  variants were not changed.
+- Applied coverage is now `344` unique variants: `307` complete, `37` partial
+  and `231` without applied facts. Public readback passed for all eight exact
+  variant pages; private evidence remained hidden and none of these
+  caffeine-containing variants appeared in the caffeine-free filter.
+- Replay of all four plans was safely rejected because their sealed `before`
+  states were stale after apply. It produced zero additional writes.
+
+Complete evidence is
+[nutrition-catalog-large-next-09-execution-2026-09-15.json](rollouts/nutrition-catalog-large-next-09-execution-2026-09-15.json)
+(SHA-256
+`63c86b051301009a801e2f318d410bd71ecae0c9b903410d08d4d0890e4573cb`).
+NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified large
+preparation batch without repeating retained blockers.
+
+## NUT-03 large catalogue Batch 07 preparation
+
+Batch 07 continues the large-package workflow without reopening retained
+access, identity, or formula-generation blocks. A fresh production read on 15
+September 2026 confirmed `305` unique variants with applied facts. The active
+pre-workout catalogue contains `575` variants, including `406` with a current
+offer: `260` complete, `37` partial, and `109` without applied structured facts.
+
+The closed scope contains `16` new exact variants and `80` pending candidate
+facts: product `899` variants `1487`, `1488`, `2016`, `2017`; product `1277`
+variants `3757`, `3872`, `3873`, `3874`; product `878` variants `1361`, `1362`,
+`1366`, `1368`; product `1246` variants `3668`, `3713`; and product `1255`
+variants `3677`, `3727`.
+
+Five factual-review objects were deduplicated, stored in private
+`nutrition-sources`, and read back with matching SHA-256 values. Every artifact
+passed `nutrition:candidates:store --dry-run`; the combined result is `80`
+candidate rows, `0` product updates and `0` database writes. Detailed evidence
+is in
+[nutrition-catalog-large-next-07-preparation-2026-09-15.json](rollouts/nutrition-catalog-large-next-07-preparation-2026-09-15.json)
+(SHA-256
+`dd0439f9ea7ec2a070960a602ad2745f1e6ba708988dfe387a6c08a7f9ff2819`).
+
+Product `899` keeps caffeine as `conflicting_information` because exact-pack
+retailer tables disagree. Product `1255` keeps L-citrulline as
+`present_amount_not_disclosed` because `6000 mg` belongs to a three-ingredient
+blend. Product `1277` records the separately declared `9000 mg` free
+L-citrulline; its additional citrulline-nitrate component remains outside the
+current form enum and is not added to that value. These limitations do not
+block the supported facts.
+
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
+`store -> review -> plan -> apply` of these exact `80` candidates, preserving
+the stated information states and omitted nitrate component unchanged.
+
+## NUT-03 large catalogue Batch 07 execution
+
+15 September 2026, production execution after explicit owner authorization:
+
+- Fresh preflight confirmed production project `aftboxmrdgyhizicfsfu`, `16`
+  exact product-variant bindings, `80` unique fingerprints, no matching existing
+  candidates, and an empty `nutrition_override` on every target variant.
+- Controlled store created candidates `2187`-`2266`. Authenticated review
+  approved all `80` unchanged records. Five explicit-ID plans contained zero
+  product updates and `16` variant updates.
+- Guarded apply changed only the five planned facts in the `nutrition_override`
+  of variants `1487`, `1488`, `2016`, `2017`, `3757`, `3872`, `3873`, `3874`,
+  `1361`, `1362`, `1366`, `1368`, `3668`, `3713`, `3677`, and `3727`.
+- Independent readback matched all `16` complete overrides to their sealed
+  `after` values and confirmed `80` approvals with unchanged evidence. Applied
+  coverage is now `321` unique variants: `284` complete, `37` partial and `254`
+  without applied facts.
+- Public readback passed for `16/16` exact variant pages. All five fact sections
+  render, no private archive URI or reviewer data is exposed, and none of these
+  caffeine-containing, conflicting, or amount-undisclosed variants appears in
+  the caffeine-free filter.
+- Replaying the five plans was safely rejected because the sealed `before` no
+  longer matched. The replay produced zero additional writes.
+
+Plan SHA-256 / fingerprint pairs are: product `899`
+`3f118b2bf8f7345306584545528f03f2e860a3c6cbe9864da376a13c2d68c6f2` /
+`5cc4c3b38f410b3dfab777b5f53c5c859b6f3a13f35db1c7753c5a26f287d1a8`;
+product `1277`
+`537234fb28edba9d43392d4ec69c6c2e9906054975caafc24cc7c0873f6e301f` /
+`b39ccf5116a1d88c62ea71e304aa09983ca48dd9108f3c0b1f98a6f94b5ef26c`;
+product `878`
+`dd26fe60d0bbb6df3005c13314f6888463aa9240a9575f50243399ce5f585a3d` /
+`98f764c59ee7ce22b4a890967c9ca5e836ac187992d55fea56a011cdbe270983`;
+product `1246`
+`25e4f1f32963b90a3322ed09e1f32c3cd09030856efd0b567f935b3efc6ca7d6` /
+`cce9d3298b1bde0e8e90c4ecdf71f5dc99bb9cf18cbbbe631b320fe65129a28a`;
+and product `1255`
+`32c66471784903a4e3e6abc6d1d9407e62b511b5931b7eb0b35408250ab364ee` /
+`6ab76d9ec0224cf82f55244e866c1eec10b811850066cadc8d6852622e929682`.
+
+Complete evidence is
+[nutrition-catalog-large-next-07-execution-2026-09-15.json](rollouts/nutrition-catalog-large-next-07-execution-2026-09-15.json)
+(SHA-256
+`dc245f0daa1e5a9789d0b99daff897aa8559b0d2829215f1b1aa992a636fa51c`).
+NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified large
+preparation batch without repeating retained blockers.
+
+## NUT-03 large catalogue Batch 08 preparation
+
+After Batch 07, a fresh production read confirmed `321` applied unique variants.
+Of `406` active pre-workout variants with a current offer, `276` are complete,
+`37` partial and `93` have no applied facts. Batch 08 excludes all applied
+variants and retained access, identity, pack and formula-generation blocks.
+
+The validated closed scope contains `15` exact variants and `75` candidate
+facts: product `1162` variants `3260`, `3261`, `3262`, `3264`, `3265`, `3266`,
+`3268`; product `368` variants `358`, `1045`; product `773` variants `953`,
+`954`, `955`, `1976`; and product `1249` variants `3718`, `3719`. All four
+artifacts passed `nutrition:candidates:store --dry-run`, with zero product or
+database writes. Four factual-review objects were stored once in private
+`nutrition-sources` and passed hash readback.
+
+The organisational target remained up to `50` variants. The batch stopped at
+`15` because the next three otherwise promising families failed the exact gram
+serving requirement: RAW Essential has flavour-specific pack weights, BAMF does
+not expose a common gram serving for the catalogue flavours, and BZRK sources
+disagree on scoop mass while caffeine and beta-alanine also occur in
+non-separable blends. Their working evidence remains preserved and excluded
+from the authorised artifact index.
+
+Complete preparation evidence is
+[nutrition-catalog-large-next-08-preparation-2026-09-15.json](rollouts/nutrition-catalog-large-next-08-preparation-2026-09-15.json)
+(SHA-256
+`fb21f0da2a006db6f1bd92f991c7171fe5b124e9b01b2be423a595d75c5efe1e`).
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision for controlled
+`store -> review -> plan -> apply` of these exact `75` candidates.
+
+## NUT-03 large catalogue Batch 08 execution
+
+15 September 2026, production execution after explicit owner authorization:
+
+- The first read-only preflight correctly exposed three preserved but excluded
+  working artifacts in the directory and stopped before writing. The scoped
+  preflight was then bound to the four-item authorized package index and passed
+  with `15` variants, `75` unique fingerprints, no existing candidates and `15`
+  empty target overrides.
+- Controlled store created candidates `2267`-`2341`; authenticated review
+  approved all `75` unchanged rows. Four explicit-ID plans contained zero
+  product updates and `15` variant updates.
+- Guarded apply changed only the planned facts in variants `3260`, `3261`,
+  `3262`, `3264`, `3265`, `3266`, `3268`, `358`, `1045`, `953`, `954`, `955`,
+  `1976`, `3718`, and `3719`.
+- Independent readback matched all whole overrides to the sealed `after` values
+  and confirmed unchanged evidence. Applied coverage is now `336` unique
+  variants: `299` complete, `37` partial and `239` without applied facts.
+- Public readback passed for `15/15` exact variant pages. No private evidence is
+  exposed and no target is incorrectly present in the caffeine-free filter.
+  Replay of all four plans was safely rejected on stale `before`, with zero
+  additional writes.
+
+Complete evidence is
+[nutrition-catalog-large-next-08-execution-2026-09-15.json](rollouts/nutrition-catalog-large-next-08-execution-2026-09-15.json)
+(SHA-256
+`2d2712d0dd001bc1e7e12edc3b52700628976806e9a7da90432ae2735140b1b2`).
+NUT-03 remains `IN PROGRESS`. One next step is another evidence-qualified large
+preparation batch without repeating retained blockers.
+
+## NUT-03 large catalogue Batch 16 preparation
+
+20 September 2026, a fresh production read confirmed `575` active pre-workout
+variants: `429` have applied facts (`389` complete and `40` partial) and `146`
+have no applied facts. Batch 16 excludes every applied variant, retained PER4M
+and GYM HIGH deferrals, and previously exhausted access or identity blocks.
+
+The closed package contains `20` exact variants and `100` pending candidate
+facts across five product families:
+
+- HR Labs DEFIB Original, product `840`, variants `1243`, `1244`, `1245`,
+  `1246`, `2768`;
+- HR Labs DEFIB V3 420 g, product `62`, variants `2645`, `2647`, `2648`,
+  `2650`, `2651`;
+- Gorillalpha Ibiza Juice 480 g, product `1276`, variants `3756`, `3883`,
+  `3884`, `3885`, `3992`, `3993`, `3994`, `3995`;
+- Ghost Legend V4 660 g, product `6`, variant `8`;
+- Naughty Boy Winter Soldier SickPump 325 g, product `451`, variant `458`.
+
+All five artifacts passed the existing candidate-store dry-run: `100` unique
+fingerprints, zero product updates and zero database writes. Fresh production
+preflight confirmed all exact product-variant bindings, no matching candidates
+and an empty target override for all `20` variants. Five factual reviews were
+stored once in the private archive and passed SHA-256 readback.
+
+Twelve variants have all four tracked ingredients resolved. Eight Ibiza Juice
+variants deliberately retain `conflicting_information` for caffeine and
+L-citrulline and `no_information` for creatine because two retained 480 g tables
+represent incompatible formulas. Their common 12 g serving and beta-alanine
+2000 mg remain supported. Total War 400 g was excluded because its sources
+conflict on generation, serving and caffeine; no convenient value was selected.
+
+Complete preparation evidence is
+[nutrition-catalog-large-next-16-preparation-2026-09-20.json](rollouts/nutrition-catalog-large-next-16-preparation-2026-09-20.json)
+(SHA-256
+`637e78d4ff5b3f3f18f153c2ad2a90688b2206d1e382a4dac06732149b96bb1a`).
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
+controlled production `store -> authenticated review -> explicit-ID plan ->
+guarded apply` for exactly these `100` candidates and `20` variants.
+
+## NUT-03 large catalogue Batch 16 execution
+
+20 September 2026, production execution after explicit owner authorization:
+
+- Fresh read-only preflight confirmed production, all `20` exact bindings,
+  `100` unique fingerprints, no matching candidates and empty target overrides.
+- Controlled store created candidates `2804`-`2903`; authenticated review
+  approved all `100` unchanged records with the correct preparation-report
+  binding. Five explicit-ID plans contained zero product updates and exactly
+  `20` variant updates.
+- Guarded apply changed only `nutrition_override` for variants `1243`, `1244`,
+  `1245`, `1246`, `2768`, `2645`, `2647`, `2648`, `2650`, `2651`, `3756`,
+  `3883`, `3884`, `3885`, `3992`, `3993`, `3994`, `3995`, `8`, and `458`.
+  Products, `nutrition_verified`, legacy creatine fields and other variants were
+  unchanged.
+- Independent readback matched every whole override to the sealed `after` state
+  and all `100` candidates to unchanged evidence. Applied coverage is now `449`
+  variants: `409` structurally complete, `40` partial and `126` without applied
+  facts. Twelve targets have all four tracked ingredients resolved; eight Ibiza
+  Juice targets retain explicit conflicts/no-information states.
+- Public readback passed for all `20` exact pages and the caffeine-free filter
+  with current offer availability. Private evidence and reviewer data remained
+  hidden.
+- Replay of all five plans was safely rejected on stale `before`, producing zero
+  additional writes.
+
+Plan SHA-256 / fingerprint pairs are: product `840`
+`d4370d6387c6dfa96f1c5818e1f03d6604e9960533f8fe93b650d8b214a89c40` /
+`05c951acc249d14b5e95d69424086622cbd9a363f471a3f1bcf35ccc222870d9`;
+product `62` V3
+`9df91caf2663901874eec19179b05fec3da22ae9d462304dc803ef40f4bf444d` /
+`511787f3f45a12659ac38c0ddc9cbaaa1dae076fad47a592d1116f97d6488797`;
+product `1276`
+`7696549d1b73ee3922063c79f022abfbf58c30f894a77dbff746f29b5ded36a0` /
+`d8dc7cb37fb634c68fcecc96fb38a7e79384dd8c5446849781842310ed6bcab4`;
+product `6`
+`0a5c49617f6c17135c7c0f7ed1176f9f0d5137fa30cd3de0a4865d6713a90905` /
+`44a4e81da270aa5b229191f497fd1024982bda37f68d5d8e16c99a6892912c00`;
+and product `451`
+`069e8a41e0f0973bad134bd963c76fb6f70932235c564f304ed2f23f1ee2b538` /
+`f56d632fd476d49a6cfd8b970254ea9fd529565a0cda3813d361ce2d419cdfaf`.
+
+Complete evidence is
+[nutrition-catalog-large-next-16-execution-2026-09-20.json](rollouts/nutrition-catalog-large-next-16-execution-2026-09-20.json)
+(SHA-256
+`b6be71b2984345993e7b2f40fa99853cc31e491dbcd4b9f638233ac9f9589e15`).
+NUT-03 remains `IN PROGRESS`. One next step is another large preparation batch
+that excludes all `449` applied variants and retained blockers.
+
+## NUT-03 large catalogue Batch 17 preparation
+
+20 September 2026, a new production read confirmed `575` active pre-workout
+variants: `449` have applied facts (`409` structurally complete and `40`
+partial), while `126` have no applied facts. The preparation reused accepted,
+archived formula evidence for previously unprocessed variants in those exact
+product families. It did not repeat source collection and kept the separate HR
+Labs DEFIB 460 g generation, PER4M, GYM HIGH and other retained identity or
+formula blocks outside the package.
+
+The closed package contains `20` exact variants from `18` product families and
+`91` pending candidate facts. The exact variant IDs are `16`, `79`, `96`,
+`132`, `134`, `280`, `489`, `886`, `919`, `957`, `970`, `971`, `1187`,
+`1192`, `1195`, `1895`, `1900`, `1918`, `2453`, and `3855`. All `18`
+artifacts passed the existing candidate-store dry-run. Fresh production
+preflight confirmed `91` unique fingerprints, correct product-variant bindings,
+no matching candidates and empty target overrides. Eighteen factual-review
+objects were stored once in private `nutrition-sources` and passed SHA-256
+readback.
+
+Twelve variants resolve all four tracked ingredients. Eight remain deliberately
+partial where the retained disclosure reports a compound without usable yield,
+a non-separable citrulline blend, a source conflict or no information. Those
+facts were omitted or assigned the explicit existing information state; no zero
+or convenient amount was invented. There were no candidate or catalogue writes.
+
+Complete preparation evidence is
+[nutrition-catalog-large-next-17-preparation-2026-09-20.json](rollouts/nutrition-catalog-large-next-17-preparation-2026-09-20.json)
+(SHA-256
+`f8e6d61f5fce4918a61b8c218e50a1746a92017b50ed26f0e24df181391f167a`).
+NUT-03 remains `IN PROGRESS`. One next step is one owner decision authorizing
+controlled production `store -> authenticated review -> explicit-ID plan ->
+guarded apply` for exactly these `91` candidates and `20` variants.
+
+## NUT-03 large catalogue Batch 17 execution
+
+20 September 2026, production execution after explicit owner authorization:
+
+- A repeated read-only preflight confirmed the production project, all `20`
+  exact product-variant bindings, `91` unique fingerprints, no matching
+  candidates and empty target overrides. The first store attempt failed on a
+  network connection before creating records; a read-only preflight confirmed
+  zero partial writes before the controlled resume.
+- Controlled store created candidates `2904`-`2994`. Authenticated review
+  approved all `91` unchanged records. Eighteen explicit-ID plans contained
+  zero product updates and exactly `20` variant updates.
+- Guarded apply changed only the sealed `nutrition_override` after-states for
+  variants `16`, `79`, `96`, `132`, `134`, `280`, `489`, `886`, `919`, `957`,
+  `970`, `971`, `1187`, `1192`, `1195`, `1895`, `1900`, `1918`, `2453`, and
+  `3855`. Products, `nutrition_verified`, legacy creatine fields and all other
+  variants were unchanged.
+- Independent readback matched every whole override to its plan and confirmed
+  all `91` approvals and evidence references unchanged. Applied coverage is now
+  `469` of `575` active pre-workout variants (`81.6%`): `426` structurally
+  complete, `43` partial and `106` without applied facts.
+- Public readback passed for all `20` exact variant pages and the caffeine-free
+  filter. The check requires only sections actually present in a partial
+  override and still verifies exact variant selection and absence of private
+  evidence. Replaying all `18` plans was safely rejected on stale `before`,
+  producing zero additional writes.
+
+Complete evidence, including candidate IDs and all plan SHA-256/fingerprint
+pairs, is
+[nutrition-catalog-large-next-17-execution-2026-09-20.json](rollouts/nutrition-catalog-large-next-17-execution-2026-09-20.json)
+(SHA-256
+`9b987f523cf37003f7014a582e53702c1af82cf647ed0cd539e0fe76fe92888d`).
+NUT-03 remains `IN PROGRESS`. One next step is another large preparation batch
+that excludes all `469` applied variants and retained blockers.
+
+## NUT-03 Stim Thug label correction preparation
+
+20 September 2026, the owner supplied a readable Kilo Labs Stim Thug
+Supplement Facts table and confirmed that it applies to all six exact product
+`971` variants `1895`-`1900`. The panel states one scoop (`17.2 g`), caffeine
+anhydrous `350 mg`, beta-alanine `3500 mg` and citrulline malate `7000 mg`.
+The retained retailer page independently confirms the caffeine and beta-alanine
+amounts. This supersedes the earlier unresolved caffeine and beta-alanine
+assessment for this exact product family; it is a declared-label correction,
+not a laboratory measurement.
+
+A correction artifact contains `18` pending candidates: serving size, caffeine
+and beta-alanine for each of six variants. It preserves the already applied
+citrulline malate and confirmed-absent creatine facts. Candidate-store dry-run,
+six exact product-variant bindings, `18` unique fingerprints and zero matching
+candidates all passed. The factual review was written once to private
+`nutrition-sources` and passed SHA-256 readback. No production candidate or
+catalogue write occurred.
+
+Complete preparation evidence is
+[nutrition-stim-thug-label-correction-preparation-2026-09-20.json](rollouts/nutrition-stim-thug-label-correction-preparation-2026-09-20.json).
+NUT-03 remains `IN PROGRESS`. One next step is one explicit owner decision for
+controlled `store -> authenticated review -> explicit-ID plan -> guarded apply`
+of exactly these `18` candidates for variants `1895`-`1900`.
+
+## NUT-03 applied-catalogue quality audit
+
+20 September 2026, a production read-only audit examined all `469` variants
+with applied nutrition facts and `2299` approved candidates supporting their
+current override values. Every current fact has a matching approved candidate;
+no product-variant mismatch, serving-basis mismatch, missing SHA-256 or missing
+private archive URI was found. Fresh readback of all `157` distinct evidence
+objects in private `nutrition-sources` passed: zero missing objects and zero hash
+mismatches.
+
+This proves process and evidence integrity, not independent correctness of every
+transcription. The audit identified `316` variants without an automatic risk
+flag and `153` needing targeted attention. The latter include `84` variants
+with deliberately explicit unresolved states, `73` variants across `11`
+same-product/same-size groups with differing fact signatures, and five No Games
+variants declaring `600 mg` caffeine that warrant manual high-dose confirmation.
+These queues overlap. Many mixed signatures are plausibly documented
+flavour-specific scoop weights, half/full serving choices or separate formula
+contexts; none is automatically labelled an error.
+
+Evidence depth is uneven. Current candidates for `333` variants point to an
+archived factual-review JSON rather than directly to a raw label asset, and
+`241` variants currently rely only on retailer evidence. Those records retain
+source URLs, excerpts, hashes and private archive URIs, but the flags require a
+targeted label-context review before claiming full manual verification. The
+pending six-variant Stim Thug correction remains prepared and unapplied.
+
+Complete audit evidence is
+[nutrition-applied-catalogue-quality-audit-2026-09-20.json](rollouts/nutrition-applied-catalogue-quality-audit-2026-09-20.json)
+(SHA-256
+`ebaf167913347f22f6065f25459e5833efa5a55c96e027e085517e314f3e8ffe`).
+NUT-03 remains `IN PROGRESS`. One next step is a targeted review of the `11`
+mixed-signature families and five high-caffeine variants, producing one
+correction package only for demonstrated discrepancies.
+
+## NUT-03 applied-catalogue targeted review
+
+20 September 2026, the retained evidence for all `11` mixed-signature families
+and five manually flagged high-caffeine variants was reviewed without another
+collection pass or any production write. Four families (`6`, `49`, `783`,
+`1169`) have supported flavour- or pack-specific serving weights, and two
+families (`19`, `1280`) already preserve explicit uncertainty or deliberately
+variant-specific evidence. These are not demonstrated transcription errors.
+
+The five Gas Mark 10 No Games variants `1414`-`1418` retain `600 mg` caffeine:
+the archived complete formula explicitly declares that amount on a `20 g`
+serving, so it was not confused with the `600 g` pack size. Two families need a
+single catalogue serving-basis decision before correction: HR Labs Defib
+variants `2645`-`2651` mix the declared one-scoop `10.5 g` basis with an
+advanced two-scoop `21 g` basis, and Naughty Boy Menace V2 variants `919` and
+`4100`-`4108` mix the manufacturer's one-scoop `7 g` and two-scoop `14 g`
+bases. The recommended catalogue basis is one scoop for both because their
+catalogue identities are respectively 40 and 60 one-scoop servings.
+
+Three families (`878`, `1162`, `1249`) retain material source differences that
+could represent formula generations or flavour-scoped tables. They require an
+exact generation/label link before a correction; no value was selected by
+majority. Complete findings are in
+[nutrition-applied-catalogue-targeted-review-2026-09-20.json](rollouts/nutrition-applied-catalogue-targeted-review-2026-09-20.json).
+(SHA-256
+`a89bf10fe2498eaed286dd4e9113f3e14b28a9f6a3e843c3dcdfce8032d3bca9`).
+NUT-03 remains `IN PROGRESS`. One next step is the owner's serving-basis
+decision for products `62` and `763`; after that decision, prepare only the
+corresponding correction candidates while the other three families remain on
+targeted evidence review.
+
+## NUT-03 one-scoop serving-basis correction preparation
+
+20 September 2026, the owner selected the declared one-scoop catalogue basis
+for HR Labs Defib and Naughty Boy Menace V2. A limited correction package now
+contains `16` pending candidates for only the four variants currently using a
+two-scoop basis: Defib `2646`, `2649` and Menace V2 `4101`, `4107`.
+
+Defib proposals use one scoop (`10.5 g`), caffeine `200 mg`, beta-alanine
+`1600 mg` and citrulline malate `4000 mg`. Menace V2 proposals use one scoop
+(`7 g`), caffeine `200 mg`, beta-alanine `1600 mg` and citrulline malate
+`3000 mg`. Existing creatine facts and every other override field remain out
+of scope. Both candidate-store dry-runs passed with zero database writes and
+zero product updates. Full evidence is in
+[nutrition-serving-basis-correction-preparation-2026-09-20.json](rollouts/nutrition-serving-basis-correction-preparation-2026-09-20.json).
+(SHA-256
+`47f176932abeb81632a063a5db5276f7a5fc0248fdb8a8282615cfa25467c066`).
+NUT-03 remains `IN PROGRESS`. One next step is one explicit authorization for
+production `store -> authenticated review -> explicit-ID plan -> guarded apply`
+of exactly these `16` candidates for variants `2646`, `2649`, `4101`, `4107`.
+
+## NUT-03 one-scoop serving-basis correction execution
+
+20 September 2026, after explicit owner authorization, the two prepared
+artifacts passed a fresh production preflight for project
+`aftboxmrdgyhizicfsfu`: four exact bindings, `16` unique fingerprints and zero
+matching candidates. Store created candidates `2995`-`3010`, and authenticated
+review approved all `16` unchanged records.
+
+Two explicit-ID plans contained zero product updates and exactly four variant
+updates. Guarded apply changed only `serving_size_g`, caffeine, beta-alanine and
+citrulline in `nutrition_override` for Defib `2646`, `2649` and Menace V2
+`4101`, `4107`. The catalogue now uses one scoop: Defib `10.5 g`, `200 mg`,
+`1600 mg`, `4000 mg` citrulline malate; Menace V2 `7 g`, `200 mg`, `1600 mg`,
+`3000 mg` citrulline malate. Existing creatine facts, products,
+`nutrition_verified`, legacy fields and all other variants were preserved.
+
+Independent production readback matched every whole override to its plan and
+confirmed all approvals and evidence unchanged. Coverage remains `469/575`
+applied variants, with `428` complete, `41` partial and `106` without applied
+facts. All four public variant pages passed. Both exact-plan replays were safely
+rejected on stale `before`, with zero additional writes. Complete evidence is
+in
+[nutrition-serving-basis-correction-execution-2026-09-20.json](rollouts/nutrition-serving-basis-correction-execution-2026-09-20.json).
+(SHA-256
+`1a875466de889bfb0ae20fda65546dc223efa011b9789797846661394e937435`).
+NUT-03 remains `IN PROGRESS`. One next step is targeted formula-generation
+evidence for products `878`, `1162` and `1249`, or the separately prepared Stim
+Thug correction.
+
+## NUT-03 Stim Thug label correction execution
+
+20 September 2026, after explicit owner authorization, the prepared Stim Thug
+artifact passed a fresh production preflight: exact product `971` bindings for
+variants `1895`-`1900`, `18` unique fingerprints and zero matching candidates.
+Store created candidates `3011`-`3028`, and authenticated review approved all
+`18` unchanged records.
+
+The explicit-ID plan contained zero product updates and six variant updates.
+Guarded apply changed only serving size, caffeine and beta-alanine in each
+target `nutrition_override`: one scoop is now `17.2 g`, caffeine anhydrous is
+`350 mg`, and beta-alanine is `3500 mg`. Existing citrulline malate `7000 mg`,
+confirmed-absent creatine, products, `nutrition_verified`, legacy fields and
+all other variants were preserved.
+
+Independent production readback matched all six whole overrides to the plan
+and confirmed every approval and evidence reference unchanged. All six public
+variant pages passed. Replaying the exact plan was safely rejected on stale
+`before`, with zero additional writes. Complete evidence is in
+[nutrition-stim-thug-label-correction-execution-2026-09-20.json](rollouts/nutrition-stim-thug-label-correction-execution-2026-09-20.json).
+(SHA-256
+`6dc0aaf9338e17372a0581bd7f7458bf4701245549398819a373c35d21d1f0ff`).
+NUT-03 remains `IN PROGRESS`. One next step is targeted formula-generation
+evidence for products `878`, `1162` and `1249`.
+
+## NUT-03 three-family targeted resolution preparation
+
+20 September 2026, a limited review of retained evidence plus the current exact
+product pages resolved most of the three remaining mixed-signature families.
+No production candidate or catalogue write occurred.
+
+For DNFM product `878`, the manufacturer page names the five new flavours and
+declares both `8 g` and `16 g` columns while identifying one scoop as `8 g` and
+the product as 40 servings. A `20`-candidate correction therefore moves only
+variants `1363`, `1364`, `1365`, `1367`, `4080` to the one-scoop column: caffeine
+`200 mg`, beta-alanine `1750 mg` and L-citrulline `3000 mg`. Existing creatine
+absence remains unchanged.
+
+For AK-47 product `1162`, two sources describe the same 240 g, 2 g-serving
+identity and overlapping flavours but declare beta-alanine as `500 mg` and
+`935 mg`. Ten candidates preserve `conflicting_information` with no numeric
+value instead of choosing a retailer by majority. For Animal Fury product
+`1249`, the current retailer page lists Ice Pop and now agrees with the
+`16.1 g` / `6000 mg` citrulline-malate formula; two correction candidates cover
+only variant `3718`. Kiwi Lime `3719` remains excluded because the current page
+does not list it.
+
+All three artifacts passed candidate-store dry-run. Two new factual reviews
+were stored once in private `nutrition-sources` and passed SHA-256 readback.
+Complete evidence is in
+[nutrition-three-family-resolution-preparation-2026-09-20.json](rollouts/nutrition-three-family-resolution-preparation-2026-09-20.json).
+(SHA-256
+`df67db28844da01cb04e43bbc299e9b6391c0cf0372d497689d733a0268f920a`).
+NUT-03 remains `IN PROGRESS`. One next step is one explicit decision for
+production `store -> authenticated review -> explicit-ID plans -> guarded
+apply` of exactly `32` candidates across `16` variants; `3719` remains out of
+scope.
+
+## NUT-03 three-family targeted resolution execution
+
+20 September 2026, after explicit owner authorization, production preflight
+confirmed `32` unique candidate fingerprints, `16` exact variant bindings and
+zero duplicates. Store created candidates `3029`-`3060`, and authenticated
+review approved all `32` unchanged records.
+
+The controlled planner allowed two independent plans and correctly blocked the
+AK-47 portion. Guarded apply used `22` candidates to update five DNFM variants
+`1363`, `1364`, `1365`, `1367`, `4080` to the one-scoop `8 g` column and Animal
+Fury Ice Pop `3718` to `16.1 g` with `6000 mg` citrulline malate. No product,
+other variant, `nutrition_verified` or legacy field changed. Independent whole-
+override readback and all six public pages passed; both plan replays were safely
+rejected with zero additional writes.
+
+AK-47 candidates `3049`-`3058` remain approved but unapplied. The planner
+reported `INDETERMINATE_STATE_WOULD_OVERWRITE_APPROVED_FACT` for all ten exact
+variants because `conflicting_information` cannot automatically replace an
+approved numeric beta-alanine fact. This guard was not bypassed. Animal Fury
+Kiwi Lime `3719` also remains unchanged for lack of an exact current formula
+binding. Complete evidence is in
+[nutrition-three-family-resolution-execution-2026-09-20.json](rollouts/nutrition-three-family-resolution-execution-2026-09-20.json).
+(SHA-256
+`559b4e77832c95038bddcab79bfb3851ec89b0e2d866b13740f96361858689c7`).
+NUT-03 remains `IN PROGRESS`. One next step is either exact formula-generation
+labels for AK-47 and Kiwi Lime, or a separately authorized design decision for
+explicitly revoking a previously approved numeric fact when later evidence is
+conflicting.
+
+## NUT-03 Animal Fury owner-label correction
+
+20 September 2026, the owner supplied a manufacturer-label image for Animal
+Fury and separately confirmed that the other flavours use the same values. The
+image itself shows Watermelon and declares one scoop (`16.4 g`), caffeine
+anhydrous `350 mg`, beta-alanine `2000 mg` and citrulline malate `6000 mg`.
+The cross-flavour applicability is retained as an owner statement from this
+session and is not described as text printed on every flavour label.
+
+The source image was stored once in private `nutrition-sources`; SHA-256
+readback passed. The existing path created and authenticated-review approved
+candidates `3061`-`3080`, then applied one explicit-ID plan to variants `3671`,
+`3717`, `3718`, `3719` and `3720`. All five now use the same `16.4 g` serving
+basis and declared amounts. In particular, Kiwi Lime `3719` now records
+`citrulline_malate`, not L-citrulline. The existing separately evidenced
+confirmed absence of creatine was preserved.
+
+Independent whole-override and candidate-evidence readback passed, as did all
+five public variant pages. Replaying the exact plan was safely rejected on its
+stale `before`, with no additional write. Complete evidence is in
+[nutrition-animal-fury-owner-label-correction-execution-2026-09-20.json](rollouts/nutrition-animal-fury-owner-label-correction-execution-2026-09-20.json).
+NUT-03 remains `IN PROGRESS`. Animal Fury no longer requires another formula
+binding review; the remaining targeted formula conflict is AK-47 product
+`1162`.
+
+## NUT-03 current-offer priority package
+
+20 September 2026, a fresh production read counted `575` active pre-workout
+variants. `369` have a current available offer: `308` complete, `37` partial
+and `24` without applied facts. The practical remaining scope is therefore `61`
+variants across `16` families. It is one owner-facing package, internally split
+by source and product to retain existing request, artifact and transaction
+limits.
+
+Four retained sources resolve `23` missing facts for `21` partial variants.
+Darkstims PRE V4 variants `3479`, `3544`-`3550` receive the official declared
+`362.5 mg` caffeine amount per `20 g` scoop. BioTech Black Blood NOX+ variants
+`1041`, `1776`-`1778` retain `2613 mg` of the declared buffered-creatine and
+creatine-citrate complex per `9.5 g` portion; this is compound mass and is not
+the separately declared `1530 mg` pure-creatine equivalent. Mutant Madness
+variants `1023`, `1792`-`1797` receive `confirmed_absent` creatine from the
+complete exact-225 g retailer declaration, with a null numeric value. Conteh
+The Pump variants `1473` and `1474` receive the `13.8 g` serving and `4000 mg`
+free-form L-citrulline.
+
+All four artifacts passed the existing candidate-store dry-run (`23` unique
+fingerprints, zero writes). Four project-authored factual reviews were stored
+once in private `nutrition-sources`; readback matched every SHA-256. The other
+`40` variants remain separated by exact recorded reasons: generation or pack
+conflicts, missing complete declarations, combined multi-form amounts, or data
+shapes the current model cannot preserve. No value was inferred to fill the
+organizational scope.
+
+Complete values, exact variant lists, artifact SHA-256/fingerprint pairs and
+all blockers are in
+[nutrition-current-offer-priority-preparation-2026-09-20.json](rollouts/nutrition-current-offer-priority-preparation-2026-09-20.json)
+(SHA-256
+`48bfa80ea91be5a2a870f19bc3fc7554840d2f08536994e25e3d079cf475e99f`).
+No production candidate, review, plan or catalogue write occurred. NUT-03
+remains `IN PROGRESS`. One next step is one owner decision for controlled
+`store -> authenticated review -> explicit-ID plans -> guarded apply` of exactly
+these `23` candidates across `21` variants. A successful apply would raise
+current-offer completeness to `329/369` (`89.2%`), leaving `16` partial and `24`
+without applied facts.
+
+## NUT-03 current-offer priority execution
+
+20 September 2026, following the owner's explicit authorization, production
+preflight revalidated the four immutable artifacts, all `23` unique candidate
+fingerprints, `21` exact variant bindings and zero existing duplicates. Store
+created candidate IDs `3081`-`3103`; authenticated review approved all `23`
+without changing their values or evidence.
+
+Four explicit-ID plans contained zero product updates, zero blockers and only
+the authorized `nutrition_override` changes. Guarded apply completed all four:
+eight Darkstims variants received the declared `362.5 mg` caffeine fact, four
+Black Blood variants received the declared `2613 mg` creatine-complex mass,
+seven Mutant Madness variants received null-valued `confirmed_absent` creatine,
+and two Conteh variants received the `13.8 g` serving and `4000 mg` free-form
+L-citrulline. Products, `nutrition_verified`, legacy
+`creatine_per_serving_g`, other variants and unrelated override facts were not
+written.
+
+A new read-only connection matched all `21` complete planned after objects,
+all `23` approvals and their unchanged evidence. All `21` public variant pages
+show the expected fact. Current-offer coverage is now `329/369` complete
+(`89.2%`), `16` partial and `24` with no applied facts; any-data coverage remains
+`345/369` (`93.5%`). Replay of every exact plan failed closed against its stale
+before-state and made zero additional writes.
+
+Complete candidate IDs, plan SHA-256/fingerprint pairs and readback evidence are
+in
+[nutrition-current-offer-priority-execution-2026-09-20.json](rollouts/nutrition-current-offer-priority-execution-2026-09-20.json)
+(SHA-256
+`3919b61d2ef2f205360192349a55cfe90ad5a35feb3b1f17fe54da9e4d3e8dc7`).
+NUT-03 remains `IN PROGRESS`. The practical current-offer remainder is `40`
+variants: `16` partial and `24` without applied facts, retaining the exact
+blockers recorded in the preparation report. One next step is a targeted source
+or model-resolution package for those blockers rather than repeating the same
+source audit.
+
+## NUT-03 current-offer remainder package
+
+20 September 2026, the complete `40`-variant current-offer remainder was
+reassessed as one organizational package without repeating exhausted source
+paths. Three newly qualifying exact retailer declarations resolve `40` facts
+for `12` variants. PER4M PRE 570 g variants `3588`, `3589`, `3590`, `3592` and
+`3593` receive a `19 g` serving, `300 mg` caffeine, `3200 mg` beta-alanine,
+`8000 mg` L-citrulline and null-valued `confirmed_absent` creatine. PER4M
+Energy 390 g variants `1399` and `1402` receive a `6.5 g` serving, `200 mg`
+caffeine, `1600 mg` beta-alanine, `2500 mg` citrulline malate 2:1 and the same
+reviewed creatine-absence state. Pitbull Pump variants `1217`-`1220` and `2767`
+receive only the missing null-valued `confirmed_absent` creatine fact; their
+previously applied `18 g`, caffeine-free, L-citrulline and beta-alanine facts
+remain unchanged.
+
+Each absence is a review inference from a complete declared composition, not a
+laboratory result or numeric zero. All three artifacts passed dry-run (`40`
+unique fingerprints, zero writes). Three factual reviews were archived once in
+private `nutrition-sources`, and every SHA-256 readback matched.
+
+The other `28` variants remain blocked by exact, non-interchangeable reasons:
+formula-generation or package conflicts, an undisclosed combined ingredient
+mass, or a structure the current model cannot preserve faithfully. Full values,
+artifact SHA-256/fingerprint pairs and the blocker counts are in
+[nutrition-current-offer-remainder-preparation-2026-09-20.json](rollouts/nutrition-current-offer-remainder-preparation-2026-09-20.json)
+(SHA-256
+`36f8650212ec8bb452bd1ee569c034658798a8647ab08cc3c5e576596f02f45a`).
+No production candidate, review, plan or catalogue write occurred. NUT-03
+remains `IN PROGRESS`. One next step is one owner decision for controlled
+`store -> authenticated review -> explicit-ID plans -> guarded apply` of exactly
+these `40` candidates across `12` variants. Successful apply would raise
+current-offer completeness to `341/369` (`92.4%`) and leave `28` blocked.
+
+## NUT-03 current-offer remainder execution
+
+20 September 2026, after explicit owner authorization, production preflight
+confirmed all three artifact hashes, `40` unique fingerprints, `12` exact
+variant bindings and zero duplicates. Store created candidates `3104`-`3143`,
+and authenticated review approved all `40` with unchanged values and evidence.
+
+Three zero-blocker plans contained zero product updates and only the authorized
+variant `nutrition_override` changes. Guarded apply completed five PER4M PRE
+570 g variants, two PER4M Energy 390 g variants and five Pitbull Pump variants.
+Products, other variants, `nutrition_verified`, legacy
+`creatine_per_serving_g` and unrelated override facts were not written.
+
+Independent readback matched all `12` complete plan-after objects and all `40`
+approved evidence records. All `12` public exact-variant pages show the expected
+facts. Current-offer coverage is now `341/369` complete (`92.4%`), `11` partial
+and `17` without applied facts; any-data coverage is `352/369` (`95.4%`). Every
+exact plan replay failed closed against its stale before-state and made zero
+additional writes.
+
+Candidate IDs, plan SHA-256/fingerprint pairs and readback evidence are in
+[nutrition-current-offer-remainder-execution-2026-09-20.json](rollouts/nutrition-current-offer-remainder-execution-2026-09-20.json)
+(SHA-256
+`c1f499b4ce95017612b34ccc87b519f03aa6e9784e88dff005685bb12b0d346a`).
+NUT-03 remains `IN PROGRESS`. The practical current-offer remainder is `28`
+variants (`11` partial and `17` without applied facts), each requiring new exact
+evidence or model support rather than another identical audit.
+
+## NUT-03 model extension for declared compound components
+
+20 September 2026, the smallest forward-only extension needed for the retained
+Olimp and Darkstims evidence is `LIVE VERIFIED`. The
+existing candidate -> review -> plan -> apply path now supports separately
+quantified creatine forms through `creatine_component_per_serving_mg` and
+`nutrition_override.creatine_components`. It also accepts
+`citrulline_nitrate` as a declared citrulline form. Components retain their own
+mass, source unit, exact serving, exact variant and immutable evidence; the
+planner requires at least two distinct forms in one source and serving context,
+preserves unrelated override facts, blocks singular/component coexistence and
+never derives a pure-creatine or pure-L-citrulline total. Public presentation
+reconstructs only applied component sets backed by exact approved candidates
+and exposes no private evidence URI.
+
+Forward migration
+`20260920150000_add_nutrition_candidate_creatine_components.sql` has normalized
+SHA-256 `c68dac262928ac1ebf971fd8cb838468f38376ebb7c43d8f426884adc200200b`.
+Its three recreated CHECK constraints use `IS TRUE`, retain all five states for
+singular facts and require component rows to be fully quantified. Unit,
+planner, apply-contract, presentation, migration and selector tests pass;
+`verify:quick` is green. `verify:full` remains non-green on the existing,
+unrelated Whey Okay evidence hash and reviewed-manifest byte/line-ending
+fixtures and is not reported as passed. The direct PostgreSQL suite is prepared
+to reject incomplete rows and verify both
+new forms, but was skipped locally because Docker is unavailable.
+
+The owner-authorized rollout published implementation commit
+`020724c3686b2ab4d03d46c797b5bf4eabbb8952` through main merge `c9e779d`;
+Vercel reported a successful deployment. The controlled selector rehearsed and
+then committed only migration `20260920150000`. A fresh read-only connection
+found ledger row 217 and fingerprint
+`9a551c6dbec00525def65ad332ccb76a4e5b115f7d5a3bb935562150379b14b3`.
+All three recreated constraints contain the component field and use NULL-safe
+`IS TRUE`; the fact-shape constraint also contains `citrulline_nitrate`. The
+authenticated panel returned HTTP 200 without its unavailable-schema notice.
+Queue counts remained `3143` total / `16` pending / `3121` approved / `6`
+rejected. Catalogue counts remained `1337` products, `3632` variants, `3758`
+mappings and `3758` offers. No candidate or catalogue fact was written; the
+production readback confirms schema availability, while isolated tests remain
+the evidence for write behavior.
+
+This change makes the retained two-form Redweiler evidence representable for
+variants `1025`, `1700`-`1703`. It does not resolve the conflicting Darkstims
+serving declarations, so variants `3755`, `3913`-`3915` remain blocked pending
+one exact formula/serving basis. Animal Pump variant `119` remains a separate
+pack-serving design gap because one pack has no faithful gram-serving value in
+the current public completeness contract. NUT-03 remains `IN PROGRESS` and
+current production coverage remains `341/369` complete, `11` partial and `17`
+without applied facts. One next step is to prepare and dry-run a separate
+candidate package for the five Redweiler variants; this rollout did not
+authorize their production store, review or apply.
+
+Machine-readable preparation evidence: [nutrition-compound-components-extension-preparation-2026-09-20.json](rollouts/nutrition-compound-components-extension-preparation-2026-09-20.json), SHA-256 `e48df06ba09b429a712588b44af2785a17932a4bf85acedfae50c059a3f2679d`.
+
+Machine-readable rollout evidence: [nutrition-compound-components-extension-rollout-2026-09-20.json](rollouts/nutrition-compound-components-extension-rollout-2026-09-20.json).
+
+## NUT-03 Redweiler creatine-component preparation
+
+20 September 2026, the first bounded package using the deployed creatine
+component model is `CODE COMPLETE` for product `520`, variants `1025`, `1700`,
+`1701`, `1702` and `1703`. Fresh production readback confirmed all five exact
+480 g identities, two current offers per variant, their already applied 6 g
+serving context and no existing component candidates. The retained common
+manufacturer review and private archive object still match SHA-256
+`ec92d5b1dd2b783bef3ea9bd253109c9757b3eb442fcf036feba482846095156`.
+
+The offline artifact contains exactly ten pending candidates: 750 mg creatine
+monohydrate and 350 mg creatine malate for each exact variant, on `1 portion
+(6 g = 1/2 scoop)`. These are separate declared compound masses; they are not
+summed or converted to pure creatine. All ten fingerprints are unique. Existing
+dry-run returned `DRY_RUN_NO_DATABASE`, ten candidate rows, zero product updates
+and zero writes. Artifact SHA-256 is
+`2dbe755f357cb2992fa7dcdb6e1d685e3965c786b0b265560bf0ca1b0f77e924`;
+artifact fingerprint is
+`a946ef5b05cae07095ad93a68e8116dbb871acb15e4af10bd1c6acc86acacea0`.
+No store, review, plan or apply occurred. One next step is one explicit owner
+decision for the unchanged ten-candidate artifact through the existing guarded
+path.
+
+Machine-readable evidence: [nutrition-redweiler-creatine-components-preparation-2026-09-20.json](rollouts/nutrition-redweiler-creatine-components-preparation-2026-09-20.json).
+
+## NUT-03 Redweiler creatine-component execution
+
+20 September 2026, after explicit owner authorization, production preflight
+reconfirmed the unchanged artifact, ten unique fingerprints, five exact
+product-variant bindings, the private archive hash and zero duplicates. Store
+created candidates `3144`-`3153`; authenticated review approved all ten without
+changing their amounts, forms, serving context or evidence.
+
+Plan SHA-256
+`deca5bda15876fbde5e6f4c9e93c585c9875413401e8a06efcd33b62939d1c2c`
+with fingerprint
+`7cfc1aa037b431af3378fc16d417b5b66458f35df2d9073ece2ca174dc8c7fa1`
+had zero blockers and product updates. Controlled apply changed only
+`nutrition_override.creatine_components` on variants `1025`, `1700`, `1701`,
+`1702` and `1703`, adding separate 350 mg creatine-malate and 750 mg
+creatine-monohydrate masses on the existing 6 g serving context. It preserved
+all other override facts, products, `nutrition_verified` and legacy creatine.
+
+A fresh connection matched all five complete plan-after objects and all ten
+approved evidence records. All five public exact-variant pages display both
+forms and amounts without private provenance. The caffeinated family remains
+outside the caffeine-free filter. Current-offer coverage is now `346/369`
+complete (`93.8%`), `6` partial and `17` without facts; any-data coverage is
+`352/369` (`95.4%`). A production replay invocation was not executed because
+automatic approval review rejected that separate mutation test; read-only
+evidence confirms all five targets now differ from the stale plan-before state
+and no additional write occurred.
+
+Machine-readable execution evidence: [nutrition-redweiler-creatine-components-execution-2026-09-20.json](rollouts/nutrition-redweiler-creatine-components-execution-2026-09-20.json).
+
+## NUT-03 final current-offer remainder preparation
+
+20 September 2026, all `23` still-incomplete variants with current offers were
+reconciled against the retained blocker register and fresh exact-source context.
+One newly representable partial package is `CODE COMPLETE` for Darkstims Pump V2
+product `1275`, variants `3755`, `3913`, `3914` and `3915`. The official UK
+manufacturer page presents these flavours with one disclosed formula and states,
+per `1 scoop`, `5000 mg` beta-alanine, `8000 mg` L-citrulline and `2000 mg`
+citrulline nitrate. The two citrulline forms remain separate components and are
+not summed as pure L-citrulline.
+
+The artifact contains exactly `12` pending candidates with `12` unique
+fingerprints. Dry-run passed with zero product updates and zero database writes.
+The factual review was archived once in private `nutrition-sources`; readback
+matched SHA-256
+`69bb8c384253f0ace059ba0a6a570585d7d7e65718a4fbdb5f02cff6b1f5f141`.
+Artifact SHA-256 is
+`0e58a4a06c201841f6f760a7f344f3dc230254bdfbb3dd7e6a6753ba527fb06f`
+and artifact fingerprint is
+`042e633ebefaccc348ba32216096f54b7726c3b125bdaa35358bfe785c7ee2f4`.
+The exact scoop mass remains unresolved because retained evidence conflicts at
+`23.5 g` versus `27.5 g`; no `serving_size_g` candidate was fabricated.
+
+The other `19` variants retain concrete formula-generation, pack identity,
+combined-mass or caffeine-conflict blockers. They were not re-audited through
+already exhausted paths and no unsupported candidates were created. Production
+coverage therefore remains `346/369` complete, `6` partial and `17` without
+facts until a later controlled apply; applying this package would improve three
+ingredient facts on four already-partial variants without resolving their
+serving-size completeness. Full evidence and blocker counts are in
+[nutrition-current-offer-final-23-preparation-2026-09-20.json](rollouts/nutrition-current-offer-final-23-preparation-2026-09-20.json)
+(SHA-256
+`825eecbfe0919c86ce119e694ca75e41505121016db0b02524273c765e8a1d43`).
+One next step is one owner decision for controlled
+`store -> authenticated review -> explicit-ID plan -> guarded apply` of exactly
+these `12` unchanged candidates. NUT-03 remains `IN PROGRESS`.
+
+## NUT-03 final current-offer remainder execution
+
+20 September 2026, explicit owner authorization advanced the unchanged
+Darkstims artifact through the existing production path. Preflight reconfirmed
+project `aftboxmrdgyhizicfsfu`, the artifact and archive hashes, `12` unique
+fingerprints, four exact product-variant bindings, zero duplicate candidates and
+unchanged before-state. Store created candidates `3154`-`3165`; authenticated
+review approved all `12` without changing their values, forms, serving text or
+evidence.
+
+The guarded plan has SHA-256
+`f768c353be176e8353cb25df05716e4d52b8c75dff72700a13e4f451791e2f9d`
+and fingerprint
+`d6082e365a6559cf66d284990a56509e2c50c062bffa6d8f0ee3c4f7709f5d83`.
+It contained zero product updates, four variant updates and zero blockers.
+Controlled apply changed only `beta_alanine` and `citrulline_components` in the
+`nutrition_override` of variants `3755`, `3913`, `3914` and `3915`, retaining
+the prior confirmed-absent caffeine and creatine facts. It did not add a gram
+serving, alter `nutrition_verified`, touch legacy creatine or update another
+variant.
+
+A fresh read-only connection matched all four complete plan-after objects and
+all `12` approved candidate evidence records. The public exact-variant pages
+show `5000 mg` beta-alanine, `8000 mg` L-citrulline and `2000 mg` citrulline
+nitrate per `1 scoop`, without exposing private provenance. All four remain
+correctly represented by the caffeine-free result. Read-only replay evidence
+shows every target equals the planned after-state and differs from the guarded
+before-state; no second mutation was invoked.
+
+Current-offer coverage remains `346/369` complete, `6` partial and `17` without
+facts because the four improved variants still lack an unambiguous
+`serving_size_g`. The practical unresolved set is `19` other variants plus this
+one shared Darkstims serving-mass question. Machine-readable evidence is in
+[nutrition-current-offer-final-23-execution-2026-09-20.json](rollouts/nutrition-current-offer-final-23-execution-2026-09-20.json)
+(SHA-256
+`4c88d5f654c5d92516f2a45b0ee9ad388baf916dc5f3faca2920ac1c842b1514`).
+NUT-03 remains `IN PROGRESS`; one next step is obtaining one authoritative
+gram mass for the current Pump V2 scoop or new exact evidence for one of the
+remaining `19` blocked variants.

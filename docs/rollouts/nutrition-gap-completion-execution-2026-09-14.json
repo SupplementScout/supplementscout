@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-gap-completion-production-execution-v1",
+  "status": "LIVE_VERIFIED",
+  "executed_at": "2026-09-14",
+  "production": {
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "environment": "PRODUCTION",
+    "prestore_snapshot_sha256": "e75deda2182918d9f913390300597b71c74574477d1b6964b80dd5b6e9ad3b35",
+    "applied_variants_before": 136,
+    "applied_variants_after": 141
+  },
+  "authorization": {
+    "scope": "The owner directed execution of the unchanged prepared package of four artifacts, 43 candidates and 13 exact variants through store, review, plan and apply.",
+    "candidate_count": 43,
+    "variant_count": 13,
+    "product_updates_allowed": 0,
+    "target": "product_variants.nutrition_override only"
+  },
+  "store_and_review": {
+    "new_candidates": 43,
+    "duplicate_fingerprints": 0,
+    "candidate_ids": [
+      "1353", "1354", "1355", "1356", "1357", "1358", "1359", "1360", "1361", "1362", "1363", "1364", "1365", "1366", "1367", "1368", "1369", "1370",
+      "1371", "1372", "1373", "1374", "1375", "1376", "1377", "1378", "1379", "1380",
+      "1381", "1382", "1383", "1384", "1385", "1386", "1387", "1388", "1389", "1390", "1391", "1392", "1393", "1394", "1395"
+    ],
+    "review_status": "APPROVED",
+    "reviewed_by": "admin-panel",
+    "independent_postreview_readback": "PASS_EXACT_VALUES_SOURCES_FINGERPRINTS_AND_REVIEW_METADATA",
+    "catalogue_writes_before_apply": 0
+  },
+  "plans": [
+    {
+      "product_id": "24",
+      "candidate_ids": ["1353", "1354", "1355", "1356", "1357", "1358", "1359", "1360", "1361", "1362", "1363", "1364", "1365", "1366", "1367", "1368", "1369", "1370"],
+      "variant_ids": ["1004", "1581", "1582", "1583", "1584", "1585"],
+      "path": "tmp/nutrition-approved-plan/NCR1-gap-completion-20260914-24-c9aee8e4a252.json",
+      "sha256": "b4592297905d8bb3dcf9d39cbb493befc503a053f0f05068dda08b9ea7ac73c3",
+      "plan_fingerprint": "c9aee8e4a25272eb1c4792c554dd57fa77604c74c83b13364aff8aaea3f8f354",
+      "audit_sha256": "7383657a94aa0fb5dc854e8139672d173819fa0a09cd223fa2078625df2af7ae"
+    },
+    {
+      "product_id": "62",
+      "candidate_ids": ["1371", "1372", "1373", "1374", "1375", "1376", "1377", "1378"],
+      "variant_ids": ["2646", "2649"],
+      "path": "tmp/nutrition-approved-plan/NCR1-gap-completion-20260914-62-8d4073b970db.json",
+      "sha256": "dc16e460321ff21331e29e93341075f10ce70e9b7eb5d81477cd8197c92a5b4c",
+      "plan_fingerprint": "8d4073b970dbd936ac74ee926205796902dd2dc9265dccbc681f450dadf98ff5",
+      "audit_sha256": "1ce2764e1a763669bc38854719978cf6362105ff540aac0f483cdf12f99cd14f"
+    },
+    {
+      "product_id": "761",
+      "candidate_ids": ["1379", "1380"],
+      "variant_ids": ["907", "909"],
+      "path": "tmp/nutrition-approved-plan/NCR1-gap-completion-20260914-761-e155bd84b7a3.json",
+      "sha256": "f2101a18bf797dd003bc9ea529da3173e7dc6a26a1ebd351b836d9a22ed6d5a5",
+      "plan_fingerprint": "e155bd84b7a3a25a4ea56821d6c89454b68b362cebf980af8755aa2d96728ef0",
+      "audit_sha256": "8226e69b83f874d74676884b1740187f43b86521eec4cdacf2879b3a8bd5fe75"
+    },
+    {
+      "product_id": "1249",
+      "candidate_ids": ["1381", "1382", "1383", "1384", "1385", "1386", "1387", "1388", "1389", "1390", "1391", "1392", "1393", "1394", "1395"],
+      "variant_ids": ["3671", "3717", "3720"],
+      "path": "tmp/nutrition-approved-plan/NCR1-gap-completion-20260914-1249-5c668518ff1a.json",
+      "sha256": "7628e71975d14e48dd8ef8c79a63ded50759ac80ddbe6499b19566a1b29a16c1",
+      "plan_fingerprint": "5c668518ff1af39640c5857216e71cdd8c49358e378bc9be2fd897af96daaa8e",
+      "audit_sha256": "c15f3cb93c0bcbad3e1fc358ffafeca81962786a56bf6c5406162c7b86949afa"
+    }
+  ],
+  "apply": {
+    "result": "PASS",
+    "changed_products": 0,
+    "changed_variants": 13,
+    "complete_variants": ["1004", "1581", "1582", "1583", "1584", "1585", "907", "909", "3671", "3717", "3720"],
+    "partial_variants": ["2646", "2649"],
+    "unresolved": [
+      {
+        "product_id": "62",
+        "variant_ids": ["2646", "2649"],
+        "field": "citrulline",
+        "reason": "The reviewed V3 page does not establish whether the stated 8 g is citrulline-malate compound mass or L-citrulline yield."
+      }
+    ],
+    "independent_readback": "PASS_WHOLE_OVERRIDE_EQUALS_PLAN_AFTER",
+    "preservation": "PASS_PRODUCTS_OTHER_VARIANTS_TARGET_METADATA_LEGACY_FIELDS_AND_NON_TARGET_QUEUE_UNCHANGED"
+  },
+  "idempotency": {
+    "result": "PASS_SAFE_REJECTION",
+    "behavior": "All four exact plan replays were rejected before a write because the target override no longer matched the sealed before state.",
+    "postretry_readback": "PASS_IDENTICAL_FINAL_STATE_ZERO_ADDITIONAL_WRITES"
+  },
+  "public_verification": {
+    "result": "PASS",
+    "exact_variant_pages": 13,
+    "all_have_current_offer": true,
+    "source_labels": ["Manufacturer source", "Retailer source"],
+    "private_archive_uris_exposed": false,
+    "reviewer_metadata_exposed": false,
+    "caffeine_free_eligible_variant_ids": ["907", "909"],
+    "caffeine_free_grouped_card_variant_id": "907",
+    "grouping": "The two qualifying flavours share one product card; the card links to one exact qualifying current-offer variant."
+  },
+  "coverage": {
+    "applied_preworkout_variants_all_offer_states": 141,
+    "current_offer_total": 404,
+    "current_offer_complete": 115,
+    "current_offer_partial": 18,
+    "current_offer_without_applied_facts": 271,
+    "frozen_pilot_complete": 13,
+    "frozen_pilot_partial": 0,
+    "frozen_pilot_without_applied_facts": 12,
+    "separate_stinger_demonstration": 1
+  },
+  "checks": {
+    "verify_project_before_documentation": "PASS_19_SEO_TASKS_NEXT_SEO_15_NONE_IN_PROGRESS",
+    "verify_project_after_documentation": "PASS_19_SEO_TASKS_NEXT_SEO_15_NONE_IN_PROGRESS",
+    "git_diff_check": "PASS",
+    "quick_full_integration_required": false,
+    "reason": "Production data execution used existing guarded mechanisms; only documentation and evidence JSON changed in Git."
+  },
+  "next_step": "Resolve the two Defib V3 citrulline facts only when a source states whether 8 g is compound mass or L-citrulline yield; otherwise continue with a different family having new exact evidence."
+}

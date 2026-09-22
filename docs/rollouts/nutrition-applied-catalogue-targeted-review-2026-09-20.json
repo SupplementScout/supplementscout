@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-applied-catalogue-targeted-review-v1",
+  "date": "2026-09-20",
+  "status": "TARGETED_READ_ONLY_REVIEW_COMPLETE",
+  "basis": {
+    "parent_audit": "docs/rollouts/nutrition-applied-catalogue-quality-audit-2026-09-20.json",
+    "parent_audit_sha256": "ebaf167913347f22f6065f25459e5833efa5a55c96e027e085517e314f3e8ffe",
+    "method": "Review of retained candidate evidence, archived factual reviews and source context; no new collection and no production write."
+  },
+  "summary": {
+    "mixed_signature_families_reviewed": 11,
+    "mixed_signature_variants_reviewed": 73,
+    "explained_or_explicit_families": 6,
+    "serving_policy_decision_families": 2,
+    "recipe_scope_review_families": 3,
+    "high_caffeine_variants_reviewed": 5,
+    "high_caffeine_values_confirmed_from_retained_evidence": 5,
+    "production_writes": 0
+  },
+  "families": [
+    {
+      "product_id": "6",
+      "product_name": "Ghost Legend V4 Pre-Workout 660g",
+      "variant_ids": ["1001", "1738", "1739", "1740", "1741"],
+      "classification": "CONFIRMED_VALID_DIFFERENCE",
+      "finding": "Official flavour-specific panels declare 21 g, 21.5 g or 22 g servings while the tracked active doses remain the same.",
+      "action": "Retain current facts."
+    },
+    {
+      "product_id": "19",
+      "product_name": "Dorian Yates Blood & Guts Pre Workout 380g",
+      "variant_ids": ["764", "765", "766", "767", "768", "769", "770", "1579"],
+      "classification": "EXPLICIT_UNRESOLVED_OR_VARIANT_SPECIFIC",
+      "finding": "Variants 764-770 deliberately preserve conflicting caffeine information from the common source. Variant 1579 has a separate flavour-specific declaration of 372 mg total caffeine and a slightly different citrulline amount.",
+      "action": "Retain current explicit states and flavour-specific facts."
+    },
+    {
+      "product_id": "49",
+      "product_name": "Ghost Pump Nitric Oxide 350g",
+      "variant_ids": ["1028", "1596", "1597", "1598"],
+      "classification": "CONFIRMED_VALID_DIFFERENCE",
+      "finding": "Official flavour-specific panels declare 13.5 g, 17 g or 17.5 g servings while the tracked active doses remain the same.",
+      "action": "Retain current facts."
+    },
+    {
+      "product_id": "62",
+      "product_name": "HR Labs Defib Pre-Workout",
+      "variant_ids": ["2645", "2646", "2647", "2648", "2649", "2650", "2651"],
+      "classification": "SERVING_POLICY_DECISION_REQUIRED",
+      "finding": "The sources describe the same formula on two valid bases: one scoop/10.5 g with 200 mg caffeine and 1600 mg beta-alanine, and an advanced two-scoop/21 g serving with doubled amounts. Current variants mix those bases.",
+      "recommended_decision": "Use one scoop/10.5 g as the catalogue basis because the 420 g product is presented as 40 one-scoop servings; preserve the two-scoop dose only as source context.",
+      "action": "Do not change production until the serving-basis decision is approved."
+    },
+    {
+      "product_id": "763",
+      "product_name": "Naughty Boy Menace V2 60 servings",
+      "variant_ids": ["919", "4100", "4101", "4102", "4103", "4104", "4105", "4106", "4107", "4108"],
+      "classification": "SERVING_POLICY_DECISION_REQUIRED",
+      "finding": "The manufacturer presents one scoop/7 g and two scoops/14 g. Current variants mix 200 mg and 400 mg caffeine bases even though the catalogue identity says 60 servings.",
+      "recommended_decision": "Use one scoop/7 g as the catalogue basis for the 60-serving identity; preserve the two-scoop dose only as source context.",
+      "action": "Do not change production until the serving-basis decision is approved."
+    },
+    {
+      "product_id": "783",
+      "product_name": "RAW Nutrition Essential BUM Pre-Workout 30 servings",
+      "variant_ids": ["994", "1980"],
+      "classification": "CONFIRMED_VALID_DIFFERENCE",
+      "finding": "Separate official flavour tables declare 14.1 g and 13.1 g servings with the same tracked active doses.",
+      "action": "Retain current facts."
+    },
+    {
+      "product_id": "878",
+      "product_name": "Trained By JP DNFM PRE 40 Servings",
+      "variant_ids": ["1361", "1362", "1363", "1364", "1365", "1366", "1367", "1368"],
+      "classification": "RECIPE_SCOPE_REVIEW_REQUIRED",
+      "finding": "Retained evidence scopes an 8 g/200 mg caffeine presentation to older retailer flavours and a 16 g/400 mg presentation to a manufacturer group of newer flavours. This may be a deliberate flavour or generation split, but it is not safe to standardise without exact generation evidence.",
+      "action": "Obtain or identify exact labels tying each older and newer flavour group to its formula generation."
+    },
+    {
+      "product_id": "1162",
+      "product_name": "AK-47 Labs Pre-Workout 240g",
+      "variant_ids": ["3233", "3260", "3261", "3262", "3263", "3264", "3265", "3266", "3267", "3268"],
+      "classification": "RECIPE_SCOPE_REVIEW_REQUIRED",
+      "finding": "Two retained retailer source sets bind named flavours to different beta-alanine declarations, 500 mg and 935 mg, while serving and other tracked facts agree. The difference may reflect formula generation or flavour-specific tables.",
+      "action": "Require exact label or generation evidence before changing either group."
+    },
+    {
+      "product_id": "1169",
+      "product_name": "Cellucor C4 Original Pre-Workout Powder 30 Servings",
+      "variant_ids": ["3275", "3408", "3409", "3410", "3411", "3412", "3413", "3414", "3415", "3416", "3417", "3418", "3419"],
+      "classification": "CONFIRMED_VALID_DIFFERENCE",
+      "finding": "Retained contexts distinguish 195 g/6.5 g and 204 g/6.8 g pack and serving presentations while tracked active amounts agree.",
+      "action": "Retain current facts and pack-specific serving weights."
+    },
+    {
+      "product_id": "1249",
+      "product_name": "Animal Fury Pre Workout 491g",
+      "variant_ids": ["3717", "3718", "3719", "3720"],
+      "classification": "RECIPE_SCOPE_REVIEW_REQUIRED",
+      "finding": "Manufacturer evidence declares 16.1 g and 6000 mg citrulline malate for two flavours; retailer evidence declares 16.5 g and 6000 mg L-citrulline for two other flavours. The form difference is material and may indicate separate formula generations.",
+      "action": "Require exact label or manufacturer generation evidence for variants 3718 and 3719 before changing facts."
+    },
+    {
+      "product_id": "1280",
+      "product_name": "Gorillalpha Yeti Juice Pre Workout 480g",
+      "variant_ids": ["3855", "3856"],
+      "classification": "EXPLICIT_UNRESOLVED_OR_VARIANT_SPECIFIC",
+      "finding": "Variant 3855 contains only a supported present-without-disclosed-amount caffeine fact; variant 3856 has additional supported facts. This is evidence completeness, not a contradictory transcription.",
+      "action": "Retain current facts until stronger evidence for variant 3855 is available."
+    }
+  ],
+  "high_caffeine_review": {
+    "product_id": "884",
+    "product_name": "Gas Mark 10 No Games Pre Workout 30 Servings",
+    "variant_ids": ["1414", "1415", "1416", "1417", "1418"],
+    "classification": "CONFIRMED_FROM_RETAINED_DECLARATION",
+    "finding": "The retained complete formula and common flavour context explicitly declare a 20 g serving and 600 mg caffeine. The value is unusually high but is not a transcription of the 600 g pack size.",
+    "action": "Retain 600 mg; do not convert the unusual dose into an automatic error."
+  },
+  "pending_correction": {
+    "product_id": "971",
+    "variant_ids": ["1895", "1896", "1897", "1898", "1899", "1900"],
+    "status": "PREPARED_NOT_APPLIED",
+    "artifact_sha256": "97c75e9be45b6070baa3ebbab7ebd648e1cd91c752d5fc3cd8f3bad644117702",
+    "note": "The separate Stim Thug correction requires its own controlled production authorization."
+  },
+  "next_step": "Obtain one owner serving-basis decision for products 62 and 763, then prepare only the resulting correction candidates. Continue evidence review for products 878, 1162 and 1249 without changing production facts until exact formula-generation evidence is available."
+}

@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition_emergency_catalog_batch_preparation",
+  "date": "2026-09-14",
+  "status": "READY_FOR_ONE_OWNER_DECISION",
+  "production_checkpoint": {
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "target_environment": "PRODUCTION",
+    "captured_at": "2026-09-14T11:12:10.493Z",
+    "existing_candidates_for_ready_variants": 0,
+    "database_writes": 0
+  },
+  "scope": {
+    "families_assessed": 5,
+    "exact_variants_assessed": 31,
+    "ready_variants": 18,
+    "complete_ready_variants": 11,
+    "partial_ready_variants": 7,
+    "candidate_facts": 90,
+    "unique_candidate_fingerprints": 90,
+    "production_candidate_writes": 0
+  },
+  "ready_families": [
+    {
+      "product_id": "175",
+      "product": "Cellucor C4 Original 390g",
+      "variant_ids": ["1655", "1656", "1657", "1658", "1659", "1660", "1661"],
+      "facts_per_variant": {
+        "serving_size_g": {"value": 6.5, "source_text": "1 level scoop (6.5 g)"},
+        "caffeine_per_serving_mg": {"information_state": "present_with_amount", "value": 150, "source_value": 150, "source_unit": "mg"},
+        "beta_alanine_per_serving_mg": {"information_state": "present_with_amount", "value": 1600, "source_value": 1.6, "source_unit": "g"},
+        "citrulline_per_serving_mg": {"information_state": "confirmed_absent", "value": null},
+        "creatine_declared_form_per_serving_mg": {"information_state": "present_with_amount", "value": 1000, "source_value": 1, "source_unit": "g", "ingredient_form": "creatine_nitrate"}
+      },
+      "source": "https://wheyokay.com/cellucor-c4-original-390g-1090-p.asp",
+      "evidence_sha256": "3c21e18fb3cfcfe59af461cb8757795e19fdbd527a071f65187c13442497cee0",
+      "evidence_archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/emergency-batch-2026-09-14/3c21e18fb3cfcfe59af461cb8757795e19fdbd527a071f65187c13442497cee0/wheyokay-cellucor-c4-original-390g-factual-review.json",
+      "artifact": {
+        "path": "tmp/nutrition-emergency-batch-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-emergency-batch-20260914-175.json",
+        "sha256": "7ed925af17b7a124c4172bb08eb2a473aca74a35bf0aa07f9b0c8ba3bfc70e71",
+        "fingerprint": "650d3553b627698c72779f9dac37a59d0b0d569973100b275dbb6529f4850f77",
+        "candidates": 35,
+        "dry_run": "PASS: 35 candidate rows, 0 product updates, 0 database writes"
+      }
+    },
+    {
+      "product_id": "6",
+      "product": "Ghost Legend V4 Pre-Workout 660g",
+      "variants": [
+        {"variant_id": "1001", "flavour": "Orange Cream", "serving_size_g": 22},
+        {"variant_id": "1738", "flavour": "Warheads Sour Watermelon", "serving_size_g": 22},
+        {"variant_id": "1739", "flavour": "Welch's Grape", "serving_size_g": 21},
+        {"variant_id": "1740", "flavour": "Blue Raspberry", "serving_size_g": 21.5}
+      ],
+      "facts_per_variant": {
+        "serving_basis": "1 scoop; exact gram mass above",
+        "caffeine_per_serving_mg": {"information_state": "present_with_amount", "value": 300, "source_unit": "mg"},
+        "beta_alanine_per_serving_mg": {"information_state": "present_with_amount", "value": 3200, "source_unit": "mg"},
+        "citrulline_per_serving_mg": {"information_state": "present_with_amount", "value": 6000, "source_unit": "mg", "ingredient_form": "l_citrulline"},
+        "creatine_declared_form_per_serving_mg": {"information_state": "confirmed_absent", "value": null}
+      },
+      "source": "https://uk.ghostlifestyle.com/products/ghost-legend-v4",
+      "evidence_sha256": "bb14341aef9de1d23a1e8fd0c353080a39a08eb4d8b5c69c7f55e03c4189ba82",
+      "evidence_archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/emergency-batch-2026-09-14/bb14341aef9de1d23a1e8fd0c353080a39a08eb4d8b5c69c7f55e03c4189ba82/ghost-legend-v4-flavour-panels-factual-review.json",
+      "artifact": {
+        "path": "tmp/nutrition-emergency-batch-2026-09-14/candidate-artifact/nutrition-candidates-ncr1-emergency-batch-20260914-6.json",
+        "sha256": "8165b4e05ea5865e812f1007d7eb3bc1f74f45af05e409b6f0a359e9f60856db",
+        "fingerprint": "b0f8b3c3f8b8d78c4de014439765890c415d2d8692c6a8b87ddc03d69bccabbc",
+        "candidates": 20,
+        "dry_run": "PASS: 20 candidate rows, 0 product updates, 0 database writes"
+      }
+    },
+    {
+      "product_id": "19",
+      "product": "Dorian Yates Blood & Guts Pre Workout 380g",
+      "variant_ids": ["764", "765", "766", "767", "768", "769", "770"],
+      "facts_per_variant": {
+        "serving_size_g": {"value": 19, "source_text": "2 scoops (19 g)"},
+        "caffeine_per_serving_mg": {"information_state": "conflicting_information", "value": null, "reason": "350 mg caffeine anhydrous and 13 mg caffeine from guarana are declared separately; green tea is also present and no unambiguous total is given"},
+        "beta_alanine_per_serving_mg": {"information_state": "present_with_amount", "value": 5500, "source_unit": "mg"},
+        "citrulline_per_serving_mg": {"information_state": "present_with_amount", "value": 6004, "source_unit": "mg", "ingredient_form": "citrulline_malate", "ingredient_ratio": "2:1"},
+        "creatine_declared_form_per_serving_mg": {"information_state": "confirmed_absent", "value": null}
+      },
+      "source": "https://www.discount-supplements.co.uk/products/dy-nutrition-blood-guts-pre-workout-380g",
+      "evidence_sha256": "c057d13eef68996a3ef02cfb3668f67b1fd81b38440a83383d1fbed14b6f399a",
+      "evidence_archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/emergency-batch-2026-09-14/c057d13eef68996a3ef02cfb3668f67b1fd81b38440a83383d1fbed14b6f399a/discount-supplements-blood-guts-380g-factual-review.json",
+      "artifact": {
+        "path": "tmp/nutrition-emergency-batch-2026-09-14/blood-guts/candidate-artifact/nutrition-candidates-ncr1-emergency-batch-20260914-19.json",
+        "sha256": "334500330c578f083ea617389159f884c75d76449e58ffa914b2ef024e3e77c8",
+        "fingerprint": "cd3f0172a4d20f11e0c5d2878ddc5edad9f45230a672d876ce89f4fb2641b1a4",
+        "candidates": 35,
+        "dry_run": "PASS: 35 candidate rows, 0 product updates, 0 database writes"
+      }
+    }
+  ],
+  "archive_readback": {
+    "bucket": "nutrition-sources",
+    "private": true,
+    "retained_without_automatic_expiry": true,
+    "objects_written": 5,
+    "hash_readback": "PASS",
+    "raw_images_published_or_archived": 0
+  },
+  "blocked": [
+    {"product_id": "27", "variant_ids": ["1586", "1587", "1588", "1589", "1590", "1591", "1592", "1593"], "reason": "Exact 195 g retailer evidence conflicts between a 6 g creatine-nitrate formula and a 6.5 g creatine-monohydrate formula."},
+    {"product_id": "6", "variant_ids": ["1741"], "reason": "Generic Sour Watermelon catalogue identity is insufficient to bind to the WARHEADS Sour Watermelon panel."},
+    {"product_id": "1245", "variant_ids": ["3667", "3710", "3711", "3712"], "reason": "The exact 240 g retailer page warns that its table is for one particular flavour and flavours may differ; it does not identify which catalogue flavour the table covers."}
+  ],
+  "next_step": "One owner decision may authorize store -> review -> explicit-ID plans -> controlled apply for exactly the three immutable artifacts and 90 fingerprints listed here."
+}

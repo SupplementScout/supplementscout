@@ -38,6 +38,7 @@ workflow.
 - `caffeine_per_serving_mg`
 - `citrulline_per_serving_mg`
 - `citrulline_component_per_serving_mg`
+- `creatine_component_per_serving_mg`
 - `beta_alanine_per_serving_mg`
 - `creatine_declared_form_per_serving_mg`
 
@@ -84,6 +85,10 @@ component evidence is incomplete, or if component serving/source contexts do
 not agree. It renders each declared component once and never exposes archive
 URIs or source hashes.
 
+`citrulline_nitrate` is a supported declared citrulline form. Its compound mass
+is retained as stated and is never presented as an inferred mass of free-form
+L-citrulline.
+
 Structured creatine records `ingredient_form` as a normalized declared form,
 for example `creatine_monohydrate`. When the source names creatine but does not
 state its form, use the explicit `creatine_form_not_disclosed` value. For a
@@ -93,6 +98,15 @@ equivalent and do not populate the legacy `creatine_per_serving_g` field. The
 forward-only NUT-03B migration is present in production. Environments without it
 reject structured creatine storage and apply with the specific migration-required
 error; older product-only candidates continue to work.
+
+Use `creatine_component_per_serving_mg` when the label separately quantifies at
+least two creatine forms. The component set follows the same exact-variant,
+single-source and single-serving-context rules as citrulline components. The
+planner writes the complete set to `nutrition_override.creatine_components`,
+preserves every other applied fact and refuses coexistence with the singular
+`nutrition_override.creatine` representation. Each amount is the declared mass
+of its named form; components are not summed into pure creatine. This path
+requires migration `20260920150000_add_nutrition_candidate_creatine_components.sql`.
 
 ## Accepted evidence
 

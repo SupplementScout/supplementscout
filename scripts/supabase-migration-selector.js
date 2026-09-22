@@ -306,6 +306,10 @@ const CONTRACTS = Object.freeze({
         filename: "20260913110000_add_nutrition_candidate_citrulline_components.sql",
         sha256: "76dd8390e19f45dd8ffcc69bafe9721abc6dedff6db280fdc6f75e3938258ac4",
       }),
+      Object.freeze({
+        filename: "20260920150000_add_nutrition_candidate_creatine_components.sql",
+        sha256: "c68dac262928ac1ebf971fd8cb838468f38376ebb7c43d8f426884adc200200b",
+      }),
     ]),
   }),
   PRODUCTION: Object.freeze({
@@ -315,9 +319,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 216,
+    ledgerCount: 217,
     ledgerFingerprint:
-      "5c11467fad13986ca7f3ba92c73e4d3a68e101b7de6e4e31013cc30017de4554",
+      "9a551c6dbec00525def65ad332ccb76a4e5b115f7d5a3bb935562150379b14b3",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",

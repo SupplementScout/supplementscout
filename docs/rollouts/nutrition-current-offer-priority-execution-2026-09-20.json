@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-current-offer-priority-execution-v1",
+  "status": "LIVE_VERIFIED",
+  "date": "2026-09-20",
+  "target": { "environment": "PRODUCTION", "project_ref": "aftboxmrdgyhizicfsfu" },
+  "authorization": { "scope": "store -> authenticated review -> explicit-ID plan -> guarded apply", "candidates": 23, "variants": 21, "products": ["1181", "295", "489", "893"] },
+  "preflight": { "result": "PASS", "variant_bindings": 21, "unique_candidate_fingerprints": 23, "existing_matching_candidates": 0 },
+  "store_review": [
+    { "product_id": "1181", "candidate_ids": ["3081", "3082", "3083", "3084", "3085", "3086", "3087", "3088"], "status": "APPROVED" },
+    { "product_id": "295", "candidate_ids": ["3089", "3090", "3091", "3092"], "status": "APPROVED" },
+    { "product_id": "489", "candidate_ids": ["3093", "3094", "3095", "3096", "3097", "3098", "3099"], "status": "APPROVED" },
+    { "product_id": "893", "candidate_ids": ["3100", "3101", "3102", "3103"], "status": "APPROVED" }
+  ],
+  "plans": [
+    { "product_id": "1181", "path": "tmp/nutrition-approved-plan/NCR1-current-offer-priority-20260920-1181-b7663d5134fa.json", "sha256": "33bef38d7187d44f06dc8d692331e9101077d1458e5d79013cd24d8826f0c917", "fingerprint": "b7663d5134fa7f905a02a8452368a51c2954ea331ae56bae17ed29e2e9112c96", "candidate_count": 8, "variant_updates": 8, "product_updates": 0, "blockers": 0 },
+    { "product_id": "295", "path": "tmp/nutrition-approved-plan/NCR1-current-offer-priority-20260920-295-1070c88e56b6.json", "sha256": "dbd2fbed1c31e318b8abeebaf551ef69c873c21677ce3114181c5901d6986917", "fingerprint": "1070c88e56b65be19807cdca41de6d6c3a502660a431fdab35babc7d3d0a5dce", "candidate_count": 4, "variant_updates": 4, "product_updates": 0, "blockers": 0 },
+    { "product_id": "489", "path": "tmp/nutrition-approved-plan/NCR1-current-offer-priority-20260920-489-083035f5ff44.json", "sha256": "cd67277ccc88d1dad82693a34280a4bee1e6e7ac40fe870e68bf979c06291b74", "fingerprint": "083035f5ff4416ed859f6226a2dcfdbeb5b80230c7c321c2f6afcbea7bc9550d", "candidate_count": 7, "variant_updates": 7, "product_updates": 0, "blockers": 0 },
+    { "product_id": "893", "path": "tmp/nutrition-approved-plan/NCR1-current-offer-priority-20260920-893-d23007a7af22.json", "sha256": "a59fb363a311db777679e95373900dc043cbe5b22900a75afa25ca660181cf44", "fingerprint": "d23007a7af22045bb0f6bb513ad68259099182c46a7451ac758873c2207f2fde", "candidate_count": 4, "variant_updates": 2, "product_updates": 0, "blockers": 0 }
+  ],
+  "apply": {
+    "result": "PASS",
+    "changed_products": 0,
+    "changed_variants": 21,
+    "variant_ids": ["3479", "3544", "3545", "3546", "3547", "3548", "3549", "3550", "1041", "1776", "1777", "1778", "1023", "1792", "1793", "1794", "1795", "1796", "1797", "1473", "1474"],
+    "only_target": "product_variants.nutrition_override"
+  },
+  "independent_readback": {
+    "result": "PASS",
+    "whole_override_matches_plan_after": 21,
+    "approved_candidates": 23,
+    "evidence_unchanged": true,
+    "public_pages_passed": 21,
+    "current_offer_coverage": { "total": 369, "complete": 329, "partial": 16, "none": 24, "complete_percent": 89.2, "any_data_percent": 93.5 }
+  },
+  "replay": {
+    "result": "SAFE_REJECTION",
+    "plans_checked": 4,
+    "additional_writes": 0,
+    "reason": "Each immutable plan was rejected because its recorded before-state no longer matched the already-applied override."
+  },
+  "remaining_scope": { "current_offer_incomplete": 40, "partial": 16, "none": 24, "blockers_remain_as_recorded_in_preparation_report": true },
+  "controls": { "products_unchanged": true, "nutrition_verified_not_written": true, "legacy_creatine_per_serving_g_not_written": true, "code_changes": 0, "schema_changes": 0 }
+}

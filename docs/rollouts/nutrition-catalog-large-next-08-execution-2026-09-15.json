@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-catalog-large-next-08-execution-report",
+  "date": "2026-09-15",
+  "status": "PASS",
+  "target": {"environment":"PRODUCTION","project_ref":"aftboxmrdgyhizicfsfu"},
+  "scope": {"candidates":75,"variants":15,"products":4,"product_updates":0},
+  "preflight": {"result":"PASS","unique_fingerprints":75,"existing_candidates":0,"empty_before_overrides":15},
+  "store": {"result":"PASS","created":75,"candidate_ids":"2267-2341"},
+  "review": {"result":"PASS","approved":75,"mechanism":"authenticated admin review","evidence_unchanged":true},
+  "plans": [
+    {"product_id":"1162","path":"tmp/nutrition-approved-plan/NCR1-catalog-large-next-08-20260915-1162-67eaf6e416e1.json","sha256":"78d37fa632ff2d45065bdc4743b917424f00450c0a2e13a4db8191ed3364cf09","fingerprint":"67eaf6e416e15df1714a43b9b3799ba7ca946f3debf9e21ea7f904e3536d2afb","candidate_ids":"2267-2301","variant_updates":7},
+    {"product_id":"368","path":"tmp/nutrition-approved-plan/NCR1-catalog-large-next-08-20260915-368-514e41c27fdc.json","sha256":"1872b8806c2d55bbc26221bd5e9ba5d7971f916673a107473666b4818baa2959","fingerprint":"514e41c27fdcbf94c311e6a3bc685f0bc84c960accf8335b5256462d8055a14c","candidate_ids":"2302-2311","variant_updates":2},
+    {"product_id":"773","path":"tmp/nutrition-approved-plan/NCR1-catalog-large-next-08-20260915-773-445d37aa080a.json","sha256":"4b34636f7b66468989c12d06df92fcc743d52fd6f46e2bca8e3a4441cba6a387","fingerprint":"445d37aa080ad33a01fc9ddac616164486c460e7694c863ac4638209c538c520","candidate_ids":"2312-2331","variant_updates":4},
+    {"product_id":"1249","path":"tmp/nutrition-approved-plan/NCR1-catalog-large-next-08-20260915-1249-51b8ee36dd6c.json","sha256":"feaba1d7f73f62106e01d13996ed8ea21eedda3b7e5f006f702956042a566ea8","fingerprint":"51b8ee36dd6ca9d3e879a91b6ba94a314185c1d7257509cec2e461205e925633","candidate_ids":"2332-2341","variant_updates":2}
+  ],
+  "apply": {"result":"PASS","changed_variants":15,"changed_products":0,"target":"product_variants.nutrition_override"},
+  "readback": {"result":"PASS","whole_override_matches":15,"approved_candidates":75,"evidence_unchanged":true,"applied_unique_variants":336,"coverage":{"complete":299,"partial":37,"none":239}},
+  "public": {"result":"PASS","variant_pages":15,"incorrect_caffeine_free_matches":0,"private_evidence_exposed":false},
+  "replay": {"result":"PASS_SAFE_REJECTION","plans":4,"additional_writes":0},
+  "unchanged": ["products","nutrition_verified","legacy creatine_per_serving_g","other variants"],
+  "next_step": "Prepare another evidence-qualified large batch without reopening retained blockers unless new evidence exists."
+}

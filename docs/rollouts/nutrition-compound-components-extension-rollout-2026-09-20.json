@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-model-extension-rollout-v1",
+  "status": "LIVE_VERIFIED",
+  "date": "2026-09-20",
+  "target": {
+    "environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "database_identity": "supplementscout-production:aftboxmrdgyhizicfsfu"
+  },
+  "code": {
+    "implementation_commit": "020724c3686b2ab4d03d46c797b5bf4eabbb8952",
+    "published_main_commit": "c9e779d",
+    "vercel_status": "success",
+    "vercel_deployment": "https://vercel.com/supplement-scout/supplementscout/95QHJUBUQvUYVRXnM2doRfQ2jEFa"
+  },
+  "migration": {
+    "file": "20260920150000_add_nutrition_candidate_creatine_components.sql",
+    "normalized_sha256": "c68dac262928ac1ebf971fd8cb838468f38376ebb7c43d8f426884adc200200b",
+    "rehearsal": "PASS_ROLLED_BACK",
+    "apply": "PASS_COMMITTED",
+    "ledger_count_before": 216,
+    "ledger_fingerprint_before": "5c11467fad13986ca7f3ba92c73e4d3a68e101b7de6e4e31013cc30017de4554",
+    "ledger_count_after": 217,
+    "ledger_fingerprint_after": "9a551c6dbec00525def65ad332ccb76a4e5b115f7d5a3bb935562150379b14b3"
+  },
+  "fresh_readback": {
+    "result": "PASS",
+    "transaction_read_only": true,
+    "history_name": "add_nutrition_candidate_creatine_components",
+    "constraints_checked": 3,
+    "all_constraints_include_component_field": true,
+    "all_constraints_use_is_true": true,
+    "fact_shape_includes_citrulline_nitrate": true,
+    "queue": { "total": 3143, "pending": 16, "approved": 3121, "rejected": 6 },
+    "catalogue": { "products": 1337, "product_variants": 3632, "retailer_products": 3758, "offers": 3758, "price_history": 19606 },
+    "authenticated_panel": { "login_http_status": 303, "panel_http_status": 200, "unavailable_notice": false },
+    "database_writes": 0
+  },
+  "verification": {
+    "verify_project": "PASS",
+    "verify_quick": "PASS",
+    "selector_tests": "PASS",
+    "postgres_integration": "SKIPPED_DOCKER_UNAVAILABLE",
+    "verify_full": "FAIL_UNRELATED_EXISTING_FIXTURES"
+  },
+  "nutrition_data_writes": 0,
+  "coverage": { "complete": 341, "partial": 11, "none": 17, "denominator": 369 },
+  "next_step": "Prepare and dry-run a separate five-variant Redweiler candidate package for variants 1025 and 1700-1703; no production candidate write is authorized by this rollout."
+}

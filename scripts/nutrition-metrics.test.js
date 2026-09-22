@@ -375,3 +375,34 @@ test("applied citrulline components require one exact reviewed mixture context",
     citrulline_components: components,
   }, candidates).facts.length, 0);
 });
+
+test("applied creatine components require exact approvals and remain separate declared masses", () => {
+  const candidate = (form, value) => reviewedCandidate({
+    product_id: "520", product_variant_id: "1025",
+    proposed_field: "creatine_component_per_serving_mg",
+    proposed_value: value, proposed_unit: "mg", approved_value: value,
+    information_state: "present_with_amount", source_quantity_value: value,
+    source_quantity_unit: "mg", quantity_basis: "per_serving",
+    serving_basis_value: 6, serving_basis_unit: "g", serving_basis_text: "1 scoop (6 g)",
+    ingredient_form: form, ingredient_ratio: null, warning_flags: [],
+    source_locator: "html:active-ingredients", source_url: "https://olimpsport.ae/products/redweiler-480-g/",
+    source_file_sha256: "d".repeat(64),
+    source_archive_uri: "supabase-storage://nutrition-sources/test-only/olimp/redweiler.html",
+  });
+  const candidates = [candidate("creatine_monohydrate", 750), candidate("creatine_malate", 350)];
+  const components = candidates.map((row) => ({
+    information_state: "present_with_amount", amount_per_serving_mg: Number(row.approved_value),
+    source_quantity_value: Number(row.source_quantity_value), source_quantity_unit: "mg",
+    quantity_basis: "per_serving", serving_basis_text: "1 scoop (6 g)",
+    serving_basis_value: 6, serving_basis_unit: "g", ingredient_form: row.ingredient_form,
+    amount_subject: "declared_ingredient_form",
+  }));
+  const result = resolveAppliedPreWorkoutFacts("520", "1025", { creatine_components: components }, candidates);
+  assert.deepEqual(result.facts.map((fact) => [fact.key, fact.ingredientForm, fact.amountPerServingMg]), [
+    ["creatine_component", "creatine_monohydrate", 750],
+    ["creatine_component", "creatine_malate", 350],
+  ]);
+  assert.equal(resolveAppliedPreWorkoutFacts("520", "1025", {
+    creatine: components[0], creatine_components: components,
+  }, candidates).facts.length, 0);
+});
