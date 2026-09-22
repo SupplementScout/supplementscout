@@ -260,15 +260,15 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records both guarded follow-ups and selects only the Fit House six-offer migration", () => {
+test("production records both guarded follow-ups and selects only the Fit House parent approval migration", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.deepEqual(contract.pending, [
-    { filename: "20260922160000_allow_owner_approved_fit_house_six_oos.sql", sha256: "be780721eee14c19761546107b7f249e9bea0c451a54732dfd259a7b348132fa" },
+    { filename: "20260922170000_allow_fit_house_parent_approval_and_supersede_failed_plan.sql", sha256: "91c065b0dece55d7908e5dacb5509d1b0d66e26a4d132e8d2969e4db9369251f" },
   ]);
-  assert.equal(contract.ledgerCount, 220);
+  assert.equal(contract.ledgerCount, 221);
   assert.equal(
     contract.ledgerFingerprint,
-    "67df1e021bdd059657b726cdc12db3aa8ae6a91fb682419ff3345978406e3221",
+    "bf85cbe78934ab3b4e344abd1027b28d687d2cef7e9429c4434426e03a21bc94",
   );
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_VARIANT_PROVENANCE_MIGRATION)), NUTRITION_VARIANT_PROVENANCE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_PREWORKOUT_FACTS_MIGRATION)), NUTRITION_PREWORKOUT_FACTS_SHA256);
@@ -380,7 +380,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact 220-row ledger before the Fit House six-offer migration", () => {
+test("production binds its exact 221-row ledger before the Fit House parent approval migration", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -406,12 +406,12 @@ test("production binds its exact 220-row ledger before the Fit House six-offer m
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 220);
+  assert.equal(result.ledger_count, 221);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 221);
-  assert.deepEqual(result.pending_files, ["20260922160000_allow_owner_approved_fit_house_six_oos.sql"]);
+  assert.equal(result.selected_files.length, 222);
+  assert.deepEqual(result.pending_files, ["20260922170000_allow_fit_house_parent_approval_and_supersede_failed_plan.sql"]);
   assert.deepEqual(result.pending_sha256s, {
-    "20260922160000_allow_owner_approved_fit_house_six_oos.sql": "be780721eee14c19761546107b7f249e9bea0c451a54732dfd259a7b348132fa",
+    "20260922170000_allow_fit_house_parent_approval_and_supersede_failed_plan.sql": "91c065b0dece55d7908e5dacb5509d1b0d66e26a4d132e8d2969e4db9369251f",
   });
   assert.ok(result.selected_files.includes(NUTRITION_CITRULLINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(NUTRITION_CREATINE_COMPONENTS_MIGRATION));
