@@ -145,6 +145,10 @@ found the same seven unallowlisted Fit House missing variants and stopped before
 registration or writes. Its independent 10 Reps job passed a 935-row no-change
 dry-run with 15 source-absent review offers. Missing source variants alone do
 not authorise OOS changes or new identities.
+An additional read-only check of the current 243-product Fit House feed found
+no exact successor for any of the seven: all six historical product handles
+also returned 404, while a current control handle returned 200. Similar
+listings differ in brand, formula or pack and cannot safely replace them.
 
 The manual [eBay dry-run](https://github.com/SupplementScout/supplementscout/actions/runs/35738147995)
 captured 237 offers: 159 `VERIFY_NO_CHANGE` executable rows and 78 review rows.
