@@ -172,3 +172,39 @@ guarded paths; do not widen the 109/1 approved refresh scopes or monitored
 baselines. Jon's four and 10 Reps fifteen missing variants, and eBay's 78
 review rows, remain isolated for their own row-level decisions. No broad
 commercial apply or automatic OOS transition is approved by this audit.
+
+## Fit House six-offer owner decision closeout — 22 September 2026
+
+The owner approved marking only offers `718`, `749`, `757`, `759`, `913` and
+`940` unavailable while their exact source variants are absent. Offer `939`
+was already unavailable and was preserved. The seven-row identity, saved
+price/stock and source-fingerprint manifest is
+`config/retailers/fit-house-owner-approved-six-absent-2026-09-22.json`.
+[PR #75](https://github.com/SupplementScout/supplementscout/pull/75)
+through [PR #80](https://github.com/SupplementScout/supplementscout/pull/80)
+made this exact scope executable and exposed blocked validation evidence;
+[PR #81](https://github.com/SupplementScout/supplementscout/pull/81) and
+[PR #82](https://github.com/SupplementScout/supplementscout/pull/82)
+bound the production OOS and parent-approval guards. Both migrations passed
+transactional production rehearsal before apply; the ledger advanced from
+`220` to `222`, with zero catalogue row-count changes. The failed, unapproved
+Fit House parent `ab47be4a-abed-41b0-8c24-58015005840b` and its two
+untouched children were superseded exactly; they had no approvals or apply runs.
+
+The fresh [dry-run](https://github.com/SupplementScout/supplementscout/actions/runs/35754785521)
+validated two batches covering the six stock-only changes and 38 in-stock
+unchanged confirmations. Ten other stock differences (`735`, `921`, `944`,
+`951`, `954`, `963`, `972`, `983`, `1904`, `1938`) remained deferred.
+The guarded [apply run](https://github.com/SupplementScout/supplementscout/actions/runs/35754969442)
+passed its preflight, both executions, database postflight and fresh-source
+idempotency check. Postflight verified six stock changes, zero price, shipping,
+total or URL changes, 44 refreshed checks, and unchanged product, variant,
+mapping and offer row counts. Forty-four daily confirmation history rows were
+added with zero historical price changes. Independent production read-only
+verification at 16:37 UTC found all six approved offers out of stock at their
+original prices, offer `939` still out of stock, and Fit House at `110/286`
+out-of-stock offers as expected (`104` before plus six).
+
+This closes only the six-offer owner decision. Fit House's other stale offers
+and the ten deferred stock differences still need separate review; the
+previous paragraph's Fit House decision request is superseded by this section.
