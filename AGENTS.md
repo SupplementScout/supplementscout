@@ -38,6 +38,16 @@ sitemap and error contracts; and add their contract tests. Never add local
 index/noindex logic or deindex a `live_verified` route because coverage dipped.
 GYM HIGH remains `owner_deferred` until a separate owner decision.
 
+### Retailer automation consolidation
+
+Before retailer-automation work, read `docs/retailer-automation/AUDIT.md`,
+`ARCHITECTURE.md` and `EXECUTION-PLAN.md`; verify the RA task is not already
+done and work on only the one designated RA task. Do not create parallel
+importers, approval paths or executors, put retailer conditions in shared core,
+weaken guardrails, or write directly to the database. Add a regression test for
+every fixed incident and update task status/evidence before handoff. Stop when
+code, documentation and production evidence conflict.
+
 ## Quality gate
 
 For code or workflow changes, run `npm run verify:quick` after implementation.

@@ -267,6 +267,8 @@ source-blocked and GYM HIGH remains owner-deferred.
 
 **Automation reliability status:** The P0 Automation Reliability Sprint is closed with monitored backlog. The [Automation Reliability Roadmap](Automation-Reliability-Roadmap.md) remains the evidence source, but no longer blocks product development. Existing guarded workflows, Review Queue and alerts own ordinary freshness, OOS, source and review backlog.
 
+The documentation-only [Retailer Automation Consolidation programme](retailer-automation/EXECUTION-PLAN.md) is `WAITING FOR OWNER APPROVAL`; no refactor task has started.
+
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256
 `59c6d03a2bbcff0b384b86065f76e6f456e3538ca538613cf83e5e017ec11a9d`,
