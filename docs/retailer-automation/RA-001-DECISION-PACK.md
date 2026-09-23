@@ -1,11 +1,14 @@
 # RA-001 — pakiet decyzji o architekturze automatyzacji retailerów
 
-**Status:** `READY_FOR_VERIFICATION`
+**Status:** `OWNER_APPROVED — RA-001 VERIFIED_COMPLETE`
+
+**Owner approval date:** `2026-09-23`
 
 **Baseline analizy:** `941ae30654e1135b192729fb4666106cfa461cac`
 
-**Charakter dokumentu:** propozycja do decyzji właściciela; bez uprawnienia do
-implementacji, migracji danych, uruchomienia workflow ani zapisu produkcyjnego.
+**Charakter dokumentu:** zatwierdzony kierunek do planowania RA-002; bez
+uprawnienia do implementacji, migracji danych, uruchomienia workflow, shadow
+runu, cutoveru, decommission ani zapisu produkcyjnego.
 
 ## 1. Podsumowanie prostym językiem
 
@@ -463,56 +466,66 @@ Niewiadome blokujące odpowiednie decyzje wykonawcze:
 3. Pełna lista aktywnych planów/sesji/niezużytych approvals per retailer nie jest
    eksportowana w dowodach RA-000; wymagany read-only pre-cutover audit.
 4. Dokładne klasy zmian ceny/stock, które właściciel uzna za auto-safe w Modelu B.
-5. Czy GYM HIGH zostanie odroczony nadal, czy otrzyma osobne uprawnienie migracji.
+5. Dalszy status owner-deferred GYM HIGH; obecnie pozostaje deferred.
 6. Event coverage nie pozwala dziś ustalić daty końca observation dla eBay/GYM;
    gate pozostaje dowodowy.
 
-## 12. Decyzje dla Marka — maksymalnie pięć
+## 12. Decyzje właściciela zapisane 2026-09-23
 
-### D1. Który kierunek architektury zatwierdzić?
+### D1. Wspólny rdzeń — zatwierdzone
 
-1. **Rekomendowane i bezpieczny default:** produkcyjny `retailer-offer-sync` jako
-   kręgosłup, wzbogacony kontraktami snapshot/replay; najmniej zmienia sprawdzony
-   write path i pozwala migrować po jednym retailerze.
-2. Snapshot runtime jako rdzeń; czystszy model, ale większy zakres i ryzyko.
-3. Tylko fasada nad obecnymi ścieżkami; szybciej, lecz nie usuwa duplikacji.
+Marek zatwierdził `retailer-offer-sync` jako wspólny rdzeń. Należy zachować
+control ledger, mixed-batch executor, atomic importer i atomic RPC, rozdzielone
+role bazodanowe, Review Queue, postflight, watchdog, price history, fingerprints,
+stale-state protection, per-row isolation i idempotency. Z `retailer-snapshot`
+należy później włączyć immutable raw i canonical snapshots, reason registry,
+dependency groups, schemas, zapisane fixtures i replay. Nie wolno tworzyć
+trzeciego runtime ani równoległego importera.
 
-### D2. Jak scheduled runs mogą wykonywać zmiany?
+### D2. Model automatycznych uprawnień — Model B zatwierdzony w zasadzie
 
-1. **Rekomendowane i bezpieczny default:** Model B — tylko jawne, wersjonowane,
-   wcześniej zatwierdzone safe classes; wszystko inne do review.
-2. Model A — wszystkie zmiany manualne; bezpieczniejszy zapisowo, wolniejszy.
-3. Model C — szerszy auto-apply; mniej opóźnień, większe ryzyko i złożoność.
+Scheduled run może w przyszłości wykonywać tylko klasy objęte jawną,
+wersjonowaną i wcześniej zatwierdzoną polityką. Nie może sam utworzyć one-time
+approval contract dla nieprzejrzanego manifestu. Nieznana, niejednoznaczna lub
+ryzykowna zmiana trafia do Review Queue albo jest bezpiecznie zatrzymywana.
 
-### D3. Czy przyjąć sześciowymiarową taxonomy i `PASS_WITH_REVIEW` jako poprawny run?
+To zatwierdzenie **nie** zatwierdza żadnego progu cenowego, klasy zmiany ceny lub
+stocku jako auto-safe, automatycznego apply ani zmiany produkcyjnych uprawnień.
+Każda przyszła policy musi mieć dokładny zakres, wersję, limity, testy, fixtures,
+shadow evidence, rollback i osobne zatwierdzenie produkcyjne.
 
-1. **Rekomendowane i bezpieczny default:** tak; zachowuje review artifact i nie
-   myli normalnej decyzji biznesowej z awarią systemu.
-2. Przyjąć model, ale nadal czerwienić scheduler dla każdego review; widoczność
-   większa, lecz status nadal miesza wynik z alertem.
-3. Odłożyć; blokuje RA-002, bo common contract nie ma jednoznacznych wyników.
+### D3. Status taxonomy — zatwierdzona
 
-### D4. Czy zatwierdzić 10 Reps jako pierwszy shadow pilot i podaną kolejność?
+Zatwierdzone są oddzielne statusy źródła, zmiany, wykonania i runu oraz oddzielny
+alert i next action. `PASS_WITH_REVIEW` jest poprawnym wynikiem, nie system
+failure. `SKIPPED_EQUIVALENT_ACTIVE` jest bezpiecznym pominięciem. Normalna
+zmiana ceny nie jest system failure. `FAILED_SYSTEM` jest zarezerwowany dla
+rzeczywistych błędów kodu, infrastruktury, bazy lub integralności procesu.
 
-1. **Rekomendowane i bezpieczny default:** 10 Reps tylko shadow, potem KIOR;
-   duża próbka sprawdza izolację, a KIOR ogranicza ryzyko pierwszego cutover.
-2. KIOR jako shadow i pierwszy cutover; mniejsze ryzyko, słabsza próba skali.
-3. Wstrzymać kolejność do dodatkowego read-only audit aktywnych planów; opóźnia
-   start, ale nie zmienia produkcji.
+### D4. Pilot i kolejność — zatwierdzone z ograniczeniami
 
-### D5. Kiedy wolno usunąć legacy paths i wyjątki?
+10 Reps jest pierwszym pilotem wyłącznie w shadow mode. Decyzja nie uruchamia
+shadow runu, nie zmienia workflow, nie zapisuje do bazy, nie zatwierdza cutoveru
+i nie wyłącza starej ścieżki. KIOR jest pierwszym małym kandydatem do późniejszego
+cutoveru dopiero po RA-002 i wymaganych dalszych etapach, udanym pilocie 10 Reps,
+udowodnionym parity, testach, postflight, gotowym rollbacku i osobnym zadaniu
+zatwierdzającym cutover.
 
-1. **Rekomendowane i bezpieczny default:** dopiero po event-based parity,
-   postflight, recovery, braku aktywnych zależności i osobnym owner approval;
-   GYM/Predators pozostają deferred.
-2. Po trzech poprawnych scheduled intervals; szybciej, ale może nie objąć ryzyka.
-3. Nigdy w tym programie; minimalizuje cutover risk, utrwala koszt i duplikację.
+### D5. Legacy paths — kryteria zatwierdzone, usuwanie niezatwierdzone
 
-Brak odpowiedzi oznacza zawsze pierwszą, bezpieczną opcję wyłącznie dla dalszego
-projektowania. Nie oznacza zgody na implementację ani produkcyjny zapis.
+Stara ścieżka może zostać usunięta dopiero po fixtures, replay, shadow mode,
+porównaniu wyników, manualnej weryfikacji, wymaganych testach, kontrolowanym
+cutoverze, postflight, observation, potwierdzonym rollbacku i dowodzie braku
+unikalnego aktywnego konsumenta. Ta decyzja nie upoważnia obecnie do usunięcia
+żadnego kodu ani workflow. GYM HIGH i Predators Gear pozostają deferred.
 
-## 13. Granica RA-001
+## 13. Granica zatwierdzenia RA-001
 
-RA-001 kończy się na tej propozycji. `ARCHITECTURE.md` pozostaje
-`DRAFT FOR OWNER REVIEW`; RA-002 pozostaje `NOT_STARTED`. Żaden wariant, status,
-pilot, auto-policy ani removal nie jest zatwierdzony przez sam ten dokument.
+RA-001 jest `VERIFIED_COMPLETE`, a `ARCHITECTURE.md` ma status
+`OWNER APPROVED FOR RA-002 PLANNING`. RA-002 pozostaje `NOT_STARTED`.
+Zatwierdzenie kierunku nie uruchamia żadnego pilota, implementacji, policy,
+approval, apply, cutoveru, decommission ani zapisu staging/production.
+
+Otwarte niewiadome z sekcji 11 nie blokują zamknięcia RA-001. Każda z nich
+blokuje jednak odpowiednią późniejszą migrację lub aktywację, dopóki nie zostanie
+rozwiązana i udokumentowana w wymaganym zadaniu.

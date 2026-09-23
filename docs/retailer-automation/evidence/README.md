@@ -2,6 +2,15 @@
 
 [RA-001 architecture decision pack](../RA-001-DECISION-PACK.md)
 
+## RA-001 owner approval
+
+Marek approved all five decisions in the linked pack on 23 September 2026.
+The approval closes RA-001 as `VERIFIED_COMPLETE` and changes the architecture
+status to `OWNER APPROVED FOR RA-002 PLANNING`. It does not start RA-002,
+authorize an auto-safe class or production apply, start 10 Reps shadow mode, or
+permit removal of any legacy code or workflow. The six recorded unknowns remain
+blocking dependencies for their affected later tasks, not for RA-001 closeout.
+
 This directory indexes evidence; it does not contain credentials, raw private
 feeds or production-write authority. GitHub artifacts were downloaded read-only
 to ignored `tmp/retailer-automation-audit-2026-09-23/` for the audit and are not

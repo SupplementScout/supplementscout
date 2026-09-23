@@ -1,13 +1,17 @@
 # Retailer Automation Target Architecture
 
-**Status: DRAFT FOR OWNER REVIEW**
+**Status: OWNER APPROVED FOR RA-002 PLANNING**
+
+**Owner approval date:** 2026-09-23
 
 **Implementation authority:** none
 
-**Safety rule:** this draft does not supersede current production guardrails or
-approve RA-001 or any later task.
+**Safety rule:** this approval closes RA-001 as a documentation decision. It
+does not start RA-002, authorize implementation, define any auto-safe price or
+stock class, start 10 Reps shadow mode, alter production permissions, approve a
+cutover, or permit removal of any code, workflow or legacy path.
 
-## 1. Recommended decision
+## 1. Approved decision
 
 Converge without creating a third runtime. Use production-proven
 `retailer-offer-sync` as the orchestration spine, retain the control ledger,
@@ -15,10 +19,12 @@ mixed-batch executor and atomic importer as the only guarded write path, and
 adopt the immutable raw/canonical snapshots, reason registry, dependency groups,
 schemas and replay fixtures from `retailer-snapshot`.
 
-This is a recommendation, not an approved implementation. Until owner approval
-and retailer-by-retailer shadow parity, every current guarded path remains
-authoritative for its existing scope. The evaluated alternatives, evidence and
-owner choices are in [RA-001-DECISION-PACK.md](RA-001-DECISION-PACK.md).
+Marek approved this architecture direction on 2026-09-23 for later RA-002
+planning. It is not implementation authority. Until separately authorized
+retailer-by-retailer shadow parity and cutover, every current guarded path
+remains authoritative for its existing scope. The evaluated alternatives,
+evidence, exact decisions and limitations are in
+[RA-001-DECISION-PACK.md](RA-001-DECISION-PACK.md).
 
 ## 2. Component boundaries
 
@@ -230,7 +236,7 @@ A path can be removed only after:
 - production readback and owner approval are recorded;
 - workflow/config/code removal passes the full quality gate.
 
-No legacy path is approved for removal by this draft.
+No legacy path is approved for removal by this architecture approval.
 
 ## 14. Configuration and exceptions
 
@@ -252,3 +258,25 @@ cutover authority. Observation is complete only after repeated full schedule
 intervals and coverage of every authorized event class, not after an arbitrary
 calendar duration. The retailer order and gates are detailed in the decision
 pack section 9.
+
+## 16. Owner decisions recorded on 2026-09-23
+
+1. `retailer-offer-sync` is the approved common spine. Preserve the control
+   ledger, mixed-batch executor, atomic importer/RPC, separated database roles,
+   Review Queue, postflight, watchdog, price history, fingerprints, stale-state
+   protection, per-row isolation and idempotency. Later incorporate snapshot,
+   schema, reason, dependency, fixture and replay capabilities from
+   `retailer-snapshot`. Do not create a third runtime or parallel importer.
+2. Model B is approved in principle: a scheduled run may eventually execute
+   only classes covered by an explicit, versioned and previously approved
+   policy. No class, threshold or production auto-apply is approved now.
+3. The six-dimensional taxonomy is approved. `PASS_WITH_REVIEW` is a valid run,
+   `SKIPPED_EQUIVALENT_ACTIVE` is a safe skip, and `FAILED_SYSTEM` is reserved
+   for genuine code, infrastructure, database or process-integrity failures.
+4. 10 Reps is the approved first **shadow-only** pilot and KIOR the first small
+   later cutover candidate after all prerequisite stages and separate cutover
+   approval. This decision does not start a shadow run or change a workflow.
+5. Legacy removal requires proven parity, fixtures, replay, shadow comparison,
+   manual verification, tests, controlled cutover, postflight, observation,
+   rollback and proof of no unique active consumer. It authorizes no removal.
+   GYM HIGH and Predators Gear remain deferred.
