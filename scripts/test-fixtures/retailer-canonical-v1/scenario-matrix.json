@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "base": {
+    "captured_at": "2026-09-23T12:00:00.000Z",
+    "source": { "retailer_ref": "fixture-retailer", "source_ref": "recorded-fixture", "source_type": "FIXTURE" }
+  },
+  "scenarios": [
+    {
+      "fixture_id": "valid-no-change",
+      "raw_records": [{ "source_record_id": "1", "external_product_id": "p1", "external_variant_id": "v1", "price": "19.99", "currency": "GBP", "availability": "IN_STOCK" }],
+      "expected_state": [{ "external_product_id": "p1", "external_variant_id": "v1", "price_minor": "1999", "currency": "GBP", "availability": "IN_STOCK" }],
+      "expected": { "run_outcome": "PASS", "no_change_count": 1 }
+    },
+    {
+      "fixture_id": "normal-price-change-no-policy",
+      "raw_records": [{ "source_record_id": "1", "external_product_id": "p1", "external_variant_id": "v1", "price": "20.49", "currency": "GBP", "availability": "IN_STOCK" }],
+      "expected_state": [{ "external_product_id": "p1", "external_variant_id": "v1", "price_minor": "1999", "currency": "GBP", "availability": "IN_STOCK" }],
+      "expected": { "run_outcome": "NO_AUTHORIZED_SCOPE", "safe_candidate_count": 1 }
+    },
+    {
+      "fixture_id": "price-change-review",
+      "raw_records": [{ "source_record_id": "1", "external_product_id": "p1", "external_variant_id": "v1", "price": "29.99", "currency": "GBP", "availability": "IN_STOCK" }],
+      "expected_state": [{ "external_product_id": "p1", "external_variant_id": "v1", "price_minor": "1999", "currency": "GBP", "availability": "IN_STOCK", "review_fields": ["price"] }],
+      "expected": { "run_outcome": "PASS_WITH_REVIEW", "review_count": 1 }
+    },
+    {
+      "fixture_id": "source-missing-not-oos",
+      "raw_records": [],
+      "expected_state": [{ "external_product_id": "p1", "external_variant_id": "v1", "price_minor": "1999", "currency": "GBP", "availability": "IN_STOCK" }],
+      "expected": { "run_outcome": "PASS_WITH_REVIEW", "review_count": 1 }
+    },
+    {
+      "fixture_id": "identity-conflict",
+      "raw_records": [{ "source_record_id": "1", "external_product_id": "p1", "external_variant_id": "v1", "price": "19.99", "currency": "GBP", "availability": "IN_STOCK" }],
+      "expected_state": [
+        { "external_product_id": "p1", "external_variant_id": "v1", "price_minor": "1999", "currency": "GBP", "availability": "IN_STOCK" },
+        { "external_product_id": "p1", "external_variant_id": "v1", "price_minor": "2099", "currency": "GBP", "availability": "IN_STOCK" }
+      ],
+      "expected": { "run_outcome": "PASS_WITH_REVIEW", "review_count": 1 }
+    },
+    {
+      "fixture_id": "invalid-price",
+      "raw_records": [{ "source_record_id": "1", "external_product_id": "p1", "external_variant_id": "v1", "price": "free", "currency": "GBP", "availability": "IN_STOCK" }],
+      "expected_state": [{ "external_product_id": "p1", "external_variant_id": "v1", "price_minor": "1999", "currency": "GBP", "availability": "IN_STOCK" }],
+      "expected": { "run_outcome": "PASS_WITH_REVIEW", "invalid_record_count": 1, "review_count": 1 }
+    },
+    {
+      "fixture_id": "mixed-isolated",
+      "raw_records": [
+        { "source_record_id": "1", "external_product_id": "p1", "external_variant_id": "v1", "price": "20.49", "currency": "GBP", "availability": "IN_STOCK" },
+        { "source_record_id": "2", "external_product_id": "p2", "external_variant_id": "v2", "price": "invalid", "currency": "GBP", "availability": "IN_STOCK" }
+      ],
+      "expected_state": [
+        { "external_product_id": "p1", "external_variant_id": "v1", "price_minor": "1999", "currency": "GBP", "availability": "IN_STOCK" },
+        { "external_product_id": "p2", "external_variant_id": "v2", "price_minor": "999", "currency": "GBP", "availability": "IN_STOCK" }
+      ],
+      "expected": { "run_outcome": "PASS_WITH_REVIEW", "safe_candidate_count": 1, "invalid_record_count": 1, "review_count": 1 }
+    },
+    {
+      "fixture_id": "equivalent-active",
+      "raw_records": [], "expected_state": [], "controls": { "equivalent_active": true },
+      "expected": { "run_outcome": "SKIPPED_EQUIVALENT_ACTIVE" }
+    },
+    {
+      "fixture_id": "stale-state",
+      "raw_records": [{ "source_record_id": "1", "external_product_id": "p1", "external_variant_id": "v1", "price": "19.99", "currency": "GBP", "availability": "IN_STOCK" }],
+      "expected_state": [{ "external_product_id": "p1", "external_variant_id": "v1", "price_minor": "1999", "currency": "GBP", "availability": "IN_STOCK" }],
+      "controls": { "stale_record_ids": ["1"] },
+      "expected": { "run_outcome": "BLOCKED_GUARDRAIL" }
+    },
+    {
+      "fixture_id": "source-suspect",
+      "raw_records": [], "expected_state": [], "controls": { "source_suspect": true },
+      "expected": { "run_outcome": "BLOCKED_SOURCE" }
+    },
+    {
+      "fixture_id": "system-error",
+      "raw_records": [], "expected_state": [], "controls": { "system_error": true },
+      "expected": { "run_outcome": "FAILED_SYSTEM" }
+    },
+    {
+      "fixture_id": "explicit-rejection",
+      "raw_records": [{ "source_record_id": "1", "external_product_id": "p1", "external_variant_id": "v1", "price": "19.99", "currency": "GBP", "availability": "IN_STOCK" }],
+      "expected_state": [{ "external_product_id": "p1", "external_variant_id": "v1", "price_minor": "1999", "currency": "GBP", "availability": "IN_STOCK" }],
+      "controls": { "rejected_record_ids": ["1"] },
+      "expected": { "run_outcome": "PASS", "rejected_count": 1 }
+    }
+  ]
+}

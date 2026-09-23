@@ -76,9 +76,15 @@ function validateContract(name, value, { throwOnError = true } = {}) {
   return { valid: errors.length === 0, errors };
 }
 
+function validateSchemaValue(schema, value, { throwOnError = true } = {}) {
+  const errors = validateNode(value, schema, "$", []);
+  if (throwOnError && errors.length) fail(errors[0].code, errors[0].message, errors[0].path, { errors });
+  return { valid: errors.length === 0, errors };
+}
+
 function assertIdString(value, path = "$") {
   if (typeof value !== "string" || !/^[0-9]+$/.test(value)) fail("RSBI_SOURCE_SCHEMA_MISMATCH", "ID must be a decimal string", path);
   return value;
 }
 
-module.exports = { APPROVAL_LEVELS, CHILD_STATUSES, CONFIDENCE_LEVELS, CONTRACT, CONTRACT_NAMES, PRIMARY_STATUSES, PROPOSED_ACTIONS, ROW_ACTIONS, SCHEMA_VERSION, assertIdString, validateContract };
+module.exports = { APPROVAL_LEVELS, CHILD_STATUSES, CONFIDENCE_LEVELS, CONTRACT, CONTRACT_NAMES, PRIMARY_STATUSES, PROPOSED_ACTIONS, ROW_ACTIONS, SCHEMA_VERSION, assertIdString, validateContract, validateSchemaValue };

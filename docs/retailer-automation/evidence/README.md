@@ -2,6 +2,8 @@
 
 [RA-001 architecture decision pack](../RA-001-DECISION-PACK.md)
 
+[RA-002 canonical contract and zero-write harness evidence](RA-002.md)
+
 ## RA-001 owner approval
 
 Marek approved all five decisions in the linked pack on 23 September 2026.
