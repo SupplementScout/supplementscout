@@ -2,7 +2,7 @@
 
 **Status: WAITING FOR OWNER APPROVAL**
 
-**Current active task:** RA-000 — `READY_FOR_VERIFICATION`
+**Current active task:** RA-000 — `VERIFIED_COMPLETE`
 
 **Implementation:** not started
 
@@ -28,7 +28,7 @@ Every task records:
 
 ## RA-000 — Baseline and audit
 
-**Status:** `READY_FOR_VERIFICATION`
+**Status:** `VERIFIED_COMPLETE`
 
 **Goal:** establish an evidence-backed baseline without changing runtime code.
 
@@ -69,6 +69,15 @@ index; local verification: pre-edit Project Guardian PASS, final results are
 recorded in the commit/branch handoff; production readback: read-only artifacts
 only; owner approval reference: pending verification; rollback result: not
 applicable because no runtime change was made.
+
+**Independent verification — 23 September 2026:** verified against
+`121fc5ce909c925e7234aef3a249661c8e7d0826` with documentation commit
+`8745b8bbc7fd9f7f8b324bcef69b3cac00c8ef75`. Project Guardian, documentation
+links, diff whitespace, exact six-file scope, task-status contract and original
+dirty-worktree integrity checks passed. The review confirmed that audit claims
+remain evidence-backed, unknowns remain explicit, architecture remains a draft,
+and all approval/write guardrails are preserved. No SQL, import, approval,
+apply, workflow dispatch or staging/production write was performed.
 
 ## RA-001 — Approve architecture and status taxonomy
 
