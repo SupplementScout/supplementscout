@@ -1,5 +1,7 @@
 # Retailer automation audit evidence — 23 September 2026
 
+[RA-001 architecture decision pack](../RA-001-DECISION-PACK.md)
+
 This directory indexes evidence; it does not contain credentials, raw private
 feeds or production-write authority. GitHub artifacts were downloaded read-only
 to ignored `tmp/retailer-automation-audit-2026-09-23/` for the audit and are not

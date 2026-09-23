@@ -2,7 +2,7 @@
 
 **Status: WAITING FOR OWNER APPROVAL**
 
-**Current active task:** RA-000 — `VERIFIED_COMPLETE`
+**Current active task:** RA-001 — `READY_FOR_VERIFICATION`
 
 **Implementation:** not started
 
@@ -81,29 +81,44 @@ apply, workflow dispatch or staging/production write was performed.
 
 ## RA-001 — Approve architecture and status taxonomy
 
-**Status:** `NOT_STARTED`
+**Status:** `READY_FOR_VERIFICATION`
 
-**Goal:** owner approval of component boundaries, record/run statuses, blocking
-scope and the meaning of scheduled machine approval.
+**Goal:** prepare an evidence-backed owner decision on the common core,
+component boundaries, six-dimensional status taxonomy, blocking scope,
+automatic execution authority, exceptions and migration order.
 
-**Scope:** review `ARCHITECTURE.md`; decide convergence target and status/reason
-contracts.
+**Scope:** compare all current production and harness paths; propose at most
+three architectures and authorization models; recommend one target pipeline;
+record no more than five plain-language owner decisions in
+`RA-001-DECISION-PACK.md`.
 
 **Out of scope:** implementation or guardrail changes.
 
 **Dependencies:** RA-000 `VERIFIED_COMPLETE` and clean current baseline.
 
-**Existing solutions checked:** `retailer-offer-sync` state machine/classifier,
-`retailer-snapshot` contracts/reason codes, control ledger and Review Queue.
+**Existing solutions checked:** `retailer-offer-sync`, `retailer-snapshot`,
+atomic importer, shared Fit House engine, dedicated eBay/6 Pack/Whey Okay/GYM
+HIGH/Jon's and catalogue-onboarding paths, validator/approver/executor, Review
+Queue, control ledger, shared and dedicated postflight/watchdog mechanisms,
+their tests, workflows, migrations and current RA-000 evidence.
 
-**Acceptance:** signed owner decision for all open architecture questions; one
-canonical vocabulary; explicit non-goals and safety invariants.
+**Acceptance:** the pack supplies a traceable 20-dimension comparison, one clear
+recommendation, one logical pipeline, explicit connector/core boundary, status
+and authorization models, exception governance, event-based migration gates,
+retirement conditions, risks, unknowns and at most five owner decisions. Owner
+signature is verification evidence, not a prerequisite for
+`READY_FOR_VERIFICATION`.
 
-**Tests:** documentation/contract review only; no production test.
+**Tests:** pre/post `npm run verify:project`, documentation link check,
+`git diff --check`, allowed-scope/status/integrity checks; no runtime or
+production test.
 
-**Evidence:** owner decision record and exact approved document digest.
+**Evidence:** `ARCHITECTURE.md`, `RA-001-DECISION-PACK.md`, RA-000 evidence
+index, exact baseline above, final commit/PR and verification results. Owner
+approval and approved document digest remain pending independent verification.
 
-**Rollback:** withdraw draft approval; runtime unchanged.
+**Rollback:** revert the documentation commit or amend the draft; runtime is
+unchanged and no production rollback exists.
 
 ## RA-002 — Canonical contract and common test harness
 
@@ -305,15 +320,16 @@ workflow inventory, live read-only watchdog/postflight.
 **Rollback:** retained release tag and per-retailer routing rollback until owner
 ends the rollback window.
 
-## Owner decisions required before RA-001
+## Owner decisions required to verify RA-001
 
-1. Accept or amend `ARCHITECTURE.md` and its status taxonomy.
-2. Decide whether scheduled bounded child approvals are machine execution
-   authorization (allowed) or prohibited approval-contract creation.
-3. Choose the convergence target only after RA-002 parity evidence; do not
-   choose by document wording alone.
-4. Approve the observation duration and migration sequencing criteria.
-5. Confirm that GYM HIGH remains owner-deferred except already authorized exact
-   scopes.
+1. Choose the convergence architecture; the safe recommendation is the current
+   production offer-sync spine plus snapshot/replay contracts.
+2. Choose the automatic execution model; the safe recommendation allows only
+   classes explicitly covered by a versioned, previously approved policy.
+3. Accept or amend the separate source/change/execution/run/alert/action
+   taxonomy, including `PASS_WITH_REVIEW` as a valid retailer-run outcome.
+4. Approve 10 Reps as shadow-only pilot and the evidence-based sequencing gates.
+5. Approve legacy/exception retirement gates; absent approval, GYM HIGH and
+   Predators Gear remain deferred and no legacy path is removed.
 
 No decision above is implied by this plan.

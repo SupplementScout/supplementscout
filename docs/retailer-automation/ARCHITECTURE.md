@@ -7,13 +7,18 @@
 **Safety rule:** this draft does not supersede current production guardrails or
 approve RA-001 or any later task.
 
-## 1. Decision to make
+## 1. Recommended decision
 
-Converge the existing automation into one pipeline without creating a third
-runtime. The implementation phase must choose, by shadow parity evidence, which
-parts of `retailer-offer-sync`, `retailer-snapshot` and atomic import become the
-single supported path. Until owner approval, all existing guarded paths remain
-authoritative for their current scopes.
+Converge without creating a third runtime. Use production-proven
+`retailer-offer-sync` as the orchestration spine, retain the control ledger,
+mixed-batch executor and atomic importer as the only guarded write path, and
+adopt the immutable raw/canonical snapshots, reason registry, dependency groups,
+schemas and replay fixtures from `retailer-snapshot`.
+
+This is a recommendation, not an approved implementation. Until owner approval
+and retailer-by-retailer shadow parity, every current guarded path remains
+authoritative for its existing scope. The evaluated alternatives, evidence and
+owner choices are in [RA-001-DECISION-PACK.md](RA-001-DECISION-PACK.md).
 
 ## 2. Component boundaries
 
@@ -72,6 +77,11 @@ branch means the contract is missing a general policy concept or the behavior
 belongs at the edge.
 
 ## 5. Record status model
+
+The canonical result is not one status. It is a tuple of source-record status,
+proposed-change status, execution status, retailer-run status, alert level and
+required next action. Their exact proposed values and current-system mappings
+are defined in `RA-001-DECISION-PACK.md` section 6.
 
 Terminal record outcomes:
 
@@ -149,6 +159,12 @@ Owner approval and machine execution authorization are distinct records.
 Scheduled runs may create the latter only for rows whose policy already grants
 autonomous execution; they may not create owner commercial/identity approval.
 
+The recommended authorization model is bounded policy execution: a scheduled
+run may apply only change classes explicitly named in a versioned,
+fingerprinted, previously owner-approved policy. An unknown class, identity
+change, new catalogue identity or exceeded limit goes to review. A scheduled
+run may never mint a one-time approval for an unreviewed manifest.
+
 The executor must:
 
 - use the existing separated DB roles and runtime target attestation;
@@ -215,3 +231,24 @@ A path can be removed only after:
 - workflow/config/code removal passes the full quality gate.
 
 No legacy path is approved for removal by this draft.
+
+## 14. Configuration and exceptions
+
+Standard retailer configuration, durable source rules, temporary exceptions,
+manual mapping overrides and unresolved conflicts are separate typed records.
+Every exception binds exact scope, reason, creation date, authority, regression
+test, recheck date or condition, and removal condition. It contributes to the
+policy fingerprint and cannot be hidden as a retailer name, domain or ID branch
+inside shared core. Unresolved conflicts live in Review Queue, not config.
+
+## 15. Proposed migration shape
+
+Every retailer passes recorded read-only replay, incident fixtures, same-input
+shadow comparison, manual review of differences, controlled cutover, atomic
+postflight, event-based observation and an explicit legacy-removal decision.
+The proposed first shadow pilot is 10 Reps; its direct CSV and current 935 safe
+plus 15 review partition provide scale and isolation evidence, but do not grant
+cutover authority. Observation is complete only after repeated full schedule
+intervals and coverage of every authorized event class, not after an arbitrary
+calendar duration. The retailer order and gates are detailed in the decision
+pack section 9.
