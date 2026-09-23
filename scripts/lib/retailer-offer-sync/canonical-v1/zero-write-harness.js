@@ -1,5 +1,4 @@
-const { fingerprint } = require("../artifacts");
-const { createCanonicalRecord, validateCanonicalRecord } = require("./contract");
+const { canonicalFingerprint, createCanonicalRecord, deepFreeze, validateCanonicalRecord } = require("./contract");
 const { getReason } = require("./taxonomy");
 
 function createZeroWriteBoundary() {
@@ -22,6 +21,7 @@ const value = (field) => field?.state === "PRESENT" ? field.value : null;
 const changedFields = (record, expected) => {
   const changed = [];
   if (record.price.state === "PRESENT" && record.price.amount_minor !== String(expected.price_minor)) changed.push("price");
+  if (record.price.currency !== expected.currency) changed.push("currency");
   if (record.availability !== expected.availability) changed.push("availability");
   return changed;
 };
@@ -29,13 +29,14 @@ const changedFields = (record, expected) => {
 function classifyRecord(record, expectedMatches, fixture) {
   if (record.validation_result.status === "INVALID" || !validateCanonicalRecord(record).valid) return { source_state: "SOURCE_INVALID", change_classification: "REVIEW_REQUIRED", execution_state: "NOT_AUTHORIZED", reason_codes: ["CANONICAL_SOURCE_INVALID", "CANONICAL_REVIEW_REQUIRED"] };
   if (record.source_presence === "MISSING_FROM_SOURCE") return { source_state: "SOURCE_MISSING", change_classification: "REVIEW_REQUIRED", execution_state: "NOT_AUTHORIZED", reason_codes: ["CANONICAL_SOURCE_MISSING", "CANONICAL_REVIEW_REQUIRED"] };
+  if (record.availability === "MISSING") return { source_state: "SOURCE_VALID", change_classification: "REVIEW_REQUIRED", execution_state: "NOT_AUTHORIZED", reason_codes: ["CANONICAL_SOURCE_VALID", "CANONICAL_REVIEW_REQUIRED"] };
   if (expectedMatches.length !== 1) return { source_state: "SOURCE_IDENTITY_CONFLICT", change_classification: "REVIEW_REQUIRED", execution_state: "NOT_AUTHORIZED", reason_codes: ["CANONICAL_IDENTITY_CONFLICT", "CANONICAL_REVIEW_REQUIRED"] };
   const expected = expectedMatches[0];
   if ((fixture.controls?.stale_record_ids || []).map(String).includes(record.source_record_id)) return { source_state: "SOURCE_VALID", change_classification: "STALE", execution_state: "BLOCKED_GUARDRAIL", reason_codes: ["CANONICAL_SOURCE_VALID", "CANONICAL_STALE_STATE"] };
   if ((fixture.controls?.rejected_record_ids || []).map(String).includes(record.source_record_id)) return { source_state: "SOURCE_VALID", change_classification: "REJECTED", execution_state: "NOT_REQUIRED", reason_codes: ["CANONICAL_SOURCE_VALID", "CANONICAL_REJECTED"] };
   const changed_fields = changedFields(record, expected);
   if (!changed_fields.length) return { source_state: "SOURCE_VALID", change_classification: "NO_CHANGE", execution_state: "NOT_REQUIRED", reason_codes: ["CANONICAL_SOURCE_VALID", "CANONICAL_IDENTITY_EXACT", "CANONICAL_NO_CHANGE"], changed_fields };
-  const reviewFields = new Set(expected.review_fields || []);
+  const reviewFields = new Set(["currency", ...(expected.review_fields || [])]);
   if (changed_fields.some((field) => reviewFields.has(field))) return { source_state: "SOURCE_VALID", change_classification: "REVIEW_REQUIRED", execution_state: "NOT_AUTHORIZED", reason_codes: ["CANONICAL_SOURCE_VALID", "CANONICAL_IDENTITY_EXACT", "CANONICAL_REVIEW_REQUIRED"], changed_fields };
   return { source_state: "SOURCE_VALID", change_classification: "SAFE_CANDIDATE", execution_state: "NOT_AUTHORIZED", reason_codes: ["CANONICAL_SOURCE_VALID", "CANONICAL_IDENTITY_EXACT", ...(changed_fields.includes("price") ? ["CANONICAL_PRICE_CHANGED"] : []), "CANONICAL_POLICY_NOT_AUTHORIZED"], changed_fields };
 }
@@ -79,19 +80,19 @@ function buildReport(fixture, rows, boundary, evaluatedAt, inputFingerprint, sys
     rows: [...rows].sort((a, b) => a.source_record_id.localeCompare(b.source_record_id)),
     output_fingerprint: null,
   };
-  report.output_fingerprint = fingerprint({ ...report, output_fingerprint: null });
-  return Object.freeze(report);
+  report.output_fingerprint = canonicalFingerprint("REPORT", { ...report, output_fingerprint: null });
+  return deepFreeze(report);
 }
 
 function runZeroWriteHarness(fixture, dependencies = {}) {
   const boundary = dependencies.boundary || createZeroWriteBoundary();
   const adapter = dependencies.adapter || defaultFixtureAdapter;
   const evaluatedAt = (dependencies.clock || (() => fixture.captured_at))();
-  const inputFingerprint = fingerprint(fixture);
+  const inputFingerprint = canonicalFingerprint("INPUT", fixture);
   if (fixture.controls?.system_error) return buildReport(fixture, [], boundary, evaluatedAt, inputFingerprint, "CANONICAL_SYSTEM_EXCEPTION");
   if (fixture.controls?.source_suspect) return buildReport(fixture, [], boundary, evaluatedAt, inputFingerprint, "CANONICAL_SOURCE_SUSPECT");
   if (fixture.controls?.equivalent_active) return buildReport(fixture, [], boundary, evaluatedAt, inputFingerprint, "CANONICAL_EQUIVALENT_ACTIVE");
-  const context = { ...fixture.source, run_id: fixture.run_id, captured_at: fixture.captured_at, source_fingerprint: fingerprint({ source: fixture.source, raw_records: fixture.raw_records }) };
+  const context = { ...fixture.source, run_id: fixture.run_id, captured_at: fixture.captured_at, source_fingerprint: canonicalFingerprint("SOURCE", { source: fixture.source, raw_records: fixture.raw_records }) };
   const rows = [];
   try {
     for (const rawInput of fixture.raw_records) {

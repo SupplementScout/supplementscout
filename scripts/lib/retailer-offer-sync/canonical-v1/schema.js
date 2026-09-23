@@ -1,6 +1,6 @@
 const FIELD_STATES = Object.freeze(["PRESENT", "UNKNOWN", "MISSING", "INVALID"]);
 const SOURCE_PRESENCE = Object.freeze(["PRESENT", "MISSING_FROM_SOURCE"]);
-const AVAILABILITY_STATES = Object.freeze(["IN_STOCK", "OUT_OF_STOCK", "UNKNOWN", "SOURCE_MISSING"]);
+const AVAILABILITY_STATES = Object.freeze(["IN_STOCK", "OUT_OF_STOCK", "UNKNOWN", "MISSING", "INVALID", "SOURCE_MISSING"]);
 const SOURCE_TYPES = Object.freeze(["CSV", "JSON", "XML", "HTML", "API", "FIXTURE"]);
 
 const nullableString = { anyOf: [{ type: "string", maxLength: 2048 }, { type: "null" }] };
@@ -12,7 +12,7 @@ const money = {
   type: "object", additionalProperties: false, required: ["state", "amount_minor", "currency"],
   properties: {
     state: { enum: FIELD_STATES },
-    amount_minor: { anyOf: [{ type: "string", pattern: "^-?[0-9]+$" }, { type: "null" }] },
+    amount_minor: { anyOf: [{ type: "string", pattern: "^(0|[1-9][0-9]{0,15})$" }, { type: "null" }] },
     currency: { anyOf: [{ type: "string", pattern: "^[A-Z]{3}$" }, { type: "null" }] },
   },
 };

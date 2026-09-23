@@ -69,6 +69,19 @@
       "expected": { "run_outcome": "BLOCKED_GUARDRAIL" }
     },
     {
+      "fixture_id": "aggregate-guardrail",
+      "raw_records": [{ "source_record_id": "1", "external_product_id": "p1", "external_variant_id": "v1", "price": "19.99", "currency": "GBP", "availability": "IN_STOCK" }],
+      "expected_state": [{ "external_product_id": "p1", "external_variant_id": "v1", "price_minor": "1999", "currency": "GBP", "availability": "IN_STOCK" }],
+      "controls": { "guardrail_blocked": true },
+      "expected": { "run_outcome": "BLOCKED_GUARDRAIL" }
+    },
+    {
+      "fixture_id": "currency-change-review",
+      "raw_records": [{ "source_record_id": "1", "external_product_id": "p1", "external_variant_id": "v1", "price": "19.99", "currency": "USD", "availability": "IN_STOCK" }],
+      "expected_state": [{ "external_product_id": "p1", "external_variant_id": "v1", "price_minor": "1999", "currency": "GBP", "availability": "IN_STOCK" }],
+      "expected": { "run_outcome": "PASS_WITH_REVIEW", "review_count": 1 }
+    },
+    {
       "fixture_id": "source-suspect",
       "raw_records": [], "expected_state": [], "controls": { "source_suspect": true },
       "expected": { "run_outcome": "BLOCKED_SOURCE" }

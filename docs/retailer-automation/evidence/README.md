@@ -4,6 +4,9 @@
 
 [RA-002 canonical contract and zero-write harness evidence](RA-002.md)
 
+RA-002 was independently verified on 23 September 2026 in PR #86. Its local
+contract/harness remains unwired from production; RA-003 is not started.
+
 ## RA-001 owner approval
 
 Marek approved all five decisions in the linked pack on 23 September 2026.

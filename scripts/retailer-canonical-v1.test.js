@@ -5,7 +5,7 @@ const test = require("node:test");
 
 const matrix = require("./test-fixtures/retailer-canonical-v1/scenario-matrix.json");
 const { CANONICAL_RECORD_V1_SCHEMA } = require("./lib/retailer-offer-sync/canonical-v1/schema");
-const { createCanonicalRecord, moneyValue, validateCanonicalRecord } = require("./lib/retailer-offer-sync/canonical-v1/contract");
+const { availabilityValue, createCanonicalRecord, moneyValue, validateCanonicalRecord } = require("./lib/retailer-offer-sync/canonical-v1/contract");
 const taxonomy = require("./lib/retailer-offer-sync/canonical-v1/taxonomy");
 const harnessModule = require("./lib/retailer-offer-sync/canonical-v1/zero-write-harness");
 const { createZeroWriteBoundary, runZeroWriteHarness } = harnessModule;
@@ -26,11 +26,42 @@ test("canonical contract v1 uses exact minor-unit money and structured validatio
   assert.deepEqual(moneyValue("19.99", "GBP"), { state: "PRESENT", amount_minor: "1999", currency: "GBP" });
   assert.deepEqual(moneyValue("19.9", "GBP"), { state: "PRESENT", amount_minor: "1990", currency: "GBP" });
   assert.equal(moneyValue(19.99, "GBP").state, "INVALID");
+  assert.deepEqual(moneyValue("90071992547409.91", "gbp"), { state: "PRESENT", amount_minor: "9007199254740991", currency: "GBP" });
+  assert.equal(moneyValue("90071992547409.92", "GBP").state, "INVALID");
+  assert.equal(moneyValue("-1.00", "GBP").state, "INVALID");
   const built = createCanonicalRecord(fixture(matrix.scenarios[0]).raw_records[0], { ...matrix.base.source, run_id: "fixed-run", captured_at: matrix.base.captured_at, source_fingerprint: "a".repeat(64) });
   assert.equal(validateCanonicalRecord(built).valid, true);
   const mutated = structuredClone(built); mutated.unexpected = true;
   const invalid = validateCanonicalRecord(mutated);
   assert.equal(invalid.valid, false); assert.equal(invalid.reason_codes[0], "CANONICAL_SOURCE_INVALID");
+});
+
+test("canonical validation enforces UTC, explicit identity rules and availability states", () => {
+  const baseRaw = fixture(matrix.scenarios[0]).raw_records[0];
+  const context = { ...matrix.base.source, run_id: "fixed-run", captured_at: matrix.base.captured_at, source_fingerprint: "c".repeat(64) };
+  const withoutProductIdentity = structuredClone(baseRaw);
+  delete withoutProductIdentity.external_product_id;
+  const invalidIdentity = createCanonicalRecord(withoutProductIdentity, context);
+  assert.equal(validateCanonicalRecord(invalidIdentity).valid, false);
+  assert.deepEqual(invalidIdentity.validation_result.reason_codes, ["CANONICAL_SOURCE_INVALID"]);
+  assert.equal(createCanonicalRecord(baseRaw, { ...context, captured_at: "2026-09-23T13:00:00+01:00" }).captured_at, "2026-09-23T12:00:00Z");
+  assert.throws(() => createCanonicalRecord(baseRaw, { ...context, captured_at: "2026-02-30T12:00:00Z" }), /invalid calendar date/);
+  assert.equal(availabilityValue({}, "PRESENT"), "MISSING");
+  assert.equal(availabilityValue({ availability: null }, "PRESENT"), "UNKNOWN");
+  assert.equal(availabilityValue({ availability: "unexpected" }, "PRESENT"), "INVALID");
+  assert.equal(availabilityValue({ availability: "OUT_OF_STOCK" }, "PRESENT"), "OUT_OF_STOCK");
+  assert.equal(availabilityValue({}, "MISSING_FROM_SOURCE"), "SOURCE_MISSING");
+});
+
+test("record fingerprint ignores object key order and contains no ambient time or randomness", () => {
+  const raw = fixture(matrix.scenarios[0]).raw_records[0];
+  const reversed = Object.fromEntries(Object.entries(raw).reverse());
+  const context = { ...matrix.base.source, run_id: "fixed-run", captured_at: matrix.base.captured_at, source_fingerprint: "d".repeat(64) };
+  const record = createCanonicalRecord(raw, context);
+  assert.equal(record.record_fingerprint, createCanonicalRecord(reversed, context).record_fingerprint);
+  assert.equal(Object.isFrozen(record), true);
+  assert.equal(Object.isFrozen(record.price), true);
+  assert.equal(Object.isFrozen(record.provenance), true);
 });
 
 test("unknown, missing and absent-from-source states remain distinct", () => {
@@ -91,11 +122,20 @@ test("absence of approved policy never authorizes or attempts apply", () => {
   assert.equal(report.rows[0].change_classification, "SAFE_CANDIDATE"); assert.equal(report.rows[0].execution_state, "NOT_AUTHORIZED");
 });
 
+test("currency drift cannot be misclassified as no-change or authorized", () => {
+  const report = runZeroWriteHarness(fixture(matrix.scenarios.find((entry) => entry.fixture_id === "currency-change-review")));
+  assert.equal(report.run_outcome, "PASS_WITH_REVIEW");
+  assert.equal(report.rows[0].change_classification, "REVIEW_REQUIRED");
+  assert.deepEqual(report.rows[0].changed_fields, ["currency"]);
+  assert.equal(report.authorization.production_execution_allowed, false);
+});
+
 test("identical fixture and injected time produce an identical output fingerprint", () => {
   const input = fixture(matrix.scenarios.find((entry) => entry.fixture_id === "mixed-isolated"));
   const first = runZeroWriteHarness(input, { clock: () => matrix.base.captured_at });
   const second = runZeroWriteHarness(structuredClone(input), { clock: () => matrix.base.captured_at });
   assert.equal(first.output_fingerprint, second.output_fingerprint); assert.deepEqual(first, second);
+  assert.equal(Object.isFrozen(first), true); assert.equal(Object.isFrozen(first.rows), true);
 });
 
 test("real adapter exception maps to FAILED_SYSTEM without disguising it as review", () => {
@@ -121,6 +161,25 @@ test("harness dependency graph excludes production executors, database clients a
   visit(require.cache[require.resolve("./lib/retailer-offer-sync/canonical-v1/zero-write-harness")]);
   const joined = [...seen].join("\n");
   assert.doesNotMatch(joined, /import-products|executor|production-role-session|node:http|node:https|node:net|node:tls|@supabase|[\\/]pg[\\/]/);
+
+  const sourceSeen = new Set();
+  const inspectSource = (filename) => {
+    if (sourceSeen.has(filename) || path.extname(filename) !== ".js") return;
+    sourceSeen.add(filename);
+    const source = fs.readFileSync(filename, "utf8");
+    assert.doesNotMatch(source, /\b(?:globalThis\.)?fetch\s*\(|\bprocess\.env\b|\bimport\s*\(|\brequire\s*\(\s*(?!["'])/);
+    for (const match of source.matchAll(/\brequire\s*\(\s*["']([^"']+)["']\s*\)/g)) {
+      const request = match[1];
+      if (request.startsWith("node:")) {
+        assert.equal(request, "node:crypto", `unexpected built-in dependency ${request}`);
+        continue;
+      }
+      assert.match(request, /^\.{1,2}[\\/]/, `unexpected package dependency ${request}`);
+      inspectSource(require.resolve(path.resolve(path.dirname(filename), request)));
+    }
+  };
+  inspectSource(require.resolve("./lib/retailer-offer-sync/canonical-v1/zero-write-harness"));
+  assert.ok(sourceSeen.size >= 7);
 });
 
 test("legacy retailer-snapshot runtime validator remains compatible", () => {

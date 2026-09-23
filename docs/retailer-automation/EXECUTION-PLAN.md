@@ -1,10 +1,11 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: RA-002 READY FOR VERIFICATION**
+**Status: RA-002 VERIFIED COMPLETE**
 
-**Current active task:** RA-002 — `READY_FOR_VERIFICATION`
+**Current active task:** none — RA-002 is `VERIFIED_COMPLETE`; RA-003 is
+`NOT_STARTED`
 
-**Implementation:** zero-write contract and local fixture harness only
+**Implementation:** RA-002 independently verified; no production wiring
 
 **Allowed statuses:** `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`,
 `READY_FOR_VERIFICATION`, `VERIFIED_COMPLETE`
@@ -123,7 +124,7 @@ unchanged and no production rollback exists.
 
 ## RA-002 — Canonical contract and common test harness
 
-**Status:** `READY_FOR_VERIFICATION`
+**Status:** `VERIFIED_COMPLETE`
 
 **Goal:** freeze canonical source, classification, plan and outcome contracts and
 prove them against existing implementations in zero-write mode.
@@ -138,7 +139,7 @@ artifact schemas and fixtures.
 **Existing solutions checked:** `scripts/lib/retailer-snapshot/contracts/`,
 `scripts/lib/retailer-offer-sync/contracts/`, atomic plan serialization and
 quality-gate manifest. RA-002 reuses the snapshot runtime schema walker,
-offer-sync canonical fingerprinting, frozen local-fixture conventions and the
+domain-separated snapshot canonical hashing, frozen local-fixture conventions and the
 sealed quality-gate inventory. Existing production schemas, classifiers,
 importer, approver, executor and entry points remain unchanged and unwired.
 
@@ -155,7 +156,9 @@ write/network attempts and runtime dependency boundary; quick/full gates.
 
 **Evidence:** `evidence/RA-002.md`, contract/harness source, fixture matrix,
 focused test output, deterministic report fingerprint, local quality gates and
-Draft PR checks. Production readback is intentionally not applicable because
+PR #86 checks. Independent verification reviewed the complete diff and import
+closure, corrected five bounded contract/harness gaps, and repeated the local
+and GitHub gates. Production readback is intentionally not applicable because
 the module is unwired and local-only.
 
 **Rollback:** contract version remains unused; remove only new harness wiring.
