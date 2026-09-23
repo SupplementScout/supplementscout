@@ -1,11 +1,11 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: RA-001 OWNER APPROVED; NEXT TASK NOT STARTED**
+**Status: RA-002 VERIFIED COMPLETE**
 
-**Current active task:** none — RA-001 is `VERIFIED_COMPLETE`; RA-002 is
+**Current active task:** none — RA-002 is `VERIFIED_COMPLETE`; RA-003 is
 `NOT_STARTED`
 
-**Implementation:** not started
+**Implementation:** RA-002 independently verified; no production wiring
 
 **Allowed statuses:** `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`,
 `READY_FOR_VERIFICATION`, `VERIFIED_COMPLETE`
@@ -124,7 +124,7 @@ unchanged and no production rollback exists.
 
 ## RA-002 — Canonical contract and common test harness
 
-**Status:** `NOT_STARTED`
+**Status:** `VERIFIED_COMPLETE`
 
 **Goal:** freeze canonical source, classification, plan and outcome contracts and
 prove them against existing implementations in zero-write mode.
@@ -138,16 +138,28 @@ artifact schemas and fixtures.
 
 **Existing solutions checked:** `scripts/lib/retailer-snapshot/contracts/`,
 `scripts/lib/retailer-offer-sync/contracts/`, atomic plan serialization and
-quality-gate manifest.
+quality-gate manifest. RA-002 reuses the snapshot runtime schema walker,
+domain-separated snapshot canonical hashing, frozen local-fixture conventions and the
+sealed quality-gate inventory. Existing production schemas, classifiers,
+importer, approver, executor and entry points remain unchanged and unwired.
 
-**Acceptance:** one versioned contract; exact-key and fingerprint tests; golden
-outcomes for every source type; no second executor/importer; quality manifest
-resealed if tests change.
+**Acceptance:** one retailer-neutral canonical source contract `v1`; exact-key,
+minor-unit money, explicit missing/unknown/source-missing states, six-dimensional
+taxonomy and complete reason metadata; deterministic local-fixture replay;
+fail-closed write/network boundaries; safe-candidate/authorization separation;
+no second executor/importer; quality manifest resealed for the new test.
 
-**Tests:** unit, schema, determinism, mutation, stale-state, per-row isolation,
-source collapse and cross-retailer isolation; quick/full gates.
+**Tests:** contract/schema, taxonomy/reasons, determinism, mutation, stale-state,
+source collapse, per-row isolation, missing-source semantics, safe candidate
+without authorization, equivalent active, genuine system failure, denied
+write/network attempts and runtime dependency boundary; quick/full gates.
 
-**Evidence:** contract digest, fixture matrix, local and CI run IDs.
+**Evidence:** `evidence/RA-002.md`, contract/harness source, fixture matrix,
+focused test output, deterministic report fingerprint, local quality gates and
+PR #86 checks. Independent verification reviewed the complete diff and import
+closure, corrected five bounded contract/harness gaps, and repeated the local
+and GitHub gates. Production readback is intentionally not applicable because
+the module is unwired and local-only.
 
 **Rollback:** contract version remains unused; remove only new harness wiring.
 
