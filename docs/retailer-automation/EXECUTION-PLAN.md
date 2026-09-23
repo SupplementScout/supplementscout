@@ -1,8 +1,9 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: WAITING FOR OWNER APPROVAL**
+**Status: RA-001 OWNER APPROVED; NEXT TASK NOT STARTED**
 
-**Current active task:** RA-000 — `VERIFIED_COMPLETE`
+**Current active task:** none — RA-001 is `VERIFIED_COMPLETE`; RA-002 is
+`NOT_STARTED`
 
 **Implementation:** not started
 
@@ -81,29 +82,45 @@ apply, workflow dispatch or staging/production write was performed.
 
 ## RA-001 — Approve architecture and status taxonomy
 
-**Status:** `NOT_STARTED`
+**Status:** `VERIFIED_COMPLETE`
 
-**Goal:** owner approval of component boundaries, record/run statuses, blocking
-scope and the meaning of scheduled machine approval.
+**Goal:** prepare an evidence-backed owner decision on the common core,
+component boundaries, six-dimensional status taxonomy, blocking scope,
+automatic execution authority, exceptions and migration order.
 
-**Scope:** review `ARCHITECTURE.md`; decide convergence target and status/reason
-contracts.
+**Scope:** compare all current production and harness paths; propose at most
+three architectures and authorization models; recommend one target pipeline;
+record no more than five plain-language owner decisions in
+`RA-001-DECISION-PACK.md`.
 
 **Out of scope:** implementation or guardrail changes.
 
 **Dependencies:** RA-000 `VERIFIED_COMPLETE` and clean current baseline.
 
-**Existing solutions checked:** `retailer-offer-sync` state machine/classifier,
-`retailer-snapshot` contracts/reason codes, control ledger and Review Queue.
+**Existing solutions checked:** `retailer-offer-sync`, `retailer-snapshot`,
+atomic importer, shared Fit House engine, dedicated eBay/6 Pack/Whey Okay/GYM
+HIGH/Jon's and catalogue-onboarding paths, validator/approver/executor, Review
+Queue, control ledger, shared and dedicated postflight/watchdog mechanisms,
+their tests, workflows, migrations and current RA-000 evidence.
 
-**Acceptance:** signed owner decision for all open architecture questions; one
-canonical vocabulary; explicit non-goals and safety invariants.
+**Acceptance:** owner approval dated 2026-09-23 confirms the pack's traceable
+20-dimension comparison, one clear
+recommendation, one logical pipeline, explicit connector/core boundary, status
+and authorization models, exception governance, event-based migration gates,
+retirement conditions, risks, unknowns and five owner decisions. The approval
+retains every implementation, shadow, cutover, auto-safe and decommission gate.
 
-**Tests:** documentation/contract review only; no production test.
+**Tests:** pre/post `npm run verify:project`, documentation link check,
+`git diff --check`, allowed-scope/status/integrity checks; no runtime or
+production test.
 
-**Evidence:** owner decision record and exact approved document digest.
+**Evidence:** owner decision dated 2026-09-23; `ARCHITECTURE.md` status
+`OWNER APPROVED FOR RA-002 PLANNING`; `RA-001-DECISION-PACK.md`; RA-000 evidence
+index; exact baseline above; PR #85; final local/GitHub verification and merge
+evidence recorded at closeout.
 
-**Rollback:** withdraw draft approval; runtime unchanged.
+**Rollback:** revert the documentation commit or amend the draft; runtime is
+unchanged and no production rollback exists.
 
 ## RA-002 — Canonical contract and common test harness
 
@@ -305,15 +322,24 @@ workflow inventory, live read-only watchdog/postflight.
 **Rollback:** retained release tag and per-retailer routing rollback until owner
 ends the rollback window.
 
-## Owner decisions required before RA-001
+## Owner decisions recorded for RA-001
 
-1. Accept or amend `ARCHITECTURE.md` and its status taxonomy.
-2. Decide whether scheduled bounded child approvals are machine execution
-   authorization (allowed) or prohibited approval-contract creation.
-3. Choose the convergence target only after RA-002 parity evidence; do not
-   choose by document wording alone.
-4. Approve the observation duration and migration sequencing criteria.
-5. Confirm that GYM HIGH remains owner-deferred except already authorized exact
-   scopes.
+Marek approved on 2026-09-23:
 
-No decision above is implied by this plan.
+1. `retailer-offer-sync` as the common spine, retaining the existing guarded
+   write/control mechanisms and later incorporating snapshot/replay contracts;
+2. Model B in principle, with no current auto-safe class, threshold, automatic
+   apply or production permission authorized;
+3. the separate source/change/execution/run/alert/action taxonomy, including
+   `PASS_WITH_REVIEW`, `SKIPPED_EQUIVALENT_ACTIVE` and narrowly scoped
+   `FAILED_SYSTEM`;
+4. 10 Reps as the first shadow-only pilot and KIOR as the first small later
+   cutover candidate, both behind later tasks and separate execution authority;
+5. evidence-based legacy-removal gates, with no removal currently authorized
+   and GYM HIGH plus Predators Gear remaining deferred.
+
+The unresolved Whey Okay fingerprint cause, Predators source availability,
+active plan/session/lock/approval inventory, exact future auto-safe classes,
+future GYM HIGH disposition and eBay/GYM event coverage remain explicit future
+dependencies. They do not block RA-001 closeout, but block the affected later
+migration or activation until resolved. RA-002 is not started by these decisions.

@@ -1,19 +1,30 @@
 # Retailer Automation Target Architecture
 
-**Status: DRAFT FOR OWNER REVIEW**
+**Status: OWNER APPROVED FOR RA-002 PLANNING**
+
+**Owner approval date:** 2026-09-23
 
 **Implementation authority:** none
 
-**Safety rule:** this draft does not supersede current production guardrails or
-approve RA-001 or any later task.
+**Safety rule:** this approval closes RA-001 as a documentation decision. It
+does not start RA-002, authorize implementation, define any auto-safe price or
+stock class, start 10 Reps shadow mode, alter production permissions, approve a
+cutover, or permit removal of any code, workflow or legacy path.
 
-## 1. Decision to make
+## 1. Approved decision
 
-Converge the existing automation into one pipeline without creating a third
-runtime. The implementation phase must choose, by shadow parity evidence, which
-parts of `retailer-offer-sync`, `retailer-snapshot` and atomic import become the
-single supported path. Until owner approval, all existing guarded paths remain
-authoritative for their current scopes.
+Converge without creating a third runtime. Use production-proven
+`retailer-offer-sync` as the orchestration spine, retain the control ledger,
+mixed-batch executor and atomic importer as the only guarded write path, and
+adopt the immutable raw/canonical snapshots, reason registry, dependency groups,
+schemas and replay fixtures from `retailer-snapshot`.
+
+Marek approved this architecture direction on 2026-09-23 for later RA-002
+planning. It is not implementation authority. Until separately authorized
+retailer-by-retailer shadow parity and cutover, every current guarded path
+remains authoritative for its existing scope. The evaluated alternatives,
+evidence, exact decisions and limitations are in
+[RA-001-DECISION-PACK.md](RA-001-DECISION-PACK.md).
 
 ## 2. Component boundaries
 
@@ -72,6 +83,11 @@ branch means the contract is missing a general policy concept or the behavior
 belongs at the edge.
 
 ## 5. Record status model
+
+The canonical result is not one status. It is a tuple of source-record status,
+proposed-change status, execution status, retailer-run status, alert level and
+required next action. Their exact proposed values and current-system mappings
+are defined in `RA-001-DECISION-PACK.md` section 6.
 
 Terminal record outcomes:
 
@@ -149,6 +165,12 @@ Owner approval and machine execution authorization are distinct records.
 Scheduled runs may create the latter only for rows whose policy already grants
 autonomous execution; they may not create owner commercial/identity approval.
 
+The recommended authorization model is bounded policy execution: a scheduled
+run may apply only change classes explicitly named in a versioned,
+fingerprinted, previously owner-approved policy. An unknown class, identity
+change, new catalogue identity or exceeded limit goes to review. A scheduled
+run may never mint a one-time approval for an unreviewed manifest.
+
 The executor must:
 
 - use the existing separated DB roles and runtime target attestation;
@@ -214,4 +236,47 @@ A path can be removed only after:
 - production readback and owner approval are recorded;
 - workflow/config/code removal passes the full quality gate.
 
-No legacy path is approved for removal by this draft.
+No legacy path is approved for removal by this architecture approval.
+
+## 14. Configuration and exceptions
+
+Standard retailer configuration, durable source rules, temporary exceptions,
+manual mapping overrides and unresolved conflicts are separate typed records.
+Every exception binds exact scope, reason, creation date, authority, regression
+test, recheck date or condition, and removal condition. It contributes to the
+policy fingerprint and cannot be hidden as a retailer name, domain or ID branch
+inside shared core. Unresolved conflicts live in Review Queue, not config.
+
+## 15. Proposed migration shape
+
+Every retailer passes recorded read-only replay, incident fixtures, same-input
+shadow comparison, manual review of differences, controlled cutover, atomic
+postflight, event-based observation and an explicit legacy-removal decision.
+The proposed first shadow pilot is 10 Reps; its direct CSV and current 935 safe
+plus 15 review partition provide scale and isolation evidence, but do not grant
+cutover authority. Observation is complete only after repeated full schedule
+intervals and coverage of every authorized event class, not after an arbitrary
+calendar duration. The retailer order and gates are detailed in the decision
+pack section 9.
+
+## 16. Owner decisions recorded on 2026-09-23
+
+1. `retailer-offer-sync` is the approved common spine. Preserve the control
+   ledger, mixed-batch executor, atomic importer/RPC, separated database roles,
+   Review Queue, postflight, watchdog, price history, fingerprints, stale-state
+   protection, per-row isolation and idempotency. Later incorporate snapshot,
+   schema, reason, dependency, fixture and replay capabilities from
+   `retailer-snapshot`. Do not create a third runtime or parallel importer.
+2. Model B is approved in principle: a scheduled run may eventually execute
+   only classes covered by an explicit, versioned and previously approved
+   policy. No class, threshold or production auto-apply is approved now.
+3. The six-dimensional taxonomy is approved. `PASS_WITH_REVIEW` is a valid run,
+   `SKIPPED_EQUIVALENT_ACTIVE` is a safe skip, and `FAILED_SYSTEM` is reserved
+   for genuine code, infrastructure, database or process-integrity failures.
+4. 10 Reps is the approved first **shadow-only** pilot and KIOR the first small
+   later cutover candidate after all prerequisite stages and separate cutover
+   approval. This decision does not start a shadow run or change a workflow.
+5. Legacy removal requires proven parity, fixtures, replay, shadow comparison,
+   manual verification, tests, controlled cutover, postflight, observation,
+   rollback and proof of no unique active consumer. It authorizes no removal.
+   GYM HIGH and Predators Gear remain deferred.
