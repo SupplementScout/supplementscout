@@ -1,6 +1,6 @@
 # RA-004 10 Reps test-only single-snapshot replay adapter
 
-**Status:** `READY_FOR_VERIFICATION`
+**Status:** `READY_FOR_REVERIFICATION`
 
 **RA-004:** `IN_PROGRESS`
 
@@ -8,159 +8,176 @@
 
 **Shadow run:** `NOT_AUTHORIZED`
 
-This evidence covers a local synthetic-fixture replay only. It does not
-authorize a live capture, database access, control-state export, migration,
-approval, apply, Review Queue publication, workflow dispatch, shadow run,
-Model B, auto-safe class or cutover.
+This evidence covers only a local synthetic-fixture replay. It authorizes no
+live feed read, secret read, capture, database, control-state export, staging,
+workflow dispatch, approval, apply, Review Queue publication or shadow run.
 
-## Existing path reused
+## Verification blockers and corrections
 
-The active production entry point remains
-`.github/workflows/fit-house-offer-refresh.yml` ->
-`RETAILER_REFRESH_PROFILE=10reps` -> `scripts/fit-house-offer-refresh.js`.
-Its `buildRun()` and source-fetch lifecycle were not changed and have no test
-hook, CLI switch or environment override.
+Independent verification of PR #90 found four material blockers. They remain
+recorded here rather than being hidden by the corrected result:
 
-The adapter reuses the active 10 Reps configuration, the existing
-`classifyExistingOffers()` classifier and action contract, canonical contract
-v1, `runZeroWriteHarness()`, and the RA-003 compatibility matrix and adapter.
-It does not define a second status map.
+1. both branches used `projectCsvRows()`;
+2. the tracked CSV had no checkout-stable LF attribute;
+3. native values, run-level fields and counters were outside the comparator;
+4. source-read accounting was synthetic and HTTP, DNS, workflow-dispatch and
+   secret-loader capabilities were absent.
 
-The shared extraction moves the existing 17-column parsing/projection body
-from `csv-product-feed-reader.js` into the pure
-`csv-product-feed-projector.js`. The production reader calls that function
-after its unchanged fetch checks. The projector imports only
-`csv-parse/sync`; it has no fetch, HTTP, database, plan, approval, executor,
-apply, queue, workflow or secret capability. A second pure extraction moves
-the unchanged canonical JSON/hash helpers out of the Shopify fetcher so the
-classifier's artifact fingerprint no longer acquires a network-capable
-transitive dependency. Existing parser, classifier, Shopify and canonical
-tests prove unchanged behavior.
+Regression tests reproduced all four failures before implementation changed.
+The corrected tests fail closed if any condition returns.
 
-## Snapshot contract and fixture inventory
+## Split point and independent call graphs
 
-`RA004_SINGLE_SNAPSHOT_V1` records retailer `14` / `10 Reps`, source type,
-fixed capture ID `ra004-synthetic-fixture-001`, fixed UTC capture time,
-content type, byte length, raw-byte SHA-256, two issued-copy hashes, exactly
-one source read and fixture provenance. The adapter reads no file itself: its
-test performs one local read and supplies a Buffer. Separate legacy and
-canonical Buffer copies must retain the same SHA-256 before acceptance.
+The adapter owns the one controlled local read:
 
-Committed inputs are small and synthetic:
+```text
+fixture path -> source capability readOnce() -> immutable raw bytes
+                                      |-> defensive copy A
+                                      `-> defensive copy B
+```
 
-- `ra004-10reps-single-snapshot.csv`: 8 rows and exactly the approved 17
-  headers; SHA-256
-  `3a7058db829c0277f681be470bec5e13a8d8b36c37c561e1cc92c2f0db01768c`;
-- `ra004-10reps-state.json`: 9 existing synthetic mappings, including one
-  expected identity absent from the source; SHA-256
-  `c4f08738b53221218747850dd12de976797052f6ec5142672bb23d78764ababb`.
+Legacy branch:
 
-No live feed, `TEN_REPS_FEED_URL`, protected v8/v9/v10 data or owner-review
-artifact was read or copied.
+```text
+copy A -> projectCsvRows -> existing 10 Reps profile/policy
+       -> classifyExistingOffers -> legacy normalization
+```
 
-## Parity contract and scenario results
+Canonical branch:
 
-The comparison covers raw/source fingerprints, mapping/product/variant
-identity, external IDs, SKU, GTIN, name, brand, variant, URL, minor units,
-currency, stock/availability, source presence/state, classification,
-execution state, run-outcome semantics, reasons, blocking scope, alert, next
-action, provenance, authorization/apply flags and normalized record
-fingerprints. Native legacy and canonical reason codes and record fingerprints
-remain visible; normalization is explicitly tied to the RA-003 matrix, the
-existing action contract and canonical taxonomy.
+```text
+copy B -> ra004-10reps-canonical-connector
+       -> independent 17-column validation and field mapping
+       -> canonical contract v1 -> zero-write harness
+       -> canonical normalization
+```
 
-The approved six RA-004 difference classes are used without modification:
-`EXACT_PARITY`, `SEMANTIC_PARITY`, `EXPECTED_IMPROVEMENT`,
-`LEGACY_DEFECT_CONFIRMED`, `CANONICAL_DEFECT`, and
-`UNEXPLAINED_DIFFERENCE`.
+Only neutral `csv-parse/sync`, hashing/stable JSON and canonical contract
+primitives are shared. The canonical connector does not import or receive
+`projectCsvRows`, legacy evidence rows, the legacy classifier, compatibility
+output or legacy-normalized price, stock, identity, URL or timestamp. A static
+test scans the connector and its adapter wiring for those forbidden
+dependencies. No production entry point, workflow or scheduler imports it.
 
-The primary replay produced 9 `EXACT_PARITY` rows and zero rows in every other
-class. It contained no-change, normal price change, stock change and
-`SOURCE_MISSING`. The price change remained `NOT_AUTHORIZED`. The missing row
-was isolated as review evidence and never converted to `OUT_OF_STOCK`.
+The connector independently validates the exact 17 headers, numeric product
+and variant IDs, duplicate identity, same-origin HTTPS URL and UTC timestamp.
+It parses price to minor units, fixes currency to the approved GBP source
+contract, maps stock and maps product ID, variant ID, SKU and EAN into canonical
+v1 inputs. The existing production reader, projector, `buildRun()` and retailer
+profiles are unchanged.
 
-Negative scenarios cover identity conflict, invalid price, unknown stock,
-missing identity, duplicate identity, mixed/per-row isolation, empty bytes,
-header-only CSV, missing/reordered header, HTML/content-type drift, every
-parity-field mutation, raw fingerprint drift, unclassified/additional/missing
-records, second source read and every denied capability. Parser-level schema
-or value corruption rejects the snapshot before either result is accepted;
-row-level source absence is isolated without suppressing valid rows.
+## Real one-read boundary
 
-Repeated replay, reversed JSON key order and a different process timezone
-produce the same report fingerprint. LF and CRLF have identical row semantics
-but intentionally different raw-byte fingerprints.
+`readOnce()` performs the actual `fs.readFileSync` and increments
+`source_read_count` only after that read succeeds. A second call increments the
+attempt counter but throws `RA004_SOURCE_READ_COUNT` before a second read.
+Neither branch receives a path. Both receive only defensive Buffer copies; all
+three byte fingerprints are checked after both paths complete. A mutation test
+changes the canonical copy after parsing and proves acceptance fails with
+`RA004_FINGERPRINT_CHANGED_DURING_RUN`.
 
-## Fingerprints and zero-side-effect evidence
+Accepted counters are closed to exactly these fields:
 
-- legacy action manifest:
+```text
+source_read_attempt_count: 1       source_read_count: 1
+refetch_attempt/performed: 0/0     network_attempt/performed: 0/0
+http_attempt/performed: 0/0        dns_attempt/performed: 0/0
+database_attempt/performed: 0/0    file_write_attempt/performed: 0/0
+control_plan_attempt/performed: 0/0
+approval_attempt/performed: 0/0    apply_attempt/performed: 0/0
+review_queue_publish_attempt/performed: 0/0
+workflow_dispatch_attempt/performed: 0/0
+secret_loader_attempt/performed: 0/0
+```
+
+Every denied capability has an individual negative test, counter and error
+code; every performed counter remains zero. Static/runtime dependency tests
+exclude fetch clients, `http`, `https`, `net`, `tls`, `dns`, `undici`,
+PostgreSQL/Supabase clients, writers, workflow dispatchers, secret loaders and
+`TEN_REPS_FEED_URL`. The only permitted I/O is the controlled fixture read.
+
+## LF contract and static goldens
+
+All tracked `scripts/test-fixtures/**/*.csv` blobs were audited: one file, text,
+LF, no CR bytes. `.gitattributes` now contains only the scoped rule:
+
+```text
+/scripts/test-fixtures/**/*.csv text eol=lf
+```
+
+The golden file is
+`scripts/test-fixtures/retailer-automation/ra004-10reps-goldens.json`. Tests do
+not derive expectations from checkout bytes. Frozen values are:
+
+- raw LF: `3a7058db829c0277f681be470bec5e13a8d8b36c37c561e1cc92c2f0db01768c`;
+- intentional in-memory CRLF:
+  `213edf54809679be4326aa774ffa64ea9bae6c41fea38a672d0ca85d6e789b81`;
+- legacy output:
   `d8d23f5a87e65ff98d1d42c6499a6e4add8270e52e122c8ea7ac2202f8ec1d2d`;
 - canonical output:
   `23f2f5a7d4f2ef3a1dd225c91b0abeeaa9270880725f25b04341fef9096d806a`;
 - complete parity report:
-  `3d6ef04a6446e189c0e857185d770e73a0bf9e3beda35bdca1b5ed3004932897`.
+  `4c82cac23f0f0051392fb51889bce3a8329cdcb46623a780e90b04fc609fb70a`.
 
-Accepted replay counters are exactly:
+The golden also pins each side's native action, ordered reason-code array,
+native record fingerprint and normalized record fingerprint for all nine
+identities. Native representations intentionally differ because legacy emits
+offer-sync actions plus RA-003 compatibility reasons, while canonical emits
+canonical classifications/taxonomy. Neither representation is ignored.
 
-```text
-source_read_count: 1
-refetch_count: 0
-network_attempt_count: 0
-database_attempt_count: 0
-write_attempt_count: 0
-control_plan_attempt_count: 0
-approval_attempt_count: 0
-apply_attempt_count: 0
-review_queue_publish_attempt_count: 0
-```
+## Closed parity contract and mutations
 
-Each prohibited capability increments only its own counter and throws a
-distinct `RA004_*_DENIED` error before any effect. Static recursive dependency
-inspection and runtime loading exclude network fetchers/HTTP clients,
-Supabase/PostgreSQL, plan-capable validators, approvers, executors, apply
-modules, Review Queue publishers, workflow dispatchers and secret loaders.
-Production workflow inspection confirms it does not import the adapter. The
-adapter is imported only by its RA-004 test.
+The 37-field row contract includes source/raw linkage, all identities, SKU,
+GTIN, descriptive fields, URL, minor-unit price, currency, stock/availability,
+provenance, source presence/state, change and review classifications, reason
+semantics, blocking/run semantics, alert/next action, authorization/execution
+flags, native action, native reason codes and both native/normalized record
+fingerprints.
 
-## Known differences and actions not performed
+The report comparator also seals the complete top-level key set, snapshot and
+source fingerprints, legacy and canonical output fingerprints, true native run
+states, row counts/set, all difference counts, every capability counter and the
+report fingerprint. It recomputes report integrity and rejects missing or new
+fields. `EXACT_PARITY` requires all comparable fields equal, every side-specific
+native golden matched, nine identical identities, zero non-exact classes,
+exactly one source read and zero other attempts/performed effects.
 
-Legacy actions/RA-003 profiles and canonical classifications have different
-native representations, as do their native record fingerprints. They remain
-in the report and are compared through the documented semantic contract; the
-primary replay has no semantic or unexplained value difference. No
-owner-approved `EXPECTED_IMPROVEMENT` or `LEGACY_DEFECT_CONFIRMED` is claimed.
+Mutation tests cover every row field plus native reason codes, native and
+normalized fingerprints, `canonical.run_outcome`, every capability counter,
+missing and extra fields, missing and extra records, raw bytes and report
+integrity. Each becomes `UNEXPLAINED_DIFFERENCE` or throws before acceptance.
 
-There was no network request, database connection, SQL, adapter file write,
-migration, live capture, control-state export, staging/production action,
-approval, apply, queue publication, workflow/scheduler change or production
-wiring. The machine shadow plan remains `NOT_AUTHORIZED`.
+## Fixture and scenario result
 
-## Remaining owner decisions
+The synthetic fixture contains exactly eight source rows and 17 headers. The
+fixed state contains nine mappings; variant `2009` is deliberately absent.
+There are no live values, secrets or protected CSV copies.
 
-RA004-B02 through RA004-B05 remain open: a separately authorized read-only
-control-state export, record-count drift bounds, protected snapshot retention
-rules, and an exact live capture/shadow window. The next task is independent
-verification of the Draft PR; it is not a shadow run.
+All 16 required scenario families pass: no change, price change, stock change,
+`SOURCE_MISSING`, no automatic OOS, identity conflict, invalid price, unknown
+stock, missing ID, duplicate identity, mixed batch, per-row isolation, empty
+CSV, missing/reordered header, HTML/content-type drift and deterministic replay.
 
-## Verification record
+The valid snapshot produces nine independently compared records:
 
-The adapter has 8 focused test cases covering 16 required scenario families
-plus exhaustive field/capability mutations. The final local runs passed:
+- `2001`, `2004`-`2008`: `NO_CHANGE`;
+- `2002`: `PRICE_CHANGE`, still `NOT_AUTHORIZED`;
+- `2003`: `STOCK_CHANGE`, still `NOT_AUTHORIZED`;
+- `2009`: `SOURCE_MISSING` / row review, never `OUT_OF_STOCK`.
 
-- focused adapter, active parser/classifier, RA-002 canonical, RA-003 incident
-  and compatibility, and RA-004 fixture-only control-state tests;
-- Project Guardian, TypeScript, ESLint, sealed 308-test inventory,
-  `verify:quick` and `verify:full`;
-- baseline migration validation (229 post-baseline migrations) and the Next.js
-  16.2.9 production build (36 static pages generated);
-- JSON, 17-column CSV, 34 workflow YAML files, local documentation links,
-  secret scan, static/runtime dependency graph, `git diff --check`, package and
-  lockfile integrity, workflow/scheduler integrity and original-checkout
-  integrity.
+Result: 9 `EXACT_PARITY`, zero in every other difference class and zero
+unclassified records. There is no percentage difference budget. LF and CRLF
+retain identical record semantics while retaining different raw fingerprints;
+repeat runs, reversed state-key order and timezone changes are deterministic.
 
-Three existing safe-suite tests were skipped, not counted as passes:
-`10 Reps v8 closed bootstrap`, `10 Reps v8 Time 4`, and `10 Reps v8
-remaining`. They require intentionally untracked owner-review v8 artifacts and
-are unrelated to this synthetic fixture. The four artifact-bound inventory
-tests were not run by `verify:full`, by design; the sealed inventory reports
-them separately and this change does not create their protected inputs.
+## Controls and authorization
+
+Focused adapter/canonical/refactor/profile tests pass with no skip. The complete
+repository gates and final clean-checkout LF proof are recorded in the PR commit
+and CI evidence. No package, lockfile, workflow, scheduler, migration or
+production behavior changed.
+
+RA-004 remains `IN_PROGRESS`; the control-state interface remains
+`VERIFIED_COMPLETE`; the corrected adapter is `READY_FOR_REVERIFICATION`; the
+shadow run and every live/staging action remain `NOT_AUTHORIZED`. The next task
+is a new independent verification of Draft PR #90.

@@ -5,7 +5,7 @@
   "gate": "PREFLIGHT_VERIFIED",
   "technical_readiness": {
     "control_state_interface": "VERIFIED_COMPLETE",
-    "single_snapshot_replay_adapter": "READY_FOR_VERIFICATION",
+    "single_snapshot_replay_adapter": "READY_FOR_REVERIFICATION",
     "shadow_run": "NOT_AUTHORIZED"
   },
   "retailer": {

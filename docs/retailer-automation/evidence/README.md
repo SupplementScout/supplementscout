@@ -31,7 +31,7 @@ transactional interface passed the mandatory isolated-database migration,
 privilege and snapshot tests, and `verify:full` passes after a repository-level
 LF policy for deterministic artifacts. No live export or active authorization
 was created. The test-only single-snapshot adapter is
-`READY_FOR_VERIFICATION`: its synthetic replay has 9/9 exact parity rows, zero
+`READY_FOR_REVERIFICATION`: its corrected, independently split synthetic replay has 9/9 exact parity rows, zero
 unexplained differences and zero side-effect attempts. The shadow run remains
 `NOT_AUTHORIZED`.
 

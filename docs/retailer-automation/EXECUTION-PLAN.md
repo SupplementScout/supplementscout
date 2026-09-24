@@ -6,8 +6,8 @@
 verified; the fixture-only exporter is preserved in PR #89, the
 transactional interface is owner-approved and locally verified, and the full
 repository quality gate passes under the repository LF policy; the shadow run
-is not authorized; the test-only single-snapshot adapter is
-`READY_FOR_VERIFICATION`
+is not authorized; the corrected test-only single-snapshot adapter is
+`READY_FOR_REVERIFICATION`
 
 **Implementation:** fixture exporter plus locally database-verified forward-only
 transactional interface, unwired live-provider contract and fail-closed
@@ -17,7 +17,7 @@ credential or production wiring
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
 **Allowed statuses:** `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`,
-`READY_FOR_VERIFICATION`, `VERIFIED_COMPLETE`
+`READY_FOR_VERIFICATION`, `READY_FOR_REVERIFICATION`, `VERIFIED_COMPLETE`
 
 Only one RA task may be active. Task numbering for retailer migrations is an
 inventory key, not an approved execution sequence. No task may become
@@ -231,12 +231,12 @@ new migration remains excluded from both deployment selectors. No login,
 secret, remote apply or live export was created. See
 [`evidence/RA-004-CONTROL-STATE-INTERFACE-DESIGN.md`](evidence/RA-004-CONTROL-STATE-INTERFACE-DESIGN.md).
 
-**Test-only single-snapshot adapter:** `READY_FOR_VERIFICATION` — one local
-synthetic 17-column CSV is replayed through the extracted active parser/
-projector, 10 Reps classifier, canonical v1 zero-write harness and RA-003
-compatibility adapter. The primary result is 9/9 exact parity, zero
-unclassified/canonical-defect/unexplained rows and zero network, database,
-write, plan, approval, apply, refetch or Review Queue attempts. See
+**Test-only single-snapshot adapter:** `READY_FOR_REVERIFICATION` — one controlled
+local read is split before retailer-specific logic. The legacy copy uses the
+active projector/classifier; the canonical copy uses an independent 10 Reps
+connector and canonical v1 zero-write harness. Static goldens and a closed
+run-level comparator produce 9/9 exact parity, zero unclassified/defect/
+unexplained rows, and zero prohibited capability attempts. See
 [`evidence/RA-004-SINGLE-SNAPSHOT-ADAPTER.md`](evidence/RA-004-SINGLE-SNAPSHOT-ADAPTER.md).
 
 RA-004 remains `IN_PROGRESS`; the adapter awaits independent verification,
