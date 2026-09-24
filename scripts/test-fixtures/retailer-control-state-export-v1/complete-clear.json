@@ -1,0 +1,128 @@
+{
+  "schema_version": "control-state-fixture-v1",
+  "consistency_sequence": "fixture-sequence-2026-09-24",
+  "sources": {
+    "control_plans": [
+      {
+        "id": "plan-expired",
+        "kind": "STANDARD",
+        "status": "EXPIRED",
+        "scope": "RETAILER",
+        "retailer_ids": ["14"],
+        "expires_at": "2026-09-23T00:00:00.000Z",
+        "updated_at": "2026-09-23T00:00:00.000Z",
+        "source_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      {
+        "id": "plan-superseded",
+        "kind": "STANDARD",
+        "status": "SUPERSEDED",
+        "scope": "RETAILER",
+        "retailer_ids": ["14"],
+        "expires_at": "2026-09-23T00:00:00.000Z",
+        "updated_at": "2026-09-23T00:00:00.000Z",
+        "source_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    ],
+    "plan_items": [
+      {
+        "id": "item-expired-1",
+        "plan_id": "plan-expired",
+        "status": "EXPIRED",
+        "retailer_ids": ["14"],
+        "scope": "RETAILER"
+      }
+    ],
+    "sessions": [
+      {
+        "id": "session-closed",
+        "status": "CLOSED",
+        "heartbeat_status": "CURRENT",
+        "scope": "RETAILER",
+        "retailer_ids": ["14"],
+        "closed_at": "2026-09-23T01:00:00.000Z"
+      }
+    ],
+    "locks": [
+      {
+        "id": "lock-expired",
+        "status": "EXPIRED",
+        "scope": "RETAILER",
+        "retailer_ids": ["14"],
+        "owner_session_id": "session-closed",
+        "expires_at": "2026-09-23T00:30:00.000Z"
+      }
+    ],
+    "approval_contracts": [
+      {
+        "id": "approval-expired",
+        "status": "EXPIRED",
+        "scope": "RETAILER",
+        "retailer_ids": ["14"],
+        "expires_at": "2026-09-23T00:30:00.000Z"
+      },
+      {
+        "id": "approval-consumed",
+        "status": "CONSUMED",
+        "scope": "RETAILER",
+        "retailer_ids": ["14"],
+        "expires_at": "2026-09-25T00:30:00.000Z",
+        "consumed_at": "2026-09-23T00:20:00.000Z"
+      },
+      {
+        "id": "approval-revoked",
+        "status": "REVOKED",
+        "scope": "RETAILER",
+        "retailer_ids": ["14"],
+        "expires_at": "2026-09-25T00:30:00.000Z"
+      }
+    ],
+    "approval_consumption": [
+      {
+        "id": "consumption-1",
+        "approval_id": "approval-consumed",
+        "status": "CONSUMED",
+        "scope": "RETAILER",
+        "retailer_ids": ["14"],
+        "consumed_at": "2026-09-23T00:20:00.000Z"
+      }
+    ],
+    "recovery_state": [
+      {
+        "id": "recovery-complete",
+        "status": "COMPLETED",
+        "scope": "RETAILER",
+        "retailer_ids": ["14"],
+        "completed_at": "2026-09-23T00:40:00.000Z"
+      }
+    ],
+    "apply_ledger": [
+      {
+        "id": "apply-1",
+        "status": "COMPLETED",
+        "scope": "RETAILER",
+        "retailer_ids": ["14"],
+        "completed_at": "2026-09-23T00:45:00.000Z"
+      }
+    ],
+    "postflight_state": [
+      {
+        "id": "postflight-1",
+        "status": "PASS",
+        "scope": "RETAILER",
+        "retailer_ids": ["14"],
+        "completed_at": "2026-09-23T00:50:00.000Z"
+      }
+    ],
+    "watchdog_state": [
+      {
+        "id": "watchdog-1",
+        "status": "MONITORED_DEBT",
+        "scope": "RETAILER",
+        "retailer_ids": ["14"],
+        "completed_at": "2026-09-23T01:00:00.000Z"
+      }
+    ],
+    "global_conflicts": []
+  }
+}

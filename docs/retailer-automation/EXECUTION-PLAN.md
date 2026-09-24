@@ -1,11 +1,12 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: RA-004 IN PROGRESS — PREFLIGHT VERIFIED**
+**Status: RA-004 IN PROGRESS — CONTROL-STATE EXPORTER BLOCKED**
 
 **Current active task:** RA-004 — `IN_PROGRESS`; its documentation preflight is
-verified, while the live shadow run remains blocked and not authorized
+verified; the local exporter core is implemented, but the live read-only
+provider remains blocked and the shadow run is not authorized
 
-**Implementation:** documentation-only RA-004 preflight; no production wiring
+**Implementation:** fixture-only control-state exporter core; no production wiring
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
@@ -202,6 +203,16 @@ independently verified; there is still no safe single-snapshot legacy replay
 entry point or approved complete read-only control-state export. See
 [`evidence/RA-004-PREFLIGHT.md`](evidence/RA-004-PREFLIGHT.md) and the
 machine-readable [`evidence/RA-004-shadow-plan.json`](evidence/RA-004-shadow-plan.json).
+
+**Control-state exporter gate:** `BLOCKED` — the versioned exporter core,
+authorization gate, fixture provider, CLI, pagination, consistency, redaction,
+fingerprints and architecture-boundary tests are implemented. Repository
+inventory found no existing approved complete read-only interface for 10 Reps:
+the only similar RPC is partial and restricted to Whey Okay, the plan-status RPC
+requires service role and one known plan ID, and the remaining readers expose
+direct SQL/general query capability. New RPCs, views, migrations and direct SQL
+were forbidden, so live provider construction fails closed. See
+[`evidence/RA-004-CONTROL-STATE-EXPORTER.md`](evidence/RA-004-CONTROL-STATE-EXPORTER.md).
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 

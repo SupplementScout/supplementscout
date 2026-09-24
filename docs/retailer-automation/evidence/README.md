@@ -10,12 +10,21 @@
 
 [RA-004 machine-readable shadow plan](RA-004-shadow-plan.json)
 
+[RA-004 read-only control-state exporter evidence](RA-004-CONTROL-STATE-EXPORTER.md)
+
 RA-002 was independently verified on 23 September 2026 in PR #86. RA-003 was
 independently verified on 24 September 2026 in PR #87. Their local test and
 contract modules remain unwired from production. RA-004 is `IN_PROGRESS`; its
 documentation preflight is `PREFLIGHT VERIFIED`, while the machine manifest is
 still `NOT_AUTHORIZED`. No live capture or shadow run is authorized, and all
 five pre-run blockers remain open.
+
+The fixture-only control-state exporter core is now implemented and tested, but
+its live gate is `BLOCKED`: no existing approved complete read-only 10 Reps
+interface covers all mandatory plans, items, sessions, locks, approvals,
+recovery, apply, postflight, watchdog and global conflict state without direct
+SQL or a write-capable credential. No live export or active authorization was
+created.
 
 ## RA-001 owner approval
 
