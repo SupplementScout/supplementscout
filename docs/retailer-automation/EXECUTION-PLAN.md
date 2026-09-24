@@ -6,7 +6,8 @@
 verified; the fixture-only exporter is preserved in PR #89, the
 transactional interface is owner-approved and locally verified, and the full
 repository quality gate passes under the repository LF policy; the shadow run
-is not authorized
+is not authorized; the test-only single-snapshot adapter is
+`READY_FOR_VERIFICATION`
 
 **Implementation:** fixture exporter plus locally database-verified forward-only
 transactional interface, unwired live-provider contract and fail-closed
@@ -230,8 +231,16 @@ new migration remains excluded from both deployment selectors. No login,
 secret, remote apply or live export was created. See
 [`evidence/RA-004-CONTROL-STATE-INTERFACE-DESIGN.md`](evidence/RA-004-CONTROL-STATE-INTERFACE-DESIGN.md).
 
-RA-004 remains `IN_PROGRESS`; the live single-snapshot replay adapter remains
-`NOT_STARTED`, and the shadow manifest remains `NOT_AUTHORIZED`.
+**Test-only single-snapshot adapter:** `READY_FOR_VERIFICATION` — one local
+synthetic 17-column CSV is replayed through the extracted active parser/
+projector, 10 Reps classifier, canonical v1 zero-write harness and RA-003
+compatibility adapter. The primary result is 9/9 exact parity, zero
+unclassified/canonical-defect/unexplained rows and zero network, database,
+write, plan, approval, apply, refetch or Review Queue attempts. See
+[`evidence/RA-004-SINGLE-SNAPSHOT-ADAPTER.md`](evidence/RA-004-SINGLE-SNAPSHOT-ADAPTER.md).
+
+RA-004 remains `IN_PROGRESS`; the adapter awaits independent verification,
+and the shadow manifest remains `NOT_AUTHORIZED`.
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 

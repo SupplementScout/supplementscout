@@ -3,6 +3,11 @@
   "plan_id": "RA-004-10REPS-SHADOW-001",
   "status": "NOT_AUTHORIZED",
   "gate": "PREFLIGHT_VERIFIED",
+  "technical_readiness": {
+    "control_state_interface": "VERIFIED_COMPLETE",
+    "single_snapshot_replay_adapter": "READY_FOR_VERIFICATION",
+    "shadow_run": "NOT_AUTHORIZED"
+  },
   "retailer": {
     "id": 14,
     "name": "10 Reps",
@@ -241,6 +246,7 @@
   "blockers": [
     {
       "id": "RA004-B01",
+      "status": "RESOLUTION_IMPLEMENTED_AWAITING_INDEPENDENT_VERIFICATION",
       "description": "No existing entry point can replay the complete legacy 10 Reps path from one supplied local snapshot while denying all database/control/approval/apply capabilities and source refetch.",
       "required_resolution": "Add and independently verify a test-only snapshot-injection replay adapter around existing parser/classifier primitives; it must have injected denied capabilities and no production wiring."
     },
