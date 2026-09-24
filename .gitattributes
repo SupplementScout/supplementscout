@@ -1,20 +1,20 @@
-/docs/rollouts/ebay-offer-canary/batch-j.csv text eol=lf
-/docs/rollouts/ebay-offer-canary/batch-j-artifact.json text eol=lf
-/docs/rollouts/ebay-offer-canary/batch-j-artifact.json.sha256 text eol=lf
-/docs/rollouts/ebay-offer-canary/batch-j-review.json text eol=lf
-/docs/rollouts/ebay-offer-canary/batch-j-rollout.json text eol=lf
-/docs/rollouts/ebay-offer-canary/batch-k.csv text eol=lf
-/docs/rollouts/ebay-offer-canary/batch-k-artifact.json text eol=lf
-/docs/rollouts/ebay-offer-canary/batch-k-artifact.json.sha256 text eol=lf
-/docs/rollouts/ebay-offer-canary/batch-k-review.json text eol=lf
-/docs/rollouts/ebay-offer-canary/batch-k-rollout.json text eol=lf
-/docs/rollouts/ebay-offer-canary/batch-k-recovery.csv text eol=lf
-/docs/rollouts/ebay-offer-canary/batch-k-recovery-artifact.json text eol=lf
-/docs/rollouts/ebay-offer-canary/batch-k-recovery-artifact.json.sha256 text eol=lf
-/docs/rollouts/ebay-offer-canary/batch-k-recovery-rollout.json text eol=lf
-/docs/rollouts/ebay-offer-canary/batch-l.csv text eol=lf
-/docs/rollouts/ebay-offer-canary/batch-l-artifact.json text eol=lf
-/docs/rollouts/ebay-offer-canary/batch-l-artifact.json.sha256 text eol=lf
-/docs/rollouts/ebay-offer-canary/batch-l-review.json text eol=lf
-/docs/rollouts/ebay-offer-canary/batch-l-rollout.json text eol=lf
-/docs/rollouts/shared-automation-owner-approval-2026-09-09.json text eol=lf
+# Byte-sealed rollout artifacts must use LF on every platform.
+/docs/rollouts/** text eol=lf
+
+# Byte-sealed verified JSON must use LF on every platform.
+/data/verified/**/*.json text eol=lf
+
+# Deterministic retailer configuration and approval manifests must use LF.
+/config/retailers/** text eol=lf
+
+# Immutable feed evidence and database migration contracts must use LF.
+/data/feeds/**/*.csv text eol=lf
+/supabase/migrations/**/*.sql text eol=lf
+/supabase/rollbacks/**/*.sql text eol=lf
+
+# Tracked sealed review fixtures under tmp must use LF.
+/tmp/**/*.json text eol=lf
+
+# GitHub workflow definitions must use LF on every platform.
+/.github/workflows/**/*.yml text eol=lf
+/.github/workflows/**/*.yaml text eol=lf
