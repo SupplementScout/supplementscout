@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://supplementscout.local/schemas/control-state-export-authorization-v1.schema.json",
+  "title": "SupplementScout retailer control-state export authorization",
+  "type": "object",
+  "required": [
+    "version", "status", "retailer_id", "retailer_name", "allowed_scope",
+    "baseline_sha", "task_id", "valid_from", "expires_at", "operation",
+    "prohibited_operations", "owner_consent", "authorization_fingerprint"
+  ],
+  "properties": {
+    "version": { "const": "control-state-export-authorization-v1" },
+    "status": { "enum": ["TEST_ONLY", "AUTHORIZED", "NOT_AUTHORIZED"] },
+    "retailer_id": { "type": "string", "pattern": "^[0-9]+$" },
+    "retailer_name": { "type": "string", "minLength": 1 },
+    "allowed_scope": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "baseline_sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "task_id": { "type": "string", "minLength": 1 },
+    "valid_from": { "type": "string", "format": "date-time" },
+    "expires_at": { "type": "string", "format": "date-time" },
+    "operation": { "const": "READ_ONLY_CONTROL_STATE_EXPORT" },
+    "prohibited_operations": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "owner_consent": { "enum": ["TEST_ONLY_FIXTURE", "OWNER_APPROVED", "NOT_APPROVED"] },
+    "authorization_fingerprint": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  },
+  "additionalProperties": false
+}

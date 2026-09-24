@@ -1,11 +1,17 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: RA-004 IN PROGRESS — PREFLIGHT VERIFIED**
+**Status: RA-004 IN PROGRESS — CONTROL-STATE INTERFACE VERIFIED_COMPLETE**
 
 **Current active task:** RA-004 — `IN_PROGRESS`; its documentation preflight is
-verified, while the live shadow run remains blocked and not authorized
+verified; the fixture-only exporter is preserved in PR #89, the
+transactional interface is owner-approved and locally verified, and the full
+repository quality gate passes under the repository LF policy; the shadow run
+is not authorized
 
-**Implementation:** documentation-only RA-004 preflight; no production wiring
+**Implementation:** fixture exporter plus locally database-verified forward-only
+transactional interface, unwired live-provider contract and fail-closed
+migration-selector exclusion; independently verified, with no
+credential or production wiring
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
@@ -202,6 +208,30 @@ independently verified; there is still no safe single-snapshot legacy replay
 entry point or approved complete read-only control-state export. See
 [`evidence/RA-004-PREFLIGHT.md`](evidence/RA-004-PREFLIGHT.md) and the
 machine-readable [`evidence/RA-004-shadow-plan.json`](evidence/RA-004-shadow-plan.json).
+
+**Control-state exporter gate:** `READY_FOR_VERIFICATION` — the versioned exporter core,
+authorization gate, fixture provider, CLI, pagination, consistency, redaction,
+fingerprints and architecture-boundary tests are implemented. The newly
+owner-approved transactional interface and unwired live-provider contract passed
+their isolated local database tests and the complete repository full gate.
+Live provider construction still fails closed without a separately
+injected transport and future dedicated credential. See
+[`evidence/RA-004-CONTROL-STATE-EXPORTER.md`](evidence/RA-004-CONTROL-STATE-EXPORTER.md).
+
+**Control-state interface:** `VERIFIED_COMPLETE` — Marek
+approved one bounded transactional RPC, separate future environment credentials
+outside Git, and one minimal shared append-only evidence ledger. The migration
+and unwired provider contract passed the fresh-baseline local PostgreSQL,
+role/ACL/RLS, ledger, eleven-source and two-connection snapshot tests under both
+`REPEATABLE READ` and ordinary `READ COMMITTED`. Status is
+`CONTROL-STATE INTERFACE VERIFIED_COMPLETE`; repository LF
+policy preserves the exact committed bytes of deterministic artifacts, and the
+new migration remains excluded from both deployment selectors. No login,
+secret, remote apply or live export was created. See
+[`evidence/RA-004-CONTROL-STATE-INTERFACE-DESIGN.md`](evidence/RA-004-CONTROL-STATE-INTERFACE-DESIGN.md).
+
+RA-004 remains `IN_PROGRESS`; the live single-snapshot replay adapter remains
+`NOT_STARTED`, and the shadow manifest remains `NOT_AUTHORIZED`.
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
