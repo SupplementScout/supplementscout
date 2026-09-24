@@ -235,8 +235,11 @@ secret, remote apply or live export was created. See
 local read is split before retailer-specific logic. The legacy copy uses the
 active projector/classifier; the canonical copy uses an independent 10 Reps
 connector and canonical v1 zero-write harness. Static goldens and a closed
-run-level comparator produce 9/9 exact parity, zero unclassified/defect/
-unexplained rows, and zero prohibited capability attempts. See
+run-level comparator produce 9/9 exact record parity, zero integrity mismatches,
+zero unclassified/defect/unexplained rows, and zero prohibited capability
+attempts. The explicit static raw SHA is checked before either replay path, and
+the comparator regenerates nested record/integrity counts rather than trusting
+report summaries. See
 [`evidence/RA-004-SINGLE-SNAPSHOT-ADAPTER.md`](evidence/RA-004-SINGLE-SNAPSHOT-ADAPTER.md).
 
 RA-004 remains `IN_PROGRESS`; the adapter awaits independent verification,

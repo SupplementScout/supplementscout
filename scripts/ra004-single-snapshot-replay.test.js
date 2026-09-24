@@ -1,4 +1,5 @@
 const assert = require("node:assert/strict");
+const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
@@ -16,10 +17,13 @@ const fixtureBytes = createDeniedCapabilities({ fixturePath }).readOnce();
 const state = require("./test-fixtures/retailer-automation/ra004-10reps-state.json");
 const text = fixtureBytes.toString("utf8");
 const clone = (value) => structuredClone(value);
+const rawSha256 = (bytes) => crypto.createHash("sha256").update(bytes).digest("hex");
 function replaySingleSnapshot(bytes, replayState, options = {}) {
   const boundary = options.boundary || createDeniedCapabilities(bytes === fixtureBytes ? { fixturePath } : { sourceReader: () => Buffer.from(bytes) });
-  return replayFromSource(replayState, { ...options, boundary });
+  return replayFromSource(replayState, { expectedRawSha256: goldens.raw_lf_sha256, nativeGoldenExpectations: goldens.native_records, ...options, boundary });
 }
+const replayMalformedSnapshot = (bytes, options = {}) => replaySingleSnapshot(bytes, state, { expectedRawSha256: rawSha256(bytes), ...options });
+const compareReport = (report) => compareParityReport(report, goldens);
 
 test("RA-004 replays one exact 17-column 10 Reps snapshot through legacy and canonical paths", () => {
   const report = replaySingleSnapshot(fixtureBytes, state);
@@ -30,6 +34,7 @@ test("RA-004 replays one exact 17-column 10 Reps snapshot through legacy and can
     retailer: { id: "14", name: "10 Reps", slug: "10-reps" },
     source_type: "CSV_PRODUCT_FEED", capture_id: "ra004-synthetic-fixture-001",
     capture_timestamp_utc: state.captured_at, content_type: "text/csv", byte_length: fixtureBytes.length,
+    expected_raw_sha256: goldens.raw_lf_sha256,
     raw_bytes_sha256: report.raw_snapshot_sha256,
     issued_copy_sha256: { legacy: report.raw_snapshot_sha256, canonical: report.raw_snapshot_sha256 },
     source_read_count: 1,
@@ -40,14 +45,18 @@ test("RA-004 replays one exact 17-column 10 Reps snapshot through legacy and can
   assert.equal(report.legacy.state, "DRY_RUN_READY_WITH_REVIEW");
   assert.equal(report.canonical.run_outcome, "PASS_WITH_REVIEW");
   assert.deepEqual(report.difference_classes, DIFFERENCE_CLASSES);
-  assert.equal(compareParityReport(report).difference_class, "EXACT_PARITY");
+  const comparison = compareReport(report);
+  assert.equal(comparison.difference_class, "EXACT_PARITY");
+  assert.equal(comparison.difference_counts.total_mismatches, 0);
   assert.equal(report.raw_snapshot_sha256, goldens.raw_lf_sha256);
   assert.equal(report.legacy.action_manifest_fingerprint, goldens.legacy_output_fingerprint);
   assert.equal(report.canonical.output_fingerprint, goldens.canonical_output_fingerprint);
   assert.equal(report.report_fingerprint, goldens.parity_report_fingerprint);
-  assert.equal(report.difference_counts.EXACT_PARITY, 9);
-  assert.equal(report.difference_counts.CANONICAL_DEFECT, 0);
-  assert.equal(report.difference_counts.UNEXPLAINED_DIFFERENCE, 0);
+  assert.equal(report.difference_counts.records.EXACT_PARITY, 9);
+  assert.equal(report.difference_counts.records.CANONICAL_DEFECT, 0);
+  assert.equal(report.difference_counts.records.UNEXPLAINED_DIFFERENCE, 0);
+  assert.deepEqual(report.difference_counts.integrity, { run_level: 0, capability: 0, native_golden: 0, schema: 0, record_set: 0, raw_fingerprint: 0 });
+  assert.equal(report.difference_counts.total_mismatches, 0);
   assert.equal(report.unclassified_record_count, 0);
   assert.deepEqual(report.capabilities, {
     source_read_attempt_count: 1, source_read_count: 1, refetch_attempt_count: 0, refetch_performed_count: 0,
@@ -78,15 +87,42 @@ test("RA-004 covers no-change, price, stock, missing and mixed per-row isolation
 });
 
 test("RA-004 rejects malformed or unsafe snapshots before classification", () => {
-  assert.throws(() => replaySingleSnapshot(Buffer.alloc(0), state), { code: "RA004_EMPTY_RESPONSE" });
-  assert.throws(() => replaySingleSnapshot(Buffer.from("<html>challenge</html>"), state), { code: "RA004_HTML_RESPONSE" });
+  assert.throws(() => replayMalformedSnapshot(Buffer.alloc(0)), { code: "RA004_EMPTY_RESPONSE" });
+  assert.throws(() => replayMalformedSnapshot(Buffer.from("<html>challenge</html>")), { code: "RA004_HTML_RESPONSE" });
   assert.throws(() => replaySingleSnapshot(fixtureBytes, state, { contentType: "text/html" }), { code: "RA004_UNEXPECTED_CONTENT_TYPE" });
-  assert.throws(() => replaySingleSnapshot(Buffer.from(text.split(/\r?\n/)[0] + "\n"), state), /CSV feed is empty/);
-  assert.throws(() => replaySingleSnapshot(Buffer.from(text.replace("current_price,stock_status", "wrong_price,stock_status")), state), /CSV feed columns changed/);
-  assert.throws(() => replaySingleSnapshot(Buffer.from(text.replace(",21.49,instock,", ",free,instock,")), state), /invalid current price/);
-  assert.throws(() => replaySingleSnapshot(Buffer.from(text.replace(",12.00,outofstock,", ",12.00,unknown,")), state), /unknown stock status/);
-  assert.throws(() => replaySingleSnapshot(Buffer.from(text.replace("1001,2001,Alpha", ",2001,Alpha")), state), /invalid or duplicate source identity/);
-  assert.throws(() => replaySingleSnapshot(Buffer.from(text.replace("1002,2002,Beta", "1002,2001,Beta")), state), /invalid or duplicate source identity/);
+  assert.throws(() => replayMalformedSnapshot(Buffer.from(text.split(/\r?\n/)[0] + "\n")), /CSV feed is empty/);
+  assert.throws(() => replayMalformedSnapshot(Buffer.from(text.replace("current_price,stock_status", "wrong_price,stock_status"))), /CSV feed columns changed/);
+  assert.throws(() => replayMalformedSnapshot(Buffer.from(text.replace(",21.49,instock,", ",free,instock,"))), /invalid current price/);
+  assert.throws(() => replayMalformedSnapshot(Buffer.from(text.replace(",12.00,outofstock,", ",12.00,unknown,"))), /unknown stock status/);
+  assert.throws(() => replayMalformedSnapshot(Buffer.from(text.replace("1001,2001,Alpha", ",2001,Alpha"))), /invalid or duplicate source identity/);
+  assert.throws(() => replayMalformedSnapshot(Buffer.from(text.replace("1002,2002,Beta", "1002,2001,Beta"))), /invalid or duplicate source identity/);
+});
+
+test("RA-004 rejects an absent, malformed or mismatched expected raw fingerprint before replay", () => {
+  assert.throws(() => replayFromSource(state, { boundary: createDeniedCapabilities({ fixturePath }) }), { code: "RA004_EXPECTED_RAW_FINGERPRINT_REQUIRED" });
+  assert.throws(() => replayFromSource(state, { boundary: createDeniedCapabilities({ fixturePath }), expectedRawSha256: "not-a-sha" }), { code: "RA004_EXPECTED_RAW_FINGERPRINT_INVALID" });
+  const variants = [
+    Buffer.concat([fixtureBytes.subarray(0, fixtureBytes.length - 2), Buffer.from("X\n")]),
+    fixtureBytes.subarray(0, fixtureBytes.length - 1),
+    Buffer.concat([fixtureBytes.subarray(0, fixtureBytes.length - 1), Buffer.from(" ")]),
+    Buffer.from(text.replace(/\r?\n/g, "\r\n")),
+  ];
+  for (const bytes of variants) {
+    const invocations = { legacy: 0, canonical: 0 };
+    const boundary = createDeniedCapabilities({ sourceReader: () => Buffer.from(bytes) });
+    assert.throws(() => replayFromSource(state, {
+      boundary,
+      expectedRawSha256: goldens.raw_lf_sha256,
+      legacyProjector() { invocations.legacy += 1; throw new Error("legacy processor invoked"); },
+      canonicalConnector() { invocations.canonical += 1; throw new Error("canonical processor invoked"); },
+    }), { code: "RA004_RAW_SNAPSHOT_FINGERPRINT_MISMATCH" });
+    assert.deepEqual(invocations, { legacy: 0, canonical: 0 });
+    assert.equal(boundary.metrics.source_read_attempt_count, 1);
+    assert.equal(boundary.metrics.source_read_count, 1);
+    assert.equal(Object.entries(boundary.metrics).filter(([key]) => !key.startsWith("source_read")).every(([, value]) => value === 0), true);
+  }
+  const crlf = variants[3];
+  assert.equal(replaySingleSnapshot(crlf, state, { expectedRawSha256: goldens.raw_crlf_sha256 }).raw_snapshot_sha256, goldens.raw_crlf_sha256);
 });
 
 test("RA-004 state identity conflict fails closed before either result can be accepted", () => {
@@ -124,7 +160,7 @@ test("RA-004 replay is deterministic across repeats, key order and timezone", ()
   assert.equal(first.report_fingerprint, replaySingleSnapshot(fixtureBytes, reordered).report_fingerprint);
   const lf = Buffer.from(text.replace(/\r\n/g, "\n"));
   const crlf = Buffer.from(text.replace(/\r?\n/g, "\r\n"));
-  const lfReport = replaySingleSnapshot(lf, state), crlfReport = replaySingleSnapshot(crlf, state);
+  const lfReport = replaySingleSnapshot(lf, state), crlfReport = replaySingleSnapshot(crlf, state, { expectedRawSha256: goldens.raw_crlf_sha256 });
   assert.equal(lfReport.raw_snapshot_sha256, goldens.raw_lf_sha256);
   assert.equal(crlfReport.raw_snapshot_sha256, goldens.raw_crlf_sha256);
   assert.notEqual(lfReport.raw_snapshot_sha256, crlfReport.raw_snapshot_sha256);
@@ -208,7 +244,8 @@ test("RA-004 canonical connector independently parses the frozen 10 Reps contrac
 
 test("RA-004 regression: canonical path splits before the legacy retailer projector", () => {
   const source = fs.readFileSync(path.join(__dirname, "test-support/ra004-single-snapshot-replay.js"), "utf8");
-  assert.equal([...source.matchAll(/projectCsvRows\(/g)].length, 1, "only the legacy branch may call projectCsvRows");
+  assert.match(source, /legacyProjector\s*=\s*options\.legacyProjector\s*\|\|\s*projectCsvRows/);
+  assert.doesNotMatch(source, /ra004-10reps-goldens|require\([^)]*golden/i, "adapter must receive expectations from its runner");
   assert.doesNotMatch(source, /canonicalProjected|legacyProjected\.evidenceRows\.map\(canonicalRaw\)/);
 });
 
@@ -230,22 +267,65 @@ test("RA-004 regression: native and run-level contract mutations cannot remain e
   assert.ok(PARITY_FIELDS.includes("native_record_fingerprint"));
   const changedOutcome = clone(report);
   changedOutcome.canonical.run_outcome = "FAILED_SYSTEM";
-  assert.notEqual(compareParityReport(changedOutcome).difference_class, "EXACT_PARITY");
+  const outcomeComparison = compareReport(changedOutcome);
+  assert.notEqual(outcomeComparison.difference_class, "EXACT_PARITY");
+  assert.equal(outcomeComparison.difference_counts.records.EXACT_PARITY, 9);
+  assert.ok(outcomeComparison.difference_counts.integrity.run_level >= 1);
+  assert.ok(outcomeComparison.difference_counts.total_mismatches >= 1);
   const changedCounter = clone(report);
-  changedCounter.capabilities.http_attempt_count = 99;
-  assert.notEqual(compareParityReport(changedCounter).difference_class, "EXACT_PARITY");
+  changedCounter.capabilities.network_attempt_count = 99;
+  const counterComparison = compareReport(changedCounter);
+  assert.notEqual(counterComparison.difference_class, "EXACT_PARITY");
+  assert.ok(counterComparison.difference_counts.integrity.capability >= 1);
+  assert.ok(counterComparison.difference_counts.total_mismatches >= 1);
+  const changedNativeReasons = clone(report);
+  changedNativeReasons.parity_rows[0].canonical.native_reason_codes = ["MUTATED"];
+  const nativeReasonComparison = compareReport(changedNativeReasons);
+  assert.ok(nativeReasonComparison.difference_counts.integrity.native_golden >= 1);
+  const changedNativeFingerprint = clone(report);
+  changedNativeFingerprint.parity_rows[0].canonical.native_record_fingerprint = "0".repeat(64);
+  const nativeFingerprintComparison = compareReport(changedNativeFingerprint);
+  assert.ok(nativeFingerprintComparison.difference_counts.integrity.native_golden >= 1);
+  const changedRawFingerprint = clone(report);
+  changedRawFingerprint.raw_snapshot_sha256 = "0".repeat(64);
+  const rawFingerprintComparison = compareReport(changedRawFingerprint);
+  assert.ok(rawFingerprintComparison.difference_counts.integrity.raw_fingerprint >= 1);
+  const missingCurrency = clone(report);
+  delete missingCurrency.parity_rows[0].canonical.currency;
+  assert.ok(compareReport(missingCurrency).difference_counts.integrity.schema >= 1);
+  const unknownRecordField = clone(report);
+  unknownRecordField.parity_rows[0].canonical.contract_probe = true;
+  assert.ok(compareReport(unknownRecordField).difference_counts.integrity.schema >= 1);
   const missingField = clone(report);
   delete missingField.canonical.output_fingerprint;
-  assert.notEqual(compareParityReport(missingField).difference_class, "EXACT_PARITY");
+  assert.notEqual(compareReport(missingField).difference_class, "EXACT_PARITY");
   const extraField = clone(report);
   extraField.contract_probe = true;
-  assert.notEqual(compareParityReport(extraField).difference_class, "EXACT_PARITY");
+  assert.notEqual(compareReport(extraField).difference_class, "EXACT_PARITY");
   const missingRecord = clone(report);
   missingRecord.parity_rows.pop();
-  assert.notEqual(compareParityReport(missingRecord).difference_class, "EXACT_PARITY");
+  assert.notEqual(compareReport(missingRecord).difference_class, "EXACT_PARITY");
   const extraRecord = clone(report);
   extraRecord.parity_rows.push({ ...clone(extraRecord.parity_rows[0]), key: "9999" });
-  assert.notEqual(compareParityReport(extraRecord).difference_class, "EXACT_PARITY");
+  assert.notEqual(compareReport(extraRecord).difference_class, "EXACT_PARITY");
+  const duplicateRecord = clone(report);
+  duplicateRecord.parity_rows.push(clone(duplicateRecord.parity_rows[0]));
+  assert.ok(compareReport(duplicateRecord).difference_counts.integrity.record_set >= 1);
+  const forgedCounts = clone(report);
+  forgedCounts.difference_counts.records.EXACT_PARITY = 0;
+  forgedCounts.difference_counts.total_mismatches = 999;
+  const forgedCountsComparison = compareReport(forgedCounts);
+  assert.equal(forgedCountsComparison.difference_counts.records.EXACT_PARITY, 9);
+  assert.notEqual(forgedCountsComparison.difference_counts.total_mismatches, 999);
+  const forgedComparison = clone(report);
+  forgedComparison.parity_rows[0].comparison = { difference_class: "CANONICAL_DEFECT", field_differences: ["forged"] };
+  assert.equal(compareReport(forgedComparison).difference_counts.records.EXACT_PARITY, 9);
+  const missingDifferences = clone(report);
+  delete missingDifferences.parity_rows[0].comparison.field_differences;
+  assert.equal(compareReport(missingDifferences).difference_counts.records.EXACT_PARITY, 9);
+  for (const comparison of [outcomeComparison, counterComparison, nativeReasonComparison, nativeFingerprintComparison, rawFingerprintComparison, forgedCountsComparison, compareReport(forgedComparison), compareReport(missingDifferences)]) {
+    assert.equal(comparison.difference_counts.total_mismatches, comparison.differences.length);
+  }
 });
 
 test("RA-004 detects mutation of either defensive byte copy", () => {

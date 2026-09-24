@@ -3,7 +3,6 @@ const fs = require("node:fs");
 const { isDeepStrictEqual } = require("node:util");
 const config = require("../../config/retailers/10reps-offer-sync.json");
 const shadowPlan = require("../../docs/retailer-automation/evidence/RA-004-shadow-plan.json");
-const goldens = require("../test-fixtures/retailer-automation/ra004-10reps-goldens.json");
 const { projectCsvRows, REQUIRED_COLUMNS } = require("../lib/csv-product-feed-projector");
 const { classifyExistingOffers } = require("../lib/retailer-offer-sync/classifier");
 const { mapLegacyStatus } = require("../lib/retailer-offer-sync/canonical-v1/legacy-compatibility-adapter");
@@ -33,11 +32,22 @@ const REPORT_FIELDS = Object.freeze([
   "required_headers", "difference_classes", "parity_fields", "legacy", "canonical", "parity_rows", "difference_counts", "unclassified_record_count",
   "semantic_mappings", "capabilities", "authorization", "report_fingerprint",
 ]);
+const INTEGRITY_CATEGORIES = Object.freeze(["run_level", "capability", "native_golden", "schema", "record_set", "raw_fingerprint"]);
 
 function rawSha256(bytes) { return crypto.createHash("sha256").update(bytes).digest("hex"); }
 function fail(code, message) { const error = new Error(message); error.code = code; throw error; }
 function same(left, right) { return isDeepStrictEqual(left, right); }
 function exactKeys(value, expected) { return value && same(Object.keys(value).sort(), [...expected].sort()); }
+function emptyDifferenceCounts() {
+  return {
+    records: Object.fromEntries(DIFFERENCE_CLASSES.map((name) => [name, 0])),
+    integrity: Object.fromEntries(INTEGRITY_CATEGORIES.map((name) => [name, 0])),
+    total_mismatches: 0,
+  };
+}
+function difference(scope, path, expected, actual, reasonCode, counterCategory) {
+  return { scope, path, expected, actual, reason_code: reasonCode, counter_category: counterCategory };
+}
 
 function createDeniedCapabilities({ fixturePath, sourceReader } = {}) {
   const metrics = Object.fromEntries(CAPABILITY_FIELDS.map((field) => [field, 0]));
@@ -148,43 +158,94 @@ function compareParityCollections(legacyRows, canonicalRows, nativeGoldens = {})
     return { key: identity, ...compareParityRows(left.get(identity), right.get(identity), nativeGoldens[identity.split("|")[1]]) };
   });
 }
-function compareParityReport(report, expected = goldens) {
+function compareParityReport(report, expected) {
+  if (!expected || typeof expected !== "object") fail("RA004_PARITY_EXPECTATIONS_REQUIRED", "Static parity expectations are required");
   const differences = [];
-  if (!exactKeys(report, REPORT_FIELDS)) differences.push("report.$schema");
-  if (!exactKeys(report.legacy, ["state", "action_manifest_fingerprint", "row_count"])) differences.push("legacy.$schema");
-  if (!exactKeys(report.canonical, ["run_outcome", "output_fingerprint", "row_count"])) differences.push("canonical.$schema");
-  if (!exactKeys(report.capabilities, CAPABILITY_FIELDS)) differences.push("capabilities.$schema");
-  if (report.raw_snapshot_sha256 !== expected.raw_lf_sha256) differences.push("raw_snapshot_sha256");
-  if (report.legacy_snapshot_sha256 !== report.raw_snapshot_sha256 || report.canonical_snapshot_sha256 !== report.raw_snapshot_sha256) differences.push("issued_snapshot_fingerprints");
-  if (report.legacy.action_manifest_fingerprint !== expected.legacy_output_fingerprint) differences.push("legacy.action_manifest_fingerprint");
-  if (report.canonical.output_fingerprint !== expected.canonical_output_fingerprint) differences.push("canonical.output_fingerprint");
-  if (report.report_fingerprint !== expected.parity_report_fingerprint) differences.push("report_fingerprint");
-  const recomputedReportFingerprint = canonicalFingerprint("RA004-SINGLE-SNAPSHOT-REPORT", { ...report, report_fingerprint: null });
-  if (report.report_fingerprint !== recomputedReportFingerprint) differences.push("report_fingerprint_integrity");
-  if (report.legacy.state !== expected.legacy_state) differences.push("legacy.state");
-  if (report.canonical.run_outcome !== expected.canonical_run_outcome) differences.push("canonical.run_outcome");
-  if (report.legacy.row_count !== report.canonical.row_count || report.legacy.row_count !== report.parity_rows.length) differences.push("record_count");
-  for (const [field, count] of Object.entries(report.capabilities || {})) {
-    const expectedCount = field === "source_read_attempt_count" || field === "source_read_count" ? 1 : 0;
-    if (count !== expectedCount) differences.push(`capabilities.${field}`);
+  const counts = emptyDifferenceCounts();
+  const add = (entry) => {
+    differences.push(entry);
+    if (entry.counter_category.startsWith("integrity.")) counts.integrity[entry.counter_category.slice("integrity.".length)] += 1;
+  };
+  const schema = (scope, value, keys) => {
+    if (!exactKeys(value, keys)) add(difference(scope, `${scope}.$schema`, [...keys].sort(), value && typeof value === "object" ? Object.keys(value).sort() : null, "RA004_SCHEMA_MISMATCH", "integrity.schema"));
+  };
+  schema("report", report, REPORT_FIELDS);
+  schema("legacy", report?.legacy, ["state", "action_manifest_fingerprint", "row_count"]);
+  schema("canonical", report?.canonical, ["run_outcome", "output_fingerprint", "row_count"]);
+  schema("capabilities", report?.capabilities, CAPABILITY_FIELDS);
+
+  const expectedRaw = expected.expected_raw_sha256 || expected.raw_lf_sha256;
+  if (report?.raw_snapshot_sha256 !== expectedRaw) add(difference("raw_fingerprint", "raw_snapshot_sha256", expectedRaw, report?.raw_snapshot_sha256, "RA004_RAW_SNAPSHOT_FINGERPRINT_MISMATCH", "integrity.raw_fingerprint"));
+  for (const path of ["legacy_snapshot_sha256", "canonical_snapshot_sha256"]) {
+    if (report?.[path] !== report?.raw_snapshot_sha256) add(difference("raw_fingerprint", path, report?.raw_snapshot_sha256, report?.[path], "RA004_ISSUED_SNAPSHOT_FINGERPRINT_MISMATCH", "integrity.raw_fingerprint"));
   }
-  const recomputed = compareParityCollections(report.parity_rows.map((row) => row.legacy), report.parity_rows.map((row) => row.canonical), expected.native_records);
-  if (recomputed.some((row) => row.difference_class !== "EXACT_PARITY")) differences.push("parity_rows");
-  const expectedCounts = Object.fromEntries(DIFFERENCE_CLASSES.map((name) => [name, name === "EXACT_PARITY" ? report.parity_rows.length : 0]));
-  if (!same(report.difference_counts, expectedCounts)) differences.push("difference_counts");
-  return deepFreeze({ difference_class: differences.length ? "UNEXPLAINED_DIFFERENCE" : "EXACT_PARITY", differences });
+  const runChecks = [
+    ["legacy.action_manifest_fingerprint", expected.legacy_output_fingerprint, report?.legacy?.action_manifest_fingerprint, "RA004_LEGACY_OUTPUT_FINGERPRINT_MISMATCH"],
+    ["canonical.output_fingerprint", expected.canonical_output_fingerprint, report?.canonical?.output_fingerprint, "RA004_CANONICAL_OUTPUT_FINGERPRINT_MISMATCH"],
+    ["report_fingerprint", expected.parity_report_fingerprint, report?.report_fingerprint, "RA004_REPORT_FINGERPRINT_MISMATCH"],
+    ["legacy.state", expected.legacy_state, report?.legacy?.state, "RA004_LEGACY_STATE_MISMATCH"],
+    ["canonical.run_outcome", expected.canonical_run_outcome, report?.canonical?.run_outcome, "RA004_CANONICAL_RUN_OUTCOME_MISMATCH"],
+  ];
+  for (const [path, wanted, actual, code] of runChecks) if (!same(actual, wanted)) add(difference("run_level", path, wanted, actual, code, "integrity.run_level"));
+  const recomputedReportFingerprint = canonicalFingerprint("RA004-SINGLE-SNAPSHOT-REPORT", { ...report, report_fingerprint: null });
+  if (report?.report_fingerprint !== recomputedReportFingerprint) add(difference("run_level", "report_fingerprint.integrity", recomputedReportFingerprint, report?.report_fingerprint, "RA004_REPORT_FINGERPRINT_INTEGRITY", "integrity.run_level"));
+
+  for (const field of CAPABILITY_FIELDS) {
+    const wanted = field === "source_read_attempt_count" || field === "source_read_count" ? 1 : 0;
+    if (report?.capabilities?.[field] !== wanted) add(difference("capability", `capabilities.${field}`, wanted, report?.capabilities?.[field], "RA004_CAPABILITY_COUNT_MISMATCH", "integrity.capability"));
+  }
+
+  const parityRows = Array.isArray(report?.parity_rows) ? report.parity_rows : [];
+  const identity = (row) => row && `${row.external_product_id}|${row.external_variant_id}`;
+  const expectedVariants = new Set(Object.keys(expected.native_records || {}));
+  const rowKeys = new Map();
+  for (const row of parityRows) rowKeys.set(String(row?.key), (rowKeys.get(String(row?.key)) || 0) + 1);
+  for (const [key, occurrences] of rowKeys) if (occurrences > 1) add(difference("record_set", `parity_rows.${key}`, 1, occurrences, "RA004_DUPLICATE_PARITY_RECORD", "integrity.record_set"));
+  for (const variant of expectedVariants) if (!rowKeys.has(variant)) add(difference("record_set", `parity_rows.${variant}`, "present", "missing", "RA004_PARITY_RECORD_MISSING", "integrity.record_set"));
+  for (const key of rowKeys.keys()) if (!expectedVariants.has(key)) add(difference("record_set", `parity_rows.${key}`, "absent", "present", "RA004_PARITY_RECORD_EXTRA", "integrity.record_set"));
+
+  const legacyRows = parityRows.map((row) => row?.legacy).filter(Boolean);
+  const canonicalRows = parityRows.map((row) => row?.canonical).filter(Boolean);
+  for (const [side, rows] of [["legacy", legacyRows], ["canonical", canonicalRows]]) {
+    const identities = new Map();
+    for (const row of rows) identities.set(identity(row), (identities.get(identity(row)) || 0) + 1);
+    for (const [key, occurrences] of identities) if (occurrences > 1) add(difference("record_set", `${side}.${key}`, 1, occurrences, "RA004_DUPLICATE_OUTPUT_IDENTITY", "integrity.record_set"));
+  }
+  const recomputed = compareParityCollections(legacyRows, canonicalRows, expected.native_records || {});
+  for (const record of recomputed) {
+    const recordClass = DIFFERENCE_CLASSES.includes(record.difference_class) ? record.difference_class : "UNEXPLAINED_DIFFERENCE";
+    counts.records[recordClass] += 1;
+    if (record.side) {
+      add(difference("record_set", `records.${record.key}`, "both sides present", record.side, "RA004_RECORD_SIDE_MISSING", "integrity.record_set"));
+      continue;
+    }
+    for (const path of record.field_differences || []) {
+      const native = /(?:native_action|native_reason_codes|native_record_fingerprint|record_fingerprint)$/.test(path);
+      const schemaMismatch = path.endsWith(".$schema");
+      const category = schemaMismatch ? "integrity.schema" : native ? "integrity.native_golden" : "records.UNEXPLAINED_DIFFERENCE";
+      add(difference(native ? "native_golden" : schemaMismatch ? "schema" : "record", `records.${record.key}.${path}`, "contract/golden match", "mismatch", native ? "RA004_NATIVE_GOLDEN_MISMATCH" : schemaMismatch ? "RA004_RECORD_SCHEMA_MISMATCH" : "RA004_RECORD_FIELD_MISMATCH", category));
+    }
+  }
+  if (report?.legacy?.row_count !== legacyRows.length || report?.canonical?.row_count !== canonicalRows.length) add(difference("record_set", "row_count", { legacy: legacyRows.length, canonical: canonicalRows.length }, { legacy: report?.legacy?.row_count, canonical: report?.canonical?.row_count }, "RA004_RECORD_COUNT_MISMATCH", "integrity.record_set"));
+  counts.total_mismatches = differences.length;
+  return deepFreeze({ difference_class: differences.length ? "UNEXPLAINED_DIFFERENCE" : "EXACT_PARITY", differences, difference_entry_count: differences.length, difference_counts: counts });
 }
 
 function replaySingleSnapshot(state, options = {}) {
   const boundary = options.boundary;
   if (!boundary || typeof boundary.readOnce !== "function") fail("RA004_SOURCE_CAPABILITY_REQUIRED", "Replay requires an explicit source capability");
   const bytes = boundary.readOnce();
+  const originalFingerprint = rawSha256(bytes);
+  if (options.expectedRawSha256 === undefined || options.expectedRawSha256 === null || options.expectedRawSha256 === "") fail("RA004_EXPECTED_RAW_FINGERPRINT_REQUIRED", "Replay requires an expected raw snapshot SHA-256");
+  if (!/^[a-f0-9]{64}$/.test(options.expectedRawSha256)) fail("RA004_EXPECTED_RAW_FINGERPRINT_INVALID", "Expected raw snapshot fingerprint must be a lowercase SHA-256");
+  if (originalFingerprint !== options.expectedRawSha256) fail("RA004_RAW_SNAPSHOT_FINGERPRINT_MISMATCH", "Raw snapshot fingerprint does not match the approved expectation");
+  const legacyBytes = Buffer.from(bytes), canonicalBytes = Buffer.from(bytes);
   validateSnapshot(bytes, options.contentType || "text/csv");
   if (!state || !Array.isArray(state.targets) || !state.captured_at) fail("RA004_STATE_INVALID", "A fixed test state export is required");
   const identities = state.targets.map((target) => `${target.external_product_id}|${target.external_variant_id}`);
   if (new Set(identities).size !== identities.length) fail("RA004_IDENTITY_CONFLICT", "State export contains a duplicate source identity");
-  const originalFingerprint = rawSha256(bytes), legacyBytes = Buffer.from(bytes), canonicalBytes = Buffer.from(bytes);
-  const legacyProjected = projectCsvRows(legacyBytes, { storeUrl: config.store_url, capturedAt: state.captured_at });
+  const legacyProjector = options.legacyProjector || projectCsvRows;
+  const legacyProjected = legacyProjector(legacyBytes, { storeUrl: config.store_url, capturedAt: state.captured_at });
   const canonicalConnected = (options.canonicalConnector || connectTenRepsCsv)(canonicalBytes, { storeUrl: config.store_url, capturedAt: state.captured_at });
   const sourceVariants = legacyProjected.sourceVariants.map((row) => ({ ...row, shipping_cost: config.shipping_policy.cost_gbp }));
   const policy = { ...config.guardrails, required_matched_offers: state.targets.length, store_url: config.store_url };
@@ -196,14 +257,14 @@ function replaySingleSnapshot(state, options = {}) {
   const legacyRows = [...(legacy.rows || []), ...(legacy.quarantined_rows || [])], legacyByVariant = new Map(legacyRows.map((row) => [String(row.external_variant_id), row])), canonicalByVariant = new Map(canonical.rows.map((row) => [value(row.canonical_record.external_variant_id), row]));
   const parityRows = state.targets.map((target) => {
     const key = String(target.external_variant_id), left = legacyNormalized(target, legacyEvidence.get(key) || null, legacyByVariant.get(key), originalFingerprint), right = canonicalNormalized(target, canonicalEvidence.get(key) || null, canonicalByVariant.get(key), originalFingerprint);
-    return { key, legacy: left, canonical: right, comparison: compareParityRows(left, right, goldens.native_records[key]) };
+    return { key, legacy: left, canonical: right, comparison: compareParityRows(left, right, options.nativeGoldenExpectations?.[key]) };
   });
   const report = {
     schema_version: 2, adapter: "RA004_TEST_ONLY_SINGLE_SNAPSHOT_V2", retailer: { id: "14", name: "10 Reps" },
-    snapshot_contract: { contract_version: "RA004_SINGLE_SNAPSHOT_V1", retailer: { id: "14", name: "10 Reps", slug: "10-reps" }, source_type: "CSV_PRODUCT_FEED", capture_id: "ra004-synthetic-fixture-001", capture_timestamp_utc: state.captured_at, content_type: options.contentType || "text/csv", byte_length: bytes.length, raw_bytes_sha256: originalFingerprint, issued_copy_sha256: { legacy: rawSha256(legacyBytes), canonical: rawSha256(canonicalBytes) }, source_read_count: boundary.metrics.source_read_count, provenance: "scripts/test-fixtures/retailer-automation/ra004-10reps-single-snapshot.csv" },
+    snapshot_contract: { contract_version: "RA004_SINGLE_SNAPSHOT_V1", retailer: { id: "14", name: "10 Reps", slug: "10-reps" }, source_type: "CSV_PRODUCT_FEED", capture_id: "ra004-synthetic-fixture-001", capture_timestamp_utc: state.captured_at, content_type: options.contentType || "text/csv", byte_length: bytes.length, expected_raw_sha256: options.expectedRawSha256, raw_bytes_sha256: originalFingerprint, issued_copy_sha256: { legacy: rawSha256(legacyBytes), canonical: rawSha256(canonicalBytes) }, source_read_count: boundary.metrics.source_read_count, provenance: "scripts/test-fixtures/retailer-automation/ra004-10reps-single-snapshot.csv" },
     raw_snapshot_sha256: originalFingerprint, legacy_snapshot_sha256: rawSha256(legacyBytes), canonical_snapshot_sha256: rawSha256(canonicalBytes), required_headers: REQUIRED_COLUMNS, difference_classes: DIFFERENCE_CLASSES, parity_fields: PARITY_FIELDS,
     legacy: { state: legacy.state, action_manifest_fingerprint: legacy.action_manifest_fingerprint || null, row_count: legacyRows.length }, canonical: { run_outcome: canonical.run_outcome, output_fingerprint: canonical.output_fingerprint, row_count: canonical.rows.length },
-    parity_rows: parityRows, difference_counts: Object.fromEntries(DIFFERENCE_CLASSES.map((name) => [name, parityRows.filter((row) => row.comparison.difference_class === name).length])), unclassified_record_count: parityRows.filter((row) => row.legacy.change_classification === "UNCLASSIFIED" || row.canonical.change_classification === "UNCLASSIFIED").length,
+    parity_rows: parityRows, difference_counts: { records: Object.fromEntries(DIFFERENCE_CLASSES.map((name) => [name, parityRows.filter((row) => row.comparison.difference_class === name).length])), integrity: Object.fromEntries(INTEGRITY_CATEGORIES.map((name) => [name, 0])), total_mismatches: 0 }, unclassified_record_count: parityRows.filter((row) => row.legacy.change_classification === "UNCLASSIFIED" || row.canonical.change_classification === "UNCLASSIFIED").length,
     semantic_mappings: [
       { field: "native_action", legacy: "offer-sync action", canonical: "canonical classification", validation: "side-specific static golden" },
       { field: "native_reason_codes", legacy: "RA-003 compatibility plus source reason", canonical: "canonical taxonomy", validation: "side-specific static golden" },

@@ -26,6 +26,26 @@ recorded here rather than being hidden by the corrected result:
 Regression tests reproduced all four failures before implementation changed.
 The corrected tests fail closed if any condition returns.
 
+A later independent reverification found two additional material blockers:
+
+5. the raw golden was checked only after both replay paths had already run;
+6. run-level and capability mutations changed the overall comparison but left
+   the old flat record counters at 9 exact / 0 unexplained.
+
+The fourth PR commit adds fail-before-fix regressions for both. The runner now
+supplies an explicit static `expected_raw_sha256`; the adapter itself does not
+import the golden file. `readOnce()` happens once, SHA-256 is calculated and
+checked, and only then are defensive copies and either processor created. A
+missing expectation fails with `RA004_EXPECTED_RAW_FINGERPRINT_REQUIRED`, an
+invalid value with `RA004_EXPECTED_RAW_FINGERPRINT_INVALID`, and a mismatch
+with `RA004_RAW_SNAPSHOT_FINGERPRINT_MISMATCH`.
+
+One changed byte, a removed final LF, LF replaced by a space, and CRLF paired
+with the LF expectation all stop with source read attempt/performed `1/1`,
+legacy invocation count `0`, canonical invocation count `0`, no report and all
+other capability counters `0/0`. CRLF is accepted only when the runner passes
+the separate static CRLF golden.
+
 ## Split point and independent call graphs
 
 The adapter owns the one controlled local read:
@@ -76,6 +96,11 @@ three byte fingerprints are checked after both paths complete. A mutation test
 changes the canonical copy after parsing and proves acceptance fails with
 `RA004_FINGERPRINT_CHANGED_DURING_RUN`.
 
+Before those copies exist, the adapter compares the one read's hash with the
+runner-supplied `expected_raw_sha256`. This is a pre-replay gate: the CSV
+parser, legacy projector, canonical connector and zero-write harness are all
+downstream and cannot run on a mismatched snapshot.
+
 Accepted counters are closed to exactly these fields:
 
 ```text
@@ -117,7 +142,13 @@ not derive expectations from checkout bytes. Frozen values are:
 - canonical output:
   `23f2f5a7d4f2ef3a1dd225c91b0abeeaa9270880725f25b04341fef9096d806a`;
 - complete parity report:
-  `4c82cac23f0f0051392fb51889bce3a8329cdcb46623a780e90b04fc609fb70a`.
+  `01208795065dee00a3fcff269a9c445b27ae54c95ec95148d38876da5517f133`.
+
+The prior report fingerprint
+`4c82cac23f0f0051392fb51889bce3a8329cdcb46623a780e90b04fc609fb70a`
+is superseded only because the approved report schema now includes the explicit
+raw expectation and nested record/integrity counters. Raw, legacy, canonical
+and every per-record golden remain unchanged.
 
 The golden also pins each side's native action, ordered reason-code array,
 native record fingerprint and normalized record fingerprint for all nine
@@ -136,16 +167,42 @@ fingerprints.
 
 The report comparator also seals the complete top-level key set, snapshot and
 source fingerprints, legacy and canonical output fingerprints, true native run
-states, row counts/set, all difference counts, every capability counter and the
-report fingerprint. It recomputes report integrity and rejects missing or new
-fields. `EXACT_PARITY` requires all comparable fields equal, every side-specific
-native golden matched, nine identical identities, zero non-exact classes,
-exactly one source read and zero other attempts/performed effects.
+states, row counts/set, every capability counter and the report fingerprint.
+It ignores the supplied per-row `comparison` and supplied `difference_counts`,
+then recomputes both from actual legacy/canonical records, static native/raw
+expectations, capability evidence and the closed schemas. Every generated diff
+entry carries `scope`, `path`, `expected`, `actual`, `reason_code` and
+`counter_category`.
+
+The recomputed counter structure is:
+
+```text
+difference_counts.records.<six approved record classes>
+difference_counts.integrity.run_level
+difference_counts.integrity.capability
+difference_counts.integrity.native_golden
+difference_counts.integrity.schema
+difference_counts.integrity.record_set
+difference_counts.integrity.raw_fingerprint
+difference_counts.total_mismatches
+```
+
+The six record classes always sum to the evaluated record set. Run-level
+integrity does not falsely reduce record parity: changing
+`canonical.run_outcome` retains `records.EXACT_PARITY: 9`, produces
+`integrity.run_level: 2` and `total_mismatches: 2`. Changing
+`network_attempt_count` to 99 retains nine exact records, produces
+`integrity.capability: 1`, one report-integrity entry and
+`total_mismatches: 2`. `difference_entry_count`, `total_mismatches` and the
+generated differences length are identical. `EXACT_PARITY` is available only
+when that total is zero.
 
 Mutation tests cover every row field plus native reason codes, native and
 normalized fingerprints, `canonical.run_outcome`, every capability counter,
-missing and extra fields, missing and extra records, raw bytes and report
-integrity. Each becomes `UNEXPLAINED_DIFFERENCE` or throws before acceptance.
+missing and extra fields, missing, extra and duplicate records, raw bytes,
+forged input counts, forged input comparison, removed prior differences and
+report integrity. Each becomes `UNEXPLAINED_DIFFERENCE` or throws before
+acceptance, while the comparator regenerates its summary from source evidence.
 
 ## Fixture and scenario result
 

@@ -4,7 +4,7 @@
   "raw_crlf_sha256": "213edf54809679be4326aa774ffa64ea9bae6c41fea38a672d0ca85d6e789b81",
   "legacy_output_fingerprint": "d8d23f5a87e65ff98d1d42c6499a6e4add8270e52e122c8ea7ac2202f8ec1d2d",
   "canonical_output_fingerprint": "23f2f5a7d4f2ef3a1dd225c91b0abeeaa9270880725f25b04341fef9096d806a",
-  "parity_report_fingerprint": "4c82cac23f0f0051392fb51889bce3a8329cdcb46623a780e90b04fc609fb70a",
+  "parity_report_fingerprint": "01208795065dee00a3fcff269a9c445b27ae54c95ec95148d38876da5517f133",
   "legacy_state": "DRY_RUN_READY_WITH_REVIEW",
   "canonical_run_outcome": "PASS_WITH_REVIEW",
   "native_records": {
