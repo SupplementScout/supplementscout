@@ -1,4 +1,4 @@
-const { canonical, sha256 } = require("../shopify-snapshot-reader");
+const { canonical, sha256 } = require("../stable-json-hash");
 
 function fingerprint(value) { return sha256(canonical(value)); }
 function sortRows(rows) { return [...rows].sort((a, b) => BigInt(a.offer_id) < BigInt(b.offer_id) ? -1 : BigInt(a.offer_id) > BigInt(b.offer_id) ? 1 : String(a.external_variant_id).localeCompare(String(b.external_variant_id))); }
