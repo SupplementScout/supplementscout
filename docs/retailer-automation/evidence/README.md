@@ -18,6 +18,10 @@
 
 [RA-004 test-only single-snapshot replay adapter](RA-004-SINGLE-SNAPSHOT-ADAPTER.md)
 
+[RA-004 owner decision pack](RA-004-OWNER-DECISION-PACK.md)
+
+[RA-004 machine-readable owner decision record](RA-004-owner-decisions.json)
+
 RA-002 was independently verified on 23 September 2026 in PR #86. RA-003 was
 independently verified on 24 September 2026 in PR #87. Their local test and
 contract modules remain unwired from production. RA-004 is `IN_PROGRESS`; its
@@ -31,9 +35,19 @@ transactional interface passed the mandatory isolated-database migration,
 privilege and snapshot tests, and `verify:full` passes after a repository-level
 LF policy for deterministic artifacts. No live export or active authorization
 was created. The test-only single-snapshot adapter is
-`READY_FOR_REVERIFICATION`: its corrected, independently split synthetic replay has 9/9 exact parity rows, zero
+`VERIFIED_COMPLETE`: its corrected, independently split synthetic replay has 9/9 exact parity rows, zero
 unexplained differences and zero side-effect attempts. The shadow run remains
 `NOT_AUTHORIZED`.
+
+The owner decision pack is `VERIFIED_COMPLETE`. On 24 September 2026 Marek
+approved all five recommended decisions: record-count policy R and raw/derived
+retention R are `OWNER_APPROVED`; the staging-canary and credential parameters
+are `OWNER_APPROVED_FOR_FUTURE_PREPARATION`. Approval permits only a separate
+future implementation plan, runbook, Draft PR and credential design. Staging
+execution, migration application, credential issuance/use, production, live
+capture, live control-state export and shadow remain `NOT_AUTHORIZED`. No
+credential, selector change, migration apply, capture or shadow run was created.
+RA-004 remains `IN_PROGRESS`.
 
 The fixture-only implementation is preserved in PR #89. Marek approved
 the transactional interface for isolated local implementation. The migration

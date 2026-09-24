@@ -1,0 +1,337 @@
+{
+  "schema_version": "ra-004-owner-decisions-v3",
+  "baseline_sha": "29b57ffe98c174e0f7364d65f25bdcdc2b5cceb5",
+  "prepared_at": "2026-09-24",
+  "status": "VERIFIED_COMPLETE",
+  "owner_decision": {
+    "status": "OWNER_APPROVED",
+    "owner": "Marek",
+    "decided_at": "2026-09-24",
+    "source": "EXPLICIT_OWNER_INSTRUCTION",
+    "statement": "Zatwierdzam wszystkie pięć rekomendowanych decyzji RA-004.",
+    "approved_decision_ids": [
+      "D1_RECORD_COUNT_POLICY",
+      "D2_RAW_RETENTION",
+      "D3_DERIVED_RETENTION",
+      "D4_STAGING_CANARY",
+      "D5_STAGING_CREDENTIAL"
+    ],
+    "execution_authorized": false
+  },
+  "decision_document": {
+    "path": "docs/retailer-automation/evidence/RA-004-OWNER-DECISION-PACK.md",
+    "normalization": "CRLF_TO_LF_UTF8_THEN_REPLACE_MARKDOWN_MANIFEST_FINGERPRINT_VALUE_WITH_SELF",
+    "sha256": "cd09cbc9ce72000ee019b6584d0e90185f897b67b2758d424bef3e58127acf33"
+  },
+  "authorization": {
+    "staging": "NOT_AUTHORIZED",
+    "production": "NOT_AUTHORIZED",
+    "staging_canary_execution": "NOT_AUTHORIZED",
+    "staging_migration_application": "NOT_AUTHORIZED",
+    "staging_credential_issuance": "NOT_AUTHORIZED",
+    "staging_credential_use": "NOT_AUTHORIZED",
+    "production_migration": "NOT_AUTHORIZED",
+    "production_credential": "NOT_AUTHORIZED",
+    "live_feed_capture": "NOT_AUTHORIZED",
+    "live_control_state_export": "NOT_AUTHORIZED",
+    "shadow_run": "NOT_AUTHORIZED",
+    "control_plan": "NOT_AUTHORIZED",
+    "approval": "NOT_AUTHORIZED",
+    "import": "NOT_AUTHORIZED",
+    "apply": "NOT_AUTHORIZED",
+    "model_b_execution": "NOT_AUTHORIZED",
+    "auto_safe_classes": "NONE_APPROVED",
+    "cutover": "NOT_AUTHORIZED"
+  },
+  "preparation_authorization": {
+    "staging_canary_preparation_authorized": true,
+    "staging_canary_execution_authorized": false,
+    "staging_migration_authorized": false,
+    "credential_design_authorized": true,
+    "credential_issuance_authorized": false,
+    "credential_use_authorized": false
+  },
+  "policy_lifecycle": {
+    "owner_approved_policies_expire_automatically": false,
+    "record_count_review_after_approved_captures": 3,
+    "review_does_not_relax_or_expire_policy_automatically": true,
+    "every_execution_action_requires_new_exact_authorization": true
+  },
+  "component_status": {
+    "ra_004": "IN_PROGRESS",
+    "owner_decisions": "OWNER_APPROVED",
+    "decision_pack": "VERIFIED_COMPLETE",
+    "control_state_interface": "VERIFIED_COMPLETE",
+    "single_snapshot_adapter": "VERIFIED_COMPLETE"
+  },
+  "historical_context_not_current_state": {
+    "approved_mapping_count": 950,
+    "executed_count": 935,
+    "review_count": 15,
+    "source_product_count": 473,
+    "source_variant_count": 1663
+  },
+  "number_provenance": {
+    "approved_mapping_count_950": "TRACKED_EVIDENCE: config/retailers/10reps-offer-sync.json",
+    "executed_935_review_15": "TRACKED_HISTORICAL_EVIDENCE: run 35834479612 in RA-004-PREFLIGHT.md and AUDIT.md",
+    "products_473_variants_1663": "TRACKED_HISTORICAL_CONFIG_GUARD: config/retailers/10reps-offer-sync.json; not current snapshot",
+    "candidate_variants_1497_1996": "CALCULATED: round_half_up(1663*0.90) through round_half_up(1663*1.20)",
+    "candidate_products_426_568": "CALCULATED: round_half_up(473*0.90) through round_half_up(473*1.20)",
+    "thresholds_retention_and_canary_limits": "OWNER_APPROVED_TEMPORARY_SAFETY_POLICY: not historically derived",
+    "migration_sha256": "TRACKED_BYTES_AND_SELECTOR_CONTRACT"
+  },
+  "decision_defaults": "OWNER_RESPONSE_RECORDED; POLICY_APPROVAL_DOES_NOT_AUTHORIZE_EXECUTION",
+  "decisions": [
+    {
+      "id": "D1_RECORD_COUNT_POLICY",
+      "question": "Which proposed record-count policy should govern a separately authorized future capture?",
+      "status": "OWNER_APPROVED",
+      "recommended": "BALANCED_CONSERVATIVE_R",
+      "selected": "BALANCED_CONSERVATIVE_R",
+      "alternatives": ["RESTRICTIVE_S", "FLEXIBLE_F", "AMEND", "REJECT"],
+      "may_choose_different_value": true,
+      "temporary_conservative": true,
+      "review_after_approved_captures": 3,
+      "approved_scope": ["record_policy_registration_for_separately_authorized_future_capture"],
+      "does_not_authorize": ["capture", "replay", "shadow_run", "write"],
+      "pre_approval_default_effect": "NOT_AUTHORIZED; all count-dependent work remained blocked"
+    },
+    {
+      "id": "D2_RAW_RETENTION",
+      "question": "Which proposed retention policy should govern a future protected raw snapshot?",
+      "status": "OWNER_APPROVED",
+      "recommended": "RETENTION_R",
+      "selected": "RETENTION_R",
+      "alternatives": ["RETENTION_SHORT_S", "RETENTION_LONG_L", "AMEND", "REJECT"],
+      "may_choose_different_value": true,
+      "approved_scope": ["raw_retention_policy_registration"],
+      "does_not_authorize": ["storage_creation", "capture", "upload"],
+      "pre_approval_default_effect": "NOT_AUTHORIZED; future capture remained blocked"
+    },
+    {
+      "id": "D3_DERIVED_RETENTION",
+      "question": "Which proposed retention policy should govern future redacted and derived evidence?",
+      "status": "OWNER_APPROVED",
+      "recommended": "RETENTION_R",
+      "selected": "RETENTION_R",
+      "alternatives": ["RETENTION_SHORT_S", "RETENTION_LONG_L", "AMEND", "REJECT"],
+      "may_choose_different_value": true,
+      "approved_scope": ["derived_evidence_retention_policy_registration"],
+      "does_not_authorize": ["evidence_collection", "control_state_export", "publication"],
+      "pre_approval_default_effect": "NOT_AUTHORIZED; durable pilot evidence remained blocked"
+    },
+    {
+      "id": "D4_STAGING_CANARY",
+      "question": "May a later task prepare the proposed one-retailer staging canary within a maximum 60-minute window?",
+      "status": "OWNER_APPROVED_FOR_FUTURE_PREPARATION",
+      "recommended": {
+        "maximum_window_minutes": 60,
+        "retailer_scope_count": 1,
+        "retailer_selector": "unique staging name/slug resolved by approved preflight; never guess or copy production ID",
+        "export_count": 1,
+        "requires_separate_selector_change_review": true
+      },
+      "selected": "RECOMMENDED_PARAMETERS_AS_RECORDED",
+      "alternatives": ["AMEND_SCOPE_OR_WINDOW", "REJECT"],
+      "may_choose_different_value": true,
+      "approved_scope": ["preparation_of_separate_staging_canary_implementation_plan_and_draft_pr"],
+      "does_not_authorize": ["selector_change", "migration_apply", "production", "live_capture", "shadow_run"],
+      "pre_approval_default_effect": "NOT_AUTHORIZED; staging remained blocked"
+    },
+    {
+      "id": "D5_STAGING_CREDENTIAL",
+      "question": "May the later canary use one staging-only exporter credential for at most 30 minutes and one RPC attempt?",
+      "status": "OWNER_APPROVED_FOR_FUTURE_PREPARATION",
+      "recommended": {
+        "maximum_validity_minutes": 30,
+        "maximum_rpc_attempts": 1,
+        "allowed_rpc": "public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer)",
+        "role_membership": "retailer_control_state_exporter",
+        "provisioning": "outside Git",
+        "revoke_immediately": true,
+        "automatic_retry": false
+      },
+      "selected": "RECOMMENDED_PARAMETERS_AS_RECORDED",
+      "alternatives": ["15_MINUTES", "REJECT"],
+      "may_choose_different_value": true,
+      "approved_scope": ["preparation_of_staging_credential_design_for_D4"],
+      "does_not_authorize": ["credential_creation_now", "table_access", "mutation_rpc", "other_rpc", "production_credential"],
+      "pre_approval_default_effect": "NOT_AUTHORIZED; exporter access remained blocked"
+    }
+  ],
+  "record_count_policies": {
+    "classification_rule": {
+      "baseline": "B",
+      "observed": "C",
+      "delta": "abs(C-B)",
+      "direction": "decline when C < B; growth otherwise",
+      "integer_trigger": "min(ceil(B*percent/100), absolute)",
+      "logical_operator": "EITHER_OR",
+      "comparison_operator": ">=",
+      "percentage_arithmetic": "exact decimal before ceil",
+      "status_precedence": ["BLOCKED_SOURCE", "PASS_WITH_REVIEW", "PASS"]
+    },
+    "parity_percentage_error_budget": 0,
+    "first_capture": {
+      "result_until_fingerprint_approved": "BLOCKED_SOURCE_BASELINE_APPROVAL_REQUIRED",
+      "automatic_baseline_approval": false,
+      "shadow_transition_allowed": false,
+      "calculation": "round_half_up(historical_configured_count*0.90) through round_half_up(historical_configured_count*1.20)",
+      "candidate_total_rows_and_unique_variants": { "minimum": 1497, "maximum": 1996 },
+      "candidate_unique_products": { "minimum": 426, "maximum": 568 }
+    },
+    "BALANCED_CONSERVATIVE_R": {
+      "rows_and_unique_variants": {
+        "decline_review": { "percent": 1, "absolute": 10 },
+        "decline_block": { "percent": 5, "absolute": 50 },
+        "growth_review": { "percent": 5, "absolute": 50 },
+        "growth_block": { "percent": 20, "absolute": 250 }
+      },
+      "unique_products": {
+        "decline_review": { "percent": 1, "absolute": 3 },
+        "decline_block": { "percent": 5, "absolute": 15 },
+        "growth_review": { "percent": 5, "absolute": 15 },
+        "growth_block": { "percent": 20, "absolute": 60 }
+      },
+      "mapped_missing": { "pass": 0, "review_minimum": 1, "block": { "percent_of_950": 1, "absolute": 10 } },
+      "new_variants": { "pass": 0, "review_minimum": 1, "block": { "percent_of_baseline": 5, "absolute": 50 } }
+    },
+    "RESTRICTIVE_S": {
+      "rows_and_unique_variants": { "decline_review": { "percent": 0.5, "absolute": 5 }, "decline_block": { "percent": 2, "absolute": 20 }, "growth_review": { "percent": 2, "absolute": 20 }, "growth_block": { "percent": 10, "absolute": 100 } },
+      "unique_products": { "decline_review": { "percent": 0.5, "absolute": 1 }, "decline_block": { "percent": 2, "absolute": 5 }, "growth_review": { "percent": 2, "absolute": 5 }, "growth_block": { "percent": 10, "absolute": 25 } },
+      "mapped_missing_block": { "percent_of_950": 0.5, "absolute": 5 },
+      "new_variants_block": { "percent_of_baseline": 2, "absolute": 20 }
+    },
+    "FLEXIBLE_F": {
+      "rows_and_unique_variants": { "decline_review": { "percent": 2, "absolute": 25 }, "decline_block": { "percent": 10, "absolute": 150 }, "growth_review": { "percent": 10, "absolute": 150 }, "growth_block": { "percent": 30, "absolute": 500 } },
+      "unique_products": { "decline_review": { "percent": 2, "absolute": 5 }, "decline_block": { "percent": 10, "absolute": 30 }, "growth_review": { "percent": 10, "absolute": 30 }, "growth_block": { "percent": 30, "absolute": 100 } },
+      "mapped_missing_block": { "percent_of_950": 2.5, "absolute": 25 },
+      "new_variants_block": { "percent_of_baseline": 10, "absolute": 100 }
+    },
+    "zero_tolerance_counts": {
+      "invalid_price": 0,
+      "unknown_stock": 0,
+      "duplicate_identity": 0,
+      "missing_required_fields": 0,
+      "unclassified_records": 0,
+      "invalid_records": 0
+    },
+    "per_row_isolation": {
+      "meaning": "zero automatic execution for every affected record or complete identity/dependency group",
+      "isolated_data_error_run_status": "PASS_WITH_REVIEW",
+      "source_wide_or_not_safely_isolatable_status": "BLOCKED_SOURCE",
+      "ordinary_data_error_system_status": "NEVER_FAILED_SYSTEM",
+      "failed_system_reserved_for": ["code failure", "infrastructure failure", "database failure", "process integrity failure"],
+      "source_missing_implies_out_of_stock": false
+    }
+  },
+  "retention_options": {
+    "duration_format": "ISO-8601 calendar duration",
+    "RETENTION_R": { "raw_csv": "P90D", "first_pilot_raw_csv": "later_of_capture_plus_P365D_or_signed_closeout_plus_P90D", "capture_metadata": "P13M", "canonical_output": "P13M", "parity_report": "P24M", "audit_logs": "P13M", "fingerprints_and_deletion_receipts": "P7Y", "redacted_control_state_export": "P90D" },
+    "RETENTION_SHORT_S": { "raw_csv": "P30D", "first_pilot_raw_csv": "later_of_capture_plus_P90D_or_signed_closeout_plus_P30D", "capture_metadata": "P6M", "canonical_output": "P6M", "parity_report": "P13M", "audit_logs": "P6M", "fingerprints_and_deletion_receipts": "P24M", "redacted_control_state_export": "P30D" },
+    "RETENTION_LONG_L": { "raw_csv": "P365D", "first_pilot_raw_csv": "later_of_capture_plus_P730D_or_signed_closeout_plus_P365D", "capture_metadata": "P24M", "canonical_output": "P24M", "parity_report": "P36M", "audit_logs": "P24M", "fingerprints_and_deletion_receipts": "P7Y", "redacted_control_state_export": "P365D" }
+  },
+  "retention_controls": {
+    "recommended_first_pilot_rule": "365 days or 90 days after signed pilot closeout, whichever is later",
+    "storage": "approved private UK-region encrypted-at-rest evidence store; bounded encrypted local volume only during upload and verification",
+    "transport_encryption": "TLS",
+    "access": ["named operator", "independent verifier"],
+    "forbidden": ["Git", "PR attachment", "public GitHub artifact", "application or scheduler access", "broad service role"],
+    "redact": ["source URL", "query string", "credential", "token", "connection string"],
+    "immutability": "write once",
+    "worm_lock_rule": "lock expiry must not exceed the approved deletion deadline; deletion cannot be claimed while locked",
+    "integrity": "detached SHA-256",
+    "deletion_confirmation": "deletion request plus read-after-delete verification and non-sensitive deletion receipt",
+    "deletion_owner": "future named evidence custodian required before capture",
+    "seven_year_basis": "owner-approved operational policy only; no legal or tax basis is asserted",
+    "incident_or_audit_hold": "exact evidence set only; recorded owner authority reason and review date; deletion resumes after release",
+    "recommended_lifecycle": {
+      "raw_csv": { "purpose": "reproduce parsing and investigate capture", "starts": "successful capture completion", "ends": "start plus P90D" },
+      "first_pilot_raw_csv": { "purpose": "preserve first pilot through review and closeout", "starts": "successful capture completion", "ends": "later of capture plus P365D or signed closeout plus P90D" },
+      "capture_metadata": { "purpose": "prove capture scope time size and source hash", "starts": "capture completion", "ends": "start plus P13M" },
+      "canonical_output": { "purpose": "reproduce normalization and matching", "starts": "canonical replay completion", "ends": "start plus P13M" },
+      "parity_report": { "purpose": "prove comparison and denied capabilities", "starts": "report sealing", "ends": "start plus P24M" },
+      "audit_logs": { "purpose": "prove named access and lifecycle actions", "starts": "each event timestamp", "ends": "event plus P13M" },
+      "fingerprints_and_deletion_receipts": { "purpose": "long-horizon integrity and deletion accountability", "starts": "evidence sealing or receipt creation", "ends": "start plus P7Y" },
+      "redacted_control_state_export": { "purpose": "support bounded canary verification", "starts": "export sealing", "ends": "start plus P90D" }
+    }
+  },
+  "staging_canary": {
+    "status": "OWNER_APPROVED_FOR_FUTURE_PREPARATION",
+    "staging_canary_preparation_authorized": true,
+    "staging_canary_execution_authorized": false,
+    "staging_migration_authorized": false,
+    "credential_design_authorized": true,
+    "credential_issuance_authorized": false,
+    "credential_use_authorized": false,
+    "migration": "supabase/migrations/20260924100000_add_transactional_retailer_control_state_interface.sql",
+    "migration_sha256": "cfd7a93cb20845832b696183f5eb8a500f0474b4173829b85f6ac6bc73d4baaa",
+    "currently_excluded_from_staging_selector": true,
+    "currently_excluded_from_production_selector": true,
+    "maximum_window_minutes": 60,
+    "maximum_credential_validity_minutes": 30,
+    "maximum_rpc_attempts": 1,
+    "automatic_rpc_retry": false,
+    "retailer_scope_count": 1,
+    "retailer_id_must_be_resolved_not_assumed": true,
+    "export_count": 1,
+    "credential_scope": "STAGING_ONLY",
+    "credential_table_access": false,
+    "credential_mutation_rpc_access": false,
+    "credential_or_operator_exists_by_assumption": false,
+    "credential_in_git_or_logs": false,
+    "access_rollback": "revoke LOGIN and EXECUTE immediately",
+    "access_rollback_removes_migration_ddl": false,
+    "ddl_removal_requires_separate_reviewed_migration": true,
+    "tracked_automatic_full_directory_apply_path_found": false,
+    "production_allowed": false,
+    "scheduler_wiring_allowed": false,
+    "evidence_producers_allowed": false,
+    "live_feed_capture_allowed": false,
+    "control_plan_allowed": false,
+    "approval_allowed": false,
+    "apply_allowed": false
+  },
+  "stop_conditions": {
+    "source_wide": [
+      "EMPTY_RESPONSE", "HTML_OR_CHALLENGE_RESPONSE", "UNEXPECTED_CONTENT_TYPE",
+      "REQUIRED_HEADER_MISSING_REORDERED_OR_ADDED", "DELIMITER_QUOTING_OR_ENCODING_DRIFT",
+      "MAXIMUM_BYTES_EXCEEDED", "FEED_WIDE_INVALID_OR_UNEXPECTED_CURRENCY",
+      "SYSTEMIC_OR_NOT_SAFELY_ISOLATABLE_DUPLICATE_IDENTITY", "OWNER_APPROVED_COUNT_BLOCK_THRESHOLD"
+    ],
+    "record_or_identity_group_zero_execution": [
+      "INVALID_PRICE", "UNKNOWN_STOCK", "MISSING_REQUIRED_FIELD", "DUPLICATE_STABLE_IDENTITY",
+      "UNCLASSIFIED_RECORD"
+    ],
+    "attempt_wide_integrity_or_capability": [
+      "RAW_FINGERPRINT_CHANGED_DURING_PROCESSING", "SECOND_READ_ATTEMPT",
+      "UNEXPECTED_NETWORK_DATABASE_OR_WRITE_ATTEMPT", "APPROVED_BASELINE_MISSING_OR_INVALID",
+      "INCOMPLETE_AUDIT_TRAIL", "NONDETERMINISTIC_REPLAY", "CANONICAL_DEFECT",
+      "UNEXPLAINED_PARITY_DIFFERENCE", "STAGING_PROJECT_LEDGER_SCHEMA_OR_HASH_MISMATCH",
+      "STAGING_RETAILER_MISSING_OR_AMBIGUOUS", "PRODUCTION_ENDPOINT_OR_CREDENTIAL_PRESENT",
+      "CREDENTIAL_PRIVILEGE_OR_EXPIRY_EXCEEDED", "RPC_ATTEMPT_LIMIT_EXCEEDED",
+      "CREDENTIAL_REVOCATION_UNPROVED"
+    ]
+  },
+  "required_evidence": [
+    "recorded owner decision bound to manifest fingerprint", "clean exact repository baseline",
+    "independently reviewed staging-only selector change retaining production exclusion",
+    "staging project schema ledger and retailer inventory preflight", "named operator and UTC window",
+    "approved private evidence destination and deletion rule", "credential privilege expiry and revocation plan",
+    "exact migration and decision-manifest fingerprints", "independent verification of this decision pack"
+  ],
+  "future_authorization_expiry": {
+    "decision_pack_approval_does_not_create_execution_authorization": true,
+    "approved_threshold_and_retention_policies_expire_automatically": false,
+    "staging_canary_authorization_maximum_minutes": 60,
+    "staging_credential_maximum_minutes": 30,
+    "unused_authorization_expires_at_window_end": true,
+    "retry_requires_new_authorization": true
+  },
+  "manifest_fingerprint": {
+    "algorithm": "SHA-256",
+    "canonicalization": "scripts/lib/stable-json-hash.js canonical JSON",
+    "covers": "all root fields except manifest_fingerprint",
+    "value": "030c9d7cb12b46ab0b2bca2311ffbe1456e1c579e9e3acd570a4c0766ead119c"
+  }
+}
