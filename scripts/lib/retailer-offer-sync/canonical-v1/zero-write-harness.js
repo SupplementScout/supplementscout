@@ -60,7 +60,7 @@ function buildReport(fixture, rows, boundary, evaluatedAt, inputFingerprint, sys
     reasonCounts[code] = (reasonCounts[code] || 0) + 1;
   }
   if (systemReason) reasonCounts[systemReason] = (reasonCounts[systemReason] || 0) + 1;
-  const forcedOutcome = systemReason === "CANONICAL_SYSTEM_EXCEPTION" ? "FAILED_SYSTEM" : systemReason === "CANONICAL_SOURCE_SUSPECT" ? "BLOCKED_SOURCE" : systemReason === "CANONICAL_EQUIVALENT_ACTIVE" ? "SKIPPED_EQUIVALENT_ACTIVE" : null;
+  const forcedOutcome = systemReason === "CANONICAL_SYSTEM_EXCEPTION" ? "FAILED_SYSTEM" : systemReason === "CANONICAL_SOURCE_SUSPECT" ? "BLOCKED_SOURCE" : systemReason === "CANONICAL_EQUIVALENT_ACTIVE" ? "SKIPPED_EQUIVALENT_ACTIVE" : systemReason === "CANONICAL_GUARDRAIL_BLOCKED" ? "BLOCKED_GUARDRAIL" : null;
   const report = {
     contract_version: "v1", taxonomy_version: "v1", fixture_id: fixture.fixture_id,
     evaluated_at: evaluatedAt, input_fingerprint: inputFingerprint,
@@ -92,6 +92,7 @@ function runZeroWriteHarness(fixture, dependencies = {}) {
   if (fixture.controls?.system_error) return buildReport(fixture, [], boundary, evaluatedAt, inputFingerprint, "CANONICAL_SYSTEM_EXCEPTION");
   if (fixture.controls?.source_suspect) return buildReport(fixture, [], boundary, evaluatedAt, inputFingerprint, "CANONICAL_SOURCE_SUSPECT");
   if (fixture.controls?.equivalent_active) return buildReport(fixture, [], boundary, evaluatedAt, inputFingerprint, "CANONICAL_EQUIVALENT_ACTIVE");
+  if (fixture.controls?.guardrail_blocked && fixture.raw_records.length === 0) return buildReport(fixture, [], boundary, evaluatedAt, inputFingerprint, "CANONICAL_GUARDRAIL_BLOCKED");
   const context = { ...fixture.source, run_id: fixture.run_id, captured_at: fixture.captured_at, source_fingerprint: canonicalFingerprint("SOURCE", { source: fixture.source, raw_records: fixture.raw_records }) };
   const rows = [];
   try {
@@ -111,7 +112,7 @@ function runZeroWriteHarness(fixture, dependencies = {}) {
     if (String(error.code || "").startsWith("ZERO_WRITE_")) throw error;
     return buildReport(fixture, rows, boundary, evaluatedAt, inputFingerprint, "CANONICAL_SYSTEM_EXCEPTION");
   }
-  return buildReport(fixture, rows, boundary, evaluatedAt, inputFingerprint);
+  return buildReport(fixture, rows, boundary, evaluatedAt, inputFingerprint, fixture.controls?.guardrail_blocked ? "CANONICAL_GUARDRAIL_BLOCKED" : null);
 }
 
 module.exports = { buildReport, createZeroWriteBoundary, defaultFixtureAdapter, deriveRunOutcome, runZeroWriteHarness };

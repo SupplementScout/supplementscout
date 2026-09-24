@@ -1,11 +1,12 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: RA-002 VERIFIED COMPLETE**
+**Status: RA-003 READY FOR VERIFICATION**
 
-**Current active task:** none — RA-002 is `VERIFIED_COMPLETE`; RA-003 is
-`NOT_STARTED`
+**Current active task:** none — RA-003 awaits independent verification; RA-004
+remains `NOT_STARTED`
 
-**Implementation:** RA-002 independently verified; no production wiring
+**Implementation:** RA-003 test/evidence implementation complete; no production
+wiring
 
 **Allowed statuses:** `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`,
 `READY_FOR_VERIFICATION`, `VERIFIED_COMPLETE`
@@ -165,7 +166,7 @@ the module is unwired and local-only.
 
 ## RA-003 — Historical incident regression fixtures
 
-**Status:** `NOT_STARTED`
+**Status:** `READY_FOR_VERIFICATION`
 
 **Goal:** convert every confirmed incident into a common-harness regression.
 
@@ -185,7 +186,10 @@ link to original evidence; no unexplained missing regression.
 
 **Tests:** full incident matrix through canonical harness; quick/full gates.
 
-**Evidence:** matrix report and CI artifacts.
+**Evidence:** `evidence/RA-003.md`, the 23-entry incident manifest, 16 executable
+fixture/golden pairs, the 81-entry legacy compatibility matrix, focused test
+output and fresh local quality gates. Draft PR and CI evidence are attached at
+handoff; independent verification remains required.
 
 **Rollback:** fixtures/harness only; runtime unchanged.
 

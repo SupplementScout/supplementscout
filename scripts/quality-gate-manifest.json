@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 304,
-    "sha256": "585a4b2da26bddf29e75042bc0c66c83f8a0e4b2831e18c0077c0373c80ca768"
+    "count": 305,
+    "sha256": "78bca7552bd886c32ab95d3ccf9813c211b38ef156b98545f9ecaadb7bb278a5"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -85,6 +85,7 @@
     "scripts/protein-bars-page.test.js",
     "scripts/quality-gate.test.js",
     "scripts/reviewed-catalogue-artifact-approver.test.js",
+    "scripts/retailer-incident-regression.test.js",
     "scripts/search.test.js",
     "scripts/sitemap-freshness.test.js",
     "scripts/whey-protein-page.test.js"
