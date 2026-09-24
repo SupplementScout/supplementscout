@@ -16,6 +16,8 @@
 
 [RA-004 local control-state implementation evidence](RA-004-CONTROL-STATE-LOCAL-IMPLEMENTATION.md)
 
+[RA-004 test-only single-snapshot replay adapter](RA-004-SINGLE-SNAPSHOT-ADAPTER.md)
+
 RA-002 was independently verified on 23 September 2026 in PR #86. RA-003 was
 independently verified on 24 September 2026 in PR #87. Their local test and
 contract modules remain unwired from production. RA-004 is `IN_PROGRESS`; its
@@ -28,7 +30,10 @@ control-state interface is `VERIFIED_COMPLETE`: the owner-approved
 transactional interface passed the mandatory isolated-database migration,
 privilege and snapshot tests, and `verify:full` passes after a repository-level
 LF policy for deterministic artifacts. No live export or active authorization
-was created.
+was created. The test-only single-snapshot adapter is
+`READY_FOR_REVERIFICATION`: its corrected, independently split synthetic replay has 9/9 exact parity rows, zero
+unexplained differences and zero side-effect attempts. The shadow run remains
+`NOT_AUTHORIZED`.
 
 The fixture-only implementation is preserved in PR #89. Marek approved
 the transactional interface for isolated local implementation. The migration

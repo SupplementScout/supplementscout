@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-09-24T09:05:00.000Z",
+  "targets": [
+    {"offer_id":"1","retailer_product_id":"101","external_product_id":"1001","external_variant_id":"2001","external_sku":"SKU-1","price":"19.99","shipping_cost":"3.99","total_price":"23.98","in_stock":true,"url":"https://www.10reps.co.uk/products/alpha-whey","external_url":"https://www.10reps.co.uk/products/alpha-whey"},
+    {"offer_id":"2","retailer_product_id":"102","external_product_id":"1002","external_variant_id":"2002","external_sku":"SKU-2","price":"20.99","shipping_cost":"3.99","total_price":"24.98","in_stock":true,"url":"https://www.10reps.co.uk/products/beta-whey","external_url":"https://www.10reps.co.uk/products/beta-whey"},
+    {"offer_id":"3","retailer_product_id":"103","external_product_id":"1003","external_variant_id":"2003","external_sku":"SKU-3","price":"12.00","shipping_cost":"3.99","total_price":"15.99","in_stock":true,"url":"https://www.10reps.co.uk/products/gamma-bar","external_url":"https://www.10reps.co.uk/products/gamma-bar"},
+    {"offer_id":"4","retailer_product_id":"104","external_product_id":"1004","external_variant_id":"2004","external_sku":"SKU-4","price":"15.00","shipping_cost":"3.99","total_price":"18.99","in_stock":true,"url":"https://www.10reps.co.uk/products/delta-creatine","external_url":"https://www.10reps.co.uk/products/delta-creatine"},
+    {"offer_id":"5","retailer_product_id":"105","external_product_id":"1005","external_variant_id":"2005","external_sku":"SKU-5","price":"9.99","shipping_cost":"3.99","total_price":"13.98","in_stock":true,"url":"https://www.10reps.co.uk/products/epsilon-vitamins","external_url":"https://www.10reps.co.uk/products/epsilon-vitamins"},
+    {"offer_id":"6","retailer_product_id":"106","external_product_id":"1006","external_variant_id":"2006","external_sku":"SKU-6","price":"24.99","shipping_cost":"3.99","total_price":"28.98","in_stock":true,"url":"https://www.10reps.co.uk/products/zeta-pre-workout","external_url":"https://www.10reps.co.uk/products/zeta-pre-workout"},
+    {"offer_id":"7","retailer_product_id":"107","external_product_id":"1007","external_variant_id":"2007","external_sku":"SKU-7","price":"6.99","shipping_cost":"3.99","total_price":"10.98","in_stock":true,"url":"https://www.10reps.co.uk/products/eta-shaker","external_url":"https://www.10reps.co.uk/products/eta-shaker"},
+    {"offer_id":"8","retailer_product_id":"108","external_product_id":"1008","external_variant_id":"2008","external_sku":"SKU-8","price":"7.49","shipping_cost":"3.99","total_price":"11.48","in_stock":true,"url":"https://www.10reps.co.uk/products/theta-electrolytes","external_url":"https://www.10reps.co.uk/products/theta-electrolytes"},
+    {"offer_id":"9","retailer_product_id":"109","external_product_id":"1009","external_variant_id":"2009","external_sku":"SKU-9","price":"11.00","shipping_cost":"3.99","total_price":"14.99","in_stock":true,"url":"https://www.10reps.co.uk/products/iota-missing","external_url":"https://www.10reps.co.uk/products/iota-missing","product_name":"Iota Missing","brand":"Test Brand","variant":"Standard","gtin":"500000000009"}
+  ]
+}

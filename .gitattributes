@@ -15,6 +15,9 @@
 # Tracked sealed review fixtures under tmp must use LF.
 /tmp/**/*.json text eol=lf
 
+# Tracked CSV test fixtures must use LF on every platform.
+/scripts/test-fixtures/**/*.csv text eol=lf
+
 # GitHub workflow definitions must use LF on every platform.
 /.github/workflows/**/*.yml text eol=lf
 /.github/workflows/**/*.yaml text eol=lf

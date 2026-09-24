@@ -6,7 +6,8 @@
 verified; the fixture-only exporter is preserved in PR #89, the
 transactional interface is owner-approved and locally verified, and the full
 repository quality gate passes under the repository LF policy; the shadow run
-is not authorized
+is not authorized; the corrected test-only single-snapshot adapter is
+`VERIFIED_COMPLETE`
 
 **Implementation:** fixture exporter plus locally database-verified forward-only
 transactional interface, unwired live-provider contract and fail-closed
@@ -16,7 +17,7 @@ credential or production wiring
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
 **Allowed statuses:** `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`,
-`READY_FOR_VERIFICATION`, `VERIFIED_COMPLETE`
+`READY_FOR_VERIFICATION`, `READY_FOR_REVERIFICATION`, `VERIFIED_COMPLETE`
 
 Only one RA task may be active. Task numbering for retailer migrations is an
 inventory key, not an approved execution sequence. No task may become
@@ -230,8 +231,19 @@ new migration remains excluded from both deployment selectors. No login,
 secret, remote apply or live export was created. See
 [`evidence/RA-004-CONTROL-STATE-INTERFACE-DESIGN.md`](evidence/RA-004-CONTROL-STATE-INTERFACE-DESIGN.md).
 
-RA-004 remains `IN_PROGRESS`; the live single-snapshot replay adapter remains
-`NOT_STARTED`, and the shadow manifest remains `NOT_AUTHORIZED`.
+**Test-only single-snapshot adapter:** `VERIFIED_COMPLETE` — one controlled
+local read is split before retailer-specific logic. The legacy copy uses the
+active projector/classifier; the canonical copy uses an independent 10 Reps
+connector and canonical v1 zero-write harness. Static goldens and a closed
+run-level comparator produce 9/9 exact record parity, zero integrity mismatches,
+zero unclassified/defect/unexplained rows, and zero prohibited capability
+attempts. The explicit static raw SHA is checked before either replay path, and
+the comparator regenerates nested record/integrity counts rather than trusting
+report summaries. See
+[`evidence/RA-004-SINGLE-SNAPSHOT-ADAPTER.md`](evidence/RA-004-SINGLE-SNAPSHOT-ADAPTER.md).
+
+RA-004 remains `IN_PROGRESS`; the adapter awaits independent verification,
+and the shadow manifest remains `NOT_AUTHORIZED`.
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
