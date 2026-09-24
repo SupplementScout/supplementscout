@@ -246,8 +246,9 @@ RA-004 remains `IN_PROGRESS`; the adapter is `VERIFIED_COMPLETE`, and the
 shadow manifest remains `NOT_AUTHORIZED`. The documentation-only
 [`evidence/RA-004-OWNER-DECISION-PACK.md`](evidence/RA-004-OWNER-DECISION-PACK.md)
 now proposes temporary conservative record-count thresholds, retention options,
-and one bounded staging canary. Its machine-readable decisions remain
-`NOT_AUTHORIZED`; no proposal records owner approval or execution authority.
+and one bounded staging canary. The pack is `VERIFIED_FOR_OWNER_REVIEW`; its
+five machine-readable decisions and every execution surface remain
+`NOT_AUTHORIZED`. Verification records no owner approval or execution authority.
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 

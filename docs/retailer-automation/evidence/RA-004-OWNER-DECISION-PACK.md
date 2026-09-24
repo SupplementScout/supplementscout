@@ -4,7 +4,7 @@
 
 **Repository baseline:** `29b57ffe98c174e0f7364d65f25bdcdc2b5cceb5`
 
-**Status:** `PROPOSED — NOT_AUTHORIZED`
+**Status:** `VERIFIED_FOR_OWNER_REVIEW — EXECUTION NOT_AUTHORIZED`
 
 **Scope:** documentation and recommendations only
 
@@ -38,13 +38,41 @@ Tracked evidence is insufficient for a statistically derived distribution of
 normal feed movement. After three owner-approved captures, they must be reviewed
 using only comparable, complete snapshots; they do not relax automatically.
 
+### Number provenance
+
+| Number | Classification | Reproducible source or calculation |
+|---|---|---|
+| 950 mappings | proved by tracked evidence | `approved_mapping_count` in `config/retailers/10reps-offer-sync.json` and the tracked approved mapping scope; it is not a raw-row count |
+| 935 executable / 15 review | proved by tracked historical evidence | retained run `35834479612`, recorded in `RA-004-PREFLIGHT.md` and `AUDIT.md`; neither value is current feed state or a permitted future allowance |
+| 473 products / 1,663 variants | proved as historical configured guard values | `source_baseline.product_count` and `source_baseline.variant_count` in the tracked 10 Reps configuration; they are not a current approved snapshot |
+| 1,497–1,996 candidate variants | calculated from stated values | temporary proposal `round_half_up(1,663 × 0.90)` through `round_half_up(1,663 × 1.20)`: `1,497` through `1,996` |
+| 426–568 candidate products | calculated from stated values | temporary proposal `round_half_up(473 × 0.90)` through `round_half_up(473 × 1.20)`: `426` through `568` |
+| Every percentage, absolute threshold, retention period, 60-minute window, 30-minute credential TTL and one-call limit | temporary safety recommendation | owner choice proposed by this pack; not derived from historical frequency or presented as fact |
+| 10,000,000-byte capture cap | proved as tracked preflight/configured cap | tracked preflight and source-reader configuration; retaining it in a future authorization is still an owner decision |
+| Migration SHA-256 | proved by tracked bytes | independently reproducible from the named migration; selector contracts bind the same value |
+
+The measures are not interchangeable. A raw row is one physical CSV data row.
+A unique variant/product count is the number of distinct validated source IDs.
+Under the exact 17-column contract, a valid capture requires one unique variant
+ID per data row, so total rows and unique variants must be equal, but both are
+still checked independently. A mapping is an approved link from an external
+variant to catalogue state; it need not cover every feed row. Executable and
+review are historical classifier outcomes over mapped scope, not source counts.
+
 ## How record-count status is calculated
 
-For every percentage threshold, calculate the percentage and absolute delta
-classifiers independently and take the stricter status. For example, a decline
-that reaches either 1% or 10 rows reaches review in the recommended policy. A
-boundary is inclusive. `PASS_WITH_REVIEW` never authorizes a write, stock
-change, mapping change or conversion of `SOURCE_MISSING` to out of stock.
+For baseline count `B`, observed count `C`, percentage `p` and absolute limit
+`A`, calculate the integer trigger as `min(ceil(B × p / 100), A)`. This is the
+exact meaning of “p% or A”: **either** condition triggers, the stricter/smaller
+integer delta wins, and both boundaries use `>=`. It is not `max`, and the two
+conditions do not both have to be true. Let `D = abs(C - B)` and select the
+decline thresholds when `C < B`, otherwise the growth thresholds. The status is
+`BLOCKED_SOURCE` when `D >= block_trigger`; otherwise `PASS_WITH_REVIEW` when
+`D >= review_trigger`; otherwise `PASS`. Percentage multiplication is exact
+decimal arithmetic and `ceil` is applied before `min`.
+
+`PASS_WITH_REVIEW` never authorizes a write, stock change, mapping change or
+conversion of `SOURCE_MISSING` to out of stock.
 
 The comparison baseline is the most recent snapshot explicitly approved by
 fingerprint for this policy version. If it is absent, expired, from a different
@@ -57,11 +85,26 @@ contract/policy, or cannot be verified, the result is `BLOCKED_SOURCE`.
 | Total rows | below the review boundary | decline: at least 1% **or** 10; growth: at least 5% **or** 50 | decline: at least 5% **or** 50; growth: at least 20% **or** 250 |
 | Unique variant IDs | same thresholds as total rows; count must also equal total rows | same | any row/variant mismatch, or the total-row block boundary |
 | Unique product IDs | below the review boundary | decline: at least 1% **or** 3; growth: at least 5% **or** 15 | decline: at least 5% **or** 15; growth: at least 20% **or** 60 |
-| Valid records | exactly all input rows | not applicable | fewer than all input rows |
-| Invalid price, unknown stock, duplicate stable identity, missing required row field | zero | not applicable | one or more |
+| Valid records | exactly all input rows | fewer than all rows only when every invalid row/group is durably isolated and aggregate/source structure remains trustworthy | source structure or defect scope cannot be isolated safely |
+| Invalid price, unknown stock, duplicate stable identity, missing required row field | zero affected rows | one or more affected rows/groups, all excluded from execution and durably reviewed | source-wide/systemic defect or an ambiguity that prevents complete isolation |
 | Approved mapped records absent from source | zero | 1–9 | at least 1% of 950 **or** 10; stricter classifier wins |
 | New, previously unseen variant IDs | zero | 1–49 | at least 5% of baseline variants **or** 50; stricter classifier wins |
 | Relative change from approved snapshot | covered independently above | any review boundary in any dimension | any block boundary in any dimension |
+
+### Executable boundary examples for recommended option R
+
+Counts in the last two columns are observed counts immediately below, exactly
+on and immediately above the delta boundary. “Above” always means one more
+unit of drift, not a numerically larger count for a decline.
+
+| Baseline / measure / direction | First review delta and observed below/on/above | Result below/on/above | First block delta and observed below/on/above | Result below/on/above |
+|---|---|---|---|---|
+| 950 variants, decline | `min(ceil(9.5),10)=10`; `941/940/939` | `PASS/PASS_WITH_REVIEW/PASS_WITH_REVIEW` | `min(ceil(47.5),50)=48`; `903/902/901` | `PASS_WITH_REVIEW/BLOCKED_SOURCE/BLOCKED_SOURCE` |
+| 950 variants, growth | `min(ceil(47.5),50)=48`; `997/998/999` | `PASS/PASS_WITH_REVIEW/PASS_WITH_REVIEW` | `min(ceil(190),250)=190`; `1139/1140/1141` | `PASS_WITH_REVIEW/BLOCKED_SOURCE/BLOCKED_SOURCE` |
+| 1,500 variants, decline | `min(ceil(15),10)=10`; `1491/1490/1489` | `PASS/PASS_WITH_REVIEW/PASS_WITH_REVIEW` | `min(ceil(75),50)=50`; `1451/1450/1449` | `PASS_WITH_REVIEW/BLOCKED_SOURCE/BLOCKED_SOURCE` |
+| 1,500 variants, growth | `min(ceil(75),50)=50`; `1549/1550/1551` | `PASS/PASS_WITH_REVIEW/PASS_WITH_REVIEW` | `min(ceil(300),250)=250`; `1749/1750/1751` | `PASS_WITH_REVIEW/BLOCKED_SOURCE/BLOCKED_SOURCE` |
+| 500 products, decline | `min(ceil(5),3)=3`; `498/497/496` | `PASS/PASS_WITH_REVIEW/PASS_WITH_REVIEW` | `min(ceil(25),15)=15`; `486/485/484` | `PASS_WITH_REVIEW/BLOCKED_SOURCE/BLOCKED_SOURCE` |
+| 500 products, growth | `min(ceil(25),15)=15`; `514/515/516` | `PASS/PASS_WITH_REVIEW/PASS_WITH_REVIEW` | `min(ceil(100),60)=60`; `559/560/561` | `PASS_WITH_REVIEW/BLOCKED_SOURCE/BLOCKED_SOURCE` |
 
 Benefit: it notices small losses early, tolerates bounded catalogue growth for
 manual inspection, and makes a material source collapse a retailer-wide stop.
@@ -80,9 +123,9 @@ fingerprint and parity guards remain mandatory for that reason.
 | Missing approved mappings | first missing row | 0.5% of 950 or 5 |
 | New variant IDs | first new row | 2% of baseline or 20 |
 
-All validity rules remain zero-tolerance. Benefit: earliest warning and lowest
-chance of accepting a partial feed. Risk: more false-positive stops and more
-owner review during normal catalogue churn.
+All validity rules retain the per-row zero-execution rule below. Benefit:
+earliest warning and lowest chance of accepting a partial feed. Risk: more
+false-positive stops and more owner review during normal catalogue churn.
 
 ### Option F — more flexible
 
@@ -95,10 +138,10 @@ owner review during normal catalogue churn.
 | Missing approved mappings | first missing row | 2.5% of 950 or 25 |
 | New variant IDs | first new row | 10% of baseline or 100 |
 
-All validity rules remain zero-tolerance. Benefit: fewer operational stops from
-legitimate assortment change. Risk: a materially incomplete or polluted feed
-can travel farther before the aggregate guard blocks it. This is not
-recommended for the first pilot.
+All validity rules retain the per-row zero-execution rule below. Benefit: fewer
+operational stops from legitimate assortment change. Risk: a materially
+incomplete or polluted feed can travel farther before the aggregate guard
+blocks it. This is not recommended for the first pilot.
 
 ### First future capture and absolute stops
 
@@ -109,18 +152,40 @@ unique products (90%–120% of 1,663/473). Inside the envelope it is still
 `BLOCKED_SOURCE_BASELINE_APPROVAL_REQUIRED`, not `PASS`; outside it is
 `BLOCKED_SOURCE_COUNT_DRIFT`. Marek must review the capture metadata, counts,
 raw SHA-256 and semantic SHA-256 and explicitly approve or reject that exact
-candidate before any replay. The envelope is not evidence of current feed size.
+candidate before any replay. The envelope is not evidence of current feed size,
+does not approve its own fingerprints and cannot lead directly to shadow. It
+changes no price or stock and creates no control plan, approval or apply.
 
-Every option stops absolutely on: empty response; HTML/challenge instead of
-CSV; wrong content type; missing, reordered or additional required headers;
-delimiter, quoting or encoding drift; size above 10,000,000 bytes; duplicate
-stable identity; invalid/non-GBP currency; invalid price; unknown stock;
-missing required identity, URL, price or stock field; unclassified record;
-raw fingerprint change during processing; a second read; any unexpected
-network, database or write attempt; missing approved baseline; incomplete audit
-trail; non-deterministic replay; canonical defect; or unexplained parity
-difference. Parity remains exact, row by row, with a zero percentage error
-budget.
+### Zero tolerance, per-row isolation and run status
+
+“Zero tolerance” means zero automatic execution for every affected record, not
+automatic `FAILED_SYSTEM` and not automatically a whole-source failure. An
+invalid price, unknown stock or missing required row value becomes
+`SOURCE_INVALID`; duplicate stable identity becomes
+`SOURCE_IDENTITY_CONFLICT`. The affected record or complete identity/dependency
+group is excluded and retained for review. If row boundaries, unaffected
+identity groups and the complete audit trail remain provable, the run may be
+`PASS_WITH_REVIEW` and unaffected rows remain independently classifiable.
+
+The whole run is `BLOCKED_SOURCE` only when source trust is lost: empty/HTML or
+wrong content, header/order/delimiter/quoting/encoding drift, oversize input,
+feed-wide currency drift, systemic duplicates, count-collapse block threshold,
+or any malformed/ambiguous condition that the current parser cannot isolate
+without risking another dependency group. A parser that fails before safe
+isolation must block the source rather than pretend it isolated a row.
+
+An unclassified row is excluded with zero execution. It permits
+`PASS_WITH_REVIEW` only when its raw row and dependency boundary are durably
+isolated; otherwise it is `BLOCKED_SOURCE`. `SOURCE_MISSING` always remains a
+review state and never implies OOS. `FAILED_SYSTEM` is reserved for a real
+code, infrastructure, database or process-integrity failure, never an ordinary
+bad source row or correctly fired guardrail.
+
+Capability/integrity conditions stop the whole attempt: raw fingerprint change,
+a second read, unexpected network/database/write attempt, missing approved
+baseline, incomplete audit trail, non-deterministic replay, canonical defect or
+unexplained parity difference. Parity remains exact row by row, with zero
+percentage error budget. These stops create no execution authority.
 
 ## Snapshot and evidence retention options
 
@@ -155,6 +220,27 @@ Rules common to all options:
 | Operational audit logs | 13 months | 6 months | 24 months |
 | Fingerprints, evidence index and deletion receipts | 7 years | 24 months | 7 years |
 | Redacted control-state export | 90 days | 30 days | 365 days |
+
+For recommended R the retention lifecycle is exact:
+
+| Evidence | Purpose | Clock starts / deletion due | Deletion owner and proof |
+|---|---|---|---|
+| Raw CSV | reproduce source parsing and investigate the capture | successful capture completion / `+90 days` | future named evidence custodian; deletion request, read-after-delete and receipt |
+| First-pilot raw CSV | preserve the first pilot through review and closeout | capture completion / later of `capture +365 days` and signed closeout `+90 days` | same custodian and proof |
+| Redacted capture metadata | prove capture scope, time, size and source hash without source URL | capture completion / `+13 calendar months` | same custodian and proof |
+| Canonical output | reproduce normalization and matching | canonical replay completion / `+13 calendar months` | same custodian and proof |
+| Parity report and zero-side-effect attestation | prove comparison and denied capabilities | report sealing / `+24 calendar months` | same custodian and proof |
+| Operational audit logs | prove named access and lifecycle actions | event timestamp per immutable entry / `+13 calendar months` | same custodian and proof |
+| Fingerprints, evidence index and deletion receipts | long-horizon integrity and deletion accountability without raw content | evidence sealing or receipt creation / `+7 years` | same custodian and a terminal deletion receipt; seven years is an operational proposal, not a claimed legal or tax requirement |
+| Redacted control-state export | support bounded canary verification | export sealing / `+90 days` | same custodian and proof |
+
+The custodian, storage location and automation must be named before capture;
+none exists by assumption in this pack. Automatic deletion may issue a deletion
+request at expiry, but success is recorded only after read-after-delete. A true
+WORM/retention lock must be configured to end no later than the approved
+retention deadline; while the lock is active, deletion cannot be claimed. An
+authorized incident/audit/legal hold suspends deletion for the exact evidence,
+records its owner, reason and review date, and deletion resumes after release.
 
 Recommended R balances reproducibility of the first pilot with data minimization.
 Short S reduces exposure but may remove raw evidence before a delayed audit.
@@ -238,6 +324,18 @@ checked before apply. The existing generic selector, verifier and apply paths
 remain the only allowed deployment path; Supabase direct push and manual SQL are
 forbidden.
 
+Tracked workflow and script inspection found no active automatic path that
+applies the complete migration directory: remote application is routed through
+the explicit selector/verifier/apply mechanism, while direct `psql` migration
+loops are isolated integration tests. This is repository evidence, not a claim
+about an untracked operator machine. A future canary must recheck it.
+
+Revoking `LOGIN` and `EXECUTE` is an access rollback only. It immediately
+disables the canary credential but does **not** remove the function, roles,
+policies, ledger row or evidence table created by the migration and must not be
+described as a full migration rollback. Removing those DDL objects requires a
+separate reviewed migration and retention decision.
+
 ## Five decisions for Marek
 
 No response means `NOT_AUTHORIZED`.
@@ -245,7 +343,7 @@ No response means `NOT_AUTHORIZED`.
 | ID | Question and recommended answer | Alternatives | Approval authorizes | Approval does **not** authorize / no-decision effect |
 |---|---|---|---|---|
 | D1 | Approve record-count policy R, including first-capture quarantine and review after three approved captures? **Recommend: yes.** | S, F, or amendments | Recording policy/version and using it in a separately authorized future capture | No capture or replay now; no answer leaves all count-dependent work blocked |
-| D2 | Approve raw retention R: 90 days, with first-pilot raw retained 365 days or 90 days after closeout? **Recommend: yes.** | Short or Long option | Creating the retention rule for a later separately authorized snapshot | No storage creation or capture now; no answer blocks capture |
+| D2 | Approve raw retention R: 90 days, with first-pilot raw retained until the later of capture +365 days or signed closeout +90 days? **Recommend: yes.** | Short or Long option | Creating the retention rule for a later separately authorized snapshot | No storage creation or capture now; no answer blocks capture |
 | D3 | Approve derived-evidence retention R in the table? **Recommend: yes.** | Short or Long option | Applying those periods to later redacted capture metadata, canonical/parity/audit/fingerprint/control-state evidence | No evidence collection now; no answer blocks durable pilot evidence |
 | D4 | Approve the staging-canary scope and one future window of at most 60 minutes for migration plus validation, with one resolved 10 Reps scope and one export? **Recommend: yes, only after a separately reviewed staging-selector change.** | Amend scope/window or keep blocked | A later task may prepare an exact time-bound staging authorization after every preflight gate passes | Does not apply migration now, change selector now, or authorize production/live capture/shadow; no answer keeps staging blocked |
 | D5 | Approve a separate staging exporter credential valid at most 30 minutes and at most one RPC attempt, revoked immediately? **Recommend: yes, conditional on D4.** | 15-minute credential or no credential | Later out-of-Git provisioning for the exact canary window after D4 and preflight | No credential now; no production credential; no answer keeps exporter access blocked |
@@ -255,6 +353,16 @@ required for the selector change and canary execution. Separate later decisions
 are also mandatory for production migration/credential, live 10 Reps capture,
 shadow run, import, apply, Model B, auto-safe policy and cutover. None is
 authorized by this pack.
+
+Plain-language owner summary:
+
+1. Choose how much feed-count movement causes review or a source block.
+2. Choose how long the protected raw CSV is kept, especially the first pilot.
+3. Choose how long redacted reports, logs and fingerprints are kept.
+4. Decide whether the team may later prepare one tightly bounded staging canary;
+   this is not permission to run it now.
+5. Decide whether that future canary may use one staging-only, 30-minute,
+   one-call credential; this is not permission to create it now.
 
 ## Required evidence before any later authorization
 
@@ -280,3 +388,8 @@ do not prevent proposing conservative decisions; they block execution.
 
 Machine-readable proposal:
 [`RA-004-owner-decisions.json`](RA-004-owner-decisions.json).
+
+The manifest includes a SHA-256 of this Markdown after normalizing CRLF to LF.
+Its canonical fingerprint excludes only `manifest_fingerprint` itself and
+covers that document hash. Therefore any Markdown or manifest change requires
+updating the document hash and recalculating the manifest fingerprint.

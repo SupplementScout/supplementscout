@@ -39,11 +39,14 @@ was created. The test-only single-snapshot adapter is
 unexplained differences and zero side-effect attempts. The shadow run remains
 `NOT_AUTHORIZED`.
 
-The owner decision pack is a documentation-only proposal. Its record-count and
-retention choices and bounded staging-canary design all remain
-`NOT_AUTHORIZED`; it created no credential, selector change, migration apply,
-live capture or shadow run. The proposed numeric thresholds are explicitly
-temporary and conservative because tracked evidence does not establish a
+The owner decision pack is independently `VERIFIED_FOR_OWNER_REVIEW`. Its
+record-count and retention choices and bounded staging-canary design remain
+owner proposals; all five decisions and all execution surfaces are
+`NOT_AUTHORIZED`. Verification clarified the exact threshold formula and
+boundaries, per-row isolation, retention lifecycle, access-only rollback and
+Markdown-bound manifest fingerprint. It created no credential, selector change,
+migration apply, live capture or shadow run. Numeric thresholds remain explicit
+temporary safety recommendations because tracked evidence does not establish a
 statistical current-feed distribution.
 
 The fixture-only implementation is preserved in PR #89. Marek approved
