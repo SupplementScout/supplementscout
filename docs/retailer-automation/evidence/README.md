@@ -6,10 +6,16 @@
 
 [RA-003 historical incident and legacy compatibility evidence](RA-003.md)
 
+[RA-004 10 Reps shadow pilot preflight](RA-004-PREFLIGHT.md)
+
+[RA-004 machine-readable shadow plan](RA-004-shadow-plan.json)
+
 RA-002 was independently verified on 23 September 2026 in PR #86. RA-003 was
 independently verified on 24 September 2026 in PR #87. Their local test and
-contract modules remain unwired from production; no RA task is in
-implementation and RA-004 is `NOT_STARTED`.
+contract modules remain unwired from production. RA-004 is `IN_PROGRESS`; its
+documentation preflight is `PREFLIGHT VERIFIED`, while the machine manifest is
+still `NOT_AUTHORIZED`. No live capture or shadow run is authorized, and all
+five pre-run blockers remain open.
 
 ## RA-001 owner approval
 

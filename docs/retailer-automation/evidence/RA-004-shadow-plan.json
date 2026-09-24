@@ -1,0 +1,283 @@
+{
+  "schema_version": 1,
+  "plan_id": "RA-004-10REPS-SHADOW-001",
+  "status": "NOT_AUTHORIZED",
+  "gate": "PREFLIGHT_VERIFIED",
+  "retailer": {
+    "id": 14,
+    "name": "10 Reps",
+    "slug": "10-reps"
+  },
+  "baseline": {
+    "repository": "SupplementScout/supplementscout",
+    "origin_main_sha": "74b2360a064c16c98fd7fe4291698713cc3e1801"
+  },
+  "versions": {
+    "canonical_contract": "v1",
+    "taxonomy": "v1",
+    "incident_library": "RA-003-incidents-schema-v1",
+    "compatibility_matrix": "retailer-canonical-v1-legacy-compatibility-matrix-schema-v1"
+  },
+  "source": {
+    "type": "CSV_PRODUCT_FEED",
+    "location_reference": "TEN_REPS_FEED_URL",
+    "location_value_in_manifest": false,
+    "source_configuration_path": "config/retailers/10reps-offer-sync.json",
+    "source_configuration_fingerprint": {
+      "algorithm": "SHA-256",
+      "value": "a76b25a5e47ec9739ec806ee71705d6f1e524153f56aa9dd327a3ec7cfcafbd4",
+      "covers": "exact repository bytes; no secret value"
+    },
+    "capture": {
+      "authorized": false,
+      "method": "GET",
+      "maximum_requests": 1,
+      "maximum_attempts": 1,
+      "timeout_ms": 30000,
+      "maximum_bytes": 10000000,
+      "expected_content_type_contains": "csv",
+      "redirect_policy": "error",
+      "accept": "text/csv",
+      "allow_refetch": false,
+      "raw_bytes_sha256_required": true,
+      "semantic_sha256_required": true,
+      "close_network_after_capture": true
+    }
+  },
+  "inputs": {
+    "allowed": [
+      "one owner-authorized immutable raw CSV snapshot",
+      "its redacted capture metadata and SHA-256",
+      "one owner-authorized read-only production-state export for retailer 14",
+      "tracked 950-row approved mapping manifest",
+      "tracked retailer policy and canonical v1 contract",
+      "RA-003 incident library and compatibility matrix"
+    ],
+    "forbidden": [
+      "a second source capture",
+      "unfingerprinted or mutable input",
+      "a historical onboarding artifact presented as current live state"
+    ]
+  },
+  "outputs": {
+    "allowed_local_only": [
+      "raw snapshot and detached SHA-256",
+      "redacted capture metadata",
+      "read-only state export and detached SHA-256",
+      "legacy replay report",
+      "canonical replay report",
+      "row-matching report",
+      "parity report",
+      "repeat-replay determinism report",
+      "zero-side-effect attestation",
+      "shadow postflight report",
+      "sealed evidence index"
+    ],
+    "production_publication_allowed": false
+  },
+  "capabilities": {
+    "network_during_pre_capture_validation": false,
+    "network_during_single_capture": true,
+    "network_after_capture": false,
+    "database_read": "ONLY_VIA_SEPARATELY_OWNER_APPROVED_EXISTING_READ_ONLY_EXPORT",
+    "database_write": false,
+    "control_plan_create_or_change": false,
+    "approval_create_or_consume": false,
+    "apply": false,
+    "atomic_rpc": false,
+    "price_history_write": false,
+    "review_queue_publish": false,
+    "workflow_dispatch": false,
+    "import": false,
+    "model_b": false,
+    "auto_safe": false,
+    "cutover": false
+  },
+  "requirements": {
+    "write_attempt_count": 0,
+    "approval_attempt_count": 0,
+    "apply_attempt_count": 0,
+    "control_plan_attempt_count": 0,
+    "review_queue_publish_attempt_count": 0,
+    "network_attempt_count_after_capture": 0,
+    "unclassified_record_count": 0,
+    "refetch_count": 0,
+    "identical_snapshot_sha256_for_both_paths": true,
+    "repeat_replay_identical": true
+  },
+  "record_matching": {
+    "primary_key": [
+      "source_fingerprint",
+      "external_product_id",
+      "external_variant_id"
+    ],
+    "corroborating_keys": [
+      "source_row_id",
+      "existing_mapping_id",
+      "product_id",
+      "product_variant_id",
+      "sku",
+      "gtin"
+    ],
+    "product_name_only_match_forbidden": true,
+    "terminal_classes": [
+      "MATCHED_EXACTLY",
+      "MATCHED_WITH_DOCUMENTED_CONTEXT",
+      "LEGACY_ONLY",
+      "CANONICAL_ONLY",
+      "AMBIGUOUS",
+      "INVALID"
+    ]
+  },
+  "parity": {
+    "difference_classes": [
+      "EXACT_PARITY",
+      "SEMANTIC_PARITY",
+      "EXPECTED_IMPROVEMENT",
+      "LEGACY_DEFECT_CONFIRMED",
+      "CANONICAL_DEFECT",
+      "UNEXPLAINED_DIFFERENCE"
+    ],
+    "compare": [
+      "input_record_count",
+      "valid_record_count",
+      "rejected_record_count",
+      "identity_mapping",
+      "product_mapping",
+      "variant_mapping",
+      "price_minor_units",
+      "currency",
+      "availability",
+      "source_missing",
+      "no_change",
+      "price_change",
+      "stock_change",
+      "review_classification",
+      "reason_codes",
+      "blocking_scope",
+      "run_outcome",
+      "alert_level",
+      "next_action",
+      "fingerprints",
+      "per_row_isolation",
+      "unclassified_record_count",
+      "write_attempt_count",
+      "network_attempt_count_after_capture"
+    ],
+    "pass_conditions": [
+      "all requirements are satisfied",
+      "no unexplained price or currency difference",
+      "SOURCE_MISSING alone never produces automatic OUT_OF_STOCK",
+      "all identity conflicts are isolated",
+      "every difference has a registered reason code",
+      "CANONICAL_DEFECT count is zero",
+      "UNEXPLAINED_DIFFERENCE count is zero",
+      "every EXPECTED_IMPROVEMENT or LEGACY_DEFECT_CONFIRMED has owner-approved evidence"
+    ],
+    "percentage_error_budget": null
+  },
+  "stop_conditions": [
+    "UNEXPECTED_CONTENT_TYPE",
+    "HTML_OR_CHALLENGE_RESPONSE",
+    "EMPTY_RESPONSE",
+    "MAXIMUM_BYTES_EXCEEDED",
+    "REQUIRED_COLUMN_MISSING_OR_REORDERED",
+    "DELIMITER_QUOTING_ENCODING_DRIFT",
+    "DUPLICATE_CRITICAL_SOURCE_ID",
+    "INVALID_OR_UNEXPECTED_CURRENCY",
+    "INVALID_PRICE",
+    "OWNER_UNAPPROVED_RECORD_COUNT_DRIFT",
+    "RAW_OR_SEMANTIC_FINGERPRINT_MISSING",
+    "FINGERPRINT_CHANGED_DURING_RUN",
+    "CONFLICTING_ACTIVE_PLAN",
+    "ACTIVE_SESSION_OR_LOCK",
+    "OVERLAPPING_UNEXPIRED_APPROVAL",
+    "WRITE_ATTEMPT",
+    "APPROVAL_ATTEMPT",
+    "APPLY_ATTEMPT",
+    "REVIEW_QUEUE_PUBLICATION_ATTEMPT",
+    "SOURCE_REFETCH_ATTEMPT",
+    "UNCLASSIFIED_RECORD",
+    "NONDETERMINISTIC_REPLAY",
+    "INCOMPLETE_AUDIT_TRAIL"
+  ],
+  "required_fingerprints": [
+    "source_configuration_sha256",
+    "raw_snapshot_sha256",
+    "semantic_snapshot_sha256",
+    "read_only_state_export_sha256",
+    "approved_manifest_sha256",
+    "policy_fingerprint",
+    "canonical_input_fingerprint",
+    "legacy_output_fingerprint",
+    "canonical_output_fingerprint",
+    "matching_report_fingerprint",
+    "parity_report_fingerprint",
+    "repeat_replay_fingerprint",
+    "shadow_postflight_fingerprint",
+    "evidence_index_fingerprint"
+  ],
+  "expected_artifacts": [
+    "capture-metadata.redacted.json",
+    "source.raw.csv",
+    "source.raw.csv.sha256",
+    "production-state.read-only.json",
+    "production-state.read-only.json.sha256",
+    "legacy-replay.json",
+    "canonical-replay.json",
+    "record-matching.json",
+    "parity-report.json",
+    "repeat-replay.json",
+    "zero-side-effect-attestation.json",
+    "shadow-postflight.json",
+    "evidence-index.json"
+  ],
+  "postflight": {
+    "required": true,
+    "must_attest_no_business_or_control_writes": true,
+    "must_attest_no_approval_or_apply": true,
+    "must_stop_before_cutover": true
+  },
+  "blockers": [
+    {
+      "id": "RA004-B01",
+      "description": "No existing entry point can replay the complete legacy 10 Reps path from one supplied local snapshot while denying all database/control/approval/apply capabilities and source refetch.",
+      "required_resolution": "Add and independently verify a test-only snapshot-injection replay adapter around existing parser/classifier primitives; it must have injected denied capabilities and no production wiring."
+    },
+    {
+      "id": "RA004-B02",
+      "description": "No existing approved read-only export was found that inventories current 10 Reps control plans, sessions, locks, approvals and recovery state without direct SQL.",
+      "required_resolution": "Owner must authorize an existing or separately reviewed read-only export mechanism and its exact fields before a shadow window can be approved."
+    },
+    {
+      "id": "RA004-B03",
+      "description": "No record-count drift thresholds are approved for the shadow capture; historical counts are evidence, not current limits.",
+      "required_resolution": "Owner must approve evidence-based lower and upper record-count bounds before capture."
+    },
+    {
+      "id": "RA004-B04",
+      "description": "Retention, access and deletion rules for the protected raw snapshot are not approved.",
+      "required_resolution": "Owner must approve the protected local storage location, readers, retention duration and deletion procedure before capture."
+    },
+    {
+      "id": "RA004-B05",
+      "description": "No owner authorization exists for a live CSV capture or shadow run.",
+      "required_resolution": "After all technical blockers close, owner must authorize one exact commit/config/manifest scope and one bounded run window."
+    }
+  ],
+  "independent_verification": {
+    "verified_at": "2026-09-24",
+    "initial_pr_head": "035e95eb0c4b7744823b2ff59b2efde0dd828cd4",
+    "result": "PREFLIGHT_VERIFIED_BLOCKERS_OPEN",
+    "live_shadow_run_authorized": false
+  },
+  "owner_authorization": {
+    "approved": false,
+    "approved_by": null,
+    "approved_at": null,
+    "valid_from": null,
+    "valid_until": null,
+    "scope": null,
+    "decisions": []
+  }
+}
