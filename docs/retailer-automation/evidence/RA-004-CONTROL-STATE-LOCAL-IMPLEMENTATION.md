@@ -1,6 +1,6 @@
 # RA-004 — local control-state implementation
 
-**Status:** `CONTROL-STATE LOCAL IMPLEMENTATION READY_FOR_VERIFICATION`
+**Status:** `CONTROL-STATE INTERFACE VERIFIED_COMPLETE`
 
 **Baseline:** `843ed987ff99a781ca04e16b2461a9eb4aa37b4e`
 
@@ -122,12 +122,54 @@ used. Postflight, watchdog, session and lock producers remain disconnected.
 
 ## Remaining authorization boundary and rollback plan
 
-The local implementation blockers are closed. Independent review is next;
-staging migration, production migration, live credentials, live export and the
-shadow run remain unauthorized. Forward rollout rollback planning is: revoke runtime
+The local implementation blockers and independent review are closed. Staging
+migration, production migration, live credentials, live export and the shadow
+run remain unauthorized. Forward rollout rollback planning is: revoke runtime
 EXECUTE first, stop any future evidence producers, retain the append-only rows
 for audit, then remove functions/policies/roles/table only through a separately
 reviewed forward migration. No rollback was executed.
+
+## Independent verification — 24 September 2026
+
+The verification used a new clean worktree at PR #89 head, independently of the
+implementation worktree. The merge base was the recorded `origin/main`
+baseline `843ed987ff99a781ca04e16b2461a9eb4aa37b4e`. Commit inspection confirmed
+that the LF-policy commit changed only `.gitattributes`, while the local
+interface implementation commit contained exactly its 17 declared files. The
+full PR contained 22 files and no package, lockfile or workflow change.
+
+A fresh byte-level audit covered 792 unique deterministic artifacts: 5 verified
+JSON files, 34 workflow YAML files, 159 retailer configuration files, 279
+rollout artifacts, 2 feed CSV files, 230 migrations, 79 rollback scripts and 4
+sealed fixtures. Every raw worktree byte sequence produced its indexed Git blob
+hash, every file had an independently calculated SHA-256 digest, and the audit
+found zero CRLF, mixed-ending or byte mismatches. A trial
+`git add --renormalize` produced no diff. The LF rules remain limited to the
+listed semantic artifact paths.
+
+Migration-path inspection found no merge, Vercel, package or workflow path that
+applies the full migration directory. The repository's controlled selectors
+exclude the new migration by exact SHA-256 in both staging and production, and
+the 25 selector tests passed. No remote database was contacted.
+
+The integration test passed on a fresh network-isolated PostgreSQL 17 container
+and removed the container afterward. It reconfirmed the six indexes, twelve
+forced-RLS policies, four `NOLOGIN NOINHERIT` non-superuser/non-`BYPASSRLS`
+roles, least-privilege grants, fixed search paths, read-only exporter role,
+append-only evidence writer, all 15 event types, all eleven exporter sources,
+idempotency and fail-closed drift behavior. The two-connection snapshot proof
+now covers both `REPEATABLE READ` consistency and ordinary `READ COMMITTED`
+statement snapshots: after an atomic concurrent control-state transition, the
+second read returned the complete new canonical fingerprint, never a mixed
+third fingerprint.
+
+Focused contract, incident and exporter tests passed 59/59, the database
+integration test passed 1/1 with zero skips, and the selector tests passed
+25/25. `verify:quick` passed with 452 tests (449 passed, 3 explicitly skipped),
+and `verify:full` passed, including the production build. The three skips are
+pre-existing artifact-presence cases and are not counted as passes. No staging
+or production connection, secret, migration, live export, workflow dispatch or
+shadow execution was used.
 
 RA-004 remains `IN_PROGRESS`; the live single-snapshot adapter step remains
 `NOT_STARTED`; the shadow manifest remains `NOT_AUTHORIZED`.

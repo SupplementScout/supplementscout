@@ -24,16 +24,16 @@ still `NOT_AUTHORIZED`. No live capture or shadow run is authorized, and all
 the pre-run blockers remain outside this local implementation scope.
 
 The fixture-only control-state exporter core is implemented and tested. Its
-local implementation gate is `READY_FOR_VERIFICATION`: the owner-approved
+control-state interface is `VERIFIED_COMPLETE`: the owner-approved
 transactional interface passed the mandatory isolated-database migration,
 privilege and snapshot tests, and `verify:full` passes after a repository-level
 LF policy for deterministic artifacts. No live export or active authorization
 was created.
 
-The fixture-only implementation is preserved in Draft PR #89. Marek approved
+The fixture-only implementation is preserved in PR #89. Marek approved
 the transactional interface for isolated local implementation. The migration
-and unwired provider contract passed their local database verification. Status
-is `CONTROL-STATE LOCAL IMPLEMENTATION READY_FOR_VERIFICATION`; the migration is
+and unwired provider contract passed independent local database verification.
+The control-state interface is `VERIFIED_COMPLETE`; the migration is
 explicitly excluded from staging and production selectors pending separate
 authorization. No login, credential, remote
 migration, live export or shadow authorization was created.

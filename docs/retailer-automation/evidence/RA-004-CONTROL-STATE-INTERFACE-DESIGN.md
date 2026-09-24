@@ -1,6 +1,6 @@
 # RA-004 — transactional control-state interface design
 
-**Status:** `OWNER_APPROVED FOR LOCAL IMPLEMENTATION` — `CONTROL-STATE LOCAL IMPLEMENTATION READY_FOR_VERIFICATION`
+**Status:** `CONTROL-STATE INTERFACE VERIFIED_COMPLETE`
 
 **Baseline and current `origin/main`:** `843ed987ff99a781ca04e16b2461a9eb4aa37b4e`
 
@@ -24,7 +24,8 @@ evidence ledger, separate future staging/production credentials outside Git,
 and implementation/testing only on an isolated local database. The forward
 migration and unwired provider contract are prepared locally. The essential
 database, privilege, idempotency, eleven-source and transactional snapshot tests
-passed; the overall status remains blocked solely by the repository full gate.
+passed, including independent `REPEATABLE READ` and ordinary `READ COMMITTED`
+two-connection checks. The repository full gate also passes.
 
 ## Repository finding
 
@@ -393,9 +394,9 @@ Default if no decision: design remains documentation only.
 
 ## Current status
 
-RA-004 remains `IN_PROGRESS`. The fixture-only exporter is preserved in Draft PR
-#89. Interface status is `OWNER_APPROVED FOR LOCAL IMPLEMENTATION`; local
-implementation status is `CONTROL-STATE LOCAL IMPLEMENTATION READY_FOR_VERIFICATION`;
+RA-004 remains `IN_PROGRESS`. The fixture-only exporter is preserved in PR
+#89. Interface status is `VERIFIED_COMPLETE`; the owner approval remains
+`OWNER_APPROVED FOR LOCAL IMPLEMENTATION`;
 the repository LF policy preserves deterministic artifact bytes and
 `verify:full` passes. The shadow manifest is
 `NOT_AUTHORIZED`; the single-snapshot adapter is `NOT_STARTED`.
