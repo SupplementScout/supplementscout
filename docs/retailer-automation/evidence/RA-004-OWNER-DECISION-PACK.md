@@ -4,13 +4,25 @@
 
 **Repository baseline:** `29b57ffe98c174e0f7364d65f25bdcdc2b5cceb5`
 
-**Status:** `VERIFIED_FOR_OWNER_REVIEW — EXECUTION NOT_AUTHORIZED`
+**Status:** `VERIFIED_COMPLETE — OWNER DECISIONS APPROVED — EXECUTION NOT_AUTHORIZED`
 
-**Scope:** documentation and recommendations only
+**Scope:** approved policies and future-preparation parameters only
 
-This pack asks Marek for five bounded decisions. It does not record approval.
-Until explicit answers are recorded, staging, production, live capture and the
-10 Reps shadow run all remain `NOT_AUTHORIZED`.
+**Manifest fingerprint:** `030c9d7cb12b46ab0b2bca2311ffbe1456e1c579e9e3acd570a4c0766ead119c`
+
+## Owner decision record
+
+- Owner: `Marek`.
+- Decision date: `2026-09-24`.
+- Source: explicit owner instruction.
+- Recorded statement: “Zatwierdzam wszystkie pięć rekomendowanych decyzji RA-004.”
+- Owner-decision status: `OWNER_APPROVED`.
+
+This approval selects the five recommended policies and future-preparation
+parameters in this pack. It does not authorize staging execution, migration
+application, credential issuance or use, live capture, live control-state
+export, shadow execution or any business/control write. Every execution action
+requires a new exact owner authorization.
 
 ## Evidence boundary and known facts
 
@@ -33,10 +45,12 @@ accessed.
   record-by-record parity contract are already tracked. Record-count tolerance
   never weakens them.
 
-The numeric thresholds below are **temporary and conservative proposals**.
+The numeric thresholds below are **owner-approved temporary conservative
+policy**.
 Tracked evidence is insufficient for a statistically derived distribution of
 normal feed movement. After three owner-approved captures, they must be reviewed
-using only comparable, complete snapshots; they do not relax automatically.
+using only comparable, complete snapshots; they do not expire, relax or change
+automatically.
 
 ### Number provenance
 
@@ -45,9 +59,9 @@ using only comparable, complete snapshots; they do not relax automatically.
 | 950 mappings | proved by tracked evidence | `approved_mapping_count` in `config/retailers/10reps-offer-sync.json` and the tracked approved mapping scope; it is not a raw-row count |
 | 935 executable / 15 review | proved by tracked historical evidence | retained run `35834479612`, recorded in `RA-004-PREFLIGHT.md` and `AUDIT.md`; neither value is current feed state or a permitted future allowance |
 | 473 products / 1,663 variants | proved as historical configured guard values | `source_baseline.product_count` and `source_baseline.variant_count` in the tracked 10 Reps configuration; they are not a current approved snapshot |
-| 1,497–1,996 candidate variants | calculated from stated values | temporary proposal `round_half_up(1,663 × 0.90)` through `round_half_up(1,663 × 1.20)`: `1,497` through `1,996` |
-| 426–568 candidate products | calculated from stated values | temporary proposal `round_half_up(473 × 0.90)` through `round_half_up(473 × 1.20)`: `426` through `568` |
-| Every percentage, absolute threshold, retention period, 60-minute window, 30-minute credential TTL and one-call limit | temporary safety recommendation | owner choice proposed by this pack; not derived from historical frequency or presented as fact |
+| 1,497–1,996 candidate variants | calculated from stated values | owner-approved temporary candidate envelope `round_half_up(1,663 × 0.90)` through `round_half_up(1,663 × 1.20)`: `1,497` through `1,996` |
+| 426–568 candidate products | calculated from stated values | owner-approved temporary candidate envelope `round_half_up(473 × 0.90)` through `round_half_up(473 × 1.20)`: `426` through `568` |
+| Every percentage, absolute threshold, retention period, 60-minute window, 30-minute credential TTL and one-call limit | owner-approved temporary safety policy or future-preparation parameter | not derived from historical frequency or presented as fact; execution remains separately unauthorized |
 | 10,000,000-byte capture cap | proved as tracked preflight/configured cap | tracked preflight and source-reader configuration; retaining it in a future authorization is still an owner decision |
 | Migration SHA-256 | proved by tracked bytes | independently reproducible from the named migration; selector contracts bind the same value |
 
@@ -78,7 +92,7 @@ The comparison baseline is the most recent snapshot explicitly approved by
 fingerprint for this policy version. If it is absent, expired, from a different
 contract/policy, or cannot be verified, the result is `BLOCKED_SOURCE`.
 
-### Recommended option R — balanced conservative
+### Approved option R — balanced conservative
 
 | Measure | `PASS` | `PASS_WITH_REVIEW` | `BLOCKED_SOURCE` |
 |---|---|---|---|
@@ -91,7 +105,7 @@ contract/policy, or cannot be verified, the result is `BLOCKED_SOURCE`.
 | New, previously unseen variant IDs | zero | 1–49 | at least 5% of baseline variants **or** 50; stricter classifier wins |
 | Relative change from approved snapshot | covered independently above | any review boundary in any dimension | any block boundary in any dimension |
 
-### Executable boundary examples for recommended option R
+### Executable boundary examples for approved option R
 
 Counts in the last two columns are observed counts immediately below, exactly
 on and immediately above the delta boundary. “Above” always means one more
@@ -210,7 +224,7 @@ Rules common to all options:
   exact evidence set, records authority/reason/review date, and preserves the
   original expiry. Release resumes deletion. Holds cannot make data public.
 
-| Evidence class | Recommended R | Short S | Long L |
+| Evidence class | Approved R | Short S | Long L |
 |---|---:|---:|---:|
 | Raw CSV after capture | 90 days | 30 days | 365 days |
 | First pilot raw CSV | 365 days or 90 days after signed pilot closeout, whichever is later | 90 days or 30 days after closeout | 730 days or 365 days after closeout |
@@ -221,7 +235,7 @@ Rules common to all options:
 | Fingerprints, evidence index and deletion receipts | 7 years | 24 months | 7 years |
 | Redacted control-state export | 90 days | 30 days | 365 days |
 
-For recommended R the retention lifecycle is exact:
+For approved R the retention lifecycle is exact:
 
 | Evidence | Purpose | Clock starts / deletion due | Deletion owner and proof |
 |---|---|---|---|
@@ -242,24 +256,29 @@ retention deadline; while the lock is active, deletion cannot be claimed. An
 authorized incident/audit/legal hold suspends deletion for the exact evidence,
 records its owner, reason and review date, and deletion resumes after release.
 
-Recommended R balances reproducibility of the first pilot with data minimization.
+Approved R balances reproducibility of the first pilot with data minimization.
 Short S reduces exposure but may remove raw evidence before a delayed audit.
 Long L improves long-horizon incident reconstruction but increases breach,
 governance and deletion burden. Derived evidence must not contain reconstructable
 raw feed data; if it does, it inherits the raw CSV retention and access class.
 
-## Proposed single staging canary — still `NOT_AUTHORIZED`
+## Approved future-preparation parameters — execution still `NOT_AUTHORIZED`
+
+Marek approved preparation of a separate implementation plan, runbook and Draft
+PR for the bounded staging canary below, with a maximum 60-minute window. This is
+`OWNER_APPROVED_FOR_FUTURE_PREPARATION`, not permission to change a selector,
+apply a migration, issue or use a credential, call the RPC or create an export.
 
 Exact candidate migration:
 `supabase/migrations/20260924100000_add_transactional_retailer_control_state_interface.sql`,
 SHA-256 `cfd7a93cb20845832b696183f5eb8a500f0474b4173829b85f6ac6bc73d4baaa`.
 The hash is bound in `scripts/supabase-migration-selector.js`. The migration ID
-is currently excluded by `scripts/lib/environment-migrations.js` from both
+is currently excluded by `scripts/supabase-migration-selector.js` from both
 `STAGING` and `PRODUCTION`; selector tests fail closed on hash drift. A separate
 reviewed change and owner decision are required before staging selection can
 change. This pack does not make that change.
 
-The one-canary proposal is:
+The approved future-preparation parameter set is:
 
 1. Before an authorization window, a staging owner verifies the exact project
    identity, migration ledger, required source tables/functions/roles, absence
@@ -336,37 +355,51 @@ policies, ledger row or evidence table created by the migration and must not be
 described as a full migration rollback. Removing those DDL objects requires a
 separate reviewed migration and retention decision.
 
-## Five decisions for Marek
+## Recorded owner decisions
 
-No response means `NOT_AUTHORIZED`.
+| ID | Recorded selection and status | Approval authorizes | Approval does **not** authorize |
+|---|---|---|---|
+| D1 | Balanced conservative record-count policy R — `OWNER_APPROVED` | Registering the exact threshold policy for a separately authorized future capture | Capture, replay, shadow or writes |
+| D2 | Raw retention R — `OWNER_APPROVED` | Registering 90-day raw retention and the later-of-365-days-or-closeout-plus-90-days first-pilot rule | Storage creation, upload or capture |
+| D3 | Derived retention R — `OWNER_APPROVED` | Registering the approved 13-month, 24-month, 90-day and seven-year operational periods | Evidence collection, export or publication |
+| D4 | Bounded staging canary parameters — `OWNER_APPROVED_FOR_FUTURE_PREPARATION` | Preparing a separate implementation plan, runbook and Draft PR | Selector change, migration application, canary execution, production, live capture or shadow |
+| D5 | Staging-only credential design — `OWNER_APPROVED_FOR_FUTURE_PREPARATION` | Preparing the one-RPC, no-retry, maximum-30-minute credential design | Credential issuance or use, table/mutation rights or production access |
 
-| ID | Question and recommended answer | Alternatives | Approval authorizes | Approval does **not** authorize / no-decision effect |
-|---|---|---|---|---|
-| D1 | Approve record-count policy R, including first-capture quarantine and review after three approved captures? **Recommend: yes.** | S, F, or amendments | Recording policy/version and using it in a separately authorized future capture | No capture or replay now; no answer leaves all count-dependent work blocked |
-| D2 | Approve raw retention R: 90 days, with first-pilot raw retained until the later of capture +365 days or signed closeout +90 days? **Recommend: yes.** | Short or Long option | Creating the retention rule for a later separately authorized snapshot | No storage creation or capture now; no answer blocks capture |
-| D3 | Approve derived-evidence retention R in the table? **Recommend: yes.** | Short or Long option | Applying those periods to later redacted capture metadata, canonical/parity/audit/fingerprint/control-state evidence | No evidence collection now; no answer blocks durable pilot evidence |
-| D4 | Approve the staging-canary scope and one future window of at most 60 minutes for migration plus validation, with one resolved 10 Reps scope and one export? **Recommend: yes, only after a separately reviewed staging-selector change.** | Amend scope/window or keep blocked | A later task may prepare an exact time-bound staging authorization after every preflight gate passes | Does not apply migration now, change selector now, or authorize production/live capture/shadow; no answer keeps staging blocked |
-| D5 | Approve a separate staging exporter credential valid at most 30 minutes and at most one RPC attempt, revoked immediately? **Recommend: yes, conditional on D4.** | 15-minute credential or no credential | Later out-of-Git provisioning for the exact canary window after D4 and preflight | No credential now; no production credential; no answer keeps exporter access blocked |
+The approved threshold and retention policies do not expire automatically.
+Review after three approved captures does not relax or replace them. A separate
+exact authorization remains mandatory for every selector change and execution
+action.
 
-Even if all five proposals are approved, a separate exact authorization is still
-required for the selector change and canary execution. Separate later decisions
-are also mandatory for production migration/credential, live 10 Reps capture,
-shadow run, import, apply, Model B, auto-safe policy and cutover. None is
-authorized by this pack.
+### Authorization matrix after owner approval
+
+| Surface | Status |
+|---|---|
+| Staging-canary preparation | `AUTHORIZED` |
+| Staging-canary execution | `NOT_AUTHORIZED` |
+| Staging migration application | `NOT_AUTHORIZED` |
+| Staging credential design | `AUTHORIZED` |
+| Staging credential issuance and use | `NOT_AUTHORIZED` |
+| Production migration and credential | `NOT_AUTHORIZED` |
+| Live feed capture and live control-state export | `NOT_AUTHORIZED` |
+| Shadow run, control plan, approval, import and apply | `NOT_AUTHORIZED` |
+| Model B execution and cutover | `NOT_AUTHORIZED` |
+| Auto-safe classes | `NONE_APPROVED` |
 
 Plain-language owner summary:
 
-1. Choose how much feed-count movement causes review or a source block.
-2. Choose how long the protected raw CSV is kept, especially the first pilot.
-3. Choose how long redacted reports, logs and fingerprints are kept.
-4. Decide whether the team may later prepare one tightly bounded staging canary;
-   this is not permission to run it now.
-5. Decide whether that future canary may use one staging-only, 30-minute,
-   one-call credential; this is not permission to create it now.
+1. Marek approved how much feed-count movement causes review or a source block.
+2. Marek approved how long the protected raw CSV is kept, including the first
+   pilot.
+3. Marek approved how long redacted reports, logs and fingerprints are kept.
+4. Marek approved preparation of a tightly bounded staging canary; he did not
+   approve running it.
+5. Marek approved preparation of a staging-only, 30-minute, one-call credential
+   design; he did not approve issuing or using a credential.
 
 ## Required evidence before any later authorization
 
-- owner answers bound to this manifest fingerprint and policy versions;
+- this recorded owner decision bound to the manifest fingerprint and policy
+  versions;
 - exact fresh baseline/branch/commit and clean-worktree verification;
 - independently reviewed staging-selector diff retaining production exclusion;
 - staging identity, schema, ledger and retailer-inventory preflight;
@@ -384,12 +417,14 @@ characterized. Staging's current schema, migration ledger, available retailers
 and exact 10 Reps ID have not been read. No approved private evidence-store path,
 named operators, canary time window, selector-change implementation, credential
 issuer or incident/legal retention authority has been selected. These unknowns
-do not prevent proposing conservative decisions; they block execution.
+do not invalidate the approved conservative policies; they block execution.
 
-Machine-readable proposal:
+Machine-readable owner-decision record:
 [`RA-004-owner-decisions.json`](RA-004-owner-decisions.json).
 
-The manifest includes a SHA-256 of this Markdown after normalizing CRLF to LF.
-Its canonical fingerprint excludes only `manifest_fingerprint` itself and
-covers that document hash. Therefore any Markdown or manifest change requires
-updating the document hash and recalculating the manifest fingerprint.
+The manifest includes a SHA-256 of this Markdown after normalizing CRLF to LF
+and replacing only the self-referential value on the `Manifest fingerprint`
+line with the literal `SELF`. Its canonical JSON fingerprint excludes only
+`manifest_fingerprint` itself and covers that normalized document hash. Any
+other Markdown or manifest change requires updating the document hash and
+recalculating both recorded fingerprint values.

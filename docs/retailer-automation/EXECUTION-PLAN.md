@@ -242,13 +242,18 @@ the comparator regenerates nested record/integrity counts rather than trusting
 report summaries. See
 [`evidence/RA-004-SINGLE-SNAPSHOT-ADAPTER.md`](evidence/RA-004-SINGLE-SNAPSHOT-ADAPTER.md).
 
-RA-004 remains `IN_PROGRESS`; the adapter is `VERIFIED_COMPLETE`, and the
-shadow manifest remains `NOT_AUTHORIZED`. The documentation-only
+RA-004 remains `IN_PROGRESS`; the control-state interface and single-snapshot
+adapter are `VERIFIED_COMPLETE`, and the shadow manifest remains
+`NOT_AUTHORIZED`. The
 [`evidence/RA-004-OWNER-DECISION-PACK.md`](evidence/RA-004-OWNER-DECISION-PACK.md)
-now proposes temporary conservative record-count thresholds, retention options,
-and one bounded staging canary. The pack is `VERIFIED_FOR_OWNER_REVIEW`; its
-five machine-readable decisions and every execution surface remain
-`NOT_AUTHORIZED`. Verification records no owner approval or execution authority.
+is `VERIFIED_COMPLETE`. On 24 September 2026 Marek approved its five recommended
+policies and future-preparation parameters. D1–D3 are `OWNER_APPROVED`; D4–D5
+are `OWNER_APPROVED_FOR_FUTURE_PREPARATION`. This permits a separate staging
+canary implementation plan and credential design only. Staging execution,
+migration application, credential issuance/use, production, live capture,
+live control-state export, shadow, control plan, approval, import, apply,
+Model B and cutover remain `NOT_AUTHORIZED`; auto-safe classes remain
+`NONE_APPROVED`.
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 

@@ -20,7 +20,7 @@
 
 [RA-004 owner decision pack](RA-004-OWNER-DECISION-PACK.md)
 
-[RA-004 machine-readable owner decision proposal](RA-004-owner-decisions.json)
+[RA-004 machine-readable owner decision record](RA-004-owner-decisions.json)
 
 RA-002 was independently verified on 23 September 2026 in PR #86. RA-003 was
 independently verified on 24 September 2026 in PR #87. Their local test and
@@ -39,15 +39,15 @@ was created. The test-only single-snapshot adapter is
 unexplained differences and zero side-effect attempts. The shadow run remains
 `NOT_AUTHORIZED`.
 
-The owner decision pack is independently `VERIFIED_FOR_OWNER_REVIEW`. Its
-record-count and retention choices and bounded staging-canary design remain
-owner proposals; all five decisions and all execution surfaces are
-`NOT_AUTHORIZED`. Verification clarified the exact threshold formula and
-boundaries, per-row isolation, retention lifecycle, access-only rollback and
-Markdown-bound manifest fingerprint. It created no credential, selector change,
-migration apply, live capture or shadow run. Numeric thresholds remain explicit
-temporary safety recommendations because tracked evidence does not establish a
-statistical current-feed distribution.
+The owner decision pack is `VERIFIED_COMPLETE`. On 24 September 2026 Marek
+approved all five recommended decisions: record-count policy R and raw/derived
+retention R are `OWNER_APPROVED`; the staging-canary and credential parameters
+are `OWNER_APPROVED_FOR_FUTURE_PREPARATION`. Approval permits only a separate
+future implementation plan, runbook, Draft PR and credential design. Staging
+execution, migration application, credential issuance/use, production, live
+capture, live control-state export and shadow remain `NOT_AUTHORIZED`. No
+credential, selector change, migration apply, capture or shadow run was created.
+RA-004 remains `IN_PROGRESS`.
 
 The fixture-only implementation is preserved in PR #89. Marek approved
 the transactional interface for isolated local implementation. The migration

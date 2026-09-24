@@ -1,18 +1,68 @@
 {
-  "schema_version": "ra-004-owner-decisions-v2",
+  "schema_version": "ra-004-owner-decisions-v3",
   "baseline_sha": "29b57ffe98c174e0f7364d65f25bdcdc2b5cceb5",
   "prepared_at": "2026-09-24",
-  "status": "VERIFIED_FOR_OWNER_REVIEW",
+  "status": "VERIFIED_COMPLETE",
+  "owner_decision": {
+    "status": "OWNER_APPROVED",
+    "owner": "Marek",
+    "decided_at": "2026-09-24",
+    "source": "EXPLICIT_OWNER_INSTRUCTION",
+    "statement": "Zatwierdzam wszystkie pięć rekomendowanych decyzji RA-004.",
+    "approved_decision_ids": [
+      "D1_RECORD_COUNT_POLICY",
+      "D2_RAW_RETENTION",
+      "D3_DERIVED_RETENTION",
+      "D4_STAGING_CANARY",
+      "D5_STAGING_CREDENTIAL"
+    ],
+    "execution_authorized": false
+  },
   "decision_document": {
     "path": "docs/retailer-automation/evidence/RA-004-OWNER-DECISION-PACK.md",
-    "normalization": "CRLF_TO_LF_UTF8",
-    "sha256": "361e2d0066688dc42d94b2b2be606547f53d767a0b423238022a72ac8ecc1b59"
+    "normalization": "CRLF_TO_LF_UTF8_THEN_REPLACE_MARKDOWN_MANIFEST_FINGERPRINT_VALUE_WITH_SELF",
+    "sha256": "cd09cbc9ce72000ee019b6584d0e90185f897b67b2758d424bef3e58127acf33"
   },
   "authorization": {
     "staging": "NOT_AUTHORIZED",
     "production": "NOT_AUTHORIZED",
-    "live_capture": "NOT_AUTHORIZED",
-    "shadow_run": "NOT_AUTHORIZED"
+    "staging_canary_execution": "NOT_AUTHORIZED",
+    "staging_migration_application": "NOT_AUTHORIZED",
+    "staging_credential_issuance": "NOT_AUTHORIZED",
+    "staging_credential_use": "NOT_AUTHORIZED",
+    "production_migration": "NOT_AUTHORIZED",
+    "production_credential": "NOT_AUTHORIZED",
+    "live_feed_capture": "NOT_AUTHORIZED",
+    "live_control_state_export": "NOT_AUTHORIZED",
+    "shadow_run": "NOT_AUTHORIZED",
+    "control_plan": "NOT_AUTHORIZED",
+    "approval": "NOT_AUTHORIZED",
+    "import": "NOT_AUTHORIZED",
+    "apply": "NOT_AUTHORIZED",
+    "model_b_execution": "NOT_AUTHORIZED",
+    "auto_safe_classes": "NONE_APPROVED",
+    "cutover": "NOT_AUTHORIZED"
+  },
+  "preparation_authorization": {
+    "staging_canary_preparation_authorized": true,
+    "staging_canary_execution_authorized": false,
+    "staging_migration_authorized": false,
+    "credential_design_authorized": true,
+    "credential_issuance_authorized": false,
+    "credential_use_authorized": false
+  },
+  "policy_lifecycle": {
+    "owner_approved_policies_expire_automatically": false,
+    "record_count_review_after_approved_captures": 3,
+    "review_does_not_relax_or_expire_policy_automatically": true,
+    "every_execution_action_requires_new_exact_authorization": true
+  },
+  "component_status": {
+    "ra_004": "IN_PROGRESS",
+    "owner_decisions": "OWNER_APPROVED",
+    "decision_pack": "VERIFIED_COMPLETE",
+    "control_state_interface": "VERIFIED_COMPLETE",
+    "single_snapshot_adapter": "VERIFIED_COMPLETE"
   },
   "historical_context_not_current_state": {
     "approved_mapping_count": 950,
@@ -27,50 +77,53 @@
     "products_473_variants_1663": "TRACKED_HISTORICAL_CONFIG_GUARD: config/retailers/10reps-offer-sync.json; not current snapshot",
     "candidate_variants_1497_1996": "CALCULATED: round_half_up(1663*0.90) through round_half_up(1663*1.20)",
     "candidate_products_426_568": "CALCULATED: round_half_up(473*0.90) through round_half_up(473*1.20)",
-    "thresholds_retention_and_canary_limits": "TEMPORARY_SAFETY_RECOMMENDATIONS: not historically derived",
+    "thresholds_retention_and_canary_limits": "OWNER_APPROVED_TEMPORARY_SAFETY_POLICY: not historically derived",
     "migration_sha256": "TRACKED_BYTES_AND_SELECTOR_CONTRACT"
   },
-  "decision_defaults": "NO_RESPONSE_MEANS_NOT_AUTHORIZED",
+  "decision_defaults": "OWNER_RESPONSE_RECORDED; POLICY_APPROVAL_DOES_NOT_AUTHORIZE_EXECUTION",
   "decisions": [
     {
       "id": "D1_RECORD_COUNT_POLICY",
       "question": "Which proposed record-count policy should govern a separately authorized future capture?",
-      "status": "NOT_AUTHORIZED",
+      "status": "OWNER_APPROVED",
       "recommended": "BALANCED_CONSERVATIVE_R",
+      "selected": "BALANCED_CONSERVATIVE_R",
       "alternatives": ["RESTRICTIVE_S", "FLEXIBLE_F", "AMEND", "REJECT"],
       "may_choose_different_value": true,
       "temporary_conservative": true,
       "review_after_approved_captures": 3,
-      "authorizes_if_later_approved": ["record_policy_registration"],
+      "approved_scope": ["record_policy_registration_for_separately_authorized_future_capture"],
       "does_not_authorize": ["capture", "replay", "shadow_run", "write"],
-      "no_decision_effect": "NOT_AUTHORIZED; all count-dependent work remains blocked"
+      "pre_approval_default_effect": "NOT_AUTHORIZED; all count-dependent work remained blocked"
     },
     {
       "id": "D2_RAW_RETENTION",
       "question": "Which proposed retention policy should govern a future protected raw snapshot?",
-      "status": "NOT_AUTHORIZED",
+      "status": "OWNER_APPROVED",
       "recommended": "RETENTION_R",
+      "selected": "RETENTION_R",
       "alternatives": ["RETENTION_SHORT_S", "RETENTION_LONG_L", "AMEND", "REJECT"],
       "may_choose_different_value": true,
-      "authorizes_if_later_approved": ["raw_retention_policy_registration"],
+      "approved_scope": ["raw_retention_policy_registration"],
       "does_not_authorize": ["storage_creation", "capture", "upload"],
-      "no_decision_effect": "NOT_AUTHORIZED; future capture remains blocked"
+      "pre_approval_default_effect": "NOT_AUTHORIZED; future capture remained blocked"
     },
     {
       "id": "D3_DERIVED_RETENTION",
       "question": "Which proposed retention policy should govern future redacted and derived evidence?",
-      "status": "NOT_AUTHORIZED",
+      "status": "OWNER_APPROVED",
       "recommended": "RETENTION_R",
+      "selected": "RETENTION_R",
       "alternatives": ["RETENTION_SHORT_S", "RETENTION_LONG_L", "AMEND", "REJECT"],
       "may_choose_different_value": true,
-      "authorizes_if_later_approved": ["derived_evidence_retention_policy_registration"],
+      "approved_scope": ["derived_evidence_retention_policy_registration"],
       "does_not_authorize": ["evidence_collection", "control_state_export", "publication"],
-      "no_decision_effect": "NOT_AUTHORIZED; durable pilot evidence remains blocked"
+      "pre_approval_default_effect": "NOT_AUTHORIZED; durable pilot evidence remained blocked"
     },
     {
       "id": "D4_STAGING_CANARY",
       "question": "May a later task prepare the proposed one-retailer staging canary within a maximum 60-minute window?",
-      "status": "NOT_AUTHORIZED",
+      "status": "OWNER_APPROVED_FOR_FUTURE_PREPARATION",
       "recommended": {
         "maximum_window_minutes": 60,
         "retailer_scope_count": 1,
@@ -78,16 +131,17 @@
         "export_count": 1,
         "requires_separate_selector_change_review": true
       },
+      "selected": "RECOMMENDED_PARAMETERS_AS_RECORDED",
       "alternatives": ["AMEND_SCOPE_OR_WINDOW", "REJECT"],
       "may_choose_different_value": true,
-      "authorizes_if_later_approved": ["preparation_of_separate_exact_staging_canary_authorization"],
+      "approved_scope": ["preparation_of_separate_staging_canary_implementation_plan_and_draft_pr"],
       "does_not_authorize": ["selector_change", "migration_apply", "production", "live_capture", "shadow_run"],
-      "no_decision_effect": "NOT_AUTHORIZED; staging remains blocked"
+      "pre_approval_default_effect": "NOT_AUTHORIZED; staging remained blocked"
     },
     {
       "id": "D5_STAGING_CREDENTIAL",
       "question": "May the later canary use one staging-only exporter credential for at most 30 minutes and one RPC attempt?",
-      "status": "NOT_AUTHORIZED",
+      "status": "OWNER_APPROVED_FOR_FUTURE_PREPARATION",
       "recommended": {
         "maximum_validity_minutes": 30,
         "maximum_rpc_attempts": 1,
@@ -97,11 +151,12 @@
         "revoke_immediately": true,
         "automatic_retry": false
       },
+      "selected": "RECOMMENDED_PARAMETERS_AS_RECORDED",
       "alternatives": ["15_MINUTES", "REJECT"],
       "may_choose_different_value": true,
-      "authorizes_if_later_approved": ["preparation_of_out_of_git_staging_credential_for_D4"],
+      "approved_scope": ["preparation_of_staging_credential_design_for_D4"],
       "does_not_authorize": ["credential_creation_now", "table_access", "mutation_rpc", "other_rpc", "production_credential"],
-      "no_decision_effect": "NOT_AUTHORIZED; exporter access remains blocked"
+      "pre_approval_default_effect": "NOT_AUTHORIZED; exporter access remained blocked"
     }
   ],
   "record_count_policies": {
@@ -188,7 +243,7 @@
     "integrity": "detached SHA-256",
     "deletion_confirmation": "deletion request plus read-after-delete verification and non-sensitive deletion receipt",
     "deletion_owner": "future named evidence custodian required before capture",
-    "seven_year_basis": "operational proposal only; no legal or tax basis is asserted",
+    "seven_year_basis": "owner-approved operational policy only; no legal or tax basis is asserted",
     "incident_or_audit_hold": "exact evidence set only; recorded owner authority reason and review date; deletion resumes after release",
     "recommended_lifecycle": {
       "raw_csv": { "purpose": "reproduce parsing and investigate capture", "starts": "successful capture completion", "ends": "start plus P90D" },
@@ -202,7 +257,13 @@
     }
   },
   "staging_canary": {
-    "status": "NOT_AUTHORIZED",
+    "status": "OWNER_APPROVED_FOR_FUTURE_PREPARATION",
+    "staging_canary_preparation_authorized": true,
+    "staging_canary_execution_authorized": false,
+    "staging_migration_authorized": false,
+    "credential_design_authorized": true,
+    "credential_issuance_authorized": false,
+    "credential_use_authorized": false,
     "migration": "supabase/migrations/20260924100000_add_transactional_retailer_control_state_interface.sql",
     "migration_sha256": "cfd7a93cb20845832b696183f5eb8a500f0474b4173829b85f6ac6bc73d4baaa",
     "currently_excluded_from_staging_selector": true,
@@ -253,7 +314,7 @@
     ]
   },
   "required_evidence": [
-    "owner answers bound to manifest fingerprint", "clean exact repository baseline",
+    "recorded owner decision bound to manifest fingerprint", "clean exact repository baseline",
     "independently reviewed staging-only selector change retaining production exclusion",
     "staging project schema ledger and retailer inventory preflight", "named operator and UTC window",
     "approved private evidence destination and deletion rule", "credential privilege expiry and revocation plan",
@@ -261,6 +322,7 @@
   ],
   "future_authorization_expiry": {
     "decision_pack_approval_does_not_create_execution_authorization": true,
+    "approved_threshold_and_retention_policies_expire_automatically": false,
     "staging_canary_authorization_maximum_minutes": 60,
     "staging_credential_maximum_minutes": 30,
     "unused_authorization_expires_at_window_end": true,
@@ -270,6 +332,6 @@
     "algorithm": "SHA-256",
     "canonicalization": "scripts/lib/stable-json-hash.js canonical JSON",
     "covers": "all root fields except manifest_fingerprint",
-    "value": "e5a3b3a0e4dc99ba5b805a942064ad3a6a24ca3b35b52af52d1308b6bd7716f9"
+    "value": "030c9d7cb12b46ab0b2bca2311ffbe1456e1c579e9e3acd570a4c0766ead119c"
   }
 }
