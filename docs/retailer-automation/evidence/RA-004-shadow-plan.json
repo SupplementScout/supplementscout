@@ -2,7 +2,7 @@
   "schema_version": 1,
   "plan_id": "RA-004-10REPS-SHADOW-001",
   "status": "NOT_AUTHORIZED",
-  "gate": "PREFLIGHT_BLOCKED",
+  "gate": "PREFLIGHT_VERIFIED",
   "retailer": {
     "id": 14,
     "name": "10 Reps",
@@ -248,8 +248,29 @@
       "id": "RA004-B02",
       "description": "No existing approved read-only export was found that inventories current 10 Reps control plans, sessions, locks, approvals and recovery state without direct SQL.",
       "required_resolution": "Owner must authorize an existing or separately reviewed read-only export mechanism and its exact fields before a shadow window can be approved."
+    },
+    {
+      "id": "RA004-B03",
+      "description": "No record-count drift thresholds are approved for the shadow capture; historical counts are evidence, not current limits.",
+      "required_resolution": "Owner must approve evidence-based lower and upper record-count bounds before capture."
+    },
+    {
+      "id": "RA004-B04",
+      "description": "Retention, access and deletion rules for the protected raw snapshot are not approved.",
+      "required_resolution": "Owner must approve the protected local storage location, readers, retention duration and deletion procedure before capture."
+    },
+    {
+      "id": "RA004-B05",
+      "description": "No owner authorization exists for a live CSV capture or shadow run.",
+      "required_resolution": "After all technical blockers close, owner must authorize one exact commit/config/manifest scope and one bounded run window."
     }
   ],
+  "independent_verification": {
+    "verified_at": "2026-09-24",
+    "initial_pr_head": "035e95eb0c4b7744823b2ff59b2efde0dd828cd4",
+    "result": "PREFLIGHT_VERIFIED_BLOCKERS_OPEN",
+    "live_shadow_run_authorized": false
+  },
   "owner_authorization": {
     "approved": false,
     "approved_by": null,

@@ -1,9 +1,9 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: RA-004 IN PROGRESS — PREFLIGHT BLOCKED**
+**Status: RA-004 IN PROGRESS — PREFLIGHT VERIFIED**
 
-**Current active task:** RA-004 preflight only — `IN_PROGRESS`; live shadow run
-is blocked and not authorized
+**Current active task:** RA-004 — `IN_PROGRESS`; its documentation preflight is
+verified, while the live shadow run remains blocked and not authorized
 
 **Implementation:** documentation-only RA-004 preflight; no production wiring
 
@@ -197,8 +197,9 @@ mutation and emitter-reference checks, fresh local quality gates and PR #87 CI.
 
 **Status:** `IN_PROGRESS`
 
-**Preflight gate:** `PREFLIGHT BLOCKED` — no safe single-snapshot legacy replay
-entry point and no approved complete read-only control-state export. See
+**Preflight gate:** `PREFLIGHT VERIFIED` — the documentation and blockers were
+independently verified; there is still no safe single-snapshot legacy replay
+entry point or approved complete read-only control-state export. See
 [`evidence/RA-004-PREFLIGHT.md`](evidence/RA-004-PREFLIGHT.md) and the
 machine-readable [`evidence/RA-004-shadow-plan.json`](evidence/RA-004-shadow-plan.json).
 

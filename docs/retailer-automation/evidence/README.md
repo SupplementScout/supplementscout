@@ -12,9 +12,10 @@
 
 RA-002 was independently verified on 23 September 2026 in PR #86. RA-003 was
 independently verified on 24 September 2026 in PR #87. Their local test and
-contract modules remain unwired from production. RA-004 is `IN_PROGRESS` for
-preflight documentation only and is `PREFLIGHT BLOCKED`; the machine manifest
-is `NOT_AUTHORIZED`. No live capture or shadow run is authorized.
+contract modules remain unwired from production. RA-004 is `IN_PROGRESS`; its
+documentation preflight is `PREFLIGHT VERIFIED`, while the machine manifest is
+still `NOT_AUTHORIZED`. No live capture or shadow run is authorized, and all
+five pre-run blockers remain open.
 
 ## RA-001 owner approval
 

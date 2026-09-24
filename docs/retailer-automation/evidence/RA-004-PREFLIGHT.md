@@ -1,8 +1,8 @@
 # RA-004 — 10 Reps shadow pilot preflight
 
-**Status:** `BLOCKED`
+**Status:** `IN_PROGRESS`
 
-**Gate:** `PREFLIGHT BLOCKED`
+**Gate:** `PREFLIGHT VERIFIED`
 
 **Baseline:** `74b2360a064c16c98fd7fe4291698713cc3e1801`
 
@@ -17,8 +17,10 @@ row, dispatch a workflow, import data or enable Model B/auto-safe behavior.
 
 ## Conclusion and blockers
 
-The active 10 Reps production route and its historical evidence are
-reconstructable, but a shadow run is not safe to authorize yet:
+Independent verification confirms that the active 10 Reps production route,
+historical evidence, capture design, matching, parity and stop conditions are
+documented correctly. The preflight may be merged as the official blocker
+record, but a shadow run is not safe to authorize yet:
 
 1. `buildRun()` always obtains its own source through `readSourceSnapshot()`;
    aggregate-price isolation may fetch a second capture. There is no complete
@@ -168,11 +170,11 @@ manifest and reviewed manifests are tracked.
 | Approval/plan contracts | tracked approver, manifests and migrations plus ignored dry-run plans; available | exact expected hashes in `10reps-bootstrap-artifact-approver.js` | preflight inventory only; approval/import paths forbidden in shadow |
 | Execution/postflight reports | ignored local production-result/readback files and retained GitHub artifact metadata; partly available | per-file local SHA or GitHub digest | historical context only; not current baseline |
 | Watchdog reports | retained GitHub metadata; current artifact not downloaded | latest digest shown above | metadata supports blocker/status only; retailer detail needs approved evidence access |
-| v8 bootstrap 4 | tracked manifest; ignored CSV + dry-run available | CSV `9b03a0bc...55284`; dry-run `a5c57558...40442` | artifact-bound regression only; too old for live shadow |
-| v8 Time 4 | tracked manifest; ignored CSV + dry-run available | CSV `45ebeafa...5d73a`; dry-run `bcd141d3...ba832` | artifact-bound regression only; too old for live shadow |
-| v8 remaining 18 | tracked manifest; ignored CSV + dry-run available | CSV `4843377d...d76b`; dry-run `da01fabc...6a10` | artifact-bound regression only; too old for live shadow |
-| v9 bootstrap 7 / remaining 94 | tracked manifest; ignored pairs available | bootstrap `9497f360...360a` / `e218eada...3a71`; remaining `9c8f5990...f889` / `c6dce259...da51` | artifact-bound regression only; too old for live shadow |
-| v10 existing 14 / bootstrap 8 / remaining 71 | tracked manifest; ignored pairs available | CSV/artifact: `d708214e...85b`/`f6f97b84...28e5`, `8f0650d5...7331`/`9aec9dc6...00a7`, `45934dc4...9f07`/`c8ad02dc...9e40` | artifact-bound regression only; too old for live shadow |
+| v8 bootstrap 4 | tracked manifest; ignored CSV + dry-run available | CSV `9b03a0bc0773b5de70857aab8035fef0ada0a70d8f46e8a8785928d0afd55284`; dry-run `a5c575586e01067e0596da71d23b75f5a50ad785e477a7aad49a0440ff840442` | artifact-bound regression only; too old for live shadow |
+| v8 Time 4 | tracked manifest; ignored CSV + dry-run available | CSV `45ebeafaa283d6d14a83714c7df1af5ddb5a0a5151828239daf033a14725d73a`; dry-run `bcd141d34ceece338f9e67cb11357597ee2bbf8c9418b7a1db8fe8a773fba832` | artifact-bound regression only; too old for live shadow |
+| v8 remaining 18 | tracked manifest; ignored CSV + dry-run available | CSV `4843377df92ce50803844f50cd558b8054dc59969ccfe8caca0bc49ecb25d76b`; dry-run `da01fabc4595c12f75dda3de85069daa652d0bbc8ba3964d79b55c36deb06a10` | artifact-bound regression only; too old for live shadow |
+| v9 bootstrap 7 / remaining 94 | tracked manifest; ignored pairs available | bootstrap CSV/artifact `9497f360c5f7f1e524d618edea860a193a67b79351ba45147a4a5a3a2bca360a` / `e218eadaae92f6604dce8caee633e5af3383adc76b3cb61f868c477dd9fc3a71`; remaining CSV/artifact `9c8f5990edb9e52627a8f76798e4f88a6e71439a78e27814f3abd22f9685f889` / `c6dce2596114cde50e062be81fc4ec3a7a86976d4aac065359d86ef27366da51` | artifact-bound regression only; too old for live shadow |
+| v10 existing 14 / bootstrap 8 / remaining 71 | tracked manifest; ignored pairs available | existing CSV/artifact `d708214ea789b06a3bea8a9c51bc17d4ccc8d20522277d90adc75371751a485b` / `f6f97b84f92e42390ab35008ec4ea33aa1f38913461b7153c2ce468493cd28e5`; bootstrap `8f0650d53f611bd34deabe631d009776b12a3f4168871a408cfa5ab2fd6c7331` / `9aec9dc6574f9e5a6e1ad6ec16c49add116b29ed992d90f75082a2c3dfd100a7`; remaining `45934dc45e7abfb89ac380e8ca62a39edb54f9c2804b9677fa15a0b6718e9f07` / `c8ad02dc1b7cba14b86c6701657146f46f6f93554c314863dce587b236809e40` | artifact-bound regression only; too old for live shadow |
 | Historical RA evidence | tracked `AUDIT.md`, RA-000 README, RA-002 and RA-003 evidence | repository history and recorded run/artifact digests | valid historical evidence, never current source/control state |
 
 All eight protected v8/v9/v10 CSV/dry-run pairs above match their expected
@@ -306,6 +308,55 @@ remain protected and are referenced by digest, never committed.
 - exact fields/interface of the future read-only control-state export;
 - final reviewed implementation and independent verification of snapshot
   injection and the 10 Reps canonical adapter.
+
+## Independent verification — 24 September 2026
+
+Verification started from unchanged `origin/main`
+`74b2360a064c16c98fd7fe4291698713cc3e1801` and exact initial PR head
+`035e95eb0c4b7744823b2ff59b2efde0dd828cd4` in a separate clean worktree.
+
+- the active workflow/job, `RETAILER_REFRESH_PROFILE=10reps`, protected CSV
+  reader, `buildRun()`, optional second fetch, classifier, validator,
+  registration, sequential approvals, executor, postflight and watchdog were
+  traced to their current entry points. v8/v9/v10 remain onboarding/import
+  contracts and have no reference from the active 10 Reps refresh workflow;
+- `REQUIRED_COLUMNS` was independently recounted as 17. A local in-memory
+  parser check confirmed BOM/comma/UTF-8 parsing, `current_price`,
+  `stock_status`, numeric identity, and fail-closed missing-header behavior.
+  A representative HTML body was rejected by header drift; the future capture
+  still requires the explicit HTML/challenge signature guard in this plan;
+- GitHub run `35834479612` was checked through run, job, step, log and artifact
+  metadata without downloading the protected artifact. The 10 Reps job and all
+  its steps passed on `121fc5ce909c925e7234aef3a249661c8e7d0826`; the overall
+  workflow failure came from the Fit House summary step. Its 23 September log
+  records 950 approved mappings, 935 executable rows and 15 review rows;
+- the ignored inventory was independently counted as 573 files and 55,004,260
+  bytes. All 16 files in the eight v8/v9/v10 CSV/dry-run pairs were hashed and
+  matched their manifest/approver expectations. They remain historical local
+  regression inputs, not a current live baseline;
+- repository search found retailer-specific read-only state readers and
+  postflight/watchdog projections, but no one approved stable-schema exporter
+  covering plans, sessions, locks, approvals, recovery and incomplete work.
+  The control-state blocker therefore remains valid;
+- `buildRun()` always calls `readSourceSnapshot()` and may call it again for
+  aggregate confirmation. Canonical v1 accepts fixtures, not the protected CSV
+  plus the same complete target state. No current entry point denies all
+  refetch/DB/control/approval/apply capabilities while producing both reports;
+  the single-snapshot adapter/orchestrator blocker therefore remains valid;
+- capture, exhaustive matching, six difference classes, zero-tolerance parity
+  and all required stop conditions were checked against the machine manifest.
+  No percentage error budget or owner-invented record-count threshold exists;
+- a controlled local mutation from `NOT_AUTHORIZED` to
+  `AUTHORIZED_TEST_MUTATION` was rejected with exit code 42. Restoring the
+  exact value restored the original blob hash before documentation edits;
+- two documentation gaps were corrected: all protected-pair SHA-256 values are
+  now complete rather than abbreviated, and the machine-readable blocker list
+  now includes record-count thresholds, snapshot retention and owner
+  authorization in addition to the two technical blockers.
+
+This verification grants no capture or execution authority. RA-004 remains
+`IN_PROGRESS`, all five blockers remain open, and the manifest remains
+`NOT_AUTHORIZED`.
 
 ## Owner decisions required before any run
 
