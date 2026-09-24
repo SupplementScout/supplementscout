@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "library_id": "ra-003-historical-incidents-v1",
+  "source": {
+    "retailer_ref": "historical-regression",
+    "source_ref": "ra-003-confirmed-evidence",
+    "source_type": "FIXTURE"
+  },
+  "captured_at": "2026-09-23T12:00:00.000Z",
+  "fixtures": [
+    {
+      "fixture_id": "incident-pass-with-review-not-failure",
+      "run_id": "ra003-pass-with-review",
+      "raw_records": [{"source_record_id":"review-1","external_product_id":"p-review","external_variant_id":"v-review","product_name":"Reviewed change","price":"11.00","currency":"GBP","availability":"IN_STOCK"}],
+      "expected_state": [{"external_product_id":"p-review","external_variant_id":"v-review","price_minor":"1000","currency":"GBP","availability":"IN_STOCK","review_fields":["price"]}],
+      "controls": {}
+    },
+    {
+      "fixture_id": "incident-balanced-price-guardrail",
+      "run_id": "ra003-balanced-price",
+      "raw_records": [{"source_record_id":"price-1","external_product_id":"p-price","external_variant_id":"v-price","product_name":"Price wave","price":"12.00","currency":"GBP","availability":"IN_STOCK"}],
+      "expected_state": [{"external_product_id":"p-price","external_variant_id":"v-price","price_minor":"1000","currency":"GBP","availability":"IN_STOCK"}],
+      "controls": {"guardrail_blocked":true}
+    },
+    {
+      "fixture_id": "incident-source-missing-not-oos",
+      "run_id": "ra003-source-missing",
+      "raw_records": [],
+      "expected_state": [{"external_product_id":"p-missing","external_variant_id":"v-missing","product_name":"Expected mapped variant","price_minor":"1099","currency":"GBP","availability":"IN_STOCK"}],
+      "controls": {}
+    },
+    {
+      "fixture_id": "incident-identity-conflict",
+      "run_id": "ra003-identity-conflict",
+      "raw_records": [{"source_record_id":"identity-1","external_product_id":"p-identity","external_variant_id":"v-identity","product_name":"Ambiguous identity","price":"10.99","currency":"GBP","availability":"IN_STOCK"}],
+      "expected_state": [
+        {"external_product_id":"p-identity","external_variant_id":"v-identity","price_minor":"1099","currency":"GBP","availability":"IN_STOCK"},
+        {"external_product_id":"p-identity","external_variant_id":"v-identity","price_minor":"1099","currency":"GBP","availability":"IN_STOCK"}
+      ],
+      "controls": {}
+    },
+    {
+      "fixture_id": "incident-stale-fingerprint-drift",
+      "run_id": "ra003-stale-fingerprint",
+      "raw_records": [{"source_record_id":"stale-1","external_product_id":"p-stale","external_variant_id":"v-stale","product_name":"Stale state","price":"10.99","currency":"GBP","availability":"IN_STOCK"}],
+      "expected_state": [{"external_product_id":"p-stale","external_variant_id":"v-stale","price_minor":"1099","currency":"GBP","availability":"IN_STOCK"}],
+      "controls": {"stale_record_ids":["stale-1"]}
+    },
+    {
+      "fixture_id": "incident-equivalent-active-plan",
+      "run_id": "ra003-equivalent-active",
+      "raw_records": [],
+      "expected_state": [],
+      "controls": {"equivalent_active":true}
+    },
+    {
+      "fixture_id": "incident-expired-plan-revalidation",
+      "run_id": "ra003-expired-plan",
+      "raw_records": [{"source_record_id":"expired-1","external_product_id":"p-expired","external_variant_id":"v-expired","product_name":"Expired plan","price":"8.50","currency":"GBP","availability":"IN_STOCK"}],
+      "expected_state": [{"external_product_id":"p-expired","external_variant_id":"v-expired","price_minor":"850","currency":"GBP","availability":"IN_STOCK"}],
+      "controls": {"stale_record_ids":["expired-1"]}
+    },
+    {
+      "fixture_id": "incident-replay-protection",
+      "run_id": "ra003-replay-protection",
+      "raw_records": [],
+      "expected_state": [],
+      "controls": {"equivalent_active":true}
+    },
+    {
+      "fixture_id": "incident-mixed-row-isolation",
+      "run_id": "ra003-mixed-isolation",
+      "raw_records": [
+        {"source_record_id":"mixed-safe","external_product_id":"p-safe","external_variant_id":"v-safe","product_name":"Safe row","price":"9.99","currency":"GBP","availability":"IN_STOCK"},
+        {"source_record_id":"mixed-invalid","external_product_id":"p-invalid","external_variant_id":"v-invalid","product_name":"Invalid row","price":"not-money","currency":"GBP","availability":"IN_STOCK"}
+      ],
+      "expected_state": [
+        {"external_product_id":"p-safe","external_variant_id":"v-safe","price_minor":"999","currency":"GBP","availability":"IN_STOCK"},
+        {"external_product_id":"p-invalid","external_variant_id":"v-invalid","price_minor":"999","currency":"GBP","availability":"IN_STOCK"}
+      ],
+      "controls": {}
+    },
+    {
+      "fixture_id": "incident-source-degradation",
+      "run_id": "ra003-source-degradation",
+      "raw_records": [],
+      "expected_state": [],
+      "controls": {"source_suspect":true}
+    },
+    {
+      "fixture_id": "incident-mass-stock-guardrail",
+      "run_id": "ra003-mass-stock",
+      "raw_records": [{"source_record_id":"stock-1","external_product_id":"p-stock","external_variant_id":"v-stock","product_name":"Stock anomaly","price":"10.00","currency":"GBP","availability":"OUT_OF_STOCK"}],
+      "expected_state": [{"external_product_id":"p-stock","external_variant_id":"v-stock","price_minor":"1000","currency":"GBP","availability":"IN_STOCK"}],
+      "controls": {"guardrail_blocked":true}
+    },
+    {
+      "fixture_id": "incident-no-authorized-scope",
+      "run_id": "ra003-no-authorized-scope",
+      "raw_records": [{"source_record_id":"authorization-1","external_product_id":"p-auth","external_variant_id":"v-auth","product_name":"Unapproved change","price":"10.50","currency":"GBP","availability":"IN_STOCK"}],
+      "expected_state": [{"external_product_id":"p-auth","external_variant_id":"v-auth","price_minor":"1000","currency":"GBP","availability":"IN_STOCK"}],
+      "controls": {}
+    },
+    {
+      "fixture_id": "incident-system-failure",
+      "run_id": "ra003-system-failure",
+      "raw_records": [],
+      "expected_state": [],
+      "controls": {"system_error":true}
+    },
+    {
+      "fixture_id": "incident-post-apply-drift",
+      "run_id": "ra003-post-apply-drift",
+      "raw_records": [{"source_record_id":"postflight-1","external_product_id":"p-postflight","external_variant_id":"v-postflight","product_name":"Postflight drift","price":"10.00","currency":"GBP","availability":"IN_STOCK"}],
+      "expected_state": [{"external_product_id":"p-postflight","external_variant_id":"v-postflight","price_minor":"1000","currency":"GBP","availability":"IN_STOCK"}],
+      "controls": {"stale_record_ids":["postflight-1"]}
+    },
+    {
+      "fixture_id": "incident-verify-no-change",
+      "run_id": "ra003-verify-no-change",
+      "raw_records": [{"source_record_id":"no-change-1","external_product_id":"p-no-change","external_variant_id":"v-no-change","product_name":"No change","price":"7.25","currency":"GBP","availability":"IN_STOCK"}],
+      "expected_state": [{"external_product_id":"p-no-change","external_variant_id":"v-no-change","price_minor":"725","currency":"GBP","availability":"IN_STOCK"}],
+      "controls": {}
+    },
+    {
+      "fixture_id": "incident-freshness-confirmed",
+      "run_id": "ra003-freshness-confirmed",
+      "raw_records": [{"source_record_id":"fresh-1","external_product_id":"p-fresh","external_variant_id":"v-fresh","product_name":"Fresh confirmation","price":"6.00","currency":"GBP","availability":"IN_STOCK"}],
+      "expected_state": [{"external_product_id":"p-fresh","external_variant_id":"v-fresh","price_minor":"600","currency":"GBP","availability":"IN_STOCK"}],
+      "controls": {}
+    }
+  ]
+}
