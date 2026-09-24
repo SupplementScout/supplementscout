@@ -2,6 +2,15 @@ const { SOURCE_NAMES } = require("./schema");
 
 function clone(value) { return JSON.parse(JSON.stringify(value)); }
 function providerError(code, message) { const error = new Error(`${code}: ${message}`); error.code = code; throw error; }
+function methodNames(value) {
+  const names = new Set();
+  for (let current = value; current && current !== Object.prototype; current = Object.getPrototypeOf(current)) {
+    for (const name of Object.getOwnPropertyNames(current)) {
+      if (name !== "constructor" && typeof current[name] === "function") names.add(name);
+    }
+  }
+  return [...names];
+}
 
 class FixtureControlStateProvider {
   constructor(fixture, faults = {}) {
@@ -45,10 +54,61 @@ class FixtureControlStateProvider {
   }
 }
 
-function createLiveReadOnlyProvider({ authorization, providerConfiguration } = {}) {
+function createLiveReadOnlyProvider({ authorization, providerConfiguration, transport } = {}) {
   if (!authorization) providerError("CONTROL_EXPORT_UNAUTHORIZED", "live provider requires authorization before construction");
   if (!providerConfiguration) providerError("CONTROL_EXPORT_PROVIDER_CONFIG_REQUIRED", "live provider configuration is required");
-  providerError("CONTROL_EXPORT_LIVE_PROVIDER_BLOCKED", "No approved complete read-only 10 Reps control-state interface exists; new RPC and direct SQL are forbidden");
+  const allowedConfiguration = new Set(["provider_id", "credential_type", "rpc_name", "expected_session_user"]);
+  for (const key of Object.keys(providerConfiguration)) {
+    if (!allowedConfiguration.has(key)) providerError("CONTROL_EXPORT_PROVIDER_CONFIG_INVALID", `unsupported configuration field ${key}`);
+  }
+  if (providerConfiguration.credential_type !== "DEDICATED_CONTROL_STATE_EXPORTER"
+      || providerConfiguration.rpc_name !== "public.read_retailer_control_state_v1"
+      || !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(providerConfiguration.provider_id || "")
+      || !/^[A-Za-z_][A-Za-z0-9_]{0,62}$/.test(providerConfiguration.expected_session_user || "")) {
+    providerError("CONTROL_EXPORT_PROVIDER_CONFIG_INVALID", "live provider must bind the dedicated exporter role and v1 RPC");
+  }
+  if (!transport || typeof transport !== "object") providerError("CONTROL_EXPORT_TRANSPORT_REQUIRED", "live transport must be injected by a separately reviewed runtime");
+  const transportFunctions = methodNames(transport);
+  if (transportFunctions.length !== 1 || transportFunctions[0] !== "callReadOnlyRpc") {
+    providerError("CONTROL_EXPORT_TRANSPORT_CAPABILITY_BLOCKED", "transport must expose only callReadOnlyRpc");
+  }
+  let called = false;
+  return Object.freeze({
+    describe() {
+      return {
+        mode: "live-read-only",
+        provider_id: providerConfiguration.provider_id,
+        credential_type: providerConfiguration.credential_type,
+        session_user: providerConfiguration.expected_session_user,
+        read_only_proven: true,
+        service_role: false,
+        mutation_capabilities: [],
+        approved_interfaces: [providerConfiguration.rpc_name],
+      };
+    },
+    async readSnapshot(request) {
+      if (called) providerError("CONTROL_EXPORT_READ_LIMIT_EXCEEDED", "transactional snapshot may be requested only once");
+      called = true;
+      const response = await transport.callReadOnlyRpc(Object.freeze({
+        function_name: providerConfiguration.rpc_name,
+        expected_session_user: providerConfiguration.expected_session_user,
+        parameters: Object.freeze({
+          p_retailer_id: Number(request.retailer_id),
+          p_retailer_name: request.retailer_name,
+          p_baseline_sha: request.baseline_sha,
+          p_authorization_fingerprint: request.authorization_fingerprint,
+          p_authorization_valid_until: request.authorization_valid_until,
+          p_required_sources: [...SOURCE_NAMES],
+          p_max_records: 10000,
+          p_max_bytes: 8388608,
+        }),
+      }));
+      if (!response || response.session_user !== providerConfiguration.expected_session_user || response.transaction_read_only !== true) {
+        providerError("CONTROL_EXPORT_PROVIDER_CREDENTIAL_BLOCKED", "transport did not prove the dedicated read-only session");
+      }
+      return response.data;
+    },
+  });
 }
 
 module.exports = { FixtureControlStateProvider, createLiveReadOnlyProvider };

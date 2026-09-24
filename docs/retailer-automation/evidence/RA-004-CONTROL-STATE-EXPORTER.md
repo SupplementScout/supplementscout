@@ -1,6 +1,6 @@
 # RA-004 — read-only control-state exporter
 
-**Status:** `BLOCKED_PENDING_INTERFACE_APPROVAL`
+**Status:** `CONTROL-STATE LOCAL IMPLEMENTATION READY_FOR_VERIFICATION`
 
 **Baseline:** `843ed987ff99a781ca04e16b2461a9eb4aa37b4e`
 
@@ -10,18 +10,25 @@
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
-Checkpoint commit `ba3265e` preserves this fixture-only implementation in Draft
-PR #89. The proposed database boundary is documented separately in
+Checkpoint commit `ba3265e` preserves the fixture-only implementation in Draft
+PR #89. The owner-approved database boundary is documented separately in
 [`RA-004-CONTROL-STATE-INTERFACE-DESIGN.md`](RA-004-CONTROL-STATE-INTERFACE-DESIGN.md).
-That proposal is design-only and does not add a migration, credential or live
-provider.
+Its migration and unwired provider contract are prepared only in the local
+worktree; no credential or live provider runtime was created.
 
-The local exporter core, fixture provider, authorization gate, schemas, CLI and
-regression suite are implemented. The exporter is not `READY_FOR_VERIFICATION`
-because no existing approved interface can return the complete mandatory 10
-Reps control state without direct SQL. Creating a new RPC or view is outside
-this task. Live provider construction therefore fails closed before reading a
-credential or opening a connection.
+On 24 September 2026 Marek approved local implementation of the single
+transactional RPC, minimal shared append-only evidence ledger and unwired live
+provider contract. The implementation is prepared in the RA-004 worktree. The
+isolated local PostgreSQL migration, ACL/RLS, ledger, eleven-source and
+concurrent-snapshot tests pass, as does `verify:full` under the repository LF
+policy for deterministic artifacts. No staging or production migration,
+credential, connection or live export was attempted.
+
+The local exporter core, fixture provider, authorization gate, schemas, CLI,
+transactional RPC and regression suite are implemented. The exporter is
+`READY_FOR_VERIFICATION`; the complete repository quality gate passes.
+Live provider construction still fails closed without a separately injected
+transport and future dedicated credential.
 
 No live exporter, feed, shadow replay, SQL, database connection, migration,
 control write, approval, apply, workflow dispatch or Review Queue publication
@@ -68,18 +75,22 @@ and after capture, and filtered for retailer plus global/cross-retailer scope.
 | `watchdog_state` | latest correlated watchdog result | `fixture:watchdog_state` | GitHub artifacts exist, no single consistent database snapshot interface |
 | `global_conflicts` | global plans/locks, shared workflow/executor/batch, cross-retailer approvals and fingerprint conflicts | `fixture:global_conflicts` | unavailable for 10 Reps |
 
-The registry records `live_interface: null` and an explicit unavailable reason
-for every source. The fixture interfaces are test mechanisms, not production
-substitutes. Missing access yields `BLOCKED_INCOMPLETE_EXPORT`; marker drift
-yields `BLOCKED_INCONSISTENT_SNAPSHOT`.
+The registry now binds all eleven sources to the prepared
+`public.read_retailer_control_state_v1` interface. That binding is an unwired
+contract, not proof of a deployed interface. Fixture interfaces remain test
+mechanisms, not production substitutes. Missing access yields
+`BLOCKED_INCOMPLETE_EXPORT`; marker drift yields
+`BLOCKED_INCONSISTENT_SNAPSHOT`.
 
 ## Read-only capability boundary
 
-The exporter accepts only three provider operations:
+The exporter accepts one of two closed provider contracts:
 
 - `describe()`;
-- `readConsistencyMarker(source)`;
-- `readPage(source, { cursor, page_size })`.
+- fixture-only `readConsistencyMarker(source)` plus
+  `readPage(source, { cursor, page_size })`; or
+- live-contract-only `readSnapshot(request)`, which delegates exactly once to
+  the allowlisted transactional RPC through an injected narrow transport.
 
 Provider construction recursively inspects own and prototype methods. Any
 unknown function or method matching insert, update, upsert, delete, mutation
@@ -180,10 +191,10 @@ The test suite covers the 47 required behavioral cases plus schema, CLI,
 source-registry and architecture-boundary checks. It uses only local fixtures
 and fake read-only providers. No actual control-state artifact was created.
 
-## Unresolved gap and decision
+## Resolved local gap and decision
 
-The code cannot meet the live Definition of Done without an existing approved
-interface for all eleven sources. The repository currently offers only:
+The interface-approval and isolated-local-PostgreSQL blockers are closed.
+The repository previously offered only:
 
 1. a Whey-only partial RPC;
 2. one-plan status through a service-role grant;
@@ -191,9 +202,8 @@ interface for all eleven sources. The repository currently offers only:
 4. historical GitHub artifacts that are neither complete nor one consistent
    current snapshot.
 
-All four are insufficient or forbidden. Therefore the original technical
-blocker is narrowed and made executable/testable, but not removed. RA-004 stays
-`IN_PROGRESS`; the control-state exporter gate is
-`BLOCKED_PENDING_INTERFACE_APPROVAL`; the interface design is
-`READY_FOR_OWNER_DECISION`; the single-snapshot adapter was not started; and the
-shadow manifest remains `NOT_AUTHORIZED`.
+The prepared interface addresses that gap and passed the mandatory local
+database tests. RA-004 stays `IN_PROGRESS`; local implementation status is
+`CONTROL-STATE LOCAL IMPLEMENTATION READY_FOR_VERIFICATION`; the next live
+single-snapshot adapter step was not started, and the shadow manifest remains
+`NOT_AUTHORIZED`.

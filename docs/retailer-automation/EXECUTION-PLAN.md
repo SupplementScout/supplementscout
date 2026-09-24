@@ -1,14 +1,17 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: RA-004 IN PROGRESS — EXPORTER BLOCKED PENDING INTERFACE APPROVAL**
+**Status: RA-004 IN PROGRESS — CONTROL-STATE LOCAL IMPLEMENTATION READY_FOR_VERIFICATION**
 
 **Current active task:** RA-004 — `IN_PROGRESS`; its documentation preflight is
 verified; the fixture-only exporter is preserved in Draft PR #89, the
-transactional interface design is ready for owner decision, the live read-only
-provider remains blocked and the shadow run is not authorized
+transactional interface is owner-approved and locally verified, and the full
+repository quality gate passes under the repository LF policy; the shadow run
+is not authorized
 
-**Implementation:** fixture-only control-state exporter core plus design-only
-transactional interface proposal; no migration, credential or production wiring
+**Implementation:** fixture exporter plus locally database-verified forward-only
+transactional interface, unwired live-provider contract and fail-closed
+migration-selector exclusion; ready for independent verification, with no
+credential or production wiring
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
@@ -206,22 +209,24 @@ entry point or approved complete read-only control-state export. See
 [`evidence/RA-004-PREFLIGHT.md`](evidence/RA-004-PREFLIGHT.md) and the
 machine-readable [`evidence/RA-004-shadow-plan.json`](evidence/RA-004-shadow-plan.json).
 
-**Control-state exporter gate:** `BLOCKED` — the versioned exporter core,
+**Control-state exporter gate:** `READY_FOR_VERIFICATION` — the versioned exporter core,
 authorization gate, fixture provider, CLI, pagination, consistency, redaction,
-fingerprints and architecture-boundary tests are implemented. Repository
-inventory found no existing approved complete read-only interface for 10 Reps:
-the only similar RPC is partial and restricted to Whey Okay, the plan-status RPC
-requires service role and one known plan ID, and the remaining readers expose
-direct SQL/general query capability. New RPCs, views, migrations and direct SQL
-were forbidden, so live provider construction fails closed. See
+fingerprints and architecture-boundary tests are implemented. The newly
+owner-approved transactional interface and unwired live-provider contract passed
+their isolated local database tests and the complete repository full gate.
+Live provider construction still fails closed without a separately
+injected transport and future dedicated credential. See
 [`evidence/RA-004-CONTROL-STATE-EXPORTER.md`](evidence/RA-004-CONTROL-STATE-EXPORTER.md).
 
-**Control-state interface:** `READY_FOR_OWNER_DECISION` — the repository-backed
-design recommends one bounded transactional RPC, a purpose-specific credential
-with EXECUTE-only access, and one minimal append-only evidence ledger for the
-session, lock, postflight, watchdog and global observations that do not exist as
-one durable database snapshot today. This is `DESIGN ONLY`: no migration, role,
-login, secret or live provider was created. See
+**Control-state interface:** `OWNER_APPROVED FOR LOCAL IMPLEMENTATION` — Marek
+approved one bounded transactional RPC, separate future environment credentials
+outside Git, and one minimal shared append-only evidence ledger. The migration
+and unwired provider contract passed the fresh-baseline local PostgreSQL,
+role/ACL/RLS, ledger, eleven-source and two-connection snapshot tests. Status is
+`CONTROL-STATE LOCAL IMPLEMENTATION READY_FOR_VERIFICATION`; repository LF
+policy preserves the exact committed bytes of deterministic artifacts, and the
+new migration remains excluded from both deployment selectors. No login,
+secret, remote apply or live export was created. See
 [`evidence/RA-004-CONTROL-STATE-INTERFACE-DESIGN.md`](evidence/RA-004-CONTROL-STATE-INTERFACE-DESIGN.md).
 
 **LIVE SHADOW RUN NOT AUTHORIZED**

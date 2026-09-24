@@ -14,24 +14,29 @@
 
 [RA-004 transactional control-state interface design](RA-004-CONTROL-STATE-INTERFACE-DESIGN.md)
 
+[RA-004 local control-state implementation evidence](RA-004-CONTROL-STATE-LOCAL-IMPLEMENTATION.md)
+
 RA-002 was independently verified on 23 September 2026 in PR #86. RA-003 was
 independently verified on 24 September 2026 in PR #87. Their local test and
 contract modules remain unwired from production. RA-004 is `IN_PROGRESS`; its
 documentation preflight is `PREFLIGHT VERIFIED`, while the machine manifest is
 still `NOT_AUTHORIZED`. No live capture or shadow run is authorized, and all
-five pre-run blockers remain open.
+the pre-run blockers remain outside this local implementation scope.
 
-The fixture-only control-state exporter core is now implemented and tested, but
-its live gate is `BLOCKED`: no existing approved complete read-only 10 Reps
-interface covers all mandatory plans, items, sessions, locks, approvals,
-recovery, apply, postflight, watchdog and global conflict state without direct
-SQL or a write-capable credential. No live export or active authorization was
-created.
+The fixture-only control-state exporter core is implemented and tested. Its
+local implementation gate is `READY_FOR_VERIFICATION`: the owner-approved
+transactional interface passed the mandatory isolated-database migration,
+privilege and snapshot tests, and `verify:full` passes after a repository-level
+LF policy for deterministic artifacts. No live export or active authorization
+was created.
 
-The fixture-only implementation is preserved in blocked Draft PR #89. The
-transactional interface is `READY_FOR_OWNER_DECISION`, but remains `DESIGN ONLY`:
-no migration, database role, login, credential, live provider, live export or
-shadow authorization was created.
+The fixture-only implementation is preserved in Draft PR #89. Marek approved
+the transactional interface for isolated local implementation. The migration
+and unwired provider contract passed their local database verification. Status
+is `CONTROL-STATE LOCAL IMPLEMENTATION READY_FOR_VERIFICATION`; the migration is
+explicitly excluded from staging and production selectors pending separate
+authorization. No login, credential, remote
+migration, live export or shadow authorization was created.
 
 ## RA-001 owner approval
 

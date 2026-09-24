@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 306,
-    "sha256": "ba518cdfdc3a3cf2caf34cd39b0fb06ec061deecbe27a26d1fdf4b1a1a8ee4d3"
+    "count": 307,
+    "sha256": "3c5a266e4a979f6c74a8adff8e9c4244381ba008299ff59f407d831b24169fda"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -27,6 +27,7 @@
     "scripts/production-retailer-sync-enablement.integration.test.js",
     "scripts/product-variants-stage2-migration.test.js",
     "scripts/retailer-catalogue-control-ledger.integration.test.js",
+    "scripts/retailer-control-state-interface.integration.test.js",
     "scripts/retailer-offer-expired-approval-close.integration.test.js",
     "scripts/retailer-offer-mixed-batch-migration.integration.test.js",
     "scripts/retailer-offer-read-only-validator.integration.test.js",

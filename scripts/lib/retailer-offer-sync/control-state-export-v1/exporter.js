@@ -41,15 +41,21 @@ function createReadOnlyCapability(provider, counters = { mutation_attempt_count:
   for (const name of functionsOn(provider).keys()) {
     if (MUTATION_METHOD.test(name) || !ALLOWED_PROVIDER_METHODS.has(name)) fail("CONTROL_EXPORT_PROVIDER_MUTATION_CAPABILITY", `provider exposes forbidden method ${name}`);
   }
-  for (const name of ALLOWED_PROVIDER_METHODS) if (typeof provider[name] !== "function") fail("CONTROL_EXPORT_PROVIDER_INVALID", `provider is missing ${name}`);
+  if (typeof provider.describe !== "function") fail("CONTROL_EXPORT_PROVIDER_INVALID", "provider is missing describe");
+  const atomic = typeof provider.readSnapshot === "function";
+  const paged = typeof provider.readConsistencyMarker === "function" && typeof provider.readPage === "function";
+  if (atomic === paged) fail("CONTROL_EXPORT_PROVIDER_INVALID", "provider must expose exactly one read contract");
   const descriptor = provider.describe();
   if (!descriptor || descriptor.mutation_capabilities?.length || descriptor.service_role === true) fail("CONTROL_EXPORT_PROVIDER_MUTATION_CAPABILITY", "provider descriptor exposes mutation or service-role capability");
   if (descriptor.mode === "live-read-only") {
-    if (descriptor.credential_type !== "DEDICATED_READ_ONLY_VALIDATOR" || descriptor.read_only_proven !== true) fail("CONTROL_EXPORT_PROVIDER_CREDENTIAL_BLOCKED", "live credential is not proven read-only");
+    if (!atomic || descriptor.credential_type !== "DEDICATED_CONTROL_STATE_EXPORTER" || descriptor.read_only_proven !== true) fail("CONTROL_EXPORT_PROVIDER_CREDENTIAL_BLOCKED", "live credential is not proven read-only");
     const missingInterface = SOURCE_REGISTRY.find((source) => !source.live_interface);
     if (missingInterface) fail("CONTROL_EXPORT_LIVE_PROVIDER_BLOCKED", `${missingInterface.name}: ${missingInterface.unavailable_reason}`);
+    if (canonicalJson(descriptor.approved_interfaces) !== canonicalJson(["public.read_retailer_control_state_v1"])) fail("CONTROL_EXPORT_PROVIDER_CREDENTIAL_BLOCKED", "live interface is not the approved transactional RPC");
   } else if (descriptor.mode !== "fixture" || descriptor.credential_type !== "NONE") {
     fail("CONTROL_EXPORT_PROVIDER_CREDENTIAL_BLOCKED", "fixture provider must expose no credential");
+  } else if (!paged) {
+    fail("CONTROL_EXPORT_PROVIDER_INVALID", "fixture provider must expose the paged consistency contract");
   }
   return new Proxy(provider, {
     get(target, property, receiver) {
@@ -229,6 +235,27 @@ async function exportControlState({ provider, authorization, retailer_id, retail
   const capability = createReadOnlyCapability(provider, counters);
   const descriptor = redact(capability.describe());
   if (descriptor.mode !== provider_mode) fail("CONTROL_EXPORT_PROVIDER_INVALID", "provider mode mismatch");
+  if (typeof capability.readSnapshot === "function") {
+    counters.read_attempt_count += 1;
+    const output = await capability.readSnapshot({
+      retailer_id: request.retailer_id,
+      retailer_name,
+      baseline_sha,
+      authorization_fingerprint: approved.authorization_fingerprint,
+      authorization_valid_until: approved.expires_at,
+    });
+    assertOutputShape(output);
+    if (output.retailer_id !== request.retailer_id || output.retailer_name !== retailer_name
+        || output.baseline_sha !== baseline_sha
+        || output.authorization_fingerprint !== approved.authorization_fingerprint
+        || canonicalJson(output.provider_identity) !== canonicalJson(descriptor)
+        || canonicalJson(output.sources_queried) !== canonicalJson(SOURCE_NAMES)
+        || output.read_attempt_count !== 1 || output.write_attempt_count !== 0
+        || output.mutation_attempt_count !== 0) {
+      fail("CONTROL_EXPORT_RPC_CONTRACT_INVALID", "transactional RPC response is not bound to the authorized request");
+    }
+    return Object.freeze(output);
+  }
   const started = request.now;
   const before = {};
   const after = {};

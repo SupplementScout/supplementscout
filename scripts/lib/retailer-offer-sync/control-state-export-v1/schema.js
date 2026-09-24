@@ -36,8 +36,8 @@ const SOURCE_REGISTRY = Object.freeze([
   sorting: "id ascending",
   consistency_marker: "required before and after pagination",
   redaction: "control identifiers only",
-  live_interface: null,
-  unavailable_reason: "No approved complete read-only RPC exists for 10 Reps without direct SQL",
+  live_interface: "public.read_retailer_control_state_v1",
+  unavailable_reason: null,
 })));
 
 const SOURCE_NAMES = Object.freeze(SOURCE_REGISTRY.map((source) => source.name));
@@ -62,7 +62,7 @@ const PROHIBITED_OPERATIONS = Object.freeze([
 ]);
 
 const ALLOWED_PROVIDER_METHODS = Object.freeze(new Set([
-  "describe", "readConsistencyMarker", "readPage",
+  "describe", "readConsistencyMarker", "readPage", "readSnapshot",
 ]));
 
 function assertOutputShape(output) {
@@ -72,7 +72,7 @@ function assertOutputShape(output) {
     "authorization_fingerprint", "provider_identity", "sources_queried",
     "sources_unavailable", "source_records", "completeness_status", "consistency_status",
     "active_plans", "incomplete_plans", "expired_plans", "superseded_plans",
-    "recovery_plans", "sessions", "stale_sessions", "active_locks",
+    "recovery_plans", "sessions", "open_sessions", "stale_sessions", "active_locks",
     "expired_locks", "orphaned_locks", "pending_approvals", "unused_approvals",
     "expired_approvals", "consumed_approvals", "revoked_approvals", "last_apply",
     "last_postflight", "last_watchdog_result", "overlapping_scope_conflicts",
@@ -81,6 +81,8 @@ function assertOutputShape(output) {
     "canonical_state_fingerprint", "export_fingerprint", "final_assessment",
   ];
   if (!output || typeof output !== "object" || Array.isArray(output)) throw new Error("CONTROL_EXPORT_SCHEMA_INVALID: output must be an object");
+  const allowed = new Set(required);
+  for (const key of Object.keys(output)) if (!allowed.has(key)) throw new Error(`CONTROL_EXPORT_SCHEMA_INVALID: unexpected ${key}`);
   for (const key of required) if (!Object.hasOwn(output, key)) throw new Error(`CONTROL_EXPORT_SCHEMA_INVALID: missing ${key}`);
   if (output.schema_version !== SCHEMA_VERSION) throw new Error("CONTROL_EXPORT_SCHEMA_INVALID: unsupported schema version");
   if (!FINAL_ASSESSMENTS.includes(output.final_assessment)) throw new Error("CONTROL_EXPORT_SCHEMA_INVALID: invalid final assessment");

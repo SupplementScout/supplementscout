@@ -136,6 +136,7 @@ const EXCLUSIONS = Object.freeze({
     "20260922122000_extend_three_dedicated_refresh_windows",
     "20260922140000_extend_three_sequential_parent_approvals",
     "20260922141000_supersede_three_failed_refresh_plans",
+    "20260924100000_add_transactional_retailer_control_state_interface",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",
@@ -145,6 +146,7 @@ const EXCLUSIONS = Object.freeze({
     "20260718160000_add_retailer_offer_mixed_batch_executor",
     "20260718170000_add_read_only_mixed_batch_validator",
     "20260719090000_add_expired_retailer_offer_sync_approval_close",
+    "20260924100000_add_transactional_retailer_control_state_interface",
   ]),
 });
 

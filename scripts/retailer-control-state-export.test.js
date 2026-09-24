@@ -34,6 +34,16 @@ function authorization(overrides = {}) {
   value.authorization_fingerprint = authorizationFingerprint(value);
   return value;
 }
+function liveAuthorization(overrides = {}) {
+  return authorization({ status: "AUTHORIZED", owner_consent: "OWNER_APPROVED", task_id: "RA-004-LOCAL-CONTRACT-TEST", ...overrides });
+}
+const liveConfiguration = (overrides = {}) => ({
+  provider_id: "transactional-rpc-v1",
+  credential_type: "DEDICATED_CONTROL_STATE_EXPORTER",
+  rpc_name: "public.read_retailer_control_state_v1",
+  expected_session_user: "retailer_control_state_exporter_login",
+  ...overrides,
+});
 function request(overrides = {}) {
   return { retailer_id: "14", retailer_name: "10 Reps", baseline_sha: BASELINE, provider_mode: "fixture", now: NOW, ...overrides };
 }
@@ -104,9 +114,57 @@ test("complete fixture export has schema v1 and safe artifact digest", async () 
 test("versioned output and authorization schemas are valid closed JSON schemas", () => { for (const name of ["control-state-export-v1.schema.json", "control-state-export-authorization-v1.schema.json"]) { const schema = JSON.parse(fs.readFileSync(path.join(__dirname, "lib/retailer-offer-sync/control-state-export-v1/schemas", name), "utf8")); assert.equal(schema.type, "object"); assert.equal(schema.additionalProperties, false); assert.ok(schema.required.length > 10); } });
 test("fixture CLI writes one local artifact and detached SHA only", async () => { const parent = path.join(ROOT, "tmp", "control-state-exports"); fs.mkdirSync(parent, { recursive: true }); const dir = fs.mkdtempSync(path.join(parent, "fixture-test-")); const authPath = path.join(dir, "test-authorization.json"); const output = path.join(dir, "state.json"); fs.writeFileSync(authPath, JSON.stringify(authorization())); try { const result = await runCli(["--retailer-id=14", "--retailer-name=10 Reps", `--authorization=${authPath}`, `--output=${output}`, `--baseline=${BASELINE}`, "--provider-mode=fixture", `--fixture=${FIXTURE_PATH}`], NOW); assert.equal(fs.existsSync(result.path), true); assert.equal(fs.existsSync(result.sha256_path), true); } finally { fs.rmSync(dir, { recursive: true, force: true }); } });
 
-test("source registry is complete but honestly blocks every live interface", () => { assert.deepEqual(SOURCE_REGISTRY.map((row) => row.name), SOURCE_NAMES); assert.equal(SOURCE_REGISTRY.length, 11); assert.ok(SOURCE_REGISTRY.every((row) => row.required && row.live_interface === null && row.unavailable_reason)); });
+test("source registry binds all eleven sources to the one approved live RPC", () => { assert.deepEqual(SOURCE_REGISTRY.map((row) => row.name), SOURCE_NAMES); assert.equal(SOURCE_REGISTRY.length, 11); assert.ok(SOURCE_REGISTRY.every((row) => row.required && row.live_interface === "public.read_retailer_control_state_v1" && row.unavailable_reason === null)); });
 test("live provider cannot be constructed without authorization", () => assert.throws(() => createLiveReadOnlyProvider(), /CONTROL_EXPORT_UNAUTHORIZED/));
-test("live provider remains blocked even with configuration", () => assert.throws(() => createLiveReadOnlyProvider({ authorization: {}, providerConfiguration: {} }), /CONTROL_EXPORT_LIVE_PROVIDER_BLOCKED/));
+test("live provider requires a separately injected transport", () => assert.throws(() => createLiveReadOnlyProvider({ authorization: liveAuthorization(), providerConfiguration: liveConfiguration() }), /CONTROL_EXPORT_TRANSPORT_REQUIRED/));
+test("live provider rejects service role and existing privileged role identities", () => {
+  for (const credential_type of ["SERVICE_ROLE", "VALIDATOR", "APPROVER", "EXECUTOR", "DEDICATED_READ_ONLY_VALIDATOR"]) {
+    assert.throws(() => createLiveReadOnlyProvider({ authorization: liveAuthorization(), providerConfiguration: liveConfiguration({ credential_type }), transport: { callReadOnlyRpc() {} } }), /CONTROL_EXPORT_PROVIDER_CONFIG_INVALID/);
+  }
+});
+test("live provider rejects unknown RPC and broad transport capability", () => {
+  assert.throws(() => createLiveReadOnlyProvider({ authorization: liveAuthorization(), providerConfiguration: liveConfiguration({ rpc_name: "public.other" }), transport: { callReadOnlyRpc() {} } }), /CONTROL_EXPORT_PROVIDER_CONFIG_INVALID/);
+  assert.throws(() => createLiveReadOnlyProvider({ authorization: liveAuthorization(), providerConfiguration: liveConfiguration(), transport: { callReadOnlyRpc() {}, query() {} } }), /CONTROL_EXPORT_TRANSPORT_CAPABILITY_BLOCKED/);
+});
+test("live provider calls the allowlisted RPC exactly once and rejects a second read", async () => {
+  let calls = 0;
+  const provider = createLiveReadOnlyProvider({
+    authorization: liveAuthorization(), providerConfiguration: liveConfiguration(),
+    transport: { async callReadOnlyRpc(call) { calls += 1; assert.equal(call.function_name, "public.read_retailer_control_state_v1"); return { session_user: liveConfiguration().expected_session_user, transaction_read_only: true, data: {} }; } },
+  });
+  await provider.readSnapshot({ retailer_id: "14", retailer_name: "10 Reps", baseline_sha: BASELINE, authorization_fingerprint: "a".repeat(64), authorization_valid_until: "2026-09-24T13:00:00.000Z" });
+  await assert.rejects(() => provider.readSnapshot({}), /CONTROL_EXPORT_READ_LIMIT_EXCEEDED/);
+  assert.equal(calls, 1);
+});
+test("live exporter accepts a valid fake transactional response and fails closed on schema drift", async () => {
+  const auth = liveAuthorization();
+  const report = await run();
+  const descriptor = {
+    mode: "live-read-only", provider_id: "transactional-rpc-v1",
+    credential_type: "DEDICATED_CONTROL_STATE_EXPORTER",
+    session_user: liveConfiguration().expected_session_user, read_only_proven: true,
+    service_role: false, mutation_capabilities: [],
+    approved_interfaces: ["public.read_retailer_control_state_v1"],
+  };
+  const response = { ...report, authorization_fingerprint: auth.authorization_fingerprint, provider_identity: descriptor, read_attempt_count: 1 };
+  const makeProvider = (data) => createLiveReadOnlyProvider({ authorization: auth, providerConfiguration: liveConfiguration(), transport: { async callReadOnlyRpc() { return { session_user: liveConfiguration().expected_session_user, transaction_read_only: true, data }; } } });
+  const output = await exportControlState({ provider: makeProvider(response), authorization: auth, ...request({ provider_mode: "live-read-only" }) });
+  assert.equal(output.read_attempt_count, 1);
+  await assert.rejects(() => exportControlState({ provider: makeProvider({ ...response, unknown_field: true }), authorization: auth, ...request({ provider_mode: "live-read-only" }) }), /CONTROL_EXPORT_SCHEMA_INVALID/);
+  await assert.rejects(() => exportControlState({ provider: makeProvider({ ...response, schema_version: "control-state-export-v2" }), authorization: auth, ...request({ provider_mode: "live-read-only" }) }), /CONTROL_EXPORT_SCHEMA_INVALID/);
+});
+test("prepared migration keeps read RPC static and runtime grants capability-only", () => {
+  const sql = fs.readFileSync(path.join(ROOT, "supabase/migrations/20260924100000_add_transactional_retailer_control_state_interface.sql"), "utf8");
+  const body = sql.match(/create or replace function public\.read_retailer_control_state_v1[\s\S]+?\$read_state\$;\s*alter function/i)?.[0];
+  assert.ok(body);
+  assert.match(body, /language plpgsql\s+stable\s+security definer\s+set search_path = pg_catalog/i);
+  assert.doesNotMatch(body, /\bexecute\b|\binsert\s+into\b|\bupdate\s+public\.|\bdelete\s+from\b|\btruncate\b/i);
+  assert.match(sql, /create role %I nologin noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls/i);
+  assert.match(sql, /revoke all on all tables in schema public from retailer_control_state_exporter,retailer_control_state_evidence_writer/i);
+  assert.match(sql, /grant execute on function public\.read_retailer_control_state_v1[\s\S]+?to retailer_control_state_exporter/i);
+  assert.match(sql, /grant execute on function public\.write_retailer_control_state_evidence_v1[\s\S]+?to retailer_control_state_evidence_writer/i);
+  assert.doesNotMatch(sql, /\bcreate\s+role\s+\w+\s+login\b|\bpassword\s+['"]/i);
+});
 test("exporter dependency closure excludes database network and production writers", () => {
   const entry = path.join(__dirname, "lib/retailer-offer-sync/control-state-export-v1/exporter.js");
   const queue = [entry]; const visited = new Set();

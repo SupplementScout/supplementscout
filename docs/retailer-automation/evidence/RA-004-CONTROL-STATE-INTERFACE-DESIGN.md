@@ -1,21 +1,30 @@
 # RA-004 — transactional control-state interface design
 
-**Status:** `READY_FOR_OWNER_DECISION`
+**Status:** `OWNER_APPROVED FOR LOCAL IMPLEMENTATION` — `CONTROL-STATE LOCAL IMPLEMENTATION READY_FOR_VERIFICATION`
 
 **Baseline and current `origin/main`:** `843ed987ff99a781ca04e16b2461a9eb4aa37b4e`
 
-**DESIGN ONLY**
+**OWNER DECISIONS APPROVED 24 SEPTEMBER 2026**
 
-**NO MIGRATION AUTHORIZED**
+**LOCAL MIGRATION IMPLEMENTATION ONLY; NO STAGING OR PRODUCTION MIGRATION AUTHORIZED**
 
 **NO LIVE CREDENTIAL AUTHORIZED**
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
-This document designs the missing read boundary for the fixture-only
-`control-state-export-v1` exporter. It does not create a database object, role,
-login, secret or live provider. It is based only on repository migrations,
-scripts, workflows and evidence; no database was contacted.
+This document records the design basis for the missing read boundary of the
+fixture-only `control-state-export-v1` exporter. The later owner decision below
+authorized a local migration implementation, but not any login, secret, remote
+migration or live execution. The later implementation was exercised only on an
+isolated local Docker PostgreSQL with networking disabled.
+
+Marek approved one versioned transactional
+`read_retailer_control_state_v1(...)` RPC plus one minimal shared append-only
+evidence ledger, separate future staging/production credentials outside Git,
+and implementation/testing only on an isolated local database. The forward
+migration and unwired provider contract are prepared locally. The essential
+database, privilege, idempotency, eleven-source and transactional snapshot tests
+passed; the overall status remains blocked solely by the repository full gate.
 
 ## Repository finding
 
@@ -385,6 +394,8 @@ Default if no decision: design remains documentation only.
 ## Current status
 
 RA-004 remains `IN_PROGRESS`. The fixture-only exporter is preserved in Draft PR
-#89. Exporter status is `BLOCKED_PENDING_INTERFACE_APPROVAL`; interface status is
-`READY_FOR_OWNER_DECISION`; shadow manifest is `NOT_AUTHORIZED`; single-snapshot
-adapter is `NOT_STARTED`.
+#89. Interface status is `OWNER_APPROVED FOR LOCAL IMPLEMENTATION`; local
+implementation status is `CONTROL-STATE LOCAL IMPLEMENTATION READY_FOR_VERIFICATION`;
+the repository LF policy preserves deterministic artifact bytes and
+`verify:full` passes. The shadow manifest is
+`NOT_AUTHORIZED`; the single-snapshot adapter is `NOT_STARTED`.

@@ -9,7 +9,7 @@
     "authorization_fingerprint", "provider_identity", "sources_queried",
     "sources_unavailable", "source_records", "completeness_status",
     "consistency_status", "active_plans", "incomplete_plans", "expired_plans",
-    "superseded_plans", "recovery_plans", "sessions", "stale_sessions",
+    "superseded_plans", "recovery_plans", "sessions", "open_sessions", "stale_sessions",
     "active_locks", "expired_locks", "orphaned_locks", "pending_approvals",
     "unused_approvals", "expired_approvals", "consumed_approvals",
     "revoked_approvals", "last_apply", "last_postflight",
