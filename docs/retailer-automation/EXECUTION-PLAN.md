@@ -1,11 +1,13 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: RA-003 VERIFIED COMPLETE**
+**Status: RA-004 IN PROGRESS — PREFLIGHT BLOCKED**
 
-**Current active task:** none — RA-003 is `VERIFIED_COMPLETE`; RA-004 remains
-`NOT_STARTED`
+**Current active task:** RA-004 preflight only — `IN_PROGRESS`; live shadow run
+is blocked and not authorized
 
-**Implementation:** RA-003 independently verified; no production wiring
+**Implementation:** documentation-only RA-004 preflight; no production wiring
+
+**LIVE SHADOW RUN NOT AUTHORIZED**
 
 **Allowed statuses:** `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`,
 `READY_FOR_VERIFICATION`, `VERIFIED_COMPLETE`
@@ -193,7 +195,14 @@ mutation and emitter-reference checks, fresh local quality gates and PR #87 CI.
 
 ## RA-004 — 10 Reps shadow-mode pilot
 
-**Status:** `NOT_STARTED`
+**Status:** `IN_PROGRESS`
+
+**Preflight gate:** `PREFLIGHT BLOCKED` — no safe single-snapshot legacy replay
+entry point and no approved complete read-only control-state export. See
+[`evidence/RA-004-PREFLIGHT.md`](evidence/RA-004-PREFLIGHT.md) and the
+machine-readable [`evidence/RA-004-shadow-plan.json`](evidence/RA-004-shadow-plan.json).
+
+**LIVE SHADOW RUN NOT AUTHORIZED**
 
 **Goal:** compare the candidate canonical pipeline with the existing 10 Reps
 path, with zero business/control writes.
