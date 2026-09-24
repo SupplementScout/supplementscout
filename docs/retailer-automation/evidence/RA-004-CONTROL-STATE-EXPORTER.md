@@ -1,6 +1,6 @@
 # RA-004 — read-only control-state exporter
 
-**Status:** `RA-004 CONTROL-STATE EXPORTER BLOCKED`
+**Status:** `BLOCKED_PENDING_INTERFACE_APPROVAL`
 
 **Baseline:** `843ed987ff99a781ca04e16b2461a9eb4aa37b4e`
 
@@ -9,6 +9,12 @@
 **RA-004:** `IN_PROGRESS`
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
+
+Checkpoint commit `ba3265e` preserves this fixture-only implementation in Draft
+PR #89. The proposed database boundary is documented separately in
+[`RA-004-CONTROL-STATE-INTERFACE-DESIGN.md`](RA-004-CONTROL-STATE-INTERFACE-DESIGN.md).
+That proposal is design-only and does not add a migration, credential or live
+provider.
 
 The local exporter core, fixture provider, authorization gate, schemas, CLI and
 regression suite are implemented. The exporter is not `READY_FOR_VERIFICATION`
@@ -187,6 +193,7 @@ interface for all eleven sources. The repository currently offers only:
 
 All four are insufficient or forbidden. Therefore the original technical
 blocker is narrowed and made executable/testable, but not removed. RA-004 stays
-`IN_PROGRESS`; the control-state exporter gate is `BLOCKED`; the single-snapshot
-adapter was not started; and the shadow manifest remains `NOT_AUTHORIZED`.
-
+`IN_PROGRESS`; the control-state exporter gate is
+`BLOCKED_PENDING_INTERFACE_APPROVAL`; the interface design is
+`READY_FOR_OWNER_DECISION`; the single-snapshot adapter was not started; and the
+shadow manifest remains `NOT_AUTHORIZED`.

@@ -12,6 +12,8 @@
 
 [RA-004 read-only control-state exporter evidence](RA-004-CONTROL-STATE-EXPORTER.md)
 
+[RA-004 transactional control-state interface design](RA-004-CONTROL-STATE-INTERFACE-DESIGN.md)
+
 RA-002 was independently verified on 23 September 2026 in PR #86. RA-003 was
 independently verified on 24 September 2026 in PR #87. Their local test and
 contract modules remain unwired from production. RA-004 is `IN_PROGRESS`; its
@@ -25,6 +27,11 @@ interface covers all mandatory plans, items, sessions, locks, approvals,
 recovery, apply, postflight, watchdog and global conflict state without direct
 SQL or a write-capable credential. No live export or active authorization was
 created.
+
+The fixture-only implementation is preserved in blocked Draft PR #89. The
+transactional interface is `READY_FOR_OWNER_DECISION`, but remains `DESIGN ONLY`:
+no migration, database role, login, credential, live provider, live export or
+shadow authorization was created.
 
 ## RA-001 owner approval
 

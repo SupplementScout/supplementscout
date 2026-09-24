@@ -1,12 +1,14 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: RA-004 IN PROGRESS — CONTROL-STATE EXPORTER BLOCKED**
+**Status: RA-004 IN PROGRESS — EXPORTER BLOCKED PENDING INTERFACE APPROVAL**
 
 **Current active task:** RA-004 — `IN_PROGRESS`; its documentation preflight is
-verified; the local exporter core is implemented, but the live read-only
+verified; the fixture-only exporter is preserved in Draft PR #89, the
+transactional interface design is ready for owner decision, the live read-only
 provider remains blocked and the shadow run is not authorized
 
-**Implementation:** fixture-only control-state exporter core; no production wiring
+**Implementation:** fixture-only control-state exporter core plus design-only
+transactional interface proposal; no migration, credential or production wiring
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
@@ -213,6 +215,14 @@ requires service role and one known plan ID, and the remaining readers expose
 direct SQL/general query capability. New RPCs, views, migrations and direct SQL
 were forbidden, so live provider construction fails closed. See
 [`evidence/RA-004-CONTROL-STATE-EXPORTER.md`](evidence/RA-004-CONTROL-STATE-EXPORTER.md).
+
+**Control-state interface:** `READY_FOR_OWNER_DECISION` — the repository-backed
+design recommends one bounded transactional RPC, a purpose-specific credential
+with EXECUTE-only access, and one minimal append-only evidence ledger for the
+session, lock, postflight, watchdog and global observations that do not exist as
+one durable database snapshot today. This is `DESIGN ONLY`: no migration, role,
+login, secret or live provider was created. See
+[`evidence/RA-004-CONTROL-STATE-INTERFACE-DESIGN.md`](evidence/RA-004-CONTROL-STATE-INTERFACE-DESIGN.md).
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
