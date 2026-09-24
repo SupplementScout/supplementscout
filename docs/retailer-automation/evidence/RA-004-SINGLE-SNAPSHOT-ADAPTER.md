@@ -1,6 +1,6 @@
 # RA-004 10 Reps test-only single-snapshot replay adapter
 
-**Status:** `READY_FOR_REVERIFICATION`
+**Status:** `VERIFIED_COMPLETE`
 
 **RA-004:** `IN_PROGRESS`
 
@@ -234,7 +234,16 @@ repository gates and final clean-checkout LF proof are recorded in the PR commit
 and CI evidence. No package, lockfile, workflow, scheduler, migration or
 production behavior changed.
 
-RA-004 remains `IN_PROGRESS`; the control-state interface remains
-`VERIFIED_COMPLETE`; the corrected adapter is `READY_FOR_REVERIFICATION`; the
-shadow run and every live/staging action remain `NOT_AUTHORIZED`. The next task
-is a new independent verification of Draft PR #90.
+Final independent verification used a fresh worktree and dependency install at
+commit `9073a89ee2fbd85a4bb796e8943c58a74073a2be`. It independently reproduced
+the pre-replay invocation counts, comparator mutations, all five static
+fingerprints and the nine record outcomes; focused tests in three timezones,
+the quick and full gates, baseline validation and the production build passed.
+Database/SQL integration and protected artifact-bound tests remained explicit
+skips and were not counted as passes.
+
+RA-004 remains `IN_PROGRESS`; the control-state interface and adapter are
+`VERIFIED_COMPLETE`; the shadow run and every live/staging action remain
+`NOT_AUTHORIZED`. The next task is preparation of the owner decision on record
+count thresholds, snapshot retention and a bounded staging canary, without
+performing staging or live capture.

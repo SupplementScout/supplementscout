@@ -7,7 +7,7 @@ verified; the fixture-only exporter is preserved in PR #89, the
 transactional interface is owner-approved and locally verified, and the full
 repository quality gate passes under the repository LF policy; the shadow run
 is not authorized; the corrected test-only single-snapshot adapter is
-`READY_FOR_REVERIFICATION`
+`VERIFIED_COMPLETE`
 
 **Implementation:** fixture exporter plus locally database-verified forward-only
 transactional interface, unwired live-provider contract and fail-closed
@@ -231,7 +231,7 @@ new migration remains excluded from both deployment selectors. No login,
 secret, remote apply or live export was created. See
 [`evidence/RA-004-CONTROL-STATE-INTERFACE-DESIGN.md`](evidence/RA-004-CONTROL-STATE-INTERFACE-DESIGN.md).
 
-**Test-only single-snapshot adapter:** `READY_FOR_REVERIFICATION` — one controlled
+**Test-only single-snapshot adapter:** `VERIFIED_COMPLETE` — one controlled
 local read is split before retailer-specific logic. The legacy copy uses the
 active projector/classifier; the canonical copy uses an independent 10 Reps
 connector and canonical v1 zero-write harness. Static goldens and a closed
