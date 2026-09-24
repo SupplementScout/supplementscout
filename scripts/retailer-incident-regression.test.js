@@ -29,6 +29,11 @@ function assertGolden(report, golden) {
   assert.equal(report.run_outcome, golden.run_outcome);
   assert.equal(report.output_fingerprint, golden.output_fingerprint);
   assert.deepEqual(Object.keys(report.reason_counts), golden.reason_codes);
+  assert.ok(Object.hasOwn(report.reason_counts, golden.primary_reason.reason_code));
+  const primaryReason = taxonomy.getReason(golden.primary_reason.reason_code);
+  assert.equal(primaryReason.alert_level, golden.primary_reason.alert_level);
+  assert.equal(primaryReason.next_action, golden.primary_reason.next_action);
+  assert.equal(primaryReason.blocking_scope, golden.primary_reason.blocking_scope);
   assert.deepEqual(report.rows.map(rowSummary), golden.rows);
   assert.equal(report.write_attempt_count, goldenLibrary.invariants.write_attempt_count);
   assert.equal(report.network_attempt_count, goldenLibrary.invariants.network_attempt_count);
@@ -42,23 +47,33 @@ function assertGolden(report, golden) {
 
 test("incident manifest gives every candidate an explicit evidence-backed coverage state", () => {
   const allowed = new Set(incidentManifest.coverage_statuses);
+  const coverageCounts = Object.fromEntries([...allowed].map((status) => [status, incidentManifest.incidents.filter((entry) => entry.coverage_status === status).length]));
   assert.equal(incidentManifest.baseline_sha, "87cc53cff4af585ac626db26c54d94f053972762");
   assert.equal(new Set(incidentManifest.incidents.map((entry) => entry.incident_id)).size, incidentManifest.incidents.length);
-  assert.ok(incidentManifest.incidents.length >= 20);
+  assert.equal(incidentManifest.incidents.length, 23);
+  assert.deepEqual(coverageCounts, { COVERED: 16, BLOCKED_EVIDENCE: 3, DEFERRED_OUT_OF_SCOPE: 1, DUPLICATE_COVERAGE: 3 });
   for (const incident of incidentManifest.incidents) {
     assert.ok(allowed.has(incident.coverage_status), `${incident.incident_id} has invalid coverage`);
     assert.ok(incident.evidence_ref && incident.assessment && incident.historical_behavior);
     if (incident.coverage_status === "COVERED") {
       assert.ok(incident.fixture_id && incident.fixture_path && incident.golden_path && /^[0-9a-f]{64}$/.test(incident.fixture_fingerprint));
+      assert.ok(fs.existsSync(path.join(root, incident.fixture_path)) && fs.existsSync(path.join(root, incident.golden_path)));
       assert.ok(fixtureById.has(incident.fixture_id), `${incident.incident_id} fixture is missing`);
       assert.ok(goldenById.has(incident.fixture_id), `${incident.incident_id} golden is missing`);
+      assert.equal(incident.fixture_fingerprint, goldenById.get(incident.fixture_id).fixture_fingerprint);
+      for (const key of ["source_state", "change_classification", "execution_state", "run_outcome", "reason_code", "alert_level", "next_action", "blocking_scope"]) assert.ok(incident.expected[key], `${incident.incident_id} expected.${key} is missing`);
     }
     if (incident.coverage_status === "DUPLICATE_COVERAGE") {
       const sharedFixture = incident.duplicate_of && fixtureById.has(incident.fixture_id);
       const existingRegression = incident.existing_regression_path && fs.existsSync(path.join(root, incident.existing_regression_path));
       assert.ok(sharedFixture || existingRegression, `${incident.incident_id} duplicate coverage is not traceable`);
+      const primary = incidentManifest.incidents.find((entry) => entry.incident_id === incident.duplicate_of);
+      if (incident.duplicate_of) assert.ok(primary && primary.coverage_status === "COVERED", `${incident.incident_id} duplicate target is not covered`);
     }
-    if (incident.coverage_status === "BLOCKED_EVIDENCE") assert.equal(incident.fixture_id, null);
+    if (["BLOCKED_EVIDENCE", "DEFERRED_OUT_OF_SCOPE"].includes(incident.coverage_status)) {
+      assert.equal(incident.fixture_id, null);
+      assert.equal(incident.expected, null);
+    }
   }
 });
 
@@ -91,15 +106,23 @@ test("covered incident expectations agree with replay outcomes and reason metada
   }
 });
 
-test("goldens fail closed when reason or run outcome expectations are changed", () => {
+test("goldens fail closed when any required semantic expectation is changed", () => {
   const fixture = fullFixture(fixtureById.get("incident-pass-with-review-not-failure"));
   const report = runZeroWriteHarness(fixture);
-  const changedReason = structuredClone(goldenById.get(fixture.fixture_id));
-  changedReason.reason_codes = ["CANONICAL_SYSTEM_EXCEPTION"];
-  assert.throws(() => assertGolden(report, changedReason));
+  const mutations = [
+    ["reason_code", "CANONICAL_SYSTEM_EXCEPTION"],
+    ["alert_level", "CRITICAL_PLATFORM"],
+    ["next_action", "ENGINEERING_RESPONSE"],
+    ["blocking_scope", "PLATFORM"],
+  ];
+  for (const [field, value] of mutations) {
+    const changed = structuredClone(goldenById.get(fixture.fixture_id));
+    changed.primary_reason[field] = value;
+    assert.throws(() => assertGolden(report, changed), `${field} mutation did not fail`);
+  }
   const changedOutcome = structuredClone(goldenById.get(fixture.fixture_id));
   changedOutcome.run_outcome = "FAILED_SYSTEM";
-  assert.throws(() => assertGolden(report, changedOutcome));
+  assert.throws(() => assertGolden(report, changedOutcome), "run_outcome mutation did not fail");
 });
 
 test("mixed incident replay preserves independent valid row and quarantines invalid row", () => {
@@ -135,6 +158,22 @@ test("zero-write boundary still rejects injected write and network capabilities"
 
 test("compatibility matrix is conflict-free and all canonical profiles use approved taxonomy", () => {
   assert.equal(validateMatrix(compatibilityMatrix), true);
+  const counts = compatibilityMatrix.mappings.reduce((result, mapping) => ({ ...result, [mapping.compatibility_state]: (result[mapping.compatibility_state] || 0) + 1 }), {});
+  assert.equal(compatibilityMatrix.mappings.length, 81);
+  assert.deepEqual(counts, { EXACT: 29, CONTEXT_REQUIRED: 40, AMBIGUOUS_BLOCKED: 8, DEPRECATED_DUPLICATE: 1, HISTORICAL_ONLY: 3 });
+  for (const mapping of compatibilityMatrix.mappings) {
+    assert.ok(mapping.legacy_status && mapping.context_type && mapping.level && mapping.meaning);
+    assert.ok(Array.isArray(mapping.emitter_paths) && mapping.emitter_paths.length > 0);
+    assert.equal(mapping.historical_only, !mapping.active);
+    if (mapping.active) {
+      assert.ok(mapping.emitter_paths.every((emitterPath) => fs.existsSync(path.join(root, emitterPath))), `${mapping.mapping_id} emitter path is missing`);
+      assert.ok(mapping.emitter_paths.some((emitterPath) => {
+        const absolute = path.join(root, emitterPath);
+        return fs.statSync(absolute).isDirectory() || fs.readFileSync(absolute, "utf8").includes(mapping.legacy_status);
+      }), `${mapping.mapping_id} status is absent from its emitter`);
+      assert.ok(mapping.emitter_paths.every((emitterPath) => !/\.test\.|^docs\//.test(emitterPath)), `${mapping.mapping_id} relies on test or documentation evidence`);
+    }
+  }
   for (const profile of Object.values(compatibilityMatrix.profiles)) {
     assert.ok(taxonomy.SOURCE_STATES.includes(profile.source_state));
     assert.ok(taxonomy.CHANGE_CLASSIFICATIONS.includes(profile.change_classification));
@@ -156,6 +195,21 @@ test("compatibility adapter is deterministic and rejects unknown, incomplete and
   assert.throws(() => mapLegacyStatus("BLOCK", { context_type: "retailer_run" }), (error) => error.code === "LEGACY_STATUS_CONTEXT_REQUIRED");
   assert.equal(mapLegacyStatus("BLOCK", { context_type: "retailer_run", reason_family: "SOURCE" }).canonical.run_outcome, "BLOCKED_SOURCE");
   assert.throws(() => mapLegacyStatus("FAIL", { context_type: "retailer_run", error_class: "unknown", durable_outcome: "unknown" }), (error) => error.code === "LEGACY_STATUS_AMBIGUOUS");
+});
+
+test("all eight ambiguous mappings reject missing, partial, complete and conflicting context", () => {
+  const ambiguous = compatibilityMatrix.mappings.filter((entry) => entry.compatibility_state === "AMBIGUOUS_BLOCKED");
+  assert.deepEqual(ambiguous.map((entry) => entry.mapping_id), ["run-fail", "watchdog-fail", "child-failed", "parent-failed", "apply-failed", "review-failed", "request-failed", "workflow-failure"]);
+  for (const mapping of ambiguous) {
+    const context = { context_type: mapping.context_type };
+    const complete = Object.fromEntries(mapping.required_context.map((field) => [field, `verified-${field}`]));
+    const rejects = (input) => assert.throws(() => mapLegacyStatus(mapping.legacy_status, input), (error) => ["LEGACY_STATUS_CONTEXT_REQUIRED", "LEGACY_STATUS_AMBIGUOUS"].includes(error.code));
+    rejects(context);
+    rejects({ ...context, [mapping.required_context[0]]: complete[mapping.required_context[0]] });
+    assert.throws(() => mapLegacyStatus(mapping.legacy_status, { ...context, ...complete }), (error) => error.code === "LEGACY_STATUS_AMBIGUOUS" && error.detail.evidence_needed === mapping.evidence_needed);
+    assert.throws(() => mapLegacyStatus(mapping.legacy_status, { ...context, ...complete, durable_outcome: "CONTRADICTORY" }), (error) => error.code === "LEGACY_STATUS_AMBIGUOUS");
+    assert.notEqual(compatibilityMatrix.profiles[mapping.profile].run_outcome, "FAILED_SYSTEM");
+  }
 });
 
 function mappingExists(status, contextType) {
