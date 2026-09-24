@@ -242,8 +242,12 @@ the comparator regenerates nested record/integrity counts rather than trusting
 report summaries. See
 [`evidence/RA-004-SINGLE-SNAPSHOT-ADAPTER.md`](evidence/RA-004-SINGLE-SNAPSHOT-ADAPTER.md).
 
-RA-004 remains `IN_PROGRESS`; the adapter awaits independent verification,
-and the shadow manifest remains `NOT_AUTHORIZED`.
+RA-004 remains `IN_PROGRESS`; the adapter is `VERIFIED_COMPLETE`, and the
+shadow manifest remains `NOT_AUTHORIZED`. The documentation-only
+[`evidence/RA-004-OWNER-DECISION-PACK.md`](evidence/RA-004-OWNER-DECISION-PACK.md)
+now proposes temporary conservative record-count thresholds, retention options,
+and one bounded staging canary. Its machine-readable decisions remain
+`NOT_AUTHORIZED`; no proposal records owner approval or execution authority.
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 

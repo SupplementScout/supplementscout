@@ -1,0 +1,191 @@
+{
+  "schema_version": "ra-004-owner-decisions-v1",
+  "baseline_sha": "29b57ffe98c174e0f7364d65f25bdcdc2b5cceb5",
+  "prepared_at": "2026-09-24",
+  "status": "NOT_AUTHORIZED",
+  "authorization": {
+    "staging": "NOT_AUTHORIZED",
+    "production": "NOT_AUTHORIZED",
+    "live_capture": "NOT_AUTHORIZED",
+    "shadow_run": "NOT_AUTHORIZED"
+  },
+  "historical_context_not_current_state": {
+    "approved_mapping_count": 950,
+    "executed_count": 935,
+    "review_count": 15,
+    "source_product_count": 473,
+    "source_variant_count": 1663
+  },
+  "decision_defaults": "NO_RESPONSE_MEANS_NOT_AUTHORIZED",
+  "decisions": [
+    {
+      "id": "D1_RECORD_COUNT_POLICY",
+      "status": "NOT_AUTHORIZED",
+      "recommended": "BALANCED_CONSERVATIVE_R",
+      "alternatives": ["RESTRICTIVE_S", "FLEXIBLE_F", "AMEND", "REJECT"],
+      "temporary_conservative": true,
+      "review_after_approved_captures": 3,
+      "authorizes_if_later_approved": ["record_policy_registration"],
+      "does_not_authorize": ["capture", "replay", "shadow_run", "write"]
+    },
+    {
+      "id": "D2_RAW_RETENTION",
+      "status": "NOT_AUTHORIZED",
+      "recommended": "RETENTION_R",
+      "alternatives": ["RETENTION_SHORT_S", "RETENTION_LONG_L", "AMEND", "REJECT"],
+      "authorizes_if_later_approved": ["raw_retention_policy_registration"],
+      "does_not_authorize": ["storage_creation", "capture", "upload"]
+    },
+    {
+      "id": "D3_DERIVED_RETENTION",
+      "status": "NOT_AUTHORIZED",
+      "recommended": "RETENTION_R",
+      "alternatives": ["RETENTION_SHORT_S", "RETENTION_LONG_L", "AMEND", "REJECT"],
+      "authorizes_if_later_approved": ["derived_evidence_retention_policy_registration"],
+      "does_not_authorize": ["evidence_collection", "control_state_export", "publication"]
+    },
+    {
+      "id": "D4_STAGING_CANARY",
+      "status": "NOT_AUTHORIZED",
+      "recommended": {
+        "maximum_window_minutes": 60,
+        "retailer_scope_count": 1,
+        "retailer_selector": "unique staging name/slug resolved by approved preflight; never guess or copy production ID",
+        "export_count": 1,
+        "requires_separate_selector_change_review": true
+      },
+      "alternatives": ["AMEND_SCOPE_OR_WINDOW", "REJECT"],
+      "authorizes_if_later_approved": ["preparation_of_separate_exact_staging_canary_authorization"],
+      "does_not_authorize": ["selector_change", "migration_apply", "production", "live_capture", "shadow_run"]
+    },
+    {
+      "id": "D5_STAGING_CREDENTIAL",
+      "status": "NOT_AUTHORIZED",
+      "recommended": {
+        "maximum_validity_minutes": 30,
+        "maximum_rpc_attempts": 1,
+        "allowed_rpc": "public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer)",
+        "role_membership": "retailer_control_state_exporter",
+        "provisioning": "outside Git",
+        "revoke_immediately": true
+      },
+      "alternatives": ["15_MINUTES", "REJECT"],
+      "authorizes_if_later_approved": ["preparation_of_out_of_git_staging_credential_for_D4"],
+      "does_not_authorize": ["credential_creation_now", "table_access", "other_rpc", "production_credential"]
+    }
+  ],
+  "record_count_policies": {
+    "classification_rule": "classify percentage and absolute deltas independently and use the stricter status",
+    "parity_percentage_error_budget": 0,
+    "first_capture": {
+      "result_until_fingerprint_approved": "BLOCKED_SOURCE_BASELINE_APPROVAL_REQUIRED",
+      "candidate_total_rows_and_unique_variants": { "minimum": 1497, "maximum": 1996 },
+      "candidate_unique_products": { "minimum": 426, "maximum": 568 }
+    },
+    "BALANCED_CONSERVATIVE_R": {
+      "rows_and_unique_variants": {
+        "decline_review": { "percent": 1, "absolute": 10 },
+        "decline_block": { "percent": 5, "absolute": 50 },
+        "growth_review": { "percent": 5, "absolute": 50 },
+        "growth_block": { "percent": 20, "absolute": 250 }
+      },
+      "unique_products": {
+        "decline_review": { "percent": 1, "absolute": 3 },
+        "decline_block": { "percent": 5, "absolute": 15 },
+        "growth_review": { "percent": 5, "absolute": 15 },
+        "growth_block": { "percent": 20, "absolute": 60 }
+      },
+      "mapped_missing": { "pass": 0, "review_minimum": 1, "block": { "percent_of_950": 1, "absolute": 10 } },
+      "new_variants": { "pass": 0, "review_minimum": 1, "block": { "percent_of_baseline": 5, "absolute": 50 } }
+    },
+    "RESTRICTIVE_S": {
+      "rows_and_unique_variants": { "decline_review": { "percent": 0.5, "absolute": 5 }, "decline_block": { "percent": 2, "absolute": 20 }, "growth_review": { "percent": 2, "absolute": 20 }, "growth_block": { "percent": 10, "absolute": 100 } },
+      "unique_products": { "decline_review": { "percent": 0.5, "absolute": 1 }, "decline_block": { "percent": 2, "absolute": 5 }, "growth_review": { "percent": 2, "absolute": 5 }, "growth_block": { "percent": 10, "absolute": 25 } },
+      "mapped_missing_block": { "percent_of_950": 0.5, "absolute": 5 },
+      "new_variants_block": { "percent_of_baseline": 2, "absolute": 20 }
+    },
+    "FLEXIBLE_F": {
+      "rows_and_unique_variants": { "decline_review": { "percent": 2, "absolute": 25 }, "decline_block": { "percent": 10, "absolute": 150 }, "growth_review": { "percent": 10, "absolute": 150 }, "growth_block": { "percent": 30, "absolute": 500 } },
+      "unique_products": { "decline_review": { "percent": 2, "absolute": 5 }, "decline_block": { "percent": 10, "absolute": 30 }, "growth_review": { "percent": 10, "absolute": 30 }, "growth_block": { "percent": 30, "absolute": 100 } },
+      "mapped_missing_block": { "percent_of_950": 2.5, "absolute": 25 },
+      "new_variants_block": { "percent_of_baseline": 10, "absolute": 100 }
+    },
+    "zero_tolerance_counts": {
+      "invalid_price": 0,
+      "unknown_stock": 0,
+      "duplicate_identity": 0,
+      "missing_required_fields": 0,
+      "unclassified_records": 0,
+      "invalid_records": 0
+    }
+  },
+  "retention_options_days": {
+    "RETENTION_R": { "raw_csv": 90, "first_pilot_raw_csv": 365, "capture_metadata": 395, "canonical_output": 395, "parity_report": 730, "audit_logs": 395, "fingerprints_and_deletion_receipts": 2557, "redacted_control_state_export": 90 },
+    "RETENTION_SHORT_S": { "raw_csv": 30, "first_pilot_raw_csv": 90, "capture_metadata": 180, "canonical_output": 180, "parity_report": 395, "audit_logs": 180, "fingerprints_and_deletion_receipts": 730, "redacted_control_state_export": 30 },
+    "RETENTION_LONG_L": { "raw_csv": 365, "first_pilot_raw_csv": 730, "capture_metadata": 730, "canonical_output": 730, "parity_report": 1095, "audit_logs": 730, "fingerprints_and_deletion_receipts": 2557, "redacted_control_state_export": 365 }
+  },
+  "retention_controls": {
+    "recommended_first_pilot_rule": "365 days or 90 days after signed pilot closeout, whichever is later",
+    "storage": "approved private UK-region encrypted-at-rest evidence store; bounded encrypted local volume only during upload and verification",
+    "transport_encryption": "TLS",
+    "access": ["named operator", "independent verifier"],
+    "forbidden": ["Git", "PR attachment", "public GitHub artifact", "application or scheduler access", "broad service role"],
+    "redact": ["source URL", "query string", "credential", "token", "connection string"],
+    "immutability": "write once",
+    "integrity": "detached SHA-256",
+    "deletion_confirmation": "deletion request plus read-after-delete verification and non-sensitive deletion receipt",
+    "incident_or_audit_hold": "exact evidence set only; recorded authority reason and review date; deletion resumes after release"
+  },
+  "staging_canary": {
+    "status": "NOT_AUTHORIZED",
+    "migration": "supabase/migrations/20260924100000_add_transactional_retailer_control_state_interface.sql",
+    "migration_sha256": "cfd7a93cb20845832b696183f5eb8a500f0474b4173829b85f6ac6bc73d4baaa",
+    "currently_excluded_from_staging_selector": true,
+    "currently_excluded_from_production_selector": true,
+    "maximum_window_minutes": 60,
+    "maximum_credential_validity_minutes": 30,
+    "maximum_rpc_attempts": 1,
+    "retailer_scope_count": 1,
+    "export_count": 1,
+    "production_allowed": false,
+    "scheduler_wiring_allowed": false,
+    "evidence_producers_allowed": false,
+    "live_feed_capture_allowed": false,
+    "control_plan_allowed": false,
+    "approval_allowed": false,
+    "apply_allowed": false
+  },
+  "stop_conditions": [
+    "EMPTY_RESPONSE", "HTML_OR_CHALLENGE_RESPONSE", "UNEXPECTED_CONTENT_TYPE",
+    "REQUIRED_HEADER_MISSING_REORDERED_OR_ADDED", "DELIMITER_QUOTING_OR_ENCODING_DRIFT",
+    "MAXIMUM_BYTES_EXCEEDED", "DUPLICATE_STABLE_IDENTITY", "INVALID_OR_UNEXPECTED_CURRENCY",
+    "INVALID_PRICE", "UNKNOWN_STOCK", "MISSING_REQUIRED_FIELD", "UNCLASSIFIED_RECORD",
+    "RAW_FINGERPRINT_CHANGED_DURING_PROCESSING", "SECOND_READ_ATTEMPT",
+    "UNEXPECTED_NETWORK_DATABASE_OR_WRITE_ATTEMPT", "APPROVED_BASELINE_MISSING_OR_INVALID",
+    "INCOMPLETE_AUDIT_TRAIL", "NONDETERMINISTIC_REPLAY", "CANONICAL_DEFECT",
+    "UNEXPLAINED_PARITY_DIFFERENCE", "STAGING_PROJECT_LEDGER_SCHEMA_OR_HASH_MISMATCH",
+    "STAGING_RETAILER_MISSING_OR_AMBIGUOUS", "PRODUCTION_ENDPOINT_OR_CREDENTIAL_PRESENT",
+    "CREDENTIAL_PRIVILEGE_OR_EXPIRY_EXCEEDED", "RPC_ATTEMPT_LIMIT_EXCEEDED",
+    "CREDENTIAL_REVOCATION_UNPROVED"
+  ],
+  "required_evidence": [
+    "owner answers bound to manifest fingerprint", "clean exact repository baseline",
+    "independently reviewed staging-only selector change retaining production exclusion",
+    "staging project schema ledger and retailer inventory preflight", "named operator and UTC window",
+    "approved private evidence destination and deletion rule", "credential privilege expiry and revocation plan",
+    "exact migration and decision-manifest fingerprints", "independent verification of this decision pack"
+  ],
+  "future_authorization_expiry": {
+    "decision_pack_approval_does_not_create_execution_authorization": true,
+    "staging_canary_authorization_maximum_minutes": 60,
+    "staging_credential_maximum_minutes": 30,
+    "unused_authorization_expires_at_window_end": true,
+    "retry_requires_new_authorization": true
+  },
+  "manifest_fingerprint": {
+    "algorithm": "SHA-256",
+    "canonicalization": "scripts/lib/stable-json-hash.js canonical JSON",
+    "covers": "all root fields except manifest_fingerprint",
+    "value": "0836976d41ebe33a26506871b117c09ffb087d7e9ec0665c9e725a7d6066217b"
+  }
+}

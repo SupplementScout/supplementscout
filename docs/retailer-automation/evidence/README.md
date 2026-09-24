@@ -18,6 +18,10 @@
 
 [RA-004 test-only single-snapshot replay adapter](RA-004-SINGLE-SNAPSHOT-ADAPTER.md)
 
+[RA-004 owner decision pack](RA-004-OWNER-DECISION-PACK.md)
+
+[RA-004 machine-readable owner decision proposal](RA-004-owner-decisions.json)
+
 RA-002 was independently verified on 23 September 2026 in PR #86. RA-003 was
 independently verified on 24 September 2026 in PR #87. Their local test and
 contract modules remain unwired from production. RA-004 is `IN_PROGRESS`; its
@@ -31,9 +35,16 @@ transactional interface passed the mandatory isolated-database migration,
 privilege and snapshot tests, and `verify:full` passes after a repository-level
 LF policy for deterministic artifacts. No live export or active authorization
 was created. The test-only single-snapshot adapter is
-`READY_FOR_REVERIFICATION`: its corrected, independently split synthetic replay has 9/9 exact parity rows, zero
+`VERIFIED_COMPLETE`: its corrected, independently split synthetic replay has 9/9 exact parity rows, zero
 unexplained differences and zero side-effect attempts. The shadow run remains
 `NOT_AUTHORIZED`.
+
+The owner decision pack is a documentation-only proposal. Its record-count and
+retention choices and bounded staging-canary design all remain
+`NOT_AUTHORIZED`; it created no credential, selector change, migration apply,
+live capture or shadow run. The proposed numeric thresholds are explicitly
+temporary and conservative because tracked evidence does not establish a
+statistical current-feed distribution.
 
 The fixture-only implementation is preserved in PR #89. Marek approved
 the transactional interface for isolated local implementation. The migration
