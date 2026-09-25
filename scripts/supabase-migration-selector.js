@@ -289,6 +289,8 @@ const CONTRACTS = Object.freeze({
         "6557383d44534eca07935b846a6435e56925f6ecf105327e7350763888051204",
       "20260924100000_add_transactional_retailer_control_state_interface.sql":
         "cfd7a93cb20845832b696183f5eb8a500f0474b4173829b85f6ac6bc73d4baaa",
+      "20260925100000_add_ra004_staging_preflight_metadata_interface.sql":
+        "9d6c1ea4df0bd86f84a4cb779a0824922f4e9bcc91681b734d5d18465a9e91be",
     }),
     pending: Object.freeze([
       Object.freeze({
@@ -348,6 +350,8 @@ const CONTRACTS = Object.freeze({
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
       "20260924100000_add_transactional_retailer_control_state_interface.sql":
         "cfd7a93cb20845832b696183f5eb8a500f0474b4173829b85f6ac6bc73d4baaa",
+      "20260925100000_add_ra004_staging_preflight_metadata_interface.sql":
+        "9d6c1ea4df0bd86f84a4cb779a0824922f4e9bcc91681b734d5d18465a9e91be",
     }),
     pending: Object.freeze([
       Object.freeze({

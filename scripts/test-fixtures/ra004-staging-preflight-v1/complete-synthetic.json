@@ -1,0 +1,58 @@
+{
+  "project_identity": {
+    "schema_version": "ra-004-project-identity-v1",
+    "project_reference": "ra004-local-synthetic",
+    "canonical_host": "ra004-local.invalid",
+    "environment_label": "STAGING",
+    "project_identity_fingerprint": "f1d8cf99fd871baec3e52bac08c20bae96b482890de3c5f413cae099b1b793b6",
+    "observed_at": "2026-09-25T12:00:00.000Z"
+  },
+  "evidence_store": {
+    "schema_version": "ra-004-evidence-store-metadata-v1",
+    "store_identifier": "ra004-local-write-once-fixture",
+    "private": true,
+    "encryption": "AT_REST_AND_IN_TRANSIT",
+    "write_once": true,
+    "access_audit": true,
+    "readback_supported": true,
+    "raw_retention_days": 90,
+    "derived_retention_days": 90,
+    "approved_by": "fixture-custodian",
+    "approved_at": "2026-09-25T11:00:00.000Z",
+    "evidence_store_fingerprint": "8cf0d6865162ef3164f5efe05c5a4ff90656f377d6a7d6ca0820bc14a7a2f341"
+  },
+  "metadata": {
+    "schema_version": "ra-004-staging-preflight-metadata-v1",
+    "q2_retailer": {"id": "14", "name": "10 Reps", "slug": "10-reps", "match_count": 1},
+    "q3_migration_ledger": {"target_version": "20260924100000", "target_name": "add_transactional_retailer_control_state_interface", "target_match_count": 1, "ordered_ledger_count": 3, "ordered_ledger_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+    "q4_objects": [
+      {"object_schema": "public", "object_name": "read_ra004_staging_preflight_v1", "object_kind": "FUNCTION", "exists": true, "expected_state": "PRESENT"},
+      {"object_schema": "public", "object_name": "read_retailer_control_state_v1", "object_kind": "FUNCTION", "exists": true, "expected_state": "PRESENT"},
+      {"object_schema": "public", "object_name": "retailer_control_state_evidence_v1", "object_kind": "TABLE", "exists": true, "expected_state": "PRESENT"},
+      {"object_schema": "public", "object_name": "retailers", "object_kind": "TABLE", "exists": true, "expected_state": "PRESENT"},
+      {"object_schema": "public", "object_name": "write_retailer_control_state_evidence_v1", "object_kind": "FUNCTION", "exists": true, "expected_state": "PRESENT"},
+      {"object_schema": "supabase_migrations", "object_name": "schema_migrations", "object_kind": "TABLE", "exists": true, "expected_state": "PRESENT"}
+    ],
+    "q5_functions": [
+      {"schema": "public", "signature": "public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer)", "owner": "ra004_staging_preflight_owner", "security_definer": true, "volatility": "s", "search_path": ["search_path=pg_catalog"], "definition_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"},
+      {"schema": "public", "signature": "public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer)", "owner": "retailer_control_state_read_owner", "security_definer": true, "volatility": "s", "search_path": ["search_path=pg_catalog"], "definition_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"},
+      {"schema": "public", "signature": "public.write_retailer_control_state_evidence_v1(uuid,integer,text,bigint,boolean,text,text,text,text,timestamptz,timestamptz,timestamptz,text,text,jsonb,text,text)", "owner": "retailer_control_state_evidence_owner", "security_definer": true, "volatility": "v", "search_path": ["search_path=pg_catalog"], "definition_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"}
+    ],
+    "q6_roles": [
+      {"role_name": "ra004_local_fixture_login", "rolsuper": false, "rolinherit": false, "rolcreaterole": false, "rolcreatedb": false, "rolcanlogin": true, "rolreplication": false, "rolbypassrls": false, "membership_role": null, "set_option": null, "admin_option": null},
+      {"role_name": "ra004_staging_preflight_caller", "rolsuper": false, "rolinherit": false, "rolcreaterole": false, "rolcreatedb": false, "rolcanlogin": false, "rolreplication": false, "rolbypassrls": false, "membership_role": null, "set_option": null, "admin_option": null},
+      {"role_name": "ra004_staging_preflight_owner", "rolsuper": false, "rolinherit": false, "rolcreaterole": false, "rolcreatedb": false, "rolcanlogin": false, "rolreplication": false, "rolbypassrls": false, "membership_role": null, "set_option": null, "admin_option": null}
+    ],
+    "q7_acl_rls": [
+      {"object_schema": "public", "object_name": "read_ra004_staging_preflight_v1", "owner": "ra004_staging_preflight_owner", "rls_enabled": false, "rls_forced": false, "policy_name": null, "policy_command": null, "policy_roles": null, "policy_using": null, "policy_with_check": null, "grantee": "ra004_local_fixture_login", "privilege_type": "EXECUTE"},
+      {"object_schema": "public", "object_name": "read_ra004_staging_preflight_v1", "owner": "ra004_staging_preflight_owner", "rls_enabled": false, "rls_forced": false, "policy_name": null, "policy_command": null, "policy_roles": null, "policy_using": null, "policy_with_check": null, "grantee": "ra004_staging_preflight_caller", "privilege_type": "EXECUTE"},
+      {"object_schema": "public", "object_name": "read_ra004_staging_preflight_v1", "owner": "ra004_staging_preflight_owner", "rls_enabled": false, "rls_forced": false, "policy_name": null, "policy_command": null, "policy_roles": null, "policy_using": null, "policy_with_check": null, "grantee": "ra004_staging_preflight_owner", "privilege_type": "EXECUTE"},
+      {"object_schema": "public", "object_name": "retailer_control_state_evidence_v1", "owner": "retailer_control_state_evidence_owner", "rls_enabled": true, "rls_forced": true, "policy_name": "retailer_control_state_evidence_owner_insert_v1", "policy_command": "a", "policy_roles": ["retailer_control_state_evidence_owner"], "policy_using": null, "policy_with_check": "true", "grantee": null, "privilege_type": null},
+      {"object_schema": "public", "object_name": "retailer_control_state_evidence_v1", "owner": "retailer_control_state_evidence_owner", "rls_enabled": true, "rls_forced": true, "policy_name": "retailer_control_state_evidence_owner_select_v1", "policy_command": "r", "policy_roles": ["retailer_control_state_evidence_owner"], "policy_using": "true", "policy_with_check": null, "grantee": null, "privilege_type": null},
+      {"object_schema": "public", "object_name": "retailer_control_state_evidence_v1", "owner": "retailer_control_state_evidence_owner", "rls_enabled": true, "rls_forced": true, "policy_name": "retailer_control_state_read_owner_select_v1", "policy_command": "r", "policy_roles": ["retailer_control_state_read_owner"], "policy_using": "true", "policy_with_check": null, "grantee": null, "privilege_type": null},
+      {"object_schema": "public", "object_name": "retailers", "owner": "postgres", "rls_enabled": true, "rls_forced": false, "policy_name": "ra004_staging_preflight_retailer_read_v1", "policy_command": "r", "policy_roles": ["ra004_staging_preflight_owner"], "policy_using": "((lower(name) = '10 reps'::text) OR (lower(slug) = '10-reps'::text))", "policy_with_check": null, "grantee": null, "privilege_type": null}
+    ],
+    "snapshot": {"isolation": "ONE_POSTGRESQL_STATEMENT", "metadata_only": true, "retailer_rows_read": 1, "business_rows_read": 0},
+    "metadata_fingerprint": "85856cacf279cf3a77b89cdd4b0d873dbced1109b00c3d0fdfae8ce4bfe81c06"
+  }
+}

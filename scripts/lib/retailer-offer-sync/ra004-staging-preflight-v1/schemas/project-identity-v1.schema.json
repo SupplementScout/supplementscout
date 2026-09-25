@@ -1,0 +1,5 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "ra-004-project-identity-v1", "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "project_reference", "canonical_host", "environment_label", "project_identity_fingerprint", "observed_at"],
+  "properties": {"schema_version": {"const": "ra-004-project-identity-v1"}, "project_reference": {"type": "string", "minLength": 3, "maxLength": 63, "pattern": "^[a-z][a-z0-9-]+$"}, "canonical_host": {"type": "string", "minLength": 4, "maxLength": 253, "pattern": "^[a-z0-9.-]+$"}, "environment_label": {"const": "STAGING"}, "project_identity_fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "observed_at": {"type": "string", "maxLength": 24, "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"}}
+}

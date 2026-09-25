@@ -23,6 +23,7 @@ const TARGET = Object.freeze({
   database_identity: CONTRACT.databaseIdentity,
 });
 const RA004_CONTROL_STATE_MIGRATION = "20260924100000_add_transactional_retailer_control_state_interface.sql";
+const RA004_PREFLIGHT_MIGRATION = "20260925100000_add_ra004_staging_preflight_metadata_interface.sql";
 const TIMESTAMP_GUARD_MIGRATION = "20260831080000_fix_verified_no_change_timestamp_guard.sql";
 const TIMESTAMP_GUARD_SHA256 = "727a47ddabc29664693c299c5b4e0915ba06e44fbfc2beb098277c2b81866bbe";
 const TIMESTAMP_OPERATOR_MIGRATION = "20260831081000_fix_verified_no_change_timestamp_guard_jsonb_operator.sql";
@@ -491,7 +492,7 @@ test("production binds its exact 221-row ledger before the Fit House parent appr
 
 test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.equal(Object.keys(contract.excluded).length, 8);
+  assert.equal(Object.keys(contract.excluded).length, 9);
   assert.ok(!Object.hasOwn(
     contract.excluded,
     "20260824160000_add_identity_proven_price_observations.sql",
@@ -526,12 +527,18 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("RA-004 control-state interface remains excluded from staging and production deployment", () => {
-  const expectedSha = "cfd7a93cb20845832b696183f5eb8a500f0474b4173829b85f6ac6bc73d4baaa";
-  assert.equal(CONTRACTS.STAGING.excluded[RA004_CONTROL_STATE_MIGRATION], expectedSha);
-  assert.equal(CONTRACTS.PRODUCTION.excluded[RA004_CONTROL_STATE_MIGRATION], expectedSha);
-  assert.ok(!CONTRACTS.STAGING.pending.some(({ filename }) => filename === RA004_CONTROL_STATE_MIGRATION));
-  assert.ok(!CONTRACTS.PRODUCTION.pending.some(({ filename }) => filename === RA004_CONTROL_STATE_MIGRATION));
+test("RA-004 interfaces remain SHA-bound and excluded from staging and production deployment", () => {
+  const expected = {
+    [RA004_CONTROL_STATE_MIGRATION]: "cfd7a93cb20845832b696183f5eb8a500f0474b4173829b85f6ac6bc73d4baaa",
+    [RA004_PREFLIGHT_MIGRATION]: "9d6c1ea4df0bd86f84a4cb779a0824922f4e9bcc91681b734d5d18465a9e91be",
+  };
+  for (const [filename, sha256] of Object.entries(expected)) {
+    assert.equal(CONTRACTS.STAGING.excluded[filename], sha256);
+    assert.equal(CONTRACTS.PRODUCTION.excluded[filename], sha256);
+    assert.equal(sha256File(path.join(SOURCE, filename)), sha256);
+    assert.ok(!CONTRACTS.STAGING.pending.some((entry) => entry.filename === filename));
+    assert.ok(!CONTRACTS.PRODUCTION.pending.some((entry) => entry.filename === filename));
+  }
 });
 
 test("staging output reports the review queue, retry and nutrition migrations as pending", () => {
