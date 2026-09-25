@@ -8,7 +8,7 @@
 
 **Pack preparation:** `AUTHORIZED`
 
-**Pack verification:** `NOT_STARTED`
+**Pack verification:** `VERIFIED_FOR_OWNER_REVIEW`
 
 **Owner decision:** `NOT_DECIDED`
 
@@ -26,7 +26,7 @@
 
 **Staging-canary plan fingerprint:** `bd5c259941997daad3755c1cb135f76f6eccaef1fb9e1ce0044939ce08439214`
 
-**Authorization-pack fingerprint:** `732cccf46eb4467460029b411f5138f81f4af69a9ad88235e6ed20d9051f7149`
+**Authorization-pack fingerprint:** `9ed7ea2bea9a7fb2c2a521da87314ef6c438c46c46b751be254f7e57e2239b64`
 
 Machine-readable contract:
 [`RA-004-staging-preflight-authorization.json`](RA-004-staging-preflight-authorization.json).
@@ -108,10 +108,26 @@ Required local counters are
 `PASS_METADATA_ONLY`, `BLOCKED_INTERFACE_GAP`, `STOPPED_PRE_READ` and
 `FAILED_CLOSED`.
 
+### Non-automatic authorization lifecycle
+
+These stages are separate; no approval, implementation result or completed
+value automatically grants authority to a later stage. Authority is never
+inherited and every transition requires its own recorded review or decision.
+
+1. `POLICY_APPROVAL` — `NOT_DECIDED`.
+2. `INTERFACE_IMPLEMENTATION` — `NOT_AUTHORIZED`.
+3. `INDEPENDENT_IMPLEMENTATION_VERIFICATION` — `NOT_STARTED`.
+4. `EXECUTION_VALUES_COMPLETED` — `BLOCKED_UNKNOWN_VALUES`.
+5. `PREFLIGHT_ACTIVATION` — `NOT_AUTHORIZED`.
+6. `PREFLIGHT_EXECUTION` — `NOT_AUTHORIZED`.
+
 ## Query allowlist
 
 Every entry is closed. Unknown fields, rows above the cap or a different source
 fail the preflight; they do not produce partial success.
+For every Q1-Q8 entry, business data is forbidden and general-SQL fallback is
+forbidden (`business_data_allowed: false`,
+`general_sql_fallback_allowed: false`).
 
 ### Q1 — staging project identity
 
@@ -224,12 +240,17 @@ public artifacts or evidence payloads.
 
 ## Five decisions for Marek
 
-All five recommendations are `APPROVE_WITH_GATES`; all decision statuses are
-`NOT_DECIDED`.
+All five recommendations are
+`APPROVE_REQUIREMENTS_AND_FUTURE_PREPARATION_ONLY`; every authorization level is
+`POLICY_AND_FUTURE_PREPARATION_ONLY` and every decision status is
+`NOT_DECIDED`. Approval would accept requirements and future preparation only;
+it would not authorize implementation, credential issuance, activation, a
+connection or execution.
 
 ### D1 — one control-plane identity check
 
-- Scope: one allowlisted lookup for one staging project returning only Q1.
+- Scope: approve the Q1 policy and future preparation; no lookup is currently authorized.
+- Blocking dependencies: exact owner-attested staging project/host; implemented and independently verified bounded Q1 path; named operator/window; separate activation authorization.
 - Does not authorize: database connection, secret read, production, migration, canary, live export or shadow.
 - Validity: one named attempt in one owner-approved window of at most 30 minutes.
 - Automatic expiry: first attempt, window end, identity mismatch, baseline change or pack-fingerprint change.
@@ -237,7 +258,8 @@ All five recommendations are `APPROVE_WITH_GATES`; all decision statuses are
 
 ### D2 — one bounded database transaction
 
-- Scope: one staging connection, one `REPEATABLE READ READ ONLY` transaction and one future metadata RPC invocation covering Q2-Q7.
+- Scope: approve the Q2-Q7 transaction policy and future preparation; no connection, transaction or RPC invocation is currently authorized.
+- Blocking dependencies: D1 gates; implemented and independently verified bounded RPC, dedicated role, provider and CLI; all exact execution values; separate activation authorization.
 - Does not authorize: general SQL, second connection, retry, DDL, DML, mutation RPC, migration or business-data read.
 - Validity: one named attempt in the same window after D1 and every pre-read gate passes.
 - Automatic expiry: first connection attempt, transaction end, window end, interface/allowlist drift or any prohibited attempt.
@@ -245,7 +267,8 @@ All five recommendations are `APPROVE_WITH_GATES`; all decision statuses are
 
 ### D3 — one dedicated staging-preflight credential
 
-- Scope: future issuance/use of one staging-only login, TTL at most 30 minutes, EXECUTE only on the metadata RPC.
+- Scope: approve the credential policy and future implementation preparation; no login, membership, password, token or secret issuance/use is currently authorized.
+- Blocking dependencies: implemented and independently verified bounded RPC, metadata-only role, provider and CLI; attested project/host; named operator/issuer/window; separate issuance and activation authorization.
 - Does not authorize: canary credential, existing operational credential, production, tables, `SET ROLE` or reuse.
 - Validity: issuance until first use, expiry or immediate revocation, whichever comes first.
 - Automatic expiry: TTL, completion/failure, privilege mismatch, exposure or window end.
@@ -253,7 +276,8 @@ All five recommendations are `APPROVE_WITH_GATES`; all decision statuses are
 
 ### D4 — people and window
 
-- Scope: one named operator, one distinct named issuer and one explicit UTC window no longer than 30 minutes.
+- Scope: approve separation-of-duties and window requirements for future preparation; no person or UTC window is supplied or authorized.
+- Blocking dependencies: owner-supplied operator, distinct issuer and exact UTC window; separation review; separate activation authorization.
 - Does not authorize: self-issuance, substitutes, extension, scheduling or workflow dispatch.
 - Validity: only the named people and exact window.
 - Automatic expiry: window end, substitution, role conflict or repository/authorization change.
@@ -261,7 +285,8 @@ All five recommendations are `APPROVE_WITH_GATES`; all decision statuses are
 
 ### D5 — evidence and retention
 
-- Scope: one redacted bundle of identities, summaries, counters, fingerprints and lifecycle receipts in one approved private store under retention policy R.
+- Scope: approve evidence, redaction and retention requirements for future preparation; no evidence destination or upload is currently authorized.
+- Blocking dependencies: identified private store; independently verified encryption, immutability, access audit and readback; Q8/retention match; redaction validation; separate activation authorization.
 - Does not authorize: secrets, raw business data, public artifacts, unrelated metadata or live export.
 - Validity: this one bundle and the approved retention periods.
 - Automatic expiry: approval withdrawal, configuration/retention drift, redaction failure or missing readback.
@@ -269,7 +294,10 @@ All five recommendations are `APPROVE_WITH_GATES`; all decision statuses are
 
 ## Stop conditions
 
-Every condition is non-overridable and prevents default or partial success.
+Every condition has `override_allowed: false`, `retry_allowed: false`,
+`partial_continuation_allowed: false` and `default_success_allowed: false`.
+Its required next action is mandatory; none permits continuation of the current
+attempt.
 
 | # | Code | Phase | Required evidence / effect |
 |---|---|---|---|
@@ -299,20 +327,48 @@ Every condition is non-overridable and prevents default or partial success.
 | 24 | `MIGRATION_APPLICATION_ATTEMPT` | before first read | Migration/apply counter zero; stop, revoke and treat as incident. |
 | 25 | `LIVE_EXPORT_FEED_OR_SHADOW_ATTEMPT` | before first read | All three counters zero; stop, revoke and treat as incident. |
 
+Required next actions, in the same order, are:
+
+1. obtain fresh owner-attested staging identity and new activation authorization;
+2. resolve environment ambiguity and obtain new activation authorization;
+3. obtain all five owner decisions bound to the current fingerprint;
+4. obtain new matching owner authorization;
+5. record and approve one named operator;
+6. record and approve one distinct credential issuer;
+7. revoke and independently verify corrected least privilege;
+8. revoke and require a newly authorized TTL-compliant credential;
+9. revoke and remove every forbidden membership edge;
+10. obtain exact owner-approved host and project allowlists;
+11. restore independent review and authorization of Q1-Q8;
+12. implement and independently verify the bounded metadata interface;
+13. revoke and independently verify removal of mutation capability;
+14. identify and approve a Q8-compliant private evidence store;
+15. implement and independently validate closed-field redaction;
+16. implement and independently verify all attempt counters;
+17. establish and independently test immediate revocation before reauthorization;
+18. recompute evidence and authorize the new baseline or migration hash;
+19. repeat independent verification and obtain new owner authorization;
+20. revoke immediately and open a production-access incident review;
+21. revoke and require a newly reviewed and authorized attempt;
+22. revoke and investigate the prohibited retry before new authorization;
+23. revoke immediately and open a prohibited-read incident review;
+24. revoke immediately and open a migration-attempt incident review; and
+25. revoke immediately and open an out-of-scope execution incident review.
+
 ## Unresolved information — do not infer
 
-| Unknown | Answer owner | Safe resolution | Required before | Consequence | Separate authorization |
-|---|---|---|---|---|---|
-| `staging_project_reference` | staging environment owner | signed Q1 attestation against the repository candidate | sealing D1/allowlist | stop; identity untrusted | yes |
-| `staging_host` | staging environment owner | signed canonical-host attestation without secret access | any connection authority | stop; production ambiguity | yes |
-| `staging_10reps_retailer_id` | staging data owner | bounded Q2 lookup | PASS result | stop; retailer ambiguous | yes |
-| `operator` | RA-004 owner | named-person/separation review | issuance | stop; no accountable operator | yes |
-| `credential_issuer` | staging security/database owner | distinct named-person assignment | issuance | stop; lifecycle uncontrolled | yes |
-| `execution_window` | RA-004 and staging owners | exact UTC start/end, at most 30 minutes | authorization validity | stop; no valid window | yes |
-| `private_evidence_store` | evidence custodian/data owner | Q8 config review without upload | any connection | stop; no compliant destination | yes |
-| `available_metadata_only_role` | future implementation owner/verifier | reviewed migration and isolated privilege tests | credential implementation | `BLOCKED_INTERFACE_GAP` | yes |
-| `exact_control_plane_identity_read_path` | staging platform owner | one allowlisted endpoint or signed record | D1 use | `BLOCKED_INTERFACE_GAP` | yes |
-| `exact_database_metadata_read_path` | implementation/database owners | reviewed RPC/role and staging deployment | D2/D3 use | `BLOCKED_INTERFACE_GAP`; no SQL fallback | yes |
+| Unknown | Status | Answer owner | Safe resolution | Required before | Consequence | Separate authorization |
+|---|---|---|---|---|---|---|
+| `staging_project_reference` | `UNRESOLVED` | staging environment owner | signed Q1 attestation against the repository candidate | sealing D1/allowlist | stop; identity untrusted | yes |
+| `staging_host` | `UNRESOLVED` | staging environment owner | signed canonical-host attestation without secret access | any connection authority | stop; production ambiguity | yes |
+| `staging_10reps_retailer_id` | `UNRESOLVED` | staging data owner | bounded Q2 lookup | PASS result | stop; retailer ambiguous | yes |
+| `operator` | `UNRESOLVED` | RA-004 owner | named-person/separation review | issuance | stop; no accountable operator | yes |
+| `credential_issuer` | `UNRESOLVED` | staging security/database owner | distinct named-person assignment | issuance | stop; lifecycle uncontrolled | yes |
+| `execution_window` | `UNRESOLVED` | RA-004 and staging owners | exact UTC start/end, at most 30 minutes | authorization validity | stop; no valid window | yes |
+| `private_evidence_store` | `UNRESOLVED` | evidence custodian/data owner | Q8 config review without upload | any connection | stop; no compliant destination | yes |
+| `available_metadata_only_role` | `UNRESOLVED` | future implementation owner/verifier | reviewed migration and isolated privilege tests | credential implementation | `BLOCKED_INTERFACE_GAP` | yes |
+| `exact_control_plane_identity_read_path` | `UNRESOLVED` | staging platform owner | one allowlisted endpoint or signed record | D1 use | `BLOCKED_INTERFACE_GAP` | yes |
+| `exact_database_metadata_read_path` | `UNRESOLVED` | implementation/database owners | reviewed RPC/role and staging deployment | D2/D3 use | `BLOCKED_INTERFACE_GAP`; no SQL fallback | yes |
 
 ## Current interface gaps and next task
 
@@ -322,6 +378,19 @@ store. These gaps do not block preparation of this decision pack; they do block
 every read and execution attempt. This pack does not authorize their
 implementation.
 
-The next and only task is independent verification of the Draft PR. Do not
-connect to staging, implement an interface, issue a credential or execute the
-preflight during that verification.
+Independent verification used the exact initial PR head
+`0b2752ac60cd8e38659751a227487f328def574b` in a clean worktree. It confirmed
+the initial fingerprint
+`732cccf46eb4467460029b411f5138f81f4af69a9ad88235e6ed20d9051f7149`,
+rejected all 12 controlled mutations, independently rechecked the repository
+facts and corrected only this four-file documentation scope. Project Guardian,
+89 focused exporter/selector tests, TypeScript, ESLint, `verify:quick` and
+`verify:full` (including the production build) passed. The final canonical
+fingerprint is
+`9ed7ea2bea9a7fb2c2a521da87314ef6c438c46c46b751be254f7e57e2239b64`.
+Integration, SQL/database tests, Supabase CLI and all staging/production access
+were skipped by design, not counted as passes.
+
+The next and only task is to present the five verified decisions to Marek for
+approval or change. Do not connect to staging, implement an interface, issue a
+credential or execute the preflight as part of that owner review.

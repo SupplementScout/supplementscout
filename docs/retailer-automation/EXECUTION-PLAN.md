@@ -274,7 +274,8 @@ authorization package for a bounded read-only staging preflight; this closeout
 does not connect to staging and no execution step may begin.
 
 **Staging-preflight authorization pack:** preparation is `AUTHORIZED`,
-verification is `NOT_STARTED` and all five owner decisions are `NOT_DECIDED`.
+verification is `VERIFIED_FOR_OWNER_REVIEW` and all five owner decisions remain
+`NOT_DECIDED`.
 The documentation-only pack and manifest are
 [`evidence/RA-004-STAGING-PREFLIGHT-AUTHORIZATION-PACK.md`](evidence/RA-004-STAGING-PREFLIGHT-AUTHORIZATION-PACK.md)
 and
@@ -286,8 +287,16 @@ provider/CLI or approved private evidence store. These are recorded as
 or service-role credentials are not accepted as substitutes. Control-plane and
 database reads, staging connection, credential issuance/use, preflight,
 migration, canary, production, live export and shadow remain `NOT_AUTHORIZED`.
-The next task is independent verification of the Draft PR; no interface
-implementation or preflight may begin.
+Independent verification at initial head
+`0b2752ac60cd8e38659751a227487f328def574b` confirmed the initial manifest
+fingerprint `732cccf46eb4467460029b411f5138f81f4af69a9ad88235e6ed20d9051f7149`,
+rejected all 12 controlled mutations and produced final canonical fingerprint
+`9ed7ea2bea9a7fb2c2a521da87314ef6c438c46c46b751be254f7e57e2239b64`.
+Project Guardian, 89 focused exporter/selector tests, TypeScript, ESLint,
+`verify:quick` and `verify:full`, including the production build, passed without
+staging, production, control-plane, database, SQL, credential or secret access.
+The next task is to present the five verified decisions to Marek for approval
+or change; no interface implementation or preflight may begin.
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
