@@ -663,9 +663,24 @@ function loadEnvFile(file) {
   return values;
 }
 
+function loadCredentialEnvironment(options, contract, processEnvironment = process.env) {
+  if (options.credentialSource === "file") return loadEnvFile(options.envFile);
+  return {
+    [contract.projectRefEnvironmentKey]: processEnvironment[contract.projectRefEnvironmentKey],
+    [contract.databaseUrlEnvironmentKey]: processEnvironment[contract.databaseUrlEnvironmentKey],
+  };
+}
+
 function parseArgs(argv) {
   const values = {};
-  const allowed = new Set(["environment", "project-ref", "workdir", "env-file", "activation-manifest"]);
+  const allowed = new Set([
+    "environment",
+    "project-ref",
+    "workdir",
+    "env-file",
+    "activation-manifest",
+    "credential-source",
+  ]);
   for (const argument of argv) {
     const match = argument.match(/^--([^=]+)=(.+)$/);
     invariant(match && allowed.has(match[1]) && values[match[1]] === undefined, `invalid argument ${argument}`);
@@ -673,6 +688,12 @@ function parseArgs(argv) {
   }
   invariant(values.environment && values["project-ref"], "--environment and --project-ref are required");
   const production = values.environment === "PRODUCTION";
+  const credentialSource = values["credential-source"] || "file";
+  invariant(["file", "process"].includes(credentialSource), "credential source must be file or process");
+  invariant(
+    !(credentialSource === "process" && values["env-file"]),
+    "process credential source cannot use an environment file",
+  );
   invariant(!(production && values["activation-manifest"]), "activation manifest is staging-only");
   return {
     environment: values.environment,
@@ -680,9 +701,12 @@ function parseArgs(argv) {
     workdir: values.workdir
       ? path.resolve(values.workdir)
       : production ? DEFAULT_PRODUCTION_WORKDIR : DEFAULT_WORKDIR,
-    envFile: values["env-file"]
-      ? path.resolve(values["env-file"])
-      : production ? DEFAULT_PRODUCTION_ENV_FILE : DEFAULT_ENV_FILE,
+    credentialSource,
+    envFile: credentialSource === "process"
+      ? null
+      : values["env-file"]
+        ? path.resolve(values["env-file"])
+        : production ? DEFAULT_PRODUCTION_ENV_FILE : DEFAULT_ENV_FILE,
     activationManifest: values["activation-manifest"]
       ? path.resolve(values["activation-manifest"])
       : null,
@@ -725,10 +749,10 @@ async function main(argv = process.argv.slice(2)) {
   invariant(!process.env.SAFE_UPDATE, "process SAFE_UPDATE must be unset");
   const options = parseArgs(argv);
   const contract = selectorContract(options.environment);
-  const env = loadEnvFile(options.envFile);
+  const env = loadCredentialEnvironment(options, contract);
   invariant(
     env[contract.projectRefEnvironmentKey] === options.projectRef,
-    "environment file project ref mismatch",
+    "credential environment project ref mismatch",
   );
   invariant(env[contract.databaseUrlEnvironmentKey], `${options.environment} database URL is missing`);
   const remote = await readRemoteState(env[contract.databaseUrlEnvironmentKey]);
@@ -767,6 +791,7 @@ module.exports = {
   CONTRACTS,
   ledgerIdentifier,
   ledgerRowsFingerprint,
+  loadCredentialEnvironment,
   materializeSelectedWorkdir,
   parseArgs,
   readRemoteState,

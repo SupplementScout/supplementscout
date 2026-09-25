@@ -67,6 +67,12 @@
     "requires_fresh_ledger_attestation": true,
     "requires_exact_database_target_attestation": true
   },
+  "credential_handling": {
+    "source": "masked_prompt_to_process_memory",
+    "plaintext_file_authorized": false,
+    "command_line_secret_authorized": false,
+    "persist_after_execution": false
+  },
   "production": {
     "authorized": false,
     "selector_unchanged": true,

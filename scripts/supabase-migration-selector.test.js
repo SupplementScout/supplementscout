@@ -6,6 +6,7 @@ const test = require("node:test");
 const {
   CONTRACTS,
   ledgerRowsFingerprint,
+  loadCredentialEnvironment,
   materializeSelectedWorkdir,
   parseArgs,
   sha256File,
@@ -521,6 +522,41 @@ test("production CLI defaults to an explicit owner credential and production wor
   ]);
   assert.equal(path.basename(parsed.envFile), "production-owner.env");
   assert.equal(path.basename(parsed.workdir), "supabase-production-selected");
+});
+
+test("process credential mode keeps the staging database URL out of files and copies only required keys", () => {
+  const parsed = parseArgs([
+    "--environment=STAGING",
+    `--project-ref=${CONTRACTS.STAGING.projectRef}`,
+    "--credential-source=process",
+  ]);
+  assert.equal(parsed.credentialSource, "process");
+  assert.equal(parsed.envFile, null);
+
+  const environment = loadCredentialEnvironment(parsed, CONTRACTS.STAGING, {
+    SUPPLEMENTSCOUT_STAGING_PROJECT_REF: CONTRACTS.STAGING.projectRef,
+    SUPPLEMENTSCOUT_STAGING_DATABASE_URL: "postgresql://masked-in-memory-only",
+    SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL: "must-not-cross-boundary",
+    UNRELATED_SECRET: "must-not-be-copied",
+  });
+  assert.deepEqual(environment, {
+    SUPPLEMENTSCOUT_STAGING_PROJECT_REF: CONTRACTS.STAGING.projectRef,
+    SUPPLEMENTSCOUT_STAGING_DATABASE_URL: "postgresql://masked-in-memory-only",
+  });
+  assert.ok(!Object.hasOwn(environment, "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL"));
+  assert.ok(!Object.hasOwn(environment, "UNRELATED_SECRET"));
+});
+
+test("process credential mode rejects an environment file and unknown credential sources", () => {
+  const required = ["--environment=STAGING", `--project-ref=${CONTRACTS.STAGING.projectRef}`];
+  assert.throws(
+    () => parseArgs([...required, "--credential-source=process", "--env-file=.env"]),
+    /cannot use an environment file/,
+  );
+  assert.throws(
+    () => parseArgs([...required, "--credential-source=command-line"]),
+    /must be file or process/,
+  );
 });
 
 test("production owner guard rejects service role and accepts postgres only", () => {
