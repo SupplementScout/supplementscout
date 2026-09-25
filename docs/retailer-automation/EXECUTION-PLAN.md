@@ -273,6 +273,22 @@ staging or production connection. The next task is preparation of a separate
 authorization package for a bounded read-only staging preflight; this closeout
 does not connect to staging and no execution step may begin.
 
+**Staging-preflight authorization pack:** preparation is `AUTHORIZED`,
+verification is `NOT_STARTED` and all five owner decisions are `NOT_DECIDED`.
+The documentation-only pack and manifest are
+[`evidence/RA-004-STAGING-PREFLIGHT-AUTHORIZATION-PACK.md`](evidence/RA-004-STAGING-PREFLIGHT-AUTHORIZATION-PACK.md)
+and
+[`evidence/RA-004-staging-preflight-authorization.json`](evidence/RA-004-staging-preflight-authorization.json).
+Repository audit found no deployed metadata-only role, bounded project/retailer
+identity interface, migration-ledger/schema metadata RPC, closed preflight
+provider/CLI or approved private evidence store. These are recorded as
+`BLOCKED_INTERFACE_GAP`; general SQL and existing validator, approver, executor
+or service-role credentials are not accepted as substitutes. Control-plane and
+database reads, staging connection, credential issuance/use, preflight,
+migration, canary, production, live export and shadow remain `NOT_AUTHORIZED`.
+The next task is independent verification of the Draft PR; no interface
+implementation or preflight may begin.
+
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
 **Goal:** compare the candidate canonical pipeline with the existing 10 Reps

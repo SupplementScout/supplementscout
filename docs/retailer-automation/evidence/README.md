@@ -68,6 +68,21 @@ indicate canary readiness. Its next task is preparation of a separate
 authorization package for a bounded read-only staging preflight, without
 connecting to staging as part of this closeout.
 
+The separate staging-preflight authorization pack is documentation and owner
+decision preparation only. Its preparation status is `AUTHORIZED`, independent
+verification is `NOT_STARTED`, and all five proposed owner decisions are
+`NOT_DECIDED`. Control-plane/database reads, staging connection, credential
+issuance/use, preflight execution, migration, canary, production, live export
+and shadow remain `NOT_AUTHORIZED`; auto-safe classes remain `NONE_APPROVED`.
+The repository audit found no currently usable closed metadata-only role/RPC,
+preflight provider/CLI or approved evidence store, so these remain explicit
+`BLOCKED_INTERFACE_GAP` items without a general-SQL fallback. See
+[`RA-004-STAGING-PREFLIGHT-AUTHORIZATION-PACK.md`](RA-004-STAGING-PREFLIGHT-AUTHORIZATION-PACK.md)
+and
+[`RA-004-staging-preflight-authorization.json`](RA-004-staging-preflight-authorization.json).
+The next task is independent verification of the Draft PR; no staging access or
+implementation is authorized.
+
 The fixture-only implementation is preserved in PR #89. Marek approved
 the transactional interface for isolated local implementation. The migration
 and unwired provider contract passed independent local database verification.
