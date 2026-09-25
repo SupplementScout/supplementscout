@@ -21,11 +21,6 @@ const DEFAULT_PRODUCTION_ENV_FILE = path.join(
   "production-owner.env",
 );
 const SHA256 = /^[0-9a-f]{64}$/;
-const RA004_ACTIVATION_SCHEMA = "ra-004-staging-migration-activation-v1";
-const RA004_ACTIVATION_MIGRATIONS = Object.freeze([
-  "20260924100000_add_transactional_retailer_control_state_interface.sql",
-  "20260925100000_add_ra004_staging_preflight_metadata_interface.sql",
-]);
 
 const CONTRACTS = Object.freeze({
   STAGING: Object.freeze({
@@ -379,46 +374,6 @@ function ledgerRowsFingerprint(rows) {
   return crypto.createHash("sha256").update(JSON.stringify(rows)).digest("hex");
 }
 
-function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOURCE_DIR) {
-  invariant(contract.environment === "STAGING", "activation manifest is staging-only");
-  invariant(manifest?.schema_version === RA004_ACTIVATION_SCHEMA, "activation manifest schema mismatch");
-  invariant(manifest?.status === "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED", "activation manifest status mismatch");
-  invariant(manifest?.task_id === "RA-004", "activation manifest task mismatch");
-  invariant(manifest?.baseline_sha === "3def19840000338eb7841e79c2b4e92b0da5e31b", "activation baseline mismatch");
-  invariant(manifest?.target?.environment === "STAGING", "activation environment mismatch");
-  invariant(manifest?.target?.project_ref === contract.projectRef, "activation project ref mismatch");
-  invariant(manifest?.target?.parent_project_ref === "aftboxmrdgyhizicfsfu", "activation parent project mismatch");
-  invariant(manifest?.target?.persistent_branch === true, "activation requires a persistent branch");
-  invariant(manifest?.production?.authorized === false, "activation must not authorize production");
-  invariant(manifest?.production?.selector_unchanged === true, "production selector must remain unchanged");
-  invariant(manifest?.apply?.maximum_attempts === 1 && manifest?.apply?.automatic_retry === false,
-    "activation must be one-shot without retry");
-  invariant(Array.isArray(manifest?.migrations), "activation migrations are required");
-  invariant(manifest.migrations.length === RA004_ACTIVATION_MIGRATIONS.length,
-    "activation migration count mismatch");
-
-  const filenames = manifest.migrations.map((entry) => entry?.filename);
-  invariant(
-    filenames.every((filename, index) => filename === RA004_ACTIVATION_MIGRATIONS[index]),
-    "activation migration order mismatch",
-  );
-  for (const entry of manifest.migrations) {
-    const expected = contract.excluded[entry.filename];
-    invariant(expected && entry.sha256 === expected, `activation SHA-256 mismatch: ${entry.filename}`);
-    invariant(sha256File(path.join(sourceDir, entry.filename)) === expected,
-      `activation source SHA-256 mismatch: ${entry.filename}`);
-  }
-  const deferred = manifest?.deferred_pending_migrations;
-  invariant(Array.isArray(deferred) && deferred.length === contract.pending.length,
-    "activation deferred migration count mismatch");
-  invariant(
-    deferred.every((entry, index) =>
-      entry?.filename === contract.pending[index].filename && entry?.sha256 === contract.pending[index].sha256),
-    "activation deferred migration set mismatch",
-  );
-  return filenames;
-}
-
 function selectorContract(environment) {
   const contract = CONTRACTS[environment];
   invariant(contract, `unsupported selector environment ${environment}`);
@@ -457,7 +412,6 @@ function validateSelection({
   databaseTarget,
   remoteLedger,
   sourceDir = DEFAULT_SOURCE_DIR,
-  activationManifest = null,
 }) {
   const contract = selectorContract(environment);
   invariant(projectRef === contract.projectRef, "selector project ref mismatch");
@@ -499,37 +453,28 @@ function validateSelection({
   }
 
   const excluded = excludedMigrationIds(environment);
-  const defaultSelectedFiles = allFiles.filter(
+  const selectedFiles = allFiles.filter(
     (filename) => !excluded.has(migrationIdentifier(filename)),
   );
   invariant(
-    allFiles.length - defaultSelectedFiles.length === excluded.size,
+    allFiles.length - selectedFiles.length === excluded.size,
     "selector excluded an unexpected number of migrations",
   );
 
-  const activatedFiles = activationManifest
-    ? validateActivationManifest(contract, activationManifest, sourceDir)
-    : [];
-  const admissibleFiles = [...defaultSelectedFiles, ...activatedFiles];
-  const admissibleSet = new Set(admissibleFiles.map(migrationIdentifier));
+  const selectedIdentifiers = selectedFiles.map(migrationIdentifier);
+  const selectedSet = new Set(selectedIdentifiers);
   const remoteIdentifiers = remoteLedger.map(ledgerIdentifier);
   invariant(remoteLedger.length === contract.ledgerCount, "remote ledger count mismatch");
   invariant(
     new Set(remoteIdentifiers).size === remoteIdentifiers.length,
     "duplicate remote migration ledger identifier",
   );
-  const remoteOnly = remoteIdentifiers.filter((identifier) => !admissibleSet.has(identifier));
+  const remoteOnly = remoteIdentifiers.filter((identifier) => !selectedSet.has(identifier));
   invariant(remoteOnly.length === 0, `remote-only migrations: ${remoteOnly.join(",")}`);
 
   const remoteSet = new Set(remoteIdentifiers);
-  const selectedFiles = activationManifest
-    ? allFiles.filter((filename) =>
-      remoteSet.has(migrationIdentifier(filename)) || activatedFiles.includes(filename))
-    : defaultSelectedFiles;
-  const selectedIdentifiers = selectedFiles.map(migrationIdentifier);
   const pending = selectedIdentifiers.filter((identifier) => !remoteSet.has(identifier));
-  const expectedPending = (activationManifest ? activatedFiles : contract.pending.map(({ filename }) => filename))
-    .map(migrationIdentifier);
+  const expectedPending = contract.pending.map(({ filename }) => migrationIdentifier(filename));
   invariant(
     pending.length === expectedPending.length,
     `pending migration count mismatch: ${pending.join(",")}`,
@@ -544,13 +489,8 @@ function validateSelection({
     "remote ledger fingerprint mismatch",
   );
 
-  const pendingFiles = activationManifest
-    ? activatedFiles
-    : contract.pending.map(({ filename }) => filename);
-  const selectedPendingHashes = activationManifest
-    ? Object.fromEntries(activatedFiles.map((filename) => [filename, contract.excluded[filename]]))
-    : pendingHashes;
-  const singlePending = pendingFiles.length === 1;
+  const pendingFiles = contract.pending.map(({ filename }) => filename);
+  const singlePending = contract.pending.length === 1;
   return {
     result: "PASS",
     environment,
@@ -558,19 +498,15 @@ function validateSelection({
     database_target: databaseTarget,
     ledger_count: remoteLedger.length,
     ledger_fingerprint: ledgerFingerprint,
-    activation_schema: activationManifest ? RA004_ACTIVATION_SCHEMA : null,
-    activation_id: activationManifest?.activation_id || null,
-    excluded_files: activationManifest
-      ? allFiles.filter((filename) => !selectedFiles.includes(filename))
-      : Object.keys(contract.excluded),
+    excluded_files: Object.keys(contract.excluded),
     selected_files: selectedFiles,
     remote_only: [],
     unexpected_local: [],
     pending: expectedPending,
     pending_files: pendingFiles,
-    pending_sha256s: selectedPendingHashes,
+    pending_sha256s: pendingHashes,
     pending_file: singlePending ? pendingFiles[0] : null,
-    pending_sha256: singlePending ? selectedPendingHashes[pendingFiles[0]] : null,
+    pending_sha256: singlePending ? pendingHashes[pendingFiles[0]] : null,
   };
 }
 
@@ -631,8 +567,6 @@ function materializeSelectedWorkdir({
         generated_at: new Date().toISOString(),
         environment: selection.environment,
         project_ref: selection.project_ref,
-        activation_schema: selection.activation_schema,
-        activation_id: selection.activation_id,
         ledger_count: selection.ledger_count,
         ledger_fingerprint: selection.ledger_fingerprint,
         excluded_files: selection.excluded_files,
@@ -663,24 +597,9 @@ function loadEnvFile(file) {
   return values;
 }
 
-function loadCredentialEnvironment(options, contract, processEnvironment = process.env) {
-  if (options.credentialSource === "file") return loadEnvFile(options.envFile);
-  return {
-    [contract.projectRefEnvironmentKey]: processEnvironment[contract.projectRefEnvironmentKey],
-    [contract.databaseUrlEnvironmentKey]: processEnvironment[contract.databaseUrlEnvironmentKey],
-  };
-}
-
 function parseArgs(argv) {
   const values = {};
-  const allowed = new Set([
-    "environment",
-    "project-ref",
-    "workdir",
-    "env-file",
-    "activation-manifest",
-    "credential-source",
-  ]);
+  const allowed = new Set(["environment", "project-ref", "workdir", "env-file"]);
   for (const argument of argv) {
     const match = argument.match(/^--([^=]+)=(.+)$/);
     invariant(match && allowed.has(match[1]) && values[match[1]] === undefined, `invalid argument ${argument}`);
@@ -688,28 +607,15 @@ function parseArgs(argv) {
   }
   invariant(values.environment && values["project-ref"], "--environment and --project-ref are required");
   const production = values.environment === "PRODUCTION";
-  const credentialSource = values["credential-source"] || "file";
-  invariant(["file", "process"].includes(credentialSource), "credential source must be file or process");
-  invariant(
-    !(credentialSource === "process" && values["env-file"]),
-    "process credential source cannot use an environment file",
-  );
-  invariant(!(production && values["activation-manifest"]), "activation manifest is staging-only");
   return {
     environment: values.environment,
     projectRef: values["project-ref"],
     workdir: values.workdir
       ? path.resolve(values.workdir)
       : production ? DEFAULT_PRODUCTION_WORKDIR : DEFAULT_WORKDIR,
-    credentialSource,
-    envFile: credentialSource === "process"
-      ? null
-      : values["env-file"]
-        ? path.resolve(values["env-file"])
-        : production ? DEFAULT_PRODUCTION_ENV_FILE : DEFAULT_ENV_FILE,
-    activationManifest: values["activation-manifest"]
-      ? path.resolve(values["activation-manifest"])
-      : null,
+    envFile: values["env-file"]
+      ? path.resolve(values["env-file"])
+      : production ? DEFAULT_PRODUCTION_ENV_FILE : DEFAULT_ENV_FILE,
   };
 }
 
@@ -749,23 +655,19 @@ async function main(argv = process.argv.slice(2)) {
   invariant(!process.env.SAFE_UPDATE, "process SAFE_UPDATE must be unset");
   const options = parseArgs(argv);
   const contract = selectorContract(options.environment);
-  const env = loadCredentialEnvironment(options, contract);
+  const env = loadEnvFile(options.envFile);
   invariant(
     env[contract.projectRefEnvironmentKey] === options.projectRef,
-    "credential environment project ref mismatch",
+    "environment file project ref mismatch",
   );
   invariant(env[contract.databaseUrlEnvironmentKey], `${options.environment} database URL is missing`);
   const remote = await readRemoteState(env[contract.databaseUrlEnvironmentKey]);
   validateDatabaseOwner(contract, remote.identity);
-  const activationManifest = options.activationManifest
-    ? JSON.parse(fs.readFileSync(options.activationManifest, "utf8"))
-    : null;
   const selection = validateSelection({
     environment: options.environment,
     projectRef: options.projectRef,
     databaseTarget: remote.databaseTarget,
     remoteLedger: remote.remoteLedger,
-    activationManifest,
   });
   const workdir = materializeSelectedWorkdir({
     selection,
@@ -791,13 +693,11 @@ module.exports = {
   CONTRACTS,
   ledgerIdentifier,
   ledgerRowsFingerprint,
-  loadCredentialEnvironment,
   materializeSelectedWorkdir,
   parseArgs,
   readRemoteState,
   selectorContract,
   sha256File,
-  validateActivationManifest,
   validateDatabaseOwner,
   validateSelection,
 };
