@@ -6,9 +6,11 @@ const test = require("node:test");
 const {
   CONTRACTS,
   ledgerRowsFingerprint,
+  loadCredentialEnvironment,
   materializeSelectedWorkdir,
   parseArgs,
   sha256File,
+  validateActivationManifest,
   validateDatabaseOwner,
   validateSelection,
 } = require("./supabase-migration-selector");
@@ -24,6 +26,11 @@ const TARGET = Object.freeze({
 });
 const RA004_CONTROL_STATE_MIGRATION = "20260924100000_add_transactional_retailer_control_state_interface.sql";
 const RA004_PREFLIGHT_MIGRATION = "20260925100000_add_ra004_staging_preflight_metadata_interface.sql";
+const RA004_ACTIVATION_FILE = path.join(
+  ROOT,
+  "docs/retailer-automation/evidence/RA-004-staging-migration-activation.json",
+);
+const RA004_ACTIVATION = JSON.parse(fs.readFileSync(RA004_ACTIVATION_FILE, "utf8"));
 const TIMESTAMP_GUARD_MIGRATION = "20260831080000_fix_verified_no_change_timestamp_guard.sql";
 const TIMESTAMP_GUARD_SHA256 = "727a47ddabc29664693c299c5b4e0915ba06e44fbfc2beb098277c2b81866bbe";
 const TIMESTAMP_OPERATOR_MIGRATION = "20260831081000_fix_verified_no_change_timestamp_guard_jsonb_operator.sql";
@@ -518,6 +525,49 @@ test("production CLI defaults to an explicit owner credential and production wor
   assert.equal(path.basename(parsed.workdir), "supabase-production-selected");
 });
 
+test("process credential mode keeps the staging database URL out of files and copies only required keys", () => {
+  const parsed = parseArgs([
+    "--environment=STAGING",
+    `--project-ref=${CONTRACTS.STAGING.projectRef}`,
+    "--credential-source=process",
+  ]);
+  assert.equal(parsed.credentialSource, "process");
+  assert.equal(parsed.envFile, null);
+
+  const environment = loadCredentialEnvironment(parsed, CONTRACTS.STAGING, {
+    SUPPLEMENTSCOUT_STAGING_PROJECT_REF: CONTRACTS.STAGING.projectRef,
+    SUPPLEMENTSCOUT_STAGING_DATABASE_URL: "postgresql://masked-in-memory-only",
+    SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL: "must-not-cross-boundary",
+    UNRELATED_SECRET: "must-not-be-copied",
+  });
+  assert.deepEqual(environment, {
+    SUPPLEMENTSCOUT_STAGING_PROJECT_REF: CONTRACTS.STAGING.projectRef,
+    SUPPLEMENTSCOUT_STAGING_DATABASE_URL: "postgresql://masked-in-memory-only",
+  });
+  assert.ok(!Object.hasOwn(environment, "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL"));
+  assert.ok(!Object.hasOwn(environment, "UNRELATED_SECRET"));
+});
+
+test("process credential mode rejects an environment file and unknown credential sources", () => {
+  const required = ["--environment=STAGING", `--project-ref=${CONTRACTS.STAGING.projectRef}`];
+  assert.throws(
+    () => parseArgs([...required, "--credential-source=process", "--env-file=.env"]),
+    /cannot use an environment file/,
+  );
+  assert.throws(
+    () => parseArgs([...required, "--credential-source=command-line"]),
+    /must be file or process/,
+  );
+  assert.throws(
+    () => parseArgs([
+      "--environment=PRODUCTION",
+      `--project-ref=${CONTRACTS.PRODUCTION.projectRef}`,
+      "--credential-source=process",
+    ]),
+    /staging-only/,
+  );
+});
+
 test("production owner guard rejects service role and accepts postgres only", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.throws(
@@ -539,6 +589,70 @@ test("RA-004 interfaces remain SHA-bound and excluded from staging and productio
     assert.ok(!CONTRACTS.STAGING.pending.some((entry) => entry.filename === filename));
     assert.ok(!CONTRACTS.PRODUCTION.pending.some((entry) => entry.filename === filename));
   }
+});
+
+test("RA-004 activation selects exactly the two approved staging migrations and defers every unrelated pending migration", () => {
+  assert.deepEqual(validateActivationManifest(CONTRACT, RA004_ACTIVATION), [
+    RA004_CONTROL_STATE_MIGRATION,
+    RA004_PREFLIGHT_MIGRATION,
+  ]);
+  const result = validateSelection(validInput({ activationManifest: RA004_ACTIVATION }));
+  assert.equal(result.activation_schema, "ra-004-staging-migration-activation-v1");
+  assert.equal(result.activation_id, "ra004-staging-interfaces-2026-09-25-v2");
+  assert.deepEqual(result.pending_files, [RA004_CONTROL_STATE_MIGRATION, RA004_PREFLIGHT_MIGRATION]);
+  assert.deepEqual(result.pending_sha256s, {
+    [RA004_CONTROL_STATE_MIGRATION]: "cfd7a93cb20845832b696183f5eb8a500f0474b4173829b85f6ac6bc73d4baaa",
+    [RA004_PREFLIGHT_MIGRATION]: "9d6c1ea4df0bd86f84a4cb779a0824922f4e9bcc91681b734d5d18465a9e91be",
+  });
+  assert.equal(result.selected_files.length, 96);
+  assert.ok(result.selected_files.includes(RA004_CONTROL_STATE_MIGRATION));
+  assert.ok(result.selected_files.includes(RA004_PREFLIGHT_MIGRATION));
+  for (const pending of CONTRACT.pending) {
+    assert.ok(!result.selected_files.includes(pending.filename));
+    assert.ok(result.excluded_files.includes(pending.filename));
+  }
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+
+  const root = temporaryRoot();
+  const workdir = path.join(root, "selected");
+  materializeSelectedWorkdir({
+    selection: result,
+    sourceDir: SOURCE,
+    configFile: CONFIG,
+    workdir,
+    allowedWorkdirRoot: root,
+  });
+  const copied = fs.readdirSync(path.join(workdir, "supabase", "migrations")).sort();
+  assert.deepEqual(copied, result.selected_files);
+  const manifest = JSON.parse(fs.readFileSync(path.join(workdir, "selection-manifest.json"), "utf8"));
+  assert.equal(manifest.activation_id, RA004_ACTIVATION.activation_id);
+  assert.deepEqual(manifest.pending_files, [RA004_CONTROL_STATE_MIGRATION, RA004_PREFLIGHT_MIGRATION]);
+});
+
+test("RA-004 activation fails closed for baseline, production, target, SHA and unrelated pending drift", () => {
+  const clone = () => JSON.parse(JSON.stringify(RA004_ACTIVATION));
+  const baselineDrift = clone();
+  baselineDrift.baseline_sha = "0".repeat(40);
+  assert.throws(() => validateSelection(validInput({ activationManifest: baselineDrift })), /baseline/);
+
+  const targetDrift = clone();
+  targetDrift.target.project_ref = CONTRACTS.PRODUCTION.projectRef;
+  assert.throws(() => validateSelection(validInput({ activationManifest: targetDrift })), /project ref/);
+
+  const shaDrift = clone();
+  shaDrift.migrations[0].sha256 = "0".repeat(64);
+  assert.throws(() => validateSelection(validInput({ activationManifest: shaDrift })), /SHA-256/);
+
+  const extra = clone();
+  extra.migrations.push(CONTRACT.pending[0]);
+  assert.throws(() => validateSelection(validInput({ activationManifest: extra })), /migration count/);
+
+  assert.throws(() => parseArgs([
+    "--environment=PRODUCTION",
+    `--project-ref=${CONTRACTS.PRODUCTION.projectRef}`,
+    `--activation-manifest=${RA004_ACTIVATION_FILE}`,
+  ]), /staging-only/);
 });
 
 test("staging output reports the review queue, retry and nutrition migrations as pending", () => {
