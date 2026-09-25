@@ -1,0 +1,81 @@
+{
+  "schema_version": "ra-004-staging-migration-activation-v1",
+  "status": "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED",
+  "task_id": "RA-004",
+  "activation_id": "ra004-staging-interfaces-2026-09-25-v1",
+  "prepared_at": "2026-09-25",
+  "baseline_sha": "3def19840000338eb7841e79c2b4e92b0da5e31b",
+  "authorization": {
+    "owner": "Marek Kalinka",
+    "source": "explicit owner instruction in the RA-004 staging execution continuation",
+    "scope": "one guarded staging-only application of exactly two RA-004 interface migrations",
+    "production_authorized": false
+  },
+  "target": {
+    "environment": "STAGING",
+    "parent_project_ref": "aftboxmrdgyhizicfsfu",
+    "project_ref": "hxnrsyyqffztlvcrtgbf",
+    "environment_label": "SupplementScout Staging",
+    "persistent_branch": true
+  },
+  "migrations": [
+    {
+      "filename": "20260924100000_add_transactional_retailer_control_state_interface.sql",
+      "sha256": "cfd7a93cb20845832b696183f5eb8a500f0474b4173829b85f6ac6bc73d4baaa"
+    },
+    {
+      "filename": "20260925100000_add_ra004_staging_preflight_metadata_interface.sql",
+      "sha256": "9d6c1ea4df0bd86f84a4cb779a0824922f4e9bcc91681b734d5d18465a9e91be"
+    }
+  ],
+  "deferred_pending_migrations": [
+    {
+      "filename": "20260831110000_create_automation_review_queue_publication_rpc.sql",
+      "sha256": "8680e3303a8b4b22025f85af83a59a8dafbebc91e97719e423af8dff79f28409"
+    },
+    {
+      "filename": "20260910193000_allow_automation_review_retry_revisions.sql",
+      "sha256": "ddfb939887df1793f554adc1e4f171b64b3ba2549a4d3651bd339947d7bc496b"
+    },
+    {
+      "filename": "20260911120000_add_nutrition_candidate_variant_provenance.sql",
+      "sha256": "62a7a5dd812d4559889d7392217095b67841d1d6db37e5519ee6e1593bc207cb"
+    },
+    {
+      "filename": "20260911130000_add_nutrition_candidate_preworkout_facts.sql",
+      "sha256": "76db080b347dfffd36a8233c1d8f9725421b9caf2e445d56579833898b6428d5"
+    },
+    {
+      "filename": "20260911150000_add_nutrition_candidate_structured_creatine.sql",
+      "sha256": "dc9a411d19cb3547b508744c6dab21fb0df741e30f896cb186de6b38639ce28c"
+    },
+    {
+      "filename": "20260913110000_add_nutrition_candidate_citrulline_components.sql",
+      "sha256": "76dd8390e19f45dd8ffcc69bafe9721abc6dedff6db280fdc6f75e3938258ac4"
+    },
+    {
+      "filename": "20260920150000_add_nutrition_candidate_creatine_components.sql",
+      "sha256": "c68dac262928ac1ebf971fd8cb838468f38376ebb7c43d8f426884adc200200b"
+    }
+  ],
+  "apply": {
+    "maximum_attempts": 1,
+    "automatic_retry": false,
+    "manual_retry": false,
+    "selected_pending_count": 2,
+    "deferred_pending_count": 7,
+    "requires_fresh_ledger_attestation": true,
+    "requires_exact_database_target_attestation": true
+  },
+  "production": {
+    "authorized": false,
+    "selector_unchanged": true,
+    "migration_count": 0
+  },
+  "execution": {
+    "started": false,
+    "window_started_at": null,
+    "window_expires_at": null,
+    "application_attempt_count": 0
+  }
+}
