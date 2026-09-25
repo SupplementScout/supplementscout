@@ -7,6 +7,7 @@ const { authorizationFingerprint, validateAuthorization } = require("./lib/retai
 const { createReadOnlyCapability, exportControlState, redact, writeArtifact } = require("./lib/retailer-offer-sync/control-state-export-v1/exporter");
 const { FixtureControlStateProvider, createLiveReadOnlyProvider } = require("./lib/retailer-offer-sync/control-state-export-v1/providers");
 const { PROHIBITED_OPERATIONS, SOURCE_NAMES, SOURCE_REGISTRY } = require("./lib/retailer-offer-sync/control-state-export-v1/schema");
+const { createControlStatePostgresTransport } = require("./lib/retailer-offer-sync/ra004-bounded-live-transport-v1");
 const { run: runCli } = require("./retailer-control-state-export");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -135,6 +136,80 @@ test("live provider calls the allowlisted RPC exactly once and rejects a second 
   await provider.readSnapshot({ retailer_id: "14", retailer_name: "10 Reps", baseline_sha: BASELINE, authorization_fingerprint: "a".repeat(64), authorization_valid_until: "2026-09-24T13:00:00.000Z" });
   await assert.rejects(() => provider.readSnapshot({}), /CONTROL_EXPORT_READ_LIMIT_EXCEEDED/);
   assert.equal(calls, 1);
+});
+test("bounded control-state transport performs one exact transaction and closes the client", async () => {
+  const expectedSessionUser = liveConfiguration().expected_session_user;
+  const capture = { queries: [], connect_count: 0, end_count: 0 };
+  class FakeClient {
+    constructor(options) { capture.options = options; }
+    async connect() { capture.connect_count += 1; }
+    async query(query) {
+      capture.queries.push(query);
+      if (typeof query === "string") return { rowCount: 0, rows: [] };
+      return { rowCount: 1, rows: [{ session_user: expectedSessionUser, transaction_read_only: "on", data: { safe: true } }] };
+    }
+    async end() { capture.end_count += 1; }
+  }
+  const transport = createControlStatePostgresTransport({
+    databaseUrl: `postgresql://${expectedSessionUser}.ra004-local-synthetic:fixture-password@aws-0.test.pooler.supabase.com:5432/postgres`,
+    projectReference: "ra004-local-synthetic",
+    expectedSessionUser,
+  }, { ClientClass: FakeClient });
+  const parameters = {
+    p_retailer_id: 14, p_retailer_name: "10 Reps", p_baseline_sha: BASELINE,
+    p_authorization_fingerprint: "a".repeat(64), p_authorization_valid_until: "2026-09-24T13:00:00.000Z",
+    p_required_sources: [...SOURCE_NAMES], p_max_records: 10000, p_max_bytes: 8388608,
+  };
+  const response = await transport.callReadOnlyRpc({ function_name: "public.read_retailer_control_state_v1", expected_session_user: expectedSessionUser, parameters });
+  assert.equal(response.transaction_read_only, true);
+  assert.deepEqual(response.data, { safe: true });
+  assert.equal(capture.connect_count, 1);
+  assert.equal(capture.end_count, 1);
+  assert.match(capture.queries.find((query) => typeof query === "object").text, /read_retailer_control_state_v1\(\$1,\$2,\$3,\$4,\$5,\$6,\$7,\$8\)/);
+  assert.doesNotMatch(JSON.stringify(response), /fixture-password|postgresql:\/\//);
+  await assert.rejects(() => transport.callReadOnlyRpc({}), /may be called once/);
+});
+test("live control-state CLI accepts only the injected bounded transport", async () => {
+  const auth = liveAuthorization();
+  const expectedSessionUser = liveConfiguration().expected_session_user;
+  const fixtureReport = await run();
+  const descriptor = {
+    mode: "live-read-only", provider_id: "transactional-rpc-v1",
+    credential_type: "DEDICATED_CONTROL_STATE_EXPORTER", session_user: expectedSessionUser,
+    read_only_proven: true, service_role: false, mutation_capabilities: [],
+    approved_interfaces: ["public.read_retailer_control_state_v1"],
+  };
+  const response = { ...fixtureReport, authorization_fingerprint: auth.authorization_fingerprint, provider_identity: descriptor, read_attempt_count: 1 };
+  class FakeClient {
+    async connect() {}
+    async query(query) {
+      if (typeof query === "string") return { rowCount: 0, rows: [] };
+      return { rowCount: 1, rows: [{ session_user: expectedSessionUser, transaction_read_only: "on", data: response }] };
+    }
+    async end() {}
+  }
+  const transport = createControlStatePostgresTransport({
+    databaseUrl: `postgresql://${expectedSessionUser}.ra004-local-synthetic:fixture-password@aws-0.test.pooler.supabase.com:5432/postgres`,
+    projectReference: "ra004-local-synthetic",
+    expectedSessionUser,
+  }, { ClientClass: FakeClient });
+  const parent = path.join(ROOT, "tmp", "control-state-exports");
+  fs.mkdirSync(parent, { recursive: true });
+  const dir = fs.mkdtempSync(path.join(parent, "live-transport-test-"));
+  const authPath = path.join(dir, "authorization.json");
+  const providerPath = path.join(dir, "provider.json");
+  const output = path.join(dir, "state.json");
+  fs.writeFileSync(authPath, JSON.stringify(auth));
+  fs.writeFileSync(providerPath, JSON.stringify(liveConfiguration()));
+  try {
+    const result = await runCli([
+      "--retailer-id=14", "--retailer-name=10 Reps", `--authorization=${authPath}`,
+      `--output=${output}`, `--baseline=${BASELINE}`, "--provider-mode=live-read-only",
+      `--provider-config=${providerPath}`,
+    ], NOW, { transport });
+    assert.equal(fs.existsSync(result.path), true);
+    assert.equal(JSON.parse(fs.readFileSync(result.path, "utf8")).provider_identity.provider_id, "transactional-rpc-v1");
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 test("live exporter accepts a valid fake transactional response and fails closed on schema drift", async () => {
   const auth = liveAuthorization();

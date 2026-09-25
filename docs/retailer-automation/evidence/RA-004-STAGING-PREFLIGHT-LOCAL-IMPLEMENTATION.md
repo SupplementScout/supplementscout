@@ -34,8 +34,10 @@ The implementation has four closed layers:
    successful closeout, so a failed revoke cannot leave a false PASS artifact.
 4. A standalone unwired CLI requires every target and fingerprint explicitly.
    The current authorization manifest is rejected before the first capability
-   attempt because execution remains `NOT_AUTHORIZED`. The live Q1/Q8 transport
-   remains deliberately unimplemented pending approved target configuration.
+   attempt because execution remains `NOT_AUTHORIZED` in that historical pack.
+   A separately authorized follow-up now supplies the bounded live transport;
+   see `RA-004-BOUNDED-LIVE-TRANSPORT.md`. Target activation and execution remain
+   separate gates.
 
 Canonical JSON and SHA-256 use the existing
 `scripts/lib/stable-json-hash.js`; output redaction reuses the existing
@@ -84,14 +86,14 @@ deletion removes the synthetic login.
 
 | Query | Implementation | Execution status |
 |---|---|---|
-| Q1 project identity | One-shot `readProjectIdentity()` boundary with exact project and host allowlists | `BLOCKED_TARGET_CONFIGURATION`; no approved real values or transport |
+| Q1 project identity | One-shot `readProjectIdentity()` boundary with exact project and host allowlists | bounded attestation transport implemented in the separately reviewed follow-up; runtime value still required |
 | Q2 retailer identity | RPC returns only `id`, `name`, `slug`, `match_count`; zero or two matches fail | locally implemented |
 | Q3 migration ledger | RPC returns only target identity, match count, ordered count and canonical fingerprint; mismatch fails | locally implemented |
 | Q4 objects | Closed prerequisite/target registry, maximum 32 | locally implemented |
 | Q5 functions | Closed signatures, owners, security properties, search paths and definition digests, maximum 8 | locally implemented |
 | Q6 roles | Closed attributes and membership/`SET ROLE` edges, maximum 24 | locally implemented |
 | Q7 ACL/RLS | Closed function ACL and RA-004 policies, maximum 64; broad grants fail | locally implemented |
-| Q8 evidence store | One-shot `readEvidenceStoreMetadata()` boundary validated before database access | `BLOCKED_TARGET_CONFIGURATION`; no approved private store or transport |
+| Q8 evidence store | One-shot `readEvidenceStoreMetadata()` boundary validated before database access | bounded attestation transport implemented in the separately reviewed follow-up; runtime store proof still required |
 
 The still-open runtime inputs are the current approved staging project
 reference, canonical host allowlist, signed project-identity source, unique
@@ -119,7 +121,8 @@ capability, one revoke and one close, with zero retry and prohibited attempts.
 Second reads, connections or RPCs fail closed and increment denied counters.
 
 The CLI is `scripts/ra004-staging-preflight.js`. It has no default environment,
-live transport, secret loader, network client or SQL client. A safe synthetic
+secret loader or implicit live construction. The separately reviewed transport
+is injected programmatically only after authorization. A safe synthetic
 shape is:
 
 ```text

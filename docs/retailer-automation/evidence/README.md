@@ -26,6 +26,8 @@
 
 [RA-004 machine-readable staging-canary plan](RA-004-staging-canary-plan.json)
 
+[RA-004 bounded preflight and control-state live transport](RA-004-BOUNDED-LIVE-TRANSPORT.md)
+
 RA-002 was independently verified on 23 September 2026 in PR #86. RA-003 was
 independently verified on 24 September 2026 in PR #87. Their local test and
 contract modules remain unwired from production. RA-004 is `IN_PROGRESS`; its
@@ -114,6 +116,15 @@ counter, error-redaction and pre-revoke evidence gaps and repeated both isolated
 PostgreSQL tests. RA-004 remains `IN_PROGRESS`; execution remains
 `NOT_AUTHORIZED`. The next task is one concrete future activation record only,
 without connecting during this closeout.
+
+The bounded live transport follow-up is `READY_FOR_VERIFICATION`. It supplies
+only the missing one-call PostgreSQL adapters for the existing preflight and
+control-state providers. Database URLs remain process-memory inputs; the module
+has no environment/file secret loader, general SQL surface, retry, workflow or
+service-role path. It requires exact staging project/login binding, read-only
+session proof, one static RPC and a distinct issuer-process revoke proof for the
+preflight credential. Both migrations remain excluded from staging and
+production, no activation path is open, and no remote execution occurred.
 
 The fixture-only implementation is preserved in PR #89. Marek approved
 the transactional interface for isolated local implementation. The migration
