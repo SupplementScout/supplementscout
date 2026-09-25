@@ -6,7 +6,7 @@
   "owner_decision_manifest_fingerprint": "030c9d7cb12b46ab0b2bca2311ffbe1456e1c579e9e3acd570a4c0766ead119c",
   "staging_canary_plan_fingerprint": "bd5c259941997daad3755c1cb135f76f6eccaef1fb9e1ce0044939ce08439214",
   "pack_preparation_status": "AUTHORIZED",
-  "pack_verification_status": "OWNER_DECISIONS_RECORDED_AWAITING_FINAL_VERIFICATION",
+  "pack_verification_status": "VERIFIED_COMPLETE",
   "owner_decision_status": "OWNER_APPROVED_FOR_FUTURE_PREPARATION",
   "local_implementation_preparation_status": "AUTHORIZED",
   "control_plane_read_status": "NOT_AUTHORIZED",
@@ -407,7 +407,7 @@
       "does_not_authorize": ["canary credential", "existing validator/approver/executor credential", "production", "table access", "SET ROLE", "credential reuse"],
       "future_execution_validity_if_separately_authorized": "from recorded issuance until first use, expiry or immediate revocation, whichever occurs first",
       "future_execution_expiry_if_separately_authorized": ["TTL expiry", "preflight completion or failure", "privilege mismatch", "secret exposure", "window end"],
-      "recorded_owner_answer_effect": "design and future preparation are approved; no login, role membership, password, token or secret may be created or used"
+      "recorded_owner_answer_effect": "design and future preparation are approved; credential issuance and credential use remain NOT_AUTHORIZED; no login, role membership, password, token or secret may be created or used"
     },
     {
       "id": "D4",
@@ -421,7 +421,7 @@
       "does_not_authorize": ["self-issuance by operator", "unnamed substitute", "window extension", "automatic scheduling", "workflow dispatch"],
       "future_execution_validity_if_separately_authorized": "only the named people and exact UTC window",
       "future_execution_expiry_if_separately_authorized": ["window end", "person substitution", "role conflict", "repository or authorization change"],
-      "recorded_owner_answer_effect": "separation requirements are approved; the unknown people and window remain unapproved and no issuance or preflight attempt may begin"
+      "recorded_owner_answer_effect": "separation requirements are approved; the unknown people and window remain unapproved; credential issuance and preflight execution remain NOT_AUTHORIZED"
     },
     {
       "id": "D5",
@@ -435,7 +435,7 @@
       "does_not_authorize": ["secret storage", "raw business data", "public artifacts", "unrelated project or retailer metadata", "live export"],
       "future_execution_validity_if_separately_authorized": "one evidence bundle for this preflight and the already approved retention periods",
       "future_execution_expiry_if_separately_authorized": ["store approval withdrawal", "retention/configuration drift", "redaction failure", "missing readback capability"],
-      "recorded_owner_answer_effect": "evidence requirements are approved; the unknown store remains unapproved and preflight remains blocked before connection"
+      "recorded_owner_answer_effect": "evidence requirements are approved; the unknown store remains unapproved; preflight execution remains NOT_AUTHORIZED and blocked before connection"
     }
   ],
   "stop_conditions": [
@@ -492,11 +492,11 @@
     "secret and credential access",
     "live exporter, feed capture, workflow dispatch and shadow execution"
   ],
-  "next_task": "Independently verify the recorded owner decisions in a new clean worktree.",
+  "next_task": "Prepare one consolidated local implementation PR covering the metadata-only RPC, minimal role, closed provider, CLI and tests, without deploying to staging.",
   "manifest_fingerprint": {
     "algorithm": "SHA-256",
     "canonicalization": "scripts/lib/stable-json-hash.js canonical JSON",
     "covers": "all root fields except manifest_fingerprint",
-    "value": "f6ee5dfbc997ba72984288fbb46e4440d50aef357ed5265462eafb427df8a079"
+    "value": "b0cb6c6de75eace4e7d4d8705305eb90e6a975203438f23de7b745974e4ffdb8"
   }
 }

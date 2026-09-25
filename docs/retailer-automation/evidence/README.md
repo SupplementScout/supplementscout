@@ -69,8 +69,8 @@ authorization package for a bounded read-only staging preflight, without
 connecting to staging as part of this closeout.
 
 The separate staging-preflight authorization pack is documentation and owner
-decision preparation only. Its preparation status is `AUTHORIZED`, independent
-verification is pending after decision recording, and all five owner decisions
+decision preparation only. Its preparation status is `AUTHORIZED`, final
+owner-decision verification is `VERIFIED_COMPLETE`, and all five owner decisions
 are `OWNER_APPROVED_FOR_FUTURE_PREPARATION`. Marek Kalinka recorded the exact
 approval on 25 September 2026 through `EXPLICIT_OWNER_INSTRUCTION`. Local
 implementation preparation in one later separate PR is `AUTHORIZED`; staging
@@ -90,10 +90,14 @@ rejected all 12 controlled mutations and sealed final fingerprint
 Project Guardian, 89 focused tests, TypeScript, ESLint, `verify:quick` and
 `verify:full` including the production build passed. Integration, SQL/database,
 Supabase CLI and staging/production access were skipped by design. The next
-task is independent final verification of the recorded decisions in a new clean
-worktree. The approval does not expire or expand automatically, all execution
+Final independent verification in a second clean detached worktree rejected all
+15 controlled mutations and passed Project Guardian, 89 focused tests,
+TypeScript, ESLint, `verify:quick` and `verify:full`, including the production
+build. The approval does not expire or expand automatically, all execution
 values remain unapproved and `UNRESOLVED`, and no staging access or execution is
-authorized.
+authorized. The next task is one consolidated local implementation PR for the
+metadata-only RPC, minimal role, closed provider, CLI and tests, without staging
+deployment.
 
 The fixture-only implementation is preserved in PR #89. Marek approved
 the transactional interface for isolated local implementation. The migration

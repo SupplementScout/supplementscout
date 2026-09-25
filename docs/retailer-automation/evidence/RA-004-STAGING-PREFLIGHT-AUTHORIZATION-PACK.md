@@ -8,7 +8,7 @@
 
 **Pack preparation:** `AUTHORIZED`
 
-**Pack verification:** `OWNER_DECISIONS_RECORDED_AWAITING_FINAL_VERIFICATION`
+**Pack verification:** `VERIFIED_COMPLETE`
 
 **Owner decision:** `OWNER_APPROVED_FOR_FUTURE_PREPARATION`
 
@@ -28,7 +28,7 @@
 
 **Staging-canary plan fingerprint:** `bd5c259941997daad3755c1cb135f76f6eccaef1fb9e1ce0044939ce08439214`
 
-**Authorization-pack fingerprint:** `f6ee5dfbc997ba72984288fbb46e4440d50aef357ed5265462eafb427df8a079`
+**Authorization-pack fingerprint:** `b0cb6c6de75eace4e7d4d8705305eb90e6a975203438f23de7b745974e4ffdb8`
 
 Machine-readable contract:
 [`RA-004-staging-preflight-authorization.json`](RA-004-staging-preflight-authorization.json).
@@ -430,6 +430,17 @@ fingerprint is
 Integration, SQL/database tests, Supabase CLI and all staging/production access
 were skipped by design, not counted as passes.
 
-The next and only task is independent verification of the recorded owner
-decisions in a new clean worktree. Do not connect to staging, issue a credential
-or execute the preflight during that verification.
+Final independent verification used a second clean detached worktree at owner
+decision commit `20053e88d0a1fc6616189771d421c953bc0118c9`. It independently
+confirmed the exact owner instruction, D1-D5, all execution prohibitions, five
+open interface gaps, ten `UNRESOLVED` values, migration SHA and both selector
+exclusions. All 15 controlled mutations were rejected. Project Guardian, 89
+focused exporter/selector tests, TypeScript, ESLint, `verify:quick` and
+`verify:full`, including the production build, passed. Integration,
+SQL/database tests, Supabase CLI and staging/production access were skipped by
+design and were not counted as passes.
+
+The next and only task is to prepare one consolidated local implementation PR
+covering the metadata-only RPC, minimal role, closed provider, CLI and tests,
+without deploying to staging. Do not issue a credential, connect to staging or
+execute the preflight.
