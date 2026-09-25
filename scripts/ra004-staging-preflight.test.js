@@ -5,15 +5,15 @@ const path = require("node:path");
 const test = require("node:test");
 const {
   CONTROL_MIGRATION, CURRENT_DECISION_FINGERPRINT, PREFLIGHT_MIGRATION, ROOT,
-  authorizationFingerprint, fileSha, postgresJsonbText, validateAuthorization,
-  validateMetadata,
+  authorizationFingerprint, fileSha, postgresJsonbText, redact, validateAuthorization,
+  validateCounters, validateEvidenceStore, validateMetadata, validateProjectIdentity,
 } = require("./lib/retailer-offer-sync/ra004-staging-preflight-v1/contract");
 const { LocalFixtureTransport } = require("./lib/retailer-offer-sync/ra004-staging-preflight-v1/fixture-transport");
 const { createClosedProvider } = require("./lib/retailer-offer-sync/ra004-staging-preflight-v1/provider");
 const { runPreflight } = require("./lib/retailer-offer-sync/ra004-staging-preflight-v1/runner");
 const { writeOnce } = require("./lib/retailer-offer-sync/ra004-staging-preflight-v1/evidence");
 const { sha256 } = require("./lib/stable-json-hash");
-const { run: runCli } = require("./ra004-staging-preflight");
+const { parseArgs, readAuthorization, run: runCli } = require("./ra004-staging-preflight");
 
 const NOW = "2026-09-25T12:00:00.000Z";
 const BASELINE = "509ffb51079855f628fdf3dd19996021dc0d2bb9";
@@ -75,7 +75,7 @@ function metadataReseal(value) { value.metadata_fingerprint = "0".repeat(64); va
 
 test("synthetic happy path seals report, readback and revoke receipt with full counters", async () => {
   const result = await positive();
-  assert.equal(result.report.status, "PASS_METADATA_ONLY"); assert.equal(result.receipt.status, "REVOKED_AND_CLOSED");
+  assert.equal(result.report.status, "METADATA_CAPTURED_PENDING_REVOKE"); assert.equal(result.receipt.status, "REVOKED_AND_CLOSED");
   assert.deepEqual(Object.keys(result.receipt.capability_counters).sort(), ["close","connection","evidence_store","metadata_rpc","prohibited","project_identity","retry","revoke"].sort());
   for (const name of ["project_identity","evidence_store","connection","metadata_rpc","revoke","close"]) assert.equal(result.receipt.capability_counters[name].performed_count, 1);
   for (const name of ["retry","prohibited"]) assert.equal(result.receipt.capability_counters[name].attempt_count, 0);
@@ -97,11 +97,17 @@ for (const [label, mutate, pattern] of [
   ["migration SHA mismatch", (a) => reseal({ ...a, control_migration: { ...a.control_migration, sha256: "3".repeat(64) } }), /migration SHA/],
   ["missing host allowlist", (a) => reseal({ ...a, target: { ...a.target, host_allowlist: [] } }), /allowlist/],
   ["production target", (a) => reseal({ ...a, target: { ...a.target, project_reference: "production-project", canonical_host: "production.invalid", host_allowlist: ["production.invalid"] } }), /production/],
+  ["production host", (a) => reseal({ ...a, target: { ...a.target, canonical_host: "production.example.com", host_allowlist: ["production.example.com"] } }), /production/],
+  ["localhost", (a) => reseal({ ...a, target: { ...a.target, canonical_host: "localhost.local", host_allowlist: ["localhost.local"] } }), /public DNS/],
+  ["private IP", (a) => reseal({ ...a, target: { ...a.target, canonical_host: "10.0.0.1", host_allowlist: ["10.0.0.1"] } }), /public DNS/],
+  ["host with protocol", (a) => reseal({ ...a, target: { ...a.target, canonical_host: "https://staging.example.com", host_allowlist: ["https://staging.example.com"] } }), /public DNS/],
+  ["host with credentials", (a) => reseal({ ...a, target: { ...a.target, canonical_host: "user:pass@staging.example.com", host_allowlist: ["user:pass@staging.example.com"] } }), /public DNS/],
   ["unknown target", (a) => reseal({ ...a, target: { ...a.target, project_reference: "unknown-project" } }), /unknown target/],
   ["missing operator", (a) => reseal({ ...a, operator: "" }), /operator/],
   ["missing issuer", (a) => reseal({ ...a, credential_issuer: "" }), /issuer/],
   ["window above 30 minutes", (a) => reseal({ ...a, window: { starts_at: "2026-09-25T11:40:00.000Z", expires_at: "2026-09-25T12:20:01.000Z" } }), /window/],
   ["wide credential", (a) => reseal({ ...a, credential_design: { ...a.credential_design, table_privileges: true } }), /credential/],
+  ["zero credential TTL", (a) => reseal({ ...a, credential_design: { ...a.credential_design, maximum_ttl_minutes: 0 } }), /credential/],
   ["forbidden role", (a) => reseal({ ...a, credential_design: { ...a.credential_design, role_name: "service_role" } }), /credential/],
   ["missing evidence store", (a) => { const b=clone(a); delete b.evidence_store; return b; }, /fields are not closed/],
   ["unknown authorization field", (a) => ({ ...a, extra: true }), /fields are not closed/],
@@ -124,13 +130,61 @@ test("arbitrary RPC, retry, SQL, mutation, secret loader and workflow transport 
 test("provider has only the four approved methods", () => assert.deepEqual(Object.keys(bundle().provider).sort(), ["callMetadataRpc","readEvidenceStoreMetadata","readProjectIdentity","revokeAndClose"].sort()));
 
 test("secret-shaped RPC output is rejected after fingerprint verification", async () => {
-  const custom=transport({ async callMetadataRpc(request) { const data=fixture().metadata; data.q4_objects[0].token="Bearer abcdefghijklmnop"; metadataReseal(data); return {function_name:request.function_name,session_user:"ra004_local_fixture_login",transaction_read_only:true,data}; } });
+  const syntheticToken=["Bea","rer ","abcdefghijklmnop"].join("");
+  const custom=transport({ async callMetadataRpc(request) { const data=fixture().metadata; data.q4_objects[0].token=syntheticToken; metadataReseal(data); return {function_name:request.function_name,session_user:"ra004_local_fixture_login",transaction_read_only:true,data}; } });
   await assert.rejects(() => positive({providerBundle:bundle(custom)}), /METADATA_INVALID/);
 });
 test("closed metadata schema rejects an unknown root field", () => { const data=fixture().metadata; data.extra=true; assert.throws(() => validateMetadata(data), /fields are not closed/); });
+test("closed metadata runtime rejects nested drift, unsafe roles, policy drift and unsafe numbers", () => {
+  for (const mutate of [
+    (data)=>{data.q4_objects[0].extra=true;},
+    (data)=>{data.q5_functions[0].search_path=["search_path=public"];},
+    (data)=>{data.q6_roles.find((role)=>role.role_name==="ra004_staging_preflight_owner").rolsuper=true;},
+    (data)=>{data.q7_acl_rls.find((row)=>row.policy_name==="ra004_staging_preflight_retailer_read_v1").policy_roles=["PUBLIC"];},
+    (data)=>{data.q7_acl_rls.find((row)=>row.policy_name==="ra004_staging_preflight_retailer_read_v1").policy_using="true";},
+    (data)=>{data.q3_migration_ledger.ordered_ledger_count=Number.POSITIVE_INFINITY;},
+  ]) { const data=fixture().metadata; mutate(data); metadataReseal(data); assert.throws(()=>validateMetadata(data,"ra004_local_fixture_login"),/METADATA_INVALID/); }
+});
+test("Q1 and Q8 fingerprints are recomputed instead of trusted", () => {
+  const data=fixture();
+  data.project_identity.project_reference="changed-project";
+  assert.throws(()=>validateProjectIdentity(data.project_identity),/identity mismatch/);
+  data.evidence_store.approved_by="changed-custodian";
+  assert.throws(()=>validateEvidenceStore(data.evidence_store),/not approved/);
+});
+test("capability counters reject NaN, infinity, unsafe ranges and forged arithmetic", () => {
+  const base={project_identity:{attempt_count:0,performed_count:0,denied_count:0},evidence_store:{attempt_count:0,performed_count:0,denied_count:0},connection:{attempt_count:0,performed_count:0,denied_count:0},metadata_rpc:{attempt_count:0,performed_count:0,denied_count:0},revoke:{attempt_count:0,performed_count:0,denied_count:0},close:{attempt_count:0,performed_count:0,denied_count:0},retry:{attempt_count:0,performed_count:0,denied_count:0},prohibited:{attempt_count:0,performed_count:0,denied_count:0}};
+  for(const value of [NaN,Infinity,Number.MAX_SAFE_INTEGER,2]){const changed=clone(base);changed.retry.attempt_count=value;assert.throws(()=>validateCounters(changed),/counter retry/);}
+  const forged=clone(base);forged.retry.attempt_count=1;assert.throws(()=>validateCounters(forged),/counter retry/);
+});
+test("nested tokens, passwords, connection strings, headers and cookies are redacted or rejected", () => {
+  const syntheticAuthorization=["Bea","rer ","abcdefghijklmnop"].join("");
+  const value={token:"abc",nested:[{password:"def"},{authorization_header:syntheticAuthorization},{cookie:"sid=abc"},{safe:"postgres://user:pass@example.invalid/db"}]};
+  const redacted=redact(value); assert.equal(redacted.token,"[REDACTED]"); assert.equal(redacted.nested[0].password,"[REDACTED]"); assert.equal(redacted.nested[1].authorization_header,"[REDACTED]"); assert.equal(redacted.nested[2].cookie,"[REDACTED]"); assert.equal(redacted.nested[3].safe,"[REDACTED]");
+});
 test("write-once evidence refuses overwrite", () => { const t=tempOutput(); try { writeOnce(t.output,{safe:true}); assert.throws(() => writeOnce(t.output,{safe:true}), /OUTPUT_EXISTS/); } finally { fs.rmSync(t.dir,{recursive:true,force:true}); } });
 test("failed evidence readback fails closed and still revokes", async () => { const b=bundle(); await assert.rejects(() => positive({providerBundle:b,evidenceOptions:{forceReadbackFailure:true}}), /READBACK_FAILED/); assert.equal(b.snapshotCounters().revoke.performed_count,1); assert.equal(b.snapshotCounters().close.performed_count,1); });
-test("missing revoke proof fails closed while close still runs", async () => { const b=bundle(transport({async revoke(){return {access_revoked:false};}})); await assert.rejects(() => positive({providerBundle:b}), /REVOKE_FAILED/); assert.equal(b.snapshotCounters().close.performed_count,1); });
+test("missing revoke proof fails closed while close still runs and leaves no false PASS report", async () => {
+  const b=bundle(transport({async revoke(){return {access_revoked:false};}})), target=tempOutput();
+  try { await assert.rejects(()=>runPreflight({authorization:authorization(),expected:expected(),providerBundle:b,outputPath:target.output,now:NOW}),/REVOKE_FAILED/); const persisted=JSON.parse(fs.readFileSync(target.output,"utf8")); assert.equal(persisted.status,"METADATA_CAPTURED_PENDING_REVOKE"); assert.equal(fs.existsSync(`${target.output}.revoke.json`),false); assert.equal(b.snapshotCounters().close.performed_count,1); }
+  finally { fs.rmSync(target.dir,{recursive:true,force:true}); }
+});
+test("an error after the RPC still revokes and closes", async () => {
+  const b=bundle(transport({async callMetadataRpc(request){const data=fixture().metadata;data.q4_objects=[];metadataReseal(data);return {function_name:request.function_name,session_user:"ra004_local_fixture_login",transaction_read_only:true,data};}}));
+  await assert.rejects(()=>positive({providerBundle:b}),/METADATA_INVALID/); assert.equal(b.snapshotCounters().metadata_rpc.performed_count,1); assert.equal(b.snapshotCounters().revoke.performed_count,1); assert.equal(b.snapshotCounters().close.performed_count,1);
+});
+test("transport errors cannot leak passwords, authorization headers or cookies", async () => {
+  const syntheticAuthorization=["authorization: Bea","rer ","abcdefghijklmnop"].join("");
+  for (const secret of ["password=hunter2", syntheticAuthorization, "cookie=session-secret"]) {
+    const b=bundle(transport({async callMetadataRpc(){throw new Error(`source failed ${secret}`);}}));
+    await assert.rejects(()=>positive({providerBundle:b}),(error)=>!String(error.message).includes(secret.split(/[=:]/).at(-1).trim())&&String(error.message).includes("[REDACTED]"));
+    assert.equal(b.snapshotCounters().revoke.performed_count,1); assert.equal(b.snapshotCounters().close.performed_count,1);
+  }
+});
+test("forged provider counters cannot be sealed", async () => {
+  const b=bundle(), forged={provider:b.provider,snapshotCounters:()=>{const counters=b.snapshotCounters();counters.retry={attempt_count:1,performed_count:0,denied_count:0};return counters;}};
+  await assert.rejects(()=>positive({providerBundle:forged}),/counter retry/);
+});
 
 test("canonical fingerprints ignore key order, LF and CRLF", () => {
   const auth=authorization(); const reversed=Object.fromEntries(Object.entries(auth).reverse()); assert.equal(authorizationFingerprint(auth),authorizationFingerprint(reversed));
@@ -141,13 +195,20 @@ test("changed metadata is not accepted under the old fingerprint", () => { const
 
 test("all six versioned JSON schemas are closed and parseable", () => {
   const schemaRoot=path.join(__dirname,"lib/retailer-offer-sync/ra004-staging-preflight-v1/schemas"); const files=fs.readdirSync(schemaRoot).filter((name)=>name.endsWith(".schema.json")); assert.equal(files.length,6);
-  for(const file of files){ const schema=JSON.parse(fs.readFileSync(path.join(schemaRoot,file),"utf8")); assert.equal(schema.type,"object"); assert.equal(schema.additionalProperties,false); assert.ok(schema.required.length>0); }
+  function inspect(node,at){if(!node||typeof node!=="object")return; if(node.type==="string"&&!Object.hasOwn(node,"const")&&!Object.hasOwn(node,"pattern"))assert.ok(Number.isSafeInteger(node.maxLength),`${at} string is unbounded`); if(node.type==="integer"&&!Object.hasOwn(node,"const")){assert.ok(Number.isSafeInteger(node.minimum),`${at} integer minimum missing`);assert.ok(Number.isSafeInteger(node.maximum),`${at} integer maximum missing`);} for(const [key,child] of Object.entries(node))inspect(child,`${at}.${key}`);}
+  for(const file of files){ const schema=JSON.parse(fs.readFileSync(path.join(schemaRoot,file),"utf8")); assert.equal(schema.type,"object"); assert.equal(schema.additionalProperties,false); assert.ok(schema.required.length>0); inspect(schema,file); }
 });
 
 function cliArgs(authFile, output) { const e=expected(); return [`--authorization=${authFile}`,`--output=${output}`,`--baseline=${BASELINE}`,`--decision-fingerprint=${CURRENT_DECISION_FINGERPRINT}`,`--plan-fingerprint=${PLAN}`,`--control-migration-sha=${e.control_migration.sha256}`,`--preflight-migration-sha=${e.preflight_migration.sha256}`,"--project-reference=ra004-local-synthetic","--canonical-host=ra004-local.invalid","--host-allowlist=ra004-local.invalid","--retailer-name=10 Reps","--retailer-slug=10-reps","--provider-mode=fixture",`--fixture=${FIXTURE}`]; }
 test("CLI rejects the current authorization pack before transport construction", async () => { const t=tempOutput(); try { await assert.rejects(()=>runCli(cliArgs(CURRENT_MANIFEST,t.output),{get transport(){assert.fail("transport touched");}}),/UNAUTHORIZED/); } finally { fs.rmSync(t.dir,{recursive:true,force:true}); } });
 test("CLI requires an authorization manifest and explicit target values", async () => await assert.rejects(()=>runCli([]),/missing --authorization/));
-test("fixture CLI writes only local ignored evidence and revoke receipt", async () => { const t=tempOutput(), authFile=path.join(t.dir,"authorization.json"); fs.writeFileSync(authFile,JSON.stringify(authorization())); try { const result=await runCli(cliArgs(authFile,t.output),{now:NOW}); assert.equal(result.report.status,"PASS_METADATA_ONLY"); assert.ok(fs.existsSync(t.output)); assert.ok(fs.existsSync(`${t.output}.revoke.json`)); } finally { fs.rmSync(t.dir,{recursive:true,force:true}); } });
+test("fixture CLI writes only local ignored evidence and revoke receipt", async () => { const t=tempOutput(), authFile=path.join(t.dir,"authorization.json"); fs.writeFileSync(authFile,JSON.stringify(authorization())); try { const result=await runCli(cliArgs(authFile,t.output),{now:NOW}); assert.equal(result.receipt.status,"REVOKED_AND_CLOSED"); assert.ok(fs.existsSync(t.output)); assert.ok(fs.existsSync(`${t.output}.revoke.json`)); } finally { fs.rmSync(t.dir,{recursive:true,force:true}); } });
+test("CLI help, malformed arguments and authorization paths disclose no supplied secret", () => {
+  assert.throws(()=>parseArgs(["--help"]),/invalid or duplicate argument/);
+  const syntheticToken=["--unknown=Bea","rer ","abcdefghijklmnop"].join("");
+  assert.throws(()=>parseArgs([syntheticToken]),(error)=>!String(error.message).includes("abcdefghijklmnop"));
+  assert.throws(()=>readAuthorization(path.join(os.tmpdir(),"credentials.json")),/reviewed manifest or a test file below tmp/);
+});
 
 test("fixture transport cannot escape its local tracked fixture directory", () => assert.throws(()=>new LocalFixtureTransport(path.join(os.tmpdir(),"fixture.json")),/FIXTURE_BLOCKED/));
 

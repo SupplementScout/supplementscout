@@ -1,6 +1,6 @@
 # RA-004 staging preflight local implementation
 
-**Status:** `READY_FOR_VERIFICATION`
+**Status:** `VERIFIED_COMPLETE`
 
 **RA-004:** `IN_PROGRESS`
 
@@ -28,8 +28,10 @@ The implementation has four closed layers:
    retry, secret-loader or workflow capability.
 3. A fail-closed runner validates authorization and local immutable inputs
    before touching the provider, validates Q8 before Q1, performs one RPC,
-   validates and redacts the result, seals local write-once evidence, reads it
-   back, then revokes and closes access.
+   validates and redacts the result, seals local write-once evidence with the
+   non-final `METADATA_CAPTURED_PENDING_REVOKE` status, reads it back, then
+   revokes and closes access. Only the separate sealed revoke receipt proves a
+   successful closeout, so a failed revoke cannot leave a false PASS artifact.
 4. A standalone unwired CLI requires every target and fingerprint explicitly.
    The current authorization manifest is rejected before the first capability
    attempt because execution remains `NOT_AUTHORIZED`. The live Q1/Q8 transport
@@ -47,7 +49,7 @@ contains final capability counters.
 - Migration:
   `supabase/migrations/20260925100000_add_ra004_staging_preflight_metadata_interface.sql`
 - SHA-256:
-  `8b23d6ce056dcebcea8d24b12971f7114bcf4b8dd17e5e19c117b5b1cdadff18`
+  `9d6c1ea4df0bd86f84a4cb779a0824922f4e9bcc91681b734d5d18465a9e91be`
 - Existing control-state migration remains byte-identical at
   `cfd7a93cb20845832b696183f5eb8a500f0474b4173829b85f6ac6bc73d4baaa`.
 - RPC signature:
@@ -105,7 +107,9 @@ Six closed versioned JSON schemas cover execution authorization, project
 identity, metadata output, evidence-store metadata, final report and revoke
 receipt. Runtime validators reject unknown root and nested fields, malformed
 SHA-256 values, non-UTC timestamps, windows over 30 minutes, multiple retailers,
-secret-shaped keys or values and incomplete counters.
+secret-shaped keys or values, local/private/URL-shaped hosts, unbounded strings,
+unsafe numbers, policy-expression drift and incomplete or forged counters. Q1
+and Q8 metadata fingerprints are recomputed rather than trusted.
 
 Every capability records `attempt_count`, `performed_count` and `denied_count`
 independently for project identity, evidence store, database connection,
@@ -128,7 +132,7 @@ as `BLOCKED_TARGET_CONFIGURATION`.
 
 ## Local verification evidence
 
-- `node --test scripts/ra004-staging-preflight.test.js`: 38/38 PASS. It covers
+- `node --test scripts/ra004-staging-preflight.test.js`: 52/52 PASS. It covers
   the current manifest pre-capability stop, authorization, fingerprint, target,
   window and credential failures, all closed capability boundaries, schema and
   secret rejection, write-once/readback/revoke behavior, deterministic
@@ -159,14 +163,24 @@ Final repository-wide quality-gate results are recorded in the Draft PR after
 fresh execution. This document is local implementation evidence, not staging,
 production or live evidence.
 
+Independent verification used a new detached worktree, a separate `npm ci` and
+fresh random PostgreSQL 17 containers. It corrected seven bounded defect groups:
+local/private and URL-shaped targets; incomplete nested Q4-Q7 runtime checks;
+unbounded schema fields and counters; unverified Q1/Q8 fingerprints; incomplete
+owner/policy/overload drift checks; path-link and error-secret leakage; and a
+pre-revoke report that could otherwise appear final. The corrected migration
+has SHA-256
+`9d6c1ea4df0bd86f84a4cb779a0824922f4e9bcc91681b734d5d18465a9e91be`.
+
 ## Authorization boundary and next step
 
 RA-004 remains `IN_PROGRESS`. Local interface implementation is
-`READY_FOR_VERIFICATION`. Staging connection, control-plane or database reads,
+`VERIFIED_COMPLETE`. Staging connection, control-plane or database reads,
 credential issuance or use, preflight execution, migration application, canary,
 production, live export, feed capture, workflow dispatch, shadow run, control
 plan, approval, import, apply, Model B and cutover remain `NOT_AUTHORIZED`.
 Auto-safe classes remain `NONE_APPROVED`.
 
-The only next task is independent verification of the complete consolidated
-Draft PR. Verification must not deploy or execute the staging preflight.
+The only next task is to prepare one concrete future activation record with
+actual project, host, operator, issuer, window and evidence-store values. That
+future task must not connect or execute as part of this closeout.

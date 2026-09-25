@@ -100,7 +100,7 @@ metadata-only RPC, minimal role, closed provider, CLI and tests, without staging
 deployment.
 
 The consolidated staging-preflight local implementation is
-`READY_FOR_VERIFICATION`. It adds one bounded metadata-only Q2-Q7 RPC,
+`VERIFIED_COMPLETE`. It adds one bounded metadata-only Q2-Q7 RPC,
 dedicated `NOLOGIN NOINHERIT` roles, closed one-shot Q1/Q8 boundaries, a
 fail-closed runner and unwired CLI, six closed schemas, redacted write-once
 evidence, synthetic fixtures and an isolated PostgreSQL 17 integration test.
@@ -109,7 +109,11 @@ PRODUCTION selectors. Q1 and Q8 remain `BLOCKED_TARGET_CONFIGURATION`; no real
 target, credential, secret, staging or production connection, remote migration,
 live export or execution was created. See
 [`RA-004-STAGING-PREFLIGHT-LOCAL-IMPLEMENTATION.md`](RA-004-STAGING-PREFLIGHT-LOCAL-IMPLEMENTATION.md).
-The only next task is independent verification of the consolidated Draft PR.
+Independent verification corrected target-host, nested-schema, policy/ACL,
+counter, error-redaction and pre-revoke evidence gaps and repeated both isolated
+PostgreSQL tests. RA-004 remains `IN_PROGRESS`; execution remains
+`NOT_AUTHORIZED`. The next task is one concrete future activation record only,
+without connecting during this closeout.
 
 The fixture-only implementation is preserved in PR #89. Marek approved
 the transactional interface for isolated local implementation. The migration

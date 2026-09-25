@@ -291,7 +291,7 @@ or service-role credentials are not accepted as substitutes. Control-plane and
 database reads, staging connection, credential issuance/use, preflight,
 migration, canary, production, live export and shadow remain `NOT_AUTHORIZED`.
 
-**Staging-preflight local interface implementation:** `READY_FOR_VERIFICATION`.
+**Staging-preflight local interface implementation:** `VERIFIED_COMPLETE`.
 One consolidated local implementation now provides the metadata-only Q2-Q7
 RPC, dedicated `NOLOGIN NOINHERIT` roles, closed Q1/Q8 provider boundaries,
 fail-closed runner and CLI, six closed schemas, write-once redacted evidence,
@@ -301,6 +301,10 @@ excluded from STAGING and PRODUCTION deployment selectors. Q1 and Q8 remain
 `BLOCKED_TARGET_CONFIGURATION`; all staging, production and execution actions
 remain `NOT_AUTHORIZED`. See
 [`evidence/RA-004-STAGING-PREFLIGHT-LOCAL-IMPLEMENTATION.md`](evidence/RA-004-STAGING-PREFLIGHT-LOCAL-IMPLEMENTATION.md).
+Independent verification in a clean detached worktree corrected bounded target,
+nested-schema, ACL/policy and pre-revoke evidence gaps, then passed the focused
+regressions, both fresh networkless PostgreSQL 17 tests and repository quality
+gates. This closes only the local implementation; RA-004 remains `IN_PROGRESS`.
 
 Independent verification at initial head
 `0b2752ac60cd8e38659751a227487f328def574b` confirmed the initial manifest

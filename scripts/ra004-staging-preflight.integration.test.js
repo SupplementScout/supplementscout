@@ -64,11 +64,13 @@ test("RA-004 preflight migration and closed Q2-Q7 RPC pass in networkless Postgr
       'owner_login',(select rolcanlogin from pg_roles where rolname='ra004_staging_preflight_owner'),
       'caller_login',(select rolcanlogin from pg_roles where rolname='ra004_staging_preflight_caller'),
       'caller_inherit',(select rolinherit from pg_roles where rolname='ra004_staging_preflight_caller'),
+      'owner_safe',(select not (rolsuper or rolinherit or rolcreaterole or rolcreatedb or rolcanlogin or rolreplication or rolbypassrls) from pg_roles where rolname='ra004_staging_preflight_owner'),
+      'caller_safe',(select not (rolsuper or rolinherit or rolcreaterole or rolcreatedb or rolcanlogin or rolreplication or rolbypassrls) from pg_roles where rolname='ra004_staging_preflight_caller'),
       'public_execute',has_function_privilege('public',oid,'EXECUTE'),
       'caller_execute',has_function_privilege('ra004_staging_preflight_caller',oid,'EXECUTE'),
       'login_execute',has_function_privilege('ra004_preflight_test_login',oid,'EXECUTE')
     )::text from pg_proc where oid='public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer)'::regprocedure`),"function and role properties"));
-    assert.deepEqual(properties,{signature:true,owner:"ra004_staging_preflight_owner",security_definer:true,volatility:"s",path:["search_path=pg_catalog"],owner_login:false,caller_login:false,caller_inherit:false,public_execute:false,caller_execute:true,login_execute:true});
+    assert.deepEqual(properties,{signature:true,owner:"ra004_staging_preflight_owner",security_definer:true,volatility:"s",path:["search_path=pg_catalog"],owner_login:false,caller_login:false,caller_inherit:false,owner_safe:true,caller_safe:true,public_execute:false,caller_execute:true,login_execute:true});
     const broad=json(ok(sql(container,database,`select jsonb_build_object(
       'attributes',(select jsonb_build_object('super',rolsuper,'inherit',rolinherit,'createdb',rolcreatedb,'createrole',rolcreaterole,'replication',rolreplication,'bypassrls',rolbypassrls) from pg_roles where rolname='ra004_preflight_test_login'),
       'tables',(select count(*) from information_schema.table_privileges where grantee='ra004_preflight_test_login'),
@@ -77,6 +79,13 @@ test("RA-004 preflight migration and closed Q2-Q7 RPC pass in networkless Postgr
       'forbidden_rpc_count',(select count(*) from information_schema.routine_privileges where grantee='ra004_preflight_test_login' and routine_name<>'read_ra004_staging_preflight_v1')
     )::text`),"effective login boundary"));
     assert.deepEqual(broad,{attributes:{super:false,inherit:false,createdb:false,createrole:false,replication:false,bypassrls:false},tables:0,sequences:0,memberships:0,forbidden_rpc_count:0});
+    const ownerBoundary=json(ok(sql(container,database,`select jsonb_build_object(
+      'table_grants',(select count(*) from information_schema.table_privileges where grantee='ra004_staging_preflight_owner'),
+      'column_grants',(select count(*) from information_schema.column_privileges where grantee='ra004_staging_preflight_owner' and privilege_type='SELECT'),
+      'sequence_grants',(select count(*) from information_schema.usage_privileges where grantee='ra004_staging_preflight_owner' and object_type='SEQUENCE'),
+      'memberships',(select count(*) from pg_auth_members m join pg_roles member on member.oid=m.member join pg_roles granted on granted.oid=m.roleid where member.rolname in ('ra004_staging_preflight_owner','ra004_staging_preflight_caller') or granted.rolname in ('ra004_staging_preflight_owner','ra004_staging_preflight_caller'))
+    )::text`),"minimal owner and caller boundary"));
+    assert.deepEqual(ownerBoundary,{table_grants:0,column_grants:5,sequence_grants:0,memberships:0});
 
     for(const statement of [
       "select * from public.retailers", "select * from public.products", "select nextval('public.products_id_seq')",
@@ -87,7 +96,7 @@ test("RA-004 preflight migration and closed Q2-Q7 RPC pass in networkless Postgr
       "select public.write_retailer_control_state_evidence_v1(null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)",
     ]) denied(sql(container,database,asLogin(statement)),`ephemeral login denied ${statement}`);
 
-    const result=json(ok(sql(container,database,asLogin(call())),"one exact metadata RPC")); validateMetadata(result);
+    const result=json(ok(sql(container,database,asLogin(call())),"one exact metadata RPC")); validateMetadata(result,"ra004_preflight_test_login");
     assert.equal(result.q2_retailer.id,"14"); assert.equal(result.q4_objects.length,6); assert.equal(result.snapshot.business_rows_read,0);
     assert.doesNotMatch(JSON.stringify(result),/(?:offer|price|stock|customer|order|feed)(?:s|_id)?"\s*:/i);
     const repeat=json(ok(sql(container,database,asLogin(call())),"deterministic repeat")); assert.equal(repeat.metadata_fingerprint,result.metadata_fingerprint); assert.deepEqual(repeat,result);
@@ -104,11 +113,17 @@ test("RA-004 preflight migration and closed Q2-Q7 RPC pass in networkless Postgr
     denied(sql(container,database,`begin; insert into public.retailers(id,name,slug) values (15,'10 Reps','duplicate'); set session authorization ra004_preflight_test_login; ${call()}`),"duplicate retailer",/RETAILER_AMBIGUOUS/);
     denied(sql(container,database,`begin; alter table public.retailers rename to retailers_missing; set session authorization ra004_preflight_test_login; ${call()}`),"missing object");
     denied(sql(container,database,`begin; alter function public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer) owner to postgres; set session authorization ra004_preflight_test_login; ${call()}`),"function schema drift",/SCHEMA_DRIFT/);
+    denied(sql(container,database,`begin; create function public.read_ra004_staging_preflight_v1(text) returns jsonb language sql stable as $$select jsonb_build_object()$$; set session authorization ra004_preflight_test_login; ${call()}`),"ambiguous function overload",/SCHEMA_DRIFT/);
     denied(sql(container,database,`begin; alter role ra004_preflight_test_login inherit; set session authorization ra004_preflight_test_login; ${call()}`),"unsafe role attribute",/ROLE_UNSAFE/);
     denied(sql(container,database,`begin; grant retailer_catalogue_production_validator to ra004_preflight_test_login; set session authorization ra004_preflight_test_login; ${call()}`),"unsafe membership",/ROLE_UNSAFE/);
     denied(sql(container,database,`begin; grant select on public.retailers to ra004_preflight_test_login; set session authorization ra004_preflight_test_login; ${call()}`),"unsafe table grant",/ACL_UNSAFE/);
+    denied(sql(container,database,`begin; grant select on public.products to ra004_staging_preflight_owner; set session authorization ra004_preflight_test_login; ${call()}`),"unsafe owner table grant",/ACL_UNSAFE/);
+    denied(sql(container,database,`begin; grant select on public.products to ra004_staging_preflight_caller; set session authorization ra004_preflight_test_login; ${call()}`),"unsafe caller table grant",/ACL_UNSAFE/);
+    denied(sql(container,database,`begin; grant execute on function public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer) to authenticated; set session authorization ra004_preflight_test_login; ${call()}`),"unsafe function grant",/ACL_UNSAFE/);
     denied(sql(container,database,`begin; alter table public.retailer_control_state_evidence_v1 disable row level security; set session authorization ra004_preflight_test_login; ${call()}`),"missing RLS",/ACL_UNSAFE/);
     denied(sql(container,database,`begin; drop policy retailer_control_state_evidence_owner_select_v1 on public.retailer_control_state_evidence_v1; set session authorization ra004_preflight_test_login; ${call()}`),"policy drift",/ACL_UNSAFE/);
+    denied(sql(container,database,`begin; alter policy retailer_control_state_evidence_owner_select_v1 on public.retailer_control_state_evidence_v1 using (false); set session authorization ra004_preflight_test_login; ${call()}`),"policy expression drift",/ACL_UNSAFE/);
+    denied(sql(container,database,`begin; alter policy ra004_staging_preflight_retailer_read_v1 on public.retailers using (true); set session authorization ra004_preflight_test_login; ${call()}`),"retailer policy expression drift",/ACL_UNSAFE/);
 
     ok(sql(container,database,"revoke execute on function public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer) from ra004_preflight_test_login"),"revoke exact RPC");
     denied(sql(container,database,asLogin(call())),"revocation removes effective access");

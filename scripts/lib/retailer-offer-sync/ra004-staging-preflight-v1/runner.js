@@ -1,6 +1,6 @@
 const { sha256 } = require("../../stable-json-hash");
 const {
-  authorizationFingerprint, fail, fileSha, redact, validateAuthorization,
+  authorizationFingerprint, fail, fileSha, redact, sanitizeError, validateAuthorization,
   validateCounters, validateEvidenceStore, validateMetadata, validateProjectIdentity,
   validateReport, validateRevokeReceipt,
 } = require("./contract");
@@ -29,7 +29,7 @@ async function runPreflight({ authorization, expected, providerBundle, outputPat
       p_expected_ledger_fingerprint: approved.target.ledger.fingerprint,
       p_expected_session_user: approved.credential_design.role_name,
       p_max_bytes: 131072,
-    })));
+    }), approved.credential_design.role_name));
     if (metadata.q3_migration_ledger.ordered_ledger_count !== approved.target.ledger.count
         || metadata.q3_migration_ledger.ordered_ledger_fingerprint !== approved.target.ledger.fingerprint) fail("RA004_PREFLIGHT_LEDGER_UNKNOWN", "metadata ledger differs from authorization");
     const counters = validateCounters(snapshotCounters());
@@ -37,7 +37,7 @@ async function runPreflight({ authorization, expected, providerBundle, outputPat
         || counters.connection.performed_count !== 1 || counters.metadata_rpc.performed_count !== 1
         || counters.retry.attempt_count !== 0 || counters.prohibited.attempt_count !== 0) fail("RA004_PREFLIGHT_COUNTER_INVALID", "pre-revoke capability counters mismatch");
     const report = {
-      schema_version: "ra-004-staging-preflight-report-v1", status: "PASS_METADATA_ONLY", task_id: "RA-004",
+      schema_version: "ra-004-staging-preflight-report-v1", status: "METADATA_CAPTURED_PENDING_REVOKE", task_id: "RA-004",
       baseline_sha: approved.baseline_sha, authorization_fingerprint: authorizationFingerprint(approved),
       decision_fingerprint: approved.decision_fingerprint, plan_fingerprint: approved.plan_fingerprint,
       project_identity: identity, evidence_store: store, metadata, capability_counters: counters,
@@ -62,7 +62,7 @@ async function runPreflight({ authorization, expected, providerBundle, outputPat
     return Object.freeze({ report, receipt, reportArtifact, receiptArtifact });
   } catch (error) {
     try { await provider.revokeAndClose(); } catch { /* preserve the primary fail-closed error */ }
-    throw error;
+    throw sanitizeError(error);
   }
 }
 

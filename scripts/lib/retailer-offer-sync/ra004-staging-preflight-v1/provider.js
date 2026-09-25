@@ -1,4 +1,4 @@
-const { RPC_NAME, fail } = require("./contract");
+const { RPC_NAME, fail, validateTarget } = require("./contract");
 
 const TRANSPORT_METHODS = Object.freeze([
   "readProjectIdentity", "readEvidenceStoreMetadata", "callMetadataRpc", "revoke", "close",
@@ -7,7 +7,12 @@ const TRANSPORT_METHODS = Object.freeze([
 function functionNames(value) {
   const names = new Set();
   for (let current = value; current && current !== Object.prototype; current = Object.getPrototypeOf(current)) {
-    for (const name of Object.getOwnPropertyNames(current)) if (name !== "constructor" && typeof current[name] === "function") names.add(name);
+    for (const name of Object.getOwnPropertyNames(current)) {
+      if (name === "constructor") continue;
+      const descriptor = Object.getOwnPropertyDescriptor(current, name);
+      if (typeof descriptor?.value === "function") names.add(name);
+      else if (descriptor?.get || descriptor?.set) fail("RA004_PREFLIGHT_PROVIDER_CAPABILITY_BLOCKED", "transport accessors are forbidden");
+    }
   }
   return [...names].sort();
 }
@@ -20,9 +25,8 @@ function createClosedProvider({ configuration, transport }) {
   if (!configuration || !transport) fail("RA004_PREFLIGHT_PROVIDER_INVALID", "configuration and injected transport are required");
   const allowedConfig = ["environment","project_reference","canonical_host","host_allowlist","expected_session_user"];
   if (Object.keys(configuration).sort().join("|") !== allowedConfig.sort().join("|")) fail("RA004_PREFLIGHT_PROVIDER_INVALID", "configuration is not closed");
-  if (configuration.environment !== "STAGING" || !Array.isArray(configuration.host_allowlist)
-      || !configuration.host_allowlist.includes(configuration.canonical_host)
-      || /(?:prod|production|aftboxmrdgyhizicfsfu)/i.test(`${configuration.project_reference} ${configuration.canonical_host}`)) fail("RA004_PREFLIGHT_PROVIDER_TARGET_BLOCKED", "only an allowlisted staging target is accepted");
+  if (configuration.environment !== "STAGING") fail("RA004_PREFLIGHT_PROVIDER_TARGET_BLOCKED", "only an allowlisted staging target is accepted");
+  validateTarget({ projectReference: configuration.project_reference, canonicalHost: configuration.canonical_host, hostAllowlist: configuration.host_allowlist }, "RA004_PREFLIGHT_PROVIDER_TARGET_BLOCKED");
   if (functionNames(transport).join("|") !== [...TRANSPORT_METHODS].sort().join("|")) fail("RA004_PREFLIGHT_PROVIDER_CAPABILITY_BLOCKED", "transport exposes a general or incomplete capability");
   const counters = createCounters();
   let revoked = false, closed = false;

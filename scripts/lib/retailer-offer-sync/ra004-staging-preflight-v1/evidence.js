@@ -9,6 +9,11 @@ function assertOutputPath(outputPath) {
   const root = path.join(ROOT, "tmp");
   const relative = path.relative(root, resolved);
   if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) fail("RA004_PREFLIGHT_OUTPUT_BLOCKED", "evidence must be a new file below tmp");
+  let current = root;
+  for (const part of path.dirname(relative).split(path.sep).filter(Boolean)) {
+    current = path.join(current, part);
+    if (fs.existsSync(current) && fs.lstatSync(current).isSymbolicLink()) fail("RA004_PREFLIGHT_OUTPUT_BLOCKED", "evidence path cannot traverse a link");
+  }
   return resolved;
 }
 

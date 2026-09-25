@@ -6,9 +6,13 @@ class LocalFixtureTransport {
   constructor(fixturePath) {
     const resolved = path.resolve(fixturePath);
     const fixtureRoot = path.join(ROOT, "scripts", "test-fixtures", "ra004-staging-preflight-v1");
-    const relative = path.relative(fixtureRoot, resolved);
-    if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) fail("RA004_PREFLIGHT_FIXTURE_BLOCKED", "fixture must be tracked below the RA-004 test-fixture directory");
-    this.fixture = JSON.parse(fs.readFileSync(resolved, "utf8"));
+    const realRoot = fs.realpathSync(fixtureRoot);
+    let realFixture;
+    try { realFixture = fs.realpathSync(resolved); }
+    catch { fail("RA004_PREFLIGHT_FIXTURE_BLOCKED", "fixture must exist below the RA-004 test-fixture directory"); }
+    const relative = path.relative(realRoot, realFixture);
+    if (!relative || relative.startsWith("..") || path.isAbsolute(relative) || path.extname(realFixture) !== ".json" || !fs.statSync(realFixture).isFile()) fail("RA004_PREFLIGHT_FIXTURE_BLOCKED", "fixture must be a real tracked JSON file below the RA-004 test-fixture directory");
+    this.fixture = JSON.parse(fs.readFileSync(realFixture, "utf8"));
   }
   async readProjectIdentity() { return structuredClone(this.fixture.project_identity); }
   async readEvidenceStoreMetadata() { return structuredClone(this.fixture.evidence_store); }

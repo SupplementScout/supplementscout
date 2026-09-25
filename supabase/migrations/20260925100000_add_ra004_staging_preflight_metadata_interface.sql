@@ -101,6 +101,10 @@ begin
      or current_database() = 'aftboxmrdgyhizicfsfu' then
     raise exception 'RA004_PREFLIGHT_TARGET_BLOCKED: staging-only target required';
   end if;
+  if (select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+      where n.nspname='public' and p.proname='read_ra004_staging_preflight_v1') <> 1 then
+    raise exception 'RA004_PREFLIGHT_SCHEMA_DRIFT: metadata interface overload mismatch';
+  end if;
   if p_retailer_name is distinct from '10 Reps'
      or p_retailer_slug is distinct from '10-reps'
      or p_expected_session_user is null
@@ -299,27 +303,80 @@ begin
            or has_table_privilege('ra004_staging_preflight_caller',relation.oid,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')
            or has_any_column_privilege('ra004_staging_preflight_caller',relation.oid,'SELECT,INSERT,UPDATE,REFERENCES'))
      )
-     or exists (
-       select 1 from pg_class sequence join pg_namespace namespace on namespace.oid=sequence.relnamespace
-       where namespace.nspname not in ('pg_catalog','information_schema')
-         and namespace.nspname !~ '^pg_toast' and sequence.relkind='S'
-         and (has_sequence_privilege(p_expected_session_user,sequence.oid,'USAGE,SELECT,UPDATE')
-           or has_sequence_privilege('ra004_staging_preflight_caller',sequence.oid,'USAGE,SELECT,UPDATE'))
-     )
-     or not exists (
+      or exists (
+        select 1 from pg_class sequence join pg_namespace namespace on namespace.oid=sequence.relnamespace
+        where namespace.nspname not in ('pg_catalog','information_schema')
+          and namespace.nspname !~ '^pg_toast'
+          and case when sequence.relkind='S' then
+            has_sequence_privilege(p_expected_session_user,sequence.oid,'USAGE,SELECT,UPDATE')
+            or has_sequence_privilege('ra004_staging_preflight_caller',sequence.oid,'USAGE,SELECT,UPDATE')
+          else false end
+      )
+      or exists (
+        select 1 from information_schema.table_privileges privilege
+        where privilege.grantee='ra004_staging_preflight_owner'
+      )
+      or exists (
+        select 1 from information_schema.column_privileges privilege
+        where privilege.grantee='ra004_staging_preflight_owner'
+          and not (
+            privilege.privilege_type='SELECT'
+            and ((privilege.table_schema='public' and privilege.table_name='retailers'
+                  and privilege.column_name in ('id','name','slug'))
+              or (privilege.table_schema='supabase_migrations' and privilege.table_name='schema_migrations'
+                  and privilege.column_name in ('version','name')))
+          )
+      )
+      or (select count(*) from information_schema.column_privileges privilege
+          where privilege.grantee='ra004_staging_preflight_owner' and privilege.privilege_type='SELECT') <> 5
+      or exists (
+        select 1 from pg_class sequence join pg_namespace namespace on namespace.oid=sequence.relnamespace
+        where case when sequence.relkind='S' then
+          has_sequence_privilege('ra004_staging_preflight_owner',sequence.oid,'USAGE,SELECT,UPDATE')
+        else false end
+      )
+      or not exists (
        select 1 from pg_class c
        where c.oid='public.retailer_control_state_evidence_v1'::regclass
          and c.relrowsecurity and c.relforcerowsecurity
-     )
-     or (select count(*) from pg_policy where polrelid='public.retailer_control_state_evidence_v1'::regclass) <> 3 then
+      )
+      or (select count(*) from pg_policy where polrelid='public.retailer_control_state_evidence_v1'::regclass) <> 3
+      or exists (
+        select 1 from pg_policy policy
+        where policy.polrelid='public.retailer_control_state_evidence_v1'::regclass
+          and not (
+            policy.polpermissive
+            and policy.polroles = case policy.polname
+              when 'retailer_control_state_evidence_owner_insert_v1' then array['retailer_control_state_evidence_owner'::regrole::oid]
+              when 'retailer_control_state_evidence_owner_select_v1' then array['retailer_control_state_evidence_owner'::regrole::oid]
+              when 'retailer_control_state_read_owner_select_v1' then array['retailer_control_state_read_owner'::regrole::oid]
+              else array[]::oid[]
+            end
+            and policy.polcmd = case policy.polname
+              when 'retailer_control_state_evidence_owner_insert_v1' then 'a'::"char"
+              else 'r'::"char"
+            end
+            and coalesce(pg_get_expr(policy.polqual,policy.polrelid),'') = case policy.polname
+              when 'retailer_control_state_evidence_owner_insert_v1' then ''
+              else 'true'
+            end
+            and coalesce(pg_get_expr(policy.polwithcheck,policy.polrelid),'') = case policy.polname
+              when 'retailer_control_state_evidence_owner_insert_v1' then 'true'
+              else ''
+            end
+          )
+      ) then
     raise exception 'RA004_PREFLIGHT_ACL_UNSAFE: grant or RLS mismatch';
   end if;
   if not exists (
-    select 1 from pg_policy policy
+    select 1 from pg_policy policy join pg_class relation on relation.oid=policy.polrelid
     where policy.polrelid='public.retailers'::regclass
       and policy.polname='ra004_staging_preflight_retailer_read_v1'
       and policy.polcmd='r'
       and policy.polroles=array['ra004_staging_preflight_owner'::regrole::oid]
+      and relation.relrowsecurity
+      and pg_get_expr(policy.polqual,policy.polrelid) = '((lower(name) = ''10 reps''::text) OR (lower(slug) = ''10-reps''::text))'
+      and policy.polwithcheck is null
   ) then
     raise exception 'RA004_PREFLIGHT_ACL_UNSAFE: retailer metadata policy mismatch';
   end if;
@@ -331,6 +388,8 @@ begin
       p.polcmd::text policy_command,
       (select jsonb_agg(role_name order by role_name)
        from (select pg_get_userbyid(role_oid) role_name from unnest(p.polroles) role_oid) roles) policy_roles,
+      pg_get_expr(p.polqual,p.polrelid) policy_using,
+      pg_get_expr(p.polwithcheck,p.polrelid) policy_with_check,
       null::text grantee, null::text privilege_type
     from pg_class c join pg_namespace n on n.oid=c.relnamespace
     left join pg_policy p on p.polrelid=c.oid
@@ -341,6 +400,7 @@ begin
     select 'public'::name object_schema, 'read_ra004_staging_preflight_v1'::name object_name,
       pg_get_userbyid(proc.proowner) owner, false rls_enabled, false rls_forced,
       null::name policy_name, null::text policy_command, null::jsonb policy_roles,
+      null::text policy_using, null::text policy_with_check,
       coalesce(grantee.rolname,'PUBLIC') grantee, acl.privilege_type
     from pg_proc proc
     cross join lateral aclexplode(coalesce(proc.proacl, acldefault('f',proc.proowner))) acl
@@ -353,7 +413,8 @@ begin
     'object_schema',object_schema, 'object_name',object_name, 'owner',owner,
     'rls_enabled',rls_enabled, 'rls_forced',rls_forced,
     'policy_name',policy_name, 'policy_command',policy_command,
-    'policy_roles',policy_roles, 'grantee',grantee,
+    'policy_roles',policy_roles, 'policy_using',policy_using,
+    'policy_with_check',policy_with_check, 'grantee',grantee,
     'privilege_type',privilege_type
   ) order by object_schema,object_name,policy_name,grantee,privilege_type)
   into v_acl from combined;

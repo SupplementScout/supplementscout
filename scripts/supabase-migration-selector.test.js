@@ -530,7 +530,7 @@ test("production owner guard rejects service role and accepts postgres only", ()
 test("RA-004 interfaces remain SHA-bound and excluded from staging and production deployment", () => {
   const expected = {
     [RA004_CONTROL_STATE_MIGRATION]: "cfd7a93cb20845832b696183f5eb8a500f0474b4173829b85f6ac6bc73d4baaa",
-    [RA004_PREFLIGHT_MIGRATION]: "8b23d6ce056dcebcea8d24b12971f7114bcf4b8dd17e5e19c117b5b1cdadff18",
+    [RA004_PREFLIGHT_MIGRATION]: "9d6c1ea4df0bd86f84a4cb779a0824922f4e9bcc91681b734d5d18465a9e91be",
   };
   for (const [filename, sha256] of Object.entries(expected)) {
     assert.equal(CONTRACTS.STAGING.excluded[filename], sha256);
