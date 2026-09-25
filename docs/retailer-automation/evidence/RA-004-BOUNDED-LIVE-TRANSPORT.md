@@ -1,6 +1,6 @@
 # RA-004 bounded live transport
 
-**Status:** `READY_FOR_VERIFICATION`
+**Status:** `VERIFIED_COMPLETE`
 
 **RA-004:** `IN_PROGRESS`
 
@@ -11,6 +11,11 @@ of one separate PR for the bounded preflight and control-state live transport
 on 25 September 2026.
 
 **Remote execution:** `NOT_PERFORMED`
+
+**Pull request:** `#97`
+
+**Independently verified implementation head:**
+`7c321744f229992b3e24a2862d936783f7aaa714`
 
 ## Scope
 
@@ -87,10 +92,19 @@ service-role or general write loader.
 No staging or production connection, DNS lookup, credential creation, migration,
 bucket operation, metadata RPC or control-state RPC is part of this PR.
 
+Independent verification used a new detached worktree at the exact PR head.
+It confirmed the ten-file diff, unchanged package, lockfile, workflows,
+migrations and selector, both approved migration SHA-256 values, and the
+synthetic-only nature of every connection string in the test diff. The focused
+suite passed `118/118`; `git diff --check`, Project Guardian and
+`npm run verify:full` all passed. The full gate reported 310 inventoried tests
+and completed the production build. No integration test was invoked by the
+quality gate, consistent with the isolated integration-test policy.
+
 ## Next gate
 
-After independent verification, green GitHub checks and ordinary squash merge,
-the previously approved staging execution may prepare a new SHA-bound selector
-activation. That later execution must still satisfy every target, evidence-store,
-credential, time-window, no-retry and revoke condition. This transport merge by
-itself does not start the 30-minute window.
+After green GitHub checks and ordinary squash merge, the previously approved
+staging execution may prepare a new SHA-bound selector activation. That later
+execution must still satisfy every target, evidence-store, credential,
+time-window, no-retry and revoke condition. This transport merge by itself does
+not start the 30-minute window.

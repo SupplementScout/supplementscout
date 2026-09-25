@@ -117,7 +117,10 @@ PostgreSQL tests. RA-004 remains `IN_PROGRESS`; execution remains
 `NOT_AUTHORIZED`. The next task is one concrete future activation record only,
 without connecting during this closeout.
 
-The bounded live transport follow-up is `READY_FOR_VERIFICATION`. It supplies
+The bounded live transport follow-up is `VERIFIED_COMPLETE` in Draft PR #97 at
+implementation head `7c321744f229992b3e24a2862d936783f7aaa714`. A new detached
+worktree passed the focused `118/118` tests, Project Guardian,
+`git diff --check` and `npm run verify:full`, including the production build. It supplies
 only the missing one-call PostgreSQL adapters for the existing preflight and
 control-state providers. Database URLs remain process-memory inputs; the module
 has no environment/file secret loader, general SQL surface, retry, workflow or

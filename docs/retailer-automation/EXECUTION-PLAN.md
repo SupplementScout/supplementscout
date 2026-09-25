@@ -306,7 +306,7 @@ nested-schema, ACL/policy and pre-revoke evidence gaps, then passed the focused
 regressions, both fresh networkless PostgreSQL 17 tests and repository quality
 gates. This closes only the local implementation; RA-004 remains `IN_PROGRESS`.
 
-**Bounded live transport:** `READY_FOR_VERIFICATION`. Marek explicitly
+**Bounded live transport:** `VERIFIED_COMPLETE`. Marek explicitly
 authorized one separate implementation-and-merge PR on 25 September 2026. The
 shared follow-up adds only the exact one-call PostgreSQL transports required by
 the existing preflight and control-state providers. It accepts database URLs
@@ -316,7 +316,11 @@ read-only transaction, closes the client without retry, and requires a distinct
 issuer-process revoke receipt for preflight. It adds no activation manifest,
 credential loader, service-role path, workflow, scheduler, importer or executor.
 Both migrations remain excluded from STAGING and PRODUCTION, and no remote
-execution was performed. See
+execution was performed. Draft PR #97 at implementation head
+`7c321744f229992b3e24a2862d936783f7aaa714` passed independent verification in
+a new detached worktree: focused tests `118/118`, Project Guardian,
+`git diff --check` and `npm run verify:full`, including the production build.
+See
 [`evidence/RA-004-BOUNDED-LIVE-TRANSPORT.md`](evidence/RA-004-BOUNDED-LIVE-TRANSPORT.md).
 
 Independent verification at initial head
@@ -335,9 +339,9 @@ project reference, host, retailer ID, window and evidence store remain
 unapproved and `UNRESOLVED`. Plan, fingerprint, query-allowlist, credential or
 interface changes require reevaluation. The historical next task named here was
 completed by the verified local implementation. The current next gate is
-independent verification and ordinary merge of the bounded transport, followed
-by a separately controlled staging activation; no staging deployment or
-preflight occurs in the transport PR.
+green GitHub checks and ordinary merge of the independently verified bounded
+transport, followed by a separately controlled staging activation; no staging
+deployment or preflight occurs in the transport PR.
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
