@@ -274,8 +274,12 @@ authorization package for a bounded read-only staging preflight; this closeout
 does not connect to staging and no execution step may begin.
 
 **Staging-preflight authorization pack:** preparation is `AUTHORIZED`,
-verification is `VERIFIED_FOR_OWNER_REVIEW` and all five owner decisions remain
-`NOT_DECIDED`.
+owner-decision recording is
+`OWNER_DECISIONS_RECORDED_AWAITING_FINAL_VERIFICATION`, and all five decisions
+are `OWNER_APPROVED_FOR_FUTURE_PREPARATION`. On 25 September 2026 Marek Kalinka
+approved their requirements and future preparation through
+`EXPLICIT_OWNER_INSTRUCTION`. Future local implementation preparation in one
+separate PR is `AUTHORIZED`; staging deployment and execution are not.
 The documentation-only pack and manifest are
 [`evidence/RA-004-STAGING-PREFLIGHT-AUTHORIZATION-PACK.md`](evidence/RA-004-STAGING-PREFLIGHT-AUTHORIZATION-PACK.md)
 and
@@ -295,8 +299,12 @@ rejected all 12 controlled mutations and produced final canonical fingerprint
 Project Guardian, 89 focused exporter/selector tests, TypeScript, ESLint,
 `verify:quick` and `verify:full`, including the production build, passed without
 staging, production, control-plane, database, SQL, credential or secret access.
-The next task is to present the five verified decisions to Marek for approval
-or change; no interface implementation or preflight may begin.
+The approval does not expire or expand automatically. The operator, issuer,
+project reference, host, retailer ID, window and evidence store remain
+unapproved and `UNRESOLVED`. Plan, fingerprint, query-allowlist, credential or
+interface changes require reevaluation. The next task is independent final
+verification in a new clean worktree; no staging deployment or preflight may
+begin.
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 

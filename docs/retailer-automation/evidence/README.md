@@ -70,8 +70,11 @@ connecting to staging as part of this closeout.
 
 The separate staging-preflight authorization pack is documentation and owner
 decision preparation only. Its preparation status is `AUTHORIZED`, independent
-verification is `VERIFIED_FOR_OWNER_REVIEW`, and all five proposed owner
-decisions remain `NOT_DECIDED`. Control-plane/database reads, staging connection, credential
+verification is pending after decision recording, and all five owner decisions
+are `OWNER_APPROVED_FOR_FUTURE_PREPARATION`. Marek Kalinka recorded the exact
+approval on 25 September 2026 through `EXPLICIT_OWNER_INSTRUCTION`. Local
+implementation preparation in one later separate PR is `AUTHORIZED`; staging
+deployment is not. Control-plane/database reads, staging connection, credential
 issuance/use, preflight execution, migration, canary, production, live export
 and shadow remain `NOT_AUTHORIZED`; auto-safe classes remain `NONE_APPROVED`.
 The repository audit found no currently usable closed metadata-only role/RPC,
@@ -87,8 +90,10 @@ rejected all 12 controlled mutations and sealed final fingerprint
 Project Guardian, 89 focused tests, TypeScript, ESLint, `verify:quick` and
 `verify:full` including the production build passed. Integration, SQL/database,
 Supabase CLI and staging/production access were skipped by design. The next
-task is to present the five verified decisions to Marek for approval or change;
-no staging access or implementation is authorized.
+task is independent final verification of the recorded decisions in a new clean
+worktree. The approval does not expire or expand automatically, all execution
+values remain unapproved and `UNRESOLVED`, and no staging access or execution is
+authorized.
 
 The fixture-only implementation is preserved in PR #89. Marek approved
 the transactional interface for isolated local implementation. The migration

@@ -8,9 +8,11 @@
 
 **Pack preparation:** `AUTHORIZED`
 
-**Pack verification:** `VERIFIED_FOR_OWNER_REVIEW`
+**Pack verification:** `OWNER_DECISIONS_RECORDED_AWAITING_FINAL_VERIFICATION`
 
-**Owner decision:** `NOT_DECIDED`
+**Owner decision:** `OWNER_APPROVED_FOR_FUTURE_PREPARATION`
+
+**Local implementation preparation:** `AUTHORIZED`
 
 **Control-plane read, database read and staging connection:** `NOT_AUTHORIZED`
 
@@ -26,20 +28,50 @@
 
 **Staging-canary plan fingerprint:** `bd5c259941997daad3755c1cb135f76f6eccaef1fb9e1ce0044939ce08439214`
 
-**Authorization-pack fingerprint:** `9ed7ea2bea9a7fb2c2a521da87314ef6c438c46c46b751be254f7e57e2239b64`
+**Authorization-pack fingerprint:** `f6ee5dfbc997ba72984288fbb46e4440d50aef357ed5265462eafb427df8a079`
 
 Machine-readable contract:
 [`RA-004-staging-preflight-authorization.json`](RA-004-staging-preflight-authorization.json).
 
-This pack prepares five decisions for Marek. It is not an authorization, an
-executable runbook or evidence that staging is ready. No owner decision is
-recorded as approved. If Marek gives no answer, every connection, read,
-credential and execution status remains `NOT_AUTHORIZED`.
+This pack records Marek's approval of five requirements and future local
+preparation decisions. It is not an executable runbook or evidence that staging
+is ready. Every connection, read, credential and execution status remains
+`NOT_AUTHORIZED`.
 
 This task made no staging or production connection, control-plane read,
 database read, SQL call, Supabase CLI call, secret read, credential, migration,
 selector change, feed capture, live export, workflow dispatch, shadow run,
 control plan, approval, import or apply.
+
+## Owner decision record
+
+- Owner: `Marek Kalinka`.
+- Date: `2026-09-25`.
+- Source: `EXPLICIT_OWNER_INSTRUCTION`.
+- Status: `OWNER_APPROVED_FOR_FUTURE_PREPARATION` for D1-D5.
+- Exact instruction: “Zatwierdzam wszystkie pięć rekomendowanych decyzji RA-004 staging preflight. Zatwierdzam wymagania i przygotowanie, ale nie autoryzuję jeszcze połączenia ze stagingiem ani wykonania preflightu.”
+
+The approval covers the requirements for one future control-plane identity
+check, one future metadata-only transaction, a future dedicated credential,
+operator/issuer separation with a maximum 30-minute window, and evidence-store,
+redaction and retention controls. It also authorizes future local preparation
+of the missing interfaces, minimal role, provider, CLI and tests in one separate
+PR, with no staging connection.
+
+It does not authorize a staging connection; control-plane or database read;
+preflight execution; credential creation, issuance or use; staging deployment
+of an RPC, role, provider or CLI; migration application; staging or production
+selector changes; staging canary; production; live export; feed capture; shadow
+run; workflow dispatch; control plan; approval; import; apply; Model B execution;
+or cutover.
+
+This policy approval neither expires nor expands automatically. Any change to
+the plan, manifest fingerprint, query allowlist, credential design or interface
+implementation requires reevaluation. The operator, credential issuer, staging
+project reference, staging host, staging 10 Reps retailer ID, execution window
+and private evidence store remain unapproved and `UNRESOLVED`. Any later
+connection, credential, read, deployment or execution requires separate,
+explicit owner authorization.
 
 ## Existing-capability audit
 
@@ -114,8 +146,8 @@ These stages are separate; no approval, implementation result or completed
 value automatically grants authority to a later stage. Authority is never
 inherited and every transition requires its own recorded review or decision.
 
-1. `POLICY_APPROVAL` — `NOT_DECIDED`.
-2. `INTERFACE_IMPLEMENTATION` — `NOT_AUTHORIZED`.
+1. `POLICY_APPROVAL` — `OWNER_APPROVED_FOR_FUTURE_PREPARATION`.
+2. `LOCAL_IMPLEMENTATION_PREPARATION` — `AUTHORIZED` for one later separate local-only PR.
 3. `INDEPENDENT_IMPLEMENTATION_VERIFICATION` — `NOT_STARTED`.
 4. `EXECUTION_VALUES_COMPLETED` — `BLOCKED_UNKNOWN_VALUES`.
 5. `PREFLIGHT_ACTIVATION` — `NOT_AUTHORIZED`.
@@ -243,9 +275,10 @@ public artifacts or evidence payloads.
 All five recommendations are
 `APPROVE_REQUIREMENTS_AND_FUTURE_PREPARATION_ONLY`; every authorization level is
 `POLICY_AND_FUTURE_PREPARATION_ONLY` and every decision status is
-`NOT_DECIDED`. Approval would accept requirements and future preparation only;
-it would not authorize implementation, credential issuance, activation, a
-connection or execution.
+`OWNER_APPROVED_FOR_FUTURE_PREPARATION`. The recorded answer for each is
+`APPROVE_REQUIREMENTS_AND_FUTURE_PREPARATION_ONLY`. This authorizes future local
+preparation in one separate PR; it does not authorize staging deployment,
+credential issuance, activation, a connection or execution.
 
 ### D1 — one control-plane identity check
 
@@ -253,8 +286,8 @@ connection or execution.
 - Blocking dependencies: exact owner-attested staging project/host; implemented and independently verified bounded Q1 path; named operator/window; separate activation authorization.
 - Does not authorize: database connection, secret read, production, migration, canary, live export or shadow.
 - Validity: one named attempt in one owner-approved window of at most 30 minutes.
-- Automatic expiry: first attempt, window end, identity mismatch, baseline change or pack-fingerprint change.
-- No answer: control-plane read and every later step remain `NOT_AUTHORIZED`.
+- Future attempt expiry if separately authorized: first attempt, window end, identity mismatch, baseline change or pack-fingerprint change.
+- Recorded answer: requirements and future preparation approved; control-plane read and every later step remain `NOT_AUTHORIZED`.
 
 ### D2 — one bounded database transaction
 
@@ -262,8 +295,8 @@ connection or execution.
 - Blocking dependencies: D1 gates; implemented and independently verified bounded RPC, dedicated role, provider and CLI; all exact execution values; separate activation authorization.
 - Does not authorize: general SQL, second connection, retry, DDL, DML, mutation RPC, migration or business-data read.
 - Validity: one named attempt in the same window after D1 and every pre-read gate passes.
-- Automatic expiry: first connection attempt, transaction end, window end, interface/allowlist drift or any prohibited attempt.
-- No answer: database read and preflight execution remain `NOT_AUTHORIZED`.
+- Future attempt expiry if separately authorized: first connection attempt, transaction end, window end, interface/allowlist drift or any prohibited attempt.
+- Recorded answer: requirements and future preparation approved; database read and preflight execution remain `NOT_AUTHORIZED`.
 
 ### D3 — one dedicated staging-preflight credential
 
@@ -271,8 +304,8 @@ connection or execution.
 - Blocking dependencies: implemented and independently verified bounded RPC, metadata-only role, provider and CLI; attested project/host; named operator/issuer/window; separate issuance and activation authorization.
 - Does not authorize: canary credential, existing operational credential, production, tables, `SET ROLE` or reuse.
 - Validity: issuance until first use, expiry or immediate revocation, whichever comes first.
-- Automatic expiry: TTL, completion/failure, privilege mismatch, exposure or window end.
-- No answer: no login, role membership, password, token or secret may be created or used.
+- Future credential expiry if separately authorized: TTL, completion/failure, privilege mismatch, exposure or window end.
+- Recorded answer: design and future preparation approved; no login, role membership, password, token or secret may be created or used.
 
 ### D4 — people and window
 
@@ -280,8 +313,8 @@ connection or execution.
 - Blocking dependencies: owner-supplied operator, distinct issuer and exact UTC window; separation review; separate activation authorization.
 - Does not authorize: self-issuance, substitutes, extension, scheduling or workflow dispatch.
 - Validity: only the named people and exact window.
-- Automatic expiry: window end, substitution, role conflict or repository/authorization change.
-- No answer: issuance and preflight cannot begin.
+- Future attempt expiry if separately authorized: window end, substitution, role conflict or repository/authorization change.
+- Recorded answer: separation requirements approved; the unknown people/window remain unapproved and issuance/preflight cannot begin.
 
 ### D5 — evidence and retention
 
@@ -289,8 +322,8 @@ connection or execution.
 - Blocking dependencies: identified private store; independently verified encryption, immutability, access audit and readback; Q8/retention match; redaction validation; separate activation authorization.
 - Does not authorize: secrets, raw business data, public artifacts, unrelated metadata or live export.
 - Validity: this one bundle and the approved retention periods.
-- Automatic expiry: approval withdrawal, configuration/retention drift, redaction failure or missing readback.
-- No answer: preflight remains blocked before connection.
+- Future evidence authorization expiry if separately authorized: approval withdrawal, configuration/retention drift, redaction failure or missing readback.
+- Recorded answer: evidence requirements approved; the unknown store remains unapproved and preflight remains blocked before connection.
 
 ## Stop conditions
 
@@ -372,11 +405,17 @@ Required next actions, in the same order, are:
 
 ## Current interface gaps and next task
 
-There is no identified deployed control-plane identity interface, metadata-only
-database RPC, suitable role, closed preflight provider/CLI or approved evidence
-store. These gaps do not block preparation of this decision pack; they do block
-every read and execution attempt. This pack does not authorize their
-implementation.
+The five exact open gaps are:
+
+- No deployed bounded control-plane identity interface is identified.
+- No deployed metadata-only RPC covers Q2 through Q7 in one read-only statement.
+- No existing role is limited to the proposed metadata allowlist without control or mutation-adjacent capabilities.
+- No preflight provider or CLI has the required one-connection, one-RPC, no-general-SQL contract.
+- No current owner-approved private evidence store is identified in the repository.
+
+These gaps block every read and execution attempt. The recorded decision permits
+their later local preparation in one separate PR, but it does not authorize
+staging deployment, a connection or execution.
 
 Independent verification used the exact initial PR head
 `0b2752ac60cd8e38659751a227487f328def574b` in a clean worktree. It confirmed
@@ -391,6 +430,6 @@ fingerprint is
 Integration, SQL/database tests, Supabase CLI and all staging/production access
 were skipped by design, not counted as passes.
 
-The next and only task is to present the five verified decisions to Marek for
-approval or change. Do not connect to staging, implement an interface, issue a
-credential or execute the preflight as part of that owner review.
+The next and only task is independent verification of the recorded owner
+decisions in a new clean worktree. Do not connect to staging, issue a credential
+or execute the preflight during that verification.
