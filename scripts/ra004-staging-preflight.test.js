@@ -347,10 +347,13 @@ test("CLI help, malformed arguments and authorization paths disclose no supplied
 
 test("fixture transport cannot escape its local tracked fixture directory", () => assert.throws(()=>new LocalFixtureTransport(path.join(os.tmpdir(),"fixture.json")),/FIXTURE_BLOCKED/));
 
-test("only the reviewed bounded transport imports the preflight contract", () => {
+test("only the reviewed bounded transport and one-shot coordinator import the preflight contract", () => {
   const roots=["app",".github","config","scripts"];
   const findings=[];
   function walk(directory){ if(!fs.existsSync(directory))return; for(const entry of fs.readdirSync(directory,{withFileTypes:true})){ const absolute=path.join(directory,entry.name); if(entry.isDirectory()){ if(absolute.includes(path.join("scripts","lib","retailer-offer-sync","ra004-staging-preflight-v1"))||absolute.includes(path.join("scripts","test-fixtures","ra004-staging-preflight-v1")))continue; walk(absolute); } else if(/\.(?:js|jsx|ts|tsx|yml|yaml|json)$/.test(entry.name)&&!/^ra004-staging-preflight(?:\.integration)?\.test\.js$/.test(entry.name)&&entry.name!=="ra004-staging-preflight.js"){ const body=fs.readFileSync(absolute,"utf8"); if(/(?:require\(|from\s+)["'][^"']*ra004-staging-preflight/i.test(body))findings.push(path.relative(ROOT,absolute)); } } }
   for(const root of roots)walk(path.join(ROOT,root));
-  assert.deepEqual(findings,[path.join("scripts","lib","retailer-offer-sync","ra004-bounded-live-transport-v1.js")]);
+  assert.deepEqual(findings,[
+    path.join("scripts","lib","retailer-offer-sync","ra004-bounded-live-transport-v1.js"),
+    path.join("scripts","ra004-staging-execution-coordinator.js"),
+  ]);
 });

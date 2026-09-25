@@ -323,6 +323,20 @@ a new detached worktree: focused tests `118/118`, Project Guardian,
 See
 [`evidence/RA-004-BOUNDED-LIVE-TRANSPORT.md`](evidence/RA-004-BOUNDED-LIVE-TRANSPORT.md).
 
+**Staging execution coordinator:** `OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED`.
+After PR #98 merged the exact staging selector activation, the first local
+execution attempt stopped during read-only selector verification because an
+untracked helper consumed the selector SHA map incorrectly. No remote mutation
+occurred and no authorization window started. Marek then explicitly authorized
+a separate preparation, verification and merge PR for the missing tracked
+one-shot coordinator. It consumes only the selector-materialized workdir,
+delegates migration application to the Supabase CLI, separates credential
+issuance into another process, gates one canary on one complete preflight, and
+revokes both RPC-only logins in `finally`. Production, feed, shadow, control
+plan, approval, import, apply, offer writes, Model B, scheduler and retry remain
+absent and unauthorized. See
+[`evidence/RA-004-STAGING-EXECUTION-COORDINATOR.md`](evidence/RA-004-STAGING-EXECUTION-COORDINATOR.md).
+
 Independent verification at initial head
 `0b2752ac60cd8e38659751a227487f328def574b` confirmed the initial manifest
 fingerprint `732cccf46eb4467460029b411f5138f81f4af69a9ad88235e6ed20d9051f7149`,
