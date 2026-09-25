@@ -5,7 +5,7 @@
   "baseline_sha": "8e6299941fb6104d6e1ce2d453823b84cc97b44f",
   "owner_decision_manifest_fingerprint": "030c9d7cb12b46ab0b2bca2311ffbe1456e1c579e9e3acd570a4c0766ead119c",
   "preparation_status": "OWNER_APPROVED",
-  "verification_status": "NOT_STARTED",
+  "verification_status": "VERIFIED_COMPLETE",
   "execution_status": "NOT_AUTHORIZED",
   "staging_migration_status": "NOT_AUTHORIZED",
   "credential_design_status": "OWNER_APPROVED",
@@ -83,30 +83,222 @@
     }
   ],
   "future_sequence": [
-    { "step": 1, "action": "Independently verify this Draft PR.", "gate": "Draft PR remains unmerged and not ready." },
-    { "step": 2, "action": "Perform an approved read-only preflight of current staging.", "gate": "No mutation and no secret-value inspection." },
-    { "step": 3, "action": "Confirm the current staging project reference without reading secret values.", "gate": "Fail closed unless independently attested." },
-    { "step": 4, "action": "Resolve the unique staging retailer ID for 10 Reps without guessing or copying a production ID.", "gate": "Exactly one matching staging retailer." },
-    { "step": 5, "action": "Confirm the current staging migration ledger and schema prerequisites.", "gate": "Target migration absent and no partial application or drift." },
-    { "step": 6, "action": "Name the operation owner, operator, credential issuer and exact UTC execution window.", "gate": "All four recorded before implementation authorization." },
-    { "step": 7, "action": "Approve a private evidence store that implements the owner-approved retention policy.", "gate": "Private, encrypted, write-once, audited and read-after-write capable." },
-    { "step": 8, "action": "Prepare the exact staging-only migration-selector change in a separate future Draft PR.", "gate": "One filename and SHA admitted; production exclusion and contract unchanged." },
-    { "step": 9, "action": "Obtain a separate exact owner authorization to apply the migration to the attested staging project.", "gate": "Authorization is time-bound and binds project, ledger, migration and operator." },
-    { "step": 10, "action": "Apply exactly one migration with the approved SHA through the selected-directory path.", "gate": "No direct SQL, Supabase push or unselected directory." },
-    { "step": 11, "action": "Verify ACL, RLS, function, role attributes, ledger entry and absence of broad grants.", "gate": "Any mismatch stops before credential issuance." },
-    { "step": 12, "action": "Issue one staging-only credential only after separate exact authorization.", "gate": "Credential design below is satisfied in full." },
-    { "step": 13, "action": "Limit credential validity to at most 30 minutes.", "gate": "VALID UNTIL and external lifecycle record agree." },
-    { "step": 14, "action": "Permit exactly one attempt of the allowlisted read_retailer_control_state_v1 RPC.", "gate": "Attempt counter is sealed before invocation." },
-    { "step": 15, "action": "Disable automatic and operator retry.", "gate": "Any second attempt requires a new task and authorization." },
-    { "step": 16, "action": "Bind the request to the one resolved 10 Reps staging retailer.", "gate": "Retailer ID and unique name or slug both match preflight." },
-    { "step": 17, "action": "Create one redacted control-state export.", "gate": "All eleven sources, caps, schema, timestamps and fingerprints validate." },
-    { "step": 18, "action": "Keep the whole canary inside a maximum 60-minute authorized window.", "gate": "Unused authority expires at window end." },
-    { "step": 19, "action": "Immediately revoke LOGIN and caller EXECUTE access after the call or any failure.", "gate": "Revocation precedes all success reporting." },
-    { "step": 20, "action": "Prove credential expiry or invalidation and inability to reconnect or execute.", "gate": "Unproved revocation is failure." },
-    { "step": 21, "action": "Store the redacted evidence, audit receipts and detached fingerprints.", "gate": "No credential, endpoint secret or raw private payload in Git, logs or public artifacts." },
-    { "step": 22, "action": "Perform read-after-write verification of stored evidence and hashes.", "gate": "Stored bytes and metadata match the sealed evidence index." },
-    { "step": 23, "action": "Close out the canary with outcome, zero-side-effect attestation and access-revocation receipt.", "gate": "Success proves only the staging interface boundary." },
-    { "step": 24, "action": "Require a separate owner decision before any live feed capture or shadow run.", "gate": "Canary success creates no later authority." }
+    {
+      "step": 1,
+      "objective": "Independently verify and merge the documentation-only staging-canary plan.",
+      "required_inputs": ["Draft PR #92 at its reviewed head", "origin/main at the approved baseline", "owner-decision fingerprint"],
+      "responsibility_owner": "independent RA-004 verifier",
+      "completion_evidence": ["local and GitHub checks pass", "squash tree equals the verified tree", "plan verification status is VERIFIED_COMPLETE"],
+      "stop_condition": "Any ref, history, scope, fingerprint, check or tree mismatch stops closeout.",
+      "required_prior_authorization": "Owner-approved staging-canary preparation and credential design only; no execution authority."
+    },
+    {
+      "step": 2,
+      "objective": "Perform an approved read-only preflight of current staging.",
+      "required_inputs": ["separate read-only preflight authorization", "approved preflight procedure", "named verifier"],
+      "responsibility_owner": "staging environment owner with independent verifier",
+      "completion_evidence": ["redacted preflight receipt", "zero-write and no-secret-read attestation"],
+      "stop_condition": "Missing, expired or scope-mismatched preflight authority, mutation capability or secret-value access stops the preflight.",
+      "required_prior_authorization": "Separate owner authorization for the exact read-only staging preflight."
+    },
+    {
+      "step": 3,
+      "objective": "Attest the current staging project reference without reading secret values.",
+      "required_inputs": ["step 2 preflight receipt", "public or administrative project identity metadata"],
+      "responsibility_owner": "staging environment owner",
+      "completion_evidence": ["signed project-identity attestation bound to the preflight"],
+      "stop_condition": "An unrecognized, ambiguous or unattested project stops all later work.",
+      "required_prior_authorization": "The step 2 read-only preflight authorization; no connection-bearing execution authority."
+    },
+    {
+      "step": 4,
+      "objective": "Resolve the unique staging retailer ID for 10 Reps without guessing or copying production identity.",
+      "required_inputs": ["attested staging project", "read-only staging retailer inventory", "unique 10 Reps name or slug"],
+      "responsibility_owner": "staging data owner",
+      "completion_evidence": ["redacted unique name-or-slug to numeric-ID resolution receipt"],
+      "stop_condition": "A missing, duplicate, ambiguous or production-copied retailer identity stops all later work.",
+      "required_prior_authorization": "The step 2 read-only preflight authorization."
+    },
+    {
+      "step": 5,
+      "objective": "Attest the current staging migration ledger and schema prerequisites.",
+      "required_inputs": ["attested staging project", "approved read-only ledger and schema inventory", "exact migration filename and SHA-256"],
+      "responsibility_owner": "staging database owner with independent verifier",
+      "completion_evidence": ["ledger count and fingerprint", "schema prerequisite report", "proof the target migration is absent and not partially applied"],
+      "stop_condition": "Unknown ledger, schema drift, hash mismatch or partial/unexpected application stops before selector work.",
+      "required_prior_authorization": "The step 2 read-only preflight authorization."
+    },
+    {
+      "step": 6,
+      "objective": "Name the operation owner, operator, credential issuer and exact UTC execution window.",
+      "required_inputs": ["completed steps 2 through 5", "role-separation requirements", "maximum 60-minute window policy"],
+      "responsibility_owner": "RA-004 owner",
+      "completion_evidence": ["signed responsibility record with four named assignments and UTC start/end"],
+      "stop_condition": "Any missing assignment, role conflict or window over 60 minutes stops preparation.",
+      "required_prior_authorization": "Owner-approved preparation only; assignments do not authorize execution."
+    },
+    {
+      "step": 7,
+      "objective": "Approve the private evidence store and owner-approved retention controls.",
+      "required_inputs": ["named evidence custodian", "approved retention R", "store security and lifecycle configuration"],
+      "responsibility_owner": "evidence custodian and data owner",
+      "completion_evidence": ["store approval", "encryption, write-once, access-audit, deletion and read-after-write capability evidence"],
+      "stop_condition": "A missing store or any encryption, immutability, audit, retention or readback gap stops preparation.",
+      "required_prior_authorization": "Owner-approved retention policy; no evidence collection or upload authority."
+    },
+    {
+      "step": 8,
+      "objective": "Prepare and independently review an exact staging-only migration-selector change in a separate Draft PR.",
+      "required_inputs": ["steps 3 and 5 attestations", "exact migration filename and SHA-256", "current staging and production selector contracts"],
+      "responsibility_owner": "future implementation owner with independent verifier",
+      "completion_evidence": ["separate reviewed Draft PR admitting one staging migration", "unchanged production exclusion and production selector tests"],
+      "stop_condition": "Any extra selected file, project mismatch, hash drift or production-selector change stops before authorization.",
+      "required_prior_authorization": "Owner-approved plan preparation only; selector implementation and merge require their own review."
+    },
+    {
+      "step": 9,
+      "objective": "Obtain exact owner authorization for one staging migration application.",
+      "required_inputs": ["reviewed selector PR", "attested project and preflight ledger", "named operator and UTC window", "migration filename and SHA-256"],
+      "responsibility_owner": "Marek as RA-004 owner",
+      "completion_evidence": ["time-bound authorization binding project, ledger, migration, operator and window"],
+      "stop_condition": "Missing, expired, ambiguous or scope-mismatched authorization stops before application.",
+      "required_prior_authorization": "A new explicit owner decision; D4 does not authorize migration application."
+    },
+    {
+      "step": 10,
+      "objective": "Apply exactly one approved migration through the validated selected-directory path.",
+      "required_inputs": ["step 9 authorization", "merged reviewed staging selector", "attested expected ledger", "selected directory containing one SHA-bound migration"],
+      "responsibility_owner": "named staging operator",
+      "completion_evidence": ["one application receipt", "one exact new ledger entry", "zero unrelated selected files"],
+      "stop_condition": "Direct SQL, Supabase push, an unselected directory, ledger drift or any additional migration stops the operation.",
+      "required_prior_authorization": "The exact unexpired step 9 migration-application authorization."
+    },
+    {
+      "step": 11,
+      "objective": "Verify the migrated function, roles, ACL, RLS, ledger and absence of broad grants.",
+      "required_inputs": ["step 10 receipt", "reviewed migration security contract", "approved read-only post-migration verifier"],
+      "responsibility_owner": "independent staging database verifier",
+      "completion_evidence": ["post-migration schema, role, ACL and RLS report", "ledger/hash match", "zero broad-grant finding"],
+      "stop_condition": "Any security, schema, ledger or hash mismatch stops before credential issuance.",
+      "required_prior_authorization": "The step 9 window must cover read-only post-migration verification; no credential authority yet."
+    },
+    {
+      "step": 12,
+      "objective": "Issue one staging-only credential satisfying the approved design.",
+      "required_inputs": ["successful step 11 evidence", "named issuer and operator", "exact credential privilege and revocation plan"],
+      "responsibility_owner": "named staging credential issuer",
+      "completion_evidence": ["credential lifecycle receipt without its value", "privilege and role-membership attestation"],
+      "stop_condition": "Missing separate authority or any excess privilege, membership or secret exposure stops before use and triggers revocation.",
+      "required_prior_authorization": "A new explicit credential-issuance authorization; D5 approves design only."
+    },
+    {
+      "step": 13,
+      "objective": "Prove credential validity is at most 30 minutes and bounded by the canary window.",
+      "required_inputs": ["step 12 lifecycle receipt", "canary UTC window"],
+      "responsibility_owner": "credential issuer with independent verifier",
+      "completion_evidence": ["issued-at, expires-at and calculated TTL receipt"],
+      "stop_condition": "TTL over 30 minutes, window overflow or unproved expiry stops before RPC and triggers revocation.",
+      "required_prior_authorization": "The exact credential-issuance authorization; credential use is still not authorized."
+    },
+    {
+      "step": 14,
+      "objective": "Seal authorization for exactly one future allowlisted RPC attempt without invoking it.",
+      "required_inputs": ["successful steps 11 through 13", "allowlisted RPC signature", "fingerprinted live authorization", "attempt counter"],
+      "responsibility_owner": "RA-004 owner with independent verifier",
+      "completion_evidence": ["one-attempt authorization fingerprint", "attempt counter initialized to zero"],
+      "stop_condition": "Missing or invalid authorization, a non-allowlisted RPC or a nonzero attempt counter stops before invocation.",
+      "required_prior_authorization": "A new explicit credential-use and one-RPC canary authorization."
+    },
+    {
+      "step": 15,
+      "objective": "Prove automatic and operator retry are disabled.",
+      "required_inputs": ["reviewed one-shot transport", "step 14 authorization and attempt counter"],
+      "responsibility_owner": "future implementation owner with independent verifier",
+      "completion_evidence": ["no-retry configuration proof", "second-attempt negative test"],
+      "stop_condition": "Any retry path, queue, scheduler or second-attempt capability stops before RPC.",
+      "required_prior_authorization": "The step 14 one-attempt authorization; no retry authorization exists."
+    },
+    {
+      "step": 16,
+      "objective": "Bind the future RPC request to the one resolved 10 Reps staging retailer.",
+      "required_inputs": ["step 4 retailer receipt", "step 3 project attestation", "step 14 authorization"],
+      "responsibility_owner": "named staging operator with independent verifier",
+      "completion_evidence": ["sealed request showing matching project, retailer ID and unique name or slug"],
+      "stop_condition": "Any project/retailer mismatch, ambiguity or scope count other than one stops before RPC.",
+      "required_prior_authorization": "The step 14 one-RPC authorization bound to this exact retailer."
+    },
+    {
+      "step": 17,
+      "objective": "Make the sole allowlisted RPC attempt and create one redacted control-state export.",
+      "required_inputs": ["successful steps 11 through 16", "one-shot read-only transport", "approved private evidence destination"],
+      "responsibility_owner": "named staging operator with independent verifier",
+      "completion_evidence": ["attempt count exactly one", "one redacted export", "eleven-source, cap, schema, timestamp and fingerprint validation", "zero write/mutation attempts"],
+      "stop_condition": "Any pre-RPC stop condition, second call, retry, incomplete source, cap/redaction/fingerprint failure or prohibited capability ends the attempt without success.",
+      "required_prior_authorization": "The unexpired exact step 14 credential-use and one-RPC authorization."
+    },
+    {
+      "step": 18,
+      "objective": "Prove the entire canary stayed within the maximum 60-minute window.",
+      "required_inputs": ["authorized UTC window", "timestamped audit events through the single RPC"],
+      "responsibility_owner": "RA-004 operation owner with independent verifier",
+      "completion_evidence": ["window-duration calculation", "proof unused authority expired at window end"],
+      "stop_condition": "Window expiry or duration over 60 minutes ends authority immediately and prevents success.",
+      "required_prior_authorization": "The exact time-bound canary authorization established before step 10."
+    },
+    {
+      "step": 19,
+      "objective": "Immediately remove LOGIN and caller EXECUTE access after the call or any failure.",
+      "required_inputs": ["credential identity", "revocation procedure", "call or failure timestamp"],
+      "responsibility_owner": "credential issuer with named operator",
+      "completion_evidence": ["LOGIN, EXECUTE and membership revocation receipt"],
+      "stop_condition": "Inability to revoke is a failed canary, triggers incident handling and prohibits success reporting.",
+      "required_prior_authorization": "The credential lifecycle authorization must require immediate revocation."
+    },
+    {
+      "step": 20,
+      "objective": "Independently prove credential expiry or invalidation and inability to reconnect or execute.",
+      "required_inputs": ["step 19 receipt", "approved negative access check"],
+      "responsibility_owner": "independent staging security verifier",
+      "completion_evidence": ["failed reconnect proof", "failed allowlisted-RPC execution proof", "expiry or invalidation receipt"],
+      "stop_condition": "Any surviving access or unproved invalidation makes the canary failed and blocks closeout success.",
+      "required_prior_authorization": "Read-only security verification within the closeout window; no further RPC attempt authority."
+    },
+    {
+      "step": 21,
+      "objective": "Store the redacted evidence, audit receipts and detached fingerprints.",
+      "required_inputs": ["step 17 redacted export", "steps 18 through 20 receipts", "approved evidence store and retention metadata"],
+      "responsibility_owner": "named evidence custodian",
+      "completion_evidence": ["write-once object IDs", "detached SHA-256 values", "redacted evidence index and retention dates"],
+      "stop_condition": "Secret/raw leakage, missing evidence, public storage or retention mismatch prevents closeout success.",
+      "required_prior_authorization": "Approved evidence storage and retention authority for this exact evidence set."
+    },
+    {
+      "step": 22,
+      "objective": "Read back stored evidence and verify bytes, metadata and fingerprints.",
+      "required_inputs": ["step 21 object IDs and detached hashes", "read-after-write capability"],
+      "responsibility_owner": "independent evidence verifier",
+      "completion_evidence": ["readback hashes and metadata equal the sealed evidence index"],
+      "stop_condition": "Missing object, byte/hash mismatch or unreadable retention metadata prevents closeout success.",
+      "required_prior_authorization": "Least-privilege read access for the independent verifier."
+    },
+    {
+      "step": 23,
+      "objective": "Close out the staging canary without claiming production or shadow authority.",
+      "required_inputs": ["all prior completion evidence", "zero-side-effect attestation", "access-revocation and evidence-readback receipts"],
+      "responsibility_owner": "RA-004 operation owner with independent verifier",
+      "completion_evidence": ["signed outcome record", "zero-side-effect attestation", "explicit statement that success proves only the staging interface boundary"],
+      "stop_condition": "Any missing evidence, unexplained result or unrevoked access produces failed/incomplete closeout, never default success.",
+      "required_prior_authorization": "Closeout authority only; DDL removal requires a separate reviewed migration and retention decision."
+    },
+    {
+      "step": 24,
+      "objective": "Require a separate owner decision before any live feed capture or shadow run.",
+      "required_inputs": ["step 23 closeout", "new proposal with current baseline and fingerprints"],
+      "responsibility_owner": "Marek as RA-004 owner",
+      "completion_evidence": ["separate explicit owner decision, or a recorded NOT_AUTHORIZED outcome"],
+      "stop_condition": "Absent separate approval, live capture and shadow remain NOT_AUTHORIZED with no automatic transition.",
+      "required_prior_authorization": "None is inherited from canary success; a new exact owner authorization is mandatory."
+    }
   ],
   "canary_restrictions": {
     "environment": "STAGING_ONLY",
@@ -141,26 +333,26 @@
     "required_lifecycle_fields": ["issuer", "operator", "issued_at", "expires_at", "revocation_receipt"]
   },
   "stop_conditions_before_rpc": [
-    "BASELINE_OR_MIGRATION_SHA_MISMATCH",
-    "STAGING_PROJECT_UNRECOGNIZED_OR_UNATTESTED",
-    "STAGING_RETAILER_ID_UNRECOGNIZED_OR_AMBIGUOUS",
-    "SCHEMA_DRIFT",
-    "MIGRATION_LEDGER_UNKNOWN_OR_MISMATCHED",
-    "MIGRATION_PARTIALLY_OR_UNEXPECTEDLY_APPLIED",
-    "GRANTS_BROADER_THAN_APPROVED",
-    "CREDENTIAL_HAS_UNAPPROVED_PRIVILEGES_OR_MEMBERSHIP",
-    "CREDENTIAL_TTL_EXCEEDS_30_MINUTES",
-    "PRIVATE_EVIDENCE_STORE_MISSING_OR_NONCOMPLIANT",
-    "OPERATOR_OR_CREDENTIAL_ISSUER_MISSING",
-    "SEPARATE_EXECUTION_OR_MIGRATION_AUTHORIZATION_MISSING",
-    "SECOND_RPC_ATTEMPT",
-    "RETRY_ATTEMPT",
-    "PRODUCTION_ACCESS_OR_CREDENTIAL_ATTEMPT",
-    "FEED_FETCH_ATTEMPT",
-    "BUSINESS_OR_CONTROL_WRITE_ATTEMPT",
-    "CONTROL_PLAN_APPROVAL_IMPORT_OR_APPLY_ATTEMPT",
-    "AUDIT_TRAIL_INCOMPLETE",
-    "IMMEDIATE_REVOCATION_CANNOT_BE_PROVED"
+    { "code": "BASELINE_OR_MIGRATION_SHA_MISMATCH", "required_evidence": "fresh Git ref receipts plus independently computed migration SHA-256", "effect": "STOP_BEFORE_RPC_NO_OVERRIDE_NO_PARTIAL_CONTINUATION_NO_SUCCESS" },
+    { "code": "STAGING_PROJECT_UNRECOGNIZED_OR_UNATTESTED", "required_evidence": "signed read-only staging project-identity attestation", "effect": "STOP_BEFORE_RPC_NO_OVERRIDE_NO_PARTIAL_CONTINUATION_NO_SUCCESS" },
+    { "code": "STAGING_RETAILER_ID_UNRECOGNIZED_OR_AMBIGUOUS", "required_evidence": "unique read-only 10 Reps name-or-slug to numeric-ID receipt", "effect": "STOP_BEFORE_RPC_NO_OVERRIDE_NO_PARTIAL_CONTINUATION_NO_SUCCESS" },
+    { "code": "SCHEMA_DRIFT", "required_evidence": "reviewed schema, function, role, ACL and RLS prerequisite comparison", "effect": "STOP_BEFORE_RPC_NO_OVERRIDE_NO_PARTIAL_CONTINUATION_NO_SUCCESS" },
+    { "code": "MIGRATION_LEDGER_UNKNOWN_OR_MISMATCHED", "required_evidence": "current ledger count, ordered entries and fingerprint matching the approved preflight", "effect": "STOP_BEFORE_RPC_NO_OVERRIDE_NO_PARTIAL_CONTINUATION_NO_SUCCESS" },
+    { "code": "MIGRATION_PARTIALLY_OR_UNEXPECTEDLY_APPLIED", "required_evidence": "proof the target objects and ledger entry are wholly absent before application", "effect": "STOP_BEFORE_RPC_NO_OVERRIDE_NO_PARTIAL_CONTINUATION_NO_SUCCESS" },
+    { "code": "GRANTS_BROADER_THAN_APPROVED", "required_evidence": "post-migration role attributes, memberships, ACL, RLS and function-grant report", "effect": "STOP_BEFORE_RPC_NO_OVERRIDE_NO_PARTIAL_CONTINUATION_NO_SUCCESS" },
+    { "code": "CREDENTIAL_HAS_UNAPPROVED_PRIVILEGES_OR_MEMBERSHIP", "required_evidence": "credential privilege and membership attestation against the closed allowlist", "effect": "STOP_BEFORE_RPC_NO_OVERRIDE_NO_PARTIAL_CONTINUATION_NO_SUCCESS" },
+    { "code": "CREDENTIAL_TTL_EXCEEDS_30_MINUTES", "required_evidence": "issued-at, expires-at and independently calculated TTL receipt", "effect": "STOP_BEFORE_RPC_NO_OVERRIDE_NO_PARTIAL_CONTINUATION_NO_SUCCESS" },
+    { "code": "PRIVATE_EVIDENCE_STORE_MISSING_OR_NONCOMPLIANT", "required_evidence": "approved store encryption, immutability, access-audit, retention and readback report", "effect": "STOP_BEFORE_RPC_NO_OVERRIDE_NO_PARTIAL_CONTINUATION_NO_SUCCESS" },
+    { "code": "OPERATOR_OR_CREDENTIAL_ISSUER_MISSING", "required_evidence": "signed named-role and separation-of-duties record", "effect": "STOP_BEFORE_RPC_NO_OVERRIDE_NO_PARTIAL_CONTINUATION_NO_SUCCESS" },
+    { "code": "SEPARATE_EXECUTION_OR_MIGRATION_AUTHORIZATION_MISSING", "required_evidence": "unexpired exact owner authorization bound to project, ledger, migration, operator and window", "effect": "STOP_BEFORE_RPC_NO_OVERRIDE_NO_PARTIAL_CONTINUATION_NO_SUCCESS" },
+    { "code": "SECOND_RPC_ATTEMPT", "required_evidence": "sealed attempt counter and one-shot provider receipt", "effect": "STOP_BEFORE_RPC_NO_OVERRIDE_NO_PARTIAL_CONTINUATION_NO_SUCCESS" },
+    { "code": "RETRY_ATTEMPT", "required_evidence": "no-retry configuration proof and retry-attempt audit event", "effect": "STOP_BEFORE_RPC_NO_OVERRIDE_NO_PARTIAL_CONTINUATION_NO_SUCCESS" },
+    { "code": "PRODUCTION_ACCESS_OR_CREDENTIAL_ATTEMPT", "required_evidence": "endpoint and credential-scope attestation plus network destination audit", "effect": "STOP_BEFORE_RPC_NO_OVERRIDE_NO_PARTIAL_CONTINUATION_NO_SUCCESS" },
+    { "code": "FEED_FETCH_ATTEMPT", "required_evidence": "network capability audit proving no feed source is allowed", "effect": "STOP_BEFORE_RPC_NO_OVERRIDE_NO_PARTIAL_CONTINUATION_NO_SUCCESS" },
+    { "code": "BUSINESS_OR_CONTROL_WRITE_ATTEMPT", "required_evidence": "read-only transaction proof and zero write/mutation attempt counters", "effect": "STOP_BEFORE_RPC_NO_OVERRIDE_NO_PARTIAL_CONTINUATION_NO_SUCCESS" },
+    { "code": "CONTROL_PLAN_APPROVAL_IMPORT_OR_APPLY_ATTEMPT", "required_evidence": "capability audit proving those operations are absent and attempt counters remain zero", "effect": "STOP_BEFORE_RPC_NO_OVERRIDE_NO_PARTIAL_CONTINUATION_NO_SUCCESS" },
+    { "code": "AUDIT_TRAIL_INCOMPLETE", "required_evidence": "complete ordered event, authorization, attempt, evidence and revocation ledger", "effect": "STOP_BEFORE_RPC_NO_OVERRIDE_NO_PARTIAL_CONTINUATION_NO_SUCCESS" },
+    { "code": "IMMEDIATE_REVOCATION_CANNOT_BE_PROVED", "required_evidence": "LOGIN, EXECUTE and membership revocation receipt plus failed reconnect/execute checks", "effect": "STOP_BEFORE_RPC_NO_OVERRIDE_NO_PARTIAL_CONTINUATION_NO_SUCCESS" }
   ],
   "unresolved_information": [
     { "item": "staging_project_reference", "answer_owner": "staging environment owner", "safe_check": "approved read-only administrative preflight comparing public project identity metadata; do not inspect secret values", "required_at": "before selector implementation review and before any connection-bearing authorization", "missing_consequence": "stop; project target cannot be attested" },
@@ -185,11 +377,11 @@
     "staging and production connectivity",
     "live exporter, feed capture, workflow dispatch and shadow execution"
   ],
-  "next_task": "Independent verification of the Draft PR.",
+  "next_task": "Prepare a separate authorization package for a bounded read-only staging preflight, without connecting to staging as part of this closeout.",
   "manifest_fingerprint": {
     "algorithm": "SHA-256",
     "canonicalization": "scripts/lib/stable-json-hash.js canonical JSON",
     "covers": "all root fields except manifest_fingerprint",
-    "value": "34fb0e93fd3e91b7b737040c9eef0069c722fb96926bc109c86b5e75d3046b35"
+    "value": "bd5c259941997daad3755c1cb135f76f6eccaef1fb9e1ce0044939ce08439214"
   }
 }

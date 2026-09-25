@@ -54,13 +54,19 @@ credential, selector change, migration apply, capture or shadow run was created.
 RA-004 remains `IN_PROGRESS`.
 
 The staging-canary implementation plan is documentation/design only:
-preparation is `OWNER_APPROVED`, independent verification is `NOT_STARTED`,
+preparation is `OWNER_APPROVED`, independent verification is
+`VERIFIED_COMPLETE`,
 and execution, staging migration application, credential issuance/use, live
 export, production and shadow are `NOT_AUTHORIZED`. The exact RA-004 migration
 remains excluded from both staging and production selectors. The plan records
 the future 24-step sequence, staging-only credential boundary, stop conditions
-and nine unresolved execution blockers. It does not indicate canary readiness;
-its next task is independent verification of the Draft PR.
+and nine unresolved execution blockers. Independent verification rejected all
+eight controlled negative mutations and passed Project Guardian, 84/84 focused
+tests, TypeScript, ESLint, `verify:quick` and `verify:full`, including the
+production build, without connecting to staging or production. It does not
+indicate canary readiness. Its next task is preparation of a separate
+authorization package for a bounded read-only staging preflight, without
+connecting to staging as part of this closeout.
 
 The fixture-only implementation is preserved in PR #89. Marek approved
 the transactional interface for isolated local implementation. The migration

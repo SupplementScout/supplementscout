@@ -255,8 +255,8 @@ live control-state export, shadow, control plan, approval, import, apply,
 Model B and cutover remain `NOT_AUTHORIZED`; auto-safe classes remain
 `NONE_APPROVED`.
 
-**Staging-canary implementation plan:** `PREPARATION OWNER_APPROVED`;
-independent verification is `NOT_STARTED`, and this status does not indicate
+**Staging-canary implementation plan:** `PREPARATION OWNER_APPROVED` and
+independent verification is `VERIFIED_COMPLETE`; neither status indicates
 execution readiness. The documentation-only plan and manifest are
 [`evidence/RA-004-STAGING-CANARY-IMPLEMENTATION-PLAN.md`](evidence/RA-004-STAGING-CANARY-IMPLEMENTATION-PLAN.md)
 and
@@ -265,8 +265,13 @@ They preserve the migration's staging and production selector exclusions and
 define the future one-retailer, one-RPC, no-retry, maximum-60-minute canary and
 maximum-30-minute credential. Staging execution, migration application,
 credential issuance/use, live export, production and shadow remain
-`NOT_AUTHORIZED`. The next task is independent verification of the Draft PR;
-no execution step may begin.
+`NOT_AUTHORIZED`. Independent verification used the exact initial PR head in a
+clean worktree, rejected all eight controlled authorization/contract mutations,
+passed 84/84 focused tests, Project Guardian, TypeScript, ESLint,
+`verify:quick` and `verify:full`, including the production build, and made no
+staging or production connection. The next task is preparation of a separate
+authorization package for a bounded read-only staging preflight; this closeout
+does not connect to staging and no execution step may begin.
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
