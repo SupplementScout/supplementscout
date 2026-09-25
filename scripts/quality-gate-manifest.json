@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 310,
-    "sha256": "87c7fb7d8957e847dbdc84ee83b37d94ad441c1b59df4c67a4eabcf67184668d"
+    "count": 311,
+    "sha256": "a356f24a8e5a08a56be7119c70a6ab463151f1fbce2d4bf6db4d5834811a74bc"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -87,6 +87,7 @@
     "scripts/protein-bars-page.test.js",
     "scripts/quality-gate.test.js",
     "scripts/ra004-single-snapshot-replay.test.js",
+    "scripts/ra004-staging-execution-coordinator.test.js",
     "scripts/ra004-staging-preflight.test.js",
     "scripts/reviewed-catalogue-artifact-approver.test.js",
     "scripts/retailer-incident-regression.test.js",
