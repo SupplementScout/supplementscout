@@ -273,6 +273,42 @@ staging or production connection. The next task is preparation of a separate
 authorization package for a bounded read-only staging preflight; this closeout
 does not connect to staging and no execution step may begin.
 
+**Staging-preflight authorization pack:** preparation is `AUTHORIZED`, final
+owner-decision verification is `VERIFIED_COMPLETE`, and all five decisions
+are `OWNER_APPROVED_FOR_FUTURE_PREPARATION`. On 25 September 2026 Marek Kalinka
+approved their requirements and future preparation through
+`EXPLICIT_OWNER_INSTRUCTION`. Future local implementation preparation in one
+separate PR is `AUTHORIZED`; staging deployment and execution are not.
+The documentation-only pack and manifest are
+[`evidence/RA-004-STAGING-PREFLIGHT-AUTHORIZATION-PACK.md`](evidence/RA-004-STAGING-PREFLIGHT-AUTHORIZATION-PACK.md)
+and
+[`evidence/RA-004-staging-preflight-authorization.json`](evidence/RA-004-staging-preflight-authorization.json).
+Repository audit found no deployed metadata-only role, bounded project/retailer
+identity interface, migration-ledger/schema metadata RPC, closed preflight
+provider/CLI or approved private evidence store. These are recorded as
+`BLOCKED_INTERFACE_GAP`; general SQL and existing validator, approver, executor
+or service-role credentials are not accepted as substitutes. Control-plane and
+database reads, staging connection, credential issuance/use, preflight,
+migration, canary, production, live export and shadow remain `NOT_AUTHORIZED`.
+Independent verification at initial head
+`0b2752ac60cd8e38659751a227487f328def574b` confirmed the initial manifest
+fingerprint `732cccf46eb4467460029b411f5138f81f4af69a9ad88235e6ed20d9051f7149`,
+rejected all 12 controlled mutations and produced final canonical fingerprint
+`9ed7ea2bea9a7fb2c2a521da87314ef6c438c46c46b751be254f7e57e2239b64`.
+Project Guardian, 89 focused exporter/selector tests, TypeScript, ESLint,
+`verify:quick` and `verify:full`, including the production build, passed without
+staging, production, control-plane, database, SQL, credential or secret access.
+Final independent verification in a second clean detached worktree rejected all
+15 controlled mutations and passed Project Guardian, 89 focused tests,
+TypeScript, ESLint, `verify:quick` and `verify:full`, including the production
+build. The approval does not expire or expand automatically. The operator, issuer,
+project reference, host, retailer ID, window and evidence store remain
+unapproved and `UNRESOLVED`. Plan, fingerprint, query-allowlist, credential or
+interface changes require reevaluation. The next task is to prepare one
+consolidated local implementation PR covering the metadata-only RPC, minimal
+role, closed provider, CLI and tests, without deploying to staging; no staging
+deployment or preflight may begin.
+
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
 **Goal:** compare the candidate canonical pipeline with the existing 10 Reps

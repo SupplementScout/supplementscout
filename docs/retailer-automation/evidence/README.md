@@ -68,6 +68,37 @@ indicate canary readiness. Its next task is preparation of a separate
 authorization package for a bounded read-only staging preflight, without
 connecting to staging as part of this closeout.
 
+The separate staging-preflight authorization pack is documentation and owner
+decision preparation only. Its preparation status is `AUTHORIZED`, final
+owner-decision verification is `VERIFIED_COMPLETE`, and all five owner decisions
+are `OWNER_APPROVED_FOR_FUTURE_PREPARATION`. Marek Kalinka recorded the exact
+approval on 25 September 2026 through `EXPLICIT_OWNER_INSTRUCTION`. Local
+implementation preparation in one later separate PR is `AUTHORIZED`; staging
+deployment is not. Control-plane/database reads, staging connection, credential
+issuance/use, preflight execution, migration, canary, production, live export
+and shadow remain `NOT_AUTHORIZED`; auto-safe classes remain `NONE_APPROVED`.
+The repository audit found no currently usable closed metadata-only role/RPC,
+preflight provider/CLI or approved evidence store, so these remain explicit
+`BLOCKED_INTERFACE_GAP` items without a general-SQL fallback. See
+[`RA-004-STAGING-PREFLIGHT-AUTHORIZATION-PACK.md`](RA-004-STAGING-PREFLIGHT-AUTHORIZATION-PACK.md)
+and
+[`RA-004-staging-preflight-authorization.json`](RA-004-staging-preflight-authorization.json).
+Independent verification confirmed the initial manifest fingerprint
+`732cccf46eb4467460029b411f5138f81f4af69a9ad88235e6ed20d9051f7149`,
+rejected all 12 controlled mutations and sealed final fingerprint
+`9ed7ea2bea9a7fb2c2a521da87314ef6c438c46c46b751be254f7e57e2239b64`.
+Project Guardian, 89 focused tests, TypeScript, ESLint, `verify:quick` and
+`verify:full` including the production build passed. Integration, SQL/database,
+Supabase CLI and staging/production access were skipped by design. The next
+Final independent verification in a second clean detached worktree rejected all
+15 controlled mutations and passed Project Guardian, 89 focused tests,
+TypeScript, ESLint, `verify:quick` and `verify:full`, including the production
+build. The approval does not expire or expand automatically, all execution
+values remain unapproved and `UNRESOLVED`, and no staging access or execution is
+authorized. The next task is one consolidated local implementation PR for the
+metadata-only RPC, minimal role, closed provider, CLI and tests, without staging
+deployment.
+
 The fixture-only implementation is preserved in PR #89. Marek approved
 the transactional interface for isolated local implementation. The migration
 and unwired provider contract passed independent local database verification.
