@@ -290,6 +290,18 @@ provider/CLI or approved private evidence store. These are recorded as
 or service-role credentials are not accepted as substitutes. Control-plane and
 database reads, staging connection, credential issuance/use, preflight,
 migration, canary, production, live export and shadow remain `NOT_AUTHORIZED`.
+
+**Staging-preflight local interface implementation:** `READY_FOR_VERIFICATION`.
+One consolidated local implementation now provides the metadata-only Q2-Q7
+RPC, dedicated `NOLOGIN NOINHERIT` roles, closed Q1/Q8 provider boundaries,
+fail-closed runner and CLI, six closed schemas, write-once redacted evidence,
+fixtures and isolated PostgreSQL 17 verification. Both the existing
+control-state migration and the new preflight migration remain SHA-bound and
+excluded from STAGING and PRODUCTION deployment selectors. Q1 and Q8 remain
+`BLOCKED_TARGET_CONFIGURATION`; all staging, production and execution actions
+remain `NOT_AUTHORIZED`. See
+[`evidence/RA-004-STAGING-PREFLIGHT-LOCAL-IMPLEMENTATION.md`](evidence/RA-004-STAGING-PREFLIGHT-LOCAL-IMPLEMENTATION.md).
+
 Independent verification at initial head
 `0b2752ac60cd8e38659751a227487f328def574b` confirmed the initial manifest
 fingerprint `732cccf46eb4467460029b411f5138f81f4af69a9ad88235e6ed20d9051f7149`,
