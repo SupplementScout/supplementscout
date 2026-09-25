@@ -22,6 +22,10 @@
 
 [RA-004 machine-readable owner decision record](RA-004-owner-decisions.json)
 
+[RA-004 staging-canary implementation plan](RA-004-STAGING-CANARY-IMPLEMENTATION-PLAN.md)
+
+[RA-004 machine-readable staging-canary plan](RA-004-staging-canary-plan.json)
+
 RA-002 was independently verified on 23 September 2026 in PR #86. RA-003 was
 independently verified on 24 September 2026 in PR #87. Their local test and
 contract modules remain unwired from production. RA-004 is `IN_PROGRESS`; its
@@ -48,6 +52,15 @@ execution, migration application, credential issuance/use, production, live
 capture, live control-state export and shadow remain `NOT_AUTHORIZED`. No
 credential, selector change, migration apply, capture or shadow run was created.
 RA-004 remains `IN_PROGRESS`.
+
+The staging-canary implementation plan is documentation/design only:
+preparation is `OWNER_APPROVED`, independent verification is `NOT_STARTED`,
+and execution, staging migration application, credential issuance/use, live
+export, production and shadow are `NOT_AUTHORIZED`. The exact RA-004 migration
+remains excluded from both staging and production selectors. The plan records
+the future 24-step sequence, staging-only credential boundary, stop conditions
+and nine unresolved execution blockers. It does not indicate canary readiness;
+its next task is independent verification of the Draft PR.
 
 The fixture-only implementation is preserved in PR #89. Marek approved
 the transactional interface for isolated local implementation. The migration

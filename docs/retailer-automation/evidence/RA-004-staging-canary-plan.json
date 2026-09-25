@@ -1,0 +1,195 @@
+{
+  "schema_version": "ra-004-staging-canary-plan-v1",
+  "prepared_at": "2026-09-25",
+  "task_id": "RA-004",
+  "baseline_sha": "8e6299941fb6104d6e1ce2d453823b84cc97b44f",
+  "owner_decision_manifest_fingerprint": "030c9d7cb12b46ab0b2bca2311ffbe1456e1c579e9e3acd570a4c0766ead119c",
+  "preparation_status": "OWNER_APPROVED",
+  "verification_status": "NOT_STARTED",
+  "execution_status": "NOT_AUTHORIZED",
+  "staging_migration_status": "NOT_AUTHORIZED",
+  "credential_design_status": "OWNER_APPROVED",
+  "credential_issuance_status": "NOT_AUTHORIZED",
+  "credential_use_status": "NOT_AUTHORIZED",
+  "live_export_status": "NOT_AUTHORIZED",
+  "production_status": "NOT_AUTHORIZED",
+  "shadow_status": "NOT_AUTHORIZED",
+  "scope": {
+    "documentation_and_design_only": true,
+    "staging_connection_performed": false,
+    "production_connection_performed": false,
+    "sql_or_database_performed": false,
+    "migration_applied": false,
+    "selector_changed": false,
+    "credential_created_or_used": false,
+    "secret_value_read": false,
+    "feed_capture_performed": false,
+    "live_export_performed": false,
+    "workflow_dispatched": false,
+    "shadow_run_performed": false,
+    "control_plan_created": false,
+    "approval_created": false,
+    "import_or_apply_performed": false
+  },
+  "migration": {
+    "path": "supabase/migrations/20260924100000_add_transactional_retailer_control_state_interface.sql",
+    "sha256": "cfd7a93cb20845832b696183f5eb8a500f0474b4173829b85f6ac6bc73d4baaa",
+    "staging_selector_state": "EXCLUDED",
+    "production_selector_state": "EXCLUDED",
+    "selector_change_requires_separate_pr_review_and_owner_authorization": true
+  },
+  "existing_mechanisms": [
+    {
+      "path": "scripts/supabase-migration-selector.js",
+      "purpose": "environment attestation, remote ledger validation, SHA-bound selection and isolated selected directory",
+      "reuse": "REQUIRED_FUTURE_PATH",
+      "current_ra004_state": "EXCLUDED_FROM_STAGING_AND_PRODUCTION"
+    },
+    {
+      "path": "scripts/verify-selected-migrations.js",
+      "purpose": "post-application verification for the selected environment contract",
+      "reuse": "REQUIRED_FUTURE_PATH",
+      "current_ra004_state": "NOT_INVOKED"
+    },
+    {
+      "path": "scripts/apply-selected-migrations.js",
+      "purpose": "guarded application of a validated selected directory",
+      "reuse": "ONLY_ALLOWED_FUTURE_APPLICATION_PATH",
+      "current_ra004_state": "NOT_INVOKED"
+    },
+    {
+      "path": "scripts/lib/retailer-offer-sync/control-state-export-v1/providers.js",
+      "purpose": "one-shot allowlisted read-only RPC provider contract",
+      "reuse": "REQUIRED",
+      "current_ra004_state": "UNWIRED_NO_TRANSPORT"
+    },
+    {
+      "path": "scripts/lib/retailer-offer-sync/control-state-export-v1/authorization.js",
+      "purpose": "fingerprinted, time-bound, retailer-bound authorization validation",
+      "reuse": "REQUIRED",
+      "current_ra004_state": "NO_LIVE_AUTHORIZATION"
+    },
+    {
+      "path": "scripts/lib/retailer-offer-sync/control-state-export-v1/schema.js",
+      "purpose": "eleven-source registry, prohibited operations and output contract",
+      "reuse": "REQUIRED",
+      "current_ra004_state": "VERIFIED_COMPLETE_CONTRACT"
+    },
+    {
+      "path": "scripts/retailer-control-state-export.js",
+      "purpose": "fixture CLI and fail-closed live-provider construction boundary",
+      "reuse": "REVIEW_BEFORE_FUTURE_IMPLEMENTATION",
+      "current_ra004_state": "LIVE_MODE_CANNOT_CONSTRUCT_TRANSPORT"
+    }
+  ],
+  "future_sequence": [
+    { "step": 1, "action": "Independently verify this Draft PR.", "gate": "Draft PR remains unmerged and not ready." },
+    { "step": 2, "action": "Perform an approved read-only preflight of current staging.", "gate": "No mutation and no secret-value inspection." },
+    { "step": 3, "action": "Confirm the current staging project reference without reading secret values.", "gate": "Fail closed unless independently attested." },
+    { "step": 4, "action": "Resolve the unique staging retailer ID for 10 Reps without guessing or copying a production ID.", "gate": "Exactly one matching staging retailer." },
+    { "step": 5, "action": "Confirm the current staging migration ledger and schema prerequisites.", "gate": "Target migration absent and no partial application or drift." },
+    { "step": 6, "action": "Name the operation owner, operator, credential issuer and exact UTC execution window.", "gate": "All four recorded before implementation authorization." },
+    { "step": 7, "action": "Approve a private evidence store that implements the owner-approved retention policy.", "gate": "Private, encrypted, write-once, audited and read-after-write capable." },
+    { "step": 8, "action": "Prepare the exact staging-only migration-selector change in a separate future Draft PR.", "gate": "One filename and SHA admitted; production exclusion and contract unchanged." },
+    { "step": 9, "action": "Obtain a separate exact owner authorization to apply the migration to the attested staging project.", "gate": "Authorization is time-bound and binds project, ledger, migration and operator." },
+    { "step": 10, "action": "Apply exactly one migration with the approved SHA through the selected-directory path.", "gate": "No direct SQL, Supabase push or unselected directory." },
+    { "step": 11, "action": "Verify ACL, RLS, function, role attributes, ledger entry and absence of broad grants.", "gate": "Any mismatch stops before credential issuance." },
+    { "step": 12, "action": "Issue one staging-only credential only after separate exact authorization.", "gate": "Credential design below is satisfied in full." },
+    { "step": 13, "action": "Limit credential validity to at most 30 minutes.", "gate": "VALID UNTIL and external lifecycle record agree." },
+    { "step": 14, "action": "Permit exactly one attempt of the allowlisted read_retailer_control_state_v1 RPC.", "gate": "Attempt counter is sealed before invocation." },
+    { "step": 15, "action": "Disable automatic and operator retry.", "gate": "Any second attempt requires a new task and authorization." },
+    { "step": 16, "action": "Bind the request to the one resolved 10 Reps staging retailer.", "gate": "Retailer ID and unique name or slug both match preflight." },
+    { "step": 17, "action": "Create one redacted control-state export.", "gate": "All eleven sources, caps, schema, timestamps and fingerprints validate." },
+    { "step": 18, "action": "Keep the whole canary inside a maximum 60-minute authorized window.", "gate": "Unused authority expires at window end." },
+    { "step": 19, "action": "Immediately revoke LOGIN and caller EXECUTE access after the call or any failure.", "gate": "Revocation precedes all success reporting." },
+    { "step": 20, "action": "Prove credential expiry or invalidation and inability to reconnect or execute.", "gate": "Unproved revocation is failure." },
+    { "step": 21, "action": "Store the redacted evidence, audit receipts and detached fingerprints.", "gate": "No credential, endpoint secret or raw private payload in Git, logs or public artifacts." },
+    { "step": 22, "action": "Perform read-after-write verification of stored evidence and hashes.", "gate": "Stored bytes and metadata match the sealed evidence index." },
+    { "step": 23, "action": "Close out the canary with outcome, zero-side-effect attestation and access-revocation receipt.", "gate": "Success proves only the staging interface boundary." },
+    { "step": 24, "action": "Require a separate owner decision before any live feed capture or shadow run.", "gate": "Canary success creates no later authority." }
+  ],
+  "canary_restrictions": {
+    "environment": "STAGING_ONLY",
+    "production_access": false,
+    "feed_capture": false,
+    "scheduler": false,
+    "evidence_producers": false,
+    "control_plan": false,
+    "approval": false,
+    "import": false,
+    "apply": false,
+    "offer_changes": false,
+    "model_b_execution": false,
+    "auto_safe_classes": "NONE_APPROVED",
+    "cutover": false
+  },
+  "credential_design": {
+    "login": "SEPARATE_STAGING_ONLY_LOGIN",
+    "maximum_validity_minutes": 30,
+    "maximum_rpc_attempts": 1,
+    "automatic_retry": false,
+    "direct_table_or_sequence_privileges": false,
+    "mutation_rpc_privileges": false,
+    "forbidden_memberships": ["validator", "approver", "executor", "service_role"],
+    "superuser": false,
+    "bypassrls": false,
+    "default_transaction_read_only": true,
+    "statement_timeout_seconds_maximum": 15,
+    "reuse_allowed": false,
+    "immediate_revocation": ["LOGIN", "EXECUTE"],
+    "credential_value_locations_forbidden": ["Git", "logs", "artifacts", "Pull Request"],
+    "required_lifecycle_fields": ["issuer", "operator", "issued_at", "expires_at", "revocation_receipt"]
+  },
+  "stop_conditions_before_rpc": [
+    "BASELINE_OR_MIGRATION_SHA_MISMATCH",
+    "STAGING_PROJECT_UNRECOGNIZED_OR_UNATTESTED",
+    "STAGING_RETAILER_ID_UNRECOGNIZED_OR_AMBIGUOUS",
+    "SCHEMA_DRIFT",
+    "MIGRATION_LEDGER_UNKNOWN_OR_MISMATCHED",
+    "MIGRATION_PARTIALLY_OR_UNEXPECTEDLY_APPLIED",
+    "GRANTS_BROADER_THAN_APPROVED",
+    "CREDENTIAL_HAS_UNAPPROVED_PRIVILEGES_OR_MEMBERSHIP",
+    "CREDENTIAL_TTL_EXCEEDS_30_MINUTES",
+    "PRIVATE_EVIDENCE_STORE_MISSING_OR_NONCOMPLIANT",
+    "OPERATOR_OR_CREDENTIAL_ISSUER_MISSING",
+    "SEPARATE_EXECUTION_OR_MIGRATION_AUTHORIZATION_MISSING",
+    "SECOND_RPC_ATTEMPT",
+    "RETRY_ATTEMPT",
+    "PRODUCTION_ACCESS_OR_CREDENTIAL_ATTEMPT",
+    "FEED_FETCH_ATTEMPT",
+    "BUSINESS_OR_CONTROL_WRITE_ATTEMPT",
+    "CONTROL_PLAN_APPROVAL_IMPORT_OR_APPLY_ATTEMPT",
+    "AUDIT_TRAIL_INCOMPLETE",
+    "IMMEDIATE_REVOCATION_CANNOT_BE_PROVED"
+  ],
+  "unresolved_information": [
+    { "item": "staging_project_reference", "answer_owner": "staging environment owner", "safe_check": "approved read-only administrative preflight comparing public project identity metadata; do not inspect secret values", "required_at": "before selector implementation review and before any connection-bearing authorization", "missing_consequence": "stop; project target cannot be attested" },
+    { "item": "staging_10reps_retailer_id", "answer_owner": "staging data owner", "safe_check": "read-only unique name or slug inventory on the attested staging project", "required_at": "before authorization or credential issuance", "missing_consequence": "stop; retailer scope cannot be bound" },
+    { "item": "current_staging_migration_ledger", "answer_owner": "staging database owner", "safe_check": "existing approved read-only selector preflight and ledger fingerprint comparison", "required_at": "before selector plan generation and again immediately before application", "missing_consequence": "stop; migration selection is unsafe" },
+    { "item": "current_staging_schema", "answer_owner": "staging database owner", "safe_check": "approved read-only prerequisite, function, role, ACL and RLS inventory", "required_at": "before migration authorization", "missing_consequence": "stop; schema drift and partial state cannot be excluded" },
+    { "item": "private_evidence_store", "answer_owner": "evidence custodian and data owner", "safe_check": "configuration and access-policy review without uploading canary data", "required_at": "before execution authorization", "missing_consequence": "stop; export has no compliant destination" },
+    { "item": "operator", "answer_owner": "RA-004 operation owner", "safe_check": "named-person assignment with role-separation review", "required_at": "before execution authorization", "missing_consequence": "stop; no accountable executor" },
+    { "item": "credential_issuer", "answer_owner": "staging security or database owner", "safe_check": "named-person assignment and privilege-capability review", "required_at": "before credential issuance authorization", "missing_consequence": "stop; credential lifecycle cannot be controlled" },
+    { "item": "exact_execution_window", "answer_owner": "RA-004 owner and staging owner", "safe_check": "record explicit UTC start and end not exceeding 60 minutes", "required_at": "before any execution authorization becomes valid", "missing_consequence": "stop; no valid canary window" },
+    { "item": "future_staging_selector_change", "answer_owner": "future implementation owner plus independent verifier", "safe_check": "separate Draft PR proving one-file SHA-bound staging admission and unchanged production exclusion", "required_at": "before migration application authorization", "missing_consequence": "stop; migration remains intentionally excluded" }
+  ],
+  "known_implementation_blockers": [
+    "The tracked live provider requires an injected one-method transport, while the current CLI supplies none.",
+    "The RA-004 migration is intentionally excluded from both environment selectors.",
+    "No execution authorization, staging credential, approved evidence destination or current staging attestation exists by assumption."
+  ],
+  "skipped_by_design": [
+    "npm run verify:integration",
+    "all SQL and database tests",
+    "Supabase CLI and migration application",
+    "staging and production connectivity",
+    "live exporter, feed capture, workflow dispatch and shadow execution"
+  ],
+  "next_task": "Independent verification of the Draft PR.",
+  "manifest_fingerprint": {
+    "algorithm": "SHA-256",
+    "canonicalization": "scripts/lib/stable-json-hash.js canonical JSON",
+    "covers": "all root fields except manifest_fingerprint",
+    "value": "34fb0e93fd3e91b7b737040c9eef0069c722fb96926bc109c86b5e75d3046b35"
+  }
+}

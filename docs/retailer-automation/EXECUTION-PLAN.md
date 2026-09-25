@@ -255,6 +255,19 @@ live control-state export, shadow, control plan, approval, import, apply,
 Model B and cutover remain `NOT_AUTHORIZED`; auto-safe classes remain
 `NONE_APPROVED`.
 
+**Staging-canary implementation plan:** `PREPARATION OWNER_APPROVED`;
+independent verification is `NOT_STARTED`, and this status does not indicate
+execution readiness. The documentation-only plan and manifest are
+[`evidence/RA-004-STAGING-CANARY-IMPLEMENTATION-PLAN.md`](evidence/RA-004-STAGING-CANARY-IMPLEMENTATION-PLAN.md)
+and
+[`evidence/RA-004-staging-canary-plan.json`](evidence/RA-004-staging-canary-plan.json).
+They preserve the migration's staging and production selector exclusions and
+define the future one-retailer, one-RPC, no-retry, maximum-60-minute canary and
+maximum-30-minute credential. Staging execution, migration application,
+credential issuance/use, live export, production and shadow remain
+`NOT_AUTHORIZED`. The next task is independent verification of the Draft PR;
+no execution step may begin.
+
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
 **Goal:** compare the candidate canonical pipeline with the existing 10 Reps
