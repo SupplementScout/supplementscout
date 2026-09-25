@@ -12,6 +12,11 @@ const { LocalFixtureTransport } = require("./lib/retailer-offer-sync/ra004-stagi
 const { createClosedProvider } = require("./lib/retailer-offer-sync/ra004-staging-preflight-v1/provider");
 const { runPreflight } = require("./lib/retailer-offer-sync/ra004-staging-preflight-v1/runner");
 const { writeOnce } = require("./lib/retailer-offer-sync/ra004-staging-preflight-v1/evidence");
+const {
+  createPreflightPostgresTransport,
+  validateDatabaseUrl,
+  validateRevokeReceipt,
+} = require("./lib/retailer-offer-sync/ra004-bounded-live-transport-v1");
 const { sha256 } = require("./lib/stable-json-hash");
 const { parseArgs, readAuthorization, run: runCli } = require("./ra004-staging-preflight");
 
@@ -73,12 +78,142 @@ async function positive(options = {}) {
 function reseal(value) { value.authorization_fingerprint = authorizationFingerprint(value); return value; }
 function metadataReseal(value) { value.metadata_fingerprint = "0".repeat(64); value.metadata_fingerprint = sha256(postgresJsonbText(value)); return value; }
 
+function fakeClient(response, capture = {}, failure) {
+  return class FakeClient {
+    constructor(options) { capture.options = options; capture.queries = []; capture.end_count = 0; }
+    async connect() { capture.connect_count = (capture.connect_count || 0) + 1; }
+    async query(query) {
+      capture.queries.push(query);
+      if (failure && typeof query === "object") throw failure;
+      if (typeof query === "string") return { rowCount: 0, rows: [] };
+      return { rowCount: 1, rows: [response] };
+    }
+    async end() { capture.end_count += 1; }
+  };
+}
+
 test("synthetic happy path seals report, readback and revoke receipt with full counters", async () => {
   const result = await positive();
   assert.equal(result.report.status, "METADATA_CAPTURED_PENDING_REVOKE"); assert.equal(result.receipt.status, "REVOKED_AND_CLOSED");
   assert.deepEqual(Object.keys(result.receipt.capability_counters).sort(), ["close","connection","evidence_store","metadata_rpc","prohibited","project_identity","retry","revoke"].sort());
   for (const name of ["project_identity","evidence_store","connection","metadata_rpc","revoke","close"]) assert.equal(result.receipt.capability_counters[name].performed_count, 1);
   for (const name of ["retry","prohibited"]) assert.equal(result.receipt.capability_counters[name].attempt_count, 0);
+});
+
+test("bounded live preflight transport performs one exact read-only RPC and proves separate issuer revoke", async () => {
+  const data = fixture();
+  const runnerProcessId = 41001;
+  const issuerProcessId = 41002;
+  const capture = {};
+  let revokeRequest;
+  const databaseUrl = "postgresql://ra004_local_fixture_login.ra004-local-synthetic:fixture-password@aws-0.test.pooler.supabase.com:5432/postgres?sslmode=require";
+  const liveAuthorization = authorization({ status: "AUTHORIZED" });
+  liveAuthorization.authorization_fingerprint = authorizationFingerprint(liveAuthorization);
+  const liveExpected = expected({ provider_mode: "live-read-only" });
+  const liveTransport = createPreflightPostgresTransport({
+    databaseUrl,
+    projectReference: "ra004-local-synthetic",
+    canonicalHost: "ra004-local.invalid",
+    expectedSessionUser: "ra004_local_fixture_login",
+    credentialId: "ra004_preflight_fixture_credential",
+    projectIdentity: data.project_identity,
+    evidenceStoreMetadata: data.evidence_store,
+    async revokeCredential(request) {
+      revokeRequest = request;
+      return {
+        access_revoked: true,
+        credential_id: request.credential_id,
+        issuer_process_id: issuerProcessId,
+        runner_process_id: request.runner_process_id,
+      };
+    },
+  }, {
+    ClientClass: fakeClient({
+      session_user: "ra004_local_fixture_login",
+      transaction_read_only: "on",
+      data: data.metadata,
+    }, capture),
+    runnerProcessId,
+  });
+  const target = tempOutput("live-report.json");
+  try {
+    const result = await runPreflight({
+      authorization: liveAuthorization,
+      expected: liveExpected,
+      providerBundle: bundle(liveTransport),
+      outputPath: target.output,
+      now: NOW,
+    });
+    assert.equal(result.receipt.status, "REVOKED_AND_CLOSED");
+    assert.equal(capture.connect_count, 1);
+    assert.equal(capture.end_count, 1);
+    assert.equal(capture.queries.filter((query) => typeof query === "object").length, 1);
+    assert.match(capture.queries.find((query) => typeof query === "object").text, /read_ra004_staging_preflight_v1\(\$1,\$2,\$3,\$4,\$5,\$6,\$7\)/);
+    assert.deepEqual(revokeRequest, {
+      credential_id: "ra004_preflight_fixture_credential",
+      expected_session_user: "ra004_local_fixture_login",
+      runner_process_id: runnerProcessId,
+    });
+    assert.doesNotMatch(JSON.stringify(result), /fixture-password|postgresql:\/\//);
+  } finally { fs.rmSync(target.dir, { recursive: true, force: true }); }
+});
+
+test("bounded live transport rejects production, cross-project and non-session endpoints before connection", () => {
+  const target = { projectReference: "ra004-local-synthetic", expectedSessionUser: "ra004_local_fixture_login" };
+  assert.throws(
+    () => validateDatabaseUrl("postgresql://ra004_local_fixture_login.other-project:secret@aws-0.test.pooler.supabase.com:5432/postgres", target),
+    /exact staging project/,
+  );
+  assert.throws(
+    () => validateDatabaseUrl("postgresql://ra004_local_fixture_login.ra004-local-synthetic:secret@production.pooler.supabase.com:5432/postgres", target),
+    /production database target/,
+  );
+  assert.throws(
+    () => validateDatabaseUrl("postgresql://ra004_local_fixture_login.ra004-local-synthetic:secret@aws-0.test.pooler.supabase.com:6543/postgres", target),
+    /closed PostgreSQL endpoint/,
+  );
+});
+
+test("bounded live transport rejects a revoke claim from the runner process", () => {
+  assert.throws(() => validateRevokeReceipt({
+    access_revoked: true,
+    credential_id: "ra004_preflight_fixture_credential",
+    issuer_process_id: 41001,
+    runner_process_id: 41001,
+  }, { credentialId: "ra004_preflight_fixture_credential", runnerProcessId: 41001 }), /separate issuer/);
+});
+
+test("bounded live preflight transport redacts database credentials from driver failures", async () => {
+  const data = fixture();
+  const secret = "transport-secret-value";
+  const liveTransport = createPreflightPostgresTransport({
+    databaseUrl: `postgresql://ra004_local_fixture_login.ra004-local-synthetic:${secret}@aws-0.test.pooler.supabase.com:5432/postgres`,
+    projectReference: "ra004-local-synthetic",
+    canonicalHost: "ra004-local.invalid",
+    expectedSessionUser: "ra004_local_fixture_login",
+    credentialId: "ra004_preflight_fixture_credential",
+    projectIdentity: data.project_identity,
+    evidenceStoreMetadata: data.evidence_store,
+    async revokeCredential(request) { return { access_revoked: true, credential_id: request.credential_id, issuer_process_id: 2, runner_process_id: request.runner_process_id }; },
+  }, {
+    ClientClass: fakeClient({}, {}, new Error(`connection failed ${`postgresql://user:${secret}@db.invalid/postgres`}`)),
+    runnerProcessId: 1,
+  });
+  const request = {
+    function_name: "public.read_ra004_staging_preflight_v1",
+    parameters: {
+      p_environment: "STAGING", p_retailer_name: "10 Reps", p_retailer_slug: "10-reps",
+      p_expected_ledger_count: 3, p_expected_ledger_fingerprint: "a".repeat(64),
+      p_expected_session_user: "ra004_local_fixture_login", p_max_bytes: 131072,
+    },
+  };
+  await assert.rejects(() => liveTransport.callMetadataRpc(request), (error) => !error.message.includes(secret) && error.message.includes("[REDACTED]"));
+});
+
+test("bounded live transport has no environment, file, workflow or general SQL loader", () => {
+  const source = fs.readFileSync(path.join(__dirname, "lib/retailer-offer-sync/ra004-bounded-live-transport-v1.js"), "utf8");
+  assert.doesNotMatch(source, /process\.env|node:fs|readFile|writeFile|globalThis\.fetch|child_process|workflow|service[_-]?role/i);
+  assert.doesNotMatch(source, /\.(?:insert|update|upsert|delete)\s*\(/i);
 });
 
 test("current NOT_AUTHORIZED manifest stops before the first capability attempt", async () => {
@@ -212,10 +347,10 @@ test("CLI help, malformed arguments and authorization paths disclose no supplied
 
 test("fixture transport cannot escape its local tracked fixture directory", () => assert.throws(()=>new LocalFixtureTransport(path.join(os.tmpdir(),"fixture.json")),/FIXTURE_BLOCKED/));
 
-test("application, workflows, schedulers and runtime automation do not import the preflight implementation", () => {
+test("only the reviewed bounded transport imports the preflight contract", () => {
   const roots=["app",".github","config","scripts"];
   const findings=[];
   function walk(directory){ if(!fs.existsSync(directory))return; for(const entry of fs.readdirSync(directory,{withFileTypes:true})){ const absolute=path.join(directory,entry.name); if(entry.isDirectory()){ if(absolute.includes(path.join("scripts","lib","retailer-offer-sync","ra004-staging-preflight-v1"))||absolute.includes(path.join("scripts","test-fixtures","ra004-staging-preflight-v1")))continue; walk(absolute); } else if(/\.(?:js|jsx|ts|tsx|yml|yaml|json)$/.test(entry.name)&&!/^ra004-staging-preflight(?:\.integration)?\.test\.js$/.test(entry.name)&&entry.name!=="ra004-staging-preflight.js"){ const body=fs.readFileSync(absolute,"utf8"); if(/(?:require\(|from\s+)["'][^"']*ra004-staging-preflight/i.test(body))findings.push(path.relative(ROOT,absolute)); } } }
   for(const root of roots)walk(path.join(ROOT,root));
-  assert.deepEqual(findings,[]);
+  assert.deepEqual(findings,[path.join("scripts","lib","retailer-offer-sync","ra004-bounded-live-transport-v1.js")]);
 });

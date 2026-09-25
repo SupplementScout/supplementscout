@@ -28,7 +28,9 @@ The local exporter core, fixture provider, authorization gate, schemas, CLI,
 transactional RPC and regression suite are implemented. The exporter is
 `READY_FOR_VERIFICATION`; the complete repository quality gate passes.
 Live provider construction still fails closed without a separately injected
-transport and future dedicated credential.
+transport and future dedicated credential. The later bounded transport is
+documented in `RA-004-BOUNDED-LIVE-TRANSPORT.md`; it does not change this
+historical implementation baseline or create a credential.
 
 No live exporter, feed, shadow replay, SQL, database connection, migration,
 control write, approval, apply, workflow dispatch or Review Queue publication
@@ -97,10 +99,12 @@ unknown function or method matching insert, update, upsert, delete, mutation
 RPC, raw query/SQL, transaction, creation, approval, apply, lock acquisition,
 publication or write semantics is rejected before invocation. The descriptor
 must declare no mutation capabilities and no service-role credential. Fixture
-mode must declare credential type `NONE`. A future live provider would have to
+mode must declare credential type `NONE`. A live provider must
 prove a dedicated read-only validator identity and every source/RPC would have
-to appear in the explicit allowlist. Because those interfaces do not currently
-exist, live construction always returns `CONTROL_EXPORT_LIVE_PROVIDER_BLOCKED`.
+to appear in the explicit allowlist. Without injection, live construction
+remains blocked. The separately reviewed follow-up supplies only the exact
+one-method injected transport; it does not expose a general client or authorize
+execution.
 
 The exporter dependency graph contains no `pg`, Supabase, network, production
 executor, plan writer, approval writer, lock writer, Review Queue publisher or

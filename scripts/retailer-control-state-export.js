@@ -28,7 +28,7 @@ function parseArgs(argv) {
 }
 function readJson(file) { return JSON.parse(fs.readFileSync(path.resolve(file), "utf8")); }
 
-async function run(argv = process.argv.slice(2), now = new Date().toISOString()) {
+async function run(argv = process.argv.slice(2), now = new Date().toISOString(), dependencies = {}) {
   const options = parseArgs(argv);
   const authorization = readJson(options.authorization);
   let provider;
@@ -39,7 +39,11 @@ async function run(argv = process.argv.slice(2), now = new Date().toISOString())
       retailer_id: options["retailer-id"], retailer_name: options["retailer-name"],
       baseline_sha: options.baseline, provider_mode: options["provider-mode"],
     }, now);
-    provider = createLiveReadOnlyProvider({ authorization: validated, providerConfiguration: readJson(options["provider-config"]) });
+    provider = createLiveReadOnlyProvider({
+      authorization: validated,
+      providerConfiguration: readJson(options["provider-config"]),
+      transport: dependencies.transport,
+    });
   }
   const report = await exportControlState({
     provider,

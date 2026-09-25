@@ -61,11 +61,13 @@ or exporter path:
 | `control-state-export-v1/providers.js` | single-call, allowlisted RPC provider contract | live provider requires an injected one-method transport |
 | `control-state-export-v1/authorization.js` | time-, retailer-, baseline- and fingerprint-bound live authorization | no live authorization exists |
 | `control-state-export-v1/schema.js` | eleven-source output, prohibited-operation and zero-mutation contract | interface contract is `VERIFIED_COMPLETE` |
-| `scripts/retailer-control-state-export.js` | fixture CLI and fail-closed construction boundary | it supplies no live transport, so the current repository cannot execute the canary |
+| `scripts/retailer-control-state-export.js` | fixture CLI and fail-closed construction boundary | the separately reviewed follow-up permits only dependency injection of the bounded one-method live transport |
 
-The current unwired transport is a deliberate safety boundary. A future
-implementation must be separately reviewed and must expose only
-`callReadOnlyRpc`; this plan neither implements nor authorizes it. The future
+The original unwired transport was a deliberate safety boundary. The separately
+authorized follow-up implements exactly `callReadOnlyRpc` and remains unwired
+from applications, workflows and schedulers. This historical plan did not
+authorize it; `RA-004-BOUNDED-LIVE-TRANSPORT.md` records the later authority and
+implementation. The future
 path must reuse the generic selector, verifier, application and exporter
 contracts. It must not introduce direct migration tooling, a second exporter,
 a second approval path or a new executor.
