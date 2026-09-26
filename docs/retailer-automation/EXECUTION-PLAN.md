@@ -357,6 +357,19 @@ green GitHub checks and ordinary merge of the independently verified bounded
 transport, followed by a separately controlled staging activation; no staging
 deployment or preflight occurs in the transport PR.
 
+**Staging 10 Reps retailer fixture:** `OWNER_AUTHORIZED_PREPARED_NOT_APPLIED`.
+The authorized read-only staging inventory found no 10 Reps retailer row, so
+the prior coordinator stopped before all mutation and canary steps. Marek then
+authorized one separate preparation, independent-verification and merge PR for
+one minimal staging-only record. The new transactional migration is bound to
+the exact trusted staging target, rejects production, requires an empty
+name-or-slug match, derives a staging sequence ID while refusing production ID
+`14`, and writes only the retailer name and slug. It remains SHA-bound and
+excluded from ordinary STAGING and PRODUCTION selectors. This preparation does
+not authorize or perform remote migration application, production, feed,
+shadow, plans, approvals, imports, apply or canary retry. See
+[`evidence/RA-004-STAGING-10REPS-RETAILER-FIXTURE.md`](evidence/RA-004-STAGING-10REPS-RETAILER-FIXTURE.md).
+
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
 **Goal:** compare the candidate canonical pipeline with the existing 10 Reps

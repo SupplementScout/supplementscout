@@ -138,6 +138,7 @@ const EXCLUSIONS = Object.freeze({
     "20260922141000_supersede_three_failed_refresh_plans",
     "20260924100000_add_transactional_retailer_control_state_interface",
     "20260925100000_add_ra004_staging_preflight_metadata_interface",
+    "20260926100000_create_ra004_staging_10reps_retailer",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",
@@ -149,6 +150,7 @@ const EXCLUSIONS = Object.freeze({
     "20260719090000_add_expired_retailer_offer_sync_approval_close",
     "20260924100000_add_transactional_retailer_control_state_interface",
     "20260925100000_add_ra004_staging_preflight_metadata_interface",
+    "20260926100000_create_ra004_staging_10reps_retailer",
   ]),
 });
 
