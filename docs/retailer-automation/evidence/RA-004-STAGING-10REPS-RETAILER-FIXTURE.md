@@ -59,10 +59,13 @@ The regression suite must prove:
 
 ## Activation boundary
 
-Merge makes only the reviewed fixture available in source control. It does not
-create the remote row. A future request must separately authorize an exact
-SHA-bound staging activation and one application attempt. Canary remains a
-different authorization and must not be bundled with fixture activation.
+Merge made only the reviewed fixture available in source control; it did not
+create the remote row. Marek supplied separate authorization on 26 September
+2026 for an exact SHA-bound activation PR and one application attempt after
+independent verification and merge. The activation is prepared separately in
+[`RA-004-STAGING-10REPS-RETAILER-FIXTURE-ACTIVATION.md`](RA-004-STAGING-10REPS-RETAILER-FIXTURE-ACTIVATION.md).
+Canary remains a different authorization and is not bundled with fixture
+activation.
 
 ## Local implementation evidence
 

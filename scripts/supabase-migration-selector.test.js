@@ -31,6 +31,14 @@ const RA004_ACTIVATION_FILE = path.join(
   "docs/retailer-automation/evidence/RA-004-staging-migration-activation.json",
 );
 const RA004_ACTIVATION = JSON.parse(fs.readFileSync(RA004_ACTIVATION_FILE, "utf8"));
+const RA004_FIXTURE_MIGRATION = "20260926100000_create_ra004_staging_10reps_retailer.sql";
+const RA004_FIXTURE_ACTIVATION_FILE = path.join(
+  ROOT,
+  "docs/retailer-automation/evidence/RA-004-staging-retailer-fixture-activation.json",
+);
+const RA004_FIXTURE_ACTIVATION = JSON.parse(
+  fs.readFileSync(RA004_FIXTURE_ACTIVATION_FILE, "utf8"),
+);
 const TIMESTAMP_GUARD_MIGRATION = "20260831080000_fix_verified_no_change_timestamp_guard.sql";
 const TIMESTAMP_GUARD_SHA256 = "727a47ddabc29664693c299c5b4e0915ba06e44fbfc2beb098277c2b81866bbe";
 const TIMESTAMP_OPERATOR_MIGRATION = "20260831081000_fix_verified_no_change_timestamp_guard_jsonb_operator.sql";
@@ -138,6 +146,7 @@ function sourceCopy() {
 
 function currentRemoteLedger(sourceDir = SOURCE) {
   const excluded = new Set(Object.keys(CONTRACT.excluded));
+  for (const filename of CONTRACT.appliedExcluded || []) excluded.delete(filename);
   const pending = new Set(CONTRACT.pending.map(({ filename }) => filename));
   return fs.readdirSync(sourceDir)
     .filter((filename) =>
@@ -150,6 +159,12 @@ function currentRemoteLedger(sourceDir = SOURCE) {
       const split = identifier.indexOf("_");
       return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
     });
+}
+
+function preFixtureRemoteLedger(sourceDir = SOURCE) {
+  return currentRemoteLedger(sourceDir).filter(
+    ({ version, name }) => `${version}_${name}.sql` !== RA004_FIXTURE_MIGRATION,
+  );
 }
 
 function validInput(overrides = {}) {
@@ -171,9 +186,9 @@ test.after(() => {
   }
 });
 
-test("staging records both verified no-change timestamp repairs as applied", () => {
+test("staging contract records the fixture migration as applied", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 94);
+  assert.equal(result.ledger_count, 95);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
   assert.deepEqual(result.pending_files, [REVIEW_QUEUE_PUBLICATION_MIGRATION, REVIEW_QUEUE_RETRY_MIGRATION, NUTRITION_VARIANT_PROVENANCE_MIGRATION, NUTRITION_PREWORKOUT_FACTS_MIGRATION, NUTRITION_STRUCTURED_CREATINE_MIGRATION, NUTRITION_CITRULLINE_COMPONENTS_MIGRATION, NUTRITION_CREATINE_COMPONENTS_MIGRATION]);
   assert.equal(result.pending_file, null);
@@ -181,7 +196,8 @@ test("staging records both verified no-change timestamp repairs as applied", () 
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
-  assert.equal(result.selected_files.length, 101);
+  assert.equal(result.selected_files.length, 102);
+  assert.ok(result.selected_files.includes(RA004_FIXTURE_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_GUARD_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_OPERATOR_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEW_QUEUE_PUBLICATION_MIGRATION));
@@ -373,7 +389,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 101);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 102);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -596,7 +612,10 @@ test("RA-004 activation selects exactly the two approved staging migrations and 
     RA004_CONTROL_STATE_MIGRATION,
     RA004_PREFLIGHT_MIGRATION,
   ]);
-  const result = validateSelection(validInput({ activationManifest: RA004_ACTIVATION }));
+  const result = validateSelection(validInput({
+    activationManifest: RA004_ACTIVATION,
+    remoteLedger: preFixtureRemoteLedger(),
+  }));
   assert.equal(result.activation_schema, "ra-004-staging-migration-activation-v1");
   assert.equal(result.activation_id, "ra004-staging-interfaces-2026-09-25-v2");
   assert.deepEqual(result.pending_files, [RA004_CONTROL_STATE_MIGRATION, RA004_PREFLIGHT_MIGRATION]);
@@ -634,25 +653,71 @@ test("RA-004 activation fails closed for baseline, production, target, SHA and u
   const clone = () => JSON.parse(JSON.stringify(RA004_ACTIVATION));
   const baselineDrift = clone();
   baselineDrift.baseline_sha = "0".repeat(40);
-  assert.throws(() => validateSelection(validInput({ activationManifest: baselineDrift })), /baseline/);
+  const activationInput = (activationManifest) => validInput({
+    activationManifest,
+    remoteLedger: preFixtureRemoteLedger(),
+  });
+  assert.throws(() => validateSelection(activationInput(baselineDrift)), /baseline/);
 
   const targetDrift = clone();
   targetDrift.target.project_ref = CONTRACTS.PRODUCTION.projectRef;
-  assert.throws(() => validateSelection(validInput({ activationManifest: targetDrift })), /project ref/);
+  assert.throws(() => validateSelection(activationInput(targetDrift)), /project ref/);
 
   const shaDrift = clone();
   shaDrift.migrations[0].sha256 = "0".repeat(64);
-  assert.throws(() => validateSelection(validInput({ activationManifest: shaDrift })), /SHA-256/);
+  assert.throws(() => validateSelection(activationInput(shaDrift)), /SHA-256/);
 
   const extra = clone();
   extra.migrations.push(CONTRACT.pending[0]);
-  assert.throws(() => validateSelection(validInput({ activationManifest: extra })), /migration count/);
+  assert.throws(() => validateSelection(activationInput(extra)), /migration count/);
 
   assert.throws(() => parseArgs([
     "--environment=PRODUCTION",
     `--project-ref=${CONTRACTS.PRODUCTION.projectRef}`,
     `--activation-manifest=${RA004_ACTIVATION_FILE}`,
   ]), /staging-only/);
+});
+
+test("RA-004 fixture activation selects exactly one staging migration from the pre-activation ledger", () => {
+  assert.deepEqual(validateActivationManifest(CONTRACT, RA004_FIXTURE_ACTIVATION), [
+    RA004_FIXTURE_MIGRATION,
+  ]);
+  const result = validateSelection(validInput({
+    activationManifest: RA004_FIXTURE_ACTIVATION,
+    remoteLedger: preFixtureRemoteLedger(),
+  }));
+  assert.equal(result.activation_schema, "ra-004-staging-retailer-fixture-activation-v1");
+  assert.equal(result.activation_id, "ra004-staging-10reps-retailer-2026-09-26-v1");
+  assert.deepEqual(result.pending_files, [RA004_FIXTURE_MIGRATION]);
+  assert.equal(result.pending_file, RA004_FIXTURE_MIGRATION);
+  assert.equal(result.pending_sha256, "2948af2c348ebf7cca56b2f46966a393ad022bd4cbfef0876ac9bc899a92ba0e");
+  assert.equal(result.ledger_count, 94);
+  assert.equal(result.selected_files.length, 95);
+  assert.ok(!result.selected_files.includes(RA004_CONTROL_STATE_MIGRATION));
+  assert.ok(!result.selected_files.includes(RA004_PREFLIGHT_MIGRATION));
+});
+
+test("RA-004 fixture activation rejects ledger, retry, canary, production and migration drift", () => {
+  const clone = () => JSON.parse(JSON.stringify(RA004_FIXTURE_ACTIVATION));
+  const check = (manifest) => validateSelection(validInput({
+    activationManifest: manifest,
+    remoteLedger: preFixtureRemoteLedger(),
+  }));
+  for (const mutate of [
+    (value) => { value.pre_activation_ledger.count = 95; },
+    (value) => { value.post_activation_ledger.fingerprint = "0".repeat(64); },
+    (value) => { value.apply.manual_retry = true; },
+    (value) => { value.canary.retry_authorized = true; },
+    (value) => { value.production.authorized = true; },
+    (value) => { value.migrations[0].filename = RA004_PREFLIGHT_MIGRATION; },
+  ]) {
+    const changed = clone();
+    mutate(changed);
+    assert.throws(() => check(changed));
+  }
+  assert.throws(() => validateSelection(validInput({
+    activationManifest: RA004_FIXTURE_ACTIVATION,
+  })), /ledger count/);
 });
 
 test("staging output reports the review queue, retry and nutrition migrations as pending", () => {
