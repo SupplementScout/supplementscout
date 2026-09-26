@@ -1,0 +1,88 @@
+{
+  "schema_version": "ra-004-staging-retailer-fixture-activation-v1",
+  "status": "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED",
+  "task_id": "RA-004",
+  "activation_id": "ra004-staging-10reps-retailer-2026-09-26-v1",
+  "prepared_at": "2026-09-26",
+  "baseline_sha": "cd6c5dbe1931e984213fe5d69f151e266180252a",
+  "authorization": {
+    "owner": "Marek Kalinka",
+    "source": "explicit owner instruction on 2026-09-26",
+    "scope": "one staging-only application of the exact minimal 10 Reps retailer fixture migration",
+    "production_authorized": false,
+    "canary_retry_authorized": false
+  },
+  "target": {
+    "environment": "STAGING",
+    "parent_project_ref": "aftboxmrdgyhizicfsfu",
+    "project_ref": "hxnrsyyqffztlvcrtgbf",
+    "environment_label": "SupplementScout Staging",
+    "persistent_branch": true
+  },
+  "pre_activation_ledger": {
+    "count": 94,
+    "fingerprint": "b37337a9cfd316890034ce12df7571230268b2a27e2a6fc0462d0a7e8ea26c2a"
+  },
+  "post_activation_ledger": {
+    "count": 95,
+    "fingerprint": "c5bb6405d26def1834522cccaf2937fad60f44156370e5e1f8c4af3ff96d45bd"
+  },
+  "migrations": [
+    {
+      "filename": "20260926100000_create_ra004_staging_10reps_retailer.sql",
+      "sha256": "2948af2c348ebf7cca56b2f46966a393ad022bd4cbfef0876ac9bc899a92ba0e"
+    }
+  ],
+  "deferred_pending_migrations": [
+    {
+      "filename": "20260831110000_create_automation_review_queue_publication_rpc.sql",
+      "sha256": "8680e3303a8b4b22025f85af83a59a8dafbebc91e97719e423af8dff79f28409"
+    },
+    {
+      "filename": "20260910193000_allow_automation_review_retry_revisions.sql",
+      "sha256": "ddfb939887df1793f554adc1e4f171b64b3ba2549a4d3651bd339947d7bc496b"
+    },
+    {
+      "filename": "20260911120000_add_nutrition_candidate_variant_provenance.sql",
+      "sha256": "62a7a5dd812d4559889d7392217095b67841d1d6db37e5519ee6e1593bc207cb"
+    },
+    {
+      "filename": "20260911130000_add_nutrition_candidate_preworkout_facts.sql",
+      "sha256": "76db080b347dfffd36a8233c1d8f9725421b9caf2e445d56579833898b6428d5"
+    },
+    {
+      "filename": "20260911150000_add_nutrition_candidate_structured_creatine.sql",
+      "sha256": "dc9a411d19cb3547b508744c6dab21fb0df741e30f896cb186de6b38639ce28c"
+    },
+    {
+      "filename": "20260913110000_add_nutrition_candidate_citrulline_components.sql",
+      "sha256": "76dd8390e19f45dd8ffcc69bafe9721abc6dedff6db280fdc6f75e3938258ac4"
+    },
+    {
+      "filename": "20260920150000_add_nutrition_candidate_creatine_components.sql",
+      "sha256": "c68dac262928ac1ebf971fd8cb838468f38376ebb7c43d8f426884adc200200b"
+    }
+  ],
+  "apply": {
+    "maximum_attempts": 1,
+    "automatic_retry": false,
+    "manual_retry": false,
+    "selected_pending_count": 1,
+    "deferred_pending_count": 7,
+    "requires_fresh_ledger_attestation": true,
+    "requires_exact_database_target_attestation": true
+  },
+  "canary": {
+    "authorized": false,
+    "retry_authorized": false
+  },
+  "production": {
+    "authorized": false,
+    "selector_unchanged": true,
+    "migration_count": 0
+  },
+  "execution": {
+    "started": false,
+    "application_attempt_count": 0
+  }
+}

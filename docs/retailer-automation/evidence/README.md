@@ -30,6 +30,8 @@
 
 [RA-004 staging 10 Reps retailer fixture](RA-004-STAGING-10REPS-RETAILER-FIXTURE.md)
 
+[RA-004 staging 10 Reps retailer fixture activation](RA-004-STAGING-10REPS-RETAILER-FIXTURE-ACTIVATION.md)
+
 RA-002 was independently verified on 23 September 2026 in PR #86. RA-003 was
 independently verified on 24 September 2026 in PR #87. Their local test and
 contract modules remain unwired from production. RA-004 is `IN_PROGRESS`; its

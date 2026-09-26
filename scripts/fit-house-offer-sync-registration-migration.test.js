@@ -32,7 +32,7 @@ test("migration is hash-bound and transactional", () => {
     "20260913110000_add_nutrition_candidate_citrulline_components.sql",
     "20260920150000_add_nutrition_candidate_creatine_components.sql",
   ]);
-  assert.equal(selector.CONTRACTS.STAGING.ledgerCount, 94);
+  assert.equal(selector.CONTRACTS.STAGING.ledgerCount, 95);
   assert.equal(
     selector.CONTRACTS.PRODUCTION.pending.some(({ filename }) =>
       filename.includes("fit_house_offer_sync_registration"),

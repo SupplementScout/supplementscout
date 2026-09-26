@@ -27,6 +27,13 @@ const RA004_ACTIVATION_MIGRATIONS = Object.freeze([
   "20260924100000_add_transactional_retailer_control_state_interface.sql",
   "20260925100000_add_ra004_staging_preflight_metadata_interface.sql",
 ]);
+const RA004_FIXTURE_ACTIVATION_SCHEMA = "ra-004-staging-retailer-fixture-activation-v1";
+const RA004_FIXTURE_ACTIVATION_BASELINE = "cd6c5dbe1931e984213fe5d69f151e266180252a";
+const RA004_FIXTURE_ACTIVATION_ID = "ra004-staging-10reps-retailer-2026-09-26-v1";
+const RA004_FIXTURE_MIGRATION = "20260926100000_create_ra004_staging_10reps_retailer.sql";
+const RA004_PRE_ACTIVATION_LEDGER_COUNT = 94;
+const RA004_PRE_ACTIVATION_LEDGER_FINGERPRINT =
+  "b37337a9cfd316890034ce12df7571230268b2a27e2a6fc0462d0a7e8ea26c2a";
 
 const CONTRACTS = Object.freeze({
   STAGING: Object.freeze({
@@ -36,9 +43,10 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 94,
+    ledgerCount: 95,
     ledgerFingerprint:
-      "b37337a9cfd316890034ce12df7571230268b2a27e2a6fc0462d0a7e8ea26c2a",
+      "c5bb6405d26def1834522cccaf2937fad60f44156370e5e1f8c4af3ff96d45bd",
+    appliedExcluded: Object.freeze([RA004_FIXTURE_MIGRATION]),
     excluded: Object.freeze({
       "20260922160000_allow_owner_approved_fit_house_six_oos.sql": "be780721eee14c19761546107b7f249e9bea0c451a54732dfd259a7b348132fa",
       "20260922170000_allow_fit_house_parent_approval_and_supersede_failed_plan.sql": "91c065b0dece55d7908e5dacb5509d1b0d66e26a4d132e8d2969e4db9369251f",
@@ -386,11 +394,24 @@ function ledgerRowsFingerprint(rows) {
 
 function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOURCE_DIR) {
   invariant(contract.environment === "STAGING", "activation manifest is staging-only");
-  invariant(manifest?.schema_version === RA004_ACTIVATION_SCHEMA, "activation manifest schema mismatch");
+  const fixtureActivation = manifest?.schema_version === RA004_FIXTURE_ACTIVATION_SCHEMA;
+  invariant(
+    fixtureActivation || manifest?.schema_version === RA004_ACTIVATION_SCHEMA,
+    "activation manifest schema mismatch",
+  );
   invariant(manifest?.status === "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED", "activation manifest status mismatch");
   invariant(manifest?.task_id === "RA-004", "activation manifest task mismatch");
-  invariant(manifest?.activation_id === "ra004-staging-interfaces-2026-09-25-v2", "activation ID mismatch");
-  invariant(manifest?.baseline_sha === RA004_ACTIVATION_BASELINE, "activation baseline mismatch");
+  const expectedActivationId = fixtureActivation
+    ? RA004_FIXTURE_ACTIVATION_ID
+    : "ra004-staging-interfaces-2026-09-25-v2";
+  const expectedBaseline = fixtureActivation
+    ? RA004_FIXTURE_ACTIVATION_BASELINE
+    : RA004_ACTIVATION_BASELINE;
+  const expectedMigrations = fixtureActivation
+    ? [RA004_FIXTURE_MIGRATION]
+    : RA004_ACTIVATION_MIGRATIONS;
+  invariant(manifest?.activation_id === expectedActivationId, "activation ID mismatch");
+  invariant(manifest?.baseline_sha === expectedBaseline, "activation baseline mismatch");
   invariant(manifest?.target?.environment === "STAGING", "activation environment mismatch");
   invariant(manifest?.target?.project_ref === contract.projectRef, "activation project ref mismatch");
   invariant(manifest?.target?.parent_project_ref === "aftboxmrdgyhizicfsfu", "activation parent project mismatch");
@@ -399,13 +420,28 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
   invariant(manifest?.production?.selector_unchanged === true, "production selector must remain unchanged");
   invariant(manifest?.apply?.maximum_attempts === 1 && manifest?.apply?.automatic_retry === false,
     "activation must be one-shot without retry");
+  if (fixtureActivation) {
+    invariant(manifest?.apply?.manual_retry === false, "fixture activation must forbid manual retry");
+    invariant(manifest?.canary?.authorized === false && manifest?.canary?.retry_authorized === false,
+      "fixture activation must not authorize canary");
+    invariant(
+      manifest?.pre_activation_ledger?.count === RA004_PRE_ACTIVATION_LEDGER_COUNT
+        && manifest?.pre_activation_ledger?.fingerprint === RA004_PRE_ACTIVATION_LEDGER_FINGERPRINT,
+      "fixture pre-activation ledger mismatch",
+    );
+    invariant(
+      manifest?.post_activation_ledger?.count === contract.ledgerCount
+        && manifest?.post_activation_ledger?.fingerprint === contract.ledgerFingerprint,
+      "fixture post-activation ledger mismatch",
+    );
+  }
   invariant(Array.isArray(manifest?.migrations), "activation migrations are required");
-  invariant(manifest.migrations.length === RA004_ACTIVATION_MIGRATIONS.length,
+  invariant(manifest.migrations.length === expectedMigrations.length,
     "activation migration count mismatch");
 
   const filenames = manifest.migrations.map((entry) => entry?.filename);
   invariant(
-    filenames.every((filename, index) => filename === RA004_ACTIVATION_MIGRATIONS[index]),
+    filenames.every((filename, index) => filename === expectedMigrations[index]),
     "activation migration order mismatch",
   );
   for (const entry of manifest.migrations) {
@@ -505,11 +541,12 @@ function validateSelection({
   }
 
   const excluded = excludedMigrationIds(environment);
+  const appliedExcluded = new Set(contract.appliedExcluded || []);
   const defaultSelectedFiles = allFiles.filter(
-    (filename) => !excluded.has(migrationIdentifier(filename)),
+    (filename) => !excluded.has(migrationIdentifier(filename)) || appliedExcluded.has(filename),
   );
   invariant(
-    allFiles.length - defaultSelectedFiles.length === excluded.size,
+    allFiles.length - defaultSelectedFiles.length === excluded.size - appliedExcluded.size,
     "selector excluded an unexpected number of migrations",
   );
 
@@ -519,7 +556,13 @@ function validateSelection({
   const admissibleFiles = [...defaultSelectedFiles, ...activatedFiles];
   const admissibleSet = new Set(admissibleFiles.map(migrationIdentifier));
   const remoteIdentifiers = remoteLedger.map(ledgerIdentifier);
-  invariant(remoteLedger.length === contract.ledgerCount, "remote ledger count mismatch");
+  const expectedLedgerCount = activationManifest
+    ? RA004_PRE_ACTIVATION_LEDGER_COUNT
+    : contract.ledgerCount;
+  const expectedLedgerFingerprint = activationManifest
+    ? RA004_PRE_ACTIVATION_LEDGER_FINGERPRINT
+    : contract.ledgerFingerprint;
+  invariant(remoteLedger.length === expectedLedgerCount, "remote ledger count mismatch");
   invariant(
     new Set(remoteIdentifiers).size === remoteIdentifiers.length,
     "duplicate remote migration ledger identifier",
@@ -546,7 +589,7 @@ function validateSelection({
   );
   const ledgerFingerprint = ledgerRowsFingerprint(remoteLedger);
   invariant(
-    ledgerFingerprint === contract.ledgerFingerprint,
+    ledgerFingerprint === expectedLedgerFingerprint,
     "remote ledger fingerprint mismatch",
   );
 
@@ -564,7 +607,7 @@ function validateSelection({
     database_target: databaseTarget,
     ledger_count: remoteLedger.length,
     ledger_fingerprint: ledgerFingerprint,
-    activation_schema: activationManifest ? RA004_ACTIVATION_SCHEMA : null,
+    activation_schema: activationManifest ? activationManifest.schema_version : null,
     activation_id: activationManifest?.activation_id || null,
     excluded_files: activationManifest
       ? allFiles.filter((filename) => !selectedFiles.includes(filename))

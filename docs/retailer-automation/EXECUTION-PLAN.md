@@ -357,7 +357,8 @@ green GitHub checks and ordinary merge of the independently verified bounded
 transport, followed by a separately controlled staging activation; no staging
 deployment or preflight occurs in the transport PR.
 
-**Staging 10 Reps retailer fixture:** `OWNER_AUTHORIZED_PREPARED_NOT_APPLIED`.
+**Staging 10 Reps retailer fixture:**
+`OWNER_AUTHORIZED_ACTIVATION_PREPARED_NOT_EXECUTED`.
 The authorized read-only staging inventory found no 10 Reps retailer row, so
 the prior coordinator stopped before all mutation and canary steps. Marek then
 authorized one separate preparation, independent-verification and merge PR for
@@ -367,8 +368,15 @@ name-or-slug match, derives a staging sequence ID while refusing production ID
 `14`, and writes only the retailer name and slug. It remains SHA-bound and
 excluded from ordinary STAGING and PRODUCTION selectors. This preparation does
 not authorize or perform remote migration application, production, feed,
-shadow, plans, approvals, imports, apply or canary retry. See
-[`evidence/RA-004-STAGING-10REPS-RETAILER-FIXTURE.md`](evidence/RA-004-STAGING-10REPS-RETAILER-FIXTURE.md).
+shadow, plans, approvals, imports, apply or canary retry. Marek subsequently
+authorized a separate exact-SHA activation PR and one staging application
+attempt after independent verification and merge. The prepared selector binds
+the exact 94-row pre-ledger to the expected 95-row post-ledger, selects only the
+fixture, defers seven unrelated migrations and exposes no retry, canary or
+production action. Remote execution remains `NOT_STARTED`. See
+[`evidence/RA-004-STAGING-10REPS-RETAILER-FIXTURE.md`](evidence/RA-004-STAGING-10REPS-RETAILER-FIXTURE.md)
+and
+[`evidence/RA-004-STAGING-10REPS-RETAILER-FIXTURE-ACTIVATION.md`](evidence/RA-004-STAGING-10REPS-RETAILER-FIXTURE-ACTIVATION.md).
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
