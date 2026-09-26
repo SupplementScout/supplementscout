@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 311,
-    "sha256": "a356f24a8e5a08a56be7119c70a6ab463151f1fbce2d4bf6db4d5834811a74bc"
+    "count": 313,
+    "sha256": "839a485d38cbededdbcd9222e7b732f63a33cd14d27f0f4774d0ffd8ca6e3a5c"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -28,6 +28,7 @@
     "scripts/product-variants-stage2-migration.test.js",
     "scripts/retailer-catalogue-control-ledger.integration.test.js",
     "scripts/ra004-staging-preflight.integration.test.js",
+    "scripts/ra004-staging-retailer-fixture.integration.test.js",
     "scripts/retailer-control-state-interface.integration.test.js",
     "scripts/retailer-offer-expired-approval-close.integration.test.js",
     "scripts/retailer-offer-mixed-batch-migration.integration.test.js",
@@ -89,6 +90,7 @@
     "scripts/ra004-single-snapshot-replay.test.js",
     "scripts/ra004-staging-execution-coordinator.test.js",
     "scripts/ra004-staging-preflight.test.js",
+    "scripts/ra004-staging-retailer-fixture.test.js",
     "scripts/reviewed-catalogue-artifact-approver.test.js",
     "scripts/retailer-incident-regression.test.js",
     "scripts/retailer-control-state-export.test.js",
