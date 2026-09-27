@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 314,
-    "sha256": "52ca701e00ad10d16c9f23d0bcf5421a8394164b0c8963e3ad0295d74aefdb6a"
+    "count": 315,
+    "sha256": "927f20ef6cbab7c9894d21f8e772e2bdcc564cc6080811f535c62985d2046dbc"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -88,6 +88,7 @@
     "scripts/protein-bars-page.test.js",
     "scripts/quality-gate.test.js",
     "scripts/ra004-single-snapshot-replay.test.js",
+    "scripts/ra004-staging-evidence-custodian.test.js",
     "scripts/ra004-staging-execution-coordinator.test.js",
     "scripts/ra004-staging-preflight.test.js",
     "scripts/ra004-staging-retailer-fixture-activation.test.js",

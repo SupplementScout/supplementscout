@@ -36,6 +36,33 @@ fs.mkdirSync(outDir, { recursive: true });
 
 function invariant(ok, message) { if (!ok) throw new Error(message); }
 function utc(date = new Date()) { return date.toISOString().replace(/\.\d{3}Z$/, "Z"); }
+function safeFailureCode(error) {
+  const code = String(error?.message || "");
+  return /^RA004_[A-Z0-9_]+$/.test(code) ? code : "RA004_UNCLASSIFIED_FAILURE";
+}
+function buildFailureReport({ activation, primaryError, sessionState, cleanup, startsAt, expiresAt, closedAt = utc(), revoke, uploaded }) {
+  return {
+    schema_version: "ra004-staging-closeout-v2",
+    status: "BLOCKED",
+    activation_id: activation,
+    baseline_sha: BASELINE,
+    primary_failure: { code: safeFailureCode(primaryError) },
+    session_creation: { state: sessionState.session_creation_state },
+    cleanup: { status: cleanup.status, failures: [...cleanup.failures] },
+    attempt_counters: { ...sessionState.attempt_counters },
+    window: { started: startsAt !== null, starts_at: startsAt, expires_at: expiresAt, closed_at: closedAt },
+    revoke_receipts: revoke.map((item) => ({
+      credential_id: item.credential_id,
+      access_revoked: item.access_revoked,
+      revocation_verification: item.revocation_verification,
+    })),
+    uploaded_objects: [...uploaded],
+    forbidden_operations: {
+      production: 0, feed_capture: 0, shadow_run: 0, control_plan: 0,
+      approval: 0, import: 0, apply: 0, offer_writes: 0, model_b: 0,
+    },
+  };
+}
 function hashFile(file) { return crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex"); }
 function jsonWrite(file, value) { const target=path.join(outDir,file); fs.writeFileSync(target, `${JSON.stringify(value,null,2)}\n`, { flag:"wx" }); return target; }
 async function db(text, values=[]) { const client=new Client({connectionString:ownerUrl,ssl:{rejectUnauthorized:false},application_name:"ra004-guarded-owner-v1"}); try { await client.connect(); return await client.query(text,values); } finally { await client.end(); } }
@@ -72,7 +99,7 @@ function evidenceCustodian(activation, expiresAt) {
     RA004_STORAGE_WINDOW_EXPIRES_AT:expiresAt,
   };
   const child=fork(path.join(__dirname,"ra004-staging-evidence-custodian.js"),[],{env:storageEnvironment,stdio:["ignore","ignore","ignore","ipc"]});
-  child.on("message",m=>{const item=pending.get(m.request_id);if(!item)return;pending.delete(m.request_id);if(m.ok)item.resolve(m.result);else item.reject(new Error(m.error));});
+  child.on("message",m=>{const item=pending.get(m.request_id);if(!item)return;pending.delete(m.request_id);if(m.ok)item.resolve(m.result);else {const error=new Error(m.error);error.details=m.details;item.reject(error);}});
   process.env.RA004_STORAGE_ANON_KEY=""; process.env.RA004_STORAGE_EMAIL=""; process.env.RA004_STORAGE_PASSWORD="";
   return {call(message){return new Promise((resolve,reject)=>{const request_id=++seq;pending.set(request_id,{resolve,reject});child.send({...message,request_id});});},close(){child.disconnect();}};
 }
@@ -171,8 +198,10 @@ async function main() {
   const expiresAt=utc(expires);
   let startsAt=null;
   let custody,policies,issuer,preflightCred,canaryCred;
-  let closeoutStored=false;
-  const revoke=[]; const uploaded=[]; const cleanupFailures=[];
+  let primaryError=null;
+  let sessionState={session_creation_state:"NOT_CREATED",cleanup_status:"NOT_REQUIRED",attempt_counters:{auth:0,upload:0,readback:0,cleanup:0}};
+  const cleanup={status:"NOT_REQUIRED",failures:[]};
+  const revoke=[]; const uploaded=[];
   const revokeOne=async(credential,runnerProcessId)=>{
     const databaseUrl=credential.database_url;
     const receipt=await issuer.call({action:"revoke",role:credential.role,runner_process_id:runnerProcessId});
@@ -182,7 +211,14 @@ async function main() {
   };
   try {
     custody=evidenceCustodian(activation,expiresAt);
-    const storageSession=await custody.call({action:"init"});
+    let storageSession;
+    try {
+      storageSession=await custody.call({action:"init"});
+      sessionState={session_creation_state:storageSession.session_creation_state,cleanup_status:storageSession.cleanup_status,attempt_counters:{...storageSession.attempt_counters}};
+    } catch(error) {
+      if(error.details)sessionState=error.details;
+      throw error;
+    }
     policies=await configureEvidenceStore(storageSession.subject,activation);
     const policyAttestation=await attestEvidenceStore(policies);
     startsAt=utc();
@@ -227,26 +263,39 @@ async function main() {
     const canaryClear=cReport.final_assessment==="CLEAR_FOR_SEPARATE_SHADOW_AUTHORIZATION";
     const closeout={schema_version:"ra004-staging-closeout-v1",status:canaryClear?"VERIFIED_COMPLETE":"BLOCKED_CONTROL_STATE",activation_id:activation,baseline_sha:BASELINE,window:{starts_at:startsAt,expires_at:expiresAt,closed_at:utc()},project_identity:identity,retailer:{id:String(retailer[0].id),name:retailer[0].name,slug:retailer[0].slug},evidence_store:{...store,...policyAttestation},migration_receipts:migrationReceipts,ledger:{before_count:remote.remoteLedger.length,after_count:postRemote.remoteLedger.length,after_fingerprint:ledgerFp},business_counts:{before:businessBefore,after_migrations:businessAfterMigrations,after_canary:businessAfterCanary,unchanged:true},preflight:{status:"VERIFIED_COMPLETE",report_fingerprint:result.report.report_fingerprint,capability_counters:result.receipt.capability_counters},canary:{status:canaryClear?"VERIFIED_COMPLETE":"BLOCKED",final_assessment:cReport.final_assessment,export_fingerprint:cReport.export_fingerprint,read_attempt_count:cReport.read_attempt_count,write_attempt_count:cReport.write_attempt_count,mutation_attempt_count:cReport.mutation_attempt_count},revoke_receipts:revoke.map(x=>({...x,issuer_process_id_present:true,runner_process_id_present:true,issuer_process_id:undefined,runner_process_id:undefined})),uploaded_objects:uploaded,forbidden_operations:{production:0,feed_capture:0,shadow_run:0,control_plan:0,approval:0,import:0,apply:0,offer_writes:0,model_b:0}};
     jsonWrite("closeout.json",closeout);
-    await custody.call({action:"put",name:"closeout.json",value:closeout}); closeoutStored=true;
+    await custody.call({action:"put",name:"closeout.json",value:closeout});
     process.stdout.write(`${JSON.stringify({status:closeout.status,activation_id:activation,window:closeout.window,retailer_id:closeout.retailer.id,final_assessment:cReport.final_assessment,closeout:path.join(outDir,"closeout.json")})}\n`);
     invariant(canaryClear,"RA004_CANARY_CONTROL_STATE_BLOCKED");
   } catch(error) {
-    if(preflightCred&&issuer) { try{await revokeOne(preflightCred,process.pid);}catch{cleanupFailures.push("preflight");}finally{preflightCred=null;} }
-    if(canaryCred&&issuer) { try{await revokeOne(canaryCred,process.pid);}catch{cleanupFailures.push("canary");}finally{canaryCred=null;} }
-    if(custody&&!closeoutStored) {
-      const failure={schema_version:"ra004-staging-closeout-v1",status:"BLOCKED",activation_id:activation,baseline_sha:BASELINE,window:{starts_at:startsAt,expires_at:expiresAt,closed_at:utc()},failure_code:String(error.message).replace(/postgres(?:ql)?:\/\/[^\s]+/gi,"[REDACTED]").slice(0,160),revoke_receipts:revoke.map(x=>({credential_id:x.credential_id,access_revoked:x.access_revoked,revocation_verification:x.revocation_verification})),uploaded_objects:uploaded,forbidden_operations:{production:0,feed_capture:0,shadow_run:0,control_plan:0,approval:0,import:0,apply:0,offer_writes:0,model_b:0}};
-      try { jsonWrite("failure-closeout.json",failure); await custody.call({action:"put",name:"closeout.json",value:failure}); closeoutStored=true; } catch {}
-    }
-    throw error;
+    primaryError=error;
+    if(error.details)sessionState=error.details;
   } finally {
-    if(preflightCred&&issuer) { try{await revokeOne(preflightCred,process.pid);}catch{cleanupFailures.push("preflight");} }
-    if(canaryCred&&issuer) { try{await revokeOne(canaryCred,process.pid);}catch{cleanupFailures.push("canary");} }
+    if(preflightCred&&issuer) { try{await revokeOne(preflightCred,process.pid);}catch{cleanup.failures.push("preflight");} }
+    if(canaryCred&&issuer) { try{await revokeOne(canaryCred,process.pid);}catch{cleanup.failures.push("canary");} }
     if(issuer)issuer.close();
-    try{await removeEvidencePolicies(policies);}catch{cleanupFailures.push("storage-policies");}
-    if(custody) { try{await custody.call({action:"close"});}catch{cleanupFailures.push("storage-session");} custody.close(); }
+    try{await removeEvidencePolicies(policies);}catch{cleanup.failures.push("storage-policies");}
+    if(custody) {
+      if(sessionState.session_creation_state!=="NOT_CREATED") {
+        try {
+          const receipt=await custody.call({action:"close"});
+          cleanup.status=receipt.cleanup_status;
+          sessionState=await custody.call({action:"status"});
+        } catch(error) {
+          cleanup.status="FAILED";
+          cleanup.failures.push("storage-session");
+          if(error.details)sessionState=error.details;
+        }
+      }
+      custody.close();
+    }
+    if(cleanup.failures.length>0 && !primaryError)primaryError=new Error("RA004_CLEANUP_UNVERIFIED");
+    if(primaryError) {
+      const failure=buildFailureReport({activation,primaryError,sessionState,cleanup,startsAt,expiresAt,revoke,uploaded});
+      try{jsonWrite("failure-closeout.json",failure);}catch{}
+    }
     process.env.RA004_OWNER_DATABASE_URL="";
-    invariant(cleanupFailures.length===0,`RA004_CLEANUP_UNVERIFIED_${cleanupFailures.join("_")}`);
   }
+  if(primaryError)throw primaryError;
 }
 if (require.main === module) {
   main().catch(error=>{process.stderr.write(`${String(error.message).replace(/postgres(?:ql)?:\/\/[^\s]+/gi,"[REDACTED]").slice(0,500)}\n`);process.exitCode=1;});
@@ -256,5 +305,5 @@ module.exports = {
   API_HOST, BASELINE, BUCKET, CONTROL_SHA, EXPECTED_POST_LEDGER_COUNT,
   EXPECTED_POST_LEDGER_FINGERPRINT, EXPECTED_PRE_LEDGER_COUNT,
   EXPECTED_PRE_LEDGER_FINGERPRINT, PLAN_FP, PREFLIGHT_SHA, REF,
-  pushSelectedMigrations, runCli,
+  buildFailureReport, pushSelectedMigrations, runCli, safeFailureCode,
 };
