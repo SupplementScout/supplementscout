@@ -38,7 +38,7 @@ const RA004_ACTIVATION_MIGRATIONS = Object.freeze([
 const RA004_FORWARD_ACTIVATION_SCHEMA = "ra-004-forward-staging-migration-activation-v1";
 const RA004_FORWARD_ACTIVATION_BASELINE = "a651dc61fec43b09e0ee908ec3cac01fbb45e3c8";
 const RA004_FORWARD_ACTIVATION_ID = "ra004-forward-staging-interfaces-2026-09-27-v1";
-const RA004_FORWARD_ACTIVATION_FINGERPRINT = "387fe54ca5ca0ee60d621a9ec6fb66b9821c6e5586efaecf30ef282f02ff4aea";
+const RA004_FORWARD_ACTIVATION_FINGERPRINT = "460ca06556051403fe87c4883179764d4e6530a3ff7abcaaf113b4aedec32e11";
 const RA004_FORWARD_ACTIVATION_POST_LEDGER_FINGERPRINT =
   "330d36f6bcff6a62d46c015cc5c31d32a6bf2c3639a3ba2e9ab856d1e3fbb668";
 const RA004_FORWARD_ACTIVATION_MIGRATIONS = Object.freeze([
@@ -325,6 +325,8 @@ const CONTRACTS = Object.freeze({
         "9d6c1ea4df0bd86f84a4cb779a0824922f4e9bcc91681b734d5d18465a9e91be",
       "20260926100000_create_ra004_staging_10reps_retailer.sql":
         "2948af2c348ebf7cca56b2f46966a393ad022bd4cbfef0876ac9bc899a92ba0e",
+      "20260926110000_add_ra004_staging_interface_compatibility.sql":
+        "6deb90f6557b2ee72c8b5fca02aed7ce1e9ac9edd75a246689a56560166ea99c",
       "20260927100000_reissue_transactional_retailer_control_state_interface.sql":
         "699c911289e6b1eccd04ca778e8d26a36cbc2caf57b426eaede7b359991b2977",
       "20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql":
@@ -392,6 +394,8 @@ const CONTRACTS = Object.freeze({
         "9d6c1ea4df0bd86f84a4cb779a0824922f4e9bcc91681b734d5d18465a9e91be",
       "20260926100000_create_ra004_staging_10reps_retailer.sql":
         "2948af2c348ebf7cca56b2f46966a393ad022bd4cbfef0876ac9bc899a92ba0e",
+      "20260926110000_add_ra004_staging_interface_compatibility.sql":
+        "6deb90f6557b2ee72c8b5fca02aed7ce1e9ac9edd75a246689a56560166ea99c",
       "20260927100000_reissue_transactional_retailer_control_state_interface.sql":
         "699c911289e6b1eccd04ca778e8d26a36cbc2caf57b426eaede7b359991b2977",
       "20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql":

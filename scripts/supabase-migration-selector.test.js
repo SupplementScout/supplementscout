@@ -28,6 +28,7 @@ const RA004_CONTROL_STATE_MIGRATION = "20260924100000_add_transactional_retailer
 const RA004_PREFLIGHT_MIGRATION = "20260925100000_add_ra004_staging_preflight_metadata_interface.sql";
 const RA004_FORWARD_CONTROL_STATE_MIGRATION = "20260927100000_reissue_transactional_retailer_control_state_interface.sql";
 const RA004_FORWARD_PREFLIGHT_MIGRATION = "20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql";
+const RA004_COMPATIBILITY_MIGRATION = "20260926110000_add_ra004_staging_interface_compatibility.sql";
 const RA004_ACTIVATION_FILE = path.join(
   ROOT,
   "docs/retailer-automation/evidence/RA-004-staging-migration-activation.json",
@@ -532,7 +533,7 @@ test("production binds its exact 221-row ledger before the Fit House parent appr
 
 test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.equal(Object.keys(contract.excluded).length, 12);
+  assert.equal(Object.keys(contract.excluded).length, 13);
   assert.ok(!Object.hasOwn(
     contract.excluded,
     "20260824160000_add_identity_proven_price_observations.sql",
@@ -610,12 +611,13 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("old and forward-reissued RA-004 interfaces remain SHA-bound and excluded from staging and production deployment", () => {
+test("RA-004 compatibility and interface migrations remain SHA-bound and excluded from staging and production deployment", () => {
   const expected = {
     [RA004_CONTROL_STATE_MIGRATION]: "cfd7a93cb20845832b696183f5eb8a500f0474b4173829b85f6ac6bc73d4baaa",
     [RA004_PREFLIGHT_MIGRATION]: "9d6c1ea4df0bd86f84a4cb779a0824922f4e9bcc91681b734d5d18465a9e91be",
     [RA004_FORWARD_CONTROL_STATE_MIGRATION]: "699c911289e6b1eccd04ca778e8d26a36cbc2caf57b426eaede7b359991b2977",
     [RA004_FORWARD_PREFLIGHT_MIGRATION]: "6d1e3512792884cf0696e36d4c54f78d9d85e3e68b32cdd475a885f6138dc2f4",
+    [RA004_COMPATIBILITY_MIGRATION]: "6deb90f6557b2ee72c8b5fca02aed7ce1e9ac9edd75a246689a56560166ea99c",
   };
   for (const [filename, sha256] of Object.entries(expected)) {
     assert.equal(CONTRACTS.STAGING.excluded[filename], sha256);
@@ -648,25 +650,23 @@ test("consumed RA-004 activation and both forward migrations remain closed", () 
   ]), /staging-only/);
 });
 
-test("forward RA-004 activation selects exactly two new migrations and leaves old migrations closed", () => {
-  const result = validateSelection(validInput({
+test("failed forward RA-004 activation is terminal and all three migrations remain closed", () => {
+  assert.equal(RA004_FORWARD_ACTIVATION.status, "ATTEMPT_CONSUMED_FAILED_TERMINAL");
+  assert.equal(RA004_FORWARD_ACTIVATION.execution.runtime_activation_id, "ra004-staging-1790509412479");
+  assert.equal(RA004_FORWARD_ACTIVATION.execution.application_attempt_count, 1);
+  assert.equal(RA004_FORWARD_ACTIVATION.execution.migrations_applied, 0);
+  assert.equal(RA004_FORWARD_ACTIVATION.execution.closed, true);
+  assert.equal(RA004_FORWARD_ACTIVATION.execution.replayable, false);
+  assert.throws(() => validateSelection(validInput({
     activationManifest: RA004_FORWARD_ACTIVATION,
     remoteLedger: currentRemoteLedger(),
-  }));
-  assert.equal(result.activation_schema, "ra-004-forward-staging-migration-activation-v1");
-  assert.equal(result.activation_id, "ra004-forward-staging-interfaces-2026-09-27-v1");
-  assert.equal(RA004_FORWARD_ACTIVATION.manifest_fingerprint,
-    "387fe54ca5ca0ee60d621a9ec6fb66b9821c6e5586efaecf30ef282f02ff4aea");
-  assert.deepEqual(result.pending_files, [
-    RA004_FORWARD_CONTROL_STATE_MIGRATION,
-    RA004_FORWARD_PREFLIGHT_MIGRATION,
-  ]);
-  assert.ok(!result.selected_files.includes(RA004_CONTROL_STATE_MIGRATION));
-  assert.ok(!result.selected_files.includes(RA004_PREFLIGHT_MIGRATION));
-  assert.equal(result.pending_sha256s[RA004_FORWARD_CONTROL_STATE_MIGRATION],
-    "699c911289e6b1eccd04ca778e8d26a36cbc2caf57b426eaede7b359991b2977");
-  assert.equal(result.pending_sha256s[RA004_FORWARD_PREFLIGHT_MIGRATION],
-    "6d1e3512792884cf0696e36d4c54f78d9d85e3e68b32cdd475a885f6138dc2f4");
+  })), /status mismatch/);
+  const normal = validateSelection(validInput());
+  for (const filename of [RA004_COMPATIBILITY_MIGRATION, RA004_FORWARD_CONTROL_STATE_MIGRATION, RA004_FORWARD_PREFLIGHT_MIGRATION]) {
+    assert.ok(normal.excluded_files.includes(filename));
+    assert.ok(!normal.selected_files.includes(filename));
+    assert.ok(!normal.pending_files.includes(filename));
+  }
 });
 
 test("forward RA-004 activation rejects retry, include-all, old migration and production drift", () => {

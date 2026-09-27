@@ -398,15 +398,19 @@ selection. The consumed v5 activation is closed; no replacement activation,
 credential or remote execution is included. See
 [`evidence/RA-004-FORWARD-REISSUED-INTERFACE-MIGRATIONS.md`](evidence/RA-004-FORWARD-REISSUED-INTERFACE-MIGRATIONS.md).
 
-**Forward staging activation:** `OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED`.
-The closed activation from baseline `a651dc6` admits exactly the two forward
-interface migrations from the verified 95-row ledger and expects exactly the
-97-row ledger ending at `20260927101000`. The old migrations, every unrelated
-migration, production selector and `--include-all` remain closed. One Q1-Q8
-preflight and one preflight-gated read-only canary are authorized without
-retry. The launcher preserves redacted stdout and stderr evidence for any
-non-zero Supabase CLI exit. No remote action occurs before independent review,
-green checks and ordinary squash merge. See
+**Staging schema dependency closure:** `VERIFIED_COMPLETE`. The one forward
+activation was consumed and closed after the first interface migration found a
+missing canonical source table; zero migrations were applied and the staging
+ledger remained at 95. One authorized read-only inventory then found the full
+gap: three source tables and three production-named contract roles, with no
+additional missing or drifted input dependency. The new forward-only
+compatibility migration recreates those exact structures without rows,
+approvals, executor functions or production wiring. A networkless PostgreSQL 17
+test proves the exact three-migration sequence, both RPCs, minimal ACL/RLS,
+unchanged business counts, replay rejection and fail-closed drift handling.
+Both selectors remain closed; no staging retry is authorized. See
+[`evidence/RA-004-STAGING-SCHEMA-DEPENDENCY-CLOSURE.md`](evidence/RA-004-STAGING-SCHEMA-DEPENDENCY-CLOSURE.md)
+and
 [`evidence/RA-004-FORWARD-STAGING-ACTIVATION.md`](evidence/RA-004-FORWARD-STAGING-ACTIVATION.md).
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
