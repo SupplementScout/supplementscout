@@ -17,7 +17,8 @@ const { SOURCE_NAMES, PROHIBITED_OPERATIONS } = require("./lib/retailer-offer-sy
 const ROOT = path.resolve(__dirname, "..");
 const REF = "hxnrsyyqffztlvcrtgbf";
 const API_HOST = "hxnrsyyqffztlvcrtgbf.supabase.co";
-const BASELINE = "a651dc61fec43b09e0ee908ec3cac01fbb45e3c8";
+const BASELINE = "aad469766b8491ef4eedffa143c33a7f3335d6bb";
+const COMPATIBILITY_SHA = "6deb90f6557b2ee72c8b5fca02aed7ce1e9ac9edd75a246689a56560166ea99c";
 const CONTROL_SHA = "699c911289e6b1eccd04ca778e8d26a36cbc2caf57b426eaede7b359991b2977";
 const PREFLIGHT_SHA = "25f70527d18113a2282ebcdb1626b8052f7774f3f7f6ee1dbe69e1cd17864b93";
 const PLAN_FP = "bd5c259941997daad3755c1cb135f76f6eccaef1fb9e1ce0044939ce08439214";
@@ -30,9 +31,41 @@ const EVIDENCE_NAMES = Object.freeze([
 const ownerUrl = process.env.RA004_OWNER_DATABASE_URL;
 const EXPECTED_PRE_LEDGER_COUNT = 95;
 const EXPECTED_PRE_LEDGER_FINGERPRINT = "c5bb6405d26def1834522cccaf2937fad60f44156370e5e1f8c4af3ff96d45bd";
-const EXPECTED_POST_LEDGER_COUNT = 97;
-const EXPECTED_POST_LEDGER_FINGERPRINT = "330d36f6bcff6a62d46c015cc5c31d32a6bf2c3639a3ba2e9ab856d1e3fbb668";
-const ACTIVATION_MANIFEST = "RA-004-forward-staging-migration-activation.json";
+const EXPECTED_POST_LEDGER_COUNT = 98;
+const EXPECTED_POST_LEDGER_FINGERPRINT = "67e4d52a9feb43379b5deb351fd050bc542897bb5ed89998368fbb7c349455db";
+const ACTIVATION_MANIFEST = "RA-004-corrected-staging-migration-activation.json";
+const EXPECTED_MIGRATIONS = Object.freeze([
+  ["20260926110000_add_ra004_staging_interface_compatibility.sql", COMPATIBILITY_SHA],
+  ["20260927100000_reissue_transactional_retailer_control_state_interface.sql", CONTROL_SHA],
+  ["20260927102000_correct_ra004_staging_preflight_ledger_contract.sql", PREFLIGHT_SHA],
+]);
+const DEPENDENCY_CONTRACT = Object.freeze([
+  ...[
+    "public.approved_import_plans", "public.retailer_catalogue_apply_runs",
+    "public.retailer_catalogue_child_plans", "public.retailer_catalogue_parent_plans",
+    "public.retailer_offer_sync_batch_approvals",
+    "public.retailer_offer_sync_reviewed_mixed_change_bindings", "public.retailers",
+    "supabase_migrations.schema_migrations",
+    "public.retailer_catalogue_production_fixture_approvals",
+    "public.retailer_catalogue_production_recovery_manifests",
+    "public.retailer_catalogue_production_recovery_approvals",
+    "public.retailer_control_state_evidence_v1",
+  ].map((identity) => ({ kind: "relation", identity })),
+  ...[
+    "pg_catalog.gen_random_uuid()", "pg_catalog.sha256(bytea)",
+    "public.write_retailer_control_state_evidence_v1(uuid,integer,text,bigint,boolean,text,text,text,text,timestamp with time zone,timestamp with time zone,timestamp with time zone,text,text,jsonb,text,text)",
+    "public.read_retailer_control_state_v1(bigint,text,text,text,timestamp with time zone,text[],integer,integer)",
+    "public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer)",
+  ].map((identity) => ({ kind: "function", identity })),
+  { kind: "extension", identity: "pgcrypto" },
+  ...[
+    "anon", "authenticated", "service_role", "retailer_catalogue_production_approver",
+    "retailer_catalogue_production_executor", "retailer_catalogue_production_validator",
+    "retailer_control_state_evidence_owner", "retailer_control_state_evidence_writer",
+    "retailer_control_state_exporter", "retailer_control_state_read_owner",
+    "ra004_staging_preflight_caller", "ra004_staging_preflight_owner",
+  ].map((identity) => ({ kind: "role", identity })),
+]);
 const outDir = path.join(ROOT, "tmp", "ra004-live-evidence-20260927");
 fs.mkdirSync(outDir, { recursive: true });
 
@@ -92,6 +125,23 @@ async function businessCounts() {
     (select count(*)::text from public.retailer_products) retailer_products,
     (select count(*)::text from public.offers) offers,
     (select count(*)::text from public.price_history) price_history`)).rows[0];
+}
+async function verifyDependencyContract() {
+  invariant(DEPENDENCY_CONTRACT.length === 30, "RA004_DEPENDENCY_CONTRACT_INTERNAL_MISMATCH");
+  const kinds = DEPENDENCY_CONTRACT.map(({ kind }) => kind);
+  const identities = DEPENDENCY_CONTRACT.map(({ identity }) => identity);
+  const rows = (await db(`with expected as (
+    select kind, identity from unnest($1::text[], $2::text[]) as dependency(kind, identity)
+  ) select kind, identity, case
+    when kind='relation' then to_regclass(identity) is not null
+    when kind='function' then to_regprocedure(identity) is not null
+    when kind='extension' then exists(select 1 from pg_extension where extname=identity)
+    when kind='role' then exists(select 1 from pg_roles where rolname=identity)
+    else false end present
+  from expected order by kind, identity`, [kinds, identities])).rows;
+  invariant(rows.length === 30 && rows.every(({ present }) => present === true),
+    "RA004_DEPENDENCY_CONTRACT_DRIFT");
+  return { count: 30, status: "PRESENT_MATCHING", fingerprint: sha256(rows) };
 }
 async function ownerTransaction(statements) { const client=new Client({connectionString:ownerUrl,ssl:{rejectUnauthorized:false},application_name:"ra004-evidence-policy-owner-v1"}); try { await client.connect(); await client.query("begin"); for(const statement of statements) await client.query(statement); await client.query("commit"); } catch(error) { try { await client.query("rollback"); } catch {} throw error; } finally { await client.end(); } }
 function credentialReader() {
@@ -246,9 +296,9 @@ async function main() {
   });
   const selectedWorkdir=path.join(ROOT,"tmp","ra004-selected-staging-migrations");
   selector.materializeSelectedWorkdir({selection,workdir:selectedWorkdir});
-  invariant(selection.pending_files.length===2
-    && selection.pending_sha256s[selection.pending_files[0]]===CONTROL_SHA
-    && selection.pending_sha256s[selection.pending_files[1]]===PREFLIGHT_SHA,"RA004_SELECTOR_NOT_EXACT");
+  invariant(selection.pending_files.length===EXPECTED_MIGRATIONS.length
+    && EXPECTED_MIGRATIONS.every(([file, hash], index) => selection.pending_files[index]===file
+      && selection.pending_sha256s[file]===hash),"RA004_SELECTOR_NOT_EXACT");
   const retailer=(await db("select id::text,name,slug from public.retailers where lower(name)='10 reps' or lower(slug)='10-reps'")).rows;
   invariant(retailer.length===1 && retailer[0].name==="10 Reps" && retailer[0].slug==="10-reps" && retailer[0].id==="11","RA004_RETAILER_AMBIGUOUS");
   const preObjects=(await db("select to_regprocedure('public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer)') control_rpc,to_regprocedure('public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer)') preflight_rpc")).rows[0];
@@ -298,6 +348,7 @@ async function main() {
     invariant(postRemote.remoteLedger.length===EXPECTED_POST_LEDGER_COUNT
       && selector.ledgerRowsFingerprint(postRemote.remoteLedger)===EXPECTED_POST_LEDGER_FINGERPRINT
       && selection.pending_files.every(file=>appliedIdentifiers.has(file)),"RA004_POST_LEDGER_MISMATCH");
+    const dependencyContract=await verifyDependencyContract();
     const businessAfterMigrations=await businessCounts();
     invariant(JSON.stringify(businessAfterMigrations)===JSON.stringify(businessBefore),"RA004_BUSINESS_DATA_CHANGED_BY_MIGRATION");
     ensureWindow(expires);
@@ -331,7 +382,7 @@ async function main() {
     const businessAfterCanary=await businessCounts();
     invariant(JSON.stringify(businessAfterCanary)===JSON.stringify(businessBefore),"RA004_BUSINESS_DATA_CHANGED_DURING_READ_ONLY_EXECUTION");
     const canaryClear=cReport.final_assessment==="CLEAR_FOR_SEPARATE_SHADOW_AUTHORIZATION";
-    const closeout={schema_version:"ra004-staging-closeout-v1",status:canaryClear?"VERIFIED_COMPLETE":"BLOCKED_CONTROL_STATE",activation_id:activation,baseline_sha:BASELINE,execution_commit:executionCommit,window:{starts_at:startsAt,expires_at:expiresAt,closed_at:utc()},project_identity:identity,retailer:{id:String(retailer[0].id),name:retailer[0].name,slug:retailer[0].slug},evidence_store:{...store,...policyAttestation},migration_receipts:migrationReceipts,ledger:{before_count:remote.remoteLedger.length,after_count:postRemote.remoteLedger.length,after_fingerprint:ledgerFp},attempt_counters:{...sessionState.attempt_counters,...operationAttempts},business_counts:{before:businessBefore,after_migrations:businessAfterMigrations,after_canary:businessAfterCanary,unchanged:true},preflight:{status:"VERIFIED_COMPLETE",report_fingerprint:result.report.report_fingerprint,capability_counters:result.receipt.capability_counters},canary:{status:canaryClear?"VERIFIED_COMPLETE":"BLOCKED",final_assessment:cReport.final_assessment,export_fingerprint:cReport.export_fingerprint,read_attempt_count:cReport.read_attempt_count,write_attempt_count:cReport.write_attempt_count,mutation_attempt_count:cReport.mutation_attempt_count},revoke_receipts:revoke.map(x=>({...x,issuer_process_id_present:true,runner_process_id_present:true,issuer_process_id:undefined,runner_process_id:undefined})),uploaded_objects:uploaded,forbidden_operations:{production:0,feed_capture:0,shadow_run:0,control_plan:0,approval:0,import:0,apply:0,offer_writes:0,model_b:0}};
+    const closeout={schema_version:"ra004-staging-closeout-v1",status:canaryClear?"VERIFIED_COMPLETE":"BLOCKED_CONTROL_STATE",activation_id:activation,baseline_sha:BASELINE,execution_commit:executionCommit,window:{starts_at:startsAt,expires_at:expiresAt,closed_at:utc()},project_identity:identity,retailer:{id:String(retailer[0].id),name:retailer[0].name,slug:retailer[0].slug},evidence_store:{...store,...policyAttestation},migration_receipts:migrationReceipts,ledger:{before_count:remote.remoteLedger.length,after_count:postRemote.remoteLedger.length,after_fingerprint:ledgerFp},dependency_contract:dependencyContract,attempt_counters:{...sessionState.attempt_counters,...operationAttempts},business_counts:{before:businessBefore,after_migrations:businessAfterMigrations,after_canary:businessAfterCanary,unchanged:true},preflight:{status:"VERIFIED_COMPLETE",report_fingerprint:result.report.report_fingerprint,capability_counters:result.receipt.capability_counters},canary:{status:canaryClear?"VERIFIED_COMPLETE":"BLOCKED",final_assessment:cReport.final_assessment,export_fingerprint:cReport.export_fingerprint,read_attempt_count:cReport.read_attempt_count,write_attempt_count:cReport.write_attempt_count,mutation_attempt_count:cReport.mutation_attempt_count},revoke_receipts:revoke.map(x=>({...x,issuer_process_id_present:true,runner_process_id_present:true,issuer_process_id:undefined,runner_process_id:undefined})),uploaded_objects:uploaded,forbidden_operations:{production:0,feed_capture:0,shadow_run:0,control_plan:0,approval:0,import:0,apply:0,offer_writes:0,model_b:0}};
     jsonWrite("closeout.json",closeout);
     await custody.call({action:"put",name:"closeout.json",value:closeout});
     process.stdout.write(`${JSON.stringify({status:closeout.status,activation_id:activation,window:closeout.window,retailer_id:closeout.retailer.id,final_assessment:cReport.final_assessment,closeout:path.join(outDir,"closeout.json")})}\n`);
@@ -396,7 +447,8 @@ if (require.main === module) {
 }
 
 module.exports = {
-  API_HOST, BASELINE, BUCKET, CONTROL_SHA, EXPECTED_POST_LEDGER_COUNT,
+  API_HOST, BASELINE, BUCKET, COMPATIBILITY_SHA, CONTROL_SHA, DEPENDENCY_CONTRACT,
+  EXPECTED_MIGRATIONS, EXPECTED_POST_LEDGER_COUNT,
   EXPECTED_POST_LEDGER_FINGERPRINT, EXPECTED_PRE_LEDGER_COUNT,
   EXPECTED_PRE_LEDGER_FINGERPRINT, PLAN_FP, PREFLIGHT_SHA, REF,
   buildFailureReport, pushSelectedMigrations, readExecutionCommit, redactCliOutput, runCli, safeFailureCode,

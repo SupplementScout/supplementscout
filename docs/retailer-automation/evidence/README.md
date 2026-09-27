@@ -42,6 +42,10 @@
 
 [RA-004 machine-readable forward staging activation](RA-004-forward-staging-migration-activation.json)
 
+[RA-004 corrected staging activation](RA-004-CORRECTED-STAGING-ACTIVATION.md)
+
+[RA-004 machine-readable corrected staging activation](RA-004-corrected-staging-migration-activation.json)
+
 The staging fixture activation is `STAGING_VERIFIED_COMPLETE`. The one
 authorized application attempt advanced the attested staging ledger from 94 to
 95 rows and created exactly one minimal `10 Reps` / `10-reps` retailer at ID
