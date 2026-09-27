@@ -89,6 +89,63 @@ test("business rows are counted before migration and remain unchanged after cana
   assert.match(coordinator, /business_counts:\{before:businessBefore,after_migrations:businessAfterMigrations,after_canary:businessAfterCanary,unchanged:true\}/);
 });
 
+test("a session that never existed is not logged out and primary failure remains authoritative", () => {
+  assert.match(coordinator, /if\(sessionState\.session_creation_state!=="NOT_CREATED"\)/);
+  assert.doesNotMatch(coordinator, /finally\s*\{[^}]*invariant\(cleanupFailures/s);
+  assert.match(coordinator, /if\(primaryError\)throw primaryError/);
+  assert.match(coordinator, /primary_failure: \{ code: safeFailureCode\(primaryError\) \}/);
+});
+
+test("failure report separates primary failure, session, cleanup, counters and window state", () => {
+  const { buildFailureReport } = require("./ra004-staging-execution-coordinator");
+  const input = {
+    activation: "ra004-staging-1790493761055",
+    primaryError: new Error("RA004_STORAGE_AUTH_DNS_FAILED"),
+    sessionState: {
+      session_creation_state: "NOT_CREATED",
+      cleanup_status: "NOT_REQUIRED",
+      attempt_counters: { auth: 1, upload: 0, readback: 0, cleanup: 0 },
+    },
+    cleanup: { status: "NOT_REQUIRED", failures: [] },
+    startsAt: null,
+    expiresAt: "2099-01-01T00:00:00Z",
+    closedAt: "2098-12-31T23:59:59Z",
+    revoke: [],
+    uploaded: [],
+  };
+  const first = buildFailureReport(input);
+  const second = buildFailureReport(input);
+  assert.deepEqual(first.primary_failure, { code: "RA004_STORAGE_AUTH_DNS_FAILED" });
+  assert.deepEqual(first.session_creation, { state: "NOT_CREATED" });
+  assert.deepEqual(first.cleanup, { status: "NOT_REQUIRED", failures: [] });
+  assert.deepEqual(first.attempt_counters, { auth: 1, upload: 0, readback: 0, cleanup: 0 });
+  assert.equal(first.window.started, false);
+  assert.equal(first.window.starts_at, null);
+  assert.deepEqual(first, second);
+});
+
+test("cleanup failure cannot replace the primary transport failure or leak secrets", () => {
+  const { buildFailureReport } = require("./ra004-staging-execution-coordinator");
+  const report = buildFailureReport({
+    activation: "ra004-staging-1790493761055",
+    primaryError: new Error("SENSITIVE_TEST_SENTINEL_DO_NOT_REPORT"),
+    sessionState: {
+      session_creation_state: "PARTIALLY_CREATED",
+      cleanup_status: "FAILED",
+      attempt_counters: { auth: 1, upload: 0, readback: 0, cleanup: 1 },
+    },
+    cleanup: { status: "FAILED", failures: ["storage-session"] },
+    startsAt: null,
+    expiresAt: "2099-01-01T00:00:00Z",
+    closedAt: "2098-12-31T23:59:59Z",
+    revoke: [],
+    uploaded: [],
+  });
+  assert.equal(report.primary_failure.code, "RA004_UNCLASSIFIED_FAILURE");
+  assert.deepEqual(report.cleanup, { status: "FAILED", failures: ["storage-session"] });
+  assert.doesNotMatch(JSON.stringify(report), /SENSITIVE_TEST_SENTINEL_DO_NOT_REPORT/);
+});
+
 test("preflight gates exactly one later control-state canary and both credentials revoke in finally", () => {
   const preflight = coordinator.indexOf("await runPreflight");
   const canaryCredential = coordinator.indexOf('kind:"control"');
