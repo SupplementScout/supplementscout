@@ -622,16 +622,16 @@ test("RA-004 activation selects exactly the two approved staging migrations and 
   ]);
   const result = validateSelection(validInput({
     activationManifest: RA004_ACTIVATION,
-    remoteLedger: preFixtureRemoteLedger(),
+    remoteLedger: currentRemoteLedger(),
   }));
   assert.equal(result.activation_schema, "ra-004-staging-migration-activation-v1");
-  assert.equal(result.activation_id, "ra004-staging-interfaces-2026-09-25-v2");
+  assert.equal(result.activation_id, "ra004-staging-interfaces-2026-09-27-v3");
   assert.deepEqual(result.pending_files, [RA004_CONTROL_STATE_MIGRATION, RA004_PREFLIGHT_MIGRATION]);
   assert.deepEqual(result.pending_sha256s, {
     [RA004_CONTROL_STATE_MIGRATION]: "cfd7a93cb20845832b696183f5eb8a500f0474b4173829b85f6ac6bc73d4baaa",
     [RA004_PREFLIGHT_MIGRATION]: "9d6c1ea4df0bd86f84a4cb779a0824922f4e9bcc91681b734d5d18465a9e91be",
   });
-  assert.equal(result.selected_files.length, 96);
+  assert.equal(result.selected_files.length, 97);
   assert.ok(result.selected_files.includes(RA004_CONTROL_STATE_MIGRATION));
   assert.ok(result.selected_files.includes(RA004_PREFLIGHT_MIGRATION));
   for (const pending of CONTRACT.pending) {
@@ -663,7 +663,7 @@ test("RA-004 activation fails closed for baseline, production, target, SHA and u
   baselineDrift.baseline_sha = "0".repeat(40);
   const activationInput = (activationManifest) => validInput({
     activationManifest,
-    remoteLedger: preFixtureRemoteLedger(),
+    remoteLedger: currentRemoteLedger(),
   });
   assert.throws(() => validateSelection(activationInput(baselineDrift)), /baseline/);
 

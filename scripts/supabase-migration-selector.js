@@ -22,7 +22,14 @@ const DEFAULT_PRODUCTION_ENV_FILE = path.join(
 );
 const SHA256 = /^[0-9a-f]{64}$/;
 const RA004_ACTIVATION_SCHEMA = "ra-004-staging-migration-activation-v1";
-const RA004_ACTIVATION_BASELINE = "247672dcb1d1b4654cc6a091ff10d7dbad42a902";
+const RA004_ACTIVATION_BASELINE = "3c191d1d3ee6972918823a963a77cbbc52191fee";
+const RA004_ACTIVATION_ID = "ra004-staging-interfaces-2026-09-27-v3";
+const RA004_ACTIVATION_PRE_LEDGER_COUNT = 95;
+const RA004_ACTIVATION_PRE_LEDGER_FINGERPRINT =
+  "c5bb6405d26def1834522cccaf2937fad60f44156370e5e1f8c4af3ff96d45bd";
+const RA004_ACTIVATION_POST_LEDGER_COUNT = 97;
+const RA004_ACTIVATION_POST_LEDGER_FINGERPRINT =
+  "5d6edfca41ae7dd61043d62a6d78469d5cb1196f6ef15c7fef794e04664ee7aa";
 const RA004_ACTIVATION_MIGRATIONS = Object.freeze([
   "20260924100000_add_transactional_retailer_control_state_interface.sql",
   "20260925100000_add_ra004_staging_preflight_metadata_interface.sql",
@@ -31,8 +38,8 @@ const RA004_FIXTURE_ACTIVATION_SCHEMA = "ra-004-staging-retailer-fixture-activat
 const RA004_FIXTURE_ACTIVATION_BASELINE = "cd6c5dbe1931e984213fe5d69f151e266180252a";
 const RA004_FIXTURE_ACTIVATION_ID = "ra004-staging-10reps-retailer-2026-09-26-v1";
 const RA004_FIXTURE_MIGRATION = "20260926100000_create_ra004_staging_10reps_retailer.sql";
-const RA004_PRE_ACTIVATION_LEDGER_COUNT = 94;
-const RA004_PRE_ACTIVATION_LEDGER_FINGERPRINT =
+const RA004_FIXTURE_PRE_ACTIVATION_LEDGER_COUNT = 94;
+const RA004_FIXTURE_PRE_ACTIVATION_LEDGER_FINGERPRINT =
   "b37337a9cfd316890034ce12df7571230268b2a27e2a6fc0462d0a7e8ea26c2a";
 
 const CONTRACTS = Object.freeze({
@@ -403,7 +410,7 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
   invariant(manifest?.task_id === "RA-004", "activation manifest task mismatch");
   const expectedActivationId = fixtureActivation
     ? RA004_FIXTURE_ACTIVATION_ID
-    : "ra004-staging-interfaces-2026-09-25-v2";
+    : RA004_ACTIVATION_ID;
   const expectedBaseline = fixtureActivation
     ? RA004_FIXTURE_ACTIVATION_BASELINE
     : RA004_ACTIVATION_BASELINE;
@@ -425,14 +432,25 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
     invariant(manifest?.canary?.authorized === false && manifest?.canary?.retry_authorized === false,
       "fixture activation must not authorize canary");
     invariant(
-      manifest?.pre_activation_ledger?.count === RA004_PRE_ACTIVATION_LEDGER_COUNT
-        && manifest?.pre_activation_ledger?.fingerprint === RA004_PRE_ACTIVATION_LEDGER_FINGERPRINT,
+      manifest?.pre_activation_ledger?.count === RA004_FIXTURE_PRE_ACTIVATION_LEDGER_COUNT
+        && manifest?.pre_activation_ledger?.fingerprint === RA004_FIXTURE_PRE_ACTIVATION_LEDGER_FINGERPRINT,
       "fixture pre-activation ledger mismatch",
     );
     invariant(
       manifest?.post_activation_ledger?.count === contract.ledgerCount
         && manifest?.post_activation_ledger?.fingerprint === contract.ledgerFingerprint,
       "fixture post-activation ledger mismatch",
+    );
+  } else {
+    invariant(
+      manifest?.pre_activation_ledger?.count === RA004_ACTIVATION_PRE_LEDGER_COUNT
+        && manifest?.pre_activation_ledger?.fingerprint === RA004_ACTIVATION_PRE_LEDGER_FINGERPRINT,
+      "interface pre-activation ledger mismatch",
+    );
+    invariant(
+      manifest?.post_activation_ledger?.count === RA004_ACTIVATION_POST_LEDGER_COUNT
+        && manifest?.post_activation_ledger?.fingerprint === RA004_ACTIVATION_POST_LEDGER_FINGERPRINT,
+      "interface post-activation ledger mismatch",
     );
   }
   invariant(Array.isArray(manifest?.migrations), "activation migrations are required");
@@ -556,11 +574,16 @@ function validateSelection({
   const admissibleFiles = [...defaultSelectedFiles, ...activatedFiles];
   const admissibleSet = new Set(admissibleFiles.map(migrationIdentifier));
   const remoteIdentifiers = remoteLedger.map(ledgerIdentifier);
+  const fixtureActivation = activationManifest?.schema_version === RA004_FIXTURE_ACTIVATION_SCHEMA;
   const expectedLedgerCount = activationManifest
-    ? RA004_PRE_ACTIVATION_LEDGER_COUNT
+    ? fixtureActivation
+      ? RA004_FIXTURE_PRE_ACTIVATION_LEDGER_COUNT
+      : RA004_ACTIVATION_PRE_LEDGER_COUNT
     : contract.ledgerCount;
   const expectedLedgerFingerprint = activationManifest
-    ? RA004_PRE_ACTIVATION_LEDGER_FINGERPRINT
+    ? fixtureActivation
+      ? RA004_FIXTURE_PRE_ACTIVATION_LEDGER_FINGERPRINT
+      : RA004_ACTIVATION_PRE_LEDGER_FINGERPRINT
     : contract.ledgerFingerprint;
   invariant(remoteLedger.length === expectedLedgerCount, "remote ledger count mismatch");
   invariant(
