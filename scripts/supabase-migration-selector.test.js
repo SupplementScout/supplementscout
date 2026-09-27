@@ -56,6 +56,22 @@ const RA004_FINAL_ACTIVATION_FILE = path.join(
 const RA004_FINAL_ACTIVATION = JSON.parse(
   fs.readFileSync(RA004_FINAL_ACTIVATION_FILE, "utf8"),
 );
+function preparedFinalActivation() {
+  const manifest = JSON.parse(JSON.stringify(RA004_FINAL_ACTIVATION));
+  manifest.status = "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED";
+  manifest.execution = {
+    runtime_activation_id: null,
+    started: false,
+    application_attempt_count: 0,
+    preflight_attempt_count: 0,
+    canary_attempt_count: 0,
+    migrations_applied: 0,
+    closed: false,
+    retry_authorized: false,
+    replayable: false,
+  };
+  return manifest;
+}
 function preparedCorrectedActivation() {
   const manifest = JSON.parse(JSON.stringify(RA004_CORRECTED_ACTIVATION));
   manifest.status = "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED";
@@ -792,7 +808,7 @@ test("consumed corrected RA-004 activation is terminal and cannot be replayed", 
 
 test("final RA-004 activation selects exactly the three owner-authorized staging migrations", () => {
   const result = validateSelection(validInput({
-    activationManifest: RA004_FINAL_ACTIVATION,
+    activationManifest: preparedFinalActivation(),
     remoteLedger: currentRemoteLedger(),
   }));
   assert.equal(result.activation_schema, "ra-004-final-staging-migration-activation-v1");
@@ -807,7 +823,7 @@ test("final RA-004 activation selects exactly the three owner-authorized staging
 
 test("final RA-004 activation fails closed on mutation, retry, replay and production", () => {
   const check = (mutate, pattern = /fingerprint mismatch/) => {
-    const manifest = JSON.parse(JSON.stringify(RA004_FINAL_ACTIVATION));
+    const manifest = preparedFinalActivation();
     mutate(manifest);
     assert.throws(() => validateActivationManifest(CONTRACT, manifest), pattern);
   };
@@ -823,6 +839,37 @@ test("final RA-004 activation fails closed on mutation, retry, replay and produc
     `--project-ref=${CONTRACTS.PRODUCTION.projectRef}`,
     `--activation-manifest=${RA004_FINAL_ACTIVATION_FILE}`,
   ]), /staging-only/);
+});
+
+test("consumed final RA-004 activation is terminal, closed and requires architecture review", () => {
+  assert.equal(RA004_FINAL_ACTIVATION.status,
+    "ATTEMPT_CONSUMED_FAILED_TERMINAL_ARCHITECTURE_REVIEW_REQUIRED");
+  assert.equal(RA004_FINAL_ACTIVATION.execution.runtime_activation_id,
+    "ra004-staging-1790526213056");
+  assert.equal(RA004_FINAL_ACTIVATION.execution.application_attempt_count, 1);
+  assert.equal(RA004_FINAL_ACTIVATION.execution.migrations_applied, 1);
+  assert.equal(RA004_FINAL_ACTIVATION.execution.preflight_attempt_count, 0);
+  assert.equal(RA004_FINAL_ACTIVATION.execution.canary_attempt_count, 0);
+  assert.equal(RA004_FINAL_ACTIVATION.execution.closed, true);
+  assert.equal(RA004_FINAL_ACTIVATION.execution.replayable, false);
+  assert.equal(RA004_FINAL_ACTIVATION.execution.cleanup, "COMPLETE");
+  assert.equal(RA004_FINAL_ACTIVATION.execution.architecture_review_required, true);
+  assert.throws(() => validateActivationManifest(CONTRACT, RA004_FINAL_ACTIVATION),
+    /status mismatch/);
+  assert.throws(() => validateSelection(validInput({
+    activationManifest: RA004_FINAL_ACTIVATION,
+    remoteLedger: currentRemoteLedger(),
+  })), /status mismatch/);
+  const normal = validateSelection(validInput());
+  for (const filename of [
+    RA004_COMPATIBILITY_MIGRATION,
+    RA004_FORWARD_CONTROL_STATE_MIGRATION,
+    RA004_CORRECTED_PREFLIGHT_MIGRATION,
+    RA004_FORWARD_PREFLIGHT_MIGRATION,
+  ]) {
+    assert.ok(normal.excluded_files.includes(filename));
+    assert.ok(!normal.pending_files.includes(filename));
+  }
 });
 
 test("forward RA-004 activation rejects retry, include-all, old migration and production drift", () => {
