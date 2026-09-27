@@ -645,7 +645,7 @@ test("RA-004 compatibility and interface migrations remain SHA-bound and exclude
     [RA004_PREFLIGHT_MIGRATION]: "9d6c1ea4df0bd86f84a4cb779a0824922f4e9bcc91681b734d5d18465a9e91be",
     [RA004_FORWARD_CONTROL_STATE_MIGRATION]: "699c911289e6b1eccd04ca778e8d26a36cbc2caf57b426eaede7b359991b2977",
     [RA004_FORWARD_PREFLIGHT_MIGRATION]: "6d1e3512792884cf0696e36d4c54f78d9d85e3e68b32cdd475a885f6138dc2f4",
-    [RA004_COMPATIBILITY_MIGRATION]: "6deb90f6557b2ee72c8b5fca02aed7ce1e9ac9edd75a246689a56560166ea99c",
+    [RA004_COMPATIBILITY_MIGRATION]: "22b7102641d3aabee86f91d4b07185eb7e6cbed3a017ef8da0499fa2c9dfad7f",
   };
   for (const [filename, sha256] of Object.entries(expected)) {
     assert.equal(CONTRACTS.STAGING.excluded[filename], sha256);
@@ -723,33 +723,17 @@ test("corrected preflight migration supersedes the defective reissue and remains
   }
 });
 
-test("corrected RA-004 activation selects exactly the authorized three-migration sequence", () => {
+test("historical corrected RA-004 activation cannot select the revised closed compatibility migration", () => {
   const prepared = preparedCorrectedActivation();
-  assert.deepEqual(validateActivationManifest(CONTRACT, prepared), [
-    RA004_COMPATIBILITY_MIGRATION,
-    RA004_FORWARD_CONTROL_STATE_MIGRATION,
-    RA004_CORRECTED_PREFLIGHT_MIGRATION,
-  ]);
-  const result = validateSelection(validInput({
+  assert.throws(() => validateActivationManifest(CONTRACT, prepared), /SHA-256 mismatch/);
+  assert.throws(() => validateSelection(validInput({
     activationManifest: prepared,
     remoteLedger: currentRemoteLedger(),
-  }));
-  assert.equal(result.activation_schema, "ra-004-corrected-staging-migration-activation-v1");
-  assert.equal(result.activation_id, "ra004-corrected-staging-interfaces-2026-09-27-v1");
-  assert.deepEqual(result.pending_files, [
-    RA004_COMPATIBILITY_MIGRATION,
-    RA004_FORWARD_CONTROL_STATE_MIGRATION,
-    RA004_CORRECTED_PREFLIGHT_MIGRATION,
-  ]);
-  assert.ok(!result.selected_files.includes(RA004_FORWARD_PREFLIGHT_MIGRATION));
-  assert.ok(result.excluded_files.includes(RA004_FORWARD_PREFLIGHT_MIGRATION));
-  assert.equal(result.ledger_count, 95);
-  assert.equal(result.pending_sha256s[RA004_COMPATIBILITY_MIGRATION],
-    "6deb90f6557b2ee72c8b5fca02aed7ce1e9ac9edd75a246689a56560166ea99c");
-  assert.equal(result.pending_sha256s[RA004_FORWARD_CONTROL_STATE_MIGRATION],
-    "699c911289e6b1eccd04ca778e8d26a36cbc2caf57b426eaede7b359991b2977");
-  assert.equal(result.pending_sha256s[RA004_CORRECTED_PREFLIGHT_MIGRATION],
-    "25f70527d18113a2282ebcdb1626b8052f7774f3f7f6ee1dbe69e1cd17864b93");
+  })), /SHA-256 mismatch/);
+  const normal = validateSelection(validInput());
+  assert.ok(normal.excluded_files.includes(RA004_COMPATIBILITY_MIGRATION));
+  assert.ok(!normal.selected_files.includes(RA004_COMPATIBILITY_MIGRATION));
+  assert.ok(!normal.pending_files.includes(RA004_COMPATIBILITY_MIGRATION));
 });
 
 test("corrected RA-004 activation fails closed on mutation, replay and production", () => {

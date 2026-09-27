@@ -439,6 +439,18 @@ applied. Preflight and canary did not run. Evidence-session cleanup completed,
 no RPC credential was created, and the activation is terminally closed with no
 retry authorized.
 
+**PostgreSQL 17 compatibility-role correction:**
+`INDEPENDENTLY_VERIFIED_DRAFT`. The compatibility migration now
+admits only PostgreSQL 17's exact automatic administrative edge from the
+explicitly verified `postgres` migration user to each of the three compatibility
+roles: `ADMIN TRUE`, `SET FALSE`, `INHERIT FALSE`, with a superuser grantor.
+Every other membership, identity, option, role attribute or direct object ACL
+fails closed. Networkless PostgreSQL 17 tests cover the real non-superuser
+`CREATEROLE` path and negative drift. STAGING and PRODUCTION selectors remain
+closed, and the consumed historical activation cannot select the revised SHA.
+See
+[`evidence/RA-004-POSTGRESQL-17-COMPATIBILITY-ROLE-CONTRACT.md`](evidence/RA-004-POSTGRESQL-17-COMPATIBILITY-ROLE-CONTRACT.md).
+
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
 **Goal:** compare the candidate canonical pipeline with the existing 10 Reps

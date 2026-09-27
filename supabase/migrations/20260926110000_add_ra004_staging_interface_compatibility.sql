@@ -3,6 +3,23 @@
 -- production executor migration. It creates no business rows, approvals,
 -- executor functions, production target attestation, or production wiring.
 
+-- PostgreSQL 17 automatically grants a newly created role back to a
+-- non-superuser CREATEROLE operator as if the bootstrap superuser had issued
+-- WITH ADMIN TRUE, SET FALSE, INHERIT FALSE. Supabase migrations run as the
+-- selector-bound `postgres` database owner. This contract admits only that
+-- exact administrative edge and rejects every other membership or operator.
+do $migration_operator$
+begin
+  if current_user <> 'postgres' or session_user <> 'postgres'
+     or not exists (
+       select 1 from pg_roles
+       where rolname = current_user and rolcreaterole
+     ) then
+    raise exception 'RA004_COMPATIBILITY_MIGRATION_USER_MISMATCH';
+  end if;
+end
+$migration_operator$;
+
 do $existing_drift$
 declare
   v_role text;
@@ -17,9 +34,22 @@ begin
       not exists (
         select 1 from pg_roles where rolname = v_role and not rolcanlogin and not rolinherit and not rolsuper
           and not rolcreatedb and not rolcreaterole and not rolreplication and not rolbypassrls
-      ) or exists (
-        select 1 from pg_auth_members m join pg_roles r on r.oid = m.member join pg_roles g on g.oid = m.roleid
-        where r.rolname = v_role or g.rolname = v_role
+          and rolconnlimit = -1 and rolvaliduntil is null and coalesce(array_length(rolconfig, 1), 0) = 0
+      ) or 1 <> (
+        select count(*) from pg_auth_members m
+        join pg_roles member_role on member_role.oid = m.member
+        join pg_roles granted_role on granted_role.oid = m.roleid
+        where member_role.rolname = v_role or granted_role.rolname = v_role
+      ) or not exists (
+        select 1 from pg_auth_members m
+        join pg_roles member_role on member_role.oid = m.member
+        join pg_roles granted_role on granted_role.oid = m.roleid
+        join pg_roles grantor_role on grantor_role.oid = m.grantor
+        where member_role.rolname = current_user and granted_role.rolname = v_role
+          and m.admin_option
+          and not coalesce((to_jsonb(m)->>'set_option')::boolean, true)
+          and not coalesce((to_jsonb(m)->>'inherit_option')::boolean, true)
+          and grantor_role.rolsuper
       )
     ) then
       raise exception 'RA004_COMPATIBILITY_ROLE_DRIFT: %', v_role;
@@ -63,6 +93,7 @@ begin
     create role retailer_catalogue_production_validator
       nologin noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls;
   end if;
+
 end
 $roles$;
 
@@ -195,9 +226,35 @@ begin
       select 1 from pg_roles
       where rolname = v_role and not rolcanlogin and not rolinherit and not rolsuper
         and not rolcreatedb and not rolcreaterole and not rolreplication and not rolbypassrls
+        and rolconnlimit = -1 and rolvaliduntil is null and coalesce(array_length(rolconfig, 1), 0) = 0
+    ) or 1 <> (
+      select count(*) from pg_auth_members m
+      join pg_roles member_role on member_role.oid = m.member
+      join pg_roles granted_role on granted_role.oid = m.roleid
+      where member_role.rolname = v_role or granted_role.rolname = v_role
+    ) or not exists (
+      select 1 from pg_auth_members m
+      join pg_roles member_role on member_role.oid = m.member
+      join pg_roles granted_role on granted_role.oid = m.roleid
+      join pg_roles grantor_role on grantor_role.oid = m.grantor
+      where member_role.rolname = current_user and granted_role.rolname = v_role
+        and m.admin_option
+        and not coalesce((to_jsonb(m)->>'set_option')::boolean, true)
+        and not coalesce((to_jsonb(m)->>'inherit_option')::boolean, true)
+        and grantor_role.rolsuper
     ) or exists (
-      select 1 from pg_auth_members m join pg_roles r on r.oid = m.member join pg_roles g on g.oid = m.roleid
-      where r.rolname = v_role or g.rolname = v_role
+      select 1 from pg_class object
+      cross join lateral aclexplode(coalesce(
+        object.relacl,
+        acldefault(case when object.relkind = 'S' then 's'::"char" else 'r'::"char" end, object.relowner)
+      )) privilege
+      join pg_roles grantee on grantee.oid = privilege.grantee
+      where grantee.rolname = v_role
+    ) or exists (
+      select 1 from pg_proc function
+      cross join lateral aclexplode(coalesce(function.proacl, acldefault('f', function.proowner))) privilege
+      join pg_roles grantee on grantee.oid = privilege.grantee
+      where grantee.rolname = v_role
     ) then
       raise exception 'RA004_COMPATIBILITY_ROLE_DRIFT: %', v_role;
     end if;
