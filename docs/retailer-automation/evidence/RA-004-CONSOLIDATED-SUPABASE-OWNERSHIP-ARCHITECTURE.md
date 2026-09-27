@@ -80,6 +80,9 @@ new migration. It proves:
 - `git diff --check`: PASS
 - dependency audit: completed; the unchanged baseline dependency graph reports
   two moderate, three high and one critical advisory
+- independent clean-worktree verification of implementation commit
+  `ec521d0d422456698f210a0ac1323c0dc4cea41d`: PASS (`117/117` focused
+  contract/selector tests and the isolated PostgreSQL 17 consolidated scenario)
 - full integration gate: BLOCKED (`72/74` pass). The two failures are
   `jons-final-closeout-policy-migration.integration.test.js` (10 Reps v8 anchor
   mismatch) and `nutrition-variant-provenance.integration.test.js` (duplicate
