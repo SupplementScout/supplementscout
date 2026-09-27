@@ -2,12 +2,12 @@
   "schema_version": "ra-004-staging-migration-activation-v1",
   "status": "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED",
   "task_id": "RA-004",
-  "activation_id": "ra004-staging-interfaces-2026-09-27-v3",
+  "activation_id": "ra004-staging-interfaces-2026-09-27-v4",
   "prepared_at": "2026-09-27",
-  "baseline_sha": "3c191d1d3ee6972918823a963a77cbbc52191fee",
+  "baseline_sha": "b0b2ae7cc7563becd06bad1d68154f63ed195ab6",
   "authorization": {
     "owner": "Marek Kalinka",
-    "source": "explicit owner instruction on 2026-09-27 from baseline 3c191d1d3ee6972918823a963a77cbbc52191fee",
+    "source": "explicit owner instruction on 2026-09-27 from baseline b0b2ae7cc7563becd06bad1d68154f63ed195ab6",
     "scope": "one guarded staging-only application of exactly two RA-004 interface migrations",
     "production_authorized": false
   },
