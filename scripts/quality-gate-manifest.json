@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 315,
-    "sha256": "927f20ef6cbab7c9894d21f8e772e2bdcc564cc6080811f535c62985d2046dbc"
+    "count": 316,
+    "sha256": "d7d3c5e368f5533904fc78142c692fabc73681199be11e40fee703e2ae95d2b5"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -91,6 +91,7 @@
     "scripts/ra004-staging-evidence-custodian.test.js",
     "scripts/ra004-staging-execution-coordinator.test.js",
     "scripts/ra004-staging-preflight.test.js",
+    "scripts/ra004-staging-schema-inventory.test.js",
     "scripts/ra004-staging-retailer-fixture-activation.test.js",
     "scripts/ra004-staging-retailer-fixture.test.js",
     "scripts/reviewed-catalogue-artifact-approver.test.js",

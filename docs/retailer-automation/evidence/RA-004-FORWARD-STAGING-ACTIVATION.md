@@ -1,11 +1,11 @@
 # RA-004 forward staging activation
 
-Status: `OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED`
+Status: `ATTEMPT_CONSUMED_FAILED_TERMINAL`
 
 Baseline: `a651dc61fec43b09e0ee908ec3cac01fbb45e3c8`
 
 Activation manifest fingerprint:
-`387fe54ca5ca0ee60d621a9ec6fb66b9821c6e5586efaecf30ef282f02ff4aea`
+`460ca06556051403fe87c4883179764d4e6530a3ff7abcaaf113b4aedec32e11`
 
 This activation authorizes exactly one staging attempt for project
 `hxnrsyyqffztlvcrtgbf`, host `aws-0-eu-west-3.pooler.supabase.com`, retailer
@@ -37,5 +37,7 @@ The coordinator now writes separate redacted stdout and stderr files whenever
 Supabase CLI exits non-zero. The failure report retains their filenames,
 SHA-256 values, exit code and primary failure; cleanup cannot replace it.
 
-No staging or production connection, credential, evidence session, migration,
-preflight or canary is performed by this preparation PR.
+Runtime activation `ra004-staging-1790509412479` was consumed exactly once and
+closed after the first migration failed before any migration was committed.
+The staging ledger remained at 95 entries. No preflight or canary ran; cleanup
+completed. This activation is terminal and cannot be selected or replayed.

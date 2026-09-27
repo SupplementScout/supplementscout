@@ -13,6 +13,7 @@ const BASELINE = "supabase/migrations/20260712211120_baseline_current_public_sch
 const CONTROL_FIXTURE = "supabase/test/retailer_control_state_interface_fixture.sql";
 const CONTROL_MIGRATION = "supabase/migrations/20260924100000_add_transactional_retailer_control_state_interface.sql";
 const PREFLIGHT_MIGRATION = "supabase/migrations/20260925100000_add_ra004_staging_preflight_metadata_interface.sql";
+const COMPATIBILITY_MIGRATION = "supabase/migrations/20260926110000_add_ra004_staging_interface_compatibility.sql";
 const FORWARD_CONTROL_MIGRATION = "supabase/migrations/20260927100000_reissue_transactional_retailer_control_state_interface.sql";
 const FORWARD_PREFLIGHT_MIGRATION = "supabase/migrations/20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql";
 const MIGRATIONS = [
@@ -148,11 +149,11 @@ test("RA-004 preflight migration and closed Q2-Q7 RPC pass in networkless Postgr
   finally { const cleanup=run("docker",["rm","-f",container],30_000); if(!primary) ok(cleanup,"remove isolated PostgreSQL"); }
 });
 
-test("RA-004 forward reissues install after ledger 95, recognize the old contract, and reject drift", () => {
+test("RA-004 compatibility and forward reissues install in exact order after ledger 95 and reject drift", () => {
   const container=`ra-004-forward-${crypto.randomBytes(5).toString("hex")}`;
   const base=`ra004_control_state_test_forward_base_${crypto.randomBytes(3).toString("hex")}`;
   const fresh=`ra004_control_state_test_forward_fresh_${crypto.randomBytes(3).toString("hex")}`;
-  const old=`ra004_control_state_test_forward_old_${crypto.randomBytes(3).toString("hex")}`;
+  const compatible=`ra004_control_state_test_compatible_${crypto.randomBytes(3).toString("hex")}`;
   let primary;
   const clone=(source,target)=>ok(docker(container,["createdb","-U","postgres","-T",source,target]),`clone ${target}`);
   const apply=(database,migration,label)=>ok(file(container,database,migration),label);
@@ -163,23 +164,18 @@ test("RA-004 forward reissues install after ledger 95, recognize the old contrac
     ok(sql(container,base,ROLE_SQL),"bootstrap standard roles");
     ok(file(container,base,BASELINE),"apply repository baseline");
     ok(file(container,base,CONTROL_FIXTURE,[`expected_database=${base}`]),"apply control fixture");
+    ok(sql(container,base,"drop table public.retailer_catalogue_production_recovery_approvals, public.retailer_catalogue_production_recovery_manifests, public.retailer_catalogue_production_fixture_approvals; drop role retailer_catalogue_production_validator, retailer_catalogue_production_executor, retailer_catalogue_production_approver;"),"reproduce staging compatibility gaps");
     const ledgerRows=[
       ...Array.from({length:94},(_,index)=>[`20250101${String(index).padStart(6,"0")}`,`synthetic_history_${index}`]),
       ["20260926100000","create_ra004_staging_10reps_retailer"],
     ];
     ok(sql(container,base,`create schema supabase_migrations; create table supabase_migrations.schema_migrations(version text primary key,name text not null,statements text[] not null default array[]::text[]); insert into supabase_migrations.schema_migrations(version,name) values ${ledgerRows.map(([version,name])=>`(${quote(version)},${quote(name)})`).join(",")}; insert into public.retailers(id,name,slug) overriding system value values (11,'10 Reps','10-reps');`),"create exact 95-row staging simulation");
     clone(base,fresh);
-    clone(base,old);
-
-    apply(old,CONTROL_MIGRATION,"install old control contract");
-    apply(old,PREFLIGHT_MIGRATION,"install old preflight contract");
-    apply(old,FORWARD_CONTROL_MIGRATION,"recognize exact old control contract");
-    apply(old,FORWARD_PREFLIGHT_MIGRATION,"upgrade exact old preflight contract");
-    assert.equal(ok(sql(container,old,"select encode(sha256(convert_to(pg_get_functiondef('public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer)'::regprocedure),'UTF8')),'hex')"),"upgraded preflight fingerprint").stdout.trim(),"04ff7e9afdc23b2d8254c3d3aeb3ed9136e05393fbe3ba3a9cdd7ca2ed9150a2");
-    ok(docker(container,["dropdb","-U","postgres",old]),"drop old-contract database");
-    ok(sql(container,"postgres","drop role ra004_staging_preflight_caller,ra004_staging_preflight_owner,retailer_control_state_exporter,retailer_control_state_evidence_writer,retailer_control_state_read_owner,retailer_control_state_evidence_owner"),"remove database-scoped test roles");
 
     const before=json(ok(sql(container,fresh,`select jsonb_build_object('products',(select count(*) from public.products),'variants',(select count(*) from public.product_variants),'retailer_products',(select count(*) from public.retailer_products),'offers',(select count(*) from public.offers),'price_history',(select count(*) from public.price_history))::text`),"business counts before"));
+    apply(fresh,COMPATIBILITY_MIGRATION,"install staging compatibility closure");
+    ok(sql(container,fresh,"insert into supabase_migrations.schema_migrations(version,name) values ('20260926110000','add_ra004_staging_interface_compatibility')"),"record compatibility migration");
+    clone(fresh,compatible);
     apply(fresh,FORWARD_CONTROL_MIGRATION,"install forward control interface");
     ok(sql(container,fresh,"insert into supabase_migrations.schema_migrations(version,name) values ('20260927100000','reissue_transactional_retailer_control_state_interface')"),"record forward control migration");
     apply(fresh,FORWARD_PREFLIGHT_MIGRATION,"install forward preflight interface");
@@ -187,9 +183,31 @@ test("RA-004 forward reissues install after ledger 95, recognize the old contrac
     const after=json(ok(sql(container,fresh,`select jsonb_build_object('products',(select count(*) from public.products),'variants',(select count(*) from public.product_variants),'retailer_products',(select count(*) from public.retailer_products),'offers',(select count(*) from public.offers),'price_history',(select count(*) from public.price_history))::text`),"business counts after"));
     assert.deepEqual(after,before);
     const inventory=json(ok(sql(container,fresh,`select jsonb_build_object('ledger_count',(select count(*) from supabase_migrations.schema_migrations),'ledger_head',(select max(version) from supabase_migrations.schema_migrations),'control_rpc',to_regprocedure('public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer)') is not null,'preflight_rpc',to_regprocedure('public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer)') is not null,'control_owner',(select pg_get_userbyid(proowner) from pg_proc where oid='public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer)'::regprocedure),'preflight_owner',(select pg_get_userbyid(proowner) from pg_proc where oid='public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer)'::regprocedure),'rls',(select relrowsecurity and relforcerowsecurity from pg_class where oid='public.retailer_control_state_evidence_v1'::regclass))::text`),"forward inventory"));
-    assert.deepEqual(inventory,{ledger_count:97,ledger_head:"20260927101000",control_rpc:true,preflight_rpc:true,control_owner:"retailer_control_state_read_owner",preflight_owner:"ra004_staging_preflight_owner",rls:true});
+    assert.deepEqual(inventory,{ledger_count:98,ledger_head:"20260927101000",control_rpc:true,preflight_rpc:true,control_owner:"retailer_control_state_read_owner",preflight_owner:"ra004_staging_preflight_owner",rls:true});
+    const compatibility=json(ok(sql(container,fresh,`select jsonb_build_object(
+      'tables',(select count(*) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relname in ('retailer_catalogue_production_fixture_approvals','retailer_catalogue_production_recovery_manifests','retailer_catalogue_production_recovery_approvals')),
+      'roles',(select count(*) from pg_roles where rolname in ('retailer_catalogue_production_approver','retailer_catalogue_production_executor','retailer_catalogue_production_validator')),
+      'rows',(select (select count(*) from public.retailer_catalogue_production_fixture_approvals)+(select count(*) from public.retailer_catalogue_production_recovery_manifests)+(select count(*) from public.retailer_catalogue_production_recovery_approvals)),
+      'policies',(select count(*) from pg_policies where schemaname='public' and tablename like 'retailer_catalogue_production_%'),
+      'memberships',(select count(*) from pg_auth_members m join pg_roles r on r.oid=m.member join pg_roles g on g.oid=m.roleid where r.rolname like 'retailer_catalogue_production_%' or g.rolname like 'retailer_catalogue_production_%'),
+      'broad_grants',(select count(*) from information_schema.role_table_grants where table_schema='public' and table_name in ('retailer_catalogue_production_fixture_approvals','retailer_catalogue_production_recovery_manifests','retailer_catalogue_production_recovery_approvals') and grantee<>'postgres')
+    )::text`),"compatibility boundary"));
+    assert.deepEqual(compatibility,{tables:3,roles:3,rows:0,policies:3,memberships:0,broad_grants:3});
     apply(fresh,FORWARD_CONTROL_MIGRATION,"safe control replay recognition");
     apply(fresh,FORWARD_PREFLIGHT_MIGRATION,"safe preflight replay recognition");
+
+    for(const [kind,mutation,pattern] of [
+      ["table","alter table public.retailer_catalogue_production_fixture_approvals add column forbidden text",/COLUMN_DRIFT/],
+      ["grant","grant select on public.retailer_catalogue_production_recovery_manifests to authenticated",/TABLE_SECURITY_DRIFT/],
+      ["policy","create policy forbidden on public.retailer_catalogue_production_recovery_approvals using (true)",/TABLE_SECURITY_DRIFT/],
+      ["constraint","do $$ declare n text; begin select conname into n from pg_constraint where conrelid='public.retailer_catalogue_production_fixture_approvals'::regclass and contype='c' order by conname limit 1; execute format('alter table public.retailer_catalogue_production_fixture_approvals drop constraint %I',n); end $$",/CONSTRAINT_DRIFT/],
+      ["role","alter role retailer_catalogue_production_validator inherit",/ROLE_DRIFT/],
+    ]) {
+      const drift=`ra004_control_state_test_compat_drift_${kind}_${crypto.randomBytes(2).toString("hex")}`;
+      clone(compatible,drift);
+      ok(sql(container,drift,mutation),`inject compatibility ${kind} drift`);
+      denied(file(container,drift,COMPATIBILITY_MIGRATION),`reject compatibility ${kind} drift`,pattern);
+    }
 
     for(const [kind,mutation,migration,pattern] of [
       ["function","alter function public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer) volatile",FORWARD_CONTROL_MIGRATION,/FUNCTION_DRIFT/],
@@ -203,6 +221,7 @@ test("RA-004 forward reissues install after ledger 95, recognize the old contrac
       ok(sql(container,drift,mutation),`inject ${kind} drift`);
       denied(file(container,drift,migration),`reject ${kind} drift`,pattern);
     }
+    denied(sql(container,fresh,"insert into supabase_migrations.schema_migrations(version,name) values ('20260926110000','add_ra004_staging_interface_compatibility')"),"ledger blocks compatibility replay",/duplicate key/);
   } catch(error) { primary=error; throw error; }
   finally { const cleanup=run("docker",["rm","-f",container],30_000); if(!primary) ok(cleanup,"remove forward-only PostgreSQL"); }
 });
