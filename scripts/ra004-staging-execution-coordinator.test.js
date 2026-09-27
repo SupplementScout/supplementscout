@@ -197,6 +197,14 @@ test("interactive launcher masks every secret, validates the pinned CLI and clea
   assert.doesNotMatch(launcher, /ACCESS_TOKEN|personal access token|\bPAT\b/i);
 });
 
+test("interactive launcher trusts the Windows system CA store without disabling TLS verification", () => {
+  assert.match(
+    launcher,
+    /& node --use-system-ca \(Join-Path \$PSScriptRoot 'ra004-staging-execution-coordinator\.js'\)/,
+  );
+  assert.doesNotMatch(launcher, /NODE_TLS_REJECT_UNAUTHORIZED|--tls-skip-verify|rejectUnauthorized\s*=\s*false/i);
+});
+
 test("the tracked coordinator, issuer, custodian and verifier are repository files", () => {
   assert.ok(fs.existsSync(coordinatorPath));
   assert.ok(fs.existsSync(issuerPath));
