@@ -17,7 +17,7 @@ const { SOURCE_NAMES, PROHIBITED_OPERATIONS } = require("./lib/retailer-offer-sy
 const ROOT = path.resolve(__dirname, "..");
 const REF = "hxnrsyyqffztlvcrtgbf";
 const API_HOST = "hxnrsyyqffztlvcrtgbf.supabase.co";
-const BASELINE = "247672dcb1d1b4654cc6a091ff10d7dbad42a902";
+const BASELINE = "3c191d1d3ee6972918823a963a77cbbc52191fee";
 const CONTROL_SHA = "cfd7a93cb20845832b696183f5eb8a500f0474b4173829b85f6ac6bc73d4baaa";
 const PREFLIGHT_SHA = "9d6c1ea4df0bd86f84a4cb779a0824922f4e9bcc91681b734d5d18465a9e91be";
 const PLAN_FP = "bd5c259941997daad3755c1cb135f76f6eccaef1fb9e1ce0044939ce08439214";
@@ -27,8 +27,11 @@ const EVIDENCE_NAMES = Object.freeze([
   "control-state-revoke.json", "policy-attestation.json", "closeout.json",
 ]);
 const ownerUrl = process.env.RA004_OWNER_DATABASE_URL;
-const pat = process.env.RA004_SUPABASE_ACCESS_TOKEN;
-const outDir = path.join(ROOT, "tmp", "ra004-live-evidence-20260925");
+const EXPECTED_PRE_LEDGER_COUNT = 95;
+const EXPECTED_PRE_LEDGER_FINGERPRINT = "c5bb6405d26def1834522cccaf2937fad60f44156370e5e1f8c4af3ff96d45bd";
+const EXPECTED_POST_LEDGER_COUNT = 97;
+const EXPECTED_POST_LEDGER_FINGERPRINT = "5d6edfca41ae7dd61043d62a6d78469d5cb1196f6ef15c7fef794e04664ee7aa";
+const outDir = path.join(ROOT, "tmp", "ra004-live-evidence-20260927");
 fs.mkdirSync(outDir, { recursive: true });
 
 function invariant(ok, message) { if (!ok) throw new Error(message); }
@@ -36,6 +39,14 @@ function utc(date = new Date()) { return date.toISOString().replace(/\.\d{3}Z$/,
 function hashFile(file) { return crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex"); }
 function jsonWrite(file, value) { const target=path.join(outDir,file); fs.writeFileSync(target, `${JSON.stringify(value,null,2)}\n`, { flag:"wx" }); return target; }
 async function db(text, values=[]) { const client=new Client({connectionString:ownerUrl,ssl:{rejectUnauthorized:false},application_name:"ra004-guarded-owner-v1"}); try { await client.connect(); return await client.query(text,values); } finally { await client.end(); } }
+async function businessCounts() {
+  return (await db(`select
+    (select count(*)::text from public.products) products,
+    (select count(*)::text from public.product_variants) product_variants,
+    (select count(*)::text from public.retailer_products) retailer_products,
+    (select count(*)::text from public.offers) offers,
+    (select count(*)::text from public.price_history) price_history`)).rows[0];
+}
 async function ownerTransaction(statements) { const client=new Client({connectionString:ownerUrl,ssl:{rejectUnauthorized:false},application_name:"ra004-evidence-policy-owner-v1"}); try { await client.connect(); await client.query("begin"); for(const statement of statements) await client.query(statement); await client.query("commit"); } catch(error) { try { await client.query("rollback"); } catch {} throw error; } finally { await client.end(); } }
 function credentialReader() {
   let seq=0; const pending=new Map();
@@ -111,27 +122,31 @@ function runCli(arguments_, extraEnvironment = {}) {
   return String(result.stdout || "").slice(0, 2_000);
 }
 function pushSelectedMigrations(workdir) {
-  const linkEnvironment = { SUPABASE_ACCESS_TOKEN: pat };
-  runCli(["link", "--project-ref", REF, "--workdir", workdir, "--yes"], linkEnvironment);
-  linkEnvironment.SUPABASE_ACCESS_TOKEN = "";
-  const pushEnvironment = {
-    SUPABASE_ACCESS_TOKEN: pat,
-    SUPABASE_DB_PASSWORD: decodeURIComponent(new URL(ownerUrl).password),
-  };
-  runCli(["db", "push", "--linked", "--workdir", workdir, "--yes"], pushEnvironment);
-  pushEnvironment.SUPABASE_ACCESS_TOKEN = "";
-  pushEnvironment.SUPABASE_DB_PASSWORD = "";
+  const parsed = new URL(ownerUrl);
+  const password = decodeURIComponent(parsed.password);
+  invariant(password.length > 0, "RA004_DATABASE_PASSWORD_MISSING");
+  parsed.password = "";
+  parsed.search = "";
+  parsed.hash = "";
+  const databaseUrl = parsed.toString();
+  invariant(!databaseUrl.includes(password), "RA004_DATABASE_PASSWORD_REDACTION_FAILED");
+  const pushEnvironment = { PGPASSWORD: password };
+  runCli(["db", "push", "--db-url", databaseUrl, "--workdir", workdir, "--yes"], pushEnvironment);
+  pushEnvironment.PGPASSWORD = "";
 }
 function ensureWindow(expires) {
   invariant(Date.now() < expires.getTime(), "RA004_WINDOW_EXPIRED");
 }
 async function main() {
-  invariant(ownerUrl && pat && process.env.RA004_STORAGE_ANON_KEY
+  invariant(ownerUrl && process.env.RA004_STORAGE_ANON_KEY
     && process.env.RA004_STORAGE_EMAIL && process.env.RA004_STORAGE_PASSWORD,
   "RA004_AUTHENTICATION_MISSING");
   const parsed=new URL(ownerUrl);
   invariant(!`${parsed.hostname}|${parsed.username}`.match(/aftboxmrdgyhizicfsfu|prod/i),"RA004_PRODUCTION_TARGET_REJECTED");
   const remote=await selector.readRemoteState(ownerUrl);
+  invariant(remote.remoteLedger.length===EXPECTED_PRE_LEDGER_COUNT
+    && selector.ledgerRowsFingerprint(remote.remoteLedger)===EXPECTED_PRE_LEDGER_FINGERPRINT,
+  "RA004_PRE_LEDGER_MISMATCH");
   const selection=selector.validateSelection({
     environment:"STAGING", projectRef:REF, databaseTarget:remote.databaseTarget,
     remoteLedger:remote.remoteLedger,
@@ -149,10 +164,12 @@ async function main() {
   const preexistingStoragePolicies=(await db(`select polname from pg_policy where polrelid='storage.objects'::regclass and (0=any(polroles) or 'anon'::regrole::oid=any(polroles) or 'authenticated'::regrole::oid=any(polroles))`)).rows;
   invariant(preexistingStoragePolicies.length===0,"RA004_STORAGE_EXISTING_BROAD_POLICY");
   invariant(runCli(["--version"]).trim()==="2.111.0","RA004_SUPABASE_CLI_VERSION_MISMATCH");
+  const businessBefore=await businessCounts();
 
   const activation=`ra004-staging-${Date.now()}`;
-  const starts=new Date(); const expires=new Date(starts.getTime()+30*60*1000);
-  const startsAt=utc(starts), expiresAt=utc(expires);
+  const expires=new Date(Date.now()+30*60*1000);
+  const expiresAt=utc(expires);
+  let startsAt=null;
   let custody,policies,issuer,preflightCred,canaryCred;
   let closeoutStored=false;
   const revoke=[]; const uploaded=[]; const cleanupFailures=[];
@@ -168,13 +185,17 @@ async function main() {
     const storageSession=await custody.call({action:"init"});
     policies=await configureEvidenceStore(storageSession.subject,activation);
     const policyAttestation=await attestEvidenceStore(policies);
+    startsAt=utc();
     ensureWindow(expires);
     pushSelectedMigrations(selectedWorkdir);
     const migrationReceipts=selection.pending_files.map((file)=>({file,sha256:hashFile(path.join(selectedWorkdir,"supabase","migrations",file)),status:"APPLIED_BY_GUARDED_SELECTOR"}));
     const postRemote=await selector.readRemoteState(ownerUrl);
-    const expectedTail=selection.pending_files.map(file=>file.replace(/\.sql$/,"")).map(identifier=>{const [version,...name]=identifier.split("_");return {version,name:name.join("_")};});
-    invariant(postRemote.remoteLedger.length===remote.remoteLedger.length+2
-      && JSON.stringify(postRemote.remoteLedger.slice(-2))===JSON.stringify(expectedTail),"RA004_POST_LEDGER_MISMATCH");
+    const appliedIdentifiers=new Set(postRemote.remoteLedger.map(row=>`${row.version}_${row.name}.sql`));
+    invariant(postRemote.remoteLedger.length===EXPECTED_POST_LEDGER_COUNT
+      && selector.ledgerRowsFingerprint(postRemote.remoteLedger)===EXPECTED_POST_LEDGER_FINGERPRINT
+      && selection.pending_files.every(file=>appliedIdentifiers.has(file)),"RA004_POST_LEDGER_MISMATCH");
+    const businessAfterMigrations=await businessCounts();
+    invariant(JSON.stringify(businessAfterMigrations)===JSON.stringify(businessBefore),"RA004_BUSINESS_DATA_CHANGED_BY_MIGRATION");
     ensureWindow(expires);
     const ledgerFp=selector.ledgerRowsFingerprint(postRemote.remoteLedger);
     issuer=credentialReader();
@@ -201,8 +222,10 @@ async function main() {
     const canaryReceipt=await revokeOne(canaryCred,process.pid); canaryCred=null;
     uploaded.push(await custody.call({action:"put",name:"control-state-revoke.json",value:{...canaryReceipt,revocation_verification:revoke.at(-1).revocation_verification}}));
     ensureWindow(expires);
+    const businessAfterCanary=await businessCounts();
+    invariant(JSON.stringify(businessAfterCanary)===JSON.stringify(businessBefore),"RA004_BUSINESS_DATA_CHANGED_DURING_READ_ONLY_EXECUTION");
     const canaryClear=cReport.final_assessment==="CLEAR_FOR_SEPARATE_SHADOW_AUTHORIZATION";
-    const closeout={schema_version:"ra004-staging-closeout-v1",status:canaryClear?"VERIFIED_COMPLETE":"BLOCKED_CONTROL_STATE",activation_id:activation,baseline_sha:BASELINE,window:{starts_at:startsAt,expires_at:expiresAt,closed_at:utc()},project_identity:identity,retailer:{id:String(retailer[0].id),name:retailer[0].name,slug:retailer[0].slug},evidence_store:{...store,...policyAttestation},migration_receipts:migrationReceipts,ledger:{before_count:remote.remoteLedger.length,after_count:postRemote.remoteLedger.length,after_fingerprint:ledgerFp},preflight:{status:"VERIFIED_COMPLETE",report_fingerprint:result.report.report_fingerprint,capability_counters:result.receipt.capability_counters},canary:{status:canaryClear?"VERIFIED_COMPLETE":"BLOCKED",final_assessment:cReport.final_assessment,export_fingerprint:cReport.export_fingerprint,read_attempt_count:cReport.read_attempt_count,write_attempt_count:cReport.write_attempt_count,mutation_attempt_count:cReport.mutation_attempt_count},revoke_receipts:revoke.map(x=>({...x,issuer_process_id_present:true,runner_process_id_present:true,issuer_process_id:undefined,runner_process_id:undefined})),uploaded_objects:uploaded,forbidden_operations:{production:0,feed_capture:0,shadow_run:0,control_plan:0,approval:0,import:0,apply:0,offer_writes:0,model_b:0}};
+    const closeout={schema_version:"ra004-staging-closeout-v1",status:canaryClear?"VERIFIED_COMPLETE":"BLOCKED_CONTROL_STATE",activation_id:activation,baseline_sha:BASELINE,window:{starts_at:startsAt,expires_at:expiresAt,closed_at:utc()},project_identity:identity,retailer:{id:String(retailer[0].id),name:retailer[0].name,slug:retailer[0].slug},evidence_store:{...store,...policyAttestation},migration_receipts:migrationReceipts,ledger:{before_count:remote.remoteLedger.length,after_count:postRemote.remoteLedger.length,after_fingerprint:ledgerFp},business_counts:{before:businessBefore,after_migrations:businessAfterMigrations,after_canary:businessAfterCanary,unchanged:true},preflight:{status:"VERIFIED_COMPLETE",report_fingerprint:result.report.report_fingerprint,capability_counters:result.receipt.capability_counters},canary:{status:canaryClear?"VERIFIED_COMPLETE":"BLOCKED",final_assessment:cReport.final_assessment,export_fingerprint:cReport.export_fingerprint,read_attempt_count:cReport.read_attempt_count,write_attempt_count:cReport.write_attempt_count,mutation_attempt_count:cReport.mutation_attempt_count},revoke_receipts:revoke.map(x=>({...x,issuer_process_id_present:true,runner_process_id_present:true,issuer_process_id:undefined,runner_process_id:undefined})),uploaded_objects:uploaded,forbidden_operations:{production:0,feed_capture:0,shadow_run:0,control_plan:0,approval:0,import:0,apply:0,offer_writes:0,model_b:0}};
     jsonWrite("closeout.json",closeout);
     await custody.call({action:"put",name:"closeout.json",value:closeout}); closeoutStored=true;
     process.stdout.write(`${JSON.stringify({status:closeout.status,activation_id:activation,window:closeout.window,retailer_id:closeout.retailer.id,final_assessment:cReport.final_assessment,closeout:path.join(outDir,"closeout.json")})}\n`);
@@ -221,7 +244,7 @@ async function main() {
     if(issuer)issuer.close();
     try{await removeEvidencePolicies(policies);}catch{cleanupFailures.push("storage-policies");}
     if(custody) { try{await custody.call({action:"close"});}catch{cleanupFailures.push("storage-session");} custody.close(); }
-    process.env.RA004_OWNER_DATABASE_URL=""; process.env.RA004_SUPABASE_ACCESS_TOKEN="";
+    process.env.RA004_OWNER_DATABASE_URL="";
     invariant(cleanupFailures.length===0,`RA004_CLEANUP_UNVERIFIED_${cleanupFailures.join("_")}`);
   }
 }
@@ -230,6 +253,8 @@ if (require.main === module) {
 }
 
 module.exports = {
-  API_HOST, BASELINE, BUCKET, CONTROL_SHA, PLAN_FP, PREFLIGHT_SHA, REF,
+  API_HOST, BASELINE, BUCKET, CONTROL_SHA, EXPECTED_POST_LEDGER_COUNT,
+  EXPECTED_POST_LEDGER_FINGERPRINT, EXPECTED_PRE_LEDGER_COUNT,
+  EXPECTED_PRE_LEDGER_FINGERPRINT, PLAN_FP, PREFLIGHT_SHA, REF,
   pushSelectedMigrations, runCli,
 };

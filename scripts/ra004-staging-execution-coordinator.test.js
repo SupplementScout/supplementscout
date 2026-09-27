@@ -8,19 +8,25 @@ const coordinatorPath = path.join(__dirname, "ra004-staging-execution-coordinato
 const issuerPath = path.join(__dirname, "ra004-staging-credential-issuer.js");
 const custodianPath = path.join(__dirname, "ra004-staging-evidence-custodian.js");
 const verifierPath = path.join(__dirname, "ra004-staging-revocation-verifier.js");
+const launcherPath = path.join(__dirname, "ra004-run-staging-interfaces-preflight-canary.ps1");
 const coordinator = fs.readFileSync(coordinatorPath, "utf8");
 const issuer = fs.readFileSync(issuerPath, "utf8");
 const custodian = fs.readFileSync(custodianPath, "utf8");
 const verifier = fs.readFileSync(verifierPath, "utf8");
+const launcher = fs.readFileSync(launcherPath, "utf8");
 
 test("coordinator is pinned to the owner-authorized staging identity and artifacts", () => {
   const values = require("./ra004-staging-execution-coordinator");
   assert.equal(values.REF, "hxnrsyyqffztlvcrtgbf");
   assert.equal(values.API_HOST, "hxnrsyyqffztlvcrtgbf.supabase.co");
-  assert.equal(values.BASELINE, "247672dcb1d1b4654cc6a091ff10d7dbad42a902");
+  assert.equal(values.BASELINE, "3c191d1d3ee6972918823a963a77cbbc52191fee");
   assert.equal(values.CONTROL_SHA, "cfd7a93cb20845832b696183f5eb8a500f0474b4173829b85f6ac6bc73d4baaa");
   assert.equal(values.PREFLIGHT_SHA, "9d6c1ea4df0bd86f84a4cb779a0824922f4e9bcc91681b734d5d18465a9e91be");
   assert.equal(values.BUCKET, "ra004-staging-preflight-evidence");
+  assert.equal(values.EXPECTED_PRE_LEDGER_COUNT, 95);
+  assert.equal(values.EXPECTED_PRE_LEDGER_FINGERPRINT, "c5bb6405d26def1834522cccaf2937fad60f44156370e5e1f8c4af3ff96d45bd");
+  assert.equal(values.EXPECTED_POST_LEDGER_COUNT, 97);
+  assert.equal(values.EXPECTED_POST_LEDGER_FINGERPRINT, "5d6edfca41ae7dd61043d62a6d78469d5cb1196f6ef15c7fef794e04664ee7aa");
   assert.match(coordinator, /aftboxmrdgyhizicfsfu\|prod\/i/);
 });
 
@@ -28,7 +34,7 @@ test("migration apply consumes only the materialized guarded selector workdir", 
   assert.match(coordinator, /selector\.validateSelection/);
   assert.match(coordinator, /selector\.materializeSelectedWorkdir/);
   assert.match(coordinator, /pending_files\.length===2/);
-  assert.match(coordinator, /\["db", "push", "--linked", "--workdir", workdir, "--yes"\]/);
+  assert.match(coordinator, /\["db", "push", "--db-url", databaseUrl, "--workdir", workdir, "--yes"\]/);
   assert.doesNotMatch(coordinator, /--include-all/);
   assert.doesNotMatch(coordinator, /insert into supabase_migrations/i);
   assert.doesNotMatch(coordinator, /await db\(sql\)/);
@@ -37,10 +43,9 @@ test("migration apply consumes only the materialized guarded selector workdir", 
 test("secrets remain process-only and are not placed in CLI arguments or output", () => {
   assert.match(coordinator, /delete childEnvironment\.RA004_OWNER_DATABASE_URL/);
   assert.match(coordinator, /delete childEnvironment\.RA004_SUPABASE_ACCESS_TOKEN/);
-  assert.match(coordinator, /const linkEnvironment = \{ SUPABASE_ACCESS_TOKEN: pat \}/);
-  assert.doesNotMatch(coordinator, /linkEnvironment[^;]*SUPABASE_DB_PASSWORD/s);
-  assert.match(coordinator, /const pushEnvironment = \{[\s\S]*SUPABASE_DB_PASSWORD:/);
-  assert.doesNotMatch(coordinator, /"--password"|"--db-url"/);
+  assert.match(coordinator, /const pushEnvironment = \{ PGPASSWORD: password \}/);
+  assert.match(coordinator, /parsed\.password = ""/);
+  assert.doesNotMatch(coordinator, /SUPABASE_ACCESS_TOKEN: pat|"--linked"|"--password"/);
   assert.match(coordinator, /\[REDACTED\]/);
   assert.doesNotMatch(coordinator, /console\.log\(ownerUrl|console\.log\(pat/);
   assert.match(coordinator, /process\.env\.RA004_STORAGE_ANON_KEY=""/);
@@ -61,6 +66,27 @@ test("evidence bucket and object writes are private, bounded and non-overwriting
   assert.doesNotMatch(custodian, /x-upsert|method: "(?:PUT|PATCH|DELETE)"|\/object\/list\//i);
   assert.doesNotMatch(coordinator + custodian, /api-keys\?reveal|storage","cp|storage rm|storage ls/);
   assert.match(coordinator, /service_role:false/);
+});
+
+test("the activation window begins only after the private evidence store is attested", () => {
+  const initializeStore = coordinator.indexOf('custody.call({action:"init"})');
+  const configureStore = coordinator.indexOf("configureEvidenceStore", initializeStore);
+  const attestStore = coordinator.indexOf("attestEvidenceStore", configureStore);
+  const startWindow = coordinator.indexOf("startsAt=utc()", attestStore);
+  const push = coordinator.indexOf("pushSelectedMigrations", startWindow);
+  assert.ok(initializeStore > 0);
+  assert.ok(configureStore > initializeStore);
+  assert.ok(attestStore > configureStore);
+  assert.ok(startWindow > attestStore);
+  assert.ok(push > startWindow);
+});
+
+test("business rows are counted before migration and remain unchanged after canary", () => {
+  assert.match(coordinator, /async function businessCounts\(\)/);
+  assert.match(coordinator, /const businessBefore=await businessCounts\(\)/);
+  assert.match(coordinator, /RA004_BUSINESS_DATA_CHANGED_BY_MIGRATION/);
+  assert.match(coordinator, /RA004_BUSINESS_DATA_CHANGED_DURING_READ_ONLY_EXECUTION/);
+  assert.match(coordinator, /business_counts:\{before:businessBefore,after_migrations:businessAfterMigrations,after_canary:businessAfterCanary,unchanged:true\}/);
 });
 
 test("preflight gates exactly one later control-state canary and both credentials revoke in finally", () => {
@@ -94,9 +120,24 @@ test("credential issuer is a separate process with exact RPC-only logins", () =>
 test("coordinator contains no feed, shadow, plan, approval, import, apply, offer or production executor", () => {
   for (const forbidden of [
     "TEN_REPS_FEED_URL", "import-products", "apply_approved", "create_control_plan",
-    "approve_", "shadow-run", "Model B", "price_history",
+    "approve_", "shadow-run", "Model B",
   ]) assert.doesNotMatch(coordinator, new RegExp(forbidden, "i"));
   assert.match(coordinator, /production:0,feed_capture:0,shadow_run:0,control_plan:0,approval:0,import:0,apply:0,offer_writes:0,model_b:0/);
+});
+
+test("interactive launcher masks every secret, validates the pinned CLI and clears process credentials", () => {
+  assert.match(launcher, /param\(\[switch\]\$ValidateOnly\)/);
+  assert.match(launcher, /\$expectedVersion = '2\.111\.0'/);
+  assert.equal((launcher.match(/ConvertFrom-MaskedInput '/g) || []).length, 4);
+  assert.match(launcher, /LAUNCHER_VALIDATION_PASS/);
+  assert.match(launcher, /Read-Host 'Wpisz START/);
+  assert.match(launcher, /\$confirmation -cne 'START'/);
+  assert.match(launcher, /ra004-staging-execution-coordinator\.js/);
+  for (const name of [
+    "RA004_OWNER_DATABASE_URL", "RA004_STORAGE_ANON_KEY", "RA004_STORAGE_EMAIL",
+    ["RA004_STORAGE", "PASSWORD"].join("_"), "RA004_SUPABASE_CLI_PATH",
+  ]) assert.match(launcher, new RegExp(`\\$env:${name} = ''`));
+  assert.doesNotMatch(launcher, /ACCESS_TOKEN|personal access token|\bPAT\b/i);
 });
 
 test("the tracked coordinator, issuer, custodian and verifier are repository files", () => {
@@ -104,5 +145,6 @@ test("the tracked coordinator, issuer, custodian and verifier are repository fil
   assert.ok(fs.existsSync(issuerPath));
   assert.ok(fs.existsSync(custodianPath));
   assert.ok(fs.existsSync(verifierPath));
+  assert.ok(fs.existsSync(launcherPath));
   assert.ok(fs.existsSync(path.join(ROOT, "docs", "retailer-automation", "evidence", "RA-004-staging-migration-activation.json")));
 });

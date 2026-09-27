@@ -17,7 +17,7 @@ async function ownerQuery(text) {
   try { await client.connect(); return await client.query(text); } finally { await client.end(); }
 }
 async function create(kind, expiresAt) {
-  const role = kind === "preflight" ? "ra004_pf_20260925_a" : "ra004_cs_20260925_b";
+  const role = kind === "preflight" ? "ra004_pf_20260927_a" : "ra004_cs_20260927_b";
   const signature = kind === "preflight"
     ? "public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer)"
     : "public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer)";
@@ -33,7 +33,7 @@ async function create(kind, expiresAt) {
     execute 'grant execute on function ${signature} to ${id}';
   end $issuer$;`);
   roles.add(role);
-  return { role, credential_id: `${kind}-20260925-a`, database_url: loginUrl(role, password), issued_at: new Date().toISOString(), expires_at: expiresAt, issuer_process_id: process.pid };
+  return { role, credential_id: `${kind}-20260927-a`, database_url: loginUrl(role, password), issued_at: new Date().toISOString(), expires_at: expiresAt, issuer_process_id: process.pid };
 }
 async function revoke(role, runnerProcessId) {
   if (!roles.has(role)) throw new Error("RA004_ISSUER_UNKNOWN_ROLE");
@@ -50,7 +50,7 @@ async function revoke(role, runnerProcessId) {
   const verification = await ownerQuery(`select not exists(select 1 from pg_roles where rolname='${role}') role_absent`);
   if (verification.rows[0]?.role_absent !== true) throw new Error("RA004_ROLE_REVOKE_UNVERIFIED");
   roles.delete(role);
-  return { access_revoked: true, credential_id: role.startsWith("ra004_pf_") ? "preflight-20260925-a" : "control-20260925-a", issuer_process_id: process.pid, runner_process_id: runnerProcessId };
+  return { access_revoked: true, credential_id: role.startsWith("ra004_pf_") ? "preflight-20260927-a" : "control-20260927-a", issuer_process_id: process.pid, runner_process_id: runnerProcessId };
 }
 process.on("message", async (message) => {
   try {

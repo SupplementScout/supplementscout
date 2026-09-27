@@ -2,12 +2,12 @@
   "schema_version": "ra-004-staging-migration-activation-v1",
   "status": "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED",
   "task_id": "RA-004",
-  "activation_id": "ra004-staging-interfaces-2026-09-25-v2",
-  "prepared_at": "2026-09-25",
-  "baseline_sha": "247672dcb1d1b4654cc6a091ff10d7dbad42a902",
+  "activation_id": "ra004-staging-interfaces-2026-09-27-v3",
+  "prepared_at": "2026-09-27",
+  "baseline_sha": "3c191d1d3ee6972918823a963a77cbbc52191fee",
   "authorization": {
     "owner": "Marek Kalinka",
-    "source": "explicit owner instruction to continue RA-004 from the verified bounded transport baseline",
+    "source": "explicit owner instruction on 2026-09-27 from baseline 3c191d1d3ee6972918823a963a77cbbc52191fee",
     "scope": "one guarded staging-only application of exactly two RA-004 interface migrations",
     "production_authorized": false
   },
@@ -17,6 +17,14 @@
     "project_ref": "hxnrsyyqffztlvcrtgbf",
     "environment_label": "SupplementScout Staging",
     "persistent_branch": true
+  },
+  "pre_activation_ledger": {
+    "count": 95,
+    "fingerprint": "c5bb6405d26def1834522cccaf2937fad60f44156370e5e1f8c4af3ff96d45bd"
+  },
+  "post_activation_ledger": {
+    "count": 97,
+    "fingerprint": "5d6edfca41ae7dd61043d62a6d78469d5cb1196f6ef15c7fef794e04664ee7aa"
   },
   "migrations": [
     {
