@@ -20,7 +20,7 @@ definition after the complete role, policy, ownership and ACL boundary matches.
 Every Q3 branch requires
 `reissue_transactional_retailer_control_state_interface`; any other existing
 definition fails closed. Its SHA-256 is
-`85e7b9ff1d0091dfe24459a8dcd0d8502799102872737616cd9bbd430ae03639`.
+`25f70527d18113a2282ebcdb1626b8052f7774f3f7f6ee1dbe69e1cd17864b93`.
 
 ## Purpose
 

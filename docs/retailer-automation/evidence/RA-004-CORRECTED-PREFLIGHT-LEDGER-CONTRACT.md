@@ -17,7 +17,7 @@ and both STAGING and PRODUCTION selectors exclude it.
 
 The complete replacement is
 `20260927102000_correct_ra004_staging_preflight_ledger_contract.sql`, SHA-256
-`85e7b9ff1d0091dfe24459a8dcd0d8502799102872737616cd9bbd430ae03639`.
+`25f70527d18113a2282ebcdb1626b8052f7774f3f7f6ee1dbe69e1cd17864b93`.
 Every Q3 ledger check uses exactly
 `reissue_transactional_retailer_control_state_interface`.
 

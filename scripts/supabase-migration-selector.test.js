@@ -683,7 +683,7 @@ test("corrected preflight migration supersedes the defective reissue and remains
   );
   assert.deepEqual(corrected, {
     filename: RA004_CORRECTED_PREFLIGHT_MIGRATION,
-    sha256: "85e7b9ff1d0091dfe24459a8dcd0d8502799102872737616cd9bbd430ae03639",
+    sha256: "25f70527d18113a2282ebcdb1626b8052f7774f3f7f6ee1dbe69e1cd17864b93",
     status: "CURRENT",
   });
   assert.equal(defective.status, "SUPERSEDED");
