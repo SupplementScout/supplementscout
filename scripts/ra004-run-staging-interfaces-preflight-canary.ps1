@@ -74,7 +74,7 @@ try {
   $env:RA004_STORAGE_PASSWORD = $storagePassword
   $env:RA004_SUPABASE_CLI_PATH = $cliPath
 
-  & node (Join-Path $PSScriptRoot 'ra004-staging-execution-coordinator.js')
+  & node --use-system-ca (Join-Path $PSScriptRoot 'ra004-staging-execution-coordinator.js')
   if ($LASTEXITCODE -ne 0) { throw "RA004_COORDINATOR_FAILED_$LASTEXITCODE" }
 }
 catch {
