@@ -57,6 +57,15 @@ const RA004_CORRECTED_ACTIVATION_MIGRATIONS = Object.freeze([
   "20260927100000_reissue_transactional_retailer_control_state_interface.sql",
   "20260927102000_correct_ra004_staging_preflight_ledger_contract.sql",
 ]);
+const RA004_FINAL_ACTIVATION_SCHEMA = "ra-004-final-staging-migration-activation-v1";
+const RA004_FINAL_ACTIVATION_BASELINE = "feac20f1a515ee3fbf55cee94cf6dc8234aafb95";
+const RA004_FINAL_ACTIVATION_ID = "ra004-final-staging-interfaces-2026-09-27-v1";
+const RA004_FINAL_ACTIVATION_FINGERPRINT = "9112ad5e1468141638d4b22a2a530fdcf153c16c8174a4322a9e443a8796fc13";
+const RA004_FINAL_ACTIVATION_MIGRATIONS = Object.freeze([
+  "20260926110000_add_ra004_staging_interface_compatibility.sql",
+  "20260927100000_reissue_transactional_retailer_control_state_interface.sql",
+  "20260927102000_correct_ra004_staging_preflight_ledger_contract.sql",
+]);
 const RA004_FIXTURE_ACTIVATION_SCHEMA = "ra-004-staging-retailer-fixture-activation-v1";
 const RA004_FIXTURE_ACTIVATION_BASELINE = "cd6c5dbe1931e984213fe5d69f151e266180252a";
 const RA004_FIXTURE_ACTIVATION_ID = "ra004-staging-10reps-retailer-2026-09-26-v1";
@@ -443,8 +452,9 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
   const fixtureActivation = manifest?.schema_version === RA004_FIXTURE_ACTIVATION_SCHEMA;
   const forwardActivation = manifest?.schema_version === RA004_FORWARD_ACTIVATION_SCHEMA;
   const correctedActivation = manifest?.schema_version === RA004_CORRECTED_ACTIVATION_SCHEMA;
+  const finalActivation = manifest?.schema_version === RA004_FINAL_ACTIVATION_SCHEMA;
   invariant(
-    fixtureActivation || forwardActivation || correctedActivation
+    fixtureActivation || forwardActivation || correctedActivation || finalActivation
       || manifest?.schema_version === RA004_ACTIVATION_SCHEMA,
     "activation manifest schema mismatch",
   );
@@ -452,6 +462,8 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
   invariant(manifest?.task_id === "RA-004", "activation manifest task mismatch");
   const expectedActivationId = fixtureActivation
     ? RA004_FIXTURE_ACTIVATION_ID
+    : finalActivation
+      ? RA004_FINAL_ACTIVATION_ID
     : correctedActivation
       ? RA004_CORRECTED_ACTIVATION_ID
     : forwardActivation
@@ -459,6 +471,8 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
       : RA004_ACTIVATION_ID;
   const expectedBaseline = fixtureActivation
     ? RA004_FIXTURE_ACTIVATION_BASELINE
+    : finalActivation
+      ? RA004_FINAL_ACTIVATION_BASELINE
     : correctedActivation
       ? RA004_CORRECTED_ACTIVATION_BASELINE
     : forwardActivation
@@ -466,6 +480,8 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
       : RA004_ACTIVATION_BASELINE;
   const expectedMigrations = fixtureActivation
     ? [RA004_FIXTURE_MIGRATION]
+    : finalActivation
+      ? RA004_FINAL_ACTIVATION_MIGRATIONS
     : correctedActivation
       ? RA004_CORRECTED_ACTIVATION_MIGRATIONS
     : forwardActivation
@@ -502,21 +518,23 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
       "interface pre-activation ledger mismatch",
     );
     invariant(
-      manifest?.post_activation_ledger?.count === (correctedActivation
+      manifest?.post_activation_ledger?.count === (correctedActivation || finalActivation
         ? RA004_CORRECTED_ACTIVATION_POST_LEDGER_COUNT
         : RA004_ACTIVATION_POST_LEDGER_COUNT)
-        && manifest?.post_activation_ledger?.fingerprint === (correctedActivation
+        && manifest?.post_activation_ledger?.fingerprint === (correctedActivation || finalActivation
           ? RA004_CORRECTED_ACTIVATION_POST_LEDGER_FINGERPRINT
           : forwardActivation
             ? RA004_FORWARD_ACTIVATION_POST_LEDGER_FINGERPRINT
             : RA004_ACTIVATION_POST_LEDGER_FINGERPRINT),
       "interface post-activation ledger mismatch",
     );
-    if (forwardActivation || correctedActivation) {
+    if (forwardActivation || correctedActivation || finalActivation) {
       const fingerprintPayload = { ...manifest };
       delete fingerprintPayload.manifest_fingerprint;
-      const expectedFingerprint = correctedActivation
-        ? RA004_CORRECTED_ACTIVATION_FINGERPRINT
+      const expectedFingerprint = finalActivation
+        ? RA004_FINAL_ACTIVATION_FINGERPRINT
+        : correctedActivation
+          ? RA004_CORRECTED_ACTIVATION_FINGERPRINT
         : RA004_FORWARD_ACTIVATION_FINGERPRINT;
       invariant(manifest?.manifest_fingerprint === expectedFingerprint
         && stableJsonSha256(fingerprintPayload) === expectedFingerprint,
@@ -529,7 +547,7 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
         "forward activation canary must be single and preflight-gated");
       invariant(manifest?.old_migrations?.selected === false,
         "superseded migrations must remain unselected");
-      if (correctedActivation) {
+      if (correctedActivation || finalActivation) {
         invariant(manifest.old_migrations.filenames.includes(
           "20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql",
         ), "defective preflight migration must remain unselected");
