@@ -1,10 +1,12 @@
 [CmdletBinding()]
-param()
+param([switch]$ValidateOnly)
 
 $ErrorActionPreference = 'Stop'
 $expectedVersion = '2.111.0'
 $confirmation = 'APPLY_RA004_STAGING_10REPS_2948AF2C'
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
+$cliProfile = Join-Path $repositoryRoot 'tmp\ra004-supabase-cli-profile'
+$cliCacheRoot = Join-Path $env:LOCALAPPDATA 'npm-cache\_npx'
 
 function ConvertFrom-MaskedInput {
   param([Parameter(Mandatory = $true)][string]$Prompt)
@@ -26,16 +28,25 @@ function Find-ExactSupabaseCli {
     $candidates += $command.Source
   }
 
-  $cacheRoot = Join-Path $env:LOCALAPPDATA 'npm-cache\_npx'
-  if (Test-Path -LiteralPath $cacheRoot) {
-    $candidates += Get-ChildItem -LiteralPath $cacheRoot -Filter 'supabase.exe' -File -Recurse -ErrorAction SilentlyContinue |
+  if (Test-Path -LiteralPath $cliCacheRoot) {
+    $candidates += Get-ChildItem -LiteralPath $cliCacheRoot -Filter 'supabase.exe' -File -Recurse -ErrorAction SilentlyContinue |
       Select-Object -ExpandProperty FullName
   }
 
   foreach ($candidate in ($candidates | Select-Object -Unique)) {
     try {
-      $versionLine = & $candidate --version 2>$null | Select-Object -First 1
-      if ($LASTEXITCODE -eq 0 -and ([string]$versionLine).Trim() -eq $expectedVersion) {
+      $startInfo = [Diagnostics.ProcessStartInfo]::new()
+      $startInfo.FileName = $candidate
+      $startInfo.Arguments = '--version'
+      $startInfo.UseShellExecute = $false
+      $startInfo.RedirectStandardOutput = $true
+      $startInfo.RedirectStandardError = $true
+      $startInfo.CreateNoWindow = $true
+      $process = [Diagnostics.Process]::Start($startInfo)
+      $versionLine = $process.StandardOutput.ReadToEnd()
+      $process.StandardError.ReadToEnd() | Out-Null
+      $process.WaitForExit()
+      if ($process.ExitCode -eq 0 -and ([string]$versionLine).Trim() -eq $expectedVersion) {
         return $candidate
       }
     }
@@ -47,20 +58,23 @@ function Find-ExactSupabaseCli {
 }
 
 $databaseUrl = $null
-$accessToken = $null
 try {
   Write-Host 'RA-004: jedna migracja 10 Reps, tylko staging, bez canary i produkcji.'
-  Write-Host 'Wklejane sekrety sa maskowane i pozostaja tylko w pamieci tego procesu.'
-  $databaseUrl = ConvertFrom-MaskedInput '1/2 Staging database URL'
-  $accessToken = ConvertFrom-MaskedInput '2/2 Supabase personal access token (sbp_...)'
+  Write-Host 'Wklejany sekret jest maskowany i pozostaje tylko w pamieci tego procesu.'
+  New-Item -ItemType Directory -Force -Path $cliProfile,(Join-Path $cliProfile 'AppData\Roaming'),(Join-Path $cliProfile 'AppData\Local') | Out-Null
+  $env:USERPROFILE = $cliProfile
+  $env:APPDATA = Join-Path $cliProfile 'AppData\Roaming'
+  $env:LOCALAPPDATA = Join-Path $cliProfile 'AppData\Local'
+  $cliPath = Find-ExactSupabaseCli
+  Write-Host 'LAUNCHER_VALIDATION_PASS' -ForegroundColor Green
+  if ($ValidateOnly) { return }
+  $databaseUrl = ConvertFrom-MaskedInput 'Staging database URL'
   $operatorConfirmation = Read-Host 'Wpisz APPLY, aby rozpoczac jedna probe'
   if ($operatorConfirmation -cne 'APPLY') {
     throw 'RA004_FIXTURE_EXECUTION_CANCELLED'
   }
 
-  $cliPath = Find-ExactSupabaseCli
   $env:RA004_FIXTURE_OWNER_DATABASE_URL = $databaseUrl
-  $env:RA004_FIXTURE_SUPABASE_ACCESS_TOKEN = $accessToken
   $env:RA004_FIXTURE_SUPABASE_CLI_PATH = $cliPath
   $env:RA004_FIXTURE_CONFIRM = $confirmation
 
@@ -76,9 +90,7 @@ catch {
 }
 finally {
   $env:RA004_FIXTURE_OWNER_DATABASE_URL = ''
-  $env:RA004_FIXTURE_SUPABASE_ACCESS_TOKEN = ''
   $env:RA004_FIXTURE_SUPABASE_CLI_PATH = ''
   $env:RA004_FIXTURE_CONFIRM = ''
   $databaseUrl = $null
-  $accessToken = $null
 }
