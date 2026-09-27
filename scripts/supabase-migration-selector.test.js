@@ -625,7 +625,7 @@ test("RA-004 activation selects exactly the two approved staging migrations and 
     remoteLedger: currentRemoteLedger(),
   }));
   assert.equal(result.activation_schema, "ra-004-staging-migration-activation-v1");
-  assert.equal(result.activation_id, "ra004-staging-interfaces-2026-09-27-v4");
+  assert.equal(result.activation_id, "ra004-staging-interfaces-2026-09-27-v5");
   assert.deepEqual(result.pending_files, [RA004_CONTROL_STATE_MIGRATION, RA004_PREFLIGHT_MIGRATION]);
   assert.deepEqual(result.pending_sha256s, {
     [RA004_CONTROL_STATE_MIGRATION]: "cfd7a93cb20845832b696183f5eb8a500f0474b4173829b85f6ac6bc73d4baaa",
