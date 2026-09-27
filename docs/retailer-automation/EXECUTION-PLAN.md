@@ -386,7 +386,7 @@ RA-004 remains `IN_PROGRESS`. See
 and
 [`evidence/RA-004-STAGING-10REPS-RETAILER-FIXTURE-ACTIVATION.md`](evidence/RA-004-STAGING-10REPS-RETAILER-FIXTURE-ACTIVATION.md).
 
-**Forward-reissued interface migrations:** `READY_FOR_VERIFICATION`. The two
+**Forward-reissued interface migrations:** `VERIFIED_COMPLETE`. The two
 original interface migrations remain byte-for-byte unchanged, while equivalent
 fail-closed contracts are reissued at `20260927100000` and `20260927101000`,
 both later than the verified staging ledger head. A networkless PostgreSQL 17

@@ -1,6 +1,6 @@
 # RA-004 forward-reissued interface migrations
 
-Status: `READY_FOR_VERIFICATION`
+Status: `RA-004 FORWARD REISSUED INTERFACE MIGRATIONS VERIFIED_COMPLETE`
 
 RA-004 remains `IN_PROGRESS`. Staging execution, production, preflight, canary,
 feed capture and shadow remain `NOT_AUTHORIZED`.
@@ -54,8 +54,19 @@ so this PR cannot select or apply either forward migration.
 - no staging or production connection, credential, evidence session or remote
   operation was used.
 
-Final quality-gate, independent-review, PR and merge evidence is appended only
-after those steps pass.
+## Independent verification
+
+- fresh detached worktree at implementation commit `33e2e15`: PASS;
+- exact migration hashes and unchanged superseded migration hashes: PASS;
+- selector contract (31 tests): PASS;
+- isolated PostgreSQL 17 integration (2 tests): PASS;
+- baseline migration validation (233 post-baseline migrations): PASS;
+- `verify:project`, TypeScript, ESLint and `git diff --check`: PASS;
+- `verify:quick`: PASS;
+- `verify:full`, including the production build: PASS.
+
+Draft PR #109 contains only the bounded forward migrations, closed selectors,
+tests and RA-004 evidence. Staging and production were not contacted.
 
 ## Next authorization boundary
 
