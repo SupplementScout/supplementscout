@@ -1,7 +1,7 @@
 {
   "schema_version": "ra-004-corrected-staging-migration-activation-v1",
   "manifest_fingerprint": "a6d4e6290ac32be5226a050d2c1b7431b991b5d67036fcd2bcaa5a52587645c0",
-  "status": "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED",
+  "status": "ATTEMPT_CONSUMED_FAILED_TERMINAL",
   "task_id": "RA-004",
   "activation_id": "ra004-corrected-staging-interfaces-2026-09-27-v1",
   "prepared_at": "2026-09-27",
@@ -87,14 +87,24 @@
   },
   "production": { "authorized": false, "selector_unchanged": true, "migration_count": 0 },
   "execution": {
-    "runtime_activation_id": null,
-    "started": false,
-    "application_attempt_count": 0,
+    "runtime_activation_id": "ra004-staging-1790518622885",
+    "started": true,
+    "window_started_at": "2026-09-27T14:17:05Z",
+    "window_expires_at": "2026-09-27T14:47:02Z",
+    "application_attempt_count": 1,
     "preflight_attempt_count": 0,
     "canary_attempt_count": 0,
     "migrations_applied": 0,
-    "closed": false,
+    "closed": true,
     "retry_authorized": false,
-    "replayable": false
+    "replayable": false,
+    "primary_failure": "RA004_COMPATIBILITY_ROLE_DRIFT: retailer_catalogue_production_approver",
+    "ledger_after_failure": {
+      "count": 95,
+      "last_version": "20260926100000",
+      "fingerprint": "c5bb6405d26def1834522cccaf2937fad60f44156370e5e1f8c4af3ff96d45bd"
+    },
+    "evidence_store_session": "CLOSED",
+    "cleanup": "COMPLETE"
   }
 }
