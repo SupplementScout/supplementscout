@@ -20,7 +20,7 @@ test("coordinator is pinned to the owner-authorized staging identity and artifac
   assert.equal(values.REF, "hxnrsyyqffztlvcrtgbf");
   assert.equal(values.API_HOST, "hxnrsyyqffztlvcrtgbf.supabase.co");
   assert.equal(values.BASELINE, "aad469766b8491ef4eedffa143c33a7f3335d6bb");
-  assert.equal(values.COMPATIBILITY_SHA, "6deb90f6557b2ee72c8b5fca02aed7ce1e9ac9edd75a246689a56560166ea99c");
+  assert.equal(values.COMPATIBILITY_SHA, "22b7102641d3aabee86f91d4b07185eb7e6cbed3a017ef8da0499fa2c9dfad7f");
   assert.equal(values.CONTROL_SHA, "699c911289e6b1eccd04ca778e8d26a36cbc2caf57b426eaede7b359991b2977");
   assert.equal(values.PREFLIGHT_SHA, "25f70527d18113a2282ebcdb1626b8052f7774f3f7f6ee1dbe69e1cd17864b93");
   assert.equal(values.BUCKET, "ra004-staging-preflight-evidence");
@@ -38,7 +38,7 @@ test("migration apply consumes only the materialized guarded selector workdir", 
   assert.match(coordinator, /selector\.materializeSelectedWorkdir/);
   assert.match(coordinator, /pending_files\.length===EXPECTED_MIGRATIONS\.length/);
   assert.deepEqual(require("./ra004-staging-execution-coordinator").EXPECTED_MIGRATIONS, [
-    ["20260926110000_add_ra004_staging_interface_compatibility.sql", "6deb90f6557b2ee72c8b5fca02aed7ce1e9ac9edd75a246689a56560166ea99c"],
+    ["20260926110000_add_ra004_staging_interface_compatibility.sql", "22b7102641d3aabee86f91d4b07185eb7e6cbed3a017ef8da0499fa2c9dfad7f"],
     ["20260927100000_reissue_transactional_retailer_control_state_interface.sql", "699c911289e6b1eccd04ca778e8d26a36cbc2caf57b426eaede7b359991b2977"],
     ["20260927102000_correct_ra004_staging_preflight_ledger_contract.sql", "25f70527d18113a2282ebcdb1626b8052f7774f3f7f6ee1dbe69e1cd17864b93"],
   ]);

@@ -105,8 +105,9 @@ dependency count and classifications therefore remain unchanged.
 the current staging head and before both reissued interface migrations. It
 contains exactly:
 
-- three `NOLOGIN NOINHERIT` production-named contract roles, with no
-  memberships or elevated attributes;
+- three production-named contract roles with the full least-privilege role
+  attribute boundary and exactly one PostgreSQL 17 automatic administrative
+  membership each for the explicitly verified migration user;
 - three missing source tables with 74 canonical columns and 48 canonical
   constraints, including the three exact foreign keys;
 - all canonical primary/unique indexes plus the two named partial active-row
@@ -116,11 +117,12 @@ contains exactly:
 - no rows, approvals, target attestations, executor functions or production
   wiring.
 
-It checks existing role attributes, memberships, relation kind, owner, RLS,
+It checks the migration identity, exact `ADMIN TRUE / SET FALSE / INHERIT
+FALSE` administrative edges, role attributes, relation kind, owner, RLS,
 policies, ACL, all column names/types/nullability, constraint counts and foreign
 keys, defaults and the named partial indexes. Any mismatch aborts the whole
 transaction. SHA-256:
-`6deb90f6557b2ee72c8b5fca02aed7ce1e9ac9edd75a246689a56560166ea99c`.
+`22b7102641d3aabee86f91d4b07185eb7e6cbed3a017ef8da0499fa2c9dfad7f`.
 
 ## Isolated sequence proof
 
@@ -136,7 +138,10 @@ The corrected proof reaches exactly 98 ledger entries ending at `20260927102000`
 both read RPCs, preserves all product/variant/mapping/offer/price-history row
 counts, creates no compatibility rows, and verifies minimal ownership, ACL,
 RLS, policies and memberships. Duplicate ledger insertion is rejected. Injected
-column, constraint, role, grant, policy and function drift each fail closed.
+column, constraint, role, membership-option, extra-membership, grant, policy
+and function drift each fail closed. A separate managed-shape PostgreSQL 17
+test proves the three automatic administrative memberships under a verified
+non-superuser migration identity.
 
 ## Closed selectors and activation
 

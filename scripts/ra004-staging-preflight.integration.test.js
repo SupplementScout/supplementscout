@@ -41,9 +41,11 @@ function ok(result, label) { assert.equal(result.error, undefined, `${label}: ${
 function denied(result, label, pattern = /permission denied|not permitted|must be owner|cannot set role|does not exist|RA004_PREFLIGHT_/i) { assert.equal(result.error, undefined, `${label}: ${result.error?.message}`); assert.notEqual(result.status, 0, `${label} unexpectedly succeeded: ${output(result)}`); assert.match(output(result), pattern); }
 function docker(container, args, timeout) { return run("docker", ["exec", container, ...args], timeout); }
 function sql(container, database, statement, user = "postgres") { return docker(container, ["psql","-X","--no-psqlrc","-v","ON_ERROR_STOP=1","-U",user,"-d",database,"-tA","-c",statement]); }
-function file(container, database, filename, variables = []) { return docker(container, ["psql","-X","--no-psqlrc","-v","ON_ERROR_STOP=1",...variables.flatMap((value)=>["-v",value]),"-U","postgres","-d",database,"-f",`/workspace/${filename}`]); }
+function fileAs(container, database, user, filename, variables = []) { return docker(container, ["psql","-X","--no-psqlrc","-v","ON_ERROR_STOP=1",...variables.flatMap((value)=>["-v",value]),"-U",user,"-d",database,"-f",`/workspace/${filename}`]); }
+function file(container, database, filename, variables = []) { return fileAs(container,database,"postgres",filename,variables); }
 function json(result) { const line=result.stdout.split(/\r?\n/).findLast((row)=>row.trim().startsWith("{")); assert.ok(line,output(result)); return JSON.parse(line); }
 function wait(container) { for(let attempt=0,consecutive=0;attempt<100;attempt+=1){const result=docker(container,["psql","-X","--no-psqlrc","-U","postgres","-d","postgres","-tAc","select 1"],5000); consecutive=result.status===0&&result.stdout.trim()==="1"?consecutive+1:0;if(consecutive===3)return;Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,250);}assert.fail("isolated PostgreSQL did not start"); }
+function waitAs(container,user) { for(let attempt=0,consecutive=0;attempt<100;attempt+=1){const result=docker(container,["psql","-X","--no-psqlrc","-U",user,"-d",user,"-tAc","select 1"],5000); consecutive=result.status===0&&result.stdout.trim()==="1"?consecutive+1:0;if(consecutive===3)return;Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,250);}assert.fail("isolated PostgreSQL did not start"); }
 function quote(value) { return `'${String(value).replaceAll("'", "''")}'`; }
 function ledgerSql() { return `create schema supabase_migrations; create table supabase_migrations.schema_migrations(version text primary key,name text not null,statements text[] not null default array[]::text[]); insert into supabase_migrations.schema_migrations(version,name) values ${MIGRATIONS.map((item)=>{const split=item.indexOf("_");return `(${quote(item.slice(0,split))},${quote(item.slice(split+1))})`;}).join(",")};`; }
 function call(environment="STAGING", count=3, fingerprint=LEDGER_FINGERPRINT, maxBytes=131072) { return `select public.read_ra004_staging_preflight_v1(${quote(environment)},'10 Reps','10-reps',${count},${quote(fingerprint)},'ra004_preflight_test_login',${maxBytes})::text`; }
@@ -270,6 +272,40 @@ test("RA-004 preflight migration and closed Q2-Q7 RPC pass in networkless Postgr
   finally { const cleanup=run("docker",["rm","-f",container],30_000); if(!primary) ok(cleanup,"remove isolated PostgreSQL"); }
 });
 
+test("RA-004 compatibility accepts only PostgreSQL 17 automatic memberships for verified Supabase migration user", () => {
+  const container=`ra-004-pg17-membership-${crypto.randomBytes(5).toString("hex")}`;
+  const database=`ra004_control_state_test_pg17_membership_${crypto.randomBytes(4).toString("hex")}`;
+  let primary;
+  try {
+    ok(run("docker",["run","--detach","--rm","--name",container,"--network","none","-e","POSTGRES_HOST_AUTH_METHOD=trust","-e","POSTGRES_USER=supabase_admin","-v",`${ROOT}:/workspace:ro`,IMAGE]),"start managed-shape PostgreSQL 17");
+    waitAs(container,"supabase_admin");
+    ok(sql(container,"supabase_admin","create role postgres login noinherit nosuperuser createdb createrole noreplication nobypassrls","supabase_admin"),"create verified non-superuser migration role");
+    ok(docker(container,["createdb","-U","supabase_admin","-O","postgres",database]),"create migration-owned database");
+    ok(sql(container,database,ROLE_SQL,"postgres"),"bootstrap local roles as migration user");
+    ok(fileAs(container,database,"supabase_admin",BASELINE),"apply repository baseline as isolated bootstrap superuser");
+    ok(fileAs(container,database,"supabase_admin",CONTROL_FIXTURE,[`expected_database=${database}`]),"apply control fixture as isolated bootstrap superuser");
+    ok(sql(container,database,"alter table public.retailer_catalogue_child_plans owner to postgres; alter table public.retailer_catalogue_apply_runs owner to postgres","supabase_admin"),"match Supabase ownership of compatibility dependencies");
+    ok(sql(container,database,"drop table public.retailer_catalogue_production_recovery_approvals, public.retailer_catalogue_production_recovery_manifests, public.retailer_catalogue_production_fixture_approvals","postgres"),"remove compatibility tables");
+    ok(sql(container,database,"drop role retailer_catalogue_production_validator, retailer_catalogue_production_executor, retailer_catalogue_production_approver","supabase_admin"),"remove compatibility roles");
+    denied(fileAs(container,database,"supabase_admin",COMPATIBILITY_MIGRATION),"reject guessed migration identity",/MIGRATION_USER_MISMATCH/);
+    ok(fileAs(container,database,"postgres",COMPATIBILITY_MIGRATION),"apply compatibility as verified migration user");
+    const contract=json(ok(sql(container,database,`select jsonb_build_object(
+      'server_version',current_setting('server_version'),
+      'migration_user',(select jsonb_build_object('name',rolname,'super',rolsuper,'createrole',rolcreaterole) from pg_roles where rolname='postgres'),
+      'role_attributes',(select count(*) from pg_roles where rolname in ('retailer_catalogue_production_approver','retailer_catalogue_production_executor','retailer_catalogue_production_validator') and not rolcanlogin and not rolinherit and not rolsuper and not rolbypassrls and not rolcreatedb and not rolcreaterole and not rolreplication),
+      'memberships',(select count(*) from pg_auth_members m join pg_roles member on member.oid=m.member join pg_roles granted on granted.oid=m.roleid where member.rolname='postgres' and granted.rolname in ('retailer_catalogue_production_approver','retailer_catalogue_production_executor','retailer_catalogue_production_validator')),
+      'exact_memberships',(select count(*) from pg_auth_members m join pg_roles member on member.oid=m.member join pg_roles granted on granted.oid=m.roleid join pg_roles grantor on grantor.oid=m.grantor where member.rolname='postgres' and granted.rolname in ('retailer_catalogue_production_approver','retailer_catalogue_production_executor','retailer_catalogue_production_validator') and m.admin_option and not coalesce((to_jsonb(m)->>'set_option')::boolean,true) and not coalesce((to_jsonb(m)->>'inherit_option')::boolean,true) and grantor.rolname='supabase_admin' and grantor.rolsuper),
+      'other_memberships',(select count(*) from pg_auth_members m join pg_roles member on member.oid=m.member join pg_roles granted on granted.oid=m.roleid where (member.rolname in ('retailer_catalogue_production_approver','retailer_catalogue_production_executor','retailer_catalogue_production_validator') or granted.rolname in ('retailer_catalogue_production_approver','retailer_catalogue_production_executor','retailer_catalogue_production_validator')) and not (member.rolname='postgres' and granted.rolname in ('retailer_catalogue_production_approver','retailer_catalogue_production_executor','retailer_catalogue_production_validator'))),
+      'direct_object_grants',(select count(*) from pg_class object cross join lateral aclexplode(coalesce(object.relacl,acldefault(case when object.relkind='S' then 's'::\"char\" else 'r'::\"char\" end,object.relowner))) privilege join pg_roles grantee on grantee.oid=privilege.grantee where grantee.rolname in ('retailer_catalogue_production_approver','retailer_catalogue_production_executor','retailer_catalogue_production_validator')),
+      'direct_function_grants',(select count(*) from pg_proc function cross join lateral aclexplode(coalesce(function.proacl,acldefault('f',function.proowner))) privilege join pg_roles grantee on grantee.oid=privilege.grantee where grantee.rolname in ('retailer_catalogue_production_approver','retailer_catalogue_production_executor','retailer_catalogue_production_validator'))
+    )::text`),"read exact PostgreSQL 17 role contract"));
+    assert.match(contract.server_version,/^17\./);
+    assert.deepEqual(contract.migration_user,{name:"postgres",super:false,createrole:true});
+    assert.deepEqual({...contract,server_version:undefined,migration_user:undefined},{server_version:undefined,migration_user:undefined,role_attributes:3,memberships:3,exact_memberships:3,other_memberships:0,direct_object_grants:0,direct_function_grants:0});
+  } catch(error) { primary=error; throw error; }
+  finally { const cleanup=run("docker",["rm","-f",container],30_000); if(!primary) ok(cleanup,"remove managed-shape PostgreSQL"); }
+});
+
 test("RA-004 compatibility, control and corrected preflight pass Q1-Q8 after ledger 95 and reject drift", async () => {
   const container=`ra-004-forward-${crypto.randomBytes(5).toString("hex")}`;
   const base=`ra004_control_state_test_forward_base_${crypto.randomBytes(3).toString("hex")}`;
@@ -285,7 +321,7 @@ test("RA-004 compatibility, control and corrected preflight pass Q1-Q8 after led
     ok(sql(container,base,ROLE_SQL),"bootstrap standard roles");
     ok(file(container,base,BASELINE),"apply repository baseline");
     ok(file(container,base,CONTROL_FIXTURE,[`expected_database=${base}`]),"apply control fixture");
-    ok(sql(container,base,"drop table public.retailer_catalogue_production_recovery_approvals, public.retailer_catalogue_production_recovery_manifests, public.retailer_catalogue_production_fixture_approvals; drop role retailer_catalogue_production_validator, retailer_catalogue_production_executor, retailer_catalogue_production_approver;"),"reproduce staging compatibility gaps");
+    ok(sql(container,base,"drop table public.retailer_catalogue_production_recovery_approvals, public.retailer_catalogue_production_recovery_manifests, public.retailer_catalogue_production_fixture_approvals; drop role retailer_catalogue_production_validator, retailer_catalogue_production_executor, retailer_catalogue_production_approver; create role retailer_catalogue_production_approver nologin noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls; create role retailer_catalogue_production_executor nologin noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls; create role retailer_catalogue_production_validator nologin noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls; grant retailer_catalogue_production_approver, retailer_catalogue_production_executor, retailer_catalogue_production_validator to postgres with admin true, inherit false, set false;"),"reproduce staging compatibility gaps with exact PostgreSQL 17 role edges");
     const ledgerRows=[
       ...Array.from({length:94},(_,index)=>[`20250101${String(index).padStart(6,"0")}`,`synthetic_history_${index}`]),
       ["20260926100000","create_ra004_staging_10reps_retailer"],
@@ -311,9 +347,10 @@ test("RA-004 compatibility, control and corrected preflight pass Q1-Q8 after led
       'rows',(select (select count(*) from public.retailer_catalogue_production_fixture_approvals)+(select count(*) from public.retailer_catalogue_production_recovery_manifests)+(select count(*) from public.retailer_catalogue_production_recovery_approvals)),
       'policies',(select count(*) from pg_policies where schemaname='public' and tablename like 'retailer_catalogue_production_%'),
       'memberships',(select count(*) from pg_auth_members m join pg_roles r on r.oid=m.member join pg_roles g on g.oid=m.roleid where r.rolname like 'retailer_catalogue_production_%' or g.rolname like 'retailer_catalogue_production_%'),
+      'exact_memberships',(select count(*) from pg_auth_members m join pg_roles r on r.oid=m.member join pg_roles g on g.oid=m.roleid join pg_roles grantor on grantor.oid=m.grantor where r.rolname='postgres' and g.rolname in ('retailer_catalogue_production_approver','retailer_catalogue_production_executor','retailer_catalogue_production_validator') and m.admin_option and not coalesce((to_jsonb(m)->>'set_option')::boolean,true) and not coalesce((to_jsonb(m)->>'inherit_option')::boolean,true) and grantor.rolsuper),
       'broad_grants',(select count(*) from information_schema.role_table_grants where table_schema='public' and table_name in ('retailer_catalogue_production_fixture_approvals','retailer_catalogue_production_recovery_manifests','retailer_catalogue_production_recovery_approvals') and grantee<>'postgres')
     )::text`),"compatibility boundary"));
-    assert.deepEqual(compatibility,{tables:3,roles:3,rows:0,policies:3,memberships:0,broad_grants:3});
+    assert.deepEqual(compatibility,{tables:3,roles:3,rows:0,policies:3,memberships:3,exact_memberships:3,broad_grants:3});
     const exactLedgerIdentifiers = [
       ...ledgerRows.map(([version,name])=>`${version}_${name}`),
       "20260926110000_add_ra004_staging_interface_compatibility",
@@ -338,6 +375,11 @@ test("RA-004 compatibility, control and corrected preflight pass Q1-Q8 after led
       ["policy","create policy forbidden on public.retailer_catalogue_production_recovery_approvals using (true)",/TABLE_SECURITY_DRIFT/],
       ["constraint","do $$ declare n text; begin select conname into n from pg_constraint where conrelid='public.retailer_catalogue_production_fixture_approvals'::regclass and contype='c' order by conname limit 1; execute format('alter table public.retailer_catalogue_production_fixture_approvals drop constraint %I',n); end $$",/CONSTRAINT_DRIFT/],
       ["role","alter role retailer_catalogue_production_validator inherit",/ROLE_DRIFT/],
+      ["membership-set","grant retailer_catalogue_production_validator to postgres with admin true, inherit false, set true",/ROLE_DRIFT/],
+      ["membership-admin","grant retailer_catalogue_production_validator to postgres with admin false, inherit false, set false",/ROLE_DRIFT/],
+      ["extra-membership","grant retailer_catalogue_production_validator to authenticated with admin false, inherit false, set false",/ROLE_DRIFT/],
+      ["direct-table-grant","grant select on public.retailer_catalogue_production_fixture_approvals to retailer_catalogue_production_validator",/ROLE_DRIFT/],
+      ["direct-function-grant","grant execute on function gen_random_uuid() to retailer_catalogue_production_validator",/ROLE_DRIFT/],
     ]) {
       const drift=`ra004_control_state_test_compat_drift_${kind}_${crypto.randomBytes(2).toString("hex")}`;
       clone(compatible,drift);
@@ -373,7 +415,7 @@ test("corrected migration replaces the exact defective RPC in a full local histo
     ok(sql(container,database,ROLE_SQL),"bootstrap full-history roles");
     ok(file(container,database,BASELINE),"apply full-history baseline");
     ok(file(container,database,CONTROL_FIXTURE,[`expected_database=${database}`]),"apply full-history control fixture");
-    ok(sql(container,database,"drop table public.retailer_catalogue_production_recovery_approvals, public.retailer_catalogue_production_recovery_manifests, public.retailer_catalogue_production_fixture_approvals; drop role retailer_catalogue_production_validator, retailer_catalogue_production_executor, retailer_catalogue_production_approver;"),"reproduce full-history compatibility gaps");
+    ok(sql(container,database,"drop table public.retailer_catalogue_production_recovery_approvals, public.retailer_catalogue_production_recovery_manifests, public.retailer_catalogue_production_fixture_approvals; drop role retailer_catalogue_production_validator, retailer_catalogue_production_executor, retailer_catalogue_production_approver; create role retailer_catalogue_production_approver nologin noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls; create role retailer_catalogue_production_executor nologin noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls; create role retailer_catalogue_production_validator nologin noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls; grant retailer_catalogue_production_approver, retailer_catalogue_production_executor, retailer_catalogue_production_validator to postgres with admin true, inherit false, set false;"),"reproduce full-history compatibility gaps with exact PostgreSQL 17 role edges");
     const ledgerRows=[
       ...Array.from({length:94},(_,index)=>[`20250101${String(index).padStart(6,"0")}`,`synthetic_history_${index}`]),
       ["20260926100000","create_ra004_staging_10reps_retailer"],

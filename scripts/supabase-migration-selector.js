@@ -338,7 +338,7 @@ const CONTRACTS = Object.freeze({
       "20260926100000_create_ra004_staging_10reps_retailer.sql":
         "2948af2c348ebf7cca56b2f46966a393ad022bd4cbfef0876ac9bc899a92ba0e",
       "20260926110000_add_ra004_staging_interface_compatibility.sql":
-        "6deb90f6557b2ee72c8b5fca02aed7ce1e9ac9edd75a246689a56560166ea99c",
+        "22b7102641d3aabee86f91d4b07185eb7e6cbed3a017ef8da0499fa2c9dfad7f",
       "20260927100000_reissue_transactional_retailer_control_state_interface.sql":
         "699c911289e6b1eccd04ca778e8d26a36cbc2caf57b426eaede7b359991b2977",
       "20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql":
@@ -409,7 +409,7 @@ const CONTRACTS = Object.freeze({
       "20260926100000_create_ra004_staging_10reps_retailer.sql":
         "2948af2c348ebf7cca56b2f46966a393ad022bd4cbfef0876ac9bc899a92ba0e",
       "20260926110000_add_ra004_staging_interface_compatibility.sql":
-        "6deb90f6557b2ee72c8b5fca02aed7ce1e9ac9edd75a246689a56560166ea99c",
+        "22b7102641d3aabee86f91d4b07185eb7e6cbed3a017ef8da0499fa2c9dfad7f",
       "20260927100000_reissue_transactional_retailer_control_state_interface.sql":
         "699c911289e6b1eccd04ca778e8d26a36cbc2caf57b426eaede7b359991b2977",
       "20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql":
