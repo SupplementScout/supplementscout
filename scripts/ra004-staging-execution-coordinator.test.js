@@ -21,7 +21,7 @@ test("coordinator is pinned to the owner-authorized staging identity and artifac
   assert.equal(values.API_HOST, "hxnrsyyqffztlvcrtgbf.supabase.co");
   assert.equal(values.BASELINE, "a651dc61fec43b09e0ee908ec3cac01fbb45e3c8");
   assert.equal(values.CONTROL_SHA, "699c911289e6b1eccd04ca778e8d26a36cbc2caf57b426eaede7b359991b2977");
-  assert.equal(values.PREFLIGHT_SHA, "6d1e3512792884cf0696e36d4c54f78d9d85e3e68b32cdd475a885f6138dc2f4");
+  assert.equal(values.PREFLIGHT_SHA, "25f70527d18113a2282ebcdb1626b8052f7774f3f7f6ee1dbe69e1cd17864b93");
   assert.equal(values.BUCKET, "ra004-staging-preflight-evidence");
   assert.equal(values.EXPECTED_PRE_LEDGER_COUNT, 95);
   assert.equal(values.EXPECTED_PRE_LEDGER_FINGERPRINT, "c5bb6405d26def1834522cccaf2937fad60f44156370e5e1f8c4af3ff96d45bd");

@@ -1,9 +1,9 @@
 {
   "schema_version": "ra-004-forward-reissued-interface-migrations-v1",
-  "status": "RA-004 FORWARD REISSUED INTERFACE MIGRATIONS VERIFIED_COMPLETE",
+  "status": "RA-004 CORRECTED PREFLIGHT LEDGER CONTRACT VERIFIED_COMPLETE",
   "task_id": "RA-004",
-  "approved_baseline_sha": "b11dcc6518e7c6c4c363a3f149fc13342f89ca16",
-  "implementation_base_sha": "dbf640d80e8083e6ff9dbad4458573b6eb80fc08",
+  "approved_baseline_sha": "12cd071bfdef935ae8c4e879362ba4b965629edb",
+  "implementation_base_sha": "12cd071bfdef935ae8c4e879362ba4b965629edb",
   "prepared_at": "2026-09-27",
   "superseded_sources": [
     {
@@ -15,6 +15,12 @@
       "filename": "20260925100000_add_ra004_staging_preflight_metadata_interface.sql",
       "sha256": "9d6c1ea4df0bd86f84a4cb779a0824922f4e9bcc91681b734d5d18465a9e91be",
       "superseded_by": "20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql"
+    },
+    {
+      "filename": "20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql",
+      "sha256": "6d1e3512792884cf0696e36d4c54f78d9d85e3e68b32cdd475a885f6138dc2f4",
+      "superseded_by": "20260927102000_correct_ra004_staging_preflight_ledger_contract.sql",
+      "reason": "Q3 expected the superseded ledger name add_transactional_retailer_control_state_interface"
     }
   ],
   "forward_migrations": [
@@ -24,7 +30,13 @@
     },
     {
       "filename": "20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql",
-      "sha256": "6d1e3512792884cf0696e36d4c54f78d9d85e3e68b32cdd475a885f6138dc2f4"
+      "sha256": "6d1e3512792884cf0696e36d4c54f78d9d85e3e68b32cdd475a885f6138dc2f4",
+      "status": "SUPERSEDED"
+    },
+    {
+      "filename": "20260927102000_correct_ra004_staging_preflight_ledger_contract.sql",
+      "sha256": "25f70527d18113a2282ebcdb1626b8052f7774f3f7f6ee1dbe69e1cd17864b93",
+      "status": "CURRENT"
     }
   ],
   "selector": {
@@ -41,7 +53,7 @@
     "canary": false,
     "retry": false
   },
-  "expected_status_after_merge": "RA-004 FORWARD REISSUED INTERFACE MIGRATIONS VERIFIED_COMPLETE",
+  "expected_status_after_merge": "RA-004 CORRECTED PREFLIGHT LEDGER CONTRACT VERIFIED_COMPLETE",
   "ra004_status_after_merge": "IN_PROGRESS",
-  "only_next_step": "separate owner authorization for exactly one staging attempt using the new timestamps"
+  "only_next_step": "separate owner authorization for exactly one staging attempt using compatibility, reissued control-state and corrected preflight migrations"
 }

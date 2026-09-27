@@ -10,7 +10,7 @@ const RPC_NAME = "public.read_ra004_staging_preflight_v1";
 const RPC_SIGNATURE = `${RPC_NAME}(text,text,text,integer,text,text,integer)`;
 const CURRENT_DECISION_FINGERPRINT = "b0cb6c6de75eace4e7d4d8705305eb90e6a975203438f23de7b745974e4ffdb8";
 const CONTROL_MIGRATION = "supabase/migrations/20260927100000_reissue_transactional_retailer_control_state_interface.sql";
-const PREFLIGHT_MIGRATION = "supabase/migrations/20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql";
+const PREFLIGHT_MIGRATION = "supabase/migrations/20260927102000_correct_ra004_staging_preflight_ledger_contract.sql";
 const FORBIDDEN_ROLES = Object.freeze([
   "service_role", "validator", "approver", "executor", "exporter",
   "retailer_catalogue_staging_validator", "retailer_catalogue_staging_approver",

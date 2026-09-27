@@ -413,6 +413,16 @@ Both selectors remain closed; no staging retry is authorized. See
 and
 [`evidence/RA-004-FORWARD-STAGING-ACTIVATION.md`](evidence/RA-004-FORWARD-STAGING-ACTIVATION.md).
 
+**Corrected preflight ledger contract:** `VERIFIED_COMPLETE`. The immutable
+`20260927101000` migration remains excluded after its Q3 RPC was proven to
+expect the obsolete control-migration ledger name. The complete forward-only
+`20260927102000_correct_ra004_staging_preflight_ledger_contract.sql` installs
+the interface when absent and upgrades only either known repository-owned
+predecessor definition after validating the full role, ownership, policy and
+ACL boundary. SQL, runtime contract, selector and evidence all require
+`reissue_transactional_retailer_control_state_interface`. STAGING and
+PRODUCTION selectors remain closed; no remote execution or retry is authorized.
+
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
 **Goal:** compare the candidate canonical pipeline with the existing 10 Reps
