@@ -1,11 +1,17 @@
 const assert = require("node:assert/strict");
 const crypto = require("node:crypto");
+const fs = require("node:fs");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const test = require("node:test");
 const { migrationLedgerFingerprint } = require("./lib/retailer-snapshot/staging-execution-contract");
 const { sha256 } = require("./lib/stable-json-hash");
-const { postgresJsonbText, validateMetadata } = require("./lib/retailer-offer-sync/ra004-staging-preflight-v1/contract");
+const {
+  CURRENT_DECISION_FINGERPRINT, authorizationFingerprint, fileSha,
+  postgresJsonbText, validateMetadata,
+} = require("./lib/retailer-offer-sync/ra004-staging-preflight-v1/contract");
+const { createClosedProvider } = require("./lib/retailer-offer-sync/ra004-staging-preflight-v1/provider");
+const { runPreflight } = require("./lib/retailer-offer-sync/ra004-staging-preflight-v1/runner");
 
 const ROOT = path.resolve(__dirname, "..");
 const IMAGE = "postgres:17-alpine";
@@ -16,6 +22,11 @@ const PREFLIGHT_MIGRATION = "supabase/migrations/20260925100000_add_ra004_stagin
 const COMPATIBILITY_MIGRATION = "supabase/migrations/20260926110000_add_ra004_staging_interface_compatibility.sql";
 const FORWARD_CONTROL_MIGRATION = "supabase/migrations/20260927100000_reissue_transactional_retailer_control_state_interface.sql";
 const FORWARD_PREFLIGHT_MIGRATION = "supabase/migrations/20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql";
+const CORRECTED_PREFLIGHT_MIGRATION = "supabase/migrations/20260927102000_correct_ra004_staging_preflight_ledger_contract.sql";
+const CORRECTED_PREFLIGHT_FILENAME = path.basename(CORRECTED_PREFLIGHT_MIGRATION);
+const CORRECTED_PREFLIGHT_SHA = "2d8947666af52df40fbaf877989174c2cb922a90f3f9ffc39e48018281921003";
+const CORRECT_LEDGER_NAME = "reissue_transactional_retailer_control_state_interface";
+const OBSOLETE_LEDGER_NAME = "add_transactional_retailer_control_state_interface";
 const MIGRATIONS = [
   "20260712211120_baseline_current_public_schema",
   "20260924100000_add_transactional_retailer_control_state_interface",
@@ -50,6 +61,116 @@ function validateLegacyMetadata(value, expectedSessionUser) {
   compatible.metadata_fingerprint = "0".repeat(64);
   compatible.metadata_fingerprint = sha256(postgresJsonbText(compatible));
   return validateMetadata(compatible, expectedSessionUser);
+}
+
+function assertLedgerContractSources(sqlText) {
+  const selectorText = fs.readFileSync(path.join(ROOT, "scripts/supabase-migration-selector.js"), "utf8");
+  const contractText = fs.readFileSync(path.join(ROOT, "scripts/lib/retailer-offer-sync/ra004-staging-preflight-v1/contract.js"), "utf8");
+  const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, "docs/retailer-automation/evidence/RA-004-forward-reissued-interface-migrations.json"), "utf8"));
+  const current = manifest.forward_migrations.find(({ filename }) => filename === CORRECTED_PREFLIGHT_FILENAME);
+  assert.ok(current);
+  assert.equal(current.sha256, CORRECTED_PREFLIGHT_SHA);
+  assert.equal(current.status, "CURRENT");
+  assert.equal(fileSha(CORRECTED_PREFLIGHT_MIGRATION), CORRECTED_PREFLIGHT_SHA);
+  assert.ok(selectorText.includes(`\"${CORRECTED_PREFLIGHT_FILENAME}\":`));
+  assert.ok(selectorText.includes(CORRECTED_PREFLIGHT_SHA));
+  assert.ok(contractText.includes(`const PREFLIGHT_MIGRATION = \"${CORRECTED_PREFLIGHT_MIGRATION}\"`));
+  assert.ok(contractText.includes(`value.q3_migration_ledger.target_name !== \"${CORRECT_LEDGER_NAME}\"`));
+  assert.ok(sqlText.includes(`v_target_name is distinct from '${CORRECT_LEDGER_NAME}'`));
+  assert.ok(!sqlText.includes(`v_target_name is distinct from '${OBSOLETE_LEDGER_NAME}'`));
+}
+
+test("corrected Q3 ledger name is identical across SQL, selector, manifest and runtime contract", () => {
+  const sqlText = fs.readFileSync(path.join(ROOT, CORRECTED_PREFLIGHT_MIGRATION), "utf8");
+  assertLedgerContractSources(sqlText);
+  const mutated = sqlText.replaceAll(CORRECT_LEDGER_NAME, OBSOLETE_LEDGER_NAME);
+  assert.throws(() => assertLedgerContractSources(mutated));
+});
+
+async function runExactLocalQ1ToQ8(metadata, ledgerCount, ledgerFingerprint) {
+  const now = "2026-09-27T12:00:00.000Z";
+  const role = "ra004_preflight_test_login";
+  const baseline = "12cd071bfdef935ae8c4e879362ba4b965629edb";
+  const planFingerprint = "bd5c259941997daad3755c1cb135f76f6eccaef1fb9e1ce0044939ce08439214";
+  const projectIdentity = {
+    schema_version: "ra-004-project-identity-v1", project_reference: "ra004-local-synthetic",
+    canonical_host: "ra004-local.invalid", environment_label: "STAGING",
+    project_identity_fingerprint: "0".repeat(64), observed_at: now,
+  };
+  projectIdentity.project_identity_fingerprint = sha256(projectIdentity);
+  const evidenceStore = {
+    schema_version: "ra-004-evidence-store-metadata-v1", store_identifier: "ra004-local-write-once-fixture",
+    private: true, encryption: "AT_REST_AND_IN_TRANSIT", write_once: true, access_audit: true,
+    readback_supported: true, raw_retention_days: 90, derived_retention_days: 90,
+    approved_by: "fixture-custodian", approved_at: "2026-09-27T11:00:00.000Z",
+    evidence_store_fingerprint: "0".repeat(64),
+  };
+  evidenceStore.evidence_store_fingerprint = sha256(evidenceStore);
+  const authorization = {
+    schema_version: "ra-004-staging-preflight-authorization-execution-v1", status: "TEST_ONLY_AUTHORIZED",
+    task_id: "RA-004", baseline_sha: baseline, decision_fingerprint: CURRENT_DECISION_FINGERPRINT,
+    plan_fingerprint: planFingerprint,
+    control_migration: { path: FORWARD_CONTROL_MIGRATION, sha256: fileSha(FORWARD_CONTROL_MIGRATION) },
+    preflight_migration: { path: CORRECTED_PREFLIGHT_MIGRATION, sha256: CORRECTED_PREFLIGHT_SHA },
+    target: {
+      environment: "STAGING", project_reference: "ra004-local-synthetic", canonical_host: "ra004-local.invalid",
+      host_allowlist: ["ra004-local.invalid"], retailer: { name: "10 Reps", slug: "10-reps" },
+      ledger: { count: ledgerCount, fingerprint: ledgerFingerprint },
+    },
+    operator: "fixture-operator", credential_issuer: "fixture-issuer",
+    window: { starts_at: "2026-09-27T11:50:00.000Z", expires_at: "2026-09-27T12:20:00.000Z" },
+    credential_design: {
+      role_name: role, environment: "STAGING_ONLY", rpc_name: "public.read_ra004_staging_preflight_v1",
+      maximum_attempts: 1, maximum_ttl_minutes: 30, automatic_retry: false, service_role: false,
+      table_privileges: false, sequence_privileges: false, dml: false, ddl: false, mutation_rpc: false,
+    },
+    evidence_store: {
+      store_identifier: evidenceStore.store_identifier, required_private: true, required_encryption: true,
+      required_write_once: true, required_access_audit: true, required_readback: true,
+      raw_retention_days: 90, derived_retention_days: 90,
+    },
+    authorization_fingerprint: "0".repeat(64),
+  };
+  authorization.authorization_fingerprint = authorizationFingerprint(authorization);
+  const transport = {
+    async readProjectIdentity() { return structuredClone(projectIdentity); },
+    async readEvidenceStoreMetadata() { return structuredClone(evidenceStore); },
+    async callMetadataRpc(request) {
+      return { function_name: request.function_name, session_user: role, transaction_read_only: true, data: structuredClone(metadata) };
+    },
+    async revoke() { return { access_revoked: true }; },
+    async close() { return { connection_closed: true }; },
+  };
+  const providerBundle = createClosedProvider({
+    configuration: {
+      environment: "STAGING", project_reference: "ra004-local-synthetic", canonical_host: "ra004-local.invalid",
+      host_allowlist: ["ra004-local.invalid"], expected_session_user: role,
+    },
+    transport,
+  });
+  const directory = fs.mkdtempSync(path.join(ROOT, "tmp", "ra004-corrected-preflight-"));
+  try {
+    const result = await runPreflight({
+      authorization,
+      expected: {
+        provider_mode: "fixture", baseline_sha: baseline, decision_fingerprint: CURRENT_DECISION_FINGERPRINT,
+        plan_fingerprint: planFingerprint,
+        control_migration: authorization.control_migration, preflight_migration: authorization.preflight_migration,
+        project_reference: "ra004-local-synthetic", canonical_host: "ra004-local.invalid",
+        host_allowlist: ["ra004-local.invalid"],
+      },
+      providerBundle,
+      outputPath: path.join(directory, "q1-q8-report.json"),
+      now,
+    });
+    assert.equal(result.report.status, "METADATA_CAPTURED_PENDING_REVOKE");
+    assert.equal(result.report.metadata.q3_migration_ledger.target_name, CORRECT_LEDGER_NAME);
+    assert.equal(result.report.metadata.q3_migration_ledger.ordered_ledger_count, ledgerCount);
+    assert.equal(result.receipt.status, "REVOKED_AND_CLOSED");
+    return result;
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
 }
 
 test("RA-004 preflight migration and closed Q2-Q7 RPC pass in networkless PostgreSQL 17", () => {
@@ -149,7 +270,7 @@ test("RA-004 preflight migration and closed Q2-Q7 RPC pass in networkless Postgr
   finally { const cleanup=run("docker",["rm","-f",container],30_000); if(!primary) ok(cleanup,"remove isolated PostgreSQL"); }
 });
 
-test("RA-004 compatibility and forward reissues install in exact order after ledger 95 and reject drift", () => {
+test("RA-004 compatibility, control and corrected preflight pass Q1-Q8 after ledger 95 and reject drift", async () => {
   const container=`ra-004-forward-${crypto.randomBytes(5).toString("hex")}`;
   const base=`ra004_control_state_test_forward_base_${crypto.randomBytes(3).toString("hex")}`;
   const fresh=`ra004_control_state_test_forward_fresh_${crypto.randomBytes(3).toString("hex")}`;
@@ -178,12 +299,12 @@ test("RA-004 compatibility and forward reissues install in exact order after led
     clone(fresh,compatible);
     apply(fresh,FORWARD_CONTROL_MIGRATION,"install forward control interface");
     ok(sql(container,fresh,"insert into supabase_migrations.schema_migrations(version,name) values ('20260927100000','reissue_transactional_retailer_control_state_interface')"),"record forward control migration");
-    apply(fresh,FORWARD_PREFLIGHT_MIGRATION,"install forward preflight interface");
-    ok(sql(container,fresh,"insert into supabase_migrations.schema_migrations(version,name) values ('20260927101000','reissue_ra004_staging_preflight_metadata_interface')"),"record forward preflight migration");
+    apply(fresh,CORRECTED_PREFLIGHT_MIGRATION,"install corrected forward preflight interface");
+    ok(sql(container,fresh,"insert into supabase_migrations.schema_migrations(version,name) values ('20260927102000','correct_ra004_staging_preflight_ledger_contract')"),"record corrected preflight migration");
     const after=json(ok(sql(container,fresh,`select jsonb_build_object('products',(select count(*) from public.products),'variants',(select count(*) from public.product_variants),'retailer_products',(select count(*) from public.retailer_products),'offers',(select count(*) from public.offers),'price_history',(select count(*) from public.price_history))::text`),"business counts after"));
     assert.deepEqual(after,before);
     const inventory=json(ok(sql(container,fresh,`select jsonb_build_object('ledger_count',(select count(*) from supabase_migrations.schema_migrations),'ledger_head',(select max(version) from supabase_migrations.schema_migrations),'control_rpc',to_regprocedure('public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer)') is not null,'preflight_rpc',to_regprocedure('public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer)') is not null,'control_owner',(select pg_get_userbyid(proowner) from pg_proc where oid='public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer)'::regprocedure),'preflight_owner',(select pg_get_userbyid(proowner) from pg_proc where oid='public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer)'::regprocedure),'rls',(select relrowsecurity and relforcerowsecurity from pg_class where oid='public.retailer_control_state_evidence_v1'::regclass))::text`),"forward inventory"));
-    assert.deepEqual(inventory,{ledger_count:98,ledger_head:"20260927101000",control_rpc:true,preflight_rpc:true,control_owner:"retailer_control_state_read_owner",preflight_owner:"ra004_staging_preflight_owner",rls:true});
+    assert.deepEqual(inventory,{ledger_count:98,ledger_head:"20260927102000",control_rpc:true,preflight_rpc:true,control_owner:"retailer_control_state_read_owner",preflight_owner:"ra004_staging_preflight_owner",rls:true});
     const compatibility=json(ok(sql(container,fresh,`select jsonb_build_object(
       'tables',(select count(*) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relname in ('retailer_catalogue_production_fixture_approvals','retailer_catalogue_production_recovery_manifests','retailer_catalogue_production_recovery_approvals')),
       'roles',(select count(*) from pg_roles where rolname in ('retailer_catalogue_production_approver','retailer_catalogue_production_executor','retailer_catalogue_production_validator')),
@@ -193,8 +314,23 @@ test("RA-004 compatibility and forward reissues install in exact order after led
       'broad_grants',(select count(*) from information_schema.role_table_grants where table_schema='public' and table_name in ('retailer_catalogue_production_fixture_approvals','retailer_catalogue_production_recovery_manifests','retailer_catalogue_production_recovery_approvals') and grantee<>'postgres')
     )::text`),"compatibility boundary"));
     assert.deepEqual(compatibility,{tables:3,roles:3,rows:0,policies:3,memberships:0,broad_grants:3});
+    const exactLedgerIdentifiers = [
+      ...ledgerRows.map(([version,name])=>`${version}_${name}`),
+      "20260926110000_add_ra004_staging_interface_compatibility",
+      "20260927100000_reissue_transactional_retailer_control_state_interface",
+      "20260927102000_correct_ra004_staging_preflight_ledger_contract",
+    ];
+    const exactLedgerFingerprint = migrationLedgerFingerprint(exactLedgerIdentifiers,"STAGING");
+    ok(sql(container,fresh,"create role ra004_preflight_test_login login noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls; grant execute on function public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer) to ra004_preflight_test_login"),"create bounded local preflight login");
+    const metadata=json(ok(sql(container,fresh,asLogin(call("STAGING",98,exactLedgerFingerprint))),"corrected Q2-Q7 metadata RPC"));
+    validateMetadata(metadata,"ra004_preflight_test_login");
+    const fullPreflight=await runExactLocalQ1ToQ8(metadata,98,exactLedgerFingerprint);
+    assert.equal(fullPreflight.report.project_identity.environment_label,"STAGING");
+    assert.equal(fullPreflight.report.evidence_store.private,true);
+    ok(sql(container,fresh,"revoke execute on function public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer) from ra004_preflight_test_login; drop role ra004_preflight_test_login"),"remove bounded local preflight login");
+
     apply(fresh,FORWARD_CONTROL_MIGRATION,"safe control replay recognition");
-    apply(fresh,FORWARD_PREFLIGHT_MIGRATION,"safe preflight replay recognition");
+    apply(fresh,CORRECTED_PREFLIGHT_MIGRATION,"safe corrected preflight replay recognition");
 
     for(const [kind,mutation,pattern] of [
       ["table","alter table public.retailer_catalogue_production_fixture_approvals add column forbidden text",/COLUMN_DRIFT/],
@@ -213,7 +349,7 @@ test("RA-004 compatibility and forward reissues install in exact order after led
       ["function","alter function public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer) volatile",FORWARD_CONTROL_MIGRATION,/FUNCTION_DRIFT/],
       ["grant","grant execute on function public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer) to authenticated",FORWARD_CONTROL_MIGRATION,/ACL_DRIFT/],
       ["policy","alter policy retailer_control_state_evidence_owner_select_v1 on public.retailer_control_state_evidence_v1 using (false)",FORWARD_CONTROL_MIGRATION,/POLICY_DRIFT/],
-      ["preflight policy","alter policy ra004_staging_preflight_retailer_read_v1 on public.retailers using (true)",FORWARD_PREFLIGHT_MIGRATION,/POLICY_DRIFT/],
+      ["preflight policy","alter policy ra004_staging_preflight_retailer_read_v1 on public.retailers using (true)",CORRECTED_PREFLIGHT_MIGRATION,/POLICY_DRIFT/],
       ["role","alter role retailer_control_state_exporter inherit",FORWARD_CONTROL_MIGRATION,/ROLE_DRIFT/],
     ]) {
       const drift=`ra004_control_state_test_forward_drift_${kind.replaceAll(" ","_")}_${crypto.randomBytes(2).toString("hex")}`;
@@ -224,4 +360,42 @@ test("RA-004 compatibility and forward reissues install in exact order after led
     denied(sql(container,fresh,"insert into supabase_migrations.schema_migrations(version,name) values ('20260926110000','add_ra004_staging_interface_compatibility')"),"ledger blocks compatibility replay",/duplicate key/);
   } catch(error) { primary=error; throw error; }
   finally { const cleanup=run("docker",["rm","-f",container],30_000); if(!primary) ok(cleanup,"remove forward-only PostgreSQL"); }
+});
+
+test("corrected migration replaces the exact defective RPC in a full local history", () => {
+  const container=`ra-004-corrected-history-${crypto.randomBytes(5).toString("hex")}`;
+  const database=`ra004_control_state_test_corrected_history_${crypto.randomBytes(4).toString("hex")}`;
+  let primary;
+  try {
+    ok(run("docker",["run","--detach","--rm","--name",container,"--network","none","-e","POSTGRES_HOST_AUTH_METHOD=trust","-v",`${ROOT}:/workspace:ro`,IMAGE]),"start full-history PostgreSQL");
+    wait(container);
+    ok(docker(container,["createdb","-U","postgres",database]),"create full-history database");
+    ok(sql(container,database,ROLE_SQL),"bootstrap full-history roles");
+    ok(file(container,database,BASELINE),"apply full-history baseline");
+    ok(file(container,database,CONTROL_FIXTURE,[`expected_database=${database}`]),"apply full-history control fixture");
+    ok(sql(container,database,"drop table public.retailer_catalogue_production_recovery_approvals, public.retailer_catalogue_production_recovery_manifests, public.retailer_catalogue_production_fixture_approvals; drop role retailer_catalogue_production_validator, retailer_catalogue_production_executor, retailer_catalogue_production_approver;"),"reproduce full-history compatibility gaps");
+    const ledgerRows=[
+      ...Array.from({length:94},(_,index)=>[`20250101${String(index).padStart(6,"0")}`,`synthetic_history_${index}`]),
+      ["20260926100000","create_ra004_staging_10reps_retailer"],
+    ];
+    ok(sql(container,database,`create schema supabase_migrations; create table supabase_migrations.schema_migrations(version text primary key,name text not null,statements text[] not null default array[]::text[]); insert into supabase_migrations.schema_migrations(version,name) values ${ledgerRows.map(([version,name])=>`(${quote(version)},${quote(name)})`).join(",")}; insert into public.retailers(id,name,slug) overriding system value values (11,'10 Reps','10-reps');`),"create full-history ledger 95");
+    for(const [migration,version,name,label] of [
+      [COMPATIBILITY_MIGRATION,"20260926110000","add_ra004_staging_interface_compatibility","compatibility"],
+      [FORWARD_CONTROL_MIGRATION,"20260927100000","reissue_transactional_retailer_control_state_interface","control"],
+      [FORWARD_PREFLIGHT_MIGRATION,"20260927101000","reissue_ra004_staging_preflight_metadata_interface","defective preflight"],
+      [CORRECTED_PREFLIGHT_MIGRATION,"20260927102000","correct_ra004_staging_preflight_ledger_contract","corrected preflight"],
+    ]) {
+      ok(file(container,database,migration),`apply ${label}`);
+      ok(sql(container,database,`insert into supabase_migrations.schema_migrations(version,name) values (${quote(version)},${quote(name)})`),`record ${label}`);
+    }
+    const state=json(ok(sql(container,database,`select jsonb_build_object(
+      'ledger_count',(select count(*) from supabase_migrations.schema_migrations),
+      'ledger_head',(select max(version) from supabase_migrations.schema_migrations),
+      'function_hash',encode(sha256(convert_to(pg_get_functiondef('public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer)'::regprocedure),'UTF8')),'hex'),
+      'correct_name',position('${CORRECT_LEDGER_NAME}' in pg_get_functiondef('public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer)'::regprocedure))>0,
+      'obsolete_name',position('v_target_name is distinct from ''${OBSOLETE_LEDGER_NAME}''' in pg_get_functiondef('public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer)'::regprocedure))>0
+    )::text`),"read corrected full-history state"));
+    assert.deepEqual(state,{ledger_count:99,ledger_head:"20260927102000",function_hash:"498945611307a893c627aa088cb97977cc956b85082a4b6ffd7d360c1b80a2bb",correct_name:true,obsolete_name:false});
+  } catch(error) { primary=error; throw error; }
+  finally { const cleanup=run("docker",["rm","-f",container],30_000); if(!primary) ok(cleanup,"remove full-history PostgreSQL"); }
 });

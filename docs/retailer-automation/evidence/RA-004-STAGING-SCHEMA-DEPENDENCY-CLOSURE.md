@@ -94,6 +94,11 @@ dependencies:
 `PRESENT_DRIFTED`: 0. `MISSING_OPTIONAL`: 0. Required views: 0. Required
 custom types: 0. Required new sequences: 0. Required new extensions: 0.
 
+The preflight output remains one logical dependency after correction. The
+immutable `20260927101000` definition is superseded by the complete
+`20260927102000_correct_ra004_staging_preflight_ledger_contract.sql`; the
+dependency count and classifications therefore remain unchanged.
+
 ## Compatibility migration
 
 `20260926110000_add_ra004_staging_interface_compatibility.sql` is ordered after
@@ -125,9 +130,9 @@ gaps. It applies locally, in this order:
 
 1. `20260926110000_add_ra004_staging_interface_compatibility.sql`
 2. `20260927100000_reissue_transactional_retailer_control_state_interface.sql`
-3. `20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql`
+3. `20260927102000_correct_ra004_staging_preflight_ledger_contract.sql`
 
-The proof reaches exactly 98 ledger entries ending at `20260927101000`, creates
+The corrected proof reaches exactly 98 ledger entries ending at `20260927102000`, creates
 both read RPCs, preserves all product/variant/mapping/offer/price-history row
 counts, creates no compatibility rows, and verifies minimal ownership, ACL,
 RLS, policies and memberships. Duplicate ledger insertion is rejected. Injected

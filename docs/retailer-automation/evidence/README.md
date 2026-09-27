@@ -34,6 +34,8 @@
 
 [RA-004 forward-reissued interface migrations](RA-004-FORWARD-REISSUED-INTERFACE-MIGRATIONS.md)
 
+[RA-004 corrected preflight ledger contract](RA-004-CORRECTED-PREFLIGHT-LEDGER-CONTRACT.md)
+
 [RA-004 machine-readable forward-reissue record](RA-004-forward-reissued-interface-migrations.json)
 
 [RA-004 forward staging activation](RA-004-FORWARD-STAGING-ACTIVATION.md)

@@ -142,6 +142,7 @@ const EXCLUSIONS = Object.freeze({
     "20260926110000_add_ra004_staging_interface_compatibility",
     "20260927100000_reissue_transactional_retailer_control_state_interface",
     "20260927101000_reissue_ra004_staging_preflight_metadata_interface",
+    "20260927102000_correct_ra004_staging_preflight_ledger_contract",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",
@@ -157,6 +158,7 @@ const EXCLUSIONS = Object.freeze({
     "20260926110000_add_ra004_staging_interface_compatibility",
     "20260927100000_reissue_transactional_retailer_control_state_interface",
     "20260927101000_reissue_ra004_staging_preflight_metadata_interface",
+    "20260927102000_correct_ra004_staging_preflight_ledger_contract",
   ]),
 });
 

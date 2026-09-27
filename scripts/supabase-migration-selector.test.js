@@ -29,6 +29,7 @@ const RA004_PREFLIGHT_MIGRATION = "20260925100000_add_ra004_staging_preflight_me
 const RA004_FORWARD_CONTROL_STATE_MIGRATION = "20260927100000_reissue_transactional_retailer_control_state_interface.sql";
 const RA004_FORWARD_PREFLIGHT_MIGRATION = "20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql";
 const RA004_COMPATIBILITY_MIGRATION = "20260926110000_add_ra004_staging_interface_compatibility.sql";
+const RA004_CORRECTED_PREFLIGHT_MIGRATION = "20260927102000_correct_ra004_staging_preflight_ledger_contract.sql";
 const RA004_ACTIVATION_FILE = path.join(
   ROOT,
   "docs/retailer-automation/evidence/RA-004-staging-migration-activation.json",
@@ -41,6 +42,10 @@ const RA004_FORWARD_ACTIVATION_FILE = path.join(
 const RA004_FORWARD_ACTIVATION = JSON.parse(
   fs.readFileSync(RA004_FORWARD_ACTIVATION_FILE, "utf8"),
 );
+const RA004_FORWARD_MIGRATION_MANIFEST = JSON.parse(fs.readFileSync(path.join(
+  ROOT,
+  "docs/retailer-automation/evidence/RA-004-forward-reissued-interface-migrations.json",
+), "utf8"));
 const RA004_FIXTURE_MIGRATION = "20260926100000_create_ra004_staging_10reps_retailer.sql";
 const RA004_FIXTURE_ACTIVATION_FILE = path.join(
   ROOT,
@@ -533,7 +538,7 @@ test("production binds its exact 221-row ledger before the Fit House parent appr
 
 test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.equal(Object.keys(contract.excluded).length, 13);
+  assert.equal(Object.keys(contract.excluded).length, 14);
   assert.ok(!Object.hasOwn(
     contract.excluded,
     "20260824160000_add_identity_proven_price_observations.sql",
@@ -663,6 +668,32 @@ test("failed forward RA-004 activation is terminal and all three migrations rema
   })), /status mismatch/);
   const normal = validateSelection(validInput());
   for (const filename of [RA004_COMPATIBILITY_MIGRATION, RA004_FORWARD_CONTROL_STATE_MIGRATION, RA004_FORWARD_PREFLIGHT_MIGRATION]) {
+    assert.ok(normal.excluded_files.includes(filename));
+    assert.ok(!normal.selected_files.includes(filename));
+    assert.ok(!normal.pending_files.includes(filename));
+  }
+});
+
+test("corrected preflight migration supersedes the defective reissue and remains closed", () => {
+  const corrected = RA004_FORWARD_MIGRATION_MANIFEST.forward_migrations.find(
+    ({ filename }) => filename === RA004_CORRECTED_PREFLIGHT_MIGRATION,
+  );
+  const defective = RA004_FORWARD_MIGRATION_MANIFEST.forward_migrations.find(
+    ({ filename }) => filename === RA004_FORWARD_PREFLIGHT_MIGRATION,
+  );
+  assert.deepEqual(corrected, {
+    filename: RA004_CORRECTED_PREFLIGHT_MIGRATION,
+    sha256: "2d8947666af52df40fbaf877989174c2cb922a90f3f9ffc39e48018281921003",
+    status: "CURRENT",
+  });
+  assert.equal(defective.status, "SUPERSEDED");
+  for (const contract of [CONTRACTS.STAGING, CONTRACTS.PRODUCTION]) {
+    assert.equal(contract.excluded[RA004_CORRECTED_PREFLIGHT_MIGRATION], corrected.sha256);
+    assert.equal(contract.excluded[RA004_FORWARD_PREFLIGHT_MIGRATION], defective.sha256);
+    assert.ok(!contract.pending.some(({ filename }) => filename === RA004_CORRECTED_PREFLIGHT_MIGRATION));
+  }
+  const normal = validateSelection(validInput());
+  for (const filename of [RA004_FORWARD_PREFLIGHT_MIGRATION, RA004_CORRECTED_PREFLIGHT_MIGRATION]) {
     assert.ok(normal.excluded_files.includes(filename));
     assert.ok(!normal.selected_files.includes(filename));
     assert.ok(!normal.pending_files.includes(filename));
