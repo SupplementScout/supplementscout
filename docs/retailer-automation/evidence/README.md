@@ -32,6 +32,14 @@
 
 [RA-004 staging 10 Reps retailer fixture activation](RA-004-STAGING-10REPS-RETAILER-FIXTURE-ACTIVATION.md)
 
+The staging fixture activation is `STAGING_VERIFIED_COMPLETE`. The one
+authorized application attempt advanced the attested staging ledger from 94 to
+95 rows and created exactly one minimal `10 Reps` / `10-reps` retailer at ID
+`11`. Fresh read-only verification matched the expected ledger fingerprint;
+production and canary actions remain zero. The authorization is consumed and
+does not permit a rerun, canary, shadow run or production action. RA-004 remains
+`IN_PROGRESS`.
+
 RA-002 was independently verified on 23 September 2026 in PR #86. RA-003 was
 independently verified on 24 September 2026 in PR #87. Their local test and
 contract modules remain unwired from production. RA-004 is `IN_PROGRESS`; its
