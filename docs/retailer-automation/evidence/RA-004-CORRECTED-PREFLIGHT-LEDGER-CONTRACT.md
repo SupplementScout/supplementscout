@@ -17,7 +17,7 @@ and both STAGING and PRODUCTION selectors exclude it.
 
 The complete replacement is
 `20260927102000_correct_ra004_staging_preflight_ledger_contract.sql`, SHA-256
-`2d8947666af52df40fbaf877989174c2cb922a90f3f9ffc39e48018281921003`.
+`85e7b9ff1d0091dfe24459a8dcd0d8502799102872737616cd9bbd430ae03639`.
 Every Q3 ledger check uses exactly
 `reissue_transactional_retailer_control_state_interface`.
 
@@ -49,4 +49,3 @@ staging migration, remote preflight or canary was used.
 The corrected migration is SHA-bound but excluded from both STAGING and
 PRODUCTION. The activation manifest is null and `--include-all` remains
 forbidden. This evidence does not authorize a staging attempt.
-
