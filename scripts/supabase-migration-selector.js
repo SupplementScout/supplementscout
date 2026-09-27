@@ -314,6 +314,10 @@ const CONTRACTS = Object.freeze({
         "9d6c1ea4df0bd86f84a4cb779a0824922f4e9bcc91681b734d5d18465a9e91be",
       "20260926100000_create_ra004_staging_10reps_retailer.sql":
         "2948af2c348ebf7cca56b2f46966a393ad022bd4cbfef0876ac9bc899a92ba0e",
+      "20260927100000_reissue_transactional_retailer_control_state_interface.sql":
+        "699c911289e6b1eccd04ca778e8d26a36cbc2caf57b426eaede7b359991b2977",
+      "20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql":
+        "6d1e3512792884cf0696e36d4c54f78d9d85e3e68b32cdd475a885f6138dc2f4",
     }),
     pending: Object.freeze([
       Object.freeze({
@@ -377,6 +381,10 @@ const CONTRACTS = Object.freeze({
         "9d6c1ea4df0bd86f84a4cb779a0824922f4e9bcc91681b734d5d18465a9e91be",
       "20260926100000_create_ra004_staging_10reps_retailer.sql":
         "2948af2c348ebf7cca56b2f46966a393ad022bd4cbfef0876ac9bc899a92ba0e",
+      "20260927100000_reissue_transactional_retailer_control_state_interface.sql":
+        "699c911289e6b1eccd04ca778e8d26a36cbc2caf57b426eaede7b359991b2977",
+      "20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql":
+        "6d1e3512792884cf0696e36d4c54f78d9d85e3e68b32cdd475a885f6138dc2f4",
     }),
     pending: Object.freeze([
       Object.freeze({

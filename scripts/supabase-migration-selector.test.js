@@ -26,6 +26,8 @@ const TARGET = Object.freeze({
 });
 const RA004_CONTROL_STATE_MIGRATION = "20260924100000_add_transactional_retailer_control_state_interface.sql";
 const RA004_PREFLIGHT_MIGRATION = "20260925100000_add_ra004_staging_preflight_metadata_interface.sql";
+const RA004_FORWARD_CONTROL_STATE_MIGRATION = "20260927100000_reissue_transactional_retailer_control_state_interface.sql";
+const RA004_FORWARD_PREFLIGHT_MIGRATION = "20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql";
 const RA004_ACTIVATION_FILE = path.join(
   ROOT,
   "docs/retailer-automation/evidence/RA-004-staging-migration-activation.json",
@@ -523,7 +525,7 @@ test("production binds its exact 221-row ledger before the Fit House parent appr
 
 test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.equal(Object.keys(contract.excluded).length, 10);
+  assert.equal(Object.keys(contract.excluded).length, 12);
   assert.ok(!Object.hasOwn(
     contract.excluded,
     "20260824160000_add_identity_proven_price_observations.sql",
@@ -601,10 +603,12 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("RA-004 interfaces remain SHA-bound and excluded from staging and production deployment", () => {
+test("old and forward-reissued RA-004 interfaces remain SHA-bound and excluded from staging and production deployment", () => {
   const expected = {
     [RA004_CONTROL_STATE_MIGRATION]: "cfd7a93cb20845832b696183f5eb8a500f0474b4173829b85f6ac6bc73d4baaa",
     [RA004_PREFLIGHT_MIGRATION]: "9d6c1ea4df0bd86f84a4cb779a0824922f4e9bcc91681b734d5d18465a9e91be",
+    [RA004_FORWARD_CONTROL_STATE_MIGRATION]: "699c911289e6b1eccd04ca778e8d26a36cbc2caf57b426eaede7b359991b2977",
+    [RA004_FORWARD_PREFLIGHT_MIGRATION]: "6d1e3512792884cf0696e36d4c54f78d9d85e3e68b32cdd475a885f6138dc2f4",
   };
   for (const [filename, sha256] of Object.entries(expected)) {
     assert.equal(CONTRACTS.STAGING.excluded[filename], sha256);
@@ -615,70 +619,21 @@ test("RA-004 interfaces remain SHA-bound and excluded from staging and productio
   }
 });
 
-test("RA-004 activation selects exactly the two approved staging migrations and defers every unrelated pending migration", () => {
-  assert.deepEqual(validateActivationManifest(CONTRACT, RA004_ACTIVATION), [
-    RA004_CONTROL_STATE_MIGRATION,
-    RA004_PREFLIGHT_MIGRATION,
-  ]);
-  const result = validateSelection(validInput({
+test("consumed RA-004 activation and both forward migrations remain closed", () => {
+  assert.equal(RA004_ACTIVATION.status, "ATTEMPT_CONSUMED_FAILED_CLOSED");
+  assert.equal(RA004_ACTIVATION.execution.application_attempt_count, 1);
+  assert.equal(RA004_ACTIVATION.execution.migrations_applied, 0);
+  assert.throws(() => validateActivationManifest(CONTRACT, RA004_ACTIVATION), /status mismatch/);
+  assert.throws(() => validateSelection(validInput({
     activationManifest: RA004_ACTIVATION,
     remoteLedger: currentRemoteLedger(),
-  }));
-  assert.equal(result.activation_schema, "ra-004-staging-migration-activation-v1");
-  assert.equal(result.activation_id, "ra004-staging-interfaces-2026-09-27-v5");
-  assert.deepEqual(result.pending_files, [RA004_CONTROL_STATE_MIGRATION, RA004_PREFLIGHT_MIGRATION]);
-  assert.deepEqual(result.pending_sha256s, {
-    [RA004_CONTROL_STATE_MIGRATION]: "cfd7a93cb20845832b696183f5eb8a500f0474b4173829b85f6ac6bc73d4baaa",
-    [RA004_PREFLIGHT_MIGRATION]: "9d6c1ea4df0bd86f84a4cb779a0824922f4e9bcc91681b734d5d18465a9e91be",
-  });
-  assert.equal(result.selected_files.length, 97);
-  assert.ok(result.selected_files.includes(RA004_CONTROL_STATE_MIGRATION));
-  assert.ok(result.selected_files.includes(RA004_PREFLIGHT_MIGRATION));
-  for (const pending of CONTRACT.pending) {
-    assert.ok(!result.selected_files.includes(pending.filename));
-    assert.ok(result.excluded_files.includes(pending.filename));
+  })), /status mismatch/);
+  const normal = validateSelection(validInput());
+  for (const filename of [RA004_FORWARD_CONTROL_STATE_MIGRATION, RA004_FORWARD_PREFLIGHT_MIGRATION]) {
+    assert.ok(!normal.selected_files.includes(filename));
+    assert.ok(normal.excluded_files.includes(filename));
+    assert.ok(!normal.pending_files.includes(filename));
   }
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-
-  const root = temporaryRoot();
-  const workdir = path.join(root, "selected");
-  materializeSelectedWorkdir({
-    selection: result,
-    sourceDir: SOURCE,
-    configFile: CONFIG,
-    workdir,
-    allowedWorkdirRoot: root,
-  });
-  const copied = fs.readdirSync(path.join(workdir, "supabase", "migrations")).sort();
-  assert.deepEqual(copied, result.selected_files);
-  const manifest = JSON.parse(fs.readFileSync(path.join(workdir, "selection-manifest.json"), "utf8"));
-  assert.equal(manifest.activation_id, RA004_ACTIVATION.activation_id);
-  assert.deepEqual(manifest.pending_files, [RA004_CONTROL_STATE_MIGRATION, RA004_PREFLIGHT_MIGRATION]);
-});
-
-test("RA-004 activation fails closed for baseline, production, target, SHA and unrelated pending drift", () => {
-  const clone = () => JSON.parse(JSON.stringify(RA004_ACTIVATION));
-  const baselineDrift = clone();
-  baselineDrift.baseline_sha = "0".repeat(40);
-  const activationInput = (activationManifest) => validInput({
-    activationManifest,
-    remoteLedger: currentRemoteLedger(),
-  });
-  assert.throws(() => validateSelection(activationInput(baselineDrift)), /baseline/);
-
-  const targetDrift = clone();
-  targetDrift.target.project_ref = CONTRACTS.PRODUCTION.projectRef;
-  assert.throws(() => validateSelection(activationInput(targetDrift)), /project ref/);
-
-  const shaDrift = clone();
-  shaDrift.migrations[0].sha256 = "0".repeat(64);
-  assert.throws(() => validateSelection(activationInput(shaDrift)), /SHA-256/);
-
-  const extra = clone();
-  extra.migrations.push(CONTRACT.pending[0]);
-  assert.throws(() => validateSelection(activationInput(extra)), /migration count/);
-
   assert.throws(() => parseArgs([
     "--environment=PRODUCTION",
     `--project-ref=${CONTRACTS.PRODUCTION.projectRef}`,

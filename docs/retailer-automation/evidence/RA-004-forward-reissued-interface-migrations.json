@@ -1,0 +1,47 @@
+{
+  "schema_version": "ra-004-forward-reissued-interface-migrations-v1",
+  "status": "RA-004 FORWARD REISSUED INTERFACE MIGRATIONS VERIFIED_COMPLETE",
+  "task_id": "RA-004",
+  "approved_baseline_sha": "b11dcc6518e7c6c4c363a3f149fc13342f89ca16",
+  "implementation_base_sha": "dbf640d80e8083e6ff9dbad4458573b6eb80fc08",
+  "prepared_at": "2026-09-27",
+  "superseded_sources": [
+    {
+      "filename": "20260924100000_add_transactional_retailer_control_state_interface.sql",
+      "sha256": "cfd7a93cb20845832b696183f5eb8a500f0474b4173829b85f6ac6bc73d4baaa",
+      "superseded_by": "20260927100000_reissue_transactional_retailer_control_state_interface.sql"
+    },
+    {
+      "filename": "20260925100000_add_ra004_staging_preflight_metadata_interface.sql",
+      "sha256": "9d6c1ea4df0bd86f84a4cb779a0824922f4e9bcc91681b734d5d18465a9e91be",
+      "superseded_by": "20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql"
+    }
+  ],
+  "forward_migrations": [
+    {
+      "filename": "20260927100000_reissue_transactional_retailer_control_state_interface.sql",
+      "sha256": "699c911289e6b1eccd04ca778e8d26a36cbc2caf57b426eaede7b359991b2977"
+    },
+    {
+      "filename": "20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql",
+      "sha256": "6d1e3512792884cf0696e36d4c54f78d9d85e3e68b32cdd475a885f6138dc2f4"
+    }
+  ],
+  "selector": {
+    "staging_closed": true,
+    "production_closed": true,
+    "include_all_allowed": false,
+    "activation_manifest": null
+  },
+  "authorization": {
+    "local_implementation_and_verification": true,
+    "staging_execution": false,
+    "production_execution": false,
+    "preflight": false,
+    "canary": false,
+    "retry": false
+  },
+  "expected_status_after_merge": "RA-004 FORWARD REISSUED INTERFACE MIGRATIONS VERIFIED_COMPLETE",
+  "ra004_status_after_merge": "IN_PROGRESS",
+  "only_next_step": "separate owner authorization for exactly one staging attempt using the new timestamps"
+}
