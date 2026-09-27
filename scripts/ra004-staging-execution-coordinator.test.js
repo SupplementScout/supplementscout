@@ -19,15 +19,16 @@ test("coordinator is pinned to the owner-authorized staging identity and artifac
   const values = require("./ra004-staging-execution-coordinator");
   assert.equal(values.REF, "hxnrsyyqffztlvcrtgbf");
   assert.equal(values.API_HOST, "hxnrsyyqffztlvcrtgbf.supabase.co");
-  assert.equal(values.BASELINE, "b11dcc6518e7c6c4c363a3f149fc13342f89ca16");
-  assert.equal(values.CONTROL_SHA, "cfd7a93cb20845832b696183f5eb8a500f0474b4173829b85f6ac6bc73d4baaa");
-  assert.equal(values.PREFLIGHT_SHA, "9d6c1ea4df0bd86f84a4cb779a0824922f4e9bcc91681b734d5d18465a9e91be");
+  assert.equal(values.BASELINE, "a651dc61fec43b09e0ee908ec3cac01fbb45e3c8");
+  assert.equal(values.CONTROL_SHA, "699c911289e6b1eccd04ca778e8d26a36cbc2caf57b426eaede7b359991b2977");
+  assert.equal(values.PREFLIGHT_SHA, "6d1e3512792884cf0696e36d4c54f78d9d85e3e68b32cdd475a885f6138dc2f4");
   assert.equal(values.BUCKET, "ra004-staging-preflight-evidence");
   assert.equal(values.EXPECTED_PRE_LEDGER_COUNT, 95);
   assert.equal(values.EXPECTED_PRE_LEDGER_FINGERPRINT, "c5bb6405d26def1834522cccaf2937fad60f44156370e5e1f8c4af3ff96d45bd");
   assert.equal(values.EXPECTED_POST_LEDGER_COUNT, 97);
-  assert.equal(values.EXPECTED_POST_LEDGER_FINGERPRINT, "5d6edfca41ae7dd61043d62a6d78469d5cb1196f6ef15c7fef794e04664ee7aa");
+  assert.equal(values.EXPECTED_POST_LEDGER_FINGERPRINT, "330d36f6bcff6a62d46c015cc5c31d32a6bf2c3639a3ba2e9ab856d1e3fbb668");
   assert.match(coordinator, /aftboxmrdgyhizicfsfu\|prod\/i/);
+  assert.match(coordinator, /retailer\[0\]\.id==="11"/);
 });
 
 test("migration apply consumes only the materialized guarded selector workdir", () => {
@@ -38,6 +39,19 @@ test("migration apply consumes only the materialized guarded selector workdir", 
   assert.doesNotMatch(coordinator, /--include-all/);
   assert.doesNotMatch(coordinator, /insert into supabase_migrations/i);
   assert.doesNotMatch(coordinator, /await db\(sql\)/);
+});
+
+test("execution is bound to a clean exact origin/main squash-merge commit", () => {
+  const { readExecutionCommit } = require("./ra004-staging-execution-coordinator");
+  const sha = "a".repeat(40);
+  const outputs = [sha, sha, ""];
+  assert.equal(readExecutionCommit(() => ({ status: 0, stdout: outputs.shift() })), sha);
+  const mismatch = ["a".repeat(40), "b".repeat(40), ""];
+  assert.throws(() => readExecutionCommit(() => ({ status: 0, stdout: mismatch.shift() })),
+    /RA004_EXECUTION_COMMIT_NOT_MERGED_MAIN/);
+  const dirty = [sha, sha, " M scripts/file.js"];
+  assert.throws(() => readExecutionCommit(() => ({ status: 0, stdout: dirty.shift() })),
+    /RA004_EXECUTION_WORKTREE_NOT_CLEAN/);
 });
 
 test("secrets remain process-only and are not placed in CLI arguments or output", () => {
@@ -52,6 +66,42 @@ test("secrets remain process-only and are not placed in CLI arguments or output"
   assert.doesNotMatch(custodian, /console\.(?:log|error)|process\.stdout|process\.stderr/);
 });
 
+test("failed Supabase CLI saves deterministic redacted stdout and stderr evidence", () => {
+  const outputDirectory = fs.mkdtempSync(path.join(require("node:os").tmpdir(), "ra004-cli-evidence-"));
+  const previous = process.env.RA004_SUPABASE_CLI_PATH;
+  process.env.RA004_SUPABASE_CLI_PATH = process.execPath;
+  try {
+    assert.throws(() => require("./ra004-staging-execution-coordinator").runCli(
+      ["db", "push"],
+      { PGPASSWORD: "test-password-sentinel" },
+      {
+        outputDirectory,
+        spawn: () => ({
+          status: 1,
+          stdout: "connecting postgresql://postgres:test-password-sentinel@staging.invalid/postgres sbp_secret",
+          stderr: "password=test-password-sentinel rejected",
+        }),
+      },
+    ), (error) => {
+      assert.equal(error.message, "RA004_SUPABASE_CLI_FAILED_1");
+      assert.equal(error.cliDiagnostics.exit_code, 1);
+      for (const stream of ["stdout", "stderr"]) {
+        const item = error.cliDiagnostics[stream];
+        const content = fs.readFileSync(path.join(outputDirectory, item.filename), "utf8");
+        assert.equal(item.redacted, true);
+        assert.match(item.sha256, /^[0-9a-f]{64}$/);
+        assert.doesNotMatch(content, /test-password-sentinel|sbp_secret|postgresql:\/\//);
+        assert.match(content, /\[REDACTED/);
+      }
+      return true;
+    });
+  } finally {
+    if (previous === undefined) delete process.env.RA004_SUPABASE_CLI_PATH;
+    else process.env.RA004_SUPABASE_CLI_PATH = previous;
+    fs.rmSync(outputDirectory, { recursive: true, force: true });
+  }
+});
+
 test("evidence bucket and object writes are private, bounded and non-overwriting", () => {
   assert.match(coordinator, /insert into storage\.buckets\(id,name,public,file_size_limit,allowed_mime_types\)/);
   assert.match(coordinator, /false,2097152,array\['application\/json','text\/plain'\]/);
@@ -62,6 +112,8 @@ test("evidence bucket and object writes are private, bounded and non-overwriting
   assert.match(custodian, /RA004_EVIDENCE_READBACK_HASH_MISMATCH/);
   assert.match(custodian, /method: "POST"/);
   assert.match(custodian, /method: "GET"/);
+  assert.match(custodian, /supabase-cli-failure-1\.stdout\.txt/);
+  assert.match(custodian, /supabase-cli-failure-1\.stderr\.txt/);
   assert.match(custodian, /claims\.role !== "anon"/);
   assert.doesNotMatch(custodian, /x-upsert|method: "(?:PUT|PATCH|DELETE)"|\/object\/list\//i);
   assert.doesNotMatch(coordinator + custodian, /api-keys\?reveal|storage","cp|storage rm|storage ls/);
@@ -119,6 +171,7 @@ test("failure report separates primary failure, session, cleanup, counters and w
   assert.deepEqual(first.session_creation, { state: "NOT_CREATED" });
   assert.deepEqual(first.cleanup, { status: "NOT_REQUIRED", failures: [] });
   assert.deepEqual(first.attempt_counters, { auth: 1, upload: 0, readback: 0, cleanup: 0 });
+  assert.equal(first.ledger_readback, null);
   assert.equal(first.window.started, false);
   assert.equal(first.window.starts_at, null);
   assert.deepEqual(first, second);
@@ -157,6 +210,40 @@ test("preflight gates exactly one later control-state canary and both credential
   assert.match(coordinator, /if\(canaryCred&&issuer\).*revokeOne\(canaryCred/s);
   assert.match(coordinator, /final_assessment==="CLEAR_FOR_SEPARATE_SHADOW_AUTHORIZATION"/);
   assert.doesNotMatch(coordinator, /setInterval|setTimeout|retry\s*\(/i);
+});
+
+test("operation attempts are counted once and failure closeout performs read-only ledger readback", () => {
+  assert.equal((coordinator.match(/operationAttempts\.migration\+=1/g) || []).length, 1);
+  assert.equal((coordinator.match(/operationAttempts\.preflight\+=1/g) || []).length, 1);
+  assert.equal((coordinator.match(/operationAttempts\.canary\+=1/g) || []).length, 1);
+  assert.match(coordinator, /if\(primaryError\) \{\s*try \{\s*const readback=await selector\.readRemoteState\(ownerUrl\)/s);
+  assert.match(coordinator, /ledgerReadback:failureLedgerReadback/);
+  assert.doesNotMatch(coordinator, /failureLedgerReadback.*db push/s);
+
+  const { buildFailureReport } = require("./ra004-staging-execution-coordinator");
+  const report = buildFailureReport({
+    activation: "ra004-staging-1790493761055",
+    primaryError: new Error("RA004_SUPABASE_CLI_FAILED_1"),
+    sessionState: {
+      session_creation_state: "CREATED",
+      attempt_counters: { auth: 1, upload: 2, readback: 2, cleanup: 1 },
+    },
+    operationAttempts: { migration: 1, preflight: 0, canary: 0 },
+    ledgerReadback: {
+      count: 95,
+      fingerprint: "c5bb6405d26def1834522cccaf2937fad60f44156370e5e1f8c4af3ff96d45bd",
+      last_migration: "20260926100000_create_ra004_staging_10reps_retailer",
+    },
+    cleanup: { status: "COMPLETE", failures: [] },
+    startsAt: "2026-09-27T12:00:00Z",
+    expiresAt: "2026-09-27T12:30:00Z",
+    revoke: [],
+    uploaded: [],
+  });
+  assert.deepEqual(report.attempt_counters, {
+    auth: 1, upload: 2, readback: 2, cleanup: 1, migration: 1, preflight: 0, canary: 0,
+  });
+  assert.equal(report.ledger_readback.count, 95);
 });
 
 test("credential issuer is a separate process with exact RPC-only logins", () => {
@@ -211,5 +298,5 @@ test("the tracked coordinator, issuer, custodian and verifier are repository fil
   assert.ok(fs.existsSync(custodianPath));
   assert.ok(fs.existsSync(verifierPath));
   assert.ok(fs.existsSync(launcherPath));
-  assert.ok(fs.existsSync(path.join(ROOT, "docs", "retailer-automation", "evidence", "RA-004-staging-migration-activation.json")));
+  assert.ok(fs.existsSync(path.join(ROOT, "docs", "retailer-automation", "evidence", "RA-004-forward-staging-migration-activation.json")));
 });

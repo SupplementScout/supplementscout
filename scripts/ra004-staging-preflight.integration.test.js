@@ -4,7 +4,8 @@ const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const test = require("node:test");
 const { migrationLedgerFingerprint } = require("./lib/retailer-snapshot/staging-execution-contract");
-const { validateMetadata } = require("./lib/retailer-offer-sync/ra004-staging-preflight-v1/contract");
+const { sha256 } = require("./lib/stable-json-hash");
+const { postgresJsonbText, validateMetadata } = require("./lib/retailer-offer-sync/ra004-staging-preflight-v1/contract");
 
 const ROOT = path.resolve(__dirname, "..");
 const IMAGE = "postgres:17-alpine";
@@ -35,6 +36,20 @@ function quote(value) { return `'${String(value).replaceAll("'", "''")}'`; }
 function ledgerSql() { return `create schema supabase_migrations; create table supabase_migrations.schema_migrations(version text primary key,name text not null,statements text[] not null default array[]::text[]); insert into supabase_migrations.schema_migrations(version,name) values ${MIGRATIONS.map((item)=>{const split=item.indexOf("_");return `(${quote(item.slice(0,split))},${quote(item.slice(split+1))})`;}).join(",")};`; }
 function call(environment="STAGING", count=3, fingerprint=LEDGER_FINGERPRINT, maxBytes=131072) { return `select public.read_ra004_staging_preflight_v1(${quote(environment)},'10 Reps','10-reps',${count},${quote(fingerprint)},'ra004_preflight_test_login',${maxBytes})::text`; }
 function asLogin(statement) { return `set session authorization ra004_preflight_test_login; ${statement}`; }
+function validateLegacyMetadata(value, expectedSessionUser) {
+  assert.equal(value.q3_migration_ledger.target_version, "20260924100000");
+  assert.equal(value.q3_migration_ledger.target_name, "add_transactional_retailer_control_state_interface");
+  assert.equal(
+    sha256(postgresJsonbText({ ...value, metadata_fingerprint: "0".repeat(64) })),
+    value.metadata_fingerprint,
+  );
+  const compatible = structuredClone(value);
+  compatible.q3_migration_ledger.target_version = "20260927100000";
+  compatible.q3_migration_ledger.target_name = "reissue_transactional_retailer_control_state_interface";
+  compatible.metadata_fingerprint = "0".repeat(64);
+  compatible.metadata_fingerprint = sha256(postgresJsonbText(compatible));
+  return validateMetadata(compatible, expectedSessionUser);
+}
 
 test("RA-004 preflight migration and closed Q2-Q7 RPC pass in networkless PostgreSQL 17", () => {
   for (const [name,value] of Object.entries(process.env)) {
@@ -98,7 +113,7 @@ test("RA-004 preflight migration and closed Q2-Q7 RPC pass in networkless Postgr
       "select public.write_retailer_control_state_evidence_v1(null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)",
     ]) denied(sql(container,database,asLogin(statement)),`ephemeral login denied ${statement}`);
 
-    const result=json(ok(sql(container,database,asLogin(call())),"one exact metadata RPC")); validateMetadata(result,"ra004_preflight_test_login");
+    const result=json(ok(sql(container,database,asLogin(call())),"one exact metadata RPC")); validateLegacyMetadata(result,"ra004_preflight_test_login");
     assert.equal(result.q2_retailer.id,"14"); assert.equal(result.q4_objects.length,6); assert.equal(result.snapshot.business_rows_read,0);
     assert.doesNotMatch(JSON.stringify(result),/(?:offer|price|stock|customer|order|feed)(?:s|_id)?"\s*:/i);
     const repeat=json(ok(sql(container,database,asLogin(call())),"deterministic repeat")); assert.equal(repeat.metadata_fingerprint,result.metadata_fingerprint); assert.deepEqual(repeat,result);

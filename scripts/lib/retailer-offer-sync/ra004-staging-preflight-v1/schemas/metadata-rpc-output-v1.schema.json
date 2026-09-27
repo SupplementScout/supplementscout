@@ -10,7 +10,7 @@
       "id": {"type": "string", "minLength": 1, "maxLength": 64}, "name": {"const": "10 Reps"}, "slug": {"const": "10-reps"}, "match_count": {"const": 1}
     }},
     "q3_migration_ledger": {"type": "object", "additionalProperties": false, "required": ["target_version", "target_name", "target_match_count", "ordered_ledger_count", "ordered_ledger_fingerprint"], "properties": {
-      "target_version": {"const": "20260924100000"}, "target_name": {"const": "add_transactional_retailer_control_state_interface"}, "target_match_count": {"const": 1},
+      "target_version": {"const": "20260927100000"}, "target_name": {"const": "reissue_transactional_retailer_control_state_interface"}, "target_match_count": {"const": 1},
       "ordered_ledger_count": {"type": "integer", "minimum": 1, "maximum": 10000}, "ordered_ledger_fingerprint": {"$ref": "#/$defs/sha256"}
     }},
     "q4_objects": {"type": "array", "minItems": 6, "maxItems": 6, "uniqueItems": true, "items": {"type": "object", "additionalProperties": false, "required": ["object_schema", "object_name", "object_kind", "exists", "expected_state"], "properties": {

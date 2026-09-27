@@ -33,6 +33,13 @@ const RA004_ACTIVATION_FILE = path.join(
   "docs/retailer-automation/evidence/RA-004-staging-migration-activation.json",
 );
 const RA004_ACTIVATION = JSON.parse(fs.readFileSync(RA004_ACTIVATION_FILE, "utf8"));
+const RA004_FORWARD_ACTIVATION_FILE = path.join(
+  ROOT,
+  "docs/retailer-automation/evidence/RA-004-forward-staging-migration-activation.json",
+);
+const RA004_FORWARD_ACTIVATION = JSON.parse(
+  fs.readFileSync(RA004_FORWARD_ACTIVATION_FILE, "utf8"),
+);
 const RA004_FIXTURE_MIGRATION = "20260926100000_create_ra004_staging_10reps_retailer.sql";
 const RA004_FIXTURE_ACTIVATION_FILE = path.join(
   ROOT,
@@ -638,6 +645,48 @@ test("consumed RA-004 activation and both forward migrations remain closed", () 
     "--environment=PRODUCTION",
     `--project-ref=${CONTRACTS.PRODUCTION.projectRef}`,
     `--activation-manifest=${RA004_ACTIVATION_FILE}`,
+  ]), /staging-only/);
+});
+
+test("forward RA-004 activation selects exactly two new migrations and leaves old migrations closed", () => {
+  const result = validateSelection(validInput({
+    activationManifest: RA004_FORWARD_ACTIVATION,
+    remoteLedger: currentRemoteLedger(),
+  }));
+  assert.equal(result.activation_schema, "ra-004-forward-staging-migration-activation-v1");
+  assert.equal(result.activation_id, "ra004-forward-staging-interfaces-2026-09-27-v1");
+  assert.equal(RA004_FORWARD_ACTIVATION.manifest_fingerprint,
+    "387fe54ca5ca0ee60d621a9ec6fb66b9821c6e5586efaecf30ef282f02ff4aea");
+  assert.deepEqual(result.pending_files, [
+    RA004_FORWARD_CONTROL_STATE_MIGRATION,
+    RA004_FORWARD_PREFLIGHT_MIGRATION,
+  ]);
+  assert.ok(!result.selected_files.includes(RA004_CONTROL_STATE_MIGRATION));
+  assert.ok(!result.selected_files.includes(RA004_PREFLIGHT_MIGRATION));
+  assert.equal(result.pending_sha256s[RA004_FORWARD_CONTROL_STATE_MIGRATION],
+    "699c911289e6b1eccd04ca778e8d26a36cbc2caf57b426eaede7b359991b2977");
+  assert.equal(result.pending_sha256s[RA004_FORWARD_PREFLIGHT_MIGRATION],
+    "6d1e3512792884cf0696e36d4c54f78d9d85e3e68b32cdd475a885f6138dc2f4");
+});
+
+test("forward RA-004 activation rejects retry, include-all, old migration and production drift", () => {
+  const check = (mutate) => {
+    const manifest = JSON.parse(JSON.stringify(RA004_FORWARD_ACTIVATION));
+    mutate(manifest);
+    assert.throws(() => validateSelection(validInput({
+      activationManifest: manifest,
+      remoteLedger: currentRemoteLedger(),
+    })));
+  };
+  check((value) => { value.apply.manual_retry = true; });
+  check((value) => { value.apply.include_all = true; });
+  check((value) => { value.old_migrations.selected = true; });
+  check((value) => { value.migrations[0].filename = RA004_CONTROL_STATE_MIGRATION; });
+  check((value) => { value.production.authorized = true; });
+  assert.throws(() => parseArgs([
+    "--environment=PRODUCTION",
+    `--project-ref=${CONTRACTS.PRODUCTION.projectRef}`,
+    `--activation-manifest=${RA004_FORWARD_ACTIVATION_FILE}`,
   ]), /staging-only/);
 });
 
