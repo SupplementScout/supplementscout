@@ -27,6 +27,26 @@ async function withFakeCli(run) {
   try { return await run(cli); } finally { fs.rmSync(directory, { recursive: true, force: true }); }
 }
 
+function executeWithPreparedManifest(options) {
+  const originalReadFileSync = fs.readFileSync;
+  const manifest = JSON.parse(originalReadFileSync(activation.ACTIVATION, "utf8"));
+  manifest.status = "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED";
+  manifest.execution.started = false;
+  manifest.execution.application_attempt_count = 0;
+  fs.readFileSync = (file, ...args) => (
+    path.resolve(String(file)) === path.resolve(activation.ACTIVATION)
+      ? JSON.stringify(manifest)
+      : originalReadFileSync(file, ...args)
+  );
+  try {
+    // executeActivation reads and gates the manifest synchronously before its
+    // first await, so the production manifest remains untouched on disk.
+    return activation.executeActivation(options);
+  } finally {
+    fs.readFileSync = originalReadFileSync;
+  }
+}
+
 function runtimeEnvironment(cli, overrides = {}) {
   return {
     RA004_FIXTURE_CONFIRM: activation.CONFIRMATION,
@@ -107,6 +127,17 @@ test("database password is environment-only and unrelated process secrets are no
   }
 });
 
+test("completed activation is terminal and blocks a second attempt before any remote action", async () => withFakeCli(async (cli) => {
+  let calls = 0;
+  await assert.rejects(activation.executeActivation({
+    environment: runtimeEnvironment(cli),
+    selectorApi: { readRemoteState: async () => { calls += 1; } },
+    snapshotReader: async () => { calls += 1; },
+    spawn: () => { calls += 1; },
+  }), /ACTIVATION_ALREADY_STARTED/);
+  assert.equal(calls, 0);
+}));
+
 test("executor performs exactly one guarded staging push and no canary or production action", async () => withFakeCli(async (cli) => {
   const manifest = JSON.parse(fs.readFileSync(activation.ACTIVATION, "utf8"));
   const remoteStates = [
@@ -132,7 +163,7 @@ test("executor performs exactly one guarded staging push and no canary or produc
     },
     materializeSelectedWorkdir: ({ selection }) => assert.deepEqual(selection.pending_files, [activation.MIGRATION]),
   };
-  const receipt = await activation.executeActivation({
+  const receipt = await executeWithPreparedManifest({
     environment: runtimeEnvironment(cli),
     selectorApi,
     snapshotReader: async () => snapshots++ === 0 ? beforeSnapshot() : afterSnapshot(),
@@ -164,7 +195,7 @@ test("executor fails before push on an existing retailer and never retries a fai
     materializeSelectedWorkdir: () => {},
   });
   let calls = 0;
-  await assert.rejects(activation.executeActivation({
+  await assert.rejects(executeWithPreparedManifest({
     environment: runtimeEnvironment(cli),
     selectorApi: makeSelector(),
     snapshotReader: async () => afterSnapshot(),
@@ -173,7 +204,7 @@ test("executor fails before push on an existing retailer and never retries a fai
   assert.equal(calls, 0);
 
   const pushCalls = [];
-  await assert.rejects(activation.executeActivation({
+  await assert.rejects(executeWithPreparedManifest({
     environment: runtimeEnvironment(cli),
     selectorApi: makeSelector(),
     snapshotReader: async () => beforeSnapshot(),

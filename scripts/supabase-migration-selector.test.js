@@ -39,6 +39,14 @@ const RA004_FIXTURE_ACTIVATION_FILE = path.join(
 const RA004_FIXTURE_ACTIVATION = JSON.parse(
   fs.readFileSync(RA004_FIXTURE_ACTIVATION_FILE, "utf8"),
 );
+
+function preparedFixtureActivation() {
+  const manifest = JSON.parse(JSON.stringify(RA004_FIXTURE_ACTIVATION));
+  manifest.status = "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED";
+  manifest.execution.started = false;
+  manifest.execution.application_attempt_count = 0;
+  return manifest;
+}
 const TIMESTAMP_GUARD_MIGRATION = "20260831080000_fix_verified_no_change_timestamp_guard.sql";
 const TIMESTAMP_GUARD_SHA256 = "727a47ddabc29664693c299c5b4e0915ba06e44fbfc2beb098277c2b81866bbe";
 const TIMESTAMP_OPERATOR_MIGRATION = "20260831081000_fix_verified_no_change_timestamp_guard_jsonb_operator.sql";
@@ -679,11 +687,12 @@ test("RA-004 activation fails closed for baseline, production, target, SHA and u
 });
 
 test("RA-004 fixture activation selects exactly one staging migration from the pre-activation ledger", () => {
-  assert.deepEqual(validateActivationManifest(CONTRACT, RA004_FIXTURE_ACTIVATION), [
+  const manifest = preparedFixtureActivation();
+  assert.deepEqual(validateActivationManifest(CONTRACT, manifest), [
     RA004_FIXTURE_MIGRATION,
   ]);
   const result = validateSelection(validInput({
-    activationManifest: RA004_FIXTURE_ACTIVATION,
+    activationManifest: manifest,
     remoteLedger: preFixtureRemoteLedger(),
   }));
   assert.equal(result.activation_schema, "ra-004-staging-retailer-fixture-activation-v1");
@@ -698,7 +707,7 @@ test("RA-004 fixture activation selects exactly one staging migration from the p
 });
 
 test("RA-004 fixture activation rejects ledger, retry, canary, production and migration drift", () => {
-  const clone = () => JSON.parse(JSON.stringify(RA004_FIXTURE_ACTIVATION));
+  const clone = preparedFixtureActivation;
   const check = (manifest) => validateSelection(validInput({
     activationManifest: manifest,
     remoteLedger: preFixtureRemoteLedger(),
@@ -716,8 +725,18 @@ test("RA-004 fixture activation rejects ledger, retry, canary, production and mi
     assert.throws(() => check(changed));
   }
   assert.throws(() => validateSelection(validInput({
-    activationManifest: RA004_FIXTURE_ACTIVATION,
+    activationManifest: preparedFixtureActivation(),
   })), /ledger count/);
+});
+
+test("completed RA-004 fixture activation cannot select or materialize a migration", () => {
+  assert.equal(RA004_FIXTURE_ACTIVATION.status, "STAGING_VERIFIED_COMPLETE");
+  assert.equal(RA004_FIXTURE_ACTIVATION.execution.started, true);
+  assert.equal(RA004_FIXTURE_ACTIVATION.execution.application_attempt_count, 1);
+  assert.throws(() => validateSelection(validInput({
+    activationManifest: RA004_FIXTURE_ACTIVATION,
+    remoteLedger: preFixtureRemoteLedger(),
+  })), /status mismatch/);
 });
 
 test("staging output reports the review queue, retry and nutrition migrations as pending", () => {
