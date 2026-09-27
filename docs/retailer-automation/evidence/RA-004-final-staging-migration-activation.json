@@ -1,7 +1,7 @@
 {
   "schema_version": "ra-004-final-staging-migration-activation-v1",
   "manifest_fingerprint": "9112ad5e1468141638d4b22a2a530fdcf153c16c8174a4322a9e443a8796fc13",
-  "status": "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED",
+  "status": "ATTEMPT_CONSUMED_FAILED_TERMINAL_ARCHITECTURE_REVIEW_REQUIRED",
   "task_id": "RA-004",
   "activation_id": "ra004-final-staging-interfaces-2026-09-27-v1",
   "prepared_at": "2026-09-27",
@@ -87,14 +87,32 @@
   },
   "production": { "authorized": false, "selector_unchanged": true, "migration_count": 0 },
   "execution": {
-    "runtime_activation_id": null,
-    "started": false,
-    "application_attempt_count": 0,
+    "runtime_activation_id": "ra004-staging-1790526213056",
+    "started": true,
+    "window_started_at": "2026-09-27T16:23:34Z",
+    "window_expires_at": "2026-09-27T16:53:33Z",
+    "window_closed_at": "2026-09-27T16:23:41Z",
+    "application_attempt_count": 1,
     "preflight_attempt_count": 0,
     "canary_attempt_count": 0,
-    "migrations_applied": 0,
-    "closed": false,
+    "migrations_applied": 1,
+    "closed": true,
     "retry_authorized": false,
-    "replayable": false
+    "replayable": false,
+    "primary_failure": {
+      "code": "RA004_SUPABASE_CLI_FAILED_1",
+      "sqlstate": "42501",
+      "reason": "migration user cannot SET ROLE retailer_control_state_evidence_owner"
+    },
+    "ledger_after_failure": {
+      "count": 96,
+      "last_version": "20260926110000",
+      "last_name": "add_ra004_staging_interface_compatibility",
+      "fingerprint": "d85982cd1df704c77c8d61b0d8f56038eecb4fce014ba9aa68e69b617a9efb7e"
+    },
+    "evidence_store_session": "CLOSED",
+    "cleanup": "COMPLETE",
+    "temporary_rpc_credentials_created": 0,
+    "architecture_review_required": true
   }
 }

@@ -1,0 +1,74 @@
+{
+  "schema_version": "ra004-staging-closeout-v2",
+  "status": "BLOCKED_ARCHITECTURE_REVIEW_REQUIRED",
+  "activation_id": "ra004-staging-1790526213056",
+  "manifest_activation_id": "ra004-final-staging-interfaces-2026-09-27-v1",
+  "baseline_sha": "feac20f1a515ee3fbf55cee94cf6dc8234aafb95",
+  "execution_commit": "bab1a51b5293931b70b600b95264cd9bd2aa8544",
+  "primary_failure": {
+    "code": "RA004_SUPABASE_CLI_FAILED_1",
+    "sqlstate": "42501",
+    "redacted_message": "must be able to SET ROLE retailer_control_state_evidence_owner"
+  },
+  "cli_diagnostics": {
+    "attempt": 1,
+    "exit_code": 1,
+    "stdout_sha256": "20dcf432ebdac307aea18a38ca08f6f7bf7059f5b40c0406541c3ad9cd158bcd",
+    "stderr_sha256": "2d9db766ec6f06204c246c3e3f7b46c85c60b15250396ef1e9aaf7f91196b565",
+    "redacted": true,
+    "private_store_readback_verified": true
+  },
+  "ledger": {
+    "before_count": 95,
+    "after_count": 96,
+    "after_fingerprint": "d85982cd1df704c77c8d61b0d8f56038eecb4fce014ba9aa68e69b617a9efb7e",
+    "last_migration": "20260926110000_add_ra004_staging_interface_compatibility",
+    "migrations_applied": [
+      "20260926110000_add_ra004_staging_interface_compatibility.sql"
+    ],
+    "migrations_rolled_back_or_not_started": [
+      "20260927100000_reissue_transactional_retailer_control_state_interface.sql",
+      "20260927102000_correct_ra004_staging_preflight_ledger_contract.sql"
+    ]
+  },
+  "attempt_counters": {
+    "migration": 1,
+    "preflight": 0,
+    "canary": 0,
+    "auth": 1,
+    "upload": 2,
+    "readback": 2,
+    "cleanup": 1
+  },
+  "window": {
+    "started": true,
+    "starts_at": "2026-09-27T16:23:34Z",
+    "expires_at": "2026-09-27T16:53:33Z",
+    "closed_at": "2026-09-27T16:23:41Z"
+  },
+  "cleanup": {
+    "status": "COMPLETE",
+    "evidence_store_session": "CLOSED",
+    "temporary_rpc_credentials_created": 0,
+    "revoke_required": false,
+    "failures": []
+  },
+  "selectors": {
+    "staging_activation": "TERMINAL_CLOSED",
+    "ordinary_staging": "CLOSED",
+    "production": "CLOSED"
+  },
+  "forbidden_operations": {
+    "production": 0,
+    "feed_capture": 0,
+    "shadow_run": 0,
+    "control_plan": 0,
+    "approval": 0,
+    "import": 0,
+    "apply": 0,
+    "offer_writes": 0,
+    "model_b": 0
+  },
+  "next_state": "FULL_RA004_ROLE_AND_OWNERSHIP_ARCHITECTURE_REVIEW_REQUIRED",
+  "retry_authorized": false
+}
