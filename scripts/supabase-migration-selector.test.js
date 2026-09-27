@@ -42,6 +42,13 @@ const RA004_FORWARD_ACTIVATION_FILE = path.join(
 const RA004_FORWARD_ACTIVATION = JSON.parse(
   fs.readFileSync(RA004_FORWARD_ACTIVATION_FILE, "utf8"),
 );
+const RA004_CORRECTED_ACTIVATION_FILE = path.join(
+  ROOT,
+  "docs/retailer-automation/evidence/RA-004-corrected-staging-migration-activation.json",
+);
+const RA004_CORRECTED_ACTIVATION = JSON.parse(
+  fs.readFileSync(RA004_CORRECTED_ACTIVATION_FILE, "utf8"),
+);
 const RA004_FORWARD_MIGRATION_MANIFEST = JSON.parse(fs.readFileSync(path.join(
   ROOT,
   "docs/retailer-automation/evidence/RA-004-forward-reissued-interface-migrations.json",
@@ -698,6 +705,53 @@ test("corrected preflight migration supersedes the defective reissue and remains
     assert.ok(!normal.selected_files.includes(filename));
     assert.ok(!normal.pending_files.includes(filename));
   }
+});
+
+test("corrected RA-004 activation selects exactly the authorized three-migration sequence", () => {
+  assert.deepEqual(validateActivationManifest(CONTRACT, RA004_CORRECTED_ACTIVATION), [
+    RA004_COMPATIBILITY_MIGRATION,
+    RA004_FORWARD_CONTROL_STATE_MIGRATION,
+    RA004_CORRECTED_PREFLIGHT_MIGRATION,
+  ]);
+  const result = validateSelection(validInput({
+    activationManifest: RA004_CORRECTED_ACTIVATION,
+    remoteLedger: currentRemoteLedger(),
+  }));
+  assert.equal(result.activation_schema, "ra-004-corrected-staging-migration-activation-v1");
+  assert.equal(result.activation_id, "ra004-corrected-staging-interfaces-2026-09-27-v1");
+  assert.deepEqual(result.pending_files, [
+    RA004_COMPATIBILITY_MIGRATION,
+    RA004_FORWARD_CONTROL_STATE_MIGRATION,
+    RA004_CORRECTED_PREFLIGHT_MIGRATION,
+  ]);
+  assert.ok(!result.selected_files.includes(RA004_FORWARD_PREFLIGHT_MIGRATION));
+  assert.ok(result.excluded_files.includes(RA004_FORWARD_PREFLIGHT_MIGRATION));
+  assert.equal(result.ledger_count, 95);
+  assert.equal(result.pending_sha256s[RA004_COMPATIBILITY_MIGRATION],
+    "6deb90f6557b2ee72c8b5fca02aed7ce1e9ac9edd75a246689a56560166ea99c");
+  assert.equal(result.pending_sha256s[RA004_FORWARD_CONTROL_STATE_MIGRATION],
+    "699c911289e6b1eccd04ca778e8d26a36cbc2caf57b426eaede7b359991b2977");
+  assert.equal(result.pending_sha256s[RA004_CORRECTED_PREFLIGHT_MIGRATION],
+    "25f70527d18113a2282ebcdb1626b8052f7774f3f7f6ee1dbe69e1cd17864b93");
+});
+
+test("corrected RA-004 activation fails closed on mutation, replay and production", () => {
+  const check = (mutate, pattern) => {
+    const manifest = JSON.parse(JSON.stringify(RA004_CORRECTED_ACTIVATION));
+    mutate(manifest);
+    assert.throws(() => validateActivationManifest(CONTRACT, manifest), pattern);
+  };
+  check((value) => { value.apply.include_all = true; }, /fingerprint mismatch/);
+  check((value) => { value.migrations[2].filename = RA004_FORWARD_PREFLIGHT_MIGRATION; }, /fingerprint mismatch/);
+  check((value) => { value.migrations[0].sha256 = "0".repeat(64); }, /fingerprint mismatch/);
+  check((value) => { value.old_migrations.selected = true; }, /fingerprint mismatch/);
+  check((value) => { value.dependency_contract.count = 29; }, /fingerprint mismatch/);
+  check((value) => { value.status = "ATTEMPT_CONSUMED_FAILED_TERMINAL"; }, /status mismatch/);
+  assert.throws(() => parseArgs([
+    "--environment=PRODUCTION",
+    `--project-ref=${CONTRACTS.PRODUCTION.projectRef}`,
+    `--activation-manifest=${RA004_CORRECTED_ACTIVATION_FILE}`,
+  ]), /staging-only/);
 });
 
 test("forward RA-004 activation rejects retry, include-all, old migration and production drift", () => {

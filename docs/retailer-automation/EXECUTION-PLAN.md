@@ -423,6 +423,15 @@ ACL boundary. SQL, runtime contract, selector and evidence all require
 `reissue_transactional_retailer_control_state_interface`. STAGING and
 PRODUCTION selectors remain closed; no remote execution or retry is authorized.
 
+**Corrected staging activation:** `OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED`.
+The one-shot staging selector is bound to baseline
+`aad469766b8491ef4eedffa143c33a7f3335d6bb`, the attested 95-row ledger and
+exactly the compatibility, reissued control-state and corrected preflight
+migrations. The defective `20260927101000` migration and seven unrelated
+pending migrations remain excluded. The expected post-ledger is 98 rows ending
+at `20260927102000`. Execution is permitted only from the clean, independently
+verified squash-merged activation commit; production and shadow remain closed.
+
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
 **Goal:** compare the candidate canonical pipeline with the existing 10 Reps
