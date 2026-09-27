@@ -17,7 +17,7 @@ const { SOURCE_NAMES, PROHIBITED_OPERATIONS } = require("./lib/retailer-offer-sy
 const ROOT = path.resolve(__dirname, "..");
 const REF = "hxnrsyyqffztlvcrtgbf";
 const API_HOST = "hxnrsyyqffztlvcrtgbf.supabase.co";
-const BASELINE = "aad469766b8491ef4eedffa143c33a7f3335d6bb";
+const BASELINE = "feac20f1a515ee3fbf55cee94cf6dc8234aafb95";
 const COMPATIBILITY_SHA = "22b7102641d3aabee86f91d4b07185eb7e6cbed3a017ef8da0499fa2c9dfad7f";
 const CONTROL_SHA = "699c911289e6b1eccd04ca778e8d26a36cbc2caf57b426eaede7b359991b2977";
 const PREFLIGHT_SHA = "25f70527d18113a2282ebcdb1626b8052f7774f3f7f6ee1dbe69e1cd17864b93";
@@ -33,7 +33,7 @@ const EXPECTED_PRE_LEDGER_COUNT = 95;
 const EXPECTED_PRE_LEDGER_FINGERPRINT = "c5bb6405d26def1834522cccaf2937fad60f44156370e5e1f8c4af3ff96d45bd";
 const EXPECTED_POST_LEDGER_COUNT = 98;
 const EXPECTED_POST_LEDGER_FINGERPRINT = "67e4d52a9feb43379b5deb351fd050bc542897bb5ed89998368fbb7c349455db";
-const ACTIVATION_MANIFEST = "RA-004-corrected-staging-migration-activation.json";
+const ACTIVATION_MANIFEST = "RA-004-final-staging-migration-activation.json";
 const EXPECTED_MIGRATIONS = Object.freeze([
   ["20260926110000_add_ra004_staging_interface_compatibility.sql", COMPATIBILITY_SHA],
   ["20260927100000_reissue_transactional_retailer_control_state_interface.sql", CONTROL_SHA],

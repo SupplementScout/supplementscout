@@ -49,6 +49,13 @@ const RA004_CORRECTED_ACTIVATION_FILE = path.join(
 const RA004_CORRECTED_ACTIVATION = JSON.parse(
   fs.readFileSync(RA004_CORRECTED_ACTIVATION_FILE, "utf8"),
 );
+const RA004_FINAL_ACTIVATION_FILE = path.join(
+  ROOT,
+  "docs/retailer-automation/evidence/RA-004-final-staging-migration-activation.json",
+);
+const RA004_FINAL_ACTIVATION = JSON.parse(
+  fs.readFileSync(RA004_FINAL_ACTIVATION_FILE, "utf8"),
+);
 function preparedCorrectedActivation() {
   const manifest = JSON.parse(JSON.stringify(RA004_CORRECTED_ACTIVATION));
   manifest.status = "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED";
@@ -781,6 +788,41 @@ test("consumed corrected RA-004 activation is terminal and cannot be replayed", 
     assert.ok(!normal.selected_files.includes(filename));
     assert.ok(!normal.pending_files.includes(filename));
   }
+});
+
+test("final RA-004 activation selects exactly the three owner-authorized staging migrations", () => {
+  const result = validateSelection(validInput({
+    activationManifest: RA004_FINAL_ACTIVATION,
+    remoteLedger: currentRemoteLedger(),
+  }));
+  assert.equal(result.activation_schema, "ra-004-final-staging-migration-activation-v1");
+  assert.equal(result.activation_id, "ra004-final-staging-interfaces-2026-09-27-v1");
+  assert.deepEqual(result.pending_files, [
+    RA004_COMPATIBILITY_MIGRATION,
+    RA004_FORWARD_CONTROL_STATE_MIGRATION,
+    RA004_CORRECTED_PREFLIGHT_MIGRATION,
+  ]);
+  assert.ok(!result.pending_files.includes(RA004_FORWARD_PREFLIGHT_MIGRATION));
+});
+
+test("final RA-004 activation fails closed on mutation, retry, replay and production", () => {
+  const check = (mutate, pattern = /fingerprint mismatch/) => {
+    const manifest = JSON.parse(JSON.stringify(RA004_FINAL_ACTIVATION));
+    mutate(manifest);
+    assert.throws(() => validateActivationManifest(CONTRACT, manifest), pattern);
+  };
+  check((value) => { value.apply.include_all = true; });
+  check((value) => { value.apply.maximum_attempts = 2; }, /one-shot without retry/);
+  check((value) => { value.migrations[0].sha256 = "0".repeat(64); });
+  check((value) => { value.migrations[2].filename = RA004_FORWARD_PREFLIGHT_MIGRATION; });
+  check((value) => { value.old_migrations.selected = true; });
+  check((value) => { value.production.authorized = true; }, /must not authorize production/);
+  check((value) => { value.status = "ATTEMPT_CONSUMED_FAILED_TERMINAL"; }, /status mismatch/);
+  assert.throws(() => parseArgs([
+    "--environment=PRODUCTION",
+    `--project-ref=${CONTRACTS.PRODUCTION.projectRef}`,
+    `--activation-manifest=${RA004_FINAL_ACTIVATION_FILE}`,
+  ]), /staging-only/);
 });
 
 test("forward RA-004 activation rejects retry, include-all, old migration and production drift", () => {

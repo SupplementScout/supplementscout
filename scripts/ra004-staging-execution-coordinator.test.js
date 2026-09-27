@@ -19,7 +19,7 @@ test("coordinator is pinned to the owner-authorized staging identity and artifac
   const values = require("./ra004-staging-execution-coordinator");
   assert.equal(values.REF, "hxnrsyyqffztlvcrtgbf");
   assert.equal(values.API_HOST, "hxnrsyyqffztlvcrtgbf.supabase.co");
-  assert.equal(values.BASELINE, "aad469766b8491ef4eedffa143c33a7f3335d6bb");
+  assert.equal(values.BASELINE, "feac20f1a515ee3fbf55cee94cf6dc8234aafb95");
   assert.equal(values.COMPATIBILITY_SHA, "22b7102641d3aabee86f91d4b07185eb7e6cbed3a017ef8da0499fa2c9dfad7f");
   assert.equal(values.CONTROL_SHA, "699c911289e6b1eccd04ca778e8d26a36cbc2caf57b426eaede7b359991b2977");
   assert.equal(values.PREFLIGHT_SHA, "25f70527d18113a2282ebcdb1626b8052f7774f3f7f6ee1dbe69e1cd17864b93");
@@ -316,4 +316,5 @@ test("the tracked coordinator, issuer, custodian and verifier are repository fil
   assert.ok(fs.existsSync(verifierPath));
   assert.ok(fs.existsSync(launcherPath));
   assert.ok(fs.existsSync(path.join(ROOT, "docs", "retailer-automation", "evidence", "RA-004-forward-staging-migration-activation.json")));
+  assert.ok(fs.existsSync(path.join(ROOT, "docs", "retailer-automation", "evidence", "RA-004-final-staging-migration-activation.json")));
 });
