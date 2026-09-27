@@ -9,8 +9,8 @@ const VERSION = "ra-004-staging-preflight-v1";
 const RPC_NAME = "public.read_ra004_staging_preflight_v1";
 const RPC_SIGNATURE = `${RPC_NAME}(text,text,text,integer,text,text,integer)`;
 const CURRENT_DECISION_FINGERPRINT = "b0cb6c6de75eace4e7d4d8705305eb90e6a975203438f23de7b745974e4ffdb8";
-const CONTROL_MIGRATION = "supabase/migrations/20260924100000_add_transactional_retailer_control_state_interface.sql";
-const PREFLIGHT_MIGRATION = "supabase/migrations/20260925100000_add_ra004_staging_preflight_metadata_interface.sql";
+const CONTROL_MIGRATION = "supabase/migrations/20260927100000_reissue_transactional_retailer_control_state_interface.sql";
+const PREFLIGHT_MIGRATION = "supabase/migrations/20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql";
 const FORBIDDEN_ROLES = Object.freeze([
   "service_role", "validator", "approver", "executor", "exporter",
   "retailer_catalogue_staging_validator", "retailer_catalogue_staging_approver",
@@ -219,8 +219,8 @@ function validateMetadata(value, expectedSessionUser) {
   exact(value.snapshot, ["isolation", "metadata_only", "retailer_rows_read", "business_rows_read"], code, "snapshot");
   boundedString(value.q2_retailer.id, code, "Q2 retailer id", 1, 64);
   if (value.q2_retailer.name !== "10 Reps" || value.q2_retailer.slug !== "10-reps" || value.q2_retailer.match_count !== 1
-      || value.q3_migration_ledger.target_version !== "20260924100000"
-      || value.q3_migration_ledger.target_name !== "add_transactional_retailer_control_state_interface"
+      || value.q3_migration_ledger.target_version !== "20260927100000"
+      || value.q3_migration_ledger.target_name !== "reissue_transactional_retailer_control_state_interface"
       || value.q3_migration_ledger.target_match_count !== 1 || !SHA256.test(value.q3_migration_ledger.ordered_ledger_fingerprint)
       || value.snapshot.isolation !== "ONE_POSTGRESQL_STATEMENT" || value.snapshot.metadata_only !== true
       || value.snapshot.retailer_rows_read !== 1 || value.snapshot.business_rows_read !== 0) fail(code, "metadata is not a one-retailer metadata-only snapshot");

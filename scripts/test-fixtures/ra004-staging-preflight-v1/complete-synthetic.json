@@ -24,7 +24,7 @@
   "metadata": {
     "schema_version": "ra-004-staging-preflight-metadata-v1",
     "q2_retailer": {"id": "14", "name": "10 Reps", "slug": "10-reps", "match_count": 1},
-    "q3_migration_ledger": {"target_version": "20260924100000", "target_name": "add_transactional_retailer_control_state_interface", "target_match_count": 1, "ordered_ledger_count": 3, "ordered_ledger_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+    "q3_migration_ledger": {"target_version": "20260927100000", "target_name": "reissue_transactional_retailer_control_state_interface", "target_match_count": 1, "ordered_ledger_count": 3, "ordered_ledger_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
     "q4_objects": [
       {"object_schema": "public", "object_name": "read_ra004_staging_preflight_v1", "object_kind": "FUNCTION", "exists": true, "expected_state": "PRESENT"},
       {"object_schema": "public", "object_name": "read_retailer_control_state_v1", "object_kind": "FUNCTION", "exists": true, "expected_state": "PRESENT"},
@@ -53,6 +53,6 @@
       {"object_schema": "public", "object_name": "retailers", "owner": "postgres", "rls_enabled": true, "rls_forced": false, "policy_name": "ra004_staging_preflight_retailer_read_v1", "policy_command": "r", "policy_roles": ["ra004_staging_preflight_owner"], "policy_using": "((lower(name) = '10 reps'::text) OR (lower(slug) = '10-reps'::text))", "policy_with_check": null, "grantee": null, "privilege_type": null}
     ],
     "snapshot": {"isolation": "ONE_POSTGRESQL_STATEMENT", "metadata_only": true, "retailer_rows_read": 1, "business_rows_read": 0},
-    "metadata_fingerprint": "85856cacf279cf3a77b89cdd4b0d873dbced1109b00c3d0fdfae8ce4bfe81c06"
+    "metadata_fingerprint": "8951ba842965a676d4cf9318f9f547eec2fad1b804a4386abeef52a80822c9cf"
   }
 }

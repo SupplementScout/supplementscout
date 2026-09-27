@@ -398,6 +398,17 @@ selection. The consumed v5 activation is closed; no replacement activation,
 credential or remote execution is included. See
 [`evidence/RA-004-FORWARD-REISSUED-INTERFACE-MIGRATIONS.md`](evidence/RA-004-FORWARD-REISSUED-INTERFACE-MIGRATIONS.md).
 
+**Forward staging activation:** `OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED`.
+The closed activation from baseline `a651dc6` admits exactly the two forward
+interface migrations from the verified 95-row ledger and expects exactly the
+97-row ledger ending at `20260927101000`. The old migrations, every unrelated
+migration, production selector and `--include-all` remain closed. One Q1-Q8
+preflight and one preflight-gated read-only canary are authorized without
+retry. The launcher preserves redacted stdout and stderr evidence for any
+non-zero Supabase CLI exit. No remote action occurs before independent review,
+green checks and ordinary squash merge. See
+[`evidence/RA-004-FORWARD-STAGING-ACTIVATION.md`](evidence/RA-004-FORWARD-STAGING-ACTIVATION.md).
+
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
 **Goal:** compare the candidate canonical pipeline with the existing 10 Reps

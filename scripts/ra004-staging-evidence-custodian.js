@@ -11,6 +11,8 @@ const allowedNames = new Set([
   "control-state-revoke.json",
   "policy-attestation.json",
   "closeout.json",
+  "supabase-cli-failure-1.stdout.txt",
+  "supabase-cli-failure-1.stderr.txt",
 ]);
 const DNS_CODES = new Set(["ENOTFOUND", "EAI_AGAIN", "EAI_FAIL", "ENODATA"]);
 const TIMEOUT_CODES = new Set(["ETIMEDOUT", "UND_ERR_CONNECT_TIMEOUT", "UND_ERR_HEADERS_TIMEOUT", "UND_ERR_BODY_TIMEOUT"]);

@@ -36,6 +36,10 @@
 
 [RA-004 machine-readable forward-reissue record](RA-004-forward-reissued-interface-migrations.json)
 
+[RA-004 forward staging activation](RA-004-FORWARD-STAGING-ACTIVATION.md)
+
+[RA-004 machine-readable forward staging activation](RA-004-forward-staging-migration-activation.json)
+
 The staging fixture activation is `STAGING_VERIFIED_COMPLETE`. The one
 authorized application attempt advanced the attested staging ledger from 94 to
 95 rows and created exactly one minimal `10 Reps` / `10-reps` retailer at ID
@@ -48,8 +52,9 @@ The two RA-004 interfaces are reissued locally under timestamps later than the
 verified 95-row staging ledger head. The original migrations remain
 byte-for-byte unchanged and are marked superseded only by the controlled
 forward-reissue record. Old and new files remain excluded from both deployment
-selectors, the consumed staging activation is closed, and staging execution is
-`NOT_AUTHORIZED`.
+selectors by default. A new closed, one-shot staging activation selects exactly
+the two forward migrations from the attested 95-row ledger. It authorizes no
+production action, unrelated migration, retry, feed, shadow or business write.
 
 RA-002 was independently verified on 23 September 2026 in PR #86. RA-003 was
 independently verified on 24 September 2026 in PR #87. Their local test and

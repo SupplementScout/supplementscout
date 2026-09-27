@@ -2,6 +2,7 @@ const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const { Client } = require("pg");
+const { sha256: stableJsonSha256 } = require("./lib/stable-json-hash");
 const {
   excludedMigrationIds,
   MIGRATION_FILE,
@@ -33,6 +34,16 @@ const RA004_ACTIVATION_POST_LEDGER_FINGERPRINT =
 const RA004_ACTIVATION_MIGRATIONS = Object.freeze([
   "20260924100000_add_transactional_retailer_control_state_interface.sql",
   "20260925100000_add_ra004_staging_preflight_metadata_interface.sql",
+]);
+const RA004_FORWARD_ACTIVATION_SCHEMA = "ra-004-forward-staging-migration-activation-v1";
+const RA004_FORWARD_ACTIVATION_BASELINE = "a651dc61fec43b09e0ee908ec3cac01fbb45e3c8";
+const RA004_FORWARD_ACTIVATION_ID = "ra004-forward-staging-interfaces-2026-09-27-v1";
+const RA004_FORWARD_ACTIVATION_FINGERPRINT = "387fe54ca5ca0ee60d621a9ec6fb66b9821c6e5586efaecf30ef282f02ff4aea";
+const RA004_FORWARD_ACTIVATION_POST_LEDGER_FINGERPRINT =
+  "330d36f6bcff6a62d46c015cc5c31d32a6bf2c3639a3ba2e9ab856d1e3fbb668";
+const RA004_FORWARD_ACTIVATION_MIGRATIONS = Object.freeze([
+  "20260927100000_reissue_transactional_retailer_control_state_interface.sql",
+  "20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql",
 ]);
 const RA004_FIXTURE_ACTIVATION_SCHEMA = "ra-004-staging-retailer-fixture-activation-v1";
 const RA004_FIXTURE_ACTIVATION_BASELINE = "cd6c5dbe1931e984213fe5d69f151e266180252a";
@@ -410,21 +421,28 @@ function ledgerRowsFingerprint(rows) {
 function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOURCE_DIR) {
   invariant(contract.environment === "STAGING", "activation manifest is staging-only");
   const fixtureActivation = manifest?.schema_version === RA004_FIXTURE_ACTIVATION_SCHEMA;
+  const forwardActivation = manifest?.schema_version === RA004_FORWARD_ACTIVATION_SCHEMA;
   invariant(
-    fixtureActivation || manifest?.schema_version === RA004_ACTIVATION_SCHEMA,
+    fixtureActivation || forwardActivation || manifest?.schema_version === RA004_ACTIVATION_SCHEMA,
     "activation manifest schema mismatch",
   );
   invariant(manifest?.status === "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED", "activation manifest status mismatch");
   invariant(manifest?.task_id === "RA-004", "activation manifest task mismatch");
   const expectedActivationId = fixtureActivation
     ? RA004_FIXTURE_ACTIVATION_ID
-    : RA004_ACTIVATION_ID;
+    : forwardActivation
+      ? RA004_FORWARD_ACTIVATION_ID
+      : RA004_ACTIVATION_ID;
   const expectedBaseline = fixtureActivation
     ? RA004_FIXTURE_ACTIVATION_BASELINE
-    : RA004_ACTIVATION_BASELINE;
+    : forwardActivation
+      ? RA004_FORWARD_ACTIVATION_BASELINE
+      : RA004_ACTIVATION_BASELINE;
   const expectedMigrations = fixtureActivation
     ? [RA004_FIXTURE_MIGRATION]
-    : RA004_ACTIVATION_MIGRATIONS;
+    : forwardActivation
+      ? RA004_FORWARD_ACTIVATION_MIGRATIONS
+      : RA004_ACTIVATION_MIGRATIONS;
   invariant(manifest?.activation_id === expectedActivationId, "activation ID mismatch");
   invariant(manifest?.baseline_sha === expectedBaseline, "activation baseline mismatch");
   invariant(manifest?.target?.environment === "STAGING", "activation environment mismatch");
@@ -457,9 +475,26 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
     );
     invariant(
       manifest?.post_activation_ledger?.count === RA004_ACTIVATION_POST_LEDGER_COUNT
-        && manifest?.post_activation_ledger?.fingerprint === RA004_ACTIVATION_POST_LEDGER_FINGERPRINT,
+        && manifest?.post_activation_ledger?.fingerprint === (forwardActivation
+          ? RA004_FORWARD_ACTIVATION_POST_LEDGER_FINGERPRINT
+          : RA004_ACTIVATION_POST_LEDGER_FINGERPRINT),
       "interface post-activation ledger mismatch",
     );
+    if (forwardActivation) {
+      const fingerprintPayload = { ...manifest };
+      delete fingerprintPayload.manifest_fingerprint;
+      invariant(manifest?.manifest_fingerprint === RA004_FORWARD_ACTIVATION_FINGERPRINT
+        && stableJsonSha256(fingerprintPayload) === RA004_FORWARD_ACTIVATION_FINGERPRINT,
+      "forward activation manifest fingerprint mismatch");
+      invariant(manifest?.apply?.manual_retry === false && manifest?.apply?.include_all === false,
+        "forward activation must forbid manual retry and include-all");
+      invariant(manifest?.preflight?.maximum_attempts === 1,
+        "forward activation must authorize exactly one preflight");
+      invariant(manifest?.canary?.maximum_attempts === 1 && manifest?.canary?.requires_preflight_pass === true,
+        "forward activation canary must be single and preflight-gated");
+      invariant(manifest?.old_migrations?.selected === false,
+        "superseded migrations must remain unselected");
+    }
   }
   invariant(Array.isArray(manifest?.migrations), "activation migrations are required");
   invariant(manifest.migrations.length === expectedMigrations.length,
