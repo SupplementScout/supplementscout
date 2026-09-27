@@ -1,7 +1,7 @@
 # RA-004 staging 10 Reps retailer fixture activation
 
-Date: 2026-09-26
-Status: `OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED`
+Date: 2026-09-26; executed and verified 2026-09-27
+Status: `STAGING_VERIFIED_COMPLETE`
 
 ## Exact authorization
 
@@ -58,6 +58,14 @@ that CLI 2.111.0 connects with a password-free argument and `PGPASSWORD`; the
 same test failed closed when only `SUPABASE_DB_PASSWORD` was supplied. No PAT or
 Management API call is needed.
 
+PR #102 at head `bd7e20783cfc02d0e6dce74a268eaab535dcef73` passed
+independent verification in a new detached worktree: focused executor tests
+`7/7`, the networkless PostgreSQL fixture integration `1/1`, Project Guardian
+and `verify:full`, including the production build. GitHub Quality Gate run
+`36295456971`, Project Guardian run `36295456980`, Vercel and GitGuardian all
+passed. The PR was squash-merged as
+`1d24497897ecec25c95cd1f3cd32171c0412db23` before execution.
+
 ## Stop and retry boundary
 
 The executor stops before mutation on every failed precondition. Once the one
@@ -66,9 +74,23 @@ must not be rerun without a new explicit owner authorization. This activation
 does not invoke the prior preflight/canary coordinator and does not authorize a
 canary after a successful fixture application.
 
-## Verification and execution state
+## Verified staging result
 
-The PR must pass focused selector/executor mutation tests, the isolated fixture
-migration integration, Project Guardian, quick/full gates and clean detached
-worktree verification before merge. Remote execution remains
-`NOT_STARTED` until that independent verification and merge are complete.
+The one authorized application attempt was consumed on 27 September 2026 from
+the exact merge commit. A separate fresh read-only transaction then returned
+`RA004_READ_ONLY_VERIFICATION_PASS` and proved:
+
+- the migration ledger advanced from the authorized 94-row state to exactly 95
+  rows;
+- its fingerprint is exactly
+  `c5bb6405d26def1834522cccaf2937fad60f44156370e5e1f8c4af3ff96d45bd`;
+- exactly one minimal retailer row exists with ID `11`, name `10 Reps`, slug
+  `10-reps` and all optional commercial fields null;
+- production actions: `0`;
+- canary actions: `0`.
+
+The migration is transactional and contains no product, variant, mapping,
+offer or price-history write. Its isolated PostgreSQL proof confirms the same
+minimal delta and production rejection. The authorization is now consumed;
+rerun is not authorized. This closes only the staging fixture activation and
+does not authorize the canary, shadow pilot or production.

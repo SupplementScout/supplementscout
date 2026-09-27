@@ -1,6 +1,6 @@
 {
   "schema_version": "ra-004-staging-retailer-fixture-activation-v1",
-  "status": "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED",
+  "status": "STAGING_VERIFIED_COMPLETE",
   "task_id": "RA-004",
   "activation_id": "ra004-staging-10reps-retailer-2026-09-26-v1",
   "prepared_at": "2026-09-26",
@@ -80,6 +80,13 @@
     "password_environment_variable": "PGPASSWORD",
     "local_cli_2_111_0_dry_run_proof": "PASS"
   },
+  "implementation": {
+    "activation_pr": 101,
+    "transport_repair_pr": 102,
+    "execution_commit": "1d24497897ecec25c95cd1f3cd32171c0412db23",
+    "quality_gate_run_id": 36295456971,
+    "project_guardian_run_id": 36295456980
+  },
   "canary": {
     "authorized": false,
     "retry_authorized": false
@@ -90,13 +97,33 @@
     "migration_count": 0
   },
   "execution": {
-    "started": false,
-    "application_attempt_count": 0,
+    "started": true,
+    "completed": true,
+    "application_attempt_count": 1,
+    "authorization_consumed": true,
+    "retry_authorized": false,
     "prior_management_api_transport_failure": {
       "stage": "SUPABASE_CLI_LINK",
       "db_push_invoked": false,
       "remote_write_started": false,
       "authorization_consumed": false
+    },
+    "read_only_verification": {
+      "recorded_at": "2026-09-27T04:58:27Z",
+      "status": "PASS",
+      "migration_ledger_count": 95,
+      "migration_ledger_fingerprint": "c5bb6405d26def1834522cccaf2937fad60f44156370e5e1f8c4af3ff96d45bd",
+      "retailer": {
+        "id": "11",
+        "name": "10 Reps",
+        "slug": "10-reps",
+        "website": null,
+        "logo": null,
+        "affiliate_network": null,
+        "affiliate_id": null
+      },
+      "production_actions": 0,
+      "canary_actions": 0
     }
   }
 }

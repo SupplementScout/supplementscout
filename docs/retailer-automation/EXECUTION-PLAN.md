@@ -357,8 +357,7 @@ green GitHub checks and ordinary merge of the independently verified bounded
 transport, followed by a separately controlled staging activation; no staging
 deployment or preflight occurs in the transport PR.
 
-**Staging 10 Reps retailer fixture:**
-`OWNER_AUTHORIZED_ACTIVATION_PREPARED_NOT_EXECUTED`.
+**Staging 10 Reps retailer fixture:** `STAGING_VERIFIED_COMPLETE`.
 The authorized read-only staging inventory found no 10 Reps retailer row, so
 the prior coordinator stopped before all mutation and canary steps. Marek then
 authorized one separate preparation, independent-verification and merge PR for
@@ -373,7 +372,16 @@ authorized a separate exact-SHA activation PR and one staging application
 attempt after independent verification and merge. The prepared selector binds
 the exact 94-row pre-ledger to the expected 95-row post-ledger, selects only the
 fixture, defers seven unrelated migrations and exposes no retry, canary or
-production action. Remote execution remains `NOT_STARTED`. See
+production action. PR #102 repaired the CLI 2.111.0 Management API transport
+failure without weakening the selector: the password-free target URL is passed
+to documented direct-database `db push`, while its password remains only in
+`PGPASSWORD`; no PAT is accepted. Independent clean-worktree verification and
+all GitHub checks passed before squash merge
+`1d24497897ecec25c95cd1f3cd32171c0412db23`. The one authorized staging attempt
+was then consumed. Fresh read-only verification proved the exact 95-row ledger
+fingerprint, one minimal `10 Reps` / `10-reps` retailer row at staging ID `11`,
+zero production actions and zero canary actions. Rerun is not authorized and
+RA-004 remains `IN_PROGRESS`. See
 [`evidence/RA-004-STAGING-10REPS-RETAILER-FIXTURE.md`](evidence/RA-004-STAGING-10REPS-RETAILER-FIXTURE.md)
 and
 [`evidence/RA-004-STAGING-10REPS-RETAILER-FIXTURE-ACTIVATION.md`](evidence/RA-004-STAGING-10REPS-RETAILER-FIXTURE-ACTIVATION.md).
