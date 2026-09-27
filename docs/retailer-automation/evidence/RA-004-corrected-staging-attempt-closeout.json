@@ -1,0 +1,63 @@
+{
+  "schema_version": "ra-004-corrected-staging-attempt-closeout-v1",
+  "status": "ATTEMPT_CONSUMED_FAILED_TERMINAL",
+  "task_id": "RA-004",
+  "activation_id": "ra004-staging-1790518622885",
+  "activation_manifest_id": "ra004-corrected-staging-interfaces-2026-09-27-v1",
+  "baseline_sha": "aad469766b8491ef4eedffa143c33a7f3335d6bb",
+  "execution_commit": "276f2761b4b76ab33ce56f6dc4e723ff61990d62",
+  "primary_failure": {
+    "code": "RA004_SUPABASE_CLI_FAILED_1",
+    "cause": "RA004_COMPATIBILITY_ROLE_DRIFT: retailer_catalogue_production_approver"
+  },
+  "cli_diagnostics": {
+    "attempt": 1,
+    "exit_code": 1,
+    "stdout_sha256": "b1c375e93fd21917622fc12a2deb766d0b625dfdce205840c15228aa3fb27e0d",
+    "stderr_sha256": "765359d8642b4716b179d769a18704b2b9d8e0a3ffa6c00c129b4bace47c7794",
+    "redacted": true
+  },
+  "attempt_counters": {
+    "auth": 1,
+    "upload": 2,
+    "readback": 2,
+    "cleanup": 1,
+    "migration": 1,
+    "preflight": 0,
+    "canary": 0
+  },
+  "ledger_readback": {
+    "count": 95,
+    "fingerprint": "c5bb6405d26def1834522cccaf2937fad60f44156370e5e1f8c4af3ff96d45bd",
+    "last_migration": "20260926100000_create_ra004_staging_10reps_retailer",
+    "migrations_applied": 0
+  },
+  "window": {
+    "started_at": "2026-09-27T14:17:05Z",
+    "expires_at": "2026-09-27T14:47:02Z",
+    "closed_at": "2026-09-27T14:17:10Z"
+  },
+  "cleanup": {
+    "evidence_store_session": "CLOSED",
+    "status": "COMPLETE",
+    "failures": [],
+    "rpc_credentials_created": 0,
+    "rpc_credentials_requiring_revoke": 0
+  },
+  "selectors": {
+    "staging_activation_status": "ATTEMPT_CONSUMED_FAILED_TERMINAL",
+    "replayable": false,
+    "production_selector": "CLOSED"
+  },
+  "forbidden_operations": {
+    "production": 0,
+    "feed_capture": 0,
+    "shadow_run": 0,
+    "control_plan": 0,
+    "approval": 0,
+    "import": 0,
+    "apply": 0,
+    "offer_writes": 0,
+    "model_b": 0
+  }
+}

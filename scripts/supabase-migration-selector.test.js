@@ -49,6 +49,22 @@ const RA004_CORRECTED_ACTIVATION_FILE = path.join(
 const RA004_CORRECTED_ACTIVATION = JSON.parse(
   fs.readFileSync(RA004_CORRECTED_ACTIVATION_FILE, "utf8"),
 );
+function preparedCorrectedActivation() {
+  const manifest = JSON.parse(JSON.stringify(RA004_CORRECTED_ACTIVATION));
+  manifest.status = "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED";
+  manifest.execution = {
+    runtime_activation_id: null,
+    started: false,
+    application_attempt_count: 0,
+    preflight_attempt_count: 0,
+    canary_attempt_count: 0,
+    migrations_applied: 0,
+    closed: false,
+    retry_authorized: false,
+    replayable: false,
+  };
+  return manifest;
+}
 const RA004_FORWARD_MIGRATION_MANIFEST = JSON.parse(fs.readFileSync(path.join(
   ROOT,
   "docs/retailer-automation/evidence/RA-004-forward-reissued-interface-migrations.json",
@@ -708,13 +724,14 @@ test("corrected preflight migration supersedes the defective reissue and remains
 });
 
 test("corrected RA-004 activation selects exactly the authorized three-migration sequence", () => {
-  assert.deepEqual(validateActivationManifest(CONTRACT, RA004_CORRECTED_ACTIVATION), [
+  const prepared = preparedCorrectedActivation();
+  assert.deepEqual(validateActivationManifest(CONTRACT, prepared), [
     RA004_COMPATIBILITY_MIGRATION,
     RA004_FORWARD_CONTROL_STATE_MIGRATION,
     RA004_CORRECTED_PREFLIGHT_MIGRATION,
   ]);
   const result = validateSelection(validInput({
-    activationManifest: RA004_CORRECTED_ACTIVATION,
+    activationManifest: prepared,
     remoteLedger: currentRemoteLedger(),
   }));
   assert.equal(result.activation_schema, "ra-004-corrected-staging-migration-activation-v1");
@@ -737,7 +754,7 @@ test("corrected RA-004 activation selects exactly the authorized three-migration
 
 test("corrected RA-004 activation fails closed on mutation, replay and production", () => {
   const check = (mutate, pattern) => {
-    const manifest = JSON.parse(JSON.stringify(RA004_CORRECTED_ACTIVATION));
+    const manifest = preparedCorrectedActivation();
     mutate(manifest);
     assert.throws(() => validateActivationManifest(CONTRACT, manifest), pattern);
   };
@@ -752,6 +769,34 @@ test("corrected RA-004 activation fails closed on mutation, replay and productio
     `--project-ref=${CONTRACTS.PRODUCTION.projectRef}`,
     `--activation-manifest=${RA004_CORRECTED_ACTIVATION_FILE}`,
   ]), /staging-only/);
+});
+
+test("consumed corrected RA-004 activation is terminal and cannot be replayed", () => {
+  assert.equal(RA004_CORRECTED_ACTIVATION.status, "ATTEMPT_CONSUMED_FAILED_TERMINAL");
+  assert.equal(RA004_CORRECTED_ACTIVATION.execution.runtime_activation_id,
+    "ra004-staging-1790518622885");
+  assert.equal(RA004_CORRECTED_ACTIVATION.execution.application_attempt_count, 1);
+  assert.equal(RA004_CORRECTED_ACTIVATION.execution.migrations_applied, 0);
+  assert.equal(RA004_CORRECTED_ACTIVATION.execution.closed, true);
+  assert.equal(RA004_CORRECTED_ACTIVATION.execution.replayable, false);
+  assert.equal(RA004_CORRECTED_ACTIVATION.execution.cleanup, "COMPLETE");
+  assert.throws(() => validateActivationManifest(CONTRACT, RA004_CORRECTED_ACTIVATION),
+    /status mismatch/);
+  assert.throws(() => validateSelection(validInput({
+    activationManifest: RA004_CORRECTED_ACTIVATION,
+    remoteLedger: currentRemoteLedger(),
+  })), /status mismatch/);
+  const normal = validateSelection(validInput());
+  for (const filename of [
+    RA004_COMPATIBILITY_MIGRATION,
+    RA004_FORWARD_CONTROL_STATE_MIGRATION,
+    RA004_CORRECTED_PREFLIGHT_MIGRATION,
+    RA004_FORWARD_PREFLIGHT_MIGRATION,
+  ]) {
+    assert.ok(normal.excluded_files.includes(filename));
+    assert.ok(!normal.selected_files.includes(filename));
+    assert.ok(!normal.pending_files.includes(filename));
+  }
 });
 
 test("forward RA-004 activation rejects retry, include-all, old migration and production drift", () => {

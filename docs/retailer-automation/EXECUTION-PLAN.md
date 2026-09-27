@@ -423,7 +423,7 @@ ACL boundary. SQL, runtime contract, selector and evidence all require
 `reissue_transactional_retailer_control_state_interface`. STAGING and
 PRODUCTION selectors remain closed; no remote execution or retry is authorized.
 
-**Corrected staging activation:** `OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED`.
+**Corrected staging activation:** `ATTEMPT_CONSUMED_FAILED_TERMINAL`.
 The one-shot staging selector is bound to baseline
 `aad469766b8491ef4eedffa143c33a7f3335d6bb`, the attested 95-row ledger and
 exactly the compatibility, reissued control-state and corrected preflight
@@ -431,6 +431,13 @@ migrations. The defective `20260927101000` migration and seven unrelated
 pending migrations remain excluded. The expected post-ledger is 98 rows ending
 at `20260927102000`. Execution is permitted only from the clean, independently
 verified squash-merged activation commit; production and shadow remain closed.
+The single attempt from merge commit `276f2761b4b76ab33ce56f6dc4e723ff61990d62`
+stopped transactionally on
+`RA004_COMPATIBILITY_ROLE_DRIFT: retailer_catalogue_production_approver`.
+Ledger readback remained the exact 95-row pre-state and zero migrations were
+applied. Preflight and canary did not run. Evidence-session cleanup completed,
+no RPC credential was created, and the activation is terminally closed with no
+retry authorized.
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 

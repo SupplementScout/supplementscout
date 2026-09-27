@@ -1,6 +1,6 @@
 # RA-004 corrected staging activation
 
-Status: `OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED`
+Status: `ATTEMPT_CONSUMED_FAILED_TERMINAL`
 
 RA-004 remains `IN_PROGRESS`. This record authorizes exactly one staging
 attempt after this activation is independently verified and merged. Production,
@@ -52,3 +52,20 @@ one and any failure is terminal for this activation.
 
 Live outcome and terminal selector closure belong in the mandatory follow-up
 closeout PR, irrespective of success or failure.
+
+## Terminal outcome
+
+Activation `ra004-staging-1790518622885` ran once from merged commit
+`276f2761b4b76ab33ce56f6dc4e723ff61990d62`. Supabase CLI stopped inside the
+first transactional migration with
+`RA004_COMPATIBILITY_ROLE_DRIFT: retailer_catalogue_production_approver`.
+No migration was applied. Readback retained the exact 95-row ledger ending at
+`20260926100000_create_ra004_staging_10reps_retailer` with its unchanged
+fingerprint.
+
+Preflight and canary attempt counts are zero. The private evidence session was
+closed, cleanup completed without failure, and no temporary RPC credential was
+created. All prohibited-operation counters, including production and offer
+writes, are zero. The activation is terminal and non-replayable; both ordinary
+selectors remain closed. See
+`RA-004-corrected-staging-attempt-closeout.json` for the redacted receipt.

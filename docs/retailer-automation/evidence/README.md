@@ -46,6 +46,8 @@
 
 [RA-004 machine-readable corrected staging activation](RA-004-corrected-staging-migration-activation.json)
 
+[RA-004 corrected staging attempt closeout](RA-004-corrected-staging-attempt-closeout.json)
+
 The staging fixture activation is `STAGING_VERIFIED_COMPLETE`. The one
 authorized application attempt advanced the attested staging ledger from 94 to
 95 rows and created exactly one minimal `10 Reps` / `10-reps` retailer at ID
