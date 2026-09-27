@@ -9,8 +9,8 @@ const VERSION = "ra-004-staging-preflight-v1";
 const RPC_NAME = "public.read_ra004_staging_preflight_v1";
 const RPC_SIGNATURE = `${RPC_NAME}(text,text,text,integer,text,text,integer)`;
 const CURRENT_DECISION_FINGERPRINT = "b0cb6c6de75eace4e7d4d8705305eb90e6a975203438f23de7b745974e4ffdb8";
-const CONTROL_MIGRATION = "supabase/migrations/20260927100000_reissue_transactional_retailer_control_state_interface.sql";
-const PREFLIGHT_MIGRATION = "supabase/migrations/20260927102000_correct_ra004_staging_preflight_ledger_contract.sql";
+const CONTROL_MIGRATION = "supabase/migrations/20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql";
+const PREFLIGHT_MIGRATION = CONTROL_MIGRATION;
 const FORBIDDEN_ROLES = Object.freeze([
   "service_role", "validator", "approver", "executor", "exporter",
   "retailer_catalogue_staging_validator", "retailer_catalogue_staging_approver",
@@ -199,15 +199,15 @@ const EXPECTED_OBJECTS = new Set([
   "public.read_ra004_staging_preflight_v1:FUNCTION",
 ]);
 const EXPECTED_FUNCTIONS = new Map([
-  ["public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer)", ["retailer_control_state_read_owner", "s"]],
-  ["public.write_retailer_control_state_evidence_v1(uuid,integer,text,bigint,boolean,text,text,text,text,timestamptz,timestamptz,timestamptz,text,text,jsonb,text,text)", ["retailer_control_state_evidence_owner", "v"]],
-  [RPC_SIGNATURE, ["ra004_staging_preflight_owner", "s"]],
+  ["public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer)", ["postgres", "s"]],
+  ["public.write_retailer_control_state_evidence_v1(uuid,integer,text,bigint,boolean,text,text,text,text,timestamptz,timestamptz,timestamptz,text,text,jsonb,text,text)", ["postgres", "v"]],
+  [RPC_SIGNATURE, ["postgres", "s"]],
 ]);
 const EXPECTED_POLICIES = new Map([
-  ["retailer_control_state_evidence_owner_insert_v1", ["retailer_control_state_evidence_v1", "retailer_control_state_evidence_owner", true, true, "a", "retailer_control_state_evidence_owner", null, "true"]],
-  ["retailer_control_state_evidence_owner_select_v1", ["retailer_control_state_evidence_v1", "retailer_control_state_evidence_owner", true, true, "r", "retailer_control_state_evidence_owner", "true", null]],
-  ["retailer_control_state_read_owner_select_v1", ["retailer_control_state_evidence_v1", "retailer_control_state_evidence_owner", true, true, "r", "retailer_control_state_read_owner", "true", null]],
-  ["ra004_staging_preflight_retailer_read_v1", ["retailers", "postgres", true, false, "r", "ra004_staging_preflight_owner", "((lower(name) = '10 reps'::text) OR (lower(slug) = '10-reps'::text))", null]],
+  ["retailer_control_state_evidence_owner_insert_v1", ["retailer_control_state_evidence_v1", "postgres", true, true, "a", "postgres", null, "true"]],
+  ["retailer_control_state_evidence_owner_select_v1", ["retailer_control_state_evidence_v1", "postgres", true, true, "r", "postgres", "true", null]],
+  ["retailer_control_state_read_owner_select_v1", ["retailer_control_state_evidence_v1", "postgres", true, true, "r", "postgres", "true", null]],
+  ["ra004_staging_preflight_retailer_read_v1", ["retailers", "postgres", true, false, "r", "postgres", "((lower(name) = '10 reps'::text) OR (lower(slug) = '10-reps'::text))", null]],
 ]);
 
 function validateMetadata(value, expectedSessionUser) {
@@ -219,8 +219,8 @@ function validateMetadata(value, expectedSessionUser) {
   exact(value.snapshot, ["isolation", "metadata_only", "retailer_rows_read", "business_rows_read"], code, "snapshot");
   boundedString(value.q2_retailer.id, code, "Q2 retailer id", 1, 64);
   if (value.q2_retailer.name !== "10 Reps" || value.q2_retailer.slug !== "10-reps" || value.q2_retailer.match_count !== 1
-      || value.q3_migration_ledger.target_version !== "20260927100000"
-      || value.q3_migration_ledger.target_name !== "reissue_transactional_retailer_control_state_interface"
+      || value.q3_migration_ledger.target_version !== "20260927103000"
+      || value.q3_migration_ledger.target_name !== "consolidate_ra004_supabase_ownership_interfaces"
       || value.q3_migration_ledger.target_match_count !== 1 || !SHA256.test(value.q3_migration_ledger.ordered_ledger_fingerprint)
       || value.snapshot.isolation !== "ONE_POSTGRESQL_STATEMENT" || value.snapshot.metadata_only !== true
       || value.snapshot.retailer_rows_read !== 1 || value.snapshot.business_rows_read !== 0) fail(code, "metadata is not a one-retailer metadata-only snapshot");
@@ -246,20 +246,36 @@ function validateMetadata(value, expectedSessionUser) {
     functionKeys.add(item.signature);
   }
   if (functionKeys.size !== EXPECTED_FUNCTIONS.size) fail(code, "Q5 closed registry mismatch");
+  const inferredLogins = value.q6_roles.filter((item) => item.rolcanlogin && item.role_name !== "postgres").map((item) => item.role_name);
+  const effectiveSessionUser = expectedSessionUser || (inferredLogins.length === 1 ? inferredLogins[0] : undefined);
   let loginCount = 0, observedLogin; const roleKeys = new Set(); const seenRoles = new Set();
   for (const item of value.q6_roles) {
-    exact(item, ["role_name","rolsuper","rolinherit","rolcreaterole","rolcreatedb","rolcanlogin","rolreplication","rolbypassrls","membership_role","set_option","admin_option"], code, "Q6 role");
+    exact(item, ["role_name","rolsuper","rolinherit","rolcreaterole","rolcreatedb","rolcanlogin","rolreplication","rolbypassrls","membership_role","set_option","inherit_option","admin_option","grantor_name"], code, "Q6 role");
     boundedString(item.role_name, code, "Q6 role name", 1, 63);
     for (const field of ["rolsuper","rolinherit","rolcreaterole","rolcreatedb","rolcanlogin","rolreplication","rolbypassrls"]) if (typeof item[field] !== "boolean") fail(code, "Q6 role attribute type mismatch");
-    if (item.membership_role !== null || item.set_option !== null || item.admin_option !== null) fail(code, "Q6 unexpected membership");
-    const key = `${item.role_name}:<none>`; if (roleKeys.has(key)) fail(code, "Q6 duplicate role"); roleKeys.add(key); seenRoles.add(item.role_name);
-    if (item.role_name === "ra004_staging_preflight_owner" || item.role_name === "ra004_staging_preflight_caller" || item.role_name === expectedSessionUser) {
+    const allowedAutomaticRoles = new Set([
+      effectiveSessionUser,
+      "retailer_catalogue_production_validator",
+      "retailer_catalogue_production_approver",
+      "retailer_catalogue_production_executor",
+    ]);
+    const automaticCreatorEdge = item.role_name === "postgres" && allowedAutomaticRoles.has(item.membership_role)
+      && item.set_option === false && item.inherit_option === false && item.admin_option === true
+      && typeof item.grantor_name === "string" && item.grantor_name.length > 0;
+    if (!automaticCreatorEdge && (item.membership_role !== null || item.set_option !== null
+      || item.inherit_option !== null || item.admin_option !== null || item.grantor_name !== null)) fail(code, "Q6 unexpected membership");
+    const key = `${item.role_name}:${item.membership_role || "<none>"}`; if (roleKeys.has(key)) fail(code, "Q6 duplicate role"); roleKeys.add(key); seenRoles.add(item.role_name);
+    if (item.role_name === effectiveSessionUser) {
       if (item.rolsuper || item.rolinherit || item.rolcreaterole || item.rolcreatedb || item.rolreplication || item.rolbypassrls) fail(code, "Q6 unsafe role attribute");
     }
-    if (item.rolcanlogin) { loginCount += 1; observedLogin = item.role_name; if (expectedSessionUser && item.role_name !== expectedSessionUser) fail(code, "Q6 unexpected login role"); }
+    if (["retailer_catalogue_production_validator","retailer_catalogue_production_approver","retailer_catalogue_production_executor"].includes(item.role_name)
+        && (item.rolsuper || item.rolinherit || item.rolcreaterole || item.rolcreatedb || item.rolcanlogin || item.rolreplication || item.rolbypassrls)) fail(code, "Q6 unsafe compatibility role attribute");
+    if (item.rolcanlogin && item.role_name !== "postgres") { loginCount += 1; observedLogin = item.role_name; if (effectiveSessionUser && item.role_name !== effectiveSessionUser) fail(code, "Q6 unexpected login role"); }
   }
-  if (!seenRoles.has("ra004_staging_preflight_owner") || !seenRoles.has("ra004_staging_preflight_caller") || loginCount !== 1
-      || (expectedSessionUser && !seenRoles.has(expectedSessionUser))) fail(code, "Q6 required role inventory mismatch");
+  if (!seenRoles.has("postgres") || loginCount !== 1
+      || (effectiveSessionUser && !seenRoles.has(effectiveSessionUser))
+      || [...[effectiveSessionUser,"retailer_catalogue_production_validator","retailer_catalogue_production_approver","retailer_catalogue_production_executor"]]
+        .some((name) => !roleKeys.has(`postgres:${name}`))) fail(code, "Q6 required role inventory mismatch");
   const policyKeys = new Set(); const functionGrants = new Set(); const aclKeys = new Set();
   for (const item of value.q7_acl_rls) {
     exact(item, ["object_schema","object_name","owner","rls_enabled","rls_forced","policy_name","policy_command","policy_roles","policy_using","policy_with_check","grantee","privilege_type"], code, "Q7 ACL row");
@@ -277,14 +293,14 @@ function validateMetadata(value, expectedSessionUser) {
           || (item.policy_with_check !== null && (typeof item.policy_with_check !== "string" || item.policy_with_check.length > 512))) fail(code, "Q7 policy contract mismatch");
       policyKeys.add(item.policy_name);
     } else if (item.object_name === "read_ra004_staging_preflight_v1") {
-      if (item.object_schema !== "public" || item.owner !== "ra004_staging_preflight_owner" || item.rls_enabled || item.rls_forced
+      if (item.object_schema !== "public" || item.owner !== "postgres" || item.rls_enabled || item.rls_forced
           || item.policy_command !== null || item.policy_roles !== null || item.policy_using !== null || item.policy_with_check !== null
-          || !['ra004_staging_preflight_owner','ra004_staging_preflight_caller',observedLogin].includes(item.grantee)
+          || !['postgres',observedLogin].includes(item.grantee)
           || item.privilege_type !== "EXECUTE") fail(code, "Q7 function grant mismatch");
       functionGrants.add(item.grantee);
     } else fail(code, "Q7 unknown ACL row");
   }
-  if (policyKeys.size !== EXPECTED_POLICIES.size || functionGrants.size !== 3) fail(code, "Q7 closed registry mismatch");
+  if (policyKeys.size !== EXPECTED_POLICIES.size || functionGrants.size !== 2) fail(code, "Q7 closed registry mismatch");
   const unhashed = { ...value, metadata_fingerprint: "0".repeat(64) };
   if (sha256(postgresJsonbText(unhashed)) !== value.metadata_fingerprint) fail(code, "metadata fingerprint mismatch");
   if (Buffer.byteLength(JSON.stringify(value), "utf8") > 131072) fail(code, "metadata byte cap violated");

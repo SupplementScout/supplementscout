@@ -23,6 +23,7 @@ const COMPATIBILITY_MIGRATION = "supabase/migrations/20260926110000_add_ra004_st
 const FORWARD_CONTROL_MIGRATION = "supabase/migrations/20260927100000_reissue_transactional_retailer_control_state_interface.sql";
 const FORWARD_PREFLIGHT_MIGRATION = "supabase/migrations/20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql";
 const CORRECTED_PREFLIGHT_MIGRATION = "supabase/migrations/20260927102000_correct_ra004_staging_preflight_ledger_contract.sql";
+const CONSOLIDATED_OWNERSHIP_MIGRATION = "supabase/migrations/20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql";
 const CORRECTED_PREFLIGHT_FILENAME = path.basename(CORRECTED_PREFLIGHT_MIGRATION);
 const CORRECTED_PREFLIGHT_SHA = "25f70527d18113a2282ebcdb1626b8052f7774f3f7f6ee1dbe69e1cd17864b93";
 const CORRECT_LEDGER_NAME = "reissue_transactional_retailer_control_state_interface";
@@ -57,12 +58,15 @@ function validateLegacyMetadata(value, expectedSessionUser) {
     sha256(postgresJsonbText({ ...value, metadata_fingerprint: "0".repeat(64) })),
     value.metadata_fingerprint,
   );
-  const compatible = structuredClone(value);
-  compatible.q3_migration_ledger.target_version = "20260927100000";
-  compatible.q3_migration_ledger.target_name = "reissue_transactional_retailer_control_state_interface";
-  compatible.metadata_fingerprint = "0".repeat(64);
-  compatible.metadata_fingerprint = sha256(postgresJsonbText(compatible));
-  return validateMetadata(compatible, expectedSessionUser);
+  assert.ok(value.q6_roles.some((role)=>role.role_name===expectedSessionUser && role.rolcanlogin));
+  return value;
+}
+function validateCorrectedLegacyMetadata(value, expectedSessionUser) {
+  assert.equal(value.q3_migration_ledger.target_version,"20260927100000");
+  assert.equal(value.q3_migration_ledger.target_name,CORRECT_LEDGER_NAME);
+  assert.equal(sha256(postgresJsonbText({ ...value, metadata_fingerprint:"0".repeat(64) })),value.metadata_fingerprint);
+  assert.ok(value.q6_roles.some((role)=>role.role_name===expectedSessionUser && role.rolcanlogin));
+  return value;
 }
 
 function assertLedgerContractSources(sqlText) {
@@ -76,23 +80,23 @@ function assertLedgerContractSources(sqlText) {
   assert.equal(fileSha(CORRECTED_PREFLIGHT_MIGRATION), CORRECTED_PREFLIGHT_SHA);
   assert.ok(selectorText.includes(`\"${CORRECTED_PREFLIGHT_FILENAME}\":`));
   assert.ok(selectorText.includes(CORRECTED_PREFLIGHT_SHA));
-  assert.ok(contractText.includes(`const PREFLIGHT_MIGRATION = \"${CORRECTED_PREFLIGHT_MIGRATION}\"`));
-  assert.ok(contractText.includes(`value.q3_migration_ledger.target_name !== \"${CORRECT_LEDGER_NAME}\"`));
+  assert.ok(contractText.includes(`const CONTROL_MIGRATION = \"${CONSOLIDATED_OWNERSHIP_MIGRATION}\"`));
+  assert.ok(contractText.includes("const PREFLIGHT_MIGRATION = CONTROL_MIGRATION"));
   assert.ok(sqlText.includes(`v_target_name is distinct from '${CORRECT_LEDGER_NAME}'`));
   assert.ok(!sqlText.includes(`v_target_name is distinct from '${OBSOLETE_LEDGER_NAME}'`));
 }
 
-test("corrected Q3 ledger name is identical across SQL, selector, manifest and runtime contract", () => {
+test("historical corrected Q3 ledger name remains sealed while runtime points to consolidation", () => {
   const sqlText = fs.readFileSync(path.join(ROOT, CORRECTED_PREFLIGHT_MIGRATION), "utf8");
   assertLedgerContractSources(sqlText);
   const mutated = sqlText.replaceAll(CORRECT_LEDGER_NAME, OBSOLETE_LEDGER_NAME);
   assert.throws(() => assertLedgerContractSources(mutated));
 });
 
-async function runExactLocalQ1ToQ8(metadata, ledgerCount, ledgerFingerprint) {
+async function runExactLocalQ1ToQ8(metadata, ledgerCount, ledgerFingerprint, expectedTargetName = CORRECT_LEDGER_NAME) {
   const now = "2026-09-27T12:00:00.000Z";
   const role = "ra004_preflight_test_login";
-  const baseline = "12cd071bfdef935ae8c4e879362ba4b965629edb";
+  const baseline = "c153145d2d82410a3160837c43ce14923a54d2d8";
   const planFingerprint = "bd5c259941997daad3755c1cb135f76f6eccaef1fb9e1ce0044939ce08439214";
   const projectIdentity = {
     schema_version: "ra-004-project-identity-v1", project_reference: "ra004-local-synthetic",
@@ -166,7 +170,7 @@ async function runExactLocalQ1ToQ8(metadata, ledgerCount, ledgerFingerprint) {
       now,
     });
     assert.equal(result.report.status, "METADATA_CAPTURED_PENDING_REVOKE");
-    assert.equal(result.report.metadata.q3_migration_ledger.target_name, CORRECT_LEDGER_NAME);
+    assert.equal(result.report.metadata.q3_migration_ledger.target_name, expectedTargetName);
     assert.equal(result.report.metadata.q3_migration_ledger.ordered_ledger_count, ledgerCount);
     assert.equal(result.receipt.status, "REVOKED_AND_CLOSED");
     return result;
@@ -175,7 +179,7 @@ async function runExactLocalQ1ToQ8(metadata, ledgerCount, ledgerFingerprint) {
   }
 }
 
-test("RA-004 preflight migration and closed Q2-Q7 RPC pass in networkless PostgreSQL 17", () => {
+test("historical RA-004 preflight migration and closed Q2-Q7 RPC remain reproducible", () => {
   for (const [name,value] of Object.entries(process.env)) {
     if (/DATABASE_URL|DIRECT_URL|POSTGRES_URL|PGHOST|SUPABASE_SERVICE_ROLE_KEY/i.test(name) && value && !/localhost|127\.0\.0\.1|::1/i.test(value)) assert.fail(`RA004_LOCAL_GUARD: remote environment ${name}`);
     if (value && /aftboxmrdgyhizicfsfu|hxnrsyyqffztlvcrtgbf/i.test(value)) assert.fail(`RA004_LOCAL_GUARD: cloud project reference in ${name}`);
@@ -306,7 +310,7 @@ test("RA-004 compatibility accepts only PostgreSQL 17 automatic memberships for 
   finally { const cleanup=run("docker",["rm","-f",container],30_000); if(!primary) ok(cleanup,"remove managed-shape PostgreSQL"); }
 });
 
-test("RA-004 compatibility, control and corrected preflight pass Q1-Q8 after ledger 95 and reject drift", async () => {
+test("historical compatibility, control and corrected preflight sequence remains drift-closed", async () => {
   const container=`ra-004-forward-${crypto.randomBytes(5).toString("hex")}`;
   const base=`ra004_control_state_test_forward_base_${crypto.randomBytes(3).toString("hex")}`;
   const fresh=`ra004_control_state_test_forward_fresh_${crypto.randomBytes(3).toString("hex")}`;
@@ -360,10 +364,8 @@ test("RA-004 compatibility, control and corrected preflight pass Q1-Q8 after led
     const exactLedgerFingerprint = migrationLedgerFingerprint(exactLedgerIdentifiers,"STAGING");
     ok(sql(container,fresh,"create role ra004_preflight_test_login login noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls; grant execute on function public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer) to ra004_preflight_test_login"),"create bounded local preflight login");
     const metadata=json(ok(sql(container,fresh,asLogin(call("STAGING",98,exactLedgerFingerprint))),"corrected Q2-Q7 metadata RPC"));
-    validateMetadata(metadata,"ra004_preflight_test_login");
-    const fullPreflight=await runExactLocalQ1ToQ8(metadata,98,exactLedgerFingerprint);
-    assert.equal(fullPreflight.report.project_identity.environment_label,"STAGING");
-    assert.equal(fullPreflight.report.evidence_store.private,true);
+    validateCorrectedLegacyMetadata(metadata,"ra004_preflight_test_login");
+    assert.equal(metadata.q3_migration_ledger.ordered_ledger_count,98);
     ok(sql(container,fresh,"revoke execute on function public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer) from ra004_preflight_test_login; drop role ra004_preflight_test_login"),"remove bounded local preflight login");
 
     apply(fresh,FORWARD_CONTROL_MIGRATION,"safe control replay recognition");
@@ -440,4 +442,130 @@ test("corrected migration replaces the exact defective RPC in a full local histo
     assert.deepEqual(state,{ledger_count:99,ledger_head:"20260927102000",function_hash:"498945611307a893c627aa088cb97977cc956b85082a4b6ffd7d360c1b80a2bb",correct_name:true,obsolete_name:false});
   } catch(error) { primary=error; throw error; }
   finally { const cleanup=run("docker",["rm","-f",container],30_000); if(!primary) ok(cleanup,"remove full-history PostgreSQL"); }
+});
+
+test("consolidated Supabase ownership migration succeeds as PostgreSQL 17 non-superuser from exact ledger 96", async () => {
+  const container=`ra-004-consolidated-${crypto.randomBytes(5).toString("hex")}`;
+  const database=`ra004_control_state_test_consolidated_${crypto.randomBytes(4).toString("hex")}`;
+  const ledgerDriftDatabase=`${database}_ledger_drift`;
+  const schemaDriftDatabase=`${database}_schema_drift`;
+  let primary;
+  try {
+    ok(run("docker",["run","--detach","--rm","--name",container,"--network","none","-e","POSTGRES_HOST_AUTH_METHOD=trust","-e","POSTGRES_USER=supabase_admin","-v",`${ROOT}:/workspace:ro`,IMAGE]),"start consolidated PostgreSQL 17");
+    waitAs(container,"supabase_admin");
+    ok(sql(container,"supabase_admin","create role postgres login noinherit nosuperuser createdb createrole noreplication nobypassrls","supabase_admin"),"create Supabase-shaped migration user");
+    ok(docker(container,["createdb","-U","supabase_admin","-O","postgres",database]),"create migration-owned database");
+    ok(sql(container,database,ROLE_SQL,"postgres"),"bootstrap platform roles");
+    ok(fileAs(container,database,"supabase_admin",BASELINE),"apply baseline as bootstrap owner");
+    ok(fileAs(container,database,"supabase_admin",CONTROL_FIXTURE,[`expected_database=${database}`]),"apply control fixture as bootstrap owner");
+    const ownedSources=[
+      "retailers","retailer_catalogue_parent_plans","retailer_catalogue_child_plans",
+      "retailer_catalogue_apply_runs","retailer_offer_sync_batch_approvals","approved_import_plans",
+      "retailer_offer_sync_reviewed_mixed_change_bindings",
+    ];
+    ok(sql(container,database,ownedSources.map((name)=>`alter table public.${name} owner to postgres`).join(";"),"supabase_admin"),"match Supabase source ownership");
+    ok(sql(container,database,"drop table public.retailer_catalogue_production_recovery_approvals, public.retailer_catalogue_production_recovery_manifests, public.retailer_catalogue_production_fixture_approvals","postgres"),"remove compatibility tables");
+    ok(sql(container,database,"drop role retailer_catalogue_production_validator, retailer_catalogue_production_executor, retailer_catalogue_production_approver","supabase_admin"),"remove compatibility roles");
+    ok(fileAs(container,database,"postgres",COMPATIBILITY_MIGRATION),"apply already-consumed compatibility migration once");
+    const ledgerRows=[
+      ...Array.from({length:94},(_,index)=>[`20250101${String(index).padStart(6,"0")}`,`synthetic_history_${index}`]),
+      ["20260926100000","create_ra004_staging_10reps_retailer"],
+      ["20260926110000","add_ra004_staging_interface_compatibility"],
+    ];
+    ok(sql(container,database,`create schema supabase_migrations authorization postgres; create table supabase_migrations.schema_migrations(version text primary key,name text not null,statements text[] not null default array[]::text[]); alter table supabase_migrations.schema_migrations owner to postgres; insert into supabase_migrations.schema_migrations(version,name) values ${ledgerRows.map(([version,name])=>`(${quote(version)},${quote(name)})`).join(",")}; insert into public.retailers(id,name,slug) overriding system value values (11,'10 Reps','10-reps');`,"postgres"),"create exact ledger-96 state");
+    ok(docker(container,["createdb","-U","supabase_admin","-T",database,"-O","postgres",ledgerDriftDatabase]),"clone exact state for ledger drift");
+    ok(sql(container,ledgerDriftDatabase,"update supabase_migrations.schema_migrations set name='drifted_compatibility' where version='20260926110000'","postgres"),"inject ledger drift");
+    denied(fileAs(container,ledgerDriftDatabase,"postgres",CONSOLIDATED_OWNERSHIP_MIGRATION),"ledger drift fails closed",/LEDGER_DRIFT/);
+    ok(docker(container,["createdb","-U","supabase_admin","-T",database,"-O","postgres",schemaDriftDatabase]),"clone exact state for schema drift");
+    ok(sql(container,schemaDriftDatabase,"create table public.retailer_control_state_evidence_v1(id integer)","postgres"),"inject partial schema drift");
+    denied(fileAs(container,schemaDriftDatabase,"postgres",CONSOLIDATED_OWNERSHIP_MIGRATION),"schema drift fails closed",/PARTIAL_OR_REPLAY_STATE/);
+    const before=json(ok(sql(container,database,`select jsonb_build_object('products',(select count(*) from public.products),'variants',(select count(*) from public.product_variants),'retailer_products',(select count(*) from public.retailer_products),'offers',(select count(*) from public.offers),'price_history',(select count(*) from public.price_history))::text`,"supabase_admin"),"business counts before consolidated migration"));
+    ok(fileAs(container,database,"postgres",CONSOLIDATED_OWNERSHIP_MIGRATION),"apply consolidated ownership migration without SET ROLE");
+    ok(sql(container,database,"insert into supabase_migrations.schema_migrations(version,name) values ('20260927103000','consolidate_ra004_supabase_ownership_interfaces')","postgres"),"record consolidated migration");
+    const after=json(ok(sql(container,database,`select jsonb_build_object('products',(select count(*) from public.products),'variants',(select count(*) from public.product_variants),'retailer_products',(select count(*) from public.retailer_products),'offers',(select count(*) from public.offers),'price_history',(select count(*) from public.price_history))::text`,"supabase_admin"),"business counts after consolidated migration"));
+    assert.deepEqual(after,before);
+    const state=json(ok(sql(container,database,`select jsonb_build_object(
+      'ledger_count',(select count(*) from supabase_migrations.schema_migrations),
+      'ledger_head',(select max(version) from supabase_migrations.schema_migrations),
+      'table_owner',(select pg_get_userbyid(relowner) from pg_class where oid='public.retailer_control_state_evidence_v1'::regclass),
+      'function_owners',(select jsonb_agg(distinct pg_get_userbyid(proowner)) from pg_proc where oid in (
+        'public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer)'::regprocedure,
+        'public.write_retailer_control_state_evidence_v1(uuid,integer,text,bigint,boolean,text,text,text,text,timestamptz,timestamptz,timestamptz,text,text,jsonb,text,text)'::regprocedure,
+        'public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer)'::regprocedure)),
+      'persistent_interface_roles',(select count(*) from pg_roles where rolname in ('retailer_control_state_read_owner','retailer_control_state_evidence_owner','retailer_control_state_exporter','retailer_control_state_evidence_writer','ra004_staging_preflight_owner','ra004_staging_preflight_caller'))
+    )::text`,"postgres"),"read consolidated ownership state"));
+    assert.deepEqual(state,{ledger_count:97,ledger_head:"20260927103000",table_owner:"postgres",function_owners:["postgres"],persistent_interface_roles:0});
+    ok(sql(container,database,`create role ra004_writer_test_login login noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls;
+      grant usage on schema public to ra004_writer_test_login;
+      grant execute on function public.write_retailer_control_state_evidence_v1(uuid,integer,text,bigint,boolean,text,text,text,text,timestamptz,timestamptz,timestamptz,text,text,jsonb,text,text) to ra004_writer_test_login`,`postgres`),"issue one bounded writer login");
+    denied(sql(container,database,"insert into public.retailer_control_state_evidence_v1(event_id,event_version,event_type,retailer_id,global_scope,scope_fingerprint,source_system,source_run_id,occurred_at,observed_at,status,reason_code,metadata,payload_fingerprint,idempotency_key) values('00000000-0000-4000-8000-000000000099',1,'WORKFLOW_OBSERVED',11,false,repeat('a',64),'LOCAL_TEST','direct',now(),now(),'OBSERVED','RCSE_DIRECT_BLOCKED','{}',repeat('b',64),repeat('c',64))","ra004_writer_test_login"),"writer direct table DML is denied",/permission denied/);
+    denied(sql(container,database,"set role postgres","ra004_writer_test_login"),"writer SET ROLE is denied",/permission denied|not permitted/);
+    denied(sql(container,database,"select public.read_retailer_control_state_v1(11,'10 Reps',repeat('a',40),repeat('b',64),now(),array[]::text[],1000,1048576)","ra004_writer_test_login"),"writer cannot call the read RPC",/permission denied/);
+    const writerCall=`with p as (select
+      '00000000-0000-4000-8000-000000000098'::uuid event_id,1 event_version,'WORKFLOW_OBSERVED'::text event_type,
+      11::bigint retailer_id,false global_scope,repeat('9',64) scope_fingerprint,'LOCAL_TEST'::text source_system,
+      'writer-idempotency'::text source_run_id,null::text parent_id,'2026-09-27T12:00:00Z'::timestamptz occurred_at,
+      '2026-09-27T12:00:00Z'::timestamptz observed_at,'2026-09-27T12:20:00Z'::timestamptz expires_at,
+      'OBSERVED'::text status,'RCSE_WRITER_IDEMPOTENCY'::text reason_code,'{}'::jsonb metadata,repeat('8',64) idempotency_key
+    ), sealed as (select p.*,encode(sha256(convert_to(jsonb_build_object(
+      'event_id',event_id,'event_version',event_version,'event_type',event_type,'retailer_id',retailer_id,
+      'global_scope',global_scope,'scope_fingerprint',scope_fingerprint,'source_system',source_system,
+      'source_run_id',source_run_id,'parent_id',parent_id,'occurred_at',occurred_at,'observed_at',observed_at,
+      'expires_at',expires_at,'status',status,'reason_code',reason_code,'metadata',metadata
+    )::text,'UTF8')),'hex') payload_fingerprint from p)
+    select public.write_retailer_control_state_evidence_v1(event_id,event_version,event_type,retailer_id,global_scope,scope_fingerprint,source_system,source_run_id,parent_id,occurred_at,observed_at,expires_at,status,reason_code,metadata,payload_fingerprint,idempotency_key)::text from sealed`;
+    const firstWrite=json(ok(sql(container,database,writerCall,"ra004_writer_test_login"),"append one bounded evidence event"));
+    const replayWrite=json(ok(sql(container,database,writerCall,"ra004_writer_test_login"),"repeat identical writer request"));
+    assert.equal(firstWrite.inserted,true); assert.equal(firstWrite.idempotent,false);
+    assert.equal(replayWrite.inserted,false); assert.equal(replayWrite.idempotent,true);
+    assert.equal(Number(ok(sql(container,database,"select count(*) from public.retailer_control_state_evidence_v1 where source_run_id='writer-idempotency'","postgres"),"verify one append-only row").stdout.trim()),1);
+    ok(sql(container,database,"revoke execute on function public.write_retailer_control_state_evidence_v1(uuid,integer,text,bigint,boolean,text,text,text,text,timestamptz,timestamptz,timestamptz,text,text,jsonb,text,text) from ra004_writer_test_login; revoke usage on schema public from ra004_writer_test_login; drop role ra004_writer_test_login","postgres"),"revoke and drop bounded writer login");
+    const exactLedgerIdentifiers=[...ledgerRows.map(([version,name])=>`${version}_${name}`),"20260927103000_consolidate_ra004_supabase_ownership_interfaces"];
+    const exactLedgerFingerprint=migrationLedgerFingerprint(exactLedgerIdentifiers,"STAGING");
+    ok(sql(container,database,`create role ra004_preflight_test_login login noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls; alter role ra004_preflight_test_login set default_transaction_read_only=on; alter role ra004_preflight_test_login set statement_timeout='15s'; alter role ra004_preflight_test_login set idle_in_transaction_session_timeout='15s'; grant usage on schema public to ra004_preflight_test_login; grant execute on function public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer) to ra004_preflight_test_login`,"postgres"),"issue one bounded preflight login");
+    denied(sql(container,database,"create table public.forbidden_ra004(id integer)","ra004_preflight_test_login"),"runtime DDL is denied",/permission denied|read-only transaction/);
+    denied(sql(container,database,"select * from public.retailers","ra004_preflight_test_login"),"runtime table read is denied",/permission denied/);
+    denied(sql(container,database,"select nextval('public.products_id_seq')","ra004_preflight_test_login"),"runtime sequence access is denied",/permission denied/);
+    denied(sql(container,database,"insert into public.retailer_control_state_evidence_v1(event_id,event_version,event_type,retailer_id,scope_fingerprint,source_system,source_run_id,occurred_at,observed_at,expires_at,status,reason_code,payload_fingerprint,idempotency_key) values(gen_random_uuid(),1,'SESSION_STARTED',11,repeat('a',64),'TEST','blocked',now(),now(),now()+interval '1 hour','ACTIVE','RCSE_TEST_BLOCKED',repeat('b',64),repeat('c',64))","ra004_preflight_test_login"),"runtime DML is denied",/permission denied|read-only transaction/);
+    denied(sql(container,database,"set role postgres","ra004_preflight_test_login"),"runtime SET ROLE is denied",/permission denied|not permitted/);
+    denied(sql(container,database,"select public.write_retailer_control_state_evidence_v1(null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)","ra004_preflight_test_login"),"preflight login cannot call the writer RPC",/permission denied/);
+    const metadata=json(ok(sql(container,database,call("STAGING",97,exactLedgerFingerprint),"ra004_preflight_test_login"),"run consolidated Q2-Q7 metadata RPC"));
+    validateMetadata(metadata,"ra004_preflight_test_login");
+    const fullPreflight=await runExactLocalQ1ToQ8(metadata,97,exactLedgerFingerprint,"consolidate_ra004_supabase_ownership_interfaces");
+    assert.equal(fullPreflight.report.status,"METADATA_CAPTURED_PENDING_REVOKE");
+    ok(sql(container,database,"revoke execute on function public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer) from ra004_preflight_test_login; revoke usage on schema public from ra004_preflight_test_login; drop role ra004_preflight_test_login","postgres"),"revoke and drop bounded preflight login");
+    assert.equal(json(ok(sql(container,database,"select jsonb_build_object('role_absent',not exists(select 1 from pg_roles where rolname='ra004_preflight_test_login'),'membership_absent',not exists(select 1 from pg_auth_members m join pg_roles r on r.oid=m.roleid where r.rolname='ra004_preflight_test_login'))::text","postgres"),"verify deterministic cleanup")).role_absent,true);
+    ok(sql(container,database,`create role ra004_preflight_bad_login login noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls;
+      grant usage on schema public to ra004_preflight_bad_login;
+      grant execute on function public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer) to ra004_preflight_bad_login`,"postgres"),"issue a login for negative membership validation");
+    ok(sql(container,database,"grant authenticated to ra004_preflight_bad_login with set false, inherit false","supabase_admin"),"inject one forbidden extra membership");
+    denied(sql(container,database,call("STAGING",97,exactLedgerFingerprint).replace("'ra004_preflight_test_login'","'ra004_preflight_bad_login'"),"ra004_preflight_bad_login"),"extra runtime membership fails closed",/ROLE_UNSAFE/);
+    ok(sql(container,database,"revoke authenticated from ra004_preflight_bad_login","supabase_admin"),"remove forbidden extra membership");
+    ok(sql(container,database,"revoke execute on function public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer) from ra004_preflight_bad_login; revoke usage on schema public from ra004_preflight_bad_login; drop role ra004_preflight_bad_login","postgres"),"remove negative membership login");
+
+    ok(sql(container,database,`insert into public.retailer_control_state_evidence_v1(
+      event_id,event_version,event_type,retailer_id,global_scope,scope_fingerprint,source_system,source_run_id,
+      occurred_at,observed_at,expires_at,status,reason_code,metadata,payload_fingerprint,idempotency_key
+    ) select gen_random_uuid(),1,'SOURCE_OBSERVED',11,false,repeat('a',64),'LOCAL_TEST','coverage-'||source,
+      now(),now(),now()+interval '20 minutes','CURRENT','RCSE_SOURCE_CLEAR',jsonb_build_object('logical_source',source),repeat('b',64),encode(sha256(convert_to('coverage-'||source,'UTF8')),'hex')
+      from unnest(array['sessions','locks','postflight_state','watchdog_state','global_conflicts']) source;
+      insert into public.retailer_control_state_evidence_v1(event_id,event_version,event_type,retailer_id,global_scope,scope_fingerprint,source_system,source_run_id,occurred_at,observed_at,expires_at,status,reason_code,metadata,payload_fingerprint,idempotency_key)
+      values
+      (gen_random_uuid(),1,'POSTFLIGHT_COMPLETED',11,false,repeat('c',64),'LOCAL_TEST','postflight-clear',now(),now(),now()+interval '20 minutes','CLEAR','RCSE_POSTFLIGHT_CLEAR','{}',repeat('d',64),repeat('1',64)),
+      (gen_random_uuid(),1,'WATCHDOG_OBSERVED',11,false,repeat('e',64),'LOCAL_TEST','watchdog-clear',now(),now(),now()+interval '20 minutes','CLEAR','RCSE_WATCHDOG_CLEAR','{}',repeat('f',64),repeat('2',64))`,`postgres`),"seed synthetic control-state evidence only");
+    ok(sql(container,database,`create role ra004_control_test_login login noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls;
+      alter role ra004_control_test_login set default_transaction_read_only=on;
+      grant usage on schema public to ra004_control_test_login;
+      grant execute on function public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer) to ra004_control_test_login`,`postgres`),"issue one bounded canary login");
+    denied(sql(container,database,"select * from public.retailer_control_state_evidence_v1","ra004_control_test_login"),"canary direct table read is denied",/permission denied/);
+    denied(sql(container,database,"set role postgres","ra004_control_test_login"),"canary SET ROLE is denied",/permission denied|not permitted/);
+    denied(sql(container,database,"select public.write_retailer_control_state_evidence_v1(null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)","ra004_control_test_login"),"canary login cannot call the writer RPC",/permission denied/);
+    const canary=json(ok(sql(container,database,`select public.read_retailer_control_state_v1(11,'10 Reps',repeat('a',40),repeat('b',64),now()+interval '10 minutes',array['control_plans','plan_items','sessions','locks','approval_contracts','approval_consumption','recovery_state','apply_ledger','postflight_state','watchdog_state','global_conflicts'],1000,1048576)::text`,`ra004_control_test_login`),"run one synthetic read-only control-state canary"));
+    assert.equal(canary.final_assessment,"CLEAR_FOR_SEPARATE_SHADOW_AUTHORIZATION");
+    assert.deepEqual([canary.read_attempt_count,canary.write_attempt_count,canary.mutation_attempt_count],[1,0,0]);
+    ok(sql(container,database,"revoke execute on function public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer) from ra004_control_test_login; revoke usage on schema public from ra004_control_test_login; drop role ra004_control_test_login","postgres"),"revoke and drop bounded canary login");
+    assert.equal(json(ok(sql(container,database,"select jsonb_build_object('role_absent',not exists(select 1 from pg_roles where rolname='ra004_control_test_login'),'membership_absent',not exists(select 1 from pg_auth_members m join pg_roles r on r.oid=m.roleid where r.rolname='ra004_control_test_login'))::text","postgres"),"verify canary cleanup")).role_absent,true);
+    denied(fileAs(container,database,"postgres",CONSOLIDATED_OWNERSHIP_MIGRATION),"consolidated replay fails closed",/LEDGER_DRIFT|PARTIAL_OR_REPLAY_STATE/);
+  } catch(error) { primary=error; throw error; }
+  finally { const cleanup=run("docker",["rm","-f",container],30_000); if(!primary) ok(cleanup,"remove consolidated PostgreSQL"); }
 });

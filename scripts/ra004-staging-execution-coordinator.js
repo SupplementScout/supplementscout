@@ -17,10 +17,8 @@ const { SOURCE_NAMES, PROHIBITED_OPERATIONS } = require("./lib/retailer-offer-sy
 const ROOT = path.resolve(__dirname, "..");
 const REF = "hxnrsyyqffztlvcrtgbf";
 const API_HOST = "hxnrsyyqffztlvcrtgbf.supabase.co";
-const BASELINE = "feac20f1a515ee3fbf55cee94cf6dc8234aafb95";
-const COMPATIBILITY_SHA = "22b7102641d3aabee86f91d4b07185eb7e6cbed3a017ef8da0499fa2c9dfad7f";
-const CONTROL_SHA = "699c911289e6b1eccd04ca778e8d26a36cbc2caf57b426eaede7b359991b2977";
-const PREFLIGHT_SHA = "25f70527d18113a2282ebcdb1626b8052f7774f3f7f6ee1dbe69e1cd17864b93";
+const BASELINE = "c153145d2d82410a3160837c43ce14923a54d2d8";
+const CONSOLIDATED_SHA = "a240a263d7e88084171a73317db9e19f0e2c69c9b71ca84dbe788b624a22c9c4";
 const PLAN_FP = "bd5c259941997daad3755c1cb135f76f6eccaef1fb9e1ce0044939ce08439214";
 const BUCKET = "ra004-staging-preflight-evidence";
 const EVIDENCE_NAMES = Object.freeze([
@@ -29,15 +27,12 @@ const EVIDENCE_NAMES = Object.freeze([
   "supabase-cli-failure-1.stdout.txt", "supabase-cli-failure-1.stderr.txt",
 ]);
 const ownerUrl = process.env.RA004_OWNER_DATABASE_URL;
-const EXPECTED_PRE_LEDGER_COUNT = 95;
-const EXPECTED_PRE_LEDGER_FINGERPRINT = "c5bb6405d26def1834522cccaf2937fad60f44156370e5e1f8c4af3ff96d45bd";
-const EXPECTED_POST_LEDGER_COUNT = 98;
-const EXPECTED_POST_LEDGER_FINGERPRINT = "67e4d52a9feb43379b5deb351fd050bc542897bb5ed89998368fbb7c349455db";
-const ACTIVATION_MANIFEST = "RA-004-final-staging-migration-activation.json";
+const EXPECTED_PRE_LEDGER_COUNT = 96;
+const EXPECTED_PRE_LEDGER_FINGERPRINT = "d85982cd1df704c77c8d61b0d8f56038eecb4fce014ba9aa68e69b617a9efb7e";
+const EXPECTED_POST_LEDGER_COUNT = 97;
+const ACTIVATION_MANIFEST = "RA-004-consolidated-ownership-activation.json";
 const EXPECTED_MIGRATIONS = Object.freeze([
-  ["20260926110000_add_ra004_staging_interface_compatibility.sql", COMPATIBILITY_SHA],
-  ["20260927100000_reissue_transactional_retailer_control_state_interface.sql", CONTROL_SHA],
-  ["20260927102000_correct_ra004_staging_preflight_ledger_contract.sql", PREFLIGHT_SHA],
+  ["20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql", CONSOLIDATED_SHA],
 ]);
 const DEPENDENCY_CONTRACT = Object.freeze([
   ...[
@@ -61,9 +56,6 @@ const DEPENDENCY_CONTRACT = Object.freeze([
   ...[
     "anon", "authenticated", "service_role", "retailer_catalogue_production_approver",
     "retailer_catalogue_production_executor", "retailer_catalogue_production_validator",
-    "retailer_control_state_evidence_owner", "retailer_control_state_evidence_writer",
-    "retailer_control_state_exporter", "retailer_control_state_read_owner",
-    "ra004_staging_preflight_caller", "ra004_staging_preflight_owner",
   ].map((identity) => ({ kind: "role", identity })),
 ]);
 const outDir = path.join(ROOT, "tmp", "ra004-live-evidence-20260927");
@@ -127,7 +119,7 @@ async function businessCounts() {
     (select count(*)::text from public.price_history) price_history`)).rows[0];
 }
 async function verifyDependencyContract() {
-  invariant(DEPENDENCY_CONTRACT.length === 30, "RA004_DEPENDENCY_CONTRACT_INTERNAL_MISMATCH");
+  invariant(DEPENDENCY_CONTRACT.length === 24, "RA004_DEPENDENCY_CONTRACT_INTERNAL_MISMATCH");
   const kinds = DEPENDENCY_CONTRACT.map(({ kind }) => kind);
   const identities = DEPENDENCY_CONTRACT.map(({ identity }) => identity);
   const rows = (await db(`with expected as (
@@ -139,9 +131,9 @@ async function verifyDependencyContract() {
     when kind='role' then exists(select 1 from pg_roles where rolname=identity)
     else false end present
   from expected order by kind, identity`, [kinds, identities])).rows;
-  invariant(rows.length === 30 && rows.every(({ present }) => present === true),
+  invariant(rows.length === 24 && rows.every(({ present }) => present === true),
     "RA004_DEPENDENCY_CONTRACT_DRIFT");
-  return { count: 30, status: "PRESENT_MATCHING", fingerprint: sha256(rows) };
+  return { count: 24, status: "PRESENT_MATCHING", fingerprint: sha256(rows) };
 }
 async function ownerTransaction(statements) { const client=new Client({connectionString:ownerUrl,ssl:{rejectUnauthorized:false},application_name:"ra004-evidence-policy-owner-v1"}); try { await client.connect(); await client.query("begin"); for(const statement of statements) await client.query(statement); await client.query("commit"); } catch(error) { try { await client.query("rollback"); } catch {} throw error; } finally { await client.end(); } }
 function credentialReader() {
@@ -346,7 +338,7 @@ async function main() {
     const postRemote=await selector.readRemoteState(ownerUrl);
     const appliedIdentifiers=new Set(postRemote.remoteLedger.map(row=>`${row.version}_${row.name}.sql`));
     invariant(postRemote.remoteLedger.length===EXPECTED_POST_LEDGER_COUNT
-      && selector.ledgerRowsFingerprint(postRemote.remoteLedger)===EXPECTED_POST_LEDGER_FINGERPRINT
+      && postRemote.remoteLedger.slice(0,remote.remoteLedger.length).every((row,index)=>JSON.stringify(row)===JSON.stringify(remote.remoteLedger[index]))
       && selection.pending_files.every(file=>appliedIdentifiers.has(file)),"RA004_POST_LEDGER_MISMATCH");
     const dependencyContract=await verifyDependencyContract();
     const businessAfterMigrations=await businessCounts();
@@ -361,10 +353,10 @@ async function main() {
     uploaded.push(await custody.call({action:"put",name:"policy-attestation.json",value:{...policyAttestation,activation_id:activation,execution_commit:executionCommit,storage_subject_fingerprint:sha256(storageSession.subject),retention:{redacted_bundle_days:90,fingerprint_receipt_years:7}}}));
 
     preflightCred=await issuer.call({action:"create",kind:"preflight",expires_at:expiresAt});
-    const auth={schema_version:"ra-004-staging-preflight-authorization-execution-v1",status:"AUTHORIZED",task_id:"RA-004",baseline_sha:BASELINE,decision_fingerprint:contract.CURRENT_DECISION_FINGERPRINT,plan_fingerprint:PLAN_FP,control_migration:{path:contract.CONTROL_MIGRATION,sha256:CONTROL_SHA},preflight_migration:{path:contract.PREFLIGHT_MIGRATION,sha256:PREFLIGHT_SHA},target:{environment:"STAGING",project_reference:REF,canonical_host:API_HOST,host_allowlist:[API_HOST],retailer:{name:"10 Reps",slug:"10-reps"},ledger:{count:postRemote.remoteLedger.length,fingerprint:ledgerFp}},operator:"Marek-Kalinka",credential_issuer:"ra004-technical-issuer",window:{starts_at:startsAt,expires_at:expiresAt},credential_design:{role_name:preflightCred.role,environment:"STAGING_ONLY",rpc_name:contract.RPC_NAME,maximum_attempts:1,maximum_ttl_minutes:30,automatic_retry:false,service_role:false,table_privileges:false,sequence_privileges:false,dml:false,ddl:false,mutation_rpc:false},evidence_store:{store_identifier:BUCKET,required_private:true,required_encryption:true,required_write_once:true,required_access_audit:true,required_readback:true,raw_retention_days:90,derived_retention_days:90},authorization_fingerprint:"0".repeat(64)}; auth.authorization_fingerprint=contract.authorizationFingerprint(auth);
+    const auth={schema_version:"ra-004-staging-preflight-authorization-execution-v1",status:"AUTHORIZED",task_id:"RA-004",baseline_sha:BASELINE,decision_fingerprint:contract.CURRENT_DECISION_FINGERPRINT,plan_fingerprint:PLAN_FP,control_migration:{path:contract.CONTROL_MIGRATION,sha256:CONSOLIDATED_SHA},preflight_migration:{path:contract.PREFLIGHT_MIGRATION,sha256:CONSOLIDATED_SHA},target:{environment:"STAGING",project_reference:REF,canonical_host:API_HOST,host_allowlist:[API_HOST],retailer:{name:"10 Reps",slug:"10-reps"},ledger:{count:postRemote.remoteLedger.length,fingerprint:ledgerFp}},operator:"Marek-Kalinka",credential_issuer:"ra004-technical-issuer",window:{starts_at:startsAt,expires_at:expiresAt},credential_design:{role_name:preflightCred.role,environment:"STAGING_ONLY",rpc_name:contract.RPC_NAME,maximum_attempts:1,maximum_ttl_minutes:30,automatic_retry:false,service_role:false,table_privileges:false,sequence_privileges:false,dml:false,ddl:false,mutation_rpc:false},evidence_store:{store_identifier:BUCKET,required_private:true,required_encryption:true,required_write_once:true,required_access_audit:true,required_readback:true,raw_retention_days:90,derived_retention_days:90},authorization_fingerprint:"0".repeat(64)}; auth.authorization_fingerprint=contract.authorizationFingerprint(auth);
     const transport=createPreflightPostgresTransport({databaseUrl:preflightCred.database_url,projectReference:REF,canonicalHost:API_HOST,expectedSessionUser:preflightCred.role,credentialId:preflightCred.credential_id,projectIdentity:identity,evidenceStoreMetadata:store,revokeCredential:async request=>{const receipt=await revokeOne(preflightCred,request.runner_process_id);preflightCred=null;return receipt;}});
     operationAttempts.preflight+=1;
-    const result=await runPreflight({authorization:auth,expected:{provider_mode:"live-read-only",baseline_sha:BASELINE,decision_fingerprint:contract.CURRENT_DECISION_FINGERPRINT,plan_fingerprint:PLAN_FP,control_migration:{path:contract.CONTROL_MIGRATION,sha256:CONTROL_SHA},preflight_migration:{path:contract.PREFLIGHT_MIGRATION,sha256:PREFLIGHT_SHA},project_reference:REF,canonical_host:API_HOST,host_allowlist:[API_HOST]},providerBundle:createClosedProvider({configuration:{environment:"STAGING",project_reference:REF,canonical_host:API_HOST,host_allowlist:[API_HOST],expected_session_user:preflightCred.role},transport}),outputPath:path.join(outDir,"preflight-report.json"),now:utc()});
+    const result=await runPreflight({authorization:auth,expected:{provider_mode:"live-read-only",baseline_sha:BASELINE,decision_fingerprint:contract.CURRENT_DECISION_FINGERPRINT,plan_fingerprint:PLAN_FP,control_migration:{path:contract.CONTROL_MIGRATION,sha256:CONSOLIDATED_SHA},preflight_migration:{path:contract.PREFLIGHT_MIGRATION,sha256:CONSOLIDATED_SHA},project_reference:REF,canonical_host:API_HOST,host_allowlist:[API_HOST]},providerBundle:createClosedProvider({configuration:{environment:"STAGING",project_reference:REF,canonical_host:API_HOST,host_allowlist:[API_HOST],expected_session_user:preflightCred.role},transport}),outputPath:path.join(outDir,"preflight-report.json"),now:utc()});
     ensureWindow(expires);
     uploaded.push(await custody.call({action:"put",name:"preflight-report.json",value:result.report}));
     uploaded.push(await custody.call({action:"put",name:"preflight-revoke.json",value:result.receipt}));
@@ -447,9 +439,8 @@ if (require.main === module) {
 }
 
 module.exports = {
-  API_HOST, BASELINE, BUCKET, COMPATIBILITY_SHA, CONTROL_SHA, DEPENDENCY_CONTRACT,
+  API_HOST, BASELINE, BUCKET, CONSOLIDATED_SHA, DEPENDENCY_CONTRACT,
   EXPECTED_MIGRATIONS, EXPECTED_POST_LEDGER_COUNT,
-  EXPECTED_POST_LEDGER_FINGERPRINT, EXPECTED_PRE_LEDGER_COUNT,
-  EXPECTED_PRE_LEDGER_FINGERPRINT, PLAN_FP, PREFLIGHT_SHA, REF,
+  EXPECTED_PRE_LEDGER_COUNT, EXPECTED_PRE_LEDGER_FINGERPRINT, PLAN_FP, REF,
   buildFailureReport, pushSelectedMigrations, readExecutionCommit, redactCliOutput, runCli, safeFailureCode,
 };

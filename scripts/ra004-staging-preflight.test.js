@@ -274,7 +274,7 @@ test("closed metadata runtime rejects nested drift, unsafe roles, policy drift a
   for (const mutate of [
     (data)=>{data.q4_objects[0].extra=true;},
     (data)=>{data.q5_functions[0].search_path=["search_path=public"];},
-    (data)=>{data.q6_roles.find((role)=>role.role_name==="ra004_staging_preflight_owner").rolsuper=true;},
+    (data)=>{data.q6_roles.find((role)=>role.role_name==="ra004_local_fixture_login").rolsuper=true;},
     (data)=>{data.q7_acl_rls.find((row)=>row.policy_name==="ra004_staging_preflight_retailer_read_v1").policy_roles=["PUBLIC"];},
     (data)=>{data.q7_acl_rls.find((row)=>row.policy_name==="ra004_staging_preflight_retailer_read_v1").policy_using="true";},
     (data)=>{data.q3_migration_ledger.ordered_ledger_count=Number.POSITIVE_INFINITY;},
