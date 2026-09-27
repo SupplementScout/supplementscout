@@ -26,11 +26,13 @@ to be present only after activation; production selection remains unchanged.
 
 The one-shot executor:
 
-- accepts the owner database URL and Supabase PAT only from process memory;
+- accepts the owner database URL only from masked process memory;
 - rejects the production project, a non-owner database user, target drift,
   ledger drift, a pre-existing or ambiguous retailer and a changed migration;
 - materializes only the selector-approved migration set;
-- invokes exactly one Supabase CLI `db push` and has no retry loop;
+- invokes exactly one direct-database Supabase CLI `db push` and has no retry
+  loop; the password-free URL is passed as an argument and the password remains
+  only in the child process `PGPASSWORD` environment variable;
 - performs fresh read-only before/after snapshots;
 - requires exactly one minimal `10 Reps` / `10-reps` row, with an ID different
   from production ID `14` and all optional commercial fields null;
@@ -38,10 +40,23 @@ The one-shot executor:
   price-history deltas;
 - contains no canary or production action.
 
-The Windows launcher asks only for the masked staging database URL and masked
-personal access token, then clears both process variables. The publishable key
-and Auth test-user credentials used by the older coordinator are neither
-requested nor accepted.
+The Windows launcher asks only for the masked staging database URL and then
+clears it. A Supabase personal access token, publishable key and Auth test-user
+credentials are neither requested nor accepted.
+
+## Management API transport repair
+
+The first operator runs stopped during Supabase CLI `link` because CLI 2.111.0
+could not complete the Management API request. The selected worktree had no
+link metadata, `db push` was never invoked and no remote write started, so the
+one authorized application attempt remains unused.
+
+The repaired path does not weaken target checks or use a direct SQL write. It
+keeps the reviewed Supabase migration executor but selects its documented
+`--db-url` transport. A local password-protected PostgreSQL 17 dry run proved
+that CLI 2.111.0 connects with a password-free argument and `PGPASSWORD`; the
+same test failed closed when only `SUPABASE_DB_PASSWORD` was supplied. No PAT or
+Management API call is needed.
 
 ## Stop and retry boundary
 

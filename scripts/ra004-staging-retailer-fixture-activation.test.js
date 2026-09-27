@@ -11,7 +11,6 @@ const launcher = fs.readFileSync(
 );
 
 const STAGING_URL = `postgresql://postgres.${activation.REF}:correct-password@aws-0-eu-west-3.pooler.supabase.com:5432/postgres`;
-const TOKEN = `sbp_${"a".repeat(40)}`;
 const COUNTS = Object.freeze({
   retailers: "12",
   products: "1337",
@@ -32,7 +31,6 @@ function runtimeEnvironment(cli, overrides = {}) {
   return {
     RA004_FIXTURE_CONFIRM: activation.CONFIRMATION,
     RA004_FIXTURE_OWNER_DATABASE_URL: STAGING_URL,
-    RA004_FIXTURE_SUPABASE_ACCESS_TOKEN: TOKEN,
     RA004_FIXTURE_SUPABASE_CLI_PATH: cli,
     ...overrides,
   };
@@ -61,13 +59,15 @@ function afterSnapshot(overrides = {}) {
 test("runtime accepts only the exact staging owner target and explicit confirmation", () => withFakeCli((cli) => {
   const result = activation.validateRuntimeEnvironment(runtimeEnvironment(cli));
   assert.equal(result.databasePassword, "correct-password");
+  assert.equal(result.cliDatabaseUrl, `postgresql://postgres.${activation.REF}@aws-0-eu-west-3.pooler.supabase.com:5432/postgres`);
   assert.equal(result.cli, cli);
 
   for (const [key, value, expected] of [
     ["RA004_FIXTURE_CONFIRM", "wrong", /CONFIRMATION_MISMATCH/],
-    ["RA004_FIXTURE_SUPABASE_ACCESS_TOKEN", "not-a-pat", /ACCESS_TOKEN_REJECTED/],
     ["RA004_FIXTURE_OWNER_DATABASE_URL", "postgresql://postgres:pw@db.aftboxmrdgyhizicfsfu.supabase.co/postgres", /HOST_REJECTED|PRODUCTION_TARGET_REJECTED/],
     ["RA004_FIXTURE_OWNER_DATABASE_URL", "postgresql://service_role:pw@aws-0-eu-west-3.pooler.supabase.com/postgres", /USER_REJECTED/],
+    ["RA004_FIXTURE_OWNER_DATABASE_URL", `postgresql://postgres.${activation.REF}:pw@aws-0-eu-west-3.pooler.supabase.com:6543/postgres`, /PORT_REJECTED/],
+    ["RA004_FIXTURE_OWNER_DATABASE_URL", `postgresql://postgres.${activation.REF}:pw@aws-0-eu-west-3.pooler.supabase.com:5432/other`, /NAME_REJECTED/],
     ["RA004_FIXTURE_OWNER_DATABASE_URL", `postgresql://postgres.${activation.REF}@aws-0-eu-west-3.pooler.supabase.com/postgres`, /PASSWORD_MISSING/],
   ]) assert.throws(() => activation.validateRuntimeEnvironment(runtimeEnvironment(cli, { [key]: value })), expected);
 }));
@@ -83,23 +83,23 @@ test("snapshot contract permits one minimal staging row and no other business ch
   assert.throws(() => activation.assertAfterSnapshot(before, afterSnapshot({ counts: { ...afterSnapshot().counts, offers: "3759" } })), /FORBIDDEN_DELTA_offers/);
 });
 
-test("Supabase secrets are environment-only and unrelated process secrets are not inherited", () => {
+test("database password is environment-only and unrelated process secrets are not inherited", () => {
   const calls = [];
   const old = process.env.RA004_UNRELATED_SECRET;
   process.env.RA004_UNRELATED_SECRET = "must-not-cross-process-boundary";
   try {
-    const stdout = activation.runCli("C:\\test\\supabase.exe", ["db", "push", "--linked"], {
-      SUPABASE_ACCESS_TOKEN: TOKEN,
-      SUPABASE_DB_PASSWORD: "correct-password",
+    const publicUrl = `postgresql://postgres.${activation.REF}@aws-0-eu-west-3.pooler.supabase.com:5432/postgres`;
+    const stdout = activation.runCli("C:\\test\\supabase.exe", ["db", "push", "--db-url", publicUrl], {
+      PGPASSWORD: "correct-password",
     }, (command, args, options) => {
       calls.push({ command, args, options });
       return { status: 0, stdout: "ok\n" };
     });
     assert.equal(stdout, "ok");
-    assert.deepEqual(calls[0].args, ["db", "push", "--linked"]);
+    assert.deepEqual(calls[0].args, ["db", "push", "--db-url", publicUrl]);
     assert.doesNotMatch(JSON.stringify(calls[0].args), /correct-password|sbp_/);
-    assert.equal(calls[0].options.env.SUPABASE_ACCESS_TOKEN, TOKEN);
-    assert.equal(calls[0].options.env.SUPABASE_DB_PASSWORD, "correct-password");
+    assert.equal(calls[0].options.env.PGPASSWORD, "correct-password");
+    assert.equal(calls[0].options.env.SUPABASE_ACCESS_TOKEN, undefined);
     assert.equal(calls[0].options.env.RA004_UNRELATED_SECRET, undefined);
   } finally {
     if (old === undefined) delete process.env.RA004_UNRELATED_SECRET;
@@ -144,7 +144,11 @@ test("executor performs exactly one guarded staging push and no canary or produc
 
   assert.equal(validation, 2);
   assert.equal(cliCalls.filter(({ args }) => args.join(" ").startsWith("db push ")).length, 1);
-  assert.equal(cliCalls.filter(({ args }) => args[0] === "link").length, 1);
+  assert.equal(cliCalls.filter(({ args }) => args[0] === "link").length, 0);
+  const push = cliCalls.find(({ args }) => args[0] === "db" && args[1] === "push");
+  assert.deepEqual(push.args.slice(0, 4), ["db", "push", "--db-url", `postgresql://postgres.${activation.REF}@aws-0-eu-west-3.pooler.supabase.com:5432/postgres`]);
+  assert.equal(push.env.PGPASSWORD, "correct-password");
+  assert.doesNotMatch(JSON.stringify(push.args), /correct-password|sbp_/);
   assert.equal(receipt.status, "VERIFIED_COMPLETE");
   assert.equal(receipt.application_attempt_count, 1);
   assert.equal(receipt.row_count_deltas.retailers, "1");
@@ -176,7 +180,6 @@ test("executor fails before push on an existing retailer and never retries a fai
     spawn: (_command, args) => {
       pushCalls.push(args);
       if (args[0] === "--version") return { status: 0, stdout: "2.111.0\n" };
-      if (args[0] === "link") return { status: 0, stdout: "ok\n" };
       return { status: 1, stderr: "simulated failure" };
     },
   }), /SUPABASE_CLI_FAILED_1/);
@@ -184,20 +187,22 @@ test("executor fails before push on an existing retailer and never retries a fai
 }));
 
 test("errors redact database URLs and Supabase access tokens", () => {
-  const message = activation.redact(`failed ${STAGING_URL} ${TOKEN}`);
+  const token = `sbp_${"a".repeat(40)}`;
+  const message = activation.redact(`failed ${STAGING_URL} ${token}`);
   assert.doesNotMatch(message, /correct-password|sbp_/);
   assert.match(message, /REDACTED_DATABASE_URL/);
   assert.match(message, /REDACTED_ACCESS_TOKEN/);
 });
 
-test("operator launcher asks only for masked staging URL and PAT and clears them", () => {
-  assert.equal((launcher.match(/ConvertFrom-MaskedInput/g) || []).length, 3);
+test("operator launcher asks only for the masked staging URL and clears it", () => {
+  assert.equal((launcher.match(/ConvertFrom-MaskedInput/g) || []).length, 2);
   assert.match(launcher, /Staging database URL/);
-  assert.match(launcher, /personal access token/);
+  assert.match(launcher, /param\(\[switch\]\$ValidateOnly\)/);
+  assert.match(launcher, /LAUNCHER_VALIDATION_PASS/);
+  assert.match(launcher, /\$cliCacheRoot = Join-Path \$env:LOCALAPPDATA/);
   assert.match(launcher, /Read-Host 'Wpisz APPLY/);
   assert.match(launcher, /RA004_FIXTURE_CONFIRM = \$confirmation/);
   assert.match(launcher, /RA004_FIXTURE_OWNER_DATABASE_URL = ''/);
-  assert.match(launcher, /RA004_FIXTURE_SUPABASE_ACCESS_TOKEN = ''/);
-  assert.doesNotMatch(launcher, /publishable|anon key|auth user|auth password/i);
+  assert.doesNotMatch(launcher, /personal access token|SUPABASE_ACCESS_TOKEN|publishable|anon key|auth user|auth password/i);
   assert.doesNotMatch(launcher, /staging-execution-coordinator|control-state|preflight/i);
 });

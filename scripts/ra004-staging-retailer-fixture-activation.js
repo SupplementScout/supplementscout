@@ -40,9 +40,8 @@ function redact(value) {
 function validateRuntimeEnvironment(environment) {
   invariant(environment.RA004_FIXTURE_CONFIRM === CONFIRMATION, "RA004_FIXTURE_CONFIRMATION_MISMATCH");
   const ownerUrl = environment.RA004_FIXTURE_OWNER_DATABASE_URL;
-  const accessToken = environment.RA004_FIXTURE_SUPABASE_ACCESS_TOKEN;
   const cli = environment.RA004_FIXTURE_SUPABASE_CLI_PATH;
-  invariant(ownerUrl && accessToken && cli, "RA004_FIXTURE_CREDENTIAL_INPUT_MISSING");
+  invariant(ownerUrl && cli, "RA004_FIXTURE_CREDENTIAL_INPUT_MISSING");
   let parsed;
   try { parsed = new URL(ownerUrl); } catch { throw new Error("RA004_FIXTURE_DATABASE_URL_INVALID"); }
   invariant(["postgres:", "postgresql:"].includes(parsed.protocol), "RA004_FIXTURE_DATABASE_PROTOCOL_REJECTED");
@@ -55,11 +54,22 @@ function validateRuntimeEnvironment(environment) {
     parsed.username === "postgres" || parsed.username === `postgres.${REF}`,
     "RA004_FIXTURE_DATABASE_USER_REJECTED",
   );
+  invariant(!parsed.port || parsed.port === "5432", "RA004_FIXTURE_DATABASE_PORT_REJECTED");
+  invariant(parsed.pathname === "/postgres", "RA004_FIXTURE_DATABASE_NAME_REJECTED");
   invariant(!ownerUrl.includes(PRODUCTION_REF), "RA004_FIXTURE_PRODUCTION_TARGET_REJECTED");
   invariant(parsed.password.length > 0, "RA004_FIXTURE_DATABASE_PASSWORD_MISSING");
-  invariant(/^sbp_[A-Za-z0-9._-]{20,}$/.test(accessToken), "RA004_FIXTURE_ACCESS_TOKEN_REJECTED");
   invariant(path.isAbsolute(cli) && fs.existsSync(cli), "RA004_FIXTURE_SUPABASE_CLI_MISSING");
-  return { ownerUrl, accessToken, cli, databasePassword: decodeURIComponent(parsed.password) };
+  const cliUrl = new URL(ownerUrl);
+  cliUrl.password = "";
+  cliUrl.search = "";
+  cliUrl.hash = "";
+  invariant(!cliUrl.toString().includes(parsed.password), "RA004_FIXTURE_PASSWORD_REDACTION_FAILED");
+  return {
+    ownerUrl,
+    cli,
+    cliDatabaseUrl: cliUrl.toString(),
+    databasePassword: decodeURIComponent(parsed.password),
+  };
 }
 
 async function readFixtureSnapshot(databaseUrl, ClientClass = Client) {
@@ -166,14 +176,10 @@ async function executeActivation({
   assertBeforeSnapshot(before);
 
   invariant(runCli(runtime.cli, ["--version"], {}, spawn) === "2.111.0", "RA004_FIXTURE_CLI_VERSION_MISMATCH");
-  runCli(runtime.cli, ["link", "--project-ref", REF, "--workdir", workdir, "--yes"], {
-    SUPABASE_ACCESS_TOKEN: runtime.accessToken,
-  }, spawn);
   let applicationAttemptCount = 0;
   applicationAttemptCount += 1;
-  runCli(runtime.cli, ["db", "push", "--linked", "--workdir", workdir, "--yes"], {
-    SUPABASE_ACCESS_TOKEN: runtime.accessToken,
-    SUPABASE_DB_PASSWORD: runtime.databasePassword,
+  runCli(runtime.cli, ["db", "push", "--db-url", runtime.cliDatabaseUrl, "--workdir", workdir, "--yes"], {
+    PGPASSWORD: runtime.databasePassword,
   }, spawn);
   invariant(applicationAttemptCount === 1, "RA004_FIXTURE_APPLICATION_ATTEMPT_MISMATCH");
 
@@ -220,7 +226,6 @@ if (require.main === module) {
     })
     .finally(() => {
       process.env.RA004_FIXTURE_OWNER_DATABASE_URL = "";
-      process.env.RA004_FIXTURE_SUPABASE_ACCESS_TOKEN = "";
     });
 }
 

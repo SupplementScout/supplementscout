@@ -72,6 +72,14 @@
     "requires_fresh_ledger_attestation": true,
     "requires_exact_database_target_attestation": true
   },
+  "transport": {
+    "mode": "DIRECT_DATABASE_URL_WITH_ENVIRONMENT_PASSWORD",
+    "management_api_required": false,
+    "supabase_access_token_required": false,
+    "password_in_process_arguments": false,
+    "password_environment_variable": "PGPASSWORD",
+    "local_cli_2_111_0_dry_run_proof": "PASS"
+  },
   "canary": {
     "authorized": false,
     "retry_authorized": false
@@ -83,6 +91,12 @@
   },
   "execution": {
     "started": false,
-    "application_attempt_count": 0
+    "application_attempt_count": 0,
+    "prior_management_api_transport_failure": {
+      "stage": "SUPABASE_CLI_LINK",
+      "db_push_invoked": false,
+      "remote_write_started": false,
+      "authorization_consumed": false
+    }
   }
 }
