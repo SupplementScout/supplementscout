@@ -22,8 +22,8 @@ const DEFAULT_PRODUCTION_ENV_FILE = path.join(
 );
 const SHA256 = /^[0-9a-f]{64}$/;
 const RA004_ACTIVATION_SCHEMA = "ra-004-staging-migration-activation-v1";
-const RA004_ACTIVATION_BASELINE = "b0b2ae7cc7563becd06bad1d68154f63ed195ab6";
-const RA004_ACTIVATION_ID = "ra004-staging-interfaces-2026-09-27-v4";
+const RA004_ACTIVATION_BASELINE = "b11dcc6518e7c6c4c363a3f149fc13342f89ca16";
+const RA004_ACTIVATION_ID = "ra004-staging-interfaces-2026-09-27-v5";
 const RA004_ACTIVATION_PRE_LEDGER_COUNT = 95;
 const RA004_ACTIVATION_PRE_LEDGER_FINGERPRINT =
   "c5bb6405d26def1834522cccaf2937fad60f44156370e5e1f8c4af3ff96d45bd";

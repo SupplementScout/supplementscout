@@ -19,7 +19,7 @@ test("coordinator is pinned to the owner-authorized staging identity and artifac
   const values = require("./ra004-staging-execution-coordinator");
   assert.equal(values.REF, "hxnrsyyqffztlvcrtgbf");
   assert.equal(values.API_HOST, "hxnrsyyqffztlvcrtgbf.supabase.co");
-  assert.equal(values.BASELINE, "b0b2ae7cc7563becd06bad1d68154f63ed195ab6");
+  assert.equal(values.BASELINE, "b11dcc6518e7c6c4c363a3f149fc13342f89ca16");
   assert.equal(values.CONTROL_SHA, "cfd7a93cb20845832b696183f5eb8a500f0474b4173829b85f6ac6bc73d4baaa");
   assert.equal(values.PREFLIGHT_SHA, "9d6c1ea4df0bd86f84a4cb779a0824922f4e9bcc91681b734d5d18465a9e91be");
   assert.equal(values.BUCKET, "ra004-staging-preflight-evidence");
