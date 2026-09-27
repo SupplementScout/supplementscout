@@ -12,6 +12,8 @@ const BASELINE = "supabase/migrations/20260712211120_baseline_current_public_sch
 const CONTROL_FIXTURE = "supabase/test/retailer_control_state_interface_fixture.sql";
 const CONTROL_MIGRATION = "supabase/migrations/20260924100000_add_transactional_retailer_control_state_interface.sql";
 const PREFLIGHT_MIGRATION = "supabase/migrations/20260925100000_add_ra004_staging_preflight_metadata_interface.sql";
+const FORWARD_CONTROL_MIGRATION = "supabase/migrations/20260927100000_reissue_transactional_retailer_control_state_interface.sql";
+const FORWARD_PREFLIGHT_MIGRATION = "supabase/migrations/20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql";
 const MIGRATIONS = [
   "20260712211120_baseline_current_public_schema",
   "20260924100000_add_transactional_retailer_control_state_interface",
@@ -129,4 +131,63 @@ test("RA-004 preflight migration and closed Q2-Q7 RPC pass in networkless Postgr
     denied(sql(container,database,asLogin(call())),"revocation removes effective access");
   } catch (error) { primary=error; throw error; }
   finally { const cleanup=run("docker",["rm","-f",container],30_000); if(!primary) ok(cleanup,"remove isolated PostgreSQL"); }
+});
+
+test("RA-004 forward reissues install after ledger 95, recognize the old contract, and reject drift", () => {
+  const container=`ra-004-forward-${crypto.randomBytes(5).toString("hex")}`;
+  const base=`ra004_control_state_test_forward_base_${crypto.randomBytes(3).toString("hex")}`;
+  const fresh=`ra004_control_state_test_forward_fresh_${crypto.randomBytes(3).toString("hex")}`;
+  const old=`ra004_control_state_test_forward_old_${crypto.randomBytes(3).toString("hex")}`;
+  let primary;
+  const clone=(source,target)=>ok(docker(container,["createdb","-U","postgres","-T",source,target]),`clone ${target}`);
+  const apply=(database,migration,label)=>ok(file(container,database,migration),label);
+  try {
+    ok(run("docker",["run","--detach","--rm","--name",container,"--network","none","-e","POSTGRES_HOST_AUTH_METHOD=trust","-v",`${ROOT}:/workspace:ro`,IMAGE]),"start forward-only PostgreSQL");
+    wait(container);
+    ok(docker(container,["createdb","-U","postgres",base]),"create forward base");
+    ok(sql(container,base,ROLE_SQL),"bootstrap standard roles");
+    ok(file(container,base,BASELINE),"apply repository baseline");
+    ok(file(container,base,CONTROL_FIXTURE,[`expected_database=${base}`]),"apply control fixture");
+    const ledgerRows=[
+      ...Array.from({length:94},(_,index)=>[`20250101${String(index).padStart(6,"0")}`,`synthetic_history_${index}`]),
+      ["20260926100000","create_ra004_staging_10reps_retailer"],
+    ];
+    ok(sql(container,base,`create schema supabase_migrations; create table supabase_migrations.schema_migrations(version text primary key,name text not null,statements text[] not null default array[]::text[]); insert into supabase_migrations.schema_migrations(version,name) values ${ledgerRows.map(([version,name])=>`(${quote(version)},${quote(name)})`).join(",")}; insert into public.retailers(id,name,slug) overriding system value values (11,'10 Reps','10-reps');`),"create exact 95-row staging simulation");
+    clone(base,fresh);
+    clone(base,old);
+
+    apply(old,CONTROL_MIGRATION,"install old control contract");
+    apply(old,PREFLIGHT_MIGRATION,"install old preflight contract");
+    apply(old,FORWARD_CONTROL_MIGRATION,"recognize exact old control contract");
+    apply(old,FORWARD_PREFLIGHT_MIGRATION,"upgrade exact old preflight contract");
+    assert.equal(ok(sql(container,old,"select encode(sha256(convert_to(pg_get_functiondef('public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer)'::regprocedure),'UTF8')),'hex')"),"upgraded preflight fingerprint").stdout.trim(),"04ff7e9afdc23b2d8254c3d3aeb3ed9136e05393fbe3ba3a9cdd7ca2ed9150a2");
+    ok(docker(container,["dropdb","-U","postgres",old]),"drop old-contract database");
+    ok(sql(container,"postgres","drop role ra004_staging_preflight_caller,ra004_staging_preflight_owner,retailer_control_state_exporter,retailer_control_state_evidence_writer,retailer_control_state_read_owner,retailer_control_state_evidence_owner"),"remove database-scoped test roles");
+
+    const before=json(ok(sql(container,fresh,`select jsonb_build_object('products',(select count(*) from public.products),'variants',(select count(*) from public.product_variants),'retailer_products',(select count(*) from public.retailer_products),'offers',(select count(*) from public.offers),'price_history',(select count(*) from public.price_history))::text`),"business counts before"));
+    apply(fresh,FORWARD_CONTROL_MIGRATION,"install forward control interface");
+    ok(sql(container,fresh,"insert into supabase_migrations.schema_migrations(version,name) values ('20260927100000','reissue_transactional_retailer_control_state_interface')"),"record forward control migration");
+    apply(fresh,FORWARD_PREFLIGHT_MIGRATION,"install forward preflight interface");
+    ok(sql(container,fresh,"insert into supabase_migrations.schema_migrations(version,name) values ('20260927101000','reissue_ra004_staging_preflight_metadata_interface')"),"record forward preflight migration");
+    const after=json(ok(sql(container,fresh,`select jsonb_build_object('products',(select count(*) from public.products),'variants',(select count(*) from public.product_variants),'retailer_products',(select count(*) from public.retailer_products),'offers',(select count(*) from public.offers),'price_history',(select count(*) from public.price_history))::text`),"business counts after"));
+    assert.deepEqual(after,before);
+    const inventory=json(ok(sql(container,fresh,`select jsonb_build_object('ledger_count',(select count(*) from supabase_migrations.schema_migrations),'ledger_head',(select max(version) from supabase_migrations.schema_migrations),'control_rpc',to_regprocedure('public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer)') is not null,'preflight_rpc',to_regprocedure('public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer)') is not null,'control_owner',(select pg_get_userbyid(proowner) from pg_proc where oid='public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer)'::regprocedure),'preflight_owner',(select pg_get_userbyid(proowner) from pg_proc where oid='public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer)'::regprocedure),'rls',(select relrowsecurity and relforcerowsecurity from pg_class where oid='public.retailer_control_state_evidence_v1'::regclass))::text`),"forward inventory"));
+    assert.deepEqual(inventory,{ledger_count:97,ledger_head:"20260927101000",control_rpc:true,preflight_rpc:true,control_owner:"retailer_control_state_read_owner",preflight_owner:"ra004_staging_preflight_owner",rls:true});
+    apply(fresh,FORWARD_CONTROL_MIGRATION,"safe control replay recognition");
+    apply(fresh,FORWARD_PREFLIGHT_MIGRATION,"safe preflight replay recognition");
+
+    for(const [kind,mutation,migration,pattern] of [
+      ["function","alter function public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer) volatile",FORWARD_CONTROL_MIGRATION,/FUNCTION_DRIFT/],
+      ["grant","grant execute on function public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer) to authenticated",FORWARD_CONTROL_MIGRATION,/ACL_DRIFT/],
+      ["policy","alter policy retailer_control_state_evidence_owner_select_v1 on public.retailer_control_state_evidence_v1 using (false)",FORWARD_CONTROL_MIGRATION,/POLICY_DRIFT/],
+      ["preflight policy","alter policy ra004_staging_preflight_retailer_read_v1 on public.retailers using (true)",FORWARD_PREFLIGHT_MIGRATION,/POLICY_DRIFT/],
+      ["role","alter role retailer_control_state_exporter inherit",FORWARD_CONTROL_MIGRATION,/ROLE_DRIFT/],
+    ]) {
+      const drift=`ra004_control_state_test_forward_drift_${kind.replaceAll(" ","_")}_${crypto.randomBytes(2).toString("hex")}`;
+      clone(fresh,drift);
+      ok(sql(container,drift,mutation),`inject ${kind} drift`);
+      denied(file(container,drift,migration),`reject ${kind} drift`,pattern);
+    }
+  } catch(error) { primary=error; throw error; }
+  finally { const cleanup=run("docker",["rm","-f",container],30_000); if(!primary) ok(cleanup,"remove forward-only PostgreSQL"); }
 });

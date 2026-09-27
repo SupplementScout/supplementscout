@@ -386,6 +386,18 @@ RA-004 remains `IN_PROGRESS`. See
 and
 [`evidence/RA-004-STAGING-10REPS-RETAILER-FIXTURE-ACTIVATION.md`](evidence/RA-004-STAGING-10REPS-RETAILER-FIXTURE-ACTIVATION.md).
 
+**Forward-reissued interface migrations:** `READY_FOR_VERIFICATION`. The two
+original interface migrations remain byte-for-byte unchanged, while equivalent
+fail-closed contracts are reissued at `20260927100000` and `20260927101000`,
+both later than the verified staging ledger head. A networkless PostgreSQL 17
+test proves fresh installation after a simulated 95-row ledger, safe recognition
+of the exact old contract, the expected 97-row post-ledger, unchanged catalogue
+row counts and rejection of function, role, grant and policy drift. Old and new
+migrations remain SHA-bound and excluded from ordinary STAGING and PRODUCTION
+selection. The consumed v5 activation is closed; no replacement activation,
+credential or remote execution is included. See
+[`evidence/RA-004-FORWARD-REISSUED-INTERFACE-MIGRATIONS.md`](evidence/RA-004-FORWARD-REISSUED-INTERFACE-MIGRATIONS.md).
+
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
 **Goal:** compare the candidate canonical pipeline with the existing 10 Reps

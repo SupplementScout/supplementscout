@@ -1,6 +1,6 @@
 {
   "schema_version": "ra-004-staging-migration-activation-v1",
-  "status": "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED",
+  "status": "ATTEMPT_CONSUMED_FAILED_CLOSED",
   "task_id": "RA-004",
   "activation_id": "ra004-staging-interfaces-2026-09-27-v5",
   "prepared_at": "2026-09-27",
@@ -87,9 +87,15 @@
     "migration_count": 0
   },
   "execution": {
-    "started": false,
-    "window_started_at": null,
+    "started": true,
+    "window_started_at": "2026-09-27",
     "window_expires_at": null,
-    "application_attempt_count": 0
+    "application_attempt_count": 1,
+    "application_succeeded": false,
+    "migrations_applied": 0,
+    "primary_failure": "RA004_SUPABASE_CLI_FAILED_1",
+    "diagnosed_cause": "approved migration timestamps precede the staging ledger head 20260926100000; include-all remained forbidden",
+    "retry_authorized": false,
+    "closed": true
   }
 }
