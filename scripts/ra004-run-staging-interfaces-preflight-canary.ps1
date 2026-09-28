@@ -51,7 +51,7 @@ $storageKey = $null
 $storageEmail = $null
 $storagePassword = $null
 try {
-  Write-Host 'RA-004: jedna zatwierdzona migracja staging, jeden preflight i jeden read-only canary.'
+  Write-Host 'RA-004: migracja juz obecna (bez ponownego apply), jeden preflight i jeden read-only canary.'
   Write-Host 'Wszystkie wklejane dane sa maskowane i pozostaja tylko w pamieci procesu.'
   New-Item -ItemType Directory -Force -Path $cliProfile,(Join-Path $cliProfile 'AppData\Roaming'),(Join-Path $cliProfile 'AppData\Local') | Out-Null
   $env:USERPROFILE = $cliProfile
