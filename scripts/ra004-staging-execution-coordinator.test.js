@@ -315,8 +315,13 @@ test("credential issuer is a separate process with exact RPC-only logins", () =>
   assert.match(issuer, /drop role \$\{id\}/);
   assert.match(issuer, /RA004_ROLE_REVOKE_UNVERIFIED/);
   assert.match(coordinator, /ra004-staging-revocation-verifier\.js/);
-  assert.match(verifier, /RA004_REVOKED_CREDENTIAL_RECONNECTED/);
-  assert.match(verifier, /28P01/);
+  assert.match(verifier, /RA004_REVOKE_POOLER_HANDSHAKE_QUERY_REJECTED/);
+  assert.match(verifier, /RA004_REVOKED_CREDENTIAL_QUERY_SUCCEEDED/);
+  assert.match(verifier, /RA004_REVOKE_ROLE_STILL_PRESENT/);
+  assert.match(verifier, /RA004_REVOKE_MEMBERSHIP_STILL_PRESENT/);
+  assert.match(verifier, /RA004_REVOKE_ACTIVE_BACKEND_PRESENT/);
+  assert.match(verifier, /rejectUnauthorized: true/);
+  assert.match(coordinator, /RA004_OWNER_DATABASE_URL:ownerUrl,RA004_REVOKED_ROLE:role/);
   assert.doesNotMatch(issuer, /grant .*service_role|grant .*validator|grant .*approver|grant .*executor/i);
 });
 
