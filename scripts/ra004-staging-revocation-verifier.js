@@ -88,7 +88,7 @@ async function verifyRevokedCredential({
   createOwnerClient = () => verifiedClient(ownerDatabaseUrl, "ra004-revoke-catalogue-readback-v2"),
 }) {
   invariant(Boolean(revokedDatabaseUrl && ownerDatabaseUrl), "RA004_REVOKE_TARGET_MISSING");
-  invariant(/^ra004_(?:pf|cs)_[a-z0-9_]+$/.test(revokedRole), "RA004_REVOKE_ROLE_INVALID");
+  invariant(/^ra004_(?:pf|cs|ev)_[a-z0-9_]+$/.test(revokedRole), "RA004_REVOKE_ROLE_INVALID");
 
   const probe = await probeRevokedCredential(createRevokedClient());
   const catalogue = await readbackRevocation(createOwnerClient(), revokedRole);

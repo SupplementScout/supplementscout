@@ -275,7 +275,8 @@ test("operation attempts are counted once and failure closeout performs read-onl
 test("credential issuer is a separate process with exact RPC-only logins", () => {
   assert.match(coordinator, /fork\(path\.join\(__dirname,"ra004-staging-credential-issuer\.js"\)/);
   assert.match(issuer, /connection limit 1/);
-  assert.match(issuer, /default_transaction_read_only=on/);
+  assert.match(issuer, /readOnly: true/);
+  assert.match(issuer, /default_transaction_read_only=\$\{profile\.readOnly \? "on" : "off"\}/);
   assert.match(issuer, /statement_timeout=''15s''/);
   assert.match(issuer, /grant execute on function \$\{signature\}/);
   assert.match(issuer, /alter role \$\{id\} nologin/);

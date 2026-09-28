@@ -116,3 +116,13 @@ test("unexpected connection or query failures remain fail-closed when catalogue 
     /RA004_REVOKE_CATALOGUE_UNVERIFIED/,
   );
 });
+
+test("the common verifier accepts the bounded evidence-writer role namespace", async () => {
+  const fakes = fakeClients({ connectError: pgError("28P01") });
+  const result = await verifyRevokedCredential({
+    ...input,
+    revokedRole: "ra004_ev_test_c",
+    ...fakes,
+  });
+  assert.equal(result.outcome_code, "RA004_REVOKE_AUTH_REJECTED");
+});
