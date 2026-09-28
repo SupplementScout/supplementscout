@@ -1,6 +1,6 @@
 # RA-004 consolidated Supabase ownership architecture
 
-Status: `BLOCKED`
+Status: `READY_FOR_VERIFICATION_WITH_TWO_PRE_EXISTING_BASELINE_FAILURES`
 
 This local-only change replaces both unapplied interface paths with one
 forward-only migration:
@@ -83,16 +83,22 @@ new migration. It proves:
 - independent clean-worktree verification of implementation commit
   `ec521d0d422456698f210a0ac1323c0dc4cea41d`: PASS (`117/117` focused
   contract/selector tests and the isolated PostgreSQL 17 consolidated scenario)
-- full integration gate: BLOCKED (`72/74` pass). The two failures are
+- full integration gate: `72/74` pass. The two failures are classified as
+  `PRE_EXISTING_BASELINE_FAILURES`:
   `jons-final-closeout-policy-migration.integration.test.js` (10 Reps v8 anchor
   mismatch) and `nutrition-variant-provenance.integration.test.js` (duplicate
   synthetic candidate fingerprint). Each fails identically in a fresh worktree
   at baseline `c153145d2d82410a3160837c43ce14923a54d2d8`; neither file nor its
   dependencies are changed by this implementation.
 
-The owner required all tests to pass before Draft PR creation. Therefore this
-work remains local and no Draft PR is created until the two baseline quality
-gate failures are resolved in their own authorized scope.
+The owner-approved comparison criterion is zero new failures relative to the
+clean baseline. Re-running both tests on baseline and branch in the same local
+Docker/PostgreSQL environment produced identical assertion, PostgreSQL error,
+line and exit-code tuples; only timings and absolute worktree paths differed.
+The branch changes neither test, any referenced fixture or migration, package
+dependency files nor the quality-gate inventory. It adds no skip and no quality
+gate weakening. The two pre-existing failures are not presented as PASS and
+are not repaired in this PR.
 
 This evidence is local only. RA-004 remains `IN_PROGRESS`; staging execution,
 production and shadow remain unauthorized.

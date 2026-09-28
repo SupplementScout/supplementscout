@@ -1,6 +1,6 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: RA-004 IN PROGRESS — CONSOLIDATED SUPABASE OWNERSHIP ARCHITECTURE IMPLEMENTED LOCALLY; DRAFT PR BLOCKED BY BASELINE QUALITY GATES**
+**Status: RA-004 IN PROGRESS — CONSOLIDATED SUPABASE OWNERSHIP ARCHITECTURE READY_FOR_VERIFICATION WITH TWO PRE_EXISTING_BASELINE_FAILURES**
 
 **Current active task:** RA-004 — `IN_PROGRESS`; its documentation preflight is
 verified; the fixture-only exporter is preserved in PR #89, and one new
@@ -12,9 +12,10 @@ authorized; the corrected test-only single-snapshot adapter is
 
 **Implementation:** fixture exporter plus locally database-verified forward-only
 transactional interface, unwired live-provider contract and fail-closed
-migration-selector exclusion; local PostgreSQL 17 verification passes, but
-Draft PR creation is blocked by two unrelated integration tests that fail
-identically at the required baseline; no credential or production wiring
+migration-selector exclusion; local PostgreSQL 17 verification passes. Two
+unrelated integration failures reproduce identically at the required baseline
+and are recorded as `PRE_EXISTING_BASELINE_FAILURES`; RA-004 adds zero failures
+and has no credential or production wiring
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 

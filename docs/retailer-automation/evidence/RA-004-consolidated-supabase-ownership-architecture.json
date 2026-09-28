@@ -1,6 +1,6 @@
 {
   "schema_version": "ra-004-consolidated-supabase-ownership-architecture-v1",
-  "status": "BLOCKED",
+  "status": "READY_FOR_VERIFICATION_WITH_TWO_PRE_EXISTING_BASELINE_FAILURES",
   "baseline_sha": "c153145d2d82410a3160837c43ce14923a54d2d8",
   "remote_execution_authorized": false,
   "activation_present": false,
@@ -36,12 +36,23 @@
     "ra004_postgresql_17": "PASS_6_OF_6",
     "independent_clean_worktree": "PASS_117_OF_117_PLUS_POSTGRESQL_17",
     "independently_verified_implementation_commit": "ec521d0d422456698f210a0ac1323c0dc4cea41d",
-    "full_integration": "BASELINE_BLOCKED_72_OF_74_PASS",
+    "full_integration": "72_OF_74_PASS_WITH_TWO_PRE_EXISTING_BASELINE_FAILURES",
     "secret_scan": "PASS",
     "dependency_scan": "BASELINE_2_MODERATE_3_HIGH_1_CRITICAL"
   },
-  "draft_pr_created": false,
-  "blocker": "Two unrelated integration tests fail identically at the required baseline",
+  "baseline_comparison": {
+    "criterion": "ZERO_NEW_FAILURES_RELATIVE_TO_CLEAN_BASELINE",
+    "new_failures": 0,
+    "pre_existing_baseline_failures": [
+      "jons-final-closeout-policy-migration.integration.test.js",
+      "nutrition-variant-provenance.integration.test.js"
+    ],
+    "tests_changed": false,
+    "dependency_or_fixture_changes": false,
+    "skips_added": 0,
+    "quality_gate_weakened": false
+  },
+  "draft_pr_creation_authorized": true,
   "ra004_status": "IN_PROGRESS",
   "shadow_run": "NOT_AUTHORIZED"
 }
