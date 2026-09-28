@@ -1,6 +1,6 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: RA-004 CANONICAL LEDGER FINGERPRINT CONTRACT READY_FOR_VERIFICATION — LIVE RETRY NOT AUTHORIZED**
+**Status: RA-004 CANONICAL LEDGER FINGERPRINT CONTRACT READY_FOR_REVERIFICATION — LIVE RETRY NOT AUTHORIZED**
 
 **Current active task:** RA-004 — `IN_PROGRESS`; its documentation preflight is
 verified; the fixture-only exporter is preserved in PR #89. The consolidated

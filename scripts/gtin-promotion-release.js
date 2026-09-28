@@ -165,19 +165,32 @@ async function capture(options) {
   return { result: "PASS", mode: "production-preflight", scope: config.scope, expected_writes: config.rowCount, already_present: config.initialAlreadyPresent, conflicts: 0, database_writes: 0, baseline_fingerprint: baseline.baseline_fingerprint };
 }
 
+function classifyProductionMigrationLedger(remoteLedger) {
+  const ids = remoteLedger.map(ledgerIdentifier);
+  if (ids.length === CONTRACT.ledgerCount
+      && ledgerRowsFingerprint(remoteLedger, { targetEnvironment: "PRODUCTION" }) === CONTRACT.ledgerFingerprint) {
+    return ids.includes(MIGRATION_ID) ? "ALREADY_PRESENT" : "PENDING";
+  }
+  const prefix = remoteLedger.slice(0, CONTRACT.ledgerCount);
+  if (ids.length === CONTRACT.ledgerCount + 1 && ids.at(-1) === MIGRATION_ID
+      && ledgerRowsFingerprint(prefix, { targetEnvironment: "PRODUCTION" }) === CONTRACT.ledgerFingerprint) {
+    return "ALREADY_PRESENT";
+  }
+  fail("Production migration ledger differs from the exact reviewed release state");
+}
+
 async function migrationPreflight(options) {
   const pending = CONTRACT.pending.find((row) => row.filename === MIGRATION);
   if (!pending || sha256File(path.join(ROOT, "supabase", "migrations", MIGRATION)) !== pending.sha256) fail("Reviewed GTIN migration contract mismatch");
   return ownerRead(options["env-file"], async (client, state) => {
-    const ids = state.remoteLedger.map(ledgerIdentifier);
-    if (ids.length === CONTRACT.ledgerCount && ledgerRowsFingerprint(state.remoteLedger) === CONTRACT.ledgerFingerprint && !ids.includes(MIGRATION_ID)) return { result: "PASS", migration_status: "PENDING", database_writes: 0 };
-    const prefix = state.remoteLedger.slice(0, CONTRACT.ledgerCount);
-    if (ids.length === CONTRACT.ledgerCount + 1 && ids.at(-1) === MIGRATION_ID && ledgerRowsFingerprint(prefix) === CONTRACT.ledgerFingerprint) {
+    const migrationStatus = classifyProductionMigrationLedger(state.remoteLedger);
+    if (migrationStatus === "PENDING") return { result: "PASS", migration_status: "PENDING", database_writes: 0 };
+    if (migrationStatus === "ALREADY_PRESENT") {
       const schema = (await client.query("select to_regprocedure('public.apply_approved_gtin_promotion_plan(uuid,text,text,text,text)') is not null apply_exists, to_regclass('public.gtin_promotion_quarantine') is not null quarantine_exists")).rows[0];
       if (!schema.apply_exists || !schema.quarantine_exists) fail("Applied GTIN migration schema is incomplete");
       return { result: "PASS", migration_status: "ALREADY_PRESENT", database_writes: 0 };
     }
-    fail("Production migration ledger differs from the exact reviewed release state");
+    fail("Production migration status is invalid");
   });
 }
 
@@ -269,4 +282,4 @@ async function run(options) {
 
 if (require.main === module) run(parseArgs(process.argv.slice(2))).then((result) => console.log(JSON.stringify(result, null, 2))).catch((error) => { console.error(error.message); process.exitCode = 1; });
 
-module.exports = { EXACT36_CONFIRMATION, MIGRATION, QUARANTINED_GTINS, RELEASE_CONFIGS, exactRowDiff, parseArgs, run, snapshotSummary };
+module.exports = { EXACT36_CONFIRMATION, MIGRATION, QUARANTINED_GTINS, RELEASE_CONFIGS, classifyProductionMigrationLedger, exactRowDiff, parseArgs, run, snapshotSummary };

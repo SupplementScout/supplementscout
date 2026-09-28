@@ -3,8 +3,19 @@ const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
 const { APPROVED_IDENTITIES, SCOPE_CONFIGS } = require("./gtin-promotion-operation");
-const { EXACT36_CONFIRMATION, MIGRATION, QUARANTINED_GTINS, RELEASE_CONFIGS, exactRowDiff, parseArgs, snapshotSummary } = require("./gtin-promotion-release");
-const { CONTRACTS } = require("./supabase-migration-selector");
+const { EXACT36_CONFIRMATION, MIGRATION, QUARANTINED_GTINS, RELEASE_CONFIGS, classifyProductionMigrationLedger, exactRowDiff, parseArgs, snapshotSummary } = require("./gtin-promotion-release");
+const { CONTRACTS, ledgerRowsFingerprint } = require("./supabase-migration-selector");
+
+function productionLedger() {
+  const contract = CONTRACTS.PRODUCTION;
+  const excluded = new Set(Object.keys(contract.excluded));
+  const pending = new Set(contract.pending.map(({ filename }) => filename));
+  return fs.readdirSync(path.join(__dirname, "..", "supabase", "migrations"))
+    .filter((filename) => /^\d{14}_[a-z0-9_]+\.sql$/.test(filename)
+      && !excluded.has(filename) && !pending.has(filename))
+    .sort()
+    .map((filename) => ({ version: filename.slice(0, 14), name: filename.slice(15, -4) }));
+}
 
 test("release accepts only production and exact owner confirmation", () => {
   const parsed = parseArgs(["--mode=deploy", "--target=production", "--env-file=tmp/owner.env", "--confirm=OWNER_APPROVED_EXACT_45"]);
@@ -51,6 +62,14 @@ test("deployed GTIN, Whey Okay rebind and traffic classification migrations rema
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", MIGRATION)), true);
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", "20260816173000_extend_guarded_gtin_promotion_exact_36.sql")), true);
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", "20260817114500_add_outbound_click_traffic_classification.sql")), true);
+});
+
+test("production migration preflight hashes the real 221-row ledger only in the PRODUCTION domain", () => {
+  const rows = productionLedger();
+  assert.equal(rows.length, 221);
+  assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "PRODUCTION" }), CONTRACTS.PRODUCTION.ledgerFingerprint);
+  assert.notEqual(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACTS.PRODUCTION.ledgerFingerprint);
+  assert.equal(classifyProductionMigrationLedger(rows), "ALREADY_PRESENT");
 });
 
 test("failed verification reports exact changed rows", () => {

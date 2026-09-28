@@ -279,7 +279,7 @@ async function main() {
   const executionCommit=readExecutionCommit();
   const remote=await selector.readRemoteState(ownerUrl);
   invariant(remote.remoteLedger.length===EXPECTED_PRE_LEDGER_COUNT
-    && selector.ledgerRowsFingerprint(remote.remoteLedger)===EXPECTED_PRE_LEDGER_FINGERPRINT,
+    && selector.ledgerRowsFingerprint(remote.remoteLedger, {targetEnvironment:"STAGING"})===EXPECTED_PRE_LEDGER_FINGERPRINT,
   "RA004_PRE_LEDGER_MISMATCH");
   const selection=selector.validateSelection({
     environment:"STAGING", projectRef:REF, databaseTarget:remote.databaseTarget,
@@ -422,7 +422,7 @@ async function main() {
         const last=readback.remoteLedger.at(-1) || null;
         failureLedgerReadback={
           count:readback.remoteLedger.length,
-          fingerprint:selector.ledgerRowsFingerprint(readback.remoteLedger),
+          fingerprint:selector.ledgerRowsFingerprint(readback.remoteLedger, {targetEnvironment:"STAGING"}),
           last_migration:last ? `${last.version}_${last.name}` : null,
         };
       } catch {

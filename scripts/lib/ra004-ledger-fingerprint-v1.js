@@ -34,8 +34,9 @@ function normalizeRows(rows) {
 
 function ledgerDocument(rows, options = {}) {
   const contractVersion = options.contractVersion ?? CONTRACT_VERSION;
-  const targetEnvironment = options.targetEnvironment ?? "STAGING";
+  const targetEnvironment = options.targetEnvironment;
   invariant(contractVersion === CONTRACT_VERSION, `unknown contract version ${contractVersion}`);
+  invariant(targetEnvironment !== undefined, "targetEnvironment is required");
   invariant(["STAGING", "PRODUCTION"].includes(targetEnvironment),
     `unsupported target environment ${targetEnvironment}`);
   return {

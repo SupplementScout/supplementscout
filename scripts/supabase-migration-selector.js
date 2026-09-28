@@ -474,7 +474,7 @@ function sha256File(file) {
 function ledgerRowsFingerprint(rows, options = {}) {
   return canonicalLedgerFingerprint(rows, {
     contractVersion: options.contractVersion ?? RA004_LEDGER_FINGERPRINT_VERSION,
-    targetEnvironment: options.targetEnvironment ?? "STAGING",
+    targetEnvironment: options.targetEnvironment,
   });
 }
 

@@ -28,10 +28,10 @@ function sha256(value) { return crypto.createHash("sha256").update(value).digest
 function seal(value, fingerprintKey) { return sha256(canonicalize({ ...value, [fingerprintKey]: null })); }
 function packageFingerprint(value) { return seal(value, "package_fingerprint"); }
 function requestFingerprint(value) { return seal(value, "request_fingerprint"); }
-function migrationLedgerDocument(identifiers, targetEnvironment = "STAGING") {
+function migrationLedgerDocument(identifiers, targetEnvironment) {
   return canonicalLedgerDocument(rowsFromIdentifiers(identifiers), { targetEnvironment });
 }
-function migrationLedgerFingerprint(identifiers, targetEnvironment = "STAGING") {
+function migrationLedgerFingerprint(identifiers, targetEnvironment) {
   return canonicalLedgerFingerprint(rowsFromIdentifiers(identifiers), { targetEnvironment });
 }
 function exactKeys(value, keys) { return value && typeof value === "object" && !Array.isArray(value) && Object.keys(value).sort().join("|") === [...keys].sort().join("|"); }
