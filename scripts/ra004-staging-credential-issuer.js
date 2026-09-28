@@ -13,7 +13,7 @@ function loginUrl(role, password) {
   return parsed.toString();
 }
 async function ownerQuery(text) {
-  const client = new Client({ connectionString: ownerUrl, ssl: { rejectUnauthorized: false }, application_name: "ra004-credential-issuer-v1" });
+  const client = new Client({ connectionString: ownerUrl, ssl: { rejectUnauthorized: true, servername: new URL(ownerUrl).hostname, minVersion: "TLSv1.2" }, application_name: "ra004-credential-issuer-v1" });
   try { await client.connect(); return await client.query(text); } finally { await client.end(); }
 }
 async function create(kind, expiresAt) {

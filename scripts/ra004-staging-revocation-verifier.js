@@ -5,7 +5,7 @@ async function main() {
   if (!databaseUrl) throw new Error("RA004_REVOKE_TARGET_MISSING");
   const client = new Client({
     connectionString: databaseUrl,
-    ssl: { rejectUnauthorized: false },
+    ssl: { rejectUnauthorized: true, servername: new URL(databaseUrl).hostname, minVersion: "TLSv1.2" },
     application_name: "ra004-revocation-verifier-v1",
     connectionTimeoutMillis: 8_000,
   });
