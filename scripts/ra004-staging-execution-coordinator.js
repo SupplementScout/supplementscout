@@ -28,7 +28,7 @@ const EVIDENCE_NAMES = Object.freeze([
 ]);
 const ownerUrl = process.env.RA004_OWNER_DATABASE_URL;
 const EXPECTED_PRE_LEDGER_COUNT = 96;
-const EXPECTED_PRE_LEDGER_FINGERPRINT = "d85982cd1df704c77c8d61b0d8f56038eecb4fce014ba9aa68e69b617a9efb7e";
+const EXPECTED_PRE_LEDGER_FINGERPRINT = "66d8b25242c69b7cc461e2f6deaec4882155b9eee8d0b485742a667812588b17";
 const EXPECTED_POST_LEDGER_COUNT = 97;
 const ACTIVATION_MANIFEST = "RA-004-consolidated-ownership-activation.json";
 const EXPECTED_MIGRATIONS = Object.freeze([
@@ -279,7 +279,7 @@ async function main() {
   const executionCommit=readExecutionCommit();
   const remote=await selector.readRemoteState(ownerUrl);
   invariant(remote.remoteLedger.length===EXPECTED_PRE_LEDGER_COUNT
-    && selector.ledgerRowsFingerprint(remote.remoteLedger)===EXPECTED_PRE_LEDGER_FINGERPRINT,
+    && selector.ledgerRowsFingerprint(remote.remoteLedger, {targetEnvironment:"STAGING"})===EXPECTED_PRE_LEDGER_FINGERPRINT,
   "RA004_PRE_LEDGER_MISMATCH");
   const selection=selector.validateSelection({
     environment:"STAGING", projectRef:REF, databaseTarget:remote.databaseTarget,
@@ -344,7 +344,10 @@ async function main() {
     const businessAfterMigrations=await businessCounts();
     invariant(JSON.stringify(businessAfterMigrations)===JSON.stringify(businessBefore),"RA004_BUSINESS_DATA_CHANGED_BY_MIGRATION");
     ensureWindow(expires);
-    const ledgerFp=selector.ledgerRowsFingerprint(postRemote.remoteLedger);
+    const ledgerFp=selector.ledgerRowsFingerprint(postRemote.remoteLedger, {
+      contractVersion: selector.RA004_LEDGER_FINGERPRINT_VERSION,
+      targetEnvironment: "STAGING",
+    });
     issuer=credentialReader();
     const store={schema_version:"ra-004-evidence-store-metadata-v1",store_identifier:BUCKET,private:true,encryption:"AT_REST_AND_IN_TRANSIT",write_once:true,access_audit:true,readback_supported:true,raw_retention_days:90,derived_retention_days:90,approved_by:"Marek-Kalinka",approved_at:startsAt,evidence_store_fingerprint:"0".repeat(64)};
     store.evidence_store_fingerprint=sha256(store);
@@ -353,7 +356,7 @@ async function main() {
     uploaded.push(await custody.call({action:"put",name:"policy-attestation.json",value:{...policyAttestation,activation_id:activation,execution_commit:executionCommit,storage_subject_fingerprint:sha256(storageSession.subject),retention:{redacted_bundle_days:90,fingerprint_receipt_years:7}}}));
 
     preflightCred=await issuer.call({action:"create",kind:"preflight",expires_at:expiresAt});
-    const auth={schema_version:"ra-004-staging-preflight-authorization-execution-v1",status:"AUTHORIZED",task_id:"RA-004",baseline_sha:BASELINE,decision_fingerprint:contract.CURRENT_DECISION_FINGERPRINT,plan_fingerprint:PLAN_FP,control_migration:{path:contract.CONTROL_MIGRATION,sha256:CONSOLIDATED_SHA},preflight_migration:{path:contract.PREFLIGHT_MIGRATION,sha256:CONSOLIDATED_SHA},target:{environment:"STAGING",project_reference:REF,canonical_host:API_HOST,host_allowlist:[API_HOST],retailer:{name:"10 Reps",slug:"10-reps"},ledger:{count:postRemote.remoteLedger.length,fingerprint:ledgerFp}},operator:"Marek-Kalinka",credential_issuer:"ra004-technical-issuer",window:{starts_at:startsAt,expires_at:expiresAt},credential_design:{role_name:preflightCred.role,environment:"STAGING_ONLY",rpc_name:contract.RPC_NAME,maximum_attempts:1,maximum_ttl_minutes:30,automatic_retry:false,service_role:false,table_privileges:false,sequence_privileges:false,dml:false,ddl:false,mutation_rpc:false},evidence_store:{store_identifier:BUCKET,required_private:true,required_encryption:true,required_write_once:true,required_access_audit:true,required_readback:true,raw_retention_days:90,derived_retention_days:90},authorization_fingerprint:"0".repeat(64)}; auth.authorization_fingerprint=contract.authorizationFingerprint(auth);
+    const auth={schema_version:"ra-004-staging-preflight-authorization-execution-v1",status:"AUTHORIZED",task_id:"RA-004",baseline_sha:BASELINE,decision_fingerprint:contract.CURRENT_DECISION_FINGERPRINT,plan_fingerprint:PLAN_FP,control_migration:{path:contract.CONTROL_MIGRATION,sha256:CONSOLIDATED_SHA},preflight_migration:{path:contract.PREFLIGHT_MIGRATION,sha256:CONSOLIDATED_SHA},target:{environment:"STAGING",project_reference:REF,canonical_host:API_HOST,host_allowlist:[API_HOST],retailer:{name:"10 Reps",slug:"10-reps"},ledger:{contract_version:selector.RA004_LEDGER_FINGERPRINT_VERSION,count:postRemote.remoteLedger.length,fingerprint:ledgerFp}},operator:"Marek-Kalinka",credential_issuer:"ra004-technical-issuer",window:{starts_at:startsAt,expires_at:expiresAt},credential_design:{role_name:preflightCred.role,environment:"STAGING_ONLY",rpc_name:contract.RPC_NAME,maximum_attempts:1,maximum_ttl_minutes:30,automatic_retry:false,service_role:false,table_privileges:false,sequence_privileges:false,dml:false,ddl:false,mutation_rpc:false},evidence_store:{store_identifier:BUCKET,required_private:true,required_encryption:true,required_write_once:true,required_access_audit:true,required_readback:true,raw_retention_days:90,derived_retention_days:90},authorization_fingerprint:"0".repeat(64)}; auth.authorization_fingerprint=contract.authorizationFingerprint(auth);
     const transport=createPreflightPostgresTransport({databaseUrl:preflightCred.database_url,projectReference:REF,canonicalHost:API_HOST,expectedSessionUser:preflightCred.role,credentialId:preflightCred.credential_id,projectIdentity:identity,evidenceStoreMetadata:store,revokeCredential:async request=>{const receipt=await revokeOne(preflightCred,request.runner_process_id);preflightCred=null;return receipt;}});
     operationAttempts.preflight+=1;
     const result=await runPreflight({authorization:auth,expected:{provider_mode:"live-read-only",baseline_sha:BASELINE,decision_fingerprint:contract.CURRENT_DECISION_FINGERPRINT,plan_fingerprint:PLAN_FP,control_migration:{path:contract.CONTROL_MIGRATION,sha256:CONSOLIDATED_SHA},preflight_migration:{path:contract.PREFLIGHT_MIGRATION,sha256:CONSOLIDATED_SHA},project_reference:REF,canonical_host:API_HOST,host_allowlist:[API_HOST]},providerBundle:createClosedProvider({configuration:{environment:"STAGING",project_reference:REF,canonical_host:API_HOST,host_allowlist:[API_HOST],expected_session_user:preflightCred.role},transport}),outputPath:path.join(outDir,"preflight-report.json"),now:utc()});
@@ -419,7 +422,7 @@ async function main() {
         const last=readback.remoteLedger.at(-1) || null;
         failureLedgerReadback={
           count:readback.remoteLedger.length,
-          fingerprint:selector.ledgerRowsFingerprint(readback.remoteLedger),
+          fingerprint:selector.ledgerRowsFingerprint(readback.remoteLedger, {targetEnvironment:"STAGING"}),
           last_migration:last ? `${last.version}_${last.name}` : null,
         };
       } catch {

@@ -2,6 +2,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
 const { sha256 } = require("../../stable-json-hash");
+const { CONTRACT_VERSION: LEDGER_FINGERPRINT_CONTRACT_VERSION } = require("../../ra004-ledger-fingerprint-v1");
 const { redact } = require("../control-state-export-v1/exporter");
 
 const ROOT = path.resolve(__dirname, "../../../..");
@@ -126,12 +127,13 @@ function validateAuthorization(value, expected, now) {
   }
   exact(value.target, ["environment", "project_reference", "canonical_host", "host_allowlist", "retailer", "ledger"], code, "target");
   exact(value.target.retailer, ["name", "slug"], code, "target retailer");
-  exact(value.target.ledger, ["count", "fingerprint"], code, "target ledger");
+  exact(value.target.ledger, ["contract_version", "count", "fingerprint"], code, "target ledger");
   if (value.target.environment !== "STAGING" || value.target.retailer.name !== "10 Reps" || value.target.retailer.slug !== "10-reps") fail(code, "one exact staging retailer is required");
   validateTarget({ projectReference: value.target.project_reference, canonicalHost: value.target.canonical_host, hostAllowlist: value.target.host_allowlist }, code);
   if (value.target.project_reference !== expected.project_reference || value.target.canonical_host !== expected.canonical_host
       || !expected.host_allowlist.includes(value.target.canonical_host)) fail(code, "unknown target rejected");
-  if (!Number.isSafeInteger(value.target.ledger.count) || value.target.ledger.count < 1 || value.target.ledger.count > 10000
+  if (value.target.ledger.contract_version !== LEDGER_FINGERPRINT_CONTRACT_VERSION
+      || !Number.isSafeInteger(value.target.ledger.count) || value.target.ledger.count < 1 || value.target.ledger.count > 10000
       || !SHA256.test(value.target.ledger.fingerprint)) fail(code, "ledger expectation is invalid");
   if (!SAFE_NAME.test(value.operator) || !SAFE_NAME.test(value.credential_issuer) || value.operator === value.credential_issuer) fail(code, "named separated operator and issuer are required");
   exact(value.window, ["starts_at", "expires_at"], code, "window");
@@ -345,6 +347,7 @@ function fileSha(relativePath) { return crypto.createHash("sha256").update(fs.re
 
 module.exports = {
   COMMIT, CONTROL_MIGRATION, CURRENT_DECISION_FINGERPRINT, FORBIDDEN_ROLES,
+  LEDGER_FINGERPRINT_CONTRACT_VERSION,
   PREFLIGHT_MIGRATION, ROOT, RPC_NAME, RPC_SIGNATURE, SHA256, UTC, VERSION,
   authorizationFingerprint, boundedString, exact, fail, fileSha, noSecrets, postgresJsonbText, redact,
   safeInteger, sanitizeError, validateHost, validateTarget,

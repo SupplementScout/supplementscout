@@ -1,0 +1,398 @@
+{
+  "schema_version": 1,
+  "contract_version": "RA004_LEDGER_V1",
+  "source": "repository-selector-and-terminal-closeout-evidence",
+  "target_environment": "STAGING",
+  "expected_count": 97,
+  "expected_fingerprint": "bbfc25a25826ebfd4901941099903921e1f5adeb9d952eb6aa93c64939e3849c",
+  "rows": [
+    {
+      "version": "20260712211120",
+      "name": "baseline_current_public_schema"
+    },
+    {
+      "version": "20260713130000",
+      "name": "product_variants_stage2"
+    },
+    {
+      "version": "20260713180000",
+      "name": "atomic_product_import_rpc"
+    },
+    {
+      "version": "20260713190000",
+      "name": "approved_import_plan_ledger"
+    },
+    {
+      "version": "20260713200000",
+      "name": "legacy_mapping_upgrade_rpc"
+    },
+    {
+      "version": "20260713210000",
+      "name": "create_product_7_chocolate_vanilla_variants_and_retire_legacy_offer"
+    },
+    {
+      "version": "20260713220000",
+      "name": "seed_batch_a_canonical_variants"
+    },
+    {
+      "version": "20260715120000",
+      "name": "seed_discount_supplements_batch_b_canonical_variants"
+    },
+    {
+      "version": "20260715150000",
+      "name": "seed_discount_supplements_batch_c_canonical_variants"
+    },
+    {
+      "version": "20260715180000",
+      "name": "seed_discount_supplements_batch_d_canonical_products_variants"
+    },
+    {
+      "version": "20260715210000",
+      "name": "seed_discount_supplements_batch_e_canonical_products_variants"
+    },
+    {
+      "version": "20260715230000",
+      "name": "seed_fit_house_batch_f_catalog_and_backfill_images"
+    },
+    {
+      "version": "20260715233000",
+      "name": "correct_fit_house_batch_f_source_variant_identity"
+    },
+    {
+      "version": "20260715234500",
+      "name": "align_approval_product_format_normalization"
+    },
+    {
+      "version": "20260715235500",
+      "name": "seed_batch_g_canonical_catalog"
+    },
+    {
+      "version": "20260716000000",
+      "name": "support_standalone_legacy_mapping_upgrade"
+    },
+    {
+      "version": "20260716001000",
+      "name": "seed_batch_g_replacement_variants"
+    },
+    {
+      "version": "20260716002000",
+      "name": "allow_legacy_mapping_upgrade_null_total_noop"
+    },
+    {
+      "version": "20260716003000",
+      "name": "support_optioned_legacy_mapping_upgrade"
+    },
+    {
+      "version": "20260716004000",
+      "name": "support_optioned_parent_size_evidence"
+    },
+    {
+      "version": "20260716005000",
+      "name": "allow_optioned_legacy_identity_update_null_total"
+    },
+    {
+      "version": "20260716010000",
+      "name": "seed_whey_okay_medium_batch_1_canonical_variants"
+    },
+    {
+      "version": "20260716011000",
+      "name": "seed_whey_okay_medium_batch_2_canonical_variants"
+    },
+    {
+      "version": "20260716012000",
+      "name": "seed_whey_okay_medium_batch_3_canonical_variants"
+    },
+    {
+      "version": "20260716203000",
+      "name": "seed_jons_per4m_product_families"
+    },
+    {
+      "version": "20260717120000",
+      "name": "create_retailer_catalogue_control_ledger"
+    },
+    {
+      "version": "20260717140000",
+      "name": "add_staging_retailer_catalogue_executor"
+    },
+    {
+      "version": "20260718150000",
+      "name": "add_verified_no_change_offer_refresh"
+    },
+    {
+      "version": "20260718160000",
+      "name": "add_retailer_offer_mixed_batch_executor"
+    },
+    {
+      "version": "20260718170000",
+      "name": "add_read_only_mixed_batch_validator"
+    },
+    {
+      "version": "20260719090000",
+      "name": "add_expired_retailer_offer_sync_approval_close"
+    },
+    {
+      "version": "20260719173000",
+      "name": "grant_importer_rpc_access_to_existing_roles"
+    },
+    {
+      "version": "20260719193000",
+      "name": "support_existing_product_variant_import"
+    },
+    {
+      "version": "20260720103000",
+      "name": "align_safe_create_reviewed_families"
+    },
+    {
+      "version": "20260720110000",
+      "name": "align_serving_count_variant_size"
+    },
+    {
+      "version": "20260720113000",
+      "name": "support_verified_shopify_variants_without_sku"
+    },
+    {
+      "version": "20260721100000",
+      "name": "support_reviewed_parent_explicit_variant_safe_create"
+    },
+    {
+      "version": "20260721113000",
+      "name": "allow_reviewed_tbjp_parent_variants"
+    },
+    {
+      "version": "20260721125000",
+      "name": "allow_reviewed_jons_preworkout_parent_variants"
+    },
+    {
+      "version": "20260721190000",
+      "name": "allow_reviewed_jons_hydration_bar_parent_variants"
+    },
+    {
+      "version": "20260721191000",
+      "name": "allow_reviewed_bar_format_in_parent_import"
+    },
+    {
+      "version": "20260721200000",
+      "name": "allow_reviewed_jons_nutrition_families"
+    },
+    {
+      "version": "20260721210000",
+      "name": "allow_reviewed_strom_health_support_families"
+    },
+    {
+      "version": "20260722113000",
+      "name": "allow_final_reviewed_jons_closeout"
+    },
+    {
+      "version": "20260722120000",
+      "name": "add_reviewed_jons_stock_only_override"
+    },
+    {
+      "version": "20260722121000",
+      "name": "fix_reviewed_stock_only_plan_binding"
+    },
+    {
+      "version": "20260722122000",
+      "name": "allow_reviewed_stock_only_retry_after_expiry"
+    },
+    {
+      "version": "20260722130000",
+      "name": "add_jons_sync_plan_registration"
+    },
+    {
+      "version": "20260722133000",
+      "name": "align_retailer_sync_plan_metadata"
+    },
+    {
+      "version": "20260722140000",
+      "name": "renew_and_resume_sequential_sync_plans"
+    },
+    {
+      "version": "20260723160000",
+      "name": "allow_exact_retailer_variants_to_share_product_urls"
+    },
+    {
+      "version": "20260723161000",
+      "name": "allow_exact_retailer_variants_to_share_legacy_parent_url_evidence"
+    },
+    {
+      "version": "20260723170000",
+      "name": "unify_ekm_shared_parent_import_identity"
+    },
+    {
+      "version": "20260723210000",
+      "name": "apply_reviewed_whey_okay_product_formats"
+    },
+    {
+      "version": "20260724100000",
+      "name": "add_approved_retailer_sync_registration"
+    },
+    {
+      "version": "20260724120000",
+      "name": "allow_whey_null_total_non_price_refresh"
+    },
+    {
+      "version": "20260726100000",
+      "name": "add_reviewed_mixed_change_approval"
+    },
+    {
+      "version": "20260726120000",
+      "name": "add_scoped_reviewed_mixed_change_fingerprints"
+    },
+    {
+      "version": "20260726130000",
+      "name": "add_mapped_scope_reviewed_approval"
+    },
+    {
+      "version": "20260726150000",
+      "name": "seed_reviewed_fit_house_catalogue_closeout"
+    },
+    {
+      "version": "20260726160000",
+      "name": "support_reviewed_fit_house_no_sku_legacy_upgrade"
+    },
+    {
+      "version": "20260726170000",
+      "name": "add_fit_house_offer_sync_registration"
+    },
+    {
+      "version": "20260726180000",
+      "name": "reconcile_fit_house_whey_pro_synergy_dynamic"
+    },
+    {
+      "version": "20260726200000",
+      "name": "allow_public_read_active_product_variants"
+    },
+    {
+      "version": "20260726210000",
+      "name": "add_reviewed_variant_nutrition_apply"
+    },
+    {
+      "version": "20260728100000",
+      "name": "extend_duplicate_review_decisions"
+    },
+    {
+      "version": "20260728110000",
+      "name": "create_product_match_review_queue"
+    },
+    {
+      "version": "20260728170000",
+      "name": "add_product_match_family_decisions"
+    },
+    {
+      "version": "20260731170000",
+      "name": "add_guarded_product_family_variant_merge"
+    },
+    {
+      "version": "20260801070000",
+      "name": "rebind_whey_okay_manifest_after_family_merge"
+    },
+    {
+      "version": "20260802100000",
+      "name": "create_nutrition_candidates"
+    },
+    {
+      "version": "20260803170000",
+      "name": "support_simply_identity_only_legacy_upgrade"
+    },
+    {
+      "version": "20260803180000",
+      "name": "require_simply_complete_identity_options"
+    },
+    {
+      "version": "20260803190000",
+      "name": "allow_simply_count_size_option_evidence"
+    },
+    {
+      "version": "20260803200000",
+      "name": "normalize_simply_match_confidence_guard"
+    },
+    {
+      "version": "20260803210000",
+      "name": "allow_simply_count_size_apply"
+    },
+    {
+      "version": "20260803220000",
+      "name": "add_simply_supplements_offer_sync_registration"
+    },
+    {
+      "version": "20260809120000",
+      "name": "add_nutrition_candidate_approved_value"
+    },
+    {
+      "version": "20260809130000",
+      "name": "add_nutrition_candidate_batch_items"
+    },
+    {
+      "version": "20260817114500",
+      "name": "add_outbound_click_traffic_classification"
+    },
+    {
+      "version": "20260824160000",
+      "name": "add_identity_proven_price_observations"
+    },
+    {
+      "version": "20260827200000",
+      "name": "allow_predators_gear_reviewed_creatine_316g"
+    },
+    {
+      "version": "20260827201000",
+      "name": "allow_predators_gear_reviewed_parent_variant_transport"
+    },
+    {
+      "version": "20260828080000",
+      "name": "allow_predators_gear_reviewed_parent_url_siblings"
+    },
+    {
+      "version": "20260828100000",
+      "name": "allow_predators_gear_reviewed_cm3_missing_variants"
+    },
+    {
+      "version": "20260828102000",
+      "name": "allow_predators_gear_cm3_cross_product_parent_url"
+    },
+    {
+      "version": "20260829100000",
+      "name": "allow_predators_gear_reviewed_new_products_v3"
+    },
+    {
+      "version": "20260829110000",
+      "name": "allow_predators_gear_reviewed_olimp_parent_url_siblings"
+    },
+    {
+      "version": "20260829111000",
+      "name": "allow_predators_gear_reviewed_glutamine_peer_cohort"
+    },
+    {
+      "version": "20260830140000",
+      "name": "extend_product_match_review_queue_for_automation"
+    },
+    {
+      "version": "20260830151000",
+      "name": "extend_automation_review_execution_evidence"
+    },
+    {
+      "version": "20260830173000",
+      "name": "create_automation_review_execution_requests"
+    },
+    {
+      "version": "20260831080000",
+      "name": "fix_verified_no_change_timestamp_guard"
+    },
+    {
+      "version": "20260831081000",
+      "name": "fix_verified_no_change_timestamp_guard_jsonb_operator"
+    },
+    {
+      "version": "20260926100000",
+      "name": "create_ra004_staging_10reps_retailer"
+    },
+    {
+      "version": "20260926110000",
+      "name": "add_ra004_staging_interface_compatibility"
+    },
+    {
+      "version": "20260927103000",
+      "name": "consolidate_ra004_supabase_ownership_interfaces"
+    }
+  ]
+}

@@ -262,7 +262,9 @@ async function main(argv = process.argv.slice(2)) {
       await validateResult(client);
       committedState = {
         ledger_count: afterCommitState.remoteLedger.length,
-        ledger_fingerprint: ledgerRowsFingerprint(afterCommitState.remoteLedger),
+        ledger_fingerprint: ledgerRowsFingerprint(afterCommitState.remoteLedger, {
+          targetEnvironment: options.environment,
+        }),
         applied,
         catalogue_counts: committedCounts,
       };

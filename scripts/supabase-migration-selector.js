@@ -4,6 +4,10 @@ const path = require("node:path");
 const { Client } = require("pg");
 const { sha256: stableJsonSha256 } = require("./lib/stable-json-hash");
 const {
+  CONTRACT_VERSION: RA004_LEDGER_FINGERPRINT_VERSION,
+  ledgerFingerprint: canonicalLedgerFingerprint,
+} = require("./lib/ra004-ledger-fingerprint-v1");
+const {
   excludedMigrationIds,
   MIGRATION_FILE,
   migrationIdentifier,
@@ -28,6 +32,8 @@ const RA004_ACTIVATION_ID = "ra004-staging-interfaces-2026-09-27-v5";
 const RA004_ACTIVATION_PRE_LEDGER_COUNT = 95;
 const RA004_ACTIVATION_PRE_LEDGER_FINGERPRINT =
   "c5bb6405d26def1834522cccaf2937fad60f44156370e5e1f8c4af3ff96d45bd";
+const RA004_ACTIVATION_PRE_CANONICAL_LEDGER_FINGERPRINT =
+  "6f0cc49d6d6e84849abf5551729b3b7f235520883b20a0c770f3815a3b7932fb";
 const RA004_ACTIVATION_POST_LEDGER_COUNT = 97;
 const RA004_ACTIVATION_POST_LEDGER_FINGERPRINT =
   "5d6edfca41ae7dd61043d62a6d78469d5cb1196f6ef15c7fef794e04664ee7aa";
@@ -73,6 +79,8 @@ const RA004_CONSOLIDATED_ACTIVATION_FINGERPRINT = "2136c2d17ae79352f6758fae1ec64
 const RA004_CONSOLIDATED_ACTIVATION_PRE_LEDGER_COUNT = 96;
 const RA004_CONSOLIDATED_ACTIVATION_PRE_LEDGER_FINGERPRINT =
   "d85982cd1df704c77c8d61b0d8f56038eecb4fce014ba9aa68e69b617a9efb7e";
+const RA004_CONSOLIDATED_ACTIVATION_PRE_CANONICAL_LEDGER_FINGERPRINT =
+  "66d8b25242c69b7cc461e2f6deaec4882155b9eee8d0b485742a667812588b17";
 const RA004_CONSOLIDATED_ACTIVATION_MIGRATIONS = Object.freeze([
   "20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql",
 ]);
@@ -83,6 +91,8 @@ const RA004_FIXTURE_MIGRATION = "20260926100000_create_ra004_staging_10reps_reta
 const RA004_FIXTURE_PRE_ACTIVATION_LEDGER_COUNT = 94;
 const RA004_FIXTURE_PRE_ACTIVATION_LEDGER_FINGERPRINT =
   "b37337a9cfd316890034ce12df7571230268b2a27e2a6fc0462d0a7e8ea26c2a";
+const RA004_FIXTURE_PRE_ACTIVATION_CANONICAL_LEDGER_FINGERPRINT =
+  "20c3dca55ccba050686c56d7c2d9273135d8556203950bd47cd9d2ec23c24909";
 
 const CONTRACTS = Object.freeze({
   STAGING: Object.freeze({
@@ -94,7 +104,7 @@ const CONTRACTS = Object.freeze({
     requiredDatabaseUser: "postgres",
     ledgerCount: 97,
     ledgerFingerprint:
-      "1692043d963e98570cd69ea2f46654c35f35a78f26c35b3d96e04751d528331c",
+      "bbfc25a25826ebfd4901941099903921e1f5adeb9d952eb6aa93c64939e3849c",
     appliedExcluded: Object.freeze([
       RA004_FIXTURE_MIGRATION,
       "20260926110000_add_ra004_staging_interface_compatibility.sql",
@@ -411,7 +421,7 @@ const CONTRACTS = Object.freeze({
     requiredDatabaseUser: "postgres",
     ledgerCount: 221,
     ledgerFingerprint:
-      "bf85cbe78934ab3b4e344abd1027b28d687d2cef7e9429c4434426e03a21bc94",
+      "bddbdda9e913bdf262287c387e75e6aef3b5e1f78b4eb3c8648747ef881e1d3d",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -461,8 +471,11 @@ function sha256File(file) {
   return crypto.createHash("sha256").update(fs.readFileSync(file, "utf8").replaceAll("\r\n", "\n")).digest("hex");
 }
 
-function ledgerRowsFingerprint(rows) {
-  return crypto.createHash("sha256").update(JSON.stringify(rows)).digest("hex");
+function ledgerRowsFingerprint(rows, options = {}) {
+  return canonicalLedgerFingerprint(rows, {
+    contractVersion: options.contractVersion ?? RA004_LEDGER_FINGERPRINT_VERSION,
+    targetEnvironment: options.targetEnvironment,
+  });
 }
 
 function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOURCE_DIR) {
@@ -747,10 +760,10 @@ function validateSelection({
     : contract.ledgerCount;
   const expectedLedgerFingerprint = activationManifest
     ? fixtureActivation
-      ? RA004_FIXTURE_PRE_ACTIVATION_LEDGER_FINGERPRINT
+      ? RA004_FIXTURE_PRE_ACTIVATION_CANONICAL_LEDGER_FINGERPRINT
       : activationManifest.schema_version === RA004_CONSOLIDATED_ACTIVATION_SCHEMA
-        ? RA004_CONSOLIDATED_ACTIVATION_PRE_LEDGER_FINGERPRINT
-      : RA004_ACTIVATION_PRE_LEDGER_FINGERPRINT
+        ? RA004_CONSOLIDATED_ACTIVATION_PRE_CANONICAL_LEDGER_FINGERPRINT
+      : RA004_ACTIVATION_PRE_CANONICAL_LEDGER_FINGERPRINT
     : contract.ledgerFingerprint;
   invariant(remoteLedger.length === expectedLedgerCount, "remote ledger count mismatch");
   invariant(
@@ -777,7 +790,7 @@ function validateSelection({
     pending.every((identifier, index) => identifier === expectedPending[index]),
     `unexpected local migration sequence: ${pending.join(",")}`,
   );
-  const ledgerFingerprint = ledgerRowsFingerprint(remoteLedger);
+  const ledgerFingerprint = ledgerRowsFingerprint(remoteLedger, { targetEnvironment: contract.environment });
   invariant(
     ledgerFingerprint === expectedLedgerFingerprint,
     "remote ledger fingerprint mismatch",
@@ -1031,6 +1044,7 @@ module.exports = {
   CONTRACTS,
   ledgerIdentifier,
   ledgerRowsFingerprint,
+  RA004_LEDGER_FINGERPRINT_VERSION,
   loadCredentialEnvironment,
   materializeSelectedWorkdir,
   parseArgs,

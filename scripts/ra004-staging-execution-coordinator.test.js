@@ -23,7 +23,7 @@ test("coordinator is pinned to the owner-authorized staging identity and artifac
   assert.equal(values.CONSOLIDATED_SHA, "a240a263d7e88084171a73317db9e19f0e2c69c9b71ca84dbe788b624a22c9c4");
   assert.equal(values.BUCKET, "ra004-staging-preflight-evidence");
   assert.equal(values.EXPECTED_PRE_LEDGER_COUNT, 96);
-  assert.equal(values.EXPECTED_PRE_LEDGER_FINGERPRINT, "d85982cd1df704c77c8d61b0d8f56038eecb4fce014ba9aa68e69b617a9efb7e");
+  assert.equal(values.EXPECTED_PRE_LEDGER_FINGERPRINT, "66d8b25242c69b7cc461e2f6deaec4882155b9eee8d0b485742a667812588b17");
   assert.equal(values.EXPECTED_POST_LEDGER_COUNT, 97);
   assert.equal(values.DEPENDENCY_CONTRACT.length, 24);
   assert.match(coordinator, /aftboxmrdgyhizicfsfu\|prod\/i/);

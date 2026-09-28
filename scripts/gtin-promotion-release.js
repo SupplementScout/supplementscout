@@ -13,6 +13,10 @@ const ROOT = path.resolve(__dirname, "..");
 const CONTRACT = CONTRACTS.PRODUCTION;
 const MIGRATION = "20260813170000_add_guarded_gtin_promotion.sql";
 const MIGRATION_ID = MIGRATION.slice(0, -4);
+const MIGRATION_CONTRACT = Object.freeze({
+  filename: MIGRATION,
+  sha256: "60114659dc4b3c8052f722a8d094768ea64ee5d11ae0afe7a9a8280c8a3ed129",
+});
 const CONFIRMATION = "OWNER_APPROVED_EXACT_45";
 const EXACT36_CONFIRMATION = "OWNER_APPROVED_EXACT_36_APPLY";
 const QUARANTINED_GTINS = Object.freeze([
@@ -165,27 +169,49 @@ async function capture(options) {
   return { result: "PASS", mode: "production-preflight", scope: config.scope, expected_writes: config.rowCount, already_present: config.initialAlreadyPresent, conflicts: 0, database_writes: 0, baseline_fingerprint: baseline.baseline_fingerprint };
 }
 
-async function migrationPreflight(options) {
-  const pending = CONTRACT.pending.find((row) => row.filename === MIGRATION);
-  if (!pending || sha256File(path.join(ROOT, "supabase", "migrations", MIGRATION)) !== pending.sha256) fail("Reviewed GTIN migration contract mismatch");
-  return ownerRead(options["env-file"], async (client, state) => {
-    const ids = state.remoteLedger.map(ledgerIdentifier);
-    if (ids.length === CONTRACT.ledgerCount && ledgerRowsFingerprint(state.remoteLedger) === CONTRACT.ledgerFingerprint && !ids.includes(MIGRATION_ID)) return { result: "PASS", migration_status: "PENDING", database_writes: 0 };
-    const prefix = state.remoteLedger.slice(0, CONTRACT.ledgerCount);
-    if (ids.length === CONTRACT.ledgerCount + 1 && ids.at(-1) === MIGRATION_ID && ledgerRowsFingerprint(prefix) === CONTRACT.ledgerFingerprint) {
+function classifyProductionMigrationLedger(remoteLedger) {
+  const ids = remoteLedger.map(ledgerIdentifier);
+  const fingerprint = ledgerRowsFingerprint(remoteLedger, { targetEnvironment: "PRODUCTION" });
+  if (ids.includes(MIGRATION_ID)) {
+    if (ids.length !== CONTRACT.ledgerCount || fingerprint !== CONTRACT.ledgerFingerprint) {
+      fail("Production migration ledger differs from the exact reviewed release state");
+    }
+    return "ALREADY_PRESENT";
+  }
+  const pending = CONTRACT.pending.find(({ filename }) => filename === MIGRATION_CONTRACT.filename);
+  if (!pending || pending.sha256 !== MIGRATION_CONTRACT.sha256) return "NOT_CURRENTLY_AUTHORIZED";
+  if (ids.length !== CONTRACT.ledgerCount || fingerprint !== CONTRACT.ledgerFingerprint) {
+    fail("Production migration ledger differs from the exact reviewed release state");
+  }
+  return "PENDING";
+}
+
+async function migrationPreflight(options, dependencies = {}) {
+  const migrationFile = dependencies.migrationFile
+    || path.join(ROOT, "supabase", "migrations", MIGRATION_CONTRACT.filename);
+  const fileSha256 = dependencies.sha256File || sha256File;
+  const ownerReadTransport = dependencies.ownerRead || ownerRead;
+  if (fileSha256(migrationFile) !== MIGRATION_CONTRACT.sha256) fail("Reviewed GTIN migration SHA-256 mismatch");
+  return ownerReadTransport(options["env-file"], async (client, state) => {
+    const migrationStatus = classifyProductionMigrationLedger(state.remoteLedger);
+    if (migrationStatus === "NOT_CURRENTLY_AUTHORIZED") fail("GTIN migration is NOT_CURRENTLY_AUTHORIZED");
+    if (migrationStatus === "PENDING") return { result: "PASS", migration_status: "PENDING", database_writes: 0 };
+    if (migrationStatus === "ALREADY_PRESENT") {
       const schema = (await client.query("select to_regprocedure('public.apply_approved_gtin_promotion_plan(uuid,text,text,text,text)') is not null apply_exists, to_regclass('public.gtin_promotion_quarantine') is not null quarantine_exists")).rows[0];
       if (!schema.apply_exists || !schema.quarantine_exists) fail("Applied GTIN migration schema is incomplete");
       return { result: "PASS", migration_status: "ALREADY_PRESENT", database_writes: 0 };
     }
-    fail("Production migration ledger differs from the exact reviewed release state");
+    fail("Production migration status is invalid");
   });
 }
 
-async function deploy(options) {
-  const preflight = await migrationPreflight(options);
+async function deploy(options, dependencies = {}) {
+  const preflightOperation = dependencies.migrationPreflight || migrationPreflight;
+  const spawn = dependencies.spawnSync || spawnSync;
+  const preflight = await preflightOperation(options);
   if (preflight.migration_status === "ALREADY_PRESENT") return { result: "PASS", migration_status: "ALREADY_PRESENT", database_writes: 0 };
   const confirmation = pendingConfirmation(CONTRACT);
-  const child = spawnSync(process.execPath, [path.join(__dirname, "apply-selected-migrations.js"), "--environment=PRODUCTION", `--project-ref=${CONTRACT.projectRef}`, "--mode=apply", `--confirm=${confirmation}`, `--env-file=${options["env-file"]}`], { cwd: ROOT, encoding: "utf8", env: { ...process.env, SAFE_UPDATE: "" } });
+  const child = spawn(process.execPath, [path.join(__dirname, "apply-selected-migrations.js"), "--environment=PRODUCTION", `--project-ref=${CONTRACT.projectRef}`, "--mode=apply", `--confirm=${confirmation}`, `--env-file=${options["env-file"]}`], { cwd: ROOT, encoding: "utf8", env: { ...process.env, SAFE_UPDATE: "" } });
   if (child.status !== 0) fail(`Reviewed migration deploy failed: ${child.stderr || child.stdout}`);
   const after = await migrationPreflight(options);
   if (after.migration_status !== "ALREADY_PRESENT") fail("GTIN migration was not recorded after deploy");
@@ -269,4 +295,4 @@ async function run(options) {
 
 if (require.main === module) run(parseArgs(process.argv.slice(2))).then((result) => console.log(JSON.stringify(result, null, 2))).catch((error) => { console.error(error.message); process.exitCode = 1; });
 
-module.exports = { EXACT36_CONFIRMATION, MIGRATION, QUARANTINED_GTINS, RELEASE_CONFIGS, exactRowDiff, parseArgs, run, snapshotSummary };
+module.exports = { EXACT36_CONFIRMATION, MIGRATION, MIGRATION_CONTRACT, QUARANTINED_GTINS, RELEASE_CONFIGS, classifyProductionMigrationLedger, deploy, exactRowDiff, migrationPreflight, parseArgs, run, snapshotSummary };

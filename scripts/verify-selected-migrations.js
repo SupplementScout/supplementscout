@@ -86,7 +86,9 @@ async function main(argv = process.argv.slice(2)) {
       environment: options.environment,
       project_ref: options.projectRef,
       ledger_count: state.remoteLedger.length,
-      ledger_fingerprint: ledgerRowsFingerprint(state.remoteLedger),
+      ledger_fingerprint: ledgerRowsFingerprint(state.remoteLedger, {
+        targetEnvironment: options.environment,
+      }),
       applied,
       catalogue_counts: counts,
       schema_checks: schemaChecks,

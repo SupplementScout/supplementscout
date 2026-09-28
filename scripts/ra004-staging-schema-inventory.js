@@ -199,7 +199,7 @@ async function collect(client) {
     roles, memberships, schema_grants: schemaGrants, extensions,
     ledger: {
       count: ledger.length,
-      fingerprint: ledgerRowsFingerprint(ledger),
+      fingerprint: ledgerRowsFingerprint(ledger, { targetEnvironment: "STAGING" }),
       last_migration: ledger.length ? `${ledger.at(-1).version}_${ledger.at(-1).name}` : null,
     },
   };
