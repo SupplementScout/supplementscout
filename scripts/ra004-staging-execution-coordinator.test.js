@@ -19,7 +19,7 @@ test("coordinator is pinned to the owner-authorized staging identity and artifac
   const values = require("./ra004-staging-execution-coordinator");
   assert.equal(values.REF, "hxnrsyyqffztlvcrtgbf");
   assert.equal(values.API_HOST, "hxnrsyyqffztlvcrtgbf.supabase.co");
-  assert.equal(values.BASELINE, "e97d06608d5927e1edd43a99978fef0322b4297d");
+  assert.equal(values.BASELINE, "5403c35e8a6fb777a184f8b4ad43f61788c61c4c");
   assert.equal(values.CONSOLIDATED_SHA, "a240a263d7e88084171a73317db9e19f0e2c69c9b71ca84dbe788b624a22c9c4");
   assert.equal(values.BUCKET, "ra004-staging-preflight-evidence");
   assert.equal(values.EXPECTED_PRE_LEDGER_COUNT, 98);
@@ -60,8 +60,17 @@ test("historical activations are terminal and final read-only activation is exac
   assert.equal(prepared.execution.retry_authorized, false);
   assert.equal(prepared.execution.replayable, false);
   assert.throws(() => validateReadOnlyActivation(prepared), /RA004_ACTIVATION_SCHEMA_MISMATCH/);
-  const authorized = JSON.parse(fs.readFileSync(path.join(ROOT,
+  const priorFinal = JSON.parse(fs.readFileSync(path.join(ROOT,
     "docs/retailer-automation/evidence/RA-004-final-readonly-preflight-canary-activation.json"), "utf8"));
+  assert.equal(priorFinal.status, "ATTEMPT_CONSUMED_FAILED_TERMINAL");
+  assert.equal(priorFinal.execution.primary_failure, "RA004_REVOKE_CONNECTION_UNVERIFIED");
+  assert.equal(priorFinal.execution.preflight_attempt_count, 1);
+  assert.equal(priorFinal.execution.canary_attempt_count, 0);
+  assert.equal(priorFinal.execution.retry_authorized, false);
+  assert.equal(priorFinal.execution.replayable, false);
+  assert.throws(() => validateReadOnlyActivation(priorFinal), /RA004_ACTIVATION_SCHEMA_MISMATCH/);
+  const authorized = JSON.parse(fs.readFileSync(path.join(ROOT,
+    "docs/retailer-automation/evidence/RA-004-post-verifier-readonly-activation.json"), "utf8"));
   assert.equal(validateReadOnlyActivation(authorized), authorized);
   for (const mutate of [
     (value) => { value.status = "CONSUMED"; },
@@ -110,7 +119,7 @@ test("secrets remain process-only and there is no migration CLI path", () => {
 
 test("activation is migration-free and both selectors stay closed", () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(ROOT,
-    "docs/retailer-automation/evidence/RA-004-final-readonly-preflight-canary-activation.json"), "utf8"));
+    "docs/retailer-automation/evidence/RA-004-post-verifier-readonly-activation.json"), "utf8"));
   assert.deepEqual(manifest.migrations, []);
   assert.equal(manifest.apply.maximum_attempts, 0);
   assert.equal(manifest.execution.migration_attempt_count, 0);

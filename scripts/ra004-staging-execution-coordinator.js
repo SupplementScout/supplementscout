@@ -18,7 +18,7 @@ const { validateLocalCa } = require("./ra004-acl-rls-readonly-audit");
 const ROOT = path.resolve(__dirname, "..");
 const REF = "hxnrsyyqffztlvcrtgbf";
 const API_HOST = "hxnrsyyqffztlvcrtgbf.supabase.co";
-const BASELINE = "e97d06608d5927e1edd43a99978fef0322b4297d";
+const BASELINE = "5403c35e8a6fb777a184f8b4ad43f61788c61c4c";
 const CONSOLIDATED_SHA = "a240a263d7e88084171a73317db9e19f0e2c69c9b71ca84dbe788b624a22c9c4";
 const ACL_MIGRATION_SHA = "58aa82b328b9bb77c09b9975892042027a493254add99fb2e1dcf045303c0b0d";
 const PLAN_FP = "bd5c259941997daad3755c1cb135f76f6eccaef1fb9e1ce0044939ce08439214";
@@ -32,7 +32,7 @@ const EXPECTED_PRE_LEDGER_COUNT = 98;
 const EXPECTED_PRE_LEDGER_FINGERPRINT = "b4e72276ba2570d2da9957c53b6c209a3799087570302af92b295467a1d4e307";
 const EXPECTED_POST_LEDGER_COUNT = 98;
 const EXPECTED_POST_LEDGER_FINGERPRINT = "b4e72276ba2570d2da9957c53b6c209a3799087570302af92b295467a1d4e307";
-const ACTIVATION_MANIFEST = "RA-004-final-readonly-preflight-canary-activation.json";
+const ACTIVATION_MANIFEST = "RA-004-post-verifier-readonly-activation.json";
 const EXPECTED_MIGRATIONS = Object.freeze([]);
 const DEPENDENCY_CONTRACT = Object.freeze([
   ...[
@@ -58,7 +58,7 @@ const DEPENDENCY_CONTRACT = Object.freeze([
     "retailer_catalogue_production_executor", "retailer_catalogue_production_validator",
   ].map((identity) => ({ kind: "role", identity })),
 ]);
-const outDir = path.join(ROOT, "tmp", "ra004-live-evidence-20260928-final");
+const outDir = path.join(ROOT, "tmp", "ra004-live-evidence-20260928-post-verifier");
 fs.mkdirSync(outDir, { recursive: true });
 
 function invariant(ok, message) { if (!ok) throw new Error(message); }
@@ -195,7 +195,7 @@ async function removeEvidencePolicies(policies) {
   return {policies_revoked:true};
 }
 function validateReadOnlyActivation(value) {
-  invariant(value?.schema_version === "ra-004-final-readonly-activation-v1", "RA004_ACTIVATION_SCHEMA_MISMATCH");
+  invariant(value?.schema_version === "ra-004-post-verifier-activation-v1", "RA004_ACTIVATION_SCHEMA_MISMATCH");
   invariant(value.status === "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED" && value.baseline_sha === BASELINE, "RA004_ACTIVATION_NOT_AUTHORIZED");
   invariant(value.target?.environment === "STAGING" && value.target?.project_ref === REF
     && value.target?.retailer?.id === "11" && value.target?.retailer?.slug === "10-reps", "RA004_ACTIVATION_TARGET_MISMATCH");
