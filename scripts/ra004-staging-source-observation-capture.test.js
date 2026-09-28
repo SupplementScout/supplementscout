@@ -20,8 +20,37 @@ test("capture is exact to staging retailer 11 and five required sources", () => 
   assert.equal(values.EXPECTED_LEDGER_COUNT, 98);
   assert.equal(values.EXPECTED_LEDGER_FINGERPRINT, "b4e72276ba2570d2da9957c53b6c209a3799087570302af92b295467a1d4e307");
   assert.deepEqual(values.SOURCES, ["sessions", "locks", "postflight_state", "watchdog_state", "global_conflicts"]);
-  assert.match(capture, /remote\.databaseTarget === selector\.CONTRACTS\.STAGING\.databaseIdentity/);
-  assert.match(capture, /remote\.identity\.current_user === "postgres"/);
+  assert.doesNotThrow(() => values.validateRemoteTarget({
+    databaseTarget: {
+      target_environment: "STAGING",
+      project_ref: "hxnrsyyqffztlvcrtgbf",
+      database_identity: "supplementscout-staging:hxnrsyyqffztlvcrtgbf",
+    },
+    identity: { current_user: "postgres" },
+  }));
+  for (const [field, value, code] of [
+    ["target_environment", "PRODUCTION", "ENVIRONMENT"],
+    ["project_ref", "wrong", "PROJECT"],
+    ["database_identity", "wrong", "TARGET"],
+  ]) {
+    assert.throws(() => values.validateRemoteTarget({
+      databaseTarget: {
+        target_environment: "STAGING",
+        project_ref: "hxnrsyyqffztlvcrtgbf",
+        database_identity: "supplementscout-staging:hxnrsyyqffztlvcrtgbf",
+        [field]: value,
+      },
+      identity: { current_user: "postgres" },
+    }), new RegExp(`RA004_SOURCE_OBSERVATION_DATABASE_${code}_MISMATCH`));
+  }
+  assert.throws(() => values.validateRemoteTarget({
+    databaseTarget: {
+      target_environment: "STAGING",
+      project_ref: "hxnrsyyqffztlvcrtgbf",
+      database_identity: "supplementscout-staging:hxnrsyyqffztlvcrtgbf",
+    },
+    identity: { current_user: "not-postgres" },
+  }), /RA004_SOURCE_OBSERVATION_DATABASE_USER_MISMATCH/);
 });
 
 test("events are deterministic in scope, bounded in time and carry observed counts", () => {

@@ -7,7 +7,7 @@ const selector = require("./supabase-migration-selector");
 const { verifyRevokedCredential } = require("./ra004-staging-revocation-verifier");
 
 const ROOT = path.resolve(__dirname, "..");
-const BASELINE = "a29326cadc28c13d134dbf0879dda59e73ff3829";
+const BASELINE = "67159bb5a1f8802f017d05dea518400908bc0f61";
 const PROJECT_REF = "hxnrsyyqffztlvcrtgbf";
 const EXPECTED_HOST = "aws-0-eu-west-3.pooler.supabase.com";
 const RETAILER_ID = "11";
@@ -49,6 +49,15 @@ group by metadata->>'logical_source' order by metadata->>'logical_source'`;
 
 function invariant(ok, code) { if (!ok) throw new Error(code); }
 function sha256(value) { return crypto.createHash("sha256").update(value).digest("hex"); }
+function validateRemoteTarget(remote) {
+  const target = remote?.databaseTarget;
+  invariant(target?.target_environment === "STAGING", "RA004_SOURCE_OBSERVATION_DATABASE_ENVIRONMENT_MISMATCH");
+  invariant(target?.project_ref === PROJECT_REF, "RA004_SOURCE_OBSERVATION_DATABASE_PROJECT_MISMATCH");
+  invariant(target?.database_identity === selector.CONTRACTS.STAGING.databaseIdentity,
+    "RA004_SOURCE_OBSERVATION_DATABASE_TARGET_MISMATCH");
+  invariant(remote?.identity?.current_user === "postgres", "RA004_SOURCE_OBSERVATION_DATABASE_USER_MISMATCH");
+  return remote;
+}
 function verifiedClient(databaseUrl, applicationName) {
   const parsed = new URL(databaseUrl);
   invariant(["postgres:", "postgresql:"].includes(parsed.protocol), "RA004_SOURCE_OBSERVATION_TARGET_INVALID");
@@ -171,9 +180,7 @@ async function main() {
   invariant(Boolean(ownerDatabaseUrl), "RA004_SOURCE_OBSERVATION_DATABASE_URL_MISSING");
   const executionCommit = readExecutionCommit();
   const remote = await selector.readRemoteState(ownerDatabaseUrl);
-  invariant(remote.databaseTarget === selector.CONTRACTS.STAGING.databaseIdentity,
-    "RA004_SOURCE_OBSERVATION_DATABASE_TARGET_MISMATCH");
-  invariant(remote.identity.current_user === "postgres", "RA004_SOURCE_OBSERVATION_DATABASE_USER_MISMATCH");
+  validateRemoteTarget(remote);
   const fingerprint = selector.ledgerRowsFingerprint(remote.remoteLedger, { targetEnvironment: "STAGING" });
   invariant(remote.remoteLedger.length === EXPECTED_LEDGER_COUNT && fingerprint === EXPECTED_LEDGER_FINGERPRINT,
     "RA004_SOURCE_OBSERVATION_LEDGER_MISMATCH");
@@ -244,5 +251,5 @@ if (require.main === module) {
 module.exports = {
   BASELINE, EXPECTED_HOST, EXPECTED_LEDGER_COUNT, EXPECTED_LEDGER_FINGERPRINT,
   PROJECT_REF, READBACK_SQL, RETAILER_ID, SOURCES, SOURCE_INVENTORY_SQL, WRITE_SQL,
-  buildEvents, readExecutionCommit,
+  buildEvents, readExecutionCommit, validateRemoteTarget,
 };
