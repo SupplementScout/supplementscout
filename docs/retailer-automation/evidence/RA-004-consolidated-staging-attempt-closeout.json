@@ -1,0 +1,69 @@
+{
+  "schema_version": "ra004-staging-closeout-v2",
+  "status": "BLOCKED_PLATFORM_LIMITATION",
+  "activation_id": "ra004-staging-1790580130471",
+  "manifest_activation_id": "ra004-consolidated-staging-interface-2026-09-28-v1",
+  "baseline_sha": "9db85844bccdffc153704230a98c4f5919a55c5f",
+  "execution_commit": "eb1e54adaa3aa3641e12229b8dfcad8b7df5317f",
+  "primary_failure": {
+    "code": "RA004_PREFLIGHT_LEDGER_UNKNOWN",
+    "redacted_message": "count or fingerprint mismatch",
+    "cause": "the PostgreSQL RPC ledger fingerprint did not equal the selector/runtime fingerprint for the same verified 97-row ledger"
+  },
+  "ledger": {
+    "before_count": 96,
+    "after_count": 97,
+    "after_fingerprint": "1692043d963e98570cd69ea2f46654c35f35a78f26c35b3d96e04751d528331c",
+    "last_migration": "20260927103000_consolidate_ra004_supabase_ownership_interfaces",
+    "migrations_applied": [
+      "20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql"
+    ]
+  },
+  "attempt_counters": {
+    "migration": 1,
+    "preflight": 1,
+    "canary": 0,
+    "auth": 1,
+    "upload": 1,
+    "readback": 1,
+    "cleanup": 1
+  },
+  "window": {
+    "started": true,
+    "starts_at": "2026-09-28T07:22:11Z",
+    "expires_at": "2026-09-28T07:52:10Z",
+    "closed_at": "2026-09-28T07:22:18Z"
+  },
+  "execution_result": {
+    "migration": "APPLIED_VERIFIED",
+    "business_row_guard_after_migration": "PASS",
+    "preflight": "FAILED_Q1_Q8_NOT_COMPLETE",
+    "canary": "NOT_RUN_PREFLIGHT_GATED"
+  },
+  "cleanup": {
+    "status": "COMPLETE",
+    "evidence_store_session": "CLOSED",
+    "storage_policies": "REVOKED",
+    "temporary_preflight_role": "ABSENT_VERIFIED",
+    "temporary_preflight_membership": "ABSENT_VERIFIED",
+    "temporary_canary_credential_created": false
+  },
+  "selectors": {
+    "staging_activation": "TERMINAL_CLOSED",
+    "ordinary_staging": "CLOSED",
+    "production": "CLOSED"
+  },
+  "forbidden_operations": {
+    "production": 0,
+    "feed_capture": 0,
+    "shadow_run": 0,
+    "control_plan": 0,
+    "approval": 0,
+    "import": 0,
+    "apply": 0,
+    "offer_writes": 0,
+    "model_b": 0
+  },
+  "next_state": "RA-004_BLOCKED_PLATFORM_LIMITATION",
+  "retry_authorized": false
+}

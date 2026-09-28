@@ -70,6 +70,9 @@ const RA004_CONSOLIDATED_ACTIVATION_SCHEMA = "ra-004-consolidated-ownership-acti
 const RA004_CONSOLIDATED_ACTIVATION_BASELINE = "9db85844bccdffc153704230a98c4f5919a55c5f";
 const RA004_CONSOLIDATED_ACTIVATION_ID = "ra004-consolidated-staging-interface-2026-09-28-v1";
 const RA004_CONSOLIDATED_ACTIVATION_FINGERPRINT = "2136c2d17ae79352f6758fae1ec64b70f33cf0f9083066ddaf75ccdefedcb2b0";
+const RA004_CONSOLIDATED_ACTIVATION_PRE_LEDGER_COUNT = 96;
+const RA004_CONSOLIDATED_ACTIVATION_PRE_LEDGER_FINGERPRINT =
+  "d85982cd1df704c77c8d61b0d8f56038eecb4fce014ba9aa68e69b617a9efb7e";
 const RA004_CONSOLIDATED_ACTIVATION_MIGRATIONS = Object.freeze([
   "20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql",
 ]);
@@ -89,12 +92,13 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 96,
+    ledgerCount: 97,
     ledgerFingerprint:
-      "d85982cd1df704c77c8d61b0d8f56038eecb4fce014ba9aa68e69b617a9efb7e",
+      "1692043d963e98570cd69ea2f46654c35f35a78f26c35b3d96e04751d528331c",
     appliedExcluded: Object.freeze([
       RA004_FIXTURE_MIGRATION,
       "20260926110000_add_ra004_staging_interface_compatibility.sql",
+      "20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql",
     ]),
     excluded: Object.freeze({
       "20260922160000_allow_owner_approved_fit_house_six_oos.sql": "be780721eee14c19761546107b7f249e9bea0c451a54732dfd259a7b348132fa",
@@ -534,8 +538,8 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
     );
   } else if (consolidatedActivation) {
     invariant(
-      manifest?.pre_activation_ledger?.count === contract.ledgerCount
-        && manifest?.pre_activation_ledger?.fingerprint === contract.ledgerFingerprint
+      manifest?.pre_activation_ledger?.count === RA004_CONSOLIDATED_ACTIVATION_PRE_LEDGER_COUNT
+        && manifest?.pre_activation_ledger?.fingerprint === RA004_CONSOLIDATED_ACTIVATION_PRE_LEDGER_FINGERPRINT
         && manifest?.pre_activation_ledger?.last_version === "20260926110000"
         && manifest?.pre_activation_ledger?.last_name === "add_ra004_staging_interface_compatibility",
       "consolidated activation pre-ledger mismatch",
@@ -738,14 +742,14 @@ function validateSelection({
     ? fixtureActivation
       ? RA004_FIXTURE_PRE_ACTIVATION_LEDGER_COUNT
       : activationManifest.schema_version === RA004_CONSOLIDATED_ACTIVATION_SCHEMA
-        ? contract.ledgerCount
+        ? RA004_CONSOLIDATED_ACTIVATION_PRE_LEDGER_COUNT
       : RA004_ACTIVATION_PRE_LEDGER_COUNT
     : contract.ledgerCount;
   const expectedLedgerFingerprint = activationManifest
     ? fixtureActivation
       ? RA004_FIXTURE_PRE_ACTIVATION_LEDGER_FINGERPRINT
       : activationManifest.schema_version === RA004_CONSOLIDATED_ACTIVATION_SCHEMA
-        ? contract.ledgerFingerprint
+        ? RA004_CONSOLIDATED_ACTIVATION_PRE_LEDGER_FINGERPRINT
       : RA004_ACTIVATION_PRE_LEDGER_FINGERPRINT
     : contract.ledgerFingerprint;
   invariant(remoteLedger.length === expectedLedgerCount, "remote ledger count mismatch");

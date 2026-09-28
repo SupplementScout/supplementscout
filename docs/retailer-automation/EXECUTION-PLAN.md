@@ -1,14 +1,14 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: RA-004 IN PROGRESS — CONSOLIDATED SUPABASE OWNERSHIP ARCHITECTURE READY_FOR_VERIFICATION WITH TWO PRE_EXISTING_BASELINE_FAILURES**
+**Status: RA-004 BLOCKED_PLATFORM_LIMITATION — FINAL STAGING ATTEMPT TERMINALLY CLOSED**
 
 **Current active task:** RA-004 — `IN_PROGRESS`; its documentation preflight is
-verified; the fixture-only exporter is preserved in PR #89, and one new
-forward-only migration now consolidates the remaining control-state and
-preflight interfaces under the verified `postgres` migration owner without
-`SET ROLE`. Both deployment selectors remain closed. The shadow run is not
-authorized; the corrected test-only single-snapshot adapter is
-`VERIFIED_COMPLETE`.
+verified; the fixture-only exporter is preserved in PR #89. The consolidated
+interface migration is applied on staging, but its single Q1–Q8 attempt stopped
+because the PostgreSQL RPC and selector/runtime derived different fingerprints
+for the same verified 97-row migration ledger. The canary did not run. Cleanup
+and revoke are verified complete, both selectors are closed, and no retry is
+authorized. The shadow run remains unauthorized.
 
 **Implementation:** fixture exporter plus locally database-verified forward-only
 transactional interface, unwired live-provider contract and fail-closed
@@ -470,14 +470,19 @@ PRODUCTION selectors remain closed; there is no activation or remote execution
 in this draft. See
 [`evidence/RA-004-CONSOLIDATED-SUPABASE-OWNERSHIP-ARCHITECTURE.md`](evidence/RA-004-CONSOLIDATED-SUPABASE-OWNERSHIP-ARCHITECTURE.md).
 
-**Final consolidated staging activation:** `OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED`.
-The one-shot activation is bound to baseline `9db85844bccdffc153704230a98c4f5919a55c5f`,
-the exact ledger-96 staging state, and only the consolidated ownership migration
-at its reviewed SHA-256. Compatibility is recorded as already applied and cannot
-be selected again; every older RA-004 interface migration and the production
-selector remain closed. See
+**Final consolidated staging activation:**
+`ATTEMPT_CONSUMED_FAILED_TERMINAL_PLATFORM_LIMITATION`.
+The one-shot activation applied only the reviewed consolidated migration and
+advanced the staging ledger from 96 to 97. Q1–Q8 then failed closed on
+`RA004_PREFLIGHT_LEDGER_UNKNOWN` because the PostgreSQL RPC ledger fingerprint
+did not match the selector/runtime fingerprint for the same 97 rows. Canary was
+not run. The evidence session and window are closed; bounded emergency cleanup
+verified the temporary role and membership absent. Compatibility and the
+consolidated migration are now recorded as already applied; every older RA-004
+interface migration and the production selector remain closed. See
 [`evidence/RA-004-CONSOLIDATED-OWNERSHIP-ACTIVATION.md`](evidence/RA-004-CONSOLIDATED-OWNERSHIP-ACTIVATION.md)
-and its machine-readable activation manifest.
+and
+[`evidence/RA-004-CONSOLIDATED-STAGING-ATTEMPT-CLOSEOUT.md`](evidence/RA-004-CONSOLIDATED-STAGING-ATTEMPT-CLOSEOUT.md).
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
