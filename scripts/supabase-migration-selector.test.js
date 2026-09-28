@@ -64,6 +64,11 @@ const RA004_CONSOLIDATED_ACTIVATION_FILE = path.join(
 const RA004_CONSOLIDATED_ACTIVATION = JSON.parse(
   fs.readFileSync(RA004_CONSOLIDATED_ACTIVATION_FILE, "utf8"),
 );
+const RA004_ACL_ACTIVATION_FILE = path.join(
+  ROOT,
+  "docs/retailer-automation/evidence/RA-004-acl-rls-correction-activation.json",
+);
+const RA004_ACL_ACTIVATION = JSON.parse(fs.readFileSync(RA004_ACL_ACTIVATION_FILE, "utf8"));
 function preparedFinalActivation() {
   const manifest = JSON.parse(JSON.stringify(RA004_FINAL_ACTIVATION));
   manifest.status = "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED";
@@ -732,6 +737,25 @@ test("RA-004 ACL/RLS diagnostic correction remains SHA-bound and closed in both 
   assert.equal(CONTRACTS.PRODUCTION.excluded[filename], expected);
   assert.ok(!CONTRACTS.STAGING.pending.some((entry) => entry.filename === filename));
   assert.ok(!CONTRACTS.PRODUCTION.pending.some((entry) => entry.filename === filename));
+});
+
+test("owner-authorized ACL/RLS activation selects exactly one migration from ledger 97", () => {
+  const fixture = require("./test-fixtures/ra004-ledger-fingerprint-v1/staging-ledger-97.json");
+  const result = validateSelection(validInput({
+    remoteLedger: fixture.rows,
+    activationManifest: RA004_ACL_ACTIVATION,
+  }));
+  assert.deepEqual(result.pending_files, ["20260928100000_diagnose_ra004_preflight_acl_rls.sql"]);
+  assert.deepEqual(result.pending_sha256s, {
+    "20260928100000_diagnose_ra004_preflight_acl_rls.sql": "58aa82b328b9bb77c09b9975892042027a493254add99fb2e1dcf045303c0b0d",
+  });
+  assert.equal(result.ledger_count, 97);
+  assert.equal(result.ledger_fingerprint, "bbfc25a25826ebfd4901941099903921e1f5adeb9d952eb6aa93c64939e3849c");
+  assert.throws(() => parseArgs([
+    "--environment=PRODUCTION",
+    `--project-ref=${CONTRACTS.PRODUCTION.projectRef}`,
+    `--activation-manifest=${RA004_ACL_ACTIVATION_FILE}`,
+  ]), /staging-only/);
 });
 
 test("consumed RA-004 activation and both forward migrations remain closed", () => {

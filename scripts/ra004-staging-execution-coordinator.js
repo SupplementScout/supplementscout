@@ -13,12 +13,14 @@ const { createLiveReadOnlyProvider } = require("./lib/retailer-offer-sync/contro
 const { exportControlState, writeArtifact } = require("./lib/retailer-offer-sync/control-state-export-v1/exporter");
 const controlAuth = require("./lib/retailer-offer-sync/control-state-export-v1/authorization");
 const { SOURCE_NAMES, PROHIBITED_OPERATIONS } = require("./lib/retailer-offer-sync/control-state-export-v1/schema");
+const { validateLocalCa } = require("./ra004-acl-rls-readonly-audit");
 
 const ROOT = path.resolve(__dirname, "..");
 const REF = "hxnrsyyqffztlvcrtgbf";
 const API_HOST = "hxnrsyyqffztlvcrtgbf.supabase.co";
-const BASELINE = "bbae3435b9a463c1b53d9e5f73912da5e06fe533";
+const BASELINE = "8879544a2f5d9f7698935f1d76049cefe9bb6b2d";
 const CONSOLIDATED_SHA = "a240a263d7e88084171a73317db9e19f0e2c69c9b71ca84dbe788b624a22c9c4";
+const ACL_MIGRATION_SHA = "58aa82b328b9bb77c09b9975892042027a493254add99fb2e1dcf045303c0b0d";
 const PLAN_FP = "bd5c259941997daad3755c1cb135f76f6eccaef1fb9e1ce0044939ce08439214";
 const BUCKET = "ra004-staging-preflight-evidence";
 const EVIDENCE_NAMES = Object.freeze([
@@ -29,10 +31,11 @@ const EVIDENCE_NAMES = Object.freeze([
 const ownerUrl = process.env.RA004_OWNER_DATABASE_URL;
 const EXPECTED_PRE_LEDGER_COUNT = 97;
 const EXPECTED_PRE_LEDGER_FINGERPRINT = "bbfc25a25826ebfd4901941099903921e1f5adeb9d952eb6aa93c64939e3849c";
-const EXPECTED_POST_LEDGER_COUNT = 97;
-const ACTIVATION_MANIFEST = "RA-004-ledger97-preflight-canary-activation.json";
+const EXPECTED_POST_LEDGER_COUNT = 98;
+const EXPECTED_POST_LEDGER_FINGERPRINT = "b4e72276ba2570d2da9957c53b6c209a3799087570302af92b295467a1d4e307";
+const ACTIVATION_MANIFEST = "RA-004-acl-rls-correction-activation.json";
 const EXPECTED_MIGRATIONS = Object.freeze([
-  ["20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql", CONSOLIDATED_SHA],
+  ["20260928100000_diagnose_ra004_preflight_acl_rls.sql", ACL_MIGRATION_SHA],
 ]);
 const DEPENDENCY_CONTRACT = Object.freeze([
   ...[
@@ -109,7 +112,8 @@ function readExecutionCommit(spawn = spawnSync) {
   return head;
 }
 function jsonWrite(file, value) { const target=path.join(outDir,file); fs.writeFileSync(target, `${JSON.stringify(value,null,2)}\n`, { flag:"wx" }); return target; }
-async function db(text, values=[]) { const client=new Client({connectionString:ownerUrl,ssl:{rejectUnauthorized:false},application_name:"ra004-guarded-owner-v1"}); try { await client.connect(); return await client.query(text,values); } finally { await client.end(); } }
+function verifiedTls() { const hostname=new URL(ownerUrl).hostname; return {rejectUnauthorized:true,servername:hostname,minVersion:"TLSv1.2"}; }
+async function db(text, values=[]) { const client=new Client({connectionString:ownerUrl,ssl:verifiedTls(),application_name:"ra004-guarded-owner-v1"}); try { await client.connect(); return await client.query(text,values); } finally { await client.end(); } }
 async function businessCounts() {
   return (await db(`select
     (select count(*)::text from public.products) products,
@@ -135,16 +139,16 @@ async function verifyDependencyContract() {
     "RA004_DEPENDENCY_CONTRACT_DRIFT");
   return { count: 24, status: "PRESENT_MATCHING", fingerprint: sha256(rows) };
 }
-async function ownerTransaction(statements) { const client=new Client({connectionString:ownerUrl,ssl:{rejectUnauthorized:false},application_name:"ra004-evidence-policy-owner-v1"}); try { await client.connect(); await client.query("begin"); for(const statement of statements) await client.query(statement); await client.query("commit"); } catch(error) { try { await client.query("rollback"); } catch {} throw error; } finally { await client.end(); } }
+async function ownerTransaction(statements) { const client=new Client({connectionString:ownerUrl,ssl:verifiedTls(),application_name:"ra004-evidence-policy-owner-v1"}); try { await client.connect(); await client.query("begin"); for(const statement of statements) await client.query(statement); await client.query("commit"); } catch(error) { try { await client.query("rollback"); } catch {} throw error; } finally { await client.end(); } }
 function credentialReader() {
   let seq=0; const pending=new Map();
-  const child=fork(path.join(__dirname,"ra004-staging-credential-issuer.js"),[],{env:{RA004_OWNER_DATABASE_URL:ownerUrl},stdio:["ignore","ignore","ignore","ipc"]});
+  const child=fork(path.join(__dirname,"ra004-staging-credential-issuer.js"),[],{env:{RA004_OWNER_DATABASE_URL:ownerUrl,NODE_EXTRA_CA_CERTS:process.env.NODE_EXTRA_CA_CERTS},stdio:["ignore","ignore","ignore","ipc"]});
   child.on("message",m=>{const item=pending.get(m.request_id); if(!item)return; pending.delete(m.request_id); if(m.ok)item.resolve(m.result);else item.reject(new Error(m.error));});
   return { pid:child.pid, call(message){return new Promise((resolve,reject)=>{const request_id=++seq;pending.set(request_id,{resolve,reject});child.send({...message,request_id});});}, close(){child.disconnect();} };
 }
 function verifyRevokedCredential(databaseUrl) {
   return new Promise((resolve,reject)=>{
-    const child=fork(path.join(__dirname,"ra004-staging-revocation-verifier.js"),[],{env:{RA004_REVOKED_DATABASE_URL:databaseUrl},stdio:["ignore","ignore","ignore","ipc"]});
+    const child=fork(path.join(__dirname,"ra004-staging-revocation-verifier.js"),[],{env:{RA004_REVOKED_DATABASE_URL:databaseUrl,NODE_EXTRA_CA_CERTS:process.env.NODE_EXTRA_CA_CERTS},stdio:["ignore","ignore","ignore","ipc"]});
     child.once("message",message=>{child.disconnect();if(message.ok)resolve(message.result);else reject(new Error(message.error));});
     child.once("error",reject);
   });
@@ -158,6 +162,7 @@ function evidenceCustodian(activation, expiresAt) {
     RA004_STORAGE_PASSWORD:process.env.RA004_STORAGE_PASSWORD,
     RA004_STORAGE_ACTIVATION_ID:activation,
     RA004_STORAGE_WINDOW_EXPIRES_AT:expiresAt,
+    NODE_EXTRA_CA_CERTS:process.env.NODE_EXTRA_CA_CERTS,
   };
   const child=fork(path.join(__dirname,"ra004-staging-evidence-custodian.js"),[],{env:storageEnvironment,stdio:["ignore","ignore","ignore","ipc"]});
   child.on("message",m=>{const item=pending.get(m.request_id);if(!item)return;pending.delete(m.request_id);if(m.ok)item.resolve(m.result);else {const error=new Error(m.error);error.details=m.details;item.reject(error);}});
@@ -254,20 +259,33 @@ function runCli(arguments_, extraEnvironment = {}, options = {}) {
   }
   return String(result.stdout || "").slice(0, 2_000);
 }
+function pushSelectedMigrations(workdir) {
+  const parsed = new URL(ownerUrl);
+  const password = decodeURIComponent(parsed.password);
+  invariant(password.length > 0, "RA004_DATABASE_PASSWORD_MISSING");
+  parsed.password = ""; parsed.search = ""; parsed.hash = "";
+  const databaseUrl = parsed.toString();
+  invariant(!databaseUrl.includes(password), "RA004_DATABASE_PASSWORD_REDACTION_FAILED");
+  const pushEnvironment = { PGPASSWORD: password, PGSSLROOTCERT: process.env.NODE_EXTRA_CA_CERTS };
+  runCli(["db", "push", "--db-url", databaseUrl, "--workdir", workdir, "--yes"], pushEnvironment);
+  pushEnvironment.PGPASSWORD = "";
+}
 function validateReadOnlyActivation(value) {
-  invariant(value?.schema_version === "ra-004-ledger97-preflight-canary-activation-v1", "RA004_ACTIVATION_SCHEMA_MISMATCH");
-  invariant(value.status === "READY_FOR_ONE_ATTEMPT" && value.baseline_sha === BASELINE, "RA004_ACTIVATION_NOT_AUTHORIZED");
+  invariant(value?.schema_version === "ra-004-acl-rls-correction-activation-v1", "RA004_ACTIVATION_SCHEMA_MISMATCH");
+  invariant(value.status === "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED" && value.baseline_sha === BASELINE, "RA004_ACTIVATION_NOT_AUTHORIZED");
   invariant(value.target?.environment === "STAGING" && value.target?.project_ref === REF
     && value.target?.retailer?.id === "11" && value.target?.retailer?.slug === "10-reps", "RA004_ACTIVATION_TARGET_MISMATCH");
-  invariant(value.selector?.staging === "CLOSED" && value.selector?.production === "CLOSED", "RA004_SELECTOR_NOT_CLOSED");
-  invariant(value.ledger?.count === EXPECTED_PRE_LEDGER_COUNT
-    && value.ledger?.fingerprint === EXPECTED_PRE_LEDGER_FINGERPRINT
-    && value.ledger?.last_migration === "20260927103000_consolidate_ra004_supabase_ownership_interfaces", "RA004_ACTIVATION_LEDGER_MISMATCH");
+  invariant(value.production?.authorized === false && value.production?.selector_unchanged === true, "RA004_PRODUCTION_SELECTOR_NOT_CLOSED");
+  invariant(value.pre_activation_ledger?.count === EXPECTED_PRE_LEDGER_COUNT
+    && value.pre_activation_ledger?.fingerprint === EXPECTED_PRE_LEDGER_FINGERPRINT
+    && value.pre_activation_ledger?.last_version === "20260927103000", "RA004_ACTIVATION_LEDGER_MISMATCH");
   invariant(Array.isArray(value.migrations) && value.migrations.length === EXPECTED_MIGRATIONS.length
     && EXPECTED_MIGRATIONS.every(([filename, sha256], index) => value.migrations[index]?.filename === filename
-      && value.migrations[index]?.sha256 === sha256 && value.migrations[index]?.status === "ALREADY_PRESENT"), "RA004_ACTIVATION_MIGRATION_MISMATCH");
-  invariant(value.attempts?.migration === 0 && value.attempts?.preflight === 1
-    && value.attempts?.canary === 1 && value.attempts?.retry === false, "RA004_ACTIVATION_ATTEMPTS_MISMATCH");
+      && value.migrations[index]?.sha256 === sha256), "RA004_ACTIVATION_MIGRATION_MISMATCH");
+  invariant(value.apply?.maximum_attempts === 1 && value.apply?.automatic_retry === false
+    && value.apply?.manual_retry === false && value.apply?.include_all === false
+    && value.preflight?.maximum_attempts === 1 && value.canary?.maximum_attempts === 1
+    && value.canary?.requires_preflight_pass === true, "RA004_ACTIVATION_ATTEMPTS_MISMATCH");
   return value;
 }
 function ensureWindow(expires) {
@@ -279,15 +297,22 @@ async function main() {
   "RA004_AUTHENTICATION_MISSING");
   const parsed=new URL(ownerUrl);
   invariant(!`${parsed.hostname}|${parsed.username}`.match(/aftboxmrdgyhizicfsfu|prod/i),"RA004_PRODUCTION_TARGET_REJECTED");
+  validateLocalCa(process.env.NODE_EXTRA_CA_CERTS);
   const executionCommit=readExecutionCommit();
   const remote=await selector.readRemoteState(ownerUrl);
   invariant(remote.remoteLedger.length===EXPECTED_PRE_LEDGER_COUNT
     && selector.ledgerRowsFingerprint(remote.remoteLedger, {targetEnvironment:"STAGING"})===EXPECTED_PRE_LEDGER_FINGERPRINT,
   "RA004_PRE_LEDGER_MISMATCH");
-  validateReadOnlyActivation(JSON.parse(fs.readFileSync(path.join(ROOT,"docs/retailer-automation/evidence",ACTIVATION_MANIFEST),"utf8")));
+  const activationManifest=validateReadOnlyActivation(JSON.parse(fs.readFileSync(path.join(ROOT,"docs/retailer-automation/evidence",ACTIVATION_MANIFEST),"utf8")));
   const appliedIdentifiers=new Set(remote.remoteLedger.map(row=>`${row.version}_${row.name}.sql`));
-  invariant(EXPECTED_MIGRATIONS.every(([file, hash]) => appliedIdentifiers.has(file)
-    && hashFile(path.join(ROOT,"supabase","migrations",file))===hash),"RA004_REQUIRED_MIGRATION_NOT_PRESENT");
+  invariant(EXPECTED_MIGRATIONS.every(([file, hash]) => !appliedIdentifiers.has(file)
+    && hashFile(path.join(ROOT,"supabase","migrations",file))===hash),"RA004_MIGRATION_ALREADY_PRESENT_OR_SHA_MISMATCH");
+  const selection=selector.validateSelection({environment:"STAGING",projectRef:REF,databaseTarget:remote.databaseTarget,
+    remoteLedger:remote.remoteLedger,activationManifest});
+  const selectedWorkdir=path.join(ROOT,"tmp","ra004-selected-staging-migrations");
+  selector.materializeSelectedWorkdir({selection,workdir:selectedWorkdir});
+  invariant(selection.pending_files.length===1 && selection.pending_files[0]===EXPECTED_MIGRATIONS[0][0]
+    && selection.pending_sha256s[selection.pending_files[0]]===ACL_MIGRATION_SHA,"RA004_SELECTOR_NOT_EXACT");
   const retailer=(await db("select id::text,name,slug from public.retailers where lower(name)='10 reps' or lower(slug)='10-reps'")).rows;
   invariant(retailer.length===1 && retailer[0].name==="10 Reps" && retailer[0].slug==="10-reps" && retailer[0].id==="11","RA004_RETAILER_AMBIGUOUS");
   const preObjects=(await db("select to_regprocedure('public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer)') control_rpc,to_regprocedure('public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer)') preflight_rpc")).rows[0];
@@ -329,11 +354,15 @@ async function main() {
     const policyAttestation=await attestEvidenceStore(policies);
     startsAt=utc();
     ensureWindow(expires);
-    const migrationReceipts=EXPECTED_MIGRATIONS.map(([file,sha256])=>({file,sha256,status:"ALREADY_PRESENT_VERIFIED",database_writes:0}));
+    operationAttempts.migration+=1;
+    pushSelectedMigrations(selectedWorkdir);
+    const migrationReceipts=EXPECTED_MIGRATIONS.map(([file,sha256])=>({file,sha256,status:"APPLIED_VERIFIED",database_writes:1}));
     const postRemote=await selector.readRemoteState(ownerUrl);
     invariant(postRemote.remoteLedger.length===EXPECTED_POST_LEDGER_COUNT
       && postRemote.remoteLedger.slice(0,remote.remoteLedger.length).every((row,index)=>JSON.stringify(row)===JSON.stringify(remote.remoteLedger[index]))
-      && selector.ledgerRowsFingerprint(postRemote.remoteLedger, {targetEnvironment:"STAGING"})===EXPECTED_PRE_LEDGER_FINGERPRINT,
+      && postRemote.remoteLedger.at(-1)?.version==="20260928100000"
+      && postRemote.remoteLedger.at(-1)?.name==="diagnose_ra004_preflight_acl_rls"
+      && selector.ledgerRowsFingerprint(postRemote.remoteLedger, {targetEnvironment:"STAGING"})===EXPECTED_POST_LEDGER_FINGERPRINT,
     "RA004_POST_LEDGER_MISMATCH");
     const dependencyContract=await verifyDependencyContract();
     const businessAfterMigrations=await businessCounts();
@@ -437,8 +466,8 @@ if (require.main === module) {
 }
 
 module.exports = {
-  API_HOST, BASELINE, BUCKET, CONSOLIDATED_SHA, DEPENDENCY_CONTRACT,
+  ACL_MIGRATION_SHA, API_HOST, BASELINE, BUCKET, CONSOLIDATED_SHA, DEPENDENCY_CONTRACT,
   EXPECTED_MIGRATIONS, EXPECTED_POST_LEDGER_COUNT,
-  EXPECTED_PRE_LEDGER_COUNT, EXPECTED_PRE_LEDGER_FINGERPRINT, PLAN_FP, REF,
+  EXPECTED_POST_LEDGER_FINGERPRINT, EXPECTED_PRE_LEDGER_COUNT, EXPECTED_PRE_LEDGER_FINGERPRINT, PLAN_FP, REF,
   buildFailureReport, readExecutionCommit, redactCliOutput, runCli, safeFailureCode, validateReadOnlyActivation,
 };

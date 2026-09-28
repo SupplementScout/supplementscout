@@ -19,51 +19,49 @@ test("coordinator is pinned to the owner-authorized staging identity and artifac
   const values = require("./ra004-staging-execution-coordinator");
   assert.equal(values.REF, "hxnrsyyqffztlvcrtgbf");
   assert.equal(values.API_HOST, "hxnrsyyqffztlvcrtgbf.supabase.co");
-  assert.equal(values.BASELINE, "bbae3435b9a463c1b53d9e5f73912da5e06fe533");
+  assert.equal(values.BASELINE, "8879544a2f5d9f7698935f1d76049cefe9bb6b2d");
   assert.equal(values.CONSOLIDATED_SHA, "a240a263d7e88084171a73317db9e19f0e2c69c9b71ca84dbe788b624a22c9c4");
   assert.equal(values.BUCKET, "ra004-staging-preflight-evidence");
   assert.equal(values.EXPECTED_PRE_LEDGER_COUNT, 97);
   assert.equal(values.EXPECTED_PRE_LEDGER_FINGERPRINT, "bbfc25a25826ebfd4901941099903921e1f5adeb9d952eb6aa93c64939e3849c");
-  assert.equal(values.EXPECTED_POST_LEDGER_COUNT, 97);
+  assert.equal(values.ACL_MIGRATION_SHA, "58aa82b328b9bb77c09b9975892042027a493254add99fb2e1dcf045303c0b0d");
+  assert.equal(values.EXPECTED_POST_LEDGER_COUNT, 98);
+  assert.equal(values.EXPECTED_POST_LEDGER_FINGERPRINT, "b4e72276ba2570d2da9957c53b6c209a3799087570302af92b295467a1d4e307");
   assert.equal(values.DEPENDENCY_CONTRACT.length, 24);
   assert.match(coordinator, /aftboxmrdgyhizicfsfu\|prod\/i/);
   assert.match(coordinator, /retailer\[0\]\.id==="11"/);
 });
 
-test("already-present migration is attested and cannot be applied again", () => {
+test("exact ACL/RLS migration is selected once without include-all", () => {
   assert.match(coordinator, /validateReadOnlyActivation/);
-  assert.match(coordinator, /status:"ALREADY_PRESENT_VERIFIED",database_writes:0/);
+  assert.match(coordinator, /status:"APPLIED_VERIFIED",database_writes:1/);
   assert.deepEqual(require("./ra004-staging-execution-coordinator").EXPECTED_MIGRATIONS, [
-    ["20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql", "a240a263d7e88084171a73317db9e19f0e2c69c9b71ca84dbe788b624a22c9c4"],
+    ["20260928100000_diagnose_ra004_preflight_acl_rls.sql", "58aa82b328b9bb77c09b9975892042027a493254add99fb2e1dcf045303c0b0d"],
   ]);
   assert.doesNotMatch(coordinator, /20260927101000_reissue_ra004_staging_preflight_metadata_interface/);
-  assert.doesNotMatch(coordinator, /pushSelectedMigrations\(/);
-  assert.doesNotMatch(coordinator, /\["db", "push"/);
+  assert.equal((coordinator.match(/pushSelectedMigrations\(selectedWorkdir\)/g) || []).length, 1);
+  assert.match(coordinator, /\["db", "push", "--db-url", databaseUrl, "--workdir", workdir, "--yes"\]/);
   assert.doesNotMatch(coordinator, /--include-all/);
   assert.doesNotMatch(coordinator, /insert into supabase_migrations/i);
   assert.doesNotMatch(coordinator, /await db\(sql\)/);
 });
 
-test("read-only activation is exact, closed and fail-closed on mutation", () => {
+test("one-shot activation is exact and fail-closed on mutation", () => {
   const { validateReadOnlyActivation } = require("./ra004-staging-execution-coordinator");
   const activation = JSON.parse(fs.readFileSync(path.join(ROOT,
-    "docs/retailer-automation/evidence/RA-004-ledger97-preflight-canary-activation.json"), "utf8"));
-  assert.equal(activation.status, "ATTEMPT_CONSUMED_FAILED_TERMINAL");
+    "docs/retailer-automation/evidence/RA-004-acl-rls-correction-activation.json"), "utf8"));
+  assert.equal(activation.status, "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED");
   assert.equal(activation.execution.retry_authorized, false);
   assert.equal(activation.execution.replayable, false);
-  assert.throws(() => validateReadOnlyActivation(activation), /RA004_ACTIVATION_NOT_AUTHORIZED/);
-  const prepared = structuredClone(activation);
-  prepared.status = "READY_FOR_ONE_ATTEMPT";
-  delete prepared.execution;
-  assert.equal(validateReadOnlyActivation(prepared), prepared);
+  assert.equal(validateReadOnlyActivation(activation), activation);
   for (const mutate of [
     (value) => { value.status = "CONSUMED"; },
-    (value) => { value.selector.staging = "OPEN"; },
-    (value) => { value.attempts.migration = 1; },
-    (value) => { value.ledger.count = 96; },
+    (value) => { value.production.authorized = true; },
+    (value) => { value.apply.maximum_attempts = 2; },
+    (value) => { value.pre_activation_ledger.count = 96; },
     (value) => { value.migrations[0].sha256 = "0".repeat(64); },
   ]) {
-    const changed = structuredClone(prepared);
+    const changed = structuredClone(activation);
     mutate(changed);
     assert.throws(() => validateReadOnlyActivation(changed), /RA004_/);
   }
@@ -94,7 +92,8 @@ test("execution is bound to a clean exact origin/main squash-merge commit", () =
 test("secrets remain process-only and are not placed in CLI arguments or output", () => {
   assert.match(coordinator, /delete childEnvironment\.RA004_OWNER_DATABASE_URL/);
   assert.match(coordinator, /delete childEnvironment\.RA004_SUPABASE_ACCESS_TOKEN/);
-  assert.doesNotMatch(coordinator, /const pushEnvironment|decodeURIComponent\(parsed\.password\)/);
+  assert.match(coordinator, /const pushEnvironment|decodeURIComponent\(parsed\.password\)/);
+  assert.doesNotMatch(coordinator, /console\.log\(databaseUrl|console\.log\(password/);
   assert.doesNotMatch(coordinator, /SUPABASE_ACCESS_TOKEN: pat|"--linked"|"--password"/);
   assert.match(coordinator, /\[REDACTED\]/);
   assert.doesNotMatch(coordinator, /console\.log\(ownerUrl|console\.log\(pat/);
@@ -249,7 +248,7 @@ test("preflight gates exactly one later control-state canary and both credential
 });
 
 test("operation attempts are counted once and failure closeout performs read-only ledger readback", () => {
-  assert.equal((coordinator.match(/operationAttempts\.migration\+=1/g) || []).length, 0);
+  assert.equal((coordinator.match(/operationAttempts\.migration\+=1/g) || []).length, 1);
   assert.equal((coordinator.match(/operationAttempts\.preflight\+=1/g) || []).length, 1);
   assert.equal((coordinator.match(/operationAttempts\.canary\+=1/g) || []).length, 1);
   assert.match(coordinator, /if\(primaryError\) \{\s*try \{\s*const readback=await selector\.readRemoteState\(ownerUrl\)/s);
