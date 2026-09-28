@@ -18,22 +18,26 @@ const { validateLocalCa } = require("./ra004-acl-rls-readonly-audit");
 const ROOT = path.resolve(__dirname, "..");
 const REF = "hxnrsyyqffztlvcrtgbf";
 const API_HOST = "hxnrsyyqffztlvcrtgbf.supabase.co";
-const BASELINE = "5403c35e8a6fb777a184f8b4ad43f61788c61c4c";
+const BASELINE = "11e8db1397516645b48fc9a574d23685582531df";
 const CONSOLIDATED_SHA = "a240a263d7e88084171a73317db9e19f0e2c69c9b71ca84dbe788b624a22c9c4";
 const ACL_MIGRATION_SHA = "58aa82b328b9bb77c09b9975892042027a493254add99fb2e1dcf045303c0b0d";
+const PROVIDER_IDENTITY_SHA = "4454cebd1e462a20d4a612d253025c013b5c8276a4d51aa4e43016a7f248fc91";
 const PLAN_FP = "bd5c259941997daad3755c1cb135f76f6eccaef1fb9e1ce0044939ce08439214";
 const BUCKET = "ra004-staging-preflight-evidence";
 const EVIDENCE_NAMES = Object.freeze([
   "preflight-report.json", "preflight-revoke.json", "control-state-canary.json",
   "control-state-revoke.json", "policy-attestation.json", "closeout.json",
+  "supabase-cli-failure-1.stdout.txt", "supabase-cli-failure-1.stderr.txt",
 ]);
 const ownerUrl = process.env.RA004_OWNER_DATABASE_URL;
 const EXPECTED_PRE_LEDGER_COUNT = 98;
 const EXPECTED_PRE_LEDGER_FINGERPRINT = "b4e72276ba2570d2da9957c53b6c209a3799087570302af92b295467a1d4e307";
-const EXPECTED_POST_LEDGER_COUNT = 98;
-const EXPECTED_POST_LEDGER_FINGERPRINT = "b4e72276ba2570d2da9957c53b6c209a3799087570302af92b295467a1d4e307";
-const ACTIVATION_MANIFEST = "RA-004-post-verifier-readonly-activation.json";
-const EXPECTED_MIGRATIONS = Object.freeze([]);
+const EXPECTED_POST_LEDGER_COUNT = 99;
+const EXPECTED_POST_LEDGER_FINGERPRINT = "a6e7693f964925554e807602752e4630d14f537a1d9de4fe82f8433d30c307cc";
+const ACTIVATION_MANIFEST = "RA-004-provider-identity-staging-activation.json";
+const EXPECTED_MIGRATIONS = Object.freeze([
+  ["20260928101000_align_ra004_control_export_provider_identity.sql", PROVIDER_IDENTITY_SHA],
+]);
 const DEPENDENCY_CONTRACT = Object.freeze([
   ...[
     "public.approved_import_plans", "public.retailer_catalogue_apply_runs",
@@ -58,7 +62,7 @@ const DEPENDENCY_CONTRACT = Object.freeze([
     "retailer_catalogue_production_executor", "retailer_catalogue_production_validator",
   ].map((identity) => ({ kind: "role", identity })),
 ]);
-const outDir = path.join(ROOT, "tmp", "ra004-live-evidence-20260928-post-verifier");
+const outDir = path.join(ROOT, "tmp", "ra004-live-evidence-20260928-provider-identity");
 fs.mkdirSync(outDir, { recursive: true });
 
 function invariant(ok, message) { if (!ok) throw new Error(message); }
@@ -194,28 +198,111 @@ async function removeEvidencePolicies(policies) {
   invariant(remaining.count===0,"RA004_STORAGE_POLICY_REVOKE_UNVERIFIED");
   return {policies_revoked:true};
 }
+let cliAttemptCount = 0;
+function redactCliOutput(value, secrets = []) {
+  let redacted = String(value || "").slice(0, 20_000);
+  for (const secret of secrets.filter((item) => typeof item === "string" && item.length >= 4)) {
+    redacted = redacted.split(secret).join("[REDACTED]");
+  }
+  return redacted
+    .replace(/postgres(?:ql)?:\/\/[^\s"']+/gi, "[REDACTED_DATABASE_URL]")
+    .replace(/\b(?:sbp|sb_publishable)_[A-Za-z0-9._-]+\b/g, "[REDACTED_SUPABASE_TOKEN]")
+    .replace(/\bBearer\s+[A-Za-z0-9._~+/-]+=*\b/gi, "Bearer [REDACTED]")
+    .replace(/\bpassword\s*[=:]\s*[^\s]+/gi, "password=[REDACTED]");
+}
+function writeCliFailureDiagnostics({ stdout, stderr, status, outputDirectory, secrets }) {
+  const attempt = ++cliAttemptCount;
+  fs.mkdirSync(outputDirectory, { recursive: true });
+  const files = {};
+  for (const [stream, value] of [["stdout", stdout], ["stderr", stderr]]) {
+    const redacted = `${redactCliOutput(value, secrets)}\n`;
+    const filename = `supabase-cli-failure-${attempt}.${stream}.txt`;
+    fs.writeFileSync(path.join(outputDirectory, filename), redacted, { flag: "wx" });
+    files[stream] = {
+      filename,
+      sha256: crypto.createHash("sha256").update(redacted).digest("hex"),
+      redacted: true,
+    };
+  }
+  return { attempt, exit_code: status ?? "START", ...files };
+}
+function runCli(arguments_, extraEnvironment = {}, options = {}) {
+  const cli = process.env.RA004_SUPABASE_CLI_PATH;
+  invariant(cli && path.isAbsolute(cli) && fs.existsSync(cli), "RA004_SUPABASE_CLI_MISSING");
+  const childEnvironment = { ...process.env };
+  delete childEnvironment.RA004_OWNER_DATABASE_URL;
+  delete childEnvironment.RA004_SUPABASE_ACCESS_TOKEN;
+  Object.assign(childEnvironment, extraEnvironment);
+  const spawn = options.spawn || spawnSync;
+  const result = spawn(cli, arguments_, {
+    cwd: ROOT,
+    env: childEnvironment,
+    encoding: "utf8",
+    windowsHide: true,
+    timeout: 180_000,
+  });
+  if (result.error || result.status !== 0) {
+    const secrets = [
+      extraEnvironment.PGPASSWORD,
+      process.env.RA004_STORAGE_ANON_KEY,
+      process.env.RA004_STORAGE_EMAIL,
+      process.env.RA004_STORAGE_PASSWORD,
+    ];
+    const error = new Error(`RA004_SUPABASE_CLI_FAILED_${result.status ?? "START"}`);
+    error.cliDiagnostics = writeCliFailureDiagnostics({
+      stdout: result.stdout,
+      stderr: result.stderr || result.error?.message,
+      status: result.status,
+      outputDirectory: options.outputDirectory || outDir,
+      secrets,
+    });
+    throw error;
+  }
+  return String(result.stdout || "").slice(0, 2_000);
+}
+function pushSelectedMigrations(workdir) {
+  const parsed = new URL(ownerUrl);
+  const password = decodeURIComponent(parsed.password);
+  invariant(password.length > 0, "RA004_DATABASE_PASSWORD_MISSING");
+  parsed.password = ""; parsed.search = ""; parsed.hash = "";
+  const databaseUrl = parsed.toString();
+  invariant(!databaseUrl.includes(password), "RA004_DATABASE_PASSWORD_REDACTION_FAILED");
+  const pushEnvironment = { PGPASSWORD: password, PGSSLROOTCERT: process.env.NODE_EXTRA_CA_CERTS };
+  runCli(["db", "push", "--db-url", databaseUrl, "--workdir", workdir, "--yes"], pushEnvironment);
+  pushEnvironment.PGPASSWORD = "";
+}
 function validateReadOnlyActivation(value) {
-  invariant(value?.schema_version === "ra-004-post-verifier-activation-v1", "RA004_ACTIVATION_SCHEMA_MISMATCH");
+  invariant(value?.schema_version === "ra-004-provider-identity-activation-v1", "RA004_ACTIVATION_SCHEMA_MISMATCH");
   invariant(value.status === "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED" && value.baseline_sha === BASELINE, "RA004_ACTIVATION_NOT_AUTHORIZED");
   invariant(value.target?.environment === "STAGING" && value.target?.project_ref === REF
+    && value.target?.parent_project_ref === "aftboxmrdgyhizicfsfu"
+    && value.target?.database_host === "aws-0-eu-west-3.pooler.supabase.com"
+    && value.target?.persistent_branch === true
     && value.target?.retailer?.id === "11" && value.target?.retailer?.slug === "10-reps", "RA004_ACTIVATION_TARGET_MISMATCH");
   invariant(value.production?.authorized === false && value.production?.selector_unchanged === true, "RA004_PRODUCTION_SELECTOR_NOT_CLOSED");
   invariant(value.pre_activation_ledger?.count === EXPECTED_PRE_LEDGER_COUNT
     && value.pre_activation_ledger?.fingerprint === EXPECTED_PRE_LEDGER_FINGERPRINT
-    && value.pre_activation_ledger?.last_version === "20260928100000", "RA004_ACTIVATION_LEDGER_MISMATCH");
+    && value.pre_activation_ledger?.last_version === "20260928100000"
+    && value.pre_activation_ledger?.last_name === "diagnose_ra004_preflight_acl_rls", "RA004_ACTIVATION_LEDGER_MISMATCH");
+  invariant(value.post_activation_ledger?.count === EXPECTED_POST_LEDGER_COUNT
+    && value.post_activation_ledger?.fingerprint === EXPECTED_POST_LEDGER_FINGERPRINT
+    && value.post_activation_ledger?.last_version === "20260928101000"
+    && value.post_activation_ledger?.last_name === "align_ra004_control_export_provider_identity",
+  "RA004_ACTIVATION_POST_LEDGER_MISMATCH");
   invariant(Array.isArray(value.migrations) && value.migrations.length === EXPECTED_MIGRATIONS.length
     && EXPECTED_MIGRATIONS.every(([filename, sha256], index) => value.migrations[index]?.filename === filename
       && value.migrations[index]?.sha256 === sha256), "RA004_ACTIVATION_MIGRATION_MISMATCH");
-  invariant(value.apply?.maximum_attempts === 0 && value.apply?.selected_pending_count === 0
+  invariant(value.apply?.maximum_attempts === 1 && value.apply?.selected_pending_count === 1
     && value.apply?.automatic_retry === false
     && value.apply?.manual_retry === false && value.apply?.include_all === false
     && value.preflight?.maximum_attempts === 1 && value.canary?.maximum_attempts === 1
     && value.canary?.requires_preflight_pass === true, "RA004_ACTIVATION_ATTEMPTS_MISMATCH");
-  invariant(value.evidence_store?.session_required_before_preflight === true
+  invariant(value.evidence_store?.session_required_before_migration === true
     && value.evidence_store?.authentication_attempts === 1, "RA004_EVIDENCE_STORE_GATE_MISMATCH");
   invariant(value.execution?.started === false && value.execution?.migration_attempt_count === 0
     && value.execution?.preflight_attempt_count === 0 && value.execution?.canary_attempt_count === 0
-    && value.execution?.retry_authorized === false, "RA004_ACTIVATION_EXECUTION_STATE_MISMATCH");
+    && value.execution?.closed === false && value.execution?.retry_authorized === false
+    && value.execution?.replayable === false, "RA004_ACTIVATION_EXECUTION_STATE_MISMATCH");
   return value;
 }
 function ensureWindow(expires) {
@@ -233,18 +320,26 @@ async function main() {
   invariant(remote.remoteLedger.length===EXPECTED_PRE_LEDGER_COUNT
     && selector.ledgerRowsFingerprint(remote.remoteLedger, {targetEnvironment:"STAGING"})===EXPECTED_PRE_LEDGER_FINGERPRINT,
   "RA004_PRE_LEDGER_MISMATCH");
-  validateReadOnlyActivation(JSON.parse(fs.readFileSync(path.join(ROOT,"docs/retailer-automation/evidence",ACTIVATION_MANIFEST),"utf8")));
+  const activationManifest=validateReadOnlyActivation(JSON.parse(fs.readFileSync(path.join(ROOT,"docs/retailer-automation/evidence",ACTIVATION_MANIFEST),"utf8")));
   const appliedIdentifiers=new Set(remote.remoteLedger.map(row=>`${row.version}_${row.name}.sql`));
-  invariant(EXPECTED_MIGRATIONS.length===0
+  invariant(EXPECTED_MIGRATIONS.every(([file, hash]) => !appliedIdentifiers.has(file)
+    && hashFile(path.join(ROOT,"supabase","migrations",file))===hash)
     && appliedIdentifiers.has("20260928100000_diagnose_ra004_preflight_acl_rls.sql")
     && hashFile(path.join(ROOT,"supabase","migrations","20260928100000_diagnose_ra004_preflight_acl_rls.sql"))===ACL_MIGRATION_SHA,
   "RA004_APPLIED_MIGRATION_STATE_MISMATCH");
+  const selection=selector.validateSelection({environment:"STAGING",projectRef:REF,databaseTarget:remote.databaseTarget,
+    remoteLedger:remote.remoteLedger,activationManifest});
+  const selectedWorkdir=path.join(ROOT,"tmp","ra004-selected-provider-identity-migration");
+  selector.materializeSelectedWorkdir({selection,workdir:selectedWorkdir});
+  invariant(selection.pending_files.length===1 && selection.pending_files[0]===EXPECTED_MIGRATIONS[0][0]
+    && selection.pending_sha256s[selection.pending_files[0]]===PROVIDER_IDENTITY_SHA,"RA004_SELECTOR_NOT_EXACT");
   const retailer=(await db("select id::text,name,slug from public.retailers where lower(name)='10 reps' or lower(slug)='10-reps'")).rows;
   invariant(retailer.length===1 && retailer[0].name==="10 Reps" && retailer[0].slug==="10-reps" && retailer[0].id==="11","RA004_RETAILER_AMBIGUOUS");
   const preObjects=(await db("select to_regprocedure('public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer)') control_rpc,to_regprocedure('public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer)') preflight_rpc")).rows[0];
   invariant(preObjects.control_rpc!==null && preObjects.preflight_rpc!==null,"RA004_REQUIRED_INTERFACE_MISSING");
   const preexistingStoragePolicies=(await db(`select polname from pg_policy where polrelid='storage.objects'::regclass and (0=any(polroles) or 'anon'::regrole::oid=any(polroles) or 'authenticated'::regrole::oid=any(polroles))`)).rows;
   invariant(preexistingStoragePolicies.length===0,"RA004_STORAGE_EXISTING_BROAD_POLICY");
+  invariant(runCli(["--version"]).trim()==="2.111.0","RA004_SUPABASE_CLI_VERSION_MISMATCH");
   const businessBefore=await businessCounts();
 
   const activation=`ra004-staging-${Date.now()}`;
@@ -279,17 +374,19 @@ async function main() {
     const policyAttestation=await attestEvidenceStore(policies);
     startsAt=utc();
     ensureWindow(expires);
-    const migrationReceipts=[{file:"20260928100000_diagnose_ra004_preflight_acl_rls.sql",sha256:ACL_MIGRATION_SHA,status:"ALREADY_PRESENT_VERIFIED",database_writes:0}];
+    operationAttempts.migration+=1;
+    pushSelectedMigrations(selectedWorkdir);
+    const migrationReceipts=EXPECTED_MIGRATIONS.map(([file,sha256])=>({file,sha256,status:"APPLIED_VERIFIED",database_writes:1}));
     const postRemote=await selector.readRemoteState(ownerUrl);
     invariant(postRemote.remoteLedger.length===EXPECTED_POST_LEDGER_COUNT
       && postRemote.remoteLedger.slice(0,remote.remoteLedger.length).every((row,index)=>JSON.stringify(row)===JSON.stringify(remote.remoteLedger[index]))
-      && postRemote.remoteLedger.at(-1)?.version==="20260928100000"
-      && postRemote.remoteLedger.at(-1)?.name==="diagnose_ra004_preflight_acl_rls"
+      && postRemote.remoteLedger.at(-1)?.version==="20260928101000"
+      && postRemote.remoteLedger.at(-1)?.name==="align_ra004_control_export_provider_identity"
       && selector.ledgerRowsFingerprint(postRemote.remoteLedger, {targetEnvironment:"STAGING"})===EXPECTED_POST_LEDGER_FINGERPRINT,
-    "RA004_LEDGER_CHANGED_BEFORE_PREFLIGHT");
+    "RA004_POST_LEDGER_MISMATCH");
     const dependencyContract=await verifyDependencyContract();
     const businessAfterMigrations=await businessCounts();
-    invariant(JSON.stringify(businessAfterMigrations)===JSON.stringify(businessBefore),"RA004_BUSINESS_DATA_CHANGED_BEFORE_PREFLIGHT");
+    invariant(JSON.stringify(businessAfterMigrations)===JSON.stringify(businessBefore),"RA004_BUSINESS_DATA_CHANGED_BY_MIGRATION");
     ensureWindow(expires);
     const ledgerFp=selector.ledgerRowsFingerprint(postRemote.remoteLedger, {
       contractVersion: selector.RA004_LEDGER_FINGERPRINT_VERSION,
@@ -392,5 +489,6 @@ module.exports = {
   ACL_MIGRATION_SHA, API_HOST, BASELINE, BUCKET, CONSOLIDATED_SHA, DEPENDENCY_CONTRACT,
   EXPECTED_MIGRATIONS, EXPECTED_POST_LEDGER_COUNT,
   EXPECTED_POST_LEDGER_FINGERPRINT, EXPECTED_PRE_LEDGER_COUNT, EXPECTED_PRE_LEDGER_FINGERPRINT, PLAN_FP, REF,
-  buildFailureReport, readExecutionCommit, safeFailureCode, validateReadOnlyActivation,
+  PROVIDER_IDENTITY_SHA, buildFailureReport, pushSelectedMigrations, readExecutionCommit, redactCliOutput,
+  runCli, safeFailureCode, validateReadOnlyActivation, writeCliFailureDiagnostics,
 };
