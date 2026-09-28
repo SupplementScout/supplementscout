@@ -10,6 +10,68 @@ const {
 
 const CONTROL_STATE_RPC = "public.read_retailer_control_state_v1";
 const SAFE_ID = /^[a-z][a-z0-9_-]{2,127}$/;
+const ACL_RLS_AUDIT_SQL = `select session_user::text session_user,
+  current_setting('transaction_read_only') transaction_read_only,
+  jsonb_build_object(
+    'functions',coalesce((select jsonb_agg(jsonb_build_object(
+      'signature',p.oid::regprocedure::text,'owner',pg_get_userbyid(p.proowner),
+      'security_definer',p.prosecdef,'volatility',p.provolatile::text,
+      'search_path',coalesce(to_jsonb(p.proconfig),'[]'::jsonb),
+      'acl',coalesce((select jsonb_agg(jsonb_build_object(
+        'grantee',case when x.grantee=0 then 'PUBLIC' else pg_get_userbyid(x.grantee) end,
+        'grantor',pg_get_userbyid(x.grantor),'privilege',x.privilege_type,'grantable',x.is_grantable)
+        order by case when x.grantee=0 then 'PUBLIC' else pg_get_userbyid(x.grantee) end,x.privilege_type)
+        from pg_catalog.aclexplode(coalesce(p.proacl,pg_catalog.acldefault('f',p.proowner))) x),'[]'::jsonb))
+      order by p.oid::regprocedure::text) from pg_catalog.pg_proc p where p.oid in (
+        to_regprocedure('public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer)'),
+        to_regprocedure('public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer)'),
+        to_regprocedure('public.write_retailer_control_state_evidence_v1(uuid,integer,text,bigint,boolean,text,text,text,text,timestamptz,timestamptz,timestamptz,text,text,jsonb,text,text)'))),'[]'::jsonb),
+    'relations',coalesce((select jsonb_agg(jsonb_build_object(
+      'identity',n.nspname||'.'||c.relname,'kind',c.relkind::text,'owner',pg_get_userbyid(c.relowner),
+      'rls_enabled',c.relrowsecurity,'rls_forced',c.relforcerowsecurity,
+      'acl',coalesce((select jsonb_agg(jsonb_build_object(
+        'grantee',case when x.grantee=0 then 'PUBLIC' else pg_get_userbyid(x.grantee) end,
+        'grantor',pg_get_userbyid(x.grantor),'privilege',x.privilege_type,'grantable',x.is_grantable)
+        order by case when x.grantee=0 then 'PUBLIC' else pg_get_userbyid(x.grantee) end,x.privilege_type)
+        from pg_catalog.aclexplode(coalesce(c.relacl,pg_catalog.acldefault(case when c.relkind='S' then 'S'::"char" else 'r'::"char" end,c.relowner))) x),'[]'::jsonb))
+      order by n.nspname,c.relname) from pg_catalog.pg_class c join pg_catalog.pg_namespace n on n.oid=c.relnamespace
+      where (n.nspname='public' and c.relname in ('retailers','retailer_control_state_evidence_v1'))
+         or (n.nspname='public' and c.relkind='S' and c.relname like 'retailer_control_state_evidence_v1%')),'[]'::jsonb),
+    'column_grants',coalesce((select jsonb_agg(jsonb_build_object(
+      'schema',table_schema,'table',table_name,'column',column_name,'grantee',grantee,
+      'privilege',privilege_type,'grantable',is_grantable)
+      order by table_schema,table_name,column_name,grantee,privilege_type)
+      from information_schema.column_privileges where table_schema='public'
+        and table_name in ('retailers','retailer_control_state_evidence_v1')),'[]'::jsonb),
+    'policies',coalesce((select jsonb_agg(jsonb_build_object(
+      'table',c.relname,'policy',p.polname,'permissive',p.polpermissive,'command',p.polcmd::text,
+      'roles',(select coalesce(jsonb_agg(pg_get_userbyid(role_oid) order by pg_get_userbyid(role_oid)),'[]'::jsonb) from unnest(p.polroles) role_oid),
+      'using',pg_get_expr(p.polqual,p.polrelid),'with_check',pg_get_expr(p.polwithcheck,p.polrelid))
+      order by c.relname,p.polname) from pg_catalog.pg_policy p
+      join pg_catalog.pg_class c on c.oid=p.polrelid join pg_catalog.pg_namespace n on n.oid=c.relnamespace
+      where n.nspname='public' and c.relname in ('retailers','retailer_control_state_evidence_v1')
+        and (c.relname='retailer_control_state_evidence_v1' or p.polname='ra004_staging_preflight_retailer_read_v1')),'[]'::jsonb),
+    'roles',coalesce((select jsonb_agg(jsonb_build_object(
+      'role',r.rolname,'superuser',r.rolsuper,'inherit',r.rolinherit,'create_role',r.rolcreaterole,
+      'create_db',r.rolcreatedb,'login',r.rolcanlogin,'replication',r.rolreplication,'bypass_rls',r.rolbypassrls,
+      'can_set_from_session_user',pg_has_role(session_user,r.oid,'SET'),
+      'is_member_from_session_user',pg_has_role(session_user,r.oid,'MEMBER')) order by r.rolname)
+      from pg_catalog.pg_roles r where r.rolname='postgres' or r.rolname like 'ra004\\_%' escape '\\'
+        or r.rolname in (concat('service','_role'),'authenticated','anon','retailer_catalogue_staging_validator',
+          'retailer_catalogue_staging_approver','retailer_catalogue_staging_executor',
+          'retailer_catalogue_production_validator','retailer_catalogue_production_approver',
+          'retailer_catalogue_production_executor','retailer_control_state_exporter')),'[]'::jsonb),
+    'memberships',coalesce((select jsonb_agg(jsonb_build_object(
+      'member',mr.rolname,'role',gr.rolname,'grantor',grantor.rolname,'admin',m.admin_option,
+      'set',coalesce((to_jsonb(m)->>'set_option')::boolean,true),
+      'inherit',coalesce((to_jsonb(m)->>'inherit_option')::boolean,true)) order by mr.rolname,gr.rolname)
+      from pg_catalog.pg_auth_members m join pg_catalog.pg_roles mr on mr.oid=m.member
+      join pg_catalog.pg_roles gr on gr.oid=m.roleid join pg_catalog.pg_roles grantor on grantor.oid=m.grantor
+      where mr.rolname='postgres' or gr.rolname='postgres' or mr.rolname like 'ra004\\_%' escape '\\'
+        or gr.rolname like 'ra004\\_%' escape '\\' or mr.rolname like 'retailer_control_state%'
+        or gr.rolname like 'retailer_control_state%' or mr.rolname like 'retailer_catalogue_%'
+        or gr.rolname like 'retailer_catalogue_%'),'[]'::jsonb)
+  ) data`;
 
 function fail(code, message) {
   const error = new Error(`${code}: ${message}`);
@@ -50,9 +112,10 @@ function validateDatabaseUrl(databaseUrl, { projectReference, expectedSessionUse
 }
 
 function clientOptions(databaseUrl, applicationName) {
+  const hostname = new URL(databaseUrl).hostname;
   return {
     connectionString: databaseUrl,
-    ssl: { rejectUnauthorized: false },
+    ssl: { rejectUnauthorized: true, servername: hostname, minVersion: "TLSv1.2" },
     application_name: applicationName,
     connectionTimeoutMillis: 10_000,
     query_timeout: 15_000,
@@ -61,12 +124,12 @@ function clientOptions(databaseUrl, applicationName) {
   };
 }
 
-async function oneReadOnlyCall({ ClientClass, databaseUrl, applicationName, text, values, expectedSessionUser }) {
+async function oneReadOnlyCall({ ClientClass, databaseUrl, applicationName, text, values, expectedSessionUser, repeatableRead = false }) {
   const client = new ClientClass(clientOptions(databaseUrl, applicationName));
   let connected = false;
   try {
     await client.connect(); connected = true;
-    await client.query("begin read only");
+    await client.query(repeatableRead ? "begin isolation level repeatable read read only" : "begin read only");
     const response = await client.query({ text, values });
     if (!response || response.rowCount !== 1 || response.rows.length !== 1
         || response.rows[0].session_user !== expectedSessionUser
@@ -86,6 +149,24 @@ async function oneReadOnlyCall({ ClientClass, databaseUrl, applicationName, text
   } finally {
     try { await client.end(); } catch { /* connection is unusable and must not be retried */ }
   }
+}
+
+async function runAclRlsMetadataAudit(configuration, dependencies = {}) {
+  exact(configuration, ["databaseUrl", "projectReference", "expectedSessionUser"], "ACL/RLS audit configuration");
+  const ClientClass = dependencies.ClientClass || Client;
+  if (typeof ClientClass !== "function" || configuration.expectedSessionUser !== "postgres") {
+    fail("RA004_ACL_RLS_AUDIT_CONFIGURATION_BLOCKED", "exact migration user and client required");
+  }
+  const databaseUrl = validateDatabaseUrl(configuration.databaseUrl, configuration);
+  return oneReadOnlyCall({
+    ClientClass,
+    databaseUrl,
+    expectedSessionUser: "postgres",
+    applicationName: "ra004-acl-rls-readonly-audit-v1",
+    text: ACL_RLS_AUDIT_SQL,
+    values: [],
+    repeatableRead: true,
+  });
 }
 
 function validateRevokeReceipt(receipt, { credentialId, runnerProcessId }) {
@@ -216,9 +297,11 @@ function createControlStatePostgresTransport(configuration, dependencies = {}) {
 }
 
 module.exports = {
+  ACL_RLS_AUDIT_SQL,
   CONTROL_STATE_RPC,
   createControlStatePostgresTransport,
   createPreflightPostgresTransport,
+  runAclRlsMetadataAudit,
   validateDatabaseUrl,
   validateRevokeReceipt,
 };

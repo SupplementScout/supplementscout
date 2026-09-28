@@ -504,6 +504,18 @@ zero writes and cannot redeploy that migration. An absent GTIN ledger row fails
 closed as `NOT_CURRENTLY_AUTHORIZED`; the pending Fit House migration does not
 authorize GTIN.
 
+**ACL/RLS diagnostic contract:** `FIX_VERIFIED_PENDING_MERGE`.
+One bounded `REPEATABLE READ READ ONLY` staging transaction proved the durable
+RPC grants, ownership, forced RLS and four RA-004 policies match their closed
+contract. The failure was a false positive in the aggregate check: effective
+privilege helpers counted safe managed-platform access inherited through
+PostgreSQL `PUBLIC` as a direct grant to the temporary RA-004 login. The
+forward-only correction inspects explicit role ACL entries, retains every role,
+RPC, RLS and policy guard, and gives every mismatch a distinct fail-closed code.
+It remains excluded from STAGING and PRODUCTION; no migration, preflight or
+canary is authorized. See
+[`evidence/RA-004-ACL-RLS-DIAGNOSTIC.md`](evidence/RA-004-ACL-RLS-DIAGNOSTIC.md).
+
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
 **Goal:** compare the candidate canonical pipeline with the existing 10 Reps

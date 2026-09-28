@@ -380,6 +380,8 @@ const CONTRACTS = Object.freeze({
         "25f70527d18113a2282ebcdb1626b8052f7774f3f7f6ee1dbe69e1cd17864b93",
       "20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql":
         "a240a263d7e88084171a73317db9e19f0e2c69c9b71ca84dbe788b624a22c9c4",
+      "20260928100000_diagnose_ra004_preflight_acl_rls.sql":
+        "58aa82b328b9bb77c09b9975892042027a493254add99fb2e1dcf045303c0b0d",
     }),
     pending: Object.freeze([
       Object.freeze({
@@ -453,6 +455,8 @@ const CONTRACTS = Object.freeze({
         "25f70527d18113a2282ebcdb1626b8052f7774f3f7f6ee1dbe69e1cd17864b93",
       "20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql":
         "a240a263d7e88084171a73317db9e19f0e2c69c9b71ca84dbe788b624a22c9c4",
+      "20260928100000_diagnose_ra004_preflight_acl_rls.sql":
+        "58aa82b328b9bb77c09b9975892042027a493254add99fb2e1dcf045303c0b0d",
     }),
     pending: Object.freeze([
       Object.freeze({

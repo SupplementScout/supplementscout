@@ -14,6 +14,7 @@ const { runPreflight } = require("./lib/retailer-offer-sync/ra004-staging-prefli
 const { writeOnce } = require("./lib/retailer-offer-sync/ra004-staging-preflight-v1/evidence");
 const {
   createPreflightPostgresTransport,
+  runAclRlsMetadataAudit,
   validateDatabaseUrl,
   validateRevokeReceipt,
 } = require("./lib/retailer-offer-sync/ra004-bounded-live-transport-v1");
@@ -156,6 +157,52 @@ test("bounded live preflight transport performs one exact read-only RPC and prov
     });
     assert.doesNotMatch(JSON.stringify(result), /fixture-password|postgresql:\/\//);
   } finally { fs.rmSync(target.dir, { recursive: true, force: true }); }
+});
+
+test("bounded live transport performs one exact repeatable-read ACL/RLS catalogue audit with verified TLS", async () => {
+  const capture = {};
+  const data = { functions: [], relations: [], column_grants: [], policies: [], roles: [], memberships: [] };
+  const databaseUrl = "postgresql://postgres.ra004-local-synthetic:fixture-password@aws-0.test.pooler.supabase.com:5432/postgres?sslmode=verify-full";
+  const result = await runAclRlsMetadataAudit({
+    databaseUrl,
+    projectReference: "ra004-local-synthetic",
+    expectedSessionUser: "postgres",
+  }, {
+    ClientClass: fakeClient({ session_user: "postgres", transaction_read_only: "on", data }, capture),
+  });
+  assert.deepEqual(result.data, data);
+  assert.equal(capture.connect_count, 1);
+  assert.equal(capture.end_count, 1);
+  assert.equal(capture.options.ssl.rejectUnauthorized, true);
+  assert.equal(capture.options.ssl.servername, "aws-0.test.pooler.supabase.com");
+  assert.equal(capture.queries[0], "begin isolation level repeatable read read only");
+  assert.equal(capture.queries.filter((query) => typeof query === "object").length, 1);
+  const query = capture.queries.find((item) => typeof item === "object").text;
+  assert.match(query, /pg_catalog|pg_proc|pg_policy|information_schema/);
+  assert.doesNotMatch(query, /from\s+public\.|join\s+public\.|\b(insert|update|delete|alter|create|drop|grant|revoke|call)\b/i);
+});
+
+test("forward ACL/RLS correction replaces the aggregate error with closed diagnostic branches", () => {
+  const migration = fs.readFileSync(path.join(ROOT,
+    "supabase/migrations/20260928100000_diagnose_ra004_preflight_acl_rls.sql"), "utf8");
+  for (const code of [
+    "RA004_PREFLIGHT_RPC_EXECUTE_MISSING",
+    "RA004_PREFLIGHT_PUBLIC_EXECUTE_UNSAFE",
+    "RA004_PREFLIGHT_FORBIDDEN_ROLE_EXECUTE_UNSAFE",
+    "RA004_PREFLIGHT_FUNCTION_GRANT_MISMATCH",
+    "RA004_PREFLIGHT_TABLE_PRIVILEGE_UNSAFE",
+    "RA004_PREFLIGHT_COLUMN_PRIVILEGE_UNSAFE",
+    "RA004_PREFLIGHT_SEQUENCE_PRIVILEGE_UNSAFE",
+    "RA004_PREFLIGHT_RLS_NOT_ENABLED",
+    "RA004_PREFLIGHT_RLS_NOT_FORCED",
+    "RA004_PREFLIGHT_POLICY_COUNT_MISMATCH",
+    "RA004_PREFLIGHT_POLICY_ROLE_MISMATCH",
+    "RA004_PREFLIGHT_POLICY_COMMAND_MISMATCH",
+    "RA004_PREFLIGHT_POLICY_EXPRESSION_MISMATCH",
+    "RA004_PREFLIGHT_RETAILER_POLICY_MISMATCH",
+  ]) assert.match(migration, new RegExp(code));
+  assert.match(migration, /acl\.grantee=\(select oid from pg_roles where rolname=p_expected_session_user\)/);
+  assert.doesNotMatch(migration, /rejectUnauthorized\s*:\s*false|set role|alter owner/i);
 });
 
 test("bounded live transport rejects production, cross-project and non-session endpoints before connection", () => {
