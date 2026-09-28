@@ -69,6 +69,11 @@ const RA004_ACL_ACTIVATION_FILE = path.join(
   "docs/retailer-automation/evidence/RA-004-acl-rls-correction-activation.json",
 );
 const RA004_ACL_ACTIVATION = JSON.parse(fs.readFileSync(RA004_ACL_ACTIVATION_FILE, "utf8"));
+const RA004_ACL_REACTIVATION_FILE = path.join(
+  ROOT,
+  "docs/retailer-automation/evidence/RA-004-acl-rls-authenticated-reactivation.json",
+);
+const RA004_ACL_REACTIVATION = JSON.parse(fs.readFileSync(RA004_ACL_REACTIVATION_FILE, "utf8"));
 function preparedFinalActivation() {
   const manifest = JSON.parse(JSON.stringify(RA004_FINAL_ACTIVATION));
   manifest.status = "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED";
@@ -745,11 +750,9 @@ test("owner-authorized ACL/RLS activation selects exactly one migration from led
   assert.equal(RA004_ACL_ACTIVATION.execution.retry_authorized, false);
   assert.equal(RA004_ACL_ACTIVATION.execution.replayable, false);
   assert.throws(() => validateActivationManifest(CONTRACT, RA004_ACL_ACTIVATION), /status mismatch/);
-  const prepared = structuredClone(RA004_ACL_ACTIVATION);
-  prepared.status = "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED";
   const result = validateSelection(validInput({
     remoteLedger: fixture.rows,
-    activationManifest: prepared,
+    activationManifest: RA004_ACL_REACTIVATION,
   }));
   assert.deepEqual(result.pending_files, ["20260928100000_diagnose_ra004_preflight_acl_rls.sql"]);
   assert.deepEqual(result.pending_sha256s, {
@@ -760,7 +763,7 @@ test("owner-authorized ACL/RLS activation selects exactly one migration from led
   assert.throws(() => parseArgs([
     "--environment=PRODUCTION",
     `--project-ref=${CONTRACTS.PRODUCTION.projectRef}`,
-    `--activation-manifest=${RA004_ACL_ACTIVATION_FILE}`,
+    `--activation-manifest=${RA004_ACL_REACTIVATION_FILE}`,
   ]), /staging-only/);
 });
 
