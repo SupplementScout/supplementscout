@@ -93,6 +93,12 @@ const RA004_ACL_ACTIVATION_MIGRATIONS = Object.freeze([
 const RA004_ACL_REACTIVATION_SCHEMA = "ra-004-acl-rls-correction-activation-v2";
 const RA004_ACL_REACTIVATION_BASELINE = "c3b8d5c4d0cf5389f87674eb2e7d11fb76bd8d24";
 const RA004_ACL_REACTIVATION_ID = "ra004-acl-rls-correction-2026-09-28-v2";
+const RA004_PROVIDER_IDENTITY_ACTIVATION_SCHEMA = "ra-004-provider-identity-activation-v1";
+const RA004_PROVIDER_IDENTITY_ACTIVATION_BASELINE = "11e8db1397516645b48fc9a574d23685582531df";
+const RA004_PROVIDER_IDENTITY_ACTIVATION_ID = "ra004-provider-identity-2026-09-28-v1";
+const RA004_PROVIDER_IDENTITY_ACTIVATION_MIGRATIONS = Object.freeze([
+  "20260928101000_align_ra004_control_export_provider_identity.sql",
+]);
 const RA004_FIXTURE_ACTIVATION_SCHEMA = "ra-004-staging-retailer-fixture-activation-v1";
 const RA004_FIXTURE_ACTIVATION_BASELINE = "cd6c5dbe1931e984213fe5d69f151e266180252a";
 const RA004_FIXTURE_ACTIVATION_ID = "ra004-staging-10reps-retailer-2026-09-26-v1";
@@ -505,8 +511,10 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
   const consolidatedActivation = manifest?.schema_version === RA004_CONSOLIDATED_ACTIVATION_SCHEMA;
   const aclActivation = manifest?.schema_version === RA004_ACL_ACTIVATION_SCHEMA;
   const aclReactivation = manifest?.schema_version === RA004_ACL_REACTIVATION_SCHEMA;
+  const providerIdentityActivation = manifest?.schema_version === RA004_PROVIDER_IDENTITY_ACTIVATION_SCHEMA;
   invariant(
     fixtureActivation || forwardActivation || correctedActivation || finalActivation || consolidatedActivation || aclActivation || aclReactivation
+      || providerIdentityActivation
       || manifest?.schema_version === RA004_ACTIVATION_SCHEMA,
     "activation manifest schema mismatch",
   );
@@ -514,6 +522,8 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
   invariant(manifest?.task_id === "RA-004", "activation manifest task mismatch");
   const expectedActivationId = fixtureActivation
     ? RA004_FIXTURE_ACTIVATION_ID
+    : providerIdentityActivation
+      ? RA004_PROVIDER_IDENTITY_ACTIVATION_ID
     : aclReactivation
       ? RA004_ACL_REACTIVATION_ID
     : aclActivation
@@ -529,6 +539,8 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
       : RA004_ACTIVATION_ID;
   const expectedBaseline = fixtureActivation
     ? RA004_FIXTURE_ACTIVATION_BASELINE
+    : providerIdentityActivation
+      ? RA004_PROVIDER_IDENTITY_ACTIVATION_BASELINE
     : aclReactivation
       ? RA004_ACL_REACTIVATION_BASELINE
     : aclActivation
@@ -544,6 +556,8 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
       : RA004_ACTIVATION_BASELINE;
   const expectedMigrations = fixtureActivation
     ? [RA004_FIXTURE_MIGRATION]
+    : providerIdentityActivation
+      ? RA004_PROVIDER_IDENTITY_ACTIVATION_MIGRATIONS
     : aclReactivation
       ? RA004_ACL_ACTIVATION_MIGRATIONS
     : aclActivation
@@ -581,6 +595,42 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
         && manifest?.post_activation_ledger?.fingerprint === RA004_ACTIVATION_PRE_LEDGER_FINGERPRINT,
       "fixture post-activation ledger mismatch",
     );
+  } else if (providerIdentityActivation) {
+    invariant(
+      manifest?.pre_activation_ledger?.count === 98
+        && manifest?.pre_activation_ledger?.fingerprint === "b4e72276ba2570d2da9957c53b6c209a3799087570302af92b295467a1d4e307"
+        && manifest?.pre_activation_ledger?.last_version === "20260928100000"
+        && manifest?.pre_activation_ledger?.last_name === "diagnose_ra004_preflight_acl_rls",
+      "provider identity activation pre-ledger mismatch",
+    );
+    invariant(
+      manifest?.post_activation_ledger?.count === 99
+        && manifest?.post_activation_ledger?.fingerprint === "a6e7693f964925554e807602752e4630d14f537a1d9de4fe82f8433d30c307cc"
+        && manifest?.post_activation_ledger?.last_version === "20260928101000"
+        && manifest?.post_activation_ledger?.last_name === "align_ra004_control_export_provider_identity",
+      "provider identity activation post-ledger mismatch",
+    );
+    invariant(manifest?.apply?.maximum_attempts === 1
+      && manifest?.apply?.automatic_retry === false
+      && manifest?.apply?.manual_retry === false
+      && manifest?.apply?.include_all === false
+      && manifest?.apply?.selected_pending_count === 1,
+    "provider identity activation must select one migration without retry or include-all");
+    invariant(manifest?.preflight?.maximum_attempts === 1
+      && manifest?.canary?.maximum_attempts === 1
+      && manifest?.canary?.requires_preflight_pass === true,
+    "provider identity activation read attempts mismatch");
+    invariant(manifest?.evidence_store?.session_required_before_migration === true
+      && manifest?.evidence_store?.authentication_attempts === 1,
+    "provider identity activation evidence store gate mismatch");
+    invariant(manifest?.execution?.started === false
+      && manifest?.execution?.migration_attempt_count === 0
+      && manifest?.execution?.preflight_attempt_count === 0
+      && manifest?.execution?.canary_attempt_count === 0
+      && manifest?.execution?.closed === false
+      && manifest?.execution?.retry_authorized === false
+      && manifest?.execution?.replayable === false,
+    "provider identity activation execution state mismatch");
   } else if (aclActivation || aclReactivation) {
     invariant(
       manifest?.pre_activation_ledger?.count === 97
@@ -808,9 +858,12 @@ function validateSelection({
   const admissibleSet = new Set(admissibleFiles.map(migrationIdentifier));
   const remoteIdentifiers = remoteLedger.map(ledgerIdentifier);
   const fixtureActivation = activationManifest?.schema_version === RA004_FIXTURE_ACTIVATION_SCHEMA;
+  const providerIdentityActivation = activationManifest?.schema_version === RA004_PROVIDER_IDENTITY_ACTIVATION_SCHEMA;
   const expectedLedgerCount = activationManifest
     ? fixtureActivation
       ? RA004_FIXTURE_PRE_ACTIVATION_LEDGER_COUNT
+      : providerIdentityActivation
+        ? activationManifest.pre_activation_ledger.count
       : activationManifest.schema_version === RA004_ACL_ACTIVATION_SCHEMA
         || activationManifest.schema_version === RA004_ACL_REACTIVATION_SCHEMA
         ? activationManifest.pre_activation_ledger.count
@@ -821,6 +874,8 @@ function validateSelection({
   const expectedLedgerFingerprint = activationManifest
     ? fixtureActivation
       ? RA004_FIXTURE_PRE_ACTIVATION_CANONICAL_LEDGER_FINGERPRINT
+      : providerIdentityActivation
+        ? activationManifest.pre_activation_ledger.fingerprint
       : activationManifest.schema_version === RA004_ACL_ACTIVATION_SCHEMA
         || activationManifest.schema_version === RA004_ACL_REACTIVATION_SCHEMA
         ? activationManifest.pre_activation_ledger.fingerprint

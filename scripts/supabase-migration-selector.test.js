@@ -76,6 +76,13 @@ const RA004_ACL_REACTIVATION_FILE = path.join(
   "docs/retailer-automation/evidence/RA-004-acl-rls-authenticated-reactivation.json",
 );
 const RA004_ACL_REACTIVATION = JSON.parse(fs.readFileSync(RA004_ACL_REACTIVATION_FILE, "utf8"));
+const RA004_PROVIDER_IDENTITY_ACTIVATION_FILE = path.join(
+  ROOT,
+  "docs/retailer-automation/evidence/RA-004-provider-identity-staging-activation.json",
+);
+const RA004_PROVIDER_IDENTITY_ACTIVATION = JSON.parse(
+  fs.readFileSync(RA004_PROVIDER_IDENTITY_ACTIVATION_FILE, "utf8"),
+);
 function preparedFinalActivation() {
   const manifest = JSON.parse(JSON.stringify(RA004_FINAL_ACTIVATION));
   manifest.status = "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED";
@@ -888,6 +895,56 @@ test("RA-004 provider identity correction remains closed in staging and producti
   assert.ok(selection.excluded_files.includes(RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION));
   assert.ok(!selection.selected_files.includes(RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION));
   assert.ok(!selection.pending_files.includes(RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION));
+});
+
+test("owner-authorized provider identity activation selects exactly one migration from ledger 98", () => {
+  const result = validateSelection(validInput({
+    activationManifest: RA004_PROVIDER_IDENTITY_ACTIVATION,
+  }));
+  assert.equal(result.activation_schema, "ra-004-provider-identity-activation-v1");
+  assert.equal(result.activation_id, "ra004-provider-identity-2026-09-28-v1");
+  assert.deepEqual(result.pending_files, [RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION]);
+  assert.deepEqual(result.pending_sha256s, {
+    [RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION]:
+      "4454cebd1e462a20d4a612d253025c013b5c8276a4d51aa4e43016a7f248fc91",
+  });
+  assert.equal(result.ledger_count, 98);
+  assert.equal(result.ledger_fingerprint,
+    "b4e72276ba2570d2da9957c53b6c209a3799087570302af92b295467a1d4e307");
+  assert.ok(!result.pending_files.some((filename) => filename !== RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION));
+  assert.ok(!result.selected_files.includes("20260928100000_diagnose_ra004_preflight_acl_rls.sql")
+    || !result.pending_files.includes("20260928100000_diagnose_ra004_preflight_acl_rls.sql"));
+  const postLedger = [...currentRemoteLedger(), {
+    version: "20260928101000",
+    name: "align_ra004_control_export_provider_identity",
+  }];
+  assert.equal(postLedger.length, 99);
+  assert.equal(ledgerRowsFingerprint(postLedger, { targetEnvironment: "STAGING" }),
+    "a6e7693f964925554e807602752e4630d14f537a1d9de4fe82f8433d30c307cc");
+  const allowedWorkdirRoot = temporaryRoot();
+  const workdir = path.join(allowedWorkdirRoot, "provider-identity-workdir");
+  materializeSelectedWorkdir({ selection: result, workdir, allowedWorkdirRoot });
+  assert.deepEqual(fs.readdirSync(path.join(workdir, "supabase", "migrations")),
+    result.selected_files);
+});
+
+test("provider identity activation fails closed on ledger, SHA, retry, production and replay drift", () => {
+  const check = (mutate, expected) => {
+    const manifest = structuredClone(RA004_PROVIDER_IDENTITY_ACTIVATION);
+    mutate(manifest);
+    assert.throws(() => validateSelection(validInput({ activationManifest: manifest })), expected);
+  };
+  check((value) => { value.pre_activation_ledger.count = 97; }, /pre-ledger mismatch/);
+  check((value) => { value.migrations[0].sha256 = "0".repeat(64); }, /SHA-256 mismatch/);
+  check((value) => { value.apply.include_all = true; }, /without retry or include-all/);
+  check((value) => { value.apply.maximum_attempts = 2; }, /one-shot without retry/);
+  check((value) => { value.production.authorized = true; }, /must not authorize production/);
+  check((value) => { value.execution.started = true; }, /execution state mismatch|activation/);
+  assert.throws(() => parseArgs([
+    "--environment=PRODUCTION",
+    `--project-ref=${CONTRACTS.PRODUCTION.projectRef}`,
+    `--activation-manifest=${RA004_PROVIDER_IDENTITY_ACTIVATION_FILE}`,
+  ]), /staging-only/);
 });
 
 test("historical corrected RA-004 activation cannot select the revised closed compatibility migration", () => {
