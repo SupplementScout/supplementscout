@@ -1,6 +1,6 @@
 # RA-004 query-aware revoke verifier
 
-Status: `READY_FOR_INDEPENDENT_VERIFICATION`
+Status: `READY_FOR_INDEPENDENT_REVERIFICATION`
 
 The authenticated ACL/RLS staging attempt ended with
 `RA004_REVOKED_CREDENTIAL_RECONNECTED` even though the owner-side catalogue
@@ -24,6 +24,26 @@ retailer application path or business-data operation is changed by this fix.
 Regression coverage includes cached handshake/query rejection, connect-time
 authentication rejection, unexpected transport failure, successful revoked
 query, remaining role, remaining membership and remaining backend.
+
+The final read-only staging attempt exposed a second ordering defect. The
+revoked-login connection attempt ended with a driver error outside the three
+PostgreSQL authentication SQLSTATE values recognized by the probe; its raw
+message was intentionally not retained. The probe raised
+`RA004_REVOKE_CONNECTION_UNVERIFIED` before the independent owner-side catalogue
+readback could run, even though the issuer had already revoked and dropped the
+role. The evidence session closed, the ledger remained at 98 and no canary or
+migration attempt occurred.
+
+The verifier now records the bounded credential probe outcome first and always
+performs the separate catalogue readback before deciding. A non-SQLSTATE
+connection or first-query rejection is accepted only when that readback proves
+all three facts: the role is absent, every membership edge is absent and no
+backend for the role is active. It returns the deterministic codes
+`RA004_REVOKE_CONNECTION_REJECTED_CATALOGUE_CONFIRMED` or
+`RA004_REVOKE_POOLER_HANDSHAKE_QUERY_REJECTED_CATALOGUE_CONFIRMED`. A successful
+query remains `RA004_REVOKED_CREDENTIAL_QUERY_SUCCEEDED`; any remaining role,
+membership or backend remains a hard failure; and an unavailable catalogue
+readback remains fail-closed as `RA004_REVOKE_CATALOGUE_UNVERIFIED`.
 
 RA-004 remains `IN_PROGRESS`. A live preflight and canary require the separately
 authorized one-shot execution after this verifier has been independently

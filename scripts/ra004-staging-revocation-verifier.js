@@ -41,19 +41,19 @@ async function probeRevokedCredential(client) {
       connected = true;
     } catch (error) {
       if (isAuthRejection(error)) {
-        return { outcome_code: "RA004_REVOKE_AUTH_REJECTED", revoked_query_attempts: 0 };
+        return { probe_outcome: "AUTH_REJECTED", revoked_query_attempts: 0 };
       }
-      throw new Error("RA004_REVOKE_CONNECTION_UNVERIFIED");
+      return { probe_outcome: "CONNECTION_REJECTED", revoked_query_attempts: 0 };
     }
 
     try {
       await client.query(REVOKE_PROBE_SQL);
-      return { outcome_code: "RA004_REVOKED_CREDENTIAL_QUERY_SUCCEEDED", revoked_query_attempts: 1 };
+      return { probe_outcome: "QUERY_SUCCEEDED", revoked_query_attempts: 1 };
     } catch (error) {
       if (isAuthRejection(error)) {
-        return { outcome_code: "RA004_REVOKE_POOLER_HANDSHAKE_QUERY_REJECTED", revoked_query_attempts: 1 };
+        return { probe_outcome: "QUERY_AUTH_REJECTED", revoked_query_attempts: 1 };
       }
-      throw new Error("RA004_REVOKE_QUERY_UNVERIFIED");
+      return { probe_outcome: "QUERY_REJECTED", revoked_query_attempts: 1 };
     }
   } finally {
     if (connected) {
@@ -92,9 +92,18 @@ async function verifyRevokedCredential({
 
   const probe = await probeRevokedCredential(createRevokedClient());
   const catalogue = await readbackRevocation(createOwnerClient(), revokedRole);
-  invariant(probe.outcome_code !== "RA004_REVOKED_CREDENTIAL_QUERY_SUCCEEDED", probe.outcome_code);
+  invariant(probe.probe_outcome !== "QUERY_SUCCEEDED", "RA004_REVOKED_CREDENTIAL_QUERY_SUCCEEDED");
+  const outcomeCodes = {
+    AUTH_REJECTED: "RA004_REVOKE_AUTH_REJECTED",
+    CONNECTION_REJECTED: "RA004_REVOKE_CONNECTION_REJECTED_CATALOGUE_CONFIRMED",
+    QUERY_AUTH_REJECTED: "RA004_REVOKE_POOLER_HANDSHAKE_QUERY_REJECTED",
+    QUERY_REJECTED: "RA004_REVOKE_POOLER_HANDSHAKE_QUERY_REJECTED_CATALOGUE_CONFIRMED",
+  };
+  const outcomeCode = outcomeCodes[probe.probe_outcome];
+  invariant(Boolean(outcomeCode), "RA004_REVOKE_PROBE_OUTCOME_INVALID");
   return {
-    ...probe,
+    outcome_code: outcomeCode,
+    revoked_query_attempts: probe.revoked_query_attempts,
     ...catalogue,
     revoked_connect_attempts: 1,
     catalogue_readback_attempts: 1,
