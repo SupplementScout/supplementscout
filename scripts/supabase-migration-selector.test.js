@@ -378,8 +378,14 @@ test("a wrong ledger count fails closed", () => {
 
 test("a wrong ledger fingerprint fails closed", () => {
   const ledger = currentRemoteLedger();
+  ledger[0] = { ...ledger[0], name: `${ledger[0].name}_drift` };
+  assert.throws(() => validateSelection(validInput({ remoteLedger: ledger })), /remote-only migrations|fingerprint mismatch/);
+});
+
+test("ledger input order does not change the canonical fingerprint", () => {
+  const ledger = currentRemoteLedger();
   [ledger[0], ledger[1]] = [ledger[1], ledger[0]];
-  assert.throws(() => validateSelection(validInput({ remoteLedger: ledger })), /fingerprint mismatch/);
+  assert.doesNotThrow(() => validateSelection(validInput({ remoteLedger: ledger })));
 });
 
 test("a changed excluded migration SHA fails closed", () => {
@@ -401,7 +407,7 @@ test("production records both guarded follow-ups and selects only the Fit House 
   assert.equal(contract.ledgerCount, 221);
   assert.equal(
     contract.ledgerFingerprint,
-    "bf85cbe78934ab3b4e344abd1027b28d687d2cef7e9429c4434426e03a21bc94",
+    "bddbdda9e913bdf262287c387e75e6aef3b5e1f78b4eb3c8648747ef881e1d3d",
   );
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_VARIANT_PROVENANCE_MIGRATION)), NUTRITION_VARIANT_PROVENANCE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_PREWORKOUT_FACTS_MIGRATION)), NUTRITION_PREWORKOUT_FACTS_SHA256);
@@ -510,7 +516,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
 test("the frozen fixture reproduces the approved staging ledger fingerprint", () => {
   const rows = currentRemoteLedger();
   assert.equal(rows.length, CONTRACT.ledgerCount);
-  assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
+  assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACT.ledgerFingerprint);
 });
 
 test("production binds its exact 221-row ledger before the Fit House parent approval migration", () => {
@@ -883,7 +889,7 @@ test("historical prepared consolidated RA-004 activation selected exactly one mi
   assert.equal(result.activation_id, "ra004-consolidated-staging-interface-2026-09-28-v1");
   assert.equal(result.ledger_count, 96);
   assert.equal(result.ledger_fingerprint,
-    "d85982cd1df704c77c8d61b0d8f56038eecb4fce014ba9aa68e69b617a9efb7e");
+    "66d8b25242c69b7cc461e2f6deaec4882155b9eee8d0b485742a667812588b17");
   assert.deepEqual(result.pending_files, [RA004_CONSOLIDATED_OWNERSHIP_MIGRATION]);
   assert.equal(result.pending_sha256,
     "a240a263d7e88084171a73317db9e19f0e2c69c9b71ca84dbe788b624a22c9c4");

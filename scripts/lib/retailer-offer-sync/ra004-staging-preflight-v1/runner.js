@@ -25,6 +25,7 @@ async function runPreflight({ authorization, expected, providerBundle, outputPat
     const metadata = redact(validateMetadata(await provider.callMetadataRpc({
       p_environment: "STAGING", p_retailer_name: approved.target.retailer.name,
       p_retailer_slug: approved.target.retailer.slug,
+      p_ledger_fingerprint_contract_version: approved.target.ledger.contract_version,
       p_expected_ledger_count: approved.target.ledger.count,
       p_expected_ledger_fingerprint: approved.target.ledger.fingerprint,
       p_expected_session_user: approved.credential_design.role_name,

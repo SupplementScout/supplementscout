@@ -24,6 +24,8 @@ const FORWARD_CONTROL_MIGRATION = "supabase/migrations/20260927100000_reissue_tr
 const FORWARD_PREFLIGHT_MIGRATION = "supabase/migrations/20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql";
 const CORRECTED_PREFLIGHT_MIGRATION = "supabase/migrations/20260927102000_correct_ra004_staging_preflight_ledger_contract.sql";
 const CONSOLIDATED_OWNERSHIP_MIGRATION = "supabase/migrations/20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql";
+const EXACT_STAGING_LEDGER_FIXTURE = require("./test-fixtures/ra004-ledger-fingerprint-v1/staging-ledger-97.json");
+const EXACT_STAGING_LEDGER_FINGERPRINT = "bbfc25a25826ebfd4901941099903921e1f5adeb9d952eb6aa93c64939e3849c";
 const CORRECTED_PREFLIGHT_FILENAME = path.basename(CORRECTED_PREFLIGHT_MIGRATION);
 const CORRECTED_PREFLIGHT_SHA = "25f70527d18113a2282ebcdb1626b8052f7774f3f7f6ee1dbe69e1cd17864b93";
 const CORRECT_LEDGER_NAME = "reissue_transactional_retailer_control_state_interface";
@@ -121,7 +123,7 @@ async function runExactLocalQ1ToQ8(metadata, ledgerCount, ledgerFingerprint, exp
     target: {
       environment: "STAGING", project_reference: "ra004-local-synthetic", canonical_host: "ra004-local.invalid",
       host_allowlist: ["ra004-local.invalid"], retailer: { name: "10 Reps", slug: "10-reps" },
-      ledger: { count: ledgerCount, fingerprint: ledgerFingerprint },
+      ledger: { contract_version: "RA004_LEDGER_V1", count: ledgerCount, fingerprint: ledgerFingerprint },
     },
     operator: "fixture-operator", credential_issuer: "fixture-issuer",
     window: { starts_at: "2026-09-27T11:50:00.000Z", expires_at: "2026-09-27T12:20:00.000Z" },
@@ -467,11 +469,12 @@ test("consolidated Supabase ownership migration succeeds as PostgreSQL 17 non-su
     ok(sql(container,database,"drop table public.retailer_catalogue_production_recovery_approvals, public.retailer_catalogue_production_recovery_manifests, public.retailer_catalogue_production_fixture_approvals","postgres"),"remove compatibility tables");
     ok(sql(container,database,"drop role retailer_catalogue_production_validator, retailer_catalogue_production_executor, retailer_catalogue_production_approver","supabase_admin"),"remove compatibility roles");
     ok(fileAs(container,database,"postgres",COMPATIBILITY_MIGRATION),"apply already-consumed compatibility migration once");
-    const ledgerRows=[
-      ...Array.from({length:94},(_,index)=>[`20250101${String(index).padStart(6,"0")}`,`synthetic_history_${index}`]),
-      ["20260926100000","create_ra004_staging_10reps_retailer"],
-      ["20260926110000","add_ra004_staging_interface_compatibility"],
-    ];
+    const ledgerRows=EXACT_STAGING_LEDGER_FIXTURE.rows.slice(0,-1)
+      .map(({version,name})=>[version,name]);
+    assert.equal(ledgerRows.length,96);
+    assert.deepEqual(ledgerRows.at(-1),[
+      "20260926110000","add_ra004_staging_interface_compatibility",
+    ]);
     ok(sql(container,database,`create schema supabase_migrations authorization postgres; create table supabase_migrations.schema_migrations(version text primary key,name text not null,statements text[] not null default array[]::text[]); alter table supabase_migrations.schema_migrations owner to postgres; insert into supabase_migrations.schema_migrations(version,name) values ${ledgerRows.map(([version,name])=>`(${quote(version)},${quote(name)})`).join(",")}; insert into public.retailers(id,name,slug) overriding system value values (11,'10 Reps','10-reps');`,"postgres"),"create exact ledger-96 state");
     ok(docker(container,["createdb","-U","supabase_admin","-T",database,"-O","postgres",ledgerDriftDatabase]),"clone exact state for ledger drift");
     ok(sql(container,ledgerDriftDatabase,"update supabase_migrations.schema_migrations set name='drifted_compatibility' where version='20260926110000'","postgres"),"inject ledger drift");
@@ -522,6 +525,7 @@ test("consolidated Supabase ownership migration succeeds as PostgreSQL 17 non-su
     ok(sql(container,database,"revoke execute on function public.write_retailer_control_state_evidence_v1(uuid,integer,text,bigint,boolean,text,text,text,text,timestamptz,timestamptz,timestamptz,text,text,jsonb,text,text) from ra004_writer_test_login; revoke usage on schema public from ra004_writer_test_login; drop role ra004_writer_test_login","postgres"),"revoke and drop bounded writer login");
     const exactLedgerIdentifiers=[...ledgerRows.map(([version,name])=>`${version}_${name}`),"20260927103000_consolidate_ra004_supabase_ownership_interfaces"];
     const exactLedgerFingerprint=migrationLedgerFingerprint(exactLedgerIdentifiers,"STAGING");
+    assert.equal(exactLedgerFingerprint,EXACT_STAGING_LEDGER_FINGERPRINT);
     ok(sql(container,database,`create role ra004_preflight_test_login login noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls; alter role ra004_preflight_test_login set default_transaction_read_only=on; alter role ra004_preflight_test_login set statement_timeout='15s'; alter role ra004_preflight_test_login set idle_in_transaction_session_timeout='15s'; grant usage on schema public to ra004_preflight_test_login; grant execute on function public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer) to ra004_preflight_test_login`,"postgres"),"issue one bounded preflight login");
     denied(sql(container,database,"create table public.forbidden_ra004(id integer)","ra004_preflight_test_login"),"runtime DDL is denied",/permission denied|read-only transaction/);
     denied(sql(container,database,"select * from public.retailers","ra004_preflight_test_login"),"runtime table read is denied",/permission denied/);
@@ -531,6 +535,7 @@ test("consolidated Supabase ownership migration succeeds as PostgreSQL 17 non-su
     denied(sql(container,database,"select public.write_retailer_control_state_evidence_v1(null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)","ra004_preflight_test_login"),"preflight login cannot call the writer RPC",/permission denied/);
     const metadata=json(ok(sql(container,database,call("STAGING",97,exactLedgerFingerprint),"ra004_preflight_test_login"),"run consolidated Q2-Q7 metadata RPC"));
     validateMetadata(metadata,"ra004_preflight_test_login");
+    assert.equal(metadata.q3_migration_ledger.ordered_ledger_fingerprint,EXACT_STAGING_LEDGER_FINGERPRINT);
     const fullPreflight=await runExactLocalQ1ToQ8(metadata,97,exactLedgerFingerprint,"consolidate_ra004_supabase_ownership_interfaces");
     assert.equal(fullPreflight.report.status,"METADATA_CAPTURED_PENDING_REVOKE");
     ok(sql(container,database,"revoke execute on function public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer) from ra004_preflight_test_login; revoke usage on schema public from ra004_preflight_test_login; drop role ra004_preflight_test_login","postgres"),"revoke and drop bounded preflight login");

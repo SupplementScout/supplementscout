@@ -1,6 +1,7 @@
 const { Client } = require("pg");
 const {
   RPC_NAME: PREFLIGHT_RPC,
+  LEDGER_FINGERPRINT_CONTRACT_VERSION,
   sanitizeError,
   validateEvidenceStore,
   validateProjectIdentity,
@@ -134,8 +135,10 @@ function createPreflightPostgresTransport(configuration, dependencies = {}) {
       exact(request.parameters, [
         "p_environment", "p_retailer_name", "p_retailer_slug", "p_expected_ledger_count",
         "p_expected_ledger_fingerprint", "p_expected_session_user", "p_max_bytes",
+        "p_ledger_fingerprint_contract_version",
       ], "metadata RPC parameters");
       if (request.function_name !== PREFLIGHT_RPC
+          || request.parameters.p_ledger_fingerprint_contract_version !== LEDGER_FINGERPRINT_CONTRACT_VERSION
           || request.parameters.p_expected_session_user !== configuration.expectedSessionUser) {
         fail("RA004_LIVE_TRANSPORT_RPC_BLOCKED", "metadata RPC identity mismatch");
       }

@@ -2,6 +2,11 @@ const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const { canonicalize } = require("./fingerprints");
+const {
+  ledgerDocument: canonicalLedgerDocument,
+  ledgerFingerprint: canonicalLedgerFingerprint,
+  rowsFromIdentifiers,
+} = require("../ra004-ledger-fingerprint-v1");
 
 const STAGING_REF = "hxnrsyyqffztlvcrtgbf";
 const PRODUCTION_REF = "aftboxmrdgyhizicfsfu";
@@ -24,9 +29,11 @@ function seal(value, fingerprintKey) { return sha256(canonicalize({ ...value, [f
 function packageFingerprint(value) { return seal(value, "package_fingerprint"); }
 function requestFingerprint(value) { return seal(value, "request_fingerprint"); }
 function migrationLedgerDocument(identifiers, targetEnvironment = "STAGING") {
-  return { schema_version: 1, target_environment: targetEnvironment, migrations: identifiers.map((identifier, index) => { const split = identifier.indexOf("_"); return { identifier, name: identifier.slice(split + 1), ordinal: index + 1, version: identifier.slice(0, split) }; }) };
+  return canonicalLedgerDocument(rowsFromIdentifiers(identifiers), { targetEnvironment });
 }
-function migrationLedgerFingerprint(identifiers, targetEnvironment = "STAGING") { return sha256(canonicalize(migrationLedgerDocument(identifiers, targetEnvironment))); }
+function migrationLedgerFingerprint(identifiers, targetEnvironment = "STAGING") {
+  return canonicalLedgerFingerprint(rowsFromIdentifiers(identifiers), { targetEnvironment });
+}
 function exactKeys(value, keys) { return value && typeof value === "object" && !Array.isArray(value) && Object.keys(value).sort().join("|") === [...keys].sort().join("|"); }
 function isSha256(value) { return /^[0-9a-f]{64}$/.test(String(value)); }
 function isCommit(value) { return /^[0-9a-f]{40}$/.test(String(value)); }

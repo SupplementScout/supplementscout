@@ -1,6 +1,6 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: RA-004 BLOCKED_PLATFORM_LIMITATION — FINAL STAGING ATTEMPT TERMINALLY CLOSED**
+**Status: RA-004 CANONICAL LEDGER FINGERPRINT CONTRACT READY_FOR_VERIFICATION — LIVE RETRY NOT AUTHORIZED**
 
 **Current active task:** RA-004 — `IN_PROGRESS`; its documentation preflight is
 verified; the fixture-only exporter is preserved in PR #89. The consolidated
@@ -483,6 +483,19 @@ interface migration and the production selector remain closed. See
 [`evidence/RA-004-CONSOLIDATED-OWNERSHIP-ACTIVATION.md`](evidence/RA-004-CONSOLIDATED-OWNERSHIP-ACTIVATION.md)
 and
 [`evidence/RA-004-CONSOLIDATED-STAGING-ATTEMPT-CLOSEOUT.md`](evidence/RA-004-CONSOLIDATED-STAGING-ATTEMPT-CLOSEOUT.md).
+
+**Canonical ledger fingerprint contract:** `READY_FOR_VERIFICATION`.
+The exact 97-row terminal staging ledger is reconstructed locally and frozen as
+a neutral `{version,name}` fixture. `RA004_LEDGER_V1` projects only those two
+fields, sorts by UTF-8 version then name, assigns logical ordinals and hashes one
+canonical UTF-8 JSON document. The same exact ledger now produces
+`bbfc25a25826ebfd4901941099903921e1f5adeb9d952eb6aa93c64939e3849c`
+in Node.js and the unchanged PostgreSQL 17 RPC. The former selector hash
+`1692043d963e98570cd69ea2f46654c35f35a78f26c35b3d96e04751d528331c`
+was SHA-256 of the non-canonical raw JavaScript row array. Historical closeout
+evidence remains immutable; the failed preflight remains failed, the canary was
+not run, both selectors remain closed and no retry is authorized. See
+[`evidence/RA-004-CANONICAL-LEDGER-FINGERPRINT-CONTRACT.md`](evidence/RA-004-CANONICAL-LEDGER-FINGERPRINT-CONTRACT.md).
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
