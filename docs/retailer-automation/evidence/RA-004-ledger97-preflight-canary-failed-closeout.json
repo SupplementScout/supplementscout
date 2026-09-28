@@ -1,0 +1,48 @@
+{
+  "schema_version": "ra-004-ledger97-preflight-canary-failed-closeout-v1",
+  "status": "BLOCKED",
+  "task_id": "RA-004",
+  "activation_id": "[REDACTED]",
+  "authorized_baseline_sha": "bbae3435b9a463c1b53d9e5f73912da5e06fe533",
+  "execution_commit_sha": "4872eaf1950d390a2af562c16cda485eab229bc9",
+  "primary_failure": {
+    "code": "RA004_PREFLIGHT_ACL_UNSAFE",
+    "summary": "grant or RLS mismatch"
+  },
+  "attempt_counters": {
+    "migration": 0,
+    "preflight": 1,
+    "canary": 0,
+    "retry": 0
+  },
+  "ledger_readback": {
+    "count": 97,
+    "fingerprint": "bbfc25a25826ebfd4901941099903921e1f5adeb9d952eb6aa93c64939e3849c",
+    "last_migration": "20260927103000_consolidate_ra004_supabase_ownership_interfaces"
+  },
+  "window": {
+    "started_at": "2026-09-28T13:37:48Z",
+    "closed_at": "2026-09-28T13:37:53Z"
+  },
+  "cleanup": {
+    "evidence_store_session": "CLOSED",
+    "temporary_role": "ra004_pf_20260927_a",
+    "emergency_revoke": "VERIFIED",
+    "role_absent": true,
+    "membership_absent": true
+  },
+  "selectors": {
+    "staging": "CLOSED",
+    "production": "CLOSED"
+  },
+  "forbidden_operation_counts": {
+    "production": 0,
+    "feed_capture": 0,
+    "shadow_run": 0,
+    "import": 0,
+    "apply": 0,
+    "business_writes": 0
+  },
+  "retry_authorized": false,
+  "replayable": false
+}

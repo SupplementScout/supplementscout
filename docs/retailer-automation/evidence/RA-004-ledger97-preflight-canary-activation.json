@@ -1,6 +1,6 @@
 {
   "schema_version": "ra-004-ledger97-preflight-canary-activation-v1",
-  "status": "READY_FOR_ONE_ATTEMPT",
+  "status": "ATTEMPT_CONSUMED_FAILED_TERMINAL",
   "task_id": "RA-004",
   "activation_id": "ra004-ledger97-preflight-canary-2026-09-28-v1",
   "baseline_sha": "bbae3435b9a463c1b53d9e5f73912da5e06fe533",
@@ -30,6 +30,29 @@
   ],
   "selector": { "staging": "CLOSED", "production": "CLOSED", "include_all": false },
   "attempts": { "migration": 0, "preflight": 1, "canary": 1, "retry": false },
+  "execution": {
+    "runtime_activation_id": "[REDACTED]",
+    "execution_commit": "4872eaf1950d390a2af562c16cda485eab229bc9",
+    "started_at": "2026-09-28T13:37:48Z",
+    "closed_at": "2026-09-28T13:37:53Z",
+    "migration_attempt_count": 0,
+    "preflight_attempt_count": 1,
+    "canary_attempt_count": 0,
+    "primary_failure": "RA004_PREFLIGHT_ACL_UNSAFE",
+    "primary_failure_summary": "grant or RLS mismatch",
+    "ledger_after_failure": {
+      "count": 97,
+      "fingerprint": "bbfc25a25826ebfd4901941099903921e1f5adeb9d952eb6aa93c64939e3849c",
+      "last_migration": "20260927103000_consolidate_ra004_supabase_ownership_interfaces"
+    },
+    "evidence_store_session": "CLOSED",
+    "temporary_preflight_role": "ra004_pf_20260927_a",
+    "emergency_revoke_verified": true,
+    "role_absent": true,
+    "membership_absent": true,
+    "retry_authorized": false,
+    "replayable": false
+  },
   "forbidden": [
     "production", "feed_capture", "shadow_run", "import", "apply", "migration_reapply"
   ]
