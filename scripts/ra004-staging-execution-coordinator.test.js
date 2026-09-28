@@ -46,7 +46,7 @@ test("exact ACL/RLS migration is selected once without include-all", () => {
   assert.doesNotMatch(coordinator, /await db\(sql\)/);
 });
 
-test("new authenticated reactivation is exact while the consumed activation remains terminal", () => {
+test("both authenticated ACL activations are terminal and non-replayable", () => {
   const { validateReadOnlyActivation } = require("./ra004-staging-execution-coordinator");
   const consumed = JSON.parse(fs.readFileSync(path.join(ROOT,
     "docs/retailer-automation/evidence/RA-004-acl-rls-correction-activation.json"), "utf8"));
@@ -56,7 +56,26 @@ test("new authenticated reactivation is exact while the consumed activation rema
   assert.throws(() => validateReadOnlyActivation(consumed), /RA004_ACTIVATION_SCHEMA_MISMATCH/);
   const prepared = JSON.parse(fs.readFileSync(path.join(ROOT,
     "docs/retailer-automation/evidence/RA-004-acl-rls-authenticated-reactivation.json"), "utf8"));
-  assert.equal(validateReadOnlyActivation(prepared), prepared);
+  assert.equal(prepared.status, "ATTEMPT_CONSUMED_FAILED_TERMINAL");
+  assert.equal(prepared.execution.primary_failure, "RA004_REVOKED_CREDENTIAL_RECONNECTED");
+  assert.equal(prepared.execution.role_absent, true);
+  assert.equal(prepared.execution.membership_absent, true);
+  assert.equal(prepared.execution.retry_authorized, false);
+  assert.equal(prepared.execution.replayable, false);
+  assert.throws(() => validateReadOnlyActivation(prepared), /RA004_ACTIVATION_NOT_AUTHORIZED/);
+  const authorized = structuredClone(prepared);
+  authorized.status = "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED";
+  authorized.execution = {
+    runtime_activation_id: null,
+    started: false,
+    application_attempt_count: 0,
+    preflight_attempt_count: 0,
+    canary_attempt_count: 0,
+    closed: false,
+    retry_authorized: false,
+    replayable: false,
+  };
+  assert.equal(validateReadOnlyActivation(authorized), authorized);
   for (const mutate of [
     (value) => { value.status = "CONSUMED"; },
     (value) => { value.production.authorized = true; },
@@ -66,7 +85,7 @@ test("new authenticated reactivation is exact while the consumed activation rema
     (value) => { value.evidence_store.session_required_before_migration = false; },
     (value) => { value.execution.started = true; },
   ]) {
-    const changed = structuredClone(prepared);
+    const changed = structuredClone(authorized);
     mutate(changed);
     assert.throws(() => validateReadOnlyActivation(changed), /RA004_/);
   }

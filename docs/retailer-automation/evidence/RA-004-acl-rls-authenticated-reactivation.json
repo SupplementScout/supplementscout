@@ -1,6 +1,6 @@
 {
   "schema_version": "ra-004-acl-rls-correction-activation-v2",
-  "status": "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED",
+  "status": "ATTEMPT_CONSUMED_FAILED_TERMINAL",
   "task_id": "RA-004",
   "activation_id": "ra004-acl-rls-correction-2026-09-28-v2",
   "baseline_sha": "c3b8d5c4d0cf5389f87674eb2e7d11fb76bd8d24",
@@ -62,12 +62,26 @@
   },
   "production": { "authorized": false, "selector_unchanged": true, "migration_count": 0 },
   "execution": {
-    "runtime_activation_id": null,
-    "started": false,
-    "application_attempt_count": 0,
-    "preflight_attempt_count": 0,
+    "runtime_activation_id": "ra004-staging-1790613549668",
+    "execution_commit": "4ed68892c36e0e157d654e2777535690b6bf8cc2",
+    "started": true,
+    "window_started": true,
+    "application_attempt_count": 1,
+    "preflight_attempt_count": 1,
     "canary_attempt_count": 0,
-    "closed": false,
+    "primary_failure": "RA004_REVOKED_CREDENTIAL_RECONNECTED",
+    "ledger_after_failure": {
+      "count": 98,
+      "fingerprint": "b4e72276ba2570d2da9957c53b6c209a3799087570302af92b295467a1d4e307",
+      "last_migration": "20260928100000_diagnose_ra004_preflight_acl_rls"
+    },
+    "evidence_store_session": "CLOSED",
+    "cleanup_status": "COMPLETE",
+    "temporary_preflight_role": "ra004_pf_20260927_a",
+    "emergency_revoke_verified": true,
+    "role_absent": true,
+    "membership_absent": true,
+    "closed": true,
     "retry_authorized": false,
     "replayable": false
   }

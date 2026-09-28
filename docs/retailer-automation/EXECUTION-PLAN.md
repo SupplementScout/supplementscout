@@ -504,7 +504,8 @@ zero writes and cannot redeploy that migration. An absent GTIN ledger row fails
 closed as `NOT_CURRENTLY_AUTHORIZED`; the pending Fit House migration does not
 authorize GTIN.
 
-**ACL/RLS diagnostic contract:** `FIX_VERIFIED_PENDING_MERGE`.
+**ACL/RLS diagnostic staging activation:**
+`ATTEMPT_CONSUMED_FAILED_TERMINAL`.
 One bounded `REPEATABLE READ READ ONLY` staging transaction proved the durable
 RPC grants, ownership, forced RLS and four RA-004 policies match their closed
 contract. The failure was a false positive in the aggregate check: effective
@@ -512,9 +513,16 @@ privilege helpers counted safe managed-platform access inherited through
 PostgreSQL `PUBLIC` as a direct grant to the temporary RA-004 login. The
 forward-only correction inspects explicit role ACL entries, retains every role,
 RPC, RLS and policy guard, and gives every mismatch a distinct fail-closed code.
-It remains excluded from STAGING and PRODUCTION; no migration, preflight or
-canary is authorized. See
-[`evidence/RA-004-ACL-RLS-DIAGNOSTIC.md`](evidence/RA-004-ACL-RLS-DIAGNOSTIC.md).
+The subsequent authenticated activation established the private evidence
+session and applied the correction once, advancing the staging ledger from 97
+to 98. Its single preflight captured metadata but stopped on
+`RA004_REVOKED_CREDENTIAL_RECONNECTED`; the canary was not run. A bounded
+read-only catalogue readback verified the temporary role and membership
+absent. The evidence session and execution window are closed, the activation
+is non-replayable, and both selectors are closed. See
+[`evidence/RA-004-ACL-RLS-DIAGNOSTIC.md`](evidence/RA-004-ACL-RLS-DIAGNOSTIC.md)
+and
+[`evidence/RA-004-ACL-RLS-AUTHENTICATED-ATTEMPT-CLOSEOUT.md`](evidence/RA-004-ACL-RLS-AUTHENTICATED-ATTEMPT-CLOSEOUT.md).
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
