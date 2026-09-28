@@ -31,6 +31,7 @@ const RA004_FORWARD_PREFLIGHT_MIGRATION = "20260927101000_reissue_ra004_staging_
 const RA004_COMPATIBILITY_MIGRATION = "20260926110000_add_ra004_staging_interface_compatibility.sql";
 const RA004_CORRECTED_PREFLIGHT_MIGRATION = "20260927102000_correct_ra004_staging_preflight_ledger_contract.sql";
 const RA004_CONSOLIDATED_OWNERSHIP_MIGRATION = "20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql";
+const RA004_ACL_RLS_CORRECTION_MIGRATION = "20260928100000_diagnose_ra004_preflight_acl_rls.sql";
 const RA004_ACTIVATION_FILE = path.join(
   ROOT,
   "docs/retailer-automation/evidence/RA-004-staging-migration-activation.json",
@@ -272,6 +273,7 @@ function preFixtureRemoteLedger(sourceDir = SOURCE) {
       RA004_FIXTURE_MIGRATION,
       RA004_COMPATIBILITY_MIGRATION,
       RA004_CONSOLIDATED_OWNERSHIP_MIGRATION,
+      RA004_ACL_RLS_CORRECTION_MIGRATION,
     ].includes(`${version}_${name}.sql`),
   );
 }
@@ -281,6 +283,7 @@ function preCompatibilityRemoteLedger(sourceDir = SOURCE) {
     ({ version, name }) => ![
       RA004_COMPATIBILITY_MIGRATION,
       RA004_CONSOLIDATED_OWNERSHIP_MIGRATION,
+      RA004_ACL_RLS_CORRECTION_MIGRATION,
     ].includes(`${version}_${name}.sql`),
   );
 }
@@ -306,7 +309,7 @@ test.after(() => {
 
 test("staging contract records the fixture, compatibility and consolidated migrations as applied", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 97);
+  assert.equal(result.ledger_count, 98);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
   assert.deepEqual(result.pending_files, [REVIEW_QUEUE_PUBLICATION_MIGRATION, REVIEW_QUEUE_RETRY_MIGRATION, NUTRITION_VARIANT_PROVENANCE_MIGRATION, NUTRITION_PREWORKOUT_FACTS_MIGRATION, NUTRITION_STRUCTURED_CREATINE_MIGRATION, NUTRITION_CITRULLINE_COMPONENTS_MIGRATION, NUTRITION_CREATINE_COMPONENTS_MIGRATION]);
   assert.equal(result.pending_file, null);
@@ -314,7 +317,7 @@ test("staging contract records the fixture, compatibility and consolidated migra
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
-  assert.equal(result.selected_files.length, 104);
+  assert.equal(result.selected_files.length, 105);
   assert.ok(result.selected_files.includes(RA004_FIXTURE_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_GUARD_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_OPERATOR_MIGRATION));
@@ -513,7 +516,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 104);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 105);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -750,9 +753,26 @@ test("owner-authorized ACL/RLS activation selects exactly one migration from led
   assert.equal(RA004_ACL_ACTIVATION.execution.retry_authorized, false);
   assert.equal(RA004_ACL_ACTIVATION.execution.replayable, false);
   assert.throws(() => validateActivationManifest(CONTRACT, RA004_ACL_ACTIVATION), /status mismatch/);
+  assert.equal(RA004_ACL_REACTIVATION.status, "ATTEMPT_CONSUMED_FAILED_TERMINAL");
+  assert.equal(RA004_ACL_REACTIVATION.execution.primary_failure, "RA004_REVOKED_CREDENTIAL_RECONNECTED");
+  assert.equal(RA004_ACL_REACTIVATION.execution.role_absent, true);
+  assert.equal(RA004_ACL_REACTIVATION.execution.membership_absent, true);
+  assert.throws(() => validateActivationManifest(CONTRACT, RA004_ACL_REACTIVATION), /status mismatch/);
+  const prepared = structuredClone(RA004_ACL_REACTIVATION);
+  prepared.status = "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED";
+  prepared.execution = {
+    runtime_activation_id: null,
+    started: false,
+    application_attempt_count: 0,
+    preflight_attempt_count: 0,
+    canary_attempt_count: 0,
+    closed: false,
+    retry_authorized: false,
+    replayable: false,
+  };
   const result = validateSelection(validInput({
     remoteLedger: fixture.rows,
-    activationManifest: RA004_ACL_REACTIVATION,
+    activationManifest: prepared,
   }));
   assert.deepEqual(result.pending_files, ["20260928100000_diagnose_ra004_preflight_acl_rls.sql"]);
   assert.deepEqual(result.pending_sha256s, {
@@ -765,6 +785,18 @@ test("owner-authorized ACL/RLS activation selects exactly one migration from led
     `--project-ref=${CONTRACTS.PRODUCTION.projectRef}`,
     `--activation-manifest=${RA004_ACL_REACTIVATION_FILE}`,
   ]), /staging-only/);
+});
+
+test("staging contract records the applied ACL/RLS correction at ledger 98", () => {
+  const filename = "20260928100000_diagnose_ra004_preflight_acl_rls.sql";
+  assert.equal(CONTRACT.ledgerCount, 98);
+  assert.equal(CONTRACT.ledgerFingerprint,
+    "b4e72276ba2570d2da9957c53b6c209a3799087570302af92b295467a1d4e307");
+  assert.ok(CONTRACT.appliedExcluded.includes(filename));
+  assert.ok(!CONTRACT.pending.some((entry) => entry.filename === filename));
+  assert.equal(currentRemoteLedger().length, 98);
+  assert.equal(ledgerRowsFingerprint(currentRemoteLedger(), { targetEnvironment: "STAGING" }),
+    CONTRACT.ledgerFingerprint);
 });
 
 test("consumed RA-004 activation and both forward migrations remain closed", () => {
@@ -925,7 +957,10 @@ test("historical prepared consolidated RA-004 activation selected exactly one mi
   const result = validateSelection(validInput({
     activationManifest: preparedConsolidatedActivation(),
     remoteLedger: currentRemoteLedger().filter(
-      ({ version, name }) => `${version}_${name}.sql` !== RA004_CONSOLIDATED_OWNERSHIP_MIGRATION,
+      ({ version, name }) => ![
+        RA004_CONSOLIDATED_OWNERSHIP_MIGRATION,
+        RA004_ACL_RLS_CORRECTION_MIGRATION,
+      ].includes(`${version}_${name}.sql`),
     ),
   }));
   assert.equal(result.activation_schema, "ra-004-consolidated-ownership-activation-v1");

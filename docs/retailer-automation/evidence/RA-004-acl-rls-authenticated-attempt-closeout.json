@@ -1,0 +1,44 @@
+{
+  "schema_version": "ra004-staging-closeout-v2-redacted",
+  "status": "BLOCKED",
+  "activation_id": "ra004-staging-1790613549668",
+  "manifest_activation_id": "ra004-acl-rls-correction-2026-09-28-v2",
+  "baseline_sha": "c3b8d5c4d0cf5389f87674eb2e7d11fb76bd8d24",
+  "execution_commit": "4ed68892c36e0e157d654e2777535690b6bf8cc2",
+  "primary_failure": "RA004_REVOKED_CREDENTIAL_RECONNECTED",
+  "session_creation": "CLOSED",
+  "cleanup": {
+    "status": "COMPLETE",
+    "emergency_revoke_verified": true,
+    "role_absent": true,
+    "membership_absent": true
+  },
+  "window": { "started": true, "closed": true },
+  "attempt_counters": {
+    "auth": 1,
+    "upload": 1,
+    "readback": 1,
+    "cleanup": 1,
+    "migration": 1,
+    "preflight": 1,
+    "canary": 0
+  },
+  "ledger_readback": {
+    "count": 98,
+    "fingerprint": "b4e72276ba2570d2da9957c53b6c209a3799087570302af92b295467a1d4e307",
+    "last_migration": "20260928100000_diagnose_ra004_preflight_acl_rls"
+  },
+  "migration": {
+    "filename": "20260928100000_diagnose_ra004_preflight_acl_rls.sql",
+    "sha256": "58aa82b328b9bb77c09b9975892042027a493254add99fb2e1dcf045303c0b0d",
+    "applied": true
+  },
+  "preflight": "METADATA_CAPTURED_NOT_VERIFIED_COMPLETE",
+  "canary": "NOT_RUN",
+  "selectors": { "staging": "TERMINAL_CLOSED", "production": "CLOSED" },
+  "business_data_changes": 0,
+  "production_operations": 0,
+  "retry_authorized": false,
+  "replayable": false,
+  "ra004_status": "IN_PROGRESS"
+}

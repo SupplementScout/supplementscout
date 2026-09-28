@@ -111,13 +111,14 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 97,
+    ledgerCount: 98,
     ledgerFingerprint:
-      "bbfc25a25826ebfd4901941099903921e1f5adeb9d952eb6aa93c64939e3849c",
+      "b4e72276ba2570d2da9957c53b6c209a3799087570302af92b295467a1d4e307",
     appliedExcluded: Object.freeze([
       RA004_FIXTURE_MIGRATION,
       "20260926110000_add_ra004_staging_interface_compatibility.sql",
       "20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql",
+      "20260928100000_diagnose_ra004_preflight_acl_rls.sql",
     ]),
     excluded: Object.freeze({
       "20260922160000_allow_owner_approved_fit_house_six_oos.sql": "be780721eee14c19761546107b7f249e9bea0c451a54732dfd259a7b348132fa",
@@ -808,7 +809,7 @@ function validateSelection({
       ? RA004_FIXTURE_PRE_ACTIVATION_LEDGER_COUNT
       : activationManifest.schema_version === RA004_ACL_ACTIVATION_SCHEMA
         || activationManifest.schema_version === RA004_ACL_REACTIVATION_SCHEMA
-        ? contract.ledgerCount
+        ? activationManifest.pre_activation_ledger.count
       : activationManifest.schema_version === RA004_CONSOLIDATED_ACTIVATION_SCHEMA
         ? RA004_CONSOLIDATED_ACTIVATION_PRE_LEDGER_COUNT
       : RA004_ACTIVATION_PRE_LEDGER_COUNT
@@ -818,7 +819,7 @@ function validateSelection({
       ? RA004_FIXTURE_PRE_ACTIVATION_CANONICAL_LEDGER_FINGERPRINT
       : activationManifest.schema_version === RA004_ACL_ACTIVATION_SCHEMA
         || activationManifest.schema_version === RA004_ACL_REACTIVATION_SCHEMA
-        ? contract.ledgerFingerprint
+        ? activationManifest.pre_activation_ledger.fingerprint
       : activationManifest.schema_version === RA004_CONSOLIDATED_ACTIVATION_SCHEMA
         ? RA004_CONSOLIDATED_ACTIVATION_PRE_CANONICAL_LEDGER_FINGERPRINT
       : RA004_ACTIVATION_PRE_CANONICAL_LEDGER_FINGERPRINT
