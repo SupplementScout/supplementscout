@@ -470,6 +470,15 @@ PRODUCTION selectors remain closed; there is no activation or remote execution
 in this draft. See
 [`evidence/RA-004-CONSOLIDATED-SUPABASE-OWNERSHIP-ARCHITECTURE.md`](evidence/RA-004-CONSOLIDATED-SUPABASE-OWNERSHIP-ARCHITECTURE.md).
 
+**Final consolidated staging activation:** `OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED`.
+The one-shot activation is bound to baseline `9db85844bccdffc153704230a98c4f5919a55c5f`,
+the exact ledger-96 staging state, and only the consolidated ownership migration
+at its reviewed SHA-256. Compatibility is recorded as already applied and cannot
+be selected again; every older RA-004 interface migration and the production
+selector remain closed. See
+[`evidence/RA-004-CONSOLIDATED-OWNERSHIP-ACTIVATION.md`](evidence/RA-004-CONSOLIDATED-OWNERSHIP-ACTIVATION.md)
+and its machine-readable activation manifest.
+
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
 **Goal:** compare the candidate canonical pipeline with the existing 10 Reps
