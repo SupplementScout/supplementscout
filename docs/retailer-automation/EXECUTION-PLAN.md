@@ -523,6 +523,8 @@ is non-replayable, and both selectors are closed. See
 [`evidence/RA-004-ACL-RLS-DIAGNOSTIC.md`](evidence/RA-004-ACL-RLS-DIAGNOSTIC.md)
 and
 [`evidence/RA-004-ACL-RLS-AUTHENTICATED-ATTEMPT-CLOSEOUT.md`](evidence/RA-004-ACL-RLS-AUTHENTICATED-ATTEMPT-CLOSEOUT.md).
+The systemic query-aware revoke-verifier correction is documented in
+[`evidence/RA-004-QUERY-AWARE-REVOKE-VERIFIER.md`](evidence/RA-004-QUERY-AWARE-REVOKE-VERIFIER.md).
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 

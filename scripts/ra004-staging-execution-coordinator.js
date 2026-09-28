@@ -146,9 +146,9 @@ function credentialReader() {
   child.on("message",m=>{const item=pending.get(m.request_id); if(!item)return; pending.delete(m.request_id); if(m.ok)item.resolve(m.result);else item.reject(new Error(m.error));});
   return { pid:child.pid, call(message){return new Promise((resolve,reject)=>{const request_id=++seq;pending.set(request_id,{resolve,reject});child.send({...message,request_id});});}, close(){child.disconnect();} };
 }
-function verifyRevokedCredential(databaseUrl) {
+function verifyRevokedCredential(databaseUrl, role) {
   return new Promise((resolve,reject)=>{
-    const child=fork(path.join(__dirname,"ra004-staging-revocation-verifier.js"),[],{env:{RA004_REVOKED_DATABASE_URL:databaseUrl,NODE_EXTRA_CA_CERTS:process.env.NODE_EXTRA_CA_CERTS},stdio:["ignore","ignore","ignore","ipc"]});
+    const child=fork(path.join(__dirname,"ra004-staging-revocation-verifier.js"),[],{env:{RA004_REVOKED_DATABASE_URL:databaseUrl,RA004_OWNER_DATABASE_URL:ownerUrl,RA004_REVOKED_ROLE:role,NODE_EXTRA_CA_CERTS:process.env.NODE_EXTRA_CA_CERTS},stdio:["ignore","ignore","ignore","ipc"]});
     child.once("message",message=>{child.disconnect();if(message.ok)resolve(message.result);else reject(new Error(message.error));});
     child.once("error",reject);
   });
@@ -341,7 +341,7 @@ async function main() {
   const revokeOne=async(credential,runnerProcessId)=>{
     const databaseUrl=credential.database_url;
     const receipt=await issuer.call({action:"revoke",role:credential.role,runner_process_id:runnerProcessId});
-    const verification=await verifyRevokedCredential(databaseUrl);
+    const verification=await verifyRevokedCredential(databaseUrl,credential.role);
     revoke.push({...receipt,issued_at:credential.issued_at,expires_at:credential.expires_at,revoked_at:utc(),revocation_verification:verification});
     return receipt;
   };
