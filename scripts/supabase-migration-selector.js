@@ -66,6 +66,13 @@ const RA004_FINAL_ACTIVATION_MIGRATIONS = Object.freeze([
   "20260927100000_reissue_transactional_retailer_control_state_interface.sql",
   "20260927102000_correct_ra004_staging_preflight_ledger_contract.sql",
 ]);
+const RA004_CONSOLIDATED_ACTIVATION_SCHEMA = "ra-004-consolidated-ownership-activation-v1";
+const RA004_CONSOLIDATED_ACTIVATION_BASELINE = "9db85844bccdffc153704230a98c4f5919a55c5f";
+const RA004_CONSOLIDATED_ACTIVATION_ID = "ra004-consolidated-staging-interface-2026-09-28-v1";
+const RA004_CONSOLIDATED_ACTIVATION_FINGERPRINT = "2136c2d17ae79352f6758fae1ec64b70f33cf0f9083066ddaf75ccdefedcb2b0";
+const RA004_CONSOLIDATED_ACTIVATION_MIGRATIONS = Object.freeze([
+  "20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql",
+]);
 const RA004_FIXTURE_ACTIVATION_SCHEMA = "ra-004-staging-retailer-fixture-activation-v1";
 const RA004_FIXTURE_ACTIVATION_BASELINE = "cd6c5dbe1931e984213fe5d69f151e266180252a";
 const RA004_FIXTURE_ACTIVATION_ID = "ra004-staging-10reps-retailer-2026-09-26-v1";
@@ -82,10 +89,13 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 95,
+    ledgerCount: 96,
     ledgerFingerprint:
-      "c5bb6405d26def1834522cccaf2937fad60f44156370e5e1f8c4af3ff96d45bd",
-    appliedExcluded: Object.freeze([RA004_FIXTURE_MIGRATION]),
+      "d85982cd1df704c77c8d61b0d8f56038eecb4fce014ba9aa68e69b617a9efb7e",
+    appliedExcluded: Object.freeze([
+      RA004_FIXTURE_MIGRATION,
+      "20260926110000_add_ra004_staging_interface_compatibility.sql",
+    ]),
     excluded: Object.freeze({
       "20260922160000_allow_owner_approved_fit_house_six_oos.sql": "be780721eee14c19761546107b7f249e9bea0c451a54732dfd259a7b348132fa",
       "20260922170000_allow_fit_house_parent_approval_and_supersede_failed_plan.sql": "91c065b0dece55d7908e5dacb5509d1b0d66e26a4d132e8d2969e4db9369251f",
@@ -457,8 +467,9 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
   const forwardActivation = manifest?.schema_version === RA004_FORWARD_ACTIVATION_SCHEMA;
   const correctedActivation = manifest?.schema_version === RA004_CORRECTED_ACTIVATION_SCHEMA;
   const finalActivation = manifest?.schema_version === RA004_FINAL_ACTIVATION_SCHEMA;
+  const consolidatedActivation = manifest?.schema_version === RA004_CONSOLIDATED_ACTIVATION_SCHEMA;
   invariant(
-    fixtureActivation || forwardActivation || correctedActivation || finalActivation
+    fixtureActivation || forwardActivation || correctedActivation || finalActivation || consolidatedActivation
       || manifest?.schema_version === RA004_ACTIVATION_SCHEMA,
     "activation manifest schema mismatch",
   );
@@ -466,6 +477,8 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
   invariant(manifest?.task_id === "RA-004", "activation manifest task mismatch");
   const expectedActivationId = fixtureActivation
     ? RA004_FIXTURE_ACTIVATION_ID
+    : consolidatedActivation
+      ? RA004_CONSOLIDATED_ACTIVATION_ID
     : finalActivation
       ? RA004_FINAL_ACTIVATION_ID
     : correctedActivation
@@ -475,6 +488,8 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
       : RA004_ACTIVATION_ID;
   const expectedBaseline = fixtureActivation
     ? RA004_FIXTURE_ACTIVATION_BASELINE
+    : consolidatedActivation
+      ? RA004_CONSOLIDATED_ACTIVATION_BASELINE
     : finalActivation
       ? RA004_FINAL_ACTIVATION_BASELINE
     : correctedActivation
@@ -484,6 +499,8 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
       : RA004_ACTIVATION_BASELINE;
   const expectedMigrations = fixtureActivation
     ? [RA004_FIXTURE_MIGRATION]
+    : consolidatedActivation
+      ? RA004_CONSOLIDATED_ACTIVATION_MIGRATIONS
     : finalActivation
       ? RA004_FINAL_ACTIVATION_MIGRATIONS
     : correctedActivation
@@ -511,10 +528,44 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
       "fixture pre-activation ledger mismatch",
     );
     invariant(
-      manifest?.post_activation_ledger?.count === contract.ledgerCount
-        && manifest?.post_activation_ledger?.fingerprint === contract.ledgerFingerprint,
+      manifest?.post_activation_ledger?.count === RA004_ACTIVATION_PRE_LEDGER_COUNT
+        && manifest?.post_activation_ledger?.fingerprint === RA004_ACTIVATION_PRE_LEDGER_FINGERPRINT,
       "fixture post-activation ledger mismatch",
     );
+  } else if (consolidatedActivation) {
+    invariant(
+      manifest?.pre_activation_ledger?.count === contract.ledgerCount
+        && manifest?.pre_activation_ledger?.fingerprint === contract.ledgerFingerprint
+        && manifest?.pre_activation_ledger?.last_version === "20260926110000"
+        && manifest?.pre_activation_ledger?.last_name === "add_ra004_staging_interface_compatibility",
+      "consolidated activation pre-ledger mismatch",
+    );
+    invariant(
+      manifest?.post_activation_ledger?.count === 97
+        && manifest?.post_activation_ledger?.last_version === "20260927103000"
+        && manifest?.post_activation_ledger?.last_name === "consolidate_ra004_supabase_ownership_interfaces"
+        && manifest?.post_activation_ledger?.fingerprint === "DERIVED_FROM_VERIFIED_READBACK",
+      "consolidated activation post-ledger contract mismatch",
+    );
+    const fingerprintPayload = { ...manifest };
+    delete fingerprintPayload.manifest_fingerprint;
+    invariant(manifest?.manifest_fingerprint === RA004_CONSOLIDATED_ACTIVATION_FINGERPRINT
+      && stableJsonSha256(fingerprintPayload) === RA004_CONSOLIDATED_ACTIVATION_FINGERPRINT,
+    "consolidated activation manifest fingerprint mismatch");
+    invariant(manifest?.apply?.maximum_attempts === 1
+      && manifest?.apply?.automatic_retry === false
+      && manifest?.apply?.manual_retry === false
+      && manifest?.apply?.include_all === false
+      && manifest?.apply?.selected_pending_count === 1,
+    "consolidated activation must be one-shot without include-all");
+    invariant(manifest?.preflight?.maximum_attempts === 1
+      && manifest?.canary?.maximum_attempts === 1
+      && manifest?.canary?.requires_preflight_pass === true,
+    "consolidated activation read attempts mismatch");
+    invariant(manifest?.old_migrations?.selected === false
+      && manifest?.compatibility_migration?.already_applied === true
+      && manifest?.compatibility_migration?.selected === false,
+    "consolidated activation must not replay historical migrations");
   } else {
     invariant(
       manifest?.pre_activation_ledger?.count === RA004_ACTIVATION_PRE_LEDGER_COUNT
@@ -686,11 +737,15 @@ function validateSelection({
   const expectedLedgerCount = activationManifest
     ? fixtureActivation
       ? RA004_FIXTURE_PRE_ACTIVATION_LEDGER_COUNT
+      : activationManifest.schema_version === RA004_CONSOLIDATED_ACTIVATION_SCHEMA
+        ? contract.ledgerCount
       : RA004_ACTIVATION_PRE_LEDGER_COUNT
     : contract.ledgerCount;
   const expectedLedgerFingerprint = activationManifest
     ? fixtureActivation
       ? RA004_FIXTURE_PRE_ACTIVATION_LEDGER_FINGERPRINT
+      : activationManifest.schema_version === RA004_CONSOLIDATED_ACTIVATION_SCHEMA
+        ? contract.ledgerFingerprint
       : RA004_ACTIVATION_PRE_LEDGER_FINGERPRINT
     : contract.ledgerFingerprint;
   invariant(remoteLedger.length === expectedLedgerCount, "remote ledger count mismatch");

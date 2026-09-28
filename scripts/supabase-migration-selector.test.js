@@ -57,6 +57,13 @@ const RA004_FINAL_ACTIVATION_FILE = path.join(
 const RA004_FINAL_ACTIVATION = JSON.parse(
   fs.readFileSync(RA004_FINAL_ACTIVATION_FILE, "utf8"),
 );
+const RA004_CONSOLIDATED_ACTIVATION_FILE = path.join(
+  ROOT,
+  "docs/retailer-automation/evidence/RA-004-consolidated-ownership-activation.json",
+);
+const RA004_CONSOLIDATED_ACTIVATION = JSON.parse(
+  fs.readFileSync(RA004_CONSOLIDATED_ACTIVATION_FILE, "utf8"),
+);
 function preparedFinalActivation() {
   const manifest = JSON.parse(JSON.stringify(RA004_FINAL_ACTIVATION));
   manifest.status = "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED";
@@ -72,6 +79,9 @@ function preparedFinalActivation() {
     replayable: false,
   };
   return manifest;
+}
+function preparedConsolidatedActivation() {
+  return JSON.parse(JSON.stringify(RA004_CONSOLIDATED_ACTIVATION));
 }
 function preparedCorrectedActivation() {
   const manifest = JSON.parse(JSON.stringify(RA004_CORRECTED_ACTIVATION));
@@ -233,7 +243,16 @@ function currentRemoteLedger(sourceDir = SOURCE) {
 
 function preFixtureRemoteLedger(sourceDir = SOURCE) {
   return currentRemoteLedger(sourceDir).filter(
-    ({ version, name }) => `${version}_${name}.sql` !== RA004_FIXTURE_MIGRATION,
+    ({ version, name }) => ![
+      RA004_FIXTURE_MIGRATION,
+      RA004_COMPATIBILITY_MIGRATION,
+    ].includes(`${version}_${name}.sql`),
+  );
+}
+
+function preCompatibilityRemoteLedger(sourceDir = SOURCE) {
+  return currentRemoteLedger(sourceDir).filter(
+    ({ version, name }) => `${version}_${name}.sql` !== RA004_COMPATIBILITY_MIGRATION,
   );
 }
 
@@ -258,7 +277,7 @@ test.after(() => {
 
 test("staging contract records the fixture migration as applied", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 95);
+  assert.equal(result.ledger_count, 96);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
   assert.deepEqual(result.pending_files, [REVIEW_QUEUE_PUBLICATION_MIGRATION, REVIEW_QUEUE_RETRY_MIGRATION, NUTRITION_VARIANT_PROVENANCE_MIGRATION, NUTRITION_PREWORKOUT_FACTS_MIGRATION, NUTRITION_STRUCTURED_CREATINE_MIGRATION, NUTRITION_CITRULLINE_COMPONENTS_MIGRATION, NUTRITION_CREATINE_COMPONENTS_MIGRATION]);
   assert.equal(result.pending_file, null);
@@ -266,7 +285,7 @@ test("staging contract records the fixture migration as applied", () => {
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
-  assert.equal(result.selected_files.length, 102);
+  assert.equal(result.selected_files.length, 103);
   assert.ok(result.selected_files.includes(RA004_FIXTURE_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_GUARD_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_OPERATOR_MIGRATION));
@@ -459,7 +478,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 102);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 103);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -716,7 +735,7 @@ test("failed forward RA-004 activation is terminal and all three migrations rema
   const normal = validateSelection(validInput());
   for (const filename of [RA004_COMPATIBILITY_MIGRATION, RA004_FORWARD_CONTROL_STATE_MIGRATION, RA004_FORWARD_PREFLIGHT_MIGRATION]) {
     assert.ok(normal.excluded_files.includes(filename));
-    assert.ok(!normal.selected_files.includes(filename));
+    assert.equal(normal.selected_files.includes(filename), filename === RA004_COMPATIBILITY_MIGRATION);
     assert.ok(!normal.pending_files.includes(filename));
   }
 });
@@ -768,7 +787,7 @@ test("historical corrected RA-004 activation cannot select the revised closed co
   })), /SHA-256 mismatch/);
   const normal = validateSelection(validInput());
   assert.ok(normal.excluded_files.includes(RA004_COMPATIBILITY_MIGRATION));
-  assert.ok(!normal.selected_files.includes(RA004_COMPATIBILITY_MIGRATION));
+  assert.ok(normal.selected_files.includes(RA004_COMPATIBILITY_MIGRATION));
   assert.ok(!normal.pending_files.includes(RA004_COMPATIBILITY_MIGRATION));
 });
 
@@ -814,7 +833,8 @@ test("consumed corrected RA-004 activation is terminal and cannot be replayed", 
     RA004_FORWARD_PREFLIGHT_MIGRATION,
   ]) {
     assert.ok(normal.excluded_files.includes(filename));
-    assert.ok(!normal.selected_files.includes(filename));
+    assert.equal(normal.selected_files.includes(filename), filename === RA004_COMPATIBILITY_MIGRATION);
+    assert.equal(normal.selected_files.includes(filename), filename === RA004_COMPATIBILITY_MIGRATION);
     assert.ok(!normal.pending_files.includes(filename));
   }
 });
@@ -822,7 +842,7 @@ test("consumed corrected RA-004 activation is terminal and cannot be replayed", 
 test("final RA-004 activation selects exactly the three owner-authorized staging migrations", () => {
   const result = validateSelection(validInput({
     activationManifest: preparedFinalActivation(),
-    remoteLedger: currentRemoteLedger(),
+    remoteLedger: preCompatibilityRemoteLedger(),
   }));
   assert.equal(result.activation_schema, "ra-004-final-staging-migration-activation-v1");
   assert.equal(result.activation_id, "ra004-final-staging-interfaces-2026-09-27-v1");
@@ -832,6 +852,50 @@ test("final RA-004 activation selects exactly the three owner-authorized staging
     RA004_CORRECTED_PREFLIGHT_MIGRATION,
   ]);
   assert.ok(!result.pending_files.includes(RA004_FORWARD_PREFLIGHT_MIGRATION));
+});
+
+test("consolidated RA-004 activation selects exactly one migration from ledger 96", () => {
+  const result = validateSelection(validInput({
+    activationManifest: preparedConsolidatedActivation(),
+    remoteLedger: currentRemoteLedger(),
+  }));
+  assert.equal(result.activation_schema, "ra-004-consolidated-ownership-activation-v1");
+  assert.equal(result.activation_id, "ra004-consolidated-staging-interface-2026-09-28-v1");
+  assert.equal(result.ledger_count, 96);
+  assert.equal(result.ledger_fingerprint,
+    "d85982cd1df704c77c8d61b0d8f56038eecb4fce014ba9aa68e69b617a9efb7e");
+  assert.deepEqual(result.pending_files, [RA004_CONSOLIDATED_OWNERSHIP_MIGRATION]);
+  assert.equal(result.pending_sha256,
+    "a240a263d7e88084171a73317db9e19f0e2c69c9b71ca84dbe788b624a22c9c4");
+  assert.ok(result.selected_files.includes(RA004_COMPATIBILITY_MIGRATION));
+  assert.ok(!result.pending_files.includes(RA004_COMPATIBILITY_MIGRATION));
+  assert.ok(!result.pending_files.includes(RA004_FORWARD_CONTROL_STATE_MIGRATION));
+  assert.ok(!result.pending_files.includes(RA004_CORRECTED_PREFLIGHT_MIGRATION));
+});
+
+test("consolidated RA-004 activation fails closed on mutation, retry and production", () => {
+  const check = (mutate, pattern = /fingerprint mismatch/) => {
+    const manifest = preparedConsolidatedActivation();
+    mutate(manifest);
+    assert.throws(() => validateActivationManifest(CONTRACT, manifest), pattern);
+  };
+  check((value) => { value.apply.include_all = true; });
+  check((value) => { value.apply.maximum_attempts = 2; }, /one-shot without retry/);
+  check((value) => { value.migrations[0].sha256 = "0".repeat(64); });
+  check((value) => { value.migrations[0].filename = RA004_CORRECTED_PREFLIGHT_MIGRATION; });
+  check((value) => { value.compatibility_migration.selected = true; });
+  check((value) => { value.old_migrations.selected = true; });
+  check((value) => { value.production.authorized = true; }, /must not authorize production/);
+  check((value) => { value.status = "ATTEMPT_CONSUMED"; }, /status mismatch/);
+  assert.throws(() => validateSelection(validInput({
+    activationManifest: preparedConsolidatedActivation(),
+    remoteLedger: preCompatibilityRemoteLedger(),
+  })), /ledger count mismatch/);
+  assert.throws(() => parseArgs([
+    "--environment=PRODUCTION",
+    `--project-ref=${CONTRACTS.PRODUCTION.projectRef}`,
+    `--activation-manifest=${RA004_CONSOLIDATED_ACTIVATION_FILE}`,
+  ]), /staging-only/);
 });
 
 test("final RA-004 activation fails closed on mutation, retry, replay and production", () => {
