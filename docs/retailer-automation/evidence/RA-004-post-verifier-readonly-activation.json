@@ -1,9 +1,9 @@
 {
-  "schema_version": "ra-004-final-readonly-activation-v1",
-  "status": "ATTEMPT_CONSUMED_FAILED_TERMINAL",
+  "schema_version": "ra-004-post-verifier-activation-v1",
+  "status": "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED",
   "task_id": "RA-004",
-  "activation_id": "ra004-final-readonly-preflight-canary-2026-09-28",
-  "baseline_sha": "e97d06608d5927e1edd43a99978fef0322b4297d",
+  "activation_id": "ra004-post-verifier-preflight-canary-2026-09-28",
+  "baseline_sha": "5403c35e8a6fb777a184f8b4ad43f61788c61c4c",
   "target": {
     "environment": "STAGING",
     "project_ref": "hxnrsyyqffztlvcrtgbf",
@@ -29,13 +29,12 @@
   "evidence_store": { "session_required_before_preflight": true, "authentication_attempts": 1 },
   "production": { "authorized": false, "selector_unchanged": true, "operations": 0 },
   "execution": {
-    "runtime_activation_id": "ra004-staging-1790619912030",
-    "started": true,
+    "runtime_activation_id": null,
+    "started": false,
     "migration_attempt_count": 0,
-    "preflight_attempt_count": 1,
+    "preflight_attempt_count": 0,
     "canary_attempt_count": 0,
-    "closed": true,
-    "primary_failure": "RA004_REVOKE_CONNECTION_UNVERIFIED",
+    "closed": false,
     "retry_authorized": false,
     "replayable": false
   }
