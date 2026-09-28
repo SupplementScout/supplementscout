@@ -1,0 +1,37 @@
+{
+  "schema_version": "ra004-staging-closeout-v2-redacted",
+  "status": "BLOCKED",
+  "activation_id": "ra004-staging-1790610780764",
+  "manifest_activation_id": "ra004-acl-rls-correction-2026-09-28-v1",
+  "baseline_sha": "8879544a2f5d9f7698935f1d76049cefe9bb6b2d",
+  "execution_commit": "3d9917741e64eaf84297c6c76281778275d3dbb0",
+  "primary_failure": "RA004_STORAGE_AUTH_HTTP_STATUS_400",
+  "session_creation": "NOT_CREATED",
+  "cleanup": { "status": "NOT_REQUIRED", "failures": [] },
+  "window": { "started": false, "closed": true },
+  "attempt_counters": {
+    "auth": 1,
+    "upload": 0,
+    "readback": 0,
+    "cleanup": 0,
+    "migration": 0,
+    "preflight": 0,
+    "canary": 0
+  },
+  "ledger_readback": {
+    "count": 97,
+    "fingerprint": "bbfc25a25826ebfd4901941099903921e1f5adeb9d952eb6aa93c64939e3849c",
+    "last_migration": "20260927103000_consolidate_ra004_supabase_ownership_interfaces"
+  },
+  "migration": {
+    "filename": "20260928100000_diagnose_ra004_preflight_acl_rls.sql",
+    "sha256": "58aa82b328b9bb77c09b9975892042027a493254add99fb2e1dcf045303c0b0d",
+    "applied": false
+  },
+  "selectors": { "staging": "TERMINAL_CLOSED", "production": "CLOSED" },
+  "business_data_changes": 0,
+  "production_operations": 0,
+  "retry_authorized": false,
+  "replayable": false,
+  "ra004_status": "IN_PROGRESS"
+}

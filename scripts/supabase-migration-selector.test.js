@@ -741,9 +741,15 @@ test("RA-004 ACL/RLS diagnostic correction remains SHA-bound and closed in both 
 
 test("owner-authorized ACL/RLS activation selects exactly one migration from ledger 97", () => {
   const fixture = require("./test-fixtures/ra004-ledger-fingerprint-v1/staging-ledger-97.json");
+  assert.equal(RA004_ACL_ACTIVATION.status, "ATTEMPT_CONSUMED_FAILED_TERMINAL");
+  assert.equal(RA004_ACL_ACTIVATION.execution.retry_authorized, false);
+  assert.equal(RA004_ACL_ACTIVATION.execution.replayable, false);
+  assert.throws(() => validateActivationManifest(CONTRACT, RA004_ACL_ACTIVATION), /status mismatch/);
+  const prepared = structuredClone(RA004_ACL_ACTIVATION);
+  prepared.status = "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED";
   const result = validateSelection(validInput({
     remoteLedger: fixture.rows,
-    activationManifest: RA004_ACL_ACTIVATION,
+    activationManifest: prepared,
   }));
   assert.deepEqual(result.pending_files, ["20260928100000_diagnose_ra004_preflight_acl_rls.sql"]);
   assert.deepEqual(result.pending_sha256s, {

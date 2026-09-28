@@ -46,14 +46,17 @@ test("exact ACL/RLS migration is selected once without include-all", () => {
   assert.doesNotMatch(coordinator, /await db\(sql\)/);
 });
 
-test("one-shot activation is exact and fail-closed on mutation", () => {
+test("consumed one-shot activation is terminal and its original contract remains fail-closed", () => {
   const { validateReadOnlyActivation } = require("./ra004-staging-execution-coordinator");
   const activation = JSON.parse(fs.readFileSync(path.join(ROOT,
     "docs/retailer-automation/evidence/RA-004-acl-rls-correction-activation.json"), "utf8"));
-  assert.equal(activation.status, "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED");
+  assert.equal(activation.status, "ATTEMPT_CONSUMED_FAILED_TERMINAL");
   assert.equal(activation.execution.retry_authorized, false);
   assert.equal(activation.execution.replayable, false);
-  assert.equal(validateReadOnlyActivation(activation), activation);
+  assert.throws(() => validateReadOnlyActivation(activation), /RA004_ACTIVATION_NOT_AUTHORIZED/);
+  const prepared = structuredClone(activation);
+  prepared.status = "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED";
+  assert.equal(validateReadOnlyActivation(prepared), prepared);
   for (const mutate of [
     (value) => { value.status = "CONSUMED"; },
     (value) => { value.production.authorized = true; },
@@ -61,7 +64,7 @@ test("one-shot activation is exact and fail-closed on mutation", () => {
     (value) => { value.pre_activation_ledger.count = 96; },
     (value) => { value.migrations[0].sha256 = "0".repeat(64); },
   ]) {
-    const changed = structuredClone(activation);
+    const changed = structuredClone(prepared);
     mutate(changed);
     assert.throws(() => validateReadOnlyActivation(changed), /RA004_/);
   }
