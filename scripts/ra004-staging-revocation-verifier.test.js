@@ -10,7 +10,7 @@ function pgError(code, message = "authentication rejected") {
   return Object.assign(new Error(message), { code });
 }
 
-function fakeClients({ connectError, queryError, ownerRow = {} } = {}) {
+function fakeClients({ connectError, queryError, ownerConnectError, ownerRow = {} } = {}) {
   const calls = [];
   const revokedClient = {
     async connect() {
@@ -25,7 +25,10 @@ function fakeClients({ connectError, queryError, ownerRow = {} } = {}) {
     async end() { calls.push(["revoked.end"]); },
   };
   const ownerClient = {
-    async connect() { calls.push(["owner.connect"]); },
+    async connect() {
+      calls.push(["owner.connect"]);
+      if (ownerConnectError) throw ownerConnectError;
+    },
     async query(sql, params) {
       calls.push(["owner.query", sql, params]);
       return { rows: [{ role_present: false, membership_present: false, active_backend_present: false, ...ownerRow }] };
@@ -57,12 +60,33 @@ test("authentication rejection during connect is a safe PASS", async () => {
   assert.equal(result.revoked_query_attempts, 0);
 });
 
+test("Supavisor rejection without SQLSTATE still performs catalogue readback before PASS", async () => {
+  const fakes = fakeClients({ connectError: new Error("Tenant or user not found") });
+  const result = await verifyRevokedCredential({ ...input, ...fakes });
+  assert.equal(result.outcome_code, "RA004_REVOKE_CONNECTION_REJECTED_CATALOGUE_CONFIRMED");
+  assert.equal(result.revoked_query_attempts, 0);
+  assert.equal(fakes.calls.filter(([name]) => name === "owner.query").length, 1);
+  assert.equal(result.role_absent, true);
+  assert.equal(result.membership_absent, true);
+  assert.equal(result.active_backend_absent, true);
+  assert.doesNotMatch(JSON.stringify(result), /Tenant|user not found|secret/);
+});
+
 test("successful query through a revoked credential is a hard FAIL", async () => {
   const fakes = fakeClients();
   await assert.rejects(
     verifyRevokedCredential({ ...input, ...fakes }),
     /RA004_REVOKED_CREDENTIAL_QUERY_SUCCEEDED/,
   );
+  assert.equal(fakes.calls.filter(([name]) => name === "owner.query").length, 1);
+});
+
+test("pooler handshake followed by a non-SQLSTATE query rejection passes only with catalogue proof", async () => {
+  const fakes = fakeClients({ queryError: new Error("upstream connection terminated") });
+  const result = await verifyRevokedCredential({ ...input, ...fakes });
+  assert.equal(result.outcome_code, "RA004_REVOKE_POOLER_HANDSHAKE_QUERY_REJECTED_CATALOGUE_CONFIRMED");
+  assert.equal(result.revoked_query_attempts, 1);
+  assert.equal(fakes.calls.filter(([name]) => name === "owner.query").length, 1);
 });
 
 for (const [field, code] of [
@@ -71,18 +95,24 @@ for (const [field, code] of [
   ["active_backend_present", "RA004_REVOKE_ACTIVE_BACKEND_PRESENT"],
 ]) {
   test(`${field} is a hard FAIL`, async () => {
-    const fakes = fakeClients({ connectError: pgError("28P01"), ownerRow: { [field]: true } });
+    const fakes = fakeClients({ connectError: new Error("Tenant or user not found"), ownerRow: { [field]: true } });
     await assert.rejects(verifyRevokedCredential({ ...input, ...fakes }), new RegExp(code));
   });
 }
 
-test("unexpected connection or query failures remain fail-closed", async () => {
+test("unexpected connection or query failures remain fail-closed when catalogue proof is unavailable", async () => {
   await assert.rejects(
-    verifyRevokedCredential({ ...input, ...fakeClients({ connectError: pgError("08006") }) }),
-    /RA004_REVOKE_CONNECTION_UNVERIFIED/,
+    verifyRevokedCredential({ ...input, ...fakeClients({
+      connectError: pgError("08006"),
+      ownerConnectError: pgError("08006"),
+    }) }),
+    /RA004_REVOKE_CATALOGUE_UNVERIFIED/,
   );
   await assert.rejects(
-    verifyRevokedCredential({ ...input, ...fakeClients({ queryError: pgError("08006") }) }),
-    /RA004_REVOKE_QUERY_UNVERIFIED/,
+    verifyRevokedCredential({ ...input, ...fakeClients({
+      queryError: pgError("08006"),
+      ownerConnectError: pgError("08006"),
+    }) }),
+    /RA004_REVOKE_CATALOGUE_UNVERIFIED/,
   );
 });
