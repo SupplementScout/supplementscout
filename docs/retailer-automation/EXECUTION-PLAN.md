@@ -1,18 +1,21 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: RA-004 IN PROGRESS — CONTROL-STATE INTERFACE VERIFIED_COMPLETE**
+**Status: RA-004 IN PROGRESS — CONSOLIDATED SUPABASE OWNERSHIP ARCHITECTURE READY_FOR_VERIFICATION WITH TWO PRE_EXISTING_BASELINE_FAILURES**
 
 **Current active task:** RA-004 — `IN_PROGRESS`; its documentation preflight is
-verified; the fixture-only exporter is preserved in PR #89, the
-transactional interface is owner-approved and locally verified, and the full
-repository quality gate passes under the repository LF policy; the shadow run
-is not authorized; the corrected test-only single-snapshot adapter is
-`VERIFIED_COMPLETE`
+verified; the fixture-only exporter is preserved in PR #89, and one new
+forward-only migration now consolidates the remaining control-state and
+preflight interfaces under the verified `postgres` migration owner without
+`SET ROLE`. Both deployment selectors remain closed. The shadow run is not
+authorized; the corrected test-only single-snapshot adapter is
+`VERIFIED_COMPLETE`.
 
 **Implementation:** fixture exporter plus locally database-verified forward-only
 transactional interface, unwired live-provider contract and fail-closed
-migration-selector exclusion; independently verified, with no
-credential or production wiring
+migration-selector exclusion; local PostgreSQL 17 verification passes. Two
+unrelated integration failures reproduce identically at the required baseline
+and are recorded as `PRE_EXISTING_BASELINE_FAILURES`; RA-004 adds zero failures
+and has no credential or production wiring
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
@@ -450,6 +453,22 @@ fails closed. Networkless PostgreSQL 17 tests cover the real non-superuser
 closed, and the consumed historical activation cannot select the revised SHA.
 See
 [`evidence/RA-004-POSTGRESQL-17-COMPATIBILITY-ROLE-CONTRACT.md`](evidence/RA-004-POSTGRESQL-17-COMPATIBILITY-ROLE-CONTRACT.md).
+
+**Consolidated Supabase ownership architecture:** `READY_FOR_VERIFICATION`.
+The exact staging-derived local baseline is ledger `96`, ending at the already
+applied compatibility migration. One new migration,
+`20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql`, creates
+both remaining interfaces as objects owned by the verified `postgres`
+migration identity. It performs no `SET ROLE`, creates no persistent interface
+roles and grants no runtime access. Temporary execution-window roles receive
+only direct `EXECUTE` plus schema `USAGE`; cleanup revokes those rights before
+dropping the role and its PostgreSQL 17 automatic administrative edge. A
+networkless PostgreSQL 17 test proves exact ledger-96 installation, Q1–Q8, one
+synthetic read-only canary, unchanged business counts, negative privilege
+checks, deterministic cleanup and fail-closed replay and drift. STAGING and
+PRODUCTION selectors remain closed; there is no activation or remote execution
+in this draft. See
+[`evidence/RA-004-CONSOLIDATED-SUPABASE-OWNERSHIP-ARCHITECTURE.md`](evidence/RA-004-CONSOLIDATED-SUPABASE-OWNERSHIP-ARCHITECTURE.md).
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 

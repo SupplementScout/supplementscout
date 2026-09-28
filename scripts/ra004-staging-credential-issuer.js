@@ -3,7 +3,7 @@ const { Client } = require("pg");
 
 const ownerUrl = process.env.RA004_OWNER_DATABASE_URL;
 const projectRef = "hxnrsyyqffztlvcrtgbf";
-const roles = new Set();
+const roles = new Map();
 
 function qident(value) { return `"${value.replaceAll('"', '""')}"`; }
 function loginUrl(role, password) {
@@ -31,19 +31,34 @@ async function create(kind, expiresAt) {
     execute 'alter role ${id} set idle_in_transaction_session_timeout=''15s''';
     execute 'grant usage on schema public to ${id}';
     execute 'grant execute on function ${signature} to ${id}';
+    if 1 <> (select count(*) from pg_auth_members membership
+      join pg_roles member_role on member_role.oid=membership.member
+      join pg_roles granted_role on granted_role.oid=membership.roleid
+      join pg_roles grantor_role on grantor_role.oid=membership.grantor
+      where member_role.rolname=current_user and granted_role.rolname='${role}'
+        and membership.admin_option
+        and not coalesce((to_jsonb(membership)->>'set_option')::boolean,true)
+        and not coalesce((to_jsonb(membership)->>'inherit_option')::boolean,true)
+        and grantor_role.rolsuper)
+      or exists(select 1 from pg_auth_members membership
+        join pg_roles member_role on member_role.oid=membership.member
+        join pg_roles granted_role on granted_role.oid=membership.roleid
+        where (member_role.rolname='${role}' or granted_role.rolname='${role}')
+          and not (member_role.rolname=current_user and granted_role.rolname='${role}')) then
+      raise exception 'RA004_ISSUER_MEMBERSHIP_DRIFT';
+    end if;
   end $issuer$;`);
-  roles.add(role);
+  roles.set(role, signature);
   return { role, credential_id: `${kind}-20260927-a`, database_url: loginUrl(role, password), issued_at: new Date().toISOString(), expires_at: expiresAt, issuer_process_id: process.pid };
 }
 async function revoke(role, runnerProcessId) {
   if (!roles.has(role)) throw new Error("RA004_ISSUER_UNKNOWN_ROLE");
   const id = qident(role);
+  const signature = roles.get(role);
   await ownerQuery(`do $issuer$ begin
     execute 'alter role ${id} nologin';
     perform pg_terminate_backend(pid) from pg_stat_activity where usename='${role}' and pid<>pg_backend_pid();
-    execute 'revoke all privileges on all tables in schema public from ${id}';
-    execute 'revoke all privileges on all sequences in schema public from ${id}';
-    execute 'revoke execute on all functions in schema public from ${id}';
+    execute 'revoke execute on function ${signature} from ${id}';
     execute 'revoke usage on schema public from ${id}';
     execute 'drop role ${id}';
   end $issuer$;`);

@@ -354,6 +354,8 @@ const CONTRACTS = Object.freeze({
         "6d1e3512792884cf0696e36d4c54f78d9d85e3e68b32cdd475a885f6138dc2f4",
       "20260927102000_correct_ra004_staging_preflight_ledger_contract.sql":
         "25f70527d18113a2282ebcdb1626b8052f7774f3f7f6ee1dbe69e1cd17864b93",
+      "20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql":
+        "a240a263d7e88084171a73317db9e19f0e2c69c9b71ca84dbe788b624a22c9c4",
     }),
     pending: Object.freeze([
       Object.freeze({
@@ -425,6 +427,8 @@ const CONTRACTS = Object.freeze({
         "6d1e3512792884cf0696e36d4c54f78d9d85e3e68b32cdd475a885f6138dc2f4",
       "20260927102000_correct_ra004_staging_preflight_ledger_contract.sql":
         "25f70527d18113a2282ebcdb1626b8052f7774f3f7f6ee1dbe69e1cd17864b93",
+      "20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql":
+        "a240a263d7e88084171a73317db9e19f0e2c69c9b71ca84dbe788b624a22c9c4",
     }),
     pending: Object.freeze([
       Object.freeze({

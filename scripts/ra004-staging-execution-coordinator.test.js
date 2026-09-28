@@ -19,16 +19,13 @@ test("coordinator is pinned to the owner-authorized staging identity and artifac
   const values = require("./ra004-staging-execution-coordinator");
   assert.equal(values.REF, "hxnrsyyqffztlvcrtgbf");
   assert.equal(values.API_HOST, "hxnrsyyqffztlvcrtgbf.supabase.co");
-  assert.equal(values.BASELINE, "feac20f1a515ee3fbf55cee94cf6dc8234aafb95");
-  assert.equal(values.COMPATIBILITY_SHA, "22b7102641d3aabee86f91d4b07185eb7e6cbed3a017ef8da0499fa2c9dfad7f");
-  assert.equal(values.CONTROL_SHA, "699c911289e6b1eccd04ca778e8d26a36cbc2caf57b426eaede7b359991b2977");
-  assert.equal(values.PREFLIGHT_SHA, "25f70527d18113a2282ebcdb1626b8052f7774f3f7f6ee1dbe69e1cd17864b93");
+  assert.equal(values.BASELINE, "c153145d2d82410a3160837c43ce14923a54d2d8");
+  assert.equal(values.CONSOLIDATED_SHA, "a240a263d7e88084171a73317db9e19f0e2c69c9b71ca84dbe788b624a22c9c4");
   assert.equal(values.BUCKET, "ra004-staging-preflight-evidence");
-  assert.equal(values.EXPECTED_PRE_LEDGER_COUNT, 95);
-  assert.equal(values.EXPECTED_PRE_LEDGER_FINGERPRINT, "c5bb6405d26def1834522cccaf2937fad60f44156370e5e1f8c4af3ff96d45bd");
-  assert.equal(values.EXPECTED_POST_LEDGER_COUNT, 98);
-  assert.equal(values.EXPECTED_POST_LEDGER_FINGERPRINT, "67e4d52a9feb43379b5deb351fd050bc542897bb5ed89998368fbb7c349455db");
-  assert.equal(values.DEPENDENCY_CONTRACT.length, 30);
+  assert.equal(values.EXPECTED_PRE_LEDGER_COUNT, 96);
+  assert.equal(values.EXPECTED_PRE_LEDGER_FINGERPRINT, "d85982cd1df704c77c8d61b0d8f56038eecb4fce014ba9aa68e69b617a9efb7e");
+  assert.equal(values.EXPECTED_POST_LEDGER_COUNT, 97);
+  assert.equal(values.DEPENDENCY_CONTRACT.length, 24);
   assert.match(coordinator, /aftboxmrdgyhizicfsfu\|prod\/i/);
   assert.match(coordinator, /retailer\[0\]\.id==="11"/);
 });
@@ -38,9 +35,7 @@ test("migration apply consumes only the materialized guarded selector workdir", 
   assert.match(coordinator, /selector\.materializeSelectedWorkdir/);
   assert.match(coordinator, /pending_files\.length===EXPECTED_MIGRATIONS\.length/);
   assert.deepEqual(require("./ra004-staging-execution-coordinator").EXPECTED_MIGRATIONS, [
-    ["20260926110000_add_ra004_staging_interface_compatibility.sql", "22b7102641d3aabee86f91d4b07185eb7e6cbed3a017ef8da0499fa2c9dfad7f"],
-    ["20260927100000_reissue_transactional_retailer_control_state_interface.sql", "699c911289e6b1eccd04ca778e8d26a36cbc2caf57b426eaede7b359991b2977"],
-    ["20260927102000_correct_ra004_staging_preflight_ledger_contract.sql", "25f70527d18113a2282ebcdb1626b8052f7774f3f7f6ee1dbe69e1cd17864b93"],
+    ["20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql", "a240a263d7e88084171a73317db9e19f0e2c69c9b71ca84dbe788b624a22c9c4"],
   ]);
   assert.doesNotMatch(coordinator, /20260927101000_reissue_ra004_staging_preflight_metadata_interface/);
   assert.match(coordinator, /\["db", "push", "--db-url", databaseUrl, "--workdir", workdir, "--yes"\]/);
@@ -49,9 +44,9 @@ test("migration apply consumes only the materialized guarded selector workdir", 
   assert.doesNotMatch(coordinator, /await db\(sql\)/);
 });
 
-test("post-migration inventory requires all 30 named dependencies before preflight", () => {
+test("post-migration inventory requires all 24 named dependencies before preflight", () => {
   const { DEPENDENCY_CONTRACT } = require("./ra004-staging-execution-coordinator");
-  assert.equal(new Set(DEPENDENCY_CONTRACT.map(({ kind, identity }) => `${kind}:${identity}`)).size, 30);
+  assert.equal(new Set(DEPENDENCY_CONTRACT.map(({ kind, identity }) => `${kind}:${identity}`)).size, 24);
   assert.ok(DEPENDENCY_CONTRACT.some(({ identity }) => identity === "public.read_retailer_control_state_v1(bigint,text,text,text,timestamp with time zone,text[],integer,integer)"));
   assert.ok(DEPENDENCY_CONTRACT.some(({ identity }) => identity === "public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer)"));
   assert.match(coordinator, /RA004_DEPENDENCY_CONTRACT_DRIFT/);

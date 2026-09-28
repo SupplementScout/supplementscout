@@ -1,0 +1,58 @@
+{
+  "schema_version": "ra-004-consolidated-supabase-ownership-architecture-v1",
+  "status": "READY_FOR_VERIFICATION_WITH_TWO_PRE_EXISTING_BASELINE_FAILURES",
+  "baseline_sha": "c153145d2d82410a3160837c43ce14923a54d2d8",
+  "remote_execution_authorized": false,
+  "activation_present": false,
+  "ledger_contract": {
+    "before_count": 96,
+    "before_fingerprint": "d85982cd1df704c77c8d61b0d8f56038eecb4fce014ba9aa68e69b617a9efb7e",
+    "before_head": "20260926110000_add_ra004_staging_interface_compatibility",
+    "after_count": 97,
+    "after_head": "20260927103000_consolidate_ra004_supabase_ownership_interfaces"
+  },
+  "migration": {
+    "filename": "20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql",
+    "sha256": "a240a263d7e88084171a73317db9e19f0e2c69c9b71ca84dbe788b624a22c9c4",
+    "owner": "postgres",
+    "set_role_count": 0,
+    "persistent_interface_role_count": 0
+  },
+  "selectors": { "staging": "CLOSED", "production": "CLOSED" },
+  "local_proof": {
+    "postgresql_major": 17,
+    "migration_user_superuser": false,
+    "migration_user_createrole": true,
+    "q1_q8": "PASS",
+    "synthetic_read_only_canary": "PASS",
+    "business_data_changes": 0,
+    "retry": 0,
+    "remote_connections": 0
+  },
+  "quality_gates": {
+    "verify_project": "PASS",
+    "verify_quick": "PASS",
+    "verify_full": "PASS",
+    "ra004_postgresql_17": "PASS_6_OF_6",
+    "independent_clean_worktree": "PASS_117_OF_117_PLUS_POSTGRESQL_17",
+    "independently_verified_implementation_commit": "ec521d0d422456698f210a0ac1323c0dc4cea41d",
+    "full_integration": "72_OF_74_PASS_WITH_TWO_PRE_EXISTING_BASELINE_FAILURES",
+    "secret_scan": "PASS",
+    "dependency_scan": "BASELINE_2_MODERATE_3_HIGH_1_CRITICAL"
+  },
+  "baseline_comparison": {
+    "criterion": "ZERO_NEW_FAILURES_RELATIVE_TO_CLEAN_BASELINE",
+    "new_failures": 0,
+    "pre_existing_baseline_failures": [
+      "jons-final-closeout-policy-migration.integration.test.js",
+      "nutrition-variant-provenance.integration.test.js"
+    ],
+    "tests_changed": false,
+    "dependency_or_fixture_changes": false,
+    "skips_added": 0,
+    "quality_gate_weakened": false
+  },
+  "draft_pr_creation_authorized": true,
+  "ra004_status": "IN_PROGRESS",
+  "shadow_run": "NOT_AUTHORIZED"
+}
