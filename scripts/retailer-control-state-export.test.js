@@ -228,6 +228,49 @@ test("live exporter accepts a valid fake transactional response and fails closed
   await assert.rejects(() => exportControlState({ provider: makeProvider({ ...response, unknown_field: true }), authorization: auth, ...request({ provider_mode: "live-read-only" }) }), /CONTROL_EXPORT_SCHEMA_INVALID/);
   await assert.rejects(() => exportControlState({ provider: makeProvider({ ...response, schema_version: "control-state-export-v2" }), authorization: auth, ...request({ provider_mode: "live-read-only" }) }), /CONTROL_EXPORT_SCHEMA_INVALID/);
 });
+test("live exporter rejects the exact unbound provider identity returned by the applied RA-004 RPC", async () => {
+  const auth = liveAuthorization();
+  const report = await run();
+  const appliedRpcProviderIdentity = {
+    mode: "live-read-only",
+    provider_id: "transactional-rpc-v1",
+    credential_type: "DEDICATED_CONTROL_STATE_EXPORTER",
+    read_only_proven: true,
+    service_role: false,
+    mutation_capabilities: [],
+    approved_interfaces: ["public.read_retailer_control_state_v1"],
+  };
+  const response = {
+    ...report,
+    authorization_fingerprint: auth.authorization_fingerprint,
+    provider_identity: appliedRpcProviderIdentity,
+    read_attempt_count: 1,
+  };
+  const coordinatorConfiguration = liveConfiguration({
+    provider_id: "ra004-staging-control-canary-v1",
+  });
+  const provider = createLiveReadOnlyProvider({
+    authorization: auth,
+    providerConfiguration: coordinatorConfiguration,
+    transport: {
+      async callReadOnlyRpc() {
+        return {
+          session_user: coordinatorConfiguration.expected_session_user,
+          transaction_read_only: true,
+          data: response,
+        };
+      },
+    },
+  });
+  await assert.rejects(
+    () => exportControlState({
+      provider,
+      authorization: auth,
+      ...request({ provider_mode: "live-read-only" }),
+    }),
+    /CONTROL_EXPORT_RPC_CONTRACT_INVALID: transactional RPC response is not bound to the authorized request/,
+  );
+});
 test("prepared migration keeps read RPC static and runtime grants capability-only", () => {
   const sql = fs.readFileSync(path.join(ROOT, "supabase/migrations/20260924100000_add_transactional_retailer_control_state_interface.sql"), "utf8");
   const body = sql.match(/create or replace function public\.read_retailer_control_state_v1[\s\S]+?\$read_state\$;\s*alter function/i)?.[0];
@@ -239,6 +282,25 @@ test("prepared migration keeps read RPC static and runtime grants capability-onl
   assert.match(sql, /grant execute on function public\.read_retailer_control_state_v1[\s\S]+?to retailer_control_state_exporter/i);
   assert.match(sql, /grant execute on function public\.write_retailer_control_state_evidence_v1[\s\S]+?to retailer_control_state_evidence_writer/i);
   assert.doesNotMatch(sql, /\bcreate\s+role\s+\w+\s+login\b|\bpassword\s+['"]/i);
+});
+test("forward-only provider identity correction binds the RPC and coordinator to one verified login", () => {
+  const migrationPath = path.join(ROOT, "supabase/migrations/20260928101000_align_ra004_control_export_provider_identity.sql");
+  const sql = fs.readFileSync(migrationPath, "utf8");
+  const coordinator = fs.readFileSync(path.join(ROOT, "scripts/ra004-staging-execution-coordinator.js"), "utf8");
+  assert.match(sql, /'provider_id','transactional-rpc-v1'/);
+  assert.match(sql, /'session_user',session_user/);
+  assert.match(sql, /RA004_CONTROL_EXPORT_PROVIDER_IDENTITY_SOURCE_DRIFT/);
+  assert.match(sql, /RA004_CONTROL_EXPORT_PROVIDER_IDENTITY_POSTCHECK_FAILED/);
+  assert.match(sql, /language plpgsql stable security definer set search_path=pg_catalog/);
+  assert.match(sql, /revoke all on function public\.read_retailer_control_state_v1[\s\S]+from public,anon,authenticated,service_role/);
+  assert.doesNotMatch(sql, /\bgrant\b|\bset\s+role\b|\binsert\s+into\b|\bupdate\s+public\.|\bdelete\s+from\b|\btruncate\b/i);
+  assert.match(coordinator, /provider_id:"transactional-rpc-v1"/);
+  assert.doesNotMatch(coordinator, /provider_id:"ra004-staging-control-canary-v1"/);
+
+  const mutatedMigration = sql.replace("'session_user',session_user", "'session_user','postgres'");
+  assert.doesNotMatch(mutatedMigration, /'session_user',session_user/);
+  const mutatedCoordinator = coordinator.replace('provider_id:"transactional-rpc-v1"', 'provider_id:"ra004-staging-control-canary-v1"');
+  assert.doesNotMatch(mutatedCoordinator, /provider_id:"transactional-rpc-v1"/);
 });
 test("exporter dependency closure excludes database network and production writers", () => {
   const entry = path.join(__dirname, "lib/retailer-offer-sync/control-state-export-v1/exporter.js");

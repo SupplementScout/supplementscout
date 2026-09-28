@@ -32,6 +32,7 @@ const RA004_COMPATIBILITY_MIGRATION = "20260926110000_add_ra004_staging_interfac
 const RA004_CORRECTED_PREFLIGHT_MIGRATION = "20260927102000_correct_ra004_staging_preflight_ledger_contract.sql";
 const RA004_CONSOLIDATED_OWNERSHIP_MIGRATION = "20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql";
 const RA004_ACL_RLS_CORRECTION_MIGRATION = "20260928100000_diagnose_ra004_preflight_acl_rls.sql";
+const RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION = "20260928101000_align_ra004_control_export_provider_identity.sql";
 const RA004_ACTIVATION_FILE = path.join(
   ROOT,
   "docs/retailer-automation/evidence/RA-004-staging-migration-activation.json",
@@ -642,7 +643,7 @@ test("production binds its exact 221-row ledger before the Fit House parent appr
 
 test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.equal(Object.keys(contract.excluded).length, 16);
+  assert.equal(Object.keys(contract.excluded).length, 17);
   assert.ok(!Object.hasOwn(
     contract.excluded,
     "20260824160000_add_identity_proven_price_observations.sql",
@@ -875,6 +876,18 @@ test("consolidated ownership migration is applied-closed in staging and excluded
   const selection = validateSelection(validInput());
   assert.ok(selection.selected_files.includes(RA004_CONSOLIDATED_OWNERSHIP_MIGRATION));
   assert.ok(!selection.pending_files.includes(RA004_CONSOLIDATED_OWNERSHIP_MIGRATION));
+});
+
+test("RA-004 provider identity correction remains closed in staging and production", () => {
+  const sha = "4454cebd1e462a20d4a612d253025c013b5c8276a4d51aa4e43016a7f248fc91";
+  for (const contract of [CONTRACTS.STAGING, CONTRACTS.PRODUCTION]) {
+    assert.equal(contract.excluded[RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION], sha);
+    assert.ok(!contract.pending.some(({ filename }) => filename === RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION));
+  }
+  const selection = validateSelection(validInput());
+  assert.ok(selection.excluded_files.includes(RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION));
+  assert.ok(!selection.selected_files.includes(RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION));
+  assert.ok(!selection.pending_files.includes(RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION));
 });
 
 test("historical corrected RA-004 activation cannot select the revised closed compatibility migration", () => {
