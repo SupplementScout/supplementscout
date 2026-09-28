@@ -19,29 +19,47 @@ test("coordinator is pinned to the owner-authorized staging identity and artifac
   const values = require("./ra004-staging-execution-coordinator");
   assert.equal(values.REF, "hxnrsyyqffztlvcrtgbf");
   assert.equal(values.API_HOST, "hxnrsyyqffztlvcrtgbf.supabase.co");
-  assert.equal(values.BASELINE, "9db85844bccdffc153704230a98c4f5919a55c5f");
+  assert.equal(values.BASELINE, "bbae3435b9a463c1b53d9e5f73912da5e06fe533");
   assert.equal(values.CONSOLIDATED_SHA, "a240a263d7e88084171a73317db9e19f0e2c69c9b71ca84dbe788b624a22c9c4");
   assert.equal(values.BUCKET, "ra004-staging-preflight-evidence");
-  assert.equal(values.EXPECTED_PRE_LEDGER_COUNT, 96);
-  assert.equal(values.EXPECTED_PRE_LEDGER_FINGERPRINT, "66d8b25242c69b7cc461e2f6deaec4882155b9eee8d0b485742a667812588b17");
+  assert.equal(values.EXPECTED_PRE_LEDGER_COUNT, 97);
+  assert.equal(values.EXPECTED_PRE_LEDGER_FINGERPRINT, "bbfc25a25826ebfd4901941099903921e1f5adeb9d952eb6aa93c64939e3849c");
   assert.equal(values.EXPECTED_POST_LEDGER_COUNT, 97);
   assert.equal(values.DEPENDENCY_CONTRACT.length, 24);
   assert.match(coordinator, /aftboxmrdgyhizicfsfu\|prod\/i/);
   assert.match(coordinator, /retailer\[0\]\.id==="11"/);
 });
 
-test("migration apply consumes only the materialized guarded selector workdir", () => {
-  assert.match(coordinator, /selector\.validateSelection/);
-  assert.match(coordinator, /selector\.materializeSelectedWorkdir/);
-  assert.match(coordinator, /pending_files\.length===EXPECTED_MIGRATIONS\.length/);
+test("already-present migration is attested and cannot be applied again", () => {
+  assert.match(coordinator, /validateReadOnlyActivation/);
+  assert.match(coordinator, /status:"ALREADY_PRESENT_VERIFIED",database_writes:0/);
   assert.deepEqual(require("./ra004-staging-execution-coordinator").EXPECTED_MIGRATIONS, [
     ["20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql", "a240a263d7e88084171a73317db9e19f0e2c69c9b71ca84dbe788b624a22c9c4"],
   ]);
   assert.doesNotMatch(coordinator, /20260927101000_reissue_ra004_staging_preflight_metadata_interface/);
-  assert.match(coordinator, /\["db", "push", "--db-url", databaseUrl, "--workdir", workdir, "--yes"\]/);
+  assert.doesNotMatch(coordinator, /pushSelectedMigrations\(/);
+  assert.doesNotMatch(coordinator, /\["db", "push"/);
   assert.doesNotMatch(coordinator, /--include-all/);
   assert.doesNotMatch(coordinator, /insert into supabase_migrations/i);
   assert.doesNotMatch(coordinator, /await db\(sql\)/);
+});
+
+test("read-only activation is exact, closed and fail-closed on mutation", () => {
+  const { validateReadOnlyActivation } = require("./ra004-staging-execution-coordinator");
+  const activation = JSON.parse(fs.readFileSync(path.join(ROOT,
+    "docs/retailer-automation/evidence/RA-004-ledger97-preflight-canary-activation.json"), "utf8"));
+  assert.equal(validateReadOnlyActivation(activation), activation);
+  for (const mutate of [
+    (value) => { value.status = "CONSUMED"; },
+    (value) => { value.selector.staging = "OPEN"; },
+    (value) => { value.attempts.migration = 1; },
+    (value) => { value.ledger.count = 96; },
+    (value) => { value.migrations[0].sha256 = "0".repeat(64); },
+  ]) {
+    const changed = structuredClone(activation);
+    mutate(changed);
+    assert.throws(() => validateReadOnlyActivation(changed), /RA004_/);
+  }
 });
 
 test("post-migration inventory requires all 24 named dependencies before preflight", () => {
@@ -69,8 +87,7 @@ test("execution is bound to a clean exact origin/main squash-merge commit", () =
 test("secrets remain process-only and are not placed in CLI arguments or output", () => {
   assert.match(coordinator, /delete childEnvironment\.RA004_OWNER_DATABASE_URL/);
   assert.match(coordinator, /delete childEnvironment\.RA004_SUPABASE_ACCESS_TOKEN/);
-  assert.match(coordinator, /const pushEnvironment = \{ PGPASSWORD: password \}/);
-  assert.match(coordinator, /parsed\.password = ""/);
+  assert.doesNotMatch(coordinator, /const pushEnvironment|decodeURIComponent\(parsed\.password\)/);
   assert.doesNotMatch(coordinator, /SUPABASE_ACCESS_TOKEN: pat|"--linked"|"--password"/);
   assert.match(coordinator, /\[REDACTED\]/);
   assert.doesNotMatch(coordinator, /console\.log\(ownerUrl|console\.log\(pat/);
@@ -137,12 +154,12 @@ test("the activation window begins only after the private evidence store is atte
   const configureStore = coordinator.indexOf("configureEvidenceStore", initializeStore);
   const attestStore = coordinator.indexOf("attestEvidenceStore", configureStore);
   const startWindow = coordinator.indexOf("startsAt=utc()", attestStore);
-  const push = coordinator.indexOf("pushSelectedMigrations", startWindow);
+  const preflight = coordinator.indexOf("await runPreflight", startWindow);
   assert.ok(initializeStore > 0);
   assert.ok(configureStore > initializeStore);
   assert.ok(attestStore > configureStore);
   assert.ok(startWindow > attestStore);
-  assert.ok(push > startWindow);
+  assert.ok(preflight > startWindow);
 });
 
 test("business rows are counted before migration and remain unchanged after canary", () => {
@@ -225,7 +242,7 @@ test("preflight gates exactly one later control-state canary and both credential
 });
 
 test("operation attempts are counted once and failure closeout performs read-only ledger readback", () => {
-  assert.equal((coordinator.match(/operationAttempts\.migration\+=1/g) || []).length, 1);
+  assert.equal((coordinator.match(/operationAttempts\.migration\+=1/g) || []).length, 0);
   assert.equal((coordinator.match(/operationAttempts\.preflight\+=1/g) || []).length, 1);
   assert.equal((coordinator.match(/operationAttempts\.canary\+=1/g) || []).length, 1);
   assert.match(coordinator, /if\(primaryError\) \{\s*try \{\s*const readback=await selector\.readRemoteState\(ownerUrl\)/s);

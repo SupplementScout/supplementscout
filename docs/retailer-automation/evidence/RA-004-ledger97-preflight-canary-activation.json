@@ -1,0 +1,36 @@
+{
+  "schema_version": "ra-004-ledger97-preflight-canary-activation-v1",
+  "status": "READY_FOR_ONE_ATTEMPT",
+  "task_id": "RA-004",
+  "activation_id": "ra004-ledger97-preflight-canary-2026-09-28-v1",
+  "baseline_sha": "bbae3435b9a463c1b53d9e5f73912da5e06fe533",
+  "authorization": {
+    "source": "explicit owner instruction on 2026-09-28",
+    "scope": "verify the already-present consolidated migration, run one Q1-Q8 preflight, then one preflight-gated read-only canary",
+    "production_authorized": false
+  },
+  "target": {
+    "environment": "STAGING",
+    "project_ref": "hxnrsyyqffztlvcrtgbf",
+    "database_host": "aws-0-eu-west-3.pooler.supabase.com",
+    "retailer": { "id": "11", "name": "10 Reps", "slug": "10-reps" }
+  },
+  "ledger": {
+    "contract_version": "RA004_LEDGER_V1",
+    "count": 97,
+    "fingerprint": "bbfc25a25826ebfd4901941099903921e1f5adeb9d952eb6aa93c64939e3849c",
+    "last_migration": "20260927103000_consolidate_ra004_supabase_ownership_interfaces"
+  },
+  "migrations": [
+    {
+      "filename": "20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql",
+      "sha256": "a240a263d7e88084171a73317db9e19f0e2c69c9b71ca84dbe788b624a22c9c4",
+      "status": "ALREADY_PRESENT"
+    }
+  ],
+  "selector": { "staging": "CLOSED", "production": "CLOSED", "include_all": false },
+  "attempts": { "migration": 0, "preflight": 1, "canary": 1, "retry": false },
+  "forbidden": [
+    "production", "feed_capture", "shadow_run", "import", "apply", "migration_reapply"
+  ]
+}

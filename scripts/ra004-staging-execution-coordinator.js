@@ -17,7 +17,7 @@ const { SOURCE_NAMES, PROHIBITED_OPERATIONS } = require("./lib/retailer-offer-sy
 const ROOT = path.resolve(__dirname, "..");
 const REF = "hxnrsyyqffztlvcrtgbf";
 const API_HOST = "hxnrsyyqffztlvcrtgbf.supabase.co";
-const BASELINE = "9db85844bccdffc153704230a98c4f5919a55c5f";
+const BASELINE = "bbae3435b9a463c1b53d9e5f73912da5e06fe533";
 const CONSOLIDATED_SHA = "a240a263d7e88084171a73317db9e19f0e2c69c9b71ca84dbe788b624a22c9c4";
 const PLAN_FP = "bd5c259941997daad3755c1cb135f76f6eccaef1fb9e1ce0044939ce08439214";
 const BUCKET = "ra004-staging-preflight-evidence";
@@ -27,10 +27,10 @@ const EVIDENCE_NAMES = Object.freeze([
   "supabase-cli-failure-1.stdout.txt", "supabase-cli-failure-1.stderr.txt",
 ]);
 const ownerUrl = process.env.RA004_OWNER_DATABASE_URL;
-const EXPECTED_PRE_LEDGER_COUNT = 96;
-const EXPECTED_PRE_LEDGER_FINGERPRINT = "66d8b25242c69b7cc461e2f6deaec4882155b9eee8d0b485742a667812588b17";
+const EXPECTED_PRE_LEDGER_COUNT = 97;
+const EXPECTED_PRE_LEDGER_FINGERPRINT = "bbfc25a25826ebfd4901941099903921e1f5adeb9d952eb6aa93c64939e3849c";
 const EXPECTED_POST_LEDGER_COUNT = 97;
-const ACTIVATION_MANIFEST = "RA-004-consolidated-ownership-activation.json";
+const ACTIVATION_MANIFEST = "RA-004-ledger97-preflight-canary-activation.json";
 const EXPECTED_MIGRATIONS = Object.freeze([
   ["20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql", CONSOLIDATED_SHA],
 ]);
@@ -254,18 +254,21 @@ function runCli(arguments_, extraEnvironment = {}, options = {}) {
   }
   return String(result.stdout || "").slice(0, 2_000);
 }
-function pushSelectedMigrations(workdir) {
-  const parsed = new URL(ownerUrl);
-  const password = decodeURIComponent(parsed.password);
-  invariant(password.length > 0, "RA004_DATABASE_PASSWORD_MISSING");
-  parsed.password = "";
-  parsed.search = "";
-  parsed.hash = "";
-  const databaseUrl = parsed.toString();
-  invariant(!databaseUrl.includes(password), "RA004_DATABASE_PASSWORD_REDACTION_FAILED");
-  const pushEnvironment = { PGPASSWORD: password };
-  runCli(["db", "push", "--db-url", databaseUrl, "--workdir", workdir, "--yes"], pushEnvironment);
-  pushEnvironment.PGPASSWORD = "";
+function validateReadOnlyActivation(value) {
+  invariant(value?.schema_version === "ra-004-ledger97-preflight-canary-activation-v1", "RA004_ACTIVATION_SCHEMA_MISMATCH");
+  invariant(value.status === "READY_FOR_ONE_ATTEMPT" && value.baseline_sha === BASELINE, "RA004_ACTIVATION_NOT_AUTHORIZED");
+  invariant(value.target?.environment === "STAGING" && value.target?.project_ref === REF
+    && value.target?.retailer?.id === "11" && value.target?.retailer?.slug === "10-reps", "RA004_ACTIVATION_TARGET_MISMATCH");
+  invariant(value.selector?.staging === "CLOSED" && value.selector?.production === "CLOSED", "RA004_SELECTOR_NOT_CLOSED");
+  invariant(value.ledger?.count === EXPECTED_PRE_LEDGER_COUNT
+    && value.ledger?.fingerprint === EXPECTED_PRE_LEDGER_FINGERPRINT
+    && value.ledger?.last_migration === "20260927103000_consolidate_ra004_supabase_ownership_interfaces", "RA004_ACTIVATION_LEDGER_MISMATCH");
+  invariant(Array.isArray(value.migrations) && value.migrations.length === EXPECTED_MIGRATIONS.length
+    && EXPECTED_MIGRATIONS.every(([filename, sha256], index) => value.migrations[index]?.filename === filename
+      && value.migrations[index]?.sha256 === sha256 && value.migrations[index]?.status === "ALREADY_PRESENT"), "RA004_ACTIVATION_MIGRATION_MISMATCH");
+  invariant(value.attempts?.migration === 0 && value.attempts?.preflight === 1
+    && value.attempts?.canary === 1 && value.attempts?.retry === false, "RA004_ACTIVATION_ATTEMPTS_MISMATCH");
+  return value;
 }
 function ensureWindow(expires) {
   invariant(Date.now() < expires.getTime(), "RA004_WINDOW_EXPIRED");
@@ -281,20 +284,14 @@ async function main() {
   invariant(remote.remoteLedger.length===EXPECTED_PRE_LEDGER_COUNT
     && selector.ledgerRowsFingerprint(remote.remoteLedger, {targetEnvironment:"STAGING"})===EXPECTED_PRE_LEDGER_FINGERPRINT,
   "RA004_PRE_LEDGER_MISMATCH");
-  const selection=selector.validateSelection({
-    environment:"STAGING", projectRef:REF, databaseTarget:remote.databaseTarget,
-    remoteLedger:remote.remoteLedger,
-    activationManifest:JSON.parse(fs.readFileSync(path.join(ROOT,"docs/retailer-automation/evidence",ACTIVATION_MANIFEST),"utf8")),
-  });
-  const selectedWorkdir=path.join(ROOT,"tmp","ra004-selected-staging-migrations");
-  selector.materializeSelectedWorkdir({selection,workdir:selectedWorkdir});
-  invariant(selection.pending_files.length===EXPECTED_MIGRATIONS.length
-    && EXPECTED_MIGRATIONS.every(([file, hash], index) => selection.pending_files[index]===file
-      && selection.pending_sha256s[file]===hash),"RA004_SELECTOR_NOT_EXACT");
+  validateReadOnlyActivation(JSON.parse(fs.readFileSync(path.join(ROOT,"docs/retailer-automation/evidence",ACTIVATION_MANIFEST),"utf8")));
+  const appliedIdentifiers=new Set(remote.remoteLedger.map(row=>`${row.version}_${row.name}.sql`));
+  invariant(EXPECTED_MIGRATIONS.every(([file, hash]) => appliedIdentifiers.has(file)
+    && hashFile(path.join(ROOT,"supabase","migrations",file))===hash),"RA004_REQUIRED_MIGRATION_NOT_PRESENT");
   const retailer=(await db("select id::text,name,slug from public.retailers where lower(name)='10 reps' or lower(slug)='10-reps'")).rows;
   invariant(retailer.length===1 && retailer[0].name==="10 Reps" && retailer[0].slug==="10-reps" && retailer[0].id==="11","RA004_RETAILER_AMBIGUOUS");
   const preObjects=(await db("select to_regprocedure('public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer)') control_rpc,to_regprocedure('public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer)') preflight_rpc")).rows[0];
-  invariant(preObjects.control_rpc===null && preObjects.preflight_rpc===null,"RA004_PARTIAL_MIGRATION_STATE");
+  invariant(preObjects.control_rpc!==null && preObjects.preflight_rpc!==null,"RA004_REQUIRED_INTERFACE_MISSING");
   const preexistingStoragePolicies=(await db(`select polname from pg_policy where polrelid='storage.objects'::regclass and (0=any(polroles) or 'anon'::regrole::oid=any(polroles) or 'authenticated'::regrole::oid=any(polroles))`)).rows;
   invariant(preexistingStoragePolicies.length===0,"RA004_STORAGE_EXISTING_BROAD_POLICY");
   invariant(runCli(["--version"]).trim()==="2.111.0","RA004_SUPABASE_CLI_VERSION_MISMATCH");
@@ -332,14 +329,12 @@ async function main() {
     const policyAttestation=await attestEvidenceStore(policies);
     startsAt=utc();
     ensureWindow(expires);
-    operationAttempts.migration+=1;
-    pushSelectedMigrations(selectedWorkdir);
-    const migrationReceipts=selection.pending_files.map((file)=>({file,sha256:hashFile(path.join(selectedWorkdir,"supabase","migrations",file)),status:"APPLIED_BY_GUARDED_SELECTOR"}));
+    const migrationReceipts=EXPECTED_MIGRATIONS.map(([file,sha256])=>({file,sha256,status:"ALREADY_PRESENT_VERIFIED",database_writes:0}));
     const postRemote=await selector.readRemoteState(ownerUrl);
-    const appliedIdentifiers=new Set(postRemote.remoteLedger.map(row=>`${row.version}_${row.name}.sql`));
     invariant(postRemote.remoteLedger.length===EXPECTED_POST_LEDGER_COUNT
       && postRemote.remoteLedger.slice(0,remote.remoteLedger.length).every((row,index)=>JSON.stringify(row)===JSON.stringify(remote.remoteLedger[index]))
-      && selection.pending_files.every(file=>appliedIdentifiers.has(file)),"RA004_POST_LEDGER_MISMATCH");
+      && selector.ledgerRowsFingerprint(postRemote.remoteLedger, {targetEnvironment:"STAGING"})===EXPECTED_PRE_LEDGER_FINGERPRINT,
+    "RA004_POST_LEDGER_MISMATCH");
     const dependencyContract=await verifyDependencyContract();
     const businessAfterMigrations=await businessCounts();
     invariant(JSON.stringify(businessAfterMigrations)===JSON.stringify(businessBefore),"RA004_BUSINESS_DATA_CHANGED_BY_MIGRATION");
@@ -445,5 +440,5 @@ module.exports = {
   API_HOST, BASELINE, BUCKET, CONSOLIDATED_SHA, DEPENDENCY_CONTRACT,
   EXPECTED_MIGRATIONS, EXPECTED_POST_LEDGER_COUNT,
   EXPECTED_PRE_LEDGER_COUNT, EXPECTED_PRE_LEDGER_FINGERPRINT, PLAN_FP, REF,
-  buildFailureReport, pushSelectedMigrations, readExecutionCommit, redactCliOutput, runCli, safeFailureCode,
+  buildFailureReport, readExecutionCommit, redactCliOutput, runCli, safeFailureCode, validateReadOnlyActivation,
 };
