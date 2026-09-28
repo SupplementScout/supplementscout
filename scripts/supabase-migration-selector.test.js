@@ -81,7 +81,22 @@ function preparedFinalActivation() {
   return manifest;
 }
 function preparedConsolidatedActivation() {
-  return JSON.parse(JSON.stringify(RA004_CONSOLIDATED_ACTIVATION));
+  const manifest = JSON.parse(JSON.stringify(RA004_CONSOLIDATED_ACTIVATION));
+  manifest.manifest_fingerprint = "2136c2d17ae79352f6758fae1ec64b70f33cf0f9083066ddaf75ccdefedcb2b0";
+  manifest.status = "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED";
+  manifest.post_activation_ledger.fingerprint = "DERIVED_FROM_VERIFIED_READBACK";
+  manifest.execution = {
+    runtime_activation_id: null,
+    started: false,
+    application_attempt_count: 0,
+    preflight_attempt_count: 0,
+    canary_attempt_count: 0,
+    migrations_applied: 0,
+    closed: false,
+    retry_authorized: false,
+    replayable: false,
+  };
+  return manifest;
 }
 function preparedCorrectedActivation() {
   const manifest = JSON.parse(JSON.stringify(RA004_CORRECTED_ACTIVATION));
@@ -246,13 +261,17 @@ function preFixtureRemoteLedger(sourceDir = SOURCE) {
     ({ version, name }) => ![
       RA004_FIXTURE_MIGRATION,
       RA004_COMPATIBILITY_MIGRATION,
+      RA004_CONSOLIDATED_OWNERSHIP_MIGRATION,
     ].includes(`${version}_${name}.sql`),
   );
 }
 
 function preCompatibilityRemoteLedger(sourceDir = SOURCE) {
   return currentRemoteLedger(sourceDir).filter(
-    ({ version, name }) => `${version}_${name}.sql` !== RA004_COMPATIBILITY_MIGRATION,
+    ({ version, name }) => ![
+      RA004_COMPATIBILITY_MIGRATION,
+      RA004_CONSOLIDATED_OWNERSHIP_MIGRATION,
+    ].includes(`${version}_${name}.sql`),
   );
 }
 
@@ -275,9 +294,9 @@ test.after(() => {
   }
 });
 
-test("staging contract records the fixture migration as applied", () => {
+test("staging contract records the fixture, compatibility and consolidated migrations as applied", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 96);
+  assert.equal(result.ledger_count, 97);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
   assert.deepEqual(result.pending_files, [REVIEW_QUEUE_PUBLICATION_MIGRATION, REVIEW_QUEUE_RETRY_MIGRATION, NUTRITION_VARIANT_PROVENANCE_MIGRATION, NUTRITION_PREWORKOUT_FACTS_MIGRATION, NUTRITION_STRUCTURED_CREATINE_MIGRATION, NUTRITION_CITRULLINE_COMPONENTS_MIGRATION, NUTRITION_CREATINE_COMPONENTS_MIGRATION]);
   assert.equal(result.pending_file, null);
@@ -285,7 +304,7 @@ test("staging contract records the fixture migration as applied", () => {
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
-  assert.equal(result.selected_files.length, 103);
+  assert.equal(result.selected_files.length, 104);
   assert.ok(result.selected_files.includes(RA004_FIXTURE_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_GUARD_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_OPERATOR_MIGRATION));
@@ -478,7 +497,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 103);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 104);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -766,15 +785,14 @@ test("corrected preflight migration supersedes the defective reissue and remains
   }
 });
 
-test("consolidated ownership migration remains closed in staging and production", () => {
+test("consolidated ownership migration is applied-closed in staging and excluded from production", () => {
   const sha = "a240a263d7e88084171a73317db9e19f0e2c69c9b71ca84dbe788b624a22c9c4";
   for (const contract of [CONTRACTS.STAGING, CONTRACTS.PRODUCTION]) {
     assert.equal(contract.excluded[RA004_CONSOLIDATED_OWNERSHIP_MIGRATION], sha);
     assert.ok(!contract.pending.some(({ filename }) => filename === RA004_CONSOLIDATED_OWNERSHIP_MIGRATION));
   }
   const selection = validateSelection(validInput());
-  assert.ok(selection.excluded_files.includes(RA004_CONSOLIDATED_OWNERSHIP_MIGRATION));
-  assert.ok(!selection.selected_files.includes(RA004_CONSOLIDATED_OWNERSHIP_MIGRATION));
+  assert.ok(selection.selected_files.includes(RA004_CONSOLIDATED_OWNERSHIP_MIGRATION));
   assert.ok(!selection.pending_files.includes(RA004_CONSOLIDATED_OWNERSHIP_MIGRATION));
 });
 
@@ -854,10 +872,12 @@ test("final RA-004 activation selects exactly the three owner-authorized staging
   assert.ok(!result.pending_files.includes(RA004_FORWARD_PREFLIGHT_MIGRATION));
 });
 
-test("consolidated RA-004 activation selects exactly one migration from ledger 96", () => {
+test("historical prepared consolidated RA-004 activation selected exactly one migration from ledger 96", () => {
   const result = validateSelection(validInput({
     activationManifest: preparedConsolidatedActivation(),
-    remoteLedger: currentRemoteLedger(),
+    remoteLedger: currentRemoteLedger().filter(
+      ({ version, name }) => `${version}_${name}.sql` !== RA004_CONSOLIDATED_OWNERSHIP_MIGRATION,
+    ),
   }));
   assert.equal(result.activation_schema, "ra-004-consolidated-ownership-activation-v1");
   assert.equal(result.activation_id, "ra004-consolidated-staging-interface-2026-09-28-v1");
@@ -896,6 +916,29 @@ test("consolidated RA-004 activation fails closed on mutation, retry and product
     `--project-ref=${CONTRACTS.PRODUCTION.projectRef}`,
     `--activation-manifest=${RA004_CONSOLIDATED_ACTIVATION_FILE}`,
   ]), /staging-only/);
+});
+
+test("consumed consolidated RA-004 activation is terminal after platform-limited preflight failure", () => {
+  assert.equal(RA004_CONSOLIDATED_ACTIVATION.status,
+    "ATTEMPT_CONSUMED_FAILED_TERMINAL_PLATFORM_LIMITATION");
+  assert.equal(RA004_CONSOLIDATED_ACTIVATION.execution.runtime_activation_id,
+    "ra004-staging-1790580130471");
+  assert.equal(RA004_CONSOLIDATED_ACTIVATION.execution.application_attempt_count, 1);
+  assert.equal(RA004_CONSOLIDATED_ACTIVATION.execution.migrations_applied, 1);
+  assert.equal(RA004_CONSOLIDATED_ACTIVATION.execution.preflight_attempt_count, 1);
+  assert.equal(RA004_CONSOLIDATED_ACTIVATION.execution.canary_attempt_count, 0);
+  assert.equal(RA004_CONSOLIDATED_ACTIVATION.execution.closed, true);
+  assert.equal(RA004_CONSOLIDATED_ACTIVATION.execution.replayable, false);
+  assert.equal(RA004_CONSOLIDATED_ACTIVATION.execution.cleanup, "COMPLETE");
+  assert.equal(RA004_CONSOLIDATED_ACTIVATION.execution.platform_review_required, true);
+  assert.throws(() => validateActivationManifest(CONTRACT, RA004_CONSOLIDATED_ACTIVATION),
+    /status mismatch/);
+  assert.throws(() => validateSelection(validInput({
+    activationManifest: RA004_CONSOLIDATED_ACTIVATION,
+  })), /status mismatch/);
+  const ordinary = validateSelection(validInput());
+  assert.ok(ordinary.selected_files.includes(RA004_CONSOLIDATED_OWNERSHIP_MIGRATION));
+  assert.ok(!ordinary.pending_files.includes(RA004_CONSOLIDATED_OWNERSHIP_MIGRATION));
 });
 
 test("final RA-004 activation fails closed on mutation, retry, replay and production", () => {

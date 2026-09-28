@@ -1,7 +1,7 @@
 {
   "schema_version": "ra-004-consolidated-ownership-activation-v1",
-  "manifest_fingerprint": "2136c2d17ae79352f6758fae1ec64b70f33cf0f9083066ddaf75ccdefedcb2b0",
-  "status": "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED",
+  "manifest_fingerprint": "3da34bf97685cdd245971038d985452e2ec0a3f0c1db006c16dabd0316a39112",
+  "status": "ATTEMPT_CONSUMED_FAILED_TERMINAL_PLATFORM_LIMITATION",
   "task_id": "RA-004",
   "activation_id": "ra004-consolidated-staging-interface-2026-09-28-v1",
   "prepared_at": "2026-09-28",
@@ -31,7 +31,7 @@
     "count": 97,
     "last_version": "20260927103000",
     "last_name": "consolidate_ra004_supabase_ownership_interfaces",
-    "fingerprint": "DERIVED_FROM_VERIFIED_READBACK"
+    "fingerprint": "1692043d963e98570cd69ea2f46654c35f35a78f26c35b3d96e04751d528331c"
   },
   "migrations": [
     {
@@ -85,14 +85,33 @@
   },
   "production": { "authorized": false, "selector_unchanged": true, "migration_count": 0 },
   "execution": {
-    "runtime_activation_id": null,
-    "started": false,
-    "application_attempt_count": 0,
-    "preflight_attempt_count": 0,
+    "runtime_activation_id": "ra004-staging-1790580130471",
+    "started": true,
+    "window_started_at": "2026-09-28T07:22:11Z",
+    "window_expires_at": "2026-09-28T07:52:10Z",
+    "window_closed_at": "2026-09-28T07:22:18Z",
+    "application_attempt_count": 1,
+    "preflight_attempt_count": 1,
     "canary_attempt_count": 0,
-    "migrations_applied": 0,
-    "closed": false,
+    "migrations_applied": 1,
+    "closed": true,
     "retry_authorized": false,
-    "replayable": false
+    "replayable": false,
+    "primary_failure": {
+      "code": "RA004_PREFLIGHT_LEDGER_UNKNOWN",
+      "redacted_message": "count or fingerprint mismatch",
+      "reason": "the PostgreSQL RPC ledger fingerprint did not equal the selector/runtime fingerprint for the same verified 97-row ledger"
+    },
+    "ledger_after_failure": {
+      "count": 97,
+      "last_version": "20260927103000",
+      "last_name": "consolidate_ra004_supabase_ownership_interfaces",
+      "fingerprint": "1692043d963e98570cd69ea2f46654c35f35a78f26c35b3d96e04751d528331c"
+    },
+    "evidence_store_session": "CLOSED",
+    "cleanup": "COMPLETE",
+    "temporary_rpc_credentials_created": 1,
+    "temporary_rpc_credentials_revoked": 1,
+    "platform_review_required": true
   }
 }

@@ -1,6 +1,6 @@
 # RA-004 consolidated ownership staging activation
 
-Status: `OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED`.
+Status: `ATTEMPT_CONSUMED_FAILED_TERMINAL_PLATFORM_LIMITATION`.
 
 This one-shot staging-only activation is bound to baseline
 `9db85844bccdffc153704230a98c4f5919a55c5f` and selects exactly
@@ -23,3 +23,18 @@ mandatory regardless of outcome.
 Production, retry, a second attempt, rebuild, additional migrations, feed
 capture, shadow, plans, approval, import, offer apply, Model B, auto-safe and
 cutover remain unauthorized. Production selection remains closed.
+
+The one authorized attempt ran as activation `ra004-staging-1790580130471`.
+The guarded migration applied and advanced the verified staging ledger from 96
+to 97 rows, ending at the consolidated migration with selector fingerprint
+`1692043d963e98570cd69ea2f46654c35f35a78f26c35b3d96e04751d528331c`.
+The migration-time business-row guard passed. Q1-Q8 then stopped on
+`RA004_PREFLIGHT_LEDGER_UNKNOWN` because PostgreSQL's metadata RPC calculated a
+different ordered-ledger fingerprint for that same 97-row ledger. The canary
+did not start.
+
+The private evidence-store session and execution window are closed. The
+automatic preflight-role cleanup failed without replacing the primary error;
+an exact bounded cleanup then removed the temporary preflight role and verified both
+role and membership absence. No canary credential was created. The activation
+is non-replayable, and both staging and production selection are closed.
