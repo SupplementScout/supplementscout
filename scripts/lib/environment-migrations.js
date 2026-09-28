@@ -145,6 +145,7 @@ const EXCLUSIONS = Object.freeze({
     "20260927102000_correct_ra004_staging_preflight_ledger_contract",
     "20260927103000_consolidate_ra004_supabase_ownership_interfaces",
     "20260928100000_diagnose_ra004_preflight_acl_rls",
+    "20260928101000_align_ra004_control_export_provider_identity",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",
@@ -163,6 +164,7 @@ const EXCLUSIONS = Object.freeze({
     "20260927102000_correct_ra004_staging_preflight_ledger_contract",
     "20260927103000_consolidate_ra004_supabase_ownership_interfaces",
     "20260928100000_diagnose_ra004_preflight_acl_rls",
+    "20260928101000_align_ra004_control_export_provider_identity",
   ]),
 });
 

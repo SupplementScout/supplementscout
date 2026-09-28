@@ -1,21 +1,24 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: RA-004 CANONICAL LEDGER FINGERPRINT CONTRACT READY_FOR_FINAL_REVERIFICATION — LIVE RETRY NOT AUTHORIZED**
+**Status: RA-004 CONTROL EXPORT PROVIDER IDENTITY FIX READY_FOR_INDEPENDENT_VERIFICATION — LIVE RETRY NOT AUTHORIZED**
 
-**Current active task:** RA-004 — `IN_PROGRESS`; its documentation preflight is
-verified; the fixture-only exporter is preserved in PR #89. The consolidated
-interface migration is applied on staging, but its single Q1–Q8 attempt stopped
-because the PostgreSQL RPC and selector/runtime derived different fingerprints
-for the same verified 97-row migration ledger. The canary did not run. Cleanup
-and revoke are verified complete, both selectors are closed, and no retry is
-authorized. The shadow run remains unauthorized.
+**Current active task:** RA-004 — `IN_PROGRESS`. Staging ledger 98 and the
+authenticated ACL/RLS correction remain unchanged. The single owner-authorized
+preflight passed Q1–Q8 and reached the read-only canary, which failed closed on
+`CONTROL_EXPORT_RPC_CONTRACT_INVALID`: the applied RPC returned provider ID
+`transactional-rpc-v1` without `session_user`, while the authorized runtime
+descriptor used a different provider ID and required the verified session
+identity. Cleanup and revoke are verified complete. One local forward-only
+correction now binds both sides to the same verified login; it remains excluded
+from STAGING and PRODUCTION. No retry is authorized and the shadow run remains
+unauthorized.
 
 **Implementation:** fixture exporter plus locally database-verified forward-only
-transactional interface, unwired live-provider contract and fail-closed
-migration-selector exclusion; local PostgreSQL 17 verification passes. Two
-unrelated integration failures reproduce identically at the required baseline
-and are recorded as `PRE_EXISTING_BASELINE_FAILURES`; RA-004 adds zero failures
-and has no credential or production wiring
+transactional interface, exact provider-identity alignment, unwired live-provider
+contract and fail-closed migration-selector exclusion; local PostgreSQL 17
+verification passes. The unrelated Jon's, nutrition and shared-parent integration
+failures remain known baseline failures and are not changed or reclassified by
+this work. RA-004 adds no credential or production wiring.
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
@@ -525,6 +528,21 @@ and
 [`evidence/RA-004-ACL-RLS-AUTHENTICATED-ATTEMPT-CLOSEOUT.md`](evidence/RA-004-ACL-RLS-AUTHENTICATED-ATTEMPT-CLOSEOUT.md).
 The systemic query-aware revoke-verifier correction is documented in
 [`evidence/RA-004-QUERY-AWARE-REVOKE-VERIFIER.md`](evidence/RA-004-QUERY-AWARE-REVOKE-VERIFIER.md).
+
+**Control-export provider identity correction:**
+`READY_FOR_INDEPENDENT_VERIFICATION`.
+The final bounded preflight passed Q1–Q8, then the single read-only canary failed
+closed before producing an accepted export because the runtime descriptor and
+RPC response described different provider identities. The forward-only
+`20260928101000_align_ra004_control_export_provider_identity.sql` migration
+accepts only the exact applied function shape, adds the live `session_user` to
+the RPC response, preserves `SECURITY DEFINER`, the closed `search_path`, owner
+and restrictive ACLs, and fails on replay or source drift. The coordinator now
+uses the RPC's stable provider ID. PostgreSQL 17 proves the pre-correction
+failure, corrected Q1–Q8 and read-only export, fail-closed identity drift, zero
+business changes and closed selectors. The migration is not activated or
+applied remotely. See
+[`evidence/RA-004-CONTROL-EXPORT-PROVIDER-IDENTITY.md`](evidence/RA-004-CONTROL-EXPORT-PROVIDER-IDENTITY.md).
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
