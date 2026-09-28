@@ -1,6 +1,6 @@
 # RA-004 canonical ledger fingerprint contract
 
-Status: `READY_FOR_REVERIFICATION`.
+Status: `READY_FOR_FINAL_REVERIFICATION`.
 
 This is a local implementation and verification artifact. It authorizes no
 staging or production connection, SQL, migration, preflight, canary or retry.
@@ -89,16 +89,33 @@ drift and unknown fingerprint-contract versions fail closed.
   production GTIN migration preflight hash the correct ledger in the wrong
   domain. The regression test now exercises the runtime classifier, every
   caller supplies its environment explicitly, and omission is rejected.
+- The final review found that the GTIN release preflight treated the current
+  production `pending` set as proof for the already-applied historical
+  `20260813170000_add_guarded_gtin_promotion.sql` migration. The release now
+  first verifies the local file against the approved SHA-256
+  `60114659dc4b3c8052f722a8d094768ea64ee5d11ae0afe7a9a8280c8a3ed129`,
+  classifies the canonical production ledger, and returns `ALREADY_PRESENT`
+  only when both the ledger row and required schema objects exist. That path
+  performs zero database writes and `deploy()` returns before invoking the
+  guarded migration apply command.
+- If the GTIN migration is absent, deployment is authorized only by an exact
+  filename-and-SHA entry in the current production `pending` set. The current
+  Fit House pending migration cannot authorize GTIN, so absence fails closed as
+  `NOT_CURRENTLY_AUTHORIZED`; the historical migration was not added back to
+  the selector. A repository-wide scan found no other non-test release script
+  using current `pending` as evidence that its historical migration is applied.
 - STAGING and PRODUCTION selectors remain closed. There is no application,
   workflow, scheduler or production-runtime wiring.
 - RA-004 remains `IN_PROGRESS`; shadow and retry remain unauthorized.
 
 ## Local verification
 
-- Fingerprint, production GTIN runtime, selector and remaining-caller regression
-  tests: 91/91 pass. Missing and unknown environments fail closed; the exact
-  staging 97-row and production 221-row ledgers pass only in their explicit
-  domains.
+- Focused fingerprint, real GTIN runtime, selector and RA-004 regression tests:
+  266/266 pass. The GTIN file SHA, `ALREADY_PRESENT` schema proof, zero-write
+  behavior, absent-ledger rejection, Fit House non-authorization and deploy
+  short-circuit are exercised through the actual release preflight. Missing and
+  unknown environments fail closed; the exact staging 97-row and production
+  221-row ledgers pass only in their explicit domains.
 - `verify:quick` passes with 568 passes and three unchanged artifact-bound
   skips; `verify:full` passes, including every safe RA-002/RA-003/RA-004 test.
 - Networkless PostgreSQL 17 RA-004 suite: 6/6 pass. This includes exact ledger

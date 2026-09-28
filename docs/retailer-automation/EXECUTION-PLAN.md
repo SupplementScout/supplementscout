@@ -1,6 +1,6 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: RA-004 CANONICAL LEDGER FINGERPRINT CONTRACT READY_FOR_REVERIFICATION — LIVE RETRY NOT AUTHORIZED**
+**Status: RA-004 CANONICAL LEDGER FINGERPRINT CONTRACT READY_FOR_FINAL_REVERIFICATION — LIVE RETRY NOT AUTHORIZED**
 
 **Current active task:** RA-004 — `IN_PROGRESS`; its documentation preflight is
 verified; the fixture-only exporter is preserved in PR #89. The consolidated
@@ -484,7 +484,7 @@ interface migration and the production selector remain closed. See
 and
 [`evidence/RA-004-CONSOLIDATED-STAGING-ATTEMPT-CLOSEOUT.md`](evidence/RA-004-CONSOLIDATED-STAGING-ATTEMPT-CLOSEOUT.md).
 
-**Canonical ledger fingerprint contract:** `READY_FOR_VERIFICATION`.
+**Canonical ledger fingerprint contract:** `READY_FOR_FINAL_REVERIFICATION`.
 The exact 97-row terminal staging ledger is reconstructed locally and frozen as
 a neutral `{version,name}` fixture. `RA004_LEDGER_V1` projects only those two
 fields, sorts by UTF-8 version then name, assigns logical ordinals and hashes one
@@ -496,6 +496,13 @@ was SHA-256 of the non-canonical raw JavaScript row array. Historical closeout
 evidence remains immutable; the failed preflight remains failed, the canary was
 not run, both selectors remain closed and no retry is authorized. See
 [`evidence/RA-004-CANONICAL-LEDGER-FINGERPRINT-CONTRACT.md`](evidence/RA-004-CANONICAL-LEDGER-FINGERPRINT-CONTRACT.md).
+The reviewed GTIN production release now distinguishes an already-applied
+historical migration from the current pending authorization set: it verifies
+the approved local migration SHA, hashes the 221-row ledger explicitly in the
+`PRODUCTION` domain, proves the required schema, returns `ALREADY_PRESENT` with
+zero writes and cannot redeploy that migration. An absent GTIN ledger row fails
+closed as `NOT_CURRENTLY_AUTHORIZED`; the pending Fit House migration does not
+authorize GTIN.
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 

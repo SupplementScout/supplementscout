@@ -107,7 +107,8 @@ test("every runtime fingerprint caller binds its own target environment", () => 
   assert.match(sources["verify-selected-migrations.js"], /ledgerRowsFingerprint\(state\.remoteLedger,\s*\{\s*targetEnvironment: options\.environment/);
   assert.equal((sources["ra004-staging-execution-coordinator.js"].match(/targetEnvironment:\s*"STAGING"/g) || []).length, 3);
   assert.match(sources["ra004-staging-schema-inventory.js"], /ledgerRowsFingerprint\(ledger, \{ targetEnvironment: "STAGING" \}\)/);
-  assert.equal((sources["gtin-promotion-release.js"].match(/targetEnvironment: "PRODUCTION"/g) || []).length, 2);
+  assert.equal((sources["gtin-promotion-release.js"].match(/ledgerRowsFingerprint\(/g) || []).length, 1);
+  assert.match(sources["gtin-promotion-release.js"], /ledgerRowsFingerprint\(remoteLedger, \{ targetEnvironment: "PRODUCTION" \}\)/);
   assert.match(sources["gtin-promotion-release.js"], /classifyProductionMigrationLedger\(state\.remoteLedger\)/);
   assert.match(sources["supabase-migration-selector.js"], /targetEnvironment: contract\.environment/);
   assert.doesNotMatch(sources["supabase-migration-selector.js"], /targetEnvironment:\s*options\.targetEnvironment\s*\?\?/);

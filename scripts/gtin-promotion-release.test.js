@@ -1,9 +1,11 @@
 const assert = require("node:assert/strict");
+const { spawnSync } = require("node:child_process");
 const fs = require("node:fs");
+const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
 const { APPROVED_IDENTITIES, SCOPE_CONFIGS } = require("./gtin-promotion-operation");
-const { EXACT36_CONFIRMATION, MIGRATION, QUARANTINED_GTINS, RELEASE_CONFIGS, classifyProductionMigrationLedger, exactRowDiff, parseArgs, snapshotSummary } = require("./gtin-promotion-release");
+const { EXACT36_CONFIRMATION, MIGRATION, MIGRATION_CONTRACT, QUARANTINED_GTINS, RELEASE_CONFIGS, classifyProductionMigrationLedger, deploy, exactRowDiff, migrationPreflight, parseArgs, snapshotSummary } = require("./gtin-promotion-release");
 const { CONTRACTS, ledgerRowsFingerprint } = require("./supabase-migration-selector");
 
 function productionLedger() {
@@ -15,6 +17,25 @@ function productionLedger() {
       && !excluded.has(filename) && !pending.has(filename))
     .sort()
     .map((filename) => ({ version: filename.slice(0, 14), name: filename.slice(15, -4) }));
+}
+
+async function isolatedMigrationPreflight(rows, { schema = true, migrationFile } = {}) {
+  let schemaReads = 0;
+  const client = {
+    query: async (sql) => {
+      assert.match(sql, /to_regprocedure/);
+      schemaReads += 1;
+      return { rows: [{ apply_exists: schema, quarantine_exists: schema }] };
+    },
+  };
+  const result = await migrationPreflight(
+    { "env-file": "test-only" },
+    {
+      migrationFile,
+      ownerRead: async (_envFile, callback) => callback(client, { remoteLedger: rows }),
+    },
+  );
+  return { result, schemaReads };
 }
 
 test("release accepts only production and exact owner confirmation", () => {
@@ -70,6 +91,140 @@ test("production migration preflight hashes the real 221-row ledger only in the 
   assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "PRODUCTION" }), CONTRACTS.PRODUCTION.ledgerFingerprint);
   assert.notEqual(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACTS.PRODUCTION.ledgerFingerprint);
   assert.equal(classifyProductionMigrationLedger(rows), "ALREADY_PRESENT");
+});
+
+test("real migration preflight accepts the applied historical GTIN migration without current pending authorization", () => {
+  const root = path.resolve(__dirname, "..");
+  const script = `
+    const fs = require("node:fs");
+    const path = require("node:path");
+    const root = ${JSON.stringify(root)};
+    const selector = require(path.join(root, "scripts", "supabase-migration-selector"));
+    const contract = selector.CONTRACTS.PRODUCTION;
+    const excluded = new Set(Object.keys(contract.excluded));
+    const pending = new Set(contract.pending.map(({ filename }) => filename));
+    const remoteLedger = fs.readdirSync(path.join(root, "supabase", "migrations"))
+      .filter((filename) => /^\\d{14}_[a-z0-9_]+\\.sql$/.test(filename)
+        && !excluded.has(filename) && !pending.has(filename))
+      .sort()
+      .map((filename) => ({ version: filename.slice(0, 14), name: filename.slice(15, -4) }));
+    class FakeClient {
+      async connect() {}
+      async query(sql) {
+        if (/to_regprocedure/.test(sql)) return { rows: [{ apply_exists: true, quarantine_exists: true }] };
+        return { rows: [] };
+      }
+      async end() {}
+    }
+    const pgPath = require.resolve("pg", { paths: [root] });
+    const pg = require(pgPath);
+    require.cache[pgPath].exports = { ...pg, Client: FakeClient };
+    const applyPath = require.resolve(path.join(root, "scripts", "apply-selected-migrations"));
+    const apply = require(applyPath);
+    require.cache[applyPath].exports = {
+      ...apply,
+      loadEnvFile: () => ({
+        SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF: contract.projectRef,
+        SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL: "redacted-test-only",
+      }),
+      databaseState: async () => ({
+        identity: { current_user: "postgres", read_only: "on" },
+        databaseTarget: { target_environment: "PRODUCTION", project_ref: contract.projectRef },
+        remoteLedger,
+      }),
+    };
+    const release = require(path.join(root, "scripts", "gtin-promotion-release"));
+    release.run({ mode: "migration-preflight", scope: "exact-45", "env-file": "test-only" })
+      .then((result) => console.log(JSON.stringify(result)))
+      .catch((error) => { console.error(error.message); process.exitCode = 1; });
+  `;
+  const child = spawnSync(process.execPath, ["-e", script], { cwd: root, encoding: "utf8" });
+  assert.equal(child.status, 0, child.stderr || child.stdout);
+  assert.deepEqual(JSON.parse(child.stdout), {
+    result: "PASS",
+    migration_status: "ALREADY_PRESENT",
+    database_writes: 0,
+  });
+});
+
+test("applied historical GTIN migration is SHA-bound and performs one schema read with zero writes", async () => {
+  assert.deepEqual(MIGRATION_CONTRACT, {
+    filename: MIGRATION,
+    sha256: "60114659dc4b3c8052f722a8d094768ea64ee5d11ae0afe7a9a8280c8a3ed129",
+  });
+  const { result, schemaReads } = await isolatedMigrationPreflight(productionLedger());
+  assert.deepEqual(result, {
+    result: "PASS",
+    migration_status: "ALREADY_PRESENT",
+    database_writes: 0,
+  });
+  assert.equal(schemaReads, 1);
+});
+
+test("an absent historical GTIN migration is not currently authorized", async () => {
+  const rows = productionLedger().filter(({ version, name }) => `${version}_${name}` !== MIGRATION.slice(0, -4));
+  await assert.rejects(
+    () => isolatedMigrationPreflight(rows),
+    /GTIN migration is NOT_CURRENTLY_AUTHORIZED/,
+  );
+});
+
+test("the current Fit House pending migration cannot authorize historical GTIN deployment", async () => {
+  assert.deepEqual(CONTRACTS.PRODUCTION.pending.map(({ filename }) => filename), [
+    "20260922170000_allow_fit_house_parent_approval_and_supersede_failed_plan.sql",
+  ]);
+  assert.equal(CONTRACTS.PRODUCTION.pending.some(({ filename }) => filename === MIGRATION), false);
+  const rows = productionLedger().filter(({ version, name }) => `${version}_${name}` !== MIGRATION.slice(0, -4));
+  await assert.rejects(
+    () => isolatedMigrationPreflight(rows),
+    /NOT_CURRENTLY_AUTHORIZED/,
+  );
+});
+
+test("a changed local historical GTIN migration SHA is rejected before owner transport", async () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "gtin-release-sha-"));
+  const changed = path.join(directory, MIGRATION);
+  fs.writeFileSync(changed, `${fs.readFileSync(path.join(__dirname, "..", "supabase", "migrations", MIGRATION), "utf8")}\n-- changed\n`);
+  let transportAttempted = false;
+  try {
+    await assert.rejects(
+      () => migrationPreflight(
+        { "env-file": "test-only" },
+        {
+          migrationFile: changed,
+          ownerRead: async () => { transportAttempted = true; },
+        },
+      ),
+      /Reviewed GTIN migration SHA-256 mismatch/,
+    );
+    assert.equal(transportAttempted, false);
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("an applied GTIN ledger without the required schema objects fails closed", async () => {
+  await assert.rejects(
+    () => isolatedMigrationPreflight(productionLedger(), { schema: false }),
+    /Applied GTIN migration schema is incomplete/,
+  );
+});
+
+test("deploy never invokes apply-selected-migrations for the applied historical GTIN migration", async () => {
+  let spawnAttempts = 0;
+  const result = await deploy(
+    { "env-file": "test-only" },
+    {
+      migrationPreflight: async () => (await isolatedMigrationPreflight(productionLedger())).result,
+      spawnSync: () => { spawnAttempts += 1; throw new Error("must not spawn"); },
+    },
+  );
+  assert.deepEqual(result, {
+    result: "PASS",
+    migration_status: "ALREADY_PRESENT",
+    database_writes: 0,
+  });
+  assert.equal(spawnAttempts, 0);
 });
 
 test("failed verification reports exact changed rows", () => {
