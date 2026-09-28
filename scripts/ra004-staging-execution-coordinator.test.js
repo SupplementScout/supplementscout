@@ -19,11 +19,11 @@ test("coordinator is pinned to the owner-authorized staging identity and artifac
   const values = require("./ra004-staging-execution-coordinator");
   assert.equal(values.REF, "hxnrsyyqffztlvcrtgbf");
   assert.equal(values.API_HOST, "hxnrsyyqffztlvcrtgbf.supabase.co");
-  assert.equal(values.BASELINE, "c3b8d5c4d0cf5389f87674eb2e7d11fb76bd8d24");
+  assert.equal(values.BASELINE, "e97d06608d5927e1edd43a99978fef0322b4297d");
   assert.equal(values.CONSOLIDATED_SHA, "a240a263d7e88084171a73317db9e19f0e2c69c9b71ca84dbe788b624a22c9c4");
   assert.equal(values.BUCKET, "ra004-staging-preflight-evidence");
-  assert.equal(values.EXPECTED_PRE_LEDGER_COUNT, 97);
-  assert.equal(values.EXPECTED_PRE_LEDGER_FINGERPRINT, "bbfc25a25826ebfd4901941099903921e1f5adeb9d952eb6aa93c64939e3849c");
+  assert.equal(values.EXPECTED_PRE_LEDGER_COUNT, 98);
+  assert.equal(values.EXPECTED_PRE_LEDGER_FINGERPRINT, "b4e72276ba2570d2da9957c53b6c209a3799087570302af92b295467a1d4e307");
   assert.equal(values.ACL_MIGRATION_SHA, "58aa82b328b9bb77c09b9975892042027a493254add99fb2e1dcf045303c0b0d");
   assert.equal(values.EXPECTED_POST_LEDGER_COUNT, 98);
   assert.equal(values.EXPECTED_POST_LEDGER_FINGERPRINT, "b4e72276ba2570d2da9957c53b6c209a3799087570302af92b295467a1d4e307");
@@ -32,21 +32,18 @@ test("coordinator is pinned to the owner-authorized staging identity and artifac
   assert.match(coordinator, /retailer\[0\]\.id==="11"/);
 });
 
-test("exact ACL/RLS migration is selected once without include-all", () => {
+test("applied ACL/RLS migration is verified without any migration attempt", () => {
   assert.match(coordinator, /validateReadOnlyActivation/);
-  assert.match(coordinator, /status:"APPLIED_VERIFIED",database_writes:1/);
-  assert.deepEqual(require("./ra004-staging-execution-coordinator").EXPECTED_MIGRATIONS, [
-    ["20260928100000_diagnose_ra004_preflight_acl_rls.sql", "58aa82b328b9bb77c09b9975892042027a493254add99fb2e1dcf045303c0b0d"],
-  ]);
-  assert.doesNotMatch(coordinator, /20260927101000_reissue_ra004_staging_preflight_metadata_interface/);
-  assert.equal((coordinator.match(/pushSelectedMigrations\(selectedWorkdir\)/g) || []).length, 1);
-  assert.match(coordinator, /\["db", "push", "--db-url", databaseUrl, "--workdir", workdir, "--yes"\]/);
+  assert.match(coordinator, /status:"ALREADY_PRESENT_VERIFIED",database_writes:0/);
+  assert.deepEqual(require("./ra004-staging-execution-coordinator").EXPECTED_MIGRATIONS, []);
+  assert.match(coordinator, /appliedIdentifiers\.has\("20260928100000_diagnose_ra004_preflight_acl_rls\.sql"\)/);
+  assert.doesNotMatch(coordinator, /pushSelectedMigrations|db", "push"|operationAttempts\.migration\+=1/);
   assert.doesNotMatch(coordinator, /--include-all/);
   assert.doesNotMatch(coordinator, /insert into supabase_migrations/i);
   assert.doesNotMatch(coordinator, /await db\(sql\)/);
 });
 
-test("both authenticated ACL activations are terminal and non-replayable", () => {
+test("historical activations are terminal and final read-only activation is exact", () => {
   const { validateReadOnlyActivation } = require("./ra004-staging-execution-coordinator");
   const consumed = JSON.parse(fs.readFileSync(path.join(ROOT,
     "docs/retailer-automation/evidence/RA-004-acl-rls-correction-activation.json"), "utf8"));
@@ -62,27 +59,17 @@ test("both authenticated ACL activations are terminal and non-replayable", () =>
   assert.equal(prepared.execution.membership_absent, true);
   assert.equal(prepared.execution.retry_authorized, false);
   assert.equal(prepared.execution.replayable, false);
-  assert.throws(() => validateReadOnlyActivation(prepared), /RA004_ACTIVATION_NOT_AUTHORIZED/);
-  const authorized = structuredClone(prepared);
-  authorized.status = "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED";
-  authorized.execution = {
-    runtime_activation_id: null,
-    started: false,
-    application_attempt_count: 0,
-    preflight_attempt_count: 0,
-    canary_attempt_count: 0,
-    closed: false,
-    retry_authorized: false,
-    replayable: false,
-  };
+  assert.throws(() => validateReadOnlyActivation(prepared), /RA004_ACTIVATION_SCHEMA_MISMATCH/);
+  const authorized = JSON.parse(fs.readFileSync(path.join(ROOT,
+    "docs/retailer-automation/evidence/RA-004-final-readonly-preflight-canary-activation.json"), "utf8"));
   assert.equal(validateReadOnlyActivation(authorized), authorized);
   for (const mutate of [
     (value) => { value.status = "CONSUMED"; },
     (value) => { value.production.authorized = true; },
-    (value) => { value.apply.maximum_attempts = 2; },
-    (value) => { value.pre_activation_ledger.count = 96; },
-    (value) => { value.migrations[0].sha256 = "0".repeat(64); },
-    (value) => { value.evidence_store.session_required_before_migration = false; },
+    (value) => { value.apply.maximum_attempts = 1; },
+    (value) => { value.pre_activation_ledger.count = 97; },
+    (value) => { value.migrations.push({ filename: "forbidden.sql", sha256: "0".repeat(64) }); },
+    (value) => { value.evidence_store.session_required_before_preflight = false; },
     (value) => { value.execution.started = true; },
   ]) {
     const changed = structuredClone(authorized);
@@ -113,52 +100,23 @@ test("execution is bound to a clean exact origin/main squash-merge commit", () =
     /RA004_EXECUTION_WORKTREE_NOT_CLEAN/);
 });
 
-test("secrets remain process-only and are not placed in CLI arguments or output", () => {
-  assert.match(coordinator, /delete childEnvironment\.RA004_OWNER_DATABASE_URL/);
-  assert.match(coordinator, /delete childEnvironment\.RA004_SUPABASE_ACCESS_TOKEN/);
-  assert.match(coordinator, /const pushEnvironment|decodeURIComponent\(parsed\.password\)/);
+test("secrets remain process-only and there is no migration CLI path", () => {
   assert.doesNotMatch(coordinator, /console\.log\(databaseUrl|console\.log\(password/);
-  assert.doesNotMatch(coordinator, /SUPABASE_ACCESS_TOKEN: pat|"--linked"|"--password"/);
-  assert.match(coordinator, /\[REDACTED\]/);
+  assert.doesNotMatch(coordinator, /SUPABASE_ACCESS_TOKEN|RA004_SUPABASE_CLI_PATH|PGPASSWORD|db", "push"/);
   assert.doesNotMatch(coordinator, /console\.log\(ownerUrl|console\.log\(pat/);
   assert.match(coordinator, /process\.env\.RA004_STORAGE_ANON_KEY=""/);
   assert.doesNotMatch(custodian, /console\.(?:log|error)|process\.stdout|process\.stderr/);
 });
 
-test("failed Supabase CLI saves deterministic redacted stdout and stderr evidence", () => {
-  const outputDirectory = fs.mkdtempSync(path.join(require("node:os").tmpdir(), "ra004-cli-evidence-"));
-  const previous = process.env.RA004_SUPABASE_CLI_PATH;
-  process.env.RA004_SUPABASE_CLI_PATH = process.execPath;
-  try {
-    assert.throws(() => require("./ra004-staging-execution-coordinator").runCli(
-      ["db", "push"],
-      { PGPASSWORD: "test-password-sentinel" },
-      {
-        outputDirectory,
-        spawn: () => ({
-          status: 1,
-          stdout: "connecting postgresql://postgres:test-password-sentinel@staging.invalid/postgres sbp_secret",
-          stderr: "password=test-password-sentinel rejected",
-        }),
-      },
-    ), (error) => {
-      assert.equal(error.message, "RA004_SUPABASE_CLI_FAILED_1");
-      assert.equal(error.cliDiagnostics.exit_code, 1);
-      for (const stream of ["stdout", "stderr"]) {
-        const item = error.cliDiagnostics[stream];
-        const content = fs.readFileSync(path.join(outputDirectory, item.filename), "utf8");
-        assert.equal(item.redacted, true);
-        assert.match(item.sha256, /^[0-9a-f]{64}$/);
-        assert.doesNotMatch(content, /test-password-sentinel|sbp_secret|postgresql:\/\//);
-        assert.match(content, /\[REDACTED/);
-      }
-      return true;
-    });
-  } finally {
-    if (previous === undefined) delete process.env.RA004_SUPABASE_CLI_PATH;
-    else process.env.RA004_SUPABASE_CLI_PATH = previous;
-    fs.rmSync(outputDirectory, { recursive: true, force: true });
-  }
+test("activation is migration-free and both selectors stay closed", () => {
+  const manifest = JSON.parse(fs.readFileSync(path.join(ROOT,
+    "docs/retailer-automation/evidence/RA-004-final-readonly-preflight-canary-activation.json"), "utf8"));
+  assert.deepEqual(manifest.migrations, []);
+  assert.equal(manifest.apply.maximum_attempts, 0);
+  assert.equal(manifest.execution.migration_attempt_count, 0);
+  assert.equal(manifest.production.authorized, false);
+  assert.equal(manifest.production.selector_unchanged, true);
+  assert.match(coordinator, /const operationAttempts=\{migration:0,preflight:0,canary:0\}/);
 });
 
 test("evidence bucket and object writes are private, bounded and non-overwriting", () => {
@@ -192,10 +150,10 @@ test("the activation window begins only after the private evidence store is atte
   assert.ok(preflight > startWindow);
 });
 
-test("business rows are counted before migration and remain unchanged after canary", () => {
+test("business rows are unchanged before preflight and after canary", () => {
   assert.match(coordinator, /async function businessCounts\(\)/);
   assert.match(coordinator, /const businessBefore=await businessCounts\(\)/);
-  assert.match(coordinator, /RA004_BUSINESS_DATA_CHANGED_BY_MIGRATION/);
+  assert.match(coordinator, /RA004_BUSINESS_DATA_CHANGED_BEFORE_PREFLIGHT/);
   assert.match(coordinator, /RA004_BUSINESS_DATA_CHANGED_DURING_READ_ONLY_EXECUTION/);
   assert.match(coordinator, /business_counts:\{before:businessBefore,after_migrations:businessAfterMigrations,after_canary:businessAfterCanary,unchanged:true\}/);
 });
@@ -272,7 +230,7 @@ test("preflight gates exactly one later control-state canary and both credential
 });
 
 test("operation attempts are counted once and failure closeout performs read-only ledger readback", () => {
-  assert.equal((coordinator.match(/operationAttempts\.migration\+=1/g) || []).length, 1);
+  assert.equal((coordinator.match(/operationAttempts\.migration\+=1/g) || []).length, 0);
   assert.equal((coordinator.match(/operationAttempts\.preflight\+=1/g) || []).length, 1);
   assert.equal((coordinator.match(/operationAttempts\.canary\+=1/g) || []).length, 1);
   assert.match(coordinator, /if\(primaryError\) \{\s*try \{\s*const readback=await selector\.readRemoteState\(ownerUrl\)/s);
@@ -287,7 +245,7 @@ test("operation attempts are counted once and failure closeout performs read-onl
       session_creation_state: "CREATED",
       attempt_counters: { auth: 1, upload: 2, readback: 2, cleanup: 1 },
     },
-    operationAttempts: { migration: 1, preflight: 0, canary: 0 },
+    operationAttempts: { migration: 0, preflight: 0, canary: 0 },
     ledgerReadback: {
       count: 95,
       fingerprint: "c5bb6405d26def1834522cccaf2937fad60f44156370e5e1f8c4af3ff96d45bd",
@@ -300,7 +258,7 @@ test("operation attempts are counted once and failure closeout performs read-onl
     uploaded: [],
   });
   assert.deepEqual(report.attempt_counters, {
-    auth: 1, upload: 2, readback: 2, cleanup: 1, migration: 1, preflight: 0, canary: 0,
+    auth: 1, upload: 2, readback: 2, cleanup: 1, migration: 0, preflight: 0, canary: 0,
   });
   assert.equal(report.ledger_readback.count, 95);
 });
@@ -333,9 +291,8 @@ test("coordinator contains no feed, shadow, plan, approval, import, apply, offer
   assert.match(coordinator, /production:0,feed_capture:0,shadow_run:0,control_plan:0,approval:0,import:0,apply:0,offer_writes:0,model_b:0/);
 });
 
-test("interactive launcher masks every secret, validates the pinned CLI and clears process credentials", () => {
+test("interactive launcher masks every secret and has no migration CLI", () => {
   assert.match(launcher, /param\(\[switch\]\$ValidateOnly\)/);
-  assert.match(launcher, /\$expectedVersion = '2\.111\.0'/);
   assert.equal((launcher.match(/ConvertFrom-MaskedInput '/g) || []).length, 4);
   assert.match(launcher, /LAUNCHER_VALIDATION_PASS/);
   assert.match(launcher, /Read-Host 'Wpisz START/);
@@ -343,9 +300,10 @@ test("interactive launcher masks every secret, validates the pinned CLI and clea
   assert.match(launcher, /ra004-staging-execution-coordinator\.js/);
   for (const name of [
     "RA004_OWNER_DATABASE_URL", "RA004_STORAGE_ANON_KEY", "RA004_STORAGE_EMAIL",
-    ["RA004_STORAGE", "PASSWORD"].join("_"), "RA004_SUPABASE_CLI_PATH",
+    ["RA004_STORAGE", "PASSWORD"].join("_"),
   ]) assert.match(launcher, new RegExp(`\\$env:${name} = ''`));
   assert.doesNotMatch(launcher, /ACCESS_TOKEN|personal access token|\bPAT\b/i);
+  assert.doesNotMatch(launcher, /supabase|db push|--include-all/i);
 });
 
 test("interactive launcher trusts the Windows system CA store without disabling TLS verification", () => {

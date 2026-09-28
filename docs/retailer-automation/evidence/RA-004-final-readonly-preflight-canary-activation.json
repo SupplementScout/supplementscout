@@ -1,0 +1,41 @@
+{
+  "schema_version": "ra-004-final-readonly-activation-v1",
+  "status": "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED",
+  "task_id": "RA-004",
+  "activation_id": "ra004-final-readonly-preflight-canary-2026-09-28",
+  "baseline_sha": "e97d06608d5927e1edd43a99978fef0322b4297d",
+  "target": {
+    "environment": "STAGING",
+    "project_ref": "hxnrsyyqffztlvcrtgbf",
+    "database_host": "aws-0-eu-west-3.pooler.supabase.com",
+    "retailer": { "id": "11", "name": "10 Reps", "slug": "10-reps" }
+  },
+  "pre_activation_ledger": {
+    "count": 98,
+    "last_version": "20260928100000",
+    "last_name": "diagnose_ra004_preflight_acl_rls",
+    "fingerprint": "b4e72276ba2570d2da9957c53b6c209a3799087570302af92b295467a1d4e307"
+  },
+  "migrations": [],
+  "apply": {
+    "maximum_attempts": 0,
+    "selected_pending_count": 0,
+    "automatic_retry": false,
+    "manual_retry": false,
+    "include_all": false
+  },
+  "preflight": { "maximum_attempts": 1, "retry": false, "questions": "Q1-Q8" },
+  "canary": { "maximum_attempts": 1, "retry": false, "requires_preflight_pass": true, "read_only": true },
+  "evidence_store": { "session_required_before_preflight": true, "authentication_attempts": 1 },
+  "production": { "authorized": false, "selector_unchanged": true, "operations": 0 },
+  "execution": {
+    "runtime_activation_id": null,
+    "started": false,
+    "migration_attempt_count": 0,
+    "preflight_attempt_count": 0,
+    "canary_attempt_count": 0,
+    "closed": false,
+    "retry_authorized": false,
+    "replayable": false
+  }
+}
