@@ -629,7 +629,7 @@ test("production binds its exact 221-row ledger before the Fit House parent appr
 
 test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.equal(Object.keys(contract.excluded).length, 15);
+  assert.equal(Object.keys(contract.excluded).length, 16);
   assert.ok(!Object.hasOwn(
     contract.excluded,
     "20260824160000_add_identity_proven_price_observations.sql",
@@ -722,6 +722,16 @@ test("RA-004 compatibility and interface migrations remain SHA-bound and exclude
     assert.ok(!CONTRACTS.STAGING.pending.some((entry) => entry.filename === filename));
     assert.ok(!CONTRACTS.PRODUCTION.pending.some((entry) => entry.filename === filename));
   }
+});
+
+test("RA-004 ACL/RLS diagnostic correction remains SHA-bound and closed in both selectors", () => {
+  const filename = "20260928100000_diagnose_ra004_preflight_acl_rls.sql";
+  const expected = "58aa82b328b9bb77c09b9975892042027a493254add99fb2e1dcf045303c0b0d";
+  assert.equal(sha256File(path.join(SOURCE, filename)), expected);
+  assert.equal(CONTRACTS.STAGING.excluded[filename], expected);
+  assert.equal(CONTRACTS.PRODUCTION.excluded[filename], expected);
+  assert.ok(!CONTRACTS.STAGING.pending.some((entry) => entry.filename === filename));
+  assert.ok(!CONTRACTS.PRODUCTION.pending.some((entry) => entry.filename === filename));
 });
 
 test("consumed RA-004 activation and both forward migrations remain closed", () => {

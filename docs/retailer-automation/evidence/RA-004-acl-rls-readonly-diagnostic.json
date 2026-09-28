@@ -1,0 +1,40 @@
+{
+  "schema_version": "ra004-acl-rls-readonly-diagnostic-v1",
+  "status": "DIAGNOSED_LOCAL_FIX_PENDING_VERIFICATION",
+  "baseline_sha": "8a75166c815cf1b99b7de69cd19899c6c96a10fd",
+  "project_reference": "hxnrsyyqffztlvcrtgbf",
+  "transport": {
+    "name": "ra004-bounded-live-transport-v1",
+    "transactions": 1,
+    "isolation": "REPEATABLE READ READ ONLY",
+    "connection_attempts": 1,
+    "retries": 0,
+    "tls_verification": true,
+    "ca_sha256": "807025ad50d4ed219d2c9c7d299c004f824eb00cf7f65afef607d07b72e6cafa"
+  },
+  "checks": [
+    {"check_id":"RPC_EXECUTE_GRANTS","expected":"owner-only after cleanup","actual":"postgres EXECUTE only","status":"PASS","reason_code":"RA004_AUDIT_RPC_EXECUTE_MATCH"},
+    {"check_id":"PUBLIC_EXECUTE","expected":"absent","actual":"absent","status":"PASS","reason_code":"RA004_AUDIT_PUBLIC_EXECUTE_ABSENT"},
+    {"check_id":"FORBIDDEN_ROLE_EXECUTE","expected":"absent","actual":"absent","status":"PASS","reason_code":"RA004_AUDIT_FORBIDDEN_EXECUTE_ABSENT"},
+    {"check_id":"FUNCTION_GRANT_LIST","expected":"postgres owner grant only after cleanup","actual":"three RPCs owner-only","status":"PASS","reason_code":"RA004_AUDIT_FUNCTION_GRANTS_MATCH"},
+    {"check_id":"TABLE_PRIVILEGES","expected":"no direct RA-004 runtime grants","actual":"evidence ledger owner-only; temporary role absent","status":"PASS","reason_code":"RA004_AUDIT_DIRECT_TABLE_GRANTS_ABSENT"},
+    {"check_id":"COLUMN_PRIVILEGES","expected":"no direct RA-004 runtime grants","actual":"owner grants only on evidence ledger; temporary role absent","status":"PASS","reason_code":"RA004_AUDIT_DIRECT_COLUMN_GRANTS_ABSENT"},
+    {"check_id":"SEQUENCE_PRIVILEGES","expected":"no RA-004 evidence sequence or direct runtime grant","actual":"none","status":"PASS","reason_code":"RA004_AUDIT_SEQUENCE_GRANTS_ABSENT"},
+    {"check_id":"EVIDENCE_RLS_ENABLED","expected":true,"actual":true,"status":"PASS","reason_code":"RA004_AUDIT_RLS_ENABLED"},
+    {"check_id":"EVIDENCE_RLS_FORCED","expected":true,"actual":true,"status":"PASS","reason_code":"RA004_AUDIT_RLS_FORCED"},
+    {"check_id":"EVIDENCE_POLICY_COUNT","expected":3,"actual":3,"status":"PASS","reason_code":"RA004_AUDIT_POLICY_COUNT_MATCH"},
+    {"check_id":"POLICY_ROLES","expected":["postgres"],"actual":["postgres"],"status":"PASS","reason_code":"RA004_AUDIT_POLICY_ROLES_MATCH"},
+    {"check_id":"POLICY_COMMANDS","expected":["INSERT","SELECT","SELECT"],"actual":["INSERT","SELECT","SELECT"],"status":"PASS","reason_code":"RA004_AUDIT_POLICY_COMMANDS_MATCH"},
+    {"check_id":"POLICY_EXPRESSIONS","expected":"owner INSERT WITH CHECK true; owner reads USING true","actual":"exact match","status":"PASS","reason_code":"RA004_AUDIT_POLICY_EXPRESSIONS_MATCH"},
+    {"check_id":"RETAILER_POLICY","expected":"postgres SELECT limited to lower(name)=10 reps or lower(slug)=10-reps","actual":"exact match","status":"PASS","reason_code":"RA004_AUDIT_RETAILER_POLICY_MATCH"},
+    {"check_id":"OWNERSHIP_AND_MEMBERSHIPS","expected":"postgres ownership; no temporary role after cleanup; PostgreSQL 17 platform memberships only","actual":"exact match","status":"PASS","reason_code":"RA004_AUDIT_OWNERSHIP_MEMBERSHIPS_MATCH"}
+  ],
+  "root_cause": {
+    "code": "RA004_PREFLIGHT_EFFECTIVE_PLATFORM_PRIVILEGE_FALSE_POSITIVE",
+    "summary": "The preflight treated safe privileges inherited from PostgreSQL PUBLIC across the managed Supabase cluster as if they were direct grants to the temporary RA-004 login.",
+    "proof": "Every persistent RPC ACL, owner, RLS flag and policy matched after cleanup; the aggregate branch also mixed global effective table and sequence privilege checks with those persistent checks. The temporary login had no direct table, column or sequence grants and was revoked."
+  },
+  "selectors": {"staging":"CLOSED","production":"CLOSED"},
+  "remote_writes": 0,
+  "production_connections": 0
+}

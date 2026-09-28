@@ -24,6 +24,7 @@ const FORWARD_CONTROL_MIGRATION = "supabase/migrations/20260927100000_reissue_tr
 const FORWARD_PREFLIGHT_MIGRATION = "supabase/migrations/20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql";
 const CORRECTED_PREFLIGHT_MIGRATION = "supabase/migrations/20260927102000_correct_ra004_staging_preflight_ledger_contract.sql";
 const CONSOLIDATED_OWNERSHIP_MIGRATION = "supabase/migrations/20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql";
+const ACL_RLS_DIAGNOSTIC_MIGRATION = "supabase/migrations/20260928100000_diagnose_ra004_preflight_acl_rls.sql";
 const EXACT_STAGING_LEDGER_FIXTURE = require("./test-fixtures/ra004-ledger-fingerprint-v1/staging-ledger-97.json");
 const EXACT_STAGING_LEDGER_FINGERPRINT = "bbfc25a25826ebfd4901941099903921e1f5adeb9d952eb6aa93c64939e3849c";
 const CORRECTED_PREFLIGHT_FILENAME = path.basename(CORRECTED_PREFLIGHT_MIGRATION);
@@ -523,9 +524,20 @@ test("consolidated Supabase ownership migration succeeds as PostgreSQL 17 non-su
     assert.equal(replayWrite.inserted,false); assert.equal(replayWrite.idempotent,true);
     assert.equal(Number(ok(sql(container,database,"select count(*) from public.retailer_control_state_evidence_v1 where source_run_id='writer-idempotency'","postgres"),"verify one append-only row").stdout.trim()),1);
     ok(sql(container,database,"revoke execute on function public.write_retailer_control_state_evidence_v1(uuid,integer,text,bigint,boolean,text,text,text,text,timestamptz,timestamptz,timestamptz,text,text,jsonb,text,text) from ra004_writer_test_login; revoke usage on schema public from ra004_writer_test_login; drop role ra004_writer_test_login","postgres"),"revoke and drop bounded writer login");
-    const exactLedgerIdentifiers=[...ledgerRows.map(([version,name])=>`${version}_${name}`),"20260927103000_consolidate_ra004_supabase_ownership_interfaces"];
+    ok(sql(container,database,`create schema extensions authorization postgres; create table extensions.platform_catalog(id integer); grant select on extensions.platform_catalog to public;
+      create role ra004_false_positive_login login noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls;
+      grant usage on schema public to ra004_false_positive_login;
+      grant execute on function public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer) to ra004_false_positive_login`,"postgres"),"reproduce managed-platform PUBLIC read privilege");
+    denied(sql(container,database,call("STAGING",97,EXACT_STAGING_LEDGER_FINGERPRINT).replace("'ra004_preflight_test_login'","'ra004_false_positive_login'"),"ra004_false_positive_login"),"old aggregate contract rejects safe inherited platform read",/RA004_PREFLIGHT_ACL_UNSAFE/);
+    ok(sql(container,database,"revoke execute on function public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer) from ra004_false_positive_login; revoke usage on schema public from ra004_false_positive_login; drop role ra004_false_positive_login","postgres"),"remove reproduced temporary login");
+    ok(fileAs(container,database,"postgres",ACL_RLS_DIAGNOSTIC_MIGRATION),"apply forward-only ACL/RLS diagnostic correction");
+    ok(sql(container,database,"insert into supabase_migrations.schema_migrations(version,name) values ('20260928100000','diagnose_ra004_preflight_acl_rls')","postgres"),"record ACL/RLS diagnostic correction");
+    const correctedDefinition=ok(sql(container,database,"select pg_get_functiondef('public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer)'::regprocedure)","postgres"),"read corrected diagnostic definition").stdout;
+    assert.doesNotMatch(correctedDefinition,/RA004_PREFLIGHT_ACL_UNSAFE/);
+    for(const code of ["PUBLIC_EXECUTE_UNSAFE","FUNCTION_GRANT_MISMATCH","TABLE_PRIVILEGE_UNSAFE","COLUMN_PRIVILEGE_UNSAFE","SEQUENCE_PRIVILEGE_UNSAFE","RLS_NOT_FORCED","POLICY_COUNT_MISMATCH","POLICY_ROLE_MISMATCH","POLICY_EXPRESSION_MISMATCH","RETAILER_POLICY_MISMATCH"]) assert.match(correctedDefinition,new RegExp(code));
+    const exactLedgerIdentifiers=[...ledgerRows.map(([version,name])=>`${version}_${name}`),"20260927103000_consolidate_ra004_supabase_ownership_interfaces","20260928100000_diagnose_ra004_preflight_acl_rls"];
     const exactLedgerFingerprint=migrationLedgerFingerprint(exactLedgerIdentifiers,"STAGING");
-    assert.equal(exactLedgerFingerprint,EXACT_STAGING_LEDGER_FINGERPRINT);
+    assert.notEqual(exactLedgerFingerprint,EXACT_STAGING_LEDGER_FINGERPRINT);
     ok(sql(container,database,`create role ra004_preflight_test_login login noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls; alter role ra004_preflight_test_login set default_transaction_read_only=on; alter role ra004_preflight_test_login set statement_timeout='15s'; alter role ra004_preflight_test_login set idle_in_transaction_session_timeout='15s'; grant usage on schema public to ra004_preflight_test_login; grant execute on function public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer) to ra004_preflight_test_login`,"postgres"),"issue one bounded preflight login");
     denied(sql(container,database,"create table public.forbidden_ra004(id integer)","ra004_preflight_test_login"),"runtime DDL is denied",/permission denied|read-only transaction/);
     denied(sql(container,database,"select * from public.retailers","ra004_preflight_test_login"),"runtime table read is denied",/permission denied/);
@@ -533,10 +545,10 @@ test("consolidated Supabase ownership migration succeeds as PostgreSQL 17 non-su
     denied(sql(container,database,"insert into public.retailer_control_state_evidence_v1(event_id,event_version,event_type,retailer_id,scope_fingerprint,source_system,source_run_id,occurred_at,observed_at,expires_at,status,reason_code,payload_fingerprint,idempotency_key) values(gen_random_uuid(),1,'SESSION_STARTED',11,repeat('a',64),'TEST','blocked',now(),now(),now()+interval '1 hour','ACTIVE','RCSE_TEST_BLOCKED',repeat('b',64),repeat('c',64))","ra004_preflight_test_login"),"runtime DML is denied",/permission denied|read-only transaction/);
     denied(sql(container,database,"set role postgres","ra004_preflight_test_login"),"runtime SET ROLE is denied",/permission denied|not permitted/);
     denied(sql(container,database,"select public.write_retailer_control_state_evidence_v1(null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)","ra004_preflight_test_login"),"preflight login cannot call the writer RPC",/permission denied/);
-    const metadata=json(ok(sql(container,database,call("STAGING",97,exactLedgerFingerprint),"ra004_preflight_test_login"),"run consolidated Q2-Q7 metadata RPC"));
+    const metadata=json(ok(sql(container,database,call("STAGING",98,exactLedgerFingerprint),"ra004_preflight_test_login"),"run corrected Q2-Q7 metadata RPC"));
     validateMetadata(metadata,"ra004_preflight_test_login");
-    assert.equal(metadata.q3_migration_ledger.ordered_ledger_fingerprint,EXACT_STAGING_LEDGER_FINGERPRINT);
-    const fullPreflight=await runExactLocalQ1ToQ8(metadata,97,exactLedgerFingerprint,"consolidate_ra004_supabase_ownership_interfaces");
+    assert.equal(metadata.q3_migration_ledger.ordered_ledger_fingerprint,exactLedgerFingerprint);
+    const fullPreflight=await runExactLocalQ1ToQ8(metadata,98,exactLedgerFingerprint,"consolidate_ra004_supabase_ownership_interfaces");
     assert.equal(fullPreflight.report.status,"METADATA_CAPTURED_PENDING_REVOKE");
     ok(sql(container,database,"revoke execute on function public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer) from ra004_preflight_test_login; revoke usage on schema public from ra004_preflight_test_login; drop role ra004_preflight_test_login","postgres"),"revoke and drop bounded preflight login");
     assert.equal(json(ok(sql(container,database,"select jsonb_build_object('role_absent',not exists(select 1 from pg_roles where rolname='ra004_preflight_test_login'),'membership_absent',not exists(select 1 from pg_auth_members m join pg_roles r on r.oid=m.roleid where r.rolname='ra004_preflight_test_login'))::text","postgres"),"verify deterministic cleanup")).role_absent,true);
@@ -544,7 +556,7 @@ test("consolidated Supabase ownership migration succeeds as PostgreSQL 17 non-su
       grant usage on schema public to ra004_preflight_bad_login;
       grant execute on function public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer) to ra004_preflight_bad_login`,"postgres"),"issue a login for negative membership validation");
     ok(sql(container,database,"grant authenticated to ra004_preflight_bad_login with set false, inherit false","supabase_admin"),"inject one forbidden extra membership");
-    denied(sql(container,database,call("STAGING",97,exactLedgerFingerprint).replace("'ra004_preflight_test_login'","'ra004_preflight_bad_login'"),"ra004_preflight_bad_login"),"extra runtime membership fails closed",/ROLE_UNSAFE/);
+    denied(sql(container,database,call("STAGING",98,exactLedgerFingerprint).replace("'ra004_preflight_test_login'","'ra004_preflight_bad_login'"),"ra004_preflight_bad_login"),"extra runtime membership fails closed",/ROLE_UNSAFE/);
     ok(sql(container,database,"revoke authenticated from ra004_preflight_bad_login","supabase_admin"),"remove forbidden extra membership");
     ok(sql(container,database,"revoke execute on function public.read_ra004_staging_preflight_v1(text,text,text,integer,text,text,integer) from ra004_preflight_bad_login; revoke usage on schema public from ra004_preflight_bad_login; drop role ra004_preflight_bad_login","postgres"),"remove negative membership login");
 
