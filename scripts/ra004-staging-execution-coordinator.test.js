@@ -48,7 +48,14 @@ test("read-only activation is exact, closed and fail-closed on mutation", () => 
   const { validateReadOnlyActivation } = require("./ra004-staging-execution-coordinator");
   const activation = JSON.parse(fs.readFileSync(path.join(ROOT,
     "docs/retailer-automation/evidence/RA-004-ledger97-preflight-canary-activation.json"), "utf8"));
-  assert.equal(validateReadOnlyActivation(activation), activation);
+  assert.equal(activation.status, "ATTEMPT_CONSUMED_FAILED_TERMINAL");
+  assert.equal(activation.execution.retry_authorized, false);
+  assert.equal(activation.execution.replayable, false);
+  assert.throws(() => validateReadOnlyActivation(activation), /RA004_ACTIVATION_NOT_AUTHORIZED/);
+  const prepared = structuredClone(activation);
+  prepared.status = "READY_FOR_ONE_ATTEMPT";
+  delete prepared.execution;
+  assert.equal(validateReadOnlyActivation(prepared), prepared);
   for (const mutate of [
     (value) => { value.status = "CONSUMED"; },
     (value) => { value.selector.staging = "OPEN"; },
@@ -56,7 +63,7 @@ test("read-only activation is exact, closed and fail-closed on mutation", () => 
     (value) => { value.ledger.count = 96; },
     (value) => { value.migrations[0].sha256 = "0".repeat(64); },
   ]) {
-    const changed = structuredClone(activation);
+    const changed = structuredClone(prepared);
     mutate(changed);
     assert.throws(() => validateReadOnlyActivation(changed), /RA004_/);
   }
