@@ -19,7 +19,7 @@ test("coordinator is pinned to the owner-authorized staging identity and artifac
   const values = require("./ra004-staging-execution-coordinator");
   assert.equal(values.REF, "hxnrsyyqffztlvcrtgbf");
   assert.equal(values.API_HOST, "hxnrsyyqffztlvcrtgbf.supabase.co");
-  assert.equal(values.BASELINE, "8879544a2f5d9f7698935f1d76049cefe9bb6b2d");
+  assert.equal(values.BASELINE, "c3b8d5c4d0cf5389f87674eb2e7d11fb76bd8d24");
   assert.equal(values.CONSOLIDATED_SHA, "a240a263d7e88084171a73317db9e19f0e2c69c9b71ca84dbe788b624a22c9c4");
   assert.equal(values.BUCKET, "ra004-staging-preflight-evidence");
   assert.equal(values.EXPECTED_PRE_LEDGER_COUNT, 97);
@@ -46,16 +46,16 @@ test("exact ACL/RLS migration is selected once without include-all", () => {
   assert.doesNotMatch(coordinator, /await db\(sql\)/);
 });
 
-test("consumed one-shot activation is terminal and its original contract remains fail-closed", () => {
+test("new authenticated reactivation is exact while the consumed activation remains terminal", () => {
   const { validateReadOnlyActivation } = require("./ra004-staging-execution-coordinator");
-  const activation = JSON.parse(fs.readFileSync(path.join(ROOT,
+  const consumed = JSON.parse(fs.readFileSync(path.join(ROOT,
     "docs/retailer-automation/evidence/RA-004-acl-rls-correction-activation.json"), "utf8"));
-  assert.equal(activation.status, "ATTEMPT_CONSUMED_FAILED_TERMINAL");
-  assert.equal(activation.execution.retry_authorized, false);
-  assert.equal(activation.execution.replayable, false);
-  assert.throws(() => validateReadOnlyActivation(activation), /RA004_ACTIVATION_NOT_AUTHORIZED/);
-  const prepared = structuredClone(activation);
-  prepared.status = "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED";
+  assert.equal(consumed.status, "ATTEMPT_CONSUMED_FAILED_TERMINAL");
+  assert.equal(consumed.execution.retry_authorized, false);
+  assert.equal(consumed.execution.replayable, false);
+  assert.throws(() => validateReadOnlyActivation(consumed), /RA004_ACTIVATION_SCHEMA_MISMATCH/);
+  const prepared = JSON.parse(fs.readFileSync(path.join(ROOT,
+    "docs/retailer-automation/evidence/RA-004-acl-rls-authenticated-reactivation.json"), "utf8"));
   assert.equal(validateReadOnlyActivation(prepared), prepared);
   for (const mutate of [
     (value) => { value.status = "CONSUMED"; },
@@ -63,6 +63,8 @@ test("consumed one-shot activation is terminal and its original contract remains
     (value) => { value.apply.maximum_attempts = 2; },
     (value) => { value.pre_activation_ledger.count = 96; },
     (value) => { value.migrations[0].sha256 = "0".repeat(64); },
+    (value) => { value.evidence_store.session_required_before_migration = false; },
+    (value) => { value.execution.started = true; },
   ]) {
     const changed = structuredClone(prepared);
     mutate(changed);

@@ -18,7 +18,7 @@ const { validateLocalCa } = require("./ra004-acl-rls-readonly-audit");
 const ROOT = path.resolve(__dirname, "..");
 const REF = "hxnrsyyqffztlvcrtgbf";
 const API_HOST = "hxnrsyyqffztlvcrtgbf.supabase.co";
-const BASELINE = "8879544a2f5d9f7698935f1d76049cefe9bb6b2d";
+const BASELINE = "c3b8d5c4d0cf5389f87674eb2e7d11fb76bd8d24";
 const CONSOLIDATED_SHA = "a240a263d7e88084171a73317db9e19f0e2c69c9b71ca84dbe788b624a22c9c4";
 const ACL_MIGRATION_SHA = "58aa82b328b9bb77c09b9975892042027a493254add99fb2e1dcf045303c0b0d";
 const PLAN_FP = "bd5c259941997daad3755c1cb135f76f6eccaef1fb9e1ce0044939ce08439214";
@@ -33,7 +33,7 @@ const EXPECTED_PRE_LEDGER_COUNT = 97;
 const EXPECTED_PRE_LEDGER_FINGERPRINT = "bbfc25a25826ebfd4901941099903921e1f5adeb9d952eb6aa93c64939e3849c";
 const EXPECTED_POST_LEDGER_COUNT = 98;
 const EXPECTED_POST_LEDGER_FINGERPRINT = "b4e72276ba2570d2da9957c53b6c209a3799087570302af92b295467a1d4e307";
-const ACTIVATION_MANIFEST = "RA-004-acl-rls-correction-activation.json";
+const ACTIVATION_MANIFEST = "RA-004-acl-rls-authenticated-reactivation.json";
 const EXPECTED_MIGRATIONS = Object.freeze([
   ["20260928100000_diagnose_ra004_preflight_acl_rls.sql", ACL_MIGRATION_SHA],
 ]);
@@ -271,7 +271,7 @@ function pushSelectedMigrations(workdir) {
   pushEnvironment.PGPASSWORD = "";
 }
 function validateReadOnlyActivation(value) {
-  invariant(value?.schema_version === "ra-004-acl-rls-correction-activation-v1", "RA004_ACTIVATION_SCHEMA_MISMATCH");
+  invariant(value?.schema_version === "ra-004-acl-rls-correction-activation-v2", "RA004_ACTIVATION_SCHEMA_MISMATCH");
   invariant(value.status === "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED" && value.baseline_sha === BASELINE, "RA004_ACTIVATION_NOT_AUTHORIZED");
   invariant(value.target?.environment === "STAGING" && value.target?.project_ref === REF
     && value.target?.retailer?.id === "11" && value.target?.retailer?.slug === "10-reps", "RA004_ACTIVATION_TARGET_MISMATCH");
@@ -286,6 +286,11 @@ function validateReadOnlyActivation(value) {
     && value.apply?.manual_retry === false && value.apply?.include_all === false
     && value.preflight?.maximum_attempts === 1 && value.canary?.maximum_attempts === 1
     && value.canary?.requires_preflight_pass === true, "RA004_ACTIVATION_ATTEMPTS_MISMATCH");
+  invariant(value.evidence_store?.session_required_before_migration === true
+    && value.evidence_store?.authentication_attempts === 1, "RA004_EVIDENCE_STORE_GATE_MISMATCH");
+  invariant(value.execution?.started === false && value.execution?.application_attempt_count === 0
+    && value.execution?.preflight_attempt_count === 0 && value.execution?.canary_attempt_count === 0
+    && value.execution?.retry_authorized === false, "RA004_ACTIVATION_EXECUTION_STATE_MISMATCH");
   return value;
 }
 function ensureWindow(expires) {

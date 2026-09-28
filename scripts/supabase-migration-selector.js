@@ -90,6 +90,9 @@ const RA004_ACL_ACTIVATION_ID = "ra004-acl-rls-correction-2026-09-28-v1";
 const RA004_ACL_ACTIVATION_MIGRATIONS = Object.freeze([
   "20260928100000_diagnose_ra004_preflight_acl_rls.sql",
 ]);
+const RA004_ACL_REACTIVATION_SCHEMA = "ra-004-acl-rls-correction-activation-v2";
+const RA004_ACL_REACTIVATION_BASELINE = "c3b8d5c4d0cf5389f87674eb2e7d11fb76bd8d24";
+const RA004_ACL_REACTIVATION_ID = "ra004-acl-rls-correction-2026-09-28-v2";
 const RA004_FIXTURE_ACTIVATION_SCHEMA = "ra-004-staging-retailer-fixture-activation-v1";
 const RA004_FIXTURE_ACTIVATION_BASELINE = "cd6c5dbe1931e984213fe5d69f151e266180252a";
 const RA004_FIXTURE_ACTIVATION_ID = "ra004-staging-10reps-retailer-2026-09-26-v1";
@@ -496,8 +499,9 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
   const finalActivation = manifest?.schema_version === RA004_FINAL_ACTIVATION_SCHEMA;
   const consolidatedActivation = manifest?.schema_version === RA004_CONSOLIDATED_ACTIVATION_SCHEMA;
   const aclActivation = manifest?.schema_version === RA004_ACL_ACTIVATION_SCHEMA;
+  const aclReactivation = manifest?.schema_version === RA004_ACL_REACTIVATION_SCHEMA;
   invariant(
-    fixtureActivation || forwardActivation || correctedActivation || finalActivation || consolidatedActivation || aclActivation
+    fixtureActivation || forwardActivation || correctedActivation || finalActivation || consolidatedActivation || aclActivation || aclReactivation
       || manifest?.schema_version === RA004_ACTIVATION_SCHEMA,
     "activation manifest schema mismatch",
   );
@@ -505,6 +509,8 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
   invariant(manifest?.task_id === "RA-004", "activation manifest task mismatch");
   const expectedActivationId = fixtureActivation
     ? RA004_FIXTURE_ACTIVATION_ID
+    : aclReactivation
+      ? RA004_ACL_REACTIVATION_ID
     : aclActivation
       ? RA004_ACL_ACTIVATION_ID
     : consolidatedActivation
@@ -518,6 +524,8 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
       : RA004_ACTIVATION_ID;
   const expectedBaseline = fixtureActivation
     ? RA004_FIXTURE_ACTIVATION_BASELINE
+    : aclReactivation
+      ? RA004_ACL_REACTIVATION_BASELINE
     : aclActivation
       ? RA004_ACL_ACTIVATION_BASELINE
     : consolidatedActivation
@@ -531,6 +539,8 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
       : RA004_ACTIVATION_BASELINE;
   const expectedMigrations = fixtureActivation
     ? [RA004_FIXTURE_MIGRATION]
+    : aclReactivation
+      ? RA004_ACL_ACTIVATION_MIGRATIONS
     : aclActivation
       ? RA004_ACL_ACTIVATION_MIGRATIONS
     : consolidatedActivation
@@ -566,7 +576,7 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
         && manifest?.post_activation_ledger?.fingerprint === RA004_ACTIVATION_PRE_LEDGER_FINGERPRINT,
       "fixture post-activation ledger mismatch",
     );
-  } else if (aclActivation) {
+  } else if (aclActivation || aclReactivation) {
     invariant(
       manifest?.pre_activation_ledger?.count === 97
         && manifest?.pre_activation_ledger?.fingerprint === "bbfc25a25826ebfd4901941099903921e1f5adeb9d952eb6aa93c64939e3849c"
@@ -586,6 +596,11 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
       && manifest?.canary?.maximum_attempts === 1
       && manifest?.canary?.requires_preflight_pass === true,
     "ACL activation read attempts mismatch");
+    if (aclReactivation) {
+      invariant(manifest?.evidence_store?.session_required_before_migration === true
+        && manifest?.evidence_store?.authentication_attempts === 1,
+      "ACL reactivation evidence store gate mismatch");
+    }
   } else if (consolidatedActivation) {
     invariant(
       manifest?.pre_activation_ledger?.count === RA004_CONSOLIDATED_ACTIVATION_PRE_LEDGER_COUNT
@@ -792,6 +807,7 @@ function validateSelection({
     ? fixtureActivation
       ? RA004_FIXTURE_PRE_ACTIVATION_LEDGER_COUNT
       : activationManifest.schema_version === RA004_ACL_ACTIVATION_SCHEMA
+        || activationManifest.schema_version === RA004_ACL_REACTIVATION_SCHEMA
         ? contract.ledgerCount
       : activationManifest.schema_version === RA004_CONSOLIDATED_ACTIVATION_SCHEMA
         ? RA004_CONSOLIDATED_ACTIVATION_PRE_LEDGER_COUNT
@@ -801,6 +817,7 @@ function validateSelection({
     ? fixtureActivation
       ? RA004_FIXTURE_PRE_ACTIVATION_CANONICAL_LEDGER_FINGERPRINT
       : activationManifest.schema_version === RA004_ACL_ACTIVATION_SCHEMA
+        || activationManifest.schema_version === RA004_ACL_REACTIVATION_SCHEMA
         ? contract.ledgerFingerprint
       : activationManifest.schema_version === RA004_CONSOLIDATED_ACTIVATION_SCHEMA
         ? RA004_CONSOLIDATED_ACTIVATION_PRE_CANONICAL_LEDGER_FINGERPRINT
