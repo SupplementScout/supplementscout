@@ -150,3 +150,42 @@ fixture-proven recovery contract that atomically closes an entirely unexecuted
 expired sequential tree, requires zero apply runs/row approvals/recovery state,
 preserves history, checks business counts and has an exact rollback/readback
 contract. Any production invocation remains a separate owner-write decision.
+
+## Shared recovery contract implementation
+
+The candidate is implemented locally as forward migration
+`20260929133000_extend_expired_sequential_plan_close.sql`, SHA-256
+`b0a4cac2d9c30989f00570bf1c63036daf190fffbcc7b08b17c616761bc6a380`.
+It does not add another RPC, role, approver or executor. It replaces only the
+existing internal implementation behind
+`close_expired_retailer_offer_sync_approval(jsonb)` and retains the existing
+production approver boundary.
+
+The extended contract:
+
+- takes the global and retailer advisory locks used by the shared refresh path;
+- locks the exact parent, every child and the linked batch approval;
+- requires one `APPROVED` child and every sibling to be untouched `PLANNED`;
+- requires the parent manifest and all immutable child/parent fingerprints to
+  agree;
+- rejects any extra batch approval, row approval, apply run or recovery state;
+- accepts the intended sequential window where the parent expiry is later than
+  the child expiry, while requiring both to be expired;
+- closes the approval and expires the parent plus every child in one
+  transaction;
+- verifies affected-row counts and unchanged business counts;
+- preserves history and provides deterministic no-write replay.
+
+The existing disposable production-shaped PostgreSQL suite now seeds the exact
+19-child topology. It proves 19/19 children become `EXPIRED`, reports 21 control
+writes (approval + parent + 19 children), rejects an unexpected second approved
+child and child-manifest drift, preserves zero business/price-history writes and
+rolls back atomically.
+The production integration suite passes 4/4 and the selector suite passes
+56/56.
+
+The migration is explicitly SHA-bound in the shared environment policy and
+excluded from ordinary STAGING and PRODUCTION selection. It cannot be deployed
+by the normal migration command and has not been applied anywhere. Deployment,
+exact invocation and post-write readback remain a separate owner-authorized
+operation.

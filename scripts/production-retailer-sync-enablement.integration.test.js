@@ -7,6 +7,7 @@ const test = require("node:test");
 
 const ROOT = path.resolve(__dirname, "..");
 const MIGRATION = path.join(ROOT, "supabase/migrations/20260719100000_add_production_retailer_sync_enablement.sql");
+const SEQUENTIAL_CLOSE_MIGRATION = path.join(ROOT, "supabase/migrations/20260929133000_extend_expired_sequential_plan_close.sql");
 const IMAGE = "postgres:17-alpine";
 const PRODUCTION_REF = "aftboxmrdgyhizicfsfu";
 const STAGING_REF = "hxnrsyyqffztlvcrtgbf";
@@ -311,6 +312,9 @@ test("production sequence passes exact identity and fails staging, drift, order,
       select true,'PRODUCTION','${PRODUCTION_REF}','${PRODUCTION_IDENTITY}',system_identifier::text,(select oid from pg_database where datname=current_database()),true,'local-production-sequence-test' from pg_control_system();
       insert into public.verified_offer_refresh_targets(id,target_environment,project_ref,database_system_identifier,database_oid,is_active,attested_by)
       select true,'PRODUCTION','${PRODUCTION_REF}',system_identifier::text,(select oid from pg_database where datname=current_database()),true,'local-production-sequence-test' from pg_control_system();`),"local attestations");
+
+    requireSuccess(psqlText(container,pass,fs.readFileSync(SEQUENTIAL_CLOSE_MIGRATION,"utf8")),"shared expired sequential plan close migration");
+    requireSuccess(psql(container,pass,"insert into supabase_migrations.schema_migrations values('20260929133000','extend_expired_sequential_plan_close',array[]::text[])"),"record shared expired sequential plan close migration");
 
     for(const scenario of [
       "retailer_offer_read_only_validator_integration_test.sql",

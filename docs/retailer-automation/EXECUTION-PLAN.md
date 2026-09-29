@@ -96,9 +96,9 @@ failures and made zero database writes. The classified inventory and retained
 artifact digest are recorded in
 [`evidence/RA-STAB-01-CURRENT-STATE-2026-09-29.md`](evidence/RA-STAB-01-CURRENT-STATE-2026-09-29.md).
 
-**Current bounded step:** design and fixture-test one shared recovery contract;
-no recovery write is authorized. The shared ambiguous-registration diagnostic
-fix is verified. The 10 Reps
+**Current bounded step:** verify and review one shared recovery contract; no
+deployment or recovery write is authorized. The shared ambiguous-registration
+diagnostic fix is verified. The 10 Reps
 failure is reproduced: run `36400487268` registered a control plan and then
 timed out during parent approval; the next run correctly blocked the duplicate.
 The shared engine now retains exact registered parent/child identity before the
@@ -109,9 +109,13 @@ expired 10 Reps parent is the sole global parent blocker: parent `APPROVED`, one
 child `APPROVED`, 18 children `PLANNED`, one expired unconsumed batch approval,
 zero apply runs and zero business writes. Whey Okay has no active parent of its
 own; its legacy RPC is blocked by that global parent count. The existing expired
-approval close RPC is not safe for this multi-child state because it closes only
-the approved child and parent, leaving 18 planned children. No ledger mutation,
-approval, replay or expiry is authorized.
+approval close RPC was not safe for this multi-child state because it closed only
+the approved child and parent, leaving 18 planned children. A retailer-neutral
+forward migration now extends that same RPC and approver role to atomically
+expire the entire wholly unexecuted sequential tree. It is SHA-bound and
+excluded from both normal selectors. Its isolated PostgreSQL regression passes
+for 19 children, replay, sibling-state rejection and zero business writes. No
+deployment, ledger mutation, approval, replay or expiry is authorized.
 
 **Acceptance:**
 
