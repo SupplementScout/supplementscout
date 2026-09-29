@@ -117,6 +117,15 @@ excluded from both normal selectors. Its isolated PostgreSQL regression passes
 for 19 children, replay, sibling-state rejection and zero business writes. No
 deployment, ledger mutation, approval, replay or expiry is authorized.
 
+Fresh production readback at `2026-09-29T14:15:21.462Z` also resolved a stale
+repository selector baseline: the already-applied Fit House parent-approval
+migration is ledger row 222. Production reports canonical fingerprint
+`c08b5f2e704072a0e4b2590688998e07a781f8699546279b6e81acd9c975c0fe`,
+which exactly matches the fingerprint stored by the interrupted 10 Reps
+approval. The repository selector is aligned to that readback with no ordinary
+pending production migration; the sequential-close migration remains excluded.
+A separate activation preparation is `NOT_AUTHORIZED`.
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

@@ -21,7 +21,7 @@ const FIXTURE_PATH = path.join(__dirname, "test-fixtures", "ra004-ledger-fingerp
 const GOLDEN_PATH = path.join(__dirname, "test-fixtures", "ra004-ledger-fingerprint-v1", "golden-vectors.json");
 const EXPECTED = "bbfc25a25826ebfd4901941099903921e1f5adeb9d952eb6aa93c64939e3849c";
 const EXPECTED_CURRENT = "a6e7693f964925554e807602752e4630d14f537a1d9de4fe82f8433d30c307cc";
-const EXPECTED_PRODUCTION = "bddbdda9e913bdf262287c387e75e6aef3b5e1f78b4eb3c8648747ef881e1d3d";
+const EXPECTED_PRODUCTION = "c08b5f2e704072a0e4b2590688998e07a781f8699546279b6e81acd9c975c0fe";
 const LEGACY_SELECTOR_FINGERPRINT = "1692043d963e98570cd69ea2f46654c35f35a78f26c35b3d96e04751d528331c";
 
 function fixtureFromText(text) { return JSON.parse(text); }
@@ -95,7 +95,7 @@ test("every public fingerprint entry point requires an explicit target environme
 
 test("the exact production ledger requires the explicit PRODUCTION domain", () => {
   const rows = productionRepositoryLedger();
-  assert.equal(rows.length, 221);
+  assert.equal(rows.length, 222);
   assert.equal(ledgerFingerprint(rows, { targetEnvironment: "PRODUCTION" }), EXPECTED_PRODUCTION);
   assert.notEqual(
     ledgerFingerprint(rows, { targetEnvironment: "STAGING" }),

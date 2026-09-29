@@ -6,6 +6,10 @@ const test = require("node:test");
 const migration = fs.readFileSync(path.resolve(__dirname, "../supabase/migrations/20260719090000_add_expired_retailer_offer_sync_approval_close.sql"), "utf8");
 const sequentialMigration = fs.readFileSync(path.resolve(__dirname, "../supabase/migrations/20260929133000_extend_expired_sequential_plan_close.sql"), "utf8");
 const scenario = fs.readFileSync(path.resolve(__dirname, "../supabase/test/retailer_offer_expired_approval_close_integration_test.sql"), "utf8");
+const productionPreparation = JSON.parse(fs.readFileSync(path.resolve(
+  __dirname,
+  "../docs/retailer-automation/evidence/RA-STAB-01-PRODUCTION-RECOVERY-PREPARATION.json",
+), "utf8"));
 
 test("expired approval close is one transactional control-plane-only migration", () => {
   assert.match(migration, /^begin;/i); assert.match(migration, /commit;\s*$/i);
@@ -66,4 +70,38 @@ test("shared sequential recovery extends the existing RPC and closes the whole u
   assert.match(scenario, /count\(\*\)=19 and count\(\*\) filter\(where status='EXPIRED'\)=19/);
   assert.match(scenario, /unexpected approved sibling blocked/);
   assert.match(scenario, /sequential child manifest drift blocked/);
+});
+
+test("production recovery preparation is exact, two-phase and not authorized", () => {
+  assert.equal(productionPreparation.status, "NOT_AUTHORIZED");
+  assert.deepEqual(productionPreparation.target, {
+    environment: "PRODUCTION",
+    project_ref: "aftboxmrdgyhizicfsfu",
+    database_identity: "supplementscout-production:aftboxmrdgyhizicfsfu",
+  });
+  assert.equal(productionPreparation.fresh_readback.pre_migration_ledger_count, 222);
+  assert.equal(productionPreparation.fresh_readback.pre_migration_ledger_fingerprint, "c08b5f2e704072a0e4b2590688998e07a781f8699546279b6e81acd9c975c0fe");
+  assert.equal(productionPreparation.fresh_readback.post_migration_ledger_count, 223);
+  assert.equal(productionPreparation.fresh_readback.post_migration_ledger_fingerprint, "c891240d8ed411b3bc0ad5e2abc6a8c90bfeb442c1cd0824f3c5a4577ee0c7b0");
+  assert.equal(productionPreparation.migration.sha256, "b0a4cac2d9c30989f00570bf1c63036daf190fffbcc7b08b17c616761bc6a380");
+  assert.equal(productionPreparation.migration.ordinary_selector_status, "EXCLUDED");
+  assert.equal(productionPreparation.control_target.parent_plan_id, "a3072837-9f0b-4b0e-af15-2584a19980d7");
+  assert.equal(productionPreparation.control_target.approval_id, "0a94d97d-7b0d-4f98-af57-04b029d445d6");
+  assert.equal(productionPreparation.control_target.child_count, 19);
+  assert.equal(productionPreparation.control_target.apply_runs, 0);
+  assert.equal(productionPreparation.control_target.row_approvals, 0);
+  assert.equal(productionPreparation.authorization.production_schema_write, false);
+  assert.equal(productionPreparation.authorization.production_control_write, false);
+  assert.equal(productionPreparation.authorization.business_write, false);
+  assert.equal(productionPreparation.execution.migration_started, false);
+  assert.equal(productionPreparation.execution.recovery_started, false);
+  assert.equal(productionPreparation.execution.automatic_transition_between_phases, false);
+  assert.deepEqual(productionPreparation.expected_result, {
+    parent_status: "EXPIRED",
+    expired_child_count: 19,
+    approval_closed: true,
+    business_writes: 0,
+    price_history_writes: 0,
+    control_writes: 21,
+  });
 });
