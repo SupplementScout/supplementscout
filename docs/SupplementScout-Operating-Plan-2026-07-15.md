@@ -19,6 +19,14 @@ may later resume only as artifact-first recorded replay. See the
 [stabilization reset](retailer-automation/evidence/RA-STABILIZATION-RESET-2026-09-29.md)
 and the [execution ledger](retailer-automation/EXECUTION-PLAN.md).
 
+The separately authorized RA-STAB-01 schema phase completed on 29 September
+2026 through the guarded coordinator merged in PR `#146`. Production migration
+ledger 222 advanced to 223 with the exact reviewed sequential-close migration;
+an independent read-only verification passed and all five business catalogue
+counts remained unchanged. The authorization was schema-only and is consumed.
+The 10 Reps control-tree close, every retailer refresh and all business writes
+remain separately unauthorized.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
