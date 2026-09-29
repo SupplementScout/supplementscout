@@ -1,16 +1,16 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: RA-004 PROVIDER IDENTITY ATTEMPT CONSUMED — CANARY FAILURE DIAGNOSTIC REVIEW REQUIRED**
+**Status: RA-004 FINAL CONTROL-STATE CANARY READY FOR VERIFIED EXECUTION**
 
-**Current active task:** RA-004 — `IN_PROGRESS`. The one authorized activation
-applied the provider-identity correction and advanced the staging ledger from 98
-to 99. Q1–Q8 passed. The one read-only canary then failed before producing an
-artifact. The failure serializer reduced the structured runtime error to
-`RA004_UNCLASSIFIED_FAILURE` because it ignored `error.code` when the message
-also contained diagnostic text. Both temporary credentials, memberships and
-active backends are absent; evidence cleanup is complete. STAGING and PRODUCTION
-selectors are closed. No retry is authorized and the shadow run remains
-unauthorized.
+**Current active task:** RA-004 — `IN_PROGRESS`. The provider-identity migration
+is applied at staging ledger 99 and Q1–Q8 are already verified. The failed
+canary attempt exposed a coordinator defect: structured `CONTROL_EXPORT_*`
+codes were discarded whenever the error message also contained diagnostic
+text. One shared allowlisted serializer now preserves the code without retaining
+the message. The prepared final path contains no migration or preflight
+capability and permits exactly one read-only canary after private evidence-store
+authentication. STAGING and PRODUCTION selectors remain closed. Shadow run,
+retry and production remain unauthorized.
 
 **Implementation:** fixture exporter plus locally database-verified forward-only
 transactional interface, exact provider-identity alignment, unwired live-provider
@@ -544,6 +544,9 @@ business changes and closed selectors. See
 [`evidence/RA-004-CONTROL-EXPORT-PROVIDER-IDENTITY.md`](evidence/RA-004-CONTROL-EXPORT-PROVIDER-IDENTITY.md).
 The terminal staging attempt is recorded in
 [`evidence/RA-004-PROVIDER-IDENTITY-STAGING-ATTEMPT-CLOSEOUT.md`](evidence/RA-004-PROVIDER-IDENTITY-STAGING-ATTEMPT-CLOSEOUT.md).
+The system-level serializer correction and closed canary-only activation are
+documented in
+[`evidence/RA-004-FINAL-CONTROL-STATE-CANARY.md`](evidence/RA-004-FINAL-CONTROL-STATE-CANARY.md).
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 

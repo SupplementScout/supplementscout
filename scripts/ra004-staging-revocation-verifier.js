@@ -1,4 +1,5 @@
 const { Client } = require("pg");
+const { safeFailureCode } = require("./lib/ra004-safe-failure-code");
 
 const AUTH_REJECTION_CODES = new Set(["28P01", "28000", "42704"]);
 const REVOKE_PROBE_SQL = "select current_user::text as current_user";
@@ -126,8 +127,11 @@ async function main() {
 
 if (require.main === module) {
   main().catch((error) => {
-    const code = String(error?.message || "RA004_REVOKE_UNEXPECTED_FAILURE");
-    process.send({ ok: false, error: /^RA004_[A-Z0-9_]+$/.test(code) ? code : "RA004_REVOKE_UNEXPECTED_FAILURE" });
+    const code = safeFailureCode(error);
+    process.send({
+      ok: false,
+      error: code === "RA004_UNCLASSIFIED_FAILURE" ? "RA004_REVOKE_UNEXPECTED_FAILURE" : code,
+    });
   });
 }
 
