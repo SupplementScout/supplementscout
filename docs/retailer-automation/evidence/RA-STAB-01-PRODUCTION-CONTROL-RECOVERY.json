@@ -1,0 +1,81 @@
+{
+  "schema_version": "ra-stab-01-production-control-recovery-evidence-v1",
+  "status": "CONTROL_BLOCKER_CLOSED_OBSERVATION_PENDING",
+  "task_id": "RA-STAB-01",
+  "recorded_at": "2026-09-29T15:39:34.7314952Z",
+  "source": {
+    "main_commit": "8519fe89a4c015c1b73599db8ec2082d9c31c56e",
+    "coordinator_commit": "1e635a6da8565bfeba300b3f5b0d96d30320fb59",
+    "coordinator_pull_request": 146,
+    "preparation_sha256": "e842b01a7786372e4491e07521b5409ed7b48efe014de4371471cdb0bddd08f3"
+  },
+  "target": {
+    "environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "database_identity": "supplementscout-production:aftboxmrdgyhizicfsfu"
+  },
+  "owner_authorization": {
+    "phase": "CONTROL_RECOVERY",
+    "decision_reference": "owner chat approval after schema verification on 2026-09-29",
+    "authorization_artifact_sha256": "06d434b6c9af978649c99cca760e1835dc58c77984d835f98786ffeeadab954d",
+    "authorized_at": "2026-09-29T15:37:55.7061791Z",
+    "expires_at": "2026-09-29T16:37:55.7158901Z",
+    "confirmation": "8f47374cf05ce3c5890f",
+    "scope_fingerprint": "70e0201ad3cb5cf5643e97882ccbd391bcd3cd70ef51a3a0ac95b73eedf402d7",
+    "maximum_attempts": 1,
+    "automatic_retry": false,
+    "automatic_next_phase": false,
+    "business_write": false,
+    "consumed": true
+  },
+  "exact_scope": {
+    "retailer_id": 14,
+    "retailer": "10 Reps",
+    "approval_id": "0a94d97d-7b0d-4f98-af57-04b029d445d6",
+    "parent_plan_id": "a3072837-9f0b-4b0e-af15-2584a19980d7",
+    "approved_child_plan_id": "570c7420-b402-4d58-a33a-9ad8c79afe50",
+    "ledger_fingerprint": "c891240d8ed411b3bc0ad5e2abc6a8c90bfeb442c1cd0824f3c5a4577ee0c7b0"
+  },
+  "execution": {
+    "mode": "control-close",
+    "result": "PASS",
+    "request_fingerprint": "aa52a9717c8ee1a246db2d50018423b3143e6d61d4f5a061a8abdfb1095fa0d9",
+    "closed_at": "2026-09-29T15:38:23.742118+00:00",
+    "already_closed": false,
+    "approval_status_after": "EXPIRED",
+    "parent_status_after": "EXPIRED",
+    "children_before": { "total": 19, "planned": 18, "approved": 1 },
+    "children_after": { "expired": 19, "planned": 0, "approved": 0 },
+    "control_writes": 21,
+    "business_writes": 0,
+    "price_history_writes": 0,
+    "apply_runs": 0,
+    "row_approvals": 0,
+    "recovery_records": 0,
+    "approval_consumed": false
+  },
+  "independent_readback": {
+    "mode": "control-verify",
+    "result": "PASS",
+    "transaction": "READ ONLY",
+    "writes": 0,
+    "expired_child_count": 19,
+    "parent_status": "EXPIRED",
+    "approval_status": "EXPIRED",
+    "business_counts_match_schema_phase": true
+  },
+  "business_counts_unchanged": {
+    "products": "1337",
+    "product_variants": "3632",
+    "retailer_products": "3758",
+    "offers": "3758",
+    "price_history": "24583"
+  },
+  "authorization_remaining": {
+    "retailer_refresh": false,
+    "retriever_retry": false,
+    "business_write": false,
+    "ra004_replay": false
+  },
+  "next_step": "Fresh read-only watchdog followed by three ordinary schedule intervals; do not trigger a retailer refresh or RA-004 replay."
+}

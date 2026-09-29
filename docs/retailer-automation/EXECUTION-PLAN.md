@@ -96,9 +96,9 @@ failures and made zero database writes. The classified inventory and retained
 artifact digest are recorded in
 [`evidence/RA-STAB-01-CURRENT-STATE-2026-09-29.md`](evidence/RA-STAB-01-CURRENT-STATE-2026-09-29.md).
 
-**Current bounded step:** verify and review one shared recovery contract; no
-deployment or recovery write is authorized. The shared ambiguous-registration
-diagnostic fix is verified. The 10 Reps
+**Current bounded step:** observe the recovered ordinary paths; no retailer
+refresh, retriever retry, business write or RA-004 replay is authorized. The
+shared ambiguous-registration diagnostic fix is verified. The 10 Reps
 failure is reproduced: run `36400487268` registered a control plan and then
 timed out during parent approval; the next run correctly blocked the duplicate.
 The shared engine now retains exact registered parent/child identity before the
@@ -149,7 +149,7 @@ phase-specific authorization has passed locally.
 - no command here authorizes a retriever retry, retailer refresh, offer apply,
   price-history write, identity change, RA-004 replay or next phase.
 
-**Schema phase — complete; control recovery not authorized:** after PR `#146`
+**Schema phase — complete:** after PR `#146`
 merged as `1e635a6da8565bfeba300b3f5b0d96d30320fb59`, the owner separately
 authorized only `SCHEMA_DEPLOYMENT`. The one-shot coordinator applied excluded
 migration `20260929133000_extend_expired_sequential_plan_close.sql` at SHA-256
@@ -161,8 +161,25 @@ offers `3758` and price history `24583` were unchanged. The deployed ledger
 statement bytes match the reviewed migration and the existing close RPC is
 present. No control plan, approval, product, variant, mapping, offer or price
 history row was changed. The schema authorization is consumed and cannot grant
-`control-close`; that next write remains separately `NOT_AUTHORIZED`. Evidence:
+another phase. Evidence:
 [`evidence/RA-STAB-01-PRODUCTION-SCHEMA-DEPLOYMENT.json`](evidence/RA-STAB-01-PRODUCTION-SCHEMA-DEPLOYMENT.json).
+
+**Control recovery — complete; observation pending:** after independent schema
+verification, the owner separately authorized exactly one `CONTROL_RECOVERY`
+attempt for the bound 10 Reps parent, 19-child manifest and expired unconsumed
+approval. The existing close RPC completed at `2026-09-29T15:38:23.742118Z`.
+It expired the approval, parent and all 19 children: 21 control writes, zero
+business writes, zero price-history writes, zero apply runs, zero row approvals
+and zero recovery records. A separate read-only `control-verify` passed with all
+19 children `EXPIRED`. Products `1337`, variants `3632`, mappings `3758`, offers
+`3758` and price history `24583` remain unchanged. The authorization is consumed
+and grants no retailer refresh, retriever retry or RA-004 replay. Evidence:
+[`evidence/RA-STAB-01-PRODUCTION-CONTROL-RECOVERY.json`](evidence/RA-STAB-01-PRODUCTION-CONTROL-RECOVERY.json).
+
+The sole global active-parent blocker is therefore closed. RA-STAB-01 remains
+`IN_PROGRESS`: next capture a fresh read-only watchdog, then require three
+ordinary schedule intervals and correlated evidence before closeout. Do not
+manufacture those intervals by manually retrying a retailer.
 
 **Acceptance:**
 

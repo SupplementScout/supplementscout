@@ -24,8 +24,15 @@ The separately authorized RA-STAB-01 schema phase completed on 29 September
 ledger 222 advanced to 223 with the exact reviewed sequential-close migration;
 an independent read-only verification passed and all five business catalogue
 counts remained unchanged. The authorization was schema-only and is consumed.
-The 10 Reps control-tree close, every retailer refresh and all business writes
-remain separately unauthorized.
+The owner then separately authorized one exact 10 Reps control recovery. At
+`2026-09-29T15:38:23.742118Z` the existing close RPC atomically expired the
+unconsumed approval, parent and all 19 children. It made 21 control writes and
+zero business or price-history writes; a separate read-only verification passed
+and all five catalogue counts remained unchanged. This closes the sole global
+active-parent blocker without a retailer-specific patch. RA-STAB-01 remains
+`IN_PROGRESS` for a fresh read-only watchdog and three ordinary schedule
+intervals. Every retailer refresh, retriever retry and RA-004 replay remains
+unauthorized.
 
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
