@@ -30,7 +30,7 @@ const REQUIRED_APPLIED_MIGRATIONS = Object.freeze([
 ]);
 const EVIDENCE_NAMES = Object.freeze([
   "control-state-canary.json", "control-state-revoke.json", "policy-attestation.json",
-  "closeout.json", "failure-closeout.json",
+  "execution-report.json",
 ]);
 const ownerUrl = process.env.RA004_OWNER_DATABASE_URL;
 const outDir = path.join(ROOT, "tmp", "ra004-live-evidence-20260929-final-canary");
@@ -47,6 +47,10 @@ function jsonWrite(file, value) {
 function buildFailureReport({ activation, executionCommit = null, primaryError, sessionState,
   operationAttempts = {}, ledgerReadback = null, cleanup, startsAt, expiresAt,
   closedAt = utc(), revoke, uploaded }) {
+  invariant(cleanup.failures.length === 0
+    && new Set(["COMPLETE", "ALREADY_COMPLETE", "NOT_REQUIRED"]).has(cleanup.status)
+    && new Set(["COMPLETE", "ALREADY_COMPLETE", "NOT_REQUIRED"]).has(sessionState.cleanup_status),
+  "RA004_TERMINAL_CLOSEOUT_CLEANUP_INCOMPLETE");
   return {
     schema_version: "ra004-staging-closeout-v2", status: "BLOCKED", activation_id: activation,
     baseline_sha: BASELINE, execution_commit: executionCommit,
@@ -262,22 +266,57 @@ function validateReadOnlyActivation(value) {
     && value.execution?.replayable === false, "RA004_ACTIVATION_EXECUTION_STATE_MISMATCH");
   return value;
 }
+function validateTerminalActivation(value) {
+  invariant(value?.schema_version === "ra-004-final-control-state-canary-activation-v1"
+    && value.status === "ATTEMPT_CONSUMED_FAILED_TERMINAL"
+    && value.baseline_sha === BASELINE, "RA004_ACTIVATION_TERMINAL_STATE_INVALID");
+  invariant(value.target?.environment === "STAGING" && value.target?.project_ref === REF
+    && value.target?.parent_project_ref === "aftboxmrdgyhizicfsfu"
+    && value.target?.database_host === "aws-0-eu-west-3.pooler.supabase.com"
+    && value.target?.retailer?.id === "11" && value.target?.retailer?.slug === "10-reps",
+  "RA004_ACTIVATION_TERMINAL_STATE_INVALID");
+  invariant(value.production?.authorized === false && value.production?.selector_unchanged === true
+    && Array.isArray(value.migrations) && value.migrations.length === 0
+    && value.migration_attempts_authorized === 0
+    && value.preflight?.attempts_authorized === 0 && value.canary?.maximum_attempts === 1
+    && value.canary?.automatic_retry === false && value.canary?.read_only === true,
+  "RA004_ACTIVATION_TERMINAL_STATE_INVALID");
+  invariant(value.ledger?.count === EXPECTED_LEDGER_COUNT
+    && value.ledger?.fingerprint === EXPECTED_LEDGER_FINGERPRINT
+    && value.ledger?.last_version === "20260928101000",
+  "RA004_ACTIVATION_TERMINAL_STATE_INVALID");
+  invariant(value.execution?.started === true && value.execution?.canary_attempt_count === 1
+    && value.execution?.migration_attempt_count === 0 && value.execution?.preflight_attempt_count === 0
+    && value.execution?.closed === true && value.execution?.retry_authorized === false
+    && value.execution?.replayable === false, "RA004_ACTIVATION_TERMINAL_STATE_INVALID");
+  return value;
+}
+function activationPath() {
+  return path.join(ROOT, "docs", "retailer-automation", "evidence", ACTIVATION_MANIFEST);
+}
+function assertActivationExecutable() {
+  const value = JSON.parse(fs.readFileSync(activationPath(), "utf8"));
+  validateTerminalActivation(value);
+  invariant(false, "RA004_ACTIVATION_TERMINAL");
+}
 function assertSelectorsClosed(contracts = selector.CONTRACTS) {
-  const providerFile = REQUIRED_APPLIED_MIGRATIONS[1][0];
   const staging = contracts.STAGING;
   const production = contracts.PRODUCTION;
-  invariant(staging.appliedExcluded.includes(providerFile)
-    && staging.excluded[providerFile] === PROVIDER_IDENTITY_SHA
-    && !staging.pending.some(({ filename }) => filename === providerFile),
-  "RA004_STAGING_SELECTOR_NOT_CLOSED");
-  invariant(production.excluded[providerFile] === PROVIDER_IDENTITY_SHA
-    && !production.pending.some(({ filename }) => filename === providerFile),
-  "RA004_PRODUCTION_SELECTOR_NOT_CLOSED");
+  for (const [filename, sha] of REQUIRED_APPLIED_MIGRATIONS) {
+    invariant(staging.appliedExcluded.includes(filename)
+      && staging.excluded[filename] === sha
+      && !staging.pending.some((entry) => entry.filename === filename),
+    "RA004_STAGING_SELECTOR_NOT_CLOSED");
+    invariant(production.excluded[filename] === sha
+      && !production.pending.some((entry) => entry.filename === filename),
+    "RA004_PRODUCTION_SELECTOR_NOT_CLOSED");
+  }
   return true;
 }
 function ensureWindow(expires) { invariant(Date.now() < expires.getTime(), "RA004_WINDOW_EXPIRED"); }
 
 async function main() {
+  assertActivationExecutable();
   invariant(ownerUrl && process.env.RA004_STORAGE_ANON_KEY
     && process.env.RA004_STORAGE_EMAIL && process.env.RA004_STORAGE_PASSWORD,
   "RA004_AUTHENTICATION_MISSING");
@@ -297,8 +336,7 @@ async function main() {
     && remote.remoteLedger.at(-1)?.version === "20260928101000"
     && remote.remoteLedger.at(-1)?.name === "align_ra004_control_export_provider_identity",
   "RA004_LEDGER_MISMATCH");
-  const activationManifest = validateReadOnlyActivation(JSON.parse(fs.readFileSync(
-    path.join(ROOT, "docs", "retailer-automation", "evidence", ACTIVATION_MANIFEST), "utf8")));
+  const activationManifest = validateReadOnlyActivation(JSON.parse(fs.readFileSync(activationPath(), "utf8")));
   const appliedIdentifiers = new Set(remote.remoteLedger.map((row) => `${row.version}_${row.name}.sql`));
   invariant(REQUIRED_APPLIED_MIGRATIONS.every(([file, hash]) => appliedIdentifiers.has(file)
     && hashFile(path.join(ROOT, "supabase", "migrations", file)) === hash),
@@ -338,6 +376,7 @@ async function main() {
   const cleanup = { status: "NOT_REQUIRED", failures: [] };
   const revoke = [];
   const uploaded = [];
+  let successfulExecution = null;
   const revokeOne = async (credential, runnerProcessId) => {
     const databaseUrl = credential.database_url;
     const receipt = await issuer.call({ action: "revoke", role: credential.role,
@@ -415,8 +454,8 @@ async function main() {
     invariant(JSON.stringify(businessAfterCanary) === JSON.stringify(businessBefore),
       "RA004_BUSINESS_DATA_CHANGED_DURING_READ_ONLY_EXECUTION");
     const canaryClear = canaryReport.final_assessment === "CLEAR_FOR_SEPARATE_SHADOW_AUTHORIZATION";
-    const closeout = {
-      schema_version: "ra004-staging-closeout-v2",
+    const executionReport = {
+      schema_version: "ra004-staging-execution-report-v1",
       status: canaryClear ? "VERIFIED_COMPLETE" : "BLOCKED_CONTROL_STATE",
       activation_id: activation, baseline_sha: BASELINE, execution_commit: executionCommit,
       window: { starts_at: startsAt, expires_at: expiresAt, closed_at: utc() },
@@ -443,12 +482,8 @@ async function main() {
         shadow_run: 0, control_plan: 0, approval: 0, import: 0, apply: 0,
         offer_writes: 0, model_b: 0 },
     };
-    jsonWrite("closeout.json", closeout);
-    await custody.call({ action: "put", name: "closeout.json", value: closeout });
-    process.stdout.write(`${JSON.stringify({ status: closeout.status, activation_id: activation,
-      ledger_count: closeout.ledger.after_count, preflight_attempt_count: 0, canary_attempt_count: 1,
-      final_assessment: canaryReport.final_assessment,
-      closeout: path.join(outDir, "closeout.json") })}\n`);
+    uploaded.push(await custody.call({ action: "put", name: "execution-report.json", value: executionReport }));
+    successfulExecution = executionReport;
     invariant(canaryClear, "RA004_CANARY_CONTROL_STATE_BLOCKED");
   } catch (error) {
     primaryError = error;
@@ -468,12 +503,14 @@ async function main() {
           fingerprint: selector.ledgerRowsFingerprint(readback.remoteLedger, { targetEnvironment: "STAGING" }),
           last_migration: last ? `${last.version}_${last.name}` : null };
       } catch { cleanup.failures.push("failure-ledger-readback"); }
-      const failure = buildFailureReport({ activation, executionCommit, primaryError, sessionState,
-        operationAttempts, ledgerReadback: failureLedgerReadback, cleanup, startsAt, expiresAt,
-        revoke, uploaded });
-      try { jsonWrite("failure-closeout.json", failure); } catch {}
-      if (custody && sessionState.session_creation_state !== "NOT_CREATED") {
-        try { uploaded.push(await custody.call({ action: "put", name: "failure-closeout.json", value: failure })); }
+      if (!successfulExecution && custody && sessionState.session_creation_state !== "NOT_CREATED") {
+        try { uploaded.push(await custody.call({ action: "put", name: "execution-report.json", value: {
+          schema_version: "ra004-staging-execution-report-v1", status: "FAILED_PENDING_CLEANUP",
+          activation_id: activation, execution_commit: executionCommit,
+          primary_failure: { code: safeFailureCode(primaryError) },
+          attempt_counters: { ...sessionState.attempt_counters, ...operationAttempts },
+          ledger_readback: failureLedgerReadback,
+        } })); }
         catch { cleanup.failures.push("failure-evidence"); }
       }
     }
@@ -496,7 +533,26 @@ async function main() {
     if (cleanup.failures.length > 0 && !primaryError) primaryError = new Error("RA004_CLEANUP_UNVERIFIED");
     process.env.RA004_OWNER_DATABASE_URL = "";
   }
+  if (primaryError && cleanup.failures.length === 0) {
+    const failure = buildFailureReport({ activation, executionCommit, primaryError, sessionState,
+      operationAttempts, ledgerReadback: failureLedgerReadback, cleanup, startsAt, expiresAt,
+      revoke, uploaded });
+    try { jsonWrite("failure-closeout.json", failure); } catch {}
+  }
   if (primaryError) throw primaryError;
+  invariant(successfulExecution !== null && cleanup.failures.length === 0,
+    "RA004_TERMINAL_CLOSEOUT_CLEANUP_INCOMPLETE");
+  const closeout = { ...successfulExecution,
+    cleanup: { status: cleanup.status, failures: [...cleanup.failures] },
+    evidence_store_session: { state: sessionState.session_creation_state,
+      cleanup_status: sessionState.cleanup_status },
+    uploaded_objects: [...uploaded],
+  };
+  jsonWrite("closeout.json", closeout);
+  process.stdout.write(`${JSON.stringify({ status: closeout.status, activation_id: activation,
+    ledger_count: closeout.ledger.after_count, preflight_attempt_count: 0, canary_attempt_count: 1,
+    final_assessment: closeout.canary.final_assessment,
+    closeout: path.join(outDir, "closeout.json") })}\n`);
 }
 
 if (require.main === module) {
@@ -507,5 +563,6 @@ module.exports = {
   ACL_MIGRATION_SHA, ACTIVATION_MANIFEST, API_HOST, BASELINE, BUCKET,
   EXPECTED_LEDGER_COUNT, EXPECTED_LEDGER_FINGERPRINT, PRIOR_PREFLIGHT_FINGERPRINT,
   PROVIDER_IDENTITY_SHA, REF, REQUIRED_APPLIED_MIGRATIONS, assertSelectorsClosed,
-  buildFailureReport, readExecutionCommit, safeFailureCode, validateReadOnlyActivation,
+  assertActivationExecutable, buildFailureReport, readExecutionCommit, safeFailureCode,
+  validateReadOnlyActivation, validateTerminalActivation,
 };

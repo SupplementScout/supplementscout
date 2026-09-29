@@ -26,6 +26,9 @@ try {
   $caValidator = Join-Path $PSScriptRoot 'ra004-acl-rls-readonly-audit.js'
   & node -e "require(process.argv[1]).validateLocalCa(process.env.NODE_EXTRA_CA_CERTS)" $caValidator
   if ($LASTEXITCODE -ne 0) { throw 'RA004_CA_CONFIGURATION_MISMATCH' }
+  $coordinator = Join-Path $PSScriptRoot 'ra004-staging-execution-coordinator.js'
+  & node -e "require(process.argv[1]).assertActivationExecutable()" $coordinator
+  if ($LASTEXITCODE -ne 0) { throw 'RA004_ACTIVATION_TERMINAL' }
   Write-Host 'LAUNCHER_VALIDATION_PASS' -ForegroundColor Green
   if ($ValidateOnly) { return }
 
@@ -40,7 +43,7 @@ try {
   $env:RA004_STORAGE_ANON_KEY = $storageKey
   $env:RA004_STORAGE_EMAIL = $storageEmail
   $env:RA004_STORAGE_PASSWORD = $storagePassword
-  & node --use-system-ca (Join-Path $PSScriptRoot 'ra004-staging-execution-coordinator.js')
+  & node --use-system-ca $coordinator
   if ($LASTEXITCODE -ne 0) { throw "RA004_COORDINATOR_FAILED_$LASTEXITCODE" }
 }
 catch {

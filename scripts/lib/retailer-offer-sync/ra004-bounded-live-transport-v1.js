@@ -1,8 +1,8 @@
 const { Client } = require("pg");
+const { normalizeTransportFailure } = require("../ra004-live-transport-failure");
 const {
   RPC_NAME: PREFLIGHT_RPC,
   LEDGER_FINGERPRINT_CONTRACT_VERSION,
-  sanitizeError,
   validateEvidenceStore,
   validateProjectIdentity,
   validateTarget,
@@ -127,28 +127,41 @@ function clientOptions(databaseUrl, applicationName) {
 async function oneReadOnlyCall({ ClientClass, databaseUrl, applicationName, text, values, expectedSessionUser, repeatableRead = false }) {
   const client = new ClientClass(clientOptions(databaseUrl, applicationName));
   let connected = false;
+  let phase = "CONNECT";
+  let result;
+  let primaryError = null;
   try {
     await client.connect(); connected = true;
+    phase = "BEGIN";
     await client.query(repeatableRead ? "begin isolation level repeatable read read only" : "begin read only");
+    phase = "RPC";
     const response = await client.query({ text, values });
+    phase = "PROOF";
     if (!response || response.rowCount !== 1 || response.rows.length !== 1
         || response.rows[0].session_user !== expectedSessionUser
         || response.rows[0].transaction_read_only !== "on") {
       fail("RA004_LIVE_TRANSPORT_PROOF_INVALID", "read-only session proof mismatch");
     }
+    phase = "ROLLBACK";
     await client.query("rollback");
     connected = false;
-    return {
+    result = {
       session_user: response.rows[0].session_user,
       transaction_read_only: true,
       data: response.rows[0].data,
     };
   } catch (error) {
-    if (connected) { try { await client.query("rollback"); } catch { /* retain primary failure */ } }
-    throw sanitizeError(error);
+    primaryError = normalizeTransportFailure(error, phase);
   } finally {
-    try { await client.end(); } catch { /* connection is unusable and must not be retried */ }
+    if (connected) {
+      try { await client.query("rollback"); }
+      catch (error) { if (!primaryError) primaryError = normalizeTransportFailure(error, "ROLLBACK"); }
+    }
+    try { await client.end(); }
+    catch (error) { if (!primaryError) primaryError = normalizeTransportFailure(error, "CLOSE"); }
   }
+  if (primaryError) throw primaryError;
+  return result;
 }
 
 async function runAclRlsMetadataAudit(configuration, dependencies = {}) {

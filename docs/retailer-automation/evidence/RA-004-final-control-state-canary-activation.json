@@ -1,6 +1,6 @@
 {
   "schema_version": "ra-004-final-control-state-canary-activation-v1",
-  "status": "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED",
+  "status": "ATTEMPT_CONSUMED_FAILED_TERMINAL",
   "task_id": "RA-004",
   "activation_id": "ra004-final-control-state-canary-2026-09-29-v1",
   "baseline_sha": "453dbe67161318d1f49853e6b0f94c1a253fd66b",
@@ -66,11 +66,27 @@
     "cutover"
   ],
   "execution": {
-    "started": false,
+    "runtime_activation_id": "ra004-staging-1790666324127",
+    "execution_commit": "9baf02b43e3ae44eefed6a28d9e96a211fa11b3f",
+    "started": true,
     "migration_attempt_count": 0,
     "preflight_attempt_count": 0,
-    "canary_attempt_count": 0,
-    "closed": false,
+    "canary_attempt_count": 1,
+    "primary_failure": "RA004_UNCLASSIFIED_FAILURE",
+    "diagnostic_limitation": "raw PostgreSQL diagnostics were not normalized at the bounded transport boundary",
+    "ledger_after_failure": {
+      "count": 99,
+      "fingerprint": "a6e7693f964925554e807602752e4630d14f537a1d9de4fe82f8433d30c307cc",
+      "last_migration": "20260928101000_align_ra004_control_export_provider_identity"
+    },
+    "credential_revocation": {
+      "outcome": "RA004_REVOKE_CONNECTION_REJECTED_CATALOGUE_CONFIRMED",
+      "role_absent": true,
+      "membership_absent": true,
+      "active_backend_absent": true
+    },
+    "local_failure_artifact_sha256": "4db191eb50e62e5c0655acb5121d144811b8e0c4cbf4e298fae79bf88455525d",
+    "closed": true,
     "retry_authorized": false,
     "replayable": false
   }

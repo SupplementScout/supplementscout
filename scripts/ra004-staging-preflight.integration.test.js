@@ -4,6 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const test = require("node:test");
+const { Client: PgClient } = require("pg");
 const { migrationLedgerFingerprint } = require("./lib/retailer-snapshot/staging-execution-contract");
 const { sha256 } = require("./lib/stable-json-hash");
 const {
@@ -16,6 +17,7 @@ const { authorizationFingerprint: controlAuthorizationFingerprint } = require(".
 const { exportControlState } = require("./lib/retailer-offer-sync/control-state-export-v1/exporter");
 const { createLiveReadOnlyProvider } = require("./lib/retailer-offer-sync/control-state-export-v1/providers");
 const { PROHIBITED_OPERATIONS, SOURCE_NAMES } = require("./lib/retailer-offer-sync/control-state-export-v1/schema");
+const { createControlStatePostgresTransport } = require("./lib/retailer-offer-sync/ra004-bounded-live-transport-v1");
 
 const ROOT = path.resolve(__dirname, "..");
 const IMAGE = "postgres:17-alpine";
@@ -507,8 +509,11 @@ test("consolidated Supabase ownership migration succeeds as PostgreSQL 17 non-su
   const providerDriftDatabase=`${database}_provider_drift`;
   let primary;
   try {
-    ok(run("docker",["run","--detach","--rm","--name",container,"--network","none","-e","POSTGRES_HOST_AUTH_METHOD=trust","-e","POSTGRES_USER=supabase_admin","-v",`${ROOT}:/workspace:ro`,IMAGE]),"start consolidated PostgreSQL 17");
+    ok(run("docker",["run","--detach","--rm","--name",container,"--publish","127.0.0.1::5432","-e","POSTGRES_HOST_AUTH_METHOD=trust","-e","POSTGRES_USER=supabase_admin","-v",`${ROOT}:/workspace:ro`,IMAGE]),"start consolidated PostgreSQL 17");
     waitAs(container,"supabase_admin");
+    const portOutput=ok(run("docker",["port",container,"5432/tcp"]),"resolve isolated PostgreSQL port").stdout.trim();
+    const localPort=Number(portOutput.match(/:(\d+)$/)?.[1]);
+    assert.ok(Number.isSafeInteger(localPort)&&localPort>0&&localPort<65536,portOutput);
     ok(sql(container,"supabase_admin","create role postgres login noinherit nosuperuser createdb createrole noreplication nobypassrls","supabase_admin"),"create Supabase-shaped migration user");
     ok(docker(container,["createdb","-U","supabase_admin","-O","postgres",database]),"create migration-owned database");
     ok(sql(container,database,ROLE_SQL,"postgres"),"bootstrap platform roles");
@@ -662,6 +667,35 @@ test("consolidated Supabase ownership migration succeeds as PostgreSQL 17 non-su
     const exportedCanary=await exportSqlControlState(canary,correctedControlAuthorization,"ra004_control_test_login");
     assert.equal(exportedCanary.final_assessment,"CLEAR_FOR_SEPARATE_SHADOW_AUTHORIZATION");
     assert.deepEqual([exportedCanary.read_attempt_count,exportedCanary.write_attempt_count,exportedCanary.mutation_attempt_count],[1,0,0]);
+    const liveNow=new Date();
+    const liveAuthorization=controlAuthorization({
+      valid_from:new Date(liveNow.getTime()-60_000).toISOString(),
+      expires_at:new Date(liveNow.getTime()+600_000).toISOString(),
+    });
+    class LocalPostgres17Client {
+      constructor(reviewedOptions) {
+        assert.equal(reviewedOptions.ssl.rejectUnauthorized,true);
+        assert.equal(reviewedOptions.options.includes("default_transaction_read_only=on"),true);
+        this.client=new PgClient({host:"127.0.0.1",port:localPort,user:"ra004_control_test_login",
+          database,ssl:false,application_name:reviewedOptions.application_name,options:reviewedOptions.options});
+      }
+      connect(){return this.client.connect();}
+      query(value){return this.client.query(value);}
+      end(){return this.client.end();}
+    }
+    const boundedTransport=createControlStatePostgresTransport({
+      databaseUrl:"postgresql://ra004_control_test_login.ra004-local-synthetic:fixture-password@aws-0.test.pooler.supabase.com:5432/postgres",
+      projectReference:"ra004-local-synthetic",expectedSessionUser:"ra004_control_test_login",
+    },{ClientClass:LocalPostgres17Client});
+    const boundedProvider=createLiveReadOnlyProvider({authorization:liveAuthorization,
+      providerConfiguration:{provider_id:"transactional-rpc-v1",credential_type:"DEDICATED_CONTROL_STATE_EXPORTER",
+        rpc_name:"public.read_retailer_control_state_v1",expected_session_user:"ra004_control_test_login"},
+      transport:boundedTransport});
+    const boundedCanary=await exportControlState({provider:boundedProvider,authorization:liveAuthorization,
+      retailer_id:"11",retailer_name:"10 Reps",baseline_sha:liveAuthorization.baseline_sha,
+      provider_mode:"live-read-only",now:liveNow.toISOString(),task_id:"RA-004-POSTGRES-17-BOUNDED-TRANSPORT"});
+    assert.equal(boundedCanary.final_assessment,"CLEAR_FOR_SEPARATE_SHADOW_AUTHORIZATION");
+    assert.deepEqual([boundedCanary.read_attempt_count,boundedCanary.write_attempt_count,boundedCanary.mutation_attempt_count],[1,0,0]);
     await assert.rejects(
       () => exportSqlControlState({ ...canary, provider_identity: { ...canary.provider_identity, session_user: "wrong_login" } },correctedControlAuthorization,"ra004_control_test_login"),
       /CONTROL_EXPORT_RPC_CONTRACT_INVALID/,

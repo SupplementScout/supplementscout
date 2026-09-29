@@ -10,8 +10,7 @@ const allowedNames = new Set([
   "control-state-canary.json",
   "control-state-revoke.json",
   "policy-attestation.json",
-  "closeout.json",
-  "failure-closeout.json",
+  "execution-report.json",
   "supabase-cli-failure-1.stdout.txt",
   "supabase-cli-failure-1.stderr.txt",
 ]);

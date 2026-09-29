@@ -1,16 +1,17 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: RA-004 FINAL CONTROL-STATE CANARY READY FOR VERIFIED EXECUTION**
+**Status: RA-004 CANARY TRANSPORT DIAGNOSTIC CONTRACT IN VERIFICATION**
 
-**Current active task:** RA-004 — `IN_PROGRESS`. The provider-identity migration
-is applied at staging ledger 99 and Q1–Q8 are already verified. The failed
-canary attempt exposed a coordinator defect: structured `CONTROL_EXPORT_*`
-codes were discarded whenever the error message also contained diagnostic
-text. One shared allowlisted serializer now preserves the code without retaining
-the message. The prepared final path contains no migration or preflight
-capability and permits exactly one read-only canary after private evidence-store
-authentication. STAGING and PRODUCTION selectors remain closed. Shadow run,
-retry and production remain unauthorized.
+**Current active task:** RA-004 — `IN_PROGRESS`. The staging ledger remains at
+99 and Q1–Q8 remain verified. The single authorized canary attempt was consumed
+and is terminal. It exposed a missing bounded-transport diagnostic boundary:
+raw PostgreSQL SQLSTATE values were rejected by the outer safe serializer and
+collapsed to `RA004_UNCLASSIFIED_FAILURE`. The shared transport now classifies
+connect, transaction, RPC, proof, rollback and close failures into stable
+redacted codes. The PostgreSQL 17 suite exercises the real Node `pg` transport,
+and terminal closeout is sealed only after cleanup. STAGING and PRODUCTION
+selectors remain closed. No retry, shadow run or production operation is
+authorized.
 
 **Implementation:** fixture exporter plus locally database-verified forward-only
 transactional interface, exact provider-identity alignment, unwired live-provider
