@@ -32,13 +32,14 @@ test("final canary is pinned to the approved staging ledger and already-applied 
   assert.match(coordinator, /retailer\[0\]\.id === "11"/);
 });
 
-test("new activation is executable once while the consumed activation remains terminal", () => {
+test("both consumed activations are terminal and cannot execute again", () => {
   const evidence = path.join(ROOT, "docs", "retailer-automation", "evidence");
   const manifest = JSON.parse(fs.readFileSync(path.join(evidence, values.ACTIVATION_MANIFEST), "utf8"));
   const terminal = JSON.parse(fs.readFileSync(path.join(evidence,
     values.TERMINAL_ACTIVATION_MANIFEST), "utf8"));
-  assert.deepEqual(values.assertActivationExecutable(), manifest);
-  assert.equal(values.validateReadOnlyActivation(manifest), manifest);
+  assert.throws(() => values.assertActivationExecutable(), /RA004_ACTIVATION_TERMINAL/);
+  assert.equal(values.validateCurrentTerminalActivation(manifest), manifest);
+  assert.throws(() => values.validateReadOnlyActivation(manifest), /RA004_ACTIVATION_NOT_AUTHORIZED/);
   assert.equal(values.validateTerminalActivation(terminal), terminal);
   assert.throws(() => values.validateReadOnlyActivation(terminal), /RA004_ACTIVATION_NOT_AUTHORIZED/);
   assert.equal(terminal.execution.closed, true);
@@ -53,9 +54,20 @@ test("new activation is executable once while the consumed activation remains te
   assert.equal(manifest.canary.maximum_attempts, 1);
   assert.equal(manifest.canary.automatic_retry, false);
   assert.equal(manifest.canary.read_only, true);
-  assert.deepEqual(manifest.execution, { started: false, migration_attempt_count: 0,
-    preflight_attempt_count: 0, canary_attempt_count: 0, closed: false,
-    retry_authorized: false, replayable: false });
+  assert.equal(manifest.execution.started, true);
+  assert.equal(manifest.execution.migration_attempt_count, 0);
+  assert.equal(manifest.execution.preflight_attempt_count, 0);
+  assert.equal(manifest.execution.canary_attempt_count, 1);
+  assert.equal(manifest.execution.primary_failure, "CONTROL_EXPORT_SOURCE_UNAVAILABLE");
+  assert.equal(manifest.execution.ledger_after_failure.count, 99);
+  assert.equal(manifest.execution.credential_revocation.role_absent, true);
+  assert.equal(manifest.execution.credential_revocation.membership_absent, true);
+  assert.equal(manifest.execution.credential_revocation.active_backend_absent, true);
+  assert.equal(manifest.execution.evidence_store_session, "CLOSED");
+  assert.equal(manifest.execution.cleanup, "COMPLETE");
+  assert.equal(manifest.execution.closed, true);
+  assert.equal(manifest.execution.retry_authorized, false);
+  assert.equal(manifest.execution.replayable, false);
   for (const mutate of [
     (value) => { value.migrations.push({ filename: "forbidden.sql" }); },
     (value) => { value.migration_attempts_authorized = 1; },
@@ -63,12 +75,42 @@ test("new activation is executable once while the consumed activation remains te
     (value) => { value.canary.maximum_attempts = 2; },
     (value) => { value.production.authorized = true; },
     (value) => { value.ledger.count = 98; },
-    (value) => { value.execution.canary_attempt_count = 1; },
+    (value) => { value.execution.canary_attempt_count = 0; },
+    (value) => { value.execution.primary_failure = "RA004_UNCLASSIFIED_FAILURE"; },
+    (value) => { value.execution.cleanup = "PENDING"; },
   ]) {
     const changed = structuredClone(manifest);
     mutate(changed);
-    assert.throws(() => values.validateReadOnlyActivation(changed), /RA004_/);
+    assert.throws(() => values.validateCurrentTerminalActivation(changed), /RA004_/);
   }
+});
+
+test("v2 closeout binds source unavailability to expired bounded observations", () => {
+  const closeout = JSON.parse(fs.readFileSync(path.join(ROOT, "docs", "retailer-automation", "evidence",
+    "RA-004-final-control-state-canary-reactivation-v2-closeout.json"), "utf8"));
+  const observer = fs.readFileSync(path.join(__dirname, "ra004-staging-source-observation-capture.js"), "utf8");
+  const rpc = fs.readFileSync(path.join(ROOT, "supabase", "migrations",
+    "20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql"), "utf8");
+  assert.equal(closeout.primary_failure, "CONTROL_EXPORT_SOURCE_UNAVAILABLE");
+  assert.equal(closeout.root_cause.required_observations, 5);
+  assert.equal(closeout.root_cause.observation_lifetime_minutes, 20);
+  assert.ok(Date.parse(closeout.root_cause.canary_started_at)
+    > Date.parse(closeout.root_cause.observer_started_at) + (20 * 60_000));
+  assert.match(observer, /observedAt\.getTime\(\) \+ 20 \* 60_000/);
+  assert.match(rpc, /if v_coverage <> 5 then/);
+  assert.match(rpc, /RCSE_SOURCE_UNAVAILABLE: observation coverage is %\/5/);
+  assert.deepEqual(closeout.attempt_counters,
+    { evidence_auth: 1, migration: 0, preflight: 0, canary: 1, retry: 0 });
+  assert.equal(closeout.ledger_readback.count, 99);
+  assert.equal(closeout.evidence_store.session, "CLOSED");
+  assert.equal(closeout.evidence_store.cleanup, "COMPLETE");
+  assert.equal(closeout.credential_revocation.role_absent, true);
+  assert.equal(closeout.credential_revocation.membership_absent, true);
+  assert.equal(closeout.credential_revocation.active_backend_absent, true);
+  assert.equal(closeout.selectors.staging, "CLOSED");
+  assert.equal(closeout.selectors.production, "CLOSED");
+  assert.equal(closeout.retry_authorized, false);
+  assert.equal(closeout.replayable, false);
 });
 
 test("runtime has no migration, Supabase CLI, materialization, or preflight execution path", () => {

@@ -1,0 +1,59 @@
+{
+  "schema_version": "ra004-final-control-state-canary-closeout-v1",
+  "status": "ATTEMPT_CONSUMED_FAILED_TERMINAL",
+  "activation_id": "ra004-staging-1790671083395",
+  "authorized_activation": "ra004-final-control-state-canary-2026-09-29-v2",
+  "baseline_sha": "10f8fbf1e040704a74460c0988da8ff00d092c78",
+  "execution_commit": "7689eb4d7cb9619b9bc0fe10ae068599debd97bd",
+  "primary_failure": "CONTROL_EXPORT_SOURCE_UNAVAILABLE",
+  "root_cause": {
+    "required_observations": 5,
+    "observer_started_at": "2026-09-28T19:38:46.042Z",
+    "observation_lifetime_minutes": 20,
+    "canary_started_at": "2026-09-29T08:38:03.395Z",
+    "reason": "all five required SOURCE_OBSERVED rows had expired before the canary began"
+  },
+  "attempt_counters": {
+    "evidence_auth": 1,
+    "migration": 0,
+    "preflight": 0,
+    "canary": 1,
+    "retry": 0
+  },
+  "ledger_readback": {
+    "count": 99,
+    "fingerprint": "a6e7693f964925554e807602752e4630d14f537a1d9de4fe82f8433d30c307cc",
+    "last_migration": "20260928101000_align_ra004_control_export_provider_identity"
+  },
+  "evidence_store": {
+    "session": "CLOSED",
+    "cleanup": "COMPLETE",
+    "uploaded_object_count": 2
+  },
+  "credential_revocation": {
+    "outcome": "RA004_REVOKE_CONNECTION_REJECTED_CATALOGUE_CONFIRMED",
+    "role_absent": true,
+    "membership_absent": true,
+    "active_backend_absent": true
+  },
+  "forbidden_operation_counts": {
+    "production": 0,
+    "migration": 0,
+    "preflight": 0,
+    "feed_capture": 0,
+    "shadow_run": 0,
+    "control_plan": 0,
+    "approval": 0,
+    "import": 0,
+    "apply": 0,
+    "offer_writes": 0,
+    "model_b": 0
+  },
+  "selectors": {
+    "staging": "CLOSED",
+    "production": "CLOSED"
+  },
+  "local_failure_artifact_sha256": "c351a3a22dfac1754f53d095ddd0da07aee0e66b04b5c09fad75e7c02cf1a8ef",
+  "retry_authorized": false,
+  "replayable": false
+}
