@@ -17,6 +17,13 @@
     "pre_migration_ledger_fingerprint": "c08b5f2e704072a0e4b2590688998e07a781f8699546279b6e81acd9c975c0fe",
     "post_migration_ledger_count": 223,
     "post_migration_ledger_fingerprint": "c891240d8ed411b3bc0ad5e2abc6a8c90bfeb442c1cd0824f3c5a4577ee0c7b0",
+    "business_counts": {
+      "products": "1337",
+      "product_variants": "3632",
+      "retailer_products": "3758",
+      "offers": "3758",
+      "price_history": "24583"
+    },
     "business_counts_fingerprint": "ab7c30beb3279aed363079fe28fdbc518830df2fffa825e3445b3c2a8ac1ffe2"
   },
   "migration": {

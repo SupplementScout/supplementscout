@@ -194,6 +194,19 @@ Normal price changes are `REVIEW_REQUIRED` or `APPLIED`; they are never
 `FAILED_SYSTEM`. A red scheduler must identify whether it represents a correct
 guardrail, monitored debt or an internal failure.
 
+### 10.1 Bounded control-plane recovery
+
+An exceptional control-plane recovery is an operational coordinator, not a new
+retailer runtime or catalogue executor. It must reuse the existing migration
+and role-separated RPC boundaries, bind one immutable preparation, expose no
+combined deploy-and-recover mode, and require a different short-lived owner
+authorization for every write phase. Authorization is validated before any
+credential access. Schema deployment, schema readback, control recovery and
+control readback are separately invocable; verification is read-only and may
+be repeated. A failed or ambiguous write phase stops without automatic retry or
+phase transition. Business and price-history counts are exact invariants, not
+acceptable tolerances.
+
 ## 11. Invariants that cannot be weakened
 
 - immutable manifests and fingerprints;
