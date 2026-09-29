@@ -117,14 +117,15 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 98,
+    ledgerCount: 99,
     ledgerFingerprint:
-      "b4e72276ba2570d2da9957c53b6c209a3799087570302af92b295467a1d4e307",
+      "a6e7693f964925554e807602752e4630d14f537a1d9de4fe82f8433d30c307cc",
     appliedExcluded: Object.freeze([
       RA004_FIXTURE_MIGRATION,
       "20260926110000_add_ra004_staging_interface_compatibility.sql",
       "20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql",
       "20260928100000_diagnose_ra004_preflight_acl_rls.sql",
+      "20260928101000_align_ra004_control_export_provider_identity.sql",
     ]),
     excluded: Object.freeze({
       "20260922160000_allow_owner_approved_fit_house_six_oos.sql": "be780721eee14c19761546107b7f249e9bea0c451a54732dfd259a7b348132fa",

@@ -1,16 +1,15 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: RA-004 CONTROL EXPORT PROVIDER IDENTITY FIX READY_FOR_INDEPENDENT_VERIFICATION — LIVE RETRY NOT AUTHORIZED**
+**Status: RA-004 PROVIDER IDENTITY ATTEMPT CONSUMED — CANARY FAILURE DIAGNOSTIC REVIEW REQUIRED**
 
-**Current active task:** RA-004 — `IN_PROGRESS`. Staging ledger 98 and the
-authenticated ACL/RLS correction remain unchanged. The single owner-authorized
-preflight passed Q1–Q8 and reached the read-only canary, which failed closed on
-`CONTROL_EXPORT_RPC_CONTRACT_INVALID`: the applied RPC returned provider ID
-`transactional-rpc-v1` without `session_user`, while the authorized runtime
-descriptor used a different provider ID and required the verified session
-identity. Cleanup and revoke are verified complete. One local forward-only
-correction now binds both sides to the same verified login; it remains excluded
-from STAGING and PRODUCTION. No retry is authorized and the shadow run remains
+**Current active task:** RA-004 — `IN_PROGRESS`. The one authorized activation
+applied the provider-identity correction and advanced the staging ledger from 98
+to 99. Q1–Q8 passed. The one read-only canary then failed before producing an
+artifact. The failure serializer reduced the structured runtime error to
+`RA004_UNCLASSIFIED_FAILURE` because it ignored `error.code` when the message
+also contained diagnostic text. Both temporary credentials, memberships and
+active backends are absent; evidence cleanup is complete. STAGING and PRODUCTION
+selectors are closed. No retry is authorized and the shadow run remains
 unauthorized.
 
 **Implementation:** fixture exporter plus locally database-verified forward-only
@@ -530,19 +529,21 @@ The systemic query-aware revoke-verifier correction is documented in
 [`evidence/RA-004-QUERY-AWARE-REVOKE-VERIFIER.md`](evidence/RA-004-QUERY-AWARE-REVOKE-VERIFIER.md).
 
 **Control-export provider identity correction:**
-`READY_FOR_INDEPENDENT_VERIFICATION`.
-The final bounded preflight passed Q1–Q8, then the single read-only canary failed
-closed before producing an accepted export because the runtime descriptor and
-RPC response described different provider identities. The forward-only
+`ATTEMPT_CONSUMED_FAILED_TERMINAL`.
+The provider-identity migration is present on staging at ledger 99. The bounded
+preflight passed Q1–Q8. The one read-only canary failed before producing an
+artifact, and the closeout serializer did not preserve its structured error
+code. The forward-only
 `20260928101000_align_ra004_control_export_provider_identity.sql` migration
 accepts only the exact applied function shape, adds the live `session_user` to
 the RPC response, preserves `SECURITY DEFINER`, the closed `search_path`, owner
 and restrictive ACLs, and fails on replay or source drift. The coordinator now
 uses the RPC's stable provider ID. PostgreSQL 17 proves the pre-correction
 failure, corrected Q1–Q8 and read-only export, fail-closed identity drift, zero
-business changes and closed selectors. The migration is not activated or
-applied remotely. See
+business changes and closed selectors. See
 [`evidence/RA-004-CONTROL-EXPORT-PROVIDER-IDENTITY.md`](evidence/RA-004-CONTROL-EXPORT-PROVIDER-IDENTITY.md).
+The terminal staging attempt is recorded in
+[`evidence/RA-004-PROVIDER-IDENTITY-STAGING-ATTEMPT-CLOSEOUT.md`](evidence/RA-004-PROVIDER-IDENTITY-STAGING-ATTEMPT-CLOSEOUT.md).
 
 **LIVE SHADOW RUN NOT AUTHORIZED**
 
