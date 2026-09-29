@@ -188,21 +188,28 @@
   },
   "scheduled_observation": {
     "counting_rule": "Count ordinary workflow intervals per affected path, not manually dispatched watchdogs.",
-    "whey_okay_utc": [
+    "whey_okay_cron_targets_utc": [
       "2026-09-30T02:17:00Z",
       "2026-10-01T02:17:00Z",
       "2026-10-02T02:17:00Z"
     ],
-    "shared_refresh_10_reps_utc": [
+    "shared_refresh_10_reps_cron_targets_utc": [
       "2026-09-30T02:47:00Z",
       "2026-10-01T02:47:00Z",
       "2026-10-02T02:47:00Z"
     ],
-    "correlating_watchdog_utc": [
-      "2026-09-30T06:11:00Z",
-      "2026-10-01T06:11:00Z",
-      "2026-10-02T06:11:00Z"
-    ]
+    "watchdog_cron": "11 */6 * * *",
+    "correlation_rule": "For each date, use the first ordinary scheduled watchdog generated after both affected workflows have reached a terminal state. Do not assume the 06:11 UTC target follows them because GitHub Actions schedule delivery may be delayed.",
+    "delivery_delay_evidence": {
+      "whey_okay_2026_09_29": {
+        "run_id": 36543685468,
+        "created_at": "2026-09-29T08:35:27Z"
+      },
+      "shared_refresh_2026_09_29": {
+        "run_id": 36546643195,
+        "created_at": "2026-09-29T09:03:13Z"
+      }
+    }
   },
   "next_step": "Observe ordinary scheduled retailer workflows and correlate their artifacts; do not manually retry a retailer merely to make the watchdog green."
 }
