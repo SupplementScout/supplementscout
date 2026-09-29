@@ -27,6 +27,7 @@ const EXPECTED_LEDGER_COUNT = 99;
 const EXPECTED_LEDGER_FINGERPRINT = "a6e7693f964925554e807602752e4630d14f537a1d9de4fe82f8433d30c307cc";
 const PRIOR_PREFLIGHT_FINGERPRINT = "b1719dbbaad328e7bc0f0dc7b24307f3b5c828fe1af43d7cad5e98aa9599f40c";
 const ACTIVATION_MANIFEST = "RA-004-atomic-source-observation-canary-activation-v3.json";
+const ACTIVATION_CLOSEOUT = "RA-004-atomic-source-observation-canary-closeout-v3.json";
 const TERMINAL_ACTIVATION_MANIFEST = "RA-004-final-control-state-canary-activation.json";
 const TERMINAL_V2_ACTIVATION_MANIFEST = "RA-004-final-control-state-canary-reactivation-v2.json";
 const REQUIRED_APPLIED_MIGRATIONS = Object.freeze([
@@ -286,6 +287,51 @@ function validateReadOnlyActivation(value) {
     && value.execution?.replayable === false, "RA004_ACTIVATION_EXECUTION_STATE_MISMATCH");
   return value;
 }
+function validateV3TerminalActivation(value) {
+  invariant(value?.schema_version === "ra-004-atomic-source-observation-canary-activation-v1"
+    && value.status === "ATTEMPT_CONSUMED_FAILED_TERMINAL"
+    && value.activation_id === "ra004-atomic-source-observation-canary-2026-09-29-v3"
+    && value.baseline_sha === BASELINE, "RA004_ACTIVATION_TERMINAL_STATE_INVALID");
+  invariant(value.target?.environment === "STAGING" && value.target?.project_ref === REF
+    && value.target?.parent_project_ref === "aftboxmrdgyhizicfsfu"
+    && value.target?.database_host === "aws-0-eu-west-3.pooler.supabase.com"
+    && value.target?.retailer?.id === "11" && value.target?.retailer?.slug === "10-reps",
+  "RA004_ACTIVATION_TERMINAL_STATE_INVALID");
+  invariant(value.production?.authorized === false && value.production?.selector_unchanged === true
+    && Array.isArray(value.migrations) && value.migrations.length === 0
+    && value.migration_attempts_authorized === 0
+    && value.preflight?.attempts_authorized === 0 && value.canary?.maximum_attempts === 1
+    && value.canary?.automatic_retry === false && value.canary?.read_only === true,
+  "RA004_ACTIVATION_TERMINAL_STATE_INVALID");
+  invariant(value.ledger?.count === EXPECTED_LEDGER_COUNT
+    && value.ledger?.fingerprint === EXPECTED_LEDGER_FINGERPRINT
+    && value.ledger?.last_version === "20260928101000",
+  "RA004_ACTIVATION_TERMINAL_STATE_INVALID");
+  invariant(value.execution?.runtime_activation_id === "ra004-staging-1790674363597"
+    && value.execution?.execution_commit === "c57c6abbb2e0e01842dd279613b4bbc1d9344966"
+    && value.execution?.started === true && value.execution?.migration_attempt_count === 0
+    && value.execution?.preflight_attempt_count === 0
+    && value.execution?.source_observation_transaction_count === 1
+    && value.execution?.source_observation_row_count === 5
+    && value.execution?.canary_attempt_count === 1 && value.execution?.retry_attempt_count === 0
+    && value.execution?.primary_failure === "RA004_CANARY_CONTROL_STATE_BLOCKED"
+    && value.execution?.canary_final_assessment === "BLOCKED_INCOMPLETE_EXPORT"
+    && value.execution?.canary_completeness_status === "COMPLETE"
+    && value.execution?.canary_sources_queried === 11
+    && Array.isArray(value.execution?.canary_sources_unavailable)
+    && value.execution.canary_sources_unavailable.length === 0
+    && value.execution?.canary_read_attempt_count === 1
+    && value.execution?.canary_write_attempt_count === 0
+    && value.execution?.canary_mutation_attempt_count === 0
+    && value.execution?.business_data_unchanged === true
+    && value.execution?.evidence_store_session === "CLOSED"
+    && value.execution?.cleanup === "COMPLETE" && value.execution?.credentials_revoked === 2
+    && value.execution?.roles_absent === true && value.execution?.memberships_absent === true
+    && value.execution?.active_backends_absent === true
+    && value.execution?.closed === true && value.execution?.retry_authorized === false
+    && value.execution?.replayable === false, "RA004_ACTIVATION_TERMINAL_STATE_INVALID");
+  return value;
+}
 function validateTerminalActivation(value) {
   invariant(value?.schema_version === "ra-004-final-control-state-canary-activation-v1"
     && value.status === "ATTEMPT_CONSUMED_FAILED_TERMINAL"
@@ -352,7 +398,8 @@ function activationPath() {
 }
 function assertActivationExecutable() {
   const value = JSON.parse(fs.readFileSync(activationPath(), "utf8"));
-  return validateReadOnlyActivation(value);
+  validateV3TerminalActivation(value);
+  throw new Error("RA004_ACTIVATION_TERMINAL");
 }
 function assertSelectorsClosed(contracts = selector.CONTRACTS) {
   const staging = contracts.STAGING;
@@ -688,11 +735,12 @@ if (require.main === module) {
 }
 
 module.exports = {
-  ACL_MIGRATION_SHA, ACTIVATION_MANIFEST, API_HOST, BASELINE, BUCKET,
+  ACL_MIGRATION_SHA, ACTIVATION_CLOSEOUT, ACTIVATION_MANIFEST, API_HOST, BASELINE, BUCKET,
   EXPECTED_LEDGER_COUNT, EXPECTED_LEDGER_FINGERPRINT, PRIOR_PREFLIGHT_FINGERPRINT,
   PROVIDER_IDENTITY_SHA, REF, REQUIRED_APPLIED_MIGRATIONS, TERMINAL_ACTIVATION_MANIFEST,
   TERMINAL_BASELINE, TERMINAL_V2_ACTIVATION_MANIFEST, TERMINAL_V2_BASELINE,
   assertSelectorsClosed, assertActivationExecutable, buildFailureReport, ensureObservationFresh,
   readExecutionCommit, safeFailureCode,
   validateCurrentTerminalActivation, validateReadOnlyActivation, validateTerminalActivation,
+  validateV3TerminalActivation,
 };

@@ -1,21 +1,32 @@
 # RA-004 final control-state canary
 
-Current activation: `OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED`.
+Current activation: `ATTEMPT_CONSUMED_FAILED_TERMINAL`.
 
-Activation `v3` is one bounded staging operation on baseline
-`227529abc7e3adf71dd88904d1d592f1126b4f17`. It reuses the existing source
-observer and existing read-only control-state canary in one coordinator. After
-the private evidence-store session is authenticated, it writes exactly five
-fresh `SOURCE_OBSERVED` evidence rows in one transaction, reads back exact 5/5
-coverage, revokes that minimal writer, and starts the sole read-only canary
-before at least five minutes remain in the observations' fixed 20-minute
-lifetime. Migrations and preflight attempts remain zero. Both migration
-selectors remain closed.
+Activation `v3` ran once on execution commit
+`c57c6abbb2e0e01842dd279613b4bbc1d9344966`. The private evidence-store session
+was authenticated first. The existing observer then wrote exactly five fresh
+`SOURCE_OBSERVED` evidence rows in one transaction and read back exact 5/5
+coverage. The minimal writer was revoked before the sole read-only canary began
+inside the fixed 20-minute observation lifetime. Migration, preflight and retry
+attempts were zero. Both migration selectors remained closed.
 
-The activation fails closed before the canary if exact observation readback,
-writer revoke, freshness, ledger 99, applied migration hashes, project identity,
-retailer identity, evidence authentication or business-row baseline checks do
-not match. It has no retry path.
+The canary produced a complete read-only artifact: all 11 sources were queried,
+`sources_unavailable` was empty, `completeness_status` was `COMPLETE`, and read,
+write and mutation attempt counts were 1, 0 and 0. Nevertheless, the applied SQL
+RPC returned `BLOCKED_INCOMPLETE_EXPORT`. Its assessment expression treats an
+empty `postflight_state` or empty `watchdog_state` collection as an incomplete
+export. For a retailer with no prior apply this is a valid empty state, not an
+unavailable source. The shared JavaScript exporter already implements the
+intended contract: only an unavailable required source makes an export
+incomplete. The exact blocker is
+`RA004_SQL_EMPTY_QUERIED_STATE_MISCLASSIFIED_INCOMPLETE`.
+
+The attempt is consumed, terminal and non-replayable. Cleanup completed, the
+evidence-store session closed, both temporary credentials were revoked, and
+catalogue readback confirmed both roles, memberships and active backends were
+absent. Ledger 99 and business data were unchanged. Production operation count
+was zero. The terminal machine-readable closeout is
+[`RA-004-atomic-source-observation-canary-closeout-v3.json`](RA-004-atomic-source-observation-canary-closeout-v3.json).
 
 Both `v1` and `v2` activations are consumed, terminal and not reusable. The
 `v2` activation ran once at execution commit
