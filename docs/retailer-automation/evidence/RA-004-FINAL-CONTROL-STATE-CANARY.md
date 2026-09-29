@@ -1,13 +1,25 @@
 # RA-004 final control-state canary
 
-Current activation: `OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED`.
+Current activation: `ATTEMPT_CONSUMED_FAILED_TERMINAL`.
 
-The previous `v1` activation remains `ATTEMPT_CONSUMED_FAILED_TERMINAL` and is
-not reusable. Owner authorization on 29 September 2026 created a distinct `v2`
-activation pinned to baseline
-`10f8fbf1e040704a74460c0988da8ff00d092c78`. It permits exactly one read-only
-control-state canary, zero migrations, zero preflight attempts and zero retry.
-The STAGING and PRODUCTION migration selectors remain closed.
+Both `v1` and `v2` activations are consumed, terminal and not reusable. The
+`v2` activation ran once at execution commit
+`7689eb4d7cb9619b9bc0fe10ae068599debd97bd`. It attempted zero migrations,
+zero preflights and one read-only control-state canary. The STAGING and
+PRODUCTION migration selectors remained closed.
+
+The canary stopped with `CONTROL_EXPORT_SOURCE_UNAVAILABLE`. The applied RPC
+requires five current `SOURCE_OBSERVED` rows and its only runtime branch for
+this code rejects coverage other than 5/5. The bounded observer created those
+rows at `2026-09-28T19:38:46.042Z` with the contract's 20-minute lifetime; the
+canary began at `2026-09-29T08:38:03.395Z`, after all five had expired. No
+source refresh was authorized in the canary activation.
+
+The failure closeout proves ledger 99 remained unchanged, migration and
+preflight attempt counts were zero, the evidence-store session closed, cleanup
+completed, and the temporary role, membership and active backend were absent.
+The redacted local failure artifact SHA-256 is
+`c351a3a22dfac1754f53d095ddd0da07aee0e66b04b5c09fad75e7c02cf1a8ef`.
 
 The prior staging run applied the provider-identity migration and completed
 Q1-Q8. Its single control-state canary failed before an artifact was produced,

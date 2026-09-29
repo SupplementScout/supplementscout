@@ -1,6 +1,6 @@
 {
   "schema_version": "ra-004-final-control-state-canary-activation-v1",
-  "status": "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED",
+  "status": "ATTEMPT_CONSUMED_FAILED_TERMINAL",
   "task_id": "RA-004",
   "activation_id": "ra004-final-control-state-canary-2026-09-29-v2",
   "baseline_sha": "10f8fbf1e040704a74460c0988da8ff00d092c78",
@@ -66,11 +66,29 @@
     "cutover"
   ],
   "execution": {
-    "started": false,
+    "runtime_activation_id": "ra004-staging-1790671083395",
+    "execution_commit": "7689eb4d7cb9619b9bc0fe10ae068599debd97bd",
+    "started": true,
     "migration_attempt_count": 0,
     "preflight_attempt_count": 0,
-    "canary_attempt_count": 0,
-    "closed": false,
+    "canary_attempt_count": 1,
+    "primary_failure": "CONTROL_EXPORT_SOURCE_UNAVAILABLE",
+    "root_cause": "the five required SOURCE_OBSERVED rows expired after their bounded 20-minute lifetime before the canary started",
+    "ledger_after_failure": {
+      "count": 99,
+      "fingerprint": "a6e7693f964925554e807602752e4630d14f537a1d9de4fe82f8433d30c307cc",
+      "last_migration": "20260928101000_align_ra004_control_export_provider_identity"
+    },
+    "credential_revocation": {
+      "outcome": "RA004_REVOKE_CONNECTION_REJECTED_CATALOGUE_CONFIRMED",
+      "role_absent": true,
+      "membership_absent": true,
+      "active_backend_absent": true
+    },
+    "evidence_store_session": "CLOSED",
+    "cleanup": "COMPLETE",
+    "local_failure_artifact_sha256": "c351a3a22dfac1754f53d095ddd0da07aee0e66b04b5c09fad75e7c02cf1a8ef",
+    "closed": true,
     "retry_authorized": false,
     "replayable": false
   }

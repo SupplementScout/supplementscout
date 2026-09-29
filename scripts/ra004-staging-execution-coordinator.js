@@ -293,12 +293,49 @@ function validateTerminalActivation(value) {
     && value.execution?.replayable === false, "RA004_ACTIVATION_TERMINAL_STATE_INVALID");
   return value;
 }
+function validateCurrentTerminalActivation(value) {
+  invariant(value?.schema_version === "ra-004-final-control-state-canary-activation-v1"
+    && value.status === "ATTEMPT_CONSUMED_FAILED_TERMINAL"
+    && value.activation_id === "ra004-final-control-state-canary-2026-09-29-v2"
+    && value.baseline_sha === BASELINE, "RA004_ACTIVATION_TERMINAL_STATE_INVALID");
+  invariant(value.target?.environment === "STAGING" && value.target?.project_ref === REF
+    && value.target?.parent_project_ref === "aftboxmrdgyhizicfsfu"
+    && value.target?.database_host === "aws-0-eu-west-3.pooler.supabase.com"
+    && value.target?.retailer?.id === "11" && value.target?.retailer?.slug === "10-reps",
+  "RA004_ACTIVATION_TERMINAL_STATE_INVALID");
+  invariant(value.production?.authorized === false && value.production?.selector_unchanged === true
+    && Array.isArray(value.migrations) && value.migrations.length === 0
+    && value.migration_attempts_authorized === 0
+    && value.preflight?.attempts_authorized === 0 && value.canary?.maximum_attempts === 1
+    && value.canary?.automatic_retry === false && value.canary?.read_only === true,
+  "RA004_ACTIVATION_TERMINAL_STATE_INVALID");
+  invariant(value.ledger?.count === EXPECTED_LEDGER_COUNT
+    && value.ledger?.fingerprint === EXPECTED_LEDGER_FINGERPRINT
+    && value.ledger?.last_version === "20260928101000",
+  "RA004_ACTIVATION_TERMINAL_STATE_INVALID");
+  invariant(value.execution?.runtime_activation_id === "ra004-staging-1790671083395"
+    && value.execution?.execution_commit === "7689eb4d7cb9619b9bc0fe10ae068599debd97bd"
+    && value.execution?.started === true && value.execution?.canary_attempt_count === 1
+    && value.execution?.migration_attempt_count === 0 && value.execution?.preflight_attempt_count === 0
+    && value.execution?.primary_failure === "CONTROL_EXPORT_SOURCE_UNAVAILABLE"
+    && value.execution?.ledger_after_failure?.count === EXPECTED_LEDGER_COUNT
+    && value.execution?.ledger_after_failure?.fingerprint === EXPECTED_LEDGER_FINGERPRINT
+    && value.execution?.credential_revocation?.role_absent === true
+    && value.execution?.credential_revocation?.membership_absent === true
+    && value.execution?.credential_revocation?.active_backend_absent === true
+    && value.execution?.evidence_store_session === "CLOSED"
+    && value.execution?.cleanup === "COMPLETE"
+    && value.execution?.closed === true && value.execution?.retry_authorized === false
+    && value.execution?.replayable === false, "RA004_ACTIVATION_TERMINAL_STATE_INVALID");
+  return value;
+}
 function activationPath() {
   return path.join(ROOT, "docs", "retailer-automation", "evidence", ACTIVATION_MANIFEST);
 }
 function assertActivationExecutable() {
   const value = JSON.parse(fs.readFileSync(activationPath(), "utf8"));
-  return validateReadOnlyActivation(value);
+  validateCurrentTerminalActivation(value);
+  invariant(false, "RA004_ACTIVATION_TERMINAL");
 }
 function assertSelectorsClosed(contracts = selector.CONTRACTS) {
   const staging = contracts.STAGING;
@@ -566,5 +603,5 @@ module.exports = {
   PROVIDER_IDENTITY_SHA, REF, REQUIRED_APPLIED_MIGRATIONS, TERMINAL_ACTIVATION_MANIFEST,
   TERMINAL_BASELINE, assertSelectorsClosed,
   assertActivationExecutable, buildFailureReport, readExecutionCommit, safeFailureCode,
-  validateReadOnlyActivation, validateTerminalActivation,
+  validateCurrentTerminalActivation, validateReadOnlyActivation, validateTerminalActivation,
 };

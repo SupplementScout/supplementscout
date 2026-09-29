@@ -1,14 +1,14 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: RA-004 FINAL READ-ONLY CANARY REACTIVATION PREPARED**
+**Status: RA-004 FINAL READ-ONLY CANARY REACTIVATION CONSUMED — SOURCE OBSERVATIONS EXPIRED**
 
-**Current active task:** RA-004 — `IN_PROGRESS`. One owner-authorized read-only
-canary activation is prepared from baseline
-`10f8fbf1e040704a74460c0988da8ff00d092c78`; it permits no migration, preflight
-or retry. The staging ledger remains at
-99 and Q1–Q8 remain verified. The previous `v1` canary attempt was consumed
-and remains terminal; the prepared `v2` activation is a distinct authorization.
-The prior attempt exposed a missing bounded-transport diagnostic boundary:
+**Current active task:** RA-004 — `IN_PROGRESS`. The distinct `v2` read-only
+canary activation was consumed once with no migration, preflight or retry. It
+stopped as `CONTROL_EXPORT_SOURCE_UNAVAILABLE` because all five bounded
+`SOURCE_OBSERVED` rows had expired after 20 minutes before the canary started.
+The staging ledger remains at 99, Q1–Q8 remain verified, cleanup and revoke are
+complete, and both `v1` and `v2` are terminal. The earlier attempt exposed a
+missing bounded-transport diagnostic boundary:
 raw PostgreSQL SQLSTATE values were rejected by the outer safe serializer and
 collapsed to `RA004_UNCLASSIFIED_FAILURE`. The shared transport now classifies
 connect, transaction, RPC, proof, rollback and close failures into stable
