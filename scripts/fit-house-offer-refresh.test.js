@@ -14,6 +14,8 @@ const {
   authorizeOwnerApprovedSixStockOnly,
   authorizeReviewedMassOos,
   balancedExecutionBatches,
+  controlParentApprovalError,
+  controlRegistrationEvidence,
   enforceConfirmationOnly,
   freshCapturedAt,
   loadAuditedMissingVariantManifest,
@@ -34,6 +36,69 @@ const {
   sourceHealth,
   validationGuardSummary,
 } = require("./fit-house-offer-refresh");
+
+test("control registration evidence retains exact recovery identity without plan rows", () => {
+  const request = {
+    parent_plan_id: "11111111-1111-4111-8111-111111111111",
+    parent_plan_fingerprint: "a".repeat(64),
+    retailer_id: "14",
+    retailer_slug: "10-reps",
+    source_snapshot_fingerprint: "b".repeat(64),
+    manifest_fingerprint: "c".repeat(64),
+    expires_at: "2026-09-28T09:47:00.000Z",
+    workflow: {
+      repository: "SupplementScout/supplementscout",
+      run_id: "36400487268",
+      run_attempt: "1",
+      actor: "SupplementScout",
+    },
+    children: [{
+      child_plan_id: "22222222-2222-4222-8222-222222222222",
+      artifact: { artifact_fingerprint: "d".repeat(64), rows: [{ offer_id: "1" }] },
+    }],
+  };
+  const evidence = controlRegistrationEvidence(request, {
+    status: "REGISTERED",
+    mapping_count: 950,
+    child_count: 1,
+    business_writes: 0,
+    secret: "must-not-leak",
+  });
+
+  assert.deepEqual(evidence, {
+    status: "REGISTERED",
+    parent_plan_id: request.parent_plan_id,
+    parent_plan_fingerprint: request.parent_plan_fingerprint,
+    retailer_id: "14",
+    retailer_slug: "10-reps",
+    source_snapshot_fingerprint: request.source_snapshot_fingerprint,
+    manifest_fingerprint: request.manifest_fingerprint,
+    expires_at: request.expires_at,
+    workflow: request.workflow,
+    child_count: 1,
+    child_plans: [{
+      child_plan_id: request.children[0].child_plan_id,
+      child_plan_fingerprint: request.children[0].artifact.artifact_fingerprint,
+    }],
+    mapping_count: 950,
+    business_writes: 0,
+  });
+  assert.doesNotMatch(JSON.stringify(evidence), /offer_id|must-not-leak/);
+});
+
+test("parent approval timeout preserves the registered plan as an unknown outcome", () => {
+  const evidence = {
+    status: "REGISTERED",
+    parent_plan_id: "11111111-1111-4111-8111-111111111111",
+    parent_plan_fingerprint: "a".repeat(64),
+  };
+  const error = controlParentApprovalError(new Error("Query read timeout"), evidence);
+
+  assert.equal(error.code, "CONTROL_PARENT_APPROVAL_OUTCOME_UNKNOWN");
+  assert.equal(error.stage, "CONTROL_PARENT_APPROVAL");
+  assert.equal(error.message, "registered control plan parent approval outcome is unknown");
+  assert.deepEqual(error.detail, { control_registration: evidence });
+});
 
 test("validator diagnostics expose only safe database code, summary, and bounded result fields",()=>{
   const databaseError={code:"P0001",message:JSON.stringify({code:"RSBI_GUARDRAIL_EXCEEDED",summary:"Read-only mass OOS guard blocked the batch",detail:{database_url:"postgres://secret",source_url:"https://private.example"}})};

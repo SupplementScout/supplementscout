@@ -22,10 +22,16 @@ begin
 end
 $assert$;
 
-create or replace function public.expired_close_test_seed(p_case text,p_expires_at timestamptz default now()-interval '1 hour')
+create or replace function public.expired_close_test_seed(
+  p_case text,
+  p_expires_at timestamptz default now()-interval '1 hour',
+  p_planned_siblings integer default 0,
+  p_manifest_drift boolean default false
+)
 returns jsonb language plpgsql security definer set search_path=pg_catalog,public,pg_temp as $seed$
 declare
   v_parent uuid:=gen_random_uuid(); v_child uuid:=gen_random_uuid(); v_approval uuid:=gen_random_uuid();
+  v_sibling uuid; v_sibling_fp text; v_index integer;
   v_parent_approval uuid:=gen_random_uuid(); v_child_approval uuid:=gen_random_uuid();
   v_parent_fp text:=public.retailer_catalogue_sha256_json(jsonb_build_object('case',p_case,'kind','parent'));
   v_child_fp text:=public.retailer_catalogue_sha256_json(jsonb_build_object('case',p_case,'kind','child'));
@@ -37,15 +43,31 @@ declare
   v_state_fp text:=public.retailer_catalogue_sha256_json(jsonb_build_object('case',p_case,'kind','state'));
   v_manifest jsonb:=jsonb_build_object('schema_version',1,'case',p_case,'rows',jsonb_build_array(jsonb_build_object('offer_id','1')));
   v_old_ledger text:=repeat('a',64); v_request jsonb;
+  v_child_manifest jsonb:=jsonb_build_array(jsonb_build_object(
+    'child_plan_id',v_child,'child_plan_fingerprint',v_child_fp,'batch_index',0,
+    'batch_count',p_planned_siblings+1,'record_ids',jsonb_build_array('1')
+  ));
 begin
+  if p_planned_siblings not between 0 and 99 then raise exception 'invalid planned sibling count'; end if;
+  for v_index in 1..p_planned_siblings loop
+    v_sibling:=gen_random_uuid();
+    v_sibling_fp:=public.retailer_catalogue_sha256_json(jsonb_build_object('case',p_case,'kind','child','batch_index',v_index));
+    v_child_manifest:=v_child_manifest||jsonb_build_array(jsonb_build_object(
+      'child_plan_id',v_sibling,'child_plan_fingerprint',v_sibling_fp,'batch_index',v_index,
+      'batch_count',p_planned_siblings+1,'record_ids',jsonb_build_array((v_index+1)::text)
+    ));
+  end loop;
+  if p_manifest_drift and p_planned_siblings>0 then
+    v_child_manifest:=jsonb_set(v_child_manifest,'{1,child_plan_fingerprint}',to_jsonb(repeat('f',64)));
+  end if;
   insert into public.retailer_catalogue_parent_plans(
     id,parent_plan_fingerprint,retailer_id,target_environment,source_snapshot_fingerprint,canonical_snapshot_fingerprint,
     adapter_fingerprint,policy_fingerprint,code_commit,expected_state_fingerprint,status,expected_deltas,plan_json,
-    rollback_manifest,source_captured_at,canonical_snapshot_at,approval_id,approved_by,approved_at,approval_expires_at,
+    child_manifest,rollback_manifest,source_captured_at,canonical_snapshot_at,approval_id,approved_by,approved_at,approval_expires_at,
     created_by,audit_log
   ) values(
     v_parent,v_parent_fp,9901,'STAGING',v_source_fp,v_canonical_fp,v_adapter_fp,v_policy_fp,repeat('b',40),v_state_fp,
-    'APPROVED','{}',jsonb_build_object('case',p_case),'{}',now()-interval '3 hours',now()-interval '3 hours',
+    'APPROVED','{}',jsonb_build_object('case',p_case),v_child_manifest,'{}',now()-interval '3 hours',now()-interval '3 hours',
     v_parent_approval,'expired-close-test',now()-interval '2 hours',p_expires_at,'expired-close-test',
     jsonb_build_array(jsonb_build_object('event','PARENT_APPROVED','at',now()-interval '2 hours'))
   );
@@ -56,10 +78,27 @@ begin
     expected_deltas,plan_json,rollback_manifest,approval_id,approved_at,approval_expires_at,audit_log
   ) values(
     v_child,v_parent,9901,'STAGING',v_child_fp,v_parent_fp,v_source_fp,v_canonical_fp,v_adapter_fp,v_policy_fp,repeat('b',40),
-    v_state_fp,0,1,'expired-close:'||p_case,'expired-close:'||p_case,jsonb_build_array('1'),'APPROVED','{}',v_manifest,'[]',
+    v_state_fp,0,p_planned_siblings+1,'expired-close:'||p_case,'expired-close:'||p_case,jsonb_build_array('1'),'APPROVED','{}',v_manifest,'[]',
     v_child_approval,now()-interval '2 hours',p_expires_at,
     jsonb_build_array(jsonb_build_object('event','CHILD_APPROVED','at',now()-interval '2 hours'))
   );
+  for v_index in 1..p_planned_siblings loop
+    select (entry->>'child_plan_id')::uuid
+    into v_sibling
+    from jsonb_array_elements(v_child_manifest) entry
+    where (entry->>'batch_index')::integer=v_index;
+    v_sibling_fp:=public.retailer_catalogue_sha256_json(jsonb_build_object('case',p_case,'kind','child','batch_index',v_index));
+    insert into public.retailer_catalogue_child_plans(
+      id,parent_plan_id,retailer_id,target_environment,child_plan_fingerprint,parent_plan_fingerprint,
+      source_snapshot_fingerprint,canonical_snapshot_fingerprint,adapter_fingerprint,policy_fingerprint,code_commit,
+      expected_state_fingerprint,batch_index,batch_count,dependency_group,rollback_group,record_ids,status,
+      expected_deltas,plan_json,rollback_manifest,audit_log
+    ) values(
+      v_sibling,v_parent,9901,'STAGING',v_sibling_fp,v_parent_fp,v_source_fp,v_canonical_fp,v_adapter_fp,v_policy_fp,repeat('b',40),
+      v_state_fp,v_index,p_planned_siblings+1,'expired-close:'||p_case,'expired-close:'||p_case,
+      jsonb_build_array((v_index+1)::text),'PLANNED','{}',jsonb_build_object('schema_version',1,'case',p_case,'batch_index',v_index,'rows',jsonb_build_array(jsonb_build_object('offer_id',(v_index+1)::text))),'[]','[]'
+    );
+  end loop;
   insert into public.retailer_offer_sync_batch_approvals(
     id,child_plan_id,artifact_fingerprint,execution_fingerprint,target_environment,project_ref,database_identity,
     expected_migration_versions,expected_migration_fingerprint,migration_fingerprint_algorithm,migration_fingerprint_version,
@@ -124,6 +163,47 @@ begin
   perform public.expired_close_test_assert(public.expired_close_test_expect_error(changed,'RSBI_REPLAY_BLOCKED'),'different replay blocked');
 end
 $success$;
+
+do $sequential_tree$
+declare
+  q jsonb; r jsonb; replay jsonb; sibling uuid; sibling_approval uuid:=gen_random_uuid();
+begin
+  if (public.retailer_catalogue_actual_database_target()->>'target_environment')='PRODUCTION' then
+    q:=public.expired_close_test_seed('sequential-tree-success',now()-interval '1 hour',18);
+    r:=public.expired_close_test_call(q);
+    perform public.expired_close_test_assert(
+      r->>'status'='EXPIRED' and (r->>'expired_child_count')::int=19
+      and (r->>'approved_child_count')::int=1 and (r->>'planned_child_count')::int=18
+      and (r->>'control_writes')::int=21 and (r->>'business_writes')::int=0,
+      'sequential tree success result'
+    );
+    perform public.expired_close_test_assert(
+      (select count(*)=19 and count(*) filter(where status='EXPIRED')=19
+       from public.retailer_catalogue_child_plans where parent_plan_id=(q->>'parent_plan_id')::uuid),
+      'all sequential children expired atomically'
+    );
+    replay:=public.expired_close_test_call(q);
+    perform public.expired_close_test_assert((replay->>'already_closed')::boolean and (replay->>'control_writes')::int=0,'sequential replay no-write');
+
+    q:=public.expired_close_test_seed('sequential-sibling-state-blocked',now()-interval '1 hour',1);
+    select id into sibling from public.retailer_catalogue_child_plans
+    where parent_plan_id=(q->>'parent_plan_id')::uuid and id<>(q->>'child_plan_id')::uuid;
+    update public.retailer_catalogue_child_plans
+    set status='APPROVED',approval_id=sibling_approval,approved_at=now()-interval '2 hours',approval_expires_at=now()-interval '1 hour'
+    where id=sibling;
+    perform public.expired_close_test_assert(
+      public.expired_close_test_expect_error(q,'RSBI_PARTIAL_BATCH_STATE'),
+      'unexpected approved sibling blocked'
+    );
+
+    q:=public.expired_close_test_seed('sequential-manifest-drift-blocked',now()-interval '1 hour',1,true);
+    perform public.expired_close_test_assert(
+      public.expired_close_test_expect_error(q,'RSBI_PARTIAL_BATCH_STATE'),
+      'sequential child manifest drift blocked'
+    );
+  end if;
+end
+$sequential_tree$;
 
 do $negative$
 declare q jsonb; other jsonb; run_id uuid;
@@ -230,7 +310,8 @@ end
 $security$;
 
 select jsonb_build_object(
-  'result','PASS','cases',20,'failures',0,'skips',0,'lifecycle_status','EXPIRED',
+  'result','PASS','cases',case when (public.retailer_catalogue_actual_database_target()->>'target_environment')='PRODUCTION' then 24 else 20 end,
+  'failures',0,'skips',0,'lifecycle_status','EXPIRED',
   'business_writes',0,'price_history_writes',0,'replay_writes',0,
   'rpc_signature','close_expired_retailer_offer_sync_approval(jsonb)',
   'approver_execute',has_function_privilege('retailer_catalogue_staging_approver','public.close_expired_retailer_offer_sync_approval(jsonb)','EXECUTE'),

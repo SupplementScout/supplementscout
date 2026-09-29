@@ -6,6 +6,10 @@
 
 [RA-003 historical incident and legacy compatibility evidence](RA-003.md)
 
+[29 September production-stabilization reset and RA-004 stop decision](RA-STABILIZATION-RESET-2026-09-29.md)
+
+[RA-STAB-01 current production state and incident classification](RA-STAB-01-CURRENT-STATE-2026-09-29.md)
+
 [RA-004 10 Reps shadow pilot preflight](RA-004-PREFLIGHT.md)
 
 [RA-004 machine-readable shadow plan](RA-004-shadow-plan.json)

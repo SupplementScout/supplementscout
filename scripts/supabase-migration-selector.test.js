@@ -672,7 +672,11 @@ test("production binds its exact 221-row ledger before the Fit House parent appr
 
 test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.equal(Object.keys(contract.excluded).length, 17);
+  assert.equal(Object.keys(contract.excluded).length, 18);
+  assert.equal(
+    contract.excluded["20260929133000_extend_expired_sequential_plan_close.sql"],
+    "b0a4cac2d9c30989f00570bf1c63036daf190fffbcc7b08b17c616761bc6a380",
+  );
   assert.ok(!Object.hasOwn(
     contract.excluded,
     "20260824160000_add_identity_proven_price_observations.sql",

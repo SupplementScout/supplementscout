@@ -4,6 +4,7 @@ const path = require("node:path");
 const test = require("node:test");
 
 const migration = fs.readFileSync(path.resolve(__dirname, "../supabase/migrations/20260719090000_add_expired_retailer_offer_sync_approval_close.sql"), "utf8");
+const sequentialMigration = fs.readFileSync(path.resolve(__dirname, "../supabase/migrations/20260929133000_extend_expired_sequential_plan_close.sql"), "utf8");
 const scenario = fs.readFileSync(path.resolve(__dirname, "../supabase/test/retailer_offer_expired_approval_close_integration_test.sql"), "utf8");
 
 test("expired approval close is one transactional control-plane-only migration", () => {
@@ -37,8 +38,32 @@ test("security and replay model are narrow and fail closed", () => {
 test("disposable scenario covers success, replay, negatives, rollback and privilege matrix", () => {
   for (const token of ["unexpired", "consumed", "row-approval", "apply-run", "recovery-state", "target-mismatch", "production-target", "ledger-mismatch", "database-identity", "fingerprint-mismatch", "parent-child-mismatch", "injected-rollback"])
     assert.match(scenario, new RegExp(token));
-  assert.match(scenario, /'cases',20,'failures',0,'skips',0/);
+  assert.match(scenario, /'cases',case when[\s\S]+then 24 else 20 end/);
   assert.match(scenario, /'business_writes',0,'price_history_writes',0,'replay_writes',0/);
   for (const role of ["retailer_catalogue_staging_approver", "retailer_catalogue_staging_executor", "retailer_catalogue_staging_validator", "public"])
     assert.match(scenario, new RegExp(`has_function_privilege\\('${role}'`));
+});
+
+test("shared sequential recovery extends the existing RPC and closes the whole unexecuted tree", () => {
+  assert.match(sequentialMigration, /^begin;/i);
+  assert.match(sequentialMigration, /commit;\s*$/i);
+  assert.match(sequentialMigration, /create or replace function public\.retailer_offer_sync_close_expired_approval_internal\(p_request jsonb\)/i);
+  assert.doesNotMatch(sequentialMigration, /create\s+(?:or\s+replace\s+)?function\s+public\.(?!retailer_offer_sync_close_expired_approval_internal)/i);
+  assert.match(sequentialMigration, /retailer-offer-sync:global-execution/);
+  assert.match(sequentialMigration, /PRODUCTION:'\|\|v_retailer_id::text/);
+  assert.match(sequentialMigration, /v_approved_children<>1 or v_planned_children<>v_child_count-1/);
+  assert.match(sequentialMigration, /v_parent\.child_manifest->c\.batch_index->>'child_plan_id' is distinct from c\.id::text/);
+  assert.match(sequentialMigration, /v_parent\.child_manifest->c\.batch_index->'record_ids' is distinct from c\.record_ids/);
+  assert.match(sequentialMigration, /v_batch_approvals<>1/);
+  assert.match(sequentialMigration, /v_apply_runs<>0/);
+  assert.match(sequentialMigration, /v_row_approvals<>0/);
+  assert.match(sequentialMigration, /v_recovery_manifests<>0 or v_recovery_approvals<>0 or v_recovery_audit<>0/);
+  assert.match(sequentialMigration, /where parent_plan_id=v_parent\.id and status in \('PLANNED','APPROVED'\)/);
+  assert.match(sequentialMigration, /if v_rows<>v_child_count/);
+  assert.match(sequentialMigration, /v_after_business is distinct from v_before_business/);
+  assert.doesNotMatch(sequentialMigration, /\b(?:insert\s+into|update|delete\s+from)\s+public\.(?:retailers|products|product_variants|retailer_products|offers|price_history)\b/i);
+  assert.match(scenario, /expired_close_test_seed\('sequential-tree-success',now\(\)-interval '1 hour',18\)/);
+  assert.match(scenario, /count\(\*\)=19 and count\(\*\) filter\(where status='EXPIRED'\)=19/);
+  assert.match(scenario, /unexpected approved sibling blocked/);
+  assert.match(scenario, /sequential child manifest drift blocked/);
 });

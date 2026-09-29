@@ -1,29 +1,29 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: RA-004 ATOMIC SOURCE OBSERVATION + READ-ONLY CANARY BLOCKED — SQL CONTRACT DRIFT**
+**Status: PRODUCTION STABILIZATION ACTIVE — RA-004 LIVE RETRY STOPPED**
 
-**Current active task:** RA-004 — `IN_PROGRESS`. The sole `v3` activation is
-consumed, terminal and not replayable. It authenticated the private evidence
-store, committed and read back exactly five fresh `SOURCE_OBSERVED` rows in one
-transaction, revoked that minimal writer and ran exactly one read-only canary.
-The canary queried all 11 sources, reported `completeness_status: COMPLETE`, no
-unavailable source and zero write or mutation attempts, but the applied SQL RPC
-returned `BLOCKED_INCOMPLETE_EXPORT` because both the postflight and watchdog
-state collections were legitimately empty. That differs from the shared
-exporter contract, which treats a required source as incomplete only when the
-source cannot be queried. Cleanup completed, both temporary credentials were
-revoked, the ledger remains at 99, Q1–Q8 remain verified, business data is
-unchanged, and retry is not authorized. STAGING and PRODUCTION selectors remain
-closed. No shadow run or production operation is authorized.
+**Current active task:** RA-STAB-01 — `IN_PROGRESS`. On 29 September 2026 the
+owner stopped further RA-004 live canary retries after the five-day sequence of
+staging-interface, credential, ledger, ACL, provider-identity and final SQL
+contract failures. The consumed `v3` activation remains terminal and
+non-replayable. Its cleanup, credential revocation, closed selectors, unchanged
+business data and zero forbidden production operations remain authoritative.
 
-**Implementation:** fixture exporter plus locally database-verified forward-only
-transactional interface, exact provider-identity alignment, unwired live-provider
-contract and fail-closed migration-selector exclusion; local PostgreSQL 17
-verification passes. The unrelated Jon's, nutrition and shared-parent integration
-failures remain known baseline failures and are not changed or reclassified by
-this work. RA-004 adds no credential or production wiring.
+The immediate objective is to restore a trustworthy baseline for the existing
+production retailer paths before any consolidation work resumes. This is not a
+new runtime, importer, approval path or executor. It reuses the current
+workflows, artifacts, control ledger, Review Queue, postflight and watchdog.
+Work proceeds read-only until a specific recovery or business write has fresh
+bounded evidence and separate owner approval.
 
-**LIVE SHADOW RUN NOT AUTHORIZED**
+RA-004 is now `BLOCKED`. It may reopen only as artifact-first recorded replay:
+the same immutable snapshot must be evaluated by the current and candidate
+classifiers with zero network, control or business writes. Another staging
+credential, migration activation, live control-state export, canary, shadow
+run, cutover or retry is not authorized by this reset.
+
+See
+[`evidence/RA-STABILIZATION-RESET-2026-09-29.md`](evidence/RA-STABILIZATION-RESET-2026-09-29.md).
 
 **Allowed statuses:** `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`,
 `READY_FOR_VERIFICATION`, `READY_FOR_REVERIFICATION`, `VERIFIED_COMPLETE`
@@ -44,6 +44,100 @@ Every task records:
 - production readback:
 - owner approval reference:
 - rollback result:
+
+## RA-STAB-01 — Existing-path production stabilization
+
+**Status:** `IN_PROGRESS`
+
+**Owner decision:** explicit instruction on 29 September 2026 to stop further
+RA-004 live retries, preserve completed evidence, stabilize the existing
+production paths without retailer-specific patches, and resume consolidation
+only through recorded replay.
+
+**Goal:** establish one current, evidence-backed production state; recover
+existing paths through their current guarded mechanisms; and prove ordinary
+operation without adding a retailer branch, parallel pipeline or new writer.
+
+**Scope:** the current watchdog inventory and existing workflows; read-only run
+and artifact evidence; active-plan/session classification; source-health,
+fingerprint and evidence-correlation incidents; already-approved recovery
+mechanisms; shared regression fixes only when a repeated incident proves a
+general contract defect.
+
+**Out of scope:** another RA-004 activation, staging or production migration,
+new credential or role, live shadow, Model B activation, cutover, retailer
+migration, catalogue identity decision, commercial approval, baseline widening,
+new importer/executor and direct database write.
+
+**Execution order:**
+
+1. Capture one fresh read-only watchdog and the latest ordinary workflow
+   artifacts. Record the observation time because later successful runs may
+   supersede an earlier watchdog.
+2. Classify every non-green retailer as `SOURCE`, `CONTROL_LIFECYCLE`,
+   `FINGERPRINT_OR_IDENTITY`, `EVIDENCE_CORRELATION`, `MONITORED_DEBT` or genuine
+   `FAILED_SYSTEM`. Do not infer OOS, identity or price from a failure.
+3. Resolve one dependency class at a time using an existing recovery mechanism.
+   A production/control write, approval or migration requires a separate exact
+   owner authorization and is not implied by this task.
+4. If code is necessary, first add the incident as a common-harness regression.
+   The fix must be retailer-neutral, preserve every guard and avoid a new entry
+   point. A retailer-specific condition stops the task for design review.
+5. Require three consecutive ordinary schedule intervals with no unexplained
+   result, plus event coverage or recorded replay for every affected class.
+6. Close with a fresh watchdog, correlated evidence, exact remaining monitored
+   debt and zero-unrelated-change proof. Only then decide whether artifact-first
+   RA-004 may reopen.
+
+**First checkpoint — complete:** documentation reset and current-state read-only
+capture. Watchdog run `36564343116`, generated
+`2026-09-29T11:51:54.990Z`, inspected all 12 configured retailers, reported six
+failures and made zero database writes. The classified inventory and retained
+artifact digest are recorded in
+[`evidence/RA-STAB-01-CURRENT-STATE-2026-09-29.md`](evidence/RA-STAB-01-CURRENT-STATE-2026-09-29.md).
+
+**Current bounded step:** verify and review one shared recovery contract; no
+deployment or recovery write is authorized. The shared ambiguous-registration
+diagnostic fix is verified. The 10 Reps
+failure is reproduced: run `36400487268` registered a control plan and then
+timed out during parent approval; the next run correctly blocked the duplicate.
+The shared engine now retains exact registered parent/child identity before the
+next boundary and reports an unknown parent-approval outcome explicitly. Its
+focused 39-test suite, repository quick gate and full gate pass. The separately
+authorized production readback at `2026-09-29T12:54:55.079Z` proved that one
+expired 10 Reps parent is the sole global parent blocker: parent `APPROVED`, one
+child `APPROVED`, 18 children `PLANNED`, one expired unconsumed batch approval,
+zero apply runs and zero business writes. Whey Okay has no active parent of its
+own; its legacy RPC is blocked by that global parent count. The existing expired
+approval close RPC was not safe for this multi-child state because it closed only
+the approved child and parent, leaving 18 planned children. A retailer-neutral
+forward migration now extends that same RPC and approver role to atomically
+expire the entire wholly unexecuted sequential tree. It is SHA-bound and
+excluded from both normal selectors. Its isolated PostgreSQL regression passes
+for 19 children, replay, sibling-state rejection and zero business writes. No
+deployment, ledger mutation, approval, replay or expiry is authorized.
+
+**Acceptance:**
+
+- one timestamped inventory for all 12 configured retailers;
+- every failure has one evidence-backed class, blocking scope and next action;
+- no silent row and no normal review reported as `FAILED_SYSTEM`;
+- no new retailer-specific shared-core branch, workflow, approval path or writer;
+- every code fix has a common regression and passes quick/full gates;
+- three consecutive ordinary intervals satisfy the observation contract;
+- final read-only watchdog and postflight evidence agree;
+- all writes, if later separately approved, have exact before/after evidence and
+  independent readback.
+
+**Hard stop conditions:** stop before implementation if current code,
+documentation and production evidence conflict; a fix requires a new
+retailer-ID/name branch; the same incident cannot be reproduced in a fixture;
+the proposed action weakens source, identity, stale-state, approval, atomicity,
+postflight or idempotency guards; or required recovery authority is absent.
+
+**Rollback:** documentation-only reset is reverted as one commit. Any later
+runtime change must have its own task-local rollback; no task may delete control
+history, approvals, price history or review evidence.
 
 ## RA-000 — Baseline and audit
 
@@ -211,7 +305,15 @@ mutation and emitter-reference checks, fresh local quality gates and PR #87 CI.
 
 ## RA-004 — 10 Reps shadow-mode pilot
 
-**Status:** `IN_PROGRESS`
+**Status:** `BLOCKED`
+
+**Owner stop/reset — 29 September 2026:** no further live retry is authorized.
+All completed RA-000–RA-003 contracts, incident fixtures and RA-004 local replay
+evidence are retained. Historical activation and failure records below remain
+immutable evidence, not a queue of work to continue. RA-004 can be reconsidered
+only after RA-STAB-01 closes and only as artifact-first recorded replay with zero
+network, credential, control and business writes. Any later live shadow or
+cutover requires a new task and separate owner authorization.
 
 **Preflight gate:** `PREFLIGHT VERIFIED` — the documentation and blockers were
 independently verified; there is still no safe single-snapshot legacy replay
