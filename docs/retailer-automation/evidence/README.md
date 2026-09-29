@@ -1,5 +1,19 @@
 # Retailer automation audit evidence — 23 September 2026
 
+## Current authority
+
+The current retailer task is RA-STAB-01 and RA-004 is owner-stopped and
+`BLOCKED`. Older statements below that say RA-004 is `IN_PROGRESS` or
+`NOT_STARTED` are retained historical checkpoints, not current authority. The
+[29 September stabilization reset](RA-STABILIZATION-RESET-2026-09-29.md) and
+the [execution ledger](../EXECUTION-PLAN.md) supersede those status statements.
+
+The read-only
+[evidence-preservation audit](RA-STAB-01-EVIDENCE-PRESERVATION-AUDIT.json)
+classifies RA-000–004 material as tracked replayable evidence, tracked decision
+evidence, digest-only evidence without a retrievable locator, or missing replay
+input. It does not authorize RA-004, a new capture or any write.
+
 [RA-001 architecture decision pack](../RA-001-DECISION-PACK.md)
 
 [RA-002 canonical contract and zero-write harness evidence](RA-002.md)
@@ -7,6 +21,8 @@
 [RA-003 historical incident and legacy compatibility evidence](RA-003.md)
 
 [29 September production-stabilization reset and RA-004 stop decision](RA-STABILIZATION-RESET-2026-09-29.md)
+
+[RA-STAB-01 evidence-preservation and replay-readiness audit](RA-STAB-01-EVIDENCE-PRESERVATION-AUDIT.json)
 
 [RA-STAB-01 current production state and incident classification](RA-STAB-01-CURRENT-STATE-2026-09-29.md)
 

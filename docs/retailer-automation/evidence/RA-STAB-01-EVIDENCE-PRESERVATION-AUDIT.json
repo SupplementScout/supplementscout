@@ -1,0 +1,224 @@
+{
+  "schema_version": "ra-stab-01-evidence-preservation-audit-v1",
+  "status": "PRESERVATION_AUDITED_REPLAY_BUNDLE_INCOMPLETE",
+  "task_id": "RA-STAB-01",
+  "recorded_at": "2026-09-29T16:03:43.2803745Z",
+  "repository": {
+    "main_commit": "00853575d4808af764b02203a9795da0028c1b83",
+    "audit_mode": "READ_ONLY_DOCUMENTATION",
+    "network_capture_attempts": 0,
+    "database_read_attempts": 0,
+    "database_write_attempts": 0,
+    "workflow_dispatch_attempts": 0
+  },
+  "definitions": {
+    "TRACKED_REPLAYABLE": "Required bytes and deterministic local verifier are tracked in Git.",
+    "TRACKED_DECISION_EVIDENCE": "Decision or closeout evidence is tracked, but it is not itself a replay input bundle.",
+    "DIGEST_ONLY_NOT_RETRIEVABLE": "A digest is tracked but no repository locator or retained path proves that the bytes can be retrieved.",
+    "MISSING_REQUIRED_FOR_REPLAY": "The required artifact does not exist in the audited repository evidence."
+  },
+  "phases": {
+    "RA-000": {
+      "status": "VERIFIED_COMPLETE",
+      "preservation_assessment": "TRACKED_DECISION_EVIDENCE_WITH_EXTERNAL_ARTIFACT_GAPS",
+      "merge_commit": "941ae30654e1135b192729fb4666106cfa461cac",
+      "pull_request": 84,
+      "independent_verification_commit": "8745b8bbc7fd9f7f8b324bcef69b3cac00c8ef75",
+      "tracked": [
+        {
+          "path": "docs/retailer-automation/AUDIT.md",
+          "sha256": "f1688392c5c3ac6a54ee6e05fe7ffe8e93383d0f40a98114b76da7f4eda680f2",
+          "git_blob": "9ef941e04dfb6d3ffb0542a1df510a2817f4f249"
+        }
+      ],
+      "limitations": [
+        "The downloaded audit artifacts were retained only in an ignored temporary directory; the repository preserves their run IDs and digests, not their bytes.",
+        "The historical recorded-evidence field says owner approval was pending verification; the later independent verification proves the documentation audit, not a separate cryptographic owner receipt."
+      ]
+    },
+    "RA-001": {
+      "status": "VERIFIED_COMPLETE",
+      "preservation_assessment": "TRACKED_DECISION_EVIDENCE",
+      "merge_commit": "74e079ad099e72e2c7dcf84c9f4909c164740f17",
+      "pull_request": 85,
+      "tracked": [
+        {
+          "path": "docs/retailer-automation/ARCHITECTURE.md",
+          "sha256": "63890ba0b097e865e2feb1b1143230e4fcfb9ab8d21e073678e723ff1a72315d",
+          "git_blob": "d6ba2477d5a047e83c1f918df9161550395108c0"
+        },
+        {
+          "path": "docs/retailer-automation/RA-001-DECISION-PACK.md",
+          "sha256": "b367eed34ad0330151b6b9997209f6082d4f74f479874b487cbd4999a21c066a",
+          "git_blob": "f3fe76d93fca96b72caddfa81bd21c1b781d7fd7"
+        }
+      ],
+      "owner_decision": {
+        "recorded_date": "2026-09-23",
+        "decision_count": 5,
+        "runtime_authority_granted": false,
+        "machine_readable_receipt_present": false
+      },
+      "limitations": [
+        "The owner decision is preserved as tracked prose; no separately fingerprinted machine-readable authorization receipt exists."
+      ]
+    },
+    "RA-002": {
+      "status": "VERIFIED_COMPLETE",
+      "preservation_assessment": "TRACKED_REPLAYABLE_FOR_CANONICAL_LOCAL_FIXTURES",
+      "merge_commit": "87cc53cff4af585ac626db26c54d94f053972762",
+      "pull_request": 86,
+      "tracked": [
+        {
+          "path": "docs/retailer-automation/evidence/RA-002.md",
+          "sha256": "328701947aa2b25228d9b5916b081d07579211c39ec9d4f69f6393dfd062ce9e",
+          "git_blob": "fe3824e32a4d284dfb1ef2bafbc178e465d652f6"
+        }
+      ],
+      "local_replay": {
+        "deterministic": true,
+        "write_attempt_count": 0,
+        "network_attempt_count": 0,
+        "production_wiring": false
+      },
+      "limitations": [
+        "The neutral fixtures prove the canonical contract but do not include a current raw 10 Reps snapshot or production-state export."
+      ]
+    },
+    "RA-003": {
+      "status": "VERIFIED_COMPLETE",
+      "preservation_assessment": "TRACKED_REPLAYABLE_WITH_EXPLICIT_EVIDENCE_GAPS",
+      "merge_commit": "74b2360a064c16c98fd7fe4291698713cc3e1801",
+      "pull_request": 87,
+      "tracked": [
+        {
+          "path": "docs/retailer-automation/evidence/RA-003.md",
+          "sha256": "e2621dcb96acb4e5cd6c90d8c015f9378a620320f1d8ec5245379b921aadb86c",
+          "git_blob": "298083bab331259ac0a0cfc2cb5b0087e8ccfc33"
+        },
+        {
+          "path": "docs/retailer-automation/evidence/RA-003-incidents.json",
+          "sha256": "95a33818f038577acc82e751d7092a557b030494640f8d22e7caea02998a8d04",
+          "git_blob": "23c441975ac2fc8704f1d929808b9a874f2778d6"
+        },
+        {
+          "path": "scripts/test-fixtures/retailer-canonical-v1/historical-incident-fixtures.json",
+          "sha256": "33af3ffe08c96b552f470d714b832b6908dad226214ca48838d17a0c619a1039",
+          "git_blob": "16b224c9eca9a60c4bfec435f740dc2ff8479d7e"
+        },
+        {
+          "path": "scripts/test-fixtures/retailer-canonical-v1/historical-incident-goldens.json",
+          "sha256": "7b7f7cfc8a9a98adb540f199056a68e834dbded72a08c1d93ef37de09cda7004",
+          "git_blob": "6d653157210aa8e28d46f628b23a0ef3d7dd6b6f"
+        },
+        {
+          "path": "scripts/test-fixtures/retailer-canonical-v1/legacy-compatibility-matrix.json",
+          "sha256": "a8f7f23552744aa221eab3e66695ebc577a4f6621af896ab3e8ff159ea282822",
+          "git_blob": "12fd22597384e294e1695a24c03a92cc9c7bdd09"
+        }
+      ],
+      "coverage": {
+        "incidents": 23,
+        "covered": 16,
+        "blocked_evidence": 3,
+        "deferred_out_of_scope": 1,
+        "duplicate_coverage": 3,
+        "write_attempt_count": 0,
+        "network_attempt_count": 0
+      },
+      "limitations": [
+        "INC-002, INC-003 and INC-021 remain BLOCKED_EVIDENCE and must not be treated as replay-proven.",
+        "Predators Gear remains deferred because no trustworthy source artifact exists.",
+        "The tracked fixtures are minimal semantic regressions, not byte-level copies of every original incident."
+      ]
+    },
+    "RA-004": {
+      "status": "BLOCKED_TERMINAL_LIVE_RETRY_STOPPED",
+      "preservation_assessment": "TRACKED_CLOSEOUT_PRIVATE_ARTIFACTS_DIGEST_ONLY_REPLAY_BUNDLE_MISSING",
+      "terminal_execution_commit": "c57c6abbb2e0e01842dd279613b4bbc1d9344966",
+      "terminal_closeout_commit": "8a38f5568ffa1c44f5a14406574718382d4cfb47",
+      "terminal_closeout_pull_request": 143,
+      "tracked": [
+        {
+          "path": "docs/retailer-automation/evidence/RA-004-atomic-source-observation-canary-activation-v3.json",
+          "sha256": "e9770a6dfb5416059e707dc0d2945730ed822c4b9bf089d7e9a5158b4b6f9b46",
+          "git_blob": "14f180e065ab8094a3a726a11141ebd6da6bfebf"
+        },
+        {
+          "path": "docs/retailer-automation/evidence/RA-004-atomic-source-observation-canary-closeout-v3.json",
+          "sha256": "bf32555a55af8dc7b91b0ef33d7fb1920a2a2988d27e7d61469ff2f6a1037982",
+          "git_blob": "45b5736ac6d0f3cd55a249769e8aaf14fc2ac30f"
+        },
+        {
+          "path": "docs/retailer-automation/evidence/RA-STABILIZATION-RESET-2026-09-29.md",
+          "sha256": "5e550a623734275dae8111040167c6eb258b09a00c559003c8bf27066caf78f0",
+          "git_blob": "e2b66b6e4a63c328a37c81bf236258d36f7889e6"
+        },
+        {
+          "path": "docs/retailer-automation/evidence/RA-004-shadow-plan.json",
+          "sha256": "99e40d7f366a1ec34735267c5dd242fcc37734a48a7463f32692ca25194ea0dc",
+          "git_blob": "37fbe824edf8223860e8c4b880ddc2eb422c5fbe",
+          "historical_status": "NOT_AUTHORIZED"
+        }
+      ],
+      "terminal_execution": {
+        "required_sources_queried": 11,
+        "completeness_status": "COMPLETE",
+        "canary_read_attempt_count": 1,
+        "canary_write_attempt_count": 0,
+        "canary_mutation_attempt_count": 0,
+        "source_observation_evidence_writes": 5,
+        "business_data_unchanged": true,
+        "credentials_revoked": 2,
+        "roles_absent": true,
+        "memberships_absent": true,
+        "active_backends_absent": true,
+        "staging_selector": "CLOSED",
+        "production_selector": "CLOSED",
+        "retry_authorized": false,
+        "replayable": false
+      },
+      "private_evidence": [
+        {
+          "kind": "source_observation",
+          "sha256": "37df0270bc9dc2287272ad1caa60cf2e72705fc5b52e90c694cc6b23afe65c52",
+          "state": "DIGEST_ONLY_NOT_RETRIEVABLE"
+        },
+        {
+          "kind": "control_state_canary",
+          "sha256": "f27fe55c4c0c7d6539626d57caa15a0aa5ae77e283f65c8931136dd460a596e9",
+          "state": "DIGEST_ONLY_NOT_RETRIEVABLE"
+        },
+        {
+          "kind": "local_failure_closeout",
+          "sha256": "db21dbda48020068304f477e4c4c3f9e277019dfc8b07696316dc04841822cd9",
+          "state": "DIGEST_ONLY_NOT_RETRIEVABLE"
+        },
+        {
+          "kind": "private_execution_report",
+          "sha256": "bc45ec5e9033b3c7049edd83497aaa920dcd62bfb6019634106d3e0cb3893931",
+          "state": "DIGEST_ONLY_NOT_RETRIEVABLE"
+        }
+      ],
+      "missing_required_for_artifact_first_replay": [
+        "current immutable raw 10 Reps snapshot with retrievable object locator, SHA-256 and retention metadata",
+        "retrievable redacted control-state export locator and digest",
+        "paired legacy and canonical outputs from the exact same current input",
+        "complete 950-row accounting and row-level matching report",
+        "parity report using the six approved difference classes",
+        "repeat-replay determinism report",
+        "sealed zero-network, zero-control-write and zero-business-write attestation",
+        "artifact index binding every object to commit, tool versions, configuration, manifest, time and owner scope"
+      ]
+    }
+  },
+  "conclusions": {
+    "ra000_through_ra003_decisions_and_local_tests_reconstructable": true,
+    "ra004_terminal_closeout_reconstructable": true,
+    "ra004_private_evidence_bytes_proven_retrievable": false,
+    "artifact_first_recorded_replay_ready": false,
+    "ra004_reopen_authorized": false,
+    "new_live_capture_authorized": false,
+    "next_gate": "Finish RA-STAB-01 ordinary-interval acceptance. Then audit private-object retrievability without a new capture. If required bytes are unavailable, obtain separate owner authority for exactly one immutable current capture before offline replay."
+  }
+}
