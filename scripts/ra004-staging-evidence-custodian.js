@@ -7,6 +7,8 @@ const REQUEST_TIMEOUT_MS = 10_000;
 const allowedNames = new Set([
   "preflight-report.json",
   "preflight-revoke.json",
+  "source-observation.json",
+  "source-observation-revoke.json",
   "control-state-canary.json",
   "control-state-revoke.json",
   "policy-attestation.json",

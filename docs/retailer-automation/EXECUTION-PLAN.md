@@ -1,21 +1,22 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: RA-004 FINAL READ-ONLY CANARY REACTIVATION CONSUMED — SOURCE OBSERVATIONS EXPIRED**
+**Status: RA-004 ATOMIC SOURCE OBSERVATION + READ-ONLY CANARY PREPARED**
 
-**Current active task:** RA-004 — `IN_PROGRESS`. The distinct `v2` read-only
-canary activation was consumed once with no migration, preflight or retry. It
-stopped as `CONTROL_EXPORT_SOURCE_UNAVAILABLE` because all five bounded
-`SOURCE_OBSERVED` rows had expired after 20 minutes before the canary started.
-The staging ledger remains at 99, Q1–Q8 remain verified, cleanup and revoke are
-complete, and both `v1` and `v2` are terminal. The earlier attempt exposed a
+**Current active task:** RA-004 — `IN_PROGRESS`. One `v3` activation is prepared
+to reuse the existing bounded observer and existing read-only canary in a single
+coordinator: authenticate the private evidence store, commit and read back
+exactly five fresh `SOURCE_OBSERVED` rows, revoke the minimal writer, then run
+exactly one canary while at least five minutes remain in the observations' fixed
+20-minute lifetime. It authorizes no migration, preflight, retry or production
+operation. The staging ledger remains at 99, Q1–Q8 remain verified, and both
+`v1` and `v2` are terminal. The earlier attempt exposed a
 missing bounded-transport diagnostic boundary:
 raw PostgreSQL SQLSTATE values were rejected by the outer safe serializer and
 collapsed to `RA004_UNCLASSIFIED_FAILURE`. The shared transport now classifies
 connect, transaction, RPC, proof, rollback and close failures into stable
 redacted codes. The PostgreSQL 17 suite exercises the real Node `pg` transport,
 and terminal closeout is sealed only after cleanup. STAGING and PRODUCTION
-selectors remain closed. No retry, shadow run or production operation is
-authorized.
+selectors remain closed. No shadow run or production operation is authorized.
 
 **Implementation:** fixture exporter plus locally database-verified forward-only
 transactional interface, exact provider-identity alignment, unwired live-provider

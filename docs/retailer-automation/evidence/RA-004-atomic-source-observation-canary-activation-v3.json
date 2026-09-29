@@ -1,0 +1,94 @@
+{
+  "schema_version": "ra-004-atomic-source-observation-canary-activation-v1",
+  "status": "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED",
+  "task_id": "RA-004",
+  "activation_id": "ra004-atomic-source-observation-canary-2026-09-29-v3",
+  "baseline_sha": "227529abc7e3adf71dd88904d1d592f1126b4f17",
+  "owner_authorization": {
+    "scope": "one atomic staging activation: exactly five fresh SOURCE_OBSERVED rows followed immediately by exactly one read-only control-state canary",
+    "authorized_at": "2026-09-29",
+    "retry_authorized": false
+  },
+  "target": {
+    "environment": "STAGING",
+    "project_ref": "hxnrsyyqffztlvcrtgbf",
+    "parent_project_ref": "aftboxmrdgyhizicfsfu",
+    "database_host": "aws-0-eu-west-3.pooler.supabase.com",
+    "persistent_branch": true,
+    "retailer": {
+      "id": "11",
+      "name": "10 Reps",
+      "slug": "10-reps"
+    }
+  },
+  "ledger": {
+    "count": 99,
+    "fingerprint": "a6e7693f964925554e807602752e4630d14f537a1d9de4fe82f8433d30c307cc",
+    "last_version": "20260928101000",
+    "last_name": "align_ra004_control_export_provider_identity"
+  },
+  "migrations": [],
+  "migration_attempts_authorized": 0,
+  "preflight": {
+    "attempts_authorized": 0,
+    "prior_status": "VERIFIED_COMPLETE",
+    "report_fingerprint": "b1719dbbaad328e7bc0f0dc7b24307f3b5c828fe1af43d7cad5e98aa9599f40c"
+  },
+  "source_observation": {
+    "maximum_transactions": 1,
+    "required_rows": 5,
+    "required_sources": [
+      "sessions",
+      "locks",
+      "postflight_state",
+      "watchdog_state",
+      "global_conflicts"
+    ],
+    "lifetime_minutes": 20,
+    "same_activation_before_canary": true,
+    "retry_authorized": false
+  },
+  "canary": {
+    "maximum_attempts": 1,
+    "automatic_retry": false,
+    "read_only": true
+  },
+  "evidence_store": {
+    "session_required_before_source_observation": true,
+    "session_required_before_canary": true,
+    "authentication_attempts": 1,
+    "private": true,
+    "write_once": true
+  },
+  "production": {
+    "authorized": false,
+    "selector_unchanged": true,
+    "operation_count": 0
+  },
+  "forbidden": [
+    "migration",
+    "preflight",
+    "retry",
+    "production",
+    "feed_capture",
+    "shadow_run",
+    "control_plan",
+    "approval",
+    "import",
+    "apply",
+    "model_b",
+    "auto_safe",
+    "cutover"
+  ],
+  "execution": {
+    "started": false,
+    "migration_attempt_count": 0,
+    "preflight_attempt_count": 0,
+    "source_observation_transaction_count": 0,
+    "source_observation_row_count": 0,
+    "canary_attempt_count": 0,
+    "closed": false,
+    "retry_authorized": false,
+    "replayable": false
+  }
+}

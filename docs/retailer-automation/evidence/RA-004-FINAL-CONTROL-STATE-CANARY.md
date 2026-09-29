@@ -1,6 +1,21 @@
 # RA-004 final control-state canary
 
-Current activation: `ATTEMPT_CONSUMED_FAILED_TERMINAL`.
+Current activation: `OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED`.
+
+Activation `v3` is one bounded staging operation on baseline
+`227529abc7e3adf71dd88904d1d592f1126b4f17`. It reuses the existing source
+observer and existing read-only control-state canary in one coordinator. After
+the private evidence-store session is authenticated, it writes exactly five
+fresh `SOURCE_OBSERVED` evidence rows in one transaction, reads back exact 5/5
+coverage, revokes that minimal writer, and starts the sole read-only canary
+before at least five minutes remain in the observations' fixed 20-minute
+lifetime. Migrations and preflight attempts remain zero. Both migration
+selectors remain closed.
+
+The activation fails closed before the canary if exact observation readback,
+writer revoke, freshness, ledger 99, applied migration hashes, project identity,
+retailer identity, evidence authentication or business-row baseline checks do
+not match. It has no retry path.
 
 Both `v1` and `v2` activations are consumed, terminal and not reusable. The
 `v2` activation ran once at execution commit
