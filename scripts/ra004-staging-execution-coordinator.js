@@ -16,14 +16,16 @@ const { validateLocalCa } = require("./ra004-acl-rls-readonly-audit");
 const ROOT = path.resolve(__dirname, "..");
 const REF = "hxnrsyyqffztlvcrtgbf";
 const API_HOST = "hxnrsyyqffztlvcrtgbf.supabase.co";
-const BASELINE = "453dbe67161318d1f49853e6b0f94c1a253fd66b";
+const BASELINE = "10f8fbf1e040704a74460c0988da8ff00d092c78";
+const TERMINAL_BASELINE = "453dbe67161318d1f49853e6b0f94c1a253fd66b";
 const ACL_MIGRATION_SHA = "58aa82b328b9bb77c09b9975892042027a493254add99fb2e1dcf045303c0b0d";
 const PROVIDER_IDENTITY_SHA = "4454cebd1e462a20d4a612d253025c013b5c8276a4d51aa4e43016a7f248fc91";
 const BUCKET = "ra004-staging-preflight-evidence";
 const EXPECTED_LEDGER_COUNT = 99;
 const EXPECTED_LEDGER_FINGERPRINT = "a6e7693f964925554e807602752e4630d14f537a1d9de4fe82f8433d30c307cc";
 const PRIOR_PREFLIGHT_FINGERPRINT = "b1719dbbaad328e7bc0f0dc7b24307f3b5c828fe1af43d7cad5e98aa9599f40c";
-const ACTIVATION_MANIFEST = "RA-004-final-control-state-canary-activation.json";
+const ACTIVATION_MANIFEST = "RA-004-final-control-state-canary-reactivation-v2.json";
+const TERMINAL_ACTIVATION_MANIFEST = "RA-004-final-control-state-canary-activation.json";
 const REQUIRED_APPLIED_MIGRATIONS = Object.freeze([
   ["20260928100000_diagnose_ra004_preflight_acl_rls.sql", ACL_MIGRATION_SHA],
   ["20260928101000_align_ra004_control_export_provider_identity.sql", PROVIDER_IDENTITY_SHA],
@@ -269,7 +271,7 @@ function validateReadOnlyActivation(value) {
 function validateTerminalActivation(value) {
   invariant(value?.schema_version === "ra-004-final-control-state-canary-activation-v1"
     && value.status === "ATTEMPT_CONSUMED_FAILED_TERMINAL"
-    && value.baseline_sha === BASELINE, "RA004_ACTIVATION_TERMINAL_STATE_INVALID");
+    && value.baseline_sha === TERMINAL_BASELINE, "RA004_ACTIVATION_TERMINAL_STATE_INVALID");
   invariant(value.target?.environment === "STAGING" && value.target?.project_ref === REF
     && value.target?.parent_project_ref === "aftboxmrdgyhizicfsfu"
     && value.target?.database_host === "aws-0-eu-west-3.pooler.supabase.com"
@@ -296,8 +298,7 @@ function activationPath() {
 }
 function assertActivationExecutable() {
   const value = JSON.parse(fs.readFileSync(activationPath(), "utf8"));
-  validateTerminalActivation(value);
-  invariant(false, "RA004_ACTIVATION_TERMINAL");
+  return validateReadOnlyActivation(value);
 }
 function assertSelectorsClosed(contracts = selector.CONTRACTS) {
   const staging = contracts.STAGING;
@@ -562,7 +563,8 @@ if (require.main === module) {
 module.exports = {
   ACL_MIGRATION_SHA, ACTIVATION_MANIFEST, API_HOST, BASELINE, BUCKET,
   EXPECTED_LEDGER_COUNT, EXPECTED_LEDGER_FINGERPRINT, PRIOR_PREFLIGHT_FINGERPRINT,
-  PROVIDER_IDENTITY_SHA, REF, REQUIRED_APPLIED_MIGRATIONS, assertSelectorsClosed,
+  PROVIDER_IDENTITY_SHA, REF, REQUIRED_APPLIED_MIGRATIONS, TERMINAL_ACTIVATION_MANIFEST,
+  TERMINAL_BASELINE, assertSelectorsClosed,
   assertActivationExecutable, buildFailureReport, readExecutionCommit, safeFailureCode,
   validateReadOnlyActivation, validateTerminalActivation,
 };
