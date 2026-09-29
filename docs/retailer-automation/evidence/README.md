@@ -14,6 +14,8 @@
 
 [RA-004 control-export provider identity correction](RA-004-CONTROL-EXPORT-PROVIDER-IDENTITY.md)
 
+[RA-004 provider-identity staging attempt closeout](RA-004-PROVIDER-IDENTITY-STAGING-ATTEMPT-CLOSEOUT.md)
+
 [RA-004 transactional control-state interface design](RA-004-CONTROL-STATE-INTERFACE-DESIGN.md)
 
 [RA-004 local control-state implementation evidence](RA-004-CONTROL-STATE-LOCAL-IMPLEMENTATION.md)

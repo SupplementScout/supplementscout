@@ -50,7 +50,7 @@ test("provider identity migration is the only selected migration", () => {
   assert.doesNotMatch(coordinator, /await db\(sql\)/);
 });
 
-test("historical activations are terminal and final read-only activation is exact", () => {
+test("all staging activations are terminal and the consumed provider activation is not replayable", () => {
   const { validateReadOnlyActivation } = require("./ra004-staging-execution-coordinator");
   const consumed = JSON.parse(fs.readFileSync(path.join(ROOT,
     "docs/retailer-automation/evidence/RA-004-acl-rls-correction-activation.json"), "utf8"));
@@ -78,7 +78,32 @@ test("historical activations are terminal and final read-only activation is exac
   assert.throws(() => validateReadOnlyActivation(priorFinal), /RA004_ACTIVATION_SCHEMA_MISMATCH/);
   const authorized = JSON.parse(fs.readFileSync(path.join(ROOT,
     "docs/retailer-automation/evidence/RA-004-provider-identity-staging-activation.json"), "utf8"));
-  assert.equal(validateReadOnlyActivation(authorized), authorized);
+  assert.equal(authorized.status, "ATTEMPT_CONSUMED_FAILED_TERMINAL");
+  assert.equal(authorized.execution.migration_attempt_count, 1);
+  assert.equal(authorized.execution.preflight_attempt_count, 1);
+  assert.equal(authorized.execution.canary_attempt_count, 1);
+  assert.equal(authorized.execution.migrations_applied, 1);
+  assert.equal(authorized.execution.closed, true);
+  assert.equal(authorized.execution.retry_authorized, false);
+  assert.equal(authorized.execution.replayable, false);
+  assert.throws(() => validateReadOnlyActivation(authorized), /RA004_ACTIVATION_NOT_AUTHORIZED/);
+  const preparedProvider = structuredClone(authorized);
+  preparedProvider.status = "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED";
+  preparedProvider.execution = {
+    runtime_activation_id: null,
+    execution_commit: null,
+    started: false,
+    window_started: false,
+    migration_attempt_count: 0,
+    preflight_attempt_count: 0,
+    canary_attempt_count: 0,
+    evidence_store_session: "NOT_CREATED",
+    cleanup_status: "NOT_REQUIRED",
+    closed: false,
+    retry_authorized: false,
+    replayable: false,
+  };
+  assert.equal(validateReadOnlyActivation(preparedProvider), preparedProvider);
   for (const mutate of [
     (value) => { value.status = "CONSUMED"; },
     (value) => { value.production.authorized = true; },
@@ -88,7 +113,7 @@ test("historical activations are terminal and final read-only activation is exac
     (value) => { value.evidence_store.session_required_before_migration = false; },
     (value) => { value.execution.started = true; },
   ]) {
-    const changed = structuredClone(authorized);
+    const changed = structuredClone(preparedProvider);
     mutate(changed);
     assert.throws(() => validateReadOnlyActivation(changed), /RA004_/);
   }
@@ -165,7 +190,13 @@ test("activation contains exactly one migration and production stays closed", ()
   }]);
   assert.equal(manifest.apply.maximum_attempts, 1);
   assert.equal(manifest.apply.include_all, false);
-  assert.equal(manifest.execution.migration_attempt_count, 0);
+  assert.equal(manifest.status, "ATTEMPT_CONSUMED_FAILED_TERMINAL");
+  assert.equal(manifest.execution.migration_attempt_count, 1);
+  assert.equal(manifest.execution.preflight_attempt_count, 1);
+  assert.equal(manifest.execution.canary_attempt_count, 1);
+  assert.equal(manifest.execution.migrations_applied, 1);
+  assert.equal(manifest.execution.closed, true);
+  assert.equal(manifest.execution.replayable, false);
   assert.equal(manifest.production.authorized, false);
   assert.equal(manifest.production.selector_unchanged, true);
   assert.match(coordinator, /const operationAttempts=\{migration:0,preflight:0,canary:0\}/);
