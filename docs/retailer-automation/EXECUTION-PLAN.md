@@ -1,10 +1,14 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: RA-004 CANARY TRANSPORT DIAGNOSTIC CONTRACT IN VERIFICATION**
+**Status: RA-004 FINAL READ-ONLY CANARY REACTIVATION PREPARED**
 
-**Current active task:** RA-004 — `IN_PROGRESS`. The staging ledger remains at
-99 and Q1–Q8 remain verified. The single authorized canary attempt was consumed
-and is terminal. It exposed a missing bounded-transport diagnostic boundary:
+**Current active task:** RA-004 — `IN_PROGRESS`. One owner-authorized read-only
+canary activation is prepared from baseline
+`10f8fbf1e040704a74460c0988da8ff00d092c78`; it permits no migration, preflight
+or retry. The staging ledger remains at
+99 and Q1–Q8 remain verified. The previous `v1` canary attempt was consumed
+and remains terminal; the prepared `v2` activation is a distinct authorization.
+The prior attempt exposed a missing bounded-transport diagnostic boundary:
 raw PostgreSQL SQLSTATE values were rejected by the outer safe serializer and
 collapsed to `RA004_UNCLASSIFIED_FAILURE`. The shared transport now classifies
 connect, transaction, RPC, proof, rollback and close failures into stable

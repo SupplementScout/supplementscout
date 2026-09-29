@@ -17,7 +17,7 @@ const { normalizeTransportFailure } = require("./lib/ra004-live-transport-failur
 test("final canary is pinned to the approved staging ledger and already-applied migrations", () => {
   assert.equal(values.REF, "hxnrsyyqffztlvcrtgbf");
   assert.equal(values.API_HOST, "hxnrsyyqffztlvcrtgbf.supabase.co");
-  assert.equal(values.BASELINE, "453dbe67161318d1f49853e6b0f94c1a253fd66b");
+  assert.equal(values.BASELINE, "10f8fbf1e040704a74460c0988da8ff00d092c78");
   assert.equal(values.EXPECTED_LEDGER_COUNT, 99);
   assert.equal(values.EXPECTED_LEDGER_FINGERPRINT,
     "a6e7693f964925554e807602752e4630d14f537a1d9de4fe82f8433d30c307cc");
@@ -32,13 +32,18 @@ test("final canary is pinned to the approved staging ledger and already-applied 
   assert.match(coordinator, /retailer\[0\]\.id === "11"/);
 });
 
-test("consumed activation is terminal before any credential or remote operation", () => {
-  const file = path.join(ROOT, "docs", "retailer-automation", "evidence",
-    "RA-004-final-control-state-canary-activation.json");
-  const manifest = JSON.parse(fs.readFileSync(file, "utf8"));
-  assert.equal(values.validateTerminalActivation(manifest), manifest);
-  assert.throws(() => values.validateReadOnlyActivation(manifest), /RA004_ACTIVATION_NOT_AUTHORIZED/);
-  assert.throws(() => values.assertActivationExecutable(), /RA004_ACTIVATION_TERMINAL/);
+test("new activation is executable once while the consumed activation remains terminal", () => {
+  const evidence = path.join(ROOT, "docs", "retailer-automation", "evidence");
+  const manifest = JSON.parse(fs.readFileSync(path.join(evidence, values.ACTIVATION_MANIFEST), "utf8"));
+  const terminal = JSON.parse(fs.readFileSync(path.join(evidence,
+    values.TERMINAL_ACTIVATION_MANIFEST), "utf8"));
+  assert.deepEqual(values.assertActivationExecutable(), manifest);
+  assert.equal(values.validateReadOnlyActivation(manifest), manifest);
+  assert.equal(values.validateTerminalActivation(terminal), terminal);
+  assert.throws(() => values.validateReadOnlyActivation(terminal), /RA004_ACTIVATION_NOT_AUTHORIZED/);
+  assert.equal(terminal.execution.closed, true);
+  assert.equal(terminal.execution.retry_authorized, false);
+  assert.equal(terminal.execution.replayable, false);
   assert.deepEqual(manifest.migrations, []);
   assert.equal(manifest.migration_attempts_authorized, 0);
   assert.equal(manifest.preflight.attempts_authorized, 0);
@@ -48,20 +53,9 @@ test("consumed activation is terminal before any credential or remote operation"
   assert.equal(manifest.canary.maximum_attempts, 1);
   assert.equal(manifest.canary.automatic_retry, false);
   assert.equal(manifest.canary.read_only, true);
-  assert.deepEqual(manifest.execution, {
-    runtime_activation_id: "ra004-staging-1790666324127",
-    execution_commit: "9baf02b43e3ae44eefed6a28d9e96a211fa11b3f",
-    started: true, migration_attempt_count: 0, preflight_attempt_count: 0,
-    canary_attempt_count: 1, primary_failure: "RA004_UNCLASSIFIED_FAILURE",
-    diagnostic_limitation: "raw PostgreSQL diagnostics were not normalized at the bounded transport boundary",
-    ledger_after_failure: { count: 99,
-      fingerprint: "a6e7693f964925554e807602752e4630d14f537a1d9de4fe82f8433d30c307cc",
-      last_migration: "20260928101000_align_ra004_control_export_provider_identity" },
-    credential_revocation: { outcome: "RA004_REVOKE_CONNECTION_REJECTED_CATALOGUE_CONFIRMED",
-      role_absent: true, membership_absent: true, active_backend_absent: true },
-    local_failure_artifact_sha256: "4db191eb50e62e5c0655acb5121d144811b8e0c4cbf4e298fae79bf88455525d",
-    closed: true, retry_authorized: false, replayable: false,
-  });
+  assert.deepEqual(manifest.execution, { started: false, migration_attempt_count: 0,
+    preflight_attempt_count: 0, canary_attempt_count: 0, closed: false,
+    retry_authorized: false, replayable: false });
   for (const mutate of [
     (value) => { value.migrations.push({ filename: "forbidden.sql" }); },
     (value) => { value.migration_attempts_authorized = 1; },
@@ -69,11 +63,11 @@ test("consumed activation is terminal before any credential or remote operation"
     (value) => { value.canary.maximum_attempts = 2; },
     (value) => { value.production.authorized = true; },
     (value) => { value.ledger.count = 98; },
-    (value) => { value.execution.canary_attempt_count = 0; },
+    (value) => { value.execution.canary_attempt_count = 1; },
   ]) {
     const changed = structuredClone(manifest);
     mutate(changed);
-    assert.throws(() => values.validateTerminalActivation(changed), /RA004_/);
+    assert.throws(() => values.validateReadOnlyActivation(changed), /RA004_/);
   }
 });
 

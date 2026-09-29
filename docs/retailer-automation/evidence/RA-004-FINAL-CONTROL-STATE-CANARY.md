@@ -1,6 +1,13 @@
 # RA-004 final control-state canary
 
-Status: `ATTEMPT_CONSUMED_FAILED_TERMINAL`.
+Current activation: `OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED`.
+
+The previous `v1` activation remains `ATTEMPT_CONSUMED_FAILED_TERMINAL` and is
+not reusable. Owner authorization on 29 September 2026 created a distinct `v2`
+activation pinned to baseline
+`10f8fbf1e040704a74460c0988da8ff00d092c78`. It permits exactly one read-only
+control-state canary, zero migrations, zero preflight attempts and zero retry.
+The STAGING and PRODUCTION migration selectors remain closed.
 
 The prior staging run applied the provider-identity migration and completed
 Q1-Q8. Its single control-state canary failed before an artifact was produced,
