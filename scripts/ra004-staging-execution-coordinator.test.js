@@ -12,6 +12,7 @@ const launcher = fs.readFileSync(launcherPath, "utf8");
 const custodian = fs.readFileSync(custodianPath, "utf8");
 const values = require("./ra004-staging-execution-coordinator");
 const { safeFailureCode } = require("./lib/ra004-safe-failure-code");
+const { normalizeTransportFailure } = require("./lib/ra004-live-transport-failure");
 
 test("final canary is pinned to the approved staging ledger and already-applied migrations", () => {
   assert.equal(values.REF, "hxnrsyyqffztlvcrtgbf");
@@ -31,11 +32,13 @@ test("final canary is pinned to the approved staging ledger and already-applied 
   assert.match(coordinator, /retailer\[0\]\.id === "11"/);
 });
 
-test("prepared activation permits no migration or preflight and exactly one canary", () => {
+test("consumed activation is terminal before any credential or remote operation", () => {
   const file = path.join(ROOT, "docs", "retailer-automation", "evidence",
     "RA-004-final-control-state-canary-activation.json");
   const manifest = JSON.parse(fs.readFileSync(file, "utf8"));
-  assert.equal(values.validateReadOnlyActivation(manifest), manifest);
+  assert.equal(values.validateTerminalActivation(manifest), manifest);
+  assert.throws(() => values.validateReadOnlyActivation(manifest), /RA004_ACTIVATION_NOT_AUTHORIZED/);
+  assert.throws(() => values.assertActivationExecutable(), /RA004_ACTIVATION_TERMINAL/);
   assert.deepEqual(manifest.migrations, []);
   assert.equal(manifest.migration_attempts_authorized, 0);
   assert.equal(manifest.preflight.attempts_authorized, 0);
@@ -46,8 +49,18 @@ test("prepared activation permits no migration or preflight and exactly one cana
   assert.equal(manifest.canary.automatic_retry, false);
   assert.equal(manifest.canary.read_only, true);
   assert.deepEqual(manifest.execution, {
-    started: false, migration_attempt_count: 0, preflight_attempt_count: 0,
-    canary_attempt_count: 0, closed: false, retry_authorized: false, replayable: false,
+    runtime_activation_id: "ra004-staging-1790666324127",
+    execution_commit: "9baf02b43e3ae44eefed6a28d9e96a211fa11b3f",
+    started: true, migration_attempt_count: 0, preflight_attempt_count: 0,
+    canary_attempt_count: 1, primary_failure: "RA004_UNCLASSIFIED_FAILURE",
+    diagnostic_limitation: "raw PostgreSQL diagnostics were not normalized at the bounded transport boundary",
+    ledger_after_failure: { count: 99,
+      fingerprint: "a6e7693f964925554e807602752e4630d14f537a1d9de4fe82f8433d30c307cc",
+      last_migration: "20260928101000_align_ra004_control_export_provider_identity" },
+    credential_revocation: { outcome: "RA004_REVOKE_CONNECTION_REJECTED_CATALOGUE_CONFIRMED",
+      role_absent: true, membership_absent: true, active_backend_absent: true },
+    local_failure_artifact_sha256: "4db191eb50e62e5c0655acb5121d144811b8e0c4cbf4e298fae79bf88455525d",
+    closed: true, retry_authorized: false, replayable: false,
   });
   for (const mutate of [
     (value) => { value.migrations.push({ filename: "forbidden.sql" }); },
@@ -56,11 +69,11 @@ test("prepared activation permits no migration or preflight and exactly one cana
     (value) => { value.canary.maximum_attempts = 2; },
     (value) => { value.production.authorized = true; },
     (value) => { value.ledger.count = 98; },
-    (value) => { value.execution.started = true; },
+    (value) => { value.execution.canary_attempt_count = 0; },
   ]) {
     const changed = structuredClone(manifest);
     mutate(changed);
-    assert.throws(() => values.validateReadOnlyActivation(changed), /RA004_/);
+    assert.throws(() => values.validateTerminalActivation(changed), /RA004_/);
   }
 });
 
@@ -109,25 +122,54 @@ test("shared serializer preserves every allowlisted runtime code and never diagn
     executionCommit: "a".repeat(40),
     primaryError: Object.assign(new Error("CONTROL_EXPORT_SOURCE_INVALID: secret-password"),
       { code: "CONTROL_EXPORT_SOURCE_INVALID" }),
-    sessionState: { session_creation_state: "CREATED",
+    sessionState: { session_creation_state: "CREATED", cleanup_status: "COMPLETE",
       attempt_counters: { auth: 1, upload: 0, readback: 0, cleanup: 0 } },
     operationAttempts: { migration: 0, preflight: 0, canary: 1 },
-    cleanup: { status: "PENDING", failures: [] }, startsAt: "2026-09-29T00:00:00Z",
+    cleanup: { status: "COMPLETE", failures: [] }, startsAt: "2026-09-29T00:00:00Z",
     expiresAt: "2026-09-29T00:30:00Z", revoke: [], uploaded: [],
   });
   assert.equal(report.primary_failure.code, "CONTROL_EXPORT_SOURCE_INVALID");
   assert.doesNotMatch(JSON.stringify(report), /secret-password/);
 });
 
+test("terminal closeout cannot be sealed before cleanup and session closure are final", () => {
+  assert.throws(() => values.buildFailureReport({
+    activation: "ra004-terminal-test", executionCommit: "a".repeat(40),
+    primaryError: Object.assign(new Error("private diagnostic"), { code: "42501" }),
+    sessionState: { session_creation_state: "CREATED", cleanup_status: "PENDING",
+      attempt_counters: { auth: 1, upload: 1, readback: 1, cleanup: 0 } },
+    operationAttempts: { migration: 0, preflight: 0, canary: 1 },
+    cleanup: { status: "PENDING", failures: [] }, startsAt: "2026-09-29T00:00:00Z",
+    expiresAt: "2026-09-29T00:30:00Z", revoke: [], uploaded: [],
+  }), /RA004_TERMINAL_CLOSEOUT_CLEANUP_INCOMPLETE/);
+});
+
+test("every bounded transport phase has a deterministic secret-free failure code", () => {
+  for (const phase of ["CONNECT", "BEGIN", "RPC", "PROOF", "ROLLBACK", "CLOSE"]) {
+    const error = normalizeTransportFailure(new Error("postgresql://user:secret@example.invalid/db"), phase);
+    assert.equal(error.code, `RA004_LIVE_TRANSPORT_${phase}_FAILED`);
+    assert.equal(safeFailureCode(error), error.code);
+    assert.equal(error.diagnostic.phase, phase);
+    assert.equal(error.diagnostic.sqlstate, null);
+    assert.match(error.diagnostic.fingerprint, /^[0-9a-f]{64}$/);
+    assert.doesNotMatch(JSON.stringify(error.diagnostic), /secret|postgresql:\/\//);
+  }
+  assert.equal(normalizeTransportFailure(Object.assign(new Error("private"), { code: "28P01" }),
+    "CONNECT").code, "RA004_LIVE_TRANSPORT_AUTH_REJECTED");
+  assert.equal(normalizeTransportFailure(Object.assign(new Error("private"), { code: "57014" }),
+    "RPC").code, "RA004_LIVE_TRANSPORT_RPC_TIMEOUT");
+});
+
 test("selectors remain closed in staging and production", () => {
   assert.equal(values.assertSelectorsClosed(), true);
-  const provider = values.REQUIRED_APPLIED_MIGRATIONS[1][0];
   const selector = require("./supabase-migration-selector");
-  assert.ok(selector.CONTRACTS.STAGING.appliedExcluded.includes(provider));
-  assert.equal(selector.CONTRACTS.STAGING.excluded[provider], values.PROVIDER_IDENTITY_SHA);
-  assert.equal(selector.CONTRACTS.PRODUCTION.excluded[provider], values.PROVIDER_IDENTITY_SHA);
-  assert.ok(!selector.CONTRACTS.STAGING.pending.some(({ filename }) => filename === provider));
-  assert.ok(!selector.CONTRACTS.PRODUCTION.pending.some(({ filename }) => filename === provider));
+  for (const [filename, sha] of values.REQUIRED_APPLIED_MIGRATIONS) {
+    assert.ok(selector.CONTRACTS.STAGING.appliedExcluded.includes(filename));
+    assert.equal(selector.CONTRACTS.STAGING.excluded[filename], sha);
+    assert.equal(selector.CONTRACTS.PRODUCTION.excluded[filename], sha);
+    assert.ok(!selector.CONTRACTS.STAGING.pending.some((entry) => entry.filename === filename));
+    assert.ok(!selector.CONTRACTS.PRODUCTION.pending.some((entry) => entry.filename === filename));
+  }
 });
 
 test("evidence authentication and attestation precede the sole canary", () => {
@@ -141,7 +183,7 @@ test("evidence authentication and attestation precede the sole canary", () => {
     && credential > start && canary > credential);
   assert.match(coordinator, /session_required_before_canary/);
   assert.match(coordinator, /authentication_attempts === 1/);
-  assert.match(custodian, /"failure-closeout\.json"/);
+  assert.match(custodian, /"execution-report\.json"/);
   assert.match(custodian, /method: "POST"/);
   assert.match(custodian, /method: "GET"/);
   assert.doesNotMatch(custodian, /x-upsert|method: "(?:PUT|PATCH|DELETE)"|\/object\/list\//i);
@@ -171,6 +213,7 @@ test("launcher uses masked inputs, strict CA validation and no migration tooling
   assert.match(launcher, /NODE_EXTRA_CA_CERTS/);
   assert.match(launcher, /validateLocalCa/);
   assert.match(launcher, /LAUNCHER_VALIDATION_PASS/);
+  assert.ok(launcher.indexOf("assertActivationExecutable") < launcher.indexOf("Staging database URL"));
   assert.match(launcher, /jeden autoryzowany read-only canary/);
   assert.doesNotMatch(launcher, /supabase|db push|include-all|RA004_SUPABASE_CLI_PATH/i);
 });

@@ -169,6 +169,50 @@ test("bounded control-state transport performs one exact transaction and closes 
   assert.doesNotMatch(JSON.stringify(response), /fixture-password|postgresql:\/\//);
   await assert.rejects(() => transport.callReadOnlyRpc({}), /may be called once/);
 });
+test("bounded transport converts PostgreSQL diagnostics into stable redacted RA-004 codes", async () => {
+  const expectedSessionUser = liveConfiguration().expected_session_user;
+  const request = {
+    function_name: "public.read_retailer_control_state_v1",
+    expected_session_user: expectedSessionUser,
+    parameters: {
+      p_retailer_id: 14, p_retailer_name: "10 Reps", p_baseline_sha: BASELINE,
+      p_authorization_fingerprint: "a".repeat(64),
+      p_authorization_valid_until: "2026-09-24T13:00:00.000Z",
+      p_required_sources: [...SOURCE_NAMES], p_max_records: 10000, p_max_bytes: 8388608,
+    },
+  };
+  for (const [databaseError, expectedCode] of [
+    [Object.assign(new Error("RCSE_SOURCE_UNAVAILABLE: secret-password"), { code: "P0001" }),
+      "CONTROL_EXPORT_SOURCE_UNAVAILABLE"],
+    [Object.assign(new Error("permission denied for function private-detail"), { code: "42501" }),
+      "RA004_LIVE_TRANSPORT_RPC_PERMISSION_DENIED"],
+    [Object.assign(new Error("function private_signature does not exist"), { code: "42883" }),
+      "RA004_LIVE_TRANSPORT_RPC_UNDEFINED_FUNCTION"],
+  ]) {
+    class RejectingClient {
+      async connect() {}
+      async query(query) {
+        if (typeof query === "string") return { rowCount: 0, rows: [] };
+        throw databaseError;
+      }
+      async end() {}
+    }
+    const transport = createControlStatePostgresTransport({
+      databaseUrl: `postgresql://${expectedSessionUser}.ra004-local-synthetic:fixture-password@aws-0.test.pooler.supabase.com:5432/postgres`,
+      projectReference: "ra004-local-synthetic",
+      expectedSessionUser,
+    }, { ClientClass: RejectingClient });
+    await assert.rejects(
+      () => transport.callReadOnlyRpc(request),
+      (error) => error.code === expectedCode
+        && error.diagnostic.phase === "RPC"
+        && /^[0-9a-f]{64}$/.test(error.diagnostic.fingerprint)
+        && !JSON.stringify(error).includes("secret-password")
+        && !String(error.message).includes("private-detail")
+        && !String(error.message).includes("private_signature"),
+    );
+  }
+});
 test("live control-state CLI accepts only the injected bounded transport", async () => {
   const auth = liveAuthorization();
   const expectedSessionUser = liveConfiguration().expected_session_user;

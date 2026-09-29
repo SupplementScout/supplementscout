@@ -255,7 +255,11 @@ test("bounded live preflight transport redacts database credentials from driver 
       p_expected_session_user: "ra004_local_fixture_login", p_max_bytes: 131072,
     },
   };
-  await assert.rejects(() => liveTransport.callMetadataRpc(request), (error) => !error.message.includes(secret) && error.message.includes("[REDACTED]"));
+  await assert.rejects(() => liveTransport.callMetadataRpc(request), (error) =>
+    error.code === "RA004_LIVE_TRANSPORT_RPC_FAILED"
+      && error.message === "RA004_LIVE_TRANSPORT_RPC_FAILED"
+      && error.diagnostic.phase === "RPC"
+      && !JSON.stringify(error).includes(secret));
 });
 
 test("bounded live transport has no environment, file, workflow or general SQL loader", () => {
