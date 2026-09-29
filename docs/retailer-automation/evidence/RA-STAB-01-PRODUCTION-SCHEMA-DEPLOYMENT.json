@@ -1,0 +1,65 @@
+{
+  "schema_version": "ra-stab-01-production-schema-deployment-evidence-v1",
+  "status": "SCHEMA_DEPLOYED_CONTROL_NOT_AUTHORIZED",
+  "task_id": "RA-STAB-01",
+  "recorded_at": "2026-09-29T15:29:43.8743977Z",
+  "source": {
+    "main_commit": "1e635a6da8565bfeba300b3f5b0d96d30320fb59",
+    "pull_request": 146,
+    "preparation_sha256": "e842b01a7786372e4491e07521b5409ed7b48efe014de4371471cdb0bddd08f3"
+  },
+  "target": {
+    "environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "database_identity": "supplementscout-production:aftboxmrdgyhizicfsfu"
+  },
+  "owner_authorization": {
+    "phase": "SCHEMA_DEPLOYMENT",
+    "decision_reference": "owner chat approval after PR 146 merge on 2026-09-29",
+    "authorization_artifact_sha256": "b02723b8e9c1716429994dc63c3efc4e8d209c5396365978150fa640ac4d466e",
+    "authorized_at": "2026-09-29T15:28:37.1794792Z",
+    "expires_at": "2026-09-29T16:28:37.1912518Z",
+    "confirmation": "0d8250b94d346a17b2f1",
+    "maximum_attempts": 1,
+    "automatic_retry": false,
+    "automatic_next_phase": false,
+    "business_write": false,
+    "consumed": true
+  },
+  "migration": {
+    "filename": "20260929133000_extend_expired_sequential_plan_close.sql",
+    "sha256": "b0a4cac2d9c30989f00570bf1c63036daf190fffbcc7b08b17c616761bc6a380",
+    "ordinary_selector_status": "EXCLUDED",
+    "result": "PASS",
+    "committed": true
+  },
+  "ledger": {
+    "before_count": 222,
+    "before_fingerprint": "c08b5f2e704072a0e4b2590688998e07a781f8699546279b6e81acd9c975c0fe",
+    "after_count": 223,
+    "after_fingerprint": "c891240d8ed411b3bc0ad5e2abc6a8c90bfeb442c1cd0824f3c5a4577ee0c7b0"
+  },
+  "business_counts_before_and_after": {
+    "products": "1337",
+    "product_variants": "3632",
+    "retailer_products": "3758",
+    "offers": "3758",
+    "price_history": "24583"
+  },
+  "independent_readback": {
+    "mode": "schema-verify",
+    "result": "PASS",
+    "transaction": "READ ONLY",
+    "writes": 0,
+    "ledger_count": 223,
+    "migration_bytes_match": true,
+    "close_rpc_present": true,
+    "business_counts_match": true
+  },
+  "authorization_remaining": {
+    "production_control_write": false,
+    "business_write": false,
+    "retailer_refresh": false,
+    "ra004_replay": false
+  }
+}

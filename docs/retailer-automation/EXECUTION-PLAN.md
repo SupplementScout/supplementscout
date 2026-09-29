@@ -149,6 +149,21 @@ phase-specific authorization has passed locally.
 - no command here authorizes a retriever retry, retailer refresh, offer apply,
   price-history write, identity change, RA-004 replay or next phase.
 
+**Schema phase — complete; control recovery not authorized:** after PR `#146`
+merged as `1e635a6da8565bfeba300b3f5b0d96d30320fb59`, the owner separately
+authorized only `SCHEMA_DEPLOYMENT`. The one-shot coordinator applied excluded
+migration `20260929133000_extend_expired_sequential_plan_close.sql` at SHA-256
+`b0a4cac2d9c30989f00570bf1c63036daf190fffbcc7b08b17c616761bc6a380`.
+The transaction moved the production ledger from 222 / `c08b5f2e...c0fe` to
+223 / `c891240d...c7b0`. Its committed postflight and a separate read-only
+`schema-verify` both passed; products `1337`, variants `3632`, mappings `3758`,
+offers `3758` and price history `24583` were unchanged. The deployed ledger
+statement bytes match the reviewed migration and the existing close RPC is
+present. No control plan, approval, product, variant, mapping, offer or price
+history row was changed. The schema authorization is consumed and cannot grant
+`control-close`; that next write remains separately `NOT_AUTHORIZED`. Evidence:
+[`evidence/RA-STAB-01-PRODUCTION-SCHEMA-DEPLOYMENT.json`](evidence/RA-STAB-01-PRODUCTION-SCHEMA-DEPLOYMENT.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
