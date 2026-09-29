@@ -18,7 +18,7 @@ $storageKey = $null
 $storageEmail = $null
 $storagePassword = $null
 try {
-  Write-Host 'RA-004: migracje juz zastosowane, preflight juz zweryfikowany; jeden read-only canary.'
+  Write-Host 'RA-004: piec swiezych SOURCE_OBSERVED i natychmiast jeden read-only canary.'
   Write-Host 'Wszystkie wklejane dane sa maskowane i pozostaja tylko w pamieci procesu.'
   if (-not $env:NODE_EXTRA_CA_CERTS -or -not (Test-Path -LiteralPath $env:NODE_EXTRA_CA_CERTS -PathType Leaf)) {
     throw 'RA004_CA_CONFIGURATION_MISSING'
@@ -36,7 +36,7 @@ try {
   $storageKey = ConvertFrom-MaskedInput 'Staging publishable key'
   $storageEmail = ConvertFrom-MaskedInput 'E-mail staging Auth user'
   $storagePassword = ConvertFrom-MaskedInput 'Haslo staging Auth user'
-  $confirmation = Read-Host 'Wpisz START, aby rozpoczac jeden autoryzowany read-only canary'
+  $confirmation = Read-Host 'Wpisz START, aby rozpoczac jedna atomowa obserwacje i read-only canary'
   if ($confirmation -cne 'START') { throw 'RA004_EXECUTION_CANCELLED' }
 
   $env:RA004_OWNER_DATABASE_URL = $databaseUrl

@@ -12,30 +12,34 @@ const { exportControlState, writeArtifact } = require("./lib/retailer-offer-sync
 const controlAuth = require("./lib/retailer-offer-sync/control-state-export-v1/authorization");
 const { SOURCE_NAMES, PROHIBITED_OPERATIONS } = require("./lib/retailer-offer-sync/control-state-export-v1/schema");
 const { validateLocalCa } = require("./ra004-acl-rls-readonly-audit");
+const sourceObservation = require("./ra004-staging-source-observation-capture");
 
 const ROOT = path.resolve(__dirname, "..");
 const REF = "hxnrsyyqffztlvcrtgbf";
 const API_HOST = "hxnrsyyqffztlvcrtgbf.supabase.co";
-const BASELINE = "10f8fbf1e040704a74460c0988da8ff00d092c78";
+const BASELINE = "227529abc7e3adf71dd88904d1d592f1126b4f17";
 const TERMINAL_BASELINE = "453dbe67161318d1f49853e6b0f94c1a253fd66b";
+const TERMINAL_V2_BASELINE = "10f8fbf1e040704a74460c0988da8ff00d092c78";
 const ACL_MIGRATION_SHA = "58aa82b328b9bb77c09b9975892042027a493254add99fb2e1dcf045303c0b0d";
 const PROVIDER_IDENTITY_SHA = "4454cebd1e462a20d4a612d253025c013b5c8276a4d51aa4e43016a7f248fc91";
 const BUCKET = "ra004-staging-preflight-evidence";
 const EXPECTED_LEDGER_COUNT = 99;
 const EXPECTED_LEDGER_FINGERPRINT = "a6e7693f964925554e807602752e4630d14f537a1d9de4fe82f8433d30c307cc";
 const PRIOR_PREFLIGHT_FINGERPRINT = "b1719dbbaad328e7bc0f0dc7b24307f3b5c828fe1af43d7cad5e98aa9599f40c";
-const ACTIVATION_MANIFEST = "RA-004-final-control-state-canary-reactivation-v2.json";
+const ACTIVATION_MANIFEST = "RA-004-atomic-source-observation-canary-activation-v3.json";
 const TERMINAL_ACTIVATION_MANIFEST = "RA-004-final-control-state-canary-activation.json";
+const TERMINAL_V2_ACTIVATION_MANIFEST = "RA-004-final-control-state-canary-reactivation-v2.json";
 const REQUIRED_APPLIED_MIGRATIONS = Object.freeze([
   ["20260928100000_diagnose_ra004_preflight_acl_rls.sql", ACL_MIGRATION_SHA],
   ["20260928101000_align_ra004_control_export_provider_identity.sql", PROVIDER_IDENTITY_SHA],
 ]);
 const EVIDENCE_NAMES = Object.freeze([
+  "source-observation.json", "source-observation-revoke.json",
   "control-state-canary.json", "control-state-revoke.json", "policy-attestation.json",
   "execution-report.json",
 ]);
 const ownerUrl = process.env.RA004_OWNER_DATABASE_URL;
-const outDir = path.join(ROOT, "tmp", "ra004-live-evidence-20260929-final-canary");
+const outDir = path.join(ROOT, "tmp", "ra004-live-evidence-20260929-atomic-observation-canary");
 fs.mkdirSync(outDir, { recursive: true });
 
 function invariant(ok, message) { if (!ok) throw new Error(message); }
@@ -77,12 +81,16 @@ function readExecutionCommit(spawn = spawnSync) {
   const run = (...args) => spawn("git", args, { cwd: ROOT, encoding: "utf8", windowsHide: true });
   const headResult = run("rev-parse", "HEAD");
   const mainResult = run("rev-parse", "origin/main");
+  const parentResult = run("rev-parse", "HEAD^");
   const statusResult = run("status", "--porcelain", "--untracked-files=no");
   const head = String(headResult.stdout || "").trim();
   const main = String(mainResult.stdout || "").trim();
-  invariant(headResult.status === 0 && mainResult.status === 0 && /^[0-9a-f]{40}$/.test(head),
+  const parent = String(parentResult.stdout || "").trim();
+  invariant(headResult.status === 0 && mainResult.status === 0 && parentResult.status === 0
+    && /^[0-9a-f]{40}$/.test(head),
     "RA004_EXECUTION_COMMIT_UNAVAILABLE");
   invariant(head === main, "RA004_EXECUTION_COMMIT_NOT_MERGED_MAIN");
+  invariant(parent === BASELINE, "RA004_EXECUTION_BASELINE_MISMATCH");
   invariant(statusResult.status === 0 && String(statusResult.stdout || "").trim() === "",
     "RA004_EXECUTION_WORKTREE_NOT_CLEAN");
   return head;
@@ -236,7 +244,7 @@ async function removeEvidencePolicies(policies) {
   return { policies_revoked: true };
 }
 function validateReadOnlyActivation(value) {
-  invariant(value?.schema_version === "ra-004-final-control-state-canary-activation-v1",
+  invariant(value?.schema_version === "ra-004-atomic-source-observation-canary-activation-v1",
     "RA004_ACTIVATION_SCHEMA_MISMATCH");
   invariant(value.status === "OWNER_AUTHORIZED_PREPARED_NOT_EXECUTED" && value.baseline_sha === BASELINE,
     "RA004_ACTIVATION_NOT_AUTHORIZED");
@@ -258,12 +266,22 @@ function validateReadOnlyActivation(value) {
   invariant(value.preflight?.attempts_authorized === 0
     && value.preflight?.prior_status === "VERIFIED_COMPLETE"
     && value.preflight?.report_fingerprint === PRIOR_PREFLIGHT_FINGERPRINT
+    && value.source_observation?.maximum_transactions === 1
+    && value.source_observation?.required_rows === sourceObservation.SOURCES.length
+    && value.source_observation?.lifetime_minutes === sourceObservation.OBSERVATION_LIFETIME_MS / 60_000
+    && value.source_observation?.retry_authorized === false
+    && value.source_observation?.same_activation_before_canary === true
+    && JSON.stringify(value.source_observation?.required_sources) === JSON.stringify(sourceObservation.SOURCES)
     && value.canary?.maximum_attempts === 1 && value.canary?.automatic_retry === false
     && value.canary?.read_only === true, "RA004_ACTIVATION_ATTEMPTS_MISMATCH");
-  invariant(value.evidence_store?.session_required_before_canary === true
+  invariant(value.evidence_store?.session_required_before_source_observation === true
+    && value.evidence_store?.session_required_before_canary === true
     && value.evidence_store?.authentication_attempts === 1, "RA004_EVIDENCE_STORE_GATE_MISMATCH");
   invariant(value.execution?.started === false && value.execution?.migration_attempt_count === 0
-    && value.execution?.preflight_attempt_count === 0 && value.execution?.canary_attempt_count === 0
+    && value.execution?.preflight_attempt_count === 0
+    && value.execution?.source_observation_transaction_count === 0
+    && value.execution?.source_observation_row_count === 0
+    && value.execution?.canary_attempt_count === 0
     && value.execution?.closed === false && value.execution?.retry_authorized === false
     && value.execution?.replayable === false, "RA004_ACTIVATION_EXECUTION_STATE_MISMATCH");
   return value;
@@ -297,7 +315,7 @@ function validateCurrentTerminalActivation(value) {
   invariant(value?.schema_version === "ra-004-final-control-state-canary-activation-v1"
     && value.status === "ATTEMPT_CONSUMED_FAILED_TERMINAL"
     && value.activation_id === "ra004-final-control-state-canary-2026-09-29-v2"
-    && value.baseline_sha === BASELINE, "RA004_ACTIVATION_TERMINAL_STATE_INVALID");
+    && value.baseline_sha === TERMINAL_V2_BASELINE, "RA004_ACTIVATION_TERMINAL_STATE_INVALID");
   invariant(value.target?.environment === "STAGING" && value.target?.project_ref === REF
     && value.target?.parent_project_ref === "aftboxmrdgyhizicfsfu"
     && value.target?.database_host === "aws-0-eu-west-3.pooler.supabase.com"
@@ -334,8 +352,7 @@ function activationPath() {
 }
 function assertActivationExecutable() {
   const value = JSON.parse(fs.readFileSync(activationPath(), "utf8"));
-  validateCurrentTerminalActivation(value);
-  invariant(false, "RA004_ACTIVATION_TERMINAL");
+  return validateReadOnlyActivation(value);
 }
 function assertSelectorsClosed(contracts = selector.CONTRACTS) {
   const staging = contracts.STAGING;
@@ -352,6 +369,12 @@ function assertSelectorsClosed(contracts = selector.CONTRACTS) {
   return true;
 }
 function ensureWindow(expires) { invariant(Date.now() < expires.getTime(), "RA004_WINDOW_EXPIRED"); }
+function ensureObservationFresh(expiresAt, now = Date.now(), minimumRemainingMs = 5 * 60_000) {
+  const expires = new Date(expiresAt).getTime();
+  invariant(Number.isFinite(expires) && Number.isFinite(now)
+    && expires - now >= minimumRemainingMs, "RA004_SOURCE_OBSERVATION_WINDOW_TOO_SHORT");
+  return true;
+}
 
 async function main() {
   assertActivationExecutable();
@@ -403,13 +426,17 @@ async function main() {
   let custody;
   let policies;
   let issuer;
+  let observationCredential;
   let canaryCredential;
   let primaryError = null;
   let sessionState = {
     session_creation_state: "NOT_CREATED", cleanup_status: "NOT_REQUIRED",
     attempt_counters: { auth: 0, upload: 0, readback: 0, cleanup: 0 },
   };
-  const operationAttempts = { migration: 0, preflight: 0, canary: 0 };
+  const operationAttempts = {
+    migration: 0, preflight: 0, source_observation_transactions: 0,
+    source_observation_rows: 0, canary: 0, retry: 0,
+  };
   let failureLedgerReadback = null;
   const cleanup = { status: "NOT_REQUIRED", failures: [] };
   const revoke = [];
@@ -461,11 +488,66 @@ async function main() {
         retention: { redacted_bundle_days: 90, fingerprint_receipt_years: 7 } } }));
 
     issuer = credentialReader();
-    canaryCredential = await issuer.call({ action: "create", kind: "control", expires_at: expiresAt });
+    const observationInventory = await sourceObservation.observeSources(ownerUrl);
+    const observationStarted = new Date();
+    const observationExpires = new Date(observationStarted.getTime()
+      + sourceObservation.OBSERVATION_LIFETIME_MS);
+    const observationStartedAt = observationStarted.toISOString();
+    const observationExpiresAt = observationExpires.toISOString();
+    invariant(observationExpires.getTime() < expires.getTime(), "RA004_SOURCE_OBSERVATION_WINDOW_INVALID");
+    const observationRunId = `${activation}-source-observation`;
+    const observationEvents = sourceObservation.buildEvents({
+      activationId: observationRunId,
+      observedAt: observationStartedAt,
+      expiresAt: observationExpiresAt,
+      inventory: observationInventory,
+    });
+    invariant(observationEvents.length === sourceObservation.SOURCES.length,
+      "RA004_SOURCE_OBSERVATION_EVENT_COUNT_MISMATCH");
+    observationCredential = await issuer.call({
+      action: "create", kind: "evidence", expires_at: observationExpiresAt,
+    });
+    operationAttempts.source_observation_transactions += 1;
+    const observationReceipts = await sourceObservation.writeEvents(
+      observationCredential.database_url, observationEvents);
+    const observationReadback = await sourceObservation.readback(ownerUrl, observationRunId);
+    invariant(observationReceipts.length === sourceObservation.SOURCES.length
+      && observationReadback.row_count === sourceObservation.SOURCES.length,
+    "RA004_SOURCE_OBSERVATION_COMMIT_MISMATCH");
+    operationAttempts.source_observation_rows = observationReadback.row_count;
+    const observationReport = {
+      schema_version: "ra004-atomic-source-observation-v1",
+      status: "VERIFIED_COMPLETE",
+      activation_id: activation,
+      source_run_id: observationRunId,
+      target: { environment: "STAGING", project_ref: REF, retailer_id: retailer[0].id },
+      window: { observed_at: observationStartedAt, expires_at: observationExpiresAt,
+        lifetime_minutes: sourceObservation.OBSERVATION_LIFETIME_MS / 60_000 },
+      inventory: observationInventory,
+      sources: [...sourceObservation.SOURCES],
+      readback: observationReadback,
+      transaction_count: operationAttempts.source_observation_transactions,
+      committed_row_count: operationAttempts.source_observation_rows,
+      retry_count: operationAttempts.retry,
+    };
+    jsonWrite("source-observation.json", observationReport);
+    uploaded.push(await custody.call({ action: "put", name: "source-observation.json",
+      value: observationReport }));
+    const observationRevokeReceipt = await revokeOne(observationCredential, process.pid);
+    observationCredential = null;
+    uploaded.push(await custody.call({ action: "put", name: "source-observation-revoke.json",
+      value: { ...observationRevokeReceipt,
+        revocation_verification: revoke.at(-1).revocation_verification } }));
+    ensureObservationFresh(observationExpiresAt);
+
+    canaryCredential = await issuer.call({
+      action: "create", kind: "control", expires_at: observationExpiresAt,
+    });
     const authorization = {
       version: "control-state-export-authorization-v1", status: "AUTHORIZED",
       retailer_id: retailer[0].id, retailer_name: "10 Reps", allowed_scope: [...SOURCE_NAMES],
-      baseline_sha: BASELINE, task_id: "RA-004", valid_from: startsAt, expires_at: expiresAt,
+      baseline_sha: BASELINE, task_id: "RA-004", valid_from: startsAt,
+      expires_at: observationExpiresAt,
       operation: "READ_ONLY_CONTROL_STATE_EXPORT", prohibited_operations: [...PROHIBITED_OPERATIONS],
       owner_consent: "OWNER_APPROVED", authorization_fingerprint: "0".repeat(64),
     };
@@ -505,6 +587,7 @@ async function main() {
         last_migration: "20260928101000_align_ra004_control_export_provider_identity" },
       attempt_counters: { ...sessionState.attempt_counters, ...operationAttempts },
       business_counts: { before: businessBefore, after_canary: businessAfterCanary, unchanged: true },
+      source_observation: observationReport,
       preflight: { status: "VERIFIED_COMPLETE", reused_prior_evidence: true, attempts: 0,
         report_fingerprint: PRIOR_PREFLIGHT_FINGERPRINT },
       canary: { status: canaryClear ? "VERIFIED_COMPLETE" : "BLOCKED",
@@ -527,6 +610,11 @@ async function main() {
     primaryError = error;
     if (error.details) sessionState = error.details;
   } finally {
+    if (observationCredential && issuer) {
+      try { await revokeOne(observationCredential, process.pid); }
+      catch { cleanup.failures.push("source-observation"); }
+      observationCredential = null;
+    }
     if (canaryCredential && issuer) {
       try { await revokeOne(canaryCredential, process.pid); }
       catch { cleanup.failures.push("canary"); }
@@ -588,7 +676,9 @@ async function main() {
   };
   jsonWrite("closeout.json", closeout);
   process.stdout.write(`${JSON.stringify({ status: closeout.status, activation_id: activation,
-    ledger_count: closeout.ledger.after_count, preflight_attempt_count: 0, canary_attempt_count: 1,
+    ledger_count: closeout.ledger.after_count, preflight_attempt_count: 0,
+    source_observation_transaction_count: operationAttempts.source_observation_transactions,
+    source_observation_row_count: operationAttempts.source_observation_rows, canary_attempt_count: 1,
     final_assessment: closeout.canary.final_assessment,
     closeout: path.join(outDir, "closeout.json") })}\n`);
 }
@@ -601,7 +691,8 @@ module.exports = {
   ACL_MIGRATION_SHA, ACTIVATION_MANIFEST, API_HOST, BASELINE, BUCKET,
   EXPECTED_LEDGER_COUNT, EXPECTED_LEDGER_FINGERPRINT, PRIOR_PREFLIGHT_FINGERPRINT,
   PROVIDER_IDENTITY_SHA, REF, REQUIRED_APPLIED_MIGRATIONS, TERMINAL_ACTIVATION_MANIFEST,
-  TERMINAL_BASELINE, assertSelectorsClosed,
-  assertActivationExecutable, buildFailureReport, readExecutionCommit, safeFailureCode,
+  TERMINAL_BASELINE, TERMINAL_V2_ACTIVATION_MANIFEST, TERMINAL_V2_BASELINE,
+  assertSelectorsClosed, assertActivationExecutable, buildFailureReport, ensureObservationFresh,
+  readExecutionCommit, safeFailureCode,
   validateCurrentTerminalActivation, validateReadOnlyActivation, validateTerminalActivation,
 };

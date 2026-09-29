@@ -10,6 +10,8 @@ const custodianPath = path.join(__dirname, "ra004-staging-evidence-custodian.js"
 const coordinator = fs.readFileSync(coordinatorPath, "utf8");
 const launcher = fs.readFileSync(launcherPath, "utf8");
 const custodian = fs.readFileSync(custodianPath, "utf8");
+const sourceCapture = fs.readFileSync(path.join(__dirname,
+  "ra004-staging-source-observation-capture.js"), "utf8");
 const values = require("./ra004-staging-execution-coordinator");
 const { safeFailureCode } = require("./lib/ra004-safe-failure-code");
 const { normalizeTransportFailure } = require("./lib/ra004-live-transport-failure");
@@ -17,7 +19,7 @@ const { normalizeTransportFailure } = require("./lib/ra004-live-transport-failur
 test("final canary is pinned to the approved staging ledger and already-applied migrations", () => {
   assert.equal(values.REF, "hxnrsyyqffztlvcrtgbf");
   assert.equal(values.API_HOST, "hxnrsyyqffztlvcrtgbf.supabase.co");
-  assert.equal(values.BASELINE, "10f8fbf1e040704a74460c0988da8ff00d092c78");
+  assert.equal(values.BASELINE, "227529abc7e3adf71dd88904d1d592f1126b4f17");
   assert.equal(values.EXPECTED_LEDGER_COUNT, 99);
   assert.equal(values.EXPECTED_LEDGER_FINGERPRINT,
     "a6e7693f964925554e807602752e4630d14f537a1d9de4fe82f8433d30c307cc");
@@ -32,16 +34,19 @@ test("final canary is pinned to the approved staging ledger and already-applied 
   assert.match(coordinator, /retailer\[0\]\.id === "11"/);
 });
 
-test("both consumed activations are terminal and cannot execute again", () => {
+test("v3 is executable once while both prior activations remain terminal", () => {
   const evidence = path.join(ROOT, "docs", "retailer-automation", "evidence");
   const manifest = JSON.parse(fs.readFileSync(path.join(evidence, values.ACTIVATION_MANIFEST), "utf8"));
+  const terminalV2 = JSON.parse(fs.readFileSync(path.join(evidence,
+    values.TERMINAL_V2_ACTIVATION_MANIFEST), "utf8"));
   const terminal = JSON.parse(fs.readFileSync(path.join(evidence,
     values.TERMINAL_ACTIVATION_MANIFEST), "utf8"));
-  assert.throws(() => values.assertActivationExecutable(), /RA004_ACTIVATION_TERMINAL/);
-  assert.equal(values.validateCurrentTerminalActivation(manifest), manifest);
-  assert.throws(() => values.validateReadOnlyActivation(manifest), /RA004_ACTIVATION_NOT_AUTHORIZED/);
+  assert.deepEqual(values.assertActivationExecutable(), manifest);
+  assert.equal(values.validateReadOnlyActivation(manifest), manifest);
+  assert.equal(values.validateCurrentTerminalActivation(terminalV2), terminalV2);
+  assert.throws(() => values.validateReadOnlyActivation(terminalV2), /RA004_/);
   assert.equal(values.validateTerminalActivation(terminal), terminal);
-  assert.throws(() => values.validateReadOnlyActivation(terminal), /RA004_ACTIVATION_NOT_AUTHORIZED/);
+  assert.throws(() => values.validateReadOnlyActivation(terminal), /RA004_/);
   assert.equal(terminal.execution.closed, true);
   assert.equal(terminal.execution.retry_authorized, false);
   assert.equal(terminal.execution.replayable, false);
@@ -54,34 +59,39 @@ test("both consumed activations are terminal and cannot execute again", () => {
   assert.equal(manifest.canary.maximum_attempts, 1);
   assert.equal(manifest.canary.automatic_retry, false);
   assert.equal(manifest.canary.read_only, true);
-  assert.equal(manifest.execution.started, true);
+  assert.equal(manifest.source_observation.maximum_transactions, 1);
+  assert.equal(manifest.source_observation.required_rows, 5);
+  assert.equal(manifest.source_observation.lifetime_minutes, 20);
+  assert.deepEqual(manifest.source_observation.required_sources,
+    ["sessions", "locks", "postflight_state", "watchdog_state", "global_conflicts"]);
+  assert.equal(manifest.source_observation.same_activation_before_canary, true);
+  assert.equal(manifest.execution.started, false);
   assert.equal(manifest.execution.migration_attempt_count, 0);
   assert.equal(manifest.execution.preflight_attempt_count, 0);
-  assert.equal(manifest.execution.canary_attempt_count, 1);
-  assert.equal(manifest.execution.primary_failure, "CONTROL_EXPORT_SOURCE_UNAVAILABLE");
-  assert.equal(manifest.execution.ledger_after_failure.count, 99);
-  assert.equal(manifest.execution.credential_revocation.role_absent, true);
-  assert.equal(manifest.execution.credential_revocation.membership_absent, true);
-  assert.equal(manifest.execution.credential_revocation.active_backend_absent, true);
-  assert.equal(manifest.execution.evidence_store_session, "CLOSED");
-  assert.equal(manifest.execution.cleanup, "COMPLETE");
-  assert.equal(manifest.execution.closed, true);
+  assert.equal(manifest.execution.source_observation_transaction_count, 0);
+  assert.equal(manifest.execution.source_observation_row_count, 0);
+  assert.equal(manifest.execution.canary_attempt_count, 0);
+  assert.equal(manifest.execution.closed, false);
   assert.equal(manifest.execution.retry_authorized, false);
   assert.equal(manifest.execution.replayable, false);
   for (const mutate of [
     (value) => { value.migrations.push({ filename: "forbidden.sql" }); },
     (value) => { value.migration_attempts_authorized = 1; },
     (value) => { value.preflight.attempts_authorized = 1; },
+    (value) => { value.source_observation.maximum_transactions = 2; },
+    (value) => { value.source_observation.required_rows = 4; },
+    (value) => { value.source_observation.required_sources.pop(); },
+    (value) => { value.source_observation.lifetime_minutes = 21; },
     (value) => { value.canary.maximum_attempts = 2; },
     (value) => { value.production.authorized = true; },
     (value) => { value.ledger.count = 98; },
-    (value) => { value.execution.canary_attempt_count = 0; },
-    (value) => { value.execution.primary_failure = "RA004_UNCLASSIFIED_FAILURE"; },
-    (value) => { value.execution.cleanup = "PENDING"; },
+    (value) => { value.execution.started = true; },
+    (value) => { value.execution.source_observation_row_count = 5; },
+    (value) => { value.execution.canary_attempt_count = 1; },
   ]) {
     const changed = structuredClone(manifest);
     mutate(changed);
-    assert.throws(() => values.validateCurrentTerminalActivation(changed), /RA004_/);
+    assert.throws(() => values.validateReadOnlyActivation(changed), /RA004_/);
   }
 });
 
@@ -96,7 +106,7 @@ test("v2 closeout binds source unavailability to expired bounded observations", 
   assert.equal(closeout.root_cause.observation_lifetime_minutes, 20);
   assert.ok(Date.parse(closeout.root_cause.canary_started_at)
     > Date.parse(closeout.root_cause.observer_started_at) + (20 * 60_000));
-  assert.match(observer, /observedAt\.getTime\(\) \+ 20 \* 60_000/);
+  assert.match(observer, /OBSERVATION_LIFETIME_MS = 20 \* 60_000/);
   assert.match(rpc, /if v_coverage <> 5 then/);
   assert.match(rpc, /RCSE_SOURCE_UNAVAILABLE: observation coverage is %\/5/);
   assert.deepEqual(closeout.attempt_counters,
@@ -113,7 +123,7 @@ test("v2 closeout binds source unavailability to expired bounded observations", 
   assert.equal(closeout.replayable, false);
 });
 
-test("runtime has no migration, Supabase CLI, materialization, or preflight execution path", () => {
+test("runtime has one atomic five-row observation and one canary with no migration or preflight path", () => {
   for (const forbidden of [
     /db["']?,\s*["']push/i,
     /pushSelectedMigrations/,
@@ -124,10 +134,19 @@ test("runtime has no migration, Supabase CLI, materialization, or preflight exec
     /--include-all/,
     /RA004_SUPABASE_CLI_PATH/,
   ]) assert.doesNotMatch(coordinator, forbidden);
-  assert.match(coordinator, /const operationAttempts = \{ migration: 0, preflight: 0, canary: 0 \}/);
+  assert.match(coordinator, /source_observation_transactions: 0/);
+  assert.match(coordinator, /source_observation_rows: 0/);
+  assert.match(coordinator, /sourceObservation\.observeSources\(ownerUrl\)/);
+  assert.match(coordinator, /sourceObservation\.buildEvents/);
+  assert.match(coordinator, /sourceObservation\.writeEvents/);
+  assert.match(coordinator, /sourceObservation\.readback/);
+  assert.match(sourceCapture, /async function writeEvents/);
+  assert.doesNotMatch(coordinator, /write_retailer_control_state_evidence_v1/);
+  assert.equal((coordinator.match(/operationAttempts\.source_observation_transactions \+= 1/g) || []).length, 1);
   assert.equal((coordinator.match(/operationAttempts\.canary \+= 1/g) || []).length, 1);
   assert.equal((coordinator.match(/await exportControlState/g) || []).length, 1);
   assert.equal((coordinator.match(/action: "create", kind: "control"/g) || []).length, 1);
+  assert.equal((coordinator.match(/action: "create", kind: "evidence"/g) || []).length, 1);
   assert.match(coordinator, /migration_receipts: \[\]/);
   assert.match(coordinator, /attempts: 0/);
 });
@@ -208,26 +227,37 @@ test("selectors remain closed in staging and production", () => {
   }
 });
 
-test("evidence authentication and attestation precede the sole canary", () => {
+test("evidence authentication precedes fresh observations which precede the sole canary", () => {
   const init = coordinator.indexOf('custody.call({ action: "init" })');
   const configure = coordinator.indexOf("configureEvidenceStore(storageSession.subject", init);
   const attest = coordinator.indexOf("attestEvidenceStore(policies)", configure);
   const start = coordinator.indexOf("startsAt = utc()", attest);
-  const credential = coordinator.indexOf('action: "create", kind: "control"', start);
+  const observe = coordinator.indexOf("sourceObservation.observeSources(ownerUrl)", start);
+  const evidenceCredential = coordinator.indexOf('action: "create", kind: "evidence"', observe);
+  const write = coordinator.indexOf("sourceObservation.writeEvents", evidenceCredential);
+  const readback = coordinator.indexOf("sourceObservation.readback", write);
+  const freshness = coordinator.indexOf("ensureObservationFresh(observationExpiresAt)", readback);
+  const credential = coordinator.indexOf('action: "create", kind: "control"', freshness);
   const canary = coordinator.indexOf("await exportControlState", credential);
   assert.ok(init > 0 && configure > init && attest > configure && start > attest
-    && credential > start && canary > credential);
+    && observe > start && evidenceCredential > observe && write > evidenceCredential
+    && readback > write && freshness > readback && credential > freshness && canary > credential);
+  assert.match(coordinator, /session_required_before_source_observation/);
   assert.match(coordinator, /session_required_before_canary/);
   assert.match(coordinator, /authentication_attempts === 1/);
+  assert.match(custodian, /"source-observation\.json"/);
+  assert.match(custodian, /"source-observation-revoke\.json"/);
   assert.match(custodian, /"execution-report\.json"/);
   assert.match(custodian, /method: "POST"/);
   assert.match(custodian, /method: "GET"/);
   assert.doesNotMatch(custodian, /x-upsert|method: "(?:PUT|PATCH|DELETE)"|\/object\/list\//i);
 });
 
-test("one control credential is query-aware revoked and cleanup stays mandatory", () => {
+test("observation and control credentials are query-aware revoked and cleanup stays mandatory", () => {
+  assert.match(coordinator, /await revokeOne\(observationCredential, process\.pid\)/);
   assert.match(coordinator, /await revokeOne\(canaryCredential, process\.pid\)/);
   assert.match(coordinator, /verifyRevokedCredential\(databaseUrl, credential\.role\)/);
+  assert.match(coordinator, /if \(observationCredential && issuer\)/);
   assert.match(coordinator, /if \(canaryCredential && issuer\)/);
   assert.match(coordinator, /removeEvidencePolicies\(policies\)/);
   assert.match(coordinator, /custody\.call\(\{ action: "close" \}\)/);
@@ -244,24 +274,36 @@ test("business rows and forbidden operations remain unchanged", () => {
   assert.match(coordinator, /mutation_attempt_count: canaryReport\.mutation_attempt_count/);
 });
 
+test("observation freshness is fail-closed with five minutes reserved for the canary", () => {
+  const now = Date.parse("2026-09-29T10:00:00Z");
+  assert.equal(values.ensureObservationFresh("2026-09-29T10:05:00Z", now), true);
+  assert.throws(() => values.ensureObservationFresh("2026-09-29T10:04:59.999Z", now),
+    /RA004_SOURCE_OBSERVATION_WINDOW_TOO_SHORT/);
+  assert.throws(() => values.ensureObservationFresh("invalid", now),
+    /RA004_SOURCE_OBSERVATION_WINDOW_TOO_SHORT/);
+});
+
 test("launcher uses masked inputs, strict CA validation and no migration tooling", () => {
   assert.match(launcher, /Read-Host -Prompt \$Prompt -AsSecureString/);
   assert.match(launcher, /NODE_EXTRA_CA_CERTS/);
   assert.match(launcher, /validateLocalCa/);
   assert.match(launcher, /LAUNCHER_VALIDATION_PASS/);
   assert.ok(launcher.indexOf("assertActivationExecutable") < launcher.indexOf("Staging database URL"));
-  assert.match(launcher, /jeden autoryzowany read-only canary/);
+  assert.match(launcher, /jedna atomowa obserwacje i read-only canary/);
   assert.doesNotMatch(launcher, /supabase|db push|include-all|RA004_SUPABASE_CLI_PATH/i);
 });
 
 test("execution is bound to a clean exact origin/main commit", () => {
   const sha = "a".repeat(40);
-  const outputs = [sha, sha, ""];
+  const outputs = [sha, sha, values.BASELINE, ""];
   assert.equal(values.readExecutionCommit(() => ({ status: 0, stdout: outputs.shift() })), sha);
-  const mismatch = ["a".repeat(40), "b".repeat(40), ""];
+  const mismatch = ["a".repeat(40), "b".repeat(40), values.BASELINE, ""];
   assert.throws(() => values.readExecutionCommit(() => ({ status: 0, stdout: mismatch.shift() })),
     /RA004_EXECUTION_COMMIT_NOT_MERGED_MAIN/);
-  const dirty = [sha, sha, " M scripts/file.js"];
+  const wrongBaseline = [sha, sha, "b".repeat(40), ""];
+  assert.throws(() => values.readExecutionCommit(() => ({ status: 0, stdout: wrongBaseline.shift() })),
+    /RA004_EXECUTION_BASELINE_MISMATCH/);
+  const dirty = [sha, sha, values.BASELINE, " M scripts/file.js"];
   assert.throws(() => values.readExecutionCommit(() => ({ status: 0, stdout: dirty.shift() })),
     /RA004_EXECUTION_WORKTREE_NOT_CLEAN/);
 });

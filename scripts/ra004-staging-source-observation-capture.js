@@ -14,6 +14,7 @@ const RETAILER_ID = "11";
 const EXPECTED_LEDGER_COUNT = 98;
 const EXPECTED_LEDGER_FINGERPRINT = "b4e72276ba2570d2da9957c53b6c209a3799087570302af92b295467a1d4e307";
 const SOURCES = Object.freeze(["sessions", "locks", "postflight_state", "watchdog_state", "global_conflicts"]);
+const OBSERVATION_LIFETIME_MS = 20 * 60_000;
 const OUTPUT_DIR = path.join(ROOT, "tmp", "ra004-source-observation-20260928");
 const SOURCE_INVENTORY_SQL = `select jsonb_build_object(
   'sessions',count(*) filter (where event_type in ('SESSION_STARTED','SESSION_HEARTBEAT','SESSION_COMPLETED','SESSION_FAILED')),
@@ -186,7 +187,7 @@ async function main() {
     "RA004_SOURCE_OBSERVATION_LEDGER_MISMATCH");
   const inventory = await observeSources(ownerDatabaseUrl);
   const observedAt = new Date();
-  const expiresAt = new Date(observedAt.getTime() + 20 * 60_000);
+  const expiresAt = new Date(observedAt.getTime() + OBSERVATION_LIFETIME_MS);
   const activationId = `ra004-source-observation-${observedAt.getTime()}`;
   const events = buildEvents({ activationId, observedAt: observedAt.toISOString(), expiresAt: expiresAt.toISOString(), inventory });
   const issuer = issuerProcess();
@@ -250,6 +251,7 @@ if (require.main === module) {
 
 module.exports = {
   BASELINE, EXPECTED_HOST, EXPECTED_LEDGER_COUNT, EXPECTED_LEDGER_FINGERPRINT,
-  PROJECT_REF, READBACK_SQL, RETAILER_ID, SOURCES, SOURCE_INVENTORY_SQL, WRITE_SQL,
-  buildEvents, readExecutionCommit, validateRemoteTarget,
+  OBSERVATION_LIFETIME_MS, PROJECT_REF, READBACK_SQL, RETAILER_ID, SOURCES,
+  SOURCE_INVENTORY_SQL, WRITE_SQL, buildEvents, observeSources, readExecutionCommit,
+  readback, validateRemoteTarget, writeEvents,
 };
