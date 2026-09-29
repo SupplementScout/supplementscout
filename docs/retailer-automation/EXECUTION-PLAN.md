@@ -1,22 +1,20 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: RA-004 ATOMIC SOURCE OBSERVATION + READ-ONLY CANARY PREPARED**
+**Status: RA-004 ATOMIC SOURCE OBSERVATION + READ-ONLY CANARY BLOCKED — SQL CONTRACT DRIFT**
 
-**Current active task:** RA-004 — `IN_PROGRESS`. One `v3` activation is prepared
-to reuse the existing bounded observer and existing read-only canary in a single
-coordinator: authenticate the private evidence store, commit and read back
-exactly five fresh `SOURCE_OBSERVED` rows, revoke the minimal writer, then run
-exactly one canary while at least five minutes remain in the observations' fixed
-20-minute lifetime. It authorizes no migration, preflight, retry or production
-operation. The staging ledger remains at 99, Q1–Q8 remain verified, and both
-`v1` and `v2` are terminal. The earlier attempt exposed a
-missing bounded-transport diagnostic boundary:
-raw PostgreSQL SQLSTATE values were rejected by the outer safe serializer and
-collapsed to `RA004_UNCLASSIFIED_FAILURE`. The shared transport now classifies
-connect, transaction, RPC, proof, rollback and close failures into stable
-redacted codes. The PostgreSQL 17 suite exercises the real Node `pg` transport,
-and terminal closeout is sealed only after cleanup. STAGING and PRODUCTION
-selectors remain closed. No shadow run or production operation is authorized.
+**Current active task:** RA-004 — `IN_PROGRESS`. The sole `v3` activation is
+consumed, terminal and not replayable. It authenticated the private evidence
+store, committed and read back exactly five fresh `SOURCE_OBSERVED` rows in one
+transaction, revoked that minimal writer and ran exactly one read-only canary.
+The canary queried all 11 sources, reported `completeness_status: COMPLETE`, no
+unavailable source and zero write or mutation attempts, but the applied SQL RPC
+returned `BLOCKED_INCOMPLETE_EXPORT` because both the postflight and watchdog
+state collections were legitimately empty. That differs from the shared
+exporter contract, which treats a required source as incomplete only when the
+source cannot be queried. Cleanup completed, both temporary credentials were
+revoked, the ledger remains at 99, Q1–Q8 remain verified, business data is
+unchanged, and retry is not authorized. STAGING and PRODUCTION selectors remain
+closed. No shadow run or production operation is authorized.
 
 **Implementation:** fixture exporter plus locally database-verified forward-only
 transactional interface, exact provider-identity alignment, unwired live-provider

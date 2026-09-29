@@ -34,15 +34,17 @@ test("final canary is pinned to the approved staging ledger and already-applied 
   assert.match(coordinator, /retailer\[0\]\.id === "11"/);
 });
 
-test("v3 is executable once while both prior activations remain terminal", () => {
+test("v3 and both prior activations are terminal and non-replayable", () => {
   const evidence = path.join(ROOT, "docs", "retailer-automation", "evidence");
   const manifest = JSON.parse(fs.readFileSync(path.join(evidence, values.ACTIVATION_MANIFEST), "utf8"));
+  const closeout = JSON.parse(fs.readFileSync(path.join(evidence, values.ACTIVATION_CLOSEOUT), "utf8"));
   const terminalV2 = JSON.parse(fs.readFileSync(path.join(evidence,
     values.TERMINAL_V2_ACTIVATION_MANIFEST), "utf8"));
   const terminal = JSON.parse(fs.readFileSync(path.join(evidence,
     values.TERMINAL_ACTIVATION_MANIFEST), "utf8"));
-  assert.deepEqual(values.assertActivationExecutable(), manifest);
-  assert.equal(values.validateReadOnlyActivation(manifest), manifest);
+  assert.equal(values.validateV3TerminalActivation(manifest), manifest);
+  assert.throws(() => values.assertActivationExecutable(), /RA004_ACTIVATION_TERMINAL/);
+  assert.throws(() => values.validateReadOnlyActivation(manifest), /RA004_/);
   assert.equal(values.validateCurrentTerminalActivation(terminalV2), terminalV2);
   assert.throws(() => values.validateReadOnlyActivation(terminalV2), /RA004_/);
   assert.equal(values.validateTerminalActivation(terminal), terminal);
@@ -65,34 +67,73 @@ test("v3 is executable once while both prior activations remain terminal", () =>
   assert.deepEqual(manifest.source_observation.required_sources,
     ["sessions", "locks", "postflight_state", "watchdog_state", "global_conflicts"]);
   assert.equal(manifest.source_observation.same_activation_before_canary, true);
-  assert.equal(manifest.execution.started, false);
+  assert.equal(manifest.status, "ATTEMPT_CONSUMED_FAILED_TERMINAL");
+  assert.equal(manifest.execution.runtime_activation_id, "ra004-staging-1790674363597");
+  assert.equal(manifest.execution.execution_commit, "c57c6abbb2e0e01842dd279613b4bbc1d9344966");
+  assert.equal(manifest.execution.started, true);
   assert.equal(manifest.execution.migration_attempt_count, 0);
   assert.equal(manifest.execution.preflight_attempt_count, 0);
-  assert.equal(manifest.execution.source_observation_transaction_count, 0);
-  assert.equal(manifest.execution.source_observation_row_count, 0);
-  assert.equal(manifest.execution.canary_attempt_count, 0);
-  assert.equal(manifest.execution.closed, false);
+  assert.equal(manifest.execution.source_observation_transaction_count, 1);
+  assert.equal(manifest.execution.source_observation_row_count, 5);
+  assert.equal(manifest.execution.canary_attempt_count, 1);
+  assert.equal(manifest.execution.retry_attempt_count, 0);
+  assert.equal(manifest.execution.canary_final_assessment, "BLOCKED_INCOMPLETE_EXPORT");
+  assert.equal(manifest.execution.canary_completeness_status, "COMPLETE");
+  assert.equal(manifest.execution.canary_sources_queried, 11);
+  assert.deepEqual(manifest.execution.canary_sources_unavailable, []);
+  assert.equal(manifest.execution.canary_write_attempt_count, 0);
+  assert.equal(manifest.execution.canary_mutation_attempt_count, 0);
+  assert.equal(manifest.execution.business_data_unchanged, true);
+  assert.equal(manifest.execution.evidence_store_session, "CLOSED");
+  assert.equal(manifest.execution.cleanup, "COMPLETE");
+  assert.equal(manifest.execution.credentials_revoked, 2);
+  assert.equal(manifest.execution.roles_absent, true);
+  assert.equal(manifest.execution.memberships_absent, true);
+  assert.equal(manifest.execution.active_backends_absent, true);
+  assert.equal(manifest.execution.closed, true);
   assert.equal(manifest.execution.retry_authorized, false);
   assert.equal(manifest.execution.replayable, false);
+  assert.equal(closeout.status, "ATTEMPT_CONSUMED_FAILED_TERMINAL");
+  assert.equal(closeout.primary_failure, "RA004_CANARY_CONTROL_STATE_BLOCKED");
+  assert.equal(closeout.root_cause.code, "RA004_SQL_EMPTY_QUERIED_STATE_MISCLASSIFIED_INCOMPLETE");
+  assert.equal(closeout.canary_result.completeness_status, "COMPLETE");
+  assert.equal(closeout.canary_result.sources_queried, 11);
+  assert.deepEqual(closeout.canary_result.sources_unavailable, []);
+  assert.equal(closeout.business_data.unchanged, true);
+  assert.equal(closeout.selectors.staging, "CLOSED");
+  assert.equal(closeout.selectors.production, "CLOSED");
+  assert.equal(closeout.retry_authorized, false);
+  assert.equal(closeout.replayable, false);
   for (const mutate of [
     (value) => { value.migrations.push({ filename: "forbidden.sql" }); },
-    (value) => { value.migration_attempts_authorized = 1; },
-    (value) => { value.preflight.attempts_authorized = 1; },
-    (value) => { value.source_observation.maximum_transactions = 2; },
-    (value) => { value.source_observation.required_rows = 4; },
-    (value) => { value.source_observation.required_sources.pop(); },
-    (value) => { value.source_observation.lifetime_minutes = 21; },
-    (value) => { value.canary.maximum_attempts = 2; },
+    (value) => { value.execution.canary_attempt_count = 2; },
+    (value) => { value.execution.retry_attempt_count = 1; },
+    (value) => { value.execution.canary_completeness_status = "INCOMPLETE"; },
+    (value) => { value.execution.canary_sources_unavailable.push("locks"); },
+    (value) => { value.execution.canary_write_attempt_count = 1; },
+    (value) => { value.execution.business_data_unchanged = false; },
+    (value) => { value.execution.cleanup = "PENDING"; },
+    (value) => { value.execution.roles_absent = false; },
+    (value) => { value.execution.closed = false; },
     (value) => { value.production.authorized = true; },
-    (value) => { value.ledger.count = 98; },
-    (value) => { value.execution.started = true; },
-    (value) => { value.execution.source_observation_row_count = 5; },
-    (value) => { value.execution.canary_attempt_count = 1; },
   ]) {
     const changed = structuredClone(manifest);
     mutate(changed);
-    assert.throws(() => values.validateReadOnlyActivation(changed), /RA004_/);
+    assert.throws(() => values.validateV3TerminalActivation(changed),
+      /RA004_ACTIVATION_TERMINAL_STATE_INVALID/);
   }
+});
+
+test("live canary proves SQL empty-state classification drift against the shared exporter", () => {
+  const sql = fs.readFileSync(path.join(ROOT, "supabase", "migrations",
+    "20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql"), "utf8");
+  const exporter = fs.readFileSync(path.join(__dirname, "lib", "retailer-offer-sync",
+    "control-state-export-v1", "exporter.js"), "utf8");
+  assert.match(sql,
+    /jsonb_array_length\(v_postflight\)=0 or jsonb_array_length\(v_watchdog\)=0 then 'BLOCKED_INCOMPLETE_EXPORT'/);
+  assert.match(exporter, /if \(unavailable\.length\) return "BLOCKED_INCOMPLETE_EXPORT"/);
+  assert.doesNotMatch(exporter,
+    /if\s*\([^)]*(?:last_postflight|last_watchdog_result)[^)]*\)\s*return "BLOCKED_INCOMPLETE_EXPORT"/);
 });
 
 test("v2 closeout binds source unavailability to expired bounded observations", () => {

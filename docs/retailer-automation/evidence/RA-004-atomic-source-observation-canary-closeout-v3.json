@@ -1,0 +1,98 @@
+{
+  "schema_version": "ra004-atomic-source-observation-canary-closeout-v1",
+  "status": "ATTEMPT_CONSUMED_FAILED_TERMINAL",
+  "activation_id": "ra004-staging-1790674363597",
+  "authorized_activation": "ra004-atomic-source-observation-canary-2026-09-29-v3",
+  "baseline_sha": "227529abc7e3adf71dd88904d1d592f1126b4f17",
+  "execution_commit": "c57c6abbb2e0e01842dd279613b4bbc1d9344966",
+  "primary_failure": "RA004_CANARY_CONTROL_STATE_BLOCKED",
+  "canary_result": {
+    "status": "BLOCKED",
+    "final_assessment": "BLOCKED_INCOMPLETE_EXPORT",
+    "completeness_status": "COMPLETE",
+    "sources_queried": 11,
+    "sources_unavailable": [],
+    "record_counts": {
+      "control_plans": 0,
+      "plan_items": 0,
+      "sessions": 0,
+      "locks": 0,
+      "approval_contracts": 0,
+      "approval_consumption": 0,
+      "recovery_state": 0,
+      "apply_ledger": 0,
+      "postflight_state": 0,
+      "watchdog_state": 0,
+      "global_conflicts": 0
+    },
+    "read_attempt_count": 1,
+    "write_attempt_count": 0,
+    "mutation_attempt_count": 0
+  },
+  "root_cause": {
+    "code": "RA004_SQL_EMPTY_QUERIED_STATE_MISCLASSIFIED_INCOMPLETE",
+    "reason": "the applied SQL RPC classifies empty postflight_state or watchdog_state as BLOCKED_INCOMPLETE_EXPORT even though all eleven required sources were queried successfully and completeness_status is COMPLETE",
+    "contract_drift": "the shared JavaScript exporter treats a source as incomplete only when it is unavailable; it does not require a business-state row to exist"
+  },
+  "source_observation": {
+    "transaction_count": 1,
+    "committed_row_count": 5,
+    "readback_row_count": 5,
+    "retry_count": 0,
+    "status": "VERIFIED_COMPLETE"
+  },
+  "attempt_counters": {
+    "evidence_auth": 1,
+    "migration": 0,
+    "preflight": 0,
+    "source_observation_transactions": 1,
+    "source_observation_rows": 5,
+    "canary": 1,
+    "retry": 0
+  },
+  "ledger_readback": {
+    "count": 99,
+    "fingerprint": "a6e7693f964925554e807602752e4630d14f537a1d9de4fe82f8433d30c307cc",
+    "last_migration": "20260928101000_align_ra004_control_export_provider_identity"
+  },
+  "business_data": {
+    "unchanged": true
+  },
+  "evidence_store": {
+    "session": "CLOSED",
+    "cleanup": "COMPLETE",
+    "uploaded_object_count": 6
+  },
+  "credential_revocation": {
+    "credentials_revoked": 2,
+    "outcome": "RA004_REVOKE_CONNECTION_REJECTED_CATALOGUE_CONFIRMED",
+    "role_absent": true,
+    "membership_absent": true,
+    "active_backend_absent": true
+  },
+  "forbidden_operation_counts": {
+    "production": 0,
+    "migration": 0,
+    "preflight": 0,
+    "feed_capture": 0,
+    "shadow_run": 0,
+    "control_plan": 0,
+    "approval": 0,
+    "import": 0,
+    "apply": 0,
+    "offer_writes": 0,
+    "model_b": 0
+  },
+  "selectors": {
+    "staging": "CLOSED",
+    "production": "CLOSED"
+  },
+  "evidence_sha256": {
+    "source_observation": "37df0270bc9dc2287272ad1caa60cf2e72705fc5b52e90c694cc6b23afe65c52",
+    "control_state_canary": "f27fe55c4c0c7d6539626d57caa15a0aa5ae77e283f65c8931136dd460a596e9",
+    "local_failure_closeout": "db21dbda48020068304f477e4c4c3f9e277019dfc8b07696316dc04841822cd9",
+    "private_execution_report": "bc45ec5e9033b3c7049edd83497aaa920dcd62bfb6019634106d3e0cb3893931"
+  },
+  "retry_authorized": false,
+  "replayable": false
+}
