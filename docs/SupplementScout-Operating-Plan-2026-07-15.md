@@ -5,6 +5,20 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
+**29 September 2026 retailer-automation stabilization checkpoint:** the owner
+stopped further RA-004 live canary retries after the terminal `v3` attempt. Its
+cleanup, revoked temporary credentials, closed staging/production selectors,
+unchanged business data and non-replayable status remain authoritative. RA-004
+is `BLOCKED`; no replacement activation, live control-state export, migration,
+shadow, cutover or production operation is authorized. The one active retailer
+task is RA-STAB-01: establish a fresh read-only state for all configured
+retailers, classify failures by shared incident class, recover through existing
+guarded mechanisms only with separate exact write authority, and require common
+regressions plus three ordinary schedule intervals before closeout. Consolidation
+may later resume only as artifact-first recorded replay. See the
+[stabilization reset](retailer-automation/evidence/RA-STABILIZATION-RESET-2026-09-29.md)
+and the [execution ledger](retailer-automation/EXECUTION-PLAN.md).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
@@ -267,7 +281,10 @@ source-blocked and GYM HIGH remains owner-deferred.
 
 **Automation reliability status:** The P0 Automation Reliability Sprint is closed with monitored backlog. The [Automation Reliability Roadmap](Automation-Reliability-Roadmap.md) remains the evidence source, but no longer blocks product development. Existing guarded workflows, Review Queue and alerts own ordinary freshness, OOS, source and review backlog.
 
-The documentation-only [Retailer Automation Consolidation programme](retailer-automation/EXECUTION-PLAN.md) is `WAITING FOR OWNER APPROVAL`; no refactor task has started.
+The [Retailer Automation Consolidation programme](retailer-automation/EXECUTION-PLAN.md)
+completed RA-000 through RA-003. RA-004 is now owner-stopped and `BLOCKED`
+without retry authority. RA-STAB-01 is the sole active retailer task and
+prioritizes existing-path production stabilization over consolidation.
 
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256

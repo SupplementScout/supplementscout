@@ -145,13 +145,41 @@ function diagnosticTemplate(argv,env=process.env){
     commit,
     source:{url:config.source_platform==="CSV_PRODUCT_FEED"?"[PROTECTED_FEED]":config.source_platform==="PRODUCT_PAGE"?config.source_url:config.source_platform==="WOOCOMMERCE_PRODUCT_PAGES"?config.store_url:new URL("/products.json",config.store_url).href,type:config.source_platform==="CSV_PRODUCT_FEED"?"CSV_PRODUCT_FEED":config.source_platform==="PRODUCT_PAGE"?"EXACT_PRODUCT_JSON_LD":config.source_platform==="WOOCOMMERCE_PRODUCT_PAGES"?"APPROVED_WOOCOMMERCE_PRODUCT_PAGES":"SHOPIFY_PRODUCTS_JSON",http_status:null,content_type:null,bytes_received:0,pages_fetched:0,pagination_completed:false,product_count:0,raw_variant_count:0,normalised_count:0,baseline_product_count:config.source_baseline.product_count,baseline_variant_count:config.source_baseline.variant_count,product_ratio:0,variant_ratio:0,ratio:0,minimum_ratio:config.source_baseline.minimum_count_ratio,genuine_collapse_ratio:config.source_baseline.genuine_collapse_ratio,request_headers:null,redirect_policy:null,retries:0},
     approved_mapping_count:0,approved_offer_count:0,mappings_matched:0,mappings_missing:0,guard_results:[],
-    validator_result:"NOT_RUN",approver_result:"NOT_RUN",executor_result:"NOT_RUN",
+    validator_result:"NOT_RUN",parent_approval_result:"NOT_RUN",approver_result:"NOT_RUN",executor_result:"NOT_RUN",
     failure_stage:null,error_code:null,error_message:null,
     database_writes_attempted:0,database_writes_completed:0,
     business_writes_completed:0,control_writes_completed:0,approvals_created:0,approvals_consumed:0,recovery_calls:0,
   };
 }
 function writeDiagnostic(name,diagnostic,outDir=OUT){fs.mkdirSync(outDir,{recursive:true});fs.writeFileSync(path.join(outDir,name),`${JSON.stringify(diagnostic,null,2)}\n`)}
+function controlRegistrationEvidence(request,result){
+  invariant(request&&result&&Array.isArray(request.children),"control registration evidence requires a completed registration");
+  return{
+    status:result.status,
+    parent_plan_id:request.parent_plan_id,
+    parent_plan_fingerprint:request.parent_plan_fingerprint,
+    retailer_id:String(request.retailer_id),
+    retailer_slug:request.retailer_slug,
+    source_snapshot_fingerprint:request.source_snapshot_fingerprint,
+    manifest_fingerprint:request.manifest_fingerprint,
+    expires_at:request.expires_at,
+    workflow:{repository:request.workflow.repository,run_id:String(request.workflow.run_id),run_attempt:String(request.workflow.run_attempt),actor:request.workflow.actor},
+    child_count:Number(result.child_count),
+    child_plans:request.children.map(child=>({child_plan_id:child.child_plan_id,child_plan_fingerprint:child.artifact.artifact_fingerprint})),
+    mapping_count:Number(result.mapping_count),
+    business_writes:Number(result.business_writes),
+  };
+}
+function controlParentApprovalError(error,registrationEvidence){
+  if(error instanceof RefreshError)return error;
+  const safe=safeRetailerCatalogueError(error);
+  return new RefreshError(
+    safe.validator_code||"CONTROL_PARENT_APPROVAL_OUTCOME_UNKNOWN",
+    safe.validator_code?safe.validator_summary:"registered control plan parent approval outcome is unknown",
+    "CONTROL_PARENT_APPROVAL",
+    {control_registration:registrationEvidence},
+  );
+}
 function applySourceDiagnostic(diagnostic,snapshot,sourceVariants,health){
   const source=snapshot.source_diagnostic||{};
   Object.assign(diagnostic.source,{http_status:source.final_http_status,content_type:source.final_content_type,bytes_received:source.bytes_received||0,pages_fetched:source.pages_fetched||0,pagination_completed:Boolean(source.pagination_completed),product_count:snapshot.products.length,raw_variant_count:health.raw_variant_count,normalised_count:sourceVariants.length,product_ratio:health.product_ratio,variant_ratio:health.variant_ratio,ratio:health.observed_ratio,request_headers:source.request_headers||null,redirect_policy:source.redirect_policy||null,retries:source.retry_count||0,pages:source.pages||[]});
@@ -618,7 +646,13 @@ async function executeRefresh(args,diagnostic,reviewed=null){
   diagnostic.database_writes_attempted=1;
   const registration=registrationRequest(run),registered=await register(run,registration);
   diagnostic.control_writes_completed=1;
-  await prepareSequentialParentApproval(run,registration);
+  diagnostic.control_registration=controlRegistrationEvidence(registration,registered.result);
+  try{
+    const parentApproval=await prepareSequentialParentApproval(run,registration);
+    diagnostic.parent_approval_result=parentApproval?"PASS":"NOT_REQUIRED";
+  }catch(error){
+    throw controlParentApprovalError(error,diagnostic.control_registration);
+  }
   const executions=await approveAndExecute(run,registration,validations);
   diagnostic.approver_result="PASS";
   diagnostic.executor_result="PASS";
@@ -668,4 +702,4 @@ async function main(argv=process.argv.slice(2)){
 }
 
 if(require.main===module)main().catch(error=>{console.error(error.stack||error);process.exitCode=1});
-module.exports={enforceConfirmationOnly,APPROVED_CANONICAL_REBINDINGS,RefreshError,applyApprovedStableOosBaselineGuard,applyOwnerApprovedMissingVariantGuardBaseline,applyReviewedOffer697GuardProof,approvedStableOosBaseline,authorizeOwnerApprovedMissingVariant,authorizeOwnerApprovedSixStockOnly,authorizeReviewedMassOos,balancedExecutionBatches,buildRun,canonicalHash,classificationDiagnostic,diagnosticTemplate,effectiveOfferPolicy,executeRefresh,executionRow,freshCapturedAt,guardrailsFor,isApprovedCanonicalSuccessor,isExactOwnerBoundAuditedMissingReview,isolateAggregatePriceChanges,loadApprovedManifest,loadAuditedMissingVariantManifest,loadOwnerApprovedMissingVariantManifest,loadOwnerApprovedSixAbsentManifest,loadReviewedMassOosManifest,mappedOfferSourceFingerprint,migrationBinding,normalizeExactScopeRows,parseArgs,projectSourceVariants,readState,reconcileAuditedMissingVariants,reconcileMissingMappedVariants,reconcileOwnerApprovedMissingVariant,reconcileOwnerApprovedSixAbsent,registrationRequest,requireAuditedMissingOwnerApproval,runWithDiagnostic,runtimePolicyFingerprint,safeRetailerCatalogueError,safeUpdateDisabled,safeValidatorResult,scopeSegmentSummary,selectApprovedScopeSegment,selectOwnerApprovedSixExecutionRows,sourceHealth,sumDeltas,validationGuardSummary,verificationRecord};
+module.exports={enforceConfirmationOnly,APPROVED_CANONICAL_REBINDINGS,RefreshError,applyApprovedStableOosBaselineGuard,applyOwnerApprovedMissingVariantGuardBaseline,applyReviewedOffer697GuardProof,approvedStableOosBaseline,authorizeOwnerApprovedMissingVariant,authorizeOwnerApprovedSixStockOnly,authorizeReviewedMassOos,balancedExecutionBatches,buildRun,canonicalHash,classificationDiagnostic,controlParentApprovalError,controlRegistrationEvidence,diagnosticTemplate,effectiveOfferPolicy,executeRefresh,executionRow,freshCapturedAt,guardrailsFor,isApprovedCanonicalSuccessor,isExactOwnerBoundAuditedMissingReview,isolateAggregatePriceChanges,loadApprovedManifest,loadAuditedMissingVariantManifest,loadOwnerApprovedMissingVariantManifest,loadOwnerApprovedSixAbsentManifest,loadReviewedMassOosManifest,mappedOfferSourceFingerprint,migrationBinding,normalizeExactScopeRows,parseArgs,projectSourceVariants,readState,reconcileAuditedMissingVariants,reconcileMissingMappedVariants,reconcileOwnerApprovedMissingVariant,reconcileOwnerApprovedSixAbsent,registrationRequest,requireAuditedMissingOwnerApproval,runWithDiagnostic,runtimePolicyFingerprint,safeRetailerCatalogueError,safeUpdateDisabled,safeValidatorResult,scopeSegmentSummary,selectApprovedScopeSegment,selectOwnerApprovedSixExecutionRows,sourceHealth,sumDeltas,validationGuardSummary,verificationRecord};
