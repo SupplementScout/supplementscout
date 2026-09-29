@@ -181,6 +181,32 @@ The sole global active-parent blocker is therefore closed. RA-STAB-01 remains
 ordinary schedule intervals and correlated evidence before closeout. Do not
 manufacture those intervals by manually retrying a retailer.
 
+**Immediate post-recovery watchdog — baseline recorded:** run `36592696720`
+executed from `main` commit `07fea3e9bf38a67a1457ef65dfbaf2c8f9277455`
+through the existing `production-readonly` workflow. It inspected all 12
+retailers at `2026-09-29T15:46:28.977Z`, made zero database writes and reported
+no global failure. Its overall result remains `FAIL`: six retailer results are
+still based on stale, backlog-growth or unrelated execution evidence that
+predates the control close. The run is the honest post-recovery observation
+baseline, not proof of three ordinary intervals and not evidence that the close
+regressed. No retailer was manually retried and no monitored baseline was
+widened. Evidence:
+[`evidence/RA-STAB-01-POST-RECOVERY-WATCHDOG-2026-09-29.json`](evidence/RA-STAB-01-POST-RECOVERY-WATCHDOG-2026-09-29.json).
+
+The next bounded step is observation only: correlate the next ordinary daily
+retailer schedules and the six-hour watchdog. Count an interval only when its
+own capture, apply and postflight artifacts satisfy the existing contract. Do
+not count this immediate watchdog as an ordinary retailer interval and do not
+substitute a manual dispatch for missing ordinary evidence.
+
+For the affected paths, the three observation windows are fixed in UTC:
+Whey Okay at `02:17` and shared refresh / 10 Reps at `02:47` on 30 September,
+1 October and 2 October 2026. Correlate each pair with the scheduled `06:11`
+watchdog on the same date. Earlier six-hour watchdogs do not count because they
+precede the ordinary paths. If an ordinary run again reports an active-plan or
+control-lifecycle block, stop and classify it as a regression; otherwise retain
+its exact run, artifact, postflight and idempotency evidence.
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
