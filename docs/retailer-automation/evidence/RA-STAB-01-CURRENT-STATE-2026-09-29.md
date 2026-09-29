@@ -189,3 +189,29 @@ excluded from ordinary STAGING and PRODUCTION selection. It cannot be deployed
 by the normal migration command and has not been applied anywhere. Deployment,
 exact invocation and post-write readback remain a separate owner-authorized
 operation.
+
+## Post-merge production preparation readback
+
+After PR #144 merged as `de500c13bc7ff397479d56afa671ac642790f94c`, a new
+`REPEATABLE READ READ ONLY` production transaction completed at
+`2026-09-29T14:15:21.462Z` with explicit rollback and zero mutation attempts.
+It found ledger row 222,
+`20260922170000_allow_fit_house_parent_approval_and_supersede_failed_plan`,
+already applied. The repository selector still described that row as pending;
+the preparation therefore stopped and corrected the repository contract before
+any activation work.
+
+The actual 222-row production fingerprint is
+`c08b5f2e704072a0e4b2590688998e07a781f8699546279b6e81acd9c975c0fe`.
+It exactly matches the migration fingerprint stored by the interrupted 10 Reps
+approval. Appending only the excluded sequential-close migration would produce
+223 rows and fingerprint
+`c891240d8ed411b3bc0ad5e2abc6a8c90bfeb442c1cd0824f3c5a4577ee0c7b0`.
+
+The same transaction reconfirmed the exact parent, one approved child, 18
+planned siblings, one batch approval, zero row approvals and zero apply runs.
+The prepared activation record is
+[`RA-STAB-01-PRODUCTION-RECOVERY-PREPARATION.json`](RA-STAB-01-PRODUCTION-RECOVERY-PREPARATION.json).
+It is intentionally `NOT_AUTHORIZED`, keeps schema deployment and control
+recovery as separate phases, disables automatic transition and retry, and
+authorizes no business write.

@@ -78,16 +78,16 @@ test("deployed GTIN, Whey Okay rebind and traffic classification migrations rema
     "20260816173000_extend_guarded_gtin_promotion_exact_36.sql",
     "20260817114500_add_outbound_click_traffic_classification.sql",
   ]) assert.equal(pending.has(filename), false);
-  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 221);
-  assert.equal(CONTRACTS.PRODUCTION.ledgerFingerprint, "bddbdda9e913bdf262287c387e75e6aef3b5e1f78b4eb3c8648747ef881e1d3d");
+  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 222);
+  assert.equal(CONTRACTS.PRODUCTION.ledgerFingerprint, "c08b5f2e704072a0e4b2590688998e07a781f8699546279b6e81acd9c975c0fe");
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", MIGRATION)), true);
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", "20260816173000_extend_guarded_gtin_promotion_exact_36.sql")), true);
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", "20260817114500_add_outbound_click_traffic_classification.sql")), true);
 });
 
-test("production migration preflight hashes the real 221-row ledger only in the PRODUCTION domain", () => {
+test("production migration preflight hashes the real 222-row ledger only in the PRODUCTION domain", () => {
   const rows = productionLedger();
-  assert.equal(rows.length, 221);
+  assert.equal(rows.length, 222);
   assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "PRODUCTION" }), CONTRACTS.PRODUCTION.ledgerFingerprint);
   assert.notEqual(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACTS.PRODUCTION.ledgerFingerprint);
   assert.equal(classifyProductionMigrationLedger(rows), "ALREADY_PRESENT");
@@ -169,10 +169,8 @@ test("an absent historical GTIN migration is not currently authorized", async ()
   );
 });
 
-test("the current Fit House pending migration cannot authorize historical GTIN deployment", async () => {
-  assert.deepEqual(CONTRACTS.PRODUCTION.pending.map(({ filename }) => filename), [
-    "20260922170000_allow_fit_house_parent_approval_and_supersede_failed_plan.sql",
-  ]);
+test("an empty current production pending set cannot authorize historical GTIN deployment", async () => {
+  assert.deepEqual(CONTRACTS.PRODUCTION.pending, []);
   assert.equal(CONTRACTS.PRODUCTION.pending.some(({ filename }) => filename === MIGRATION), false);
   const rows = productionLedger().filter(({ version, name }) => `${version}_${name}` !== MIGRATION.slice(0, -4));
   await assert.rejects(
