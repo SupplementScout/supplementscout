@@ -1,0 +1,190 @@
+{
+  "schema_version": "ra-stab-01-post-recovery-watchdog-evidence-v1",
+  "status": "OBSERVATION_BASELINE_RECORDED",
+  "task_id": "RA-STAB-01",
+  "run": {
+    "id": 36592696720,
+    "url": "https://github.com/SupplementScout/supplementscout/actions/runs/36592696720",
+    "event": "workflow_dispatch",
+    "head_branch": "main",
+    "head_sha": "07fea3e9bf38a67a1457ef65dfbaf2c8f9277455",
+    "generated_at": "2026-09-29T15:46:28.977Z",
+    "environment": "production-readonly",
+    "database_writes": 0
+  },
+  "artifact": {
+    "id": 11043904714,
+    "name": "automation-reliability-watchdog-36592696720-1",
+    "retention_expires_at": "2026-10-29T15:47:16Z",
+    "archive_digest": "sha256:c7f21f81a37701f44a914041889a1ddabfd2b512dd111e9a6e998365510bdcad",
+    "watchdog_json_sha256": "f5b1a0acc63756af0e8892948fcad78c0bfef3ee98cb7c10ea911205b4e2ef68",
+    "closeout_snapshot_sha256": "2520eb28453314ea659238dd59c95aa987ed3a106de08e78f14873b8b3f83f08"
+  },
+  "summary": {
+    "result": "FAIL",
+    "retailer_count": 12,
+    "failed_retailer_count": 6,
+    "monitored_retailer_count": 4,
+    "review_retailer_count": 1,
+    "global_failures": []
+  },
+  "retailers": [
+    {
+      "id": 1,
+      "name": "GYM HIGH",
+      "result": "PASS_WITH_MONITORED_BACKLOG",
+      "evidence_correlation": "INCOMPLETE_CORE",
+      "offers": 66,
+      "offers_older_than_48h": 1,
+      "backlog": "WITHIN_BASELINE"
+    },
+    {
+      "id": 3,
+      "name": "Whey Okay",
+      "result": "FAIL",
+      "evidence_correlation": "CORRELATED",
+      "latest_run_id": 35701123019,
+      "offers": 870,
+      "offers_older_than_48h": 870,
+      "failures": [
+        "CAPTURE_SUCCESS_OLDER_THAN_48H",
+        "APPLY_SUCCESS_OLDER_THAN_48H",
+        "DB_POSTFLIGHT_SUCCESS_OLDER_THAN_48H",
+        "DATABASE_OFFERS_OLDER_THAN_48H",
+        "MONITORED_BACKLOG_GROWTH"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Discount Supplements",
+      "result": "PASS_WITH_MONITORED_BACKLOG",
+      "evidence_correlation": "CORRELATED",
+      "latest_run_id": 36574302209,
+      "offers": 156,
+      "offers_older_than_48h": 47,
+      "backlog": "WITHIN_BASELINE"
+    },
+    {
+      "id": 5,
+      "name": "Dolphin Fitness",
+      "result": "PASS_WITH_MONITORED_BACKLOG",
+      "evidence_correlation": "CORRELATED",
+      "latest_run_id": 36561659250,
+      "offers": 3,
+      "offers_older_than_48h": 2,
+      "backlog": "WITHIN_BASELINE"
+    },
+    {
+      "id": 7,
+      "name": "Simply Supplements",
+      "result": "PASS_WITH_REVIEW",
+      "evidence_correlation": "CORRELATED",
+      "latest_run_id": 36561004224,
+      "offers": 120,
+      "offers_older_than_48h": 1,
+      "backlog": "WITHIN_BASELINE"
+    },
+    {
+      "id": 8,
+      "name": "KIOR Health",
+      "result": "PASS",
+      "evidence_correlation": "CORRELATED",
+      "latest_run_id": 36581626821,
+      "offers": 11,
+      "offers_older_than_48h": 0,
+      "backlog": "WITHIN_BASELINE"
+    },
+    {
+      "id": 9,
+      "name": "Fit House",
+      "result": "FAIL",
+      "evidence_correlation": "CORRELATED",
+      "latest_run_id": 35834479612,
+      "offers": 286,
+      "offers_older_than_48h": 286,
+      "failures": [
+        "CAPTURE_SUCCESS_OLDER_THAN_48H",
+        "APPLY_SUCCESS_OLDER_THAN_48H",
+        "DB_POSTFLIGHT_SUCCESS_OLDER_THAN_48H",
+        "EXECUTION_CONTRACT_EVIDENCE_MISSING",
+        "DATABASE_OFFERS_OLDER_THAN_48H"
+      ]
+    },
+    {
+      "id": 10,
+      "name": "Jon's Supplements",
+      "result": "FAIL",
+      "evidence_correlation": "CORRELATED",
+      "latest_run_id": 36558502917,
+      "offers": 506,
+      "offers_older_than_48h": 5,
+      "failures": ["MONITORED_BACKLOG_GROWTH"]
+    },
+    {
+      "id": 11,
+      "name": "6 Pack Supplements",
+      "result": "FAIL",
+      "evidence_correlation": "CORRELATED",
+      "latest_run_id": 36405020045,
+      "offers": 506,
+      "offers_older_than_48h": 12,
+      "failures": ["MONITORED_BACKLOG_GROWTH"]
+    },
+    {
+      "id": 12,
+      "name": "eBay UK",
+      "result": "FAIL",
+      "evidence_correlation": "UNRELATED_EVIDENCE",
+      "latest_capture_run_id": 35738147995,
+      "latest_apply_run_id": 36562647774,
+      "offers": 237,
+      "offers_older_than_48h": 79,
+      "failures": [
+        "CAPTURE_SUCCESS_OLDER_THAN_48H",
+        "EBAY_POSTFLIGHT_HASH_MISSING",
+        "EBAY_IDEMPOTENCY_NOT_PASSED",
+        "EBAY_DATABASE_WRITE_COUNT_MISMATCH",
+        "INDEPENDENT_IDEMPOTENCY_COMMIT_MISMATCH",
+        "INDEPENDENT_IDEMPOTENCY_POSTFLIGHT_HASH_MISSING",
+        "MONITORED_BACKLOG_GROWTH"
+      ]
+    },
+    {
+      "id": 13,
+      "name": "Predators Gear",
+      "result": "PASS_WITH_MONITORED_BACKLOG",
+      "evidence_correlation": "INCOMPLETE_CORE",
+      "offers": 47,
+      "offers_older_than_48h": 47,
+      "backlog": "WITHIN_BASELINE"
+    },
+    {
+      "id": 14,
+      "name": "10 Reps",
+      "result": "FAIL",
+      "evidence_correlation": "UNRELATED_EVIDENCE",
+      "latest_capture_run_id": 36546643195,
+      "latest_apply_run_id": 36306584359,
+      "offers": 950,
+      "offers_older_than_48h": 950,
+      "failures": [
+        "APPLY_SUCCESS_OLDER_THAN_48H",
+        "DB_POSTFLIGHT_SUCCESS_OLDER_THAN_48H",
+        "INDEPENDENT_IDEMPOTENCY_COMMIT_MISMATCH",
+        "INDEPENDENT_IDEMPOTENCY_PLAN_FINGERPRINT_MISSING",
+        "INDEPENDENT_IDEMPOTENCY_POSTFLIGHT_HASH_MISSING",
+        "DATABASE_OFFERS_OLDER_THAN_48H",
+        "MONITORED_BACKLOG_GROWTH"
+      ]
+    }
+  ],
+  "interpretation": {
+    "control_recovery_regression_detected": false,
+    "ordinary_post_recovery_intervals_completed": 0,
+    "required_ordinary_intervals": 3,
+    "manual_retailer_retry_authorized": false,
+    "baseline_widening_authorized": false,
+    "note": "The watchdog ran immediately after control recovery. Its six failures are based on stale, monitored-growth or unrelated prior execution evidence; no ordinary retailer workflow had yet supplied post-recovery evidence."
+  },
+  "next_step": "Observe ordinary scheduled retailer workflows and correlate their artifacts; do not manually retry a retailer merely to make the watchdog green."
+}

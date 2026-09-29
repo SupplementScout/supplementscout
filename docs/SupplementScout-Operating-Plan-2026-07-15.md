@@ -34,6 +34,14 @@ active-parent blocker without a retailer-specific patch. RA-STAB-01 remains
 intervals. Every retailer refresh, retriever retry and RA-004 replay remains
 unauthorized.
 
+The immediate read-only watchdog from merged `main` then inspected all 12
+retailers with zero database writes and no global failure. It correctly remained
+red because six retailer results still reference stale, backlog-growth or
+unrelated execution evidence from before recovery. This is the post-recovery
+baseline, not a failed close and not one of the three required ordinary retailer
+intervals. The next work is observation of scheduled paths only; no manual retry
+or baseline widening is authorized.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
