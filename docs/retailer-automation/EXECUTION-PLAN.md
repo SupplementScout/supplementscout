@@ -210,6 +210,19 @@ reports an active-plan or control-lifecycle block, stop and classify it as a
 regression; otherwise retain its exact run, artifact, postflight and idempotency
 evidence.
 
+**Evidence-preservation audit — complete, replay bundle incomplete:** while the
+ordinary schedules are pending, a read-only repository audit sealed the current
+RA-000–004 evidence inventory. RA-000–003 decisions and local deterministic
+fixtures are reconstructable. The terminal RA-004 closeout, selector closure,
+two credential revocations, five allowed source-observation evidence writes and
+zero business/control-canary mutations are tracked. Four private artifacts are
+preserved only by SHA-256 without a retrievable locator, however, and there is
+no current immutable 10 Reps raw snapshot, paired legacy/canonical output or
+950-row parity bundle. They are explicitly `DIGEST_ONLY_NOT_RETRIEVABLE` or
+`MISSING_REQUIRED_FOR_REPLAY`, not claimed as preserved replay inputs. This
+audit neither reopens RA-004 nor authorizes a capture. Evidence:
+[`evidence/RA-STAB-01-EVIDENCE-PRESERVATION-AUDIT.json`](evidence/RA-STAB-01-EVIDENCE-PRESERVATION-AUDIT.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
