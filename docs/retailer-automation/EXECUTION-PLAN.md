@@ -199,6 +199,14 @@ own capture, apply and postflight artifacts satisfy the existing contract. Do
 not count this immediate watchdog as an ordinary retailer interval and do not
 substitute a manual dispatch for missing ordinary evidence.
 
+For the affected paths, the three observation windows are fixed in UTC:
+Whey Okay at `02:17` and shared refresh / 10 Reps at `02:47` on 30 September,
+1 October and 2 October 2026. Correlate each pair with the scheduled `06:11`
+watchdog on the same date. Earlier six-hour watchdogs do not count because they
+precede the ordinary paths. If an ordinary run again reports an active-plan or
+control-lifecycle block, stop and classify it as a regression; otherwise retain
+its exact run, artifact, postflight and idempotency evidence.
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

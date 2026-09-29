@@ -186,5 +186,23 @@
     "baseline_widening_authorized": false,
     "note": "The watchdog ran immediately after control recovery. Its six failures are based on stale, monitored-growth or unrelated prior execution evidence; no ordinary retailer workflow had yet supplied post-recovery evidence."
   },
+  "scheduled_observation": {
+    "counting_rule": "Count ordinary workflow intervals per affected path, not manually dispatched watchdogs.",
+    "whey_okay_utc": [
+      "2026-09-30T02:17:00Z",
+      "2026-10-01T02:17:00Z",
+      "2026-10-02T02:17:00Z"
+    ],
+    "shared_refresh_10_reps_utc": [
+      "2026-09-30T02:47:00Z",
+      "2026-10-01T02:47:00Z",
+      "2026-10-02T02:47:00Z"
+    ],
+    "correlating_watchdog_utc": [
+      "2026-09-30T06:11:00Z",
+      "2026-10-01T06:11:00Z",
+      "2026-10-02T06:11:00Z"
+    ]
+  },
   "next_step": "Observe ordinary scheduled retailer workflows and correlate their artifacts; do not manually retry a retailer merely to make the watchdog green."
 }
