@@ -124,7 +124,30 @@ migration is ledger row 222. Production reports canonical fingerprint
 which exactly matches the fingerprint stored by the interrupted 10 Reps
 approval. The repository selector is aligned to that readback with no ordinary
 pending production migration; the sequential-close migration remains excluded.
-A separate activation preparation is `NOT_AUTHORIZED`.
+A separate activation preparation is `NOT_AUTHORIZED`. A thin operational
+coordinator now prepares, but does not grant, the two recovery phases. It
+reuses the existing selected-migration helpers and existing
+`close_expired_retailer_offer_sync_approval(jsonb)` RPC; it contains no
+retailer-specific condition and no business-table writer. `schema-deploy` and
+`control-close` each require their own exact, short-lived owner-authorization
+artifact and confirmation. There is no combined mode, automatic retry or
+automatic transition between phases. Read-only `schema-verify` and
+`control-verify` remain independently repeatable. The current preparation
+cannot execute either write phase, and no credential is read until the
+phase-specific authorization has passed locally.
+
+**Prepared command boundary — not execution authority:**
+
+- `node scripts/ra-stab-01-production-recovery.js --phase=status` validates the
+  tracked preparation and migration SHA locally and reports `NOT_AUTHORIZED`;
+- a later separately approved schema phase may apply only the exact excluded
+  migration against ledger row 222 and must commit ledger row 223 with zero
+  business-count delta, followed by an independent read-only verification;
+- only after that evidence and another separate owner decision may the control
+  phase call the existing approver RPC for the exact 10 Reps parent, 19-child
+  manifest and expired unconsumed approval;
+- no command here authorizes a retriever retry, retailer refresh, offer apply,
+  price-history write, identity change, RA-004 replay or next phase.
 
 **Acceptance:**
 
