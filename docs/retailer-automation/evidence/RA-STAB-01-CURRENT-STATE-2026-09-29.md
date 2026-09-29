@@ -101,7 +101,52 @@ TypeScript and the Next.js production build green. The post-change `npm run
 verify:project` remains the final documentation structure check.
 
 The current 10 Reps plan is not mutated by this correction; its older artifact
-predates the new evidence field. Exact live control-state readback and any
-supersede/resume decision remain a separate authorization boundary. Whey Okay
-also remains blocked pending exact readback; no global count was reinterpreted
-or ignored.
+predates the new evidence field. The subsequent separately authorized readback
+is recorded below. Any recovery, supersede or resume decision remains a distinct
+production-write authorization boundary.
+
+## Authorized production control readback
+
+The owner authorized an exact read-only production control-state capture for
+10 Reps (`14`) and Whey Okay (`3`). It completed at
+`2026-09-29T12:54:55.079Z` in a `REPEATABLE READ READ ONLY` transaction with
+`default_transaction_read_only=on`, bounded timeouts and an explicit rollback.
+Mutation attempts were zero. The ignored local artifact SHA-256 is
+`adbd833ac4ae69809aa3fe6f352841928ec84cba0dd7a368be97d301d1b86b5e`.
+
+The exact global counters used by the Whey Okay legacy read RPC were:
+
+| Counter | Value |
+| --- | ---: |
+| unconsumed, unexpired import approvals | 0 |
+| unconsumed, unexpired offer approvals | 0 |
+| active parents | 1 |
+| active children | 19 |
+| started apply runs | 0 |
+| matching active sessions | 0 |
+
+The sole active parent is 10 Reps plan
+`a3072837-9f0b-4b0e-af15-2584a19980d7`, fingerprint
+`8a8ee37ef253a48fc82fc9c66c2288b095a4f89208b26d9ed5a2f76ca21092fe`.
+It was created by the failed run `36400487268` from source fingerprint
+`e603f1b64cf49c1d941c73a80ac15c4c34719cd9035591bed67fa8b658c680c2`.
+The parent is `APPROVED` with an approval that expired at
+`2026-09-28T09:43:54.946Z`. Of its 19 children, batch 0 is `APPROVED` and the
+remaining 18 are `PLANNED`. Batch 0 has one unconsumed, unclosed approval that
+expired at `2026-09-28T09:14:10.155Z`. There are no apply runs for the parent,
+no consumed approvals and no recorded business or price-history writes.
+
+This resolves both diagnoses. The 10 Reps block is an interrupted sequential
+control lifecycle before execution. Whey Okay has no retailer-scoped active
+plan; it is blocked because `read_retailer_offer_sync_approved_state(3)` treats
+the unrelated global active-parent count as a retailer-local stop condition.
+
+The existing `close_expired_retailer_offer_sync_approval` contract is not used.
+It expires only the linked approved child and parent. On this exact state it
+would leave 18 child plans in `PLANNED`, producing a partially closed control
+tree. A one-off cleanup migration is also rejected by the stabilization rules.
+The next implementation candidate must therefore be one retailer-neutral,
+fixture-proven recovery contract that atomically closes an entirely unexecuted
+expired sequential tree, requires zero apply runs/row approvals/recovery state,
+preserves history, checks business counts and has an exact rollback/readback
+contract. Any production invocation remains a separate owner-write decision.

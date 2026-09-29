@@ -96,15 +96,22 @@ failures and made zero database writes. The classified inventory and retained
 artifact digest are recorded in
 [`evidence/RA-STAB-01-CURRENT-STATE-2026-09-29.md`](evidence/RA-STAB-01-CURRENT-STATE-2026-09-29.md).
 
-**Current bounded step:** obtain exact read-only state before proposing recovery.
-The shared ambiguous-registration diagnostic fix is verified. The 10 Reps
+**Current bounded step:** design and fixture-test one shared recovery contract;
+no recovery write is authorized. The shared ambiguous-registration diagnostic
+fix is verified. The 10 Reps
 failure is reproduced: run `36400487268` registered a control plan and then
 timed out during parent approval; the next run correctly blocked the duplicate.
 The shared engine now retains exact registered parent/child identity before the
 next boundary and reports an unknown parent-approval outcome explicitly. Its
-focused 39-test suite, repository quick gate and full gate pass. Whey Okay still
-requires exact state readback because its legacy RPC aggregates five global
-counters. No ledger mutation, approval, replay or expiry is authorized.
+focused 39-test suite, repository quick gate and full gate pass. The separately
+authorized production readback at `2026-09-29T12:54:55.079Z` proved that one
+expired 10 Reps parent is the sole global parent blocker: parent `APPROVED`, one
+child `APPROVED`, 18 children `PLANNED`, one expired unconsumed batch approval,
+zero apply runs and zero business writes. Whey Okay has no active parent of its
+own; its legacy RPC is blocked by that global parent count. The existing expired
+approval close RPC is not safe for this multi-child state because it closes only
+the approved child and parent, leaving 18 planned children. No ledger mutation,
+approval, replay or expiry is authorized.
 
 **Acceptance:**
 
