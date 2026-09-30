@@ -1,10 +1,13 @@
 import { after } from "next/server";
 import {
+  DIAGNOSTIC_CODES,
   MAX_BODY_BYTES,
   assertEndpointRequest,
   decodeSignatureHeader,
   generateChallengeResponse,
+  getDiagnosticCode,
   processDeletionNotification,
+  verifiedNotificationLogContext,
   verifyNotificationSignature,
 } from "@/lib/ebay-account-deletion";
 
@@ -12,6 +15,22 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 const noStoreHeaders = { "Cache-Control": "no-store", "Content-Type": "application/json" };
+
+type VerifiedLogContext = {
+  notification_id_sha256?: string;
+  publish_attempt_count?: number;
+};
+
+function logDiagnosticFailure(failureCode: string, context: VerifiedLogContext = {}) {
+  const diagnostic: Record<string, string | number> = { failure_code: failureCode };
+  if (/^[0-9a-f]{64}$/.test(context.notification_id_sha256 || "")) {
+    diagnostic.notification_id_sha256 = context.notification_id_sha256!;
+  }
+  if (Number.isSafeInteger(context.publish_attempt_count) && context.publish_attempt_count! >= 0) {
+    diagnostic.publish_attempt_count = context.publish_attempt_count!;
+  }
+  console.error("eBay account-deletion diagnostic", diagnostic);
+}
 
 export async function GET(request: Request) {
   if (!process.env.EBAY_NOTIFICATION_VERIFICATION_TOKEN) {
@@ -49,15 +68,24 @@ export async function POST(request: Request) {
       client_secret: process.env.EBAY_CLIENT_SECRET,
     };
     after(async () => {
+      let valid = false;
       try {
-        const valid = await verifyNotificationSignature(rawBody, signature, config);
-        if (!valid) {
-          console.error("eBay account-deletion notification signature was rejected");
-          return;
-        }
+        valid = await verifyNotificationSignature(rawBody, signature, config);
+      } catch (error) {
+        logDiagnosticFailure(
+          getDiagnosticCode(error, DIAGNOSTIC_CODES.SIGNATURE_REJECTED)
+        );
+        return;
+      }
+      if (!valid) {
+        logDiagnosticFailure(DIAGNOSTIC_CODES.SIGNATURE_REJECTED);
+        return;
+      }
+      const verifiedContext = verifiedNotificationLogContext(payload);
+      try {
         processDeletionNotification(payload);
-      } catch {
-        console.error("eBay account-deletion notification verification failed");
+      } catch (error) {
+        logDiagnosticFailure(getDiagnosticCode(error), verifiedContext);
       }
     });
     return new Response(null, { status: 204, headers: { "Cache-Control": "no-store" } });
