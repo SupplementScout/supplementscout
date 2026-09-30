@@ -271,16 +271,67 @@ test("official-style ECC P-256 signature accepts only the exact body, signature 
   ), false);
 });
 
-test("only Marketplace Account Deletion 1.0 with an identity is accepted", () => {
+const invalidPayloadCases = [
+  {
+    name: "root",
+    value: null,
+    code: DIAGNOSTIC_CODES.PAYLOAD_ROOT_INVALID,
+    privateValue: null,
+  },
+  {
+    name: "topic",
+    value: { ...payload, metadata: { ...payload.metadata, topic: "private-invalid-topic" } },
+    code: DIAGNOSTIC_CODES.PAYLOAD_TOPIC_INVALID,
+    privateValue: "private-invalid-topic",
+  },
+  {
+    name: "schema version",
+    value: { ...payload, metadata: { ...payload.metadata, schemaVersion: "private-invalid-schema" } },
+    code: DIAGNOSTIC_CODES.PAYLOAD_SCHEMA_VERSION_INVALID,
+    privateValue: "private-invalid-schema",
+  },
+  {
+    name: "notification",
+    value: { ...payload, notification: null },
+    code: DIAGNOSTIC_CODES.PAYLOAD_NOTIFICATION_MISSING,
+    privateValue: null,
+  },
+  {
+    name: "notification ID",
+    value: {
+      ...payload,
+      notification: { ...payload.notification, notificationId: "private-invalid-id!" },
+    },
+    code: DIAGNOSTIC_CODES.PAYLOAD_NOTIFICATION_ID_INVALID,
+    privateValue: "private-invalid-id!",
+  },
+  {
+    name: "data",
+    value: { ...payload, notification: { ...payload.notification, data: null } },
+    code: DIAGNOSTIC_CODES.PAYLOAD_DATA_MISSING,
+    privateValue: null,
+  },
+  {
+    name: "identity",
+    value: {
+      ...payload,
+      notification: { ...payload.notification, data: { privateField: "private-identity-marker" } },
+    },
+    code: DIAGNOSTIC_CODES.PAYLOAD_IDENTITY_MISSING,
+    privateValue: "private-identity-marker",
+  },
+];
+
+test("payload validator preserves its acceptance boundary and emits one closed code per rejected condition", () => {
   assert.equal(validateDeletionPayload(payload), payload);
-  assert.throws(
-    () => validateDeletionPayload({ ...payload, metadata: { ...payload.metadata, topic: "OTHER" } }),
-    (error) => error.diagnosticCode === DIAGNOSTIC_CODES.PAYLOAD_SCHEMA_REJECTED,
-  );
-  assert.throws(
-    () => validateDeletionPayload({ ...payload, notification: { ...payload.notification, data: {} } }),
-    (error) => error.diagnosticCode === DIAGNOSTIC_CODES.PAYLOAD_SCHEMA_REJECTED,
-  );
+  for (const { name, value, code, privateValue } of invalidPayloadCases) {
+    assert.throws(() => validateDeletionPayload(value), (error) => {
+      assert.equal(error.diagnosticCode, code, name);
+      assert.equal(error.message, code, name);
+      if (privateValue) assert.equal(error.message.includes(privateValue), false, name);
+      return true;
+    });
+  }
   assert.deepEqual(processDeletionNotification(payload), { deleted_records: 0, persisted_ebay_user_data_stores: 0 });
 });
 
@@ -405,20 +456,50 @@ test("verification dependency failures keep HTTP 204 and emit only their closed 
   }
 });
 
-test("valid signature plus invalid payload logs payload_schema_rejected with verified identifiers only", async () => {
-  const calls = await captureConsoleErrors(async () => {
-    const route = loadRoute({ verifyNotificationSignature: async () => true });
-    const invalidPayload = { ...payload, metadata: { ...payload.metadata, topic: "OTHER" } };
-    const response = await postNotification(route, invalidPayload);
-    assert.equal(response.status, 204);
-    assert.equal(route.__scheduled.length, 1);
-    await route.__scheduled[0]();
-  });
-  assert.deepEqual(calls, [["eBay account-deletion diagnostic", {
-    failure_code: DIAGNOSTIC_CODES.PAYLOAD_SCHEMA_REJECTED,
-    notification_id_sha256: crypto.createHash("sha256").update(payload.notification.notificationId).digest("hex"),
-    publish_attempt_count: 1,
-  }]]);
+test("verified invalid payloads log only their precise subcode and safe post-verification context", async () => {
+  const signatureMarker = "cHJpdmF0ZS1zaWduYXR1cmUtbWFya2Vy";
+  for (const { name, value, code, privateValue } of invalidPayloadCases) {
+    const diagnostics = await captureDiagnostics(async () => {
+      const route = loadRoute({ verifyNotificationSignature: async () => true });
+      const response = await postNotification(
+        route,
+        value,
+        encodedSignature("private-kid-marker", signatureMarker),
+      );
+      assert.equal(response.status, 204, name);
+      assert.equal(route.__scheduled.length, 1, name);
+      await route.__scheduled[0]();
+    });
+    assert.equal(diagnostics.infos.length, 0, name);
+    assert.equal(diagnostics.errors.length, 1, name);
+    const diagnostic = diagnostics.errors[0][1];
+    assert.equal(diagnostic.failure_code, code, name);
+    assert.deepEqual(
+      Object.keys(diagnostic).sort(),
+      [
+        "failure_code",
+        ...(value?.notification?.notificationId ? ["notification_id_sha256"] : []),
+        ...(Number.isSafeInteger(value?.notification?.publishAttemptCount) ? ["publish_attempt_count"] : []),
+      ].sort(),
+      name,
+    );
+    const logged = JSON.stringify(diagnostics);
+    assert.doesNotMatch(logged, /"status":"verified"/, name);
+    for (const privateValueCandidate of [
+      privateValue,
+      value?.metadata?.topic,
+      value?.metadata?.schemaVersion,
+      value?.notification?.notificationId,
+      value?.notification?.data?.username,
+      value?.notification?.data?.userId,
+      value?.notification?.data?.eiasToken,
+      value?.notification?.data?.privateField,
+      signatureMarker,
+      "private-kid-marker",
+    ].filter(Boolean)) {
+      assert.equal(logged.includes(privateValueCandidate), false, name);
+    }
+  }
 });
 
 test("processing failures keep HTTP 204 and include only verified hashed context", async () => {
