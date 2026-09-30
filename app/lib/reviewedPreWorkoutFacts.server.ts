@@ -38,7 +38,8 @@ const CANDIDATE_SELECT = [
   "source_archive_uri",
 ].join(",");
 
-const QUERY_BATCH_SIZE = 100;
+const PRODUCT_ID_BATCH_SIZE = 500;
+const CANDIDATE_PAGE_SIZE = 1000;
 
 export async function loadAppliedPreWorkoutFacts(
   variants: NutritionProofVariant[]
@@ -48,21 +49,32 @@ export async function loadAppliedPreWorkoutFacts(
   );
   const variantIds = [...uniqueVariants.keys()];
   if (variantIds.length === 0) return new Map();
+  const productIds = [
+    ...new Set([...uniqueVariants.values()].map((variant) => String(variant.product_id))),
+  ];
 
   const candidates: ReviewedNutritionCandidate[] = [];
-  for (let index = 0; index < variantIds.length; index += QUERY_BATCH_SIZE) {
-    const batch = variantIds.slice(index, index + QUERY_BATCH_SIZE);
-    const { data, error } = await supabaseAdmin
-      .from("nutrition_candidates")
-      .select(CANDIDATE_SELECT)
-      .eq("status", "approved")
-      .in("product_variant_id", batch);
+  for (let index = 0; index < productIds.length; index += PRODUCT_ID_BATCH_SIZE) {
+    const batch = productIds.slice(index, index + PRODUCT_ID_BATCH_SIZE);
 
-    if (error) {
-      console.error("Unable to verify applied pre-workout facts.");
-      return new Map();
+    for (let from = 0; ; from += CANDIDATE_PAGE_SIZE) {
+      const { data, error } = await supabaseAdmin
+        .from("nutrition_candidates")
+        .select(CANDIDATE_SELECT)
+        .eq("status", "approved")
+        .in("product_id", batch)
+        .order("id", { ascending: true })
+        .range(from, from + CANDIDATE_PAGE_SIZE - 1);
+
+      if (error) {
+        console.error("Unable to verify applied pre-workout facts.");
+        return new Map();
+      }
+
+      const page = (data || []) as unknown as ReviewedNutritionCandidate[];
+      candidates.push(...page);
+      if (page.length < CANDIDATE_PAGE_SIZE) break;
     }
-    candidates.push(...((data || []) as unknown as ReviewedNutritionCandidate[]));
   }
 
   return new Map(

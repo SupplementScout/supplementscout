@@ -224,3 +224,40 @@ test("filter and sort changes reset pagination while pagination preserves state"
   assert.match(paginationSource, /searchUrl\(\{ query, sort, filters, page/);
   assert.match(paginationSource, /min-h-11/);
 });
+
+test("search stays noindex nofollow with one clean canonical", () => {
+  const source = fs.readFileSync(
+    path.join(process.cwd(), "app", "search", "page.tsx"),
+    "utf8"
+  );
+
+  assert.match(source, /robots:\s*\{\s*index: false,\s*follow: false,/);
+  assert.match(source, /alternates:\s*\{\s*canonical: "\/search",/);
+});
+
+test("search parameter links do not trigger background route prefetches", () => {
+  for (const relativePath of [
+    ["app", "components", "ActiveSearchFilters.tsx"],
+    ["app", "components", "SearchFilters.tsx"],
+    ["app", "components", "SearchPagination.tsx"],
+    ["app", "search", "page.tsx"],
+  ]) {
+    const source = fs.readFileSync(path.join(process.cwd(), ...relativePath), "utf8");
+    const searchLinks = source.match(/<Link[\s\S]*?(?:searchUrl\(|href=\{filter\.href\})[\s\S]*?>/g) || [];
+
+    assert.ok(searchLinks.length > 0, relativePath.join("/"));
+    for (const link of searchLinks) {
+      assert.match(link, /prefetch=\{false\}/, relativePath.join("/"));
+    }
+  }
+});
+
+test("robots blocks only SERanking crawler while preserving public crawl access", () => {
+  const robots = compileModule(path.join(process.cwd(), "app", "robots.ts")).default();
+
+  assert.deepEqual(robots.rules, [
+    { userAgent: "SERankingBacklinksBot", disallow: "/" },
+    { userAgent: "*", allow: "/", disallow: ["/admin", "/go"] },
+  ]);
+  assert.equal(robots.sitemap, "https://www.supplementscout.co.uk/sitemap.xml");
+});

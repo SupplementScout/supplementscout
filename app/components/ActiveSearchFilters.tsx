@@ -85,6 +85,7 @@ export default function ActiveSearchFilters({
       {activeFilters.map((filter) => (
         <Link
           key={filter.key}
+          prefetch={false}
           href={filter.href}
           className="rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:border-zinc-950"
         >
@@ -93,6 +94,7 @@ export default function ActiveSearchFilters({
       ))}
 
       <Link
+        prefetch={false}
         href={searchUrl({
           query,
           sort,

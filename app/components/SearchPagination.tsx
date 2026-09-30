@@ -56,6 +56,7 @@ export default function SearchPagination({
     >
       {currentPage > 1 ? (
         <Link
+          prefetch={false}
           href={searchUrl({ query, sort, filters, page: previousPage })}
           className="min-h-11 rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-zinc-950"
           aria-label={`Go to page ${previousPage}`}
@@ -91,6 +92,7 @@ export default function SearchPagination({
         ) : (
           <Link
             key={page}
+            prefetch={false}
             href={searchUrl({ query, sort, filters, page })}
             aria-label={`Go to page ${page}`}
             className="flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-semibold text-zinc-700 hover:border-zinc-950"
@@ -102,6 +104,7 @@ export default function SearchPagination({
 
       {currentPage < totalPages ? (
         <Link
+          prefetch={false}
           href={searchUrl({ query, sort, filters, page: nextPage })}
           className="min-h-11 rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-zinc-950"
           aria-label={`Go to page ${nextPage}`}

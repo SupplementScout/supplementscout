@@ -51,7 +51,7 @@ export async function generateMetadata({
     description,
     robots: {
       index: false,
-      follow: true,
+      follow: false,
     },
     alternates: {
       canonical: "/search",
@@ -261,6 +261,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                       {popularSearchSuggestions.map((suggestion) => (
                         <Link
                           key={suggestion.query}
+                          prefetch={false}
                           href={searchUrl({
                             query: suggestion.query,
                             sort: "relevance",
@@ -275,6 +276,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
                     {hasActiveFilters && (
                       <Link
+                        prefetch={false}
                         href={searchUrl({
                           query,
                           sort,

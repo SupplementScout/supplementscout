@@ -210,6 +210,7 @@ test("robots disallows admin and go paths", () => {
   const robots = compileTypeScriptModule(
     path.join(process.cwd(), "app", "robots.ts")
   ).default();
+  const wildcardRule = robots.rules.find((rule) => rule.userAgent === "*");
 
-  assert.deepEqual(robots.rules.disallow, ["/admin", "/go"]);
+  assert.deepEqual(wildcardRule?.disallow, ["/admin", "/go"]);
 });
