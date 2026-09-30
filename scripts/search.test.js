@@ -7,6 +7,28 @@ const ts = require("typescript");
 
 const FRESH_CHECKED_AT = new Date().toISOString();
 
+function loadReviewedFactsResolver() {
+  const filename = path.join(
+    process.cwd(),
+    "app",
+    "lib",
+    "reviewedPreWorkoutFacts.ts"
+  );
+  const source = fs.readFileSync(filename, "utf8");
+  const { outputText } = ts.transpileModule(source, {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+    },
+    fileName: filename,
+  });
+  const mod = new Module(filename, module);
+  mod.filename = filename;
+  mod.paths = Module._nodeModulePaths(path.dirname(filename));
+  mod._compile(outputText, filename);
+  return mod.exports.resolveAppliedPreWorkoutFacts;
+}
+
 function loadAppliedFactsModule(mockSupabaseAdmin, resolveAppliedPreWorkoutFacts) {
   const filename = path.join(
     process.cwd(),
@@ -140,6 +162,88 @@ test("reviewed facts paginate candidates without truncating exact-variant proof"
     [1000, 1999],
   ]);
   assert.equal(candidateCount, 1002);
+});
+
+test("product-scoped candidate query preserves variant-specific facts and overrides", async () => {
+  const resolveAppliedPreWorkoutFacts = loadReviewedFactsResolver();
+  const caffeineFact = (amount) => ({
+    information_state: "present_with_amount",
+    amount_per_serving_mg: amount,
+    source_quantity_value: amount,
+    source_quantity_unit: "mg",
+    quantity_basis: "per_serving",
+    serving_basis_text: "Per 10 g serving",
+    serving_basis_value: 10,
+    serving_basis_unit: "g",
+  });
+  const candidate = (productVariantId, amount) => ({
+    product_id: 55,
+    product_variant_id: productVariantId,
+    proposed_field: "caffeine_per_serving_mg",
+    proposed_value: amount,
+    proposed_unit: "mg",
+    approved_value: amount,
+    status: "approved",
+    information_state: "present_with_amount",
+    source_quantity_value: amount,
+    source_quantity_unit: "mg",
+    quantity_basis: "per_serving",
+    serving_basis_value: 10,
+    serving_basis_unit: "g",
+    serving_basis_text: "Per 10 g serving",
+    ingredient_form: null,
+    ingredient_ratio: null,
+    warning_flags: [],
+    source_locator: `image:variant-${productVariantId}`,
+    source_type: "manufacturer_product_page",
+    source_url: null,
+    source_file_sha256: null,
+    source_archive_uri: null,
+  });
+  const candidates = [
+    candidate(101, 200),
+    candidate(102, 250),
+    candidate(102, 300),
+    candidate(103, 999),
+  ];
+  const variants = [
+    { id: 101, product_id: 55, nutrition_override: { caffeine: caffeineFact(200) } },
+    { id: 102, product_id: 55, nutrition_override: { caffeine: caffeineFact(300) } },
+  ];
+  const query = nutritionCandidatePages([{ data: candidates, error: null }]);
+  const { loadAppliedPreWorkoutFacts } = loadAppliedFactsModule(
+    query.supabase,
+    resolveAppliedPreWorkoutFacts
+  );
+
+  const actual = await loadAppliedPreWorkoutFacts(variants);
+  const priorVariantScopedCandidates = candidates.filter((row) =>
+    variants.some((variant) => String(variant.id) === String(row.product_variant_id))
+  );
+  const expectedFromPriorQuery = new Map(
+    variants.map((variant) => [
+      String(variant.id),
+      resolveAppliedPreWorkoutFacts(
+        variant.product_id,
+        variant.id,
+        variant.nutrition_override,
+        priorVariantScopedCandidates
+      ),
+    ])
+  );
+
+  assert.deepEqual(query.calls[0].in, ["product_id", ["55"]]);
+  assert.deepEqual(actual, expectedFromPriorQuery);
+  assert.equal(actual.get("101").productVariantId, "101");
+  assert.equal(actual.get("101").facts[0].amountPerServingMg, 200);
+  assert.equal(actual.get("102").productVariantId, "102");
+  assert.equal(actual.get("102").facts[0].amountPerServingMg, 300);
+  assert.equal(
+    [...actual.values()].some((result) =>
+      result.facts.some((fact) => fact.amountPerServingMg === 250 || fact.amountPerServingMg === 999)
+    ),
+    false
+  );
 });
 
 test("search variant nutrition uses a bounded ID query, not the removed offer FK", () => {
