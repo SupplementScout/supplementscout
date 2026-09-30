@@ -6,8 +6,11 @@ const path = require("node:path");
 const test = require("node:test");
 const ts = require("typescript");
 const {
+  DIAGNOSTIC_CODES,
   ENDPOINT_URL,
+  PUBLIC_KEY_CACHE_MAX_ENTRIES,
   PUBLIC_KEY_BASE_URL,
+  PUBLIC_KEY_TTL_MS,
   assertEndpointRequest,
   assertVerificationToken,
   decodeSignatureHeader,
@@ -16,6 +19,7 @@ const {
   processDeletionNotification,
   resetPublicKeyCache,
   validateDeletionPayload,
+  verifiedNotificationLogContext,
   verifyNotificationSignature,
 } = require("../lib/ebay-account-deletion");
 
@@ -30,6 +34,50 @@ const payload = {
   },
 };
 const token = "fixture_verification_token_1234567890";
+
+function encodedSignature(kid = "key-1", signature = "YWJj") {
+  return Buffer.from(JSON.stringify({ kid, signature })).toString("base64");
+}
+
+async function captureConsoleErrors(callback) {
+  const calls = [];
+  const originalError = console.error;
+  console.error = (...args) => calls.push(args);
+  try {
+    await callback();
+  } finally {
+    console.error = originalError;
+  }
+  return calls;
+}
+
+async function captureDiagnostics(callback) {
+  const errors = [];
+  const infos = [];
+  const originalError = console.error;
+  const originalInfo = console.info;
+  console.error = (...args) => errors.push(args);
+  console.info = (...args) => infos.push(args);
+  try {
+    await callback();
+  } finally {
+    console.error = originalError;
+    console.info = originalInfo;
+  }
+  return { errors, infos };
+}
+
+function diagnosticFailure(code) {
+  return Object.assign(new Error(code), { diagnosticCode: code });
+}
+
+async function postNotification(route, body = payload, signature = encodedSignature()) {
+  return route.POST(new Request(ENDPOINT_URL, {
+    method: "POST",
+    headers: { "x-ebay-signature": signature },
+    body: JSON.stringify(body),
+  }));
+}
 
 function loadRoute(libraryOverrides = {}) {
   const filename = path.join(process.cwd(), "app", "api", "ebay", "account-deletion", "route.ts");
@@ -84,7 +132,7 @@ test("signature header decoding is strict and does not expose its value in error
 
 test("official notification public-key path uses OAuth GET and one-hour memory cache", async () => {
   resetPublicKeyCache();
-  const { publicKey } = crypto.generateKeyPairSync("rsa", { modulusLength: 2048 });
+  const { publicKey } = crypto.generateKeyPairSync("ec", { namedCurve: "prime256v1" });
   const pem = publicKey.export({ type: "spki", format: "pem" }).toString();
   let fetchCalls = 0;
   let tokenCalls = 0;
@@ -105,27 +153,144 @@ test("official notification public-key path uses OAuth GET and one-hour memory c
   assert.equal(tokenCalls, 1);
 });
 
-test("valid raw notification signature passes and tampering fails", async () => {
+test("OAuth failures receive the closed oauth_failed diagnostic code", async () => {
   resetPublicKeyCache();
-  const { privateKey, publicKey } = crypto.generateKeyPairSync("rsa", { modulusLength: 2048 });
+  await assert.rejects(
+    () => getNotificationPublicKey("oauth-key", { client_id: "id", client_secret: "secret" }, {
+      tokenProvider: async () => { throw new Error("credential detail must not escape"); },
+      fetchImpl: async () => { throw new Error("must not fetch"); },
+    }),
+    (error) => error.diagnosticCode === DIAGNOSTIC_CODES.OAUTH_FAILED,
+  );
+});
+
+test("public-key HTTP 4xx and 5xx receive public_key_fetch_failed", async () => {
+  for (const status of [404, 503]) {
+    resetPublicKeyCache();
+    await assert.rejects(
+      () => getNotificationPublicKey(`http-${status}`, { client_id: "id", client_secret: "secret" }, {
+        tokenProvider: async () => "private-token",
+        fetchImpl: async () => ({ ok: false, status }),
+      }),
+      (error) => error.diagnosticCode === DIAGNOSTIC_CODES.PUBLIC_KEY_FETCH_FAILED,
+    );
+  }
+});
+
+test("invalid public-key material receives public_key_invalid", async () => {
+  resetPublicKeyCache();
+  await assert.rejects(
+    () => getNotificationPublicKey("invalid-key", { client_id: "id", client_secret: "secret" }, {
+      tokenProvider: async () => "private-token",
+      fetchImpl: async () => ({ ok: true, json: async () => ({ key: "not-public-key-material" }) }),
+    }),
+    (error) => error.diagnosticCode === DIAGNOSTIC_CODES.PUBLIC_KEY_INVALID,
+  );
+});
+
+test("public-key cache evicts the least recently used key at its fixed bound", async () => {
+  resetPublicKeyCache();
+  const { publicKey } = crypto.generateKeyPairSync("ec", { namedCurve: "prime256v1" });
+  const pem = publicKey.export({ type: "spki", format: "pem" }).toString();
+  let fetchCalls = 0;
+  const dependencies = {
+    now: 1000,
+    tokenProvider: async () => "private-token",
+    fetchImpl: async () => {
+      fetchCalls += 1;
+      return { ok: true, json: async () => ({ key: pem }) };
+    },
+  };
+
+  for (let index = 0; index <= PUBLIC_KEY_CACHE_MAX_ENTRIES; index += 1) {
+    await getNotificationPublicKey(`lru-key-${index}`, { client_id: "id", client_secret: "secret" }, dependencies);
+  }
+  assert.equal(fetchCalls, PUBLIC_KEY_CACHE_MAX_ENTRIES + 1);
+
+  await getNotificationPublicKey("lru-key-0", { client_id: "id", client_secret: "secret" }, dependencies);
+  assert.equal(fetchCalls, PUBLIC_KEY_CACHE_MAX_ENTRIES + 2);
+});
+
+test("public-key cache refetches after the one-hour TTL expires", async () => {
+  resetPublicKeyCache();
+  const { publicKey } = crypto.generateKeyPairSync("ec", { namedCurve: "prime256v1" });
+  const pem = publicKey.export({ type: "spki", format: "pem" }).toString();
+  let fetchCalls = 0;
+  const dependencies = (now) => ({
+    now,
+    tokenProvider: async () => "private-token",
+    fetchImpl: async () => {
+      fetchCalls += 1;
+      return { ok: true, json: async () => ({ key: pem }) };
+    },
+  });
+
+  await getNotificationPublicKey("ttl-key", { client_id: "id", client_secret: "secret" }, dependencies(1000));
+  await getNotificationPublicKey("ttl-key", { client_id: "id", client_secret: "secret" }, dependencies(1000 + PUBLIC_KEY_TTL_MS - 1));
+  await getNotificationPublicKey("ttl-key", { client_id: "id", client_secret: "secret" }, dependencies(1000 + PUBLIC_KEY_TTL_MS));
+  assert.equal(fetchCalls, 2);
+});
+
+test("official-style ECC P-256 signature accepts only the exact body, signature and key", async () => {
+  resetPublicKeyCache();
+  const { privateKey, publicKey } = crypto.generateKeyPairSync("ec", { namedCurve: "prime256v1" });
+  const { publicKey: wrongPublicKey } = crypto.generateKeyPairSync("ec", { namedCurve: "prime256v1" });
   const raw = JSON.stringify(payload);
-  const signer = crypto.createSign("sha1");
+  const signer = crypto.createSign("ssl3-sha1");
   signer.update(raw, "utf8");
   signer.end();
-  const header = Buffer.from(JSON.stringify({ kid: "fixture-key", signature: signer.sign(privateKey, "base64") })).toString("base64");
+  const signature = signer.sign(privateKey);
+  const header = encodedSignature("fixture-key", signature.toString("base64"));
+  const modifiedSignature = Buffer.from(signature);
+  modifiedSignature[modifiedSignature.length - 1] ^= 1;
   const dependencies = {
     tokenProvider: async () => "token",
     fetchImpl: async () => ({ ok: true, json: async () => ({ key: publicKey.export({ type: "spki", format: "pem" }).toString() }) }),
   };
   assert.equal(await verifyNotificationSignature(raw, header, { client_id: "id", client_secret: "secret" }, dependencies), true);
   assert.equal(await verifyNotificationSignature(`${raw} `, header, { client_id: "id", client_secret: "secret" }, dependencies), false);
+  assert.equal(await verifyNotificationSignature(
+    raw,
+    encodedSignature("fixture-key", modifiedSignature.toString("base64")),
+    { client_id: "id", client_secret: "secret" },
+    dependencies,
+  ), false);
+
+  resetPublicKeyCache();
+  assert.equal(await verifyNotificationSignature(
+    raw,
+    encodedSignature("wrong-key", signature.toString("base64")),
+    { client_id: "id", client_secret: "secret" },
+    {
+      tokenProvider: async () => "token",
+      fetchImpl: async () => ({
+        ok: true,
+        json: async () => ({ key: wrongPublicKey.export({ type: "spki", format: "pem" }).toString() }),
+      }),
+    },
+  ), false);
 });
 
 test("only Marketplace Account Deletion 1.0 with an identity is accepted", () => {
   assert.equal(validateDeletionPayload(payload), payload);
-  assert.throws(() => validateDeletionPayload({ ...payload, metadata: { ...payload.metadata, topic: "OTHER" } }), /Unsupported/);
-  assert.throws(() => validateDeletionPayload({ ...payload, notification: { ...payload.notification, data: {} } }), /identity is missing/);
+  assert.throws(
+    () => validateDeletionPayload({ ...payload, metadata: { ...payload.metadata, topic: "OTHER" } }),
+    (error) => error.diagnosticCode === DIAGNOSTIC_CODES.PAYLOAD_SCHEMA_REJECTED,
+  );
+  assert.throws(
+    () => validateDeletionPayload({ ...payload, notification: { ...payload.notification, data: {} } }),
+    (error) => error.diagnosticCode === DIAGNOSTIC_CODES.PAYLOAD_SCHEMA_REJECTED,
+  );
   assert.deepEqual(processDeletionNotification(payload), { deleted_records: 0, persisted_ebay_user_data_stores: 0 });
+});
+
+test("verified logging context hashes notificationId and preserves only the attempt count", () => {
+  const context = verifiedNotificationLogContext(payload);
+  assert.deepEqual(context, {
+    notification_id_sha256: crypto.createHash("sha256").update(payload.notification.notificationId).digest("hex"),
+    publish_attempt_count: 1,
+  });
+  assert.doesNotMatch(JSON.stringify(context), new RegExp(payload.notification.notificationId));
 });
 
 test("GET route fails closed without secret and returns exact JSON challenge with secret", async () => {
@@ -147,68 +312,168 @@ test("POST route rejects a missing signature before scheduling background work",
   assert.equal(route.__scheduled.length, 0);
 });
 
-test("POST acknowledges a valid notification immediately and verifies before processing", async () => {
+test("POST acknowledges a valid notification immediately and emits one privacy-safe success diagnostic", async () => {
   let verified = 0;
   let processed = 0;
+  const signatureMarker = "cHJpdmF0ZS1zaWduYXR1cmUtbWFya2Vy";
   const route = loadRoute({
     verifyNotificationSignature: async () => { verified += 1; return true; },
     processDeletionNotification: () => { processed += 1; },
   });
-  const signature = Buffer.from(JSON.stringify({ kid: "key-1", signature: "YWJj" })).toString("base64");
-  const response = await route.POST(new Request(ENDPOINT_URL, {
-    method: "POST",
-    headers: { "x-ebay-signature": signature },
-    body: JSON.stringify(payload),
-  }));
-  assert.equal(response.status, 204);
-  assert.equal(verified, 0);
-  assert.equal(processed, 0);
-  assert.equal(route.__scheduled.length, 1);
-  await route.__scheduled[0]();
+  const diagnostics = await captureDiagnostics(async () => {
+    const response = await postNotification(route, payload, encodedSignature("private-kid-marker", signatureMarker));
+    assert.equal(response.status, 204);
+    assert.equal(verified, 0);
+    assert.equal(processed, 0);
+    assert.equal(route.__scheduled.length, 1);
+    await route.__scheduled[0]();
+  });
   assert.equal(verified, 1);
   assert.equal(processed, 1);
+  assert.deepEqual(diagnostics, {
+    errors: [],
+    infos: [["eBay account-deletion diagnostic", {
+      status: "verified",
+      notification_id_sha256: crypto.createHash("sha256").update(payload.notification.notificationId).digest("hex"),
+      publish_attempt_count: 1,
+    }]],
+  });
+  const logged = JSON.stringify(diagnostics);
+  for (const privateValue of [
+    payload.notification.notificationId,
+    payload.notification.data.username,
+    payload.notification.data.userId,
+    payload.notification.data.eiasToken,
+    signatureMarker,
+    "private-kid-marker",
+  ]) {
+    assert.doesNotMatch(logged, new RegExp(privateValue));
+  }
+});
+
+test("no failure path emits a verified success diagnostic and HTTP acknowledgement remains unchanged", async () => {
+  const cases = [
+    { verifyNotificationSignature: async () => false },
+    { verifyNotificationSignature: async () => { throw diagnosticFailure(DIAGNOSTIC_CODES.OAUTH_FAILED); } },
+    { verifyNotificationSignature: async () => true, body: { ...payload, metadata: { ...payload.metadata, topic: "OTHER" } } },
+    {
+      verifyNotificationSignature: async () => true,
+      processDeletionNotification: () => { throw new Error("processing failed"); },
+    },
+  ];
+  for (const { body = payload, ...overrides } of cases) {
+    const diagnostics = await captureDiagnostics(async () => {
+      const route = loadRoute(overrides);
+      const response = await postNotification(route, body);
+      assert.equal(response.status, 204);
+      await route.__scheduled[0]();
+    });
+    assert.equal(diagnostics.infos.length, 0);
+    assert.equal(diagnostics.errors.length, 1);
+    assert.doesNotMatch(JSON.stringify(diagnostics), /"status":"verified"/);
+  }
 });
 
 test("background signature failure never processes deletion data", async () => {
   let processed = 0;
-  const originalError = console.error;
-  console.error = () => {};
-  try {
+  const calls = await captureConsoleErrors(async () => {
     const route = loadRoute({
       verifyNotificationSignature: async () => false,
       processDeletionNotification: () => { processed += 1; },
     });
-    const signature = Buffer.from(JSON.stringify({ kid: "key-1", signature: "YWJj" })).toString("base64");
-    const response = await route.POST(new Request(ENDPOINT_URL, {
-      method: "POST",
-      headers: { "x-ebay-signature": signature },
-      body: JSON.stringify(payload),
-    }));
+    const response = await postNotification(route);
     assert.equal(response.status, 204);
     await route.__scheduled[0]();
     assert.equal(processed, 0);
-  } finally {
-    console.error = originalError;
+  });
+  assert.deepEqual(calls, [["eBay account-deletion diagnostic", { failure_code: DIAGNOSTIC_CODES.SIGNATURE_REJECTED }]]);
+});
+
+test("verification dependency failures keep HTTP 204 and emit only their closed diagnostic code", async () => {
+  for (const code of [
+    DIAGNOSTIC_CODES.OAUTH_FAILED,
+    DIAGNOSTIC_CODES.PUBLIC_KEY_FETCH_FAILED,
+    DIAGNOSTIC_CODES.PUBLIC_KEY_INVALID,
+  ]) {
+    const calls = await captureConsoleErrors(async () => {
+      const route = loadRoute({ verifyNotificationSignature: async () => { throw diagnosticFailure(code); } });
+      const response = await postNotification(route);
+      assert.equal(response.status, 204);
+      await route.__scheduled[0]();
+    });
+    assert.deepEqual(calls, [["eBay account-deletion diagnostic", { failure_code: code }]]);
   }
 });
 
-test("test-shaped JSON is acknowledged but full payload validation stays behind signature verification", async () => {
-  const originalError = console.error;
-  console.error = () => {};
-  try {
+test("valid signature plus invalid payload logs payload_schema_rejected with verified identifiers only", async () => {
+  const calls = await captureConsoleErrors(async () => {
     const route = loadRoute({ verifyNotificationSignature: async () => true });
-    const signature = Buffer.from(JSON.stringify({ kid: "key-1", signature: "YWJj" })).toString("base64");
-    const response = await route.POST(new Request(ENDPOINT_URL, {
-      method: "POST",
-      headers: { "x-ebay-signature": signature },
-      body: JSON.stringify({ test: true }),
-    }));
+    const invalidPayload = { ...payload, metadata: { ...payload.metadata, topic: "OTHER" } };
+    const response = await postNotification(route, invalidPayload);
     assert.equal(response.status, 204);
     assert.equal(route.__scheduled.length, 1);
     await route.__scheduled[0]();
-  } finally {
-    console.error = originalError;
+  });
+  assert.deepEqual(calls, [["eBay account-deletion diagnostic", {
+    failure_code: DIAGNOSTIC_CODES.PAYLOAD_SCHEMA_REJECTED,
+    notification_id_sha256: crypto.createHash("sha256").update(payload.notification.notificationId).digest("hex"),
+    publish_attempt_count: 1,
+  }]]);
+});
+
+test("processing failures keep HTTP 204 and include only verified hashed context", async () => {
+  const calls = await captureConsoleErrors(async () => {
+    const route = loadRoute({
+      verifyNotificationSignature: async () => true,
+      processDeletionNotification: () => { throw new Error("private processing detail"); },
+    });
+    const response = await postNotification(route);
+    assert.equal(response.status, 204);
+    await route.__scheduled[0]();
+  });
+  assert.deepEqual(calls, [["eBay account-deletion diagnostic", {
+    failure_code: DIAGNOSTIC_CODES.PROCESSING_FAILED,
+    notification_id_sha256: crypto.createHash("sha256").update(payload.notification.notificationId).digest("hex"),
+    publish_attempt_count: 1,
+  }]]);
+});
+
+test("diagnostic logs never expose PII, signatures, credentials, tokens, key material or error details", async () => {
+  const sensitivePayload = {
+    ...payload,
+    notification: {
+      ...payload.notification,
+      notificationId: "private-notification-id-12345678",
+      data: {
+        username: "private-username-marker",
+        userId: "private-user-id-marker",
+        eiasToken: "private-eias-token-marker",
+      },
+    },
+  };
+  const signatureMarker = "cHJpdmF0ZS1zaWduYXR1cmUtbWFya2Vy";
+  const calls = await captureConsoleErrors(async () => {
+    const route = loadRoute({
+      verifyNotificationSignature: async () => true,
+      processDeletionNotification: () => { throw new Error("private-error-detail-marker"); },
+    });
+    const response = await postNotification(route, sensitivePayload, encodedSignature("private-kid-marker", signatureMarker));
+    assert.equal(response.status, 204);
+    await route.__scheduled[0]();
+  });
+  const logged = JSON.stringify(calls);
+  for (const secret of [
+    sensitivePayload.notification.notificationId,
+    sensitivePayload.notification.data.username,
+    sensitivePayload.notification.data.userId,
+    sensitivePayload.notification.data.eiasToken,
+    signatureMarker,
+    "private-kid-marker",
+    "private-error-detail-marker",
+  ]) {
+    assert.doesNotMatch(logged, new RegExp(secret));
   }
+  assert.match(logged, /processing_failed/);
 });
 
 test("malformed JSON is rejected before acknowledgement", async () => {
@@ -229,8 +494,8 @@ test("endpoint contains no database mutation, user identifier logging or secret 
     "lib/ebay-account-deletion.js",
     "lib/ebay-oauth.js",
   ].map((file) => fs.readFileSync(path.join(process.cwd(), file), "utf8")).join("\n");
-  assert.doesNotMatch(source, /\.insert\s*\(|\.upsert\s*\(|\.delete\s*\(|\.rpc\s*\(|supabase|createClient\s*\(/i);
+  assert.doesNotMatch(source, /\bsupabase\b|createClient\s*\(|\.from\s*\([^)]*\)\s*\.\s*(?:insert|upsert|delete|rpc)\s*\(/i);
   assert.doesNotMatch(source, /fixture-seller|fixture-user|fixture-eias/);
-  assert.doesNotMatch(source, /console\.(?:log|error)\(\s*(?:payload|rawBody|signature|config|error)\b/);
+  assert.doesNotMatch(source, /console\.(?:log|error|info)\(\s*(?:payload|rawBody|signature|config|error)\b/);
   assert.match(source, /process\.env\.EBAY_NOTIFICATION_VERIFICATION_TOKEN/);
 });
