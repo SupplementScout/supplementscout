@@ -33,6 +33,11 @@ const payload = {
     data: { username: "fixture-seller", userId: "fixture-user", eiasToken: "fixture-eias" },
   },
 };
+const documentedStringNotificationId = "test_notification:2026.09/30";
+const payloadWithDocumentedStringId = {
+  ...payload,
+  notification: { ...payload.notification, notificationId: documentedStringNotificationId },
+};
 const token = "fixture_verification_token_1234567890";
 
 function encodedSignature(kid = "key-1", signature = "YWJj") {
@@ -297,13 +302,40 @@ const invalidPayloadCases = [
     privateValue: null,
   },
   {
-    name: "notification ID",
+    name: "empty notification ID",
     value: {
       ...payload,
-      notification: { ...payload.notification, notificationId: "private-invalid-id!" },
+      notification: { ...payload.notification, notificationId: "" },
     },
     code: DIAGNOSTIC_CODES.PAYLOAD_NOTIFICATION_ID_INVALID,
-    privateValue: "private-invalid-id!",
+    privateValue: null,
+  },
+  {
+    name: "whitespace notification ID",
+    value: {
+      ...payload,
+      notification: { ...payload.notification, notificationId: "   \t" },
+    },
+    code: DIAGNOSTIC_CODES.PAYLOAD_NOTIFICATION_ID_INVALID,
+    privateValue: null,
+  },
+  {
+    name: "null notification ID",
+    value: {
+      ...payload,
+      notification: { ...payload.notification, notificationId: null },
+    },
+    code: DIAGNOSTIC_CODES.PAYLOAD_NOTIFICATION_ID_INVALID,
+    privateValue: null,
+  },
+  {
+    name: "non-string notification ID",
+    value: {
+      ...payload,
+      notification: { ...payload.notification, notificationId: 987654321 },
+    },
+    code: DIAGNOSTIC_CODES.PAYLOAD_NOTIFICATION_ID_INVALID,
+    privateValue: "987654321",
   },
   {
     name: "data",
@@ -322,8 +354,9 @@ const invalidPayloadCases = [
   },
 ];
 
-test("payload validator preserves its acceptance boundary and emits one closed code per rejected condition", () => {
+test("notification ID follows the documented string contract while every rejected condition keeps its subcode", () => {
   assert.equal(validateDeletionPayload(payload), payload);
+  assert.equal(validateDeletionPayload(payloadWithDocumentedStringId), payloadWithDocumentedStringId);
   for (const { name, value, code, privateValue } of invalidPayloadCases) {
     assert.throws(() => validateDeletionPayload(value), (error) => {
       assert.equal(error.diagnosticCode, code, name);
@@ -372,7 +405,11 @@ test("POST acknowledges a valid notification immediately and emits one privacy-s
     processDeletionNotification: () => { processed += 1; },
   });
   const diagnostics = await captureDiagnostics(async () => {
-    const response = await postNotification(route, payload, encodedSignature("private-kid-marker", signatureMarker));
+    const response = await postNotification(
+      route,
+      payloadWithDocumentedStringId,
+      encodedSignature("private-kid-marker", signatureMarker),
+    );
     assert.equal(response.status, 204);
     assert.equal(verified, 0);
     assert.equal(processed, 0);
@@ -385,13 +422,13 @@ test("POST acknowledges a valid notification immediately and emits one privacy-s
     errors: [],
     infos: [["eBay account-deletion diagnostic", {
       status: "verified",
-      notification_id_sha256: crypto.createHash("sha256").update(payload.notification.notificationId).digest("hex"),
+      notification_id_sha256: crypto.createHash("sha256").update(documentedStringNotificationId).digest("hex"),
       publish_attempt_count: 1,
     }]],
   });
   const logged = JSON.stringify(diagnostics);
   for (const privateValue of [
-    payload.notification.notificationId,
+    documentedStringNotificationId,
     payload.notification.data.username,
     payload.notification.data.userId,
     payload.notification.data.eiasToken,
@@ -478,7 +515,7 @@ test("verified invalid payloads log only their precise subcode and safe post-ver
       Object.keys(diagnostic).sort(),
       [
         "failure_code",
-        ...(value?.notification?.notificationId ? ["notification_id_sha256"] : []),
+        ...(String(value?.notification?.notificationId ?? "").trim() ? ["notification_id_sha256"] : []),
         ...(Number.isSafeInteger(value?.notification?.publishAttemptCount) ? ["publish_attempt_count"] : []),
       ].sort(),
       name,
