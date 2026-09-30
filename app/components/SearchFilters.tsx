@@ -64,6 +64,7 @@ function FilterOptionList({
             return (
               <Link
                 key={option.value}
+                prefetch={false}
                 href={searchUrl({
                   query,
                   sort,

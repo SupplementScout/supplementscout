@@ -7,6 +7,141 @@ const ts = require("typescript");
 
 const FRESH_CHECKED_AT = new Date().toISOString();
 
+function loadAppliedFactsModule(mockSupabaseAdmin, resolveAppliedPreWorkoutFacts) {
+  const filename = path.join(
+    process.cwd(),
+    "app",
+    "lib",
+    "reviewedPreWorkoutFacts.server.ts"
+  );
+  const source = fs.readFileSync(filename, "utf8");
+  const { outputText } = ts.transpileModule(source, {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+    },
+    fileName: filename,
+  });
+  const mod = new Module(filename, module);
+  const originalLoad = Module._load;
+
+  Module._load = function patchedLoad(request, parent, isMain) {
+    if (parent === mod && request === "server-only") return {};
+    if (parent === mod && request === "./supabaseAdmin") {
+      return { supabaseAdmin: mockSupabaseAdmin };
+    }
+    if (parent === mod && request === "./reviewedPreWorkoutFacts") {
+      return { resolveAppliedPreWorkoutFacts };
+    }
+    return originalLoad.call(this, request, parent, isMain);
+  };
+
+  try {
+    mod.filename = filename;
+    mod.paths = Module._nodeModulePaths(path.dirname(filename));
+    mod._compile(outputText, filename);
+  } finally {
+    Module._load = originalLoad;
+  }
+
+  return mod.exports;
+}
+
+function nutritionCandidatePages(pages) {
+  const calls = [];
+  return {
+    calls,
+    supabase: {
+      from(table) {
+        assert.equal(table, "nutrition_candidates");
+        const call = {};
+        calls.push(call);
+        const query = {
+          select(columns) {
+            call.columns = columns;
+            return query;
+          },
+          eq(column, value) {
+            call.eq = [column, value];
+            return query;
+          },
+          in(column, values) {
+            call.in = [column, values];
+            return query;
+          },
+          order(column, options) {
+            call.order = [column, options];
+            return query;
+          },
+          range(from, to) {
+            call.range = [from, to];
+            return Promise.resolve(pages.shift());
+          },
+        };
+        return query;
+      },
+    },
+  };
+}
+
+test("reviewed facts query unique product IDs instead of batching every 100 variants", async () => {
+  const query = nutritionCandidatePages([{ data: [{ product_variant_id: 1 }], error: null }]);
+  let candidateCount = 0;
+  const { loadAppliedPreWorkoutFacts } = loadAppliedFactsModule(
+    query.supabase,
+    (_productId, _variantId, _override, candidates) => {
+      candidateCount = candidates.length;
+      return { facts: [] };
+    }
+  );
+  const variants = Array.from({ length: 650 }, (_, index) => ({
+    id: index + 1,
+    product_id: Math.floor(index / 4) + 1,
+    nutrition_override: null,
+  }));
+
+  const result = await loadAppliedPreWorkoutFacts(variants);
+
+  assert.equal(result.size, 650);
+  assert.equal(query.calls.length, 1);
+  assert.equal(query.calls[0].in[0], "product_id");
+  assert.equal(query.calls[0].in[1].length, 163);
+  assert.deepEqual(query.calls[0].eq, ["status", "approved"]);
+  assert.deepEqual(query.calls[0].range, [0, 999]);
+  assert.equal(candidateCount, 1);
+});
+
+test("reviewed facts paginate candidates without truncating exact-variant proof", async () => {
+  const firstPage = Array.from({ length: 1000 }, (_, index) => ({
+    product_id: 38,
+    product_variant_id: 726,
+    proposed_field: `field-${index}`,
+  }));
+  const query = nutritionCandidatePages([
+    { data: firstPage, error: null },
+    { data: [{ product_id: 38 }, { product_id: 38 }], error: null },
+  ]);
+  let candidateCount = 0;
+  const { loadAppliedPreWorkoutFacts } = loadAppliedFactsModule(
+    query.supabase,
+    (_productId, _variantId, _override, candidates) => {
+      candidateCount = candidates.length;
+      return { facts: [] };
+    }
+  );
+
+  await loadAppliedPreWorkoutFacts([
+    { id: 726, product_id: 38, nutrition_override: null },
+  ]);
+
+  assert.equal(query.calls.length, 2);
+  assert.deepEqual(query.calls.map((call) => call.range), [
+    [0, 999],
+    [1000, 1999],
+  ]);
+  assert.equal(candidateCount, 1002);
+});
+
 test("search variant nutrition uses a bounded ID query, not the removed offer FK", () => {
   const source = fs.readFileSync(
     path.join(process.cwd(), "app", "lib", "products.ts"),
