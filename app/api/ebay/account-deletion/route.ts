@@ -32,6 +32,19 @@ function logDiagnosticFailure(failureCode: string, context: VerifiedLogContext =
   console.error("eBay account-deletion diagnostic", diagnostic);
 }
 
+function logVerifiedNotification(context: VerifiedLogContext) {
+  if (
+    !/^[0-9a-f]{64}$/.test(context.notification_id_sha256 || "")
+    || !Number.isSafeInteger(context.publish_attempt_count)
+    || context.publish_attempt_count! < 0
+  ) return;
+  console.info("eBay account-deletion diagnostic", {
+    status: "verified",
+    notification_id_sha256: context.notification_id_sha256,
+    publish_attempt_count: context.publish_attempt_count,
+  });
+}
+
 export async function GET(request: Request) {
   if (!process.env.EBAY_NOTIFICATION_VERIFICATION_TOKEN) {
     return Response.json({ error: "Endpoint unavailable" }, { status: 503, headers: noStoreHeaders });
@@ -84,6 +97,7 @@ export async function POST(request: Request) {
       const verifiedContext = verifiedNotificationLogContext(payload);
       try {
         processDeletionNotification(payload);
+        logVerifiedNotification(verifiedContext);
       } catch (error) {
         logDiagnosticFailure(getDiagnosticCode(error), verifiedContext);
       }

@@ -51,6 +51,22 @@ async function captureConsoleErrors(callback) {
   return calls;
 }
 
+async function captureDiagnostics(callback) {
+  const errors = [];
+  const infos = [];
+  const originalError = console.error;
+  const originalInfo = console.info;
+  console.error = (...args) => errors.push(args);
+  console.info = (...args) => infos.push(args);
+  try {
+    await callback();
+  } finally {
+    console.error = originalError;
+    console.info = originalInfo;
+  }
+  return { errors, infos };
+}
+
 function diagnosticFailure(code) {
   return Object.assign(new Error(code), { diagnosticCode: code });
 }
@@ -296,21 +312,66 @@ test("POST route rejects a missing signature before scheduling background work",
   assert.equal(route.__scheduled.length, 0);
 });
 
-test("POST acknowledges a valid notification immediately and verifies before processing", async () => {
+test("POST acknowledges a valid notification immediately and emits one privacy-safe success diagnostic", async () => {
   let verified = 0;
   let processed = 0;
+  const signatureMarker = "cHJpdmF0ZS1zaWduYXR1cmUtbWFya2Vy";
   const route = loadRoute({
     verifyNotificationSignature: async () => { verified += 1; return true; },
     processDeletionNotification: () => { processed += 1; },
   });
-  const response = await postNotification(route);
-  assert.equal(response.status, 204);
-  assert.equal(verified, 0);
-  assert.equal(processed, 0);
-  assert.equal(route.__scheduled.length, 1);
-  await route.__scheduled[0]();
+  const diagnostics = await captureDiagnostics(async () => {
+    const response = await postNotification(route, payload, encodedSignature("private-kid-marker", signatureMarker));
+    assert.equal(response.status, 204);
+    assert.equal(verified, 0);
+    assert.equal(processed, 0);
+    assert.equal(route.__scheduled.length, 1);
+    await route.__scheduled[0]();
+  });
   assert.equal(verified, 1);
   assert.equal(processed, 1);
+  assert.deepEqual(diagnostics, {
+    errors: [],
+    infos: [["eBay account-deletion diagnostic", {
+      status: "verified",
+      notification_id_sha256: crypto.createHash("sha256").update(payload.notification.notificationId).digest("hex"),
+      publish_attempt_count: 1,
+    }]],
+  });
+  const logged = JSON.stringify(diagnostics);
+  for (const privateValue of [
+    payload.notification.notificationId,
+    payload.notification.data.username,
+    payload.notification.data.userId,
+    payload.notification.data.eiasToken,
+    signatureMarker,
+    "private-kid-marker",
+  ]) {
+    assert.doesNotMatch(logged, new RegExp(privateValue));
+  }
+});
+
+test("no failure path emits a verified success diagnostic and HTTP acknowledgement remains unchanged", async () => {
+  const cases = [
+    { verifyNotificationSignature: async () => false },
+    { verifyNotificationSignature: async () => { throw diagnosticFailure(DIAGNOSTIC_CODES.OAUTH_FAILED); } },
+    { verifyNotificationSignature: async () => true, body: { ...payload, metadata: { ...payload.metadata, topic: "OTHER" } } },
+    {
+      verifyNotificationSignature: async () => true,
+      processDeletionNotification: () => { throw new Error("processing failed"); },
+    },
+  ];
+  for (const { body = payload, ...overrides } of cases) {
+    const diagnostics = await captureDiagnostics(async () => {
+      const route = loadRoute(overrides);
+      const response = await postNotification(route, body);
+      assert.equal(response.status, 204);
+      await route.__scheduled[0]();
+    });
+    assert.equal(diagnostics.infos.length, 0);
+    assert.equal(diagnostics.errors.length, 1);
+    assert.doesNotMatch(JSON.stringify(diagnostics), /"status":"verified"/);
+  }
 });
 
 test("background signature failure never processes deletion data", async () => {
@@ -435,6 +496,6 @@ test("endpoint contains no database mutation, user identifier logging or secret 
   ].map((file) => fs.readFileSync(path.join(process.cwd(), file), "utf8")).join("\n");
   assert.doesNotMatch(source, /\bsupabase\b|createClient\s*\(|\.from\s*\([^)]*\)\s*\.\s*(?:insert|upsert|delete|rpc)\s*\(/i);
   assert.doesNotMatch(source, /fixture-seller|fixture-user|fixture-eias/);
-  assert.doesNotMatch(source, /console\.(?:log|error)\(\s*(?:payload|rawBody|signature|config|error)\b/);
+  assert.doesNotMatch(source, /console\.(?:log|error|info)\(\s*(?:payload|rawBody|signature|config|error)\b/);
   assert.match(source, /process\.env\.EBAY_NOTIFICATION_VERIFICATION_TOKEN/);
 });
