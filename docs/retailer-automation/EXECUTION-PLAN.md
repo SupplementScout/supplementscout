@@ -332,6 +332,23 @@ It adds no Fit House condition, SQL migration, approval path or writer. No
 further production retry is allowed until that central correction passes all
 gates and reaches `main`.
 
+The central correction passed local full/project gates and CI and reached
+`main` as `8d40cd3` in PR `#161`. Fresh dry-run `36835231701` then passed the
+read-only validator with the exact 20-row execution scope and 14-row review
+scope, making zero writes. The separately authorized apply `36835371096`
+completed with `PASS_WITH_REVIEW`: offer `759` alone changed stock from false to
+true, 19 other offers changed only `last_checked_at`, and the exact 14 deferred
+offers received no writes. Price, shipping, delivered total, offer URL, mapping
+URL and mapping timestamp deltas were zero; products, variants, mappings and
+offers stayed at `1337/3632/286/286`. Postflight passed with one stock change,
+20 freshness confirmations, zero commercial price-history delta and 20 daily
+confirmation rows. A fresh-source idempotency pass produced no artifact or
+write for `759` and retained only the same 14 review rows. Evidence artifact
+`11149245887` has digest `sha256:84baa9cb...f646d`. This owner-authorized manual
+operation is closed but does not count toward the ordinary `0/3` interval
+requirement. The next implementation is the central read-only watchdog
+correlation correction already identified below.
+
 The same audit confirmed that the watchdog currently reports only successful
 stage evidence and may combine ordinary stages from older different runs. Direct
 failed-run artifacts remain authoritative, but the watchdog cannot be the final

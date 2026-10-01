@@ -1,6 +1,6 @@
 {
   "schema_version": "ra-stab-01-fit-house-return-v1",
-  "status": "CENTRAL_LEDGER_FIX_LOCAL_VERIFIED_AWAITING_MERGE_PREFLIGHT",
+  "status": "LIVE_VERIFIED_OPERATION_COMPLETE_RA_STAB_IN_PROGRESS",
   "task_id": "RA-STAB-01",
   "decision_date": "2026-10-01",
   "owner_authority": {
@@ -128,9 +128,71 @@
       "apply": "NOT_RUN",
       "postflight": "NOT_RUN",
       "idempotency": "NOT_RUN"
+    },
+    "successful_preflight": {
+      "main_commit": "8d40cd370fbc82d94ff687ab538a100ba745ef7d",
+      "run_id": 36835231701,
+      "artifact_id": 11147999814,
+      "artifact_digest": "sha256:2b3382e2835b3ea5e3daeeb0e142c05b5e5c9e8118ff355ef6b3bc674e30a4cd",
+      "source_fingerprint": "8074eefe826362f2ae8d7e8333452ffebf1e3a7b787f1028e0b0bc1145d6e991",
+      "classifier_state": "DRY_RUN_READY_WITH_REVIEW",
+      "validator": "PASS",
+      "selected_offer_ids": ["759"],
+      "freshness_confirmation_count": 19,
+      "deferred_offer_ids": ["697", "735", "921", "944", "951", "953", "954", "963", "972", "983", "1859", "1904", "1938", "1982"],
+      "control_writes": 0,
+      "business_writes": 0,
+      "approvals_created": 0
+    },
+    "live_verified_apply": {
+      "main_commit": "8d40cd370fbc82d94ff687ab538a100ba745ef7d",
+      "run_id": 36835371096,
+      "artifact_id": 11149245887,
+      "artifact_digest": "sha256:84baa9cbbe5a1cee65fc6f6c89df9e933800c3b227ece33181830cdbce4f646d",
+      "result": "PASS_WITH_REVIEW",
+      "validator": "PASS",
+      "approver": "PASS",
+      "executor": "PASS",
+      "actual_migration_fingerprint": "c891240d8ed411b3bc0ad5e2abc6a8c90bfeb442c1cd0824f3c5a4577ee0c7b0",
+      "executed_offer_ids": ["690", "691", "692", "693", "694", "695", "696", "698", "699", "700", "701", "702", "703", "704", "705", "706", "707", "708", "709", "759"],
+      "stock_change_offer_ids": ["759"],
+      "freshness_only_offer_ids": ["690", "691", "692", "693", "694", "695", "696", "698", "699", "700", "701", "702", "703", "704", "705", "706", "707", "708", "709"],
+      "deferred_offer_ids": ["697", "735", "921", "944", "951", "953", "954", "963", "972", "983", "1859", "1904", "1938", "1982"],
+      "logical_deltas": {
+        "offer_stock_updates": 1,
+        "last_checked_at_updates": 20,
+        "offer_price_updates": 0,
+        "offer_shipping_updates": 0,
+        "offer_total_updates": 0,
+        "offer_url_updates": 0,
+        "mapping_url_updates": 0,
+        "mapping_updated_at_updates": 0
+      },
+      "row_count_deltas": { "products": 0, "product_variants": 0, "retailer_products": 0, "offers": 0, "price_history": 0 },
+      "database_before": { "products": 1337, "variants": 3632, "mappings": 286, "offers": 286, "history": 24632 },
+      "database_after": { "products": 1337, "variants": 3632, "mappings": 286, "offers": 286, "history": 24652 },
+      "postflight": {
+        "result": "PASS",
+        "stock_change_count": 1,
+        "freshness_change_count": 20,
+        "price_change_count": 0,
+        "shipping_change_count": 0,
+        "total_change_count": 0,
+        "offer_url_change_count": 0,
+        "mapping_url_change_count": 0,
+        "commercial_price_history_delta": 0,
+        "daily_confirmation_delta": 20
+      },
+      "idempotency": {
+        "result": "PASS",
+        "remaining_changed_offer_ids": ["697", "735", "921", "944", "951", "953", "954", "963", "972", "983", "1859", "1904", "1938", "1982"],
+        "database_writes": 0,
+        "control_writes": 0,
+        "approvals_created": 0
+      }
     }
   },
-  "next_decision_boundary": "Merge the central ledger correction only after quick/full/project gates and CI, then run one fresh main-only production preflight. Apply remains limited to offer 759 plus 19 freshness confirmations and requires the exact 14-row deferred review scope.",
+  "next_decision_boundary": "The owner-authorized Fit House operation is live verified and closed. Keep the 14 deferred offers unchanged in review; next implement the central read-only watchdog correlation correction, then observe three consecutive ordinary scheduled intervals.",
   "ordinary_interval_counter": {
     "completed": 0,
     "required": 3,

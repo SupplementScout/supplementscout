@@ -107,6 +107,20 @@ migration state for runtime and selector and asserts exact production and
 staging parity. It requires no SQL migration and authorizes no retry until the
 shared fix passes all gates, CI and reaches `main`.
 
+The shared ledger correction reached `main` as `8d40cd3` after full local and CI
+gates. Fresh dry-run `36835231701` passed the read-only validator with exactly
+offer `759`, 19 freshness confirmations and the 14-row deferred review scope.
+Owner-authorized apply `36835371096` then completed and passed independent DB
+postflight and fresh-source idempotency: only offer `759` changed stock to true;
+the other 19 executed rows changed freshness only; all 14 deferred offers stayed
+unchanged in review. Prices, shipping, totals, URLs, mappings and catalogue row
+counts did not change. The 20 new raw history rows are daily confirmations, with
+zero commercial price-history delta. Idempotency made zero writes and left only
+the same 14 review rows. The Fit House owner operation is therefore live
+verified and closed, while RA-STAB-01 remains `IN_PROGRESS`: this manual run does
+not count toward `0/3`, and the next task is the shared read-only watchdog
+correlation correction before ordinary interval observation resumes.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
