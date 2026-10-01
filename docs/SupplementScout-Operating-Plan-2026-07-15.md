@@ -215,6 +215,18 @@ job-level attribution read-only and wait for the next ordinary schedule to
 prove producer behavior; do not dispatch a retailer retry. Real review/stale
 backlog growth still prevents interval credit, so the counter remains `0/3`.
 
+PR `#169` merged the generic correction as `bc74bac`. Read-only watchdog
+`36852261994` then live verified exact job attribution with zero writes and no
+global failure: the successful 10 Reps job in shared run `36842642858` is now
+`COMPLETE_SUCCESS`, and its two false latest-attempt failures are gone. Fit
+House correctly remains red for its own historical summary failure and genuine
+stale/review backlog, while the bounded `286/34/20/14/252` partition still
+passes. The owner-approved production scope remains closed and unchanged:
+offer `759` was the only stock restoration, 19 confirmations were
+freshness-only, and the exact 14 deferred offers remain unchanged in review.
+Wait for the next natural ordinary schedule to prove the zero-action producer
+schema; no manual retailer refresh is authorized and the counter stays `0/3`.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
