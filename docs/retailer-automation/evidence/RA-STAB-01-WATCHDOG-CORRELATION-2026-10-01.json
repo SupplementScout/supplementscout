@@ -237,7 +237,7 @@
     "live_reverification": "PENDING"
   },
   "bounded_scope_contract_follow_up": {
-    "status": "LOCALLY_VERIFIED_PENDING_MERGE_AND_LIVE_READBACK",
+    "status": "LIVE_VERIFIED",
     "model": "BOUNDED_OPERATION_SCOPE_V1",
     "source_workflow_run_id": "36835371096",
     "source_artifact_id": "11149245887",
@@ -296,7 +296,44 @@
     "production_writes": 0,
     "retailer_refresh_dispatched": false,
     "baseline_changed": false,
-    "live_reverification": "PENDING"
+    "live_reverification": {
+      "merge_commit": "31469faf836f94e0f5f5ca524ed823a01d43af8a",
+      "pull_request": 167,
+      "workflow_run_id": "36849669742",
+      "generated_at": "2026-10-01T10:31:48.689Z",
+      "workflow_result": "FAIL",
+      "watchdog_result": "FAIL",
+      "artifact_id": "11155420859",
+      "artifact_digest": "sha256:3230592446ce1161e866cc9090f74bc9c678089a2c94de8b7bcc84766e9fa516",
+      "database_writes": 0,
+      "global_failures": [],
+      "failed_retailer_count": 9,
+      "monitored_retailer_count": 3,
+      "fit_house": {
+        "scope_partition_result": "PASS",
+        "scope_partition_model": "BOUNDED_OPERATION_SCOPE_V1",
+        "approved_mapping_count": 286,
+        "operation_partition_count": 34,
+        "executable_plan_count": 20,
+        "executed_plan_count": 20,
+        "review_row_count": 14,
+        "blocked_row_count": 0,
+        "unselected_no_write_count": 252,
+        "approved_offer_id_count": 286,
+        "approved_scope_hash": "d2951f2456f789c8ac64bb14c35ae83cd779cca7115061f80f5eb750ec738727",
+        "latest_attempt": "36842642858",
+        "latest_ordinary_attempt": "36842642858",
+        "result": "FAIL",
+        "failure_codes": [
+          "LATEST_ATTEMPT_NOT_SUCCESSFUL",
+          "LATEST_ORDINARY_ATTEMPT_INCOMPLETE",
+          "DATABASE_OFFERS_OLDER_THAN_48H",
+          "MONITORED_BACKLOG_GROWTH"
+        ],
+        "approved_scope_partition_mismatch_present": false
+      },
+      "interpretation": "The bounded-scope correction is live verified. Fit House remains red only for current ordinary-run and backlog evidence; the false partition mismatch is closed."
+    }
   },
   "fit_house_owner_scope": {
     "offer_759_operation_status": "LIVE_VERIFIED_AND_CLOSED",
@@ -324,7 +361,7 @@
   "decision": {
     "ordinary_intervals_completed": 0,
     "ordinary_intervals_required": 3,
-    "next_step": "Merge the locally verified generic bounded-scope contract, then run one read-only watchdog from main and confirm that Fit House loses only APPROVED_SCOPE_PARTITION_MISMATCH while its genuine latest-ordinary, stale-offer and backlog failures remain. Do not dispatch a retailer refresh, reinterpret the completed owner scope or widen monitored baselines.",
+    "next_step": "Classify the latest shared Fit House/10 Reps ordinary run 36842642858 read-only and determine its shared failure cause. Do not dispatch a retailer refresh, reinterpret the completed owner scope or widen monitored baselines.",
     "production_write_authorized": false,
     "ra_004_retry_authorized": false
   }
