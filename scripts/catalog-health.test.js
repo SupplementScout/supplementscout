@@ -70,6 +70,7 @@ const {
   validateEbayApplyArtifacts,
   validateEbayIdempotencyArtifacts,
   workflowAttempt,
+  workflowRunSummary,
 } = require("./automation-reliability-watchdog");
 
 const watchdogProfile = {
@@ -878,6 +879,35 @@ test("watchdog attempt selection is deterministic for unordered input", () => {
   const attempts = [50, 52, 51].map((id) => workflowAttempt(watchdogProfile, watchdogRun(id, { createdAt: "2026-09-01T00:00:00Z" }), [watchdogJob(watchdogProfile, { capture: "success", apply: "success", db_postflight: "success", idempotency: "success" })]));
   assert.equal(selectWorkflowAttempts(attempts).latestAttempt.run_id, "52");
   assert.equal(selectWorkflowAttempts(attempts.reverse()).latestAttempt.run_id, "52");
+});
+
+test("watchdog exposes listed-run freshness and rejects an unresolved latest schedule", () => {
+  const summary = workflowRunSummary(watchdogRun(60, { createdAt: "2026-09-01T00:01:00Z" }));
+  assert.deepEqual(summary, {
+    run_id: "60",
+    run_url: "https://example.test/runs/60",
+    event: "schedule",
+    head_sha: "sha-60",
+    run_conclusion: "success",
+    created_at: "2026-09-01T00:01:00Z",
+    updated_at: "2026-09-01T00:01:00Z",
+  });
+  const completed = workflowAttempt(watchdogProfile, watchdogRun(59, { createdAt: "2026-09-01T00:00:59Z" }), [watchdogJob(watchdogProfile, { capture: "success", apply: "success", db_postflight: "success", idempotency: "success" })]);
+  const stages = {
+    ...completed.stages,
+    latest_attempt: completed,
+    latest_ordinary_attempt: completed,
+    latest_listed_ordinary_run: summary,
+  };
+  const contract = { result: "PASS", approved_mapping_count: 1, executable_plan_count: 1, executed_plan_count: 1, review_row_count: 0, blocked_row_count: 0 };
+  const evaluation = evaluateRetailer({ profile: watchdogProfile, stages, contract, database: { offer_count: 1, offers_older_than_48h: 0, older_offer_ids: [] } }, new Date("2026-09-01T01:00:00Z"), 48);
+  assert(evaluation.failures.includes("LATEST_ORDINARY_PROFILE_ATTEMPT_UNRESOLVED"));
+});
+
+test("watchdog GitHub reads explicitly bypass stale response caches", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "scripts", "automation-reliability-watchdog.js"), "utf8");
+  assert.match(source, /cache:\s*"no-store"/);
+  assert.match(source, /"cache-control":\s*"no-cache"/);
 });
 
 test("watchdog configuration binds the exact idempotency step for every automated retailer", () => {

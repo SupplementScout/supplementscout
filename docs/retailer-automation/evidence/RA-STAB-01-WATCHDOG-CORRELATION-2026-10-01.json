@@ -1,6 +1,6 @@
 {
   "schema_version": "ra-stab-01-watchdog-correlation-v1",
-  "status": "LOCAL_VERIFIED_PENDING_MAIN_AND_LIVE_READBACK",
+  "status": "FIRST_LIVE_READBACK_FAIL_CLOSED_FRESHNESS_FOLLOW_UP_LOCAL_VERIFIED",
   "task_id": "RA-STAB-01",
   "evidence_date": "2026-10-01",
   "mode": "READ_ONLY_MONITOR_CORRECTION",
@@ -77,6 +77,44 @@
     "production_build": "PASS",
     "quality_gate_manifest_reseal_required": false
   },
+  "first_live_readback": {
+    "merge_commit": "e170977dd06eb5f1604b2a2415ef9c59551c0203",
+    "pull_request": 163,
+    "workflow_run_id": "36838647202",
+    "workflow_result": "FAIL",
+    "watchdog_result": "FAIL",
+    "database_writes": 0,
+    "global_failures": [],
+    "retailer_count": 12,
+    "failed_retailer_count": 10,
+    "artifact_id": "11150815207",
+    "artifact_digest": "sha256:1408e00e18f701060f786e81d6d88e9afec897199295d65b19b7b6e8e10f0a80",
+    "confirmed_behavior": "New failure and idempotency reason codes remain visible and are not absorbed by monitored baselines.",
+    "freshness_discrepancy": {
+      "classification": "WORKFLOW_LISTING_OR_PROFILE_ATTEMPT_RESOLUTION",
+      "watchdog_fit_house_latest_attempt": "35725377626",
+      "known_fit_house_apply_run": "36835371096",
+      "watchdog_10_reps_latest_ordinary_attempt": "35702168708",
+      "known_shared_ordinary_run": "36693313942",
+      "raw_job_readback": "Both known runs contain the exact configured profile capture steps; silent fallback to the older attempts is not accepted as final evidence."
+    }
+  },
+  "freshness_follow_up": {
+    "behavior": "GitHub API reads explicitly bypass response caches and every report records the newest listed workflow run, newest listed scheduled run, bounded unmatched-run diagnostics and scanned-run count.",
+    "fail_closed_rule": "If the newest listed scheduled run does not resolve to the newest profile schedule attempt, emit LATEST_ORDINARY_PROFILE_ATTEMPT_UNRESOLVED.",
+    "file_sha256": {
+      "scripts/automation-reliability-watchdog.js": "edd6ba4ddd375ee7d04f9147077660207e552a509e7aacd204008b5242b68e1c",
+      "scripts/catalog-health.test.js": "49f6bf2691e0b5273e652a0d4d3a0d459a78042c9b1e2506adb61bdefb7ee31d"
+    },
+    "focused_result": {
+      "passed": 38,
+      "failed": 0,
+      "skipped": 0
+    },
+    "quick_gate": "PASS",
+    "full_gate": "PASS",
+    "live_reverification": "PENDING"
+  },
   "fit_house_owner_scope": {
     "offer_759_operation_status": "LIVE_VERIFIED_AND_CLOSED",
     "offer_759_stock_change": "false_to_true",
@@ -103,7 +141,7 @@
   "decision": {
     "ordinary_intervals_completed": 0,
     "ordinary_intervals_required": 3,
-    "next_step": "Merge through CI, then run the existing read-only watchdog from main and inspect its artifact. Do not dispatch a retailer refresh or widen monitored baselines.",
+    "next_step": "Verify and merge the fail-closed workflow-listing freshness follow-up, then repeat the existing read-only watchdog from main. Do not dispatch a retailer refresh or widen monitored baselines.",
     "production_write_authorized": false,
     "ra_004_retry_authorized": false
   }
