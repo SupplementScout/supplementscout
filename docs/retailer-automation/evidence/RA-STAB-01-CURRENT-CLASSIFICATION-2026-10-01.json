@@ -2,7 +2,7 @@
   "schema_version": "ra-stab-01-current-classification-v1",
   "task_id": "RA-STAB-01",
   "status": "ALL_CURRENT_RESULTS_CLASSIFIED_ORDINARY_OBSERVATION_CONTINUES",
-  "observed_at": "2026-10-01T11:37:15Z",
+  "observed_at": "2026-10-01T11:42:40Z",
   "source_watchdog": {
     "workflow_run_id": "36852261994",
     "generated_at": "2026-10-01T10:57:09.235Z",
@@ -59,14 +59,17 @@
     },
     {
       "retailer": "Dolphin Fitness",
-      "watchdog_result": "FAIL",
+      "watchdog_result": "SUPERSEDED_BY_NEWER_DIRECT_ORDINARY_EVIDENCE",
       "primary_class": "CONTROL_LIFECYCLE",
       "secondary_class": "MONITORED_DEBT",
-      "latest_ordinary_run_id": "36707225150",
-      "artifact_id": "11091943547",
-      "artifact_digest": "sha256:3b99072c724144071863dc873fdad9fdd134183e464a896f1a7388f99332e370",
-      "evidence": "Healthy exact 1/1 source match and no commercial change stopped before writes on the same pre-recovery RSBI_SOURCE_HASH_MISMATCH.",
-      "next_action": "Observe the next natural schedule on current main; no manual retry or Dolphin-specific patch."
+      "class_status": "LIVE_VERIFIED_CLOSED_FOR_THIS_PATH",
+      "ordinary_run_id": "36856895922",
+      "job_id": "110351418114",
+      "head_sha": "94969125411a2bb4f093192e8eeb0d05881d5071",
+      "artifact_id": "11158809227",
+      "artifact_digest": "sha256:1d760a879a2ffe7042cec6079c8fa95d7c395c564137980d91e7a20ea501140f",
+      "evidence": "The natural scheduled job passed dry-run, baseline, apply, postflight and fresh-source idempotency on current main. Exact offer 2490 was the sole approved and executed plan, classified VERIFY_NO_CHANGE; postflight recorded one freshness update and zero price, stock, shipping, total, URL, mapping or price-history delta. The fresh idempotency capture again classified VERIFY_NO_CHANGE and made zero business or control writes.",
+      "next_action": "Allow the next read-only watchdog to correlate this success. This path alone does not award an interval; no Dolphin-specific patch or retry is needed."
     },
     {
       "retailer": "Simply Supplements",
@@ -176,10 +179,10 @@
     "all_12_paths_classified": true,
     "unclassified_failure_count": 0,
     "new_retailer_specific_patch_required": false,
-    "current_common_control_lifecycle_proof": "Natural ordinary runs 36853819770 (Jon's) and 36856171813 (Simply Supplements) independently live verify the merged ledger correction on two previously affected paths.",
+    "current_common_control_lifecycle_proof": "Natural ordinary runs 36853819770 (Jon's), 36856171813 (Simply Supplements) and 36856895922 (Dolphin Fitness) independently live verify the merged ledger correction on three previously affected paths.",
     "ordinary_intervals_completed": 0,
     "ordinary_intervals_required": 3,
-    "interval_credit_reason": "Two recovered retailer paths are not a complete cross-path interval, while Fit House awaits producer proof and genuine source, identity and monitored-debt incidents remain.",
+    "interval_credit_reason": "Three recovered retailer paths are not a complete cross-path interval, while Fit House awaits producer proof and genuine source, identity and monitored-debt incidents remain.",
     "next_gate": "Observe remaining natural schedules on current main, correlate them with the first later read-only watchdog, and implement nothing unless a current artifact reproduces a shared contract defect."
   }
 }

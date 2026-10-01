@@ -530,17 +530,19 @@ authorizing a capture, replay or retailer run. Evidence:
 
 **Current 12-path classification — complete; observation continues:** the
 timestamped read-only classification of watchdog `36852261994` assigns every
-current result to the RA-STAB vocabulary with no unclassified failure. Three
-older ordinary failures (Discount Supplements, Dolphin Fitness and KIOR Health)
-remain in the pre-recovery ledger-selector class. Natural Jon's run
-`36853819770` and natural Simply Supplements run `36856171813` independently
-live verified that shared correction on current `main`. Simply passed every
+current result to the RA-STAB vocabulary with no unclassified failure. Two
+older ordinary failures (Discount Supplements and KIOR Health) remain in the
+pre-recovery ledger-selector class. Natural Jon's run `36853819770`, Simply
+Supplements run `36856171813` and Dolphin Fitness run `36856895922`
+independently live verified that shared correction on current `main`. Simply passed every
 stage with `120` approved, `119` executed, one review and zero blocked; only
 offer `673` returned in stock at unchanged `GBP 14.99`, the other 118 executions
 were freshness-only, postflight found zero commercial delta, and fresh-source
 idempotency made zero writes. Artifact `11158233377` has digest
 `sha256:13f54a67...1a9e4`. Jon's remains `506/501/5/0`; its artifact
-`11157711039` has digest `sha256:b6cdc18d...e6d3f`.
+`11157711039` has digest `sha256:b6cdc18d...e6d3f`. Dolphin passed its exact
+single-offer scope as freshness-only with zero commercial delta and zero-write
+idempotency; artifact `11158809227` has digest `sha256:1d760a87...1140f`.
 6 Pack is separately classified `SOURCE` because exact product `4150` returned
 HTTP 404 after five bounded attempts. Artifact-level replay resolves eBay's
 generic scope error as `EVIDENCE_CORRELATION`, not identity drift: the complete
@@ -550,7 +552,7 @@ rejected the resulting price update before baseline or writes. The existing
 drift regressions pass `106/106`, so no exception or code change is justified.
 Fit House is the already-fixed
 summary `FAILED_SYSTEM` pending natural producer proof; 10 Reps is genuine
-`MONITORED_DEBT`. No retailer-specific patch is justified. Two independently
+`MONITORED_DEBT`. No retailer-specific patch is justified. Three independently
 recovered paths still do not constitute a full cross-path interval, so the
 counter remains `0/3`. Evidence:
 [`evidence/RA-STAB-01-CURRENT-CLASSIFICATION-2026-10-01.json`](evidence/RA-STAB-01-CURRENT-CLASSIFICATION-2026-10-01.json).
