@@ -559,8 +559,9 @@ directory and rebuilds offer-only deltas with the existing shared existing-offer
 plan builder. Commercial rows remain review-only and strict executable validation
 is unchanged. No price execution, retry, eBay exception or baseline widening is
 authorized. The focused eBay suite passes `107/107`; quick and full quality
-gates, Project Guardian and the production build pass. Merge/CI must precede
-read-only observation of the next natural schedule.
+gates, Project Guardian and the production build pass. PR `#176` merged the
+correction as `5c08e7e6` after CI, security and Vercel passed. The remaining
+gate is read-only observation of the next natural schedule; do not dispatch it.
 Fit House is the already-fixed
 summary `FAILED_SYSTEM` pending natural producer proof; 10 Reps is genuine
 `MONITORED_DEBT`. No retailer-specific patch is justified. Three independently

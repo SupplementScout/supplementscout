@@ -266,7 +266,9 @@ existing-offer plan builder, and keeps every commercial change review-only.
 Strict execution validation is unchanged; no eBay-specific exception, price
 write, retry or baseline widening is authorized. The focused eBay suite passes
 `107/107`; quick and full quality gates, Project Guardian and the production
-build pass. CI/merge and the next natural schedule remain before live closure.
+build pass. PR `#176` merged the correction as `5c08e7e6` after CI, security and
+Vercel passed. Only the next natural schedule and read-only correlation remain
+before live closure; no manual retailer dispatch is authorized.
 
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
