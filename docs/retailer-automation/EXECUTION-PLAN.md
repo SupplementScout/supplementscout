@@ -316,6 +316,22 @@ registration, validator, approver and executor are unchanged; focused, quick
 and full local gates pass. Production remains unchanged pending merge, CI and a
 fresh main-only preflight.
 
+That main-only preflight ran as `36833083890` on commit `5c761327`. The
+isolation contract itself passed exactly: the classifier reached
+`DRY_RUN_READY_WITH_REVIEW`, selected only offer `759` plus 19 freshness-only
+confirmations, and retained precisely the 14 authorized deferred offer IDs.
+The read-only database validator then rejected the artifact before registration
+with `RSBI_SOURCE_HASH_MISMATCH`; there were zero approvals and zero control or
+business writes. Root cause was central contract drift left by the prior ledger
+repair: the selector correctly expected production ledger `223` / `c891240d...`,
+while runtime artifacts still excluded the already-applied sequential-close
+recovery and emitted ledger `222` / `c08b5f2e...`. The correction moves
+applied-excluded and pending migration state into one shared policy consumed by
+both runtime and selector, with exact production and staging parity regressions.
+It adds no Fit House condition, SQL migration, approval path or writer. No
+further production retry is allowed until that central correction passes all
+gates and reaches `main`.
+
 The same audit confirmed that the watchdog currently reports only successful
 stage evidence and may combine ordinary stages from older different runs. Direct
 failed-run artifacts remain authoritative, but the watchdog cannot be the final

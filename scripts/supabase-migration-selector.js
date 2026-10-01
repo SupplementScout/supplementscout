@@ -8,9 +8,11 @@ const {
   ledgerFingerprint: canonicalLedgerFingerprint,
 } = require("./lib/ra004-ledger-fingerprint-v1");
 const {
+  APPLIED_EXCLUSIONS,
   excludedMigrationIds,
   MIGRATION_FILE,
   migrationIdentifier,
+  PENDING_MIGRATIONS,
 } = require("./lib/environment-migrations");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -120,13 +122,7 @@ const CONTRACTS = Object.freeze({
     ledgerCount: 99,
     ledgerFingerprint:
       "a6e7693f964925554e807602752e4630d14f537a1d9de4fe82f8433d30c307cc",
-    appliedExcluded: Object.freeze([
-      RA004_FIXTURE_MIGRATION,
-      "20260926110000_add_ra004_staging_interface_compatibility.sql",
-      "20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql",
-      "20260928100000_diagnose_ra004_preflight_acl_rls.sql",
-      "20260928101000_align_ra004_control_export_provider_identity.sql",
-    ]),
+    appliedExcluded: APPLIED_EXCLUSIONS.STAGING,
     excluded: Object.freeze({
       "20260922160000_allow_owner_approved_fit_house_six_oos.sql": "be780721eee14c19761546107b7f249e9bea0c451a54732dfd259a7b348132fa",
       "20260922170000_allow_fit_house_parent_approval_and_supersede_failed_plan.sql": "91c065b0dece55d7908e5dacb5509d1b0d66e26a4d132e8d2969e4db9369251f",
@@ -404,36 +400,7 @@ const CONTRACTS = Object.freeze({
       "20260929133000_extend_expired_sequential_plan_close.sql":
         "b0a4cac2d9c30989f00570bf1c63036daf190fffbcc7b08b17c616761bc6a380",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260831110000_create_automation_review_queue_publication_rpc.sql",
-        sha256: "8680e3303a8b4b22025f85af83a59a8dafbebc91e97719e423af8dff79f28409",
-      }),
-      Object.freeze({
-        filename: "20260910193000_allow_automation_review_retry_revisions.sql",
-        sha256: "ddfb939887df1793f554adc1e4f171b64b3ba2549a4d3651bd339947d7bc496b",
-      }),
-      Object.freeze({
-        filename: "20260911120000_add_nutrition_candidate_variant_provenance.sql",
-        sha256: "62a7a5dd812d4559889d7392217095b67841d1d6db37e5519ee6e1593bc207cb",
-      }),
-      Object.freeze({
-        filename: "20260911130000_add_nutrition_candidate_preworkout_facts.sql",
-        sha256: "76db080b347dfffd36a8233c1d8f9725421b9caf2e445d56579833898b6428d5",
-      }),
-      Object.freeze({
-        filename: "20260911150000_add_nutrition_candidate_structured_creatine.sql",
-        sha256: "dc9a411d19cb3547b508744c6dab21fb0df741e30f896cb186de6b38639ce28c",
-      }),
-      Object.freeze({
-        filename: "20260913110000_add_nutrition_candidate_citrulline_components.sql",
-        sha256: "76dd8390e19f45dd8ffcc69bafe9721abc6dedff6db280fdc6f75e3938258ac4",
-      }),
-      Object.freeze({
-        filename: "20260920150000_add_nutrition_candidate_creatine_components.sql",
-        sha256: "c68dac262928ac1ebf971fd8cb838468f38376ebb7c43d8f426884adc200200b",
-      }),
-    ]),
+    pending: PENDING_MIGRATIONS.STAGING,
   }),
   PRODUCTION: Object.freeze({
     environment: "PRODUCTION",
@@ -445,9 +412,7 @@ const CONTRACTS = Object.freeze({
     ledgerCount: 223,
     ledgerFingerprint:
       "c891240d8ed411b3bc0ad5e2abc6a8c90bfeb442c1cd0824f3c5a4577ee0c7b0",
-    appliedExcluded: Object.freeze([
-      "20260929133000_extend_expired_sequential_plan_close.sql",
-    ]),
+    appliedExcluded: APPLIED_EXCLUSIONS.PRODUCTION,
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -486,7 +451,7 @@ const CONTRACTS = Object.freeze({
       "20260929133000_extend_expired_sequential_plan_close.sql":
         "b0a4cac2d9c30989f00570bf1c63036daf190fffbcc7b08b17c616761bc6a380",
     }),
-    pending: Object.freeze([]),
+    pending: PENDING_MIGRATIONS.PRODUCTION,
   }),
 });
 

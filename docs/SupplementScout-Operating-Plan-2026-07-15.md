@@ -94,6 +94,19 @@ local gates pass; production remains unchanged until merge, CI and a fresh
 main-only preflight. This manual operation will not increment the `0/3` ordinary
 interval counter.
 
+Main-only isolation preflight `36833083890` then proved the authorized business
+scope exactly: only offer `759` plus 19 freshness confirmations entered the
+candidate batch, while all 14 named stock differences remained review-only.
+The read-only validator stopped before registration because runtime still bound
+the former production migration ledger `222` / `c08b5f2e...`, whereas the
+verified database and selector are at `223` / `c891240d...`. No approval,
+control write or business write occurred. This is a central two-source ledger
+defect left after the earlier selector-only repair, not a Fit House or source
+failure. The bounded correction centralizes applied-excluded and pending
+migration state for runtime and selector and asserts exact production and
+staging parity. It requires no SQL migration and authorizes no retry until the
+shared fix passes all gates, CI and reaches `main`.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
