@@ -58,10 +58,13 @@ const {
 const {
   applyMonitoredBacklog,
   artifactBelongsToProfile,
+  bindApprovedScopeEvidence,
   buildEbaySplitRunAttestation,
   correlateEvidence,
   evaluateRetailer,
+  findApprovedScopeEvidence,
   findContractEvidence,
+  findPostflightScopeEvidence,
   loadConfig: loadWatchdogConfig,
   parseArgs: parseWatchdogArgs,
   selectWorkflowAttempts,
@@ -645,8 +648,219 @@ test("automation watchdog requires fresh capture, apply, DB postflight and exact
   assert.deepEqual(failed.failures, [
     "DB_POSTFLIGHT_SUCCESS_MISSING",
     "EXECUTED_PLAN_COUNT_MISMATCH",
+    "APPROVED_SCOPE_PARTITION_MISMATCH",
     "DATABASE_OFFERS_OLDER_THAN_48H",
   ]);
+});
+
+test("automation watchdog accepts only an exact bounded operation with same-run postflight", () => {
+  const completed = "2026-10-01T08:18:49.000Z";
+  const runId = "36835371096";
+  const stages = {
+    capture: { completed_at: completed, run_id: runId, head_sha: "a", conclusion: "success" },
+    apply: { completed_at: completed, run_id: runId, head_sha: "a", conclusion: "success" },
+    db_postflight: { completed_at: completed, run_id: runId, head_sha: "a", conclusion: "success" },
+    idempotency: { completed_at: completed, run_id: runId, head_sha: "a", conclusion: "success" },
+  };
+  const executionOfferIds = Array.from({ length: 20 }, (_, index) => String(690 + index));
+  const reviewOfferIds = Array.from({ length: 14 }, (_, index) => String(900 + index));
+  const approvedOfferIds = Array.from({ length: 286 }, (_, index) => String(689 + index));
+  const contract = {
+    result: "PASS_WITH_REVIEW",
+    approved_mapping_count: 286,
+    executable_plan_count: 20,
+    executed_plan_count: 20,
+    review_row_count: 14,
+    blocked_row_count: 0,
+    scope: { mappings: 286, offers: 286, children: 1, rows: 20 },
+    execution_offer_ids: executionOfferIds,
+    review_offer_ids: reviewOfferIds,
+    approved_offer_ids: approvedOfferIds,
+    approved_scope_hash: "a".repeat(64),
+  };
+  const input = {
+    profile: { id: 9, name: "Fit House", workflow: "fit-house.yml", idempotency_step: "idempotency" },
+    stages,
+    contract,
+    database: { offer_count: 286, offers_older_than_48h: 0 },
+  };
+  const now = new Date("2026-10-01T09:00:00.000Z");
+  const accepted = evaluateRetailer(input, now, 48);
+  assert.equal(accepted.result, "PASS_WITH_REVIEW");
+  assert.deepEqual(accepted.failures, []);
+  assert.equal(accepted.scope_partition.model, "BOUNDED_OPERATION_SCOPE_V1");
+  assert.equal(accepted.scope_partition.operation_partition_count, 34);
+  assert.equal(accepted.scope_partition.unselected_no_write_count, 252);
+
+  const invalidCases = [
+    ["missing scope", { contract: { ...contract, scope: null } }],
+    ["scope mappings drift", { contract: { ...contract, scope: { ...contract.scope, mappings: 285 } } }],
+    ["scope offers drift", { contract: { ...contract, scope: { ...contract.scope, offers: 285 } } }],
+    ["scope rows drift", { contract: { ...contract, scope: { ...contract.scope, rows: 19 } } }],
+    ["short execution ids", { contract: { ...contract, execution_offer_ids: executionOfferIds.slice(1) } }],
+    ["extra execution id", { contract: { ...contract, execution_offer_ids: [...executionOfferIds, "9999"] } }],
+    ["duplicate execution id", { contract: { ...contract, execution_offer_ids: [...executionOfferIds.slice(0, 19), executionOfferIds[0]] } }],
+    ["missing review id", { contract: { ...contract, review_offer_ids: reviewOfferIds.slice(1) } }],
+    ["duplicate review id", { contract: { ...contract, review_offer_ids: [...reviewOfferIds.slice(0, 13), reviewOfferIds[0]] } }],
+    ["overlapping ids", { contract: { ...contract, review_offer_ids: [executionOfferIds[0], ...reviewOfferIds.slice(1)] } }],
+    ["non-numeric execution id", { contract: { ...contract, execution_offer_ids: ["NOT_AN_APPROVED_OFFER", ...executionOfferIds.slice(1)] } }],
+    ["execution id outside approved scope", { contract: { ...contract, execution_offer_ids: ["9999", ...executionOfferIds.slice(1)] } }],
+    ["review id outside approved scope", { contract: { ...contract, review_offer_ids: ["9999", ...reviewOfferIds.slice(1)] } }],
+    ["missing approved scope ids", { contract: { ...contract, approved_offer_ids: null } }],
+    ["short approved scope ids", { contract: { ...contract, approved_offer_ids: approvedOfferIds.slice(1) } }],
+    ["missing approved scope hash", { contract: { ...contract, approved_scope_hash: null } }],
+    ["partition above approved", { contract: { ...contract, approved_mapping_count: 33, scope: { mappings: 33, offers: 33, rows: 20 } } }],
+    ["executed mismatch", { contract: { ...contract, executed_plan_count: 19 } }],
+    ["blocked row", { contract: { ...contract, blocked_row_count: 1 } }],
+    ["missing postflight", { stages: { ...stages, db_postflight: null } }],
+    ["failed postflight", { stages: { ...stages, db_postflight: { ...stages.db_postflight, conclusion: "failure" } } }],
+    ["cross-run postflight", { stages: { ...stages, db_postflight: { ...stages.db_postflight, run_id: "other" } } }],
+    ["cross-sha postflight", { stages: { ...stages, db_postflight: { ...stages.db_postflight, head_sha: "other" } } }],
+  ];
+  for (const [label, overrides] of invalidCases) {
+    const rejected = evaluateRetailer({
+      ...input,
+      ...overrides,
+      contract: overrides.contract ?? input.contract,
+      stages: overrides.stages ?? input.stages,
+    }, now, 48);
+    assert(rejected.failures.includes("APPROVED_SCOPE_PARTITION_MISMATCH"), label);
+    assert.equal(rejected.scope_partition.result, "FAIL", label);
+  }
+
+  const discountContract = {
+    ...contract,
+    result: "PASS",
+    approved_mapping_count: 109,
+    executable_plan_count: 95,
+    executed_plan_count: 95,
+    review_row_count: 0,
+    scope: { mappings: 109, offers: 109, children: 1, rows: 95 },
+    execution_offer_ids: Array.from({ length: 95 }, (_, index) => String(1000 + index)),
+    review_offer_ids: [],
+    approved_offer_ids: Array.from({ length: 109 }, (_, index) => String(1000 + index)),
+  };
+  const discount = evaluateRetailer({
+    ...input,
+    profile: { id: 4, name: "Discount Supplements", workflow: "discount.yml" },
+    contract: discountContract,
+    database: { offer_count: 109, offers_older_than_48h: 0 },
+  }, now, 48);
+  assert.equal(discount.result, "PASS");
+  assert.equal(discount.scope_partition.model, "BOUNDED_OPERATION_SCOPE_V1");
+  assert.equal(discount.scope_partition.unselected_no_write_count, 14);
+
+  const fullScope = evaluateRetailer({
+    ...input,
+    contract: {
+      ...contract,
+      approved_mapping_count: 6,
+      executable_plan_count: 4,
+      executed_plan_count: 4,
+      review_row_count: 2,
+      scope: null,
+    },
+  }, now, 48);
+  assert.equal(fullScope.result, "PASS_WITH_REVIEW");
+  assert.equal(fullScope.scope_partition.model, "FULL_APPROVED_SCOPE_V1");
+
+  for (const invalidFullContract of [
+    { ...fullScope.contract, executed_plan_count: 3 },
+    { ...fullScope.contract, blocked_row_count: 1, approved_mapping_count: 7 },
+  ]) {
+    const rejected = evaluateRetailer({ ...input, contract: invalidFullContract }, now, 48);
+    assert.equal(rejected.scope_partition.result, "FAIL");
+  }
+
+  const recordedEvidence = JSON.parse(fs.readFileSync(path.join(
+    process.cwd(),
+    "docs/retailer-automation/evidence/RA-STAB-01-WATCHDOG-CORRELATION-2026-10-01.json",
+  ), "utf8")).bounded_scope_contract_follow_up;
+  const recordedReplay = evaluateRetailer({
+    ...input,
+    stages: Object.fromEntries(["capture", "apply", "db_postflight", "idempotency"].map((stage) => [stage, {
+      completed_at: completed,
+      run_id: recordedEvidence.source_workflow_run_id,
+      head_sha: recordedEvidence.source_commit_sha,
+      conclusion: "success",
+    }])),
+    contract: {
+      result: "PASS_WITH_REVIEW",
+      approved_mapping_count: recordedEvidence.local_read_only_replay.approved_mapping_count,
+      executable_plan_count: recordedEvidence.local_read_only_replay.executable_plan_count,
+      executed_plan_count: recordedEvidence.local_read_only_replay.executed_plan_count,
+      review_row_count: recordedEvidence.local_read_only_replay.review_row_count,
+      blocked_row_count: recordedEvidence.local_read_only_replay.blocked_row_count,
+      scope: { mappings: 286, offers: 286, rows: 20 },
+      approved_offer_ids: recordedEvidence.approved_offer_ids,
+      approved_scope_hash: recordedEvidence.approved_scope_hash,
+      execution_offer_ids: recordedEvidence.execution_offer_ids,
+      review_offer_ids: recordedEvidence.review_offer_ids,
+    },
+  }, now, 48);
+  assert.equal(recordedEvidence.source_artifact_digest, "sha256:84baa9cb27b1b13c64e5ba39d9ba3743fc855ea581969da41c10bf8aaf8f646d");
+  assert.equal(recordedReplay.result, "PASS_WITH_REVIEW");
+  assert.equal(recordedReplay.scope_partition.model, "BOUNDED_OPERATION_SCOPE_V1");
+  assert.equal(recordedReplay.scope_partition.unselected_no_write_count, 252);
+});
+
+test("automation watchdog derives approved offer membership only from a hashed baseline and linked postflight", () => {
+  const { canonicalHash } = require("./lib/ebay-artifact-bound-contract");
+  const baseline = {
+    schema_version: 1,
+    kind: "retailer-offer-refresh-db-baseline",
+    result: "PASS",
+    profile: "neutral-retailer",
+    snapshot: {
+      retailer_id: "99",
+      row_count: 3,
+      rows: [{ offer_id: "10" }, { offer_id: "11" }, { offer_id: "12" }],
+    },
+  };
+  baseline.evidence_hash = canonicalHash(baseline);
+  assert.deepEqual(findApprovedScopeEvidence(baseline, { id: 99 }), {
+    approved_offer_ids: ["10", "11", "12"],
+    approved_scope_hash: baseline.evidence_hash,
+    approved_scope_count: 3,
+  });
+  assert.equal(findApprovedScopeEvidence({ ...baseline, evidence_hash: "0".repeat(64) }, { id: 99 }), null);
+  assert.equal(findApprovedScopeEvidence(baseline, { id: 98 }), null);
+  assert.equal(findApprovedScopeEvidence({
+    ...baseline,
+    snapshot: { ...baseline.snapshot, rows: [{ offer_id: "10" }, { offer_id: "10" }, { offer_id: "12" }] },
+  }, { id: 99 }), null);
+
+  const postflight = findPostflightScopeEvidence({
+    kind: "retailer-offer-refresh-db-postflight",
+    result: "PASS",
+    baseline_hash: baseline.evidence_hash,
+    approved_mapping_count: 3,
+    executable_plan_count: 1,
+    executed_plan_count: 1,
+    review_row_count: 0,
+    blocked_row_count: 0,
+  });
+  assert.deepEqual(postflight, {
+    baseline_hash: baseline.evidence_hash,
+    approved_mapping_count: 3,
+    executable_plan_count: 1,
+    executed_plan_count: 1,
+    review_row_count: 0,
+    blocked_row_count: 0,
+  });
+  const candidate = {
+    approved_mapping_count: 3,
+    executable_plan_count: 1,
+    executed_plan_count: 1,
+    review_row_count: 0,
+    blocked_row_count: 0,
+  };
+  const witness = findApprovedScopeEvidence(baseline, { id: 99 });
+  assert.deepEqual(bindApprovedScopeEvidence(candidate, [witness], [postflight]), {
+    ...candidate,
+    ...witness,
+  });
+  assert.deepEqual(bindApprovedScopeEvidence(candidate, [witness], [{ ...postflight, executed_plan_count: 0 }]), candidate);
 });
 
 test("automation watchdog returns exit 0 only for review or unchanged monitored backlog", () => {
@@ -783,6 +997,9 @@ test("automation watchdog finds only complete per-row execution evidence", () =>
       result: null,
       execution_offer_ids: null,
       review_offer_ids: null,
+      approved_offer_ids: null,
+      approved_scope_hash: null,
+      scope: null,
       expected_deltas: null,
       commit_sha: null,
       manifest_sha256: null,

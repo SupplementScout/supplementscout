@@ -183,6 +183,19 @@ schema distinction is proved, the remaining current ordinary failures will be
 handled one shared incident class at a time. The observation counter remains
 `0/3`.
 
+The shared evidence-contract correction is now locally complete and fully
+verified. A bounded operation is accepted only with a canonical-hash-verified
+full database baseline linked by postflight, selected IDs proven as members of
+that baseline, unique disjoint execution/review IDs, zero blocked rows, exact
+execution counts and successful same-run/same-commit postflight. The unchanged
+Fit House artifact from run `36835371096` therefore resolves truthfully as
+`286` approved, `20` executed, `14` review and `252` unselected/no-write rows;
+the owner-approved business result is unchanged. The implementation is generic
+and also covers the historical Discount Supplements bounded shape without a
+retailer branch. It remains pending merge and one read-only main-branch
+watchdog, so it is not yet live verified. Retailer writes/retries, baseline
+widening and RA-004 remain unauthorized; the counter stays `0/3`.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
