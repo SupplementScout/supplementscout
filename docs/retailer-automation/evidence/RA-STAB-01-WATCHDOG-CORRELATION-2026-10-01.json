@@ -6,7 +6,7 @@
   "mode": "READ_ONLY_MONITOR_CORRECTION",
   "database_reads": 0,
   "database_writes": 0,
-  "workflow_dispatches": 0,
+  "workflow_dispatches": 1,
   "retailer_refreshes": 0,
   "approval_or_control_writes": 0,
   "root_cause": {
@@ -359,7 +359,7 @@
     "manual_operation_counts_as_ordinary_interval": false
   },
   "ordinary_run_36842642858_follow_up": {
-    "status": "LOCALLY_CORRECTED_PENDING_MERGE_AND_READ_ONLY_WATCHDOG",
+    "status": "CONSUMER_LIVE_VERIFIED_PRODUCER_PENDING_ORDINARY_SCHEDULE",
     "workflow_run_id": "36842642858",
     "workflow_conclusion": "failure",
     "root_cause": "The Fit House zero-execution apply was valid but omitted discovery from its shorter report shape; the Markdown summary threw after every business stage passed. The watchdog then propagated the shared run failure to the successful 10 Reps sibling job.",
@@ -416,6 +416,60 @@
       "full_gate": "PASS",
       "independent_review": "PASS: no findings"
     },
+    "merge": {
+      "pull_request": 169,
+      "merge_commit": "bc74bac2f40cc9b8590c0784482b3a32d1f481f2"
+    },
+    "live_read_only_verification": {
+      "workflow_run_id": "36852261994",
+      "generated_at": "2026-10-01T10:57:09.235Z",
+      "workflow_result": "FAIL",
+      "watchdog_result": "FAIL",
+      "artifact_id": "11156515153",
+      "artifact_digest": "sha256:33edc53413ce2c3a0f4bb712609ca4a3adb7cc14b73d21c04c57178bba1b0a63",
+      "database_writes": 0,
+      "global_failures": [],
+      "failed_retailer_count": 9,
+      "monitored_retailer_count": 3,
+      "fit_house": {
+        "latest_attempt": "36842642858",
+        "latest_job_conclusion": "failure",
+        "latest_result": "FAILED_OR_INCOMPLETE",
+        "scope_partition_result": "PASS",
+        "scope_partition_model": "BOUNDED_OPERATION_SCOPE_V1",
+        "approved_mapping_count": 286,
+        "operation_partition_count": 34,
+        "executable_plan_count": 20,
+        "review_row_count": 14,
+        "unselected_no_write_count": 252,
+        "failure_codes": [
+          "LATEST_ATTEMPT_NOT_SUCCESSFUL",
+          "LATEST_ORDINARY_ATTEMPT_INCOMPLETE",
+          "DATABASE_OFFERS_OLDER_THAN_48H",
+          "MONITORED_BACKLOG_GROWTH"
+        ],
+        "approved_scope_partition_mismatch_present": false
+      },
+      "ten_reps": {
+        "latest_attempt": "36842642858",
+        "latest_job_conclusion": "success",
+        "latest_result": "COMPLETE_SUCCESS",
+        "last_complete_ordinary_success": "36842642858",
+        "approved_mapping_count": 950,
+        "executable_plan_count": 934,
+        "executed_plan_count": 934,
+        "review_row_count": 16,
+        "blocked_row_count": 0,
+        "failure_codes": [
+          "MONITORED_BACKLOG_GROWTH"
+        ],
+        "removed_false_failure_codes": [
+          "LATEST_ATTEMPT_NOT_SUCCESSFUL",
+          "LATEST_ORDINARY_ATTEMPT_INCOMPLETE"
+        ]
+      },
+      "interpretation": "Job-level shared-workflow attribution is live verified. The watchdog no longer assigns the Fit House summary failure to the successful 10 Reps job. Genuine review/stale backlog remains visible, and the historical Fit House job remains terminally failed."
+    },
     "ordinary_interval_credit": false,
     "ordinary_interval_reason": "The historical Fit House job is terminally failed and genuine review/stale backlog growth remains for Fit House and 10 Reps.",
     "production_writes_from_investigation": 0,
@@ -424,7 +478,7 @@
   "decision": {
     "ordinary_intervals_completed": 0,
     "ordinary_intervals_required": 3,
-    "next_step": "Merge the locally verified zero-action/job-level correction, run one read-only watchdog to verify shared-job attribution, then wait for the next ordinary schedule to prove the producer fix. Do not dispatch a retailer refresh, reinterpret the completed owner scope or widen monitored baselines.",
+    "next_step": "Wait for the next ordinary schedule to prove the merged zero-action producer fix. Do not dispatch a retailer refresh, reinterpret the completed owner scope or widen monitored baselines. After the schedule, run the read-only evidence classification and award interval credit only if every ordinary gate passes.",
     "production_write_authorized": false,
     "ra_004_retry_authorized": false
   }

@@ -499,6 +499,23 @@ retry. The interval still earns no credit because the historical Fit job is
 terminally red and genuine Fit House/10 Reps backlog growth remains. Counter:
 `0/3`.
 
+PR `#169` passed all required checks and merged as `bc74bac`. The main-branch
+read-only watchdog run `36852261994`, artifact `11156515153`, digest
+`sha256:33edc534...b0a63`, made zero database writes and reported no global
+failure. It live verified the consumer correction: 10 Reps now resolves its
+exact successful job from shared ordinary run `36842642858` as
+`COMPLETE_SUCCESS`, with `950` approved, `934` executed, `16` review and zero
+blocked. Its false `LATEST_ATTEMPT_NOT_SUCCESSFUL` and
+`LATEST_ORDINARY_ATTEMPT_INCOMPLETE` failures are gone; only genuine monitored
+backlog growth remains. Fit House correctly retains the terminal failure of its
+own summary job, while its bounded scope remains `PASS` at
+`286/34/20/14/252`. The completed owner scope is unchanged: only offer `759`
+received the approved stock restoration, 19 other offers received freshness-only
+confirmation, and the exact 14 deferred offers received no writes and remain in
+review. The producer correction must now prove itself on the next natural
+ordinary schedule. No manual retailer refresh is authorized and the counter
+remains `0/3`.
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
