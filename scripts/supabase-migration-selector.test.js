@@ -442,13 +442,16 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the applied Fit House parent approval migration and selects nothing", () => {
+test("production records the applied sequential-close recovery and selects nothing pending", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.deepEqual(contract.pending, []);
-  assert.equal(contract.ledgerCount, 222);
+  assert.deepEqual(contract.appliedExcluded, [
+    "20260929133000_extend_expired_sequential_plan_close.sql",
+  ]);
+  assert.equal(contract.ledgerCount, 223);
   assert.equal(
     contract.ledgerFingerprint,
-    "c08b5f2e704072a0e4b2590688998e07a781f8699546279b6e81acd9c975c0fe",
+    "c891240d8ed411b3bc0ad5e2abc6a8c90bfeb442c1cd0824f3c5a4577ee0c7b0",
   );
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_VARIANT_PROVENANCE_MIGRATION)), NUTRITION_VARIANT_PROVENANCE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_PREWORKOUT_FACTS_MIGRATION)), NUTRITION_PREWORKOUT_FACTS_SHA256);
@@ -560,9 +563,10 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact 222-row ledger with no ordinary pending migration", () => {
+test("production accepts the applied excluded recovery at ledger 223 with no ordinary pending migration", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
+  for (const filename of contract.appliedExcluded) excluded.delete(filename);
   const pending = new Set(contract.pending.map(({ filename }) => filename));
   const remoteLedger = fs.readdirSync(SOURCE)
     .filter((filename) =>
@@ -586,9 +590,11 @@ test("production binds its exact 222-row ledger with no ordinary pending migrati
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 222);
+  assert.equal(result.ledger_count, 223);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 222);
+  assert.equal(result.selected_files.length, 223);
+  assert.ok(result.selected_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
+  assert.ok(result.excluded_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
   assert.deepEqual(result.pending_files, []);
   assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(NUTRITION_CITRULLINE_COMPONENTS_MIGRATION));

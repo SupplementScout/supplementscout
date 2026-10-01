@@ -11,6 +11,7 @@ const { CONTRACTS, ledgerRowsFingerprint } = require("./supabase-migration-selec
 function productionLedger() {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
+  for (const filename of contract.appliedExcluded || []) excluded.delete(filename);
   const pending = new Set(contract.pending.map(({ filename }) => filename));
   return fs.readdirSync(path.join(__dirname, "..", "supabase", "migrations"))
     .filter((filename) => /^\d{14}_[a-z0-9_]+\.sql$/.test(filename)
@@ -78,16 +79,16 @@ test("deployed GTIN, Whey Okay rebind and traffic classification migrations rema
     "20260816173000_extend_guarded_gtin_promotion_exact_36.sql",
     "20260817114500_add_outbound_click_traffic_classification.sql",
   ]) assert.equal(pending.has(filename), false);
-  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 222);
-  assert.equal(CONTRACTS.PRODUCTION.ledgerFingerprint, "c08b5f2e704072a0e4b2590688998e07a781f8699546279b6e81acd9c975c0fe");
+  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 223);
+  assert.equal(CONTRACTS.PRODUCTION.ledgerFingerprint, "c891240d8ed411b3bc0ad5e2abc6a8c90bfeb442c1cd0824f3c5a4577ee0c7b0");
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", MIGRATION)), true);
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", "20260816173000_extend_guarded_gtin_promotion_exact_36.sql")), true);
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", "20260817114500_add_outbound_click_traffic_classification.sql")), true);
 });
 
-test("production migration preflight hashes the real 222-row ledger only in the PRODUCTION domain", () => {
+test("production migration preflight hashes the real 223-row ledger only in the PRODUCTION domain", () => {
   const rows = productionLedger();
-  assert.equal(rows.length, 222);
+  assert.equal(rows.length, 223);
   assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "PRODUCTION" }), CONTRACTS.PRODUCTION.ledgerFingerprint);
   assert.notEqual(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACTS.PRODUCTION.ledgerFingerprint);
   assert.equal(classifyProductionMigrationLedger(rows), "ALREADY_PRESENT");
@@ -102,6 +103,7 @@ test("real migration preflight accepts the applied historical GTIN migration wit
     const selector = require(path.join(root, "scripts", "supabase-migration-selector"));
     const contract = selector.CONTRACTS.PRODUCTION;
     const excluded = new Set(Object.keys(contract.excluded));
+    for (const filename of contract.appliedExcluded || []) excluded.delete(filename);
     const pending = new Set(contract.pending.map(({ filename }) => filename));
     const remoteLedger = fs.readdirSync(path.join(root, "supabase", "migrations"))
       .filter((filename) => /^\\d{14}_[a-z0-9_]+\\.sql$/.test(filename)
