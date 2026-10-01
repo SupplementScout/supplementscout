@@ -1,6 +1,6 @@
 {
   "schema_version": "ra-stab-01-watchdog-correlation-v1",
-  "status": "SECOND_LIVE_READBACK_IDENTIFIED_REPEAT_FETCH_DRIFT_SHARED_SNAPSHOT_LOCAL_VERIFIED",
+  "status": "LIVE_CORRELATION_VERIFIED_ORDINARY_DEBT_EXPOSED",
   "task_id": "RA-STAB-01",
   "evidence_date": "2026-10-01",
   "mode": "READ_ONLY_MONITOR_CORRECTION",
@@ -113,7 +113,74 @@
     },
     "quick_gate": "PASS",
     "full_gate": "PASS",
-    "live_reverification": "PENDING"
+    "live_reverification": "PASS"
+  },
+  "third_live_readback": {
+    "merge_commit": "597a5a26b75755115a4aad7599bb12286f706074",
+    "pull_request": 165,
+    "generated_at": "2026-10-01T09:22:37.160Z",
+    "workflow_run_id": "36842276685",
+    "workflow_result": "FAIL",
+    "watchdog_result": "FAIL",
+    "database_writes": 0,
+    "global_failures": [],
+    "retailer_count": 12,
+    "failed_retailer_count": 9,
+    "monitored_retailer_count": 3,
+    "artifact_id": "11152160197",
+    "artifact_digest": "sha256:1ffba83e65eb662c49c3ecd8d49f4451ee2a1b585542b41b7662aaa2949b4e85",
+    "correlation_result": "PASS",
+    "fit_house": {
+      "latest_attempt": "36835371096",
+      "latest_ordinary_attempt": "36693313942",
+      "last_complete_success": "36835371096",
+      "latest_listed_workflow_run": "36835371096",
+      "latest_listed_ordinary_run": "36693313942",
+      "scanned_run_count": 50,
+      "result": "FAIL",
+      "failure_codes": [
+        "APPROVED_SCOPE_PARTITION_MISMATCH",
+        "LATEST_ORDINARY_ATTEMPT_INCOMPLETE",
+        "DATABASE_OFFERS_OLDER_THAN_48H",
+        "MONITORED_BACKLOG_GROWTH"
+      ],
+      "contract_observation": {
+        "approved_mapping_count": 286,
+        "executable_count": 20,
+        "executed_count": 20,
+        "review_count": 14,
+        "artifact_result": "PASS_WITH_REVIEW",
+        "interpretation": "The artifact records the full approved manifest as 286 while executable and review counts describe the 34-row isolation partition. The watchdog must not assume those two scopes are the same or change counts merely to satisfy the equality."
+      }
+    },
+    "ten_reps": {
+      "latest_attempt": "36693313942",
+      "latest_ordinary_attempt": "36693313942",
+      "last_complete_success": "35466782708",
+      "latest_listed_workflow_run": "36835371096",
+      "latest_listed_ordinary_run": "36693313942",
+      "scanned_run_count": 50,
+      "result": "FAIL",
+      "failure_codes": [
+        "LATEST_ORDINARY_ATTEMPT_INCOMPLETE",
+        "DATABASE_OFFERS_OLDER_THAN_48H",
+        "MONITORED_BACKLOG_GROWTH"
+      ]
+    },
+    "shared_workflow_consistency": "Fit House and 10 Reps resolved from the same current 50-run workflow snapshot and the same workflow heads.",
+    "whey_okay": {
+      "latest_ordinary_attempt": "36839858227",
+      "latest_ordinary_attempt_complete": true,
+      "result": "PASS_WITH_MONITORED_BACKLOG",
+      "approved_mapping_count": 589,
+      "executable_count": 579,
+      "executed_count": 579,
+      "review_count": 10,
+      "warning_codes": [
+        "DATABASE_OFFERS_OLDER_THAN_48H"
+      ]
+    },
+    "result_interpretation": "The shared-history and same-attempt correlation correction is live verified. The remaining red result represents current ordinary-run failures, stale evidence and monitored backlog, not cross-run stitching or inconsistent shared-workflow fetches."
   },
   "second_live_readback": {
     "merge_commit": "34dff0019ff382c70d256f2d5ca23e429a3c6584",
@@ -195,7 +262,7 @@
   "decision": {
     "ordinary_intervals_completed": 0,
     "ordinary_intervals_required": 3,
-    "next_step": "Verify and merge the immutable shared-workflow snapshot correction, then repeat the existing read-only watchdog from main. Do not dispatch a retailer refresh or widen monitored baselines.",
+    "next_step": "Classify the nine genuine current failures one shared cause at a time, beginning with the Fit House evidence-contract distinction between the full 286-row approved manifest and the bounded 20 executable plus 14 review isolation partition. Do not dispatch a retailer refresh, reinterpret the completed owner scope, change counts without schema evidence or widen monitored baselines.",
     "production_write_authorized": false,
     "ra_004_retry_authorized": false
   }

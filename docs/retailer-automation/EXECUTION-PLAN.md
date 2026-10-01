@@ -357,7 +357,7 @@ RA-STAB closeout proof until `latest_attempt` is separated from
 the next shared read-only implementation after the fingerprint class. Evidence:
 [`evidence/RA-STAB-01-FINGERPRINT-IDENTITY-AUDIT-2026-10-01.json`](evidence/RA-STAB-01-FINGERPRINT-IDENTITY-AUDIT-2026-10-01.json).
 
-**Watchdog correlation correction - locally verified, live readback pending:**
+**Watchdog correlation correction - live verified; ordinary debt exposed:**
 the shared watchdog now builds one retailer attempt from one exact job and one
 workflow run instead of selecting successful steps independently. It reports
 `latest_attempt`, `last_complete_success`, `latest_ordinary_attempt` and
@@ -418,8 +418,34 @@ snapshot resolves Fit House to latest `36835371096` / ordinary `36693313942`
 and 10 Reps to latest and ordinary `36693313942`; both report the same listed
 workflow heads and scan 50 identical runs. The shared cache regression and all
 39 focused tests pass. No retailer logic, business threshold, baseline or write
-path changes. Quick/full gates, merge and a third read-only watchdog remain the
-next gates; `0/3` remains unchanged.
+path changes. Quick/full gates passed before merge; `0/3` remained unchanged.
+
+PR `#165` merged the immutable shared-history correction as `597a5a26`. The
+third read-only watchdog, run `36842276685`, artifact `11152160197`, digest
+`sha256:1ffba83e...b4e85`, made zero database writes and reported no global
+failure. It returned `FAIL` for 9 retailers and monitored 3, but the correlation
+contract itself passed live. Fit House resolved latest/manual complete run
+`36835371096` and latest ordinary run `36693313942`; 10 Reps resolved latest and
+ordinary run `36693313942` and retained `35466782708` as its last complete
+success. Both profiles used the same current 50-run snapshot, listed latest
+workflow run `36835371096` and listed ordinary run `36693313942`. The earlier
+cross-profile cache drift is therefore closed. Whey Okay independently resolved
+new complete ordinary run `36839858227` and is now
+`PASS_WITH_MONITORED_BACKLOG`, which further confirms that newer ordinary
+evidence is no longer hidden.
+
+The overall red result is now actionable evidence rather than a correlation
+defect. The first bounded classification is Fit House's
+`APPROVED_SCOPE_PARTITION_MISMATCH`: its successful isolation artifact records
+the full 286-row approved manifest, while `20` executable and `14` review rows
+describe the selected 34-row changed partition. The owner operation remains
+live verified and closed; the 14 rows remain unchanged. The next task is to
+define and verify this distinction in the central evidence contract before
+touching watchdog logic. Counts must not be rewritten merely to satisfy
+`20 + 14 = 286`, no retailer-specific exception is permitted, and no manual
+retailer retry or monitored-baseline widening is authorized. After this
+contract classification, process the remaining latest-ordinary failures by
+shared incident class. The ordinary interval counter remains `0/3`.
 
 **Acceptance:**
 
