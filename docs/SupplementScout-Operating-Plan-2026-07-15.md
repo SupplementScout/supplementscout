@@ -235,15 +235,21 @@ outputs, six-class parity and offline repeat determinism. No production rows
 were copied into the repository, and neither capture nor replay is authorized.
 
 The latest all-path RA-STAB classification now has no unexplained result.
-Natural Jon's run `36853819770` live verified the shared ledger-selector repair
-on current `main` with complete apply/postflight/idempotency evidence. Remaining
-incidents are separated rather than patched together: 6 Pack is a bounded
+Natural Jon's run `36853819770`, Simply Supplements run `36856171813` and
+Dolphin Fitness run `36856895922` independently live verified the shared
+ledger-selector repair on current `main` with complete
+apply/postflight/idempotency evidence. Simply completed
+`120/119/1/0`; only offer `673` returned in stock at unchanged `GBP 14.99`, all
+other executions were freshness-only, and idempotency made zero writes. Dolphin
+completed its exact one-offer scope as freshness-only with zero commercial
+delta and zero-write idempotency.
+Remaining incidents are separated rather than patched together: 6 Pack is a bounded
 source 404 for exact product `4150`; eBay is cross-capture commercial drift for
 offer `2549` (`GBP 26.99` then `GBP 24.99` about 81 seconds later), correctly
 rejected before writes rather than an identity escape; Fit House awaits natural
 proof of the merged summary fix; and 10 Reps retains genuine review/stale debt.
-This is not a full cross-path interval, so the counter remains `0/3` and manual
-retries remain unauthorized.
+These three recovered paths are not a full cross-path interval, so the counter
+remains `0/3` and manual retries remain unauthorized.
 
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
