@@ -3,6 +3,7 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
+const { migrationBinding } = require("./lib/environment-migrations");
 const {
   CONTRACTS,
   ledgerRowsFingerprint,
@@ -670,6 +671,25 @@ test("production accepts the applied excluded recovery at ledger 223 with no ord
   assert.ok(result.selected_files.includes(
     "20260826190000_enable_fit_house_price_observation_producer.sql",
   ));
+});
+
+test("runtime production artifacts bind the same migration ledger as the production selector", () => {
+  const binding = migrationBinding("PRODUCTION");
+  assert.equal(binding.versions.length, CONTRACTS.PRODUCTION.ledgerCount);
+  assert.equal(binding.fingerprint, CONTRACTS.PRODUCTION.ledgerFingerprint);
+  assert.ok(binding.versions.includes("20260929133000_extend_expired_sequential_plan_close"));
+});
+
+test("runtime staging artifacts bind the same migration ledger as the staging selector", () => {
+  const binding = migrationBinding("STAGING");
+  assert.equal(binding.versions.length, CONTRACTS.STAGING.ledgerCount);
+  assert.equal(binding.fingerprint, CONTRACTS.STAGING.ledgerFingerprint);
+  for (const filename of CONTRACTS.STAGING.appliedExcluded) {
+    assert.ok(binding.versions.includes(filename.slice(0, -4)));
+  }
+  for (const { filename } of CONTRACTS.STAGING.pending) {
+    assert.ok(!binding.versions.includes(filename.slice(0, -4)));
+  }
 });
 
 test("production exclusions are exact and the approved identity foundation is selected", () => {

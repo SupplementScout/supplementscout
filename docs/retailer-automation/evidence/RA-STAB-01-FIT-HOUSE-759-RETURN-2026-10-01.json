@@ -1,6 +1,6 @@
 {
   "schema_version": "ra-stab-01-fit-house-return-v1",
-  "status": "ISOLATION_AUTHORIZED_LOCAL_VERIFIED_AWAITING_MAIN_PREFLIGHT",
+  "status": "CENTRAL_LEDGER_FIX_LOCAL_VERIFIED_AWAITING_MERGE_PREFLIGHT",
   "task_id": "RA-STAB-01",
   "decision_date": "2026-10-01",
   "owner_authority": {
@@ -70,6 +70,21 @@
     "project_guardian_before_document_change": "PASS",
     "project_guardian_after_document_change": "PASS"
   },
+  "central_ledger_correction": {
+    "cause": "the production selector was updated to the applied 223-row ledger, but runtime artifact bindings still excluded the applied recovery migration and emitted the former 222-row fingerprint",
+    "missing_runtime_version": "20260929133000_extend_expired_sequential_plan_close",
+    "rejected_runtime_binding": { "count": 222, "fingerprint": "c08b5f2e704072a0e4b2590688998e07a781f8699546279b6e81acd9c975c0fe" },
+    "verified_production_binding": { "count": 223, "fingerprint": "c891240d8ed411b3bc0ad5e2abc6a8c90bfeb442c1cd0824f3c5a4577ee0c7b0" },
+    "implementation": "one shared applied-excluded and pending migration policy now drives both runtime bindings and the selector",
+    "retailer_specific_bypass": false,
+    "database_migration_required": false,
+    "focused_tests": { "passed": 126, "failed": 0 },
+    "quick_gate": "PASS",
+    "full_gate": "PASS",
+    "project_guardian_after_evidence_update": "PASS",
+    "production_runtime_binding_test": "PASS",
+    "staging_runtime_binding_test": "PASS"
+  },
   "production": {
     "main_commit": "e11785425effeaaf7917516176d9936cf64937b2",
     "workflow_dispatches": 1,
@@ -93,9 +108,29 @@
     },
     "apply": "NOT_RUN",
     "postflight": "NOT_RUN",
-    "idempotency": "NOT_RUN"
+    "idempotency": "NOT_RUN",
+    "isolation_preflight": {
+      "main_commit": "5c761327e831710dfaac19770a0a3045ff23bafd",
+      "run_id": 36833083890,
+      "artifact_id": 11147787055,
+      "artifact_digest": "sha256:dbdc3eddec2c8b9b22678f860e75a3a0e0575bcb432127318e36edc1d46d692b",
+      "source_fingerprint": "8074eefe826362f2ae8d7e8333452ffebf1e3a7b787f1028e0b0bc1145d6e991",
+      "classifier_state": "DRY_RUN_READY_WITH_REVIEW",
+      "selected_offer_ids": ["759"],
+      "freshness_confirmation_count": 19,
+      "deferred_offer_ids": ["697", "735", "921", "944", "951", "953", "954", "963", "972", "983", "1859", "1904", "1938", "1982"],
+      "failure_stage": "VALIDATOR",
+      "failure_code": "RSBI_SOURCE_HASH_MISMATCH",
+      "failure_summary": "Actual migration ledger does not match the approved package",
+      "control_writes": 0,
+      "business_writes": 0,
+      "approvals_created": 0,
+      "apply": "NOT_RUN",
+      "postflight": "NOT_RUN",
+      "idempotency": "NOT_RUN"
+    }
   },
-  "next_decision_boundary": "Merge only after full CI, then require a fresh main-only production preflight to reproduce exactly offer 759 plus the hash-bound 14-row deferred scope before any apply.",
+  "next_decision_boundary": "Merge the central ledger correction only after quick/full/project gates and CI, then run one fresh main-only production preflight. Apply remains limited to offer 759 plus 19 freshness confirmations and requires the exact 14-row deferred review scope.",
   "ordinary_interval_counter": {
     "completed": 0,
     "required": 3,

@@ -4,7 +4,7 @@ const os=require("node:os");
 const path=require("node:path");
 const test=require("node:test");
 const {buildExistingOfferUpdatePlan}=require("./lib/retailer-offer-sync/existing-offer-plan");
-const {excludedMigrationIds}=require("./lib/environment-migrations");
+const {APPLIED_EXCLUSIONS,excludedMigrationIds,PENDING_MIGRATIONS}=require("./lib/environment-migrations");
 const {loadReviewedMixedChangeManifest}=require("./lib/retailer-offer-sync/reviewed-mixed-change");
 const config=require("../config/retailers/jons-supplements-offer-sync.json");
 const {RefreshError,canonicalHash,classificationDiagnostic,executionRow,guardrailsFor,loadReviewedMissingVariantManifest,mappedOfferSourceFingerprint,migrationBinding,parseArgs,partitionExecutionRows,partitionIsolatedExecutionRows,reconcileReviewedMissingVariants,registrationRequest,runWithDiagnostic,selectReviewedClassificationRows,sourceCaptureTimestamp,sourceHealth,sumDeltas,verificationRecord}=require("./jons-offer-refresh");
@@ -17,7 +17,9 @@ function assertMigrationBindingContract(files){
     const versions=migrationBinding(environment,files).versions;
     assert.equal(versions.includes(approvedRegistrationMigration),true,`${environment} must bind the approved retailer sync registration migration`);
     const exclusions=excludedMigrationIds(environment);
-    for(const id of allMigrationIds)assert.equal(versions.includes(id),!exclusions.has(id),`${environment} migration binding mismatch for ${id}`);
+    const appliedExcluded=new Set(APPLIED_EXCLUSIONS[environment].map(name=>name.slice(0,-4)));
+    const pending=new Set(PENDING_MIGRATIONS[environment].map(({filename})=>filename.slice(0,-4)));
+    for(const id of allMigrationIds)assert.equal(versions.includes(id),(!exclusions.has(id)||appliedExcluded.has(id))&&!pending.has(id),`${environment} migration binding mismatch for ${id}`);
   }
 }
 
