@@ -132,6 +132,7 @@
       "retailer": "eBay UK",
       "watchdog_result": "FAIL",
       "primary_class": "FAILED_SYSTEM",
+      "class_status": "CORRECTION_MERGED_AWAITING_NATURAL_PROOF",
       "secondary_classes": [
         "EVIDENCE_CORRELATION",
         "MONITORED_DEBT"
@@ -160,9 +161,11 @@
         "identity_changed": false,
         "database_writes": 0,
         "bounded_repair": "Inject one output directory across reports, pending artifacts and approval contracts; rebuild offer-only deltas with the shared existing-offer plan builder; keep UPDATE_PRICE in COMMERCIAL_CHANGE review.",
+        "repair_pull_request": 176,
+        "repair_merge_commit": "5c08e7e6a1db1bf85dee325ac0137bf922447c08",
         "strict_execution_guard_unchanged": true
       },
-      "next_action": "Merge the bounded test-isolation and shared-plan-builder correction after full gates, then observe the next natural schedule. Offer 2549 must remain COMMERCIAL_CHANGE review; do not apply its GBP 24.99 price, dispatch a retry, rebind identity, widen scope or add an eBay-specific exception."
+      "next_action": "Observe and correlate the next natural schedule from merged main. Offer 2549 must remain COMMERCIAL_CHANGE review; do not apply its GBP 24.99 price, dispatch a retry, rebind identity, widen scope or add an eBay-specific exception."
     },
     {
       "retailer": "Predators Gear",
