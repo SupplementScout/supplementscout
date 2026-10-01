@@ -474,6 +474,31 @@ read-only classification of that latest shared Fit House/10 Reps ordinary run,
 not a retailer retry. No monitored-baseline change or RA-004 retry is
 authorized, and the ordinary counter remains `0/3`.
 
+Read-only classification of ordinary shared run `36842642858` separated two
+facts. The 10 Reps job was terminally successful: artifact `11153320825`,
+digest `sha256:8a58626a...52dbd`, records `950` approved, `934` executed, `16`
+review, zero blocked, 43 stock updates, 891 freshness confirmations, passing
+postflight and passing zero-write idempotency. Fit House's business path also
+passed with zero writes: artifact `11152410704`, digest
+`sha256:c33331ff...f42b0`, records `286` approved, zero executable/executed and
+the exact 14 owner-deferred review rows. Its job failed only afterward because
+the Markdown summary dereferenced absent `discovery` in the legal zero-action
+report. The shared run failure then contaminated 10 Reps because the watchdog
+used `run.conclusion` instead of the matched `job.conclusion`.
+
+The local central correction gives zero-action reports the same producer
+context as executable reports, accepts zero-execution contracts only when
+`mode=apply`, and evaluates each shared-workflow retailer from its exact job
+conclusion while retaining the run conclusion as context. The untouched Fit
+House artifact now replays as a bounded `PASS` with `0` executable, `14`
+review and `272` unselected/no-write. Focused tests pass `81/81`; quick and
+full gates pass, and independent review found no regression. Merge followed by
+one read-only watchdog may verify job-level attribution; producer behavior must
+then be observed on the next ordinary schedule, never by a manual retailer
+retry. The interval still earns no credit because the historical Fit job is
+terminally red and genuine Fit House/10 Reps backlog growth remains. Counter:
+`0/3`.
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

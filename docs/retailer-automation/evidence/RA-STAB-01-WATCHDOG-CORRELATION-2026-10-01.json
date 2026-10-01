@@ -358,10 +358,73 @@
     "deferred_rows_changed_by_this_correction": false,
     "manual_operation_counts_as_ordinary_interval": false
   },
+  "ordinary_run_36842642858_follow_up": {
+    "status": "LOCALLY_CORRECTED_PENDING_MERGE_AND_READ_ONLY_WATCHDOG",
+    "workflow_run_id": "36842642858",
+    "workflow_conclusion": "failure",
+    "root_cause": "The Fit House zero-execution apply was valid but omitted discovery from its shorter report shape; the Markdown summary threw after every business stage passed. The watchdog then propagated the shared run failure to the successful 10 Reps sibling job.",
+    "fit_house": {
+      "job_id": "110305124993",
+      "job_conclusion": "failure",
+      "failed_step": "Publish workflow summary",
+      "artifact_id": "11152410704",
+      "artifact_digest": "sha256:c33331ff8da8f9014e450829040631b2135c41567c077595a1a54b26d8af42b0",
+      "artifact_result": "PASS_WITH_REVIEW",
+      "approved_mapping_count": 286,
+      "executable_plan_count": 0,
+      "executed_plan_count": 0,
+      "review_row_count": 14,
+      "blocked_row_count": 0,
+      "classification": {
+        "VERIFY_NO_CHANGE": 272,
+        "UPDATE_STOCK": 14
+      },
+      "database_writes": 0,
+      "postflight_result": "PASS",
+      "local_contract_replay": "PASS: BOUNDED_OPERATION_SCOPE_V1, 0 executable, 14 review, 272 unselected/no-write"
+    },
+    "ten_reps": {
+      "job_id": "110305124655",
+      "job_conclusion": "success",
+      "artifact_id": "11153320825",
+      "artifact_digest": "sha256:8a58626a430528c500d7c3ffadebba28457f219bcc99d1b7e88e822ad8252dbd",
+      "artifact_result": "PASS_WITH_REVIEW",
+      "approved_mapping_count": 950,
+      "executable_plan_count": 934,
+      "executed_plan_count": 934,
+      "review_row_count": 16,
+      "blocked_row_count": 0,
+      "stock_change_count": 43,
+      "freshness_change_count": 934,
+      "price_history_delta": 0,
+      "postflight_result": "PASS",
+      "idempotency_result": "PASS_WITH_REVIEW",
+      "idempotency_database_writes": 0,
+      "new_review_offer_id": "3388"
+    },
+    "local_correction": {
+      "producer_contract": "All apply reports, including zero-execution review-only results, retain the shared manifest/source/discovery evidence shape.",
+      "consumer_contract": "A zero-execution artifact is a candidate only for mode=apply, and shared workflow completion is evaluated from the exact matched job conclusion.",
+      "file_sha256": {
+        "scripts/automation-reliability-watchdog.js": "91a8aab8a29300b0380ec85a03239d0e3b842f5ff74f6f814a7f9e76d4004ffb",
+        "scripts/catalog-health.test.js": "7507d967f9bf290162052b65e0668da067961f1f7773967df16c822b18ca624e",
+        "scripts/fit-house-offer-refresh.js": "35305e773d341cb2bac3582e60f71d348adf3bb459ab3582b22b2c9d01f0310a",
+        "scripts/fit-house-offer-refresh.test.js": "8a9ef7349325b9659877a6875d75353c4e6cf4e8f31c1ef8ce74ec18b999c293"
+      },
+      "focused_result": "PASS: 81 passed, 0 failed",
+      "quick_gate": "PASS: 590 passed, 3 skipped, 0 failed",
+      "full_gate": "PASS",
+      "independent_review": "PASS: no findings"
+    },
+    "ordinary_interval_credit": false,
+    "ordinary_interval_reason": "The historical Fit House job is terminally failed and genuine review/stale backlog growth remains for Fit House and 10 Reps.",
+    "production_writes_from_investigation": 0,
+    "retailer_retry_dispatched": false
+  },
   "decision": {
     "ordinary_intervals_completed": 0,
     "ordinary_intervals_required": 3,
-    "next_step": "Classify the latest shared Fit House/10 Reps ordinary run 36842642858 read-only and determine its shared failure cause. Do not dispatch a retailer refresh, reinterpret the completed owner scope or widen monitored baselines.",
+    "next_step": "Merge the locally verified zero-action/job-level correction, run one read-only watchdog to verify shared-job attribution, then wait for the next ordinary schedule to prove the producer fix. Do not dispatch a retailer refresh, reinterpret the completed owner scope or widen monitored baselines.",
     "production_write_authorized": false,
     "ra_004_retry_authorized": false
   }
