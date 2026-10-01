@@ -140,6 +140,9 @@ function findContractEvidence(value) {
       result: value.result || null,
       execution_offer_ids: Array.isArray(value.execution_offer_ids) ? value.execution_offer_ids.map(String).sort() : null,
       review_offer_ids: Array.isArray(value.review_offer_ids) ? value.review_offer_ids.map(String).sort() : Array.isArray(value.review_rows) ? value.review_rows.map((row) => String(row.offer_id)).sort() : null,
+      approved_offer_ids: Array.isArray(value.approved_offer_ids) ? value.approved_offer_ids.map(String).sort() : null,
+      approved_scope_hash: value.approved_scope_hash || null,
+      scope: value.scope && typeof value.scope === "object" && !Array.isArray(value.scope) ? value.scope : null,
       expected_deltas: value.expected_deltas || null,
       commit_sha: value.commit_sha || null,
       manifest_sha256: value.approved_manifest_sha256 || value.manifest_sha256 || null,
@@ -174,6 +177,76 @@ function findContractEvidence(value) {
   return null;
 }
 
+function findApprovedScopeEvidence(value, profile = {}) {
+  if (!value || typeof value !== "object") return null;
+  if (value.kind === "retailer-offer-refresh-db-baseline") {
+    const payload = { ...value };
+    delete payload.evidence_hash;
+    const rows = value.snapshot?.rows;
+    const offerIds = Array.isArray(rows) ? rows.map((row) => String(row?.offer_id ?? "")) : [];
+    const valid =
+      value.result === "PASS" &&
+      /^[0-9a-f]{64}$/.test(value.evidence_hash || "") &&
+      canonicalHash(payload) === value.evidence_hash &&
+      String(value.snapshot?.retailer_id || "") === String(profile.id || "") &&
+      Number.isInteger(value.snapshot?.row_count) &&
+      value.snapshot.row_count === offerIds.length &&
+      offerIds.every((id) => /^\d+$/.test(id)) &&
+      new Set(offerIds).size === offerIds.length;
+    return valid
+      ? {
+          approved_offer_ids: offerIds.sort(),
+          approved_scope_hash: value.evidence_hash,
+          approved_scope_count: offerIds.length,
+        }
+      : null;
+  }
+  for (const child of Array.isArray(value) ? value : Object.values(value)) {
+    const found = findApprovedScopeEvidence(child, profile);
+    if (found) return found;
+  }
+  return null;
+}
+
+function findPostflightScopeEvidence(value) {
+  if (!value || typeof value !== "object") return null;
+  if (value.kind === "retailer-offer-refresh-db-postflight") {
+    return value.result === "PASS" && /^[0-9a-f]{64}$/.test(value.baseline_hash || "")
+      ? {
+          baseline_hash: value.baseline_hash,
+          approved_mapping_count: value.approved_mapping_count,
+          executable_plan_count: value.executable_plan_count,
+          executed_plan_count: value.executed_plan_count,
+          review_row_count: value.review_row_count,
+          blocked_row_count: value.blocked_row_count,
+        }
+      : null;
+  }
+  for (const child of Array.isArray(value) ? value : Object.values(value)) {
+    const found = findPostflightScopeEvidence(child);
+    if (found) return found;
+  }
+  return null;
+}
+
+function bindApprovedScopeEvidence(candidate, witnesses, postflights) {
+  const matchingWitnesses = witnesses.filter((witness) =>
+    witness.approved_scope_count === candidate.approved_mapping_count &&
+    postflights.some((postflight) =>
+      postflight.baseline_hash === witness.approved_scope_hash &&
+      postflight.approved_mapping_count === candidate.approved_mapping_count &&
+      postflight.executable_plan_count === candidate.executable_plan_count &&
+      postflight.executed_plan_count === candidate.executed_plan_count &&
+      postflight.review_row_count === candidate.review_row_count &&
+      postflight.blocked_row_count === candidate.blocked_row_count
+    )
+  );
+  const serializedWitnesses = new Set(matchingWitnesses.map((witness) => JSON.stringify(witness)));
+  return serializedWitnesses.size === 1
+    ? { ...candidate, ...matchingWitnesses[0] }
+    : candidate;
+}
+
 function correlateEvidence(stages, contract, profile = {}) {
   if (!stages?.apply || !stages?.db_postflight) return { result: "INCOMPLETE_CORE", failures: [] };
   const failures = [];
@@ -200,8 +273,101 @@ function correlateEvidence(stages, contract, profile = {}) {
   return { result: uniqueFailures.length ? "UNRELATED_EVIDENCE" : "CORRELATED", failures: uniqueFailures };
 }
 
+function uniqueStrings(value) {
+  if (!Array.isArray(value)) return null;
+  const strings = value.map(String).sort();
+  return new Set(strings).size === strings.length ? strings : null;
+}
+
+function uniqueNumericStrings(value) {
+  const strings = uniqueStrings(value);
+  return strings?.every((item) => /^\d+$/.test(item)) ? strings : null;
+}
+
+function scopePartitionEvidence(contract, stages = {}) {
+  const counts = [
+    contract.approved_mapping_count,
+    contract.executable_plan_count,
+    contract.executed_plan_count,
+    contract.review_row_count,
+    contract.blocked_row_count,
+  ];
+  const operationPartitionCount =
+    contract.executable_plan_count + contract.review_row_count + contract.blocked_row_count;
+  if (counts.some((value) => !Number.isInteger(value) || value < 0)) {
+    return {
+      result: "FAIL",
+      model: "UNRESOLVED",
+      approved_mapping_count: contract.approved_mapping_count,
+      executable_plan_count: contract.executable_plan_count,
+      review_row_count: contract.review_row_count,
+    };
+  }
+  const completeExecution =
+    contract.executed_plan_count === contract.executable_plan_count &&
+    contract.blocked_row_count === 0;
+  if (completeExecution && operationPartitionCount === contract.approved_mapping_count) {
+    return {
+      result: "PASS",
+      model: "FULL_APPROVED_SCOPE_V1",
+      approved_mapping_count: contract.approved_mapping_count,
+      operation_partition_count: operationPartitionCount,
+      executable_plan_count: contract.executable_plan_count,
+      review_row_count: contract.review_row_count,
+      unselected_no_write_count: 0,
+    };
+  }
+
+  const approvedIds = uniqueNumericStrings(contract.approved_offer_ids);
+  const executionIds = uniqueNumericStrings(contract.execution_offer_ids);
+  const reviewIds = uniqueNumericStrings(contract.review_offer_ids);
+  const approvedSet = approvedIds ? new Set(approvedIds) : null;
+  const sameRunPostflight =
+    stages.apply?.conclusion === "success" &&
+    stages.db_postflight?.conclusion === "success" &&
+    Boolean(stages.apply.run_id) &&
+    stages.apply.run_id === stages.db_postflight.run_id &&
+    Boolean(stages.apply.head_sha) &&
+    stages.apply.head_sha === stages.db_postflight.head_sha;
+  const boundedOperation =
+    completeExecution &&
+    operationPartitionCount < contract.approved_mapping_count &&
+    contract.scope?.mappings === contract.approved_mapping_count &&
+    contract.scope?.offers === contract.approved_mapping_count &&
+    contract.scope?.rows === contract.executable_plan_count &&
+    approvedIds?.length === contract.approved_mapping_count &&
+    /^[0-9a-f]{64}$/.test(contract.approved_scope_hash || "") &&
+    executionIds?.length === contract.executable_plan_count &&
+    reviewIds?.length === contract.review_row_count &&
+    executionIds?.every((id) => approvedSet.has(id)) &&
+    reviewIds?.every((id) => approvedSet.has(id)) &&
+    !executionIds?.some((id) => reviewIds.includes(id)) &&
+    sameRunPostflight;
+  if (boundedOperation) {
+    return {
+      result: "PASS",
+      model: "BOUNDED_OPERATION_SCOPE_V1",
+      approved_mapping_count: contract.approved_mapping_count,
+      operation_partition_count: operationPartitionCount,
+      executable_plan_count: contract.executable_plan_count,
+      review_row_count: contract.review_row_count,
+      unselected_no_write_count:
+        contract.approved_mapping_count - operationPartitionCount,
+    };
+  }
+
+  return {
+    result: "FAIL",
+    model: "UNRESOLVED",
+    approved_mapping_count: contract.approved_mapping_count,
+    executable_plan_count: contract.executable_plan_count,
+    review_row_count: contract.review_row_count,
+  };
+}
+
 function evaluateRetailer({ profile, stages, contract, database }, now, maximumAge) {
   const failures = [];
+  let scopePartition = null;
   if (!profile.workflow) failures.push("AUTOMATION_WORKFLOW_MISSING");
   const requiredStages = ["capture", "apply", "db_postflight"];
   if (profile.idempotency_step) requiredStages.push("idempotency");
@@ -221,10 +387,8 @@ function evaluateRetailer({ profile, stages, contract, database }, now, maximumA
     if (contract.executed_plan_count !== contract.executable_plan_count) {
       failures.push("EXECUTED_PLAN_COUNT_MISMATCH");
     }
-    if (
-      contract.executable_plan_count + contract.review_row_count !==
-      contract.approved_mapping_count
-    ) {
+    scopePartition = scopePartitionEvidence(contract, stages);
+    if (scopePartition.result !== "PASS") {
       failures.push("APPROVED_SCOPE_PARTITION_MISMATCH");
     }
     if (contract.blocked_row_count !== 0) failures.push("BLOCKED_ROWS_PRESENT");
@@ -263,6 +427,7 @@ function evaluateRetailer({ profile, stages, contract, database }, now, maximumA
     failures,
     stages,
     contract,
+    scope_partition: scopePartition,
     database,
     evidence_correlation: correlation.result,
   };
@@ -819,6 +984,10 @@ async function contractFromArtifacts(repository, runId, token, options = {}) {
         encoding: "utf8",
       });
       invariant(names.status === 0, "Unable to list watchdog artifact ZIP");
+      const artifactCandidates = [];
+      const artifactReviewScopeCandidates = [];
+      const artifactScopeWitnesses = [];
+      const artifactPostflights = [];
       for (const name of names.stdout.split(/\r?\n/).filter(Boolean)) {
         if (!name.endsWith(".json")) continue;
         const extracted = spawnSync("unzip", ["-p", zipPath, name], {
@@ -827,11 +996,24 @@ async function contractFromArtifacts(repository, runId, token, options = {}) {
         });
         if (extracted.status !== 0) continue;
         try {
-          const found = findContractEvidence(JSON.parse(extracted.stdout));
-          if (found && found.executed_plan_count > 0) candidates.push(found);
-          else if (found?.review_offer_ids) reviewScopeCandidates.push(found);
+          const parsed = JSON.parse(extracted.stdout);
+          const found = findContractEvidence(parsed);
+          const scopeWitness = findApprovedScopeEvidence(parsed, options.profile);
+          const postflight = findPostflightScopeEvidence(parsed);
+          if (found && found.executed_plan_count > 0) artifactCandidates.push(found);
+          else if (found?.review_offer_ids) artifactReviewScopeCandidates.push(found);
+          if (scopeWitness) artifactScopeWitnesses.push(scopeWitness);
+          if (postflight) artifactPostflights.push(postflight);
         } catch {}
       }
+      for (const candidate of artifactCandidates) {
+        candidates.push(bindApprovedScopeEvidence(
+          candidate,
+          artifactScopeWitnesses,
+          artifactPostflights,
+        ));
+      }
+      reviewScopeCandidates.push(...artifactReviewScopeCandidates);
     }
     const selected = candidates.sort((left, right) => {
       const score = (value) => ["execution_offer_ids","expected_deltas","commit_sha","manifest_sha256","source_fingerprint","plan_fingerprint","postflight_hash","idempotency_result","database_writes"].filter((field) => value[field] !== null && value[field] !== undefined).length;
@@ -1037,13 +1219,16 @@ module.exports = {
   VALIDATOR_ROLE,
   applyMonitoredBacklog,
   artifactBelongsToProfile,
+  bindApprovedScopeEvidence,
   buildEbaySplitRunAttestation,
   buildEbaySplitRunEvidence,
   contractFromArtifacts,
   databaseEvidence,
   evaluateRetailer,
   correlateEvidence,
+  findApprovedScopeEvidence,
   findContractEvidence,
+  findPostflightScopeEvidence,
   validateEbayApplyArtifacts,
   validateEbayIdempotencyArtifacts,
   hoursSince,
@@ -1053,6 +1238,7 @@ module.exports = {
   run,
   runStages,
   selectWorkflowAttempts,
+  scopePartitionEvidence,
   stageDefinitions,
   summarizeWatchdogResult,
   workflowAttempt,

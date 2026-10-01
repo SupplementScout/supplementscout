@@ -447,6 +447,24 @@ retailer retry or monitored-baseline widening is authorized. After this
 contract classification, process the remaining latest-ordinary failures by
 shared incident class. The ordinary interval counter remains `0/3`.
 
+The central scope contract is now locally corrected and fully verified. It
+retains the complete approved-scope partition and adds a bounded operation
+model. The bounded model passes only when a canonical-hash-verified full
+database baseline from the same artifact is linked by postflight, every
+execution/review offer ID belongs to that baseline, the ID sets are exact,
+unique and disjoint, and execution has zero blocked rows plus a successful
+same-run/same-commit database postflight. A
+read-only replay of the untouched Fit House artifact from run `36835371096`
+now classifies `286` approved rows as a `34`-row bounded operation (`20`
+executed, `14` review, `252` unselected/no-write) under
+`BOUNDED_OPERATION_SCOPE_V1`. The same generic contract accepts the historical
+Discount Supplements `109/95/0/14` shape and retains the complete-scope model;
+negative regressions cover count, ID, scope and correlation drift. Focused,
+quick and full gates pass. This is not yet live verified: merge and one new
+read-only watchdog from main are the next gates. No retailer refresh, database
+write, monitored-baseline change or RA-004 retry is authorized, and the
+ordinary counter remains `0/3`.
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
