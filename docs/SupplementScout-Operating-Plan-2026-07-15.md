@@ -160,6 +160,29 @@ the same current 50-run set, with zero writes. Full verification and one more
 read-only live run remain required; no retailer retry or baseline change is
 authorized and `0/3` remains unchanged.
 
+PR `#165` merged that immutable-snapshot correction as `597a5a26`. Read-only
+watchdog `36842276685` then live verified the correlation contract with zero
+database writes and no global failure. Fit House and 10 Reps used the same
+current 50-run history and the same listed workflow heads: Fit House resolved
+the completed owner run `36835371096` plus latest ordinary run `36693313942`,
+while 10 Reps correctly resolved `36693313942` as its failed latest ordinary
+attempt and retained `35466782708` only as historical complete evidence. Whey
+Okay also resolved newer complete ordinary run `36839858227`. The report still
+returned `FAIL` for 9 retailers and monitored 3, but that red state now reflects
+real latest-ordinary failures, stale evidence and backlog rather than cross-run
+stitching or inconsistent shared-workflow fetches.
+
+The next bounded RA-STAB-01 task is the central evidence-contract meaning of
+Fit House's 286-row approved manifest versus its isolated changed partition of
+20 executable and 14 review rows. The successful owner operation and its exact
+business outcome are not reopened: only offer `759` changed stock, 19 rows were
+freshness-only and all 14 deferred rows stayed unchanged. No count will be
+altered simply to make the watchdog equation pass, and no retailer-specific
+branch, manual retry or monitored-baseline widening is authorized. Once that
+schema distinction is proved, the remaining current ordinary failures will be
+handled one shared incident class at a time. The observation counter remains
+`0/3`.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
