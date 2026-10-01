@@ -255,6 +255,35 @@ and an ordinary scheduled run executes that commit. Do not use a manual dispatch
 to manufacture an interval and do not weaken `MASS_OOS` or either fingerprint
 invariant to make a run green.
 
+**Fingerprint/identity audit - bounded causes separated:** the Whey Okay source
+snapshot from run `36690863083` is healthy and was reproduced read-only with the
+same semantic fingerprint. Exactly 10 of 589 approved identities are absent,
+all from the old PER4M 2 kg family. The source now exposes a rebuilt 2.01 kg
+family under 29 new variant IDs without GTIN evidence, so no automatic rebind is
+allowed. Missing-row isolation was already correct; the adapter interaction was
+not. When `MASS_OOS` requested a second capture, it fingerprinted all 589 records
+and converted the 10 review-only absences into `INTERNAL_ERROR`. The bounded
+correction fingerprints the 579 matched records and independently requires the
+same exact 10-key missing scope in both captures. Any commercial or scope change
+fails closed as `SOURCE_SCOPE_DRIFT`. It changes no threshold, mapping, shared
+classifier or write path and has a regression for stable and changing scope.
+
+Fit House is a different identity decision, not the same code defect. Its source
+fingerprint has been stable at `8074eefe...e991` since 24 September. Protected
+variant `46969725714672`, offer `759` (7Nutrition Vegan Berberine Stack at
+`GBP 11.99`), has genuinely returned available with consistent identity; the
+other six protected identities remain absent. The prior absence authorization
+cannot decide a return to stock. No new fingerprint is accepted and no stock
+change is authorized until the owner makes one exact decision for offer `759`.
+
+The same audit confirmed that the watchdog currently reports only successful
+stage evidence and may combine ordinary stages from older different runs. Direct
+failed-run artifacts remain authoritative, but the watchdog cannot be the final
+RA-STAB closeout proof until `latest_attempt` is separated from
+`last_complete_success` and ordinary cross-run stitching is forbidden. That is
+the next shared read-only implementation after the fingerprint class. Evidence:
+[`evidence/RA-STAB-01-FINGERPRINT-IDENTITY-AUDIT-2026-10-01.json`](evidence/RA-STAB-01-FINGERPRINT-IDENTITY-AUDIT-2026-10-01.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

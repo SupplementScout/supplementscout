@@ -15,12 +15,14 @@ const {
   authorizeReviewedMassOos,
   balancedExecutionBatches,
   changeSummary,
+  confirmMappedFeedScope,
   deliveredTotalForSourcePrice,
   guardrailsFor,
   hasBlockingControls,
   loadImmutablePreflight,
   loadManifest,
   loadReviewedMassOosManifest,
+  mappedFeedConfirmation,
   parseArgs,
   runWithDiagnostic,
   sealImmutablePreflight,
@@ -353,6 +355,51 @@ test("isolated missing source identities remain review-only while safe rows exec
     "PASS_WITH_REVIEW",
   );
   assert.equal(approvedManifestCoverage(result.quarantined_rows, false), "BLOCK");
+});
+
+test("two-capture confirmation preserves a stable missing identity as review-only", () => {
+  const records = [
+    { source_key: "1:1", offer: { id: "1" } },
+    { source_key: "2:2", offer: { id: "2" } },
+    { source_key: "3:3", offer: { id: "3" } },
+  ];
+  const firstRows = [
+    { source_key: "1:1", price: "10.00", in_stock: false, url: "https://wheyokay.com/one" },
+    { source_key: "3:3", price: "12.00", in_stock: true, url: "https://wheyokay.com/three" },
+  ];
+  const first = mappedFeedConfirmation(records, firstRows);
+  const second = mappedFeedConfirmation(records, structuredClone(firstRows));
+
+  assert.equal(first.matched_count, 2);
+  assert.equal(first.missing_count, 1);
+  assert.deepEqual(first.missing_source_keys, ["2:2"]);
+  assert.equal(confirmMappedFeedScope(first, second), true);
+});
+
+test("two-capture confirmation fails closed when matched data or missing scope changes", () => {
+  const records = [
+    { source_key: "1:1", offer: { id: "1" } },
+    { source_key: "2:2", offer: { id: "2" } },
+  ];
+  const first = mappedFeedConfirmation(records, [
+    { source_key: "1:1", price: "10.00", in_stock: false, url: "https://wheyokay.com/one" },
+  ]);
+  const changedCommercialState = mappedFeedConfirmation(records, [
+    { source_key: "1:1", price: "11.00", in_stock: false, url: "https://wheyokay.com/one" },
+  ]);
+  const returnedIdentity = mappedFeedConfirmation(records, [
+    { source_key: "1:1", price: "10.00", in_stock: false, url: "https://wheyokay.com/one" },
+    { source_key: "2:2", price: "12.00", in_stock: true, url: "https://wheyokay.com/two" },
+  ]);
+
+  assert.throws(
+    () => confirmMappedFeedScope(first, changedCommercialState),
+    (error) => error.code === "SOURCE_SCOPE_DRIFT" && error.stage === "SOURCE_CONFIRMATION",
+  );
+  assert.throws(
+    () => confirmMappedFeedScope(first, returnedIdentity),
+    (error) => error.code === "SOURCE_SCOPE_DRIFT" && error.stage === "SOURCE_CONFIRMATION",
+  );
 });
 
 test("price, stock, return-to-stock and URL changes classify exactly", () => {

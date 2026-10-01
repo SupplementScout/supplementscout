@@ -1,0 +1,108 @@
+{
+  "schema_version": "ra-stab-01-fingerprint-identity-audit-v1",
+  "status": "WHEY_INTERACTION_CORRECTED_FIT_HOUSE_OWNER_DECISION_REQUIRED",
+  "task_id": "RA-STAB-01",
+  "audit_date": "2026-10-01",
+  "mode": "READ_ONLY_ANALYSIS_AND_LOCAL_CODE_VERIFICATION",
+  "database_reads": 0,
+  "database_writes": 0,
+  "workflow_dispatches": 0,
+  "guard_threshold_changes": 0,
+  "mapping_changes": 0,
+  "whey_okay": {
+    "scheduled_run": {
+      "id": 36690863083,
+      "artifact_id": 11086065601,
+      "archive_digest": "sha256:6f67e788b27347befb6caadfd4bdf4108490718d5600d6e0727650f536fdac64",
+      "diagnostic_sha256": "2e249ce1c62f42d411ab9c336df4d6067a7a5ccaa4538336f01b612a7a61a661",
+      "database_writes": 0,
+      "control_writes": 0,
+      "approvals_created": 0
+    },
+    "source": {
+      "semantic_fingerprint": "df366319ce3f58e3e14c30e6411cd45e65336cb2cbc54f15b8cdd636a884e15d",
+      "scheduled_capture_result": "PASS",
+      "fresh_read_only_capture_at": "2026-10-01T05:55:54.803Z",
+      "fresh_capture_result": "PASS",
+      "fresh_capture_matches_scheduled_semantic_fingerprint": true,
+      "row_count": 1705,
+      "product_count": 523,
+      "approved_mapping_count": 589,
+      "matched_mapping_count": 579,
+      "missing_mapping_count": 10
+    },
+    "missing_scope": {
+      "source_keys": [
+        "24:25", "24:26", "24:27", "24:29", "24:1498",
+        "24:1499", "24:1500", "24:1501", "24:1502", "24:1503"
+      ],
+      "offer_ids": ["16", "1568", "1506", "1507", "1508", "1509", "1510", "1511", "1512", "1584"],
+      "classification": "SOURCE_VARIANT_MISSING",
+      "automatic_rebinding_authorized": false,
+      "replacement_observation": "The same source parent now exposes 29 new 2.01 kg variant IDs 4215-4243 with different flavours and no GTIN; this is not sufficient identity evidence for rebinding."
+    },
+    "root_cause": "The classifier correctly isolated missing rows, but aggregate two-capture confirmation fingerprinted all approved records and threw INTERNAL_ERROR when a review-only row was absent.",
+    "correction": {
+      "scope": "Whey Okay edge coordinator interaction only",
+      "behavior": "Fingerprint matched mapped rows and independently bind the exact missing-source-key set across both captures.",
+      "fail_closed_code": "SOURCE_SCOPE_DRIFT",
+      "thresholds_unchanged": true,
+      "shared_classifier_unchanged": true,
+      "retailer_identity_exception_added": false,
+      "production_write_path_changed": false
+    }
+  },
+  "fit_house": {
+    "scheduled_run": {
+      "id": 36693313942,
+      "artifact_id": 11086628033,
+      "archive_digest": "sha256:234c3b2e68736d5a899504129de0470acf86974eb6773aaa716c3c6005909ce1",
+      "diagnostic_sha256": "529021c9bc5ce63da7299c8d8b890ff35de486f715b07e6d589b5490ddee282b",
+      "database_writes": 0,
+      "control_writes": 0,
+      "approvals_created": 0
+    },
+    "last_approved_source_fingerprint": "ebe563f0f620ff4b501c1e8f56adfe51d854ff912e5089149688d5d0a60c43c1",
+    "current_stable_source_fingerprint": "8074eefe826362f2ae8d7e8333452ffebf1e3a7b787f1028e0b0bc1145d6e991",
+    "current_product_count": 242,
+    "current_variant_count": 338,
+    "root_cause": "One identity in the seven-row protected absence scope returned to the source; the full-source fingerprint stopped before the narrower returned-identity guard could report it.",
+    "returned_identity": {
+      "offer_id": "759",
+      "external_product_id": "9168824172784",
+      "external_variant_id": "46969725714672",
+      "label": "7Nutrition Vegan Berberine Stack",
+      "price": "11.99",
+      "available": true,
+      "identity_consistent": true,
+      "production_state_before_decision": "OUT_OF_STOCK"
+    },
+    "other_protected_identities_absent": 6,
+    "classification": "OWNER_IDENTITY_DECISION_REQUIRED",
+    "new_fingerprint_accepted": false,
+    "automatic_stock_change_authorized": false,
+    "owner_decision_recorded": false
+  },
+  "watchdog_correlation": {
+    "classification": "EVIDENCE_CORRELATION",
+    "root_cause": "The watchdog selects only successful stage steps, can stitch ordinary stages from different older runs, and has no latest-failed-attempt artifact contract.",
+    "impact": "Direct zero-write artifacts remain valid, but the current watchdog cannot serve as the final RA-STAB closeout proof.",
+    "required_follow_up": "Separate latest_attempt from last_complete_success and forbid ordinary cross-run stage stitching before final closeout.",
+    "implementation_started": false
+  },
+  "verification": {
+    "focused_tests": { "passed": 110, "failed": 0 },
+    "quick_gate": "PASS",
+    "full_gate": "PASS",
+    "project_guardian": "PASS",
+    "production_build": "PASS"
+  },
+  "decision": {
+    "ordinary_intervals_completed": 0,
+    "ordinary_intervals_required": 3,
+    "manual_retry_authorized": false,
+    "whey_next_step": "Merge the bounded interaction correction and observe the next ordinary schedule without automatically rebinding the ten missing variants.",
+    "fit_house_next_step": "Obtain one exact owner decision for returned offer 759; keep the other six protected offers unchanged.",
+    "watchdog_next_step": "Implement the shared read-only latest-attempt correlation correction after the fingerprint class is closed."
+  }
+}

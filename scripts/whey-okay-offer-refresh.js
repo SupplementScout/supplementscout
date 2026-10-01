@@ -809,13 +809,60 @@ function projectFeedVariants(feed, targetByKey) {
       : null,
   }));
 }
-function mappedFeedFingerprint(records, sourceVariants) {
+function mappedFeedConfirmation(records, sourceVariants) {
   const byKey = new Map(sourceVariants.map((row) => [row.source_key, row]));
-  return canonicalHash(records.map((record) => {
+  const matched = [];
+  const missingSourceKeys = [];
+  for (const record of records) {
     const source = byKey.get(record.source_key);
-    invariant(source, "mapped Whey Okay source fingerprint is missing a row");
-    return { offer_id: String(record.offer.id), source_key: record.source_key, price: money(source.price), in_stock: Boolean(source.in_stock), url: source.url };
-  }).sort((left, right) => Number(left.offer_id) - Number(right.offer_id)));
+    if (!source) {
+      missingSourceKeys.push(record.source_key);
+      continue;
+    }
+    matched.push({
+      offer_id: String(record.offer.id),
+      source_key: record.source_key,
+      price: money(source.price),
+      in_stock: Boolean(source.in_stock),
+      url: source.url,
+    });
+  }
+  matched.sort((left, right) => Number(left.offer_id) - Number(right.offer_id));
+  missingSourceKeys.sort();
+  return {
+    matched_fingerprint: canonicalHash(matched),
+    matched_count: matched.length,
+    missing_count: missingSourceKeys.length,
+    missing_source_keys: missingSourceKeys,
+    missing_source_keys_fingerprint: canonicalHash(missingSourceKeys),
+  };
+}
+function confirmMappedFeedScope(first, second) {
+  if (
+    first.matched_count !== second.matched_count ||
+    first.matched_fingerprint !== second.matched_fingerprint ||
+    first.missing_count !== second.missing_count ||
+    first.missing_source_keys_fingerprint !==
+      second.missing_source_keys_fingerprint
+  ) {
+    throw new RefreshError(
+      "SOURCE_SCOPE_DRIFT",
+      "Whey Okay mapped scope changed between confirmation captures",
+      "SOURCE_CONFIRMATION",
+      {
+        first_matched_count: first.matched_count,
+        second_matched_count: second.matched_count,
+        first_missing_count: first.missing_count,
+        second_missing_count: second.missing_count,
+        matched_fingerprint_equal:
+          first.matched_fingerprint === second.matched_fingerprint,
+        missing_scope_equal:
+          first.missing_source_keys_fingerprint ===
+          second.missing_source_keys_fingerprint,
+      },
+    );
+  }
+  return true;
 }
 async function buildRun(target, state, diagnostic = null, options = {}) {
   const spec = TARGETS[target];
@@ -865,6 +912,15 @@ async function buildRun(target, state, diagnostic = null, options = {}) {
     state.records.map((record) => [record.source_key, targetFor(record)]),
   );
   const sourceVariants = projectFeedVariants(feed, targetByKey);
+  const firstMappedConfirmation = mappedFeedConfirmation(
+    state.records,
+    sourceVariants,
+  );
+  if (diagnostic) {
+    diagnostic.approved_mapping_count = state.records.length;
+    diagnostic.mappings_matched = firstMappedConfirmation.matched_count;
+    diagnostic.mappings_missing = firstMappedConfirmation.missing_count;
+  }
   const policy = {
     ...config.guardrails,
     required_matched_offers: scope.approvedMappingCount,
@@ -899,15 +955,26 @@ async function buildRun(target, state, diagnostic = null, options = {}) {
       .map((row) => String(row.offer_id))
       .sort((left, right) => Number(left) - Number(right));
     if (aggregateReasons.has(classification.reason) || hardPriceOfferIds.length) {
-      const firstMappedFingerprint = mappedFeedFingerprint(state.records, sourceVariants);
       const secondCapturedAt = sourceCapturedAt();
       const secondFeed = await readFeedSnapshot(reader, secondCapturedAt);
       const secondHealth = sourceHealth(secondFeed);
       invariant(secondHealth.result === "PASS", "second Whey Okay source capture failed health checks");
       const secondVariants = projectFeedVariants(secondFeed, targetByKey);
-      const secondMappedFingerprint = mappedFeedFingerprint(state.records, secondVariants);
-      invariant(secondMappedFingerprint === firstMappedFingerprint, "Whey Okay mapped offers changed between confirmation captures");
-      if (diagnostic) diagnostic.aggregate_confirmation = { result: "PASS", first_mapped_fingerprint: firstMappedFingerprint, second_mapped_fingerprint: secondMappedFingerprint, second_source_fingerprint: secondFeed.semantic_fingerprint, second_captured_at: secondCapturedAt };
+      const secondMappedConfirmation = mappedFeedConfirmation(
+        state.records,
+        secondVariants,
+      );
+      confirmMappedFeedScope(firstMappedConfirmation, secondMappedConfirmation);
+      if (diagnostic) diagnostic.aggregate_confirmation = {
+        result: "PASS",
+        first_mapped_fingerprint: firstMappedConfirmation.matched_fingerprint,
+        second_mapped_fingerprint: secondMappedConfirmation.matched_fingerprint,
+        matched_count: firstMappedConfirmation.matched_count,
+        missing_count: firstMappedConfirmation.missing_count,
+        missing_scope_fingerprint: firstMappedConfirmation.missing_source_keys_fingerprint,
+        second_source_fingerprint: secondFeed.semantic_fingerprint,
+        second_captured_at: secondCapturedAt,
+      };
       if (hardPriceOfferIds.length) {
         classification = classifyExistingOffers({
           targets, sourceVariants: secondVariants, policy, sourceCapturedAt: capturedAt, now: new Date(capturedAt),
@@ -916,7 +983,7 @@ async function buildRun(target, state, diagnostic = null, options = {}) {
         });
         const confirmed = new Set((classification.rows || []).filter((row) => row.changed_fields.price && hardPriceOfferIds.includes(String(row.offer_id))).map((row) => String(row.offer_id)));
         invariant(confirmed.size === hardPriceOfferIds.length, "confirmed Whey Okay price scope changed during reclassification");
-        automaticPriceConfirmation = { kind: "retailer-two-capture-price-confirmation-v1", retailer_id: String(config.retailer_id), retailer_slug: config.retailer_slug, first_source_fingerprint: feed.semantic_fingerprint, second_source_fingerprint: secondFeed.semantic_fingerprint, first_mapped_fingerprint: firstMappedFingerprint, second_mapped_fingerprint: secondMappedFingerprint, second_captured_at: secondCapturedAt, confirmed_offer_ids: hardPriceOfferIds };
+        automaticPriceConfirmation = { kind: "retailer-two-capture-price-confirmation-v1", retailer_id: String(config.retailer_id), retailer_slug: config.retailer_slug, first_source_fingerprint: feed.semantic_fingerprint, second_source_fingerprint: secondFeed.semantic_fingerprint, first_mapped_fingerprint: firstMappedConfirmation.matched_fingerprint, second_mapped_fingerprint: secondMappedConfirmation.matched_fingerprint, second_captured_at: secondCapturedAt, confirmed_offer_ids: hardPriceOfferIds };
       }
     }
   }
@@ -1640,6 +1707,7 @@ module.exports = {
   balancedExecutionBatches,
   buildRun,
   changeSummary,
+  confirmMappedFeedScope,
   deliveredTotalForSourcePrice,
   diagnosticTemplate,
   guardrailsFor,
@@ -1647,6 +1715,7 @@ module.exports = {
   loadManifest,
   loadImmutablePreflight,
   loadReviewedMassOosManifest,
+  mappedFeedConfirmation,
   immutablePreflightName,
   parseArgs,
   readState,
