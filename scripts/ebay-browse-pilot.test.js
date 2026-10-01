@@ -8,7 +8,7 @@ const { parse } = require("csv-parse/sync");
 const { DEFAULT_POLICY, assertConfig, browseIdentity, buildReport, evaluateIdentity, evaluateItem, getApplicationToken, resetTokenCache, sellerMatchesCurrentSource } = require("./lib/ebay-browse-pilot");
 const { buildDiscoveryRows, buildItemRefreshInput, buildTitleLeadInput, currentOfferEvidence, parseArgs, parseQuarantinedGtins, readExactItem, sealInput } = require("./ebay-browse-pilot");
 const { hash } = require("./lib/retailer-snapshot/fingerprints");
-const { CONFIRMATION: REFRESH_CONFIRMATION, SCOPES: REFRESH_SCOPES, SCOPE: REFRESH_SCOPE, actionForPlan: refreshActionForPlan, assertExecutionContext, buildSource: buildRefreshSource, classifyContinuity, parseArgs: parseRefreshArgs, partitionSourceFailures, rowFromEvaluation, run: runRefresh, validatePlan: validateRefreshPlan, validatePreparedArtifact } = require("./ebay-offer-refresh");
+const { CONFIRMATION: REFRESH_CONFIRMATION, SCOPES: REFRESH_SCOPES, SCOPE: REFRESH_SCOPE, actionForPlan: refreshActionForPlan, assertExecutionContext, buildSource: buildRefreshSource, classifyContinuity, initialImporterPlanTargetsExactScope, mappingUpdateIsSerializedNoop, parseArgs: parseRefreshArgs, partitionSourceFailures, rowFromEvaluation, run: runRefresh, validatePlan: validateRefreshPlan, validatePreparedArtifact } = require("./ebay-offer-refresh");
 const { approvalConfirmation, approvedFromEnv, bindSemanticEvidence, buildSemanticPlanRows, buildSemanticSourceRows, canonicalHash, fileSha256, loadAndVerifyContract, stableAffiliateUrl, verifyDatabaseBaseline, verifyFreshReport, writeDryRunContract } = require("./lib/ebay-artifact-bound-contract");
 const { downloadAndVerify, writeBaselineDiagnostic } = require("./ebay-artifact-bound-verifier");
 const { CONFIRMATION: CANARY_CONFIRMATION, EXPECTED_SCOPE: CANARY_SCOPE, LIVE_EXPECTATIONS: CANARY_LIVE, parseArgs: parseCanaryArgs, validateLiveSources, validateRollout } = require("./ebay-offer-canary-executor");
@@ -840,8 +840,13 @@ test("eBay refresh isolates one source failure per row and keeps a systemic mult
   assert.doesNotMatch(source, /SOURCE_READ_FAILED[\s\S]{0,300}in_stock:\s*false/);
 });
 
-test("eBay per-row preflight isolates one identity conflict and executes only VERIFY_NO_CHANGE", async () => {
+test("eBay per-row preflight isolates identity and commercial review without polluting production artifacts", async (t) => {
   const conflictId = "2582";
+  const commercialId = "2549";
+  const testOut = fs.mkdtempSync(path.join(os.tmpdir(), "ebay-offer-refresh-test-"));
+  t.after(() => fs.rmSync(testOut, { recursive: true, force: true }));
+  const sharedReport = path.join(process.cwd(), "tmp", "ebay-offer-refresh", "production-dry-run.json");
+  const sharedReportBefore = fs.existsSync(sharedReport) ? fs.readFileSync(sharedReport) : null;
   const evaluations = new Map(REFRESH_SCOPES.map((scope) => [scope.offer_id, {
     item_id: scope.external_variant_id,
     legacy_item_id: scope.external_product_id,
@@ -856,12 +861,40 @@ test("eBay per-row preflight isolates one identity conflict and executes only VE
     delivered_price: { value: Number(scope.price) + Number(scope.shipping_cost), currency: "GBP" },
     continuity: { eligible: true, tier: "test_exact" },
   }]));
+  const commercialEvaluation = evaluations.get(commercialId);
+  commercialEvaluation.item_price = { value: Number(REFRESH_SCOPES.find((scope) => scope.offer_id === commercialId).price) - 2, currency: "GBP" };
+  commercialEvaluation.delivered_price = { value: commercialEvaluation.item_price.value + commercialEvaluation.uk_shipping.value, currency: "GBP" };
   const plans = new Map();
   const report = await runRefresh({ target: "production", mode: "dry-run" }, {
-    config: {}, token: "test-token", evaluations,
+    config: {}, token: "test-token", evaluations, outDir: testOut, now: new Date("2026-10-01T12:00:01.000Z"),
     runImportRows: async ([row]) => {
       const scope = REFRESH_SCOPES.find((candidate) => candidate.external_variant_id === row.external_variant_id);
       if (scope.offer_id === conflictId) return { report: { approvedRows: [] }, blockedRows: [{ block_reason: "conflicting variant evidence: retailer product mapping" }] };
+      if (scope.offer_id === commercialId) {
+        const mappingValues = {
+          external_product_id: scope.external_product_id, external_variant_id: scope.external_variant_id, external_sku: null,
+          external_options: { "Pack Count": "12" }, external_name: "Test listing", external_slug: "test-listing",
+          external_gtin: scope.gtin, external_url: scope.external_url, match_method: "gtin", match_confidence: "100",
+          product_variant_id: scope.product_variant_id,
+        };
+        const plan = {
+          product: { action: "existing", id: scope.product_id },
+          product_variant: { action: "existing", id: scope.product_variant_id },
+          retailer: { action: "existing", id: "12" },
+          retailer_product: { action: "update", id: scope.retailer_product_id, values: mappingValues },
+          offer: { action: "update", id: scope.offer_id, values: { price: row.price, shipping_cost: row.shipping_cost, total_price: (Number(row.price) + Number(row.shipping_cost)).toFixed(2), in_stock: true, url: scope.affiliate_url, last_checked_at: "2026-10-01T12:00:00.000Z" } },
+          price_history: { action: "create" },
+          expected_state: {
+            product: { id: scope.product_id, name: "Test product", is_active: true, merged_into_product_id: null, product_format: "bar" },
+            product_variant: { id: scope.product_variant_id, product_id: scope.product_id, variant_key: "default", display_name: "Default", flavour_code: null, flavour_label: null, size_value: null, size_unit: null, pack_count: "12", product_format: "bar", is_active: true, is_default: true },
+            retailer: { id: "12", name: "eBay UK", slug: "ebay-uk", website: "https://www.ebay.co.uk" },
+            retailer_product: { id: scope.retailer_product_id, retailer_id: "12", product_id: scope.product_id, ...mappingValues, updated_at: "2026-09-01T00:00:00.000Z" },
+            offer: { id: scope.offer_id, product_id: scope.product_id, retailer_id: "12", product_variant_id: scope.product_variant_id, retailer_product_id: scope.retailer_product_id, price: scope.price, shipping_cost: scope.shipping_cost, total_price: (Number(scope.price) + Number(scope.shipping_cost)).toFixed(2), in_stock: true, url: scope.affiliate_url, last_checked_at: "2026-09-01T00:00:00.000Z" },
+          },
+        };
+        plans.set(scope.offer_id, plan);
+        return { report: { approvedRows: [{ importPlan: plan }] } };
+      }
       const plan = {
         product: { action: "existing", id: scope.product_id },
         product_variant: { action: "existing", id: scope.product_variant_id },
@@ -881,15 +914,20 @@ test("eBay per-row preflight isolates one identity conflict and executes only VE
   });
   assert.equal(report.result, "PASS_WITH_REVIEW");
   assert.equal(report.approved_mapping_count, 237);
-  assert.equal(report.executable_plan_count, 236);
+  assert.equal(report.executable_plan_count, 235);
   assert.equal(report.executed_plan_count, 0);
-  assert.equal(report.review_row_count, 1);
+  assert.equal(report.review_row_count, 2);
   assert.equal(report.blocked_row_count, 0);
   assert.equal(report.identity_conflict_count, 1);
-  assert.equal(report.commercial_change_count, 0);
-  assert.equal(report.classification.VERIFY_NO_CHANGE, 236);
-  assert.deepEqual(report.review_rows.map((row) => row.offer_id), [conflictId]);
+  assert.equal(report.commercial_change_count, 1);
+  assert.equal(report.classification.VERIFY_NO_CHANGE, 235);
+  assert.equal(report.classification.UPDATE_PRICE, 1);
+  assert.deepEqual(report.review_rows.map((row) => row.offer_id), [commercialId, conflictId]);
+  assert.equal(report.execution_offer_ids.includes(commercialId), false);
   assert.equal(plans.has(conflictId), false);
+  assert.equal(fs.existsSync(path.join(testOut, "production-dry-run.json")), true);
+  if (sharedReportBefore === null) assert.equal(fs.existsSync(sharedReport), false);
+  else assert.deepEqual(fs.readFileSync(sharedReport), sharedReportBefore);
 });
 
 test("eBay automatic action contract keeps commercial changes in review", () => {
@@ -899,6 +937,40 @@ test("eBay automatic action contract keeps commercial changes in review", () => 
   assert.equal(refreshActionForPlan(plan({ price: "11.00", in_stock: true })), "UPDATE_PRICE");
   assert.equal(refreshActionForPlan(plan({ price: "10.00", in_stock: false })), "UPDATE_STOCK");
   assert.equal(refreshActionForPlan(plan({ price: "11.00", in_stock: false })), "UPDATE_PRICE_AND_STOCK");
+});
+
+test("eBay offer-only repair accepts only an exact serialized mapping no-op", () => {
+  const values = {
+    external_product_id: "100", external_variant_id: "v1|100|200", external_sku: null,
+    external_options: { "Pack Count": "12" }, external_name: "Test", external_slug: "test",
+    external_gtin: "12345678", external_url: "https://www.ebay.co.uk/itm/100?var=200",
+    match_method: "gtin", match_confidence: "100", product_variant_id: "2",
+  };
+  const plan = { retailer_product: { action: "update", values }, expected_state: { retailer_product: { id: "3", retailer_id: "12", product_id: "1", ...values } } };
+  assert.equal(mappingUpdateIsSerializedNoop(plan), true);
+  assert.equal(mappingUpdateIsSerializedNoop({ ...plan, retailer_product: { ...plan.retailer_product, values: { ...values, external_options: { "Pack Count": 12 } } } }), false);
+  const missingIdentity = { ...values };
+  delete missingIdentity.external_gtin;
+  assert.equal(mappingUpdateIsSerializedNoop({ ...plan, retailer_product: { ...plan.retailer_product, values: missingIdentity } }), false);
+  assert.equal(mappingUpdateIsSerializedNoop({ ...plan, retailer_product: { ...plan.retailer_product, values: { ...values, external_variant_id: "v1|100|201" } } }), false);
+
+  const scoped = {
+    product: { action: "existing", id: REFRESH_SCOPE.product_id },
+    product_variant: { action: "existing", id: REFRESH_SCOPE.product_variant_id },
+    retailer: { action: "existing", id: REFRESH_SCOPE.retailer_id },
+    retailer_product: { action: "update", id: REFRESH_SCOPE.retailer_product_id, values },
+    offer: { action: "update", id: REFRESH_SCOPE.offer_id },
+    price_history: { action: "create" },
+    expected_state: { retailer_product: { ...values } },
+  };
+  assert.equal(initialImporterPlanTargetsExactScope(REFRESH_SCOPE, scoped), true);
+  const exactNoop = { ...scoped, offer: { action: "noop", id: REFRESH_SCOPE.offer_id }, price_history: { action: "noop" } };
+  assert.equal(initialImporterPlanTargetsExactScope(REFRESH_SCOPE, exactNoop), true);
+  assert.equal(initialImporterPlanTargetsExactScope(REFRESH_SCOPE, { ...exactNoop, retailer_product: { ...exactNoop.retailer_product, values: { ...values, external_variant_id: "v1|100|201" } } }), false);
+  assert.equal(initialImporterPlanTargetsExactScope(REFRESH_SCOPE, { ...scoped, retailer_product: { action: "create", id: REFRESH_SCOPE.retailer_product_id, values } }), false);
+  assert.equal(initialImporterPlanTargetsExactScope(REFRESH_SCOPE, { ...scoped, product: { action: "create", id: REFRESH_SCOPE.product_id } }), false);
+  assert.equal(initialImporterPlanTargetsExactScope(REFRESH_SCOPE, { ...scoped, product_variant: { action: "existing", id: "999" } }), false);
+  assert.equal(initialImporterPlanTargetsExactScope(REFRESH_SCOPE, { ...scoped, retailer: { action: "existing", id: "999" } }), false);
 });
 
 test("eBay refresh plan permits only noop or bounded update of offer 2558", () => {
@@ -1080,7 +1152,7 @@ test("eBay fresh revalidation evidence is emitted before verification and pendin
   const source = fs.readFileSync(path.join(process.cwd(), "scripts/ebay-offer-refresh.js"), "utf8");
   const evidence = source.indexOf('"fresh-revalidation-candidate.json"');
   const verification = source.indexOf("report = verifyFreshReport(approved, report)");
-  const pendingBatch = source.indexOf("const binding = (dependencies.writePendingBatch || writePendingBatch)(report, now)");
+  const pendingBatch = source.indexOf("const binding = (dependencies.writePendingBatch || writePendingBatch)(report, now, outDir)");
   const execution = source.indexOf("await (dependencies.executePlan || executePlan)(item, KIND)");
   assert.ok(evidence > 0 && evidence < verification && verification < pendingBatch);
   assert.ok(execution > 0 && source.indexOf('if (options.mode === "execute-apply")') < execution);

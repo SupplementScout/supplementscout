@@ -544,17 +544,23 @@ idempotency made zero writes. Artifact `11158233377` has digest
 single-offer scope as freshness-only with zero commercial delta and zero-write
 idempotency; artifact `11158809227` has digest `sha256:1d760a87...1140f`.
 6 Pack is separately classified `SOURCE` because exact product `4150` returned
-HTTP 404 after five bounded attempts. Artifact-level replay resolved eBay's
-generic scope error as `EVIDENCE_CORRELATION`, not identity drift. Natural
-current-main run `36857715310` then independently reproduced the same split:
-its full capture observed offer `2549` at `GBP 26.99`, while the exact prepare
-read about 91 seconds later observed `GBP 24.99`; identity, mapping, URL and
-availability were unchanged. The semantic contract again stopped before DB
-baseline, approval or writes. Artifact `11159580892` has digest
-`sha256:8c60a32c...a6c4c`. This is recurring source/correlation debt, not a reason
-to weaken executable-row drift guards or add an eBay exception. The existing
-drift regressions pass `106/106`; any future remedy must first be proved as a
-retailer-neutral immutable-capture/correlation contract in the common harness.
+HTTP 404 after five bounded attempts. Forensic review of eBay artifact
+`11159580892` (digest `sha256:8c60a32c...a6c4c`) proved that its
+`production-dry-run.json` was synthetic output from the preceding unit test, not
+a live complete capture: every row uses `continuity_tier=test_exact`, has no HTTP
+metadata and inherits its price from static scope. The scheduled invocation has
+one proven live value for offer `2549`, `GBP 24.99` against database `GBP 26.99`;
+the artifact cannot establish its exact API-capture time and does not prove a
+second live `GBP 26.99` observation or recurrence. The importer correctly found
+a commercial change, but a serialized no-op mapping update caused the strict
+edge validator to fail the whole run before DB baseline, approval or writes.
+The bounded retailer-neutral repair isolates test output in an injected temporary
+directory and rebuilds offer-only deltas with the existing shared existing-offer
+plan builder. Commercial rows remain review-only and strict executable validation
+is unchanged. No price execution, retry, eBay exception or baseline widening is
+authorized. The focused eBay suite passes `107/107`; quick and full quality
+gates, Project Guardian and the production build pass. Merge/CI must precede
+read-only observation of the next natural schedule.
 Fit House is the already-fixed
 summary `FAILED_SYSTEM` pending natural producer proof; 10 Reps is genuine
 `MONITORED_DEBT`. No retailer-specific patch is justified. Three independently
