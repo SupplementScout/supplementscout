@@ -378,6 +378,29 @@ not be made green by widening baselines or manually retrying retailers.
 Evidence:
 [`evidence/RA-STAB-01-WATCHDOG-CORRELATION-2026-10-01.json`](evidence/RA-STAB-01-WATCHDOG-CORRELATION-2026-10-01.json).
 
+PR `#163` passed CI and merged as `e170977`. The first read-only production
+watchdog on that commit, run `36838647202`, made zero database writes, reported
+no global infrastructure failure and correctly failed rather than absorbing the
+new latest-attempt/idempotency reasons into monitored backlog. Artifact
+`11150815207`, digest `sha256:1408e00e...f0a80`, reports 10 failed retailers.
+It also exposed one remaining freshness gap in its own GitHub evidence reader:
+Fit House resolved `35725377626` instead of the known successful apply
+`36835371096`, while 10 Reps resolved ordinary run `35702168708` instead of
+known failed scheduled run `36693313942`. Direct readback confirms both newer
+runs contain the exact configured profile steps. The result is therefore a
+fail-closed diagnostic, not final RA-STAB evidence and not authority for a
+retailer retry.
+
+The shared follow-up forces GitHub API cache revalidation, records the newest
+listed workflow and scheduled runs, a bounded list of unmatched jobs and the
+total scanned run count. If the newest listed schedule does not resolve to the
+newest retailer profile attempt, the watchdog now emits
+`LATEST_ORDINARY_PROFILE_ATTEMPT_UNRESOLVED` instead of silently using an older
+attempt. Focused regressions pass 38/38. This remains read-only and adds no
+retailer branch, baseline exception, workflow or writer. Quick/full gates,
+merge and a second read-only production watchdog are the next gates; the
+ordinary counter remains `0/3`.
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

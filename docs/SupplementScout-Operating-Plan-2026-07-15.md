@@ -135,6 +135,19 @@ gate is CI/merge followed by one fresh read-only watchdog from `main`; the
 ordinary counter remains `0/3`, retailer retries and baseline widening remain
 unauthorized, and the completed Fit House 759 scope is unchanged.
 
+PR `#163` subsequently merged that correction as `e170977`. Its first read-only
+watchdog, run `36838647202`, made zero writes and reported no global
+infrastructure failure, but honestly returned `FAIL` for 10 retailers. The
+artifact also showed that the GitHub evidence reader silently missed newer
+known Fit House and 10 Reps jobs while resolving older attempts. Direct job
+readback proves those newer runs contain the configured steps, so this first
+report is diagnostic rather than final closeout evidence. A central read-only
+follow-up now forces fresh API reads and compares the newest listed scheduled
+run with the newest resolved profile attempt. Any mismatch receives an explicit
+failure and bounded unmatched-job evidence instead of an older fallback.
+Retailer retries, baseline widening and RA-004 remain unauthorized; `0/3` is
+unchanged.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

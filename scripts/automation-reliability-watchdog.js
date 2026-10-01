@@ -243,6 +243,7 @@ function evaluateRetailer({ profile, stages, contract, database }, now, maximumA
   failures.push(...correlation.failures);
   if (stages.latest_attempt && !["COMPLETE_SUCCESS", "READ_ONLY_COMPLETE"].includes(stages.latest_attempt.result)) failures.push("LATEST_ATTEMPT_NOT_SUCCESSFUL");
   if (stages.latest_ordinary_attempt && stages.latest_ordinary_attempt.result !== "COMPLETE_SUCCESS") failures.push("LATEST_ORDINARY_ATTEMPT_INCOMPLETE");
+  if (stages.latest_listed_ordinary_run && stages.latest_listed_ordinary_run.run_id !== stages.latest_ordinary_attempt?.run_id) failures.push("LATEST_ORDINARY_PROFILE_ATTEMPT_UNRESOLVED");
   if (stages.history_truncated) failures.push("WORKFLOW_HISTORY_TRUNCATED");
   if (!database) failures.push("DATABASE_FRESHNESS_EVIDENCE_MISSING");
   else if (Number(database.offers_older_than_48h) !== 0) {
@@ -372,9 +373,11 @@ function watchdogExitCode(result) {
 
 async function githubJson(url, token) {
   const response = await fetch(url, {
+    cache: "no-store",
     headers: {
       accept: "application/vnd.github+json",
       authorization: `Bearer ${token}`,
+      "cache-control": "no-cache",
       "x-github-api-version": "2022-11-28",
       "user-agent": "SupplementScout-Automation-Reliability-Watchdog/1.0",
     },
@@ -656,6 +659,18 @@ function workflowAttempt(profile, run, jobs) {
   };
 }
 
+function workflowRunSummary(run) {
+  return {
+    run_id: String(run.id),
+    run_url: run.html_url,
+    event: run.event || null,
+    head_sha: run.head_sha || null,
+    run_conclusion: run.conclusion || null,
+    created_at: run.created_at || null,
+    updated_at: run.updated_at || null,
+  };
+}
+
 function successfulStages(attempt) {
   if (!attempt) return { capture: null, apply: null, db_postflight: null, idempotency: null };
   return Object.fromEntries(["capture", "apply", "db_postflight", "idempotency"].map((stage) => [stage, attempt.stages[stage]?.conclusion === "success" ? attempt.stages[stage] : null]));
@@ -708,18 +723,32 @@ function ebaySplitStages(attempts) {
 
 async function runStages(profile, repository, token) {
   const emptyStages = { capture: null, apply: null, db_postflight: null, idempotency: null };
-  if (!profile.workflow) return { stages: emptyStages, applyRunId: null, latestAttempt: null, lastCompleteSuccess: null, latestOrdinaryAttempt: null, lastCompleteOrdinarySuccess: null, historyTruncated: false };
+  if (!profile.workflow) return { stages: emptyStages, applyRunId: null, latestAttempt: null, lastCompleteSuccess: null, latestOrdinaryAttempt: null, lastCompleteOrdinarySuccess: null, latestListedRun: null, latestListedOrdinaryRun: null, unmatchedRecentRuns: [], scannedRunCount: 0, historyTruncated: false };
   const base = `https://api.github.com/repos/${repository}`;
   const workflow = encodeURIComponent(profile.workflow);
   const attempts = [];
+  const unmatchedRecentRuns = [];
+  let latestListedRun = null;
+  let latestListedOrdinaryRun = null;
+  let scannedRunCount = 0;
   let historyTruncated = false;
   for (let page = 1; page <= MAX_WORKFLOW_RUN_PAGES; page++) {
     const listing = await githubJson(`${base}/actions/workflows/${workflow}/runs?status=completed&per_page=${WORKFLOW_RUNS_PER_PAGE}&page=${page}`, token);
     const runs = listing.workflow_runs || [];
     for (const run of runs) {
+      scannedRunCount += 1;
+      latestListedRun ||= workflowRunSummary(run);
+      if (!latestListedOrdinaryRun && run.event === "schedule") latestListedOrdinaryRun = workflowRunSummary(run);
       const jobs = await githubJson(`${base}/actions/runs/${run.id}/jobs?per_page=100`, token);
       const attempt = workflowAttempt(profile, run, jobs.jobs || []);
       if (attempt) attempts.push(attempt);
+      else if (unmatchedRecentRuns.length < 10) {
+        unmatchedRecentRuns.push({
+          ...workflowRunSummary(run),
+          job_count: (jobs.jobs || []).length,
+          job_names: (jobs.jobs || []).map((job) => job.name || null),
+        });
+      }
     }
     const selected = selectWorkflowAttempts(attempts);
     if (selected.latestAttempt && selected.lastCompleteSuccess && selected.latestOrdinaryAttempt && selected.lastCompleteOrdinarySuccess) break;
@@ -733,7 +762,7 @@ async function runStages(profile, repository, token) {
     const split = ebaySplitStages(attempts);
     if (split) { stages = split; correlationModel = "EBAY_SPLIT_RUN_V1_CANDIDATE"; }
   }
-  return { stages, applyRunId: stages.apply?.run_id || null, ...selected, historyTruncated, correlationModel };
+  return { stages, applyRunId: stages.apply?.run_id || null, ...selected, latestListedRun, latestListedOrdinaryRun, unmatchedRecentRuns, scannedRunCount, historyTruncated, correlationModel };
 }
 
 async function contractFromArtifacts(repository, runId, token, options = {}) {
@@ -893,6 +922,10 @@ async function run(options, dependencies = {}) {
         last_complete_success: stageResult.lastCompleteSuccess,
         latest_ordinary_attempt: stageResult.latestOrdinaryAttempt,
         last_complete_ordinary_success: stageResult.lastCompleteOrdinarySuccess,
+        latest_listed_workflow_run: stageResult.latestListedRun,
+        latest_listed_ordinary_run: stageResult.latestListedOrdinaryRun,
+        unmatched_recent_runs: stageResult.unmatchedRecentRuns,
+        scanned_run_count: stageResult.scannedRunCount,
         history_truncated: stageResult.historyTruncated,
         correlation_model: stageResult.correlationModel,
       };
@@ -1001,5 +1034,6 @@ module.exports = {
   stageDefinitions,
   summarizeWatchdogResult,
   workflowAttempt,
+  workflowRunSummary,
   watchdogExitCode,
 };
