@@ -223,6 +223,38 @@ no current immutable 10 Reps raw snapshot, paired legacy/canonical output or
 audit neither reopens RA-004 nor authorizes a capture. Evidence:
 [`evidence/RA-STAB-01-EVIDENCE-PRESERVATION-AUDIT.json`](evidence/RA-STAB-01-EVIDENCE-PRESERVATION-AUDIT.json).
 
+**First ordinary observation - failed safe; shared ledger correction in
+progress:** the 30 September scheduled Whey Okay run `36690863083` and shared
+refresh run `36693313942` both stopped before apply, postflight and idempotency.
+They made zero database writes, zero control writes and created or consumed zero
+approvals. The previous active-plan/control-lifecycle blocker did not recur.
+Because the required capture/apply/postflight contract was not satisfied, this
+observation does not count: RA-STAB-01 remains at `0/3` consecutive ordinary
+intervals.
+
+The observation exposed one bounded shared defect caused by the completed
+recovery: production correctly contains the verified 223-row ledger, while the
+ordinary production selector still expected the pre-recovery 222-row ledger.
+The 10 Reps validator therefore stopped with `RSBI_SOURCE_HASH_MISMATCH`. The
+central correction binds the selector to the verified row 223 fingerprint and
+records the recovery migration as applied but still excluded; ordinary pending
+migrations remain empty. It adds no retailer condition, entry point or writer
+and weakens no guard. The simultaneous `MASS_OOS` result remains authoritative
+and must be evaluated independently after this validator mismatch is removed.
+
+Whey Okay separately stopped on its existing mapped-fingerprint-row invariant,
+and Fit House stopped on its six-offer fingerprint invariant. The first
+watchdog after both workflows, run `36714749305`, made zero writes and still
+selected older successful evidence rather than these failed diagnostics. Those
+fingerprint and evidence-correlation classes are preserved as separate debt;
+they are not folded into the ledger fix. Evidence:
+[`evidence/RA-STAB-01-ORDINARY-INTERVAL-01-2026-09-30.json`](evidence/RA-STAB-01-ORDINARY-INTERVAL-01-2026-09-30.json).
+
+The three-interval sequence restarts only after the shared correction is merged
+and an ordinary scheduled run executes that commit. Do not use a manual dispatch
+to manufacture an interval and do not weaken `MASS_OOS` or either fingerprint
+invariant to make a run green.
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

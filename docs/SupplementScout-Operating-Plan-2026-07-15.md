@@ -42,6 +42,20 @@ baseline, not a failed close and not one of the three required ordinary retailer
 intervals. The next work is observation of scheduled paths only; no manual retry
 or baseline widening is authorized.
 
+The first ordinary post-recovery observation on 30 September failed safe with
+zero database/control writes and no new approval. The old active-plan blocker
+did not recur, but the interval cannot count toward the required three because
+Whey Okay and the shared refresh stopped before apply and postflight. The shared
+10 Reps validator exposed a bounded central baseline defect: the ordinary
+production selector still expected ledger 222 even though the authorized,
+verified recovery had advanced production to ledger 223. RA-STAB-01 is correcting
+that shared selector contract while keeping the recovery migration excluded and
+ordinary pending migrations empty. The simultaneous `MASS_OOS`, Whey Okay
+fingerprint and Fit House fingerprint results remain independent guard evidence;
+none is bypassed or reclassified to make the interval pass. The observation
+counter remains `0/3` and restarts only on ordinary schedules after the central
+correction is merged.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

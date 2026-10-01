@@ -1,0 +1,121 @@
+{
+  "schema_version": "ra-stab-01-ordinary-interval-evidence-v1",
+  "status": "FAILED_SAFE_SHARED_LEDGER_BASELINE_CORRECTION_REQUIRED",
+  "task_id": "RA-STAB-01",
+  "observation_date": "2026-09-30",
+  "ordinary_interval_counted": false,
+  "completed_ordinary_intervals": 0,
+  "required_consecutive_ordinary_intervals": 3,
+  "manual_dispatch_used": false,
+  "database_writes": 0,
+  "control_writes": 0,
+  "approvals_created": 0,
+  "approvals_consumed": 0,
+  "workflows": {
+    "whey_okay": {
+      "run_id": 36690863083,
+      "url": "https://github.com/SupplementScout/supplementscout/actions/runs/36690863083",
+      "event": "schedule",
+      "head_sha": "71a77405f7afa6fcc8afa2267ecba6a43cd1fde5",
+      "conclusion": "failure",
+      "artifact": {
+        "id": 11086065601,
+        "name": "whey-okay-offer-refresh-36690863083-1",
+        "archive_digest": "sha256:6f67e788b27347befb6caadfd4bdf4108490718d5600d6e0727650f536fdac64",
+        "diagnostic_sha256": "2e249ce1c62f42d411ab9c336df4d6067a7a5ccaa4538336f01b612a7a61a661"
+      },
+      "source_health": { "result": "PASS", "http_status": 200, "rows": 1705, "products": 523 },
+      "classification": "FINGERPRINT_OR_IDENTITY",
+      "failure_stage": "STARTUP_OR_INTERNAL",
+      "failure": "mapped Whey Okay source fingerprint is missing a row",
+      "capture_apply_postflight_contract_satisfied": false,
+      "database_writes": 0
+    },
+    "shared_refresh_10_reps": {
+      "run_id": 36693313942,
+      "url": "https://github.com/SupplementScout/supplementscout/actions/runs/36693313942",
+      "event": "schedule",
+      "head_sha": "71a77405f7afa6fcc8afa2267ecba6a43cd1fde5",
+      "conclusion": "failure",
+      "artifact": {
+        "id": 11086334116,
+        "name": "10reps-offer-refresh-36693313942-1",
+        "archive_digest": "sha256:a8f8d8605660300d758868699240f9a67a7bb9a207d06eea37d7b260fc1a81cf",
+        "diagnostic_sha256": "10eb21d653519cf2e1b4aa2ca7025a6222906422fa9a083964893cfa4286b1df"
+      },
+      "source_health": {
+        "result": "PASS", "http_status": 200, "products": 506, "variants": 1780,
+        "approved": 950, "matched": 934, "missing": 16
+      },
+      "classification": "FAILED_SYSTEM",
+      "guard_observation": {
+        "classifier": "MASS_OOS", "result": "BLOCK", "new_oos": 24, "net_oos_change": 5,
+        "note": "The guard remains authoritative and was not weakened; re-observe it after the shared ledger validator accepts the current production ledger."
+      },
+      "validator": {
+        "code": "RSBI_SOURCE_HASH_MISMATCH",
+        "message": "Actual migration ledger does not match the approved package",
+        "root_cause": "The guarded recovery advanced production from the approved 222-row ledger to the reviewed 223-row ledger, but the shared ordinary production contract still described row 222."
+      },
+      "active_plan_or_control_lifecycle_regression_detected": false,
+      "capture_apply_postflight_contract_satisfied": false,
+      "database_writes": 0,
+      "control_writes": 0,
+      "approvals_created": 0,
+      "approvals_consumed": 0
+    },
+    "shared_refresh_fit_house": {
+      "run_id": 36693313942,
+      "url": "https://github.com/SupplementScout/supplementscout/actions/runs/36693313942",
+      "event": "schedule",
+      "head_sha": "71a77405f7afa6fcc8afa2267ecba6a43cd1fde5",
+      "conclusion": "failure",
+      "artifact": {
+        "id": 11086628033,
+        "name": "fit-house-offer-refresh-36693313942-1",
+        "archive_digest": "sha256:234c3b2e68736d5a899504129de0470acf86974eb6773aaa716c3c6005909ce1",
+        "diagnostic_sha256": "529021c9bc5ce63da7299c8d8b890ff35de486f715b07e6d589b5490ddee282b"
+      },
+      "classification": "FINGERPRINT_OR_IDENTITY",
+      "failure_stage": "STARTUP_OR_INTERNAL",
+      "failure": "Fit House six-offer source fingerprint changed",
+      "capture_apply_postflight_contract_satisfied": false,
+      "database_writes": 0
+    }
+  },
+  "correlated_watchdog": {
+    "run_id": 36714749305,
+    "url": "https://github.com/SupplementScout/supplementscout/actions/runs/36714749305",
+    "generated_at": "2026-09-30T12:27:01.452Z",
+    "artifact": {
+      "id": 11095293447,
+      "archive_digest": "sha256:e254cb51db00725cfbb2d17ec7f057c42ee4d007196e4899aa4bc489ec1461eb",
+      "watchdog_json_sha256": "0bf6c05c835316e655202da628d74ef4f46f2fb0fc97816b88b437213e0bebb9"
+    },
+    "result": "FAIL",
+    "failed_retailer_count": 6,
+    "global_failures": [],
+    "database_writes": 0,
+    "classification": "EVIDENCE_CORRELATION",
+    "note": "The watchdog continued to select older successful evidence instead of the new failed diagnostics; it is not an independent control-table readback."
+  },
+  "later_watchdog_confirmation": {
+    "run_id": 36783985370,
+    "artifact_id": 11128871332,
+    "archive_digest": "sha256:d80c5e2c04cff647e93f1d80b40fc043345d84fa2b6815e27b129486d39122c5",
+    "watchdog_json_sha256": "f5901a7607262ed601c500615b1850b857a9a85c624d5edc199a2aa3126f0d26",
+    "database_writes": 0,
+    "result_unchanged": true
+  },
+  "decision": {
+    "old_control_blocker_recurred": false,
+    "interval_counted": false,
+    "counter_after_observation": "0/3",
+    "shared_fix": "Bind the ordinary production selector to the already verified 223-row production ledger and mark the recovery migration applied-but-excluded, while keeping pending empty.",
+    "guard_changes_authorized": false,
+    "retailer_specific_branch_authorized": false,
+    "production_write_authorized": false,
+    "manual_retry_authorized": false,
+    "next_step": "Merge the shared ledger-contract correction through normal quality gates, then begin a new three-interval sequence from the first ordinary schedule running that corrected commit. Classify any remaining MASS_OOS or fingerprint result independently without weakening a guard."
+  }
+}
