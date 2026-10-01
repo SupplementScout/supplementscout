@@ -82,6 +82,18 @@ idempotency did not run. No retry or code patch is authorized. A decision to
 execute only `759` while isolating those 14 rows for review would be a separate
 owner-scope decision and would not count as an ordinary interval.
 
+The owner subsequently approved that exact isolation: only offer `759` may
+change stock; 19 additional rows may receive freshness-only confirmations; and
+the exact 14 observed stock differences must remain unwritten and visible as
+review. A second SHA-bound manifest records every deferred offer, mapping,
+source identity, price and stock direction. The existing Fit House edge
+selector consumes it without changing the shared classifier, thresholds,
+workflow or executor. Any scope or value drift stops before registration, and
+replay after the one stock change creates no artifact. Focused, quick and full
+local gates pass; production remains unchanged until merge, CI and a fresh
+main-only preflight. This manual operation will not increment the `0/3` ordinary
+interval counter.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

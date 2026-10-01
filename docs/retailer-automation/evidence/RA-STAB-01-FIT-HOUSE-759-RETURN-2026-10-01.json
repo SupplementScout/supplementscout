@@ -1,6 +1,6 @@
 {
   "schema_version": "ra-stab-01-fit-house-return-v1",
-  "status": "PRODUCTION_PREFLIGHT_BLOCKED_BY_OUT_OF_SCOPE_STOCK_CHANGES",
+  "status": "ISOLATION_AUTHORIZED_LOCAL_VERIFIED_AWAITING_MAIN_PREFLIGHT",
   "task_id": "RA-STAB-01",
   "decision_date": "2026-10-01",
   "owner_authority": {
@@ -8,6 +8,16 @@
     "decision": "restore in_stock=true only for Fit House offer 759 on the described conditions",
     "manifest_path": "config/retailers/fit-house-owner-approved-return-offer-759-2026-10-01.json",
     "manifest_sha256": "92ecd3977478a91a8ce268e699884c39d8b6870c1cf2b2dd7f03a0b2162e4f65"
+  },
+  "owner_isolation_authority": {
+    "source": "owner-chat",
+    "decision": "execute stock only for offer 759 with 19 freshness-only confirmations; leave the exact 14 observed offers unchanged and route them to review",
+    "authorized_at": "2026-10-01T07:41:41.441Z",
+    "manifest_path": "config/retailers/fit-house-owner-approved-return-isolation-2026-10-01.json",
+    "manifest_sha256": "b696f4b07bdaeaffe94a148ec33af8683036576473a2dfcd686490e616aa2153",
+    "deferred_offer_ids": ["697", "735", "921", "944", "951", "953", "954", "963", "972", "983", "1859", "1904", "1938", "1982"],
+    "freshness_confirmation_count": 19,
+    "deferred_business_writes_allowed": 0
   },
   "authorized_transition": {
     "retailer_id": "9",
@@ -26,7 +36,7 @@
   },
   "required_unchanged_scope": {
     "protected_oos_offer_ids": ["718", "749", "757", "913", "939", "940"],
-    "other_offer_changes_allowed": 0,
+    "other_offer_writes_allowed": 0,
     "mapping_changes_allowed": 0,
     "price_changes_allowed": 0,
     "url_changes_allowed": 0,
@@ -50,8 +60,8 @@
     "shared_classifier_changed": false,
     "guard_threshold_changed": false,
     "mapping_changed": false,
-    "selector_behavior": "execute the one exact authorized stock transition with the existing balanced confirmation batch; reject every other changed row",
-    "idempotency_behavior": "after offer 759 is in stock, emit no executable artifact"
+    "selector_behavior": "execute the one exact authorized stock transition with the existing balanced confirmation batch; hash-bind and quarantine the exact 14 deferred stock rows; reject every other changed row or deferred-row drift",
+    "idempotency_behavior": "after offer 759 is in stock, emit no executable artifact while retaining the exact 14 review rows"
   },
   "local_verification": {
     "focused_tests": { "passed": 58, "failed": 0 },
@@ -85,7 +95,7 @@
     "postflight": "NOT_RUN",
     "idempotency": "NOT_RUN"
   },
-  "next_decision_boundary": "The current authority requires any other changed row to stop the write. Executing only offer 759 while isolating the other 14 rows requires a new explicit owner decision; no code change or retry is authorized by this evidence.",
+  "next_decision_boundary": "Merge only after full CI, then require a fresh main-only production preflight to reproduce exactly offer 759 plus the hash-bound 14-row deferred scope before any apply.",
   "ordinary_interval_counter": {
     "completed": 0,
     "required": 3,
