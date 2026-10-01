@@ -721,11 +721,32 @@ function ebaySplitStages(attempts) {
   };
 }
 
-async function runStages(profile, repository, token) {
+async function workflowHistoryPage({ repository, workflow, token, page, snapshotKey, cache, fetchJson = githubJson }) {
+  invariant(typeof snapshotKey === "string" && /^[A-Za-z0-9_.:-]{1,100}$/.test(snapshotKey), "Workflow history snapshot key is invalid");
+  const historyCache = cache || new Map();
+  const cacheKey = `${snapshotKey}:${workflow}:${page}`;
+  if (!historyCache.has(cacheKey)) {
+    historyCache.set(cacheKey, (async () => {
+      const base = `https://api.github.com/repos/${repository}`;
+      const encodedWorkflow = encodeURIComponent(workflow);
+      const encodedSnapshot = encodeURIComponent(snapshotKey);
+      const listing = await fetchJson(`${base}/actions/workflows/${encodedWorkflow}/runs?status=completed&per_page=${WORKFLOW_RUNS_PER_PAGE}&page=${page}&watchdog_snapshot=${encodedSnapshot}`, token);
+      const entries = [];
+      for (const run of listing.workflow_runs || []) {
+        const jobs = await fetchJson(`${base}/actions/runs/${run.id}/jobs?per_page=100&watchdog_snapshot=${encodedSnapshot}`, token);
+        entries.push({ run, jobs: jobs.jobs || [] });
+      }
+      return entries;
+    })());
+  }
+  return historyCache.get(cacheKey);
+}
+
+async function runStages(profile, repository, token, options = {}) {
   const emptyStages = { capture: null, apply: null, db_postflight: null, idempotency: null };
   if (!profile.workflow) return { stages: emptyStages, applyRunId: null, latestAttempt: null, lastCompleteSuccess: null, latestOrdinaryAttempt: null, lastCompleteOrdinarySuccess: null, latestListedRun: null, latestListedOrdinaryRun: null, unmatchedRecentRuns: [], scannedRunCount: 0, historyTruncated: false };
-  const base = `https://api.github.com/repos/${repository}`;
-  const workflow = encodeURIComponent(profile.workflow);
+  const workflowHistoryCache = options.workflowHistoryCache || new Map();
+  const historySnapshotKey = options.historySnapshotKey || `standalone-${Date.now()}`;
   const attempts = [];
   const unmatchedRecentRuns = [];
   let latestListedRun = null;
@@ -733,26 +754,24 @@ async function runStages(profile, repository, token) {
   let scannedRunCount = 0;
   let historyTruncated = false;
   for (let page = 1; page <= MAX_WORKFLOW_RUN_PAGES; page++) {
-    const listing = await githubJson(`${base}/actions/workflows/${workflow}/runs?status=completed&per_page=${WORKFLOW_RUNS_PER_PAGE}&page=${page}`, token);
-    const runs = listing.workflow_runs || [];
-    for (const run of runs) {
+    const entries = await workflowHistoryPage({ repository, workflow: profile.workflow, token, page, snapshotKey: historySnapshotKey, cache: workflowHistoryCache });
+    for (const { run, jobs } of entries) {
       scannedRunCount += 1;
       latestListedRun ||= workflowRunSummary(run);
       if (!latestListedOrdinaryRun && run.event === "schedule") latestListedOrdinaryRun = workflowRunSummary(run);
-      const jobs = await githubJson(`${base}/actions/runs/${run.id}/jobs?per_page=100`, token);
-      const attempt = workflowAttempt(profile, run, jobs.jobs || []);
+      const attempt = workflowAttempt(profile, run, jobs);
       if (attempt) attempts.push(attempt);
       else if (unmatchedRecentRuns.length < 10) {
         unmatchedRecentRuns.push({
           ...workflowRunSummary(run),
-          job_count: (jobs.jobs || []).length,
-          job_names: (jobs.jobs || []).map((job) => job.name || null),
+          job_count: jobs.length,
+          job_names: jobs.map((job) => job.name || null),
         });
       }
     }
     const selected = selectWorkflowAttempts(attempts);
     if (selected.latestAttempt && selected.lastCompleteSuccess && selected.latestOrdinaryAttempt && selected.lastCompleteOrdinarySuccess) break;
-    if (runs.length < WORKFLOW_RUNS_PER_PAGE) break;
+    if (entries.length < WORKFLOW_RUNS_PER_PAGE) break;
     if (page === MAX_WORKFLOW_RUN_PAGES) historyTruncated = true;
   }
   const selected = selectWorkflowAttempts(attempts);
@@ -906,6 +925,8 @@ async function run(options, dependencies = {}) {
   }
   const retailers = [];
   let monitoringInfrastructureError = null;
+  const workflowHistoryCache = new Map();
+  const historySnapshotKey = env.GITHUB_RUN_ID || now.toISOString();
   for (const profile of config.retailers) {
     let stages = { capture: null, apply: null, db_postflight: null };
     let contract = null;
@@ -915,6 +936,7 @@ async function run(options, dependencies = {}) {
         profile,
         repository,
         token,
+        { workflowHistoryCache, historySnapshotKey },
       );
       stages = {
         ...stageResult.stages,
@@ -1035,5 +1057,6 @@ module.exports = {
   summarizeWatchdogResult,
   workflowAttempt,
   workflowRunSummary,
+  workflowHistoryPage,
   watchdogExitCode,
 };

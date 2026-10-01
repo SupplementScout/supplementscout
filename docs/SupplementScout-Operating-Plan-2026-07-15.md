@@ -148,6 +148,18 @@ failure and bounded unmatched-job evidence instead of an older fallback.
 Retailer retries, baseline widening and RA-004 remain unauthorized; `0/3` is
 unchanged.
 
+The diagnostic follow-up merged as `34dff001`, and read-only watchdog
+`36840586622` isolated the remaining issue: two independent requests for the
+same shared Fit House/10 Reps workflow returned different historical windows.
+The first correctly saw Fit House `36835371096` and scheduled `36693313942`; the
+later 10 Reps request was headed by old run `35702168708`. The central solution
+is one immutable workflow-history snapshot per watchdog run, keyed by the
+current `GITHUB_RUN_ID` to bypass intermediary stale responses and shared by
+both retailer profiles. Local read-only replay now resolves both profiles from
+the same current 50-run set, with zero writes. Full verification and one more
+read-only live run remain required; no retailer retry or baseline change is
+authorized and `0/3` remains unchanged.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

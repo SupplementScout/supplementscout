@@ -1,6 +1,6 @@
 {
   "schema_version": "ra-stab-01-watchdog-correlation-v1",
-  "status": "FIRST_LIVE_READBACK_FAIL_CLOSED_FRESHNESS_FOLLOW_UP_LOCAL_VERIFIED",
+  "status": "SECOND_LIVE_READBACK_IDENTIFIED_REPEAT_FETCH_DRIFT_SHARED_SNAPSHOT_LOCAL_VERIFIED",
   "task_id": "RA-STAB-01",
   "evidence_date": "2026-10-01",
   "mode": "READ_ONLY_MONITOR_CORRECTION",
@@ -115,6 +115,60 @@
     "full_gate": "PASS",
     "live_reverification": "PENDING"
   },
+  "second_live_readback": {
+    "merge_commit": "34dff0019ff382c70d256f2d5ca23e429a3c6584",
+    "pull_request": 164,
+    "workflow_run_id": "36840586622",
+    "workflow_result": "FAIL",
+    "watchdog_result": "FAIL",
+    "database_writes": 0,
+    "global_failures": [],
+    "artifact_id": "11151312806",
+    "artifact_digest": "sha256:814612f1c406e687536365b826bf0ceea4f2cde12a6b355d7f634beafd0a84e2",
+    "fit_house": {
+      "latest_attempt": "36835371096",
+      "latest_ordinary_attempt": "36693313942",
+      "latest_listed_workflow_run": "36835371096",
+      "latest_listed_ordinary_run": "36693313942",
+      "result": "FRESH_HISTORY_RESOLVED"
+    },
+    "ten_reps": {
+      "latest_attempt": "35702168708",
+      "latest_ordinary_attempt": "35702168708",
+      "latest_listed_workflow_run": "35702168708",
+      "latest_listed_ordinary_run": "35702168708",
+      "result": "SECOND_FETCH_RETURNED_OLDER_HISTORY"
+    },
+    "root_cause": "The shared workflow URL was fetched independently for Fit House and 10 Reps. The first fresh request returned current runs while the repeated request returned an older cached listing, so two profiles did not observe one immutable workflow snapshot."
+  },
+  "shared_workflow_snapshot_follow_up": {
+    "behavior": "Fetch every workflow history page and its jobs once per watchdog snapshot, cache the immutable page promise and reuse the exact entries for all profiles sharing that workflow.",
+    "cache_bust_contract": "Every list and jobs URL carries one bounded watchdog_snapshot key derived from GITHUB_RUN_ID; response-cache headers remain fail-safe defense in depth.",
+    "api_call_effect": "The Fit House/10 Reps shared workflow is no longer fetched twice, reducing GitHub API load while preventing cross-profile listing drift.",
+    "local_read_only_replay": {
+      "snapshot_key": "local-replay-20261001",
+      "fit_house_latest_attempt": "36835371096",
+      "fit_house_latest_ordinary_attempt": "36693313942",
+      "ten_reps_latest_attempt": "36693313942",
+      "ten_reps_latest_ordinary_attempt": "36693313942",
+      "shared_latest_listed_workflow_run": "36835371096",
+      "shared_latest_listed_ordinary_run": "36693313942",
+      "scanned_runs_per_profile": 50,
+      "database_writes": 0
+    },
+    "file_sha256": {
+      "scripts/automation-reliability-watchdog.js": "8365b33212511f5cb02cbe1f30e5374dcf51f97bd226d4e5c0725bcb4f1171f3",
+      "scripts/catalog-health.test.js": "ce496c3de82a0ff36ec071f97425e7e2964d0b49ea541fa23b4f3a00a6433882"
+    },
+    "focused_result": {
+      "passed": 39,
+      "failed": 0,
+      "skipped": 0
+    },
+    "quick_gate": "PASS",
+    "full_gate": "PASS",
+    "live_reverification": "PENDING"
+  },
   "fit_house_owner_scope": {
     "offer_759_operation_status": "LIVE_VERIFIED_AND_CLOSED",
     "offer_759_stock_change": "false_to_true",
@@ -141,7 +195,7 @@
   "decision": {
     "ordinary_intervals_completed": 0,
     "ordinary_intervals_required": 3,
-    "next_step": "Verify and merge the fail-closed workflow-listing freshness follow-up, then repeat the existing read-only watchdog from main. Do not dispatch a retailer refresh or widen monitored baselines.",
+    "next_step": "Verify and merge the immutable shared-workflow snapshot correction, then repeat the existing read-only watchdog from main. Do not dispatch a retailer refresh or widen monitored baselines.",
     "production_write_authorized": false,
     "ra_004_retry_authorized": false
   }
