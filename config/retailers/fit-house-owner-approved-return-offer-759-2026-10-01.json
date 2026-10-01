@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "kind": "fit-house-owner-approved-returned-offer-v1",
+  "authority": "owner-chat-2026-10-01-fit-house-offer-759-restock",
+  "authorized_at": "2026-10-01T07:02:37.151Z",
+  "target_environment": "PRODUCTION",
+  "retailer_id": "9",
+  "retailer_slug": "fit-house",
+  "offer_id": "759",
+  "mapping_id": "873",
+  "canonical_product_id": "740",
+  "canonical_variant_id": "3021",
+  "external_product_id": "9168824172784",
+  "external_variant_id": "46969725714672",
+  "product_handle": "7-nutrition-berberine-stack-90-vege-caps",
+  "external_sku": null,
+  "price": "11.99",
+  "old_stock": false,
+  "new_stock": true,
+  "url": "https://fithouse.uk/products/7-nutrition-berberine-stack-90-vege-caps?variant=46969725714672",
+  "required_other_protected_offer_ids_oos": ["718", "749", "757", "913", "939", "940"]
+}

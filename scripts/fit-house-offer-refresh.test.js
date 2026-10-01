@@ -20,6 +20,7 @@ const {
   freshCapturedAt,
   loadAuditedMissingVariantManifest,
   loadOwnerApprovedMissingVariantManifest,
+  loadOwnerApprovedReturnedOfferManifest,
   loadOwnerApprovedSixAbsentManifest,
   loadReviewedMassOosManifest,
   mappedOfferSourceFingerprint,
@@ -115,55 +116,59 @@ test("validator diagnostic records only batch guard numbers and limits before th
   assert.ok(3/22<Number(request.guardrails.limits.maximum_oos_increase_ratio));
 });
 
-test("six exact stock changes are executable while ten unrelated Fit House changes stay deferred", () => {
+test("only the exact owner-approved offer 759 return is executable", () => {
   const manifest=loadOwnerApprovedSixAbsentManifest().manifest;
   const approved=manifest.rows.filter(row=>row.old_stock);
-  const selected=approved.map(row=>({offer_id:row.offer_id,external_variant_id:row.external_variant_id,action:"UPDATE_STOCK",target:{in_stock:true},source:{in_stock:false},changed_fields:{stock:true,price:false,url:false}}));
-  const unrelatedIds=["735","921","944","951","954","963","972","983","1904","1938"];
-  const other=unrelatedIds.map((id,index)=>({offer_id:id,external_variant_id:`other-${id}`,action:"UPDATE_STOCK",target:{in_stock:index>=3},source:{in_stock:index<3},changed_fields:{stock:true,price:false,url:false}}));
-  const stable=Array.from({length:270},(_,i)=>({offer_id:String(10000+i),action:"VERIFY_NO_CHANGE",target:{in_stock:true},source:{in_stock:true},changed_fields:{stock:false,price:false,url:false}}));
-  const classified={state:"BLOCKED",reason:"MASS_OOS",rows:[...selected,...other,...stable]};
-  const owner={approved_rows:approved,newUnavailableCount:6};
+  const returned=loadOwnerApprovedReturnedOfferManifest().manifest;
+  const selected=approved.map(row=>row.offer_id===returned.offer_id
+    ?{offer_id:row.offer_id,external_variant_id:row.external_variant_id,action:"UPDATE_STOCK",target:{in_stock:false},source:{in_stock:true},changed_fields:{stock:true,price:false,url:false}}
+    :{offer_id:row.offer_id,external_variant_id:row.external_variant_id,action:"VERIFY_NO_CHANGE",target:{in_stock:false},source:{in_stock:false},changed_fields:{stock:false,price:false,url:false}});
+  const stable=Array.from({length:280},(_,i)=>({offer_id:String(10000+i),action:"VERIFY_NO_CHANGE",target:{in_stock:true},source:{in_stock:true},changed_fields:{stock:false,price:false,url:false}}));
+  const classified={state:"DRY_RUN_READY",reason:null,rows:[...selected,...stable]};
+  const owner={approved_rows:approved,newUnavailableCount:0,authorizedChangeCount:1,returned};
   const result=authorizeOwnerApprovedSixStockOnly(classified,owner);
   assert.equal(result.state,"DRY_RUN_READY");
-  assert.deepEqual(result.deferred_changed_offer_ids,unrelatedIds);
+  assert.deepEqual(result.deferred_changed_offer_ids,[]);
   const execution=selectOwnerApprovedSixExecutionRows(result,owner);
-  assert.equal(execution.length,44);
-  assert.deepEqual(execution.filter(row=>row.action==="UPDATE_STOCK").map(row=>row.offer_id),approved.map(row=>row.offer_id));
-  assert.deepEqual(execution.filter(row=>row.action==="VERIFY_NO_CHANGE").map(row=>row.offer_id),stable.slice(0,38).map(row=>row.offer_id));
+  assert.equal(execution.length,20);
+  assert.deepEqual(execution.filter(row=>row.action==="UPDATE_STOCK").map(row=>row.offer_id),["759"]);
+  assert.deepEqual(execution.filter(row=>row.action==="VERIFY_NO_CHANGE").map(row=>row.offer_id),stable.slice(0,19).map(row=>row.offer_id));
   const batches=balancedExecutionBatches(execution.map(row=>({...row,atomic_plan:{expected_state:{offer:{in_stock:row.target.in_stock}},offer:{values:{in_stock:row.source.in_stock}}}})),50,3);
-  assert.deepEqual(batches.map(batch=>batch.length),[22,22]);
-  assert.deepEqual(batches.map(batch=>batch.filter(row=>row.action==="UPDATE_STOCK").length),[3,3]);
+  assert.deepEqual(batches.map(batch=>batch.length),[20]);
+  assert.deepEqual(batches.map(batch=>batch.filter(row=>row.action==="UPDATE_STOCK").length),[1]);
   assert.ok(batches.every(batch=>batch.filter(row=>row.action==="UPDATE_STOCK").length/batch.length<0.15));
-  assert.throws(()=>selectOwnerApprovedSixExecutionRows({...result,rows:[...selected,...other,...stable.slice(0,30)]},owner),/confirmation scope mismatch/);
-  assert.doesNotThrow(()=>requireAuditedMissingOwnerApproval({sha256:"audit"},{newUnavailableCount:6,missingVariantIds:approved.map(row=>row.external_variant_id),manifest_sha256:"audit",review_status:"OWNER_OOS_APPROVAL_REQUIRED"},result,null,{approved_rows:approved,newUnavailableCount:6}));
+  assert.throws(()=>selectOwnerApprovedSixExecutionRows({...result,rows:[...selected,...stable.slice(0,18)]},owner),/confirmation scope mismatch/);
   const changedPrice=structuredClone(classified);changedPrice.rows[0].changed_fields.price=true;
   assert.throws(()=>authorizeOwnerApprovedSixStockOnly(changedPrice,owner),error=>error.code==="FIT_HOUSE_SIX_SCOPE_MISMATCH");
-  const extraMissing=structuredClone(classified);extraMissing.rows[6].external_variant_id="extra-missing";
-  assert.throws(()=>requireAuditedMissingOwnerApproval({sha256:"audit"},{newUnavailableCount:7,missingVariantIds:[...approved.map(row=>row.external_variant_id),"extra-missing"],manifest_sha256:"audit",review_status:"OWNER_OOS_APPROVAL_REQUIRED"},extraMissing,null,{approved_rows:approved,newUnavailableCount:6}),error=>error.code==="OWNER_OOS_APPROVAL_REQUIRED");
+  const unrelated=structuredClone(classified);unrelated.rows[6]={...unrelated.rows[6],action:"UPDATE_STOCK",target:{in_stock:false},source:{in_stock:true},changed_fields:{stock:true,price:false,url:false}};
+  assert.throws(()=>authorizeOwnerApprovedSixStockOnly(unrelated,owner),error=>error.code==="FIT_HOUSE_SIX_SCOPE_MISMATCH");
   const replay=structuredClone(classified);
-  for(const row of replay.rows.slice(0,6)){row.action="VERIFY_NO_CHANGE";row.target.in_stock=false;row.changed_fields.stock=false}
-  const replayAuthorized=authorizeOwnerApprovedSixStockOnly(replay,{...owner,newUnavailableCount:0});
-  assert.deepEqual(selectOwnerApprovedSixExecutionRows(replayAuthorized,{...owner,newUnavailableCount:0}),[]);
-  assert.deepEqual(replayAuthorized.deferred_changed_offer_ids,unrelatedIds);
+  const returnedRow=replay.rows.find(row=>row.offer_id===returned.offer_id);returnedRow.action="VERIFY_NO_CHANGE";returnedRow.target.in_stock=true;returnedRow.changed_fields.stock=false;
+  const replayOwner={...owner,authorizedChangeCount:0},replayAuthorized=authorizeOwnerApprovedSixStockOnly(replay,replayOwner);
+  assert.deepEqual(selectOwnerApprovedSixExecutionRows(replayAuthorized,replayOwner),[]);
+  assert.deepEqual(replayAuthorized.deferred_changed_offer_ids,[]);
 });
 
-test("six approved source absences are exact, preserve 939, and bind the live OOS baseline", () => {
-  const reviewed=loadOwnerApprovedSixAbsentManifest(),rows=reviewed.manifest.rows;
-  const records=rows.map(row=>({product:{id:row.canonical_product_id},variant:{id:row.canonical_variant_id},mapping:{id:row.mapping_id,external_product_id:row.external_product_id,external_variant_id:row.external_variant_id,external_sku:null,external_url:row.url},offer:{id:row.offer_id,price:row.old_price,in_stock:row.old_stock,url:row.url,shipping_cost:"3.99",total_price:(Number(row.old_price)+3.99).toFixed(2)}}));
+test("offer 759 return is exact, the other six protected offers remain OOS, and replay is idempotent", () => {
+  const reviewed=loadOwnerApprovedSixAbsentManifest(),returnedReview=loadOwnerApprovedReturnedOfferManifest(),returned=returnedReview.manifest,rows=reviewed.manifest.rows;
+  const records=rows.map(row=>({product:{id:row.canonical_product_id},variant:{id:row.canonical_variant_id},mapping:{id:row.mapping_id,external_product_id:row.external_product_id,external_variant_id:row.external_variant_id,external_sku:null,external_url:row.url},offer:{id:row.offer_id,price:row.old_price,in_stock:false,url:row.url,shipping_cost:"3.99",total_price:(Number(row.old_price)+3.99).toFixed(2)}}));
   const padding=Array.from({length:103},(_,i)=>({offer:{id:String(20000+i),in_stock:false}}));
-  const scope=[...records,...padding],fingerprint=reviewed.manifest.source_snapshot_fingerprint;
-  const first=reconcileOwnerApprovedSixAbsent(scope,[],fingerprint,reviewed);
-  assert.equal(first.newUnavailableCount,6);
+  const scope=[...records,...padding],live={external_product_id:returned.external_product_id,external_variant_id:returned.external_variant_id,product_handle:returned.product_handle,external_sku:null,price:returned.price,shipping_cost:"3.99",in_stock:true},fingerprint="8".repeat(64);
+  const first=reconcileOwnerApprovedSixAbsent(scope,[live],fingerprint,reviewed,returnedReview);
+  assert.equal(first.newUnavailableCount,0);
+  assert.equal(first.authorizedChangeCount,1);
   assert.deepEqual(first.approved_rows.map(row=>row.offer_id),["718","749","757","759","913","940"]);
   assert.equal(first.sourceVariants.length,7);
-  assert.equal(first.sourceVariants.find(row=>row.external_variant_id===rows[5].external_variant_id).in_stock,false);
-  for(const record of records)if(record.offer.id!=="939")record.offer.in_stock=false;
-  assert.equal(reconcileOwnerApprovedSixAbsent(scope,[],fingerprint,reviewed).newUnavailableCount,0);
-  assert.throws(()=>reconcileOwnerApprovedSixAbsent(scope,[{external_variant_id:rows[0].external_variant_id}],fingerprint,reviewed),/source identity returned/);
-  assert.throws(()=>reconcileOwnerApprovedSixAbsent(scope,[],"0".repeat(64),reviewed),/source fingerprint changed/);
+  assert.equal(first.sourceVariants.find(row=>row.external_variant_id===returned.external_variant_id),live);
+  assert.ok(first.sourceVariants.filter(row=>row.external_variant_id!==returned.external_variant_id).every(row=>row.in_stock===false));
+  records.find(record=>record.offer.id===returned.offer_id).offer.in_stock=true;
+  assert.equal(reconcileOwnerApprovedSixAbsent(scope,[live],"0".repeat(64),reviewed,returnedReview).authorizedChangeCount,0);
+  assert.throws(()=>reconcileOwnerApprovedSixAbsent(scope,[],fingerprint,reviewed,returnedReview),/returned source identity\/state drift/);
+  assert.throws(()=>reconcileOwnerApprovedSixAbsent(scope,[live,{external_variant_id:rows[0].external_variant_id}],fingerprint,reviewed,returnedReview),/protected absent source identity returned/);
+  records.find(record=>record.offer.id===returned.offer_id).offer.in_stock=false;
+  assert.throws(()=>reconcileOwnerApprovedSixAbsent(scope,[{...live,price:"12.00"}],fingerprint,reviewed,returnedReview),/returned source identity\/state drift/);
   records[0].mapping.external_product_id="wrong";
-  assert.throws(()=>reconcileOwnerApprovedSixAbsent(scope,[],fingerprint,reviewed),/identity\/state drift/);
+  assert.throws(()=>reconcileOwnerApprovedSixAbsent(scope,[live],fingerprint,reviewed,returnedReview),/identity\/state drift/);
 });
 
 test("confirmation-only execution stops changed or incomplete live plans before registration", () => {

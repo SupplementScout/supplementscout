@@ -273,8 +273,18 @@ fingerprint has been stable at `8074eefe...e991` since 24 September. Protected
 variant `46969725714672`, offer `759` (7Nutrition Vegan Berberine Stack at
 `GBP 11.99`), has genuinely returned available with consistent identity; the
 other six protected identities remain absent. The prior absence authorization
-cannot decide a return to stock. No new fingerprint is accepted and no stock
-change is authorized until the owner makes one exact decision for offer `759`.
+cannot decide a return to stock. On 1 October the owner authorized exactly offer
+`759` to return from OOS to in stock, with price `GBP 11.99`, mapping `873`,
+canonical product/variant `740/3021`, source product/variant
+`9168824172784/46969725714672` and URL unchanged; the other six protected offers
+must remain OOS and any other change must stop before registration. The bounded
+edge-coordinator correction records that decision in one immutable SHA-bound
+manifest and generalizes the existing protected-stock selector from a hardcoded
+OOS direction to the exact authorized transition. It adds no workflow, shared
+classifier branch, threshold, mapping, approval path or writer. Local focused,
+quick and full gates pass. Production remains unchanged until the change is on
+`main` and a fresh protected preflight agrees. Evidence:
+[`evidence/RA-STAB-01-FIT-HOUSE-759-RETURN-2026-10-01.json`](evidence/RA-STAB-01-FIT-HOUSE-759-RETURN-2026-10-01.json).
 
 The same audit confirmed that the watchdog currently reports only successful
 stage evidence and may combine ordinary stages from older different runs. Direct

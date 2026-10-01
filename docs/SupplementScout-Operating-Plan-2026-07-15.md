@@ -62,12 +62,16 @@ old PER4M 2 kg family; 29 new 2.01 kg source variants lack sufficient identity
 evidence and are not rebound. A bounded adapter interaction fix now preserves
 the exact missing scope across both confirmation captures instead of converting
 it to an internal error. Fit House offer `759` has genuinely returned to its
-source at the same identity and price, so it requires one exact owner decision
-before any stock change; the other six protected absences remain unchanged. The
-watchdog also requires a central read-only correction because it currently
-prefers older successful stages over the latest failed attempt. None of these
-findings changes the `0/3` counter or authorizes a manual retry or production
-write.
+source at the same identity and price. On 1 October the owner authorized only
+that offer to return to stock, with price, mapping, canonical/source identity and
+URL unchanged and all other protected offers remaining OOS. The implementation
+reuses the existing guarded Fit House path and records the exact transition in a
+SHA-bound manifest; it adds no workflow, threshold, mapping, shared classifier
+branch or writer. Focused, quick and full local gates pass. Production remains
+unchanged until merge and a fresh protected preflight agree. The watchdog also
+requires a central read-only correction because it currently prefers older
+successful stages over the latest failed attempt. None of these findings changes
+the `0/3` ordinary-interval counter or authorizes an RA-004 retry.
 
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
