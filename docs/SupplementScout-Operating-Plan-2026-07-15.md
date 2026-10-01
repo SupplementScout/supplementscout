@@ -56,6 +56,19 @@ none is bypassed or reclassified to make the interval pass. The observation
 counter remains `0/3` and restarts only on ordinary schedules after the central
 correction is merged.
 
+The subsequent read-only fingerprint audit separated three causes instead of
+adding retailer exceptions. Whey Okay has 10 genuine missing identities from an
+old PER4M 2 kg family; 29 new 2.01 kg source variants lack sufficient identity
+evidence and are not rebound. A bounded adapter interaction fix now preserves
+the exact missing scope across both confirmation captures instead of converting
+it to an internal error. Fit House offer `759` has genuinely returned to its
+source at the same identity and price, so it requires one exact owner decision
+before any stock change; the other six protected absences remain unchanged. The
+watchdog also requires a central read-only correction because it currently
+prefers older successful stages over the latest failed attempt. None of these
+findings changes the `0/3` counter or authorizes a manual retry or production
+write.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
