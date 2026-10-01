@@ -16,6 +16,8 @@ const CONFIG_PATH = path.join(
 );
 const VALIDATOR_LOGIN = "supplementscout_production_validator_login";
 const VALIDATOR_ROLE = "retailer_catalogue_production_validator";
+const WORKFLOW_RUNS_PER_PAGE = 25;
+const MAX_WORKFLOW_RUN_PAGES = 4;
 
 function invariant(condition, message) {
   if (!condition) throw new Error(message);
@@ -52,6 +54,12 @@ function loadConfig(file = CONFIG_PATH) {
     "Watchdog closeout queue counts do not reconcile",
   );
   for (const profile of config.retailers) {
+    invariant(
+      Object.hasOwn(profile, "idempotency_step") &&
+        (profile.idempotency_step === null ||
+          (typeof profile.idempotency_step === "string" && profile.idempotency_step.length > 0)),
+      `Watchdog idempotency step is invalid for retailer ${profile.id}`,
+    );
     const rule = baseline.retailers[String(profile.id)];
     invariant(
       Number.isInteger(rule?.maximum_offers_older_than_48h) &&
@@ -166,14 +174,21 @@ function findContractEvidence(value) {
   return null;
 }
 
-function correlateEvidence(stages, contract) {
+function correlateEvidence(stages, contract, profile = {}) {
   if (!stages?.apply || !stages?.db_postflight) return { result: "INCOMPLETE_CORE", failures: [] };
   const failures = [];
   if (!stages.apply.run_id || stages.apply.run_id !== stages.db_postflight.run_id || !stages.apply.head_sha || stages.apply.head_sha !== stages.db_postflight.head_sha) failures.push("APPLY_POSTFLIGHT_CORRELATION_MISMATCH");
+  if (profile.idempotency_step && !stages.idempotency) failures.push("IDEMPOTENCY_SUCCESS_MISSING");
+  if (stages.idempotency && stages.idempotency.run_id !== stages.apply.run_id && contract?.evidence_model !== "split-run-v1") failures.push("GENERIC_SPLIT_RUN_FORBIDDEN");
+  if (stages.idempotency && stages.idempotency.run_id === stages.apply.run_id && stages.idempotency.head_sha !== stages.apply.head_sha) failures.push("IDEMPOTENCY_COMMIT_MISMATCH");
   if (stages.capture && stages.capture.run_id !== stages.apply.run_id) {
+    if (String(profile.id) !== "12" || contract?.evidence_model !== "split-run-v1") failures.push("GENERIC_SPLIT_RUN_FORBIDDEN");
     if (!stages.capture.head_sha || stages.capture.head_sha !== stages.apply.head_sha) failures.push("INDEPENDENT_IDEMPOTENCY_COMMIT_MISMATCH");
     for (const field of ["execution_offer_ids", "expected_deltas", "manifest_sha256", "plan_fingerprint", "postflight_hash"]) if (!contract?.[field]) failures.push(`INDEPENDENT_IDEMPOTENCY_${field.toUpperCase()}_MISSING`);
     if (contract?.evidence_model === "split-run-v1") {
+      if (String(profile.id) !== "12") failures.push("GENERIC_SPLIT_RUN_FORBIDDEN");
+      if (String(contract.apply_run_id || "") !== String(stages.apply.run_id || "")) failures.push("INDEPENDENT_IDEMPOTENCY_APPLY_RUN_MISMATCH");
+      if (String(contract.idempotency_run_id || "") !== String(stages.capture.run_id || "")) failures.push("INDEPENDENT_IDEMPOTENCY_RUN_MISMATCH");
       if (contract.idempotency_result !== "PASS") failures.push("INDEPENDENT_IDEMPOTENCY_NOT_PASSED");
       if (contract.idempotency_database_writes !== 0) failures.push("INDEPENDENT_IDEMPOTENCY_DATABASE_WRITES_PRESENT");
       if (contract.idempotency_executed_plan_count !== 0) failures.push("INDEPENDENT_IDEMPOTENCY_EXECUTED_PLANS_PRESENT");
@@ -181,13 +196,16 @@ function correlateEvidence(stages, contract) {
       if (contract.idempotency_run_id && contract.idempotency_run_id !== stages.capture.run_id) failures.push("INDEPENDENT_IDEMPOTENCY_RUN_MISMATCH");
     }
   }
-  return { result: failures.length ? "UNRELATED_EVIDENCE" : "CORRELATED", failures };
+  const uniqueFailures = [...new Set(failures)];
+  return { result: uniqueFailures.length ? "UNRELATED_EVIDENCE" : "CORRELATED", failures: uniqueFailures };
 }
 
 function evaluateRetailer({ profile, stages, contract, database }, now, maximumAge) {
   const failures = [];
   if (!profile.workflow) failures.push("AUTOMATION_WORKFLOW_MISSING");
-  for (const stage of ["capture", "apply", "db_postflight"]) {
+  const requiredStages = ["capture", "apply", "db_postflight"];
+  if (profile.idempotency_step) requiredStages.push("idempotency");
+  for (const stage of requiredStages) {
     const evidence = stages[stage];
     const age = hoursSince(evidence?.completed_at, now);
     if (!evidence) failures.push(`${stage.toUpperCase()}_SUCCESS_MISSING`);
@@ -221,8 +239,11 @@ function evaluateRetailer({ profile, stages, contract, database }, now, maximumA
       } else if (contract.database_writes !== contract.executed_plan_count) failures.push("EBAY_DATABASE_WRITE_COUNT_MISMATCH");
     }
   }
-  const correlation = correlateEvidence(stages, contract);
+  const correlation = correlateEvidence(stages, contract, profile);
   failures.push(...correlation.failures);
+  if (stages.latest_attempt && !["COMPLETE_SUCCESS", "READ_ONLY_COMPLETE"].includes(stages.latest_attempt.result)) failures.push("LATEST_ATTEMPT_NOT_SUCCESSFUL");
+  if (stages.latest_ordinary_attempt && stages.latest_ordinary_attempt.result !== "COMPLETE_SUCCESS") failures.push("LATEST_ORDINARY_ATTEMPT_INCOMPLETE");
+  if (stages.history_truncated) failures.push("WORKFLOW_HISTORY_TRUNCATED");
   if (!database) failures.push("DATABASE_FRESHNESS_EVIDENCE_MISSING");
   else if (Number(database.offers_older_than_48h) !== 0) {
     const older = (database.older_offer_ids || []).map(String).sort();
@@ -568,45 +589,151 @@ async function buildEbaySplitRunEvidence(repository, stages, token, directory) {
   return null;
 }
 
+function stageDefinitions(profile) {
+  return [
+    ["capture", profile.capture_step],
+    ["apply", profile.apply_step],
+    ["db_postflight", profile.db_postflight_step],
+    ["idempotency", profile.idempotency_step],
+  ].filter(([, name]) => Boolean(name));
+}
+
+function workflowAttempt(profile, run, jobs) {
+  const definitions = stageDefinitions(profile);
+  if (!definitions.length) return null;
+  const matchingJobs = (jobs || []).filter((job) => {
+    const names = new Set((job.steps || []).map((step) => step.name));
+    return names.has(profile.capture_step);
+  });
+  invariant(matchingJobs.length <= 1, `Multiple jobs match retailer profile ${profile.id}`);
+  if (!matchingJobs.length) return null;
+  const job = matchingJobs[0];
+  const stages = {};
+  for (const [stage, stepName] of definitions) {
+    const step = (job.steps || []).find((candidate) => candidate.name === stepName);
+    stages[stage] = step ? {
+      run_id: String(run.id),
+      run_url: run.html_url,
+      job_id: job.id === undefined || job.id === null ? null : String(job.id),
+      job_name: job.name || null,
+      completed_at: step.completed_at || run.updated_at,
+      head_sha: run.head_sha || null,
+      conclusion: step.conclusion || null,
+    } : null;
+  }
+  const applyConclusion = stages.apply?.conclusion;
+  const captureConclusion = stages.capture?.conclusion;
+  const operation = applyConclusion && applyConclusion !== "skipped"
+    ? "APPLY_ATTEMPT"
+    : captureConclusion === "success"
+      ? "READ_ONLY"
+      : "INCOMPLETE";
+  const complete = run.conclusion === "success" &&
+    definitions.every(([stage]) => stages[stage]?.conclusion === "success");
+  const readOnlyComplete = run.conclusion === "success" &&
+    operation === "READ_ONLY" &&
+    definitions
+      .filter(([stage]) => stage !== "capture")
+      .every(([stage]) => stages[stage]?.conclusion === "skipped");
+  const result = complete
+    ? "COMPLETE_SUCCESS"
+    : readOnlyComplete
+      ? "READ_ONLY_COMPLETE"
+      : "FAILED_OR_INCOMPLETE";
+  return {
+    run_id: String(run.id),
+    run_url: run.html_url,
+    event: run.event || null,
+    head_sha: run.head_sha || null,
+    run_conclusion: run.conclusion || null,
+    created_at: run.created_at || null,
+    updated_at: run.updated_at || null,
+    job_id: job.id === undefined || job.id === null ? null : String(job.id),
+    job_name: job.name || null,
+    operation,
+    result,
+    stages,
+  };
+}
+
+function successfulStages(attempt) {
+  if (!attempt) return { capture: null, apply: null, db_postflight: null, idempotency: null };
+  return Object.fromEntries(["capture", "apply", "db_postflight", "idempotency"].map((stage) => [stage, attempt.stages[stage]?.conclusion === "success" ? attempt.stages[stage] : null]));
+}
+
+function selectWorkflowAttempts(attempts) {
+  const compareRunIds = (left, right) => {
+    if (/^\d+$/.test(left) && /^\d+$/.test(right)) {
+      const leftId = BigInt(left);
+      const rightId = BigInt(right);
+      return rightId > leftId ? 1 : rightId < leftId ? -1 : 0;
+    }
+    return right.localeCompare(left);
+  };
+  const ordered = [...attempts].sort((left, right) => {
+    const leftTime = Date.parse(left.created_at || left.updated_at || "") || 0;
+    const rightTime = Date.parse(right.created_at || right.updated_at || "") || 0;
+    if (rightTime !== leftTime) return rightTime - leftTime;
+    return compareRunIds(left.run_id, right.run_id);
+  });
+  return {
+    latestAttempt: ordered[0] || null,
+    lastCompleteSuccess: ordered.find((attempt) => attempt.result === "COMPLETE_SUCCESS") || null,
+    latestOrdinaryAttempt: ordered.find((attempt) => attempt.event === "schedule") || null,
+    lastCompleteOrdinarySuccess: ordered.find((attempt) => attempt.event === "schedule" && attempt.result === "COMPLETE_SUCCESS") || null,
+  };
+}
+
+function ebaySplitStages(attempts) {
+  const applyAttempt = attempts.find((attempt) =>
+    attempt.run_conclusion === "success" &&
+    attempt.stages.apply?.conclusion === "success" &&
+    attempt.stages.db_postflight?.conclusion === "success"
+  );
+  if (!applyAttempt) return null;
+  const idempotencyAttempt = attempts.find((attempt) =>
+    attempt.run_id !== applyAttempt.run_id &&
+    attempt.head_sha === applyAttempt.head_sha &&
+    attempt.result === "READ_ONLY_COMPLETE" &&
+    attempt.stages.capture?.conclusion === "success"
+  );
+  if (!idempotencyAttempt) return null;
+  return {
+    capture: idempotencyAttempt.stages.capture,
+    apply: applyAttempt.stages.apply,
+    db_postflight: applyAttempt.stages.db_postflight,
+    idempotency: idempotencyAttempt.stages.capture,
+  };
+}
+
 async function runStages(profile, repository, token) {
-  const stages = { capture: null, apply: null, db_postflight: null };
-  if (!profile.workflow) return { stages, applyRunId: null };
+  const emptyStages = { capture: null, apply: null, db_postflight: null, idempotency: null };
+  if (!profile.workflow) return { stages: emptyStages, applyRunId: null, latestAttempt: null, lastCompleteSuccess: null, latestOrdinaryAttempt: null, lastCompleteOrdinarySuccess: null, historyTruncated: false };
   const base = `https://api.github.com/repos/${repository}`;
   const workflow = encodeURIComponent(profile.workflow);
-  const listing = await githubJson(
-    `${base}/actions/workflows/${workflow}/runs?status=completed&per_page=10`,
-    token,
-  );
-  let applyRunId = null;
-  for (const run of listing.workflow_runs || []) {
-    const jobs = await githubJson(
-      `${base}/actions/runs/${run.id}/jobs?per_page=100`,
-      token,
-    );
-    const steps = (jobs.jobs || []).flatMap((job) => job.steps || []);
-    for (const [stage, stepName] of [
-      ["capture", profile.capture_step],
-      ["apply", profile.apply_step],
-      ["db_postflight", profile.db_postflight_step],
-    ]) {
-      if (!stepName || stages[stage]) continue;
-      const step = steps.find(
-        (candidate) =>
-          candidate.name === stepName && candidate.conclusion === "success",
-      );
-      if (step) {
-        stages[stage] = {
-          run_id: String(run.id),
-          run_url: run.html_url,
-          completed_at: step.completed_at || run.updated_at,
-          head_sha: run.head_sha || null,
-        };
-        if (stage === "apply" && applyRunId === null) applyRunId = run.id;
-      }
+  const attempts = [];
+  let historyTruncated = false;
+  for (let page = 1; page <= MAX_WORKFLOW_RUN_PAGES; page++) {
+    const listing = await githubJson(`${base}/actions/workflows/${workflow}/runs?status=completed&per_page=${WORKFLOW_RUNS_PER_PAGE}&page=${page}`, token);
+    const runs = listing.workflow_runs || [];
+    for (const run of runs) {
+      const jobs = await githubJson(`${base}/actions/runs/${run.id}/jobs?per_page=100`, token);
+      const attempt = workflowAttempt(profile, run, jobs.jobs || []);
+      if (attempt) attempts.push(attempt);
     }
-    if (Object.values(stages).every(Boolean)) break;
+    const selected = selectWorkflowAttempts(attempts);
+    if (selected.latestAttempt && selected.lastCompleteSuccess && selected.latestOrdinaryAttempt && selected.lastCompleteOrdinarySuccess) break;
+    if (runs.length < WORKFLOW_RUNS_PER_PAGE) break;
+    if (page === MAX_WORKFLOW_RUN_PAGES) historyTruncated = true;
   }
-  return { stages, applyRunId };
+  const selected = selectWorkflowAttempts(attempts);
+  let stages = successfulStages(selected.lastCompleteSuccess);
+  let correlationModel = "SAME_RUN";
+  if (String(profile.id) === "12" && !selected.lastCompleteSuccess) {
+    const split = ebaySplitStages(attempts);
+    if (split) { stages = split; correlationModel = "EBAY_SPLIT_RUN_V1_CANDIDATE"; }
+  }
+  return { stages, applyRunId: stages.apply?.run_id || null, ...selected, historyTruncated, correlationModel };
 }
 
 async function contractFromArtifacts(repository, runId, token, options = {}) {
@@ -760,7 +887,15 @@ async function run(options, dependencies = {}) {
         repository,
         token,
       );
-      stages = stageResult.stages;
+      stages = {
+        ...stageResult.stages,
+        latest_attempt: stageResult.latestAttempt,
+        last_complete_success: stageResult.lastCompleteSuccess,
+        latest_ordinary_attempt: stageResult.latestOrdinaryAttempt,
+        last_complete_ordinary_success: stageResult.lastCompleteOrdinarySuccess,
+        history_truncated: stageResult.historyTruncated,
+        correlation_model: stageResult.correlationModel,
+      };
       contract = await (
         dependencies.contractFromArtifacts || contractFromArtifacts
       )(repository, stageResult.applyRunId, token, { profile, stages });
@@ -862,6 +997,9 @@ module.exports = {
   parseArgs,
   run,
   runStages,
+  selectWorkflowAttempts,
+  stageDefinitions,
   summarizeWatchdogResult,
+  workflowAttempt,
   watchdogExitCode,
 };

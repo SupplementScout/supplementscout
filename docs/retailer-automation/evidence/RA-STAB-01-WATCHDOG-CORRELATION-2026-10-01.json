@@ -1,0 +1,110 @@
+{
+  "schema_version": "ra-stab-01-watchdog-correlation-v1",
+  "status": "LOCAL_VERIFIED_PENDING_MAIN_AND_LIVE_READBACK",
+  "task_id": "RA-STAB-01",
+  "evidence_date": "2026-10-01",
+  "mode": "READ_ONLY_MONITOR_CORRECTION",
+  "database_reads": 0,
+  "database_writes": 0,
+  "workflow_dispatches": 0,
+  "retailer_refreshes": 0,
+  "approval_or_control_writes": 0,
+  "root_cause": {
+    "classification": "EVIDENCE_CORRELATION",
+    "description": "The watchdog independently selected the newest successful capture, apply and postflight steps from a ten-run window, which could conceal a newer failed attempt and combine stages from different runs.",
+    "production_example": {
+      "watchdog_run_id": "36821023251",
+      "retailer": "10 Reps",
+      "selected_capture_run_id": "36546643195",
+      "selected_apply_and_postflight_run_id": "36306584359",
+      "newer_failed_attempt_run_id": "36693313942"
+    }
+  },
+  "correction": {
+    "shared_files": [
+      "scripts/automation-reliability-watchdog.js",
+      "config/automation-reliability-watchdog.json",
+      "scripts/catalog-health.test.js"
+    ],
+    "file_sha256": {
+      "scripts/automation-reliability-watchdog.js": "1dc9bb740c9300d65ab39057183ace56f02662e3cd791bbcf80ba6439c379c81",
+      "config/automation-reliability-watchdog.json": "b6c687b4c525b8a38e401efa66907ad7871bae202930d944585dc566160d8d7a",
+      "scripts/catalog-health.test.js": "ef318c78d2949822d9a4cf406dec378d53660f0149b4ae7b714fc6fe8ea486c5"
+    },
+    "attempt_views": [
+      "latest_attempt",
+      "last_complete_success",
+      "latest_ordinary_attempt",
+      "last_complete_ordinary_success"
+    ],
+    "ordinary_contract": "Capture, apply, database postflight and configured idempotency must all succeed in the same retailer job, workflow run and commit.",
+    "manual_dry_run_contract": "A successful capture with intentionally skipped write stages remains visible as READ_ONLY_COMPLETE, does not count as an ordinary interval and does not replace the last complete apply.",
+    "shared_workflow_isolation": "Fit House and 10 Reps are selected by their exact capture step and retained job identity inside the shared workflow.",
+    "generic_cross_run_stitching": "FORBIDDEN",
+    "allowed_split_run_exception": "Only the existing eBay split-run-v1 attestation with exact apply/idempotency run bindings, same commit and zero-write idempotency remains allowed.",
+    "history_contract": {
+      "runs_per_page": 25,
+      "maximum_pages": 4,
+      "silent_truncation_allowed": false,
+      "failure_code": "WORKFLOW_HISTORY_TRUNCATED"
+    },
+    "retailer_specific_shared_core_branch_added": false,
+    "new_workflow_or_writer_added": false,
+    "guardrail_or_baseline_weakened": false
+  },
+  "regressions": {
+    "focused_test_file": "scripts/catalog-health.test.js",
+    "focused_result": {
+      "passed": 36,
+      "failed": 0,
+      "skipped": 0
+    },
+    "covered_incidents": [
+      "newer failed attempt cannot be hidden by an older complete success",
+      "manual dry-run remains visible without becoming an ordinary success",
+      "Fit House and 10 Reps cannot borrow stages from each other",
+      "idempotency failure prevents complete success",
+      "all terminal failure conclusions remain incomplete",
+      "unordered input selection is deterministic",
+      "generic non-eBay split-run evidence is rejected",
+      "exact idempotency step names are configuration-bound"
+    ]
+  },
+  "verification": {
+    "project_guardian_before_documentation": "PASS",
+    "quick_gate": "PASS",
+    "full_gate": "PASS",
+    "production_build": "PASS",
+    "quality_gate_manifest_reseal_required": false
+  },
+  "fit_house_owner_scope": {
+    "offer_759_operation_status": "LIVE_VERIFIED_AND_CLOSED",
+    "offer_759_stock_change": "false_to_true",
+    "freshness_only_confirmations": 19,
+    "deferred_review_offer_ids": [
+      "697",
+      "735",
+      "921",
+      "944",
+      "951",
+      "953",
+      "954",
+      "963",
+      "972",
+      "983",
+      "1859",
+      "1904",
+      "1938",
+      "1982"
+    ],
+    "deferred_rows_changed_by_this_correction": false,
+    "manual_operation_counts_as_ordinary_interval": false
+  },
+  "decision": {
+    "ordinary_intervals_completed": 0,
+    "ordinary_intervals_required": 3,
+    "next_step": "Merge through CI, then run the existing read-only watchdog from main and inspect its artifact. Do not dispatch a retailer refresh or widen monitored baselines.",
+    "production_write_authorized": false,
+    "ra_004_retry_authorized": false
+  }
+}

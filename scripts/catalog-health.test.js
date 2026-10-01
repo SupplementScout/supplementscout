@@ -64,11 +64,38 @@ const {
   findContractEvidence,
   loadConfig: loadWatchdogConfig,
   parseArgs: parseWatchdogArgs,
+  selectWorkflowAttempts,
   summarizeWatchdogResult,
   watchdogExitCode,
   validateEbayApplyArtifacts,
   validateEbayIdempotencyArtifacts,
+  workflowAttempt,
 } = require("./automation-reliability-watchdog");
+
+const watchdogProfile = {
+  id: 9,
+  capture_step: "capture-fit-house",
+  apply_step: "apply-fit-house",
+  db_postflight_step: "postflight-fit-house",
+  idempotency_step: "idempotency-fit-house",
+};
+
+function watchdogRun(id, { event = "schedule", conclusion = "success", createdAt = `2026-09-01T00:00:${String(id).padStart(2, "0")}Z` } = {}) {
+  return { id, event, conclusion, head_sha: `sha-${id}`, html_url: `https://example.test/runs/${id}`, created_at: createdAt, updated_at: createdAt };
+}
+
+function watchdogJob(profile, conclusions, name = "retailer-job", id = 1) {
+  return {
+    id,
+    name,
+    steps: [
+      [profile.capture_step, conclusions.capture],
+      [profile.apply_step, conclusions.apply],
+      [profile.db_postflight_step, conclusions.db_postflight],
+      [profile.idempotency_step, conclusions.idempotency],
+    ].filter(([stepName]) => stepName).map(([stepName, conclusion]) => ({ name: stepName, conclusion, completed_at: "2026-09-01T00:10:00Z" })),
+  };
+}
 
 test("watchdog isolates artifacts for jobs sharing one workflow", () => {
   assert.equal(
@@ -794,7 +821,74 @@ test("watchdog rejects unrelated independent idempotency evidence", () => {
   assert.equal(unrelated.result, "UNRELATED_EVIDENCE");
   assert(unrelated.failures.includes("INDEPENDENT_IDEMPOTENCY_COMMIT_MISMATCH"));
   const complete = { execution_offer_ids: ["1"], expected_deltas: {}, manifest_sha256: "m", plan_fingerprint: "p", postflight_hash: "h" };
-  assert.equal(correlateEvidence({ ...core, capture: { run_id: "11", head_sha: "a" } }, complete).result, "CORRELATED");
+  const genericSplit = correlateEvidence({ ...core, capture: { run_id: "11", head_sha: "a" } }, complete, { id: 9 });
+  assert.equal(genericSplit.result, "UNRELATED_EVIDENCE");
+  assert(genericSplit.failures.includes("GENERIC_SPLIT_RUN_FORBIDDEN"));
+});
+
+test("watchdog selects attempts without stitching newer failure into older success", () => {
+  const older = workflowAttempt(watchdogProfile, watchdogRun(10), [watchdogJob(watchdogProfile, { capture: "success", apply: "success", db_postflight: "success", idempotency: "success" })]);
+  const newer = workflowAttempt(watchdogProfile, watchdogRun(11, { conclusion: "failure" }), [watchdogJob(watchdogProfile, { capture: "failure", apply: "skipped", db_postflight: "skipped", idempotency: "skipped" })]);
+  const selected = selectWorkflowAttempts([older, newer]);
+  assert.equal(selected.latestAttempt.run_id, "11");
+  assert.equal(selected.latestAttempt.result, "FAILED_OR_INCOMPLETE");
+  assert.equal(selected.lastCompleteSuccess.run_id, "10");
+  assert.deepEqual(new Set(Object.values(selected.lastCompleteSuccess.stages).map((stage) => stage.run_id)), new Set(["10"]));
+});
+
+test("watchdog keeps manual dry-runs visible without replacing last complete success", () => {
+  const complete = workflowAttempt(watchdogProfile, watchdogRun(20), [watchdogJob(watchdogProfile, { capture: "success", apply: "success", db_postflight: "success", idempotency: "success" })]);
+  const dryRun = workflowAttempt(watchdogProfile, watchdogRun(21, { event: "workflow_dispatch" }), [watchdogJob(watchdogProfile, { capture: "success", apply: "skipped", db_postflight: "skipped", idempotency: "skipped" })]);
+  const selected = selectWorkflowAttempts([dryRun, complete]);
+  assert.equal(selected.latestAttempt.run_id, "21");
+  assert.equal(selected.latestAttempt.result, "READ_ONLY_COMPLETE");
+  assert.equal(selected.lastCompleteSuccess.run_id, "20");
+  assert.equal(selected.latestOrdinaryAttempt.run_id, "20");
+  assert.equal(selected.lastCompleteOrdinarySuccess.run_id, "20");
+});
+
+test("watchdog isolates exact retailer job in a shared workflow", () => {
+  const tenRepsProfile = { id: 14, capture_step: "capture-10-reps", apply_step: "apply-10-reps", db_postflight_step: "postflight-10-reps", idempotency_step: "idempotency-10-reps" };
+  const jobs = [
+    watchdogJob(watchdogProfile, { capture: "success", apply: "success", db_postflight: "success", idempotency: "success" }, "fit-house", 9),
+    watchdogJob(tenRepsProfile, { capture: "success", apply: "failure", db_postflight: "skipped", idempotency: "skipped" }, "10-reps", 14),
+  ];
+  const fitHouse = workflowAttempt(watchdogProfile, watchdogRun(30), jobs);
+  const tenReps = workflowAttempt(tenRepsProfile, watchdogRun(30, { conclusion: "failure" }), jobs);
+  assert.equal(fitHouse.job_name, "fit-house");
+  assert.equal(fitHouse.result, "COMPLETE_SUCCESS");
+  assert.equal(tenReps.job_name, "10-reps");
+  assert.equal(tenReps.result, "FAILED_OR_INCOMPLETE");
+});
+
+test("watchdog classifies every non-success terminal conclusion as incomplete", () => {
+  for (const conclusion of ["failure", "cancelled", "timed_out", "action_required", "stale"]) {
+    const attempt = workflowAttempt(watchdogProfile, watchdogRun(40, { conclusion }), [watchdogJob(watchdogProfile, { capture: "success", apply: conclusion, db_postflight: "skipped", idempotency: "skipped" })]);
+    assert.equal(attempt.result, "FAILED_OR_INCOMPLETE", conclusion);
+  }
+  const idempotencyFailure = workflowAttempt(watchdogProfile, watchdogRun(41, { conclusion: "failure" }), [watchdogJob(watchdogProfile, { capture: "success", apply: "success", db_postflight: "success", idempotency: "failure" })]);
+  assert.equal(idempotencyFailure.result, "FAILED_OR_INCOMPLETE");
+  const failedAfterStages = workflowAttempt(watchdogProfile, watchdogRun(42, { conclusion: "failure" }), [watchdogJob(watchdogProfile, { capture: "success", apply: "success", db_postflight: "success", idempotency: "success" })]);
+  assert.equal(failedAfterStages.result, "FAILED_OR_INCOMPLETE");
+  const impureDryRun = workflowAttempt(watchdogProfile, watchdogRun(43, { event: "workflow_dispatch" }), [watchdogJob(watchdogProfile, { capture: "success", apply: "skipped", db_postflight: "success", idempotency: "skipped" })]);
+  assert.equal(impureDryRun.result, "FAILED_OR_INCOMPLETE");
+});
+
+test("watchdog attempt selection is deterministic for unordered input", () => {
+  const attempts = [50, 52, 51].map((id) => workflowAttempt(watchdogProfile, watchdogRun(id, { createdAt: "2026-09-01T00:00:00Z" }), [watchdogJob(watchdogProfile, { capture: "success", apply: "success", db_postflight: "success", idempotency: "success" })]));
+  assert.equal(selectWorkflowAttempts(attempts).latestAttempt.run_id, "52");
+  assert.equal(selectWorkflowAttempts(attempts.reverse()).latestAttempt.run_id, "52");
+});
+
+test("watchdog configuration binds the exact idempotency step for every automated retailer", () => {
+  const profiles = new Map(loadWatchdogConfig().retailers.map((profile) => [String(profile.id), profile.idempotency_step]));
+  assert.equal(profiles.get("1"), null);
+  assert.equal(profiles.get("13"), null);
+  assert.equal(profiles.get("9"), "Verify idempotency with a fresh source capture");
+  assert.equal(profiles.get("11"), "Verify idempotency against a fresh source capture");
+  assert.equal(profiles.get("12"), "Seal same-run eBay apply, postflight and idempotency evidence");
+  assert.equal(profiles.get("14"), "Verify 10 Reps idempotency with a fresh source capture");
+  assert.equal([...profiles.values()].filter(Boolean).length, 10);
 });
 
 test("same-run eBay evidence sealer requires exact apply, postflight and idempotency correlation", () => {
