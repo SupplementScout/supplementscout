@@ -251,6 +251,14 @@ proof of the merged summary fix; and 10 Reps retains genuine review/stale debt.
 These three recovered paths are not a full cross-path interval, so the counter
 remains `0/3` and manual retries remain unauthorized.
 
+Natural eBay run `36857715310` on current `main` independently reproduced the
+same offer `2549` split: its complete capture recorded `GBP 26.99`, while the
+exact prepare read about 91 seconds later recorded `GBP 24.99`; identity,
+mapping, URL and availability were unchanged. The contract again stopped before
+DB baseline, approval or writes. The incident is therefore recurring
+source/evidence-correlation debt, not an identity escape and not authority to
+weaken drift guards or add an eBay-specific exception.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
