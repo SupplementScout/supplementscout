@@ -357,6 +357,27 @@ RA-STAB closeout proof until `latest_attempt` is separated from
 the next shared read-only implementation after the fingerprint class. Evidence:
 [`evidence/RA-STAB-01-FINGERPRINT-IDENTITY-AUDIT-2026-10-01.json`](evidence/RA-STAB-01-FINGERPRINT-IDENTITY-AUDIT-2026-10-01.json).
 
+**Watchdog correlation correction - locally verified, live readback pending:**
+the shared watchdog now builds one retailer attempt from one exact job and one
+workflow run instead of selecting successful steps independently. It reports
+`latest_attempt`, `last_complete_success`, `latest_ordinary_attempt` and
+`last_complete_ordinary_success`; a newer failure therefore remains visible
+while an older complete success remains historical evidence only. Configured
+idempotency is part of the same-run success contract. Manual dry-runs remain
+visible as read-only completions but cannot become ordinary intervals or replace
+the last completed apply. The Fit House and 10 Reps jobs are isolated inside
+their shared workflow by exact step and job identity. Generic cross-run
+stitching is rejected; only the existing exact eBay `split-run-v1` attestation
+remains available. Workflow history now reads up to 100 completed runs and
+emits `WORKFLOW_HISTORY_TRUNCATED` rather than silently accepting an incomplete
+window. Focused 36/36 tests, quick gate, full gate, Project Guardian and the
+production build pass. No workflow, importer, approval path, writer, monitored
+baseline or retailer condition was added. The next gate is merge and one fresh
+read-only watchdog from `main`; it may expose real historical failures and must
+not be made green by widening baselines or manually retrying retailers.
+Evidence:
+[`evidence/RA-STAB-01-WATCHDOG-CORRELATION-2026-10-01.json`](evidence/RA-STAB-01-WATCHDOG-CORRELATION-2026-10-01.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

@@ -121,6 +121,20 @@ verified and closed, while RA-STAB-01 remains `IN_PROGRESS`: this manual run doe
 not count toward `0/3`, and the next task is the shared read-only watchdog
 correlation correction before ordinary interval observation resumes.
 
+That central watchdog correction is now locally verified. Each retailer result
+is built from one exact job/run/commit and exposes the newest attempt separately
+from the last complete success, including separate ordinary-schedule views.
+Configured idempotency is required for a complete same-run result; manual
+dry-runs remain visible but cannot count as ordinary evidence. Generic cross-run
+stitching is closed, with only the existing fully bound eBay `split-run-v1`
+exception retained. Fit House and 10 Reps remain isolated inside their shared
+workflow, and a bounded paginated history must either find the required evidence
+or report explicit truncation. Focused tests, quick/full gates, Project Guardian
+and the production build pass with zero production or control writes. The next
+gate is CI/merge followed by one fresh read-only watchdog from `main`; the
+ordinary counter remains `0/3`, retailer retries and baseline widening remain
+unauthorized, and the completed Fit House 759 scope is unchanged.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
