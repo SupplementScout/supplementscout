@@ -1,6 +1,6 @@
 {
   "schema_version": "ra-stab-01-fit-house-return-v1",
-  "status": "LOCAL_VERIFIED_AWAITING_MAIN_PRODUCTION_PREFLIGHT",
+  "status": "PRODUCTION_PREFLIGHT_BLOCKED_BY_OUT_OF_SCOPE_STOCK_CHANGES",
   "task_id": "RA-STAB-01",
   "decision_date": "2026-10-01",
   "owner_authority": {
@@ -61,14 +61,31 @@
     "project_guardian_after_document_change": "PASS"
   },
   "production": {
-    "workflow_dispatches": 0,
+    "main_commit": "e11785425effeaaf7917516176d9936cf64937b2",
+    "workflow_dispatches": 1,
+    "preflight_run_id": 36829215331,
+    "preflight_artifact_id": 11146044349,
+    "preflight_artifact_digest": "sha256:48a7a9c59b860e74e03af1aaf6da40243b16bcbbee2e53146ebd0bc7a87fa962",
+    "source_fingerprint": "8074eefe826362f2ae8d7e8333452ffebf1e3a7b787f1028e0b0bc1145d6e991",
+    "source_product_count": 242,
+    "source_variant_count": 338,
+    "database_before": { "products": 1337, "variants": 3632, "mappings": 286, "offers": 286, "history": 24632 },
     "control_writes": 0,
     "business_writes": 0,
-    "preflight": "PENDING_MAIN",
-    "apply": "PENDING_MAIN_AND_FRESH_PREFLIGHT",
-    "postflight": "PENDING",
-    "idempotency": "PENDING"
+    "approvals_created": 0,
+    "preflight": "BLOCKED_FAIL_CLOSED_BEFORE_REGISTRATION",
+    "failure_stage": "CLASSIFIER",
+    "failure_code": "FIT_HOUSE_SIX_SCOPE_MISMATCH",
+    "classified_stock_changes": {
+      "total": 15,
+      "authorized_offer_ids": ["759"],
+      "out_of_scope_offer_ids": ["697", "735", "921", "944", "951", "953", "954", "963", "972", "983", "1859", "1904", "1938", "1982"]
+    },
+    "apply": "NOT_RUN",
+    "postflight": "NOT_RUN",
+    "idempotency": "NOT_RUN"
   },
+  "next_decision_boundary": "The current authority requires any other changed row to stop the write. Executing only offer 759 while isolating the other 14 rows requires a new explicit owner decision; no code change or retry is authorized by this evidence.",
   "ordinary_interval_counter": {
     "completed": 0,
     "required": 3,

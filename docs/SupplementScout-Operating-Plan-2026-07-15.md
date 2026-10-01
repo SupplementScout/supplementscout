@@ -73,6 +73,15 @@ requires a central read-only correction because it currently prefers older
 successful stages over the latest failed attempt. None of these findings changes
 the `0/3` ordinary-interval counter or authorizes an RA-004 retry.
 
+The exact Fit House implementation reached `main` as `e1178542` after local and
+CI full gates passed. Fresh production dry-run `36829215331` made zero writes
+and stopped before registration: offer `759` matched the authorized return, but
+14 other stock changes were also present in the 286-offer scope. The current
+authority explicitly permits no other changed row, so apply, postflight and
+idempotency did not run. No retry or code patch is authorized. A decision to
+execute only `759` while isolating those 14 rows for review would be a separate
+owner-scope decision and would not count as an ordinary interval.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
