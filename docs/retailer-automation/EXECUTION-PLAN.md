@@ -538,8 +538,13 @@ pre-recovery ledger-selector class. Natural Jon's run `36853819770` on current
 idempotency passed with `506` approved, `501` executed, `5` review and zero
 blocked; artifact `11157711039` has digest `sha256:b6cdc18d...e6d3f`.
 6 Pack is separately classified `SOURCE` because exact product `4150` returned
-HTTP 404 after five bounded attempts. eBay is `FINGERPRINT_OR_IDENTITY` because
-offer `2549` escaped its exact approved scope. Fit House is the already-fixed
+HTTP 404 after five bounded attempts. Artifact-level replay resolves eBay's
+generic scope error as `EVIDENCE_CORRELATION`, not identity drift: the complete
+capture observed offer `2549` at `GBP 26.99`, then its bounded prepare capture
+about 81 seconds later observed `GBP 24.99`; the semantic contract correctly
+rejected the resulting price update before baseline or writes. The existing
+drift regressions pass `106/106`, so no exception or code change is justified.
+Fit House is the already-fixed
 summary `FAILED_SYSTEM` pending natural producer proof; 10 Reps is genuine
 `MONITORED_DEBT`. No retailer-specific patch is justified. One recovered path
 does not constitute a full interval, so the counter remains `0/3`. Evidence:

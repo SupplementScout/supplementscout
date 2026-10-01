@@ -125,16 +125,33 @@
     {
       "retailer": "eBay UK",
       "watchdog_result": "FAIL",
-      "primary_class": "FINGERPRINT_OR_IDENTITY",
+      "primary_class": "EVIDENCE_CORRELATION",
       "secondary_classes": [
-        "EVIDENCE_CORRELATION",
+        "SOURCE",
         "MONITORED_DEBT"
       ],
       "latest_ordinary_run_id": "36708063408",
       "artifact_id": "11092279523",
       "artifact_digest": "sha256:2d6679790049f8d48a101ece84177c2cf5faf9e07f229566c0ab72b95030f709",
-      "evidence": "The dry-run itself returned PASS_WITH_REVIEW, but plan preparation failed closed because offer 2549 escaped the exact approved scope. Workflow history is also explicitly truncated; 81 offers are stale and 69 rows remain in review.",
-      "next_action": "Reproduce offer 2549 scope escape from the retained artifact in the common harness before considering code. Do not apply, rebind or widen scope."
+      "evidence": "Artifact replay resolves the generic scope error: the complete capture at 2026-09-30T11:22:03.380Z classified offer 2549 at GBP 26.99 as VERIFY_NO_CHANGE, while its bounded prepare capture at 2026-09-30T11:23:24.519Z observed GBP 24.99 and produced an offer update plus price-history create. The exact semantic contract correctly rejected the cross-capture commercial drift before baseline or writes. Identity, mapping, URL and availability stayed unchanged. Workflow history is also explicitly truncated; 81 offers are stale and 69 rows remain in review.",
+      "artifact_reproduction": {
+        "offer_id": "2549",
+        "mapping_id": "2734",
+        "product_id": "468",
+        "product_variant_id": "2696",
+        "complete_capture_at": "2026-09-30T11:22:03.380Z",
+        "complete_capture_price_gbp": "26.99",
+        "complete_capture_operation": "VERIFY_NO_CHANGE",
+        "bounded_prepare_capture_at": "2026-09-30T11:23:24.519Z",
+        "bounded_prepare_price_gbp": "24.99",
+        "bounded_prepare_offer_action": "update",
+        "bounded_prepare_price_history_action": "create",
+        "bounded_prepare_source_sha256": "c3e9f80055e83bbb9c5b36be8040bbda9f0e39278a41202dcbd7af1861f58f00",
+        "identity_changed": false,
+        "database_writes": 0,
+        "existing_drift_regression": "PASS: scripts/ebay-browse-pilot.test.js, 106/106"
+      },
+      "next_action": "Preserve the fail-closed result and observe the next natural schedule. Do not apply, rebind, widen scope or add an eBay-specific exception; consider code only if current evidence reproduces a retailer-neutral capture-correlation defect."
     },
     {
       "retailer": "Predators Gear",
