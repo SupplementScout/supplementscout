@@ -1,8 +1,9 @@
 {
   "schema_version": "ra-stab-01-evidence-preservation-audit-v1",
-  "status": "PRESERVATION_AUDITED_REPLAY_BUNDLE_INCOMPLETE",
+  "status": "PRESERVATION_AUDITED_CURRENT_ARTIFACT_INDEXED_REPLAY_BUNDLE_INCOMPLETE",
   "task_id": "RA-STAB-01",
   "recorded_at": "2026-09-29T16:03:43.2803745Z",
+  "updated_at": "2026-10-01T11:06:36.6432296Z",
   "repository": {
     "main_commit": "00853575d4808af764b02203a9795da0028c1b83",
     "audit_mode": "READ_ONLY_DOCUMENTATION",
@@ -178,6 +179,50 @@
         "retry_authorized": false,
         "replayable": false
       },
+      "current_retrievable_ordinary_artifact": {
+        "assessment": "RETRIEVABLE_DIAGNOSTIC_BUNDLE_NOT_A_RECORDED_REPLAY_INPUT",
+        "workflow_run_id": "36842642858",
+        "job_id": "110305124655",
+        "head_sha": "597a5a26b75755115a4aad7599bb12286f706074",
+        "artifact_id": "11153320825",
+        "artifact_name": "10reps-offer-refresh-36842642858-1",
+        "artifact_digest": "sha256:8a58626a430528c500d7c3ffadebba28457f219bcc99d1b7e88e822ad8252dbd",
+        "created_at": "2026-10-01T09:50:07Z",
+        "expires_at": "2026-10-15T09:50:06Z",
+        "expired_at_audit": false,
+        "archive_size_bytes": 92216,
+        "file_sha256": {
+          "production-apply-diagnostic.json": "964dfb5e381c1b84f32d1b9240010359dd718220a44eb76278d2b05dc917aea5",
+          "production-apply.json": "7132660eedacd7d1c17e1aa137accfef26625367c6b409a0028e63cff3be2b61",
+          "production-db-baseline.json": "4f5bb1b94d6c931c2245764c2591e2e22a6d00fbeab9dd6257ead57383e0a58a",
+          "production-db-postflight.json": "e50fdbf6695147200ae06cb8cb0221c783a72225c5a821e03d65ca6621e44244",
+          "production-dry-run.json": "961e440a277bb4d6cce5eea28afc045688f774ff1f7c4678f17216794e346f45",
+          "production-idempotency-diagnostic.json": "af9ba93b1b731ebc87e9e314ee1cf5a540129e624e00f1cad48f4f6b28bf3c82",
+          "production-preflight-diagnostic.json": "97debdb2a40a62e5433dee00bdc05aca6e63034d2e1e0fab1f9eae67f6d9b699"
+        },
+        "verified_accounting": {
+          "database_baseline_rows": 950,
+          "database_baseline_evidence_hash": "1214a4d931d7684d83c5bf18c859975f0b9c48b05710872e12e5e90200be87f9",
+          "execution_offer_ids": 934,
+          "review_offer_ids": 16,
+          "execution_review_overlap": 0,
+          "baseline_ids_missing_from_partition": 0,
+          "partition_ids_absent_from_baseline": 0,
+          "postflight_result": "PASS",
+          "idempotency_result": "PASS",
+          "idempotency_database_writes": 0
+        },
+        "not_present": [
+          "raw source response bytes",
+          "paired legacy and canonical row outputs from one immutable input",
+          "six-class parity report",
+          "offline repeat-replay determinism report",
+          "sealed offline zero-network attestation"
+        ],
+        "retention_limit": "The GitHub Actions artifact is currently retrievable but expires on 15 October 2026. Recording its locator and hashes does not preserve the bytes beyond that retention date.",
+        "production_data_copied_into_repository": false,
+        "replay_authorized": false
+      },
       "private_evidence": [
         {
           "kind": "source_observation",
@@ -204,7 +249,7 @@
         "current immutable raw 10 Reps snapshot with retrievable object locator, SHA-256 and retention metadata",
         "retrievable redacted control-state export locator and digest",
         "paired legacy and canonical outputs from the exact same current input",
-        "complete 950-row accounting and row-level matching report",
+        "row-level source-to-mapping matching report for the complete 950-row scope; the current artifact proves only the exact database/execution/review partition",
         "parity report using the six approved difference classes",
         "repeat-replay determinism report",
         "sealed zero-network, zero-control-write and zero-business-write attestation",
@@ -216,6 +261,9 @@
     "ra000_through_ra003_decisions_and_local_tests_reconstructable": true,
     "ra004_terminal_closeout_reconstructable": true,
     "ra004_private_evidence_bytes_proven_retrievable": false,
+    "current_10_reps_ordinary_diagnostic_artifact_retrievable_until": "2026-10-15T09:50:06Z",
+    "current_10_reps_950_row_partition_proven": true,
+    "current_10_reps_raw_source_snapshot_preserved": false,
     "artifact_first_recorded_replay_ready": false,
     "ra004_reopen_authorized": false,
     "new_live_capture_authorized": false,

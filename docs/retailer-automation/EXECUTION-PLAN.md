@@ -516,6 +516,18 @@ review. The producer correction must now prove itself on the next natural
 ordinary schedule. No manual retailer refresh is authorized and the counter
 remains `0/3`.
 
+The successful 10 Reps job also improves, but does not complete, future replay
+preservation. Artifact `11153320825` is retrievable until 15 October 2026 and
+its archive and seven constituent files are now digest-indexed. It proves an
+exact, disjoint `934` execution + `16` review partition over all `950` database
+baseline rows, passing postflight and zero-write idempotency. It does not contain
+the raw source response bytes, paired legacy/canonical row outputs, six-class
+parity or offline repeat-replay evidence, and its expiring GitHub locator is not
+durable storage. No production data was copied into Git and RA-004 remains
+closed. The preserved index narrows the future artifact-first gap without
+authorizing a capture, replay or retailer run. Evidence:
+[`evidence/RA-STAB-01-EVIDENCE-PRESERVATION-AUDIT.json`](evidence/RA-STAB-01-EVIDENCE-PRESERVATION-AUDIT.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
