@@ -401,6 +401,26 @@ retailer branch, baseline exception, workflow or writer. Quick/full gates,
 merge and a second read-only production watchdog are the next gates; the
 ordinary counter remains `0/3`.
 
+PR `#164` merged the freshness diagnostics as `34dff001`. The second read-only
+watchdog, run `36840586622`, again made zero writes and had no global failure.
+Artifact `11151312806`, digest `sha256:814612f1...a84e2`, proved the transport
+issue precisely. The first fetch of the shared workflow resolved Fit House to
+latest apply `36835371096` and ordinary run `36693313942`. The later independent
+fetch for 10 Reps returned an older listing headed by `35702168708`. Both
+profiles were therefore internally consistent with different API snapshots,
+which is not acceptable evidence.
+
+The central correction now fetches each workflow history page and its jobs once
+per watchdog run, binds every request to the same `GITHUB_RUN_ID` snapshot key
+to defeat intermediary stale caches, and reuses the exact immutable page promise
+for every profile sharing that workflow. A local read-only replay over that one
+snapshot resolves Fit House to latest `36835371096` / ordinary `36693313942`
+and 10 Reps to latest and ordinary `36693313942`; both report the same listed
+workflow heads and scan 50 identical runs. The shared cache regression and all
+39 focused tests pass. No retailer logic, business threshold, baseline or write
+path changes. Quick/full gates, merge and a third read-only watchdog remain the
+next gates; `0/3` remains unchanged.
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

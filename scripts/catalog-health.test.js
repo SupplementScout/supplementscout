@@ -70,6 +70,7 @@ const {
   validateEbayApplyArtifacts,
   validateEbayIdempotencyArtifacts,
   workflowAttempt,
+  workflowHistoryPage,
   workflowRunSummary,
 } = require("./automation-reliability-watchdog");
 
@@ -908,6 +909,26 @@ test("watchdog GitHub reads explicitly bypass stale response caches", () => {
   const source = fs.readFileSync(path.join(process.cwd(), "scripts", "automation-reliability-watchdog.js"), "utf8");
   assert.match(source, /cache:\s*"no-store"/);
   assert.match(source, /"cache-control":\s*"no-cache"/);
+});
+
+test("watchdog reuses one immutable workflow history read across shared retailer profiles", async () => {
+  const cache = new Map();
+  const calls = [];
+  const fetchJson = async (url) => {
+    calls.push(url);
+    if (url.includes("/actions/workflows/")) {
+      return { workflow_runs: [watchdogRun(70), watchdogRun(69)] };
+    }
+    return { jobs: [{ id: url.endsWith("/70/jobs?per_page=100") ? 70 : 69, name: "shared-job", steps: [] }] };
+  };
+  const input = { repository: "owner/repo", workflow: "shared.yml", token: "test-token", page: 1, snapshotKey: "run-123", cache, fetchJson };
+  const first = await workflowHistoryPage(input);
+  const second = await workflowHistoryPage(input);
+  assert.strictEqual(second, first);
+  assert.equal(first.length, 2);
+  assert.equal(calls.length, 3);
+  assert.equal(calls.filter((url) => url.includes("/actions/workflows/")).length, 1);
+  assert(calls.every((url) => url.includes("watchdog_snapshot=run-123")));
 });
 
 test("watchdog configuration binds the exact idempotency step for every automated retailer", () => {
