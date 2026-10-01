@@ -65,6 +65,7 @@ const {
   findApprovedScopeEvidence,
   findContractEvidence,
   findPostflightScopeEvidence,
+  isExecutionContractCandidate,
   loadConfig: loadWatchdogConfig,
   parseArgs: parseWatchdogArgs,
   selectWorkflowAttempts,
@@ -89,10 +90,14 @@ function watchdogRun(id, { event = "schedule", conclusion = "success", createdAt
   return { id, event, conclusion, head_sha: `sha-${id}`, html_url: `https://example.test/runs/${id}`, created_at: createdAt, updated_at: createdAt };
 }
 
-function watchdogJob(profile, conclusions, name = "retailer-job", id = 1) {
+function watchdogJob(profile, conclusions, name = "retailer-job", id = 1, jobConclusion = null) {
+  const inferredConclusion = Object.values(conclusions).some((value) => !["success", "skipped"].includes(value))
+    ? "failure"
+    : "success";
   return {
     id,
     name,
+    conclusion: jobConclusion || inferredConclusion,
     steps: [
       [profile.capture_step, conclusions.capture],
       [profile.apply_step, conclusions.apply],
@@ -750,6 +755,20 @@ test("automation watchdog accepts only an exact bounded operation with same-run 
   assert.equal(discount.scope_partition.model, "BOUNDED_OPERATION_SCOPE_V1");
   assert.equal(discount.scope_partition.unselected_no_write_count, 14);
 
+  const zeroExecutionReview = evaluateRetailer({
+    ...input,
+    contract: {
+      ...contract,
+      executable_plan_count: 0,
+      executed_plan_count: 0,
+      scope: { mappings: 286, offers: 286, children: 0, rows: 0 },
+      execution_offer_ids: [],
+    },
+  }, now, 48);
+  assert.equal(zeroExecutionReview.result, "PASS_WITH_REVIEW");
+  assert.equal(zeroExecutionReview.scope_partition.model, "BOUNDED_OPERATION_SCOPE_V1");
+  assert.equal(zeroExecutionReview.scope_partition.unselected_no_write_count, 272);
+
   const fullScope = evaluateRetailer({
     ...input,
     contract: {
@@ -861,6 +880,9 @@ test("automation watchdog derives approved offer membership only from a hashed b
     ...witness,
   });
   assert.deepEqual(bindApprovedScopeEvidence(candidate, [witness], [{ ...postflight, executed_plan_count: 0 }]), candidate);
+  assert.equal(isExecutionContractCandidate({ mode: "apply", executed_plan_count: 0 }), true);
+  assert.equal(isExecutionContractCandidate({ mode: "dry-run", executed_plan_count: 0 }), false);
+  assert.equal(isExecutionContractCandidate({ mode: null, executed_plan_count: 1 }), true);
 });
 
 test("automation watchdog returns exit 0 only for review or unchanged monitored backlog", () => {
@@ -995,6 +1017,7 @@ test("automation watchdog finds only complete per-row execution evidence", () =>
       review_row_count: 2,
       blocked_row_count: 0,
       result: null,
+      mode: null,
       execution_offer_ids: null,
       review_offer_ids: null,
       approved_offer_ids: null,
@@ -1072,9 +1095,12 @@ test("watchdog isolates exact retailer job in a shared workflow", () => {
     watchdogJob(watchdogProfile, { capture: "success", apply: "success", db_postflight: "success", idempotency: "success" }, "fit-house", 9),
     watchdogJob(tenRepsProfile, { capture: "success", apply: "failure", db_postflight: "skipped", idempotency: "skipped" }, "10-reps", 14),
   ];
-  const fitHouse = workflowAttempt(watchdogProfile, watchdogRun(30), jobs);
-  const tenReps = workflowAttempt(tenRepsProfile, watchdogRun(30, { conclusion: "failure" }), jobs);
+  const failedSharedRun = watchdogRun(30, { conclusion: "failure" });
+  const fitHouse = workflowAttempt(watchdogProfile, failedSharedRun, jobs);
+  const tenReps = workflowAttempt(tenRepsProfile, failedSharedRun, jobs);
   assert.equal(fitHouse.job_name, "fit-house");
+  assert.equal(fitHouse.run_conclusion, "failure");
+  assert.equal(fitHouse.job_conclusion, "success");
   assert.equal(fitHouse.result, "COMPLETE_SUCCESS");
   assert.equal(tenReps.job_name, "10-reps");
   assert.equal(tenReps.result, "FAILED_OR_INCOMPLETE");
@@ -1087,7 +1113,7 @@ test("watchdog classifies every non-success terminal conclusion as incomplete", 
   }
   const idempotencyFailure = workflowAttempt(watchdogProfile, watchdogRun(41, { conclusion: "failure" }), [watchdogJob(watchdogProfile, { capture: "success", apply: "success", db_postflight: "success", idempotency: "failure" })]);
   assert.equal(idempotencyFailure.result, "FAILED_OR_INCOMPLETE");
-  const failedAfterStages = workflowAttempt(watchdogProfile, watchdogRun(42, { conclusion: "failure" }), [watchdogJob(watchdogProfile, { capture: "success", apply: "success", db_postflight: "success", idempotency: "success" })]);
+  const failedAfterStages = workflowAttempt(watchdogProfile, watchdogRun(42, { conclusion: "failure" }), [watchdogJob(watchdogProfile, { capture: "success", apply: "success", db_postflight: "success", idempotency: "success" }, "fit-house", 9, "failure")]);
   assert.equal(failedAfterStages.result, "FAILED_OR_INCOMPLETE");
   const impureDryRun = workflowAttempt(watchdogProfile, watchdogRun(43, { event: "workflow_dispatch" }), [watchdogJob(watchdogProfile, { capture: "success", apply: "skipped", db_postflight: "success", idempotency: "skipped" })]);
   assert.equal(impureDryRun.result, "FAILED_OR_INCOMPLETE");

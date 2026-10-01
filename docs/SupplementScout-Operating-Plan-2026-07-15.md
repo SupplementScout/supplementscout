@@ -201,6 +201,20 @@ next step is read-only classification of that shared Fit House/10 Reps run.
 Retailer writes/retries, baseline widening and RA-004 remain unauthorized; the
 counter stays `0/3`.
 
+Read-only audit of the next shared ordinary run `36842642858` found no failed
+retailer business execution. The 10 Reps job succeeded with `934` executed,
+`16` review, zero blocked, 43 stock updates and passing idempotency. Fit House
+correctly produced a zero-write `286/0/14/0` review-only result; its job failed
+only when the Markdown summary read an optional field absent from the legal
+zero-action report. Because the watchdog used the whole shared run conclusion,
+that sibling presentation failure was also attributed to 10 Reps. The local
+generic correction stabilizes the zero-action producer schema, accepts a
+zero-execution contract only for `mode=apply`, and uses the exact job conclusion
+per retailer. All focused, quick and full gates pass. After merge, verify
+job-level attribution read-only and wait for the next ordinary schedule to
+prove producer behavior; do not dispatch a retailer retry. Real review/stale
+backlog growth still prevents interval credit, so the counter remains `0/3`.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

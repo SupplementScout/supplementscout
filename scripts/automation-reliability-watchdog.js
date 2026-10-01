@@ -138,6 +138,7 @@ function findContractEvidence(value) {
       review_row_count: value.review_row_count,
       blocked_row_count: value.blocked_row_count,
       result: value.result || null,
+      mode: value.mode || null,
       execution_offer_ids: Array.isArray(value.execution_offer_ids) ? value.execution_offer_ids.map(String).sort() : null,
       review_offer_ids: Array.isArray(value.review_offer_ids) ? value.review_offer_ids.map(String).sort() : Array.isArray(value.review_rows) ? value.review_rows.map((row) => String(row.offer_id)).sort() : null,
       approved_offer_ids: Array.isArray(value.approved_offer_ids) ? value.approved_offer_ids.map(String).sort() : null,
@@ -175,6 +176,13 @@ function findContractEvidence(value) {
     if (found) return found;
   }
   return null;
+}
+
+function isExecutionContractCandidate(contract) {
+  return Boolean(
+    contract &&
+    (contract.executed_plan_count > 0 || contract.mode === "apply")
+  );
 }
 
 function findApprovedScopeEvidence(value, profile = {}) {
@@ -776,6 +784,7 @@ function workflowAttempt(profile, run, jobs) {
   invariant(matchingJobs.length <= 1, `Multiple jobs match retailer profile ${profile.id}`);
   if (!matchingJobs.length) return null;
   const job = matchingJobs[0];
+  const jobConclusion = job.conclusion || run.conclusion || null;
   const stages = {};
   for (const [stage, stepName] of definitions) {
     const step = (job.steps || []).find((candidate) => candidate.name === stepName);
@@ -796,9 +805,9 @@ function workflowAttempt(profile, run, jobs) {
     : captureConclusion === "success"
       ? "READ_ONLY"
       : "INCOMPLETE";
-  const complete = run.conclusion === "success" &&
+  const complete = jobConclusion === "success" &&
     definitions.every(([stage]) => stages[stage]?.conclusion === "success");
-  const readOnlyComplete = run.conclusion === "success" &&
+  const readOnlyComplete = jobConclusion === "success" &&
     operation === "READ_ONLY" &&
     definitions
       .filter(([stage]) => stage !== "capture")
@@ -814,6 +823,7 @@ function workflowAttempt(profile, run, jobs) {
     event: run.event || null,
     head_sha: run.head_sha || null,
     run_conclusion: run.conclusion || null,
+    job_conclusion: jobConclusion,
     created_at: run.created_at || null,
     updated_at: run.updated_at || null,
     job_id: job.id === undefined || job.id === null ? null : String(job.id),
@@ -1000,7 +1010,7 @@ async function contractFromArtifacts(repository, runId, token, options = {}) {
           const found = findContractEvidence(parsed);
           const scopeWitness = findApprovedScopeEvidence(parsed, options.profile);
           const postflight = findPostflightScopeEvidence(parsed);
-          if (found && found.executed_plan_count > 0) artifactCandidates.push(found);
+          if (isExecutionContractCandidate(found)) artifactCandidates.push(found);
           else if (found?.review_offer_ids) artifactReviewScopeCandidates.push(found);
           if (scopeWitness) artifactScopeWitnesses.push(scopeWitness);
           if (postflight) artifactPostflights.push(postflight);
@@ -1229,6 +1239,7 @@ module.exports = {
   findApprovedScopeEvidence,
   findContractEvidence,
   findPostflightScopeEvidence,
+  isExecutionContractCandidate,
   validateEbayApplyArtifacts,
   validateEbayIdempotencyArtifacts,
   hoursSince,

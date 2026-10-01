@@ -17,6 +17,7 @@ const {
   controlParentApprovalError,
   controlRegistrationEvidence,
   enforceConfirmationOnly,
+  executionReportContext,
   freshCapturedAt,
   loadAuditedMissingVariantManifest,
   loadOwnerApprovedMissingVariantManifest,
@@ -38,6 +39,35 @@ const {
   sourceHealth,
   validationGuardSummary,
 } = require("./fit-house-offer-refresh");
+
+test("zero-execution review reports retain the shared discovery evidence shape", () => {
+  const context = executionReportContext({
+    scopeSegment: null,
+    snapshot: {
+      products: [{ id: "p" }],
+      semantic_source_fingerprint: "a".repeat(64),
+      source_diagnostic: { source: "fixture" },
+    },
+    sourceVariants: [{ in_stock: true }, { in_stock: false }],
+    massOosAuthorization: null,
+    discovery: {
+      new_variants: [{ id: "new" }],
+      missing_variants: [{ id: "review" }],
+    },
+    classification: {
+      quarantined_rows: [{ reason: "SOURCE_VARIANT_MISSING" }],
+    },
+  });
+  assert.deepEqual(context.discovery, {
+    new_variants: 1,
+    missing_variants: 1,
+    missing_variants_review_only: 1,
+    missing_variants_marked_unavailable: 0,
+    catalogue_creates: 0,
+  });
+  assert.equal(context.source.variants, 2);
+  assert.equal(context.source.available, 1);
+});
 
 test("control registration evidence retains exact recovery identity without plan rows", () => {
   const request = {
