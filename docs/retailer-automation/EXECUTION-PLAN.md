@@ -544,7 +544,18 @@ idempotency made zero writes. Artifact `11158233377` has digest
 single-offer scope as freshness-only with zero commercial delta and zero-write
 idempotency; artifact `11158809227` has digest `sha256:1d760a87...1140f`.
 6 Pack is separately classified `SOURCE` because exact product `4150` returned
-HTTP 404 after five bounded attempts. Forensic review of eBay artifact
+HTTP 404 after five bounded attempts. A subsequent read-only identity audit
+confirmed that both the numeric URL and registered slug still return 404 with
+no redirect. The retailer's live search contains related Good Guru products,
+but none carries registered GTIN `854822007309`; the manufacturer's current
+same-name 30 g Pearl product uses barcode `5060571822253`. That establishes an
+unresolved identity discrepancy, not continuity, replacement or identity drift,
+and gives no authority to mark the offer OOS or rebind it. Mapping `2565` and
+offer `2379` remain unchanged. This read-only evidence only classifies the exact
+row as requiring owner identity review; production and control state are
+unchanged, and no retry or code patch is justified. Evidence:
+[`evidence/RA-STAB-01-SIX-PACK-4150-SOURCE-AUDIT-2026-10-01.json`](evidence/RA-STAB-01-SIX-PACK-4150-SOURCE-AUDIT-2026-10-01.json).
+Forensic review of eBay artifact
 `11159580892` (digest `sha256:8c60a32c...a6c4c`) proved that its
 `production-dry-run.json` was synthetic output from the preceding unit test, not
 a live complete capture: every row uses `continuity_tier=test_exact`, has no HTTP

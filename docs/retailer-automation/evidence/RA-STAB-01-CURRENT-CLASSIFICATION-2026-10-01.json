@@ -121,12 +121,16 @@
       "retailer": "6 Pack Supplements",
       "watchdog_result": "FAIL",
       "primary_class": "SOURCE",
-      "secondary_class": "MONITORED_DEBT",
+      "secondary_classes": [
+        "FINGERPRINT_OR_IDENTITY",
+        "MONITORED_DEBT"
+      ],
       "latest_ordinary_run_id": "36846674996",
       "artifact_id": "11154439822",
       "artifact_digest": "sha256:f2962fd7935d499e00e98a7c8394bab029243e3ad7aabd0dcb411e5489b44dfd",
-      "evidence": "Current-main source capture exhausted five bounded attempts because exact WooCommerce product 4150 returned HTTP 404. It stopped before baseline, apply and writes. All 506 offers remain stale and the prior 12-row review scope remains monitored debt.",
-      "next_action": "Treat product 4150 as a source/identity incident. Do not infer OOS, delete the mapping, widen the baseline or retry manually; require evidence before any identity decision."
+      "evidence": "Current-main source capture exhausted five bounded attempts because exact WooCommerce product 4150 returned HTTP 404. It stopped before baseline, apply and writes. A later read-only audit confirmed both the numeric URL and registered slug still return 404 without redirect. The retailer search exposes related Good Guru products 4145, 4135 and 4155, but none has registered GTIN 854822007309. The manufacturer still exposes a same-name 30g Pearl product under current barcode 5060571822253, so no exact replacement or safe automatic rebind is proven. All 506 offers remain stale and the prior 12-row review scope remains monitored debt.",
+      "source_identity_audit": "docs/retailer-automation/evidence/RA-STAB-01-SIX-PACK-4150-SOURCE-AUDIT-2026-10-01.json",
+      "next_action": "Leave mapping 2565 and offer 2379 unchanged. Classify the exact row in read-only evidence as requiring owner identity review; do not mutate production or control state without separate authorization. Do not infer OOS, delete or rebind the mapping, widen the baseline or retry manually; no code patch is justified."
     },
     {
       "retailer": "eBay UK",

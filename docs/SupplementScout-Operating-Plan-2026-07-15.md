@@ -244,7 +244,14 @@ other executions were freshness-only, and idempotency made zero writes. Dolphin
 completed its exact one-offer scope as freshness-only with zero commercial
 delta and zero-write idempotency.
 Remaining incidents are separated rather than patched together: 6 Pack is a bounded
-source 404 for exact product `4150`; eBay has one live `GBP 24.99` observation
+source/identity incident for exact product `4150`. Both its numeric URL and
+registered slug still return 404 without redirect; related live search results
+use different SKUs, while the manufacturer's same-name 30 g product now uses a
+different barcode. This is an unresolved identity discrepancy, not proof of
+continuity or replacement. Mapping `2565` and offer `2379` therefore remain
+unchanged; read-only evidence marks the row as requiring owner identity review,
+with no control write, inferred OOS, rebind, retry or code patch. eBay has
+one live `GBP 24.99` observation
 against the database's `GBP 26.99` for offer `2549`, plus a test-isolation defect
 that contaminated the uploaded evidence with a synthetic `GBP 26.99` report;
 Fit House awaits natural
