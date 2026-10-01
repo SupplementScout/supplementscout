@@ -286,6 +286,19 @@ quick and full gates pass. Production remains unchanged until the change is on
 `main` and a fresh protected preflight agrees. Evidence:
 [`evidence/RA-STAB-01-FIT-HOUSE-759-RETURN-2026-10-01.json`](evidence/RA-STAB-01-FIT-HOUSE-759-RETURN-2026-10-01.json).
 
+The merged implementation passed CI and reached `main` as `e1178542`. The fresh
+production dry-run `36829215331` then failed closed before registration with
+`FIT_HOUSE_SIX_SCOPE_MISMATCH`: source health passed at 242 products / 338
+variants and the stable fingerprint `8074eefe...e991`; offer `759` matched the
+authorized return exactly, but the full 286-offer classification contained 14
+additional stock changes outside that authority. Artifact `11146044349`, digest
+`sha256:48a7a9c59b860e74e03af1aaf6da40243b16bcbbee2e53146ebd0bc7a87fa962`,
+records zero control/business writes and zero approvals. Apply, postflight and
+idempotency did not run. No retry or isolation patch is authorized: executing
+only `759` while placing the other 14 rows into review is a new owner-scope
+decision. This manual preflight does not count toward the `0/3` ordinary
+interval requirement.
+
 The same audit confirmed that the watchdog currently reports only successful
 stage evidence and may combine ordinary stages from older different runs. Direct
 failed-run artifacts remain authoritative, but the watchdog cannot be the final
