@@ -20,6 +20,7 @@ const {
   freshCapturedAt,
   loadAuditedMissingVariantManifest,
   loadOwnerApprovedMissingVariantManifest,
+  loadOwnerApprovedReturnIsolationManifest,
   loadOwnerApprovedReturnedOfferManifest,
   loadOwnerApprovedSixAbsentManifest,
   loadReviewedMassOosManifest,
@@ -120,33 +121,41 @@ test("only the exact owner-approved offer 759 return is executable", () => {
   const manifest=loadOwnerApprovedSixAbsentManifest().manifest;
   const approved=manifest.rows.filter(row=>row.old_stock);
   const returned=loadOwnerApprovedReturnedOfferManifest().manifest;
+  const isolation=loadOwnerApprovedReturnIsolationManifest().manifest;
   const selected=approved.map(row=>row.offer_id===returned.offer_id
     ?{offer_id:row.offer_id,external_variant_id:row.external_variant_id,action:"UPDATE_STOCK",target:{in_stock:false},source:{in_stock:true},changed_fields:{stock:true,price:false,url:false}}
     :{offer_id:row.offer_id,external_variant_id:row.external_variant_id,action:"VERIFY_NO_CHANGE",target:{in_stock:false},source:{in_stock:false},changed_fields:{stock:false,price:false,url:false}});
-  const stable=Array.from({length:280},(_,i)=>({offer_id:String(10000+i),action:"VERIFY_NO_CHANGE",target:{in_stock:true},source:{in_stock:true},changed_fields:{stock:false,price:false,url:false}}));
-  const classified={state:"DRY_RUN_READY",reason:null,rows:[...selected,...stable]};
-  const owner={approved_rows:approved,newUnavailableCount:0,authorizedChangeCount:1,returned};
+  const deferred=isolation.deferred_rows.map(row=>({offer_id:row.offer_id,retailer_product_id:row.mapping_id,external_product_id:row.external_product_id,external_variant_id:row.external_variant_id,action:"UPDATE_STOCK",target:{price:row.price,in_stock:row.old_stock},source:{price:row.price,in_stock:row.new_stock},changed_fields:{stock:true,price:false,url:false,blocked:false}}));
+  const stable=Array.from({length:266},(_,i)=>({offer_id:String(10000+i),action:"VERIFY_NO_CHANGE",target:{in_stock:true},source:{in_stock:true},changed_fields:{stock:false,price:false,url:false}}));
+  const classified={state:"BLOCKED",reason:"MASS_OOS",rows:[...selected,...deferred,...stable],quarantined_rows:[]};
+  const owner={approved_rows:approved,newUnavailableCount:0,authorizedChangeCount:1,returned,isolation};
   const result=authorizeOwnerApprovedSixStockOnly(classified,owner);
-  assert.equal(result.state,"DRY_RUN_READY");
-  assert.deepEqual(result.deferred_changed_offer_ids,[]);
+  assert.equal(result.state,"DRY_RUN_READY_WITH_REVIEW");
+  assert.deepEqual(result.deferred_changed_offer_ids,isolation.deferred_rows.map(row=>row.offer_id));
+  assert.deepEqual(result.quarantined_rows.map(row=>row.reason),Array(14).fill("OWNER_DEFERRED_STOCK_REVIEW"));
   const execution=selectOwnerApprovedSixExecutionRows(result,owner);
   assert.equal(execution.length,20);
   assert.deepEqual(execution.filter(row=>row.action==="UPDATE_STOCK").map(row=>row.offer_id),["759"]);
   assert.deepEqual(execution.filter(row=>row.action==="VERIFY_NO_CHANGE").map(row=>row.offer_id),stable.slice(0,19).map(row=>row.offer_id));
+  assert.ok(execution.every(row=>!result.deferred_changed_offer_ids.includes(row.offer_id)));
   const batches=balancedExecutionBatches(execution.map(row=>({...row,atomic_plan:{expected_state:{offer:{in_stock:row.target.in_stock}},offer:{values:{in_stock:row.source.in_stock}}}})),50,3);
   assert.deepEqual(batches.map(batch=>batch.length),[20]);
   assert.deepEqual(batches.map(batch=>batch.filter(row=>row.action==="UPDATE_STOCK").length),[1]);
   assert.ok(batches.every(batch=>batch.filter(row=>row.action==="UPDATE_STOCK").length/batch.length<0.15));
-  assert.throws(()=>selectOwnerApprovedSixExecutionRows({...result,rows:[...selected,...stable.slice(0,18)]},owner),/confirmation scope mismatch/);
+  assert.throws(()=>selectOwnerApprovedSixExecutionRows({...result,rows:[...selected,...deferred,...stable.slice(0,18)]},owner),/confirmation scope mismatch/);
   const changedPrice=structuredClone(classified);changedPrice.rows[0].changed_fields.price=true;
-  assert.throws(()=>authorizeOwnerApprovedSixStockOnly(changedPrice,owner),error=>error.code==="FIT_HOUSE_SIX_SCOPE_MISMATCH");
-  const unrelated=structuredClone(classified);unrelated.rows[6]={...unrelated.rows[6],action:"UPDATE_STOCK",target:{in_stock:false},source:{in_stock:true},changed_fields:{stock:true,price:false,url:false}};
-  assert.throws(()=>authorizeOwnerApprovedSixStockOnly(unrelated,owner),error=>error.code==="FIT_HOUSE_SIX_SCOPE_MISMATCH");
+  assert.throws(()=>authorizeOwnerApprovedSixStockOnly(changedPrice,owner),error=>error.code==="FIT_HOUSE_ISOLATION_SCOPE_MISMATCH");
+  const deferredPrice=structuredClone(classified);deferredPrice.rows[6].source.price="99.99";
+  assert.throws(()=>authorizeOwnerApprovedSixStockOnly(deferredPrice,owner),error=>error.code==="FIT_HOUSE_ISOLATION_SCOPE_MISMATCH");
+  const deferredDirection=structuredClone(classified);deferredDirection.rows[6].source.in_stock=deferredDirection.rows[6].target.in_stock;
+  assert.throws(()=>authorizeOwnerApprovedSixStockOnly(deferredDirection,owner),error=>error.code==="FIT_HOUSE_ISOLATION_SCOPE_MISMATCH");
+  const unrelated=structuredClone(classified);unrelated.rows[20]={...unrelated.rows[20],action:"UPDATE_STOCK",target:{in_stock:false},source:{in_stock:true},changed_fields:{stock:true,price:false,url:false}};
+  assert.throws(()=>authorizeOwnerApprovedSixStockOnly(unrelated,owner),error=>error.code==="FIT_HOUSE_ISOLATION_SCOPE_MISMATCH");
   const replay=structuredClone(classified);
   const returnedRow=replay.rows.find(row=>row.offer_id===returned.offer_id);returnedRow.action="VERIFY_NO_CHANGE";returnedRow.target.in_stock=true;returnedRow.changed_fields.stock=false;
   const replayOwner={...owner,authorizedChangeCount:0},replayAuthorized=authorizeOwnerApprovedSixStockOnly(replay,replayOwner);
   assert.deepEqual(selectOwnerApprovedSixExecutionRows(replayAuthorized,replayOwner),[]);
-  assert.deepEqual(replayAuthorized.deferred_changed_offer_ids,[]);
+  assert.deepEqual(replayAuthorized.deferred_changed_offer_ids,isolation.deferred_rows.map(row=>row.offer_id));
 });
 
 test("offer 759 return is exact, the other six protected offers remain OOS, and replay is idempotent", () => {

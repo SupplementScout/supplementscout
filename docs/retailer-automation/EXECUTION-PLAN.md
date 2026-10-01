@@ -299,6 +299,23 @@ only `759` while placing the other 14 rows into review is a new owner-scope
 decision. This manual preflight does not count toward the `0/3` ordinary
 interval requirement.
 
+The owner then explicitly authorized the isolated form: execute only offer
+`759`, include 19 commercially unchanged freshness confirmations, leave the
+exact 14 observed stock differences without writes and expose them as review.
+The decision is byte-bound in
+`config/retailers/fit-house-owner-approved-return-isolation-2026-10-01.json`
+with SHA-256 `b696f4b0...2153`. The existing edge selector now consumes the raw
+`MASS_OOS` only when all 14 offer/mapping/source identities, prices and stock
+directions match that manifest. It quarantines those rows as
+`OWNER_DEFERRED_STOCK_REVIEW`, proves none entered the execution artifact, and
+selects only `759` plus 19 unchanged confirmations. Any extra/missing row,
+direction, price, URL, identity or protected-offer drift stops before
+registration. Replay after `759` is in stock produces zero artifacts while
+retaining the 14 review rows. The shared classifier, thresholds, workflow,
+registration, validator, approver and executor are unchanged; focused, quick
+and full local gates pass. Production remains unchanged pending merge, CI and a
+fresh main-only preflight.
+
 The same audit confirmed that the watchdog currently reports only successful
 stage evidence and may combine ordinary stages from older different runs. Direct
 failed-run artifacts remain authoritative, but the watchdog cannot be the final
