@@ -281,22 +281,47 @@ function loadOwnerApprovedSixAbsentManifest(){
   return{manifest,sha256};
 }
 
-function reconcileOwnerApprovedSixAbsent(records,sourceVariants,sourceFingerprint,reviewed=loadOwnerApprovedSixAbsentManifest()){
-  invariant(sourceFingerprint===reviewed.manifest.source_snapshot_fingerprint,"Fit House six-offer source fingerprint changed");
-  const sourceIds=new Set(sourceVariants.map(row=>String(row.external_variant_id))),byOffer=new Map(records.map(record=>[String(record.offer.id),record]));
+function loadOwnerApprovedReturnedOfferManifest(){
+  const file=path.join(ROOT,"config","retailers","fit-house-owner-approved-return-offer-759-2026-10-01.json");
+  const bytes=fs.readFileSync(file),sha256=crypto.createHash("sha256").update(bytes).digest("hex");
+  invariant(sha256==="92ecd3977478a91a8ce268e699884c39d8b6870c1cf2b2dd7f03a0b2162e4f65","Fit House returned-offer owner manifest SHA mismatch");
+  const manifest=JSON.parse(bytes),keys=["schema_version","kind","authority","authorized_at","target_environment","retailer_id","retailer_slug","offer_id","mapping_id","canonical_product_id","canonical_variant_id","external_product_id","external_variant_id","product_handle","external_sku","price","old_stock","new_stock","url","required_other_protected_offer_ids_oos"].sort();
+  invariant(JSON.stringify(Object.keys(manifest).sort())===JSON.stringify(keys)
+    &&manifest.schema_version===1&&manifest.kind==="fit-house-owner-approved-returned-offer-v1"
+    &&manifest.authority==="owner-chat-2026-10-01-fit-house-offer-759-restock"&&Number.isFinite(Date.parse(manifest.authorized_at))
+    &&manifest.target_environment==="PRODUCTION"&&manifest.retailer_id==="9"&&manifest.retailer_slug==="fit-house"
+    &&manifest.offer_id==="759"&&manifest.mapping_id==="873"&&manifest.canonical_product_id==="740"&&manifest.canonical_variant_id==="3021"
+    &&manifest.external_product_id==="9168824172784"&&manifest.external_variant_id==="46969725714672"
+    &&manifest.product_handle==="7-nutrition-berberine-stack-90-vege-caps"&&manifest.external_sku===null
+    &&manifest.price==="11.99"&&manifest.old_stock===false&&manifest.new_stock===true
+    &&manifest.url==="https://fithouse.uk/products/7-nutrition-berberine-stack-90-vege-caps?variant=46969725714672"
+    &&JSON.stringify(manifest.required_other_protected_offer_ids_oos)===JSON.stringify(["718","749","757","913","939","940"]),
+  "Fit House returned-offer owner manifest scope mismatch");
+  return{manifest,sha256};
+}
+
+function reconcileOwnerApprovedSixAbsent(records,sourceVariants,sourceFingerprint,reviewed=loadOwnerApprovedSixAbsentManifest(),returnedReview=loadOwnerApprovedReturnedOfferManifest()){
+  invariant(/^[0-9a-f]{64}$/.test(sourceFingerprint),"Fit House source fingerprint is invalid");
+  const returned=returnedReview.manifest,sourceByVariant=new Map(sourceVariants.map(row=>[String(row.external_variant_id),row])),byOffer=new Map(records.map(record=>[String(record.offer.id),record]));
   const synthetic=[];let newUnavailableCount=0;
   for(const row of reviewed.manifest.rows){
-    const record=byOffer.get(row.offer_id),approved=reviewed.manifest.approved_offer_ids.includes(row.offer_id);
-    invariant(record&&String(record.mapping.id)===row.mapping_id&&String(record.product.id)===row.canonical_product_id&&String(record.variant.id)===row.canonical_variant_id&&String(record.mapping.external_product_id)===row.external_product_id&&String(record.mapping.external_variant_id)===row.external_variant_id&&record.mapping.external_sku==null&&record.mapping.external_url===row.url&&record.offer.url===row.url&&money(record.offer.price)===row.old_price&&(!record.offer.in_stock||approved)&&(!approved||[true,false].includes(record.offer.in_stock)),"Fit House six-offer live identity/state drift");
-    invariant(!sourceIds.has(row.external_variant_id),"Fit House six-offer source identity returned; review required");
+    const record=byOffer.get(row.offer_id),approved=reviewed.manifest.approved_offer_ids.includes(row.offer_id),isReturned=row.offer_id===returned.offer_id;
+    invariant(record&&String(record.mapping.id)===row.mapping_id&&String(record.product.id)===row.canonical_product_id&&String(record.variant.id)===row.canonical_variant_id&&String(record.mapping.external_product_id)===row.external_product_id&&String(record.mapping.external_variant_id)===row.external_variant_id&&record.mapping.external_sku==null&&record.mapping.external_url===row.url&&record.offer.url===row.url&&money(record.offer.price)===row.old_price&&(isReturned?[returned.old_stock,returned.new_stock].includes(Boolean(record.offer.in_stock)):record.offer.in_stock===false),"Fit House protected-offer live identity/state drift");
+    if(isReturned){
+      const source=sourceByVariant.get(row.external_variant_id);
+      invariant(source&&String(source.external_product_id)===returned.external_product_id&&String(source.external_variant_id)===returned.external_variant_id&&source.product_handle===returned.product_handle&&(source.external_sku||null)===returned.external_sku&&money(source.price)===returned.price&&source.in_stock===returned.new_stock,"Fit House owner-approved returned source identity/state drift");
+      continue;
+    }
+    invariant(!sourceByVariant.has(row.external_variant_id),"Fit House protected absent source identity returned; review required");
     if(approved&&record.offer.in_stock)newUnavailableCount++;
     const url=new URL(row.url),handle=url.pathname.split("/")[2];
-    invariant(url.hostname==="fithouse.uk"&&handle,"Fit House six-offer URL drift");
+    invariant(url.hostname==="fithouse.uk"&&handle,"Fit House protected-offer URL drift");
     synthetic.push({external_product_id:row.external_product_id,external_variant_id:row.external_variant_id,product_handle:handle,external_sku:null,price:row.old_price,shipping_cost:money(record.offer.shipping_cost),total_price:money(record.offer.total_price),in_stock:false,source_updated_at:null,owner_approved_source_absent:true});
   }
   const applied=reviewed.manifest.rows.filter(row=>reviewed.manifest.approved_offer_ids.includes(row.offer_id)&&!byOffer.get(row.offer_id).offer.in_stock).length;
-  invariant(records.filter(record=>!record.offer.in_stock).length===104+applied,"Fit House six-offer stable OOS baseline drift");
-  return{sourceVariants:[...sourceVariants,...synthetic],missingVariantIds:synthetic.map(row=>row.external_variant_id),newUnavailableCount,manifest_sha256:reviewed.sha256,approved_rows:reviewed.manifest.rows.filter(row=>reviewed.manifest.approved_offer_ids.includes(row.offer_id)),applied};
+  invariant(records.filter(record=>!record.offer.in_stock).length===104+applied,"Fit House protected-offer stable OOS baseline drift");
+  const authorizedChangeCount=byOffer.get(returned.offer_id).offer.in_stock===returned.old_stock?1:0;
+  return{sourceVariants:[...sourceVariants,...synthetic],missingVariantIds:synthetic.map(row=>row.external_variant_id),newUnavailableCount,authorizedChangeCount,manifest_sha256:reviewed.sha256,returned_manifest_sha256:returnedReview.sha256,approved_rows:reviewed.manifest.rows.filter(row=>reviewed.manifest.approved_offer_ids.includes(row.offer_id)),returned,applied};
 }
 
 function reconcileAuditedMissingVariants(records,sourceVariants,audited=loadAuditedMissingVariantManifest()){
@@ -373,20 +398,23 @@ function authorizeOwnerApprovedSixStockOnly(classification,ownerApprovedSix){
   const approved=new Set(ownerApprovedSix.approved_rows.map(row=>row.offer_id)),rows=classification.rows||[];
   const selected=rows.filter(row=>approved.has(String(row.offer_id)));
   const changed=selected.filter(row=>row.action!=="VERIFY_NO_CHANGE");
+  const returnedOfferId=ownerApprovedSix.returned.offer_id;
   const exact=rows.length===config.approved_mapping_count&&selected.length===6
-    &&changed.length===ownerApprovedSix.newUnavailableCount
-    &&selected.every(row=>row.action==="VERIFY_NO_CHANGE"
-      ? row.target.in_stock===false&&row.source.in_stock===false
-      : row.action==="UPDATE_STOCK"&&row.target.in_stock===true&&row.source.in_stock===false
-        &&row.changed_fields?.stock===true&&!row.changed_fields?.price&&!row.changed_fields?.url);
-  if(!(["MASS_OOS",null].includes(classification.reason)&&exact))
+    &&rows.filter(row=>row.action!=="VERIFY_NO_CHANGE").length===ownerApprovedSix.authorizedChangeCount
+    &&changed.length===ownerApprovedSix.authorizedChangeCount
+    &&selected.every(row=>String(row.offer_id)===returnedOfferId
+      ? row.action==="VERIFY_NO_CHANGE"
+        ? row.target.in_stock===true&&row.source.in_stock===true&&!row.changed_fields?.price&&!row.changed_fields?.stock&&!row.changed_fields?.url
+        : row.action==="UPDATE_STOCK"&&row.target.in_stock===false&&row.source.in_stock===true&&row.changed_fields?.stock===true&&!row.changed_fields?.price&&!row.changed_fields?.url
+      : row.action==="VERIFY_NO_CHANGE"&&row.target.in_stock===false&&row.source.in_stock===false&&!row.changed_fields?.price&&!row.changed_fields?.stock&&!row.changed_fields?.url);
+  if(!(classification.reason===null&&exact))
     throw new RefreshError("FIT_HOUSE_SIX_SCOPE_MISMATCH","Fit House six-offer classifier scope mismatch","CLASSIFIER",{classifier:classificationDiagnostic(classification),approved_offer_ids:[...approved],approved_new_oos_count:ownerApprovedSix.newUnavailableCount,registration_attempted:false});
-  return{...classification,state:"DRY_RUN_READY",reason:null,action:"OWNER_APPROVED_SIX_STOCK_ONLY",deferred_changed_offer_ids:rows.filter(row=>row.action!=="VERIFY_NO_CHANGE"&&!approved.has(String(row.offer_id))).map(row=>String(row.offer_id))};
+  return{...classification,state:"DRY_RUN_READY",reason:null,action:"OWNER_APPROVED_PROTECTED_STOCK_ONLY",deferred_changed_offer_ids:[]};
 }
 function selectOwnerApprovedSixExecutionRows(classification,ownerApprovedSix){
-  const approved=new Set(ownerApprovedSix.approved_rows.map(row=>row.offer_id));
-  const selected=classification.rows.filter(row=>approved.has(String(row.offer_id))&&row.action==="UPDATE_STOCK");
-  invariant(classification.action==="OWNER_APPROVED_SIX_STOCK_ONLY"&&selected.length===ownerApprovedSix.newUnavailableCount&&selected.every(row=>row.target.in_stock===true&&row.source.in_stock===false&&!row.changed_fields.price&&!row.changed_fields.url),"Fit House six-offer execution scope mismatch");
+  const approved=new Set(ownerApprovedSix.approved_rows.map(row=>row.offer_id)),returnedOfferId=ownerApprovedSix.returned.offer_id;
+  const selected=classification.rows.filter(row=>String(row.offer_id)===returnedOfferId&&row.action==="UPDATE_STOCK");
+  invariant(classification.action==="OWNER_APPROVED_PROTECTED_STOCK_ONLY"&&selected.length===ownerApprovedSix.authorizedChangeCount&&selected.every(row=>row.target.in_stock===false&&row.source.in_stock===true&&row.changed_fields.stock&&!row.changed_fields.price&&!row.changed_fields.url),"Fit House protected-offer execution scope mismatch");
   const batchCount=Math.ceil(selected.length/3),confirmationCount=19*batchCount;
   const confirmations=classification.rows.filter(row=>!approved.has(String(row.offer_id))&&row.action==="VERIFY_NO_CHANGE"&&row.target.in_stock===true&&row.source.in_stock===true&&!row.changed_fields?.price&&!row.changed_fields?.stock&&!row.changed_fields?.url).sort((a,b)=>Number(a.offer_id)-Number(b.offer_id)).slice(0,confirmationCount);
   invariant(confirmations.length===confirmationCount&&new Set([...selected,...confirmations].map(row=>String(row.offer_id))).size===selected.length+confirmationCount,"Fit House six-offer confirmation scope mismatch");
@@ -557,6 +585,7 @@ async function buildRun(target,state,diagnostic=null,reviewed=null,isolateUnsafe
   if(diagnostic){
     if(auditedMissing)diagnostic.guard_results.push({guard:"AUDITED_MISSING_VARIANTS",result:"EVIDENCE_ONLY",manifest_sha256:reconciled.manifest_sha256,review_status:reconciled.review_status,source_absent:reconciled.missingVariantIds.length,returned_live:reconciled.returnedLive});
     if(ownerApprovedMissing)diagnostic.guard_results.push({guard:"OWNER_APPROVED_MISSING_VARIANT",result:"PASS",manifest_sha256:ownerApprovedMissing.manifest_sha256,source_absent:ownerApprovedMissing.missingVariantIds.length,new_unavailable_count:ownerApprovedMissing.newUnavailableCount,offer_ids:ownerApprovedMissing.approved_rows.map(row=>row.offer_id)});
+    if(ownerApprovedSix)diagnostic.guard_results.push({guard:"OWNER_APPROVED_PROTECTED_STOCK",result:"PASS",absent_manifest_sha256:ownerApprovedSix.manifest_sha256,returned_manifest_sha256:ownerApprovedSix.returned_manifest_sha256,returned_offer_id:ownerApprovedSix.returned.offer_id,authorized_change_count:ownerApprovedSix.authorizedChangeCount,required_other_protected_oos:ownerApprovedSix.returned.required_other_protected_offer_ids_oos});
     diagnostic.classifier_summary=classificationDiagnostic(classification);
     diagnostic.mappings_matched=Array.isArray(classification.rows)?classification.rows.length:0;
     diagnostic.mappings_missing=Math.max(0,targets.length-diagnostic.mappings_matched);
@@ -575,7 +604,7 @@ async function buildRun(target,state,diagnostic=null,reviewed=null,isolateUnsafe
     }
   }else if(!isolateUnsafe&&(classification.state!=="DRY_RUN_READY"||classification.rows.length!==config.approved_mapping_count))throw new RefreshError(classification.reason||"CLASSIFIER_BLOCKED",`full ${config.retailer_name} classifier blocked`,"CLASSIFIER",{...(classification.detail||{}),guard_evidence:classification.guard_evidence||null});
   const sourceByVariant=new Map(reconciled.sourceVariants.map(row=>[String(row.external_variant_id),row])),recordByOffer=new Map(state.records.map(row=>[String(row.offer.id),row])),binding=migrationBinding(spec.environment),head=process.env.GITHUB_SHA||git("rev-parse","HEAD"),policyFingerprint=runtimePolicyFingerprint(),readerFile=config.source_platform==="PRODUCT_PAGE"?"dolphin-vegan-protein-feed.js":config.source_platform==="WOOCOMMERCE_PRODUCT_PAGES"?path.join("lib","woocommerce-mapped-snapshot-reader.js"):config.source_platform==="CSV_PRODUCT_FEED"?path.join("lib","csv-product-feed-reader.js"):path.join("lib","shopify-snapshot-reader.js"),adapterFingerprint=sha256({reader:fs.readFileSync(path.join(ROOT,"scripts",readerFile),"utf8"),classifier:fs.readFileSync(path.join(ROOT,"scripts","lib","retailer-offer-sync","classifier.js"),"utf8"),config}),expectedStateFingerprint=canonicalHash(state.records.map(row=>({product:row.product,variant:row.variant,mapping:row.mapping,offer:row.offer}))),rows=[];
-  const plannedRows=reviewed?classification.rows.filter(row=>row.action!=="VERIFY_NO_CHANGE"):ownerApprovedSix?.newUnavailableCount?selectOwnerApprovedSixExecutionRows(classification,ownerApprovedSix):ownerApprovedSix?[]:classification.rows;
+  const plannedRows=reviewed?classification.rows.filter(row=>row.action!=="VERIFY_NO_CHANGE"):ownerApprovedSix?.authorizedChangeCount?selectOwnerApprovedSixExecutionRows(classification,ownerApprovedSix):ownerApprovedSix?[]:classification.rows;
   for(const classified of plannedRows){const record=recordByOffer.get(String(classified.offer_id)),source=sourceFor(record,sourceByVariant);let plan;if(classified.action==="VERIFY_NO_CHANGE")plan=buildVerifiedNoChangePlan(verificationRecord(record,source,snapshot.semantic_source_fingerprint,capturedAt),{targetEnvironment:spec.environment,targetProjectRef:spec.ref,sourceSnapshotSha256s:new Set([snapshot.semantic_source_fingerprint]),now:new Date(capturedAt)}).plan;else{const built=buildExistingOfferUpdatePlan({product:record.product,variant:record.variant,retailer:record.retailer,mapping:record.mapping,offer:record.offer,source:{...source,url:source.url,shipping_cost:source.shipping_cost,total_price:source.total_price},sourceCapturedAt:capturedAt,sourceSnapshotFingerprint:snapshot.semantic_source_fingerprint});plan=built.plan;invariant(built.changed.price===classified.changed_fields.price&&built.changed.stock===classified.changed_fields.stock&&built.changed.url===classified.changed_fields.url,"classifier/plan changed-field mismatch")}
     rows.push({...classified,atomic_plan:plan,policy_fingerprint:policyFingerprint});
   }
@@ -640,7 +669,7 @@ async function executeRefresh(args,diagnostic,reviewed=null){
   const executionOfferIds=run.artifacts.flatMap(artifact=>artifact.rows.map(row=>String(row.offer_id))).sort((a,b)=>Number(a)-Number(b));
   const stockChangeOfferIds=run.artifacts.flatMap(artifact=>artifact.rows.filter(row=>row.action==="UPDATE_STOCK").map(row=>String(row.offer_id))).sort((a,b)=>Number(a)-Number(b));
   const verificationOfferIds=run.artifacts.flatMap(artifact=>artifact.rows.filter(row=>row.action==="VERIFY_NO_CHANGE").map(row=>String(row.offer_id))).sort((a,b)=>Number(a)-Number(b));
-  if(run.classification.action==="OWNER_APPROVED_SIX_STOCK_ONLY")invariant(stockChangeOfferIds.length+verificationOfferIds.length===executionOfferIds.length&&stockChangeOfferIds.length<=6&&verificationOfferIds.length===19*Math.ceil(stockChangeOfferIds.length/3),"Fit House six-offer report scope mismatch");
+  if(run.classification.action==="OWNER_APPROVED_PROTECTED_STOCK_ONLY")invariant(stockChangeOfferIds.length+verificationOfferIds.length===executionOfferIds.length&&stockChangeOfferIds.length<=1&&verificationOfferIds.length===19*Math.ceil(stockChangeOfferIds.length/3),"Fit House protected-offer report scope mismatch");
   const base={result:reviewRows.length||run.classification.deferred_changed_offer_ids?.length?"PASS_WITH_REVIEW":"PASS",mode:args.mode,target:args.target,project_ref:spec.ref,approved_manifest_sha256:config.manifest_sha256,approved_mapping_count:config.approved_mapping_count,execution_scope_segment:run.scopeSegment,execution_offer_ids:executionOfferIds,stock_change_offer_ids:stockChangeOfferIds,verification_offer_ids:verificationOfferIds,deferred_changed_offer_ids:run.classification.deferred_changed_offer_ids||[],executable_plan_count:executablePlanCount,executed_plan_count:0,review_row_count:reviewRows.length,blocked_row_count:0,source:{country:"GB",products:run.snapshot.products.length,variants:run.sourceVariants.length,available:run.sourceVariants.filter(row=>row.in_stock).length,fingerprint:run.snapshot.semantic_source_fingerprint,diagnostic:run.snapshot.source_diagnostic},scope:{mappings:config.approved_mapping_count,offers:config.approved_mapping_count,children:run.artifacts.length,rows:executablePlanCount},approved_scope_segments:scopeSegmentSummary(approvedManifest,run.classification,run.artifacts),classification:counts,review_rows:reviewRows,reviewed_mass_oos:run.massOosAuthorization,expected_deltas:appliedExpected,discovery:{new_variants:run.discovery.new_variants.length,missing_variants:run.discovery.missing_variants.length,missing_variants_review_only:missingReviewOnly,missing_variants_marked_unavailable:run.discovery.missing_variants.length-missingReviewOnly,catalogue_creates:0},validator_batches:validations.length,safe_update:"unset"};
   if(args.mode==="dry-run"){write(`${args.target}-dry-run.json`,base);return base}
   diagnostic.database_writes_attempted=1;
@@ -702,4 +731,4 @@ async function main(argv=process.argv.slice(2)){
 }
 
 if(require.main===module)main().catch(error=>{console.error(error.stack||error);process.exitCode=1});
-module.exports={enforceConfirmationOnly,APPROVED_CANONICAL_REBINDINGS,RefreshError,applyApprovedStableOosBaselineGuard,applyOwnerApprovedMissingVariantGuardBaseline,applyReviewedOffer697GuardProof,approvedStableOosBaseline,authorizeOwnerApprovedMissingVariant,authorizeOwnerApprovedSixStockOnly,authorizeReviewedMassOos,balancedExecutionBatches,buildRun,canonicalHash,classificationDiagnostic,controlParentApprovalError,controlRegistrationEvidence,diagnosticTemplate,effectiveOfferPolicy,executeRefresh,executionRow,freshCapturedAt,guardrailsFor,isApprovedCanonicalSuccessor,isExactOwnerBoundAuditedMissingReview,isolateAggregatePriceChanges,loadApprovedManifest,loadAuditedMissingVariantManifest,loadOwnerApprovedMissingVariantManifest,loadOwnerApprovedSixAbsentManifest,loadReviewedMassOosManifest,mappedOfferSourceFingerprint,migrationBinding,normalizeExactScopeRows,parseArgs,projectSourceVariants,readState,reconcileAuditedMissingVariants,reconcileMissingMappedVariants,reconcileOwnerApprovedMissingVariant,reconcileOwnerApprovedSixAbsent,registrationRequest,requireAuditedMissingOwnerApproval,runWithDiagnostic,runtimePolicyFingerprint,safeRetailerCatalogueError,safeUpdateDisabled,safeValidatorResult,scopeSegmentSummary,selectApprovedScopeSegment,selectOwnerApprovedSixExecutionRows,sourceHealth,sumDeltas,validationGuardSummary,verificationRecord};
+module.exports={enforceConfirmationOnly,APPROVED_CANONICAL_REBINDINGS,RefreshError,applyApprovedStableOosBaselineGuard,applyOwnerApprovedMissingVariantGuardBaseline,applyReviewedOffer697GuardProof,approvedStableOosBaseline,authorizeOwnerApprovedMissingVariant,authorizeOwnerApprovedSixStockOnly,authorizeReviewedMassOos,balancedExecutionBatches,buildRun,canonicalHash,classificationDiagnostic,controlParentApprovalError,controlRegistrationEvidence,diagnosticTemplate,effectiveOfferPolicy,executeRefresh,executionRow,freshCapturedAt,guardrailsFor,isApprovedCanonicalSuccessor,isExactOwnerBoundAuditedMissingReview,isolateAggregatePriceChanges,loadApprovedManifest,loadAuditedMissingVariantManifest,loadOwnerApprovedMissingVariantManifest,loadOwnerApprovedReturnedOfferManifest,loadOwnerApprovedSixAbsentManifest,loadReviewedMassOosManifest,mappedOfferSourceFingerprint,migrationBinding,normalizeExactScopeRows,parseArgs,projectSourceVariants,readState,reconcileAuditedMissingVariants,reconcileMissingMappedVariants,reconcileOwnerApprovedMissingVariant,reconcileOwnerApprovedSixAbsent,registrationRequest,requireAuditedMissingOwnerApproval,runWithDiagnostic,runtimePolicyFingerprint,safeRetailerCatalogueError,safeUpdateDisabled,safeValidatorResult,scopeSegmentSummary,selectApprovedScopeSegment,selectOwnerApprovedSixExecutionRows,sourceHealth,sumDeltas,validationGuardSummary,verificationRecord};

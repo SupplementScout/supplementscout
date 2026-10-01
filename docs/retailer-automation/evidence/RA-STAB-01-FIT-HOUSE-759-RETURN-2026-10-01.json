@@ -1,0 +1,77 @@
+{
+  "schema_version": "ra-stab-01-fit-house-return-v1",
+  "status": "LOCAL_VERIFIED_AWAITING_MAIN_PRODUCTION_PREFLIGHT",
+  "task_id": "RA-STAB-01",
+  "decision_date": "2026-10-01",
+  "owner_authority": {
+    "source": "owner-chat",
+    "decision": "restore in_stock=true only for Fit House offer 759 on the described conditions",
+    "manifest_path": "config/retailers/fit-house-owner-approved-return-offer-759-2026-10-01.json",
+    "manifest_sha256": "92ecd3977478a91a8ce268e699884c39d8b6870c1cf2b2dd7f03a0b2162e4f65"
+  },
+  "authorized_transition": {
+    "retailer_id": "9",
+    "retailer_slug": "fit-house",
+    "offer_id": "759",
+    "mapping_id": "873",
+    "canonical_product_id": "740",
+    "canonical_variant_id": "3021",
+    "external_product_id": "9168824172784",
+    "external_variant_id": "46969725714672",
+    "price_before": "11.99",
+    "price_after": "11.99",
+    "stock_before": false,
+    "stock_after": true,
+    "url": "https://fithouse.uk/products/7-nutrition-berberine-stack-90-vege-caps?variant=46969725714672"
+  },
+  "required_unchanged_scope": {
+    "protected_oos_offer_ids": ["718", "749", "757", "913", "939", "940"],
+    "other_offer_changes_allowed": 0,
+    "mapping_changes_allowed": 0,
+    "price_changes_allowed": 0,
+    "url_changes_allowed": 0,
+    "catalogue_creates_allowed": 0
+  },
+  "fresh_public_source_read": {
+    "read_at": "2026-10-01T07:02:37.151Z",
+    "product_id": "9168824172784",
+    "variant_id": "46969725714672",
+    "product_handle": "7-nutrition-berberine-stack-90-vege-caps",
+    "variant_count": 1,
+    "sku": null,
+    "price_pence": 1199,
+    "available": true
+  },
+  "implementation": {
+    "scope": "existing Fit House edge coordinator and existing guarded retailer-offer-sync path",
+    "new_workflow": false,
+    "new_executor": false,
+    "new_approval_path": false,
+    "shared_classifier_changed": false,
+    "guard_threshold_changed": false,
+    "mapping_changed": false,
+    "selector_behavior": "execute the one exact authorized stock transition with the existing balanced confirmation batch; reject every other changed row",
+    "idempotency_behavior": "after offer 759 is in stock, emit no executable artifact"
+  },
+  "local_verification": {
+    "focused_tests": { "passed": 58, "failed": 0 },
+    "quick_gate": "PASS",
+    "full_gate": "PASS",
+    "project_guardian_before_document_change": "PASS",
+    "project_guardian_after_document_change": "PASS"
+  },
+  "production": {
+    "workflow_dispatches": 0,
+    "control_writes": 0,
+    "business_writes": 0,
+    "preflight": "PENDING_MAIN",
+    "apply": "PENDING_MAIN_AND_FRESH_PREFLIGHT",
+    "postflight": "PENDING",
+    "idempotency": "PENDING"
+  },
+  "ordinary_interval_counter": {
+    "completed": 0,
+    "required": 3,
+    "manual_owner_authorized_apply_counts_as_ordinary_interval": false
+  }
+}
