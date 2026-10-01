@@ -528,6 +528,23 @@ closed. The preserved index narrows the future artifact-first gap without
 authorizing a capture, replay or retailer run. Evidence:
 [`evidence/RA-STAB-01-EVIDENCE-PRESERVATION-AUDIT.json`](evidence/RA-STAB-01-EVIDENCE-PRESERVATION-AUDIT.json).
 
+**Current 12-path classification — complete; observation continues:** the
+timestamped read-only classification of watchdog `36852261994` assigns every
+current result to the RA-STAB vocabulary with no unclassified failure. Four
+older ordinary failures (Discount Supplements, Dolphin Fitness, Simply
+Supplements and KIOR Health) plus the superseded Jon's failure share the
+pre-recovery ledger-selector class. Natural Jon's run `36853819770` on current
+`main` live verified that shared correction: all business stages, postflight and
+idempotency passed with `506` approved, `501` executed, `5` review and zero
+blocked; artifact `11157711039` has digest `sha256:b6cdc18d...e6d3f`.
+6 Pack is separately classified `SOURCE` because exact product `4150` returned
+HTTP 404 after five bounded attempts. eBay is `FINGERPRINT_OR_IDENTITY` because
+offer `2549` escaped its exact approved scope. Fit House is the already-fixed
+summary `FAILED_SYSTEM` pending natural producer proof; 10 Reps is genuine
+`MONITORED_DEBT`. No retailer-specific patch is justified. One recovered path
+does not constitute a full interval, so the counter remains `0/3`. Evidence:
+[`evidence/RA-STAB-01-CURRENT-CLASSIFICATION-2026-10-01.json`](evidence/RA-STAB-01-CURRENT-CLASSIFICATION-2026-10-01.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

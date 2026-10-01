@@ -234,6 +234,15 @@ zero-write idempotency. It lacks raw source bytes, paired legacy/canonical
 outputs, six-class parity and offline repeat determinism. No production rows
 were copied into the repository, and neither capture nor replay is authorized.
 
+The latest all-path RA-STAB classification now has no unexplained result.
+Natural Jon's run `36853819770` live verified the shared ledger-selector repair
+on current `main` with complete apply/postflight/idempotency evidence. Remaining
+incidents are separated rather than patched together: 6 Pack is a bounded
+source 404 for exact product `4150`; eBay is an exact-scope/identity escape for
+offer `2549`; Fit House awaits natural proof of the merged summary fix; and 10
+Reps retains genuine review/stale debt. This is not a full cross-path interval,
+so the counter remains `0/3` and manual retries remain unauthorized.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

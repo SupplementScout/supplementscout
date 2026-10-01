@@ -1,0 +1,165 @@
+{
+  "schema_version": "ra-stab-01-current-classification-v1",
+  "task_id": "RA-STAB-01",
+  "status": "ALL_CURRENT_RESULTS_CLASSIFIED_ORDINARY_OBSERVATION_CONTINUES",
+  "observed_at": "2026-10-01T11:18:15Z",
+  "source_watchdog": {
+    "workflow_run_id": "36852261994",
+    "generated_at": "2026-10-01T10:57:09.235Z",
+    "artifact_id": "11156515153",
+    "artifact_digest": "sha256:33edc53413ce2c3a0f4bb712609ca4a3adb7cc14b73d21c04c57178bba1b0a63",
+    "retailer_count": 12,
+    "failed_retailer_count": 9,
+    "monitored_retailer_count": 3,
+    "global_failures": [],
+    "database_writes": 0
+  },
+  "audit_activity": {
+    "github_run_and_artifact_reads": true,
+    "direct_database_reads": 0,
+    "workflow_dispatches": 0,
+    "retailer_retries": 0,
+    "control_writes": 0,
+    "business_writes": 0,
+    "baseline_changes": 0
+  },
+  "classification_vocabulary": [
+    "SOURCE",
+    "CONTROL_LIFECYCLE",
+    "FINGERPRINT_OR_IDENTITY",
+    "EVIDENCE_CORRELATION",
+    "MONITORED_DEBT",
+    "FAILED_SYSTEM"
+  ],
+  "retailers": [
+    {
+      "retailer": "GYM HIGH",
+      "watchdog_result": "PASS_WITH_MONITORED_BACKLOG",
+      "primary_class": "MONITORED_DEBT",
+      "evidence": "Latest ordinary job 36702451399 is COMPLETE_SUCCESS. One of 66 offers is older than 48h and the incomplete-core warnings remain within their recorded baseline.",
+      "next_action": "Observation only; GYM HIGH remains owner_deferred and no new workflow or commercial action is authorized."
+    },
+    {
+      "retailer": "Whey Okay",
+      "watchdog_result": "PASS_WITH_MONITORED_BACKLOG",
+      "primary_class": "MONITORED_DEBT",
+      "evidence": "Ordinary run 36839858227 is COMPLETE_SUCCESS with 589 approved, 579 executed, 10 review and zero blocked. The 291 older offers and 10 review rows are within the recorded monitored baseline.",
+      "next_action": "Retain ordinary evidence and continue observation; do not widen the baseline or rebind the 10 missing identities automatically."
+    },
+    {
+      "retailer": "Discount Supplements",
+      "watchdog_result": "FAIL",
+      "primary_class": "CONTROL_LIFECYCLE",
+      "secondary_class": "MONITORED_DEBT",
+      "latest_ordinary_run_id": "36718578574",
+      "artifact_id": "11097471046",
+      "artifact_digest": "sha256:4d8964808ee4bc9323ca6d5cc5d05def61bab1923a9db401348a5432635a0423",
+      "evidence": "Healthy 109/109 source matching stopped before writes on RSBI_SOURCE_HASH_MISMATCH because the run used the pre-recovery ledger selector. The corrected shared selector is merged; no retailer-specific defect is established.",
+      "next_action": "Observe the next natural schedule on current main and require full apply, postflight and idempotency evidence."
+    },
+    {
+      "retailer": "Dolphin Fitness",
+      "watchdog_result": "FAIL",
+      "primary_class": "CONTROL_LIFECYCLE",
+      "secondary_class": "MONITORED_DEBT",
+      "latest_ordinary_run_id": "36707225150",
+      "artifact_id": "11091943547",
+      "artifact_digest": "sha256:3b99072c724144071863dc873fdad9fdd134183e464a896f1a7388f99332e370",
+      "evidence": "Healthy exact 1/1 source match and no commercial change stopped before writes on the same pre-recovery RSBI_SOURCE_HASH_MISMATCH.",
+      "next_action": "Observe the next natural schedule on current main; no manual retry or Dolphin-specific patch."
+    },
+    {
+      "retailer": "Simply Supplements",
+      "watchdog_result": "FAIL",
+      "primary_class": "CONTROL_LIFECYCLE",
+      "secondary_class": "MONITORED_DEBT",
+      "latest_ordinary_run_id": "36706591229",
+      "artifact_id": "11092047497",
+      "artifact_digest": "sha256:7897a14ae1a4279f04e4352f8c56015a69718af0b86ac44854b67aa678127bd8",
+      "evidence": "Healthy source produced 119 matched plus one isolated review row, then stopped before writes on the same pre-recovery RSBI_SOURCE_HASH_MISMATCH.",
+      "next_action": "Observe the next natural schedule on current main and keep the one missing identity in review."
+    },
+    {
+      "retailer": "KIOR Health",
+      "watchdog_result": "FAIL",
+      "primary_class": "CONTROL_LIFECYCLE",
+      "latest_ordinary_run_id": "36727237848",
+      "artifact_id": "11103816488",
+      "artifact_digest": "sha256:53b541ef7b276055acc04523497748e05cd7182e863996056be9520700b6929e",
+      "evidence": "Healthy 11/11 source match with no commercial change stopped before writes on the same pre-recovery RSBI_SOURCE_HASH_MISMATCH.",
+      "next_action": "Observe the next natural schedule on current main; no manual retry or KIOR-specific patch."
+    },
+    {
+      "retailer": "Fit House",
+      "watchdog_result": "FAIL",
+      "primary_class": "FAILED_SYSTEM",
+      "secondary_class": "MONITORED_DEBT",
+      "latest_ordinary_run_id": "36842642858",
+      "evidence": "All business stages passed with zero writes, but the terminal job failed in Markdown summary generation. The shared zero-action producer schema is merged and locally verified; 266 stale offers and 14 owner-deferred review rows remain genuine debt.",
+      "next_action": "Prove the producer correction on the next natural ordinary schedule. Preserve the closed 759 plus 19 freshness-only plus 14 unchanged-review owner scope."
+    },
+    {
+      "retailer": "Jon's Supplements",
+      "watchdog_result": "SUPERSEDED_BY_NEWER_DIRECT_ORDINARY_EVIDENCE",
+      "primary_class": "CONTROL_LIFECYCLE",
+      "class_status": "LIVE_VERIFIED_CLOSED_FOR_THIS_PATH",
+      "ordinary_run_id": "36853819770",
+      "job_id": "110341454602",
+      "head_sha": "0aba9adb1cd357a78c4f6274465b67d6b01dc977",
+      "artifact_id": "11157711039",
+      "artifact_digest": "sha256:b6cdc18d027d96cce51fc8c4f8c19716f632b0199927c43f3c84a07fb61e6d3f",
+      "evidence": "The natural scheduled job passed dry-run, baseline, apply, postflight, idempotency and summary on current main. It recorded 506 approved, 501 executed, 5 review, zero blocked, 36 stock changes, one price change, 501 freshness updates and one business price-history delta. Idempotency made zero writes.",
+      "next_action": "Allow the next read-only watchdog to correlate this success; retain five review rows as monitored debt. This path alone does not award an interval."
+    },
+    {
+      "retailer": "6 Pack Supplements",
+      "watchdog_result": "FAIL",
+      "primary_class": "SOURCE",
+      "secondary_class": "MONITORED_DEBT",
+      "latest_ordinary_run_id": "36846674996",
+      "artifact_id": "11154439822",
+      "artifact_digest": "sha256:f2962fd7935d499e00e98a7c8394bab029243e3ad7aabd0dcb411e5489b44dfd",
+      "evidence": "Current-main source capture exhausted five bounded attempts because exact WooCommerce product 4150 returned HTTP 404. It stopped before baseline, apply and writes. All 506 offers remain stale and the prior 12-row review scope remains monitored debt.",
+      "next_action": "Treat product 4150 as a source/identity incident. Do not infer OOS, delete the mapping, widen the baseline or retry manually; require evidence before any identity decision."
+    },
+    {
+      "retailer": "eBay UK",
+      "watchdog_result": "FAIL",
+      "primary_class": "FINGERPRINT_OR_IDENTITY",
+      "secondary_classes": [
+        "EVIDENCE_CORRELATION",
+        "MONITORED_DEBT"
+      ],
+      "latest_ordinary_run_id": "36708063408",
+      "artifact_id": "11092279523",
+      "artifact_digest": "sha256:2d6679790049f8d48a101ece84177c2cf5faf9e07f229566c0ab72b95030f709",
+      "evidence": "The dry-run itself returned PASS_WITH_REVIEW, but plan preparation failed closed because offer 2549 escaped the exact approved scope. Workflow history is also explicitly truncated; 81 offers are stale and 69 rows remain in review.",
+      "next_action": "Reproduce offer 2549 scope escape from the retained artifact in the common harness before considering code. Do not apply, rebind or widen scope."
+    },
+    {
+      "retailer": "Predators Gear",
+      "watchdog_result": "PASS_WITH_MONITORED_BACKLOG",
+      "primary_class": "MONITORED_DEBT",
+      "evidence": "No automation workflow or complete core evidence exists; all 47 offers are older than 48h but remain within the explicit monitored baseline. Prior preservation audit records no trustworthy source artifact.",
+      "next_action": "Keep deferred; do not manufacture a workflow or infer source state without a separately authorized evidence path."
+    },
+    {
+      "retailer": "10 Reps",
+      "watchdog_result": "FAIL",
+      "primary_class": "MONITORED_DEBT",
+      "latest_ordinary_run_id": "36842642858",
+      "evidence": "Exact job attribution is COMPLETE_SUCCESS with 950 approved, 934 executed, 16 review and zero blocked. Only stale/review backlog growth remains; the new review offer is 3388.",
+      "next_action": "Retain all 16 rows in review, wait for the next natural schedule and do not weaken the monitored-debt gate."
+    }
+  ],
+  "summary": {
+    "all_12_paths_classified": true,
+    "unclassified_failure_count": 0,
+    "new_retailer_specific_patch_required": false,
+    "current_common_control_lifecycle_proof": "Jon's ordinary run 36853819770 live verifies the merged ledger correction for one previously affected path.",
+    "ordinary_intervals_completed": 0,
+    "ordinary_intervals_required": 3,
+    "interval_credit_reason": "One recovered retailer path is not a complete cross-path interval, while Fit House awaits producer proof and genuine source, identity and monitored-debt incidents remain.",
+    "next_gate": "Observe remaining natural schedules on current main, correlate them with the first later read-only watchdog, and implement nothing unless a current artifact reproduces a shared contract defect."
+  }
+}
