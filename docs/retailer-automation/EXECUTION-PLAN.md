@@ -460,10 +460,19 @@ executed, `14` review, `252` unselected/no-write) under
 `BOUNDED_OPERATION_SCOPE_V1`. The same generic contract accepts the historical
 Discount Supplements `109/95/0/14` shape and retains the complete-scope model;
 negative regressions cover count, ID, scope and correlation drift. Focused,
-quick and full gates pass. This is not yet live verified: merge and one new
-read-only watchdog from main are the next gates. No retailer refresh, database
-write, monitored-baseline change or RA-004 retry is authorized, and the
-ordinary counter remains `0/3`.
+quick and full gates pass.
+
+PR `#167` merged the correction as `31469faf`. The main-branch read-only
+watchdog run `36849669742`, artifact `11155420859`, digest
+`sha256:32305924...fa516`, live verified `BOUNDED_OPERATION_SCOPE_V1` as
+`PASS`: `286` approved, `20` executed, `14` review and `252` unselected/no-write.
+`APPROVED_SCOPE_PARTITION_MISMATCH` is gone. The run made zero database writes
+and reported no global failure. Fit House remains correctly red because a newer
+ordinary run `36842642858` is unsuccessful, offers remain stale and monitored
+backlog grew; this interval therefore earns no credit. The next bounded task is
+read-only classification of that latest shared Fit House/10 Reps ordinary run,
+not a retailer retry. No monitored-baseline change or RA-004 retry is
+authorized, and the ordinary counter remains `0/3`.
 
 **Acceptance:**
 
