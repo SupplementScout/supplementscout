@@ -1,0 +1,114 @@
+{
+  "schema_version": "ra-stab-01-six-pack-source-audit-v1",
+  "task_id": "RA-STAB-01",
+  "retailer": "6 Pack Supplements",
+  "observed_at": "2026-10-01T12:37:45.552Z",
+  "result": "SOURCE_ITEM_NOT_PUBLICLY_RESOLVABLE_IDENTITY_REVIEW_REQUIRED",
+  "production_write_authority": false,
+  "workflow_dispatches": 0,
+  "database_reads": 0,
+  "database_writes": 0,
+  "control_writes": 0,
+  "repository_writes_before_evidence_record": 0,
+  "triggering_run": {
+    "workflow_run_id": "36846674996",
+    "artifact_id": "11154439822",
+    "artifact_digest": "sha256:f2962fd7935d499e00e98a7c8394bab029243e3ad7aabd0dcb411e5489b44dfd",
+    "source_captured_at": "2026-10-01T10:27:00.694Z",
+    "attempts": 5,
+    "request_url": "https://6pack-supplements.co.uk/?p=4150",
+    "http_status": 404,
+    "stopped_before_baseline_or_write": true
+  },
+  "registered_identity": {
+    "manifest": "config/retailers/six-pack-approved-offer-manifest.json",
+    "manifest_sha256": "62f88fabc33e339d1106e597091217eabbbfaa4c5015b5625fb5257eacf0e7ff",
+    "mapping_id": "2565",
+    "offer_id": "2379",
+    "external_product_id": "4150",
+    "external_variant_id": "4150",
+    "canonical_product_id": "1097",
+    "canonical_variant_id": "2381",
+    "catalogue_evidence": "config/retailers/six-pack-production-expansion-v14.csv",
+    "catalogue_evidence_sha256": "2c26fe40465efee4ff4ef45c801351c7069b1d189468bc9785f3b0bb8eac093d",
+    "recorded_product_name": "Good Guru Pearl Shilajit Resin 30g",
+    "recorded_url": "https://6pack-supplements.co.uk/product/good-guru-pearl-shilajit-resin-30g/",
+    "recorded_gtin": "854822007309"
+  },
+  "live_read_only_checks": [
+    {
+      "observed_at": "2026-10-01T12:37:33.993Z",
+      "url": "https://6pack-supplements.co.uk/?p=4150",
+      "http_status": 404,
+      "redirected": false,
+      "response_bytes": 168226,
+      "response_sha256": "b44c73c99c5a04ecb689ecd6762599e406ac5b1eb1d7aa3748c2ca3569fdb30d"
+    },
+    {
+      "observed_at": "2026-10-01T12:37:34.073Z",
+      "url": "https://6pack-supplements.co.uk/product/good-guru-pearl-shilajit-resin-30g/",
+      "http_status": 404,
+      "redirected": false,
+      "response_bytes": 170399,
+      "response_sha256": "8535e9cf877f424202fe8cf1814eccb1db77914801a0c974a3f44bb9fe04150c"
+    },
+    {
+      "observed_at": "2026-10-01T12:37:34.151Z",
+      "url": "https://6pack-supplements.co.uk/?s=shilajit&post_type=product",
+      "http_status": 200,
+      "response_bytes": 258646,
+      "response_sha256": "2b404a3f6e2042a230fa9c6389400bb0adf8fe0c692825d4197530a76298cb94",
+      "contains_registered_gtin": false,
+      "contains_registered_exact_title": false,
+      "related_good_guru_products": [
+        {
+          "external_product_id": "4145",
+          "title": "Shilajit Black - The Good Guru",
+          "sku": "854822007521",
+          "url": "https://6pack-supplements.co.uk/product/shilajit-black-the-good-guru/"
+        },
+        {
+          "external_product_id": "4135",
+          "title": "Good Guru Pearl Shilajit 90 caps",
+          "sku": "854822007200",
+          "url": "https://6pack-supplements.co.uk/product/good-guru-pearl-shilajit-90-caps/"
+        },
+        {
+          "external_product_id": "4155",
+          "title": "Good Guru Gold Shilajit + Ashwagandha KSM66 90 caps",
+          "sku": "853809007707",
+          "url": "https://6pack-supplements.co.uk/product/good-guru-gold-shilajit-ashwagandha-ksm66-90-caps/"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-01T12:37:45.552Z",
+      "url": "https://www.thegoodguru.com/products/pearl-shilajit-resin-30g.js",
+      "http_status": 200,
+      "response_bytes": 5469,
+      "response_sha256": "ecb6af61cfb55c40673b7c1ccf2c37cd776f570603d99abd3cf7b564ed0a568f",
+      "title": "Pearl Shilajit Resin - 30g",
+      "manufacturer_variant_id": "50219738464598",
+      "manufacturer_sku": "PEA-SHI-30GG",
+      "manufacturer_barcode": "5060571822253",
+      "available": true
+    }
+  ],
+  "identity_conclusion": {
+    "exact_6_pack_item_publicly_resolvable": false,
+    "exact_6_pack_redirect_found": false,
+    "exact_registered_gtin_found_in_6_pack_search": false,
+    "safe_replacement_found": false,
+    "reason": "The exact retailer ID and slug return 404 without redirect. The retailer search exposes related Good Guru products, but every visible SKU differs from the registered GTIN. The manufacturer still sells a same-name 30g Pearl product under a different current barcode. This establishes unresolved identity discrepancy requiring review; it does not prove continuity, replacement or identity drift."
+  },
+  "disposition": {
+    "class": "SOURCE",
+    "secondary_class": "FINGERPRINT_OR_IDENTITY",
+    "mapping_change": "NONE",
+    "offer_change": "NONE",
+    "infer_out_of_stock": false,
+    "manual_retry": false,
+    "baseline_change": false,
+    "next_action": "Keep mapping 2565 and offer 2379 unchanged. This read-only evidence classifies the exact row as requiring owner identity review; production and control state remain unchanged. Routing, rebind or retirement requires separate authorization based on exact retailer identity evidence; no shared-core or retailer-specific code patch is justified."
+  }
+}
