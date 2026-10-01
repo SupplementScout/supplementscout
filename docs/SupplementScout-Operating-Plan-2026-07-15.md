@@ -227,6 +227,13 @@ freshness-only, and the exact 14 deferred offers remain unchanged in review.
 Wait for the next natural ordinary schedule to prove the zero-action producer
 schema; no manual retailer refresh is authorized and the counter stays `0/3`.
 
+The current 10 Reps ordinary artifact is now indexed as partial preservation,
+not as a replay bundle. It is retrievable only until 15 October 2026 and proves
+the exact `950 = 934 execution + 16 review` database partition, postflight and
+zero-write idempotency. It lacks raw source bytes, paired legacy/canonical
+outputs, six-class parity and offline repeat determinism. No production rows
+were copied into the repository, and neither capture nor replay is authorized.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
