@@ -1,12 +1,14 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
+const { isDeepStrictEqual } = require("node:util");
 const { parse } = require("csv-parse/sync");
 const { assertConfig, evaluateItem, DEFAULT_POLICY, getApplicationToken } = require("./lib/ebay-browse-pilot");
 const { boundedSourceFetch } = require("./lib/bounded-source-fetch");
 const { loadDryRunArtifact, runImportRows, writeDryRunArtifact } = require("./import-products");
 const { executePlan } = require("./ebay-offer-canary-executor");
 const { buildVerifiedNoChangeDryRun } = require("./verified-no-change-offer-refresh");
+const { buildExistingOfferUpdatePlan } = require("./lib/retailer-offer-sync/existing-offer-plan");
 const {
   approvedFromEnv,
   bindSemanticEvidence,
@@ -23,7 +25,7 @@ const ROLLOUT_DIR = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary");
 const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH";
 const KIND = "ebay-existing-offer-refresh-exact-237-v1";
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
-const PENDING_BATCH = path.join(OUT, "pending-batch.json");
+const MAPPING_VALUE_KEYS = ["external_product_id", "external_variant_id", "external_sku", "external_options", "external_name", "external_slug", "external_gtin", "external_url", "match_method", "match_confidence", "product_variant_id"];
 const EXACT_GTIN_METADATA_GAPS = new Set(["FORMAT_UNPROVEN", "SIZE_UNPROVEN", "UNIT_COUNT_UNPROVEN"]);
 const REVIEWED_MISSING_GTIN_CONTINUITY = new Map([
   ["2559", { seller: "muscle-factory-co-uk", review_reasons: new Set(["FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN"]) }],
@@ -349,7 +351,8 @@ function loadScopes() {
 
 const SCOPES = loadScopes();
 const SCOPE = SCOPES.find((scope) => scope.offer_id === "2558");
-function pendingArtifact(scope) { return path.join(OUT, `pending-${scope.offer_id}.json`); }
+function pendingArtifact(scope, outDir = OUT) { return path.join(outDir, `pending-${scope.offer_id}.json`); }
+function pendingBatchPath(outDir = OUT) { return path.join(outDir, "pending-batch.json"); }
 
 function partitionSourceFailures(unsafeRows) {
   const sourceFailures = unsafeRows.filter((row) => row.source_error === "SOURCE_READ_FAILED");
@@ -364,7 +367,7 @@ function partitionSourceFailures(unsafeRows) {
   };
 }
 
-function writePendingBatch(report, now) {
+function writePendingBatch(report, now, outDir = OUT) {
   if (report.blocked_row_count !== 0) fail("Global eBay refresh blockers prevent apply preparation");
   const manifest = {
     schema_version: 2,
@@ -391,14 +394,16 @@ function writePendingBatch(report, now) {
   };
   const bytes = Buffer.from(`${JSON.stringify(manifest, null, 2)}\n`);
   const manifestSha256 = sha256(bytes);
-  fs.writeFileSync(PENDING_BATCH, bytes, { flag: "wx" });
-  fs.writeFileSync(`${PENDING_BATCH}.sha256`, `${manifestSha256}\n`, { flag: "wx" });
+  const batchPath = pendingBatchPath(outDir);
+  fs.writeFileSync(batchPath, bytes, { flag: "wx" });
+  fs.writeFileSync(`${batchPath}.sha256`, `${manifestSha256}\n`, { flag: "wx" });
   return { manifest, manifestSha256 };
 }
 
-function loadPendingBatch(now = new Date()) {
-  const bytes = fs.readFileSync(PENDING_BATCH);
-  const expectedHash = fs.readFileSync(`${PENDING_BATCH}.sha256`, "utf8").trim();
+function loadPendingBatch(now = new Date(), outDir = OUT) {
+  const batchPath = pendingBatchPath(outDir);
+  const bytes = fs.readFileSync(batchPath);
+  const expectedHash = fs.readFileSync(`${batchPath}.sha256`, "utf8").trim();
   if (sha256(bytes) !== expectedHash) fail("Pending eBay refresh batch SHA-256 mismatch");
   const manifest = JSON.parse(bytes.toString("utf8"));
   const ageMs = now.getTime() - new Date(manifest.created_at).getTime();
@@ -480,7 +485,7 @@ function validatePlan(scope, loaded) {
   if (loaded.artifact.blocked_rows.length || loaded.artifact.plans.length !== 1) fail(`Refresh importer must return exactly one unblocked plan for offer ${scope.offer_id}`);
   const entry = loaded.artifact.plans[0], plan = entry.resolved_plan;
   const before = plan.expected_state?.offer, after = plan.offer?.values;
-  if (!["manual", "feed"].includes(entry.plan_kind) || String(entry.retailer_id) !== scope.retailer_id || plan.product?.action !== "existing" || String(plan.product.id) !== scope.product_id || plan.product_variant?.action !== "existing" || String(plan.product_variant.id) !== scope.product_variant_id || plan.retailer?.action !== "existing" || String(plan.retailer.id) !== scope.retailer_id || plan.retailer_product?.action !== "noop" || String(plan.retailer_product.id) !== scope.retailer_product_id || !["update", "verify_no_change"].includes(plan.offer?.action) || String(plan.offer.id) !== scope.offer_id || !["noop", "create"].includes(plan.price_history?.action)) fail(`Refresh plan escaped exact scope for offer ${scope.offer_id}`);
+  if (!["manual", "feed"].includes(entry.plan_kind) || String(entry.retailer_id) !== scope.retailer_id || !planTargetsExactScope(scope, plan)) fail(`Refresh plan escaped exact scope for offer ${scope.offer_id}`);
   if (!before || !after || String(before.retailer_product_id) !== scope.retailer_product_id || after.url !== scope.affiliate_url || after.in_stock !== true) fail(`Refresh plan changed identity, URL or guarded stock policy for offer ${scope.offer_id}`);
   const oldPrice = Number(before.price), newPrice = Number(after.price), absolute = Math.abs(newPrice - oldPrice), ratio = absolute / Math.max(0.01, oldPrice);
   if (!(newPrice > 0) || ratio >= 0.6 || absolute >= 20) fail(`Refresh price change exceeds the approved hard limit for offer ${scope.offer_id}`);
@@ -507,6 +512,36 @@ function actionForPlan(plan) {
   if (price) return "UPDATE_PRICE";
   if (stock) return "UPDATE_STOCK";
   return "MANUAL_REVIEW";
+}
+
+function mappingUpdateIsSerializedNoop(plan) {
+  if (plan.retailer_product?.action !== "update" || !plan.retailer_product.values || !plan.expected_state?.retailer_product) return false;
+  if (!isDeepStrictEqual(Object.keys(plan.retailer_product.values).sort(), [...MAPPING_VALUE_KEYS].sort())) return false;
+  const expected = plan.expected_state.retailer_product;
+  const expectedValues = Object.fromEntries(MAPPING_VALUE_KEYS.map((key) => [key, expected[key]]));
+  return isDeepStrictEqual(plan.retailer_product.values, expectedValues);
+}
+
+function planTargetsExactScope(scope, plan, { allowSerializedMappingNoop = false } = {}) {
+  const mappingActionIsSafe = plan.retailer_product?.action === "noop" || (allowSerializedMappingNoop && mappingUpdateIsSerializedNoop(plan));
+  return plan.product?.action === "existing" && String(plan.product.id) === scope.product_id &&
+    plan.product_variant?.action === "existing" && String(plan.product_variant.id) === scope.product_variant_id &&
+    plan.retailer?.action === "existing" && String(plan.retailer.id) === scope.retailer_id &&
+    mappingActionIsSafe && String(plan.retailer_product.id) === scope.retailer_product_id &&
+    ["update", "verify_no_change"].includes(plan.offer?.action) && String(plan.offer.id) === scope.offer_id &&
+    ["noop", "create"].includes(plan.price_history?.action);
+}
+
+function initialImporterPlanTargetsExactScope(scope, plan) {
+  const offerAction = plan.offer?.action;
+  const mappingActionIsSafe = plan.retailer_product?.action === "noop" || mappingUpdateIsSerializedNoop(plan);
+  const historyActionIsSafe = offerAction === "update" ? ["noop", "create"].includes(plan.price_history?.action) : plan.price_history?.action === "noop";
+  return plan.product?.action === "existing" && String(plan.product.id) === scope.product_id &&
+    plan.product_variant?.action === "existing" && String(plan.product_variant.id) === scope.product_variant_id &&
+    plan.retailer?.action === "existing" && String(plan.retailer.id) === scope.retailer_id &&
+    mappingActionIsSafe && String(plan.retailer_product.id) === scope.retailer_product_id &&
+    ["noop", "update", "verify_no_change"].includes(offerAction) && String(plan.offer.id) === scope.offer_id &&
+    historyActionIsSafe;
 }
 
 async function buildSource(scope, config, fetchImpl = fetch, tokenOverride = null, sourceFetchOptions = {}) {
@@ -545,17 +580,41 @@ async function prepareScope(scope, evaluation, mode, dependencies, stamp, approv
     }
     fail(`Refresh importer blocked offer ${scope.offer_id} outside the isolated identity-conflict contract`);
   }
-  if (initialPlan?.offer?.action === "noop") {
-    const capturedAt = approvedSourceCapturedAt || new Date().toISOString();
-    if (new Date(capturedAt).toISOString() !== capturedAt || Date.parse(capturedAt) > Date.now()) fail(`Approved source capture timestamp is invalid for offer ${scope.offer_id}`);
-    const snapshotHash = sha256(JSON.stringify({ item_id: evaluation.item_id, gtin: evaluation.returned_gtin, price: evaluation.item_price, shipping: evaluation.uk_shipping, delivered: evaluation.delivered_price, captured_at: capturedAt }));
+  if (!initialImporterPlanTargetsExactScope(scope, initialPlan)) fail(`Refresh importer escaped exact scope for offer ${scope.offer_id}`);
+  const capturedAt = approvedSourceCapturedAt || initialPlan.offer?.values?.last_checked_at || new Date().toISOString();
+  if (new Date(capturedAt).toISOString() !== capturedAt || Date.parse(capturedAt) > Date.now()) fail(`Approved source capture timestamp is invalid for offer ${scope.offer_id}`);
+  const snapshotHash = sha256(JSON.stringify({ item_id: evaluation.item_id, gtin: evaluation.returned_gtin, price: evaluation.item_price, shipping: evaluation.uk_shipping, delivered: evaluation.delivered_price, captured_at: capturedAt }));
+  if (initialPlan.offer?.action === "noop") {
     const target = JSON.parse(JSON.stringify(initialPlan.expected_state));
     delete target.retailer_product.updated_at;
     const verification = buildVerifiedNoChangeDryRun([{ source_snapshot_sha256: snapshotHash, source_captured_at: capturedAt, source: { external_product_id: scope.external_product_id, external_variant_id: scope.external_variant_id, price: row.price, in_stock: true, url: row.affiliate_url, external_url: row.external_url }, target }], { targetEnvironment: "PRODUCTION", targetProjectRef: PROJECT_REF, expectedCount: 1, sourceSnapshotSha256s: [snapshotHash], now: new Date(capturedAt) });
     artifactRows = verification.records;
     result = verification.result;
+  } else if (initialPlan.offer?.action !== "verify_no_change") {
+    if (!planTargetsExactScope(scope, initialPlan, { allowSerializedMappingNoop: true })) fail(`Refresh plan escaped exact offer-only scope for offer ${scope.offer_id}`);
+    const built = buildExistingOfferUpdatePlan({
+      product: initialPlan.expected_state.product,
+      variant: initialPlan.expected_state.product_variant,
+      retailer: initialPlan.expected_state.retailer,
+      mapping: initialPlan.expected_state.retailer_product,
+      offer: initialPlan.expected_state.offer,
+      source: {
+        external_product_id: scope.external_product_id,
+        external_variant_id: scope.external_variant_id,
+        price: row.price,
+        shipping_cost: row.shipping_cost,
+        total_price: (Number(row.price) + Number(row.shipping_cost)).toFixed(2),
+        in_stock: true,
+        url: row.affiliate_url,
+      },
+      sourceCapturedAt: capturedAt,
+      sourceSnapshotFingerprint: snapshotHash,
+    });
+    artifactRows = [built.record];
+    result = { report: { approvedRows: [{ importPlan: built.plan }] } };
   }
-  const artifactPath = mode === "prepare-apply" ? pendingArtifact(scope) : path.join(OUT, `artifact-${scope.offer_id}-${stamp}.json`);
+  const outDir = dependencies.outDir || OUT;
+  const artifactPath = mode === "prepare-apply" ? pendingArtifact(scope, outDir) : path.join(outDir, `artifact-${scope.offer_id}-${stamp}.json`);
   const written = (dependencies.writeDryRunArtifact || writeDryRunArtifact)(artifactRows, result, { artifactPath, sourceFileName: `ebay-browse-live-${scope.offer_id}.json`, environmentMarker: "production" });
   const approved = validatePlan({ ...scope, affiliate_url: row.affiliate_url }, { artifact: written.artifact, artifactSha256: written.artifactSha256 });
   return { approved, evaluation };
@@ -563,16 +622,17 @@ async function prepareScope(scope, evaluation, mode, dependencies, stamp, approv
 
 async function run(options, dependencies = {}) {
   assertExecutionContext(options.mode, dependencies.env || process.env);
-  fs.mkdirSync(OUT, { recursive: true });
+  const outDir = path.resolve(dependencies.outDir || OUT);
+  fs.mkdirSync(outDir, { recursive: true });
   const now = dependencies.now || new Date();
   if (options.mode === "execute-apply") {
-    const batch = (dependencies.loadPendingBatch || loadPendingBatch)(now);
+    const batch = (dependencies.loadPendingBatch || loadPendingBatch)(now, outDir);
     let approvedInput = null;
     if ((dependencies.env || process.env).GITHUB_EVENT_NAME === "workflow_dispatch") {
       approvedInput = approvedFromEnv(dependencies.env || process.env);
       if (batch.manifest.commit_sha !== approvedInput.commitSha || batch.manifest.approved_full_capture_fingerprint !== approvedInput.fullCaptureFingerprint || batch.manifest.approved_executable_source_fingerprint !== approvedInput.executableSourceFingerprint || batch.manifest.approved_review_scope_fingerprint !== approvedInput.reviewScopeFingerprint || batch.manifest.approved_plan_fingerprint !== approvedInput.planFingerprint) fail("Pending batch escaped the approved executable-scope contract");
     }
-    const approved = SCOPES.filter((scope) => batch.executable.has(scope.offer_id)).map((scope) => validatePreparedArtifact(scope, (dependencies.loadDryRunArtifact || loadDryRunArtifact)(pendingArtifact(scope)), now));
+    const approved = SCOPES.filter((scope) => batch.executable.has(scope.offer_id)).map((scope) => validatePreparedArtifact(scope, (dependencies.loadDryRunArtifact || loadDryRunArtifact)(pendingArtifact(scope, outDir)), now));
     for (const item of approved) await (dependencies.executePlan || executePlan)(item, KIND);
     const report = {
       result: batch.manifest.review_rows.length ? "PASS_WITH_REVIEW" : "PASS",
@@ -614,8 +674,8 @@ async function run(options, dependencies = {}) {
       approved_manifest_sha256: approvedInput?.manifestSha256 || null,
       approved_report_sha256: approvedInput?.reportSha256 || null,
     };
-    fs.writeFileSync(path.join(OUT, `execute-apply-${now.toISOString().replace(/[:.]/g, "-")}.json`), `${JSON.stringify(report, null, 2)}\n`);
-    fs.writeFileSync(path.join(OUT, "production-apply.json"), `${JSON.stringify(report, null, 2)}\n`);
+    fs.writeFileSync(path.join(outDir, `execute-apply-${now.toISOString().replace(/[:.]/g, "-")}.json`), `${JSON.stringify(report, null, 2)}\n`);
+    fs.writeFileSync(path.join(outDir, "production-apply.json"), `${JSON.stringify(report, null, 2)}\n`);
     return report;
   }
   const config = dependencies.config || assertConfig(dependencies.env || process.env);
@@ -701,17 +761,17 @@ async function run(options, dependencies = {}) {
   if (options.mode === "prepare-apply" && !globalBlocked.length) {
     if ((dependencies.env || process.env).GITHUB_EVENT_NAME === "workflow_dispatch") {
       const approved = loadAndVerifyContract(path.dirname(path.resolve(options.approvedContract)), approvedFromEnv(dependencies.env || process.env), now);
-      fs.writeFileSync(path.join(OUT, "fresh-revalidation-candidate.json"), `${JSON.stringify(report, null, 2)}\n`, { flag: "wx" });
+      fs.writeFileSync(path.join(outDir, "fresh-revalidation-candidate.json"), `${JSON.stringify(report, null, 2)}\n`, { flag: "wx" });
       report = verifyFreshReport(approved, report);
-      fs.writeFileSync(path.join(OUT, "fresh-revalidation-result.json"), `${JSON.stringify({ result: "PASS", drift_scope: report.drift_scope, approved_executable_offer_ids: report.execution_offer_ids, fresh_candidate_executable_offer_ids: report.fresh_candidate_executable_offer_ids, full_capture_fingerprint: report.full_capture_fingerprint, executable_source_fingerprint: report.executable_source_fingerprint, review_scope_fingerprint: report.review_scope_fingerprint, plan_fingerprint: report.plan_fingerprint, database_writes: 0 }, null, 2)}\n`, { flag: "wx" });
+      fs.writeFileSync(path.join(outDir, "fresh-revalidation-result.json"), `${JSON.stringify({ result: "PASS", drift_scope: report.drift_scope, approved_executable_offer_ids: report.execution_offer_ids, fresh_candidate_executable_offer_ids: report.fresh_candidate_executable_offer_ids, full_capture_fingerprint: report.full_capture_fingerprint, executable_source_fingerprint: report.executable_source_fingerprint, review_scope_fingerprint: report.review_scope_fingerprint, plan_fingerprint: report.plan_fingerprint, database_writes: 0 }, null, 2)}\n`, { flag: "wx" });
     }
-    const binding = (dependencies.writePendingBatch || writePendingBatch)(report, now);
+    const binding = (dependencies.writePendingBatch || writePendingBatch)(report, now, outDir);
     report.manifest_sha256 = binding?.manifestSha256 || null;
   }
-  fs.writeFileSync(path.join(OUT, `${options.mode}-${stamp}.json`), `${JSON.stringify(report, null, 2)}\n`);
+  fs.writeFileSync(path.join(outDir, `${options.mode}-${stamp}.json`), `${JSON.stringify(report, null, 2)}\n`);
   if (options.mode === "dry-run") {
-    fs.writeFileSync(path.join(OUT, "production-dry-run.json"), `${JSON.stringify(report, null, 2)}\n`);
-    if (options.emitApprovalContract) report.approval_contract = writeDryRunContract(OUT, report, dependencies.env || process.env, now);
+    fs.writeFileSync(path.join(outDir, "production-dry-run.json"), `${JSON.stringify(report, null, 2)}\n`);
+    if (options.emitApprovalContract) report.approval_contract = writeDryRunContract(outDir, report, dependencies.env || process.env, now);
   }
   return report;
 }
@@ -719,4 +779,4 @@ async function run(options, dependencies = {}) {
 async function main(argv = process.argv.slice(2)) { const report = await run(parseArgs(argv)); console.log(JSON.stringify(report)); if (!report.result.startsWith("PASS")) process.exitCode = 2; }
 if (require.main === module) main().catch((error) => { console.error(error.message); process.exitCode = 1; });
 
-module.exports = { CONFIRMATION, KIND, ROLLOUTS, SCOPES, SCOPE, actionForPlan, assertExecutionContext, buildSource, classifyContinuity, loadPendingBatch, loadScopes, parseArgs, partitionSourceFailures, pendingArtifact, prepareScope, rowFromEvaluation, run, validatePlan, validatePreparedArtifact, writePendingBatch };
+module.exports = { CONFIRMATION, KIND, ROLLOUTS, SCOPES, SCOPE, actionForPlan, assertExecutionContext, buildSource, classifyContinuity, initialImporterPlanTargetsExactScope, loadPendingBatch, loadScopes, mappingUpdateIsSerializedNoop, parseArgs, partitionSourceFailures, pendingArtifact, prepareScope, rowFromEvaluation, run, validatePlan, validatePreparedArtifact, writePendingBatch };
