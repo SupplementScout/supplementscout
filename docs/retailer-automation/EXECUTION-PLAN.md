@@ -595,8 +595,10 @@ contract while the writer allowed only `workflow_dispatch`. The bounded repair
 accepts `schedule` or `workflow_dispatch` only in GitHub Actions on `main`, adds
 a regression proving that the scheduled contract carries no owner confirmation,
 and leaves manual apply authority unchanged. No dispatch, baseline widening or
-retailer-specific shared-core branch is introduced. Merge and natural proof are
-still required. Evidence:
+retailer-specific shared-core branch is introduced. PR `#179` merged the repair
+as `9af3e7e4`; Project Guardian and the full Quality Gate passed again on merged
+`main`. Only a later natural eBay schedule and watchdog correlation can provide
+live closure. Evidence:
 [`evidence/RA-STAB-01-ORDINARY-OBSERVATION-2026-10-02.json`](evidence/RA-STAB-01-ORDINARY-OBSERVATION-2026-10-02.json).
 
 **Acceptance:**
