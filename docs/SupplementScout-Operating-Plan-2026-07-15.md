@@ -294,6 +294,24 @@ authorized. PR `#179` merged the repair as `9af3e7e4`, and Project Guardian plus
 the full Quality Gate passed on merged `main`; a later natural eBay run and
 watchdog correlation remain required for live closure.
 
+The recurring Fit House/10 Reps backlog is now bound into one evidence-only
+owner decision pack instead of another code patch or a sequence of row-by-row
+questions. Fit House has the same exact 14 owner-deferred stock differences at
+the same source fingerprint: five false-to-true and nine true-to-false changes.
+10 Reps has the same 16 `SOURCE_VARIANT_MISSING` rows: 12 from source product
+8036 and four single variants; 14 are already out of stock in the database,
+while offers `3388` and `3627` remain in stock. Source absence alone does not
+prove OOS, delisting or a replacement identity, so all 30 rows remain unchanged
+unless the owner makes one bundled, evidence-bound business disposition. The
+pack recommends accepting the exact Fit House observations only if the owner
+accepts that source as current stock authority, while keeping all 16 10 Reps
+rows unchanged for read-only identity review. This disposition grants no write:
+Fit House would still require a separate exact execution manifest, preflight and
+owner write authorization. The optional Review Queue choice permits only a
+read-only publication changeset; its exact control writes would require another
+hash-bound decision. The pack grants no write, retry, baseline, rebind or RA-004
+authority and does not change the `0/3` counter.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

@@ -1,0 +1,146 @@
+{
+  "schema_version": "ra-stab-01-backlog-owner-decision-pack-v1",
+  "task_id": "RA-STAB-01",
+  "prepared_at": "2026-10-02T13:56:07Z",
+  "status": "AWAITING_ONE_BUNDLED_BUSINESS_DISPOSITION",
+  "purpose": "Bind the recurring Fit House and 10 Reps review backlog to immutable ordinary-run evidence and present one consolidated business disposition without granting execution or write authority.",
+  "authority": {
+    "this_document_is_evidence_only": true,
+    "catalogue_writes_authorized": 0,
+    "control_writes_authorized": 0,
+    "manual_retries_authorized": 0,
+    "baseline_changes_authorized": 0,
+    "identity_rebinds_authorized": 0,
+    "ra_004_actions_authorized": 0,
+    "default_until_owner_decision": "KEEP_ALL_30_OFFERS_UNCHANGED"
+  },
+  "ordinary_run": {
+    "workflow_run_id": "36987322039",
+    "head_sha": "0bf7ff42a2a61c1d8fb3651a4e868d0e26f03d20",
+    "fit_house": {
+      "job_id": "110775196790",
+      "artifact_id": "11218047764",
+      "artifact_digest": "sha256:d37eedab9d74b5c9233201394cbc8aa44cc2b41af2030f9a84067d5c8a149374",
+      "dry_run_file_sha256": "f47163dbc3b4411a256a2b8ea07606119a65f6744f972ccf536cd1f79303c083",
+      "apply_file_sha256": "e44a65e12329e6db9c756eff00f229350d6ca196608f31eb0ec2c22403305d27",
+      "db_baseline_file_sha256": "aebc3da0c3abedbae7069327b05042b2c17c30d4619c6f60f7fbfa7ed8690d26",
+      "db_baseline_evidence_hash": "637ea152734ed2eb8b04fa2663fd72ce037fb302705f80df037a2a497692d4fc",
+      "db_baseline_captured_at": "2026-10-02T09:01:19.133Z",
+      "source_fingerprint": "8074eefe826362f2ae8d7e8333452ffebf1e3a7b787f1028e0b0bc1145d6e991",
+      "deferred_scope_manifest_path": "config/retailers/fit-house-owner-approved-return-isolation-2026-10-01.json",
+      "deferred_scope_manifest_sha256": "b696f4b07bdaeaffe94a148ec33af8683036576473a2dfcd686490e616aa2153",
+      "apply_diagnostic_file_sha256": "6535e1c241057cdea9c932aaee6a3037f2d5f9a1b52016f84fc313097d93cfc",
+      "result": "PASS_WITH_REVIEW",
+      "partition": { "approved": 286, "executed": 0, "review": 14, "blocked": 0 },
+      "writes": 0
+    },
+    "ten_reps": {
+      "job_id": "110775196481",
+      "artifact_id": "11219045201",
+      "artifact_digest": "sha256:6989a11be0717c4daabd8c796ec3c7e07ea722e27549b9e7052ea1e201ef7068",
+      "dry_run_file_sha256": "8c284430e47137607e7d93ea14d670ea8ee292fa26bd9050c1350d0127b22a34",
+      "apply_file_sha256": "50f6f2e15a859c2fed34639582e65292802ed7b8f1380b29378657be574c8dac",
+      "db_baseline_file_sha256": "3e45ed61c9873bd223153a1f5f4e5fa982ef5f0bb6cd11a93b103f7ed90de3ae",
+      "db_baseline_evidence_hash": "96bd562f4ffde3a97d76ebb51c93942a8011afa165fa8f12ebe6ab047e00b36a",
+      "db_baseline_captured_at": "2026-10-02T09:02:10.360Z",
+      "source_fingerprint": "547a60dd9d78ae15dd638a936abef8781baa39ada8de2008ad51c420bf48e0b6",
+      "result": "PASS_WITH_REVIEW",
+      "partition": { "approved": 950, "executed": 934, "review": 16, "blocked": 0 },
+      "executed_change": "934 freshness-only last_checked_at confirmations",
+      "commercial_delta": 0
+    }
+  },
+  "fit_house_decision": {
+    "reason": "OWNER_DEFERRED_STOCK_REVIEW",
+    "recurrence": "The exact same 14 rows and source fingerprint recurred after the completed offer-759 isolation.",
+    "source_observation_meaning": "Each source identity still matches and only stock differs from the database baseline.",
+    "allowed_owner_choices_per_row": [
+      "ACCEPT_OBSERVED_STOCK_AS_BUSINESS_DISPOSITION",
+      "KEEP_CURRENT_AND_REQUIRE_FURTHER_REVIEW"
+    ],
+    "recommended_bundled_choice": "ACCEPT_EXACT_OBSERVED_STOCK_AS_BUSINESS_DISPOSITION_FOR_ALL_14_IF_THE_OWNER_ACCEPTS_THE_RECORDED_SOURCE_AS_CURRENT_STOCK_AUTHORITY",
+    "decision_effect": "BUSINESS_DISPOSITION_ONLY; NO EXECUTION OR WRITE AUTHORITY",
+    "rows": [
+      { "offer_id": "697", "mapping_id": "689", "canonical_product_id": "679", "canonical_variant_id": "2988", "external_product_id": "10028457820400", "external_variant_id": "49744956850416", "price_gbp": "26.99", "database_in_stock": false, "observed_in_stock": true, "url": "https://fithouse.uk/products/mutant-creakong-advanced-creatine-1kg?variant=49744956850416", "owner_choice": null },
+      { "offer_id": "735", "mapping_id": "797", "canonical_product_id": "716", "canonical_variant_id": "3120", "external_product_id": "8493540278512", "external_variant_id": "50234901954800", "price_gbp": "14.99", "database_in_stock": false, "observed_in_stock": true, "url": "https://fithouse.uk/products/osavi-maca-1000mg-120-vege-caps?variant=50234901954800", "owner_choice": null },
+      { "offer_id": "921", "mapping_id": "1107", "canonical_product_id": "758", "canonical_variant_id": "890", "external_product_id": "10043022704880", "external_variant_id": "49791520342256", "price_gbp": "34.99", "database_in_stock": false, "observed_in_stock": true, "url": "https://fithouse.uk/products/10x-whey-protein-grass-fed-25-servings?variant=49791520342256", "owner_choice": null },
+      { "offer_id": "944", "mapping_id": "1130", "canonical_product_id": "517", "canonical_variant_id": "966", "external_product_id": "8318574264560", "external_variant_id": "47976539259120", "price_gbp": "31.99", "database_in_stock": false, "observed_in_stock": true, "url": "https://fithouse.uk/products/mutant-mass-2-27-kg?variant=47976539259120", "owner_choice": null },
+      { "offer_id": "951", "mapping_id": "1137", "canonical_product_id": "403", "canonical_variant_id": "956", "external_product_id": "9673598861552", "external_variant_id": "48119187636464", "price_gbp": "29.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/gym-high-mass-gainer-2-1-kg?variant=48119187636464", "owner_choice": null },
+      { "offer_id": "953", "mapping_id": "1139", "canonical_product_id": "771", "canonical_variant_id": "947", "external_product_id": "9678084636912", "external_variant_id": "48135716733168", "price_gbp": "15.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/biotech-usa-100-pure-whey-454g?variant=48135716733168", "owner_choice": null },
+      { "offer_id": "954", "mapping_id": "1140", "canonical_product_id": "770", "canonical_variant_id": "942", "external_product_id": "9673940762864", "external_variant_id": "48120966873328", "price_gbp": "21.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/applied-nutrition-creatine-hydration-30-servings?variant=48120966873328", "owner_choice": null },
+      { "offer_id": "963", "mapping_id": "1149", "canonical_product_id": "777", "canonical_variant_id": "969", "external_product_id": "9587378782448", "external_variant_id": "47881440166128", "price_gbp": "19.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/n1-pro-maximum-strength-pre-workout-formula-15-servings?variant=47881440166128", "owner_choice": null },
+      { "offer_id": "972", "mapping_id": "1158", "canonical_product_id": "774", "canonical_variant_id": "958", "external_product_id": "9587282706672", "external_variant_id": "47880946942192", "price_gbp": "34.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/ibiza-juice-og-high-stimulant-energy-amp-focus-pre-workout-40-servings?variant=47880946942192", "owner_choice": null },
+      { "offer_id": "983", "mapping_id": "1169", "canonical_product_id": "773", "canonical_variant_id": "955", "external_product_id": "8151663378672", "external_variant_id": "47959205445872", "price_gbp": "39.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/condemned-labz-convict-50-25-servings?variant=47959205445872", "owner_choice": null },
+      { "offer_id": "1859", "mapping_id": "2045", "canonical_product_id": "978", "canonical_variant_id": "1914", "external_product_id": "10043065172208", "external_variant_id": "49791610290416", "price_gbp": "24.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/neutonic-nootropic-focus-blend-powder-sachets-16-servings?variant=49791610290416", "owner_choice": null },
+      { "offer_id": "1904", "mapping_id": "2090", "canonical_product_id": "995", "canonical_variant_id": "1950", "external_product_id": "8334299660528", "external_variant_id": "44264927756528", "price_gbp": "54.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/per4m-whey-advanced-protein-2010g?variant=44264927756528", "owner_choice": null },
+      { "offer_id": "1938", "mapping_id": "2124", "canonical_product_id": "778", "canonical_variant_id": "1978", "external_product_id": "9076807237872", "external_variant_id": "46722065432816", "price_gbp": "24.99", "database_in_stock": false, "observed_in_stock": true, "url": "https://fithouse.uk/products/naughty-boy-energy-pre-workout-30-servings?variant=46722065432816", "owner_choice": null },
+      { "offer_id": "1982", "mapping_id": "2168", "canonical_product_id": "771", "canonical_variant_id": "1975", "external_product_id": "9678084636912", "external_variant_id": "48135716798704", "price_gbp": "15.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/biotech-usa-100-pure-whey-454g?variant=48135716798704", "owner_choice": null }
+    ]
+  },
+  "ten_reps_decision": {
+    "reason": "SOURCE_VARIANT_MISSING",
+    "recurrence": "The same 16 rows were absent from consecutive ordinary source captures.",
+    "safety_rule": "Source absence alone does not prove out-of-stock status, delisting, replacement identity or a safe rebind.",
+    "recommended_bundled_choice": "KEEP_ALL_16_UNCHANGED_AND_CONTINUE_READ_ONLY_IDENTITY_REVIEW; OPTIONALLY_AUTHORIZE_PREPARATION_OF_A_READ_ONLY_REVIEW_QUEUE_PUBLICATION_CHANGESET",
+    "groups": [
+      {
+        "group": "CNP_LOADED_EAA_PRODUCT_8036",
+        "row_count": 12,
+        "database_in_stock_count": 0,
+        "recommended_choice": "KEEP_UNCHANGED_PENDING_IDENTITY_EVIDENCE",
+        "rows": [
+          { "offer_id": "2853", "mapping_id": "3040", "canonical_product_id": "745", "canonical_variant_id": "817", "external_product_id": "8036", "external_variant_id": "8040", "price_gbp": "18.99", "database_in_stock": false, "url": "https://www.10reps.co.uk/product/cnp-loaded-eaa-300g/?attribute_flavours=Cherry%20Cola%20Bottles" },
+          { "offer_id": "2854", "mapping_id": "3041", "canonical_product_id": "745", "canonical_variant_id": "819", "external_product_id": "8036", "external_variant_id": "8043", "price_gbp": "18.99", "database_in_stock": false, "url": "https://www.10reps.co.uk/product/cnp-loaded-eaa-300g/?attribute_flavours=Lemon" },
+          { "offer_id": "2855", "mapping_id": "3042", "canonical_product_id": "745", "canonical_variant_id": "820", "external_product_id": "8036", "external_variant_id": "8045", "price_gbp": "18.99", "database_in_stock": false, "url": "https://www.10reps.co.uk/product/cnp-loaded-eaa-300g/?attribute_flavours=Pink%20Lemonade" },
+          { "offer_id": "2856", "mapping_id": "3043", "canonical_product_id": "745", "canonical_variant_id": "821", "external_product_id": "8036", "external_variant_id": "8046", "price_gbp": "18.99", "database_in_stock": false, "url": "https://www.10reps.co.uk/product/cnp-loaded-eaa-300g/?attribute_flavours=Pink%20Pigs" },
+          { "offer_id": "2857", "mapping_id": "3044", "canonical_product_id": "745", "canonical_variant_id": "2254", "external_product_id": "8036", "external_variant_id": "8047", "price_gbp": "18.99", "database_in_stock": false, "url": "https://www.10reps.co.uk/product/cnp-loaded-eaa-300g/?attribute_flavours=Strawberry%20Laces" },
+          { "offer_id": "2858", "mapping_id": "3045", "canonical_product_id": "745", "canonical_variant_id": "822", "external_product_id": "8036", "external_variant_id": "8048", "price_gbp": "18.99", "database_in_stock": false, "url": "https://www.10reps.co.uk/product/cnp-loaded-eaa-300g/?attribute_flavours=Tropical%20Pineapple" },
+          { "offer_id": "2859", "mapping_id": "3046", "canonical_product_id": "745", "canonical_variant_id": "823", "external_product_id": "8036", "external_variant_id": "8049", "price_gbp": "18.99", "database_in_stock": false, "url": "https://www.10reps.co.uk/product/cnp-loaded-eaa-300g/?attribute_flavours=Twisted%20Fruit" },
+          { "offer_id": "2896", "mapping_id": "3083", "canonical_product_id": "745", "canonical_variant_id": "2253", "external_product_id": "8036", "external_variant_id": "8038", "price_gbp": "18.99", "database_in_stock": false, "url": "https://www.10reps.co.uk/product/cnp-loaded-eaa-300g/?attribute_flavours=Big%20Juicy%20Melons" },
+          { "offer_id": "2897", "mapping_id": "3084", "canonical_product_id": "745", "canonical_variant_id": "1269", "external_product_id": "8036", "external_variant_id": "8041", "price_gbp": "18.99", "database_in_stock": false, "url": "https://www.10reps.co.uk/product/cnp-loaded-eaa-300g/?attribute_flavours=Fruit%20Salads" },
+          { "offer_id": "2898", "mapping_id": "3085", "canonical_product_id": "745", "canonical_variant_id": "2255", "external_product_id": "8036", "external_variant_id": "8042", "price_gbp": "18.99", "database_in_stock": false, "url": "https://www.10reps.co.uk/product/cnp-loaded-eaa-300g/?attribute_flavours=Grape%20Gazillions" },
+          { "offer_id": "2913", "mapping_id": "3100", "canonical_product_id": "745", "canonical_variant_id": "3220", "external_product_id": "8036", "external_variant_id": "8039", "price_gbp": "18.99", "database_in_stock": false, "url": "https://www.10reps.co.uk/product/cnp-loaded-eaa-300g/?attribute_flavours=Blue%20Razz%20Bubblegum" },
+          { "offer_id": "2914", "mapping_id": "3101", "canonical_product_id": "745", "canonical_variant_id": "3221", "external_product_id": "8036", "external_variant_id": "8044", "price_gbp": "18.99", "database_in_stock": false, "url": "https://www.10reps.co.uk/product/cnp-loaded-eaa-300g/?attribute_flavours=Orange" }
+        ]
+      },
+      {
+        "group": "FOUR_SINGLE_VARIANTS",
+        "row_count": 4,
+        "database_in_stock_count": 2,
+        "recommended_choice": "KEEP_UNCHANGED_PENDING_ROW_LEVEL_IDENTITY_EVIDENCE",
+        "rows": [
+          { "offer_id": "3384", "mapping_id": "3571", "canonical_product_id": "1198", "canonical_variant_id": "3620", "external_product_id": "11070", "external_variant_id": "11073", "price_gbp": "27.49", "database_in_stock": false, "url": "https://www.10reps.co.uk/product/ryse-bcaa-eaa-357g/?attribute_flavours=Tropical%20Snocone" },
+          { "offer_id": "3388", "mapping_id": "3575", "canonical_product_id": "1202", "canonical_variant_id": "3624", "external_product_id": "9237", "external_variant_id": "9239", "price_gbp": "13.49", "database_in_stock": true, "url": "https://www.10reps.co.uk/product/bulk-pea-protein-isolate-1kg/?attribute_flavours=Vanilla" },
+          { "offer_id": "3496", "mapping_id": "3683", "canonical_product_id": "1258", "canonical_variant_id": "3732", "external_product_id": "8946", "external_variant_id": "8950", "price_gbp": "21.99", "database_in_stock": false, "url": "https://www.10reps.co.uk/product/ak-47-labs-bcaa-300g/?attribute_flavours=Watermelon" },
+          { "offer_id": "3627", "mapping_id": "3814", "canonical_product_id": "1298", "canonical_variant_id": "3863", "external_product_id": "8773", "external_variant_id": "8783", "price_gbp": "18.99", "database_in_stock": true, "url": "https://www.10reps.co.uk/product/cellucor-c4-performance-energy-carbonated-rtd-12-x-500ml/?attribute_flavours=Twisted%20Limeade" }
+        ]
+      }
+    ]
+  },
+  "bundled_owner_decision_requested": {
+    "decision_id": "RA-STAB-01-BACKLOG-2026-10-02-D1",
+    "decision_effect": "Records business disposition only. Approval does not authorize an executor, catalogue write or control write.",
+    "fit_house": "Accept or reject the exact observed stock values as the intended business disposition for the 14 hash-bound rows. A separate exact execution manifest, preflight and write authorization remain mandatory.",
+    "ten_reps": "Accept or reject KEEP_UNCHANGED plus continued read-only identity review for the exact 16 hash-bound rows.",
+    "optional_review_queue_preparation": "Separately approve or reject preparation of a read-only publication dry-run through the existing common Review Queue publisher. The dry-run must bind per-row source fingerprints, current active-queue baseline and exact CREATE/REFRESH/SUPERSEDE/EXPIRE changes. It authorizes no control write; the resulting hash-bound changeset requires a separate owner decision.",
+    "not_authorized_by_approval_of_this_decision": [
+      "any row outside the exact 30",
+      "any price, shipping, total, URL, mapping or canonical identity change",
+      "any inferred 10 Reps OOS or identity rebind",
+      "any new importer, writer, approval path or retailer-specific shared-core branch",
+      "any manual retailer retry or monitored-baseline widening",
+      "any RA-004 action"
+    ]
+  },
+  "execution_if_later_approved": {
+    "fit_house": "After business disposition, prepare an exact SHA-bound execution manifest stating executable offer IDs, whether any freshness-only rows are included, expected catalogue/control/business write counts and all excluded rows. Use the existing reviewed mixed-change/control executor only after fresh source and database preflight match, and only after a separate owner write authorization binds that manifest and preflight.",
+    "ten_reps": "Perform read-only identity review first. Any later catalogue change requires a separate exact evidence-bound owner decision.",
+    "review_queue": "If preparation is approved, produce a read-only exact changeset through the existing common publisher path. Do not publish until a separate owner control-write authorization binds its fingerprint and expected counts; any eventual execution must verify catalogue_writes=0.",
+    "postconditions": [
+      "independent database postflight",
+      "fresh-source idempotency with zero second-pass writes",
+      "no row-count or commercial delta outside the approved Fit House stock fields",
+      "update RA-STAB-01 evidence without awarding interval credit to manual work"
+    ]
+  }
+}
