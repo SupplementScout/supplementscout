@@ -580,6 +580,25 @@ recovered paths still do not constitute a full cross-path interval, so the
 counter remains `0/3`. Evidence:
 [`evidence/RA-STAB-01-CURRENT-CLASSIFICATION-2026-10-01.json`](evidence/RA-STAB-01-CURRENT-CLASSIFICATION-2026-10-01.json).
 
+**2 October ordinary observation — no interval credit; one bounded contract
+repair:** natural schedules on `0bf7ff42` live verified the Fit House zero-action
+producer fix and the shared Discount ledger correction. Whey Okay, Jon's,
+Simply and Dolphin also completed with guarded postflight/idempotency evidence.
+The interval is nevertheless atomic and remains `0/3`: Fit House and 10 Reps
+have genuine stale/review backlog growth, 6 Pack failed closed on the already
+classified product-4150 HTTP 404, KIOR had not yet produced a 2 October natural
+run, and watchdog `37006401766` could not correlate the later Discount run.
+eBay run `37000578631` safely applied 150 freshness-only rows, isolated 87
+review rows and passed DB postflight with zero commercial/history delta, then
+failed because its scheduled post-apply dry-run requested the existing evidence
+contract while the writer allowed only `workflow_dispatch`. The bounded repair
+accepts `schedule` or `workflow_dispatch` only in GitHub Actions on `main`, adds
+a regression proving that the scheduled contract carries no owner confirmation,
+and leaves manual apply authority unchanged. No dispatch, baseline widening or
+retailer-specific shared-core branch is introduced. Merge and natural proof are
+still required. Evidence:
+[`evidence/RA-STAB-01-ORDINARY-OBSERVATION-2026-10-02.json`](evidence/RA-STAB-01-ORDINARY-OBSERVATION-2026-10-02.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
