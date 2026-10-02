@@ -682,6 +682,21 @@ preparation earns no ordinary interval credit, so the counter remains `0/3`.
 Evidence:
 [`evidence/RA-STAB-01-D1-REVIEW-QUEUE-CHANGESET-2026-10-02.json`](evidence/RA-STAB-01-D1-REVIEW-QUEUE-CHANGESET-2026-10-02.json).
 
+**2 October RA-STAB-01-D1 post-merge implementation review:** an independent
+read-only review of merged PR `#184` recomputed the sealed bundle hash, confirmed
+the exact `14 + 16` scope and 30 unique `CREATE` previews, and found no apply
+CLI, imported publication executor or production mutation/RPC call in the D1
+builder. Its production surface is select/count only and the common Review Queue
+lifecycle planner remains the sole changeset mechanism. The focused suite passes
+`4/4`; the merged full Quality Gate, Project Guardian, GitGuardian and Vercel
+checks are green. There are no blocking implementation findings. The preview is
+time-bound: its source manifests expire on 9 October, so it is not evergreen
+publication authority. Any later publication requires a fresh exact production
+and active-queue readback plus a separate owner control-write authorization.
+This review made zero database, catalogue or Review Queue writes and leaves the
+ordinary counter at `0/3`. Evidence:
+[`evidence/RA-STAB-01-D1-IMPLEMENTATION-REVIEW-2026-10-02.json`](evidence/RA-STAB-01-D1-IMPLEMENTATION-REVIEW-2026-10-02.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

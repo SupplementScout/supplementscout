@@ -359,6 +359,18 @@ unauthorized. A later queue publication would require independent implementation
 review plus a separate exact owner control-write decision. The ordinary counter
 remains `0/3`.
 
+The post-merge D1 implementation review has now passed without expanding that
+authority. It independently recomputed the sealed bundle hash, confirmed 30
+unique pending `CREATE` previews and verified that the bounded builder exposes
+only production selects/counts, imports no publication executor and has no apply
+mode. PR `#184` is merged at `de4593f`; its full Quality Gate and project-control
+checks passed. The review also records an important lifecycle boundary: the
+source-bound manifests expire on 9 October, so the sealed preview is not an
+evergreen write ticket. Any later Review Queue publication still requires a
+fresh fail-closed production/queue readback and separate exact owner control-
+write authorization. No database, catalogue or queue write was performed and
+the ordinary counter remains `0/3`.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
