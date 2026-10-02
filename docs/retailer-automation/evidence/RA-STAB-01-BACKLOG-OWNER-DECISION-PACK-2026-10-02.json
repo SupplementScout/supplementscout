@@ -81,7 +81,9 @@
     "reason": "SOURCE_VARIANT_MISSING",
     "recurrence": "The same 16 rows were absent from consecutive ordinary source captures.",
     "safety_rule": "Source absence alone does not prove out-of-stock status, delisting, replacement identity or a safe rebind.",
-    "recommended_bundled_choice": "KEEP_ALL_16_UNCHANGED_AND_CONTINUE_READ_ONLY_IDENTITY_REVIEW; OPTIONALLY_AUTHORIZE_PREPARATION_OF_A_READ_ONLY_REVIEW_QUEUE_PUBLICATION_CHANGESET",
+    "subsequent_identity_audit": "docs/retailer-automation/evidence/RA-STAB-01-10REPS-IDENTITY-AUDIT-2026-10-02.json",
+    "subsequent_identity_audit_result": "14 rows are already OOS with corroborating or inactive-source evidence; offer 3388 has one exact successor candidate requiring separate rebind authority; offer 3627 remains ambiguous. Automatic actions remain zero.",
+    "recommended_bundled_choice": "KEEP_ALL_16 UNCHANGED; record the desired generic terminal outcome for the 14 already-OOS rows as an owner disposition candidate while explicitly treating its implementation mechanism as NOT_ESTABLISHED; prepare a separate exact identity decision for Bulk offer 3388; and retain Cellucor offer 3627 pending stronger evidence or an explicit owner stock disposition. OPTIONALLY_AUTHORIZE READ-ONLY PREPARATION OF A 10 REPS PRODUCER/MANIFEST COMPATIBLE WITH THE EXISTING COMMON REVIEW QUEUE LIBRARY AND AN EXACT PUBLICATION CHANGESET.",
     "groups": [
       {
         "group": "CNP_LOADED_EAA_PRODUCT_8036",
@@ -121,8 +123,8 @@
     "decision_id": "RA-STAB-01-BACKLOG-2026-10-02-D1",
     "decision_effect": "Records business disposition only. Approval does not authorize an executor, catalogue write or control write.",
     "fit_house": "Accept or reject the exact observed stock values as the intended business disposition for the 14 hash-bound rows. A separate exact execution manifest, preflight and write authorization remain mandatory.",
-    "ten_reps": "Accept or reject KEEP_UNCHANGED plus continued read-only identity review for the exact 16 hash-bound rows.",
-    "optional_review_queue_preparation": "Separately approve or reject preparation of a read-only publication dry-run through the existing common Review Queue publisher. The dry-run must bind per-row source fingerprints, current active-queue baseline and exact CREATE/REFRESH/SUPERSEDE/EXPIRE changes. It authorizes no control write; the resulting hash-bound changeset requires a separate owner decision.",
+    "ten_reps": "Accept or reject the refined business disposition: keep all 16 catalogue rows unchanged now; record a desired generic terminal outcome for the 14 already-OOS identities while treating its implementation mechanism as NOT_ESTABLISHED; permit read-only preparation of a later exact rebind decision for Bulk offer 3388; and keep Cellucor offer 3627 unchanged pending stronger evidence or an explicit stock disposition.",
+    "optional_review_queue_preparation": "Separately approve or reject read-only preparation of the currently missing 10 Reps producer/manifest compatible with the existing common Review Queue publisher library, followed by a publication dry-run against a captured active-queue baseline. The shared retailer workflow has no verified 10 Reps publication wiring today. The dry-run must bind per-row source fingerprints and exact CREATE/REFRESH/SUPERSEDE/EXPIRE changes. It authorizes no workflow wiring or control write; any resulting implementation and hash-bound changeset require separate review and owner decisions.",
     "not_authorized_by_approval_of_this_decision": [
       "any row outside the exact 30",
       "any price, shipping, total, URL, mapping or canonical identity change",
@@ -135,7 +137,7 @@
   "execution_if_later_approved": {
     "fit_house": "After business disposition, prepare an exact SHA-bound execution manifest stating executable offer IDs, whether any freshness-only rows are included, expected catalogue/control/business write counts and all excluded rows. Use the existing reviewed mixed-change/control executor only after fresh source and database preflight match, and only after a separate owner write authorization binds that manifest and preflight.",
     "ten_reps": "Perform read-only identity review first. Any later catalogue change requires a separate exact evidence-bound owner decision.",
-    "review_queue": "If preparation is approved, produce a read-only exact changeset through the existing common publisher path. Do not publish until a separate owner control-write authorization binds its fingerprint and expected counts; any eventual execution must verify catalogue_writes=0.",
+    "review_queue": "If preparation is approved, first build and validate a read-only 10 Reps producer/manifest that reuses the existing common publisher library without adding a parallel writer. Then produce an exact changeset against a captured active-queue baseline. Do not wire or publish until separately reviewed implementation authority and a later owner control-write authorization bind its fingerprint and expected counts; any eventual execution must verify catalogue_writes=0.",
     "postconditions": [
       "independent database postflight",
       "fresh-source idempotency with zero second-pass writes",

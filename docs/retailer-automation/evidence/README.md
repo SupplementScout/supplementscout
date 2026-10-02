@@ -30,6 +30,8 @@ input. It does not authorize RA-004, a new capture or any write.
 
 [RA-STAB-01 delayed natural KIOR readback](RA-STAB-01-KIOR-NATURAL-READBACK-2026-10-02.json)
 
+[RA-STAB-01 10 Reps source-missing identity audit](RA-STAB-01-10REPS-IDENTITY-AUDIT-2026-10-02.json)
+
 [RA-004 10 Reps shadow pilot preflight](RA-004-PREFLIGHT.md)
 
 [RA-004 machine-readable shadow plan](RA-004-shadow-plan.json)

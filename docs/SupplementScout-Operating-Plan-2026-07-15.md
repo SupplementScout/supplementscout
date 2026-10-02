@@ -307,10 +307,13 @@ pack recommends accepting the exact Fit House observations only if the owner
 accepts that source as current stock authority, while keeping all 16 10 Reps
 rows unchanged for read-only identity review. This disposition grants no write:
 Fit House would still require a separate exact execution manifest, preflight and
-owner write authorization. The optional Review Queue choice permits only a
-read-only publication changeset; its exact control writes would require another
-hash-bound decision. The pack grants no write, retry, baseline, rebind or RA-004
-authority and does not change the `0/3` counter.
+owner write authorization. The optional Review Queue choice permits only
+read-only preparation of the currently missing 10 Reps producer/manifest
+compatible with the existing common publisher library, plus an exact changeset.
+No 10 Reps publication wiring is assumed; implementation and exact control
+writes require separate review and hash-bound decisions. The pack grants no
+write, retry, baseline, rebind or RA-004 authority and does not change the
+`0/3` counter.
 
 The delayed 2 October KIOR schedule subsequently started naturally at
 `14:05:23Z` on `main` commit `a6bf579f` and completed successfully as run
@@ -323,6 +326,27 @@ path evidence from the earlier observation, but cannot retroactively convert
 that already-failed atomic interval into a pass: the counter remains `0/3`.
 The next live proof remains the natural eBay schedule on the merged contract
 correction followed by a later ordinary watchdog.
+
+Read-only identity audit of the 16 recurring 10 Reps review rows confirms five
+evidence classes, not 16 code patches, and they must not be flattened into one
+automatic source-missing action. Twelve CNP rows were already owner-reviewed OOS before
+entering the approved scope and remain absent from consecutive feed captures;
+RYSE is already OOS and its live product page currently exposes zero active
+variations; AK-47 Watermelon is already OOS and the page labels it explicitly
+OOS. Bulk offer `3388` is different: the same product now exposes exact Vanilla
+1 kg variant `11696` at the same GBP 13.49 and in-stock state instead of old ID
+`9239`, making it a strong rebind candidate but not an authorized identity
+write. Cellucor offer `3627` is still in stock in the database; Twisted Limeade
+is visible as an option but absent from the eight active purchasable variations,
+so OOS or rebind remains unproven. The common review isolation therefore worked
+correctly. All 16 rows remain unchanged and automatic actions stay zero. A
+generic terminal outcome for the 14 already-OOS identities is only a candidate
+owner disposition: no verified shared execution mechanism exists yet, so any
+implementation needs a separately reviewed common contract, regressions and
+exact authority. The other work remains one exact reviewed rebind and one
+unresolved stock/identity decision—not retailer-specific code. Public-page HTML
+was not retained; its normalized hashes are audit-local digests, not replay
+artifacts.
 
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
