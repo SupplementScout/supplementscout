@@ -2,7 +2,7 @@
   "schema_version": "ra-stab-01-backlog-owner-decision-pack-v1",
   "task_id": "RA-STAB-01",
   "prepared_at": "2026-10-02T13:56:07Z",
-  "status": "AWAITING_ONE_BUNDLED_BUSINESS_DISPOSITION",
+  "status": "OWNER_DECISION_RECORDED_READ_ONLY_CHANGESET_AUTHORIZED",
   "purpose": "Bind the recurring Fit House and 10 Reps review backlog to immutable ordinary-run evidence and present one consolidated business disposition without granting execution or write authority.",
   "authority": {
     "this_document_is_evidence_only": true,
@@ -12,7 +12,31 @@
     "baseline_changes_authorized": 0,
     "identity_rebinds_authorized": 0,
     "ra_004_actions_authorized": 0,
-    "default_until_owner_decision": "KEEP_ALL_30_OFFERS_UNCHANGED"
+    "review_queue_changeset_preparation_authorized": true,
+    "review_queue_publication_authorized": false,
+    "default_catalogue_action": "KEEP_ALL_30_OFFERS_UNCHANGED"
+  },
+  "owner_decision": {
+    "decision_id": "RA-STAB-01-D1",
+    "recorded_on": "2026-10-02",
+    "status": "APPROVED_READ_ONLY_CHANGESET_PREPARATION",
+    "owner_statement": "Zatwierdzam RA-STAB-01-D1: przyjmuję opisany stan 14 ofert Fit House jako decyzję biznesową, pozostawiam 16 ofert 10 Reps bez zmian do read-only identity review oraz zezwalam wyłącznie na przygotowanie read-only changesetu Review Queue dla tych 30 pozycji.",
+    "fit_house_disposition": "ACCEPT_OBSERVED_STOCK_AS_BUSINESS_DISPOSITION_FOR_EXACT_14",
+    "ten_reps_disposition": "KEEP_EXACT_16_UNCHANGED_FOR_READ_ONLY_IDENTITY_REVIEW",
+    "authorized_action": "PREPARE_READ_ONLY_REVIEW_QUEUE_CHANGESET_FOR_EXACT_30",
+    "publication_authorized": false,
+    "catalogue_execution_authorized": false
+  },
+  "read_only_changeset_result": {
+    "status": "PREPARED_AND_LOCALLY_VERIFIED_NOT_PUBLISHED",
+    "evidence_path": "docs/retailer-automation/evidence/RA-STAB-01-D1-REVIEW-QUEUE-CHANGESET-2026-10-02.json",
+    "generated_at": "2026-10-02T15:08:41.913Z",
+    "bundle_sha256": "1711e71f6d65efd1519b2d35155f36bacc89cd8bf0128a486c57dc1b4c1c8bd0",
+    "production_active_review_baseline": { "fit_house": 0, "ten_reps": 0 },
+    "preview_operations": { "create": 30, "refresh": 0, "supersede": 0, "resolve_by_source": 0 },
+    "performed_database_writes": 0,
+    "performed_catalogue_writes": 0,
+    "publication_authorized": false
   },
   "ordinary_run": {
     "workflow_run_id": "36987322039",
@@ -61,20 +85,20 @@
     "recommended_bundled_choice": "ACCEPT_EXACT_OBSERVED_STOCK_AS_BUSINESS_DISPOSITION_FOR_ALL_14_IF_THE_OWNER_ACCEPTS_THE_RECORDED_SOURCE_AS_CURRENT_STOCK_AUTHORITY",
     "decision_effect": "BUSINESS_DISPOSITION_ONLY; NO EXECUTION OR WRITE AUTHORITY",
     "rows": [
-      { "offer_id": "697", "mapping_id": "689", "canonical_product_id": "679", "canonical_variant_id": "2988", "external_product_id": "10028457820400", "external_variant_id": "49744956850416", "price_gbp": "26.99", "database_in_stock": false, "observed_in_stock": true, "url": "https://fithouse.uk/products/mutant-creakong-advanced-creatine-1kg?variant=49744956850416", "owner_choice": null },
-      { "offer_id": "735", "mapping_id": "797", "canonical_product_id": "716", "canonical_variant_id": "3120", "external_product_id": "8493540278512", "external_variant_id": "50234901954800", "price_gbp": "14.99", "database_in_stock": false, "observed_in_stock": true, "url": "https://fithouse.uk/products/osavi-maca-1000mg-120-vege-caps?variant=50234901954800", "owner_choice": null },
-      { "offer_id": "921", "mapping_id": "1107", "canonical_product_id": "758", "canonical_variant_id": "890", "external_product_id": "10043022704880", "external_variant_id": "49791520342256", "price_gbp": "34.99", "database_in_stock": false, "observed_in_stock": true, "url": "https://fithouse.uk/products/10x-whey-protein-grass-fed-25-servings?variant=49791520342256", "owner_choice": null },
-      { "offer_id": "944", "mapping_id": "1130", "canonical_product_id": "517", "canonical_variant_id": "966", "external_product_id": "8318574264560", "external_variant_id": "47976539259120", "price_gbp": "31.99", "database_in_stock": false, "observed_in_stock": true, "url": "https://fithouse.uk/products/mutant-mass-2-27-kg?variant=47976539259120", "owner_choice": null },
-      { "offer_id": "951", "mapping_id": "1137", "canonical_product_id": "403", "canonical_variant_id": "956", "external_product_id": "9673598861552", "external_variant_id": "48119187636464", "price_gbp": "29.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/gym-high-mass-gainer-2-1-kg?variant=48119187636464", "owner_choice": null },
-      { "offer_id": "953", "mapping_id": "1139", "canonical_product_id": "771", "canonical_variant_id": "947", "external_product_id": "9678084636912", "external_variant_id": "48135716733168", "price_gbp": "15.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/biotech-usa-100-pure-whey-454g?variant=48135716733168", "owner_choice": null },
-      { "offer_id": "954", "mapping_id": "1140", "canonical_product_id": "770", "canonical_variant_id": "942", "external_product_id": "9673940762864", "external_variant_id": "48120966873328", "price_gbp": "21.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/applied-nutrition-creatine-hydration-30-servings?variant=48120966873328", "owner_choice": null },
-      { "offer_id": "963", "mapping_id": "1149", "canonical_product_id": "777", "canonical_variant_id": "969", "external_product_id": "9587378782448", "external_variant_id": "47881440166128", "price_gbp": "19.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/n1-pro-maximum-strength-pre-workout-formula-15-servings?variant=47881440166128", "owner_choice": null },
-      { "offer_id": "972", "mapping_id": "1158", "canonical_product_id": "774", "canonical_variant_id": "958", "external_product_id": "9587282706672", "external_variant_id": "47880946942192", "price_gbp": "34.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/ibiza-juice-og-high-stimulant-energy-amp-focus-pre-workout-40-servings?variant=47880946942192", "owner_choice": null },
-      { "offer_id": "983", "mapping_id": "1169", "canonical_product_id": "773", "canonical_variant_id": "955", "external_product_id": "8151663378672", "external_variant_id": "47959205445872", "price_gbp": "39.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/condemned-labz-convict-50-25-servings?variant=47959205445872", "owner_choice": null },
-      { "offer_id": "1859", "mapping_id": "2045", "canonical_product_id": "978", "canonical_variant_id": "1914", "external_product_id": "10043065172208", "external_variant_id": "49791610290416", "price_gbp": "24.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/neutonic-nootropic-focus-blend-powder-sachets-16-servings?variant=49791610290416", "owner_choice": null },
-      { "offer_id": "1904", "mapping_id": "2090", "canonical_product_id": "995", "canonical_variant_id": "1950", "external_product_id": "8334299660528", "external_variant_id": "44264927756528", "price_gbp": "54.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/per4m-whey-advanced-protein-2010g?variant=44264927756528", "owner_choice": null },
-      { "offer_id": "1938", "mapping_id": "2124", "canonical_product_id": "778", "canonical_variant_id": "1978", "external_product_id": "9076807237872", "external_variant_id": "46722065432816", "price_gbp": "24.99", "database_in_stock": false, "observed_in_stock": true, "url": "https://fithouse.uk/products/naughty-boy-energy-pre-workout-30-servings?variant=46722065432816", "owner_choice": null },
-      { "offer_id": "1982", "mapping_id": "2168", "canonical_product_id": "771", "canonical_variant_id": "1975", "external_product_id": "9678084636912", "external_variant_id": "48135716798704", "price_gbp": "15.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/biotech-usa-100-pure-whey-454g?variant=48135716798704", "owner_choice": null }
+      { "offer_id": "697", "mapping_id": "689", "canonical_product_id": "679", "canonical_variant_id": "2988", "external_product_id": "10028457820400", "external_variant_id": "49744956850416", "price_gbp": "26.99", "database_in_stock": false, "observed_in_stock": true, "url": "https://fithouse.uk/products/mutant-creakong-advanced-creatine-1kg?variant=49744956850416", "owner_choice": "ACCEPT_OBSERVED_STOCK_AS_BUSINESS_DISPOSITION" },
+      { "offer_id": "735", "mapping_id": "797", "canonical_product_id": "716", "canonical_variant_id": "3120", "external_product_id": "8493540278512", "external_variant_id": "50234901954800", "price_gbp": "14.99", "database_in_stock": false, "observed_in_stock": true, "url": "https://fithouse.uk/products/osavi-maca-1000mg-120-vege-caps?variant=50234901954800", "owner_choice": "ACCEPT_OBSERVED_STOCK_AS_BUSINESS_DISPOSITION" },
+      { "offer_id": "921", "mapping_id": "1107", "canonical_product_id": "758", "canonical_variant_id": "890", "external_product_id": "10043022704880", "external_variant_id": "49791520342256", "price_gbp": "34.99", "database_in_stock": false, "observed_in_stock": true, "url": "https://fithouse.uk/products/10x-whey-protein-grass-fed-25-servings?variant=49791520342256", "owner_choice": "ACCEPT_OBSERVED_STOCK_AS_BUSINESS_DISPOSITION" },
+      { "offer_id": "944", "mapping_id": "1130", "canonical_product_id": "517", "canonical_variant_id": "966", "external_product_id": "8318574264560", "external_variant_id": "47976539259120", "price_gbp": "31.99", "database_in_stock": false, "observed_in_stock": true, "url": "https://fithouse.uk/products/mutant-mass-2-27-kg?variant=47976539259120", "owner_choice": "ACCEPT_OBSERVED_STOCK_AS_BUSINESS_DISPOSITION" },
+      { "offer_id": "951", "mapping_id": "1137", "canonical_product_id": "403", "canonical_variant_id": "956", "external_product_id": "9673598861552", "external_variant_id": "48119187636464", "price_gbp": "29.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/gym-high-mass-gainer-2-1-kg?variant=48119187636464", "owner_choice": "ACCEPT_OBSERVED_STOCK_AS_BUSINESS_DISPOSITION" },
+      { "offer_id": "953", "mapping_id": "1139", "canonical_product_id": "771", "canonical_variant_id": "947", "external_product_id": "9678084636912", "external_variant_id": "48135716733168", "price_gbp": "15.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/biotech-usa-100-pure-whey-454g?variant=48135716733168", "owner_choice": "ACCEPT_OBSERVED_STOCK_AS_BUSINESS_DISPOSITION" },
+      { "offer_id": "954", "mapping_id": "1140", "canonical_product_id": "770", "canonical_variant_id": "942", "external_product_id": "9673940762864", "external_variant_id": "48120966873328", "price_gbp": "21.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/applied-nutrition-creatine-hydration-30-servings?variant=48120966873328", "owner_choice": "ACCEPT_OBSERVED_STOCK_AS_BUSINESS_DISPOSITION" },
+      { "offer_id": "963", "mapping_id": "1149", "canonical_product_id": "777", "canonical_variant_id": "969", "external_product_id": "9587378782448", "external_variant_id": "47881440166128", "price_gbp": "19.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/n1-pro-maximum-strength-pre-workout-formula-15-servings?variant=47881440166128", "owner_choice": "ACCEPT_OBSERVED_STOCK_AS_BUSINESS_DISPOSITION" },
+      { "offer_id": "972", "mapping_id": "1158", "canonical_product_id": "774", "canonical_variant_id": "958", "external_product_id": "9587282706672", "external_variant_id": "47880946942192", "price_gbp": "34.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/ibiza-juice-og-high-stimulant-energy-amp-focus-pre-workout-40-servings?variant=47880946942192", "owner_choice": "ACCEPT_OBSERVED_STOCK_AS_BUSINESS_DISPOSITION" },
+      { "offer_id": "983", "mapping_id": "1169", "canonical_product_id": "773", "canonical_variant_id": "955", "external_product_id": "8151663378672", "external_variant_id": "47959205445872", "price_gbp": "39.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/condemned-labz-convict-50-25-servings?variant=47959205445872", "owner_choice": "ACCEPT_OBSERVED_STOCK_AS_BUSINESS_DISPOSITION" },
+      { "offer_id": "1859", "mapping_id": "2045", "canonical_product_id": "978", "canonical_variant_id": "1914", "external_product_id": "10043065172208", "external_variant_id": "49791610290416", "price_gbp": "24.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/neutonic-nootropic-focus-blend-powder-sachets-16-servings?variant=49791610290416", "owner_choice": "ACCEPT_OBSERVED_STOCK_AS_BUSINESS_DISPOSITION" },
+      { "offer_id": "1904", "mapping_id": "2090", "canonical_product_id": "995", "canonical_variant_id": "1950", "external_product_id": "8334299660528", "external_variant_id": "44264927756528", "price_gbp": "54.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/per4m-whey-advanced-protein-2010g?variant=44264927756528", "owner_choice": "ACCEPT_OBSERVED_STOCK_AS_BUSINESS_DISPOSITION" },
+      { "offer_id": "1938", "mapping_id": "2124", "canonical_product_id": "778", "canonical_variant_id": "1978", "external_product_id": "9076807237872", "external_variant_id": "46722065432816", "price_gbp": "24.99", "database_in_stock": false, "observed_in_stock": true, "url": "https://fithouse.uk/products/naughty-boy-energy-pre-workout-30-servings?variant=46722065432816", "owner_choice": "ACCEPT_OBSERVED_STOCK_AS_BUSINESS_DISPOSITION" },
+      { "offer_id": "1982", "mapping_id": "2168", "canonical_product_id": "771", "canonical_variant_id": "1975", "external_product_id": "9678084636912", "external_variant_id": "48135716798704", "price_gbp": "15.99", "database_in_stock": true, "observed_in_stock": false, "url": "https://fithouse.uk/products/biotech-usa-100-pure-whey-454g?variant=48135716798704", "owner_choice": "ACCEPT_OBSERVED_STOCK_AS_BUSINESS_DISPOSITION" }
     ]
   },
   "ten_reps_decision": {
@@ -90,6 +114,7 @@
         "row_count": 12,
         "database_in_stock_count": 0,
         "recommended_choice": "KEEP_UNCHANGED_PENDING_IDENTITY_EVIDENCE",
+        "owner_choice": "KEEP_UNCHANGED_READ_ONLY_IDENTITY_REVIEW",
         "rows": [
           { "offer_id": "2853", "mapping_id": "3040", "canonical_product_id": "745", "canonical_variant_id": "817", "external_product_id": "8036", "external_variant_id": "8040", "price_gbp": "18.99", "database_in_stock": false, "url": "https://www.10reps.co.uk/product/cnp-loaded-eaa-300g/?attribute_flavours=Cherry%20Cola%20Bottles" },
           { "offer_id": "2854", "mapping_id": "3041", "canonical_product_id": "745", "canonical_variant_id": "819", "external_product_id": "8036", "external_variant_id": "8043", "price_gbp": "18.99", "database_in_stock": false, "url": "https://www.10reps.co.uk/product/cnp-loaded-eaa-300g/?attribute_flavours=Lemon" },
@@ -110,6 +135,7 @@
         "row_count": 4,
         "database_in_stock_count": 2,
         "recommended_choice": "KEEP_UNCHANGED_PENDING_ROW_LEVEL_IDENTITY_EVIDENCE",
+        "owner_choice": "KEEP_UNCHANGED_READ_ONLY_IDENTITY_REVIEW",
         "rows": [
           { "offer_id": "3384", "mapping_id": "3571", "canonical_product_id": "1198", "canonical_variant_id": "3620", "external_product_id": "11070", "external_variant_id": "11073", "price_gbp": "27.49", "database_in_stock": false, "url": "https://www.10reps.co.uk/product/ryse-bcaa-eaa-357g/?attribute_flavours=Tropical%20Snocone" },
           { "offer_id": "3388", "mapping_id": "3575", "canonical_product_id": "1202", "canonical_variant_id": "3624", "external_product_id": "9237", "external_variant_id": "9239", "price_gbp": "13.49", "database_in_stock": true, "url": "https://www.10reps.co.uk/product/bulk-pea-protein-isolate-1kg/?attribute_flavours=Vanilla" },
@@ -119,12 +145,12 @@
       }
     ]
   },
-  "bundled_owner_decision_requested": {
+  "bundled_owner_decision_record": {
     "decision_id": "RA-STAB-01-BACKLOG-2026-10-02-D1",
     "decision_effect": "Records business disposition only. Approval does not authorize an executor, catalogue write or control write.",
     "fit_house": "Accept or reject the exact observed stock values as the intended business disposition for the 14 hash-bound rows. A separate exact execution manifest, preflight and write authorization remain mandatory.",
     "ten_reps": "Accept or reject the refined business disposition: keep all 16 catalogue rows unchanged now; record a desired generic terminal outcome for the 14 already-OOS identities while treating its implementation mechanism as NOT_ESTABLISHED; permit read-only preparation of a later exact rebind decision for Bulk offer 3388; and keep Cellucor offer 3627 unchanged pending stronger evidence or an explicit stock disposition.",
-    "optional_review_queue_preparation": "Separately approve or reject read-only preparation of the currently missing 10 Reps producer/manifest compatible with the existing common Review Queue publisher library, followed by a publication dry-run against a captured active-queue baseline. The shared retailer workflow has no verified 10 Reps publication wiring today. The dry-run must bind per-row source fingerprints and exact CREATE/REFRESH/SUPERSEDE/EXPIRE changes. It authorizes no workflow wiring or control write; any resulting implementation and hash-bound changeset require separate review and owner decisions.",
+    "optional_review_queue_preparation": "APPROVED AND CONSUMED FOR PREPARATION ONLY. The read-only builder reuses the existing common Review Queue publisher library and produced two exact retailer changesets over one captured production baseline. The shared retailer workflow still has no verified Fit House/10 Reps publication wiring. No workflow wiring, queue publication or control write is authorized; any later publication requires separate implementation review and an exact hash-bound owner control-write decision.",
     "not_authorized_by_approval_of_this_decision": [
       "any row outside the exact 30",
       "any price, shipping, total, URL, mapping or canonical identity change",
@@ -137,7 +163,7 @@
   "execution_if_later_approved": {
     "fit_house": "After business disposition, prepare an exact SHA-bound execution manifest stating executable offer IDs, whether any freshness-only rows are included, expected catalogue/control/business write counts and all excluded rows. Use the existing reviewed mixed-change/control executor only after fresh source and database preflight match, and only after a separate owner write authorization binds that manifest and preflight.",
     "ten_reps": "Perform read-only identity review first. Any later catalogue change requires a separate exact evidence-bound owner decision.",
-    "review_queue": "If preparation is approved, first build and validate a read-only 10 Reps producer/manifest that reuses the existing common publisher library without adding a parallel writer. Then produce an exact changeset against a captured active-queue baseline. Do not wire or publish until separately reviewed implementation authority and a later owner control-write authorization bind its fingerprint and expected counts; any eventual execution must verify catalogue_writes=0.",
+    "review_queue": "Read-only preparation is complete through one builder that reuses the existing common publisher library for both retailer manifests. The exact preview is CREATE 14 for Fit House and CREATE 16 for 10 Reps against zero active rows for each retailer. Do not wire or publish until separately reviewed implementation authority and a later owner control-write authorization bind the recorded fingerprints and expected counts; any eventual execution must verify catalogue_writes=0.",
     "postconditions": [
       "independent database postflight",
       "fresh-source idempotency with zero second-pass writes",

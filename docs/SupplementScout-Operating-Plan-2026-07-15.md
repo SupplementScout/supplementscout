@@ -301,19 +301,15 @@ the same source fingerprint: five false-to-true and nine true-to-false changes.
 10 Reps has the same 16 `SOURCE_VARIANT_MISSING` rows: 12 from source product
 8036 and four single variants; 14 are already out of stock in the database,
 while offers `3388` and `3627` remain in stock. Source absence alone does not
-prove OOS, delisting or a replacement identity, so all 30 rows remain unchanged
-unless the owner makes one bundled, evidence-bound business disposition. The
-pack recommends accepting the exact Fit House observations only if the owner
-accepts that source as current stock authority, while keeping all 16 10 Reps
-rows unchanged for read-only identity review. This disposition grants no write:
-Fit House would still require a separate exact execution manifest, preflight and
-owner write authorization. The optional Review Queue choice permits only
-read-only preparation of the currently missing 10 Reps producer/manifest
-compatible with the existing common publisher library, plus an exact changeset.
-No 10 Reps publication wiring is assumed; implementation and exact control
-writes require separate review and hash-bound decisions. The pack grants no
-write, retry, baseline, rebind or RA-004 authority and does not change the
-`0/3` counter.
+prove OOS, delisting or a replacement identity. The owner has now made one
+bundled, evidence-bound D1: accept the exact Fit House observations as business
+intent, keep all 16 10 Reps rows unchanged for read-only identity review, and
+permit only preparation of the exact 30-row Review Queue changeset. This grants
+no write: Fit House still requires a separate exact execution manifest,
+preflight and owner write authorization. No Fit House/10 Reps publication wiring
+is assumed; publication and exact control writes require separate review and
+hash-bound decisions. The pack grants no retry, baseline, rebind or RA-004
+authority and does not change the `0/3` counter.
 
 The delayed 2 October KIOR schedule subsequently started naturally at
 `14:05:23Z` on `main` commit `a6bf579f` and completed successfully as run
@@ -347,6 +343,21 @@ exact authority. The other work remains one exact reviewed rebind and one
 unresolved stock/identity decision—not retailer-specific code. Public-page HTML
 was not retained; its normalized hashes are audit-local digests, not replay
 artifacts.
+
+The owner has now recorded `RA-STAB-01-D1` as one bounded decision rather than
+30 row-by-row patches. The exact 14 Fit House source stock values are accepted
+as business disposition only; the exact 16 10 Reps catalogue rows remain
+unchanged for read-only identity review. The separately authorized preparation
+step produced one sealed read-only Review Queue bundle through the existing
+common publisher library. Fresh production readback matched all 30 bound rows
+and found zero active queue rows for Fit House and 10 Reps, so the preview is
+exactly `CREATE 14 + CREATE 16`, with zero refresh, supersede or resolve. The
+builder has no apply mode or database mutation/RPC path, and the preparation
+performed zero database and catalogue writes. Publication, shared-workflow
+wiring, Fit House stock execution, 10 Reps OOS/rebind, retries and RA-004 remain
+unauthorized. A later queue publication would require independent implementation
+review plus a separate exact owner control-write decision. The ordinary counter
+remains `0/3`.
 
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger

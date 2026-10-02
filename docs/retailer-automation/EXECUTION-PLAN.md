@@ -601,7 +601,7 @@ as `9af3e7e4`; Project Guardian and the full Quality Gate passed again on merged
 live closure. Evidence:
 [`evidence/RA-STAB-01-ORDINARY-OBSERVATION-2026-10-02.json`](evidence/RA-STAB-01-ORDINARY-OBSERVATION-2026-10-02.json).
 
-**2 October recurring-backlog owner decision pack — prepared, no authority:**
+**2 October recurring-backlog owner decision pack — D1 recorded, no write authority:**
 ordinary run `36987322039` confirms one bounded decision scope rather than a
 new implementation defect. Fit House again produced the exact 14 deferred stock
 rows at source fingerprint `8074eefe...d6e991`: five false-to-true and nine
@@ -610,19 +610,15 @@ true-to-false. 10 Reps again produced the exact 16
 source product `8036`, and four are single variants. Fourteen 10 Reps rows are
 already OOS; only offers `3388` and `3627` are still in stock. The machine-readable
 pack binds the rows to run, job, artifact, file, deferred-scope manifest and
-database-baseline hashes and requests one bundled business disposition. Until
-that decision, every row remains unchanged. The recommendation is acceptance of
-the exact observed Fit House stock values as business intent only if the owner
-accepts the recorded source as stock authority, and read-only identity review
-without inferred OOS/rebind for all 16 10 Reps rows. A later Fit House execution
-requires a separate exact manifest, preflight and owner write authorization.
-The optional Review Queue choice authorizes only read-only preparation of the
-currently missing 10 Reps producer/manifest compatible with the common
-publisher library, followed by an exact changeset. No production wiring is
-assumed; implementation and exact control writes require separate reviewed,
-hash-bound decisions. Nothing here authorizes a catalogue/control write, manual
-retry, baseline widening, new path or RA-004 action; the ordinary counter
-remains `0/3`.
+database-baseline hashes. The owner subsequently recorded one bundled D1:
+accept the exact observed Fit House stock values as business intent, keep all
+16 10 Reps rows unchanged for read-only identity review, and permit only
+read-only preparation of the exact 30-row Review Queue changeset. A later Fit
+House execution still requires a separate exact manifest, preflight and owner
+write authorization. No production wiring is assumed; publication and exact
+control writes require separate reviewed, hash-bound decisions. Nothing here
+authorizes a catalogue/control write, manual retry, baseline widening, new path
+or RA-004 action; the ordinary counter remains `0/3`.
 Evidence:
 [`evidence/RA-STAB-01-BACKLOG-OWNER-DECISION-PACK-2026-10-02.json`](evidence/RA-STAB-01-BACKLOG-OWNER-DECISION-PACK-2026-10-02.json).
 
@@ -664,6 +660,27 @@ with no retailer-specific shared-core branch. The public-page normalized HTML
 hashes are explicitly audit-local non-retained digests, not replay evidence.
 Evidence:
 [`evidence/RA-STAB-01-10REPS-IDENTITY-AUDIT-2026-10-02.json`](evidence/RA-STAB-01-10REPS-IDENTITY-AUDIT-2026-10-02.json).
+
+**2 October RA-STAB-01-D1 decision and read-only Review Queue changeset:** the
+owner accepted the recorded source stock state as the business disposition for
+the exact 14 Fit House rows, kept all 16 10 Reps rows unchanged for read-only
+identity review, and authorized preparation only of a Review Queue changeset
+for those 30 rows. One bounded builder now reuses the existing common publisher
+library; it has no apply mode and its production reader exposes only selects and
+counts, with no insert, update, delete, upsert or RPC call. Fresh production
+readback at `2026-10-02T15:08:41.913Z` matched all 30 offer, mapping, canonical,
+external identity, price, stock and URL bindings. Both retailers had zero active
+Review Queue rows. The exact preview is therefore `CREATE 14` for Fit House and
+`CREATE 16` for 10 Reps, with zero refresh, supersede or resolve operations.
+Bundle SHA-256 is `1711e71f...c1c8bd0`; Fit House changeset fingerprint is
+`523b6829...61c62d8` and 10 Reps is `e08f0052...4ecd74e`. Preparation performed
+zero database and catalogue writes. Queue publication, workflow wiring, stock
+execution, identity rebind, retry and every RA-004 action remain unauthorized;
+the next gate is independent implementation review followed by a separate exact
+owner control-write decision if publication is later wanted. This manual
+preparation earns no ordinary interval credit, so the counter remains `0/3`.
+Evidence:
+[`evidence/RA-STAB-01-D1-REVIEW-QUEUE-CHANGESET-2026-10-02.json`](evidence/RA-STAB-01-D1-REVIEW-QUEUE-CHANGESET-2026-10-02.json).
 
 **Acceptance:**
 
