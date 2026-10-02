@@ -624,6 +624,23 @@ baseline widening, new path or RA-004 action; the ordinary counter remains
 Evidence:
 [`evidence/RA-STAB-01-BACKLOG-OWNER-DECISION-PACK-2026-10-02.json`](evidence/RA-STAB-01-BACKLOG-OWNER-DECISION-PACK-2026-10-02.json).
 
+**2 October delayed natural KIOR readback — path pass, no interval credit:**
+scheduled run `37017432524` started without manual dispatch on `main` commit
+`a6bf579f` and completed all guarded stages. The exact 11 approved mappings and
+offers classified `VERIFY_NO_CHANGE`; apply made 11 freshness-only business
+writes through the guarded parent/child and per-row approval path, with no
+commercial or history change. The diagnostic transaction count, two registered
+control rows and 11 row approvals are separate layers and are recorded as such.
+Read-only DB postflight found zero price, stock, shipping, total, URL, mapping
+or price-history delta and exactly 11 freshness changes. A fresh source capture
+repeated fingerprint `a8de1d3b...e602`, classified the same 11 no-change rows
+and made zero business/control writes. This supplies the KIOR evidence that was
+still pending at the earlier observation timestamp, but it does not change the
+atomic `0/3` counter because the interval had already failed on the independent
+Fit House/10 Reps backlog, 6 Pack source incident, eBay contract incident and
+earlier watchdog boundary. No retry or baseline change is authorized. Evidence:
+[`evidence/RA-STAB-01-KIOR-NATURAL-READBACK-2026-10-02.json`](evidence/RA-STAB-01-KIOR-NATURAL-READBACK-2026-10-02.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

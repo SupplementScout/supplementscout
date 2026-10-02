@@ -312,6 +312,18 @@ read-only publication changeset; its exact control writes would require another
 hash-bound decision. The pack grants no write, retry, baseline, rebind or RA-004
 authority and does not change the `0/3` counter.
 
+The delayed 2 October KIOR schedule subsequently started naturally at
+`14:05:23Z` on `main` commit `a6bf579f` and completed successfully as run
+`37017432524`, without a manual dispatch. All 11 approved offers classified
+`VERIFY_NO_CHANGE`; guarded apply changed only 11 `last_checked_at` values,
+with zero price, stock, shipping, total, URL or price-history delta. Database
+postflight passed, and fresh-source idempotency repeated the same source
+fingerprint with zero business or control writes. This closes the pending KIOR
+path evidence from the earlier observation, but cannot retroactively convert
+that already-failed atomic interval into a pass: the counter remains `0/3`.
+The next live proof remains the natural eBay schedule on the merged contract
+correction followed by a later ordinary watchdog.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
