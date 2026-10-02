@@ -616,11 +616,13 @@ the exact observed Fit House stock values as business intent only if the owner
 accepts the recorded source as stock authority, and read-only identity review
 without inferred OOS/rebind for all 16 10 Reps rows. A later Fit House execution
 requires a separate exact manifest, preflight and owner write authorization.
-The optional Review Queue choice authorizes only preparation of a read-only
-publisher changeset; its exact control writes require a separate hash-bound
-decision. Nothing here authorizes a catalogue/control write, manual retry,
-baseline widening, new path or RA-004 action; the ordinary counter remains
-`0/3`.
+The optional Review Queue choice authorizes only read-only preparation of the
+currently missing 10 Reps producer/manifest compatible with the common
+publisher library, followed by an exact changeset. No production wiring is
+assumed; implementation and exact control writes require separate reviewed,
+hash-bound decisions. Nothing here authorizes a catalogue/control write, manual
+retry, baseline widening, new path or RA-004 action; the ordinary counter
+remains `0/3`.
 Evidence:
 [`evidence/RA-STAB-01-BACKLOG-OWNER-DECISION-PACK-2026-10-02.json`](evidence/RA-STAB-01-BACKLOG-OWNER-DECISION-PACK-2026-10-02.json).
 
@@ -640,6 +642,28 @@ atomic `0/3` counter because the interval had already failed on the independent
 Fit House/10 Reps backlog, 6 Pack source incident, eBay contract incident and
 earlier watchdog boundary. No retry or baseline change is authorized. Evidence:
 [`evidence/RA-STAB-01-KIOR-NATURAL-READBACK-2026-10-02.json`](evidence/RA-STAB-01-KIOR-NATURAL-READBACK-2026-10-02.json).
+
+**2 October 10 Reps identity classification — read-only, no patches:** the 16
+recurring `SOURCE_VARIANT_MISSING` rows separate into five evidence classes,
+not 16 implementations. Twelve CNP identities were already reviewed OOS in
+existing hash-bound manifests and remain missing; RYSE offer `3384` is already
+OOS and its live product form has zero active variations; AK-47 Watermelon offer
+`3496` is already OOS and explicitly labelled OOS on the live page. Those 14
+rows need no catalogue write. Bulk offer `3388` has an exact same-product,
+Vanilla 1 kg, GBP 13.49, in-stock successor candidate at external variant
+`11696` instead of `9239`, but rebind remains a separate owner identity
+decision. Cellucor offer `3627` remains ambiguous: Twisted Limeade is visible in
+the selector but old ID `8783` is absent from the eight active purchasable
+variations, so neither OOS nor replacement is inferred. The existing shared
+isolation is correct; automatic actions and writes are zero. A generic terminal
+outcome for the 14 already-OOS rows is only a candidate owner disposition; no
+verified shared execution mechanism exists, and implementation would require a
+separately reviewed common contract, regressions and authority. The remaining
+work is one exact reviewed rebind and one unresolved stock/identity decision,
+with no retailer-specific shared-core branch. The public-page normalized HTML
+hashes are explicitly audit-local non-retained digests, not replay evidence.
+Evidence:
+[`evidence/RA-STAB-01-10REPS-IDENTITY-AUDIT-2026-10-02.json`](evidence/RA-STAB-01-10REPS-IDENTITY-AUDIT-2026-10-02.json).
 
 **Acceptance:**
 

@@ -1,0 +1,186 @@
+{
+  "schema_version": "ra-stab-01-10reps-identity-audit-v1",
+  "task_id": "RA-STAB-01",
+  "audited_at": "2026-10-02T14:31:30.727Z",
+  "result": "READ_ONLY_CLASSIFIED_NO_AUTOMATIC_ACTION",
+  "purpose": "Classify the 16 recurring 10 Reps SOURCE_VARIANT_MISSING rows by evidence class without creating row-specific code, inferring identity or authorizing a catalogue/control write.",
+  "authority": {
+    "audit_is_read_only": true,
+    "catalogue_writes_authorized": 0,
+    "control_writes_authorized": 0,
+    "identity_rebinds_authorized": 0,
+    "stock_changes_authorized": 0,
+    "manual_retries_authorized": 0,
+    "baseline_changes_authorized": 0,
+    "new_retailer_specific_code_authorized": false,
+    "ra_004_actions_authorized": 0
+  },
+  "recurring_source_evidence": {
+    "workflow_run_id": "36987322039",
+    "job_id": "110775196481",
+    "artifact_id": "11219045201",
+    "artifact_digest": "sha256:6989a11be0717c4daabd8c796ec3c7e07ea722e27549b9e7052ea1e201ef7068",
+    "source_fingerprint": "547a60dd9d78ae15dd638a936abef8781baa39ada8de2008ad51c420bf48e0b6",
+    "review_reason": "SOURCE_VARIANT_MISSING",
+    "review_row_count": 16,
+    "same_rows_in_previous_run": "36842642858"
+  },
+  "repository_evidence": {
+    "config/retailers/10reps-approved-offer-manifest.json": "5b5c4583fc456a0cc2d1348bcada5e07faa18be3fadd8bafb8de01b9dcf7c4f8",
+    "config/retailers/10reps-reviewed-bindings-v2-exact-oos-24.json": "9afccb03487cce2d5c38b139675001368932b5e63e25f1723a38494e8fff9f52",
+    "config/retailers/10reps-reviewed-bindings-v4-owner-alias-22.json": "cec3ebe3af6b7ee7c1449226e7c9448c485c0707cd71225eb41b39aac22079ea",
+    "config/retailers/10reps-reviewed-bindings-v6-existing-products-14.json": "239bbfda9721af1a921aeb992f8705ae0c5aa3a3460dc206ef6ee82523ce6051",
+    "config/retailers/10reps-reviewed-new-products-39.json": "04f5f8b604e5f62c84f3717c5b40a2b0461054243c535cb8e0491c83b6149b24",
+    "config/retailers/10reps-reviewed-sibling-variants-58.json": "a2850a60fc56639ce5575edfe1179875219c0081fb143c34dd1579ef7373818b",
+    "config/retailers/10reps-reviewed-existing-product-variants-62-v1.json": "721b4ef4283c1c44fffb44f98971ca32fd432a406bc214f55851462a4b29a4dc"
+  },
+  "public_page_capture_method": {
+    "transport": "PowerShell Invoke-WebRequest -UseBasicParsing over public HTTPS with a bounded 30-second timeout",
+    "parsed_fields": "final response URL, HTTP status, RawContentLength, exact product-form ID, embedded WooCommerce variation objects and attribute-option labels",
+    "normalized_html_sha256_algorithm": "SHA-256 over UTF-8 bytes produced from the PowerShell-decoded response Content string",
+    "raw_source_bytes_retained": false,
+    "retained_locator": "public requested_url and final_url only",
+    "digest_status": "AUDIT_LOCAL_NON_RETAINED_DIGEST_NOT_REPLAY_EVIDENCE",
+    "limitation": "The normalized HTML digests support this timestamped audit but cannot independently reconstruct or replay the source after the public page changes."
+  },
+  "classification_summary": {
+    "total_rows": 16,
+    "automatic_actions": 0,
+    "already_oos_with_corroborating_or_inactive_evidence": 14,
+    "exact_successor_candidate_requiring_owner_rebind_decision": 1,
+    "ambiguous_in_stock_identity_requiring_owner_or_stronger_evidence": 1,
+    "recommended_current_catalogue_action": "KEEP_ALL_16_UNCHANGED"
+  },
+  "classes": [
+    {
+      "class": "PERSISTENT_FAMILY_MISSING_ALREADY_OOS",
+      "row_count": 12,
+      "offer_ids": ["2853", "2854", "2855", "2856", "2857", "2858", "2859", "2896", "2897", "2898", "2913", "2914"],
+      "external_product_id": "8036",
+      "external_variant_ids": ["8040", "8043", "8045", "8046", "8047", "8048", "8049", "8038", "8041", "8042", "8039", "8044"],
+      "product": "CNP Loaded EAA 300g",
+      "database_in_stock": false,
+      "database_price_gbp": "18.99",
+      "historical_review_evidence": "All 12 exact source variants were individually reviewed and recorded out of stock in the existing v2, v4 or v6 manifests before entering the approved 950-offer scope.",
+      "current_feed_evidence": "The exact 12 identities are absent from consecutive ordinary feed captures with the same 16-row review set.",
+      "public_page_evidence": "Five bounded HTTPS attempts during this audit window closed the connection before an HTTP response; no page content or replacement identity was obtained.",
+      "replacement_identity_found": false,
+      "safe_catalogue_action_now": "NO_WRITE_KEEP_OOS",
+      "possible_later_generic_disposition": "Candidate owner decision: request a generic terminal outcome for already-OOS missing identities. No verified shared execution mechanism exists today; any implementation requires a separate common contract, regressions, exact authority and production proof. Do not delete mappings, invent successors or freshness-write merely to clear monitoring."
+    },
+    {
+      "class": "PRODUCT_PAGE_HAS_NO_ACTIVE_VARIATIONS_ALREADY_OOS",
+      "row_count": 1,
+      "offer_ids": ["3384"],
+      "external_product_id": "11070",
+      "external_variant_ids": ["11073"],
+      "product": "RYSE BCAA + EAA 357g — Tropical Snocone",
+      "database_in_stock": false,
+      "database_price_gbp": "27.49",
+      "page_capture": {
+        "requested_url": "https://www.10reps.co.uk/product/ryse-bcaa-eaa-357g/",
+        "final_url": "https://www.10reps.co.uk/product/ryse-bcaa-eaa-357g/",
+        "http_status": 200,
+        "raw_content_length": 604221,
+        "normalized_html_sha256": "11aa2cf6c381aef3b1f3bbf63a8998d9afa0e1d559e686d006115c15f8cee6df",
+        "product_form_id": "11070",
+        "active_variation_count": 0,
+        "attribute_option_count": 0,
+        "old_variant_id_present": false
+      },
+      "replacement_identity_found": false,
+      "safe_catalogue_action_now": "NO_WRITE_KEEP_OOS"
+    },
+    {
+      "class": "EXACT_SUCCESSOR_CANDIDATE_REQUIRES_OWNER_REBIND",
+      "row_count": 1,
+      "offer_ids": ["3388"],
+      "external_product_id": "9237",
+      "old_external_variant_id": "9239",
+      "candidate_external_variant_id": "11696",
+      "product": "Bulk Pea Protein Isolate — Vanilla 1kg",
+      "database_in_stock": true,
+      "database_price_gbp": "13.49",
+      "page_capture": {
+        "requested_url": "https://www.10reps.co.uk/product/bulk-pea-protein-isolate-1kg/",
+        "final_url": "https://www.10reps.co.uk/product/bulk-pea-protein-isolate/",
+        "http_status": 200,
+        "raw_content_length": 620882,
+        "normalized_html_sha256": "9e2d22f7843f670d223c1b9faa1720a831d473b53075fb262919ea0d82ffa81c",
+        "product_form_id": "9237",
+        "candidate_attributes": { "flavour": "vanilla", "weight": "1kg" },
+        "candidate_price_gbp": "13.49",
+        "candidate_in_stock": true,
+        "candidate_active": true,
+        "candidate_purchasable": true,
+        "other_variant": { "external_variant_id": "11697", "weight": "2.5kg", "price_gbp": "24.99" }
+      },
+      "identity_assessment": "The same source product, exact Vanilla 1kg option, exact price and live stock make 11696 a strong successor candidate, but external ID replacement is an identity write and is not automatic.",
+      "safe_catalogue_action_now": "NO_WRITE_KEEP_CURRENT",
+      "required_before_rebind": "Separate exact owner identity decision, fresh protected feed/page agreement, collision audit and existing guarded reviewed rebind plan with postflight."
+    },
+    {
+      "class": "EXPLICIT_PAGE_OOS_ALREADY_OOS",
+      "row_count": 1,
+      "offer_ids": ["3496"],
+      "external_product_id": "8946",
+      "external_variant_ids": ["8950"],
+      "product": "AK-47 Labs BCAA 300g — Watermelon",
+      "database_in_stock": false,
+      "database_price_gbp": "21.99",
+      "page_capture": {
+        "requested_url": "https://www.10reps.co.uk/product/ak-47-labs-bcaa-300g/",
+        "final_url": "https://www.10reps.co.uk/product/ak-47-labs-bcaa-300g/",
+        "http_status": 200,
+        "raw_content_length": 617586,
+        "normalized_html_sha256": "8ecfef6d6f637005e740f479993948a15a60f1fb3244c246705761967297b82a",
+        "product_form_id": "8946",
+        "active_variation_ids": ["8948", "8949"],
+        "watermelon_option_label": "Watermelon (OUT OF STOCK)",
+        "old_variant_id_present_in_active_payload": false
+      },
+      "replacement_identity_found": false,
+      "safe_catalogue_action_now": "NO_WRITE_KEEP_OOS"
+    },
+    {
+      "class": "OPTION_VISIBLE_BUT_NOT_ACTIVE_VARIATION",
+      "row_count": 1,
+      "offer_ids": ["3627"],
+      "external_product_id": "8773",
+      "external_variant_ids": ["8783"],
+      "product": "Cellucor C4 Performance Energy RTD 12 x 500ml — Twisted Limeade",
+      "database_in_stock": true,
+      "database_price_gbp": "18.99",
+      "page_capture": {
+        "requested_url": "https://www.10reps.co.uk/product/cellucor-c4-performance-energy-carbonated-rtd-12-x-500ml/",
+        "final_url": "https://www.10reps.co.uk/product/cellucor-c4-performance-energy-carbonated-rtd-12-x-500ml/",
+        "http_status": 200,
+        "raw_content_length": 646120,
+        "normalized_html_sha256": "400b735f6b904a3dac4c6472ea0c2dcc44a44da3f27b7212dcd0b47f81c30397",
+        "product_form_id": "8773",
+        "active_variation_count": 8,
+        "active_variation_ids": ["10004", "8776", "8777", "8778", "8779", "8780", "8781", "8782"],
+        "twisted_limeade_option_visible": true,
+        "old_variant_id_present_in_active_payload": false
+      },
+      "identity_assessment": "The option label remains visible on the exact product, but it is absent from the active purchasable variation payload. This supports review but does not by itself prove a safe OOS write or replacement identity.",
+      "safe_catalogue_action_now": "NO_WRITE_KEEP_CURRENT_PENDING_OWNER_OR_STRONGER_SOURCE_EVIDENCE"
+    }
+  ],
+  "general_design_conclusion": {
+    "row_specific_code_required": false,
+    "retailer_specific_shared_core_branch_required": false,
+    "reason": "The existing common source-missing isolation correctly prevented mixed identity, lifecycle and stock cases from being flattened into one unsafe action.",
+    "future_work_packages_not_patches": [
+      "One candidate owner disposition defining the desired generic terminal outcome for already-OOS identities. The implementation mechanism is NOT_ESTABLISHED and would require a separately reviewed common contract rather than retailer-specific code.",
+      "One exact reviewed rebind candidate for Bulk offer 3388, only after separate identity authority.",
+      "One unresolved Cellucor disposition requiring stronger evidence or an explicit owner stock decision."
+    ]
+  },
+  "interval_credit": {
+    "awarded": false,
+    "counter": "0/3",
+    "reason": "This read-only classification reduces unexplained backlog but does not resolve the durable review rows or replace a complete ordinary cross-path interval."
+  },
+  "next_action": "Keep all 16 catalogue rows unchanged. Use this evidence to refine the bundled owner business disposition; do not implement per-row code, rebind 3388, mark 3627 OOS, assume a terminal source-identity mechanism, retire mappings, publish review cards or change monitoring without the separately required common contract and exact authorities."
+}
