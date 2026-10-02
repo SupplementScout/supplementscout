@@ -118,7 +118,7 @@ function inventoryJsonFiles(directory) {
 }
 
 function writeDryRunContract(directory, report, env = process.env, now = new Date()) {
-  invariant(env.GITHUB_ACTIONS === "true" && env.GITHUB_EVENT_NAME === "workflow_dispatch" && env.GITHUB_REF === "refs/heads/main", "Approval contract may only be emitted by a manual main-branch GitHub dry-run");
+  invariant(env.GITHUB_ACTIONS === "true" && ["schedule", "workflow_dispatch"].includes(env.GITHUB_EVENT_NAME) && env.GITHUB_REF === "refs/heads/main", "Dry-run evidence contract may only be emitted by a scheduled or manual main-branch GitHub run");
   invariant(/^[0-9]+$/.test(env.GITHUB_RUN_ID || "") && /^[0-9a-f]{40}$/.test(env.GITHUB_SHA || ""), "Dry-run GitHub correlation is missing");
   invariant(report.commit_sha === env.GITHUB_SHA, "Dry-run report commit mismatch");
   const reportPath = path.join(directory, REPORT_FILE);

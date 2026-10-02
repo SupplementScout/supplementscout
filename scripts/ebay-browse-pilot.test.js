@@ -1003,6 +1003,12 @@ test("eBay refresh workflow is scheduled, default dry-run and has no push trigge
   assert.match(workflow, /actions: read/);
   assert.match(workflow, /ebay-artifact-bound-verifier\.js --mode=download/);
   assert.match(workflow, /--approved-contract=tmp\/ebay-offer-refresh\/approved-artifact\/production-dry-run-contract\.json/);
+  const prepareStep = workflow.match(/- name: Prepare exact approved existing-offer refresh[\s\S]*?run: npm run ebay:refresh[^\n]+/)?.[0] || "";
+  assert.doesNotMatch(prepareStep, /--emit-approval-contract=true/);
+  assert.throws(
+    () => parseRefreshArgs(["--target=production", "--mode=prepare-apply", "--emit-approval-contract=true"]),
+    /Only a dry-run may emit a review source contract/,
+  );
   assert.match(workflow, /EBAY_CLIENT_ID/);
   assert.match(workflow, /JONS_SYNC_APPROVER_DATABASE_URL/);
   assert.match(workflow, /vars\.EBAY_REFRESH_ENABLED == 'true'/);
@@ -1039,6 +1045,39 @@ function artifactBoundFixture(now = new Date("2026-08-30T18:00:00.000Z")) {
   const env = { ...github, EBAY_APPROVED_DRY_RUN_ID: "123", EBAY_APPROVED_ARTIFACT_ID: "456", EBAY_APPROVED_COMMIT_SHA: report.commit_sha, EBAY_APPROVED_FULL_CAPTURE_FINGERPRINT: report.full_capture_fingerprint, EBAY_APPROVED_EXECUTABLE_SOURCE_FINGERPRINT: report.executable_source_fingerprint, EBAY_APPROVED_REVIEW_SCOPE_FINGERPRINT: report.review_scope_fingerprint, EBAY_APPROVED_PLAN_FINGERPRINT: report.plan_fingerprint, EBAY_APPROVED_MANIFEST_SHA256: emitted.manifestSha256, EBAY_APPROVED_REPORT_SHA256: emitted.reportSha256, EBAY_REFRESH_OWNER_CONFIRMATION: approvalConfirmation(report.plan_fingerprint, emitted.manifestSha256) };
   return { directory, report, emitted, env, now };
 }
+
+test("scheduled post-apply dry-run may seal evidence without minting owner approval", () => {
+  const fixture = artifactBoundFixture();
+  fs.unlinkSync(path.join(fixture.directory, "production-dry-run-contract.json"));
+  const scheduled = {
+    GITHUB_ACTIONS: "true",
+    GITHUB_EVENT_NAME: "schedule",
+    GITHUB_REF: "refs/heads/main",
+    GITHUB_RUN_ID: "124",
+    GITHUB_RUN_ATTEMPT: "1",
+    GITHUB_SHA: fixture.report.commit_sha,
+  };
+  const emitted = writeDryRunContract(fixture.directory, fixture.report, scheduled, fixture.now);
+  assert.equal(emitted.manifest.run_id, "124");
+  assert.equal(emitted.manifest.commit_sha, fixture.report.commit_sha);
+  assert.equal(Object.hasOwn(emitted.manifest, "owner_confirmation"), false);
+  assert.equal(Object.hasOwn(emitted.manifest, "approved_by"), false);
+  assert.throws(() => approvedFromEnv(scheduled), /Approved run or artifact ID is missing/);
+
+  fs.unlinkSync(path.join(fixture.directory, "production-dry-run-contract.json"));
+  assert.throws(
+    () => writeDryRunContract(fixture.directory, fixture.report, { ...scheduled, GITHUB_EVENT_NAME: "push" }, fixture.now),
+    /scheduled or manual main-branch GitHub run/,
+  );
+  assert.throws(
+    () => writeDryRunContract(fixture.directory, fixture.report, { ...scheduled, GITHUB_REF: "refs/heads/feature" }, fixture.now),
+    /scheduled or manual main-branch GitHub run/,
+  );
+  assert.throws(
+    () => writeDryRunContract(fixture.directory, fixture.report, { ...scheduled, GITHUB_ACTIONS: "false" }, fixture.now),
+    /scheduled or manual main-branch GitHub run/,
+  );
+});
 
 test("eBay artifact-bound approval requires every immutable input and an exact derived confirmation", () => {
   const fixture = artifactBoundFixture();

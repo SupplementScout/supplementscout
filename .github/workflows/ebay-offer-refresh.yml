@@ -193,7 +193,7 @@ jobs:
           EBAY_EPN_CAMPAIGN_ID: ${{ secrets.EBAY_EPN_CAMPAIGN_ID }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: npm run ebay:refresh -- --target=production --mode=prepare-apply ${{ github.event_name == 'workflow_dispatch' && '--approved-contract=tmp/ebay-offer-refresh/approved-artifact/production-dry-run-contract.json' || '--emit-approval-contract=true' }}
+        run: npm run ebay:refresh -- --target=production --mode=prepare-apply ${{ github.event_name == 'workflow_dispatch' && '--approved-contract=tmp/ebay-offer-refresh/approved-artifact/production-dry-run-contract.json' || '' }}
       - name: Capture eBay UK DB baseline read-only
         if: ${{ (github.event_name == 'schedule' && vars.EBAY_REFRESH_ENABLED == 'true') || (github.event_name == 'workflow_dispatch' && inputs.operation == 'apply') }}
         env:

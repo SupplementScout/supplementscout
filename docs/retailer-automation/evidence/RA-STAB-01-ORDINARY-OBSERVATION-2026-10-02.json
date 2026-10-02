@@ -1,0 +1,127 @@
+{
+  "schema_version": "ra-stab-01-ordinary-observation-v1",
+  "task_id": "RA-STAB-01",
+  "observed_at": "2026-10-02T13:27:10Z",
+  "head_sha": "0bf7ff42a2a61c1d8fb3651a4e868d0e26f03d20",
+  "interval_credit": {
+    "awarded": false,
+    "counter": "0/3",
+    "reason": "The ordinary interval is atomic. The correlated watchdog failed, 6 Pack had a bounded source failure, eBay did not complete its same-run evidence contract, KIOR had not yet produced a 2 October natural run, and monitored backlog exceeded the recorded baseline."
+  },
+  "watchdog": {
+    "run_id": "37006401766",
+    "artifact_id": "11225947585",
+    "artifact_digest": "sha256:58ee6fd0d8701797c0e861a06bd456502898b6cd7e7e0b714609639e06827f0a",
+    "result": "FAIL",
+    "retailer_count": 12,
+    "failed_retailer_count": 6,
+    "monitored_retailer_count": 4,
+    "database_writes": 0
+  },
+  "natural_runs": [
+    {
+      "retailer": "Whey Okay",
+      "run_id": "36984892553",
+      "conclusion": "success",
+      "artifact_id": "11217975722",
+      "artifact_digest": "sha256:2c2282f0a4ef73834ad9738e398c06cd0c37a5c0e219734d568816bb526a8b81",
+      "classification": "PATH_PASS_WITH_REVIEW"
+    },
+    {
+      "retailer": "Fit House",
+      "run_id": "36987322039",
+      "job_id": "110775196790",
+      "conclusion": "success",
+      "artifact_id": "11218047764",
+      "artifact_digest": "sha256:d37eedab9d74b5c9233201394cbc8aa44cc2b41af2030f9a84067d5c8a149374",
+      "classification": "PRODUCER_FIX_LIVE_VERIFIED_WITH_MONITORED_DEBT",
+      "scope": { "approved": 286, "executed": 0, "review": 14, "blocked": 0 },
+      "writes": 0,
+      "notes": "The zero-action producer and summary completed successfully. The exact 14 owner-deferred stock rows remained unchanged; 266 stale offers and backlog growth prevent interval credit."
+    },
+    {
+      "retailer": "10 Reps",
+      "run_id": "36987322039",
+      "job_id": "110775196481",
+      "conclusion": "success",
+      "artifact_id": "11219045201",
+      "artifact_digest": "sha256:6989a11be0717c4daabd8c796ec3c7e07ea722e27549b9e7052ea1e201ef7068",
+      "classification": "PATH_PASS_WITH_MONITORED_DEBT",
+      "scope": { "approved": 950, "executed": 934, "review": 16, "blocked": 0 },
+      "notes": "All executed rows were freshness-only VERIFY_NO_CHANGE; the same 16 SOURCE_VARIANT_MISSING rows remained review/stale and exceeded the monitored baseline."
+    },
+    {
+      "retailer": "6 Pack Supplements",
+      "run_id": "36991204338",
+      "conclusion": "failure",
+      "artifact_id": "11220445609",
+      "artifact_digest": "sha256:8d500924e3ea61b0154ed214222e3b4149bb3f77ec017e894527b86fdf94c392",
+      "classification": "SOURCE",
+      "writes": 0,
+      "notes": "Exact source product 4150 returned HTTP 404 after five bounded attempts. All 506 rows failed closed. Mapping 2565 and offer 2379 remain unchanged pending owner identity review."
+    },
+    {
+      "retailer": "Jon's Supplements",
+      "run_id": "36997159124",
+      "conclusion": "success",
+      "artifact_id": "11222472632",
+      "artifact_digest": "sha256:1726b1042f37ec7ca43fa82ceac7475e2c46cd71ef8e9d836b0fb80ff8482557",
+      "classification": "PATH_PASS_WITH_REVIEW"
+    },
+    {
+      "retailer": "Simply Supplements",
+      "run_id": "36998896451",
+      "conclusion": "success",
+      "artifact_id": "11222584360",
+      "artifact_digest": "sha256:dcd08e530b07729c8db7836bec90f3a3f7d337703818f265515f28c16b8d7e8e",
+      "classification": "PATH_PASS_WITH_REVIEW"
+    },
+    {
+      "retailer": "Dolphin Fitness",
+      "run_id": "36999553577",
+      "conclusion": "success",
+      "artifact_id": "11222992842",
+      "artifact_digest": "sha256:9f700dd122c8d164913daf438ea46622dc550939b074283831410e550ad404ff",
+      "classification": "PATH_PASS"
+    },
+    {
+      "retailer": "eBay UK",
+      "run_id": "37000578631",
+      "job_id": "110817108335",
+      "conclusion": "failure",
+      "artifact_id": "11224286629",
+      "artifact_digest": "sha256:0eb81d4f0097516123a77a696f696fe2777a76df65dd91103397298139b299ce",
+      "classification": "FAILED_SYSTEM_AFTER_SAFE_APPLY",
+      "scope": { "approved": 237, "executed": 150, "review": 87, "blocked": 0 },
+      "notes": "Apply and DB postflight passed with 150 freshness-only writes and zero commercial or history deltas. The post-apply dry-run then failed because the scheduled workflow requested a dry-run evidence contract that the contract writer allowed only for workflow_dispatch. No data corruption occurred."
+    },
+    {
+      "retailer": "Discount Supplements",
+      "run_id": "37011363191",
+      "conclusion": "success",
+      "artifact_id": "11228091735",
+      "artifact_digest": "sha256:f0a03e4aef5133b1878427776367465256b9ec8004d435d4bf951b231a3051c8",
+      "classification": "PATH_PASS",
+      "notes": "The shared ledger correction is live verified: 109/109 completed, postflight and idempotency passed. The earlier watchdog cannot correlate this later run."
+    },
+    {
+      "retailer": "KIOR Health",
+      "classification": "PENDING_NATURAL_RUN",
+      "notes": "No 2 October natural run existed at observation time. No manual dispatch was used."
+    }
+  ],
+  "ebay_incident_correction": {
+    "status": "LOCAL_VERIFIED_AWAITING_MERGE_AND_NATURAL_PROOF",
+    "design": "Permit the existing immutable dry-run evidence contract to be emitted by either schedule or workflow_dispatch only inside GitHub Actions on refs/heads/main. Remove the dead scheduled prepare-apply emission flag so only a dry-run can request this contract. The artifact contains no owner confirmation and does not relax the separately guarded manual apply authority.",
+    "changed_files": [
+      ".github/workflows/ebay-offer-refresh.yml",
+      "scripts/ebay-offer-refresh.js",
+      "scripts/lib/ebay-artifact-bound-contract.js",
+      "scripts/ebay-browse-pilot.test.js"
+    ],
+    "focused_tests": "PASS 121/121",
+    "production_dispatches": 0,
+    "production_writes_caused_by_audit": 0
+  },
+  "next_action": "Merge the bounded eBay evidence-contract correction after quality gates, then wait for natural schedules. Separately classify or reduce genuine monitored backlog through existing review paths; do not retry retailers manually, widen baselines, infer a 6 Pack identity replacement, or resume RA-004."
+}

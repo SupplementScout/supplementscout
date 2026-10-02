@@ -277,6 +277,21 @@ build pass. PR `#176` merged the correction as `5c08e7e6` after CI, security and
 Vercel passed. Only the next natural schedule and read-only correlation remain
 before live closure; no manual retailer dispatch is authorized.
 
+The next natural cycle on `0bf7ff42` has now provided that proof for the earlier
+Fit House producer defect and the shared Discount ledger correction, but it does
+not qualify as an RA-STAB interval. The counter remains `0/3` because genuine
+Fit House/10 Reps backlog grew, 6 Pack again failed closed on the classified
+product-4150 HTTP 404, KIOR had not yet run in the observed window, and the
+watchdog preceded Discount. eBay completed its 150-row freshness-only apply and
+DB postflight while isolating 87 review rows, then failed at the post-apply
+evidence step: the scheduled workflow requested the existing dry-run evidence
+contract, whose writer accepted only manual dispatch. A bounded contract repair
+is locally verified: contract emission remains restricted to GitHub Actions on
+`main`, now for `schedule` or `workflow_dispatch`, and the artifact contains no
+owner confirmation. Manual apply still requires the separate exact owner-bound
+inputs and confirmation. No retailer retry, baseline widening or RA-004 work is
+authorized; merge plus a later natural run are required for live closure.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
