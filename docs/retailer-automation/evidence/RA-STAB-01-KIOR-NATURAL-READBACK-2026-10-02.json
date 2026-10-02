@@ -1,0 +1,128 @@
+{
+  "schema_version": "ra-stab-01-kior-natural-readback-v1",
+  "task_id": "RA-STAB-01",
+  "audited_at": "2026-10-02T14:11:20Z",
+  "result": "PATH_PASS_NO_INTERVAL_CREDIT",
+  "authority": {
+    "audit_is_read_only": true,
+    "manual_dispatches": 0,
+    "writes_caused_by_audit": 0,
+    "new_write_authority": false,
+    "baseline_change_authority": false,
+    "ra_004_authority": false
+  },
+  "natural_run": {
+    "workflow": "KIOR Offer Refresh",
+    "run_id": "37017432524",
+    "job_id": "110871643286",
+    "event": "schedule",
+    "head_ref": "refs/heads/main",
+    "head_sha": "a6bf579f7cb417898a34754869ca2ca338d6edc5",
+    "created_at": "2026-10-02T14:05:23Z",
+    "completed_at": "2026-10-02T14:07:25Z",
+    "conclusion": "success",
+    "artifact": {
+      "id": "11230696307",
+      "name": "kior-offer-refresh-37017432524-1",
+      "digest": "sha256:7661b0abfafd24a320f118ecba668975fc4e9772ef9ff2fd4665e4c8768754bb",
+      "size_in_bytes": 11942,
+      "created_at": "2026-10-02T14:07:22Z",
+      "expires_at": "2026-10-16T14:07:21Z",
+      "expired_at_audit": false
+    }
+  },
+  "source": {
+    "type": "SHOPIFY_PRODUCTS_JSON",
+    "url": "https://kior.uk/products.json",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "bytes_received": 73143,
+    "pages_fetched": 1,
+    "pagination_completed": true,
+    "product_count": 22,
+    "variant_count": 22,
+    "baseline_product_count": 22,
+    "baseline_variant_count": 22,
+    "health_ratio": 1,
+    "minimum_ratio": 0.9,
+    "retries": 0,
+    "fingerprint": "a8de1d3b5b9e30a0f66713fb75a2bc37276b44434daa82f8df61afc4fed4e602"
+  },
+  "execution": {
+    "result": "PASS",
+    "approved_mapping_count": 11,
+    "approved_offer_count": 11,
+    "mappings_matched": 11,
+    "mappings_missing": 0,
+    "executable_plan_count": 11,
+    "executed_plan_count": 11,
+    "review_row_count": 0,
+    "blocked_row_count": 0,
+    "classification": {
+      "VERIFY_NO_CHANGE": 11
+    },
+    "offer_ids": ["678", "679", "680", "681", "682", "683", "684", "685", "686", "687", "688"],
+    "database_write_calls": 1,
+    "business_writes_completed": 11,
+    "business_write_meaning": "last_checked_at freshness only",
+    "diagnostic_control_writes_completed": 1,
+    "diagnostic_parent_approvals_created": 1,
+    "diagnostic_parent_approvals_consumed": 1,
+    "registration": {
+      "status": "REGISTERED",
+      "parent_plan_id": "adc393b3-31f5-4e76-b744-a4776713e9cd",
+      "child_plan_ids": ["e40f2277-006b-4cc5-bab7-f3dea0d16684"],
+      "child_count": 1,
+      "mapping_count": 11,
+      "control_rows_written": 2,
+      "business_writes": 0,
+      "manifest_fingerprint": "66b6c5a86af0823758435f7dbdca1aeb2ca8c57434b23712f94a2e7d7c6ad6f5",
+      "parent_plan_fingerprint": "1899c96f34322232cc1c3586c74dac58c60c616a1799ce61515bc54383742d87",
+      "approved_manifest_sha256": "7f28705b6f4900439c8a6a661e4f14baa14be5965345f0a30e15ec83dfb32036"
+    },
+    "row_approvals_created": 11,
+    "row_approvals_consumed": 11,
+    "counter_semantics": "The diagnostic count, two registration rows and eleven row approvals describe different guarded layers and are not interchangeable.",
+    "recovery_calls": 0
+  },
+  "postflight": {
+    "result": "PASS",
+    "price_change_count": 0,
+    "stock_change_count": 0,
+    "shipping_change_count": 0,
+    "total_change_count": 0,
+    "offer_url_change_count": 0,
+    "mapping_url_change_count": 0,
+    "freshness_change_count": 11,
+    "price_history_delta": 0,
+    "daily_confirmation_delta": 0,
+    "raw_price_history_delta": 0,
+    "baseline_hash": "d945af5c154178f188fe33b8ebfb65c343d28e92f3c2e895996c7caf6070f349",
+    "postflight_hash": "e496a1c62dcb91d4d9e123486692ff6f6e4c0a3fb9f841c608e6a46fa8ae5514"
+  },
+  "fresh_source_idempotency": {
+    "result": "PASS",
+    "source_fingerprint": "a8de1d3b5b9e30a0f66713fb75a2bc37276b44434daa82f8df61afc4fed4e602",
+    "classification": {
+      "VERIFY_NO_CHANGE": 11
+    },
+    "database_write_calls": 0,
+    "business_writes_completed": 0,
+    "control_writes_completed": 0
+  },
+  "local_file_hashes": {
+    "production-apply-diagnostic.json": "c0fb94220257549b4cb5025feb031f383fac9c57880abfd3fce8a22a085d14a4",
+    "production-apply.json": "8e708934ff316a79a88ee0145ec0d3a5043b3af62435256d03819f58c37e70dd",
+    "production-db-baseline.json": "d4c666c672ceca0ce5809f5ebefdb39e7f3b63b4cb7b48d098baf4c80f9cca73",
+    "production-db-postflight.json": "59b4becfe849f4f33b45ee94ee7db737b9b30e40818ad870439575c16407d530",
+    "production-dry-run.json": "737eba8af9ffe0f8a9547fac4de7dd6d5f64ac8008b68a655d2d9cc9e9846d1a",
+    "production-idempotency-diagnostic.json": "71de93159e38acc143b5dcd721085e9177928d59d608e2533aa9ac230a9c2ce8",
+    "production-preflight-diagnostic.json": "d5dbfe0096da54c101a4d4de6a580232900ffaec0a1e48d1826b55dbcd86de9b"
+  },
+  "interval_credit": {
+    "awarded": false,
+    "counter": "0/3",
+    "reason": "This is one successfully recovered natural path inside an atomic cross-path interval. The 2 October interval already failed for genuine Fit House/10 Reps backlog, the bounded 6 Pack source incident, the eBay post-apply contract failure and a watchdog that preceded the later Discount and KIOR completions. KIOR cannot retroactively make that interval pass."
+  },
+  "next_action": "Wait for the next natural eBay schedule on the merged contract correction and correlate all later natural completions with a subsequent ordinary watchdog. Do not dispatch a retailer retry, widen a baseline or count this KIOR path as a complete interval."
+}
