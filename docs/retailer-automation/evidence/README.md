@@ -34,6 +34,8 @@ input. It does not authorize RA-004, a new capture or any write.
 
 [RA-STAB-01-D1 exact read-only Review Queue changeset](RA-STAB-01-D1-REVIEW-QUEUE-CHANGESET-2026-10-02.json)
 
+[RA-STAB-01-D1 post-merge implementation review](RA-STAB-01-D1-IMPLEMENTATION-REVIEW-2026-10-02.json)
+
 [RA-004 10 Reps shadow pilot preflight](RA-004-PREFLIGHT.md)
 
 [RA-004 machine-readable shadow plan](RA-004-shadow-plan.json)

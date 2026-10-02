@@ -1,0 +1,77 @@
+{
+  "schema_version": "ra-stab-01-d1-implementation-review-v1",
+  "task_id": "RA-STAB-01",
+  "decision_id": "RA-STAB-01-D1",
+  "reviewed_at": "2026-10-02T15:30:00.7520244Z",
+  "result": "PASS_IMPLEMENTATION_REVIEW_NO_PUBLICATION_AUTHORITY",
+  "review_scope": {
+    "changeset_evidence": "docs/retailer-automation/evidence/RA-STAB-01-D1-REVIEW-QUEUE-CHANGESET-2026-10-02.json",
+    "bundle_sha256": "1711e71f6d65efd1519b2d35155f36bacc89cd8bf0128a486c57dc1b4c1c8bd0",
+    "implementation_commit": "99a86d50cc49cfd877910ceea459f0cb39c5008d",
+    "merged_main_commit": "de4593f559f3f99c69cb3f5d5f69c982eea92c63",
+    "pull_request": 184,
+    "pull_request_merged_at": "2026-10-02T15:25:51Z"
+  },
+  "independent_checks": {
+    "bundle_hash_recomputed": true,
+    "bundle_hash_matches": true,
+    "retailer_row_counts": {
+      "Fit House": 14,
+      "10 Reps": 16
+    },
+    "preview_operations": 30,
+    "unique_offer_ids": 30,
+    "all_operations_are_create": true,
+    "all_rows_are_pending": true,
+    "all_retailer_publication_flags_are_false": true,
+    "all_row_impact_write_counts_are_zero": true,
+    "builder_has_apply_cli_mode": false,
+    "builder_imports_publication_executor": false,
+    "production_database_calls": {
+      "select_or_count_only": true,
+      "insert": 0,
+      "update": 0,
+      "upsert": 0,
+      "delete": 0,
+      "rpc": 0
+    },
+    "common_lifecycle_planner_reused": true,
+    "local_test_command": "node --test scripts/ra-stab-d1-review-changeset.test.js",
+    "local_test_result": "PASS_4_OF_4",
+    "project_guardian_before_review_evidence": "PASS",
+    "merged_pull_request_checks": {
+      "quality_gate_full": "SUCCESS",
+      "project_guardian": "SUCCESS",
+      "gitguardian": "SUCCESS",
+      "vercel": "SUCCESS"
+    }
+  },
+  "findings": {
+    "blocking_findings": [],
+    "non_blocking_constraints": [
+      {
+        "code": "TIME_BOUND_SOURCE_EVIDENCE",
+        "detail": "The two prepared manifests expire at their source-bound seven-day limits on 2026-10-09T09:01:19.133Z and 2026-10-09T09:02:10.360Z. This sealed preview must not be treated as evergreen publication authority."
+      },
+      {
+        "code": "PUBLICATION_REQUIRES_FRESH_BASELINE",
+        "detail": "Any later publication decision must use a fresh exact production and active Review Queue readback and must fail closed if the 30-row binding, catalogue baseline or queue lifecycle has drifted."
+      }
+    ]
+  },
+  "authority_after_review": {
+    "review_queue_publication_authorized": false,
+    "control_writes_authorized": 0,
+    "catalogue_writes_authorized": 0,
+    "stock_writes_authorized": 0,
+    "identity_rebinds_authorized": 0,
+    "manual_retries_authorized": 0,
+    "ra_004_actions_authorized": 0
+  },
+  "writes_performed_by_review": {
+    "database": 0,
+    "catalogue": 0,
+    "review_queue": 0
+  },
+  "next_gate": "SEPARATE_EXACT_OWNER_CONTROL_WRITE_AUTHORIZATION_AND_FRESH_FAIL_CLOSED_PREPUBLICATION_READBACK_REQUIRED_BEFORE_ANY_REVIEW_QUEUE_PUBLICATION"
+}
