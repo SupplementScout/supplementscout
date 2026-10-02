@@ -26,6 +26,8 @@ input. It does not authorize RA-004, a new capture or any write.
 
 [RA-STAB-01 current production state and incident classification](RA-STAB-01-CURRENT-STATE-2026-09-29.md)
 
+[RA-STAB-01 recurring Fit House/10 Reps backlog owner decision pack](RA-STAB-01-BACKLOG-OWNER-DECISION-PACK-2026-10-02.json)
+
 [RA-004 10 Reps shadow pilot preflight](RA-004-PREFLIGHT.md)
 
 [RA-004 machine-readable shadow plan](RA-004-shadow-plan.json)

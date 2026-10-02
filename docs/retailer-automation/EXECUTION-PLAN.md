@@ -601,6 +601,29 @@ as `9af3e7e4`; Project Guardian and the full Quality Gate passed again on merged
 live closure. Evidence:
 [`evidence/RA-STAB-01-ORDINARY-OBSERVATION-2026-10-02.json`](evidence/RA-STAB-01-ORDINARY-OBSERVATION-2026-10-02.json).
 
+**2 October recurring-backlog owner decision pack — prepared, no authority:**
+ordinary run `36987322039` confirms one bounded decision scope rather than a
+new implementation defect. Fit House again produced the exact 14 deferred stock
+rows at source fingerprint `8074eefe...d6e991`: five false-to-true and nine
+true-to-false. 10 Reps again produced the exact 16
+`SOURCE_VARIANT_MISSING` rows at fingerprint `547a60dd...e0b6`: 12 belong to
+source product `8036`, and four are single variants. Fourteen 10 Reps rows are
+already OOS; only offers `3388` and `3627` are still in stock. The machine-readable
+pack binds the rows to run, job, artifact, file, deferred-scope manifest and
+database-baseline hashes and requests one bundled business disposition. Until
+that decision, every row remains unchanged. The recommendation is acceptance of
+the exact observed Fit House stock values as business intent only if the owner
+accepts the recorded source as stock authority, and read-only identity review
+without inferred OOS/rebind for all 16 10 Reps rows. A later Fit House execution
+requires a separate exact manifest, preflight and owner write authorization.
+The optional Review Queue choice authorizes only preparation of a read-only
+publisher changeset; its exact control writes require a separate hash-bound
+decision. Nothing here authorizes a catalogue/control write, manual retry,
+baseline widening, new path or RA-004 action; the ordinary counter remains
+`0/3`.
+Evidence:
+[`evidence/RA-STAB-01-BACKLOG-OWNER-DECISION-PACK-2026-10-02.json`](evidence/RA-STAB-01-BACKLOG-OWNER-DECISION-PACK-2026-10-02.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
