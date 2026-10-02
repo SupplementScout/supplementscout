@@ -290,7 +290,9 @@ is locally verified: contract emission remains restricted to GitHub Actions on
 `main`, now for `schedule` or `workflow_dispatch`, and the artifact contains no
 owner confirmation. Manual apply still requires the separate exact owner-bound
 inputs and confirmation. No retailer retry, baseline widening or RA-004 work is
-authorized; merge plus a later natural run are required for live closure.
+authorized. PR `#179` merged the repair as `9af3e7e4`, and Project Guardian plus
+the full Quality Gate passed on merged `main`; a later natural eBay run and
+watchdog correlation remain required for live closure.
 
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger

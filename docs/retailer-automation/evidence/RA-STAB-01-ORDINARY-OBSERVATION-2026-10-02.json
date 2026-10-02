@@ -111,7 +111,15 @@
     }
   ],
   "ebay_incident_correction": {
-    "status": "LOCAL_VERIFIED_AWAITING_MERGE_AND_NATURAL_PROOF",
+    "status": "MERGED_AWAITING_NATURAL_PROOF",
+    "pull_request": 179,
+    "implementation_commit": "e30de18048498864d822619da15744bda674807a",
+    "merge_commit": "9af3e7e42c213dfe0d12fe7be9d9cf5b059c499f",
+    "merged_at": "2026-10-02T13:36:39Z",
+    "main_quality_gate_run_id": "37014136309",
+    "main_quality_gate_result": "PASS",
+    "main_project_guardian_run_id": "37014135888",
+    "main_project_guardian_result": "PASS",
     "design": "Permit the existing immutable dry-run evidence contract to be emitted by either schedule or workflow_dispatch only inside GitHub Actions on refs/heads/main. Remove the dead scheduled prepare-apply emission flag so only a dry-run can request this contract. The artifact contains no owner confirmation and does not relax the separately guarded manual apply authority.",
     "changed_files": [
       ".github/workflows/ebay-offer-refresh.yml",
@@ -123,5 +131,5 @@
     "production_dispatches": 0,
     "production_writes_caused_by_audit": 0
   },
-  "next_action": "Merge the bounded eBay evidence-contract correction after quality gates, then wait for natural schedules. Separately classify or reduce genuine monitored backlog through existing review paths; do not retry retailers manually, widen baselines, infer a 6 Pack identity replacement, or resume RA-004."
+  "next_action": "Wait for the next natural eBay schedule on merge commit 9af3e7e or later and correlate it with a later natural watchdog. Separately classify or reduce genuine monitored backlog through existing review paths; do not retry retailers manually, widen baselines, infer a 6 Pack identity replacement, or resume RA-004."
 }
