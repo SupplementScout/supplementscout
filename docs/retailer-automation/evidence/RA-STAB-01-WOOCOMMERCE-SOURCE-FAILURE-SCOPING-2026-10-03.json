@@ -1,0 +1,126 @@
+{
+  "schema_version": "ra-stab-01-woocommerce-source-failure-scoping-v1",
+  "task_id": "RA-STAB-01",
+  "recorded_at": "2026-10-03",
+  "result": "LOCAL_FULLY_VERIFIED_AWAITING_INDEPENDENT_REVIEW_AND_NATURAL_PRODUCTION_EVIDENCE",
+  "candidate_base_sha": "57bf08317e2e7ae2f7acb6e10636063f439fa329",
+  "incident": {
+    "retailer": "6 Pack Supplements",
+    "natural_workflow_run_id": "36991204338",
+    "external_product_id": "4150",
+    "mapping_id": "2565",
+    "offer_id": "2379",
+    "terminal_http_status": 404,
+    "attempts": 5,
+    "old_blocking_scope": "RETAILER",
+    "old_blocked_row_count": 506,
+    "catalogue_identity_or_stock_action_authorized": false
+  },
+  "root_cause": {
+    "class": "INCONSISTENT_SHARED_SOURCE_FAILURE_SCOPING",
+    "shared_mapped_reader_previous_behavior": "continued after every product-page error and projected affected rows as missing",
+    "six_pack_previous_behavior": "stopped the complete approved scope on the first product-page error",
+    "conclusion": "The repeated 404 exposes a general WooCommerce acquisition-contract gap. It does not establish a successor identity, OOS state or 6 Pack-specific exception."
+  },
+  "contract": {
+    "product_scoped": {
+      "conditions": [
+        "controlled WooCommerceSourceError",
+        "code SOURCE_HTTP_ERROR",
+        "terminal HTTP status exactly 404",
+        "diagnostic product_id equals the exact requested product",
+        "timeout is false",
+        "network_code is null"
+      ],
+      "outcome": "omit only rows bound to the absent product from the executable artifact and classify them through existing SOURCE_VARIANT_MISSING review isolation",
+      "inferences_forbidden": [
+        "out_of_stock",
+        "price",
+        "replacement_identity",
+        "rebind"
+      ]
+    },
+    "retailer_scoped": {
+      "examples": [
+        "HTTP 403",
+        "HTTP 429",
+        "HTTP 5xx",
+        "timeout",
+        "DNS or other network failure",
+        "schema mismatch",
+        "redirect failure",
+        "identity drift",
+        "uncontrolled error"
+      ],
+      "outcome": "fail the complete retailer run closed with zero executable artifact"
+    },
+    "aggregate_gate": {
+      "configured_minimum_product_page_ratio": 0.9,
+      "behavior": "a broad set of otherwise product-scoped 404s still blocks as SOURCE_COLLAPSE"
+    },
+    "reviewed_owner_paths_require_full_source_coverage": true
+  },
+  "implementation": {
+    "shared_decision_path": "scripts/lib/woocommerce-product-page-reader.js#sourceFailureDisposition",
+    "consumers": [
+      "scripts/lib/woocommerce-mapped-snapshot-reader.js",
+      "scripts/six-pack-offer-refresh.js"
+    ],
+    "new_importer": false,
+    "new_approval_path": false,
+    "new_executor": false,
+    "new_workflow": false,
+    "retailer_or_product_condition_in_shared_decision": false,
+    "source_failure_evidence_bound_into_snapshot_fingerprint": true,
+    "missing_rows_excluded_from_executable_artifact": true
+  },
+  "regression_evidence": {
+    "focused_command": "node --test scripts/six-pack-offer-refresh.test.js scripts/six-pack-offer-refresh-executor.test.js scripts/lib/woocommerce-product-page-reader.test.js scripts/predators-gear-offer-refresh.test.js scripts/retailer-offer-sync.test.js scripts/retailer-incident-regression.test.js",
+    "focused_tests": 83,
+    "focused_passed": 83,
+    "exact_4150_fixture": {
+      "approved_mapping_count": 506,
+      "executable_plan_count": 505,
+      "review_row_count": 1,
+      "blocked_row_count": 0,
+      "review_offer_ids": [
+        "2379"
+      ],
+      "proposed_offer": null,
+      "artifact_contains_offer_2379": false
+    },
+    "systemic_network_fixture": {
+      "blocked_row_count": 506,
+      "artifact_created": false
+    },
+    "broad_404_fixture": {
+      "outcome": "SOURCE_COLLAPSE",
+      "artifact_created": false
+    },
+    "shared_reader_fail_closed_fixtures": [
+      "HTTP_403",
+      "HTTP_503",
+      "SOURCE_IDENTITY_DRIFT"
+    ],
+    "verify_quick": "PASS",
+    "verify_full": "PASS_INCLUDING_PRODUCTION_BUILD"
+  },
+  "authority": {
+    "manual_workflow_dispatch_authorized": false,
+    "production_apply_authorized_by_this_record": false,
+    "catalogue_writes_authorized": 0,
+    "control_writes_authorized": 0,
+    "review_queue_writes_authorized": 0,
+    "baseline_changes_authorized": 0,
+    "identity_rebinds_authorized": 0,
+    "ra_004_actions_authorized": 0
+  },
+  "writes_performed": {
+    "production_database": 0,
+    "catalogue": 0,
+    "control": 0,
+    "review_queue": 0
+  },
+  "production_limit": "The 505/1 result is a deterministic incident regression, not a prediction or live production partition. Existing commercial review debt must be classified by a fresh natural run.",
+  "next_gate": "INDEPENDENT_REVIEW; MERGE_AFTER_GREEN_CI; THEN_AWAIT_NEXT_NATURAL_6_PACK_SCHEDULE_WITHOUT_MANUAL_DISPATCH"
+}

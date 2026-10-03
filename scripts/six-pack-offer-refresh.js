@@ -6,7 +6,10 @@ const { createClient } = require("@supabase/supabase-js");
 const { canonicalJson } = require("./lib/canonical-json");
 const { buildGuardEvidence, classifyExistingOffers } = require("./lib/retailer-offer-sync/classifier");
 const { buildExistingOfferUpdatePlan } = require("./lib/retailer-offer-sync/existing-offer-plan");
-const { readWooCommerceProductPage } = require("./lib/woocommerce-product-page-reader");
+const {
+  readWooCommerceProductPage,
+  sourceFailureDisposition,
+} = require("./lib/woocommerce-product-page-reader");
 const { buildVerifiedNoChangePlan } = require("./verified-no-change-offer-refresh");
 const { writeDryRunArtifact } = require("./import-products");
 const { liveIdentityDrift } = require("./six-pack-canary-builder");
@@ -509,14 +512,7 @@ function targetFor(record) {
   };
 }
 
-function writeSourceFailureReport({
-  approved,
-  capturedAt,
-  error,
-  fetchedProductPageCount,
-  options,
-  productId,
-}) {
+function sourceErrorEvidence(error, productId) {
   const detail = error?.detail && typeof error.detail === "object" ? error.detail : {};
   const safeToken = (value, fallback = null) => (
     typeof value === "string" && /^[A-Za-z0-9_.-]{1,64}$/.test(value) ? value : fallback
@@ -525,6 +521,27 @@ function writeSourceFailureReport({
   requestUrl.searchParams.set("p", String(productId));
   const lastAttempt = Number(detail.last_attempt);
   const httpStatus = Number(detail.http_status);
+  return {
+    error_code: safeToken(error?.code, "SOURCE_UNAVAILABLE"),
+    error_type: safeToken(detail.error_type, "Error"),
+    network_code: safeToken(detail.network_code),
+    timeout: detail.timeout === true,
+    last_attempt: Number.isInteger(lastAttempt) && lastAttempt >= 1 && lastAttempt <= 5 ? lastAttempt : null,
+    request_url: requestUrl.href,
+    product_id: String(productId),
+    http_status: Number.isInteger(httpStatus) && httpStatus >= 100 && httpStatus <= 599 ? httpStatus : null,
+  };
+}
+
+function writeSourceFailureReport({
+  approved,
+  capturedAt,
+  error,
+  fetchedProductPageCount,
+  options,
+  productId,
+}) {
+  const sourceError = sourceErrorEvidence(error, productId);
   const report = {
     schema_version: 1,
     kind: "six-pack-approved-offer-refresh-dry-run",
@@ -539,16 +556,8 @@ function writeSourceFailureReport({
     blocked_row_count: approved.manifest.rows.length,
     fetched_product_page_count: fetchedProductPageCount,
     classification_state: "SOURCE_READ_FAILED",
-    block_reason: safeToken(error?.code, "SOURCE_UNAVAILABLE"),
-    source_error: {
-      error_type: safeToken(detail.error_type, "Error"),
-      network_code: safeToken(detail.network_code),
-      timeout: detail.timeout === true,
-      last_attempt: Number.isInteger(lastAttempt) && lastAttempt >= 1 && lastAttempt <= 5 ? lastAttempt : null,
-      request_url: requestUrl.href,
-      product_id: String(productId),
-      http_status: Number.isInteger(httpStatus) && httpStatus >= 100 && httpStatus <= 599 ? httpStatus : null,
-    },
+    block_reason: sourceError.error_code,
+    source_error: sourceError,
     action_counts: {},
     database_writes: 0,
   };
@@ -639,15 +648,22 @@ async function run(options, dependencies = {}) {
     retryBaseDelayMs: 1_000,
   }));
   const liveByProduct = new Map();
-  for (const record of state.records) {
-    const productId = String(record.mapping.external_product_id);
-    if (!liveByProduct.has(productId)) {
-      if (!dependencies.readLive && liveByProduct.size > 0) {
-        await new Promise((resolve) => setTimeout(resolve, 150));
-      }
-      try {
-        liveByProduct.set(productId, await readLive(productId));
-      } catch (error) {
+  const isolatedSourceFailures = new Map();
+  const productIds = [...new Set(state.records.map((record) => String(record.mapping.external_product_id)))];
+  for (const [index, productId] of productIds.entries()) {
+    if (!dependencies.readLive && index > 0) {
+      await new Promise((resolve) => setTimeout(resolve, 150));
+    }
+    try {
+      liveByProduct.set(productId, await readLive(productId));
+    } catch (error) {
+      const disposition = sourceFailureDisposition(error, productId);
+      if (options.isolateUnsafe === true && disposition.scope === "PRODUCT" && !reviewed && !reviewedOwner) {
+        isolatedSourceFailures.set(productId, {
+          ...sourceErrorEvidence(error, productId),
+          disposition: disposition.reason,
+        });
+      } else {
         writeSourceFailureReport({
           approved,
           capturedAt,
@@ -660,12 +676,22 @@ async function run(options, dependencies = {}) {
       }
     }
   }
-  const sourceRows = state.records.map((record) =>
-    liveSourceFor(record, liveByProduct.get(String(record.mapping.external_product_id)))
-  );
-  if (sourceRows.length !== approved.manifest.rows.length || new Set(sourceRows.map((row) => row.external_variant_id)).size !== sourceRows.length) {
+  const sourceRows = state.records.flatMap((record) => {
+    const live = liveByProduct.get(String(record.mapping.external_product_id));
+    return live ? [liveSourceFor(record, live)] : [];
+  });
+  const isolatedRowCount = state.records.filter((record) => (
+    isolatedSourceFailures.has(String(record.mapping.external_product_id))
+  )).length;
+  if (
+    sourceRows.length + isolatedRowCount !== approved.manifest.rows.length ||
+    new Set(sourceRows.map((row) => row.external_variant_id)).size !== sourceRows.length
+  ) {
     fail("Approved source coverage is incomplete or duplicated", "SOURCE_COLLAPSE");
   }
+  const sourceFailures = [...isolatedSourceFailures.values()].sort((left, right) => (
+    Number(left.product_id) - Number(right.product_id)
+  ));
   const snapshotFingerprint = sha256({
     captured_at: capturedAt,
     pages: [...liveByProduct.values()].map((row) => ({
@@ -674,11 +700,13 @@ async function run(options, dependencies = {}) {
       html_sha256: row.html_sha256,
     })).sort((left, right) => Number(left.external_product_id) - Number(right.external_product_id)),
     rows: sourceRows,
+    source_failures: sourceFailures,
   });
   const guardScope = { name: "SIX_PACK_APPROVED_MANIFEST", retailer: config.retailer.name };
   const policy = {
     ...config.guardrails,
     required_matched_offers: approved.manifest.rows.length,
+    full_snapshot_minimum_source_count_ratio: config.source.minimum_count_ratio,
     store_url: config.retailer.website,
     source_url_mode: "provided",
     allowed_url_hosts: ["6pack-supplements.co.uk"],
@@ -715,17 +743,22 @@ async function run(options, dependencies = {}) {
     options.isolateUnsafe && !reviewedOwner
   );
   const sourceByVariant = new Map(sourceRows.map((row) => [String(row.external_variant_id), row]));
+  const sourceFailureByProduct = new Map(sourceFailures.map((failure) => [failure.product_id, failure]));
   const targetByOffer = new Map(state.records.map((record) => [String(record.offer.id), targetFor(record)]));
   const reviewRows = (classification.quarantined_rows || []).map((row) => {
     const source = sourceByVariant.get(String(row.external_variant_id));
+    const sourceFailure = sourceFailureByProduct.get(String(row.external_product_id)) || null;
     const target = targetByOffer.get(String(row.offer_id));
-    if (!source || !target) fail("Review row escaped the approved source/target scope", "REVIEW_SCOPE_DRIFT");
+    if (!target || (!source && row.reason !== "SOURCE_VARIANT_MISSING")) {
+      fail("Review row escaped the approved source/target scope", "REVIEW_SCOPE_DRIFT");
+    }
     return {
       offer_id: String(row.offer_id),
       mapping_id: String(row.retailer_product_id),
       external_product_id: String(row.external_product_id),
       external_variant_id: String(row.external_variant_id),
       reason: row.reason,
+      source_failure: sourceFailure,
       original_action: row.original_action || null,
       changed_fields: row.changed_fields,
       current_offer: {
@@ -736,14 +769,14 @@ async function run(options, dependencies = {}) {
         url: target.url,
         last_checked_at: target.last_checked_at,
       },
-      proposed_offer: {
+      proposed_offer: source ? {
         price: money(source.price),
         shipping_cost: money(source.shipping_cost),
         total_price: money(source.total_price),
         in_stock: Boolean(source.in_stock),
         url: source.url,
         source_captured_at: row.source_captured_at,
-      },
+      } : null,
     };
   });
   const accepted = ["DRY_RUN_READY", "DRY_RUN_READY_WITH_REVIEW"].includes(classification.state);
@@ -762,6 +795,9 @@ async function run(options, dependencies = {}) {
     review_row_count: reviewRows.length,
     blocked_row_count: accepted ? 0 : approved.manifest.rows.length - reviewRows.length,
     fetched_product_page_count: liveByProduct.size,
+    attempted_product_page_count: productIds.length,
+    source_failure_count: sourceFailures.length,
+    source_failures: sourceFailures,
     classification_state: classification.state,
     block_reason: classification.reason || null,
     guard_evidence: classification.guard_evidence || null,
@@ -812,7 +848,7 @@ async function run(options, dependencies = {}) {
       ? `six-pack-reviewed-mass-oos-${reviewed.sha256}-${Date.now()}`
       : `six-pack-refresh-${Date.now()}`,
     createdAt: capturedAt,
-    sourceContent: canonicalJson({ snapshot_fingerprint: snapshotFingerprint, rows: sourceRows }),
+    sourceContent: canonicalJson({ snapshot_fingerprint: snapshotFingerprint, rows: sourceRows, source_failures: sourceFailures }),
     sourceFileName: "six-pack-live-approved-scope.json",
     environmentMarker: "production",
   });

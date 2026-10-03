@@ -117,7 +117,7 @@ test("refresh creates one exact verified-no-change plan per approved mapping", a
   assert.equal(artifact.plans.every((entry) => entry.resolved_plan.offer.action === "verify_no_change"), true);
 });
 
-test("failed source preflight writes a safe zero-write report and no executable artifact", async () => {
+test("systemic source failure blocks the whole run even when row isolation is enabled", async () => {
   const source = fixture();
   const output = paths();
   const failure = new WooCommerceSourceError(
@@ -135,7 +135,7 @@ test("failed source preflight writes a safe zero-write report and no executable 
   );
   await assert.rejects(
     run(
-      { target: "production", artifact: output.artifact, report: output.report, requireNoChange: false },
+      { target: "production", artifact: output.artifact, report: output.report, requireNoChange: false, isolateUnsafe: true },
       { state: source.state, readLive: async () => { throw failure; } }
     ),
     (error) => error === failure
@@ -152,7 +152,104 @@ test("failed source preflight writes a safe zero-write report and no executable 
   assert.equal(report.fetched_product_page_count, 0);
   assert.equal(report.database_writes, 0);
   assert.deepEqual(report.action_counts, {});
-  assert.deepEqual(report.source_error, failure.detail);
+  assert.deepEqual(report.source_error, { error_code: "SOURCE_UNAVAILABLE", ...failure.detail });
+  assert.equal(fs.existsSync(output.artifact), false);
+});
+
+test("exact product 4150 terminal 404 isolates only offer 2379 without inferring stock", async () => {
+  const source = fixture();
+  const output = paths();
+  const failure = new WooCommerceSourceError(
+    "SOURCE_HTTP_ERROR",
+    "WooCommerce product 4150 returned HTTP 404 after bounded retries",
+    {
+      error_type: "WooCommerceSourceError",
+      network_code: null,
+      timeout: false,
+      last_attempt: 5,
+      request_url: "https://6pack-supplements.co.uk/?p=4150",
+      product_id: "4150",
+      http_status: 404,
+    }
+  );
+  const result = await run(
+    {
+      target: "production",
+      artifact: output.artifact,
+      report: output.report,
+      requireNoChange: false,
+      isolateUnsafe: true,
+    },
+    {
+      state: source.state,
+      readLive: async (id) => {
+        if (String(id) === "4150") throw failure;
+        return source.byProduct.get(String(id));
+      },
+    }
+  );
+  assert.equal(result.report.result, "PASS_WITH_REVIEW");
+  assert.equal(result.report.approved_mapping_count, 506);
+  assert.equal(result.report.executable_plan_count, 505);
+  assert.equal(result.report.review_row_count, 1);
+  assert.equal(result.report.blocked_row_count, 0);
+  assert.equal(result.report.fetched_product_page_count, 278);
+  assert.equal(result.report.attempted_product_page_count, 279);
+  assert.equal(result.report.source_failure_count, 1);
+  assert.deepEqual(result.report.review_rows.map((row) => ({
+    offer_id: row.offer_id,
+    reason: row.reason,
+    proposed_offer: row.proposed_offer,
+    disposition: row.source_failure?.disposition,
+  })), [{
+    offer_id: "2379",
+    reason: "SOURCE_VARIANT_MISSING",
+    proposed_offer: null,
+    disposition: "SOURCE_PRODUCT_NOT_FOUND",
+  }]);
+  const artifact = loadDryRunArtifact(output.artifact).artifact;
+  assert.equal(artifact.plans.length, 505);
+  assert.equal(artifact.plans.some((entry) => String(entry.resolved_plan.offer.id) === "2379"), false);
+});
+
+test("a series of product-scoped 404s still trips the full-source collapse gate", async () => {
+  const source = fixture();
+  const output = paths();
+  const failedProductIds = new Set([...source.byProduct.keys()].slice(0, 29));
+  await assert.rejects(
+    run(
+      {
+        target: "production",
+        artifact: output.artifact,
+        report: output.report,
+        requireNoChange: false,
+        isolateUnsafe: true,
+      },
+      {
+        state: source.state,
+        readLive: async (id) => {
+          if (!failedProductIds.has(String(id))) return source.byProduct.get(String(id));
+          throw new WooCommerceSourceError("SOURCE_HTTP_ERROR", "terminal product 404", {
+            error_type: "WooCommerceSourceError",
+            network_code: null,
+            timeout: false,
+            last_attempt: 5,
+            request_url: `https://6pack-supplements.co.uk/?p=${id}`,
+            product_id: String(id),
+            http_status: 404,
+          });
+        },
+      }
+    ),
+    (error) => error.code === "SOURCE_COLLAPSE"
+  );
+  const report = JSON.parse(fs.readFileSync(output.report, "utf8"));
+  assert.equal(report.result, "BLOCK");
+  assert.equal(report.classification_state, "BLOCKED");
+  assert.equal(report.block_reason, "SOURCE_COLLAPSE");
+  assert.equal(report.source_failure_count, 29);
+  assert.equal(report.executable_plan_count, 0);
+  assert.equal(report.blocked_row_count, 506);
   assert.equal(fs.existsSync(output.artifact), false);
 });
 

@@ -1,12 +1,46 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
 const {
+  WooCommerceSourceError,
   extractProductOffer,
   extractProductName,
   extractVariationPayload,
   parseWooCommerceProductPage,
   readWooCommerceProductPage,
+  sourceFailureDisposition,
 } = require("./woocommerce-product-page-reader");
+
+test("only an exact terminal product 404 is product-scoped", () => {
+  const sourceError = (status, overrides = {}) => new WooCommerceSourceError(
+    "SOURCE_HTTP_ERROR",
+    `HTTP ${status}`,
+    {
+      product_id: "4110",
+      http_status: status,
+      timeout: false,
+      network_code: null,
+      ...overrides,
+    }
+  );
+  assert.deepEqual(sourceFailureDisposition(sourceError(404), "4110"), {
+    scope: "PRODUCT",
+    reason: "SOURCE_PRODUCT_NOT_FOUND",
+  });
+  for (const error of [
+    sourceError(403),
+    sourceError(429),
+    sourceError(503),
+    sourceError(404, { product_id: "9999" }),
+    sourceError(404, { timeout: true }),
+    sourceError(404, { network_code: "ECONNRESET" }),
+    new Error("uncontrolled"),
+  ]) {
+    assert.deepEqual(sourceFailureDisposition(error, "4110"), {
+      scope: "RETAILER",
+      reason: "SOURCE_READ_FAILED",
+    });
+  }
+});
 
 test("extracts the current product heading for identity-drift checks", () => {
   assert.equal(
