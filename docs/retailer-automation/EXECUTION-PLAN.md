@@ -697,6 +697,28 @@ This review made zero database, catalogue or Review Queue writes and leaves the
 ordinary counter at `0/3`. Evidence:
 [`evidence/RA-STAB-01-D1-IMPLEMENTATION-REVIEW-2026-10-02.json`](evidence/RA-STAB-01-D1-IMPLEMENTATION-REVIEW-2026-10-02.json).
 
+**3 October natural watchdog readback — stable red partition, no interval
+credit:** scheduled watchdog runs `37070747208` and `37098906183` both ran on
+merged `main` commit `7470cf4`, inspected all 12 retailers, made zero database
+writes and produced the same closeout snapshot and exact five-retailer failure
+partition. KIOR is `PASS`; Simply is `PASS_WITH_REVIEW`; five other retailers
+remain monitored-only. Fit House's exact 14 and 10 Reps' exact 16 are the known
+D1 scopes and remain outside the old baseline because publication and business
+writes are not authorized. Jon's now has five exact `SOURCE_VARIANT_MISSING`
+rows in two consecutive natural captures: old baseline row `1209`, plus already-
+OOS offers `1197`, `1456`, `1457` and `1458`. Its ordinary guarded run isolated
+those five, completed 501 freshness-only confirmations and passed DB postflight
+with zero commercial/stock writes. 6 Pack again failed closed before baseline or
+apply because product `4150` returned HTTP 404 after five attempts; its reported
+12-row review scope is the retained last-complete 28 September evidence, adding
+offer `2255` to the older 11-row baseline, not a classification produced by the
+failed run. eBay still points to pre-fix run `37000578631`; no natural run on the
+merged contract correction existed by `06:21Z`. No threshold/baseline change,
+retry, Review Queue publication or retailer-specific fix is justified. The
+atomic ordinary counter remains `0/3`; next evidence must be the post-fix natural
+eBay schedule followed by a later natural watchdog. Evidence:
+[`evidence/RA-STAB-01-NATURAL-WATCHDOG-READBACK-2026-10-03.json`](evidence/RA-STAB-01-NATURAL-WATCHDOG-READBACK-2026-10-03.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

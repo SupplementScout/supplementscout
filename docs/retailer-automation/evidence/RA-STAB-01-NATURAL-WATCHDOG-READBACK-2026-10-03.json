@@ -1,0 +1,208 @@
+{
+  "schema_version": "ra-stab-01-natural-watchdog-readback-v1",
+  "task_id": "RA-STAB-01",
+  "observed_at": "2026-10-03T06:21:10.2488694Z",
+  "result": "FAIL_EXPECTED_AND_NEW_MONITORED_DEBT_NO_INTERVAL_CREDIT",
+  "authority": {
+    "workflow_dispatches_authorized": 0,
+    "baseline_changes_authorized": 0,
+    "review_queue_publication_authorized": false,
+    "catalogue_writes_authorized": 0,
+    "control_writes_authorized": 0,
+    "identity_rebinds_authorized": 0,
+    "ra_004_actions_authorized": 0
+  },
+  "watchdog_runs": [
+    {
+      "workflow_run_id": "37070747208",
+      "event": "schedule",
+      "head_sha": "7470cf4b7f0f86c690c27e24030db646d4ce2099",
+      "created_at": "2026-10-02T22:07:14Z",
+      "completed_at": "2026-10-02T22:10:26Z",
+      "conclusion": "failure",
+      "artifact_id": "11254528065",
+      "artifact_digest": "sha256:f71c3178abc540b7a9a37e8d43fc26218212ddff6b9b3fa57fef457e1239d683",
+      "watchdog_json_sha256": "29ccceeb031bed475e1d1289d47dc60e736145324427e9211a9309f4f15ba21a",
+      "database_writes": 0
+    },
+    {
+      "workflow_run_id": "37098906183",
+      "event": "schedule",
+      "head_sha": "7470cf4b7f0f86c690c27e24030db646d4ce2099",
+      "created_at": "2026-10-03T05:09:24Z",
+      "completed_at": "2026-10-03T05:12:23Z",
+      "conclusion": "failure",
+      "artifact_id": "11264978926",
+      "artifact_digest": "sha256:c7594a9e0102b794f9dc1108415ec567ff240bd20a92e1f1a473349c73879d7e",
+      "watchdog_json_sha256": "209536e965a75162f3c23bad1529773e58297252249b153feac453e62ef52550",
+      "database_writes": 0
+    }
+  ],
+  "determinism": {
+    "same_closeout_snapshot": true,
+    "closeout_snapshot_sha256": "2520eb28453314ea659238dd59c95aa987ed3a106de08e78f14873b8b3f83f08",
+    "same_retailer_counts": true,
+    "retailer_count": 12,
+    "failed_retailer_count": 5,
+    "monitored_retailer_count": 5,
+    "review_retailer_count": 1,
+    "same_failure_partition": true
+  },
+  "classification": [
+    {
+      "retailer": "KIOR Health",
+      "result": "PASS",
+      "class": "NONE",
+      "next_action": "Observe ordinary schedules only."
+    },
+    {
+      "retailer": "Fit House",
+      "result": "FAIL",
+      "class": "MONITORED_DEBT",
+      "failure_codes": [
+        "DATABASE_OFFERS_OLDER_THAN_48H",
+        "MONITORED_BACKLOG_GROWTH"
+      ],
+      "review_offer_count": 14,
+      "review_offer_ids": [
+        "697", "735", "921", "944", "951", "953", "954", "963", "972", "983", "1859", "1904", "1938", "1982"
+      ],
+      "interpretation": "The exact owner-decided D1 scope remains outside the old September baseline because Review Queue publication and stock execution remain unauthorized.",
+      "next_action": "Do not widen the baseline or publish the prepared changeset without a separate exact owner control-write decision and fresh readback."
+    },
+    {
+      "retailer": "10 Reps",
+      "result": "FAIL",
+      "class": "MONITORED_DEBT",
+      "failure_codes": [
+        "MONITORED_BACKLOG_GROWTH"
+      ],
+      "review_offer_count": 16,
+      "review_offer_ids": [
+        "2853", "2854", "2855", "2856", "2857", "2858", "2859", "2896", "2897", "2898", "2913", "2914", "3384", "3388", "3496", "3627"
+      ],
+      "interpretation": "This is the exact D1 read-only identity-review scope; 14 rows are already OOS and offers 3388 and 3627 still require separate identity decisions.",
+      "next_action": "Keep all 16 catalogue rows unchanged and do not infer OOS or rebind."
+    },
+    {
+      "retailer": "Jon's Supplements",
+      "result": "FAIL",
+      "class": "FINGERPRINT_OR_IDENTITY",
+      "failure_codes": [
+        "MONITORED_BACKLOG_GROWTH"
+      ],
+      "review_offer_count": 5,
+      "review_offer_ids": [
+        "1197", "1209", "1456", "1457", "1458"
+      ],
+      "old_baseline_offer_ids": [
+        "1209"
+      ],
+      "new_beyond_baseline_offer_ids": [
+        "1197", "1456", "1457", "1458"
+      ],
+      "source_reason": "SOURCE_VARIANT_MISSING",
+      "two_consecutive_natural_captures_match_exact_rows": true,
+      "capture_evidence": [
+        {
+          "workflow_run_id": "36853819770",
+          "artifact_id": "11157711039",
+          "artifact_digest": "sha256:b6cdc18d027d96cce51fc8c4f8c19716f632b0199927c43f3c84a07fb61e6d3f",
+          "dry_run_sha256": "fe5d1afc32f4ec9f3c7a680377a6642a099cccb1da40d2360e2000380f996803",
+          "source_fingerprint": "003bedfd923b04f96c5fd012f670510819c69325732e7e0abe31455766552624"
+        },
+        {
+          "workflow_run_id": "36997159124",
+          "artifact_id": "11222472632",
+          "artifact_digest": "sha256:1726b199a3ea6053a898077732859b3872bbed7a9f9cf03b6f588537c6fa2557",
+          "dry_run_sha256": "82086c3a831438a51c848558e1768c1dfd3e0fc17d02b6df202043d091a6e3f8",
+          "source_fingerprint": "277e6ef0c57c4cf3a048407e45dd16af7a040c5b678fa1e574f9aa99cf970988"
+        }
+      ],
+      "catalogue_state": {
+        "already_oos_offer_ids": [
+          "1197", "1456", "1457", "1458"
+        ],
+        "still_in_stock_offer_ids": [
+          "1209"
+        ]
+      },
+      "ordinary_run_safety": {
+        "approved_mapping_count": 506,
+        "verified_no_change_count": 501,
+        "review_row_count": 5,
+        "blocked_row_count": 0,
+        "commercial_or_stock_writes": 0,
+        "freshness_only_confirmations": 501,
+        "database_postflight": "PASS"
+      },
+      "next_action": "Keep all five rows unchanged and perform a bounded read-only identity review before any baseline, OOS, rebind or Review Queue decision."
+    },
+    {
+      "retailer": "6 Pack Supplements",
+      "result": "FAIL",
+      "class": "SOURCE",
+      "latest_run_id": "36991204338",
+      "latest_source_captured_at": "2026-10-02T09:50:07.360Z",
+      "latest_preflight_artifact_id": "11220445609",
+      "latest_preflight_artifact_digest": "sha256:8d5009d6dadc9d43867638a19ce6d753b9357fc0b65f39a1f92ae81c4a1ec392",
+      "latest_preflight_sha256": "ee4b0e9c7a0f1777f6cad86992cbf7896d5eeb511d30475bd5888b244ca7ab29",
+      "source_error": {
+        "external_product_id": "4150",
+        "http_status": 404,
+        "attempts": 5,
+        "timeout": false
+      },
+      "blocked_row_count": 506,
+      "database_writes": 0,
+      "last_complete_review_scope": {
+        "workflow_run_id": "36405020045",
+        "artifact_id": "10962883416",
+        "artifact_digest": "sha256:935cfa4bf351e0b53dcd7f55e7ce4df4134407046c6873d449caa799b421a871",
+        "preflight_sha256": "8e565f37c58cb0f0b631cc5d5b40e4cec980f720916690e192c6e884fcd0a18b",
+        "review_offer_count": 12,
+        "old_baseline_offer_count": 11,
+        "additional_offer_id": "2255",
+        "additional_offer_reason": "MASS_OOS"
+      },
+      "interpretation": "The current run failed closed on the already-classified product-4150 404 before baseline or apply. The 12-row review count comes from the last complete 28 September evidence and is monitored debt, not a new current classification produced by the failed run.",
+      "next_action": "Do not retry, infer identity, widen the baseline or patch the shared retriever. Product 4150 remains an owner identity-review dependency."
+    },
+    {
+      "retailer": "eBay UK",
+      "result": "FAIL",
+      "class": "EVIDENCE_CORRELATION_PENDING_NATURAL_RUN",
+      "latest_seen_run_id": "37000578631",
+      "latest_seen_head_sha": "0bf7ff42a2a61c1d8fb3651a4e868d0e26f03d20",
+      "contract_fix_merge_sha": "9af3e7e4",
+      "post_fix_natural_run_observed": false,
+      "interpretation": "Both watchdogs correctly still see the pre-fix failed ordinary run; no natural eBay schedule on the corrected contract existed at the observation time.",
+      "next_action": "Await the natural eBay schedule; do not dispatch manually."
+    }
+  ],
+  "other_retailer_summary": {
+    "pass_with_review": [
+      "Simply Supplements"
+    ],
+    "pass_with_monitored_backlog": [
+      "GYM HIGH",
+      "Whey Okay",
+      "Discount Supplements",
+      "Dolphin Fitness",
+      "Predators Gear"
+    ]
+  },
+  "ordinary_interval": {
+    "credit": false,
+    "counter_before": "0/3",
+    "counter_after": "0/3",
+    "reason": "The cross-retailer interval is atomic and still contains Fit House, 10 Reps, Jon's, 6 Pack and eBay failures; a post-fix natural eBay run is also absent."
+  },
+  "writes_performed_by_this_readback": {
+    "database": 0,
+    "catalogue": 0,
+    "control": 0,
+    "review_queue": 0
+  },
+  "next_gate": "OBSERVE_POST_FIX_NATURAL_EBAY_RUN_THEN_A_LATER_NATURAL_WATCHDOG; KEEP_JONS_FIVE_ROWS_AND_ALL_OTHER_REVIEW_SCOPE_UNCHANGED_PENDING_SEPARATE_DECISIONS"
+}

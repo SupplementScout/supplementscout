@@ -371,6 +371,21 @@ fresh fail-closed production/queue readback and separate exact owner control-
 write authorization. No database, catalogue or queue write was performed and
 the ordinary counter remains `0/3`.
 
+Two later natural watchdogs on merged `main` (`37070747208` and `37098906183`)
+made zero writes and repeated the same closeout hash and exact five-retailer red
+partition. This is stable evidence, not a flaky job. Fit House and 10 Reps are
+the known D1 scopes. Jon's isolated the same five missing source variants across
+two natural captures, completed 501 freshness-only confirmations and passed DB
+postflight without commercial or stock writes; four already-OOS rows are new
+beyond its old single-row baseline and remain unchanged for read-only identity
+review. 6 Pack again stopped all 506 rows before baseline/apply on the known
+product-4150 HTTP 404; its retained 12-row review evidence includes one old
+additional MASS_OOS row beyond the September baseline. eBay had not yet produced
+a natural run on the merged evidence-contract correction by `06:21Z` on 3
+October. No baseline widening, manual retry, queue publication or new code path
+is authorized. The ordinary counter remains `0/3`; the next gate is the natural
+eBay run and a later correlating watchdog.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
