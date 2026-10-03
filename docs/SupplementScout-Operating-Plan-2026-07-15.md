@@ -399,6 +399,31 @@ no exact successor is proven. All five rows remain unchanged; any stock decision
 for `1209` needs separate owner authority. No baseline, Review Queue, catalogue
 or control write was performed, and the counter remains `0/3`.
 
+The awaited natural evidence has now arrived on merge `be4a54f`. 6 Pack run
+`37111838580` completed `492` unrelated freshness-only confirmations while
+isolating product `4150` / offer `2379` and thirteen other genuine review rows;
+postflight had zero commercial or history delta and fresh idempotency made zero
+writes. eBay run `37117068397` completed `145` freshness-only confirmations,
+isolated `92` current review rows and passed same-run postflight/idempotency with
+zero commercial or history delta. Its existing publisher updated only Review
+Queue control state and made zero catalogue writes. Both production paths are
+therefore live verified.
+
+Natural watchdog `37120043308` correctly correlated 6 Pack but produced one
+central eBay false negative: the scheduled workflow executes `Prepare exact
+approved existing-offer refresh` while its mutually exclusive manual dry-run
+step `Fresh read-only preflight` is skipped. The correlator bound only the
+skipped exact name. A generic local correction now models a closed list of
+accepted names per semantic stage for every retailer, selects exactly one
+non-skipped alternative and fails closed on ambiguity. It adds no retailer
+condition to shared code and no workflow, importer, approval path or executor.
+The focused suite passes `42/42`, the exact live run replays as
+`COMPLETE_SUCCESS`, and both `verify:quick` and `verify:full` pass, including the
+production build. Configuration-to-workflow name review also passes. CI/merge
+and a later natural watchdog remain required. Genuine Fit House,
+Jon's, 6 Pack, eBay and 10 Reps review/stale debt keeps the atomic counter at
+`0/3`; baseline widening and manual retailer dispatch remain unauthorized.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

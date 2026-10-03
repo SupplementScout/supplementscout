@@ -80,10 +80,12 @@ const {
 
 const watchdogProfile = {
   id: 9,
-  capture_step: "capture-fit-house",
-  apply_step: "apply-fit-house",
-  db_postflight_step: "postflight-fit-house",
-  idempotency_step: "idempotency-fit-house",
+  stages: {
+    capture: ["capture-fit-house"],
+    apply: ["apply-fit-house"],
+    db_postflight: ["postflight-fit-house"],
+    idempotency: ["idempotency-fit-house"],
+  },
 };
 
 function watchdogRun(id, { event = "schedule", conclusion = "success", createdAt = `2026-09-01T00:00:${String(id).padStart(2, "0")}Z` } = {}) {
@@ -99,10 +101,10 @@ function watchdogJob(profile, conclusions, name = "retailer-job", id = 1, jobCon
     name,
     conclusion: jobConclusion || inferredConclusion,
     steps: [
-      [profile.capture_step, conclusions.capture],
-      [profile.apply_step, conclusions.apply],
-      [profile.db_postflight_step, conclusions.db_postflight],
-      [profile.idempotency_step, conclusions.idempotency],
+      [profile.stages.capture[0], conclusions.capture],
+      [profile.stages.apply[0], conclusions.apply],
+      [profile.stages.db_postflight[0], conclusions.db_postflight],
+      [profile.stages.idempotency[0], conclusions.idempotency],
     ].filter(([stepName]) => stepName).map(([stepName, conclusion]) => ({ name: stepName, conclusion, completed_at: "2026-09-01T00:10:00Z" })),
   };
 }
@@ -684,7 +686,7 @@ test("automation watchdog accepts only an exact bounded operation with same-run 
     approved_scope_hash: "a".repeat(64),
   };
   const input = {
-    profile: { id: 9, name: "Fit House", workflow: "fit-house.yml", idempotency_step: "idempotency" },
+    profile: { id: 9, name: "Fit House", workflow: "fit-house.yml", stages: { capture: [], apply: [], db_postflight: [], idempotency: ["idempotency"] } },
     stages,
     contract,
     database: { offer_count: 286, offers_older_than_48h: 0 },
@@ -1078,6 +1080,50 @@ test("watchdog selects attempts without stitching newer failure into older succe
   assert.deepEqual(new Set(Object.values(selected.lastCompleteSuccess.stages).map((stage) => stage.run_id)), new Set(["10"]));
 });
 
+test("watchdog resolves exactly one executed alternative for a shared stage", () => {
+  const profile = {
+    id: 12,
+    stages: {
+      capture: ["fresh read-only preflight", "prepare exact refresh"],
+      apply: ["apply exact refresh"],
+      db_postflight: ["verify postflight"],
+      idempotency: ["seal evidence"],
+    },
+  };
+  const run = watchdogRun(12);
+  const job = {
+    id: 12,
+    name: "refresh",
+    conclusion: "success",
+    steps: [
+      { name: "fresh read-only preflight", conclusion: "skipped" },
+      { name: "prepare exact refresh", conclusion: "success" },
+      { name: "apply exact refresh", conclusion: "success" },
+      { name: "verify postflight", conclusion: "success" },
+      { name: "seal evidence", conclusion: "success" },
+    ],
+  };
+  const attempt = workflowAttempt(profile, run, [job]);
+  assert.equal(attempt.result, "COMPLETE_SUCCESS");
+  assert.equal(attempt.stages.capture.step_name, "prepare exact refresh");
+  assert.equal(attempt.stages.capture.conclusion, "success");
+
+  const readOnly = structuredClone(job);
+  readOnly.steps = readOnly.steps.map((step) => ({
+    ...step,
+    conclusion: step.name === "fresh read-only preflight" ? "success" : "skipped",
+  }));
+  assert.equal(workflowAttempt(profile, run, [readOnly]).result, "READ_ONLY_COMPLETE");
+  assert.equal(workflowAttempt(profile, run, [readOnly]).stages.capture.step_name, "fresh read-only preflight");
+
+  const ambiguous = structuredClone(job);
+  ambiguous.steps[0].conclusion = "success";
+  assert.throws(
+    () => workflowAttempt(profile, run, [ambiguous]),
+    /Multiple executed steps match capture for retailer profile 12/,
+  );
+});
+
 test("watchdog keeps manual dry-runs visible without replacing last complete success", () => {
   const complete = workflowAttempt(watchdogProfile, watchdogRun(20), [watchdogJob(watchdogProfile, { capture: "success", apply: "success", db_postflight: "success", idempotency: "success" })]);
   const dryRun = workflowAttempt(watchdogProfile, watchdogRun(21, { event: "workflow_dispatch" }), [watchdogJob(watchdogProfile, { capture: "success", apply: "skipped", db_postflight: "skipped", idempotency: "skipped" })]);
@@ -1090,7 +1136,7 @@ test("watchdog keeps manual dry-runs visible without replacing last complete suc
 });
 
 test("watchdog isolates exact retailer job in a shared workflow", () => {
-  const tenRepsProfile = { id: 14, capture_step: "capture-10-reps", apply_step: "apply-10-reps", db_postflight_step: "postflight-10-reps", idempotency_step: "idempotency-10-reps" };
+  const tenRepsProfile = { id: 14, stages: { capture: ["capture-10-reps"], apply: ["apply-10-reps"], db_postflight: ["postflight-10-reps"], idempotency: ["idempotency-10-reps"] } };
   const jobs = [
     watchdogJob(watchdogProfile, { capture: "success", apply: "success", db_postflight: "success", idempotency: "success" }, "fit-house", 9),
     watchdogJob(tenRepsProfile, { capture: "success", apply: "failure", db_postflight: "skipped", idempotency: "skipped" }, "10-reps", 14),
@@ -1174,15 +1220,16 @@ test("watchdog reuses one immutable workflow history read across shared retailer
   assert(calls.every((url) => url.includes("watchdog_snapshot=run-123")));
 });
 
-test("watchdog configuration binds the exact idempotency step for every automated retailer", () => {
-  const profiles = new Map(loadWatchdogConfig().retailers.map((profile) => [String(profile.id), profile.idempotency_step]));
-  assert.equal(profiles.get("1"), null);
-  assert.equal(profiles.get("13"), null);
-  assert.equal(profiles.get("9"), "Verify idempotency with a fresh source capture");
-  assert.equal(profiles.get("11"), "Verify idempotency against a fresh source capture");
-  assert.equal(profiles.get("12"), "Seal same-run eBay apply, postflight and idempotency evidence");
-  assert.equal(profiles.get("14"), "Verify 10 Reps idempotency with a fresh source capture");
-  assert.equal([...profiles.values()].filter(Boolean).length, 10);
+test("watchdog configuration binds exact stage alternatives for every retailer", () => {
+  const profiles = new Map(loadWatchdogConfig().retailers.map((profile) => [String(profile.id), profile.stages]));
+  assert.deepEqual(profiles.get("1").idempotency, []);
+  assert.deepEqual(profiles.get("13").idempotency, []);
+  assert.deepEqual(profiles.get("9").idempotency, ["Verify idempotency with a fresh source capture"]);
+  assert.deepEqual(profiles.get("11").idempotency, ["Verify idempotency against a fresh source capture"]);
+  assert.deepEqual(profiles.get("12").capture, ["Fresh read-only preflight", "Prepare exact approved existing-offer refresh"]);
+  assert.deepEqual(profiles.get("12").idempotency, ["Seal same-run eBay apply, postflight and idempotency evidence"]);
+  assert.deepEqual(profiles.get("14").idempotency, ["Verify 10 Reps idempotency with a fresh source capture"]);
+  assert.equal([...profiles.values()].filter((stages) => stages.idempotency.length > 0).length, 10);
 });
 
 test("same-run eBay evidence sealer requires exact apply, postflight and idempotency correlation", () => {
@@ -1341,7 +1388,7 @@ test("watchdog isolates database-old offers only when every row is explicit revi
   const input = { profile: { id: 12, name: "eBay UK", workflow: "ebay.yml" }, stages: { capture: { completed_at: completed, run_id: "1", head_sha: "a" }, apply: { completed_at: completed, run_id: "1", head_sha: "a" }, db_postflight: { completed_at: completed, run_id: "1", head_sha: "a" } }, contract: { result: "PASS_WITH_REVIEW", approved_mapping_count: 2, executable_plan_count: 1, executed_plan_count: 1, review_row_count: 1, blocked_row_count: 0, review_offer_ids: ["2"], execution_offer_ids: ["1"], expected_deltas: {}, commit_sha: "a", manifest_sha256: "m", source_fingerprint: "s", full_capture_fingerprint: "f", executable_source_fingerprint: "e", review_scope_fingerprint: "r", plan_fingerprint: "p", postflight_hash: "h", idempotency_result: "PASS", database_writes: 1 }, database: { offer_count: 2, offers_older_than_48h: 1, older_offer_ids: ["2"] } };
   assert.equal(evaluateRetailer(input, new Date("2026-08-30T04:00:00.000Z"), 48).result, "PASS_WITH_REVIEW");
   assert(evaluateRetailer({ ...input, database: { ...input.database, older_offer_ids: ["1"] } }, new Date("2026-08-30T04:00:00.000Z"), 48).failures.includes("DATABASE_OFFERS_OLDER_THAN_48H"));
-  assert.equal(loadWatchdogConfig().retailers.find((row) => row.id === 12).db_postflight_step, "Verify eBay UK DB postflight read-only");
+  assert.deepEqual(loadWatchdogConfig().retailers.find((row) => row.id === 12).stages.db_postflight, ["Verify eBay UK DB postflight read-only"]);
 });
 
 test("shared DB postflight covers exact retailer scopes", () => {

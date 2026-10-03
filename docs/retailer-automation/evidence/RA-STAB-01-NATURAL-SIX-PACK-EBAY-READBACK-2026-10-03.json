@@ -1,0 +1,203 @@
+{
+  "schema_version": "ra-stab-01-natural-six-pack-ebay-readback-v1",
+  "task_id": "RA-STAB-01",
+  "recorded_at": "2026-10-03T14:39:20Z",
+  "result": "NATURAL_PATHS_PASS_WATCHDOG_ALTERNATE_STAGE_FALSE_NEGATIVE_LOCALLY_CORRECTED_NO_INTERVAL_CREDIT",
+  "production_commit": "be4a54f56cb92471e00474a22c1efe154eb662e1",
+  "six_pack": {
+    "workflow_run_id": "37111838580",
+    "event": "schedule",
+    "conclusion": "success",
+    "created_at": "2026-10-03T09:04:51Z",
+    "completed_at": "2026-10-03T09:28:44Z",
+    "artifact_id": "11270371166",
+    "artifact_digest": "sha256:dcc26163d4dcb57ddf83773debbc369e0dae3a099ddcde3403a4e24acb99daa6",
+    "file_sha256": {
+      "production_preflight_report": "e034c518033dd797e146150bfdbc61fb95d7b431ca5f753167b7193ae64bdb52",
+      "production_execution": "1ea98220d39f22c138253668ad00b3a62fe591a7006d4bfd05233ff54f358c33",
+      "production_db_postflight": "1916050230e1e7d9e08b695f89dc150a61978665eec75c03866f0cf43f6a2577",
+      "production_idempotency_report": "61c989ec26ba12670e3f3fc01c34a2ffb1c856deee05349736e25f17901c3623"
+    },
+    "partition": {
+      "approved_mapping_count": 506,
+      "executable_plan_count": 492,
+      "executed_plan_count": 492,
+      "review_row_count": 14,
+      "blocked_row_count": 0,
+      "review_offer_ids": [
+        "2029", "2060", "2147", "2148", "2149", "2150", "2151",
+        "2152", "2153", "2154", "2155", "2255", "2378", "2379"
+      ]
+    },
+    "source": {
+      "attempted_product_page_count": 279,
+      "fetched_product_page_count": 278,
+      "source_failure_count": 1,
+      "failed_external_product_id": "4150",
+      "failed_offer_id": "2379",
+      "http_status": 404,
+      "disposition": "SOURCE_PRODUCT_NOT_FOUND",
+      "classification": "SOURCE_VARIANT_MISSING"
+    },
+    "additional_review_debt": [
+      { "offer_id": "2378", "reason": "HARD_PRICE_ANOMALY" },
+      { "offer_id": "2255", "reason": "MASS_OOS" }
+    ],
+    "postflight": {
+      "result": "PASS",
+      "freshness_change_count": 492,
+      "price_change_count": 0,
+      "stock_change_count": 0,
+      "shipping_change_count": 0,
+      "total_change_count": 0,
+      "offer_url_change_count": 0,
+      "mapping_url_change_count": 0,
+      "price_history_delta": 0,
+      "daily_confirmation_delta": 0,
+      "raw_price_history_delta": 0
+    },
+    "idempotency": {
+      "result": "PASS_WITH_REVIEW",
+      "executed_plan_count": 0,
+      "review_row_count": 14,
+      "blocked_row_count": 0,
+      "database_writes": 0
+    },
+    "conclusion": "The shared product-scoped terminal-404 policy is live verified. Product 4150 remained isolated without an inferred stock, price, replacement or rebind, while 492 unrelated offers completed freshness-only. The path is stable; the 14 review rows are genuine decision debt."
+  },
+  "ebay": {
+    "workflow_run_id": "37117068397",
+    "event": "schedule",
+    "conclusion": "success",
+    "created_at": "2026-10-03T10:38:13Z",
+    "completed_at": "2026-10-03T10:55:25Z",
+    "refresh_artifact_id": "11271703799",
+    "refresh_artifact_digest": "sha256:4078e5d683f9a1ca8d8bb14a804f01bee962080c664d5be69bb6cc34afa28cee",
+    "review_queue_artifact_id": "11271758758",
+    "review_queue_artifact_digest": "sha256:ec2e51bf71b3fda3b79e2d3a47f959fd22648dc827b84926a6237963512d0306",
+    "file_sha256": {
+      "production_dry_run": "d63e7cf83a61d11f1cd9d98ee17e3599cf88b089d8e434ca0a3e456ce3afff82",
+      "production_apply": "9c54af15fa0cea52300b3c1e79fe2565c9759417e8aff5b251590d893bbe4c64",
+      "production_db_postflight": "733ddaf316137fbc28d6f38db0c4071e01d739720d89ebffc381bc4fab45cc9e",
+      "production_correlated_evidence": "fe9403b421b54239c155c2ab8ad59fc986480d3db7c26aa5668d5a70860f7592",
+      "review_queue_reconciliation_apply": "81ec6709ac94f233ecd4a76217c53434d5b193f11f6c15ad5e971c82e287db9a"
+    },
+    "partition": {
+      "approved_mapping_count": 237,
+      "executable_plan_count": 145,
+      "executed_plan_count": 145,
+      "review_row_count": 92,
+      "blocked_row_count": 0,
+      "commercial_review_count": 34,
+      "identity_review_count": 50,
+      "source_failure_review_count": 8
+    },
+    "postflight": {
+      "result": "PASS",
+      "freshness_change_count": 145,
+      "price_change_count": 0,
+      "stock_change_count": 0,
+      "shipping_change_count": 0,
+      "total_change_count": 0,
+      "offer_url_change_count": 0,
+      "mapping_url_change_count": 0,
+      "price_history_delta": 0,
+      "daily_confirmation_delta": 0,
+      "raw_price_history_delta": 0
+    },
+    "correlated_evidence": {
+      "result": "PASS",
+      "idempotency_result": "PASS",
+      "database_writes": 145,
+      "interpretation": "All 145 writes were freshness-only and the fresh no-op made zero further writes."
+    },
+    "review_queue_publication": {
+      "result": "PASS",
+      "operation_count": 115,
+      "created_count": 37,
+      "refreshed_count": 55,
+      "superseded_count": 21,
+      "resolved_by_source_count": 2,
+      "expired_count": 0,
+      "catalogue_writes": 0,
+      "control_database_writes": 231
+    },
+    "conclusion": "The corrected eBay producer is live verified on a natural schedule. Test output did not contaminate production evidence, offer-only deltas stayed review-only, and the executable partition was freshness-only. The 92-row review scope is genuine current debt."
+  },
+  "watchdog": {
+    "workflow_run_id": "37120043308",
+    "event": "schedule",
+    "conclusion": "failure",
+    "created_at": "2026-10-03T11:33:37Z",
+    "completed_at": "2026-10-03T11:37:03Z",
+    "artifact_id": "11273197098",
+    "artifact_digest": "sha256:0049efe78d5e2d4211d76d30100f99d6a0bb10a91c429a804bae4d869bda5a60",
+    "watchdog_json_sha256": "e143debcaa66031114b95127259968dbc3cb273e5ef557e1e6bce7725428059c",
+    "database_writes": 0,
+    "six_pack": {
+      "latest_attempt_run_id": "37111838580",
+      "latest_attempt_result": "COMPLETE_SUCCESS",
+      "evidence_correlation": "CORRELATED",
+      "remaining_failure": "MONITORED_BACKLOG_GROWTH"
+    },
+    "ebay_false_negative": {
+      "latest_attempt_run_id": "37117068397",
+      "run_conclusion": "success",
+      "job_conclusion": "success",
+      "reported_attempt_result": "FAILED_OR_INCOMPLETE",
+      "selected_capture_step": "Fresh read-only preflight",
+      "selected_capture_conclusion": "skipped",
+      "executed_capture_step": "Prepare exact approved existing-offer refresh",
+      "executed_capture_conclusion": "success",
+      "root_cause": "The central stage correlator accepted one exact step name per stage and selected a legal skipped alternative instead of the executed successful alternative."
+    }
+  },
+  "central_correction": {
+    "candidate_base_sha": "be4a54f56cb92471e00474a22c1efe154eb662e1",
+    "config_schema_version": 2,
+    "model": "Each profile declares a closed list of accepted step names per semantic stage. The shared resolver accepts exactly one non-skipped alternative, records its exact name and fails closed when multiple alternatives execute.",
+    "retailer_condition_in_shared_core": false,
+    "new_workflow": false,
+    "new_importer": false,
+    "new_approval_path": false,
+    "new_executor": false,
+    "guardrail_change": false,
+    "live_run_replay": {
+      "workflow_run_id": "37117068397",
+      "result_before": "FAILED_OR_INCOMPLETE",
+      "result_after": "COMPLETE_SUCCESS",
+      "resolved_capture_step": "Prepare exact approved existing-offer refresh",
+      "apply_step": "Apply exact approved existing-offer refresh",
+      "db_postflight_step": "Verify eBay UK DB postflight read-only",
+      "idempotency_step": "Seal same-run eBay apply, postflight and idempotency evidence"
+    },
+    "regression": {
+      "command": "node --test scripts/catalog-health.test.js",
+      "tests": 42,
+      "passed": 42,
+      "verify_quick": "PASS",
+      "verify_full": "PASS",
+      "production_build": "PASS"
+    }
+  },
+  "ordinary_interval": {
+    "credit": false,
+    "counter_before": "0/3",
+    "counter_after": "0/3",
+    "reason": "The paths are live verified, but the atomic cross-retailer interval still has genuine Fit House, Jon's, 6 Pack, eBay and 10 Reps review/stale debt. The current watchdog also requires the central alternate-stage correction before its eBay evidence is trustworthy."
+  },
+  "authority": {
+    "manual_workflow_dispatches": 0,
+    "ra_004_actions": 0,
+    "baseline_widening": 0,
+    "identity_rebinds": 0,
+    "inferred_oos_actions": 0
+  },
+  "writes_performed_by_this_readback_and_local_correction": {
+    "production_database": 0,
+    "catalogue": 0,
+    "control": 0,
+    "review_queue": 0
+  },
+  "next_gate": "FINAL_PROJECT_VERIFICATION; MERGE AFTER GREEN CI; THEN AWAIT A NATURAL WATCHDOG FROM THE MERGED CORRECTION WITHOUT MANUAL RETAILER DISPATCH"
+}
