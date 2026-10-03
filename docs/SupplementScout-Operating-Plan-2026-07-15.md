@@ -457,8 +457,11 @@ the complete bounded queue before pagination, with exact-count batching and
 fail-closed overflow, drift, duplicate and truncation checks. Authentication,
 routes, adapters, capabilities, fingerprints, expiry and source revalidation
 are unchanged; no production decision or write occurred. Focused `45/45`,
-quick/full gates and the production build pass. Green CI and an authenticated
-read-only production UI check remain before live verification. Evidence:
+quick/full gates and the production build pass. PR `#192` passed all required
+checks and merged as `e8590ef`; the post-merge `main` gate and Vercel deployment
+also pass. The live unauthenticated route still redirects `307` to
+`/admin/login`. Only an authenticated read-only UI check remains; no auth
+bypass was attempted. Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-REVIEW-QUEUE-UX-SIMPLIFICATION-2026-10-03.json`](retailer-automation/evidence/RA-STAB-01-REVIEW-QUEUE-UX-SIMPLIFICATION-2026-10-03.json).
 
 **12 September 2026 nutrition planning checkpoint:**

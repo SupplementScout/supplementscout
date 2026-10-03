@@ -890,9 +890,13 @@ no writer, route, retailer condition, capability or database change. Regression
 proves a target at position 65 is found before pagination. The focused suite
 passes `45/45`; TypeScript, ESLint, `verify:quick` and `verify:full` pass,
 including the production build. No test file was added, removed or renamed.
-Green CI and an authenticated read-only production UI check remain required;
-this checkpoint made zero production decisions or writes and does not change
-the stabilization counter (`0/3`). Evidence:
+PR `#192` passed Project Guardian, the full Quality Gate, GitGuardian and
+Vercel, then merged as `e8590ef`; the full post-merge gate on `main` also
+passed. Vercel reports the merge deployed, and an unauthenticated production
+readback returns `307` to `/admin/login`, confirming the admin boundary remains
+closed. An authenticated read-only UI check still requires a valid admin
+session. This checkpoint made zero production decisions or writes and does not
+change the stabilization counter (`0/3`). Evidence:
 [`evidence/RA-STAB-01-REVIEW-QUEUE-UX-SIMPLIFICATION-2026-10-03.json`](evidence/RA-STAB-01-REVIEW-QUEUE-UX-SIMPLIFICATION-2026-10-03.json).
 
 **Acceptance:**

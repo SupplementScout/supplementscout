@@ -2,7 +2,7 @@
   "schema_version": "ra-stab-01-review-queue-ux-simplification-v1",
   "task_id": "RA-STAB-01",
   "recorded_at": "2026-10-03T17:54:12Z",
-  "result": "LOCAL_VERIFIED_AWAITING_GREEN_CI_AND_AUTHENTICATED_PRODUCTION_READBACK",
+  "result": "MERGED_DEPLOYED_AUTH_GATE_VERIFIED_AUTHENTICATED_UI_READBACK_PENDING",
   "base_commit": "592375244962919f2fcb2bd4bb8e9941cdc96b2c",
   "scope": {
     "admin_route": "/admin/automation-review",
@@ -49,6 +49,25 @@
     "verify_full": "PASS_INCLUDING_NEXTJS_PRODUCTION_BUILD",
     "test_inventory": "UNCHANGED_320_TEST_FILES"
   },
+  "live_release": {
+    "pull_request": 192,
+    "candidate_commit": "0f6d8a19fe229b1e4bc2b13a7ac31c3a88917c19",
+    "merge_commit": "e8590ef1b60a9d40a5cb8ace75cb6b00bd9fae8b",
+    "merged_at": "2026-10-03T17:58:24Z",
+    "pull_request_checks": "PASS_PROJECT_GUARDIAN_FULL_GITGUARDIAN_VERCEL",
+    "main_quality_gate_run": 37142466230,
+    "main_quality_gate": "PASS",
+    "main_project_guardian_run": 37142466216,
+    "main_project_guardian": "PASS",
+    "vercel_deployment": "PASS",
+    "unauthenticated_route_readback": {
+      "url": "https://www.supplementscout.co.uk/admin/automation-review",
+      "status": 307,
+      "location": "/admin/login",
+      "interpretation": "The production admin route remains protected. No authentication bypass was attempted."
+    },
+    "authenticated_ui_readback": "PENDING_AUTHENTICATED_READ_ONLY_SESSION"
+  },
   "regression": {
     "fixture_rows": 75,
     "target_row_position": 65,
@@ -64,5 +83,5 @@
     "control_writes": 0,
     "manual_retailer_dispatches": 0
   },
-  "next_gate": "GREEN_CI_AND_MERGE; THEN AUTHENTICATED_READ_ONLY_PRODUCTION_UI_READBACK_WITHOUT_DECISIONS_OR_WRITES"
+  "next_gate": "AUTHENTICATED_READ_ONLY_PRODUCTION_UI_READBACK_WITHOUT_DECISIONS_OR_WRITES"
 }
