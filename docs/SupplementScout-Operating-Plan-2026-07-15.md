@@ -433,6 +433,22 @@ business/control write, rebind, baseline change or RA-004 action. It preserves
 one active RA task and makes grouped decision packs, not per-offer patches, the
 only valid follow-up after the merged watchdog is naturally observed.
 
+That natural watchdog has now run as `37135856072` with zero database writes.
+It live verifies the merged eBay alternate-stage correction: run `37117068397`
+is one exact same-run `COMPLETE_SUCCESS`, with only genuine review backlog left.
+Its Discount failure is a central monitoring-history false negative: the
+standard GitHub completed-run page omitted fresh successful natural run
+`37121588423`, whose artifact proves `109/109` executions and passing postflight.
+A bounded generic correction adds an official freshness-filtered anchor, merges
+only a missing immutable run ID and fails closed on an invalid anchor; it adds no
+retailer branch or write path. The same interval contains a real 10 Reps
+incomplete attempt: run `37110115566` hit `Query read timeout` after registering
+an expiring control parent, before approver, executor or any business write.
+There will be no retry. Local quick/full gates, including the production build,
+pass; the next exact gate is green CI for the central history correction,
+followed by a fresh read-only check of that expired 10 Reps control state.
+Counter: `0/3`.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

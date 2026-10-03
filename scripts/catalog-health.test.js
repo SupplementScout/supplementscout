@@ -68,6 +68,7 @@ const {
   isExecutionContractCandidate,
   loadConfig: loadWatchdogConfig,
   parseArgs: parseWatchdogArgs,
+  runStages,
   selectWorkflowAttempts,
   summarizeWatchdogResult,
   watchdogExitCode,
@@ -1203,21 +1204,73 @@ test("watchdog GitHub reads explicitly bypass stale response caches", () => {
 test("watchdog reuses one immutable workflow history read across shared retailer profiles", async () => {
   const cache = new Map();
   const calls = [];
+  const sharedRun = watchdogRun(70, { createdAt: "2026-09-01T00:00:00Z" });
   const fetchJson = async (url) => {
     calls.push(url);
+    if (url.includes("created=")) {
+      return { workflow_runs: [sharedRun] };
+    }
     if (url.includes("/actions/workflows/")) {
-      return { workflow_runs: [watchdogRun(70), watchdogRun(69)] };
+      return { workflow_runs: [sharedRun, watchdogRun(69, { createdAt: "2026-08-31T00:00:00Z" })] };
     }
     return { jobs: [{ id: url.endsWith("/70/jobs?per_page=100") ? 70 : 69, name: "shared-job", steps: [] }] };
   };
-  const input = { repository: "owner/repo", workflow: "shared.yml", token: "test-token", page: 1, snapshotKey: "run-123", cache, fetchJson };
+  const input = { repository: "owner/repo", workflow: "shared.yml", token: "test-token", page: 1, snapshotKey: "run-123", freshnessCutoff: "2026-08-30T00:00:00.000Z", cache, fetchJson };
   const first = await workflowHistoryPage(input);
   const second = await workflowHistoryPage(input);
   assert.strictEqual(second, first);
-  assert.equal(first.length, 2);
-  assert.equal(calls.length, 3);
-  assert.equal(calls.filter((url) => url.includes("/actions/workflows/")).length, 1);
+  assert.equal(first.entries.length, 2);
+  assert.equal(first.listedRunCount, 2);
+  assert.deepEqual(first.recoveredRunIds, []);
+  assert.equal(calls.length, 4);
+  assert.equal(calls.filter((url) => url.includes("/actions/workflows/")).length, 2);
   assert(calls.every((url) => url.includes("watchdog_snapshot=run-123")));
+});
+
+test("watchdog recovers a fresh completed run omitted by the standard history page", async () => {
+  const oldRun = watchdogRun(80, { createdAt: "2026-09-01T00:00:00Z" });
+  const freshRun = watchdogRun(81, { createdAt: "2026-09-02T00:00:00Z" });
+  const profile = { ...watchdogProfile, workflow: "shared.yml" };
+  const fetchJson = async (url) => {
+    if (url.includes("created=")) return { workflow_runs: [freshRun] };
+    if (url.includes("/actions/workflows/")) return { workflow_runs: [oldRun] };
+    if (url.includes("/actions/runs/81/jobs")) {
+      return { jobs: [watchdogJob(profile, { capture: "success", apply: "success", db_postflight: "success", idempotency: "success" }, "fresh-job", 81)] };
+    }
+    if (url.includes("/actions/runs/80/jobs")) {
+      return { jobs: [watchdogJob(profile, { capture: "success", apply: "failure", db_postflight: "skipped", idempotency: "skipped" }, "old-job", 80, "failure")] };
+    }
+    throw new Error(`Unexpected URL: ${url}`);
+  };
+  const result = await runStages(profile, "owner/repo", "test-token", {
+    historySnapshotKey: "run-incident",
+    historyFreshnessCutoff: "2026-09-01T12:00:00.000Z",
+    fetchJson,
+  });
+  assert.equal(result.latestAttempt.run_id, "81");
+  assert.equal(result.latestAttempt.result, "COMPLETE_SUCCESS");
+  assert.equal(result.lastCompleteSuccess.run_id, "81");
+  assert.equal(result.latestListedRun.run_id, "81");
+  assert.deepEqual(result.historyRecoveredRunIds, ["81"]);
+  assert.equal(result.scannedRunCount, 2);
+  assert.equal(result.historyTruncated, false);
+});
+
+test("watchdog rejects a freshness anchor older than the requested cutoff", async () => {
+  const oldRun = watchdogRun(82, { createdAt: "2026-09-01T00:00:00Z" });
+  const fetchJson = async (url) => {
+    if (url.includes("created=")) return { workflow_runs: [oldRun] };
+    if (url.includes("/actions/workflows/")) return { workflow_runs: [oldRun] };
+    throw new Error(`Unexpected URL: ${url}`);
+  };
+  await assert.rejects(
+    runStages({ ...watchdogProfile, workflow: "shared.yml" }, "owner/repo", "test-token", {
+      historySnapshotKey: "run-invalid-anchor",
+      historyFreshnessCutoff: "2026-09-01T12:00:00.000Z",
+      fetchJson,
+    }),
+    /freshness anchor returned a run older than the requested cutoff/,
+  );
 });
 
 test("watchdog configuration binds exact stage alternatives for every retailer", () => {
