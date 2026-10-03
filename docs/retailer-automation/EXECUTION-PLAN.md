@@ -814,12 +814,34 @@ code and no workflow, importer, approval or executor change. The focused suite
 passes `42/42`; both `verify:quick` and `verify:full` pass, including the
 production build; and every configured stage name is present in its bound
 workflow. Direct replay of run `37117068397` now yields `COMPLETE_SUCCESS` with
-its exact capture, apply, postflight and idempotency steps. CI/merge and a later
-natural watchdog remain required. Genuine Fit House, Jon's, 6 Pack, eBay and 10
-Reps review/stale debt still prevents atomic interval credit, so the counter
-remains `0/3`; do not widen the baseline or dispatch a retailer manually.
+its exact capture, apply, postflight and idempotency steps. PR `#189` passed the
+full Quality Gate, Project Guardian, GitGuardian and Vercel checks and merged as
+`a9bc49f`. A later natural watchdog on that merge remains required. Genuine Fit
+House, Jon's, 6 Pack, eBay and 10 Reps review/stale debt still prevents atomic
+interval credit, so the counter remains `0/3`; do not widen the baseline or
+dispatch a retailer manually.
 Evidence:
 [`evidence/RA-STAB-01-NATURAL-SIX-PACK-EBAY-READBACK-2026-10-03.json`](evidence/RA-STAB-01-NATURAL-SIX-PACK-EBAY-READBACK-2026-10-03.json).
+
+**3 October five-retailer review-debt map — read-only grouping, no per-offer
+patch programme:** the current Fit House, 10 Reps, Jon's, 6 Pack and eBay
+evidence contains 141 review rows, but they reduce to four operational
+workstreams: 18 terminal no-catalogue-change candidates, 61 commercial decision
+rows, 54 identity decision rows and eight eBay source failures that require a
+natural reobservation before any business decision. The eBay 92 split is exact:
+34 commercial changes (`24` price, `7` stock and `3` price-plus-stock), 50
+identity conflicts (`32` reject and `18` review), and eight source-read
+failures. Ten eBay stock changes are returns to stock; none is an inferred OOS.
+
+This classification deliberately rejects a 141-patch approach. Already-OOS
+10 Reps and Jon's rows need no catalogue mutation; commercial and identity work
+must remain in separate, retailer-bound decision packs using existing guarded
+paths; source failures must be recaptured naturally. The audit grants no queue
+publication, terminal disposition, catalogue/control write, rebind, baseline
+change, manual dispatch or RA-004 action and leaves the counter at `0/3`. The
+first natural watchdog on merge `a9bc49f` is still required before another
+implementation starts. Evidence:
+[`evidence/RA-STAB-01-REVIEW-DEBT-DECISION-MAP-2026-10-03.json`](evidence/RA-STAB-01-REVIEW-DEBT-DECISION-MAP-2026-10-03.json).
 
 **Acceptance:**
 
