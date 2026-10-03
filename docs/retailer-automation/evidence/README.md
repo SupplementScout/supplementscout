@@ -38,6 +38,8 @@ input. It does not authorize RA-004, a new capture or any write.
 
 [RA-STAB-01 natural watchdog readback after D1 review](RA-STAB-01-NATURAL-WATCHDOG-READBACK-2026-10-03.json)
 
+[RA-STAB-01 Jon's five-row source-missing identity audit](RA-STAB-01-JONS-IDENTITY-AUDIT-2026-10-03.json)
+
 [RA-004 10 Reps shadow pilot preflight](RA-004-PREFLIGHT.md)
 
 [RA-004 machine-readable shadow plan](RA-004-shadow-plan.json)

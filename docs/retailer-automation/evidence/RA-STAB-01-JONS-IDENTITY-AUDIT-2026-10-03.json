@@ -1,0 +1,220 @@
+{
+  "schema_version": "ra-stab-01-jons-identity-audit-v1",
+  "task_id": "RA-STAB-01",
+  "retailer_id": "10",
+  "retailer": "Jon's Supplements",
+  "observed_at": "2026-10-03T06:28:50.0568787Z",
+  "result": "READ_ONLY_CLASSIFIED_NO_AUTOMATIC_ACTION",
+  "authority": {
+    "catalogue_writes_authorized": 0,
+    "control_writes_authorized": 0,
+    "review_queue_writes_authorized": 0,
+    "identity_rebinds_authorized": 0,
+    "stock_writes_authorized": 0,
+    "baseline_changes_authorized": 0,
+    "workflow_dispatches_authorized": 0,
+    "ra_004_actions_authorized": 0
+  },
+  "natural_evidence": {
+    "latest_workflow_run_id": "36997159124",
+    "event": "schedule",
+    "head_sha": "0bf7ff42a2a61c1d8fb3651a4e868d0e26f03d20",
+    "artifact_id": "11222472632",
+    "artifact_digest": "sha256:1726b199a3ea6053a898077732859b3872bbed7a9f9cf03b6f588537c6fa2557",
+    "dry_run_sha256": "82086c3a831438a51c848558e1768c1dfd3e0fc17d02b6df202043d091a6e3f8",
+    "database_baseline_sha256": "5c0728090803366881412a511daaafc1a58aa5480b2e4832e42f086f39866d15",
+    "database_postflight_sha256": "b0d1b25c677bf5e3b4032c34160d7a71440bb4acbfed1b2fa0638269401e37c4",
+    "source_fingerprint": "277e6ef0c57c4cf3a048407e45dd16af7a040c5b678fa1e574f9aa99cf970988",
+    "approved_mapping_count": 506,
+    "verify_no_change_count": 501,
+    "review_row_count": 5,
+    "freshness_only_confirmations": 501,
+    "commercial_or_stock_writes": 0,
+    "database_postflight": "PASS"
+  },
+  "persistence_evidence": {
+    "prior_natural_workflow_run_id": "36853819770",
+    "prior_artifact_id": "11157711039",
+    "prior_artifact_digest": "sha256:b6cdc18d027d96cce51fc8c4f8c19716f632b0199927c43f3c84a07fb61e6d3f",
+    "prior_dry_run_sha256": "fe5d1afc32f4ec9f3c7a680377a6642a099cccb1da40d2360e2000380f996803",
+    "prior_source_fingerprint": "003bedfd923b04f96c5fd012f670510819c69325732e7e0abe31455766552624",
+    "exact_review_rows_match_latest": true
+  },
+  "public_read_only_checks": [
+    {
+      "observed_at": "2026-10-03T06:28:49.0497691Z",
+      "url": "https://jonssupplements.co.uk/products/cnp-professional-loaded-eaa-300g.js",
+      "http_status": 200,
+      "utf8_content_sha256": "2dddd6707cbf273b0583a7dd1798b17237f14127e160c64d948aa3ae273186b9",
+      "product_id": "10034302124370",
+      "relevant_current_variant": {
+        "external_variant_id": "54181852283218",
+        "title": "Fruit Twist",
+        "sku": "CNP27003",
+        "available": true,
+        "price_gbp": "16.49"
+      }
+    },
+    {
+      "observed_at": "2026-10-03T06:28:49.6800606Z",
+      "url": "https://jonssupplements.co.uk/products/cnp-professional-cream-of-rice-2kg.js",
+      "http_status": 200,
+      "utf8_content_sha256": "3edec981a909e3f9548072de1b5684ab4a8bea982e36668e0ba5894739310ab2",
+      "product_id": "10044164899154",
+      "variant_count": 6,
+      "contains_cherry_bakewell": false,
+      "contains_old_variant_id_50651557691730": false,
+      "current_price_gbp": "17.99"
+    },
+    {
+      "observed_at": "2026-10-03T06:28:49.9255462Z",
+      "url": "https://jonssupplements.co.uk/products/efectiv-whey-protein-2kg.js",
+      "http_status": 404
+    },
+    {
+      "observed_at": "2026-10-03T06:28:50.0568787Z",
+      "url": "https://jonssupplements.co.uk/products/efectiv-whey-protein-60-serving-1-8kg.js",
+      "http_status": 200,
+      "utf8_content_sha256": "01470a640f286193d25b5626d25920a39dca310ec6ad6c7bbfb90395b4ac6881",
+      "product_id": "10538625761618",
+      "current_size": "1.8kg",
+      "current_price_gbp": "52.99",
+      "relevant_variants": [
+        {
+          "external_variant_id": "52499552928082",
+          "title": "Peanut Butter Cups",
+          "sku": "EFEC-0003",
+          "available": true
+        },
+        {
+          "external_variant_id": "53629499965778",
+          "title": "Milk chocolate",
+          "sku": null,
+          "available": false
+        }
+      ]
+    }
+  ],
+  "classes": [
+    {
+      "class": "SOURCE_IDENTITY_ALREADY_BOUND_TO_DISTINCT_CANONICAL_VARIANT",
+      "offer_ids": [
+        "1197"
+      ],
+      "mapping_id": "1383",
+      "canonical_product_id": "745",
+      "canonical_variant_id": "1269",
+      "old_identity": {
+        "external_product_id": "10034302124370",
+        "external_variant_id": "50608174694738",
+        "sku": "CNP27003",
+        "flavour": "Fruit Salad",
+        "price_gbp": "16.49",
+        "database_in_stock": false
+      },
+      "current_identity_conflict": {
+        "mapping_id": "1208",
+        "offer_id": "1022",
+        "canonical_variant_id": "823",
+        "external_variant_id": "54181852283218",
+        "sku": "CNP27003",
+        "flavour": "Fruit Twist",
+        "price_gbp": "16.49",
+        "database_in_stock": true,
+        "binding_was_established_by": "supabase/migrations/20260810190000_rebind_jons_loaded_eaa_fruit_twist_variant.sql"
+      },
+      "conclusion": "The apparent SKU successor is already correctly bound to the distinct Fruit Twist canonical variant. It cannot also replace the old Fruit Salad mapping.",
+      "recommended_current_catalogue_action": "KEEP_OOS_UNCHANGED"
+    },
+    {
+      "class": "EXACT_FLAVOUR_ABSENT_PRODUCT_PRESENT_OWNER_OOS_DECISION_REQUIRED",
+      "offer_ids": [
+        "1209"
+      ],
+      "mapping_id": "1395",
+      "canonical_product_id": "858",
+      "canonical_variant_id": "1281",
+      "old_identity": {
+        "external_product_id": "10044164899154",
+        "external_variant_id": "50651557691730",
+        "sku": "CNP60007",
+        "flavour": "Cherry Bakewell",
+        "size": "2000g",
+        "price_gbp": "16.49",
+        "database_in_stock": true
+      },
+      "live_product_present": true,
+      "exact_flavour_present": false,
+      "safe_same_product_successor_found": false,
+      "conclusion": "The exact product remains live but Cherry Bakewell and its old variant ID are absent. Same-flavour rows on other brands are not identity successors.",
+      "recommended_current_catalogue_action": "KEEP_UNCHANGED_PENDING_OWNER_STOCK_IDENTITY_DECISION"
+    },
+    {
+      "class": "RETIRED_2KG_PRODUCT_EXACT_FLAVOURS_ABSENT_ALREADY_OOS",
+      "offer_ids": [
+        "1456", "1458"
+      ],
+      "canonical_product_id": "924",
+      "old_external_product_id": "10019885449554",
+      "old_product_size": "2kg",
+      "old_product_price_gbp": "43.99",
+      "old_product_url_http_status": 404,
+      "flavours": [
+        "Honey Nut Cereal", "Toffee Popcorn"
+      ],
+      "database_in_stock": false,
+      "exact_flavours_in_current_1_8kg_product": false,
+      "conclusion": "The exact 2kg product is gone and neither flavour exists on the current 1.8kg product. No successor is evidenced.",
+      "recommended_current_catalogue_action": "KEEP_OOS_UNCHANGED"
+    },
+    {
+      "class": "FORMAT_SIZE_CHANGED_CANDIDATE_NOT_SAFE_REBIND_ALREADY_OOS",
+      "offer_ids": [
+        "1457"
+      ],
+      "mapping_id": "1643",
+      "canonical_product_id": "924",
+      "canonical_variant_id": "1529",
+      "old_identity": {
+        "external_product_id": "10019885449554",
+        "external_variant_id": "50565334729042",
+        "flavour": "Peanut Butter Cups",
+        "size": "2kg",
+        "price_gbp": "43.99",
+        "database_in_stock": false
+      },
+      "candidate": {
+        "external_product_id": "10538625761618",
+        "external_variant_id": "52499552928082",
+        "sku": "EFEC-0003",
+        "flavour": "Peanut Butter Cups",
+        "size": "1.8kg",
+        "price_gbp": "52.99",
+        "available": true
+      },
+      "conclusion": "Flavour continuity alone cannot override the 2kg to 1.8kg format/size and price change or the existing 2kg canonical binding.",
+      "recommended_current_catalogue_action": "KEEP_OOS_UNCHANGED_NO_REBIND"
+    }
+  ],
+  "summary": {
+    "review_row_count": 5,
+    "already_oos_keep_unchanged": 4,
+    "in_stock_unresolved": 1,
+    "safe_rebind_count": 0,
+    "automatic_action_count": 0,
+    "recommended_current_catalogue_action": "KEEP_ALL_5_UNCHANGED"
+  },
+  "evidence_limits": {
+    "public_html_or_json_retained_in_git": false,
+    "public_response_hashes_are_audit_local_not_replay_artifacts": true,
+    "source_absence_proves_oos": false,
+    "same_flavour_proves_identity_continuity": false
+  },
+  "writes_performed": {
+    "database": 0,
+    "catalogue": 0,
+    "control": 0,
+    "review_queue": 0
+  },
+  "next_gate": "SEPARATE_OWNER_DISPOSITION_REQUIRED_ONLY_FOR_IN_STOCK_OFFER_1209; KEEP_FOUR_ALREADY_OOS_ROWS_UNCHANGED; NO_REBIND_OR_BASELINE_CHANGE_AUTHORIZED"
+}
