@@ -419,10 +419,19 @@ non-skipped alternative and fails closed on ambiguity. It adds no retailer
 condition to shared code and no workflow, importer, approval path or executor.
 The focused suite passes `42/42`, the exact live run replays as
 `COMPLETE_SUCCESS`, and both `verify:quick` and `verify:full` pass, including the
-production build. Configuration-to-workflow name review also passes. CI/merge
-and a later natural watchdog remain required. Genuine Fit House,
+production build. Configuration-to-workflow name review also passes. PR `#189`
+passed all required checks and merged as `a9bc49f`; a later natural watchdog on
+that merge remains required. Genuine Fit House,
 Jon's, 6 Pack, eBay and 10 Reps review/stale debt keeps the atomic counter at
 `0/3`; baseline widening and manual retailer dispatch remain unauthorized.
+
+The five-retailer debt is now grouped read-only rather than treated as 141
+separate fixes: 18 terminal no-catalogue-change candidates, 61 commercial
+decision rows, 54 identity decision rows and eight eBay source failures awaiting
+natural reobservation. This classification grants no queue publication,
+business/control write, rebind, baseline change or RA-004 action. It preserves
+one active RA task and makes grouped decision packs, not per-offer patches, the
+only valid follow-up after the merged watchdog is naturally observed.
 
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger

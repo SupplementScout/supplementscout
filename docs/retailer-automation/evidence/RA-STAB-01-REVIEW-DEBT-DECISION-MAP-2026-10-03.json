@@ -1,0 +1,222 @@
+{
+  "schema_version": "ra-stab-01-review-debt-decision-map-v1",
+  "kind": "read-only-review-debt-classification",
+  "recorded_at": "2026-10-03T15:03:54Z",
+  "result": "PASS_READ_ONLY_FIVE_RETAILER_DEBT_CLASSIFIED_NO_AUTHORITY_EXPANSION",
+  "scope": {
+    "retailer_count": 5,
+    "review_row_count": 141,
+    "retailers": [
+      "Fit House",
+      "10 Reps",
+      "Jon's Supplements",
+      "6 Pack Supplements",
+      "eBay UK"
+    ]
+  },
+  "sources": {
+    "fit_house_and_10_reps": "RA-STAB-01-D1-REVIEW-QUEUE-CHANGESET-2026-10-02.json",
+    "jons": "RA-STAB-01-JONS-IDENTITY-AUDIT-2026-10-03.json",
+    "six_pack_and_ebay": "RA-STAB-01-NATURAL-SIX-PACK-EBAY-READBACK-2026-10-03.json",
+    "ebay_workflow_run_id": "37117068397",
+    "ebay_refresh_artifact_id": "11271703799",
+    "ebay_refresh_artifact_digest": "sha256:4078e5d683f9a1ca8d8bb14a804f01bee962080c664d5be69bb6cc34afa28cee",
+    "ebay_production_dry_run_sha256": "d63e7cf83a61d11f1cd9d98ee17e3599cf88b089d8e434ca0a3e456ce3afff82",
+    "watchdog_correction_merge_sha": "a9bc49f3192f54cfab75343e200a28235ad5a7a6"
+  },
+  "retailers": [
+    {
+      "retailer_id": "9",
+      "retailer": "Fit House",
+      "review_row_count": 14,
+      "class": "OWNER_RECORDED_COMMERCIAL_INTENT_GUARDED_EXECUTION_NOT_AUTHORIZED",
+      "offer_ids": [
+        "697", "735", "921", "944", "951", "953", "954",
+        "963", "972", "983", "1859", "1904", "1938", "1982"
+      ],
+      "decision_state": "The owner accepted the observed source stock values as business intent. The D1 authority permits only a read-only Review Queue changeset; it does not authorize publication or catalogue execution.",
+      "next_gate": "A fresh exact manifest, production preflight and separate owner write authorization are required before any guarded stock execution."
+    },
+    {
+      "retailer_id": "14",
+      "retailer": "10 Reps",
+      "review_row_count": 16,
+      "classes": [
+        {
+          "class": "ALREADY_OOS_KEEP_UNCHANGED_TERMINAL_DISPOSITION_NOT_AUTHORIZED",
+          "count": 14,
+          "offer_ids": [
+            "2853", "2854", "2855", "2856", "2857", "2858", "2859",
+            "2896", "2897", "2898", "2913", "2914", "3384", "3496"
+          ],
+          "catalogue_write_needed": false
+        },
+        {
+          "class": "EXACT_SAME_PRODUCT_SUCCESSOR_REBIND_OWNER_DECISION_REQUIRED",
+          "count": 1,
+          "offer_ids": ["3388"],
+          "catalogue_write_needed_if_approved": true
+        },
+        {
+          "class": "UNRESOLVED_STOCK_AND_IDENTITY_DECISION_REQUIRED",
+          "count": 1,
+          "offer_ids": ["3627"],
+          "catalogue_write_needed_if_approved": "UNKNOWN_UNTIL_DECISION"
+        }
+      ],
+      "next_gate": "Keep all 16 unchanged under D1. Any terminal Review Queue disposition, rebind or stock action requires a separate exact owner decision."
+    },
+    {
+      "retailer_id": "10",
+      "retailer": "Jon's Supplements",
+      "review_row_count": 5,
+      "classes": [
+        {
+          "class": "ALREADY_OOS_KEEP_UNCHANGED_NO_REBIND",
+          "count": 4,
+          "offer_ids": ["1197", "1456", "1457", "1458"],
+          "catalogue_write_needed": false
+        },
+        {
+          "class": "IN_STOCK_EXACT_FLAVOUR_ABSENT_OWNER_STOCK_IDENTITY_DECISION_REQUIRED",
+          "count": 1,
+          "offer_ids": ["1209"],
+          "catalogue_write_needed_if_approved": "UNKNOWN_UNTIL_DECISION"
+        }
+      ],
+      "next_gate": "Keep all five unchanged. Only offer 1209 needs a new stock/identity decision; the four already-OOS rows need no catalogue patch."
+    },
+    {
+      "retailer_id": "11",
+      "retailer": "6 Pack Supplements",
+      "review_row_count": 14,
+      "classes": [
+        {
+          "class": "MASS_OOS_COMMERCIAL_REVIEW",
+          "count": 12,
+          "offer_ids": [
+            "2029", "2060", "2147", "2148", "2149", "2150",
+            "2151", "2152", "2153", "2154", "2155", "2255"
+          ]
+        },
+        {
+          "class": "HARD_PRICE_ANOMALY_COMMERCIAL_REVIEW",
+          "count": 1,
+          "offer_ids": ["2378"]
+        },
+        {
+          "class": "SOURCE_VARIANT_MISSING_AFTER_PRODUCT_SCOPED_404_IDENTITY_REVIEW",
+          "count": 1,
+          "offer_ids": ["2379"]
+        }
+      ],
+      "next_gate": "Use grouped commercial and identity review. Do not infer OOS, replacement or rebind from the terminal product 404."
+    },
+    {
+      "retailer_id": "12",
+      "retailer": "eBay UK",
+      "review_row_count": 92,
+      "workflow_partition": {
+        "commercial_change": 34,
+        "identity_conflict": 50,
+        "source_failure": 8
+      },
+      "commercial_change": {
+        "action_counts": {
+          "UPDATE_PRICE": 24,
+          "UPDATE_STOCK": 7,
+          "UPDATE_PRICE_AND_STOCK": 3
+        },
+        "stock_transitions": {
+          "false_to_true": 10,
+          "true_to_false": 0
+        },
+        "price_directions": {
+          "up": 17,
+          "down": 10,
+          "unchanged": 7
+        },
+        "offer_ids": [
+          "2543", "2549", "2560", "2566", "2567", "2601", "2603",
+          "2604", "2612", "2620", "2634", "2647", "2656", "2658",
+          "2661", "2673", "2682", "2685", "2687", "2689", "2690",
+          "2703", "2715", "2716", "2718", "2722", "2728", "2731",
+          "2735", "2745", "2749", "2757", "2769", "2774"
+        ]
+      },
+      "identity_conflict": {
+        "decision_counts": {
+          "REJECT": 32,
+          "REVIEW": 18
+        },
+        "review_offer_ids": [
+          "2557", "2589", "2590", "2591", "2592", "2593", "2594",
+          "2595", "2596", "2597", "2598", "2606", "2608", "2609",
+          "2688", "2759", "2760", "2761"
+        ],
+        "reject_offer_ids": [
+          "2539", "2544", "2551", "2564", "2607", "2613", "2616",
+          "2629", "2642", "2651", "2659", "2667", "2675", "2679",
+          "2692", "2694", "2695", "2705", "2719", "2721", "2724",
+          "2733", "2736", "2737", "2742", "2748", "2750", "2751",
+          "2755", "2758", "2768", "2771"
+        ]
+      },
+      "source_failure": {
+        "class": "SOURCE_READ_FAILED_REOBSERVE_BEFORE_DECISION",
+        "count": 8,
+        "offer_ids": ["2552", "2637", "2638", "2680", "2681", "2686", "2708", "2770"]
+      },
+      "next_gate": "Do not treat 92 rows as one patch. Keep commercial, identity and source-failure queues separate; reobserve source failures on the next natural run and require explicit owner authority for any commercial or identity write."
+    }
+  ],
+  "cross_retailer_workstreams": [
+    {
+      "class": "TERMINAL_NO_CATALOGUE_CHANGE_CANDIDATES",
+      "row_count": 18,
+      "composition": "10 Reps 14 + Jon's Supplements 4",
+      "required_action": "Exact owner Review Queue disposition only; no catalogue patch is needed."
+    },
+    {
+      "class": "COMMERCIAL_DECISION_ROWS",
+      "row_count": 61,
+      "composition": "Fit House 14 + 6 Pack Supplements 13 + eBay UK 34",
+      "required_action": "Retailer-bound decision packs and existing guarded execution paths; no shared-core exception."
+    },
+    {
+      "class": "IDENTITY_DECISION_ROWS",
+      "row_count": 54,
+      "composition": "10 Reps 2 + Jon's Supplements 1 + 6 Pack Supplements 1 + eBay UK 50",
+      "required_action": "Evidence-backed identity review; never infer a rebind from source absence, flavour similarity or one missing listing."
+    },
+    {
+      "class": "SOURCE_REOBSERVATION_ROWS",
+      "row_count": 8,
+      "composition": "eBay UK 8",
+      "required_action": "Wait for a natural source recapture before requesting a business decision."
+    }
+  ],
+  "invariants": {
+    "one_row_one_patch_model_rejected": true,
+    "new_retailer_specific_shared_core_branch": false,
+    "new_importer": false,
+    "new_approval_path": false,
+    "new_executor": false,
+    "baseline_widening": false,
+    "manual_retailer_dispatch": false,
+    "ra_004_action": false
+  },
+  "writes_performed": {
+    "production_database": 0,
+    "catalogue": 0,
+    "control": 0,
+    "review_queue": 0
+  },
+  "ordinary_interval": {
+    "counter_before": "0/3",
+    "counter_after": "0/3",
+    "credit": false,
+    "reason": "This is a read-only classification. The first natural watchdog on merge a9bc49f is still pending, and genuine review debt remains."
+  },
+  "next_gate": "AWAIT NATURAL WATCHDOG ON A9BC49F; THEN USE FOUR GROUPED WORKSTREAMS INSTEAD OF RETAILER-SPECIFIC OR PER-OFFER PATCHES"
+}
