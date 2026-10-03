@@ -33,13 +33,13 @@ function fixtureHtml(productId, rows, canonicalUrl, { identity = productId } = {
   return `<body class="postid-${identity}"><form data-product_id="${productId}" data-product_variations="${payload}"></form></body>`;
 }
 
-function fixtureFetch({ failProductId = null, driftProductId = null } = {}) {
+function fixtureFetch({ failProductId = null, failStatus = 404, driftProductId = null } = {}) {
   const byUrl = new Map();
   for (const [productId, rows] of groups()) for (const row of rows) byUrl.set(row.external_url, { productId, rows });
   return async (url) => {
     const group = byUrl.get(String(url));
     assert.ok(group, `unexpected fixture URL ${url}`);
-    if (group.productId === failProductId) return { status: 403, url: String(url), headers: { get: () => null } };
+    if (group.productId === failProductId) return { status: failStatus, url: String(url), headers: { get: () => null } };
     const finalUrl = `https://predatorsgear.co.uk/supplements-vitamins-shop/fixture-${group.productId}/`;
     const html = fixtureHtml(group.productId, group.rows, finalUrl, { identity: group.productId === driftProductId ? "999" : group.productId });
     return { status: 200, url: finalUrl, headers: { get: (name) => name === "content-type" ? "text/html; charset=UTF-8" : null }, body: null, text: async () => html };
@@ -93,13 +93,24 @@ test("mapped WooCommerce capture reads only approved identities and reports disc
   assert.match(snapshot.semantic_source_fingerprint, /^[0-9a-f]{64}$/);
 });
 
-test("source HTTP failures and product identity drift are isolated as read-only review evidence", async () => {
+test("terminal product 404 is isolated as read-only review evidence", async () => {
   const firstProduct = String(manifest.rows[0].external_product_id);
-  for (const options of [{ failProductId: firstProduct }, { driftProductId: firstProduct }]) {
-    const snapshot = await readWooCommerceMappedSnapshot({ storeUrl: config.store_url, manifestRows: manifest.rows, expectedCount: 47, fetchImpl: fixtureFetch(options), capturedAt: "2026-09-03T09:00:00.000Z", maximumAttempts: 1, allowedPathPrefixes: config.source_fetch.allowed_path_prefixes });
-    assert.equal(snapshot.products.length, 28);
-    assert.ok(snapshot.issues.some((issue) => issue.external_product_id === firstProduct));
-    assert.ok(snapshot.issues.some((issue) => issue.code === "SOURCE_VARIANT_MISSING"));
+  const snapshot = await readWooCommerceMappedSnapshot({ storeUrl: config.store_url, manifestRows: manifest.rows, expectedCount: 47, fetchImpl: fixtureFetch({ failProductId: firstProduct }), capturedAt: "2026-09-03T09:00:00.000Z", maximumAttempts: 1, allowedPathPrefixes: config.source_fetch.allowed_path_prefixes });
+  assert.equal(snapshot.products.length, 28);
+  assert.ok(snapshot.issues.some((issue) => issue.external_product_id === firstProduct && issue.code === "SOURCE_PRODUCT_NOT_FOUND"));
+  assert.ok(snapshot.issues.some((issue) => issue.code === "SOURCE_VARIANT_MISSING"));
+});
+
+test("ambiguous WooCommerce failures remain retailer-scoped and fail closed", async () => {
+  const firstProduct = String(manifest.rows[0].external_product_id);
+  for (const options of [
+    { failProductId: firstProduct, failStatus: 403 },
+    { failProductId: firstProduct, failStatus: 503 },
+    { driftProductId: firstProduct },
+  ]) {
+    await assert.rejects(
+      readWooCommerceMappedSnapshot({ storeUrl: config.store_url, manifestRows: manifest.rows, expectedCount: 47, fetchImpl: fixtureFetch(options), capturedAt: "2026-09-03T09:00:00.000Z", maximumAttempts: 1, allowedPathPrefixes: config.source_fetch.allowed_path_prefixes })
+    );
   }
 });
 

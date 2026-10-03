@@ -555,6 +555,10 @@ offer `2379` remain unchanged. This read-only evidence only classifies the exact
 row as requiring owner identity review; production and control state are
 unchanged, and no retry or code patch is justified. Evidence:
 [`evidence/RA-STAB-01-SIX-PACK-4150-SOURCE-AUDIT-2026-10-01.json`](evidence/RA-STAB-01-SIX-PACK-4150-SOURCE-AUDIT-2026-10-01.json).
+That conclusion excludes an identity-specific replacement or stock patch. Later
+repeated natural failures and implementation review identified a separate,
+retailer-neutral source-failure scoping defect; its bounded correction is
+recorded below.
 Forensic review of eBay artifact
 `11159580892` (digest `sha256:8c60a32c...a6c4c`) proved that its
 `production-dry-run.json` was synthetic output from the preceding unit test, not
@@ -736,6 +740,44 @@ audit-local evidence, not retained replay artifacts. No baseline, queue,
 catalogue or control write and no new code path is authorized; the counter stays
 `0/3`. Evidence:
 [`evidence/RA-STAB-01-JONS-IDENTITY-AUDIT-2026-10-03.json`](evidence/RA-STAB-01-JONS-IDENTITY-AUDIT-2026-10-03.json).
+
+**3 October WooCommerce source-failure scoping correction — locally verified,
+awaiting review and natural evidence:** repeated product-`4150` terminal HTTP
+404 evidence exposed a general contract mismatch rather than a 6 Pack identity
+rule. The existing shared mapped WooCommerce reader continued after every
+product-page failure, including ambiguous access and server failures, while the
+6 Pack wrapper stopped all `506` offers on the first failed product. The bounded
+candidate introduces one shared disposition: only a controlled terminal HTTP
+404 bound to the exact requested product can be product-scoped; `403`, `429`,
+`5xx`, timeout, network, schema, redirect, identity and uncontrolled failures
+remain retailer-scoped and fail closed. The shared mapped reader and 6 Pack now
+consume that same contract. There is no product ID, retailer ID or retailer name
+in the decision function.
+
+For an isolated product-scoped 404, all approved rows bound to that product are
+omitted from the executable artifact, classified through the existing
+`SOURCE_VARIANT_MISSING` review path, retain their current catalogue state and
+carry structured source-failure evidence; no OOS, price or successor identity
+is inferred. The source fingerprint binds both successful rows and failures.
+The existing configured `0.9` minimum product-page ratio is now wired into the
+6 Pack classifier, so a broad series of individually valid 404s still trips
+`SOURCE_COLLAPSE`. Reviewed owner selectors continue to require full source
+coverage and cannot consume the new partial-source path.
+
+The exact incident regression proves product `4150` / offer `2379` becomes the
+sole review row in an otherwise unchanged `506`-row fixture, with `505`
+executable plans, zero blocked rows, no proposed offer and no plan for offer
+`2379`. Separate regressions prove a network failure still blocks all `506`, a
+broad 404 series trips `SOURCE_COLLAPSE`, and the shared reader refuses `403`,
+`503` and identity drift. The focused contract suite passed `83/83`, and both
+`npm run verify:quick` and `npm run verify:full` passed, including the production
+build. No workflow, executor, approval path, database,
+catalogue, Review Queue, baseline or schedule was changed. This is not live
+proof and earns no interval credit: after independent review and merge, only
+the next natural 6 Pack schedule may verify the production
+partition. Do not dispatch it manually and do not pre-authorize a watchdog
+baseline change. Evidence:
+[`evidence/RA-STAB-01-WOOCOMMERCE-SOURCE-FAILURE-SCOPING-2026-10-03.json`](evidence/RA-STAB-01-WOOCOMMERCE-SOURCE-FAILURE-SCOPING-2026-10-03.json).
 
 **Acceptance:**
 

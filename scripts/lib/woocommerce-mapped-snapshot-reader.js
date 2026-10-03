@@ -1,6 +1,9 @@
 const crypto = require("node:crypto");
 const { canonicalJson } = require("./canonical-json");
-const { readWooCommerceProductPage } = require("./woocommerce-product-page-reader");
+const {
+  readWooCommerceProductPage,
+  sourceFailureDisposition,
+} = require("./woocommerce-product-page-reader");
 
 function digest(value) {
   return crypto.createHash("sha256").update(typeof value === "string" ? value : canonicalJson(value)).digest("hex");
@@ -89,10 +92,12 @@ async function readWooCommerceMappedSnapshot({
       discoveredVariantIds.push(...projected.discoveredVariantIds);
       pages.push({ external_product_id: productId, request_url: requestUrl, final_url: page.canonical_url, result: "PASS", html_sha256: page.html_sha256, raw_variant_count: rawCount });
     } catch (error) {
+      const disposition = sourceFailureDisposition(error, productId);
+      if (disposition.scope !== "PRODUCT") throw error;
       const retries = Math.max(0, Number(error?.detail?.last_attempt || maximumAttempts || 1) - 1);
       retryCount += retries;
-      issues.push({ external_product_id: productId, code: error.code || "SOURCE_UNAVAILABLE", message: String(error.message || error).slice(0, 500), http_status: error?.detail?.http_status || null });
-      pages.push({ external_product_id: productId, request_url: requestUrl, result: "BLOCK", error_code: error.code || "SOURCE_UNAVAILABLE", http_status: error?.detail?.http_status || null });
+      issues.push({ external_product_id: productId, code: disposition.reason, source_error_code: error.code, http_status: error.detail.http_status });
+      pages.push({ external_product_id: productId, request_url: requestUrl, result: "REVIEW", error_code: disposition.reason, source_error_code: error.code, http_status: error.detail.http_status });
     }
   }
   const sourceIds = new Set(sourceVariants.map((row) => row.external_variant_id));

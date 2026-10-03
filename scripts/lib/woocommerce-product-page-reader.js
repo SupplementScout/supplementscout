@@ -9,6 +9,24 @@ class WooCommerceSourceError extends Error {
   }
 }
 
+function sourceFailureDisposition(error, expectedProductId) {
+  const detail = error?.detail && typeof error.detail === "object" ? error.detail : {};
+  const productId = String(expectedProductId || "");
+  const boundToExpectedProduct = /^[1-9]\d*$/.test(productId) && String(detail.product_id || "") === productId;
+  const terminalProductNotFound = (
+    error instanceof WooCommerceSourceError &&
+    error.code === "SOURCE_HTTP_ERROR" &&
+    boundToExpectedProduct &&
+    detail.http_status === 404 &&
+    detail.timeout === false &&
+    detail.network_code == null
+  );
+  return Object.freeze({
+    scope: terminalProductNotFound ? "PRODUCT" : "RETAILER",
+    reason: terminalProductNotFound ? "SOURCE_PRODUCT_NOT_FOUND" : "SOURCE_READ_FAILED",
+  });
+}
+
 function fail(code, message, detail, cause) {
   throw new WooCommerceSourceError(code, message, detail, cause);
 }
@@ -383,4 +401,5 @@ module.exports = {
   productIdFromHtml,
   readWooCommerceProductPage,
   sha256,
+  sourceFailureDisposition,
 };
