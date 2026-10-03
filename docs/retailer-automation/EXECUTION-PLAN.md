@@ -843,6 +843,37 @@ first natural watchdog on merge `a9bc49f` is still required before another
 implementation starts. Evidence:
 [`evidence/RA-STAB-01-REVIEW-DEBT-DECISION-MAP-2026-10-03.json`](evidence/RA-STAB-01-REVIEW-DEBT-DECISION-MAP-2026-10-03.json).
 
+**3 October natural watchdog after the alternate-stage merge — eBay verified,
+Discount history omission isolated, 10 Reps stopped before business writes:**
+scheduled watchdog `37135856072` ran on merged `main`, made zero database writes
+and reported no global infrastructure failure. It now recognizes eBay run
+`37117068397` as one exact `COMPLETE_SUCCESS`; the alternate-stage correction
+is therefore live verified. eBay remains red only for its genuine monitored
+backlog.
+
+Discount was a monitoring false negative, not a failed retailer run. The
+watchdog's standard completed-run page omitted natural success `37121588423`
+and exposed old runs instead. The authoritative run and artifact show `109/109`
+executions, a passing postflight, 109 freshness changes, no price or history
+delta and one observed stock change. A direct read-only correlator replay picks
+that fresh run as `COMPLETE_SUCCESS`. The generic correction retains the normal
+history page and adds one official `created >= freshness cutoff` anchor request;
+an omitted fresh run is merged by immutable ID and reported. Malformed, multiple
+or older anchors fail closed. There is no retailer condition or producer,
+approval, executor, workflow or guardrail change.
+
+The same evidence identifies one real incomplete event: the 10 Reps job in
+shared natural run `37110115566` prepared `934` freshness-only rows and isolated
+`16` source-variant reviews, then hit `Query read timeout` after control
+registration. Approver, executor, postflight and idempotency did not run;
+business writes, approvals created and approvals consumed are all zero. The
+expired parent `06ae81b7-4cc1-42b5-af6a-92bfd17e6dfa` requires a fresh read-only
+control-state check. No retry or close action is authorized. Focused regression
+passes `44/44`; `verify:quick` and `verify:full`, including the production build,
+pass. Green CI remains the merge gate. The observation counter remains `0/3`.
+Evidence:
+[`evidence/RA-STAB-01-NATURAL-WATCHDOG-HISTORY-ANCHOR-2026-10-03.json`](evidence/RA-STAB-01-NATURAL-WATCHDOG-HISTORY-ANCHOR-2026-10-03.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

@@ -954,22 +954,61 @@ function ebaySplitStages(attempts) {
   };
 }
 
-async function workflowHistoryPage({ repository, workflow, token, page, snapshotKey, cache, fetchJson = githubJson }) {
+async function workflowHistoryPage({ repository, workflow, token, page, snapshotKey, freshnessCutoff, cache, fetchJson = githubJson }) {
   invariant(typeof snapshotKey === "string" && /^[A-Za-z0-9_.:-]{1,100}$/.test(snapshotKey), "Workflow history snapshot key is invalid");
+  invariant(
+    typeof freshnessCutoff === "string" && Number.isFinite(Date.parse(freshnessCutoff)),
+    "Workflow history freshness cutoff is invalid",
+  );
   const historyCache = cache || new Map();
-  const cacheKey = `${snapshotKey}:${workflow}:${page}`;
+  const cacheKey = `${snapshotKey}:${freshnessCutoff}:${workflow}:${page}`;
   if (!historyCache.has(cacheKey)) {
     historyCache.set(cacheKey, (async () => {
       const base = `https://api.github.com/repos/${repository}`;
       const encodedWorkflow = encodeURIComponent(workflow);
       const encodedSnapshot = encodeURIComponent(snapshotKey);
       const listing = await fetchJson(`${base}/actions/workflows/${encodedWorkflow}/runs?status=completed&per_page=${WORKFLOW_RUNS_PER_PAGE}&page=${page}&watchdog_snapshot=${encodedSnapshot}`, token);
+      invariant(Array.isArray(listing.workflow_runs), "Workflow history response is invalid");
+      const listedRuns = listing.workflow_runs;
+      let anchorRuns = [];
+      if (page === 1) {
+        const encodedCreated = encodeURIComponent(`>=${freshnessCutoff}`);
+        const anchor = await fetchJson(`${base}/actions/workflows/${encodedWorkflow}/runs?status=completed&created=${encodedCreated}&per_page=1&page=1&watchdog_snapshot=${encodedSnapshot}`, token);
+        invariant(Array.isArray(anchor.workflow_runs), "Workflow history freshness anchor response is invalid");
+        invariant(anchor.workflow_runs.length <= 1, "Workflow history freshness anchor returned too many runs");
+        anchorRuns = anchor.workflow_runs;
+        for (const run of anchorRuns) {
+          invariant(run.id !== undefined && run.id !== null, "Workflow history freshness anchor run ID is missing");
+          const createdAt = Date.parse(run.created_at || "");
+          invariant(
+            Number.isFinite(createdAt) && createdAt >= Date.parse(freshnessCutoff),
+            "Workflow history freshness anchor returned a run older than the requested cutoff",
+          );
+        }
+      }
+      const listedIds = new Set(listedRuns.map((run) => String(run.id)));
+      const recoveredRunIds = anchorRuns
+        .filter((run) => !listedIds.has(String(run.id)))
+        .map((run) => String(run.id));
+      const uniqueRuns = new Map();
+      for (const run of [...anchorRuns, ...listedRuns]) {
+        if (!uniqueRuns.has(String(run.id))) uniqueRuns.set(String(run.id), run);
+      }
+      const runs = [...uniqueRuns.values()].sort((left, right) => {
+        const timeDifference = Date.parse(right.created_at || 0) - Date.parse(left.created_at || 0);
+        if (timeDifference !== 0) return timeDifference;
+        return Number(right.id || 0) - Number(left.id || 0);
+      });
       const entries = [];
-      for (const run of listing.workflow_runs || []) {
+      for (const run of runs) {
         const jobs = await fetchJson(`${base}/actions/runs/${run.id}/jobs?per_page=100&watchdog_snapshot=${encodedSnapshot}`, token);
         entries.push({ run, jobs: jobs.jobs || [] });
       }
-      return entries;
+      return {
+        entries,
+        listedRunCount: listedRuns.length,
+        recoveredRunIds,
+      };
     })());
   }
   return historyCache.get(cacheKey);
@@ -977,17 +1016,22 @@ async function workflowHistoryPage({ repository, workflow, token, page, snapshot
 
 async function runStages(profile, repository, token, options = {}) {
   const emptyStages = { capture: null, apply: null, db_postflight: null, idempotency: null };
-  if (!profile.workflow) return { stages: emptyStages, applyRunId: null, latestAttempt: null, lastCompleteSuccess: null, latestOrdinaryAttempt: null, lastCompleteOrdinarySuccess: null, latestListedRun: null, latestListedOrdinaryRun: null, unmatchedRecentRuns: [], scannedRunCount: 0, historyTruncated: false };
+  if (!profile.workflow) return { stages: emptyStages, applyRunId: null, latestAttempt: null, lastCompleteSuccess: null, latestOrdinaryAttempt: null, lastCompleteOrdinarySuccess: null, latestListedRun: null, latestListedOrdinaryRun: null, unmatchedRecentRuns: [], scannedRunCount: 0, historyTruncated: false, historyRecoveredRunIds: [] };
   const workflowHistoryCache = options.workflowHistoryCache || new Map();
   const historySnapshotKey = options.historySnapshotKey || `standalone-${Date.now()}`;
+  const historyFreshnessCutoff = options.historyFreshnessCutoff || new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+  const fetchJson = options.fetchJson || githubJson;
   const attempts = [];
   const unmatchedRecentRuns = [];
+  const historyRecoveredRunIds = [];
   let latestListedRun = null;
   let latestListedOrdinaryRun = null;
   let scannedRunCount = 0;
   let historyTruncated = false;
   for (let page = 1; page <= MAX_WORKFLOW_RUN_PAGES; page++) {
-    const entries = await workflowHistoryPage({ repository, workflow: profile.workflow, token, page, snapshotKey: historySnapshotKey, cache: workflowHistoryCache });
+    const historyPage = await workflowHistoryPage({ repository, workflow: profile.workflow, token, page, snapshotKey: historySnapshotKey, freshnessCutoff: historyFreshnessCutoff, cache: workflowHistoryCache, fetchJson });
+    const { entries } = historyPage;
+    historyRecoveredRunIds.push(...historyPage.recoveredRunIds);
     for (const { run, jobs } of entries) {
       scannedRunCount += 1;
       latestListedRun ||= workflowRunSummary(run);
@@ -1004,7 +1048,7 @@ async function runStages(profile, repository, token, options = {}) {
     }
     const selected = selectWorkflowAttempts(attempts);
     if (selected.latestAttempt && selected.lastCompleteSuccess && selected.latestOrdinaryAttempt && selected.lastCompleteOrdinarySuccess) break;
-    if (entries.length < WORKFLOW_RUNS_PER_PAGE) break;
+    if (historyPage.listedRunCount < WORKFLOW_RUNS_PER_PAGE) break;
     if (page === MAX_WORKFLOW_RUN_PAGES) historyTruncated = true;
   }
   const selected = selectWorkflowAttempts(attempts);
@@ -1014,7 +1058,7 @@ async function runStages(profile, repository, token, options = {}) {
     const split = ebaySplitStages(attempts);
     if (split) { stages = split; correlationModel = "EBAY_SPLIT_RUN_V1_CANDIDATE"; }
   }
-  return { stages, applyRunId: stages.apply?.run_id || null, ...selected, latestListedRun, latestListedOrdinaryRun, unmatchedRecentRuns, scannedRunCount, historyTruncated, correlationModel };
+  return { stages, applyRunId: stages.apply?.run_id || null, ...selected, latestListedRun, latestListedOrdinaryRun, unmatchedRecentRuns, scannedRunCount, historyTruncated, historyRecoveredRunIds: sortedStrings(historyRecoveredRunIds), correlationModel };
 }
 
 async function contractFromArtifacts(repository, runId, token, options = {}) {
@@ -1177,6 +1221,9 @@ async function run(options, dependencies = {}) {
   let monitoringInfrastructureError = null;
   const workflowHistoryCache = new Map();
   const historySnapshotKey = env.GITHUB_RUN_ID || now.toISOString();
+  const historyFreshnessCutoff = new Date(
+    now.getTime() - config.maximum_success_age_hours * 60 * 60 * 1000,
+  ).toISOString();
   for (const profile of config.retailers) {
     let stages = { capture: null, apply: null, db_postflight: null };
     let contract = null;
@@ -1186,7 +1233,7 @@ async function run(options, dependencies = {}) {
         profile,
         repository,
         token,
-        { workflowHistoryCache, historySnapshotKey },
+        { workflowHistoryCache, historySnapshotKey, historyFreshnessCutoff },
       );
       stages = {
         ...stageResult.stages,
@@ -1199,6 +1246,7 @@ async function run(options, dependencies = {}) {
         unmatched_recent_runs: stageResult.unmatchedRecentRuns,
         scanned_run_count: stageResult.scannedRunCount,
         history_truncated: stageResult.historyTruncated,
+        history_anchor_recovered_run_ids: stageResult.historyRecoveredRunIds,
         correlation_model: stageResult.correlationModel,
       };
       contract = await (
