@@ -386,6 +386,19 @@ October. No baseline widening, manual retry, queue publication or new code path
 is authorized. The ordinary counter remains `0/3`; the next gate is the natural
 eBay run and a later correlating watchdog.
 
+The bounded Jon's follow-up separates its five missing source variants into
+four evidence classes without adding code or changing a threshold. Four offers
+are already OOS and remain unchanged. The apparent successor for old Fruit
+Salad offer `1197` is already correctly bound to another offer as the distinct
+Fruit Twist canonical variant. The removed Efectiv 2 kg family has no exact
+replacement: two flavours disappeared, while the same-flavour Peanut Butter
+Cups candidate is a different 1.8 kg product at a different price and cannot be
+rebound to a 2 kg canonical variant. Only offer `1209` remains in stock and
+unresolved: its CNP 2 kg product still exists, but Cherry Bakewell is absent and
+no exact successor is proven. All five rows remain unchanged; any stock decision
+for `1209` needs separate owner authority. No baseline, Review Queue, catalogue
+or control write was performed, and the counter remains `0/3`.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

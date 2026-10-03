@@ -719,6 +719,24 @@ atomic ordinary counter remains `0/3`; next evidence must be the post-fix natura
 eBay schedule followed by a later natural watchdog. Evidence:
 [`evidence/RA-STAB-01-NATURAL-WATCHDOG-READBACK-2026-10-03.json`](evidence/RA-STAB-01-NATURAL-WATCHDOG-READBACK-2026-10-03.json).
 
+**3 October Jon's five-row identity classification — read-only, no rebind:**
+the exact five `SOURCE_VARIANT_MISSING` rows recur across the 1 and 2 October
+natural captures. Four are already OOS and stay unchanged. Offer `1197` is old
+Fruit Salad; its apparent SKU successor `CNP27003` is already correctly bound by
+mapping `1208` / offer `1022` to the distinct Fruit Twist canonical variant, so
+it cannot be reused. Offers `1456` and `1458` belong to a removed Efectiv 2 kg
+product and their flavours are absent from the current 1.8 kg product. Offer
+`1457` has a same-flavour 1.8 kg candidate, but the size, source product, source
+variant and price all changed, so it is not a safe rebind to the existing 2 kg
+canonical variant. Offer `1209` is the sole unresolved in-stock row: the exact
+CNP 2 kg product remains live, but Cherry Bakewell and the old variant ID are
+absent; no same-product successor is proven. It stays unchanged pending one
+separate owner stock/identity disposition. Public JSON response hashes are
+audit-local evidence, not retained replay artifacts. No baseline, queue,
+catalogue or control write and no new code path is authorized; the counter stays
+`0/3`. Evidence:
+[`evidence/RA-STAB-01-JONS-IDENTITY-AUDIT-2026-10-03.json`](evidence/RA-STAB-01-JONS-IDENTITY-AUDIT-2026-10-03.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
