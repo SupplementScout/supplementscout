@@ -18,6 +18,12 @@ const VALIDATOR_LOGIN = "supplementscout_production_validator_login";
 const VALIDATOR_ROLE = "retailer_catalogue_production_validator";
 const WORKFLOW_RUNS_PER_PAGE = 25;
 const MAX_WORKFLOW_RUN_PAGES = 4;
+const WORKFLOW_STAGE_NAMES = Object.freeze([
+  "capture",
+  "apply",
+  "db_postflight",
+  "idempotency",
+]);
 
 function invariant(condition, message) {
   if (!condition) throw new Error(message);
@@ -25,7 +31,7 @@ function invariant(condition, message) {
 
 function loadConfig(file = CONFIG_PATH) {
   const config = JSON.parse(fs.readFileSync(file, "utf8"));
-  invariant(config.schema_version === 1, "Unsupported watchdog config");
+  invariant(config.schema_version === 2, "Unsupported watchdog config");
   invariant(
     config.maximum_success_age_hours === 48,
     "Watchdog success age must remain 48 hours",
@@ -55,10 +61,33 @@ function loadConfig(file = CONFIG_PATH) {
   );
   for (const profile of config.retailers) {
     invariant(
-      Object.hasOwn(profile, "idempotency_step") &&
-        (profile.idempotency_step === null ||
-          (typeof profile.idempotency_step === "string" && profile.idempotency_step.length > 0)),
-      `Watchdog idempotency step is invalid for retailer ${profile.id}`,
+      profile.stages &&
+        typeof profile.stages === "object" &&
+        !Array.isArray(profile.stages) &&
+        Object.keys(profile.stages).sort().join(",") === [...WORKFLOW_STAGE_NAMES].sort().join(","),
+      `Watchdog stage map is invalid for retailer ${profile.id}`,
+    );
+    for (const stage of WORKFLOW_STAGE_NAMES) {
+      const names = profile.stages[stage];
+      invariant(
+        Array.isArray(names) &&
+          names.every((name) => typeof name === "string" && name.trim() === name && name.length > 0) &&
+          new Set(names).size === names.length,
+        `Watchdog ${stage} steps are invalid for retailer ${profile.id}`,
+      );
+    }
+    const configuredStageSteps = WORKFLOW_STAGE_NAMES.flatMap((stage) => profile.stages[stage]);
+    invariant(
+      new Set(configuredStageSteps).size === configuredStageSteps.length,
+      `Watchdog stage steps overlap for retailer ${profile.id}`,
+    );
+    invariant(
+      profile.workflow === null
+        ? configuredStageSteps.length === 0
+        : typeof profile.workflow === "string" &&
+          profile.workflow.length > 0 &&
+          profile.stages.capture.length > 0,
+      `Watchdog workflow stage binding is invalid for retailer ${profile.id}`,
     );
     const rule = baseline.retailers[String(profile.id)];
     invariant(
@@ -259,7 +288,7 @@ function correlateEvidence(stages, contract, profile = {}) {
   if (!stages?.apply || !stages?.db_postflight) return { result: "INCOMPLETE_CORE", failures: [] };
   const failures = [];
   if (!stages.apply.run_id || stages.apply.run_id !== stages.db_postflight.run_id || !stages.apply.head_sha || stages.apply.head_sha !== stages.db_postflight.head_sha) failures.push("APPLY_POSTFLIGHT_CORRELATION_MISMATCH");
-  if (profile.idempotency_step && !stages.idempotency) failures.push("IDEMPOTENCY_SUCCESS_MISSING");
+  if (hasConfiguredStage(profile, "idempotency") && !stages.idempotency) failures.push("IDEMPOTENCY_SUCCESS_MISSING");
   if (stages.idempotency && stages.idempotency.run_id !== stages.apply.run_id && contract?.evidence_model !== "split-run-v1") failures.push("GENERIC_SPLIT_RUN_FORBIDDEN");
   if (stages.idempotency && stages.idempotency.run_id === stages.apply.run_id && stages.idempotency.head_sha !== stages.apply.head_sha) failures.push("IDEMPOTENCY_COMMIT_MISMATCH");
   if (stages.capture && stages.capture.run_id !== stages.apply.run_id) {
@@ -378,7 +407,7 @@ function evaluateRetailer({ profile, stages, contract, database }, now, maximumA
   let scopePartition = null;
   if (!profile.workflow) failures.push("AUTOMATION_WORKFLOW_MISSING");
   const requiredStages = ["capture", "apply", "db_postflight"];
-  if (profile.idempotency_step) requiredStages.push("idempotency");
+  if (hasConfiguredStage(profile, "idempotency")) requiredStages.push("idempotency");
   for (const stage of requiredStages) {
     const evidence = stages[stage];
     const age = hoursSince(evidence?.completed_at, now);
@@ -765,38 +794,67 @@ async function buildEbaySplitRunEvidence(repository, stages, token, directory) {
   return null;
 }
 
+function configuredStage(profile, stage) {
+  const names = profile?.stages?.[stage];
+  invariant(
+    Array.isArray(names),
+    `Watchdog ${stage} stage is not configured for retailer ${profile?.id ?? "unknown"}`,
+  );
+  return names;
+}
+
+function hasConfiguredStage(profile, stage) {
+  return Array.isArray(profile?.stages?.[stage]) && profile.stages[stage].length > 0;
+}
+
 function stageDefinitions(profile) {
-  return [
-    ["capture", profile.capture_step],
-    ["apply", profile.apply_step],
-    ["db_postflight", profile.db_postflight_step],
-    ["idempotency", profile.idempotency_step],
-  ].filter(([, name]) => Boolean(name));
+  return WORKFLOW_STAGE_NAMES
+    .map((stage) => [stage, configuredStage(profile, stage)])
+    .filter(([, names]) => names.length > 0);
+}
+
+function resolveWorkflowStage(profile, stage, acceptedNames, run, job) {
+  const accepted = new Set(acceptedNames);
+  const matches = (job.steps || []).filter((step) => accepted.has(step.name));
+  const executed = matches.filter((step) => step.conclusion !== "skipped");
+  invariant(
+    executed.length <= 1,
+    `Multiple executed steps match ${stage} for retailer profile ${profile.id}`,
+  );
+  const step = executed[0] || matches[0] || null;
+  return step ? {
+    run_id: String(run.id),
+    run_url: run.html_url,
+    job_id: job.id === undefined || job.id === null ? null : String(job.id),
+    job_name: job.name || null,
+    step_name: step.name,
+    completed_at: step.completed_at || run.updated_at,
+    head_sha: run.head_sha || null,
+    conclusion: step.conclusion || null,
+  } : null;
 }
 
 function workflowAttempt(profile, run, jobs) {
   const definitions = stageDefinitions(profile);
   if (!definitions.length) return null;
+  const captureNames = new Set(configuredStage(profile, "capture"));
   const matchingJobs = (jobs || []).filter((job) => {
     const names = new Set((job.steps || []).map((step) => step.name));
-    return names.has(profile.capture_step);
+    return [...captureNames].some((name) => names.has(name));
   });
   invariant(matchingJobs.length <= 1, `Multiple jobs match retailer profile ${profile.id}`);
   if (!matchingJobs.length) return null;
   const job = matchingJobs[0];
   const jobConclusion = job.conclusion || run.conclusion || null;
   const stages = {};
-  for (const [stage, stepName] of definitions) {
-    const step = (job.steps || []).find((candidate) => candidate.name === stepName);
-    stages[stage] = step ? {
-      run_id: String(run.id),
-      run_url: run.html_url,
-      job_id: job.id === undefined || job.id === null ? null : String(job.id),
-      job_name: job.name || null,
-      completed_at: step.completed_at || run.updated_at,
-      head_sha: run.head_sha || null,
-      conclusion: step.conclusion || null,
-    } : null;
+  for (const [stage, acceptedNames] of definitions) {
+    stages[stage] = resolveWorkflowStage(
+      profile,
+      stage,
+      acceptedNames,
+      run,
+      job,
+    );
   }
   const applyConclusion = stages.apply?.conclusion;
   const captureConclusion = stages.capture?.conclusion;

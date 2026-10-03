@@ -779,6 +779,48 @@ partition. Do not dispatch it manually and do not pre-authorize a watchdog
 baseline change. Evidence:
 [`evidence/RA-STAB-01-WOOCOMMERCE-SOURCE-FAILURE-SCOPING-2026-10-03.json`](evidence/RA-STAB-01-WOOCOMMERCE-SOURCE-FAILURE-SCOPING-2026-10-03.json).
 
+**3 October post-fix natural 6 Pack and eBay readback — both production paths
+pass, central watchdog correlation correction locally verified:** natural 6 Pack
+run `37111838580` on merge `be4a54f` completed the full guarded sequence. Its
+fresh partition was `506 = 492 execution + 14 review`, with zero blocked rows.
+Exact source product `4150` remained the sole product-scoped 404 and offer
+`2379` stayed review-only as `SOURCE_VARIANT_MISSING`; the other current review
+debt is the eleven old MASS_OOS rows, offer `2255` MASS_OOS and offer `2378`
+HARD_PRICE_ANOMALY. Postflight proved all 492 executions were freshness-only,
+with zero price, stock, shipping, total, URL or price-history delta. Fresh-source
+idempotency executed zero rows and made zero writes. The shared WooCommerce
+source-failure correction is therefore live verified without an inferred OOS,
+replacement or rebind.
+
+Natural eBay run `37117068397` on the same merge completed `237 = 145 execution
++ 92 review`, zero blocked. All 145 executions were freshness-only; postflight
+and same-run idempotency passed with zero commercial, URL or price-history
+delta. The existing reconciliation publisher then created 37 current Review
+Queue rows, refreshed 55, superseded 21 and resolved two by source, with zero
+catalogue writes. The 92 current review rows — 34 commercial, 50 identity and
+eight source failures — are genuine decision debt and are not widened into an
+automatic scope.
+
+The later natural watchdog `37120043308` correlated the 6 Pack success but
+reported the successful eBay run incomplete. Its immutable artifact proves the
+cause: the eBay workflow contains two mutually exclusive legal acquisition
+steps. `Fresh read-only preflight` was skipped on the scheduled apply, while
+`Prepare exact approved existing-offer refresh` succeeded; the central
+correlator accepted only the former exact name. The bounded correction upgrades
+the closed watchdog configuration to semantic stage arrays for every retailer.
+The shared resolver records exactly one non-skipped alternative and fails closed
+if more than one alternative executes. There is no retailer check in shared
+code and no workflow, importer, approval or executor change. The focused suite
+passes `42/42`; both `verify:quick` and `verify:full` pass, including the
+production build; and every configured stage name is present in its bound
+workflow. Direct replay of run `37117068397` now yields `COMPLETE_SUCCESS` with
+its exact capture, apply, postflight and idempotency steps. CI/merge and a later
+natural watchdog remain required. Genuine Fit House, Jon's, 6 Pack, eBay and 10
+Reps review/stale debt still prevents atomic interval credit, so the counter
+remains `0/3`; do not widen the baseline or dispatch a retailer manually.
+Evidence:
+[`evidence/RA-STAB-01-NATURAL-SIX-PACK-EBAY-READBACK-2026-10-03.json`](evidence/RA-STAB-01-NATURAL-SIX-PACK-EBAY-READBACK-2026-10-03.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

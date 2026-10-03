@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "maximum_success_age_hours": 48,
   "monitored_backlog": {
     "schema_version": 1,
@@ -35,109 +35,136 @@
       "id": 1,
       "name": "GYM HIGH",
       "workflow": "gym-high-full-catalogue-apply.yml",
-      "capture_step": "Capture fresh approved source and verify canonical variants",
-      "apply_step": "Validate and optionally apply exact catalogue",
-      "db_postflight_step": null,
-      "idempotency_step": null
+      "stages": {
+        "capture": ["Capture fresh approved source and verify canonical variants"],
+        "apply": ["Validate and optionally apply exact catalogue"],
+        "db_postflight": [],
+        "idempotency": []
+      }
     },
     {
       "id": 3,
       "name": "Whey Okay",
       "workflow": "whey-okay-offer-refresh.yml",
-      "capture_step": "Dry-run all approved Whey Okay offers",
-      "apply_step": "Apply all approved Whey Okay offer refreshes",
-      "db_postflight_step": "Verify Whey Okay DB postflight read-only",
-      "idempotency_step": "Verify idempotency with a fresh source capture"
+      "stages": {
+        "capture": ["Dry-run all approved Whey Okay offers"],
+        "apply": ["Apply all approved Whey Okay offer refreshes"],
+        "db_postflight": ["Verify Whey Okay DB postflight read-only"],
+        "idempotency": ["Verify idempotency with a fresh source capture"]
+      }
     },
     {
       "id": 4,
       "name": "Discount Supplements",
       "workflow": "creatine-offer-refresh.yml",
-      "capture_step": "Dry-run authorised Discount offers",
-      "apply_step": "Apply safe authorised Discount refresh",
-      "db_postflight_step": "Verify Discount Supplements DB postflight read-only",
-      "idempotency_step": "Verify idempotency with a fresh source capture"
+      "stages": {
+        "capture": ["Dry-run authorised Discount offers"],
+        "apply": ["Apply safe authorised Discount refresh"],
+        "db_postflight": ["Verify Discount Supplements DB postflight read-only"],
+        "idempotency": ["Verify idempotency with a fresh source capture"]
+      }
     },
     {
       "id": 5,
       "name": "Dolphin Fitness",
       "workflow": "dolphin-vegan-protein-offer-refresh.yml",
-      "capture_step": "Dry-run the one approved existing Dolphin offer",
-      "apply_step": "Apply the one approved existing Dolphin offer refresh",
-      "db_postflight_step": "Verify Dolphin Fitness DB postflight read-only",
-      "idempotency_step": "Verify idempotency with a fresh source capture"
+      "stages": {
+        "capture": ["Dry-run the one approved existing Dolphin offer"],
+        "apply": ["Apply the one approved existing Dolphin offer refresh"],
+        "db_postflight": ["Verify Dolphin Fitness DB postflight read-only"],
+        "idempotency": ["Verify idempotency with a fresh source capture"]
+      }
     },
     {
       "id": 7,
       "name": "Simply Supplements",
       "workflow": "simply-supplements-offer-refresh.yml",
-      "capture_step": "Dry-run all approved Simply Supplements offers",
-      "apply_step": "Apply approved Simply Supplements offer refresh",
-      "db_postflight_step": "Verify Simply Supplements DB postflight read-only",
-      "idempotency_step": "Verify idempotency with a fresh source capture"
+      "stages": {
+        "capture": ["Dry-run all approved Simply Supplements offers"],
+        "apply": ["Apply approved Simply Supplements offer refresh"],
+        "db_postflight": ["Verify Simply Supplements DB postflight read-only"],
+        "idempotency": ["Verify idempotency with a fresh source capture"]
+      }
     },
     {
       "id": 8,
       "name": "KIOR Health",
       "workflow": "kior-offer-refresh.yml",
-      "capture_step": "Dry-run the exact approved KIOR offers",
-      "apply_step": "Apply the exact approved KIOR offer refresh",
-      "db_postflight_step": "Verify KIOR Health DB postflight read-only",
-      "idempotency_step": "Verify idempotency with a fresh source capture"
+      "stages": {
+        "capture": ["Dry-run the exact approved KIOR offers"],
+        "apply": ["Apply the exact approved KIOR offer refresh"],
+        "db_postflight": ["Verify KIOR Health DB postflight read-only"],
+        "idempotency": ["Verify idempotency with a fresh source capture"]
+      }
     },
     {
       "id": 9,
       "name": "Fit House",
       "workflow": "fit-house-offer-refresh.yml",
-      "capture_step": "Dry-run all approved Fit House offers",
-      "apply_step": "Apply all approved Fit House offer refresh",
-      "db_postflight_step": "Verify Fit House DB postflight read-only",
-      "idempotency_step": "Verify idempotency with a fresh source capture"
+      "stages": {
+        "capture": ["Dry-run all approved Fit House offers"],
+        "apply": ["Apply all approved Fit House offer refresh"],
+        "db_postflight": ["Verify Fit House DB postflight read-only"],
+        "idempotency": ["Verify idempotency with a fresh source capture"]
+      }
     },
     {
       "id": 10,
       "name": "Jon's Supplements",
       "workflow": "jons-offer-refresh.yml",
-      "capture_step": "Dry-run all approved Jon's offers",
-      "apply_step": "Apply all approved Jon's offer refresh",
-      "db_postflight_step": "Verify Jon's Supplements DB postflight read-only",
-      "idempotency_step": "Verify idempotency with a fresh source capture"
+      "stages": {
+        "capture": ["Dry-run all approved Jon's offers"],
+        "apply": ["Apply all approved Jon's offer refresh"],
+        "db_postflight": ["Verify Jon's Supplements DB postflight read-only"],
+        "idempotency": ["Verify idempotency with a fresh source capture"]
+      }
     },
     {
       "id": 11,
       "name": "6 Pack Supplements",
       "workflow": "six-pack-offer-refresh.yml",
-      "capture_step": "Fresh live-source dry-run",
-      "apply_step": "Apply exact approved manifest",
-      "db_postflight_step": "Verify 6 Pack DB postflight read-only",
-      "idempotency_step": "Verify idempotency against a fresh source capture"
+      "stages": {
+        "capture": ["Fresh live-source dry-run"],
+        "apply": ["Apply exact approved manifest"],
+        "db_postflight": ["Verify 6 Pack DB postflight read-only"],
+        "idempotency": ["Verify idempotency against a fresh source capture"]
+      }
     },
     {
       "id": 12,
       "name": "eBay UK",
       "workflow": "ebay-offer-refresh.yml",
-      "capture_step": "Fresh read-only preflight",
-      "apply_step": "Apply exact approved existing-offer refresh",
-      "db_postflight_step": "Verify eBay UK DB postflight read-only",
-      "idempotency_step": "Seal same-run eBay apply, postflight and idempotency evidence"
+      "stages": {
+        "capture": [
+          "Fresh read-only preflight",
+          "Prepare exact approved existing-offer refresh"
+        ],
+        "apply": ["Apply exact approved existing-offer refresh"],
+        "db_postflight": ["Verify eBay UK DB postflight read-only"],
+        "idempotency": ["Seal same-run eBay apply, postflight and idempotency evidence"]
+      }
     },
     {
       "id": 13,
       "name": "Predators Gear",
       "workflow": null,
-      "capture_step": null,
-      "apply_step": null,
-      "db_postflight_step": null,
-      "idempotency_step": null
+      "stages": {
+        "capture": [],
+        "apply": [],
+        "db_postflight": [],
+        "idempotency": []
+      }
     },
     {
       "id": 14,
       "name": "10 Reps",
       "workflow": "fit-house-offer-refresh.yml",
-      "capture_step": "Dry-run all approved 10 Reps offers",
-      "apply_step": "Apply all approved 10 Reps offer refresh",
-      "db_postflight_step": "Verify 10 Reps DB postflight read-only",
-      "idempotency_step": "Verify 10 Reps idempotency with a fresh source capture"
+      "stages": {
+        "capture": ["Dry-run all approved 10 Reps offers"],
+        "apply": ["Apply all approved 10 Reps offer refresh"],
+        "db_postflight": ["Verify 10 Reps DB postflight read-only"],
+        "idempotency": ["Verify 10 Reps idempotency with a fresh source capture"]
+      }
     }
   ]
 }
