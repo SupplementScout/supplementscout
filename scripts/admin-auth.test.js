@@ -670,8 +670,15 @@ test("new-product decisions require full-catalog confirmation and manual search 
 
 test("automation review queue is admin-only, paginated and exposes bounded evidence without catalogue writes", () => {
   const page = fs.readFileSync(path.join(process.cwd(), "app", "admin", "automation-review", "page.tsx"), "utf8");
+  const data = fs.readFileSync(path.join(process.cwd(), "app", "admin", "lib", "automationReviewQueueData.ts"), "utf8");
   assert.match(page, /await requireAdminPage\(\)/);
-  assert.match(page, /pageSize = 50/);
+  assert.match(page, /loadCompleteReviewQueue\(status\)/);
+  assert.match(data, /REVIEW_QUEUE_MAX_ROWS/);
+  assert.match(data, /REVIEW_QUEUE_READ_BATCH_SIZE/);
+  assert.match(data, /Review Queue exceeds the bounded complete-read limit/);
+  assert.match(data, /Review Queue changed during the complete read/);
+  assert.match(data, /Review Queue complete read contained a duplicate row/);
+  assert.match(page, /filterAndPaginateReviewRows/);
   assert.match(page, /PENDING.*APPROVED.*REJECTED.*IGNORED.*EXPIRED.*EXECUTING.*EXECUTED.*FAILED/s);
   assert.match(page, /Freshness-only.*Stock and price.*Identity.*Source problems/s);
   assert.match(page, /AUTONOMOUS.*REVIEW_EXECUTABLE.*REVIEW_ONLY.*UNSUPPORTED/s);
@@ -681,7 +688,9 @@ test("automation review queue is admin-only, paginated and exposes bounded evide
   assert.match(page, /confidenceForReview/);
   assert.match(page, /before_state.*proposed_state.*impact_summary.*source_evidence/);
   assert.match(page, /Zaznaczone oferty/);
-  assert.match(page, /approve_execute/);
+  assert.doesNotMatch(page, /value="approve_execute"/);
+  assert.match(page, /value="approve"/);
+  assert.match(page, /reviewQueuePageHref/);
   assert.match(page, /Wykonaj zatwierdzoną decyzję/);
   assert.match(page, /Approval alone has not changed the catalogue/);
   assert.match(page, /existing protected importer approval and executor RPCs/);
@@ -702,7 +711,7 @@ test("automation review queue is admin-only, paginated and exposes bounded evide
   assert.match(page, /Szczegóły techniczne — dla osoby przygotowującej zmianę/);
   assert.match(page, /rowCapability\.capability === "REVIEW_EXECUTABLE"/);
   assert.match(page, /rowCapability\.capability !== "REVIEW_EXECUTABLE"/);
-  assert.match(page, /source_price,source_url,current_product_id,current_variant_id/);
+  assert.match(data, /source_price,source_url,current_product_id,current_variant_id/);
   assert.match(page, /from\("products"\)\.select\("id,name,slug"\)/);
   assert.match(page, /from\("product_variants"\)\.select\("id,display_name"\)/);
   assert.match(page, /Porównaj te dwie strony przed decyzją/);
@@ -717,6 +726,44 @@ test("automation review queue is admin-only, paginated and exposes bounded evide
   assert.equal((page.match(/\/mascots\/supplement-scout-human-scout\.png/g) || []).length, 1);
   assert.equal(fs.existsSync(path.join(process.cwd(), "public", "mascots", "supplement-scout-raccoon.webp")), true);
   assert.equal(fs.existsSync(path.join(process.cwd(), "public", "mascots", "supplement-scout-human-scout.png")), true);
+});
+
+test("Review Queue filters the complete bounded result before pagination", () => {
+  const {
+    filterAndPaginateReviewRows,
+    normalizeReviewQueueScope,
+    reviewQueuePageHref,
+  } = loadTsModule("app/admin/lib/automationReviewQueue.ts");
+  const rows = Array.from({ length: 75 }, (_, index) => ({
+    id: String(index + 1),
+    retailer: index === 64 ? "eBay UK" : "Fit House",
+    retailer_id: index === 64 ? "12" : "9",
+    offer_id: String(700 + index),
+    product_title: index === 64 ? "Needle Match Product" : `Ordinary Product ${index}`,
+    variant_title: null,
+    review_kind: "COMMERCIAL_CHANGE",
+    operation_type: "UPDATE_STOCK",
+    reason_codes: "STOCK_CHANGE",
+    source_evidence: { confidence: "HIGH" },
+    impact_summary: {},
+  }));
+  const filters = {
+    status: "PENDING",
+    retailer: "",
+    kind: "",
+    group: "",
+    confidence: "",
+    capability: "",
+    query: "needle match",
+    scope: normalizeReviewQueueScope(""),
+  };
+  const result = filterAndPaginateReviewRows(rows, filters, 1, 50);
+  assert.equal(result.total, 1);
+  assert.equal(result.rows[0].id, "65");
+  assert.equal(result.page, 1);
+  assert.equal(result.totalPages, 1);
+  assert.deepEqual(result.retailers, ["eBay UK", "Fit House"]);
+  assert.equal(reviewQueuePageHref({ ...filters, query: "", retailer: "eBay UK" }, 2), "?retailer=eBay+UK&page=2");
 });
 
 test("automation review capability matrix exposes only registered execution paths", () => {
@@ -822,9 +869,10 @@ test("automation review adapter registry is exact, single-row and default-deny",
 
 test("automation review UI exposes executable versus review drift scope", () => {
   const source = fs.readFileSync(path.join(process.cwd(), "app", "admin", "automation-review", "page.tsx"), "utf8");
+  const data = fs.readFileSync(path.join(process.cwd(), "app", "admin", "lib", "automationReviewQueueData.ts"), "utf8");
   assert.match(source, /source_evidence\?\.drift_scope/);
   assert.match(source, /Drift scope: \{driftScope\}/);
-  assert.match(source, /request\.gt\("expires_at"/);
+  assert.match(data, /request\.gt\("expires_at"/);
   assert.match(source, /current === "FAILED".*execution\?\.database_writes/s);
 });
 

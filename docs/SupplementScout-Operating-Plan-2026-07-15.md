@@ -449,6 +449,18 @@ pass; the next exact gate is green CI for the central history correction,
 followed by a fresh read-only check of that expired 10 Reps control state.
 Counter: `0/3`.
 
+The admin Review Queue has also been simplified locally without opening a new
+automation path. It defaults to offers that need a human decision, asks the
+decision in plain language, hides infrequent filters and makes approval visibly
+separate from the existing protected execution step. Search is performed over
+the complete bounded queue before pagination, with exact-count batching and
+fail-closed overflow, drift, duplicate and truncation checks. Authentication,
+routes, adapters, capabilities, fingerprints, expiry and source revalidation
+are unchanged; no production decision or write occurred. Focused `45/45`,
+quick/full gates and the production build pass. Green CI and an authenticated
+read-only production UI check remain before live verification. Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-REVIEW-QUEUE-UX-SIMPLIFICATION-2026-10-03.json`](retailer-automation/evidence/RA-STAB-01-REVIEW-QUEUE-UX-SIMPLIFICATION-2026-10-03.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

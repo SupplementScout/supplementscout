@@ -1,0 +1,68 @@
+{
+  "schema_version": "ra-stab-01-review-queue-ux-simplification-v1",
+  "task_id": "RA-STAB-01",
+  "recorded_at": "2026-10-03T17:54:12Z",
+  "result": "LOCAL_VERIFIED_AWAITING_GREEN_CI_AND_AUTHENTICATED_PRODUCTION_READBACK",
+  "base_commit": "592375244962919f2fcb2bd4bb8e9941cdc96b2c",
+  "scope": {
+    "admin_route": "/admin/automation-review",
+    "default_view": "DECISION_ROWS_ONLY",
+    "visible_primary_filters": ["whole_queue_search", "retailer"],
+    "collapsed_filters": ["status", "scope", "review_kind", "decision_group", "confidence", "execution_capability"],
+    "decision_prompt": "Each row states the exact business question that needs an owner decision.",
+    "approval_execution_separation": "Approval records the decision only. Execution remains a separate protected action."
+  },
+  "complete_search_contract": {
+    "filter_before_pagination": true,
+    "page_size": 50,
+    "read_batch_size": 1000,
+    "maximum_rows": 5000,
+    "search_fields": ["retailer", "product_title", "variant_title", "offer_id", "operation_type", "reason_codes"],
+    "fail_closed_guards": [
+      "exact row count must be available",
+      "row count must not exceed 5000",
+      "row count must remain stable across batches",
+      "row IDs must be unique",
+      "a short intermediate batch is rejected as truncated",
+      "a non-terminating complete read is rejected"
+    ]
+  },
+  "guardrails": {
+    "admin_auth_changed": false,
+    "decision_route_changed": false,
+    "execution_route_changed": false,
+    "adapter_registry_changed": false,
+    "capability_matrix_changed": false,
+    "fingerprint_validation_changed": false,
+    "expiry_validation_changed": false,
+    "source_revalidation_changed": false,
+    "database_schema_changed": false,
+    "new_writer": false,
+    "production_writes": 0
+  },
+  "verification": {
+    "focused_test": "PASS_45_OF_45",
+    "typescript": "PASS",
+    "eslint": "PASS",
+    "diff_check": "PASS",
+    "verify_quick": "PASS_597_TESTS_594_PASS_3_SKIP_0_FAIL",
+    "verify_full": "PASS_INCLUDING_NEXTJS_PRODUCTION_BUILD",
+    "test_inventory": "UNCHANGED_320_TEST_FILES"
+  },
+  "regression": {
+    "fixture_rows": 75,
+    "target_row_position": 65,
+    "page_size": 50,
+    "result": "PASS_MATCH_FOUND_BEFORE_PAGINATION",
+    "pagination_preserves_filters": true,
+    "retailer_options_derive_from_complete_filtered_scope": true
+  },
+  "authority": {
+    "review_decisions_created": 0,
+    "review_executions_requested": 0,
+    "catalogue_writes": 0,
+    "control_writes": 0,
+    "manual_retailer_dispatches": 0
+  },
+  "next_gate": "GREEN_CI_AND_MERGE; THEN AUTHENTICATED_READ_ONLY_PRODUCTION_UI_READBACK_WITHOUT_DECISIONS_OR_WRITES"
+}

@@ -874,6 +874,27 @@ pass. Green CI remains the merge gate. The observation counter remains `0/3`.
 Evidence:
 [`evidence/RA-STAB-01-NATURAL-WATCHDOG-HISTORY-ANCHOR-2026-10-03.json`](evidence/RA-STAB-01-NATURAL-WATCHDOG-HISTORY-ANCHOR-2026-10-03.json).
 
+**3 October Review Queue usability checkpoint — one simpler view, not another
+approval path:** the admin queue now opens on rows that require a human
+decision, states the exact question to answer and keeps status, scope and
+technical filters under one optional section. Approval is visibly separate
+from execution: the pending-row and bulk controls only record an approval;
+execution remains the existing later protected action with the same adapter,
+fingerprint, expiry, source-revalidation and zero-write retry guards.
+
+Search now operates over the complete bounded result before 50-row pagination,
+so a matching offer is not missed merely because it was on a later page. The
+read-only loader uses exact-count batches of 1,000 with a hard 5,000-row limit
+and fails closed on count drift, duplicate IDs, truncation or overflow. It adds
+no writer, route, retailer condition, capability or database change. Regression
+proves a target at position 65 is found before pagination. The focused suite
+passes `45/45`; TypeScript, ESLint, `verify:quick` and `verify:full` pass,
+including the production build. No test file was added, removed or renamed.
+Green CI and an authenticated read-only production UI check remain required;
+this checkpoint made zero production decisions or writes and does not change
+the stabilization counter (`0/3`). Evidence:
+[`evidence/RA-STAB-01-REVIEW-QUEUE-UX-SIMPLIFICATION-2026-10-03.json`](evidence/RA-STAB-01-REVIEW-QUEUE-UX-SIMPLIFICATION-2026-10-03.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
