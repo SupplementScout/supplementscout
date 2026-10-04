@@ -487,6 +487,36 @@ read-only current-state export still requires a separate owner authorization.
 Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-10REPS-INTERRUPTED-CONTROL-REGISTRATION-2026-10-04.json`](retailer-automation/evidence/RA-STAB-01-10REPS-INTERRUPTED-CONTROL-REGISTRATION-2026-10-04.json).
 
+The owner then authorized exactly one current-state read-only export for 10
+Reps, with no writes, retry, close or RA-004 replay. Its fail-closed preflight
+stopped before a production connection: the narrow control-state RPC remains
+excluded from production and no active dedicated read-only exporter identity
+exists. Broader owner, validator, service-role and raw-SQL access was rejected
+as a substitute. No database read, write, migration, credential or export
+artifact was produced. The current parent/child status therefore remains
+unverified; opening the existing narrow production interface and issuing one
+short-lived dedicated identity would require separate owner authority.
+Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-10REPS-READONLY-EXPORT-PREFLIGHT-2026-10-04.json`](retailer-automation/evidence/RA-STAB-01-10REPS-READONLY-EXPORT-PREFLIGHT-2026-10-04.json).
+
+The owner then authorized the complete bounded resolution without per-step
+approvals. Review found a safer no-migration route: reuse the deployed generic
+plan-status RPC with one maximum-ten-minute login and one static read-only call,
+then commit `NOLOGIN` separately before termination, revoke and drop. Cleanup
+runs by fixed role name after a lost credential response, has an independent
+cleanup-only mode that is not gated by ledger or Git state, and never places
+the plaintext password in SQL or artifacts. These failure paths have local
+regression coverage, including an isolated PostgreSQL 17 lifecycle test for
+SCRAM login, active-session termination, committed `NOLOGIN`, separate revoke
+and a forced `DROP ROLE` failure. The backend-disappearance check is bounded to
+two seconds and fails closed into rescue cleanup. Successful live cleanup
+remains a required production postcondition. The response must match the exact
+known parent and all 19 children before it is accepted. This narrow readback
+does not expose the full RA-004 eleven-source state and cannot authorize close,
+retry or replay. The authorization binds exact implementation hashes. Local
+focused and repository gates must pass and execution must freshly fetch and
+match a clean merged `main` before the one-shot production read.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
