@@ -41,8 +41,15 @@ test("incident regression restores the baseline helper ACL and checks reachable 
 });
 
 function preparation() {
-  return runner.validatePreparation(JSON.parse(fs.readFileSync(runner.PREPARATION_PATH, "utf8")));
+  const value = JSON.parse(fs.readFileSync(runner.PREPARATION_PATH, "utf8"));
+  return runner.validatePreparation({ ...value, status: "OWNER_AUTHORIZED_ONE_SHOT" });
 }
+
+test("central V4 tracked authorization is consumed after the one production read", async () => {
+  const value = JSON.parse(fs.readFileSync(runner.PREPARATION_PATH, "utf8"));
+  assert.equal(value.status, "CONSUMED_VERIFIED_COMPLETE");
+  await assert.rejects(() => runner.run(["--mode=status"]), /CENTRAL_V4_PREPARATION_INVALID/);
+});
 
 test("central V4 authorization binds one read, result-before-cleanup and no replay paths", () => {
   const value = preparation();

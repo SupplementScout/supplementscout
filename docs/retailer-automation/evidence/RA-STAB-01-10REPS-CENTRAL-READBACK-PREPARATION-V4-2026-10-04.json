@@ -1,6 +1,6 @@
 {
   "schema_version": "ra-stab-central-readback-preparation-v2",
-  "status": "OWNER_AUTHORIZED_ONE_SHOT",
+  "status": "CONSUMED_VERIFIED_COMPLETE",
   "task_id": "RA-STAB-01",
   "target": {
     "environment": "PRODUCTION",

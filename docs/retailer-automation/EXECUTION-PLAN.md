@@ -1122,6 +1122,28 @@ combined approve-and-execute action and adds deterministic complete-read order.
 Preparation:
 [`evidence/RA-STAB-01-10REPS-CENTRAL-READBACK-PREPARATION-V4-2026-10-04.json`](evidence/RA-STAB-01-10REPS-CENTRAL-READBACK-PREPARATION-V4-2026-10-04.json).
 
+**4 October durable 10 Reps readback and Review Queue verification â€” verified
+complete:** PR `#205` merged at `1248d208`. The new runner made exactly one
+production status RPC and saved the validated result before cleanup. The exact
+parent remains `APPROVED`; child `0` remains `APPROVED` with its approval
+expired on 3 October, children `1`â€“`18` remain `PLANNED`, and there are no run
+rows. The bounded result is therefore `REGISTRATION_NON_TERMINAL_NO_RUNS`, not
+evidence of an apply. The first cleanup proof failed after the result was
+already durable; cleanup-only mode made zero status RPCs, restored `NOLOGIN`,
+proved zero backends and sealed a separate receipt. Total accounting is one
+read, zero retries, zero close/RA-004 calls and zero business/control-data
+writes. The one-shot preparation is now consumed, so a fresh checkout cannot
+replay it. Authenticated production UI readback also passed for Review Queue:
+the simpler decision view, collapsed secondary filters and separate
+approval/execution wording are live, while the removed combined action is
+absent. Production did not have a second page of offers, so the larger
+cross-page search contract remains proven by the 75-row regression fixture.
+No decision or execution was submitted. The bounded 10 Reps readback subtask
+is `VERIFIED_COMPLETE`; RA-STAB-01 remains `IN_PROGRESS` at ordinary interval
+counter `0/3`. Evidence:
+[`evidence/RA-STAB-01-10REPS-CENTRAL-READBACK-V4-CLOSEOUT-2026-10-04.json`](evidence/RA-STAB-01-10REPS-CENTRAL-READBACK-V4-CLOSEOUT-2026-10-04.json) and
+[`evidence/RA-STAB-01-REVIEW-QUEUE-UX-SIMPLIFICATION-2026-10-03.json`](evidence/RA-STAB-01-REVIEW-QUEUE-UX-SIMPLIFICATION-2026-10-03.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

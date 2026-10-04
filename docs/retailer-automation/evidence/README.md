@@ -54,6 +54,8 @@ input. It does not authorize RA-004, a new capture or any write.
 
 [RA-STAB-01 10 Reps durable central readback V4 preparation](RA-STAB-01-10REPS-CENTRAL-READBACK-PREPARATION-V4-2026-10-04.json)
 
+[RA-STAB-01 10 Reps durable central readback V4 closeout](RA-STAB-01-10REPS-CENTRAL-READBACK-V4-CLOSEOUT-2026-10-04.json)
+
 [RA-STAB-01-D1 exact read-only Review Queue changeset](RA-STAB-01-D1-REVIEW-QUEUE-CHANGESET-2026-10-02.json)
 
 [RA-STAB-01-D1 post-merge implementation review](RA-STAB-01-D1-IMPLEMENTATION-REVIEW-2026-10-02.json)
