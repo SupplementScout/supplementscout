@@ -477,6 +477,16 @@ natural retailer runs and a later watchdog; no retry, baseline widening or
 RA-004 action is opened. Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-NATURAL-WATCHDOGS-2026-10-04.json`](retailer-automation/evidence/RA-STAB-01-NATURAL-WATCHDOGS-2026-10-04.json).
 
+The interrupted 10 Reps artifact has also been preserved before its 17 October
+expiry as redacted control metadata: exact parent identity and fingerprint, all
+19 child IDs/fingerprints, mapping count `950`, failure classification and
+zero-business-write accounting. No raw source, catalogue rows, commercial data
+or credentials were copied into Git. This closes the registration-identity
+preservation gap but is not a fresh state readback or replay bundle; the exact
+read-only current-state export still requires a separate owner authorization.
+Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-10REPS-INTERRUPTED-CONTROL-REGISTRATION-2026-10-04.json`](retailer-automation/evidence/RA-STAB-01-10REPS-INTERRUPTED-CONTROL-REGISTRATION-2026-10-04.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
