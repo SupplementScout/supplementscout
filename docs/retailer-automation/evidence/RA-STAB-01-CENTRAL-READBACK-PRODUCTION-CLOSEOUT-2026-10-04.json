@@ -1,0 +1,58 @@
+{
+  "schema_version": "ra-stab-central-readback-production-closeout-v1",
+  "status": "MIGRATION_DEPLOYED_ACCESS_DISABLED_READ_COMPLETED_RESULT_NOT_PERSISTED",
+  "task_id": "RA-STAB-01",
+  "repository_commit": "a672e720fbc74d88347f763f0909f40d76e7b330",
+  "pull_request": 203,
+  "migration": {
+    "filename": "20261004120000_add_central_control_plan_readback.sql",
+    "sha256": "cdcad9de57122fd4a78b8fd3cdad4ba19558e7981861c585e2e4fdeef816a3d8",
+    "applied": true,
+    "production_ledger_count": 224,
+    "catalogue_count_guard_passed_before_commit": true
+  },
+  "authorized_read": {
+    "parent_plan_id": "06ae81b7-4cc1-42b5-af6a-92bfd17e6dfa",
+    "expected_children": 19,
+    "read_attempts": 1,
+    "automatic_retries": 0,
+    "rpc_completed": true,
+    "parent_identity_and_fingerprint_validated": true,
+    "all_19_child_identities_and_fingerprints_validated": true,
+    "raw_result_artifact_written": false,
+    "status_values_recoverable": false,
+    "limitation": "The validated result existed only in process memory. The immediate cleanup postcondition raised CENTRAL_BACKEND_REMAINS before the report write, so child statuses and run rows were not persisted. No second plan read was performed."
+  },
+  "cleanup": {
+    "login_disabled": true,
+    "valid_until_expired": true,
+    "backend_count": 0,
+    "role_memberships": false,
+    "direct_source_rpc_execute": false,
+    "private_wrapper_execute": true,
+    "public_admin_helper_execute": false,
+    "cleanup_rpc_calls": 0,
+    "note": "The first immediate backend check raced with connection shutdown. Cleanup-only repeated only NOLOGIN, backend termination and absence verification; it did not call the plan RPC."
+  },
+  "transport": {
+    "tls_ca_fingerprint256": "80:70:25:AD:50:D4:ED:21:9D:2C:9C:7D:29:9C:00:4F:82:4E:B0:0C:F7:F6:5A:FE:F6:07:D0:7B:72:E6:CA:FA",
+    "verified_ca_bytes_passed_to_all_database_clients": true
+  },
+  "forbidden_operations": {
+    "business_writes": 0,
+    "control_data_writes": 0,
+    "retailer_retries": 0,
+    "close_calls": 0,
+    "ra004_calls": 0,
+    "second_plan_reads": 0
+  },
+  "final_read_only_postflight": {
+    "transaction_read_only": true,
+    "target_environment": "PRODUCTION",
+    "migration_sha_verified_from_ledger": true,
+    "login_disabled": true,
+    "backend_count": 0,
+    "wrapper_execute_only": true
+  },
+  "next_action": "Do not infer or reconstruct the lost status values. The central readback interface is deployed and safely disabled. Any future plan-state read requires a separately authorized read; it must persist the validated result before cleanup while still requiring cleanup to pass before declaring the operation complete."
+}

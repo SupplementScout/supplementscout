@@ -551,6 +551,16 @@ production owner and tests migration apply after removing local PostgreSQL
 requires exact owner authority. Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-CENTRAL-READBACK-DEPLOYMENT-ATTEMPT-2026-10-04.json`](retailer-automation/evidence/RA-STAB-01-CENTRAL-READBACK-DEPLOYMENT-ATTEMPT-2026-10-04.json).
 
+The corrected central readback migration is now deployed in production at
+ledger count `224`; its reusable caller is `NOLOGIN`, has no active backend or
+role memberships, and can execute only the private wrapper. One authorized
+10 Reps read completed and validated the exact parent plus 19 child identities,
+with no retry, close, RA-004 or business/control-data write. A cleanup timing
+race stopped the report write after validation, so the actual status values
+were not retained and are not inferred. Production cleanup and the migration
+SHA were independently confirmed read-only. Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-CENTRAL-READBACK-PRODUCTION-CLOSEOUT-2026-10-04.json`](retailer-automation/evidence/RA-STAB-01-CENTRAL-READBACK-PRODUCTION-CLOSEOUT-2026-10-04.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

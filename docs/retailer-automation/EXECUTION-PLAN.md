@@ -1087,6 +1087,24 @@ remains narrowly granted and `NOLOGIN`. The PostgreSQL 17 regression now drops
 production restriction. No retry is authorized. Evidence:
 [`evidence/RA-STAB-01-CENTRAL-READBACK-DEPLOYMENT-ATTEMPT-2026-10-04.json`](evidence/RA-STAB-01-CENTRAL-READBACK-DEPLOYMENT-ATTEMPT-2026-10-04.json).
 
+**4 October central interface production closeout:** PR `#203` merged the
+managed-owner correction at `a672e720`. Production now contains migration
+`20261004120000` at the reviewed SHA and ledger count `224`. The authorized
+caller completed exactly one read-only RPC for the exact 10 Reps parent and 19
+children; the existing validator accepted the parent and every child identity
+and fingerprint. The first immediate cleanup check raced with the closing
+caller connection and stopped report persistence with
+`CENTRAL_BACKEND_REMAINS`. Cleanup-only repeated no plan read: it committed
+`NOLOGIN`, terminated the residual backend and proved backend count zero. A
+separate repeatable-read postflight proved the migration SHA from the ledger,
+the caller disabled with no memberships or direct source-RPC permission, and
+the private wrapper as its only execute grant. There were no retries, close,
+RA-004 or business/control-data writes. Because the validated read result was
+held only in process memory and report persistence followed cleanup, the actual
+status values and run rows are not recoverable and must not be inferred. Any
+future state read is a new owner decision. Evidence:
+[`evidence/RA-STAB-01-CENTRAL-READBACK-PRODUCTION-CLOSEOUT-2026-10-04.json`](evidence/RA-STAB-01-CENTRAL-READBACK-PRODUCTION-CLOSEOUT-2026-10-04.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
