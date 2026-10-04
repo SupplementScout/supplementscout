@@ -114,11 +114,15 @@ async function capabilityProof(db) {
   return (await db.query(`select
     exists(select 1 from pg_auth_members m join pg_roles r on r.oid=m.member where r.rolname=$1) memberships,
     exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace
-      where n.nspname not in ('pg_catalog','information_schema') and c.relkind in ('r','p','v','m','f')
-        and has_table_privilege($1,c.oid,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')) relation_privileges,
+      where n.nspname not in ('pg_catalog','information_schema')
+        and case when c.relkind in ('r','p','v','m','f')
+          then has_table_privilege($1,c.oid,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')
+          else false end) relation_privileges,
     exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace
-      where n.nspname not in ('pg_catalog','information_schema') and c.relkind='S'
-        and has_sequence_privilege($1,c.oid,'USAGE,SELECT,UPDATE')) sequence_privileges,
+      where n.nspname not in ('pg_catalog','information_schema')
+        and case when c.relkind='S'
+          then has_sequence_privilege($1,c.oid,'USAGE,SELECT,UPDATE')
+          else false end) sequence_privileges,
     exists(select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
       where n.nspname='public' and p.prosecdef and p.oid<>$2::regprocedure
         and has_function_privilege($1,p.oid,'EXECUTE')) other_security_definer_execute,

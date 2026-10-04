@@ -45,7 +45,8 @@ function validatePreparation(value) {
   invariant(exactKeys(value, ["schema_version", "status", "task_id", "target", "scope",
     "owner_authorization", "credential", "execution", "implementation", "limitations"]), "RA_STAB_PREPARATION_KEYS_INVALID");
   invariant(value.schema_version === "ra-stab-01-control-plan-readback-preparation-v1"
-    && new Set(["OWNER_AUTHORIZED_ONE_SHOT", "CONSUMED_FAILED_TLS_PREFLIGHT"]).has(value.status)
+    && new Set(["OWNER_AUTHORIZED_ONE_SHOT", "CONSUMED_FAILED_TLS_PREFLIGHT",
+      "CONSUMED_FAILED_CAPABILITY_PROOF"]).has(value.status)
     && value.task_id === "RA-STAB-01",
   "RA_STAB_PREPARATION_INVALID");
   invariant(exactKeys(value.target, ["environment", "project_ref", "database_identity"])

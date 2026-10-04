@@ -1009,6 +1009,21 @@ immutable. Execution is permitted only once from a clean, freshly fetched
 merged `main`; any attempted execution consumes this new authority. Preparation:
 [`evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-PREPARATION-V2-2026-10-04.json`](evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-PREPARATION-V2-2026-10-04.json).
 
+**4 October second one-shot attempt — consumed during capability proof, cleanup
+verified:** PR `#198` merged the exact preparation at `0cf8f484`. The clean
+`main` execution passed the pinned CA, repository, target, ledger and deployed
+RPC checks, then PostgreSQL evaluated `has_sequence_privilege` against the
+unrelated index `saml_providers_pkey` before the query's relation-kind filter.
+The credential-creation transaction rolled back, so the temporary role and its
+grants did not become durable; the plan-status RPC was never called and no
+result or digest was created. Mandatory cleanup completed, and a separate
+cleanup-only readback found the role already absent with no login, membership,
+backend or target grant. The authorization is consumed and must not be retried.
+The common fix guards privilege functions with `CASE` by relation kind and adds
+a PostgreSQL regression containing the formerly triggering primary-key index;
+it changes no retailer, catalogue, approval or execution policy. Evidence:
+[`evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-ATTEMPT-V2-2026-10-04.json`](evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-ATTEMPT-V2-2026-10-04.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

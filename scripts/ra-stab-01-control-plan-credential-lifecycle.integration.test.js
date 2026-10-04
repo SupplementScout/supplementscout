@@ -3,7 +3,8 @@ const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const test = require("node:test");
 const { Client } = require("pg");
-const { ROLE, RPC, revokeCredential, scram } = require("./ra-stab-01-control-plan-credential-issuer");
+const { ROLE, RPC, assertNarrowCapability, capabilityProof, revokeCredential, scram } =
+  require("./ra-stab-01-control-plan-credential-issuer");
 
 const ROOT = path.resolve(__dirname, "..");
 const IMAGE = "postgres:17-alpine";
@@ -47,6 +48,8 @@ test("ephemeral credential lifecycle commits revoke before a forced DROP ROLE fa
         language sql stable security definer set search_path=pg_catalog,public,pg_temp
         as $$ select '{"ok":true}'::jsonb $$;
       revoke all on function ${RPC} from public;
+      create schema auth;
+      create table auth.saml_providers(id integer primary key);
       create role ${ROLE} login noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls
         connection limit 1 password '${verifier}' valid until '2099-01-01 00:00:00+00';
       alter role ${ROLE} set default_transaction_read_only=on;
@@ -56,9 +59,10 @@ test("ephemeral credential lifecycle commits revoke before a forced DROP ROLE fa
       alter role ${ROLE} set idle_session_timeout='1min';
       grant usage on schema public to ${ROLE};
       grant execute on function ${RPC} to ${ROLE};
-      create table public.ra_stab_owned_dependency(id integer);
-      alter table public.ra_stab_owned_dependency owner to ${ROLE};
     `);
+    assertNarrowCapability(await capabilityProof(owner));
+    await owner.query(`create table public.ra_stab_owned_dependency(id integer);
+      alter table public.ra_stab_owned_dependency owner to ${ROLE}`);
     ephemeral = new LocalClient({
       connectionString: `postgresql://${ROLE}:${loginPassword}@127.0.0.1:${port}/postgres`,
     });

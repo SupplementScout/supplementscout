@@ -1,0 +1,63 @@
+{
+  "schema_version": "ra-stab-01-control-plan-readback-attempt-v2",
+  "status": "FAILED_CAPABILITY_PROOF_CLEANUP_VERIFIED",
+  "task_id": "RA-STAB-01",
+  "attempt": {
+    "started_at": "2026-10-04T10:59:55.874Z",
+    "repository_commit": "0cf8f484504fe5d1f6eefc6fb69d39b72a06e7f8",
+    "preparation_sha256": "4707bc12332fdd15ae93bfde3b492560535b970d0eb3cc254dee98162e9a37b4",
+    "confirmation": "1a2abd37247414abf2c5",
+    "maximum_attempts": 1,
+    "automatic_retry": false,
+    "failure_code": "CAPABILITY_PROOF_RELKIND_EVALUATION",
+    "database_error": "saml_providers_pkey is not a sequence"
+  },
+  "target": {
+    "environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "database_identity": "supplementscout-production:aftboxmrdgyhizicfsfu"
+  },
+  "scope": {
+    "retailer_id": "14",
+    "retailer_name": "10 Reps",
+    "parent_plan_id": "06ae81b7-4cc1-42b5-af6a-92bfd17e6dfa",
+    "expected_child_count": 19
+  },
+  "execution_accounting": {
+    "tls_ca_preflight_passed": true,
+    "clean_merged_main_passed": true,
+    "production_target_and_ledger_verified": true,
+    "deployed_rpc_contract_verified": true,
+    "plan_status_rpc_calls": 0,
+    "ephemeral_role_authentications": 0,
+    "retailer_retries": 0,
+    "business_writes": 0,
+    "control_writes": 0,
+    "durable_authorization_catalog_writes": 0,
+    "authorization_catalog_transaction": "ROLLED_BACK",
+    "export_artifacts_created": 0
+  },
+  "cleanup": {
+    "mode": "CLEANUP_ONLY_VERIFICATION",
+    "rpc_calls": 0,
+    "result": "CLEANUP_VERIFIED",
+    "cleanup_status": "ROLE_ALREADY_ABSENT_VERIFIED",
+    "role_present_before_cleanup": false,
+    "role_absent": true,
+    "login_disabled": true,
+    "membership_absent": true,
+    "backend_absent": true,
+    "target_execute_absent": true,
+    "schema_usage_direct_absent": true
+  },
+  "conclusion": {
+    "current_plan_state_read": false,
+    "raw_export_created": false,
+    "authorization_consumed": true,
+    "retry_authorized": false,
+    "close_authorized": false,
+    "ra004_replay_authorized": false,
+    "root_cause": "PostgreSQL may evaluate privilege functions before a sibling WHERE predicate; has_sequence_privilege therefore received a non-sequence index OID.",
+    "regression": "Guard each privilege function with CASE on pg_class.relkind and exercise capabilityProof with an unrelated primary-key index in PostgreSQL 17."
+  }
+}
