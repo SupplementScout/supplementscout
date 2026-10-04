@@ -40,6 +40,8 @@ test("status mode never needs a confirmation or production dependency", async ()
 });
 
 test("TLS CA preflight requires the exact current Supabase root before execution", () => {
+  const validCaPath = path.resolve("tmp", "supabase.crt");
+  const wrongCaPath = path.resolve("tmp", "wrong.crt");
   const valid = {
     fingerprint256: readback.SUPABASE_ROOT_CA_FINGERPRINT,
     subject: "C=US\nO=Supabase Inc\nCN=Supabase Root 2021 CA",
@@ -49,14 +51,14 @@ test("TLS CA preflight requires the exact current Supabase root before execution
   };
   class FakeCertificate { constructor() { Object.assign(this, valid); } }
   const now = () => new Date("2026-10-04T09:30:00Z");
-  assert.deepEqual(readback.validateTlsCa({ env: { NODE_EXTRA_CA_CERTS: "C:\\tmp\\supabase.crt" },
+  assert.deepEqual(readback.validateTlsCa({ env: { NODE_EXTRA_CA_CERTS: validCaPath },
     readFile: () => Buffer.from("certificate"), X509Class: FakeCertificate, now }), {
-    path: "C:\\tmp\\supabase.crt", fingerprint256: readback.SUPABASE_ROOT_CA_FINGERPRINT,
+    path: validCaPath, fingerprint256: readback.SUPABASE_ROOT_CA_FINGERPRINT,
     valid_to: valid.validTo,
   });
   assert.throws(() => readback.validateTlsCa({ env: {} }), /TLS_CA_REQUIRED/);
   class WrongCertificate extends FakeCertificate { constructor() { super(); this.fingerprint256 = "00"; } }
-  assert.throws(() => readback.validateTlsCa({ env: { NODE_EXTRA_CA_CERTS: "C:\\tmp\\wrong.crt" },
+  assert.throws(() => readback.validateTlsCa({ env: { NODE_EXTRA_CA_CERTS: wrongCaPath },
     readFile: () => Buffer.from("wrong"), X509Class: WrongCertificate, now }), /TLS_CA_INVALID/);
 });
 
