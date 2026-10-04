@@ -1,0 +1,101 @@
+{
+  "schema_version": "ra-stab-01-interrupted-control-registration-v1",
+  "task_id": "RA-STAB-01",
+  "recorded_at": "2026-10-04T06:11:47Z",
+  "result": "REGISTRATION_METADATA_PRESERVED_CURRENT_STATE_UNVERIFIED",
+  "source_artifact": {
+    "workflow_run_id": "37110115566",
+    "event": "schedule",
+    "head_sha": "be4a54f56cb92471e00474a22c1efe154eb662e1",
+    "artifact_id": "11270160626",
+    "artifact_name": "10reps-offer-refresh-37110115566-1",
+    "artifact_digest": "sha256:8c04ec197394da2c3a9953182964a19d1612d0f62ae9f68654801e69d88d1097",
+    "created_at": "2026-10-03T08:41:05Z",
+    "expires_at": "2026-10-17T08:41:04Z",
+    "expired_at_capture": false,
+    "file_sha256": {
+      "production-apply-diagnostic.json": "1d8789e43b5806f081ed14761dbc7078737192df824f7bb691424aa51d4433b2",
+      "production-db-baseline.json": "f08f7e2cb3fd9cbb398996e99b8bc44456b8468dce61c0ce842fa7157e046b01",
+      "production-dry-run.json": "dc7640a6161b942844209b6388061b46c496fd92d4afaa46dd87e10b8caf9cae",
+      "production-preflight-diagnostic.json": "9f5a4b9cb1dd3ec8ce82e79a72da44f1d5a7e71658a8f80e9bbe0c322136eeda"
+    },
+    "file_size_bytes": {
+      "production-apply-diagnostic.json": 78028,
+      "production-db-baseline.json": 865533,
+      "production-dry-run.json": 26895,
+      "production-preflight-diagnostic.json": 73714
+    }
+  },
+  "failure": {
+    "timestamp": "2026-10-03T08:35:32.741Z",
+    "result": "FAIL",
+    "stage": "STARTUP_OR_INTERNAL",
+    "error_code": "INTERNAL_ERROR",
+    "error_message": "Query read timeout",
+    "approver_ran": false,
+    "executor_ran": false,
+    "postflight_ran": false,
+    "idempotency_ran": false
+  },
+  "write_accounting": {
+    "database_writes_attempted": 1,
+    "database_writes_completed": 0,
+    "business_writes_completed": 0,
+    "control_writes_completed": 1,
+    "control_write_kind": "parent_and_child_registration",
+    "approvals_created": 0,
+    "approvals_consumed": 0,
+    "recovery_calls": 0
+  },
+  "control_registration": {
+    "status": "REGISTERED",
+    "retailer_id": "14",
+    "retailer_slug": "10-reps",
+    "parent_plan_id": "06ae81b7-4cc1-42b5-af6a-92bfd17e6dfa",
+    "parent_plan_fingerprint": "9dd18203a3c3f194fab64fc5037d2833f21b95dfa798ca278c19716b58232eab",
+    "source_snapshot_fingerprint": "8283dcd41cfe6b56773e91299e572c609652dd5e5fda6e5554d0d55dce45c648",
+    "manifest_fingerprint": "165a82924e784389468c30134233afb95963cc59613d1fa28028e48a9d1de8e4",
+    "registered_expires_at": "2026-10-03T09:20:42.631Z",
+    "mapping_count": 950,
+    "child_count": 19,
+    "child_plans": [
+      { "child_plan_id": "f5d476e6-7eea-40f1-a7d8-8b9d0a7ad23d", "child_plan_fingerprint": "f7bba977f2eff80878454c122e62b8f08859724794c85c457843bc6f611fc7b7" },
+      { "child_plan_id": "6f2eae9d-7b35-4e32-afa0-8ee02a72b240", "child_plan_fingerprint": "6f5ab8c9912975352d3838c6c8fabb895b63ec5846c8325d3a2e6bdcade849ac" },
+      { "child_plan_id": "19185519-bb38-4631-832f-e4cfd98552bd", "child_plan_fingerprint": "574ef1767570ad5a4945ec8057ec59d8e46d38189545c350451107b50a5eb2f1" },
+      { "child_plan_id": "ce3b2100-a84d-464e-8132-8d3edd18b6d3", "child_plan_fingerprint": "f5ade3b76fb449fc369f33230de8dea247b4f03eca7baf70d7ef1e7fb980007d" },
+      { "child_plan_id": "59fcaea7-d141-4574-890e-0cd8ea281cde", "child_plan_fingerprint": "65d7004f46fde552b20cf811ce6d04bd3eb77325be109954163e7baac0d0890e" },
+      { "child_plan_id": "4fdce2f5-9ba4-4f4e-8864-1751b6b1438b", "child_plan_fingerprint": "db97ffda1023c8ddd7c55ab0c04d88478212d8f986bb1f552a00f8ee9776ade0" },
+      { "child_plan_id": "f5824800-9b82-4e11-8dc4-b08553e640f7", "child_plan_fingerprint": "902c2a3cdf0c8159210c8c840ede18b31f657416ccc035e5f65ad5cb974b0e07" },
+      { "child_plan_id": "6996dd85-f807-4725-b910-531574f4b6d7", "child_plan_fingerprint": "499277c9acf25f38719d03368773b2d8bbefe706b9a3bda45aa6b025e7e4394b" },
+      { "child_plan_id": "f673792a-5475-42ac-8ddc-20f3f994752e", "child_plan_fingerprint": "62e4b9926e2c608b0d711231780cdb397443524e89fd1565cc98a1e94e8e6c06" },
+      { "child_plan_id": "ac2a0c51-d25d-4730-90e0-f035acb71925", "child_plan_fingerprint": "f699e97958684885de746b29a9bd3a7cbb2e49568de5d4a73bdf6554e9d3404e" },
+      { "child_plan_id": "ba4c3222-96df-4c47-beb9-d6ea0507e4bc", "child_plan_fingerprint": "2798ba109cc66156c768b70d696dc6f344dfb93058bc8235442b3200fbc2728c" },
+      { "child_plan_id": "1919f99e-2826-4295-95c8-4add26b91596", "child_plan_fingerprint": "4ffa678f40e19a7bd94d81f86e0cf537efbdf70e831486d931f8cb09f4f1565b" },
+      { "child_plan_id": "5e319127-22f4-4a83-abfe-4ac018b0b726", "child_plan_fingerprint": "10b0491bcaca953e8f155b8ac1c455ab6e8101c0f01f9207c2bc4944246068db" },
+      { "child_plan_id": "88863601-d4d7-436f-b97b-4b8950597996", "child_plan_fingerprint": "52a1f9110b5b23a16e110bc26bec39be4e939c3b99ea5c5ff5a134c735b743cb" },
+      { "child_plan_id": "73fd66df-8614-414a-b19a-78ba4e907575", "child_plan_fingerprint": "336ac9a62575f9b1fff8dc1daa6457bfec196e65051feafeb0cfefdbf6d03195" },
+      { "child_plan_id": "d14b9700-767f-4e8e-9592-8f45bf07fc6c", "child_plan_fingerprint": "13e7b300f8e3e94a826fab80495b41ff55e771d0b9b8439255b4a78c5b9c4681" },
+      { "child_plan_id": "40ec609e-a2c4-4632-a79a-675aee5a85d9", "child_plan_fingerprint": "f75d8edbaa8a452072704b5dbcc8e1fb0d69ac86ff1e962146aac31637edbf58" },
+      { "child_plan_id": "d0a9012e-02fb-4b55-87b7-89cb36a3512f", "child_plan_fingerprint": "68c6dcab98ed30575c6933ff500a95ff0b949bff6145aa1168a84596ae994ad3" },
+      { "child_plan_id": "d9a39070-dd3b-40b5-901d-02a42ee09ebe", "child_plan_fingerprint": "a1dfd0a6b5790f73684790187ae744352dbf03737b5d724dca7e46b2bf5365c1" }
+    ]
+  },
+  "preservation_boundary": {
+    "artifact_downloads": 1,
+    "production_database_reads": 0,
+    "production_database_writes": 0,
+    "workflow_dispatches": 0,
+    "raw_source_bytes_copied_to_git": false,
+    "database_baseline_rows_copied_to_git": false,
+    "commercial_rows_copied_to_git": false,
+    "secrets_or_credentials_copied_to_git": false,
+    "preserved_content": "Control identifiers, fingerprints, failure classification, zero-write accounting and artifact integrity metadata only."
+  },
+  "limitations": [
+    "This is the registration-time state captured by the interrupted run, not a fresh production control-state readback.",
+    "No approval ID exists in the diagnostic because parent approval did not run.",
+    "The source archive remains subject to GitHub retention and is not a complete recorded-replay bundle.",
+    "The evidence does not authorize retry, close, approval, capture, replay, migration, credential creation or any database mutation."
+  ],
+  "next_gate": "SEPARATELY_OWNER_AUTHORIZED_FRESH_READ_ONLY_PARENT_AND_19_CHILD_STATE_EXPORT; FAIL_CLOSED_IF_IT_REQUIRES_A_NEW_MIGRATION_OR_BROADER_CAPABILITY"
+}

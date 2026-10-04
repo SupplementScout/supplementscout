@@ -921,6 +921,25 @@ bounded fresh read-only check of the expired 10 Reps parent and 19-child tree,
 then await new natural retailer runs and a later natural watchdog. Evidence:
 [`evidence/RA-STAB-01-NATURAL-WATCHDOGS-2026-10-04.json`](evidence/RA-STAB-01-NATURAL-WATCHDOGS-2026-10-04.json).
 
+**4 October interrupted 10 Reps registration preservation — exact control
+identity retained, current state still unverified:** before GitHub artifact
+`11270160626` expires on 17 October, its immutable bundle was downloaded once
+and hash-checked. A redacted tracked record now preserves parent
+`06ae81b7-4cc1-42b5-af6a-92bfd17e6dfa`, its parent/source/manifest
+fingerprints, all 19 child IDs and child fingerprints, mapping count `950`, the
+`Query read timeout` classification and exact zero-business-write accounting.
+No raw source, database baseline rows, commercial rows, secret or credential
+was copied into Git.
+
+This is registration-time evidence, not a current database readback. It does
+not prove the present parent/child statuses and contains no approval ID because
+the approver never ran. The source archive is still retention-limited and is
+not a recorded-replay bundle. The next gate remains one separately authorized,
+fresh read-only export of exactly this parent and 19-child tree, failing closed
+if it needs a new migration or broader capability. No retry, close, approval,
+capture, replay or RA-004 action is authorized. Evidence:
+[`evidence/RA-STAB-01-10REPS-INTERRUPTED-CONTROL-REGISTRATION-2026-10-04.json`](evidence/RA-STAB-01-10REPS-INTERRUPTED-CONTROL-REGISTRATION-2026-10-04.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
