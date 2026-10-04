@@ -32,6 +32,12 @@ const AUTHORIZATION_PHASES = Object.freeze({
   "control-close": "CONTROL_RECOVERY",
 });
 const PRODUCTION = CONTRACTS.PRODUCTION;
+const PREPARATION_LEDGER = Object.freeze({
+  preCount: 222,
+  preFingerprint: "c08b5f2e704072a0e4b2590688998e07a781f8699546279b6e81acd9c975c0fe",
+  postCount: 223,
+  postFingerprint: "c891240d8ed411b3bc0ad5e2abc6a8c90bfeb442c1cd0824f3c5a4577ee0c7b0",
+});
 
 function invariant(value, message) {
   if (!value) throw new Error(message);
@@ -61,10 +67,10 @@ function validatePreparation(preparation, file = PREPARATION_PATH) {
   invariant(preparation?.target?.environment === "PRODUCTION", "preparation environment mismatch");
   invariant(preparation?.target?.project_ref === PRODUCTION.projectRef, "preparation project mismatch");
   invariant(preparation?.target?.database_identity === PRODUCTION.databaseIdentity, "preparation database identity mismatch");
-  invariant(preparation?.fresh_readback?.pre_migration_ledger_count === PRODUCTION.ledgerCount, "pre-migration ledger count mismatch");
-  invariant(preparation?.fresh_readback?.pre_migration_ledger_fingerprint === PRODUCTION.ledgerFingerprint, "pre-migration ledger fingerprint mismatch");
-  invariant(preparation?.fresh_readback?.post_migration_ledger_count === PRODUCTION.ledgerCount + 1, "post-migration ledger count mismatch");
-  invariant(/^[0-9a-f]{64}$/.test(preparation?.fresh_readback?.post_migration_ledger_fingerprint), "post-migration ledger fingerprint invalid");
+  invariant(preparation?.fresh_readback?.pre_migration_ledger_count === PREPARATION_LEDGER.preCount, "pre-migration ledger count mismatch");
+  invariant(preparation?.fresh_readback?.pre_migration_ledger_fingerprint === PREPARATION_LEDGER.preFingerprint, "pre-migration ledger fingerprint mismatch");
+  invariant(preparation?.fresh_readback?.post_migration_ledger_count === PREPARATION_LEDGER.postCount, "post-migration ledger count mismatch");
+  invariant(preparation?.fresh_readback?.post_migration_ledger_fingerprint === PREPARATION_LEDGER.postFingerprint, "post-migration ledger fingerprint mismatch");
   invariant(exactKeys(preparation?.fresh_readback?.business_counts, ["products", "product_variants", "retailer_products", "offers", "price_history"]), "business count keys mismatch");
   invariant(Object.values(preparation.fresh_readback.business_counts).every(value => /^\d+$/.test(value)), "business counts invalid");
   invariant(preparation?.migration?.ordinary_selector_status === "EXCLUDED", "recovery migration must stay outside the ordinary selector");

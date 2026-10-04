@@ -678,6 +678,7 @@ test("automation review queue is admin-only, paginated and exposes bounded evide
   assert.match(data, /Review Queue exceeds the bounded complete-read limit/);
   assert.match(data, /Review Queue changed during the complete read/);
   assert.match(data, /Review Queue complete read contained a duplicate row/);
+  assert.match(data, /order\("updated_at", \{ ascending: false \}\)\.order\("id", \{ ascending: false \}\)/);
   assert.match(page, /filterAndPaginateReviewRows/);
   assert.match(page, /PENDING.*APPROVED.*REJECTED.*IGNORED.*EXPIRED.*EXECUTING.*EXECUTED.*FAILED/s);
   assert.match(page, /Freshness-only.*Stock and price.*Identity.*Source problems/s);
@@ -792,9 +793,9 @@ test("automation review decisions fail closed on auth, fingerprint, expiry and b
   assert.match(source, /\.eq\("review_status", "PENDING"\)/);
   assert.match(source, /confirmed_unavailable !== true/);
   assert.match(source, /confirmImpact/);
-  assert.match(source, /approve_execute/);
-  assert.match(source, /queue_automation_review_execution/);
-  assert.match(source, /resolveReviewAdapter/);
+  assert.doesNotMatch(source, /approve_execute/);
+  assert.doesNotMatch(source, /queue_automation_review_execution/);
+  assert.doesNotMatch(source, /resolveReviewAdapter/);
   assert.match(source, /decision_actor/);
   assert.match(source, /variant\.product_id/);
   assert.doesNotMatch(source, /\.from\("(?:products|product_variants|retailer_products|offers|price_history)"\)\.update/);

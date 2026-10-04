@@ -443,19 +443,17 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the applied sequential-close recovery and one reviewed central-readback migration pending", () => {
+test("production records the applied sequential-close recovery and central readback migration", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{
-    filename: "20261004120000_add_central_control_plan_readback.sql",
-    sha256: "cdcad9de57122fd4a78b8fd3cdad4ba19558e7981861c585e2e4fdeef816a3d8",
-  }]);
+  assert.deepEqual(contract.pending, []);
   assert.deepEqual(contract.appliedExcluded, [
     "20260929133000_extend_expired_sequential_plan_close.sql",
+    "20261004120000_add_central_control_plan_readback.sql",
   ]);
-  assert.equal(contract.ledgerCount, 223);
+  assert.equal(contract.ledgerCount, 224);
   assert.equal(
     contract.ledgerFingerprint,
-    "c891240d8ed411b3bc0ad5e2abc6a8c90bfeb442c1cd0824f3c5a4577ee0c7b0",
+    "9d1bfaefa24a85ecbf6012ff6d61b6b8f9f849f54a93e10b23a4779239cf784b",
   );
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_VARIANT_PROVENANCE_MIGRATION)), NUTRITION_VARIANT_PROVENANCE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_PREWORKOUT_FACTS_MIGRATION)), NUTRITION_PREWORKOUT_FACTS_SHA256);
@@ -567,7 +565,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACT.ledgerFingerprint);
 });
 
-test("production accepts ledger 223 and isolates the central-readback migration as pending", () => {
+test("production accepts ledger 224 with the central-readback migration applied and excluded", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   for (const filename of contract.appliedExcluded) excluded.delete(filename);
@@ -594,16 +592,15 @@ test("production accepts ledger 223 and isolates the central-readback migration 
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 223);
+  assert.equal(result.ledger_count, 224);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 224);
   assert.ok(result.selected_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
   assert.ok(result.excluded_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
-  assert.deepEqual(result.pending_files, ["20261004120000_add_central_control_plan_readback.sql"]);
-  assert.deepEqual(result.pending_sha256s, {
-    "20261004120000_add_central_control_plan_readback.sql":
-      "cdcad9de57122fd4a78b8fd3cdad4ba19558e7981861c585e2e4fdeef816a3d8",
-  });
+  assert.ok(result.selected_files.includes("20261004120000_add_central_control_plan_readback.sql"));
+  assert.ok(result.excluded_files.includes("20261004120000_add_central_control_plan_readback.sql"));
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(NUTRITION_CITRULLINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(NUTRITION_CREATINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(JONS_INTERRUPTED_REFRESH_MIGRATION));
@@ -700,10 +697,14 @@ test("runtime staging artifacts bind the same migration ledger as the staging se
 
 test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.equal(Object.keys(contract.excluded).length, 18);
+  assert.equal(Object.keys(contract.excluded).length, 19);
   assert.equal(
     contract.excluded["20260929133000_extend_expired_sequential_plan_close.sql"],
     "b0a4cac2d9c30989f00570bf1c63036daf190fffbcc7b08b17c616761bc6a380",
+  );
+  assert.equal(
+    contract.excluded["20261004120000_add_central_control_plan_readback.sql"],
+    "cdcad9de57122fd4a78b8fd3cdad4ba19558e7981861c585e2e4fdeef816a3d8",
   );
   assert.ok(!Object.hasOwn(
     contract.excluded,
