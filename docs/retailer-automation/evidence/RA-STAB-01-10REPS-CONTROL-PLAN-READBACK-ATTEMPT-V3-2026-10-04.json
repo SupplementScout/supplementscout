@@ -1,0 +1,64 @@
+{
+  "schema_version": "ra-stab-01-control-plan-readback-attempt-v3",
+  "status": "FAILED_EFFECTIVE_CAPABILITY_SCOPE_CLEANUP_VERIFIED",
+  "task_id": "RA-STAB-01",
+  "attempt": {
+    "started_at": "2026-10-04T11:38:07.218Z",
+    "repository_commit": "cb93270ed3765fa869c93d84d52e0663d2b02f17",
+    "preparation_sha256": "cd0a175111337c236e232e83de50f6a5206712b4c18e2da7d188487b4b3072f1",
+    "confirmation": "7f4da9921356e8178a9e",
+    "maximum_attempts": 1,
+    "automatic_retry": false,
+    "failure_code": "RA_STAB_EPHEMERAL_CAPABILITY_TOO_BROAD"
+  },
+  "target": {
+    "environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "database_identity": "supplementscout-production:aftboxmrdgyhizicfsfu"
+  },
+  "scope": {
+    "retailer_id": "14",
+    "retailer_name": "10 Reps",
+    "parent_plan_id": "06ae81b7-4cc1-42b5-af6a-92bfd17e6dfa",
+    "expected_child_count": 19
+  },
+  "execution_accounting": {
+    "tls_ca_preflight_passed": true,
+    "clean_merged_main_passed": true,
+    "production_target_and_ledger_verified": true,
+    "deployed_rpc_contract_verified": true,
+    "relation_kind_regression_fix_active": true,
+    "plan_status_rpc_calls": 0,
+    "ephemeral_role_authentications": 0,
+    "retailer_retries": 0,
+    "business_writes": 0,
+    "control_writes": 0,
+    "durable_authorization_catalog_writes": 0,
+    "authorization_catalog_transaction": "ROLLED_BACK",
+    "export_artifacts_created": 0
+  },
+  "cleanup": {
+    "mode": "CLEANUP_ONLY_VERIFICATION",
+    "rpc_calls": 0,
+    "result": "CLEANUP_VERIFIED",
+    "cleanup_status": "ROLE_ALREADY_ABSENT_VERIFIED",
+    "role_present_before_cleanup": false,
+    "role_absent": true,
+    "login_disabled": true,
+    "membership_absent": true,
+    "backend_absent": true,
+    "target_execute_absent": true,
+    "schema_usage_direct_absent": true
+  },
+  "conclusion": {
+    "current_plan_state_read": false,
+    "raw_export_created": false,
+    "authorization_consumed": true,
+    "additional_attempt_authorized": false,
+    "close_authorized": false,
+    "ra004_replay_authorized": false,
+    "guard_assessment": "The least-privilege proof correctly stopped before login and before the plan-status RPC because the production role would have had at least one effective capability outside the approved contract.",
+    "diagnostic_limit": "V3 did not persist individual capability booleans, so the exact rejected effective privilege is not claimed.",
+    "next_gate": "Do not retry or weaken the guard. Any future work must separately design and review a production readback architecture that proves least privilege against the real ACL surface before execution."
+  }
+}

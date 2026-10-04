@@ -1035,6 +1035,25 @@ consumes the authorization. Execution requires the pinned Supabase Root 2021
 CA and a clean, freshly fetched merged `main`. Preparation:
 [`evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-PREPARATION-V3-2026-10-04.json`](evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-PREPARATION-V3-2026-10-04.json).
 
+**4 October third and final one-shot attempt — consumed at the effective
+capability boundary, cleanup verified:** PR `#200` merged the V3 preparation at
+`cb93270e`. The clean-`main` execution passed the pinned CA, repository, target,
+ledger, deployed RPC and corrected relation-kind checks. Before enabling the
+temporary login, the fail-closed post-grant proof found at least one effective
+capability broader than the dedicated status RPC contract and stopped with
+`RA_STAB_EPHEMERAL_CAPABILITY_TOO_BROAD`. V3 did not persist which proof field
+was true, so the ledger does not guess whether the source was an effective
+PUBLIC relation privilege, another PUBLIC SECURITY DEFINER function or a
+different rejected capability. The creation/grant transaction rolled back; the
+plan-status RPC was never called and no result or digest was created. Mandatory
+cleanup completed, and a separate cleanup-only readback found the role already
+absent with no login, membership, backend or target grant. The third and final
+authorization is consumed. No fourth attempt, guard bypass or privilege
+widening is authorized; a future solution requires a separately reviewed
+readback architecture that can prove least privilege against the real
+production ACL surface before execution. Evidence:
+[`evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-ATTEMPT-V3-2026-10-04.json`](evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-ATTEMPT-V3-2026-10-04.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

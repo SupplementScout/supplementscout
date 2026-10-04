@@ -34,8 +34,8 @@ test("status mode never needs a confirmation or production dependency", async ()
   const result = await readback.run(["--mode=status"]);
   assert.equal(result.credential_read, false);
   assert.equal(result.production_connection, false);
-  assert.equal(result.executable, true);
-  assert.match(result.confirmation, /^[0-9a-f]{20}$/);
+  assert.equal(result.executable, false);
+  assert.equal(result.confirmation, null);
 });
 
 test("TLS CA preflight requires the exact current Supabase root before execution", () => {
@@ -87,7 +87,7 @@ test("missing CA stops before Git, attempt marker and issuer", async () => {
 });
 
 test("consumed authorization rejects a syntactically valid confirmation before dependencies", async () => {
-  const value = { ...preparation(), status: "CONSUMED_FAILED_CAPABILITY_PROOF" };
+  const value = { ...preparation(), status: "CONSUMED_FAILED_CAPABILITY_SCOPE" };
   let dependencyCalled = false;
   await assert.rejects(() => readback.run(["--mode=execute", `--confirm=${readback.confirmation(value)}`], {
     preparation: value,
