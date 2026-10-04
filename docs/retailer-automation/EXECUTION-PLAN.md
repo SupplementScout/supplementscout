@@ -1054,6 +1054,24 @@ readback architecture that can prove least privilege against the real
 production ACL surface before execution. Evidence:
 [`evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-ATTEMPT-V3-2026-10-04.json`](evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-ATTEMPT-V3-2026-10-04.json).
 
+**4 October central readback repair - live ACL cause verified, local common fix
+prepared, production unchanged:** one new read-only production inventory used a
+single `REPEATABLE READ READ ONLY` transaction, no retry, no plan-status call
+and no write. It proved that V3 combined actual reachability with global
+effective privileges. `public.rls_auto_enable()` was PUBLIC-executable through
+inherited `public` schema usage even though the canonical baseline revokes that
+grant. Two PUBLIC-readable extension statistics views were also counted by V3,
+although the caller could not use their `extensions` schema. The prepared
+common migration restores the baseline revoke, creates one private,
+retailer-neutral status wrapper and one reusable caller role in `NOLOGIN`
+state. It adds no table, sequence, importer, writer, retailer condition or
+RA-004 path. The migration is SHA-bound and isolated as production `PENDING`,
+so ordinary selection cannot deploy it. Focused tests and the isolated
+PostgreSQL 17 capability test pass. Production still has no new schema, role or
+function, and the 10 Reps state remains unread. Applying the migration is the
+next exact owner gate. Evidence:
+[`evidence/RA-STAB-01-CENTRAL-READBACK-ACL-INVENTORY-2026-10-04.json`](evidence/RA-STAB-01-CENTRAL-READBACK-ACL-INVENTORY-2026-10-04.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

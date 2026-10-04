@@ -443,9 +443,12 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the applied sequential-close recovery and selects nothing pending", () => {
+test("production records the applied sequential-close recovery and one reviewed central-readback migration pending", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: "20261004120000_add_central_control_plan_readback.sql",
+    sha256: "694897c168941b4eb7169db74697a175ea0f0fb2bf212fb86e88d45b72555030",
+  }]);
   assert.deepEqual(contract.appliedExcluded, [
     "20260929133000_extend_expired_sequential_plan_close.sql",
   ]);
@@ -564,7 +567,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACT.ledgerFingerprint);
 });
 
-test("production accepts the applied excluded recovery at ledger 223 with no ordinary pending migration", () => {
+test("production accepts ledger 223 and isolates the central-readback migration as pending", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   for (const filename of contract.appliedExcluded) excluded.delete(filename);
@@ -593,11 +596,14 @@ test("production accepts the applied excluded recovery at ledger 223 with no ord
   });
   assert.equal(result.ledger_count, 223);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 223);
+  assert.equal(result.selected_files.length, 224);
   assert.ok(result.selected_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
   assert.ok(result.excluded_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.deepEqual(result.pending_files, ["20261004120000_add_central_control_plan_readback.sql"]);
+  assert.deepEqual(result.pending_sha256s, {
+    "20261004120000_add_central_control_plan_readback.sql":
+      "694897c168941b4eb7169db74697a175ea0f0fb2bf212fb86e88d45b72555030",
+  });
   assert.ok(result.selected_files.includes(NUTRITION_CITRULLINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(NUTRITION_CREATINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(JONS_INTERRUPTED_REFRESH_MIGRATION));
