@@ -487,6 +487,18 @@ read-only current-state export still requires a separate owner authorization.
 Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-10REPS-INTERRUPTED-CONTROL-REGISTRATION-2026-10-04.json`](retailer-automation/evidence/RA-STAB-01-10REPS-INTERRUPTED-CONTROL-REGISTRATION-2026-10-04.json).
 
+The owner then authorized exactly one current-state read-only export for 10
+Reps, with no writes, retry, close or RA-004 replay. Its fail-closed preflight
+stopped before a production connection: the narrow control-state RPC remains
+excluded from production and no active dedicated read-only exporter identity
+exists. Broader owner, validator, service-role and raw-SQL access was rejected
+as a substitute. No database read, write, migration, credential or export
+artifact was produced. The current parent/child status therefore remains
+unverified; opening the existing narrow production interface and issuing one
+short-lived dedicated identity would require separate owner authority.
+Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-10REPS-READONLY-EXPORT-PREFLIGHT-2026-10-04.json`](retailer-automation/evidence/RA-STAB-01-10REPS-READONLY-EXPORT-PREFLIGHT-2026-10-04.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

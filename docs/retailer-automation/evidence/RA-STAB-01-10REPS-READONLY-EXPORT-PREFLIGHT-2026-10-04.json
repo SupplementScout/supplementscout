@@ -1,0 +1,66 @@
+{
+  "schema_version": "ra-stab-01-readonly-export-preflight-v1",
+  "task_id": "RA-STAB-01",
+  "retailer": {
+    "id": 14,
+    "name": "10 Reps"
+  },
+  "repository_baseline": "74b5782d08e43751d72a4582f8dfe9ea2e39f8df",
+  "owner_authorization": {
+    "received_on": "2026-10-04",
+    "exact_instruction": "Zatwierdzam opisany jednorazowy read-only eksport stanu 10 Reps, bez zapisów, retry, close i RA-004 replay",
+    "authorized_operation": "ONE_READ_ONLY_10_REPS_CONTROL_STATE_EXPORT",
+    "prohibited_operations": [
+      "DATABASE_OR_CONTROL_WRITE",
+      "RETAILER_RETRY",
+      "CONTROL_CLOSE",
+      "APPROVAL_OR_EXECUTION",
+      "RA_004_REPLAY"
+    ],
+    "new_migration_or_broader_capability_authorized": false
+  },
+  "preflight": {
+    "status": "BLOCKED_INTERFACE_GAP",
+    "decision": "STOP_BEFORE_PRODUCTION_CONNECTION",
+    "reason": "The approved transactional RPC and its provider-identity correction remain excluded from the production selector, and no active dedicated production control-state-exporter identity is available. The existing owner, validator, service-role and raw-SQL paths are broader than the authorized operation and are not accepted as substitutes.",
+    "approved_rpc": "public.read_retailer_control_state_v1(bigint,text,text,text,timestamptz,text[],integer,integer)",
+    "required_credential_type": "DEDICATED_CONTROL_STATE_EXPORTER",
+    "repository_findings": [
+      {
+        "path": "scripts/lib/environment-migrations.js",
+        "finding": "The RA-004 interface migrations and provider-identity correction remain in the PRODUCTION exclusion set; only the sequential-close migration is recorded as an applied production exclusion."
+      },
+      {
+        "path": "scripts/supabase-migration-selector.js",
+        "finding": "The production contract remains ledger 223 and explicitly excludes the control-state RPC migrations and provider-identity correction."
+      },
+      {
+        "path": "docs/retailer-automation/evidence/RA-004-CONSOLIDATED-STAGING-ATTEMPT-CLOSEOUT.md",
+        "finding": "The prior staging activation is terminal; its temporary role was removed, no canary credential was created, and production selection remained closed."
+      },
+      {
+        "path": "scripts/retailer-control-state-export.js",
+        "finding": "The exporter requires an injected one-method transport and dedicated provider configuration; it contains no credential loader or fallback production access."
+      }
+    ]
+  },
+  "execution_accounting": {
+    "production_connection_attempt_count": 0,
+    "production_database_read_attempt_count": 0,
+    "production_database_write_attempt_count": 0,
+    "control_write_attempt_count": 0,
+    "business_write_attempt_count": 0,
+    "retry_attempt_count": 0,
+    "close_attempt_count": 0,
+    "ra_004_replay_attempt_count": 0,
+    "credential_created_or_used": false,
+    "migration_created_or_applied": false,
+    "export_artifact_created": false
+  },
+  "scope_result": {
+    "current_parent_and_19_child_statuses_verified": false,
+    "registration_identity_evidence_preserved": true,
+    "ordinary_interval_counter": "0/3",
+    "next_step": "A fresh export remains unavailable unless the owner separately authorizes a reviewed production deployment of the existing narrow interface and issuance/use/revocation of one short-lived dedicated read-only identity. No broader credential or raw SQL may substitute."
+  }
+}

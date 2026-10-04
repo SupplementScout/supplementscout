@@ -940,6 +940,20 @@ if it needs a new migration or broader capability. No retry, close, approval,
 capture, replay or RA-004 action is authorized. Evidence:
 [`evidence/RA-STAB-01-10REPS-INTERRUPTED-CONTROL-REGISTRATION-2026-10-04.json`](evidence/RA-STAB-01-10REPS-INTERRUPTED-CONTROL-REGISTRATION-2026-10-04.json).
 
+**4 October owner-authorized 10 Reps read-only export preflight — stopped
+before connection:** the owner authorized exactly one current-state export with
+no writes, retry, close or RA-004 replay. The fail-closed preflight found that
+the existing transactional control-state RPC and provider-identity correction
+remain excluded from the production selector, while the prior temporary
+credentials are closed and no dedicated production exporter identity is
+available. The broader owner, validator, service-role and raw-SQL paths are not
+valid substitutes. The attempt therefore stopped before any production
+connection or database read and made zero writes; no export artifact was
+created. A later export would require separate authority for production
+deployment of the already reviewed narrow interface and for one short-lived
+dedicated read-only identity. Evidence:
+[`evidence/RA-STAB-01-10REPS-READONLY-EXPORT-PREFLIGHT-2026-10-04.json`](evidence/RA-STAB-01-10REPS-READONLY-EXPORT-PREFLIGHT-2026-10-04.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
