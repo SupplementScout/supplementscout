@@ -34,8 +34,8 @@ test("status mode never needs a confirmation or production dependency", async ()
   const result = await readback.run(["--mode=status"]);
   assert.equal(result.credential_read, false);
   assert.equal(result.production_connection, false);
-  assert.equal(result.executable, false);
-  assert.equal(result.confirmation, null);
+  assert.equal(result.executable, true);
+  assert.match(result.confirmation, /^[0-9a-f]{20}$/);
 });
 
 test("TLS CA preflight requires the exact current Supabase root before execution", () => {

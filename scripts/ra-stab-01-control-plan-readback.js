@@ -9,10 +9,10 @@ const { ROLE, RPC } = require("./ra-stab-01-control-plan-credential-issuer");
 
 const ROOT = path.resolve(__dirname, "..");
 const PREPARATION_PATH = path.join(ROOT, "docs", "retailer-automation", "evidence",
-  "RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-PREPARATION-V2-2026-10-04.json");
+  "RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-PREPARATION-V3-2026-10-04.json");
 const OUTPUT_DIR = path.join(ROOT, "tmp", "control-plan-readbacks");
-const ATTEMPT_PATH = path.join(OUTPUT_DIR, "10reps-2026-10-04-v2.attempt.json");
-const OUTPUT_PATH = path.join(OUTPUT_DIR, "10reps-2026-10-04-v2.json");
+const ATTEMPT_PATH = path.join(OUTPUT_DIR, "10reps-2026-10-04-v3.attempt.json");
+const OUTPUT_PATH = path.join(OUTPUT_DIR, "10reps-2026-10-04-v3.json");
 const DIGEST_PATH = `${OUTPUT_PATH}.sha256`;
 const SUPABASE_ROOT_CA_FINGERPRINT = "80:70:25:AD:50:D4:ED:21:9D:2C:9C:7D:29:9C:00:4F:82:4E:B0:0C:F7:F6:5A:FE:F6:07:D0:7B:72:E6:CA:FA";
 
@@ -84,7 +84,7 @@ function validatePreparation(value) {
       "lifecycle_integration_sha256", "rpc_migration_sha256"])
     && value.owner_authorization.authorized_by === "Marek Kalinka"
     && value.owner_authorization.authorized_on === "2026-10-04"
-    && value.owner_authorization.exact_instruction === "Zatwierdzam nowy jednorazowy read-only eksport stanu 10 Reps, na tych samych warunkach: bez zapisów, retry, close i RA-004 replay"
+    && value.owner_authorization.exact_instruction === "Zatwierdzam trzeci i ostatni jednorazowy read-only eksport stanu 10 Reps po poprawce `36e4a31`, bez zapisów, retry, close i RA-004 replay"
     && value.owner_authorization.interpreted_scope.includes("one bounded current-state read")
     && value.credential.role === ROLE && value.credential.maximum_ttl_minutes === 10
     && value.credential.connection_limit === 1 && value.credential.default_transaction_read_only === true
@@ -201,7 +201,7 @@ async function oneRead(databaseUrl, preparation, ClientClass = Client) {
       && username === `${ROLE}.${preparation.target.project_ref}`), "RA_STAB_EPHEMERAL_TARGET_INVALID");
   const db = new ClientClass({ connectionString: databaseUrl,
     ssl: { rejectUnauthorized: true, servername: parsed.hostname, minVersion: "TLSv1.2" },
-    application_name: "ra-stab-control-plan-readback-v2", connectionTimeoutMillis: 10_000,
+    application_name: "ra-stab-control-plan-readback-v3", connectionTimeoutMillis: 10_000,
     query_timeout: 15_000, options: "-c default_transaction_read_only=on -c statement_timeout=15000 -c idle_in_transaction_session_timeout=15000 -c idle_session_timeout=60000" });
   let open = false;
   try {
