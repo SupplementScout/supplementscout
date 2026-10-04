@@ -532,6 +532,15 @@ CA validation ahead of the attempt marker and all credential work. Any new
 current-state read requires a new one-shot owner authorization. Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-ATTEMPT-2026-10-04.json`](retailer-automation/evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-ATTEMPT-2026-10-04.json).
 
+The later central ACL inventory identified the common cause without another
+10 Reps read attempt: V3 counted globally effective PostgreSQL PUBLIC grants
+instead of only schema-reachable capabilities. A production-pending migration
+now prepares one private, retailer-neutral readback wrapper and one disabled
+reusable caller role, while restoring the canonical revoke on the PUBLIC
+administrative helper. Production is unchanged until the exact deployment gate
+is approved. Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-CENTRAL-READBACK-ACL-INVENTORY-2026-10-04.json`](retailer-automation/evidence/RA-STAB-01-CENTRAL-READBACK-ACL-INVENTORY-2026-10-04.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

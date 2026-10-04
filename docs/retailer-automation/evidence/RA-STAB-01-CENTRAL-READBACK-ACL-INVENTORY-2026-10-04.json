@@ -1,0 +1,54 @@
+{
+  "schema_version": "ra-stab-central-readback-preparation-v1",
+  "status": "LOCAL_IMPLEMENTATION_PREPARED_PRODUCTION_NOT_AUTHORIZED",
+  "task_id": "RA-STAB-01",
+  "captured_at": "2026-10-04",
+  "production_inventory": {
+    "operation": "READ_ONLY_ACL_INVENTORY",
+    "transaction": "REPEATABLE READ READ ONLY",
+    "connection_attempts": 1,
+    "retries": 0,
+    "writes": 0,
+    "control_plan_rpc_calls": 0,
+    "inventory_fingerprint": "888403a3b830b0986421148afa3158efdc96e0396e029d371aa7fcfc7162571c",
+    "local_write_once_artifact_sha256": "fb83f70583e009c0c160da41fd16d7a779c5b41e797647c139d17239998eba2d"
+  },
+  "verified_root_cause": {
+    "public_schema_usage_inherited": true,
+    "reachable_public_security_definer": "public.rls_auto_enable()",
+    "public_relation_grants": [
+      "extensions.pg_stat_statements:SELECT",
+      "extensions.pg_stat_statements_info:SELECT"
+    ],
+    "extensions_schema_public_usage": false,
+    "finding": "V3 mixed globally effective object privileges with actually reachable capabilities. The administrative event-trigger helper was reachable through inherited PUBLIC schema usage; the two extension views were counted even though their schema was not reachable.",
+    "baseline_contract": "The canonical baseline already revokes PUBLIC EXECUTE on public.rls_auto_enable(); production has drifted from that contract."
+  },
+  "prepared_central_fix": {
+    "migration": "supabase/migrations/20261004120000_add_central_control_plan_readback.sql",
+    "migration_sha256": "694897c168941b4eb7169db74697a175ea0f0fb2bf212fb86e88d45b72555030",
+    "production_selector_state": "PENDING_NOT_ORDINARY",
+    "changes": [
+      "restore the baseline PUBLIC revoke on public.rls_auto_enable()",
+      "create one private retailer_readback schema",
+      "create one static retailer-neutral read wrapper around the deployed plan-status RPC",
+      "create one reusable caller role in NOLOGIN state with no table, sequence, writer or runtime-role grants",
+      "check only capabilities reachable through schemas the caller can use"
+    ],
+    "not_in_scope": [
+      "RA-004 activation or replay",
+      "retailer-specific shared-core conditions",
+      "business or control data writes",
+      "retry or close",
+      "long-lived plaintext credentials"
+    ]
+  },
+  "verification": {
+    "focused_unit_tests": "8/8 PASS",
+    "isolated_postgresql_17": "1/1 PASS",
+    "production_changes": 0,
+    "production_role_created": false,
+    "ten_reps_state_read": false
+  },
+  "next_gate": "One exact owner decision is required before applying the pending production migration. After deployment, the reusable role remains NOLOGIN until a separately bounded credential activation and one read-only status call."
+}

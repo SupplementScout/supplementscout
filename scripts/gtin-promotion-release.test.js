@@ -171,8 +171,8 @@ test("an absent historical GTIN migration is not currently authorized", async ()
   );
 });
 
-test("an empty current production pending set cannot authorize historical GTIN deployment", async () => {
-  assert.deepEqual(CONTRACTS.PRODUCTION.pending, []);
+test("an unrelated current production pending migration cannot authorize historical GTIN deployment", async () => {
+  assert.ok(CONTRACTS.PRODUCTION.pending.every(({ filename }) => filename !== MIGRATION));
   assert.equal(CONTRACTS.PRODUCTION.pending.some(({ filename }) => filename === MIGRATION), false);
   const rows = productionLedger().filter(({ version, name }) => `${version}_${name}` !== MIGRATION.slice(0, -4));
   await assert.rejects(
