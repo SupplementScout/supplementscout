@@ -464,6 +464,19 @@ also pass. The live unauthenticated route still redirects `307` to
 bypass was attempted. Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-REVIEW-QUEUE-UX-SIMPLIFICATION-2026-10-03.json`](retailer-automation/evidence/RA-STAB-01-REVIEW-QUEUE-UX-SIMPLIFICATION-2026-10-03.json).
 
+Two later natural watchdogs on the merged correction (`37154045897` and
+`37180679396`) made zero writes and now classify Discount's fresh natural run
+correctly, so the history false negative has not recurred. The anchor fallback
+was not exercised because the standard listing already contained that run.
+Both watchdogs observed the same retailer runs and database state: known Fit
+House, Jon's, 6 Pack and eBay review/stale debt remains outside baseline, while
+10 Reps still points to incomplete run `37110115566`. They therefore earn no
+ordinary interval credit (`0/3`). The next bounded action is only a fresh
+read-only check of the expired 10 Reps parent and 19-child tree, followed by new
+natural retailer runs and a later watchdog; no retry, baseline widening or
+RA-004 action is opened. Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-NATURAL-WATCHDOGS-2026-10-04.json`](retailer-automation/evidence/RA-STAB-01-NATURAL-WATCHDOGS-2026-10-04.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

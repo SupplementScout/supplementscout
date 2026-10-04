@@ -1,0 +1,111 @@
+{
+  "schema_version": "ra-stab-01-natural-watchdogs-v1",
+  "task_id": "RA-STAB-01",
+  "recorded_at": "2026-10-04T05:56:35Z",
+  "result": "TWO_NATURAL_READ_ONLY_WATCHDOGS_SAME_STATE_NO_INTERVAL_CREDIT",
+  "production_commit": "e741b01d1ec1c311e3fed315a7171f77e487e29f",
+  "watchdogs": [
+    {
+      "workflow_run_id": "37154045897",
+      "event": "schedule",
+      "conclusion": "failure",
+      "created_at": "2026-10-03T21:08:24Z",
+      "generated_at": "2026-10-03T21:08:58.113Z",
+      "artifact_id": "11285325305",
+      "artifact_digest": "sha256:09d6e4b183f901111e3203937442f78c986a3601414a7b3d45aed5025b2e1b31",
+      "watchdog_json_sha256": "afd2e64408d3e24039d9b387ff976d5e9acd05f0f47c0f1aff5d3d249e9934e7",
+      "database_writes": 0
+    },
+    {
+      "workflow_run_id": "37180679396",
+      "event": "schedule",
+      "conclusion": "failure",
+      "created_at": "2026-10-04T05:42:48Z",
+      "generated_at": "2026-10-04T05:43:10.337Z",
+      "artifact_id": "11295178191",
+      "artifact_digest": "sha256:dfdb48a05eeeb88d6e1fe215d4eafb0ad73329e90c62f41e78e869c576dad02b",
+      "watchdog_json_sha256": "1539c912d8a77226a7db55a792ec77257a555bb5901a6cd13890137a321187df",
+      "database_writes": 0
+    }
+  ],
+  "comparison": {
+    "semantic_equal_after_removing_generated_at": true,
+    "database_error": null,
+    "global_failures": [],
+    "retailer_count": 12,
+    "failed_retailer_count": 5,
+    "monitored_retailer_count": 5,
+    "review_retailer_count": 1,
+    "interpretation": "The second watchdog observed the same latest retailer runs and database state. These are two watchdog executions, not two new ordinary retailer intervals."
+  },
+  "retailer_results": {
+    "pass": ["KIOR Health"],
+    "pass_with_review": ["Simply Supplements"],
+    "pass_with_monitored_backlog": ["GYM HIGH", "Whey Okay", "Discount Supplements", "Dolphin Fitness", "Predators Gear"],
+    "fail": ["Fit House", "Jon's Supplements", "6 Pack Supplements", "eBay UK", "10 Reps"]
+  },
+  "discount_history_correction": {
+    "result": "NO_FALSE_NEGATIVE_IN_EITHER_NATURAL_WATCHDOG",
+    "latest_run_id": "37121588423",
+    "latest_attempt_result": "COMPLETE_SUCCESS",
+    "retailer_result": "PASS_WITH_MONITORED_BACKLOG",
+    "current_stale_over_48h": 47,
+    "maximum_stale_over_48h": 47,
+    "history_anchor_recovered_run_ids": [],
+    "interpretation": "The merged watchdog now sees the fresh Discount success and no longer reports the prior history omission. The fallback anchor was not exercised because the standard listing contained the run."
+  },
+  "remaining_failures": {
+    "Fit House": {
+      "latest_run_id": "37110115566",
+      "latest_attempt_result": "COMPLETE_SUCCESS",
+      "review_rows": 14,
+      "stale_over_48h": 286,
+      "failure_codes": ["DATABASE_OFFERS_OLDER_THAN_48H", "MONITORED_BACKLOG_GROWTH"]
+    },
+    "Jon's Supplements": {
+      "latest_run_id": "37115193681",
+      "latest_attempt_result": "COMPLETE_SUCCESS",
+      "review_rows": 5,
+      "stale_over_48h": 5,
+      "failure_codes": ["MONITORED_BACKLOG_GROWTH"]
+    },
+    "6 Pack Supplements": {
+      "latest_run_id": "37111838580",
+      "latest_attempt_result": "COMPLETE_SUCCESS",
+      "review_rows": 14,
+      "stale_over_48h": 14,
+      "failure_codes": ["MONITORED_BACKLOG_GROWTH"]
+    },
+    "eBay UK": {
+      "latest_run_id": "37117068397",
+      "latest_attempt_result": "COMPLETE_SUCCESS",
+      "review_rows": 92,
+      "stale_over_48h": 87,
+      "failure_codes": ["MONITORED_BACKLOG_GROWTH"]
+    },
+    "10 Reps": {
+      "latest_run_id": "37110115566",
+      "latest_attempt_result": "FAILED_OR_INCOMPLETE",
+      "last_complete_success_run_id": "36987322039",
+      "review_rows": 16,
+      "stale_over_48h": 16,
+      "failure_codes": ["LATEST_ATTEMPT_NOT_SUCCESSFUL", "LATEST_ORDINARY_ATTEMPT_INCOMPLETE", "MONITORED_BACKLOG_GROWTH"]
+    }
+  },
+  "ordinary_interval": {
+    "credit": false,
+    "counter_before": "0/3",
+    "counter_after": "0/3",
+    "reason": "No new ordinary retailer runs were observed between the two watchdogs. Known review/stale debt remains outside baseline and 10 Reps remains incomplete."
+  },
+  "authority": {
+    "manual_workflow_dispatches": 0,
+    "retailer_retries": 0,
+    "ra_004_actions": 0,
+    "baseline_widening": 0,
+    "catalogue_writes_by_this_observation": 0,
+    "control_writes_by_this_observation": 0,
+    "review_queue_writes_by_this_observation": 0
+  },
+  "next_gate": "AWAIT_NEW_NATURAL_RETAILER_RUNS_AND_A_LATER_NATURAL_WATCHDOG; RETAIN_THE_SEPARATE_FRESH_READ_ONLY_10REPS_CONTROL_STATE_CHECK; NO_RETRY_BASELINE_CHANGE_OR_RA_004_ACTION"
+}

@@ -899,6 +899,28 @@ session. This checkpoint made zero production decisions or writes and does not
 change the stabilization counter (`0/3`). Evidence:
 [`evidence/RA-STAB-01-REVIEW-QUEUE-UX-SIMPLIFICATION-2026-10-03.json`](evidence/RA-STAB-01-REVIEW-QUEUE-UX-SIMPLIFICATION-2026-10-03.json).
 
+**4 October two natural watchdogs on the merged history correction — stable
+read-only result, no ordinary interval credit:** scheduled runs `37154045897`
+and `37180679396` both executed on merged `main` SHA `e741b01`, inspected all
+12 retailers, reported no database/global infrastructure error and made zero
+database writes. Their artifacts are semantically identical after removing the
+generation timestamp. Discount is now correctly recognized from natural run
+`37121588423` as `COMPLETE_SUCCESS` and
+`PASS_WITH_MONITORED_BACKLOG`; the prior history false negative did not recur.
+The fallback anchor was not exercised because the standard listing contained
+the fresh run, so anchor recovery itself is not claimed as live-tested.
+
+Five genuine red results remain unchanged: Fit House has 14 review rows and
+stale scope, Jon's has five review/stale rows, 6 Pack has 14, eBay has 92 review
+rows and 87 stale offers, and 10 Reps still points to incomplete run
+`37110115566` with 16 review/stale rows. No new ordinary retailer run occurred
+between the watchdogs, so these are two observations of one state rather than
+two qualifying intervals. Counter remains `0/3`; no retry, baseline widening,
+control action or RA-004 action is authorized. Next perform only the separately
+bounded fresh read-only check of the expired 10 Reps parent and 19-child tree,
+then await new natural retailer runs and a later natural watchdog. Evidence:
+[`evidence/RA-STAB-01-NATURAL-WATCHDOGS-2026-10-04.json`](evidence/RA-STAB-01-NATURAL-WATCHDOGS-2026-10-04.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
