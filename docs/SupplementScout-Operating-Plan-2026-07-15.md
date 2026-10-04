@@ -561,6 +561,17 @@ were not retained and are not inferred. Production cleanup and the migration
 SHA were independently confirmed read-only. Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-CENTRAL-READBACK-PRODUCTION-CLOSEOUT-2026-10-04.json`](retailer-automation/evidence/RA-STAB-01-CENTRAL-READBACK-PRODUCTION-CLOSEOUT-2026-10-04.json).
 
+The owner has authorized the five-step follow-up without piecemeal approval.
+The prepared common correction first reconciles the repository to production
+ledger `224`, then uses one tracked read-only runner that persists the validated
+result before cleanup and seals completion only after the durable caller is
+again `NOLOGIN` with no backend. It contains no migration replay, close,
+RA-004 or business/control-data write path. The already deployed Review Queue
+simplification is not rebuilt; only its unused combined approve-and-execute
+route is removed so approval and protected execution remain separate.
+Preparation:
+[`docs/retailer-automation/evidence/RA-STAB-01-10REPS-CENTRAL-READBACK-PREPARATION-V4-2026-10-04.json`](retailer-automation/evidence/RA-STAB-01-10REPS-CENTRAL-READBACK-PREPARATION-V4-2026-10-04.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

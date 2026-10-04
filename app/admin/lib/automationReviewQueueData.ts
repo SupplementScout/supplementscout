@@ -13,7 +13,7 @@ export async function loadCompleteReviewQueue(status: string) {
   const seenIds = new Set<string>();
   let expectedCount: number | null = null;
   for (let offset = 0; offset < REVIEW_QUEUE_MAX_ROWS; offset += REVIEW_QUEUE_READ_BATCH_SIZE) {
-    let request = supabaseAdmin.from("product_match_review_queue").select(REVIEW_QUEUE_COLUMNS, { count: "exact" }).not("review_status", "is", null).order("updated_at", { ascending: false });
+    let request = supabaseAdmin.from("product_match_review_queue").select(REVIEW_QUEUE_COLUMNS, { count: "exact" }).not("review_status", "is", null).order("updated_at", { ascending: false }).order("id", { ascending: false });
     if (status !== "ALL") request = request.eq("review_status", status);
     if (["PENDING", "APPROVED"].includes(status)) request = request.gt("expires_at", new Date().toISOString());
     const result = await request.range(offset, offset + REVIEW_QUEUE_READ_BATCH_SIZE - 1);

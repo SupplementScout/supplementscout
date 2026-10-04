@@ -1105,6 +1105,23 @@ status values and run rows are not recoverable and must not be inferred. Any
 future state read is a new owner decision. Evidence:
 [`evidence/RA-STAB-01-CENTRAL-READBACK-PRODUCTION-CLOSEOUT-2026-10-04.json`](evidence/RA-STAB-01-CENTRAL-READBACK-PRODUCTION-CLOSEOUT-2026-10-04.json).
 
+**4 October owner-authorized durable readback remediation — prepared:** the
+repository contract is reconciled to the already verified production ledger
+`224`; migration `20261004120000` moves from pending to applied-excluded without
+executing SQL. The new tracked central runner contains no migration/deploy path.
+It validates the exact Supabase CA before marker or credential access, permits
+one parameterized read-only RPC, writes an immutable validated-result artifact
+before cleanup, then requires `NOLOGIN`, bounded backend termination and a
+separate immutable cleanup receipt. A cleanup failure preserves the result and
+can only be finalized by cleanup-only mode with zero additional RPC calls. The
+owner authorized exactly one new read of the same parent plus 19 children as
+part of completing all five stated next steps; retry, close, RA-004 and
+business/control-data writes remain forbidden. The already deployed Review
+Queue simplification is retained; this changeset only removes its hidden legacy
+combined approve-and-execute action and adds deterministic complete-read order.
+Preparation:
+[`evidence/RA-STAB-01-10REPS-CENTRAL-READBACK-PREPARATION-V4-2026-10-04.json`](evidence/RA-STAB-01-10REPS-CENTRAL-READBACK-PREPARATION-V4-2026-10-04.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
