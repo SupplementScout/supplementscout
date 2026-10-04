@@ -447,7 +447,7 @@ test("production records the applied sequential-close recovery and one reviewed 
   const contract = CONTRACTS.PRODUCTION;
   assert.deepEqual(contract.pending, [{
     filename: "20261004120000_add_central_control_plan_readback.sql",
-    sha256: "694897c168941b4eb7169db74697a175ea0f0fb2bf212fb86e88d45b72555030",
+    sha256: "cdcad9de57122fd4a78b8fd3cdad4ba19558e7981861c585e2e4fdeef816a3d8",
   }]);
   assert.deepEqual(contract.appliedExcluded, [
     "20260929133000_extend_expired_sequential_plan_close.sql",
@@ -602,7 +602,7 @@ test("production accepts ledger 223 and isolates the central-readback migration 
   assert.deepEqual(result.pending_files, ["20261004120000_add_central_control_plan_readback.sql"]);
   assert.deepEqual(result.pending_sha256s, {
     "20261004120000_add_central_control_plan_readback.sql":
-      "694897c168941b4eb7169db74697a175ea0f0fb2bf212fb86e88d45b72555030",
+      "cdcad9de57122fd4a78b8fd3cdad4ba19558e7981861c585e2e4fdeef816a3d8",
   });
   assert.ok(result.selected_files.includes(NUTRITION_CITRULLINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(NUTRITION_CREATINE_COMPONENTS_MIGRATION));

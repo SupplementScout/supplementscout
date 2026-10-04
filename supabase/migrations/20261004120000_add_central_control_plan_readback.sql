@@ -30,8 +30,7 @@ begin
   end if;
   if to_regnamespace('retailer_readback') is not null
      or to_regprocedure('retailer_readback.read_control_plan_status_v1(uuid)') is not null
-     or exists(select 1 from pg_roles where rolname in (
-       'retailer_control_plan_readback_owner','retailer_control_plan_readback_caller')) then
+     or exists(select 1 from pg_roles where rolname='retailer_control_plan_readback_caller') then
     raise exception 'RA_STAB_CENTRAL_INTERFACE_ALREADY_EXISTS';
   end if;
 end
@@ -41,8 +40,6 @@ $preflight$;
 -- it was never intended to be executable through PostgreSQL PUBLIC.
 revoke execute on function public.rls_auto_enable() from public;
 
-create role retailer_control_plan_readback_owner
-  nologin noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls;
 create role retailer_control_plan_readback_caller
   nologin noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls
   connection limit 1;
@@ -53,14 +50,10 @@ alter role retailer_control_plan_readback_caller set lock_timeout='5s';
 alter role retailer_control_plan_readback_caller set idle_in_transaction_session_timeout='15s';
 alter role retailer_control_plan_readback_caller set idle_session_timeout='1min';
 
-create schema retailer_readback authorization retailer_control_plan_readback_owner;
+create schema retailer_readback authorization postgres;
 revoke all on schema retailer_readback from public,anon,authenticated,service_role,
   retailer_catalogue_production_validator,retailer_catalogue_production_approver,
   retailer_catalogue_production_executor,retailer_control_plan_readback_caller;
-
-grant usage on schema public to retailer_control_plan_readback_owner;
-grant execute on function public.get_retailer_catalogue_plan_status(uuid)
-  to retailer_control_plan_readback_owner;
 
 create function retailer_readback.read_control_plan_status_v1(p_parent_plan_id uuid)
 returns jsonb
@@ -72,8 +65,6 @@ as $readback$
   select public.get_retailer_catalogue_plan_status(p_parent_plan_id)
 $readback$;
 
-alter function retailer_readback.read_control_plan_status_v1(uuid)
-  owner to retailer_control_plan_readback_owner;
 revoke all on function retailer_readback.read_control_plan_status_v1(uuid)
   from public,anon,authenticated,service_role,
        retailer_catalogue_production_validator,retailer_catalogue_production_approver,
@@ -107,7 +98,7 @@ begin
   select pg_get_userbyid(p.proowner) owner,p.provolatile,p.prosecdef,p.proconfig,p.prosrc
     into v_function from pg_proc p
   where p.oid='retailer_readback.read_control_plan_status_v1(uuid)'::regprocedure;
-  if v_function.owner <> 'retailer_control_plan_readback_owner'
+  if v_function.owner <> 'postgres'
      or v_function.provolatile <> 's' or not v_function.prosecdef
      or v_function.proconfig <> array['search_path=pg_catalog']::text[]
      or position('public.get_retailer_catalogue_plan_status(p_parent_plan_id)'

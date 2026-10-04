@@ -541,6 +541,16 @@ administrative helper. Production is unchanged until the exact deployment gate
 is approved. Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-CENTRAL-READBACK-ACL-INVENTORY-2026-10-04.json`](retailer-automation/evidence/RA-STAB-01-CENTRAL-READBACK-ACL-INVENTORY-2026-10-04.json).
 
+The first central migration attempt later rolled back before credential
+activation because the managed production owner could not transfer function
+ownership to the new purpose role. Read-only cleanup verification proved no
+durable schema, role, function, ledger entry or backend and no 10 Reps RPC
+call. The forward correction keeps the static wrapper under the existing
+production owner and tests migration apply after removing local PostgreSQL
+`SUPERUSER`, matching the managed restriction. A new production attempt still
+requires exact owner authority. Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-CENTRAL-READBACK-DEPLOYMENT-ATTEMPT-2026-10-04.json`](retailer-automation/evidence/RA-STAB-01-CENTRAL-READBACK-DEPLOYMENT-ATTEMPT-2026-10-04.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

@@ -26,6 +26,7 @@ test("caller is durable but disabled and receives one private RPC only", () => {
 test("wrapper is static, stable and closed to shared runtime roles", () => {
   assert.match(sql, /language sql\s+stable\s+security definer\s+set search_path=pg_catalog/);
   assert.match(sql, /select public\.get_retailer_catalogue_plan_status\(p_parent_plan_id\)/);
+  assert.doesNotMatch(sql, /alter function[\s\S]+owner to/i);
   assert.doesNotMatch(sql, /execute format|dynamic sql/i);
   assert.match(sql, /revoke all on function retailer_readback\.read_control_plan_status_v1\(uuid\)[\s\S]+from public,anon,authenticated,service_role/);
 });
