@@ -1,4 +1,5 @@
 const crypto = require("node:crypto");
+const { X509Certificate } = crypto;
 const fs = require("node:fs");
 const path = require("node:path");
 const { fork, spawnSync } = require("node:child_process");
@@ -13,6 +14,7 @@ const OUTPUT_DIR = path.join(ROOT, "tmp", "control-plan-readbacks");
 const ATTEMPT_PATH = path.join(OUTPUT_DIR, "10reps-2026-10-04.attempt.json");
 const OUTPUT_PATH = path.join(OUTPUT_DIR, "10reps-2026-10-04.json");
 const DIGEST_PATH = `${OUTPUT_PATH}.sha256`;
+const SUPABASE_ROOT_CA_FINGERPRINT = "80:70:25:AD:50:D4:ED:21:9D:2C:9C:7D:29:9C:00:4F:82:4E:B0:0C:F7:F6:5A:FE:F6:07:D0:7B:72:E6:CA:FA";
 
 function invariant(value, code) { if (!value) throw new Error(code); }
 function sha256(value) { return crypto.createHash("sha256").update(value).digest("hex"); }
@@ -43,7 +45,8 @@ function validatePreparation(value) {
   invariant(exactKeys(value, ["schema_version", "status", "task_id", "target", "scope",
     "owner_authorization", "credential", "execution", "implementation", "limitations"]), "RA_STAB_PREPARATION_KEYS_INVALID");
   invariant(value.schema_version === "ra-stab-01-control-plan-readback-preparation-v1"
-    && value.status === "OWNER_AUTHORIZED_ONE_SHOT" && value.task_id === "RA-STAB-01",
+    && new Set(["OWNER_AUTHORIZED_ONE_SHOT", "CONSUMED_FAILED_TLS_PREFLIGHT"]).has(value.status)
+    && value.task_id === "RA-STAB-01",
   "RA_STAB_PREPARATION_INVALID");
   invariant(exactKeys(value.target, ["environment", "project_ref", "database_identity"])
     && value.target.environment === "PRODUCTION"
@@ -95,6 +98,22 @@ function validatePreparation(value) {
     && Object.values(value.implementation).every(hash => /^[0-9a-f]{64}$/.test(hash)),
   "RA_STAB_AUTHORIZATION_INVALID");
   return Object.freeze(value);
+}
+
+function validateTlsCa(dependencies = {}) {
+  const env = dependencies.env || process.env;
+  const caPath = env.NODE_EXTRA_CA_CERTS;
+  invariant(typeof caPath === "string" && path.isAbsolute(caPath), "RA_STAB_TLS_CA_REQUIRED");
+  const bytes = (dependencies.readFile || fs.readFileSync)(caPath);
+  const Certificate = dependencies.X509Class || X509Certificate;
+  const certificate = new Certificate(bytes);
+  const now = dependencies.now?.() || new Date();
+  invariant(certificate.fingerprint256 === SUPABASE_ROOT_CA_FINGERPRINT
+    && certificate.subject.includes("CN=Supabase Root 2021 CA")
+    && certificate.issuer === certificate.subject
+    && Date.parse(certificate.validFrom) <= now.getTime()
+    && Date.parse(certificate.validTo) > now.getTime(), "RA_STAB_TLS_CA_INVALID");
+  return { path: caPath, fingerprint256: certificate.fingerprint256, valid_to: certificate.validTo };
 }
 
 function validateImplementationBindings(preparation) {
@@ -248,6 +267,7 @@ function writeOnce(file, value) {
 
 async function execute(preparation, dependencies = {}) {
   validateImplementationBindings(preparation);
+  validateTlsCa(dependencies.tls || {});
   const commit = dependencies.validateGitState ? dependencies.validateGitState() : validateGitState();
   invariant(!fs.existsSync(ATTEMPT_PATH) && !fs.existsSync(OUTPUT_PATH) && !fs.existsSync(DIGEST_PATH),
     "RA_STAB_ONE_SHOT_ALREADY_ATTEMPTED");
@@ -326,11 +346,15 @@ async function run(argv = process.argv.slice(2), dependencies = {}) {
   const options = parseArgs(argv);
   if (options.mode === "cleanup") return cleanupOnly(dependencies);
   const preparation = validatePreparation(readJson(PREPARATION_PATH));
-  validateImplementationBindings(preparation);
   const expected = confirmation(preparation);
   if (options.mode === "status") return { result: "PASS", status: preparation.status,
-    preparation_sha256: preparationHash(preparation), confirmation: expected, credential_read: false,
-    production_connection: false };
+    executable: preparation.status === "OWNER_AUTHORIZED_ONE_SHOT",
+    preparation_sha256: preparationHash(preparation),
+    confirmation: preparation.status === "OWNER_AUTHORIZED_ONE_SHOT" ? expected : null,
+    consumed_attempt_preparation_sha256: preparation.status === "CONSUMED_FAILED_TLS_PREFLIGHT"
+      ? "af13ce9fab997cce9f54da3c783e06ff12847f292c4034ecee9b000538f6ac97" : null,
+    credential_read: false, production_connection: false };
+  invariant(preparation.status === "OWNER_AUTHORIZED_ONE_SHOT", "RA_STAB_AUTHORIZATION_NOT_EXECUTABLE");
   invariant(options.confirm === expected, `RA_STAB_CONFIRMATION_MISMATCH:${expected}`);
   return execute(preparation, dependencies);
 }
@@ -339,5 +363,5 @@ if (require.main === module) run().then(value => console.log(JSON.stringify(valu
   .catch(error => { console.error(error.message); process.exitCode = 1; });
 
 module.exports = { ATTEMPT_PATH, DIGEST_PATH, OUTPUT_PATH, PREPARATION_PATH, cleanupOnly, confirmation,
-  execute, issuerProcess, oneRead, parseArgs, preparationHash, run, sha256, sourceHash, validateImplementationBindings,
-  validatePreparation, validateReadback, writeOnce };
+  SUPABASE_ROOT_CA_FINGERPRINT, execute, issuerProcess, oneRead, parseArgs, preparationHash, run, sha256,
+  sourceHash, validateImplementationBindings, validatePreparation, validateReadback, validateTlsCa, writeOnce };

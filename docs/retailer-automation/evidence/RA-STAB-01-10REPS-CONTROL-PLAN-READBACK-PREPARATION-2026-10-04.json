@@ -1,6 +1,6 @@
 {
   "schema_version": "ra-stab-01-control-plan-readback-preparation-v1",
-  "status": "OWNER_AUTHORIZED_ONE_SHOT",
+  "status": "CONSUMED_FAILED_TLS_PREFLIGHT",
   "task_id": "RA-STAB-01",
   "target": {
     "environment": "PRODUCTION",
