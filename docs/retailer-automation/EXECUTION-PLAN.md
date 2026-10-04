@@ -1072,6 +1072,21 @@ function, and the 10 Reps state remains unread. Applying the migration is the
 next exact owner gate. Evidence:
 [`evidence/RA-STAB-01-CENTRAL-READBACK-ACL-INVENTORY-2026-10-04.json`](evidence/RA-STAB-01-CENTRAL-READBACK-ACL-INVENTORY-2026-10-04.json).
 
+**4 October first central deployment attempt - transaction rolled back before
+credential activation or read:** PR `#202` merged the reviewed package at
+`209ffbe2` after green CI. Production accepted the target, ledger and migration
+preflight, but its managed `postgres` owner could not `SET ROLE` to the newly
+created purpose owner during `ALTER FUNCTION OWNER`. The migration transaction
+rolled back. A separate read-only verification proved ledger `223`, both roles,
+the private schema, wrapper, ledger entry and caller backend were all absent.
+The 10 Reps RPC was never called. The forward correction removes the
+unnecessary ownership transfer and extra owner role; the private wrapper stays
+owned by the existing production `postgres` owner while the reusable caller
+remains narrowly granted and `NOLOGIN`. The PostgreSQL 17 regression now drops
+`SUPERUSER` from its migration owner before apply so it reproduces the managed
+production restriction. No retry is authorized. Evidence:
+[`evidence/RA-STAB-01-CENTRAL-READBACK-DEPLOYMENT-ATTEMPT-2026-10-04.json`](evidence/RA-STAB-01-CENTRAL-READBACK-DEPLOYMENT-ATTEMPT-2026-10-04.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
