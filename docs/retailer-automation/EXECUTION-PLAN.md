@@ -954,6 +954,33 @@ deployment of the already reviewed narrow interface and for one short-lived
 dedicated read-only identity. Evidence:
 [`evidence/RA-STAB-01-10REPS-READONLY-EXPORT-PREFLIGHT-2026-10-04.json`](evidence/RA-STAB-01-10REPS-READONLY-EXPORT-PREFLIGHT-2026-10-04.json).
 
+**4 October bounded plan-tree readback — owner authorized and locally
+prepared:** deeper review proved the historical RA-004 v1 interface cannot be
+deployed to production as-is: it is bound to the staging ledger and requires
+five evidence writes before its read. The smaller safe route reuses the already
+deployed `public.get_retailer_catalogue_plan_status(uuid)` RPC. One temporary
+login, valid for at most ten minutes, receives no table privileges or role
+memberships and is confined by one static `REPEATABLE READ READ ONLY` call,
+then disabled in its own committed transaction, terminated, revoked and
+dropped. The coordinator invokes cleanup by the fixed role name after a lost
+credential reply and has a separate cleanup-only mode that is not gated by the
+migration ledger, Git state or implementation hashes.
+The temporary plaintext password is never interpolated into SQL or written to
+an artifact; PostgreSQL receives only its SCRAM verifier. The result is accepted only
+if the exact parent fingerprint and all 19 child IDs/fingerprints match the
+preserved registration. It reports apply/rollback runs but cannot claim the
+full eleven-source RA-004 clearance or authorize close, retry or replay. The
+failure paths have local regression coverage, including an isolated PostgreSQL
+17 lifecycle test that proves SCRAM login, forced session termination,
+committed `NOLOGIN`, revoke-before-drop and a deliberately blocked `DROP ROLE`.
+The termination check is bounded to two seconds; a slower shutdown fails closed
+and enters rescue cleanup. Live cleanup remains a required production
+postcondition rather than a pre-execution claim. Authorization is
+bound to exact implementation hashes and execution requires a
+freshly fetched, clean merged `main`. The owner authorized this complete
+bounded package on 4 October. Preparation:
+[`evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-PREPARATION-2026-10-04.json`](evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-PREPARATION-2026-10-04.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
