@@ -2,7 +2,7 @@
   "schema_version": "ra-stab-01-review-queue-ux-simplification-v1",
   "task_id": "RA-STAB-01",
   "recorded_at": "2026-10-03T17:54:12Z",
-  "result": "MERGED_DEPLOYED_AUTH_GATE_VERIFIED_AUTHENTICATED_UI_READBACK_PENDING",
+  "result": "MERGED_DEPLOYED_AUTHENTICATED_UI_READBACK_PASS",
   "base_commit": "592375244962919f2fcb2bd4bb8e9941cdc96b2c",
   "scope": {
     "admin_route": "/admin/automation-review",
@@ -66,7 +66,21 @@
       "location": "/admin/login",
       "interpretation": "The production admin route remains protected. No authentication bypass was attempted."
     },
-    "authenticated_ui_readback": "PENDING_AUTHENTICATED_READ_ONLY_SESSION"
+    "authenticated_ui_readback": {
+      "recorded_at": "2026-10-04T14:36:00Z",
+      "login_status": 303,
+      "route_status": 200,
+      "simplified_heading": true,
+      "clear_decision_prompt": true,
+      "rare_filters_collapsed": true,
+      "approval_execution_separated": true,
+      "hidden_approve_execute_absent": true,
+      "second_page_status": 200,
+      "second_page_had_offer": false,
+      "cross_page_live_search_proof": "NOT_APPLICABLE_FEWER_THAN_51_MATCHING_ROWS",
+      "decisions_submitted": 0,
+      "executions_submitted": 0
+    }
   },
   "regression": {
     "fixture_rows": 75,
@@ -83,5 +97,13 @@
     "control_writes": 0,
     "manual_retailer_dispatches": 0
   },
-  "next_gate": "AUTHENTICATED_READ_ONLY_PRODUCTION_UI_READBACK_WITHOUT_DECISIONS_OR_WRITES"
+  "follow_up_2026_10_04": {
+    "pull_request": 205,
+    "merge_commit": "1248d208d32d6c74c9a22310dc690f89dd3b4ed1",
+    "decision_route_change": "REMOVED_UNUSED_COMBINED_APPROVE_EXECUTE_ACTION",
+    "complete_read_order": "UPDATED_AT_DESC_THEN_ID_DESC",
+    "guardrails_weakened": false,
+    "production_writes": 0
+  },
+  "next_gate": "COMPLETE_NO_FURTHER_REVIEW_QUEUE_UX_ACTION"
 }

@@ -572,6 +572,20 @@ route is removed so approval and protected execution remain separate.
 Preparation:
 [`docs/retailer-automation/evidence/RA-STAB-01-10REPS-CENTRAL-READBACK-PREPARATION-V4-2026-10-04.json`](retailer-automation/evidence/RA-STAB-01-10REPS-CENTRAL-READBACK-PREPARATION-V4-2026-10-04.json).
 
+That authorized one-shot is now complete. PR `#205` merged at `1248d208`; the
+validated result was persisted before cleanup and reports the 10 Reps parent as
+`APPROVED`, one expired-approval child as `APPROVED`, the other 18 children as
+`PLANNED`, and no execution runs. Cleanup-only performed no second status RPC
+and proved the reusable caller is again `NOLOGIN` with zero backends and no
+memberships. Total production accounting is one read, zero retries, zero
+close/RA-004 calls and zero business/control-data writes. The authorization is
+consumed and the bounded readback subtask is `VERIFIED_COMPLETE`; this does not
+close RA-STAB-01 or advance its `0/3` ordinary observation counter. Authenticated
+production readback also confirms the simplified Review Queue is live and kept
+approval separate from execution, with no decisions or executions submitted.
+Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-10REPS-CENTRAL-READBACK-V4-CLOSEOUT-2026-10-04.json`](retailer-automation/evidence/RA-STAB-01-10REPS-CENTRAL-READBACK-V4-CLOSEOUT-2026-10-04.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

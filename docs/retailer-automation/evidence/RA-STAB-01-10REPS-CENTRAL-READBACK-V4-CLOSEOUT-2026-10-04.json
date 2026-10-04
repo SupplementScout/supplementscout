@@ -1,0 +1,85 @@
+{
+  "schema_version": "ra-stab-central-readback-closeout-v1",
+  "status": "VERIFIED_READ_ONLY_CLEANUP_COMPLETE",
+  "task_id": "RA-STAB-01",
+  "recorded_at": "2026-10-04T14:34:56.747Z",
+  "repository": {
+    "pull_request": 205,
+    "merge_commit": "1248d208d32d6c74c9a22310dc690f89dd3b4ed1",
+    "preparation_sha256": "b7ee4e8ec0e99e6038b3337d35821ffd80e3747338255df714e8ce4dc8105898"
+  },
+  "production_preflight": {
+    "ledger_count": 224,
+    "ledger_fingerprint": "9d1bfaefa24a85ecbf6012ff6d61b6b8f9f849f54a93e10b23a4779239cf784b",
+    "central_migration_sha256": "cdcad9de57122fd4a78b8fd3cdad4ba19558e7981861c585e2e4fdeef816a3d8",
+    "caller_login_before_activation": false,
+    "caller_backend_count_before_activation": 0
+  },
+  "readback": {
+    "final_assessment": "REGISTRATION_NON_TERMINAL_NO_RUNS",
+    "parent": {
+      "parent_plan_id": "06ae81b7-4cc1-42b5-af6a-92bfd17e6dfa",
+      "parent_plan_fingerprint": "9dd18203a3c3f194fab64fc5037d2833f21b95dfa798ca278c19716b58232eab",
+      "retailer_id": "14",
+      "target_environment": "PRODUCTION",
+      "status": "APPROVED",
+      "approval_expires_at": "2026-10-03T09:20:42.631+00:00"
+    },
+    "expected_child_count": 19,
+    "observed_child_count": 19,
+    "status_counts": { "APPROVED": 1, "PLANNED": 18 },
+    "children": [
+      { "batch_index": 0, "child_plan_id": "f5d476e6-7eea-40f1-a7d8-8b9d0a7ad23d", "status": "APPROVED", "approval_expires_at": "2026-10-03T08:50:58.818+00:00" },
+      { "batch_index": 1, "child_plan_id": "6f2eae9d-7b35-4e32-afa0-8ee02a72b240", "status": "PLANNED", "approval_expires_at": null },
+      { "batch_index": 2, "child_plan_id": "19185519-bb38-4631-832f-e4cfd98552bd", "status": "PLANNED", "approval_expires_at": null },
+      { "batch_index": 3, "child_plan_id": "ce3b2100-a84d-464e-8132-8d3edd18b6d3", "status": "PLANNED", "approval_expires_at": null },
+      { "batch_index": 4, "child_plan_id": "59fcaea7-d141-4574-890e-0cd8ea281cde", "status": "PLANNED", "approval_expires_at": null },
+      { "batch_index": 5, "child_plan_id": "4fdce2f5-9ba4-4f4e-8864-1751b6b1438b", "status": "PLANNED", "approval_expires_at": null },
+      { "batch_index": 6, "child_plan_id": "f5824800-9b82-4e11-8dc4-b08553e640f7", "status": "PLANNED", "approval_expires_at": null },
+      { "batch_index": 7, "child_plan_id": "6996dd85-f807-4725-b910-531574f4b6d7", "status": "PLANNED", "approval_expires_at": null },
+      { "batch_index": 8, "child_plan_id": "f673792a-5475-42ac-8ddc-20f3f994752e", "status": "PLANNED", "approval_expires_at": null },
+      { "batch_index": 9, "child_plan_id": "ac2a0c51-d25d-4730-90e0-f035acb71925", "status": "PLANNED", "approval_expires_at": null },
+      { "batch_index": 10, "child_plan_id": "ba4c3222-96df-4c47-beb9-d6ea0507e4bc", "status": "PLANNED", "approval_expires_at": null },
+      { "batch_index": 11, "child_plan_id": "1919f99e-2826-4295-95c8-4add26b91596", "status": "PLANNED", "approval_expires_at": null },
+      { "batch_index": 12, "child_plan_id": "5e319127-22f4-4a83-abfe-4ac018b0b726", "status": "PLANNED", "approval_expires_at": null },
+      { "batch_index": 13, "child_plan_id": "88863601-d4d7-436f-b97b-4b8950597996", "status": "PLANNED", "approval_expires_at": null },
+      { "batch_index": 14, "child_plan_id": "73fd66df-8614-414a-b19a-78ba4e907575", "status": "PLANNED", "approval_expires_at": null },
+      { "batch_index": 15, "child_plan_id": "d14b9700-767f-4e8e-9592-8f45bf07fc6c", "status": "PLANNED", "approval_expires_at": null },
+      { "batch_index": 16, "child_plan_id": "40ec609e-a2c4-4632-a79a-675aee5a85d9", "status": "PLANNED", "approval_expires_at": null },
+      { "batch_index": 17, "child_plan_id": "d0a9012e-02fb-4b55-87b7-89cb36a3512f", "status": "PLANNED", "approval_expires_at": null },
+      { "batch_index": 18, "child_plan_id": "d9a39070-dd3b-40b5-901d-02a42ee09ebe", "status": "PLANNED", "approval_expires_at": null }
+    ],
+    "runs": []
+  },
+  "accounting": {
+    "read_attempts": 1,
+    "rpc_calls": 1,
+    "automatic_retries": 0,
+    "cleanup_only_calls": 1,
+    "cleanup_rpc_calls": 0,
+    "close_calls": 0,
+    "ra004_calls": 0,
+    "business_writes": 0,
+    "control_data_writes": 0
+  },
+  "artifact_custody": {
+    "validated_result_saved_before_cleanup": true,
+    "provisional_sha256": "df44922752a1fcfc8fbfe164f76feadba7fecf0f867c6b013916d85a8adc95e4",
+    "cleanup_receipt_sha256": "41f2c7ae3e9acf754f30e5b1f5f766b2bd9239ca95545a2a1e71a30491b4393b",
+    "tls_fingerprint256": "80:70:25:AD:50:D4:ED:21:9D:2C:9C:7D:29:9C:00:4F:82:4E:B0:0C:F7:F6:5A:FE:F6:07:D0:7B:72:E6:CA:FA"
+  },
+  "cleanup": {
+    "login_disabled": true,
+    "backend_count": 0,
+    "memberships": false,
+    "wrapper_execute_only": true,
+    "grants_preserved_for_reuse": true
+  },
+  "decision": {
+    "bounded_readback_subtask": "VERIFIED_COMPLETE",
+    "registration_state": "NON_TERMINAL_EXPIRED_APPROVAL_NO_RUNS",
+    "automatic_close_or_retry_authorized": false,
+    "ra_stab_01_overall_status": "IN_PROGRESS",
+    "ordinary_observation_counter": "0/3"
+  }
+}
