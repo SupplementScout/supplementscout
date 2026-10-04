@@ -34,7 +34,66 @@ test("status mode never needs a confirmation or production dependency", async ()
   const result = await readback.run(["--mode=status"]);
   assert.equal(result.credential_read, false);
   assert.equal(result.production_connection, false);
-  assert.match(result.confirmation, /^[0-9a-f]{20}$/);
+  assert.equal(result.executable, false);
+  assert.equal(result.confirmation, null);
+  assert.match(result.consumed_attempt_preparation_sha256, /^[0-9a-f]{64}$/);
+});
+
+test("TLS CA preflight requires the exact current Supabase root before execution", () => {
+  const valid = {
+    fingerprint256: readback.SUPABASE_ROOT_CA_FINGERPRINT,
+    subject: "C=US\nO=Supabase Inc\nCN=Supabase Root 2021 CA",
+    issuer: "C=US\nO=Supabase Inc\nCN=Supabase Root 2021 CA",
+    validFrom: "Apr 28 10:56:53 2021 GMT",
+    validTo: "Apr 26 10:56:53 2031 GMT",
+  };
+  class FakeCertificate { constructor() { Object.assign(this, valid); } }
+  const now = () => new Date("2026-10-04T09:30:00Z");
+  assert.deepEqual(readback.validateTlsCa({ env: { NODE_EXTRA_CA_CERTS: "C:\\tmp\\supabase.crt" },
+    readFile: () => Buffer.from("certificate"), X509Class: FakeCertificate, now }), {
+    path: "C:\\tmp\\supabase.crt", fingerprint256: readback.SUPABASE_ROOT_CA_FINGERPRINT,
+    valid_to: valid.validTo,
+  });
+  assert.throws(() => readback.validateTlsCa({ env: {} }), /TLS_CA_REQUIRED/);
+  class WrongCertificate extends FakeCertificate { constructor() { super(); this.fingerprint256 = "00"; } }
+  assert.throws(() => readback.validateTlsCa({ env: { NODE_EXTRA_CA_CERTS: "C:\\tmp\\wrong.crt" },
+    readFile: () => Buffer.from("wrong"), X509Class: WrongCertificate, now }), /TLS_CA_INVALID/);
+});
+
+test("missing CA stops before Git, attempt marker and issuer", async () => {
+  const value = JSON.parse(fs.readFileSync(readback.PREPARATION_PATH, "utf8"));
+  value.status = "OWNER_AUTHORIZED_ONE_SHOT";
+  value.implementation = {
+    issuer_sha256: readback.sourceHash(path.join(__dirname, "ra-stab-01-control-plan-credential-issuer.js")),
+    coordinator_sha256: readback.sourceHash(path.join(__dirname, "ra-stab-01-control-plan-readback.js")),
+    test_sha256: readback.sourceHash(__filename),
+    lifecycle_integration_sha256: readback.sourceHash(path.join(__dirname,
+      "ra-stab-01-control-plan-credential-lifecycle.integration.test.js")),
+    rpc_migration_sha256: readback.sourceHash(path.join(__dirname, "..", "supabase", "migrations",
+      "20260719100000_add_production_retailer_sync_enablement.sql")),
+  };
+  const markerBefore = fs.existsSync(readback.ATTEMPT_PATH);
+  let gitCalled = false;
+  let issuerCalled = false;
+  await assert.rejects(() => readback.execute(value, {
+    tls: { env: {} },
+    validateGitState: () => { gitCalled = true; return "a".repeat(40); },
+    issuer: { call: async () => { issuerCalled = true; }, close() {} },
+  }), /TLS_CA_REQUIRED/);
+  assert.equal(gitCalled, false);
+  assert.equal(issuerCalled, false);
+  assert.equal(fs.existsSync(readback.ATTEMPT_PATH), markerBefore);
+});
+
+test("consumed authorization rejects a syntactically valid confirmation before dependencies", async () => {
+  const value = preparation();
+  let dependencyCalled = false;
+  await assert.rejects(() => readback.run(["--mode=execute", `--confirm=${readback.confirmation(value)}`], {
+    validateGitState: () => { dependencyCalled = true; },
+    issuer: { call: async () => { dependencyCalled = true; }, close() {} },
+    tls: { env: { NODE_EXTRA_CA_CERTS: "C:\\tmp\\unused.crt" } },
+  }), /AUTHORIZATION_NOT_EXECUTABLE/);
+  assert.equal(dependencyCalled, false);
 });
 
 test("readback accepts exact identities and reports non-terminal no-run state", () => {

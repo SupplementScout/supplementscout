@@ -981,6 +981,22 @@ freshly fetched, clean merged `main`. The owner authorized this complete
 bounded package on 4 October. Preparation:
 [`evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-PREPARATION-2026-10-04.json`](evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-PREPARATION-2026-10-04.json).
 
+**4 October one-shot attempt — consumed before database authentication:** PR
+`#196` merged at `5f064c8860f7f1d97cdbf0132e89f89dc630b0fc` after green CI. The
+clean-`main` execution reached the verified-TLS boundary without the private
+Supabase Root 2021 CA and stopped with `self-signed certificate in certificate
+chain`. It authenticated no database session, executed no SQL or RPC, created
+no role and produced no export. Cleanup-only was then run with the official CA
+after verifying its SHA-256 certificate fingerprint
+`80:70:25:AD:50:D4:ED:21:9D:2C:9C:7D:29:9C:00:4F:82:4E:B0:0C:F7:F6:5A:FE:F6:07:D0:7B:72:E6:CA:FA`;
+its authenticated cleanup readback found the fixed role, memberships, backends
+and target grants absent, with zero RPC calls. The TLS failure before database
+authentication is the separate basis for concluding that the failed execution
+created no role. The authorization is consumed and no retry is
+authorized. The regression requires and fingerprints the CA before an attempt
+marker or credential creation. Evidence:
+[`evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-ATTEMPT-2026-10-04.json`](evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-ATTEMPT-2026-10-04.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

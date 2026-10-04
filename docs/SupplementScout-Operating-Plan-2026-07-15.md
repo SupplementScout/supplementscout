@@ -517,6 +517,21 @@ retry or replay. The authorization binds exact implementation hashes. Local
 focused and repository gates must pass and execution must freshly fetch and
 match a clean merged `main` before the one-shot production read.
 
+PR `#196` merged this package as
+`5f064c8860f7f1d97cdbf0132e89f89dc630b0fc` with green CI. The one-shot
+execution then stopped at verified TLS because the private Supabase Root 2021
+CA had not been supplied. There was no database authentication, SQL, RPC,
+temporary role, control write, business write or export. A separate cleanup-only
+call used the official CA after its certificate fingerprint was independently
+verified; its authenticated readback found the fixed role, memberships,
+backends and target grants absent and made zero RPC calls. The TLS failure
+before authentication is the separate basis for concluding that the failed
+execution created no role. The original authorization is consumed,
+so no automatic or manual retry is open. The follow-up regression moves exact
+CA validation ahead of the attempt marker and all credential work. Any new
+current-state read requires a new one-shot owner authorization. Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-ATTEMPT-2026-10-04.json`](retailer-automation/evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-ATTEMPT-2026-10-04.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

@@ -1,0 +1,65 @@
+{
+  "schema_version": "ra-stab-01-control-plan-readback-attempt-v1",
+  "status": "FAILED_BEFORE_DATABASE_AUTHENTICATION_CLEANUP_VERIFIED",
+  "task_id": "RA-STAB-01",
+  "attempt": {
+    "started_at": "2026-10-04T09:21:32.777Z",
+    "repository_commit": "5f064c8860f7f1d97cdbf0132e89f89dc630b0fc",
+    "preparation_sha256": "af13ce9fab997cce9f54da3c783e06ff12847f292c4034ecee9b000538f6ac97",
+    "confirmation": "cb234945b29ab341e832",
+    "maximum_attempts": 1,
+    "automatic_retry": false,
+    "failure_code": "TLS_CA_CONFIGURATION_MISSING",
+    "failure_message": "The Supabase private root CA was not present in NODE_EXTRA_CA_CERTS; verified TLS stopped before database authentication."
+  },
+  "target": {
+    "environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "database_identity": "supplementscout-production:aftboxmrdgyhizicfsfu"
+  },
+  "scope": {
+    "retailer_id": "14",
+    "retailer_name": "10 Reps",
+    "parent_plan_id": "06ae81b7-4cc1-42b5-af6a-92bfd17e6dfa",
+    "expected_child_count": 19
+  },
+  "failed_execution_accounting": {
+    "tls_connections_attempted_exact": null,
+    "tls_failure_observed": true,
+    "database_authentications": 0,
+    "sql_statements": 0,
+    "rpc_calls": 0,
+    "retailer_retries": 0,
+    "business_writes": 0,
+    "control_writes": 0,
+    "authorization_catalog_writes": 0,
+    "export_artifacts_created": 0
+  },
+  "cleanup": {
+    "mode": "CLEANUP_ONLY",
+    "database_authentications": 1,
+    "sql_statements_exact": null,
+    "sql_scope": "Fixed-role presence, disable/revoke/drop-if-present and absence verification only.",
+    "rpc_calls": 0,
+    "official_ca_fingerprint_sha256": "80:70:25:AD:50:D4:ED:21:9D:2C:9C:7D:29:9C:00:4F:82:4E:B0:0C:F7:F6:5A:FE:F6:07:D0:7B:72:E6:CA:FA",
+    "official_ca_valid_to": "2031-04-26T10:56:53Z",
+    "result": "CLEANUP_VERIFIED",
+    "cleanup_status_reported_by_v1_tool": "ROLE_DROPPED",
+    "role_present_before_cleanup_recorded": false,
+    "cleanup_status_interpretation": "The v1 tool used ROLE_DROPPED for any drop transaction without an error, including an already-absent no-op. This value does not prove that a role was present or dropped.",
+    "role_absent": true,
+    "login_disabled": true,
+    "membership_absent": true,
+    "backend_absent": true,
+    "target_execute_absent": true,
+    "schema_usage_direct_absent": true
+  },
+  "conclusion": {
+    "current_plan_state_read": false,
+    "raw_export_created": false,
+    "authorization_consumed": true,
+    "second_attempt_authorized": false,
+    "no_role_created_inference": "The failed execution stopped during TLS certificate validation before database authentication; the later cleanup readback independently proves only the final absent state.",
+    "next_action": "Merge the CA preflight regression. Any new production read requires a new explicit one-shot owner authorization; do not retry, close or replay RA-004 under this record."
+  }
+}

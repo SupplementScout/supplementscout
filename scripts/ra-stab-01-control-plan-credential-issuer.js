@@ -204,6 +204,8 @@ async function revokeCredential({ role = ROLE, runner_process_id = process.pid }
   try {
     await db.connect();
     await ownerIdentity(db);
+    const rolePresentBeforeCleanup = (await db.query(
+      "select exists(select 1 from pg_roles where rolname=$1) role_present", [ROLE])).rows[0]?.role_present === true;
     await disableLogin(db);
     await db.query("select pg_terminate_backend(pid) from pg_stat_activity where usename=$1 and pid<>pg_backend_pid()", [ROLE]);
     const delay = dependencies.delay || (milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds)));
@@ -256,8 +258,9 @@ async function revokeCredential({ role = ROLE, runner_process_id = process.pid }
       && proof.schema_usage_direct_absent && (proof.role_absent || proof.target_execute_absent),
     "RA_STAB_REVOKE_UNVERIFIED");
     return { access_revoked: true, credential_id: CREDENTIAL_ID, role: ROLE,
-      issuer_process_id: process.pid, runner_process_id, cleanup_status: cleanupError
-        ? "ACCESS_REVOKED_RESIDUAL_ROLE" : "ROLE_DROPPED", ...proof };
+      issuer_process_id: process.pid, runner_process_id, role_present_before_cleanup: rolePresentBeforeCleanup,
+      cleanup_status: cleanupError ? "ACCESS_REVOKED_RESIDUAL_ROLE"
+        : rolePresentBeforeCleanup ? "ROLE_DROPPED" : "ROLE_ALREADY_ABSENT_VERIFIED", ...proof };
   } finally { await db.end().catch(() => {}); }
 }
 
