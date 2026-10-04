@@ -1024,6 +1024,17 @@ a PostgreSQL regression containing the formerly triggering primary-key index;
 it changes no retailer, catalogue, approval or execution policy. Evidence:
 [`evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-ATTEMPT-V2-2026-10-04.json`](evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-ATTEMPT-V2-2026-10-04.json).
 
+**4 October third and final one-shot readback authorization — prepared, not
+yet executed:** after the common relation-kind capability fix merged at
+`36e4a31`, the owner explicitly authorized one final read-only export of the
+same exact parent and 19 children. V3 has its own temporary role, credential
+identity, write-once marker, output and digest paths. V1 and V2 remain terminal
+and immutable. The unchanged boundary permits no business or control writes,
+retry, close, retailer refresh or RA-004 replay; any attempted V3 execution
+consumes the authorization. Execution requires the pinned Supabase Root 2021
+CA and a clean, freshly fetched merged `main`. Preparation:
+[`evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-PREPARATION-V3-2026-10-04.json`](evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-PREPARATION-V3-2026-10-04.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

@@ -7,8 +7,8 @@ const { CONTRACTS, ledgerRowsFingerprint, validateDatabaseOwner } = require("./s
 
 const ROOT = path.resolve(__dirname, "..");
 const PRODUCTION = CONTRACTS.PRODUCTION;
-const ROLE = "ra_stab_plan_read_20261004_b";
-const CREDENTIAL_ID = "ra-stab-plan-read-20261004-b";
+const ROLE = "ra_stab_plan_read_20261004_c";
+const CREDENTIAL_ID = "ra-stab-plan-read-20261004-c";
 const RPC = "public.get_retailer_catalogue_plan_status(uuid)";
 const MAX_TTL_MS = 10 * 60 * 1000;
 const MIGRATION = path.join(ROOT, "supabase", "migrations", "20260719100000_add_production_retailer_sync_enablement.sql");
