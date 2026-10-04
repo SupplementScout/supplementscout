@@ -1,0 +1,80 @@
+{
+  "schema_version": "ra-stab-01-control-plan-readback-preparation-v1",
+  "status": "OWNER_AUTHORIZED_ONE_SHOT",
+  "task_id": "RA-STAB-01",
+  "target": {
+    "environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "database_identity": "supplementscout-production:aftboxmrdgyhizicfsfu"
+  },
+  "scope": {
+    "operation": "READ_ONLY_CONTROL_PLAN_STATUS",
+    "retailer_id": "14",
+    "retailer_name": "10 Reps",
+    "parent_plan_id": "06ae81b7-4cc1-42b5-af6a-92bfd17e6dfa",
+    "parent_plan_fingerprint": "9dd18203a3c3f194fab64fc5037d2833f21b95dfa798ca278c19716b58232eab",
+    "expected_child_count": 19,
+    "children": [
+      { "child_plan_id": "f5d476e6-7eea-40f1-a7d8-8b9d0a7ad23d", "child_plan_fingerprint": "f7bba977f2eff80878454c122e62b8f08859724794c85c457843bc6f611fc7b7" },
+      { "child_plan_id": "6f2eae9d-7b35-4e32-afa0-8ee02a72b240", "child_plan_fingerprint": "6f5ab8c9912975352d3838c6c8fabb895b63ec5846c8325d3a2e6bdcade849ac" },
+      { "child_plan_id": "19185519-bb38-4631-832f-e4cfd98552bd", "child_plan_fingerprint": "574ef1767570ad5a4945ec8057ec59d8e46d38189545c350451107b50a5eb2f1" },
+      { "child_plan_id": "ce3b2100-a84d-464e-8132-8d3edd18b6d3", "child_plan_fingerprint": "f5ade3b76fb449fc369f33230de8dea247b4f03eca7baf70d7ef1e7fb980007d" },
+      { "child_plan_id": "59fcaea7-d141-4574-890e-0cd8ea281cde", "child_plan_fingerprint": "65d7004f46fde552b20cf811ce6d04bd3eb77325be109954163e7baac0d0890e" },
+      { "child_plan_id": "4fdce2f5-9ba4-4f4e-8864-1751b6b1438b", "child_plan_fingerprint": "db97ffda1023c8ddd7c55ab0c04d88478212d8f986bb1f552a00f8ee9776ade0" },
+      { "child_plan_id": "f5824800-9b82-4e11-8dc4-b08553e640f7", "child_plan_fingerprint": "902c2a3cdf0c8159210c8c840ede18b31f657416ccc035e5f65ad5cb974b0e07" },
+      { "child_plan_id": "6996dd85-f807-4725-b910-531574f4b6d7", "child_plan_fingerprint": "499277c9acf25f38719d03368773b2d8bbefe706b9a3bda45aa6b025e7e4394b" },
+      { "child_plan_id": "f673792a-5475-42ac-8ddc-20f3f994752e", "child_plan_fingerprint": "62e4b9926e2c608b0d711231780cdb397443524e89fd1565cc98a1e94e8e6c06" },
+      { "child_plan_id": "ac2a0c51-d25d-4730-90e0-f035acb71925", "child_plan_fingerprint": "f699e97958684885de746b29a9bd3a7cbb2e49568de5d4a73bdf6554e9d3404e" },
+      { "child_plan_id": "ba4c3222-96df-4c47-beb9-d6ea0507e4bc", "child_plan_fingerprint": "2798ba109cc66156c768b70d696dc6f344dfb93058bc8235442b3200fbc2728c" },
+      { "child_plan_id": "1919f99e-2826-4295-95c8-4add26b91596", "child_plan_fingerprint": "4ffa678f40e19a7bd94d81f86e0cf537efbdf70e831486d931f8cb09f4f1565b" },
+      { "child_plan_id": "5e319127-22f4-4a83-abfe-4ac018b0b726", "child_plan_fingerprint": "10b0491bcaca953e8f155b8ac1c455ab6e8101c0f01f9207c2bc4944246068db" },
+      { "child_plan_id": "88863601-d4d7-436f-b97b-4b8950597996", "child_plan_fingerprint": "52a1f9110b5b23a16e110bc26bec39be4e939c3b99ea5c5ff5a134c735b743cb" },
+      { "child_plan_id": "73fd66df-8614-414a-b19a-78ba4e907575", "child_plan_fingerprint": "336ac9a62575f9b1fff8dc1daa6457bfec196e65051feafeb0cfefdbf6d03195" },
+      { "child_plan_id": "d14b9700-767f-4e8e-9592-8f45bf07fc6c", "child_plan_fingerprint": "13e7b300f8e3e94a826fab80495b41ff55e771d0b9b8439255b4a78c5b9c4681" },
+      { "child_plan_id": "40ec609e-a2c4-4632-a79a-675aee5a85d9", "child_plan_fingerprint": "f75d8edbaa8a452072704b5dbcc8e1fb0d69ac86ff1e962146aac31637edbf58" },
+      { "child_plan_id": "d0a9012e-02fb-4b55-87b7-89cb36a3512f", "child_plan_fingerprint": "68c6dcab98ed30575c6933ff500a95ff0b949bff6145aa1168a84596ae994ad3" },
+      { "child_plan_id": "d9a39070-dd3b-40b5-901d-02a42ee09ebe", "child_plan_fingerprint": "a1dfd0a6b5790f73684790187ae744352dbf03737b5d724dca7e46b2bf5365c1" }
+    ]
+  },
+  "owner_authorization": {
+    "authorized_by": "Marek Kalinka",
+    "authorized_on": "2026-10-04",
+    "exact_instruction": "Zatwierdzam nowy jednorazowy read-only eksport stanu 10 Reps, na tych samych warunkach: bez zapisów, retry, close i RA-004 replay",
+    "interpreted_scope": "Prepare, verify, merge and execute one bounded current-state read of the exact interrupted 10 Reps control-plan tree under a new one-shot authorization, including one short-lived credential lifecycle; do not retry after any attempted execution."
+  },
+  "credential": {
+    "role": "ra_stab_plan_read_20261004_b",
+    "maximum_ttl_minutes": 10,
+    "connection_limit": 1,
+    "default_transaction_read_only": true,
+    "allowed_rpc": "public.get_retailer_catalogue_plan_status(uuid)",
+    "table_privileges": false,
+    "sequence_privileges": false,
+    "role_memberships": false,
+    "plaintext_password_in_sql_or_artifacts": false
+  },
+  "execution": {
+    "maximum_attempts": 1,
+    "automatic_retry": false,
+    "business_writes_authorized": false,
+    "control_writes_authorized": false,
+    "close_authorized": false,
+    "retailer_retry_authorized": false,
+    "ra004_replay_authorized": false,
+    "required_cleanup": "DISABLE_LOGIN_COMMIT_TERMINATE_REVOKE_DROP_VERIFY"
+  },
+  "implementation": {
+    "issuer_sha256": "df7fce7a63b6db1aa0e07f40640fae2c3c958bf13323633ba9b916ee8e604213",
+    "coordinator_sha256": "230e16fffcaf964d7445864ca4e560d254df1970d3eb9f1a1a23119812d0ca10",
+    "test_sha256": "3179b87d79ee07d12e65a07ca6b64ed5e8188dc36802f3128b087b7c63964249",
+    "lifecycle_integration_sha256": "e4b0086c0f706596c6a13f2997cd1f55a79995bcbe44004636e2afa551108006",
+    "rpc_migration_sha256": "0c1db39a193c98fb7cd41cfc3b75a03b35ebd59d429fe873e431aadb1aabadf9"
+  },
+  "limitations": [
+    "The existing status RPC covers the exact parent, its children and apply/rollback runs only.",
+    "It does not enumerate separate batch approvals, recovery records, sessions, locks, postflight, watchdog state or global conflicts.",
+    "The result cannot authorize retry, close, replay, shadow or any business/control write.",
+    "Temporary role creation, grant, disable-login, revoke and drop are PostgreSQL authorization-catalog writes; the RPC itself remains read-only.",
+    "PostgreSQL built-in routines remain available according to platform defaults; the guard rejects every other executable SECURITY DEFINER routine in public."
+  ]
+}

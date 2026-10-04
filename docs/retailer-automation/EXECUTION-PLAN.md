@@ -997,6 +997,18 @@ authorized. The regression requires and fingerprints the CA before an attempt
 marker or credential creation. Evidence:
 [`evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-ATTEMPT-2026-10-04.json`](evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-ATTEMPT-2026-10-04.json).
 
+**4 October second one-shot readback authorization — prepared, not yet
+executed:** after the first authorization was terminally consumed before
+database authentication, the owner explicitly authorized one new read-only
+export on the same boundaries: no business or control writes, retry, close,
+retailer refresh or RA-004 replay. The new preparation preserves the exact
+parent and 19-child identity, uses a distinct fixed temporary role, marker and
+result path, and requires the verified Supabase Root 2021 CA before Git or
+credential activity. The first attempt and its cleanup evidence remain
+immutable. Execution is permitted only once from a clean, freshly fetched
+merged `main`; any attempted execution consumes this new authority. Preparation:
+[`evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-PREPARATION-V2-2026-10-04.json`](evidence/RA-STAB-01-10REPS-CONTROL-PLAN-READBACK-PREPARATION-V2-2026-10-04.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
