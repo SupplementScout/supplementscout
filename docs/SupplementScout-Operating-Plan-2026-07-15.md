@@ -632,6 +632,23 @@ ordinary Fit House run. The exact 14 Fit House exceptions remain unchanged;
 the manual runs do not advance the `0/3` natural-schedule counter. Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-MANUAL-FIT-WHEY-OBSERVATION-2026-10-05.json`](retailer-automation/evidence/RA-STAB-01-MANUAL-FIT-WHEY-OBSERVATION-2026-10-05.json).
 
+The next 10 Reps run `37364486648` proved that review publication was still
+coupled too tightly to safe execution: its fresh source and exact
+`934 no-change + 16 review` split passed, but a database read timeout during the
+thirteenth protected child skipped the queue job. Independent read-only
+comparison found only 591 freshness timestamps from the first 12 children and
+zero commercial, identity, history or catalogue-count change. The local common
+correction seals review evidence before apply and adds a shared `review-only`
+operation that uses the existing reconciliation and transactional publisher
+without registering or executing a catalogue plan. It fails closed on blocked
+rows, any executable commercial action, evidence drift or current-state drift.
+Focused tests pass `22/22`, including this partial-execution incident, and the
+real artifact validates as the exact 934/16/0 partition. Production remains
+unchanged by preparation. Merge, one 10 Reps review-only publication and a
+read-only 16-card/zero-catalogue-write readback remain required. RA-STAB-01 is
+still `IN_PROGRESS` at `0/3`. Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-REVIEW-PUBLICATION-EXECUTION-DECOUPLING-2026-10-05.json`](retailer-automation/evidence/RA-STAB-01-REVIEW-PUBLICATION-EXECUTION-DECOUPLING-2026-10-05.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

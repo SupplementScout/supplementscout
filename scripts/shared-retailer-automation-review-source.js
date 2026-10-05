@@ -36,12 +36,18 @@ const PROFILES = Object.freeze({
   }),
 });
 const RETAILER = PROFILES["fit-house"].retailer;
-const SOURCE_FILES = Object.freeze({
-  report: "production-apply.json",
-  diagnostic: "production-apply-diagnostic.json",
-  idempotency: "production-idempotency-diagnostic.json",
+// Review evidence is captured before catalogue execution.  The queue describes
+// rows that are deliberately excluded from execution, so its availability must
+// not depend on unrelated execution batches finishing successfully.
+const CAPTURE_SOURCE_FILES = Object.freeze({
+  report: "production-dry-run.json",
+  diagnostic: "production-preflight-diagnostic.json",
   baseline: "production-db-baseline.json",
-  postflight: "production-db-postflight.json",
+});
+const SEALED_SOURCE_FILES = Object.freeze({
+  report: "automation-review-classification.json",
+  diagnostic: "automation-review-preflight-diagnostic.json",
+  baseline: "automation-review-db-baseline.json",
 });
 const CONTRACT_FILE = "automation-review-source-contract.json";
 const ACTIVE_STATUSES = Object.freeze(["PENDING", "APPROVED"]);
@@ -71,9 +77,9 @@ function insideTmp(value, label) {
   return resolved;
 }
 
-function pathsFor(directory) {
+function pathsFor(directory, fileNames = CAPTURE_SOURCE_FILES) {
   const source = path.resolve(directory);
-  return Object.fromEntries(Object.entries(SOURCE_FILES).map(([key, name]) => [key, path.join(source, name)]));
+  return Object.fromEntries(Object.entries(fileNames).map(([key, name]) => [key, path.join(source, name)]));
 }
 
 function normalizedFitHouseReviewRows(diagnostic) {
@@ -115,85 +121,67 @@ function normalizedTenRepsReviewRows(report, baselineByOffer) {
   }).sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
 }
 
-function validateApplyPartition(profile, report, diagnostic, idempotency, postflight) {
+function validateReviewPartition(profile, report, diagnostic) {
   const label = profileLabel(profile);
   const executableCount = Number(report.executable_plan_count);
   const reviewCount = Number(report.review_row_count);
-  invariant(Number.isInteger(executableCount) && executableCount >= 0 && Number(report.executed_plan_count) === executableCount, `${label} executable scope drifted`);
+  invariant(Number.isInteger(executableCount) && executableCount >= 0 && Number(report.executed_plan_count) === 0, `${label} dry-run executable scope drifted`);
   invariant(Number.isInteger(reviewCount) && reviewCount >= 0 && reviewCount <= profile.maximumReviewCount, `${label} review scope drifted`);
 
-  const catalogueDeltaKeys = ["products_delta", "variants_delta", "mappings_delta", "offers_delta"];
-  invariant(report.business && catalogueDeltaKeys.every((key) => Number(report.business[key] || 0) === 0), `${label} apply report contains catalogue changes`);
-  invariant(Number(report.business.offers_refreshed || 0) === executableCount, `${label} refreshed-offer count drifted`);
-  const confirmationCount = Number(report.business.price_history_delta || 0);
-  invariant(Number.isInteger(confirmationCount) && confirmationCount >= 0 && confirmationCount <= executableCount, `${label} price-history count drifted`);
-
-  invariant(diagnostic.result === "PASS" && diagnostic.failure_stage == null && Number(diagnostic.business_writes_completed || 0) === executableCount, `${label} apply diagnostic execution count drifted`);
-  invariant(Number(diagnostic.control_writes_completed || 0) === (executableCount > 0 ? 1 : 0), `${label} apply diagnostic control count drifted`);
-  invariant(idempotency.result === "PASS" && idempotency.failure_stage == null && Number(idempotency.business_writes_completed || 0) === 0 && Number(idempotency.control_writes_completed || 0) === 0, `${label} idempotency diagnostic is not zero-write PASS`);
+  invariant(diagnostic.result === "PASS" && diagnostic.failure_stage == null, `${label} preflight diagnostic is not PASS`);
+  for (const key of ["database_writes_attempted", "database_writes_completed", "business_writes_completed", "control_writes_completed", "approvals_created", "approvals_consumed", "recovery_calls"]) {
+    invariant(Number(diagnostic[key] || 0) === 0, `${label} preflight diagnostic contains writes`);
+  }
 
   const executionIds = sortedIds(Array.isArray(report.execution_offer_ids) ? report.execution_offer_ids : []);
   const verificationIds = sortedIds(Array.isArray(report.verification_offer_ids) ? report.verification_offer_ids : []);
   const stockChangeIds = sortedIds(Array.isArray(report.stock_change_offer_ids) ? report.stock_change_offer_ids : []);
   invariant(executionIds.length === executableCount && stockChangeIds.length === 0, `${label} executable offer IDs drifted`);
-  if (profile.key === "fit-house" && executableCount > 0) {
+  if (profile.key === "fit-house") {
     invariant(verificationIds.length === executableCount, "Fit House verification offer IDs drifted");
     sameJson(executionIds, verificationIds, "Fit House executable and verified scopes differ");
     invariant(executableCount + reviewCount === profile.approvedMappingCount, "Fit House ordinary partition is incomplete");
     invariant(Number(report.classification?.VERIFY_NO_CHANGE || 0) === executableCount && Number(report.classification?.UPDATE_STOCK || 0) === reviewCount, "Fit House ordinary classification drifted");
   } else if (profile.key === "10-reps") {
-    const priceChangeIds = sortedIds(diagnostic?.classifier_summary?.changed_row_ids || []);
-    const commercialExecutionIds = executionIds.filter((offerId) => !verificationIds.includes(offerId));
     invariant(executableCount + reviewCount === profile.approvedMappingCount, "10 Reps ordinary partition is incomplete");
-    invariant(Number(report.classification?.VERIFY_NO_CHANGE || 0) + Number(report.classification?.UPDATE_PRICE || 0) === executableCount && Number(report.classification?.UPDATE_PRICE || 0) <= 1, "10 Reps ordinary classification drifted");
-    invariant(verificationIds.length === Number(report.classification?.VERIFY_NO_CHANGE || 0), "10 Reps verification offer IDs drifted");
-    sameJson(commercialExecutionIds, priceChangeIds, "10 Reps commercial execution IDs drifted");
-    invariant(priceChangeIds.length === Number(report.classification?.UPDATE_PRICE || 0), "10 Reps price-change scope drifted");
+    invariant(Number(report.classification?.VERIFY_NO_CHANGE || 0) === executableCount && Object.entries(report.classification || {}).every(([action, count]) => action === "VERIFY_NO_CHANGE" || Number(count) === 0), "10 Reps pre-execution scope contains a commercial action");
+    invariant(verificationIds.length === executableCount, "10 Reps verification offer IDs drifted");
+    sameJson(executionIds, verificationIds, "10 Reps executable and verified scopes differ");
   }
-
-  invariant(postflight.executable_plan_count === executableCount && postflight.executed_plan_count === executableCount, `${label} postflight execution binding drifted`);
-  invariant(Number(postflight.freshness_change_count || 0) === executableCount, `${label} postflight freshness count drifted`);
-  if (profile.key === "fit-house") {
-    for (const key of ["price_change_count", "stock_change_count", "shipping_change_count", "total_change_count", "offer_url_change_count", "mapping_url_change_count", "price_history_delta"]) invariant(Number(postflight[key] || 0) === 0, `Fit House postflight ${key} is not zero`);
-    invariant(Number(postflight.daily_confirmation_delta || 0) === confirmationCount && Number(postflight.raw_price_history_delta || 0) === confirmationCount, "Fit House postflight confirmation count drifted");
-  } else {
-    const priceChanges = Number(report.classification?.UPDATE_PRICE || 0);
-    invariant(Number(postflight.price_change_count || 0) === priceChanges && Number(postflight.total_change_count || 0) === priceChanges && Number(postflight.price_history_delta || 0) === priceChanges && Number(postflight.raw_price_history_delta || 0) === priceChanges, "10 Reps postflight price deltas drifted");
-    for (const key of ["stock_change_count", "shipping_change_count", "offer_url_change_count", "mapping_url_change_count", "daily_confirmation_delta"]) invariant(Number(postflight[key] || 0) === 0, `10 Reps postflight ${key} is not zero`);
-  }
+  const classifier = diagnostic.classifier_summary;
+  const classifierScope = classifier?.scope;
+  invariant(classifierScope && Number(classifierScope.blocked_rows || 0) === 0 && classifierScope.reconciled === true && Number(classifierScope.reconciled_total) === executableCount, `${label} preflight classifier scope drifted`);
+  sameJson(sortedIds(classifierScope.scope_row_ids || []), executionIds, `${label} preflight classifier IDs drifted`);
+  sameJson(classifier.action_counts || {}, report.classification || {}, `${label} preflight classifier actions drifted`);
   return { executableCount, executionIds };
 }
 
-function loadAndValidateSource(directory, profileValue = "fit-house") {
+function loadAndValidateSource(directory, profileValue = "fit-house", fileNames = CAPTURE_SOURCE_FILES) {
   const profile = profileFor(profileValue);
   const retailer = profile.retailer;
   const label = profileLabel(profile);
-  const files = pathsFor(directory);
+  const files = pathsFor(directory, fileNames);
   for (const file of Object.values(files)) invariant(fs.existsSync(file), `Missing ${label} source file ${path.basename(file)}`);
   const report = readJson(files.report);
   const diagnostic = readJson(files.diagnostic);
-  const idempotency = readJson(files.idempotency);
   const baseline = readJson(files.baseline);
-  const postflight = readJson(files.postflight);
 
-  invariant(report.result === "PASS_WITH_REVIEW" && report.mode === "apply" && report.target === "production", `${label} apply report is not publishable`);
+  invariant(report.result === "PASS_WITH_REVIEW" && report.mode === "dry-run" && report.target === "production", `${label} pre-execution report is not publishable`);
   invariant(report.approved_mapping_count === profile.approvedMappingCount && report.blocked_row_count === 0, `${label} apply scope drifted`);
   invariant(baseline.schema_version === 1 && baseline.kind === "retailer-offer-refresh-db-baseline" && baseline.result === "PASS" && baseline.profile === retailer.slug, `${label} DB baseline is invalid`);
   invariant(baseline.snapshot?.retailer_id === retailer.id && baseline.snapshot?.retailer_name === retailer.name && baseline.snapshot?.row_count === profile.approvedMappingCount && Array.isArray(baseline.snapshot?.rows) && baseline.snapshot.rows.length === profile.approvedMappingCount, `${label} DB baseline scope drifted`);
-  invariant(postflight.schema_version === 1 && postflight.kind === "retailer-offer-refresh-db-postflight" && postflight.result === "PASS" && postflight.profile === retailer.slug, `${label} DB postflight is invalid`);
-  invariant(postflight.baseline_hash === baseline.evidence_hash && postflight.approved_mapping_count === profile.approvedMappingCount && postflight.review_row_count === report.review_row_count && postflight.blocked_row_count === 0, `${label} postflight binding drifted`);
-  const partition = validateApplyPartition(profile, report, diagnostic, idempotency, postflight);
+  invariant(diagnostic.approved_mapping_count === profile.approvedMappingCount && diagnostic.source?.fingerprint === report.source?.fingerprint, `${label} preflight source binding drifted`);
+  const partition = validateReviewPartition(profile, report, diagnostic);
 
   const baselineByOffer = new Map(baseline.snapshot.rows.map((row) => [String(row.offer_id), row]));
   invariant(baselineByOffer.size === profile.approvedMappingCount, `${label} baseline contains duplicate offers`);
   const changedRows = profile.key === "fit-house" ? normalizedFitHouseReviewRows(diagnostic) : normalizedTenRepsReviewRows(report, baselineByOffer);
-  if (profile.key === "fit-house") sameJson(normalizedFitHouseReviewRows(idempotency), changedRows, "Fit House review scope changed during idempotency");
   const reviewIds = sortedIds(report.review_rows.map((row) => row.offer_id));
   invariant(report.review_row_count === report.review_rows.length && report.review_row_count === changedRows.length, `${label} review row count drifted`);
   if (profile.key === "fit-house") sameJson(reviewIds, sortedIds(report.deferred_changed_offer_ids), "Fit House deferred review IDs drifted");
   sameJson(reviewIds, changedRows.map((row) => row.offer_id), `${label} report and normalized review IDs drifted`);
   invariant(partition.executionIds.every((offerId) => !reviewIds.includes(offerId)), `${label} executable and review scopes overlap`);
-  invariant(diagnostic.source?.fingerprint === report.source?.fingerprint && idempotency.source?.fingerprint === report.source?.fingerprint, `${label} source fingerprint changed during the run`);
+  invariant(diagnostic.source?.fingerprint === report.source?.fingerprint, `${label} source fingerprint changed during preflight`);
   if (profile.key === "fit-house") invariant(changedRows.every((row) => row.action === "UPDATE_STOCK" && row.old_price === row.new_price && row.old_stock !== row.new_stock), "Fit House review scope contains a non-stock change");
   else invariant(changedRows.every((row) => row.action === "SOURCE_MISSING" && row.old_price === row.new_price && row.old_stock === row.new_stock), "10 Reps review scope contains an inferred catalogue change");
   for (const changed of changedRows) {
@@ -202,7 +190,7 @@ function loadAndValidateSource(directory, profileValue = "fit-house") {
     invariant(String(row.external_product_id) === changed.external_product_id && String(row.external_variant_id) === changed.external_variant_id, `${label} source identity drift for offer ${changed.offer_id}`);
     invariant(String(row.price) === changed.old_price && row.in_stock === changed.old_stock, `${label} before-state drift for offer ${changed.offer_id}`);
   }
-  return { profile, retailer, files, report, diagnostic, idempotency, baseline, postflight, changedRows, baselineByOffer };
+  return { profile, retailer, files, fileNames, report, diagnostic, baseline, changedRows, baselineByOffer };
 }
 
 function contractCore(source, env) {
@@ -219,7 +207,7 @@ function contractCore(source, env) {
   const createdAt = source.diagnostic.timestamp;
   invariant(createdAt && Number.isFinite(Date.parse(createdAt)), `${profileLabel(profile)} capture timestamp is invalid`);
   return {
-    schema_version: 1,
+    schema_version: 2,
     kind: "automation-review-source-contract",
     profile: retailer.slug,
     repository: REPOSITORY,
@@ -239,19 +227,20 @@ function contractCore(source, env) {
     review_offer_ids: source.changedRows.map((row) => row.offer_id),
     source_fingerprint: source.report.source.fingerprint,
     review_scope_fingerprint: reviewScopeFingerprint,
+    evidence_stage: "pre-execution-review-classification",
+    file_names: source.fileNames,
     file_hashes: fileHashes,
     baseline_evidence_hash: source.baseline.evidence_hash,
-    postflight_hash: source.postflight.postflight_hash,
     plan_fingerprint: sha256({ retailer_id: retailer.id, catalogue_offer_ids: catalogueOfferIds, review_scope_fingerprint: reviewScopeFingerprint, source_fingerprint: source.report.source.fingerprint }),
     catalogue_writes: 0,
   };
 }
 
-function buildSourceContract(directory, env = process.env, profileValue = "fit-house") {
+function buildSourceContract(directory, env = process.env, profileValue = "fit-house", fileNames = CAPTURE_SOURCE_FILES) {
   const profile = profileFor(profileValue);
   invariant(env.GITHUB_ACTIONS === "true" && ["schedule", "workflow_dispatch"].includes(env.GITHUB_EVENT_NAME) && env.GITHUB_REF === "refs/heads/main" && env.GITHUB_REPOSITORY === REPOSITORY, "RETAILER_REVIEW_SOURCE_CONTEXT_INVALID");
   invariant(/^[1-9][0-9]*$/.test(String(env.GITHUB_RUN_ID || "")) && /^[0-9a-f]{40}$/.test(String(env.GITHUB_SHA || "")), "RETAILER_REVIEW_SOURCE_IDENTITY_INVALID");
-  const source = loadAndValidateSource(directory, profile.key);
+  const source = loadAndValidateSource(directory, profile.key, fileNames);
   const core = contractCore(source, env);
   return { ...core, contract_fingerprint: sha256(core) };
 }
@@ -259,8 +248,14 @@ function buildSourceContract(directory, env = process.env, profileValue = "fit-h
 function bindSource(directory, env = process.env, profileValue = "fit-house") {
   const profile = profileFor(profileValue);
   invariant(env.GITHUB_OUTPUT, "GITHUB_OUTPUT_MISSING");
-  const contract = buildSourceContract(directory || defaultSource(profile), env, profile.key);
   directory ||= defaultSource(profile);
+  const capture = pathsFor(directory, CAPTURE_SOURCE_FILES);
+  const sealed = pathsFor(directory, SEALED_SOURCE_FILES);
+  for (const [key, sourceFile] of Object.entries(capture)) {
+    invariant(fs.existsSync(sourceFile), `Missing ${profileLabel(profile)} source file ${path.basename(sourceFile)}`);
+    fs.copyFileSync(sourceFile, sealed[key], fs.constants.COPYFILE_EXCL);
+  }
+  const contract = buildSourceContract(directory, env, profile.key, SEALED_SOURCE_FILES);
   const output = path.join(directory, CONTRACT_FILE);
   fs.writeFileSync(output, `${JSON.stringify(contract, null, 2)}\n`, { flag: "wx" });
   const values = { contract_sha256: fileSha256(output), review_scope_fingerprint: contract.review_scope_fingerprint };
@@ -298,13 +293,19 @@ function verifySourceContract(options, now = new Date()) {
   const contractPath = path.join(options.sourceArtifactDir, CONTRACT_FILE);
   invariant(fs.existsSync(contractPath) && fileSha256(contractPath) === options.sourceContractSha256, `${label} source contract hash mismatch`);
   const contract = readJson(contractPath);
-  invariant(contract.schema_version === 1 && contract.kind === "automation-review-source-contract" && contract.profile === retailer.slug, `${label} source contract schema mismatch`);
+  invariant(contract.schema_version === 2 && contract.kind === "automation-review-source-contract" && contract.profile === retailer.slug, `${label} source contract schema mismatch`);
   invariant(contract.repository === REPOSITORY && contract.workflow === WORKFLOW && contract.workflow_name === WORKFLOW_NAME, `${label} source workflow mismatch`);
   invariant(contract.run_id === options.sourceRunId && contract.commit_sha === options.sourceCommitSha && contract.retailer?.id === retailer.id && contract.retailer?.name === retailer.name, `${label} source identity mismatch`);
   invariant(contract.approved_mapping_count === profile.approvedMappingCount && Number.isInteger(contract.executable_plan_count) && contract.executable_plan_count >= 0 && contract.executable_plan_count <= profile.approvedMappingCount && contract.review_row_count >= 0 && contract.review_row_count <= profile.maximumReviewCount && contract.blocked_row_count === 0 && contract.catalogue_writes === 0, `${label} source contract scope mismatch`);
   invariant(Date.parse(contract.expires_at) > Date.parse(contract.created_at) && Date.parse(contract.expires_at) > now.getTime(), `${label} source contract expiry is invalid`);
   invariant(contract.contract_fingerprint === sha256(Object.fromEntries(Object.entries(contract).filter(([key]) => key !== "contract_fingerprint"))), `${label} source contract fingerprint mismatch`);
-  const source = loadAndValidateSource(options.sourceArtifactDir, profile.key);
+  invariant(contract.evidence_stage === "pre-execution-review-classification", `${label} source evidence stage mismatch`);
+  invariant(
+    JSON.stringify(contract.file_names) === JSON.stringify(SEALED_SOURCE_FILES)
+      || JSON.stringify(contract.file_names) === JSON.stringify(CAPTURE_SOURCE_FILES),
+    `${label} source file set mismatch`,
+  );
+  const source = loadAndValidateSource(options.sourceArtifactDir, profile.key, contract.file_names);
   for (const [key, file] of Object.entries(source.files)) invariant(contract.file_hashes[key] === fileSha256(file), `${label} ${key} hash mismatch`);
   sameJson(contract.catalogue_offer_ids, sortedIds(source.baseline.snapshot.rows.map((row) => row.offer_id)), `${label} catalogue offer scope mismatch`);
   sameJson(contract.review_offer_ids, source.changedRows.map((row) => row.offer_id), `${label} review offer scope mismatch`);

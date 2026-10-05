@@ -1455,6 +1455,33 @@ by one fresh guarded 10 Reps apply and verification of its queue publication
 artifact and production readback. Evidence:
 [`evidence/RA-STAB-01-10REPS-REVIEW-QUEUE-PUBLICATION-PREPARATION-2026-10-05.json`](evidence/RA-STAB-01-10REPS-REVIEW-QUEUE-PUBLICATION-PREPARATION-2026-10-05.json).
 
+**5 October Review Queue/execution decoupling — locally verified, deployment
+pending:** fresh 10 Reps run `37364486648` again produced the exact healthy
+`950 = 934 safe no-change + 16 review + 0 blocked` classification, but its apply
+timed out during the thirteenth of 19 protected children. Read-only production
+comparison proves that the first 12 children changed freshness only for 591
+offers and made zero price, stock, URL, mapping, identity, price-history or row
+count change. The queue job was nevertheless skipped because publication was
+incorrectly conditional on the entire unrelated safe execution completing.
+
+The common correction now seals the fresh classification and full database
+baseline before apply. Queue reconciliation may continue after a later apply
+failure, but only when every executable row is `VERIFY_NO_CHANGE`, all review
+rows form the exact complete partition, no row is blocked, the artifact hashes
+match and current production identity and commercial state still match the
+sealed baseline. A shared `review-only` operation performs only fresh dry-run,
+read-only baseline, binding, reconciliation and the existing transactional
+queue publication; it never registers or executes a catalogue control plan.
+No importer, approval path, executor, database function, retailer condition in
+shared core or direct catalogue writer was added. The focused suite passes
+`22/22`, including a regression that overwrites the ordinary reports with a
+later partial-execution failure while the sealed review evidence remains valid.
+The real incident artifact validates as exactly 934/16/0. Preparation made zero
+production writes. Next gate: green CI and merge, followed by one 10 Reps
+`review-only` dispatch and read-only proof of exactly 16 queue cards with zero
+catalogue/control writes. Evidence:
+[`evidence/RA-STAB-01-REVIEW-PUBLICATION-EXECUTION-DECOUPLING-2026-10-05.json`](evidence/RA-STAB-01-REVIEW-PUBLICATION-EXECUTION-DECOUPLING-2026-10-05.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
