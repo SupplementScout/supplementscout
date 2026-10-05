@@ -17,6 +17,7 @@ const {
   controlParentApprovalError,
   controlRegistrationEvidence,
   enforceConfirmationOnly,
+  enforceProtectedStockReportScope,
   executionReportContext,
   freshCapturedAt,
   loadAuditedMissingVariantManifest,
@@ -213,6 +214,23 @@ test("only the exact owner-approved offer 759 return is executable", () => {
   assert.equal(partial.deferred_changed_offer_ids.length,13);
   assert.ok(!partial.deferred_changed_offer_ids.includes(isolation.deferred_rows[0].offer_id));
   assert.equal(partial.quarantined_rows.length,13);
+});
+
+test("ordinary safe partition is not constrained by the consumed one-time 1+19 report", () => {
+  const verificationOfferIds=Array.from({length:272},(_,index)=>String(index+1));
+  assert.doesNotThrow(()=>enforceProtectedStockReportScope(
+    {classification:{action:"OWNER_APPROVED_PROTECTED_STOCK_ONLY"},protectedStockExecutionActive:false},
+    {executionOfferIds:verificationOfferIds,stockChangeOfferIds:[],verificationOfferIds},
+  ));
+  const protectedVerificationIds=Array.from({length:19},(_,index)=>String(index+2));
+  assert.doesNotThrow(()=>enforceProtectedStockReportScope(
+    {classification:{action:"OWNER_APPROVED_PROTECTED_STOCK_ONLY"},protectedStockExecutionActive:true},
+    {executionOfferIds:["1",...protectedVerificationIds],stockChangeOfferIds:["1"],verificationOfferIds:protectedVerificationIds},
+  ));
+  assert.throws(()=>enforceProtectedStockReportScope(
+    {classification:{action:"OWNER_APPROVED_PROTECTED_STOCK_ONLY"},protectedStockExecutionActive:true},
+    {executionOfferIds:["1",...protectedVerificationIds.slice(1)],stockChangeOfferIds:["1"],verificationOfferIds:protectedVerificationIds.slice(1)},
+  ),/protected-offer report scope mismatch/);
 });
 
 test("offer 759 return is exact, the other six protected offers remain OOS, and replay is idempotent", () => {
