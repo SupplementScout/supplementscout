@@ -29,6 +29,14 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Test queue worker without production credentials
         run: node --test --test-name-pattern="Automation Review Queue scheduled worker|Review Queue eBay worker|Fit House Review Queue worker" scripts/admin-auth.test.js
+      - name: Remove test-only execution evidence
+        run: rm -rf tmp/automation-review-execution && mkdir -p tmp/automation-review-execution
+      - name: Audit owner decisions read-only
+        continue-on-error: true
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/automation-review-owner-decision-audit.js --output=tmp/automation-review-execution/owner-decision-audit.json
       - name: Execute oldest approved queue request
         env:
           EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
