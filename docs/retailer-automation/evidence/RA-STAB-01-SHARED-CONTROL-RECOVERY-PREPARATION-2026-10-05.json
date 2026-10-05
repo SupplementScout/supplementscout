@@ -1,0 +1,70 @@
+{
+  "schema_version": "ra-stab-01-shared-control-recovery-preparation-v1",
+  "task_id": "RA-STAB-01",
+  "recorded_at": "2026-10-05T11:15:00.000Z",
+  "status": "LOCAL_VERIFIED_DEPLOYMENT_PENDING",
+  "incident": {
+    "workflow_run_id": "37291179712",
+    "workflow_url": "https://github.com/SupplementScout/supplementscout/actions/runs/37291179712",
+    "retailer_id": "14",
+    "retailer": "10 Reps",
+    "result": "FAIL_CLOSED",
+    "error_code": "RSBI_REPLAY_BLOCKED",
+    "error_summary": "An equivalent 10 Reps control plan is already active",
+    "business_writes": 0,
+    "control_writes": 0,
+    "safe_scope": {
+      "approved_mapping_count": 950,
+      "executable_plan_count": 934,
+      "verify_no_change": 933,
+      "update_price": 1,
+      "review_rows": 16
+    }
+  },
+  "bound_control_state": {
+    "source": "RA-STAB-01-10REPS-CENTRAL-READBACK-V4-CLOSEOUT-2026-10-04.json",
+    "parent_plan_id": "06ae81b7-4cc1-42b5-af6a-92bfd17e6dfa",
+    "parent_status": "APPROVED",
+    "expected_child_count": 19,
+    "approved_children": 1,
+    "planned_children": 18,
+    "apply_runs": 0,
+    "approval_expired": true
+  },
+  "implementation": {
+    "kind": "SHARED_CONTROL_LIFECYCLE_CONSOLIDATION",
+    "new_sql_migration": false,
+    "new_database_function": false,
+    "new_business_writer": false,
+    "new_retailer_condition_in_shared_core": false,
+    "existing_close_rpc_reused": "public.close_expired_retailer_offer_sync_approval(jsonb)",
+    "shared_runner": "scripts/retailer-control-plan-recovery.js",
+    "existing_workflow_extended": ".github/workflows/fit-house-offer-refresh.yml",
+    "retired_store_specific_runner": "scripts/close-simply-expired-reviewed-plan.js",
+    "guard_contract": [
+      "repeatable-read production preflight",
+      "exact parent, retailer and child-count binding",
+      "one expired approved child and only planned siblings",
+      "zero apply runs, row approvals and recovery records",
+      "migration-ledger and business-count binding",
+      "one explicitly confirmed close call without retry",
+      "postflight requires all children expired and unchanged business counts"
+    ]
+  },
+  "verification": {
+    "focused_test": "PASS 4/4",
+    "verify_project_before": "PASS",
+    "verify_inventory": "PASS 325 tests inventoried",
+    "verify_quick": "PASS",
+    "verify_full": "PASS",
+    "production_build": "PASS"
+  },
+  "production_accounting": {
+    "recovery_dispatches": 0,
+    "close_calls": 0,
+    "automatic_retries": 0,
+    "business_writes": 0,
+    "control_writes": 0
+  },
+  "next_gate": "MERGE_GREEN_CHANGESET_THEN_ONE_EXACT_10REPS_CONTROL_RECOVERY_DISPATCH_AND_READ_ONLY_POSTFLIGHT"
+}

@@ -1161,6 +1161,27 @@ watchdog. If that fresh cycle is red only for backlog growth, use the existing
 owner-decision Review Queue path; do not change the baseline. Evidence:
 [`evidence/RA-STAB-01-POST-V4-NATURAL-OBSERVATION-2026-10-05.json`](evidence/RA-STAB-01-POST-V4-NATURAL-OBSERVATION-2026-10-05.json).
 
+**5 October shared expired-plan recovery consolidation — locally verified,
+deployment pending:** the next natural shared refresh, run `37291179712`, read
+all 950 approved 10 Reps mappings and classified 933 freshness confirmations,
+one price update and 16 review rows. It then failed closed before any write with
+`RSBI_REPLAY_BLOCKED` because parent
+`06ae81b7-4cc1-42b5-af6a-92bfd17e6dfa` remains the exact expired,
+unexecuted 1-approved/18-planned tree proved by the durable readback. The
+implementation does not add a 10 Reps exception, migration, database function,
+approval RPC or business writer. It replaces the store-specific Simply close
+runner with one retailer-neutral coordinator in the existing shared workflow
+and reuses `close_expired_retailer_offer_sync_approval(jsonb)`. The coordinator
+requires a repeatable-read exact preflight, zero apply/row-approval/recovery
+evidence, the live migration ledger and unchanged business counts before one
+confirmed close call; postflight requires all children expired and the same
+business counts. Focused tests, Project Guardian, inventory, quick/full gates
+and the production build pass. Production remains unchanged. The next exact
+gate is green merge followed by one bound control-only recovery dispatch and
+its read-only postflight; no refresh retry or RA-004 action is bundled into the
+close. Evidence:
+[`evidence/RA-STAB-01-SHARED-CONTROL-RECOVERY-PREPARATION-2026-10-05.json`](evidence/RA-STAB-01-SHARED-CONTROL-RECOVERY-PREPARATION-2026-10-05.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
