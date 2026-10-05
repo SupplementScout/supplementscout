@@ -164,6 +164,7 @@ test("plans create, refresh, supersede and resolved-by-source without catalogue 
     active_existing: 3,
     created: 2,
     refreshed: 1,
+    preserved: 0,
     expired: 2,
     catalogue_writes: 0,
   });
@@ -267,6 +268,38 @@ test("RPC publisher builds a single transactional changeset and does not use RES
   assert.deepEqual(calls.map((call) => call[0]), ["publish_automation_review_queue_changes"]);
   assert.equal(result.mode, "apply");
   assert.equal(result.database_writes, 3);
+});
+
+test("matching approved evidence is frozen and never refreshed by the publisher", () => {
+  const approved = active({ review_status: "APPROVED", decision_actor: "authenticated-admin", decision_at: "2026-10-05T16:30:26.280178Z" });
+  const request = buildPublicationRpcRequest(manifest(), [approved], { catalogueCounts: catalogueCounts() });
+  const plan = planPublication(manifest(), [approved]);
+  assert.equal(request.operations.length, 0);
+  assert.equal(plan.counts.refreshed, 0);
+  assert.equal(plan.counts.preserved, 1);
+  assert.equal(plan.preserved[0].existing.decision_actor, "authenticated-admin");
+});
+
+test("mixed pending and approved evidence refreshes only the pending row", () => {
+  const pendingRow = row();
+  const approvedRow = row({ offer_id: "2749", source_row_fingerprint: "c".repeat(64) });
+  const approved = active({
+    id: "502",
+    offer_id: "2749",
+    source_row_fingerprint: "c".repeat(64),
+    review_status: "APPROVED",
+    decision_actor: "authenticated-admin",
+    decision_at: "2026-10-05T16:30:26.280178Z",
+  });
+  const input = manifest({ rows: [pendingRow, approvedRow], observed_offer_ids: ["2748", "2749"] });
+  const request = buildPublicationRpcRequest(input, [active(), approved], { catalogueCounts: catalogueCounts() });
+  const plan = planPublication(input, [active(), approved]);
+
+  assert.deepEqual(request.operations.map((operation) => [operation.op, operation.expected.review_id]), [["REFRESH", "501"]]);
+  assert.equal(plan.counts.refreshed, 1);
+  assert.equal(plan.counts.preserved, 1);
+  assert.equal(plan.preserved[0].existing.id, "502");
+  assert.equal(plan.preserved[0].existing.decision_actor, "authenticated-admin");
 });
 
 test("RPC publisher dry-run prepares request without database writes and rejects unsafe RPC echoes", async () => {

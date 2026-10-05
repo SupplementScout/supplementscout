@@ -990,6 +990,47 @@ test("Review Queue eBay worker claims a queued direct dispatch only after the wo
   }
 });
 
+test("Review Queue worker trusts the immutable admin approval event after publisher metadata drift", async () => {
+  const { loadControlState } = require("./lib/automation-review-worker-control");
+  const fingerprint = "a".repeat(64), planFingerprint = "b".repeat(64);
+  const review = {
+    id: "77", retailer_id: "9", review_status: "APPROVED", operation_type: "UPDATE_STOCK",
+    source_row_fingerprint: fingerprint, plan_fingerprint: planFingerprint,
+    source_captured_at: "2026-10-05T16:00:00.000Z", expires_at: "2099-10-05T16:00:00.000Z",
+    decision_actor: "automation-review-publisher", decision_at: "2026-10-05T16:30:00.000Z",
+    before_state: { in_stock: false }, proposed_state: { in_stock: true },
+  };
+  const request = {
+    id: "11111111-1111-4111-8111-111111111111", review_id: "77", status: "DISPATCHED",
+    retailer_id: "9", retailer_slug: "fit-house", workflow_name: "automation-review-queue-worker.yml",
+    environment_name: "production-readonly", execution_mode: "review-queue", operation_type: "UPDATE_STOCK",
+    review_fingerprint: fingerprint, plan_fingerprint: planFingerprint, idempotency_key: "c".repeat(64),
+  };
+  const approval = {
+    previous_status: "PENDING", new_status: "APPROVED", actor: "authenticated-admin",
+    source_row_fingerprint: fingerprint, plan_fingerprint: planFingerprint,
+    created_at: "2026-10-05T16:30:00.000Z",
+  };
+  const client = (events) => ({
+    from(table) {
+      const value = table === "product_match_review_queue" ? review : table === "automation_review_execution_requests" ? request : events;
+      const query = {
+        select: () => query,
+        eq: () => query,
+        order: async () => ({ data: value, error: null }),
+        maybeSingle: async () => ({ data: value, error: null }),
+      };
+      return query;
+    },
+  });
+  const options = { reviewItemId: "77", executionRequestId: request.id, retailer: "fit-house", reviewFingerprint: fingerprint, reviewPlanFingerprint: planFingerprint, executionIdempotencyKey: request.idempotency_key, mode: "review-queue" };
+  const contract = { retailerId: "9", retailerSlug: "fit-house", operations: new Set(["UPDATE_STOCK"]), workflowName: request.workflow_name, environment: request.environment_name };
+
+  const state = await loadControlState(client([approval]), options, contract);
+  assert.equal(state.review.id, "77");
+  await assert.rejects(() => loadControlState(client([{ ...approval, actor: "automation-review-publisher" }]), options, contract), /APPROVAL_AUDIT_MISSING/);
+});
+
 test("Review Queue eBay worker derives exact single-row commercial postflight deltas", () => {
   const { assertDatabaseBeforeState, expectedDeltas } = require("./automation-review-ebay-worker");
   const price = expectedDeltas({ expected_state: { offer: { price: "10.00", shipping_cost: "3.99", total_price: "13.99", in_stock: true, url: "https://example.test" } }, offer: { values: { price: "10.58", shipping_cost: "3.99", total_price: "14.57", in_stock: true, url: "https://example.test" } } });

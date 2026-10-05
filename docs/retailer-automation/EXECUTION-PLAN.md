@@ -1367,6 +1367,32 @@ next gate is green CI/merge, followed by one worker dispatch to classify and
 resolve the exact five requests from real production evidence. Evidence:
 [`evidence/RA-STAB-01-FIT-WHEY-QUEUE-WORKER-AUDIT-2026-10-05.json`](evidence/RA-STAB-01-FIT-WHEY-QUEUE-WORKER-AUDIT-2026-10-05.json).
 
+**5 October approved Review Queue evidence incident — shared correction
+prepared:** PR `#223` merged the worker-evidence repair as
+`7f5413d5e365da9c2066e8fec1737d3ad47e3161`; main quality gate run
+`37353830120` and production deployment passed. Worker run `37354078264` then
+produced usable evidence and failed closed with zero database writes for the two
+remaining queued Fit House requests: reviews `1110` / offer `1938` and `1111` /
+offer `1982`, both with `APPROVAL_AUDIT_MISSING`. The accompanying SELECT-only
+audit proves both exact immutable `PENDING -> APPROVED` owner events still
+exist. The cause is the shared queue publisher's `REFRESH`: it retained the
+approved status but replaced the denormalized decision actor with
+`automation-review-publisher`. This was a control-evidence lifecycle defect,
+not a retailer-source or owner-decision failure.
+
+The bounded correction changes the existing shared publisher to preserve an
+exact matching `APPROVED` row instead of refreshing it. The existing worker now
+requires the exact fingerprint-bound immutable approval event to be authored by
+`authenticated-admin`; it no longer requires the mutable queue-row actor to
+duplicate that event actor. A mixed pending/approved regression proves pending
+evidence is still refreshed, exact approved evidence is untouched, a
+non-admin approval event remains blocked, and no new workflow, adapter,
+approval path, retry or writer is added. The next gate is green quick/full CI,
+merge and deployment, then one worker dispatch for the two already queued
+requests followed by a read-only result check. The three earlier requests that
+are already terminal are not replayed. Evidence:
+[`evidence/RA-STAB-01-APPROVED-REVIEW-EVIDENCE-FREEZE-2026-10-05.json`](evidence/RA-STAB-01-APPROVED-REVIEW-EVIDENCE-FREEZE-2026-10-05.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
