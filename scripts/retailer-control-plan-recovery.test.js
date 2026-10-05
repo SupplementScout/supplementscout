@@ -46,7 +46,7 @@ function recoverableSnapshot() {
       child_plan_id: "f5d476e6-7eea-40f1-a7d8-8b9d0a7ad23d",
       artifact_fingerprint: "b".repeat(64),
       execution_fingerprint: "d".repeat(64),
-      expected_migration_fingerprint: "e".repeat(64),
+      expected_migration_fingerprint: "f".repeat(64),
       expires_at: expired,
       target_environment: "PRODUCTION",
       project_ref: "aftboxmrdgyhizicfsfu",
@@ -98,6 +98,8 @@ test("shared recovery accepts only an expired wholly unexecuted sequential tree"
   assert.equal(request.parent_plan_id, recoveryOptions.parentPlanId);
   assert.equal(request.child_plan_id, approved.child_plan_id);
   assert.equal(request.expected_migration_fingerprint, snapshot.ledger.fingerprint);
+  assert.equal(request.approval_expected_migration_fingerprint, snapshot.approval.expected_migration_fingerprint);
+  assert.notEqual(request.approval_expected_migration_fingerprint, request.expected_migration_fingerprint);
   assert.match(request.request_fingerprint, /^[0-9a-f]{64}$/);
 });
 
