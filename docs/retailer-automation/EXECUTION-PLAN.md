@@ -1233,6 +1233,28 @@ checkpoint authorizes no Review Queue decision, catalogue write or 10 Reps
 retry. Production capability and decision readback remain required after green
 CI and merge; RA-STAB-01 remains `IN_PROGRESS` at `0/3` ordinary intervals.
 
+**5 October shared Review Queue production readback — deployed and verified:**
+PR #218 merged as `108a1cab05274dabb93c5dbcab9dc8033f308ce0`; its full
+quality gate passed in run `37332898487` and the production deployment passed.
+An explicit production worker probe on that exact commit passed in run
+`37334575536` with zero active execution requests and zero catalogue writes.
+The bounded owner-decision readback found 50 authenticated-admin decision
+events across 40 retailer offers. Thirty `EXECUTED` requests have 30 downloaded
+result artifacts; every request matched its run, postflight hash, executed offer,
+idempotency result and write count. No executed artifact failed verification and
+there is no active execution request. At latest-offer level, 28 are `EXECUTED`,
+six are safely `EXPIRED` with zero writes, three are `APPROVED` without an
+execution request and three have a newer `PENDING` review. Historical audit
+signals remain review debt: 25 older-decision/current-evidence differences, six
+approvals without a request and two request-binding differences; the latter two
+are both expired with zero writes and none affects an executed request. Do not
+replay or auto-resolve those rows. Fit House shared execution capability is now
+live, but this readback created no owner decision or execution. 10 Reps remains
+deferred behind the external-source recovery gate with no new retry. This is
+production capability evidence, not an ordinary scheduled observation, so
+RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence:
+[`evidence/RA-STAB-01-REVIEW-QUEUE-PRODUCTION-READBACK-2026-10-05.json`](evidence/RA-STAB-01-REVIEW-QUEUE-PRODUCTION-READBACK-2026-10-05.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
