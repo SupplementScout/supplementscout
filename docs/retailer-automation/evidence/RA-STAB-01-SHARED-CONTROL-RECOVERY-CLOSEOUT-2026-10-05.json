@@ -1,0 +1,84 @@
+{
+  "schema_version": "ra-stab-01-shared-control-recovery-closeout-v1",
+  "recorded_at": "2026-10-05T11:48:45.944Z",
+  "task_id": "RA-STAB-01",
+  "status": "VERIFIED_COMPLETE",
+  "scope": {
+    "retailer_id": "14",
+    "parent_plan_id": "06ae81b7-4cc1-42b5-af6a-92bfd17e6dfa",
+    "approved_child_id": "f5d476e6-7eea-40f1-a7d8-8b9d0a7ad23d",
+    "expected_child_count": 19
+  },
+  "implementation": {
+    "pull_requests": [211, 212, 213],
+    "merged_commit": "dcaceffae0428e110808ced0215a87da244e1182",
+    "shared_coordinator": "scripts/retailer-control-plan-recovery.js",
+    "existing_close_rpc": "public.close_expired_retailer_offer_sync_approval(jsonb)",
+    "new_database_function": false,
+    "new_migration": false,
+    "retailer_specific_branch": false,
+    "direct_business_dml": false
+  },
+  "production_runs": [
+    {
+      "run_id": 37302927313,
+      "result": "PREFLIGHT_BLOCKED",
+      "reason": "The coordinator incorrectly equated the independent child-control and mixed-batch approval identifiers.",
+      "close_calls": 0,
+      "business_writes": 0
+    },
+    {
+      "run_id": 37304222467,
+      "result": "PREFLIGHT_BLOCKED",
+      "reason": "The coordinator incorrectly equated the historical approval ledger fingerprint with the current production ledger fingerprint.",
+      "close_calls": 0,
+      "business_writes": 0
+    },
+    {
+      "run_id": 37305276770,
+      "result": "PASS",
+      "artifact_name": "retailer-control-recovery-37305276770-1",
+      "preflight_fingerprint": "5fa32cfd86c7531f76658c67c77f14f5cb19b8679422c726c2145fd45f78afb6",
+      "request_fingerprint": "20886d1ea332c849e33922df64b328e50cd3d6549913f53326cc91b3beb2be3c",
+      "result_fingerprint": "c6e15ce26d3e43cf3afc8964a50331699bcce847ab5f2268a0dc2441fbf9dd51"
+    }
+  ],
+  "close_result": {
+    "status": "EXPIRED",
+    "parent_status": "EXPIRED",
+    "expired_child_count": 19,
+    "approved_child_count_before": 1,
+    "planned_child_count_before": 18,
+    "approval_consumed": false,
+    "apply_runs": 0,
+    "row_approvals": 0,
+    "recovery_records": 0,
+    "close_calls": 1,
+    "automatic_retries": 0,
+    "control_writes": 21,
+    "business_writes": 0,
+    "price_history_writes": 0
+  },
+  "postflight": {
+    "parent_status": "EXPIRED",
+    "expired_child_count": 19,
+    "approval_closed": true,
+    "apply_runs": 0,
+    "business_counts": {
+      "products": "1337",
+      "product_variants": "3632",
+      "retailer_products": "3758",
+      "offers": "3758",
+      "price_history": "26889"
+    }
+  },
+  "verification": {
+    "focused_regression": "PASS",
+    "verify_project": "PASS",
+    "verify_quick": "PASS",
+    "verify_full": "PASS",
+    "github_ci": "PASS",
+    "production_postflight": "PASS"
+  },
+  "next_gate": "Run one fresh ordinary 10 Reps cycle through the existing shared workflow, then verify its postflight and publish only fresh review exceptions."
+}
