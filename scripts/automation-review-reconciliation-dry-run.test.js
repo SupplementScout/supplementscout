@@ -14,6 +14,7 @@ const {
 } = require("./automation-review-reconciliation-dry-run");
 const { sha256 } = require("./lib/automation-review-publisher");
 const {
+  bindSource: bindSharedRetailerSource,
   buildManifestRows: buildFitHouseManifestRows,
   buildOutput: buildFitHouseOutput,
   buildSourceContract: buildFitHouseSourceContract,
@@ -414,7 +415,7 @@ test("dry-run builder has no direct queue writes or publication RPC apply call",
   assert.match(source, /buildPublicationRpcRequest/);
 });
 
-function writeFitHouseFixture({ executableCount = 0, confirmationCount = 0 } = {}) {
+function writeFitHouseFixture({ executableCount = 272 } = {}) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "fit-house-review-source-"));
   const sourceFingerprint = "8".repeat(64);
   const baselineRows = Array.from({ length: 286 }, (_, index) => ({
@@ -453,33 +454,28 @@ function writeFitHouseFixture({ executableCount = 0, confirmationCount = 0 } = {
   const reviewRows = changedRows.map((row) => ({ offer_id: row.offer_id, reason: "OWNER_DEFERRED_STOCK_REVIEW", external_product_id: row.external_product_id, external_variant_id: row.external_variant_id }));
   const executionOfferIds = baselineRows.slice(14, 14 + executableCount).map((row) => row.offer_id);
   const report = {
-    result: "PASS_WITH_REVIEW", mode: "apply", target: "production",
+    result: "PASS_WITH_REVIEW", mode: "dry-run", target: "production",
     source: { fingerprint: sourceFingerprint }, approved_mapping_count: 286,
     deferred_changed_offer_ids: changedRows.map((row) => row.offer_id), execution_offer_ids: executionOfferIds,
     verification_offer_ids: executionOfferIds, stock_change_offer_ids: [], executable_plan_count: executableCount,
-    executed_plan_count: executableCount, review_row_count: 14, blocked_row_count: 0,
+    executed_plan_count: 0, review_row_count: 14, blocked_row_count: 0,
     classification: { VERIFY_NO_CHANGE: executableCount, UPDATE_STOCK: 14 },
     review_rows: reviewRows,
-    business: { products_delta: 0, variants_delta: 0, mappings_delta: 0, offers_delta: 0, price_history_delta: confirmationCount, offers_refreshed: executableCount },
   };
-  const diagnostic = { result: "PASS", timestamp: "2026-10-05T09:01:00.000Z", failure_stage: null, source: { fingerprint: sourceFingerprint }, business_writes_completed: executableCount, control_writes_completed: executableCount > 0 ? 1 : 0, classifier_summary: { action_counts: report.classification, changed_rows: changedRows } };
-  const idempotency = { ...diagnostic, business_writes_completed: 0, control_writes_completed: 0 };
+  const diagnostic = { result: "PASS", timestamp: "2026-10-05T09:01:00.000Z", failure_stage: null, approved_mapping_count: 286, source: { fingerprint: sourceFingerprint }, database_writes_attempted: 0, database_writes_completed: 0, business_writes_completed: 0, control_writes_completed: 0, approvals_created: 0, approvals_consumed: 0, recovery_calls: 0, classifier_summary: { scope: { scope_row_ids: executionOfferIds, blocked_rows: 0, reconciled: true, reconciled_total: executableCount }, action_counts: report.classification, changed_rows: changedRows } };
   const baseline = { schema_version: 1, kind: "retailer-offer-refresh-db-baseline", result: "PASS", profile: "fit-house", snapshot: { captured_at: "2026-10-05T09:00:59.000Z", retailer_id: "9", retailer_name: "Fit House", row_count: 286, rows: baselineRows }, evidence_hash: "a".repeat(64) };
-  const postflight = { schema_version: 1, kind: "retailer-offer-refresh-db-postflight", result: "PASS", profile: "fit-house", approved_mapping_count: 286, executable_plan_count: executableCount, executed_plan_count: executableCount, review_row_count: 14, blocked_row_count: 0, price_change_count: 0, stock_change_count: 0, shipping_change_count: 0, total_change_count: 0, offer_url_change_count: 0, mapping_url_change_count: 0, freshness_change_count: executableCount, price_history_delta: 0, daily_confirmation_delta: confirmationCount, raw_price_history_delta: confirmationCount, baseline_hash: baseline.evidence_hash, postflight_hash: "b".repeat(64) };
-  writeJson(path.join(directory, "production-apply.json"), report);
-  writeJson(path.join(directory, "production-apply-diagnostic.json"), diagnostic);
-  writeJson(path.join(directory, "production-idempotency-diagnostic.json"), idempotency);
+  writeJson(path.join(directory, "production-dry-run.json"), report);
+  writeJson(path.join(directory, "production-preflight-diagnostic.json"), diagnostic);
   writeJson(path.join(directory, "production-db-baseline.json"), baseline);
-  writeJson(path.join(directory, "production-db-postflight.json"), postflight);
   return { directory, baselineRows, changedRows };
 }
 
-test("Fit House source adapter seals exactly the fresh 286/0/14/0 zero-write result", () => {
+test("Fit House source adapter seals the fresh 272 safe plus 14 review classification before execution", () => {
   const fixture = writeFitHouseFixture();
   const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "37313299039", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
   const contract = buildFitHouseSourceContract(fixture.directory, env);
   assert.equal(contract.approved_mapping_count, 286);
-  assert.equal(contract.executable_plan_count, 0);
+  assert.equal(contract.executable_plan_count, 272);
   assert.equal(contract.review_row_count, 14);
   assert.equal(contract.blocked_row_count, 0);
   assert.equal(contract.catalogue_offer_ids.length, 286);
@@ -497,23 +493,32 @@ test("Fit House source adapter accepts the ordinary 272 safe confirmations plus 
   assert.equal(contract.review_row_count, 14);
   assert.equal(contract.catalogue_writes, 0);
 
-  const reportPath = path.join(fixture.directory, "production-apply.json");
+  const reportPath = path.join(fixture.directory, "production-dry-run.json");
   const report = JSON.parse(fs.readFileSync(reportPath, "utf8"));
   report.stock_change_offer_ids = [report.execution_offer_ids[0]];
   writeJson(reportPath, report);
   assert.throws(() => buildFitHouseSourceContract(fixture.directory, env), /executable offer IDs drifted/);
 });
 
-test("Fit House source adapter accepts a resolved subset and rejects count-to-row drift", () => {
+test("Fit House source adapter rejects count-to-row drift and accepts an exact repartition", () => {
   const fixture = writeFitHouseFixture();
   const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "37313299039", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
-  const reportPath = path.join(fixture.directory, "production-apply.json"), diagnosticPath = path.join(fixture.directory, "production-apply-diagnostic.json"), idempotencyPath = path.join(fixture.directory, "production-idempotency-diagnostic.json"), postflightPath = path.join(fixture.directory, "production-db-postflight.json");
-  const report = JSON.parse(fs.readFileSync(reportPath, "utf8")), diagnostic = JSON.parse(fs.readFileSync(diagnosticPath, "utf8")), postflight = JSON.parse(fs.readFileSync(postflightPath, "utf8"));
-  report.review_row_count = 13; postflight.review_row_count = 13;
-  writeJson(reportPath, report); writeJson(postflightPath, postflight);
-  assert.throws(() => buildFitHouseSourceContract(fixture.directory, env), /review row count drifted/);
+  const reportPath = path.join(fixture.directory, "production-dry-run.json"), diagnosticPath = path.join(fixture.directory, "production-preflight-diagnostic.json");
+  const report = JSON.parse(fs.readFileSync(reportPath, "utf8")), diagnostic = JSON.parse(fs.readFileSync(diagnosticPath, "utf8"));
+  report.review_row_count = 13;
+  writeJson(reportPath, report);
+  assert.throws(() => buildFitHouseSourceContract(fixture.directory, env), /ordinary partition is incomplete/);
   report.review_rows.pop(); report.deferred_changed_offer_ids.pop(); diagnostic.classifier_summary.changed_rows.pop();
-  writeJson(reportPath, report); writeJson(diagnosticPath, diagnostic); writeJson(idempotencyPath, diagnostic);
+  const resolvedOfferId = fixture.changedRows.at(-1).offer_id;
+  report.execution_offer_ids.push(resolvedOfferId);
+  report.verification_offer_ids.push(resolvedOfferId);
+  report.executable_plan_count += 1;
+  report.classification.VERIFY_NO_CHANGE += 1;
+  report.classification.UPDATE_STOCK -= 1;
+  diagnostic.classifier_summary.scope.scope_row_ids.push(resolvedOfferId);
+  diagnostic.classifier_summary.scope.reconciled_total += 1;
+  diagnostic.classifier_summary.action_counts = report.classification;
+  writeJson(reportPath, report); writeJson(diagnosticPath, diagnostic);
   const contract = buildFitHouseSourceContract(fixture.directory, env);
   assert.equal(contract.review_row_count, 13);
   assert.equal(contract.review_offer_ids.length, 13);
@@ -586,30 +591,24 @@ function writeTenRepsFixture() {
     external_variant_id: byOffer.get(offerId).external_variant_id,
   }));
   const executionOfferIds = baselineRows.filter((row) => !reviewOfferIds.has(row.offer_id)).map((row) => row.offer_id);
-  const priceRow = baselineRows.find((row) => row.offer_id === executionOfferIds[0]);
   const report = {
-    result: "PASS_WITH_REVIEW", mode: "apply", target: "production",
+    result: "PASS_WITH_REVIEW", mode: "dry-run", target: "production",
     source: { fingerprint: sourceFingerprint }, approved_mapping_count: 950,
     deferred_changed_offer_ids: [], execution_offer_ids: executionOfferIds,
-    verification_offer_ids: executionOfferIds.slice(1), stock_change_offer_ids: [], executable_plan_count: 934,
-    executed_plan_count: 934, review_row_count: 16, blocked_row_count: 0,
-    classification: { VERIFY_NO_CHANGE: 933, UPDATE_PRICE: 1 },
+    verification_offer_ids: executionOfferIds, stock_change_offer_ids: [], executable_plan_count: 934,
+    executed_plan_count: 0, review_row_count: 16, blocked_row_count: 0,
+    classification: { VERIFY_NO_CHANGE: 934 },
     review_rows: reviewRows,
-    business: { products_delta: 0, variants_delta: 0, mappings_delta: 0, offers_delta: 0, price_history_delta: 1, offers_refreshed: 934 },
   };
   const diagnostic = {
     result: "PASS", timestamp: "2026-10-05T17:01:00.000Z", failure_stage: null,
-    source: { fingerprint: sourceFingerprint }, business_writes_completed: 934, control_writes_completed: 1,
-    classifier_summary: { changed_row_ids: [priceRow.offer_id], changed_rows: [{ offer_id: priceRow.offer_id, retailer_product_id: priceRow.mapping_id, external_product_id: priceRow.external_product_id, external_variant_id: priceRow.external_variant_id, action: "UPDATE_PRICE", old_price: "10.00", new_price: "9.00", old_stock: true, new_stock: true }] },
+    approved_mapping_count: 950, source: { fingerprint: sourceFingerprint }, database_writes_attempted: 0, database_writes_completed: 0, business_writes_completed: 0, control_writes_completed: 0, approvals_created: 0, approvals_consumed: 0, recovery_calls: 0,
+    classifier_summary: { scope: { scope_row_ids: executionOfferIds, blocked_rows: 0, reconciled: true, reconciled_total: 934 }, action_counts: report.classification, changed_row_ids: [], changed_rows: [] },
   };
-  const idempotency = { result: "PASS", timestamp: "2026-10-05T17:15:00.000Z", failure_stage: null, source: { fingerprint: sourceFingerprint }, business_writes_completed: 0, control_writes_completed: 0, classifier_summary: { changed_rows: [] } };
   const baseline = { schema_version: 1, kind: "retailer-offer-refresh-db-baseline", result: "PASS", profile: "10-reps", snapshot: { captured_at: "2026-10-05T17:00:59.000Z", retailer_id: "14", retailer_name: "10 Reps", row_count: 950, rows: baselineRows }, evidence_hash: "e".repeat(64) };
-  const postflight = { schema_version: 1, kind: "retailer-offer-refresh-db-postflight", result: "PASS", profile: "10-reps", approved_mapping_count: 950, executable_plan_count: 934, executed_plan_count: 934, review_row_count: 16, blocked_row_count: 0, price_change_count: 1, stock_change_count: 0, shipping_change_count: 0, total_change_count: 1, offer_url_change_count: 0, mapping_url_change_count: 0, freshness_change_count: 934, price_history_delta: 1, daily_confirmation_delta: 0, raw_price_history_delta: 1, baseline_hash: baseline.evidence_hash, postflight_hash: "f".repeat(64) };
-  writeJson(path.join(directory, "production-apply.json"), report);
-  writeJson(path.join(directory, "production-apply-diagnostic.json"), diagnostic);
-  writeJson(path.join(directory, "production-idempotency-diagnostic.json"), idempotency);
+  writeJson(path.join(directory, "production-dry-run.json"), report);
+  writeJson(path.join(directory, "production-preflight-diagnostic.json"), diagnostic);
   writeJson(path.join(directory, "production-db-baseline.json"), baseline);
-  writeJson(path.join(directory, "production-db-postflight.json"), postflight);
   return { directory, baselineRows, reviewRows };
 }
 
@@ -652,13 +651,36 @@ test("10 Reps adapter builds exactly 16 shared-publisher identity-review cards a
   assert.equal(output.direct_rest_writes, 0);
 });
 
+test("10 Reps review evidence survives a later partial execution failure", () => {
+  const fixture = writeTenRepsFixture();
+  const outputFile = path.join(fixture.directory, "github-output.txt");
+  fs.writeFileSync(outputFile, "");
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "workflow_dispatch", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "37364486648", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit, GITHUB_OUTPUT: outputFile };
+  const binding = bindSharedRetailerSource(fixture.directory, env, "10-reps");
+
+  writeJson(path.join(fixture.directory, "production-dry-run.json"), { result: "OVERWRITTEN_AFTER_PARTIAL_APPLY" });
+  writeJson(path.join(fixture.directory, "production-preflight-diagnostic.json"), { result: "FAIL", error_code: "QUERY_READ_TIMEOUT" });
+
+  const options = { profile: "10-reps", sourceArtifactDir: fixture.directory, sourceRunId: env.GITHUB_RUN_ID, sourceArtifactId: "11368880858", sourceCommitSha: env.GITHUB_SHA, sourceArtifactDigest: "c".repeat(64), sourceContractSha256: binding.contract_sha256, output: path.join(fixture.directory, "output.json") };
+  const source = verifyFitHouseSourceContract(options, new Date("2026-10-05T18:00:00Z"));
+  assert.equal(source.contract.evidence_stage, "pre-execution-review-classification");
+  assert.equal(source.contract.review_row_count, 16);
+  assert.equal(source.contract.executable_plan_count, 934);
+});
+
 test("shared retailer workflow publishes bound Fit House and 10 Reps cards through one queue job", () => {
   const workflow = fs.readFileSync(path.join(process.cwd(), ".github/workflows/fit-house-offer-refresh.yml"), "utf8");
   assert.match(workflow, /Bind fresh Fit House Review Queue source/);
   assert.match(workflow, /Bind fresh 10 Reps Review Queue source/);
   assert.match(workflow, /refresh-review-queue:[\s\S]*needs: \[fit-house-offer-refresh, ten-reps-offer-refresh\]/);
-  assert.match(workflow, /needs\.fit-house-offer-refresh\.result == 'success'/);
-  assert.match(workflow, /needs\.ten-reps-offer-refresh\.result == 'success'/);
+  assert.doesNotMatch(workflow, /needs\.fit-house-offer-refresh\.result == 'success'/);
+  assert.doesNotMatch(workflow, /needs\.ten-reps-offer-refresh\.result == 'success'/);
+  assert.match(workflow, /Capture Fit House DB baseline read-only[\s\S]*Bind fresh Fit House Review Queue source[\s\S]*Apply all approved Fit House offer refresh/);
+  assert.match(workflow, /Capture 10 Reps DB baseline read-only[\s\S]*Bind fresh 10 Reps Review Queue source[\s\S]*Apply all approved 10 Reps offer refresh/);
+  assert.match(workflow, /- review-only/);
+  const tenRepsApply = workflow.match(/- name: Apply all approved 10 Reps offer refresh[\s\S]*?run: node scripts\/fit-house-offer-refresh\.js --target=production --mode=apply --isolate-unsafe=true/)?.[0] || "";
+  assert.doesNotMatch(tenRepsApply, /review-only/);
+  assert.match(workflow, /refresh-review-queue:[\s\S]*inputs\.operation == 'review-only'/);
   assert.match(workflow, /github\.event_name == 'schedule'|inputs\.operation == 'apply'/);
   assert.match(workflow, /actions\/download-artifact@v8/);
   assert.match(workflow, /shared-retailer-automation-review-source\.js[\s\S]*--profile=fit-house/);

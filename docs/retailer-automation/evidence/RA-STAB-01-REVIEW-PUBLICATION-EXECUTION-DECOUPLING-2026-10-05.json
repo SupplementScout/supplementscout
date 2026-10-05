@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "task": "RA-STAB-01",
+  "status": "LOCALLY_VERIFIED_DEPLOYMENT_PENDING",
+  "recorded_at": "2026-10-05T20:20:00Z",
+  "incident": {
+    "workflow_run_id": "37364486648",
+    "commit_sha": "37b5eca26ff141badcaaaf196c92e6a442f4c12a",
+    "artifact_id": "11368880858",
+    "artifact_digest": "344d813b707347af34693bee0d1b33d80269adede2e7c88def7a751aba6971d3",
+    "result": "PARTIAL_EXECUTION_QUERY_READ_TIMEOUT",
+    "classification": { "approved_mappings": 950, "safe_no_change": 934, "review": 16, "blocked": 0 },
+    "read_only_production_readback": {
+      "freshness_only_updates": 591,
+      "price_changes": 0,
+      "stock_changes": 0,
+      "identity_changes": 0,
+      "catalogue_row_count_changes": 0
+    },
+    "cause": "Review Queue publication was unnecessarily conditional on every unrelated safe execution batch completing successfully."
+  },
+  "implementation": {
+    "design": "Seal the fresh review classification and full database baseline before execution, then independently reconcile the review rows against current production state.",
+    "shared_mechanisms_reused": [
+      "shared-retailer-automation-review-source.js",
+      "automation-review-reconciliation-apply.js",
+      "publish_automation_review_queue_changes RPC",
+      "Shared Retailer Offer Refresh workflow"
+    ],
+    "new_parallel_importer": false,
+    "new_approval_path": false,
+    "new_executor": false,
+    "new_database_function": false,
+    "direct_catalogue_write": false,
+    "guard_changes": [
+      "The sealed contract accepts only a complete safe/review partition with zero blocked rows.",
+      "Every executable row must be VERIFY_NO_CHANGE for pre-execution publication.",
+      "The source and database baseline are SHA-256 bound and copied to immutable artifact filenames before apply.",
+      "Current offer, mapping, canonical identity, price, stock and URLs are checked again before queue publication.",
+      "review-only dispatch skips catalogue apply, control-plan registration, postflight and idempotency."
+    ]
+  },
+  "regression": {
+    "name": "10 Reps review evidence survives a later partial execution failure",
+    "result": "PASS",
+    "focused_tests": "22/22",
+    "real_incident_artifact_validation": {
+      "result": "PASS",
+      "executable": 934,
+      "review": 16,
+      "blocked": 0,
+      "review_offer_ids": [
+        "2853", "2854", "2855", "2856", "2857", "2858", "2859", "2896",
+        "2897", "2898", "2913", "2914", "3384", "3388", "3496", "3627"
+      ]
+    }
+  },
+  "production": {
+    "writes_by_preparation": 0,
+    "next_gate": "Merge after green CI, dispatch one 10 Reps review-only operation, then verify exactly 16 active queue cards and zero catalogue/control writes."
+  }
+}
