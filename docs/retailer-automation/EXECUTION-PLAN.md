@@ -1197,6 +1197,20 @@ postflight and fresh Review Queue publication; no old plan is replayed.
 Evidence:
 [`evidence/RA-STAB-01-SHARED-CONTROL-RECOVERY-CLOSEOUT-2026-10-05.json`](evidence/RA-STAB-01-SHARED-CONTROL-RECOVERY-CLOSEOUT-2026-10-05.json).
 
+**5 October first fresh 10 Reps execution gate after recovery — waiting on the
+external source:** manual ordinary-path runs `37305756452` and `37306729009`
+both stopped at `SOURCE_FETCH` after the existing three bounded attempts timed
+out. Each received zero bytes and stopped before validation, plan creation,
+approval or apply. Both report zero attempted/completed database writes, zero
+business/control writes and zero approvals. The earlier replay blocker did not
+recur, so the shared expired-plan recovery is not implicated. Do not add a
+retailer-specific fallback, reuse a stale feed, raise the timeout without source
+evidence or launch another manual retry. The next exact gate is the next
+ordinary scheduled shared-retailer cycle. Only a fresh complete feed may proceed
+to the normal 10 Reps execution and fresh Review Queue publication. RA-STAB-01
+remains `IN_PROGRESS`; ordinary observation credit remains `0/3`. Evidence:
+[`evidence/RA-STAB-01-10REPS-SOURCE-OUTAGE-2026-10-05.json`](evidence/RA-STAB-01-10REPS-SOURCE-OUTAGE-2026-10-05.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
