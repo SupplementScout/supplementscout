@@ -1,6 +1,6 @@
 {
   "schema_version": "ra-stab-01-10reps-source-outage-v1",
-  "recorded_at": "2026-10-05T12:03:38.884Z",
+  "recorded_at": "2026-10-05T12:22:57.311Z",
   "task_id": "RA-STAB-01",
   "status": "WAITING_FOR_EXTERNAL_SOURCE",
   "dependency": "10 Reps protected CSV product feed",
@@ -32,6 +32,20 @@
       "control_writes_completed": 0,
       "approvals_created": 0,
       "recovery_calls": 0
+    },
+    {
+      "run_id": 37308914886,
+      "commit": "caa2bd90b057d4fc06e52983011f4c8425ea764e",
+      "result": "FAIL",
+      "failure_stage": "SOURCE_FETCH",
+      "error_code": "SOURCE_UNAVAILABLE",
+      "error_message": "CSV feed read failed after 3 attempt(s): The operation was aborted due to timeout",
+      "bytes_received": 0,
+      "database_writes_attempted": 0,
+      "business_writes_completed": 0,
+      "control_writes_completed": 0,
+      "approvals_created": 0,
+      "recovery_calls": 0
     }
   ],
   "production_state": {
@@ -44,10 +58,12 @@
     "business_state_changed": false
   },
   "decision": {
-    "additional_manual_retry": false,
+    "owner_authorized_third_manual_run": 37308914886,
+    "third_manual_run_result": "SOURCE_UNAVAILABLE_ZERO_WRITES",
+    "further_manual_retry": false,
     "timeout_increase": false,
     "cached_feed_fallback": false,
     "retailer_specific_patch": false,
-    "next_gate": "Observe the next ordinary scheduled shared retailer cycle. Continue to execution and Review Queue publication only after a fresh complete feed passes the existing source guards."
+    "next_gate": "Wait for evidence that the protected 10 Reps feed is responding. Continue to execution and Review Queue publication only after a fresh complete feed passes the existing source guards."
   }
 }
