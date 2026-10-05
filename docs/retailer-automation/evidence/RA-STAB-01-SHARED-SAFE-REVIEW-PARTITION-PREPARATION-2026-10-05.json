@@ -1,0 +1,71 @@
+{
+  "schema_version": "ra-stab-01-shared-safe-review-partition-preparation-v1",
+  "task_id": "RA-STAB-01",
+  "recorded_at": "2026-10-05T16:46:44.8024490Z",
+  "status": "LOCAL_VERIFIED_DEPLOYMENT_PENDING",
+  "production_observations": {
+    "fit_house": {
+      "latest_complete_run_id": "37318809123",
+      "approved_scope": 286,
+      "safe_verify_no_change_rows": 272,
+      "review_rows": 14,
+      "ordinary_rows_selected_by_old_consumed_return_selector": 0,
+      "review_rows_written": 0
+    },
+    "whey_okay": {
+      "read_only_run_id": "37312941793",
+      "approved_scope": 589,
+      "executable_verify_no_change_rows": 579,
+      "missing_source_review_rows": 10,
+      "previous_scheduled_run_id": "37288125109",
+      "previous_scheduled_result": "FAIL_CLOSED_BEFORE_WRITES"
+    },
+    "watchdog": {
+      "run_id": "37336271221",
+      "observed_problem": "REVIEW_ROW_COUNT_GROWTH_REPORTED_AS_FAILURE",
+      "catalogue_writes": 0
+    }
+  },
+  "implementation": {
+    "kind": "SHARED_SAFE_REVIEW_PARTITION_AND_RESULT_MEANING",
+    "shared_partition": "scripts/lib/retailer-offer-sync/classifier.js#partitionExecutableRows",
+    "ordinary_consumer": "scripts/fit-house-offer-refresh.js#selectOrdinaryExecutionRows",
+    "watchdog_consumer": "scripts/automation-reliability-watchdog.js#applyMonitoredBacklog",
+    "new_importer": false,
+    "new_executor": false,
+    "new_workflow": false,
+    "new_database_function": false,
+    "new_approval_path": false,
+    "new_retailer_condition_in_shared_core": false,
+    "baseline_widened": false,
+    "guard_contract": [
+      "every quarantined offer is excluded from ordinary execution",
+      "all non-quarantined classified rows remain executable",
+      "duplicate or invalid review and execution identities fail closed",
+      "the existing exact Fit House 1 plus 19 authorization remains unchanged while active",
+      "review-only growth becomes PASS_WITH_REVIEW",
+      "stale scope drift, missing evidence, unknown reasons and system failures remain FAIL"
+    ]
+  },
+  "verification": {
+    "focused_regressions": "PASS 119/119",
+    "verify_project_before": "PASS",
+    "verify_quick": "PASS",
+    "verify_full": "PASS",
+    "production_build": "PASS"
+  },
+  "production_accounting": {
+    "manual_retailer_dispatches": 0,
+    "catalogue_writes": 0,
+    "control_writes": 0,
+    "review_queue_writes": 0
+  },
+  "protected_scope": {
+    "fit_house_review_rows": 14,
+    "fit_house_manual_force_allowed": false,
+    "whey_okay_next_execution": "NATURAL_SCHEDULE_ONLY"
+  },
+  "next_gate": "GREEN_CI_AND_MERGE_THEN_NATURAL_WHEY_OKAY_AND_SHARED_FIT_HOUSE_SCHEDULES_FOLLOWED_BY_READ_ONLY_WATCHDOG",
+  "task_status": "IN_PROGRESS",
+  "ordinary_observation_counter": "0/3"
+}

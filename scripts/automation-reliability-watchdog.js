@@ -503,7 +503,8 @@ function applyMonitoredBacklog(evaluation, baseline) {
       growth.push("REVIEW_SCOPE_DRIFT");
     }
   }
-  if (unexpected.length || growth.length) {
+  const reviewGrowthOnly = growth.length > 0 && growth.every((code) => code === "REVIEW_ROW_COUNT_GROWTH");
+  if (unexpected.length || (growth.length && !reviewGrowthOnly)) {
     return {
       ...evaluation,
       result: "FAIL",
@@ -515,6 +516,21 @@ function applyMonitoredBacklog(evaluation, baseline) {
         result: "OUTSIDE_BASELINE",
         unexpected_failure_codes: unexpected,
         growth,
+      },
+    };
+  }
+  if (reviewGrowthOnly) {
+    return {
+      ...evaluation,
+      result: "PASS_WITH_REVIEW",
+      failures: [],
+      warnings: [...evaluation.failures, "REVIEW_BACKLOG_OUTSIDE_BASELINE"],
+      monitored_backlog: {
+        result: "OUTSIDE_BASELINE",
+        unexpected_failure_codes: [],
+        growth,
+        maximum_review_row_count: baseline.maximum_review_row_count,
+        current_review_row_count: review,
       },
     };
   }
@@ -556,11 +572,11 @@ function summarizeWatchdogResult(retailers, options = {}) {
   if (globalFailures.length || retailers.some((row) => row.result === "FAIL")) {
     return { result: "FAIL", globalFailures };
   }
-  if (retailers.some((row) => row.result === "PASS_WITH_MONITORED_BACKLOG")) {
-    return { result: "PASS_WITH_MONITORED_BACKLOG", globalFailures };
-  }
   if (retailers.some((row) => row.result === "PASS_WITH_REVIEW")) {
     return { result: "PASS_WITH_REVIEW", globalFailures };
+  }
+  if (retailers.some((row) => row.result === "PASS_WITH_MONITORED_BACKLOG")) {
+    return { result: "PASS_WITH_MONITORED_BACKLOG", globalFailures };
   }
   return { result: "PASS", globalFailures };
 }

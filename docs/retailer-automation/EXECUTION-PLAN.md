@@ -1255,6 +1255,36 @@ production capability evidence, not an ordinary scheduled observation, so
 RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence:
 [`evidence/RA-STAB-01-REVIEW-QUEUE-PRODUCTION-READBACK-2026-10-05.json`](evidence/RA-STAB-01-REVIEW-QUEUE-PRODUCTION-READBACK-2026-10-05.json).
 
+**5 October shared safe/review partition and watchdog meaning — locally
+verified, deployment pending:** fresh production evidence separated two normal
+conditions from a system failure. Fit House run `37318809123` completed source,
+classification and publication successfully with `272` safe
+`VERIFY_NO_CHANGE` rows and the same `14` owner-deferred stock rows. The old
+one-time returned-offer selector then selected zero ordinary rows after its
+authorized change had become idempotent, so the safe rows were not refreshed.
+Whey Okay read-only run `37312941793` independently proved `579` executable
+rows plus `10` missing-source review rows; its earlier scheduled run
+`37288125109` stopped before writes on a control conflict that is no longer
+present. Watchdog `37336271221` incorrectly promoted Fit House's expected
+review-count growth to `FAIL`, although its latest retailer run was complete.
+
+The correction introduces one retailer-neutral partition in the existing
+classifier: every quarantined offer is excluded from execution and all other
+classified rows remain executable. Fit House consumes that common partition
+for ordinary runs while preserving the existing exact one-time `1 + 19`
+authorized path when it still has a real stock change. The watchdog now reports
+review-only growth as `PASS_WITH_REVIEW`; stale-scope drift, missing evidence,
+unknown failure codes and all genuine system failures still return `FAIL`.
+There is no new importer, executor, workflow, database function, approval path,
+retailer condition in shared core, baseline widening or production write.
+Focused regressions pass `119/119`; repository quick/full gates, Project
+Guardian and the production build pass. The next gate is green CI/merge, then
+the natural Whey Okay and shared Fit House schedule followed by a fresh
+read-only watchdog. The exact 14 Fit House rows remain unchanged in Review
+Queue and must not be manually forced. RA-STAB-01 remains `IN_PROGRESS` at
+`0/3`. Evidence:
+[`evidence/RA-STAB-01-SHARED-SAFE-REVIEW-PARTITION-PREPARATION-2026-10-05.json`](evidence/RA-STAB-01-SHARED-SAFE-REVIEW-PARTITION-PREPARATION-2026-10-05.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
