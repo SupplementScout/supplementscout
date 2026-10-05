@@ -586,6 +586,19 @@ approval separate from execution, with no decisions or executions submitted.
 Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-10REPS-CENTRAL-READBACK-V4-CLOSEOUT-2026-10-04.json`](retailer-automation/evidence/RA-STAB-01-10REPS-CENTRAL-READBACK-V4-CLOSEOUT-2026-10-04.json).
 
+The first later scheduled watchdog, run `37235410756`, executed on merged
+commit `f9445779` with zero database writes and no global or database failure,
+but it still correlated ordinary retailer runs from before that merge. Seven
+retailers were red through incomplete attempts, stale execution evidence or
+monitored backlog growth, so this is not the first qualifying post-closeout
+interval and the counter remains `0/3`. No manual dispatch, retry, RA-004
+action, baseline change or production write was performed. The next gate is a
+complete natural retailer cycle after `f9445779` followed by its first later
+scheduled watchdog. A repeated backlog-only failure must go through the
+existing owner-decision Review Queue path, not a new patch or a wider baseline.
+Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-POST-V4-NATURAL-OBSERVATION-2026-10-05.json`](retailer-automation/evidence/RA-STAB-01-POST-V4-NATURAL-OBSERVATION-2026-10-05.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
