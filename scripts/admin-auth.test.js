@@ -1015,6 +1015,15 @@ test("Review Queue stale-state hashing canonicalizes equivalent timestamps witho
   assert.notEqual(hash({ last_checked_at: "2026-08-30T14:11:22.619001Z" }), hash({ last_checked_at: "2026-08-30T14:11:22.619000Z" }));
 });
 
+test("eBay Review Queue execution accepts database UTC-offset source capture timestamps", () => {
+  const { normalizeApprovedSourceCapturedAt } = require("./ebay-offer-refresh");
+  const now = new Date("2026-10-05T00:00:00.000Z");
+  assert.equal(normalizeApprovedSourceCapturedAt("2026-10-04T11:27:18.176+00:00", "2687", now), "2026-10-04T11:27:18.176Z");
+  assert.equal(normalizeApprovedSourceCapturedAt("2026-10-04T12:27:18+01:00", "2687", now), "2026-10-04T11:27:18.000Z");
+  assert.throws(() => normalizeApprovedSourceCapturedAt("2026-10-06T00:00:00.000Z", "2687", now), /Approved source capture timestamp is invalid for offer 2687/);
+  assert.throws(() => normalizeApprovedSourceCapturedAt("2026-10-04T11:27:18.176123+00:00", "2687", now), /Approved source capture timestamp is invalid for offer 2687/);
+});
+
 test("eBay workflow isolates Review Queue dispatch payload and protected credentials", () => {
   const workflow = fs.readFileSync(path.join(process.cwd(), ".github", "workflows", "ebay-offer-refresh.yml"), "utf8");
   assert.match(workflow, /execution_mode:[\s\S]*options: \[catalogue-refresh, review-queue, review-queue-reconciliation\]/);
