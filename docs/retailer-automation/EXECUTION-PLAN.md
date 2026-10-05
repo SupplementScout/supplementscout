@@ -1285,6 +1285,33 @@ Queue and must not be manually forced. RA-STAB-01 remains `IN_PROGRESS` at
 `0/3`. Evidence:
 [`evidence/RA-STAB-01-SHARED-SAFE-REVIEW-PARTITION-PREPARATION-2026-10-05.json`](evidence/RA-STAB-01-SHARED-SAFE-REVIEW-PARTITION-PREPARATION-2026-10-05.json).
 
+**5 October owner-requested immediate Fit House and Whey Okay execution — Whey
+verified, Fit House report correction pending deployment:** after PR `#220`
+merged as `0b93f0dbb356f907a6bec9379c553bd5a2b22872`, the owner explicitly
+replaced the natural-cycle wait with sequential manual ordinary-path dispatches.
+Fit House run `37344883167` fetched a healthy complete source and reproduced the
+exact `272 safe + 14 review` partition. It then failed closed before baseline,
+registration, approval or execution with `Fit House protected-offer report
+scope mismatch`; database, business and control writes are all zero. The cause
+is bounded: the consumed one-time `1 + 19` report assertion still ran after the
+ordinary selector correctly chose 272 safe confirmations. The correction binds
+that assertion to an actually active one-time stock authorization. It changes
+no classifier, partition, threshold, writer, workflow or Review Queue scope.
+Its incident regression plus the Fit House/shared suites pass `62/62`, and
+quick/full gates including the production build pass.
+
+Whey Okay run `37345068386` then used the same shared production lock and
+completed successfully. It executed all `579` safe `VERIFY_NO_CHANGE` rows in
+12 guarded children and kept the exact 10 missing-source rows in review.
+Postflight proves 579 freshness changes and zero price, stock, shipping, total,
+URL, mapping, catalogue or price-history change. Fresh-source idempotency passed
+with the same `579 + 10` partition. The next gate is green merge of the bounded
+Fit House report correction, followed by one fresh Fit House ordinary-path
+dispatch and read-only postflight. The 14 Fit House exceptions remain
+unchanged. These owner-requested manual runs do not increment the ordinary
+schedule counter, which remains `0/3`. Evidence:
+[`evidence/RA-STAB-01-MANUAL-FIT-WHEY-OBSERVATION-2026-10-05.json`](evidence/RA-STAB-01-MANUAL-FIT-WHEY-OBSERVATION-2026-10-05.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

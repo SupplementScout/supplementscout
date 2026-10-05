@@ -616,6 +616,22 @@ next gate is CI/merge followed only by natural retailer schedules and a fresh
 read-only watchdog. RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-SHARED-SAFE-REVIEW-PARTITION-PREPARATION-2026-10-05.json`](retailer-automation/evidence/RA-STAB-01-SHARED-SAFE-REVIEW-PARTITION-PREPARATION-2026-10-05.json).
 
+After merge `0b93f0db`, the owner explicitly requested immediate sequential
+ordinary-path execution instead of waiting for the next schedules. Fit House
+run `37344883167` confirmed the exact `272 safe + 14 review` production split
+but failed closed before any database or control write because the consumed
+one-time `1 + 19` report check was still applied to the new 272-row ordinary
+scope. The bounded correction activates that check only while the corresponding
+one-time stock authorization is active; focused `62/62`, quick and full gates
+including the production build pass. Whey Okay run `37345068386` completed all
+579 safe freshness confirmations in 12 protected children, preserved the 10
+missing-source rows as review, passed database postflight and fresh-source
+idempotency, and made zero commercial, identity, catalogue or price-history
+change. The next gate is merge of the Fit House report correction and one fresh
+ordinary Fit House run. The exact 14 Fit House exceptions remain unchanged;
+the manual runs do not advance the `0/3` natural-schedule counter. Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-MANUAL-FIT-WHEY-OBSERVATION-2026-10-05.json`](retailer-automation/evidence/RA-STAB-01-MANUAL-FIT-WHEY-OBSERVATION-2026-10-05.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
