@@ -155,7 +155,7 @@ jobs:
       - name: Bind fresh Fit House Review Queue source
         id: review_source
         if: ${{ success() && (github.event_name == 'schedule' || inputs.operation == 'apply') }}
-        run: node scripts/fit-house-automation-review-source.js --mode=bind --source-artifact-dir=tmp/fit-house-offer-refresh
+        run: node scripts/shared-retailer-automation-review-source.js --mode=bind --profile=fit-house --source-artifact-dir=tmp/fit-house-offer-refresh
 
       - name: Publish workflow summary
         if: always()
@@ -177,65 +177,16 @@ jobs:
           if-no-files-found: warn
           path: tmp/fit-house-offer-refresh/*.json
 
-  refresh-fit-house-review-queue:
-    needs: fit-house-offer-refresh
-    if: ${{ needs.fit-house-offer-refresh.result == 'success' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.operation == 'apply')) && needs.fit-house-offer-refresh.outputs.artifact_id != '' && needs.fit-house-offer-refresh.outputs.artifact_digest != '' && needs.fit-house-offer-refresh.outputs.source_contract_sha256 != '' && needs.fit-house-offer-refresh.outputs.review_scope_fingerprint != '' && github.ref == 'refs/heads/main' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    environment: production-readonly
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci --ignore-scripts
-      - name: Download exact Fit House source evidence
-        uses: actions/download-artifact@v8
-        with:
-          artifact-ids: ${{ needs.fit-house-offer-refresh.outputs.artifact_id }}
-          path: tmp/automation-review-reconciliation/fit-house-source
-          merge-multiple: true
-      - name: Build fresh Fit House Review Queue changes
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          SOURCE_ARTIFACT_DIGEST: ${{ needs.fit-house-offer-refresh.outputs.artifact_digest }}
-        run: >-
-          node scripts/fit-house-automation-review-source.js
-          --mode=reconcile
-          --source-artifact-dir=tmp/automation-review-reconciliation/fit-house-source
-          --source-run-id=${{ github.run_id }}
-          --source-artifact-id=${{ needs.fit-house-offer-refresh.outputs.artifact_id }}
-          --source-commit-sha=${{ github.sha }}
-          --source-artifact-digest=${SOURCE_ARTIFACT_DIGEST#sha256:}
-          --source-contract-sha256=${{ needs.fit-house-offer-refresh.outputs.source_contract_sha256 }}
-          --output=tmp/automation-review-reconciliation/fit-house-reconciliation-dry-run.json
-      - name: Publish fresh Fit House cards to Automation Review Queue
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: >-
-          node scripts/automation-review-reconciliation-apply.js
-          --input=tmp/automation-review-reconciliation/fit-house-reconciliation-dry-run.json
-          --output=tmp/automation-review-reconciliation/fit-house-reconciliation-apply.json
-      - name: Upload Fit House queue refresh evidence
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: fit-house-automation-review-queue-refresh-${{ github.run_id }}-${{ github.run_attempt }}
-          retention-days: 30
-          if-no-files-found: error
-          path: tmp/automation-review-reconciliation/*.json
-
   ten-reps-offer-refresh:
     if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.operation != 'control-recovery' && (inputs.retailer == 'all' || inputs.retailer == '10reps'))) }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     environment: production-readonly
+    outputs:
+      artifact_id: ${{ steps.ten_reps_artifact.outputs.artifact-id }}
+      artifact_digest: ${{ steps.ten_reps_artifact.outputs.artifact-digest }}
+      source_contract_sha256: ${{ steps.ten_reps_review_source.outputs.contract_sha256 }}
+      review_scope_fingerprint: ${{ steps.ten_reps_review_source.outputs.review_scope_fingerprint }}
     env:
       RETAILER_REFRESH_PROFILE: 10reps
 
@@ -313,6 +264,11 @@ jobs:
           TEN_REPS_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: node scripts/fit-house-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
 
+      - name: Bind fresh 10 Reps Review Queue source
+        id: ten_reps_review_source
+        if: ${{ success() && (github.event_name == 'schedule' || inputs.operation == 'apply') }}
+        run: node scripts/shared-retailer-automation-review-source.js --mode=bind --profile=10-reps --source-artifact-dir=tmp/10reps-offer-refresh
+
       - name: Publish 10 Reps workflow summary
         if: always()
         run: |
@@ -324,6 +280,7 @@ jobs:
           fi
 
       - name: Upload 10 Reps refresh evidence
+        id: ten_reps_artifact
         if: always()
         uses: actions/upload-artifact@v7
         with:
@@ -331,6 +288,98 @@ jobs:
           retention-days: 14
           if-no-files-found: warn
           path: tmp/10reps-offer-refresh/*.json
+
+  refresh-review-queue:
+    needs: [fit-house-offer-refresh, ten-reps-offer-refresh]
+    if: ${{ always() && github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.operation == 'apply')) && ((needs.fit-house-offer-refresh.result == 'success' && needs.fit-house-offer-refresh.outputs.artifact_id != '' && needs.fit-house-offer-refresh.outputs.artifact_digest != '' && needs.fit-house-offer-refresh.outputs.source_contract_sha256 != '' && needs.fit-house-offer-refresh.outputs.review_scope_fingerprint != '') || (needs.ten-reps-offer-refresh.result == 'success' && needs.ten-reps-offer-refresh.outputs.artifact_id != '' && needs.ten-reps-offer-refresh.outputs.artifact_digest != '' && needs.ten-reps-offer-refresh.outputs.source_contract_sha256 != '' && needs.ten-reps-offer-refresh.outputs.review_scope_fingerprint != '')) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production-readonly
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Download exact Fit House source evidence
+        if: ${{ needs.fit-house-offer-refresh.result == 'success' && needs.fit-house-offer-refresh.outputs.source_contract_sha256 != '' }}
+        uses: actions/download-artifact@v8
+        with:
+          artifact-ids: ${{ needs.fit-house-offer-refresh.outputs.artifact_id }}
+          path: tmp/automation-review-reconciliation/fit-house-source
+          merge-multiple: true
+      - name: Build fresh Fit House Review Queue changes
+        if: ${{ needs.fit-house-offer-refresh.result == 'success' && needs.fit-house-offer-refresh.outputs.source_contract_sha256 != '' }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SOURCE_ARTIFACT_DIGEST: ${{ needs.fit-house-offer-refresh.outputs.artifact_digest }}
+        run: >-
+          node scripts/shared-retailer-automation-review-source.js
+          --mode=reconcile
+          --profile=fit-house
+          --source-artifact-dir=tmp/automation-review-reconciliation/fit-house-source
+          --source-run-id=${{ github.run_id }}
+          --source-artifact-id=${{ needs.fit-house-offer-refresh.outputs.artifact_id }}
+          --source-commit-sha=${{ github.sha }}
+          --source-artifact-digest=${SOURCE_ARTIFACT_DIGEST#sha256:}
+          --source-contract-sha256=${{ needs.fit-house-offer-refresh.outputs.source_contract_sha256 }}
+          --output=tmp/automation-review-reconciliation/fit-house-reconciliation-dry-run.json
+      - name: Publish fresh Fit House cards to Automation Review Queue
+        if: ${{ needs.fit-house-offer-refresh.result == 'success' && needs.fit-house-offer-refresh.outputs.source_contract_sha256 != '' }}
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: >-
+          node scripts/automation-review-reconciliation-apply.js
+          --input=tmp/automation-review-reconciliation/fit-house-reconciliation-dry-run.json
+          --output=tmp/automation-review-reconciliation/fit-house-reconciliation-apply.json
+      - name: Download exact 10 Reps source evidence
+        if: ${{ needs.ten-reps-offer-refresh.result == 'success' && needs.ten-reps-offer-refresh.outputs.source_contract_sha256 != '' }}
+        uses: actions/download-artifact@v8
+        with:
+          artifact-ids: ${{ needs.ten-reps-offer-refresh.outputs.artifact_id }}
+          path: tmp/automation-review-reconciliation/10reps-source
+          merge-multiple: true
+      - name: Build fresh 10 Reps Review Queue changes
+        if: ${{ needs.ten-reps-offer-refresh.result == 'success' && needs.ten-reps-offer-refresh.outputs.source_contract_sha256 != '' }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SOURCE_ARTIFACT_DIGEST: ${{ needs.ten-reps-offer-refresh.outputs.artifact_digest }}
+        run: >-
+          node scripts/shared-retailer-automation-review-source.js
+          --mode=reconcile
+          --profile=10-reps
+          --source-artifact-dir=tmp/automation-review-reconciliation/10reps-source
+          --source-run-id=${{ github.run_id }}
+          --source-artifact-id=${{ needs.ten-reps-offer-refresh.outputs.artifact_id }}
+          --source-commit-sha=${{ github.sha }}
+          --source-artifact-digest=${SOURCE_ARTIFACT_DIGEST#sha256:}
+          --source-contract-sha256=${{ needs.ten-reps-offer-refresh.outputs.source_contract_sha256 }}
+          --output=tmp/automation-review-reconciliation/10reps-reconciliation-dry-run.json
+      - name: Publish fresh 10 Reps cards to Automation Review Queue
+        if: ${{ needs.ten-reps-offer-refresh.result == 'success' && needs.ten-reps-offer-refresh.outputs.source_contract_sha256 != '' }}
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: >-
+          node scripts/automation-review-reconciliation-apply.js
+          --input=tmp/automation-review-reconciliation/10reps-reconciliation-dry-run.json
+          --output=tmp/automation-review-reconciliation/10reps-reconciliation-apply.json
+      - name: Upload shared queue refresh evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: shared-retailer-automation-review-queue-refresh-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: error
+          path: tmp/automation-review-reconciliation/*.json
 
   expired-control-plan-recovery:
     if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.operation == 'control-recovery' }}
