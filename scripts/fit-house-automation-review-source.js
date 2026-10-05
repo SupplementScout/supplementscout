@@ -64,6 +64,39 @@ function normalizedChangedRows(diagnostic) {
   })).sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
 }
 
+function validateApplyPartition(report, diagnostic, idempotency, postflight) {
+  const executableCount = Number(report.executable_plan_count);
+  const reviewCount = Number(report.review_row_count);
+  invariant(Number.isInteger(executableCount) && executableCount >= 0 && Number(report.executed_plan_count) === executableCount, "Fit House executable scope drifted");
+  invariant(Number.isInteger(reviewCount) && reviewCount >= 0 && reviewCount <= 14, "Fit House review scope drifted");
+
+  const catalogueDeltaKeys = ["products_delta", "variants_delta", "mappings_delta", "offers_delta"];
+  invariant(report.business && catalogueDeltaKeys.every((key) => Number(report.business[key] || 0) === 0), "Fit House apply report contains catalogue changes");
+  invariant(Number(report.business.offers_refreshed || 0) === executableCount, "Fit House refreshed-offer count drifted");
+  const confirmationCount = Number(report.business.price_history_delta || 0);
+  invariant(Number.isInteger(confirmationCount) && confirmationCount >= 0 && confirmationCount <= executableCount, "Fit House daily confirmation count drifted");
+
+  invariant(diagnostic.result === "PASS" && diagnostic.failure_stage == null && Number(diagnostic.business_writes_completed || 0) === executableCount, "Fit House apply diagnostic execution count drifted");
+  invariant(Number(diagnostic.control_writes_completed || 0) === (executableCount > 0 ? 1 : 0), "Fit House apply diagnostic control count drifted");
+  invariant(idempotency.result === "PASS" && idempotency.failure_stage == null && Number(idempotency.business_writes_completed || 0) === 0 && Number(idempotency.control_writes_completed || 0) === 0, "Fit House idempotency diagnostic is not zero-write PASS");
+
+  const executionIds = sortedIds(Array.isArray(report.execution_offer_ids) ? report.execution_offer_ids : []);
+  const verificationIds = sortedIds(Array.isArray(report.verification_offer_ids) ? report.verification_offer_ids : []);
+  const stockChangeIds = sortedIds(Array.isArray(report.stock_change_offer_ids) ? report.stock_change_offer_ids : []);
+  invariant(executionIds.length === executableCount && verificationIds.length === executableCount && stockChangeIds.length === 0, "Fit House executable offer IDs drifted");
+  sameJson(executionIds, verificationIds, "Fit House executable scope is not freshness-only");
+  if (executableCount > 0) {
+    invariant(executableCount + reviewCount === 286, "Fit House ordinary partition is incomplete");
+    invariant(Number(report.classification?.VERIFY_NO_CHANGE || 0) === executableCount && Number(report.classification?.UPDATE_STOCK || 0) === reviewCount, "Fit House ordinary classification drifted");
+  }
+
+  invariant(postflight.executable_plan_count === executableCount && postflight.executed_plan_count === executableCount, "Fit House postflight execution binding drifted");
+  for (const key of ["price_change_count", "stock_change_count", "shipping_change_count", "total_change_count", "offer_url_change_count", "mapping_url_change_count", "price_history_delta"]) invariant(Number(postflight[key] || 0) === 0, `Fit House postflight ${key} is not zero`);
+  invariant(Number(postflight.freshness_change_count || 0) === executableCount, "Fit House postflight freshness count drifted");
+  invariant(Number(postflight.daily_confirmation_delta || 0) === confirmationCount && Number(postflight.raw_price_history_delta || 0) === confirmationCount, "Fit House postflight confirmation count drifted");
+  return { executableCount, executionIds };
+}
+
 function loadAndValidateSource(directory) {
   const files = pathsFor(directory);
   for (const file of Object.values(files)) invariant(fs.existsSync(file), `Missing Fit House source file ${path.basename(file)}`);
@@ -74,15 +107,12 @@ function loadAndValidateSource(directory) {
   const postflight = readJson(files.postflight);
 
   invariant(report.result === "PASS_WITH_REVIEW" && report.mode === "apply" && report.target === "production", "Fit House apply report is not publishable");
-  invariant(report.approved_mapping_count === 286 && report.executable_plan_count === 0 && report.executed_plan_count === 0 && report.review_row_count >= 0 && report.review_row_count <= 14 && report.blocked_row_count === 0, "Fit House apply scope drifted");
-  invariant(report.business && Object.values(report.business).every((value) => Number(value) === 0), "Fit House apply report contains business writes");
-  invariant(diagnostic.result === "PASS" && diagnostic.failure_stage == null && Number(diagnostic.business_writes_completed || 0) === 0 && Number(diagnostic.control_writes_completed || 0) === 0, "Fit House apply diagnostic is not zero-write PASS");
-  invariant(idempotency.result === "PASS" && idempotency.failure_stage == null && Number(idempotency.business_writes_completed || 0) === 0 && Number(idempotency.control_writes_completed || 0) === 0, "Fit House idempotency diagnostic is not zero-write PASS");
+  invariant(report.approved_mapping_count === 286 && report.blocked_row_count === 0, "Fit House apply scope drifted");
   invariant(baseline.schema_version === 1 && baseline.kind === "retailer-offer-refresh-db-baseline" && baseline.result === "PASS" && baseline.profile === RETAILER.slug, "Fit House DB baseline is invalid");
   invariant(baseline.snapshot?.retailer_id === RETAILER.id && baseline.snapshot?.retailer_name === RETAILER.name && baseline.snapshot?.row_count === 286 && Array.isArray(baseline.snapshot?.rows) && baseline.snapshot.rows.length === 286, "Fit House DB baseline scope drifted");
   invariant(postflight.schema_version === 1 && postflight.kind === "retailer-offer-refresh-db-postflight" && postflight.result === "PASS" && postflight.profile === RETAILER.slug, "Fit House DB postflight is invalid");
-  invariant(postflight.baseline_hash === baseline.evidence_hash && postflight.approved_mapping_count === 286 && postflight.executed_plan_count === 0 && postflight.review_row_count === report.review_row_count && postflight.blocked_row_count === 0, "Fit House postflight binding drifted");
-  for (const key of ["price_change_count", "stock_change_count", "shipping_change_count", "total_change_count", "offer_url_change_count", "mapping_url_change_count", "freshness_change_count", "price_history_delta", "daily_confirmation_delta", "raw_price_history_delta"]) invariant(Number(postflight[key] || 0) === 0, `Fit House postflight ${key} is not zero`);
+  invariant(postflight.baseline_hash === baseline.evidence_hash && postflight.approved_mapping_count === 286 && postflight.review_row_count === report.review_row_count && postflight.blocked_row_count === 0, "Fit House postflight binding drifted");
+  const partition = validateApplyPartition(report, diagnostic, idempotency, postflight);
 
   const changedRows = normalizedChangedRows(diagnostic);
   const idempotentRows = normalizedChangedRows(idempotency);
@@ -91,6 +121,7 @@ function loadAndValidateSource(directory) {
   invariant(report.review_row_count === report.review_rows.length && report.review_row_count === changedRows.length, "Fit House review row count drifted");
   sameJson(reviewIds, sortedIds(report.deferred_changed_offer_ids), "Fit House deferred review IDs drifted");
   sameJson(reviewIds, changedRows.map((row) => row.offer_id), "Fit House report and diagnostic review IDs drifted");
+  invariant(partition.executionIds.every((offerId) => !reviewIds.includes(offerId)), "Fit House executable and review scopes overlap");
   invariant(changedRows.every((row) => row.action === "UPDATE_STOCK" && row.old_price === row.new_price && row.old_stock !== row.new_stock), "Fit House review scope contains a non-stock change");
   invariant(diagnostic.source?.fingerprint === report.source?.fingerprint && idempotency.source?.fingerprint === report.source?.fingerprint, "Fit House source fingerprint changed during the run");
 
@@ -130,7 +161,7 @@ function contractCore(source, env) {
     expires_at: new Date(Date.parse(createdAt) + 24 * 60 * 60 * 1000).toISOString(),
     retailer: RETAILER,
     approved_mapping_count: 286,
-    executable_plan_count: 0,
+    executable_plan_count: source.report.executable_plan_count,
     review_row_count: source.changedRows.length,
     blocked_row_count: 0,
     catalogue_offer_ids: catalogueOfferIds,
@@ -190,7 +221,7 @@ function verifySourceContract(options, now = new Date()) {
   invariant(contract.schema_version === 1 && contract.kind === "automation-review-source-contract" && contract.profile === RETAILER.slug, "Fit House source contract schema mismatch");
   invariant(contract.repository === REPOSITORY && contract.workflow === WORKFLOW && contract.workflow_name === WORKFLOW_NAME, "Fit House source workflow mismatch");
   invariant(contract.run_id === options.sourceRunId && contract.commit_sha === options.sourceCommitSha && contract.retailer?.id === RETAILER.id && contract.retailer?.name === RETAILER.name, "Fit House source identity mismatch");
-  invariant(contract.approved_mapping_count === 286 && contract.executable_plan_count === 0 && contract.review_row_count >= 0 && contract.review_row_count <= 14 && contract.blocked_row_count === 0 && contract.catalogue_writes === 0, "Fit House source contract scope mismatch");
+  invariant(contract.approved_mapping_count === 286 && Number.isInteger(contract.executable_plan_count) && contract.executable_plan_count >= 0 && contract.executable_plan_count <= 286 && contract.review_row_count >= 0 && contract.review_row_count <= 14 && contract.blocked_row_count === 0 && contract.catalogue_writes === 0, "Fit House source contract scope mismatch");
   invariant(Date.parse(contract.expires_at) > Date.parse(contract.created_at) && Date.parse(contract.expires_at) > now.getTime(), "Fit House source contract expiry is invalid");
   invariant(contract.contract_fingerprint === sha256(Object.fromEntries(Object.entries(contract).filter(([key]) => key !== "contract_fingerprint"))), "Fit House source contract fingerprint mismatch");
   const source = loadAndValidateSource(options.sourceArtifactDir);
@@ -198,6 +229,7 @@ function verifySourceContract(options, now = new Date()) {
   sameJson(contract.catalogue_offer_ids, sortedIds(source.baseline.snapshot.rows.map((row) => row.offer_id)), "Fit House catalogue offer scope mismatch");
   sameJson(contract.review_offer_ids, source.changedRows.map((row) => row.offer_id), "Fit House review offer scope mismatch");
   invariant(contract.review_scope_fingerprint === contractCore(source, { GITHUB_RUN_ID: contract.run_id, GITHUB_RUN_ATTEMPT: contract.run_attempt, GITHUB_SHA: contract.commit_sha }).review_scope_fingerprint, "Fit House review scope fingerprint mismatch");
+  invariant(contract.executable_plan_count === source.report.executable_plan_count, "Fit House source contract executable count drifted");
   invariant(contract.review_row_count === source.changedRows.length, "Fit House source contract review count drifted");
   return { contract, ...source };
 }
