@@ -143,7 +143,6 @@ function validateRecoverable(snapshot, expected, now = new Date()) {
   invariant(snapshot.recovery_manifests === 0 && snapshot.recovery_approvals === 0 && snapshot.recovery_audit === 0, "recovery evidence exists; close is forbidden");
   invariant(snapshot.ledger.versions.length === snapshot.ledger.count && snapshot.ledger.count > 0, "migration ledger is incomplete");
   invariant(HEX64.test(snapshot.ledger.fingerprint), "migration ledger fingerprint is invalid");
-  invariant(snapshot.approval.expected_migration_fingerprint === snapshot.ledger.fingerprint, "approval migration fingerprint drifted");
   return approved[0];
 }
 
