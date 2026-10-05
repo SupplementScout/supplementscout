@@ -35,6 +35,7 @@ const {
   safeRetailerCatalogueError,
   safeUpdateDisabled,
   safeValidatorResult,
+  selectOrdinaryExecutionRows,
   selectOwnerApprovedSixExecutionRows,
   selectReviewQueueExecutionRows,
   sourceHealth,
@@ -199,6 +200,11 @@ test("only the exact owner-approved offer 759 return is executable", () => {
   const returnedRow=replay.rows.find(row=>row.offer_id===returned.offer_id);returnedRow.action="VERIFY_NO_CHANGE";returnedRow.target.in_stock=true;returnedRow.changed_fields.stock=false;
   const replayOwner={...owner,authorizedChangeCount:0},replayAuthorized=authorizeOwnerApprovedSixStockOnly(replay,replayOwner);
   assert.deepEqual(selectOwnerApprovedSixExecutionRows(replayAuthorized,replayOwner),[]);
+  const ordinaryReplay=selectOrdinaryExecutionRows(replayAuthorized,replayOwner);
+  assert.equal(ordinaryReplay.length,272);
+  assert.ok(ordinaryReplay.every(row=>row.action==="VERIFY_NO_CHANGE"));
+  assert.ok(ordinaryReplay.every(row=>!replayAuthorized.deferred_changed_offer_ids.includes(row.offer_id)));
+  assert.deepEqual(selectOrdinaryExecutionRows(result,owner),execution);
   assert.deepEqual(replayAuthorized.deferred_changed_offer_ids,isolation.deferred_rows.map(row=>row.offer_id));
   const oneResolved=structuredClone(replay);
   const resolvedDeferred=oneResolved.rows.find(row=>row.offer_id===isolation.deferred_rows[0].offer_id);

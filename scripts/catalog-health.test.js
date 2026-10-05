@@ -911,7 +911,7 @@ test("automation watchdog returns exit 0 only for review or unchanged monitored 
   assert.deepEqual(historical.failures, ["DATABASE_OFFERS_OLDER_THAN_48H"]);
 });
 
-test("automation watchdog fails on backlog growth and any new reason code", () => {
+test("automation watchdog reports review growth as review while real growth and new reasons fail", () => {
   const baseline = {
     maximum_offers_older_than_48h: 47,
     maximum_review_row_count: 1,
@@ -936,6 +936,15 @@ test("automation watchdog fails on backlog growth and any new reason code", () =
   assert.equal(unknown.result, "FAIL");
   assert.deepEqual(unknown.monitored_backlog.unexpected_failure_codes, ["NEW_REASON_CODE"]);
 
+  const reviewGrowth = applyMonitoredBacklog(
+    { ...base, contract: { review_row_count: 2, review_offer_ids: ["1", "2"] } },
+    baseline,
+  );
+  assert.equal(reviewGrowth.result, "PASS_WITH_REVIEW");
+  assert.deepEqual(reviewGrowth.failures, []);
+  assert.deepEqual(reviewGrowth.warnings, ["DATABASE_OFFERS_OLDER_THAN_48H", "REVIEW_BACKLOG_OUTSIDE_BASELINE"]);
+  assert.deepEqual(reviewGrowth.monitored_backlog.growth, ["REVIEW_ROW_COUNT_GROWTH"]);
+
   const exactReviewBaseline = {
     maximum_offers_older_than_48h: 0,
     maximum_review_row_count: 1,
@@ -952,6 +961,17 @@ test("automation watchdog fails on backlog growth and any new reason code", () =
     applyMonitoredBacklog({ ...exactReview, contract: { review_row_count: 1, review_offer_ids: null } }, exactReviewBaseline).monitored_backlog.growth,
     ["REVIEW_SCOPE_EVIDENCE_MISSING"]
   );
+});
+
+test("watchdog summary gives owner review precedence over unchanged monitored debt", () => {
+  assert.equal(summarizeWatchdogResult([
+    { result: "PASS_WITH_MONITORED_BACKLOG" },
+    { result: "PASS_WITH_REVIEW" },
+  ]).result, "PASS_WITH_REVIEW");
+  assert.equal(summarizeWatchdogResult([
+    { result: "PASS_WITH_REVIEW" },
+    { result: "FAIL" },
+  ]).result, "FAIL");
 });
 
 test("approved monitored reviews reject substituted, missing or duplicated stale evidence", () => {

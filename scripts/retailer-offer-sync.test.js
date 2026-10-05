@@ -7,7 +7,7 @@ const fixture = require("./test-fixtures/retailer-offer-sync/jons-supplements-26
 const config = require("../config/retailers/jons-supplements-offer-sync.json");
 const { ACTIONS, actionForChanges } = require("./lib/retailer-offer-sync/action-contract");
 const { fingerprint, sortRows } = require("./lib/retailer-offer-sync/artifacts");
-const { classifyExistingOffers } = require("./lib/retailer-offer-sync/classifier");
+const { classifyExistingOffers, partitionExecutableRows } = require("./lib/retailer-offer-sync/classifier");
 const { canTransition, transition } = require("./lib/retailer-offer-sync/state-machine");
 const { buildDryRun, buildExecutionArtifact, executeApprovedBatch, parseArgs } = require("./retailer-offer-sync");
 const { REQUIRED_COLUMNS, projectCsvRows, readCsvProductFeed, safeFeedUrl } = require("./lib/csv-product-feed-reader");
@@ -60,6 +60,20 @@ function sizedInput(count, scopeName = `TEST_SCOPE_${count}`) {
   scenario.guardScope = { name: scopeName, retailer: "Test Retailer" };
   return scenario;
 }
+
+test("shared execution partition keeps safe rows and excludes every review row", () => {
+  const safe = [{ offer_id: "1", action: "VERIFY_NO_CHANGE" }, { offer_id: "2", action: "UPDATE_PRICE" }];
+  const deferred = { offer_id: "3", action: "UPDATE_STOCK" };
+  const standaloneReview = { offer_id: "4", action: "BLOCK_SOURCE_ANOMALY" };
+  const classification = { rows: [...safe, deferred], quarantined_rows: [deferred, standaloneReview] };
+  const partition = partitionExecutableRows(classification);
+  assert.deepEqual(partition.executable_rows, safe);
+  assert.deepEqual(partition.review_rows, [deferred, standaloneReview]);
+  assert.deepEqual(partition.review_offer_ids, ["3", "4"]);
+  assert.equal(classification.rows.length, 3);
+  assert.throws(() => partitionExecutableRows({ rows: safe, quarantined_rows: [deferred, deferred] }), /CLASSIFICATION_REVIEW_SCOPE_INVALID/);
+  assert.throws(() => partitionExecutableRows({ rows: [safe[0], safe[0]], quarantined_rows: [] }), /CLASSIFICATION_EXECUTION_SCOPE_INVALID/);
+});
 
 test("closed action enum and changed-field bitmap cover all six executable actions", () => {
   assert.equal(ACTIONS.length, 8);

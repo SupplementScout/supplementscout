@@ -264,4 +264,26 @@ function classifyExistingOffers({ targets, sourceVariants, policy, sourceCapture
     }),
   };
 }
-module.exports = { buildGuardEvidence, canonicalVariantUrl, classifyExistingOffers };
+
+function partitionExecutableRows(classification) {
+  if (!classification || !Array.isArray(classification.rows) || !Array.isArray(classification.quarantined_rows)) {
+    throw new Error("CLASSIFICATION_PARTITION_INVALID");
+  }
+  const reviewOfferIds = new Set();
+  for (const row of classification.quarantined_rows) {
+    const offerId = String(row?.offer_id || "");
+    if (!offerId || reviewOfferIds.has(offerId)) throw new Error("CLASSIFICATION_REVIEW_SCOPE_INVALID");
+    reviewOfferIds.add(offerId);
+  }
+  const executableRows = classification.rows.filter((row) => !reviewOfferIds.has(String(row.offer_id)));
+  if (new Set(executableRows.map((row) => String(row.offer_id))).size !== executableRows.length) {
+    throw new Error("CLASSIFICATION_EXECUTION_SCOPE_INVALID");
+  }
+  return {
+    executable_rows: executableRows,
+    review_rows: classification.quarantined_rows,
+    review_offer_ids: [...reviewOfferIds],
+  };
+}
+
+module.exports = { buildGuardEvidence, canonicalVariantUrl, classifyExistingOffers, partitionExecutableRows };

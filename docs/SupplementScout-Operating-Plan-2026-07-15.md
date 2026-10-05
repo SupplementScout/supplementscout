@@ -599,6 +599,23 @@ existing owner-decision Review Queue path, not a new patch or a wider baseline.
 Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-POST-V4-NATURAL-OBSERVATION-2026-10-05.json`](retailer-automation/evidence/RA-STAB-01-POST-V4-NATURAL-OBSERVATION-2026-10-05.json).
 
+The next shared stabilization correction is locally verified without a
+retailer-specific patch. Fresh Fit House evidence shows one complete
+`272 safe + 14 review` classification, but the consumed one-time return
+selector discarded the 272 safe freshness confirmations. The existing shared
+classifier now provides one explicit safe/review partition, and the ordinary
+Fit House path consumes it while retaining the exact protected return selector
+only while its authorized stock change still exists. Separately, review-only
+backlog growth is reported by the watchdog as `PASS_WITH_REVIEW` instead of a
+system failure; real stale-scope drift, missing evidence and unknown failures
+remain red. Whey Okay already proves a `579 executable + 10 review` partition
+and is left for its next natural cycle. The 14 Fit House exceptions remain
+unchanged in Review Queue. Focused regressions pass `119/119`, and quick/full
+quality gates plus the production build pass. Production has not changed; the
+next gate is CI/merge followed only by natural retailer schedules and a fresh
+read-only watchdog. RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-SHARED-SAFE-REVIEW-PARTITION-PREPARATION-2026-10-05.json`](retailer-automation/evidence/RA-STAB-01-SHARED-SAFE-REVIEW-PARTITION-PREPARATION-2026-10-05.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
