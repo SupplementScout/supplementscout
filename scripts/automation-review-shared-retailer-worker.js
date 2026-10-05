@@ -15,6 +15,7 @@ const ADAPTERS = Object.freeze({
     operations: new Set(["UPDATE_STOCK"]),
     expectedExecutionRows: 20,
     expectedCommercialChanges: 1,
+    freshnessConfirmationCount: 19,
     rolePrefix: "FIT_HOUSE_SYNC",
   }),
 });
@@ -115,7 +116,12 @@ async function run(options, dependencies = {}) {
     const record = before.records.find((candidate) => String(candidate.offer.id) === String(state.review.offer_id));
     invariant(record, "DATABASE_BASELINE_MISSING");
     assertReviewBeforeState(record, state.review);
-    const runPlan = await engine.buildRun("production", before, null, null, true, null, { offerId: String(state.review.offer_id), operation: state.review.operation_type });
+    const runPlan = await engine.buildRun("production", before, null, null, true, null, {
+      offerId: String(state.review.offer_id),
+      operation: state.review.operation_type,
+      maximumCommercialChanges: adapter.expectedCommercialChanges,
+      freshnessConfirmationCount: adapter.freshnessConfirmationCount,
+    });
     const rows = assertPreparedDecision(runPlan, state.review, adapter);
     const validations = await engine.validate(runPlan);
     const baselinePath = path.join(OUT, `${options.executionRequestId}-baseline.json`), executionPath = path.join(OUT, `${options.executionRequestId}-execution.json`), postflightPath = path.join(OUT, `${options.executionRequestId}-postflight.json`);

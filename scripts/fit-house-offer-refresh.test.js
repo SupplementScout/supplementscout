@@ -45,12 +45,13 @@ test("Review Queue selection executes one stock decision with nineteen unchanged
   const changed = { offer_id: "900", action: "UPDATE_STOCK", changed_fields: { stock: true, price: false, url: false, blocked: false }, target: { in_stock: true }, source: { in_stock: false } };
   const stable = Array.from({ length: 24 }, (_, index) => ({ offer_id: String(index + 1), action: "VERIFY_NO_CHANGE", changed_fields: { stock: false, price: false, url: false, blocked: false }, target: { in_stock: true }, source: { in_stock: true } }));
   const otherChange = { offer_id: "901", action: "UPDATE_STOCK", changed_fields: { stock: true, price: false, url: false, blocked: false }, target: { in_stock: false }, source: { in_stock: true } };
-  const selected = selectReviewQueueExecutionRows({ rows: [changed, otherChange, ...stable] }, { offerId: "900", operation: "UPDATE_STOCK" });
+  const selection = { offerId: "900", operation: "UPDATE_STOCK", maximumCommercialChanges: 1, freshnessConfirmationCount: 19 };
+  const selected = selectReviewQueueExecutionRows({ rows: [changed, otherChange, ...stable] }, selection);
   assert.equal(selected.length, 20);
   assert.deepEqual(selected.filter((row) => row.action !== "VERIFY_NO_CHANGE").map((row) => row.offer_id), ["900"]);
   assert.deepEqual(selected.slice(1).map((row) => row.offer_id), Array.from({ length: 19 }, (_, index) => String(index + 1)));
-  assert.throws(() => selectReviewQueueExecutionRows({ rows: [{ ...changed, changed_fields: { ...changed.changed_fields, price: true } }, ...stable] }, { offerId: "900", operation: "UPDATE_STOCK" }), /not an isolated stock change/);
-  assert.throws(() => selectReviewQueueExecutionRows({ rows: [changed, ...stable.slice(0, 18)] }, { offerId: "900", operation: "UPDATE_STOCK" }), /confirmation scope mismatch/);
+  assert.throws(() => selectReviewQueueExecutionRows({ rows: [{ ...changed, changed_fields: { ...changed.changed_fields, price: true } }, ...stable] }, selection), /not an isolated stock change/);
+  assert.throws(() => selectReviewQueueExecutionRows({ rows: [changed, ...stable.slice(0, 18)] }, selection), /confirmation scope mismatch/);
 });
 
 test("zero-execution review reports retain the shared discovery evidence shape", () => {

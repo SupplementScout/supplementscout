@@ -44,11 +44,6 @@
     "mass_oos_block_count": 4,
     "ignore_source_sku": true
   },
-  "review_execution": {
-    "maximum_commercial_changes": 1,
-    "freshness_confirmation_count": 19,
-    "allowed_operations": ["UPDATE_STOCK"]
-  },
   "shipping_policy": {
     "mode": "fixed",
     "cost_gbp": "3.99"

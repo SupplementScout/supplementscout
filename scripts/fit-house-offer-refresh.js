@@ -452,15 +452,13 @@ function authorizeOwnerApprovedSixStockOnly(classification,ownerApprovedSix){
   return{...classification,state:"DRY_RUN_READY_WITH_REVIEW",reason:null,action:"OWNER_APPROVED_PROTECTED_STOCK_ONLY",quarantined_rows:[...(classification.quarantined_rows||[]),...isolated],deferred_changed_offer_ids:deferredChanged.map(row=>String(row.offer_id))};
 }
 function selectReviewQueueExecutionRows(classification,selection){
-  const policy=config.review_execution;
-  invariant(policy&&Number.isInteger(policy.freshness_confirmation_count)&&policy.freshness_confirmation_count>0,"review execution policy missing");
-  invariant(policy.maximum_commercial_changes===1&&policy.allowed_operations.includes(selection.operation),"review execution operation is not allowed");
+  invariant(selection.maximumCommercialChanges===1&&Number.isInteger(selection.freshnessConfirmationCount)&&selection.freshnessConfirmationCount>0,"review execution scope missing");
   const offerId=String(selection.offerId),selected=classification.rows.filter(row=>String(row.offer_id)===offerId);
   invariant(selected.length===1&&selected[0].action===selection.operation,"review execution source no longer matches the approved operation");
   invariant(selected[0].changed_fields?.stock===true&&!selected[0].changed_fields?.price&&!selected[0].changed_fields?.url&&!selected[0].changed_fields?.blocked,"review execution is not an isolated stock change");
   const changedOfferIds=new Set(classification.rows.filter(row=>row.action!=="VERIFY_NO_CHANGE").map(row=>String(row.offer_id)));
-  const confirmations=classification.rows.filter(row=>!changedOfferIds.has(String(row.offer_id))&&row.action==="VERIFY_NO_CHANGE"&&row.target.in_stock===true&&row.source.in_stock===true&&!row.changed_fields?.price&&!row.changed_fields?.stock&&!row.changed_fields?.url&&!row.changed_fields?.blocked).sort((a,b)=>Number(a.offer_id)-Number(b.offer_id)).slice(0,policy.freshness_confirmation_count);
-  invariant(confirmations.length===policy.freshness_confirmation_count&&new Set([selected[0],...confirmations].map(row=>String(row.offer_id))).size===1+policy.freshness_confirmation_count,"review execution confirmation scope mismatch");
+  const confirmations=classification.rows.filter(row=>!changedOfferIds.has(String(row.offer_id))&&row.action==="VERIFY_NO_CHANGE"&&row.target.in_stock===true&&row.source.in_stock===true&&!row.changed_fields?.price&&!row.changed_fields?.stock&&!row.changed_fields?.url&&!row.changed_fields?.blocked).sort((a,b)=>Number(a.offer_id)-Number(b.offer_id)).slice(0,selection.freshnessConfirmationCount);
+  invariant(confirmations.length===selection.freshnessConfirmationCount&&new Set([selected[0],...confirmations].map(row=>String(row.offer_id))).size===1+selection.freshnessConfirmationCount,"review execution confirmation scope mismatch");
   return[selected[0],...confirmations];
 }
 function selectOwnerApprovedSixExecutionRows(classification,ownerApprovedSix){
