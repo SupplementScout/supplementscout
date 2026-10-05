@@ -1,7 +1,6 @@
 const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
-const { createClient } = require("@supabase/supabase-js");
 const { canonicalJson, normalizeDecimalString } = require("./lib/canonical-json");
 const { canonicalTimestamp, canonicalizeTimestamps } = require("./lib/canonical-timestamp");
 const { buildSemanticSourceRows, canonicalHash } = require("./lib/ebay-artifact-bound-contract");
@@ -9,6 +8,7 @@ const { assertConfig, getApplicationToken } = require("./lib/ebay-browse-pilot")
 const { executePlan } = require("./ebay-offer-canary-executor");
 const { SCOPES, actionForPlan, buildSource, classifyContinuity, prepareScope } = require("./ebay-offer-refresh");
 const { run: runPostflight } = require("./retailer-offer-refresh-postflight");
+const { checkpoint, claimDispatched, controlClient, loadControlState: loadBoundControlState } = require("./lib/automation-review-worker-control");
 
 const ROOT = path.resolve(__dirname, "..");
 const OUT = path.join(ROOT, "tmp", "automation-review-execution");
@@ -39,37 +39,8 @@ function assertContext(env = process.env) {
   invariant(env.SUPABASE_SERVICE_ROLE_KEY && env.NEXT_PUBLIC_SUPABASE_URL, "WORKER_CONTROL_CREDENTIAL_MISSING");
   invariant(env.EBAY_CANARY_APPROVER_DATABASE_URL && env.EBAY_CANARY_EXECUTOR_DATABASE_URL && env.EBAY_REFRESH_VALIDATOR_DATABASE_URL, "WORKER_ROLE_CREDENTIAL_MISSING");
 }
-function controlClient(env = process.env) { return createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } }); }
-async function checkpoint(client, requestId, status, name, evidence = {}) {
-  const { data, error } = await client.rpc("record_automation_review_execution_checkpoint", { p_execution_request_id: requestId, p_actor: `github-actions:${process.env.GITHUB_ACTOR || "unknown"}`, p_new_status: status, p_checkpoint: name, p_evidence: evidence });
-  invariant(!error && data, "EXECUTION_CHECKPOINT_FAILED"); return data;
-}
-async function claimDispatched(client, request, options) {
-  if (request.status === "DISPATCHED") return request;
-  invariant(request.status === "QUEUED", "EXECUTION_REQUEST_BINDING_DRIFT");
-  return checkpoint(client, options.executionRequestId, "DISPATCHED", "WORKFLOW_DISPATCH_CLAIMED", {
-    run_id: String(process.env.GITHUB_RUN_ID),
-    run_url: `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
-    commit_sha: process.env.GITHUB_SHA,
-    database_writes: 0,
-  });
-}
-async function loadControlState(client, options) {
-  const [{ data: review, error: reviewError }, { data: request, error: requestError }, { data: events, error: eventsError }] = await Promise.all([
-    client.from("product_match_review_queue").select("*").eq("id", options.reviewItemId).maybeSingle(),
-    client.from("automation_review_execution_requests").select("*").eq("id", options.executionRequestId).maybeSingle(),
-    client.from("product_match_review_events").select("event_type,actor,new_status,source_row_fingerprint,plan_fingerprint,created_at").eq("review_id", options.reviewItemId).order("created_at", { ascending: false }),
-  ]);
-  invariant(!reviewError && review, "REVIEW_ITEM_NOT_FOUND"); invariant(!requestError && request, "EXECUTION_REQUEST_NOT_FOUND"); invariant(!eventsError && events, "APPROVAL_AUDIT_READ_FAILED");
-  invariant(String(request.review_id) === options.reviewItemId && request.review_fingerprint === options.reviewFingerprint && request.idempotency_key === options.executionIdempotencyKey && request.retailer_slug === options.retailer && request.execution_mode === options.mode, "EXECUTION_REQUEST_BINDING_DRIFT");
-  const claimedRequest = await claimDispatched(client, request, options);
-  invariant(review.review_status === "APPROVED" && review.source_row_fingerprint === options.reviewFingerprint && review.plan_fingerprint === options.reviewPlanFingerprint && ALLOWED_OPERATIONS.has(review.operation_type) && String(review.retailer_id) === "12", "REVIEW_BINDING_DRIFT");
-  invariant(review.expires_at && Date.parse(review.expires_at) > Date.now(), "REVIEW_EVIDENCE_EXPIRED");
-  invariant(review.decision_actor && review.decision_at && events.some((event) => event.new_status === "APPROVED" && event.actor === review.decision_actor && event.source_row_fingerprint === review.source_row_fingerprint && event.plan_fingerprint === review.plan_fingerprint), "APPROVAL_AUDIT_MISSING");
-  let canonicalCapture = null;
-  try { canonicalCapture = canonicalTimestamp(review.source_captured_at, "source_captured_at"); } catch {}
-  invariant(review.plan_fingerprint && review.before_state && review.proposed_state && canonicalCapture, "REVIEW_PLAN_EVIDENCE_MISSING");
-  return { review, request: claimedRequest };
+async function loadControlState(client, options, env = process.env) {
+  return loadBoundControlState(client, options, { retailerId: "12", retailerSlug: "ebay-uk", operations: ALLOWED_OPERATIONS, workflowName: "automation-review-queue-worker.yml", environment: "production-readonly" }, env);
 }
 function executionEvidence(review, approved, postflight, idempotency, baseline) {
   const plan = approved.entry.resolved_plan;
@@ -128,7 +99,7 @@ async function run(options, dependencies = {}) {
   const client = dependencies.client || controlClient(dependencies.env || process.env);
   let state, databaseWrites = 0;
   try {
-    state = await loadControlState(client, options);
+    state = await loadControlState(client, options, dependencies.env || process.env);
     const scope = SCOPES.find((candidate) => candidate.offer_id === String(state.review.offer_id));
     invariant(scope, "OFFER_OUTSIDE_EBAY_SCOPE"); invariant(scope.offer_id !== "2686", "OFFER_2686_FORBIDDEN");
     const config = dependencies.config || assertConfig(dependencies.env || process.env);

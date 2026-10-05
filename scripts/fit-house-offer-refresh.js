@@ -422,17 +422,24 @@ function authorizeOwnerApprovedSixStockOnly(classification,ownerApprovedSix){
   const changed=selected.filter(row=>row.action!=="VERIFY_NO_CHANGE");
   const returnedOfferId=ownerApprovedSix.returned.offer_id;
   const deferredChanged=allChanged.filter(row=>deferredByOffer.has(String(row.offer_id)));
-  const exactDeferred=deferredChanged.length===deferredByOffer.size&&deferredChanged.every(row=>{
+  const exactDeferred=deferredChanged.every(row=>{
     const expected=deferredByOffer.get(String(row.offer_id));
     return String(row.retailer_product_id)===expected.mapping_id&&String(row.external_product_id)===expected.external_product_id&&String(row.external_variant_id)===expected.external_variant_id
       &&row.action==="UPDATE_STOCK"&&money(row.target.price)===expected.price&&money(row.source.price)===expected.price
       &&row.target.in_stock===expected.old_stock&&row.source.in_stock===expected.new_stock
       &&row.changed_fields?.stock===true&&!row.changed_fields?.price&&!row.changed_fields?.url&&!row.changed_fields?.blocked;
   });
+  const stableDeferred=rows.filter(row=>deferredByOffer.has(String(row.offer_id))&&!deferredChanged.includes(row));
+  const exactStableDeferred=stableDeferred.length===deferredByOffer.size-deferredChanged.length&&stableDeferred.every(row=>{
+    const expected=deferredByOffer.get(String(row.offer_id));
+    return String(row.retailer_product_id)===expected.mapping_id&&String(row.external_product_id)===expected.external_product_id&&String(row.external_variant_id)===expected.external_variant_id
+      &&row.action==="VERIFY_NO_CHANGE"&&money(row.target.price)===expected.price&&money(row.source.price)===expected.price
+      &&row.target.in_stock===row.source.in_stock&&!row.changed_fields?.price&&!row.changed_fields?.stock&&!row.changed_fields?.url&&!row.changed_fields?.blocked;
+  });
   const exact=rows.length===config.approved_mapping_count&&selected.length===6
-    &&allChanged.length===ownerApprovedSix.authorizedChangeCount+deferredByOffer.size
+    &&allChanged.length===ownerApprovedSix.authorizedChangeCount+deferredChanged.length
     &&changed.length===ownerApprovedSix.authorizedChangeCount
-    &&exactDeferred
+    &&exactDeferred&&exactStableDeferred
     &&allChanged.every(row=>String(row.offer_id)===returnedOfferId||deferredByOffer.has(String(row.offer_id)))
     &&selected.every(row=>String(row.offer_id)===returnedOfferId
       ? row.action==="VERIFY_NO_CHANGE"
@@ -442,7 +449,19 @@ function authorizeOwnerApprovedSixStockOnly(classification,ownerApprovedSix){
   if(!(classification.reason==="MASS_OOS"&&exact))
     throw new RefreshError("FIT_HOUSE_ISOLATION_SCOPE_MISMATCH","Fit House returned-offer isolation scope mismatch","CLASSIFIER",{classifier:classificationDiagnostic(classification),approved_offer_ids:[...approved],authorized_return_offer_id:returnedOfferId,authorized_deferred_offer_ids:[...deferredByOffer.keys()],registration_attempted:false});
   const isolated=deferredChanged.map(row=>({...row,reason:"OWNER_DEFERRED_STOCK_REVIEW"}));
-  return{...classification,state:"DRY_RUN_READY_WITH_REVIEW",reason:null,action:"OWNER_APPROVED_PROTECTED_STOCK_ONLY",quarantined_rows:[...(classification.quarantined_rows||[]),...isolated],deferred_changed_offer_ids:[...deferredByOffer.keys()]};
+  return{...classification,state:"DRY_RUN_READY_WITH_REVIEW",reason:null,action:"OWNER_APPROVED_PROTECTED_STOCK_ONLY",quarantined_rows:[...(classification.quarantined_rows||[]),...isolated],deferred_changed_offer_ids:deferredChanged.map(row=>String(row.offer_id))};
+}
+function selectReviewQueueExecutionRows(classification,selection){
+  const policy=config.review_execution;
+  invariant(policy&&Number.isInteger(policy.freshness_confirmation_count)&&policy.freshness_confirmation_count>0,"review execution policy missing");
+  invariant(policy.maximum_commercial_changes===1&&policy.allowed_operations.includes(selection.operation),"review execution operation is not allowed");
+  const offerId=String(selection.offerId),selected=classification.rows.filter(row=>String(row.offer_id)===offerId);
+  invariant(selected.length===1&&selected[0].action===selection.operation,"review execution source no longer matches the approved operation");
+  invariant(selected[0].changed_fields?.stock===true&&!selected[0].changed_fields?.price&&!selected[0].changed_fields?.url&&!selected[0].changed_fields?.blocked,"review execution is not an isolated stock change");
+  const changedOfferIds=new Set(classification.rows.filter(row=>row.action!=="VERIFY_NO_CHANGE").map(row=>String(row.offer_id)));
+  const confirmations=classification.rows.filter(row=>!changedOfferIds.has(String(row.offer_id))&&row.action==="VERIFY_NO_CHANGE"&&row.target.in_stock===true&&row.source.in_stock===true&&!row.changed_fields?.price&&!row.changed_fields?.stock&&!row.changed_fields?.url&&!row.changed_fields?.blocked).sort((a,b)=>Number(a.offer_id)-Number(b.offer_id)).slice(0,policy.freshness_confirmation_count);
+  invariant(confirmations.length===policy.freshness_confirmation_count&&new Set([selected[0],...confirmations].map(row=>String(row.offer_id))).size===1+policy.freshness_confirmation_count,"review execution confirmation scope mismatch");
+  return[selected[0],...confirmations];
 }
 function selectOwnerApprovedSixExecutionRows(classification,ownerApprovedSix){
   const approved=new Set(ownerApprovedSix.approved_rows.map(row=>row.offer_id)),deferred=new Set(ownerApprovedSix.isolation.deferred_rows.map(row=>row.offer_id)),returnedOfferId=ownerApprovedSix.returned.offer_id;
@@ -528,7 +547,7 @@ function applyOwnerApprovedMissingVariantGuardBaseline(guard,authorization){
   return guard;
 }
 
-async function buildRun(target,state,diagnostic=null,reviewed=null,isolateUnsafe=false,scopeSegment=null){
+async function buildRun(target,state,diagnostic=null,reviewed=null,isolateUnsafe=false,scopeSegment=null,reviewQueueSelection=null){
   const spec=TARGETS[target],capturedAt=freshCapturedAt();
   applyApprovedStableOosBaselineGuard(state,diagnostic);
   let snapshot;
@@ -637,7 +656,7 @@ async function buildRun(target,state,diagnostic=null,reviewed=null,isolateUnsafe
     }
   }else if(!isolateUnsafe&&(classification.state!=="DRY_RUN_READY"||classification.rows.length!==config.approved_mapping_count))throw new RefreshError(classification.reason||"CLASSIFIER_BLOCKED",`full ${config.retailer_name} classifier blocked`,"CLASSIFIER",{...(classification.detail||{}),guard_evidence:classification.guard_evidence||null});
   const sourceByVariant=new Map(reconciled.sourceVariants.map(row=>[String(row.external_variant_id),row])),recordByOffer=new Map(state.records.map(row=>[String(row.offer.id),row])),binding=migrationBinding(spec.environment),head=process.env.GITHUB_SHA||git("rev-parse","HEAD"),policyFingerprint=runtimePolicyFingerprint(),readerFile=config.source_platform==="PRODUCT_PAGE"?"dolphin-vegan-protein-feed.js":config.source_platform==="WOOCOMMERCE_PRODUCT_PAGES"?path.join("lib","woocommerce-mapped-snapshot-reader.js"):config.source_platform==="CSV_PRODUCT_FEED"?path.join("lib","csv-product-feed-reader.js"):path.join("lib","shopify-snapshot-reader.js"),adapterFingerprint=sha256({reader:fs.readFileSync(path.join(ROOT,"scripts",readerFile),"utf8"),classifier:fs.readFileSync(path.join(ROOT,"scripts","lib","retailer-offer-sync","classifier.js"),"utf8"),config}),expectedStateFingerprint=canonicalHash(state.records.map(row=>({product:row.product,variant:row.variant,mapping:row.mapping,offer:row.offer}))),rows=[];
-  const plannedRows=reviewed?classification.rows.filter(row=>row.action!=="VERIFY_NO_CHANGE"):ownerApprovedSix?.authorizedChangeCount?selectOwnerApprovedSixExecutionRows(classification,ownerApprovedSix):ownerApprovedSix?[]:classification.rows;
+  const plannedRows=reviewQueueSelection?selectReviewQueueExecutionRows(classification,reviewQueueSelection):reviewed?classification.rows.filter(row=>row.action!=="VERIFY_NO_CHANGE"):ownerApprovedSix?.authorizedChangeCount?selectOwnerApprovedSixExecutionRows(classification,ownerApprovedSix):ownerApprovedSix?[]:classification.rows;
   for(const classified of plannedRows){const record=recordByOffer.get(String(classified.offer_id)),source=sourceFor(record,sourceByVariant);let plan;if(classified.action==="VERIFY_NO_CHANGE")plan=buildVerifiedNoChangePlan(verificationRecord(record,source,snapshot.semantic_source_fingerprint,capturedAt),{targetEnvironment:spec.environment,targetProjectRef:spec.ref,sourceSnapshotSha256s:new Set([snapshot.semantic_source_fingerprint]),now:new Date(capturedAt)}).plan;else{const built=buildExistingOfferUpdatePlan({product:record.product,variant:record.variant,retailer:record.retailer,mapping:record.mapping,offer:record.offer,source:{...source,url:source.url,shipping_cost:source.shipping_cost,total_price:source.total_price},sourceCapturedAt:capturedAt,sourceSnapshotFingerprint:snapshot.semantic_source_fingerprint});plan=built.plan;invariant(built.changed.price===classified.changed_fields.price&&built.changed.stock===classified.changed_fields.stock&&built.changed.url===classified.changed_fields.url,"classifier/plan changed-field mismatch")}
     rows.push({...classified,atomic_plan:plan,policy_fingerprint:policyFingerprint});
   }
@@ -652,7 +671,7 @@ async function buildRun(target,state,diagnostic=null,reviewed=null,isolateUnsafe
     ?reviewed.buildContract({artifact:artifacts[0],targetEnvironment:spec.environment,expiresAt:reviewedExpiresAt})
     :buildReviewedMixedChangeContract({reviewed,artifact:artifacts[0],targetEnvironment:spec.environment,expiresAt:reviewedExpiresAt,scopedSourceEvidence,mappedSourceEvidence})):null;
   const ownerApprovedMissingAuthorization=ownerApprovedMissing?.newUnavailableCount===1?{offer_id:"697",manifest_sha256:ownerApprovedMissing.manifest_sha256,global_total_oos_count:classification.guard_evidence.current_oos}:null;
-  return{target,spec,capturedAt,snapshot,sourceVariants,classification,artifacts,manifest,manifestFingerprint:canonicalHash({approved_manifest_sha256:config.manifest_sha256.toUpperCase(),environment:spec.environment,rows:manifest}),binding,head,discovery,effectiveGuardrails:config.guardrails,massOosAuthorization:massOosAuthorization.review,ownerApprovedMissingAuthorization,reviewed,reviewedExpiresAt,reviewedContract,scopedSourceEvidence,mappedSourceEvidence,isolateUnsafe,automaticPriceConfirmation,scopeSegment};
+  return{target,spec,capturedAt,snapshot,sourceVariants,classification,artifacts,manifest,manifestFingerprint:canonicalHash({approved_manifest_sha256:config.manifest_sha256.toUpperCase(),environment:spec.environment,rows:manifest}),binding,head,discovery,effectiveGuardrails:config.guardrails,massOosAuthorization:massOosAuthorization.review,ownerApprovedMissingAuthorization,reviewed,reviewedExpiresAt,reviewedContract,scopedSourceEvidence,mappedSourceEvidence,isolateUnsafe,automaticPriceConfirmation,scopeSegment,reviewQueueSelection};
 }
 
 async function roleCall(target,kind,readOnly,body){const spec=TARGETS[target],client=new Client({connectionString:roleCredential(target,kind),ssl:{rejectUnauthorized:false},application_name:`${config.retailer_slug}-offer-refresh-${kind}`,connectionTimeoutMillis:DATABASE_CONNECTION_TIMEOUT_MS,query_timeout:DATABASE_QUERY_TIMEOUT_MS,keepAlive:true,options:`-c statement_timeout=${DATABASE_QUERY_TIMEOUT_MS}`});await client.connect();try{invariant(safeUpdateDisabled((await client.query("select current_setting('app.safe_update',true) value")).rows[0].value),"SAFE_UPDATE must remain disabled");await client.query(readOnly?"begin read only":"begin");await client.query(`select set_config('app.retailer_catalogue_${target}_marker','1',true),set_config('app.retailer_catalogue_allow','1',true)`);await client.query(`set role retailer_catalogue_${target}_${kind}`);const who=(await client.query("select current_user,session_user,current_setting('transaction_read_only') ro,current_setting('app.safe_update',true) safe_update")).rows[0];invariant(who.current_user===`retailer_catalogue_${target}_${kind}`,`${kind} role mismatch`);invariant(safeUpdateDisabled(who.safe_update),"SAFE_UPDATE became enabled");if(readOnly)invariant(who.ro==="on",`${kind} transaction is not read-only`);const result=await body(client,spec);await client.query(readOnly?"rollback":"commit");return{result,identity:who}}catch(error){try{await client.query("rollback")}catch{}throw error}finally{await client.end()}}
@@ -768,4 +787,4 @@ async function main(argv=process.argv.slice(2)){
 }
 
 if(require.main===module)main().catch(error=>{console.error(error.stack||error);process.exitCode=1});
-module.exports={enforceConfirmationOnly,APPROVED_CANONICAL_REBINDINGS,RefreshError,executionReportContext,applyApprovedStableOosBaselineGuard,applyOwnerApprovedMissingVariantGuardBaseline,applyReviewedOffer697GuardProof,approvedStableOosBaseline,authorizeOwnerApprovedMissingVariant,authorizeOwnerApprovedSixStockOnly,authorizeReviewedMassOos,balancedExecutionBatches,buildRun,canonicalHash,classificationDiagnostic,controlParentApprovalError,controlRegistrationEvidence,diagnosticTemplate,effectiveOfferPolicy,executeRefresh,executionRow,freshCapturedAt,guardrailsFor,isApprovedCanonicalSuccessor,isExactOwnerBoundAuditedMissingReview,isolateAggregatePriceChanges,loadApprovedManifest,loadAuditedMissingVariantManifest,loadOwnerApprovedMissingVariantManifest,loadOwnerApprovedReturnedOfferManifest,loadOwnerApprovedReturnIsolationManifest,loadOwnerApprovedSixAbsentManifest,loadReviewedMassOosManifest,mappedOfferSourceFingerprint,migrationBinding,normalizeExactScopeRows,parseArgs,projectSourceVariants,readState,reconcileAuditedMissingVariants,reconcileMissingMappedVariants,reconcileOwnerApprovedMissingVariant,reconcileOwnerApprovedSixAbsent,registrationRequest,requireAuditedMissingOwnerApproval,runWithDiagnostic,runtimePolicyFingerprint,safeRetailerCatalogueError,safeUpdateDisabled,safeValidatorResult,scopeSegmentSummary,selectApprovedScopeSegment,selectOwnerApprovedSixExecutionRows,sourceHealth,sumDeltas,validationGuardSummary,verificationRecord};
+module.exports={enforceConfirmationOnly,APPROVED_CANONICAL_REBINDINGS,RefreshError,executionReportContext,applyApprovedStableOosBaselineGuard,applyOwnerApprovedMissingVariantGuardBaseline,applyReviewedOffer697GuardProof,approvedStableOosBaseline,approveAndExecute,authorizeOwnerApprovedMissingVariant,authorizeOwnerApprovedSixStockOnly,authorizeReviewedMassOos,balancedExecutionBatches,buildRun,canonicalHash,classificationDiagnostic,controlParentApprovalError,controlRegistrationEvidence,diagnosticTemplate,effectiveOfferPolicy,executeRefresh,executionRow,freshCapturedAt,guardrailsFor,isApprovedCanonicalSuccessor,isExactOwnerBoundAuditedMissingReview,isolateAggregatePriceChanges,loadApprovedManifest,loadAuditedMissingVariantManifest,loadOwnerApprovedMissingVariantManifest,loadOwnerApprovedReturnedOfferManifest,loadOwnerApprovedReturnIsolationManifest,loadOwnerApprovedSixAbsentManifest,loadReviewedMassOosManifest,mappedOfferSourceFingerprint,migrationBinding,normalizeExactScopeRows,parseArgs,prepareSequentialParentApproval,projectSourceVariants,readState,reconcileAuditedMissingVariants,reconcileMissingMappedVariants,reconcileOwnerApprovedMissingVariant,reconcileOwnerApprovedSixAbsent,register,registrationRequest,requireAuditedMissingOwnerApproval,runWithDiagnostic,runtimePolicyFingerprint,safeRetailerCatalogueError,safeUpdateDisabled,safeValidatorResult,scopeSegmentSummary,selectApprovedScopeSegment,selectOwnerApprovedSixExecutionRows,selectReviewQueueExecutionRows,sourceHealth,sumDeltas,validate,validationGuardSummary,verificationRecord};

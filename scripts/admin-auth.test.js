@@ -833,10 +833,8 @@ test("automation review workflow dispatch is token-gated and exactly bound to on
   assert.match(source, /actions\/workflows\/.*dispatches/);
   assert.match(source, /encodeURIComponent\(options\.adapter\.workflow\)/);
   assert.match(source, /ref: "main"/);
-  for (const input of ["operation", "execution_mode", "review_item_id", "execution_request_id", "retailer", "review_fingerprint", "review_plan_fingerprint", "execution_idempotency_key"]) assert.match(source, new RegExp(input));
-  assert.match(source, /operation: "apply"/);
-  assert.match(source, /execution_mode: "review-queue"/);
-  assert.match(source, /options\.adapter\.retailerSlug/);
+  assert.doesNotMatch(source, /inputs:/);
+  assert.doesNotMatch(source, /review_item_id|review_fingerprint|execution_idempotency_key/);
   assert.match(source, /response\.status !== 204/);
   assert.doesNotMatch(source, /supabaseAdmin|queue_automation_review_execution|approve_product_import_plan|apply_approved_product_import_plan/);
   assert.doesNotMatch(source, /\.from\("(?:products|product_variants|retailer_products|offers|price_history)"\)/);
@@ -847,13 +845,13 @@ test("Automation Review Queue scheduled worker processes the oldest bounded queu
   const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_SERVER_URL: "https://github.com", GITHUB_RUN_ID: "123", GITHUB_SHA: "a".repeat(40), NEXT_PUBLIC_SUPABASE_URL: "https://example.test", SUPABASE_SERVICE_ROLE_KEY: "control" };
   assert.doesNotThrow(() => assertContext(env));
   assert.throws(() => assertContext({ ...env, GITHUB_REF: "refs/heads/other" }), /QUEUE_WORKER_REPOSITORY_INVALID/);
-  const request = { id: "11111111-1111-4111-8111-111111111111", review_id: 946, retailer_slug: "ebay-uk", workflow_name: "ebay-offer-refresh.yml", review_fingerprint: "b".repeat(64), plan_fingerprint: "c".repeat(64), idempotency_key: "d".repeat(64), status: "QUEUED" };
+  const request = { id: "11111111-1111-4111-8111-111111111111", review_id: 946, retailer_slug: "ebay-uk", workflow_name: "automation-review-queue-worker.yml", review_fingerprint: "b".repeat(64), plan_fingerprint: "c".repeat(64), idempotency_key: "d".repeat(64), status: "QUEUED" };
   const checkpoints = [], calls = [];
   const query = { select: () => query, eq: () => query, order: () => query, limit: async () => ({ data: [request], error: null }) };
   const db = { from: () => query, rpc: async (_name, args) => { checkpoints.push(args); return { data: { status: args.p_new_status }, error: null }; } };
   const result = await run({ env, client: db, runEbay: async (options) => { calls.push(options); return { result: "PASS", database_writes: 1 }; } });
   assert.equal(result.processed, 1);
-  assert.equal(checkpoints[0].p_new_status, "DISPATCHED");
+  assert.equal(checkpoints.length, 0);
   assert.equal(calls[0].reviewItemId, "946");
   assert.equal(calls[0].executionRequestId, request.id);
 });
@@ -880,13 +878,15 @@ test("automation review adapter registry is exact, single-row and default-deny",
   assert.equal((source.match(/retailerSlug: "ebay-uk"/g) || []).length, 1);
   assert.match(source, /retailerId: "12"/);
   assert.match(source, /retailerSlug: "ebay-uk"/);
+  assert.match(source, /retailerId: "9"/);
+  assert.match(source, /retailerSlug: "fit-house"/);
   assert.match(source, /operations: Object\.freeze\(\["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK"\]\)/);
   assert.match(source, /"PRICE_CHANGE", "STOCK_CHANGE"/);
   assert.match(source, /maximumBatch: 1/);
   assert.match(source, /isolation: "per-row"/);
   assert.match(source, /reviewBinding: "immutable-review-record"/);
-  assert.match(source, /kind: "github-artifact"/);
-  for (const input of ["approved_dry_run_id", "approved_artifact_id", "approved_commit_sha", "approved_full_capture_fingerprint", "approved_executable_source_fingerprint", "approved_review_scope_fingerprint", "approved_plan_fingerprint", "approved_manifest_sha256", "approved_report_sha256", "owner_confirmation"]) assert.match(source, new RegExp(input));
+  assert.match(source, /kind: "control-plane-request"/);
+  for (const input of ["execution_request_id", "review_item_id", "review_fingerprint", "review_plan_fingerprint", "execution_idempotency_key"]) assert.match(source, new RegExp(input));
   assert.match(source, /EXECUTION_UNSUPPORTED/);
   assert.doesNotMatch(source, /REBIN|MARK_OOS/);
 });
@@ -918,6 +918,7 @@ test("execution request migration is additive, immutable, role-closed and contai
 
 test("Review Queue eBay worker is workflow-bound, revalidates evidence and forbids replay or offer 2686", () => {
   const source = fs.readFileSync(path.join(process.cwd(), "scripts", "automation-review-ebay-worker.js"), "utf8");
+  const control = fs.readFileSync(path.join(process.cwd(), "scripts", "lib", "automation-review-worker-control.js"), "utf8");
   const { parseArgs, assertContext } = require("./automation-review-ebay-worker");
   const args = ["--review-item-id=7", "--execution-request-id=11111111-1111-4111-8111-111111111111", "--retailer=ebay-uk", `--review-fingerprint=${"a".repeat(64)}`, `--review-plan-fingerprint=${"b".repeat(64)}`, `--execution-idempotency-key=${"c".repeat(64)}`, "--mode=review-queue"];
   assert.deepEqual(parseArgs(args), { reviewItemId: "7", executionRequestId: "11111111-1111-4111-8111-111111111111", retailer: "ebay-uk", reviewFingerprint: "a".repeat(64), reviewPlanFingerprint: "b".repeat(64), executionIdempotencyKey: "c".repeat(64), mode: "review-queue" });
@@ -925,11 +926,11 @@ test("Review Queue eBay worker is workflow-bound, revalidates evidence and forbi
   assert.throws(() => assertContext({}), /WORKER_CONTEXT_INVALID/);
   assert.doesNotThrow(() => assertContext({ GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", SUPABASE_SERVICE_ROLE_KEY: "x", NEXT_PUBLIC_SUPABASE_URL: "https://example.test", EBAY_CANARY_APPROVER_DATABASE_URL: "x", EBAY_CANARY_EXECUTOR_DATABASE_URL: "x", EBAY_REFRESH_VALIDATOR_DATABASE_URL: "x" }));
   assert.match(source, /claimDispatched/);
-  assert.match(source, /request\.status === "QUEUED"/);
-  assert.match(source, /WORKFLOW_DISPATCH_CLAIMED/);
-  assert.match(source, /review\.review_status === "APPROVED"/);
-  assert.match(source, /event\.source_row_fingerprint === review\.source_row_fingerprint/);
-  assert.match(source, /event\.plan_fingerprint === review\.plan_fingerprint/);
+  assert.match(control, /request\.status === "QUEUED"/);
+  assert.match(control, /WORKFLOW_DISPATCH_CLAIMED/);
+  assert.match(control, /review\.review_status === "APPROVED"/);
+  assert.match(control, /event\.source_row_fingerprint === review\.source_row_fingerprint/);
+  assert.match(control, /event\.plan_fingerprint === review\.plan_fingerprint/);
   assert.match(source, /SOURCE_FINGERPRINT_DRIFT/);
   assert.match(source, /APPROVED_PRICE_DRIFT/);
   assert.match(source, /PLAN_FINGERPRINT_DRIFT/);
@@ -1009,6 +1010,73 @@ test("Review Queue eBay worker removes the control credential only during role-s
   assert.equal(env.SUPABASE_SERVICE_ROLE_KEY, "control-secret");
 });
 
+test("owner decision audit is bounded, SELECT-only, and starts from immutable admin events", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "scripts", "automation-review-owner-decision-audit.js"), "utf8");
+  const { auditData, parseArgs } = require("./automation-review-owner-decision-audit");
+  assert.throws(() => parseArgs(["--mode=apply"]), /AUDIT_MODE_NOT_ALLOWED/);
+  assert.match(source, /actor", OWNER/);
+  assert.match(source, /previous_status", "PENDING"/);
+  assert.match(source, /PAGE_SIZE = 500/);
+  assert.doesNotMatch(source, /\.rpc\(|\.insert\(|\.update\(|\.delete\(/);
+  const review = { id: 1, retailer_id: 9, offer_id: 44, operation_type: "UPDATE_STOCK", review_status: "EXECUTED", source_row_fingerprint: "a".repeat(64), plan_fingerprint: "b".repeat(64) };
+  const decision = { id: 1, review_id: 1, actor: "authenticated-admin", previous_status: "PENDING", new_status: "APPROVED", source_row_fingerprint: review.source_row_fingerprint, plan_fingerprint: review.plan_fingerprint, created_at: "2026-10-05T10:00:00Z" };
+  const request = { id: "11111111-1111-4111-8111-111111111111", review_id: 1, retailer_id: 9, operation_type: "UPDATE_STOCK", review_fingerprint: review.source_row_fingerprint, plan_fingerprint: review.plan_fingerprint, status: "EXECUTED", completed_at: "2026-10-05T10:02:00Z", postflight_hash: "c".repeat(64), idempotency_result: "PASS", failed_offer_ids: [], remaining_offer_ids: [], executed_offer_ids: ["44"], expected_deltas: {}, actual_deltas: {}, database_writes: 20, requested_at: "2026-10-05T10:01:00Z" };
+  const executionEvent = { id: 1, execution_request_id: request.id, new_status: "EXECUTED", created_at: "2026-10-05T10:02:00Z" };
+  const result = auditData({ decisionEvents: [decision], reviews: [review], requests: [request], executionEvents: [executionEvent] }, new Date("2026-10-05T10:03:00Z"));
+  assert.equal(result.anomalies.length, 0);
+  assert.equal(result.summaries[0].outcome, "EXECUTED");
+  assert.equal(result.summaries[0].github_artifact_verification_required, true);
+});
+
+test("Fit House Review Queue worker reuses the shared engine for one decision plus confirmations", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "scripts", "automation-review-shared-retailer-worker.js"), "utf8");
+  const workflow = fs.readFileSync(path.join(process.cwd(), ".github", "workflows", "automation-review-queue-worker.yml"), "utf8");
+  const capability = fs.readFileSync(path.join(process.cwd(), "app", "lib", "automationReviewCapabilityMatrix.ts"), "utf8");
+  assert.match(source, /expectedExecutionRows: 20/);
+  assert.match(source, /expectedCommercialChanges: 1/);
+  assert.match(source, /engine\.buildRun/);
+  assert.match(source, /engine\.validate/);
+  assert.match(source, /engine\.registrationRequest/);
+  assert.match(source, /engine\.approveAndExecute/);
+  assert.match(source, /IDEMPOTENCY_FAILED/);
+  assert.doesNotMatch(source, /\b(?:insert into|update|delete from)\s+(?:public\.)?(?:products|product_variants|retailer_products|offers|price_history)\b/i);
+  assert.match(workflow, /group: retailer-offer-production-write/);
+  for (const role of ["VALIDATOR", "APPROVER", "EXECUTOR"]) assert.match(workflow, new RegExp(`FIT_HOUSE_SYNC_${role}_DATABASE_URL`));
+  assert.match(capability, /retailerId: "9"[\s\S]*UPDATE_STOCK: REVIEW_EXECUTABLE[\s\S]*automation-review-queue-worker\.yml/);
+});
+
+test("Fit House Review Queue worker behavior binds baseline, executes one stock change, and proves idempotency", async () => {
+  const { run } = require("./automation-review-shared-retailer-worker");
+  const beforeState = { offer_id: "900", retailer_product_id: "800", product_id: "700", product_variant_id: "600", price: "10.00", shipping_cost: "3.99", total_price: "13.99", in_stock: true, url: "https://fithouse.uk/p", external_url: "https://fithouse.uk/p", external_product_id: "500", external_variant_id: "400" };
+  const review = { id: 77, offer_id: "900", retailer_product_id: "800", operation_type: "UPDATE_STOCK", before_state: beforeState, proposed_state: { ...beforeState, in_stock: false }, source_row_fingerprint: "a".repeat(64), plan_fingerprint: "b".repeat(64) };
+  const record = { product: { id: "700" }, variant: { id: "600" }, mapping: { id: "800", external_product_id: "500", external_variant_id: "400", external_url: "https://fithouse.uk/p" }, offer: { id: "900", price: "10", shipping_cost: "3.990", total_price: "13.99", in_stock: true, url: "https://fithouse.uk/p" } };
+  const confirmations = Array.from({ length: 19 }, (_, index) => ({ offer_id: String(index + 1), action: "VERIFY_NO_CHANGE", changed_fields: { stock: false, price: false, url: false }, target: { in_stock: true }, source: { in_stock: true } }));
+  const changed = { offer_id: "900", retailer_product_id: "800", external_product_id: "500", external_variant_id: "400", action: "UPDATE_STOCK", changed_fields: { stock: true, price: false, url: false, blocked: false }, target: { price: "10.00", in_stock: true }, source: { price: "10.00", in_stock: false } };
+  const deltas = { row_count_deltas: { products: 0, product_variants: 0, retailer_products: 0, offers: 0, price_history: 0 }, logical_field_deltas: { offer_price_updates: 0, offer_shipping_updates: 0, offer_total_updates: 0, offer_stock_updates: 1, offer_url_updates: 0, mapping_url_updates: 0, mapping_updated_at_updates: 0, last_checked_at_updates: 20 } };
+  const runPlan = { artifacts: [{ rows: [changed, ...confirmations], expected_deltas: deltas }] };
+  let reads = 0;
+  const engine = {
+    readState: async () => (++reads === 1 ? { records: [record, ...confirmations.map((row) => ({ offer: { id: row.offer_id } }))] } : { records: [] }),
+    buildRun: async (_target, _state, _diagnostic, _reviewed, _isolate, _segment, selection) => selection ? runPlan : { classification: { rows: [{ offer_id: "900", action: "VERIFY_NO_CHANGE" }] } },
+    validate: async () => [{ result: { valid: true } }],
+    registrationRequest: () => ({ children: [{ artifact: runPlan.artifacts[0] }] }),
+    register: async () => ({ result: { status: "REGISTERED" } }),
+    prepareSequentialParentApproval: async () => ({ status: "APPROVED" }),
+    approveAndExecute: async () => [{ result: { status: "APPLIED" } }],
+  };
+  const checkpoints = [];
+  const client = { rpc: async (_name, args) => { checkpoints.push(args); return { data: { status: args.p_new_status }, error: null }; } };
+  const baseline = { evidence_hash: "c".repeat(64), snapshot: { rows: [{ offer_id: "900", mapping_id: "800", offer_product_id: "700", offer_variant_id: "600", external_product_id: "500", external_variant_id: "400", price: "10.0", shipping_cost: "3.99", total_price: "13.990", in_stock: true, url: "https://fithouse.uk/p", external_url: "https://fithouse.uk/p" }] } };
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_SERVER_URL: "https://github.com", GITHUB_RUN_ID: "123", GITHUB_SHA: "d".repeat(40), NEXT_PUBLIC_SUPABASE_URL: "https://example.test", SUPABASE_SERVICE_ROLE_KEY: "control", FIT_HOUSE_SYNC_VALIDATOR_DATABASE_URL: "validator", FIT_HOUSE_SYNC_APPROVER_DATABASE_URL: "approver", FIT_HOUSE_SYNC_EXECUTOR_DATABASE_URL: "executor" };
+  const report = await run({ reviewItemId: "77", executionRequestId: "11111111-1111-4111-8111-111111111111", retailer: "fit-house", reviewFingerprint: review.source_row_fingerprint, reviewPlanFingerprint: review.plan_fingerprint, executionIdempotencyKey: "e".repeat(64), mode: "review-queue" }, { env, client, engine, loadControlState: async () => ({ review, request: { status: "DISPATCHED" } }), runPostflight: async (options) => options.mode === "baseline" ? baseline : { postflight_hash: "f".repeat(64), freshness_change_count: 20, price_change_count: 0, stock_change_count: 1, shipping_change_count: 0, total_change_count: 0, offer_url_change_count: 0, mapping_url_change_count: 0, price_history_delta: 0 } });
+  assert.equal(report.result, "PASS");
+  assert.equal(report.database_writes, 20);
+  assert.deepEqual(report.executed_offer_ids, ["900"]);
+  assert.equal(report.freshness_confirmation_offer_ids.length, 19);
+  assert.deepEqual(checkpoints.map((row) => row.p_new_status), ["EXECUTING", "EXECUTED"]);
+  assert.equal(env.SUPABASE_SERVICE_ROLE_KEY, "control");
+});
+
 test("Review Queue stale-state hashing canonicalizes equivalent timestamps without losing microseconds", () => {
   const { hash } = require("./automation-review-ebay-worker");
   assert.equal(
@@ -1027,16 +1095,10 @@ test("eBay Review Queue execution accepts database UTC-offset source capture tim
   assert.throws(() => normalizeApprovedSourceCapturedAt("2026-10-04T11:27:18.176123+00:00", "2687", now), /Approved source capture timestamp is invalid for offer 2687/);
 });
 
-test("eBay workflow isolates Review Queue dispatch payload and protected credentials", () => {
+test("eBay workflow leaves Review Queue execution to the single shared queue worker", () => {
   const workflow = fs.readFileSync(path.join(process.cwd(), ".github", "workflows", "ebay-offer-refresh.yml"), "utf8");
-  assert.match(workflow, /execution_mode:[\s\S]*options: \[catalogue-refresh, review-queue, review-queue-reconciliation\]/);
-  assert.match(workflow, /review_item_id:[\s\S]*execution_request_id:[\s\S]*review_fingerprint:/);
-  assert.match(workflow, /review_plan_fingerprint:[\s\S]*execution_idempotency_key:/);
-  assert.match(workflow, /review-execution:[\s\S]*environment: production-readonly/);
-  assert.match(workflow, /inputs\.operation == 'apply'.*inputs\.execution_mode == 'review-queue'/);
-  assert.match(workflow, /automation-review-ebay-worker\.js/);
-  assert.match(workflow, /persist-credentials: false/);
-  assert.doesNotMatch(workflow, /\$\{\{ secrets\.[^}]+ \}\}.*review_(?:item|fingerprint)/);
+  assert.match(workflow, /execution_mode:[\s\S]*options: \[catalogue-refresh, review-queue-reconciliation\]/);
+  assert.doesNotMatch(workflow, /review-execution:|automation-review-ebay-worker\.js|execution_request_id:|execution_idempotency_key:/);
 });
 
 test("review execution coordinator delegates protected execution and blocks drift or replay", async () => {

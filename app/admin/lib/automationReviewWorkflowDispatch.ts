@@ -44,16 +44,6 @@ export async function dispatchReviewExecution(options: DispatchOptions) {
     },
     body: JSON.stringify({
       ref: "main",
-      inputs: {
-        operation: "apply",
-        execution_mode: "review-queue",
-        review_item_id: options.reviewItemId,
-        execution_request_id: options.executionRequestId,
-        retailer: options.adapter.retailerSlug,
-        review_fingerprint: options.reviewFingerprint,
-        review_plan_fingerprint: options.reviewPlanFingerprint,
-        execution_idempotency_key: options.executionIdempotencyKey,
-      },
     }),
   });
   if (response.status !== 204) {

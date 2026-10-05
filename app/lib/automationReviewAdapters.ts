@@ -18,8 +18,8 @@ export type ReviewAdapter = {
   isolation: "per-row";
   reviewBinding: "immutable-review-record";
   manualCatalogueBinding: {
-    kind: "github-artifact";
-    requiredInputs: readonly string[];
+    kind: "control-plane-request";
+    requiredEvidence: readonly string[];
     semanticTimestampPolicy: "capture-time-only";
   };
 };
@@ -30,7 +30,7 @@ export const REVIEW_ADAPTERS: readonly ReviewAdapter[] = Object.freeze([
     retailerSlug: "ebay-uk",
     operations: Object.freeze(["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK"]),
     reasonCodes: Object.freeze(["FRESHNESS_CONFIRMATION", "STALE_OFFER", "NO_CHANGE_CONFIRMATION", "PRICE_CHANGE", "STOCK_CHANGE"]),
-    workflow: "ebay-offer-refresh.yml",
+    workflow: "automation-review-queue-worker.yml",
     environment: "production-readonly",
     builder: "scripts/ebay-offer-refresh.js",
     approvalRpc: "approve_product_import_plan",
@@ -43,8 +43,31 @@ export const REVIEW_ADAPTERS: readonly ReviewAdapter[] = Object.freeze([
     isolation: "per-row",
     reviewBinding: "immutable-review-record",
     manualCatalogueBinding: Object.freeze({
-      kind: "github-artifact",
-      requiredInputs: Object.freeze(["approved_dry_run_id", "approved_artifact_id", "approved_commit_sha", "approved_full_capture_fingerprint", "approved_executable_source_fingerprint", "approved_review_scope_fingerprint", "approved_plan_fingerprint", "approved_manifest_sha256", "approved_report_sha256", "owner_confirmation"]),
+      kind: "control-plane-request",
+      requiredEvidence: Object.freeze(["execution_request_id", "review_item_id", "review_fingerprint", "review_plan_fingerprint", "execution_idempotency_key"]),
+      semanticTimestampPolicy: "capture-time-only",
+    }),
+  }),
+  Object.freeze({
+    retailerId: "9",
+    retailerSlug: "fit-house",
+    operations: Object.freeze(["UPDATE_STOCK"]),
+    reasonCodes: Object.freeze(["STOCK_CHANGE"]),
+    workflow: "automation-review-queue-worker.yml",
+    environment: "production-readonly",
+    builder: "scripts/fit-house-offer-refresh.js#reviewQueueSelection",
+    approvalRpc: "approve_retailer_offer_sync_batch",
+    applyRpc: "execute_retailer_offer_sync_batch",
+    postflight: "scripts/retailer-offer-refresh-postflight.js#fit-house",
+    idempotency: "fresh full-scope rebuild must resolve the selected offer to VERIFY_NO_CHANGE after apply",
+    autonomous: true,
+    ownerDecisionRequired: true,
+    maximumBatch: 1,
+    isolation: "per-row",
+    reviewBinding: "immutable-review-record",
+    manualCatalogueBinding: Object.freeze({
+      kind: "control-plane-request",
+      requiredEvidence: Object.freeze(["execution_request_id", "review_item_id", "review_fingerprint", "review_plan_fingerprint", "execution_idempotency_key"]),
       semanticTimestampPolicy: "capture-time-only",
     }),
   }),
