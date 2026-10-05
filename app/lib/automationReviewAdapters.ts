@@ -64,5 +64,5 @@ export function resolveReviewAdapter(retailerId: string | number | null, operati
 }
 
 export function reviewDispatchConfigured() {
-  return process.env.AUTOMATION_REVIEW_QUEUE_ENABLED !== "false";
+  return process.env.AUTOMATION_REVIEW_QUEUE_ENABLED !== "false" && Boolean(process.env.AUTOMATION_REVIEW_GITHUB_TOKEN);
 }
