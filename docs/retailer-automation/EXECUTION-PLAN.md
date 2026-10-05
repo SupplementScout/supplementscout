@@ -1213,6 +1213,26 @@ normal 10 Reps execution and fresh Review Queue publication. RA-STAB-01 remains
 `IN_PROGRESS`; ordinary observation credit remains `0/3`. Evidence:
 [`evidence/RA-STAB-01-10REPS-SOURCE-OUTAGE-2026-10-05.json`](evidence/RA-STAB-01-10REPS-SOURCE-OUTAGE-2026-10-05.json).
 
+**5 October shared owner-decision execution preparation — implementation in
+PR #218, not yet production evidence:** the existing Automation Review Queue
+worker now has one registry for eBay and Fit House and is the sole workflow
+woken by the admin execution action. The former direct eBay Review Queue job is
+removed. Fit House reuses the existing full-source classifier, read-only
+validator, control-plan registration, separated approver/executor roles,
+postflight and fresh idempotency capture. One approved stock decision is bound
+to exactly one commercial change plus 19 deterministic `VERIFY_NO_CHANGE`
+freshness confirmations; price, shipping, total, URL and identity changes remain
+blocked. The fixed 14-row publication contract now shrinks only when exact
+source/DB agreement resolves a row. A bounded SELECT-only owner-decision audit
+was added for the final readback of every authenticated-admin decision and its
+execution history. Independent code review found and the implementation fixed
+a stale-baseline no-op check, dynamic count-binding gap, missing behavioural
+workflow test and obsolete GitHub-input metadata. Local `verify:quick`,
+`verify:full`, TypeScript, zero-warning ESLint and behavioural tests pass. This
+checkpoint authorizes no Review Queue decision, catalogue write or 10 Reps
+retry. Production capability and decision readback remain required after green
+CI and merge; RA-STAB-01 remains `IN_PROGRESS` at `0/3` ordinary intervals.
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

@@ -36,9 +36,23 @@ const {
   safeUpdateDisabled,
   safeValidatorResult,
   selectOwnerApprovedSixExecutionRows,
+  selectReviewQueueExecutionRows,
   sourceHealth,
   validationGuardSummary,
 } = require("./fit-house-offer-refresh");
+
+test("Review Queue selection executes one stock decision with nineteen unchanged confirmations", () => {
+  const changed = { offer_id: "900", action: "UPDATE_STOCK", changed_fields: { stock: true, price: false, url: false, blocked: false }, target: { in_stock: true }, source: { in_stock: false } };
+  const stable = Array.from({ length: 24 }, (_, index) => ({ offer_id: String(index + 1), action: "VERIFY_NO_CHANGE", changed_fields: { stock: false, price: false, url: false, blocked: false }, target: { in_stock: true }, source: { in_stock: true } }));
+  const otherChange = { offer_id: "901", action: "UPDATE_STOCK", changed_fields: { stock: true, price: false, url: false, blocked: false }, target: { in_stock: false }, source: { in_stock: true } };
+  const selection = { offerId: "900", operation: "UPDATE_STOCK", maximumCommercialChanges: 1, freshnessConfirmationCount: 19 };
+  const selected = selectReviewQueueExecutionRows({ rows: [changed, otherChange, ...stable] }, selection);
+  assert.equal(selected.length, 20);
+  assert.deepEqual(selected.filter((row) => row.action !== "VERIFY_NO_CHANGE").map((row) => row.offer_id), ["900"]);
+  assert.deepEqual(selected.slice(1).map((row) => row.offer_id), Array.from({ length: 19 }, (_, index) => String(index + 1)));
+  assert.throws(() => selectReviewQueueExecutionRows({ rows: [{ ...changed, changed_fields: { ...changed.changed_fields, price: true } }, ...stable] }, selection), /not an isolated stock change/);
+  assert.throws(() => selectReviewQueueExecutionRows({ rows: [changed, ...stable.slice(0, 18)] }, selection), /confirmation scope mismatch/);
+});
 
 test("zero-execution review reports retain the shared discovery evidence shape", () => {
   const context = executionReportContext({
@@ -186,6 +200,13 @@ test("only the exact owner-approved offer 759 return is executable", () => {
   const replayOwner={...owner,authorizedChangeCount:0},replayAuthorized=authorizeOwnerApprovedSixStockOnly(replay,replayOwner);
   assert.deepEqual(selectOwnerApprovedSixExecutionRows(replayAuthorized,replayOwner),[]);
   assert.deepEqual(replayAuthorized.deferred_changed_offer_ids,isolation.deferred_rows.map(row=>row.offer_id));
+  const oneResolved=structuredClone(replay);
+  const resolvedDeferred=oneResolved.rows.find(row=>row.offer_id===isolation.deferred_rows[0].offer_id);
+  resolvedDeferred.action="VERIFY_NO_CHANGE";resolvedDeferred.target.in_stock=resolvedDeferred.source.in_stock;resolvedDeferred.changed_fields.stock=false;
+  const partial=authorizeOwnerApprovedSixStockOnly(oneResolved,replayOwner);
+  assert.equal(partial.deferred_changed_offer_ids.length,13);
+  assert.ok(!partial.deferred_changed_offer_ids.includes(isolation.deferred_rows[0].offer_id));
+  assert.equal(partial.quarantined_rows.length,13);
 });
 
 test("offer 759 return is exact, the other six protected offers remain OOS, and replay is idempotent", () => {

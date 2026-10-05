@@ -363,7 +363,7 @@ test("CLI parser requires immutable source binding inputs", () => {
 
 test("workflow exposes a dry-run-only Review Queue reconciliation path", () => {
   const workflow = fs.readFileSync(path.join(process.cwd(), ".github/workflows/ebay-offer-refresh.yml"), "utf8");
-  assert.match(workflow, /options: \[catalogue-refresh, review-queue, review-queue-reconciliation\]/);
+  assert.match(workflow, /options: \[catalogue-refresh, review-queue-reconciliation\]/);
   assert.match(workflow, /inputs\.operation == 'dry-run' && inputs\.execution_mode == 'review-queue-reconciliation'/);
   assert.match(workflow, /automation-review-reconciliation-dry-run\.js/);
   assert.match(workflow, /--download-source-artifact/);
@@ -467,6 +467,21 @@ test("Fit House source adapter seals exactly the fresh 286/0/14/0 zero-write res
   assert.equal(contract.catalogue_writes, 0);
   assert.match(contract.review_scope_fingerprint, /^[0-9a-f]{64}$/);
   assert.match(contract.contract_fingerprint, /^[0-9a-f]{64}$/);
+});
+
+test("Fit House source adapter accepts a resolved subset and rejects count-to-row drift", () => {
+  const fixture = writeFitHouseFixture();
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "37313299039", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
+  const reportPath = path.join(fixture.directory, "production-apply.json"), diagnosticPath = path.join(fixture.directory, "production-apply-diagnostic.json"), idempotencyPath = path.join(fixture.directory, "production-idempotency-diagnostic.json"), postflightPath = path.join(fixture.directory, "production-db-postflight.json");
+  const report = JSON.parse(fs.readFileSync(reportPath, "utf8")), diagnostic = JSON.parse(fs.readFileSync(diagnosticPath, "utf8")), postflight = JSON.parse(fs.readFileSync(postflightPath, "utf8"));
+  report.review_row_count = 13; postflight.review_row_count = 13;
+  writeJson(reportPath, report); writeJson(postflightPath, postflight);
+  assert.throws(() => buildFitHouseSourceContract(fixture.directory, env), /review row count drifted/);
+  report.review_rows.pop(); report.deferred_changed_offer_ids.pop(); diagnostic.classifier_summary.changed_rows.pop();
+  writeJson(reportPath, report); writeJson(diagnosticPath, diagnostic); writeJson(idempotencyPath, diagnostic);
+  const contract = buildFitHouseSourceContract(fixture.directory, env);
+  assert.equal(contract.review_row_count, 13);
+  assert.equal(contract.review_offer_ids.length, 13);
 });
 
 test("Fit House adapter builds one shared-publisher request with 14 review cards and no catalogue writes", () => {

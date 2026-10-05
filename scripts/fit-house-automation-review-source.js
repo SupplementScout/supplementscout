@@ -74,20 +74,21 @@ function loadAndValidateSource(directory) {
   const postflight = readJson(files.postflight);
 
   invariant(report.result === "PASS_WITH_REVIEW" && report.mode === "apply" && report.target === "production", "Fit House apply report is not publishable");
-  invariant(report.approved_mapping_count === 286 && report.executable_plan_count === 0 && report.executed_plan_count === 0 && report.review_row_count === 14 && report.blocked_row_count === 0, "Fit House apply scope drifted");
+  invariant(report.approved_mapping_count === 286 && report.executable_plan_count === 0 && report.executed_plan_count === 0 && report.review_row_count >= 0 && report.review_row_count <= 14 && report.blocked_row_count === 0, "Fit House apply scope drifted");
   invariant(report.business && Object.values(report.business).every((value) => Number(value) === 0), "Fit House apply report contains business writes");
   invariant(diagnostic.result === "PASS" && diagnostic.failure_stage == null && Number(diagnostic.business_writes_completed || 0) === 0 && Number(diagnostic.control_writes_completed || 0) === 0, "Fit House apply diagnostic is not zero-write PASS");
   invariant(idempotency.result === "PASS" && idempotency.failure_stage == null && Number(idempotency.business_writes_completed || 0) === 0 && Number(idempotency.control_writes_completed || 0) === 0, "Fit House idempotency diagnostic is not zero-write PASS");
   invariant(baseline.schema_version === 1 && baseline.kind === "retailer-offer-refresh-db-baseline" && baseline.result === "PASS" && baseline.profile === RETAILER.slug, "Fit House DB baseline is invalid");
   invariant(baseline.snapshot?.retailer_id === RETAILER.id && baseline.snapshot?.retailer_name === RETAILER.name && baseline.snapshot?.row_count === 286 && Array.isArray(baseline.snapshot?.rows) && baseline.snapshot.rows.length === 286, "Fit House DB baseline scope drifted");
   invariant(postflight.schema_version === 1 && postflight.kind === "retailer-offer-refresh-db-postflight" && postflight.result === "PASS" && postflight.profile === RETAILER.slug, "Fit House DB postflight is invalid");
-  invariant(postflight.baseline_hash === baseline.evidence_hash && postflight.approved_mapping_count === 286 && postflight.executed_plan_count === 0 && postflight.review_row_count === 14 && postflight.blocked_row_count === 0, "Fit House postflight binding drifted");
+  invariant(postflight.baseline_hash === baseline.evidence_hash && postflight.approved_mapping_count === 286 && postflight.executed_plan_count === 0 && postflight.review_row_count === report.review_row_count && postflight.blocked_row_count === 0, "Fit House postflight binding drifted");
   for (const key of ["price_change_count", "stock_change_count", "shipping_change_count", "total_change_count", "offer_url_change_count", "mapping_url_change_count", "freshness_change_count", "price_history_delta", "daily_confirmation_delta", "raw_price_history_delta"]) invariant(Number(postflight[key] || 0) === 0, `Fit House postflight ${key} is not zero`);
 
   const changedRows = normalizedChangedRows(diagnostic);
   const idempotentRows = normalizedChangedRows(idempotency);
   sameJson(idempotentRows, changedRows, "Fit House review scope changed during idempotency");
   const reviewIds = sortedIds(report.review_rows.map((row) => row.offer_id));
+  invariant(report.review_row_count === report.review_rows.length && report.review_row_count === changedRows.length, "Fit House review row count drifted");
   sameJson(reviewIds, sortedIds(report.deferred_changed_offer_ids), "Fit House deferred review IDs drifted");
   sameJson(reviewIds, changedRows.map((row) => row.offer_id), "Fit House report and diagnostic review IDs drifted");
   invariant(changedRows.every((row) => row.action === "UPDATE_STOCK" && row.old_price === row.new_price && row.old_stock !== row.new_stock), "Fit House review scope contains a non-stock change");
@@ -130,7 +131,7 @@ function contractCore(source, env) {
     retailer: RETAILER,
     approved_mapping_count: 286,
     executable_plan_count: 0,
-    review_row_count: 14,
+    review_row_count: source.changedRows.length,
     blocked_row_count: 0,
     catalogue_offer_ids: catalogueOfferIds,
     review_offer_ids: source.changedRows.map((row) => row.offer_id),
@@ -189,7 +190,7 @@ function verifySourceContract(options, now = new Date()) {
   invariant(contract.schema_version === 1 && contract.kind === "automation-review-source-contract" && contract.profile === RETAILER.slug, "Fit House source contract schema mismatch");
   invariant(contract.repository === REPOSITORY && contract.workflow === WORKFLOW && contract.workflow_name === WORKFLOW_NAME, "Fit House source workflow mismatch");
   invariant(contract.run_id === options.sourceRunId && contract.commit_sha === options.sourceCommitSha && contract.retailer?.id === RETAILER.id && contract.retailer?.name === RETAILER.name, "Fit House source identity mismatch");
-  invariant(contract.approved_mapping_count === 286 && contract.executable_plan_count === 0 && contract.review_row_count === 14 && contract.blocked_row_count === 0 && contract.catalogue_writes === 0, "Fit House source contract scope mismatch");
+  invariant(contract.approved_mapping_count === 286 && contract.executable_plan_count === 0 && contract.review_row_count >= 0 && contract.review_row_count <= 14 && contract.blocked_row_count === 0 && contract.catalogue_writes === 0, "Fit House source contract scope mismatch");
   invariant(Date.parse(contract.expires_at) > Date.parse(contract.created_at) && Date.parse(contract.expires_at) > now.getTime(), "Fit House source contract expiry is invalid");
   invariant(contract.contract_fingerprint === sha256(Object.fromEntries(Object.entries(contract).filter(([key]) => key !== "contract_fingerprint"))), "Fit House source contract fingerprint mismatch");
   const source = loadAndValidateSource(options.sourceArtifactDir);
@@ -197,6 +198,7 @@ function verifySourceContract(options, now = new Date()) {
   sameJson(contract.catalogue_offer_ids, sortedIds(source.baseline.snapshot.rows.map((row) => row.offer_id)), "Fit House catalogue offer scope mismatch");
   sameJson(contract.review_offer_ids, source.changedRows.map((row) => row.offer_id), "Fit House review offer scope mismatch");
   invariant(contract.review_scope_fingerprint === contractCore(source, { GITHUB_RUN_ID: contract.run_id, GITHUB_RUN_ATTEMPT: contract.run_attempt, GITHUB_SHA: contract.commit_sha }).review_scope_fingerprint, "Fit House review scope fingerprint mismatch");
+  invariant(contract.review_row_count === source.changedRows.length, "Fit House source contract review count drifted");
   return { contract, ...source };
 }
 
