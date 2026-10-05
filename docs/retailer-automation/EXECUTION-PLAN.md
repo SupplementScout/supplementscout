@@ -1182,6 +1182,21 @@ its read-only postflight; no refresh retry or RA-004 action is bundled into the
 close. Evidence:
 [`evidence/RA-STAB-01-SHARED-CONTROL-RECOVERY-PREPARATION-2026-10-05.json`](evidence/RA-STAB-01-SHARED-CONTROL-RECOVERY-PREPARATION-2026-10-05.json).
 
+**5 October shared expired-plan recovery — production verified:** PRs `211`,
+`212` and `213` merged one retailer-neutral coordinator and two common contract
+corrections. Runs `37302927313` and `37304222467` failed closed during read-only
+preflight and made no close call or business write. Run `37305276770` then
+performed the only close call against the existing RPC. The exact parent and
+all 19 children are `EXPIRED`; the approval is closed but unconsumed; apply
+runs, row approvals and recovery records remain zero. The result reports 21
+control writes, zero business writes, zero price-history writes and zero
+automatic retries. Postflight confirmed unchanged catalogue counts. This
+control-only subtask is `VERIFIED_COMPLETE`. The next gate is one fresh ordinary
+10 Reps cycle through the existing shared workflow, followed by its standard
+postflight and fresh Review Queue publication; no old plan is replayed.
+Evidence:
+[`evidence/RA-STAB-01-SHARED-CONTROL-RECOVERY-CLOSEOUT-2026-10-05.json`](evidence/RA-STAB-01-SHARED-CONTROL-RECOVERY-CLOSEOUT-2026-10-05.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
