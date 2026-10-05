@@ -1431,6 +1431,30 @@ new importer, approval path, executor or catalogue write. Because this was a
 manual run, the ordinary observation counter remains `0/3`. Evidence:
 [`evidence/RA-STAB-01-10REPS-SOURCE-RECOVERY-EXECUTION-2026-10-05.json`](evidence/RA-STAB-01-10REPS-SOURCE-RECOVERY-EXECUTION-2026-10-05.json).
 
+**5 October 10 Reps Review Queue publication — locally verified, deployment
+pending:** commit `ec8bc1a` converts the existing Fit House source binder into
+one profile-driven shared retailer adapter and replaces the Fit-only queue job
+with one shared job for Fit House and 10 Reps. The implementation still uses the
+existing artifact-bound source contract, read-only production baseline, common
+publisher planner and single transactional publisher RPC. It adds no importer,
+approval path, executor, database function or direct queue writer.
+
+The adapter accepts the real successful run `37357956664` as exactly `950`
+approved mappings, `934` executed rows, `16` missing-source review rows and zero
+blocked rows. It separately binds the `933` freshness-only confirmations and
+the one executed price change, so a commercial row cannot be mistaken for a
+no-change row. The exact 16 review offer IDs are `2853`, `2854`, `2855`, `2856`,
+`2857`, `2858`, `2859`, `2896`, `2897`, `2898`, `2913`, `2914`, `3384`, `3388`,
+`3496` and `3627`. Every resulting card is `MANUAL_REVIEW_IDENTITY` with
+`SOURCE_MISSING`, proposes `KEEP_UNCHANGED`, authorizes no automatic catalogue
+action and preserves approved-row immutability plus stale-state guards.
+Focused publisher/source tests pass `43/43`; the real production artifact
+contract, quick/full gates, Project Guardian and the production build pass.
+Preparation made zero production writes. The next gate is green merge followed
+by one fresh guarded 10 Reps apply and verification of its queue publication
+artifact and production readback. Evidence:
+[`evidence/RA-STAB-01-10REPS-REVIEW-QUEUE-PUBLICATION-PREPARATION-2026-10-05.json`](evidence/RA-STAB-01-10REPS-REVIEW-QUEUE-PUBLICATION-PREPARATION-2026-10-05.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

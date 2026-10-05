@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "task": "RA-STAB-01",
+  "captured_at": "2026-10-05",
+  "status": "LOCALLY_VERIFIED_DEPLOYMENT_PENDING",
+  "purpose": "Publish the fresh 10 Reps missing-source subset through the existing shared Automation Review Queue publisher without creating a retailer-specific path.",
+  "implementation": {
+    "commit": "ec8bc1a",
+    "source_adapter": "scripts/shared-retailer-automation-review-source.js",
+    "workflow": ".github/workflows/fit-house-offer-refresh.yml",
+    "publisher": "scripts/automation-review-reconciliation-apply.js",
+    "publisher_library": "scripts/lib/automation-review-publisher.js",
+    "design": "One profile-driven source adapter and one shared queue-publication job serve Fit House and 10 Reps. No importer, approval path, executor, database function or direct queue writer was added."
+  },
+  "fresh_source_evidence": {
+    "run_id": 37357956664,
+    "artifact_id": 11366475556,
+    "head_sha": "458756faebb7f60ba43321f9ed2e412a06702455",
+    "approved_mappings": 950,
+    "executed_rows": 934,
+    "review_rows": 16,
+    "blocked_rows": 0,
+    "review_offer_ids": [2853, 2854, 2855, 2856, 2857, 2858, 2859, 2896, 2897, 2898, 2913, 2914, 3384, 3388, 3496, 3627],
+    "review_reason": "SOURCE_VARIANT_MISSING",
+    "review_scope_fingerprint": "0e24b1f8adab876f555b0d38fd0891538aaf5c0f5adf33d519b57cb4af0473"
+  },
+  "queue_contract": {
+    "row_count": 16,
+    "review_kind": "IDENTITY_CONFLICT",
+    "operation_type": "MANUAL_REVIEW_IDENTITY",
+    "reason_code": "SOURCE_MISSING",
+    "proposed_catalogue_action": "KEEP_UNCHANGED",
+    "automatic_action": false,
+    "catalogue_writes": 0,
+    "direct_rest_writes": 0,
+    "publisher_rpc_only": true,
+    "active_approved_rows_preserved": true,
+    "stale_state_guard_preserved": true
+  },
+  "regression": {
+    "focused_tests": "43/43 PASS",
+    "real_artifact_contract": "PASS",
+    "verify_quick": "PASS",
+    "verify_full": "PASS",
+    "production_build": "PASS",
+    "project_guardian": "PASS"
+  },
+  "production_writes_performed_during_preparation": 0,
+  "next_gate": "Merge after green CI, then run one fresh guarded 10 Reps apply so the same-run artifact can publish exactly the current review subset through the shared queue job; verify the queue artifact and production readback before closeout."
+}

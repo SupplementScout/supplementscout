@@ -18,7 +18,7 @@ const {
   buildOutput: buildFitHouseOutput,
   buildSourceContract: buildFitHouseSourceContract,
   verifySourceContract: verifyFitHouseSourceContract,
-} = require("./fit-house-automation-review-source");
+} = require("./shared-retailer-automation-review-source");
 
 const SOURCE = Object.freeze({
   run: "33409588643",
@@ -549,16 +549,123 @@ test("Fit House adapter builds one shared-publisher request with 14 review cards
   assert.equal(output.direct_rest_writes, 0);
 });
 
-test("shared retailer workflow publishes Fit House cards only from a successful bound apply artifact", () => {
+function writeTenRepsFixture() {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "ten-reps-review-source-"));
+  const sourceFingerprint = "9".repeat(64);
+  const reviewOfferIds = new Set(["2853", "2854", "2855", "2856", "2857", "2858", "2859", "2896", "2897", "2898", "2913", "2914", "3384", "3388", "3496", "3627"]);
+  const offerIds = [
+    ...reviewOfferIds,
+    ...Array.from({ length: 934 }, (_, index) => String(4000 + index)),
+  ];
+  const baselineRows = offerIds.map((offerId, index) => ({
+    mapping_id: String(5001 + index),
+    retailer_id: "14",
+    mapping_product_id: String(6001 + index),
+    mapping_variant_id: String(7001 + index),
+    external_product_id: `ten-product-${index + 1}`,
+    external_variant_id: `ten-variant-${index + 1}`,
+    external_sku: null,
+    external_gtin: null,
+    external_options: null,
+    external_url: `https://www.10reps.co.uk/product-${index + 1}`,
+    offer_id: offerId,
+    offer_product_id: String(6001 + index),
+    offer_variant_id: String(7001 + index),
+    price: "10.00",
+    shipping_cost: "3.99",
+    total_price: "13.99",
+    in_stock: true,
+    url: `https://www.10reps.co.uk/product-${index + 1}`,
+    last_checked_at: "2026-10-05T17:00:00.000Z",
+  }));
+  const byOffer = new Map(baselineRows.map((row) => [row.offer_id, row]));
+  const reviewRows = [...reviewOfferIds].map((offerId) => ({
+    offer_id: offerId,
+    reason: "SOURCE_VARIANT_MISSING",
+    external_product_id: byOffer.get(offerId).external_product_id,
+    external_variant_id: byOffer.get(offerId).external_variant_id,
+  }));
+  const executionOfferIds = baselineRows.filter((row) => !reviewOfferIds.has(row.offer_id)).map((row) => row.offer_id);
+  const priceRow = baselineRows.find((row) => row.offer_id === executionOfferIds[0]);
+  const report = {
+    result: "PASS_WITH_REVIEW", mode: "apply", target: "production",
+    source: { fingerprint: sourceFingerprint }, approved_mapping_count: 950,
+    deferred_changed_offer_ids: [], execution_offer_ids: executionOfferIds,
+    verification_offer_ids: executionOfferIds.slice(1), stock_change_offer_ids: [], executable_plan_count: 934,
+    executed_plan_count: 934, review_row_count: 16, blocked_row_count: 0,
+    classification: { VERIFY_NO_CHANGE: 933, UPDATE_PRICE: 1 },
+    review_rows: reviewRows,
+    business: { products_delta: 0, variants_delta: 0, mappings_delta: 0, offers_delta: 0, price_history_delta: 1, offers_refreshed: 934 },
+  };
+  const diagnostic = {
+    result: "PASS", timestamp: "2026-10-05T17:01:00.000Z", failure_stage: null,
+    source: { fingerprint: sourceFingerprint }, business_writes_completed: 934, control_writes_completed: 1,
+    classifier_summary: { changed_row_ids: [priceRow.offer_id], changed_rows: [{ offer_id: priceRow.offer_id, retailer_product_id: priceRow.mapping_id, external_product_id: priceRow.external_product_id, external_variant_id: priceRow.external_variant_id, action: "UPDATE_PRICE", old_price: "10.00", new_price: "9.00", old_stock: true, new_stock: true }] },
+  };
+  const idempotency = { result: "PASS", timestamp: "2026-10-05T17:15:00.000Z", failure_stage: null, source: { fingerprint: sourceFingerprint }, business_writes_completed: 0, control_writes_completed: 0, classifier_summary: { changed_rows: [] } };
+  const baseline = { schema_version: 1, kind: "retailer-offer-refresh-db-baseline", result: "PASS", profile: "10-reps", snapshot: { captured_at: "2026-10-05T17:00:59.000Z", retailer_id: "14", retailer_name: "10 Reps", row_count: 950, rows: baselineRows }, evidence_hash: "e".repeat(64) };
+  const postflight = { schema_version: 1, kind: "retailer-offer-refresh-db-postflight", result: "PASS", profile: "10-reps", approved_mapping_count: 950, executable_plan_count: 934, executed_plan_count: 934, review_row_count: 16, blocked_row_count: 0, price_change_count: 1, stock_change_count: 0, shipping_change_count: 0, total_change_count: 1, offer_url_change_count: 0, mapping_url_change_count: 0, freshness_change_count: 934, price_history_delta: 1, daily_confirmation_delta: 0, raw_price_history_delta: 1, baseline_hash: baseline.evidence_hash, postflight_hash: "f".repeat(64) };
+  writeJson(path.join(directory, "production-apply.json"), report);
+  writeJson(path.join(directory, "production-apply-diagnostic.json"), diagnostic);
+  writeJson(path.join(directory, "production-idempotency-diagnostic.json"), idempotency);
+  writeJson(path.join(directory, "production-db-baseline.json"), baseline);
+  writeJson(path.join(directory, "production-db-postflight.json"), postflight);
+  return { directory, baselineRows, reviewRows };
+}
+
+test("10 Reps source adapter seals the fresh 934 safe plus 16 review partition without inferring changes", () => {
+  const fixture = writeTenRepsFixture();
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "workflow_dispatch", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "37357956664", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
+  const contract = buildFitHouseSourceContract(fixture.directory, env, "10-reps");
+  assert.equal(contract.profile, "10-reps");
+  assert.equal(contract.approved_mapping_count, 950);
+  assert.equal(contract.executable_plan_count, 934);
+  assert.equal(contract.review_row_count, 16);
+  assert.deepEqual(contract.review_offer_ids, fixture.reviewRows.map((row) => row.offer_id).sort((a, b) => Number(a) - Number(b)));
+  assert.equal(contract.catalogue_writes, 0);
+});
+
+test("10 Reps adapter builds exactly 16 shared-publisher identity-review cards and zero catalogue writes", () => {
+  const fixture = writeTenRepsFixture();
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "workflow_dispatch", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "37357956664", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
+  const contract = buildFitHouseSourceContract(fixture.directory, env, "10-reps");
+  writeJson(path.join(fixture.directory, "automation-review-source-contract.json"), contract);
+  const options = { profile: "10-reps", sourceArtifactDir: fixture.directory, sourceRunId: env.GITHUB_RUN_ID, sourceArtifactId: "11366475556", sourceCommitSha: env.GITHUB_SHA, sourceArtifactDigest: "c".repeat(64), sourceContractSha256: fileSha(path.join(fixture.directory, "automation-review-source-contract.json")), output: path.join(fixture.directory, "output.json") };
+  const source = verifyFitHouseSourceContract(options, new Date("2026-10-05T18:00:00Z"));
+  const reviewBaselineRows = fixture.baselineRows.filter((row) => fixture.reviewRows.some((review) => review.offer_id === row.offer_id));
+  const baseline = {
+    catalogueCounts: { products: 1337, product_variants: 3632, retailer_products: 3758, offers: 3758, price_history: 27401 },
+    activeRows: [],
+    offers: reviewBaselineRows.map((row) => ({ id: row.offer_id, retailer_id: "14", retailer_product_id: row.mapping_id, product_id: row.offer_product_id, product_variant_id: row.offer_variant_id, price: row.price, shipping_cost: row.shipping_cost, total_price: row.total_price, in_stock: row.in_stock, url: row.url })),
+    mappings: reviewBaselineRows.map((row) => ({ id: row.mapping_id, retailer_id: "14", product_id: row.mapping_product_id, product_variant_id: row.mapping_variant_id, external_product_id: row.external_product_id, external_variant_id: row.external_variant_id, external_sku: null, external_gtin: null, external_url: row.external_url })),
+    products: reviewBaselineRows.map((row) => ({ id: row.offer_product_id, name: `Product ${row.offer_id}` })),
+    variants: reviewBaselineRows.map((row) => ({ id: row.offer_variant_id, display_name: `Variant ${row.offer_id}` })),
+  };
+  const rows = buildFitHouseManifestRows(source, baseline, options);
+  const output = buildFitHouseOutput(source, baseline, rows, options, env);
+  assert.equal(rows.length, 16);
+  assert.equal(rows.every((row) => row.operation_type === "MANUAL_REVIEW_IDENTITY" && row.reason_codes === "SOURCE_MISSING"), true);
+  assert.equal(rows.every((row) => row.before_state.in_stock === row.proposed_state.in_stock || row.proposed_state.catalogue_action === "KEEP_UNCHANGED"), true);
+  assert.equal(output.operations.CREATE, 16);
+  assert.equal(output.expected.catalogue_writes, 0);
+  assert.equal(output.production_writes, 0);
+  assert.equal(output.direct_rest_writes, 0);
+});
+
+test("shared retailer workflow publishes bound Fit House and 10 Reps cards through one queue job", () => {
   const workflow = fs.readFileSync(path.join(process.cwd(), ".github/workflows/fit-house-offer-refresh.yml"), "utf8");
   assert.match(workflow, /Bind fresh Fit House Review Queue source/);
-  assert.match(workflow, /refresh-fit-house-review-queue:[\s\S]*needs: fit-house-offer-refresh/);
+  assert.match(workflow, /Bind fresh 10 Reps Review Queue source/);
+  assert.match(workflow, /refresh-review-queue:[\s\S]*needs: \[fit-house-offer-refresh, ten-reps-offer-refresh\]/);
   assert.match(workflow, /needs\.fit-house-offer-refresh\.result == 'success'/);
+  assert.match(workflow, /needs\.ten-reps-offer-refresh\.result == 'success'/);
   assert.match(workflow, /github\.event_name == 'schedule'|inputs\.operation == 'apply'/);
   assert.match(workflow, /actions\/download-artifact@v8/);
-  assert.match(workflow, /fit-house-automation-review-source\.js[\s\S]*--mode=reconcile/);
+  assert.match(workflow, /shared-retailer-automation-review-source\.js[\s\S]*--profile=fit-house/);
+  assert.match(workflow, /shared-retailer-automation-review-source\.js[\s\S]*--profile=10-reps/);
+  assert.match(workflow, /Publish fresh 10 Reps cards to Automation Review Queue/);
   assert.match(workflow, /automation-review-reconciliation-apply\.js/);
-  const source = fs.readFileSync(path.join(process.cwd(), "scripts/fit-house-automation-review-source.js"), "utf8");
+  const source = fs.readFileSync(path.join(process.cwd(), "scripts/shared-retailer-automation-review-source.js"), "utf8");
   assert.match(source, /buildPublicationRpcRequest/);
   assert.doesNotMatch(source, /publish_automation_review_queue_changes/);
   assert.doesNotMatch(source, /\.from\s*\([^)]*\)\.insert\s*\(/);
