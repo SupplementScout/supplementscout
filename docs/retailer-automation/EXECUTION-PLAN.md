@@ -1411,6 +1411,26 @@ approved cards are now preserved by the shared publisher. This owner-requested
 manual run does not increment the ordinary observation counter; RA-STAB-01
 remains `IN_PROGRESS` at `0/3`.
 
+**5 October 10 Reps source recovery and guarded execution — production
+verified:** after the owner confirmed that the external site was responding,
+manual shared-workflow run `37357956664` completed in `16m22s` on merged commit
+`458756faebb7f60ba43321f9ed2e412a06702455`. It read all 950 approved mappings,
+executed 934 safe rows and isolated the same 16 missing-source variants as
+review with zero blocked rows. Of the executable rows, 933 were freshness-only
+confirmations and offer `3713` received the sole commercial change: price
+`7.69 -> 3.99`, with stock unchanged. Postflight passed with 934 freshness
+updates, one price-history row and zero product, variant, mapping or offer-row
+count deltas. A fresh-source idempotency pass made zero database writes.
+
+The source outage is therefore closed and the earlier expired-plan recovery did
+not recur. This workflow has no 10 Reps Review Queue publication stage, so the
+16 rows are preserved in the run report but this evidence does not claim that
+fresh admin cards were published. The next bounded gate is to reuse the existing
+shared Review Queue builder and publisher for exactly those 16 rows, without a
+new importer, approval path, executor or catalogue write. Because this was a
+manual run, the ordinary observation counter remains `0/3`. Evidence:
+[`evidence/RA-STAB-01-10REPS-SOURCE-RECOVERY-EXECUTION-2026-10-05.json`](evidence/RA-STAB-01-10REPS-SOURCE-RECOVERY-EXECUTION-2026-10-05.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
