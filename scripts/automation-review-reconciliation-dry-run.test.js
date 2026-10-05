@@ -283,6 +283,22 @@ test("matching fingerprints become REFRESH and missing source baseline stays iso
   assert.equal(output.direct_rest_writes, 0);
 });
 
+test("matching approved evidence stays immutable instead of becoming REFRESH", () => {
+  const fixture = writeFixture();
+  const options = sourceOptions(fixture.directory);
+  const source = { ...verifySourceArtifact(options), options };
+  const rows = buildManifestRows(source, activeRows());
+  const matchingApproved = activeRows().map((row, index) => ({ ...row, review_status: "APPROVED", decision_actor: "authenticated-admin", source_row_fingerprint: rows[index].source_row_fingerprint }));
+  const output = buildOutput(source, baseline(matchingApproved), rows, options.output, {});
+
+  assert.equal(output.operations.CREATE, 0);
+  assert.equal(output.operations.REFRESH, 0);
+  assert.equal(output.operations.SUPERSEDE, 0);
+  assert.equal(output.operations.RESOLVE_BY_SOURCE, 0);
+  assert.equal(output.request.operations.length, 0);
+  assert.equal(output.expected.final_active_review_count_for_ebay, 2);
+});
+
 test("one transaction can refresh unchanged evidence and supersede changed evidence", () => {
   const fixture = writeFixture();
   const options = sourceOptions(fixture.directory);

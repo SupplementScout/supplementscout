@@ -62,11 +62,11 @@ async function loadControlState(client, options, contract, env = process.env) {
     && options.retailer === contract.retailerSlug,
   "REVIEW_BINDING_DRIFT");
   invariant(review.expires_at && Date.parse(review.expires_at) > Date.now(), "REVIEW_EVIDENCE_EXPIRED");
+  const approvalEvent = events.find((event) => event.previous_status === "PENDING" && event.new_status === "APPROVED"
+    && event.source_row_fingerprint === review.source_row_fingerprint
+    && event.plan_fingerprint === review.plan_fingerprint);
   invariant(review.decision_actor && review.decision_at
-    && events.some((event) => event.previous_status === "PENDING" && event.new_status === "APPROVED"
-      && event.actor === review.decision_actor
-      && event.source_row_fingerprint === review.source_row_fingerprint
-      && event.plan_fingerprint === review.plan_fingerprint),
+    && approvalEvent?.actor === "authenticated-admin",
   "APPROVAL_AUDIT_MISSING");
   let canonicalCapture = null;
   try { canonicalCapture = canonicalTimestamp(review.source_captured_at, "source_captured_at"); } catch {}

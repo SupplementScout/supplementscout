@@ -1,0 +1,64 @@
+{
+  "schema_version": "ra-stab-01-approved-review-evidence-freeze-v1",
+  "task_id": "RA-STAB-01",
+  "recorded_at": "2026-10-05T18:30:00Z",
+  "production_readback": {
+    "worker_run_id": 37354078264,
+    "result": "FAIL_CLOSED",
+    "processed": 2,
+    "completed": 0,
+    "database_writes": 0,
+    "artifact_id": 11362749986,
+    "artifact_digest": "abde2ab3b84fa8e59c17750d8d0313ff20af9ea3ba378164878a04bca5d005aa",
+    "failures": [
+      {
+        "execution_request_id": "0fb5a12b-458a-4cb0-9853-0ce7d276da0f",
+        "review_id": 1111,
+        "offer_id": 1982,
+        "error_code": "APPROVAL_AUDIT_MISSING"
+      },
+      {
+        "execution_request_id": "644b8042-cad2-41c0-a333-7dbf3ce5e386",
+        "review_id": 1110,
+        "offer_id": 1938,
+        "error_code": "APPROVAL_AUDIT_MISSING"
+      }
+    ],
+    "immutable_admin_approval_events_present": true,
+    "catalogue_writes": 0,
+    "execution_calls_in_owner_audit": 0
+  },
+  "root_cause": {
+    "scope": "SHARED_REVIEW_QUEUE_PUBLICATION_LIFECYCLE",
+    "publisher_behavior": "REFRESH_RETAINED_APPROVED_STATUS_BUT_REPLACED_DECISION_ACTOR",
+    "worker_behavior": "REQUIRED_MUTABLE_ROW_ACTOR_TO_EQUAL_IMMUTABLE_APPROVAL_EVENT_ACTOR",
+    "retailer_specific": false,
+    "source_failure": false,
+    "owner_decision_missing": false
+  },
+  "correction": {
+    "existing_shared_publisher_reused": true,
+    "exact_matching_approved_rows_preserved": true,
+    "pending_rows_remain_refreshable": true,
+    "worker_authority": "EXACT_FINGERPRINT_BOUND_IMMUTABLE_AUTHENTICATED_ADMIN_APPROVAL_EVENT",
+    "mutable_actor_is_execution_authority": false,
+    "non_admin_approval_event_rejected": true,
+    "new_workflow": false,
+    "new_adapter": false,
+    "new_approval_path": false,
+    "new_retry": false,
+    "new_writer": false,
+    "catalogue_guard_weakened": false
+  },
+  "local_verification": {
+    "focused_tests": "PASS 86/86",
+    "project_guardian_before_documentation": "PASS",
+    "quick_gate": "PASS",
+    "full_gate": "PASS",
+    "project_guardian_after_documentation": "PASS"
+  },
+  "next_gate": "GREEN_GATES_MERGE_DEPLOY_THEN_ONE_WORKER_DISPATCH_FOR_THE_TWO_EXISTING_QUEUED_REQUESTS_AND_READ_ONLY_RESULT_CHECK",
+  "replay_policy": "DO_NOT_REPLAY_THE_THREE_ALREADY_TERMINAL_REQUESTS",
+  "task_status": "IN_PROGRESS",
+  "ordinary_observation_counter": "0/3"
+}

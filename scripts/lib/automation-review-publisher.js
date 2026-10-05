@@ -149,11 +149,13 @@ function planPublication(manifestInput, activeRowsInput, options = {}) {
   }
   const created = [];
   const refreshed = [];
+  const preserved = [];
   const expired = [];
   const activeByProblem = new Map(activeRows.map((row) => [rowProblemKey(row), row]));
   for (const row of manifest.rows) {
     const existing = activeByProblem.get(rowProblemKey(row));
-    if (existing) refreshed.push({ existing, row });
+    if (existing?.review_status === "APPROVED") preserved.push({ existing, row });
+    else if (existing) refreshed.push({ existing, row });
     else created.push(row);
   }
   const newRowsByOffer = new Map(created.map((row) => [activeProblemKey(row), row]));
@@ -178,13 +180,15 @@ function planPublication(manifestInput, activeRowsInput, options = {}) {
       active_existing: activeRows.length,
       created: created.length,
       refreshed: refreshed.length,
+      preserved: preserved.length,
       expired: expired.length,
       catalogue_writes: 0,
     },
     created,
     refreshed,
+    preserved,
     expired,
-    plan_hash: sha256({ manifest: { retailer_id: manifest.retailer_id, rows: manifest.rows.map(rowProblemKey), observed_offer_ids: manifest.observed_offer_ids }, created: created.map(rowProblemKey), refreshed: refreshed.map((item) => item.existing.id), expired: expired.map((item) => item.existing.id) }),
+    plan_hash: sha256({ manifest: { retailer_id: manifest.retailer_id, rows: manifest.rows.map(rowProblemKey), observed_offer_ids: manifest.observed_offer_ids }, created: created.map(rowProblemKey), refreshed: refreshed.map((item) => item.existing.id), preserved: preserved.map((item) => item.existing.id), expired: expired.map((item) => item.existing.id) }),
   };
 }
 
