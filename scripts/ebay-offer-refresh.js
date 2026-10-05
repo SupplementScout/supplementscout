@@ -9,6 +9,7 @@ const { loadDryRunArtifact, runImportRows, writeDryRunArtifact } = require("./im
 const { executePlan } = require("./ebay-offer-canary-executor");
 const { buildVerifiedNoChangeDryRun } = require("./verified-no-change-offer-refresh");
 const { buildExistingOfferUpdatePlan } = require("./lib/retailer-offer-sync/existing-offer-plan");
+const { canonicalTimestamp } = require("./lib/canonical-timestamp");
 const {
   approvedFromEnv,
   bindSemanticEvidence,
@@ -544,6 +545,19 @@ function initialImporterPlanTargetsExactScope(scope, plan) {
     historyActionIsSafe;
 }
 
+function normalizeApprovedSourceCapturedAt(value, offerId, now = new Date()) {
+  try {
+    const canonical = canonicalTimestamp(value, "approved_source_captured_at");
+    const parsed = new Date(canonical);
+    const normalized = parsed.toISOString();
+    if (canonicalTimestamp(normalized, "approved_source_captured_at") !== canonical) throw new Error("sub-millisecond precision is unsupported");
+    if (parsed.getTime() > now.getTime()) throw new Error("timestamp is in the future");
+    return normalized;
+  } catch {
+    fail(`Approved source capture timestamp is invalid for offer ${offerId}`);
+  }
+}
+
 async function buildSource(scope, config, fetchImpl = fetch, tokenOverride = null, sourceFetchOptions = {}) {
   const token = tokenOverride || await getApplicationToken(config, fetchImpl);
   const context = [`contextualLocation=country%3DGB%2Czip%3D${encodeURIComponent(config.postcode)}`];
@@ -581,8 +595,7 @@ async function prepareScope(scope, evaluation, mode, dependencies, stamp, approv
     fail(`Refresh importer blocked offer ${scope.offer_id} outside the isolated identity-conflict contract`);
   }
   if (!initialImporterPlanTargetsExactScope(scope, initialPlan)) fail(`Refresh importer escaped exact scope for offer ${scope.offer_id}`);
-  const capturedAt = approvedSourceCapturedAt || initialPlan.offer?.values?.last_checked_at || new Date().toISOString();
-  if (new Date(capturedAt).toISOString() !== capturedAt || Date.parse(capturedAt) > Date.now()) fail(`Approved source capture timestamp is invalid for offer ${scope.offer_id}`);
+  const capturedAt = normalizeApprovedSourceCapturedAt(approvedSourceCapturedAt || initialPlan.offer?.values?.last_checked_at || new Date().toISOString(), scope.offer_id);
   const snapshotHash = sha256(JSON.stringify({ item_id: evaluation.item_id, gtin: evaluation.returned_gtin, price: evaluation.item_price, shipping: evaluation.uk_shipping, delivered: evaluation.delivered_price, captured_at: capturedAt }));
   if (initialPlan.offer?.action === "noop") {
     const target = JSON.parse(JSON.stringify(initialPlan.expected_state));
@@ -779,4 +792,4 @@ async function run(options, dependencies = {}) {
 async function main(argv = process.argv.slice(2)) { const report = await run(parseArgs(argv)); console.log(JSON.stringify(report)); if (!report.result.startsWith("PASS")) process.exitCode = 2; }
 if (require.main === module) main().catch((error) => { console.error(error.message); process.exitCode = 1; });
 
-module.exports = { CONFIRMATION, KIND, ROLLOUTS, SCOPES, SCOPE, actionForPlan, assertExecutionContext, buildSource, classifyContinuity, initialImporterPlanTargetsExactScope, loadPendingBatch, loadScopes, mappingUpdateIsSerializedNoop, parseArgs, partitionSourceFailures, pendingArtifact, prepareScope, rowFromEvaluation, run, validatePlan, validatePreparedArtifact, writePendingBatch };
+module.exports = { CONFIRMATION, KIND, ROLLOUTS, SCOPES, SCOPE, actionForPlan, assertExecutionContext, buildSource, classifyContinuity, initialImporterPlanTargetsExactScope, loadPendingBatch, loadScopes, mappingUpdateIsSerializedNoop, normalizeApprovedSourceCapturedAt, parseArgs, partitionSourceFailures, pendingArtifact, prepareScope, rowFromEvaluation, run, validatePlan, validatePreparedArtifact, writePendingBatch };

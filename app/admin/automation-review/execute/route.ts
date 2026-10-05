@@ -1,7 +1,8 @@
-import crypto from "node:crypto";
+﻿import crypto from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { requireAdminRoute } from "../../../lib/adminAuth";
-import { resolveReviewAdapter, reviewDispatchConfigured } from "../../../lib/automationReviewAdapters";
+import { dispatchReviewExecution, reviewWorkflowDispatchConfigured } from "../../lib/automationReviewWorkflowDispatch";
+import { resolveReviewAdapter, reviewQueueConfigured } from "../../../lib/automationReviewAdapters";
 import { supabaseAdmin } from "../../../lib/supabaseAdmin";
 
 const ACTOR = "authenticated-admin";
@@ -27,7 +28,7 @@ export async function POST(request: NextRequest) {
   }
   const resolved = resolveReviewAdapter(data.retailer_id, data.operation_type, data.reason_codes);
   if (!resolved.adapter) return new NextResponse(`${resolved.code}: ${resolved.reason}`, { status: 422 });
-  if (!reviewDispatchConfigured()) return new NextResponse("EXECUTION_QUEUE_DISABLED: automatic review execution is disabled.", { status: 503 });
+  if (!reviewQueueConfigured()) return new NextResponse("EXECUTION_QUEUE_DISABLED: automatic review execution is disabled.", { status: 503 });
 
   const { data: previous } = await supabaseAdmin
     .from("automation_review_execution_requests")
@@ -65,5 +66,26 @@ export async function POST(request: NextRequest) {
   });
   const executionRequestId = String(queued?.execution_request_id || "");
   if (queueError || !/^[0-9a-f-]{36}$/.test(executionRequestId)) return new NextResponse("Execution request could not be created; no workflow was dispatched.", { status: 409 });
+  const queuedStatus = String(queued?.status || "");
+  if (queuedStatus && queuedStatus !== "QUEUED") {
+    return NextResponse.redirect(new URL(`/admin/automation-review?status=APPROVED&execution=${executionRequestId}`, request.url), 303);
+  }
+  const queuedIdempotencyKey = String(queued?.idempotency_key || key);
+  if (!reviewWorkflowDispatchConfigured()) {
+    return NextResponse.redirect(new URL(`/admin/automation-review?status=APPROVED&execution=${executionRequestId}`, request.url), 303);
+  }
+  try {
+    await dispatchReviewExecution({
+      adapter: resolved.adapter,
+      reviewItemId: String(data.id),
+      executionRequestId,
+      reviewFingerprint: data.source_row_fingerprint,
+      reviewPlanFingerprint: data.plan_fingerprint,
+      executionIdempotencyKey: queuedIdempotencyKey,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "AUTOMATION_REVIEW_WORKFLOW_DISPATCH_FAILED";
+    return new NextResponse(`Execution request was queued, but GitHub workflow dispatch failed: ${message}`, { status: 503 });
+  }
   return NextResponse.redirect(new URL(`/admin/automation-review?status=APPROVED&execution=${executionRequestId}`, request.url), 303);
 }

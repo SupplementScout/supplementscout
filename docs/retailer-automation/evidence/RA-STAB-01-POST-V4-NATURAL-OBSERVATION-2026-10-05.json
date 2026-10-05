@@ -1,0 +1,184 @@
+{
+  "schema_version": "ra-stab-01-post-v4-natural-observation-v1",
+  "task_id": "RA-STAB-01",
+  "recorded_at": "2026-10-05T05:18:35Z",
+  "result": "POST_MERGE_WATCHDOG_CORRELATED_PRE_MERGE_RETAILER_RUNS_NO_INTERVAL_CREDIT",
+  "production_commit": "f9445779da8e7f0bd0747511d89dbe3f0bf0c77f",
+  "watchdog": {
+    "workflow_run_id": "37235410756",
+    "event": "schedule",
+    "run_attempt": 1,
+    "conclusion": "failure",
+    "created_at": "2026-10-04T21:16:14Z",
+    "completed_at": "2026-10-04T21:18:48Z",
+    "generated_at": "2026-10-04T21:16:35.906Z",
+    "artifact_id": "11315655770",
+    "artifact_name": "automation-reliability-watchdog-37235410756-1",
+    "artifact_digest": "sha256:2cd77b2332982e22ece92866ebd117ec4fd8fdb02b103f8376e6404570734178",
+    "watchdog_json_sha256": "416d7ce76686a2b618f4f0e6c92b25a459c50c6a5927ec6bfbcf3928b5b9e0f9",
+    "retailer_count": 12,
+    "failed_retailer_count": 7,
+    "monitored_retailer_count": 4,
+    "review_retailer_count": 1,
+    "database_error": null,
+    "global_failures": [],
+    "database_writes": 0
+  },
+  "retailers": [
+    {
+      "retailer": "GYM HIGH",
+      "result": "PASS_WITH_MONITORED_BACKLOG",
+      "latest_ordinary_run_id": "37195678308",
+      "latest_ordinary_run_conclusion": "success",
+      "review_rows": null,
+      "offers_older_than_48h": 1,
+      "failure_codes": []
+    },
+    {
+      "retailer": "Whey Okay",
+      "result": "FAIL",
+      "latest_ordinary_run_id": "37189068546",
+      "latest_ordinary_run_conclusion": "failure",
+      "review_rows": 10,
+      "offers_older_than_48h": 291,
+      "failure_codes": [
+        "LATEST_ATTEMPT_NOT_SUCCESSFUL",
+        "LATEST_ORDINARY_ATTEMPT_INCOMPLETE",
+        "DATABASE_OFFERS_OLDER_THAN_48H"
+      ],
+      "read_only_log_classification": "CONTROL_GUARD_REJECTED_ACTIVE_APPROVAL_WORKFLOW_OR_CONFLICTING_SESSION"
+    },
+    {
+      "retailer": "Discount Supplements",
+      "result": "PASS_WITH_MONITORED_BACKLOG",
+      "latest_ordinary_run_id": "37203549965",
+      "latest_ordinary_run_conclusion": "success",
+      "review_rows": 0,
+      "offers_older_than_48h": 47,
+      "failure_codes": []
+    },
+    {
+      "retailer": "Dolphin Fitness",
+      "result": "PASS_WITH_MONITORED_BACKLOG",
+      "latest_ordinary_run_id": "37197794203",
+      "latest_ordinary_run_conclusion": "success",
+      "review_rows": 0,
+      "offers_older_than_48h": 2,
+      "failure_codes": []
+    },
+    {
+      "retailer": "Simply Supplements",
+      "result": "PASS_WITH_REVIEW",
+      "latest_ordinary_run_id": "37197475231",
+      "latest_ordinary_run_conclusion": "success",
+      "review_rows": 1,
+      "offers_older_than_48h": 1,
+      "failure_codes": []
+    },
+    {
+      "retailer": "KIOR Health",
+      "result": "FAIL",
+      "latest_ordinary_run_id": "37205539771",
+      "latest_ordinary_run_conclusion": "failure",
+      "review_rows": 0,
+      "offers_older_than_48h": 0,
+      "failure_codes": [
+        "LATEST_ATTEMPT_NOT_SUCCESSFUL",
+        "LATEST_ORDINARY_ATTEMPT_INCOMPLETE"
+      ],
+      "read_only_log_classification": "READ_ONLY_VALIDATOR_REJECTED_EXACT_OFFER_BATCH"
+    },
+    {
+      "retailer": "Fit House",
+      "result": "FAIL",
+      "latest_ordinary_run_id": "37190094688",
+      "latest_ordinary_run_conclusion": "failure",
+      "latest_ordinary_job_conclusion": "success",
+      "review_rows": 14,
+      "offers_older_than_48h": 286,
+      "failure_codes": [
+        "DATABASE_OFFERS_OLDER_THAN_48H",
+        "MONITORED_BACKLOG_GROWTH"
+      ]
+    },
+    {
+      "retailer": "Jon's Supplements",
+      "result": "FAIL",
+      "latest_ordinary_run_id": "37196435433",
+      "latest_ordinary_run_conclusion": "success",
+      "review_rows": 5,
+      "offers_older_than_48h": 5,
+      "failure_codes": ["MONITORED_BACKLOG_GROWTH"]
+    },
+    {
+      "retailer": "6 Pack Supplements",
+      "result": "FAIL",
+      "latest_ordinary_run_id": "37193013492",
+      "latest_ordinary_run_conclusion": "success",
+      "review_rows": 14,
+      "offers_older_than_48h": 14,
+      "failure_codes": ["MONITORED_BACKLOG_GROWTH"]
+    },
+    {
+      "retailer": "eBay UK",
+      "result": "FAIL",
+      "latest_ordinary_run_id": "37198275993",
+      "latest_ordinary_run_conclusion": "success",
+      "review_rows": 94,
+      "offers_older_than_48h": 92,
+      "failure_codes": ["MONITORED_BACKLOG_GROWTH"]
+    },
+    {
+      "retailer": "Predators Gear",
+      "result": "PASS_WITH_MONITORED_BACKLOG",
+      "latest_ordinary_run_id": null,
+      "latest_ordinary_run_conclusion": null,
+      "review_rows": null,
+      "offers_older_than_48h": 47,
+      "failure_codes": []
+    },
+    {
+      "retailer": "10 Reps",
+      "result": "FAIL",
+      "latest_ordinary_run_id": "37190094688",
+      "latest_ordinary_run_conclusion": "failure",
+      "review_rows": 16,
+      "offers_older_than_48h": 950,
+      "failure_codes": [
+        "CAPTURE_SUCCESS_OLDER_THAN_48H",
+        "APPLY_SUCCESS_OLDER_THAN_48H",
+        "DB_POSTFLIGHT_SUCCESS_OLDER_THAN_48H",
+        "IDEMPOTENCY_SUCCESS_OLDER_THAN_48H",
+        "LATEST_ATTEMPT_NOT_SUCCESSFUL",
+        "LATEST_ORDINARY_ATTEMPT_INCOMPLETE",
+        "DATABASE_OFFERS_OLDER_THAN_48H",
+        "MONITORED_BACKLOG_GROWTH"
+      ],
+      "read_only_log_classification": "DRY_RUN_PASS_WITH_REVIEW_THEN_PROTECTED_APPLY_STOPPED; NO_POSTFLIGHT_OR_IDEMPOTENCY"
+    }
+  ],
+  "separate_gym_high_source_monitor": {
+    "workflow_run_id": "37225692150",
+    "event": "schedule",
+    "conclusion": "failure",
+    "classification": "SOURCE_HTTP_ERROR_AFTER_BOUNDED_RETRIES",
+    "watchdog_treatment": "GYM_HIGH_REMAINED_PASS_WITH_MONITORED_BACKLOG",
+    "interpretation": "This source-monitor incident is not evidence for a retailer-specific catalogue patch."
+  },
+  "ordinary_interval": {
+    "credit": false,
+    "counter_before": "0/3",
+    "counter_after": "0/3",
+    "reason": "The watchdog ran on the merged closeout commit but correlated retailer schedules from before that commit. Seven retailer results were red, so it is not a complete post-closeout ordinary interval."
+  },
+  "authority": {
+    "manual_workflow_dispatches": 0,
+    "retailer_retries": 0,
+    "ra_004_actions": 0,
+    "baseline_widening": 0,
+    "catalogue_writes_by_this_observation": 0,
+    "control_writes_by_this_observation": 0,
+    "review_queue_writes_by_this_observation": 0
+  },
+  "next_gate": "AWAIT_ONE_COMPLETE_NATURAL_RETAILER_CYCLE_AFTER_F9445779_AND_THE_FIRST_LATER_SCHEDULED_WATCHDOG; DO_NOT_DISPATCH_RETRY_WIDEN_BASELINE_OR_RUN_RA_004; IF_A_FRESH_COMPLETE_CYCLE_REMAINS_RED_ONLY_FOR_BACKLOG_GROWTH_USE_THE_EXISTING_REVIEW_QUEUE_OWNER_DECISION_PATH"
+}

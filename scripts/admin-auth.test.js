@@ -1,4 +1,4 @@
-const assert = require("node:assert/strict");
+﻿const assert = require("node:assert/strict");
 const { createHmac } = require("node:crypto");
 const fs = require("fs");
 const Module = require("module");
@@ -808,14 +808,37 @@ test("automation review execute action authenticates and queues work for the pro
   assert.match(source, /\["APPROVED", "FAILED"\]\.includes\(data\.review_status\)/);
   assert.match(source, /Date\.parse\(data\.expires_at\) <= Date\.now\(\)/);
   assert.match(source, /resolveReviewAdapter/);
-  assert.match(source, /reviewDispatchConfigured/);
+  assert.match(source, /reviewQueueConfigured/);
+  assert.match(source, /reviewWorkflowDispatchConfigured/);
   assert.match(source, /queue_automation_review_execution/);
   assert.match(source, /idempotencyKey/);
   assert.match(source, /previous\.database_writes/);
   assert.match(source, /review_status: "APPROVED"/);
   assert.match(source, /execution_mode: "review-queue"/);
-  assert.doesNotMatch(source, /AUTOMATION_REVIEW_GITHUB_TOKEN|api\.github\.com|await fetch\(/);
+  assert.match(source, /queuedStatus !== "QUEUED"/);
+  assert.match(source, /dispatchReviewExecution/);
+  assert.match(source, /if \(!reviewWorkflowDispatchConfigured\(\)\)/);
+  assert.doesNotMatch(source, /api\.github\.com|await fetch\(/);
   assert.doesNotMatch(source, /approve_product_import_plan|apply_approved_product_import_plan/);
+  assert.doesNotMatch(source, /\.from\("(?:products|product_variants|retailer_products|offers|price_history)"\)/);
+});
+
+test("automation review workflow dispatch is token-gated and exactly bound to one review request", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "app", "admin", "lib", "automationReviewWorkflowDispatch.ts"), "utf8");
+  const adapterSource = fs.readFileSync(path.join(process.cwd(), "app", "lib", "automationReviewAdapters.ts"), "utf8");
+  assert.match(source, /AUTOMATION_REVIEW_GITHUB_TOKEN/);
+  assert.match(source, /reviewWorkflowDispatchConfigured/);
+  assert.match(adapterSource, /reviewQueueConfigured/);
+  assert.doesNotMatch(adapterSource, /AUTOMATION_REVIEW_GITHUB_TOKEN/);
+  assert.match(source, /actions\/workflows\/.*dispatches/);
+  assert.match(source, /encodeURIComponent\(options\.adapter\.workflow\)/);
+  assert.match(source, /ref: "main"/);
+  for (const input of ["operation", "execution_mode", "review_item_id", "execution_request_id", "retailer", "review_fingerprint", "review_plan_fingerprint", "execution_idempotency_key"]) assert.match(source, new RegExp(input));
+  assert.match(source, /operation: "apply"/);
+  assert.match(source, /execution_mode: "review-queue"/);
+  assert.match(source, /options\.adapter\.retailerSlug/);
+  assert.match(source, /response\.status !== 204/);
+  assert.doesNotMatch(source, /supabaseAdmin|queue_automation_review_execution|approve_product_import_plan|apply_approved_product_import_plan/);
   assert.doesNotMatch(source, /\.from\("(?:products|product_variants|retailer_products|offers|price_history)"\)/);
 });
 
@@ -901,7 +924,9 @@ test("Review Queue eBay worker is workflow-bound, revalidates evidence and forbi
   assert.throws(() => parseArgs(args.map((value) => value.startsWith("--execution-request-id=") ? "--execution-request-id=bad" : value)), /EXECUTION_REQUEST_ID_INVALID/);
   assert.throws(() => assertContext({}), /WORKER_CONTEXT_INVALID/);
   assert.doesNotThrow(() => assertContext({ GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", SUPABASE_SERVICE_ROLE_KEY: "x", NEXT_PUBLIC_SUPABASE_URL: "https://example.test", EBAY_CANARY_APPROVER_DATABASE_URL: "x", EBAY_CANARY_EXECUTOR_DATABASE_URL: "x", EBAY_REFRESH_VALIDATOR_DATABASE_URL: "x" }));
-  assert.match(source, /request\.status === "DISPATCHED"/);
+  assert.match(source, /claimDispatched/);
+  assert.match(source, /request\.status === "QUEUED"/);
+  assert.match(source, /WORKFLOW_DISPATCH_CLAIMED/);
   assert.match(source, /review\.review_status === "APPROVED"/);
   assert.match(source, /event\.source_row_fingerprint === review\.source_row_fingerprint/);
   assert.match(source, /event\.plan_fingerprint === review\.plan_fingerprint/);
@@ -914,6 +939,43 @@ test("Review Queue eBay worker is workflow-bound, revalidates evidence and forbi
   assert.match(source, /actionForPlan\(fresh\.approved\.entry\.resolved_plan\) === "VERIFY_NO_CHANGE"/);
   assert.match(source, /price_history_delta/);
   assert.doesNotMatch(source, /\b(?:insert into|update|delete from)\s+(?:public\.)?(?:products|product_variants|retailer_products|offers|price_history)\b/i);
+});
+
+test("Review Queue eBay worker claims a queued direct dispatch only after the workflow starts", async () => {
+  const { claimDispatched } = require("./automation-review-ebay-worker");
+  const previous = {
+    GITHUB_RUN_ID: process.env.GITHUB_RUN_ID,
+    GITHUB_SERVER_URL: process.env.GITHUB_SERVER_URL,
+    GITHUB_REPOSITORY: process.env.GITHUB_REPOSITORY,
+    GITHUB_SHA: process.env.GITHUB_SHA,
+    GITHUB_ACTOR: process.env.GITHUB_ACTOR,
+  };
+  process.env.GITHUB_RUN_ID = "12345";
+  process.env.GITHUB_SERVER_URL = "https://github.com";
+  process.env.GITHUB_REPOSITORY = "SupplementScout/supplementscout";
+  process.env.GITHUB_SHA = "a".repeat(40);
+  process.env.GITHUB_ACTOR = "review-worker";
+  try {
+    const calls = [];
+    const db = { rpc: async (name, args) => { calls.push({ name, args }); return { data: { status: args.p_new_status }, error: null }; } };
+    const request = { id: "11111111-1111-4111-8111-111111111111", status: "QUEUED" };
+    const claimed = await claimDispatched(db, request, { executionRequestId: request.id });
+    assert.equal(claimed.status, "DISPATCHED");
+    assert.equal(calls[0].name, "record_automation_review_execution_checkpoint");
+    assert.equal(calls[0].args.p_new_status, "DISPATCHED");
+    assert.equal(calls[0].args.p_checkpoint, "WORKFLOW_DISPATCH_CLAIMED");
+    assert.equal(calls[0].args.p_evidence.run_id, "12345");
+    assert.equal(calls[0].args.p_evidence.database_writes, 0);
+    const alreadyDispatched = await claimDispatched(db, { ...request, status: "DISPATCHED" }, { executionRequestId: request.id });
+    assert.equal(alreadyDispatched.status, "DISPATCHED");
+    assert.equal(calls.length, 1);
+    await assert.rejects(() => claimDispatched(db, { ...request, status: "EXECUTING" }, { executionRequestId: request.id }), /EXECUTION_REQUEST_BINDING_DRIFT/);
+  } finally {
+    for (const [key, value] of Object.entries(previous)) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  }
 });
 
 test("Review Queue eBay worker derives exact single-row commercial postflight deltas", () => {
@@ -954,6 +1016,15 @@ test("Review Queue stale-state hashing canonicalizes equivalent timestamps witho
     hash({ offer: { last_checked_at: "2026-08-30T14:11:22.619Z" }, source_captured_at: "2026-08-30T15:11:23+01:00" }),
   );
   assert.notEqual(hash({ last_checked_at: "2026-08-30T14:11:22.619001Z" }), hash({ last_checked_at: "2026-08-30T14:11:22.619000Z" }));
+});
+
+test("eBay Review Queue execution accepts database UTC-offset source capture timestamps", () => {
+  const { normalizeApprovedSourceCapturedAt } = require("./ebay-offer-refresh");
+  const now = new Date("2026-10-05T00:00:00.000Z");
+  assert.equal(normalizeApprovedSourceCapturedAt("2026-10-04T11:27:18.176+00:00", "2687", now), "2026-10-04T11:27:18.176Z");
+  assert.equal(normalizeApprovedSourceCapturedAt("2026-10-04T12:27:18+01:00", "2687", now), "2026-10-04T11:27:18.000Z");
+  assert.throws(() => normalizeApprovedSourceCapturedAt("2026-10-06T00:00:00.000Z", "2687", now), /Approved source capture timestamp is invalid for offer 2687/);
+  assert.throws(() => normalizeApprovedSourceCapturedAt("2026-10-04T11:27:18.176123+00:00", "2687", now), /Approved source capture timestamp is invalid for offer 2687/);
 });
 
 test("eBay workflow isolates Review Queue dispatch payload and protected credentials", () => {

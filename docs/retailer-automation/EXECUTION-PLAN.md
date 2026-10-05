@@ -1144,6 +1144,23 @@ counter `0/3`. Evidence:
 [`evidence/RA-STAB-01-10REPS-CENTRAL-READBACK-V4-CLOSEOUT-2026-10-04.json`](evidence/RA-STAB-01-10REPS-CENTRAL-READBACK-V4-CLOSEOUT-2026-10-04.json) and
 [`evidence/RA-STAB-01-REVIEW-QUEUE-UX-SIMPLIFICATION-2026-10-03.json`](evidence/RA-STAB-01-REVIEW-QUEUE-UX-SIMPLIFICATION-2026-10-03.json).
 
+**5 October first natural observation after the V4 closeout — no dispatch and
+no interval credit:** scheduled watchdog `37235410756` ran on merged commit
+`f9445779`, made zero database writes and had no database or global failure.
+It still correlated retailer schedules from before that merge. Seven retailer
+results were red: Whey Okay and KIOR ended incomplete; Fit House, Jon's,
+6 Pack and eBay exceeded their monitored backlog contracts; and 10 Reps had an
+incomplete latest attempt plus stale execution evidence and backlog growth.
+The separate GYM HIGH source monitor failed closed on a bounded source HTTP
+error, while the watchdog still classified the catalogue path as
+`PASS_WITH_MONITORED_BACKLOG`; no retailer-specific patch follows from it.
+This observation used no retry, RA-004 action, baseline widening, catalogue,
+control or Review Queue write. Counter remains `0/3`. The next gate is one
+complete natural retailer cycle after `f9445779` and the first later scheduled
+watchdog. If that fresh cycle is red only for backlog growth, use the existing
+owner-decision Review Queue path; do not change the baseline. Evidence:
+[`evidence/RA-STAB-01-POST-V4-NATURAL-OBSERVATION-2026-10-05.json`](evidence/RA-STAB-01-POST-V4-NATURAL-OBSERVATION-2026-10-05.json).
+
 **5 October shared expired-plan recovery consolidation — locally verified,
 deployment pending:** the next natural shared refresh, run `37291179712`, read
 all 950 approved 10 Reps mappings and classified 933 freshness confirmations,
