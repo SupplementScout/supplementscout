@@ -18,7 +18,9 @@ function recoverableSnapshot() {
     parent_plan_id: "06ae81b7-4cc1-42b5-af6a-92bfd17e6dfa",
     parent_plan_fingerprint: "a".repeat(64),
     parent_status: "APPROVED",
+    parent_approval_id: "00000000-0000-4000-8000-000000000001",
     parent_approval_expires_at: expired,
+    parent_approval_consumed_at: null,
     children: [
       {
         batch_index: 0,
@@ -40,12 +42,16 @@ function recoverableSnapshot() {
       },
     ],
     approval: {
-      approval_id: "11111111-1111-4111-8111-111111111111",
+      approval_id: "22222222-2222-4222-8222-222222222222",
       child_plan_id: "f5d476e6-7eea-40f1-a7d8-8b9d0a7ad23d",
       artifact_fingerprint: "b".repeat(64),
       execution_fingerprint: "d".repeat(64),
       expected_migration_fingerprint: "e".repeat(64),
       expires_at: expired,
+      target_environment: "PRODUCTION",
+      project_ref: "aftboxmrdgyhizicfsfu",
+      database_identity: "supplementscout-production:aftboxmrdgyhizicfsfu",
+      manifest_matches_child: true,
       consumed_at: null,
       closed_at: null,
       result: null,
@@ -85,6 +91,7 @@ test("shared recovery accepts only an expired wholly unexecuted sequential tree"
   const snapshot = recoverableSnapshot();
   const approved = validateRecoverable(snapshot, recoveryOptions, recoveryNow);
   assert.equal(approved.batch_index, 0);
+  assert.notEqual(snapshot.approval.approval_id, approved.approval_id);
   const preflight = buildPreflight(snapshot, recoveryOptions, recoveryNow);
   assert.equal(validatePreflight(preflight, recoveryOptions, recoveryNow).result, "READY_TO_CLOSE");
   const request = closeRequest(snapshot, recoveryNow);

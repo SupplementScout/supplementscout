@@ -112,6 +112,7 @@ function validateRecoverable(snapshot, expected, now = new Date()) {
   invariant(snapshot.parent_plan_id === expected.parentPlanId, "parent plan binding drifted");
   invariant(snapshot.parent_status === "APPROVED", "parent plan is not APPROVED");
   invariant(HEX64.test(snapshot.parent_plan_fingerprint), "parent fingerprint is invalid");
+  invariant(UUID.test(snapshot.parent_approval_id) && !snapshot.parent_approval_consumed_at, "parent approval binding is incomplete or consumed");
   invariant(Date.parse(snapshot.parent_approval_expires_at) <= now.getTime(), "parent approval has not expired");
   invariant(snapshot.children.length === expected.expectedChildCount, "child count drifted");
   invariant(snapshot.children.every((child, index) => child.batch_index === index), "child batch indexes are not complete and ordered");
@@ -122,10 +123,16 @@ function validateRecoverable(snapshot, expected, now = new Date()) {
   invariant(approved.length === 1 && planned.length === snapshot.children.length - 1, "plan is not one expired approved child plus planned remainder");
   invariant(snapshot.children.every((child) => ["APPROVED", "PLANNED"].includes(child.status)), "unexpected child state");
   invariant(planned.every((child) => !child.approval_id && !child.approval_expires_at && !child.approval_consumed_at), "planned child contains approval state");
-  invariant(approved[0].approval_id && approved[0].approval_expires_at && !approved[0].approval_consumed_at, "approved child binding is incomplete or consumed");
+  invariant(UUID.test(approved[0].approval_id || "") && approved[0].approval_expires_at && !approved[0].approval_consumed_at, "approved child binding is incomplete or consumed");
   invariant(Date.parse(approved[0].approval_expires_at) <= now.getTime(), "child approval has not expired");
-  invariant(snapshot.approval && snapshot.approval.approval_id === approved[0].approval_id, "batch approval does not bind approved child");
+  invariant(snapshot.approval && UUID.test(snapshot.approval.approval_id || ""), "batch approval binding is incomplete");
   invariant(snapshot.approval.child_plan_id === approved[0].child_plan_id, "batch approval child mismatch");
+  invariant(snapshot.approval.expires_at === approved[0].approval_expires_at, "batch and child approval expiry mismatch");
+  invariant(Date.parse(snapshot.parent_approval_expires_at) >= Date.parse(snapshot.approval.expires_at), "parent approval expires before batch approval");
+  invariant(snapshot.approval.target_environment === "PRODUCTION"
+    && snapshot.approval.project_ref === PRODUCTION.projectRef
+    && snapshot.approval.database_identity === PRODUCTION.databaseIdentity, "batch approval target mismatch");
+  invariant(snapshot.approval.manifest_matches_child === true, "batch approval manifest does not bind approved child");
   invariant(!snapshot.approval.consumed_at && !snapshot.approval.closed_at && !snapshot.approval.result, "batch approval is consumed, closed or executed");
   invariant(Date.parse(snapshot.approval.expires_at) <= now.getTime(), "batch approval has not expired");
   for (const key of ["artifact_fingerprint", "execution_fingerprint", "expected_migration_fingerprint"])
@@ -149,7 +156,8 @@ async function readSnapshot(options, dependencies) {
     const counts = await catalogueCounts(client);
     const rows = (await client.query(`
       select p.id::text parent_plan_id,p.parent_plan_fingerprint,p.retailer_id::text retailer_id,
-             p.status parent_status,p.approval_expires_at parent_approval_expires_at,
+             p.status parent_status,p.approval_id::text parent_approval_id,
+             p.approval_expires_at parent_approval_expires_at,p.approval_consumed_at parent_approval_consumed_at,
              c.batch_index,c.id::text child_plan_id,c.child_plan_fingerprint,c.status child_status,
              c.approval_id::text child_approval_id,c.approval_expires_at child_approval_expires_at,
              c.approval_consumed_at child_approval_consumed_at
@@ -162,6 +170,8 @@ async function readSnapshot(options, dependencies) {
     const approvals = (await client.query(`
       select a.id::text approval_id,a.child_plan_id::text child_plan_id,a.artifact_fingerprint,
              a.execution_fingerprint,a.expected_migration_fingerprint,a.expires_at,
+             a.target_environment,a.project_ref,a.database_identity,
+             (a.approved_manifest is not distinct from c.plan_json) manifest_matches_child,
              a.consumed_at,a.closed_at,a.result
       from public.retailer_offer_sync_batch_approvals a
       join public.retailer_catalogue_child_plans c on c.id=a.child_plan_id
@@ -190,7 +200,9 @@ async function readSnapshot(options, dependencies) {
       parent_plan_id: String(first.parent_plan_id),
       parent_plan_fingerprint: String(first.parent_plan_fingerprint),
       parent_status: String(first.parent_status),
+      parent_approval_id: first.parent_approval_id ? String(first.parent_approval_id) : null,
       parent_approval_expires_at: new Date(first.parent_approval_expires_at).toISOString(),
+      parent_approval_consumed_at: first.parent_approval_consumed_at ? new Date(first.parent_approval_consumed_at).toISOString() : null,
       children: rows.map(normalizeChild),
       approval: {
         ...approvals[0],
