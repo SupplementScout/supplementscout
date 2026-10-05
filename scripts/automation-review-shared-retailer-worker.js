@@ -129,7 +129,7 @@ async function run(options, dependencies = {}) {
     databaseWrites = rows.length;
     const results = await withoutControlCredential(async () => {
       const request = engine.registrationRequest(runPlan);
-      const registered = await engine.register(runPlan, request);
+      await engine.register(runPlan, request);
       await engine.prepareSequentialParentApproval(runPlan, request);
       return engine.approveAndExecute(runPlan, request, validations);
     }, env);

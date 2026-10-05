@@ -363,7 +363,7 @@ test("CLI parser requires immutable source binding inputs", () => {
 
 test("workflow exposes a dry-run-only Review Queue reconciliation path", () => {
   const workflow = fs.readFileSync(path.join(process.cwd(), ".github/workflows/ebay-offer-refresh.yml"), "utf8");
-  assert.match(workflow, /options: \[catalogue-refresh, review-queue, review-queue-reconciliation\]/);
+  assert.match(workflow, /options: \[catalogue-refresh, review-queue-reconciliation\]/);
   assert.match(workflow, /inputs\.operation == 'dry-run' && inputs\.execution_mode == 'review-queue-reconciliation'/);
   assert.match(workflow, /automation-review-reconciliation-dry-run\.js/);
   assert.match(workflow, /--download-source-artifact/);
