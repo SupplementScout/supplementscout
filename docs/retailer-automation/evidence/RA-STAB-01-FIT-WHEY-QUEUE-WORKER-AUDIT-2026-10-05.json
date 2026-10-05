@@ -1,0 +1,84 @@
+{
+  "schema_version": "ra-stab-01-fit-whey-queue-worker-audit-v1",
+  "task_id": "RA-STAB-01",
+  "recorded_at": "2026-10-05T18:03:11.4887754Z",
+  "release": {
+    "pull_request": 222,
+    "merge_commit": "007837d70fe9c94f7742f3ff24e8a5e9bf06efe1",
+    "main_quality_gate_run": 37350767178,
+    "main_quality_gate_result": "PASS",
+    "production_deployment_result": "PASS"
+  },
+  "fit_house": {
+    "run_id": 37351120017,
+    "result": "PASS",
+    "business_result": "PASS_WITH_REVIEW",
+    "approved_scope": 286,
+    "executed_freshness_only": 272,
+    "review_stock_rows": 14,
+    "postflight_result": "PASS",
+    "idempotency_result": "PASS",
+    "commercial_change_count": 0,
+    "catalogue_change_count": 0,
+    "source_contract_result": "PASS",
+    "source_artifact_id": 11362029820,
+    "source_artifact_digest": "6417d15cfd07b046e66cfa54b42c6909285765f371508fe27b24c428c75df364",
+    "queue_result": "PASS",
+    "queue_operations": {
+      "create": 3,
+      "refresh": 11,
+      "supersede": 0,
+      "resolve_by_source": 0
+    },
+    "queue_catalogue_writes": 0,
+    "queue_artifact_id": 11362991123,
+    "queue_artifact_digest": "4fb014c75fff257e00521e6c88bacb23507d7362003ad08a6b2fe5d5d09bdc20"
+  },
+  "whey_okay": {
+    "latest_complete_run_id": 37345068386,
+    "result": "PASS_WITH_REVIEW",
+    "executed_freshness_only": 579,
+    "review_rows": 10,
+    "natural_interval_replaced": false
+  },
+  "watchdog": {
+    "run_id": 37351958480,
+    "result": "FAIL",
+    "database_writes": 0,
+    "artifact_id": 11362438730,
+    "artifact_digest": "1cd51bd58b7e89f6d2907d99ae3ac295a2b89731ee8fe19cf81d1cb31b2cb4e7",
+    "fit_house_result": "PASS_WITH_REVIEW",
+    "whey_okay_failure": "LATEST_ORDINARY_ATTEMPT_INCOMPLETE",
+    "other_failed_retailers": [
+      "Jon's Supplements",
+      "6 Pack Supplements",
+      "eBay UK",
+      "10 Reps"
+    ]
+  },
+  "owner_decision_worker": {
+    "run_id": 37352438800,
+    "result": "FAIL_CLOSED",
+    "queued_request_count": 5,
+    "reported_error": "QUEUE_WORKER_BATCH_FAILED:5",
+    "usable_per_request_failure_evidence": false,
+    "artifact_id": 11362499646,
+    "artifact_digest": "69c12b5fd54abfcceb8c8f8c9a9db178fa2edcd37e3af503a7abf8c3ed2da9bb",
+    "artifact_contamination": "PRE_PRODUCTION_TEST_FIXTURES"
+  },
+  "correction": {
+    "existing_worker_reused": true,
+    "existing_owner_audit_reused": true,
+    "new_execution_capability": false,
+    "new_approval_path": false,
+    "new_catalogue_writer": false,
+    "automatic_retry_added": false,
+    "test_evidence_removed_before_production_step": true,
+    "redacted_batch_report_persisted": true,
+    "owner_decision_audit_select_only": true,
+    "focused_admin_tests": "PASS 51/51"
+  },
+  "next_gate": "GREEN_CI_MERGE_THEN_ONE_WORKER_DISPATCH_AND_EXACT_FIVE_REQUEST_READBACK",
+  "task_status": "IN_PROGRESS",
+  "ordinary_observation_counter": "0/3"
+}

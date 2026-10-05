@@ -841,7 +841,7 @@ test("automation review workflow dispatch is token-gated and exactly bound to on
 });
 
 test("Automation Review Queue scheduled worker processes the oldest bounded queue batch", async () => {
-  const { assertContext, run } = require("./automation-review-queue-worker");
+  const { assertContext, run, safeErrorCode } = require("./automation-review-queue-worker");
   const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_SERVER_URL: "https://github.com", GITHUB_RUN_ID: "123", GITHUB_SHA: "a".repeat(40), NEXT_PUBLIC_SUPABASE_URL: "https://example.test", SUPABASE_SERVICE_ROLE_KEY: "control" };
   assert.doesNotThrow(() => assertContext(env));
   assert.throws(() => assertContext({ ...env, GITHUB_REF: "refs/heads/other" }), /QUEUE_WORKER_REPOSITORY_INVALID/);
@@ -849,11 +849,22 @@ test("Automation Review Queue scheduled worker processes the oldest bounded queu
   const checkpoints = [], calls = [];
   const query = { select: () => query, eq: () => query, order: () => query, limit: async () => ({ data: [request], error: null }) };
   const db = { from: () => query, rpc: async (_name, args) => { checkpoints.push(args); return { data: { status: args.p_new_status }, error: null }; } };
-  const result = await run({ env, client: db, runEbay: async (options) => { calls.push(options); return { result: "PASS", database_writes: 1 }; } });
+  const reports = [];
+  const result = await run({ env, client: db, persistReport: (report) => reports.push(report), runEbay: async (options) => { calls.push(options); return { result: "PASS", database_writes: 1 }; } });
   assert.equal(result.processed, 1);
+  assert.equal(reports.length, 1);
+  assert.deepEqual(reports[0], result);
   assert.equal(checkpoints.length, 0);
   assert.equal(calls[0].reviewItemId, "946");
   assert.equal(calls[0].executionRequestId, request.id);
+  await assert.rejects(
+    () => run({ env, client: db, persistReport: (report) => reports.push(report), runEbay: async () => { const error = new Error("unsafe upstream detail"); throw error; } }),
+    (error) => error.message === "QUEUE_WORKER_BATCH_FAILED:1" && error.report.failed[0].error_code === "QUEUE_WORKER_REQUEST_FAILED",
+  );
+  assert.equal(reports.length, 2);
+  assert.equal(reports[1].failed[0].retailer_slug, "ebay-uk");
+  assert.equal(reports[1].failed[0].review_id, "946");
+  assert.equal(safeErrorCode({ code: "REVIEW_EVIDENCE_EXPIRED" }), "REVIEW_EVIDENCE_EXPIRED");
 });
 
 test("Automation Review Queue refresh publishes only a same-run zero-catalogue-write request", () => {
@@ -1026,6 +1037,10 @@ test("owner decision audit is bounded, SELECT-only, and starts from immutable ad
   assert.equal(result.anomalies.length, 0);
   assert.equal(result.summaries[0].outcome, "EXECUTED");
   assert.equal(result.summaries[0].github_artifact_verification_required, true);
+  const workflow = fs.readFileSync(path.join(process.cwd(), ".github", "workflows", "automation-review-queue-worker.yml"), "utf8");
+  assert.match(workflow, /Remove test-only execution evidence/);
+  assert.match(workflow, /automation-review-owner-decision-audit\.js/);
+  assert.match(workflow, /continue-on-error: true/);
 });
 
 test("Fit House Review Queue worker reuses the shared engine for one decision plus confirmations", () => {

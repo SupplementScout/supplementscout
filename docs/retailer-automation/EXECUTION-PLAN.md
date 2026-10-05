@@ -1338,6 +1338,35 @@ do not increment the ordinary counter; RA-STAB-01 remains `IN_PROGRESS` at
 `0/3`. Evidence:
 [`evidence/RA-STAB-01-FIT-HOUSE-REVIEW-BIND-PREPARATION-2026-10-05.json`](evidence/RA-STAB-01-FIT-HOUSE-REVIEW-BIND-PREPARATION-2026-10-05.json).
 
+**5 October Fit House production closeout and owner-decision worker evidence
+repair:** PR `#222` merged the source-contract correction as
+`007837d70fe9c94f7742f3ff24e8a5e9bf06efe1`; main quality gate run
+`37350767178` and production deployment passed. Fit House run `37351120017`
+then completed end to end: 272 freshness-only confirmations executed, the exact
+14 stock changes remained in review, postflight and idempotency passed with zero
+commercial/catalogue change, source binding passed, and the shared publisher
+applied 14 queue operations (`CREATE 3`, `REFRESH 11`) with zero catalogue
+writes. This is manual evidence and does not increment the `0/3` ordinary
+counter. Read-only watchdog `37351958480` correctly reports Fit House as
+`PASS_WITH_REVIEW`; its global red result comes from the prior failed natural
+Whey Okay interval plus the recorded Jon's, 6 Pack, eBay and 10 Reps backlog,
+not from this Fit House run. The successful manual Whey Okay run
+`37345068386` remains the latest complete execution but deliberately does not
+replace the failed natural interval.
+
+The owner-requested queue follow-up exposed five newly queued requests. Worker
+run `37352438800` failed closed before usable per-request evidence: it emitted
+only aggregate `QUEUE_WORKER_BATCH_FAILED:5`, while the uploaded files were
+test fixtures left by the pre-production test step. The bounded correction
+keeps the one existing worker and adapters, clears only runner-local test
+evidence before production processing, persists one redacted batch report with
+request/retailer/review identifiers and stable error codes, and runs the
+existing SELECT-only owner-decision audit into the same evidence artifact. It
+adds no execution capability, retry, approval path or catalogue writer. The
+next gate is green CI/merge, followed by one worker dispatch to classify and
+resolve the exact five requests from real production evidence. Evidence:
+[`evidence/RA-STAB-01-FIT-WHEY-QUEUE-WORKER-AUDIT-2026-10-05.json`](evidence/RA-STAB-01-FIT-WHEY-QUEUE-WORKER-AUDIT-2026-10-05.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

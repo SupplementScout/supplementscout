@@ -1,3 +1,5 @@
+const fs = require("node:fs");
+const path = require("node:path");
 const { createClient } = require("@supabase/supabase-js");
 const { run: runEbay } = require("./automation-review-ebay-worker");
 const { run: runSharedRetailer } = require("./automation-review-shared-retailer-worker");
@@ -6,6 +8,7 @@ const WORKERS = Object.freeze({
   "ebay-uk": Object.freeze({ workflow: "automation-review-queue-worker.yml", run: runEbay }),
   "fit-house": Object.freeze({ workflow: "automation-review-queue-worker.yml", run: runSharedRetailer }),
 });
+const REPORT_DIRECTORY = path.resolve(__dirname, "..", "tmp", "automation-review-execution");
 
 function invariant(condition, code) {
   if (!condition) { const error = new Error(code); error.code = code; throw error; }
@@ -22,6 +25,19 @@ function client(env = process.env) {
   return createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
 }
 
+function safeErrorCode(error) {
+  const value = String(error?.code || error?.message || "QUEUE_WORKER_REQUEST_FAILED");
+  return /^[A-Z0-9_:.-]{1,120}$/.test(value) ? value : "QUEUE_WORKER_REQUEST_FAILED";
+}
+
+function persistReport(report, env = process.env) {
+  const runId = /^[1-9][0-9]*$/.test(String(env.GITHUB_RUN_ID || "")) ? String(env.GITHUB_RUN_ID) : "local";
+  fs.mkdirSync(REPORT_DIRECTORY, { recursive: true });
+  const output = path.join(REPORT_DIRECTORY, `queue-worker-${runId}-batch.json`);
+  fs.writeFileSync(output, `${JSON.stringify(report, null, 2)}\n`, { flag: "wx" });
+  return output;
+}
+
 async function run(dependencies = {}) {
   const env = dependencies.env || process.env;
   assertContext(env);
@@ -33,7 +49,12 @@ async function run(dependencies = {}) {
     .order("requested_at", { ascending: true })
     .limit(5);
   invariant(!error, "QUEUE_WORKER_READ_FAILED");
-  if (!data?.length) return { result: "PASS", processed: 0, database_writes: 0 };
+  const saveReport = dependencies.persistReport || ((report) => persistReport(report, env));
+  if (!data?.length) {
+    const output = { result: "PASS", processed: 0, completed: [], failed: [], database_writes: 0 };
+    saveReport(output);
+    return output;
+  }
   const completed = [], failed = [];
   for (const request of data) {
     try {
@@ -43,14 +64,15 @@ async function run(dependencies = {}) {
       const result = await worker({ reviewItemId: String(request.review_id), executionRequestId: request.id, retailer: request.retailer_slug, reviewFingerprint: request.review_fingerprint, reviewPlanFingerprint: request.plan_fingerprint, executionIdempotencyKey: request.idempotency_key, mode: "review-queue" }, { ...dependencies, client: db, env });
       completed.push({ execution_request_id: request.id, worker_result: result.result, database_writes: result.database_writes });
     } catch (error) {
-      failed.push({ execution_request_id: request.id, error_code: error.code || error.message });
+      failed.push({ execution_request_id: request.id, retailer_slug: request.retailer_slug, review_id: String(request.review_id), error_code: safeErrorCode(error) });
     }
   }
   const output = { result: failed.length ? "FAIL" : "PASS", processed: data.length, completed, failed, database_writes: completed.reduce((sum, row) => sum + Number(row.database_writes || 0), 0) };
+  saveReport(output);
   if (failed.length) { const error = new Error(`QUEUE_WORKER_BATCH_FAILED:${failed.length}`); error.report = output; throw error; }
   return output;
 }
 
-if (require.main === module) run().then((result) => console.log(JSON.stringify(result))).catch((error) => { console.error(error.stack || error.message); process.exitCode = 1; });
+if (require.main === module) run().then((result) => console.log(JSON.stringify(result))).catch((error) => { if (error.report) console.error(JSON.stringify(error.report)); console.error(error.stack || error.message); process.exitCode = 1; });
 
-module.exports = { WORKERS, assertContext, run };
+module.exports = { WORKERS, assertContext, persistReport, run, safeErrorCode };
