@@ -57,7 +57,46 @@
     "full_gate": "PASS",
     "project_guardian_after_documentation": "PASS"
   },
-  "next_gate": "GREEN_GATES_MERGE_DEPLOY_THEN_ONE_WORKER_DISPATCH_FOR_THE_TWO_EXISTING_QUEUED_REQUESTS_AND_READ_ONLY_RESULT_CHECK",
+  "deployment": {
+    "pull_request": 224,
+    "merge_commit": "9a09f32ffdc3743fd00f3cb8614ce3554184f14c",
+    "main_quality_gate_run": 37355848287,
+    "main_project_guardian_run": 37355848311,
+    "production_deployment_id": 6866800222,
+    "result": "PASS"
+  },
+  "post_deployment_worker": {
+    "run_id": 37356216755,
+    "result": "PASS_NO_WORK",
+    "processed": 0,
+    "database_writes": 0,
+    "reason": "PRIOR_FAILED_ATTEMPTS_HAD_ALREADY_EXPIRED_THE_TWO_REMAINING_REQUESTS",
+    "artifact_id": 11364657523
+  },
+  "fresh_fit_house_run": {
+    "run_id": 37356399740,
+    "result": "PASS_WITH_REVIEW",
+    "approved_mapping_count": 286,
+    "executed_freshness_only": 272,
+    "review_row_count": 14,
+    "blocked_row_count": 0,
+    "commercial_change_count": 0,
+    "catalogue_change_count": 0,
+    "price_history_delta": 0,
+    "postflight_result": "PASS",
+    "idempotency_result": "PASS",
+    "source_artifact_id": 11364917246,
+    "source_artifact_digest": "5d51f4db46a515992641c77455c56b87debf5f0abed7856cd0f38991d45def70",
+    "queue_artifact_id": 11364698582,
+    "queue_artifact_digest": "5d77ab51bc2170c236857219891373dbbe7595d5ec5c350c078065efce1b4562",
+    "queue_operations": {
+      "create": 7,
+      "refresh": 7,
+      "catalogue_writes": 0
+    },
+    "fresh_owner_decision_required_offer_ids": [697, 735, 921, 944, 1904, 1938, 1982]
+  },
+  "next_gate": "OWNER_REVIEWS_THE_SEVEN_FRESH_REPLACEMENT_CARDS_THEN_EXISTING_WORKER_EXECUTES_ONLY_EXPLICITLY_APPROVED_ROWS",
   "replay_policy": "DO_NOT_REPLAY_THE_THREE_ALREADY_TERMINAL_REQUESTS",
   "task_status": "IN_PROGRESS",
   "ordinary_observation_counter": "0/3"

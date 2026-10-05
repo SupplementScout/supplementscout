@@ -1393,6 +1393,24 @@ requests followed by a read-only result check. The three earlier requests that
 are already terminal are not replayed. Evidence:
 [`evidence/RA-STAB-01-APPROVED-REVIEW-EVIDENCE-FREEZE-2026-10-05.json`](evidence/RA-STAB-01-APPROVED-REVIEW-EVIDENCE-FREEZE-2026-10-05.json).
 
+**Production closeout:** PR `#224` merged as
+`9a09f32ffdc3743fd00f3cb8614ce3554184f14c`; main quality gate
+`37355848287`, Project Guardian `37355848311` and production deployment
+`6866800222` passed. The first post-deployment worker run `37356216755`
+processed zero rows because the prior failed attempts had already moved the two
+remaining requests to their terminal `EXPIRED` state; it made zero database
+writes and did not replay them. A fresh Fit House run `37356399740` then passed
+the full protected path: `286` approved mappings, `272` freshness-only
+executions, `14` review rows, zero commercial/catalogue/history deltas,
+postflight and idempotency `PASS`. Its queue publication created seven fresh
+pending cards for offers `697`, `735`, `921`, `944`, `1904`, `1938` and `1982`
+and refreshed seven already-pending cards, for `14` active review cards and zero
+catalogue writes. The seven former approvals cannot be transferred to new
+review IDs; those exact cards require a new owner decision. Future exact
+approved cards are now preserved by the shared publisher. This owner-requested
+manual run does not increment the ordinary observation counter; RA-STAB-01
+remains `IN_PROGRESS` at `0/3`.
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
