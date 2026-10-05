@@ -44,6 +44,16 @@ async function checkpoint(client, requestId, status, name, evidence = {}) {
   const { data, error } = await client.rpc("record_automation_review_execution_checkpoint", { p_execution_request_id: requestId, p_actor: `github-actions:${process.env.GITHUB_ACTOR || "unknown"}`, p_new_status: status, p_checkpoint: name, p_evidence: evidence });
   invariant(!error && data, "EXECUTION_CHECKPOINT_FAILED"); return data;
 }
+async function claimDispatched(client, request, options) {
+  if (request.status === "DISPATCHED") return request;
+  invariant(request.status === "QUEUED", "EXECUTION_REQUEST_BINDING_DRIFT");
+  return checkpoint(client, options.executionRequestId, "DISPATCHED", "WORKFLOW_DISPATCH_CLAIMED", {
+    run_id: String(process.env.GITHUB_RUN_ID),
+    run_url: `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
+    commit_sha: process.env.GITHUB_SHA,
+    database_writes: 0,
+  });
+}
 async function loadControlState(client, options) {
   const [{ data: review, error: reviewError }, { data: request, error: requestError }, { data: events, error: eventsError }] = await Promise.all([
     client.from("product_match_review_queue").select("*").eq("id", options.reviewItemId).maybeSingle(),
@@ -51,14 +61,15 @@ async function loadControlState(client, options) {
     client.from("product_match_review_events").select("event_type,actor,new_status,source_row_fingerprint,plan_fingerprint,created_at").eq("review_id", options.reviewItemId).order("created_at", { ascending: false }),
   ]);
   invariant(!reviewError && review, "REVIEW_ITEM_NOT_FOUND"); invariant(!requestError && request, "EXECUTION_REQUEST_NOT_FOUND"); invariant(!eventsError && events, "APPROVAL_AUDIT_READ_FAILED");
-  invariant(request.status === "DISPATCHED" && String(request.review_id) === options.reviewItemId && request.review_fingerprint === options.reviewFingerprint && request.idempotency_key === options.executionIdempotencyKey && request.retailer_slug === options.retailer && request.execution_mode === options.mode, "EXECUTION_REQUEST_BINDING_DRIFT");
+  invariant(String(request.review_id) === options.reviewItemId && request.review_fingerprint === options.reviewFingerprint && request.idempotency_key === options.executionIdempotencyKey && request.retailer_slug === options.retailer && request.execution_mode === options.mode, "EXECUTION_REQUEST_BINDING_DRIFT");
+  const claimedRequest = await claimDispatched(client, request, options);
   invariant(review.review_status === "APPROVED" && review.source_row_fingerprint === options.reviewFingerprint && review.plan_fingerprint === options.reviewPlanFingerprint && ALLOWED_OPERATIONS.has(review.operation_type) && String(review.retailer_id) === "12", "REVIEW_BINDING_DRIFT");
   invariant(review.expires_at && Date.parse(review.expires_at) > Date.now(), "REVIEW_EVIDENCE_EXPIRED");
   invariant(review.decision_actor && review.decision_at && events.some((event) => event.new_status === "APPROVED" && event.actor === review.decision_actor && event.source_row_fingerprint === review.source_row_fingerprint && event.plan_fingerprint === review.plan_fingerprint), "APPROVAL_AUDIT_MISSING");
   let canonicalCapture = null;
   try { canonicalCapture = canonicalTimestamp(review.source_captured_at, "source_captured_at"); } catch {}
   invariant(review.plan_fingerprint && review.before_state && review.proposed_state && canonicalCapture, "REVIEW_PLAN_EVIDENCE_MISSING");
-  return { review, request };
+  return { review, request: claimedRequest };
 }
 function executionEvidence(review, approved, postflight, idempotency, baseline) {
   const plan = approved.entry.resolved_plan;
@@ -166,4 +177,4 @@ async function run(options, dependencies = {}) {
 }
 
 if (require.main === module) run(parseArgs(process.argv.slice(2))).then((report) => console.log(JSON.stringify(report))).catch((error) => { console.error(error.message); process.exitCode = 1; });
-module.exports = { WORKER_KIND, assertCommercialEvidence, assertContext, assertDatabaseBeforeState, executeWithSeparatedCredentials, executionEvidence, expectedDeltas, hash, loadControlState, parseArgs, run };
+module.exports = { WORKER_KIND, assertCommercialEvidence, assertContext, assertDatabaseBeforeState, executeWithSeparatedCredentials, executionEvidence, expectedDeltas, hash, loadControlState, parseArgs, run, claimDispatched };

@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { requireAdminRoute } from "../../../lib/adminAuth";
+import { dispatchReviewExecution } from "../../lib/automationReviewWorkflowDispatch";
 import { resolveReviewAdapter, reviewDispatchConfigured } from "../../../lib/automationReviewAdapters";
 import { supabaseAdmin } from "../../../lib/supabaseAdmin";
 
@@ -65,5 +66,23 @@ export async function POST(request: NextRequest) {
   });
   const executionRequestId = String(queued?.execution_request_id || "");
   if (queueError || !/^[0-9a-f-]{36}$/.test(executionRequestId)) return new NextResponse("Execution request could not be created; no workflow was dispatched.", { status: 409 });
+  const queuedStatus = String(queued?.status || "");
+  if (queuedStatus && queuedStatus !== "QUEUED") {
+    return NextResponse.redirect(new URL(`/admin/automation-review?status=APPROVED&execution=${executionRequestId}`, request.url), 303);
+  }
+  const queuedIdempotencyKey = String(queued?.idempotency_key || key);
+  try {
+    await dispatchReviewExecution({
+      adapter: resolved.adapter,
+      reviewItemId: String(data.id),
+      executionRequestId,
+      reviewFingerprint: data.source_row_fingerprint,
+      reviewPlanFingerprint: data.plan_fingerprint,
+      executionIdempotencyKey: queuedIdempotencyKey,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "AUTOMATION_REVIEW_WORKFLOW_DISPATCH_FAILED";
+    return new NextResponse(`Execution request was queued, but GitHub workflow dispatch failed: ${message}`, { status: 503 });
+  }
   return NextResponse.redirect(new URL(`/admin/automation-review?status=APPROVED&execution=${executionRequestId}`, request.url), 303);
 }
