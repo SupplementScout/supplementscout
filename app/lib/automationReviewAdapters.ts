@@ -1,4 +1,4 @@
-import "server-only";
+﻿import "server-only";
 
 export type ReviewAdapter = {
   retailerId: string;
@@ -63,6 +63,10 @@ export function resolveReviewAdapter(retailerId: string | number | null, operati
   return { adapter, code: "SUPPORTED", reason: null } as const;
 }
 
+export function reviewQueueConfigured() {
+  return process.env.AUTOMATION_REVIEW_QUEUE_ENABLED !== "false";
+}
+
 export function reviewDispatchConfigured() {
-  return process.env.AUTOMATION_REVIEW_QUEUE_ENABLED !== "false" && Boolean(process.env.AUTOMATION_REVIEW_GITHUB_TOKEN);
+  return reviewQueueConfigured();
 }

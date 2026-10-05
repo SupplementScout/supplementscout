@@ -1,4 +1,4 @@
-const assert = require("node:assert/strict");
+﻿const assert = require("node:assert/strict");
 const { createHmac } = require("node:crypto");
 const fs = require("fs");
 const Module = require("module");
@@ -808,7 +808,8 @@ test("automation review execute action authenticates and queues work for the pro
   assert.match(source, /\["APPROVED", "FAILED"\]\.includes\(data\.review_status\)/);
   assert.match(source, /Date\.parse\(data\.expires_at\) <= Date\.now\(\)/);
   assert.match(source, /resolveReviewAdapter/);
-  assert.match(source, /reviewDispatchConfigured/);
+  assert.match(source, /reviewQueueConfigured/);
+  assert.match(source, /reviewWorkflowDispatchConfigured/);
   assert.match(source, /queue_automation_review_execution/);
   assert.match(source, /idempotencyKey/);
   assert.match(source, /previous\.database_writes/);
@@ -816,6 +817,7 @@ test("automation review execute action authenticates and queues work for the pro
   assert.match(source, /execution_mode: "review-queue"/);
   assert.match(source, /queuedStatus !== "QUEUED"/);
   assert.match(source, /dispatchReviewExecution/);
+  assert.match(source, /if \(!reviewWorkflowDispatchConfigured\(\)\)/);
   assert.doesNotMatch(source, /api\.github\.com|await fetch\(/);
   assert.doesNotMatch(source, /approve_product_import_plan|apply_approved_product_import_plan/);
   assert.doesNotMatch(source, /\.from\("(?:products|product_variants|retailer_products|offers|price_history)"\)/);
@@ -826,7 +828,8 @@ test("automation review workflow dispatch is token-gated and exactly bound to on
   const adapterSource = fs.readFileSync(path.join(process.cwd(), "app", "lib", "automationReviewAdapters.ts"), "utf8");
   assert.match(source, /AUTOMATION_REVIEW_GITHUB_TOKEN/);
   assert.match(source, /reviewWorkflowDispatchConfigured/);
-  assert.match(adapterSource, /AUTOMATION_REVIEW_GITHUB_TOKEN/);
+  assert.match(adapterSource, /reviewQueueConfigured/);
+  assert.doesNotMatch(adapterSource, /AUTOMATION_REVIEW_GITHUB_TOKEN/);
   assert.match(source, /actions\/workflows\/.*dispatches/);
   assert.match(source, /encodeURIComponent\(options\.adapter\.workflow\)/);
   assert.match(source, /ref: "main"/);
