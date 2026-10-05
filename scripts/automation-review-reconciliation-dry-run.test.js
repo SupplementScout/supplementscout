@@ -398,7 +398,7 @@ test("dry-run builder has no direct queue writes or publication RPC apply call",
   assert.match(source, /buildPublicationRpcRequest/);
 });
 
-function writeFitHouseFixture() {
+function writeFitHouseFixture({ executableCount = 0, confirmationCount = 0 } = {}) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "fit-house-review-source-"));
   const sourceFingerprint = "8".repeat(64);
   const baselineRows = Array.from({ length: 286 }, (_, index) => ({
@@ -435,20 +435,24 @@ function writeFitHouseFixture() {
     new_stock: !row.in_stock,
   }));
   const reviewRows = changedRows.map((row) => ({ offer_id: row.offer_id, reason: "OWNER_DEFERRED_STOCK_REVIEW", external_product_id: row.external_product_id, external_variant_id: row.external_variant_id }));
+  const executionOfferIds = baselineRows.slice(14, 14 + executableCount).map((row) => row.offer_id);
   const report = {
     result: "PASS_WITH_REVIEW", mode: "apply", target: "production",
     source: { fingerprint: sourceFingerprint }, approved_mapping_count: 286,
-    deferred_changed_offer_ids: changedRows.map((row) => row.offer_id), executable_plan_count: 0,
-    executed_plan_count: 0, review_row_count: 14, blocked_row_count: 0,
+    deferred_changed_offer_ids: changedRows.map((row) => row.offer_id), execution_offer_ids: executionOfferIds,
+    verification_offer_ids: executionOfferIds, stock_change_offer_ids: [], executable_plan_count: executableCount,
+    executed_plan_count: executableCount, review_row_count: 14, blocked_row_count: 0,
+    classification: { VERIFY_NO_CHANGE: executableCount, UPDATE_STOCK: 14 },
     review_rows: reviewRows,
-    business: { products_delta: 0, variants_delta: 0, mappings_delta: 0, offers_delta: 0, price_history_delta: 0, offers_refreshed: 0 },
+    business: { products_delta: 0, variants_delta: 0, mappings_delta: 0, offers_delta: 0, price_history_delta: confirmationCount, offers_refreshed: executableCount },
   };
-  const diagnostic = { result: "PASS", timestamp: "2026-10-05T09:01:00.000Z", failure_stage: null, source: { fingerprint: sourceFingerprint }, business_writes_completed: 0, control_writes_completed: 0, classifier_summary: { changed_rows: changedRows } };
+  const diagnostic = { result: "PASS", timestamp: "2026-10-05T09:01:00.000Z", failure_stage: null, source: { fingerprint: sourceFingerprint }, business_writes_completed: executableCount, control_writes_completed: executableCount > 0 ? 1 : 0, classifier_summary: { action_counts: report.classification, changed_rows: changedRows } };
+  const idempotency = { ...diagnostic, business_writes_completed: 0, control_writes_completed: 0 };
   const baseline = { schema_version: 1, kind: "retailer-offer-refresh-db-baseline", result: "PASS", profile: "fit-house", snapshot: { captured_at: "2026-10-05T09:00:59.000Z", retailer_id: "9", retailer_name: "Fit House", row_count: 286, rows: baselineRows }, evidence_hash: "a".repeat(64) };
-  const postflight = { schema_version: 1, kind: "retailer-offer-refresh-db-postflight", result: "PASS", profile: "fit-house", approved_mapping_count: 286, executable_plan_count: 0, executed_plan_count: 0, review_row_count: 14, blocked_row_count: 0, price_change_count: 0, stock_change_count: 0, shipping_change_count: 0, total_change_count: 0, offer_url_change_count: 0, mapping_url_change_count: 0, freshness_change_count: 0, price_history_delta: 0, daily_confirmation_delta: 0, raw_price_history_delta: 0, baseline_hash: baseline.evidence_hash, postflight_hash: "b".repeat(64) };
+  const postflight = { schema_version: 1, kind: "retailer-offer-refresh-db-postflight", result: "PASS", profile: "fit-house", approved_mapping_count: 286, executable_plan_count: executableCount, executed_plan_count: executableCount, review_row_count: 14, blocked_row_count: 0, price_change_count: 0, stock_change_count: 0, shipping_change_count: 0, total_change_count: 0, offer_url_change_count: 0, mapping_url_change_count: 0, freshness_change_count: executableCount, price_history_delta: 0, daily_confirmation_delta: confirmationCount, raw_price_history_delta: confirmationCount, baseline_hash: baseline.evidence_hash, postflight_hash: "b".repeat(64) };
   writeJson(path.join(directory, "production-apply.json"), report);
   writeJson(path.join(directory, "production-apply-diagnostic.json"), diagnostic);
-  writeJson(path.join(directory, "production-idempotency-diagnostic.json"), diagnostic);
+  writeJson(path.join(directory, "production-idempotency-diagnostic.json"), idempotency);
   writeJson(path.join(directory, "production-db-baseline.json"), baseline);
   writeJson(path.join(directory, "production-db-postflight.json"), postflight);
   return { directory, baselineRows, changedRows };
@@ -467,6 +471,21 @@ test("Fit House source adapter seals exactly the fresh 286/0/14/0 zero-write res
   assert.equal(contract.catalogue_writes, 0);
   assert.match(contract.review_scope_fingerprint, /^[0-9a-f]{64}$/);
   assert.match(contract.contract_fingerprint, /^[0-9a-f]{64}$/);
+});
+
+test("Fit House source adapter accepts the ordinary 272 safe confirmations plus 14 review rows", () => {
+  const fixture = writeFitHouseFixture({ executableCount: 272, confirmationCount: 246 });
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "workflow_dispatch", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "37347458788", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
+  const contract = buildFitHouseSourceContract(fixture.directory, env);
+  assert.equal(contract.executable_plan_count, 272);
+  assert.equal(contract.review_row_count, 14);
+  assert.equal(contract.catalogue_writes, 0);
+
+  const reportPath = path.join(fixture.directory, "production-apply.json");
+  const report = JSON.parse(fs.readFileSync(reportPath, "utf8"));
+  report.stock_change_offer_ids = [report.execution_offer_ids[0]];
+  writeJson(reportPath, report);
+  assert.throws(() => buildFitHouseSourceContract(fixture.directory, env), /executable offer IDs drifted/);
 });
 
 test("Fit House source adapter accepts a resolved subset and rejects count-to-row drift", () => {

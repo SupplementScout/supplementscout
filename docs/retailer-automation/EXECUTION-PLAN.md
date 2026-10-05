@@ -1312,6 +1312,32 @@ unchanged. These owner-requested manual runs do not increment the ordinary
 schedule counter, which remains `0/3`. Evidence:
 [`evidence/RA-STAB-01-MANUAL-FIT-WHEY-OBSERVATION-2026-10-05.json`](evidence/RA-STAB-01-MANUAL-FIT-WHEY-OBSERVATION-2026-10-05.json).
 
+**5 October Fit House ordinary execution and Review Queue source-contract
+correction:** PR `#221` merged the bounded report-scope correction as
+`6d82993b1042089af1a46aab4fad3d90d1943e47`; main quality gate run
+`37347029695` and the production deployment passed. Owner-requested Fit House
+run `37347458788` then completed the catalogue path with
+`PASS_WITH_REVIEW`: all 272 `VERIFY_NO_CHANGE` rows executed, the exact 14
+`UPDATE_STOCK` rows remained deferred, DB postflight passed with 272 freshness
+changes and zero price, stock, shipping, total, URL, mapping, catalogue or
+price-history change, and idempotency reproduced the same `272 + 14`
+partition. The workflow became red only in the subsequent Review Queue source
+binding step, before queue reconciliation, because that adapter still required
+the superseded zero-execution publication shape. The bounded correction keeps
+the same adapter and guarded publisher, accepts either its legacy zero-execution
+capture or an ordinary complete safe/review partition, requires all executable
+IDs to be `VERIFY_NO_CHANGE`, requires an empty stock-execution scope, binds
+every freshness/daily-confirmation count to postflight, and still rejects every
+commercial or catalogue delta. The incident regression accepts the exact
+`272 + 14` production shape and rejects an injected stock execution. The live
+artifact itself passes the corrected contract locally. No classifier, writer,
+workflow, retailer threshold or queue lifecycle is added or changed. The next
+gate is green CI/merge followed by one fresh Fit House dispatch so the already
+safe business path can publish the exact unresolved review subset. Manual runs
+do not increment the ordinary counter; RA-STAB-01 remains `IN_PROGRESS` at
+`0/3`. Evidence:
+[`evidence/RA-STAB-01-FIT-HOUSE-REVIEW-BIND-PREPARATION-2026-10-05.json`](evidence/RA-STAB-01-FIT-HOUSE-REVIEW-BIND-PREPARATION-2026-10-05.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
