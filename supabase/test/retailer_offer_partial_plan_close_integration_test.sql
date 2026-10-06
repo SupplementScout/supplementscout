@@ -1,9 +1,19 @@
 \set ON_ERROR_STOP on
 begin;
 
-select set_config('app.retailer_catalogue_production_marker','1',false);
+select set_config('app.retailer_catalogue_staging_marker','1',false);
 select set_config('app.retailer_catalogue_allow','1',false);
 select set_config('app.safe_update','false',false);
+
+insert into public.retailer_catalogue_database_targets(
+  id,target_environment,project_ref,database_identity,database_system_identifier,database_oid,is_active,attested_by
+) values(
+  true,'STAGING','hxnrsyyqffztlvcrtgbf','supplementscout-staging:hxnrsyyqffztlvcrtgbf',
+  (select system_identifier::text from pg_catalog.pg_control_system()),
+  (select oid from pg_catalog.pg_database where datname=current_database()),true,'partial-close-test'
+) on conflict(id) do update set
+  target_environment=excluded.target_environment,project_ref=excluded.project_ref,database_identity=excluded.database_identity,
+  database_system_identifier=excluded.database_system_identifier,database_oid=excluded.database_oid,is_active=true,attested_by=excluded.attested_by;
 
 create or replace function public.partial_close_test_assert(p_condition boolean,p_label text)
 returns void language plpgsql set search_path=pg_catalog as $assert$
@@ -15,7 +25,7 @@ $assert$;
 create or replace function public.partial_close_test_call(p_request jsonb)
 returns jsonb language sql security definer set search_path=pg_catalog,public,pg_temp
 as $call$ select public.close_expired_retailer_offer_sync_approval(p_request) $call$;
-alter function public.partial_close_test_call(jsonb) owner to retailer_catalogue_production_approver;
+alter function public.partial_close_test_call(jsonb) owner to retailer_catalogue_staging_approver;
 
 do $partial_close$
 declare
@@ -52,7 +62,7 @@ begin
     child_manifest,rollback_manifest,source_captured_at,canonical_snapshot_at,approval_id,approved_by,approved_at,
     approval_expires_at,approval_consumed_at,created_by,audit_log
   ) values(
-    v_parent,v_parent_fp,9902,'PRODUCTION',v_source_fp,v_canonical_fp,v_adapter_fp,v_policy_fp,repeat('c',40),v_state_fp,
+    v_parent,v_parent_fp,9902,'STAGING',v_source_fp,v_canonical_fp,v_adapter_fp,v_policy_fp,repeat('c',40),v_state_fp,
     'PARTIALLY_APPLIED','{}',jsonb_build_object('case','partial-12-1-6'),v_child_manifest,'{}',now()-interval '3 hours',
     now()-interval '3 hours',v_parent_approval,'partial-close-test',now()-interval '2 hours',now()-interval '1 hour',
     now()-interval '90 minutes','partial-close-test',jsonb_build_array(jsonb_build_object('event','PARTIAL_FIXTURE'))
@@ -72,7 +82,7 @@ begin
       expected_state_fingerprint,batch_index,batch_count,dependency_group,rollback_group,record_ids,status,
       expected_deltas,plan_json,rollback_manifest,approval_id,approved_at,approval_expires_at,approval_consumed_at,audit_log
     ) values(
-      v_child,v_parent,9902,'PRODUCTION',v_child_fp,v_parent_fp,v_source_fp,v_canonical_fp,v_adapter_fp,v_policy_fp,
+      v_child,v_parent,9902,'STAGING',v_child_fp,v_parent_fp,v_source_fp,v_canonical_fp,v_adapter_fp,v_policy_fp,
       repeat('c',40),v_state_fp,v_index,19,'partial-close-test','partial-close-test',jsonb_build_array((v_index+1)::text),
       case when v_index<12 then 'APPLIED' when v_index=12 then 'APPROVED' else 'PLANNED' end,'{}',v_plan,'[]',
       v_child_approval,case when v_index<=12 then now()-interval '2 hours' end,
@@ -88,8 +98,8 @@ begin
         expected_migration_versions,expected_migration_fingerprint,migration_fingerprint_algorithm,migration_fingerprint_version,
         approved_manifest,expected_deltas,approved_by,approved_at,expires_at,consumed_at,result
       ) values(
-        v_batch_approval,v_child,v_child_fp,v_execution_fp,'PRODUCTION','aftboxmrdgyhizicfsfu',
-        'supplementscout-production:aftboxmrdgyhizicfsfu',v_versions,v_ledger_fp,'SHA-256','RSBI-CJ1',v_plan,'{}',
+        v_batch_approval,v_child,v_child_fp,v_execution_fp,'STAGING','hxnrsyyqffztlvcrtgbf',
+        'supplementscout-staging:hxnrsyyqffztlvcrtgbf',v_versions,v_ledger_fp,'SHA-256','RSBI-CJ1',v_plan,'{}',
         'partial-close-test',now()-interval '2 hours',now()-interval '1 hour',
         case when v_index<12 then now()-interval '90 minutes' end,
         case when v_index<12 then jsonb_build_object('status','APPLIED','row_approvals_consumed',v_row_count) end
@@ -101,8 +111,8 @@ begin
           'execution_fingerprint',v_execution_fp,'approval_expected_migration_fingerprint',v_ledger_fp,
           'expected_migration_versions',v_versions,'expected_migration_fingerprint',v_ledger_fp,
           'migration_fingerprint_algorithm','SHA-256','migration_fingerprint_version','RSBI-CJ1',
-          'target_environment','PRODUCTION','production_project_ref','aftboxmrdgyhizicfsfu',
-          'production_database_identity','supplementscout-production:aftboxmrdgyhizicfsfu',
+          'target_environment','STAGING','staging_project_ref','hxnrsyyqffztlvcrtgbf',
+          'staging_database_identity','supplementscout-staging:hxnrsyyqffztlvcrtgbf',
           'reason','preserve applied prefix and close exact expired suffix','closed_by','partial-close-test',
           'requested_at',now(),'request_fingerprint',null
         );
@@ -113,11 +123,11 @@ begin
           adapter_fingerprint,policy_fingerprint,code_commit,expected_state_fingerprint,approval_id,approval_expires_at,
           before_counts,after_counts,expected_deltas,result_metadata,started_by,started_at,completed_at
         ) values(
-          v_parent,v_child,9902,'PRODUCTION','APPLY',1,'SUCCEEDED',v_parent_fp,v_child_fp,v_source_fp,v_canonical_fp,
+          v_parent,v_child,9902,'STAGING','APPLY',1,'SUCCEEDED',v_parent_fp,v_child_fp,v_source_fp,v_canonical_fp,
           v_adapter_fp,v_policy_fp,repeat('c',40),v_state_fp,v_child_approval,now()-interval '1 hour','{}','{}','{}',
           jsonb_build_object('status','APPLIED'),'partial-close-test',now()-interval '100 minutes',now()-interval '90 minutes'
         ) returning id into v_run;
-        insert into public.retailer_catalogue_production_recovery_manifests(
+        insert into public.retailer_catalogue_staging_recovery_manifests(
           package_id,package_fingerprint,child_plan_id,apply_run_id,dependency_group,execution_fingerprint,
           rollback_manifest_fingerprint,ownership,reverse_dependency_order,before_counts,other_retailer_fingerprint,
           protected_shared_fingerprint,orphan_counts,applied_owned_state_fingerprint,status
@@ -141,7 +151,7 @@ begin
     end if;
   end loop;
 
-  v_request:=jsonb_set(v_request,'{request_fingerprint}',to_jsonb(public.retailer_catalogue_production_request_fingerprint(v_request)));
+  v_request:=jsonb_set(v_request,'{request_fingerprint}',to_jsonb(public.retailer_catalogue_staging_request_fingerprint(v_request)));
   v_before:=public.retailer_catalogue_business_counts(); select count(*) into v_history_before from public.price_history;
   v_result:=public.partial_close_test_call(v_request);
   perform public.partial_close_test_assert(v_result->>'status'='SUPERSEDED','partial result status');
