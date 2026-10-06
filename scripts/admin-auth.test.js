@@ -1125,6 +1125,13 @@ test("owner decision audit is bounded, SELECT-only, and starts from immutable ad
   assert.equal(waiting.pending_owner_decision_count, 1);
   assert.equal(waiting.review_attention_count, 1);
   assert.equal(auditExitCode(waiting), 0);
+  const delayedRequest = { ...request, status: "QUEUED", completed_at: null, requested_at: "2026-10-05T09:40:00Z" };
+  const delayed = auditData({ decisionEvents: [decision], reviews: [{ ...review, review_status: "APPROVED" }], requests: [delayedRequest], executionEvents: [] }, new Date("2026-10-05T10:03:00Z"));
+  assert.deepEqual(delayed.anomalies.filter((row) => row.execution_request_id === request.id), [{ code: "EXECUTION_QUEUE_DELAYED", review_id: "1", execution_request_id: request.id, status: "QUEUED", threshold_minutes: 10 }]);
+  const delayedStatus = monitorStatus({ reviews: [{ review_status: "APPROVED" }], requests: [delayedRequest], anomalies: delayed.anomalies });
+  assert.equal(delayedStatus.monitor_status, "WAITING_FOR_DECISION");
+  assert.equal(delayedStatus.system_failure_count, 0);
+  assert.equal(auditExitCode(delayedStatus), 0);
   const failed = monitorStatus({ reviews: [], requests: [{ status: "EXECUTING" }], anomalies: [{ code: "EXECUTION_STUCK" }] });
   assert.equal(failed.monitor_status, "FAILED_SYSTEM");
   assert.equal(failed.active_execution_count, 1);
