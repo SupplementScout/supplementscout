@@ -1000,6 +1000,40 @@ test("approved monitored reviews reject substituted, missing or duplicated stale
   }
 });
 
+test("RA-STAB-01 owner decision makes only the exact Fit House and 10 Reps review scopes monitored", () => {
+  const rules = JSON.parse(fs.readFileSync(path.join(__dirname, "../config/automation-reliability-watchdog.json"), "utf8")).monitored_backlog.retailers;
+  const decisionText = fs.readFileSync(path.join(__dirname, "../docs/retailer-automation/evidence/RA-STAB-01-BACKLOG-OWNER-DECISION-PACK-2026-10-02.json"), "utf8").replace(/\r\n/g, "\n");
+  const decision = JSON.parse(decisionText);
+  const decisionHash = require("node:crypto").createHash("sha256").update(decisionText).digest("hex");
+  const expected = {
+    "9": decision.fit_house_decision.rows.map((row) => String(row.offer_id)),
+    "14": decision.ten_reps_decision.groups.flatMap((group) => group.rows.map((row) => String(row.offer_id))),
+  };
+  for (const retailerId of ["9", "14"]) {
+    const rule = rules[retailerId];
+    const offerIds = expected[retailerId];
+    assert.equal(rule.owner_approval_sha256, decisionHash);
+    assert.equal(rule.maximum_review_row_count, offerIds.length);
+    assert.equal(rule.maximum_offers_older_than_48h, offerIds.length);
+    assert.deepEqual(rule.allowed_review_offer_ids, offerIds);
+    assert.deepEqual(rule.allowed_stale_offer_ids, offerIds);
+    const exact = applyMonitoredBacklog({
+      result: "PASS_WITH_REVIEW",
+      failures: [],
+      contract: { review_row_count: offerIds.length, review_offer_ids: offerIds },
+      database: { offers_older_than_48h: offerIds.length, older_offer_ids: offerIds },
+    }, rule);
+    assert.equal(exact.result, "PASS_WITH_REVIEW");
+    assert.equal(exact.monitored_backlog.result, "WITHIN_BASELINE");
+    const substituted = applyMonitoredBacklog({
+      ...exact,
+      contract: { review_row_count: offerIds.length, review_offer_ids: ["99999", ...offerIds.slice(1)] },
+    }, rule);
+    assert.deepEqual(substituted.monitored_backlog.growth, ["REVIEW_SCOPE_DRIFT"]);
+    assert.equal(substituted.result, "FAIL");
+  }
+});
+
 test("automation watchdog never suppresses infrastructure, writes or postflight mismatch", () => {
   const baseline = {
     maximum_offers_older_than_48h: 0,
