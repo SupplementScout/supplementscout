@@ -2,6 +2,11 @@ name: Automation Review Queue Worker
 
 on:
   workflow_dispatch:
+    inputs:
+      execution_request_id:
+        description: "Exact queued execution request UUID; manual runs may never select a batch"
+        required: true
+        type: string
   schedule:
     - cron: "*/5 * * * *"
 
@@ -61,6 +66,7 @@ jobs:
           WHEY_OKAY_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           WHEY_OKAY_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
           WHEY_OKAY_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+          AUTOMATION_REVIEW_EXECUTION_REQUEST_ID: ${{ github.event.inputs.execution_request_id || '' }}
         run: node scripts/automation-review-queue-worker.js
       - name: Publish queue monitoring summary
         if: always()

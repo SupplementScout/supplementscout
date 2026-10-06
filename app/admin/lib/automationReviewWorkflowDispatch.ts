@@ -44,6 +44,9 @@ export async function dispatchReviewExecution(options: DispatchOptions) {
     },
     body: JSON.stringify({
       ref: "main",
+      inputs: {
+        execution_request_id: options.executionRequestId,
+      },
     }),
   });
   if (response.status !== 204) {
