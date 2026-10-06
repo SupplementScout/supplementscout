@@ -669,12 +669,15 @@ expired-plan close RPC and contains no retailer-specific condition or business
 writer. It preserves the 12 applied children and supersedes only the seven-row
 unexecuted suffix plus the parent. Focused, quick and full local gates pass, and a
 production-schema rehearsal compiled migration `20261006120000`, kept all five
-catalogue counts unchanged and rolled back fully. No migration or control close
-has yet been committed. Ordinary 10 Reps execution of all 934 safe operations
-was already proved by successful run `37357956664`; it is not to be replayed
-solely for evidence. Next: full CI/merge, deploy the one common migration, take
-a fresh read-only preflight, perform one guarded suffix close, and verify it
-independently. Evidence:
+catalogue counts unchanged and rolled back fully. PR `#230` then merged as
+`bba6bf3` and the migration applied successfully. The production ledger is now
+225 with fingerprint
+`4981529d078bc0c4dc5d0597b3a6327f44270e76f4cca1a93483abe4c950cf9f`;
+all catalogue counts remain unchanged and no control close has yet run.
+Ordinary 10 Reps execution of all 934 safe operations was already proved by
+successful run `37357956664`; it is not to be replayed solely for evidence.
+Next: synchronize the repository contract, take a fresh read-only preflight,
+perform one guarded suffix close, and verify it independently. Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-PARTIAL-PLAN-RECOVERY-PREPARATION-2026-10-06.json`](retailer-automation/evidence/RA-STAB-01-PARTIAL-PLAN-RECOVERY-PREPARATION-2026-10-06.json).
 Disposable-PostgreSQL run `37421724769` also passes both RA-STAB-01 close
 fixtures; its two remaining suite failures are unchanged unrelated failures

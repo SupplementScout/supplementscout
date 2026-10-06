@@ -1522,8 +1522,12 @@ local quality gates pass. A production-schema rehearsal selected only migration
 `20261006120000`, compiled successfully against ledger 224, proved unchanged
 catalogue counts and rolled back completely. The earlier ordinary run
 `37357956664` already proves all 934 safe operations, so it must not be repeated
-merely for evidence. Next gate is full CI and merge, then deployment, a fresh
-read-only preflight, one guarded suffix close and an independent readback.
+merely for evidence. PR `#230` merged as `bba6bf3`; the one common migration was
+then applied successfully. The production ledger is now 225 with fingerprint
+`4981529d078bc0c4dc5d0597b3a6327f44270e76f4cca1a93483abe4c950cf9f`,
+all five catalogue counts remain unchanged, and no control close has yet run.
+Next gate is repository contract synchronization, a fresh read-only preflight,
+one guarded suffix close and an independent readback.
 Evidence:
 [`evidence/RA-STAB-01-PARTIAL-PLAN-RECOVERY-PREPARATION-2026-10-06.json`](evidence/RA-STAB-01-PARTIAL-PLAN-RECOVERY-PREPARATION-2026-10-06.json).
 
