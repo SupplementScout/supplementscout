@@ -1036,11 +1036,14 @@ stock change, but the legacy stable-OOS validator could not verify that the
 Review Queue decision was genuinely owner approved. The local correction uses
 one retailer-neutral, cryptographically bound owner-decision contract and the
 existing worker, validator, registration and executor paths. It adds no
-retailer-specific exception, importer, approval route or writer. The pending
-production migration is SHA-bound and staging-excluded; it has not been applied
-and no production write or replay occurred. Quick/full gates and the production
-build pass. The current next gate is merge after green CI, followed by separate
-exact migration authorization and a fresh approved-request postflight. The
+retailer-specific exception, importer, approval route or writer. PR `#248`
+merged as `6cf64e3` after all required checks passed. The separately authorized,
+SHA-bound production migration was rehearsed with rollback and then applied
+alone, advancing production to ledger `226` with no catalogue-count delta.
+Read-only ACL postflight confirms only the validator can call the new helper;
+review `1121` remains approved and unexecuted, and the failed request remains at
+zero writes. No queue run, retry, replay or offer change occurred. The current
+next gate is one fresh approved-request execution and exact postflight. The
 natural observation counter remains `0/3`. Evidence:
 [owner-decision bridge preparation](retailer-automation/evidence/RA-STAB-01-OWNER-DECISION-BRIDGE-PREPARATION-2026-10-06.json).
 

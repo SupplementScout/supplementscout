@@ -5,7 +5,7 @@ const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
 const { APPROVED_IDENTITIES, SCOPE_CONFIGS } = require("./gtin-promotion-operation");
-const { EXACT36_CONFIRMATION, MIGRATION, MIGRATION_CONTRACT, QUARANTINED_GTINS, RELEASE_CONFIGS, classifyProductionMigrationLedger, deploy, exactRowDiff, migrationPreflight, parseArgs, snapshotSummary } = require("./gtin-promotion-release");
+const { EXACT36_CONFIRMATION, GTIN_REVIEWED_LEDGER, MIGRATION, MIGRATION_CONTRACT, QUARANTINED_GTINS, RELEASE_CONFIGS, classifyProductionMigrationLedger, deploy, exactRowDiff, migrationPreflight, parseArgs, snapshotSummary } = require("./gtin-promotion-release");
 const { CONTRACTS, ledgerRowsFingerprint } = require("./supabase-migration-selector");
 
 function productionLedger() {
@@ -79,8 +79,10 @@ test("deployed GTIN, Whey Okay rebind and traffic classification migrations rema
     "20260816173000_extend_guarded_gtin_promotion_exact_36.sql",
     "20260817114500_add_outbound_click_traffic_classification.sql",
   ]) assert.equal(pending.has(filename), false);
-  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 225);
-  assert.equal(CONTRACTS.PRODUCTION.ledgerFingerprint, "4981529d078bc0c4dc5d0597b3a6327f44270e76f4cca1a93483abe4c950cf9f");
+  assert.equal(GTIN_REVIEWED_LEDGER.count, 225);
+  assert.equal(GTIN_REVIEWED_LEDGER.fingerprint, "4981529d078bc0c4dc5d0597b3a6327f44270e76f4cca1a93483abe4c950cf9f");
+  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 226);
+  assert.equal(CONTRACTS.PRODUCTION.ledgerFingerprint, "28ac0182d477dec9b85ffa3aea4a777d11715a0c52cd9ca9ba2d4fe6d76c030c");
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", MIGRATION)), true);
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", "20260816173000_extend_guarded_gtin_promotion_exact_36.sql")), true);
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", "20260817114500_add_outbound_click_traffic_classification.sql")), true);
@@ -88,14 +90,14 @@ test("deployed GTIN, Whey Okay rebind and traffic classification migrations rema
 
 test("production migration preflight keeps the reviewed 225-row history frozen and permits only later migrations", () => {
   const rows = productionLedger();
-  const reviewedRows = rows.slice(0, CONTRACTS.PRODUCTION.ledgerCount);
+  const reviewedRows = rows.slice(0, GTIN_REVIEWED_LEDGER.count);
   assert.equal(rows.length, CONTRACTS.PRODUCTION.ledgerCount);
-  assert.equal(ledgerRowsFingerprint(reviewedRows, { targetEnvironment: "PRODUCTION" }), CONTRACTS.PRODUCTION.ledgerFingerprint);
-  assert.notEqual(ledgerRowsFingerprint(reviewedRows, { targetEnvironment: "STAGING" }), CONTRACTS.PRODUCTION.ledgerFingerprint);
+  assert.equal(ledgerRowsFingerprint(reviewedRows, { targetEnvironment: "PRODUCTION" }), GTIN_REVIEWED_LEDGER.fingerprint);
+  assert.notEqual(ledgerRowsFingerprint(reviewedRows, { targetEnvironment: "STAGING" }), GTIN_REVIEWED_LEDGER.fingerprint);
   assert.equal(classifyProductionMigrationLedger(rows), "ALREADY_PRESENT");
   assert.equal(classifyProductionMigrationLedger([
     ...rows,
-    { version: "20261006170000", name: "add_automation_review_owner_decision_validation" },
+    { version: "20261007170000", name: "later_reviewed_migration" },
   ]), "ALREADY_PRESENT");
 });
 
@@ -103,9 +105,9 @@ test("production migration preflight rejects changes inside or before the review
   const rows = productionLedger();
   const changedHistory = rows.map((row, index) => index === 0 ? { ...row, name: `${row.name}_changed` } : row);
   const backfilledMigration = [
-    ...rows.slice(0, CONTRACTS.PRODUCTION.ledgerCount),
+    ...rows.slice(0, GTIN_REVIEWED_LEDGER.count),
     { version: "20200101000000", name: "backfilled_after_review" },
-    ...rows.slice(CONTRACTS.PRODUCTION.ledgerCount),
+    ...rows.slice(GTIN_REVIEWED_LEDGER.count),
   ];
   assert.throws(() => classifyProductionMigrationLedger(changedHistory), /exact reviewed release state/);
   assert.throws(() => classifyProductionMigrationLedger(backfilledMigration), /exact reviewed release state/);

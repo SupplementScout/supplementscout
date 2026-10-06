@@ -1,6 +1,6 @@
 {
   "schema_version": "ra-stab-01-owner-decision-bridge-preparation-v1",
-  "status": "LOCAL_VERIFIED_PRODUCTION_DEPLOYMENT_NOT_AUTHORIZED",
+  "status": "MERGED_PRODUCTION_MIGRATION_LIVE_VERIFIED_FRESH_EXECUTION_PENDING",
   "task": "RA-STAB-01",
   "generated_at": "2026-10-06T14:48:33.758Z",
   "incident": {
@@ -35,7 +35,7 @@
   "migration": {
     "filename": "20261006170000_add_automation_review_owner_decision_validation.sql",
     "sha256": "7f2261b3837fa943adc85e83464143084655956c033e864a7da6552459380f99",
-    "production_selector_state": "PENDING_EXACT_SHA",
+    "production_selector_state": "APPLIED_LEDGER_226",
     "staging_selector_state": "EXCLUDED_PRODUCTION_ONLY",
     "business_dml": false
   },
@@ -48,17 +48,53 @@
     "project_guardian": "PASS",
     "nextjs_production_build": "PASS"
   },
+  "github_verification": {
+    "commit": "ac4e888e24e922b550e05f7105d930f6a705944a",
+    "pull_request": 248,
+    "merge_commit": "6cf64e3d07495d53e01b6bc64c11782cbbda02c4",
+    "quality_gate_run": 37482939474,
+    "quality_gate_full": "PASS",
+    "project_guardian_run": 37482939704,
+    "project_guardian": "PASS",
+    "baseline_validation": "PASS",
+    "vercel": "PASS",
+    "gitguardian": "PASS"
+  },
+  "production_deployment": {
+    "completed_at": "2026-10-06T15:34:14.837Z",
+    "rehearsal": "PASS_ROLLED_BACK",
+    "apply": "PASS_COMMITTED",
+    "postflight": "PASS_READ_ONLY",
+    "ledger_count": 226,
+    "ledger_fingerprint": "28ac0182d477dec9b85ffa3aea4a777d11715a0c52cd9ca9ba2d4fe6d76c030c",
+    "helper_definition_sha256": "60e27d7b0fdbb57274012f9574654055c11f7574087ac55699fb6682488c7f27",
+    "acl": {
+      "validator_execute": true,
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_role_execute": false,
+      "approver_execute": false,
+      "executor_execute": false
+    },
+    "catalogue_counts_before_after": {
+      "products": "1337/1337",
+      "product_variants": "3632/3632",
+      "retailer_products": "3758/3758",
+      "offers": "3758/3758",
+      "price_history": "28213/28213"
+    },
+    "review_1121": "APPROVED_UNEXECUTED",
+    "failed_request_database_writes": 0
+  },
   "production_operations": {
-    "migration_applied": false,
+    "migration_applied": true,
     "catalogue_writes": 0,
     "control_writes": 0,
     "review_replay": false,
     "workflow_dispatches": 0
   },
   "remaining_gates": [
-    "merge only after green CI",
-    "separate exact owner authorization for the pending production migration",
-    "post-deployment schema and ACL readback",
     "one fresh owner-approved UPDATE_STOCK request through the shared worker",
     "exact catalogue postflight and idempotent rebuild",
     "three ordinary observation intervals before RA-STAB-01 closeout"

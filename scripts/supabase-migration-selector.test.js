@@ -443,21 +443,18 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records all three recovery foundations as applied", () => {
+test("production records the owner-decision bridge and all recovery foundations as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{
-    filename: "20261006170000_add_automation_review_owner_decision_validation.sql",
-    sha256: "7f2261b3837fa943adc85e83464143084655956c033e864a7da6552459380f99",
-  }]);
+  assert.deepEqual(contract.pending, []);
   assert.deepEqual(contract.appliedExcluded, [
     "20260929133000_extend_expired_sequential_plan_close.sql",
     "20261004120000_add_central_control_plan_readback.sql",
     "20261006120000_extend_partial_sequential_plan_close.sql",
   ]);
-  assert.equal(contract.ledgerCount, 225);
+  assert.equal(contract.ledgerCount, 226);
   assert.equal(
     contract.ledgerFingerprint,
-    "4981529d078bc0c4dc5d0597b3a6327f44270e76f4cca1a93483abe4c950cf9f",
+    "28ac0182d477dec9b85ffa3aea4a777d11715a0c52cd9ca9ba2d4fe6d76c030c",
   );
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_VARIANT_PROVENANCE_MIGRATION)), NUTRITION_VARIANT_PROVENANCE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_PREWORKOUT_FACTS_MIGRATION)), NUTRITION_PREWORKOUT_FACTS_SHA256);
@@ -569,7 +566,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACT.ledgerFingerprint);
 });
 
-test("production accepts ledger 225 and selects only the pending owner-decision migration", () => {
+test("production accepts ledger 226 with the owner-decision migration applied", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   for (const filename of contract.appliedExcluded) excluded.delete(filename);
@@ -596,7 +593,7 @@ test("production accepts ledger 225 and selects only the pending owner-decision 
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 225);
+  assert.equal(result.ledger_count, 226);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 226);
   assert.ok(result.selected_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
@@ -605,10 +602,9 @@ test("production accepts ledger 225 and selects only the pending owner-decision 
   assert.ok(result.excluded_files.includes("20261004120000_add_central_control_plan_readback.sql"));
   assert.ok(result.selected_files.includes("20261006120000_extend_partial_sequential_plan_close.sql"));
   assert.ok(result.excluded_files.includes("20261006120000_extend_partial_sequential_plan_close.sql"));
-  assert.deepEqual(result.pending_files, ["20261006170000_add_automation_review_owner_decision_validation.sql"]);
-  assert.deepEqual(result.pending_sha256s, {
-    "20261006170000_add_automation_review_owner_decision_validation.sql": "7f2261b3837fa943adc85e83464143084655956c033e864a7da6552459380f99",
-  });
+  assert.ok(result.selected_files.includes("20261006170000_add_automation_review_owner_decision_validation.sql"));
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(NUTRITION_CITRULLINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(NUTRITION_CREATINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(JONS_INTERRUPTED_REFRESH_MIGRATION));
