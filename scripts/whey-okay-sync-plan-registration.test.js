@@ -265,7 +265,11 @@ test("workflow is scheduled, dry-run by default and role-separated without servi
   ]) {
     assert.match(workflow, new RegExp(`secrets\\.${secret}`));
   }
-  assert.doesNotMatch(workflow, /SUPABASE_SERVICE_ROLE_KEY/);
+  const standardJob = workflow.slice(workflow.indexOf("\n  whey-okay-offer-refresh:"), workflow.indexOf("\n  refresh-review-queue:"));
+  const queueJob = workflow.slice(workflow.indexOf("\n  refresh-review-queue:"), workflow.indexOf("\n  reviewed-offer-73-dry-run:"));
+  assert.doesNotMatch(standardJob, /SUPABASE_SERVICE_ROLE_KEY/);
+  assert.match(queueJob, /automation-review-reconciliation-apply\.js/);
+  assert.match(queueJob, /SUPABASE_SERVICE_ROLE_KEY/);
   assert.doesNotMatch(workflow, /^\s*SAFE_UPDATE\s*:/m);
   assert.match(workflow, /if: always\(\)/);
   assert.match(workflow, /continue-on-error: true/);
@@ -337,22 +341,27 @@ test("workflow router evaluates real workflow_dispatch payload shapes and fails 
   assert.deepEqual(routeWorkflowEvent("workflow_dispatch", dispatch("reviewed-offer-73-dry-run")), {
     operation: "reviewed-offer-73-dry-run", validation_context: "workflow_dispatch",
     run_standard_refresh: false, run_reviewed_offer_73: true, run_reviewed_artifact_apply: false,
-    run_standard_apply: false, reviewed_contract: "", owner_confirmation: "",
+    run_standard_apply: false, run_review_publication: false, reviewed_contract: "", owner_confirmation: "",
   });
   assert.deepEqual(routeWorkflowEvent("workflow_dispatch", dispatch("dry-run")), {
     operation: "dry-run", validation_context: "workflow_dispatch",
     run_standard_refresh: true, run_reviewed_offer_73: false, run_reviewed_artifact_apply: false,
-    run_standard_apply: false, reviewed_contract: "", owner_confirmation: "",
+    run_standard_apply: false, run_review_publication: false, reviewed_contract: "", owner_confirmation: "",
   });
   assert.deepEqual(routeWorkflowEvent("workflow_dispatch", dispatch("apply")), {
     operation: "apply", validation_context: "workflow_dispatch",
     run_standard_refresh: true, run_reviewed_offer_73: false, run_reviewed_artifact_apply: false,
-    run_standard_apply: true, reviewed_contract: "", owner_confirmation: "",
+    run_standard_apply: true, run_review_publication: true, reviewed_contract: "", owner_confirmation: "",
+  });
+  assert.deepEqual(routeWorkflowEvent("workflow_dispatch", dispatch("review-only")), {
+    operation: "review-only", validation_context: "workflow_dispatch",
+    run_standard_refresh: true, run_reviewed_offer_73: false, run_reviewed_artifact_apply: false,
+    run_standard_apply: false, run_review_publication: true, reviewed_contract: "", owner_confirmation: "",
   });
   assert.deepEqual(routeWorkflowEvent("schedule", {}), {
     operation: "schedule", validation_context: "schedule",
     run_standard_refresh: true, run_reviewed_offer_73: false, run_reviewed_artifact_apply: false,
-    run_standard_apply: true, reviewed_contract: "", owner_confirmation: "",
+    run_standard_apply: true, run_review_publication: true, reviewed_contract: "", owner_confirmation: "",
   });
   assert.throws(() => routeWorkflowEvent("workflow_dispatch", dispatch("")), /unknown or empty operation/);
   assert.throws(() => routeWorkflowEvent("workflow_dispatch", dispatch("reviewed-offer-73-dryrun")), /unknown or empty operation/);
@@ -393,7 +402,8 @@ test("workflow router reads the actual GitHub event file and emits deterministic
     assert.equal(route.run_standard_refresh, false);
     assert.equal(route.run_reviewed_offer_73, true);
     assert.equal(route.run_standard_apply, false);
-    assert.match(fs.readFileSync(outputPath, "utf8"), /run_standard_refresh=false\nrun_reviewed_offer_73=true\nrun_reviewed_artifact_apply=false\nrun_standard_apply=false/);
+    assert.equal(route.run_review_publication, false);
+    assert.match(fs.readFileSync(outputPath, "utf8"), /run_standard_refresh=false\nrun_reviewed_offer_73=true\nrun_reviewed_artifact_apply=false\nrun_standard_apply=false\nrun_review_publication=false/);
   } finally {
     fs.rmSync(directory, { recursive: true, force: true });
   }

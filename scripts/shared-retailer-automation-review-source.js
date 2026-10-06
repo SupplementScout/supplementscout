@@ -5,50 +5,19 @@ const dotenv = require("dotenv");
 const { createClient } = require("@supabase/supabase-js");
 const {
   buildPublicationRpcRequest,
-  reasonList,
   sha256,
 } = require("./lib/automation-review-publisher");
+const {
+  PROFILES,
+  profileFor: publicationProfileFor,
+} = require("./lib/automation-review-publication-profiles");
 
 const ROOT = path.resolve(__dirname, "..");
 const REPOSITORY = "SupplementScout/supplementscout";
-const WORKFLOW = ".github/workflows/fit-house-offer-refresh.yml";
-const WORKFLOW_NAME = "Shared Retailer Offer Refresh";
-const PROFILES = Object.freeze({
-  "fit-house": Object.freeze({
-    key: "fit-house",
-    retailer: Object.freeze({ id: "9", name: "Fit House", slug: "fit-house" }),
-    approvedMappingCount: 286,
-    maximumReviewCount: 14,
-    sourceDirectory: "fit-house-offer-refresh",
-    artifactPrefix: "fit-house-offer-refresh",
-    reconciliationFile: "fit-house-reconciliation-dry-run.json",
-    contractName: "fit-house-automation-review-source-v1",
-  }),
-  "10-reps": Object.freeze({
-    key: "10-reps",
-    retailer: Object.freeze({ id: "14", name: "10 Reps", slug: "10-reps" }),
-    approvedMappingCount: 950,
-    maximumReviewCount: 16,
-    sourceDirectory: "10reps-offer-refresh",
-    artifactPrefix: "10reps-offer-refresh",
-    reconciliationFile: "10reps-reconciliation-dry-run.json",
-    contractName: "10-reps-automation-review-source-v1",
-  }),
-});
 const RETAILER = PROFILES["fit-house"].retailer;
 // Review evidence is captured before catalogue execution.  The queue describes
 // rows that are deliberately excluded from execution, so its availability must
 // not depend on unrelated execution batches finishing successfully.
-const CAPTURE_SOURCE_FILES = Object.freeze({
-  report: "production-dry-run.json",
-  diagnostic: "production-preflight-diagnostic.json",
-  baseline: "production-db-baseline.json",
-});
-const SEALED_SOURCE_FILES = Object.freeze({
-  report: "automation-review-classification.json",
-  diagnostic: "automation-review-preflight-diagnostic.json",
-  baseline: "automation-review-db-baseline.json",
-});
 const CONTRACT_FILE = "automation-review-source-contract.json";
 const ACTIVE_STATUSES = Object.freeze(["PENDING", "APPROVED"]);
 const CATALOGUE_TABLES = Object.freeze(["products", "product_variants", "retailer_products", "offers", "price_history"]);
@@ -62,9 +31,7 @@ function sortedIds(values) { return [...new Set(values.map(String))].sort((a, b)
 function sameJson(left, right, message) { invariant(JSON.stringify(left) === JSON.stringify(right), message); }
 function nullable(value) { return value == null ? null : String(value); }
 function profileFor(value = "fit-house") {
-  const profile = PROFILES[value];
-  invariant(profile, `Unknown retailer review profile ${value}`);
-  return profile;
+  return publicationProfileFor(value, invariant);
 }
 function profileLabel(profile) { return profile.retailer.name; }
 function defaultSource(profile) { return path.join(ROOT, "tmp", profile.sourceDirectory); }
@@ -77,87 +44,14 @@ function insideTmp(value, label) {
   return resolved;
 }
 
-function pathsFor(directory, fileNames = CAPTURE_SOURCE_FILES) {
+function pathsFor(directory, fileNames) {
   const source = path.resolve(directory);
   return Object.fromEntries(Object.entries(fileNames).map(([key, name]) => [key, path.join(source, name)]));
 }
 
-function normalizedFitHouseReviewRows(diagnostic) {
-  const rows = diagnostic?.classifier_summary?.changed_rows;
-  invariant(Array.isArray(rows), "Fit House diagnostic changed rows are missing");
-  return [...rows].map((row) => ({
-    offer_id: String(row.offer_id),
-    retailer_product_id: String(row.retailer_product_id),
-    external_product_id: String(row.external_product_id),
-    external_variant_id: String(row.external_variant_id),
-    old_price: String(row.old_price),
-    new_price: String(row.new_price),
-    old_stock: row.old_stock === true,
-    new_stock: row.new_stock === true,
-    action: row.action,
-  })).sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
-}
-
-function normalizedTenRepsReviewRows(report, baselineByOffer) {
-  invariant(Array.isArray(report.review_rows), "10 Reps review rows are missing");
-  return [...report.review_rows].map((review) => {
-    const offerId = String(review.offer_id);
-    const before = baselineByOffer.get(offerId);
-    invariant(before, `10 Reps baseline missing for review offer ${offerId}`);
-    invariant(review.reason === "SOURCE_VARIANT_MISSING", `10 Reps review reason drifted for offer ${offerId}`);
-    invariant(String(review.external_product_id) === String(before.external_product_id) && String(review.external_variant_id) === String(before.external_variant_id), `10 Reps source identity drift for offer ${offerId}`);
-    return {
-      offer_id: offerId,
-      retailer_product_id: String(before.mapping_id),
-      external_product_id: String(before.external_product_id),
-      external_variant_id: String(before.external_variant_id),
-      old_price: String(before.price),
-      new_price: String(before.price),
-      old_stock: before.in_stock === true,
-      new_stock: before.in_stock === true,
-      action: "SOURCE_MISSING",
-      reason: review.reason,
-    };
-  }).sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
-}
-
-function validateReviewPartition(profile, report, diagnostic) {
-  const label = profileLabel(profile);
-  const executableCount = Number(report.executable_plan_count);
-  const reviewCount = Number(report.review_row_count);
-  invariant(Number.isInteger(executableCount) && executableCount >= 0 && Number(report.executed_plan_count) === 0, `${label} dry-run executable scope drifted`);
-  invariant(Number.isInteger(reviewCount) && reviewCount >= 0 && reviewCount <= profile.maximumReviewCount, `${label} review scope drifted`);
-
-  invariant(diagnostic.result === "PASS" && diagnostic.failure_stage == null, `${label} preflight diagnostic is not PASS`);
-  for (const key of ["database_writes_attempted", "database_writes_completed", "business_writes_completed", "control_writes_completed", "approvals_created", "approvals_consumed", "recovery_calls"]) {
-    invariant(Number(diagnostic[key] || 0) === 0, `${label} preflight diagnostic contains writes`);
-  }
-
-  const executionIds = sortedIds(Array.isArray(report.execution_offer_ids) ? report.execution_offer_ids : []);
-  const verificationIds = sortedIds(Array.isArray(report.verification_offer_ids) ? report.verification_offer_ids : []);
-  const stockChangeIds = sortedIds(Array.isArray(report.stock_change_offer_ids) ? report.stock_change_offer_ids : []);
-  invariant(executionIds.length === executableCount && stockChangeIds.length === 0, `${label} executable offer IDs drifted`);
-  if (profile.key === "fit-house") {
-    invariant(verificationIds.length === executableCount, "Fit House verification offer IDs drifted");
-    sameJson(executionIds, verificationIds, "Fit House executable and verified scopes differ");
-    invariant(executableCount + reviewCount === profile.approvedMappingCount, "Fit House ordinary partition is incomplete");
-    invariant(Number(report.classification?.VERIFY_NO_CHANGE || 0) === executableCount && Number(report.classification?.UPDATE_STOCK || 0) === reviewCount, "Fit House ordinary classification drifted");
-  } else if (profile.key === "10-reps") {
-    invariant(executableCount + reviewCount === profile.approvedMappingCount, "10 Reps ordinary partition is incomplete");
-    invariant(Number(report.classification?.VERIFY_NO_CHANGE || 0) === executableCount && Object.entries(report.classification || {}).every(([action, count]) => action === "VERIFY_NO_CHANGE" || Number(count) === 0), "10 Reps pre-execution scope contains a commercial action");
-    invariant(verificationIds.length === executableCount, "10 Reps verification offer IDs drifted");
-    sameJson(executionIds, verificationIds, "10 Reps executable and verified scopes differ");
-  }
-  const classifier = diagnostic.classifier_summary;
-  const classifierScope = classifier?.scope;
-  invariant(classifierScope && Number(classifierScope.blocked_rows || 0) === 0 && classifierScope.reconciled === true && Number(classifierScope.reconciled_total) === executableCount, `${label} preflight classifier scope drifted`);
-  sameJson(sortedIds(classifierScope.scope_row_ids || []), executionIds, `${label} preflight classifier IDs drifted`);
-  sameJson(classifier.action_counts || {}, report.classification || {}, `${label} preflight classifier actions drifted`);
-  return { executableCount, executionIds };
-}
-
-function loadAndValidateSource(directory, profileValue = "fit-house", fileNames = CAPTURE_SOURCE_FILES) {
+function loadAndValidateSource(directory, profileValue = "fit-house", fileNames = null) {
   const profile = profileFor(profileValue);
+  fileNames ||= profile.captureFiles;
   const retailer = profile.retailer;
   const label = profileLabel(profile);
   const files = pathsFor(directory, fileNames);
@@ -166,31 +60,31 @@ function loadAndValidateSource(directory, profileValue = "fit-house", fileNames 
   const diagnostic = readJson(files.diagnostic);
   const baseline = readJson(files.baseline);
 
-  invariant(report.result === "PASS_WITH_REVIEW" && report.mode === "dry-run" && report.target === "production", `${label} pre-execution report is not publishable`);
+  const expectedResult = Number(report.review_row_count) > 0 ? "PASS_WITH_REVIEW" : "PASS";
+  invariant(report.result === expectedResult && report.mode === "dry-run" && report.target === "production", `${label} pre-execution report is not publishable`);
   invariant(report.approved_mapping_count === profile.approvedMappingCount && report.blocked_row_count === 0, `${label} apply scope drifted`);
   invariant(baseline.schema_version === 1 && baseline.kind === "retailer-offer-refresh-db-baseline" && baseline.result === "PASS" && baseline.profile === retailer.slug, `${label} DB baseline is invalid`);
   invariant(baseline.snapshot?.retailer_id === retailer.id && baseline.snapshot?.retailer_name === retailer.name && baseline.snapshot?.row_count === profile.approvedMappingCount && Array.isArray(baseline.snapshot?.rows) && baseline.snapshot.rows.length === profile.approvedMappingCount, `${label} DB baseline scope drifted`);
-  invariant(diagnostic.approved_mapping_count === profile.approvedMappingCount && diagnostic.source?.fingerprint === report.source?.fingerprint, `${label} preflight source binding drifted`);
-  const partition = validateReviewPartition(profile, report, diagnostic);
+  const sourceFingerprint = profile.sourceFingerprint(report);
+  invariant(/^[0-9a-f]{64}$/.test(sourceFingerprint || "") && diagnostic.approved_mapping_count === profile.approvedMappingCount && profile.sourceFingerprint({ source: diagnostic.source }) === sourceFingerprint, `${label} preflight source binding drifted`);
 
   const baselineByOffer = new Map(baseline.snapshot.rows.map((row) => [String(row.offer_id), row]));
   invariant(baselineByOffer.size === profile.approvedMappingCount, `${label} baseline contains duplicate offers`);
-  const changedRows = profile.key === "fit-house" ? normalizedFitHouseReviewRows(diagnostic) : normalizedTenRepsReviewRows(report, baselineByOffer);
-  const reviewIds = sortedIds(report.review_rows.map((row) => row.offer_id));
+  const partition = profile.validate(profile, { report, diagnostic, baselineByOffer, files, invariant, sameJson, sortedIds });
+  const { changedRows, reviewIds } = partition;
   invariant(report.review_row_count === report.review_rows.length && report.review_row_count === changedRows.length, `${label} review row count drifted`);
-  if (profile.key === "fit-house") sameJson(reviewIds, sortedIds(report.deferred_changed_offer_ids), "Fit House deferred review IDs drifted");
   sameJson(reviewIds, changedRows.map((row) => row.offer_id), `${label} report and normalized review IDs drifted`);
   invariant(partition.executionIds.every((offerId) => !reviewIds.includes(offerId)), `${label} executable and review scopes overlap`);
-  invariant(diagnostic.source?.fingerprint === report.source?.fingerprint, `${label} source fingerprint changed during preflight`);
-  if (profile.key === "fit-house") invariant(changedRows.every((row) => row.action === "UPDATE_STOCK" && row.old_price === row.new_price && row.old_stock !== row.new_stock), "Fit House review scope contains a non-stock change");
-  else invariant(changedRows.every((row) => row.action === "SOURCE_MISSING" && row.old_price === row.new_price && row.old_stock === row.new_stock), "10 Reps review scope contains an inferred catalogue change");
+  invariant(profile.reviewType === "stock"
+    ? changedRows.every((row) => row.action === "UPDATE_STOCK" && row.old_price === row.new_price && row.old_stock !== row.new_stock)
+    : changedRows.every((row) => row.action === "SOURCE_MISSING" && row.old_price === row.new_price && row.old_stock === row.new_stock), `${label} review scope contains an unsafe catalogue change`);
   for (const changed of changedRows) {
     const row = baselineByOffer.get(changed.offer_id);
     invariant(row && String(row.mapping_id) === changed.retailer_product_id, `${label} baseline mapping missing for offer ${changed.offer_id}`);
     invariant(String(row.external_product_id) === changed.external_product_id && String(row.external_variant_id) === changed.external_variant_id, `${label} source identity drift for offer ${changed.offer_id}`);
     invariant(String(row.price) === changed.old_price && row.in_stock === changed.old_stock, `${label} before-state drift for offer ${changed.offer_id}`);
   }
-  return { profile, retailer, files, fileNames, report, diagnostic, baseline, changedRows, baselineByOffer };
+  return { profile, retailer, files, fileNames, report, diagnostic, baseline, changedRows, baselineByOffer, sourceFingerprint, codeCommit: partition.codeCommit || null };
 }
 
 function contractCore(source, env) {
@@ -201,18 +95,19 @@ function contractCore(source, env) {
   const reviewScopeFingerprint = sha256({
     contract: profile.contractName,
     retailer_id: retailer.id,
-    source_fingerprint: source.report.source.fingerprint,
+    source_fingerprint: source.sourceFingerprint,
     changed_rows: source.changedRows,
   });
   const createdAt = source.diagnostic.timestamp;
   invariant(createdAt && Number.isFinite(Date.parse(createdAt)), `${profileLabel(profile)} capture timestamp is invalid`);
+  if (source.codeCommit) invariant(source.codeCommit === String(env.GITHUB_SHA || ""), `${profileLabel(profile)} immutable commit binding drifted`);
   return {
     schema_version: 2,
     kind: "automation-review-source-contract",
     profile: retailer.slug,
     repository: REPOSITORY,
-    workflow: WORKFLOW,
-    workflow_name: WORKFLOW_NAME,
+    workflow: profile.workflow,
+    workflow_name: profile.workflowName,
     run_id: String(env.GITHUB_RUN_ID || ""),
     run_attempt: String(env.GITHUB_RUN_ATTEMPT || ""),
     commit_sha: String(env.GITHUB_SHA || ""),
@@ -225,7 +120,7 @@ function contractCore(source, env) {
     blocked_row_count: 0,
     catalogue_offer_ids: catalogueOfferIds,
     review_offer_ids: source.changedRows.map((row) => row.offer_id),
-    source_fingerprint: source.report.source.fingerprint,
+    source_fingerprint: source.sourceFingerprint,
     review_scope_fingerprint: reviewScopeFingerprint,
     evidence_stage: "pre-execution-review-classification",
     file_names: source.fileNames,
@@ -236,8 +131,9 @@ function contractCore(source, env) {
   };
 }
 
-function buildSourceContract(directory, env = process.env, profileValue = "fit-house", fileNames = CAPTURE_SOURCE_FILES) {
+function buildSourceContract(directory, env = process.env, profileValue = "fit-house", fileNames = null) {
   const profile = profileFor(profileValue);
+  fileNames ||= profile.captureFiles;
   invariant(env.GITHUB_ACTIONS === "true" && ["schedule", "workflow_dispatch"].includes(env.GITHUB_EVENT_NAME) && env.GITHUB_REF === "refs/heads/main" && env.GITHUB_REPOSITORY === REPOSITORY, "RETAILER_REVIEW_SOURCE_CONTEXT_INVALID");
   invariant(/^[1-9][0-9]*$/.test(String(env.GITHUB_RUN_ID || "")) && /^[0-9a-f]{40}$/.test(String(env.GITHUB_SHA || "")), "RETAILER_REVIEW_SOURCE_IDENTITY_INVALID");
   const source = loadAndValidateSource(directory, profile.key, fileNames);
@@ -249,13 +145,13 @@ function bindSource(directory, env = process.env, profileValue = "fit-house") {
   const profile = profileFor(profileValue);
   invariant(env.GITHUB_OUTPUT, "GITHUB_OUTPUT_MISSING");
   directory ||= defaultSource(profile);
-  const capture = pathsFor(directory, CAPTURE_SOURCE_FILES);
-  const sealed = pathsFor(directory, SEALED_SOURCE_FILES);
+  const capture = pathsFor(directory, profile.captureFiles);
+  const sealed = pathsFor(directory, profile.sealedFiles);
   for (const [key, sourceFile] of Object.entries(capture)) {
     invariant(fs.existsSync(sourceFile), `Missing ${profileLabel(profile)} source file ${path.basename(sourceFile)}`);
     fs.copyFileSync(sourceFile, sealed[key], fs.constants.COPYFILE_EXCL);
   }
-  const contract = buildSourceContract(directory, env, profile.key, SEALED_SOURCE_FILES);
+  const contract = buildSourceContract(directory, env, profile.key, profile.sealedFiles);
   const output = path.join(directory, CONTRACT_FILE);
   fs.writeFileSync(output, `${JSON.stringify(contract, null, 2)}\n`, { flag: "wx" });
   const values = { contract_sha256: fileSha256(output), review_scope_fingerprint: contract.review_scope_fingerprint };
@@ -294,15 +190,15 @@ function verifySourceContract(options, now = new Date()) {
   invariant(fs.existsSync(contractPath) && fileSha256(contractPath) === options.sourceContractSha256, `${label} source contract hash mismatch`);
   const contract = readJson(contractPath);
   invariant(contract.schema_version === 2 && contract.kind === "automation-review-source-contract" && contract.profile === retailer.slug, `${label} source contract schema mismatch`);
-  invariant(contract.repository === REPOSITORY && contract.workflow === WORKFLOW && contract.workflow_name === WORKFLOW_NAME, `${label} source workflow mismatch`);
+  invariant(contract.repository === REPOSITORY && contract.workflow === profile.workflow && contract.workflow_name === profile.workflowName, `${label} source workflow mismatch`);
   invariant(contract.run_id === options.sourceRunId && contract.commit_sha === options.sourceCommitSha && contract.retailer?.id === retailer.id && contract.retailer?.name === retailer.name, `${label} source identity mismatch`);
   invariant(contract.approved_mapping_count === profile.approvedMappingCount && Number.isInteger(contract.executable_plan_count) && contract.executable_plan_count >= 0 && contract.executable_plan_count <= profile.approvedMappingCount && contract.review_row_count >= 0 && contract.review_row_count <= profile.maximumReviewCount && contract.blocked_row_count === 0 && contract.catalogue_writes === 0, `${label} source contract scope mismatch`);
   invariant(Date.parse(contract.expires_at) > Date.parse(contract.created_at) && Date.parse(contract.expires_at) > now.getTime(), `${label} source contract expiry is invalid`);
   invariant(contract.contract_fingerprint === sha256(Object.fromEntries(Object.entries(contract).filter(([key]) => key !== "contract_fingerprint"))), `${label} source contract fingerprint mismatch`);
   invariant(contract.evidence_stage === "pre-execution-review-classification", `${label} source evidence stage mismatch`);
   invariant(
-    JSON.stringify(contract.file_names) === JSON.stringify(SEALED_SOURCE_FILES)
-      || JSON.stringify(contract.file_names) === JSON.stringify(CAPTURE_SOURCE_FILES),
+    JSON.stringify(contract.file_names) === JSON.stringify(profile.sealedFiles)
+      || JSON.stringify(contract.file_names) === JSON.stringify(profile.captureFiles),
     `${label} source file set mismatch`,
   );
   const source = loadAndValidateSource(options.sourceArtifactDir, profile.key, contract.file_names);
@@ -327,7 +223,7 @@ async function verifyGithubBinding(options, env = process.env, fetchImpl = fetch
   invariant(env.GITHUB_TOKEN, "GITHUB_TOKEN is required for source metadata verification");
   const api = env.GITHUB_API_URL || "https://api.github.com";
   const run = await githubJson(`${api}/repos/${REPOSITORY}/actions/runs/${options.sourceRunId}`, env.GITHUB_TOKEN, fetchImpl);
-  invariant(String(run.id) === options.sourceRunId && run.repository?.full_name === REPOSITORY && String(run.path || "").split("@")[0] === WORKFLOW && run.name === WORKFLOW_NAME, `${label} source run binding mismatch`);
+  invariant(String(run.id) === options.sourceRunId && run.repository?.full_name === REPOSITORY && String(run.path || "").split("@")[0] === profile.workflow && run.name === profile.workflowName, `${label} source run binding mismatch`);
   const sameRun = env.GITHUB_ACTIONS === "true" && String(env.GITHUB_RUN_ID) === options.sourceRunId && run.status === "in_progress";
   invariant((run.status === "completed" && run.conclusion === "success") || sameRun, `${label} source run is not usable`);
   invariant(["schedule", "workflow_dispatch"].includes(run.event) && run.head_branch === "main" && run.head_sha === options.sourceCommitSha, `${label} source branch or commit mismatch`);
@@ -355,12 +251,12 @@ async function fetchPublicationBaseline(db, source) {
   const mappingIds = baselineRows.map((row) => String(row.mapping_id));
   const productIds = sortedIds(baselineRows.map((row) => row.offer_product_id));
   const variantIds = sortedIds(baselineRows.map((row) => row.offer_variant_id));
-  const results = await Promise.all([
+  const results = offerIds.length ? await Promise.all([
     db.from("offers").select("id,retailer_id,retailer_product_id,product_id,product_variant_id,price,shipping_cost,total_price,in_stock,url").in("id", offerIds),
     db.from("retailer_products").select("id,retailer_id,product_id,product_variant_id,external_product_id,external_variant_id,external_sku,external_gtin,external_url").in("id", mappingIds),
     db.from("products").select("id,name").in("id", productIds),
     db.from("product_variants").select("id,display_name").in("id", variantIds),
-  ]);
+  ]) : [{ data: [] }, { data: [] }, { data: [] }, { data: [] }];
   for (const result of results) if (result.error) throw result.error;
   return { catalogueCounts, activeRows: activeRows || [], offers: results[0].data || [], mappings: results[1].data || [], products: results[2].data || [], variants: results[3].data || [] };
 }
@@ -384,9 +280,9 @@ function buildManifestRows(source, baseline, options) {
     invariant(String(mapping.external_product_id) === changed.external_product_id && String(mapping.external_variant_id) === changed.external_variant_id, `Current ${label} source identity drift for offer ${changed.offer_id}`);
     invariant(String(offer.price) === changed.old_price && offer.in_stock === changed.old_stock && nullable(offer.url) === nullable(before.url) && nullable(mapping.external_url) === nullable(before.external_url), `Current ${label} commercial state drift for offer ${changed.offer_id}`);
     const beforeState = { offer_id: changed.offer_id, retailer_product_id: changed.retailer_product_id, product_id: String(offer.product_id), product_variant_id: String(offer.product_variant_id), price: String(offer.price), shipping_cost: nullable(offer.shipping_cost), total_price: nullable(offer.total_price), in_stock: offer.in_stock === true, url: offer.url || null, external_url: mapping.external_url || null, external_product_id: nullable(mapping.external_product_id), external_variant_id: nullable(mapping.external_variant_id) };
-    const proposedState = profile.key === "fit-house" ? { ...beforeState, in_stock: changed.new_stock } : { catalogue_action: "KEEP_UNCHANGED", identity_review: "READ_ONLY", automatic_action: false };
+    const card = profile.reviewCard(beforeState, changed);
+    const proposedState = card.proposedState;
     const sourceRowFingerprint = sha256({ contract: `${profile.key}-automation-review-row-v1`, retailer_id: retailer.id, offer_id: changed.offer_id, source_fingerprint: source.contract.source_fingerprint, before_state: beforeState, proposed_state: proposedState });
-    const fitHouse = profile.key === "fit-house";
     return {
       snapshot_id: `automation-review-${retailer.id}-${options.sourceRunId}`,
       review_item_id: `${retailer.id}:${changed.offer_id}:${options.sourceRunId}:${sourceRowFingerprint}`,
@@ -395,13 +291,13 @@ function buildManifestRows(source, baseline, options) {
       product_title: products.get(String(offer.product_id))?.name || `Offer ${changed.offer_id}`,
       variant_title: variants.get(String(offer.product_variant_id))?.display_name || null,
       primary_status: "PENDING",
-      reason_codes: fitHouse ? "STOCK_CHANGE" : "SOURCE_MISSING",
-      confidence: fitHouse ? "HIGH" : "LOW",
+      reason_codes: card.reasonCodes,
+      confidence: card.confidence,
       canonical_candidates: [],
       source_sku: mapping.external_sku || null,
       source_gtin: mapping.external_gtin || null,
       source_weight: null,
-      source_price: fitHouse ? changed.new_price : null,
+      source_price: card.sourcePrice,
       source_url: mapping.external_url || offer.url || null,
       suggested_action: "MANUAL_REVIEW",
       retailer_id: retailer.id,
@@ -412,12 +308,12 @@ function buildManifestRows(source, baseline, options) {
       proposed_product_id: null,
       proposed_variant_id: null,
       review_status: "PENDING",
-      review_kind: fitHouse ? "COMMERCIAL_CHANGE" : "IDENTITY_CONFLICT",
-      operation_type: fitHouse ? "UPDATE_STOCK" : "MANUAL_REVIEW_IDENTITY",
+      review_kind: card.reviewKind,
+      operation_type: card.operationType,
       before_state: beforeState,
       proposed_state: proposedState,
       impact_summary: { catalogue_writes: 0, executable: false, review_only: true },
-      source_evidence: { workflow_run_id: options.sourceRunId, artifact_id: options.sourceArtifactId, artifact_digest: options.sourceArtifactDigest, contract_sha256: options.sourceContractSha256, source_fingerprint: source.contract.source_fingerprint, review_scope_fingerprint: source.contract.review_scope_fingerprint, reason: fitHouse ? "OWNER_DEFERRED_STOCK_REVIEW" : "SOURCE_VARIANT_MISSING" },
+      source_evidence: { workflow_run_id: options.sourceRunId, artifact_id: options.sourceArtifactId, artifact_digest: options.sourceArtifactDigest, contract_sha256: options.sourceContractSha256, source_fingerprint: source.contract.source_fingerprint, review_scope_fingerprint: source.contract.review_scope_fingerprint, reason: card.evidenceReason },
       source_captured_at: source.contract.created_at,
       expires_at: expiresAt,
       workflow_run_url: `https://github.com/${REPOSITORY}/actions/runs/${options.sourceRunId}`,
@@ -433,10 +329,7 @@ function buildManifestRows(source, baseline, options) {
 function buildOutput(source, baseline, rows, options, env = process.env) {
   const profile = source.profile;
   const retailer = source.retailer;
-  const reviewShape = profile.key === "fit-house"
-    ? (row) => row.review_kind === "COMMERCIAL_CHANGE" && row.operation_type === "UPDATE_STOCK" && reasonList(row.reason_codes).includes("STOCK_CHANGE")
-    : (row) => row.review_kind === "IDENTITY_CONFLICT" && row.operation_type === "MANUAL_REVIEW_IDENTITY" && reasonList(row.reason_codes).includes("SOURCE_MISSING");
-  const priorReviewIds = baseline.activeRows.filter((row) => String(row.retailer_id) === retailer.id && reviewShape(row)).map((row) => String(row.offer_id));
+  const priorReviewIds = baseline.activeRows.filter((row) => String(row.retailer_id) === retailer.id && profile.matchesActiveReview(row)).map((row) => String(row.offer_id));
   const observedOfferIds = sortedIds([...source.contract.review_offer_ids, ...priorReviewIds]);
   invariant(observedOfferIds.every((offerId) => source.contract.catalogue_offer_ids.includes(offerId)), `${profileLabel(profile)} active review is outside the fresh catalogue scope`);
   const manifest = { schema_version: 1, kind: "automation-review-publisher-manifest", generated_at: source.contract.created_at, retailer_id: retailer.id, retailer: retailer.name, retailer_slug: retailer.slug, observed_offer_ids: observedOfferIds, workflow_run_id: options.sourceRunId, artifact_id: options.sourceArtifactId, commit_sha: options.sourceCommitSha, report_sha256: source.contract.file_hashes.report, artifact_sha256: options.sourceArtifactDigest, rows };

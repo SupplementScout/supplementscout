@@ -1,0 +1,86 @@
+{
+  "schema_version": "ra-stab-01-whey-okay-review-publication-preparation-v1",
+  "status": "LOCAL_VERIFIED_CI_AND_LIVE_PUBLICATION_PENDING",
+  "task": "RA-STAB-01",
+  "generated_at": "2026-10-06T10:12:00.000Z",
+  "change": {
+    "kind": "SHARED_REVIEW_PUBLICATION_PROFILE_EXTENSION_AND_CORE_BRANCH_REMOVAL",
+    "new_workflow": false,
+    "new_schedule": false,
+    "new_importer": false,
+    "new_approval_path": false,
+    "new_executor": false,
+    "new_database_function": false,
+    "direct_catalogue_writer": false,
+    "shared_core_retailer_branch_added": false
+  },
+  "shared_cleanup": {
+    "profile_module": "scripts/lib/automation-review-publication-profiles.js",
+    "shared_source": "scripts/shared-retailer-automation-review-source.js",
+    "removed_from_shared_core": [
+      "Fit House versus 10 Reps partition branch",
+      "Fit House versus source-missing normalization branch",
+      "Fit House versus identity-review card branch",
+      "hard-coded source workflow identity"
+    ],
+    "retained_common_path": [
+      "one immutable source contract",
+      "one current production baseline read",
+      "one shared reconciliation changeset",
+      "one existing protected publication RPC"
+    ]
+  },
+  "whey_okay": {
+    "retailer_id": 3,
+    "approved_scope": 589,
+    "current_expected_partition": "579 executable VERIFY_NO_CHANGE plus 10 SOURCE_VARIANT_MISSING review rows",
+    "capture_files": [
+      "production-preflight-dry-run.json",
+      "production-preflight-diagnostic.json",
+      "production-db-baseline.json",
+      "production-preflight-immutable.json"
+    ],
+    "manual_operation": "review-only",
+    "scheduled_publication": true,
+    "catalogue_apply_in_review_only": false
+  },
+  "fail_closed_guards": [
+    "exact 589-row partition",
+    "at most 10 current review rows",
+    "zero blocked rows and zero preflight writes",
+    "immutable preflight payload, child and row hashes",
+    "exact commit, manifest and source fingerprint binding",
+    "executable artifact IDs disjoint from review IDs",
+    "review IDs equal quarantined and missing-source IDs",
+    "current database identity and commercial state equal sealed baseline",
+    "expired, changed or tampered evidence rejected before publication",
+    "source-missing cards remain review-only and non-executable"
+  ],
+  "regressions": {
+    "focused_suites": "PASS_65_OF_65",
+    "whey_exact_partition": "PASS",
+    "whey_review_only_cards": "PASS",
+    "tampered_immutable_scope": "REJECTED",
+    "fit_house_and_10_reps_regressions": "PASS",
+    "shared_core_retailer_condition_scan": "PASS"
+  },
+  "local_verification": {
+    "verify_project_before": "PASS",
+    "verify_quick": "PASS_544_PASSED_3_SKIPPED",
+    "verify_full": "PASS",
+    "production_build": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "production_operations": {
+    "workflow_dispatches": 0,
+    "review_queue_writes": 0,
+    "catalogue_writes": 0,
+    "control_writes": 0
+  },
+  "remaining_gates": [
+    "green CI and merge",
+    "one review-only Whey Okay run from the exact merge",
+    "artifact-bound readback of the fresh partition and queue publication",
+    "independent proof that catalogue and control state did not change"
+  ]
+}

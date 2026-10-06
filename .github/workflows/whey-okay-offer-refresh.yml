@@ -12,6 +12,7 @@ on:
           - select-operation
           - dry-run
           - apply
+          - review-only
           - reviewed-offer-73-dry-run
           - reviewed-artifact-apply
       validation_context:
@@ -53,6 +54,7 @@ jobs:
       run_reviewed_offer_73: ${{ steps.route.outputs.run_reviewed_offer_73 }}
       run_reviewed_artifact_apply: ${{ steps.route.outputs.run_reviewed_artifact_apply }}
       run_standard_apply: ${{ steps.route.outputs.run_standard_apply }}
+      run_review_publication: ${{ steps.route.outputs.run_review_publication }}
       reviewed_contract: ${{ steps.route.outputs.reviewed_contract }}
       owner_confirmation: ${{ steps.route.outputs.owner_confirmation }}
     steps:
@@ -70,6 +72,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     environment: production-readonly
+    outputs:
+      artifact_id: ${{ steps.whey_artifact.outputs.artifact-id }}
+      artifact_digest: ${{ steps.whey_artifact.outputs.artifact-digest }}
+      source_contract_sha256: ${{ steps.review_source.outputs.contract_sha256 }}
+      review_scope_fingerprint: ${{ steps.review_source.outputs.review_scope_fingerprint }}
 
     steps:
       - name: Validate protected execution context
@@ -121,10 +128,15 @@ jobs:
         run: node scripts/whey-okay-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
 
       - name: Capture Whey Okay DB baseline read-only
-        if: ${{ needs.route-operation.outputs.run_standard_apply == 'true' }}
+        if: ${{ needs.route-operation.outputs.run_review_publication == 'true' }}
         env:
           WHEY_OKAY_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
         run: node scripts/retailer-offer-refresh-postflight.js --profile=whey-okay --mode=baseline --output=tmp/whey-okay-offer-refresh/production-db-baseline.json
+
+      - name: Bind fresh Whey Okay Review Queue source
+        id: review_source
+        if: ${{ needs.route-operation.outputs.run_review_publication == 'true' }}
+        run: node scripts/shared-retailer-automation-review-source.js --mode=bind --profile=whey-okay --source-artifact-dir=tmp/whey-okay-offer-refresh
 
       - name: Apply all approved Whey Okay offer refreshes
         if: ${{ needs.route-operation.outputs.run_standard_apply == 'true' }}
@@ -165,12 +177,70 @@ jobs:
       - name: Upload Whey Okay refresh evidence
         if: always()
         continue-on-error: true
+        id: whey_artifact
         uses: actions/upload-artifact@v7
         with:
           name: whey-okay-offer-refresh-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 14
           if-no-files-found: error
           path: tmp/whey-okay-offer-refresh/
+
+  refresh-review-queue:
+    needs: [route-operation, whey-okay-offer-refresh]
+    if: ${{ always() && needs.route-operation.outputs.run_review_publication == 'true' && needs.whey-okay-offer-refresh.outputs.artifact_id != '' && needs.whey-okay-offer-refresh.outputs.artifact_digest != '' && needs.whey-okay-offer-refresh.outputs.source_contract_sha256 != '' && needs.whey-okay-offer-refresh.outputs.review_scope_fingerprint != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production-readonly
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Test shared Whey Okay Review Queue publication contracts
+        run: node --test scripts/automation-review-reconciliation-dry-run.test.js
+      - name: Download exact Whey Okay source evidence
+        uses: actions/download-artifact@v8
+        with:
+          artifact-ids: ${{ needs.whey-okay-offer-refresh.outputs.artifact_id }}
+          path: tmp/automation-review-reconciliation/whey-okay-source
+          merge-multiple: true
+      - name: Build fresh Whey Okay Review Queue changes
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SOURCE_ARTIFACT_DIGEST: ${{ needs.whey-okay-offer-refresh.outputs.artifact_digest }}
+        run: >-
+          node scripts/shared-retailer-automation-review-source.js
+          --mode=reconcile
+          --profile=whey-okay
+          --source-artifact-dir=tmp/automation-review-reconciliation/whey-okay-source
+          --source-run-id=${{ github.run_id }}
+          --source-artifact-id=${{ needs.whey-okay-offer-refresh.outputs.artifact_id }}
+          --source-commit-sha=${{ github.sha }}
+          --source-artifact-digest=${SOURCE_ARTIFACT_DIGEST#sha256:}
+          --source-contract-sha256=${{ needs.whey-okay-offer-refresh.outputs.source_contract_sha256 }}
+          --output=tmp/automation-review-reconciliation/whey-okay-reconciliation-dry-run.json
+      - name: Publish fresh Whey Okay cards to Automation Review Queue
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: >-
+          node scripts/automation-review-reconciliation-apply.js
+          --input=tmp/automation-review-reconciliation/whey-okay-reconciliation-dry-run.json
+          --output=tmp/automation-review-reconciliation/whey-okay-reconciliation-apply.json
+      - name: Upload Whey Okay queue refresh evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: whey-okay-automation-review-queue-refresh-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: error
+          path: tmp/automation-review-reconciliation/*.json
 
   reviewed-offer-73-dry-run:
     needs: route-operation

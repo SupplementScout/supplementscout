@@ -1,6 +1,6 @@
 const fs = require("node:fs");
 
-const OPERATIONS = new Set(["dry-run", "apply", "reviewed-offer-73-dry-run", "reviewed-artifact-apply"]);
+const OPERATIONS = new Set(["dry-run", "apply", "review-only", "reviewed-offer-73-dry-run", "reviewed-artifact-apply"]);
 const VALIDATION_CONTEXTS = new Set(["workflow_dispatch", "schedule"]);
 const SHA256 = /^[0-9a-f]{64}$/;
 const MD5 = /^[0-9a-f]{32}$/;
@@ -38,6 +38,7 @@ function routeWorkflowEvent(eventName, payload) {
       run_reviewed_offer_73: false,
       run_reviewed_artifact_apply: false,
       run_standard_apply: true,
+      run_review_publication: true,
       reviewed_contract: "",
       owner_confirmation: "",
     };
@@ -63,10 +64,11 @@ function routeWorkflowEvent(eventName, payload) {
   return {
     operation,
     validation_context: validationContext,
-    run_standard_refresh: operation === "dry-run" || operation === "apply",
+    run_standard_refresh: operation === "dry-run" || operation === "apply" || operation === "review-only",
     run_reviewed_offer_73: operation === "reviewed-offer-73-dry-run",
     run_reviewed_artifact_apply: operation === "reviewed-artifact-apply",
     run_standard_apply: operation === "apply",
+    run_review_publication: operation === "apply" || operation === "review-only",
     reviewed_contract: reviewedContract ? JSON.stringify(reviewedContract) : "",
     owner_confirmation: reviewedContract ? payload.inputs.owner_confirmation : "",
   };
@@ -81,6 +83,7 @@ function appendOutputs(file, route) {
     `run_reviewed_offer_73=${route.run_reviewed_offer_73}`,
     `run_reviewed_artifact_apply=${route.run_reviewed_artifact_apply}`,
     `run_standard_apply=${route.run_standard_apply}`,
+    `run_review_publication=${route.run_review_publication}`,
     `reviewed_contract=${route.reviewed_contract || ""}`,
     `owner_confirmation=${route.owner_confirmation || ""}`,
     "",
