@@ -1648,6 +1648,36 @@ before commercial execution can be claimed; none will be manufactured for
 proof. Evidence:
 [`evidence/RA-STAB-01-WHEY-OKAY-REVIEW-EXECUTION-PREPARATION-2026-10-06.json`](evidence/RA-STAB-01-WHEY-OKAY-REVIEW-EXECUTION-PREPARATION-2026-10-06.json).
 
+**6 October Whey Okay Review Queue publication and shared-core cleanup — local
+verified, CI/live proof pending:** the existing Whey Okay workflow now has the
+same `review-only` publication route as the shared Fit House/10 Reps workflow.
+It performs a fresh ordinary dry-run, captures the existing read-only database
+baseline, seals the classification plus immutable Whey preflight and sends the
+result through the existing shared reconciliation and protected publication
+RPC. This mode does not register or execute a catalogue plan. The ordinary
+schedule uses the same bound publication after its existing guarded apply.
+
+This was not implemented as a third branch in shared core. Retailer source-file,
+partition and review-card differences now live in one closed profile module.
+The prior Fit House-versus-10 Reps branches were removed from the shared source,
+and workflow identity is profile data rather than a Fit House constant. The
+Whey profile requires the exact 589-row partition, currently represented by
+579 executable `VERIFY_NO_CHANGE` rows plus ten
+`SOURCE_VARIANT_MISSING` review rows. Those ten become read-only identity cards;
+they cannot become stock, price or identity writes. A changed count above the
+current ten-row boundary, an overlap, a missing artifact, hash/commit/source
+drift, stale evidence or any preflight write fails before publication.
+
+Focused Fit House, 10 Reps, Whey, router and workflow regressions pass `65/65`,
+including immutable-artifact tampering and a source scan proving no retailer
+key branch remains in shared core. Project Guardian before the change, the
+quick gate (`544` passed, three artifact-bound skips), the full gate, production
+build and `git diff --check` all pass. Preparation made zero production,
+catalogue, control or Review Queue writes. Next gate: green CI and merge, then
+one exact Whey Okay `review-only` dispatch and independent readback of the fresh
+queue and unchanged catalogue/control state. Evidence:
+[`evidence/RA-STAB-01-WHEY-OKAY-REVIEW-PUBLICATION-PREPARATION-2026-10-06.json`](evidence/RA-STAB-01-WHEY-OKAY-REVIEW-PUBLICATION-PREPARATION-2026-10-06.json).
+
 Docker run `37421724769` now proves the existing expired-close regression and
 the new exact `12 + 1 + 6` fixture pass against disposable PostgreSQL. The
 monolithic integration job remains red only for the same two unrelated

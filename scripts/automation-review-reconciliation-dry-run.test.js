@@ -668,6 +668,109 @@ test("10 Reps review evidence survives a later partial execution failure", () =>
   assert.equal(source.contract.executable_plan_count, 934);
 });
 
+function writeWheyOkayFixture() {
+  const { canonicalHash } = require("./jons-offer-refresh");
+  const { sealImmutablePreflight } = require("./whey-okay-offer-refresh");
+  const wheyConfig = require("../config/retailers/whey-okay-offer-sync.json");
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "whey-okay-review-source-"));
+  const sourceFingerprint = "7".repeat(64);
+  const commit = "6".repeat(40);
+  const capturedAt = "2026-10-06T10:00:00.000Z";
+  const reviewOfferIds = new Set(Array.from({ length: 10 }, (_, index) => String(5100 + index)));
+  const offerIds = [...reviewOfferIds, ...Array.from({ length: 579 }, (_, index) => String(6000 + index))];
+  const baselineRows = offerIds.map((offerId, index) => ({
+    mapping_id: String(8000 + index), retailer_id: "3",
+    mapping_product_id: String(9000 + index), mapping_variant_id: String(10000 + index),
+    external_product_id: `whey-product-${index + 1}`, external_variant_id: `whey-variant-${index + 1}`,
+    external_sku: null, external_gtin: null, external_options: null,
+    external_url: `https://wheyokay.com/item-${index + 1}-p.asp`, offer_id: offerId,
+    offer_product_id: String(9000 + index), offer_variant_id: String(10000 + index),
+    price: "19.99", shipping_cost: "3.99", total_price: "23.98", in_stock: true,
+    url: `https://wheyokay.com/item-${index + 1}-p.asp`, last_checked_at: capturedAt,
+  }));
+  const byOffer = new Map(baselineRows.map((row) => [row.offer_id, row]));
+  const reviewRows = [...reviewOfferIds].map((offerId) => ({
+    offer_id: offerId, reason: "SOURCE_VARIANT_MISSING",
+    external_product_id: byOffer.get(offerId).external_product_id,
+    external_variant_id: byOffer.get(offerId).external_variant_id,
+  }));
+  const executableRows = baselineRows.filter((row) => !reviewOfferIds.has(row.offer_id)).map((row) => ({
+    offer_id: row.offer_id, action: "VERIFY_NO_CHANGE",
+    atomic_plan: { meta: { source_snapshot_sha256: sourceFingerprint, source_captured_at: capturedAt } },
+  }));
+  const artifactCore = { source_snapshot_fingerprint: sourceFingerprint, source_captured_at: capturedAt, rows: executableRows };
+  const run = {
+    target: "production", capturedAt, feed: { semantic_fingerprint: sourceFingerprint },
+    artifacts: [{ ...artifactCore, artifact_fingerprint: canonicalHash(artifactCore) }],
+    approvedManifestSha256: wheyConfig.manifest_sha256, manifestFingerprint: "5".repeat(64),
+    reviewedMassOos: null, isolateUnsafe: true, head: commit, approvedMappingCount: 589,
+    classification: {
+      rows: executableRows,
+      quarantined_rows: reviewRows,
+    },
+    discovery: { missing_rows: reviewRows.map((row) => ({ offer_id: row.offer_id })) },
+  };
+  const report = {
+    result: "PASS_WITH_REVIEW", mode: "dry-run", target: "production",
+    source: { semantic_fingerprint: sourceFingerprint }, approved_mapping_count: 589,
+    executable_plan_count: 579, executed_plan_count: 0, review_row_count: 10,
+    blocked_row_count: 0, classification: { VERIFY_NO_CHANGE: 579 }, review_rows: reviewRows,
+  };
+  const diagnostic = {
+    result: "PASS", timestamp: capturedAt, completed_at: "2026-10-06T10:01:00.000Z", failure_stage: null,
+    commit, approved_mapping_count: 589, source: { semantic_fingerprint: sourceFingerprint },
+    database_writes_attempted: 0, database_writes_completed: 0, business_writes_completed: 0,
+    control_writes_completed: 0, approvals_created: 0, approvals_consumed: 0, recovery_calls: 0,
+  };
+  const baseline = { schema_version: 1, kind: "retailer-offer-refresh-db-baseline", result: "PASS", profile: "whey-okay", snapshot: { captured_at: capturedAt, retailer_id: "3", retailer_name: "Whey Okay", row_count: 589, rows: baselineRows }, evidence_hash: "4".repeat(64) };
+  writeJson(path.join(directory, "production-preflight-dry-run.json"), report);
+  writeJson(path.join(directory, "production-preflight-diagnostic.json"), diagnostic);
+  writeJson(path.join(directory, "production-db-baseline.json"), baseline);
+  writeJson(path.join(directory, "production-preflight-immutable.json"), sealImmutablePreflight(run));
+  return { directory, baselineRows, reviewRows, commit };
+}
+
+test("Whey Okay profile seals exactly 579 executable rows plus 10 source-missing reviews", () => {
+  const fixture = writeWheyOkayFixture();
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "workflow_dispatch", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "37440000001", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: fixture.commit };
+  const contract = buildFitHouseSourceContract(fixture.directory, env, "whey-okay");
+  assert.equal(contract.profile, "whey-okay");
+  assert.equal(contract.workflow, ".github/workflows/whey-okay-offer-refresh.yml");
+  assert.equal(contract.executable_plan_count, 579);
+  assert.equal(contract.review_row_count, 10);
+  assert.deepEqual(contract.review_offer_ids, fixture.reviewRows.map((row) => row.offer_id));
+  assert.equal(contract.catalogue_writes, 0);
+});
+
+test("Whey Okay profile creates review-only source-missing cards and rejects immutable scope drift", () => {
+  const fixture = writeWheyOkayFixture();
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "workflow_dispatch", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "37440000001", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: fixture.commit };
+  const contract = buildFitHouseSourceContract(fixture.directory, env, "whey-okay");
+  writeJson(path.join(fixture.directory, "automation-review-source-contract.json"), contract);
+  const options = { profile: "whey-okay", sourceArtifactDir: fixture.directory, sourceRunId: env.GITHUB_RUN_ID, sourceArtifactId: "11400000001", sourceCommitSha: env.GITHUB_SHA, sourceArtifactDigest: "3".repeat(64), sourceContractSha256: fileSha(path.join(fixture.directory, "automation-review-source-contract.json")), output: path.join(fixture.directory, "output.json") };
+  const source = verifyFitHouseSourceContract(options, new Date("2026-10-06T11:00:00Z"));
+  const reviewBaselineRows = fixture.baselineRows.filter((row) => fixture.reviewRows.some((review) => review.offer_id === row.offer_id));
+  const baseline = {
+    catalogueCounts: { products: 1337, product_variants: 3632, retailer_products: 3758, offers: 3758, price_history: 27401 }, activeRows: [],
+    offers: reviewBaselineRows.map((row) => ({ id: row.offer_id, retailer_id: "3", retailer_product_id: row.mapping_id, product_id: row.offer_product_id, product_variant_id: row.offer_variant_id, price: row.price, shipping_cost: row.shipping_cost, total_price: row.total_price, in_stock: row.in_stock, url: row.url })),
+    mappings: reviewBaselineRows.map((row) => ({ id: row.mapping_id, retailer_id: "3", product_id: row.mapping_product_id, product_variant_id: row.mapping_variant_id, external_product_id: row.external_product_id, external_variant_id: row.external_variant_id, external_sku: null, external_gtin: null, external_url: row.external_url })),
+    products: reviewBaselineRows.map((row) => ({ id: row.offer_product_id, name: `Product ${row.offer_id}` })),
+    variants: reviewBaselineRows.map((row) => ({ id: row.offer_variant_id, display_name: `Variant ${row.offer_id}` })),
+  };
+  const rows = buildFitHouseManifestRows(source, baseline, options);
+  const output = buildFitHouseOutput(source, baseline, rows, options, env);
+  assert.equal(rows.length, 10);
+  assert.equal(rows.every((row) => row.operation_type === "MANUAL_REVIEW_IDENTITY" && row.reason_codes === "SOURCE_MISSING" && row.proposed_state.catalogue_action === "KEEP_UNCHANGED"), true);
+  assert.equal(output.operations.CREATE, 10);
+  assert.equal(output.expected.catalogue_writes, 0);
+
+  const immutablePath = path.join(fixture.directory, "production-preflight-immutable.json");
+  const immutable = JSON.parse(fs.readFileSync(immutablePath, "utf8"));
+  immutable.run.classification.rows.pop();
+  writeJson(immutablePath, immutable);
+  assert.throws(() => buildFitHouseSourceContract(fixture.directory, env, "whey-okay"), /payload hash mismatch/);
+});
+
 test("shared retailer workflow publishes bound Fit House and 10 Reps cards through one queue job", () => {
   const workflow = fs.readFileSync(path.join(process.cwd(), ".github/workflows/fit-house-offer-refresh.yml"), "utf8");
   assert.match(workflow, /Bind fresh Fit House Review Queue source/);
@@ -693,4 +796,21 @@ test("shared retailer workflow publishes bound Fit House and 10 Reps cards throu
   assert.doesNotMatch(source, /\.from\s*\([^)]*\)\.insert\s*\(/);
   assert.doesNotMatch(source, /\.from\s*\([^)]*\)\.update\s*\(/);
   assert.doesNotMatch(source, /\.from\s*\([^)]*\)\.delete\s*\(/);
+  assert.doesNotMatch(source, /profile\.key\s*===/);
+});
+
+test("Whey Okay reuses the shared queue publisher without a retailer branch in shared core", () => {
+  const workflow = fs.readFileSync(path.join(process.cwd(), ".github/workflows/whey-okay-offer-refresh.yml"), "utf8");
+  assert.match(workflow, /- review-only/);
+  assert.match(workflow, /run_review_publication/);
+  assert.match(workflow, /Capture Whey Okay DB baseline read-only[\s\S]*Bind fresh Whey Okay Review Queue source[\s\S]*Apply all approved Whey Okay offer refreshes/);
+  assert.match(workflow, /refresh-review-queue:[\s\S]*needs: \[route-operation, whey-okay-offer-refresh\]/);
+  assert.match(workflow, /Test shared Whey Okay Review Queue publication contracts[\s\S]*automation-review-reconciliation-dry-run\.test\.js/);
+  assert.match(workflow, /shared-retailer-automation-review-source\.js[\s\S]*--profile=whey-okay/);
+  assert.match(workflow, /Publish fresh Whey Okay cards to Automation Review Queue[\s\S]*automation-review-reconciliation-apply\.js/);
+  const standardJob = workflow.slice(workflow.indexOf("\n  whey-okay-offer-refresh:"), workflow.indexOf("\n  refresh-review-queue:"));
+  assert.doesNotMatch(standardJob, /SUPABASE_SERVICE_ROLE_KEY/);
+  assert.match(standardJob, /production-preflight-immutable\.json/);
+  const sharedSource = fs.readFileSync(path.join(process.cwd(), "scripts/shared-retailer-automation-review-source.js"), "utf8");
+  assert.doesNotMatch(sharedSource, /profile\.key\s*===|profile\.key\s*!==/);
 });
