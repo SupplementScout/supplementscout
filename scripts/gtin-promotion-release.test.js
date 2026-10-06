@@ -79,16 +79,16 @@ test("deployed GTIN, Whey Okay rebind and traffic classification migrations rema
     "20260816173000_extend_guarded_gtin_promotion_exact_36.sql",
     "20260817114500_add_outbound_click_traffic_classification.sql",
   ]) assert.equal(pending.has(filename), false);
-  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 224);
-  assert.equal(CONTRACTS.PRODUCTION.ledgerFingerprint, "9d1bfaefa24a85ecbf6012ff6d61b6b8f9f849f54a93e10b23a4779239cf784b");
+  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 225);
+  assert.equal(CONTRACTS.PRODUCTION.ledgerFingerprint, "4981529d078bc0c4dc5d0597b3a6327f44270e76f4cca1a93483abe4c950cf9f");
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", MIGRATION)), true);
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", "20260816173000_extend_guarded_gtin_promotion_exact_36.sql")), true);
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", "20260817114500_add_outbound_click_traffic_classification.sql")), true);
 });
 
-test("production migration preflight hashes the real 224-row ledger only in the PRODUCTION domain", () => {
+test("production migration preflight hashes the real 225-row ledger only in the PRODUCTION domain", () => {
   const rows = productionLedger();
-  assert.equal(rows.length, 224);
+  assert.equal(rows.length, 225);
   assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "PRODUCTION" }), CONTRACTS.PRODUCTION.ledgerFingerprint);
   assert.notEqual(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACTS.PRODUCTION.ledgerFingerprint);
   assert.equal(classifyProductionMigrationLedger(rows), "ALREADY_PRESENT");
