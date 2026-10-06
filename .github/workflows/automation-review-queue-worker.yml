@@ -32,12 +32,13 @@ jobs:
       - name: Remove test-only execution evidence
         run: rm -rf tmp/automation-review-execution && mkdir -p tmp/automation-review-execution
       - name: Audit owner decisions read-only
-        continue-on-error: true
+        id: owner_audit
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/automation-review-owner-decision-audit.js --output=tmp/automation-review-execution/owner-decision-audit.json
       - name: Execute oldest approved queue request
+        if: ${{ steps.owner_audit.outcome == 'success' }}
         env:
           EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
           EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
@@ -57,6 +58,26 @@ jobs:
           TEN_REPS_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           TEN_REPS_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: node scripts/automation-review-queue-worker.js
+      - name: Publish queue monitoring summary
+        if: always()
+        shell: bash
+        run: |
+          node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const fs = require("node:fs");
+          const path = require("node:path");
+          const directory = "tmp/automation-review-execution";
+          const read = (file) => file && fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, "utf8")) : null;
+          const audit = read(path.join(directory, "owner-decision-audit.json"));
+          const batchName = fs.existsSync(directory) ? fs.readdirSync(directory).find((name) => /^queue-worker-.*-batch\.json$/.test(name)) : null;
+          const batch = read(batchName ? path.join(directory, batchName) : null);
+          console.log("## Automation Review Queue");
+          console.log(`- Monitor status: ${audit?.monitor_status || "FAILED_SYSTEM"}`);
+          console.log(`- Pending owner decisions: ${audit?.pending_owner_decision_count ?? "unknown"}`);
+          console.log(`- Review attention: ${audit?.review_attention_count ?? "unknown"}`);
+          console.log(`- System failures: ${audit?.system_failure_count ?? "unknown"}`);
+          console.log(`- Queue processed: ${batch?.processed ?? 0}`);
+          console.log(`- Database writes: ${batch?.database_writes ?? 0}`);
+          NODE
       - name: Upload execution evidence
         if: always()
         uses: actions/upload-artifact@v7

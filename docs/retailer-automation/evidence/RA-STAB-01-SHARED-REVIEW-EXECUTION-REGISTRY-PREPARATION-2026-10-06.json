@@ -1,6 +1,6 @@
 {
   "schema_version": "ra-stab-01-shared-review-execution-registry-preparation-v1",
-  "status": "LOCAL_FULL_VERIFIED_CI_AND_PRODUCTION_PENDING",
+  "status": "MERGED_LIVE_IDLE_VERIFIED_FRESH_EXECUTION_PENDING",
   "task": "RA-STAB-01",
   "generated_at": "2026-10-06T07:25:36.7864654Z",
   "change": {
@@ -67,15 +67,38 @@
     "verify_full": "PASS",
     "nextjs_production_build": "PASS"
   },
+  "github_verification": {
+    "commit": "dc08ba97b0b97115ba823f1906598ead18129e3f",
+    "pull_request": 233,
+    "merge_commit": "907fdbabff8df8f95fc1082d12db5e908fd6a875",
+    "quality_gate_run": 37430560887,
+    "quality_gate_full": "PASS",
+    "project_guardian_run": 37430560699,
+    "project_guardian": "PASS",
+    "vercel": "PASS",
+    "gitguardian": "PASS"
+  },
+  "production_readback": {
+    "workflow_run": 37430887924,
+    "head_sha": "907fdbabff8df8f95fc1082d12db5e908fd6a875",
+    "job_result": "PASS",
+    "worker_result": "PASS",
+    "processed": 0,
+    "deferred": 0,
+    "completed": 0,
+    "failed": 0,
+    "database_writes": 0,
+    "artifact_id": 11396254362,
+    "artifact_sha256": "31210eeb840c261c3d71fe9ebf749847a6a921c316e097b4c1bd1c1ac53e55c8",
+    "interpretation": "The merged registry loaded and the guarded worker completed normally, but no fresh queued execution request existed. This proves live deployment and idle behavior, not a 10 Reps commercial write."
+  },
   "production_operations": {
     "catalogue_writes": 0,
     "control_writes": 0,
-    "workflow_dispatches": 0,
+    "workflow_dispatches": 1,
     "owner_decisions_created": 0
   },
   "remaining_gates": [
-    "green CI and merge",
-    "production scheduled-worker readback",
     "live exact 10 Reps UPDATE_STOCK execution only when a fresh owner-approved row exists"
   ]
 }
