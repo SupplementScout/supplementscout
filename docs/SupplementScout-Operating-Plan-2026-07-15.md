@@ -1009,6 +1009,27 @@ requests and made zero database writes. This live verifies deployment and safe
 idle behavior. It does not claim a Whey Okay commercial change; that still
 requires a genuine fresh owner-approved `UPDATE_STOCK` request.
 
+The later 6 October production checkpoint also closes the fresh publication and
+status-classification gap. Fit House run `37450876753` published exactly its 14
+current stock-review rows while preserving 272 safe confirmations; 10 Reps
+retains exactly 16 source-missing identity reviews and its verified 934 safe
+operations. PR `#242` binds those exact owner-approved scopes to the existing
+common watchdog, and read-only run `37454182407` proves 10 Reps now reports
+`PASS_WITH_REVIEW`. Fit House no longer reports review-backlog growth and keeps
+only the real `LATEST_ORDINARY_ATTEMPT_INCOMPLETE` signal. The run made zero
+database writes, and all code, documentation and post-merge quality gates are
+green. Detailed live evidence is in the
+[Fit House publication readback](retailer-automation/evidence/RA-STAB-01-FIT-HOUSE-REVIEW-PUBLICATION-LIVE-READBACK-2026-10-06.json)
+and the
+[watchdog baseline readback](retailer-automation/evidence/RA-STAB-01-WATCHDOG-APPROVED-REVIEW-BASELINES-LIVE-READBACK-2026-10-06.json).
+
+The binding next action is observation of the next natural shared-retailer run
+at `02:47 UTC` and the following watchdog, not another manual apply or threshold
+change. RA-STAB-01 remains `IN_PROGRESS` at `0/3` ordinary intervals. The older
+execution coordinator is not on the current panel/worker runtime path; it remains
+referenced by compatibility fixtures and must not be deleted before the planned
+post-observation RA-DECOMMISSION proof. No new work may route through it.
+
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256
 `59c6d03a2bbcff0b384b86065f76e6f456e3538ca538613cf83e5e017ec11a9d`,
