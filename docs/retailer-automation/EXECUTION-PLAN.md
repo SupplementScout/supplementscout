@@ -1698,6 +1698,52 @@ a genuine owner-approved executable stock decision and will not be fabricated
 for proof. Evidence:
 [`evidence/RA-STAB-01-WHEY-OKAY-REVIEW-PUBLICATION-PREPARATION-2026-10-06.json`](evidence/RA-STAB-01-WHEY-OKAY-REVIEW-PUBLICATION-PREPARATION-2026-10-06.json).
 
+**6 October Fit House classifier-coverage correction and Review Queue
+publication — merged and live verified:** scheduled run `37442830504` produced
+valid fresh evidence for the exact ordinary partition `286 = 272 executable +
+14 review + 0 blocked`, but the shared source binder incorrectly required the
+classifier itself to contain only the 272 executable rows. Fit House correctly
+classifies the complete 286-row scope because its 14 review rows are genuine
+stock changes; 10 Reps correctly classifies only its 934 executable rows because
+its 16 source-missing rows are quarantined before classification.
+
+The correction does not add a Fit House branch to shared core. Classifier
+coverage is now closed retailer-profile data: `full-partition` for Fit House and
+`executable-only` for 10 Reps. The validator derives the expected IDs and count
+from that contract and, for a full partition, also binds the classifier changed
+IDs to the exact review IDs. The incident regression uses the production shape
+and proves that omitting even one of the 286 approved IDs fails closed. The
+previously failed run artifact now seals successfully without changing its
+source bytes.
+
+Focused publication tests pass `26/26`; quick gate passes `544` with the three
+expected artifact-bound skips; full gate, production build, Project Guardian
+before/after and `git diff --check` pass. PR `#240` merged commit `b1566fd` as
+`cc4131a` after Quality Gate `37450521796`, Vercel and GitGuardian passed. The
+post-merge Quality Gate `37450827077` also passed.
+
+Exact merged `review-only` run `37450876753` then reproduced 272 safe
+confirmations and the same 14 stock-review rows. Catalogue apply, apply
+postflight and apply idempotency were skipped. The protected publisher refreshed
+13 pending cards and preserved one matching approved card immutably; it made 27
+queue/audit transaction writes and zero catalogue writes. Source artifact
+`11407072137` has SHA-256
+`1ece5f31020be305c8c64754e7677b0d26def3576a2fec1b7b740a172dc95763`;
+queue artifact `11406537671` has SHA-256
+`324cec2eaeb7d69e23293fc80e03cb6c8f8f4e20ce7614c363537e5618595fea`.
+
+An independent read-only production check at `2026-10-06T10:41:21.525Z`
+found the exact 14 active Fit House cards for offers `697, 735, 921, 944, 951,
+953, 954, 963, 972, 983, 1859, 1904, 1938, 1982`. Thirteen are pending with
+fresh run evidence. Review `1121` / offer `1982` remains approved with its
+immutable decision evidence; it has no execution request and was not silently
+executed. All current commercial and identity fields still equal the published
+before-state. Catalogue counts remain `1337/3632/3758/3758/27666`, proving zero
+catalogue change. The separate owner execution confirmation remains required
+for offer `1982`; no request will be manufactured for proof. RA-STAB-01 remains
+`IN_PROGRESS` pending the next ordinary schedule/watchdog observation. Evidence:
+[`evidence/RA-STAB-01-FIT-HOUSE-REVIEW-PUBLICATION-LIVE-READBACK-2026-10-06.json`](evidence/RA-STAB-01-FIT-HOUSE-REVIEW-PUBLICATION-LIVE-READBACK-2026-10-06.json).
+
 Docker run `37421724769` now proves the existing expired-close regression and
 the new exact `12 + 1 + 6` fixture pass against disposable PostgreSQL. The
 monolithic integration job remains red only for the same two unrelated
