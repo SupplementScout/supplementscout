@@ -1,6 +1,6 @@
 {
   "schema_version": "ra-stab-01-whey-okay-review-publication-preparation-v1",
-  "status": "LOCAL_VERIFIED_CI_AND_LIVE_PUBLICATION_PENDING",
+  "status": "MERGED_LIVE_VERIFIED",
   "task": "RA-STAB-01",
   "generated_at": "2026-10-06T10:12:00.000Z",
   "change": {
@@ -71,16 +71,85 @@
     "production_build": "PASS",
     "git_diff_check": "PASS"
   },
-  "production_operations": {
-    "workflow_dispatches": 0,
-    "review_queue_writes": 0,
+  "github_verification": {
+    "commit": "8361ffc",
+    "pull_request": 238,
+    "merge_commit": "ea217795818568b89c92210d537401fcc586a622",
+    "quality_gate_run": 37448030302,
+    "quality_gate_full": "PASS",
+    "project_guardian_run": 37448030593,
+    "project_guardian": "PASS",
+    "vercel": "PASS",
+    "gitguardian": "PASS"
+  },
+  "production_readback": {
+    "workflow_run": 37448387527,
+    "head_sha": "ea217795818568b89c92210d537401fcc586a622",
+    "result": "PASS",
+    "operation": "review-only",
+    "approved_scope": 589,
+    "executable_verify_no_change_rows": 579,
+    "review_rows": 10,
+    "blocked_rows": 0,
+    "review_offer_ids": [
+      "16",
+      "1506",
+      "1507",
+      "1508",
+      "1509",
+      "1510",
+      "1511",
+      "1512",
+      "1568",
+      "1584"
+    ],
+    "publication_operations": {
+      "create": 10,
+      "refresh": 0,
+      "supersede": 0,
+      "resolve_by_source": 0
+    },
+    "source_artifact_id": 11403839254,
+    "source_artifact_sha256": "b84953fab528ff12c9b0dd5eeb9b4b5eaa4e625eb7fddee74fd0a1b66f1ef6db",
+    "queue_artifact_id": 11403424148,
+    "queue_artifact_sha256": "36b86e9fc3e1b508e831bb0fd0f929d80e47e162fa494b8667535352c7d7d586",
+    "review_scope_fingerprint": "88430e1041b0fdd9f4999a1ad51b83aebf7bcb80dd345bcd27729b12b4ecf0ca",
+    "contract_sha256": "c9ed5cec4401171e599e9d077793be6ec03d1765404f754a7402e33d6bb33c93",
+    "catalogue_apply_step": "SKIPPED",
+    "postflight_apply_step": "SKIPPED",
+    "idempotency_apply_step": "SKIPPED",
+    "review_queue_rows_created": 10,
+    "review_queue_transaction_writes": 21,
+    "catalogue_writes": 0
+  },
+  "independent_production_readback": {
+    "captured_at": "2026-10-06T10:18:44.674Z",
+    "result": "PASS",
+    "active_rows_bound_to_run": 10,
+    "all_rows": "PENDING_IDENTITY_SOURCE_MISSING_KEEP_UNCHANGED",
+    "execution_requests": 0,
+    "commercial_and_identity_rows_equal_published_before_state": true,
+    "catalogue_counts": {
+      "products": 1337,
+      "product_variants": 3632,
+      "retailer_products": 3758,
+      "offers": 3758,
+      "price_history": 27666
+    },
     "catalogue_writes": 0,
-    "control_writes": 0
+    "retailer_control_writes": 0,
+    "read_only_queries_only": true
+  },
+  "production_operations": {
+    "workflow_dispatches": 1,
+    "review_queue_rows_created": 10,
+    "review_queue_transaction_writes": 21,
+    "catalogue_writes": 0,
+    "retailer_control_writes": 0,
+    "execution_requests": 0
   },
   "remaining_gates": [
-    "green CI and merge",
-    "one review-only Whey Okay run from the exact merge",
-    "artifact-bound readback of the fresh partition and queue publication",
-    "independent proof that catalogue and control state did not change"
+    "natural scheduled publication readback on the same merged path",
+    "a genuine owner-approved executable Whey Okay stock decision before any commercial execution proof"
   ]
 }

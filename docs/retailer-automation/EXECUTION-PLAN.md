@@ -1648,8 +1648,8 @@ before commercial execution can be claimed; none will be manufactured for
 proof. Evidence:
 [`evidence/RA-STAB-01-WHEY-OKAY-REVIEW-EXECUTION-PREPARATION-2026-10-06.json`](evidence/RA-STAB-01-WHEY-OKAY-REVIEW-EXECUTION-PREPARATION-2026-10-06.json).
 
-**6 October Whey Okay Review Queue publication and shared-core cleanup — local
-verified, CI/live proof pending:** the existing Whey Okay workflow now has the
+**6 October Whey Okay Review Queue publication and shared-core cleanup — merged
+and live verified:** the existing Whey Okay workflow now has the
 same `review-only` publication route as the shared Fit House/10 Reps workflow.
 It performs a fresh ordinary dry-run, captures the existing read-only database
 baseline, seals the classification plus immutable Whey preflight and sends the
@@ -1672,10 +1672,30 @@ Focused Fit House, 10 Reps, Whey, router and workflow regressions pass `65/65`,
 including immutable-artifact tampering and a source scan proving no retailer
 key branch remains in shared core. Project Guardian before the change, the
 quick gate (`544` passed, three artifact-bound skips), the full gate, production
-build and `git diff --check` all pass. Preparation made zero production,
-catalogue, control or Review Queue writes. Next gate: green CI and merge, then
-one exact Whey Okay `review-only` dispatch and independent readback of the fresh
-queue and unchanged catalogue/control state. Evidence:
+build and `git diff --check` all pass. PR `#238` merged as `ea217795` after full
+Quality Gate `37448030302`, Project Guardian `37448030593`, GitGuardian and
+Vercel passed.
+
+The exact merged `review-only` run `37448387527` then reproduced the fresh
+partition `589 = 579 VERIFY_NO_CHANGE + 10 SOURCE_VARIANT_MISSING + 0 blocked`.
+Catalogue apply, apply postflight and apply idempotency were all skipped. The
+existing protected publisher created exactly ten cards and performed no
+refresh, supersede or source resolution. The cards are for offers `16, 1506,
+1507, 1508, 1509, 1510, 1511, 1512, 1568, 1584`. Artifact `11403839254` has
+SHA-256 `b84953fab528ff12c9b0dd5eeb9b4b5eaa4e625eb7fddee74fd0a1b66f1ef6db`;
+queue artifact `11403424148` has SHA-256
+`36b86e9fc3e1b508e831bb0fd0f929d80e47e162fa494b8667535352c7d7d586`.
+
+An independent production read at `2026-10-06T10:18:44.674Z` found those exact
+ten rows, all `PENDING`, identity/source-missing and `KEEP_UNCHANGED`, with zero
+execution requests. Every current commercial and canonical identity field
+matched the sealed before-state. Catalogue counts remained exactly
+`1337/3632/3758/3758/27666` for products, variants, mappings, offers and price
+history. The publisher transaction made 21 Review Queue/audit writes for ten
+new cards, but zero catalogue or retailer-control writes. This closes fresh
+Whey Okay Review Queue publication; a later commercial execution still requires
+a genuine owner-approved executable stock decision and will not be fabricated
+for proof. Evidence:
 [`evidence/RA-STAB-01-WHEY-OKAY-REVIEW-PUBLICATION-PREPARATION-2026-10-06.json`](evidence/RA-STAB-01-WHEY-OKAY-REVIEW-PUBLICATION-PREPARATION-2026-10-06.json).
 
 Docker run `37421724769` now proves the existing expired-close regression and
