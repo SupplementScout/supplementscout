@@ -405,6 +405,8 @@ const CONTRACTS = Object.freeze({
         "cecf5e78e058adeb32d088ea9e4ef2eb9442c24be535bd8eb026a9516bcf9fe0",
       "20261006170000_add_automation_review_owner_decision_validation.sql":
         "7f2261b3837fa943adc85e83464143084655956c033e864a7da6552459380f99",
+      "20261006190000_add_automation_review_verified_postflight_recovery.sql":
+        "1f4182a456916c1a8b3c19be89cb46c870d92b4060a2a9c4fbd62291b538f7d8",
     }),
     pending: PENDING_MIGRATIONS.STAGING,
   }),

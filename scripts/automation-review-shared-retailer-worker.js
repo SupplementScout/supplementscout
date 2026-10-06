@@ -3,7 +3,7 @@ const path = require("node:path");
 const { canonicalJson, normalizeDecimalString } = require("./lib/canonical-json");
 const { checkpoint, controlClient, invariant, loadControlState } = require("./lib/automation-review-worker-control");
 const { adaptersForWorkerKind } = require("./lib/automation-review-adapter-registry");
-const { prepareAutomationReviewDecision } = require("./lib/retailer-offer-sync/automation-review-decision");
+const { prepareAutomationReviewDecision, prepareAutomationReviewIdempotencyTransition } = require("./lib/retailer-offer-sync/automation-review-decision");
 const { run: runPostflight } = require("./retailer-offer-refresh-postflight");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -133,9 +133,10 @@ async function run(options, dependencies = {}) {
       maximumCommercialChanges: adapter.expectedCommercialChanges,
       freshnessConfirmationCount: adapter.freshnessConfirmationCount,
     });
+    const ownerDecision = prepareAutomationReviewDecision({ review: state.review, request: state.request, adapter });
     const runPlan = {
       ...preparedRunPlan,
-      automationReviewDecision: prepareAutomationReviewDecision({ review: state.review, request: state.request, adapter }),
+      automationReviewDecision: ownerDecision,
     };
     const rows = assertPreparedDecision(runPlan, state.review, adapter);
     const validations = await engine.validate(runPlan);
@@ -158,8 +159,10 @@ async function run(options, dependencies = {}) {
     const execution = executionReport(runPlan, rows, before.records.map((candidate) => String(candidate.offer.id)));
     fs.writeFileSync(executionPath, `${JSON.stringify(execution, null, 2)}\n`);
     const postflight = await (dependencies.runPostflight || runPostflight)({ profile: adapter.profile, mode: "postflight", baseline: baselinePath, execution: executionPath, output: postflightPath }, dependencies);
+    await checkpoint(db, options.executionRequestId, "EXECUTING", "POSTFLIGHT_PASSED", { run_id: String(env.GITHUB_RUN_ID), commit_sha: env.GITHUB_SHA, before_state_hash: baseline.evidence_hash, postflight_hash: postflight.postflight_hash, executed_offer_ids: [String(state.review.offer_id)], freshness_confirmation_offer_ids: rows.filter((row) => row.action === "VERIFY_NO_CHANGE").map((row) => String(row.offer_id)), expected_deltas: execution.expected_deltas, actual_deltas: { freshness: postflight.freshness_change_count, price: postflight.price_change_count, stock: postflight.stock_change_count, shipping: postflight.shipping_change_count, total: postflight.total_change_count, offer_url: postflight.offer_url_change_count, mapping_url: postflight.mapping_url_change_count }, price_history_delta: postflight.price_history_delta, database_writes: databaseWrites }, env);
     const after = await engine.readState("production");
-    const fresh = await engine.buildIdempotencyRun("production", after);
+    const idempotencyTransition = prepareAutomationReviewIdempotencyTransition({ review: state.review, decision: ownerDecision });
+    const fresh = await engine.buildIdempotencyRun("production", after, idempotencyTransition);
     const selectedAfter = fresh.classification.rows.find((row) => String(row.offer_id) === String(state.review.offer_id));
     invariant(selectedAfter?.action === "VERIFY_NO_CHANGE", "IDEMPOTENCY_FAILED");
     const evidence = { run_id: String(env.GITHUB_RUN_ID), run_url: `${env.GITHUB_SERVER_URL}/${env.GITHUB_REPOSITORY}/actions/runs/${env.GITHUB_RUN_ID}`, commit_sha: env.GITHUB_SHA, before_state_hash: baseline.evidence_hash, postflight_hash: postflight.postflight_hash, executed_offer_ids: [String(state.review.offer_id)], freshness_confirmation_offer_ids: rows.filter((row) => row.action === "VERIFY_NO_CHANGE").map((row) => String(row.offer_id)), failed_offer_ids: [], remaining_offer_ids: [], expected_deltas: execution.expected_deltas, actual_deltas: { freshness: postflight.freshness_change_count, price: postflight.price_change_count, stock: postflight.stock_change_count, shipping: postflight.shipping_change_count, total: postflight.total_change_count, offer_url: postflight.offer_url_change_count, mapping_url: postflight.mapping_url_change_count }, price_history_delta: postflight.price_history_delta, database_writes: databaseWrites, idempotency_result: "PASS", baseline_hash: baseline.evidence_hash, source_fingerprint: state.review.source_row_fingerprint, plan_fingerprint: state.review.plan_fingerprint };
@@ -171,6 +174,7 @@ async function run(options, dependencies = {}) {
     const code = error.code || error.message || "REVIEW_EXECUTION_FAILED";
     const revalidation = /(?:DRIFT|EXPIRED|REVALIDATION|BINDING|EVIDENCE|MISSING|SCOPE|IDEMPOTENCY)/.test(code);
     try { await checkpoint(db, options.executionRequestId, revalidation && databaseWrites === 0 ? "EXPIRED" : "FAILED", revalidation && databaseWrites === 0 ? "FAILED_REVALIDATION" : "EXECUTION_FAILED", { error_code: code, error_message: error.message, run_id: String(env.GITHUB_RUN_ID || ""), commit_sha: env.GITHUB_SHA || null, database_writes: databaseWrites }, env); } catch {}
+    error.databaseWrites = databaseWrites;
     throw error;
   }
 }

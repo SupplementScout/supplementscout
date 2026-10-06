@@ -1047,6 +1047,29 @@ next gate is one fresh approved-request execution and exact postflight. The
 natural observation counter remains `0/3`. Evidence:
 [owner-decision bridge preparation](retailer-automation/evidence/RA-STAB-01-OWNER-DECISION-BRIDGE-PREPARATION-2026-10-06.json).
 
+The subsequent exact request `976f67b4-c06c-4f73-a3c6-48ca63f45dfd` did not
+fail before writing. Run `37492690030` executed exactly the approved stock
+transition for offer `1982` plus 19 freshness-only confirmations, and the
+database postflight passed with one stock change, 20 freshness updates and zero
+commercial price-history delta. The later fresh-source rebuild stopped before
+fetch on `STABLE_OOS_BASELINE_EXCEEDED` because the legacy stable-OOS guard did
+not receive the already-applied owner-decision context. The catch path therefore
+misclassified the successful business result as `FAILED`; the batch summary
+also incorrectly reported zero writes although the request correctly retained
+20. Replay is forbidden because offer `1982` is already out of stock.
+
+The local correction remains one shared worker and one existing queue workflow.
+A sealed retailer-neutral applied-stock transition is carried into idempotency;
+it permits only the exact approved after-state and does not widen ordinary
+limits. Future workers persist `POSTFLIGHT_PASSED` before idempotency and retain
+non-zero writes in failure summaries. A pending control-only recovery RPC and
+the same workflow can finalize a failed request only after the original
+artifact, a repeated database postflight, the current offer state and a fresh
+source idempotency build all agree. It performs no catalogue write and cannot
+replay execution. Migration `20261006190000` is not production-authorized or
+applied; request/review status remains `FAILED` until that separate gate. See
+the [postflight finalization preparation](retailer-automation/evidence/RA-STAB-01-REVIEW-POSTFLIGHT-FINALIZATION-PREPARATION-2026-10-06.json).
+
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256
 `59c6d03a2bbcff0b384b86065f76e6f456e3538ca538613cf83e5e017ec11a9d`,

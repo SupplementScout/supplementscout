@@ -1807,6 +1807,30 @@ approved stock request, exact postflight/idempotency, then ordinary observation.
 Evidence:
 [`evidence/RA-STAB-01-OWNER-DECISION-BRIDGE-PREPARATION-2026-10-06.json`](evidence/RA-STAB-01-OWNER-DECISION-BRIDGE-PREPARATION-2026-10-06.json).
 
+**6 October owner-decision postflight finalization incident:** exact request
+`976f67b4-c06c-4f73-a3c6-48ca63f45dfd` in run `37492690030` executed its
+bounded `1 + 19` scope and passed database postflight. Offer `1982` is already
+`in_stock=false`; price, shipping, total, URL and mapping are unchanged. The
+subsequent idempotency rebuild failed before source fetch because the legacy
+Fit House stable-OOS state guard saw the newly approved OOS row without the
+applied decision context. This is a finalization/control-status defect, not an
+apply failure, and the request must not be retried.
+
+The prepared correction is retailer-neutral: the shared worker seals the exact
+applied stock transition into fresh-source idempotency, persists successful
+postflight before that check, and retains pessimistic writes in failed batch
+reports. The existing queue workflow has a mutually exclusive recovery mode;
+it downloads the original artifact, repeats database postflight and
+fresh-source idempotency, and only then calls a control-only, non-replay RPC.
+It creates no importer, executor, approval path or catalogue writer and adds no
+retailer ID branch to shared core. Migration
+`20261006190000_add_automation_review_verified_postflight_recovery.sql` is
+pending and not production-authorized. Local focused tests and repository
+quick/full gates pass; CI, migration deployment and live control recovery
+remain gates. RA-STAB-01
+remains `IN_PROGRESS` at `0/3` ordinary intervals. Evidence:
+[`evidence/RA-STAB-01-REVIEW-POSTFLIGHT-FINALIZATION-PREPARATION-2026-10-06.json`](evidence/RA-STAB-01-REVIEW-POSTFLIGHT-FINALIZATION-PREPARATION-2026-10-06.json).
+
 Docker run `37421724769` now proves the existing expired-close regression and
 the new exact `12 + 1 + 6` fixture pass against disposable PostgreSQL. The
 monolithic integration job remains red only for the same two unrelated

@@ -7,6 +7,8 @@ const test = require("node:test");
 const config = require("../config/retailers/fit-house-offer-sync.json");
 const {
   APPROVED_CANONICAL_REBINDINGS,
+  appliedAutomationReviewOosAllowance,
+  applyApprovedStableOosBaselineGuard,
   approvedStableOosBaseline,
   applyOwnerApprovedMissingVariantGuardBaseline,
   applyReviewedOffer697GuardProof,
@@ -42,6 +44,19 @@ const {
   sourceHealth,
   validationGuardSummary,
 } = require("./fit-house-offer-refresh");
+const { prepareAutomationReviewIdempotencyTransition } = require("./lib/retailer-offer-sync/automation-review-decision");
+
+test("post-apply idempotency accepts only the sealed owner-approved OOS transition", () => {
+  const review = { id: 1121, offer_id: 1982, operation_type: "UPDATE_STOCK", source_row_fingerprint: "a".repeat(64), plan_fingerprint: "b".repeat(64), before_state: { in_stock: true }, proposed_state: { in_stock: false } };
+  const decision = { kind: "automation-review-owner-decision-v1", execution_request_id: "11111111-1111-4111-8111-111111111111", review_id: "1121", retailer_id: "9", retailer_slug: "fit-house", review_fingerprint: review.source_row_fingerprint, plan_fingerprint: review.plan_fingerprint, idempotency_key: "c".repeat(64) };
+  const transition = prepareAutomationReviewIdempotencyTransition({ review, decision });
+  const state = { records: [...Array.from({ length: 104 }, (_, index) => ({ offer: { id: String(index + 2000), in_stock: false } })), { offer: { id: "1982", in_stock: false } }] };
+  assert.throws(() => applyApprovedStableOosBaselineGuard(state), (error) => error.code === "STABLE_OOS_BASELINE_EXCEEDED");
+  assert.equal(appliedAutomationReviewOosAllowance(state, transition), 1);
+  assert.equal(applyApprovedStableOosBaselineGuard(state, null, transition).result, "PASS");
+  assert.throws(() => applyApprovedStableOosBaselineGuard({ records: [...state.records, { offer: { id: "9999", in_stock: false } }] }, null, transition), (error) => error.code === "STABLE_OOS_BASELINE_EXCEEDED");
+  assert.throws(() => appliedAutomationReviewOosAllowance({ records: state.records.map((record) => String(record.offer.id) === "1982" ? { offer: { ...record.offer, in_stock: true } } : record) }, transition), /AUTOMATION_REVIEW_IDEMPOTENCY_AFTER_STATE_DRIFT/);
+});
 
 test("Review Queue selection executes one stock decision with nineteen unchanged confirmations", () => {
   const changed = { offer_id: "900", action: "UPDATE_STOCK", changed_fields: { stock: true, price: false, url: false, blocked: false }, target: { in_stock: true }, source: { in_stock: false } };
