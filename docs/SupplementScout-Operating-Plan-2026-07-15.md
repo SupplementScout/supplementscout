@@ -1001,9 +1001,13 @@ moved out of the Fit House implementation into one common module, reducing
 duplication rather than adding a Whey Okay patch. Price, combined, identity and
 source-missing decisions remain non-executable. Existing fresh-source,
 before-state, role-separation, postflight and idempotency guards are unchanged.
-Local focused, retailer, quick and full gates pass with zero production/control
-writes and no dispatch; CI/merge and a merged-commit live worker readback remain
-required before this addition is live verified.
+Local focused, retailer, quick and full gates passed. PR `#236` merged the
+change as `c4c680da` after all CI, security and Vercel checks passed. Production
+worker run `37435625993` loaded that exact merge, passed `7/7` focused runtime
+tests, reported `WAITING_FOR_DECISION` with zero system failures, processed zero
+requests and made zero database writes. This live verifies deployment and safe
+idle behavior. It does not claim a Whey Okay commercial change; that still
+requires a genuine fresh owner-approved `UPDATE_STOCK` request.
 
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256

@@ -1614,7 +1614,7 @@ it does not block work on the next retailer. Evidence:
 [`evidence/RA-STAB-01-REVIEW-MONITORING-STATUS-PREPARATION-2026-10-06.json`](evidence/RA-STAB-01-REVIEW-MONITORING-STATUS-PREPARATION-2026-10-06.json).
 
 **6 October Whey Okay guarded Review Queue execution and shared selection
-cleanup — locally verified, deployment pending:** Whey Okay now joins the same
+cleanup — merged and live-idle verified:** Whey Okay now joins the same
 closed execution registry and the same shared retailer worker for
 `UPDATE_STOCK` only. The worker selects the retailer engine from one validated
 module path in the registry and requires one common interface; it contains no
@@ -1632,9 +1632,20 @@ idempotency remain mandatory; stale evidence stops before registration. The
 focused registry/selection/worker suite passes `5/5`, and the complete admin
 plus Whey Okay suites pass `80/80`. Project Guardian before and after the
 documentation change, the quick gate and the full gate all pass with zero
-production/control writes and no dispatch. The next gates are CI/merge and one
-live worker readback. No commercial write will be manufactured merely for proof.
-Evidence:
+production/control writes during preparation. PR `#236` merged as `c4c680da`
+after full Quality Gate, Project Guardian, GitGuardian and Vercel passed.
+
+One production worker dispatch, run `37435625993`, checked that exact merge,
+passed all `7/7` focused runtime tests and completed green. Monitoring reported
+`WAITING_FOR_DECISION`, 377 pending owner decisions, 33 review-attention items
+and zero system failures. The queue processed zero requests and made zero
+database writes because no fresh eligible request existed. Artifact
+`11398886676` has SHA-256
+`0518d42e9a216d544778f67a29956a23056ff04a3288721f01caa17b65be115d`.
+This proves deployment and safe idle behavior, not a Whey Okay commercial
+write. A genuine fresh owner-approved `UPDATE_STOCK` request remains required
+before commercial execution can be claimed; none will be manufactured for
+proof. Evidence:
 [`evidence/RA-STAB-01-WHEY-OKAY-REVIEW-EXECUTION-PREPARATION-2026-10-06.json`](evidence/RA-STAB-01-WHEY-OKAY-REVIEW-EXECUTION-PREPARATION-2026-10-06.json).
 
 Docker run `37421724769` now proves the existing expired-close regression and

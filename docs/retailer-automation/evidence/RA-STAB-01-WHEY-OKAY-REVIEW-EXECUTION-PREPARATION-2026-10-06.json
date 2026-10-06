@@ -1,6 +1,6 @@
 {
   "schema_version": "ra-stab-01-whey-okay-review-execution-preparation-v1",
-  "status": "LOCALLY_VERIFIED_DEPLOYMENT_PENDING",
+  "status": "MERGED_LIVE_IDLE_VERIFIED_FRESH_EXECUTION_PENDING",
   "task": "RA-STAB-01",
   "generated_at": "2026-10-06T08:11:57.8997567Z",
   "change": {
@@ -67,15 +67,42 @@
     "verify_project_after_documentation": "PASS",
     "verify_full": "PASS"
   },
+  "github_verification": {
+    "commit": "951f99f82e7ca44a75b9828a3f9994678a8499b0",
+    "pull_request": 236,
+    "merge_commit": "c4c680da251fed7c046b790dc3a1cde77cbd8ee7",
+    "quality_gate_run": 37435275378,
+    "quality_gate_full": "PASS",
+    "project_guardian_run": 37435275404,
+    "project_guardian": "PASS",
+    "vercel": "PASS",
+    "gitguardian": "PASS"
+  },
+  "production_readback": {
+    "workflow_run": 37435625993,
+    "head_sha": "c4c680da251fed7c046b790dc3a1cde77cbd8ee7",
+    "job_result": "PASS",
+    "focused_runtime_tests": "PASS_7_OF_7",
+    "monitor_status": "WAITING_FOR_DECISION",
+    "pending_owner_decisions": 377,
+    "review_attention": 33,
+    "system_failures": 0,
+    "processed": 0,
+    "deferred": 0,
+    "completed": 0,
+    "failed": 0,
+    "database_writes": 0,
+    "artifact_id": 11398886676,
+    "artifact_sha256": "0518d42e9a216d544778f67a29956a23056ff04a3288721f01caa17b65be115d",
+    "interpretation": "The merged Whey Okay adapter loaded in the production queue worker and the complete job passed. No fresh eligible execution request existed, so this proves deployment and safe idle behavior, not a commercial write."
+  },
   "production_operations": {
     "catalogue_writes": 0,
     "control_writes": 0,
-    "workflow_dispatches": 0,
+    "workflow_dispatches": 1,
     "owner_decisions_created": 0
   },
   "remaining_gates": [
-    "green CI and merge",
-    "one live worker readback from the merged commit",
     "a genuine fresh owner-approved Whey Okay UPDATE_STOCK request before any commercial execution proof"
   ]
 }
