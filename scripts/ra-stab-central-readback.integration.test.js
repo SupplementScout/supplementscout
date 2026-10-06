@@ -136,7 +136,7 @@ test("verified Review Queue recovery changes only failed control state after exa
       );
       insert into public.automation_review_execution_requests values (
         '976f67b4-c06c-4f73-a3c6-48ca63f45dfd',1121,9,'fit-house','UPDATE_STOCK','${"a".repeat(64)}','${"b".repeat(64)}','${"c".repeat(64)}',
-        'FAILED','EXECUTION_FAILED',20,'37492690030','${"d".repeat(40)}','${"e".repeat(64)}',null,null,null,null,null,null,null,null,
+        'FAILED','EXECUTION_FAILED',20,'37492690030','${"d".repeat(40)}','${"e".repeat(64)}',null,null,null,null,null,null,null,
         'STABLE_OOS_BASELINE_EXCEEDED','failed',now(),now(),now()-interval '1 minute'
       );
       insert into public.automation_review_execution_events(execution_request_id,review_id,actor,previous_status,new_status,checkpoint,evidence)
