@@ -1,3 +1,5 @@
+import { REVIEW_ADAPTERS } from "./automationReviewAdapters";
+
 export type ReviewCapability = "AUTONOMOUS" | "REVIEW_EXECUTABLE" | "REVIEW_ONLY" | "UNSUPPORTED";
 export type ReviewDecisionGroup = "Freshness-only" | "Stock and price" | "Identity" | "Source problems";
 
@@ -18,6 +20,11 @@ const UNSUPPORTED = (reason: string): CapabilityCell => ({ capability: "UNSUPPOR
 const AUTONOMOUS = (reason: string, workflow: string): CapabilityCell => ({ capability: "AUTONOMOUS", reason, workflow });
 const REVIEW_EXECUTABLE = (reason: string, workflow: string): CapabilityCell => ({ capability: "REVIEW_EXECUTABLE", reason, workflow });
 
+function registeredExecution(retailerId: string, operation: string, reason: string): CapabilityCell {
+  const adapter = REVIEW_ADAPTERS.find((candidate) => candidate.retailerId === retailerId && candidate.operations.includes(operation));
+  return adapter ? REVIEW_EXECUTABLE(reason, adapter.workflow) : UNSUPPORTED("No matching protected Review Queue adapter is registered.");
+}
+
 const defaultOperations = {
   VERIFY_NO_CHANGE: UNSUPPORTED("No retailer-specific protected freshness workflow is registered for this retailer in the Review Queue capability map."),
   UPDATE_PRICE: UNSUPPORTED("No protected commercial-update path is registered for this retailer in Review Queue."),
@@ -35,9 +42,9 @@ export const AUTOMATION_REVIEW_CAPABILITY_MATRIX: readonly RetailerCapabilityRow
     retailerId: "12",
     operations: {
       ...defaultOperations,
-      VERIFY_NO_CHANGE: REVIEW_EXECUTABLE("Single-row immutable Review Queue freshness execution is registered and artifact-bound.", "automation-review-queue-worker.yml"),
-      UPDATE_PRICE: REVIEW_EXECUTABLE("Single-row owner-approved eBay price execution revalidates immutable source evidence and database state.", "automation-review-queue-worker.yml"),
-      UPDATE_STOCK: REVIEW_EXECUTABLE("Single-row owner-approved eBay stock execution revalidates immutable source evidence and database state.", "automation-review-queue-worker.yml"),
+      VERIFY_NO_CHANGE: registeredExecution("12", "VERIFY_NO_CHANGE", "Single-row immutable Review Queue freshness execution is registered and artifact-bound."),
+      UPDATE_PRICE: registeredExecution("12", "UPDATE_PRICE", "Single-row owner-approved eBay price execution revalidates immutable source evidence and database state."),
+      UPDATE_STOCK: registeredExecution("12", "UPDATE_STOCK", "Single-row owner-approved eBay stock execution revalidates immutable source evidence and database state."),
       IDENTITY_PROMOTION: REVIEW_ONLY("eBay identity conflicts stay in review; offer 2686 remains review-only."),
       REBIND_EXISTING_VARIANT: REVIEW_ONLY("eBay rebinds stay in review; no identity apply is authorized by the adapter."),
     },
@@ -81,8 +88,22 @@ export const AUTOMATION_REVIEW_CAPABILITY_MATRIX: readonly RetailerCapabilityRow
       ...defaultOperations,
       VERIFY_NO_CHANGE: AUTONOMOUS("Existing protected Fit House workflow supports approved freshness confirmations.", "fit-house-offer-refresh.yml"),
       UPDATE_PRICE: REVIEW_ONLY("Commercial changes require retailer-specific reviewed evidence and owner approval."),
-      UPDATE_STOCK: REVIEW_EXECUTABLE("One owner-approved stock decision is revalidated against a fresh full source capture and executed with protected freshness confirmations.", "automation-review-queue-worker.yml"),
+      UPDATE_STOCK: registeredExecution("9", "UPDATE_STOCK", "One owner-approved stock decision is revalidated against a fresh full source capture and executed with protected freshness confirmations."),
       UPDATE_PRICE_AND_STOCK: REVIEW_ONLY("Combined changes require retailer-specific reviewed evidence and owner approval."),
+    },
+  },
+  {
+    retailer: "10 Reps",
+    retailerId: "14",
+    operations: {
+      ...defaultOperations,
+      VERIFY_NO_CHANGE: AUTONOMOUS("Existing protected 10 Reps workflow supports exact-scope freshness confirmations.", "fit-house-offer-refresh.yml"),
+      UPDATE_PRICE: REVIEW_ONLY("Price decisions remain review-only until the shared protected adapter explicitly supports them."),
+      UPDATE_STOCK: registeredExecution("14", "UPDATE_STOCK", "One owner-approved stock decision is revalidated against a fresh full feed and executed with protected freshness confirmations."),
+      UPDATE_PRICE_AND_STOCK: REVIEW_ONLY("Combined commercial decisions remain review-only."),
+      IDENTITY_PROMOTION: REVIEW_ONLY("Source-missing and identity-conflict rows remain review-only; no catalogue identity is guessed."),
+      REBIND_EXISTING_VARIANT: REVIEW_ONLY("10 Reps identity changes require a separate exact owner-approved plan."),
+      SOURCE_MISSING: REVIEW_ONLY("Missing feed evidence remains isolated for review and cannot trigger a commercial write."),
     },
   },
   {
@@ -166,6 +187,8 @@ export function confidenceForReview(sourceEvidence: Record<string, unknown> | nu
 function normalizeOperation(operationType: string | null, reviewKind?: string | null) {
   const operation = String(operationType || "").toUpperCase();
   if (operation === "VERIFY_OFFER_NO_CHANGE") return "VERIFY_NO_CHANGE";
+  if (operation === "MANUAL_REVIEW_IDENTITY") return "IDENTITY_PROMOTION";
+  if (operation === "MANUAL_REVIEW" && reviewKind === "MAPPING_DRIFT") return "REBIND_EXISTING_VARIANT";
   if (operation) return operation;
   if (reviewKind === "SOURCE_FAILURE") return "SOURCE_MISSING";
   if (reviewKind === "MAPPING_DRIFT") return "REBIND_EXISTING_VARIANT";

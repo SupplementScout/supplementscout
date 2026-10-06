@@ -1560,6 +1560,30 @@ identity conflicts non-executable and avoiding a retailer branch in shared
 core. Evidence:
 [`evidence/RA-STAB-01-CURRENT-REVIEW-QUEUE-INVENTORY-2026-10-06.json`](evidence/RA-STAB-01-CURRENT-REVIEW-QUEUE-INVENTORY-2026-10-06.json).
 
+**6 October shared Review Queue execution registry — local verified, live
+pending:** the existing app adapter, queue worker and shared retailer worker now
+consume one typed configuration registry instead of maintaining separate
+execution allowlists. The existing eBay and Fit House behavior remains
+registered, and 10 Reps joins the same shared protected worker for
+`UPDATE_STOCK` only: one exact owner-approved stock decision plus 19 unchanged
+freshness confirmations. It uses the existing 10 Reps feed profile, validator,
+approver, executor, postflight and atomic mixed-batch path. No runtime,
+importer, approval path, executor, RPC or catalogue writer was added.
+
+The current 16 10 Reps `MANUAL_REVIEW_IDENTITY/SOURCE_MISSING` rows remain
+default-deny and cannot be executed. Price, combined price/stock and identity
+operations are not enabled for 10 Reps. A queue run also executes at most one
+shared retailer profile, leaving a different profile queued for the next run;
+this prevents the existing process-bound engine configuration from crossing
+between Fit House and 10 Reps. Focused regressions execute the same guarded
+stock-decision contract for both profiles and cover mixed-profile deferral.
+Admin tests, TypeScript, quick/full gates and the production build pass. No
+production or control write and no workflow dispatch occurred. CI/merge and a
+live scheduled worker readback remain required; a live 10 Reps write must wait for a genuine
+fresh owner-approved `UPDATE_STOCK` row and must not be manufactured for proof.
+Evidence:
+[`evidence/RA-STAB-01-SHARED-REVIEW-EXECUTION-REGISTRY-PREPARATION-2026-10-06.json`](evidence/RA-STAB-01-SHARED-REVIEW-EXECUTION-REGISTRY-PREPARATION-2026-10-06.json).
+
 Docker run `37421724769` now proves the existing expired-close regression and
 the new exact `12 + 1 + 6` fixture pass against disposable PostgreSQL. The
 monolithic integration job remains red only for the same two unrelated

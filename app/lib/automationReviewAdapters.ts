@@ -1,4 +1,5 @@
-﻿import "server-only";
+import "server-only";
+import * as registry from "../../config/automation-review-execution-adapters.json";
 
 export type ReviewAdapter = {
   retailerId: string;
@@ -24,54 +25,31 @@ export type ReviewAdapter = {
   };
 };
 
-export const REVIEW_ADAPTERS: readonly ReviewAdapter[] = Object.freeze([
-  Object.freeze({
-    retailerId: "12",
-    retailerSlug: "ebay-uk",
-    operations: Object.freeze(["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK"]),
-    reasonCodes: Object.freeze(["FRESHNESS_CONFIRMATION", "STALE_OFFER", "NO_CHANGE_CONFIRMATION", "PRICE_CHANGE", "STOCK_CHANGE"]),
-    workflow: "automation-review-queue-worker.yml",
-    environment: "production-readonly",
-    builder: "scripts/ebay-offer-refresh.js",
-    approvalRpc: "approve_product_import_plan",
-    applyRpc: "apply_approved_product_import_plan",
-    postflight: "scripts/retailer-offer-refresh-postflight.js#ebay-uk",
-    idempotency: "fresh exact-item rebuild must resolve to VERIFY_NO_CHANGE after apply",
-    autonomous: true,
-    ownerDecisionRequired: true,
-    maximumBatch: 1,
-    isolation: "per-row",
-    reviewBinding: "immutable-review-record",
-    manualCatalogueBinding: Object.freeze({
-      kind: "control-plane-request",
-      requiredEvidence: Object.freeze(["execution_request_id", "review_item_id", "review_fingerprint", "review_plan_fingerprint", "execution_idempotency_key"]),
-      semanticTimestampPolicy: "capture-time-only",
-    }),
+const REQUIRED_EVIDENCE = Object.freeze(["execution_request_id", "review_item_id", "review_fingerprint", "review_plan_fingerprint", "execution_idempotency_key"]);
+
+export const REVIEW_ADAPTERS: readonly ReviewAdapter[] = Object.freeze(registry.adapters.map((adapter) => Object.freeze({
+  retailerId: adapter.retailer_id,
+  retailerSlug: adapter.retailer_slug,
+  operations: Object.freeze([...adapter.operations]),
+  reasonCodes: Object.freeze([...adapter.reason_codes]),
+  workflow: registry.workflow,
+  environment: registry.environment,
+  builder: adapter.builder,
+  approvalRpc: adapter.approval_rpc,
+  applyRpc: adapter.apply_rpc,
+  postflight: adapter.postflight,
+  idempotency: adapter.idempotency,
+  autonomous: true,
+  ownerDecisionRequired: true,
+  maximumBatch: 1,
+  isolation: "per-row" as const,
+  reviewBinding: "immutable-review-record" as const,
+  manualCatalogueBinding: Object.freeze({
+    kind: "control-plane-request" as const,
+    requiredEvidence: REQUIRED_EVIDENCE,
+    semanticTimestampPolicy: "capture-time-only" as const,
   }),
-  Object.freeze({
-    retailerId: "9",
-    retailerSlug: "fit-house",
-    operations: Object.freeze(["UPDATE_STOCK"]),
-    reasonCodes: Object.freeze(["STOCK_CHANGE"]),
-    workflow: "automation-review-queue-worker.yml",
-    environment: "production-readonly",
-    builder: "scripts/fit-house-offer-refresh.js#reviewQueueSelection",
-    approvalRpc: "approve_retailer_offer_sync_batch",
-    applyRpc: "execute_retailer_offer_sync_batch",
-    postflight: "scripts/retailer-offer-refresh-postflight.js#fit-house",
-    idempotency: "fresh full-scope rebuild must resolve the selected offer to VERIFY_NO_CHANGE after apply",
-    autonomous: true,
-    ownerDecisionRequired: true,
-    maximumBatch: 1,
-    isolation: "per-row",
-    reviewBinding: "immutable-review-record",
-    manualCatalogueBinding: Object.freeze({
-      kind: "control-plane-request",
-      requiredEvidence: Object.freeze(["execution_request_id", "review_item_id", "review_fingerprint", "review_plan_fingerprint", "execution_idempotency_key"]),
-      semanticTimestampPolicy: "capture-time-only",
-    }),
-  }),
-]);
+})));
 
 function parsedReasons(value: string | null | undefined) {
   return String(value || "").split(/[,|]/).map((item) => item.trim()).filter(Boolean);

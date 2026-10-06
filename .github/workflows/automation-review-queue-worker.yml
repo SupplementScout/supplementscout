@@ -28,7 +28,7 @@ jobs:
           cache: npm
       - run: npm ci --ignore-scripts
       - name: Test queue worker without production credentials
-        run: node --test --test-name-pattern="Automation Review Queue scheduled worker|Review Queue eBay worker|Fit House Review Queue worker" scripts/admin-auth.test.js
+        run: node --test --test-name-pattern="Automation Review Queue scheduled worker|Review Queue eBay worker|shared retailer Review Queue worker|Fit House Review Queue worker" scripts/admin-auth.test.js
       - name: Remove test-only execution evidence
         run: rm -rf tmp/automation-review-execution && mkdir -p tmp/automation-review-execution
       - name: Audit owner decisions read-only
@@ -52,6 +52,10 @@ jobs:
           FIT_HOUSE_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           FIT_HOUSE_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           FIT_HOUSE_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+          TEN_REPS_FEED_URL: ${{ secrets.TEN_REPS_FEED_URL }}
+          TEN_REPS_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+          TEN_REPS_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          TEN_REPS_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: node scripts/automation-review-queue-worker.js
       - name: Upload execution evidence
         if: always()

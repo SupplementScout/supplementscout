@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "workflow": "automation-review-queue-worker.yml",
+  "environment": "production-readonly",
+  "adapters": [
+    {
+      "retailer_id": "12",
+      "retailer_slug": "ebay-uk",
+      "worker_kind": "ebay",
+      "operations": ["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK"],
+      "reason_codes": ["FRESHNESS_CONFIRMATION", "STALE_OFFER", "NO_CHANGE_CONFIRMATION", "PRICE_CHANGE", "STOCK_CHANGE"],
+      "builder": "scripts/ebay-offer-refresh.js",
+      "approval_rpc": "approve_product_import_plan",
+      "apply_rpc": "apply_approved_product_import_plan",
+      "postflight": "scripts/retailer-offer-refresh-postflight.js#ebay-uk",
+      "idempotency": "fresh exact-item rebuild must resolve to VERIFY_NO_CHANGE after apply"
+    },
+    {
+      "retailer_id": "9",
+      "retailer_slug": "fit-house",
+      "worker_kind": "shared-retailer",
+      "operations": ["UPDATE_STOCK"],
+      "reason_codes": ["STOCK_CHANGE"],
+      "builder": "scripts/fit-house-offer-refresh.js#reviewQueueSelection",
+      "approval_rpc": "approve_retailer_offer_sync_batch",
+      "apply_rpc": "execute_retailer_offer_sync_batch",
+      "postflight": "scripts/retailer-offer-refresh-postflight.js#fit-house",
+      "idempotency": "fresh full-scope rebuild must resolve the selected offer to VERIFY_NO_CHANGE after apply",
+      "shared_engine": {
+        "profile": "fit-house",
+        "postflight_profile": "fit-house",
+        "role_prefix": "FIT_HOUSE_SYNC",
+        "expected_execution_rows": 20,
+        "expected_commercial_changes": 1,
+        "freshness_confirmation_count": 19
+      }
+    },
+    {
+      "retailer_id": "14",
+      "retailer_slug": "10-reps",
+      "worker_kind": "shared-retailer",
+      "operations": ["UPDATE_STOCK"],
+      "reason_codes": ["STOCK_CHANGE"],
+      "builder": "scripts/fit-house-offer-refresh.js#reviewQueueSelection",
+      "approval_rpc": "approve_retailer_offer_sync_batch",
+      "apply_rpc": "execute_retailer_offer_sync_batch",
+      "postflight": "scripts/retailer-offer-refresh-postflight.js#10-reps",
+      "idempotency": "fresh full-scope rebuild must resolve the selected offer to VERIFY_NO_CHANGE after apply",
+      "shared_engine": {
+        "profile": "10reps",
+        "postflight_profile": "10-reps",
+        "role_prefix": "TEN_REPS_REFRESH",
+        "expected_execution_rows": 20,
+        "expected_commercial_changes": 1,
+        "freshness_confirmation_count": 19
+      }
+    }
+  ]
+}
