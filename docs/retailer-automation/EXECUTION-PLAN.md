@@ -1744,6 +1744,34 @@ for offer `1982`; no request will be manufactured for proof. RA-STAB-01 remains
 `IN_PROGRESS` pending the next ordinary schedule/watchdog observation. Evidence:
 [`evidence/RA-STAB-01-FIT-HOUSE-REVIEW-PUBLICATION-LIVE-READBACK-2026-10-06.json`](evidence/RA-STAB-01-FIT-HOUSE-REVIEW-PUBLICATION-LIVE-READBACK-2026-10-06.json).
 
+**6 October exact Review Queue watchdog baselines — merged and live
+verified:** the shared watchdog configuration now binds the owner-approved Fit
+House 14-row and 10 Reps 16-row review scopes to their exact offer IDs and the
+canonical decision-evidence SHA. This is configuration data consumed by the
+existing common monitored-backlog mechanism; no retailer branch, writer,
+workflow, approval path or executor was added. A common regression proves the
+exact scopes classify within baseline and substitution of even one offer fails
+closed with `REVIEW_SCOPE_DRIFT`. Infrastructure, ordinary-run, write and
+postflight failures remain unsuppressed.
+
+PR `#242` merged as `13e9abf` after Quality Gate `37453727301`, Vercel and
+GitGuardian passed; post-merge Quality Gate `37454059471` also passed. Full gate,
+production build, quick gate (`544` pass and three expected artifact-bound
+skips), all 46 catalog-health tests, Project Guardian and `git diff --check`
+pass.
+
+Read-only production watchdog `37454182407` on that exact merge made zero
+database writes. 10 Reps now reports `PASS_WITH_REVIEW` with exactly 16 review
+and 16 stale rows, no failures and `WITHIN_BASELINE`. Fit House retains only the
+real `LATEST_ORDINARY_ATTEMPT_INCOMPLETE` from scheduled run `37442830504`; its
+exact 14 review/stale rows produce no backlog growth. The global watchdog remains
+red for four genuine retailer failures, proving the change did not make real
+errors green. Artifact `11409260342` has SHA-256
+`9dca3563b2a6e368ba51022c53fe2f541d95aa4de52ebc16c1b6c7a33f6e181e`.
+This manual observation does not increment the ordinary counter; RA-STAB-01
+remains `IN_PROGRESS` at `0/3` pending the next natural schedule. Evidence:
+[`evidence/RA-STAB-01-WATCHDOG-APPROVED-REVIEW-BASELINES-LIVE-READBACK-2026-10-06.json`](evidence/RA-STAB-01-WATCHDOG-APPROVED-REVIEW-BASELINES-LIVE-READBACK-2026-10-06.json).
+
 Docker run `37421724769` now proves the existing expired-close regression and
 the new exact `12 + 1 + 6` fixture pass against disposable PostgreSQL. The
 monolithic integration job remains red only for the same two unrelated
