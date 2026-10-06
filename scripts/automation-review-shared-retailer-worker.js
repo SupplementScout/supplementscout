@@ -81,8 +81,11 @@ function assertPreparedDecision(run, review, adapter) {
   invariant(String(row.retailer_product_id) === String(before.retailer_product_id)
     && String(row.external_product_id) === String(before.external_product_id)
     && String(row.external_variant_id) === String(before.external_variant_id), "PROTECTED_PLAN_IDENTITY_DRIFT");
-  invariant(row.target.in_stock === before.in_stock && row.source.in_stock === proposed.in_stock
-    && decimalEqual(row.target.price, before.price, "price") && decimalEqual(row.source.price, proposed.price, "price"), "PROTECTED_PLAN_COMMERCIAL_DRIFT");
+  const plannedBefore = row.atomic_plan?.expected_state?.offer;
+  const plannedAfter = row.atomic_plan?.offer?.values;
+  invariant(plannedBefore && plannedAfter && row.atomic_plan.offer.action === "update", "PROTECTED_PLAN_ATOMIC_CONTRACT_INVALID");
+  invariant(plannedBefore.in_stock === before.in_stock && plannedAfter.in_stock === proposed.in_stock
+    && decimalEqual(plannedBefore.price, before.price, "price") && decimalEqual(plannedAfter.price, proposed.price, "price"), "PROTECTED_PLAN_COMMERCIAL_DRIFT");
   invariant(before.in_stock !== proposed.in_stock
     && ["price", "shipping_cost", "total_price", "url", "external_url", "external_product_id", "external_variant_id", "product_id", "product_variant_id", "retailer_product_id", "offer_id"].every((field) => same(before[field], proposed[field])), "APPROVED_DECISION_NOT_STOCK_ONLY");
   invariant(rows.filter((candidate) => candidate.action === "VERIFY_NO_CHANGE").every((candidate) => !candidate.changed_fields?.price && !candidate.changed_fields?.stock && !candidate.changed_fields?.url), "FRESHNESS_CONFIRMATION_CHANGED_COMMERCIAL_STATE");
