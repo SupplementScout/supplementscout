@@ -86,12 +86,29 @@ test("deployed GTIN, Whey Okay rebind and traffic classification migrations rema
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", "20260817114500_add_outbound_click_traffic_classification.sql")), true);
 });
 
-test("production migration preflight hashes the real 225-row ledger only in the PRODUCTION domain", () => {
+test("production migration preflight keeps the reviewed 225-row history frozen and permits only later migrations", () => {
   const rows = productionLedger();
-  assert.equal(rows.length, 225);
-  assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "PRODUCTION" }), CONTRACTS.PRODUCTION.ledgerFingerprint);
-  assert.notEqual(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACTS.PRODUCTION.ledgerFingerprint);
+  const reviewedRows = rows.slice(0, CONTRACTS.PRODUCTION.ledgerCount);
+  assert.equal(rows.length, CONTRACTS.PRODUCTION.ledgerCount);
+  assert.equal(ledgerRowsFingerprint(reviewedRows, { targetEnvironment: "PRODUCTION" }), CONTRACTS.PRODUCTION.ledgerFingerprint);
+  assert.notEqual(ledgerRowsFingerprint(reviewedRows, { targetEnvironment: "STAGING" }), CONTRACTS.PRODUCTION.ledgerFingerprint);
   assert.equal(classifyProductionMigrationLedger(rows), "ALREADY_PRESENT");
+  assert.equal(classifyProductionMigrationLedger([
+    ...rows,
+    { version: "20261006170000", name: "add_automation_review_owner_decision_validation" },
+  ]), "ALREADY_PRESENT");
+});
+
+test("production migration preflight rejects changes inside or before the reviewed historical ledger", () => {
+  const rows = productionLedger();
+  const changedHistory = rows.map((row, index) => index === 0 ? { ...row, name: `${row.name}_changed` } : row);
+  const backfilledMigration = [
+    ...rows.slice(0, CONTRACTS.PRODUCTION.ledgerCount),
+    { version: "20200101000000", name: "backfilled_after_review" },
+    ...rows.slice(CONTRACTS.PRODUCTION.ledgerCount),
+  ];
+  assert.throws(() => classifyProductionMigrationLedger(changedHistory), /exact reviewed release state/);
+  assert.throws(() => classifyProductionMigrationLedger(backfilledMigration), /exact reviewed release state/);
 });
 
 test("real migration preflight accepts the applied historical GTIN migration without current pending authorization", () => {

@@ -1772,6 +1772,33 @@ This manual observation does not increment the ordinary counter; RA-STAB-01
 remains `IN_PROGRESS` at `0/3` pending the next natural schedule. Evidence:
 [`evidence/RA-STAB-01-WATCHDOG-APPROVED-REVIEW-BASELINES-LIVE-READBACK-2026-10-06.json`](evidence/RA-STAB-01-WATCHDOG-APPROVED-REVIEW-BASELINES-LIVE-READBACK-2026-10-06.json).
 
+**6 October shared owner-decision bridge preparation — local verified, not
+deployed:** the failed execution of approved Fit House review `1121` / offer
+`1982` was traced to a contract gap, not bad source data. The ordinary generic
+limits accepted the proposed one-row stock change, but the legacy Fit House
+stable-OOS validator could not see the immutable Review Queue approval and
+failed closed with `RSBI_GUARDRAIL_EXCEEDED`; catalogue writes remained zero.
+
+The correction is one retailer-neutral owner-decision contract used by the
+existing shared worker, Fit House engine and Whey Okay engine. It binds the
+exact request, review, approval audit event, retailer, operation, fingerprints,
+actor, timestamps, expiry, one changed stock row and nineteen unchanged
+confirmations before delegating to the existing generic database validator.
+It adds no importer, approval path, executor, direct database writer, retailer
+ID branch or offer exception. Ordinary non-review requests retain their current
+validators unchanged.
+
+Migration
+`20261006170000_add_automation_review_owner_decision_validation.sql` is
+SHA-bound as the sole pending production migration and excluded from staging;
+it has not been applied. Focused owner-decision/admin tests pass `57/57`, the
+migration selector passes `53/53`, historical ledger regressions pass `26/26`,
+and quick/full gates plus the production build pass. RA-STAB-01 remains
+`IN_PROGRESS` at `0/3`. The remaining sequence is merge after green CI,
+separate exact migration authorization, schema/ACL readback, one fresh approved
+stock request, exact postflight/idempotency, then ordinary observation. Evidence:
+[`evidence/RA-STAB-01-OWNER-DECISION-BRIDGE-PREPARATION-2026-10-06.json`](evidence/RA-STAB-01-OWNER-DECISION-BRIDGE-PREPARATION-2026-10-06.json).
+
 Docker run `37421724769` now proves the existing expired-close regression and
 the new exact `12 + 1 + 6` fixture pass against disposable PostgreSQL. The
 monolithic integration job remains red only for the same two unrelated

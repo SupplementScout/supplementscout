@@ -3,6 +3,7 @@ const path = require("node:path");
 const { canonicalJson, normalizeDecimalString } = require("./lib/canonical-json");
 const { checkpoint, controlClient, invariant, loadControlState } = require("./lib/automation-review-worker-control");
 const { adaptersForWorkerKind } = require("./lib/automation-review-adapter-registry");
+const { prepareAutomationReviewDecision } = require("./lib/retailer-offer-sync/automation-review-decision");
 const { run: runPostflight } = require("./retailer-offer-refresh-postflight");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -12,6 +13,7 @@ const ADAPTERS = Object.freeze(Object.fromEntries(adaptersForWorkerKind("shared-
   registered.retailerSlug,
   Object.freeze({
     retailerId: registered.retailerId,
+    retailerSlug: registered.retailerSlug,
     engineModule: registered.sharedEngine.engineModule,
     profile: registered.sharedEngine.postflightProfile,
     refreshProfile: registered.sharedEngine.profile,
@@ -125,12 +127,16 @@ async function run(options, dependencies = {}) {
     const record = before.records.find((candidate) => String(candidate.offer.id) === String(state.review.offer_id));
     invariant(record, "DATABASE_BASELINE_MISSING");
     assertReviewBeforeState(record, state.review);
-    const runPlan = await engine.buildReviewQueueRun("production", before, {
+    const preparedRunPlan = await engine.buildReviewQueueRun("production", before, {
       offerId: String(state.review.offer_id),
       operation: state.review.operation_type,
       maximumCommercialChanges: adapter.expectedCommercialChanges,
       freshnessConfirmationCount: adapter.freshnessConfirmationCount,
     });
+    const runPlan = {
+      ...preparedRunPlan,
+      automationReviewDecision: prepareAutomationReviewDecision({ review: state.review, request: state.request, adapter }),
+    };
     const rows = assertPreparedDecision(runPlan, state.review, adapter);
     const validations = await engine.validate(runPlan);
     const baselinePath = path.join(OUT, `${options.executionRequestId}-baseline.json`), executionPath = path.join(OUT, `${options.executionRequestId}-execution.json`), postflightPath = path.join(OUT, `${options.executionRequestId}-postflight.json`);

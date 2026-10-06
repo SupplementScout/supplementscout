@@ -171,15 +171,25 @@ async function capture(options) {
 
 function classifyProductionMigrationLedger(remoteLedger) {
   const ids = remoteLedger.map(ledgerIdentifier);
-  const fingerprint = ledgerRowsFingerprint(remoteLedger, { targetEnvironment: "PRODUCTION" });
   if (ids.includes(MIGRATION_ID)) {
-    if (ids.length !== CONTRACT.ledgerCount || fingerprint !== CONTRACT.ledgerFingerprint) {
+    const reviewedLedger = remoteLedger.slice(0, CONTRACT.ledgerCount);
+    const reviewedFingerprint = ledgerRowsFingerprint(reviewedLedger, { targetEnvironment: "PRODUCTION" });
+    const reviewedIds = reviewedLedger.map(ledgerIdentifier);
+    const laterIds = ids.slice(CONTRACT.ledgerCount);
+    const reviewedLastId = reviewedIds.at(-1);
+    const laterMigrationsAreAnOrderedSuffix = laterIds.every((id, index) => (
+      id > reviewedLastId && (index === 0 || id > laterIds[index - 1])
+    ));
+    if (reviewedLedger.length !== CONTRACT.ledgerCount
+      || reviewedFingerprint !== CONTRACT.ledgerFingerprint
+      || !laterMigrationsAreAnOrderedSuffix) {
       fail("Production migration ledger differs from the exact reviewed release state");
     }
     return "ALREADY_PRESENT";
   }
   const pending = CONTRACT.pending.find(({ filename }) => filename === MIGRATION_CONTRACT.filename);
   if (!pending || pending.sha256 !== MIGRATION_CONTRACT.sha256) return "NOT_CURRENTLY_AUTHORIZED";
+  const fingerprint = ledgerRowsFingerprint(remoteLedger, { targetEnvironment: "PRODUCTION" });
   if (ids.length !== CONTRACT.ledgerCount || fingerprint !== CONTRACT.ledgerFingerprint) {
     fail("Production migration ledger differs from the exact reviewed release state");
   }
