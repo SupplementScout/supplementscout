@@ -22,6 +22,7 @@ function freezeAdapter(raw) {
   if (raw.worker_kind === "shared-retailer") {
     const engine = raw.shared_engine;
     invariant(engine && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(engine.profile) && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(engine.postflight_profile), "REVIEW_ADAPTER_SHARED_PROFILE_INVALID");
+    invariant(/^scripts\/[a-z0-9]+(?:-[a-z0-9]+)*\.js$/.test(engine.engine_module), "REVIEW_ADAPTER_ENGINE_MODULE_INVALID");
     invariant(/^[A-Z][A-Z0-9_]*$/.test(engine.role_prefix), "REVIEW_ADAPTER_ROLE_PREFIX_INVALID");
     invariant(Number.isInteger(engine.expected_execution_rows) && engine.expected_execution_rows > 1 && engine.expected_execution_rows <= 50, "REVIEW_ADAPTER_EXECUTION_ROWS_INVALID");
     invariant(engine.expected_commercial_changes === 1 && engine.freshness_confirmation_count === engine.expected_execution_rows - 1, "REVIEW_ADAPTER_EXECUTION_SCOPE_INVALID");
@@ -43,6 +44,7 @@ function freezeAdapter(raw) {
     postflight: raw.postflight,
     idempotency: raw.idempotency,
     sharedEngine: raw.shared_engine ? Object.freeze({
+      engineModule: raw.shared_engine.engine_module,
       profile: raw.shared_engine.profile,
       postflightProfile: raw.shared_engine.postflight_profile,
       rolePrefix: raw.shared_engine.role_prefix,

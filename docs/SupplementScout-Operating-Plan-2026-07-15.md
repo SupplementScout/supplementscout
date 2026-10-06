@@ -993,6 +993,18 @@ live run `37432645097` proved `WAITING_FOR_DECISION` with zero system failures
 and zero database writes. No second monitor, schedule or executor was added; a
 later natural schedule readback remains due while next-retailer work proceeds.
 
+Whey Okay is the next retailer on that same path. Its `UPDATE_STOCK` decisions
+are now locally connected to the existing guarded Whey Okay engine through the
+single closed registry and shared queue worker. The repeated selection rule —
+one exact stock decision plus 19 unchanged freshness confirmations — has been
+moved out of the Fit House implementation into one common module, reducing
+duplication rather than adding a Whey Okay patch. Price, combined, identity and
+source-missing decisions remain non-executable. Existing fresh-source,
+before-state, role-separation, postflight and idempotency guards are unchanged.
+Local focused, retailer, quick and full gates pass with zero production/control
+writes and no dispatch; CI/merge and a merged-commit live worker readback remain
+required before this addition is live verified.
+
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256
 `59c6d03a2bbcff0b384b86065f76e6f456e3538ca538613cf83e5e017ec11a9d`,

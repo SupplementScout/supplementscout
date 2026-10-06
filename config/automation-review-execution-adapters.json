@@ -27,6 +27,7 @@
       "postflight": "scripts/retailer-offer-refresh-postflight.js#fit-house",
       "idempotency": "fresh full-scope rebuild must resolve the selected offer to VERIFY_NO_CHANGE after apply",
       "shared_engine": {
+        "engine_module": "scripts/fit-house-offer-refresh.js",
         "profile": "fit-house",
         "postflight_profile": "fit-house",
         "role_prefix": "FIT_HOUSE_SYNC",
@@ -47,9 +48,31 @@
       "postflight": "scripts/retailer-offer-refresh-postflight.js#10-reps",
       "idempotency": "fresh full-scope rebuild must resolve the selected offer to VERIFY_NO_CHANGE after apply",
       "shared_engine": {
+        "engine_module": "scripts/fit-house-offer-refresh.js",
         "profile": "10reps",
         "postflight_profile": "10-reps",
         "role_prefix": "TEN_REPS_REFRESH",
+        "expected_execution_rows": 20,
+        "expected_commercial_changes": 1,
+        "freshness_confirmation_count": 19
+      }
+    },
+    {
+      "retailer_id": "3",
+      "retailer_slug": "whey-okay",
+      "worker_kind": "shared-retailer",
+      "operations": ["UPDATE_STOCK"],
+      "reason_codes": ["STOCK_CHANGE"],
+      "builder": "scripts/whey-okay-offer-refresh.js#reviewQueueSelection",
+      "approval_rpc": "approve_retailer_offer_sync_batch",
+      "apply_rpc": "execute_retailer_offer_sync_batch",
+      "postflight": "scripts/retailer-offer-refresh-postflight.js#whey-okay",
+      "idempotency": "fresh full-scope rebuild must resolve the selected offer to VERIFY_NO_CHANGE after apply",
+      "shared_engine": {
+        "engine_module": "scripts/whey-okay-offer-refresh.js",
+        "profile": "whey-okay",
+        "postflight_profile": "whey-okay",
+        "role_prefix": "WHEY_OKAY_SYNC",
         "expected_execution_rows": 20,
         "expected_commercial_changes": 1,
         "freshness_confirmation_count": 19
