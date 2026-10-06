@@ -11,6 +11,10 @@ const { CONTRACTS, ledgerIdentifier, ledgerRowsFingerprint, sha256File, validate
 
 const ROOT = path.resolve(__dirname, "..");
 const CONTRACT = CONTRACTS.PRODUCTION;
+const GTIN_REVIEWED_LEDGER = Object.freeze({
+  count: 225,
+  fingerprint: "4981529d078bc0c4dc5d0597b3a6327f44270e76f4cca1a93483abe4c950cf9f",
+});
 const MIGRATION = "20260813170000_add_guarded_gtin_promotion.sql";
 const MIGRATION_ID = MIGRATION.slice(0, -4);
 const MIGRATION_CONTRACT = Object.freeze({
@@ -172,16 +176,16 @@ async function capture(options) {
 function classifyProductionMigrationLedger(remoteLedger) {
   const ids = remoteLedger.map(ledgerIdentifier);
   if (ids.includes(MIGRATION_ID)) {
-    const reviewedLedger = remoteLedger.slice(0, CONTRACT.ledgerCount);
+    const reviewedLedger = remoteLedger.slice(0, GTIN_REVIEWED_LEDGER.count);
     const reviewedFingerprint = ledgerRowsFingerprint(reviewedLedger, { targetEnvironment: "PRODUCTION" });
     const reviewedIds = reviewedLedger.map(ledgerIdentifier);
-    const laterIds = ids.slice(CONTRACT.ledgerCount);
+    const laterIds = ids.slice(GTIN_REVIEWED_LEDGER.count);
     const reviewedLastId = reviewedIds.at(-1);
     const laterMigrationsAreAnOrderedSuffix = laterIds.every((id, index) => (
       id > reviewedLastId && (index === 0 || id > laterIds[index - 1])
     ));
-    if (reviewedLedger.length !== CONTRACT.ledgerCount
-      || reviewedFingerprint !== CONTRACT.ledgerFingerprint
+    if (reviewedLedger.length !== GTIN_REVIEWED_LEDGER.count
+      || reviewedFingerprint !== GTIN_REVIEWED_LEDGER.fingerprint
       || !laterMigrationsAreAnOrderedSuffix) {
       fail("Production migration ledger differs from the exact reviewed release state");
     }
@@ -305,4 +309,4 @@ async function run(options) {
 
 if (require.main === module) run(parseArgs(process.argv.slice(2))).then((result) => console.log(JSON.stringify(result, null, 2))).catch((error) => { console.error(error.message); process.exitCode = 1; });
 
-module.exports = { EXACT36_CONFIRMATION, MIGRATION, MIGRATION_CONTRACT, QUARANTINED_GTINS, RELEASE_CONFIGS, classifyProductionMigrationLedger, deploy, exactRowDiff, migrationPreflight, parseArgs, run, snapshotSummary };
+module.exports = { EXACT36_CONFIRMATION, GTIN_REVIEWED_LEDGER, MIGRATION, MIGRATION_CONTRACT, QUARANTINED_GTINS, RELEASE_CONFIGS, classifyProductionMigrationLedger, deploy, exactRowDiff, migrationPreflight, parseArgs, run, snapshotSummary };
