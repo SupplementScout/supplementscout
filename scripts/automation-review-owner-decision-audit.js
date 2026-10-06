@@ -78,7 +78,7 @@ function auditData({ decisionEvents, reviews, requests, executionEvents }, now =
       if (lastEvent && lastEvent.new_status !== request.status) anomalies.push({ code: "EXECUTION_EVENT_STATUS_DRIFT", review_id: id, execution_request_id: request.id, request_status: request.status, event_status: lastEvent.new_status });
       if (ACTIVE_EXECUTION.has(request.status)) {
         const threshold = request.status === "QUEUED" ? 10 : request.status === "DISPATCHED" ? 20 : 30;
-        if (minutesOld(request.updated_at || request.requested_at, now) > threshold) anomalies.push({ code: "EXECUTION_STUCK", review_id: id, execution_request_id: request.id, status: request.status, threshold_minutes: threshold });
+        if (minutesOld(request.updated_at || request.requested_at, now) > threshold) anomalies.push({ code: request.status === "QUEUED" ? "EXECUTION_QUEUE_DELAYED" : "EXECUTION_STUCK", review_id: id, execution_request_id: request.id, status: request.status, threshold_minutes: threshold });
       }
       if (request.status === "EXECUTED") {
         const valid = request.completed_at && isHex64(request.postflight_hash) && request.idempotency_result === "PASS"
