@@ -1560,8 +1560,8 @@ identity conflicts non-executable and avoiding a retailer branch in shared
 core. Evidence:
 [`evidence/RA-STAB-01-CURRENT-REVIEW-QUEUE-INVENTORY-2026-10-06.json`](evidence/RA-STAB-01-CURRENT-REVIEW-QUEUE-INVENTORY-2026-10-06.json).
 
-**6 October shared Review Queue execution registry — local verified, live
-pending:** the existing app adapter, queue worker and shared retailer worker now
+**6 October shared Review Queue execution registry — merged and live-idle
+verified:** the existing app adapter, queue worker and shared retailer worker now
 consume one typed configuration registry instead of maintaining separate
 execution allowlists. The existing eBay and Fit House behavior remains
 registered, and 10 Reps joins the same shared protected worker for
@@ -1577,12 +1577,33 @@ shared retailer profile, leaving a different profile queued for the next run;
 this prevents the existing process-bound engine configuration from crossing
 between Fit House and 10 Reps. Focused regressions execute the same guarded
 stock-decision contract for both profiles and cover mixed-profile deferral.
-Admin tests, TypeScript, quick/full gates and the production build pass. No
-production or control write and no workflow dispatch occurred. CI/merge and a
-live scheduled worker readback remain required; a live 10 Reps write must wait for a genuine
-fresh owner-approved `UPDATE_STOCK` row and must not be manufactured for proof.
+Admin tests, TypeScript, quick/full gates and the production build passed.
+PR `#233` merged as `907fdbab`; its full Quality Gate, Project Guardian,
+GitGuardian and Vercel checks were green. One ordinary guarded worker dispatch,
+run `37430887924`, loaded that exact merge, passed its seven focused runtime
+tests and completed with `processed=0`, `failed=0` and `database_writes=0`.
+Artifact `11396254362` has SHA-256
+`31210eeb840c261c3d71fe9ebf749847a6a921c316e097b4c1bd1c1ac53e55c8`.
+This proves the shared registry is deployed and safely idle; it does not pretend
+that a 10 Reps commercial change occurred. A live 10 Reps write must wait for a
+genuine fresh owner-approved `UPDATE_STOCK` row and must not be manufactured for
+proof.
 Evidence:
 [`evidence/RA-STAB-01-SHARED-REVIEW-EXECUTION-REGISTRY-PREPARATION-2026-10-06.json`](evidence/RA-STAB-01-SHARED-REVIEW-EXECUTION-REGISTRY-PREPARATION-2026-10-06.json).
+
+**6 October Review Queue monitoring status — local full verified, live
+pending:** production run `37430887924` also exposed the next common monitoring
+defect. The owner-decision audit correctly found 33 items needing attention and
+the worker remained healthy with zero writes, but the audit used exit code `2`,
+so GitHub displayed a red error annotation for a non-failure. The existing audit
+and existing five-minute queue schedule now use three explicit states:
+`SUCCESS`, `WAITING_FOR_DECISION` and `FAILED_SYSTEM`. Waiting/review debt exits
+normally; only a defined system-integrity failure exits red and prevents the
+worker from running. The same workflow publishes the counts in its GitHub
+summary. No second monitor, schedule, executor or write path was added. Focused
+regressions plus the quick and full Quality Gates pass. CI/merge and one live
+readback remain required. Evidence:
+[`evidence/RA-STAB-01-REVIEW-MONITORING-STATUS-PREPARATION-2026-10-06.json`](evidence/RA-STAB-01-REVIEW-MONITORING-STATUS-PREPARATION-2026-10-06.json).
 
 Docker run `37421724769` now proves the existing expired-close regression and
 the new exact `12 + 1 + 6` fixture pass against disposable PostgreSQL. The

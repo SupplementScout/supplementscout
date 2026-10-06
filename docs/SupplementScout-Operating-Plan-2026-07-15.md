@@ -981,6 +981,16 @@ completed RA-000 through RA-003. RA-004 is now owner-stopped and `BLOCKED`
 without retry authority. RA-STAB-01 is the sole active retailer task and
 prioritizes existing-path production stabilization over consolidation.
 
+**6 October 2026 RA-STAB-01 current checkpoint:** steps 1-3 are live verified.
+The one shared guarded Review Queue registry for eBay, Fit House and 10 Reps is
+merged in PR `#233`; production worker run `37430887924` proved safe idle
+behavior with zero processed rows and zero database writes. A real 10 Reps stock
+execution still requires a genuine fresh owner-approved row and will not be
+manufactured for evidence. The current implementation step reuses the existing
+owner-decision audit and five-minute queue workflow to expose `SUCCESS`,
+`WAITING_FOR_DECISION` and `FAILED_SYSTEM` without treating review backlog as a
+system outage. No second monitor, schedule or executor is being introduced.
+
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256
 `59c6d03a2bbcff0b384b86065f76e6f456e3538ca538613cf83e5e017ec11a9d`,

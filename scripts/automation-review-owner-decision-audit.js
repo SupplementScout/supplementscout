@@ -9,6 +9,15 @@ const OWNER = "authenticated-admin";
 const DECISIONS = new Set(["APPROVED", "REJECTED", "IGNORED"]);
 const ACTIVE_REVIEW = new Set(["PENDING", "APPROVED", "EXECUTING"]);
 const ACTIVE_EXECUTION = new Set(["QUEUED", "DISPATCHED", "EXECUTING"]);
+const SYSTEM_FAILURE_CODES = new Set([
+  "ACTIVE_REVIEW_DUPLICATE",
+  "EXECUTED_EVIDENCE_INCOMPLETE",
+  "EXECUTION_EVENT_STATUS_DRIFT",
+  "EXECUTION_STUCK",
+  "FAILED_AFTER_POSSIBLE_WRITE",
+  "POSSIBLE_EXECUTION_DUPLICATE",
+  "SUPERSESSION_LINK_INVALID",
+]);
 
 function invariant(condition, code) { if (!condition) { const error = new Error(code); error.code = code; throw error; } }
 function insideTmp(value) {
@@ -100,6 +109,23 @@ function auditData({ decisionEvents, reviews, requests, executionEvents }, now =
   return { summaries, anomalies };
 }
 
+function monitorStatus({ reviews, requests, anomalies }) {
+  const pendingOwnerDecisionCount = reviews.filter((row) => row.review_status === "PENDING").length;
+  const activeExecutionCount = requests.filter((row) => ACTIVE_EXECUTION.has(row.status)).length;
+  const systemFailureCount = anomalies.filter((row) => SYSTEM_FAILURE_CODES.has(row.code)).length;
+  const reviewAttentionCount = anomalies.length - systemFailureCount;
+  const monitorStatus = systemFailureCount
+    ? "FAILED_SYSTEM"
+    : pendingOwnerDecisionCount || reviewAttentionCount
+      ? "WAITING_FOR_DECISION"
+      : "SUCCESS";
+  return { monitor_status: monitorStatus, pending_owner_decision_count: pendingOwnerDecisionCount, active_execution_count: activeExecutionCount, review_attention_count: reviewAttentionCount, system_failure_count: systemFailureCount };
+}
+
+function auditExitCode(report) {
+  return report.monitor_status === "FAILED_SYSTEM" ? 1 : 0;
+}
+
 async function run(options = parseArgs(process.argv.slice(2)), dependencies = {}) {
   const db = dependencies.client || database(dependencies.env || process.env);
   const [decisionEvents, reviews, requests, executionEvents] = await Promise.all([
@@ -109,12 +135,14 @@ async function run(options = parseArgs(process.argv.slice(2)), dependencies = {}
     readAll(db, "automation_review_execution_events"),
   ]);
   const audited = auditData({ decisionEvents, reviews, requests, executionEvents }, dependencies.now || new Date());
-  const report = { schema_version: 1, kind: "automation-review-owner-decision-read-only-audit", result: audited.anomalies.length ? "REVIEW_REQUIRED" : "PASS", generated_at: (dependencies.now || new Date()).toISOString(), owner_actor: OWNER, decision_count: decisionEvents.length, summary_count: audited.summaries.length, anomaly_count: audited.anomalies.length, github_artifact_verification_required_count: audited.summaries.filter((row) => row.github_artifact_verification_required).length, catalogue_writes: 0, execution_calls: 0, ...audited };
+  const monitoring = monitorStatus({ reviews, requests, anomalies: audited.anomalies });
+  const result = monitoring.monitor_status === "SUCCESS" ? "PASS" : monitoring.monitor_status === "WAITING_FOR_DECISION" ? "PASS_WITH_REVIEW" : "FAILED_SYSTEM";
+  const report = { schema_version: 2, kind: "automation-review-owner-decision-read-only-audit", result, ...monitoring, generated_at: (dependencies.now || new Date()).toISOString(), owner_actor: OWNER, decision_count: decisionEvents.length, summary_count: audited.summaries.length, anomaly_count: audited.anomalies.length, github_artifact_verification_required_count: audited.summaries.filter((row) => row.github_artifact_verification_required).length, catalogue_writes: 0, execution_calls: 0, ...audited };
   fs.mkdirSync(path.dirname(options.output), { recursive: true });
   fs.writeFileSync(options.output, `${JSON.stringify(report, null, 2)}\n`);
   return report;
 }
 
-if (require.main === module) run().then((report) => { console.log(JSON.stringify({ result: report.result, decisions: report.decision_count, anomalies: report.anomaly_count })); if (report.anomaly_count) process.exitCode = 2; }).catch((error) => { console.error(error.message); process.exitCode = 1; });
+if (require.main === module) run().then((report) => { console.log(JSON.stringify({ result: report.result, monitor_status: report.monitor_status, decisions: report.decision_count, pending_owner_decisions: report.pending_owner_decision_count, review_attention: report.review_attention_count, system_failures: report.system_failure_count })); process.exitCode = auditExitCode(report) || undefined; }).catch((error) => { console.error(error.message); process.exitCode = 1; });
 
-module.exports = { auditData, parseArgs, readAll, run };
+module.exports = { auditData, auditExitCode, monitorStatus, parseArgs, readAll, run };

@@ -1081,7 +1081,7 @@ test("Review Queue eBay worker removes the control credential only during role-s
 
 test("owner decision audit is bounded, SELECT-only, and starts from immutable admin events", () => {
   const source = fs.readFileSync(path.join(process.cwd(), "scripts", "automation-review-owner-decision-audit.js"), "utf8");
-  const { auditData, parseArgs } = require("./automation-review-owner-decision-audit");
+  const { auditData, auditExitCode, monitorStatus, parseArgs } = require("./automation-review-owner-decision-audit");
   assert.throws(() => parseArgs(["--mode=apply"]), /AUDIT_MODE_NOT_ALLOWED/);
   assert.match(source, /actor", OWNER/);
   assert.match(source, /previous_status", "PENDING"/);
@@ -1095,10 +1095,23 @@ test("owner decision audit is bounded, SELECT-only, and starts from immutable ad
   assert.equal(result.anomalies.length, 0);
   assert.equal(result.summaries[0].outcome, "EXECUTED");
   assert.equal(result.summaries[0].github_artifact_verification_required, true);
+  assert.deepEqual(monitorStatus({ reviews: [], requests: [], anomalies: [] }), { monitor_status: "SUCCESS", pending_owner_decision_count: 0, active_execution_count: 0, review_attention_count: 0, system_failure_count: 0 });
+  const waiting = monitorStatus({ reviews: [{ review_status: "PENDING" }], requests: [], anomalies: [{ code: "OWNER_DECISION_EVIDENCE_DRIFT" }] });
+  assert.equal(waiting.monitor_status, "WAITING_FOR_DECISION");
+  assert.equal(waiting.pending_owner_decision_count, 1);
+  assert.equal(waiting.review_attention_count, 1);
+  assert.equal(auditExitCode(waiting), 0);
+  const failed = monitorStatus({ reviews: [], requests: [{ status: "EXECUTING" }], anomalies: [{ code: "EXECUTION_STUCK" }] });
+  assert.equal(failed.monitor_status, "FAILED_SYSTEM");
+  assert.equal(failed.active_execution_count, 1);
+  assert.equal(failed.system_failure_count, 1);
+  assert.equal(auditExitCode(failed), 1);
   const workflow = fs.readFileSync(path.join(process.cwd(), ".github", "workflows", "automation-review-queue-worker.yml"), "utf8");
   assert.match(workflow, /Remove test-only execution evidence/);
   assert.match(workflow, /automation-review-owner-decision-audit\.js/);
-  assert.match(workflow, /continue-on-error: true/);
+  assert.doesNotMatch(workflow, /continue-on-error: true/);
+  assert.match(workflow, /steps\.owner_audit\.outcome == 'success'/);
+  assert.match(workflow, /Monitor status:/);
 });
 
 test("shared retailer Review Queue worker uses one registry for Fit House and 10 Reps", () => {
