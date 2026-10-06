@@ -1,6 +1,6 @@
 {
   "schema_version": "ra-stab-01-partial-plan-recovery-preparation-v1",
-  "status": "PRODUCTION_MIGRATION_DEPLOYED_CONTROL_CLOSE_PENDING",
+  "status": "VERIFIED_COMPLETE",
   "task": "RA-STAB-01",
   "generated_at": "2026-10-06T05:35:17.235Z",
   "incident": {
@@ -75,6 +75,55 @@
       "price_history": "27666"
     }
   },
+  "repository_contract_sync": {
+    "result": "PASS",
+    "pull_request": 231,
+    "merge_commit": "8dca00b38d3577707cbc28240606ab78839c7b6a",
+    "production_ledger_count": 225,
+    "production_ledger_fingerprint": "4981529d078bc0c4dc5d0597b3a6327f44270e76f4cca1a93483abe4c950cf9f",
+    "verify_project": "PASS",
+    "verify_quick": "PASS",
+    "verify_full": "PASS",
+    "ci": "PASS"
+  },
+  "production_control_close": {
+    "result": "PASS",
+    "workflow_run_id": "37426502233",
+    "completed_at": "2026-10-06T06:55:50.797Z",
+    "preflight_result": "READY_TO_CLOSE",
+    "preflight_fingerprint": "8bb3351575f2670d77b8d7c2ee9d509a008c9660efddae184f8eacca87b51292",
+    "request_fingerprint": "5a2bcf796d03efaa9bed54b2487d6e091a976b230cbcc1d99a92cd2336763f33",
+    "result_fingerprint": "073f83710335a4cc9fcf30c5c0d1e5c0eaa9a99de69316cb0666291b0af72e13",
+    "parent_status_after": "SUPERSEDED",
+    "preserved_applied_children": 12,
+    "closed_unexecuted_children": 7,
+    "control_writes": 9,
+    "business_writes": 0,
+    "price_history_writes": 0,
+    "automatic_retries": 0
+  },
+  "independent_postflight": {
+    "result": "PASS",
+    "mode": "REPEATABLE_READ_READ_ONLY_ROLLED_BACK",
+    "parent_status": "SUPERSEDED",
+    "child_statuses": {
+      "APPLIED": 12,
+      "SUPERSEDED": 7
+    },
+    "apply_runs": 12,
+    "row_approvals": 591,
+    "batch_approvals": 13,
+    "closed_unconsumed_approvals": 1,
+    "ready_recovery_manifests": 12,
+    "migration_ledger_count": 225,
+    "catalogue_counts": {
+      "products": "1337",
+      "product_variants": "3632",
+      "retailer_products": "3758",
+      "offers": "3758",
+      "price_history": "27666"
+    }
+  },
   "regression": {
     "incident_shape": "12_APPLIED_1_APPROVED_6_PLANNED",
     "preserved_row_approvals": 591,
@@ -103,10 +152,12 @@
     "review_only_run_id": "37370980156",
     "published_10_reps_review_cards": 16
   },
-  "not_yet_executed": {
+  "execution_closeout": {
     "migration_deployed": true,
-    "control_plan_closed": false,
-    "production_control_writes": 0
+    "control_plan_closed": true,
+    "production_control_writes": 9,
+    "catalogue_replay": false,
+    "ordinary_934_replayed": false
   },
-  "next_gate": "merge ledger-225 repository contract, fresh read-only preflight, one guarded suffix close, independent readback"
+  "next_gate": "refresh exact Review Queue exception inventory and continue the shared guarded execution and monitoring work"
 }
