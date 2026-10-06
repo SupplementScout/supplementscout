@@ -29,6 +29,9 @@ const {
 const {
   selectReviewQueueExecutionRows,
 } = require("./lib/automation-review-execution-selection");
+const {
+  bindAutomationReviewDecision,
+} = require("./lib/retailer-offer-sync/automation-review-decision");
 const config = require("../config/retailers/whey-okay-offer-sync.json");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -1262,6 +1265,9 @@ function validationRequest(run, artifact) {
     const proof = { ...run.automaticPriceConfirmation, confirmed_offer_ids: confirmedOfferIds, proof_fingerprint: null };
     proof.proof_fingerprint = canonicalHash(proof);
     request.retailer_price_confirmation = proof;
+  }
+  if (run.automationReviewDecision) {
+    return bindAutomationReviewDecision(request, run.automationReviewDecision);
   }
   request.package_fingerprint = canonicalHash(request);
   return request;

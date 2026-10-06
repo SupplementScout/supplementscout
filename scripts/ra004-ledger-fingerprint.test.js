@@ -61,7 +61,7 @@ test("the neutral fixture preserves ledger 97 and the repository reconstructs cu
   assert.equal(value.expected_count, 97);
   assert.equal(value.expected_fingerprint, EXPECTED);
   const current = repositoryLedger();
-  assert.equal(current.length, 99);
+  assert.equal(current.length, selector.CONTRACTS.STAGING.ledgerCount);
   assert.deepEqual(current.slice(0, 97), value.rows);
   assert.deepEqual(current[97], {
     version: "20260928100000",
@@ -72,7 +72,10 @@ test("the neutral fixture preserves ledger 97 and the repository reconstructs cu
     name: "align_ra004_control_export_provider_identity",
   });
   assert.equal(ledgerFingerprint(value.rows, { targetEnvironment: "STAGING" }), EXPECTED);
-  assert.equal(ledgerFingerprint(current, { targetEnvironment: "STAGING" }), EXPECTED_CURRENT);
+  assert.equal(
+    ledgerFingerprint(current.slice(0, selector.CONTRACTS.STAGING.ledgerCount), { targetEnvironment: "STAGING" }),
+    EXPECTED_CURRENT,
+  );
   assert.equal(selector.CONTRACTS.STAGING.ledgerFingerprint, EXPECTED_CURRENT);
   assert.equal(selector.ledgerRowsFingerprint(value.rows, { targetEnvironment: "STAGING" }), EXPECTED);
 });
@@ -96,10 +99,11 @@ test("every public fingerprint entry point requires an explicit target environme
 
 test("the exact production ledger requires the explicit PRODUCTION domain", () => {
   const rows = productionRepositoryLedger();
-  assert.equal(rows.length, 225);
-  assert.equal(ledgerFingerprint(rows, { targetEnvironment: "PRODUCTION" }), EXPECTED_PRODUCTION);
+  const reviewedRows = rows.slice(0, selector.CONTRACTS.PRODUCTION.ledgerCount);
+  assert.equal(rows.length, selector.CONTRACTS.PRODUCTION.ledgerCount);
+  assert.equal(ledgerFingerprint(reviewedRows, { targetEnvironment: "PRODUCTION" }), EXPECTED_PRODUCTION);
   assert.notEqual(
-    ledgerFingerprint(rows, { targetEnvironment: "STAGING" }),
+    ledgerFingerprint(reviewedRows, { targetEnvironment: "STAGING" }),
     EXPECTED_PRODUCTION,
   );
 });
@@ -120,7 +124,8 @@ test("every runtime fingerprint caller binds its own target environment", () => 
   assert.match(sources["verify-selected-migrations.js"], /ledgerRowsFingerprint\(state\.remoteLedger,\s*\{\s*targetEnvironment: options\.environment/);
   assert.equal((sources["ra004-staging-execution-coordinator.js"].match(/ledgerRowsFingerprint\([^;]+targetEnvironment:\s*"STAGING"/g) || []).length, 2);
   assert.match(sources["ra004-staging-schema-inventory.js"], /ledgerRowsFingerprint\(ledger, \{ targetEnvironment: "STAGING" \}\)/);
-  assert.equal((sources["gtin-promotion-release.js"].match(/ledgerRowsFingerprint\(/g) || []).length, 1);
+  assert.equal((sources["gtin-promotion-release.js"].match(/ledgerRowsFingerprint\(/g) || []).length, 2);
+  assert.match(sources["gtin-promotion-release.js"], /ledgerRowsFingerprint\(reviewedLedger, \{ targetEnvironment: "PRODUCTION" \}\)/);
   assert.match(sources["gtin-promotion-release.js"], /ledgerRowsFingerprint\(remoteLedger, \{ targetEnvironment: "PRODUCTION" \}\)/);
   assert.match(sources["gtin-promotion-release.js"], /classifyProductionMigrationLedger\(state\.remoteLedger\)/);
   assert.match(sources["supabase-migration-selector.js"], /targetEnvironment: contract\.environment/);

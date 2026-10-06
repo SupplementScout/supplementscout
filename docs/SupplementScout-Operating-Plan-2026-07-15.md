@@ -1030,6 +1030,20 @@ execution coordinator is not on the current panel/worker runtime path; it remain
 referenced by compatibility fixtures and must not be deleted before the planned
 post-observation RA-DECOMMISSION proof. No new work may route through it.
 
+The later owner-approved Fit House review `1121` / offer `1982` exposed one
+shared execution-contract gap: the generic limits accepted the exact one-row
+stock change, but the legacy stable-OOS validator could not verify that the
+Review Queue decision was genuinely owner approved. The local correction uses
+one retailer-neutral, cryptographically bound owner-decision contract and the
+existing worker, validator, registration and executor paths. It adds no
+retailer-specific exception, importer, approval route or writer. The pending
+production migration is SHA-bound and staging-excluded; it has not been applied
+and no production write or replay occurred. Quick/full gates and the production
+build pass. The current next gate is merge after green CI, followed by separate
+exact migration authorization and a fresh approved-request postflight. The
+natural observation counter remains `0/3`. Evidence:
+[owner-decision bridge preparation](retailer-automation/evidence/RA-STAB-01-OWNER-DECISION-BRIDGE-PREPARATION-2026-10-06.json).
+
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256
 `59c6d03a2bbcff0b384b86065f76e6f456e3538ca538613cf83e5e017ec11a9d`,

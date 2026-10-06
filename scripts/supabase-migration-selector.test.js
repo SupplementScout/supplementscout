@@ -445,7 +445,10 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
 
 test("production records all three recovery foundations as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: "20261006170000_add_automation_review_owner_decision_validation.sql",
+    sha256: "7f2261b3837fa943adc85e83464143084655956c033e864a7da6552459380f99",
+  }]);
   assert.deepEqual(contract.appliedExcluded, [
     "20260929133000_extend_expired_sequential_plan_close.sql",
     "20261004120000_add_central_control_plan_readback.sql",
@@ -566,7 +569,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACT.ledgerFingerprint);
 });
 
-test("production accepts ledger 225 with the shared partial-close migration applied", () => {
+test("production accepts ledger 225 and selects only the pending owner-decision migration", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   for (const filename of contract.appliedExcluded) excluded.delete(filename);
@@ -595,15 +598,17 @@ test("production accepts ledger 225 with the shared partial-close migration appl
   });
   assert.equal(result.ledger_count, 225);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 225);
+  assert.equal(result.selected_files.length, 226);
   assert.ok(result.selected_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
   assert.ok(result.excluded_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
   assert.ok(result.selected_files.includes("20261004120000_add_central_control_plan_readback.sql"));
   assert.ok(result.excluded_files.includes("20261004120000_add_central_control_plan_readback.sql"));
   assert.ok(result.selected_files.includes("20261006120000_extend_partial_sequential_plan_close.sql"));
   assert.ok(result.excluded_files.includes("20261006120000_extend_partial_sequential_plan_close.sql"));
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.deepEqual(result.pending_files, ["20261006170000_add_automation_review_owner_decision_validation.sql"]);
+  assert.deepEqual(result.pending_sha256s, {
+    "20261006170000_add_automation_review_owner_decision_validation.sql": "7f2261b3837fa943adc85e83464143084655956c033e864a7da6552459380f99",
+  });
   assert.ok(result.selected_files.includes(NUTRITION_CITRULLINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(NUTRITION_CREATINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(JONS_INTERRUPTED_REFRESH_MIGRATION));
