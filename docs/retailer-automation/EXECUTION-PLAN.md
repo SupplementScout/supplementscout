@@ -1591,8 +1591,8 @@ proof.
 Evidence:
 [`evidence/RA-STAB-01-SHARED-REVIEW-EXECUTION-REGISTRY-PREPARATION-2026-10-06.json`](evidence/RA-STAB-01-SHARED-REVIEW-EXECUTION-REGISTRY-PREPARATION-2026-10-06.json).
 
-**6 October Review Queue monitoring status — local full verified, live
-pending:** production run `37430887924` also exposed the next common monitoring
+**6 October Review Queue monitoring status — merged and live verified, natural
+schedule readback pending:** production run `37430887924` exposed the next common monitoring
 defect. The owner-decision audit correctly found 33 items needing attention and
 the worker remained healthy with zero writes, but the audit used exit code `2`,
 so GitHub displayed a red error annotation for a non-failure. The existing audit
@@ -1601,8 +1601,16 @@ and existing five-minute queue schedule now use three explicit states:
 normally; only a defined system-integrity failure exits red and prevents the
 worker from running. The same workflow publishes the counts in its GitHub
 summary. No second monitor, schedule, executor or write path was added. Focused
-regressions plus the quick and full Quality Gates pass. CI/merge and one live
-readback remain required. Evidence:
+regressions plus the quick and full Quality Gates passed. PR `#234` merged as
+`b52af90b`; Quality Gate, Project Guardian, GitGuardian and Vercel were green.
+Live run `37432645097` then reported `WAITING_FOR_DECISION`, 377 pending owner
+decisions, 33 review-attention findings, zero system failures, zero processed
+requests and zero database writes. The audit step and entire job were green,
+with no false error annotation. Artifact `11397791609` has SHA-256
+`9c606065f6f978efaa2e81b7673f0ec7ffa4cb3fafd4e39d48015cbc8df61c67`.
+This proves the production classification and fail-closed worker handoff. A
+later natural scheduled run on the merge remains the final schedule readback;
+it does not block work on the next retailer. Evidence:
 [`evidence/RA-STAB-01-REVIEW-MONITORING-STATUS-PREPARATION-2026-10-06.json`](evidence/RA-STAB-01-REVIEW-MONITORING-STATUS-PREPARATION-2026-10-06.json).
 
 Docker run `37421724769` now proves the existing expired-close regression and

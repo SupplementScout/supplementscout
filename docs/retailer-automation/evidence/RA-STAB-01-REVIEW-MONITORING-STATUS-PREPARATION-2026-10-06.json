@@ -1,6 +1,6 @@
 {
   "schema_version": "ra-stab-01-review-monitoring-status-preparation-v1",
-  "status": "LOCAL_FULL_VERIFIED_CI_AND_PRODUCTION_PENDING",
+  "status": "MERGED_LIVE_VERIFIED_NATURAL_SCHEDULE_READBACK_PENDING",
   "task": "RA-STAB-01",
   "generated_at": "2026-10-06T07:45:10.0108464Z",
   "triggering_observation": {
@@ -45,13 +45,41 @@
     "verify_full": "PASS",
     "verify_project_after_documentation": "PASS"
   },
+  "github_verification": {
+    "commit": "b758412febbf6286d24513f56ea117a3b5f88d42",
+    "pull_request": 234,
+    "merge_commit": "b52af90bdcd9e0f4c0cefcc641c46e3171ab82f8",
+    "quality_gate_run": 37432255140,
+    "quality_gate_full": "PASS",
+    "project_guardian_run": 37432255131,
+    "project_guardian": "PASS",
+    "vercel": "PASS",
+    "gitguardian": "PASS"
+  },
+  "production_readback": {
+    "workflow_run": 37432645097,
+    "event": "workflow_dispatch",
+    "head_sha": "b52af90bdcd9e0f4c0cefcc641c46e3171ab82f8",
+    "job_result": "PASS",
+    "monitor_status": "WAITING_FOR_DECISION",
+    "owner_decisions": 60,
+    "pending_owner_decisions": 377,
+    "review_attention": 33,
+    "system_failures": 0,
+    "worker_result": "PASS",
+    "processed": 0,
+    "failed": 0,
+    "database_writes": 0,
+    "false_error_annotation_present": false,
+    "artifact_id": 11397791609,
+    "artifact_sha256": "9c606065f6f978efaa2e81b7673f0ec7ffa4cb3fafd4e39d48015cbc8df61c67"
+  },
   "production_operations": {
-    "workflow_dispatches": 0,
+    "workflow_dispatches": 1,
     "database_writes": 0,
     "owner_decisions_created": 0
   },
   "remaining_gates": [
-    "green CI and merge",
-    "one live queue-worker readback showing WAITING_FOR_DECISION without a false error annotation"
+    "one later natural scheduled readback on the merged monitoring commit"
   ]
 }
