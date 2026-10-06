@@ -673,15 +673,35 @@ catalogue counts unchanged and rolled back fully. PR `#230` then merged as
 `bba6bf3` and the migration applied successfully. The production ledger is now
 225 with fingerprint
 `4981529d078bc0c4dc5d0597b3a6327f44270e76f4cca1a93483abe4c950cf9f`;
-all catalogue counts remain unchanged and no control close has yet run.
+all catalogue counts remained unchanged. PR `#231` synchronized the repository
+contract to ledger 225 as merge commit `8dca00b` after project, quick, full and
+CI gates passed. Guarded workflow run `37426502233` then performed a new
+read-only preflight and exactly one close with no retry. It preserved all 12
+applied children and 591 row approvals, superseded only the seven unexecuted
+children plus the parent, and made nine control writes with zero business or
+price-history writes. Independent repeatable-read readback confirmed exactly
+`12 APPLIED + 7 SUPERSEDED`, 12 apply runs, 591 row approvals and unchanged
+catalogue counts `1337/3632/3758/3758/27666`; the read-only transaction was
+rolled back.
 Ordinary 10 Reps execution of all 934 safe operations was already proved by
 successful run `37357956664`; it is not to be replayed solely for evidence.
-Next: synchronize the repository contract, take a fresh read-only preflight,
-perform one guarded suffix close, and verify it independently. Evidence:
+The partial-plan blocker is now closed. Next: refresh the exact Review Queue
+exception inventory, then complete the shared guarded execution and monitoring
+work. Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-PARTIAL-PLAN-RECOVERY-PREPARATION-2026-10-06.json`](retailer-automation/evidence/RA-STAB-01-PARTIAL-PLAN-RECOVERY-PREPARATION-2026-10-06.json).
 Disposable-PostgreSQL run `37421724769` also passes both RA-STAB-01 close
 fixtures; its two remaining suite failures are unchanged unrelated failures
 already present on main run `37331353245`.
+
+A fresh independent production readback then confirmed the exact current
+Review Queue scope: 14 pending Fit House stock changes and 16 pending 10 Reps
+source-missing identity conflicts, with no active execution request for either
+set. The transaction was repeatable-read, read-only and rolled back. The 10
+Reps cards correctly remain non-executable because missing source evidence
+cannot safely produce a commercial change. Publication is therefore current;
+RA-STAB-01 now proceeds to the shared guarded execution path, followed by the
+status-monitoring contract. Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-CURRENT-REVIEW-QUEUE-INVENTORY-2026-10-06.json`](retailer-automation/evidence/RA-STAB-01-CURRENT-REVIEW-QUEUE-INVENTORY-2026-10-06.json).
 
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger

@@ -1499,8 +1499,8 @@ This closes the queue-publication coupling incident. It does not close the
 older partial 10 Reps control plan or advance the natural `0/3` observation
 counter; those remain separate stabilization work.
 
-**6 October partial-plan recovery preparation — shared fix, production close
-pending:** current repeatable-read production preflight of parent
+**6 October partial-plan recovery — shared fix, live verified:** the initial
+repeatable-read production preflight of parent
 `f945e4f1-00d2-462e-9646-5acb878469a8` proves the exact incident state rather
 than inferring it from the failed workflow. The parent is `PARTIALLY_APPLIED`;
 children `0..11` are `APPLIED` with 12 successful apply runs, 591 consumed row
@@ -1525,11 +1525,40 @@ catalogue counts and rolled back completely. The earlier ordinary run
 merely for evidence. PR `#230` merged as `bba6bf3`; the one common migration was
 then applied successfully. The production ledger is now 225 with fingerprint
 `4981529d078bc0c4dc5d0597b3a6327f44270e76f4cca1a93483abe4c950cf9f`,
-all five catalogue counts remain unchanged, and no control close has yet run.
-Next gate is repository contract synchronization, a fresh read-only preflight,
-one guarded suffix close and an independent readback.
+all five catalogue counts remained unchanged. PR `#231` then synchronized the
+repository to the exact ledger-225 contract as merge commit `8dca00b`; project,
+quick, full and CI gates passed.
+
+One guarded workflow run `37426502233` took its own fresh read-only preflight
+and closed the exact suffix once, with no retry. It preserved all 12 applied
+children and 591 row approvals, marked only the seven unexecuted children and
+the parent `SUPERSEDED`, and reported exactly nine control writes, zero business
+writes and zero price-history writes. An independent repeatable-read readback
+then found exactly `12 APPLIED + 7 SUPERSEDED`, 12 apply runs, 591 row
+approvals, 13 batch approvals and 12 recovery manifests. Catalogue counts were
+still exactly `1337/3632/3758/3758/27666`, and the read-only transaction was
+rolled back. The partial-plan blocker is therefore closed without replaying the
+already-proved 934 operations. The next gate is a fresh exact Review Queue
+exception inventory, followed by shared guarded Review Queue execution and
+status-monitoring completion.
 Evidence:
 [`evidence/RA-STAB-01-PARTIAL-PLAN-RECOVERY-PREPARATION-2026-10-06.json`](evidence/RA-STAB-01-PARTIAL-PLAN-RECOVERY-PREPARATION-2026-10-06.json).
+
+**6 October exact Review Queue inventory — live verified:** a fresh independent
+production transaction ran at repeatable-read, read-only isolation and rolled
+back. It found exactly the current 14 Fit House stock-change cards and 16
+10 Reps source-missing identity cards, all `PENDING`, with no active execution
+request for either set and no owner decision recorded since midnight UTC. The
+Fit House offer IDs are `697, 735, 921, 944, 951, 953, 954, 963, 972, 983,
+1859, 1904, 1938, 1982`. The 10 Reps offer IDs are `2853, 2854, 2855, 2856,
+2857, 2858, 2859, 2896, 2897, 2898, 2913, 2914, 3384, 3388, 3496, 3627`.
+The 10 Reps rows remain intentionally review-only: their source is missing, so
+there is no safe commercial operation to execute. This proves the exact
+publication scope; it does not authorize or simulate a decision. The next gate
+is to extend the one existing guarded Review Queue execution path while keeping
+identity conflicts non-executable and avoiding a retailer branch in shared
+core. Evidence:
+[`evidence/RA-STAB-01-CURRENT-REVIEW-QUEUE-INVENTORY-2026-10-06.json`](evidence/RA-STAB-01-CURRENT-REVIEW-QUEUE-INVENTORY-2026-10-06.json).
 
 Docker run `37421724769` now proves the existing expired-close regression and
 the new exact `12 + 1 + 6` fixture pass against disposable PostgreSQL. The
