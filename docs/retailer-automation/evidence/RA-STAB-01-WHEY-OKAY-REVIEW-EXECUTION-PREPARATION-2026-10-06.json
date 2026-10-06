@@ -1,0 +1,81 @@
+{
+  "schema_version": "ra-stab-01-whey-okay-review-execution-preparation-v1",
+  "status": "LOCALLY_VERIFIED_DEPLOYMENT_PENDING",
+  "task": "RA-STAB-01",
+  "generated_at": "2026-10-06T08:11:57.8997567Z",
+  "change": {
+    "kind": "EXISTING_GUARDED_PATH_EXTENSION_AND_DUPLICATION_REMOVAL",
+    "new_runtime": false,
+    "new_importer": false,
+    "new_approval_path": false,
+    "new_executor": false,
+    "new_database_function": false,
+    "direct_catalogue_writer": false,
+    "shared_core_retailer_branch_added": false
+  },
+  "shared_cleanup": {
+    "extracted_module": "scripts/lib/automation-review-execution-selection.js",
+    "removed_duplication": "the exact one-stock-change plus freshness-confirmation selection is shared by Fit House, 10 Reps and Whey Okay",
+    "registry": "config/automation-review-execution-adapters.json",
+    "engine_selection": "validated engine_module from the closed registry",
+    "worker_contract": [
+      "readState",
+      "buildReviewQueueRun",
+      "buildIdempotencyRun",
+      "validate",
+      "registrationRequest",
+      "register",
+      "approveAndExecute"
+    ]
+  },
+  "whey_okay": {
+    "retailer_id": 3,
+    "retailer_slug": "whey-okay",
+    "enabled_operation": "UPDATE_STOCK",
+    "execution_scope": "one owner-approved stock decision plus 19 unchanged in-stock freshness confirmations",
+    "engine": "scripts/whey-okay-offer-refresh.js",
+    "existing_registration_rpc": "register_whey_okay_offer_sync_control_plan",
+    "existing_approval_rpc": "approve_retailer_offer_sync_batch",
+    "existing_apply_rpc": "execute_retailer_offer_sync_batch",
+    "postflight_profile": "whey-okay"
+  },
+  "default_deny": {
+    "price_execution_supported": false,
+    "combined_price_stock_execution_supported": false,
+    "identity_execution_supported": false,
+    "source_missing_execution_supported": false,
+    "stale_review_or_database_state": "expires before registration with zero catalogue writes"
+  },
+  "preserved_guards": [
+    "authenticated owner decision",
+    "immutable review and plan fingerprints",
+    "fresh full-source recapture",
+    "exact database before-state",
+    "one isolated stock-only commercial change",
+    "19 unchanged in-stock freshness confirmations",
+    "role-separated validation approval and execution",
+    "existing Whey Okay partial control registration",
+    "manifest-scoped database postflight",
+    "fresh-source idempotency rebuild",
+    "zero-write replay guard"
+  ],
+  "local_verification": {
+    "verify_project_before_documentation": "PASS",
+    "focused_registry_selection_and_worker_tests": "PASS_5_OF_5",
+    "admin_and_whey_okay_suites": "PASS_80_OF_80",
+    "verify_quick": "PASS",
+    "verify_project_after_documentation": "PASS",
+    "verify_full": "PASS"
+  },
+  "production_operations": {
+    "catalogue_writes": 0,
+    "control_writes": 0,
+    "workflow_dispatches": 0,
+    "owner_decisions_created": 0
+  },
+  "remaining_gates": [
+    "green CI and merge",
+    "one live worker readback from the merged commit",
+    "a genuine fresh owner-approved Whey Okay UPDATE_STOCK request before any commercial execution proof"
+  ]
+}

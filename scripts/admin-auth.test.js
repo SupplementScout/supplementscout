@@ -779,12 +779,14 @@ test("automation review capability matrix exposes only registered execution path
   assert.match(matrixSource, /confidenceForReview/);
   assert.match(matrixSource, /registeredExecution/);
   assert.match(adapterSource, /automation-review-execution-adapters\.json/);
-  assert.deepEqual(registry.adapters.map((adapter) => adapter.retailer_slug), ["ebay-uk", "fit-house", "10-reps"]);
-  assert.equal(registry.adapters.filter((adapter) => adapter.operations.includes("UPDATE_STOCK")).length, 3);
+  assert.deepEqual(registry.adapters.map((adapter) => adapter.retailer_slug), ["ebay-uk", "fit-house", "10-reps", "whey-okay"]);
+  assert.equal(registry.adapters.filter((adapter) => adapter.operations.includes("UPDATE_STOCK")).length, 4);
   assert.equal(registry.adapters.some((adapter) => adapter.operations.some((operation) => /REBIN|MARK_OOS/.test(operation))), false);
   const { capabilityForReview } = loadTsModule("app/lib/automationReviewCapabilityMatrix.ts");
   assert.equal(capabilityForReview("14", "UPDATE_STOCK", "COMMERCIAL_CHANGE").capability, "REVIEW_EXECUTABLE");
   assert.equal(capabilityForReview("14", "MANUAL_REVIEW_IDENTITY", "IDENTITY_CONFLICT").capability, "REVIEW_ONLY");
+  assert.equal(capabilityForReview("3", "UPDATE_STOCK", "COMMERCIAL_CHANGE").capability, "REVIEW_EXECUTABLE");
+  assert.equal(capabilityForReview("3", "UPDATE_PRICE", "COMMERCIAL_CHANGE").capability, "REVIEW_ONLY");
 });
 
 test("automation review decisions fail closed on auth, fingerprint, expiry and bulk incompatibility", () => {
@@ -901,11 +903,15 @@ test("automation review adapter registry is exact, single-row and default-deny",
   const source = fs.readFileSync(path.join(process.cwd(), "app", "lib", "automationReviewAdapters.ts"), "utf8");
   const raw = require("../config/automation-review-execution-adapters.json");
   const { REVIEW_EXECUTION_ADAPTERS } = require("./lib/automation-review-adapter-registry");
-  assert.equal(REVIEW_EXECUTION_ADAPTERS.length, 3);
-  assert.deepEqual(REVIEW_EXECUTION_ADAPTERS.map((adapter) => adapter.retailerId), ["12", "9", "14"]);
+  assert.equal(REVIEW_EXECUTION_ADAPTERS.length, 4);
+  assert.deepEqual(REVIEW_EXECUTION_ADAPTERS.map((adapter) => adapter.retailerId), ["12", "9", "14", "3"]);
   assert.deepEqual(REVIEW_EXECUTION_ADAPTERS.find((adapter) => adapter.retailerSlug === "ebay-uk").operations, ["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK"]);
   assert.deepEqual(REVIEW_EXECUTION_ADAPTERS.find((adapter) => adapter.retailerSlug === "10-reps").operations, ["UPDATE_STOCK"]);
+  assert.deepEqual(REVIEW_EXECUTION_ADAPTERS.find((adapter) => adapter.retailerSlug === "whey-okay").operations, ["UPDATE_STOCK"]);
   assert.equal(raw.adapters.find((adapter) => adapter.retailer_slug === "10-reps").shared_engine.freshness_confirmation_count, 19);
+  for (const adapter of REVIEW_EXECUTION_ADAPTERS.filter((candidate) => candidate.workerKind === "shared-retailer")) {
+    assert.match(adapter.sharedEngine.engineModule, /^scripts\/[a-z0-9-]+\.js$/);
+  }
   assert.match(source, /automation-review-execution-adapters\.json/);
   assert.match(source, /maximumBatch: 1/);
   assert.match(source, /isolation: "per-row"/);
@@ -1114,29 +1120,32 @@ test("owner decision audit is bounded, SELECT-only, and starts from immutable ad
   assert.match(workflow, /Monitor status:/);
 });
 
-test("shared retailer Review Queue worker uses one registry for Fit House and 10 Reps", () => {
+test("shared retailer Review Queue worker uses one registry for Fit House, 10 Reps and Whey Okay", () => {
   const source = fs.readFileSync(path.join(process.cwd(), "scripts", "automation-review-shared-retailer-worker.js"), "utf8");
   const workflow = fs.readFileSync(path.join(process.cwd(), ".github", "workflows", "automation-review-queue-worker.yml"), "utf8");
   const capability = fs.readFileSync(path.join(process.cwd(), "app", "lib", "automationReviewCapabilityMatrix.ts"), "utf8");
   const { ADAPTERS, assertContext, parseArgs } = require("./automation-review-shared-retailer-worker");
-  assert.deepEqual(Object.keys(ADAPTERS), ["fit-house", "10-reps"]);
+  assert.deepEqual(Object.keys(ADAPTERS), ["fit-house", "10-reps", "whey-okay"]);
   for (const adapter of Object.values(ADAPTERS)) {
     assert.equal(adapter.expectedExecutionRows, 20);
     assert.equal(adapter.expectedCommercialChanges, 1);
     assert.equal(adapter.freshnessConfirmationCount, 19);
     assert.deepEqual([...adapter.operations], ["UPDATE_STOCK"]);
   }
-  assert.match(source, /engine\.buildRun/);
+  assert.match(source, /engine\.buildReviewQueueRun/);
+  assert.match(source, /engine\.buildIdempotencyRun/);
   assert.match(source, /engine\.validate/);
   assert.match(source, /engine\.registrationRequest/);
   assert.match(source, /engine\.approveAndExecute/);
   assert.match(source, /IDEMPOTENCY_FAILED/);
   assert.doesNotMatch(source, /\b(?:insert into|update|delete from)\s+(?:public\.)?(?:products|product_variants|retailer_products|offers|price_history)\b/i);
   assert.match(workflow, /group: retailer-offer-production-write/);
-  for (const prefix of ["FIT_HOUSE_SYNC", "TEN_REPS_REFRESH"]) for (const role of ["VALIDATOR", "APPROVER", "EXECUTOR"]) assert.match(workflow, new RegExp(`${prefix}_${role}_DATABASE_URL`));
+  for (const prefix of ["FIT_HOUSE_SYNC", "TEN_REPS_REFRESH", "WHEY_OKAY_SYNC"]) for (const role of ["VALIDATOR", "APPROVER", "EXECUTOR"]) assert.match(workflow, new RegExp(`${prefix}_${role}_DATABASE_URL`));
+  assert.match(workflow, /WHEY_OKAY_REFRESH_VALIDATOR_DATABASE_URL/);
   assert.match(workflow, /TEN_REPS_FEED_URL/);
   assert.match(capability, /retailerId: "9"[\s\S]*UPDATE_STOCK: registeredExecution\("9"/);
   assert.match(capability, /retailerId: "14"[\s\S]*UPDATE_STOCK: registeredExecution\("14"/);
+  assert.match(capability, /retailerId: "3"[\s\S]*UPDATE_STOCK: registeredExecution\("3"/);
   const args = ["--review-item-id=7", "--execution-request-id=11111111-1111-4111-8111-111111111111", "--retailer=10-reps", `--review-fingerprint=${"a".repeat(64)}`, `--review-plan-fingerprint=${"b".repeat(64)}`, `--execution-idempotency-key=${"c".repeat(64)}`, "--mode=review-queue"];
   assert.equal(parseArgs(args).retailer, "10-reps");
   const context = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", SUPABASE_SERVICE_ROLE_KEY: "control", NEXT_PUBLIC_SUPABASE_URL: "https://example.test", TEN_REPS_REFRESH_VALIDATOR_DATABASE_URL: "validator", TEN_REPS_REFRESH_APPROVER_DATABASE_URL: "approver", TEN_REPS_REFRESH_EXECUTOR_DATABASE_URL: "executor" };
@@ -1144,11 +1153,32 @@ test("shared retailer Review Queue worker uses one registry for Fit House and 10
   assert.throws(() => assertContext(ADAPTERS["10-reps"], { ...context, TEN_REPS_REFRESH_EXECUTOR_DATABASE_URL: "" }), /WORKER_ROLE_CREDENTIAL_MISSING/);
 });
 
-test("shared retailer Review Queue worker behavior binds and proves Fit House and 10 Reps stock decisions", async () => {
+test("shared retailer Review Queue engines expose the common guarded execution contract", () => {
+  for (const modulePath of ["./fit-house-offer-refresh", "./whey-okay-offer-refresh"]) {
+    const engine = require(modulePath);
+    for (const method of ["readState", "buildReviewQueueRun", "buildIdempotencyRun", "validate", "registrationRequest", "register", "approveAndExecute"]) {
+      assert.equal(typeof engine[method], "function", `${modulePath} must expose ${method}`);
+    }
+  }
+});
+
+test("shared retailer Review Queue selection isolates one stock decision with exact freshness confirmations", () => {
+  const { selectReviewQueueExecutionRows } = require("./lib/automation-review-execution-selection");
+  const confirmations = Array.from({ length: 19 }, (_, index) => ({ offer_id: String(index + 1), action: "VERIFY_NO_CHANGE", changed_fields: { stock: false, price: false, url: false, blocked: false }, target: { in_stock: true }, source: { in_stock: true } }));
+  const selected = { offer_id: "900", action: "UPDATE_STOCK", changed_fields: { stock: true, price: false, url: false, blocked: false }, target: { in_stock: true }, source: { in_stock: false } };
+  const selection = { offerId: "900", operation: "UPDATE_STOCK", maximumCommercialChanges: 1, freshnessConfirmationCount: 19 };
+  assert.deepEqual(selectReviewQueueExecutionRows({ rows: [selected, ...confirmations] }, selection).map((row) => row.offer_id), ["900", ...confirmations.map((row) => row.offer_id)]);
+  assert.throws(() => selectReviewQueueExecutionRows({ rows: [{ ...selected, action: "UPDATE_PRICE" }, ...confirmations] }, selection), /REVIEW_EXECUTION_SOURCE_OPERATION_DRIFT/);
+  assert.throws(() => selectReviewQueueExecutionRows({ rows: [selected, ...confirmations.slice(0, 18)] }, selection), /REVIEW_EXECUTION_CONFIRMATION_SCOPE_DRIFT/);
+  assert.throws(() => selectReviewQueueExecutionRows({ rows: [{ ...selected, changed_fields: { stock: true, price: true, url: false, blocked: false } }, ...confirmations] }, selection), /REVIEW_EXECUTION_NOT_ISOLATED_STOCK_CHANGE/);
+});
+
+test("shared retailer Review Queue worker behavior binds and proves Fit House, 10 Reps and Whey Okay stock decisions", async () => {
   const { run } = require("./automation-review-shared-retailer-worker");
   const scenarios = [
     { retailer: "fit-house", url: "https://fithouse.uk/p", rolePrefix: "FIT_HOUSE_SYNC", executionRequestId: "11111111-1111-4111-8111-111111111111" },
     { retailer: "10-reps", url: "https://www.10reps.co.uk/p", rolePrefix: "TEN_REPS_REFRESH", executionRequestId: "22222222-2222-4222-8222-222222222222" },
+    { retailer: "whey-okay", url: "https://wheyokay.com/p", rolePrefix: "WHEY_OKAY_SYNC", executionRequestId: "33333333-3333-4333-8333-333333333333" },
   ];
   for (const scenario of scenarios) {
     const beforeState = { offer_id: "900", retailer_product_id: "800", product_id: "700", product_variant_id: "600", price: "10.00", shipping_cost: "3.99", total_price: "13.99", in_stock: true, url: scenario.url, external_url: scenario.url, external_product_id: "500", external_variant_id: "400" };
@@ -1161,17 +1191,18 @@ test("shared retailer Review Queue worker behavior binds and proves Fit House an
     let reads = 0;
     const engine = {
       readState: async () => (++reads === 1 ? { records: [record, ...confirmations.map((row) => ({ offer: { id: row.offer_id } }))] } : { records: [] }),
-      buildRun: async (_target, _state, _diagnostic, _reviewed, _isolate, _segment, selection) => selection ? runPlan : { classification: { rows: [{ offer_id: "900", action: "VERIFY_NO_CHANGE" }] } },
+      buildReviewQueueRun: async (_target, _state, selection) => selection ? runPlan : null,
+      buildIdempotencyRun: async () => ({ classification: { rows: [{ offer_id: "900", action: "VERIFY_NO_CHANGE" }] } }),
       validate: async () => [{ result: { valid: true } }],
       registrationRequest: () => ({ children: [{ artifact: runPlan.artifacts[0] }] }),
       register: async () => ({ result: { status: "REGISTERED" } }),
-      prepareSequentialParentApproval: async () => ({ status: "APPROVED" }),
       approveAndExecute: async () => [{ result: { status: "APPLIED" } }],
     };
+    if (scenario.retailer !== "whey-okay") engine.prepareSequentialParentApproval = async () => ({ status: "APPROVED" });
     const checkpoints = [];
     const client = { rpc: async (_name, args) => { checkpoints.push(args); return { data: { status: args.p_new_status }, error: null }; } };
     const baseline = { evidence_hash: "c".repeat(64), snapshot: { rows: [{ offer_id: "900", mapping_id: "800", offer_product_id: "700", offer_variant_id: "600", external_product_id: "500", external_variant_id: "400", price: "10.0", shipping_cost: "3.99", total_price: "13.990", in_stock: true, url: scenario.url, external_url: scenario.url }] } };
-    const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_SERVER_URL: "https://github.com", GITHUB_RUN_ID: "123", GITHUB_SHA: "d".repeat(40), NEXT_PUBLIC_SUPABASE_URL: "https://example.test", SUPABASE_SERVICE_ROLE_KEY: "control", [`${scenario.rolePrefix}_VALIDATOR_DATABASE_URL`]: "validator", [`${scenario.rolePrefix}_APPROVER_DATABASE_URL`]: "approver", [`${scenario.rolePrefix}_EXECUTOR_DATABASE_URL`]: "executor" };
+    const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_SERVER_URL: "https://github.com", GITHUB_RUN_ID: "123", GITHUB_SHA: "d".repeat(40), NEXT_PUBLIC_SUPABASE_URL: "https://example.test", SUPABASE_SERVICE_ROLE_KEY: "control", WHEY_OKAY_REFRESH_VALIDATOR_DATABASE_URL: "validator", [`${scenario.rolePrefix}_VALIDATOR_DATABASE_URL`]: "validator", [`${scenario.rolePrefix}_APPROVER_DATABASE_URL`]: "approver", [`${scenario.rolePrefix}_EXECUTOR_DATABASE_URL`]: "executor" };
     const report = await run({ reviewItemId: "77", executionRequestId: scenario.executionRequestId, retailer: scenario.retailer, reviewFingerprint: review.source_row_fingerprint, reviewPlanFingerprint: review.plan_fingerprint, executionIdempotencyKey: "e".repeat(64), mode: "review-queue" }, { env, client, engine, loadControlState: async () => ({ review, request: { status: "DISPATCHED" } }), runPostflight: async (options) => options.mode === "baseline" ? baseline : { postflight_hash: "f".repeat(64), freshness_change_count: 20, price_change_count: 0, stock_change_count: 1, shipping_change_count: 0, total_change_count: 0, offer_url_change_count: 0, mapping_url_change_count: 0, price_history_delta: 0 } });
     assert.equal(report.result, "PASS");
     assert.equal(report.database_writes, 20);
@@ -1179,7 +1210,7 @@ test("shared retailer Review Queue worker behavior binds and proves Fit House an
     assert.equal(report.freshness_confirmation_offer_ids.length, 19);
     assert.deepEqual(checkpoints.map((row) => row.p_new_status), ["EXECUTING", "EXECUTED"]);
     assert.equal(env.SUPABASE_SERVICE_ROLE_KEY, "control");
-    assert.equal(env.RETAILER_REFRESH_PROFILE, scenario.retailer === "10-reps" ? "10reps" : "fit-house");
+    assert.equal(env.RETAILER_REFRESH_PROFILE, scenario.retailer === "10-reps" ? "10reps" : scenario.retailer);
   }
 });
 

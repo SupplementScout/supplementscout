@@ -12,6 +12,7 @@ const ADAPTERS = Object.freeze(Object.fromEntries(adaptersForWorkerKind("shared-
   registered.retailerSlug,
   Object.freeze({
     retailerId: registered.retailerId,
+    engineModule: registered.sharedEngine.engineModule,
     profile: registered.sharedEngine.postflightProfile,
     refreshProfile: registered.sharedEngine.profile,
     operations: registered.operationSet,
@@ -110,7 +111,8 @@ async function run(options, dependencies = {}) {
   const env = dependencies.env || process.env, adapter = ADAPTERS[options.retailer];
   assertContext(adapter, env);
   env.RETAILER_REFRESH_PROFILE = adapter.refreshProfile;
-  const engine = dependencies.engine || require("./fit-house-offer-refresh");
+  const engine = dependencies.engine || require(path.join(ROOT, adapter.engineModule));
+  for (const method of ["readState", "buildReviewQueueRun", "buildIdempotencyRun", "validate", "registrationRequest", "register", "approveAndExecute"]) invariant(typeof engine[method] === "function", "REVIEW_ENGINE_CONTRACT_INVALID");
   fs.mkdirSync(OUT, { recursive: true });
   const db = dependencies.client || controlClient(env);
   let databaseWrites = 0;
@@ -120,7 +122,7 @@ async function run(options, dependencies = {}) {
     const record = before.records.find((candidate) => String(candidate.offer.id) === String(state.review.offer_id));
     invariant(record, "DATABASE_BASELINE_MISSING");
     assertReviewBeforeState(record, state.review);
-    const runPlan = await engine.buildRun("production", before, null, null, true, null, {
+    const runPlan = await engine.buildReviewQueueRun("production", before, {
       offerId: String(state.review.offer_id),
       operation: state.review.operation_type,
       maximumCommercialChanges: adapter.expectedCommercialChanges,
@@ -140,7 +142,7 @@ async function run(options, dependencies = {}) {
     const results = await withoutControlCredential(async () => {
       const request = engine.registrationRequest(runPlan);
       await engine.register(runPlan, request);
-      await engine.prepareSequentialParentApproval(runPlan, request);
+      if (typeof engine.prepareSequentialParentApproval === "function") await engine.prepareSequentialParentApproval(runPlan, request);
       return engine.approveAndExecute(runPlan, request, validations);
     }, env);
     invariant(results.length === runPlan.artifacts.length && results.every((result) => result.result?.status === "APPLIED"), "APPLY_RESULT_SCOPE_DRIFT");
@@ -148,7 +150,7 @@ async function run(options, dependencies = {}) {
     fs.writeFileSync(executionPath, `${JSON.stringify(execution, null, 2)}\n`);
     const postflight = await (dependencies.runPostflight || runPostflight)({ profile: adapter.profile, mode: "postflight", baseline: baselinePath, execution: executionPath, output: postflightPath }, dependencies);
     const after = await engine.readState("production");
-    const fresh = await engine.buildRun("production", after, null, null, true);
+    const fresh = await engine.buildIdempotencyRun("production", after);
     const selectedAfter = fresh.classification.rows.find((row) => String(row.offer_id) === String(state.review.offer_id));
     invariant(selectedAfter?.action === "VERIFY_NO_CHANGE", "IDEMPOTENCY_FAILED");
     const evidence = { run_id: String(env.GITHUB_RUN_ID), run_url: `${env.GITHUB_SERVER_URL}/${env.GITHUB_REPOSITORY}/actions/runs/${env.GITHUB_RUN_ID}`, commit_sha: env.GITHUB_SHA, before_state_hash: baseline.evidence_hash, postflight_hash: postflight.postflight_hash, executed_offer_ids: [String(state.review.offer_id)], freshness_confirmation_offer_ids: rows.filter((row) => row.action === "VERIFY_NO_CHANGE").map((row) => String(row.offer_id)), failed_offer_ids: [], remaining_offer_ids: [], expected_deltas: execution.expected_deltas, actual_deltas: { freshness: postflight.freshness_change_count, price: postflight.price_change_count, stock: postflight.stock_change_count, shipping: postflight.shipping_change_count, total: postflight.total_change_count, offer_url: postflight.offer_url_change_count, mapping_url: postflight.mapping_url_change_count }, price_history_delta: postflight.price_history_delta, database_writes: databaseWrites, idempotency_result: "PASS", baseline_hash: baseline.evidence_hash, source_fingerprint: state.review.source_row_fingerprint, plan_fingerprint: state.review.plan_fingerprint };

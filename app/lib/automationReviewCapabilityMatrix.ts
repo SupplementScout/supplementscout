@@ -134,6 +134,9 @@ export const AUTOMATION_REVIEW_CAPABILITY_MATRIX: readonly RetailerCapabilityRow
     operations: {
       ...defaultOperations,
       VERIFY_NO_CHANGE: AUTONOMOUS("Existing protected Whey Okay workflow supports approved exact-identity freshness, but current dry-run is blocked by an active/conflicting session.", "whey-okay-offer-refresh.yml"),
+      UPDATE_PRICE: REVIEW_ONLY("Price decisions remain review-only; the protected Review Queue adapter does not authorize them."),
+      UPDATE_STOCK: registeredExecution("3", "UPDATE_STOCK", "One owner-approved stock decision is revalidated against a fresh full feed and executed with protected freshness confirmations."),
+      UPDATE_PRICE_AND_STOCK: REVIEW_ONLY("Combined commercial decisions remain review-only."),
       IDENTITY_PROMOTION: REVIEW_ONLY("Identity promotions require owner approval and exact evidence; no automatic catalogue change is allowed."),
       REBIND_EXISTING_VARIANT: REVIEW_ONLY("Rebinds require owner approval and exact evidence; no automatic catalogue change is allowed."),
       SOURCE_MISSING: REVIEW_ONLY("Source failures remain review-only until a fresh capture resolves or confirms the source problem."),

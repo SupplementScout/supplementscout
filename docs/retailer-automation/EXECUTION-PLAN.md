@@ -1613,6 +1613,30 @@ later natural scheduled run on the merge remains the final schedule readback;
 it does not block work on the next retailer. Evidence:
 [`evidence/RA-STAB-01-REVIEW-MONITORING-STATUS-PREPARATION-2026-10-06.json`](evidence/RA-STAB-01-REVIEW-MONITORING-STATUS-PREPARATION-2026-10-06.json).
 
+**6 October Whey Okay guarded Review Queue execution and shared selection
+cleanup — locally verified, deployment pending:** Whey Okay now joins the same
+closed execution registry and the same shared retailer worker for
+`UPDATE_STOCK` only. The worker selects the retailer engine from one validated
+module path in the registry and requires one common interface; it contains no
+Whey Okay, Fit House or 10 Reps name/ID branch. The existing Whey Okay reader,
+589-row manifest, validator, partial control registration, approver, executor
+and postflight remain authoritative. No importer, approval path, executor, RPC,
+schedule or catalogue writer was added.
+
+The formerly Fit House-local selection of one stock-only decision plus 19
+unchanged in-stock freshness confirmations is now one shared module used by
+both existing engines. Price, combined price/stock, identity and source-missing
+Whey Okay rows remain review-only/default-deny. Fresh source, immutable review
+fingerprints, exact database before-state, role separation, postflight and
+idempotency remain mandatory; stale evidence stops before registration. The
+focused registry/selection/worker suite passes `5/5`, and the complete admin
+plus Whey Okay suites pass `80/80`. Project Guardian before and after the
+documentation change, the quick gate and the full gate all pass with zero
+production/control writes and no dispatch. The next gates are CI/merge and one
+live worker readback. No commercial write will be manufactured merely for proof.
+Evidence:
+[`evidence/RA-STAB-01-WHEY-OKAY-REVIEW-EXECUTION-PREPARATION-2026-10-06.json`](evidence/RA-STAB-01-WHEY-OKAY-REVIEW-EXECUTION-PREPARATION-2026-10-06.json).
+
 Docker run `37421724769` now proves the existing expired-close regression and
 the new exact `12 + 1 + 6` fixture pass against disposable PostgreSQL. The
 monolithic integration job remains red only for the same two unrelated

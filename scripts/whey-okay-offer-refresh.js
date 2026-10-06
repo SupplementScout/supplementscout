@@ -26,6 +26,9 @@ const {
   sumDeltas,
   verificationRecord,
 } = require("./jons-offer-refresh");
+const {
+  selectReviewQueueExecutionRows,
+} = require("./lib/automation-review-execution-selection");
 const config = require("../config/retailers/whey-okay-offer-sync.json");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -1035,8 +1038,14 @@ async function buildRun(target, state, diagnostic = null, options = {}) {
       offer: row.offer,
     })),
   );
+  const plannedRows = options.reviewQueueSelection
+    ? selectReviewQueueExecutionRows(
+        classification,
+        options.reviewQueueSelection,
+      )
+    : classification.rows;
   const rows = [];
-  for (const classified of classification.rows) {
+  for (const classified of plannedRows) {
     const record = recordByOffer.get(String(classified.offer_id));
     const source = sourceFor(record, sourceByKey);
     let plan;
@@ -1202,6 +1211,15 @@ async function buildRun(target, state, diagnostic = null, options = {}) {
     isolateUnsafe: options.isolateUnsafe,
     automaticPriceConfirmation,
   };
+}
+function buildReviewQueueRun(target, state, selection) {
+  return buildRun(target, state, null, {
+    isolateUnsafe: true,
+    reviewQueueSelection: selection,
+  });
+}
+function buildIdempotencyRun(target, state) {
+  return buildRun(target, state, null, { isolateUnsafe: true });
 }
 function validationRequest(run, artifact) {
   const expires = new Date(Date.now() + 14 * 60_000).toISOString();
@@ -1701,10 +1719,13 @@ if (require.main === module) {
 
 module.exports = {
   RefreshError,
+  approveAndExecute,
   authorizeReviewedMassOos,
   approvedManifestCoverage,
   artifactPrefix,
   balancedExecutionBatches,
+  buildIdempotencyRun,
+  buildReviewQueueRun,
   buildRun,
   changeSummary,
   confirmMappedFeedScope,
@@ -1719,6 +1740,7 @@ module.exports = {
   immutablePreflightName,
   parseArgs,
   readState,
+  register,
   registrationRequest,
   runWithDiagnostic,
   sealImmutablePreflight,
@@ -1726,4 +1748,5 @@ module.exports = {
   sourceHealth,
   safeUpdateDisabled,
   targetFor,
+  validate,
 };
