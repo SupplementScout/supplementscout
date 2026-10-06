@@ -1,6 +1,6 @@
 {
   "schema_version": "ra-stab-01-partial-plan-recovery-preparation-v1",
-  "status": "LOCALLY_VERIFIED_PRODUCTION_DEPLOYMENT_PENDING",
+  "status": "PRODUCTION_MIGRATION_DEPLOYED_CONTROL_CLOSE_PENDING",
   "task": "RA-STAB-01",
   "generated_at": "2026-10-06T05:35:17.235Z",
   "incident": {
@@ -60,6 +60,21 @@
     "catalogue_counts_unchanged": true,
     "schema_checks_passed": true
   },
+  "production_deployment": {
+    "result": "PASS",
+    "committed": true,
+    "migration": "20261006120000_extend_partial_sequential_plan_close",
+    "ledger_count": 225,
+    "ledger_fingerprint": "4981529d078bc0c4dc5d0597b3a6327f44270e76f4cca1a93483abe4c950cf9f",
+    "catalogue_counts_unchanged": true,
+    "catalogue_counts": {
+      "products": "1337",
+      "product_variants": "3632",
+      "retailer_products": "3758",
+      "offers": "3758",
+      "price_history": "27666"
+    }
+  },
   "regression": {
     "incident_shape": "12_APPLIED_1_APPROVED_6_PLANNED",
     "preserved_row_approvals": 591,
@@ -89,9 +104,9 @@
     "published_10_reps_review_cards": 16
   },
   "not_yet_executed": {
-    "migration_deployed": false,
+    "migration_deployed": true,
     "control_plan_closed": false,
     "production_control_writes": 0
   },
-  "next_gate": "green full CI and merge, exact production migration apply, fresh read-only preflight, one guarded suffix close, independent readback"
+  "next_gate": "merge ledger-225 repository contract, fresh read-only preflight, one guarded suffix close, independent readback"
 }
