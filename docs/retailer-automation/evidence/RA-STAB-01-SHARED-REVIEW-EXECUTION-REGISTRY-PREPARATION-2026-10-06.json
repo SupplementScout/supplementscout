@@ -1,0 +1,81 @@
+{
+  "schema_version": "ra-stab-01-shared-review-execution-registry-preparation-v1",
+  "status": "LOCAL_FULL_VERIFIED_CI_AND_PRODUCTION_PENDING",
+  "task": "RA-STAB-01",
+  "generated_at": "2026-10-06T07:25:36.7864654Z",
+  "change": {
+    "kind": "EXISTING_GUARDED_PATH_EXTENSION",
+    "new_runtime": false,
+    "new_importer": false,
+    "new_approval_path": false,
+    "new_executor": false,
+    "direct_catalogue_writer": false,
+    "shared_core_retailer_branch_added": false,
+    "single_registry": "config/automation-review-execution-adapters.json"
+  },
+  "registered_execution": {
+    "ebay_uk": {
+      "retailer_id": 12,
+      "worker_kind": "ebay",
+      "operations": ["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK"]
+    },
+    "fit_house": {
+      "retailer_id": 9,
+      "worker_kind": "shared-retailer",
+      "operations": ["UPDATE_STOCK"],
+      "execution_scope": "one owner-approved stock decision plus 19 unchanged freshness confirmations"
+    },
+    "ten_reps": {
+      "retailer_id": 14,
+      "worker_kind": "shared-retailer",
+      "operations": ["UPDATE_STOCK"],
+      "execution_scope": "one owner-approved stock decision plus 19 unchanged freshness confirmations",
+      "feed_profile": "10reps",
+      "postflight_profile": "10-reps",
+      "role_prefix": "TEN_REPS_REFRESH"
+    }
+  },
+  "preserved_guards": [
+    "authenticated owner decision",
+    "immutable review and plan fingerprints",
+    "fresh source recapture",
+    "exact database before-state",
+    "role-separated validation approval and execution",
+    "atomic existing mixed-batch executor",
+    "postflight and fresh idempotency rebuild",
+    "zero-write retry guard"
+  ],
+  "default_deny": {
+    "ten_reps_source_missing_identity_rows": 16,
+    "identity_operation": "MANUAL_REVIEW_IDENTITY",
+    "identity_execution_supported": false,
+    "price_execution_supported": false,
+    "combined_price_stock_execution_supported": false
+  },
+  "profile_isolation": {
+    "reason": "The existing shared offer engine loads one retailer profile per process.",
+    "behavior": "One queue run executes at most one shared-retailer profile; a second profile remains queued for the next run while independent eBay work may continue.",
+    "database_writes_for_deferred_requests": 0
+  },
+  "local_verification": {
+    "adapter_and_worker_regressions": "PASS",
+    "admin_auth_suite": "PASS_52_OF_52",
+    "typescript": "PASS",
+    "verify_project_before_documentation": "PASS",
+    "verify_project_after_documentation": "PASS",
+    "verify_quick": "PASS",
+    "verify_full": "PASS",
+    "nextjs_production_build": "PASS"
+  },
+  "production_operations": {
+    "catalogue_writes": 0,
+    "control_writes": 0,
+    "workflow_dispatches": 0,
+    "owner_decisions_created": 0
+  },
+  "remaining_gates": [
+    "green CI and merge",
+    "production scheduled-worker readback",
+    "live exact 10 Reps UPDATE_STOCK execution only when a fresh owner-approved row exists"
+  ]
+}

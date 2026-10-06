@@ -3,11 +3,13 @@ const path = require("node:path");
 const { createClient } = require("@supabase/supabase-js");
 const { run: runEbay } = require("./automation-review-ebay-worker");
 const { run: runSharedRetailer } = require("./automation-review-shared-retailer-worker");
+const { REVIEW_EXECUTION_ADAPTERS } = require("./lib/automation-review-adapter-registry");
 
-const WORKERS = Object.freeze({
-  "ebay-uk": Object.freeze({ workflow: "automation-review-queue-worker.yml", run: runEbay }),
-  "fit-house": Object.freeze({ workflow: "automation-review-queue-worker.yml", run: runSharedRetailer }),
-});
+const RUNNERS = Object.freeze({ ebay: runEbay, "shared-retailer": runSharedRetailer });
+const WORKERS = Object.freeze(Object.fromEntries(REVIEW_EXECUTION_ADAPTERS.map((adapter) => [
+  adapter.retailerSlug,
+  Object.freeze({ workflow: adapter.workflow, workerKind: adapter.workerKind, run: RUNNERS[adapter.workerKind] }),
+])));
 const REPORT_DIRECTORY = path.resolve(__dirname, "..", "tmp", "automation-review-execution");
 
 function invariant(condition, code) {
@@ -28,6 +30,23 @@ function client(env = process.env) {
 function safeErrorCode(error) {
   const value = String(error?.code || error?.message || "QUEUE_WORKER_REQUEST_FAILED");
   return /^[A-Z0-9_:.-]{1,120}$/.test(value) ? value : "QUEUE_WORKER_REQUEST_FAILED";
+}
+
+function selectCompatibleRequests(requests) {
+  let sharedRetailer = null;
+  const selected = [], deferred = [];
+  for (const request of requests) {
+    const adapter = WORKERS[request.retailer_slug];
+    if (adapter?.workerKind === "shared-retailer") {
+      if (sharedRetailer && sharedRetailer !== request.retailer_slug) {
+        deferred.push(request);
+        continue;
+      }
+      sharedRetailer = request.retailer_slug;
+    }
+    selected.push(request);
+  }
+  return { selected, deferred };
 }
 
 function persistReport(report, env = process.env) {
@@ -51,23 +70,25 @@ async function run(dependencies = {}) {
   invariant(!error, "QUEUE_WORKER_READ_FAILED");
   const saveReport = dependencies.persistReport || ((report) => persistReport(report, env));
   if (!data?.length) {
-    const output = { result: "PASS", processed: 0, completed: [], failed: [], database_writes: 0 };
+    const output = { result: "PASS", processed: 0, deferred: [], completed: [], failed: [], database_writes: 0 };
     saveReport(output);
     return output;
   }
+  const { selected, deferred } = selectCompatibleRequests(data);
   const completed = [], failed = [];
-  for (const request of data) {
+  for (const request of selected) {
     try {
       const adapter = WORKERS[request.retailer_slug];
       invariant(adapter && request.workflow_name === adapter.workflow, "QUEUE_WORKER_ADAPTER_UNSUPPORTED");
-      const worker = request.retailer_slug === "ebay-uk" ? (dependencies.runEbay || adapter.run) : (dependencies.runSharedRetailer || adapter.run);
+      const injected = adapter.workerKind === "ebay" ? dependencies.runEbay : dependencies.runSharedRetailer;
+      const worker = injected || adapter.run;
       const result = await worker({ reviewItemId: String(request.review_id), executionRequestId: request.id, retailer: request.retailer_slug, reviewFingerprint: request.review_fingerprint, reviewPlanFingerprint: request.plan_fingerprint, executionIdempotencyKey: request.idempotency_key, mode: "review-queue" }, { ...dependencies, client: db, env });
       completed.push({ execution_request_id: request.id, worker_result: result.result, database_writes: result.database_writes });
     } catch (error) {
       failed.push({ execution_request_id: request.id, retailer_slug: request.retailer_slug, review_id: String(request.review_id), error_code: safeErrorCode(error) });
     }
   }
-  const output = { result: failed.length ? "FAIL" : "PASS", processed: data.length, completed, failed, database_writes: completed.reduce((sum, row) => sum + Number(row.database_writes || 0), 0) };
+  const output = { result: failed.length ? "FAIL" : "PASS", processed: selected.length, deferred: deferred.map((request) => request.id), completed, failed, database_writes: completed.reduce((sum, row) => sum + Number(row.database_writes || 0), 0) };
   saveReport(output);
   if (failed.length) { const error = new Error(`QUEUE_WORKER_BATCH_FAILED:${failed.length}`); error.report = output; throw error; }
   return output;
@@ -75,4 +96,4 @@ async function run(dependencies = {}) {
 
 if (require.main === module) run().then((result) => console.log(JSON.stringify(result))).catch((error) => { if (error.report) console.error(JSON.stringify(error.report)); console.error(error.stack || error.message); process.exitCode = 1; });
 
-module.exports = { WORKERS, assertContext, persistReport, run, safeErrorCode };
+module.exports = { WORKERS, assertContext, persistReport, run, safeErrorCode, selectCompatibleRequests };

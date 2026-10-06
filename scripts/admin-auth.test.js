@@ -770,16 +770,21 @@ test("Review Queue filters the complete bounded result before pagination", () =>
 test("automation review capability matrix exposes only registered execution paths", () => {
   const matrixSource = fs.readFileSync(path.join(process.cwd(), "app", "lib", "automationReviewCapabilityMatrix.ts"), "utf8");
   const adapterSource = fs.readFileSync(path.join(process.cwd(), "app", "lib", "automationReviewAdapters.ts"), "utf8");
-  for (const retailer of ["Whey Okay", "Discount Supplements", "Dolphin Fitness", "GYM HIGH", "Simply Supplements", "6 Pack Supplements", "KIOR Health", "Fit House", "Jon's Supplements", "eBay UK"]) assert.match(matrixSource, new RegExp(retailer.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  const registry = require("../config/automation-review-execution-adapters.json");
+  for (const retailer of ["Whey Okay", "Discount Supplements", "Dolphin Fitness", "GYM HIGH", "Simply Supplements", "6 Pack Supplements", "KIOR Health", "Fit House", "10 Reps", "Jon's Supplements", "eBay UK"]) assert.match(matrixSource, new RegExp(retailer.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   for (const operation of ["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK", "UPDATE_PRICE_AND_STOCK", "IDENTITY_PROMOTION", "REBIND_EXISTING_VARIANT", "SOURCE_MISSING", "UNAVAILABLE_DECISION"]) assert.match(matrixSource, new RegExp(operation));
   for (const capability of ["AUTONOMOUS", "REVIEW_EXECUTABLE", "REVIEW_ONLY", "UNSUPPORTED"]) assert.match(matrixSource, new RegExp(capability));
   assert.match(matrixSource, /capabilityForReview/);
   assert.match(matrixSource, /decisionGroupForReview/);
   assert.match(matrixSource, /confidenceForReview/);
-  assert.equal((adapterSource.match(/retailerSlug: "ebay-uk"/g) || []).length, 1);
-  assert.match(adapterSource, /UPDATE_PRICE/);
-  assert.match(adapterSource, /UPDATE_STOCK/);
-  assert.doesNotMatch(adapterSource, /REBIN|MARK_OOS/);
+  assert.match(matrixSource, /registeredExecution/);
+  assert.match(adapterSource, /automation-review-execution-adapters\.json/);
+  assert.deepEqual(registry.adapters.map((adapter) => adapter.retailer_slug), ["ebay-uk", "fit-house", "10-reps"]);
+  assert.equal(registry.adapters.filter((adapter) => adapter.operations.includes("UPDATE_STOCK")).length, 3);
+  assert.equal(registry.adapters.some((adapter) => adapter.operations.some((operation) => /REBIN|MARK_OOS/.test(operation))), false);
+  const { capabilityForReview } = loadTsModule("app/lib/automationReviewCapabilityMatrix.ts");
+  assert.equal(capabilityForReview("14", "UPDATE_STOCK", "COMMERCIAL_CHANGE").capability, "REVIEW_EXECUTABLE");
+  assert.equal(capabilityForReview("14", "MANUAL_REVIEW_IDENTITY", "IDENTITY_CONFLICT").capability, "REVIEW_ONLY");
 });
 
 test("automation review decisions fail closed on auth, fingerprint, expiry and bulk incompatibility", () => {
@@ -841,7 +846,7 @@ test("automation review workflow dispatch is token-gated and exactly bound to on
 });
 
 test("Automation Review Queue scheduled worker processes the oldest bounded queue batch", async () => {
-  const { assertContext, run, safeErrorCode } = require("./automation-review-queue-worker");
+  const { assertContext, run, safeErrorCode, selectCompatibleRequests } = require("./automation-review-queue-worker");
   const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_SERVER_URL: "https://github.com", GITHUB_RUN_ID: "123", GITHUB_SHA: "a".repeat(40), NEXT_PUBLIC_SUPABASE_URL: "https://example.test", SUPABASE_SERVICE_ROLE_KEY: "control" };
   assert.doesNotThrow(() => assertContext(env));
   assert.throws(() => assertContext({ ...env, GITHUB_REF: "refs/heads/other" }), /QUEUE_WORKER_REPOSITORY_INVALID/);
@@ -865,6 +870,14 @@ test("Automation Review Queue scheduled worker processes the oldest bounded queu
   assert.equal(reports[1].failed[0].retailer_slug, "ebay-uk");
   assert.equal(reports[1].failed[0].review_id, "946");
   assert.equal(safeErrorCode({ code: "REVIEW_EVIDENCE_EXPIRED" }), "REVIEW_EVIDENCE_EXPIRED");
+  const compatibility = selectCompatibleRequests([
+    { id: "fit-1", retailer_slug: "fit-house" },
+    { id: "ebay-1", retailer_slug: "ebay-uk" },
+    { id: "ten-1", retailer_slug: "10-reps" },
+    { id: "fit-2", retailer_slug: "fit-house" },
+  ]);
+  assert.deepEqual(compatibility.selected.map((item) => item.id), ["fit-1", "ebay-1", "fit-2"]);
+  assert.deepEqual(compatibility.deferred.map((item) => item.id), ["ten-1"]);
 });
 
 test("Automation Review Queue refresh publishes only a same-run zero-catalogue-write request", () => {
@@ -886,13 +899,14 @@ test("Automation Review Queue refresh publishes only a same-run zero-catalogue-w
 
 test("automation review adapter registry is exact, single-row and default-deny", () => {
   const source = fs.readFileSync(path.join(process.cwd(), "app", "lib", "automationReviewAdapters.ts"), "utf8");
-  assert.equal((source.match(/retailerSlug: "ebay-uk"/g) || []).length, 1);
-  assert.match(source, /retailerId: "12"/);
-  assert.match(source, /retailerSlug: "ebay-uk"/);
-  assert.match(source, /retailerId: "9"/);
-  assert.match(source, /retailerSlug: "fit-house"/);
-  assert.match(source, /operations: Object\.freeze\(\["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK"\]\)/);
-  assert.match(source, /"PRICE_CHANGE", "STOCK_CHANGE"/);
+  const raw = require("../config/automation-review-execution-adapters.json");
+  const { REVIEW_EXECUTION_ADAPTERS } = require("./lib/automation-review-adapter-registry");
+  assert.equal(REVIEW_EXECUTION_ADAPTERS.length, 3);
+  assert.deepEqual(REVIEW_EXECUTION_ADAPTERS.map((adapter) => adapter.retailerId), ["12", "9", "14"]);
+  assert.deepEqual(REVIEW_EXECUTION_ADAPTERS.find((adapter) => adapter.retailerSlug === "ebay-uk").operations, ["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK"]);
+  assert.deepEqual(REVIEW_EXECUTION_ADAPTERS.find((adapter) => adapter.retailerSlug === "10-reps").operations, ["UPDATE_STOCK"]);
+  assert.equal(raw.adapters.find((adapter) => adapter.retailer_slug === "10-reps").shared_engine.freshness_confirmation_count, 19);
+  assert.match(source, /automation-review-execution-adapters\.json/);
   assert.match(source, /maximumBatch: 1/);
   assert.match(source, /isolation: "per-row"/);
   assert.match(source, /reviewBinding: "immutable-review-record"/);
@@ -900,6 +914,9 @@ test("automation review adapter registry is exact, single-row and default-deny",
   for (const input of ["execution_request_id", "review_item_id", "review_fingerprint", "review_plan_fingerprint", "execution_idempotency_key"]) assert.match(source, new RegExp(input));
   assert.match(source, /EXECUTION_UNSUPPORTED/);
   assert.doesNotMatch(source, /REBIN|MARK_OOS/);
+  const { resolveReviewAdapter } = loadTsModule("app/lib/automationReviewAdapters.ts");
+  assert.equal(resolveReviewAdapter("14", "UPDATE_STOCK", "STOCK_CHANGE").adapter?.retailerSlug, "10-reps");
+  assert.equal(resolveReviewAdapter("14", "MANUAL_REVIEW_IDENTITY", "SOURCE_MISSING").adapter, null);
 });
 
 test("automation review UI exposes executable versus review drift scope", () => {
@@ -1084,12 +1101,18 @@ test("owner decision audit is bounded, SELECT-only, and starts from immutable ad
   assert.match(workflow, /continue-on-error: true/);
 });
 
-test("Fit House Review Queue worker reuses the shared engine for one decision plus confirmations", () => {
+test("shared retailer Review Queue worker uses one registry for Fit House and 10 Reps", () => {
   const source = fs.readFileSync(path.join(process.cwd(), "scripts", "automation-review-shared-retailer-worker.js"), "utf8");
   const workflow = fs.readFileSync(path.join(process.cwd(), ".github", "workflows", "automation-review-queue-worker.yml"), "utf8");
   const capability = fs.readFileSync(path.join(process.cwd(), "app", "lib", "automationReviewCapabilityMatrix.ts"), "utf8");
-  assert.match(source, /expectedExecutionRows: 20/);
-  assert.match(source, /expectedCommercialChanges: 1/);
+  const { ADAPTERS, assertContext, parseArgs } = require("./automation-review-shared-retailer-worker");
+  assert.deepEqual(Object.keys(ADAPTERS), ["fit-house", "10-reps"]);
+  for (const adapter of Object.values(ADAPTERS)) {
+    assert.equal(adapter.expectedExecutionRows, 20);
+    assert.equal(adapter.expectedCommercialChanges, 1);
+    assert.equal(adapter.freshnessConfirmationCount, 19);
+    assert.deepEqual([...adapter.operations], ["UPDATE_STOCK"]);
+  }
   assert.match(source, /engine\.buildRun/);
   assert.match(source, /engine\.validate/);
   assert.match(source, /engine\.registrationRequest/);
@@ -1097,40 +1120,54 @@ test("Fit House Review Queue worker reuses the shared engine for one decision pl
   assert.match(source, /IDEMPOTENCY_FAILED/);
   assert.doesNotMatch(source, /\b(?:insert into|update|delete from)\s+(?:public\.)?(?:products|product_variants|retailer_products|offers|price_history)\b/i);
   assert.match(workflow, /group: retailer-offer-production-write/);
-  for (const role of ["VALIDATOR", "APPROVER", "EXECUTOR"]) assert.match(workflow, new RegExp(`FIT_HOUSE_SYNC_${role}_DATABASE_URL`));
-  assert.match(capability, /retailerId: "9"[\s\S]*UPDATE_STOCK: REVIEW_EXECUTABLE[\s\S]*automation-review-queue-worker\.yml/);
+  for (const prefix of ["FIT_HOUSE_SYNC", "TEN_REPS_REFRESH"]) for (const role of ["VALIDATOR", "APPROVER", "EXECUTOR"]) assert.match(workflow, new RegExp(`${prefix}_${role}_DATABASE_URL`));
+  assert.match(workflow, /TEN_REPS_FEED_URL/);
+  assert.match(capability, /retailerId: "9"[\s\S]*UPDATE_STOCK: registeredExecution\("9"/);
+  assert.match(capability, /retailerId: "14"[\s\S]*UPDATE_STOCK: registeredExecution\("14"/);
+  const args = ["--review-item-id=7", "--execution-request-id=11111111-1111-4111-8111-111111111111", "--retailer=10-reps", `--review-fingerprint=${"a".repeat(64)}`, `--review-plan-fingerprint=${"b".repeat(64)}`, `--execution-idempotency-key=${"c".repeat(64)}`, "--mode=review-queue"];
+  assert.equal(parseArgs(args).retailer, "10-reps");
+  const context = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", SUPABASE_SERVICE_ROLE_KEY: "control", NEXT_PUBLIC_SUPABASE_URL: "https://example.test", TEN_REPS_REFRESH_VALIDATOR_DATABASE_URL: "validator", TEN_REPS_REFRESH_APPROVER_DATABASE_URL: "approver", TEN_REPS_REFRESH_EXECUTOR_DATABASE_URL: "executor" };
+  assert.doesNotThrow(() => assertContext(ADAPTERS["10-reps"], context));
+  assert.throws(() => assertContext(ADAPTERS["10-reps"], { ...context, TEN_REPS_REFRESH_EXECUTOR_DATABASE_URL: "" }), /WORKER_ROLE_CREDENTIAL_MISSING/);
 });
 
-test("Fit House Review Queue worker behavior binds baseline, executes one stock change, and proves idempotency", async () => {
+test("shared retailer Review Queue worker behavior binds and proves Fit House and 10 Reps stock decisions", async () => {
   const { run } = require("./automation-review-shared-retailer-worker");
-  const beforeState = { offer_id: "900", retailer_product_id: "800", product_id: "700", product_variant_id: "600", price: "10.00", shipping_cost: "3.99", total_price: "13.99", in_stock: true, url: "https://fithouse.uk/p", external_url: "https://fithouse.uk/p", external_product_id: "500", external_variant_id: "400" };
-  const review = { id: 77, offer_id: "900", retailer_product_id: "800", operation_type: "UPDATE_STOCK", before_state: beforeState, proposed_state: { ...beforeState, in_stock: false }, source_row_fingerprint: "a".repeat(64), plan_fingerprint: "b".repeat(64) };
-  const record = { product: { id: "700" }, variant: { id: "600" }, mapping: { id: "800", external_product_id: "500", external_variant_id: "400", external_url: "https://fithouse.uk/p" }, offer: { id: "900", price: "10", shipping_cost: "3.990", total_price: "13.99", in_stock: true, url: "https://fithouse.uk/p" } };
-  const confirmations = Array.from({ length: 19 }, (_, index) => ({ offer_id: String(index + 1), action: "VERIFY_NO_CHANGE", changed_fields: { stock: false, price: false, url: false }, target: { in_stock: true }, source: { in_stock: true } }));
-  const changed = { offer_id: "900", retailer_product_id: "800", external_product_id: "500", external_variant_id: "400", action: "UPDATE_STOCK", changed_fields: { stock: true, price: false, url: false, blocked: false }, target: { price: "10.00", in_stock: true }, source: { price: "10.00", in_stock: false } };
-  const deltas = { row_count_deltas: { products: 0, product_variants: 0, retailer_products: 0, offers: 0, price_history: 0 }, logical_field_deltas: { offer_price_updates: 0, offer_shipping_updates: 0, offer_total_updates: 0, offer_stock_updates: 1, offer_url_updates: 0, mapping_url_updates: 0, mapping_updated_at_updates: 0, last_checked_at_updates: 20 } };
-  const runPlan = { artifacts: [{ rows: [changed, ...confirmations], expected_deltas: deltas }] };
-  let reads = 0;
-  const engine = {
-    readState: async () => (++reads === 1 ? { records: [record, ...confirmations.map((row) => ({ offer: { id: row.offer_id } }))] } : { records: [] }),
-    buildRun: async (_target, _state, _diagnostic, _reviewed, _isolate, _segment, selection) => selection ? runPlan : { classification: { rows: [{ offer_id: "900", action: "VERIFY_NO_CHANGE" }] } },
-    validate: async () => [{ result: { valid: true } }],
-    registrationRequest: () => ({ children: [{ artifact: runPlan.artifacts[0] }] }),
-    register: async () => ({ result: { status: "REGISTERED" } }),
-    prepareSequentialParentApproval: async () => ({ status: "APPROVED" }),
-    approveAndExecute: async () => [{ result: { status: "APPLIED" } }],
-  };
-  const checkpoints = [];
-  const client = { rpc: async (_name, args) => { checkpoints.push(args); return { data: { status: args.p_new_status }, error: null }; } };
-  const baseline = { evidence_hash: "c".repeat(64), snapshot: { rows: [{ offer_id: "900", mapping_id: "800", offer_product_id: "700", offer_variant_id: "600", external_product_id: "500", external_variant_id: "400", price: "10.0", shipping_cost: "3.99", total_price: "13.990", in_stock: true, url: "https://fithouse.uk/p", external_url: "https://fithouse.uk/p" }] } };
-  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_SERVER_URL: "https://github.com", GITHUB_RUN_ID: "123", GITHUB_SHA: "d".repeat(40), NEXT_PUBLIC_SUPABASE_URL: "https://example.test", SUPABASE_SERVICE_ROLE_KEY: "control", FIT_HOUSE_SYNC_VALIDATOR_DATABASE_URL: "validator", FIT_HOUSE_SYNC_APPROVER_DATABASE_URL: "approver", FIT_HOUSE_SYNC_EXECUTOR_DATABASE_URL: "executor" };
-  const report = await run({ reviewItemId: "77", executionRequestId: "11111111-1111-4111-8111-111111111111", retailer: "fit-house", reviewFingerprint: review.source_row_fingerprint, reviewPlanFingerprint: review.plan_fingerprint, executionIdempotencyKey: "e".repeat(64), mode: "review-queue" }, { env, client, engine, loadControlState: async () => ({ review, request: { status: "DISPATCHED" } }), runPostflight: async (options) => options.mode === "baseline" ? baseline : { postflight_hash: "f".repeat(64), freshness_change_count: 20, price_change_count: 0, stock_change_count: 1, shipping_change_count: 0, total_change_count: 0, offer_url_change_count: 0, mapping_url_change_count: 0, price_history_delta: 0 } });
-  assert.equal(report.result, "PASS");
-  assert.equal(report.database_writes, 20);
-  assert.deepEqual(report.executed_offer_ids, ["900"]);
-  assert.equal(report.freshness_confirmation_offer_ids.length, 19);
-  assert.deepEqual(checkpoints.map((row) => row.p_new_status), ["EXECUTING", "EXECUTED"]);
-  assert.equal(env.SUPABASE_SERVICE_ROLE_KEY, "control");
+  const scenarios = [
+    { retailer: "fit-house", url: "https://fithouse.uk/p", rolePrefix: "FIT_HOUSE_SYNC", executionRequestId: "11111111-1111-4111-8111-111111111111" },
+    { retailer: "10-reps", url: "https://www.10reps.co.uk/p", rolePrefix: "TEN_REPS_REFRESH", executionRequestId: "22222222-2222-4222-8222-222222222222" },
+  ];
+  for (const scenario of scenarios) {
+    const beforeState = { offer_id: "900", retailer_product_id: "800", product_id: "700", product_variant_id: "600", price: "10.00", shipping_cost: "3.99", total_price: "13.99", in_stock: true, url: scenario.url, external_url: scenario.url, external_product_id: "500", external_variant_id: "400" };
+    const review = { id: 77, offer_id: "900", retailer_product_id: "800", operation_type: "UPDATE_STOCK", before_state: beforeState, proposed_state: { ...beforeState, in_stock: false }, source_row_fingerprint: "a".repeat(64), plan_fingerprint: "b".repeat(64) };
+    const record = { product: { id: "700" }, variant: { id: "600" }, mapping: { id: "800", external_product_id: "500", external_variant_id: "400", external_url: scenario.url }, offer: { id: "900", price: "10", shipping_cost: "3.990", total_price: "13.99", in_stock: true, url: scenario.url } };
+    const confirmations = Array.from({ length: 19 }, (_, index) => ({ offer_id: String(index + 1), action: "VERIFY_NO_CHANGE", changed_fields: { stock: false, price: false, url: false }, target: { in_stock: true }, source: { in_stock: true } }));
+    const changed = { offer_id: "900", retailer_product_id: "800", external_product_id: "500", external_variant_id: "400", action: "UPDATE_STOCK", changed_fields: { stock: true, price: false, url: false, blocked: false }, target: { price: "10.00", in_stock: true }, source: { price: "10.00", in_stock: false } };
+    const deltas = { row_count_deltas: { products: 0, product_variants: 0, retailer_products: 0, offers: 0, price_history: 0 }, logical_field_deltas: { offer_price_updates: 0, offer_shipping_updates: 0, offer_total_updates: 0, offer_stock_updates: 1, offer_url_updates: 0, mapping_url_updates: 0, mapping_updated_at_updates: 0, last_checked_at_updates: 20 } };
+    const runPlan = { artifacts: [{ rows: [changed, ...confirmations], expected_deltas: deltas }] };
+    let reads = 0;
+    const engine = {
+      readState: async () => (++reads === 1 ? { records: [record, ...confirmations.map((row) => ({ offer: { id: row.offer_id } }))] } : { records: [] }),
+      buildRun: async (_target, _state, _diagnostic, _reviewed, _isolate, _segment, selection) => selection ? runPlan : { classification: { rows: [{ offer_id: "900", action: "VERIFY_NO_CHANGE" }] } },
+      validate: async () => [{ result: { valid: true } }],
+      registrationRequest: () => ({ children: [{ artifact: runPlan.artifacts[0] }] }),
+      register: async () => ({ result: { status: "REGISTERED" } }),
+      prepareSequentialParentApproval: async () => ({ status: "APPROVED" }),
+      approveAndExecute: async () => [{ result: { status: "APPLIED" } }],
+    };
+    const checkpoints = [];
+    const client = { rpc: async (_name, args) => { checkpoints.push(args); return { data: { status: args.p_new_status }, error: null }; } };
+    const baseline = { evidence_hash: "c".repeat(64), snapshot: { rows: [{ offer_id: "900", mapping_id: "800", offer_product_id: "700", offer_variant_id: "600", external_product_id: "500", external_variant_id: "400", price: "10.0", shipping_cost: "3.99", total_price: "13.990", in_stock: true, url: scenario.url, external_url: scenario.url }] } };
+    const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_SERVER_URL: "https://github.com", GITHUB_RUN_ID: "123", GITHUB_SHA: "d".repeat(40), NEXT_PUBLIC_SUPABASE_URL: "https://example.test", SUPABASE_SERVICE_ROLE_KEY: "control", [`${scenario.rolePrefix}_VALIDATOR_DATABASE_URL`]: "validator", [`${scenario.rolePrefix}_APPROVER_DATABASE_URL`]: "approver", [`${scenario.rolePrefix}_EXECUTOR_DATABASE_URL`]: "executor" };
+    const report = await run({ reviewItemId: "77", executionRequestId: scenario.executionRequestId, retailer: scenario.retailer, reviewFingerprint: review.source_row_fingerprint, reviewPlanFingerprint: review.plan_fingerprint, executionIdempotencyKey: "e".repeat(64), mode: "review-queue" }, { env, client, engine, loadControlState: async () => ({ review, request: { status: "DISPATCHED" } }), runPostflight: async (options) => options.mode === "baseline" ? baseline : { postflight_hash: "f".repeat(64), freshness_change_count: 20, price_change_count: 0, stock_change_count: 1, shipping_change_count: 0, total_change_count: 0, offer_url_change_count: 0, mapping_url_change_count: 0, price_history_delta: 0 } });
+    assert.equal(report.result, "PASS");
+    assert.equal(report.database_writes, 20);
+    assert.deepEqual(report.executed_offer_ids, ["900"]);
+    assert.equal(report.freshness_confirmation_offer_ids.length, 19);
+    assert.deepEqual(checkpoints.map((row) => row.p_new_status), ["EXECUTING", "EXECUTED"]);
+    assert.equal(env.SUPABASE_SERVICE_ROLE_KEY, "control");
+    assert.equal(env.RETAILER_REFRESH_PROFILE, scenario.retailer === "10-reps" ? "10reps" : "fit-house");
+  }
 });
 
 test("Review Queue stale-state hashing canonicalizes equivalent timestamps without losing microseconds", () => {

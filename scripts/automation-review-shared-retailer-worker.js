@@ -2,23 +2,27 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { canonicalJson, normalizeDecimalString } = require("./lib/canonical-json");
 const { checkpoint, controlClient, invariant, loadControlState } = require("./lib/automation-review-worker-control");
+const { adaptersForWorkerKind } = require("./lib/automation-review-adapter-registry");
 const { run: runPostflight } = require("./retailer-offer-refresh-postflight");
 
 const ROOT = path.resolve(__dirname, "..");
 const OUT = path.join(ROOT, "tmp", "automation-review-execution");
 const WORKER_KIND = "automation-review-shared-retailer-single-decision-v1";
-const ADAPTERS = Object.freeze({
-  "fit-house": Object.freeze({
-    retailerId: "9",
-    profile: "fit-house",
-    refreshProfile: "fit-house",
-    operations: new Set(["UPDATE_STOCK"]),
-    expectedExecutionRows: 20,
-    expectedCommercialChanges: 1,
-    freshnessConfirmationCount: 19,
-    rolePrefix: "FIT_HOUSE_SYNC",
+const ADAPTERS = Object.freeze(Object.fromEntries(adaptersForWorkerKind("shared-retailer").map((registered) => [
+  registered.retailerSlug,
+  Object.freeze({
+    retailerId: registered.retailerId,
+    profile: registered.sharedEngine.postflightProfile,
+    refreshProfile: registered.sharedEngine.profile,
+    operations: registered.operationSet,
+    expectedExecutionRows: registered.sharedEngine.expectedExecutionRows,
+    expectedCommercialChanges: registered.sharedEngine.expectedCommercialChanges,
+    freshnessConfirmationCount: registered.sharedEngine.freshnessConfirmationCount,
+    rolePrefix: registered.sharedEngine.rolePrefix,
+    workflowName: registered.workflow,
+    environment: registered.environment,
   }),
-});
+])));
 
 function parseArgs(argv) {
   const values = {};
@@ -111,7 +115,7 @@ async function run(options, dependencies = {}) {
   const db = dependencies.client || controlClient(env);
   let databaseWrites = 0;
   try {
-    const state = await (dependencies.loadControlState || loadControlState)(db, options, { retailerId: adapter.retailerId, retailerSlug: options.retailer, operations: adapter.operations, workflowName: "automation-review-queue-worker.yml", environment: "production-readonly" }, env);
+    const state = await (dependencies.loadControlState || loadControlState)(db, options, { retailerId: adapter.retailerId, retailerSlug: options.retailer, operations: adapter.operations, workflowName: adapter.workflowName, environment: adapter.environment }, env);
     const before = await engine.readState("production");
     const record = before.records.find((candidate) => String(candidate.offer.id) === String(state.review.offer_id));
     invariant(record, "DATABASE_BASELINE_MISSING");

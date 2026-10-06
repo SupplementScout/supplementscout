@@ -703,6 +703,17 @@ RA-STAB-01 now proceeds to the shared guarded execution path, followed by the
 status-monitoring contract. Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-CURRENT-REVIEW-QUEUE-INVENTORY-2026-10-06.json`](retailer-automation/evidence/RA-STAB-01-CURRENT-REVIEW-QUEUE-INVENTORY-2026-10-06.json).
 
+The next shared-execution change is locally full-verified and awaiting CI/live
+evidence. One configuration registry now supplies the app and queue workers,
+preserving eBay and Fit House while registering 10 Reps for stock-only owner
+decisions through its existing protected feed, role-separated control plan,
+atomic executor, postflight and idempotency path. The current 16 source-missing
+identity cards remain non-executable. Mixed Fit House/10 Reps requests cannot
+share one profile-bound process; the other profile remains queued for the next
+worker interval with zero writes. This adds no runtime, importer, approval path,
+executor or direct catalogue writer. Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-SHARED-REVIEW-EXECUTION-REGISTRY-PREPARATION-2026-10-06.json`](retailer-automation/evidence/RA-STAB-01-SHARED-REVIEW-EXECUTION-REGISTRY-PREPARATION-2026-10-06.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
