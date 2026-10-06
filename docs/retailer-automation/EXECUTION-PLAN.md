@@ -1499,6 +1499,40 @@ This closes the queue-publication coupling incident. It does not close the
 older partial 10 Reps control plan or advance the natural `0/3` observation
 counter; those remain separate stabilization work.
 
+**6 October partial-plan recovery preparation — shared fix, production close
+pending:** current repeatable-read production preflight of parent
+`f945e4f1-00d2-462e-9646-5acb878469a8` proves the exact incident state rather
+than inferring it from the failed workflow. The parent is `PARTIALLY_APPLIED`;
+children `0..11` are `APPLIED` with 12 successful apply runs, 591 consumed row
+approvals and 12 ready recovery manifests; child `12` is one expired,
+unconsumed `APPROVED` boundary; children `13..18` remain `PLANNED`. There are no
+failed/started runs, recovery approvals or recovery audit rows. Catalogue counts
+remain `1337/3632/3758/3758/27666`.
+
+The common correction extends the existing
+`close_expired_retailer_offer_sync_approval(jsonb)` path. It accepts only a
+complete applied prefix followed by exactly one expired approved child and a
+planned suffix, verifies the successful run, row-approval and ready-recovery
+evidence for every preserved child, then closes the active approval and marks
+only the unexecuted suffix plus parent `SUPERSEDED`. It adds no retailer name or
+ID condition, importer, approval path, executor or business-table writer. The
+exact `12 + 1 + 6` regression preserves all 591 row approvals and expects only
+nine control writes with zero catalogue/history writes. Focused tests and both
+local quality gates pass. A production-schema rehearsal selected only migration
+`20261006120000`, compiled successfully against ledger 224, proved unchanged
+catalogue counts and rolled back completely. The earlier ordinary run
+`37357956664` already proves all 934 safe operations, so it must not be repeated
+merely for evidence. Next gate is full CI and merge, then deployment, a fresh
+read-only preflight, one guarded suffix close and an independent readback.
+Evidence:
+[`evidence/RA-STAB-01-PARTIAL-PLAN-RECOVERY-PREPARATION-2026-10-06.json`](evidence/RA-STAB-01-PARTIAL-PLAN-RECOVERY-PREPARATION-2026-10-06.json).
+
+Docker run `37421724769` now proves the existing expired-close regression and
+the new exact `12 + 1 + 6` fixture pass against disposable PostgreSQL. The
+monolithic integration job remains red only for the same two unrelated
+Predators Gear and nutrition failures already present on main run
+`37331353245`; neither failure is in the RA-STAB-01 path or changed here.
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
