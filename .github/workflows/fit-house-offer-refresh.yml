@@ -18,7 +18,7 @@ on:
         default: false
         type: boolean
       operation:
-        description: "Refresh mode, review-only publication, or exact expired control-plan recovery"
+        description: "Refresh mode, review-only publication, or exact expired control-plan inspection/recovery"
         required: true
         default: dry-run
         type: choice
@@ -26,6 +26,7 @@ on:
           - dry-run
           - apply
           - review-only
+          - control-preflight
           - control-recovery
       control_parent_plan_id:
         description: "Exact expired parent plan UUID; used only for control-recovery"
@@ -64,7 +65,7 @@ concurrency:
 
 jobs:
   fit-house-offer-refresh:
-    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.operation != 'control-recovery' && (inputs.retailer == 'all' || inputs.retailer == 'fit-house'))) }}
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.operation != 'control-preflight' && inputs.operation != 'control-recovery' && (inputs.retailer == 'all' || inputs.retailer == 'fit-house'))) }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     environment: production-readonly
@@ -179,7 +180,7 @@ jobs:
           path: tmp/fit-house-offer-refresh/*.json
 
   ten-reps-offer-refresh:
-    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.operation != 'control-recovery' && (inputs.retailer == 'all' || inputs.retailer == '10reps'))) }}
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.operation != 'control-preflight' && inputs.operation != 'control-recovery' && (inputs.retailer == 'all' || inputs.retailer == '10reps'))) }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     environment: production-readonly
@@ -383,7 +384,7 @@ jobs:
           path: tmp/automation-review-reconciliation/*.json
 
   expired-control-plan-recovery:
-    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.operation == 'control-recovery' }}
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && (inputs.operation == 'control-preflight' || inputs.operation == 'control-recovery') }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: production-readonly
@@ -396,6 +397,7 @@ jobs:
           RETAILER_ID: ${{ inputs.control_retailer_id }}
           EXPECTED_CHILD_COUNT: ${{ inputs.control_expected_child_count }}
           OWNER_CONFIRMATION: ${{ inputs.control_confirmation }}
+          OPERATION: ${{ inputs.operation }}
         run: |
           test "$GITHUB_REF" = "refs/heads/main"
           test "$GITHUB_REPOSITORY" = "$EXPECTED_REPOSITORY"
@@ -403,7 +405,11 @@ jobs:
           [[ "$PARENT_PLAN_ID" =~ ^[0-9a-fA-F-]{36}$ ]]
           [[ "$RETAILER_ID" =~ ^[0-9]+$ ]]
           [[ "$EXPECTED_CHILD_COUNT" =~ ^[0-9]+$ ]]
-          test "$OWNER_CONFIRMATION" = "OWNER_APPROVED_EXPIRED_CONTROL_CLOSE"
+          if [ "$OPERATION" = "control-recovery" ]; then
+            test "$OWNER_CONFIRMATION" = "OWNER_APPROVED_EXPIRED_CONTROL_CLOSE"
+          else
+            test -z "$OWNER_CONFIRMATION"
+          fi
 
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -429,6 +435,7 @@ jobs:
         run: node scripts/retailer-control-plan-recovery.js --mode=preflight --parent-plan-id="$PARENT_PLAN_ID" --retailer-id="$RETAILER_ID" --expected-child-count="$EXPECTED_CHILD_COUNT" --output=tmp/retailer-control-recovery/preflight.json
 
       - name: Close exact expired unexecuted control plan
+        if: ${{ inputs.operation == 'control-recovery' }}
         env:
           RETAILER_CONTROL_OWNER_DATABASE_URL: ${{ secrets.SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL }}
           RETAILER_CONTROL_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}

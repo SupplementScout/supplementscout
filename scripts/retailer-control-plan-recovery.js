@@ -104,24 +104,37 @@ function normalizeChild(row) {
     approval_id: row.child_approval_id ? String(row.child_approval_id) : null,
     approval_expires_at: row.child_approval_expires_at ? new Date(row.child_approval_expires_at).toISOString() : null,
     approval_consumed_at: row.child_approval_consumed_at ? new Date(row.child_approval_consumed_at).toISOString() : null,
+    row_count: Number(row.row_count),
+    row_approvals: Number(row.row_approvals),
+    batch_approvals: Number(row.batch_approvals),
+    successful_apply_runs: Number(row.successful_apply_runs),
+    other_apply_runs: Number(row.other_apply_runs),
+    ready_recovery_manifests: Number(row.ready_recovery_manifests),
+    other_recovery_manifests: Number(row.other_recovery_manifests),
   };
 }
 
 function validateRecoverable(snapshot, expected, now = new Date()) {
   invariant(snapshot.retailer_id === expected.retailerId, "retailer binding drifted");
   invariant(snapshot.parent_plan_id === expected.parentPlanId, "parent plan binding drifted");
-  invariant(snapshot.parent_status === "APPROVED", "parent plan is not APPROVED");
+  invariant(["APPROVED", "PARTIALLY_APPLIED"].includes(snapshot.parent_status), "parent plan is not recoverable");
   invariant(HEX64.test(snapshot.parent_plan_fingerprint), "parent fingerprint is invalid");
-  invariant(UUID.test(snapshot.parent_approval_id) && !snapshot.parent_approval_consumed_at, "parent approval binding is incomplete or consumed");
+  invariant(UUID.test(snapshot.parent_approval_id || ""), "parent approval binding is incomplete");
   invariant(Date.parse(snapshot.parent_approval_expires_at) <= now.getTime(), "parent approval has not expired");
   invariant(snapshot.children.length === expected.expectedChildCount, "child count drifted");
   invariant(snapshot.children.every((child, index) => child.batch_index === index), "child batch indexes are not complete and ordered");
   invariant(new Set(snapshot.children.map((child) => child.child_plan_id)).size === snapshot.children.length, "duplicate child identity");
   invariant(snapshot.children.every((child) => UUID.test(child.child_plan_id) && HEX64.test(child.child_plan_fingerprint)), "invalid child identity");
+  const applied = snapshot.children.filter((child) => child.status === "APPLIED");
   const approved = snapshot.children.filter((child) => child.status === "APPROVED");
   const planned = snapshot.children.filter((child) => child.status === "PLANNED");
-  invariant(approved.length === 1 && planned.length === snapshot.children.length - 1, "plan is not one expired approved child plus planned remainder");
-  invariant(snapshot.children.every((child) => ["APPROVED", "PLANNED"].includes(child.status)), "unexpected child state");
+  const partial = snapshot.parent_status === "PARTIALLY_APPLIED";
+  invariant(approved.length === 1, "plan does not have exactly one approved child");
+  invariant(snapshot.children.every((child) => ["APPLIED", "APPROVED", "PLANNED"].includes(child.status)), "unexpected child state");
+  invariant(partial ? applied.length > 0 && snapshot.parent_approval_consumed_at : applied.length === 0 && !snapshot.parent_approval_consumed_at, "parent execution state mismatch");
+  invariant(planned.length === snapshot.children.length - applied.length - 1, "planned suffix count mismatch");
+  invariant(approved[0].batch_index === applied.length, "approved child does not immediately follow the applied prefix");
+  invariant(snapshot.children.every((child, index) => index < applied.length ? child.status === "APPLIED" : index === applied.length ? child.status === "APPROVED" : child.status === "PLANNED"), "child states are not an applied prefix, approved boundary and planned suffix");
   invariant(planned.every((child) => !child.approval_id && !child.approval_expires_at && !child.approval_consumed_at), "planned child contains approval state");
   invariant(UUID.test(approved[0].approval_id || "") && approved[0].approval_expires_at && !approved[0].approval_consumed_at, "approved child binding is incomplete or consumed");
   invariant(Date.parse(approved[0].approval_expires_at) <= now.getTime(), "child approval has not expired");
@@ -138,12 +151,21 @@ function validateRecoverable(snapshot, expected, now = new Date()) {
   for (const key of ["artifact_fingerprint", "execution_fingerprint", "expected_migration_fingerprint"])
     invariant(HEX64.test(snapshot.approval[key]), `approval ${key} is invalid`);
   invariant(snapshot.approval.artifact_fingerprint === approved[0].child_plan_fingerprint, "approval artifact does not match child");
-  invariant(snapshot.apply_runs === 0 && snapshot.row_approvals === 0, "execution evidence exists; close is forbidden");
-  invariant(snapshot.batch_approvals === 1, "unexpected batch approval count");
-  invariant(snapshot.recovery_manifests === 0 && snapshot.recovery_approvals === 0 && snapshot.recovery_audit === 0, "recovery evidence exists; close is forbidden");
+  invariant(approved[0].batch_approvals === 1 && approved[0].successful_apply_runs === 0 && approved[0].other_apply_runs === 0 && approved[0].row_approvals === 0 && approved[0].ready_recovery_manifests === 0 && approved[0].other_recovery_manifests === 0, "approved boundary contains execution evidence");
+  invariant(planned.every((child) => child.batch_approvals === 0 && child.successful_apply_runs === 0 && child.other_apply_runs === 0 && child.row_approvals === 0 && child.ready_recovery_manifests === 0 && child.other_recovery_manifests === 0), "planned suffix contains execution evidence");
+  invariant(applied.every((child) => UUID.test(child.approval_id || "") && child.approval_consumed_at && child.batch_approvals === 1 && child.successful_apply_runs === 1 && child.other_apply_runs === 0 && child.ready_recovery_manifests === 1 && child.other_recovery_manifests === 0 && child.row_count > 0 && child.row_approvals === child.row_count), "applied prefix evidence is incomplete");
+  invariant(snapshot.apply_runs === applied.length, "apply run count does not match applied prefix");
+  invariant(snapshot.batch_approvals === applied.length + 1, "batch approval count does not match applied prefix and boundary");
+  invariant(snapshot.recovery_manifests === applied.length && snapshot.recovery_approvals === 0 && snapshot.recovery_audit === 0, "recovery evidence does not match the preserved applied prefix");
+  invariant(snapshot.row_approvals === applied.reduce((sum, child) => sum + child.row_count, 0), "row approval count does not match the preserved applied prefix");
   invariant(snapshot.ledger.versions.length === snapshot.ledger.count && snapshot.ledger.count > 0, "migration ledger is incomplete");
   invariant(HEX64.test(snapshot.ledger.fingerprint), "migration ledger fingerprint is invalid");
-  return approved[0];
+  return {
+    kind: partial ? "EXPIRED_PARTIAL_SEQUENTIAL_PLAN" : "EXPIRED_UNEXECUTED_SEQUENTIAL_PLAN",
+    approvedChild: approved[0],
+    appliedChildCount: applied.length,
+    pendingChildCount: planned.length + 1,
+  };
 }
 
 async function readSnapshot(options, dependencies) {
@@ -159,7 +181,14 @@ async function readSnapshot(options, dependencies) {
              p.approval_expires_at parent_approval_expires_at,p.approval_consumed_at parent_approval_consumed_at,
              c.batch_index,c.id::text child_plan_id,c.child_plan_fingerprint,c.status child_status,
              c.approval_id::text child_approval_id,c.approval_expires_at child_approval_expires_at,
-             c.approval_consumed_at child_approval_consumed_at
+             c.approval_consumed_at child_approval_consumed_at,
+             jsonb_array_length(c.plan_json->'rows') row_count,
+             (select count(*)::int from public.approved_import_plans a where a.artifact_sha256=c.child_plan_fingerprint and a.source='retailer_offer_mixed_batch') row_approvals,
+             (select count(*)::int from public.retailer_offer_sync_batch_approvals a where a.child_plan_id=c.id) batch_approvals,
+             (select count(*)::int from public.retailer_catalogue_apply_runs r where r.child_plan_id=c.id and r.run_type='APPLY' and r.status='SUCCEEDED') successful_apply_runs,
+             (select count(*)::int from public.retailer_catalogue_apply_runs r where r.child_plan_id=c.id and (r.run_type<>'APPLY' or r.status<>'SUCCEEDED')) other_apply_runs,
+             (select count(*)::int from public.retailer_catalogue_production_recovery_manifests m join public.retailer_catalogue_apply_runs r on r.id=m.apply_run_id where m.child_plan_id=c.id and r.child_plan_id=c.id and r.status='SUCCEEDED' and m.status='READY') ready_recovery_manifests,
+             (select count(*)::int from public.retailer_catalogue_production_recovery_manifests m where m.child_plan_id=c.id and (m.status<>'READY' or not exists(select 1 from public.retailer_catalogue_apply_runs r where r.id=m.apply_run_id and r.child_plan_id=c.id and r.status='SUCCEEDED'))) other_recovery_manifests
       from public.retailer_catalogue_parent_plans p
       join public.retailer_catalogue_child_plans c on c.parent_plan_id=p.id
       where p.id=$1::uuid and p.retailer_id=$2::bigint
@@ -187,7 +216,8 @@ async function readSnapshot(options, dependencies) {
         (select count(*)::int from public.retailer_catalogue_production_recovery_audit a join public.retailer_catalogue_production_recovery_manifests m on m.id=a.recovery_manifest_id join public.retailer_catalogue_child_plans c on c.id=m.child_plan_id where c.parent_plan_id=$1::uuid) recovery_audit
     `, [options.parentPlanId])).rows[0];
     await client.query("rollback");
-    invariant(approvals.length === 1, "expected exactly one batch approval");
+    const activeApprovals = approvals.filter((approval) => !approval.consumed_at && !approval.closed_at);
+    invariant(activeApprovals.length === 1, "expected exactly one active batch approval");
     const ledger = {
       count: db.remoteLedger.length,
       versions: db.remoteLedger.map(ledgerIdentifier),
@@ -204,10 +234,10 @@ async function readSnapshot(options, dependencies) {
       parent_approval_consumed_at: first.parent_approval_consumed_at ? new Date(first.parent_approval_consumed_at).toISOString() : null,
       children: rows.map(normalizeChild),
       approval: {
-        ...approvals[0],
-        expires_at: new Date(approvals[0].expires_at).toISOString(),
-        consumed_at: approvals[0].consumed_at ? new Date(approvals[0].consumed_at).toISOString() : null,
-        closed_at: approvals[0].closed_at ? new Date(approvals[0].closed_at).toISOString() : null,
+        ...activeApprovals[0],
+        expires_at: new Date(activeApprovals[0].expires_at).toISOString(),
+        consumed_at: activeApprovals[0].consumed_at ? new Date(activeApprovals[0].consumed_at).toISOString() : null,
+        closed_at: activeApprovals[0].closed_at ? new Date(activeApprovals[0].closed_at).toISOString() : null,
       },
       ...Object.fromEntries(Object.entries(counters).map(([key, value]) => [key, Number(value)])),
       business_counts: counts,
@@ -219,11 +249,11 @@ async function readSnapshot(options, dependencies) {
 }
 
 function buildPreflight(snapshot, options, now = new Date()) {
-  const approvedChild = validateRecoverable(snapshot, options, now);
+  const recovery = validateRecoverable(snapshot, options, now);
   const controlStateFingerprint = sha256(canonicalJson(snapshot));
   return seal({
-    schema_version: "retailer-control-plan-recovery-v1",
-    kind: "EXPIRED_UNEXECUTED_SEQUENTIAL_PLAN",
+    schema_version: "retailer-control-plan-recovery-v2",
+    kind: recovery.kind,
     result: "READY_TO_CLOSE",
     generated_at: now.toISOString(),
     target: {
@@ -235,8 +265,10 @@ function buildPreflight(snapshot, options, now = new Date()) {
       retailer_id: options.retailerId,
       parent_plan_id: options.parentPlanId,
       expected_child_count: options.expectedChildCount,
-      approved_child_id: approvedChild.child_plan_id,
+      approved_child_id: recovery.approvedChild.child_plan_id,
       approval_id: snapshot.approval.approval_id,
+      preserved_applied_child_count: recovery.appliedChildCount,
+      close_child_count: recovery.pendingChildCount,
     },
     control_state_fingerprint: controlStateFingerprint,
     snapshot,
@@ -252,19 +284,21 @@ function buildPreflight(snapshot, options, now = new Date()) {
 
 function validatePreflight(preflight, options, now = new Date()) {
   invariant(exactKeys(preflight, ["schema_version", "kind", "result", "generated_at", "target", "scope", "control_state_fingerprint", "snapshot", "authorization", "recovery_fingerprint"]), "preflight keys mismatch");
-  invariant(preflight.schema_version === "retailer-control-plan-recovery-v1" && preflight.kind === "EXPIRED_UNEXECUTED_SEQUENTIAL_PLAN" && preflight.result === "READY_TO_CLOSE", "preflight contract mismatch");
+  invariant(preflight.schema_version === "retailer-control-plan-recovery-v2" && ["EXPIRED_UNEXECUTED_SEQUENTIAL_PLAN", "EXPIRED_PARTIAL_SEQUENTIAL_PLAN"].includes(preflight.kind) && preflight.result === "READY_TO_CLOSE", "preflight contract mismatch");
   invariant(preflight.recovery_fingerprint === sha256(canonicalJson({ ...preflight, recovery_fingerprint: null })), "preflight fingerprint mismatch");
   invariant(preflight.target.environment === "PRODUCTION" && preflight.target.project_ref === PRODUCTION.projectRef && preflight.target.database_identity === PRODUCTION.databaseIdentity, "preflight target mismatch");
   invariant(preflight.scope.parent_plan_id === options.parentPlanId && preflight.scope.retailer_id === options.retailerId && preflight.scope.expected_child_count === options.expectedChildCount, "preflight scope mismatch");
   invariant(now.getTime() - Date.parse(preflight.generated_at) <= 2 * 60 * 60 * 1000 && Date.parse(preflight.generated_at) <= now.getTime() + 5 * 60 * 1000, "preflight is stale or future");
   invariant(preflight.authorization.business_writes === false && preflight.authorization.price_history_writes === false && preflight.authorization.automatic_retry === false && preflight.authorization.maximum_close_calls === 1 && preflight.authorization.required_confirmation === CONFIRMATION, "preflight authorization boundary mismatch");
-  validateRecoverable(preflight.snapshot, options, now);
+  const recovery = validateRecoverable(preflight.snapshot, options, now);
+  invariant(recovery.kind === preflight.kind && recovery.appliedChildCount === preflight.scope.preserved_applied_child_count && recovery.pendingChildCount === preflight.scope.close_child_count, "preflight recovery classification mismatch");
   invariant(preflight.control_state_fingerprint === sha256(canonicalJson(preflight.snapshot)), "preflight state fingerprint mismatch");
   return preflight;
 }
 
 function closeRequest(snapshot, now = new Date()) {
   const approved = snapshot.children.find((child) => child.status === "APPROVED");
+  const partial = snapshot.parent_status === "PARTIALLY_APPLIED";
   const request = {
     schema_version: 1,
     approval_id: snapshot.approval.approval_id,
@@ -282,7 +316,9 @@ function closeRequest(snapshot, now = new Date()) {
     target_environment: "PRODUCTION",
     production_project_ref: PRODUCTION.projectRef,
     production_database_identity: PRODUCTION.databaseIdentity,
-    reason: "Close exact expired unexecuted sequential control tree; no business writes",
+    reason: partial
+      ? "Preserve exact applied prefix and supersede expired unexecuted sequential suffix; no business writes"
+      : "Close exact expired unexecuted sequential control tree; no business writes",
     closed_by: "supplementscout-owner-approved-control-recovery",
     requested_at: now.toISOString(),
     request_fingerprint: null,
@@ -293,7 +329,7 @@ function closeRequest(snapshot, now = new Date()) {
 
 async function closePlan(preflight, options, dependencies) {
   const liveBefore = await readSnapshot(options, dependencies);
-  validateRecoverable(liveBefore, options, dependencies.now());
+  const recovery = validateRecoverable(liveBefore, options, dependencies.now());
   invariant(sha256(canonicalJson(liveBefore)) === preflight.control_state_fingerprint, "control state changed after preflight");
   invariant(canonicalJson(liveBefore.business_counts) === canonicalJson(preflight.snapshot.business_counts), "business counts changed after preflight");
   const request = closeRequest(liveBefore, dependencies.now());
@@ -305,8 +341,9 @@ async function closePlan(preflight, options, dependencies) {
     await client.query("select set_config('app.retailer_catalogue_production_marker','1',true),set_config('app.retailer_catalogue_allow','1',true)");
     await client.query("set local role retailer_catalogue_production_approver");
     const result = (await client.query("select public.close_expired_retailer_offer_sync_approval($1::jsonb) result", [request])).rows[0]?.result;
-    invariant(result?.status === "EXPIRED" && result.already_closed === false, "close result mismatch");
-    invariant(Number(result.expired_child_count) === options.expectedChildCount && Number(result.control_writes) === options.expectedChildCount + 2, "close count mismatch");
+    const expectedStatus = recovery.appliedChildCount > 0 ? "SUPERSEDED" : "EXPIRED";
+    invariant(result?.status === expectedStatus && result.already_closed === false, "close result mismatch");
+    invariant(Number(result.preserved_applied_child_count) === recovery.appliedChildCount && Number(result.closed_child_count) === recovery.pendingChildCount && Number(result.control_writes) === recovery.pendingChildCount + 2, "close count mismatch");
     invariant(Number(result.business_writes) === 0 && Number(result.price_history_writes) === 0, "business write boundary violated");
     await client.query("commit"); open = false;
     return { result, request_fingerprint: request.request_fingerprint };
@@ -330,12 +367,16 @@ async function readPostflight(options, dependencies, preflight) {
     const approval = (await client.query("select closed_at,consumed_at from public.retailer_offer_sync_batch_approvals where id=$1::uuid", [preflight.scope.approval_id])).rows[0];
     const runs = Number((await client.query("select count(*)::int count from public.retailer_catalogue_apply_runs where parent_plan_id=$1::uuid", [options.parentPlanId])).rows[0].count);
     await client.query("rollback");
-    invariant(parent?.status === "EXPIRED", "parent was not expired");
-    invariant(children.length === 1 && children[0].status === "EXPIRED" && Number(children[0].count) === options.expectedChildCount, "children were not all expired");
+    const applied = preflight.scope.preserved_applied_child_count;
+    const closed = preflight.scope.close_child_count;
+    const terminalStatus = applied > 0 ? "SUPERSEDED" : "EXPIRED";
+    const byStatus = Object.fromEntries(children.map((row) => [row.status, Number(row.count)]));
+    invariant(parent?.status === terminalStatus, "parent terminal status mismatch");
+    invariant((byStatus.APPLIED || 0) === applied && (byStatus[terminalStatus] || 0) === closed && Object.values(byStatus).reduce((sum, count) => sum + count, 0) === options.expectedChildCount, "child terminal status counts mismatch");
     invariant(approval?.closed_at && !approval.consumed_at, "approval close evidence mismatch");
-    invariant(runs === 0, "apply run appeared during close");
+    invariant(runs === applied, "apply run count changed during close");
     invariant(canonicalJson(counts) === canonicalJson(preflight.snapshot.business_counts), "business counts changed during close");
-    return { parent_status: parent.status, expired_child_count: Number(children[0].count), approval_closed: true, apply_runs: runs, business_counts: counts };
+    return { parent_status: parent.status, preserved_applied_child_count: applied, closed_child_count: closed, approval_closed: true, apply_runs: runs, business_counts: counts };
   } finally {
     await client.end();
   }
@@ -372,7 +413,7 @@ async function run(argv = process.argv.slice(2), overrides = {}) {
     preflight_fingerprint: preflight.recovery_fingerprint,
     close: closed,
     postflight,
-    accounting: { close_calls: 1, automatic_retries: 0, control_writes: options.expectedChildCount + 2, business_writes: 0, price_history_writes: 0 },
+    accounting: { close_calls: 1, automatic_retries: 0, control_writes: preflight.scope.close_child_count + 2, business_writes: 0, price_history_writes: 0 },
   });
   writeJson(options.output, report);
   return report;

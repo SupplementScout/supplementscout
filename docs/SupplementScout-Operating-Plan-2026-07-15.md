@@ -660,6 +660,23 @@ unchanged. The publication-coupling incident is closed. The older partial
 control plan and the `0/3` natural observation counter remain separate open
 RA-STAB-01 work and received no replay or credit from this review-only run.
 
+Fresh read-only production preflight on 6 October has now resolved the older
+partial-plan uncertainty. Parent `f945e4f1-00d2-462e-9646-5acb878469a8` is
+exactly `12 APPLIED + 1 expired APPROVED + 6 PLANNED`; the applied prefix owns
+12 successful runs, 591 row approvals and 12 ready recovery manifests, with no
+failed/started run or recovery execution. The shared fix extends the existing
+expired-plan close RPC and contains no retailer-specific condition or business
+writer. It preserves the 12 applied children and supersedes only the seven-row
+unexecuted suffix plus the parent. Focused, quick and full local gates pass, and a
+production-schema rehearsal compiled migration `20261006120000`, kept all five
+catalogue counts unchanged and rolled back fully. No migration or control close
+has yet been committed. Ordinary 10 Reps execution of all 934 safe operations
+was already proved by successful run `37357956664`; it is not to be replayed
+solely for evidence. Next: full CI/merge, deploy the one common migration, take
+a fresh read-only preflight, perform one guarded suffix close, and verify it
+independently. Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-PARTIAL-PLAN-RECOVERY-PREPARATION-2026-10-06.json`](retailer-automation/evidence/RA-STAB-01-PARTIAL-PLAN-RECOVERY-PREPARATION-2026-10-06.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

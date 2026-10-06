@@ -10,7 +10,9 @@ const { CONTRACTS } = require("./supabase-migration-selector");
 
 const migration = fs.readFileSync(path.resolve(__dirname, "../supabase/migrations/20260719090000_add_expired_retailer_offer_sync_approval_close.sql"), "utf8");
 const sequentialMigration = fs.readFileSync(path.resolve(__dirname, "../supabase/migrations/20260929133000_extend_expired_sequential_plan_close.sql"), "utf8");
+const partialSequentialMigration = fs.readFileSync(path.resolve(__dirname, "../supabase/migrations/20261006120000_extend_partial_sequential_plan_close.sql"), "utf8");
 const scenario = fs.readFileSync(path.resolve(__dirname, "../supabase/test/retailer_offer_expired_approval_close_integration_test.sql"), "utf8");
+const partialScenario = fs.readFileSync(path.resolve(__dirname, "../supabase/test/retailer_offer_partial_plan_close_integration_test.sql"), "utf8");
 const productionPreparation = JSON.parse(fs.readFileSync(path.resolve(
   __dirname,
   "../docs/retailer-automation/evidence/RA-STAB-01-PRODUCTION-RECOVERY-PREPARATION.json",
@@ -79,6 +81,33 @@ test("shared sequential recovery extends the existing RPC and closes the whole u
   assert.match(scenario, /count\(\*\)=19 and count\(\*\) filter\(where status='EXPIRED'\)=19/);
   assert.match(scenario, /unexpected approved sibling blocked/);
   assert.match(scenario, /sequential child manifest drift blocked/);
+});
+
+test("shared recovery preserves a proven applied prefix and supersedes only the expired suffix", () => {
+  assert.match(partialSequentialMigration, /^begin;/i);
+  assert.match(partialSequentialMigration, /commit;\s*$/i);
+  assert.match(partialSequentialMigration, /create or replace function public\.retailer_offer_sync_close_expired_approval_internal\(p_request jsonb\)/i);
+  assert.doesNotMatch(partialSequentialMigration, /create\s+(?:or\s+replace\s+)?function\s+public\.(?!retailer_offer_sync_close_expired_approval_internal)/i);
+  assert.match(partialSequentialMigration, /v_parent\.status='PARTIALLY_APPLIED'/);
+  assert.match(partialSequentialMigration, /v_child\.batch_index<>v_applied_children/);
+  assert.match(partialSequentialMigration, /status='APPLIED'[\s\S]+status<>'APPLIED'/);
+  assert.match(partialSequentialMigration, /v_batch_approvals<>v_applied_children\+1/);
+  assert.match(partialSequentialMigration, /v_apply_runs<>v_applied_children/);
+  assert.match(partialSequentialMigration, /v_recovery_manifests<>v_applied_children/);
+  assert.match(partialSequentialMigration, /m\.status='READY'/);
+  assert.match(partialSequentialMigration, /a\.source='retailer_offer_mixed_batch'/);
+  assert.match(partialSequentialMigration, /where parent_plan_id=v_parent\.id and status in \('PLANNED','APPROVED'\)/);
+  assert.match(partialSequentialMigration, /set status=case when v_partial then 'SUPERSEDED' else 'EXPIRED' end/);
+  assert.match(partialSequentialMigration, /'preserved_applied_child_count',v_applied_children/);
+  assert.match(partialSequentialMigration, /v_after_business is distinct from v_before_business/);
+  assert.doesNotMatch(partialSequentialMigration, /10 Reps|Fit House|Simply Supplements|retailer_id\s*[=!<>]+\s*14/i);
+  assert.doesNotMatch(partialSequentialMigration, /\b(?:insert\s+into|update|delete\s+from)\s+public\.(?:retailers|products|product_variants|retailer_products|offers|price_history)\b/i);
+  assert.doesNotMatch(partialSequentialMigration, /(?:execute_retailer_offer_sync_batch|apply_approved_product_import_plan|recover_retailer_offer_sync_batch)\s*\(/i);
+  assert.match(partialScenario, /'shape','12_APPLIED_1_APPROVED_6_PLANNED'/);
+  assert.match(partialScenario, /count\(\*\)=591/);
+  assert.match(partialScenario, /count\(\*\) filter\(where status='APPLIED'\)=12/);
+  assert.match(partialScenario, /count\(\*\) filter\(where status='SUPERSEDED'\)=7/);
+  assert.match(partialScenario, /v_after=v_before and v_history_after=v_history_before/);
 });
 
 test("production recovery preparation is exact, two-phase and not authorized", () => {
@@ -243,6 +272,7 @@ test("authorized schema phase uses one transaction, one exact ledger insert and 
   };
   const source = path.resolve(__dirname, "../supabase/migrations");
   const excluded = new Set(Object.keys(CONTRACTS.PRODUCTION.excluded));
+  for (const pending of CONTRACTS.PRODUCTION.pending) excluded.add(pending.filename);
   const ledger = fs.readdirSync(source)
     .filter(filename => /^\d{14}_[a-z0-9_]+\.sql$/.test(filename) && !excluded.has(filename))
     .sort()
@@ -332,6 +362,7 @@ test("authorized control phase uses only the approver RPC and proves an independ
   };
   const source = path.resolve(__dirname, "../supabase/migrations");
   const excluded = new Set(Object.keys(CONTRACTS.PRODUCTION.excluded));
+  for (const pending of CONTRACTS.PRODUCTION.pending) excluded.add(pending.filename);
   excluded.delete(productionPreparation.migration.filename);
   const postLedger = fs.readdirSync(source)
     .filter(filename => /^\d{14}_[a-z0-9_]+\.sql$/.test(filename) && !excluded.has(filename))

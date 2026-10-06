@@ -1,0 +1,88 @@
+{
+  "schema_version": "ra-stab-01-partial-plan-recovery-preparation-v1",
+  "status": "LOCALLY_VERIFIED_PRODUCTION_DEPLOYMENT_PENDING",
+  "task": "RA-STAB-01",
+  "generated_at": "2026-10-06T05:35:17.235Z",
+  "incident": {
+    "workflow_run_id": "37364486648",
+    "retailer_id": "14",
+    "parent_plan_id": "f945e4f1-00d2-462e-9646-5acb878469a8",
+    "parent_plan_fingerprint": "cdc6c087f3535067f0d86c6779a7d974a5c6cf02532818db1030c9770747f514",
+    "parent_status": "PARTIALLY_APPLIED",
+    "child_count": 19,
+    "applied_children": 12,
+    "approved_children": 1,
+    "planned_children": 6,
+    "successful_apply_runs": 12,
+    "row_approvals": 591,
+    "ready_recovery_manifests": 12,
+    "recovery_approvals": 0,
+    "recovery_audit_rows": 0,
+    "expired_approved_child_id": "199dafd1-44a5-44aa-b2d6-2d718ea335f4",
+    "expired_batch_approval_id": "13a50587-4ddc-45fd-8e22-4cb3b0b440c3",
+    "control_state_fingerprint": "545b664c7ad2a62a59b056be9316a97cbcc931f4d3c0ab8cdbe28831756f4fa9"
+  },
+  "production_readback": {
+    "mode": "REPEATABLE_READ_READ_ONLY",
+    "result": "READY_TO_CLOSE",
+    "writes": 0,
+    "catalogue_counts": {
+      "products": "1337",
+      "product_variants": "3632",
+      "retailer_products": "3758",
+      "offers": "3758",
+      "price_history": "27666"
+    },
+    "migration_ledger_count": 224,
+    "migration_ledger_fingerprint": "9d1bfaefa24a85ecbf6012ff6d61b6b8f9f849f54a93e10b23a4779239cf784b"
+  },
+  "implementation": {
+    "migration": "20261006120000_extend_partial_sequential_plan_close.sql",
+    "migration_sha256": "a15fd9b1dd92eb38274588533cfb3da709fdb69abf0f8e6ba98c9ee13dec4975",
+    "mechanism": "extend_existing_close_expired_retailer_offer_sync_approval_rpc",
+    "retailer_specific_branch": false,
+    "new_importer": false,
+    "new_approval_path": false,
+    "new_executor": false,
+    "direct_business_table_writer": false,
+    "preserves_applied_prefix": true,
+    "closes_only_approved_and_planned_suffix": true,
+    "automatic_retry": false,
+    "catalogue_replay": false
+  },
+  "production_rehearsal": {
+    "result": "PASS",
+    "committed": false,
+    "rollback": true,
+    "selected_migrations": [
+      "20261006120000_extend_partial_sequential_plan_close"
+    ],
+    "catalogue_counts_unchanged": true,
+    "schema_checks_passed": true
+  },
+  "regression": {
+    "incident_shape": "12_APPLIED_1_APPROVED_6_PLANNED",
+    "preserved_row_approvals": 591,
+    "expected_control_writes": 9,
+    "expected_business_writes": 0,
+    "expected_price_history_writes": 0,
+    "focused_tests": "PASS",
+    "verify_quick": "PASS",
+    "verify_full": "PASS",
+    "docker_integration": "PENDING_CI_DOCKER"
+  },
+  "already_completed_evidence": {
+    "ordinary_10_reps_run_id": "37357956664",
+    "safe_operations": 934,
+    "ordinary_execution_result": "PASS",
+    "repeat_required": false,
+    "review_only_run_id": "37370980156",
+    "published_10_reps_review_cards": 16
+  },
+  "not_yet_executed": {
+    "migration_deployed": false,
+    "control_plan_closed": false,
+    "production_control_writes": 0
+  },
+  "next_gate": "green full CI and merge, exact production migration apply, fresh read-only preflight, one guarded suffix close, independent readback"
+}
