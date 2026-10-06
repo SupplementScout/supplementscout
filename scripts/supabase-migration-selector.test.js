@@ -443,21 +443,19 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the owner-decision bridge as applied and keeps postflight recovery pending", () => {
+test("production records the owner-decision bridge and postflight recovery as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{
-    filename: "20261006190000_add_automation_review_verified_postflight_recovery.sql",
-    sha256: "1f4182a456916c1a8b3c19be89cb46c870d92b4060a2a9c4fbd62291b538f7d8",
-  }]);
+  assert.deepEqual(contract.pending, []);
   assert.deepEqual(contract.appliedExcluded, [
     "20260929133000_extend_expired_sequential_plan_close.sql",
     "20261004120000_add_central_control_plan_readback.sql",
     "20261006120000_extend_partial_sequential_plan_close.sql",
+    "20261006190000_add_automation_review_verified_postflight_recovery.sql",
   ]);
-  assert.equal(contract.ledgerCount, 226);
+  assert.equal(contract.ledgerCount, 227);
   assert.equal(
     contract.ledgerFingerprint,
-    "28ac0182d477dec9b85ffa3aea4a777d11715a0c52cd9ca9ba2d4fe6d76c030c",
+    "89b59678999d7d564a5a9a304e0307f8771a82b86afd8a95ce378eb3ea3f461e",
   );
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_VARIANT_PROVENANCE_MIGRATION)), NUTRITION_VARIANT_PROVENANCE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_PREWORKOUT_FACTS_MIGRATION)), NUTRITION_PREWORKOUT_FACTS_SHA256);
@@ -569,7 +567,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACT.ledgerFingerprint);
 });
 
-test("production accepts ledger 226 and selects only the pending postflight recovery", () => {
+test("production accepts ledger 227 with the postflight recovery applied", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   for (const filename of contract.appliedExcluded) excluded.delete(filename);
@@ -596,7 +594,7 @@ test("production accepts ledger 226 and selects only the pending postflight reco
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 226);
+  assert.equal(result.ledger_count, 227);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 227);
   assert.ok(result.selected_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
@@ -606,8 +604,10 @@ test("production accepts ledger 226 and selects only the pending postflight reco
   assert.ok(result.selected_files.includes("20261006120000_extend_partial_sequential_plan_close.sql"));
   assert.ok(result.excluded_files.includes("20261006120000_extend_partial_sequential_plan_close.sql"));
   assert.ok(result.selected_files.includes("20261006170000_add_automation_review_owner_decision_validation.sql"));
-  assert.deepEqual(result.pending_files, ["20261006190000_add_automation_review_verified_postflight_recovery.sql"]);
-  assert.deepEqual(result.pending_sha256s, { "20261006190000_add_automation_review_verified_postflight_recovery.sql": "1f4182a456916c1a8b3c19be89cb46c870d92b4060a2a9c4fbd62291b538f7d8" });
+  assert.ok(result.selected_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
+  assert.ok(result.excluded_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(NUTRITION_CITRULLINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(NUTRITION_CREATINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(JONS_INTERRUPTED_REFRESH_MIGRATION));
@@ -704,7 +704,7 @@ test("runtime staging artifacts bind the same migration ledger as the staging se
 
 test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.equal(Object.keys(contract.excluded).length, 20);
+  assert.equal(Object.keys(contract.excluded).length, 21);
   assert.equal(
     contract.excluded["20260929133000_extend_expired_sequential_plan_close.sql"],
     "b0a4cac2d9c30989f00570bf1c63036daf190fffbcc7b08b17c616761bc6a380",
@@ -716,6 +716,10 @@ test("production exclusions are exact and the approved identity foundation is se
   assert.equal(
     contract.excluded["20261006120000_extend_partial_sequential_plan_close.sql"],
     "cecf5e78e058adeb32d088ea9e4ef2eb9442c24be535bd8eb026a9516bcf9fe0",
+  );
+  assert.equal(
+    contract.excluded["20261006190000_add_automation_review_verified_postflight_recovery.sql"],
+    "1f4182a456916c1a8b3c19be89cb46c870d92b4060a2a9c4fbd62291b538f7d8",
   );
   assert.ok(!Object.hasOwn(
     contract.excluded,

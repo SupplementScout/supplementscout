@@ -1823,14 +1823,24 @@ reports. The existing queue workflow has a mutually exclusive recovery mode;
 it downloads the original artifact, repeats database postflight and
 fresh-source idempotency, and only then calls a control-only, non-replay RPC.
 It creates no importer, executor, approval path or catalogue writer and adds no
-retailer ID branch to shared core. Migration
-`20261006190000_add_automation_review_verified_postflight_recovery.sql` is
-pending and not production-authorized. Local focused tests, repository
-quick/full gates and PR 250 required CI pass. The exact disposable-PostgreSQL
+retailer ID branch to shared core. Owner-authorized migration
+`20261006190000_add_automation_review_verified_postflight_recovery.sql` was
+applied with production ledger `227`, fingerprint
+`89b59678999d7d564a5a9a304e0307f8771a82b86afd8a95ce378eb3ea3f461e`
+and zero catalogue-count change. Local focused tests, repository quick/full
+gates and PR 250 required CI pass. The exact disposable-PostgreSQL
 recovery regression passes in run `37497626481` (job `112386140281`); the full
 integration suite remains red only on pre-existing Predators Gear, nutrition
-and stale expired-close evidence tests. Migration deployment and live control
-recovery remain gates. RA-STAB-01
+and stale expired-close evidence tests.
+
+The single authorized live recovery run `37501471469` then failed closed before
+the control RPC on `Fit House protected-offer stable OOS baseline drift`. It
+made no catalogue or control write and was not retried. The first stable-OOS
+guard had the sealed transition, but a second existing Fit House reconciliation
+guard still used the old count. The follow-up correction passes the same bounded
+zero-or-one allowance through both existing guards, adds no offer ID exception
+and closes migration `20261006190000` in the repository selector at ledger
+`227`. A new live attempt is not authorized. RA-STAB-01
 remains `IN_PROGRESS` at `0/3` ordinary intervals. Evidence:
 [`evidence/RA-STAB-01-REVIEW-POSTFLIGHT-FINALIZATION-PREPARATION-2026-10-06.json`](evidence/RA-STAB-01-REVIEW-POSTFLIGHT-FINALIZATION-PREPARATION-2026-10-06.json).
 

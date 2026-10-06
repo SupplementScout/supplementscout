@@ -262,6 +262,10 @@ test("offer 759 return is exact, the other six protected offers remain OOS, and 
   assert.ok(first.sourceVariants.filter(row=>row.external_variant_id!==returned.external_variant_id).every(row=>row.in_stock===false));
   records.find(record=>record.offer.id===returned.offer_id).offer.in_stock=true;
   assert.equal(reconcileOwnerApprovedSixAbsent(scope,[live],"0".repeat(64),reviewed,returnedReview).authorizedChangeCount,0);
+  const postReviewScope=[...scope,{offer:{id:"1982",in_stock:false}}];
+  assert.throws(()=>reconcileOwnerApprovedSixAbsent(postReviewScope,[live],fingerprint,reviewed,returnedReview),/stable OOS baseline drift/);
+  assert.equal(reconcileOwnerApprovedSixAbsent(postReviewScope,[live],fingerprint,reviewed,returnedReview,undefined,1).applied,5);
+  assert.throws(()=>reconcileOwnerApprovedSixAbsent(postReviewScope,[live],fingerprint,reviewed,returnedReview,undefined,2),/automation review OOS allowance is invalid/);
   assert.throws(()=>reconcileOwnerApprovedSixAbsent(scope,[],fingerprint,reviewed,returnedReview),/returned source identity\/state drift/);
   assert.throws(()=>reconcileOwnerApprovedSixAbsent(scope,[live,{external_variant_id:rows[0].external_variant_id}],fingerprint,reviewed,returnedReview),/protected absent source identity returned/);
   records.find(record=>record.offer.id===returned.offer_id).offer.in_stock=false;
