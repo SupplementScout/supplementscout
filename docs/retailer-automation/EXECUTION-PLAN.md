@@ -1825,9 +1825,12 @@ fresh-source idempotency, and only then calls a control-only, non-replay RPC.
 It creates no importer, executor, approval path or catalogue writer and adds no
 retailer ID branch to shared core. Migration
 `20261006190000_add_automation_review_verified_postflight_recovery.sql` is
-pending and not production-authorized. Local focused tests and repository
-quick/full gates pass; CI, migration deployment and live control recovery
-remain gates. RA-STAB-01
+pending and not production-authorized. Local focused tests, repository
+quick/full gates and PR 250 required CI pass. The exact disposable-PostgreSQL
+recovery regression passes in run `37497626481` (job `112386140281`); the full
+integration suite remains red only on pre-existing Predators Gear, nutrition
+and stale expired-close evidence tests. Migration deployment and live control
+recovery remain gates. RA-STAB-01
 remains `IN_PROGRESS` at `0/3` ordinary intervals. Evidence:
 [`evidence/RA-STAB-01-REVIEW-POSTFLIGHT-FINALIZATION-PREPARATION-2026-10-06.json`](evidence/RA-STAB-01-REVIEW-POSTFLIGHT-FINALIZATION-PREPARATION-2026-10-06.json).
 

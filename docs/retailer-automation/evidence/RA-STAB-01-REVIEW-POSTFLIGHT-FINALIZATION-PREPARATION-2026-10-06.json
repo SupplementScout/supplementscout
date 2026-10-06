@@ -60,10 +60,12 @@
   "verification": {
     "focused_tests": "PASS",
     "project_guardian_before_plan_update": "PASS",
-    "docker_integration": "ADDED_TO_EXISTING_ISOLATED_SUITE_AWAITING_CI_OR_LOCAL_DOCKER",
+    "docker_integration": "PASS_FOR_VERIFIED_REVIEW_RECOVERY_IN_RUN_37497626481_JOB_112386140281",
+    "integration_suite": "EXPECTED_BASELINE_RED_OUTSIDE_THIS_CHANGE: VERIFIED_REVIEW_RECOVERY_PASSED; EXISTING_PREDATORS_GEAR, NUTRITION_AND_STALE_EXPIRED_CLOSE_EVIDENCE_TESTS_FAILED",
     "quick": "PASS",
     "full": "PASS",
+    "pull_request_ci": "PASS_PR_250_RUN_37497617089",
     "live_recovery": "NOT_RUN"
   },
-  "next_gate": "Finish quick/full verification and CI. Production migration deployment and the exact recovery dispatch remain separate owner-authorized actions."
+  "next_gate": "Merge PR 250 after green required CI. Production migration deployment and the exact recovery dispatch remain separate owner-authorized actions."
 }
