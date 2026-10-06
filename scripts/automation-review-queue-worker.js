@@ -11,6 +11,7 @@ const WORKERS = Object.freeze(Object.fromEntries(REVIEW_EXECUTION_ADAPTERS.map((
   Object.freeze({ workflow: adapter.workflow, workerKind: adapter.workerKind, run: RUNNERS[adapter.workerKind] }),
 ])));
 const REPORT_DIRECTORY = path.resolve(__dirname, "..", "tmp", "automation-review-execution");
+const REQUEST_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function invariant(condition, code) {
   if (!condition) { const error = new Error(code); error.code = code; throw error; }
@@ -21,6 +22,9 @@ function assertContext(env = process.env) {
   invariant(["schedule", "workflow_dispatch"].includes(env.GITHUB_EVENT_NAME), "QUEUE_WORKER_EVENT_INVALID");
   invariant(env.GITHUB_REF === "refs/heads/main" && env.GITHUB_REPOSITORY === "SupplementScout/supplementscout", "QUEUE_WORKER_REPOSITORY_INVALID");
   invariant(env.NEXT_PUBLIC_SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY, "QUEUE_WORKER_CONTROL_CREDENTIAL_MISSING");
+  const requestId = String(env.AUTOMATION_REVIEW_EXECUTION_REQUEST_ID || "").trim();
+  if (env.GITHUB_EVENT_NAME === "workflow_dispatch") invariant(REQUEST_ID_PATTERN.test(requestId), "QUEUE_WORKER_EXACT_REQUEST_ID_INVALID");
+  else invariant(requestId.length === 0, "QUEUE_WORKER_SCHEDULE_SCOPE_INVALID");
 }
 
 function client(env = process.env) {
@@ -61,16 +65,20 @@ async function run(dependencies = {}) {
   const env = dependencies.env || process.env;
   assertContext(env);
   const db = dependencies.client || client(env);
-  const { data, error } = await db
+  const exactRequestId = String(env.AUTOMATION_REVIEW_EXECUTION_REQUEST_ID || "").trim();
+  let requestQuery = db
     .from("automation_review_execution_requests")
     .select("id,review_id,retailer_slug,workflow_name,review_fingerprint,plan_fingerprint,idempotency_key,status")
-    .eq("status", "QUEUED")
-    .order("requested_at", { ascending: true })
-    .limit(5);
+    .eq("status", "QUEUED");
+  requestQuery = exactRequestId
+    ? requestQuery.eq("id", exactRequestId)
+    : requestQuery.order("requested_at", { ascending: true });
+  const { data, error } = await requestQuery.limit(exactRequestId ? 1 : 5);
   invariant(!error, "QUEUE_WORKER_READ_FAILED");
+  if (exactRequestId) invariant(data?.length === 1 && data[0].id === exactRequestId, "QUEUE_WORKER_EXACT_REQUEST_UNAVAILABLE");
   const saveReport = dependencies.persistReport || ((report) => persistReport(report, env));
   if (!data?.length) {
-    const output = { result: "PASS", processed: 0, deferred: [], completed: [], failed: [], database_writes: 0 };
+    const output = { result: "PASS", selection_mode: "scheduled-batch", processed: 0, deferred: [], completed: [], failed: [], database_writes: 0 };
     saveReport(output);
     return output;
   }
@@ -88,7 +96,7 @@ async function run(dependencies = {}) {
       failed.push({ execution_request_id: request.id, retailer_slug: request.retailer_slug, review_id: String(request.review_id), error_code: safeErrorCode(error) });
     }
   }
-  const output = { result: failed.length ? "FAIL" : "PASS", processed: selected.length, deferred: deferred.map((request) => request.id), completed, failed, database_writes: completed.reduce((sum, row) => sum + Number(row.database_writes || 0), 0) };
+  const output = { result: failed.length ? "FAIL" : "PASS", selection_mode: exactRequestId ? "exact-request" : "scheduled-batch", processed: selected.length, deferred: deferred.map((request) => request.id), completed, failed, database_writes: completed.reduce((sum, row) => sum + Number(row.database_writes || 0), 0) };
   saveReport(output);
   if (failed.length) { const error = new Error(`QUEUE_WORKER_BATCH_FAILED:${failed.length}`); error.report = output; throw error; }
   return output;

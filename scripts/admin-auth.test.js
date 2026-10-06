@@ -1,4 +1,4 @@
-﻿const assert = require("node:assert/strict");
+const assert = require("node:assert/strict");
 const { createHmac } = require("node:crypto");
 const fs = require("fs");
 const Module = require("module");
@@ -840,7 +840,7 @@ test("automation review workflow dispatch is token-gated and exactly bound to on
   assert.match(source, /actions\/workflows\/.*dispatches/);
   assert.match(source, /encodeURIComponent\(options\.adapter\.workflow\)/);
   assert.match(source, /ref: "main"/);
-  assert.doesNotMatch(source, /inputs:/);
+  assert.match(source, /inputs:[\s\S]*execution_request_id: options\.executionRequestId/);
   assert.doesNotMatch(source, /review_item_id|review_fingerprint|execution_idempotency_key/);
   assert.match(source, /response\.status !== 204/);
   assert.doesNotMatch(source, /supabaseAdmin|queue_automation_review_execution|approve_product_import_plan|apply_approved_product_import_plan/);
@@ -853,17 +853,35 @@ test("Automation Review Queue scheduled worker processes the oldest bounded queu
   assert.doesNotThrow(() => assertContext(env));
   assert.throws(() => assertContext({ ...env, GITHUB_REF: "refs/heads/other" }), /QUEUE_WORKER_REPOSITORY_INVALID/);
   const request = { id: "11111111-1111-4111-8111-111111111111", review_id: 946, retailer_slug: "ebay-uk", workflow_name: "automation-review-queue-worker.yml", review_fingerprint: "b".repeat(64), plan_fingerprint: "c".repeat(64), idempotency_key: "d".repeat(64), status: "QUEUED" };
+  const exactEnv = { ...env, GITHUB_EVENT_NAME: "workflow_dispatch", AUTOMATION_REVIEW_EXECUTION_REQUEST_ID: request.id };
+  assert.doesNotThrow(() => assertContext(exactEnv));
+  assert.throws(() => assertContext({ ...exactEnv, AUTOMATION_REVIEW_EXECUTION_REQUEST_ID: "" }), /QUEUE_WORKER_EXACT_REQUEST_ID_INVALID/);
+  assert.throws(() => assertContext({ ...env, AUTOMATION_REVIEW_EXECUTION_REQUEST_ID: request.id }), /QUEUE_WORKER_SCHEDULE_SCOPE_INVALID/);
   const checkpoints = [], calls = [];
   const query = { select: () => query, eq: () => query, order: () => query, limit: async () => ({ data: [request], error: null }) };
   const db = { from: () => query, rpc: async (_name, args) => { checkpoints.push(args); return { data: { status: args.p_new_status }, error: null }; } };
   const reports = [];
   const result = await run({ env, client: db, persistReport: (report) => reports.push(report), runEbay: async (options) => { calls.push(options); return { result: "PASS", database_writes: 1 }; } });
+  assert.equal(result.selection_mode, "scheduled-batch");
   assert.equal(result.processed, 1);
   assert.equal(reports.length, 1);
   assert.deepEqual(reports[0], result);
   assert.equal(checkpoints.length, 0);
   assert.equal(calls[0].reviewItemId, "946");
   assert.equal(calls[0].executionRequestId, request.id);
+  const exactFilters = [];
+  const exactQuery = { select: () => exactQuery, eq: (field, value) => (exactFilters.push([field, value]), exactQuery), limit: async (value) => (assert.equal(value, 1), { data: [request], error: null }) };
+  const exactCalls = [];
+  const exactResult = await run({ env: exactEnv, client: { from: () => exactQuery }, persistReport: () => {}, runEbay: async (options) => { exactCalls.push(options); return { result: "PASS", database_writes: 1 }; } });
+  assert.equal(exactResult.selection_mode, "exact-request");
+  assert.equal(exactResult.processed, 1);
+  assert.deepEqual(exactFilters, [["status", "QUEUED"], ["id", request.id]]);
+  assert.equal(exactCalls[0].executionRequestId, request.id);
+  const missingQuery = { select: () => missingQuery, eq: () => missingQuery, limit: async () => ({ data: [], error: null }) };
+  await assert.rejects(
+    () => run({ env: exactEnv, client: { from: () => missingQuery }, persistReport: () => {}, runEbay: async () => ({ result: "PASS", database_writes: 1 }) }),
+    /QUEUE_WORKER_EXACT_REQUEST_UNAVAILABLE/,
+  );
   await assert.rejects(
     () => run({ env, client: db, persistReport: (report) => reports.push(report), runEbay: async () => { const error = new Error("unsafe upstream detail"); throw error; } }),
     (error) => error.message === "QUEUE_WORKER_BATCH_FAILED:1" && error.report.failed[0].error_code === "QUEUE_WORKER_REQUEST_FAILED",
@@ -1117,6 +1135,8 @@ test("owner decision audit is bounded, SELECT-only, and starts from immutable ad
   assert.match(workflow, /automation-review-owner-decision-audit\.js/);
   assert.doesNotMatch(workflow, /continue-on-error: true/);
   assert.match(workflow, /steps\.owner_audit\.outcome == 'success'/);
+  assert.match(workflow, /execution_request_id:[\s\S]*required: true/);
+  assert.match(workflow, /AUTOMATION_REVIEW_EXECUTION_REQUEST_ID:.*github\.event\.inputs\.execution_request_id/);
   assert.match(workflow, /Monitor status:/);
 });
 
