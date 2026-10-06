@@ -1840,8 +1840,27 @@ guard had the sealed transition, but a second existing Fit House reconciliation
 guard still used the old count. The follow-up correction passes the same bounded
 zero-or-one allowance through both existing guards, adds no offer ID exception
 and closes migration `20261006190000` in the repository selector at ledger
-`227`. A new live attempt is not authorized. RA-STAB-01
-remains `IN_PROGRESS` at `0/3` ordinary intervals. Evidence:
+`227`.
+
+The owner-authorized second and final recovery run `37503672017` on merge
+`66639cfd` passed the original artifact binding, repeated database postflight
+and fresh-source idempotency. It returned `control_status=EXECUTED`,
+`catalogue_writes=0`, exact offer `1982`, 19 freshness confirmations, one
+historical stock delta and zero price, shipping, total, URL, mapping or price
+history delta. The request and review are now `EXECUTED`; no further recovery
+is needed or authorized. The workflow's final read-only audit alone failed on
+`EXECUTED_EVIDENCE_INCOMPLETE`: it required ordinary `expected_deltas` and did
+not yet recognize the sealed `VERIFIED_POSTFLIGHT_RECOVERY` event. The pending
+reporting-only correction accepts that event only when its postflight hash,
+executed offer, actual deltas, database-write evidence and idempotency result
+match the recovered request. It performs no write. Focused, quick and full
+quality gates passed. A fresh production read-only audit at
+`2026-10-06T17:35:54.242Z` then returned `PASS_WITH_REVIEW` /
+`WAITING_FOR_DECISION`, with `403` pending owner decisions, `33`
+review-attention findings and `0` system failures. Review `1121` and request
+`976f67b4-c06c-4f73-a3c6-48ca63f45dfd` are `EXECUTED` and have no audit
+anomaly. This closes the false reporting failure without another recovery.
+RA-STAB-01 remains `IN_PROGRESS` at `0/3` ordinary intervals. Evidence:
 [`evidence/RA-STAB-01-REVIEW-POSTFLIGHT-FINALIZATION-PREPARATION-2026-10-06.json`](evidence/RA-STAB-01-REVIEW-POSTFLIGHT-FINALIZATION-PREPARATION-2026-10-06.json).
 
 Docker run `37421724769` now proves the existing expired-close regression and

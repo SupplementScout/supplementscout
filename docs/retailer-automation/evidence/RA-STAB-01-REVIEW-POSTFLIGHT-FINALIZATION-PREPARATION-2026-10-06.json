@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "task": "RA-STAB-01",
-  "status": "PREPARED_LOCAL_NOT_PRODUCTION_AUTHORIZED",
+  "status": "LIVE_VERIFIED_CONTROL_RECOVERY_COMPLETE",
   "recorded_at": "2026-10-06",
   "incident": {
     "workflow_run_id": "37492690030",
@@ -68,11 +68,23 @@
     "quick": "PASS",
     "full": "PASS",
     "pull_request_ci": "PASS_PR_250_RUN_37497617089",
-    "live_recovery": "FAILED_CLOSED_RUN_37501471469_BEFORE_CONTROL_RPC_SECOND_LEGACY_OOS_GUARD",
-    "live_recovery_attempts": 1,
-    "catalogue_writes_in_recovery": 0,
-    "control_writes_in_recovery": 0,
-    "retry_authorized": false
+    "first_live_recovery": "FAILED_CLOSED_RUN_37501471469_BEFORE_CONTROL_RPC_SECOND_LEGACY_OOS_GUARD",
+    "final_live_recovery": "PASS_RUN_37503672017_CONTROL_STATUS_EXECUTED",
+    "final_recovery_commit": "66639cfd3da422173fb43b0cf28ed61c262b34f9",
+    "live_recovery_attempts": 2,
+    "catalogue_writes_in_both_recoveries": 0,
+    "final_postflight_hash": "ad8b4fcba6020f89639f432801b1e1a3b879a3bae6ce45fddc20fe7b7def1954",
+    "final_executed_offer_ids": ["1982"],
+    "final_freshness_confirmation_count": 19,
+    "final_control_status": "EXECUTED",
+    "post_recovery_audit": "PASS_WITH_REVIEW_WAITING_FOR_DECISION_ZERO_SYSTEM_FAILURES",
+    "post_recovery_audit_generated_at": "2026-10-06T17:35:54.242Z",
+    "post_recovery_audit_sha256": "abfdd768fa14086ec29c6de956f8a9015390ee59b52137119e5c7b42aab83242",
+    "post_recovery_pending_owner_decisions": 403,
+    "post_recovery_review_attention": 33,
+    "post_recovery_system_failures": 0,
+    "recovered_request_audit_anomalies": 0,
+    "further_recovery_authorized": false
   },
-  "next_gate": "Verify and merge the second-guard context propagation and the applied-ledger closure. Any new live recovery attempt requires a separate owner decision."
+  "next_gate": "Merge the reporting-only audit correction, then resume the ordinary RA-STAB-01 observation intervals. No further recovery or production write is required or authorized."
 }
