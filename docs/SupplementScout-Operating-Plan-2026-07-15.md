@@ -676,6 +676,9 @@ solely for evidence. Next: full CI/merge, deploy the one common migration, take
 a fresh read-only preflight, perform one guarded suffix close, and verify it
 independently. Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-PARTIAL-PLAN-RECOVERY-PREPARATION-2026-10-06.json`](retailer-automation/evidence/RA-STAB-01-PARTIAL-PLAN-RECOVERY-PREPARATION-2026-10-06.json).
+Disposable-PostgreSQL run `37421724769` also passes both RA-STAB-01 close
+fixtures; its two remaining suite failures are unchanged unrelated failures
+already present on main run `37331353245`.
 
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger

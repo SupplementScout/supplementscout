@@ -1527,6 +1527,12 @@ read-only preflight, one guarded suffix close and an independent readback.
 Evidence:
 [`evidence/RA-STAB-01-PARTIAL-PLAN-RECOVERY-PREPARATION-2026-10-06.json`](evidence/RA-STAB-01-PARTIAL-PLAN-RECOVERY-PREPARATION-2026-10-06.json).
 
+Docker run `37421724769` now proves the existing expired-close regression and
+the new exact `12 + 1 + 6` fixture pass against disposable PostgreSQL. The
+monolithic integration job remains red only for the same two unrelated
+Predators Gear and nutrition failures already present on main run
+`37331353245`; neither failure is in the RA-STAB-01 path or changed here.
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

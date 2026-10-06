@@ -69,7 +69,16 @@
     "focused_tests": "PASS",
     "verify_quick": "PASS",
     "verify_full": "PASS",
-    "docker_integration": "PENDING_CI_DOCKER"
+    "docker_integration": {
+      "ra_stab_01_result": "PASS",
+      "workflow_run_id": "37421724769",
+      "suite_result": "FAIL_KNOWN_UNRELATED_BASELINE",
+      "remaining_failures": [
+        "jons-final-closeout-policy-migration.integration.test.js",
+        "nutrition-variant-provenance.integration.test.js"
+      ],
+      "same_failures_on_main_run_id": "37331353245"
+    }
   },
   "already_completed_evidence": {
     "ordinary_10_reps_run_id": "37357956664",
