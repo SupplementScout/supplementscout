@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "task": "RA-STAB-01",
+  "status": "PREPARED_LOCAL_NOT_PRODUCTION_AUTHORIZED",
+  "recorded_at": "2026-10-06",
+  "incident": {
+    "workflow_run_id": "37492690030",
+    "execution_request_id": "976f67b4-c06c-4f73-a3c6-48ca63f45dfd",
+    "review_id": "1121",
+    "retailer": "Fit House",
+    "offer_id": "1982",
+    "observed_worker_error": "STABLE_OOS_BASELINE_EXCEEDED",
+    "cause": "The exact owner-approved apply and database postflight completed before the legacy stable-OOS state guard re-read the new state without the already-applied decision context.",
+    "replay_forbidden": true
+  },
+  "verified_business_outcome": {
+    "execution_result": "PASS_WITH_REVIEW",
+    "postflight_result": "PASS",
+    "executed_rows": 20,
+    "stock_changes": 1,
+    "freshness_confirmations": 20,
+    "commercial_price_changes": 0,
+    "shipping_changes": 0,
+    "total_changes": 0,
+    "offer_url_changes": 0,
+    "mapping_url_changes": 0,
+    "commercial_price_history_delta": 0,
+    "raw_daily_confirmation_rows": 20,
+    "production_offer_1982": {
+      "price": "15.99",
+      "shipping_cost": "3.99",
+      "total_price": "19.98",
+      "in_stock": false,
+      "retailer_product_id": "2168"
+    }
+  },
+  "artifact_sha256": {
+    "baseline": "520bcfe0c12cad36f45a162b7b3740e949a6e35dca58aa975e5039d87f873e2a",
+    "execution": "8cb70c4b17762364ccb21719224807b9909833b3427483b725a7b53070c5efa2",
+    "postflight": "d9bc13841ccf4e233f1578bcbd92f8ebbfd8d50548522bb51e08bbdc765dde02",
+    "batch": "a6183fa145fade3092b27639ecff8d02f2112ef4160642f39ad62108be65615e"
+  },
+  "correction": {
+    "shared_runtime": "A sealed retailer-neutral applied-stock transition is passed into fresh-source idempotency. It permits only the exact already-approved after-state and does not widen an ordinary threshold.",
+    "reporting": "Failed batch reports retain the pessimistic non-zero write count instead of reporting zero after a possibly committed apply.",
+    "future_evidence": "POSTFLIGHT_PASSED is recorded before idempotency so a later source or state-guard failure cannot erase the proven business outcome.",
+    "control_recovery": "The existing queue workflow gains one mutually exclusive recovery input. It downloads the original immutable artifact, repeats database postflight and fresh-source idempotency, then calls one control-only RPC. It never invokes registration, approval or execution.",
+    "new_parallel_workflow": false,
+    "new_importer": false,
+    "new_executor": false,
+    "retailer_specific_shared_core_branch": false,
+    "catalogue_dml_in_recovery_rpc": false
+  },
+  "migration": {
+    "filename": "20261006190000_add_automation_review_verified_postflight_recovery.sql",
+    "sha256": "1f4182a456916c1a8b3c19be89cb46c870d92b4060a2a9c4fbd62291b538f7d8",
+    "production_state": "PENDING_NOT_AUTHORIZED",
+    "production_ledger_before": 226
+  },
+  "verification": {
+    "focused_tests": "PASS",
+    "project_guardian_before_plan_update": "PASS",
+    "docker_integration": "PASS_FOR_VERIFIED_REVIEW_RECOVERY_IN_RUN_37497626481_JOB_112386140281",
+    "integration_suite": "EXPECTED_BASELINE_RED_OUTSIDE_THIS_CHANGE: VERIFIED_REVIEW_RECOVERY_PASSED; EXISTING_PREDATORS_GEAR, NUTRITION_AND_STALE_EXPIRED_CLOSE_EVIDENCE_TESTS_FAILED",
+    "quick": "PASS",
+    "full": "PASS",
+    "pull_request_ci": "PASS_PR_250_RUN_37497617089",
+    "live_recovery": "NOT_RUN"
+  },
+  "next_gate": "Merge PR 250 after green required CI. Production migration deployment and the exact recovery dispatch remain separate owner-authorized actions."
+}

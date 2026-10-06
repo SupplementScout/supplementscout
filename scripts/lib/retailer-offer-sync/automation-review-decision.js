@@ -3,6 +3,7 @@ const { canonicalJson } = require("../canonical-json");
 const { canonicalTimestamp } = require("../canonical-timestamp");
 
 const KIND = "automation-review-owner-decision-v1";
+const IDEMPOTENCY_TRANSITION_KIND = "automation-review-applied-stock-transition-v1";
 
 function invariant(condition, code) {
   if (!condition) {
@@ -64,9 +65,56 @@ function bindAutomationReviewDecision(request, prepared) {
   return { ...bound, package_fingerprint: fingerprint(bound) };
 }
 
+function prepareAutomationReviewIdempotencyTransition({ review, decision }) {
+  invariant(review && decision, "AUTOMATION_REVIEW_IDEMPOTENCY_INPUT_MISSING");
+  invariant(decision.kind === KIND
+    && decision.execution_request_id
+    && decision.review_id === String(review.id)
+    && decision.review_fingerprint === review.source_row_fingerprint
+    && decision.plan_fingerprint === review.plan_fingerprint,
+  "AUTOMATION_REVIEW_IDEMPOTENCY_DECISION_DRIFT");
+  invariant(review.operation_type === "UPDATE_STOCK"
+    && typeof review.before_state?.in_stock === "boolean"
+    && typeof review.proposed_state?.in_stock === "boolean"
+    && review.before_state.in_stock !== review.proposed_state.in_stock,
+  "AUTOMATION_REVIEW_IDEMPOTENCY_TRANSITION_INVALID");
+  const core = {
+    schema_version: 1,
+    kind: IDEMPOTENCY_TRANSITION_KIND,
+    execution_request_id: decision.execution_request_id,
+    review_id: decision.review_id,
+    retailer_id: decision.retailer_id,
+    retailer_slug: decision.retailer_slug,
+    offer_id: String(review.offer_id),
+    before_in_stock: review.before_state.in_stock,
+    after_in_stock: review.proposed_state.in_stock,
+    review_fingerprint: decision.review_fingerprint,
+    plan_fingerprint: decision.plan_fingerprint,
+    idempotency_key: decision.idempotency_key,
+  };
+  return Object.freeze({ ...core, transition_hash: fingerprint(core) });
+}
+
+function verifyAutomationReviewIdempotencyTransition(transition) {
+  invariant(transition?.kind === IDEMPOTENCY_TRANSITION_KIND, "AUTOMATION_REVIEW_IDEMPOTENCY_TRANSITION_MISSING");
+  const { transition_hash: transitionHash, ...core } = transition;
+  invariant(/^[0-9a-f]{64}$/.test(String(transitionHash || ""))
+    && fingerprint(core) === transitionHash,
+  "AUTOMATION_REVIEW_IDEMPOTENCY_TRANSITION_HASH_DRIFT");
+  invariant(/^[1-9]\d*$/.test(String(transition.offer_id || ""))
+    && typeof transition.before_in_stock === "boolean"
+    && typeof transition.after_in_stock === "boolean"
+    && transition.before_in_stock !== transition.after_in_stock,
+  "AUTOMATION_REVIEW_IDEMPOTENCY_TRANSITION_INVALID");
+  return transition;
+}
+
 module.exports = {
+  IDEMPOTENCY_TRANSITION_KIND,
   KIND,
   bindAutomationReviewDecision,
   fingerprint,
   prepareAutomationReviewDecision,
+  prepareAutomationReviewIdempotencyTransition,
+  verifyAutomationReviewIdempotencyTransition,
 };

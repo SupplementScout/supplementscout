@@ -883,12 +883,14 @@ test("Automation Review Queue scheduled worker processes the oldest bounded queu
     /QUEUE_WORKER_EXACT_REQUEST_UNAVAILABLE/,
   );
   await assert.rejects(
-    () => run({ env, client: db, persistReport: (report) => reports.push(report), runEbay: async () => { const error = new Error("unsafe upstream detail"); throw error; } }),
+    () => run({ env, client: db, persistReport: (report) => reports.push(report), runEbay: async () => { const error = new Error("unsafe upstream detail"); error.databaseWrites = 20; throw error; } }),
     (error) => error.message === "QUEUE_WORKER_BATCH_FAILED:1" && error.report.failed[0].error_code === "QUEUE_WORKER_REQUEST_FAILED",
   );
   assert.equal(reports.length, 2);
   assert.equal(reports[1].failed[0].retailer_slug, "ebay-uk");
   assert.equal(reports[1].failed[0].review_id, "946");
+  assert.equal(reports[1].failed[0].database_writes, 20);
+  assert.equal(reports[1].database_writes, 20);
   assert.equal(safeErrorCode({ code: "REVIEW_EVIDENCE_EXPIRED" }), "REVIEW_EVIDENCE_EXPIRED");
   const compatibility = selectCompatibleRequests([
     { id: "fit-1", retailer_slug: "fit-house" },
@@ -1142,9 +1144,33 @@ test("owner decision audit is bounded, SELECT-only, and starts from immutable ad
   assert.match(workflow, /automation-review-owner-decision-audit\.js/);
   assert.doesNotMatch(workflow, /continue-on-error: true/);
   assert.match(workflow, /steps\.owner_audit\.outcome == 'success'/);
-  assert.match(workflow, /execution_request_id:[\s\S]*required: true/);
+  assert.match(workflow, /execution_request_id:[\s\S]*required: false[\s\S]*recovery_execution_request_id:[\s\S]*required: false/);
+  assert.match(workflow, /execution_request_id != '' && github\.event\.inputs\.recovery_execution_request_id == ''/);
   assert.match(workflow, /AUTOMATION_REVIEW_EXECUTION_REQUEST_ID:.*github\.event\.inputs\.execution_request_id/);
   assert.match(workflow, /Monitor status:/);
+});
+
+test("Review Queue postflight recovery reuses the same workflow and cannot replay catalogue writes", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "scripts", "automation-review-postflight-recovery.js"), "utf8");
+  const workflow = fs.readFileSync(path.join(process.cwd(), ".github", "workflows", "automation-review-queue-worker.yml"), "utf8");
+  const { assertContext, parseArgs, recoveryTransition } = require("./automation-review-postflight-recovery");
+  const requestId = "11111111-1111-4111-8111-111111111111";
+  const args = parseArgs(["--mode=recover", `--execution-request-id=${requestId}`, "--artifact-directory=tmp/input"]);
+  assert.equal(args.executionRequestId, requestId);
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "workflow_dispatch", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", AUTOMATION_REVIEW_RECOVERY_REQUEST_ID: requestId, NEXT_PUBLIC_SUPABASE_URL: "https://example.test", SUPABASE_SERVICE_ROLE_KEY: "control" };
+  assert.doesNotThrow(() => assertContext(args, env));
+  assert.throws(() => assertContext(args, { ...env, AUTOMATION_REVIEW_RECOVERY_REQUEST_ID: "22222222-2222-4222-8222-222222222222" }), /RECOVERY_CONTEXT_REQUEST_DRIFT/);
+  const transition = recoveryTransition(
+    { id: "77", offer_id: "900", operation_type: "UPDATE_STOCK", source_row_fingerprint: "a".repeat(64), plan_fingerprint: "b".repeat(64), before_state: { in_stock: true }, proposed_state: { in_stock: false } },
+    { id: requestId, retailer_id: "9", retailer_slug: "fit-house", review_fingerprint: "a".repeat(64), plan_fingerprint: "b".repeat(64), idempotency_key: "c".repeat(64) },
+  );
+  assert.equal(transition.offer_id, "900");
+  assert.match(source, /runPostflight/);
+  assert.match(source, /engine\.buildIdempotencyRun/);
+  assert.match(source, /reconcile_automation_review_verified_postflight/);
+  assert.doesNotMatch(source, /\.from\("(?:products|product_variants|retailer_products|offers|price_history)"\)\.(?:insert|update|delete)/);
+  assert.match(workflow, /gh run download/);
+  assert.equal((workflow.match(/name: Automation Review Queue Worker/g) || []).length, 1);
 });
 
 test("shared retailer Review Queue worker uses one registry for Fit House, 10 Reps and Whey Okay", () => {
@@ -1217,10 +1243,11 @@ test("shared retailer Review Queue worker behavior binds and proves Fit House, 1
     const deltas = { row_count_deltas: { products: 0, product_variants: 0, retailer_products: 0, offers: 0, price_history: 0 }, logical_field_deltas: { offer_price_updates: 0, offer_shipping_updates: 0, offer_total_updates: 0, offer_stock_updates: 1, offer_url_updates: 0, mapping_url_updates: 0, mapping_updated_at_updates: 0, last_checked_at_updates: 20 } };
     const runPlan = { artifacts: [{ rows: [changed, ...confirmations], expected_deltas: deltas }] };
     let reads = 0;
+    let observedIdempotencyTransition = null;
     const engine = {
       readState: async () => (++reads === 1 ? { records: [record, ...confirmations.map((row) => ({ offer: { id: row.offer_id } }))] } : { records: [] }),
       buildReviewQueueRun: async (_target, _state, selection) => selection ? runPlan : null,
-      buildIdempotencyRun: async () => ({ classification: { rows: [{ offer_id: "900", action: "VERIFY_NO_CHANGE" }] } }),
+      buildIdempotencyRun: async (_target, _state, transition) => { observedIdempotencyTransition = transition; return { classification: { rows: [{ offer_id: "900", action: "VERIFY_NO_CHANGE" }] } }; },
       validate: async () => [{ result: { valid: true } }],
       registrationRequest: () => ({ children: [{ artifact: runPlan.artifacts[0] }] }),
       register: async () => ({ result: { status: "REGISTERED" } }),
@@ -1237,7 +1264,11 @@ test("shared retailer Review Queue worker behavior binds and proves Fit House, 1
     assert.equal(report.database_writes, 20);
     assert.deepEqual(report.executed_offer_ids, ["900"]);
     assert.equal(report.freshness_confirmation_offer_ids.length, 19);
-    assert.deepEqual(checkpoints.map((row) => row.p_new_status), ["EXECUTING", "EXECUTED"]);
+    assert.equal(observedIdempotencyTransition.offer_id, "900");
+    assert.equal(observedIdempotencyTransition.before_in_stock, true);
+    assert.equal(observedIdempotencyTransition.after_in_stock, false);
+    assert.deepEqual(checkpoints.map((row) => row.p_new_status), ["EXECUTING", "EXECUTING", "EXECUTED"]);
+    assert.equal(checkpoints[1].p_checkpoint, "POSTFLIGHT_PASSED");
     assert.equal(env.SUPABASE_SERVICE_ROLE_KEY, "control");
     assert.equal(env.RETAILER_REFRESH_PROFILE, scenario.retailer === "10-reps" ? "10reps" : scenario.retailer);
   }

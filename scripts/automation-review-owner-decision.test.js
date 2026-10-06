@@ -6,6 +6,8 @@ const {
   bindAutomationReviewDecision,
   fingerprint,
   prepareAutomationReviewDecision,
+  prepareAutomationReviewIdempotencyTransition,
+  verifyAutomationReviewIdempotencyTransition,
 } = require("./lib/retailer-offer-sync/automation-review-decision");
 
 test("owner decision contract binds one immutable Review Queue request", () => {
@@ -63,6 +65,37 @@ test("owner decision contract binds one immutable Review Queue request", () => {
   );
 });
 
+test("idempotency transition is sealed to the exact applied stock decision", () => {
+  const review = {
+    id: 1121,
+    offer_id: 1982,
+    operation_type: "UPDATE_STOCK",
+    source_row_fingerprint: "a".repeat(64),
+    plan_fingerprint: "b".repeat(64),
+    before_state: { in_stock: true },
+    proposed_state: { in_stock: false },
+  };
+  const decision = {
+    kind: "automation-review-owner-decision-v1",
+    execution_request_id: "11111111-1111-4111-8111-111111111111",
+    review_id: "1121",
+    retailer_id: "9",
+    retailer_slug: "fit-house",
+    review_fingerprint: review.source_row_fingerprint,
+    plan_fingerprint: review.plan_fingerprint,
+    idempotency_key: "c".repeat(64),
+  };
+  const transition = prepareAutomationReviewIdempotencyTransition({ review, decision });
+  assert.equal(transition.offer_id, "1982");
+  assert.equal(transition.before_in_stock, true);
+  assert.equal(transition.after_in_stock, false);
+  assert.equal(verifyAutomationReviewIdempotencyTransition(transition), transition);
+  assert.throws(
+    () => verifyAutomationReviewIdempotencyTransition({ ...transition, offer_id: "1983" }),
+    /AUTOMATION_REVIEW_IDEMPOTENCY_TRANSITION_HASH_DRIFT/,
+  );
+});
+
 test("shared engines bind the owner decision before database validation", () => {
   for (const file of ["fit-house-offer-refresh.js", "whey-okay-offer-refresh.js"]) {
     const source = fs.readFileSync(path.join(__dirname, file), "utf8");
@@ -101,4 +134,26 @@ test("database bridge validates the queue decision and contains no retailer exce
     /(?:insert into|update|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history)/i,
   );
   assert.match(rollback, /drop function public\.validate_automation_review_owner_decision\(jsonb\)/);
+});
+
+test("verified postflight recovery is control-only, replay-safe and retailer-neutral", () => {
+  const migration = fs.readFileSync(
+    path.join(__dirname, "..", "supabase", "migrations", "20261006190000_add_automation_review_verified_postflight_recovery.sql"),
+    "utf8",
+  );
+  const rollback = fs.readFileSync(
+    path.join(__dirname, "..", "supabase", "rollbacks", "20261006190000_add_automation_review_verified_postflight_recovery.sql"),
+    "utf8",
+  );
+  assert.match(migration, /create function public\.reconcile_automation_review_verified_postflight/);
+  assert.match(migration, /v_request\.status <> 'FAILED'/);
+  assert.match(migration, /v_review\.review_status <> 'FAILED'/);
+  assert.match(migration, /jsonb_array_length\(p_evidence->'executed_offer_ids'\) <> 1/);
+  assert.match(migration, /jsonb_array_length\(p_evidence->'freshness_confirmation_offer_ids'\) <> 19/);
+  assert.match(migration, /AUTOMATION_RECOVERY_CURRENT_STATE_DRIFT/);
+  assert.match(migration, /'FAILED','EXECUTED','VERIFIED_POSTFLIGHT_RECOVERY'/);
+  assert.doesNotMatch(migration, /retailer_id\s*=\s*(?:3|9|14)\b/i);
+  assert.doesNotMatch(migration, /(?:insert into|update|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
+  assert.match(rollback, /AUTOMATION_RECOVERY_ROLLBACK_BLOCKED_BY_USED_EVIDENCE/);
+  assert.match(rollback, /drop function public\.reconcile_automation_review_verified_postflight/);
 });

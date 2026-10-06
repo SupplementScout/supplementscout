@@ -150,6 +150,7 @@ const EXCLUSIONS = Object.freeze({
     "20261004120000_add_central_control_plan_readback",
     "20261006120000_extend_partial_sequential_plan_close",
     "20261006170000_add_automation_review_owner_decision_validation",
+    "20261006190000_add_automation_review_verified_postflight_recovery",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",
@@ -203,7 +204,9 @@ const PENDING_MIGRATIONS = Object.freeze({
     Object.freeze({ filename: "20260913110000_add_nutrition_candidate_citrulline_components.sql", sha256: "76dd8390e19f45dd8ffcc69bafe9721abc6dedff6db280fdc6f75e3938258ac4" }),
     Object.freeze({ filename: "20260920150000_add_nutrition_candidate_creatine_components.sql", sha256: "c68dac262928ac1ebf971fd8cb838468f38376ebb7c43d8f426884adc200200b" }),
   ]),
-  PRODUCTION: Object.freeze([]),
+  PRODUCTION: Object.freeze([
+    Object.freeze({ filename: "20261006190000_add_automation_review_verified_postflight_recovery.sql", sha256: "1f4182a456916c1a8b3c19be89cb46c870d92b4060a2a9c4fbd62291b538f7d8" }),
+  ]),
 });
 
 function migrationIdentifier(filename) {

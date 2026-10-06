@@ -93,10 +93,11 @@ async function run(dependencies = {}) {
       const result = await worker({ reviewItemId: String(request.review_id), executionRequestId: request.id, retailer: request.retailer_slug, reviewFingerprint: request.review_fingerprint, reviewPlanFingerprint: request.plan_fingerprint, executionIdempotencyKey: request.idempotency_key, mode: "review-queue" }, { ...dependencies, client: db, env });
       completed.push({ execution_request_id: request.id, worker_result: result.result, database_writes: result.database_writes });
     } catch (error) {
-      failed.push({ execution_request_id: request.id, retailer_slug: request.retailer_slug, review_id: String(request.review_id), error_code: safeErrorCode(error) });
+      const databaseWrites = Number.isSafeInteger(error?.databaseWrites) && error.databaseWrites >= 0 ? error.databaseWrites : 0;
+      failed.push({ execution_request_id: request.id, retailer_slug: request.retailer_slug, review_id: String(request.review_id), error_code: safeErrorCode(error), database_writes: databaseWrites });
     }
   }
-  const output = { result: failed.length ? "FAIL" : "PASS", selection_mode: exactRequestId ? "exact-request" : "scheduled-batch", processed: selected.length, deferred: deferred.map((request) => request.id), completed, failed, database_writes: completed.reduce((sum, row) => sum + Number(row.database_writes || 0), 0) };
+  const output = { result: failed.length ? "FAIL" : "PASS", selection_mode: exactRequestId ? "exact-request" : "scheduled-batch", processed: selected.length, deferred: deferred.map((request) => request.id), completed, failed, database_writes: [...completed, ...failed].reduce((sum, row) => sum + Number(row.database_writes || 0), 0) };
   saveReport(output);
   if (failed.length) { const error = new Error(`QUEUE_WORKER_BATCH_FAILED:${failed.length}`); error.report = output; throw error; }
   return output;
