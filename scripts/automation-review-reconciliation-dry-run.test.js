@@ -462,7 +462,7 @@ function writeFitHouseFixture({ executableCount = 272 } = {}) {
     classification: { VERIFY_NO_CHANGE: executableCount, UPDATE_STOCK: 14 },
     review_rows: reviewRows,
   };
-  const diagnostic = { result: "PASS", timestamp: "2026-10-05T09:01:00.000Z", failure_stage: null, approved_mapping_count: 286, source: { fingerprint: sourceFingerprint }, database_writes_attempted: 0, database_writes_completed: 0, business_writes_completed: 0, control_writes_completed: 0, approvals_created: 0, approvals_consumed: 0, recovery_calls: 0, classifier_summary: { scope: { scope_row_ids: executionOfferIds, blocked_rows: 0, reconciled: true, reconciled_total: executableCount }, action_counts: report.classification, changed_rows: changedRows } };
+  const diagnostic = { result: "PASS", timestamp: "2026-10-05T09:01:00.000Z", failure_stage: null, approved_mapping_count: 286, source: { fingerprint: sourceFingerprint }, database_writes_attempted: 0, database_writes_completed: 0, business_writes_completed: 0, control_writes_completed: 0, approvals_created: 0, approvals_consumed: 0, recovery_calls: 0, classifier_summary: { scope: { scope_row_ids: baselineRows.map((row) => row.offer_id), blocked_rows: 0, reconciled: true, reconciled_total: 286 }, action_counts: report.classification, changed_row_ids: changedRows.map((row) => row.offer_id), changed_rows: changedRows } };
   const baseline = { schema_version: 1, kind: "retailer-offer-refresh-db-baseline", result: "PASS", profile: "fit-house", snapshot: { captured_at: "2026-10-05T09:00:59.000Z", retailer_id: "9", retailer_name: "Fit House", row_count: 286, rows: baselineRows }, evidence_hash: "a".repeat(64) };
   writeJson(path.join(directory, "production-dry-run.json"), report);
   writeJson(path.join(directory, "production-preflight-diagnostic.json"), diagnostic);
@@ -508,20 +508,28 @@ test("Fit House source adapter rejects count-to-row drift and accepts an exact r
   report.review_row_count = 13;
   writeJson(reportPath, report);
   assert.throws(() => buildFitHouseSourceContract(fixture.directory, env), /ordinary partition is incomplete/);
-  report.review_rows.pop(); report.deferred_changed_offer_ids.pop(); diagnostic.classifier_summary.changed_rows.pop();
+  report.review_rows.pop(); report.deferred_changed_offer_ids.pop(); diagnostic.classifier_summary.changed_row_ids.pop(); diagnostic.classifier_summary.changed_rows.pop();
   const resolvedOfferId = fixture.changedRows.at(-1).offer_id;
   report.execution_offer_ids.push(resolvedOfferId);
   report.verification_offer_ids.push(resolvedOfferId);
   report.executable_plan_count += 1;
   report.classification.VERIFY_NO_CHANGE += 1;
   report.classification.UPDATE_STOCK -= 1;
-  diagnostic.classifier_summary.scope.scope_row_ids.push(resolvedOfferId);
-  diagnostic.classifier_summary.scope.reconciled_total += 1;
   diagnostic.classifier_summary.action_counts = report.classification;
   writeJson(reportPath, report); writeJson(diagnosticPath, diagnostic);
   const contract = buildFitHouseSourceContract(fixture.directory, env);
   assert.equal(contract.review_row_count, 13);
   assert.equal(contract.review_offer_ids.length, 13);
+});
+
+test("Fit House source adapter rejects a classifier scope that omits one of the 286 approved offers", () => {
+  const fixture = writeFitHouseFixture();
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "37442830504", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
+  const diagnosticPath = path.join(fixture.directory, "production-preflight-diagnostic.json");
+  const diagnostic = JSON.parse(fs.readFileSync(diagnosticPath, "utf8"));
+  diagnostic.classifier_summary.scope.scope_row_ids.pop();
+  writeJson(diagnosticPath, diagnostic);
+  assert.throws(() => buildFitHouseSourceContract(fixture.directory, env), /preflight classifier IDs drifted/);
 });
 
 test("Fit House adapter builds one shared-publisher request with 14 review cards and no catalogue writes", () => {
