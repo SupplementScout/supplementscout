@@ -986,10 +986,12 @@ The one shared guarded Review Queue registry for eBay, Fit House and 10 Reps is
 merged in PR `#233`; production worker run `37430887924` proved safe idle
 behavior with zero processed rows and zero database writes. A real 10 Reps stock
 execution still requires a genuine fresh owner-approved row and will not be
-manufactured for evidence. The current implementation step reuses the existing
-owner-decision audit and five-minute queue workflow to expose `SUCCESS`,
-`WAITING_FOR_DECISION` and `FAILED_SYSTEM` without treating review backlog as a
-system outage. No second monitor, schedule or executor is being introduced.
+manufactured for evidence. The existing owner-decision audit and five-minute
+queue workflow now expose `SUCCESS`, `WAITING_FOR_DECISION` and `FAILED_SYSTEM`
+without treating review backlog as a system outage. PR `#234` is merged and
+live run `37432645097` proved `WAITING_FOR_DECISION` with zero system failures
+and zero database writes. No second monitor, schedule or executor was added; a
+later natural schedule readback remains due while next-retailer work proceeds.
 
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256
