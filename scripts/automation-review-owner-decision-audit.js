@@ -1,6 +1,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const { createClient } = require("@supabase/supabase-js");
+const { canonicalJson } = require("./lib/canonical-json");
 
 const ROOT = path.resolve(__dirname, "..");
 const DEFAULT_OUTPUT = path.join(ROOT, "tmp", "automation-review-owner-decision-audit.json");
@@ -52,6 +53,20 @@ function latest(rows) { return [...rows].sort((a, b) => Date.parse(b.created_at 
 function isHex64(value) { return /^[0-9a-f]{64}$/.test(String(value || "")); }
 function array(value) { return Array.isArray(value) ? value : []; }
 function minutesOld(value, now) { return value ? (now.getTime() - Date.parse(value)) / 60000 : Infinity; }
+function hasVerifiedRecoveryEvidence(request, review, requestEvents) {
+  return requestEvents.some((event) => {
+    const evidence = event.evidence || {};
+    return event.previous_status === "FAILED" && event.new_status === "EXECUTED"
+      && event.checkpoint === "VERIFIED_POSTFLIGHT_RECOVERY"
+      && evidence.kind === "automation-review-verified-postflight-recovery-v1"
+      && String(evidence.postflight_hash || "") === String(request.postflight_hash || "")
+      && evidence.idempotency_result === "PASS"
+      && Number(evidence.database_writes) === Number(request.database_writes)
+      && array(evidence.executed_offer_ids).map(String).includes(String(review.offer_id))
+      && evidence.actual_deltas && request.actual_deltas
+      && canonicalJson(evidence.actual_deltas) === canonicalJson(request.actual_deltas);
+  });
+}
 
 function auditData({ decisionEvents, reviews, requests, executionEvents }, now = new Date()) {
   const anomalies = [], summaries = [];
@@ -81,10 +96,11 @@ function auditData({ decisionEvents, reviews, requests, executionEvents }, now =
         if (minutesOld(request.updated_at || request.requested_at, now) > threshold) anomalies.push({ code: request.status === "QUEUED" ? "EXECUTION_QUEUE_DELAYED" : "EXECUTION_STUCK", review_id: id, execution_request_id: request.id, status: request.status, threshold_minutes: threshold });
       }
       if (request.status === "EXECUTED") {
+        const recovered = hasVerifiedRecoveryEvidence(request, review, requestEvents);
         const valid = request.completed_at && isHex64(request.postflight_hash) && request.idempotency_result === "PASS"
           && array(request.failed_offer_ids).length === 0 && array(request.remaining_offer_ids).length === 0
           && array(request.executed_offer_ids).map(String).includes(String(review.offer_id))
-          && request.expected_deltas && request.actual_deltas && review.review_status === "EXECUTED";
+          && (request.expected_deltas || recovered) && request.actual_deltas && review.review_status === "EXECUTED";
         if (!valid) anomalies.push({ code: "EXECUTED_EVIDENCE_INCOMPLETE", review_id: id, execution_request_id: request.id });
       }
       if (request.status === "EXPIRED" && (Number(request.database_writes || 0) !== 0 || !request.error_code)) anomalies.push({ code: "EXPIRED_EVIDENCE_INVALID", review_id: id, execution_request_id: request.id });
@@ -145,4 +161,4 @@ async function run(options = parseArgs(process.argv.slice(2)), dependencies = {}
 
 if (require.main === module) run().then((report) => { console.log(JSON.stringify({ result: report.result, monitor_status: report.monitor_status, decisions: report.decision_count, pending_owner_decisions: report.pending_owner_decision_count, review_attention: report.review_attention_count, system_failures: report.system_failure_count })); process.exitCode = auditExitCode(report) || undefined; }).catch((error) => { console.error(error.message); process.exitCode = 1; });
 
-module.exports = { auditData, auditExitCode, monitorStatus, parseArgs, readAll, run };
+module.exports = { auditData, auditExitCode, hasVerifiedRecoveryEvidence, monitorStatus, parseArgs, readAll, run };

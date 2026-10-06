@@ -1072,9 +1072,20 @@ replay execution. Owner-authorized migration `20261006190000` was applied on
 and zero catalogue-count change. The one authorized recovery run `37501471469`
 failed closed before the control RPC because a second legacy Fit House OOS
 guard had not received the sealed transition. It made no catalogue or control
-write and was not retried. A follow-up correction now passes the same bounded
-allowance through both existing guards; request/review status remains `FAILED`
-pending merge, verification and a separate owner decision for any new attempt. See
+write and was not retried. A follow-up correction passes the same bounded
+allowance through both existing guards. The owner-authorized second and final
+recovery run `37503672017` then passed exact artifact, database postflight and
+fresh-source idempotency checks and changed only request/review control status
+to `EXECUTED`; `catalogue_writes=0`. Its trailing read-only audit reported one
+false `EXECUTED_EVIDENCE_INCOMPLETE` because the legacy audit required ordinary
+`expected_deltas` even when the sealed `VERIFIED_POSTFLIGHT_RECOVERY` event was
+present. The reporting-only correction passed the full quality gate. A fresh
+production read-only audit at `2026-10-06T17:35:54.242Z` now reports
+`PASS_WITH_REVIEW`, `WAITING_FOR_DECISION`, `0` system failures and no anomaly
+for review `1121` or request `976f67b4-c06c-4f73-a3c6-48ca63f45dfd`.
+Its remaining `403` pending decisions and `33` review-attention findings are
+ordinary owner-review backlog, not an automation failure. No further recovery
+or production write is needed or authorized. See
 the [postflight finalization preparation](retailer-automation/evidence/RA-STAB-01-REVIEW-POSTFLIGHT-FINALIZATION-PREPARATION-2026-10-06.json).
 
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's

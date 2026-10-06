@@ -1121,6 +1121,37 @@ test("owner decision audit is bounded, SELECT-only, and starts from immutable ad
   assert.equal(result.anomalies.length, 0);
   assert.equal(result.summaries[0].outcome, "EXECUTED");
   assert.equal(result.summaries[0].github_artifact_verification_required, true);
+  const recoveredRequest = { ...request, expected_deltas: null };
+  const recoveryEvent = {
+    ...executionEvent,
+    previous_status: "FAILED",
+    checkpoint: "VERIFIED_POSTFLIGHT_RECOVERY",
+    evidence: {
+      kind: "automation-review-verified-postflight-recovery-v1",
+      postflight_hash: request.postflight_hash,
+      idempotency_result: "PASS",
+      database_writes: 20,
+      executed_offer_ids: ["44"],
+      actual_deltas: {},
+    },
+  };
+  const recovered = auditData(
+    { decisionEvents: [decision], reviews: [review], requests: [recoveredRequest], executionEvents: [recoveryEvent] },
+    new Date("2026-10-05T10:03:00Z"),
+  );
+  assert.equal(recovered.anomalies.length, 0);
+  const unsealedRecovery = auditData(
+    {
+      decisionEvents: [decision],
+      reviews: [review],
+      requests: [recoveredRequest],
+      executionEvents: [{ ...recoveryEvent, evidence: { ...recoveryEvent.evidence, kind: "wrong" } }],
+    },
+    new Date("2026-10-05T10:03:00Z"),
+  );
+  assert.deepEqual(unsealedRecovery.anomalies, [
+    { code: "EXECUTED_EVIDENCE_INCOMPLETE", review_id: "1", execution_request_id: request.id },
+  ]);
   assert.deepEqual(monitorStatus({ reviews: [], requests: [], anomalies: [] }), { monitor_status: "SUCCESS", pending_owner_decision_count: 0, active_execution_count: 0, review_attention_count: 0, system_failure_count: 0 });
   const waiting = monitorStatus({ reviews: [{ review_status: "PENDING" }], requests: [], anomalies: [{ code: "OWNER_DECISION_EVIDENCE_DRIFT" }] });
   assert.equal(waiting.monitor_status, "WAITING_FOR_DECISION");
