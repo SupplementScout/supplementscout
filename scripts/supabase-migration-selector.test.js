@@ -447,7 +447,7 @@ test("production records applied recovery foundations and one exact pending part
   const contract = CONTRACTS.PRODUCTION;
   assert.deepEqual(contract.pending, [{
     filename: "20261006120000_extend_partial_sequential_plan_close.sql",
-    sha256: "a15fd9b1dd92eb38274588533cfb3da709fdb69abf0f8e6ba98c9ee13dec4975",
+    sha256: "cecf5e78e058adeb32d088ea9e4ef2eb9442c24be535bd8eb026a9516bcf9fe0",
     expectedCatalogueDeltas: {},
   }]);
   assert.deepEqual(contract.appliedExcluded, [
@@ -605,7 +605,7 @@ test("production accepts ledger 224 and selects only the pending shared partial-
   assert.ok(result.excluded_files.includes("20261004120000_add_central_control_plan_readback.sql"));
   assert.deepEqual(result.pending_files, ["20261006120000_extend_partial_sequential_plan_close.sql"]);
   assert.deepEqual(result.pending_sha256s, {
-    "20261006120000_extend_partial_sequential_plan_close.sql": "a15fd9b1dd92eb38274588533cfb3da709fdb69abf0f8e6ba98c9ee13dec4975",
+    "20261006120000_extend_partial_sequential_plan_close.sql": "cecf5e78e058adeb32d088ea9e4ef2eb9442c24be535bd8eb026a9516bcf9fe0",
   });
   assert.ok(result.selected_files.includes(NUTRITION_CITRULLINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(NUTRITION_CREATINE_COMPONENTS_MIGRATION));

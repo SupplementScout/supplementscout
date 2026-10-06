@@ -201,7 +201,7 @@ const PENDING_MIGRATIONS = Object.freeze({
     Object.freeze({ filename: "20260920150000_add_nutrition_candidate_creatine_components.sql", sha256: "c68dac262928ac1ebf971fd8cb838468f38376ebb7c43d8f426884adc200200b" }),
   ]),
   PRODUCTION: Object.freeze([
-    Object.freeze({ filename: "20261006120000_extend_partial_sequential_plan_close.sql", sha256: "a15fd9b1dd92eb38274588533cfb3da709fdb69abf0f8e6ba98c9ee13dec4975", expectedCatalogueDeltas: {} }),
+    Object.freeze({ filename: "20261006120000_extend_partial_sequential_plan_close.sql", sha256: "cecf5e78e058adeb32d088ea9e4ef2eb9442c24be535bd8eb026a9516bcf9fe0", expectedCatalogueDeltas: {} }),
   ]),
 });
 

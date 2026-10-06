@@ -158,12 +158,16 @@ begin
      or v_child.approval_expires_at>clock_timestamp() then
     perform public.retailer_catalogue_raise('RSBI_APPROVAL_EXPIRED','Approval is not expired');
   end if;
-  if v_approval.consumed_at is not null or v_child.approval_consumed_at is not null then
+  if v_approval.consumed_at is not null or v_child.approval_consumed_at is not null
+     or (not v_partial and v_parent.approval_consumed_at is not null) then
     perform public.retailer_catalogue_raise('RSBI_REPLAY_BLOCKED','Target approval is already consumed');
+  end if;
+  if v_approval.result is not null then
+    perform public.retailer_catalogue_raise('RSBI_REPLAY_BLOCKED','Approval already contains execution result');
   end if;
   if v_child.status<>'APPROVED' or v_parent.approval_id is null or v_child.approval_id is null
      or v_child.approval_expires_at is distinct from v_approval.expires_at
-     or v_parent.approval_expires_at<v_approval.expires_at or v_approval.result is not null then
+     or v_parent.approval_expires_at<v_approval.expires_at then
     perform public.retailer_catalogue_raise('RSBI_INVALID_TRANSITION','Target is not an exact unexecuted expired sequential approval');
   end if;
   if v_parent.status not in ('APPROVED','PARTIALLY_APPLIED') then
@@ -220,8 +224,19 @@ begin
   end if;
 
   if not v_partial then
-    if v_parent.approval_consumed_at is not null or v_applied_children<>0 or v_planned_children<>v_child_count-1
-       or v_batch_approvals<>1 or v_row_approvals<>0 or v_apply_runs<>0 or v_recovery_manifests<>0
+    if v_batch_approvals<>1 then
+      perform public.retailer_catalogue_raise('RSBI_PARTIAL_BATCH_STATE','Sequential plan contains unexpected batch approvals');
+    end if;
+    if v_row_approvals<>0 then
+      perform public.retailer_catalogue_raise('RSBI_REPLAY_BLOCKED','Row approvals exist for expired sequential plan');
+    end if;
+    if v_recovery_manifests<>0 then
+      perform public.retailer_catalogue_raise('RSBI_ROLLBACK_OWNERSHIP_CONFLICT','Recovery state exists for expired sequential plan');
+    end if;
+    if v_apply_runs<>0 then
+      perform public.retailer_catalogue_raise('RSBI_PARTIAL_BATCH_STATE','Apply run exists for expired sequential plan');
+    end if;
+    if v_applied_children<>0 or v_planned_children<>v_child_count-1
        or exists(select 1 from public.retailer_catalogue_child_plans c where c.parent_plan_id=v_parent.id and c.id<>v_child.id and (
          c.status<>'PLANNED' or c.approval_id is not null or c.approved_at is not null
          or c.approval_expires_at is not null or c.approval_consumed_at is not null
