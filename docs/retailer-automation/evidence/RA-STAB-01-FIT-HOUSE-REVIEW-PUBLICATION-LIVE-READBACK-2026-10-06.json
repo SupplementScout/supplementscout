@@ -1,0 +1,120 @@
+{
+  "schema_version": "ra-stab-01-fit-house-review-publication-live-readback-v1",
+  "status": "MERGED_LIVE_VERIFIED",
+  "task": "RA-STAB-01",
+  "generated_at": "2026-10-06T10:42:00.000Z",
+  "incident": {
+    "failed_scheduled_run": 37442830504,
+    "failure_stage": "Bind fresh Fit House Review Queue source",
+    "cause": "The common validator assumed every standard retailer classifier covered executable rows only, while the Fit House classifier correctly reports the full approved partition.",
+    "source_evidence_was_valid": true,
+    "observed_partition": "286 classifier rows = 272 executable VERIFY_NO_CHANGE plus 14 deferred UPDATE_STOCK review rows",
+    "catalogue_apply_after_failure": "SKIPPED"
+  },
+  "implementation": {
+    "kind": "PROFILE_DRIVEN_CLASSIFIER_COVERAGE",
+    "shared_core_retailer_branch_added": false,
+    "retailer_specific_writer_added": false,
+    "new_workflow": false,
+    "new_approval_path": false,
+    "new_executor": false,
+    "profile_contracts": {
+      "fit_house": "full-partition",
+      "10_reps": "executable-only"
+    },
+    "regression": "Fit House accepts exactly all 286 classifier IDs and rejects even one omitted approved offer.",
+    "historical_artifact_replay": {
+      "run": 37442830504,
+      "result": "PASS",
+      "contract_sha256": "3533c7b5399ae08a4dad73237adf098b51c14d89990bfe24f10fc5f121989b21",
+      "review_scope_fingerprint": "65b29044116ab196b62bd19fcdd9f4c69a5857912acce6f74b30de8a4a51d139"
+    }
+  },
+  "verification": {
+    "focused_fit_house_and_shared_publication_tests": "PASS_26_OF_26",
+    "verify_quick": "PASS_544_PASSED_3_SKIPPED",
+    "verify_full": "PASS",
+    "production_build": "PASS",
+    "verify_project_before_and_after": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "github": {
+    "commit": "b1566fddeecfcd4732b1e66caa2cca57f950964c",
+    "pull_request": 240,
+    "merge_commit": "cc4131a7518331e6f9683de204492a2a7e9111b5",
+    "pull_request_quality_gate_run": 37450521796,
+    "post_merge_quality_gate_run": 37450827077,
+    "quality_gate": "PASS",
+    "vercel": "PASS",
+    "gitguardian": "PASS"
+  },
+  "production_review_only_run": {
+    "workflow_run": 37450876753,
+    "head_sha": "cc4131a7518331e6f9683de204492a2a7e9111b5",
+    "result": "PASS",
+    "approved_scope": 286,
+    "executable_verify_no_change_rows": 272,
+    "review_rows": 14,
+    "blocked_rows": 0,
+    "review_offer_ids": [
+      "697",
+      "735",
+      "921",
+      "944",
+      "951",
+      "953",
+      "954",
+      "963",
+      "972",
+      "983",
+      "1859",
+      "1904",
+      "1938",
+      "1982"
+    ],
+    "publication_operations": {
+      "create": 0,
+      "refresh": 13,
+      "supersede": 0,
+      "resolve_by_source": 0,
+      "approved_immutable": 1
+    },
+    "source_artifact_id": 11407072137,
+    "source_artifact_sha256": "1ece5f31020be305c8c64754e7677b0d26def3576a2fec1b7b740a172dc95763",
+    "queue_artifact_id": 11406537671,
+    "queue_artifact_sha256": "324cec2eaeb7d69e23293fc80e03cb6c8f8f4e20ce7614c363537e5618595fea",
+    "contract_sha256": "94c39fa89effd30c984cebc1db889c2b5b2f5606e1f0f8520643d0ad16629c2e",
+    "review_scope_fingerprint": "65b29044116ab196b62bd19fcdd9f4c69a5857912acce6f74b30de8a4a51d139",
+    "catalogue_apply": "SKIPPED",
+    "catalogue_postflight": "SKIPPED",
+    "catalogue_idempotency_apply": "SKIPPED",
+    "review_queue_transaction_writes": 27,
+    "catalogue_writes": 0
+  },
+  "independent_production_readback": {
+    "captured_at": "2026-10-06T10:41:21.525Z",
+    "result": "PASS",
+    "active_review_rows": 14,
+    "pending_rows_refreshed_by_current_run": 13,
+    "approved_rows_preserved_immutably": 1,
+    "approved_review_id": "1121",
+    "approved_offer_id": "1982",
+    "approved_source_run_id": "37356399740",
+    "execution_requests": 0,
+    "commercial_and_identity_rows_equal_published_before_state": true,
+    "catalogue_counts": {
+      "products": 1337,
+      "product_variants": 3632,
+      "retailer_products": 3758,
+      "offers": 3758,
+      "price_history": 27666
+    },
+    "catalogue_writes": 0,
+    "read_only_queries_only": true
+  },
+  "next_action": {
+    "owner_action_required": "The already approved offer 1982 still requires the separate exact execution confirmation in the admin panel; no execution request has been manufactured.",
+    "automation_action": "Observe the next ordinary shared-retailer schedule and watchdog classification on the same merged path.",
+    "ra_stab_01_status": "IN_PROGRESS"
+  }
+}
