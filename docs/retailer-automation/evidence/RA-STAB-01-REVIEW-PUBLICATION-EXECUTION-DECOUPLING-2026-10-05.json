@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "task": "RA-STAB-01",
-  "status": "LOCALLY_VERIFIED_DEPLOYMENT_PENDING",
+  "status": "LIVE_VERIFIED",
   "recorded_at": "2026-10-05T20:20:00Z",
   "incident": {
     "workflow_run_id": "37364486648",
@@ -57,6 +57,39 @@
   },
   "production": {
     "writes_by_preparation": 0,
-    "next_gate": "Merge after green CI, dispatch one 10 Reps review-only operation, then verify exactly 16 active queue cards and zero catalogue/control writes."
+    "pull_request": 228,
+    "merge_commit": "7ce72423452619dcf95cfc74e263eb939a33a1e2",
+    "review_only_run_id": "37370980156",
+    "source_artifact_id": "11370991279",
+    "source_artifact_digest": "4657eff6799ed6423a3fb2679da720c7d1ef5e04138a755f7b2ee4aa4f6a37c0",
+    "contract_sha256": "f593b3be539e937cf30a65e6226ed39c68764fb3c4d5f8e1ce187bbe01d9c399",
+    "queue_result": {
+      "result": "PASS",
+      "created": 16,
+      "refreshed": 0,
+      "superseded": 0,
+      "resolved": 0,
+      "catalogue_writes": 0
+    },
+    "independent_readback_at": "2026-10-06T04:54:19.793Z",
+    "independent_readback": {
+      "active_cards": 16,
+      "all_pending": true,
+      "all_identity_review": true,
+      "all_source_missing": true,
+      "all_review_only": true,
+      "all_bound_to_run": true,
+      "catalogue_rows_checked": 950,
+      "all_catalogue_rows_unchanged": true,
+      "catalogue_counts_unchanged": true,
+      "catalogue_counts": {
+        "products": 1337,
+        "product_variants": 3632,
+        "retailer_products": 3758,
+        "offers": 3758,
+        "price_history": 27666
+      }
+    },
+    "next_gate": "Handle the 16 owner decisions through the existing Automation Review Queue; recover the older partial control plan separately without replaying catalogue execution."
   }
 }

@@ -649,6 +649,17 @@ read-only 16-card/zero-catalogue-write readback remain required. RA-STAB-01 is
 still `IN_PROGRESS` at `0/3`. Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-REVIEW-PUBLICATION-EXECUTION-DECOUPLING-2026-10-05.json`](retailer-automation/evidence/RA-STAB-01-REVIEW-PUBLICATION-EXECUTION-DECOUPLING-2026-10-05.json).
 
+PR `#228` merged the common decoupling as `7ce7242`, and bounded 10 Reps
+`review-only` run `37370980156` live verified it. The run classified the same
+934 safe no-change rows and 16 missing-source reviews, skipped every catalogue
+and control execution step, and created exactly the 16 pending identity-review
+cards through the existing shared publisher. Independent readback checked all
+950 catalogue rows against the sealed baseline and found no price, stock,
+identity, URL or freshness change; all five catalogue counts also remained
+unchanged. The publication-coupling incident is closed. The older partial
+control plan and the `0/3` natural observation counter remain separate open
+RA-STAB-01 work and received no replay or credit from this review-only run.
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

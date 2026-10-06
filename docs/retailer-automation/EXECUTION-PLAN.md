@@ -1482,6 +1482,23 @@ production writes. Next gate: green CI and merge, followed by one 10 Reps
 catalogue/control writes. Evidence:
 [`evidence/RA-STAB-01-REVIEW-PUBLICATION-EXECUTION-DECOUPLING-2026-10-05.json`](evidence/RA-STAB-01-REVIEW-PUBLICATION-EXECUTION-DECOUPLING-2026-10-05.json).
 
+**6 October Review Queue/execution decoupling — live verified:** PR `#228`
+merged as `7ce7242` after full CI passed. The one bounded 10 Reps
+`review-only` run `37370980156` completed from that exact commit. Fresh source
+classification remained `950 = 934 VERIFY_NO_CHANGE + 16 review + 0 blocked`.
+Catalogue apply, control registration, postflight and idempotency were all
+skipped by the reviewed workflow mode. The existing shared publisher created
+exactly 16 queue cards with zero refresh, supersede, resolve or catalogue
+write. Independent production readback on 6 October found those exact 16 offer
+IDs, all `PENDING`, identity-review, source-missing and review-only, all bound
+to run `37370980156`. It compared all 950 catalogue rows with the sealed
+pre-publication baseline and found every commercial, identity, URL and
+freshness field unchanged. Products, variants, mappings, offers and price
+history counts remained exactly `1337/3632/3758/3758/27666` before and after.
+This closes the queue-publication coupling incident. It does not close the
+older partial 10 Reps control plan or advance the natural `0/3` observation
+counter; those remain separate stabilization work.
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
