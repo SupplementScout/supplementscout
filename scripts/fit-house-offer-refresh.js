@@ -103,7 +103,7 @@ function sourceHealth(snapshot,sourceVariants){
 }
 function approvedStableOosBaseline(){const isFitHouse=config.retailer_id===9&&config.retailer_slug==="fit-house";if(!isFitHouse){invariant(config.approved_stable_oos_baseline===undefined,`${config.retailer_name} must not define the Fit House stable OOS baseline`);return null}const baseline=config.approved_stable_oos_baseline;invariant(baseline&&baseline.retailer_id===9&&baseline.approved_mapping_count===286&&baseline.count===104&&baseline.maximum_new_oos_count===3&&baseline.require_total_oos_not_above_previous===true&&baseline.authority==="owner-approved-chat-2026-09-09-fit-house-944-and-39-monitored-offers"&&baseline.reviewed_manifest_sha256==="3bcac846d086c8bc71ce9c5bf5bf8e135f704f8e6eed543d03ab7bbaae0d578c","Fit House approved stable OOS baseline contract mismatch");return baseline}
 function appliedAutomationReviewOosAllowance(state,transition){if(!transition)return 0;const verified=verifyAutomationReviewIdempotencyTransition(transition);invariant(verified.retailer_id===String(config.retailer_id)&&verified.retailer_slug===config.retailer_slug,"AUTOMATION_REVIEW_IDEMPOTENCY_RETAILER_DRIFT");const record=state.records.find(candidate=>String(candidate.offer.id)===verified.offer_id);invariant(record&&record.offer.in_stock===verified.after_in_stock,"AUTOMATION_REVIEW_IDEMPOTENCY_AFTER_STATE_DRIFT");return verified.before_in_stock&&!verified.after_in_stock?1:0}
-function applyApprovedStableOosBaselineGuard(state,diagnostic=null,idempotencyTransition=null){const baseline=approvedStableOosBaseline();if(!baseline)return null;const databaseOosCount=state.records.filter(record=>!record.offer.in_stock).length;if(databaseOosCount>baseline.count){const reviewed=loadOwnerApprovedSixAbsentManifest(),byOffer=new Map(state.records.map(record=>[String(record.offer.id),record])),applied=reviewed.manifest.approved_offer_ids.filter(id=>byOffer.get(id)?.offer.in_stock===false).length,reviewAllowance=appliedAutomationReviewOosAllowance(state,idempotencyTransition);if(databaseOosCount!==baseline.count+applied+reviewAllowance)throw new RefreshError("STABLE_OOS_BASELINE_EXCEEDED",`Fit House current OOS count ${databaseOosCount} exceeds approved stable baseline ${baseline.count}`,"STATE_GUARD",{current_oos_count:databaseOosCount,approved_stable_oos_count:baseline.count,authority:baseline.authority,reviewed_manifest_sha256:baseline.reviewed_manifest_sha256})}const result={guard:"FIT_HOUSE_APPROVED_STABLE_OOS_BASELINE",result:"PASS",current_oos_count:databaseOosCount,maximum_approved_oos_count:baseline.count+6,authority:baseline.authority,reviewed_manifest_sha256:baseline.reviewed_manifest_sha256};if(diagnostic)diagnostic.guard_results.push(result);return result}
+function applyApprovedStableOosBaselineGuard(state,diagnostic=null,idempotencyTransition=null){const baseline=approvedStableOosBaseline();if(!baseline)return null;const databaseOosCount=state.records.filter(record=>!record.offer.in_stock).length,reviewAllowance=appliedAutomationReviewOosAllowance(state,idempotencyTransition);if(databaseOosCount>baseline.count){const reviewed=loadOwnerApprovedSixAbsentManifest(),byOffer=new Map(state.records.map(record=>[String(record.offer.id),record])),applied=reviewed.manifest.approved_offer_ids.filter(id=>byOffer.get(id)?.offer.in_stock===false).length;if(databaseOosCount!==baseline.count+applied+reviewAllowance)throw new RefreshError("STABLE_OOS_BASELINE_EXCEEDED",`Fit House current OOS count ${databaseOosCount} exceeds approved stable baseline ${baseline.count}`,"STATE_GUARD",{current_oos_count:databaseOosCount,approved_stable_oos_count:baseline.count,authority:baseline.authority,reviewed_manifest_sha256:baseline.reviewed_manifest_sha256})}const result={guard:"FIT_HOUSE_APPROVED_STABLE_OOS_BASELINE",result:"PASS",current_oos_count:databaseOosCount,maximum_approved_oos_count:baseline.count+6+reviewAllowance,applied_automation_review_oos_allowance:reviewAllowance,authority:baseline.authority,reviewed_manifest_sha256:baseline.reviewed_manifest_sha256};if(diagnostic)diagnostic.guard_results.push(result);return result}
 function projectSourceVariants(snapshot){
   if(["WOOCOMMERCE_PRODUCT_PAGES","CSV_PRODUCT_FEED"].includes(config.source_platform)){const rows=snapshot.source_variants;if(config.shipping_policy.mode==="fixed")for(const row of rows)row.shipping_cost=Number(config.shipping_policy.cost_gbp).toFixed(2);return rows}
   const rows=projectShopifyVariants(snapshot,{shippingCost:config.shipping_policy.mode==="fixed"?config.shipping_policy.cost_gbp:null});
@@ -324,8 +324,9 @@ function loadOwnerApprovedReturnIsolationManifest(){
   return{manifest,sha256};
 }
 
-function reconcileOwnerApprovedSixAbsent(records,sourceVariants,sourceFingerprint,reviewed=loadOwnerApprovedSixAbsentManifest(),returnedReview=loadOwnerApprovedReturnedOfferManifest(),isolationReview=loadOwnerApprovedReturnIsolationManifest()){
+function reconcileOwnerApprovedSixAbsent(records,sourceVariants,sourceFingerprint,reviewed=loadOwnerApprovedSixAbsentManifest(),returnedReview=loadOwnerApprovedReturnedOfferManifest(),isolationReview=loadOwnerApprovedReturnIsolationManifest(),automationReviewOosAllowance=0){
   invariant(/^[0-9a-f]{64}$/.test(sourceFingerprint),"Fit House source fingerprint is invalid");
+  invariant(Number.isInteger(automationReviewOosAllowance)&&automationReviewOosAllowance>=0&&automationReviewOosAllowance<=1,"Fit House automation review OOS allowance is invalid");
   const returned=returnedReview.manifest,isolation=isolationReview.manifest,sourceByVariant=new Map(sourceVariants.map(row=>[String(row.external_variant_id),row])),byOffer=new Map(records.map(record=>[String(record.offer.id),record]));
   invariant(isolation.return_offer_id===returned.offer_id,"Fit House returned-offer isolation target drift");
   const synthetic=[];let newUnavailableCount=0;
@@ -344,7 +345,7 @@ function reconcileOwnerApprovedSixAbsent(records,sourceVariants,sourceFingerprin
     synthetic.push({external_product_id:row.external_product_id,external_variant_id:row.external_variant_id,product_handle:handle,external_sku:null,price:row.old_price,shipping_cost:money(record.offer.shipping_cost),total_price:money(record.offer.total_price),in_stock:false,source_updated_at:null,owner_approved_source_absent:true});
   }
   const applied=reviewed.manifest.rows.filter(row=>reviewed.manifest.approved_offer_ids.includes(row.offer_id)&&!byOffer.get(row.offer_id).offer.in_stock).length;
-  invariant(records.filter(record=>!record.offer.in_stock).length===104+applied,"Fit House protected-offer stable OOS baseline drift");
+  invariant(records.filter(record=>!record.offer.in_stock).length===104+applied+automationReviewOosAllowance,"Fit House protected-offer stable OOS baseline drift");
   const authorizedChangeCount=byOffer.get(returned.offer_id).offer.in_stock===returned.old_stock?1:0;
   return{sourceVariants:[...sourceVariants,...synthetic],missingVariantIds:synthetic.map(row=>row.external_variant_id),newUnavailableCount,authorizedChangeCount,manifest_sha256:reviewed.sha256,returned_manifest_sha256:returnedReview.sha256,isolation_manifest_sha256:isolationReview.sha256,approved_rows:reviewed.manifest.rows.filter(row=>reviewed.manifest.approved_offer_ids.includes(row.offer_id)),returned,isolation,applied};
 }
@@ -544,7 +545,7 @@ function applyOwnerApprovedMissingVariantGuardBaseline(guard,authorization){
 
 async function buildRun(target,state,diagnostic=null,reviewed=null,isolateUnsafe=false,scopeSegment=null,reviewQueueSelection=null,idempotencyTransition=null){
   const spec=TARGETS[target],capturedAt=freshCapturedAt();
-  applyApprovedStableOosBaselineGuard(state,diagnostic,idempotencyTransition);
+  const stableOosGuard=applyApprovedStableOosBaselineGuard(state,diagnostic,idempotencyTransition);
   let snapshot;
   try{
     snapshot=await readSourceSnapshot(capturedAt);
@@ -579,7 +580,7 @@ async function buildRun(target,state,diagnostic=null,reviewed=null,isolateUnsafe
   const ownerApprovedMissing=config.retailer_id===9
     ? reconcileOwnerApprovedMissingVariant(state.records,sourceVariants)
     : null;
-  const ownerApprovedSix=config.retailer_id===9?reconcileOwnerApprovedSixAbsent(state.records,ownerApprovedMissing?.sourceVariants||sourceVariants,snapshot.semantic_source_fingerprint):null;
+  const ownerApprovedSix=config.retailer_id===9?reconcileOwnerApprovedSixAbsent(state.records,ownerApprovedMissing?.sourceVariants||sourceVariants,snapshot.semantic_source_fingerprint,undefined,undefined,undefined,stableOosGuard?.applied_automation_review_oos_allowance||0):null;
   const reconciled=auditedMissing?reconcileAuditedMissingVariants(state.records,ownerApprovedSix?.sourceVariants||ownerApprovedMissing?.sourceVariants||sourceVariants,auditedMissing):reconcileMissingMappedVariants(targets,ownerApprovedMissing?.sourceVariants||sourceVariants,config.discovery_policy,{isolateUnsafe});
   if(ownerApprovedMissing){
     reconciled.missingVariantIds=[...ownerApprovedMissing.missingVariantIds,...reconciled.missingVariantIds];

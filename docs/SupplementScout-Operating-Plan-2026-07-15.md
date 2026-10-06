@@ -1066,8 +1066,15 @@ non-zero writes in failure summaries. A pending control-only recovery RPC and
 the same workflow can finalize a failed request only after the original
 artifact, a repeated database postflight, the current offer state and a fresh
 source idempotency build all agree. It performs no catalogue write and cannot
-replay execution. Migration `20261006190000` is not production-authorized or
-applied; request/review status remains `FAILED` until that separate gate. See
+replay execution. Owner-authorized migration `20261006190000` was applied on
+6 October with production ledger `227`, fingerprint
+`89b59678999d7d564a5a9a304e0307f8771a82b86afd8a95ce378eb3ea3f461e`
+and zero catalogue-count change. The one authorized recovery run `37501471469`
+failed closed before the control RPC because a second legacy Fit House OOS
+guard had not received the sealed transition. It made no catalogue or control
+write and was not retried. A follow-up correction now passes the same bounded
+allowance through both existing guards; request/review status remains `FAILED`
+pending merge, verification and a separate owner decision for any new attempt. See
 the [postflight finalization preparation](retailer-automation/evidence/RA-STAB-01-REVIEW-POSTFLIGHT-FINALIZATION-PREPARATION-2026-10-06.json).
 
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
