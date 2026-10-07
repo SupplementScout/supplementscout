@@ -6,6 +6,7 @@ import { capabilityForReview, confidenceForReview, decisionGroupForReview } from
 import { supabaseAdmin } from "../../lib/supabaseAdmin";
 import {
   attachReviewExecutionState,
+  currentReviewRows,
   filterAndPaginateReviewRows,
   normalizeReviewQueueDisplay,
   normalizeReviewQueueScope,
@@ -89,13 +90,14 @@ export default async function AutomationReviewPage({ searchParams }: { searchPar
   const bucket = normalizeReviewQueueWorkBucket(inferredBucket);
   const display = normalizeReviewQueueDisplay(value(params.display) || (["DECIDE", "EXECUTE"].includes(bucket) ? "WORK" : "LIST"));
   const retailer = value(params.retailer), kind = value(params.kind), group = value(params.group), confidence = value(params.confidence), capability = value(params.capability);
-  const filters: ReviewQueueFilters = { status, retailer, kind, group, confidence, capability, query, scope: normalizeReviewQueueScope(value(params.scope)), bucket, display };
+  const filters: ReviewQueueFilters = { status, retailer, kind, group, confidence, capability, query, scope: normalizeReviewQueueScope(value(params.scope)), bucket, display, history: value(params.history) === "1" };
   const requestedPage = Math.max(1, Number.parseInt(value(params.page) || "1", 10) || 1);
   const [loadedResult, executionResult] = await Promise.all([loadCompleteReviewQueue("ALL"), loadCompleteReviewExecutions()]);
   const error = loadedResult.error || executionResult.error;
   const queueRows = error ? [] : attachReviewExecutionState(loadedResult.rows, executionResult.rows);
-  const summary = summarizeReviewQueue(queueRows);
-  const visibleSourceRows = query ? queueRows : queueRows.filter((row) => !row.superseded_by_review_id);
+  const currentRows = currentReviewRows(queueRows);
+  const summary = summarizeReviewQueue(currentRows);
+  const visibleSourceRows = filters.history ? queueRows : currentRows;
   const filtered = filterAndPaginateReviewRows(visibleSourceRows, filters, requestedPage, display === "WORK" ? REVIEW_QUEUE_WORK_PAGE_SIZE : REVIEW_QUEUE_PAGE_SIZE);
   const { rows, total, page, totalPages } = filtered;
   const allRetailers = Array.from(new Set(loadedResult.rows.map((row) => row.retailer))).sort((left, right) => left.localeCompare(right, "pl"));

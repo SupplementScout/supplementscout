@@ -1,0 +1,33 @@
+{
+  "task": "RA-STAB-01",
+  "status": "LOCAL_VERIFIED_CI_PENDING",
+  "scope": "Shared Review Queue current-versus-history search",
+  "incident": {
+    "retailer": "eBay UK",
+    "offer_id": 2703,
+    "visible_duplicate_count": 2,
+    "cause": "Global search included current and older review generations without distinguishing history.",
+    "review_generations": [
+      { "review_id": 1014, "decided_at": "2026-10-05T05:15:55.811358Z", "status": "EXPIRED" },
+      { "review_id": 1159, "decided_at": "2026-10-07T11:56:22.628913Z", "status_at_owner_audit": "APPROVED", "current_ui_status": "EXPIRED" }
+    ]
+  },
+  "change": {
+    "default_search_scope": "LATEST_CURRENT_REVIEW_PER_RETAILER_OFFER",
+    "history_available_only_when_requested": true,
+    "history_query_parameter": "history=1",
+    "superseded_rows_excluded_from_current_search": true,
+    "dashboard_counts_use_current_reviews_only": true,
+    "new_database_query_or_write_path": false,
+    "approval_or_execution_guard_changed": false
+  },
+  "verification": {
+    "focused_admin_tests": "PASS_59",
+    "typescript": "PASS",
+    "eslint_changed_files": "PASS",
+    "quick": "PASS",
+    "full": "PASS",
+    "ci": "PENDING",
+    "production_readback": "PENDING"
+  }
+}

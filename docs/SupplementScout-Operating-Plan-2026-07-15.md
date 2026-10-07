@@ -1146,6 +1146,15 @@ are in PROCESSING, and the previous review for `2689` expired. Sticky counters
 and the card anchor are present. Queued requests still require system execution;
 this UI proof does not advance the natural-run counter. See [navigation evidence](retailer-automation/evidence/RA-STAB-01-REVIEW-QUEUE-PENDING-NAVIGATION-2026-10-07.json).
 
+**7 October 2026 Review Queue current-search correction:** the change separates
+the working queue from its
+history. Offer `2703` appeared twice because search included review generations
+`1014` and `1159`. Ordinary search now shows only the newest non-superseded
+generation per retailer offer; older generations require the explicit history
+checkbox. No data or automation authority changes. Focused, TypeScript and
+ESLint checks and quick/full quality gates pass; CI and production readback remain. See the
+[current-search evidence](retailer-automation/evidence/RA-STAB-01-REVIEW-QUEUE-CURRENT-SEARCH-2026-10-07.json).
+
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256
 `59c6d03a2bbcff0b384b86065f76e6f456e3538ca538613cf83e5e017ec11a9d`,
