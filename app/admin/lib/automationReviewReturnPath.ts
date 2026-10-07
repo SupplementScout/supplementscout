@@ -1,5 +1,5 @@
 const REVIEW_QUEUE_PATH = "/admin/automation-review";
-const SAFE_QUERY_KEYS = new Set(["q", "retailer", "status", "scope", "kind", "group", "confidence", "capability", "queue", "display", "page"]);
+const SAFE_QUERY_KEYS = new Set(["q", "retailer", "status", "scope", "kind", "group", "confidence", "capability", "queue", "display", "history", "page"]);
 
 export function safeAutomationReviewReturnPath(input: FormDataEntryValue | string | null, saved: "decision" | "execution", allowedOrigin = "https://supplementscout.invalid") {
   const raw = String(input || "");

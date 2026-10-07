@@ -717,7 +717,8 @@ test("automation review queue is admin-only, paginated and exposes bounded evide
   assert.match(components, /Do Twojej decyzji/);
   assert.match(components, /Zatwierdzone do wykonania/);
   assert.match(components, /Zostaw technikowi/);
-  assert.match(components, /Szukaj we wszystkich statusach/);
+  assert.match(components, /Szukaj w bieżącej kolejce/);
+  assert.match(components, /Pokaż również starsze, zastąpione wersje z historii/);
   assert.match(page, /ReviewQueueViewSwitch/);
   assert.match(page, /summary\.ownerRemaining/);
   assert.match(data, /source_price,source_url,current_product_id,current_variant_id/);
@@ -778,6 +779,7 @@ test("Review Queue filters the complete bounded result before pagination", () =>
 
 test("Review Queue work dashboard separates owner work, technical rows and completed progress", () => {
   const {
+    currentReviewRows,
     filterAndPaginateReviewRows,
     reviewQueueWorkBucket,
     summarizeReviewQueue,
@@ -801,9 +803,18 @@ test("Review Queue work dashboard separates owner work, technical rows and compl
   assert.equal(reviewQueueWorkBucket(rows[4], now), "TECHNICAL");
   const summary = summarizeReviewQueue(rows, now);
   assert.deepEqual({ decide: summary.decide, execute: summary.execute, processing: summary.processing, technical: summary.technical, completed: summary.completed, ownerRemaining: summary.ownerRemaining, completedToday: summary.completedToday, total: summary.total }, { decide: 1, execute: 1, processing: 1, technical: 1, completed: 1, ownerRemaining: 2, completedToday: 1, total: 5 });
-  const globalSearch = filterAndPaginateReviewRows(rows, { status: "ALL", retailer: "", kind: "", group: "", confidence: "", capability: "", query: "104", scope: "DECISIONS", bucket: "ALL", display: "LIST" }, 1, 50);
+  const searchFilters = { status: "ALL", retailer: "", kind: "", group: "", confidence: "", capability: "", query: "104", scope: "DECISIONS", bucket: "ALL", display: "LIST" };
+  const globalSearch = filterAndPaginateReviewRows(rows, searchFilters, 1, 50);
   assert.equal(globalSearch.total, 1);
   assert.equal(globalSearch.rows[0].id, "5");
+  const repeatedOffer = [
+    { ...rows[3], id: "1014", offer_id: "2703", review_status: "EXPIRED", updated_at: "2026-10-05T05:15:55.000Z" },
+    { ...rows[3], id: "1159", offer_id: "2703", review_status: "EXPIRED", updated_at: "2026-10-07T11:56:22.000Z" },
+  ];
+  assert.deepEqual(currentReviewRows(repeatedOffer).map((row) => row.id), ["1159"]);
+  assert.deepEqual(currentReviewRows([{ ...repeatedOffer[1], superseded_by_review_id: "1200" }, repeatedOffer[0]]).map((row) => row.id), ["1014"]);
+  assert.equal(filterAndPaginateReviewRows(currentReviewRows(repeatedOffer), { ...searchFilters, query: "2703" }, 1, 50).total, 1);
+  assert.equal(filterAndPaginateReviewRows(repeatedOffer, { ...searchFilters, query: "2703", history: true }, 1, 50).total, 2);
 });
 
 test("Review Queue return path preserves safe filters, resets pagination and blocks external redirects", () => {
@@ -812,6 +823,7 @@ test("Review Queue return path preserves safe filters, resets pagination and blo
   assert.equal(safeAutomationReviewReturnPath("https://www.supplementscout.co.uk/admin/automation-review?q=1982", "execution", "https://www.supplementscout.co.uk"), "/admin/automation-review?q=1982&saved=execution");
   assert.equal(safeAutomationReviewReturnPath("https://example.com/admin/automation-review", "decision", "https://www.supplementscout.co.uk"), "/admin/automation-review?saved=decision");
   assert.equal(safeAutomationReviewReturnPath("?queue=EXECUTE&page=9", "execution"), "/admin/automation-review?queue=EXECUTE&saved=execution");
+  assert.equal(safeAutomationReviewReturnPath("?q=2703&history=1", "decision"), "/admin/automation-review?q=2703&history=1&saved=decision");
 });
 
 test("Queued execution leaves owner work immediately and next remaining offer opens on page one", () => {

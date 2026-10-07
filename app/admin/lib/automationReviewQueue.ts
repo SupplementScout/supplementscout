@@ -24,6 +24,7 @@ export type ReviewQueueFilters = {
   scope: ReviewQueueScope;
   bucket?: ReviewQueueWorkBucket;
   display?: ReviewQueueDisplay;
+  history?: boolean;
 };
 
 export type ReviewQueueFilterableRow = {
@@ -96,6 +97,19 @@ export function attachReviewExecutionState<T extends ReviewQueueRow>(rows: reado
     const matches = request?.review_fingerprint === row.source_row_fingerprint && request?.plan_fingerprint === row.plan_fingerprint;
     return { ...row, execution_status: request ? matches ? request.status : "EVIDENCE_CHANGED" : null, execution_requested_at: request?.requested_at || null };
   });
+}
+
+export function currentReviewRows<T extends ReviewQueueFilterableRow>(rows: readonly T[]) {
+  const current = new Map<string, T>();
+  for (const row of rows) {
+    if (row.superseded_by_review_id) continue;
+    const key = row.offer_id == null ? `review:${row.id}` : `offer:${row.retailer_id}:${row.offer_id}`;
+    const previous = current.get(key);
+    const rowUpdatedAt = Date.parse(row.updated_at || "") || 0;
+    const previousUpdatedAt = Date.parse(previous?.updated_at || "") || 0;
+    if (!previous || rowUpdatedAt > previousUpdatedAt || (rowUpdatedAt === previousUpdatedAt && Number(row.id || 0) > Number(previous.id || 0))) current.set(key, row);
+  }
+  return [...current.values()];
 }
 
 export function normalizeReviewQueueScope(input: string): ReviewQueueScope {
@@ -224,6 +238,7 @@ export function reviewQueuePageHref(filters: ReviewQueueFilters, page: number) {
   if (filters.scope === "ALL") params.set("scope", "ALL");
   if (filters.bucket && filters.bucket !== "DECIDE") params.set("queue", filters.bucket);
   if (filters.display === "LIST") params.set("display", "LIST");
+  if (filters.history) params.set("history", "1");
   if (page > 1) params.set("page", String(page));
   const query = params.toString();
   return query ? `?${query}` : "?";

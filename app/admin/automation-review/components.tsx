@@ -47,9 +47,10 @@ export function ReviewQueueDashboard({ summary, filters, activeBucket }: { summa
 export function ReviewQueueSearch({ filters, retailers }: { filters: ReviewQueueFilters; retailers: string[] }) {
   return <form className="mt-4 grid gap-3 rounded-xl border bg-white p-4 md:grid-cols-[minmax(0,1fr)_minmax(14rem,0.45fr)_auto]">
     <input type="hidden" name="queue" value="ALL" /><input type="hidden" name="display" value="LIST" /><input type="hidden" name="status" value="ALL" /><input type="hidden" name="scope" value="ALL" />
-    <label className="text-sm font-semibold">Szukaj we wszystkich statusach<input name="q" defaultValue={filters.query} placeholder="Produkt, sprzedawca, numer oferty lub kolejki" className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" /></label>
+    <label className="text-sm font-semibold">Szukaj w bieżącej kolejce<input name="q" defaultValue={filters.query} placeholder="Produkt, sprzedawca, numer oferty lub kolejki" className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" /></label>
     <label className="text-sm font-semibold">Sprzedawca<select name="retailer" defaultValue={filters.retailer} className="mt-1 w-full rounded-lg border px-3 py-2 font-normal"><option value="">Wszyscy sprzedawcy</option>{retailers.map((item) => <option key={item}>{item}</option>)}</select></label>
     <button className="self-end rounded-lg bg-zinc-950 px-5 py-2 font-semibold text-white">Szukaj</button>
+    <label className="flex items-center gap-2 text-sm text-zinc-700 md:col-span-3"><input type="checkbox" name="history" value="1" defaultChecked={filters.history} />Pokaż również starsze, zastąpione wersje z historii</label>
   </form>;
 }
 

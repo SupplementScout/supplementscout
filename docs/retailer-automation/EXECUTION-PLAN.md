@@ -1954,6 +1954,16 @@ close their execution or the RA-STAB-01 natural intervals.
 No queue/executor/RPC, production submission or guard change is added.
 Evidence: [remaining-work navigation](evidence/RA-STAB-01-REVIEW-QUEUE-PENDING-NAVIGATION-2026-10-07.json).
 
+**7 October Review Queue current-versus-history search correction:** searching
+eBay offer `2703` displayed two visually identical expired cards. Read-only
+owner evidence identifies review `1014` from 5 October and its newer generation
+`1159` from 7 October. The shared UI now uses one newest, non-superseded review
+per retailer offer for ordinary work and search. A clearly labelled checkbox
+can include older review generations when history is intentionally needed.
+This adds no database query, write path, retailer condition or approval change.
+Focused `59/59`, TypeScript, changed-file ESLint and quick/full quality gates
+pass; CI and production readback remain. Evidence: [current search](evidence/RA-STAB-01-REVIEW-QUEUE-CURRENT-SEARCH-2026-10-07.json).
+
 Docker run `37421724769` now proves the existing expired-close regression and
 the new exact `12 + 1 + 6` fixture pass against disposable PostgreSQL. The
 monolithic integration job remains red only for the same two unrelated
