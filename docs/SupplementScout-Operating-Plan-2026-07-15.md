@@ -1133,6 +1133,15 @@ Vercel production deployment and authenticated read-only production readback
 all pass. See the
 [Review Queue dashboard preparation](retailer-automation/evidence/RA-STAB-01-REVIEW-QUEUE-WORK-DASHBOARD-PREPARATION-2026-10-07.json).
 
+The 7 October remaining-work navigation correction is prepared after the
+owner reported repeated page navigation. Six of the latest nine approvals
+already have queued execution requests; three have approval only. The shared
+dashboard now uses execution state before pagination, returns to the working
+card and keeps daily submitted/completed/remaining counts visible while
+scrolling. Incomplete reads disable actions; no new writer or production
+submission is introduced. Focused, quick and full checks pass; CI and live
+verification remain. See [navigation evidence](retailer-automation/evidence/RA-STAB-01-REVIEW-QUEUE-PENDING-NAVIGATION-2026-10-07.json).
+
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256
 `59c6d03a2bbcff0b384b86065f76e6f456e3538ca538613cf83e5e017ec11a9d`,

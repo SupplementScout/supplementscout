@@ -703,7 +703,7 @@ test("automation review queue is admin-only, paginated and exposes bounded evide
   assert.match(page, /confirmExecution/);
   assert.match(page, /disabled=\{!adapterReady\}/);
   assert.match(page, /Historia wykonania/);
-  assert.match(page, /idempotency_result/);
+  assert.match(data, /idempotency_result/);
   assert.match(page, /Oferty wymagające decyzji/);
   assert.match(page, /Jak z tego korzystać\?/);
   assert.match(page, /Co wykryto\?/);
@@ -811,6 +811,54 @@ test("Review Queue return path preserves safe filters, resets pagination and blo
   assert.equal(safeAutomationReviewReturnPath("/admin/automation-review?retailer=Fit+House&queue=DECIDE&page=4&saved=old", "decision"), "/admin/automation-review?retailer=Fit+House&queue=DECIDE&saved=decision");
   assert.equal(safeAutomationReviewReturnPath("https://www.supplementscout.co.uk/admin/automation-review?q=1982", "execution", "https://www.supplementscout.co.uk"), "/admin/automation-review?q=1982&saved=execution");
   assert.equal(safeAutomationReviewReturnPath("https://example.com/admin/automation-review", "decision", "https://www.supplementscout.co.uk"), "/admin/automation-review?saved=decision");
+  assert.equal(safeAutomationReviewReturnPath("?queue=EXECUTE&page=9", "execution"), "/admin/automation-review?queue=EXECUTE&saved=execution");
+});
+
+test("Queued execution leaves owner work immediately and next remaining offer opens on page one", () => {
+  const { attachReviewExecutionState, filterAndPaginateReviewRows, summarizeReviewQueue, reviewQueueWorkBucket } = loadTsModule("app/admin/lib/automationReviewQueue.ts");
+  const now = Date.parse("2026-10-07T12:00:00Z");
+  const rows = Array.from({ length: 9 }, (_, index) => ({ id: String(index + 1), retailer: "eBay UK", retailer_id: "12", offer_id: String(100 + index), product_title: "Product", variant_title: "Vanilla", review_kind: "COMMERCIAL_CHANGE", operation_type: "UPDATE_STOCK", reason_codes: "STOCK_CHANGE", source_evidence: {}, impact_summary: {}, review_status: "APPROVED", source_row_fingerprint: "a".repeat(64), plan_fingerprint: "b".repeat(64), updated_at: "2026-10-07T08:00:00Z" }));
+  const requests = rows.slice(0, 6).map((row, index) => ({ review_id: row.id, review_fingerprint: row.source_row_fingerprint, plan_fingerprint: row.plan_fingerprint, status: ["QUEUED", "DISPATCHED", "EXECUTING"][index % 3], requested_at: "2026-10-07T11:00:00Z" }));
+  const enriched = attachReviewExecutionState(rows, requests);
+  const filters = { status: "ALL", retailer: "", kind: "", group: "", confidence: "", capability: "", query: "", scope: "DECISIONS", bucket: "EXECUTE", display: "WORK" };
+  const remaining = filterAndPaginateReviewRows(enriched, filters, 1, 1);
+  assert.equal(remaining.total, 3);
+  assert.equal(remaining.rows[0].id, "7");
+  const summary = summarizeReviewQueue(enriched, now);
+  assert.equal(summary.processing, 6);
+  assert.equal(summary.execute, 3);
+  assert.equal(summary.submittedToday, 6);
+  assert.equal(summary.completedToday, 0);
+  const mismatch = attachReviewExecutionState(rows, [{ ...requests[0], review_fingerprint: "c".repeat(64) }]);
+  assert.equal(reviewQueueWorkBucket(mismatch[0], now), "TECHNICAL");
+  assert.equal(summarizeReviewQueue([{ ...rows[0], review_status: "EXPIRED" }], now).completedToday, 0);
+  const latestFailed = attachReviewExecutionState(rows, [{ ...requests[0], status: "FAILED", requested_at: "2026-10-07T11:30:00Z" }, requests[0]]);
+  assert.equal(reviewQueueWorkBucket(latestFailed[0], now), "TECHNICAL");
+});
+
+test("Execution read refuses truncation, count drift and duplicates instead of showing false remaining work", async () => {
+  const fakeFile = require.resolve("../app/lib/supabaseAdmin.ts");
+  const previous = require.cache[fakeFile];
+  let results;
+  const query = { select() { return this; }, order() { return this; }, range() { return Promise.resolve(results.shift()); } };
+  require.cache[fakeFile] = { id: fakeFile, filename: fakeFile, loaded: true, exports: { supabaseAdmin: { from() { return query; } } } };
+  try {
+    const { loadCompleteReviewExecutions } = loadTsModule("app/admin/lib/automationReviewQueueData.ts");
+    results = [{ data: [{ id: "one" }], count: 2, error: null }];
+    assert.ok((await loadCompleteReviewExecutions()).error);
+    const batch = Array.from({ length: 1000 }, (_, index) => ({ id: String(index) }));
+    results = [{ data: batch, count: 1001, error: null }, { data: [{ id: "new" }], count: 1002, error: null }];
+    assert.ok((await loadCompleteReviewExecutions()).error);
+    results = [{ data: batch, count: 1001, error: null }, { data: [{ id: "0" }], count: 1001, error: null }];
+    assert.ok((await loadCompleteReviewExecutions()).error);
+    results = [{ data: batch, count: 1001, error: null }, { data: [{ id: "1000" }], count: 1001, error: null }];
+    const complete = await loadCompleteReviewExecutions();
+    assert.equal(complete.error, null);
+    assert.equal(complete.rows.length, 1001);
+  } finally {
+    if (previous) require.cache[fakeFile] = previous;
+    else delete require.cache[fakeFile];
+  }
 });
 
 test("automation review capability matrix exposes only registered execution paths", () => {

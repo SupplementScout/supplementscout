@@ -5,6 +5,7 @@ import { resolveReviewAdapter, reviewQueueConfigured } from "../../lib/automatio
 import { capabilityForReview, confidenceForReview, decisionGroupForReview } from "../../lib/automationReviewCapabilityMatrix";
 import { supabaseAdmin } from "../../lib/supabaseAdmin";
 import {
+  attachReviewExecutionState,
   filterAndPaginateReviewRows,
   normalizeReviewQueueDisplay,
   normalizeReviewQueueScope,
@@ -18,17 +19,17 @@ import {
   type ReviewQueueFilters,
   type ReviewQueueRow,
 } from "../lib/automationReviewQueue";
-import { loadCompleteReviewQueue } from "../lib/automationReviewQueueData";
+import { loadCompleteReviewQueue, loadCompleteReviewExecutions, type ReviewExecutionRow } from "../lib/automationReviewQueueData";
 import { ReviewQueueDashboard, ReviewQueueSearch, ReviewQueueViewSwitch } from "./components";
 
 export const dynamic = "force-dynamic";
 
 type QueueRow = ReviewQueueRow;
-type ExecutionRow = { id: string; review_id: string | number; status: string; requested_at: string; run_url: string | null; last_checkpoint: string | null; error_code: string | null; error_message: string | null; postflight_hash: string | null; idempotency_result: string | null; database_writes: number | null };
+type ExecutionRow = ReviewExecutionRow;
 type ProductRow = { id: string | number; name: string; slug: string | null };
 type VariantRow = { id: string | number; display_name: string | null };
 
-const STATUS_LABELS: Record<string, string> = { PENDING: "Czeka na decyzję", APPROVED: "Zatwierdzone — jeszcze niewykonane", REJECTED: "Odrzucone", IGNORED: "Pominięte", EXPIRED: "Nieaktualne", EXECUTING: "W trakcie", EXECUTED: "Wykonane", FAILED: "Nie udało się" };
+const STATUS_LABELS: Record<string, string> = { PENDING: "Czeka na decyzję", APPROVED: "Zatwierdzone — jeszcze niewykonane", QUEUED: "Przekazane do wykonania", DISPATCHED: "Uruchamianie wykonania", EVIDENCE_CHANGED: "Zmieniły się dane — wymaga sprawdzenia", REJECTED: "Odrzucone", IGNORED: "Pominięte", EXPIRED: "Nieaktualne", EXECUTING: "W trakcie", EXECUTED: "Wykonane", FAILED: "Nie udało się" };
 const KIND_LABELS: Record<string, string> = { IDENTITY_CONFLICT: "Niepewne dopasowanie produktu", COMMERCIAL_CHANGE: "Zmiana ceny lub dostępności", SOURCE_FAILURE: "Problem ze źródłem", MAPPING_DRIFT: "Produkt wymaga przepięcia", POLICY_REVIEW: "Wymaga decyzji właściciela" };
 const GROUP_LABELS: Record<string, string> = { "Freshness-only": "Potwierdzenie aktualności", "Stock and price": "Cena lub dostępność", Identity: "Dopasowanie produktu", "Source problems": "Problem ze źródłem" };
 
@@ -90,22 +91,22 @@ export default async function AutomationReviewPage({ searchParams }: { searchPar
   const retailer = value(params.retailer), kind = value(params.kind), group = value(params.group), confidence = value(params.confidence), capability = value(params.capability);
   const filters: ReviewQueueFilters = { status, retailer, kind, group, confidence, capability, query, scope: normalizeReviewQueueScope(value(params.scope)), bucket, display };
   const requestedPage = Math.max(1, Number.parseInt(value(params.page) || "1", 10) || 1);
-  const loadedResult = await loadCompleteReviewQueue("ALL");
-  const summary = summarizeReviewQueue(loadedResult.rows);
-  const visibleSourceRows = query ? loadedResult.rows : loadedResult.rows.filter((row) => !row.superseded_by_review_id);
+  const [loadedResult, executionResult] = await Promise.all([loadCompleteReviewQueue("ALL"), loadCompleteReviewExecutions()]);
+  const error = loadedResult.error || executionResult.error;
+  const queueRows = error ? [] : attachReviewExecutionState(loadedResult.rows, executionResult.rows);
+  const summary = summarizeReviewQueue(queueRows);
+  const visibleSourceRows = query ? queueRows : queueRows.filter((row) => !row.superseded_by_review_id);
   const filtered = filterAndPaginateReviewRows(visibleSourceRows, filters, requestedPage, display === "WORK" ? REVIEW_QUEUE_WORK_PAGE_SIZE : REVIEW_QUEUE_PAGE_SIZE);
   const { rows, total, page, totalPages } = filtered;
   const allRetailers = Array.from(new Set(loadedResult.rows.map((row) => row.retailer))).sort((left, right) => left.localeCompare(right, "pl"));
-  const error = loadedResult.error;
   const productIds = Array.from(new Set(rows.map((row) => row.current_product_id).filter((id): id is string | number => id !== null)));
   const variantIds = Array.from(new Set(rows.map((row) => row.current_variant_id).filter((id): id is string | number => id !== null)));
-  const [{ data: executionData }, { data: productData }, { data: variantData }] = await Promise.all([
-    rows.length ? supabaseAdmin.from("automation_review_execution_requests").select("id,review_id,status,requested_at,run_url,last_checkpoint,error_code,error_message,postflight_hash,idempotency_result,database_writes").in("review_id", rows.map((row) => row.id)).order("requested_at", { ascending: false }) : Promise.resolve({ data: [] }),
+  const [{ data: productData }, { data: variantData }] = await Promise.all([
     productIds.length ? supabaseAdmin.from("products").select("id,name,slug").in("id", productIds) : Promise.resolve({ data: [] }),
     variantIds.length ? supabaseAdmin.from("product_variants").select("id,display_name").in("id", variantIds) : Promise.resolve({ data: [] }),
   ]);
   const executionByReview = new Map<string, ExecutionRow>();
-  for (const execution of (executionData || []) as ExecutionRow[]) if (!executionByReview.has(String(execution.review_id))) executionByReview.set(String(execution.review_id), execution);
+  for (const execution of executionResult.rows) if (!executionByReview.has(String(execution.review_id))) executionByReview.set(String(execution.review_id), execution);
   const productById = new Map((productData || []).map((product) => [String(product.id), product as ProductRow]));
   const variantById = new Map((variantData || []).map((variant) => [String(variant.id), variant as VariantRow]));
   const queueConfigured = reviewQueueConfigured();
@@ -121,7 +122,7 @@ export default async function AutomationReviewPage({ searchParams }: { searchPar
       </div>
     </header>
 
-    <ReviewQueueDashboard summary={summary} filters={filters} activeBucket={bucket} />
+    {!error && <ReviewQueueDashboard summary={summary} filters={filters} activeBucket={bucket} />}
     <ReviewQueueSearch filters={filters} retailers={allRetailers} />
 
     <details className="mt-3 rounded-xl border bg-white p-4"><summary className="cursor-pointer text-sm font-semibold text-zinc-600">Instrukcja i rzadziej używane filtry</summary>
@@ -132,8 +133,9 @@ export default async function AutomationReviewPage({ searchParams }: { searchPar
     <details className="mt-4 rounded-xl border bg-white p-4"><summary className="cursor-pointer font-semibold">Zaawansowane działania grupowe</summary><form id="bulk-review" action="/admin/automation-review/decision" method="post" className="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4"><input type="hidden" name="returnTo" value={currentHref} /><span className="font-semibold">Zaznaczone oferty:</span><label className="flex items-center gap-2 text-sm"><input type="checkbox" name="confirmImpact" value="yes" />Sprawdziłem zakres i zatwierdzam dokładnie zaznaczone decyzje</label><button name="action" value="approve" className="rounded-lg bg-emerald-700 px-4 py-2 font-semibold text-white">Zapisz zatwierdzenie</button><button name="action" value="reject" className="rounded-lg bg-red-700 px-4 py-2 font-semibold text-white">Odrzuć zaznaczone</button><button name="action" value="ignore" className="rounded-lg border bg-white px-4 py-2 font-semibold">Pomiń zaznaczone</button><p className="basis-full text-sm text-amber-900">To zapisuje decyzje. Nie uruchamia wykonania zmian w katalogu.</p></form></details>
 
     {error && <p className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">Nie udało się odczytać kolejki. Żadne działanie nie jest dostępne.</p>}
-    {saved && <p role="status" className="mt-6 rounded-lg border border-emerald-300 bg-emerald-50 p-4 font-semibold text-emerald-950">{saved === "execution" ? "Wykonanie zostało bezpiecznie przekazane do kolejki." : "Decyzja została zapisana."} Pozostało Ci {summary.ownerRemaining} {summary.ownerRemaining === 1 ? "krok" : "kroków"}.</p>}
-    <div className="mt-6 flex flex-wrap items-center justify-between gap-3"><p className="text-sm text-zinc-600">Znaleziono {total} pasujących pozycji · strona {page} z {totalPages}</p><ReviewQueueViewSwitch filters={filters} display={display} /></div>
+    <div id="review-work" className="scroll-mt-20" />
+    {!error && saved && <p role="status" className="mt-6 rounded-lg border border-emerald-300 bg-emerald-50 p-4 font-semibold text-emerald-950">{saved === "execution" ? "Zlecenie wykonania zapisane. Poniżej następna pozostała pozycja." : "Decyzja została zapisana. Poniżej następna pozostała pozycja."}</p>}
+    <div className="sticky top-0 z-10 mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-white p-3 shadow-sm"><div><p className="font-semibold">{display === "WORK" ? `Pozycja ${total ? page : 0} z ${total} pozostałych w tym widoku` : `Znaleziono ${total} pozycji · strona ${page} z ${totalPages}`}</p>{!error && <p className="text-sm text-zinc-600">Dzisiaj przekazane: {summary.submittedToday} · Zakończone decyzje: {summary.completedToday} · Pozostałe kroki: {summary.ownerRemaining}</p>}</div><ReviewQueueViewSwitch filters={filters} display={display} /></div>
     {!error && total === 0 && <section className="mt-4 rounded-xl border border-dashed bg-white p-8 text-center"><h2 className="text-xl font-bold">W tej grupie nic nie zostało</h2><p className="mt-2 text-sm text-zinc-600">Wybierz inny licznik powyżej albo wyszukaj ofertę we wszystkich statusach.</p><Link href="/admin/automation-review" className="mt-4 inline-flex rounded-lg bg-zinc-950 px-4 py-2 font-semibold text-white">Wróć do pracy dla mnie</Link></section>}
 
     <section className="mt-4 space-y-5">{rows.map((row) => {
@@ -169,6 +171,6 @@ export default async function AutomationReviewPage({ searchParams }: { searchPar
         </details>
       </article>;
     })}</section>
-    <nav className="mt-6 flex justify-between">{page > 1 ? <Link href={reviewQueuePageHref(filters, page - 1)} className="rounded border bg-white px-4 py-2">{display === "WORK" ? "Poprzednia pozycja" : "Poprzednia strona"}</Link> : <span />}{page < totalPages ? <Link href={reviewQueuePageHref(filters, page + 1)} className="rounded border bg-white px-4 py-2">{display === "WORK" ? "Następna pozycja" : "Następna strona"}</Link> : <span />}</nav>
+    <nav className="mt-6 flex justify-between">{page > 1 ? <Link href={`${reviewQueuePageHref(filters, page - 1)}#review-work`} className="rounded border bg-white px-4 py-2">{display === "WORK" ? "Poprzednia pozycja" : "Poprzednia strona"}</Link> : <span />}{page < totalPages ? <Link href={`${reviewQueuePageHref(filters, page + 1)}#review-work`} className="rounded border bg-white px-4 py-2">{display === "WORK" ? "Następna pozycja" : "Następna strona"}</Link> : <span />}</nav>
   </div></main>;
 }

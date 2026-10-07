@@ -1,0 +1,36 @@
+{
+  "task": "RA-STAB-01",
+  "status": "LOCAL_VERIFIED_CI_PENDING",
+  "scope": "Shared Review Queue navigation and execution-aware owner counters",
+  "incident": "QUEUED requests retained APPROVED review status until the worker claimed them, so returning to page one repeatedly showed already-submitted cards.",
+  "owner_readback": {
+    "audit_result": "PASS_WITH_REVIEW",
+    "system_failures": 0,
+    "recent_nine_decisions_recorded": true,
+    "queued_execution_count": 6,
+    "approval_without_execution_count": 3,
+    "approval_without_execution_offer_ids": [2689, 2703, 2704],
+    "catalogue_writes": 0,
+    "execution_calls": 0,
+    "private_artifact": "tmp/review-queue-nine-owner-audit.json"
+  },
+  "change": {
+    "execution_state_read_before_filtering_and_pagination": true,
+    "queued_dispatched_executing_removed_from_owner_work": true,
+    "execution_evidence_mismatch_requires_technical_attention": true,
+    "bounded_complete_execution_read": 5000,
+    "incomplete_reads_disable_actions": true,
+    "return_to_next_remaining_card_anchor": "review-work",
+    "sticky_daily_submitted_completed_remaining_counters": true,
+    "expired_evidence_excluded_from_work_completed_today": true,
+    "new_writer_or_queue_or_rpc": false,
+    "approval_execution_guards_changed": false
+  },
+  "verification": {
+    "focused_admin_tests": "PASS_59",
+    "quick": "PASS",
+    "full": "PASS",
+    "ci": "PENDING",
+    "production_readback": "PENDING"
+  }
+}
