@@ -1961,8 +1961,10 @@ owner evidence identifies review `1014` from 5 October and its newer generation
 per retailer offer for ordinary work and search. A clearly labelled checkbox
 can include older review generations when history is intentionally needed.
 This adds no database query, write path, retailer condition or approval change.
-Focused `59/59`, TypeScript, changed-file ESLint and quick/full quality gates
-pass; CI and production readback remain. Evidence: [current search](evidence/RA-STAB-01-REVIEW-QUEUE-CURRENT-SEARCH-2026-10-07.json).
+Focused `59/59`, TypeScript, changed-file ESLint, quick/full quality gates and
+merged-main CI pass. Authenticated production GET readback on merge `d6ab38c`
+returns one result by default and two only with `history=1`; it submitted no
+decision or execution. Evidence: [current search](evidence/RA-STAB-01-REVIEW-QUEUE-CURRENT-SEARCH-2026-10-07.json).
 
 Docker run `37421724769` now proves the existing expired-close regression and
 the new exact `12 + 1 + 6` fixture pass against disposable PostgreSQL. The

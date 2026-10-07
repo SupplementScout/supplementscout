@@ -1152,7 +1152,9 @@ history. Offer `2703` appeared twice because search included review generations
 `1014` and `1159`. Ordinary search now shows only the newest non-superseded
 generation per retailer offer; older generations require the explicit history
 checkbox. No data or automation authority changes. Focused, TypeScript and
-ESLint checks and quick/full quality gates pass; CI and production readback remain. See the
+ESLint checks, quick/full quality gates and merged-main CI pass. Production
+readback on merge `d6ab38c` returns one result by default and two only with
+`history=1`; it submitted no decision or execution. See the
 [current-search evidence](retailer-automation/evidence/RA-STAB-01-REVIEW-QUEUE-CURRENT-SEARCH-2026-10-07.json).
 
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
