@@ -1,6 +1,6 @@
 {
   "task": "RA-STAB-01",
-  "status": "LOCAL_VERIFIED_CI_PENDING",
+  "status": "PRODUCTION_VERIFIED",
   "scope": "Shared Review Queue navigation and execution-aware owner counters",
   "incident": "QUEUED requests retained APPROVED review status until the worker claimed them, so returning to page one repeatedly showed already-submitted cards.",
   "owner_readback": {
@@ -30,7 +30,20 @@
     "focused_admin_tests": "PASS_59",
     "quick": "PASS",
     "full": "PASS",
-    "ci": "PENDING",
-    "production_readback": "PENDING"
+    "ci": "PASS_PR_259",
+    "merge_commit": "73616f76f0f3a904a66af825784deb7d59945795",
+    "vercel_deployment": "PASS",
+    "production_readback": {
+      "at": "2026-10-07T12:22:51.729Z",
+      "mode": "AUTHENTICATED_READ_ONLY",
+      "http_status": 200,
+      "execute_offer_ids": [2703, 2704],
+      "processing_offer_ids": [2685, 2543, 2601, 2603, 2673, 2690],
+      "offer_2689_previous_review_status": "EXPIRED",
+      "sticky_progress_and_work_anchor": "PRESENT",
+      "submitted_and_completed_counters": "PRESENT",
+      "decisions_submitted": 0,
+      "executions_submitted": 0
+    }
   }
 }

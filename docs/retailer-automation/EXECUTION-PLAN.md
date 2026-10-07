@@ -1944,8 +1944,14 @@ request fingerprints are technical attention, and an incomplete read disables
 actions. Return redirects and next/previous navigation target the working-card
 anchor; sticky counters show today's submissions, completed decisions and
 remaining steps. Expired evidence no longer counts as completed owner work.
-Focused `59/59`, quick and full verification pass; CI and production readback
-remain. No queue/executor/RPC, production submission or guard change is added.
+Focused `59/59`, quick and full verification pass. PR `#259` merged as
+`73616f7` after green CI and Vercel production deployment. Authenticated
+read-only production check at `12:22:51 UTC` confirms only offers `2703` and
+`2704` remain in EXECUTE, while all six queued requests appear in PROCESSING.
+Offer `2689`'s previous review expired. Sticky counters and the card anchor are
+present. The six requests remain queued, not completed; this UI proof does not
+close their execution or the RA-STAB-01 natural intervals.
+No queue/executor/RPC, production submission or guard change is added.
 Evidence: [remaining-work navigation](evidence/RA-STAB-01-REVIEW-QUEUE-PENDING-NAVIGATION-2026-10-07.json).
 
 Docker run `37421724769` now proves the existing expired-close regression and
