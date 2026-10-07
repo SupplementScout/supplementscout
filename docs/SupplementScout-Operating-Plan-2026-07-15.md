@@ -1139,8 +1139,12 @@ already have queued execution requests; three have approval only. The shared
 dashboard now uses execution state before pagination, returns to the working
 card and keeps daily submitted/completed/remaining counts visible while
 scrolling. Incomplete reads disable actions; no new writer or production
-submission is introduced. Focused, quick and full checks pass; CI and live
-verification remain. See [navigation evidence](retailer-automation/evidence/RA-STAB-01-REVIEW-QUEUE-PENDING-NAVIGATION-2026-10-07.json).
+submission is introduced. Focused, quick and full checks pass; PR `#259` merged
+as `73616f7` after green CI and production deployment. Live authenticated
+readback confirms EXECUTE has only `2703` and `2704`, all six queued requests
+are in PROCESSING, and the previous review for `2689` expired. Sticky counters
+and the card anchor are present. Queued requests still require system execution;
+this UI proof does not advance the natural-run counter. See [navigation evidence](retailer-automation/evidence/RA-STAB-01-REVIEW-QUEUE-PENDING-NAVIGATION-2026-10-07.json).
 
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256
