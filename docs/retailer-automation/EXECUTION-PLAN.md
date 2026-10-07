@@ -1987,8 +1987,10 @@ connector use `6-pack-supplements`. The profile now keeps its internal key and
 postflight profile unchanged while binding publication to the real retailer
 slug. The exact incident regression and the combined focused suite pass
 `73/73`; quick verification passes `547` tests and the full quality gate passes.
-No failed artifact was replayed, no queue row was published and no retailer
-workflow was manually dispatched. Merge/CI and natural schedule readbacks remain gates; the
+PR `#263` passed CI and merged as `fb4d211f`; post-merge Quality Gate
+`37634547821`, Project Guardian `37634547774` and production deployment
+`6912251322` passed. No failed artifact was replayed, no queue row was published
+and no retailer workflow was manually dispatched. Natural schedule readbacks remain gates; the
 ordinary counter stays `0/3`. Evidence:
 [`evidence/RA-STAB-01-FIT-HOUSE-DURABLE-REVIEW-SIX-PACK-BINDING-PREPARATION-2026-10-07.json`](evidence/RA-STAB-01-FIT-HOUSE-DURABLE-REVIEW-SIX-PACK-BINDING-PREPARATION-2026-10-07.json).
 

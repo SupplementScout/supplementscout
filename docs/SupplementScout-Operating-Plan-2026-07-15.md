@@ -1167,8 +1167,10 @@ review rows with zero writes. Separately, 6 Pack Review Queue publication was
 blocked by an internal-profile-key/production-slug mismatch. Its publication
 profile now binds retailer `11` to the existing production slug
 `6-pack-supplements` while retaining the internal profile key and shared
-publisher. Focused `73/73`, quick `547` and full quality-gate checks pass.
-Merge/CI and natural schedules remain required; no failed artifact replay, manual retailer
+publisher. Focused `73/73`, quick `547` and full quality-gate checks pass. PR
+`#263` passed CI and merged as `fb4d211f`; post-merge Quality Gate
+`37634547821`, Project Guardian `37634547774` and production deployment
+`6912251322` passed. Natural schedules remain required; no failed artifact replay, manual retailer
 dispatch, queue publication or catalogue write occurred. See the
 [Fit House and 6 Pack preparation](retailer-automation/evidence/RA-STAB-01-FIT-HOUSE-DURABLE-REVIEW-SIX-PACK-BINDING-PREPARATION-2026-10-07.json).
 
