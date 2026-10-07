@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "task": "RA-STAB-01",
-  "status": "LOCAL_VERIFIED",
+  "status": "MERGED_DEPLOYED_VERIFIED",
   "recorded_at": "2026-10-07",
   "incident": {
     "surface": "Automation Review Queue capability description",
@@ -37,11 +37,29 @@
     "project_guardian": "PASS",
     "quick_quality_gate": "PASS_547_TESTS_544_PASS_3_SKIP",
     "full_quality_gate": "PASS",
-    "pull_request": null,
-    "merge_commit": null,
-    "production_deployment": "PENDING",
-    "authenticated_live_readback": "PENDING"
+    "pull_request": 269,
+    "implementation_commit": "29cd7c3",
+    "merge_commit": "7c736f9b74b71922d84a9ceb89c9960ebd1271bb",
+    "pull_request_quality_gate_run": 37653352797,
+    "post_merge_quality_gate_run": 37653807405,
+    "post_merge_project_guardian_run": 37653807369,
+    "production_deployment": {
+      "status": "SUCCESS",
+      "provider": "Vercel",
+      "deployment_id": "3UGL5DhYurvp898GTmCAAwz9WGbx",
+      "completed_at": "2026-10-07T16:40:33Z"
+    },
+    "authenticated_live_readback": {
+      "checked_at": "2026-10-07T16:41:38.250Z",
+      "http_status": 200,
+      "matching_whey_freshness_rows": 0,
+      "obsolete_claim_absent": true,
+      "durable_copy_rendered": false,
+      "result": "NOT_RENDERABLE_WITHOUT_A_MATCHING_REVIEW_ROW",
+      "decisions_submitted": 0,
+      "executions_submitted": 0
+    }
   },
   "ordinary_interval_credit": false,
-  "next_gate": "Pass the full quality gate, merge and verify the durable capability copy on production. Natural RA-STAB-01 observation remains separate."
+  "next_gate": "Observe the next qualifying natural retailer interval. The copy-only correction earns no ordinary interval credit."
 }
