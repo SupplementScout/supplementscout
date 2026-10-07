@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "task": "RA-STAB-01",
-  "status": "PREPARED_LOCAL_NATURAL_VERIFICATION_PENDING",
+  "status": "MERGED_NATURAL_VERIFICATION_PENDING",
   "recorded_at": "2026-10-07",
   "incident": {
     "watchdog_run": "37581684482",
@@ -51,8 +51,12 @@
     "quick": "PASS_547_TESTS_544_PASS_3_SKIP",
     "eslint_changed_files": "PASS",
     "full": "PASS",
-    "pull_request_ci": "PENDING",
+    "pull_request_ci": "PASS",
+    "pull_request": 255,
+    "merge_commit": "64c29f6bee71b5c4c877a8e073cd3f93a362320c",
+    "quality_gate_run": "37587513945",
+    "project_guardian_run": "37587514008",
     "natural_live_readback": "PENDING"
   },
-  "next_gate": "Pass full verification and CI, merge, then wait for the next natural Jon's and 6 Pack schedules. Do not manually dispatch retailer workflows. Verify exact Review Queue publication and zero catalogue authority for all 19 cards."
+  "next_gate": "Wait for the next natural Jon's and 6 Pack schedules. Do not manually dispatch retailer workflows. Verify exact Review Queue publication and zero catalogue authority for all 19 cards."
 }
