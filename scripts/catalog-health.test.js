@@ -610,6 +610,7 @@ test("automation watchdog covers all retailers on a read-only six-hour schedule"
   assert.match(workflow, /cron: "11 \*\/6 \* \* \*"/);
   assert.match(workflow, /actions: read/);
   assert.match(workflow, /JONS_SYNC_VALIDATOR_DATABASE_URL/);
+  assert.match(workflow, /Monitor status: \$\{r\.monitor_status\}/);
   assert.doesNotMatch(
     workflow,
     /APPROVER_DATABASE_URL|EXECUTOR_DATABASE_URL|SUPABASE_SERVICE_ROLE_KEY/
@@ -905,9 +906,9 @@ test("automation watchdog returns exit 0 only for review or unchanged monitored 
   const monitored = applyMonitoredBacklog(historical, baseline);
   assert.equal(monitored.result, "PASS_WITH_MONITORED_BACKLOG");
   assert.deepEqual(monitored.warnings, ["DATABASE_OFFERS_OLDER_THAN_48H"]);
-  assert.equal(watchdogExitCode(monitored.result), 0);
-  assert.equal(watchdogExitCode("PASS_WITH_REVIEW"), 0);
-  assert.equal(watchdogExitCode("FAIL"), 1);
+  assert.equal(watchdogExitCode("SUCCESS"), 0);
+  assert.equal(watchdogExitCode("WAITING_FOR_DECISION"), 0);
+  assert.equal(watchdogExitCode("FAILED_SYSTEM"), 1);
   assert.deepEqual(historical.failures, ["DATABASE_OFFERS_OLDER_THAN_48H"]);
 });
 
@@ -961,17 +962,84 @@ test("automation watchdog reports review growth as review while real growth and 
     applyMonitoredBacklog({ ...exactReview, contract: { review_row_count: 1, review_offer_ids: null } }, exactReviewBaseline).monitored_backlog.growth,
     ["REVIEW_SCOPE_EVIDENCE_MISSING"]
   );
+
+  const reviewBackedGrowth = applyMonitoredBacklog({
+    ...base,
+    database: { offers_older_than_48h: 2, older_offer_ids: ["10", "11"] },
+    contract: { review_row_count: 3, review_offer_ids: ["10", "11", "12"] },
+    stages: { latest_ordinary_attempt: { review_publication: { conclusion: "success" } } },
+  }, {
+    ...baseline,
+    maximum_offers_older_than_48h: 1,
+    allowed_stale_offer_ids: ["10"],
+    allowed_review_offer_ids: ["10"],
+  });
+  assert.equal(reviewBackedGrowth.result, "PASS_WITH_REVIEW");
+  assert.deepEqual(reviewBackedGrowth.failures, []);
+  assert(reviewBackedGrowth.warnings.includes("REVIEW_BACKED_BACKLOG_OUTSIDE_BASELINE"));
+  assert.equal(reviewBackedGrowth.monitored_backlog.review_backed_stale_offer_count, 2);
+
+  const uncoveredStaleGrowth = applyMonitoredBacklog({
+    ...base,
+    database: { offers_older_than_48h: 2, older_offer_ids: ["10", "13"] },
+    contract: { review_row_count: 2, review_offer_ids: ["10", "11"] },
+  }, {
+    ...baseline,
+    maximum_offers_older_than_48h: 1,
+    allowed_stale_offer_ids: ["10"],
+    allowed_review_offer_ids: ["10"],
+  });
+  assert.equal(uncoveredStaleGrowth.result, "FAIL");
+  assert(uncoveredStaleGrowth.failures.includes("MONITORED_BACKLOG_GROWTH"));
 });
 
 test("watchdog summary gives owner review precedence over unchanged monitored debt", () => {
-  assert.equal(summarizeWatchdogResult([
+  assert.deepEqual(summarizeWatchdogResult([
     { result: "PASS_WITH_MONITORED_BACKLOG" },
     { result: "PASS_WITH_REVIEW" },
-  ]).result, "PASS_WITH_REVIEW");
-  assert.equal(summarizeWatchdogResult([
+  ]), { result: "PASS_WITH_REVIEW", monitorStatus: "WAITING_FOR_DECISION", globalFailures: [] });
+  assert.deepEqual(summarizeWatchdogResult([
     { result: "PASS_WITH_REVIEW" },
     { result: "FAIL" },
-  ]).result, "FAIL");
+  ]), { result: "FAIL", monitorStatus: "FAILED_SYSTEM", globalFailures: [] });
+  assert.equal(summarizeWatchdogResult([{ result: "PASS" }]).monitorStatus, "SUCCESS");
+});
+
+test("watchdog treats complete durably published review-backed stale scopes as waiting", () => {
+  for (const [staleCount, reviewCount] of [[5, 5], [14, 14], [68, 79]]) {
+    const staleIds = Array.from({ length: staleCount }, (_, index) => String(index + 1));
+    const reviewIds = Array.from({ length: reviewCount }, (_, index) => String(index + 1));
+    const evaluated = applyMonitoredBacklog({
+      result: "FAIL",
+      failures: [],
+      database: { offers_older_than_48h: staleCount, older_offer_ids: staleIds },
+      contract: { review_row_count: reviewCount, review_offer_ids: reviewIds },
+      stages: { latest_ordinary_attempt: { review_publication: { conclusion: "success" } } },
+    }, {
+      maximum_offers_older_than_48h: 0,
+      maximum_review_row_count: 0,
+      allowed_stale_offer_ids: [],
+      allowed_review_offer_ids: [],
+      allowed_failure_codes: [],
+    });
+    assert.equal(evaluated.result, "PASS_WITH_REVIEW");
+    assert.equal(evaluated.monitored_backlog.review_backed_stale_offer_count, staleCount);
+  }
+
+  const withoutDurablePublication = applyMonitoredBacklog({
+    result: "FAIL",
+    failures: [],
+    database: { offers_older_than_48h: 1, older_offer_ids: ["1"] },
+    contract: { review_row_count: 1, review_offer_ids: ["1"] },
+    stages: { latest_ordinary_attempt: { review_publication: null } },
+  }, {
+    maximum_offers_older_than_48h: 0,
+    maximum_review_row_count: 0,
+    allowed_stale_offer_ids: [],
+    allowed_review_offer_ids: [],
+    allowed_failure_codes: [],
+  });
+  assert.equal(withoutDurablePublication.result, "FAIL");
 });
 
 test("approved monitored reviews reject substituted, missing or duplicated stale evidence", () => {
@@ -1177,6 +1245,40 @@ test("watchdog resolves exactly one executed alternative for a shared stage", ()
     () => workflowAttempt(profile, run, [ambiguous]),
     /Multiple executed steps match capture for retailer profile 12/,
   );
+});
+
+test("watchdog binds durable review publication to the same ordinary workflow run", () => {
+  const profile = {
+    ...watchdogProfile,
+    review_publication: {
+      job_name: "refresh-review-queue",
+      step_name: "Publish fresh cards to Automation Review Queue",
+    },
+  };
+  const publicationJob = {
+    id: 901,
+    name: "refresh-review-queue",
+    conclusion: "success",
+    steps: [{ name: profile.review_publication.step_name, conclusion: "success" }],
+  };
+  const attempt = workflowAttempt(profile, watchdogRun(90), [
+    watchdogJob(profile, { capture: "success", apply: "success", db_postflight: "success", idempotency: "success" }),
+    publicationJob,
+  ]);
+  assert.deepEqual(attempt.review_publication, {
+    run_id: "90",
+    job_id: "901",
+    job_name: "refresh-review-queue",
+    job_conclusion: "success",
+    step_name: "Publish fresh cards to Automation Review Queue",
+    conclusion: "success",
+  });
+
+  publicationJob.steps[0].conclusion = "failure";
+  assert.equal(workflowAttempt(profile, watchdogRun(91, { conclusion: "failure" }), [
+    watchdogJob(profile, { capture: "success", apply: "success", db_postflight: "success", idempotency: "success" }),
+    publicationJob,
+  ]).review_publication.conclusion, "failure");
 });
 
 test("watchdog keeps manual dry-runs visible without replacing last complete success", () => {

@@ -1863,6 +1863,31 @@ anomaly. This closes the false reporting failure without another recovery.
 RA-STAB-01 remains `IN_PROGRESS` at `0/3` ordinary intervals. Evidence:
 [`evidence/RA-STAB-01-REVIEW-POSTFLIGHT-FINALIZATION-PREPARATION-2026-10-06.json`](evidence/RA-STAB-01-REVIEW-POSTFLIGHT-FINALIZATION-PREPARATION-2026-10-06.json).
 
+**7 October natural watchdog and review-backed waiting classification — shared
+correction prepared:** scheduled watchdog `37578070655` ran on merge `cf7cae8`
+after the zero-step orphaned read-only run `37510180895` was cancelled to release
+the watchdog concurrency group. It made zero database writes and truthfully kept
+Fit House red because its latest ordinary shared run `37442830504` is incomplete.
+10 Reps is `PASS_WITH_REVIEW` on that same run and Whey Okay retains a complete
+ordinary success. The watchdog also exposed three backlog-growth failures:
+Jon's `5/5`, 6 Pack `14/14` and eBay `68` stale offers covered by `79` review
+rows. Production readback proves eBay has all `79` active Review Queue rows and
+its same ordinary run completed the queue-publication job. Jon's and 6 Pack
+have no active rows for those scopes, so they remain system failures rather
+than being relabelled as owner waiting.
+
+The shared correction adds explicit `SUCCESS`, `WAITING_FOR_DECISION` and
+`FAILED_SYSTEM` watchdog status. Backlog outside the frozen baseline becomes
+waiting only when stale and review ID evidence is complete and unique, every
+stale offer is covered, the same ordinary workflow run successfully published
+that retailer's Review Queue rows, and no unexpected failure is present.
+Missing publication, incomplete evidence, an uncovered stale offer,
+infrastructure failure or write evidence remains red. No ceiling, allowed-ID
+list, retailer branch, monitor, schedule, credential or write path is added.
+Focused tests pass; quick/full, CI and one read-only live verification remain.
+This does not advance the `0/3` ordinary interval counter. Evidence:
+[`evidence/RA-STAB-01-WATCHDOG-REVIEW-BACKED-WAITING-PREPARATION-2026-10-07.json`](evidence/RA-STAB-01-WATCHDOG-REVIEW-BACKED-WAITING-PREPARATION-2026-10-07.json).
+
 Docker run `37421724769` now proves the existing expired-close regression and
 the new exact `12 + 1 + 6` fixture pass against disposable PostgreSQL. The
 monolithic integration job remains red only for the same two unrelated

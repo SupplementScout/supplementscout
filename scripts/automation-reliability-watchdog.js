@@ -89,6 +89,18 @@ function loadConfig(file = CONFIG_PATH) {
           profile.stages.capture.length > 0,
       `Watchdog workflow stage binding is invalid for retailer ${profile.id}`,
     );
+    if (profile.review_publication !== undefined) {
+      invariant(
+        profile.review_publication &&
+          typeof profile.review_publication === "object" &&
+          !Array.isArray(profile.review_publication) &&
+          Object.keys(profile.review_publication).sort().join(",") === "job_name,step_name" &&
+          [profile.review_publication.job_name, profile.review_publication.step_name].every(
+            (name) => typeof name === "string" && name.trim() === name && name.length > 0,
+          ),
+        `Watchdog review publication binding is invalid for retailer ${profile.id}`,
+      );
+    }
     const rule = baseline.retailers[String(profile.id)];
     invariant(
       Number.isInteger(rule?.maximum_offers_older_than_48h) &&
@@ -477,6 +489,14 @@ function applyMonitoredBacklog(evaluation, baseline) {
   const growth = [];
   const older = Number(evaluation.database?.offers_older_than_48h || 0);
   const review = Number(evaluation.contract?.review_row_count || 0);
+  const observedStaleIds = evaluation.database?.older_offer_ids;
+  const observedReviewIds = evaluation.contract?.review_offer_ids;
+  const staleEvidenceComplete = Array.isArray(observedStaleIds) &&
+    observedStaleIds.length === older &&
+    new Set(observedStaleIds.map(String)).size === older;
+  const reviewEvidenceComplete = Array.isArray(observedReviewIds) &&
+    observedReviewIds.length === review &&
+    new Set(observedReviewIds.map(String)).size === review;
   if (older > baseline.maximum_offers_older_than_48h) {
     growth.push("OFFERS_OLDER_THAN_48H_GROWTH");
   }
@@ -485,9 +505,7 @@ function applyMonitoredBacklog(evaluation, baseline) {
   }
   if (older > 0 && baseline.allowed_stale_offer_ids !== undefined) {
     const allowedStaleIds = new Set(baseline.allowed_stale_offer_ids.map(String));
-    const observedStaleIds = evaluation.database?.older_offer_ids;
-    if (!Array.isArray(observedStaleIds) || observedStaleIds.length !== older ||
-        new Set(observedStaleIds.map(String)).size !== older) {
+    if (!staleEvidenceComplete) {
       growth.push("STALE_SCOPE_EVIDENCE_MISSING");
     } else if (observedStaleIds.some((id) => !allowedStaleIds.has(String(id)))) {
       growth.push("STALE_SCOPE_DRIFT");
@@ -495,16 +513,28 @@ function applyMonitoredBacklog(evaluation, baseline) {
   }
   if (review > 0 && baseline.allowed_review_offer_ids !== undefined) {
     const allowedReviewIds = new Set(baseline.allowed_review_offer_ids.map(String));
-    const observedReviewIds = evaluation.contract?.review_offer_ids;
-    if (!Array.isArray(observedReviewIds) || observedReviewIds.length !== review ||
-        new Set(observedReviewIds.map(String)).size !== review) {
+    if (!reviewEvidenceComplete) {
       growth.push("REVIEW_SCOPE_EVIDENCE_MISSING");
     } else if (observedReviewIds.some((offerId) => !allowedReviewIds.has(String(offerId)))) {
       growth.push("REVIEW_SCOPE_DRIFT");
     }
   }
   const reviewGrowthOnly = growth.length > 0 && growth.every((code) => code === "REVIEW_ROW_COUNT_GROWTH");
-  if (unexpected.length || (growth.length && !reviewGrowthOnly)) {
+  const reviewIds = reviewEvidenceComplete ? new Set(observedReviewIds.map(String)) : new Set();
+  const reviewPublication = evaluation.stages?.latest_ordinary_attempt?.review_publication;
+  const durableReviewPublication = reviewPublication?.conclusion === "success";
+  const reviewBackedGrowthCodes = new Set([
+    "OFFERS_OLDER_THAN_48H_GROWTH",
+    "REVIEW_ROW_COUNT_GROWTH",
+    "STALE_SCOPE_DRIFT",
+    "REVIEW_SCOPE_DRIFT",
+  ]);
+  const reviewBackedGrowth = growth.length > 0 && unexpected.length === 0 &&
+    older > 0 && review > 0 && staleEvidenceComplete && reviewEvidenceComplete &&
+    durableReviewPublication &&
+    observedStaleIds.every((offerId) => reviewIds.has(String(offerId))) &&
+    growth.every((code) => reviewBackedGrowthCodes.has(code));
+  if (unexpected.length || (growth.length && !reviewGrowthOnly && !reviewBackedGrowth)) {
     return {
       ...evaluation,
       result: "FAIL",
@@ -519,18 +549,24 @@ function applyMonitoredBacklog(evaluation, baseline) {
       },
     };
   }
-  if (reviewGrowthOnly) {
+  if (reviewGrowthOnly || reviewBackedGrowth) {
     return {
       ...evaluation,
       result: "PASS_WITH_REVIEW",
       failures: [],
-      warnings: [...evaluation.failures, "REVIEW_BACKLOG_OUTSIDE_BASELINE"],
+      warnings: [
+        ...evaluation.failures,
+        reviewBackedGrowth
+          ? "REVIEW_BACKED_BACKLOG_OUTSIDE_BASELINE"
+          : "REVIEW_BACKLOG_OUTSIDE_BASELINE",
+      ],
       monitored_backlog: {
         result: "OUTSIDE_BASELINE",
         unexpected_failure_codes: [],
         growth,
         maximum_review_row_count: baseline.maximum_review_row_count,
         current_review_row_count: review,
+        review_backed_stale_offer_count: reviewBackedGrowth ? older : 0,
       },
     };
   }
@@ -570,23 +606,23 @@ function summarizeWatchdogResult(retailers, options = {}) {
     globalFailures.push("UNAUTHORIZED_DATABASE_WRITE");
   }
   if (globalFailures.length || retailers.some((row) => row.result === "FAIL")) {
-    return { result: "FAIL", globalFailures };
+    return { result: "FAIL", monitorStatus: "FAILED_SYSTEM", globalFailures };
   }
   if (retailers.some((row) => row.result === "PASS_WITH_REVIEW")) {
-    return { result: "PASS_WITH_REVIEW", globalFailures };
+    return { result: "PASS_WITH_REVIEW", monitorStatus: "WAITING_FOR_DECISION", globalFailures };
   }
   if (retailers.some((row) => row.result === "PASS_WITH_MONITORED_BACKLOG")) {
-    return { result: "PASS_WITH_MONITORED_BACKLOG", globalFailures };
+    return { result: "PASS_WITH_MONITORED_BACKLOG", monitorStatus: "WAITING_FOR_DECISION", globalFailures };
   }
-  return { result: "PASS", globalFailures };
+  return { result: "PASS", monitorStatus: "SUCCESS", globalFailures };
 }
 
 function watchdogExitCode(result) {
   invariant(
-    ["PASS", "PASS_WITH_REVIEW", "PASS_WITH_MONITORED_BACKLOG", "FAIL"].includes(result),
+    ["SUCCESS", "WAITING_FOR_DECISION", "FAILED_SYSTEM"].includes(result),
     "Unknown watchdog result",
   );
-  return result === "FAIL" ? 1 : 0;
+  return result === "FAILED_SYSTEM" ? 1 : 0;
 }
 
 async function githubJson(url, token) {
@@ -891,6 +927,35 @@ function workflowAttempt(profile, run, jobs) {
     : readOnlyComplete
       ? "READ_ONLY_COMPLETE"
       : "FAILED_OR_INCOMPLETE";
+  let reviewPublication = null;
+  if (profile.review_publication) {
+    const publicationJobs = (jobs || []).filter(
+      (candidate) => candidate.name === profile.review_publication.job_name,
+    );
+    invariant(
+      publicationJobs.length <= 1,
+      `Multiple review publication jobs match retailer profile ${profile.id}`,
+    );
+    const publicationJob = publicationJobs[0] || null;
+    const publicationSteps = (publicationJob?.steps || []).filter(
+      (step) => step.name === profile.review_publication.step_name,
+    );
+    invariant(
+      publicationSteps.length <= 1,
+      `Multiple review publication steps match retailer profile ${profile.id}`,
+    );
+    const publicationStep = publicationSteps[0] || null;
+    if (publicationJob || publicationStep) {
+      reviewPublication = {
+        run_id: String(run.id),
+        job_id: publicationJob?.id == null ? null : String(publicationJob.id),
+        job_name: publicationJob?.name || null,
+        job_conclusion: publicationJob?.conclusion || null,
+        step_name: publicationStep?.name || null,
+        conclusion: publicationStep?.conclusion || null,
+      };
+    }
+  }
   return {
     run_id: String(run.id),
     run_url: run.html_url,
@@ -905,6 +970,7 @@ function workflowAttempt(profile, run, jobs) {
     operation,
     result,
     stages,
+    review_publication: reviewPublication,
   };
 }
 
@@ -1304,6 +1370,7 @@ async function run(options, dependencies = {}) {
     schema_version: 1,
     kind: "automation-reliability-watchdog",
     result: summary.result,
+    monitor_status: summary.monitorStatus,
     closeout_snapshot_sha256:
       config.monitored_backlog.closeout_snapshot_sha256,
     maximum_success_age_hours: config.maximum_success_age_hours,
@@ -1330,11 +1397,12 @@ async function main(argv = process.argv.slice(2)) {
   const report = await run(parseArgs(argv));
   console.log(JSON.stringify({
     result: report.result,
+    monitor_status: report.monitor_status,
     retailer_count: report.retailer_count,
     failed_retailer_count: report.failed_retailer_count,
     database_writes: report.database_writes,
   }));
-  process.exitCode = watchdogExitCode(report.result) || undefined;
+  process.exitCode = watchdogExitCode(report.monitor_status) || undefined;
   return report;
 }
 
