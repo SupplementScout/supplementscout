@@ -55,5 +55,5 @@ export function ReviewQueueSearch({ filters, retailers }: { filters: ReviewQueue
 }
 
 export function ReviewQueueViewSwitch({ filters, display }: { filters: ReviewQueueFilters; display: ReviewQueueDisplay }) {
-  return <div className="flex rounded-lg border bg-white p-1 text-sm font-semibold"><Link href={href(filters, { display: "WORK" })} className={`rounded-md px-3 py-2 ${display === "WORK" ? "bg-zinc-950 text-white" : "text-zinc-700"}`}>Jedna pozycja</Link><Link href={href(filters, { display: "LIST" })} className={`rounded-md px-3 py-2 ${display === "LIST" ? "bg-zinc-950 text-white" : "text-zinc-700"}`}>Lista</Link></div>;
+  return <div className="flex rounded-lg border bg-white p-1 text-sm font-semibold"><Link href={href(filters, { display: "WORK" })} className={`rounded-md px-3 py-2 ${display === "WORK" ? "bg-zinc-950 text-white" : "text-zinc-700"}`}>Praca po kolei</Link><Link href={href(filters, { display: "LIST" })} className={`rounded-md px-3 py-2 ${display === "LIST" ? "bg-zinc-950 text-white" : "text-zinc-700"}`}>Krótka lista</Link></div>;
 }

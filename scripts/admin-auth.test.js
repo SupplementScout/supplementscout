@@ -828,7 +828,7 @@ test("Review Queue return path preserves safe filters, resets pagination and blo
 });
 
 test("Queued execution leaves owner work immediately and next remaining offer opens on page one", () => {
-  const { attachReviewExecutionState, filterAndPaginateReviewRows, summarizeReviewQueue, reviewQueueWorkBucket } = loadTsModule("app/admin/lib/automationReviewQueue.ts");
+  const { attachReviewExecutionState, filterAndPaginateReviewRows, summarizeReviewQueue, reviewQueueWorkBucket, REVIEW_QUEUE_WORK_PAGE_SIZE } = loadTsModule("app/admin/lib/automationReviewQueue.ts");
   const now = Date.parse("2026-10-07T12:00:00Z");
   const rows = Array.from({ length: 9 }, (_, index) => ({ id: String(index + 1), retailer: "eBay UK", retailer_id: "12", offer_id: String(100 + index), product_title: "Product", variant_title: "Vanilla", review_kind: "COMMERCIAL_CHANGE", operation_type: "UPDATE_STOCK", reason_codes: "STOCK_CHANGE", source_evidence: {}, impact_summary: {}, review_status: "APPROVED", source_row_fingerprint: "a".repeat(64), plan_fingerprint: "b".repeat(64), updated_at: "2026-10-07T08:00:00Z" }));
   const requests = rows.slice(0, 6).map((row, index) => ({ review_id: row.id, review_fingerprint: row.source_row_fingerprint, plan_fingerprint: row.plan_fingerprint, status: ["QUEUED", "DISPATCHED", "EXECUTING"][index % 3], requested_at: "2026-10-07T11:00:00Z" }));
@@ -847,6 +847,12 @@ test("Queued execution leaves owner work immediately and next remaining offer op
   assert.equal(summarizeReviewQueue([{ ...rows[0], review_status: "EXPIRED" }], now).completedToday, 0);
   const latestFailed = attachReviewExecutionState(rows, [{ ...requests[0], status: "FAILED", requested_at: "2026-10-07T11:30:00Z" }, requests[0]]);
   assert.equal(reviewQueueWorkBucket(latestFailed[0], now), "TECHNICAL");
+  assert.equal(REVIEW_QUEUE_WORK_PAGE_SIZE, 10);
+  const scrollableRows = Array.from({ length: 12 }, (_, index) => ({ ...rows[6], id: String(100 + index), offer_id: String(200 + index) }));
+  const firstWorkingSet = filterAndPaginateReviewRows(scrollableRows, filters, 1, REVIEW_QUEUE_WORK_PAGE_SIZE);
+  const secondWorkingSet = filterAndPaginateReviewRows(scrollableRows, filters, 2, REVIEW_QUEUE_WORK_PAGE_SIZE);
+  assert.equal(firstWorkingSet.rows.length, 10);
+  assert.equal(secondWorkingSet.rows.length, 2);
 });
 
 test("Execution read refuses truncation, count drift and duplicates instead of showing false remaining work", async () => {

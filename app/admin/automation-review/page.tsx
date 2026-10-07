@@ -124,6 +124,8 @@ export default async function AutomationReviewPage({ searchParams }: { searchPar
   const currentHref = reviewQueuePageHref(filters, page);
   const saved = value(params.saved);
   const delivery = value(params.delivery);
+  const visibleStart = total ? (page - 1) * (display === "WORK" ? REVIEW_QUEUE_WORK_PAGE_SIZE : REVIEW_QUEUE_PAGE_SIZE) + 1 : 0;
+  const visibleEnd = total ? visibleStart + rows.length - 1 : 0;
 
   return <main className="min-h-screen bg-zinc-50 px-4 py-8 text-zinc-950 sm:px-6"><div className="mx-auto max-w-6xl">
     <header className="flex flex-col gap-4 border-b border-zinc-200 pb-6 lg:flex-row lg:items-start lg:justify-between">
@@ -147,7 +149,7 @@ export default async function AutomationReviewPage({ searchParams }: { searchPar
     {error && <p className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">Nie udało się odczytać kolejki. Żadne działanie nie jest dostępne.</p>}
     <div id="review-work" className="scroll-mt-20" />
     {!error && saved && <p role="status" className="mt-6 rounded-lg border border-emerald-300 bg-emerald-50 p-4 font-semibold text-emerald-950">{saved === "execution" ? executionSavedMessage(delivery) : "Decyzja została zapisana. Poniżej następna pozostała pozycja."}</p>}
-    <div className="sticky top-0 z-10 mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-white p-3 shadow-sm"><div><p className="font-semibold">{display === "WORK" ? `Pozycja ${total ? page : 0} z ${total} pozostałych w tym widoku` : `Znaleziono ${total} pozycji · strona ${page} z ${totalPages}`}</p>{!error && <p className="text-sm text-zinc-600">Dzisiaj przekazane: {summary.submittedToday} · Zakończone decyzje: {summary.completedToday} · Pozostałe kroki: {summary.ownerRemaining}</p>}</div><ReviewQueueViewSwitch filters={filters} display={display} /></div>
+    <div className="sticky top-0 z-10 mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-white p-3 shadow-sm"><div><p className="font-semibold">{display === "WORK" ? `Pozostało w tym widoku: ${total} · teraz pokazane ${visibleStart}–${visibleEnd}` : `Znaleziono ${total} pozycji · strona ${page} z ${totalPages}`}</p>{!error && <><p className="text-sm text-zinc-700">Dziś przekazałeś do wykonania: <strong>{summary.submittedToday}</strong> · zakończone decyzje: <strong>{summary.completedToday}</strong> · wszystkie pozostałe kroki: <strong>{summary.ownerRemaining}</strong></p>{display === "WORK" && <p className="text-xs text-zinc-500">Lista nie zaczyna się od nowa: po obsłużeniu oferta znika, liczba pozostałych maleje, a następne karty są poniżej.</p>}</>}</div><ReviewQueueViewSwitch filters={filters} display={display} /></div>
     {!error && total === 0 && <section className="mt-4 rounded-xl border border-dashed bg-white p-8 text-center"><h2 className="text-xl font-bold">W tej grupie nic nie zostało</h2><p className="mt-2 text-sm text-zinc-600">Wybierz inny licznik powyżej albo wyszukaj ofertę we wszystkich statusach.</p><Link href="/admin/automation-review" className="mt-4 inline-flex rounded-lg bg-zinc-950 px-4 py-2 font-semibold text-white">Wróć do pracy dla mnie</Link></section>}
 
     <section className="mt-4 space-y-5">{rows.map((row) => {
@@ -183,6 +185,6 @@ export default async function AutomationReviewPage({ searchParams }: { searchPar
         </details>
       </article>;
     })}</section>
-    <nav className="mt-6 flex justify-between">{page > 1 ? <Link href={`${reviewQueuePageHref(filters, page - 1)}#review-work`} className="rounded border bg-white px-4 py-2">{display === "WORK" ? "Poprzednia pozycja" : "Poprzednia strona"}</Link> : <span />}{page < totalPages ? <Link href={`${reviewQueuePageHref(filters, page + 1)}#review-work`} className="rounded border bg-white px-4 py-2">{display === "WORK" ? "Następna pozycja" : "Następna strona"}</Link> : <span />}</nav>
+    <nav className="mt-6 flex justify-between">{page > 1 ? <Link href={`${reviewQueuePageHref(filters, page - 1)}#review-work`} className="rounded border bg-white px-4 py-2">{display === "WORK" ? "Poprzednie oferty" : "Poprzednia strona"}</Link> : <span />}{page < totalPages ? <Link href={`${reviewQueuePageHref(filters, page + 1)}#review-work`} className="rounded border bg-white px-4 py-2">{display === "WORK" ? "Następne oferty" : "Następna strona"}</Link> : <span />}</nav>
   </div></main>;
 }

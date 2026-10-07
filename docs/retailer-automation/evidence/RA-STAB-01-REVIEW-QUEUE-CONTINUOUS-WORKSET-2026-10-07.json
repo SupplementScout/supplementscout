@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "task": "RA-STAB-01",
+  "status": "LOCAL_VERIFIED",
+  "recorded_at": "2026-10-07",
+  "incident": {
+    "owner_observation": "Single-card work mode required a next-page navigation after every offer and the next remaining card appeared to restart at position one.",
+    "root_cause": "The bounded work page size was one and the progress label described the dynamic remaining page number instead of the shrinking remaining workload.",
+    "catalogue_incident": false
+  },
+  "change": {
+    "shared_ui_only": true,
+    "working_set_size": 10,
+    "ordinary_scrolling_between_adjacent_cards": true,
+    "remaining_count_visible": true,
+    "visible_range_visible": true,
+    "submitted_today_visible": true,
+    "new_queue": false,
+    "new_executor": false,
+    "new_scheduler": false,
+    "new_retailer_condition": false,
+    "guardrail_change": false,
+    "catalogue_write_path_change": false
+  },
+  "production_readback": {
+    "captured_at": "2026-10-07T14:43:53.758Z",
+    "mode": "READ_ONLY_REPEATABLE_READ_ROLLED_BACK",
+    "approved_waiting_for_submission": 0,
+    "active_execution_requests": 0,
+    "today": {
+      "execution_requests": 15,
+      "executed": 5,
+      "executed_database_writes": 5,
+      "approved_price_drift_expired": 4,
+      "review_evidence_expired": 6,
+      "failed_or_expired_database_writes": 0,
+      "retries_launched_by_this_readback": 0
+    }
+  },
+  "verification": {
+    "focused_admin_tests": "PASS_60",
+    "project_guardian": "PASS",
+    "quick_quality_gate": "PASS_547_TESTS_544_PASS_3_SKIP",
+    "full_quality_gate": "PASS",
+    "pull_request": null,
+    "merge_commit": null,
+    "production_deployment": "PENDING",
+    "authenticated_live_readback": "PENDING"
+  },
+  "next_gate": "Run the full quality gate, merge after green CI, deploy, then verify the authenticated production work view without submitting a decision or execution."
+}
