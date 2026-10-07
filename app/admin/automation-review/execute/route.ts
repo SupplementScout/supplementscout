@@ -70,11 +70,11 @@ export async function POST(request: NextRequest) {
   if (queueError || !/^[0-9a-f-]{36}$/.test(executionRequestId)) return new NextResponse("Execution request could not be created; no workflow was dispatched.", { status: 409 });
   const queuedStatus = String(queued?.status || "");
   if (queuedStatus && queuedStatus !== "QUEUED") {
-    return NextResponse.redirect(new URL(`${returnPath}&execution=${executionRequestId}`, request.url), 303);
+    return NextResponse.redirect(new URL(`${returnPath}&execution=${executionRequestId}#review-work`, request.url), 303);
   }
   const queuedIdempotencyKey = String(queued?.idempotency_key || key);
   if (!reviewWorkflowDispatchConfigured()) {
-    return NextResponse.redirect(new URL(`${returnPath}&execution=${executionRequestId}`, request.url), 303);
+    return NextResponse.redirect(new URL(`${returnPath}&execution=${executionRequestId}#review-work`, request.url), 303);
   }
   try {
     await dispatchReviewExecution({
@@ -89,5 +89,5 @@ export async function POST(request: NextRequest) {
     const message = error instanceof Error ? error.message : "AUTOMATION_REVIEW_WORKFLOW_DISPATCH_FAILED";
     return new NextResponse(`Execution request was queued, but GitHub workflow dispatch failed: ${message}`, { status: 503 });
   }
-  return NextResponse.redirect(new URL(`${returnPath}&execution=${executionRequestId}`, request.url), 303);
+  return NextResponse.redirect(new URL(`${returnPath}&execution=${executionRequestId}#review-work`, request.url), 303);
 }

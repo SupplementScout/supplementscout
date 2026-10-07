@@ -45,6 +45,8 @@ export type ReviewQueueFilterableRow = {
   updated_at?: string | null;
   current_product_id?: string | number | null;
   current_variant_id?: string | number | null;
+  execution_status?: string | null;
+  execution_requested_at?: string | null;
 };
 
 export type ReviewQueueRow = ReviewQueueFilterableRow & {
@@ -83,6 +85,19 @@ function searchableText(row: ReviewQueueFilterableRow) {
   ].join(" ").toLocaleLowerCase("pl-PL");
 }
 
+export function attachReviewExecutionState<T extends ReviewQueueRow>(rows: readonly T[], requests: readonly { review_id: string | number; review_fingerprint: string; plan_fingerprint: string; status: string; requested_at: string }[]) {
+  const newest = new Map<string, typeof requests[number]>();
+  for (const request of requests) {
+    const key = String(request.review_id), previous = newest.get(key);
+    if (!previous || Date.parse(request.requested_at) > Date.parse(previous.requested_at)) newest.set(key, request);
+  }
+  return rows.map((row) => {
+    const request = newest.get(String(row.id));
+    const matches = request?.review_fingerprint === row.source_row_fingerprint && request?.plan_fingerprint === row.plan_fingerprint;
+    return { ...row, execution_status: request ? matches ? request.status : "EVIDENCE_CHANGED" : null, execution_requested_at: request?.requested_at || null };
+  });
+}
+
 export function normalizeReviewQueueScope(input: string): ReviewQueueScope {
   return input === "ALL" ? "ALL" : "DECISIONS";
 }
@@ -96,12 +111,17 @@ export function normalizeReviewQueueDisplay(input: string): ReviewQueueDisplay {
 }
 
 export function reviewQueueLifecycle(row: ReviewQueueFilterableRow, now = Date.now()) {
-  return row.expires_at && new Date(row.expires_at).getTime() <= now && row.review_status === "PENDING" ? "EXPIRED" : String(row.review_status || "PENDING");
+  if (row.execution_status === "EVIDENCE_CHANGED") return "EVIDENCE_CHANGED";
+  if (["QUEUED", "DISPATCHED", "EXECUTING"].includes(row.execution_status || "") && !["EXECUTED", "REJECTED", "IGNORED"].includes(row.review_status || "")) return row.execution_status!;
+  return row.expires_at && new Date(row.expires_at).getTime() <= now && ["PENDING", "APPROVED"].includes(row.review_status || "") ? "EXPIRED" : String(row.review_status || "PENDING");
 }
 
 export function reviewQueueWorkBucket(row: ReviewQueueFilterableRow, now = Date.now()): Exclude<ReviewQueueWorkBucket, "ALL"> {
   const status = reviewQueueLifecycle(row, now);
   const capability = capabilityForReview(row.retailer_id, row.operation_type, row.review_kind).capability;
+  if (row.execution_status === "EVIDENCE_CHANGED") return "TECHNICAL";
+  if (["QUEUED", "DISPATCHED", "EXECUTING"].includes(row.execution_status || "")) return "PROCESSING";
+  if (status === "APPROVED" && row.execution_status) return "TECHNICAL";
   if (status === "PENDING" && capability === "REVIEW_EXECUTABLE") return "DECIDE";
   if (status === "APPROVED" && capability === "REVIEW_EXECUTABLE" && row.plan_fingerprint) return "EXECUTE";
   if (status === "EXECUTING") return "PROCESSING";
@@ -116,6 +136,7 @@ export type ReviewQueueWorkSummary = {
   technical: number;
   completed: number;
   completedToday: number;
+  submittedToday: number;
   ownerRemaining: number;
   total: number;
   retailers: Array<{ retailer: string; decide: number; execute: number; processing: number; technical: number; completed: number; total: number }>;
@@ -130,6 +151,7 @@ export function summarizeReviewQueue(sourceRows: readonly ReviewQueueFilterableR
   const counts = { decide: 0, execute: 0, processing: 0, technical: 0, completed: 0 };
   const byRetailer = new Map<string, { retailer: string; decide: number; execute: number; processing: number; technical: number; completed: number; total: number }>();
   let completedToday = 0;
+  let submittedToday = 0;
   for (const row of currentRows) {
     const bucket = reviewQueueWorkBucket(row, now);
     const key = bucket.toLocaleLowerCase("en-GB") as keyof typeof counts;
@@ -138,11 +160,13 @@ export function summarizeReviewQueue(sourceRows: readonly ReviewQueueFilterableR
     retailer[bucket.toLocaleLowerCase("en-GB") as "decide" | "execute" | "processing" | "technical" | "completed"] += 1;
     retailer.total += 1;
     byRetailer.set(row.retailer, retailer);
-    if (bucket === "COMPLETED" && row.updated_at && londonDate(row.updated_at) === londonDate(now)) completedToday += 1;
+    if (["EXECUTED", "REJECTED", "IGNORED"].includes(reviewQueueLifecycle(row, now)) && row.updated_at && londonDate(row.updated_at) === londonDate(now)) completedToday += 1;
+    if (row.execution_requested_at && londonDate(row.execution_requested_at) === londonDate(now)) submittedToday += 1;
   }
   return {
     ...counts,
     completedToday,
+    submittedToday,
     ownerRemaining: counts.decide + counts.execute,
     total: currentRows.length,
     retailers: [...byRetailer.values()].sort((left, right) => (right.decide + right.execute) - (left.decide + left.execute) || left.retailer.localeCompare(right.retailer, "pl")),

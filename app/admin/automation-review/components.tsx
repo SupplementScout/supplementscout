@@ -27,7 +27,7 @@ export function ReviewQueueDashboard({ summary, filters, activeBucket }: { summa
   return <>
     <section className="mt-6 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm" aria-labelledby="work-status-heading">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div><p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Stan pracy</p><h2 id="work-status-heading" className="mt-1 text-2xl font-bold">Pozostało Ci {summary.ownerRemaining} {summary.ownerRemaining === 1 ? "krok" : "kroków"}</h2><p className="mt-1 text-sm text-zinc-600">Zakończone dzisiaj: {summary.completedToday}. Liczniki pokazują bieżące, niezastąpione pozycje.</p></div>
+        <div><p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Stan pracy</p><h2 id="work-status-heading" className="mt-1 text-2xl font-bold">Pozostało Ci {summary.ownerRemaining} {summary.ownerRemaining === 1 ? "krok" : "kroków"}</h2><p className="mt-1 text-sm text-zinc-600">Dzisiaj przekazane do wykonania: {summary.submittedToday}. Zakończone decyzje: {summary.completedToday}. Wygaśnięcie dowodu nie liczy się jako Twoja wykonana praca.</p></div>
         <p className="rounded-full bg-zinc-100 px-3 py-1 text-sm font-semibold text-zinc-700">Łącznie w bieżącej kolejce: {summary.total}</p>
       </div>
       <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">

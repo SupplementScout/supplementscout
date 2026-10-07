@@ -42,5 +42,5 @@ export async function POST(request: NextRequest) {
     if (updateError || !updated) return new NextResponse("A row changed during review; remaining rows were not touched.", { status: 409 });
   }
   const returnPath = safeAutomationReviewReturnPath(form.get("returnTo") || request.headers.get("referer"), "decision", request.nextUrl.origin);
-  return NextResponse.redirect(new URL(returnPath, request.url), 303);
+  return NextResponse.redirect(new URL(`${returnPath}#review-work`, request.url), 303);
 }

@@ -1933,6 +1933,21 @@ tests (`544` pass, `3` skip); the full production-build gate also passes. PR
 authenticated read-only production dashboard readback all pass. Evidence:
 [`evidence/RA-STAB-01-REVIEW-QUEUE-WORK-DASHBOARD-PREPARATION-2026-10-07.json`](evidence/RA-STAB-01-REVIEW-QUEUE-WORK-DASHBOARD-PREPARATION-2026-10-07.json).
 
+**7 October Review Queue remaining-work navigation correction:** owner readback
+confirms nine recent recorded decisions, six queued execution requests and three
+approvals without an execution request (offers `2689`, `2703`, `2704`). An
+`APPROVED` review remains approved while its request waits in `QUEUED`; the old
+dashboard therefore returned to already-submitted cards. The shared read model
+now reads bounded complete execution state before classification and pagination.
+Queued, dispatched and executing requests leave owner work immediately. Changed
+request fingerprints are technical attention, and an incomplete read disables
+actions. Return redirects and next/previous navigation target the working-card
+anchor; sticky counters show today's submissions, completed decisions and
+remaining steps. Expired evidence no longer counts as completed owner work.
+Focused `59/59`, quick and full verification pass; CI and production readback
+remain. No queue/executor/RPC, production submission or guard change is added.
+Evidence: [remaining-work navigation](evidence/RA-STAB-01-REVIEW-QUEUE-PENDING-NAVIGATION-2026-10-07.json).
+
 Docker run `37421724769` now proves the existing expired-close regression and
 the new exact `12 + 1 + 6` fixture pass against disposable PostgreSQL. The
 monolithic integration job remains red only for the same two unrelated
