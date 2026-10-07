@@ -1994,6 +1994,22 @@ and no retailer workflow was manually dispatched. Natural schedule readbacks rem
 ordinary counter stays `0/3`. Evidence:
 [`evidence/RA-STAB-01-FIT-HOUSE-DURABLE-REVIEW-SIX-PACK-BINDING-PREPARATION-2026-10-07.json`](evidence/RA-STAB-01-FIT-HOUSE-DURABLE-REVIEW-SIX-PACK-BINDING-PREPARATION-2026-10-07.json).
 
+**7 October Review Queue dispatch truthfulness — locally prepared:** the panel
+already writes one immutable queued request before optional immediate GitHub
+dispatch, and the existing scheduled worker is the only fallback. Production
+behavior showed that immediate dispatch is not currently dependable, while the
+page promised completion within a few minutes and a transient dispatch error
+returned HTTP 503 after the request was already safely queued. The shared route
+now records one of four delivery outcomes: immediate, scheduled fallback,
+transient fallback or already-existing. The page removes the fixed-time promise,
+warns against duplicate clicks, displays request time and provides a refresh
+link. Dispatch failure remains server-logged but returns the owner to the real
+queued state. No executor, queue, credential path, adapter, approval rule or
+catalogue write changes. Focused admin tests pass `60/60`; quick and full
+quality gates, the production build, Project Guardian, TypeScript and changed-file ESLint pass. Merge/CI and authenticated live UI
+readback remain required. Evidence:
+[`evidence/RA-STAB-01-REVIEW-QUEUE-DISPATCH-STATUS-PREPARATION-2026-10-07.json`](evidence/RA-STAB-01-REVIEW-QUEUE-DISPATCH-STATUS-PREPARATION-2026-10-07.json).
+
 Docker run `37421724769` now proves the existing expired-close regression and
 the new exact `12 + 1 + 6` fixture pass against disposable PostgreSQL. The
 monolithic integration job remains red only for the same two unrelated

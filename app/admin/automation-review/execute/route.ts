@@ -4,7 +4,7 @@ import { requireAdminRoute } from "../../../lib/adminAuth";
 import { dispatchReviewExecution, reviewWorkflowDispatchConfigured } from "../../lib/automationReviewWorkflowDispatch";
 import { resolveReviewAdapter, reviewQueueConfigured } from "../../../lib/automationReviewAdapters";
 import { supabaseAdmin } from "../../../lib/supabaseAdmin";
-import { safeAutomationReviewReturnPath } from "../../lib/automationReviewReturnPath";
+import { safeAutomationReviewReturnPath, withAutomationReviewExecutionDelivery } from "../../lib/automationReviewReturnPath";
 
 const ACTOR = "authenticated-admin";
 
@@ -70,11 +70,13 @@ export async function POST(request: NextRequest) {
   if (queueError || !/^[0-9a-f-]{36}$/.test(executionRequestId)) return new NextResponse("Execution request could not be created; no workflow was dispatched.", { status: 409 });
   const queuedStatus = String(queued?.status || "");
   if (queuedStatus && queuedStatus !== "QUEUED") {
-    return NextResponse.redirect(new URL(`${returnPath}&execution=${executionRequestId}#review-work`, request.url), 303);
+    const delivered = withAutomationReviewExecutionDelivery(returnPath, "existing");
+    return NextResponse.redirect(new URL(`${delivered}&execution=${executionRequestId}#review-work`, request.url), 303);
   }
   const queuedIdempotencyKey = String(queued?.idempotency_key || key);
   if (!reviewWorkflowDispatchConfigured()) {
-    return NextResponse.redirect(new URL(`${returnPath}&execution=${executionRequestId}#review-work`, request.url), 303);
+    const delivered = withAutomationReviewExecutionDelivery(returnPath, "scheduled");
+    return NextResponse.redirect(new URL(`${delivered}&execution=${executionRequestId}#review-work`, request.url), 303);
   }
   try {
     await dispatchReviewExecution({
@@ -87,7 +89,10 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "AUTOMATION_REVIEW_WORKFLOW_DISPATCH_FAILED";
-    return new NextResponse(`Execution request was queued, but GitHub workflow dispatch failed: ${message}`, { status: 503 });
+    console.error("AUTOMATION_REVIEW_WORKFLOW_DISPATCH_DEFERRED", message);
+    const delivered = withAutomationReviewExecutionDelivery(returnPath, "fallback");
+    return NextResponse.redirect(new URL(`${delivered}&execution=${executionRequestId}#review-work`, request.url), 303);
   }
-  return NextResponse.redirect(new URL(`${returnPath}&execution=${executionRequestId}#review-work`, request.url), 303);
+  const delivered = withAutomationReviewExecutionDelivery(returnPath, "immediate");
+  return NextResponse.redirect(new URL(`${delivered}&execution=${executionRequestId}#review-work`, request.url), 303);
 }

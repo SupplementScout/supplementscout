@@ -1,5 +1,6 @@
 const REVIEW_QUEUE_PATH = "/admin/automation-review";
 const SAFE_QUERY_KEYS = new Set(["q", "retailer", "status", "scope", "kind", "group", "confidence", "capability", "queue", "display", "history", "page"]);
+export type AutomationReviewExecutionDelivery = "existing" | "immediate" | "scheduled" | "fallback";
 
 export function safeAutomationReviewReturnPath(input: FormDataEntryValue | string | null, saved: "decision" | "execution", allowedOrigin = "https://supplementscout.invalid") {
   const raw = String(input || "");
@@ -14,4 +15,10 @@ export function safeAutomationReviewReturnPath(input: FormDataEntryValue | strin
   } catch {
     return `${REVIEW_QUEUE_PATH}?saved=${saved}`;
   }
+}
+
+export function withAutomationReviewExecutionDelivery(returnPath: string, delivery: AutomationReviewExecutionDelivery) {
+  const parsed = new URL(returnPath, "https://supplementscout.invalid");
+  parsed.searchParams.set("delivery", delivery);
+  return `${parsed.pathname}?${parsed.searchParams.toString()}`;
 }

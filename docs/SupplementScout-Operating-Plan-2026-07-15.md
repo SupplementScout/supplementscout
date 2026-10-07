@@ -1174,6 +1174,19 @@ publisher. Focused `73/73`, quick `547` and full quality-gate checks pass. PR
 dispatch, queue publication or catalogue write occurred. See the
 [Fit House and 6 Pack preparation](retailer-automation/evidence/RA-STAB-01-FIT-HOUSE-DURABLE-REVIEW-SIX-PACK-BINDING-PREPARATION-2026-10-07.json).
 
+The next shared Review Queue correction is prepared without adding an executor
+or weakening a guard. The admin route already stores one immutable execution
+request before attempting immediate GitHub dispatch, and the existing scheduled
+worker remains the only fallback. The panel previously promised execution
+within a few minutes and returned a misleading HTTP error when immediate
+dispatch failed even though the request remained queued. It now distinguishes
+`immediate`, `scheduled`, `fallback` and already-existing delivery, tells the
+owner not to click twice, shows the request time and provides a status refresh
+link. A transient dispatch failure redirects to the truthful queued state and
+is still logged server-side. Focused admin tests pass `60/60`; quick and full
+quality gates, the production build, Project Guardian, TypeScript and changed-file ESLint pass. No execution request, workflow or catalogue write was
+created during preparation. See the [dispatch-status preparation](retailer-automation/evidence/RA-STAB-01-REVIEW-QUEUE-DISPATCH-STATUS-PREPARATION-2026-10-07.json).
+
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256
 `59c6d03a2bbcff0b384b86065f76e6f456e3538ca538613cf83e5e017ec11a9d`,
