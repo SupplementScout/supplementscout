@@ -38,6 +38,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     environment: production-readonly
+    outputs:
+      artifact_id: ${{ steps.six_pack_artifact.outputs.artifact-id }}
+      artifact_digest: ${{ steps.six_pack_artifact.outputs.artifact-digest }}
+      source_contract_sha256: ${{ steps.review_source.outputs.contract_sha256 }}
+      review_scope_fingerprint: ${{ steps.review_source.outputs.review_scope_fingerprint }}
 
     env:
       NODE_OPTIONS: --use-system-ca
@@ -106,6 +111,11 @@ jobs:
           SIX_PACK_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
         run: node scripts/retailer-offer-refresh-postflight.js --profile=six-pack-supplements --mode=baseline --output=tmp/six-pack-offer-refresh/production-db-baseline.json
 
+      - name: Bind fresh 6 Pack Review Queue source
+        id: review_source
+        if: ${{ success() && (github.event_name == 'schedule' || inputs.operation == 'apply') }}
+        run: node scripts/shared-retailer-automation-review-source.js --mode=bind --profile=six-pack-supplements --source-artifact-dir=tmp/six-pack-offer-refresh
+
       - name: Apply exact approved manifest
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' || inputs.operation == 'reviewed-mass-oos-apply' }}
         env:
@@ -165,12 +175,70 @@ jobs:
 
       - name: Upload refresh evidence
         if: always()
+        id: six_pack_artifact
         uses: actions/upload-artifact@v7
         with:
           name: six-pack-offer-refresh-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 14
           if-no-files-found: warn
           path: tmp/six-pack-offer-refresh/*.json
+
+  refresh-review-queue:
+    needs: six-pack-offer-refresh
+    if: ${{ always() && github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || inputs.operation == 'apply') && needs.six-pack-offer-refresh.outputs.artifact_id != '' && needs.six-pack-offer-refresh.outputs.artifact_digest != '' && needs.six-pack-offer-refresh.outputs.source_contract_sha256 != '' && needs.six-pack-offer-refresh.outputs.review_scope_fingerprint != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production-readonly
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Test shared 6 Pack Review Queue publication contracts
+        run: node --test scripts/automation-review-reconciliation-dry-run.test.js
+      - name: Download exact 6 Pack source evidence
+        uses: actions/download-artifact@v8
+        with:
+          artifact-ids: ${{ needs.six-pack-offer-refresh.outputs.artifact_id }}
+          path: tmp/automation-review-reconciliation/six-pack-source
+          merge-multiple: true
+      - name: Build fresh 6 Pack Review Queue changes
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SOURCE_ARTIFACT_DIGEST: ${{ needs.six-pack-offer-refresh.outputs.artifact_digest }}
+        run: >-
+          node scripts/shared-retailer-automation-review-source.js
+          --mode=reconcile
+          --profile=six-pack-supplements
+          --source-artifact-dir=tmp/automation-review-reconciliation/six-pack-source
+          --source-run-id=${{ github.run_id }}
+          --source-artifact-id=${{ needs.six-pack-offer-refresh.outputs.artifact_id }}
+          --source-commit-sha=${{ github.sha }}
+          --source-artifact-digest=${SOURCE_ARTIFACT_DIGEST#sha256:}
+          --source-contract-sha256=${{ needs.six-pack-offer-refresh.outputs.source_contract_sha256 }}
+          --output=tmp/automation-review-reconciliation/six-pack-reconciliation-dry-run.json
+      - name: Publish fresh 6 Pack cards to Automation Review Queue
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: >-
+          node scripts/automation-review-reconciliation-apply.js
+          --input=tmp/automation-review-reconciliation/six-pack-reconciliation-dry-run.json
+          --output=tmp/automation-review-reconciliation/six-pack-reconciliation-apply.json
+      - name: Upload 6 Pack queue refresh evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: six-pack-automation-review-queue-refresh-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: error
+          path: tmp/automation-review-reconciliation/*.json
 
   six-pack-reviewed-apply:
     if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.operation == 'apply-reviewed' }}

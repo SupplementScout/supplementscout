@@ -1893,6 +1893,24 @@ remained red for their real unresolved conditions. The run's overall
 deployment. This does not advance the `0/3` ordinary interval counter. Evidence:
 [`evidence/RA-STAB-01-WATCHDOG-REVIEW-BACKED-WAITING-PREPARATION-2026-10-07.json`](evidence/RA-STAB-01-WATCHDOG-REVIEW-BACKED-WAITING-PREPARATION-2026-10-07.json).
 
+**7 October Jon's and 6 Pack durable Review Queue publication — shared
+extension prepared:** production evidence shows Jon's ordinary run `37457004820`
+partitioned `506` offers into `501` executable and `5` source-missing review
+rows, while 6 Pack run `37448175548` partitioned `506` into `492` executable
+and `14` review rows. Neither retailer had active Review Queue rows, so the
+watchdog correctly kept both red. The existing shared publisher now accepts
+profile-defined source envelopes and card semantics without retailer branches
+in shared core. Each workflow seals its pre-execution classification before
+apply and publishes only through the existing guarded reconciliation RPC.
+Jon's rows are identity-review-only. 6 Pack source-missing rows are identity
+review and its price/mass-OOS rows are policy-review-only. Neither retailer is
+added to the execution-adapter registry, so these cards cannot execute catalogue
+changes. No queue, publisher, executor, credential or direct database path was
+added. Focused `77/77` and quick `547` tests pass; full, CI and the next natural
+schedule readbacks remain. This does not advance the `0/3` ordinary interval
+counter. Evidence:
+[`evidence/RA-STAB-01-JONS-SIX-PACK-QUEUE-PUBLICATION-PREPARATION-2026-10-07.json`](evidence/RA-STAB-01-JONS-SIX-PACK-QUEUE-PUBLICATION-PREPARATION-2026-10-07.json).
+
 Docker run `37421724769` now proves the existing expired-close regression and
 the new exact `12 + 1 + 6` fixture pass against disposable PostgreSQL. The
 monolithic integration job remains red only for the same two unrelated

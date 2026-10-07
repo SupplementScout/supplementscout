@@ -40,6 +40,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     environment: production-readonly
+    outputs:
+      artifact_id: ${{ steps.jons_artifact.outputs.artifact-id }}
+      artifact_digest: ${{ steps.jons_artifact.outputs.artifact-digest }}
+      source_contract_sha256: ${{ steps.review_source.outputs.contract_sha256 }}
+      review_scope_fingerprint: ${{ steps.review_source.outputs.review_scope_fingerprint }}
 
     steps:
       - name: Validate protected execution context
@@ -94,6 +99,11 @@ jobs:
           JONS_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
         run: node scripts/retailer-offer-refresh-postflight.js --profile=jons-supplements --mode=baseline --output=tmp/jons-offer-refresh/production-db-baseline.json
 
+      - name: Bind fresh Jon's Review Queue source
+        id: review_source
+        if: ${{ success() && (github.event_name == 'schedule' || inputs.operation == 'apply') && !(github.event_name == 'workflow_dispatch' && inputs.reviewed_price_1098) }}
+        run: node scripts/shared-retailer-automation-review-source.js --mode=bind --profile=jons-supplements --source-artifact-dir=tmp/jons-offer-refresh
+
       - name: Apply all approved Jon's offer refresh
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
         env:
@@ -142,9 +152,67 @@ jobs:
 
       - name: Upload Jon's refresh evidence
         if: always()
+        id: jons_artifact
         uses: actions/upload-artifact@v7
         with:
           name: jons-offer-refresh-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 14
           if-no-files-found: warn
           path: tmp/jons-offer-refresh/*.json
+
+  refresh-review-queue:
+    needs: jons-offer-refresh
+    if: ${{ always() && github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || inputs.operation == 'apply') && !(github.event_name == 'workflow_dispatch' && inputs.reviewed_price_1098) && needs.jons-offer-refresh.outputs.artifact_id != '' && needs.jons-offer-refresh.outputs.artifact_digest != '' && needs.jons-offer-refresh.outputs.source_contract_sha256 != '' && needs.jons-offer-refresh.outputs.review_scope_fingerprint != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production-readonly
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Test shared Jon's Review Queue publication contracts
+        run: node --test scripts/automation-review-reconciliation-dry-run.test.js
+      - name: Download exact Jon's source evidence
+        uses: actions/download-artifact@v8
+        with:
+          artifact-ids: ${{ needs.jons-offer-refresh.outputs.artifact_id }}
+          path: tmp/automation-review-reconciliation/jons-source
+          merge-multiple: true
+      - name: Build fresh Jon's Review Queue changes
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SOURCE_ARTIFACT_DIGEST: ${{ needs.jons-offer-refresh.outputs.artifact_digest }}
+        run: >-
+          node scripts/shared-retailer-automation-review-source.js
+          --mode=reconcile
+          --profile=jons-supplements
+          --source-artifact-dir=tmp/automation-review-reconciliation/jons-source
+          --source-run-id=${{ github.run_id }}
+          --source-artifact-id=${{ needs.jons-offer-refresh.outputs.artifact_id }}
+          --source-commit-sha=${{ github.sha }}
+          --source-artifact-digest=${SOURCE_ARTIFACT_DIGEST#sha256:}
+          --source-contract-sha256=${{ needs.jons-offer-refresh.outputs.source_contract_sha256 }}
+          --output=tmp/automation-review-reconciliation/jons-reconciliation-dry-run.json
+      - name: Publish fresh Jon's cards to Automation Review Queue
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: >-
+          node scripts/automation-review-reconciliation-apply.js
+          --input=tmp/automation-review-reconciliation/jons-reconciliation-dry-run.json
+          --output=tmp/automation-review-reconciliation/jons-reconciliation-apply.json
+      - name: Upload Jon's queue refresh evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: jons-automation-review-queue-refresh-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: error
+          path: tmp/automation-review-reconciliation/*.json

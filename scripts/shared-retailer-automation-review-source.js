@@ -30,6 +30,7 @@ function fileSha256(file) { return crypto.createHash("sha256").update(fs.readFil
 function sortedIds(values) { return [...new Set(values.map(String))].sort((a, b) => Number(a) - Number(b) || a.localeCompare(b)); }
 function sameJson(left, right, message) { invariant(JSON.stringify(left) === JSON.stringify(right), message); }
 function nullable(value) { return value == null ? null : String(value); }
+function sameMoney(left, right) { return Number.isFinite(Number(left)) && Number(left).toFixed(2) === Number(right).toFixed(2); }
 function profileFor(value = "fit-house") {
   return publicationProfileFor(value, invariant);
 }
@@ -57,16 +58,14 @@ function loadAndValidateSource(directory, profileValue = "fit-house", fileNames 
   const files = pathsFor(directory, fileNames);
   for (const file of Object.values(files)) invariant(fs.existsSync(file), `Missing ${label} source file ${path.basename(file)}`);
   const report = readJson(files.report);
-  const diagnostic = readJson(files.diagnostic);
+  const diagnostic = files.diagnostic ? readJson(files.diagnostic) : null;
   const baseline = readJson(files.baseline);
 
-  const expectedResult = Number(report.review_row_count) > 0 ? "PASS_WITH_REVIEW" : "PASS";
-  invariant(report.result === expectedResult && report.mode === "dry-run" && report.target === "production", `${label} pre-execution report is not publishable`);
-  invariant(report.approved_mapping_count === profile.approvedMappingCount && report.blocked_row_count === 0, `${label} apply scope drifted`);
-  invariant(baseline.schema_version === 1 && baseline.kind === "retailer-offer-refresh-db-baseline" && baseline.result === "PASS" && baseline.profile === retailer.slug, `${label} DB baseline is invalid`);
+  profile.validateCapture(profile, { report, diagnostic, files, invariant });
+  invariant(baseline.schema_version === 1 && baseline.kind === "retailer-offer-refresh-db-baseline" && baseline.result === "PASS" && baseline.profile === profile.postflightProfile, `${label} DB baseline is invalid`);
   invariant(baseline.snapshot?.retailer_id === retailer.id && baseline.snapshot?.retailer_name === retailer.name && baseline.snapshot?.row_count === profile.approvedMappingCount && Array.isArray(baseline.snapshot?.rows) && baseline.snapshot.rows.length === profile.approvedMappingCount, `${label} DB baseline scope drifted`);
-  const sourceFingerprint = profile.sourceFingerprint(report);
-  invariant(/^[0-9a-f]{64}$/.test(sourceFingerprint || "") && diagnostic.approved_mapping_count === profile.approvedMappingCount && profile.sourceFingerprint({ source: diagnostic.source }) === sourceFingerprint, `${label} preflight source binding drifted`);
+  const sourceFingerprint = profile.sourceFingerprint(report, diagnostic, files);
+  invariant(/^[0-9a-f]{64}$/.test(sourceFingerprint || ""), `${label} preflight source binding drifted`);
 
   const baselineByOffer = new Map(baseline.snapshot.rows.map((row) => [String(row.offer_id), row]));
   invariant(baselineByOffer.size === profile.approvedMappingCount, `${label} baseline contains duplicate offers`);
@@ -75,14 +74,12 @@ function loadAndValidateSource(directory, profileValue = "fit-house", fileNames 
   invariant(report.review_row_count === report.review_rows.length && report.review_row_count === changedRows.length, `${label} review row count drifted`);
   sameJson(reviewIds, changedRows.map((row) => row.offer_id), `${label} report and normalized review IDs drifted`);
   invariant(partition.executionIds.every((offerId) => !reviewIds.includes(offerId)), `${label} executable and review scopes overlap`);
-  invariant(profile.reviewType === "stock"
-    ? changedRows.every((row) => row.action === "UPDATE_STOCK" && row.old_price === row.new_price && row.old_stock !== row.new_stock)
-    : changedRows.every((row) => row.action === "SOURCE_MISSING" && row.old_price === row.new_price && row.old_stock === row.new_stock), `${label} review scope contains an unsafe catalogue change`);
+  profile.validateChangedRows(profile, changedRows, invariant);
   for (const changed of changedRows) {
     const row = baselineByOffer.get(changed.offer_id);
     invariant(row && String(row.mapping_id) === changed.retailer_product_id, `${label} baseline mapping missing for offer ${changed.offer_id}`);
     invariant(String(row.external_product_id) === changed.external_product_id && String(row.external_variant_id) === changed.external_variant_id, `${label} source identity drift for offer ${changed.offer_id}`);
-    invariant(String(row.price) === changed.old_price && row.in_stock === changed.old_stock, `${label} before-state drift for offer ${changed.offer_id}`);
+    invariant(sameMoney(row.price, changed.old_price) && row.in_stock === changed.old_stock, `${label} before-state drift for offer ${changed.offer_id}`);
   }
   return { profile, retailer, files, fileNames, report, diagnostic, baseline, changedRows, baselineByOffer, sourceFingerprint, codeCommit: partition.codeCommit || null };
 }
@@ -98,7 +95,7 @@ function contractCore(source, env) {
     source_fingerprint: source.sourceFingerprint,
     changed_rows: source.changedRows,
   });
-  const createdAt = source.diagnostic.timestamp;
+  const createdAt = profile.captureTimestamp(source);
   invariant(createdAt && Number.isFinite(Date.parse(createdAt)), `${profileLabel(profile)} capture timestamp is invalid`);
   if (source.codeCommit) invariant(source.codeCommit === String(env.GITHUB_SHA || ""), `${profileLabel(profile)} immutable commit binding drifted`);
   return {
@@ -126,7 +123,7 @@ function contractCore(source, env) {
     file_names: source.fileNames,
     file_hashes: fileHashes,
     baseline_evidence_hash: source.baseline.evidence_hash,
-    plan_fingerprint: sha256({ retailer_id: retailer.id, catalogue_offer_ids: catalogueOfferIds, review_scope_fingerprint: reviewScopeFingerprint, source_fingerprint: source.report.source.fingerprint }),
+    plan_fingerprint: sha256({ retailer_id: retailer.id, catalogue_offer_ids: catalogueOfferIds, review_scope_fingerprint: reviewScopeFingerprint, source_fingerprint: source.sourceFingerprint }),
     catalogue_writes: 0,
   };
 }
@@ -278,7 +275,7 @@ function buildManifestRows(source, baseline, options) {
     invariant(String(offer.retailer_id) === retailer.id && String(mapping.retailer_id) === retailer.id && String(offer.retailer_product_id) === String(mapping.id), `Current ${label} retailer binding drift for offer ${changed.offer_id}`);
     invariant(String(offer.product_id) === String(before.offer_product_id) && String(offer.product_variant_id) === String(before.offer_variant_id) && String(mapping.product_id) === String(before.mapping_product_id) && String(mapping.product_variant_id) === String(before.mapping_variant_id), `Current ${label} canonical identity drift for offer ${changed.offer_id}`);
     invariant(String(mapping.external_product_id) === changed.external_product_id && String(mapping.external_variant_id) === changed.external_variant_id, `Current ${label} source identity drift for offer ${changed.offer_id}`);
-    invariant(String(offer.price) === changed.old_price && offer.in_stock === changed.old_stock && nullable(offer.url) === nullable(before.url) && nullable(mapping.external_url) === nullable(before.external_url), `Current ${label} commercial state drift for offer ${changed.offer_id}`);
+    invariant(sameMoney(offer.price, changed.old_price) && offer.in_stock === changed.old_stock && nullable(offer.url) === nullable(before.url) && nullable(mapping.external_url) === nullable(before.external_url), `Current ${label} commercial state drift for offer ${changed.offer_id}`);
     const beforeState = { offer_id: changed.offer_id, retailer_product_id: changed.retailer_product_id, product_id: String(offer.product_id), product_variant_id: String(offer.product_variant_id), price: String(offer.price), shipping_cost: nullable(offer.shipping_cost), total_price: nullable(offer.total_price), in_stock: offer.in_stock === true, url: offer.url || null, external_url: mapping.external_url || null, external_product_id: nullable(mapping.external_product_id), external_variant_id: nullable(mapping.external_variant_id) };
     const card = profile.reviewCard(beforeState, changed);
     const proposedState = card.proposedState;
