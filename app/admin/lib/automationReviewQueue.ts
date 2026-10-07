@@ -5,7 +5,9 @@ import {
 } from "../../lib/automationReviewCapabilityMatrix";
 
 export const REVIEW_QUEUE_PAGE_SIZE = 50;
-export const REVIEW_QUEUE_WORK_PAGE_SIZE = 1;
+// Keep a bounded working set, but let the owner move between adjacent cards by
+// ordinary scrolling instead of opening a new page after every single offer.
+export const REVIEW_QUEUE_WORK_PAGE_SIZE = 10;
 export const REVIEW_QUEUE_READ_BATCH_SIZE = 1000;
 export const REVIEW_QUEUE_MAX_ROWS = 5000;
 
