@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "task": "RA-STAB-01",
+  "status": "LOCAL_VERIFIED_MERGE_PENDING",
+  "recorded_at": "2026-10-07",
+  "problem": {
+    "observed_behavior": "An approved execution request can be durably queued while immediate GitHub workflow dispatch is unavailable or fails.",
+    "previous_ui_claim": "The queue will execute it automatically within a few minutes.",
+    "previous_failure_behavior": "A transient dispatch failure returned HTTP 503 even though the request remained safely queued.",
+    "scheduler_evidence": "The existing five-minute GitHub schedule is the fallback, but recent scheduled deliveries were irregular and must not be presented as a fixed delay.",
+    "production_token_presence_directly_read": false
+  },
+  "change": {
+    "new_executor": false,
+    "new_queue": false,
+    "guardrail_change": false,
+    "catalogue_write_path_change": false,
+    "dispatch_outcomes": ["immediate", "scheduled", "fallback", "existing"],
+    "queued_request_survives_dispatch_failure": true,
+    "duplicate_click_warning": true,
+    "status_refresh_link": true,
+    "requested_at_visible": true,
+    "fixed_time_promise_removed": true,
+    "filters_preserved_and_page_reset": true
+  },
+  "verification": {
+    "focused_admin_tests": "PASS_60",
+    "quick_quality_gate": "PASS_547_TESTS_544_PASS_3_SKIP",
+    "full_quality_gate": "PASS",
+    "production_build": "PASS",
+    "project_guardian": "PASS",
+    "typescript": "PASS",
+    "changed_file_eslint": "PASS",
+    "production_writes": 0,
+    "control_writes": 0,
+    "workflow_dispatches": 0
+  },
+  "next_gate": "Merge/CI and authenticated production UI readback. Immediate dispatch still requires the existing server-side GitHub token configuration; this change does not invent a second executor or credential path."
+}

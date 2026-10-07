@@ -818,12 +818,13 @@ test("Review Queue work dashboard separates owner work, technical rows and compl
 });
 
 test("Review Queue return path preserves safe filters, resets pagination and blocks external redirects", () => {
-  const { safeAutomationReviewReturnPath } = loadTsModule("app/admin/lib/automationReviewReturnPath.ts");
+  const { safeAutomationReviewReturnPath, withAutomationReviewExecutionDelivery } = loadTsModule("app/admin/lib/automationReviewReturnPath.ts");
   assert.equal(safeAutomationReviewReturnPath("/admin/automation-review?retailer=Fit+House&queue=DECIDE&page=4&saved=old", "decision"), "/admin/automation-review?retailer=Fit+House&queue=DECIDE&saved=decision");
   assert.equal(safeAutomationReviewReturnPath("https://www.supplementscout.co.uk/admin/automation-review?q=1982", "execution", "https://www.supplementscout.co.uk"), "/admin/automation-review?q=1982&saved=execution");
   assert.equal(safeAutomationReviewReturnPath("https://example.com/admin/automation-review", "decision", "https://www.supplementscout.co.uk"), "/admin/automation-review?saved=decision");
   assert.equal(safeAutomationReviewReturnPath("?queue=EXECUTE&page=9", "execution"), "/admin/automation-review?queue=EXECUTE&saved=execution");
   assert.equal(safeAutomationReviewReturnPath("?q=2703&history=1", "decision"), "/admin/automation-review?q=2703&history=1&saved=decision");
+  assert.equal(withAutomationReviewExecutionDelivery("/admin/automation-review?q=2703&saved=execution", "scheduled"), "/admin/automation-review?q=2703&saved=execution&delivery=scheduled");
 });
 
 test("Queued execution leaves owner work immediately and next remaining offer opens on page one", () => {
@@ -931,6 +932,10 @@ test("automation review execute action authenticates and queues work for the pro
   assert.match(source, /queuedStatus !== "QUEUED"/);
   assert.match(source, /dispatchReviewExecution/);
   assert.match(source, /if \(!reviewWorkflowDispatchConfigured\(\)\)/);
+  assert.match(source, /withAutomationReviewExecutionDelivery\(returnPath, "scheduled"\)/);
+  assert.match(source, /withAutomationReviewExecutionDelivery\(returnPath, "fallback"\)/);
+  assert.match(source, /AUTOMATION_REVIEW_WORKFLOW_DISPATCH_DEFERRED/);
+  assert.doesNotMatch(source, /Execution request was queued, but GitHub workflow dispatch failed/);
   assert.doesNotMatch(source, /api\.github\.com|await fetch\(/);
   assert.doesNotMatch(source, /approve_product_import_plan|apply_approved_product_import_plan/);
   assert.doesNotMatch(source, /\.from\("(?:products|product_variants|retailer_products|offers|price_history)"\)/);
@@ -951,6 +956,16 @@ test("automation review workflow dispatch is token-gated and exactly bound to on
   assert.match(source, /response\.status !== 204/);
   assert.doesNotMatch(source, /supabaseAdmin|queue_automation_review_execution|approve_product_import_plan|apply_approved_product_import_plan/);
   assert.doesNotMatch(source, /\.from\("(?:products|product_variants|retailer_products|offers|price_history)"\)/);
+});
+
+test("Review Queue reports immediate and scheduled delivery honestly without promising a fixed delay", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "app", "admin", "automation-review", "page.tsx"), "utf8");
+  assert.match(source, /reviewWorkflowDispatchConfigured/);
+  assert.match(source, /istniejący harmonogram/);
+  assert.match(source, /Nie klikaj ponownie/);
+  assert.match(source, /Odśwież status/);
+  assert.match(source, /name="returnTo" value=\{currentHref\}/);
+  assert.doesNotMatch(source, /w ciągu kilku minut/);
 });
 
 test("Automation Review Queue scheduled worker processes the oldest bounded queue batch", async () => {
