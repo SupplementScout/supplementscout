@@ -18,6 +18,7 @@ const {
   balancedExecutionBatches,
   controlParentApprovalError,
   controlRegistrationEvidence,
+  durableAutomationReviewOosAllowances,
   enforceConfirmationOnly,
   enforceProtectedStockReportScope,
   executionReportContext,
@@ -56,6 +57,19 @@ test("post-apply idempotency accepts only the sealed owner-approved OOS transiti
   assert.equal(applyApprovedStableOosBaselineGuard(state, null, transition).result, "PASS");
   assert.throws(() => applyApprovedStableOosBaselineGuard({ records: [...state.records, { offer: { id: "9999", in_stock: false } }] }, null, transition), (error) => error.code === "STABLE_OOS_BASELINE_EXCEEDED");
   assert.throws(() => appliedAutomationReviewOosAllowance({ records: state.records.map((record) => String(record.offer.id) === "1982" ? { offer: { ...record.offer, in_stock: true } } : record) }, transition), /AUTOMATION_REVIEW_IDEMPOTENCY_AFTER_STATE_DRIFT/);
+});
+
+test("ordinary Fit House runs reuse only durable verified Review Queue OOS evidence", () => {
+  const state = {
+    records: [...Array.from({ length: 104 }, (_, index) => ({ offer: { id: String(index + 2000), in_stock: false } })), { offer: { id: "1982", in_stock: false } }],
+    automationReviews: [{ id: 1121, offer_id: 1982, review_status: "EXECUTED", operation_type: "UPDATE_STOCK", source_row_fingerprint: "a".repeat(64), plan_fingerprint: "b".repeat(64), before_state: { in_stock: true }, proposed_state: { in_stock: false } }],
+    automationReviewExecutions: [{ review_id: 1121, retailer_id: 9, operation_type: "UPDATE_STOCK", review_fingerprint: "a".repeat(64), plan_fingerprint: "b".repeat(64), status: "EXECUTED", postflight_hash: "c".repeat(64), executed_offer_ids: ["1982"], failed_offer_ids: [], remaining_offer_ids: [], actual_deltas: { stock: 1 }, database_writes: 20, idempotency_result: "PASS", last_checkpoint: "VERIFIED_POSTFLIGHT_RECOVERY", completed_at: "2026-10-06T17:27:53.098Z" }],
+  };
+  assert.deepEqual(durableAutomationReviewOosAllowances(state), ["1982"]);
+  assert.equal(applyApprovedStableOosBaselineGuard(state).result, "PASS");
+  assert.deepEqual(applyApprovedStableOosBaselineGuard(state).durable_automation_review_oos_offer_ids, ["1982"]);
+  assert.deepEqual(durableAutomationReviewOosAllowances({ ...state, automationReviewExecutions: [{ ...state.automationReviewExecutions[0], postflight_hash: null }] }), []);
+  assert.throws(() => applyApprovedStableOosBaselineGuard({ ...state, automationReviewExecutions: [] }), (error) => error.code === "STABLE_OOS_BASELINE_EXCEEDED");
 });
 
 test("Review Queue selection executes one stock decision with nineteen unchanged confirmations", () => {
@@ -265,7 +279,7 @@ test("offer 759 return is exact, the other six protected offers remain OOS, and 
   const postReviewScope=[...scope,{offer:{id:"1982",in_stock:false}}];
   assert.throws(()=>reconcileOwnerApprovedSixAbsent(postReviewScope,[live],fingerprint,reviewed,returnedReview),/stable OOS baseline drift/);
   assert.equal(reconcileOwnerApprovedSixAbsent(postReviewScope,[live],fingerprint,reviewed,returnedReview,undefined,1).applied,5);
-  assert.throws(()=>reconcileOwnerApprovedSixAbsent(postReviewScope,[live],fingerprint,reviewed,returnedReview,undefined,2),/automation review OOS allowance is invalid/);
+  assert.throws(()=>reconcileOwnerApprovedSixAbsent(postReviewScope,[live],fingerprint,reviewed,returnedReview,undefined,2),/stable OOS baseline drift/);
   assert.throws(()=>reconcileOwnerApprovedSixAbsent(scope,[],fingerprint,reviewed,returnedReview),/returned source identity\/state drift/);
   assert.throws(()=>reconcileOwnerApprovedSixAbsent(scope,[live,{external_variant_id:rows[0].external_variant_id}],fingerprint,reviewed,returnedReview),/protected absent source identity returned/);
   records.find(record=>record.offer.id===returned.offer_id).offer.in_stock=false;

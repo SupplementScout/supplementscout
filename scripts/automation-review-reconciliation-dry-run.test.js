@@ -865,6 +865,7 @@ test("6 Pack profile publishes 14 mixed rows as non-executable shared review car
   const fixture = writeSixPackFixture();
   const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "37448175548", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
   const contract = buildFitHouseSourceContract(fixture.directory, env, "six-pack-supplements");
+  assert.equal(contract.profile, "6-pack-supplements");
   writeJson(path.join(fixture.directory, "automation-review-source-contract.json"), contract);
   const options = { profile: "six-pack-supplements", sourceArtifactDir: fixture.directory, sourceRunId: env.GITHUB_RUN_ID, sourceArtifactId: "11407901475", sourceCommitSha: env.GITHUB_SHA, sourceArtifactDigest: "b".repeat(64), sourceContractSha256: fileSha(path.join(fixture.directory, "automation-review-source-contract.json")), output: path.join(fixture.directory, "output.json") };
   const source = verifyFitHouseSourceContract(options, new Date("2026-10-07T04:00:00Z"));

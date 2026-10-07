@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "task": "RA-STAB-01",
+  "status": "LOCAL_AND_LIVE_READ_ONLY_VERIFIED_MERGE_PENDING",
+  "recorded_at": "2026-10-07",
+  "incidents": {
+    "fit_house": {
+      "ordinary_run": 37599546370,
+      "observed_error": "STABLE_OOS_BASELINE_EXCEEDED",
+      "current_oos_count": 110,
+      "legacy_approved_oos_count": 109,
+      "durable_review_offer_id": "1982",
+      "durable_review_id": "1121",
+      "durable_execution_request_id": "976f67b4-c06c-4f73-a3c6-48ca63f45dfd",
+      "cause": "The ordinary retailer run did not read the already verified EXECUTED Review Queue outcome, so its legacy OOS guard treated the approved offer state as unknown."
+    },
+    "six_pack": {
+      "ordinary_run": 37605681359,
+      "observed_error": "6 Pack Supplements retailer binding mismatch",
+      "database_retailer_slug": "6-pack-supplements",
+      "incorrect_publication_profile_slug": "six-pack-supplements",
+      "cause": "The publication profile confused its internal profile key with the existing production retailer slug."
+    }
+  },
+  "change": {
+    "fit_house": {
+      "durable_review_evidence_read_only": true,
+      "required_review_status": "EXECUTED",
+      "required_execution_status": "EXECUTED",
+      "required_operation": "UPDATE_STOCK",
+      "required_transition": "true_to_false",
+      "required_fingerprint_match": true,
+      "required_postflight_hash": true,
+      "required_idempotency_result": "PASS",
+      "required_current_offer_state_match": true,
+      "unproved_oos_still_blocks": true,
+      "baseline_widened": false,
+      "offer_id_exception_added": false
+    },
+    "six_pack": {
+      "internal_profile_key_unchanged": "six-pack-supplements",
+      "retailer_binding_slug_corrected": "6-pack-supplements",
+      "shared_core_retailer_branch_added": false,
+      "new_publisher_or_queue": false
+    }
+  },
+  "verification": {
+    "focused_tests": "PASS_73",
+    "quick": "PASS_547_TESTS_544_PASS_3_SKIP",
+    "project_guardian": "PASS",
+    "full_quality_gate": "PASS",
+    "production_build": "PASS",
+    "fit_house_live_read_only": {
+      "result": "DRY_RUN_READY_WITH_REVIEW",
+      "database_writes": 0,
+      "current_oos_count": 110,
+      "durable_review_oos_offer_ids": ["1982"],
+      "safe_rows": 273,
+      "review_rows": 13,
+      "unproved_rows_executed": 0
+    },
+    "six_pack_production_binding_readback": {
+      "retailer_id": "11",
+      "name": "6 Pack Supplements",
+      "slug": "6-pack-supplements"
+    },
+    "six_pack_incident_regression": "PASS",
+    "production_writes": 0,
+    "review_queue_publications": 0,
+    "workflow_dispatches": 0
+  },
+  "next_gate": "Merge after green CI, then use natural retailer schedules and the following watchdog. Do not replay the failed 6 Pack artifact or manually apply Fit House."
+}

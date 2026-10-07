@@ -1966,6 +1966,32 @@ merged-main CI pass. Authenticated production GET readback on merge `d6ab38c`
 returns one result by default and two only with `history=1`; it submitted no
 decision or execution. Evidence: [current search](evidence/RA-STAB-01-REVIEW-QUEUE-CURRENT-SEARCH-2026-10-07.json).
 
+**7 October Fit House durable Review Queue state and 6 Pack binding correction —
+prepared without threshold widening:** natural shared run `37599546370` stopped
+Fit House at `110` OOS because the ordinary path counted the five still-OOS
+legacy approved offers but did not read the already verified Review Queue
+execution for offer `1982`. Review `1121` and request
+`976f67b4-c06c-4f73-a3c6-48ca63f45dfd` prove the exact owner-approved
+`true -> false` stock transition, database postflight, one stock delta,
+idempotency `PASS` and the current OOS state. The existing Fit House guard now
+accepts that durable evidence only when review/request fingerprints, operation,
+before/after state, postflight, idempotency, executed IDs, deltas and current
+offer all agree. An unproved extra OOS still blocks; the baseline remains `104`
+and no offer-ID exception is added. A fresh production read-only build passes
+with `273` safe rows plus `13` review rows and zero writes.
+
+The same audit found 6 Pack run `37605681359` completed its catalogue refresh
+but failed Review Queue publication because the profile used internal key
+`six-pack-supplements` as the retailer slug. Production and the existing 6 Pack
+connector use `6-pack-supplements`. The profile now keeps its internal key and
+postflight profile unchanged while binding publication to the real retailer
+slug. The exact incident regression and the combined focused suite pass
+`73/73`; quick verification passes `547` tests and the full quality gate passes.
+No failed artifact was replayed, no queue row was published and no retailer
+workflow was manually dispatched. Merge/CI and natural schedule readbacks remain gates; the
+ordinary counter stays `0/3`. Evidence:
+[`evidence/RA-STAB-01-FIT-HOUSE-DURABLE-REVIEW-SIX-PACK-BINDING-PREPARATION-2026-10-07.json`](evidence/RA-STAB-01-FIT-HOUSE-DURABLE-REVIEW-SIX-PACK-BINDING-PREPARATION-2026-10-07.json).
+
 Docker run `37421724769` now proves the existing expired-close regression and
 the new exact `12 + 1 + 6` fixture pass against disposable PostgreSQL. The
 monolithic integration job remains red only for the same two unrelated
