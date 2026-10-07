@@ -1906,9 +1906,11 @@ Jon's rows are identity-review-only. 6 Pack source-missing rows are identity
 review and its price/mass-OOS rows are policy-review-only. Neither retailer is
 added to the execution-adapter registry, so these cards cannot execute catalogue
 changes. No queue, publisher, executor, credential or direct database path was
-added. Focused `77/77` and quick `547` tests pass; full, CI and the next natural
-schedule readbacks remain. This does not advance the `0/3` ordinary interval
-counter. Evidence:
+added. Focused `77/77`, quick `547` and full quality gates passed. PR `#255`
+passed Quality Gate run `37587513945`, Project Guardian run `37587514008`,
+Vercel and GitGuardian, then merged as `64c29f6`. Only the next natural schedule
+readbacks remain; no retailer workflow was manually dispatched. This does not
+advance the `0/3` ordinary interval counter. Evidence:
 [`evidence/RA-STAB-01-JONS-SIX-PACK-QUEUE-PUBLICATION-PREPARATION-2026-10-07.json`](evidence/RA-STAB-01-JONS-SIX-PACK-QUEUE-PUBLICATION-PREPARATION-2026-10-07.json).
 
 Docker run `37421724769` now proves the existing expired-close regression and

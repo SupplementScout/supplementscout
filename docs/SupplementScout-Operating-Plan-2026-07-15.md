@@ -1113,8 +1113,10 @@ the review partition before catalogue execution. Jon's cards are identity-only;
 6 Pack cards are identity- or policy-review-only. Neither retailer has an
 execution adapter, so publication cannot grant catalogue-write authority. No
 parallel queue, executor, credential or retailer condition in shared core was
-introduced. Full verification, CI and natural schedule readbacks remain, and
-the RA-STAB-01 counter stays `0/3`. See the
+introduced. Focused, quick and full checks passed; PR `#255` passed Quality
+Gate, Project Guardian, Vercel and GitGuardian, then merged as `64c29f6`.
+Only natural schedule readbacks remain, and the RA-STAB-01 counter stays `0/3`.
+No retailer workflow was manually dispatched. See the
 [7 October queue-publication preparation](retailer-automation/evidence/RA-STAB-01-JONS-SIX-PACK-QUEUE-PUBLICATION-PREPARATION-2026-10-07.json).
 
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
