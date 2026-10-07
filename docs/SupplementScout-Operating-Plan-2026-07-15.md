@@ -1105,6 +1105,18 @@ proved eBay is `PASS_WITH_REVIEW`, while Fit House, Jon's and 6 Pack remain
 `FAILED_SYSTEM`; its overall red result is the intended fail-closed truth. See
 the [7 October watchdog evidence](retailer-automation/evidence/RA-STAB-01-WATCHDOG-REVIEW-BACKED-WAITING-PREPARATION-2026-10-07.json).
 
+The next shared RA-STAB-01 correction is prepared for Jon's and 6 Pack. Their
+latest ordinary evidence contains `5` and `14` isolated review rows respectively,
+but production had no active queue cards for either scope. Both workflows now
+reuse the same guarded publisher as Fit House, 10 Reps and Whey Okay, sealing
+the review partition before catalogue execution. Jon's cards are identity-only;
+6 Pack cards are identity- or policy-review-only. Neither retailer has an
+execution adapter, so publication cannot grant catalogue-write authority. No
+parallel queue, executor, credential or retailer condition in shared core was
+introduced. Full verification, CI and natural schedule readbacks remain, and
+the RA-STAB-01 counter stays `0/3`. See the
+[7 October queue-publication preparation](retailer-automation/evidence/RA-STAB-01-JONS-SIX-PACK-QUEUE-PUBLICATION-PREPARATION-2026-10-07.json).
+
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256
 `59c6d03a2bbcff0b384b86065f76e6f456e3538ca538613cf83e5e017ec11a9d`,

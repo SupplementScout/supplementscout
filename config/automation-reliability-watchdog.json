@@ -120,6 +120,10 @@
       "id": 10,
       "name": "Jon's Supplements",
       "workflow": "jons-offer-refresh.yml",
+      "review_publication": {
+        "job_name": "refresh-review-queue",
+        "step_name": "Publish fresh Jon's cards to Automation Review Queue"
+      },
       "stages": {
         "capture": ["Dry-run all approved Jon's offers"],
         "apply": ["Apply all approved Jon's offer refresh"],
@@ -131,6 +135,10 @@
       "id": 11,
       "name": "6 Pack Supplements",
       "workflow": "six-pack-offer-refresh.yml",
+      "review_publication": {
+        "job_name": "refresh-review-queue",
+        "step_name": "Publish fresh 6 Pack cards to Automation Review Queue"
+      },
       "stages": {
         "capture": ["Fresh live-source dry-run"],
         "apply": ["Apply exact approved manifest"],

@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "task": "RA-STAB-01",
+  "status": "PREPARED_LOCAL_NATURAL_VERIFICATION_PENDING",
+  "recorded_at": "2026-10-07",
+  "incident": {
+    "watchdog_run": "37581684482",
+    "jons": {
+      "ordinary_run": "37457004820",
+      "artifact_id": "11409956021",
+      "artifact_digest": "ac43198bfd8aa3b18665f7e92b472048d2a2e259f6f7f70d9e5920ef642a9056",
+      "approved_offers": 506,
+      "executable_offers": 501,
+      "review_offers": 5,
+      "active_review_queue_rows_before": 0,
+      "reason": "SOURCE_VARIANT_MISSING"
+    },
+    "six_pack": {
+      "ordinary_run": "37448175548",
+      "artifact_id": "11407901475",
+      "artifact_digest": "3a3e15edd447fa4485c7497f99cb9da1816a4a039c070f4ede055b9806a9f2da",
+      "approved_offers": 506,
+      "executable_offers": 492,
+      "review_offers": 14,
+      "active_review_queue_rows_before": 0,
+      "reasons": [
+        "SOURCE_VARIANT_MISSING",
+        "HARD_PRICE_ANOMALY",
+        "MASS_OOS"
+      ]
+    }
+  },
+  "implementation": {
+    "existing_shared_publisher_reused": true,
+    "new_queue": false,
+    "new_publisher": false,
+    "new_executor": false,
+    "new_credentials": false,
+    "retailer_condition_in_shared_core": false,
+    "profile_driven_source_contracts": true,
+    "source_contract_bound_before_apply": true,
+    "same_run_artifact_binding": true,
+    "jons_cards": "IDENTITY_REVIEW_ONLY",
+    "six_pack_cards": "IDENTITY_OR_POLICY_REVIEW_ONLY",
+    "catalogue_execution_enabled_for_jons_or_six_pack": false,
+    "database_write_scope": "EXISTING_GUARDED_REVIEW_QUEUE_PUBLICATION_RPC_ONLY"
+  },
+  "verification": {
+    "project_guardian_before": "PASS_VIA_VERIFY_QUICK",
+    "focused_publication_and_watchdog_tests": "PASS_77",
+    "quick": "PASS_547_TESTS_544_PASS_3_SKIP",
+    "eslint_changed_files": "PASS",
+    "full": "PASS",
+    "pull_request_ci": "PENDING",
+    "natural_live_readback": "PENDING"
+  },
+  "next_gate": "Pass full verification and CI, merge, then wait for the next natural Jon's and 6 Pack schedules. Do not manually dispatch retailer workflows. Verify exact Review Queue publication and zero catalogue authority for all 19 cards."
+}

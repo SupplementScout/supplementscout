@@ -779,6 +779,115 @@ test("Whey Okay profile creates review-only source-missing cards and rejects imm
   assert.throws(() => buildFitHouseSourceContract(fixture.directory, env, "whey-okay"), /payload hash mismatch/);
 });
 
+function publicationBaseline(fixture, retailerId) {
+  const reviewIds = new Set(fixture.reviewRows.map((row) => String(row.offer_id)));
+  const selected = fixture.baselineRows.filter((row) => reviewIds.has(String(row.offer_id)));
+  return {
+    catalogueCounts: { products: 1337, product_variants: 3632, retailer_products: 3758, offers: 3758, price_history: 27401 },
+    activeRows: [],
+    offers: selected.map((row) => ({ id: row.offer_id, retailer_id: retailerId, retailer_product_id: row.mapping_id, product_id: row.offer_product_id, product_variant_id: row.offer_variant_id, price: row.price, shipping_cost: row.shipping_cost, total_price: row.total_price, in_stock: row.in_stock, url: row.url })),
+    mappings: selected.map((row) => ({ id: row.mapping_id, retailer_id: retailerId, product_id: row.mapping_product_id, product_variant_id: row.mapping_variant_id, external_product_id: row.external_product_id, external_variant_id: row.external_variant_id, external_sku: null, external_gtin: null, external_url: row.external_url })),
+    products: selected.map((row) => ({ id: row.offer_product_id, name: `Product ${row.offer_id}` })),
+    variants: selected.map((row) => ({ id: row.offer_variant_id, display_name: `Variant ${row.offer_id}` })),
+  };
+}
+
+function writeJonsFixture() {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "jons-review-source-"));
+  const capturedAt = "2026-10-07T04:48:00.000Z";
+  const sourceFingerprint = "8".repeat(64);
+  const reviewIds = new Set(["1197", "1209", "1456", "1457", "1458"]);
+  const offerIds = [...reviewIds, ...Array.from({ length: 501 }, (_, index) => String(5000 + index))];
+  const baselineRows = offerIds.map((offerId, index) => ({
+    mapping_id: String(6000 + index), retailer_id: "10", mapping_product_id: String(7000 + index), mapping_variant_id: String(8000 + index),
+    external_product_id: `jons-product-${index}`, external_variant_id: `jons-variant-${index}`, external_sku: null, external_gtin: null, external_options: null,
+    external_url: `https://jonssupplements.co.uk/products/${index}`, offer_id: offerId, offer_product_id: String(7000 + index), offer_variant_id: String(8000 + index),
+    price: "19.99", shipping_cost: "0.00", total_price: "19.99", in_stock: true, url: `https://jonssupplements.co.uk/products/${index}`, last_checked_at: capturedAt,
+  }));
+  const byOffer = new Map(baselineRows.map((row) => [row.offer_id, row]));
+  const reviewRows = [...reviewIds].map((offerId) => ({ offer_id: offerId, retailer_product_id: byOffer.get(offerId).mapping_id, external_product_id: byOffer.get(offerId).external_product_id, external_variant_id: byOffer.get(offerId).external_variant_id, reason: "SOURCE_VARIANT_MISSING", old_price: "19.99", new_price: null, old_stock: true, new_stock: null }));
+  const executionIds = baselineRows.filter((row) => !reviewIds.has(row.offer_id)).map((row) => row.offer_id);
+  const report = { result: "PASS_WITH_REVIEW", mode: "dry-run", target: "production", approved_mapping_count: 506, executable_plan_count: 501, executed_plan_count: 0, review_row_count: 5, blocked_row_count: 0, source: { fingerprint: sourceFingerprint }, classification: { VERIFY_NO_CHANGE: 484, UPDATE_STOCK: 17 }, review_rows: reviewRows };
+  const diagnostic = { result: "PASS", timestamp: capturedAt, completed_at: capturedAt, failure_stage: null, approved_mapping_count: 506, source: { pagination_completed: true }, database_writes_attempted: 0, database_writes_completed: 0, business_writes_completed: 0, control_writes_completed: 0, approvals_created: 0, approvals_consumed: 0, recovery_calls: 0, classifier_summary: { scope: { scope_row_ids: executionIds, blocked_rows: 0, reconciled: true, reconciled_total: 501 }, action_counts: report.classification, changed_row_ids: executionIds.slice(0, 17), changed_rows: [], quarantined_rows: reviewRows } };
+  const baseline = { schema_version: 1, kind: "retailer-offer-refresh-db-baseline", result: "PASS", profile: "jons-supplements", snapshot: { captured_at: capturedAt, retailer_id: "10", retailer_name: "Jon's Supplements", row_count: 506, rows: baselineRows }, evidence_hash: "7".repeat(64) };
+  writeJson(path.join(directory, "production-dry-run.json"), report);
+  writeJson(path.join(directory, "production-preflight-diagnostic.json"), diagnostic);
+  writeJson(path.join(directory, "production-db-baseline.json"), baseline);
+  return { directory, baselineRows, reviewRows };
+}
+
+test("Jon's profile publishes the exact five isolated source-missing rows through the shared queue", () => {
+  const fixture = writeJonsFixture();
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "37457004820", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
+  const contract = buildFitHouseSourceContract(fixture.directory, env, "jons-supplements");
+  writeJson(path.join(fixture.directory, "automation-review-source-contract.json"), contract);
+  const options = { profile: "jons-supplements", sourceArtifactDir: fixture.directory, sourceRunId: env.GITHUB_RUN_ID, sourceArtifactId: "11409956021", sourceCommitSha: env.GITHUB_SHA, sourceArtifactDigest: "a".repeat(64), sourceContractSha256: fileSha(path.join(fixture.directory, "automation-review-source-contract.json")), output: path.join(fixture.directory, "output.json") };
+  const source = verifyFitHouseSourceContract(options, new Date("2026-10-07T05:00:00Z"));
+  const baseline = publicationBaseline(fixture, "10");
+  const rows = buildFitHouseManifestRows(source, baseline, options);
+  assert.equal(contract.executable_plan_count, 501);
+  assert.equal(rows.length, 5);
+  assert.equal(rows.every((row) => row.operation_type === "MANUAL_REVIEW_IDENTITY" && row.reason_codes === "SOURCE_MISSING" && row.impact_summary.executable === false), true);
+  assert.equal(buildFitHouseOutput(source, baseline, rows, options, env).expected.catalogue_writes, 0);
+});
+
+function writeSixPackFixture() {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "six-pack-review-source-"));
+  const capturedAt = "2026-10-07T03:18:00.000Z";
+  const sourceFingerprint = "6".repeat(64);
+  const offerIds = Array.from({ length: 506 }, (_, index) => String(9000 + index));
+  const reviewIds = new Set(offerIds.slice(0, 14));
+  const baselineRows = offerIds.map((offerId, index) => ({
+    mapping_id: String(10000 + index), retailer_id: "11", mapping_product_id: String(11000 + index), mapping_variant_id: String(12000 + index),
+    external_product_id: String(13000 + index), external_variant_id: String(14000 + index), external_sku: null, external_gtin: null, external_options: null,
+    external_url: `https://6pack-supplements.co.uk/product/${index}`, offer_id: offerId, offer_product_id: String(11000 + index), offer_variant_id: String(12000 + index),
+    price: index === 1 ? "12" : "19.99", shipping_cost: "4.99", total_price: index === 1 ? "16.99" : "24.98", in_stock: true, url: `https://6pack-supplements.co.uk/product/${index}`, last_checked_at: capturedAt,
+  }));
+  const reviewRows = baselineRows.slice(0, 14).map((row, index) => ({
+    offer_id: row.offer_id, mapping_id: row.mapping_id, external_product_id: row.external_product_id, external_variant_id: row.external_variant_id,
+    reason: index === 0 ? "SOURCE_VARIANT_MISSING" : index === 1 ? "HARD_PRICE_ANOMALY" : "MASS_OOS",
+    source_failure: index === 0 ? { disposition: "SOURCE_PRODUCT_NOT_FOUND" } : null,
+    original_action: index < 2 ? null : "UPDATE_STOCK",
+    current_offer: { price: index === 1 ? "12.00" : row.price, in_stock: row.in_stock, url: row.url },
+    proposed_offer: index === 0 ? null : { price: index === 1 ? "44.99" : row.price, in_stock: index === 1 ? true : false, url: row.url, source_captured_at: capturedAt },
+  }));
+  const executableRows = baselineRows.filter((row) => !reviewIds.has(row.offer_id));
+  const report = { schema_version: 1, kind: "six-pack-approved-offer-refresh-dry-run", result: "PASS_WITH_REVIEW", source_snapshot_fingerprint: sourceFingerprint, source_captured_at: capturedAt, approved_mapping_count: 506, executable_plan_count: 492, executed_plan_count: 0, review_row_count: 14, blocked_row_count: 0, classification_state: "DRY_RUN_READY_WITH_REVIEW", review_rows: reviewRows, action_counts: { VERIFY_NO_CHANGE: 492 }, database_writes: 0 };
+  const artifact = { artifact_version: 1, created_at: capturedAt, row_count: "492", plans: executableRows.map(() => ({ retailer_id: "11", operation_type: "verify_offer_no_change" })), source_rows: executableRows.map((row) => ({ normalized_source_row: { source_snapshot_sha256: sourceFingerprint, source_captured_at: capturedAt, target: { offer: { id: row.offer_id } } } })), blocked_rows: [] };
+  const baseline = { schema_version: 1, kind: "retailer-offer-refresh-db-baseline", result: "PASS", profile: "six-pack-supplements", snapshot: { captured_at: capturedAt, retailer_id: "11", retailer_name: "6 Pack Supplements", row_count: 506, rows: baselineRows }, evidence_hash: "5".repeat(64) };
+  writeJson(path.join(directory, "production-preflight-report.json"), report);
+  writeJson(path.join(directory, "production-preflight-artifact.json"), artifact);
+  writeJson(path.join(directory, "production-db-baseline.json"), baseline);
+  return { directory, baselineRows, reviewRows };
+}
+
+test("6 Pack profile publishes 14 mixed rows as non-executable shared review cards", () => {
+  const fixture = writeSixPackFixture();
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "37448175548", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
+  const contract = buildFitHouseSourceContract(fixture.directory, env, "six-pack-supplements");
+  writeJson(path.join(fixture.directory, "automation-review-source-contract.json"), contract);
+  const options = { profile: "six-pack-supplements", sourceArtifactDir: fixture.directory, sourceRunId: env.GITHUB_RUN_ID, sourceArtifactId: "11407901475", sourceCommitSha: env.GITHUB_SHA, sourceArtifactDigest: "b".repeat(64), sourceContractSha256: fileSha(path.join(fixture.directory, "automation-review-source-contract.json")), output: path.join(fixture.directory, "output.json") };
+  const source = verifyFitHouseSourceContract(options, new Date("2026-10-07T04:00:00Z"));
+  const baseline = publicationBaseline(fixture, "11");
+  const rows = buildFitHouseManifestRows(source, baseline, options);
+  assert.equal(contract.executable_plan_count, 492);
+  assert.equal(rows.length, 14);
+  assert.deepEqual([...new Set(rows.map((row) => row.operation_type))].sort(), ["MANUAL_REVIEW", "MANUAL_REVIEW_IDENTITY"]);
+  assert.equal(rows.every((row) => row.impact_summary.catalogue_writes === 0 && row.impact_summary.executable === false), true);
+  assert.equal(buildFitHouseOutput(source, baseline, rows, options, env).expected.catalogue_writes, 0);
+});
+
+test("Jon's and 6 Pack workflows reuse the publisher but receive no execution adapter", () => {
+  const jons = fs.readFileSync(path.join(process.cwd(), ".github/workflows/jons-offer-refresh.yml"), "utf8");
+  const sixPack = fs.readFileSync(path.join(process.cwd(), ".github/workflows/six-pack-offer-refresh.yml"), "utf8");
+  assert.match(jons, /Capture Jon's Supplements DB baseline read-only[\s\S]*Bind fresh Jon's Review Queue source[\s\S]*Apply all approved Jon's offer refresh/);
+  assert.match(jons, /refresh-review-queue:[\s\S]*--profile=jons-supplements[\s\S]*Publish fresh Jon's cards to Automation Review Queue/);
+  assert.match(sixPack, /Capture 6 Pack DB baseline read-only[\s\S]*Bind fresh 6 Pack Review Queue source[\s\S]*Apply exact approved manifest/);
+  assert.match(sixPack, /refresh-review-queue:[\s\S]*--profile=six-pack-supplements[\s\S]*Publish fresh 6 Pack cards to Automation Review Queue/);
+  const adapters = JSON.parse(fs.readFileSync(path.join(process.cwd(), "config/automation-review-execution-adapters.json"), "utf8"));
+  assert.equal(adapters.adapters.some((adapter) => ["10", "11"].includes(String(adapter.retailer_id))), false);
+});
+
 test("shared retailer workflow publishes bound Fit House and 10 Reps cards through one queue job", () => {
   const workflow = fs.readFileSync(path.join(process.cwd(), ".github/workflows/fit-house-offer-refresh.yml"), "utf8");
   assert.match(workflow, /Bind fresh Fit House Review Queue source/);
