@@ -670,9 +670,10 @@ test("new-product decisions require full-catalog confirmation and manual search 
 
 test("automation review queue is admin-only, paginated and exposes bounded evidence without catalogue writes", () => {
   const page = fs.readFileSync(path.join(process.cwd(), "app", "admin", "automation-review", "page.tsx"), "utf8");
+  const components = fs.readFileSync(path.join(process.cwd(), "app", "admin", "automation-review", "components.tsx"), "utf8");
   const data = fs.readFileSync(path.join(process.cwd(), "app", "admin", "lib", "automationReviewQueueData.ts"), "utf8");
   assert.match(page, /await requireAdminPage\(\)/);
-  assert.match(page, /loadCompleteReviewQueue\(status\)/);
+  assert.match(page, /loadCompleteReviewQueue\("ALL"\)/);
   assert.match(data, /REVIEW_QUEUE_MAX_ROWS/);
   assert.match(data, /REVIEW_QUEUE_READ_BATCH_SIZE/);
   assert.match(data, /Review Queue exceeds the bounded complete-read limit/);
@@ -712,6 +713,13 @@ test("automation review queue is admin-only, paginated and exposes bounded evide
   assert.match(page, /Szczegóły techniczne — dla osoby przygotowującej zmianę/);
   assert.match(page, /rowCapability\.capability === "REVIEW_EXECUTABLE"/);
   assert.match(page, /rowCapability\.capability !== "REVIEW_EXECUTABLE"/);
+  assert.match(components, /Stan pracy/);
+  assert.match(components, /Do Twojej decyzji/);
+  assert.match(components, /Zatwierdzone do wykonania/);
+  assert.match(components, /Zostaw technikowi/);
+  assert.match(components, /Szukaj we wszystkich statusach/);
+  assert.match(page, /ReviewQueueViewSwitch/);
+  assert.match(page, /summary\.ownerRemaining/);
   assert.match(data, /source_price,source_url,current_product_id,current_variant_id/);
   assert.match(page, /from\("products"\)\.select\("id,name,slug"\)/);
   assert.match(page, /from\("product_variants"\)\.select\("id,display_name"\)/);
@@ -722,6 +730,7 @@ test("automation review queue is admin-only, paginated and exposes bounded evide
   assert.match(page, /Zapisana cena/);
   assert.match(page, /safeUrl\(row\.source_url\)/);
   assert.doesNotMatch(page, /from\("(?:products|product_variants|retailer_products|offers|price_history)"\)\.update/);
+  assert.doesNotMatch(components, /\.update\(|\.insert\(|\.delete\(/);
   assert.match(page, /import Image from "next\/image"/);
   assert.equal((page.match(/\/mascots\/supplement-scout-raccoon\.webp/g) || []).length, 1);
   assert.equal((page.match(/\/mascots\/supplement-scout-human-scout\.png/g) || []).length, 1);
@@ -765,6 +774,43 @@ test("Review Queue filters the complete bounded result before pagination", () =>
   assert.equal(result.totalPages, 1);
   assert.deepEqual(result.retailers, ["eBay UK", "Fit House"]);
   assert.equal(reviewQueuePageHref({ ...filters, query: "", retailer: "eBay UK" }, 2), "?retailer=eBay+UK&page=2");
+});
+
+test("Review Queue work dashboard separates owner work, technical rows and completed progress", () => {
+  const {
+    filterAndPaginateReviewRows,
+    reviewQueueWorkBucket,
+    summarizeReviewQueue,
+  } = loadTsModule("app/admin/lib/automationReviewQueue.ts");
+  const now = Date.parse("2026-10-07T12:00:00.000Z");
+  const base = {
+    retailer: "eBay UK", retailer_id: "12", product_title: "Product", variant_title: "Vanilla",
+    review_kind: "COMMERCIAL_CHANGE", operation_type: "UPDATE_STOCK", reason_codes: "STOCK_CHANGE",
+    source_evidence: {}, impact_summary: {}, expires_at: "2026-10-08T12:00:00.000Z", superseded_by_review_id: null,
+  };
+  const rows = [
+    { ...base, id: "1", offer_id: "100", review_status: "PENDING", plan_fingerprint: "a".repeat(64), updated_at: "2026-10-07T08:00:00.000Z" },
+    { ...base, id: "2", offer_id: "101", review_status: "APPROVED", plan_fingerprint: "b".repeat(64), updated_at: "2026-10-07T08:00:00.000Z" },
+    { ...base, id: "3", offer_id: "102", review_status: "EXECUTING", plan_fingerprint: "c".repeat(64), updated_at: "2026-10-07T08:00:00.000Z" },
+    { ...base, id: "4", offer_id: "103", review_status: "EXECUTED", plan_fingerprint: "d".repeat(64), updated_at: "2026-10-07T08:00:00.000Z" },
+    { ...base, id: "5", retailer: "10 Reps", retailer_id: "14", offer_id: "104", review_status: "PENDING", review_kind: "SOURCE_FAILURE", operation_type: "SOURCE_MISSING", reason_codes: "SOURCE_VARIANT_MISSING", plan_fingerprint: null, updated_at: "2026-10-07T08:00:00.000Z" },
+    { ...base, id: "6", offer_id: "105", review_status: "PENDING", plan_fingerprint: "f".repeat(64), superseded_by_review_id: "9", updated_at: "2026-10-07T08:00:00.000Z" },
+  ];
+  assert.equal(reviewQueueWorkBucket(rows[0], now), "DECIDE");
+  assert.equal(reviewQueueWorkBucket(rows[1], now), "EXECUTE");
+  assert.equal(reviewQueueWorkBucket(rows[4], now), "TECHNICAL");
+  const summary = summarizeReviewQueue(rows, now);
+  assert.deepEqual({ decide: summary.decide, execute: summary.execute, processing: summary.processing, technical: summary.technical, completed: summary.completed, ownerRemaining: summary.ownerRemaining, completedToday: summary.completedToday, total: summary.total }, { decide: 1, execute: 1, processing: 1, technical: 1, completed: 1, ownerRemaining: 2, completedToday: 1, total: 5 });
+  const globalSearch = filterAndPaginateReviewRows(rows, { status: "ALL", retailer: "", kind: "", group: "", confidence: "", capability: "", query: "104", scope: "DECISIONS", bucket: "ALL", display: "LIST" }, 1, 50);
+  assert.equal(globalSearch.total, 1);
+  assert.equal(globalSearch.rows[0].id, "5");
+});
+
+test("Review Queue return path preserves safe filters, resets pagination and blocks external redirects", () => {
+  const { safeAutomationReviewReturnPath } = loadTsModule("app/admin/lib/automationReviewReturnPath.ts");
+  assert.equal(safeAutomationReviewReturnPath("/admin/automation-review?retailer=Fit+House&queue=DECIDE&page=4&saved=old", "decision"), "/admin/automation-review?retailer=Fit+House&queue=DECIDE&saved=decision");
+  assert.equal(safeAutomationReviewReturnPath("https://www.supplementscout.co.uk/admin/automation-review?q=1982", "execution", "https://www.supplementscout.co.uk"), "/admin/automation-review?q=1982&saved=execution");
+  assert.equal(safeAutomationReviewReturnPath("https://example.com/admin/automation-review", "decision", "https://www.supplementscout.co.uk"), "/admin/automation-review?saved=decision");
 });
 
 test("automation review capability matrix exposes only registered execution paths", () => {

@@ -4,6 +4,7 @@ import { requireAdminRoute } from "../../../lib/adminAuth";
 import { dispatchReviewExecution, reviewWorkflowDispatchConfigured } from "../../lib/automationReviewWorkflowDispatch";
 import { resolveReviewAdapter, reviewQueueConfigured } from "../../../lib/automationReviewAdapters";
 import { supabaseAdmin } from "../../../lib/supabaseAdmin";
+import { safeAutomationReviewReturnPath } from "../../lib/automationReviewReturnPath";
 
 const ACTOR = "authenticated-admin";
 
@@ -15,6 +16,7 @@ export async function POST(request: NextRequest) {
   const unauthorized = requireAdminRoute(request);
   if (unauthorized) return unauthorized;
   const form = await request.formData();
+  const returnPath = safeAutomationReviewReturnPath(form.get("returnTo") || request.headers.get("referer"), "execution", request.nextUrl.origin);
   const selection = String(form.get("selection") || "").match(/^([1-9]\d*):([0-9a-f]{64})$/);
   if (!selection || form.get("confirmExecution") !== "yes") return new NextResponse("Exact execution preview confirmation is required.", { status: 400 });
   const { data, error } = await supabaseAdmin
@@ -68,11 +70,11 @@ export async function POST(request: NextRequest) {
   if (queueError || !/^[0-9a-f-]{36}$/.test(executionRequestId)) return new NextResponse("Execution request could not be created; no workflow was dispatched.", { status: 409 });
   const queuedStatus = String(queued?.status || "");
   if (queuedStatus && queuedStatus !== "QUEUED") {
-    return NextResponse.redirect(new URL(`/admin/automation-review?status=APPROVED&execution=${executionRequestId}`, request.url), 303);
+    return NextResponse.redirect(new URL(`${returnPath}&execution=${executionRequestId}`, request.url), 303);
   }
   const queuedIdempotencyKey = String(queued?.idempotency_key || key);
   if (!reviewWorkflowDispatchConfigured()) {
-    return NextResponse.redirect(new URL(`/admin/automation-review?status=APPROVED&execution=${executionRequestId}`, request.url), 303);
+    return NextResponse.redirect(new URL(`${returnPath}&execution=${executionRequestId}`, request.url), 303);
   }
   try {
     await dispatchReviewExecution({
@@ -87,5 +89,5 @@ export async function POST(request: NextRequest) {
     const message = error instanceof Error ? error.message : "AUTOMATION_REVIEW_WORKFLOW_DISPATCH_FAILED";
     return new NextResponse(`Execution request was queued, but GitHub workflow dispatch failed: ${message}`, { status: 503 });
   }
-  return NextResponse.redirect(new URL(`/admin/automation-review?status=APPROVED&execution=${executionRequestId}`, request.url), 303);
+  return NextResponse.redirect(new URL(`${returnPath}&execution=${executionRequestId}`, request.url), 303);
 }

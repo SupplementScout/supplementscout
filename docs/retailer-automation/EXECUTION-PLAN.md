@@ -1913,6 +1913,25 @@ readbacks remain; no retailer workflow was manually dispatched. This does not
 advance the `0/3` ordinary interval counter. Evidence:
 [`evidence/RA-STAB-01-JONS-SIX-PACK-QUEUE-PUBLICATION-PREPARATION-2026-10-07.json`](evidence/RA-STAB-01-JONS-SIX-PACK-QUEUE-PUBLICATION-PREPARATION-2026-10-07.json).
 
+**7 October Review Queue work dashboard — shared UX preparation:** the existing
+authenticated Review Queue now separates exact owner work from technical and
+system-owned rows. It adds owner decision, approved-to-execute, processing,
+technical and completed counters; per-retailer progress; a completed-today
+count; a one-row work mode; and a compact list mode. Search loads the same
+bounded complete queue and searches all statuses before pagination. After a
+decision, a same-origin allowlisted return path drops pagination and returns to
+the first remaining matching row, while external redirects are rejected.
+Advanced filters and bulk actions remain available but collapsed.
+
+This is one retailer-neutral UI/read-only classification change. It adds no
+queue, publisher, executor, RPC, credential or catalogue write path. Existing
+authentication, fingerprint, expiry, stale-state, confirmation, approval and
+separate execution guards are unchanged. Focused admin tests pass `57/57`,
+TypeScript and changed-file ESLint pass, and quick verification passes `547`
+tests (`544` pass, `3` skip); the full production-build gate also passes. CI and
+authenticated production readback remain. Evidence:
+[`evidence/RA-STAB-01-REVIEW-QUEUE-WORK-DASHBOARD-PREPARATION-2026-10-07.json`](evidence/RA-STAB-01-REVIEW-QUEUE-WORK-DASHBOARD-PREPARATION-2026-10-07.json).
+
 Docker run `37421724769` now proves the existing expired-close regression and
 the new exact `12 + 1 + 6` fixture pass against disposable PostgreSQL. The
 monolithic integration job remains red only for the same two unrelated

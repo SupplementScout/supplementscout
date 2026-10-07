@@ -6,12 +6,20 @@ import { capabilityForReview, confidenceForReview, decisionGroupForReview } from
 import { supabaseAdmin } from "../../lib/supabaseAdmin";
 import {
   filterAndPaginateReviewRows,
+  normalizeReviewQueueDisplay,
   normalizeReviewQueueScope,
+  normalizeReviewQueueWorkBucket,
   reviewQueuePageHref,
+  reviewQueueLifecycle,
+  reviewQueueWorkBucket,
+  summarizeReviewQueue,
+  REVIEW_QUEUE_PAGE_SIZE,
+  REVIEW_QUEUE_WORK_PAGE_SIZE,
   type ReviewQueueFilters,
   type ReviewQueueRow,
 } from "../lib/automationReviewQueue";
 import { loadCompleteReviewQueue } from "../lib/automationReviewQueueData";
+import { ReviewQueueDashboard, ReviewQueueSearch, ReviewQueueViewSwitch } from "./components";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +34,6 @@ const GROUP_LABELS: Record<string, string> = { "Freshness-only": "Potwierdzenie 
 
 function value(input: string | string[] | undefined) { return Array.isArray(input) ? input[0] : input || ""; }
 function safeUrl(input: string | null) { if (!input) return null; try { const parsed = new URL(input); return ["http:", "https:"].includes(parsed.protocol) ? parsed.toString() : null; } catch { return null; } }
-function lifecycle(row: QueueRow) { return row.expires_at && new Date(row.expires_at).getTime() <= Date.now() && row.review_status === "PENDING" ? "EXPIRED" : row.review_status; }
 function label(map: Record<string, string>, key: string | null | undefined, fallback = "Nie określono") { return map[String(key || "")] || fallback; }
 function displayDate(input: string | null) { return input ? new Date(input).toLocaleString("pl-PL", { timeZone: "Europe/London" }) : "brak"; }
 function objectValue(input: unknown) { return input && typeof input === "object" && !Array.isArray(input) ? input as Record<string, unknown> : {}; }
@@ -73,13 +80,22 @@ function decisionQuestion(row: QueueRow, group: string) {
 export default async function AutomationReviewPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   await requireAdminPage();
   const params = await searchParams;
-  const status = value(params.status) || "PENDING";
+  const query = value(params.q).trim(), requestedStatus = value(params.status);
+  const status = requestedStatus || "ALL";
+  const requestedBucket = value(params.queue);
+  const statusBucket = status === "APPROVED" ? "EXECUTE" : status === "EXECUTING" ? "PROCESSING" : ["EXECUTED", "REJECTED", "IGNORED", "EXPIRED"].includes(status) ? "COMPLETED" : "ALL";
+  const inferredBucket = requestedStatus && requestedStatus !== "ALL" ? statusBucket : requestedBucket || (query ? "ALL" : "DECIDE");
+  const bucket = normalizeReviewQueueWorkBucket(inferredBucket);
+  const display = normalizeReviewQueueDisplay(value(params.display) || (["DECIDE", "EXECUTE"].includes(bucket) ? "WORK" : "LIST"));
   const retailer = value(params.retailer), kind = value(params.kind), group = value(params.group), confidence = value(params.confidence), capability = value(params.capability);
-  const filters: ReviewQueueFilters = { status, retailer, kind, group, confidence, capability, query: value(params.q).trim(), scope: normalizeReviewQueueScope(value(params.scope)) };
+  const filters: ReviewQueueFilters = { status, retailer, kind, group, confidence, capability, query, scope: normalizeReviewQueueScope(value(params.scope)), bucket, display };
   const requestedPage = Math.max(1, Number.parseInt(value(params.page) || "1", 10) || 1);
-  const loadedResult = await loadCompleteReviewQueue(status);
-  const filtered = filterAndPaginateReviewRows(loadedResult.rows, filters, requestedPage);
-  const { rows, total, page, totalPages, retailers } = filtered;
+  const loadedResult = await loadCompleteReviewQueue("ALL");
+  const summary = summarizeReviewQueue(loadedResult.rows);
+  const visibleSourceRows = query ? loadedResult.rows : loadedResult.rows.filter((row) => !row.superseded_by_review_id);
+  const filtered = filterAndPaginateReviewRows(visibleSourceRows, filters, requestedPage, display === "WORK" ? REVIEW_QUEUE_WORK_PAGE_SIZE : REVIEW_QUEUE_PAGE_SIZE);
+  const { rows, total, page, totalPages } = filtered;
+  const allRetailers = Array.from(new Set(loadedResult.rows.map((row) => row.retailer))).sort((left, right) => left.localeCompare(right, "pl"));
   const error = loadedResult.error;
   const productIds = Array.from(new Set(rows.map((row) => row.current_product_id).filter((id): id is string | number => id !== null)));
   const variantIds = Array.from(new Set(rows.map((row) => row.current_variant_id).filter((id): id is string | number => id !== null)));
@@ -93,6 +109,8 @@ export default async function AutomationReviewPage({ searchParams }: { searchPar
   const productById = new Map((productData || []).map((product) => [String(product.id), product as ProductRow]));
   const variantById = new Map((variantData || []).map((variant) => [String(variant.id), variant as VariantRow]));
   const queueConfigured = reviewQueueConfigured();
+  const currentHref = reviewQueuePageHref(filters, page);
+  const saved = value(params.saved);
 
   return <main className="min-h-screen bg-zinc-50 px-4 py-8 text-zinc-950 sm:px-6"><div className="mx-auto max-w-6xl">
     <header className="flex flex-col gap-4 border-b border-zinc-200 pb-6 lg:flex-row lg:items-start lg:justify-between">
@@ -103,19 +121,28 @@ export default async function AutomationReviewPage({ searchParams }: { searchPar
       </div>
     </header>
 
-    <section className="mt-6 rounded-xl border border-blue-200 bg-blue-50 p-5"><h2 className="text-lg font-bold">Jak z tego korzystać?</h2><ol className="mt-3 grid gap-3 text-sm md:grid-cols-3"><li><strong>1. Przeczytaj zalecenie.</strong><br />Każda karta mówi wprost, czy masz coś zrobić.</li><li><strong>2. Nie zgaduj.</strong><br />Jeżeli widzisz „zostaw do analizy”, niczego nie zatwierdzaj.</li><li><strong>3. Wykonanie jest osobne.</strong><br />Zatwierdzenie zapisuje decyzję. Dopiero osobny, zabezpieczony krok może zmienić ofertę.</li></ol></section>
+    <ReviewQueueDashboard summary={summary} filters={filters} activeBucket={bucket} />
+    <ReviewQueueSearch filters={filters} retailers={allRetailers} />
 
-    <form className="mt-6 grid gap-3 rounded-xl border bg-white p-4 md:grid-cols-3"><label className="text-sm font-semibold">Szukaj w całej kolejce<input name="q" defaultValue={filters.query} placeholder="Produkt, sprzedawca lub numer oferty" className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" /></label><label className="text-sm font-semibold">Sprzedawca<select name="retailer" defaultValue={retailer} className="mt-1 w-full rounded-lg border px-3 py-2 font-normal"><option value="">Wszyscy sprzedawcy</option>{retailers.map((item) => <option key={item}>{item}</option>)}</select></label><button className="self-end rounded-lg bg-zinc-950 px-4 py-2 font-semibold text-white">Pokaż wyniki</button>
-      <details className="md:col-span-3"><summary className="cursor-pointer text-sm font-semibold text-zinc-600">Rzadziej używane filtry</summary><div className="mt-3 grid gap-3 md:grid-cols-3"><select name="status" defaultValue={status} aria-label="Status" className="rounded-lg border px-3 py-2"><option value="ALL">Wszystkie statusy</option>{Object.entries(STATUS_LABELS).filter(([key]) => key !== "EXPIRED").map(([key, text]) => <option key={key} value={key}>{text}</option>)}</select><select name="scope" defaultValue={filters.scope} aria-label="Zakres kolejki" className="rounded-lg border px-3 py-2"><option value="DECISIONS">Tylko pozycje wymagające decyzji</option><option value="ALL">Także obserwacje obsługiwane automatycznie</option></select><select name="kind" defaultValue={kind} aria-label="Powód techniczny" className="rounded-lg border px-3 py-2"><option value="">Wszystkie powody</option>{Object.entries(KIND_LABELS).map(([key, text]) => <option key={key} value={key}>{text}</option>)}</select><select name="group" defaultValue={group} aria-label="Rodzaj decyzji" className="rounded-lg border px-3 py-2"><option value="">Wszystkie rodzaje decyzji</option>{Object.entries(GROUP_LABELS).map(([key, text]) => <option key={key} value={key}>{text}</option>)}</select><select name="confidence" defaultValue={confidence} aria-label="Pewność dowodu" className="rounded-lg border px-3 py-2"><option value="">Każdy poziom pewności</option>{["HIGH", "MEDIUM", "LOW", "RECORDED"].map((item) => <option key={item}>{item}</option>)}</select><select name="capability" defaultValue={capability} aria-label="Możliwość wykonania" className="rounded-lg border px-3 py-2"><option value="">Każda możliwość wykonania</option>{["AUTONOMOUS", "REVIEW_EXECUTABLE", "REVIEW_ONLY", "UNSUPPORTED"].map((item) => <option key={item}>{item}</option>)}</select></div></details>
-    </form>
+    <details className="mt-3 rounded-xl border bg-white p-4"><summary className="cursor-pointer text-sm font-semibold text-zinc-600">Instrukcja i rzadziej używane filtry</summary>
+      <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4"><h2 className="font-bold">Jak z tego korzystać?</h2><ol className="mt-3 grid gap-3 text-sm md:grid-cols-3"><li><strong>1. Przeczytaj zalecenie.</strong><br />Każda karta mówi wprost, czy masz coś zrobić.</li><li><strong>2. Nie zgaduj.</strong><br />„Zostaw technikowi” nie wymaga Twojej decyzji.</li><li><strong>3. Wykonanie jest osobne.</strong><br />Zatwierdzenie nie zmienia jeszcze katalogu.</li></ol></div>
+      <form className="mt-4 grid gap-3 md:grid-cols-3"><input type="hidden" name="q" value={filters.query} /><input type="hidden" name="retailer" value={retailer} /><input type="hidden" name="queue" value={bucket} /><input type="hidden" name="display" value={display} /><select name="status" defaultValue={status} aria-label="Status" className="rounded-lg border px-3 py-2"><option value="ALL">Wszystkie statusy</option>{Object.entries(STATUS_LABELS).filter(([key]) => key !== "EXPIRED").map(([key, text]) => <option key={key} value={key}>{text}</option>)}</select><select name="scope" defaultValue={filters.scope} aria-label="Zakres kolejki" className="rounded-lg border px-3 py-2"><option value="DECISIONS">Tylko pozycje wymagające decyzji</option><option value="ALL">Także obserwacje obsługiwane automatycznie</option></select><select name="kind" defaultValue={kind} aria-label="Powód techniczny" className="rounded-lg border px-3 py-2"><option value="">Wszystkie powody</option>{Object.entries(KIND_LABELS).map(([key, text]) => <option key={key} value={key}>{text}</option>)}</select><select name="group" defaultValue={group} aria-label="Rodzaj decyzji" className="rounded-lg border px-3 py-2"><option value="">Wszystkie rodzaje decyzji</option>{Object.entries(GROUP_LABELS).map(([key, text]) => <option key={key} value={key}>{text}</option>)}</select><select name="confidence" defaultValue={confidence} aria-label="Pewność dowodu" className="rounded-lg border px-3 py-2"><option value="">Każdy poziom pewności</option>{["HIGH", "MEDIUM", "LOW", "RECORDED"].map((item) => <option key={item}>{item}</option>)}</select><select name="capability" defaultValue={capability} aria-label="Możliwość wykonania" className="rounded-lg border px-3 py-2"><option value="">Każda możliwość wykonania</option>{["AUTONOMOUS", "REVIEW_EXECUTABLE", "REVIEW_ONLY", "UNSUPPORTED"].map((item) => <option key={item}>{item}</option>)}</select><button className="rounded-lg border bg-zinc-950 px-4 py-2 font-semibold text-white md:col-span-3">Zastosuj filtry</button></form>
+    </details>
 
-    <details className="mt-4 rounded-xl border bg-white p-4"><summary className="cursor-pointer font-semibold">Zaawansowane działania grupowe</summary><form id="bulk-review" action="/admin/automation-review/decision" method="post" className="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4"><span className="font-semibold">Zaznaczone oferty:</span><label className="flex items-center gap-2 text-sm"><input type="checkbox" name="confirmImpact" value="yes" />Sprawdziłem zakres i zatwierdzam dokładnie zaznaczone decyzje</label><button name="action" value="approve" className="rounded-lg bg-emerald-700 px-4 py-2 font-semibold text-white">Zapisz zatwierdzenie</button><button name="action" value="reject" className="rounded-lg bg-red-700 px-4 py-2 font-semibold text-white">Odrzuć zaznaczone</button><button name="action" value="ignore" className="rounded-lg border bg-white px-4 py-2 font-semibold">Pomiń zaznaczone</button><p className="basis-full text-sm text-amber-900">To zapisuje decyzje. Nie uruchamia wykonania zmian w katalogu.</p></form></details>
+    <details className="mt-4 rounded-xl border bg-white p-4"><summary className="cursor-pointer font-semibold">Zaawansowane działania grupowe</summary><form id="bulk-review" action="/admin/automation-review/decision" method="post" className="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4"><input type="hidden" name="returnTo" value={currentHref} /><span className="font-semibold">Zaznaczone oferty:</span><label className="flex items-center gap-2 text-sm"><input type="checkbox" name="confirmImpact" value="yes" />Sprawdziłem zakres i zatwierdzam dokładnie zaznaczone decyzje</label><button name="action" value="approve" className="rounded-lg bg-emerald-700 px-4 py-2 font-semibold text-white">Zapisz zatwierdzenie</button><button name="action" value="reject" className="rounded-lg bg-red-700 px-4 py-2 font-semibold text-white">Odrzuć zaznaczone</button><button name="action" value="ignore" className="rounded-lg border bg-white px-4 py-2 font-semibold">Pomiń zaznaczone</button><p className="basis-full text-sm text-amber-900">To zapisuje decyzje. Nie uruchamia wykonania zmian w katalogu.</p></form></details>
 
     {error && <p className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">Nie udało się odczytać kolejki. Żadne działanie nie jest dostępne.</p>}
-    <p className="mt-6 text-sm text-zinc-600">Znaleziono {total} pasujących pozycji · strona {page} z {totalPages}</p>
+    {saved && <p role="status" className="mt-6 rounded-lg border border-emerald-300 bg-emerald-50 p-4 font-semibold text-emerald-950">{saved === "execution" ? "Wykonanie zostało bezpiecznie przekazane do kolejki." : "Decyzja została zapisana."} Pozostało Ci {summary.ownerRemaining} {summary.ownerRemaining === 1 ? "krok" : "kroków"}.</p>}
+    <div className="mt-6 flex flex-wrap items-center justify-between gap-3"><p className="text-sm text-zinc-600">Znaleziono {total} pasujących pozycji · strona {page} z {totalPages}</p><ReviewQueueViewSwitch filters={filters} display={display} /></div>
+    {!error && total === 0 && <section className="mt-4 rounded-xl border border-dashed bg-white p-8 text-center"><h2 className="text-xl font-bold">W tej grupie nic nie zostało</h2><p className="mt-2 text-sm text-zinc-600">Wybierz inny licznik powyżej albo wyszukaj ofertę we wszystkich statusach.</p><Link href="/admin/automation-review" className="mt-4 inline-flex rounded-lg bg-zinc-950 px-4 py-2 font-semibold text-white">Wróć do pracy dla mnie</Link></section>}
 
     <section className="mt-4 space-y-5">{rows.map((row) => {
-      const workflow = safeUrl(row.workflow_run_url), artifact = safeUrl(row.artifact_url), sourceUrl = safeUrl(row.source_url) || safeUrl(String(beforeValue(row, "url") || "")), current = lifecycle(row), resolved = resolveReviewAdapter(row.retailer_id, row.operation_type, row.reason_codes), execution = executionByReview.get(String(row.id)), adapterReady = Boolean(resolved.adapter && queueConfigured && row.plan_fingerprint), driftScope = String(row.source_evidence?.drift_scope || row.impact_summary?.drift_scope || "REVIEW_ROW"), rowGroup = decisionGroupForReview(row.operation_type, row.review_kind, row.reason_codes), rowConfidence = confidenceForReview(row.source_evidence, row.impact_summary), rowCapability = capabilityForReview(row.retailer_id, row.operation_type, row.review_kind), advice = recommendation(rowCapability.capability, current), catalogueProduct = row.current_product_id === null ? null : productById.get(String(row.current_product_id)), catalogueVariant = row.current_variant_id === null ? null : variantById.get(String(row.current_variant_id)), productHref = row.current_product_id === null ? null : `/product/${catalogueProduct?.slug || row.current_product_id}`, currentPrice = money(beforeValue(row, "price")), sourcePrice = money(row.source_price);
+      const workflow = safeUrl(row.workflow_run_url), artifact = safeUrl(row.artifact_url), sourceUrl = safeUrl(row.source_url) || safeUrl(String(beforeValue(row, "url") || "")), current = reviewQueueLifecycle(row), resolved = resolveReviewAdapter(row.retailer_id, row.operation_type, row.reason_codes), execution = executionByReview.get(String(row.id)), adapterReady = Boolean(resolved.adapter && queueConfigured && row.plan_fingerprint), driftScope = String(row.source_evidence?.drift_scope || row.impact_summary?.drift_scope || "REVIEW_ROW"), rowGroup = decisionGroupForReview(row.operation_type, row.review_kind, row.reason_codes), rowConfidence = confidenceForReview(row.source_evidence, row.impact_summary), rowCapability = capabilityForReview(row.retailer_id, row.operation_type, row.review_kind), advice = recommendation(rowCapability.capability, current), catalogueProduct = row.current_product_id === null ? null : productById.get(String(row.current_product_id)), catalogueVariant = row.current_variant_id === null ? null : variantById.get(String(row.current_variant_id)), productHref = row.current_product_id === null ? null : `/product/${catalogueProduct?.slug || row.current_product_id}`, currentPrice = money(beforeValue(row, "price")), sourcePrice = money(row.source_price), rowBucket = reviewQueueWorkBucket(row);
+      const workFilters: ReviewQueueFilters = { ...filters, status: "ALL", bucket: rowBucket, display: "WORK" };
+      const workRows = filterAndPaginateReviewRows(visibleSourceRows, workFilters, 1, Math.max(1, visibleSourceRows.length)).rows;
+      const workPage = Math.max(1, workRows.findIndex((candidate) => String(candidate.id) === String(row.id)) + 1);
+      const workHref = reviewQueuePageHref(workFilters, workPage);
+      if (display === "LIST") return <article key={row.id} className="rounded-xl border bg-white p-4 shadow-sm"><div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div className="min-w-0"><p className="text-sm font-semibold text-zinc-500">{row.retailer} · oferta {row.offer_id || "bez numeru"}</p><h2 className="mt-1 truncate text-lg font-bold">{row.product_title}</h2><p className="text-sm text-zinc-600">{row.variant_title || "Wariant nie został podany"}</p></div><div className="flex flex-wrap items-center gap-2"><span className="rounded-full border px-3 py-1 text-sm font-semibold">{label(STATUS_LABELS, current, current)}</span><span className="rounded-full border px-3 py-1 text-sm">{advice.title}</span><Link href={workHref} className="rounded-lg bg-zinc-950 px-4 py-2 text-sm font-bold text-white">Otwórz</Link></div></div></article>;
       return <article key={row.id} className="rounded-xl border bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-sm font-semibold text-zinc-500">{row.retailer} · oferta {row.offer_id || "bez numeru"}</p><h2 className="mt-1 text-xl font-bold">{row.product_title}</h2><p className="text-sm text-zinc-600">{row.variant_title || "Wariant nie został podany"}</p></div><div className="flex flex-wrap gap-2"><span className="rounded-full border px-3 py-1 text-sm font-semibold">{label(STATUS_LABELS, current, current)}</span><span className="rounded-full border px-3 py-1 text-sm">{label(KIND_LABELS, row.review_kind)}</span></div></div>
         <div className="mt-4 grid gap-4 md:grid-cols-2"><div className="rounded-lg border p-4"><p className="text-xs font-bold uppercase tracking-wide text-zinc-500">Co wykryto?</p><p className="mt-2 font-semibold">{label(GROUP_LABELS, rowGroup)}</p><p className="mt-1 text-sm text-zinc-700">{operationExplanation(row.operation_type, rowGroup)}</p></div><div className={`rounded-lg border p-4 ${advice.tone}`}><p className="text-xs font-bold uppercase tracking-wide text-zinc-600">Co masz zrobić?</p><p className="mt-2 font-bold">{advice.title}</p><p className="mt-1 text-sm text-zinc-700">{advice.text}</p></div></div>
@@ -142,6 +169,6 @@ export default async function AutomationReviewPage({ searchParams }: { searchPar
         </details>
       </article>;
     })}</section>
-    <nav className="mt-6 flex justify-between">{page > 1 ? <Link href={reviewQueuePageHref(filters, page - 1)} className="rounded border bg-white px-4 py-2">Poprzednia strona</Link> : <span />}{page < totalPages ? <Link href={reviewQueuePageHref(filters, page + 1)} className="rounded border bg-white px-4 py-2">Następna strona</Link> : <span />}</nav>
+    <nav className="mt-6 flex justify-between">{page > 1 ? <Link href={reviewQueuePageHref(filters, page - 1)} className="rounded border bg-white px-4 py-2">{display === "WORK" ? "Poprzednia pozycja" : "Poprzednia strona"}</Link> : <span />}{page < totalPages ? <Link href={reviewQueuePageHref(filters, page + 1)} className="rounded border bg-white px-4 py-2">{display === "WORK" ? "Następna pozycja" : "Następna strona"}</Link> : <span />}</nav>
   </div></main>;
 }
