@@ -2049,6 +2049,23 @@ range, today-progress and non-restart explanation, and rendered exactly ten
 bounded work cards. It submitted zero decisions and zero executions. Evidence:
 [`evidence/RA-STAB-01-REVIEW-QUEUE-CONTINUOUS-WORKSET-2026-10-07.json`](evidence/RA-STAB-01-REVIEW-QUEUE-CONTINUOUS-WORKSET-2026-10-07.json).
 
+**7 October Whey Okay capability description correction — locally verified:**
+the shared Review Queue capability matrix still told the owner that Whey Okay's
+current dry-run was blocked by an active/conflicting session. Natural scheduled
+run `37595708904` contradicts that time-bound text: dry-run, protected apply,
+database postflight, fresh-source idempotency and Review Queue publication all
+completed successfully. The capability description now states only the durable
+contract — approved exact-identity freshness uses the ordinary guarded
+schedule — and no longer embeds transient production state in source code. A
+regression requires the durable description and rejects the obsolete blocker
+claim. This changes no capability, adapter, operation, workflow, queue,
+credential, guard or write path. Focused admin tests pass `60/60`, Project
+Guardian passes, quick verification passes `547` tests (`544` pass, `3`
+skip), and the full production-build gate passes. Merge, deployment and authenticated live-copy
+readback remain gates. This correction earns no ordinary interval credit.
+Evidence:
+[`evidence/RA-STAB-01-WHEY-CAPABILITY-DESCRIPTION-2026-10-07.json`](evidence/RA-STAB-01-WHEY-CAPABILITY-DESCRIPTION-2026-10-07.json).
+
 Docker run `37421724769` now proves the existing expired-close regression and
 the new exact `12 + 1 + 6` fixture pass against disposable PostgreSQL. The
 monolithic integration job remains red only for the same two unrelated

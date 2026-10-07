@@ -889,6 +889,8 @@ test("automation review capability matrix exposes only registered execution path
   for (const capability of ["AUTONOMOUS", "REVIEW_EXECUTABLE", "REVIEW_ONLY", "UNSUPPORTED"]) assert.match(matrixSource, new RegExp(capability));
   assert.match(matrixSource, /capabilityForReview/);
   assert.match(matrixSource, /decisionGroupForReview/);
+  assert.match(matrixSource, /Whey Okay workflow supports approved exact-identity freshness through its ordinary guarded schedule/);
+  assert.doesNotMatch(matrixSource, /current dry-run is blocked by an active\/conflicting session/);
   assert.match(matrixSource, /confidenceForReview/);
   assert.match(matrixSource, /registeredExecution/);
   assert.match(adapterSource, /automation-review-execution-adapters\.json/);
