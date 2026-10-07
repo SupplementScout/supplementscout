@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "task": "RA-STAB-01",
-  "status": "LOCAL_VERIFIED_CI_PENDING",
+  "status": "PRODUCTION_VERIFIED",
   "recorded_at": "2026-10-07",
   "scope": "SHARED_AUTOMATION_REVIEW_QUEUE_ADMIN_UX",
   "implementation": {
@@ -42,8 +42,20 @@
     "eslint_changed_files": "PASS",
     "quick": "PASS_547_TESTS_544_PASS_3_SKIP",
     "full": "PASS",
-    "pull_request_ci": "PENDING",
-    "production_readback": "PENDING"
+    "pull_request": "MERGED_257",
+    "merge_commit": "eb72ca4e606a6987bd198eee2af3dcaf3ce6b575",
+    "pull_request_ci": "PASS",
+    "vercel_production_deployment": "PASS",
+    "production_readback": {
+      "mode": "AUTHENTICATED_READ_ONLY",
+      "http_status": 200,
+      "final_path": "/admin/automation-review",
+      "owner_work_dashboard": "PRESENT",
+      "per_retailer_progress": "PRESENT",
+      "global_all_status_search": "PRESENT",
+      "work_and_list_modes": "PRESENT",
+      "decision_or_execution_submitted": false
+    }
   },
-  "next_gate": "Merge after green CI, then verify the authenticated production dashboard read-only. Do not submit a decision or execute an offer for UI verification."
+  "next_gate": "None for this shared dashboard UX change. Continue RA-STAB-01 natural-run observation separately; do not count this UI deployment as a retailer interval."
 }

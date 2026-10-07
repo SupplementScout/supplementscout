@@ -1928,8 +1928,9 @@ queue, publisher, executor, RPC, credential or catalogue write path. Existing
 authentication, fingerprint, expiry, stale-state, confirmation, approval and
 separate execution guards are unchanged. Focused admin tests pass `57/57`,
 TypeScript and changed-file ESLint pass, and quick verification passes `547`
-tests (`544` pass, `3` skip); the full production-build gate also passes. CI and
-authenticated production readback remain. Evidence:
+tests (`544` pass, `3` skip); the full production-build gate also passes. PR
+`#257` merged as `eb72ca4`; GitHub CI, Vercel production deployment and the
+authenticated read-only production dashboard readback all pass. Evidence:
 [`evidence/RA-STAB-01-REVIEW-QUEUE-WORK-DASHBOARD-PREPARATION-2026-10-07.json`](evidence/RA-STAB-01-REVIEW-QUEUE-WORK-DASHBOARD-PREPARATION-2026-10-07.json).
 
 Docker run `37421724769` now proves the existing expired-close regression and

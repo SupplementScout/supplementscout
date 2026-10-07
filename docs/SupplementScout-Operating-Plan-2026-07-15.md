@@ -1128,8 +1128,9 @@ pagination. A guarded same-origin return preserves filters after a decision and
 moves back to the first remaining row. No queue, writer, RPC, credential or
 retailer-specific path was added, and all existing decision/execution guards
 remain. Focused `57/57`, TypeScript, ESLint, quick `547` verification and the
-full production-build gate pass; CI and authenticated production readback
-remain. See the
+full production-build gate pass. PR `#257` merged as `eb72ca4`; GitHub CI,
+Vercel production deployment and authenticated read-only production readback
+all pass. See the
 [Review Queue dashboard preparation](retailer-automation/evidence/RA-STAB-01-REVIEW-QUEUE-WORK-DASHBOARD-PREPARATION-2026-10-07.json).
 
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
