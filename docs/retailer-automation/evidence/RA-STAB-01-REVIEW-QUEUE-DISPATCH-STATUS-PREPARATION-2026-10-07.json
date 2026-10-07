@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "task": "RA-STAB-01",
-  "status": "LOCAL_VERIFIED_MERGE_PENDING",
+  "status": "MERGED_DEPLOYED_LIVE_VERIFIED",
   "recorded_at": "2026-10-07",
   "problem": {
     "observed_behavior": "An approved execution request can be durably queued while immediate GitHub workflow dispatch is unavailable or fails.",
@@ -31,9 +31,25 @@
     "project_guardian": "PASS",
     "typescript": "PASS",
     "changed_file_eslint": "PASS",
+    "pull_request": 265,
+    "implementation_commit": "701cef0",
+    "merge_commit": "df9bdb50e44a1bb118e14f283796aab1f65f5d9f",
+    "pull_request_quality_gate_run": 37637078167,
+    "post_merge_quality_gate_run": 37637486837,
+    "post_merge_project_guardian_run": 37637487001,
+    "production_deployment_id": 6912768616,
+    "production_deployment_status": "SUCCESS",
+    "authenticated_live_readback_at": "2026-10-07T14:37:18.117Z",
+    "authenticated_live_readback": {
+      "http_statuses": [200, 200, 200, 200],
+      "delivery_messages_present": ["immediate", "scheduled", "fallback", "existing"],
+      "fixed_minute_promise_absent": true,
+      "decisions_submitted": 0,
+      "executions_submitted": 0
+    },
     "production_writes": 0,
     "control_writes": 0,
     "workflow_dispatches": 0
   },
-  "next_gate": "Merge/CI and authenticated production UI readback. Immediate dispatch still requires the existing server-side GitHub token configuration; this change does not invent a second executor or credential path."
+  "next_gate": "Observe the next real queued request and natural worker pickup. Immediate dispatch still requires the existing server-side GitHub token configuration; do not invent a second executor or credential path."
 }

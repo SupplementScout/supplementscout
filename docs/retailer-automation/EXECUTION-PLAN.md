@@ -1994,7 +1994,8 @@ and no retailer workflow was manually dispatched. Natural schedule readbacks rem
 ordinary counter stays `0/3`. Evidence:
 [`evidence/RA-STAB-01-FIT-HOUSE-DURABLE-REVIEW-SIX-PACK-BINDING-PREPARATION-2026-10-07.json`](evidence/RA-STAB-01-FIT-HOUSE-DURABLE-REVIEW-SIX-PACK-BINDING-PREPARATION-2026-10-07.json).
 
-**7 October Review Queue dispatch truthfulness — locally prepared:** the panel
+**7 October Review Queue dispatch truthfulness — merged, deployed and live
+verified:** the panel
 already writes one immutable queued request before optional immediate GitHub
 dispatch, and the existing scheduled worker is the only fallback. Production
 behavior showed that immediate dispatch is not currently dependable, while the
@@ -2006,8 +2007,15 @@ warns against duplicate clicks, displays request time and provides a refresh
 link. Dispatch failure remains server-logged but returns the owner to the real
 queued state. No executor, queue, credential path, adapter, approval rule or
 catalogue write changes. Focused admin tests pass `60/60`; quick and full
-quality gates, the production build, Project Guardian, TypeScript and changed-file ESLint pass. Merge/CI and authenticated live UI
-readback remain required. Evidence:
+quality gates, the production build, Project Guardian, TypeScript and
+changed-file ESLint pass. PR `#265` merged as `df9bdb50`; post-merge Quality
+Gate `37637486837`, Project Guardian `37637487001` and production deployment
+`6912768616` passed. Authenticated production GET readback at
+`2026-10-07T14:37:18.117Z` returned HTTP 200 for all four delivery messages,
+confirmed the fixed-minute promise absent and submitted zero decisions or
+executions. The next evidence gate is a real queued request and natural worker
+pickup; immediate dispatch still depends on the existing server-side token
+configuration, not a second executor. Evidence:
 [`evidence/RA-STAB-01-REVIEW-QUEUE-DISPATCH-STATUS-PREPARATION-2026-10-07.json`](evidence/RA-STAB-01-REVIEW-QUEUE-DISPATCH-STATUS-PREPARATION-2026-10-07.json).
 
 Docker run `37421724769` now proves the existing expired-close regression and

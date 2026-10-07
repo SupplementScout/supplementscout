@@ -1184,8 +1184,12 @@ dispatch failed even though the request remained queued. It now distinguishes
 owner not to click twice, shows the request time and provides a status refresh
 link. A transient dispatch failure redirects to the truthful queued state and
 is still logged server-side. Focused admin tests pass `60/60`; quick and full
-quality gates, the production build, Project Guardian, TypeScript and changed-file ESLint pass. No execution request, workflow or catalogue write was
-created during preparation. See the [dispatch-status preparation](retailer-automation/evidence/RA-STAB-01-REVIEW-QUEUE-DISPATCH-STATUS-PREPARATION-2026-10-07.json).
+quality gates, the production build, Project Guardian, TypeScript and changed-file ESLint pass. PR `#265` merged as
+`df9bdb50`; post-merge Quality Gate `37637486837`, Project Guardian
+`37637487001` and production deployment `6912768616` passed. Authenticated
+production GET readback at `2026-10-07T14:37:18.117Z` returned HTTP 200 for all
+four delivery messages, removed the fixed-minute promise and submitted zero
+decisions or executions. See the [dispatch-status evidence](retailer-automation/evidence/RA-STAB-01-REVIEW-QUEUE-DISPATCH-STATUS-PREPARATION-2026-10-07.json).
 
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256
