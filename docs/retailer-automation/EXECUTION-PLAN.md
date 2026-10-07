@@ -2018,8 +2018,8 @@ pickup; immediate dispatch still depends on the existing server-side token
 configuration, not a second executor. Evidence:
 [`evidence/RA-STAB-01-REVIEW-QUEUE-DISPATCH-STATUS-PREPARATION-2026-10-07.json`](evidence/RA-STAB-01-REVIEW-QUEUE-DISPATCH-STATUS-PREPARATION-2026-10-07.json).
 
-**7 October Review Queue continuous working-set correction — locally
-verified:** owner feedback after processing the approved execution bucket found
+**7 October Review Queue continuous working-set correction — merged, deployed
+and live verified:** owner feedback after processing the approved execution bucket found
 that the single-card work mode forced a separate `next` navigation for every
 offer. Because a submitted offer correctly leaves owner work, the next card was
 also labelled `1`, which made real progress look like a restart. The existing
@@ -2040,8 +2040,13 @@ gate pass. A read-only rolled-back
 production snapshot at `2026-10-07T14:43:53.758Z` found no approved item waiting
 for submission and no active execution request. Today's recorded execution
 outcomes were five `EXECUTED` single-offer writes, four fail-closed price-drift
-expiries and six fail-closed evidence expiries. None was retried. Merge, full CI,
-deployment and authenticated live UI readback remain gates. Evidence:
+expiries and six fail-closed evidence expiries. None was retried. PR `#267`
+merged as `d5d4677`; PR and post-merge Quality Gate and Project Guardian runs
+passed, as did production deployment `6915045129` and the production-readonly
+deployment `6915081828`. An authenticated GET at
+`2026-10-07T16:23:55.489Z` returned HTTP 200 with the remaining count, visible
+range, today-progress and non-restart explanation, and rendered exactly ten
+bounded work cards. It submitted zero decisions and zero executions. Evidence:
 [`evidence/RA-STAB-01-REVIEW-QUEUE-CONTINUOUS-WORKSET-2026-10-07.json`](evidence/RA-STAB-01-REVIEW-QUEUE-CONTINUOUS-WORKSET-2026-10-07.json).
 
 Docker run `37421724769` now proves the existing expired-close regression and
