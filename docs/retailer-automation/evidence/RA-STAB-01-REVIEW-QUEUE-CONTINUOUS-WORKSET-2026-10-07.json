@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "task": "RA-STAB-01",
-  "status": "LOCAL_VERIFIED",
+  "status": "MERGED_DEPLOYED_LIVE_VERIFIED",
   "recorded_at": "2026-10-07",
   "incident": {
     "owner_observation": "Single-card work mode required a next-page navigation after every offer and the next remaining card appeared to restart at position one.",
@@ -42,10 +42,31 @@
     "project_guardian": "PASS",
     "quick_quality_gate": "PASS_547_TESTS_544_PASS_3_SKIP",
     "full_quality_gate": "PASS",
-    "pull_request": null,
-    "merge_commit": null,
-    "production_deployment": "PENDING",
-    "authenticated_live_readback": "PENDING"
+    "pull_request": 267,
+    "implementation_commit": "e38cd40",
+    "merge_commit": "d5d467736dc5e3d6267942fd11e6eaeb57535f3f",
+    "pull_request_quality_gate_run": 37650798473,
+    "pull_request_project_guardian_run": 37650798478,
+    "post_merge_quality_gate_run": 37651172844,
+    "post_merge_project_guardian_run": 37651172809,
+    "production_deployment_id": 6915045129,
+    "production_deployment_status": "SUCCESS",
+    "production_readonly_deployment_id": 6915081828,
+    "production_readonly_deployment_status": "SUCCESS",
+    "authenticated_live_readback": {
+      "captured_at": "2026-10-07T16:23:55.489Z",
+      "http_status": 200,
+      "remaining_label_present": true,
+      "visible_range_present": true,
+      "submitted_today_present": true,
+      "not_restarting_explanation_present": true,
+      "work_mode_label_present": true,
+      "compact_list_label_present": true,
+      "rendered_work_cards": 10,
+      "bounded_to_ten": true,
+      "decisions_submitted": 0,
+      "executions_submitted": 0
+    }
   },
-  "next_gate": "Run the full quality gate, merge after green CI, deploy, then verify the authenticated production work view without submitting a decision or execution."
+  "next_gate": "No further UI patch is required. Continue RA-STAB-01 with read-only observation of the next natural retailer schedules and watchdog interval."
 }
