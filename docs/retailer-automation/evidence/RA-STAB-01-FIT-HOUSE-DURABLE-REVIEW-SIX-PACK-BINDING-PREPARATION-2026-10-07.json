@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "task": "RA-STAB-01",
-  "status": "LOCAL_AND_LIVE_READ_ONLY_VERIFIED_MERGE_PENDING",
+  "status": "MERGED_AND_DEPLOYED_NATURAL_READBACK_PENDING",
   "recorded_at": "2026-10-07",
   "incidents": {
     "fit_house": {
@@ -50,6 +50,14 @@
     "project_guardian": "PASS",
     "full_quality_gate": "PASS",
     "production_build": "PASS",
+    "pull_request": 263,
+    "implementation_commit": "22fb42a0c446c828f74a130ebf46eb796e04128b",
+    "merge_commit": "fb4d211f4a00a3f0843c1262a55c6a276b4ee220",
+    "pull_request_quality_gate_run": 37634213639,
+    "post_merge_quality_gate_run": 37634547821,
+    "post_merge_project_guardian_run": 37634547774,
+    "production_deployment_id": 6912251322,
+    "production_deployment_status": "SUCCESS",
     "fit_house_live_read_only": {
       "result": "DRY_RUN_READY_WITH_REVIEW",
       "database_writes": 0,
@@ -69,5 +77,5 @@
     "review_queue_publications": 0,
     "workflow_dispatches": 0
   },
-  "next_gate": "Merge after green CI, then use natural retailer schedules and the following watchdog. Do not replay the failed 6 Pack artifact or manually apply Fit House."
+  "next_gate": "Use the next natural Fit House and 6 Pack schedules and the following watchdog. Do not replay the failed 6 Pack artifact or manually apply either retailer."
 }
