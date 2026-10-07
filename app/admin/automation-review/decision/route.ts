@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { requireAdminRoute } from "../../../lib/adminAuth";
 import { supabaseAdmin } from "../../../lib/supabaseAdmin";
+import { safeAutomationReviewReturnPath } from "../../lib/automationReviewReturnPath";
 
 const ACTION_STATUS = new Map([["approve", "APPROVED"], ["reject", "REJECTED"], ["ignore", "IGNORED"], ["rebind", "APPROVED"], ["unavailable", "APPROVED"]]);
 export async function POST(request: NextRequest) {
@@ -40,5 +41,6 @@ export async function POST(request: NextRequest) {
     const { data: updated, error: updateError } = await supabaseAdmin.from("product_match_review_queue").update(changes).eq("id", String(row.id)).eq("source_row_fingerprint", row.source_row_fingerprint).eq("review_status", "PENDING").select("id").maybeSingle();
     if (updateError || !updated) return new NextResponse("A row changed during review; remaining rows were not touched.", { status: 409 });
   }
-  return NextResponse.redirect(new URL("/admin/automation-review", request.url), 303);
+  const returnPath = safeAutomationReviewReturnPath(form.get("returnTo") || request.headers.get("referer"), "decision", request.nextUrl.origin);
+  return NextResponse.redirect(new URL(returnPath, request.url), 303);
 }

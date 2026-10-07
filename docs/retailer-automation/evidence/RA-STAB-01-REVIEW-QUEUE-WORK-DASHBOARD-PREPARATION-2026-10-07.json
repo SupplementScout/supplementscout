@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "task": "RA-STAB-01",
+  "status": "LOCAL_VERIFIED_CI_PENDING",
+  "recorded_at": "2026-10-07",
+  "scope": "SHARED_AUTOMATION_REVIEW_QUEUE_ADMIN_UX",
+  "implementation": {
+    "owner_work_counters": [
+      "DECIDE",
+      "EXECUTE",
+      "PROCESSING",
+      "TECHNICAL",
+      "COMPLETED"
+    ],
+    "per_retailer_progress": true,
+    "completed_today_counter": true,
+    "default_work_mode_page_size": 1,
+    "compact_list_mode": true,
+    "global_search_all_statuses_before_pagination": true,
+    "safe_filter_preserving_return_after_decision": true,
+    "automatic_return_to_first_remaining_item": true,
+    "advanced_filters_and_bulk_actions_collapsed": true
+  },
+  "safety": {
+    "new_queue": false,
+    "new_publisher": false,
+    "new_executor": false,
+    "new_database_rpc": false,
+    "new_catalogue_write_path": false,
+    "direct_catalogue_writes_from_page": false,
+    "approval_and_execution_remain_separate": true,
+    "authentication_unchanged": true,
+    "fingerprint_expiry_and_stale_state_guards_unchanged": true,
+    "external_return_redirects_rejected": true,
+    "complete_read_limit": 5000
+  },
+  "verification": {
+    "project_guardian_before": "PASS",
+    "focused_admin_tests": "PASS_57",
+    "new_dashboard_and_return_path_regressions": "PASS",
+    "typescript": "PASS",
+    "eslint_changed_files": "PASS",
+    "quick": "PASS_547_TESTS_544_PASS_3_SKIP",
+    "full": "PASS",
+    "pull_request_ci": "PENDING",
+    "production_readback": "PENDING"
+  },
+  "next_gate": "Merge after green CI, then verify the authenticated production dashboard read-only. Do not submit a decision or execute an offer for UI verification."
+}

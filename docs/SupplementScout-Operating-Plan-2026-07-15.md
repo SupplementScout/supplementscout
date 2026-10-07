@@ -1119,6 +1119,19 @@ Only natural schedule readbacks remain, and the RA-STAB-01 counter stays `0/3`.
 No retailer workflow was manually dispatched. See the
 [7 October queue-publication preparation](retailer-automation/evidence/RA-STAB-01-JONS-SIX-PACK-QUEUE-PUBLICATION-PREPARATION-2026-10-07.json).
 
+The shared Review Queue work dashboard is now prepared without changing any
+automation authority. It separates owner decisions, approved execution,
+system processing, technical analysis and completed history; shows exact
+per-retailer progress and completed-today counts; defaults to one actionable
+row; and retains a compact list. Global search covers every status before
+pagination. A guarded same-origin return preserves filters after a decision and
+moves back to the first remaining row. No queue, writer, RPC, credential or
+retailer-specific path was added, and all existing decision/execution guards
+remain. Focused `57/57`, TypeScript, ESLint, quick `547` verification and the
+full production-build gate pass; CI and authenticated production readback
+remain. See the
+[Review Queue dashboard preparation](retailer-automation/evidence/RA-STAB-01-REVIEW-QUEUE-WORK-DASHBOARD-PREPARATION-2026-10-07.json).
+
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256
 `59c6d03a2bbcff0b384b86065f76e6f456e3538ca538613cf83e5e017ec11a9d`,
