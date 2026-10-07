@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "task": "RA-STAB-01",
+  "status": "PREPARED_LOCAL_LIVE_VERIFICATION_PENDING",
+  "recorded_at": "2026-10-07",
+  "trigger": {
+    "orphaned_read_only_watchdog_run": "37510180895",
+    "orphaned_run_action": "CANCELLED_AFTER_ZERO_STEPS_FOR_MORE_THAN_11_HOURS",
+    "natural_watchdog_run": "37578070655",
+    "natural_watchdog_commit": "cf7cae8081b5520f5ab414c15647884a4a958fa1",
+    "natural_watchdog_result": "FAIL",
+    "database_writes": 0,
+    "artifact_id": "11463852386",
+    "artifact_digest": "aa516e3100231a65104c91965324d59832c5fa0f3d8fc28f9a2bd7823714fb5b",
+    "watchdog_file_sha256": "766a92f3ebeea712d24b50e5dfabdaf0098436c84fbf501eb95c3e6ee03dca9a"
+  },
+  "live_classification": {
+    "fit_house": {
+      "result": "FAILED_SYSTEM",
+      "reason": "LATEST_ORDINARY_ATTEMPT_INCOMPLETE",
+      "ordinary_run": "37442830504",
+      "stale_offers": 13,
+      "review_rows": 14,
+      "next_gate": "NEXT_NATURAL_SHARED_RETAILER_RUN"
+    },
+    "ten_reps": {
+      "result": "WAITING_FOR_DECISION",
+      "ordinary_run": "37442830504",
+      "ordinary_result": "COMPLETE_SUCCESS",
+      "stale_offers": 16,
+      "review_rows": 16
+    },
+    "whey_okay": {
+      "result": "PASS_WITH_MONITORED_BACKLOG",
+      "ordinary_run": "37440128342",
+      "ordinary_result": "COMPLETE_SUCCESS",
+      "stale_offers": 291,
+      "review_rows": 10
+    },
+    "jons": {
+      "result": "FAILED_SYSTEM",
+      "reason": "REVIEW_ROWS_NOT_DURABLY_PUBLISHED",
+      "stale_offers": 5,
+      "detected_review_rows": 5,
+      "active_review_queue_rows": 0
+    },
+    "six_pack": {
+      "result": "FAILED_SYSTEM",
+      "reason": "REVIEW_ROWS_NOT_DURABLY_PUBLISHED",
+      "stale_offers": 14,
+      "detected_review_rows": 14,
+      "active_review_queue_rows": 0
+    },
+    "ebay": {
+      "result_before": "MONITORED_BACKLOG_GROWTH",
+      "result_after": "WAITING_FOR_DECISION",
+      "ordinary_run": "37461756444",
+      "stale_offers": 68,
+      "detected_review_rows": 79,
+      "active_review_queue_rows": 79,
+      "stale_offers_covered_by_detected_review_rows": 68,
+      "same_run_publication_job": "refresh-review-queue",
+      "same_run_publication_step": "Publish fresh cards to Automation Review Queue",
+      "same_run_publication_result": "success"
+    }
+  },
+  "correction": {
+    "shared_monitor_statuses": [
+      "SUCCESS",
+      "WAITING_FOR_DECISION",
+      "FAILED_SYSTEM"
+    ],
+    "review_backed_waiting_requires": [
+      "complete unique stale-offer evidence",
+      "complete unique review-offer evidence",
+      "every stale offer covered by a review row",
+      "successful Review Queue publication in the same ordinary workflow run",
+      "no unexpected retailer failure code"
+    ],
+    "baseline_ceiling_changed": false,
+    "allowed_offer_ids_changed": false,
+    "retailer_condition_in_shared_core": false,
+    "new_monitor": false,
+    "new_schedule": false,
+    "database_write_path": false
+  },
+  "verification": {
+    "project_guardian_before": "PASS",
+    "focused_watchdog_tests": "PASS_48",
+    "quick": "PASS",
+    "full": "PASS",
+    "pull_request_ci": "PENDING",
+    "live_readback": "PENDING"
+  },
+  "next_gate": "Pass quick/full verification, merge after green CI, then run one read-only watchdog verification. Natural retailer schedules alone may advance the RA-STAB-01 ordinary interval counter."
+}
