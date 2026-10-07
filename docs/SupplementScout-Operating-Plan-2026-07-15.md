@@ -1157,6 +1157,21 @@ readback on merge `d6ab38c` returns one result by default and two only with
 `history=1`; it submitted no decision or execution. See the
 [current-search evidence](retailer-automation/evidence/RA-STAB-01-REVIEW-QUEUE-CURRENT-SEARCH-2026-10-07.json).
 
+The next bounded RA-STAB-01 correction is prepared from the latest natural
+evidence. Fit House ordinary runs now recognize only fully executed,
+postflight-verified Review Queue stock outcomes as durable additions to the
+existing stable OOS proof. This accounts for approved offer `1982` without
+raising the `104` baseline or adding an offer-specific bypass; any unexplained
+OOS still blocks. A live read-only build returns `273` safe rows and `13`
+review rows with zero writes. Separately, 6 Pack Review Queue publication was
+blocked by an internal-profile-key/production-slug mismatch. Its publication
+profile now binds retailer `11` to the existing production slug
+`6-pack-supplements` while retaining the internal profile key and shared
+publisher. Focused `73/73`, quick `547` and full quality-gate checks pass.
+Merge/CI and natural schedules remain required; no failed artifact replay, manual retailer
+dispatch, queue publication or catalogue write occurred. See the
+[Fit House and 6 Pack preparation](retailer-automation/evidence/RA-STAB-01-FIT-HOUSE-DURABLE-REVIEW-SIX-PACK-BINDING-PREPARATION-2026-10-07.json).
+
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256
 `59c6d03a2bbcff0b384b86065f76e6f456e3538ca538613cf83e5e017ec11a9d`,
