@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "task": "RA-STAB-01",
-  "status": "PREPARED_LOCAL_LIVE_VERIFICATION_PENDING",
+  "status": "LIVE_VERIFIED",
   "recorded_at": "2026-10-07",
   "trigger": {
     "orphaned_read_only_watchdog_run": "37510180895",
@@ -84,13 +84,41 @@
     "new_schedule": false,
     "database_write_path": false
   },
+  "deployment": {
+    "implementation_commit": "b658e58",
+    "pull_request": 253,
+    "merge_commit": "14db78b59133aa7778d989527687d7a67a90c58f",
+    "merged_at": "2026-10-07T06:28:07Z"
+  },
+  "live_verification": {
+    "watchdog_run": "37581684482",
+    "generated_at": "2026-10-07T06:28:47.261Z",
+    "result": "FAIL",
+    "monitor_status": "FAILED_SYSTEM",
+    "retailer_count": 12,
+    "failed_retailer_count": 3,
+    "review_retailer_count": 3,
+    "database_writes": 0,
+    "artifact_id": "11464887959",
+    "artifact_digest": "0edac588c59c000c7d871c4c6d03ba50f73a13f5eb886e0e6f0fe8d9d383fc36",
+    "watchdog_file_sha256": "5c95ced3f799f56a4dee9af011667d1563c79130b96a62de6e3c1ebf5fa4d080",
+    "expected_fail_closed_result": true,
+    "classification_proof": {
+      "ebay": "PASS_WITH_REVIEW:REVIEW_BACKED_BACKLOG_OUTSIDE_BASELINE",
+      "ten_reps": "PASS_WITH_REVIEW",
+      "fit_house": "FAIL:LATEST_ORDINARY_ATTEMPT_INCOMPLETE",
+      "jons": "FAIL:MONITORED_BACKLOG_GROWTH",
+      "six_pack": "FAIL:MONITORED_BACKLOG_GROWTH"
+    }
+  },
   "verification": {
     "project_guardian_before": "PASS",
     "focused_watchdog_tests": "PASS_48",
     "quick": "PASS",
     "full": "PASS",
-    "pull_request_ci": "PENDING",
-    "live_readback": "PENDING"
+    "pull_request_ci": "PASS_PR_253",
+    "project_guardian_after_live_evidence": "PASS",
+    "live_readback": "PASS_RUN_37581684482"
   },
-  "next_gate": "Pass quick/full verification, merge after green CI, then run one read-only watchdog verification. Natural retailer schedules alone may advance the RA-STAB-01 ordinary interval counter."
+  "next_gate": "Retain the 0/3 ordinary interval counter until natural retailer schedules supply qualifying evidence. Keep Fit House, Jon's Supplements and 6 Pack Supplements red; address missing durable Review Queue publication through the existing shared mechanism, without manual retailer dispatch or a parallel approval path."
 }

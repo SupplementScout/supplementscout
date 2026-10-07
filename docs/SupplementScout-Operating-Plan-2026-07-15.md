@@ -1095,12 +1095,15 @@ and Whey Okay have complete ordinary evidence. eBay's `68` stale offers are all
 covered by its `79` detected review rows, all `79` are active in production
 Review Queue, and the same ordinary run successfully published them. That is
 owner waiting, not an automation failure. Jon's `5` and 6 Pack's `14` detected
-review rows are not active in Review Queue, so they remain red. A shared,
-fail-closed watchdog correction is prepared: it reports `WAITING_FOR_DECISION`
+review rows are not active in Review Queue, so they remain red. The shared,
+fail-closed watchdog correction is now live: it reports `WAITING_FOR_DECISION`
 only with complete ID coverage and successful same-run durable publication;
 otherwise it reports `FAILED_SYSTEM`. It changes no baseline or data path and
-does not advance the `0/3` natural interval counter. See the
-[7 October watchdog preparation](retailer-automation/evidence/RA-STAB-01-WATCHDOG-REVIEW-BACKED-WAITING-PREPARATION-2026-10-07.json).
+does not advance the `0/3` natural interval counter. PR `#253` merged as
+`14db78b` after green CI. Read-only watchdog `37581684482` made zero writes and
+proved eBay is `PASS_WITH_REVIEW`, while Fit House, Jon's and 6 Pack remain
+`FAILED_SYSTEM`; its overall red result is the intended fail-closed truth. See
+the [7 October watchdog evidence](retailer-automation/evidence/RA-STAB-01-WATCHDOG-REVIEW-BACKED-WAITING-PREPARATION-2026-10-07.json).
 
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256
