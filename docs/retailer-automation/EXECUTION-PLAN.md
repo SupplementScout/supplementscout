@@ -1864,7 +1864,7 @@ RA-STAB-01 remains `IN_PROGRESS` at `0/3` ordinary intervals. Evidence:
 [`evidence/RA-STAB-01-REVIEW-POSTFLIGHT-FINALIZATION-PREPARATION-2026-10-06.json`](evidence/RA-STAB-01-REVIEW-POSTFLIGHT-FINALIZATION-PREPARATION-2026-10-06.json).
 
 **7 October natural watchdog and review-backed waiting classification — shared
-correction prepared:** scheduled watchdog `37578070655` ran on merge `cf7cae8`
+correction live-verified:** scheduled watchdog `37578070655` ran on merge `cf7cae8`
 after the zero-step orphaned read-only run `37510180895` was cancelled to release
 the watchdog concurrency group. It made zero database writes and truthfully kept
 Fit House red because its latest ordinary shared run `37442830504` is incomplete.
@@ -1883,9 +1883,14 @@ stale offer is covered, the same ordinary workflow run successfully published
 that retailer's Review Queue rows, and no unexpected failure is present.
 Missing publication, incomplete evidence, an uncovered stale offer,
 infrastructure failure or write evidence remains red. No ceiling, allowed-ID
-list, retailer branch, monitor, schedule, credential or write path is added.
-Focused tests pass; quick/full, CI and one read-only live verification remain.
-This does not advance the `0/3` ordinary interval counter. Evidence:
+list, retailer branch, monitor, schedule, credential or write path was added.
+Focused, quick and full tests passed. PR `#253` merged as `14db78b`; its required
+CI passed. Read-only watchdog `37581684482` then verified the contract with zero
+database writes: eBay became `PASS_WITH_REVIEW` with
+`REVIEW_BACKED_BACKLOG_OUTSIDE_BASELINE`, while Fit House, Jon's and 6 Pack
+remained red for their real unresolved conditions. The run's overall
+`FAILED_SYSTEM` result is therefore expected and fail-closed, not a failed
+deployment. This does not advance the `0/3` ordinary interval counter. Evidence:
 [`evidence/RA-STAB-01-WATCHDOG-REVIEW-BACKED-WAITING-PREPARATION-2026-10-07.json`](evidence/RA-STAB-01-WATCHDOG-REVIEW-BACKED-WAITING-PREPARATION-2026-10-07.json).
 
 Docker run `37421724769` now proves the existing expired-close regression and
