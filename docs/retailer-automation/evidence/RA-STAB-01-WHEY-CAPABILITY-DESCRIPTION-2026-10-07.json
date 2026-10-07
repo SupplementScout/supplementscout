@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "task": "RA-STAB-01",
+  "status": "LOCAL_VERIFIED",
+  "recorded_at": "2026-10-07",
+  "incident": {
+    "surface": "Automation Review Queue capability description",
+    "retailer": "Whey Okay",
+    "obsolete_claim": "The current dry-run is blocked by an active/conflicting session.",
+    "cause": "Transient production state was embedded in a durable capability description."
+  },
+  "authoritative_counterevidence": {
+    "workflow_run": 37595708904,
+    "event": "schedule",
+    "conclusion": "SUCCESS",
+    "head_sha": "eb72ca4e606a6987bd198eee2af3dcaf3ce6b575",
+    "started_at": "2026-10-07T08:43:45Z",
+    "completed_at": "2026-10-07T08:55:59Z",
+    "dry_run": "SUCCESS",
+    "protected_apply": "SUCCESS",
+    "database_postflight": "SUCCESS",
+    "fresh_source_idempotency": "SUCCESS",
+    "review_queue_publication": "SUCCESS"
+  },
+  "change": {
+    "durable_description": "Existing protected Whey Okay workflow supports approved exact-identity freshness through its ordinary guarded schedule.",
+    "transient_state_removed_from_source": true,
+    "capability_change": false,
+    "adapter_change": false,
+    "operation_change": false,
+    "workflow_change": false,
+    "guardrail_change": false,
+    "catalogue_write_path_change": false
+  },
+  "verification": {
+    "focused_admin_tests": "PASS_60",
+    "project_guardian": "PASS",
+    "quick_quality_gate": "PASS_547_TESTS_544_PASS_3_SKIP",
+    "full_quality_gate": "PASS",
+    "pull_request": null,
+    "merge_commit": null,
+    "production_deployment": "PENDING",
+    "authenticated_live_readback": "PENDING"
+  },
+  "ordinary_interval_credit": false,
+  "next_gate": "Pass the full quality gate, merge and verify the durable capability copy on production. Natural RA-STAB-01 observation remains separate."
+}
