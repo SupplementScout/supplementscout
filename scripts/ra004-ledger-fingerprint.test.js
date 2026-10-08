@@ -21,7 +21,7 @@ const FIXTURE_PATH = path.join(__dirname, "test-fixtures", "ra004-ledger-fingerp
 const GOLDEN_PATH = path.join(__dirname, "test-fixtures", "ra004-ledger-fingerprint-v1", "golden-vectors.json");
 const EXPECTED = "bbfc25a25826ebfd4901941099903921e1f5adeb9d952eb6aa93c64939e3849c";
 const EXPECTED_CURRENT = "e85e59782faaeec14c5f307052939454d6149b2b7e58b2b05b29e3e6f64dbf9c";
-const EXPECTED_PRODUCTION = "746ab61dcdb38158f17845af0ce4ceb84c919e85c14d039276652e24ca1a558e";
+const EXPECTED_PRODUCTION = "d30de0526f773eae1084721517f078e5725803d236556fb2a69fbb5eb1b5e094";
 const LEGACY_SELECTOR_FINGERPRINT = "1692043d963e98570cd69ea2f46654c35f35a78f26c35b3d96e04751d528331c";
 
 function fixtureFromText(text) { return JSON.parse(text); }

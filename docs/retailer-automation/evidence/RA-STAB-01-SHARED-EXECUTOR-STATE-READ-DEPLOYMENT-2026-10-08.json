@@ -1,0 +1,65 @@
+{
+  "schema_version": "ra-stab-01-shared-executor-state-read-deployment-v1",
+  "recorded_at": "2026-10-08T20:36:00Z",
+  "task": "RA-STAB-01",
+  "status": "IN_PROGRESS",
+  "authorization": {
+    "migration": "20261008200000_consolidate_shared_executor_state_reads.sql",
+    "sha256": "a4701b3b94573e453a359f228e0914405d58f338b82d7b5f7158fc5cec385826",
+    "sequence": ["staging", "production", "one fresh ordinary Whey Okay run"],
+    "retry_or_replay_authorized": false
+  },
+  "staging": {
+    "activation_pr": 302,
+    "activation_merge": "c2ebaba3954015229b0e5fdf3a660812bdaa48f8",
+    "rollback_only_rehearsal": "PASS",
+    "apply": "PASS",
+    "postflight_read_only": "PASS",
+    "ledger_count_before": 99,
+    "ledger_count_after": 100,
+    "ledger_fingerprint_after": "e85e59782faaeec14c5f307052939454d6149b2b7e58b2b05b29e3e6f64dbf9c",
+    "catalogue_counts_before": {"products": 974, "product_variants": 1981, "retailer_products": 1974, "offers": 1973, "price_history": 1984},
+    "catalogue_counts_after": {"products": 974, "product_variants": 1981, "retailer_products": 1974, "offers": 1973, "price_history": 1984}
+  },
+  "production": {
+    "activation_pr": 303,
+    "activation_merge": "5d3f631f26c5e811017ba13d9b2205a98b1bcd56",
+    "rollback_only_rehearsal": "PASS",
+    "apply": "PASS",
+    "postflight_read_only": "PASS",
+    "ledger_count_before": 230,
+    "ledger_count_after": 231,
+    "ledger_fingerprint_after": "d30de0526f773eae1084721517f078e5725803d236556fb2a69fbb5eb1b5e094",
+    "catalogue_counts_before": {"products": 1337, "product_variants": 3632, "retailer_products": 3758, "offers": 3758, "price_history": 29578},
+    "catalogue_counts_after": {"products": 1337, "product_variants": 3632, "retailer_products": 3758, "offers": 3758, "price_history": 29578}
+  },
+  "whey_okay_run": {
+    "run_id": 37840451727,
+    "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/37840451727",
+    "commit": "5d3f631f26c5e811017ba13d9b2205a98b1bcd56",
+    "operation": "apply",
+    "result": "FAILED_CLOSED_BEFORE_APPLY",
+    "job_duration_seconds": 38,
+    "failure_code": "RSBI_SOURCE_HASH_MISMATCH",
+    "expected_ledger_count": 230,
+    "actual_ledger_count": 231,
+    "actual_ledger_fingerprint": "d30de0526f773eae1084721517f078e5725803d236556fb2a69fbb5eb1b5e094",
+    "apply_started": false,
+    "offer_writes": 0,
+    "price_history_writes": 0,
+    "retry_or_replay": false,
+    "artifact_id": 11577277336,
+    "artifact_name": "whey-okay-offer-refresh-37840451727-1"
+  },
+  "diagnosis": "The migration was correctly present in production, but the dispatched commit still represented the pre-deployment 230-row runtime binding. The shared ledger guard rejected the 231-row database before source classification or offer apply.",
+  "closeout": {
+    "required_change": "Record the migration as applied-but-excluded in production, bind runtime artifacts to ledger 231 and keep ordinary pending migrations empty.",
+    "retailer_specific_branch_added": false,
+    "new_executor_added": false,
+    "guard_weakened": false,
+    "timeout_changed": false,
+    "second_run_authorized": false
+  },
+  "natural_interval_credit": "0/3; the owner-triggered failed-closed run gives no natural interval credit",
+  "next_gate": "Merge the production selector/runtime closeout after green CI. A second fresh Whey Okay run requires separate exact authority because the authorized one-run allowance was consumed."
+}
