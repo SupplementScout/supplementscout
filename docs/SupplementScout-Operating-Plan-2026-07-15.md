@@ -1220,9 +1220,13 @@ the database use the same rule as the common classifier: a high historical OOS
 level alone does not block harmless confirmations; any new OOS transition is
 still guarded and can be isolated for review. This removes ordinary Fit House
 traffic from that legacy special route rather than adding another exception.
-The SHA-bound migration is prepared locally with rollback and has not been
-deployed; a separate exact production approval remains required. Full local
-verification and PR #273 CI pass; the merge is `48acdad`. See the [manual
+The first exact production rehearsal rolled back safely because its final
+post-check named an obsolete dispatcher fallback. PR #275 changed only that
+check. The corrected SHA-bound migration then passed rehearsal and was applied
+alone with zero catalogue-count change. Production is now ledger `228`,
+fingerprint `c8ed22c12cd4b660703080589084fed25a7d2c14038999a65d6793b085ec9037`.
+The next gate is the one authorized fresh Fit House run without retry or replay.
+See the [manual
 runtime and shared-OOS evidence](retailer-automation/evidence/RA-STAB-01-MANUAL-RUNTIME-AND-SHARED-OOS-PREPARATION-2026-10-08.json).
 
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's

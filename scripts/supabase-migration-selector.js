@@ -419,9 +419,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 227,
+    ledgerCount: 228,
     ledgerFingerprint:
-      "89b59678999d7d564a5a9a304e0307f8771a82b86afd8a95ce378eb3ea3f461e",
+      "c8ed22c12cd4b660703080589084fed25a7d2c14038999a65d6793b085ec9037",
     appliedExcluded: APPLIED_EXCLUSIONS.PRODUCTION,
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
