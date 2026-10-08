@@ -865,6 +865,20 @@ Production deployment and a later fresh proof run require separate exact owner
 authority. RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-SHARED-EXECUTOR-STATE-READ-CONSOLIDATION-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-SHARED-EXECUTOR-STATE-READ-CONSOLIDATION-2026-10-08.json).
 
+The exact shared-executor migration has now passed staging and production
+rehearsal, apply and independent read-only postflight. Staging advanced to
+ledger `100`; production advanced to ledger `231` with fingerprint
+`d30de0526f773eae1084721517f078e5725803d236556fb2a69fbb5eb1b5e094`;
+all catalogue counts stayed unchanged. The single authorized Whey run
+`37840451727` then stopped safely in `38` seconds before apply because its
+commit expected the old `230`-row binding while the database correctly returned
+`231`. This was zero-write deployment-state drift, not retailer-data drift or
+an executor timeout. The common binding is now closed on `231` without a
+retailer-specific branch, new executor, weaker guard or timeout increase. No
+retry or replay occurred; a second fresh run is a separate exact gate.
+RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence:
+[shared executor deployment](retailer-automation/evidence/RA-STAB-01-SHARED-EXECUTOR-STATE-READ-DEPLOYMENT-2026-10-08.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

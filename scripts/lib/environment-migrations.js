@@ -164,6 +164,7 @@ const EXCLUSIONS = Object.freeze({
     "20261008100000_align_shared_stable_oos_validation",
   ]),
   PRODUCTION: Object.freeze([
+    "20261008200000_consolidate_shared_executor_state_reads",
     "20260717120000_create_retailer_catalogue_control_ledger",
     "20260717130000_add_local_retailer_catalogue_child_executor",
     "20260717140000_add_staging_retailer_catalogue_executor",
@@ -207,14 +208,13 @@ const APPLIED_EXCLUSIONS = Object.freeze({
     "20261006120000_extend_partial_sequential_plan_close.sql",
     "20261006190000_add_automation_review_verified_postflight_recovery.sql",
     "20261008140000_add_active_retailer_parent_inventory.sql",
+    "20261008200000_consolidate_shared_executor_state_reads.sql",
   ]),
 });
 
 const PENDING_MIGRATIONS = Object.freeze({
   STAGING: Object.freeze([]),
-  PRODUCTION: Object.freeze([
-    Object.freeze({ filename: "20261008200000_consolidate_shared_executor_state_reads.sql", sha256: "a4701b3b94573e453a359f228e0914405d58f338b82d7b5f7158fc5cec385826" }),
-  ]),
+  PRODUCTION: Object.freeze([]),
 });
 
 function migrationIdentifier(filename) {

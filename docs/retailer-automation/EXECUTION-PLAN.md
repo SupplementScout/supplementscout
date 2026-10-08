@@ -2457,6 +2457,21 @@ deployment still requires separate owner authority. RA-STAB-01 remains
 `IN_PROGRESS` at `0/3`. Evidence: [shared executor state-read
 consolidation](evidence/RA-STAB-01-SHARED-EXECUTOR-STATE-READ-CONSOLIDATION-2026-10-08.json).
 
+The owner-authorized staged deployment is complete. PR `#302` isolated the one
+approved migration from seven older staging candidates; staging rehearsal,
+apply and read-only postflight passed at ledger `100` with unchanged catalogue
+counts. PR `#303` admitted the same file to production; rehearsal, apply and
+postflight passed at ledger `231`, fingerprint
+`d30de0526f773eae1084721517f078e5725803d236556fb2a69fbb5eb1b5e094`,
+again with unchanged catalogue counts. The one authorized Whey run
+`37840451727` failed closed after `38` seconds before apply because its commit
+still carried the pre-deployment `230`-row runtime binding. It wrote no offers
+or price history and was not retried or replayed. The common selector/runtime
+closeout now records the migration as applied and closed; no retailer branch,
+new executor, weaker guard or timeout change was added. A second fresh run is a
+separate gate because the one-run authority was consumed. RA-STAB-01 remains
+`IN_PROGRESS` at `0/3`. Evidence: [shared executor deployment](evidence/RA-STAB-01-SHARED-EXECUTOR-STATE-READ-DEPLOYMENT-2026-10-08.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
