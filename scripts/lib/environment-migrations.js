@@ -8,6 +8,7 @@ const ROOT = path.resolve(__dirname, "../..");
 const MIGRATION_FILE = /^\d{14}_[a-z0-9_]+\.sql$/;
 const EXCLUSIONS = Object.freeze({
   STAGING: Object.freeze([
+    "20261008200000_consolidate_shared_executor_state_reads",
     "20260920150000_add_nutrition_candidate_creatine_components",
     "20260913110000_add_nutrition_candidate_citrulline_components",
     "20260911150000_add_nutrition_candidate_structured_creatine",
@@ -163,7 +164,6 @@ const EXCLUSIONS = Object.freeze({
     "20261008100000_align_shared_stable_oos_validation",
   ]),
   PRODUCTION: Object.freeze([
-    "20261008200000_consolidate_shared_executor_state_reads",
     "20260717120000_create_retailer_catalogue_control_ledger",
     "20260717130000_add_local_retailer_catalogue_child_executor",
     "20260717140000_add_staging_retailer_catalogue_executor",
@@ -199,6 +199,7 @@ const APPLIED_EXCLUSIONS = Object.freeze({
     "20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql",
     "20260928100000_diagnose_ra004_preflight_acl_rls.sql",
     "20260928101000_align_ra004_control_export_provider_identity.sql",
+    "20261008200000_consolidate_shared_executor_state_reads.sql",
   ]),
   PRODUCTION: Object.freeze([
     "20260929133000_extend_expired_sequential_plan_close.sql",
@@ -210,10 +211,10 @@ const APPLIED_EXCLUSIONS = Object.freeze({
 });
 
 const PENDING_MIGRATIONS = Object.freeze({
-  STAGING: Object.freeze([
+  STAGING: Object.freeze([]),
+  PRODUCTION: Object.freeze([
     Object.freeze({ filename: "20261008200000_consolidate_shared_executor_state_reads.sql", sha256: "a4701b3b94573e453a359f228e0914405d58f338b82d7b5f7158fc5cec385826" }),
   ]),
-  PRODUCTION: Object.freeze([]),
 });
 
 function migrationIdentifier(filename) {

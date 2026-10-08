@@ -263,6 +263,7 @@ const SERIALIZED_SHARED_REFRESH_SHA256 = "0bb7c151f5458302ff4f560d6ffa9f75db494f
 const PRICE_HISTORY_REUSE_MIGRATION = "20260908210000_reuse_atomic_price_history_and_close_jons_retry.sql";
 const PRICE_HISTORY_REUSE_SHA256 = "f94b4218264c5b321d682f07361b51a0915f5e469915bb351d98bf2f9d35c4b9";
 const ALL_WRITER_SERIALIZATION_MIGRATION = "20261008120000_serialize_all_approved_offer_writes.sql";
+const SHARED_EXECUTOR_STATE_READ_MIGRATION = "20261008200000_consolidate_shared_executor_state_reads.sql";
 const temporaryRoots = [];
 
 function temporaryRoot() {
@@ -303,6 +304,7 @@ function preFixtureRemoteLedger(sourceDir = SOURCE) {
       RA004_CONSOLIDATED_OWNERSHIP_MIGRATION,
       RA004_ACL_RLS_CORRECTION_MIGRATION,
       RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION,
+      SHARED_EXECUTOR_STATE_READ_MIGRATION,
     ].includes(`${version}_${name}.sql`),
   );
 }
@@ -314,6 +316,7 @@ function preCompatibilityRemoteLedger(sourceDir = SOURCE) {
       RA004_CONSOLIDATED_OWNERSHIP_MIGRATION,
       RA004_ACL_RLS_CORRECTION_MIGRATION,
       RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION,
+      SHARED_EXECUTOR_STATE_READ_MIGRATION,
     ].includes(`${version}_${name}.sql`),
   );
 }
@@ -337,13 +340,13 @@ test.after(() => {
   }
 });
 
-test("staging contract records the closed RA-004 migrations through provider identity as applied", () => {
+test("staging records the shared executor migration as applied and closed", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 99);
+  assert.equal(result.ledger_count, 100);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending_files, ["20261008200000_consolidate_shared_executor_state_reads.sql"]);
-  assert.equal(result.pending_file, "20261008200000_consolidate_shared_executor_state_reads.sql");
-  assert.equal(result.pending_sha256, "a4701b3b94573e453a359f228e0914405d58f338b82d7b5f7158fc5cec385826");
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
@@ -353,6 +356,8 @@ test("staging contract records the closed RA-004 migrations through provider ide
   assert.ok(result.selected_files.includes(TIMESTAMP_OPERATOR_MIGRATION));
   assert.ok(result.excluded_files.includes(REVIEW_QUEUE_PUBLICATION_MIGRATION));
   assert.ok(!result.selected_files.includes(REVIEW_QUEUE_PUBLICATION_MIGRATION));
+  assert.ok(result.selected_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
+  assert.ok(result.excluded_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
 });
 
 test("the local-only migration is the exact shared-policy exclusion", () => {
@@ -443,9 +448,12 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the active-parent inventory migration as applied", () => {
+test("production records active-parent inventory as applied and queues only shared executor state reads", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: "20261008200000_consolidate_shared_executor_state_reads.sql",
+    sha256: "a4701b3b94573e453a359f228e0914405d58f338b82d7b5f7158fc5cec385826",
+  }]);
   assert.deepEqual(contract.appliedExcluded, [
     "20260929133000_extend_expired_sequential_plan_close.sql",
     "20261004120000_add_central_control_plan_readback.sql",
@@ -597,7 +605,7 @@ test("production accepts ledger 230 with the active-parent inventory applied", (
   });
   assert.equal(result.ledger_count, 230);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 230);
+  assert.equal(result.selected_files.length, 231);
   assert.ok(result.selected_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
   assert.ok(result.excluded_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
   assert.ok(result.selected_files.includes("20261004120000_add_central_control_plan_readback.sql"));
@@ -607,8 +615,11 @@ test("production accepts ledger 230 with the active-parent inventory applied", (
   assert.ok(result.selected_files.includes("20261006170000_add_automation_review_owner_decision_validation.sql"));
   assert.ok(result.selected_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
   assert.ok(result.excluded_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.deepEqual(result.pending_files, ["20261008200000_consolidate_shared_executor_state_reads.sql"]);
+  assert.deepEqual(result.pending_sha256s, {
+    "20261008200000_consolidate_shared_executor_state_reads.sql":
+      "a4701b3b94573e453a359f228e0914405d58f338b82d7b5f7158fc5cec385826",
+  });
   assert.ok(result.selected_files.includes("20261008140000_add_active_retailer_parent_inventory.sql"));
   assert.ok(result.excluded_files.includes("20261008140000_add_active_retailer_parent_inventory.sql"));
   assert.ok(result.selected_files.includes(
@@ -711,12 +722,11 @@ test("runtime staging artifacts bind the same migration ledger as the staging se
 
 test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.equal(Object.keys(contract.excluded).length, 23);
-  assert.deepEqual(contract.pending, []);
-  assert.equal(
-    contract.excluded["20261008200000_consolidate_shared_executor_state_reads.sql"],
-    "a4701b3b94573e453a359f228e0914405d58f338b82d7b5f7158fc5cec385826",
-  );
+  assert.equal(Object.keys(contract.excluded).length, 22);
+  assert.deepEqual(contract.pending, [{
+    filename: "20261008200000_consolidate_shared_executor_state_reads.sql",
+    sha256: "a4701b3b94573e453a359f228e0914405d58f338b82d7b5f7158fc5cec385826",
+  }]);
   assert.equal(
     contract.excluded["20260929133000_extend_expired_sequential_plan_close.sql"],
     "b0a4cac2d9c30989f00570bf1c63036daf190fffbcc7b08b17c616761bc6a380",
@@ -877,15 +887,16 @@ test("owner-authorized ACL/RLS activation selects exactly one migration from led
   ]), /staging-only/);
 });
 
-test("staging contract records the applied ACL/RLS and provider identity corrections at ledger 99", () => {
+test("staging contract records the shared executor migration at ledger 100", () => {
   const filename = "20260928100000_diagnose_ra004_preflight_acl_rls.sql";
-  assert.equal(CONTRACT.ledgerCount, 99);
+  assert.equal(CONTRACT.ledgerCount, 100);
   assert.equal(CONTRACT.ledgerFingerprint,
-    "a6e7693f964925554e807602752e4630d14f537a1d9de4fe82f8433d30c307cc");
+    "e85e59782faaeec14c5f307052939454d6149b2b7e58b2b05b29e3e6f64dbf9c");
   assert.ok(CONTRACT.appliedExcluded.includes(filename));
   assert.ok(CONTRACT.appliedExcluded.includes(RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION));
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === filename));
-  assert.equal(currentRemoteLedger().length, 99);
+  assert.ok(CONTRACT.appliedExcluded.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
+  assert.equal(currentRemoteLedger().length, 100);
   assert.equal(ledgerRowsFingerprint(currentRemoteLedger(), { targetEnvironment: "STAGING" }),
     CONTRACT.ledgerFingerprint);
 });
@@ -995,7 +1006,10 @@ test("consumed provider identity activation is terminal while its prepared form 
     activationManifest: RA004_PROVIDER_IDENTITY_ACTIVATION,
   })), /status mismatch/);
   const preLedger = currentRemoteLedger().filter(
-    ({ version, name }) => `${version}_${name}.sql` !== RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION,
+    ({ version, name }) => ![
+      RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION,
+      SHARED_EXECUTOR_STATE_READ_MIGRATION,
+    ].includes(`${version}_${name}.sql`),
   );
   const result = validateSelection(validInput({
     remoteLedger: preLedger,
@@ -1033,7 +1047,10 @@ test("provider identity activation fails closed on ledger, SHA, retry, productio
     const manifest = preparedProviderIdentityActivation();
     mutate(manifest);
     const preLedger = currentRemoteLedger().filter(
-      ({ version, name }) => `${version}_${name}.sql` !== RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION,
+      ({ version, name }) => ![
+        RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION,
+        SHARED_EXECUTOR_STATE_READ_MIGRATION,
+      ].includes(`${version}_${name}.sql`),
     );
     assert.throws(() => validateSelection(validInput({ remoteLedger: preLedger, activationManifest: manifest })), expected);
   };
@@ -1134,6 +1151,7 @@ test("historical prepared consolidated RA-004 activation selected exactly one mi
         RA004_CONSOLIDATED_OWNERSHIP_MIGRATION,
         RA004_ACL_RLS_CORRECTION_MIGRATION,
         RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION,
+        SHARED_EXECUTOR_STATE_READ_MIGRATION,
       ].includes(`${version}_${name}.sql`),
     ),
   }));
@@ -1324,15 +1342,13 @@ test("completed RA-004 fixture activation cannot select or materialize a migrati
   })), /status mismatch/);
 });
 
-test("staging selects only the authorized shared executor migration", () => {
+test("staging keeps the applied shared executor migration closed", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, "20261008200000_consolidate_shared_executor_state_reads.sql");
-  assert.equal(result.pending_sha256, "a4701b3b94573e453a359f228e0914405d58f338b82d7b5f7158fc5cec385826");
-  assert.deepEqual(result.pending_files, ["20261008200000_consolidate_shared_executor_state_reads.sql"]);
-  assert.deepEqual(result.pending_sha256s, {
-    "20261008200000_consolidate_shared_executor_state_reads.sql":
-      "a4701b3b94573e453a359f228e0914405d58f338b82d7b5f7158fc5cec385826",
-  });
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
+  assert.ok(result.selected_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
 });
 
 test("Group A identity migrations are production-bound and cannot change commercial fields", () => {
