@@ -24,13 +24,7 @@ test("migration is hash-bound and transactional", () => {
   const repositoryBytes = fs.readFileSync(file, "utf8").replaceAll("\r\n", "\n");
   assert.equal(crypto.createHash("sha256").update(repositoryBytes).digest("hex"), expectedSha);
   assert.deepEqual(selector.CONTRACTS.STAGING.pending.map(({ filename }) => filename), [
-    "20260831110000_create_automation_review_queue_publication_rpc.sql",
-    "20260910193000_allow_automation_review_retry_revisions.sql",
-    "20260911120000_add_nutrition_candidate_variant_provenance.sql",
-    "20260911130000_add_nutrition_candidate_preworkout_facts.sql",
-    "20260911150000_add_nutrition_candidate_structured_creatine.sql",
-    "20260913110000_add_nutrition_candidate_citrulline_components.sql",
-    "20260920150000_add_nutrition_candidate_creatine_components.sql",
+    "20261008200000_consolidate_shared_executor_state_reads.sql",
   ]);
   assert.equal(selector.CONTRACTS.STAGING.ledgerCount, 99);
   assert.equal(

@@ -180,8 +180,6 @@ const TIMESTAMP_OPERATOR_MIGRATION = "20260831081000_fix_verified_no_change_time
 const TIMESTAMP_OPERATOR_SHA256 = "16d92f7e0b404b81bcbda62bfb512ff6690bb78b36b7e5a345788b6fdcc8ef20";
 const REVIEW_QUEUE_PUBLICATION_MIGRATION = "20260831110000_create_automation_review_queue_publication_rpc.sql";
 const REVIEW_QUEUE_PUBLICATION_SHA256 = "8680e3303a8b4b22025f85af83a59a8dafbebc91e97719e423af8dff79f28409";
-const REVIEW_QUEUE_RETRY_MIGRATION = "20260910193000_allow_automation_review_retry_revisions.sql";
-const REVIEW_QUEUE_RETRY_SHA256 = "ddfb939887df1793f554adc1e4f171b64b3ba2549a4d3651bd339947d7bc496b";
 const NUTRITION_VARIANT_PROVENANCE_MIGRATION = "20260911120000_add_nutrition_candidate_variant_provenance.sql";
 const NUTRITION_VARIANT_PROVENANCE_SHA256 = "62a7a5dd812d4559889d7392217095b67841d1d6db37e5519ee6e1593bc207cb";
 const NUTRITION_PREWORKOUT_FACTS_MIGRATION = "20260911130000_add_nutrition_candidate_preworkout_facts.sql";
@@ -343,17 +341,18 @@ test("staging contract records the closed RA-004 migrations through provider ide
   const result = validateSelection(validInput());
   assert.equal(result.ledger_count, 99);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending_files, [REVIEW_QUEUE_PUBLICATION_MIGRATION, REVIEW_QUEUE_RETRY_MIGRATION, NUTRITION_VARIANT_PROVENANCE_MIGRATION, NUTRITION_PREWORKOUT_FACTS_MIGRATION, NUTRITION_STRUCTURED_CREATINE_MIGRATION, NUTRITION_CITRULLINE_COMPONENTS_MIGRATION, NUTRITION_CREATINE_COMPONENTS_MIGRATION]);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, ["20261008200000_consolidate_shared_executor_state_reads.sql"]);
+  assert.equal(result.pending_file, "20261008200000_consolidate_shared_executor_state_reads.sql");
+  assert.equal(result.pending_sha256, "a4701b3b94573e453a359f228e0914405d58f338b82d7b5f7158fc5cec385826");
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
-  assert.equal(result.selected_files.length, 106);
+  assert.equal(result.selected_files.length, 100);
   assert.ok(result.selected_files.includes(RA004_FIXTURE_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_GUARD_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_OPERATOR_MIGRATION));
-  assert.ok(result.selected_files.includes(REVIEW_QUEUE_PUBLICATION_MIGRATION));
+  assert.ok(result.excluded_files.includes(REVIEW_QUEUE_PUBLICATION_MIGRATION));
+  assert.ok(!result.selected_files.includes(REVIEW_QUEUE_PUBLICATION_MIGRATION));
 });
 
 test("the local-only migration is the exact shared-policy exclusion", () => {
@@ -553,7 +552,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 106);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 100);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -1325,19 +1324,14 @@ test("completed RA-004 fixture activation cannot select or materialize a migrati
   })), /status mismatch/);
 });
 
-test("staging output reports the review queue, retry and nutrition migrations as pending", () => {
+test("staging selects only the authorized shared executor migration", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_files, [REVIEW_QUEUE_PUBLICATION_MIGRATION, REVIEW_QUEUE_RETRY_MIGRATION, NUTRITION_VARIANT_PROVENANCE_MIGRATION, NUTRITION_PREWORKOUT_FACTS_MIGRATION, NUTRITION_STRUCTURED_CREATINE_MIGRATION, NUTRITION_CITRULLINE_COMPONENTS_MIGRATION, NUTRITION_CREATINE_COMPONENTS_MIGRATION]);
+  assert.equal(result.pending_file, "20261008200000_consolidate_shared_executor_state_reads.sql");
+  assert.equal(result.pending_sha256, "a4701b3b94573e453a359f228e0914405d58f338b82d7b5f7158fc5cec385826");
+  assert.deepEqual(result.pending_files, ["20261008200000_consolidate_shared_executor_state_reads.sql"]);
   assert.deepEqual(result.pending_sha256s, {
-    [REVIEW_QUEUE_PUBLICATION_MIGRATION]: REVIEW_QUEUE_PUBLICATION_SHA256,
-    [REVIEW_QUEUE_RETRY_MIGRATION]: REVIEW_QUEUE_RETRY_SHA256,
-    [NUTRITION_VARIANT_PROVENANCE_MIGRATION]: NUTRITION_VARIANT_PROVENANCE_SHA256,
-    [NUTRITION_PREWORKOUT_FACTS_MIGRATION]: NUTRITION_PREWORKOUT_FACTS_SHA256,
-    [NUTRITION_STRUCTURED_CREATINE_MIGRATION]: NUTRITION_STRUCTURED_CREATINE_SHA256,
-    [NUTRITION_CITRULLINE_COMPONENTS_MIGRATION]: NUTRITION_CITRULLINE_COMPONENTS_SHA256,
-    [NUTRITION_CREATINE_COMPONENTS_MIGRATION]: NUTRITION_CREATINE_COMPONENTS_SHA256,
+    "20261008200000_consolidate_shared_executor_state_reads.sql":
+      "a4701b3b94573e453a359f228e0914405d58f338b82d7b5f7158fc5cec385826",
   });
 });
 

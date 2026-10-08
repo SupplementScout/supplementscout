@@ -110,6 +110,15 @@ const RA004_FIXTURE_PRE_ACTIVATION_LEDGER_FINGERPRINT =
   "b37337a9cfd316890034ce12df7571230268b2a27e2a6fc0462d0a7e8ea26c2a";
 const RA004_FIXTURE_PRE_ACTIVATION_CANONICAL_LEDGER_FINGERPRINT =
   "20c3dca55ccba050686c56d7c2d9273135d8556203950bd47cd9d2ec23c24909";
+const RA004_HISTORICAL_DEFERRED_MIGRATIONS = Object.freeze([
+  Object.freeze({ filename: "20260831110000_create_automation_review_queue_publication_rpc.sql", sha256: "8680e3303a8b4b22025f85af83a59a8dafbebc91e97719e423af8dff79f28409" }),
+  Object.freeze({ filename: "20260910193000_allow_automation_review_retry_revisions.sql", sha256: "ddfb939887df1793f554adc1e4f171b64b3ba2549a4d3651bd339947d7bc496b" }),
+  Object.freeze({ filename: "20260911120000_add_nutrition_candidate_variant_provenance.sql", sha256: "62a7a5dd812d4559889d7392217095b67841d1d6db37e5519ee6e1593bc207cb" }),
+  Object.freeze({ filename: "20260911130000_add_nutrition_candidate_preworkout_facts.sql", sha256: "76db080b347dfffd36a8233c1d8f9725421b9caf2e445d56579833898b6428d5" }),
+  Object.freeze({ filename: "20260911150000_add_nutrition_candidate_structured_creatine.sql", sha256: "dc9a411d19cb3547b508744c6dab21fb0df741e30f896cb186de6b38639ce28c" }),
+  Object.freeze({ filename: "20260913110000_add_nutrition_candidate_citrulline_components.sql", sha256: "76dd8390e19f45dd8ffcc69bafe9721abc6dedff6db280fdc6f75e3938258ac4" }),
+  Object.freeze({ filename: "20260920150000_add_nutrition_candidate_creatine_components.sql", sha256: "c68dac262928ac1ebf971fd8cb838468f38376ebb7c43d8f426884adc200200b" }),
+]);
 
 const CONTRACTS = Object.freeze({
   STAGING: Object.freeze({
@@ -124,8 +133,20 @@ const CONTRACTS = Object.freeze({
       "a6e7693f964925554e807602752e4630d14f537a1d9de4fe82f8433d30c307cc",
     appliedExcluded: APPLIED_EXCLUSIONS.STAGING,
     excluded: Object.freeze({
-      "20261008200000_consolidate_shared_executor_state_reads.sql":
-        "a4701b3b94573e453a359f228e0914405d58f338b82d7b5f7158fc5cec385826",
+      "20260920150000_add_nutrition_candidate_creatine_components.sql":
+        "c68dac262928ac1ebf971fd8cb838468f38376ebb7c43d8f426884adc200200b",
+      "20260913110000_add_nutrition_candidate_citrulline_components.sql":
+        "76dd8390e19f45dd8ffcc69bafe9721abc6dedff6db280fdc6f75e3938258ac4",
+      "20260911150000_add_nutrition_candidate_structured_creatine.sql":
+        "dc9a411d19cb3547b508744c6dab21fb0df741e30f896cb186de6b38639ce28c",
+      "20260911130000_add_nutrition_candidate_preworkout_facts.sql":
+        "76db080b347dfffd36a8233c1d8f9725421b9caf2e445d56579833898b6428d5",
+      "20260911120000_add_nutrition_candidate_variant_provenance.sql":
+        "62a7a5dd812d4559889d7392217095b67841d1d6db37e5519ee6e1593bc207cb",
+      "20260910193000_allow_automation_review_retry_revisions.sql":
+        "ddfb939887df1793f554adc1e4f171b64b3ba2549a4d3651bd339947d7bc496b",
+      "20260831110000_create_automation_review_queue_publication_rpc.sql":
+        "8680e3303a8b4b22025f85af83a59a8dafbebc91e97719e423af8dff79f28409",
       "20261008140000_add_active_retailer_parent_inventory.sql":
         "6499f29df0c33311d6810fd33293d1de72d4de3e92b75b3e9027e67a46e317e6",
       "20261008120000_serialize_all_approved_offer_writes.sql":
@@ -746,11 +767,12 @@ function validateActivationManifest(contract, manifest, sourceDir = DEFAULT_SOUR
       `activation source SHA-256 mismatch: ${entry.filename}`);
   }
   const deferred = manifest?.deferred_pending_migrations;
-  invariant(Array.isArray(deferred) && deferred.length === contract.pending.length,
+  invariant(Array.isArray(deferred) && deferred.length === RA004_HISTORICAL_DEFERRED_MIGRATIONS.length,
     "activation deferred migration count mismatch");
   invariant(
     deferred.every((entry, index) =>
-      entry?.filename === contract.pending[index].filename && entry?.sha256 === contract.pending[index].sha256),
+      entry?.filename === RA004_HISTORICAL_DEFERRED_MIGRATIONS[index].filename
+        && entry?.sha256 === RA004_HISTORICAL_DEFERRED_MIGRATIONS[index].sha256),
     "activation deferred migration set mismatch",
   );
   return filenames;
