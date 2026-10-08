@@ -2,7 +2,7 @@
   "schema_version": "ra-stab-01-shared-executor-state-read-consolidation-v1",
   "captured_at": "2026-10-08",
   "task": "RA-STAB-01",
-  "status": "LOCAL_VERIFIED_PENDING_CI_AND_SEPARATE_DEPLOYMENT_AUTHORITY",
+  "status": "POSTGRES_17_VERIFIED_PENDING_MERGE_AND_SEPARATE_DEPLOYMENT_AUTHORITY",
   "basis": {
     "live_read_only_audit_run_id": "37832592271",
     "live_read_only_artifact_id": "11574162885",
@@ -43,7 +43,16 @@
     "selector_and_ledger_tests": "PASS after the new unapplied migration was closed in both environment selectors",
     "verify_quick": "PASS",
     "postgres_17_local_scenario": "NOT_RUN_DOCKER_DAEMON_UNAVAILABLE",
-    "required_next_gate": "Green CI with PostgreSQL integration before merge"
+    "github_integration_run_id": "37836089622",
+    "target_postgres_17_scenario": "PASS: production sequence exact identity, drift/order/rerun/injected-failure atomicity, reviewed dispatch and shared state-read migration",
+    "target_postgres_17_duration_ms": 9425.864685,
+    "global_integration_gate": "FAIL: four unrelated pre-existing failures; scheduled main integration runs were already failing before this branch",
+    "unrelated_failures": [
+      "Predators Gear reviewed-new-products-v3 historical fixture state",
+      "nutrition candidate duplicate historical fingerprint fixture",
+      "two expired-approval-close historical migration-count assertions"
+    ],
+    "required_next_gate": "Normal PR checks green before merge"
   },
   "production": {
     "migration_applied": false,

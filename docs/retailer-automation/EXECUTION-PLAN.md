@@ -2445,9 +2445,13 @@ comparisons. Deterministic source instrumentation therefore reduces row-state
 function calls from `9` to `2` per offer (`7` fewer, `77.78%`) while retaining
 manifest, ledger, approval, replay, stale-state, locking, per-row validation,
 apply, aggregate-delta, cross-retailer fingerprint, recovery and idempotency
-guards. Focused tests and the quick gate pass. The local PostgreSQL 17 scenario
-was not available because Docker was stopped, so green CI remains mandatory
-before merge. The migration is SHA-bound and closed in both environment
+guards. Focused tests, quick/full gates and the exact PostgreSQL 17 production
+sequence pass. GitHub integration run `37836089622` applied the reviewed
+dispatcher and candidate migration in a disposable database, then passed the
+26-row execution, negative, replay and atomic rollback scenario in `9426` ms.
+The wider historical integration gate still has four unrelated failures already
+present on scheduled `main` runs; they are not represented as success here.
+The migration is SHA-bound and closed in both environment
 selectors: it is not deployed and authorizes no retailer run. Exact production
 deployment still requires separate owner authority. RA-STAB-01 remains
 `IN_PROGRESS` at `0/3`. Evidence: [shared executor state-read

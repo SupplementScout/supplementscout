@@ -855,9 +855,12 @@ The shared executor consolidation is now locally prepared as one common SQL
 change, not a retailer patch. It caches one post-apply offer state and reuses it
 for the same seven field checks, reducing deterministic row-state calls from
 `9` to `2` per offer while preserving every existing safety boundary. Focused
-tests and the quick gate pass; PostgreSQL integration remains a required green
-CI gate because the local Docker daemon was unavailable. The SHA-bound
-migration is closed in both deployment selectors and has not been applied.
+tests and quick/full gates pass. GitHub integration run `37836089622` also
+passed the exact PostgreSQL 17 production-sequence scenario, including 26 rows,
+negative cases, replay protection and atomic rollback. The wider historical
+integration gate retains four unrelated failures already present on scheduled
+`main` runs and is not claimed as green. The SHA-bound migration is closed in
+both deployment selectors and has not been applied.
 Production deployment and a later fresh proof run require separate exact owner
 authority. RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-SHARED-EXECUTOR-STATE-READ-CONSOLIDATION-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-SHARED-EXECUTOR-STATE-READ-CONSOLIDATION-2026-10-08.json).
