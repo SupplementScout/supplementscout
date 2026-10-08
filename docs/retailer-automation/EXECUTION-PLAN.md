@@ -2230,6 +2230,28 @@ manual evidence still does not advance the `0/3` natural counter. The remaining
 pre-observation blockers are the exact stale-control recovery for Simply and
 Whey and availability of the protected 10 Reps feed.
 
+The separately authorized Simply Supplements control-only recovery then ran
+once as `37788944248`. It expired exact parent
+`a02c4e0f-97ca-4f08-b3e8-8287351fdb39` and its three unexecuted children with
+one close call, zero apply runs, zero retry or replay, zero business writes and
+zero price-history writes. Postflight preserved catalogue counts at
+`1337/3632/3758/3758/29577`; the Simply stale-control blocker is closed.
+
+One authorized read-only Whey Okay discovery followed as `37790817618`. It
+found exactly one blocking parent,
+`73d7ef28-04ae-46b9-8ac2-69792f807546`, in `PARTIALLY_APPLIED` state. Eleven
+of its twelve children are already `APPLIED`; one is still `APPROVED`, with no
+planned or applying children. Discovery used one read transaction and made
+zero close calls, control writes, business writes or price-history writes. No
+Whey recovery was authorized or performed. The next bounded Whey step requires
+separate exact owner authorization and must preserve the eleven applied
+children while closing only the unexecuted boundary. 10 Reps remains paused
+until its protected CSV feed is healthy. After those blockers are cleared, one
+fresh normal Simply and Whey run without retry or replay can verify both paths;
+then code remains frozen for three natural intervals. Manual control work does
+not advance the counter, so RA-STAB-01 remains `IN_PROGRESS` at `0/3`.
+Evidence: [Simply close and Whey discovery](evidence/RA-STAB-01-SIMPLY-CLOSE-WHEY-DISCOVERY-2026-10-08.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
