@@ -1221,8 +1221,9 @@ level alone does not block harmless confirmations; any new OOS transition is
 still guarded and can be isolated for review. This removes ordinary Fit House
 traffic from that legacy special route rather than adding another exception.
 The SHA-bound migration is prepared locally with rollback and has not been
-deployed; PR/CI and a separate exact production approval remain required. Full
-local verification passes. See the [manual runtime and shared-OOS evidence](retailer-automation/evidence/RA-STAB-01-MANUAL-RUNTIME-AND-SHARED-OOS-PREPARATION-2026-10-08.json).
+deployed; a separate exact production approval remains required. Full local
+verification and PR #273 CI pass; the merge is `48acdad`. See the [manual
+runtime and shared-OOS evidence](retailer-automation/evidence/RA-STAB-01-MANUAL-RUNTIME-AND-SHARED-OOS-PREPARATION-2026-10-08.json).
 
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256

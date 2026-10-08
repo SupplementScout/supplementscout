@@ -90,6 +90,13 @@
     "migration": "20261008100000_align_shared_stable_oos_validation.sql",
     "sha256": "84037c898b7bc2cd3175783b43d213a601e8256b4cc6da3aba055b335a1f995b",
     "production_state": "PENDING_NOT_DEPLOYED",
+    "merge": {
+      "pull_request": 273,
+      "merge_commit": "48acdad502efe622d94c5a0c34827d5ac5573df4",
+      "merged_at": "2026-10-08T09:12:54Z",
+      "full_ci_run": 37754699009,
+      "full_ci_result": "PASS"
+    },
     "behaviour": [
       "Use the shared unreviewed validator for ordinary Fit House batches instead of the legacy retailer-specific stable-OOS route.",
       "Permit an above-threshold historical OOS ratio only when the exact batch introduces zero new OOS rows.",
@@ -108,5 +115,5 @@
       "verify_full": "PASS"
     }
   },
-  "next_gate": "Complete full local verification and PR/CI. Production deployment requires separate exact owner authorization for the SHA-bound migration; after deployment run one fresh Fit House ordinary path and a read-only postflight. Manual runs do not increment the 0/3 natural interval counter."
+  "next_gate": "Production deployment requires separate exact owner authorization for the SHA-bound migration; after deployment run one fresh Fit House ordinary path and a read-only postflight. Manual runs do not increment the 0/3 natural interval counter."
 }

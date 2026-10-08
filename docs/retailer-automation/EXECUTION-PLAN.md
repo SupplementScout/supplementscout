@@ -2131,7 +2131,7 @@ catalogue writer or new retailer branch; the dormant legacy validator is not
 deleted in this stabilization step. It has a bounded rollback and remains
 `PENDING_NOT_DEPLOYED`; production deployment needs a separately exact
 owner authorization. Focused, selector, baseline, quick and full checks pass.
-Evidence:
+PR `#273` merged as `48acdad`; its full CI run `37754699009` passed. Evidence:
 [`evidence/RA-STAB-01-MANUAL-RUNTIME-AND-SHARED-OOS-PREPARATION-2026-10-08.json`](evidence/RA-STAB-01-MANUAL-RUNTIME-AND-SHARED-OOS-PREPARATION-2026-10-08.json).
 
 **Acceptance:**
