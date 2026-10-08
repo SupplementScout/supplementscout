@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "task": "RA-STAB-01",
+  "status": "LIVE_VERIFIED",
+  "captured_at": "2026-10-08T19:32:01.569Z",
+  "scope": "shared retailer offer-sync executor read-only performance audit",
+  "production_evidence": {
+    "workflow_run_id": "37832592271",
+    "workflow_url": "https://github.com/SupplementScout/supplementscout/actions/runs/37832592271",
+    "head_sha": "f055761c3263e569f3c67c3adfea1dc934552761",
+    "conclusion": "success",
+    "artifact_id": "11574162885",
+    "artifact_name": "shared-retailer-executor-performance-audit-37832592271-1",
+    "artifact_digest": "sha256:40ba8d6a99003a137434a9d962a3c994df5f8a55d8e24d58e66774a5bd5c1a87",
+    "report_sha256": "7a7b9ce1950ca497ff4354b392546290bd6d4c74489e84c9ddcc20473aaf48c7",
+    "source_run_id": "37826090676",
+    "source_run_apply_seconds": 766,
+    "source_run_safe_rows": 579,
+    "source_run_children": 12
+  },
+  "access_proof": {
+    "session_user": "supplementscout_production_validator_login",
+    "current_user": "retailer_catalogue_production_validator",
+    "transaction_read_only": "on",
+    "database_writes": 0,
+    "retry_calls": 0,
+    "replay_calls": 0
+  },
+  "verified_findings": {
+    "ordinary_execution_chain": [
+      "public.retailer_offer_sync_execute_batch_internal(jsonb)",
+      "public.retailer_offer_sync_execute_before_reviewed_mixed(jsonb)",
+      "public.retailer_offer_sync_execute_batch_unreviewed_internal(jsonb)"
+    ],
+    "json_row_loops": 3,
+    "per_row_validate_calls_in_source": 1,
+    "per_row_approval_calls_in_source": 1,
+    "per_row_apply_calls_in_source": 1,
+    "row_state_calls_in_source": 9,
+    "business_count_calls_in_source": 2,
+    "other_retailer_fingerprint_calls_in_source": 2,
+    "protected_fingerprint_calls_in_source": 2,
+    "per_row_approve_apply_proven": true,
+    "repeated_row_state_reads_proven": true,
+    "repeated_global_snapshot_checks_proven": true,
+    "primary_lookup_index_coverage_proven": true,
+    "track_functions": "none",
+    "function_level_timing_available": false
+  },
+  "interpretation": {
+    "proven": "The common ordinary executor performs repeated row work and repeated whole-catalogue safety snapshots. This is shared structural overhead, not a Whey Okay exception or missing primary-key index.",
+    "not_proven": "Because PostgreSQL function timing is disabled, this audit does not assign an exact number of the 766 seconds to any single call class.",
+    "no_timeout_change_justified": true,
+    "no_retailer_specific_bypass_justified": true
+  },
+  "diagnostic_harness_incidents": [
+    {
+      "run_id": "37830509232",
+      "result": "FAIL_CLOSED_BEFORE_AUDIT_QUERY",
+      "reason": "redundant unsupported local-setting override",
+      "database_writes": 0
+    },
+    {
+      "run_id": "37831324464",
+      "result": "FAIL_CLOSED_BEFORE_EVIDENCE_CAPTURE",
+      "reason": "function names supplied as separate bind parameters instead of one text array",
+      "database_writes": 0
+    },
+    {
+      "run_id": "37831953190",
+      "result": "PASS_PARTIAL_SCOPE",
+      "reason": "proved the current executor is layered; top-level-only structural findings were insufficient",
+      "database_writes": 0
+    }
+  ],
+  "next_bounded_step": "Build one isolated common-executor benchmark and prepare one shared SQL consolidation that removes redundant state reads without removing per-row validation, owner approval, stale-state, atomicity, rollback, postflight or idempotency guards. Do not deploy until its migration bytes, regression and measured local before/after result are reviewed."
+}

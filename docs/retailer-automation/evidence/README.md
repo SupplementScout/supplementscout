@@ -26,6 +26,8 @@ input. It does not authorize RA-004, a new capture or any write.
 
 [RA-STAB-01 current production state and incident classification](RA-STAB-01-CURRENT-STATE-2026-09-29.md)
 
+[RA-STAB-01 shared executor live performance audit](RA-STAB-01-SHARED-EXECUTOR-PERFORMANCE-AUDIT-2026-10-08.json)
+
 [RA-STAB-01 recurring Fit House/10 Reps backlog owner decision pack](RA-STAB-01-BACKLOG-OWNER-DECISION-PACK-2026-10-02.json)
 
 [RA-STAB-01 delayed natural KIOR readback](RA-STAB-01-KIOR-NATURAL-READBACK-2026-10-02.json)
