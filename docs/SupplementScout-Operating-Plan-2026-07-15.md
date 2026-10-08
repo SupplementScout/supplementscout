@@ -1262,6 +1262,17 @@ merge and one fresh Jon's run remain. Whey exact control discovery and 10 Reps
 feed recovery remain separate. RA-STAB-01 stays `IN_PROGRESS` at `0/3` natural
 intervals. Evidence: [manual path validation](retailer-automation/evidence/RA-STAB-01-MANUAL-PATH-VALIDATION-2026-10-08.json).
 
+PR `#280` subsequently passed full CI and merged as `03bbf563`. One fresh
+Jon's production run `37785913168` passed the repaired common path: `500` safe
+rows executed, `6` uncertain source identities remained review-only and zero
+rows were blocked. The safe scope contained `495` confirmations and `5` stock
+updates; postflight and idempotency passed with zero price, shipping, URL,
+mapping or effective price-history change. Review Queue publication created six
+current cards, superseded five old cards and made zero catalogue writes. The
+code is frozen after this proof. RA-STAB-01 remains `IN_PROGRESS` at `0/3`
+natural intervals while exact stale controls for Simply and Whey and the 10
+Reps protected-feed outage are handled separately.
+
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256
 `59c6d03a2bbcff0b384b86065f76e6f456e3538ca538613cf83e5e017ec11a9d`,
