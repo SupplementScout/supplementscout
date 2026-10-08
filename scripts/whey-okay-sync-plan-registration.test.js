@@ -278,16 +278,22 @@ test("workflow is scheduled, dry-run by default and role-separated without servi
 
 test("workflow exposes exact reviewed offer 73 dry-run with validator-only credentials", () => {
   const routerStart = workflow.indexOf("\n  route-operation:");
+  const diagnosticStart = workflow.indexOf("\n  whey-okay-control-diagnostic:");
   const standardStart = workflow.indexOf("\n  whey-okay-offer-refresh:");
   const reviewedStart = workflow.indexOf("\n  reviewed-offer-73-dry-run:");
   const reviewedApplyStart = workflow.indexOf("\n  validate-reviewed-artifact:");
-  assert.ok(routerStart > -1 && standardStart > routerStart && reviewedStart > standardStart);
-  const routerJob = workflow.slice(routerStart, standardStart);
+  assert.ok(routerStart > -1 && diagnosticStart > routerStart && standardStart > diagnosticStart && reviewedStart > standardStart);
+  const routerJob = workflow.slice(routerStart, diagnosticStart);
+  const diagnosticJob = workflow.slice(diagnosticStart, standardStart);
   const standardJob = workflow.slice(standardStart, reviewedStart);
   const reviewedJob = workflow.slice(reviewedStart, reviewedApplyStart);
 
   assert.match(routerJob, /route-operation:[\s\S]*whey-okay-workflow-router\.js/);
   assert.doesNotMatch(routerJob, /secrets\.|DATABASE_URL|SUPABASE_SERVICE_ROLE_KEY/);
+  assert.match(diagnosticJob, /needs\.route-operation\.outputs\.run_control_diagnostic == 'true'/);
+  assert.match(diagnosticJob, /--mode=control-diagnostic/);
+  assert.match(diagnosticJob, /WHEY_OKAY_SYNC_VALIDATOR_DATABASE_URL/);
+  assert.doesNotMatch(diagnosticJob, /APPROVER_DATABASE_URL|EXECUTOR_DATABASE_URL|SUPABASE_SERVICE_ROLE_KEY/);
   assert.match(standardJob, /needs: route-operation/);
   assert.match(standardJob, /needs\.route-operation\.outputs\.run_standard_refresh == 'true'/);
   assert.match(standardJob, /needs\.route-operation\.outputs\.run_standard_apply == 'true'/);
@@ -340,28 +346,33 @@ test("workflow router evaluates real workflow_dispatch payload shapes and fails 
   const dispatch = (operation, validation_context = "workflow_dispatch") => ({ inputs: { operation, validation_context } });
   assert.deepEqual(routeWorkflowEvent("workflow_dispatch", dispatch("reviewed-offer-73-dry-run")), {
     operation: "reviewed-offer-73-dry-run", validation_context: "workflow_dispatch",
-    run_standard_refresh: false, run_reviewed_offer_73: true, run_reviewed_artifact_apply: false,
+    run_standard_refresh: false, run_control_diagnostic: false, run_reviewed_offer_73: true, run_reviewed_artifact_apply: false,
     run_standard_apply: false, run_review_publication: false, reviewed_contract: "", owner_confirmation: "",
   });
   assert.deepEqual(routeWorkflowEvent("workflow_dispatch", dispatch("dry-run")), {
     operation: "dry-run", validation_context: "workflow_dispatch",
-    run_standard_refresh: true, run_reviewed_offer_73: false, run_reviewed_artifact_apply: false,
+    run_standard_refresh: true, run_control_diagnostic: false, run_reviewed_offer_73: false, run_reviewed_artifact_apply: false,
     run_standard_apply: false, run_review_publication: false, reviewed_contract: "", owner_confirmation: "",
   });
   assert.deepEqual(routeWorkflowEvent("workflow_dispatch", dispatch("apply")), {
     operation: "apply", validation_context: "workflow_dispatch",
-    run_standard_refresh: true, run_reviewed_offer_73: false, run_reviewed_artifact_apply: false,
+    run_standard_refresh: true, run_control_diagnostic: false, run_reviewed_offer_73: false, run_reviewed_artifact_apply: false,
     run_standard_apply: true, run_review_publication: true, reviewed_contract: "", owner_confirmation: "",
   });
   assert.deepEqual(routeWorkflowEvent("workflow_dispatch", dispatch("review-only")), {
     operation: "review-only", validation_context: "workflow_dispatch",
-    run_standard_refresh: true, run_reviewed_offer_73: false, run_reviewed_artifact_apply: false,
+    run_standard_refresh: true, run_control_diagnostic: false, run_reviewed_offer_73: false, run_reviewed_artifact_apply: false,
     run_standard_apply: false, run_review_publication: true, reviewed_contract: "", owner_confirmation: "",
   });
   assert.deepEqual(routeWorkflowEvent("schedule", {}), {
     operation: "schedule", validation_context: "schedule",
-    run_standard_refresh: true, run_reviewed_offer_73: false, run_reviewed_artifact_apply: false,
+    run_standard_refresh: true, run_control_diagnostic: false, run_reviewed_offer_73: false, run_reviewed_artifact_apply: false,
     run_standard_apply: true, run_review_publication: true, reviewed_contract: "", owner_confirmation: "",
+  });
+  assert.deepEqual(routeWorkflowEvent("workflow_dispatch", dispatch("control-diagnostic")), {
+    operation: "control-diagnostic", validation_context: "workflow_dispatch",
+    run_standard_refresh: false, run_control_diagnostic: true, run_reviewed_offer_73: false, run_reviewed_artifact_apply: false,
+    run_standard_apply: false, run_review_publication: false, reviewed_contract: "", owner_confirmation: "",
   });
   assert.throws(() => routeWorkflowEvent("workflow_dispatch", dispatch("")), /unknown or empty operation/);
   assert.throws(() => routeWorkflowEvent("workflow_dispatch", dispatch("reviewed-offer-73-dryrun")), /unknown or empty operation/);
@@ -403,7 +414,7 @@ test("workflow router reads the actual GitHub event file and emits deterministic
     assert.equal(route.run_reviewed_offer_73, true);
     assert.equal(route.run_standard_apply, false);
     assert.equal(route.run_review_publication, false);
-    assert.match(fs.readFileSync(outputPath, "utf8"), /run_standard_refresh=false\nrun_reviewed_offer_73=true\nrun_reviewed_artifact_apply=false\nrun_standard_apply=false\nrun_review_publication=false/);
+    assert.match(fs.readFileSync(outputPath, "utf8"), /run_standard_refresh=false\nrun_control_diagnostic=false\nrun_reviewed_offer_73=true\nrun_reviewed_artifact_apply=false\nrun_standard_apply=false\nrun_review_publication=false/);
   } finally {
     fs.rmSync(directory, { recursive: true, force: true });
   }

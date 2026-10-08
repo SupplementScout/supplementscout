@@ -13,6 +13,7 @@ on:
           - dry-run
           - apply
           - review-only
+          - control-diagnostic
           - reviewed-offer-73-dry-run
           - reviewed-artifact-apply
       validation_context:
@@ -51,6 +52,7 @@ jobs:
       operation: ${{ steps.route.outputs.operation }}
       validation_context: ${{ steps.route.outputs.validation_context }}
       run_standard_refresh: ${{ steps.route.outputs.run_standard_refresh }}
+      run_control_diagnostic: ${{ steps.route.outputs.run_control_diagnostic }}
       run_reviewed_offer_73: ${{ steps.route.outputs.run_reviewed_offer_73 }}
       run_reviewed_artifact_apply: ${{ steps.route.outputs.run_reviewed_artifact_apply }}
       run_standard_apply: ${{ steps.route.outputs.run_standard_apply }}
@@ -65,6 +67,54 @@ jobs:
       - name: Route exact workflow event payload
         id: route
         run: node scripts/whey-okay-workflow-router.js
+
+  whey-okay-control-diagnostic:
+    needs: route-operation
+    if: ${{ needs.route-operation.outputs.run_control_diagnostic == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production-readonly
+
+    steps:
+      - name: Validate diagnostic-only execution context
+        env:
+          EXPECTED_REPOSITORY: SupplementScout/supplementscout
+          REQUESTED_OPERATION: ${{ needs.route-operation.outputs.operation }}
+        run: |
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$GITHUB_EVENT_NAME" = "workflow_dispatch"
+          test "$GITHUB_REPOSITORY" = "$EXPECTED_REPOSITORY"
+          test "$REQUESTED_OPERATION" = "control-diagnostic"
+
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Test control diagnostic contract
+        run: node --test scripts/whey-okay-offer-refresh.test.js scripts/whey-okay-sync-plan-registration.test.js
+
+      - name: Read active control guard only
+        env:
+          WHEY_OKAY_REFRESH_PHASE: control-diagnostic
+          WHEY_OKAY_REFRESH_TRIGGER_TYPE: ${{ needs.route-operation.outputs.validation_context }}
+          WHEY_OKAY_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+        run: node scripts/whey-okay-offer-refresh.js --target=production --mode=control-diagnostic
+
+      - name: Upload control diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: whey-okay-control-diagnostic-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: error
+          path: tmp/whey-okay-offer-refresh/*control-diagnostic*.json
 
   whey-okay-offer-refresh:
     needs: route-operation
