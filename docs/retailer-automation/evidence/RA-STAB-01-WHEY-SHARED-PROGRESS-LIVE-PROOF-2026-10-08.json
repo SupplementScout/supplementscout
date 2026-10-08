@@ -1,0 +1,98 @@
+{
+  "schema_version": "ra-stab-01-whey-shared-progress-live-proof-v1",
+  "recorded_at": "2026-10-08T18:56:52.7607243Z",
+  "task": "RA-STAB-01",
+  "status": "LIVE_VERIFIED_PERFORMANCE_FOLLOWUP_REQUIRED",
+  "deployment": {
+    "pull_request": 293,
+    "pull_request_url": "https://github.com/SupplementScout/supplementscout/pull/293",
+    "merge_commit": "f08d1871c17b3efd46808b6dc09bfd8cd2d01571",
+    "pr_quality_gate_run_id": 37825386864,
+    "main_quality_gate_run_id": 37825711497,
+    "main_project_guardian_run_id": 37825711477,
+    "vercel_deployment": "PASS"
+  },
+  "fresh_run": {
+    "id": 37826090676,
+    "url": "https://github.com/SupplementScout/supplementscout/actions/runs/37826090676",
+    "commit": "f08d1871c17b3efd46808b6dc09bfd8cd2d01571",
+    "event": "workflow_dispatch",
+    "operation": "apply",
+    "retry_or_replay": false,
+    "conclusion": "success",
+    "source_attempts": 1,
+    "source_retries": 0,
+    "source_rows": 1705,
+    "approved_mapping_count": 589,
+    "executable_plan_count": 579,
+    "review_row_count": 10,
+    "blocked_row_count": 0,
+    "child_count": 12,
+    "completed_child_count": 12,
+    "completed_row_count": 579,
+    "approvals_created": 12,
+    "approvals_consumed": 12,
+    "recovery_calls": 0,
+    "apply_started_at": "2026-10-08T18:41:34Z",
+    "apply_completed_at": "2026-10-08T18:54:20Z",
+    "apply_duration_seconds": 766,
+    "result": "PASS_WITH_REVIEW"
+  },
+  "business_result": {
+    "freshness_confirmations": 579,
+    "price_changes": 0,
+    "stock_changes": 0,
+    "shipping_changes": 0,
+    "total_price_changes": 0,
+    "offer_url_changes": 0,
+    "mapping_url_changes": 0,
+    "price_history_delta": 0,
+    "catalogue_count_changes": 0,
+    "postflight": "PASS",
+    "fresh_idempotency": "PASS_WITH_REVIEW"
+  },
+  "catalogue_counts": {
+    "products": 1337,
+    "product_variants": 3632,
+    "retailer_products": 3758,
+    "offers": 3758,
+    "price_history": 29578
+  },
+  "review_queue": {
+    "result": "PASS",
+    "operation_count": 10,
+    "created": 0,
+    "refreshed": 10,
+    "superseded": 0,
+    "resolved_by_source": 0,
+    "catalogue_writes": 0,
+    "active_review_count_before_and_after": 293
+  },
+  "artifacts": {
+    "refresh_artifact_id": 11572097238,
+    "refresh_artifact_name": "whey-okay-offer-refresh-37826090676-1",
+    "refresh_artifact_digest": "649b46120736b6c551c7c76fe70e916b00843924d95c23f306500680d5c34d00",
+    "queue_artifact_id": 11571274841,
+    "queue_artifact_name": "whey-okay-automation-review-queue-refresh-37826090676-1",
+    "queue_artifact_digest": "c8d7af22a32e40d6e63adcc27ec1aebeb93ab3a223961df4edd9ab3678661067",
+    "apply_diagnostic_sha256": "fee07613b14500fd3cd1a48164ab76bfcbf282d346209f1fa50513655e76dd21",
+    "apply_report_sha256": "f87fea8cf2cd5762821a6a63bb622254ed68648b891ae9b5a8aaddc704195e38",
+    "postflight_sha256": "3836a7b6e0b683078e96cc4edf2ecbd7a0fd5326c755c6b738c86c25404c9b60",
+    "idempotency_diagnostic_sha256": "a1d4d2a5bb009df599c697087d56172c5246ce5a00d40e39915704b54c275141",
+    "queue_apply_sha256": "7b19e15f482beac15c479fbe1c651ec3f410f2239ad9939757aeb21b54744ce7"
+  },
+  "interpretation": {
+    "functional_result": "The fresh common path completed all twelve children, all 579 safe rows, database postflight, fresh idempotency and Review Queue refresh. The prior seventh-child timeout did not recur.",
+    "performance_result": "The apply step required 766 seconds. Functional correctness is live-proven, but runtime headroom remains too small for a stable ordinary schedule.",
+    "not_authorized_or_performed": [
+      "retry",
+      "replay",
+      "timeout increase",
+      "retailer-specific bypass",
+      "guard weakening"
+    ]
+  },
+  "next_gate": "Perform one shared read-only database performance audit of the approved executor and its common SQL path using this successful 12-child run as evidence. Identify the slow internal operation before changing code or timeout values. Do not dispatch another Whey run merely to reproduce the duration.",
+  "task_status": "IN_PROGRESS",
+  "ordinary_observation_counter": "0/3; this owner-triggered run is a successful live proof but not a scheduled natural interval"
+}
