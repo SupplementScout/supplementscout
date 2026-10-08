@@ -777,6 +777,23 @@ does not count toward the three natural intervals; RA-STAB-01 remains
 `IN_PROGRESS` at `0/3`. Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-DISCOUNT-CONTROL-CLOSE-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-DISCOUNT-CONTROL-CLOSE-2026-10-08.json).
 
+The next owner-authorized ordinary Whey Okay run `37816626614` passed source
+capture and separated its complete scope into `579` safe freshness-only rows
+plus ten Review Queue rows. The queue refreshed all ten cards without catalogue
+writes. The common sequential executor committed six children covering `291`
+safe rows, then its seventh child exceeded the `180`-second statement limit and
+rolled back; the remaining five children did not start. Read-only diagnostic
+`37818124480` and exact preflight `37818886595` prove the resulting state is one
+expired `PARTIALLY_APPLIED` parent with `6 APPLIED + 1 APPROVED + 5 PLANNED`,
+six successful apply runs, no price/stock/shipping/URL or business-price-history
+change, and unchanged counts `1337/3632/3758/3758/29578`. No retry, replay or
+close occurred. The next gate is an exact control-only close preserving the six
+completed children and closing only the six unexecuted children, under separate
+owner authority. Runtime repair must then be shared timeout/progress work with
+a regression, not a Whey-specific branch. RA-STAB-01 remains `IN_PROGRESS` at
+`0/3`. Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-WHEY-FRESH-RUN-PARTIAL-TIMEOUT-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-WHEY-FRESH-RUN-PARTIAL-TIMEOUT-2026-10-08.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
