@@ -1,0 +1,112 @@
+{
+  "schema_version": "ra-stab-01-manual-path-validation-v1",
+  "recorded_at": "2026-10-08T13:26:33.443Z",
+  "task": "RA-STAB-01",
+  "status": "IN_PROGRESS",
+  "ordinary_interval_credit": "0/3",
+  "scope": "One read-only all-retailer watchdog followed by one sequential manual check only for stale or failing retailer paths; no retries or replays.",
+  "watchdogs": [
+    {
+      "run_id": "37779570754",
+      "event": "workflow_dispatch",
+      "artifact_id": "11551970520",
+      "artifact_digest": "sha256:90edaf8b94816aa03caae7a92113cbe6bca010689078e6d238c8a00f123e9586",
+      "result": "FAIL",
+      "retailer_count": 12,
+      "database_writes": 0,
+      "global_failures": []
+    },
+    {
+      "run_id": "37783410126",
+      "event": "schedule",
+      "artifact_id": "11552588871",
+      "artifact_digest": "sha256:c6e8fb6dd7a37ee50b73444890cbf1aa56252eb90d6cfe4fbdaa093ae75253ee",
+      "result": "FAIL",
+      "retailer_count": 12,
+      "database_writes": 0,
+      "global_failures": [],
+      "note": "A natural read-only watchdog correctly retained failures for incomplete latest ordinary retailer attempts; manual checks do not create natural interval credit."
+    }
+  ],
+  "manual_paths": {
+    "kior": {
+      "run_id": "37781359538",
+      "artifact_id": "11552701547",
+      "artifact_digest": "sha256:6ebc91118fdffa5798de3ecbe51a5148ae9a67188a4f3d5c457812686eb212e6",
+      "result": "PASS",
+      "approved_mapping_count": 11,
+      "executed_plan_count": 11,
+      "review_row_count": 0,
+      "freshness_change_count": 11,
+      "price_change_count": 0,
+      "stock_change_count": 0,
+      "price_history_delta": 0,
+      "idempotency": "PASS"
+    },
+    "ten_reps": {
+      "run_id": "37781824504",
+      "artifact_id": "11552716986",
+      "artifact_digest": "sha256:6c56ed5fb2d62f64d291c28c0bd067300925f77bdbddb851310fc6967d5192ad",
+      "result": "FAIL_CLOSED",
+      "failure_stage": "SOURCE_FETCH",
+      "error_code": "SOURCE_UNAVAILABLE",
+      "error": "Protected CSV feed timed out after three bounded source attempts.",
+      "database_writes": 0,
+      "business_writes": 0,
+      "control_writes": 0,
+      "next_action": "Do not retry until the protected feed, not merely the public storefront, is healthy."
+    },
+    "whey_okay": {
+      "run_id": "37782235972",
+      "artifact_id": "11552412630",
+      "artifact_digest": "sha256:07c3a02e038883c973f324d806858deb8b851efa51bbd924b05870817ae7d24e",
+      "result": "FAIL_CLOSED",
+      "failure_stage": "STARTUP_OR_INTERNAL",
+      "error": "An active approval, workflow or conflicting session exists.",
+      "database_writes": 0,
+      "business_writes": 0,
+      "control_writes": 0,
+      "next_action": "Discover the exact blocking control identity read-only before any close is considered."
+    },
+    "simply_supplements": {
+      "run_id": "37782531399",
+      "artifact_id": "11552383583",
+      "artifact_digest": "sha256:e1052c98bc2926301e5224021367181973a3fb149851b25e157206e53a5c4185",
+      "dry_run": "PASS_WITH_REVIEW",
+      "approved_mapping_count": 120,
+      "executable_plan_count": 119,
+      "review_row_count": 1,
+      "apply_result": "FAIL_CLOSED_EQUIVALENT_CONTROL_ACTIVE",
+      "new_database_writes": 0,
+      "new_business_writes": 0,
+      "new_control_writes": 0,
+      "control_preflight": {
+        "run_id": "37784294670",
+        "artifact_id": "11552934725",
+        "artifact_digest": "sha256:04f475f1be13cfbef18a982bfea67844911bac35278bea5b20622f5f76e75910",
+        "result": "READY_TO_CLOSE",
+        "parent_plan_id": "a02c4e0f-97ca-4f08-b3e8-8287351fdb39",
+        "retailer_id": "7",
+        "expected_child_count": 3,
+        "apply_runs": 0,
+        "business_writes": 0,
+        "price_history_writes": 0,
+        "close_performed": false
+      },
+      "next_action": "A separate exact owner authorization is required before the existing control-only close can be used."
+    }
+  },
+  "shared_review_partition_correction": {
+    "problem": "The publication contract used a historical retailer-specific maximum review count as a runtime blocker even when the exact approved scope was fully partitioned into safe and review-only rows.",
+    "solution": "Use one shared exact-partition invariant: executable plus review equals the full approved mapping count, blocked rows remain zero and review rows remain no-write.",
+    "retailer_branch_added": false,
+    "approval_path_added": false,
+    "executor_added": false,
+    "guardrail_weakened": false,
+    "regression_fixture": "Jon's observed 500 executable plus 6 review rows from run 37771317361.",
+    "focused_tests": "PASS 30/30",
+    "neighbor_tests": "PASS 55/55",
+    "verify_quick": "PASS"
+  },
+  "next_gate": "Pass the full local quality gate, merge the shared correction, then run Jon's once without retry or replay. Exact stale-control recovery remains separate from this code change."
+}

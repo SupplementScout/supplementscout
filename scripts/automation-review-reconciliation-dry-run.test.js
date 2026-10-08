@@ -792,12 +792,14 @@ function publicationBaseline(fixture, retailerId) {
   };
 }
 
-function writeJonsFixture() {
+function writeJonsFixture(reviewCount = 5) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "jons-review-source-"));
   const capturedAt = "2026-10-07T04:48:00.000Z";
   const sourceFingerprint = "8".repeat(64);
-  const reviewIds = new Set(["1197", "1209", "1456", "1457", "1458"]);
-  const offerIds = [...reviewIds, ...Array.from({ length: 501 }, (_, index) => String(5000 + index))];
+  const knownReviewIds = ["1197", "1209", "1453", "1456", "1457", "1458"];
+  const reviewIds = new Set(knownReviewIds.slice(0, reviewCount));
+  const executableCount = 506 - reviewIds.size;
+  const offerIds = [...reviewIds, ...Array.from({ length: executableCount }, (_, index) => String(5000 + index))];
   const baselineRows = offerIds.map((offerId, index) => ({
     mapping_id: String(6000 + index), retailer_id: "10", mapping_product_id: String(7000 + index), mapping_variant_id: String(8000 + index),
     external_product_id: `jons-product-${index}`, external_variant_id: `jons-variant-${index}`, external_sku: null, external_gtin: null, external_options: null,
@@ -807,8 +809,8 @@ function writeJonsFixture() {
   const byOffer = new Map(baselineRows.map((row) => [row.offer_id, row]));
   const reviewRows = [...reviewIds].map((offerId) => ({ offer_id: offerId, retailer_product_id: byOffer.get(offerId).mapping_id, external_product_id: byOffer.get(offerId).external_product_id, external_variant_id: byOffer.get(offerId).external_variant_id, reason: "SOURCE_VARIANT_MISSING", old_price: "19.99", new_price: null, old_stock: true, new_stock: null }));
   const executionIds = baselineRows.filter((row) => !reviewIds.has(row.offer_id)).map((row) => row.offer_id);
-  const report = { result: "PASS_WITH_REVIEW", mode: "dry-run", target: "production", approved_mapping_count: 506, executable_plan_count: 501, executed_plan_count: 0, review_row_count: 5, blocked_row_count: 0, source: { fingerprint: sourceFingerprint }, classification: { VERIFY_NO_CHANGE: 484, UPDATE_STOCK: 17 }, review_rows: reviewRows };
-  const diagnostic = { result: "PASS", timestamp: capturedAt, completed_at: capturedAt, failure_stage: null, approved_mapping_count: 506, source: { pagination_completed: true }, database_writes_attempted: 0, database_writes_completed: 0, business_writes_completed: 0, control_writes_completed: 0, approvals_created: 0, approvals_consumed: 0, recovery_calls: 0, classifier_summary: { scope: { scope_row_ids: executionIds, blocked_rows: 0, reconciled: true, reconciled_total: 501 }, action_counts: report.classification, changed_row_ids: executionIds.slice(0, 17), changed_rows: [], quarantined_rows: reviewRows } };
+  const report = { result: "PASS_WITH_REVIEW", mode: "dry-run", target: "production", approved_mapping_count: 506, executable_plan_count: executableCount, executed_plan_count: 0, review_row_count: reviewIds.size, blocked_row_count: 0, source: { fingerprint: sourceFingerprint }, classification: { VERIFY_NO_CHANGE: executableCount }, review_rows: reviewRows };
+  const diagnostic = { result: "PASS", timestamp: capturedAt, completed_at: capturedAt, failure_stage: null, approved_mapping_count: 506, source: { pagination_completed: true }, database_writes_attempted: 0, database_writes_completed: 0, business_writes_completed: 0, control_writes_completed: 0, approvals_created: 0, approvals_consumed: 0, recovery_calls: 0, classifier_summary: { scope: { scope_row_ids: executionIds, blocked_rows: 0, reconciled: true, reconciled_total: executableCount }, action_counts: report.classification, changed_row_ids: [], changed_rows: [], quarantined_rows: reviewRows } };
   const baseline = { schema_version: 1, kind: "retailer-offer-refresh-db-baseline", result: "PASS", profile: "jons-supplements", snapshot: { captured_at: capturedAt, retailer_id: "10", retailer_name: "Jon's Supplements", row_count: 506, rows: baselineRows }, evidence_hash: "7".repeat(64) };
   writeJson(path.join(directory, "production-dry-run.json"), report);
   writeJson(path.join(directory, "production-preflight-diagnostic.json"), diagnostic);
@@ -829,6 +831,16 @@ test("Jon's profile publishes the exact five isolated source-missing rows throug
   assert.equal(rows.length, 5);
   assert.equal(rows.every((row) => row.operation_type === "MANUAL_REVIEW_IDENTITY" && row.reason_codes === "SOURCE_MISSING" && row.impact_summary.executable === false), true);
   assert.equal(buildFitHouseOutput(source, baseline, rows, options, env).expected.catalogue_writes, 0);
+});
+
+test("Jon's profile accepts a grown no-write review partition without a retailer count patch", () => {
+  const fixture = writeJonsFixture(6);
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "37771317361", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
+  const contract = buildFitHouseSourceContract(fixture.directory, env, "jons-supplements");
+  assert.equal(contract.executable_plan_count, 500);
+  assert.equal(contract.review_row_count, 6);
+  assert.equal(contract.review_offer_ids.length, 6);
+  assert.deepEqual(contract.review_offer_ids, fixture.reviewRows.map((row) => row.offer_id).sort((a, b) => Number(a) - Number(b)));
 });
 
 function writeSixPackFixture() {

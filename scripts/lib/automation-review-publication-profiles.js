@@ -40,6 +40,16 @@ function noWriteDiagnostic(diagnostic, label, invariant) {
   }
 }
 
+function validateOrdinaryPartition(profile, report, invariant) {
+  const label = profile.retailer.name;
+  const executableCount = Number(report.executable_plan_count);
+  const reviewCount = Number(report.review_row_count);
+  invariant(Number.isInteger(executableCount) && executableCount >= 0 && Number(report.executed_plan_count) === 0, `${label} dry-run executable scope drifted`);
+  invariant(Number.isInteger(reviewCount) && reviewCount >= 0 && reviewCount <= profile.approvedMappingCount, `${label} review scope drifted`);
+  invariant(executableCount + reviewCount === profile.approvedMappingCount, `${label} ordinary partition is incomplete`);
+  return { executableCount, reviewCount };
+}
+
 function validateStandardCapture(profile, { report, diagnostic, invariant }) {
   const label = profile.retailer.name;
   const expectedResult = Number(report.review_row_count) > 0 ? "PASS_WITH_REVIEW" : "PASS";
@@ -89,11 +99,7 @@ function normalizeMissingRows(report, baselineByOffer, label, invariant) {
 function validateStandard(profile, context) {
   const { report, diagnostic, baselineByOffer, invariant, sameJson, sortedIds } = context;
   const label = profile.retailer.name;
-  const executableCount = Number(report.executable_plan_count);
-  const reviewCount = Number(report.review_row_count);
-  invariant(Number.isInteger(executableCount) && executableCount >= 0 && Number(report.executed_plan_count) === 0, `${label} dry-run executable scope drifted`);
-  invariant(Number.isInteger(reviewCount) && reviewCount >= 0 && reviewCount <= profile.maximumReviewCount, `${label} review scope drifted`);
-  invariant(executableCount + reviewCount === profile.approvedMappingCount, `${label} ordinary partition is incomplete`);
+  const { executableCount, reviewCount } = validateOrdinaryPartition(profile, report, invariant);
   noWriteDiagnostic(diagnostic, label, invariant);
 
   const executionIds = sortedIds(Array.isArray(report.execution_offer_ids) ? report.execution_offer_ids : []);
@@ -135,11 +141,7 @@ function validateStandard(profile, context) {
 function validateWhey(profile, context) {
   const { report, diagnostic, baselineByOffer, files, invariant, sameJson, sortedIds } = context;
   const label = profile.retailer.name;
-  const executableCount = Number(report.executable_plan_count);
-  const reviewCount = Number(report.review_row_count);
-  invariant(Number.isInteger(executableCount) && executableCount >= 0 && Number(report.executed_plan_count) === 0, `${label} dry-run executable scope drifted`);
-  invariant(Number.isInteger(reviewCount) && reviewCount >= 0 && reviewCount <= profile.maximumReviewCount, `${label} review scope drifted`);
-  invariant(executableCount + reviewCount === profile.approvedMappingCount, `${label} ordinary partition is incomplete`);
+  const { executableCount, reviewCount } = validateOrdinaryPartition(profile, report, invariant);
   noWriteDiagnostic(diagnostic, label, invariant);
   invariant(diagnostic.commit && /^[0-9a-f]{40}$/.test(diagnostic.commit), `${label} diagnostic commit is missing`);
 
@@ -170,10 +172,7 @@ function validateWhey(profile, context) {
 function validateJons(profile, context) {
   const { report, diagnostic, baselineByOffer, invariant, sameJson, sortedIds } = context;
   const label = profile.retailer.name;
-  const executableCount = Number(report.executable_plan_count);
-  const reviewCount = Number(report.review_row_count);
-  invariant(Number.isInteger(executableCount) && executableCount >= 0 && report.executed_plan_count === 0, `${label} dry-run executable scope drifted`);
-  invariant(Number.isInteger(reviewCount) && reviewCount >= 0 && reviewCount <= profile.maximumReviewCount && executableCount + reviewCount === profile.approvedMappingCount, `${label} ordinary partition is incomplete`);
+  const { executableCount } = validateOrdinaryPartition(profile, report, invariant);
   noWriteDiagnostic(diagnostic, label, invariant);
   const reviewIds = sortedIds(report.review_rows.map((row) => row.offer_id));
   const classifier = diagnostic.classifier_summary;

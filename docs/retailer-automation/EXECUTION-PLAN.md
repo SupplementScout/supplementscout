@@ -2183,6 +2183,40 @@ the repaired path but does not increment the `0/3` natural-interval observation
 counter; the next gate is three ordinary scheduled intervals with correlating
 read-only watchdog evidence.
 
+**8 October sequential manual path validation and shared partition correction:**
+read-only watchdog `37779570754` inspected all 12 retailers with zero database
+writes and no global failure. The six healthy or intentionally monitored paths
+were left alone. One manual KIOR run `37781359538` then passed end-to-end with
+`11/11` freshness-only confirmations, zero commercial change and passing
+idempotency. 10 Reps run `37781824504` failed closed before the database because
+its protected CSV feed timed out; the public storefront being available does
+not prove that feed. Whey Okay run `37782235972` stopped at startup on an
+existing control/session conflict. Simply Supplements run `37782531399`
+completed a healthy `119 safe + 1 review` classification but refused to create
+an equivalent active control plan. All three failures made zero new database,
+business or control writes, and none was retried.
+
+Exact read-only Simply preflight `37784294670` found parent
+`a02c4e0f-97ca-4f08-b3e8-8287351fdb39` with three unexecuted children,
+zero apply runs and zero business or price-history writes. It is
+`READY_TO_CLOSE`, but no close was performed; that remains a separately
+authorized control-only action. Whey Okay still requires read-only discovery of
+its exact blocking identity, and 10 Reps waits for its protected feed.
+
+Jon's scheduled run `37771317361` exposed a shared contract defect: a sixth
+valid no-write review row made the full `500 safe + 6 review = 506` partition
+fail only because the publication profile carried a historical maximum of five.
+The prepared correction removes that historical count from runtime decisions
+and applies one exact invariant to Standard, Whey and Jon's profiles:
+`executable + review = approved mappings`, with zero blocked rows and zero
+catalogue writes from review publication. It adds no retailer branch, importer,
+approval path, executor or writer. The regression reproduces the observed
+`500 + 6` partition; focused tests pass `30/30`, neighboring refresh tests pass
+`55/55`, and the quick quality gate passes. The next gate is the full quality
+gate, merge, and one fresh Jon's run without retry or replay. Manual checks do
+not advance the ordinary counter, which remains `0/3`. Evidence:
+[`evidence/RA-STAB-01-MANUAL-PATH-VALIDATION-2026-10-08.json`](evidence/RA-STAB-01-MANUAL-PATH-VALIDATION-2026-10-08.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

@@ -1243,6 +1243,25 @@ step requires separate authorization for that migration, control-only closure
 of the expired failed plan if required, and one fresh Fit House run without
 retry or replay. RA-STAB-01 remains `IN_PROGRESS` at `0/3` natural intervals.
 
+The migration, control-only close and fresh Fit House proof described above are
+now complete, and the later manual all-retailer validation has narrowed the
+remaining work without retrying failures. KIOR passed `11/11` unchanged
+confirmations. 10 Reps stopped safely before the database because its protected
+CSV feed timed out. Whey Okay stopped on an existing control/session conflict.
+Simply Supplements produced a healthy `119 safe + 1 review` partition and then
+refused an equivalent active plan; read-only preflight `37784294670` proved the
+exact three-child plan is expired, unexecuted and ready for a separately
+authorized control-only close. No close or offer change was made.
+
+Jon's failure is traced to a shared historical maximum-review counter, not its
+retailer data. One common correction now validates the complete partition
+(`safe + review = approved scope`) while retaining zero blocked rows, no-write
+review handling, source binding and identity checks. It introduces no retailer
+branch or new path. Local focused, neighboring and quick gates pass; full gate,
+merge and one fresh Jon's run remain. Whey exact control discovery and 10 Reps
+feed recovery remain separate. RA-STAB-01 stays `IN_PROGRESS` at `0/3` natural
+intervals. Evidence: [manual path validation](retailer-automation/evidence/RA-STAB-01-MANUAL-PATH-VALIDATION-2026-10-08.json).
+
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256
 `59c6d03a2bbcff0b384b86065f76e6f456e3538ca538613cf83e5e017ec11a9d`,
