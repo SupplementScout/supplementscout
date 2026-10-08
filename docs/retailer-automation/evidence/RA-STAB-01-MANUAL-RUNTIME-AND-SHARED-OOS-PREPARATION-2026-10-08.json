@@ -84,7 +84,52 @@
     "database_writes_completed": 0,
     "business_writes_completed": 0,
     "control_writes_completed": 0,
-    "root_cause": "The JavaScript classifier correctly permits an unchanged historical OOS baseline for safe rows, but the legacy Fit House database route still requires an old exact retailer-specific baseline. A 46-row no-change batch with new_oos_count=0, total_oos_count=18 and previous_oos_count=18 was rejected before registration or apply."
+    "root_cause": "The JavaScript classifier correctly permits an unchanged historical OOS baseline for safe rows, but the legacy Fit House database route still requires an old exact retailer-specific baseline. A 46-row no-change batch with new_oos_count=0, total_oos_count=18 and previous_oos_count=18 was rejected before registration or apply.",
+    "post_deployment_run": {
+      "workflow_run_id": 37764996832,
+      "commit": "1ab4588542dbe328e58da4435946df774550fcd4",
+      "conclusion": "failure",
+      "source_health": "PASS",
+      "approved_mapping_count": 286,
+      "safe_no_change_rows": 273,
+      "review_rows": 13,
+      "validator_batches_passed": 6,
+      "stable_oos_correction_result": "PASS",
+      "failure_stage": "first child execution post-delta verification",
+      "failure_code": "RSBI_EXPECTED_DELTA_MISMATCH",
+      "failure_message": "Exact mixed batch deltas mismatch",
+      "refresh_artifact": {
+        "id": 11543887385,
+        "digest": "sha256:f5613e1ed02a0d6e2666e41bd41d5cf7a1e005cd135a0899a9509a0fcc5044a1"
+      },
+      "queue_artifact": {
+        "id": 11544615643,
+        "digest": "sha256:a3bf27f7aaea043a7e57644e5c0cc4916b29e20d74771866607e3e11386ddae4"
+      },
+      "queue_publication": {
+        "result": "PASS",
+        "operation_count": 13,
+        "created_count": 0,
+        "refreshed_count": 13,
+        "catalogue_writes": 0
+      },
+      "production_readback": {
+        "parent_plan_id": "574512db-c472-42e5-a9ee-15b74364f8a0",
+        "parent_status": "APPROVED",
+        "first_child_id": "1e800c6f-3ce1-4fbe-a5e8-90d8887c9238",
+        "first_child_status": "APPROVED",
+        "remaining_children_status": "PLANNED",
+        "apply_runs": 0,
+        "unconsumed_batch_approvals": 1,
+        "catalogue_counts_after": "1337/3632/3758/3758/28784",
+        "catalogue_writes_completed": 0,
+        "business_writes_completed": 0,
+        "control_writes_completed": 1
+      },
+      "retry_performed": false,
+      "replay_performed": false,
+      "root_cause": "6 Pack run 37763759985 was applying offers from 10:31:49Z to 10:45:39Z while the Fit House apply ran from 10:41:04Z to 10:42:12Z. The direct 6 Pack executor does not enter through the mixed-batch wrapper that owns the global execution lock. Its concurrent commits changed the cross-retailer fingerprint, so Fit House correctly rolled back its complete first-child transaction."
+    }
   },
   "prepared_shared_correction": {
     "migration": "20261008100000_align_shared_stable_oos_validation.sql",
@@ -109,6 +154,12 @@
       "full_ci_run": 37754699009,
       "full_ci_result": "PASS"
     },
+    "production_binding_merge": {
+      "pull_request": 276,
+      "merge_commit": "1ab4588542dbe328e58da4435946df774550fcd4",
+      "full_ci_run": 37764595767,
+      "full_ci_result": "PASS"
+    },
     "behaviour": [
       "Use the shared unreviewed validator for ordinary Fit House batches instead of the legacy retailer-specific stable-OOS route.",
       "Permit an above-threshold historical OOS ratio only when the exact batch introduces zero new OOS rows.",
@@ -127,5 +178,17 @@
       "verify_full": "PASS"
     }
   },
-  "next_gate": "Run one owner-authorized fresh Fit House ordinary path without retry or replay, then inspect its immutable artifact and production postflight. Manual runs do not increment the 0/3 natural interval counter."
+  "prepared_global_writer_serialization": {
+    "migration": "20261008120000_serialize_all_approved_offer_writes.sql",
+    "sha256": "dc06b5abce598ebca33d1d72544cd87b6bebf21a7c4cf9eb5adf35f55174a3cb",
+    "status": "LOCAL_VERIFIED_NOT_DEPLOYED",
+    "design": "Acquire the existing retailer-offer-sync:global-execution transaction lock inside the common approved product-import executor, so both mixed batches and direct approved retailer executors serialize through one shared mechanism.",
+    "new_importer": false,
+    "new_executor": false,
+    "new_approval_path": false,
+    "new_retailer_branch": false,
+    "catalogue_writes_in_migration": 0,
+    "regression": "PASS"
+  },
+  "next_gate": "After separate owner authorization, deploy only the shared global-writer serialization migration, close the expired Fit House control plan through the existing control-only path if required, and run one new fresh Fit House ordinary path without retry or replay. Manual runs do not increment the 0/3 natural interval counter."
 }

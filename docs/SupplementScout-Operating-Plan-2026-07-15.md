@@ -1229,6 +1229,20 @@ The next gate is the one authorized fresh Fit House run without retry or replay.
 See the [manual
 runtime and shared-OOS evidence](retailer-automation/evidence/RA-STAB-01-MANUAL-RUNTIME-AND-SHARED-OOS-PREPARATION-2026-10-08.json).
 
+The authorized fresh Fit House run `37764996832` subsequently proved that
+shared OOS correction: all six validation batches passed and the `13` uncertain
+rows were refreshed in Review Queue. Apply still stopped safely with zero
+catalogue changes because scheduled 6 Pack run `37763759985` was committing
+other-retailer writes concurrently. The mixed-batch fingerprint guard correctly
+rolled Fit House back; the gap is that direct approved executors do not yet take
+the same global transaction lock. A single common correction is prepared as
+`20261008120000_serialize_all_approved_offer_writes.sql`, SHA-256
+`dc06b5abce598ebca33d1d72544cd87b6bebf21a7c4cf9eb5adf35f55174a3cb`.
+It adds no retailer branch or write path and is not deployed. The next bounded
+step requires separate authorization for that migration, control-only closure
+of the expired failed plan if required, and one fresh Fit House run without
+retry or replay. RA-STAB-01 remains `IN_PROGRESS` at `0/3` natural intervals.
+
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256
 `59c6d03a2bbcff0b384b86065f76e6f456e3538ca538613cf83e5e017ec11a9d`,

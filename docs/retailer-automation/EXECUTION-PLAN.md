@@ -2138,6 +2138,31 @@ all five catalogue counts remained `1337/3632/3758/3758/28784`. The next gate
 is the one authorized fresh Fit House run without retry or replay. Evidence:
 [`evidence/RA-STAB-01-MANUAL-RUNTIME-AND-SHARED-OOS-PREPARATION-2026-10-08.json`](evidence/RA-STAB-01-MANUAL-RUNTIME-AND-SHARED-OOS-PREPARATION-2026-10-08.json).
 
+**8 October fresh Fit House post-deployment run — stable-OOS fixed, concurrent
+writer gap isolated:** owner-authorized run `37764996832` proved the deployed
+shared validator correction: all six read-only batches passed, yielding `273`
+safe confirmations and `13` Review Queue rows. The queue reconciliation
+refreshed those `13` cards and wrote no catalogue row. The first apply child
+then failed closed with `RSBI_EXPECTED_DELTA_MISMATCH`; its transaction rolled
+back completely. Production readback found no apply run, no catalogue or
+price-history change, one unconsumed expiring batch approval and unchanged
+catalogue counts `1337/3632/3758/3758/28784`. No retry or replay was made.
+
+The exact cause is cross-retailer concurrency, not Fit House data. Scheduled
+6 Pack run `37763759985` was committing approved offer writes during the same
+68-second Fit House transaction. 6 Pack calls the common approved import
+executor directly, outside the mixed-batch wrapper that owns the existing
+global write lock. The prepared migration
+`20261008120000_serialize_all_approved_offer_writes.sql` moves that same lock
+into the common approved executor. This serializes both direct and mixed-batch
+writes without a retailer branch, new executor, importer, approval path or
+catalogue write in the migration. Its SHA-256 is
+`dc06b5abce598ebca33d1d72544cd87b6bebf21a7c4cf9eb5adf35f55174a3cb`;
+it is local-only and not deployed. The next gate is one separate authorization
+covering this migration, expiry-safe control-only closure of the failed Fit
+House plan if required, and one new fresh Fit House run without retry or replay.
+RA-STAB-01 remains `IN_PROGRESS` at `0/3` natural intervals.
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
