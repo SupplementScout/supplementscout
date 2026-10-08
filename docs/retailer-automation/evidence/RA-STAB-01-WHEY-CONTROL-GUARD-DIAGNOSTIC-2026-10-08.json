@@ -1,0 +1,44 @@
+{
+  "evidence_type": "RA-STAB-01 Whey Okay control-guard diagnostic",
+  "status": "LIVE_READ_ONLY_COMPLETE",
+  "date": "2026-10-08",
+  "implementation": {
+    "pull_request": 286,
+    "merge_commit": "a2f530f46fbba9c500aee14838319f400fb488f6",
+    "purpose": "Expose the existing startup guard counter without changing its decision or any business path.",
+    "quality_gates": {
+      "focused_tests": "41 passing",
+      "verify_quick": "PASS",
+      "verify_full": "PASS",
+      "pull_request_ci": "PASS"
+    }
+  },
+  "production_run": {
+    "workflow_run_id": 37804078924,
+    "artifact_id": 11560629969,
+    "artifact_name": "whey-okay-control-diagnostic-37804078924-1",
+    "commit": "a2f530f46fbba9c500aee14838319f400fb488f6",
+    "mode": "control-diagnostic",
+    "result": "BLOCKED_CONTROL",
+    "retailer_id": 3,
+    "control_counts": {
+      "import_approvals": 0,
+      "offer_approvals": 0,
+      "parents": 1,
+      "runs": 0,
+      "active_conflicting_sessions": 0
+    },
+    "blocking_keys": ["parents"],
+    "artifact_sha256": "a30b9f43679923253558a91287bff9dc6ec450d9af13184bfe1ce17f351c5f4c",
+    "accounting": {
+      "reads": 1,
+      "database_writes": 0,
+      "business_writes": 0,
+      "control_writes": 0,
+      "source_capture_started": false,
+      "retry_or_replay": false
+    }
+  },
+  "conclusion": "The former Whey parent is not the blocker. Exactly one globally counted parent remains; its identity and status are deliberately not inferred from a count.",
+  "next_gate": "Use an existing or separately approved bounded read-only parent inventory to identify that one parent before any recovery, retry or normal Whey run."
+}
