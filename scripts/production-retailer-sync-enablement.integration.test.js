@@ -9,6 +9,8 @@ const ROOT = path.resolve(__dirname, "..");
 const MIGRATION = path.join(ROOT, "supabase/migrations/20260719100000_add_production_retailer_sync_enablement.sql");
 const SEQUENTIAL_CLOSE_MIGRATION = path.join(ROOT, "supabase/migrations/20260929133000_extend_expired_sequential_plan_close.sql");
 const PARTIAL_SEQUENTIAL_CLOSE_MIGRATION = path.join(ROOT, "supabase/migrations/20261006120000_extend_partial_sequential_plan_close.sql");
+const REVIEWED_DISPATCH_MIGRATION = path.join(ROOT, "supabase/migrations/20260722120000_add_reviewed_jons_stock_only_override.sql");
+const STATE_READ_MIGRATION = path.join(ROOT, "supabase/migrations/20261008200000_consolidate_shared_executor_state_reads.sql");
 const IMAGE = "postgres:17-alpine";
 const PRODUCTION_REF = "aftboxmrdgyhizicfsfu";
 const STAGING_REF = "hxnrsyyqffztlvcrtgbf";
@@ -318,6 +320,8 @@ test("production sequence passes exact identity and fails staging, drift, order,
     requireSuccess(psql(container,pass,"insert into supabase_migrations.schema_migrations values('20260929133000','extend_expired_sequential_plan_close',array[]::text[])"),"record shared expired sequential plan close migration");
     requireSuccess(psqlText(container,pass,fs.readFileSync(PARTIAL_SEQUENTIAL_CLOSE_MIGRATION,"utf8")),"shared partial sequential plan close migration");
     requireSuccess(psql(container,pass,"insert into supabase_migrations.schema_migrations values('20261006120000','extend_partial_sequential_plan_close',array[]::text[])"),"record shared partial sequential plan close migration");
+    requireSuccess(psqlText(container,pass,fs.readFileSync(REVIEWED_DISPATCH_MIGRATION,"utf8")),"shared reviewed dispatch migration");
+    requireSuccess(psqlText(container,pass,fs.readFileSync(STATE_READ_MIGRATION,"utf8")),"shared executor state-read consolidation migration");
 
     for(const scenario of [
       "retailer_offer_read_only_validator_integration_test.sql",

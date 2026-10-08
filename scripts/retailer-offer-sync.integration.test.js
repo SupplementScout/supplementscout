@@ -5,6 +5,7 @@ const test = require("node:test");
 
 const root = path.resolve(__dirname, "..");
 const migration = fs.readFileSync(path.join(root, "supabase/migrations/20260718160000_add_retailer_offer_mixed_batch_executor.sql"), "utf8");
+const stateReadMigration = fs.readFileSync(path.join(root, "supabase/migrations/20261008200000_consolidate_shared_executor_state_reads.sql"), "utf8");
 const postgresScenario = fs.readFileSync(path.join(root, "supabase/test/retailer_offer_mixed_batch_executor_integration_test.sql"), "utf8");
 
 test("mixed PostgreSQL scenario composes all six executable actions in one 26-row child", () => {
@@ -31,4 +32,38 @@ test("twelve isolated ledger negatives prove stable errors and zero unexpected s
   assert.match(postgresScenario, /ledger_negative_cases/);
   assert.match(postgresScenario, /RSBI_SOURCE_SCHEMA_MISMATCH/);
   assert.match(postgresScenario, /RSBI_SOURCE_HASH_MISMATCH/);
+});
+
+test("shared executor caches one post-state without removing any safety check", () => {
+  const oldExecutor = migration.slice(
+    migration.indexOf("create or replace function public.retailer_offer_sync_execute_batch_internal"),
+    migration.indexOf("create or replace function public.execute_retailer_offer_sync_batch"),
+  );
+  const newExecutor = stateReadMigration.slice(
+    stateReadMigration.indexOf("create or replace function public.retailer_offer_sync_execute_batch_unreviewed_internal"),
+    stateReadMigration.indexOf("do $postflight$"),
+  );
+  const stateCall = /public\.retailer_offer_sync_row_state\(\(v_row->>'offer_id'\)::bigint\)/g;
+  assert.equal((oldExecutor.match(stateCall) || []).length, 9);
+  assert.equal((newExecutor.match(stateCall) || []).length, 2);
+  assert.match(newExecutor, /v_current_state:=public\.retailer_offer_sync_row_state/);
+  for (const guard of [
+    "validate_product_import_plan_read_only",
+    "approve_product_import_plan",
+    "apply_approved_product_import_plan",
+    "RSBI_EXPECTED_STATE_MISMATCH",
+    "RSBI_EXPECTED_DELTA_MISMATCH",
+    "retailer_catalogue_other_retailer_fingerprint",
+    "retailer_catalogue_protected_shared_fingerprint",
+    "retailer_catalogue_orphan_counts",
+  ]) {
+    assert.match(oldExecutor, new RegExp(guard));
+    assert.match(newExecutor, new RegExp(guard));
+  }
+  for (const field of ["last_checked_at", "price", "shipping_cost", "total_price", "in_stock", "offer_url", "mapping_url"]) {
+    assert.match(newExecutor, new RegExp(`v_current_state->>'${field}'`));
+  }
+  assert.doesNotMatch(newExecutor, /retailer_id\s*=\s*\d+|retailer_slug|Whey Okay|Fit House|Simply Supplements/i);
+  assert.match(stateReadMigration, /^begin;/i);
+  assert.match(stateReadMigration, /commit;\s*$/i);
 });

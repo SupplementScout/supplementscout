@@ -8,6 +8,7 @@ const ROOT = path.resolve(__dirname, "../..");
 const MIGRATION_FILE = /^\d{14}_[a-z0-9_]+\.sql$/;
 const EXCLUSIONS = Object.freeze({
   STAGING: Object.freeze([
+    "20261008200000_consolidate_shared_executor_state_reads",
     "20261008140000_add_active_retailer_parent_inventory",
     "20261008120000_serialize_all_approved_offer_writes",
     "20260922170000_allow_fit_house_parent_approval_and_supersede_failed_plan",
@@ -156,6 +157,7 @@ const EXCLUSIONS = Object.freeze({
     "20261008100000_align_shared_stable_oos_validation",
   ]),
   PRODUCTION: Object.freeze([
+    "20261008200000_consolidate_shared_executor_state_reads",
     "20260717120000_create_retailer_catalogue_control_ledger",
     "20260717130000_add_local_retailer_catalogue_child_executor",
     "20260717140000_add_staging_retailer_catalogue_executor",
