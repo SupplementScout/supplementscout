@@ -1,0 +1,63 @@
+name: Shared Retailer Executor Performance Audit
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shared-retailer-executor-performance-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production-readonly
+
+    steps:
+      - name: Validate read-only audit context
+        run: |
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$GITHUB_EVENT_NAME" = "workflow_dispatch"
+          test "$GITHUB_REPOSITORY" = "SupplementScout/supplementscout"
+
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Test shared performance audit contract
+        run: node --test scripts/retailer-offer-sync-performance-audit.test.js
+
+      - name: Inspect current shared executor read-only
+        env:
+          RETAILER_SYNC_PERFORMANCE_AUDIT_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+        run: node scripts/retailer-offer-sync-performance-audit.js
+
+      - name: Publish audit summary
+        if: always()
+        run: |
+          if [ -f tmp/retailer-offer-sync-performance-audit/report.json ]; then
+            node -e 'const r=require("./tmp/retailer-offer-sync-performance-audit/report.json"); console.log(`## Shared retailer executor performance audit\n\n- Result: ${r.result}\n- Read only: ${r.access.transaction_read_only}\n- Database writes: ${r.database_writes}\n- Observed Whey apply: ${r.observed_run.apply_duration_seconds}s for ${r.observed_run.safe_rows} rows\n- Findings: ${r.findings.map(x=>`${x.code}=${x.proven}`).join(", ")}`)' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "## Shared retailer executor performance audit" >> "$GITHUB_STEP_SUMMARY"
+            echo "- Report unavailable; audit failed closed." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload read-only performance evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: shared-retailer-executor-performance-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: error
+          path: tmp/retailer-offer-sync-performance-audit/report.json
