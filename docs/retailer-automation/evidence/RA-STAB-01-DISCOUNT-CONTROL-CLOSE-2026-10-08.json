@@ -1,0 +1,52 @@
+{
+  "schema_version": "ra-stab-01-discount-control-close-v1",
+  "recorded_at": "2026-10-08T17:11:39Z",
+  "task": "RA-STAB-01",
+  "status": "IN_PROGRESS",
+  "authorization": "One control-only close of the exact expired and wholly unexecuted Discount Supplements plan and its three children after identity verification; no retry, replay, offer change or price-history change.",
+  "run": {
+    "id": 37814571515,
+    "url": "https://github.com/SupplementScout/supplementscout/actions/runs/37814571515",
+    "commit": "a5afa011e55033b60b6144e42a7108e3d2fda749",
+    "conclusion": "success",
+    "artifact": "retailer-control-recovery-37814571515-1",
+    "preflight_sha256": "34c2d0aaa453c39a7a60928d0d87362ba02a02c5a10caba943a01b45822abf8c",
+    "result_sha256": "3a02f56ce66968af58494a5a93fec5741cb478590444fe6d9af9221070cbceba"
+  },
+  "scope": {
+    "retailer_id": 4,
+    "retailer_name": "Discount Supplements",
+    "parent_plan_id": "ee32bf39-0e6b-4524-86e8-1d7c787ddecf",
+    "expected_child_count": 3,
+    "approved_child_id": "c37cdda0-69d0-4bbb-a55c-2c407b5572de",
+    "approval_id": "10dba700-8ad8-474a-9e8a-e20eda2b4d7f",
+    "preflight_fingerprint": "6ae5a055faf4adca26d8466cddf1abd3e7099db0f7fc36da1e90f1fe68c1cfe0"
+  },
+  "result": {
+    "parent_status": "EXPIRED",
+    "closed_child_count": 3,
+    "expired_child_count": 3,
+    "planned_child_count": 2,
+    "approved_child_count": 1,
+    "preserved_applied_child_count": 0,
+    "apply_runs": 0,
+    "approval_consumed": false,
+    "already_closed": false,
+    "close_calls": 1,
+    "automatic_retries": 0,
+    "control_writes": 5,
+    "business_writes": 0,
+    "price_history_writes": 0,
+    "request_fingerprint": "8176ecb6f33abf260622ef0aba284c01f0c0d895f7ad319ac276041b6c77ad4a",
+    "recovery_fingerprint": "914bee8098fd9dd378fd40b2feffe639d9b8b70b01788d51c68954ede40be8f0"
+  },
+  "postflight": {
+    "products": 1337,
+    "product_variants": 3632,
+    "retailer_products": 3758,
+    "offers": 3758,
+    "price_history": 29578
+  },
+  "next_gate": "One separately authorized fresh ordinary Whey Okay run, without retry or replay, followed by exact run and database postflight review.",
+  "natural_interval_credit": "0/3; the manual control close gives no interval credit"
+}
