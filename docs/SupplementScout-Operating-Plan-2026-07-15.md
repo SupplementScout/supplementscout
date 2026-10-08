@@ -837,6 +837,20 @@ does not increment the natural observation counter; RA-STAB-01 remains
 `IN_PROGRESS` at `0/3`. Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-WHEY-SHARED-PROGRESS-LIVE-PROOF-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-WHEY-SHARED-PROGRESS-LIVE-PROOF-2026-10-08.json).
 
+Shared read-only performance audit `37832592271` is now live verified. It used
+only the production validator role, made zero writes/retries/replays and found
+that ordinary execution still crosses three common SQL layers. Their combined
+source performs three row loops, per-row approve/apply, nine row-state reads and
+two repeated sets of whole-catalogue safety snapshots. Primary lookup indexes
+exist, so this is proven shared execution overhead rather than a Whey-specific
+defect or an obvious missing primary index. Exact time attribution remains
+unavailable because PostgreSQL function timing is disabled; no timing share is
+invented. The next bounded step is one isolated benchmark and shared executor
+consolidation proposal that preserves all existing guards. No timeout increase,
+retailer exception or production migration is authorized by this audit, and the
+natural observation counter remains `0/3`. Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-SHARED-EXECUTOR-PERFORMANCE-AUDIT-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-SHARED-EXECUTOR-PERFORMANCE-AUDIT-2026-10-08.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

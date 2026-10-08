@@ -2416,6 +2416,26 @@ increase or retailer-specific bypass is justified. This owner-triggered proof
 does not increment the natural counter, so RA-STAB-01 remains `IN_PROGRESS` at
 `0/3`. Evidence: [Whey shared-progress live proof](evidence/RA-STAB-01-WHEY-SHARED-PROGRESS-LIVE-PROOF-2026-10-08.json).
 
+The bounded shared performance audit is now live verified by read-only run
+`37832592271`, artifact `11574162885`, digest
+`40ba8d6a99003a137434a9d962a3c994df5f8a55d8e24d58e66774a5bd5c1a87`.
+It used only the production validator login in a read-only transaction and made
+zero database writes, retries or replays. Production exposes one ordinary
+execution chain made of the current dispatcher plus two retained compatibility
+layers. Across that common chain the source contains three JSON row loops, one
+per-row approval call, one per-row apply call, nine row-state calls and two each
+of the business-count, other-retailer-fingerprint and protected-shared
+fingerprint checks. Primary lookup indexes are present. PostgreSQL
+`track_functions` is `none`, so the audit proves repeated structural work but
+does not invent an exact per-function share of the observed `766` seconds. The
+next bounded step is an isolated common-executor benchmark and one shared SQL
+consolidation proposal that removes redundant reads while retaining every
+validation, approval, stale-state, atomicity, rollback, postflight and
+idempotency guard. No timeout increase, retailer-specific bypass or production
+migration is yet justified. The manual audit gives no natural interval credit;
+RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence: [shared executor
+performance audit](evidence/RA-STAB-01-SHARED-EXECUTOR-PERFORMANCE-AUDIT-2026-10-08.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
