@@ -2283,6 +2283,19 @@ it. No retry occurred. The next gate is one shared read-only diagnostic of that
 existing global guard, with no retailer branch, offer change or retry. RA-STAB-01
 remains `IN_PROGRESS` at `0/3`. Evidence: [fresh Simply and Whey runs](evidence/RA-STAB-01-SIMPLY-WHEY-FRESH-RUNS-2026-10-08.json).
 
+PR `#286` then added a shared, validator-only `control-diagnostic` operation
+without changing the normal startup decision. One owner-authorized diagnostic
+run `37804078924` read the existing state once and made zero database, control,
+business, price-history or source-capture writes. It proves that all counters
+except `parents` are zero: there is exactly one globally counted active parent,
+not an active session, run or approval. The former Whey parent remains absent;
+the count does not expose the remaining parent's identity or permit inferring
+its retailer/status. The next gate is one bounded read-only parent inventory,
+using an existing mechanism or separately reviewed shared capability, before
+any closure, retry or another ordinary Whey run. This is diagnostic evidence,
+not natural-interval credit; RA-STAB-01 remains `IN_PROGRESS` at `0/3`.
+Evidence: [Whey control-guard diagnostic](evidence/RA-STAB-01-WHEY-CONTROL-GUARD-DIAGNOSTIC-2026-10-08.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

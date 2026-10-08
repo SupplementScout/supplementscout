@@ -714,6 +714,19 @@ worker interval with zero writes. This adds no runtime, importer, approval path,
 executor or direct catalogue writer. Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-SHARED-REVIEW-EXECUTION-REGISTRY-PREPARATION-2026-10-06.json`](retailer-automation/evidence/RA-STAB-01-SHARED-REVIEW-EXECUTION-REGISTRY-PREPARATION-2026-10-06.json).
 
+**8 October Whey Okay control-guard diagnostic:** PR `#286` added no new
+writer or normal execution route; it makes the existing global startup guard
+observable through the validator's single read-only transaction. The one
+authorized diagnostic run `37804078924` made zero writes and found exactly one
+remaining globally counted parent, while approvals, started runs and active
+conflicting sessions were all zero. The previously recovered Whey parent is not
+that blocker. Its identity and status must be read as a bounded next diagnostic;
+they must not be guessed or closed from this count. RA-STAB-01 remains
+`IN_PROGRESS` at `0/3`, and forced runs remain the fast diagnostic path; the
+three normal daily cycles begin only after this guard is genuinely clear.
+Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-WHEY-CONTROL-GUARD-DIAGNOSTIC-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-WHEY-CONTROL-GUARD-DIAGNOSTIC-2026-10-08.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
