@@ -181,7 +181,7 @@
   "prepared_global_writer_serialization": {
     "migration": "20261008120000_serialize_all_approved_offer_writes.sql",
     "sha256": "dc06b5abce598ebca33d1d72544cd87b6bebf21a7c4cf9eb5adf35f55174a3cb",
-    "status": "DEPLOYED_VERIFIED_BINDING_PENDING",
+    "status": "DEPLOYED_VERIFIED",
     "design": "Acquire the existing retailer-offer-sync:global-execution transaction lock inside the common approved product-import executor, so both mixed batches and direct approved retailer executors serialize through one shared mechanism.",
     "new_importer": false,
     "new_executor": false,
@@ -204,7 +204,65 @@
       "ledger_fingerprint": "a93a1fcb7a078cc5ce89a1d134696b6a738f3fd2e7e8c92df0a72969f615dfbc",
       "catalogue_counts_before_and_after": "1337/3632/3758/3758/28784",
       "catalogue_row_count_change": 0
+    },
+    "production_binding_merge": {
+      "pull_request": 278,
+      "merge_commit": "c6a78b99e5697f951327b529edefc8f55ad58ba8",
+      "merged_at": "2026-10-08T11:29:49Z",
+      "full_ci_run": 37770190565,
+      "full_ci_result": "PASS"
     }
   },
-  "next_gate": "Merge the production ledger binding, close the expired Fit House control plan through the existing control-only path if still open, and run the one owner-authorized fresh Fit House ordinary path without retry or replay. Manual runs do not increment the 0/3 natural interval counter."
+  "fit_house_control_recovery": {
+    "workflow_run_id": 37770502407,
+    "result": "PASS",
+    "parent_plan_id": "574512db-c472-42e5-a9ee-15b74364f8a0",
+    "parent_status": "EXPIRED",
+    "closed_child_count": 6,
+    "apply_runs": 0,
+    "automatic_retries": 0,
+    "business_writes": 0,
+    "price_history_writes": 0,
+    "control_writes": 8,
+    "artifact_id": 11547975418,
+    "artifact_digest": "sha256:1e6fb8b75ab5fc8f2560500155707bb606ee293ee61dd6bd0f6b9cc9b7dd93d0"
+  },
+  "fit_house_fresh_run_after_serialization": {
+    "workflow_run_id": 37770776303,
+    "result": "PASS_WITH_REVIEW",
+    "approved_mapping_count": 286,
+    "executed_plan_count": 273,
+    "review_row_count": 13,
+    "blocked_row_count": 0,
+    "postflight": {
+      "result": "PASS",
+      "price_change_count": 0,
+      "stock_change_count": 0,
+      "shipping_change_count": 0,
+      "total_change_count": 0,
+      "offer_url_change_count": 0,
+      "mapping_url_change_count": 0,
+      "freshness_change_count": 273,
+      "price_history_delta": 0,
+      "daily_confirmation_delta": 247
+    },
+    "idempotency": "PASS",
+    "refresh_artifact": {
+      "id": 11547976840,
+      "digest": "sha256:24f4973cce9caf13cb5cd4d0aba5b224f57a788a80f9b91138ecccc70e5bb1ff"
+    },
+    "queue_publication": {
+      "result": "PASS",
+      "operation_count": 13,
+      "created_count": 0,
+      "refreshed_count": 13,
+      "superseded_count": 0,
+      "catalogue_writes": 0,
+      "artifact_id": 11548141801,
+      "artifact_digest": "sha256:4aab4b6be20e0d5241dd56b25706d2e6bf8f567dff5462c44ea457d8f2f42389"
+    },
+    "retry_performed": false,
+    "replay_performed": false
+  },
+  "next_gate": "Observe the next three natural retailer intervals and correlate each with the read-only watchdog. This manual Fit House run proves the repaired path but does not increment the 0/3 natural interval counter."
 }
