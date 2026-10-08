@@ -1287,6 +1287,16 @@ for its protected CSV feed. These manual control checks do not count as natural
 intervals; RA-STAB-01 remains `IN_PROGRESS` at `0/3`. See the [Simply close and
 Whey discovery evidence](retailer-automation/evidence/RA-STAB-01-SIMPLY-CLOSE-WHEY-DISCOVERY-2026-10-08.json).
 
+The exact Whey stale control is now also safely closed. Owner-authorized run
+`37795892851` revalidated the plan, preserved the `11` completed children and
+their `11` apply runs, and superseded only the one expired unexecuted child.
+It made three control writes but zero offer or price-history writes, performed
+no retry, replay or re-execution, and preserved catalogue counts. The Whey
+stale-control blocker is cleared. 10 Reps remains intentionally untouched until
+its protected feed is healthy; one fresh normal Simply and Whey run will verify
+those cleared paths before the three natural intervals begin. RA-STAB-01 stays
+`IN_PROGRESS` at `0/3`. See the [Whey control-close evidence](retailer-automation/evidence/RA-STAB-01-WHEY-CONTROL-CLOSE-2026-10-08.json).
+
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256
 `59c6d03a2bbcff0b384b86065f76e6f456e3538ca538613cf83e5e017ec11a9d`,

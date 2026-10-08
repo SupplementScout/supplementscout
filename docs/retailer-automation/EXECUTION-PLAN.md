@@ -2252,6 +2252,21 @@ then code remains frozen for three natural intervals. Manual control work does
 not advance the counter, so RA-STAB-01 remains `IN_PROGRESS` at `0/3`.
 Evidence: [Simply close and Whey discovery](evidence/RA-STAB-01-SIMPLY-CLOSE-WHEY-DISCOVERY-2026-10-08.json).
 
+The separately authorized Whey control-only recovery then ran exactly once as
+`37795892851`. Its fresh preflight revalidated the partial plan before the
+write. The existing shared close preserved all `11` already applied children
+and their `11` apply runs, superseded only the single expired unexecuted child,
+and moved parent `73d7ef28-04ae-46b9-8ac2-69792f807546` to `SUPERSEDED`.
+Postflight recorded one close call, three control writes, zero automatic
+retries, zero business writes and zero price-history writes. Catalogue counts
+remained `1337/3632/3758/3758/29577`; the Fit House, 10 Reps and Review Queue
+jobs were skipped. The Whey stale-control blocker is therefore cleared without
+re-execution or catalogue mutation. The remaining pre-observation work is to
+leave 10 Reps alone until its protected feed is healthy and to verify Simply
+and Whey through one fresh normal guarded run each without retry or replay.
+This manual control action does not advance the natural counter; RA-STAB-01
+remains `IN_PROGRESS` at `0/3`. Evidence: [Whey control close](evidence/RA-STAB-01-WHEY-CONTROL-CLOSE-2026-10-08.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
