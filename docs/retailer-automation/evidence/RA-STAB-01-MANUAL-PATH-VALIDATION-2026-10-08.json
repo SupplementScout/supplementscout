@@ -106,7 +106,52 @@
     "regression_fixture": "Jon's observed 500 executable plus 6 review rows from run 37771317361.",
     "focused_tests": "PASS 30/30",
     "neighbor_tests": "PASS 55/55",
-    "verify_quick": "PASS"
+    "verify_quick": "PASS",
+    "verify_full": "PASS",
+    "pull_request": 280,
+    "merge_commit": "03bbf563ab938921044306e6c5038d21524c40eb"
   },
-  "next_gate": "Pass the full local quality gate, merge the shared correction, then run Jon's once without retry or replay. Exact stale-control recovery remains separate from this code change."
+  "jons_live_verification": {
+    "run_id": "37785913168",
+    "commit": "03bbf563ab938921044306e6c5038d21524c40eb",
+    "conclusion": "success",
+    "refresh_artifact": {
+      "id": "11554014359",
+      "digest": "sha256:b7349d9efc56ffc9379b4dd46ceb8bf591faf8816855d4bbd518ac6148026ec7"
+    },
+    "queue_artifact": {
+      "id": "11554996472",
+      "digest": "sha256:88d30b01576b0626aadc6c18b7bd827e56f4f51e8e2b351f6e701a236fff59b9"
+    },
+    "approved_mapping_count": 506,
+    "executable_plan_count": 500,
+    "executed_plan_count": 500,
+    "review_row_count": 6,
+    "blocked_row_count": 0,
+    "classification": {
+      "VERIFY_NO_CHANGE": 495,
+      "UPDATE_STOCK": 5
+    },
+    "postflight": {
+      "result": "PASS",
+      "price_change_count": 0,
+      "stock_change_count": 5,
+      "shipping_change_count": 0,
+      "total_change_count": 0,
+      "offer_url_change_count": 0,
+      "mapping_url_change_count": 0,
+      "freshness_change_count": 500,
+      "price_history_delta": 0
+    },
+    "idempotency": "PASS",
+    "queue_reconciliation": {
+      "result": "PASS",
+      "created_count": 6,
+      "superseded_count": 5,
+      "final_active_review_count": 6,
+      "catalogue_writes": 0
+    },
+    "retry_or_replay": false
+  },
+  "next_gate": "Keep code frozen. Resolve the exact stale Simply and Whey control identities through the existing control-only mechanism, wait for the 10 Reps protected feed, then begin three ordinary scheduled intervals with correlating read-only watchdog evidence."
 }

@@ -2217,6 +2217,19 @@ gate, merge, and one fresh Jon's run without retry or replay. Manual checks do
 not advance the ordinary counter, which remains `0/3`. Evidence:
 [`evidence/RA-STAB-01-MANUAL-PATH-VALIDATION-2026-10-08.json`](evidence/RA-STAB-01-MANUAL-PATH-VALIDATION-2026-10-08.json).
 
+PR `#280` passed full CI and merged the shared correction as `03bbf563`.
+Exactly one fresh Jon's run `37785913168` then passed end-to-end without retry
+or replay. The full `506`-offer scope partitioned into `500` executable rows and
+`6` review-only rows with zero blocked rows. Execution completed `495`
+unchanged confirmations and `5` source-proven stock updates; postflight found
+zero price, shipping, delivered-total, URL, mapping or effective price-history
+change, and fresh idempotency passed. Queue reconciliation created the six
+current cards, superseded five older cards and made zero catalogue writes.
+This proves the common partition correction in production. Code is now frozen;
+manual evidence still does not advance the `0/3` natural counter. The remaining
+pre-observation blockers are the exact stale-control recovery for Simply and
+Whey and availability of the protected 10 Reps feed.
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
