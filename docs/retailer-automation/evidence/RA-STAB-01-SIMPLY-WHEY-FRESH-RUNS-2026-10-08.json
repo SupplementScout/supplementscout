@@ -1,0 +1,87 @@
+{
+  "schema_version": "ra-stab-01-simply-whey-fresh-runs-v1",
+  "recorded_at": "2026-10-08T15:11:42.676Z",
+  "task": "RA-STAB-01",
+  "status": "IN_PROGRESS",
+  "ordinary_interval_credit": "0/3",
+  "scope": "One owner-authorized fresh normal guarded run for Simply Supplements, followed by one owner-authorized fresh normal guarded run for Whey Okay; no retry or replay.",
+  "simply_supplements": {
+    "run_id": "37797608023",
+    "head_sha": "a4cb3766a768c482c7255591cd7199d67bc3d8ee",
+    "conclusion": "success",
+    "artifact_id": "11559846569",
+    "artifact_digest": "sha256:e39d1ace9d15738eed2b9a6819d0ff66c1a2c8239b36ba27ec265f87eb36056d",
+    "result": "PASS_WITH_REVIEW",
+    "approved_mapping_count": 120,
+    "executed_plan_count": 119,
+    "review_row_count": 1,
+    "blocked_row_count": 0,
+    "classification": {
+      "VERIFY_NO_CHANGE": 118,
+      "UPDATE_PRICE": 1
+    },
+    "review": {
+      "offer_id": "670",
+      "reason": "SOURCE_VARIANT_MISSING"
+    },
+    "postflight": {
+      "result": "PASS",
+      "price_change_count": 1,
+      "stock_change_count": 0,
+      "shipping_change_count": 0,
+      "total_change_count": 1,
+      "offer_url_change_count": 0,
+      "mapping_url_change_count": 0,
+      "freshness_change_count": 119,
+      "price_history_delta": 1
+    },
+    "idempotency": "PASS",
+    "retry_or_replay": false
+  },
+  "whey_okay": {
+    "run_id": "37798277043",
+    "head_sha": "a4cb3766a768c482c7255591cd7199d67bc3d8ee",
+    "conclusion": "failure",
+    "artifact_id": "11559087974",
+    "artifact_digest": "sha256:6da78a4b1b2467f2d34c808d3e2a248895bff08245aaf2e3ee4548db36396f8a",
+    "result": "FAIL_CLOSED",
+    "failure_stage": "STARTUP_OR_INTERNAL",
+    "error_code": "INTERNAL_ERROR",
+    "error_message": "active approval, workflow or conflicting session exists",
+    "source_capture_started": false,
+    "database_writes_attempted": 0,
+    "database_writes_completed": 0,
+    "business_writes_completed": 0,
+    "control_writes_completed": 0,
+    "approvals_created": 0,
+    "approvals_consumed": 0,
+    "recovery_calls": 0,
+    "retry_or_replay": false
+  },
+  "whey_follow_up_read_only_discovery": {
+    "run_id": "37798642443",
+    "conclusion": "success",
+    "artifact_id": "11559697663",
+    "artifact_digest": "sha256:2e94f012b91a636bf94d8b58b7db00d89ca69ea7f29387a5fdf6f379c05a9690",
+    "result": "CLEAR",
+    "candidate_count": 0,
+    "read_transactions": 1,
+    "close_calls": 0,
+    "control_writes": 0,
+    "business_writes": 0,
+    "price_history_writes": 0,
+    "catalogue_counts": {
+      "products": 1337,
+      "product_variants": 3632,
+      "retailer_products": 3758,
+      "offers": 3758,
+      "price_history": 29578
+    }
+  },
+  "assessment": {
+    "simply": "The normal guarded path is healthy after stale-control recovery.",
+    "whey": "The former Whey parent-plan blocker is cleared. The existing startup guard still sees one or more global active-control counters, but its failure report does not identify which counter or record is non-zero. No retry is permitted until a bounded read-only diagnostic identifies that shared blocker.",
+    "ten_reps": "Remain idle until the protected CSV feed is healthy.",
+    "next_gate": "Prepare one shared read-only diagnostic for the existing global control guard; do not add retailer-specific logic, change offers or retry Whey before evidence identifies the exact blocker."
+  }
+}

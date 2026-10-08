@@ -1297,6 +1297,18 @@ its protected feed is healthy; one fresh normal Simply and Whey run will verify
 those cleared paths before the three natural intervals begin. RA-STAB-01 stays
 `IN_PROGRESS` at `0/3`. See the [Whey control-close evidence](retailer-automation/evidence/RA-STAB-01-WHEY-CONTROL-CLOSE-2026-10-08.json).
 
+The authorized fresh normal runs now separate the outcomes. Simply Supplements
+run `37797608023` passed: `119` of `120` mappings were safely executed, one
+missing source variant went to Review Queue, one price/total update was proven,
+and postflight plus fresh idempotency passed. Whey Okay run `37798277043`
+failed closed before source capture or any write. Its former parent-plan blocker
+is not the cause: immediate read-only discovery `37798642443` found no active
+or recoverable retailer-3 parent. The older Whey startup guard still detects an
+unidentified global control counter, so no retry will occur. The next bounded
+step is a shared read-only diagnostic that identifies that existing global
+blocker; it must not add a retailer-specific branch or change offers. RA-STAB-01
+remains `IN_PROGRESS` at `0/3`. See the [fresh-run evidence](retailer-automation/evidence/RA-STAB-01-SIMPLY-WHEY-FRESH-RUNS-2026-10-08.json).
+
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256
 `59c6d03a2bbcff0b384b86065f76e6f456e3538ca538613cf83e5e017ec11a9d`,

@@ -2267,6 +2267,22 @@ and Whey through one fresh normal guarded run each without retry or replay.
 This manual control action does not advance the natural counter; RA-STAB-01
 remains `IN_PROGRESS` at `0/3`. Evidence: [Whey control close](evidence/RA-STAB-01-WHEY-CONTROL-CLOSE-2026-10-08.json).
 
+One owner-authorized fresh normal Simply Supplements run `37797608023` then
+passed after its stale-control recovery. It partitioned `120` mappings into
+`119` executed rows and one no-write `SOURCE_VARIANT_MISSING` review row.
+Postflight passed: `118` unchanged confirmations, one source-proven price and
+delivered-total update, `119` freshness updates, zero stock/shipping/URL/mapping
+changes and `price_history +1`; fresh idempotency also passed. This proves the
+normal Simply path is healthy. The corresponding one-shot Whey Okay run
+`37798277043` failed closed at startup before source capture or any write. A
+subsequent one-shot read-only control discovery `37798642443` is `CLEAR`: the
+old Whey parent plan is gone and no recoverable retailer-3 parent remains. The
+remaining Whey block is therefore the older global startup guard: it reports
+only that one or more control counters are non-zero, not which record caused
+it. No retry occurred. The next gate is one shared read-only diagnostic of that
+existing global guard, with no retailer branch, offer change or retry. RA-STAB-01
+remains `IN_PROGRESS` at `0/3`. Evidence: [fresh Simply and Whey runs](evidence/RA-STAB-01-SIMPLY-WHEY-FRESH-RUNS-2026-10-08.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
