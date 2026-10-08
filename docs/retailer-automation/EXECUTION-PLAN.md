@@ -2152,15 +2152,20 @@ The exact cause is cross-retailer concurrency, not Fit House data. Scheduled
 6 Pack run `37763759985` was committing approved offer writes during the same
 68-second Fit House transaction. 6 Pack calls the common approved import
 executor directly, outside the mixed-batch wrapper that owns the existing
-global write lock. The prepared migration
+global write lock. The migration
 `20261008120000_serialize_all_approved_offer_writes.sql` moves that same lock
 into the common approved executor. This serializes both direct and mixed-batch
 writes without a retailer branch, new executor, importer, approval path or
 catalogue write in the migration. Its SHA-256 is
-`dc06b5abce598ebca33d1d72544cd87b6bebf21a7c4cf9eb5adf35f55174a3cb`;
-it is local-only and not deployed. The next gate is one separate authorization
-covering this migration, expiry-safe control-only closure of the failed Fit
-House plan if required, and one new fresh Fit House run without retry or replay.
+`dc06b5abce598ebca33d1d72544cd87b6bebf21a7c4cf9eb5adf35f55174a3cb`.
+PR `#277` passed full CI and merged as `917fa2dfeb9a15e88884820bb4c5ec13fabd27e8`.
+The exact migration then passed a rollback rehearsal and was committed alone.
+Production is now ledger `229`, fingerprint
+`a93a1fcb7a078cc5ce89a1d134696b6a738f3fd2e7e8c92df0a72969f615dfbc`;
+catalogue counts remained `1337/3632/3758/3758/28784`. The next gate is merging
+the matching production-ledger binding, expiry-safe control-only closure of the
+failed Fit House plan if still open, and the one authorized fresh Fit House run
+without retry or replay.
 RA-STAB-01 remains `IN_PROGRESS` at `0/3` natural intervals.
 
 **Acceptance:**
