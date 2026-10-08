@@ -177,6 +177,7 @@ const EXCLUSIONS = Object.freeze({
     "20261004120000_add_central_control_plan_readback",
     "20261006120000_extend_partial_sequential_plan_close",
     "20261006190000_add_automation_review_verified_postflight_recovery",
+    "20261008140000_add_active_retailer_parent_inventory",
   ]),
 });
 
@@ -196,6 +197,7 @@ const APPLIED_EXCLUSIONS = Object.freeze({
     "20261004120000_add_central_control_plan_readback.sql",
     "20261006120000_extend_partial_sequential_plan_close.sql",
     "20261006190000_add_automation_review_verified_postflight_recovery.sql",
+    "20261008140000_add_active_retailer_parent_inventory.sql",
   ]),
 });
 
@@ -209,9 +211,7 @@ const PENDING_MIGRATIONS = Object.freeze({
     Object.freeze({ filename: "20260913110000_add_nutrition_candidate_citrulline_components.sql", sha256: "76dd8390e19f45dd8ffcc69bafe9721abc6dedff6db280fdc6f75e3938258ac4" }),
     Object.freeze({ filename: "20260920150000_add_nutrition_candidate_creatine_components.sql", sha256: "c68dac262928ac1ebf971fd8cb838468f38376ebb7c43d8f426884adc200200b" }),
   ]),
-  PRODUCTION: Object.freeze([
-    Object.freeze({ filename: "20261008140000_add_active_retailer_parent_inventory.sql", sha256: "6499f29df0c33311d6810fd33293d1de72d4de3e92b75b3e9027e67a46e317e6" }),
-  ]),
+  PRODUCTION: Object.freeze([]),
 });
 
 function migrationIdentifier(filename) {

@@ -2321,6 +2321,23 @@ the prior hash is superseded and must not be deployed. A new exact owner
 authorization is required before another production rehearsal or apply.
 Evidence: [role-scope correction](evidence/RA-STAB-01-ACTIVE-PARENT-INVENTORY-ROLE-CORRECTION-2026-10-08.json).
 
+The corrected migration then passed its rollback-only rehearsal and the exact
+owner-authorized production apply. Production advanced from ledger `229` to
+`230` with fingerprint
+`746ab61dcdb38158f17845af0ce4ceb84c919e85c14d039276652e24ca1a558e`;
+all five catalogue counts remained unchanged. The single authorized read-only
+diagnostic run `37812312245` used one transaction and two bounded RPCs, made
+zero database/control/business writes and started no source capture. It
+identified the sole global parent blocker as Discount Supplements plan
+`ee32bf39-0e6b-4524-86e8-1d7c787ddecf`, retailer `4`, status `APPROVED`, with
+two `PLANNED` children, one `APPROVED` child, no apply runs and an expired
+approval. The former Whey parent remains absent. No closure, retry, replay or
+offer change was authorized or performed. The next gate is separate exact
+authority for the existing shared control-only recovery after it verifies the
+three unexecuted child bindings; only then may one fresh ordinary Whey run be
+considered. This diagnostic does not advance the natural counter; RA-STAB-01
+remains `IN_PROGRESS` at `0/3`. Evidence: [live active-parent inventory](evidence/RA-STAB-01-ACTIVE-PARENT-INVENTORY-LIVE-2026-10-08.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

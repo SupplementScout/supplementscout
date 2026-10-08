@@ -751,6 +751,20 @@ Another production attempt requires exact authority for that corrected hash.
 Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-ACTIVE-PARENT-INVENTORY-ROLE-CORRECTION-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-ACTIVE-PARENT-INVENTORY-ROLE-CORRECTION-2026-10-08.json).
 
+The corrected migration subsequently passed rollback-only rehearsal and the
+exact owner-authorized production apply. Ledger `230` now contains the shared
+read-only inventory capability, while products, variants, mappings, offers and
+price history remained unchanged. One authorized diagnostic run `37812312245`
+then proved that Whey Okay is blocked by an expired, wholly unexecuted Discount
+Supplements parent plan `ee32bf39-0e6b-4524-86e8-1d7c787ddecf`, not by a Whey
+plan: its three children are two `PLANNED` plus one `APPROVED`, and it has no
+apply runs. The diagnostic made zero writes, no source capture, retry, replay or
+closure. The next gate is separate exact authority for the existing shared
+control-only recovery, followed by one fresh ordinary Whey validation. Manual
+diagnostics do not count as natural evidence, so RA-STAB-01 remains
+`IN_PROGRESS` at `0/3`. Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-ACTIVE-PARENT-INVENTORY-LIVE-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-ACTIVE-PARENT-INVENTORY-LIVE-2026-10-08.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

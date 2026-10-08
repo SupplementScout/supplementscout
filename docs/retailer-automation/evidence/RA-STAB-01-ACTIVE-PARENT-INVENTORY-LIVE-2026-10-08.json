@@ -1,0 +1,66 @@
+{
+  "schema_version": "ra-stab-01-active-parent-inventory-live-v1",
+  "recorded_at": "2026-10-08T16:54:21Z",
+  "task": "RA-STAB-01",
+  "status": "IN_PROGRESS",
+  "authorization": {
+    "migration": "20261008140000_add_active_retailer_parent_inventory.sql",
+    "sha256": "6499f29df0c33311d6810fd33293d1de72d4de3e92b75b3e9027e67a46e317e6",
+    "diagnostic_scope": "one read-only Whey Okay control diagnostic",
+    "excluded_actions": ["retry", "replay", "control-plan closure", "offer changes"]
+  },
+  "deployment": {
+    "rollback_only_rehearsal": "PASS",
+    "confirmation": "97d2056e85539639",
+    "apply_result": "PASS",
+    "committed": true,
+    "ledger_count_before": 229,
+    "ledger_count_after": 230,
+    "ledger_fingerprint_after": "746ab61dcdb38158f17845af0ce4ceb84c919e85c14d039276652e24ca1a558e",
+    "post_deployment_readback": {"result": "PASS", "database_writes": 0, "ordinary_pending_migrations": 0},
+    "catalogue_counts_before": {"products": 1337, "product_variants": 3632, "retailer_products": 3758, "offers": 3758, "price_history": 29578},
+    "catalogue_counts_after": {"products": 1337, "product_variants": 3632, "retailer_products": 3758, "offers": 3758, "price_history": 29578}
+  },
+  "diagnostic": {
+    "run_id": 37812312245,
+    "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/37812312245",
+    "commit": "2c060972db4edf4c81b61f5fada7ede98c605ffb",
+    "conclusion": "success",
+    "artifact": "whey-okay-control-diagnostic-37812312245-1",
+    "control_artifact_sha256": "27f6cc80437c40b0e7e7c20593c47c3beb390b113f269f23098f181b86794a32",
+    "summary_artifact_sha256": "f413d3d1553c2e569892098be8a9d980fb688292b5cc311d649a2e31355dc2e3",
+    "result": "BLOCKED_CONTROL",
+    "read_transactions": 1,
+    "read_rpcs": 2,
+    "database_writes": 0,
+    "business_writes": 0,
+    "control_writes": 0,
+    "source_capture_started": false,
+    "retry_or_replay": false
+  },
+  "control_guard": {
+    "import_approvals": 0,
+    "offer_approvals": 0,
+    "parents": 1,
+    "runs": 0,
+    "active_conflicting_sessions": 0,
+    "blocking_keys": ["parents"]
+  },
+  "active_parent": {
+    "parent_plan_id": "ee32bf39-0e6b-4524-86e8-1d7c787ddecf",
+    "retailer_id": 4,
+    "retailer_name": "Discount Supplements",
+    "retailer_slug": "discount-supplements",
+    "target_environment": "PRODUCTION",
+    "status": "APPROVED",
+    "created_at": "2026-10-08T14:03:10.928262+00:00",
+    "approved_at": "2026-10-08T14:03:13.605953+00:00",
+    "approval_expires_at": "2026-10-08T14:47:10.199+00:00",
+    "approval_consumed_at": null,
+    "children": {"PLANNED": 2, "APPROVED": 1},
+    "apply_runs": {}
+  },
+  "conclusion": "The one global parent blocker is an expired, wholly unexecuted Discount Supplements plan, not a Whey Okay plan. No closure is authorized by this diagnostic. The existing shared control-only recovery must independently verify the exact child and approval bindings before any separately authorized close.",
+  "next_gate": "Obtain exact owner authority for one shared control-only close of parent ee32bf39-0e6b-4524-86e8-1d7c787ddecf with its three unexecuted children, without retry, replay or catalogue writes; then run one fresh ordinary Whey Okay validation and begin the three natural intervals only after all cleared paths agree.",
+  "natural_interval_credit": "0/3; this manual diagnostic gives no interval credit"
+}
