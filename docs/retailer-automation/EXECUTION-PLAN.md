@@ -2102,6 +2102,38 @@ monolithic integration job remains red only for the same two unrelated
 Predators Gear and nutrition failures already present on main run
 `37331353245`; neither failure is in the RA-STAB-01 path or changed here.
 
+**8 October owner-requested manual runtime verification and shared stable-OOS
+alignment â€” local correction prepared, not deployed:** sequential guarded
+ordinary-path runs used the current workflows without replaying an old plan.
+KIOR run `37747565164` passed: all `11/11` approved rows were executed as
+freshness-only confirmations; postflight records zero price, stock, shipping,
+total, URL, mapping and price-history changes and `11` freshness updates.
+
+6 Pack run `37748035569` passed end-to-end. Its `506` offers split into `492`
+safe confirmations and `14` Review Queue rows; postflight records zero
+commercial or stock changes and `492` freshness updates. The repaired shared
+queue-publication job then created exactly `14` cards, with zero catalogue
+writes. This proves the previously failing 6 Pack publication path. These are
+manual checks and do not increment the ordinary observation counter.
+
+Fit House run `37747849842` stopped before registration or apply, with zero
+database, business and control writes. The storefront capture was healthy, but
+the old Fit-House-only database route rejected a `46`-row no-change batch with
+zero new OOS rows because it still expected an obsolete exact OOS baseline.
+The common classifier already handles this correctly: a historical OOS ratio
+does not by itself constitute a new stock incident. The prepared migration
+`20261008100000_align_shared_stable_oos_validation.sql` moves ordinary Fit
+House traffic back to the shared validator and makes the database rule agree:
+the total-OOS-ratio guard applies only when a batch introduces a new OOS row.
+The new-OOS count, OOS-increase, source, identity, price, approval and all
+other guards are unchanged. It adds no importer, executor, approval route,
+catalogue writer or new retailer branch; the dormant legacy validator is not
+deleted in this stabilization step. It has a bounded rollback and remains
+`PENDING_NOT_DEPLOYED`; production deployment needs a separately exact
+owner authorization. Focused, selector, baseline, quick and full checks pass.
+Evidence:
+[`evidence/RA-STAB-01-MANUAL-RUNTIME-AND-SHARED-OOS-PREPARATION-2026-10-08.json`](evidence/RA-STAB-01-MANUAL-RUNTIME-AND-SHARED-OOS-PREPARATION-2026-10-08.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

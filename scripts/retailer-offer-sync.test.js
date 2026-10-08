@@ -312,4 +312,36 @@ test("shared refresh source accepts a BOM-prefixed protected local environment f
   assert.match(source, /config\.local_env_path==="\.\.\/supplementscout\.env\.10reps\.local"/);
 });
 
+test("database validation shares the classifier rule for an unchanged historical OOS baseline", () => {
+  const migration = fs.readFileSync(path.resolve(
+    "supabase/migrations/20261008100000_align_shared_stable_oos_validation.sql",
+  ), "utf8");
+  const rollback = fs.readFileSync(path.resolve(
+    "supabase/rollbacks/20261008100000_align_shared_stable_oos_validation.sql",
+  ), "utf8");
+
+  assert.match(migration,
+    /v_new_oos>0 and v_total_oos::numeric\/v_row_count>v_maximum_total_oos/);
+  assert.match(migration,
+    /md5\(v_shared_definition\) <> '49d36240cb3f7c9fed12f63b145e93f0'/);
+  assert.match(migration,
+    /v_shared_definition, v_old_oos_guard, v_new_oos_guard/);
+  assert.match(migration,
+    /retailer_offer_sync_validate_batch_read_only_unreviewed_interna/);
+  assert.match(migration,
+    /return public\.retailer_offer_sync_validate_batch_read_only_unreviewed_interna\(p_request\)/);
+  assert.match(migration,
+    /replace\(v_dispatch_definition, v_fit_route, ''\)/);
+  assert.doesNotMatch(migration,
+    /v_dispatch_definition\s*:=\s*replace\([^;]+validate_fit_house_stable_oos_read_only[^;]+validate_fit_house_stable_oos_read_only/);
+  assert.doesNotMatch(migration,
+    /(?:insert into|update|delete from) public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
+  assert.match(rollback, /49d36240cb3f7c9fed12f63b145e93f0/);
+  assert.match(rollback, /a9e191f447a1efda3cf788019b5bd79a/);
+  assert.match(rollback,
+    /v_dispatch_definition, v_dispatch_anchor, v_fit_route \|\| v_dispatch_anchor/);
+  assert.doesNotMatch(rollback,
+    /(?:insert into|update|delete from) public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
+});
+
 module.exports = { input, inventory };

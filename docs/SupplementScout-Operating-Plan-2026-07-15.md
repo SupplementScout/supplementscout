@@ -1205,6 +1205,25 @@ later correlating read-only watchdog; this recovery is not ordinary interval
 evidence and RA-STAB-01 remains `IN_PROGRESS` at `0/3`. See the
 [KIOR recovery evidence](retailer-automation/evidence/RA-STAB-01-KIOR-CHILD-APPROVAL-RECOVERY-2026-10-08.json).
 
+**8 October 2026 manual runtime and shared-validator checkpoint:** KIOR and
+6 Pack were run sequentially through their existing guarded production paths
+at the owner's request. KIOR completed `11/11` freshness-only confirmations;
+6 Pack completed `492` safe confirmations, isolated `14` review rows and
+published exactly `14` Review Queue cards. Neither run changed price, stock,
+shipping, URLs, mappings or price history. They are useful live-path evidence
+but not natural interval credit, so RA-STAB-01 remains `IN_PROGRESS` at `0/3`.
+
+Fit House then stopped safely before any write. Its source was healthy, but a
+legacy Fit-House-only database validator still carried an obsolete exact OOS
+baseline and rejected a no-change batch. The prepared shared correction makes
+the database use the same rule as the common classifier: a high historical OOS
+level alone does not block harmless confirmations; any new OOS transition is
+still guarded and can be isolated for review. This removes ordinary Fit House
+traffic from that legacy special route rather than adding another exception.
+The SHA-bound migration is prepared locally with rollback and has not been
+deployed; PR/CI and a separate exact production approval remain required. Full
+local verification passes. See the [manual runtime and shared-OOS evidence](retailer-automation/evidence/RA-STAB-01-MANUAL-RUNTIME-AND-SHARED-OOS-PREPARATION-2026-10-08.json).
+
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256
 `59c6d03a2bbcff0b384b86065f76e6f456e3538ca538613cf83e5e017ec11a9d`,
