@@ -1,0 +1,78 @@
+{
+  "schema_version": "ra-stab-01-shared-partial-progress-preparation-v1",
+  "recorded_at": "2026-10-08T18:13:53.3646078Z",
+  "task": "RA-STAB-01",
+  "status": "LOCAL_VERIFIED_MERGE_PENDING",
+  "incident": {
+    "ordinary_run_id": 37816626614,
+    "retailer_id": 3,
+    "retailer_name": "Whey Okay",
+    "parent_plan_id": "8983b5cd-c70a-4baa-9f40-1198beda6fc0",
+    "observed_result": "Six of twelve children and 291 of 579 safe rows committed before child seven exceeded the 180-second statement timeout.",
+    "reporting_defect": "The terminal diagnostic retained counters for the failed call instead of the completed sequential prefix, so the artifact could misleadingly report zero completed writes.",
+    "control_close_run_id": 37821360235
+  },
+  "implementation": {
+    "kind": "SHARED_SEQUENTIAL_EXECUTION_PROGRESS_REPORTING",
+    "shared_helper": "scripts/lib/retailer-offer-sync/sequential-execution-progress.js",
+    "consumers": [
+      "scripts/whey-okay-offer-refresh.js",
+      "scripts/fit-house-offer-refresh.js",
+      "scripts/jons-offer-refresh.js"
+    ],
+    "shared_profile_coverage": [
+      "Whey Okay",
+      "Fit House",
+      "Simply Supplements",
+      "Dolphin Fitness",
+      "Discount Supplements",
+      "KIOR Health",
+      "Predators Gear",
+      "10 Reps",
+      "Jon's Supplements"
+    ],
+    "records_after_each_committed_child": [
+      "approved child count",
+      "completed child count and IDs",
+      "completed row count",
+      "current child identity and stage",
+      "approval and executor partial status"
+    ],
+    "new_retailer_condition": false,
+    "new_importer": false,
+    "new_executor": false,
+    "new_workflow": false,
+    "new_database_function": false,
+    "approval_or_guard_change": false,
+    "timeout_change": false,
+    "business_write_change": false
+  },
+  "incident_regression": {
+    "fixture_children": 12,
+    "fixture_safe_rows": 579,
+    "completed_children_before_timeout": 6,
+    "completed_rows_before_timeout": 291,
+    "failed_child_index": 6,
+    "failed_stage": "EXECUTOR",
+    "expected_approved_children": 7,
+    "expected_consumed_approvals": 6,
+    "result": "PASS"
+  },
+  "verification": {
+    "focused_and_neighboring_tests": "PASS 114/114",
+    "verify_project_before_documentation": "PASS",
+    "verify_quick": "PASS",
+    "verify_full": "PASS",
+    "production_build": "PASS",
+    "production_runs_started": 0,
+    "production_writes": 0
+  },
+  "limits": {
+    "confirmed_fixed": "A partially completed sequential run will report its committed prefix truthfully in the diagnostic artifact.",
+    "not_claimed_fixed": "The low-level database statement timeout cause is not yet proven or removed.",
+    "no_retry_or_replay": true
+  },
+  "next_gate": "Review, push, green CI and merge this shared observability correction. Then obtain separate authority for one fresh diagnostic validation that can distinguish a transient stall from a repeatable slow database operation; do not raise the timeout or add a retailer-specific branch without evidence.",
+  "task_status": "IN_PROGRESS",
+  "ordinary_observation_counter": "0/3"
+}

@@ -777,6 +777,50 @@ does not count toward the three natural intervals; RA-STAB-01 remains
 `IN_PROGRESS` at `0/3`. Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-DISCOUNT-CONTROL-CLOSE-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-DISCOUNT-CONTROL-CLOSE-2026-10-08.json).
 
+The next owner-authorized ordinary Whey Okay run `37816626614` passed source
+capture and separated its complete scope into `579` safe freshness-only rows
+plus ten Review Queue rows. The queue refreshed all ten cards without catalogue
+writes. The common sequential executor committed six children covering `291`
+safe rows, then its seventh child exceeded the `180`-second statement limit and
+rolled back; the remaining five children did not start. Read-only diagnostic
+`37818124480` and exact preflight `37818886595` prove the resulting state is one
+expired `PARTIALLY_APPLIED` parent with `6 APPLIED + 1 APPROVED + 5 PLANNED`,
+six successful apply runs, no price/stock/shipping/URL or business-price-history
+change, and unchanged counts `1337/3632/3758/3758/29578`. No retry, replay or
+close occurred. The next gate is an exact control-only close preserving the six
+completed children and closing only the six unexecuted children, under separate
+owner authority. Runtime repair must then be shared timeout/progress work with
+a regression, not a Whey-specific branch. RA-STAB-01 remains `IN_PROGRESS` at
+`0/3`. Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-WHEY-FRESH-RUN-PARTIAL-TIMEOUT-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-WHEY-FRESH-RUN-PARTIAL-TIMEOUT-2026-10-08.json).
+
+Owner-authorized control-only run `37821360235` subsequently preserved the six
+completed Whey children, six successful apply runs and all `291` freshness
+confirmations while superseding only the six expired unexecuted children. It
+made one close call, eight control writes, zero business or price-history
+writes, and performed no retry or replay. Exact postflight marked parent
+`8983b5cd-c70a-4baa-9f40-1198beda6fc0` `SUPERSEDED`, closed the unused approval
+and preserved counts at `1337/3632/3758/3758/29578`. The stale plan no longer
+blocks other retailers. The next bounded task is a common timeout/progress
+correction with a regression test before another ordinary Whey run; no Whey-only
+branch is authorized. RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-WHEY-PARTIAL-PLAN-CLOSE-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-WHEY-PARTIAL-PLAN-CLOSE-2026-10-08.json).
+
+The next common correction is locally complete and fully verified. Whey Okay,
+the Fit House shared-profile family and Jon's now use one progress recorder that
+preserves the exact approved and committed prefix after every sequential child.
+The regression reproduces the production incident and retains `6` completed
+children and `291` completed confirmations when child seven times out, instead
+of emitting misleading whole-run zero counters. This is shared observability,
+not another retailer patch: it adds no retailer condition or new path and does
+not change approvals, safety guards, timeout values or business writes.
+Focused tests pass `114/114`; project, quick, full and production-build gates
+all pass. No production run or write occurred. The database delay itself is
+still unproven, so the next gate is review, merge and then a separately
+authorized common-path diagnostic validation, not a timeout increase or Whey
+exception. RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-SHARED-PARTIAL-PROGRESS-PREPARATION-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-SHARED-PARTIAL-PROGRESS-PREPARATION-2026-10-08.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

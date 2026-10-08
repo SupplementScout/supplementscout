@@ -14,6 +14,9 @@ const priceHistoryRollback = fs.readFileSync(path.join(ROOT, "supabase/rollbacks
 const allWriterSerializationSql = fs.readFileSync(path.join(ROOT, "supabase/migrations/20261008120000_serialize_all_approved_offer_writes.sql"), "utf8");
 const allWriterSerializationRollback = fs.readFileSync(path.join(ROOT, "supabase/rollbacks/20261008120000_serialize_all_approved_offer_writes.sql"), "utf8");
 const sixPackExecutor = fs.readFileSync(path.join(ROOT, "scripts/six-pack-offer-refresh-executor.js"), "utf8");
+const wheyExecutor = fs.readFileSync(path.join(ROOT, "scripts/whey-okay-offer-refresh.js"), "utf8");
+const fitHouseExecutor = fs.readFileSync(path.join(ROOT, "scripts/fit-house-offer-refresh.js"), "utf8");
+const jonsExecutor = fs.readFileSync(path.join(ROOT, "scripts/jons-offer-refresh.js"), "utf8");
 
 test("cleanup is exact, control-only, and preserves completed refresh children", () => {
   for (const token of ["c2e1d342-072d-4fc0-aefa-79c345ab4e3b", "c0290d21-70f8-46fb-a7d8-5eda0ed389f2", "36c5e024442662bdd599c0946c8d607788ecd75d80d03d50f712af5c2ccee5f6", "84eadbcafb859cb1515672fb56cad9447afa9850c368077378f677f5a2031de3"]) assert.match(sql, new RegExp(token));
@@ -107,4 +110,14 @@ test("every approved offer writer shares the global execution lock", () => {
   assert.doesNotMatch(allWriterSerializationSql, /\b(?:insert into|delete from|update)\s+public\.(?:products|product_variants|retailer_products|offers|price_history)\b/i);
   assert.doesNotMatch(allWriterSerializationRollback, /perform pg_advisory_xact_lock\(hashtextextended\('retailer-offer-sync:global-execution',0\)\)/);
   assert.doesNotMatch(allWriterSerializationRollback, /\b(?:insert into|delete from|update)\s+public\.(?:products|product_variants|retailer_products|offers|price_history)\b/i);
+});
+
+test("every sequential mixed-batch runner records truthful partial progress", () => {
+  for (const source of [wheyExecutor, fitHouseExecutor, jonsExecutor]) {
+    assert.match(source, /createSequentialExecutionProgress/);
+    assert.match(source, /progress\?\.start\(index\)/);
+    assert.match(source, /progress\?\.approved\(approval\)/);
+    assert.match(source, /progress\?\.applied\(result\)/);
+    assert.match(source, /progress\s*\?\s*progress\.failed\(error\)\s*:\s*error/);
+  }
 });

@@ -2350,6 +2350,55 @@ mutation. The next gate is one separately authorized fresh ordinary Whey Okay
 run and exact postflight review. This manual recovery gives no natural interval
 credit; RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence: [Discount control close](evidence/RA-STAB-01-DISCOUNT-CONTROL-CLOSE-2026-10-08.json).
 
+The authorized fresh ordinary Whey Okay run `37816626614` reached the common
+guarded executor but did not finish. Source capture passed on its first request;
+the complete `589 = 579 safe + 10 review` partition contained zero blocked
+rows, and Review Queue publication refreshed all ten no-write review cards.
+The first six of twelve sequential children committed `291` freshness-only
+confirmations. Child seven then exceeded the executor's `180`-second statement
+limit and rolled back; five later children never started. Independent read-only
+run `37818124480` and exact expired-plan preflight `37818886595` prove the
+parent is `PARTIALLY_APPLIED`, with `6 APPLIED + 1 APPROVED + 5 PLANNED`, six
+successful apply runs, 291 consumed row approvals and unchanged catalogue and
+business-price-history counts `1337/3632/3758/3758/29578`. No retry, replay or
+close occurred. The apply failure report's zero-write counters cover the failed
+call only and must not be used as whole-run postflight. The exact plan is now
+`READY_TO_CLOSE`; the next gate is separate owner authority to preserve the six
+completed children and close only the six expired unexecuted children, followed
+by a shared timeout/progress diagnostic and regression rather than a Whey-only
+exception. This forced failure gives no natural interval credit; RA-STAB-01
+remains `IN_PROGRESS` at `0/3`. Evidence: [Whey partial-timeout readback](evidence/RA-STAB-01-WHEY-FRESH-RUN-PARTIAL-TIMEOUT-2026-10-08.json).
+
+The owner-authorized exact control-only close then passed in run `37821360235`.
+It preserved all six applied children, their six successful apply runs, six
+ready recovery records and all `291` freshness confirmations. It superseded
+only the expired unexecuted suffix: one approved child plus five planned
+children. The single close call made eight control writes, zero business or
+price-history writes and no retry or replay. Postflight marked the parent
+`SUPERSEDED`, closed the unused approval and preserved catalogue and business
+price-history counts at `1337/3632/3758/3758/29578`. The next gate is a shared
+timeout/progress correction with an incident regression before any further
+ordinary Whey run; no retailer-specific exception is authorized. This manual
+close gives no natural interval credit, so RA-STAB-01 remains `IN_PROGRESS` at
+`0/3`. Evidence: [Whey partial-plan close](evidence/RA-STAB-01-WHEY-PARTIAL-PLAN-CLOSE-2026-10-08.json).
+
+The shared partial-progress reporting correction is now locally complete and
+fully verified. One helper records the approved and committed sequential prefix
+after every child and is used by the Whey, Fit House shared-profile and Jon's
+engines; no retailer name/ID branch, importer, executor, workflow, database
+function, approval rule, guard, timeout or business-write behavior was added or
+changed. The incident regression reproduces twelve children, `579` safe rows,
+six committed children and `291` committed confirmations before child seven
+times out, and proves the failure artifact retains those exact facts rather
+than reporting a false zero. Focused and neighboring tests pass `114/114`, and
+`verify:project`, `verify:quick`, `verify:full` and the production build pass.
+This fixes truthful diagnosis only; it does not claim that the underlying
+database delay is understood or removed. No production run or write occurred.
+The next gate is review, push, green CI and merge, followed only under separate
+authority by a fresh diagnostic validation of the common executor. No timeout
+increase or retailer-specific workaround is justified. RA-STAB-01 remains
+`IN_PROGRESS` at `0/3`. Evidence: [shared partial-progress preparation](evidence/RA-STAB-01-SHARED-PARTIAL-PROGRESS-PREPARATION-2026-10-08.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

@@ -13,6 +13,7 @@ const {bindReviewedMixedChangeContract,buildMappedScopeEvidence,buildReviewedMix
 const {migrationBinding}=require("./lib/environment-migrations");
 const {canonicalJson}=require("./lib/canonical-json");
 const {canonicalTimestamp}=require("./lib/canonical-timestamp");
+const {createSequentialExecutionProgress}=require("./lib/retailer-offer-sync/sequential-execution-progress");
 const config=require("../config/retailers/jons-supplements-offer-sync.json");
 
 const ROOT=path.resolve(__dirname,"..");
@@ -340,7 +341,39 @@ function validationRequest(run,artifact){const expires=run.reviewedExpiresAt||ne
 async function validate(run){const outputs=[];for(const artifact of run.artifacts){const request=validationRequest(run,artifact),call=await roleCall(run.target,"validator",true,client=>client.query("select public.validate_retailer_offer_sync_batch_read_only($1::jsonb) result",[request]));const result=call.result.rows[0].result;invariant(result.valid&&result.status==="DRY_RUN_VALIDATED"&&Number(result.row_count)===artifact.rows.length,"validator rejected child");outputs.push({request,result,identity:call.identity})}return outputs}
 function registrationRequest(run){const parentId=uuid(),children=run.artifacts.map(artifact=>({child_plan_id:uuid(),artifact})),workflow={repository:process.env.GITHUB_REPOSITORY||"SupplementScout/supplementscout",run_id:process.env.GITHUB_RUN_ID||`local-${Date.now()}`,run_attempt:process.env.GITHUB_RUN_ATTEMPT||"1",actor:process.env.GITHUB_ACTOR||"local-authorised-operator"},expiresAt=run.reviewedExpiresAt||new Date(Date.now()+14*60000).toISOString(),parentHashInput={schema_version:1,kind:"jons-existing-offer-sync-parent",parent_plan_id:parentId,target_environment:run.spec.environment,target_project_ref:run.spec.ref,target_database_identity:run.spec.identity,retailer_id:"10",source_country:"GB",source_snapshot_fingerprint:run.snapshot.semantic_source_fingerprint,source_captured_at:run.capturedAt,manifest_fingerprint:run.manifestFingerprint,child_plan_ids:children.map(row=>row.child_plan_id),child_fingerprints:children.map(row=>row.artifact.artifact_fingerprint),code_commit:run.head,expires_at:expiresAt,workflow};const request={schema_version:1,kind:"jons-existing-offer-sync-control-plan-registration",target_environment:run.spec.environment,target_project_ref:run.spec.ref,target_database_identity:run.spec.identity,retailer_id:"10",retailer_slug:"jon-s-supplements",source_platform:"SHOPIFY",source_domain:"jonssupplements.co.uk",source_country:"GB",source_snapshot_fingerprint:run.snapshot.semantic_source_fingerprint,source_captured_at:run.capturedAt,manifest:run.manifest,manifest_fingerprint:run.manifestFingerprint,parent_plan_id:parentId,parent_plan_fingerprint:canonicalHash(parentHashInput),children,code_commit:run.head,expires_at:expiresAt,workflow,request_fingerprint:null};if(run.reviewed)request.reviewed_mixed_change_contract=run.reviewedContract;request.request_fingerprint=canonicalHash(request);return request}
 async function register(run,request){const rpc=run.reviewed?"register_reviewed_mixed_change_control_plan":"register_jons_offer_sync_control_plan",call=await roleCall(run.target,"validator",false,client=>client.query(`select public.${rpc}($1::jsonb) result`,[request])),result=call.result.rows[0].result;invariant(result.status==="REGISTERED"&&Number(result.mapping_count)===506&&Number(result.child_count)===run.artifacts.length&&Number(result.business_writes)===0,"registration failed");if(run.reviewed)invariant(result.reviewed_mixed_change===true&&Number(result.operation_count)===run.artifacts[0].rows.length,"reviewed registration failed");return{result,identity:call.identity}}
-async function approveAndExecute(run,registration,validations){const results=[],expiresAt=registration.expires_at;invariant(Date.parse(expiresAt)>Date.now()&&Date.parse(expiresAt)<=Date.now()+15*60000,"registered approval expiry is invalid");for(let index=0;index<registration.children.length;index++){const child=registration.children[index],artifact=child.artifact,executionFingerprint=canonicalHash({child_plan_id:child.child_plan_id,artifact_fingerprint:artifact.artifact_fingerprint,target_environment:run.spec.environment,project_ref:run.spec.ref,database_identity:run.spec.identity,expected_migration_versions:run.binding.versions,expected_migration_fingerprint:run.binding.fingerprint,migration_fingerprint_algorithm:"SHA-256",migration_fingerprint_version:"RSBI-CJ1"}),approvalRequest={schema_version:1,child_plan_id:child.child_plan_id,parent_plan_fingerprint:registration.parent_plan_fingerprint,child_plan_fingerprint:artifact.artifact_fingerprint,artifact,execution_fingerprint:executionFingerprint,expected_migration_versions:run.binding.versions,expected_migration_fingerprint:run.binding.fingerprint,migration_fingerprint_algorithm:"SHA-256",migration_fingerprint_version:"RSBI-CJ1",approved_by:`github-jons-sync:${registration.workflow.run_id}`,expires_at:expiresAt,[`${run.target}_project_ref`]:run.spec.ref,[`${run.target}_database_identity`]:run.spec.identity};if(run.reviewed)approvalRequest.reviewed_mixed_change_contract=run.reviewedContract;const approved=await roleCall(run.target,"approver",false,client=>client.query("select public.approve_retailer_offer_sync_batch($1::jsonb) result",[approvalRequest])),approval=approved.result.rows[0].result;invariant(approval.status==="APPROVED","approval failed");const executeRequest={schema_version:1,approval_id:approval.approval_id,execution_fingerprint:executionFingerprint,expected_migration_versions:run.binding.versions,expected_migration_fingerprint:run.binding.fingerprint,migration_fingerprint_algorithm:"SHA-256",migration_fingerprint_version:"RSBI-CJ1",[`${run.target}_project_ref`]:run.spec.ref,[`${run.target}_database_identity`]:run.spec.identity,requested_at:new Date().toISOString(),explicit_allow:true};const executed=await roleCall(run.target,"executor",false,client=>client.query("select public.execute_retailer_offer_sync_batch($1::jsonb) result",[executeRequest])),result=executed.result.rows[0].result;invariant(result.status==="APPLIED"&&Number(result.row_approvals_created)===artifact.rows.length,"executor failed");results.push({validation:validations[index].result,approval,result})}return results}
+async function approveAndExecute(run,registration,validations,diagnostic=null){
+  const results=[],expiresAt=registration.expires_at;
+  const progress=diagnostic?createSequentialExecutionProgress(diagnostic,registration.children):null;
+  invariant(Date.parse(expiresAt)>Date.now()&&Date.parse(expiresAt)<=Date.now()+15*60000,"registered approval expiry is invalid");
+  for(let index=0;index<registration.children.length;index++){
+    const child=registration.children[index],artifact=child.artifact;
+    progress?.start(index);
+    const executionFingerprint=canonicalHash({child_plan_id:child.child_plan_id,artifact_fingerprint:artifact.artifact_fingerprint,target_environment:run.spec.environment,project_ref:run.spec.ref,database_identity:run.spec.identity,expected_migration_versions:run.binding.versions,expected_migration_fingerprint:run.binding.fingerprint,migration_fingerprint_algorithm:"SHA-256",migration_fingerprint_version:"RSBI-CJ1"});
+    const approvalRequest={schema_version:1,child_plan_id:child.child_plan_id,parent_plan_fingerprint:registration.parent_plan_fingerprint,child_plan_fingerprint:artifact.artifact_fingerprint,artifact,execution_fingerprint:executionFingerprint,expected_migration_versions:run.binding.versions,expected_migration_fingerprint:run.binding.fingerprint,migration_fingerprint_algorithm:"SHA-256",migration_fingerprint_version:"RSBI-CJ1",approved_by:`github-jons-sync:${registration.workflow.run_id}`,expires_at:expiresAt,[`${run.target}_project_ref`]:run.spec.ref,[`${run.target}_database_identity`]:run.spec.identity};
+    if(run.reviewed)approvalRequest.reviewed_mixed_change_contract=run.reviewedContract;
+    let approved;
+    try{approved=await roleCall(run.target,"approver",false,client=>client.query("select public.approve_retailer_offer_sync_batch($1::jsonb) result",[approvalRequest]))}
+    catch(error){throw progress?progress.failed(error):error}
+    let approval;
+    try{
+      approval=approved.result.rows[0].result;
+      invariant(approval.status==="APPROVED","approval failed");
+      progress?.approved(approval);
+    }catch(error){throw progress?progress.failed(error):error}
+    const executeRequest={schema_version:1,approval_id:approval.approval_id,execution_fingerprint:executionFingerprint,expected_migration_versions:run.binding.versions,expected_migration_fingerprint:run.binding.fingerprint,migration_fingerprint_algorithm:"SHA-256",migration_fingerprint_version:"RSBI-CJ1",[`${run.target}_project_ref`]:run.spec.ref,[`${run.target}_database_identity`]:run.spec.identity,requested_at:new Date().toISOString(),explicit_allow:true};
+    let executed;
+    try{executed=await roleCall(run.target,"executor",false,client=>client.query("select public.execute_retailer_offer_sync_batch($1::jsonb) result",[executeRequest]))}
+    catch(error){throw progress?progress.failed(error):error}
+    let result;
+    try{
+      result=executed.result.rows[0].result;
+      invariant(result.status==="APPLIED"&&Number(result.row_approvals_created)===artifact.rows.length,"executor failed");
+      progress?.applied(result);
+    }catch(error){throw progress?progress.failed(error):error}
+    results.push({validation:validations[index].result,approval,result});
+  }
+  return results;
+}
 
 async function executeRefresh(args,diagnostic){
   const spec=TARGETS[args.target];
@@ -369,7 +402,7 @@ async function executeRefresh(args,diagnostic){
   diagnostic.database_writes_attempted=1;
   const registration=registrationRequest(run),registered=await register(run,registration);
   diagnostic.control_writes_completed=1;
-  const executions=await approveAndExecute(run,registration,validations);
+  const executions=await approveAndExecute(run,registration,validations,diagnostic);
   diagnostic.approver_result="PASS";
   diagnostic.executor_result="PASS";
   diagnostic.approvals_created=executions.length;

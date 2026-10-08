@@ -1,0 +1,132 @@
+{
+  "schema_version": "ra-stab-01-whey-fresh-run-partial-timeout-v1",
+  "recorded_at": "2026-10-08T17:44:50.906Z",
+  "task": "RA-STAB-01",
+  "status": "IN_PROGRESS",
+  "authorization": "One fresh ordinary Whey Okay run with no retry or replay, retaining existing guards and Review Queue isolation, followed by exact run and database readback.",
+  "ordinary_run": {
+    "id": 37816626614,
+    "url": "https://github.com/SupplementScout/supplementscout/actions/runs/37816626614",
+    "commit": "d9d2681ad2cb19a5997758583ac8e1c6d012e220",
+    "conclusion": "failure",
+    "artifact": "whey-okay-offer-refresh-37816626614-1",
+    "artifact_id": 11568645219,
+    "artifact_digest": "3bd12f0fba26a17ce07928a154e6c1d5e2cf05850d4e14a52973f1c0883dcd77",
+    "preflight_artifact_sha256": "3192ffdce58e466434631d237e00a93cf7555ab4893f4780ae3d464985ce903c",
+    "failure_diagnostic_sha256": "463a9b6190952b18518af01c995783be4feff4eba5b0930bd0c3bdc04b36fd2c",
+    "source_http_status": 200,
+    "source_attempts": 1,
+    "source_retries": 0,
+    "source_rows": 1705,
+    "approved_mapping_count": 589,
+    "executable_plan_count": 579,
+    "review_row_count": 10,
+    "blocked_row_count": 0,
+    "classification": { "VERIFY_NO_CHANGE": 579 },
+    "expected_changes": {
+      "last_checked_at_updates": 579,
+      "price_updates": 0,
+      "stock_updates": 0,
+      "shipping_updates": 0,
+      "url_updates": 0,
+      "price_history_delta": 0
+    },
+    "failure": {
+      "sqlstate": "57014",
+      "message": "canceling statement due to statement timeout",
+      "statement_timeout_ms": 180000,
+      "stage": "execute_retailer_offer_sync_batch",
+      "failed_child_batch_index": 6,
+      "failed_child_row_count": 48,
+      "retry_or_replay": false
+    }
+  },
+  "review_queue_publication": {
+    "job_result": "PASS",
+    "artifact": "whey-okay-automation-review-queue-refresh-37816626614-1",
+    "artifact_id": 11567727409,
+    "operation_count": 10,
+    "created_count": 0,
+    "refreshed_count": 10,
+    "superseded_count": 0,
+    "catalogue_writes": 0,
+    "database_writes": 21,
+    "apply_report_sha256": "cbd014859a72a7597f61f8eccc8b72b4d508f1c73e8e3d3e04bdf11c183bff55"
+  },
+  "read_only_control_diagnostic": {
+    "id": 37818124480,
+    "url": "https://github.com/SupplementScout/supplementscout/actions/runs/37818124480",
+    "conclusion": "success",
+    "artifact": "whey-okay-control-diagnostic-37818124480-1",
+    "artifact_id": 11567573861,
+    "control_report_sha256": "efc5fe743b1e5ddb057bcba18a110d3cd90316f43538c85490a7f255a44d6a92",
+    "diagnostic_report_sha256": "525491ac667ca0fe63a8cb927048b8b29e4b887be6339810dce91e4bfbf61c48",
+    "database_writes": 0,
+    "business_writes": 0,
+    "control_writes": 0,
+    "source_capture_started": false,
+    "retry_or_replay": false
+  },
+  "exact_read_only_preflight": {
+    "id": 37818886595,
+    "url": "https://github.com/SupplementScout/supplementscout/actions/runs/37818886595",
+    "conclusion": "success",
+    "artifact": "retailer-control-recovery-37818886595-1",
+    "artifact_id": 11568716358,
+    "preflight_sha256": "e480794d884362de6611b80ff4672fc3706562b76aaf3a8660de0471ccb95556",
+    "result": "READY_TO_CLOSE",
+    "kind": "EXPIRED_PARTIAL_SEQUENTIAL_PLAN",
+    "database_writes": 0,
+    "close_calls": 0,
+    "retry_or_replay": false
+  },
+  "production_readback": {
+    "retailer_id": 3,
+    "retailer_name": "Whey Okay",
+    "parent_plan_id": "8983b5cd-c70a-4baa-9f40-1198beda6fc0",
+    "parent_plan_fingerprint": "54d790a979dfb175f76e8b8db573638fb76c6ccbba9196e805c8516ca94be2b1",
+    "parent_status": "PARTIALLY_APPLIED",
+    "approval_expires_at": "2026-10-08T17:43:10.038Z",
+    "children": {
+      "total": 12,
+      "applied": 6,
+      "approved_expired": 1,
+      "planned": 5,
+      "rows_in_applied_prefix": 291,
+      "rows_not_executed": 288
+    },
+    "apply_runs_succeeded": 6,
+    "row_approvals_consumed": 291,
+    "recovery_manifests_ready": 6,
+    "catalogue_counts": {
+      "products": 1337,
+      "product_variants": 3632,
+      "retailer_products": 3758,
+      "offers": 3758,
+      "business_price_history": 29578
+    },
+    "commercial_change_counts": {
+      "price": 0,
+      "stock": 0,
+      "shipping": 0,
+      "url": 0,
+      "business_price_history": 0
+    },
+    "freshness_confirmations_applied": 291
+  },
+  "diagnosis": {
+    "confirmed": [
+      "The source, complete partition and first six guarded child transactions passed.",
+      "The seventh child transaction rolled back on the 180-second statement timeout and left its approval unconsumed.",
+      "The following five child transactions were never started.",
+      "The failure artifact's zero completed-write counters describe only the failed call and are not a valid whole-run postflight; the independent database readback is authoritative for partial progress.",
+      "No other repository Actions run overlapped the timeout interval."
+    ],
+    "not_proven": [
+      "The available evidence does not distinguish a transient database stall from a specific slow internal query.",
+      "The timeout must not be treated as a retailer-data or owner-review failure without further common-path evidence."
+    ]
+  },
+  "next_gate": "Do not retry or replay. First preserve the six completed children and close only the six expired unexecuted children through the existing exact control-only recovery after separate owner authority. Then prepare a shared timeout/progress diagnostic and regression so partial completion is reported truthfully before another ordinary run.",
+  "natural_interval_credit": "0/3; this forced run failed and gives no natural interval credit"
+}

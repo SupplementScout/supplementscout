@@ -18,6 +18,7 @@ const {canonicalTimestamp}=require("./lib/canonical-timestamp");
 const {bindReviewedMixedChangeContract,buildMappedScopeEvidence,buildReviewedMixedChangeContract,buildScopedSourceEvidence}=require("./lib/retailer-offer-sync/reviewed-mixed-change");
 const {bindAutomationReviewDecision,verifyAutomationReviewIdempotencyTransition}=require("./lib/retailer-offer-sync/automation-review-decision");
 const {selectReviewQueueExecutionRows}=require("./lib/automation-review-execution-selection");
+const {createSequentialExecutionProgress}=require("./lib/retailer-offer-sync/sequential-execution-progress");
 const PROFILE=process.env.RETAILER_REFRESH_PROFILE||"fit-house";
 const PROFILE_CONFIGS={"fit-house":"../config/retailers/fit-house-offer-sync.json","simply-supplements":"../config/retailers/simply-supplements-offer-sync.json","dolphin-vegan-protein":"../config/retailers/dolphin-vegan-protein-offer-sync.json","discount-supplements":"../config/retailers/discount-supplements-offer-sync.json","kior-health":"../config/retailers/kior-offer-sync.json","predators-gear":"../config/retailers/predators-gear-offer-sync.json","10reps":"../config/retailers/10reps-offer-sync.json"};
 invariantProfile(PROFILE_CONFIGS[PROFILE],`unsupported retailer refresh profile ${PROFILE}`);
@@ -731,13 +732,15 @@ async function validate(run,diagnostic=null){const outputs=[];for(const [index,a
 function registrationRequest(run){const parentId=uuid(),children=run.artifacts.map(artifact=>({child_plan_id:uuid(),artifact})),workflow={repository:process.env.GITHUB_REPOSITORY||"SupplementScout/supplementscout",run_id:process.env.GITHUB_RUN_ID||`local-${Date.now()}`,run_attempt:process.env.GITHUB_RUN_ATTEMPT||"1",actor:process.env.GITHUB_ACTOR||"local-authorised-operator"},expiresAt=run.reviewedExpiresAt||new Date(Date.now()+44*60000).toISOString(),approvedManifestSha=config.manifest_sha256.toUpperCase(),reviewedManifest=run.reviewed?run.manifest.map(row=>({mapping_id:row.mapping_id,offer_id:row.offer_id,external_product_id:row.external_product_id,external_variant_id:row.external_variant_id})):run.manifest,reviewedManifestFingerprint=run.reviewed?canonicalHash(reviewedManifest):run.manifestFingerprint,parentHashInput={schema_version:1,kind:"retailer-existing-offer-sync-parent",parent_plan_id:parentId,target_environment:run.spec.environment,target_project_ref:run.spec.ref,target_database_identity:run.spec.identity,retailer_id:String(config.retailer_id),source_country:"GB",source_snapshot_fingerprint:run.snapshot.semantic_source_fingerprint,source_captured_at:run.capturedAt,manifest_fingerprint:reviewedManifestFingerprint,...(run.reviewed?{}:{approved_manifest_sha256:approvedManifestSha}),child_plan_ids:children.map(row=>row.child_plan_id),child_fingerprints:children.map(row=>row.artifact.artifact_fingerprint),code_commit:run.head,expires_at:expiresAt,workflow};const request={schema_version:1,kind:"retailer-existing-offer-sync-control-plan-registration",target_environment:run.spec.environment,target_project_ref:run.spec.ref,target_database_identity:run.spec.identity,retailer_id:String(config.retailer_id),retailer_slug:config.retailer_slug,source_platform:config.source_platform,source_domain:new URL(config.store_url).hostname.replace(/^www\./,""),source_country:"GB",source_snapshot_fingerprint:run.snapshot.semantic_source_fingerprint,source_captured_at:run.capturedAt,...(run.reviewed?{}:{approved_manifest_sha256:approvedManifestSha}),manifest:reviewedManifest,manifest_fingerprint:reviewedManifestFingerprint,parent_plan_id:parentId,parent_plan_fingerprint:canonicalHash(parentHashInput),children,code_commit:run.head,expires_at:expiresAt,workflow,...(run.reviewed?{reviewed_mixed_change_contract:run.reviewedContract}:{}),request_fingerprint:null};request.request_fingerprint=canonicalHash(request);return request}
 async function register(run,request){const rpc=run.reviewed?"register_reviewed_mixed_change_control_plan":config.registration_rpc,call=await roleCall(run.target,"validator",false,client=>client.query(`select public.${rpc}($1::jsonb) result`,[request])),result=call.result.rows[0].result;invariant(result.status==="REGISTERED"&&Number(result.mapping_count)===config.approved_mapping_count&&Number(result.child_count)===run.artifacts.length&&Number(result.business_writes)===0,"registration failed");if(run.reviewed)invariant(result.reviewed_mixed_change===true&&Number(result.operation_count)===run.artifacts[0].rows.length,"reviewed registration failed");return{result,identity:call.identity}}
 async function prepareSequentialParentApproval(run,registration){if(run.reviewed)return null;const request={schema_version:1,parent_plan_id:registration.parent_plan_id,parent_plan_fingerprint:registration.parent_plan_fingerprint,retailer_id:String(config.retailer_id),approved_by:`github-${config.retailer_slug}-sync:${registration.workflow.run_id}`,expires_at:registration.expires_at,workflow:registration.workflow,[`${run.target}_project_ref`]:run.spec.ref,[`${run.target}_database_identity`]:run.spec.identity};const prepared=await roleCall(run.target,"approver",false,client=>client.query("select public.prepare_sequential_retailer_offer_sync_parent_approval($1::jsonb) result",[request])),result=prepared.result.rows[0].result;invariant(result.status==="APPROVED"&&Number(result.business_writes)===0&&String(result.retailer_id)===String(config.retailer_id),"sequential parent approval failed");return result}
-async function approveAndExecute(run,registration,validations,registrationEvidence){
+async function approveAndExecute(run,registration,validations,registrationEvidence,diagnostic=null){
   const results=[];
   const parentExpiresAt=registration.expires_at;
+  const progress=diagnostic?createSequentialExecutionProgress(diagnostic,registration.children):null;
   invariant(Date.parse(parentExpiresAt)>Date.now()&&Date.parse(parentExpiresAt)<=Date.now()+45*60000,"registered approval expiry is invalid");
   for(let index=0;index<registration.children.length;index++){
     const expiresAt=run.reviewed?parentExpiresAt:new Date(Math.min(Date.now()+14*60000,Date.parse(parentExpiresAt))).toISOString();
     const child=registration.children[index];
+    progress?.start(index);
     const artifact=child.artifact;
     const executionFingerprint=canonicalHash({child_plan_id:child.child_plan_id,artifact_fingerprint:artifact.artifact_fingerprint,target_environment:run.spec.environment,project_ref:run.spec.ref,database_identity:run.spec.identity,expected_migration_versions:run.binding.versions,expected_migration_fingerprint:run.binding.fingerprint,migration_fingerprint_algorithm:"SHA-256",migration_fingerprint_version:"RSBI-CJ1"});
     const approvalRequest={schema_version:1,child_plan_id:child.child_plan_id,parent_plan_fingerprint:registration.parent_plan_fingerprint,child_plan_fingerprint:artifact.artifact_fingerprint,artifact,execution_fingerprint:executionFingerprint,expected_migration_versions:run.binding.versions,expected_migration_fingerprint:run.binding.fingerprint,migration_fingerprint_algorithm:"SHA-256",migration_fingerprint_version:"RSBI-CJ1",approved_by:`github-${config.retailer_slug}-sync:${registration.workflow.run_id}`,expires_at:expiresAt,[`${run.target}_project_ref`]:run.spec.ref,[`${run.target}_database_identity`]:run.spec.identity};
@@ -746,14 +749,32 @@ async function approveAndExecute(run,registration,validations,registrationEviden
     try{
       approved=await roleCall(run.target,"approver",false,client=>client.query("select public.approve_retailer_offer_sync_batch($1::jsonb) result",[approvalRequest]));
     }catch(error){
-      throw controlChildApprovalError(error,registrationEvidence,child,index);
+      const wrapped=controlChildApprovalError(error,registrationEvidence,child,index);
+      throw progress?progress.failed(wrapped):wrapped;
     }
-    const approval=approved.result.rows[0].result;
-    invariant(approval.status==="APPROVED","approval failed");
+    let approval;
+    try{
+      approval=approved.result.rows[0].result;
+      invariant(approval.status==="APPROVED","approval failed");
+      progress?.approved(approval);
+    }catch(error){
+      throw progress?progress.failed(error):error;
+    }
     const executeRequest={schema_version:1,approval_id:approval.approval_id,execution_fingerprint:executionFingerprint,expected_migration_versions:run.binding.versions,expected_migration_fingerprint:run.binding.fingerprint,migration_fingerprint_algorithm:"SHA-256",migration_fingerprint_version:"RSBI-CJ1",[`${run.target}_project_ref`]:run.spec.ref,[`${run.target}_database_identity`]:run.spec.identity,requested_at:new Date().toISOString(),explicit_allow:true};
-    const executed=await roleCall(run.target,"executor",false,client=>client.query("select public.execute_retailer_offer_sync_batch($1::jsonb) result",[executeRequest]));
-    const result=executed.result.rows[0].result;
-    invariant(result.status==="APPLIED"&&Number(result.row_approvals_created)===artifact.rows.length,"executor failed");
+    let executed;
+    try{
+      executed=await roleCall(run.target,"executor",false,client=>client.query("select public.execute_retailer_offer_sync_batch($1::jsonb) result",[executeRequest]));
+    }catch(error){
+      throw progress?progress.failed(error):error;
+    }
+    let result;
+    try{
+      result=executed.result.rows[0].result;
+      invariant(result.status==="APPLIED"&&Number(result.row_approvals_created)===artifact.rows.length,"executor failed");
+      progress?.applied(result);
+    }catch(error){
+      throw progress?progress.failed(error):error;
+    }
     results.push({validation:validations[index].result,approval,result});
   }
   return results;
@@ -808,7 +829,7 @@ async function executeRefresh(args,diagnostic,reviewed=null){
   }catch(error){
     throw controlParentApprovalError(error,diagnostic.control_registration);
   }
-  const executions=await approveAndExecute(run,registration,validations,diagnostic.control_registration);
+  const executions=await approveAndExecute(run,registration,validations,diagnostic.control_registration,diagnostic);
   diagnostic.approver_result="PASS";
   diagnostic.executor_result="PASS";
   diagnostic.approvals_created=executions.length;
