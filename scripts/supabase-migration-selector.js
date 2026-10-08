@@ -428,8 +428,6 @@ const CONTRACTS = Object.freeze({
       "a93a1fcb7a078cc5ce89a1d134696b6a738f3fd2e7e8c92df0a72969f615dfbc",
     appliedExcluded: APPLIED_EXCLUSIONS.PRODUCTION,
     excluded: Object.freeze({
-      "20261008140000_add_active_retailer_parent_inventory.sql":
-        "c3f435135190f97c6be62c562d715f1f3f341629b263fee22848f8f033cda0af",
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
       "20260717130000_add_local_retailer_catalogue_child_executor.sql":
