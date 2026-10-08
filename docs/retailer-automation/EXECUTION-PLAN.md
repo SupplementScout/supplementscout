@@ -2168,6 +2168,21 @@ failed Fit House plan if still open, and the one authorized fresh Fit House run
 without retry or replay.
 RA-STAB-01 remains `IN_PROGRESS` at `0/3` natural intervals.
 
+The production-ledger binding passed full CI in PR `#278` and merged as
+`c6a78b99e5697f951327b529edefc8f55ad58ba8`. Control-only run `37770502407`
+then closed exact expired Fit House parent
+`574512db-c472-42e5-a9ee-15b74364f8a0` and all six unexecuted children with
+zero apply runs, retries, business writes or price-history writes. Fresh run
+`37770776303` subsequently passed end-to-end: `273/286` rows executed as safe
+freshness confirmations, `13` remained review-only, and zero rows were blocked.
+Postflight recorded zero price, stock, shipping, delivered-total, URL, mapping
+or effective price-history changes and `273` freshness updates; the fresh
+idempotency check passed. Queue reconciliation refreshed the same `13` cards
+with zero catalogue writes. No retry or replay occurred. This manual run proves
+the repaired path but does not increment the `0/3` natural-interval observation
+counter; the next gate is three ordinary scheduled intervals with correlating
+read-only watchdog evidence.
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
