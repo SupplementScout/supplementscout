@@ -2436,6 +2436,23 @@ migration is yet justified. The manual audit gives no natural interval credit;
 RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence: [shared executor
 performance audit](evidence/RA-STAB-01-SHARED-EXECUTOR-PERFORMANCE-AUDIT-2026-10-08.json).
 
+The bounded local consolidation is now prepared without adding another
+executor or retailer branch. Migration
+`20261008200000_consolidate_shared_executor_state_reads.sql` changes only the
+common unreviewed executor: it keeps the before-state read, caches one
+post-apply state and reuses that exact JSON value for all seven existing field
+comparisons. Deterministic source instrumentation therefore reduces row-state
+function calls from `9` to `2` per offer (`7` fewer, `77.78%`) while retaining
+manifest, ledger, approval, replay, stale-state, locking, per-row validation,
+apply, aggregate-delta, cross-retailer fingerprint, recovery and idempotency
+guards. Focused tests and the quick gate pass. The local PostgreSQL 17 scenario
+was not available because Docker was stopped, so green CI remains mandatory
+before merge. The migration is SHA-bound and closed in both environment
+selectors: it is not deployed and authorizes no retailer run. Exact production
+deployment still requires separate owner authority. RA-STAB-01 remains
+`IN_PROGRESS` at `0/3`. Evidence: [shared executor state-read
+consolidation](evidence/RA-STAB-01-SHARED-EXECUTOR-STATE-READ-CONSOLIDATION-2026-10-08.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

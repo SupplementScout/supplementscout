@@ -28,6 +28,8 @@ input. It does not authorize RA-004, a new capture or any write.
 
 [RA-STAB-01 shared executor live performance audit](RA-STAB-01-SHARED-EXECUTOR-PERFORMANCE-AUDIT-2026-10-08.json)
 
+[RA-STAB-01 shared executor state-read consolidation](RA-STAB-01-SHARED-EXECUTOR-STATE-READ-CONSOLIDATION-2026-10-08.json)
+
 [RA-STAB-01 recurring Fit House/10 Reps backlog owner decision pack](RA-STAB-01-BACKLOG-OWNER-DECISION-PACK-2026-10-02.json)
 
 [RA-STAB-01 delayed natural KIOR readback](RA-STAB-01-KIOR-NATURAL-READBACK-2026-10-02.json)

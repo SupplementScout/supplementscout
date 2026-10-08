@@ -851,6 +851,17 @@ retailer exception or production migration is authorized by this audit, and the
 natural observation counter remains `0/3`. Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-SHARED-EXECUTOR-PERFORMANCE-AUDIT-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-SHARED-EXECUTOR-PERFORMANCE-AUDIT-2026-10-08.json).
 
+The shared executor consolidation is now locally prepared as one common SQL
+change, not a retailer patch. It caches one post-apply offer state and reuses it
+for the same seven field checks, reducing deterministic row-state calls from
+`9` to `2` per offer while preserving every existing safety boundary. Focused
+tests and the quick gate pass; PostgreSQL integration remains a required green
+CI gate because the local Docker daemon was unavailable. The SHA-bound
+migration is closed in both deployment selectors and has not been applied.
+Production deployment and a later fresh proof run require separate exact owner
+authority. RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-SHARED-EXECUTOR-STATE-READ-CONSOLIDATION-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-SHARED-EXECUTOR-STATE-READ-CONSOLIDATION-2026-10-08.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

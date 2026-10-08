@@ -1,0 +1,59 @@
+{
+  "schema_version": "ra-stab-01-shared-executor-state-read-consolidation-v1",
+  "captured_at": "2026-10-08",
+  "task": "RA-STAB-01",
+  "status": "LOCAL_VERIFIED_PENDING_CI_AND_SEPARATE_DEPLOYMENT_AUTHORITY",
+  "basis": {
+    "live_read_only_audit_run_id": "37832592271",
+    "live_read_only_artifact_id": "11574162885",
+    "observed_whey_apply_duration_seconds": 766,
+    "timing_limit": "Production track_functions is none; no per-function runtime share is claimed."
+  },
+  "change": {
+    "migration": "supabase/migrations/20261008200000_consolidate_shared_executor_state_reads.sql",
+    "sha256": "a4701b3b94573e453a359f228e0914405d58f338b82d7b5f7158fc5cec385826",
+    "target_function": "public.retailer_offer_sync_execute_batch_unreviewed_internal(jsonb)",
+    "scope": "shared executor only",
+    "before_row_state_calls_per_row": 9,
+    "after_row_state_calls_per_row": 2,
+    "removed_redundant_calls_per_row": 7,
+    "row_state_call_reduction_percent": 77.7778,
+    "mechanism": "Cache the single post-apply row state and reuse it for the seven existing field comparisons."
+  },
+  "preserved_guards": [
+    "manifest and migration-ledger validation",
+    "approval expiry, fingerprint and replay checks",
+    "per-offer advisory locks and row locks",
+    "per-row read-only plan validation",
+    "per-row approval and approved apply",
+    "exact post-state comparison for last_checked_at, price, shipping_cost, total_price, in_stock, offer_url and mapping_url",
+    "exact aggregate delta comparison",
+    "other-retailer and protected-shared fingerprints",
+    "recovery manifest, rollback evidence and idempotent approval consumption"
+  ],
+  "anti_spaghetti": {
+    "retailer_specific_branches_added": 0,
+    "new_executor_paths_added": 0,
+    "new_approval_paths_added": 0,
+    "timeouts_increased": false,
+    "guardrails_weakened": false
+  },
+  "verification": {
+    "focused_structural_tests": "PASS 5/5",
+    "selector_and_ledger_tests": "PASS after the new unapplied migration was closed in both environment selectors",
+    "verify_quick": "PASS",
+    "postgres_17_local_scenario": "NOT_RUN_DOCKER_DAEMON_UNAVAILABLE",
+    "required_next_gate": "Green CI with PostgreSQL integration before merge"
+  },
+  "production": {
+    "migration_applied": false,
+    "retailer_run_started": false,
+    "database_writes": 0,
+    "retry_or_replay": false,
+    "separate_exact_deployment_approval_required": true
+  },
+  "observation": {
+    "ra_stab_01_status": "IN_PROGRESS",
+    "ordinary_interval_counter": "0/3"
+  }
+}
