@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "task": "RA-STAB-01",
+  "recorded_at": "2026-10-08T20:57:12Z",
+  "scope": "One owner-authorized fresh ordinary Whey Okay run after the shared executor state-read consolidation closeout, without retry or replay.",
+  "source_commit": "3f95c1218bb61f78875e06ef750aa14cffd047fb",
+  "run": {
+    "id": 37841687855,
+    "url": "https://github.com/SupplementScout/supplementscout/actions/runs/37841687855",
+    "conclusion": "success",
+    "started_at": "2026-10-08T20:44:22Z",
+    "completed_at": "2026-10-08T20:57:12Z",
+    "total_seconds": 770,
+    "offer_refresh_job_seconds": 713,
+    "apply_step_seconds": 611,
+    "retry": false,
+    "replay": false
+  },
+  "result": {
+    "classification": "PASS_WITH_REVIEW",
+    "approved_mapping_count": 589,
+    "executable_plan_count": 579,
+    "executed_plan_count": 579,
+    "review_row_count": 10,
+    "blocked_row_count": 0,
+    "execution_children": 12,
+    "execution_children_completed": 12,
+    "classification_counts": {
+      "VERIFY_NO_CHANGE": 579,
+      "SOURCE_VARIANT_MISSING": 10
+    },
+    "price_change_count": 0,
+    "stock_change_count": 0,
+    "shipping_change_count": 0,
+    "total_change_count": 0,
+    "offer_url_change_count": 0,
+    "mapping_url_change_count": 0,
+    "freshness_change_count": 579,
+    "price_history_delta": 0,
+    "daily_confirmation_delta": 0,
+    "raw_price_history_delta": 0,
+    "postflight": "PASS",
+    "fresh_idempotency": "PASS"
+  },
+  "performance_comparison": {
+    "previous_apply_step_seconds": 766,
+    "current_apply_step_seconds": 611,
+    "seconds_reduced": 155,
+    "percent_reduced": 20.23,
+    "interpretation": "The common consolidation improved measured runtime while preserving every guarded result. This is one manual proof, not a latency guarantee or natural-interval credit."
+  },
+  "review_queue": {
+    "result": "PASS",
+    "operation_count": 10,
+    "created_count": 0,
+    "refreshed_count": 10,
+    "superseded_count": 0,
+    "resolved_by_source_count": 0,
+    "expired_count": 0,
+    "catalogue_writes": 0,
+    "control_database_writes": 21
+  },
+  "database_postflight": {
+    "result": "PASS",
+    "baseline_hash": "a6a66f2fd87bc64e7816bdbaac4c9fe89017646750ef511536af6e25ca8eb7aa",
+    "postflight_hash": "e564d84fc35a66d8d675f77542e637d73fd9a913f8b1d52452b20db6db556a19",
+    "independent_readback_result": "PASS",
+    "migration_ledger_count": 231,
+    "migration_ledger_fingerprint": "d30de0526f773eae1084721517f078e5725803d236556fb2a69fbb5eb1b5e094",
+    "catalogue_counts": {
+      "products": 1337,
+      "product_variants": 3632,
+      "retailer_products": 3758,
+      "offers": 3758,
+      "price_history": 29578
+    },
+    "independent_readback_database_writes": 0,
+    "queue_exists": true,
+    "duplicate_decision_guard_exists": true,
+    "public_queue_read_blocked": true
+  },
+  "artifacts": [
+    {
+      "id": 11577459977,
+      "name": "whey-okay-offer-refresh-37841687855-1",
+      "size_in_bytes": 1160281
+    },
+    {
+      "id": 11579070391,
+      "name": "whey-okay-automation-review-queue-refresh-37841687855-1",
+      "size_in_bytes": 2654
+    }
+  ],
+  "guardrails": {
+    "retailer_specific_branch_added": false,
+    "new_executor_added": false,
+    "timeout_increased": false,
+    "guard_weakened": false,
+    "manual_run_counts_as_natural_interval": false
+  },
+  "decision": "The shared executor consolidation is live-proven for Whey Okay. Freeze this path and proceed to ordinary scheduled observation; RA-STAB-01 remains IN_PROGRESS at 0/3 natural intervals."
+}

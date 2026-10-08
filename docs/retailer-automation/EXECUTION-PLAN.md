@@ -2472,6 +2472,22 @@ new executor, weaker guard or timeout change was added. A second fresh run is a
 separate gate because the one-run authority was consumed. RA-STAB-01 remains
 `IN_PROGRESS` at `0/3`. Evidence: [shared executor deployment](evidence/RA-STAB-01-SHARED-EXECUTOR-STATE-READ-DEPLOYMENT-2026-10-08.json).
 
+The separately authorized fresh Whey Okay run `37841687855` then passed on the
+closed production binding `3f95c12` without retry or replay. The full
+`589 = 579 safe + 10 review` partition contained zero blocked rows; all twelve
+children and all `579` freshness-only confirmations completed. Postflight and
+fresh idempotency passed with zero price, stock, shipping, total, URL or
+price-history changes. The ten missing-source variants remained isolated and
+their existing Review Queue cards were refreshed with zero catalogue writes.
+The apply step completed in `611` seconds versus `766` seconds in the preceding
+successful proof, a measured reduction of `155` seconds (`20.23%`). An
+independent read-only production check passed at ledger `231`, preserved
+catalogue counts `1337/3632/3758/3758/29578` and made zero writes. This proves
+the common consolidation live; it does not guarantee future latency or count as
+a natural interval. The path is frozen for three ordinary scheduled
+observations, so RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence: [Whey
+post-consolidation live proof](evidence/RA-STAB-01-WHEY-POST-CONSOLIDATION-LIVE-PROOF-2026-10-08.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
