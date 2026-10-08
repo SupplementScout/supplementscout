@@ -19,6 +19,7 @@ const {
   deliveredTotalForSourcePrice,
   guardrailsFor,
   hasBlockingControls,
+  blockingControlSummary,
   loadImmutablePreflight,
   loadManifest,
   loadReviewedMassOosManifest,
@@ -41,6 +42,16 @@ test("Whey Okay ignores orphan child rows from expired plans but blocks live con
   for (const key of ["parents", "offer_approvals", "import_approvals", "runs", "active_conflicting_sessions"]) {
     assert.equal(hasBlockingControls({ [key]: 1 }), true);
   }
+});
+
+test("Whey Okay control diagnostic names only blocking counters", () => {
+  assert.deepEqual(
+    blockingControlSummary({ parents: 0, runs: 2, children: 99, active_conflicting_sessions: 0 }),
+    {
+      counts: { import_approvals: 0, offer_approvals: 0, parents: 0, runs: 2, active_conflicting_sessions: 0 },
+      blocking_keys: ["runs"],
+    },
+  );
 });
 const {
   PROFILES,

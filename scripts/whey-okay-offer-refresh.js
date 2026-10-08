@@ -84,10 +84,10 @@ function parseArgs(argv) {
   }
   if (
     !TARGETS[result.target] ||
-    !["dry-run", "apply"].includes(result.mode)
+    !["dry-run", "apply", "control-diagnostic"].includes(result.mode)
   ) {
     throw new Error(
-      "required --target=staging|production --mode=dry-run|apply",
+      "required --target=staging|production --mode=dry-run|apply|control-diagnostic",
     );
   }
   if (result["reviewed-mass-oos"] !== undefined) {
@@ -438,7 +438,23 @@ function hasBlockingControls(controls = {}) {
     "active_conflicting_sessions",
   ].some((key) => Number(controls[key] || 0) !== 0);
 }
-async function readState(target) {
+function blockingControlSummary(controls = {}) {
+  const keys = [
+    "import_approvals",
+    "offer_approvals",
+    "parents",
+    "runs",
+    "active_conflicting_sessions",
+  ];
+  const counts = Object.fromEntries(
+    keys.map((key) => [key, Number(controls[key] || 0)]),
+  );
+  return {
+    counts,
+    blocking_keys: keys.filter((key) => counts[key] !== 0),
+  };
+}
+async function readState(target, { allowBlockingControls = false } = {}) {
   const call = await roleCall(target, "validator", true, (client) =>
     client.query(
       "select public.read_retailer_offer_sync_approved_state($1::bigint) state",
@@ -455,7 +471,9 @@ async function readState(target) {
       state.counts.legacy_mappings === scope.legacyMappingCount,
     "Whey Okay approved/legacy scope drift",
   );
-  invariant(!hasBlockingControls(state.controls), "active approval, workflow or conflicting session exists");
+  if (!allowBlockingControls) {
+    invariant(!hasBlockingControls(state.controls), "active approval, workflow or conflicting session exists");
+  }
   const manifestBySource = new Map(
     manifest.rows.map((row) => [row.source_key, row]),
   );
@@ -1673,6 +1691,31 @@ async function executeRefresh(args, diagnostic) {
   write(`${artifactPrefix(args.target, args.mode)}-apply.json`, output);
   return output;
 }
+async function executeControlDiagnostic(args, diagnostic) {
+  invariant(args.mode === "control-diagnostic", "control diagnostic mode required");
+  invariant(process.env.SAFE_UPDATE === undefined, "SAFE_UPDATE must be unset");
+  const state = await readState(args.target, { allowBlockingControls: true });
+  const controls = blockingControlSummary(state.controls);
+  diagnostic.database_before = state.counts;
+  diagnostic.control_guard = controls;
+  const output = {
+    schema_version: 1,
+    kind: "whey-okay-control-guard-readback",
+    result: controls.blocking_keys.length ? "BLOCKED_CONTROL" : "CLEAR",
+    target: args.target,
+    retailer_id: String(config.retailer_id),
+    controls,
+    catalogue_counts: state.counts,
+    reads: 1,
+    database_writes: 0,
+    business_writes: 0,
+    control_writes: 0,
+    source_capture_started: false,
+    retry_or_replay: false,
+  };
+  write(`${artifactPrefix(args.target, args.mode)}-control-diagnostic.json`, output);
+  return output;
+}
 async function runWithDiagnostic(
   argv = process.argv.slice(2),
   { operation = executeRefresh, outDir = OUT, env = process.env } = {},
@@ -1711,7 +1754,10 @@ async function runWithDiagnostic(
   }
 }
 async function main(argv = process.argv.slice(2)) {
-  const completed = await runWithDiagnostic(argv);
+  const mode = argv.find((value) => value.startsWith("--mode="))?.slice(7);
+  const completed = await runWithDiagnostic(argv, {
+    operation: mode === "control-diagnostic" ? executeControlDiagnostic : executeRefresh,
+  });
   console.log(JSON.stringify(completed.result));
   return completed.result;
 }
@@ -1730,6 +1776,7 @@ module.exports = {
   approvedManifestCoverage,
   artifactPrefix,
   balancedExecutionBatches,
+  blockingControlSummary,
   buildIdempotencyRun,
   buildReviewQueueRun,
   buildRun,
@@ -1746,6 +1793,7 @@ module.exports = {
   immutablePreflightName,
   parseArgs,
   readState,
+  executeControlDiagnostic,
   register,
   registrationRequest,
   runWithDiagnostic,

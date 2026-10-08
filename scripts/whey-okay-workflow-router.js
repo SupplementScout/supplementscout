@@ -1,6 +1,6 @@
 const fs = require("node:fs");
 
-const OPERATIONS = new Set(["dry-run", "apply", "review-only", "reviewed-offer-73-dry-run", "reviewed-artifact-apply"]);
+const OPERATIONS = new Set(["dry-run", "apply", "review-only", "control-diagnostic", "reviewed-offer-73-dry-run", "reviewed-artifact-apply"]);
 const VALIDATION_CONTEXTS = new Set(["workflow_dispatch", "schedule"]);
 const SHA256 = /^[0-9a-f]{64}$/;
 const MD5 = /^[0-9a-f]{32}$/;
@@ -35,6 +35,7 @@ function routeWorkflowEvent(eventName, payload) {
       operation: "schedule",
       validation_context: "schedule",
       run_standard_refresh: true,
+      run_control_diagnostic: false,
       run_reviewed_offer_73: false,
       run_reviewed_artifact_apply: false,
       run_standard_apply: true,
@@ -65,6 +66,7 @@ function routeWorkflowEvent(eventName, payload) {
     operation,
     validation_context: validationContext,
     run_standard_refresh: operation === "dry-run" || operation === "apply" || operation === "review-only",
+    run_control_diagnostic: operation === "control-diagnostic",
     run_reviewed_offer_73: operation === "reviewed-offer-73-dry-run",
     run_reviewed_artifact_apply: operation === "reviewed-artifact-apply",
     run_standard_apply: operation === "apply",
@@ -80,6 +82,7 @@ function appendOutputs(file, route) {
     `operation=${route.operation}`,
     `validation_context=${route.validation_context}`,
     `run_standard_refresh=${route.run_standard_refresh}`,
+    `run_control_diagnostic=${route.run_control_diagnostic}`,
     `run_reviewed_offer_73=${route.run_reviewed_offer_73}`,
     `run_reviewed_artifact_apply=${route.run_reviewed_artifact_apply}`,
     `run_standard_apply=${route.run_standard_apply}`,
