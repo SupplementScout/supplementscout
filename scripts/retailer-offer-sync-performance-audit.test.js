@@ -100,6 +100,7 @@ test("audit uses the shared protected read-only role session and emits zero-writ
   assert.equal(options.readOnly, true);
   assert.equal(options.role, "retailer_catalogue_production_validator");
   assert.equal(options.expectedSessionUser, "supplementscout_production_validator_login");
+  assert.equal(options.localSettings, undefined);
   assert.equal(report.database_writes, 0);
   assert.equal(report.retry_calls, 0);
   assert.equal(report.replay_calls, 0);

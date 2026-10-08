@@ -233,10 +233,6 @@ async function runAudit(options = {}, dependencies = {}) {
       role: VALIDATOR_ROLE,
       expectedSessionUser: VALIDATOR_LOGIN,
       kind: "performance audit validator",
-      localSettings: {
-        "statement_timeout": "30000",
-        "lock_timeout": "5000",
-      },
     },
     collect,
   );
