@@ -16,6 +16,13 @@ const workflow = fs.readFileSync(
   path.join(process.cwd(), ".github/workflows/whey-okay-offer-refresh.yml"),
   "utf8",
 );
+const activeParentInventoryMigration = fs.readFileSync(
+  path.join(
+    process.cwd(),
+    "supabase/migrations/20261008140000_add_active_retailer_parent_inventory.sql",
+  ),
+  "utf8",
+);
 const reviewedOffer73DryRun = fs.readFileSync(
   path.join(process.cwd(), "scripts/whey-okay-offer-73-reviewed-dry-run.js"),
   "utf8",
@@ -314,6 +321,16 @@ test("workflow exposes exact reviewed offer 73 dry-run with validator-only crede
   assert.match(reviewedOffer73DryRun, /set local role retailer_catalogue_production_validator/);
   assert.match(reviewedOffer73DryRun, /supplementscout_production_validator_login/);
   assert.doesNotMatch(reviewedOffer73DryRun, /SUPABASE_SERVICE_ROLE_KEY|approve_product_import_plan|apply_approved_product_import_plan/);
+});
+
+test("active parent diagnostic is shared, read-only and validator-only", () => {
+  assert.match(activeParentInventoryMigration, /create or replace function public\.read_active_retailer_parent_inventory_v1\(\)/i);
+  assert.match(activeParentInventoryMigration, /current_setting\('transaction_read_only'\) <> 'on'/i);
+  assert.match(activeParentInventoryMigration, /current_setting\('app\.safe_update', true\) is not null/i);
+  assert.match(activeParentInventoryMigration, /where p\.status in \('PLANNED','APPROVED','PARTIALLY_APPLIED'\)/i);
+  assert.match(activeParentInventoryMigration, /grant execute on function public\.read_active_retailer_parent_inventory_v1\(\)[\s\S]+retailer_catalogue_staging_validator,retailer_catalogue_production_validator/i);
+  assert.match(activeParentInventoryMigration, /revoke all on function public\.read_active_retailer_parent_inventory_v1\(\)[\s\S]+service_role/i);
+  assert.doesNotMatch(activeParentInventoryMigration, /\b(?:insert|update|delete|truncate)\b\s+(?:into\s+|from\s+)?public\./i);
 });
 
 test("generic reviewed artifact apply is artifact-bound and credentials are split by job", () => {
