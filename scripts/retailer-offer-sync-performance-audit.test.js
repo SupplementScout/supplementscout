@@ -68,9 +68,12 @@ test("audit uses the shared protected read-only role session and emits zero-writ
   }));
   const fakeClient = {
     calls: 0,
-    async query() {
+    async query(...args) {
+      const parameters = args[1] || [];
       this.calls += 1;
       if (this.calls === 1) return { rows: [{ database_name: "postgres", transaction_read_only: "on", track_functions: "none", server_version: "17" }] };
+      assert.equal(parameters.length, 1);
+      assert.ok(Array.isArray(parameters[0]));
       if (this.calls === 2) return { rows: functions };
       if (this.calls === 3) return { rows: [] };
       if (this.calls === 4) return { rows: [
