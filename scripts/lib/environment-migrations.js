@@ -8,7 +8,13 @@ const ROOT = path.resolve(__dirname, "../..");
 const MIGRATION_FILE = /^\d{14}_[a-z0-9_]+\.sql$/;
 const EXCLUSIONS = Object.freeze({
   STAGING: Object.freeze([
-    "20261008200000_consolidate_shared_executor_state_reads",
+    "20260920150000_add_nutrition_candidate_creatine_components",
+    "20260913110000_add_nutrition_candidate_citrulline_components",
+    "20260911150000_add_nutrition_candidate_structured_creatine",
+    "20260911130000_add_nutrition_candidate_preworkout_facts",
+    "20260911120000_add_nutrition_candidate_variant_provenance",
+    "20260910193000_allow_automation_review_retry_revisions",
+    "20260831110000_create_automation_review_queue_publication_rpc",
     "20261008140000_add_active_retailer_parent_inventory",
     "20261008120000_serialize_all_approved_offer_writes",
     "20260922170000_allow_fit_house_parent_approval_and_supersede_failed_plan",
@@ -205,13 +211,7 @@ const APPLIED_EXCLUSIONS = Object.freeze({
 
 const PENDING_MIGRATIONS = Object.freeze({
   STAGING: Object.freeze([
-    Object.freeze({ filename: "20260831110000_create_automation_review_queue_publication_rpc.sql", sha256: "8680e3303a8b4b22025f85af83a59a8dafbebc91e97719e423af8dff79f28409" }),
-    Object.freeze({ filename: "20260910193000_allow_automation_review_retry_revisions.sql", sha256: "ddfb939887df1793f554adc1e4f171b64b3ba2549a4d3651bd339947d7bc496b" }),
-    Object.freeze({ filename: "20260911120000_add_nutrition_candidate_variant_provenance.sql", sha256: "62a7a5dd812d4559889d7392217095b67841d1d6db37e5519ee6e1593bc207cb" }),
-    Object.freeze({ filename: "20260911130000_add_nutrition_candidate_preworkout_facts.sql", sha256: "76db080b347dfffd36a8233c1d8f9725421b9caf2e445d56579833898b6428d5" }),
-    Object.freeze({ filename: "20260911150000_add_nutrition_candidate_structured_creatine.sql", sha256: "dc9a411d19cb3547b508744c6dab21fb0df741e30f896cb186de6b38639ce28c" }),
-    Object.freeze({ filename: "20260913110000_add_nutrition_candidate_citrulline_components.sql", sha256: "76dd8390e19f45dd8ffcc69bafe9721abc6dedff6db280fdc6f75e3938258ac4" }),
-    Object.freeze({ filename: "20260920150000_add_nutrition_candidate_creatine_components.sql", sha256: "c68dac262928ac1ebf971fd8cb838468f38376ebb7c43d8f426884adc200200b" }),
+    Object.freeze({ filename: "20261008200000_consolidate_shared_executor_state_reads.sql", sha256: "a4701b3b94573e453a359f228e0914405d58f338b82d7b5f7158fc5cec385826" }),
   ]),
   PRODUCTION: Object.freeze([]),
 });
