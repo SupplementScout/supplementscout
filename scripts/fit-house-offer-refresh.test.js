@@ -16,6 +16,7 @@ const {
   authorizeOwnerApprovedSixStockOnly,
   authorizeReviewedMassOos,
   balancedExecutionBatches,
+  controlChildApprovalError,
   controlParentApprovalError,
   controlRegistrationEvidence,
   durableAutomationReviewOosAllowances,
@@ -175,6 +176,35 @@ test("parent approval timeout preserves the registered plan as an unknown outcom
   assert.equal(error.stage, "CONTROL_PARENT_APPROVAL");
   assert.equal(error.message, "registered control plan parent approval outcome is unknown");
   assert.deepEqual(error.detail, { control_registration: evidence });
+});
+
+test("child approval timeout identifies the exact registered child without leaking rows", () => {
+  const evidence = {
+    status: "REGISTERED",
+    parent_plan_id: "11111111-1111-4111-8111-111111111111",
+    parent_plan_fingerprint: "a".repeat(64),
+  };
+  const child = {
+    child_plan_id: "22222222-2222-4222-8222-222222222222",
+    artifact: {
+      artifact_fingerprint: "b".repeat(64),
+      rows: [{ offer_id: "secret-row" }],
+    },
+  };
+  const error = controlChildApprovalError(new Error("Query read timeout"), evidence, child, 0);
+
+  assert.equal(error.code, "CONTROL_CHILD_APPROVAL_OUTCOME_UNKNOWN");
+  assert.equal(error.stage, "CONTROL_CHILD_APPROVAL");
+  assert.equal(error.message, "registered control plan child approval outcome is unknown");
+  assert.deepEqual(error.detail, {
+    control_registration: evidence,
+    control_child: {
+      batch_index: 0,
+      child_plan_id: child.child_plan_id,
+      child_plan_fingerprint: child.artifact.artifact_fingerprint,
+    },
+  });
+  assert.doesNotMatch(JSON.stringify(error.detail), /secret-row|offer_id|rows/);
 });
 
 test("validator diagnostics expose only safe database code, summary, and bounded result fields",()=>{
