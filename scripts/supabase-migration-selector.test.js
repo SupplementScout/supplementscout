@@ -447,7 +447,7 @@ test("production records applied recovery state and one exact shared-validator m
   const contract = CONTRACTS.PRODUCTION;
   assert.deepEqual(contract.pending, [{
     filename: "20261008100000_align_shared_stable_oos_validation.sql",
-    sha256: "84037c898b7bc2cd3175783b43d213a601e8256b4cc6da3aba055b335a1f995b",
+    sha256: "500a02c99919a540e0d34485b94828f255de3e24fc9e78de9f59d94e19d36085",
   }]);
   assert.deepEqual(contract.appliedExcluded, [
     "20260929133000_extend_expired_sequential_plan_close.sql",
@@ -614,7 +614,7 @@ test("production accepts ledger 227 and selects only the pending shared-validato
   ]);
   assert.deepEqual(result.pending_sha256s, {
     "20261008100000_align_shared_stable_oos_validation.sql":
-      "84037c898b7bc2cd3175783b43d213a601e8256b4cc6da3aba055b335a1f995b",
+      "500a02c99919a540e0d34485b94828f255de3e24fc9e78de9f59d94e19d36085",
   });
   assert.ok(result.selected_files.includes(NUTRITION_CITRULLINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(NUTRITION_CREATINE_COMPONENTS_MIGRATION));
