@@ -83,7 +83,7 @@ test("audit uses the shared protected read-only role session and emits zero-writ
   };
   const report = await runAudit(
     {
-      env: { RETAILER_SYNC_PERFORMANCE_AUDIT_DATABASE_URL: "postgresql://safe:test@db.example.test/postgres" },
+      env: { RETAILER_SYNC_PERFORMANCE_AUDIT_DATABASE_URL: "postgresql://audit@db.example.test/postgres" },
       output,
     },
     {
