@@ -2338,6 +2338,18 @@ three unexecuted child bindings; only then may one fresh ordinary Whey run be
 considered. This diagnostic does not advance the natural counter; RA-STAB-01
 remains `IN_PROGRESS` at `0/3`. Evidence: [live active-parent inventory](evidence/RA-STAB-01-ACTIVE-PARENT-INVENTORY-LIVE-2026-10-08.json).
 
+The owner then authorized one exact shared control-only close. Run
+`37814571515` re-read and verified Discount Supplements parent
+`ee32bf39-0e6b-4524-86e8-1d7c787ddecf`, its one expired approved child and
+two planned children before making one close call. It expired the parent and
+all three children with five control writes, zero apply runs, zero retries and
+zero business or price-history writes. Postflight preserved catalogue counts
+at `1337/3632/3758/3758/29578`; Fit House, 10 Reps and Review Queue jobs were
+skipped. The global blocker is therefore cleared without replay or catalogue
+mutation. The next gate is one separately authorized fresh ordinary Whey Okay
+run and exact postflight review. This manual recovery gives no natural interval
+credit; RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence: [Discount control close](evidence/RA-STAB-01-DISCOUNT-CONTROL-CLOSE-2026-10-08.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

@@ -765,6 +765,18 @@ diagnostics do not count as natural evidence, so RA-STAB-01 remains
 `IN_PROGRESS` at `0/3`. Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-ACTIVE-PARENT-INVENTORY-LIVE-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-ACTIVE-PARENT-INVENTORY-LIVE-2026-10-08.json).
 
+The owner-authorized control-only recovery run `37814571515` then independently
+verified the exact expired Discount Supplements parent and its three wholly
+unexecuted children. One shared close call expired the parent plus all three
+children with five control writes, zero apply runs, zero retry/replay and zero
+business or price-history writes. Catalogue counts remained
+`1337/3632/3758/3758/29578`, and every ordinary retailer job was skipped. The
+global parent blocker is cleared. The next gate is one separately authorized
+fresh ordinary Whey Okay run with exact postflight review. This manual recovery
+does not count toward the three natural intervals; RA-STAB-01 remains
+`IN_PROGRESS` at `0/3`. Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-DISCOUNT-CONTROL-CLOSE-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-DISCOUNT-CONTROL-CLOSE-2026-10-08.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
