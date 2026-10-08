@@ -148,7 +148,7 @@ async function collect(client) {
         where schemaname = 'public'
           and funcname = any($1::text[])
         order by funcname`,
-      [
+      [[
         "execute_retailer_offer_sync_batch",
         "retailer_offer_sync_execute_batch_internal",
         "retailer_offer_sync_validate_manifest",
@@ -159,7 +159,7 @@ async function collect(client) {
         "retailer_catalogue_business_counts",
         "retailer_catalogue_other_retailer_fingerprint",
         "retailer_catalogue_protected_shared_fingerprint",
-      ],
+      ]],
     )
   ).rows;
 
