@@ -11,6 +11,9 @@ const serializedSql = fs.readFileSync(path.join(ROOT, "supabase/migrations/20260
 const serializedRollback = fs.readFileSync(path.join(ROOT, "supabase/rollbacks/20260908200000_serialize_shared_refresh_and_close_partial_jons.sql"), "utf8");
 const priceHistorySql = fs.readFileSync(path.join(ROOT, "supabase/migrations/20260908210000_reuse_atomic_price_history_and_close_jons_retry.sql"), "utf8");
 const priceHistoryRollback = fs.readFileSync(path.join(ROOT, "supabase/rollbacks/20260908210000_reuse_atomic_price_history_and_close_jons_retry.sql"), "utf8");
+const allWriterSerializationSql = fs.readFileSync(path.join(ROOT, "supabase/migrations/20261008120000_serialize_all_approved_offer_writes.sql"), "utf8");
+const allWriterSerializationRollback = fs.readFileSync(path.join(ROOT, "supabase/rollbacks/20261008120000_serialize_all_approved_offer_writes.sql"), "utf8");
+const sixPackExecutor = fs.readFileSync(path.join(ROOT, "scripts/six-pack-offer-refresh-executor.js"), "utf8");
 
 test("cleanup is exact, control-only, and preserves completed refresh children", () => {
   for (const token of ["c2e1d342-072d-4fc0-aefa-79c345ab4e3b", "c0290d21-70f8-46fb-a7d8-5eda0ed389f2", "36c5e024442662bdd599c0946c8d607788ecd75d80d03d50f712af5c2ccee5f6", "84eadbcafb859cb1515672fb56cad9447afa9850c368077378f677f5a2031de3"]) assert.match(sql, new RegExp(token));
@@ -93,4 +96,15 @@ test("atomic price changes reuse one history row and close only the rolled-back 
   assert.doesNotMatch(priceHistorySql, /insert into public\.price_history/i);
   assert.match(priceHistoryRollback, /forward-only price-history correction/);
   assert.doesNotMatch(priceHistoryRollback, /update public\./);
+});
+
+test("every approved offer writer shares the global execution lock", () => {
+  assert.match(allWriterSerializationSql, /create or replace function public\.apply_approved_product_import_plan/);
+  assert.equal((allWriterSerializationSql.match(/pg_advisory_xact_lock\(hashtextextended\('retailer-offer-sync:global-execution',0\)\)/g) || []).length, 1);
+  assert.match(allWriterSerializationSql, /record_identity_proven_price_observation/);
+  assert.match(allWriterSerializationSql, /Atomic price change must expose exactly one reusable history row/);
+  assert.match(sixPackExecutor, /apply_approved_product_import_plan/);
+  assert.doesNotMatch(allWriterSerializationSql, /\b(?:insert into|delete from|update)\s+public\.(?:products|product_variants|retailer_products|offers|price_history)\b/i);
+  assert.doesNotMatch(allWriterSerializationRollback, /perform pg_advisory_xact_lock\(hashtextextended\('retailer-offer-sync:global-execution',0\)\)/);
+  assert.doesNotMatch(allWriterSerializationRollback, /\b(?:insert into|delete from|update)\s+public\.(?:products|product_variants|retailer_products|offers|price_history)\b/i);
 });

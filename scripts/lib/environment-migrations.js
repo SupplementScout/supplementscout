@@ -8,6 +8,7 @@ const ROOT = path.resolve(__dirname, "../..");
 const MIGRATION_FILE = /^\d{14}_[a-z0-9_]+\.sql$/;
 const EXCLUSIONS = Object.freeze({
   STAGING: Object.freeze([
+    "20261008120000_serialize_all_approved_offer_writes",
     "20260922170000_allow_fit_house_parent_approval_and_supersede_failed_plan",
     "20260922160000_allow_owner_approved_fit_house_six_oos",
     "20260909094000_bind_fit_house_104_runtime_policy",
@@ -207,7 +208,9 @@ const PENDING_MIGRATIONS = Object.freeze({
     Object.freeze({ filename: "20260913110000_add_nutrition_candidate_citrulline_components.sql", sha256: "76dd8390e19f45dd8ffcc69bafe9721abc6dedff6db280fdc6f75e3938258ac4" }),
     Object.freeze({ filename: "20260920150000_add_nutrition_candidate_creatine_components.sql", sha256: "c68dac262928ac1ebf971fd8cb838468f38376ebb7c43d8f426884adc200200b" }),
   ]),
-  PRODUCTION: Object.freeze([]),
+  PRODUCTION: Object.freeze([
+    Object.freeze({ filename: "20261008120000_serialize_all_approved_offer_writes.sql", sha256: "dc06b5abce598ebca33d1d72544cd87b6bebf21a7c4cf9eb5adf35f55174a3cb" }),
+  ]),
 });
 
 function migrationIdentifier(filename) {

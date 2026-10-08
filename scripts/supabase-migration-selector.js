@@ -124,6 +124,8 @@ const CONTRACTS = Object.freeze({
       "a6e7693f964925554e807602752e4630d14f537a1d9de4fe82f8433d30c307cc",
     appliedExcluded: APPLIED_EXCLUSIONS.STAGING,
     excluded: Object.freeze({
+      "20261008120000_serialize_all_approved_offer_writes.sql":
+        "dc06b5abce598ebca33d1d72544cd87b6bebf21a7c4cf9eb5adf35f55174a3cb",
       "20260922160000_allow_owner_approved_fit_house_six_oos.sql": "be780721eee14c19761546107b7f249e9bea0c451a54732dfd259a7b348132fa",
       "20260922170000_allow_fit_house_parent_approval_and_supersede_failed_plan.sql": "91c065b0dece55d7908e5dacb5509d1b0d66e26a4d132e8d2969e4db9369251f",
       "20260922170000_allow_fit_house_parent_approval_and_supersede_failed_plan.sql": "91c065b0dece55d7908e5dacb5509d1b0d66e26a4d132e8d2969e4db9369251f",
