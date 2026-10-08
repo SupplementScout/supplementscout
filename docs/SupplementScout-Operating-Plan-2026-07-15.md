@@ -727,6 +727,19 @@ three normal daily cycles begin only after this guard is genuinely clear.
 Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-WHEY-CONTROL-GUARD-DIAGNOSTIC-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-WHEY-CONTROL-GUARD-DIAGNOSTIC-2026-10-08.json).
 
+The next diagnostic is prepared without a retailer patch. One shared
+validator-only function will identify the active parent's exact plan, retailer,
+status and child/apply counts inside the same read-only transaction used by the
+existing control diagnostic. It cannot write catalogue or control data and is
+not deployed. The exact migration is
+`20261008140000_add_active_retailer_parent_inventory.sql`, SHA-256
+`c3f435135190f97c6be62c562d715f1f3f341629b263fee22848f8f033cda0af`.
+Focused `95/95`, quick/full and Project Guardian checks pass. Next: green CI,
+then exact deployment authority and one read-only diagnostic; only that result
+can determine whether recovery or a shared startup-guard correction is needed.
+Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-ACTIVE-PARENT-INVENTORY-PREPARATION-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-ACTIVE-PARENT-INVENTORY-PREPARATION-2026-10-08.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

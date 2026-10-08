@@ -2296,6 +2296,20 @@ any closure, retry or another ordinary Whey run. This is diagnostic evidence,
 not natural-interval credit; RA-STAB-01 remains `IN_PROGRESS` at `0/3`.
 Evidence: [Whey control-guard diagnostic](evidence/RA-STAB-01-WHEY-CONTROL-GUARD-DIAGNOSTIC-2026-10-08.json).
 
+The bounded next diagnostic is now prepared as one shared read-only capability,
+not a Whey-specific exception. Migration
+`20261008140000_add_active_retailer_parent_inventory.sql`, SHA-256
+`c3f435135190f97c6be62c562d715f1f3f341629b263fee22848f8f033cda0af`,
+returns only active parent identity, retailer, status, timestamps and aggregated
+child/apply status counts. It is executable only by the existing staging and
+production validator roles, requires a read-only transaction with `SAFE_UPDATE`
+unset, and contains no business/control DML. The existing `control-diagnostic`
+will compare its exact row count with the old global counter in the same
+read-only transaction. Focused tests pass `95/95`; quick/full and Project
+Guardian gates pass. Production is unchanged. After green CI, deployment of
+the exact migration and one diagnostic read remain separate production gates.
+Evidence: [active-parent inventory preparation](evidence/RA-STAB-01-ACTIVE-PARENT-INVENTORY-PREPARATION-2026-10-08.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

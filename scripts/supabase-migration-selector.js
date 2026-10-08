@@ -124,6 +124,8 @@ const CONTRACTS = Object.freeze({
       "a6e7693f964925554e807602752e4630d14f537a1d9de4fe82f8433d30c307cc",
     appliedExcluded: APPLIED_EXCLUSIONS.STAGING,
     excluded: Object.freeze({
+      "20261008140000_add_active_retailer_parent_inventory.sql":
+        "c3f435135190f97c6be62c562d715f1f3f341629b263fee22848f8f033cda0af",
       "20261008120000_serialize_all_approved_offer_writes.sql":
         "dc06b5abce598ebca33d1d72544cd87b6bebf21a7c4cf9eb5adf35f55174a3cb",
       "20260922160000_allow_owner_approved_fit_house_six_oos.sql": "be780721eee14c19761546107b7f249e9bea0c451a54732dfd259a7b348132fa",
@@ -426,6 +428,8 @@ const CONTRACTS = Object.freeze({
       "a93a1fcb7a078cc5ce89a1d134696b6a738f3fd2e7e8c92df0a72969f615dfbc",
     appliedExcluded: APPLIED_EXCLUSIONS.PRODUCTION,
     excluded: Object.freeze({
+      "20261008140000_add_active_retailer_parent_inventory.sql":
+        "c3f435135190f97c6be62c562d715f1f3f341629b263fee22848f8f033cda0af",
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
       "20260717130000_add_local_retailer_catalogue_child_executor.sql":

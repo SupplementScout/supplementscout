@@ -1,0 +1,39 @@
+{
+  "evidence_type": "RA-STAB-01 shared active-parent inventory preparation",
+  "status": "CODE_COMPLETE_NOT_DEPLOYED",
+  "date": "2026-10-08",
+  "incident": {
+    "source_run_id": 37804078924,
+    "observed_blocker": "parents",
+    "observed_count": 1
+  },
+  "migration": {
+    "filename": "20261008140000_add_active_retailer_parent_inventory.sql",
+    "sha256": "c3f435135190f97c6be62c562d715f1f3f341629b263fee22848f8f033cda0af",
+    "deployed": false,
+    "writes_business_data": false,
+    "writes_control_data": false
+  },
+  "design": {
+    "shared": true,
+    "retailer_branch": false,
+    "new_importer": false,
+    "new_approval_path": false,
+    "new_executor": false,
+    "allowed_roles": [
+      "retailer_catalogue_staging_validator",
+      "retailer_catalogue_production_validator"
+    ],
+    "transaction_read_only_required": true,
+    "safe_update_required_unset": true,
+    "returned_scope": "active parent identity, retailer, status, timestamps and child/apply status counts"
+  },
+  "verification": {
+    "focused_tests": "95/95 PASS",
+    "verify_quick": "PASS",
+    "verify_full": "PASS",
+    "verify_project_before": "PASS",
+    "diff_check": "PASS"
+  },
+  "next_gate": "Merge after green CI, then separately authorize deployment of the exact migration hash and one control-diagnostic read."
+}

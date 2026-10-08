@@ -1694,10 +1694,39 @@ async function executeRefresh(args, diagnostic) {
 async function executeControlDiagnostic(args, diagnostic) {
   invariant(args.mode === "control-diagnostic", "control diagnostic mode required");
   invariant(process.env.SAFE_UPDATE === undefined, "SAFE_UPDATE must be unset");
-  const state = await readState(args.target, { allowBlockingControls: true });
+  const readback = await roleCall(args.target, "validator", true, async (client) => {
+    const stateResult = await client.query(
+      "select public.read_retailer_offer_sync_approved_state($1::bigint) state",
+      [config.retailer_id],
+    );
+    const inventoryResult = await client.query(
+      "select public.read_active_retailer_parent_inventory_v1() inventory",
+    );
+    return {
+      state: normalizeStatePayload(stateResult.rows[0].state),
+      inventory: normalizeStatePayload(inventoryResult.rows[0].inventory),
+    };
+  });
+  const state = readback.result.state;
+  const inventory = readback.result.inventory;
+  const scope = scopeForTarget(args.target);
+  invariant(state.retailer.id === config.retailer_id, "retailer identity drift");
+  invariant(
+    state.counts.approved_mappings === scope.approvedMappingCount &&
+      state.counts.approved_offers === scope.approvedMappingCount &&
+      state.counts.legacy_mappings === scope.legacyMappingCount,
+    "Whey Okay approved/legacy scope drift",
+  );
   const controls = blockingControlSummary(state.controls);
+  invariant(
+    Number(inventory.active_parent_count) === controls.counts.parents &&
+      Array.isArray(inventory.active_parents) &&
+      inventory.active_parents.length === controls.counts.parents,
+    "active parent inventory/count mismatch",
+  );
   diagnostic.database_before = state.counts;
   diagnostic.control_guard = controls;
+  diagnostic.active_parent_inventory = inventory;
   const output = {
     schema_version: 1,
     kind: "whey-okay-control-guard-readback",
@@ -1705,8 +1734,10 @@ async function executeControlDiagnostic(args, diagnostic) {
     target: args.target,
     retailer_id: String(config.retailer_id),
     controls,
+    active_parent_inventory: inventory,
     catalogue_counts: state.counts,
-    reads: 1,
+    read_transactions: 1,
+    read_rpcs: 2,
     database_writes: 0,
     business_writes: 0,
     control_writes: 0,
