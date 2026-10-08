@@ -1273,6 +1273,20 @@ code is frozen after this proof. RA-STAB-01 remains `IN_PROGRESS` at `0/3`
 natural intervals while exact stale controls for Simply and Whey and the 10
 Reps protected-feed outage are handled separately.
 
+The exact Simply stale control is now safely closed. Owner-authorized
+control-only run `37788944248` expired parent
+`a02c4e0f-97ca-4f08-b3e8-8287351fdb39` and its three unexecuted children with
+zero apply runs, retries, offer writes or price-history writes; catalogue counts
+were preserved. One read-only Whey discovery, run `37790817618`, then found the
+single blocking parent `73d7ef28-04ae-46b9-8ac2-69792f807546`: eleven of its
+twelve children are already applied and one remains approved. The read made no
+close call and no control or catalogue write, so Whey has not been changed.
+Any recovery must be separately authorized, preserve the eleven completed
+children and close only the remaining unexecuted boundary. 10 Reps still waits
+for its protected CSV feed. These manual control checks do not count as natural
+intervals; RA-STAB-01 remains `IN_PROGRESS` at `0/3`. See the [Simply close and
+Whey discovery evidence](retailer-automation/evidence/RA-STAB-01-SIMPLY-CLOSE-WHEY-DISCOVERY-2026-10-08.json).
+
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256
 `59c6d03a2bbcff0b384b86065f76e6f456e3538ca538613cf83e5e017ec11a9d`,
