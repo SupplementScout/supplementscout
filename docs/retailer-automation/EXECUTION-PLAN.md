@@ -2073,6 +2073,29 @@ This correction earns no ordinary interval credit.
 Evidence:
 [`evidence/RA-STAB-01-WHEY-CAPABILITY-DESCRIPTION-2026-10-07.json`](evidence/RA-STAB-01-WHEY-CAPABILITY-DESCRIPTION-2026-10-07.json).
 
+**8 October KIOR child-approval timeout — shared diagnostic and control-only
+recovery live verified:** scheduled run `37639033936` read a healthy complete
+Shopify source and classified all `11/11` approved rows as
+`VERIFY_NO_CHANGE`, but its child-approval query timed out after control
+registration. It completed zero business writes and zero price-history writes.
+Read-only control preflight `37739756503` then proved one exact expired,
+unexecuted child: the approval was unconsumed, with zero row approvals and zero
+apply runs. The shared engine now classifies this boundary as
+`CONTROL_CHILD_APPROVAL_OUTCOME_UNKNOWN` and retains only safe parent/child
+recovery identity; there is no KIOR branch and no approval, timeout, executor
+or write-path change. The regression, quick/full gates and PR `#271` CI passed,
+and the correction merged as `a685a63a`.
+
+After exact owner authorization, run `37741754695` made one control-only close
+call. Postflight proves the parent and its sole child are `EXPIRED`, the
+approval is closed and unconsumed, and accounting is exactly `3` control
+writes, `0` retries, `0` apply runs, `0` business writes and `0` price-history
+writes. Catalogue counts remained `1337/3632/3758/3758/28784`. This recovery
+does not earn ordinary interval credit; RA-STAB-01 remains `IN_PROGRESS` at
+`0/3`. The next gate is a later natural KIOR schedule followed by a later
+correlating read-only watchdog, not a manual replay. Evidence:
+[`evidence/RA-STAB-01-KIOR-CHILD-APPROVAL-RECOVERY-2026-10-08.json`](evidence/RA-STAB-01-KIOR-CHILD-APPROVAL-RECOVERY-2026-10-08.json).
+
 Docker run `37421724769` now proves the existing expired-close regression and
 the new exact `12 + 1 + 6` fixture pass against disposable PostgreSQL. The
 monolithic integration job remains red only for the same two unrelated

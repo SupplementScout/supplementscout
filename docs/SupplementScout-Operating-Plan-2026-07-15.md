@@ -1191,6 +1191,20 @@ production GET readback at `2026-10-07T14:37:18.117Z` returned HTTP 200 for all
 four delivery messages, removed the fixed-minute promise and submitted zero
 decisions or executions. See the [dispatch-status evidence](retailer-automation/evidence/RA-STAB-01-REVIEW-QUEUE-DISPATCH-STATUS-PREPARATION-2026-10-07.json).
 
+**8 October 2026 KIOR control recovery checkpoint:** scheduled KIOR run
+`37639033936` reached the shared child-approval boundary after a healthy source
+read and an `11/11 VERIFY_NO_CHANGE` dry-run, then timed out before execution.
+Exact read-only preflight `37739756503` proved the registered approval was
+unconsumed and that no apply run or business write existed. A common diagnostic
+correction — not a KIOR exception — merged in PR `#271` as `a685a63a` after
+green quick/full and CI gates. The owner's exact control-only authorization was
+then consumed by run `37741754695`: one close call expired the parent and sole
+child with `3` control writes, `0` retries, `0` apply runs, `0` business writes
+and `0` price-history writes. The next step is a natural KIOR schedule and a
+later correlating read-only watchdog; this recovery is not ordinary interval
+evidence and RA-STAB-01 remains `IN_PROGRESS` at `0/3`. See the
+[KIOR recovery evidence](retailer-automation/evidence/RA-STAB-01-KIOR-CHILD-APPROVAL-RECOVERY-2026-10-08.json).
+
 **5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
 exact approval for read-only artifact SHA-256
 `59c6d03a2bbcff0b384b86065f76e6f456e3538ca538613cf83e5e017ec11a9d`,
