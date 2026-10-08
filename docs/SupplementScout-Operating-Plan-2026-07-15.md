@@ -879,6 +879,20 @@ retry or replay occurred; a second fresh run is a separate exact gate.
 RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence:
 [shared executor deployment](retailer-automation/evidence/RA-STAB-01-SHARED-EXECUTOR-STATE-READ-DEPLOYMENT-2026-10-08.json).
 
+The separately authorized fresh Whey Okay proof `37841687855` has now passed on
+the corrected binding `3f95c12`, without retry or replay. All twelve children
+completed: `579` safe rows received freshness-only confirmations, ten
+missing-source variants remained isolated in Review Queue, and zero rows were
+blocked. Postflight and fresh idempotency passed with no price, stock, shipping,
+total, URL or price-history change. The apply step fell from `766` to `611`
+seconds (`155` seconds, `20.23%`) after the shared consolidation. Independent
+read-only production verification passed at ledger `231`, with catalogue counts
+unchanged at `1337/3632/3758/3758/29578` and zero verification writes. This is
+the required live proof of the common repair, not natural-cycle credit. Freeze
+the path and observe three ordinary scheduled intervals; RA-STAB-01 remains
+`IN_PROGRESS` at `0/3`. Evidence: [Whey post-consolidation live
+proof](retailer-automation/evidence/RA-STAB-01-WHEY-POST-CONSOLIDATION-LIVE-PROOF-2026-10-08.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
