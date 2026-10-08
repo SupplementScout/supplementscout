@@ -2399,6 +2399,23 @@ authority by a fresh diagnostic validation of the common executor. No timeout
 increase or retailer-specific workaround is justified. RA-STAB-01 remains
 `IN_PROGRESS` at `0/3`. Evidence: [shared partial-progress preparation](evidence/RA-STAB-01-SHARED-PARTIAL-PROGRESS-PREPARATION-2026-10-08.json).
 
+PR `#293` passed all checks and merged as `f08d1871`. The one owner-authorized
+fresh Whey validation run `37826090676` then completed the common path without
+retry or replay. All twelve children and all `579` safe freshness confirmations
+applied; ten missing-source rows remained review-only, zero rows were blocked,
+postflight and fresh idempotency passed, and the ten existing Review Queue cards
+were refreshed with zero catalogue writes. There were no price, stock,
+shipping, total, URL or price-history changes, and catalogue counts remained
+`1337/3632/3758/3758/29578`. The shared progress report truthfully records
+`12/12` children and `579/579` rows. The former seventh-child timeout did not
+recur. However, the apply step took `766` seconds, so correctness is proven but
+runtime headroom is not acceptable for stable unattended operation. The next
+bounded task is one shared read-only database performance audit of the existing
+executor/SQL path using this run as evidence; no additional Whey run, timeout
+increase or retailer-specific bypass is justified. This owner-triggered proof
+does not increment the natural counter, so RA-STAB-01 remains `IN_PROGRESS` at
+`0/3`. Evidence: [Whey shared-progress live proof](evidence/RA-STAB-01-WHEY-SHARED-PROGRESS-LIVE-PROOF-2026-10-08.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

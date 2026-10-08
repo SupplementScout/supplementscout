@@ -821,6 +821,22 @@ authorized common-path diagnostic validation, not a timeout increase or Whey
 exception. RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-SHARED-PARTIAL-PROGRESS-PREPARATION-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-SHARED-PARTIAL-PROGRESS-PREPARATION-2026-10-08.json).
 
+PR `#293` is merged and live as `f08d1871`. Fresh owner-triggered Whey run
+`37826090676` passed all twelve common executor children and all `579` safe
+freshness confirmations without retry or replay. Ten missing-source rows stayed
+review-only, all ten existing queue cards were refreshed, postflight and fresh
+idempotency passed, and there were zero price, stock, shipping, URL,
+price-history or catalogue-count changes. The shared diagnostic correctly shows
+`12/12` children and `579/579` rows, so the former false-zero reporting defect
+is closed and the previous seventh-child timeout did not recur. The apply step
+still required `766` seconds. Therefore the path is functionally correct but
+not yet fast enough for comfortable unattended operation. The next step is one
+shared read-only performance audit of the existing database executor, not
+another run, a higher timeout or a Whey-specific exception. This manual proof
+does not increment the natural observation counter; RA-STAB-01 remains
+`IN_PROGRESS` at `0/3`. Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-WHEY-SHARED-PROGRESS-LIVE-PROOF-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-WHEY-SHARED-PROGRESS-LIVE-PROOF-2026-10-08.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
