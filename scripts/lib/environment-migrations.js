@@ -210,7 +210,7 @@ const PENDING_MIGRATIONS = Object.freeze({
   PRODUCTION: Object.freeze([
     Object.freeze({
       filename: "20261008100000_align_shared_stable_oos_validation.sql",
-      sha256: "84037c898b7bc2cd3175783b43d213a601e8256b4cc6da3aba055b335a1f995b",
+      sha256: "500a02c99919a540e0d34485b94828f255de3e24fc9e78de9f59d94e19d36085",
     }),
   ]),
 });

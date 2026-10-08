@@ -88,7 +88,10 @@
   },
   "prepared_shared_correction": {
     "migration": "20261008100000_align_shared_stable_oos_validation.sql",
-    "sha256": "84037c898b7bc2cd3175783b43d213a601e8256b4cc6da3aba055b335a1f995b",
+    "sha256": "500a02c99919a540e0d34485b94828f255de3e24fc9e78de9f59d94e19d36085",
+    "superseded_sha256": "84037c898b7bc2cd3175783b43d213a601e8256b4cc6da3aba055b335a1f995b",
+    "superseded_preflight": "ROLLED_BACK_FALSE_VERIFICATION_FAILURE",
+    "verification_correction": "The fail-closed post-check now verifies the installed dispatcher fallback retailer_offer_sync_validate_before_reviewed_mixed, which is the exact production definition attested by the existing dispatcher MD5. Runtime behavior is unchanged from the reviewed correction.",
     "production_state": "PENDING_NOT_DEPLOYED",
     "merge": {
       "pull_request": 273,

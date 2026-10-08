@@ -83,7 +83,7 @@ begin
      or position(v_old_oos_guard in pg_get_functiondef(v_shared_record.oid)) > 0
      or position('return public.validate_fit_house_stable_oos_read_only(p_request)'
        in pg_get_functiondef(v_dispatch_record.oid)) > 0
-     or position('return public.retailer_offer_sync_validate_batch_read_only_unreviewed_interna(p_request)'
+     or position('return public.retailer_offer_sync_validate_before_reviewed_mixed(p_request)'
        in pg_get_functiondef(v_dispatch_record.oid)) = 0
      or position('reviewed_mixed_change_contract'
        in pg_get_functiondef(v_dispatch_record.oid)) = 0

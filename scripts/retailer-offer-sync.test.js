@@ -329,7 +329,7 @@ test("database validation shares the classifier rule for an unchanged historical
   assert.match(migration,
     /retailer_offer_sync_validate_batch_read_only_unreviewed_interna/);
   assert.match(migration,
-    /return public\.retailer_offer_sync_validate_batch_read_only_unreviewed_interna\(p_request\)/);
+    /return public\.retailer_offer_sync_validate_before_reviewed_mixed\(p_request\)/);
   assert.match(migration,
     /replace\(v_dispatch_definition, v_fit_route, ''\)/);
   assert.doesNotMatch(migration,
