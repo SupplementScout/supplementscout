@@ -1,0 +1,99 @@
+{
+  "schema_version": "ra-stab-01-kior-child-approval-recovery-v1",
+  "recorded_at": "2026-10-08T07:10:32.224Z",
+  "retailer": {
+    "id": "8",
+    "name": "KIOR Health",
+    "approved_mapping_count": 11
+  },
+  "incident": {
+    "workflow_run_id": "37639033936",
+    "event": "schedule",
+    "classification": "CONTROL_CHILD_APPROVAL_OUTCOME_UNKNOWN",
+    "failure_stage": "CONTROL_CHILD_APPROVAL",
+    "observed_error": "Query read timeout",
+    "source_products": 22,
+    "source_variants": 22,
+    "dry_run_rows": 11,
+    "dry_run_actions": {
+      "VERIFY_NO_CHANGE": 11
+    },
+    "source_healthy": true,
+    "database_baseline_passed": true,
+    "business_writes_completed": 0,
+    "price_history_writes_completed": 0,
+    "automatic_retry_performed": false
+  },
+  "control_scope": {
+    "parent_plan_id": "e53fb2ef-aa51-451e-b6a0-6a2bb8e47362",
+    "parent_plan_fingerprint": "42bfeb03676c47d0f769481303ed6b901694ea83d6b64612f35ee97e6f696278",
+    "child_plan_id": "eb328af5-b406-4820-b420-d18738bb7091",
+    "child_plan_fingerprint": "a6b4e0d17889f6f4866098fe531c429f47a5d8ed11ae4b51c2caf78a7b9fe380",
+    "approval_id": "3a8417cf-28a6-482b-b023-ec751b7f96ac",
+    "expected_child_count": 1
+  },
+  "read_only_preflight": {
+    "workflow_run_id": "37739756503",
+    "artifact_id": "11533546322",
+    "artifact_digest": "sha256:b7eb461c919a07e8ce6e9dd895e2d754755c9f797c8fc30a7c3769cf888c1d6f",
+    "generated_at": "2026-10-08T06:50:03.061Z",
+    "result": "READY_TO_CLOSE",
+    "kind": "EXPIRED_UNEXECUTED_SEQUENTIAL_PLAN",
+    "parent_status": "APPROVED",
+    "child_status": "APPROVED",
+    "approval_consumed": false,
+    "apply_runs": 0,
+    "row_approvals": 0,
+    "successful_apply_runs": 0,
+    "business_writes": 0,
+    "price_history_writes": 0
+  },
+  "shared_code_correction": {
+    "pull_request": 271,
+    "merge_commit": "a685a63a3ef5d1eedf24fd16c6b0761621838323",
+    "quality_gate_run_id": "37740557614",
+    "quality_gate_conclusion": "success",
+    "scope": "shared child-approval diagnostic boundary; no retailer branch, approval change or write-path change",
+    "regression": "child approval timeout retains safe parent and exact child recovery identity without plan rows",
+    "local_verify_quick": "PASS",
+    "local_verify_full": "PASS"
+  },
+  "owner_authorization": {
+    "scope": "one control-only close of the exact expired KIOR parent plan",
+    "retry": false,
+    "replay": false,
+    "offer_changes": false
+  },
+  "production_recovery": {
+    "workflow_run_id": "37741754695",
+    "artifact_id": "11533769641",
+    "artifact_digest": "sha256:000c1276ddbbee87965d458e499745360e85e3d91960b0bb0d6caa81a9e47875",
+    "result": "PASS",
+    "completed_at": "2026-10-08T07:10:32.224Z",
+    "recovery_fingerprint": "0ab34fa68388b77c9cb50f15e1dc219942b2740f0579b0e2d4367a30a2c5db2b",
+    "parent_status": "EXPIRED",
+    "child_status": "EXPIRED",
+    "approval_closed": true,
+    "approval_consumed": false,
+    "preserved_applied_child_count": 0,
+    "closed_child_count": 1,
+    "apply_runs": 0,
+    "close_calls": 1,
+    "automatic_retries": 0,
+    "control_writes": 3,
+    "business_writes": 0,
+    "price_history_writes": 0,
+    "business_counts_after": {
+      "products": 1337,
+      "product_variants": 3632,
+      "retailer_products": 3758,
+      "offers": 3758,
+      "price_history": 28784
+    }
+  },
+  "ra_stab_effect": {
+    "ordinary_interval_credit": false,
+    "counter_after": "0/3",
+    "next_gate": "one later natural KIOR schedule and a later correlating read-only watchdog; no manual replay"
+  }
+}
