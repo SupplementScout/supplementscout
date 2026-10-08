@@ -181,14 +181,30 @@
   "prepared_global_writer_serialization": {
     "migration": "20261008120000_serialize_all_approved_offer_writes.sql",
     "sha256": "dc06b5abce598ebca33d1d72544cd87b6bebf21a7c4cf9eb5adf35f55174a3cb",
-    "status": "LOCAL_VERIFIED_NOT_DEPLOYED",
+    "status": "DEPLOYED_VERIFIED_BINDING_PENDING",
     "design": "Acquire the existing retailer-offer-sync:global-execution transaction lock inside the common approved product-import executor, so both mixed batches and direct approved retailer executors serialize through one shared mechanism.",
     "new_importer": false,
     "new_executor": false,
     "new_approval_path": false,
     "new_retailer_branch": false,
     "catalogue_writes_in_migration": 0,
-    "regression": "PASS"
+    "regression": "PASS",
+    "merge": {
+      "pull_request": 277,
+      "merge_commit": "917fa2dfeb9a15e88884820bb4c5ec13fabd27e8",
+      "merged_at": "2026-10-08T11:12:59Z",
+      "full_ci_run": 37768375152,
+      "full_ci_result": "PASS"
+    },
+    "deployment": {
+      "date": "2026-10-08",
+      "preflight": "PASS_ROLLED_BACK",
+      "result": "PASS_COMMITTED",
+      "ledger_count": 229,
+      "ledger_fingerprint": "a93a1fcb7a078cc5ce89a1d134696b6a738f3fd2e7e8c92df0a72969f615dfbc",
+      "catalogue_counts_before_and_after": "1337/3632/3758/3758/28784",
+      "catalogue_row_count_change": 0
+    }
   },
-  "next_gate": "After separate owner authorization, deploy only the shared global-writer serialization migration, close the expired Fit House control plan through the existing control-only path if required, and run one new fresh Fit House ordinary path without retry or replay. Manual runs do not increment the 0/3 natural interval counter."
+  "next_gate": "Merge the production ledger binding, close the expired Fit House control plan through the existing control-only path if still open, and run the one owner-authorized fresh Fit House ordinary path without retry or replay. Manual runs do not increment the 0/3 natural interval counter."
 }

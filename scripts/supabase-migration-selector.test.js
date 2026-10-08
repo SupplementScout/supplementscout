@@ -265,7 +265,6 @@ const SERIALIZED_SHARED_REFRESH_SHA256 = "0bb7c151f5458302ff4f560d6ffa9f75db494f
 const PRICE_HISTORY_REUSE_MIGRATION = "20260908210000_reuse_atomic_price_history_and_close_jons_retry.sql";
 const PRICE_HISTORY_REUSE_SHA256 = "f94b4218264c5b321d682f07361b51a0915f5e469915bb351d98bf2f9d35c4b9";
 const ALL_WRITER_SERIALIZATION_MIGRATION = "20261008120000_serialize_all_approved_offer_writes.sql";
-const ALL_WRITER_SERIALIZATION_SHA256 = "dc06b5abce598ebca33d1d72544cd87b6bebf21a7c4cf9eb5adf35f55174a3cb";
 const temporaryRoots = [];
 
 function temporaryRoot() {
@@ -447,20 +446,17 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
 
 test("production records the shared-validator migration as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{
-    filename: ALL_WRITER_SERIALIZATION_MIGRATION,
-    sha256: ALL_WRITER_SERIALIZATION_SHA256,
-  }]);
+  assert.deepEqual(contract.pending, []);
   assert.deepEqual(contract.appliedExcluded, [
     "20260929133000_extend_expired_sequential_plan_close.sql",
     "20261004120000_add_central_control_plan_readback.sql",
     "20261006120000_extend_partial_sequential_plan_close.sql",
     "20261006190000_add_automation_review_verified_postflight_recovery.sql",
   ]);
-  assert.equal(contract.ledgerCount, 228);
+  assert.equal(contract.ledgerCount, 229);
   assert.equal(
     contract.ledgerFingerprint,
-    "c8ed22c12cd4b660703080589084fed25a7d2c14038999a65d6793b085ec9037",
+    "a93a1fcb7a078cc5ce89a1d134696b6a738f3fd2e7e8c92df0a72969f615dfbc",
   );
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_VARIANT_PROVENANCE_MIGRATION)), NUTRITION_VARIANT_PROVENANCE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_PREWORKOUT_FACTS_MIGRATION)), NUTRITION_PREWORKOUT_FACTS_SHA256);
@@ -572,7 +568,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACT.ledgerFingerprint);
 });
 
-test("production accepts ledger 228 with the shared-validator migration applied", () => {
+test("production accepts ledger 229 with the shared-validator migration applied", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   for (const filename of contract.appliedExcluded) excluded.delete(filename);
@@ -599,7 +595,7 @@ test("production accepts ledger 228 with the shared-validator migration applied"
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 228);
+  assert.equal(result.ledger_count, 229);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 229);
   assert.ok(result.selected_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
@@ -611,10 +607,8 @@ test("production accepts ledger 228 with the shared-validator migration applied"
   assert.ok(result.selected_files.includes("20261006170000_add_automation_review_owner_decision_validation.sql"));
   assert.ok(result.selected_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
   assert.ok(result.excluded_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
-  assert.deepEqual(result.pending_files, [ALL_WRITER_SERIALIZATION_MIGRATION]);
-  assert.deepEqual(result.pending_sha256s, {
-    [ALL_WRITER_SERIALIZATION_MIGRATION]: ALL_WRITER_SERIALIZATION_SHA256,
-  });
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(
     "20261008100000_align_shared_stable_oos_validation.sql",
   ));
