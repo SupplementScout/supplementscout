@@ -32,6 +32,9 @@ const {
 const {
   bindAutomationReviewDecision,
 } = require("./lib/retailer-offer-sync/automation-review-decision");
+const {
+  createSequentialExecutionProgress,
+} = require("./lib/retailer-offer-sync/sequential-execution-progress");
 const config = require("../config/retailers/whey-okay-offer-sync.json");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -1390,9 +1393,12 @@ async function register(run, request) {
   );
   return { result, identity: call.identity };
 }
-async function approveAndExecute(run, registration, validations) {
+async function approveAndExecute(run, registration, validations, diagnostic = null) {
   const results = [];
   const expiresAt = registration.expires_at;
+  const progress = diagnostic
+    ? createSequentialExecutionProgress(diagnostic, registration.children)
+    : null;
   invariant(
     Date.parse(expiresAt) > Date.now() &&
       Date.parse(expiresAt) <= Date.now() + 15 * 60_000,
@@ -1400,6 +1406,7 @@ async function approveAndExecute(run, registration, validations) {
   );
   for (let index = 0; index < registration.children.length; index += 1) {
     const child = registration.children[index];
+    progress?.start(index);
     const artifact = child.artifact;
     const executionFingerprint = canonicalHash({
       child_plan_id: child.child_plan_id,
@@ -1428,14 +1435,25 @@ async function approveAndExecute(run, registration, validations) {
       [`${run.target}_project_ref`]: run.spec.ref,
       [`${run.target}_database_identity`]: run.spec.identity,
     };
-    const approved = await roleCall(run.target, "approver", false, (client) =>
-      client.query(
-        "select public.approve_retailer_offer_sync_batch($1::jsonb) result",
-        [approvalRequest],
-      ),
-    );
-    const approval = approved.result.rows[0].result;
-    invariant(approval.status === "APPROVED", "approval failed");
+    let approved;
+    try {
+      approved = await roleCall(run.target, "approver", false, (client) =>
+        client.query(
+          "select public.approve_retailer_offer_sync_batch($1::jsonb) result",
+          [approvalRequest],
+        ),
+      );
+    } catch (error) {
+      throw progress ? progress.failed(error) : error;
+    }
+    let approval;
+    try {
+      approval = approved.result.rows[0].result;
+      invariant(approval.status === "APPROVED", "approval failed");
+      progress?.approved(approval);
+    } catch (error) {
+      throw progress ? progress.failed(error) : error;
+    }
     const executeRequest = {
       schema_version: 1,
       approval_id: approval.approval_id,
@@ -1449,18 +1467,29 @@ async function approveAndExecute(run, registration, validations) {
       requested_at: new Date().toISOString(),
       explicit_allow: true,
     };
-    const executed = await roleCall(run.target, "executor", false, (client) =>
-      client.query(
-        "select public.execute_retailer_offer_sync_batch($1::jsonb) result",
-        [executeRequest],
-      ),
-    );
-    const result = executed.result.rows[0].result;
-    invariant(
-      result.status === "APPLIED" &&
-        Number(result.row_approvals_created) === artifact.rows.length,
-      "executor failed",
-    );
+    let executed;
+    try {
+      executed = await roleCall(run.target, "executor", false, (client) =>
+        client.query(
+          "select public.execute_retailer_offer_sync_batch($1::jsonb) result",
+          [executeRequest],
+        ),
+      );
+    } catch (error) {
+      throw progress ? progress.failed(error) : error;
+    }
+    let result;
+    try {
+      result = executed.result.rows[0].result;
+      invariant(
+        result.status === "APPLIED" &&
+          Number(result.row_approvals_created) === artifact.rows.length,
+        "executor failed",
+      );
+      progress?.applied(result);
+    } catch (error) {
+      throw progress ? progress.failed(error) : error;
+    }
     results.push({ validation: validations[index].result, approval, result });
   }
   return results;
@@ -1632,7 +1661,7 @@ async function executeRefresh(args, diagnostic) {
   const registration = registrationRequest(run);
   const registered = await register(run, registration);
   diagnostic.control_writes_completed = 1 + run.artifacts.length;
-  const executions = await approveAndExecute(run, registration, validations);
+  const executions = await approveAndExecute(run, registration, validations, diagnostic);
   diagnostic.approver_result = "PASS";
   diagnostic.executor_result = "PASS";
   diagnostic.approvals_created = executions.length;

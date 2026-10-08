@@ -2382,6 +2382,23 @@ ordinary Whey run; no retailer-specific exception is authorized. This manual
 close gives no natural interval credit, so RA-STAB-01 remains `IN_PROGRESS` at
 `0/3`. Evidence: [Whey partial-plan close](evidence/RA-STAB-01-WHEY-PARTIAL-PLAN-CLOSE-2026-10-08.json).
 
+The shared partial-progress reporting correction is now locally complete and
+fully verified. One helper records the approved and committed sequential prefix
+after every child and is used by the Whey, Fit House shared-profile and Jon's
+engines; no retailer name/ID branch, importer, executor, workflow, database
+function, approval rule, guard, timeout or business-write behavior was added or
+changed. The incident regression reproduces twelve children, `579` safe rows,
+six committed children and `291` committed confirmations before child seven
+times out, and proves the failure artifact retains those exact facts rather
+than reporting a false zero. Focused and neighboring tests pass `114/114`, and
+`verify:project`, `verify:quick`, `verify:full` and the production build pass.
+This fixes truthful diagnosis only; it does not claim that the underlying
+database delay is understood or removed. No production run or write occurred.
+The next gate is review, push, green CI and merge, followed only under separate
+authority by a fresh diagnostic validation of the common executor. No timeout
+increase or retailer-specific workaround is justified. RA-STAB-01 remains
+`IN_PROGRESS` at `0/3`. Evidence: [shared partial-progress preparation](evidence/RA-STAB-01-SHARED-PARTIAL-PROGRESS-PREPARATION-2026-10-08.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

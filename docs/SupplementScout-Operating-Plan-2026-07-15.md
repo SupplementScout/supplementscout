@@ -806,6 +806,21 @@ correction with a regression test before another ordinary Whey run; no Whey-only
 branch is authorized. RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-WHEY-PARTIAL-PLAN-CLOSE-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-WHEY-PARTIAL-PLAN-CLOSE-2026-10-08.json).
 
+The next common correction is locally complete and fully verified. Whey Okay,
+the Fit House shared-profile family and Jon's now use one progress recorder that
+preserves the exact approved and committed prefix after every sequential child.
+The regression reproduces the production incident and retains `6` completed
+children and `291` completed confirmations when child seven times out, instead
+of emitting misleading whole-run zero counters. This is shared observability,
+not another retailer patch: it adds no retailer condition or new path and does
+not change approvals, safety guards, timeout values or business writes.
+Focused tests pass `114/114`; project, quick, full and production-build gates
+all pass. No production run or write occurred. The database delay itself is
+still unproven, so the next gate is review, merge and then a separately
+authorized common-path diagnostic validation, not a timeout increase or Whey
+exception. RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-SHARED-PARTIAL-PROGRESS-PREPARATION-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-SHARED-PARTIAL-PROGRESS-PREPARATION-2026-10-08.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

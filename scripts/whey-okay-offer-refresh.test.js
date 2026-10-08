@@ -10,6 +10,9 @@ const {
   buildExistingOfferUpdatePlan,
 } = require("./lib/retailer-offer-sync/existing-offer-plan");
 const {
+  createSequentialExecutionProgress,
+} = require("./lib/retailer-offer-sync/sequential-execution-progress");
+const {
   RefreshError,
   approvedManifestCoverage,
   authorizeReviewedMassOos,
@@ -651,6 +654,57 @@ test("execution batches distribute current and new OOS rows without weakening gu
       ).length <= 1,
     );
   }
+});
+
+test("shared sequential progress preserves six completed children when the seventh times out", () => {
+  const diagnostic = {
+    approver_result: "NOT_RUN",
+    executor_result: "NOT_RUN",
+    approvals_created: 0,
+    approvals_consumed: 0,
+    database_writes_completed: 0,
+    business_writes_completed: 0,
+  };
+  const children = Array.from({ length: 12 }, (_, index) => ({
+    child_plan_id: `child-${index}`,
+    artifact: {
+      artifact_fingerprint: String(index).padStart(64, "0"),
+      rows: Array.from({ length: index < 3 ? 49 : 48 }, () => ({})),
+    },
+  }));
+  const progress = createSequentialExecutionProgress(diagnostic, children);
+  for (let index = 0; index < 6; index += 1) {
+    progress.start(index);
+    progress.approved({ status: "APPROVED", approval_id: `approval-${index}` });
+    progress.applied({ status: "APPLIED" });
+  }
+  progress.start(6);
+  progress.approved({ status: "APPROVED", approval_id: "approval-6" });
+  const timeout = Object.assign(new Error("canceling statement due to statement timeout"), { code: "57014" });
+  assert.equal(progress.failed(timeout), timeout);
+  assert.equal(timeout.stage, "EXECUTOR");
+  assert.equal(diagnostic.database_writes_completed, 6);
+  assert.equal(diagnostic.business_writes_completed, 291);
+  assert.equal(diagnostic.approvals_created, 7);
+  assert.equal(diagnostic.approvals_consumed, 6);
+  assert.equal(diagnostic.executor_result, "FAIL");
+  assert.deepEqual(timeout.detail.sequential_execution, {
+    status: "FAIL",
+    total_child_count: 12,
+    total_row_count: 579,
+    approved_child_count: 7,
+    completed_child_count: 6,
+    completed_row_count: 291,
+    current_child: {
+      batch_index: 6,
+      child_plan_id: "child-6",
+      child_plan_fingerprint: String(6).padStart(64, "0"),
+      row_count: 48,
+      stage: "EXECUTOR",
+      approval_id: "approval-6",
+    },
+    completed_child_ids: Array.from({ length: 6 }, (_, index) => `child-${index}`),
+  });
 });
 
 test("change summary reads sealed execution rows with their atomic plans", () => {
