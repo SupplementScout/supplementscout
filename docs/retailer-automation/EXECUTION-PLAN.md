@@ -2103,7 +2103,7 @@ Predators Gear and nutrition failures already present on main run
 `37331353245`; neither failure is in the RA-STAB-01 path or changed here.
 
 **8 October owner-requested manual runtime verification and shared stable-OOS
-alignment â€” local correction prepared, not deployed:** sequential guarded
+alignment â€” shared correction deployed, fresh run pending:** sequential guarded
 ordinary-path runs used the current workflows without replaying an old plan.
 KIOR run `37747565164` passed: all `11/11` approved rows were executed as
 freshness-only confirmations; postflight records zero price, stock, shipping,
@@ -2128,10 +2128,14 @@ the total-OOS-ratio guard applies only when a batch introduces a new OOS row.
 The new-OOS count, OOS-increase, source, identity, price, approval and all
 other guards are unchanged. It adds no importer, executor, approval route,
 catalogue writer or new retailer branch; the dormant legacy validator is not
-deleted in this stabilization step. It has a bounded rollback and remains
-`PENDING_NOT_DEPLOYED`; production deployment needs a separately exact
-owner authorization. Focused, selector, baseline, quick and full checks pass.
-PR `#273` merged as `48acdad`; its full CI run `37754699009` passed. Evidence:
+deleted in this stabilization step. The first exact preflight rolled back on a
+false post-check and made no persistent change. PR `#275` corrected only that
+post-check. After a passing rollback rehearsal, the owner-authorized migration
+with SHA-256 `500a02c99919a540e0d34485b94828f255de3e24fc9e78de9f59d94e19d36085`
+was applied alone. Production is now ledger `228`, fingerprint
+`c8ed22c12cd4b660703080589084fed25a7d2c14038999a65d6793b085ec9037`;
+all five catalogue counts remained `1337/3632/3758/3758/28784`. The next gate
+is the one authorized fresh Fit House run without retry or replay. Evidence:
 [`evidence/RA-STAB-01-MANUAL-RUNTIME-AND-SHARED-OOS-PREPARATION-2026-10-08.json`](evidence/RA-STAB-01-MANUAL-RUNTIME-AND-SHARED-OOS-PREPARATION-2026-10-08.json).
 
 **Acceptance:**

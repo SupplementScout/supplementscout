@@ -92,7 +92,16 @@
     "superseded_sha256": "84037c898b7bc2cd3175783b43d213a601e8256b4cc6da3aba055b335a1f995b",
     "superseded_preflight": "ROLLED_BACK_FALSE_VERIFICATION_FAILURE",
     "verification_correction": "The fail-closed post-check now verifies the installed dispatcher fallback retailer_offer_sync_validate_before_reviewed_mixed, which is the exact production definition attested by the existing dispatcher MD5. Runtime behavior is unchanged from the reviewed correction.",
-    "production_state": "PENDING_NOT_DEPLOYED",
+    "production_state": "DEPLOYED_VERIFIED",
+    "deployment": {
+      "date": "2026-10-08",
+      "preflight": "PASS_ROLLED_BACK",
+      "result": "PASS_COMMITTED",
+      "ledger_count": 228,
+      "ledger_fingerprint": "c8ed22c12cd4b660703080589084fed25a7d2c14038999a65d6793b085ec9037",
+      "catalogue_counts_before_and_after": "1337/3632/3758/3758/28784",
+      "catalogue_row_count_change": 0
+    },
     "merge": {
       "pull_request": 273,
       "merge_commit": "48acdad502efe622d94c5a0c34827d5ac5573df4",
@@ -118,5 +127,5 @@
       "verify_full": "PASS"
     }
   },
-  "next_gate": "Production deployment requires separate exact owner authorization for the SHA-bound migration; after deployment run one fresh Fit House ordinary path and a read-only postflight. Manual runs do not increment the 0/3 natural interval counter."
+  "next_gate": "Run one owner-authorized fresh Fit House ordinary path without retry or replay, then inspect its immutable artifact and production postflight. Manual runs do not increment the 0/3 natural interval counter."
 }
