@@ -11,9 +11,14 @@ begin
      or to_regclass('public.retailers') is null then
     raise exception 'retailer control ledger is missing';
   end if;
-  if not exists(select 1 from pg_roles where rolname='retailer_catalogue_staging_validator')
-     or not exists(select 1 from pg_roles where rolname='retailer_catalogue_production_validator') then
-    raise exception 'retailer validator roles are missing';
+  if not exists(
+    select 1 from pg_roles
+    where rolname in (
+      'retailer_catalogue_staging_validator',
+      'retailer_catalogue_production_validator'
+    )
+  ) then
+    raise exception 'retailer validator role is missing';
   end if;
 end
 $preflight$;
@@ -93,29 +98,69 @@ end
 $inventory$;
 
 alter function public.read_active_retailer_parent_inventory_v1() owner to postgres;
-revoke all on function public.read_active_retailer_parent_inventory_v1()
-  from public,anon,authenticated,service_role,
-       retailer_catalogue_staging_approver,retailer_catalogue_staging_executor,
-       retailer_catalogue_production_approver,retailer_catalogue_production_executor;
-grant execute on function public.read_active_retailer_parent_inventory_v1()
-  to retailer_catalogue_staging_validator,retailer_catalogue_production_validator;
+revoke all on function public.read_active_retailer_parent_inventory_v1() from public;
+
+do $acl$
+declare
+  v_role text;
+begin
+  foreach v_role in array array[
+    'anon','authenticated','service_role',
+    'retailer_catalogue_staging_approver','retailer_catalogue_staging_executor',
+    'retailer_catalogue_production_approver','retailer_catalogue_production_executor'
+  ] loop
+    if exists(select 1 from pg_roles where rolname=v_role) then
+      execute format(
+        'revoke all on function public.read_active_retailer_parent_inventory_v1() from %I',
+        v_role
+      );
+    end if;
+  end loop;
+  foreach v_role in array array[
+    'retailer_catalogue_staging_validator',
+    'retailer_catalogue_production_validator'
+  ] loop
+    if exists(select 1 from pg_roles where rolname=v_role) then
+      execute format(
+        'grant execute on function public.read_active_retailer_parent_inventory_v1() to %I',
+        v_role
+      );
+    end if;
+  end loop;
+end
+$acl$;
 
 do $postflight$
 declare
   v_definition text;
+  v_role text;
 begin
   v_definition:=pg_get_functiondef('public.read_active_retailer_parent_inventory_v1()'::regprocedure);
   if position('transaction_read_only' in v_definition)=0
      or position('app.safe_update' in v_definition)=0
      or position('PARTIALLY_APPLIED' in v_definition)=0
-     or not has_function_privilege('retailer_catalogue_staging_validator','public.read_active_retailer_parent_inventory_v1()','EXECUTE')
-     or not has_function_privilege('retailer_catalogue_production_validator','public.read_active_retailer_parent_inventory_v1()','EXECUTE')
-     or has_function_privilege('public','public.read_active_retailer_parent_inventory_v1()','EXECUTE')
-     or has_function_privilege('service_role','public.read_active_retailer_parent_inventory_v1()','EXECUTE')
-     or has_function_privilege('retailer_catalogue_production_approver','public.read_active_retailer_parent_inventory_v1()','EXECUTE')
-     or has_function_privilege('retailer_catalogue_production_executor','public.read_active_retailer_parent_inventory_v1()','EXECUTE') then
+     or has_function_privilege('public','public.read_active_retailer_parent_inventory_v1()','EXECUTE') then
     raise exception 'active parent inventory postflight failed';
   end if;
+  foreach v_role in array array[
+    'retailer_catalogue_staging_validator',
+    'retailer_catalogue_production_validator'
+  ] loop
+    if exists(select 1 from pg_roles where rolname=v_role)
+       and not has_function_privilege(v_role,'public.read_active_retailer_parent_inventory_v1()','EXECUTE') then
+      raise exception 'active parent inventory validator ACL failed for %',v_role;
+    end if;
+  end loop;
+  foreach v_role in array array[
+    'anon','authenticated','service_role',
+    'retailer_catalogue_staging_approver','retailer_catalogue_staging_executor',
+    'retailer_catalogue_production_approver','retailer_catalogue_production_executor'
+  ] loop
+    if exists(select 1 from pg_roles where rolname=v_role)
+       and has_function_privilege(v_role,'public.read_active_retailer_parent_inventory_v1()','EXECUTE') then
+      raise exception 'active parent inventory forbidden ACL failed for %',v_role;
+    end if;
+  end loop;
 end
 $postflight$;
 

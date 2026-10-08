@@ -328,8 +328,9 @@ test("active parent diagnostic is shared, read-only and validator-only", () => {
   assert.match(activeParentInventoryMigration, /current_setting\('transaction_read_only'\) <> 'on'/i);
   assert.match(activeParentInventoryMigration, /current_setting\('app\.safe_update', true\) is not null/i);
   assert.match(activeParentInventoryMigration, /where p\.status in \('PLANNED','APPROVED','PARTIALLY_APPLIED'\)/i);
-  assert.match(activeParentInventoryMigration, /grant execute on function public\.read_active_retailer_parent_inventory_v1\(\)[\s\S]+retailer_catalogue_staging_validator,retailer_catalogue_production_validator/i);
-  assert.match(activeParentInventoryMigration, /revoke all on function public\.read_active_retailer_parent_inventory_v1\(\)[\s\S]+service_role/i);
+  assert.match(activeParentInventoryMigration, /grant execute on function public\.read_active_retailer_parent_inventory_v1\(\) to %I/i);
+  assert.match(activeParentInventoryMigration, /revoke all on function public\.read_active_retailer_parent_inventory_v1\(\) from %I/i);
+  assert.match(activeParentInventoryMigration, /if exists\(select 1 from pg_roles where rolname=v_role\)/i);
   assert.doesNotMatch(activeParentInventoryMigration, /\b(?:insert|update|delete|truncate)\b\s+(?:into\s+|from\s+)?public\./i);
 });
 

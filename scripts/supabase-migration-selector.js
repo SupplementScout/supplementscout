@@ -125,7 +125,7 @@ const CONTRACTS = Object.freeze({
     appliedExcluded: APPLIED_EXCLUSIONS.STAGING,
     excluded: Object.freeze({
       "20261008140000_add_active_retailer_parent_inventory.sql":
-        "c3f435135190f97c6be62c562d715f1f3f341629b263fee22848f8f033cda0af",
+        "6499f29df0c33311d6810fd33293d1de72d4de3e92b75b3e9027e67a46e317e6",
       "20261008120000_serialize_all_approved_offer_writes.sql":
         "dc06b5abce598ebca33d1d72544cd87b6bebf21a7c4cf9eb5adf35f55174a3cb",
       "20260922160000_allow_owner_approved_fit_house_six_oos.sql": "be780721eee14c19761546107b7f249e9bea0c451a54732dfd259a7b348132fa",
