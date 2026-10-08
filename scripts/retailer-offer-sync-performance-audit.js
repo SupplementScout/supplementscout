@@ -16,6 +16,8 @@ const DEFAULT_OUTPUT = path.resolve(
 const SIGNATURES = Object.freeze([
   "public.execute_retailer_offer_sync_batch(jsonb)",
   "public.retailer_offer_sync_execute_batch_internal(jsonb)",
+  "public.retailer_offer_sync_execute_before_reviewed_mixed(jsonb)",
+  "public.retailer_offer_sync_execute_batch_unreviewed_internal(jsonb)",
   "public.retailer_offer_sync_validate_manifest(jsonb)",
   "public.validate_product_import_plan_read_only(jsonb)",
   "public.approve_product_import_plan(jsonb,text,text,text,timestamp with time zone)",
@@ -60,36 +62,40 @@ function summarizeFunction(row) {
 }
 
 function buildFindings(functions, settings, indexes) {
-  const executor = functions.find((row) =>
-    row.signature.includes("retailer_offer_sync_execute_batch_internal"),
+  const executorChain = functions.filter((row) =>
+    /retailer_offer_sync_execute_(?:batch_internal|before_reviewed_mixed|batch_unreviewed_internal)/.test(row.signature),
   );
-  invariant(executor?.found, "Current shared executor definition is unavailable");
+  invariant(executorChain.length === 3 && executorChain.every((row) => row.found), "Current shared executor chain is unavailable");
+  const total = (field) => executorChain.reduce((sum, row) => sum + row[field], 0);
+  const chainEvidence = {
+    function_signatures: executorChain.map((row) => row.signature),
+    json_row_loops: total("json_row_loops"),
+    validate_plan_calls: total("validate_plan_calls"),
+    approve_plan_calls: total("approve_plan_calls"),
+    apply_plan_calls: total("apply_plan_calls"),
+    row_state_calls: total("row_state_calls"),
+    business_count_calls: total("business_count_calls"),
+    other_retailer_fingerprint_calls: total("other_retailer_fingerprint_calls"),
+    protected_fingerprint_calls: total("protected_fingerprint_calls"),
+  };
   return [
     {
       code: "PER_ROW_APPROVE_APPLY",
-      proven: executor.approve_plan_calls > 0 && executor.apply_plan_calls > 0 && executor.json_row_loops >= 2,
-      evidence: {
-        json_row_loops: executor.json_row_loops,
-        approve_plan_calls: executor.approve_plan_calls,
-        apply_plan_calls: executor.apply_plan_calls,
-      },
+      proven: chainEvidence.approve_plan_calls > 0 && chainEvidence.apply_plan_calls > 0 && chainEvidence.json_row_loops >= 2,
+      evidence: chainEvidence,
     },
     {
       code: "REPEATED_ROW_STATE_READS",
-      proven: executor.row_state_calls > 2,
-      evidence: { row_state_calls_in_function_source: executor.row_state_calls },
+      proven: chainEvidence.row_state_calls > 2,
+      evidence: chainEvidence,
     },
     {
       code: "REPEATED_GLOBAL_SNAPSHOT_CHECKS",
       proven:
-        executor.business_count_calls >= 2 ||
-        executor.other_retailer_fingerprint_calls >= 2 ||
-        executor.protected_fingerprint_calls >= 2,
-      evidence: {
-        business_count_calls: executor.business_count_calls,
-        other_retailer_fingerprint_calls: executor.other_retailer_fingerprint_calls,
-        protected_fingerprint_calls: executor.protected_fingerprint_calls,
-      },
+        chainEvidence.business_count_calls >= 2 ||
+        chainEvidence.other_retailer_fingerprint_calls >= 2 ||
+        chainEvidence.protected_fingerprint_calls >= 2,
+      evidence: chainEvidence,
     },
     {
       code: "FUNCTION_TIMING_VISIBILITY",
@@ -151,6 +157,8 @@ async function collect(client) {
       [[
         "execute_retailer_offer_sync_batch",
         "retailer_offer_sync_execute_batch_internal",
+        "retailer_offer_sync_execute_before_reviewed_mixed",
+        "retailer_offer_sync_execute_batch_unreviewed_internal",
         "retailer_offer_sync_validate_manifest",
         "validate_product_import_plan_read_only",
         "approve_product_import_plan",

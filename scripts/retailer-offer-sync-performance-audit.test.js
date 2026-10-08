@@ -33,15 +33,13 @@ begin
 end $$`;
 
 test("shared audit identifies repeated work without claiming unavailable timing", () => {
-  const executor = summarizeFunction({
-    signature: SIGNATURES[1],
-    found: true,
-    language: "plpgsql",
-    volatility: "VOLATILE",
-    definition: EXECUTOR,
-  });
+  const executorChain = [
+    summarizeFunction({ signature: SIGNATURES[1], found: true, language: "plpgsql", volatility: "VOLATILE", definition: "create function wrapper() returns jsonb language sql as $$ select '{}'::jsonb $$" }),
+    summarizeFunction({ signature: SIGNATURES[2], found: true, language: "plpgsql", volatility: "VOLATILE", definition: "create function compatibility() returns jsonb language sql as $$ select '{}'::jsonb $$" }),
+    summarizeFunction({ signature: SIGNATURES[3], found: true, language: "plpgsql", volatility: "VOLATILE", definition: EXECUTOR }),
+  ];
   const findings = buildFindings(
-    [executor],
+    executorChain,
     { track_functions: "none" },
     ["offers", "retailer_products", "approved_import_plans"].map((table_name) => ({ table_name, is_primary: true })),
   );
@@ -52,7 +50,7 @@ test("shared audit identifies repeated work without claiming unavailable timing"
     ["FUNCTION_TIMING_VISIBILITY", false],
     ["PRIMARY_LOOKUP_INDEX_COVERAGE", true],
   ]);
-  assert.equal(executor.definition_sha256.length, 64);
+  assert.equal(executorChain[2].definition_sha256.length, 64);
 });
 
 test("audit uses the shared protected read-only role session and emits zero-write evidence", async () => {
