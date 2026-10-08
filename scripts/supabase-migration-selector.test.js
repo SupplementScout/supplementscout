@@ -443,9 +443,12 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the owner-decision bridge and postflight recovery as applied", () => {
+test("production records applied recovery state and one exact shared-validator migration pending", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: "20261008100000_align_shared_stable_oos_validation.sql",
+    sha256: "84037c898b7bc2cd3175783b43d213a601e8256b4cc6da3aba055b335a1f995b",
+  }]);
   assert.deepEqual(contract.appliedExcluded, [
     "20260929133000_extend_expired_sequential_plan_close.sql",
     "20261004120000_add_central_control_plan_readback.sql",
@@ -567,7 +570,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACT.ledgerFingerprint);
 });
 
-test("production accepts ledger 227 with the postflight recovery applied", () => {
+test("production accepts ledger 227 and selects only the pending shared-validator migration", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   for (const filename of contract.appliedExcluded) excluded.delete(filename);
@@ -596,7 +599,7 @@ test("production accepts ledger 227 with the postflight recovery applied", () =>
   });
   assert.equal(result.ledger_count, 227);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 227);
+  assert.equal(result.selected_files.length, 228);
   assert.ok(result.selected_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
   assert.ok(result.excluded_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
   assert.ok(result.selected_files.includes("20261004120000_add_central_control_plan_readback.sql"));
@@ -606,8 +609,13 @@ test("production accepts ledger 227 with the postflight recovery applied", () =>
   assert.ok(result.selected_files.includes("20261006170000_add_automation_review_owner_decision_validation.sql"));
   assert.ok(result.selected_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
   assert.ok(result.excluded_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.deepEqual(result.pending_files, [
+    "20261008100000_align_shared_stable_oos_validation.sql",
+  ]);
+  assert.deepEqual(result.pending_sha256s, {
+    "20261008100000_align_shared_stable_oos_validation.sql":
+      "84037c898b7bc2cd3175783b43d213a601e8256b4cc6da3aba055b335a1f995b",
+  });
   assert.ok(result.selected_files.includes(NUTRITION_CITRULLINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(NUTRITION_CREATINE_COMPONENTS_MIGRATION));
   assert.ok(result.selected_files.includes(JONS_INTERRUPTED_REFRESH_MIGRATION));
