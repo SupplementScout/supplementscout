@@ -1,0 +1,21 @@
+{
+  "evidence_type": "RA-STAB-01 active-parent inventory environment-role correction",
+  "status": "CODE_COMPLETE_NOT_DEPLOYED",
+  "date": "2026-10-08",
+  "rollback_only_rehearsal": {
+    "result": "FAILED_CLOSED_BEFORE_COMMIT",
+    "error": "retailer validator roles are missing",
+    "database_writes": 0,
+    "business_writes": 0,
+    "control_writes": 0
+  },
+  "correction": {
+    "migration": "20261008140000_add_active_retailer_parent_inventory.sql",
+    "superseded_sha256": "c3f435135190f97c6be62c562d715f1f3f341629b263fee22848f8f033cda0af",
+    "sha256": "6499f29df0c33311d6810fd33293d1de72d4de3e92b75b3e9027e67a46e317e6",
+    "behavior": "Require and grant only validator roles that exist in the target environment; deny every existing approver, executor and service role.",
+    "retailer_branch": false,
+    "business_or_control_dml": false
+  },
+  "next_gate": "Pass focused, quick/full and CI gates, then obtain exact authority for the corrected SHA before another production rehearsal or apply."
+}

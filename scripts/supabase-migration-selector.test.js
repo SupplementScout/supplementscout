@@ -448,7 +448,7 @@ test("production records the shared-validator migration as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.deepEqual(contract.pending, [{
     filename: "20261008140000_add_active_retailer_parent_inventory.sql",
-    sha256: "c3f435135190f97c6be62c562d715f1f3f341629b263fee22848f8f033cda0af",
+    sha256: "6499f29df0c33311d6810fd33293d1de72d4de3e92b75b3e9027e67a46e317e6",
   }]);
   assert.deepEqual(contract.appliedExcluded, [
     "20260929133000_extend_expired_sequential_plan_close.sql",
@@ -613,7 +613,7 @@ test("production accepts ledger 229 and selects only the active-parent inventory
   assert.deepEqual(result.pending_files, ["20261008140000_add_active_retailer_parent_inventory.sql"]);
   assert.deepEqual(result.pending_sha256s, {
     "20261008140000_add_active_retailer_parent_inventory.sql":
-      "c3f435135190f97c6be62c562d715f1f3f341629b263fee22848f8f033cda0af",
+      "6499f29df0c33311d6810fd33293d1de72d4de3e92b75b3e9027e67a46e317e6",
   });
   assert.ok(result.selected_files.includes(
     "20261008100000_align_shared_stable_oos_validation.sql",
@@ -718,7 +718,7 @@ test("production exclusions are exact and the approved identity foundation is se
   assert.equal(Object.keys(contract.excluded).length, 21);
   assert.deepEqual(contract.pending, [{
     filename: "20261008140000_add_active_retailer_parent_inventory.sql",
-    sha256: "c3f435135190f97c6be62c562d715f1f3f341629b263fee22848f8f033cda0af",
+    sha256: "6499f29df0c33311d6810fd33293d1de72d4de3e92b75b3e9027e67a46e317e6",
   }]);
   assert.equal(
     contract.excluded["20260929133000_extend_expired_sequential_plan_close.sql"],

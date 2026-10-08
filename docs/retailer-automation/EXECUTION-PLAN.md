@@ -2310,6 +2310,17 @@ Guardian gates pass. Production is unchanged. After green CI, deployment of
 the exact migration and one diagnostic read remain separate production gates.
 Evidence: [active-parent inventory preparation](evidence/RA-STAB-01-ACTIVE-PARENT-INVENTORY-PREPARATION-2026-10-08.json).
 
+The first production rollback-only rehearsal stopped before commit because its
+preflight incorrectly required both staging and production validator roles in
+one environment. Production has only the appropriate production role. No
+migration, business or control write occurred. The shared migration now grants
+and verifies only validator roles present in the target environment while
+denying every present approver, executor and service role. Its corrected
+SHA-256 is `6499f29df0c33311d6810fd33293d1de72d4de3e92b75b3e9027e67a46e317e6`;
+the prior hash is superseded and must not be deployed. A new exact owner
+authorization is required before another production rehearsal or apply.
+Evidence: [role-scope correction](evidence/RA-STAB-01-ACTIVE-PARENT-INVENTORY-ROLE-CORRECTION-2026-10-08.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

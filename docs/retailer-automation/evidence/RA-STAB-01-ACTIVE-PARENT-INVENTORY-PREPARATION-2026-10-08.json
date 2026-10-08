@@ -1,6 +1,6 @@
 {
   "evidence_type": "RA-STAB-01 shared active-parent inventory preparation",
-  "status": "CODE_COMPLETE_NOT_DEPLOYED",
+  "status": "SUPERSEDED_BEFORE_DEPLOYMENT",
   "date": "2026-10-08",
   "incident": {
     "source_run_id": 37804078924,
@@ -35,5 +35,6 @@
     "verify_project_before": "PASS",
     "diff_check": "PASS"
   },
-  "next_gate": "Merge after green CI, then separately authorize deployment of the exact migration hash and one control-diagnostic read."
+  "superseded_reason": "The production rollback-only rehearsal found that the first preflight incorrectly required both staging and production validator roles in one environment. No migration was committed.",
+  "next_gate": "Use the role-scoped correction evidence and its new exact SHA."
 }

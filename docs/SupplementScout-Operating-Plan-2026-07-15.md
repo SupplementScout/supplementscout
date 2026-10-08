@@ -740,6 +740,17 @@ can determine whether recovery or a shared startup-guard correction is needed.
 Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-ACTIVE-PARENT-INVENTORY-PREPARATION-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-ACTIVE-PARENT-INVENTORY-PREPARATION-2026-10-08.json).
 
+The authorized production rollback-only rehearsal then failed closed before
+commit: its preflight expected both staging and production validator roles in
+the same environment. No schema, catalogue or control write occurred. The
+environment-neutral correction now uses only validator roles present in the
+target and still denies approver, executor and service roles. The old hash is
+superseded; the corrected migration SHA-256 is
+`6499f29df0c33311d6810fd33293d1de72d4de3e92b75b3e9027e67a46e317e6`.
+Another production attempt requires exact authority for that corrected hash.
+Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-ACTIVE-PARENT-INVENTORY-ROLE-CORRECTION-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-ACTIVE-PARENT-INVENTORY-ROLE-CORRECTION-2026-10-08.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
