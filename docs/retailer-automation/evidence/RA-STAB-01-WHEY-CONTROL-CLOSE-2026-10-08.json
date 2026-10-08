@@ -1,0 +1,60 @@
+{
+  "schema_version": "ra-stab-01-whey-control-close-v1",
+  "recorded_at": "2026-10-08T14:51:58.971Z",
+  "task": "RA-STAB-01",
+  "status": "IN_PROGRESS",
+  "ordinary_interval_credit": "0/3",
+  "authorization": "One control-only close of the exact incomplete Whey Okay plan, preserving 11 applied children and closing only one unexecuted child; no retry, replay, re-execution, offer change or price-history change.",
+  "run": {
+    "run_id": "37795892851",
+    "head_sha": "3eb7a11573501001916a2d94a73245bc960b23ca",
+    "conclusion": "success",
+    "artifact_id": "11558228680",
+    "artifact_name": "retailer-control-recovery-37795892851-1",
+    "artifact_digest": "sha256:562426c6b9b16200f12bce604550ff789d93381c3211bb0a62ea25d0b236240c"
+  },
+  "scope": {
+    "retailer_id": "3",
+    "parent_plan_id": "73d7ef28-04ae-46b9-8ac2-69792f807546",
+    "expected_child_count": 12,
+    "approved_child_id": "2bb920b2-8784-4360-8440-986df4f4f019",
+    "preserved_applied_child_count": 11,
+    "closed_child_count": 1
+  },
+  "preflight": {
+    "kind": "EXPIRED_PARTIAL_SEQUENTIAL_PLAN",
+    "result": "READY_TO_CLOSE",
+    "fingerprint": "9e218e1ffe9cba559098b528c93f53f4ef3c3b057bdee5a7de326cbdc7fa7d88"
+  },
+  "result": {
+    "status": "SUPERSEDED",
+    "parent_status": "SUPERSEDED",
+    "closed_child_status": "SUPERSEDED",
+    "apply_runs_before_and_after": 11,
+    "close_calls": 1,
+    "automatic_retries": 0,
+    "control_writes": 3,
+    "business_writes": 0,
+    "price_history_writes": 0,
+    "request_fingerprint": "d77a23f905d9906874b3cd8aac0f2f4bcd7dce102fb52126ad0834e2b423679d",
+    "recovery_fingerprint": "149a87a588b29241cafe67568eb18547d32265ee7f228eac0c002f17684eb6f9"
+  },
+  "postflight_catalogue_counts": {
+    "products": 1337,
+    "product_variants": 3632,
+    "retailer_products": 3758,
+    "offers": 3758,
+    "price_history": 29577
+  },
+  "safety": {
+    "retry": false,
+    "replay": false,
+    "reexecution": false,
+    "offer_changes": 0,
+    "price_history_changes": 0,
+    "fit_house_job": "SKIPPED",
+    "ten_reps_job": "SKIPPED",
+    "review_queue_job": "SKIPPED"
+  },
+  "next_gate": "The stale Whey control blocker is cleared. Do not retry 10 Reps until its protected CSV feed is healthy. Verify Simply Supplements and Whey Okay through one fresh normal guarded run each without retry or replay, then keep code frozen and collect three natural intervals with read-only watchdog evidence."
+}
