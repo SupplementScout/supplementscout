@@ -26,6 +26,7 @@ on:
           - dry-run
           - apply
           - review-only
+          - control-discovery
           - control-preflight
           - control-recovery
       control_parent_plan_id:
@@ -65,7 +66,7 @@ concurrency:
 
 jobs:
   fit-house-offer-refresh:
-    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.operation != 'control-preflight' && inputs.operation != 'control-recovery' && (inputs.retailer == 'all' || inputs.retailer == 'fit-house'))) }}
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.operation != 'control-discovery' && inputs.operation != 'control-preflight' && inputs.operation != 'control-recovery' && (inputs.retailer == 'all' || inputs.retailer == 'fit-house'))) }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     environment: production-readonly
@@ -180,7 +181,7 @@ jobs:
           path: tmp/fit-house-offer-refresh/*.json
 
   ten-reps-offer-refresh:
-    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.operation != 'control-preflight' && inputs.operation != 'control-recovery' && (inputs.retailer == 'all' || inputs.retailer == '10reps'))) }}
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.operation != 'control-discovery' && inputs.operation != 'control-preflight' && inputs.operation != 'control-recovery' && (inputs.retailer == 'all' || inputs.retailer == '10reps'))) }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     environment: production-readonly
@@ -384,7 +385,7 @@ jobs:
           path: tmp/automation-review-reconciliation/*.json
 
   expired-control-plan-recovery:
-    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && (inputs.operation == 'control-preflight' || inputs.operation == 'control-recovery') }}
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && (inputs.operation == 'control-discovery' || inputs.operation == 'control-preflight' || inputs.operation == 'control-recovery') }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: production-readonly
@@ -402,12 +403,18 @@ jobs:
           test "$GITHUB_REF" = "refs/heads/main"
           test "$GITHUB_REPOSITORY" = "$EXPECTED_REPOSITORY"
           test "$GITHUB_EVENT_NAME" = "workflow_dispatch"
-          [[ "$PARENT_PLAN_ID" =~ ^[0-9a-fA-F-]{36}$ ]]
           [[ "$RETAILER_ID" =~ ^[0-9]+$ ]]
-          [[ "$EXPECTED_CHILD_COUNT" =~ ^[0-9]+$ ]]
-          if [ "$OPERATION" = "control-recovery" ]; then
+          if [ "$OPERATION" = "control-discovery" ]; then
+            test -z "$PARENT_PLAN_ID"
+            test -z "$EXPECTED_CHILD_COUNT"
+            test -z "$OWNER_CONFIRMATION"
+          elif [ "$OPERATION" = "control-recovery" ]; then
+            [[ "$PARENT_PLAN_ID" =~ ^[0-9a-fA-F-]{36}$ ]]
+            [[ "$EXPECTED_CHILD_COUNT" =~ ^[0-9]+$ ]]
             test "$OWNER_CONFIRMATION" = "OWNER_APPROVED_EXPIRED_CONTROL_CLOSE"
           else
+            [[ "$PARENT_PLAN_ID" =~ ^[0-9a-fA-F-]{36}$ ]]
+            [[ "$EXPECTED_CHILD_COUNT" =~ ^[0-9]+$ ]]
             test -z "$OWNER_CONFIRMATION"
           fi
 
@@ -426,7 +433,15 @@ jobs:
       - name: Test shared control recovery contract
         run: node --test scripts/retailer-control-plan-recovery.test.js
 
+      - name: Discover exact blocking control plan read-only
+        if: ${{ inputs.operation == 'control-discovery' }}
+        env:
+          RETAILER_CONTROL_OWNER_DATABASE_URL: ${{ secrets.SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL }}
+          RETAILER_ID: ${{ inputs.control_retailer_id }}
+        run: node scripts/retailer-control-plan-recovery.js --mode=discover --retailer-id="$RETAILER_ID" --output=tmp/retailer-control-recovery/discovery.json
+
       - name: Capture exact expired control plan read-only
+        if: ${{ inputs.operation != 'control-discovery' }}
         env:
           RETAILER_CONTROL_OWNER_DATABASE_URL: ${{ secrets.SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL }}
           PARENT_PLAN_ID: ${{ inputs.control_parent_plan_id }}

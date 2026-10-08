@@ -12,7 +12,7 @@ const {
 } = require("./supabase-migration-selector");
 
 const PRODUCTION = CONTRACTS.PRODUCTION;
-const MODES = new Set(["preflight", "close"]);
+const MODES = new Set(["discover", "preflight", "close"]);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const HEX64 = /^[0-9a-f]{64}$/;
 const CONFIRMATION = "OWNER_APPROVED_EXPIRED_CONTROL_CLOSE";
@@ -46,11 +46,23 @@ function parseArgs(argv) {
   }
   const mode = values.mode || "preflight";
   invariant(MODES.has(mode), `unsupported mode ${mode}`);
-  invariant(UUID.test(values["parent-plan-id"] || ""), "valid parent-plan-id is required");
   invariant(/^\d+$/.test(values["retailer-id"] || ""), "numeric retailer-id is required");
+  invariant(values.output, "output path is required");
+  if (mode === "discover") {
+    invariant(!values["parent-plan-id"] && !values["expected-child-count"] && !values.input && !values.confirm,
+      "discover accepts only retailer-id and output");
+    return {
+      mode,
+      parentPlanId: null,
+      retailerId: values["retailer-id"],
+      expectedChildCount: null,
+      input: null,
+      output: path.resolve(values.output),
+    };
+  }
+  invariant(UUID.test(values["parent-plan-id"] || ""), "valid parent-plan-id is required");
   const expectedChildCount = Number(values["expected-child-count"]);
   invariant(Number.isInteger(expectedChildCount) && expectedChildCount > 0 && expectedChildCount <= 100, "expected-child-count must be 1..100");
-  invariant(values.output, "output path is required");
   if (mode === "close") {
     invariant(values.input, "close mode requires an input preflight");
     invariant(values.confirm === CONFIRMATION, `close confirmation must equal ${CONFIRMATION}`);
@@ -65,6 +77,57 @@ function parseArgs(argv) {
     input: values.input ? path.resolve(values.input) : null,
     output: path.resolve(values.output),
   };
+}
+
+function buildDiscoveryReport(rows, options, databaseProof, now = new Date()) {
+  invariant(options.mode === "discover" && /^\d+$/.test(options.retailerId), "discovery scope is invalid");
+  invariant(Array.isArray(rows), "discovery rows are invalid");
+  const candidates = rows.map((row) => {
+    const candidate = {
+      parent_plan_id: String(row.parent_plan_id),
+      parent_plan_fingerprint: String(row.parent_plan_fingerprint),
+      status: String(row.parent_status),
+      approval_expires_at: row.approval_expires_at ? new Date(row.approval_expires_at).toISOString() : null,
+      approval_consumed_at: row.approval_consumed_at ? new Date(row.approval_consumed_at).toISOString() : null,
+      child_count: Number(row.child_count),
+      planned_child_count: Number(row.planned_child_count),
+      approved_child_count: Number(row.approved_child_count),
+      applying_child_count: Number(row.applying_child_count),
+      applied_child_count: Number(row.applied_child_count),
+      apply_run_count: Number(row.apply_run_count),
+    };
+    invariant(UUID.test(candidate.parent_plan_id) && HEX64.test(candidate.parent_plan_fingerprint), "discovered parent identity is invalid");
+    invariant(["PLANNED", "APPROVED", "PARTIALLY_APPLIED"].includes(candidate.status), "discovered parent status is invalid");
+    invariant(Number.isInteger(candidate.child_count) && candidate.child_count > 0 && candidate.child_count <= 100, "discovered child count is invalid");
+    for (const key of ["planned_child_count", "approved_child_count", "applying_child_count", "applied_child_count", "apply_run_count"])
+      invariant(Number.isInteger(candidate[key]) && candidate[key] >= 0, `discovered ${key} is invalid`);
+    invariant(candidate.planned_child_count + candidate.approved_child_count + candidate.applying_child_count + candidate.applied_child_count <= candidate.child_count,
+      "discovered child status counts are invalid");
+    return candidate;
+  });
+  invariant(new Set(candidates.map((row) => row.parent_plan_id)).size === candidates.length, "duplicate discovered parent identity");
+  const exactTarget = candidates.length === 1 ? {
+    retailer_id: options.retailerId,
+    parent_plan_id: candidates[0].parent_plan_id,
+    expected_child_count: candidates[0].child_count,
+  } : null;
+  return seal({
+    schema_version: "retailer-control-plan-discovery-v1",
+    kind: "READ_ONLY_BLOCKING_CONTROL_DISCOVERY",
+    result: candidates.length === 0 ? "CLEAR" : candidates.length === 1 ? "FOUND_EXACTLY_ONE" : "AMBIGUOUS",
+    generated_at: now.toISOString(),
+    target: {
+      environment: "PRODUCTION",
+      project_ref: PRODUCTION.projectRef,
+      database_identity: PRODUCTION.databaseIdentity,
+    },
+    scope: { retailer_id: options.retailerId },
+    candidate_count: candidates.length,
+    candidates,
+    exact_target: exactTarget,
+    database_proof: databaseProof,
+    accounting: { read_transactions: 1, automatic_retries: 0, close_calls: 0, control_writes: 0, business_writes: 0, price_history_writes: 0 },
+  });
 }
 
 function connectionString(kind) {
@@ -248,6 +311,39 @@ async function readSnapshot(options, dependencies) {
   }
 }
 
+async function discoverBlockingControls(options, dependencies) {
+  const client = dependencies.createClient(dependencies.connectionString("owner"), "retailer-control-recovery-discovery", true);
+  await client.connect();
+  try {
+    await client.query("begin isolation level repeatable read read only");
+    const db = await assertProduction(client);
+    const counts = await catalogueCounts(client);
+    const rows = (await client.query(`
+      select p.id::text parent_plan_id,p.parent_plan_fingerprint,p.status parent_status,
+             p.approval_expires_at,p.approval_consumed_at,
+             count(c.id)::int child_count,
+             count(c.id) filter(where c.status='PLANNED')::int planned_child_count,
+             count(c.id) filter(where c.status='APPROVED')::int approved_child_count,
+             count(c.id) filter(where c.status='APPLYING')::int applying_child_count,
+             count(c.id) filter(where c.status='APPLIED')::int applied_child_count,
+             (select count(*)::int from public.retailer_catalogue_apply_runs r where r.parent_plan_id=p.id) apply_run_count
+      from public.retailer_catalogue_parent_plans p
+      join public.retailer_catalogue_child_plans c on c.parent_plan_id=p.id
+      where p.retailer_id=$1::bigint and p.status in ('PLANNED','APPROVED','PARTIALLY_APPLIED')
+      group by p.id,p.parent_plan_fingerprint,p.status,p.approval_expires_at,p.approval_consumed_at,p.created_at
+      order by p.created_at,p.id
+    `, [options.retailerId])).rows;
+    await client.query("rollback");
+    const ledger = {
+      count: db.remoteLedger.length,
+      fingerprint: ledgerRowsFingerprint(db.remoteLedger, { targetEnvironment: "PRODUCTION" }),
+    };
+    return buildDiscoveryReport(rows, options, { catalogue_counts: counts, migration_ledger: ledger }, dependencies.now());
+  } finally {
+    await client.end();
+  }
+}
+
 function buildPreflight(snapshot, options, now = new Date()) {
   const recovery = validateRecoverable(snapshot, options, now);
   const controlStateFingerprint = sha256(canonicalJson(snapshot));
@@ -396,6 +492,11 @@ async function run(argv = process.argv.slice(2), overrides = {}) {
     now: () => new Date(),
     ...overrides,
   };
+  if (options.mode === "discover") {
+    const report = await discoverBlockingControls(options, dependencies);
+    writeJson(options.output, report);
+    return report;
+  }
   if (options.mode === "preflight") {
     const snapshot = await readSnapshot(options, dependencies);
     const report = buildPreflight(snapshot, options, dependencies.now());
@@ -426,6 +527,7 @@ if (require.main === module) run().then((result) => console.log(JSON.stringify(r
 
 module.exports = {
   CONFIRMATION,
+  buildDiscoveryReport,
   buildPreflight,
   closeRequest,
   parseArgs,

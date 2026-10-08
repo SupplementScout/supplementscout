@@ -4,6 +4,7 @@ const path = require("node:path");
 const test = require("node:test");
 const {
   CONFIRMATION,
+  buildDiscoveryReport,
   buildPreflight,
   closeRequest,
   parseArgs,
@@ -213,4 +214,44 @@ test("shared recovery CLI separates read-only preflight from one confirmed close
   assert.equal(parseArgs(["--mode=preflight", ...common, "--output=tmp/preflight.json"]).mode, "preflight");
   assert.throws(() => parseArgs(["--mode=close", ...common, "--input=tmp/preflight.json", "--output=tmp/result.json"]), /confirmation/);
   assert.equal(parseArgs(["--mode=close", ...common, "--input=tmp/preflight.json", "--output=tmp/result.json", `--confirm=${CONFIRMATION}`]).mode, "close");
+});
+
+test("shared discovery accepts only a retailer identity and returns one exact no-write target", () => {
+  const workflow = fs.readFileSync(path.join(__dirname, "../.github/workflows/fit-house-offer-refresh.yml"), "utf8");
+  assert.equal((workflow.match(/inputs\.operation != 'control-discovery'/g) || []).length, 3);
+  assert.match(workflow, /--mode=discover --retailer-id="\$RETAILER_ID"/);
+  const options = parseArgs(["--mode=discover", "--retailer-id=3", "--output=tmp/discovery.json"]);
+  assert.equal(options.parentPlanId, null);
+  assert.throws(() => parseArgs(["--mode=discover", "--retailer-id=3", `--parent-plan-id=${recoveryOptions.parentPlanId}`, "--output=tmp/discovery.json"]), /accepts only/);
+  const report = buildDiscoveryReport([{
+    parent_plan_id: recoveryOptions.parentPlanId,
+    parent_plan_fingerprint: "a".repeat(64),
+    parent_status: "APPROVED",
+    approval_expires_at: "2026-10-08T09:30:00.000Z",
+    approval_consumed_at: null,
+    child_count: 12,
+    planned_child_count: 11,
+    approved_child_count: 1,
+    applying_child_count: 0,
+    applied_child_count: 0,
+    apply_run_count: 0,
+  }], options, { catalogue_counts: {}, migration_ledger: { count: 229, fingerprint: "f".repeat(64) } }, recoveryNow);
+  assert.equal(report.result, "FOUND_EXACTLY_ONE");
+  assert.deepEqual(report.exact_target, { retailer_id: "3", parent_plan_id: recoveryOptions.parentPlanId, expected_child_count: 12 });
+  assert.deepEqual(report.accounting, { read_transactions: 1, automatic_retries: 0, close_calls: 0, control_writes: 0, business_writes: 0, price_history_writes: 0 });
+});
+
+test("shared discovery reports clear and ambiguous state without selecting a target", () => {
+  const options = parseArgs(["--mode=discover", "--retailer-id=3", "--output=tmp/discovery.json"]);
+  const proof = { catalogue_counts: {}, migration_ledger: { count: 229, fingerprint: "f".repeat(64) } };
+  assert.equal(buildDiscoveryReport([], options, proof, recoveryNow).result, "CLEAR");
+  const row = {
+    parent_plan_id: recoveryOptions.parentPlanId, parent_plan_fingerprint: "a".repeat(64), parent_status: "APPROVED",
+    approval_expires_at: "2026-10-08T09:30:00.000Z", approval_consumed_at: null, child_count: 2,
+    planned_child_count: 1, approved_child_count: 1, applying_child_count: 0, applied_child_count: 0, apply_run_count: 0,
+  };
+  const second = { ...row, parent_plan_id: "11111111-1111-4111-8111-111111111111", parent_plan_fingerprint: "b".repeat(64) };
+  const report = buildDiscoveryReport([row, second], options, proof, recoveryNow);
+  assert.equal(report.result, "AMBIGUOUS");
+  assert.equal(report.exact_target, null);
 });
