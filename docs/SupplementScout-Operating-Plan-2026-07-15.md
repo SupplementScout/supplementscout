@@ -794,6 +794,18 @@ a regression, not a Whey-specific branch. RA-STAB-01 remains `IN_PROGRESS` at
 `0/3`. Evidence:
 [`docs/retailer-automation/evidence/RA-STAB-01-WHEY-FRESH-RUN-PARTIAL-TIMEOUT-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-WHEY-FRESH-RUN-PARTIAL-TIMEOUT-2026-10-08.json).
 
+Owner-authorized control-only run `37821360235` subsequently preserved the six
+completed Whey children, six successful apply runs and all `291` freshness
+confirmations while superseding only the six expired unexecuted children. It
+made one close call, eight control writes, zero business or price-history
+writes, and performed no retry or replay. Exact postflight marked parent
+`8983b5cd-c70a-4baa-9f40-1198beda6fc0` `SUPERSEDED`, closed the unused approval
+and preserved counts at `1337/3632/3758/3758/29578`. The stale plan no longer
+blocks other retailers. The next bounded task is a common timeout/progress
+correction with a regression test before another ordinary Whey run; no Whey-only
+branch is authorized. RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence:
+[`docs/retailer-automation/evidence/RA-STAB-01-WHEY-PARTIAL-PLAN-CLOSE-2026-10-08.json`](retailer-automation/evidence/RA-STAB-01-WHEY-PARTIAL-PLAN-CLOSE-2026-10-08.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

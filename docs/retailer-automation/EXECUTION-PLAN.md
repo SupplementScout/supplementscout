@@ -2369,6 +2369,19 @@ by a shared timeout/progress diagnostic and regression rather than a Whey-only
 exception. This forced failure gives no natural interval credit; RA-STAB-01
 remains `IN_PROGRESS` at `0/3`. Evidence: [Whey partial-timeout readback](evidence/RA-STAB-01-WHEY-FRESH-RUN-PARTIAL-TIMEOUT-2026-10-08.json).
 
+The owner-authorized exact control-only close then passed in run `37821360235`.
+It preserved all six applied children, their six successful apply runs, six
+ready recovery records and all `291` freshness confirmations. It superseded
+only the expired unexecuted suffix: one approved child plus five planned
+children. The single close call made eight control writes, zero business or
+price-history writes and no retry or replay. Postflight marked the parent
+`SUPERSEDED`, closed the unused approval and preserved catalogue and business
+price-history counts at `1337/3632/3758/3758/29578`. The next gate is a shared
+timeout/progress correction with an incident regression before any further
+ordinary Whey run; no retailer-specific exception is authorized. This manual
+close gives no natural interval credit, so RA-STAB-01 remains `IN_PROGRESS` at
+`0/3`. Evidence: [Whey partial-plan close](evidence/RA-STAB-01-WHEY-PARTIAL-PLAN-CLOSE-2026-10-08.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

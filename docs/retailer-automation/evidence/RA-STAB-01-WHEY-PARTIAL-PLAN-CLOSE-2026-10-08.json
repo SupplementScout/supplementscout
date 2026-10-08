@@ -1,0 +1,58 @@
+{
+  "schema_version": "ra-stab-01-whey-partial-plan-close-v1",
+  "recorded_at": "2026-10-08T18:04:17.526Z",
+  "task": "RA-STAB-01",
+  "status": "IN_PROGRESS",
+  "authorization": "One control-only close of expired partially applied Whey Okay plan 8983b5cd-c70a-4baa-9f40-1198beda6fc0 for retailer 3, preserving six applied children and 291 confirmations and closing only six unexecuted children, with no retry, replay, offer or price-history change.",
+  "run": {
+    "id": 37821360235,
+    "url": "https://github.com/SupplementScout/supplementscout/actions/runs/37821360235",
+    "commit": "d9d2681ad2cb19a5997758583ac8e1c6d012e220",
+    "conclusion": "success",
+    "artifact": "retailer-control-recovery-37821360235-1",
+    "artifact_id": 11569023411,
+    "preflight_sha256": "495385e8669e1f7cfbca4ae7c7483a49a4e5eb5416e97e1ea0faedc0f643ac75",
+    "result_sha256": "f8ca229ac2a2f3471d3e3507a3a52b4b5b2658876cf3af3f17fcbbd8f22673e9"
+  },
+  "scope": {
+    "retailer_id": 3,
+    "retailer_name": "Whey Okay",
+    "parent_plan_id": "8983b5cd-c70a-4baa-9f40-1198beda6fc0",
+    "expected_child_count": 12,
+    "approved_child_id": "f20d57fb-ea99-4995-b1bd-826b6c18c164",
+    "approval_id": "d2c579a9-ef22-450b-93d7-0d614b4c9e17",
+    "preflight_fingerprint": "d41f8dcffdf50202fc926f97449f1c720fba5304c187d9320ad33b9713338aa1"
+  },
+  "result": {
+    "parent_status": "SUPERSEDED",
+    "preserved_applied_child_count": 6,
+    "preserved_freshness_confirmations": 291,
+    "closed_child_count": 6,
+    "superseded_child_count": 6,
+    "planned_child_count": 5,
+    "approved_child_count": 1,
+    "apply_runs_preserved": 6,
+    "recovery_records_preserved": 6,
+    "approval_consumed": false,
+    "approval_closed": true,
+    "already_closed": false,
+    "close_calls": 1,
+    "automatic_retries": 0,
+    "retry_or_replay": false,
+    "control_writes": 8,
+    "business_writes": 0,
+    "price_history_writes": 0,
+    "request_fingerprint": "fb7d52bdc3e1340fa3c79f37f7146169dc4971d9909ecee69fa3c5ea3b30f1f2",
+    "recovery_fingerprint": "a96234d9b2211c7dc5b53709e4a148378e231830986c303620b4c8baa47e993f"
+  },
+  "postflight": {
+    "products": 1337,
+    "product_variants": 3632,
+    "retailer_products": 3758,
+    "offers": 3758,
+    "business_price_history": 29578,
+    "catalogue_counts_preserved": true
+  },
+  "next_gate": "Prepare one shared timeout/progress correction with a regression test. Do not start another Whey Okay run until that common correction is reviewed, merged and separately authorized for production validation.",
+  "natural_interval_credit": "0/3; the manual control close gives no interval credit"
+}
