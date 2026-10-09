@@ -5,6 +5,18 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
+**9 October 2026 SEO-15 monitoring activation:** the daily read-only audit and
+authenticated candidate monitor are active. Scheduled run `37948016384` passed
+with 813 series, 26,007 linked observations and zero writes. The shared
+inventory query was optimized globally and deployed at production ledger `236`,
+fingerprint
+`30c5be960a05c77a710cead483dfb84812e758c7872b0b9a6abd938021d72a5b`.
+PR `#325` corrected shared delivered-price addition to exact pennies; full CI
+run `37954720951` passed. Live authenticated postflight shows two verified and
+released Jon's candidates (`1337`, `1339`), zero awaiting retailer approval and
+no inventory error. Public `/deals` remains unchanged and the Stage 3 flag is
+off. No offer, product, identity or price-history data was changed.
+
 **9 October 2026 SEO-15 production schema checkpoint:** both reviewed Stage 3
 migrations passed rollback rehearsal, were applied to production and passed an
 independent read-only postflight at ledger `235`, fingerprint
@@ -4758,12 +4770,14 @@ Target experience:
 
 ### Current active task
 
-`SEO-15` remains the binding task. Its shared automatic candidate inventory is
-implemented, merged and production-verified at ledger `235`. Jon's is the only
-source released for eventual publication. Candidates from other
-already-enabled eligible sources remain read-only discovery until a separate
-owner decision. Keep public release off while the read-only monitor and daily
-audit are enabled and verified as the next controlled step. No new producer,
+`SEO-15` remains the binding task. Its shared automatic candidate inventory,
+daily read-only audit and authenticated monitor are active and
+production-verified at ledger `236`. Jon's is the only source released for
+eventual publication. The live inventory is `2` verified, `2` released and `0`
+awaiting approval, below the unchanged public readiness gate of 12 products,
+30 offers and 4 retailers. Candidates from other already-enabled eligible
+sources remain read-only discovery until a separate owner decision. Keep
+public release off while ordinary daily evidence accumulates. No new producer,
 history backfill or product-identity change is allowed. `SEO-16` is complete
 and `LIVE VERIFIED`.
 The following paragraphs retain the historical producer rollout evidence.
@@ -4897,10 +4911,12 @@ publication.
 
 ### Next task
 
-Enable and verify the read-only admin monitor and variable-gated daily audit
-for the production-verified automatic `SEO-15` Stage 3 candidate inventory.
-Keep the public price-drop flag off until that monitoring control passes and a
-separate final release decision is recorded. The overdue
+The read-only admin monitor and variable-gated daily audit for the
+production-verified automatic `SEO-15` Stage 3 candidate inventory are enabled
+and verified. Keep the public price-drop flag off while the existing daily job
+accumulates genuine evidence; the current two candidates do not meet the
+unchanged `12 products / 30 offers / 4 retailers` readiness gate, and a
+separate final release decision remains required. The overdue
 30-day read-only audit completed 9 October in
 run `37927290755`: 813 series, 26,007 linked observations and zero database
 writes. The existing two-offer Jon's canary remains the audited foundation,
