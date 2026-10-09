@@ -123,7 +123,10 @@ jobs:
           console.log(`- Pending owner decisions: ${audit?.pending_owner_decision_count ?? "unknown"}`);
           console.log(`- Review attention: ${audit?.review_attention_count ?? "unknown"}`);
           console.log(`- System failures: ${audit?.system_failure_count ?? "unknown"}`);
+          console.log(`- Queue result: ${batch?.result || "NO_BATCH"}`);
           console.log(`- Queue processed: ${batch?.processed ?? 0}`);
+          console.log(`- Safely rejected stale decisions: ${batch?.safe_revalidation?.length ?? 0}`);
+          console.log(`- Queue system failures: ${batch?.failed?.length ?? 0}`);
           console.log(`- Database writes: ${batch?.database_writes ?? 0}`);
           NODE
       - name: Upload execution evidence

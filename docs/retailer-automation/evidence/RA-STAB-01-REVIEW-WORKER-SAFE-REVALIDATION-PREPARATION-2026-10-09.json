@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "evidence_type": "RA-STAB-01 Review Queue safe revalidation status preparation",
+  "status": "PREPARED_NOT_DEPLOYED",
+  "date": "2026-10-09",
+  "task": "RA-STAB-01",
+  "incident": {
+    "workflow_run_id": 37940227059,
+    "workflow": "Automation Review Queue Worker",
+    "event": "schedule",
+    "commit": "c6054cf115405c155a0747acadb4ee3740c6d543",
+    "batch_result": "FAIL",
+    "processed": 5,
+    "completed": 0,
+    "reported_failed": 5,
+    "error_counts": {
+      "REVIEW_EVIDENCE_EXPIRED": 4,
+      "REVIEW_BINDING_DRIFT": 1
+    },
+    "catalogue_writes": 0,
+    "cause": "the outer batch classified every safely handled request exception as a system failure even after the retailer worker recorded a terminal EXPIRED disposition"
+  },
+  "prepared_correction": {
+    "shared_runtime": "scripts/automation-review-queue-worker.js",
+    "workflow": ".github/workflows/automation-review-queue-worker.yml",
+    "safe_result": "PASS_WITH_REVIEW",
+    "safe_revalidation_requirements": [
+      "closed drift, expiry, revalidation, binding, evidence, outside, forbidden, missing or scope error code",
+      "zero catalogue writes",
+      "independent control readback returns exactly EXPIRED"
+    ],
+    "system_failure_conditions_preserved": [
+      "unknown or unsafe error code",
+      "nonzero catalogue writes",
+      "missing, unreadable or non-EXPIRED request disposition"
+    ],
+    "retailer_specific_conditions_added": 0,
+    "new_executor_or_writer": false,
+    "retry_or_replay": false,
+    "guardrails_weakened": false
+  },
+  "verification": {
+    "incident_regression": "PASS: exact five request IDs produce PASS_WITH_REVIEW, five safe revalidations, zero failures and zero catalogue writes",
+    "focused_test": "PASS",
+    "verify_quick": "PASS",
+    "verify_project_before_documentation": "PASS",
+    "verify_full": "PASS"
+  },
+  "production_state": {
+    "deployed": false,
+    "production_requests_changed_by_preparation": 0,
+    "catalogue_writes_by_preparation": 0,
+    "ordinary_interval_counter": "0/3"
+  },
+  "next_gate": "Merge after green CI, then inspect the next natural scheduled worker evidence; do not retry or replay expired requests."
+}

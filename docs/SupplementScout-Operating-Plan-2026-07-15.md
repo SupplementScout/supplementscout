@@ -24,6 +24,18 @@ not erase scheduled history, so RA-STAB-01 remains `IN_PROGRESS` at `0/3` until
 three consecutive ordinary schedule intervals pass. See the [live readback
 evidence](retailer-automation/evidence/RA-STAB-01-SHARED-AGGREGATE-REVIEW-PARTITION-PREPARATION-2026-10-09.json).
 
+**9 October 2026 Review Queue worker status correction:** scheduled run
+`37940227059` safely rejected five stale eBay execution requests (`4`
+`REVIEW_EVIDENCE_EXPIRED`, `1` `REVIEW_BINDING_DRIFT`) with zero catalogue
+writes, but the batch wrapper incorrectly rendered those verified expiries as a
+system failure. The prepared retailer-neutral correction reports a green
+`PASS_WITH_REVIEW` only after the worker has written and independently read back
+the exact request status `EXPIRED`; any non-revalidation error, unconfirmed
+disposition or nonzero catalogue write remains red. The exact five-request
+incident regression and `verify:quick` pass. No retry, replay, decision change,
+retailer branch or guard relaxation is included. See the [preparation
+evidence](retailer-automation/evidence/RA-STAB-01-REVIEW-WORKER-SAFE-REVALIDATION-PREPARATION-2026-10-09.json).
+
 **9 October 2026 SEO-15 monitoring activation:** the daily read-only audit and
 authenticated candidate monitor are active. Scheduled run `37948016384` passed
 with 813 series, 26,007 linked observations and zero writes. The shared

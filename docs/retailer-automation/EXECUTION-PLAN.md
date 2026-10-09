@@ -2723,6 +2723,29 @@ next gate is three consecutive ordinary scheduled intervals with correlated
 watchdog and database evidence; no retry, replay or historical-plan resume is
 opened.
 
+The latest scheduled Automation Review Queue worker run `37940227059` exposed
+one remaining common monitoring defect. All five selected eBay requests failed
+closed before catalogue writes: four carried expired review evidence and one
+had binding drift. Their retailer workers moved the requests to `EXPIRED`, but
+the outer batch treated every caught request exception as a system failure and
+made the workflow red. This contradicted the established three-state monitoring
+contract: a safely rejected stale owner decision is review outcome, not system
+failure.
+
+The prepared shared correction separates verified safe revalidation from real
+batch failure. It accepts only closed drift/expiry/revalidation/binding/evidence/
+scope error codes with zero catalogue writes, and then independently reads the
+request back as exactly `EXPIRED`. Only that bounded combination becomes
+`PASS_WITH_REVIEW`; missing or different disposition, an unknown error, or any
+catalogue write remains `FAIL` and exits nonzero. The GitHub summary exposes
+queue result, safe rejection count and system failure count separately. The
+regression reproduces the exact five production request IDs and error split.
+Focused testing and `verify:quick` pass. No retailer condition, retry, replay,
+approval, executor, writer, credential or guard change is introduced. This
+preparation earns no ordinary interval credit; RA-STAB-01 remains `IN_PROGRESS`
+at `0/3`. Evidence: [Review Queue safe-revalidation status
+preparation](evidence/RA-STAB-01-REVIEW-WORKER-SAFE-REVALIDATION-PREPARATION-2026-10-09.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
