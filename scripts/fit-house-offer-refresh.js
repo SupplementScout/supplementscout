@@ -8,7 +8,7 @@ const {readShopifySnapshot,projectShopifyVariants,sha256}=require("./lib/shopify
 const {readDolphinSnapshot}=require("./dolphin-vegan-protein-feed");
 const {readWooCommerceMappedSnapshot}=require("./lib/woocommerce-mapped-snapshot-reader");
 const {readCsvProductFeed}=require("./lib/csv-product-feed-reader");
-const {classifyExistingOffers,partitionExecutableRows}=require("./lib/retailer-offer-sync/classifier");
+const {classifyExistingOffers,isolateAggregateRiskRows,partitionExecutableRows}=require("./lib/retailer-offer-sync/classifier");
 const {sealArtifact}=require("./lib/retailer-offer-sync/artifacts");
 const {buildVerifiedNoChangePlan}=require("./verified-no-change-offer-refresh");
 const {buildExistingOfferUpdatePlan}=require("./lib/retailer-offer-sync/existing-offer-plan");
@@ -70,10 +70,7 @@ function enforceConfirmationOnly(run,setting){
   "confirmation-only execution scope changed; no registration or write authorized");
 }
 function isolateAggregatePriceChanges(classification){
-  invariant(classification?.reason==="MASS_PRICE"&&Array.isArray(classification.rows),"MASS_PRICE isolation requires a blocked aggregate classification");
-  const held=classification.rows.filter(row=>Boolean(row.changed_fields?.price));
-  invariant(held.length>0,"MASS_PRICE isolation found no price rows");
-  return{...classification,state:"DRY_RUN_READY_WITH_REVIEW",reason:null,rows:classification.rows.filter(row=>!row.changed_fields?.price),quarantined_rows:[...(classification.quarantined_rows||[]),...held.map(row=>({...row,reason:"MASS_PRICE"}))]};
+  return isolateAggregateRiskRows(classification);
 }
 function normalizeExactScopeRows(rows){return rows.map(row=>({mapping_id:String(row.mapping_id),offer_id:String(row.offer_id),external_product_id:String(row.external_product_id),external_variant_id:String(row.external_variant_id),canonical_product_id:String(row.canonical_product_id),canonical_variant_id:String(row.canonical_variant_id)}))}
 function effectiveOfferPolicy(){return{...config.guardrails,required_matched_offers:config.approved_mapping_count,store_url:config.store_url}}
@@ -417,12 +414,14 @@ function loadReviewedMassOosManifest(){
   return{manifest,sha256:actual};
 }
 
-function authorizeReviewedMassOos(classification,sourceFingerprint){
+function authorizeReviewedMassOos(classification,sourceFingerprint,{isolateUnsafe=false}={}){
   if(classification.state!=="BLOCKED"||classification.reason!=="MASS_OOS")return{classification,review:null};
   if(config.reviewed_mass_oos_enabled===false)return{classification,review:null};
   const reviewed=loadReviewedMassOosManifest();
+  if(isolateUnsafe&&sourceFingerprint!==reviewed.manifest.source_snapshot_fingerprint)return{classification,review:null};
   invariant(sourceFingerprint===reviewed.manifest.source_snapshot_fingerprint,"reviewed mass OOS source fingerprint drift");
   const rows=classification.rows.filter(row=>row.target.in_stock&&!row.source.in_stock).map(row=>({offer_id:String(row.offer_id),mapping_id:String(row.retailer_product_id),external_product_id:String(row.external_product_id),external_variant_id:String(row.external_variant_id),action:row.action,old_price:money(row.target.price),new_price:money(row.source.price),old_stock:true,new_stock:false}));
+  if(isolateUnsafe&&canonicalHash(rows)!==canonicalHash(reviewed.manifest.rows))return{classification,review:null};
   invariant(canonicalHash(rows)===canonicalHash(reviewed.manifest.rows),"reviewed mass OOS scope drift");
   return{classification:{...classification,state:"DRY_RUN_READY",reason:null,action:"REVIEWED_MASS_OOS"},review:{manifest_sha256:reviewed.sha256,authorized_by:reviewed.manifest.authorized_by,authorized_at:reviewed.manifest.authorized_at,row_count:reviewed.manifest.row_count,source_snapshot_fingerprint:sourceFingerprint}};
 }
@@ -464,7 +463,7 @@ function requireAuditedMissingOwnerApproval(auditedMissing,reconciled,classifica
   if(isExactOwnerBoundAuditedMissingReview(auditedMissing,reconciled,classification,reviewed))return;
   throw new RefreshError("OWNER_OOS_APPROVAL_REQUIRED","new Fit House OOS transitions from audited missing-source evidence require an exact owner-bound reviewed contract","OWNER_APPROVAL",{audited_manifest_sha256:reconciled.manifest_sha256,review_status:reconciled.review_status,new_unavailable_count:Number(reconciled.newUnavailableCount),classifier_state:classification.state,classifier_reason:classification.reason||null,artifacts_created:0,registration_attempted:false});
 }
-function authorizeOwnerApprovedSixStockOnly(classification,ownerApprovedSix){
+function authorizeOwnerApprovedSixStockOnly(classification,ownerApprovedSix,{isolateUnsafe=false}={}){
   if(!ownerApprovedSix)return classification;
   const approved=new Set(ownerApprovedSix.approved_rows.map(row=>row.offer_id)),rows=classification.rows||[],deferredByOffer=new Map(ownerApprovedSix.isolation.deferred_rows.map(row=>[row.offer_id,row]));
   const selected=rows.filter(row=>approved.has(String(row.offer_id))),allChanged=rows.filter(row=>row.action!=="VERIFY_NO_CHANGE");
@@ -485,16 +484,25 @@ function authorizeOwnerApprovedSixStockOnly(classification,ownerApprovedSix){
       &&row.action==="VERIFY_NO_CHANGE"&&money(row.target.price)===expected.price&&money(row.source.price)===expected.price
       &&row.target.in_stock===row.source.in_stock&&!row.changed_fields?.price&&!row.changed_fields?.stock&&!row.changed_fields?.url&&!row.changed_fields?.blocked;
   });
-  const exact=rows.length===config.approved_mapping_count&&selected.length===6
-    &&allChanged.length===ownerApprovedSix.authorizedChangeCount+deferredChanged.length
-    &&changed.length===ownerApprovedSix.authorizedChangeCount
+  const selectedScopeExact=selected.length===6&&changed.length===ownerApprovedSix.authorizedChangeCount
     &&exactDeferred&&exactStableDeferred
-    &&allChanged.every(row=>String(row.offer_id)===returnedOfferId||deferredByOffer.has(String(row.offer_id)))
     &&selected.every(row=>String(row.offer_id)===returnedOfferId
       ? row.action==="VERIFY_NO_CHANGE"
         ? row.target.in_stock===true&&row.source.in_stock===true&&!row.changed_fields?.price&&!row.changed_fields?.stock&&!row.changed_fields?.url
         : row.action==="UPDATE_STOCK"&&row.target.in_stock===false&&row.source.in_stock===true&&row.changed_fields?.stock===true&&!row.changed_fields?.price&&!row.changed_fields?.url
       : row.action==="VERIFY_NO_CHANGE"&&row.target.in_stock===false&&row.source.in_stock===false&&!row.changed_fields?.price&&!row.changed_fields?.stock&&!row.changed_fields?.url);
+  if(isolateUnsafe&&ownerApprovedSix.authorizedChangeCount===0&&selectedScopeExact){
+    const deferredIds=new Set(deferredChanged.map(row=>String(row.offer_id)));
+    const remaining=rows.filter(row=>!deferredIds.has(String(row.offer_id)));
+    const unrelatedChanged=remaining.filter(row=>row.action!=="VERIFY_NO_CHANGE");
+    return{...classification,state:unrelatedChanged.length?classification.state:"DRY_RUN_READY_WITH_REVIEW",reason:unrelatedChanged.length?classification.reason:null,rows:remaining,quarantined_rows:[...(classification.quarantined_rows||[]),...deferredChanged.map(row=>({...row,reason:"OWNER_DEFERRED_STOCK_REVIEW"}))],deferred_changed_offer_ids:[...deferredIds]};
+  }
+  const exact=rows.length===config.approved_mapping_count&&selected.length===6
+    &&allChanged.length===ownerApprovedSix.authorizedChangeCount+deferredChanged.length
+    &&changed.length===ownerApprovedSix.authorizedChangeCount
+    &&exactDeferred&&exactStableDeferred
+    &&allChanged.every(row=>String(row.offer_id)===returnedOfferId||deferredByOffer.has(String(row.offer_id)))
+    &&selectedScopeExact;
   if(!(classification.reason==="MASS_OOS"&&exact))
     throw new RefreshError("FIT_HOUSE_ISOLATION_SCOPE_MISMATCH","Fit House returned-offer isolation scope mismatch","CLASSIFIER",{classifier:classificationDiagnostic(classification),approved_offer_ids:[...approved],authorized_return_offer_id:returnedOfferId,authorized_deferred_offer_ids:[...deferredByOffer.keys()],registration_attempted:false});
   const isolated=deferredChanged.map(row=>({...row,reason:"OWNER_DEFERRED_STOCK_REVIEW"}));
@@ -644,12 +652,12 @@ async function buildRun(target,state,diagnostic=null,reviewed=null,isolateUnsafe
   const classifiedRaw=reviewed?.classify
     ? reviewed.classify({targets,sourceVariants:reconciled.sourceVariants,sourceCapturedAt:capturedAt,sourceFingerprint:snapshot.semantic_source_fingerprint})
     : classifyExistingOffers({targets,sourceVariants:reconciled.sourceVariants,policy,guardScope:{name:config.guard_scope_name,retailer:config.retailer_name},sourceCapturedAt:capturedAt,now:new Date(capturedAt),sourceProductCount:snapshot.products.length,previousSourceProductCount:config.source_baseline.product_count,quarantineUnsafeRows:isolateUnsafe});
-  const classified=reviewed?classifiedRaw:authorizeOwnerApprovedSixStockOnly(authorizeOwnerApprovedMissingVariant(classifiedRaw,ownerApprovedMissing?{...ownerApprovedMissing,newUnavailableCount:legacyApprovedNewUnavailableCount}:null),ownerApprovedSix);
+  const classified=reviewed?classifiedRaw:authorizeOwnerApprovedSixStockOnly(authorizeOwnerApprovedMissingVariant(classifiedRaw,ownerApprovedMissing?{...ownerApprovedMissing,newUnavailableCount:legacyApprovedNewUnavailableCount}:null),ownerApprovedSix,{isolateUnsafe});
   let massOosAuthorization;
   if(auditedMissing){
     requireAuditedMissingOwnerApproval(auditedMissing,reconciled,classified,reviewed,ownerApprovedMissing);
     massOosAuthorization={classification:classified,review:null};
-  }else massOosAuthorization=authorizeReviewedMassOos(classified,snapshot.semantic_source_fingerprint);
+  }else massOosAuthorization=authorizeReviewedMassOos(classified,snapshot.semantic_source_fingerprint,{isolateUnsafe});
   let classification=massOosAuthorization.classification;
   let automaticPriceConfirmation=null;
   if(!reviewed&&isolateUnsafe){
@@ -673,7 +681,7 @@ async function buildRun(target,state,diagnostic=null,reviewed=null,isolateUnsafe
       }
       const confirmedPriceOfferIds=(config.retailer_id===7?(classification.rows||[]).filter(row=>Boolean(row.changed_fields?.price)).map(row=>String(row.offer_id)):hardPriceOfferIds).sort((a,b)=>Number(a)-Number(b));
       if(confirmedPriceOfferIds.length)automaticPriceConfirmation={kind:config.retailer_id===7?"retailer-two-capture-price-confirmation-v2":"retailer-two-capture-price-confirmation-v1",retailer_id:String(config.retailer_id),retailer_slug:config.retailer_slug,first_source_fingerprint:snapshot.semantic_source_fingerprint,second_source_fingerprint:secondSnapshot.semantic_source_fingerprint,first_mapped_fingerprint:firstMappedFingerprint,second_mapped_fingerprint:secondMappedFingerprint,second_captured_at:secondCapturedAt,confirmed_offer_ids:confirmedPriceOfferIds};
-      if(classification.reason==="MASS_PRICE")classification=isolateAggregatePriceChanges(classification);
+      if(aggregateReasons.has(classification.reason))classification=isolateAggregateRiskRows(classification);
     }
   }
   if(diagnostic){

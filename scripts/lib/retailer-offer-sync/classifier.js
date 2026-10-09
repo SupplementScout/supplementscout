@@ -286,4 +286,35 @@ function partitionExecutableRows(classification) {
   };
 }
 
-module.exports = { buildGuardEvidence, canonicalVariantUrl, classifyExistingOffers, partitionExecutableRows };
+function isolateAggregateRiskRows(classification) {
+  const reason = classification?.reason;
+  if (!["MASS_OOS", "MASS_CHANGE", "MASS_PRICE"].includes(reason) || !Array.isArray(classification.rows)) {
+    throw new Error("AGGREGATE_RISK_ISOLATION_INVALID");
+  }
+  const blockedReasons = new Set([reason]);
+  for (const guard of classification.guard_evidence?.guards || []) {
+    if (["MASS_OOS", "MASS_CHANGE", "MASS_PRICE"].includes(guard?.guard) && guard.result === "BLOCK") blockedReasons.add(guard.guard);
+  }
+  const riskReason = (row) => {
+    if (blockedReasons.has("MASS_OOS") && Boolean(row.target?.in_stock) && !Boolean(row.source?.in_stock)) return "MASS_OOS";
+    if (blockedReasons.has("MASS_PRICE") && Boolean(row.changed_fields?.price)) return "MASS_PRICE";
+    if (blockedReasons.has("MASS_CHANGE") && row.action !== "VERIFY_NO_CHANGE") return "MASS_CHANGE";
+    return null;
+  };
+  const held = classification.rows.map((row) => ({ row, reason: riskReason(row) })).filter((item) => item.reason);
+  if (held.length === 0) throw new Error("AGGREGATE_RISK_ISOLATION_EMPTY");
+  const heldIds = new Set(held.map(({ row }) => String(row.offer_id)));
+  const quarantinedRows = [...(classification.quarantined_rows || []), ...held.map((item) => ({ ...item.row, reason: item.reason }))];
+  if (new Set(quarantinedRows.map((row) => String(row.offer_id))).size !== quarantinedRows.length) {
+    throw new Error("AGGREGATE_RISK_ISOLATION_OVERLAP");
+  }
+  return {
+    ...classification,
+    state: "DRY_RUN_READY_WITH_REVIEW",
+    reason: null,
+    rows: classification.rows.filter((row) => !heldIds.has(String(row.offer_id))),
+    quarantined_rows: quarantinedRows,
+  };
+}
+
+module.exports = { buildGuardEvidence, canonicalVariantUrl, classifyExistingOffers, isolateAggregateRiskRows, partitionExecutableRows };

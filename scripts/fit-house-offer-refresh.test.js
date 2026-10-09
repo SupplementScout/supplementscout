@@ -49,6 +49,7 @@ const {
   validationGuardSummary,
 } = require("./fit-house-offer-refresh");
 const { prepareAutomationReviewIdempotencyTransition } = require("./lib/retailer-offer-sync/automation-review-decision");
+const { isolateAggregateRiskRows } = require("./lib/retailer-offer-sync/classifier");
 
 test("post-apply idempotency accepts only the sealed owner-approved OOS transition", () => {
   const review = { id: 1121, offer_id: 1982, operation_type: "UPDATE_STOCK", source_row_fingerprint: "a".repeat(64), plan_fingerprint: "b".repeat(64), before_state: { in_stock: true }, proposed_state: { in_stock: false } };
@@ -302,6 +303,22 @@ test("only the exact owner-approved offer 759 return is executable", () => {
   assert.equal(partial.deferred_changed_offer_ids.length,13);
   assert.ok(!partial.deferred_changed_offer_ids.includes(isolation.deferred_rows[0].offer_id));
   assert.equal(partial.quarantined_rows.length,13);
+  const nextCycle=structuredClone(replay);
+  for(const resolved of isolation.deferred_rows.slice(0,4)){
+    const row=nextCycle.rows.find(item=>item.offer_id===resolved.offer_id);
+    row.action="VERIFY_NO_CHANGE";row.target.in_stock=row.source.in_stock;row.changed_fields.stock=false;
+  }
+  nextCycle.rows[20]={...nextCycle.rows[20],action:"UPDATE_STOCK",target:{in_stock:true},source:{in_stock:false},changed_fields:{stock:true,price:false,url:false}};
+  const safelyReleased=authorizeOwnerApprovedSixStockOnly(nextCycle,replayOwner,{isolateUnsafe:true});
+  assert.equal(safelyReleased.reason,"MASS_OOS");
+  assert.equal(safelyReleased.deferred_changed_offer_ids.length,10);
+  assert.equal(safelyReleased.quarantined_rows.length,10);
+  const nextPartition=isolateAggregateRiskRows(safelyReleased);
+  assert.equal(nextPartition.state,"DRY_RUN_READY_WITH_REVIEW");
+  assert.equal(nextPartition.rows.length,275);
+  assert.equal(nextPartition.quarantined_rows.length,11);
+  assert.ok(nextPartition.quarantined_rows.some(row=>row.offer_id===nextCycle.rows[20].offer_id&&row.reason==="MASS_OOS"));
+  assert.ok(!nextPartition.rows.some(row=>row.offer_id===nextCycle.rows[20].offer_id));
 });
 
 test("ordinary safe partition is not constrained by the consumed one-time 1+19 report", () => {
@@ -747,6 +764,14 @@ test("reviewed mass OOS authorization is hash-bound to the exact source and rows
       reviewed.manifest.source_snapshot_fingerprint,
     ),
     /scope drift/,
+  );
+  assert.deepEqual(
+    authorizeReviewedMassOos(classification, "0".repeat(64), { isolateUnsafe: true }),
+    { classification, review: null },
+  );
+  assert.deepEqual(
+    authorizeReviewedMassOos(drifted, reviewed.manifest.source_snapshot_fingerprint, { isolateUnsafe: true }),
+    { classification: drifted, review: null },
   );
 });
 

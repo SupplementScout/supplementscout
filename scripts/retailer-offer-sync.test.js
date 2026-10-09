@@ -7,7 +7,7 @@ const fixture = require("./test-fixtures/retailer-offer-sync/jons-supplements-26
 const config = require("../config/retailers/jons-supplements-offer-sync.json");
 const { ACTIONS, actionForChanges } = require("./lib/retailer-offer-sync/action-contract");
 const { fingerprint, sortRows } = require("./lib/retailer-offer-sync/artifacts");
-const { classifyExistingOffers, partitionExecutableRows } = require("./lib/retailer-offer-sync/classifier");
+const { classifyExistingOffers, isolateAggregateRiskRows, partitionExecutableRows } = require("./lib/retailer-offer-sync/classifier");
 const { canTransition, transition } = require("./lib/retailer-offer-sync/state-machine");
 const { buildDryRun, buildExecutionArtifact, executeApprovedBatch, parseArgs } = require("./retailer-offer-sync");
 const { REQUIRED_COLUMNS, projectCsvRows, readCsvProductFeed, safeFeedUrl } = require("./lib/csv-product-feed-reader");
@@ -73,6 +73,29 @@ test("shared execution partition keeps safe rows and excludes every review row",
   assert.equal(classification.rows.length, 3);
   assert.throws(() => partitionExecutableRows({ rows: safe, quarantined_rows: [deferred, deferred] }), /CLASSIFICATION_REVIEW_SCOPE_INVALID/);
   assert.throws(() => partitionExecutableRows({ rows: [safe[0], safe[0]], quarantined_rows: [] }), /CLASSIFICATION_EXECUTION_SCOPE_INVALID/);
+});
+
+test("aggregate guard failures isolate only risky rows through the shared review partition", () => {
+  const unchanged = { offer_id: "1", action: "VERIFY_NO_CHANGE", changed_fields: { price: false, stock: false }, target: { in_stock: true }, source: { in_stock: true } };
+  const newOos = { offer_id: "2", action: "UPDATE_STOCK", changed_fields: { price: false, stock: true }, target: { in_stock: true }, source: { in_stock: false } };
+  const returned = { offer_id: "3", action: "UPDATE_STOCK", changed_fields: { price: false, stock: true }, target: { in_stock: false }, source: { in_stock: true } };
+  const priorReview = { offer_id: "4", action: "UPDATE_STOCK", reason: "OWNER_DEFERRED_STOCK_REVIEW", changed_fields: { stock: true }, target: { in_stock: true }, source: { in_stock: false } };
+  const isolatedOos = isolateAggregateRiskRows({ state: "BLOCKED", reason: "MASS_OOS", rows: [unchanged, newOos, returned], quarantined_rows: [priorReview] });
+  assert.equal(isolatedOos.state, "DRY_RUN_READY_WITH_REVIEW");
+  assert.deepEqual(isolatedOos.rows.map((row) => row.offer_id), ["1", "3"]);
+  assert.deepEqual(isolatedOos.quarantined_rows.map((row) => [row.offer_id, row.reason]), [["4", "OWNER_DEFERRED_STOCK_REVIEW"], ["2", "MASS_OOS"]]);
+  const isolatedChange = isolateAggregateRiskRows({ state: "BLOCKED", reason: "MASS_CHANGE", rows: [unchanged, newOos, returned], quarantined_rows: [] });
+  assert.deepEqual(isolatedChange.rows.map((row) => row.offer_id), ["1"]);
+  assert.deepEqual(isolatedChange.quarantined_rows.map((row) => row.offer_id), ["2", "3"]);
+  const priceReturn = { ...returned, offer_id: "5", action: "UPDATE_PRICE_AND_STOCK", changed_fields: { price: true, stock: true } };
+  const combinedGuards = isolateAggregateRiskRows({
+    state: "BLOCKED", reason: "MASS_OOS", rows: [unchanged, newOos, priceReturn], quarantined_rows: [],
+    guard_evidence: { guards: [{ guard: "MASS_OOS", result: "BLOCK" }, { guard: "MASS_PRICE", result: "BLOCK" }, { guard: "MASS_CHANGE", result: "PASS" }] },
+  });
+  assert.deepEqual(combinedGuards.rows.map((row) => row.offer_id), ["1"]);
+  assert.deepEqual(combinedGuards.quarantined_rows.map((row) => [row.offer_id, row.reason]), [["2", "MASS_OOS"], ["5", "MASS_PRICE"]]);
+  assert.throws(() => isolateAggregateRiskRows({ state: "BLOCKED", reason: "IDENTITY_DRIFT", rows: [unchanged], quarantined_rows: [] }), /AGGREGATE_RISK_ISOLATION_INVALID/);
+  assert.throws(() => isolateAggregateRiskRows({ state: "BLOCKED", reason: "MASS_OOS", rows: [unchanged], quarantined_rows: [] }), /AGGREGATE_RISK_ISOLATION_EMPTY/);
 });
 
 test("closed action enum and changed-field bitmap cover all six executable actions", () => {
