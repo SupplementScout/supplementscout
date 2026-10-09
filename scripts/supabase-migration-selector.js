@@ -457,8 +457,6 @@ const CONTRACTS = Object.freeze({
       "6d22d965f22c5d281c3b4b4c8a9dfd5f7b7892e853bea185b2a51dd412f06104",
     appliedExcluded: APPLIED_EXCLUSIONS.PRODUCTION,
     excluded: Object.freeze({
-      "20261009120000_add_compact_other_retailer_fingerprint.sql":
-        "b365d247777650aba6333399d4173ecb369d85a1465074bb6961c23b94f2ac84",
       "20261008200000_consolidate_shared_executor_state_reads.sql":
         "a4701b3b94573e453a359f228e0914405d58f338b82d7b5f7158fc5cec385826",
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
@@ -506,7 +504,13 @@ const CONTRACTS = Object.freeze({
       "20261008140000_add_active_retailer_parent_inventory.sql":
         "6499f29df0c33311d6810fd33293d1de72d4de3e92b75b3e9027e67a46e317e6",
     }),
-    pending: PENDING_MIGRATIONS.PRODUCTION,
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20261009120000_add_compact_other_retailer_fingerprint.sql",
+        sha256: "b365d247777650aba6333399d4173ecb369d85a1465074bb6961c23b94f2ac84",
+        expectedCatalogueDeltas: Object.freeze({}),
+      }),
+    ]),
   }),
 });
 
