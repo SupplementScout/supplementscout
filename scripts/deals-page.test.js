@@ -268,6 +268,24 @@ test("automatic candidate inventory has one source-level release gate and no off
   assert.match(rollback, /drop table if exists public\.seo15_stage3_retailer_releases/i);
 });
 
+test("automatic candidate inventory computes shared price evidence once without widening access", () => {
+  const migration = fs.readFileSync(path.join(process.cwd(), "supabase/migrations/20261009180000_optimize_seo15_candidate_inventory.sql"), "utf8");
+  const rollback = fs.readFileSync(path.join(process.cwd(), "supabase/rollbacks/20261009180000_optimize_seo15_candidate_inventory.sql"), "utf8");
+  const decreases = migration.match(/decreases as \(\s*([\s\S]*?)\s*\),\s*evaluated as \(/i)?.[1] || "";
+  assert.match(migration, /md5\(pg_get_functiondef\('public\.get_seo15_stage3_candidate_inventory\(\)'::regprocedure\)\)/i);
+  assert.match(migration, /1a31e849bb0a81a5d9a509edc64c473d/i);
+  assert.match(migration, /ordered_prices as materialized/i);
+  assert.match(migration, /series_stats as materialized/i);
+  assert.match(migration, /select ph\.\*,s\.offer_series_count/i);
+  assert.doesNotMatch(decreases, /join eligible_series/i);
+  assert.match(migration, /revoke all on function public\.get_seo15_stage3_candidate_inventory\(\) from public,anon,authenticated,service_role/i);
+  assert.match(migration, /grant execute on function public\.get_seo15_stage3_candidate_inventory\(\) to service_role/i);
+  assert.doesNotMatch(migration, /\b(insert|update|delete|truncate)\s+(into\s+|from\s+)?public\./i);
+  assert.match(migration, /notify pgrst,'reload schema'/i);
+  assert.match(rollback, /select op\.\*,s\.offer_series_count/i);
+  assert.match(rollback, /join eligible_series s on s\.id=op\.identity_series_id/i);
+});
+
 test("launch gate remains monitoring evidence and does not control stable base-page indexing", async () => {
   const deals = loadDeals();
   const Link = ({ href, children, ...props }) => React.createElement("a", { href: typeof href === "string" ? href : "#", ...props }, children);
