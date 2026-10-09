@@ -293,51 +293,86 @@ test("bounded Stage 3 evidence function exposes only exact approved Jon's rows w
     waitForPostgres(container);
     requireSuccess(exec(container, ["createdb", "-U", "postgres", database]), "create Stage 3 database");
     requireSuccess(psql(container, database, "do $roles$ begin if not exists(select 1 from pg_roles where rolname='anon') then create role anon nologin; end if; if not exists(select 1 from pg_roles where rolname='authenticated') then create role authenticated nologin; end if; if not exists(select 1 from pg_roles where rolname='service_role') then create role service_role nologin; end if; end $roles$;"), "create Stage 3 roles");
-    requireSuccess(psqlFile(container, database, prerequisites[0]), "apply Stage 3 baseline");
-    requireSuccess(psqlFile(container, database, stage2Setup, ["stage2_test_database_confirmed=1", "stage2_test_host=127.0.0.1", `stage2_expected_database=${database}`, "stage2_scenario=success"]), "seed Stage 3 Product Variants fixture");
-    for (const prerequisite of prerequisites.slice(1)) requireSuccess(psqlFile(container, database, prerequisite), `apply Stage 3 ${path.basename(prerequisite)}`);
     requireSuccess(psql(container, database, `
-      insert into public.retailers(id,name,slug,website) values
-        (1,'GYM HIGH','gym-high','https://gymhigh.co.uk'),(3,'Whey Okay','whey-okay','https://wheyokay.com'),
-        (7,'Simply Supplements','simply-supplements','https://www.simplysupplements.co.uk'),(9,'Fit House','fit-house','https://fithouse.uk'),
-        (10,'Jon''s Supplements','jon-s-supplements','https://jonssupplements.co.uk')
-      on conflict(id) do update set name=excluded.name,slug=excluded.slug,website=excluded.website;
+      create table public.retailers(id bigint primary key,name text not null,slug text not null);
+      create table public.products(
+        id bigint primary key,name text not null,slug text not null,brand text,image text,category text,product_format text,
+        is_active boolean not null,merged_into_product_id bigint
+      );
+      create table public.product_variants(
+        id bigint primary key,product_id bigint not null,is_active boolean not null,
+        pack_count integer not null,size_value numeric not null,size_unit text not null,product_format text
+      );
+      create table public.retailer_products(
+        id bigint primary key,retailer_id bigint not null,product_id bigint not null,product_variant_id bigint not null,
+        external_product_id text not null,external_variant_id text,external_gtin text
+      );
+      create table public.offers(
+        id bigint primary key,product_id bigint not null,retailer_id bigint not null,
+        retailer_product_id bigint not null,product_variant_id bigint not null,
+        price numeric not null,shipping_cost numeric not null,total_price numeric not null,
+        in_stock boolean not null,url text not null,last_checked_at timestamptz not null
+      );
+      create table public.price_identity_series(
+        id bigint primary key,offer_id bigint not null,retailer_id bigint not null,product_id bigint not null,
+        product_variant_id bigint not null,retailer_product_id bigint not null,
+        external_product_id text not null,external_variant_id text,gtin text,
+        size_value numeric not null,size_unit text not null,pack_count integer not null,
+        product_format text,source_importer text not null
+      );
+      create table public.price_history(
+        id bigint generated always as identity primary key,offer_id bigint not null,identity_series_id bigint,
+        price numeric not null,shipping_cost numeric not null,total_price numeric not null,
+        in_stock boolean not null,checked_at timestamptz not null,observation_date date not null,
+        evidence_status text not null,anomaly_flags text[] not null default '{}'
+      );
+      create table public.price_observation_producers(
+        retailer_id bigint not null,source_importer text not null,enabled boolean not null,public_use text not null,
+        primary key(retailer_id,source_importer)
+      );
       create or replace function public.retailer_catalogue_actual_database_target()
       returns jsonb language sql stable security definer set search_path=pg_catalog,public,pg_temp
-      as $target$ select jsonb_build_object('target_environment','STAGING') $target$;`), "prepare Stage 3 target");
-    requireSuccess(psqlFile(container, database, migration), "apply identity foundation for Stage 3");
-    requireSuccess(psql(container, database, `
+      as $target$ select jsonb_build_object('target_environment','PRODUCTION') $target$;
+      create or replace function public.retailer_catalogue_business_counts()
+      returns jsonb language sql stable set search_path=pg_catalog,public,pg_temp
+      as $counts$ select jsonb_build_object(
+        'offers',(select count(*) from public.offers),
+        'history',(select count(*) from public.price_history),
+        'series',(select count(*) from public.price_identity_series)
+      ) $counts$;
+      insert into public.retailers(id,name,slug) values
+        (10,'Jon''s Supplements','jon-s-supplements');
       insert into public.products(id,name,slug,brand,category,product_format,is_active) values
         (7101,'HR Labs Defib Lemon','hr-labs-defib-lemon','HR Labs','Pre Workout','powder',true),
         (7102,'HR Labs Defib Jelly Bean','hr-labs-defib-jelly-bean','HR Labs','Pre Workout','powder',true);
-      insert into public.product_variants(id,product_id,variant_key,display_name,flavour_code,flavour_label,size_value,size_unit,pack_count,product_format,is_active,is_default) values
-        (7201,7101,'lemon-420g','Lemon Fizz Bombs / 420g','lemon','Lemon Fizz Bombs',420,'g',1,'powder',true,false),
-        (7202,7102,'jelly-420g','Jelly Bean / 420g','jelly-bean','Jelly Bean',420,'g',1,'powder',true,false);
-      insert into public.retailer_products(id,retailer_id,product_id,product_variant_id,external_product_id,external_variant_id,external_name,external_url,match_method,match_confidence) values
-        (7301,10,7101,7201,'jons-1339','lemon','HR Labs Defib Lemon','https://jons.example/1339','external_id',100),
-        (7302,10,7102,7202,'jons-1337','jelly','HR Labs Defib Jelly','https://jons.example/1337','external_id',100);
+      insert into public.product_variants(id,product_id,is_active,pack_count,size_value,size_unit,product_format) values
+        (7201,7101,true,1,420,'g','powder'),(7202,7102,true,1,420,'g','powder');
+      insert into public.retailer_products(id,retailer_id,product_id,product_variant_id,external_product_id,external_variant_id,external_gtin) values
+        (7301,10,7101,7201,'jons-1339','lemon','05000000001339'),
+        (7302,10,7102,7202,'jons-1337','jelly','05000000001337');
       insert into public.offers(id,product_id,retailer_id,retailer_product_id,product_variant_id,price,shipping_cost,total_price,in_stock,url,last_checked_at) values
-        (1339,7101,10,7301,7201,35.48,0,35.48,true,'https://jons.example/1339','2026-08-25T10:00:00Z'),
-        (1337,7102,10,7302,7202,35.48,0,35.48,true,'https://jons.example/1337','2026-08-25T10:00:00Z');
-      update public.price_observation_producers set enabled=true
-      where retailer_id=10 and source_importer='retailer_offer_mixed_batch';
-      select public.record_identity_proven_price_observation(id,'daily_confirmation','stage3-initial-'||id,'retailer_offer_mixed_batch')
-      from public.offers where id in (1337,1339);
+        (1339,7101,10,7301,7201,27.48,0,27.48,true,'https://jons.example/1339','2026-10-09T10:00:00Z'),
+        (1337,7102,10,7302,7202,27.48,0,27.48,true,'https://jons.example/1337','2026-10-09T10:00:00Z');
+      insert into public.price_identity_series(
+        id,offer_id,retailer_id,product_id,product_variant_id,retailer_product_id,
+        external_product_id,external_variant_id,gtin,size_value,size_unit,pack_count,product_format,source_importer
+      ) values
+        (7401,1339,10,7101,7201,7301,'jons-1339','lemon','05000000001339',420,'g',1,'powder','retailer_offer_mixed_batch'),
+        (7402,1337,10,7102,7202,7302,'jons-1337','jelly','05000000001337',420,'g',1,'powder','retailer_offer_mixed_batch');
+      insert into public.price_observation_producers(retailer_id,source_importer,enabled,public_use)
+        values(10,'retailer_offer_mixed_batch',true,'eligible-after-separate-approval');
       do $seed$
-      declare v_offer bigint; v_day date;
+      declare v_offer bigint; v_series bigint; v_day date;
       begin
         foreach v_offer in array array[1337::bigint,1339::bigint] loop
+          v_series:=case when v_offer=1337 then 7402 else 7401 end;
           for v_day in select generate_series('2026-09-21'::date,'2026-09-27'::date,interval '1 day')::date loop
-            update public.offers set last_checked_at=v_day::timestamptz+interval '10 hours' where id=v_offer;
-            perform public.record_identity_proven_price_observation(v_offer,'daily_confirmation','stage3-prior-'||v_offer||'-'||to_char(v_day,'YYYYMMDD'),'retailer_offer_mixed_batch');
+            insert into public.price_history(offer_id,identity_series_id,price,shipping_cost,total_price,in_stock,checked_at,observation_date,evidence_status)
+              values(v_offer,v_series,35.48,0,35.48,true,v_day::timestamptz+interval '10 hours',v_day,'proven');
           end loop;
-          update public.offers set price=27.48,total_price=27.48,last_checked_at='2026-09-28T10:00:00Z' where id=v_offer;
-          insert into public.price_history(offer_id,price,shipping_cost,total_price,checked_at)
-            values(v_offer,27.48,0,27.48,'2026-09-28T10:00:00Z');
-          perform public.record_identity_proven_price_observation(v_offer,'delivered_price_changed','stage3-drop-'||v_offer,'retailer_offer_mixed_batch',currval('public.price_history_id_seq'));
-          for v_day in select generate_series('2026-09-29'::date,'2026-10-09'::date,interval '1 day')::date loop
-            update public.offers set last_checked_at=v_day::timestamptz+interval '10 hours' where id=v_offer;
-            perform public.record_identity_proven_price_observation(v_offer,'daily_confirmation','stage3-after-'||v_offer||'-'||to_char(v_day,'YYYYMMDD'),'retailer_offer_mixed_batch');
+          for v_day in select generate_series('2026-09-28'::date,'2026-10-09'::date,interval '1 day')::date loop
+            insert into public.price_history(offer_id,identity_series_id,price,shipping_cost,total_price,in_stock,checked_at,observation_date,evidence_status)
+              values(v_offer,v_series,27.48,0,27.48,true,v_day::timestamptz+interval '10 hours',v_day,'proven');
           end loop;
         end loop;
       end
