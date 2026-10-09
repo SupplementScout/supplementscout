@@ -9,6 +9,20 @@ const PAGE_SIZE = 1000;
 const MAX_PAGES = 10;
 const ALLOWED_SIZE_UNITS = new Set(["g", "ml", "servings"]);
 
+export const VERIFIED_PRICE_DROP_SCOPE = {
+  retailerId: "10",
+  retailerSlug: "jon-s-supplements",
+  offerIds: ["1337", "1339"],
+} as const;
+
+export const VERIFIED_PRICE_DROP_RULES = {
+  minimumDropAmount: 2,
+  minimumDropRatio: 0.1,
+  minimumDistinctDates: 3,
+  minimumElapsedDays: 14,
+  requiredStablePriorDays: 7,
+} as const;
+
 export const DEALS_INDEX_GATE = {
   minimumProducts: 12,
   minimumOffers: 30,
@@ -96,7 +110,68 @@ export type DealsSummary = {
 export type DealsResult = {
   rows: DealsRow[];
   summary: DealsSummary;
+  verifiedDrops: VerifiedPriceDropRow[];
+  verifiedDropsEnabled: boolean;
+  verifiedDropsError: boolean;
   error: boolean;
+};
+
+export type RawVerifiedPriceDropEvidence = {
+  drop_observation_id: number | string | null;
+  identity_series_id: number | string | null;
+  offer_id: number | string | null;
+  retailer_id: number | string | null;
+  retailer_slug: string | null;
+  retailer_name: string | null;
+  product_name: string | null;
+  product_slug: string | null;
+  product_brand: string | null;
+  product_image: string | null;
+  product_active: boolean | null;
+  product_merged_into_id: number | string | null;
+  variant_active: boolean | null;
+  pack_count: number | string | null;
+  size_value: number | string | null;
+  size_unit: string | null;
+  offer_url: string | null;
+  current_product_price: number | string | null;
+  current_shipping_cost: number | string | null;
+  current_total_price: number | string | null;
+  current_in_stock: boolean | null;
+  current_last_checked_at: string | null;
+  previous_total_price: number | string | null;
+  drop_total_price: number | string | null;
+  drop_checked_at: string | null;
+  drop_observation_date: string | null;
+  drop_evidence_status: string | null;
+  drop_anomaly_flags: unknown;
+  first_proven_at: string | null;
+  distinct_proven_dates: number | string | null;
+  prior_stable_dates: number | string | null;
+  prior_conflicts: number | string | null;
+  subsequent_conflicts: number | string | null;
+  offer_series_count: number | string | null;
+  identity_matches: boolean | null;
+  latest_matches: boolean | null;
+  producer_enabled: boolean | null;
+  producer_public_use: string | null;
+};
+
+export type VerifiedPriceDropRow = {
+  id: string;
+  name: string;
+  brand: string | null;
+  image: string | null;
+  productUrl: string;
+  packLabel: string;
+  previousDeliveredPrice: number;
+  currentDeliveredPrice: number;
+  savingAmount: number;
+  savingPercent: number;
+  droppedAt: string;
+  lastCheckedAt: string;
+  evidenceDays: number;
+  offer: DealsOffer;
 };
 
 type NormalizedOffer = DealsOffer & {
@@ -139,6 +214,117 @@ function validUrl(value: string | null) {
   } catch {
     return false;
   }
+}
+
+function nonNegativeNumber(value: unknown) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
+}
+
+function wholeNumber(value: unknown) {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : null;
+}
+
+function emptyFlags(value: unknown) {
+  return Array.isArray(value) && value.length === 0;
+}
+
+export function isVerifiedPriceDropsEnabled(env = process.env) {
+  return env.SEO15_STAGE3_ENABLED === "true";
+}
+
+export function normalizeVerifiedPriceDrops(
+  evidence: RawVerifiedPriceDropEvidence[],
+  now = new Date()
+): VerifiedPriceDropRow[] {
+  const allowedOffers = new Set<string>(VERIFIED_PRICE_DROP_SCOPE.offerIds);
+  const rows = evidence.flatMap((raw) => {
+    const offerId = positiveId(raw.offer_id);
+    const seriesId = positiveId(raw.identity_series_id);
+    const observationId = positiveId(raw.drop_observation_id);
+    const retailerId = positiveId(raw.retailer_id);
+    const productPrice = positiveNumber(raw.current_product_price);
+    const shippingCost = nonNegativeNumber(raw.current_shipping_cost);
+    const currentTotal = positiveNumber(raw.current_total_price);
+    const previousTotal = positiveNumber(raw.previous_total_price);
+    const dropTotal = positiveNumber(raw.drop_total_price);
+    const packCount = positiveInteger(raw.pack_count);
+    const sizeValue = positiveNumber(raw.size_value);
+    const sizeUnit = raw.size_unit?.trim().toLowerCase() || "";
+    const distinctDates = wholeNumber(raw.distinct_proven_dates);
+    const priorStableDates = wholeNumber(raw.prior_stable_dates);
+    const priorConflicts = wholeNumber(raw.prior_conflicts);
+    const subsequentConflicts = wholeNumber(raw.subsequent_conflicts);
+    const offerSeriesCount = wholeNumber(raw.offer_series_count);
+    const firstProvenAt = Date.parse(raw.first_proven_at || "");
+    const droppedAt = Date.parse(raw.drop_checked_at || "");
+    const lastCheckedAt = Date.parse(raw.current_last_checked_at || "");
+    const decrease = previousTotal !== null && dropTotal !== null ? previousTotal - dropTotal : 0;
+    const decreaseRatio = previousTotal ? decrease / previousTotal : 0;
+    const elapsedDays = Number.isFinite(firstProvenAt)
+      ? Math.floor((now.getTime() - firstProvenAt) / 86_400_000)
+      : -1;
+    const deliveredPrice = productPrice !== null && shippingCost !== null
+      ? getDeliveredPrice({ price: productPrice, shipping_cost: shippingCost })
+      : null;
+
+    if (
+      !offerId || !seriesId || !observationId || !retailerId ||
+      !allowedOffers.has(offerId) ||
+      retailerId !== VERIFIED_PRICE_DROP_SCOPE.retailerId ||
+      raw.retailer_slug !== VERIFIED_PRICE_DROP_SCOPE.retailerSlug ||
+      raw.producer_enabled !== true || raw.producer_public_use !== "eligible-after-separate-approval" ||
+      raw.identity_matches !== true || raw.latest_matches !== true ||
+      raw.product_active !== true || raw.product_merged_into_id !== null || raw.variant_active !== true ||
+      raw.current_in_stock !== true || !isOfferFresh(raw.current_last_checked_at, now) ||
+      productPrice === null || shippingCost === null || !deliveredPrice ||
+      currentTotal === null || dropTotal === null || previousTotal === null ||
+      deliveredPrice.totalPrice !== currentTotal || currentTotal !== dropTotal ||
+      decrease < VERIFIED_PRICE_DROP_RULES.minimumDropAmount ||
+      decreaseRatio < VERIFIED_PRICE_DROP_RULES.minimumDropRatio ||
+      distinctDates === null || distinctDates < VERIFIED_PRICE_DROP_RULES.minimumDistinctDates ||
+      elapsedDays < VERIFIED_PRICE_DROP_RULES.minimumElapsedDays ||
+      priorStableDates !== VERIFIED_PRICE_DROP_RULES.requiredStablePriorDays ||
+      priorConflicts !== 0 || subsequentConflicts !== 0 || offerSeriesCount !== 1 ||
+      raw.drop_evidence_status !== "proven" || !emptyFlags(raw.drop_anomaly_flags) ||
+      !Number.isFinite(droppedAt) || !Number.isFinite(lastCheckedAt) || droppedAt > lastCheckedAt ||
+      !packCount || !sizeValue || !ALLOWED_SIZE_UNITS.has(sizeUnit) ||
+      !raw.product_name?.trim() || !raw.product_slug?.trim() || !raw.retailer_name?.trim() ||
+      !validUrl(raw.offer_url)
+    ) {
+      return [];
+    }
+
+    return [{
+      id: `${seriesId}:${observationId}`,
+      name: raw.product_name.trim(),
+      brand: raw.product_brand?.trim() || null,
+      image: raw.product_image,
+      productUrl: `/product/${raw.product_slug.trim()}`,
+      packLabel: formatDealsPackLabel({ pack_count: packCount, size_value: sizeValue, size_unit: sizeUnit }),
+      previousDeliveredPrice: previousTotal,
+      currentDeliveredPrice: currentTotal,
+      savingAmount: Number(decrease.toFixed(2)),
+      savingPercent: Number((decreaseRatio * 100).toFixed(1)),
+      droppedAt: raw.drop_checked_at!,
+      lastCheckedAt: raw.current_last_checked_at!,
+      evidenceDays: elapsedDays,
+      offer: {
+        id: offerId,
+        url: raw.offer_url!,
+        lastCheckedAt: raw.current_last_checked_at!,
+        productPrice,
+        shippingCost,
+        deliveredPrice,
+        retailer: { id: retailerId, name: raw.retailer_name.trim(), slug: raw.retailer_slug },
+      },
+    } satisfies VerifiedPriceDropRow];
+  });
+
+  return rows.sort((a, b) =>
+    b.savingPercent - a.savingPercent || b.savingAmount - a.savingAmount || compareIds(a.offer.id, b.offer.id)
+  );
 }
 
 function normalizeOffer(raw: RawDealsOffer, now: Date): NormalizedOffer | null {
@@ -326,6 +512,9 @@ export function buildDealsResult(
   return {
     rows,
     summary: summarizeQualifyingRawOffers(rawOffers, rows, now),
+    verifiedDrops: [],
+    verifiedDropsEnabled: false,
+    verifiedDropsError: false,
     error: false,
   };
 }
@@ -342,10 +531,30 @@ export function evaluateDealsIndexability(summary: DealsSummary, valid: boolean)
 
 export function emptyDealsResult(error = false): DealsResult {
   const rows: DealsRow[] = [];
-  return { rows, summary: summarize(rows), error };
+  return {
+    rows,
+    summary: summarize(rows),
+    verifiedDrops: [],
+    verifiedDropsEnabled: false,
+    verifiedDropsError: false,
+    error,
+  };
+}
+
+async function loadVerifiedPriceDrops(now = new Date()) {
+  const { data, error } = await supabaseAdmin.rpc("get_seo15_bounded_stage3_evidence");
+  if (error || !Array.isArray(data)) return { rows: [] as VerifiedPriceDropRow[], error: true };
+  return {
+    rows: normalizeVerifiedPriceDrops(data as RawVerifiedPriceDropEvidence[], now),
+    error: false,
+  };
 }
 
 async function loadDeals(): Promise<DealsResult> {
+  const verifiedDropsEnabled = isVerifiedPriceDropsEnabled();
+  const verifiedDropsPromise = verifiedDropsEnabled
+    ? loadVerifiedPriceDrops()
+    : Promise.resolve({ rows: [] as VerifiedPriceDropRow[], error: false });
   const rawOffers: RawDealsOffer[] = [];
   for (let page = 0; page < MAX_PAGES; page += 1) {
     const from = page * PAGE_SIZE;
@@ -373,7 +582,14 @@ async function loadDeals(): Promise<DealsResult> {
     if (records.length < PAGE_SIZE) break;
     if (page === MAX_PAGES - 1) return emptyDealsResult(true);
   }
-  return buildDealsResult(rawOffers);
+  const current = buildDealsResult(rawOffers);
+  const historical = await verifiedDropsPromise;
+  return {
+    ...current,
+    verifiedDrops: historical.rows,
+    verifiedDropsEnabled,
+    verifiedDropsError: historical.error,
+  };
 }
 
 export const getDeals = cache(loadDeals);

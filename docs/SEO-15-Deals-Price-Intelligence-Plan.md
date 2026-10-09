@@ -10,7 +10,9 @@ See [continuity evidence](rollouts/seo15-producer-continuity-2026-09-09.md).
 
 **Prepared:** 24 August 2026  
 **State:** Stage 1 and corrective Indexability Lifecycle P0 live verified;
-Stage 2A enabled for the approved Jon's, Fit House and GYM HIGH scopes; Stage 3 disabled
+Stage 2A enabled for the approved Jon's, Fit House and GYM HIGH scopes; bounded
+Stage 3 implementation in progress for Jon's offers `1337` and `1339`, with
+public enablement disabled pending final verification
 **Authority:** `docs/SEO-Execution-Plan.md` remains the SEO status and ordering
 authority. `docs/SupplementScout-Operating-Plan-2026-07-15.md` remains the
 project authority. This document records only SEO-15 technical scope, gates,
@@ -548,8 +550,8 @@ credentials.
 | Classify the 14 Six Pack rows as 1 stock, 8 price and 5 price+stock approvals | Evidence ready; not applied | Approve/reject as a separate production-data action. |
 | Add normalized immutable identity series plus nullable history evidence with no backfill | Production migration verified; no backfill | Preserve legacy rows and approve producers separately. |
 | Record at most one unchanged confirmation/day/series | 813 production series audited; zero duplicate daily keys. GYM HIGH first actual observations start 3 September; latest run reuses 8 September dates. | Preserve idempotency; verify source timestamps and new-date accrual. |
-| Enable Stage 3 only after 7/14/30/60-day audits | Proposed | Separate enablement decision after evidence. |
-| Roadmap handling during accrual | SEO-16 live verified; mandatory SEO-15 return completed 9 September; SEO-15 remains BLOCKED for Stage 3 | Follow continuity/readiness gates; SEO-17 follows the SEO-15 decision. |
+| Enable Stage 3 only after 7/14/30/60-day audits | Bounded implementation in progress for Jon's offers `1337` and `1339`; public gate remains off | Complete CI, staging and production read-only controls, then obtain a separate final enablement decision. |
+| Roadmap handling during accrual | SEO-16 is live verified; the mandatory SEO-15 return is active as the bounded Stage 3 implementation | Finish this exact two-offer control path before SEO-17; do not add producers or backfill. |
 
 If SEO-16 is temporarily selected, the ledger must preserve a mandatory return
 to SEO-15 Stage 3. No ordering change is made by this plan.
@@ -585,7 +587,7 @@ to SEO-15 Stage 3. No ordering change is made by this plan.
 | 14-day audit | 9 September read-only audit | linked evidence above | Jon's 503 pass elapsed age; Fit House first reaches 14 days at 16:10 UTC today | zero qualifying drops; continuity gaps remain | audit complete; Stage 3 not ready |
 | 30-day audit | read-only run `37927290755` | 9 October private artifact `11613814836` | 813/813 series pass age; producer-wide continuity remains incomplete | five Jon's threshold drops; two (`1337`, `1339`) pass current identity/stock/freshness | audit complete; separate Stage 3 owner decision required |
 | 60-day audit | n/a | n/a | pending | pending | not due |
-| Stage 3 | pending separate approval | two currently qualifying Jon's rows | existing per-row fail-closed contract | public claims remain disabled | not started |
+| Stage 3 | owner-approved bounded implementation on 9 October | exact Jon's offers `1337`, `1339`; no other producer or row | shared selector plus read-only exact-scope evidence boundary; default-off release gate | public claims remain disabled pending schema/readback and release verification | in progress |
 
 ## 16. Complete conditions
 

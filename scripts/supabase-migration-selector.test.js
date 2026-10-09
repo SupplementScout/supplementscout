@@ -344,13 +344,13 @@ test("staging records the shared executor migration as applied and closed", () =
   const result = validateSelection(validInput());
   assert.equal(result.ledger_count, 100);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, ["20261009140000_add_seo15_bounded_stage3_evidence.sql"]);
+  assert.equal(result.pending_file, "20261009140000_add_seo15_bounded_stage3_evidence.sql");
+  assert.equal(result.pending_sha256, "f233c07c7f0f4095ead851720bf562910c157bc0dc79e5fe6f5d4ed89ea575bb");
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
-  assert.equal(result.selected_files.length, 100);
+  assert.equal(result.selected_files.length, 101);
   assert.ok(result.selected_files.includes(RA004_FIXTURE_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_GUARD_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_OPERATOR_MIGRATION));
@@ -450,7 +450,10 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
 
 test("production records the shared executor and compact fingerprint migrations as applied and closed", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: "20261009140000_add_seo15_bounded_stage3_evidence.sql",
+    sha256: "f233c07c7f0f4095ead851720bf562910c157bc0dc79e5fe6f5d4ed89ea575bb",
+  }]);
   assert.deepEqual(contract.appliedExcluded, [
     "20260929133000_extend_expired_sequential_plan_close.sql",
     "20261004120000_add_central_control_plan_readback.sql",
@@ -559,7 +562,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 100);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 101);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -575,7 +578,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACT.ledgerFingerprint);
 });
 
-test("production accepts ledger 233 with the compact fingerprint migration applied", () => {
+test("production accepts ledger 233 with the compact fingerprint applied and bounded Stage 3 pending", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   for (const filename of contract.appliedExcluded) excluded.delete(filename);
@@ -604,7 +607,7 @@ test("production accepts ledger 233 with the compact fingerprint migration appli
   });
   assert.equal(result.ledger_count, 233);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 233);
+  assert.equal(result.selected_files.length, 234);
   assert.ok(result.selected_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
   assert.ok(result.excluded_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
   assert.ok(result.selected_files.includes("20261004120000_add_central_control_plan_readback.sql"));
@@ -614,8 +617,12 @@ test("production accepts ledger 233 with the compact fingerprint migration appli
   assert.ok(result.selected_files.includes("20261006170000_add_automation_review_owner_decision_validation.sql"));
   assert.ok(result.selected_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
   assert.ok(result.excluded_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.deepEqual(result.pending_files, ["20261009140000_add_seo15_bounded_stage3_evidence.sql"]);
+  assert.equal(result.pending_file, "20261009140000_add_seo15_bounded_stage3_evidence.sql");
+  assert.equal(result.pending_sha256, "f233c07c7f0f4095ead851720bf562910c157bc0dc79e5fe6f5d4ed89ea575bb");
+  assert.deepEqual(result.pending_sha256s, {
+    "20261009140000_add_seo15_bounded_stage3_evidence.sql": "f233c07c7f0f4095ead851720bf562910c157bc0dc79e5fe6f5d4ed89ea575bb",
+  });
   assert.ok(result.selected_files.includes("20261009120000_add_compact_other_retailer_fingerprint.sql"));
   assert.ok(result.excluded_files.includes("20261009120000_add_compact_other_retailer_fingerprint.sql"));
   assert.ok(result.selected_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
@@ -723,7 +730,10 @@ test("runtime staging artifacts bind the same migration ledger as the staging se
 test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.equal(Object.keys(contract.excluded).length, 24);
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: "20261009140000_add_seo15_bounded_stage3_evidence.sql",
+    sha256: "f233c07c7f0f4095ead851720bf562910c157bc0dc79e5fe6f5d4ed89ea575bb",
+  }]);
   assert.equal(
     contract.excluded["20261009120000_add_compact_other_retailer_fingerprint.sql"],
     "b365d247777650aba6333399d4173ecb369d85a1465074bb6961c23b94f2ac84",
@@ -1349,10 +1359,12 @@ test("completed RA-004 fixture activation cannot select or materialize a migrati
 
 test("staging keeps the applied shared executor migration closed", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending_file, "20261009140000_add_seo15_bounded_stage3_evidence.sql");
+  assert.equal(result.pending_sha256, "f233c07c7f0f4095ead851720bf562910c157bc0dc79e5fe6f5d4ed89ea575bb");
+  assert.deepEqual(result.pending_files, ["20261009140000_add_seo15_bounded_stage3_evidence.sql"]);
+  assert.deepEqual(result.pending_sha256s, {
+    "20261009140000_add_seo15_bounded_stage3_evidence.sql": "f233c07c7f0f4095ead851720bf562910c157bc0dc79e5fe6f5d4ed89ea575bb",
+  });
   assert.ok(result.selected_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
 });
 

@@ -8,6 +8,7 @@ const test = require("node:test");
 const root = path.resolve(__dirname, "..");
 const image = "postgres:17-alpine";
 const migration = path.join(root, "supabase/migrations/20260824160000_add_identity_proven_price_observations.sql");
+const stage3Migration = path.join(root, "supabase/migrations/20261009140000_add_seo15_bounded_stage3_evidence.sql");
 const rollback = path.join(root, "supabase/rollbacks/20260824160000_add_identity_proven_price_observations.sql");
 const stage2Setup = path.join(root, "supabase/test/product_variants_stage2_migration_test.sql");
 const prerequisites = [
@@ -281,4 +282,126 @@ test("migration and rollback are additive, legacy-safe and contain no public cla
   assert.doesNotMatch(sql, /update public\.price_history set identity_series_id[^\n]*where identity_series_id is null\s*;/i, "no broad legacy backfill");
   assert.match(down, /rollback blocked after identity-proven accrual/i);
   assert.doesNotMatch(sql, /price drop|lowest ever|down from|\/deals/i);
+});
+
+test("bounded Stage 3 evidence function exposes only exact approved Jon's rows without writes", { skip: !dockerAvailable() && "Docker daemon unavailable" }, () => {
+  const container = `supplementscout-seo15-stage3-${crypto.randomBytes(5).toString("hex")}`;
+  const database = "supplementscout_seo15_stage3_test";
+  let primaryError;
+  try {
+    requireSuccess(run("docker", ["run", "--detach", "--rm", "--name", container, "--network", "none", "-e", "POSTGRES_PASSWORD=identity-local-only", "-v", `${root}:/workspace:ro`, image]), "start Stage 3 PostgreSQL");
+    waitForPostgres(container);
+    requireSuccess(exec(container, ["createdb", "-U", "postgres", database]), "create Stage 3 database");
+    requireSuccess(psql(container, database, "do $roles$ begin if not exists(select 1 from pg_roles where rolname='anon') then create role anon nologin; end if; if not exists(select 1 from pg_roles where rolname='authenticated') then create role authenticated nologin; end if; if not exists(select 1 from pg_roles where rolname='service_role') then create role service_role nologin; end if; end $roles$;"), "create Stage 3 roles");
+    requireSuccess(psql(container, database, `
+      create table public.retailers(id bigint primary key,name text not null,slug text not null);
+      create table public.products(
+        id bigint primary key,name text not null,slug text not null,brand text,image text,category text,product_format text,
+        is_active boolean not null,merged_into_product_id bigint
+      );
+      create table public.product_variants(
+        id bigint primary key,product_id bigint not null,is_active boolean not null,
+        pack_count integer not null,size_value numeric not null,size_unit text not null,product_format text
+      );
+      create table public.retailer_products(
+        id bigint primary key,retailer_id bigint not null,product_id bigint not null,product_variant_id bigint not null,
+        external_product_id text not null,external_variant_id text,external_gtin text
+      );
+      create table public.offers(
+        id bigint primary key,product_id bigint not null,retailer_id bigint not null,
+        retailer_product_id bigint not null,product_variant_id bigint not null,
+        price numeric not null,shipping_cost numeric not null,total_price numeric not null,
+        in_stock boolean not null,url text not null,last_checked_at timestamptz not null
+      );
+      create table public.price_identity_series(
+        id bigint primary key,offer_id bigint not null,retailer_id bigint not null,product_id bigint not null,
+        product_variant_id bigint not null,retailer_product_id bigint not null,
+        external_product_id text not null,external_variant_id text,gtin text,
+        size_value numeric not null,size_unit text not null,pack_count integer not null,
+        product_format text,source_importer text not null
+      );
+      create table public.price_history(
+        id bigint generated always as identity primary key,offer_id bigint not null,identity_series_id bigint,
+        price numeric not null,shipping_cost numeric not null,total_price numeric not null,
+        in_stock boolean not null,checked_at timestamptz not null,observation_date date not null,
+        evidence_status text not null,anomaly_flags text[] not null default '{}'
+      );
+      create table public.price_observation_producers(
+        retailer_id bigint not null,source_importer text not null,enabled boolean not null,public_use text not null,
+        primary key(retailer_id,source_importer)
+      );
+      create or replace function public.retailer_catalogue_actual_database_target()
+      returns jsonb language sql stable security definer set search_path=pg_catalog,public,pg_temp
+      as $target$ select jsonb_build_object('target_environment','PRODUCTION') $target$;
+      create or replace function public.retailer_catalogue_business_counts()
+      returns jsonb language sql stable set search_path=pg_catalog,public,pg_temp
+      as $counts$ select jsonb_build_object(
+        'offers',(select count(*) from public.offers),
+        'history',(select count(*) from public.price_history),
+        'series',(select count(*) from public.price_identity_series)
+      ) $counts$;
+      insert into public.retailers(id,name,slug) values
+        (10,'Jon''s Supplements','jon-s-supplements');
+      insert into public.products(id,name,slug,brand,category,product_format,is_active) values
+        (7101,'HR Labs Defib Lemon','hr-labs-defib-lemon','HR Labs','Pre Workout','powder',true),
+        (7102,'HR Labs Defib Jelly Bean','hr-labs-defib-jelly-bean','HR Labs','Pre Workout','powder',true);
+      insert into public.product_variants(id,product_id,is_active,pack_count,size_value,size_unit,product_format) values
+        (7201,7101,true,1,420,'g','powder'),(7202,7102,true,1,420,'g','powder');
+      insert into public.retailer_products(id,retailer_id,product_id,product_variant_id,external_product_id,external_variant_id,external_gtin) values
+        (7301,10,7101,7201,'jons-1339','lemon','05000000001339'),
+        (7302,10,7102,7202,'jons-1337','jelly','05000000001337');
+      insert into public.offers(id,product_id,retailer_id,retailer_product_id,product_variant_id,price,shipping_cost,total_price,in_stock,url,last_checked_at) values
+        (1339,7101,10,7301,7201,27.48,0,27.48,true,'https://jons.example/1339','2026-10-09T10:00:00Z'),
+        (1337,7102,10,7302,7202,27.48,0,27.48,true,'https://jons.example/1337','2026-10-09T10:00:00Z');
+      insert into public.price_identity_series(
+        id,offer_id,retailer_id,product_id,product_variant_id,retailer_product_id,
+        external_product_id,external_variant_id,gtin,size_value,size_unit,pack_count,product_format,source_importer
+      ) values
+        (7401,1339,10,7101,7201,7301,'jons-1339','lemon','05000000001339',420,'g',1,'powder','retailer_offer_mixed_batch'),
+        (7402,1337,10,7102,7202,7302,'jons-1337','jelly','05000000001337',420,'g',1,'powder','retailer_offer_mixed_batch');
+      insert into public.price_observation_producers(retailer_id,source_importer,enabled,public_use)
+        values(10,'retailer_offer_mixed_batch',true,'eligible-after-separate-approval');
+      do $seed$
+      declare v_offer bigint; v_series bigint; v_day date;
+      begin
+        foreach v_offer in array array[1337::bigint,1339::bigint] loop
+          v_series:=case when v_offer=1337 then 7402 else 7401 end;
+          for v_day in select generate_series('2026-09-21'::date,'2026-09-27'::date,interval '1 day')::date loop
+            insert into public.price_history(offer_id,identity_series_id,price,shipping_cost,total_price,in_stock,checked_at,observation_date,evidence_status)
+              values(v_offer,v_series,35.48,0,35.48,true,v_day::timestamptz+interval '10 hours',v_day,'proven');
+          end loop;
+          for v_day in select generate_series('2026-09-28'::date,'2026-10-09'::date,interval '1 day')::date loop
+            insert into public.price_history(offer_id,identity_series_id,price,shipping_cost,total_price,in_stock,checked_at,observation_date,evidence_status)
+              values(v_offer,v_series,27.48,0,27.48,true,v_day::timestamptz+interval '10 hours',v_day,'proven');
+          end loop;
+        end loop;
+      end
+      $seed$;`), "seed bounded Stage 3 evidence");
+    requireSuccess(psqlFile(container, database, stage3Migration), "apply bounded Stage 3 evidence migration");
+
+    const before = json(container, database, "select public.retailer_catalogue_business_counts()::text");
+    const evidence = json(container, database, "select public.get_seo15_bounded_stage3_evidence()::text");
+    const after = json(container, database, "select public.retailer_catalogue_business_counts()::text");
+    assert.deepEqual(after, before);
+    assert.equal(json(container, database, "select has_function_privilege('service_role','public.get_seo15_bounded_stage3_evidence()','execute')::text::jsonb"), true);
+    assert.equal(json(container, database, "select has_function_privilege('anon','public.get_seo15_bounded_stage3_evidence()','execute')::text::jsonb"), false);
+    assert.deepEqual(evidence.map((row) => Number(row.offer_id)).sort((a, b) => a - b), [1337, 1339]);
+    for (const row of evidence) {
+      assert.equal(row.identity_matches, true);
+      assert.equal(row.latest_matches, true);
+      assert.equal(row.prior_stable_dates, 7);
+      assert.equal(row.prior_conflicts, 0);
+      assert.equal(row.subsequent_conflicts, 0);
+      assert.equal(row.offer_series_count, 1);
+      assert.equal(row.producer_enabled, true);
+      assert.equal(row.producer_public_use, "eligible-after-separate-approval");
+    }
+    requireFailure(psql(container, database, "set role anon; select public.get_seo15_bounded_stage3_evidence();"), "public Stage 3 evidence access", /permission denied/i);
+  } catch (error) {
+    primaryError = error;
+    throw error;
+  } finally {
+    const cleanup = run("docker", ["rm", "--force", container], 30_000);
+    if (!primaryError && cleanup.status !== 0) assert.fail(output(cleanup));
+  }
 });
