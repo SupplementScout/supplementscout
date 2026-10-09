@@ -23,6 +23,17 @@ is now the single `IN PROGRESS` SEO implementation. The shared `/deals`
 selector, exact-scope read-only evidence function and UI remain behind the
 default-off `SEO15_STAGE3_ENABLED` release gate.
 
+**9 October automatic candidate follow-up:** the bounded implementation was
+merged in PR `#319` as commit `a8de52515a88af55e4414c9b43cbc0ef0fcff792`;
+required PR/main checks passed and the live `/deals` page remained unchanged.
+The owner then approved one automatic, fail-closed candidate inventory instead
+of maintaining offer IDs. Jon's is the only source-level public release; other
+already enabled eligible producers are discovery-only until a separate owner
+decision. Prepare the central release registry, read-only inventory RPC,
+default-off admin monitor and variable-gated daily read-only audit. Do not
+deploy either pending migration or enable either flag before the staged schema
+and readback controls.
+
 **10 September measurement correction:** read-only run `34491056108` re-read
 2–8 September with daily completeness and traffic-quality evidence. GSC settled
 at 1,276 impressions/2 clicks; all seven dates are present and final/all totals
@@ -151,19 +162,20 @@ Console evidence and user value.
 | SEO-12 | P1 | Begin legitimate authority and backlink acquisition. | `PLANNED` | Priority retailer/brand/community outreach uses useful live resources; earned links and outcomes are recorded monthly; no bulk or paid-link scheme is used. |
 | SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `LIVE VERIFIED` | Protein Bars shipped in commit `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f`, production deployment `6048852742` succeeded, and public HTTP, canonical, robots, sitemap, schema, exact-pack, delivered-price and internal-link checks passed. |
 | SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `LIVE VERIFIED` | Applied Nutrition, Per4m, BioTech USA and eBay UK are individually gated and live verified; GYM HIGH remains owner-deferred and no dynamic page generator exists. |
-| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `IN PROGRESS` | Stage 1/P0 and approved Stage 2A producers are production verified. Read-only 30-day audit `37927290755` captured 813 series / 26,007 linked observations with zero writes. The owner approved bounded Stage 3 implementation for only Jon's offers `1337` and `1339`, with no new producer or backfill. Implement the shared fail-closed selector, exact-scope read-only evidence boundary and UI behind a default-off release gate; pass local/CI, staging database and final production read-only checks before any public enablement. The other three decreases, Fit House and GYM HIGH remain excluded. |
+| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `IN PROGRESS` | Stage 1/P0 and approved Stage 2A producers are production verified. Read-only 30-day audit `37927290755` captured 813 series / 26,007 linked observations with zero writes. The two-offer Jon's canary is implemented and remains default-off. The active follow-up replaces its fixed offer scope with one shared, fail-closed automatic candidate inventory: Jon's is the only source released for eventual publication, while candidates from other already-enabled eligible sources remain read-only discovery until a separate owner decision. No new producer or history backfill is allowed. Monitoring and public flags stay off through local/CI, staging schema and production readback checks. |
 | SEO-16 | P1 | Launch guarded two-product comparison. | `LIVE VERIFIED` | Commit `7eec604` deployed the owner-approved lifecycle launch on 26 August 2026. Public base and pair checks passed HTTP, robots, canonical, exact-pack and delivered-price contracts; the homepage link and exactly one sitemap entry were verified. |
 | SEO-17 | P2 | Add owner-reviewed expert decision notes. | `PLANNED` | Expert judgement is clearly labelled and dated, verified facts retain provenance, and unsupported medical or formulation claims cannot publish. |
 
 ## 6. Current active task
 
-**Next executable task:** SEO-15 bounded Stage 3 is `IN PROGRESS` for only
-Jon's offers `1337` and `1339`. Implement and verify the existing per-row
-contract through one central selector and a read-only exact-scope database
-boundary. Keep `SEO15_STAGE3_ENABLED` off through merge, schema rehearsal,
-production readback and final release verification. Do not enable another
-producer, backfill history, expand the two-row scope or weaken any gate. SEO-17
-remains behind this release.
+**Next executable task:** SEO-15 automatic Stage 3 candidates are `IN PROGRESS`.
+Verify the one shared candidate inventory and source-level release registry,
+with Jon's as the only released source. Keep `SEO15_STAGE3_MONITOR_ENABLED`,
+the scheduled monitor variable and `SEO15_STAGE3_ENABLED` off through merge,
+schema rehearsal and production readback. Other enabled eligible sources are
+read-only discovery only. Do not enable another producer or retailer release,
+backfill history, change product identity or weaken any gate. SEO-17 remains
+behind this release.
 
 The latest weekly GSC/GA4 read is run `37925170969` for 30 September-6 October:
 1,535 final impressions, 15 clicks and all seven dates present. GA4 has 59
@@ -173,8 +185,10 @@ and zero Better-value clicks mean no conversion-uplift claim.
 
 The SEO-15 technical plan remains the bounded design and evidence reference;
 this execution ledger remains the sole SEO status and ordering authority.
-The implementation and local verification evidence is recorded in
-[`docs/rollouts/seo15-bounded-stage3-implementation-2026-10-09.md`](rollouts/seo15-bounded-stage3-implementation-2026-10-09.md).
+The canary implementation is recorded in
+[`docs/rollouts/seo15-bounded-stage3-implementation-2026-10-09.md`](rollouts/seo15-bounded-stage3-implementation-2026-10-09.md),
+and the active automatic-candidate follow-up is recorded in
+[`docs/rollouts/seo15-automatic-candidate-inventory-2026-10-09.md`](rollouts/seo15-automatic-candidate-inventory-2026-10-09.md).
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.

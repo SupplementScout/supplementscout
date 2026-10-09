@@ -1,6 +1,8 @@
 name: SEO-15 Accrual Audit
 
 on:
+  schedule:
+    - cron: "23 7 * * *"
   workflow_dispatch:
 
 permissions:
@@ -12,7 +14,7 @@ concurrency:
 
 jobs:
   audit:
-    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && vars.SEO15_CANDIDATE_MONITOR_ENABLED == 'true')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment: production-readonly
@@ -21,7 +23,7 @@ jobs:
       - name: Validate read-only context
         run: |
           test "$GITHUB_REF" = "refs/heads/main"
-          test "$GITHUB_EVENT_NAME" = "workflow_dispatch"
+          case "$GITHUB_EVENT_NAME" in schedule|workflow_dispatch) ;; *) exit 1 ;; esac
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
@@ -38,7 +40,7 @@ jobs:
         if: always()
         run: |
           if [ -f tmp/seo15-accrual/audit.json ]; then
-            node -e 'const r=require("./tmp/seo15-accrual/audit.json"); console.log(`## SEO-15 read-only accrual audit\n\n- Series: ${r.identity_series}\n- Linked observations: ${r.identity_linked_observations}\n- Legacy rows excluded: ${r.legacy_rows}\n- Database writes: ${r.database_writes}`); for(const x of r.retailers) console.log(`- ${x.retailer_slug}: ${x.series} series, ${x.proven} proven observations, ${x.at_least_30_days} mature, ${x.continuous_7d_threshold_decreases} qualifying drops`)' >> "$GITHUB_STEP_SUMMARY"
+            node -e 'const r=require("./tmp/seo15-accrual/audit.json"); console.log(`## SEO-15 read-only accrual audit\n\n- Series: ${r.identity_series}\n- Linked observations: ${r.identity_linked_observations}\n- Legacy rows excluded: ${r.legacy_rows}\n- Database writes: ${r.database_writes}`); if(r.candidate_inventory) console.log(`- Verified candidates: ${r.candidate_inventory.summary.candidate_count}\n- Automatic public candidates: ${r.candidate_inventory.summary.released_candidate_count}\n- Waiting for retailer approval: ${r.candidate_inventory.summary.awaiting_retailer_approval_count}`); else console.log("- Automatic candidate inventory: not installed yet"); for(const x of r.retailers) console.log(`- ${x.retailer_slug}: ${x.series} series, ${x.proven} proven observations, ${x.at_least_30_days} mature, ${x.continuous_7d_threshold_decreases} qualifying drops`)' >> "$GITHUB_STEP_SUMMARY"
           else
             echo "## SEO-15 audit failed before evidence capture" >> "$GITHUB_STEP_SUMMARY"
           fi

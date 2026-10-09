@@ -9,12 +9,6 @@ const PAGE_SIZE = 1000;
 const MAX_PAGES = 10;
 const ALLOWED_SIZE_UNITS = new Set(["g", "ml", "servings"]);
 
-export const VERIFIED_PRICE_DROP_SCOPE = {
-  retailerId: "10",
-  retailerSlug: "jon-s-supplements",
-  offerIds: ["1337", "1339"],
-} as const;
-
 export const VERIFIED_PRICE_DROP_RULES = {
   minimumDropAmount: 2,
   minimumDropRatio: 0.1,
@@ -155,6 +149,16 @@ export type RawVerifiedPriceDropEvidence = {
   latest_matches: boolean | null;
   producer_enabled: boolean | null;
   producer_public_use: string | null;
+  producer_approved_scope: string | null;
+  release_enabled: boolean | null;
+};
+
+export type RawPriceDropCandidateInventory = {
+  schema_version: number | string | null;
+  kind: string | null;
+  captured_at: string | null;
+  database_writes: number | string | null;
+  candidates: unknown;
 };
 
 export type VerifiedPriceDropRow = {
@@ -173,6 +177,40 @@ export type VerifiedPriceDropRow = {
   evidenceDays: number;
   offer: DealsOffer;
 };
+
+export type VerifiedPriceDropCandidateRow = VerifiedPriceDropRow & {
+  releaseEnabled: boolean;
+  approvedScope: string;
+};
+
+export type PriceDropCandidateInventory = {
+  available: boolean;
+  error: boolean;
+  capturedAt: string | null;
+  candidateCount: number;
+  releasedCandidateCount: number;
+  awaitingRetailerApprovalCount: number;
+  candidates: VerifiedPriceDropCandidateRow[];
+};
+
+function toVerifiedPriceDropRow(candidate: VerifiedPriceDropCandidateRow): VerifiedPriceDropRow {
+  return {
+    id: candidate.id,
+    name: candidate.name,
+    brand: candidate.brand,
+    image: candidate.image,
+    productUrl: candidate.productUrl,
+    packLabel: candidate.packLabel,
+    previousDeliveredPrice: candidate.previousDeliveredPrice,
+    currentDeliveredPrice: candidate.currentDeliveredPrice,
+    savingAmount: candidate.savingAmount,
+    savingPercent: candidate.savingPercent,
+    droppedAt: candidate.droppedAt,
+    lastCheckedAt: candidate.lastCheckedAt,
+    evidenceDays: candidate.evidenceDays,
+    offer: candidate.offer,
+  };
+}
 
 type NormalizedOffer = DealsOffer & {
   product: RawProduct & { id: string; name: string; slug: string };
@@ -234,11 +272,14 @@ export function isVerifiedPriceDropsEnabled(env = process.env) {
   return env.SEO15_STAGE3_ENABLED === "true";
 }
 
-export function normalizeVerifiedPriceDrops(
+export function isPriceDropCandidateMonitorEnabled(env = process.env) {
+  return env.SEO15_STAGE3_MONITOR_ENABLED === "true";
+}
+
+export function normalizePriceDropCandidates(
   evidence: RawVerifiedPriceDropEvidence[],
   now = new Date()
-): VerifiedPriceDropRow[] {
-  const allowedOffers = new Set<string>(VERIFIED_PRICE_DROP_SCOPE.offerIds);
+): VerifiedPriceDropCandidateRow[] {
   const rows = evidence.flatMap((raw) => {
     const offerId = positiveId(raw.offer_id);
     const seriesId = positiveId(raw.identity_series_id);
@@ -271,9 +312,6 @@ export function normalizeVerifiedPriceDrops(
 
     if (
       !offerId || !seriesId || !observationId || !retailerId ||
-      !allowedOffers.has(offerId) ||
-      retailerId !== VERIFIED_PRICE_DROP_SCOPE.retailerId ||
-      raw.retailer_slug !== VERIFIED_PRICE_DROP_SCOPE.retailerSlug ||
       raw.producer_enabled !== true || raw.producer_public_use !== "eligible-after-separate-approval" ||
       raw.identity_matches !== true || raw.latest_matches !== true ||
       raw.product_active !== true || raw.product_merged_into_id !== null || raw.variant_active !== true ||
@@ -291,6 +329,7 @@ export function normalizeVerifiedPriceDrops(
       !Number.isFinite(droppedAt) || !Number.isFinite(lastCheckedAt) || droppedAt > lastCheckedAt ||
       !packCount || !sizeValue || !ALLOWED_SIZE_UNITS.has(sizeUnit) ||
       !raw.product_name?.trim() || !raw.product_slug?.trim() || !raw.retailer_name?.trim() ||
+      !raw.retailer_slug?.trim() || !raw.producer_approved_scope?.trim() ||
       !validUrl(raw.offer_url)
     ) {
       return [];
@@ -310,6 +349,8 @@ export function normalizeVerifiedPriceDrops(
       droppedAt: raw.drop_checked_at!,
       lastCheckedAt: raw.current_last_checked_at!,
       evidenceDays: elapsedDays,
+      releaseEnabled: raw.release_enabled === true,
+      approvedScope: raw.producer_approved_scope.trim(),
       offer: {
         id: offerId,
         url: raw.offer_url!,
@@ -319,12 +360,62 @@ export function normalizeVerifiedPriceDrops(
         deliveredPrice,
         retailer: { id: retailerId, name: raw.retailer_name.trim(), slug: raw.retailer_slug },
       },
-    } satisfies VerifiedPriceDropRow];
+    } satisfies VerifiedPriceDropCandidateRow];
   });
 
   return rows.sort((a, b) =>
     b.savingPercent - a.savingPercent || b.savingAmount - a.savingAmount || compareIds(a.offer.id, b.offer.id)
   );
+}
+
+export function normalizeVerifiedPriceDrops(
+  evidence: RawVerifiedPriceDropEvidence[],
+  now = new Date()
+): VerifiedPriceDropRow[] {
+  return normalizePriceDropCandidates(evidence, now)
+    .filter((row) => row.releaseEnabled)
+    .map(toVerifiedPriceDropRow);
+}
+
+export function normalizePriceDropCandidateInventory(
+  raw: RawPriceDropCandidateInventory,
+  now = new Date()
+): PriceDropCandidateInventory {
+  const capturedAt = typeof raw.captured_at === "string" && Number.isFinite(Date.parse(raw.captured_at))
+    ? raw.captured_at
+    : null;
+  if (
+    Number(raw.schema_version) !== 1 ||
+    raw.kind !== "seo15-stage3-candidate-inventory" ||
+    Number(raw.database_writes) !== 0 ||
+    !capturedAt ||
+    !Array.isArray(raw.candidates)
+  ) {
+    return emptyPriceDropCandidateInventory(true);
+  }
+  const candidates = normalizePriceDropCandidates(raw.candidates as RawVerifiedPriceDropEvidence[], now);
+  const releasedCandidateCount = candidates.filter((row) => row.releaseEnabled).length;
+  return {
+    available: true,
+    error: false,
+    capturedAt,
+    candidateCount: candidates.length,
+    releasedCandidateCount,
+    awaitingRetailerApprovalCount: candidates.length - releasedCandidateCount,
+    candidates,
+  };
+}
+
+export function emptyPriceDropCandidateInventory(error = false): PriceDropCandidateInventory {
+  return {
+    available: false,
+    error,
+    capturedAt: null,
+    candidateCount: 0,
+    releasedCandidateCount: 0,
+    awaitingRetailerApprovalCount: 0,
+    candidates: [],
+  };
 }
 
 function normalizeOffer(raw: RawDealsOffer, now: Date): NormalizedOffer | null {
@@ -541,20 +632,19 @@ export function emptyDealsResult(error = false): DealsResult {
   };
 }
 
-async function loadVerifiedPriceDrops(now = new Date()) {
-  const { data, error } = await supabaseAdmin.rpc("get_seo15_bounded_stage3_evidence");
-  if (error || !Array.isArray(data)) return { rows: [] as VerifiedPriceDropRow[], error: true };
-  return {
-    rows: normalizeVerifiedPriceDrops(data as RawVerifiedPriceDropEvidence[], now),
-    error: false,
-  };
+export async function loadPriceDropCandidateInventory(now = new Date()) {
+  const { data, error } = await supabaseAdmin.rpc("get_seo15_stage3_candidate_inventory");
+  if (error || !data || Array.isArray(data) || typeof data !== "object") {
+    return emptyPriceDropCandidateInventory(true);
+  }
+  return normalizePriceDropCandidateInventory(data as RawPriceDropCandidateInventory, now);
 }
 
 async function loadDeals(): Promise<DealsResult> {
   const verifiedDropsEnabled = isVerifiedPriceDropsEnabled();
   const verifiedDropsPromise = verifiedDropsEnabled
-    ? loadVerifiedPriceDrops()
-    : Promise.resolve({ rows: [] as VerifiedPriceDropRow[], error: false });
+    ? loadPriceDropCandidateInventory()
+    : Promise.resolve(emptyPriceDropCandidateInventory(false));
   const rawOffers: RawDealsOffer[] = [];
   for (let page = 0; page < MAX_PAGES; page += 1) {
     const from = page * PAGE_SIZE;
@@ -586,7 +676,9 @@ async function loadDeals(): Promise<DealsResult> {
   const historical = await verifiedDropsPromise;
   return {
     ...current,
-    verifiedDrops: historical.rows,
+    verifiedDrops: historical.candidates
+      .filter((row) => row.releaseEnabled)
+      .map(toVerifiedPriceDropRow),
     verifiedDropsEnabled,
     verifiedDropsError: historical.error,
   };

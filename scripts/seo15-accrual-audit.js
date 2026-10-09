@@ -157,8 +157,17 @@ async function collectAudit({ connectionString, ClientImpl = Client }) {
     invariant(context.target_environment === "PRODUCTION", "SEO-15 audit target is not production");
     invariant(!context.safe_update || context.safe_update === "false" || context.safe_update === "off", "SAFE_UPDATE must remain disabled");
     const report = (await client.query(AUDIT_SQL)).rows[0].report;
+    const inventoryFunction = (await client.query("select to_regprocedure('public.get_seo15_stage3_candidate_inventory()') is not null available")).rows[0];
+    const candidateInventory = inventoryFunction.available
+      ? (await client.query("select public.get_seo15_stage3_candidate_inventory() inventory")).rows[0].inventory
+      : null;
     await client.query("rollback");
-    return { ...report, database_session: { current_user: context.current_user, session_user: context.session_user, transaction_read_only: context.read_only }, database_writes: 0 };
+    return {
+      ...report,
+      candidate_inventory: candidateInventory,
+      database_session: { current_user: context.current_user, session_user: context.session_user, transaction_read_only: context.read_only },
+      database_writes: 0,
+    };
   } catch (error) {
     try { await client.query("rollback"); } catch {}
     throw error;

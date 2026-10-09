@@ -20,13 +20,31 @@ test("SEO-15 database session is repeatable-read, read-only and rolled back", as
       calls.push(sql);
       if (sql.startsWith("select current_user")) return { rows: [{ current_user: "postgres", session_user: "postgres", read_only: "on", safe_update: "off", target_environment: "PRODUCTION" }] };
       if (sql === AUDIT_SQL) return { rows: [{ report: { captured_at: "2026-10-09T00:00:00Z", database_writes: 0 } }] };
+      if (sql.startsWith("select to_regprocedure")) return { rows: [{ available: true }] };
+      if (sql.startsWith("select public.get_seo15_stage3_candidate_inventory")) return { rows: [{ inventory: { schema_version: 1, summary: { candidate_count: 2 } } }] };
       return { rows: [] };
     }
     async end() { calls.push("end"); }
   }
   const report = await collectAudit({ connectionString: "postgres://example", ClientImpl: FakeClient });
   assert.equal(report.database_writes, 0);
+  assert.equal(report.candidate_inventory.summary.candidate_count, 2);
   assert.deepEqual(calls.slice(0, 2), ["connect", "begin isolation level repeatable read read only"]);
   assert.ok(calls.includes("rollback"));
   assert.equal(calls.at(-1), "end");
+});
+
+test("SEO-15 audit remains usable before the automatic inventory migration", async () => {
+  class FakeClient {
+    async connect() {}
+    async query(sql) {
+      if (sql.startsWith("select current_user")) return { rows: [{ current_user: "postgres", session_user: "postgres", read_only: "on", safe_update: "off", target_environment: "PRODUCTION" }] };
+      if (sql === AUDIT_SQL) return { rows: [{ report: { captured_at: "2026-10-09T00:00:00Z", database_writes: 0 } }] };
+      if (sql.startsWith("select to_regprocedure")) return { rows: [{ available: false }] };
+      return { rows: [] };
+    }
+    async end() {}
+  }
+  const report = await collectAudit({ connectionString: "postgres://example", ClientImpl: FakeClient });
+  assert.equal(report.candidate_inventory, null);
 });

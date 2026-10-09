@@ -222,11 +222,19 @@ const PENDING_MIGRATIONS = Object.freeze({
       filename: "20261009140000_add_seo15_bounded_stage3_evidence.sql",
       sha256: "f233c07c7f0f4095ead851720bf562910c157bc0dc79e5fe6f5d4ed89ea575bb",
     }),
+    Object.freeze({
+      filename: "20261009160000_add_seo15_automatic_candidate_inventory.sql",
+      sha256: "337b795f923fa90f77124196f75294a6281d88006c8287d1c5f2118eac2eccad",
+    }),
   ]),
   PRODUCTION: Object.freeze([
     Object.freeze({
       filename: "20261009140000_add_seo15_bounded_stage3_evidence.sql",
       sha256: "f233c07c7f0f4095ead851720bf562910c157bc0dc79e5fe6f5d4ed89ea575bb",
+    }),
+    Object.freeze({
+      filename: "20261009160000_add_seo15_automatic_candidate_inventory.sql",
+      sha256: "337b795f923fa90f77124196f75294a6281d88006c8287d1c5f2118eac2eccad",
     }),
   ]),
 });
