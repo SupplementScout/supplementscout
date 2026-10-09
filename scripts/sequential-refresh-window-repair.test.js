@@ -76,6 +76,21 @@ test('three more retailers use the existing guarded sequential parent approval',
   assert.match(extension,/sequential parent approval extension definition mismatch/);
   assert.doesNotMatch(extension,/\b(?:insert into|update|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history|retailers)\b/i);
 });
+test('shared sequential registrations accept the same bounded 50-child capacity as the planner',()=>{
+  const capacity=fs.readFileSync(path.join(process.cwd(),'supabase/migrations/20261009100000_align_shared_sequential_child_capacity.sql'),'utf8');
+  const rollbackCapacity=fs.readFileSync(path.join(process.cwd(),'supabase/rollbacks/20261009100000_align_shared_sequential_child_capacity.sql'),'utf8');
+  for(const name of ['retailer','fit_house','jons','whey_okay','discount_supplements','dolphin_vegan_protein','simply_supplements','kior','10reps']){
+    assert.match(capacity,new RegExp(`register_${name}_offer_sync_control_plan`));
+    assert.match(rollbackCapacity,new RegExp(`register_${name}_offer_sync_control_plan`));
+  }
+  assert.match(capacity,/v_child_count < 1 or v_child_count > 50/);
+  assert.match(capacity,/v_properties_after is distinct from v_properties_before/);
+  assert.match(capacity,/retailer_catalogue_business_counts\(\) is distinct from v_before/);
+  assert.match(capacity,/retailer-offer-sync:global-execution/);
+  assert.match(automation,/MAXIMUM_SEQUENTIAL_CHILDREN=50/);
+  assert.match(automation,/executionBatches\.length<=MAXIMUM_SEQUENTIAL_CHILDREN/);
+  assert.doesNotMatch(capacity,/\b(?:insert into|update|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history|retailers)\b/i);
+});
 test('failed Discount, Dolphin and KIOR parents are superseded only after exact empty-plan checks',()=>{
   const cleanup=fs.readFileSync(path.join(process.cwd(),'supabase/migrations/20260922141000_supersede_three_failed_refresh_plans.sql'),'utf8');
   for(const exact of [

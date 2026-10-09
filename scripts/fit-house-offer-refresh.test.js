@@ -7,6 +7,7 @@ const test = require("node:test");
 const config = require("../config/retailers/fit-house-offer-sync.json");
 const {
   APPROVED_CANONICAL_REBINDINGS,
+  MAXIMUM_SEQUENTIAL_CHILDREN,
   appliedAutomationReviewStockDelta,
   applyApprovedStableOosBaselineGuard,
   approvedStableOosBaseline,
@@ -823,6 +824,26 @@ test("new unavailable rows are split within the database validator limit", () =>
       row.atomic_plan.expected_state.offer.in_stock &&
       !row.atomic_plan.offer.values.in_stock
     ).length <= 3));
+});
+
+test("the live 10 Reps OOS wave fits the shared sequential parent capacity", () => {
+  const rows = Array.from({ length: 934 }, (_, index) => ({
+    offer_id: String(index + 1),
+    action: index < 65 ? "UPDATE_STOCK" : "VERIFY_NO_CHANGE",
+    changed_fields: { price: false, stock: index < 65, url: false, blocked: false },
+    atomic_plan: {
+      expected_state: { offer: { in_stock: true } },
+      offer: { values: { in_stock: index >= 65 } },
+    },
+  }));
+  const batches = balancedExecutionBatches(rows, 50, 3);
+  assert.equal(batches.length, 22);
+  assert.ok(batches.length <= MAXIMUM_SEQUENTIAL_CHILDREN);
+  assert.equal(batches.flat().length, 934);
+  assert.ok(batches.every((batch) => batch.length <= 50));
+  assert.ok(batches.every((batch) => batch.filter((row) =>
+    row.atomic_plan.expected_state.offer.in_stock &&
+    !row.atomic_plan.offer.values.in_stock).length <= 3));
 });
 
 test("CLI exposes guarded isolation only alongside normal dry-run and apply modes", () => {

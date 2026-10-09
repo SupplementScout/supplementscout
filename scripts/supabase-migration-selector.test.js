@@ -450,7 +450,10 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
 
 test("production records the shared executor migration as applied and closed", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: "20261009100000_align_shared_sequential_child_capacity.sql",
+    sha256: "97af9483d3f306a72822de982f18eb9def83f510e12b4d5748ac103782270a4f",
+  }]);
   assert.deepEqual(contract.appliedExcluded, [
     "20260929133000_extend_expired_sequential_plan_close.sql",
     "20261004120000_add_central_control_plan_readback.sql",
@@ -574,7 +577,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACT.ledgerFingerprint);
 });
 
-test("production accepts ledger 231 with shared executor state reads applied", () => {
+test("production accepts ledger 231 and selects the one pending child-capacity migration", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   for (const filename of contract.appliedExcluded) excluded.delete(filename);
@@ -603,7 +606,7 @@ test("production accepts ledger 231 with shared executor state reads applied", (
   });
   assert.equal(result.ledger_count, 231);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 231);
+  assert.equal(result.selected_files.length, 232);
   assert.ok(result.selected_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
   assert.ok(result.excluded_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
   assert.ok(result.selected_files.includes("20261004120000_add_central_control_plan_readback.sql"));
@@ -613,8 +616,13 @@ test("production accepts ledger 231 with shared executor state reads applied", (
   assert.ok(result.selected_files.includes("20261006170000_add_automation_review_owner_decision_validation.sql"));
   assert.ok(result.selected_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
   assert.ok(result.excluded_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.deepEqual(result.pending_files, [
+    "20261009100000_align_shared_sequential_child_capacity.sql",
+  ]);
+  assert.deepEqual(result.pending_sha256s, {
+    "20261009100000_align_shared_sequential_child_capacity.sql":
+      "97af9483d3f306a72822de982f18eb9def83f510e12b4d5748ac103782270a4f",
+  });
   assert.ok(result.selected_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(result.excluded_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(result.selected_files.includes("20261008140000_add_active_retailer_parent_inventory.sql"));
@@ -720,7 +728,10 @@ test("runtime staging artifacts bind the same migration ledger as the staging se
 test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.equal(Object.keys(contract.excluded).length, 23);
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: "20261009100000_align_shared_sequential_child_capacity.sql",
+    sha256: "97af9483d3f306a72822de982f18eb9def83f510e12b4d5748ac103782270a4f",
+  }]);
   assert.equal(
     contract.excluded["20261008200000_consolidate_shared_executor_state_reads.sql"],
     "a4701b3b94573e453a359f228e0914405d58f338b82d7b5f7158fc5cec385826",

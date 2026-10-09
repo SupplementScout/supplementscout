@@ -2534,6 +2534,27 @@ green CI, then use one new fresh ordinary run; never resume or replay the failed
 plan. RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence: [10 Reps shared
 executable partition preparation](evidence/RA-STAB-01-10REPS-SHARED-EXECUTABLE-PARTITION-PREPARATION-2026-10-09.json).
 
+PR `#308` merged the shared partition repair at
+`6fb61872b535cd4c5453d603991609514d2be6a8`. One new fresh ordinary 10 Reps
+run `37887683300` then passed source capture, dry-run, baseline, all 22 read-only
+child validations and the same-run Review Queue binding. Registration failed
+closed before creating any parent, child or approval because the planner's
+22 safe children exceeded the older shared registration maximum of 20. The
+live shape was `934 = 837 VERIFY_NO_CHANGE + 97 UPDATE_STOCK`; 65 updates were
+new OOS and therefore correctly distributed at no more than 3 per child. The
+apply diagnostic records zero completed database, business and control writes.
+The shared queue publisher separately replaced the prior 16 10 Reps review
+records with the same 16 current source-missing records and made zero catalogue
+writes. Migration `20261009100000_align_shared_sequential_child_capacity.sql`
+is prepared to align the planner and all nine current shared/dedicated
+registration functions at a bounded 50-child maximum. It does not change the
+50-row child cap, 3-new-OOS child cap, retailer policy, approval or executor.
+The migration preserves function owner, security mode, volatility, parallel
+mode, configuration and ACL exactly and aborts on definition drift. No deploy
+or replacement run is yet recorded. RA-STAB-01 remains `IN_PROGRESS` at `0/3`.
+Evidence: [shared sequential child-capacity
+preparation](evidence/RA-STAB-01-SHARED-SEQUENTIAL-CHILD-CAPACITY-PREPARATION-2026-10-09.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
