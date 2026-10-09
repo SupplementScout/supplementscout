@@ -43,6 +43,7 @@ const {
   safeUpdateDisabled,
   safeValidatorResult,
   selectOrdinaryExecutionRows,
+  selectOwnerReconciledSourceVariants,
   selectOwnerApprovedSixExecutionRows,
   selectReviewQueueExecutionRows,
   sourceHealth,
@@ -61,6 +62,13 @@ test("post-apply idempotency accepts only the sealed owner-approved OOS transiti
   assert.equal(applyApprovedStableOosBaselineGuard(state, null, transition).result, "PASS");
   assert.throws(() => applyApprovedStableOosBaselineGuard({ records: [...state.records, { offer: { id: "9999", in_stock: false } }] }, null, transition), (error) => error.code === "STABLE_OOS_BASELINE_EXCEEDED");
   assert.throws(() => appliedAutomationReviewStockDelta({ records: state.records.map((record) => String(record.offer.id) === "1982" ? { offer: { ...record.offer, in_stock: true } } : record) }, transition), /AUTOMATION_REVIEW_IDEMPOTENCY_AFTER_STATE_DRIFT/);
+});
+
+test("owner-approved synthetic source rows flow into both ordinary and confirmation captures", () => {
+  const raw=[{external_variant_id:"raw"}],missing={sourceVariants:[...raw,{external_variant_id:"missing"}]},protectedSix={sourceVariants:[...missing.sourceVariants,{external_variant_id:"protected"}]};
+  assert.equal(selectOwnerReconciledSourceVariants(raw,null,null),raw);
+  assert.equal(selectOwnerReconciledSourceVariants(raw,missing,null),missing.sourceVariants);
+  assert.equal(selectOwnerReconciledSourceVariants(raw,missing,protectedSix),protectedSix.sourceVariants);
 });
 
 test("ordinary Fit House runs reuse only durable verified Review Queue OOS evidence", () => {

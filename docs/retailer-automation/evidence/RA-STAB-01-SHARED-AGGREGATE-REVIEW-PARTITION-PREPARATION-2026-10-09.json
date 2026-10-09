@@ -43,6 +43,15 @@
         "cause": "a consumed one-time owner contract still vetoed later ordinary changes before the existing isolation path could publish them for review",
         "writes": 0
       }
+    },
+    "post_merge_read_only_fit_house": {
+      "run_id": 37962781276,
+      "commit": "773fc3934ad1db7aa00130721636d94911a4d407",
+      "result": "FAIL_CLOSED",
+      "failure_code": "IDENTITY_DRIFT",
+      "cause": "the first capture recognized protected synthetic source rows, but the following common reconciliation step received the earlier source array; the same omission existed in the second confirmation capture",
+      "source": "HTTP 200; 242 products; 338 variants; complete capture; zero retries",
+      "writes": 0
     }
   },
   "prepared_correction": {
@@ -56,6 +65,7 @@
       "existing owner-deferred rows remain in Review Queue"
     ],
     "fit_house_incident_regression": "286 rows become exactly 275 executable confirmations plus 11 review rows",
+    "source_chain_correction": "one shared selector carries the most complete owner-reconciled source array into both the ordinary and confirmation captures",
     "retailer_specific_ids_added_to_runtime": 0,
     "new_importers": 0,
     "new_executors": 0,
@@ -63,13 +73,14 @@
     "guardrails_weakened": false
   },
   "local_verification": {
-    "focused_tests": "PASS 82/82",
+    "focused_tests": "PASS 83/83",
     "verify_quick": "PASS",
     "verify_project_before_documentation": "PASS",
     "verify_full": "PASS"
   },
   "production_state": {
-    "correction_deployed": false,
+    "aggregate_partition_deployed": true,
+    "source_chain_followup_deployed": false,
     "offers_changed_by_this_preparation": 0,
     "price_history_changed_by_this_preparation": 0,
     "review_queue_changed_by_this_preparation": 0,
