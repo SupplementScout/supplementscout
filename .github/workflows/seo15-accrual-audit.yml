@@ -1,0 +1,52 @@
+name: SEO-15 Accrual Audit
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: seo15-accrual-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production-readonly
+
+    steps:
+      - name: Validate read-only context
+        run: |
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$GITHUB_EVENT_NAME" = "workflow_dispatch"
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Test SEO-15 read-only contract
+        run: node --test scripts/seo15-accrual-audit.test.js
+      - name: Read SEO-15 accrual evidence
+        env:
+          SEO15_AUDIT_OWNER_DATABASE_URL: ${{ secrets.SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL }}
+        run: node scripts/seo15-accrual-audit.js --output=tmp/seo15-accrual/audit.json
+      - name: Publish safe summary
+        if: always()
+        run: |
+          if [ -f tmp/seo15-accrual/audit.json ]; then
+            node -e 'const r=require("./tmp/seo15-accrual/audit.json"); console.log(`## SEO-15 read-only accrual audit\n\n- Series: ${r.identity_series}\n- Linked observations: ${r.identity_linked_observations}\n- Legacy rows excluded: ${r.legacy_rows}\n- Database writes: ${r.database_writes}`); for(const x of r.retailers) console.log(`- ${x.retailer_slug}: ${x.series} series, ${x.proven} proven observations, ${x.at_least_30_days} mature, ${x.continuous_7d_threshold_decreases} qualifying drops`)' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "## SEO-15 audit failed before evidence capture" >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Upload private evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: seo15-accrual-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 35
+          if-no-files-found: error
+          path: tmp/seo15-accrual/audit.json
