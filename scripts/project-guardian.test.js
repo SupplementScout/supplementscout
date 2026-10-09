@@ -106,7 +106,7 @@ test("guardian blocks a stale SEO-07 authentication blocker after measurement ex
 });
 
 test("stale measurement and competitor reviews are reminders, not unsafe writes or false failures", () => {
-  const result = guardian.validateDocuments(currentDocs(), new Date("2026-10-01T12:00:00Z"));
+  const result = guardian.validateDocuments(currentDocs(), new Date("2026-11-01T12:00:00Z"));
   assert.equal(result.ok, true, result.errors.join("\n"));
   assert.match(result.warnings.join("\n"), /status date is more than 14 days old/);
   assert.match(result.warnings.join("\n"), /WheyWise comparison review is more than 35 days old/);
