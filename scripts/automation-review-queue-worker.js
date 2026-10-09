@@ -36,6 +36,21 @@ function safeErrorCode(error) {
   return /^[A-Z0-9_:.-]{1,120}$/.test(value) ? value : "QUEUE_WORKER_REQUEST_FAILED";
 }
 
+function isSafeRevalidation(errorCode, databaseWrites) {
+  return Number(databaseWrites) === 0
+    && /(?:^|_)(?:DRIFT|EXPIRED|REVALIDATION|BINDING|EVIDENCE|OUTSIDE|FORBIDDEN|MISSING|SCOPE)(?:_|$)/.test(errorCode);
+}
+
+async function readRequestStatus(db, executionRequestId) {
+  const { data, error } = await db
+    .from("automation_review_execution_requests")
+    .select("status")
+    .eq("id", executionRequestId)
+    .maybeSingle();
+  invariant(!error && data, "QUEUE_WORKER_DISPOSITION_READ_FAILED");
+  return data.status;
+}
+
 function selectCompatibleRequests(requests) {
   let sharedRetailer = null;
   const selected = [], deferred = [];
@@ -78,12 +93,13 @@ async function run(dependencies = {}) {
   if (exactRequestId) invariant(data?.length === 1 && data[0].id === exactRequestId, "QUEUE_WORKER_EXACT_REQUEST_UNAVAILABLE");
   const saveReport = dependencies.persistReport || ((report) => persistReport(report, env));
   if (!data?.length) {
-    const output = { result: "PASS", selection_mode: "scheduled-batch", processed: 0, deferred: [], completed: [], failed: [], database_writes: 0 };
+    const output = { result: "PASS", selection_mode: "scheduled-batch", processed: 0, deferred: [], completed: [], safe_revalidation: [], failed: [], database_writes: 0 };
     saveReport(output);
     return output;
   }
   const { selected, deferred } = selectCompatibleRequests(data);
-  const completed = [], failed = [];
+  const completed = [], safeRevalidation = [], failed = [];
+  const requestStatus = dependencies.readRequestStatus || ((requestId) => readRequestStatus(db, requestId));
   for (const request of selected) {
     try {
       const adapter = WORKERS[request.retailer_slug];
@@ -94,10 +110,23 @@ async function run(dependencies = {}) {
       completed.push({ execution_request_id: request.id, worker_result: result.result, database_writes: result.database_writes });
     } catch (error) {
       const databaseWrites = Number.isSafeInteger(error?.databaseWrites) && error.databaseWrites >= 0 ? error.databaseWrites : 0;
-      failed.push({ execution_request_id: request.id, retailer_slug: request.retailer_slug, review_id: String(request.review_id), error_code: safeErrorCode(error), database_writes: databaseWrites });
+      const failure = { execution_request_id: request.id, retailer_slug: request.retailer_slug, review_id: String(request.review_id), error_code: safeErrorCode(error), database_writes: databaseWrites };
+      if (isSafeRevalidation(failure.error_code, databaseWrites)) {
+        try {
+          const status = await requestStatus(request.id);
+          if (status === "EXPIRED") {
+            safeRevalidation.push({ ...failure, request_status: status });
+            continue;
+          }
+          failure.disposition_status = status;
+        } catch (dispositionError) {
+          failure.disposition_error = safeErrorCode(dispositionError);
+        }
+      }
+      failed.push(failure);
     }
   }
-  const output = { result: failed.length ? "FAIL" : "PASS", selection_mode: exactRequestId ? "exact-request" : "scheduled-batch", processed: selected.length, deferred: deferred.map((request) => request.id), completed, failed, database_writes: [...completed, ...failed].reduce((sum, row) => sum + Number(row.database_writes || 0), 0) };
+  const output = { result: failed.length ? "FAIL" : safeRevalidation.length ? "PASS_WITH_REVIEW" : "PASS", selection_mode: exactRequestId ? "exact-request" : "scheduled-batch", processed: selected.length, deferred: deferred.map((request) => request.id), completed, safe_revalidation: safeRevalidation, failed, database_writes: [...completed, ...safeRevalidation, ...failed].reduce((sum, row) => sum + Number(row.database_writes || 0), 0) };
   saveReport(output);
   if (failed.length) { const error = new Error(`QUEUE_WORKER_BATCH_FAILED:${failed.length}`); error.report = output; throw error; }
   return output;
@@ -105,4 +134,4 @@ async function run(dependencies = {}) {
 
 if (require.main === module) run().then((result) => console.log(JSON.stringify(result))).catch((error) => { if (error.report) console.error(JSON.stringify(error.report)); console.error(error.stack || error.message); process.exitCode = 1; });
 
-module.exports = { WORKERS, assertContext, persistReport, run, safeErrorCode, selectCompatibleRequests };
+module.exports = { WORKERS, assertContext, isSafeRevalidation, persistReport, readRequestStatus, run, safeErrorCode, selectCompatibleRequests };

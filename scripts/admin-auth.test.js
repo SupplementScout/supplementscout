@@ -977,7 +977,7 @@ test("Review Queue reports immediate and scheduled delivery honestly without pro
 });
 
 test("Automation Review Queue scheduled worker processes the oldest bounded queue batch", async () => {
-  const { assertContext, run, safeErrorCode, selectCompatibleRequests } = require("./automation-review-queue-worker");
+  const { assertContext, isSafeRevalidation, run, safeErrorCode, selectCompatibleRequests } = require("./automation-review-queue-worker");
   const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_SERVER_URL: "https://github.com", GITHUB_RUN_ID: "123", GITHUB_SHA: "a".repeat(40), NEXT_PUBLIC_SUPABASE_URL: "https://example.test", SUPABASE_SERVICE_ROLE_KEY: "control" };
   assert.doesNotThrow(() => assertContext(env));
   assert.throws(() => assertContext({ ...env, GITHUB_REF: "refs/heads/other" }), /QUEUE_WORKER_REPOSITORY_INVALID/);
@@ -1021,6 +1021,39 @@ test("Automation Review Queue scheduled worker processes the oldest bounded queu
   assert.equal(reports[1].failed[0].database_writes, 20);
   assert.equal(reports[1].database_writes, 20);
   assert.equal(safeErrorCode({ code: "REVIEW_EVIDENCE_EXPIRED" }), "REVIEW_EVIDENCE_EXPIRED");
+  assert.equal(isSafeRevalidation("REVIEW_EVIDENCE_EXPIRED", 0), true);
+  assert.equal(isSafeRevalidation("REVIEW_BINDING_DRIFT", 0), true);
+  assert.equal(isSafeRevalidation("REVIEW_EVIDENCE_EXPIRED", 1), false);
+  assert.equal(isSafeRevalidation("QUEUE_WORKER_REQUEST_FAILED", 0), false);
+  const staleRequests = [
+    ["fee86103-ff45-4cd1-bd82-7f9d5ceaab5f", 1225, "REVIEW_EVIDENCE_EXPIRED"],
+    ["0ec39c5f-a3dd-453c-97d5-2d46e5abf835", 1228, "REVIEW_EVIDENCE_EXPIRED"],
+    ["16fdc9a0-0708-4c9a-8083-31c40e6b3170", 1229, "REVIEW_EVIDENCE_EXPIRED"],
+    ["83cffea2-4fa9-4c6a-8e74-b863c81b761e", 1230, "REVIEW_EVIDENCE_EXPIRED"],
+    ["05ad036f-4a98-4c92-bbaa-ba43f9c0b704", 1231, "REVIEW_BINDING_DRIFT"],
+  ].map(([id, reviewId, errorCode]) => ({ ...request, id, review_id: reviewId, errorCode }));
+  const staleQuery = { select: () => staleQuery, eq: () => staleQuery, order: () => staleQuery, limit: async () => ({ data: staleRequests, error: null }) };
+  const staleReports = [];
+  const staleResult = await run({
+    env,
+    client: { from: () => staleQuery },
+    persistReport: (report) => staleReports.push(report),
+    readRequestStatus: async () => "EXPIRED",
+    runEbay: async (options) => {
+      const stale = staleRequests.find((item) => item.id === options.executionRequestId);
+      const error = new Error(stale.errorCode);
+      error.code = stale.errorCode;
+      error.databaseWrites = 0;
+      throw error;
+    },
+  });
+  assert.equal(staleResult.result, "PASS_WITH_REVIEW");
+  assert.equal(staleResult.processed, 5);
+  assert.equal(staleResult.safe_revalidation.length, 5);
+  assert.equal(staleResult.failed.length, 0);
+  assert.equal(staleResult.database_writes, 0);
+  assert.equal(staleReports.length, 1);
+  assert.deepEqual(new Set(staleResult.safe_revalidation.map((item) => item.error_code)), new Set(["REVIEW_EVIDENCE_EXPIRED", "REVIEW_BINDING_DRIFT"]));
   const compatibility = selectCompatibleRequests([
     { id: "fit-1", retailer_slug: "fit-house" },
     { id: "ebay-1", retailer_slug: "ebay-uk" },
