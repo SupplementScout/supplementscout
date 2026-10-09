@@ -893,6 +893,22 @@ the path and observe three ordinary scheduled intervals; RA-STAB-01 remains
 `IN_PROGRESS` at `0/3`. Evidence: [Whey post-consolidation live
 proof](retailer-automation/evidence/RA-STAB-01-WHEY-POST-CONSOLIDATION-LIVE-PROOF-2026-10-08.json).
 
+A later Fit House Review Queue worker proved a narrow accounting defect in the
+existing stable-OOS guard. Run `37865904014` safely completed reviewed stock
+changes for offers `983`, `1859` and `697`, but the request for returned offer
+`697` was reported failed after its successful postflight because the guard
+counted verified transitions into OOS and not verified transitions back into
+stock. Exact control-only recovery run `37883359564` made no additional
+business write and failed closed on the same condition. The prepared repair
+uses signed sealed Review Queue transitions (`+1` into OOS, `-1` back in stock)
+and still requires the exact resulting count. It changes no approved baseline,
+threshold, shared executor or approval boundary. The real three-offer sequence
+is covered by regression and focused, quick and full gates pass. Deployment
+and one exact control-only recovery are the remaining bounded steps; offers
+`735` and `1904` remain untouched. RA-STAB-01 remains `IN_PROGRESS` at `0/3`.
+Evidence: [Fit House signed stock-delta recovery
+preparation](retailer-automation/evidence/RA-STAB-01-FIT-HOUSE-SIGNED-STOCK-DELTA-RECOVERY-PREPARATION-2026-10-09.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

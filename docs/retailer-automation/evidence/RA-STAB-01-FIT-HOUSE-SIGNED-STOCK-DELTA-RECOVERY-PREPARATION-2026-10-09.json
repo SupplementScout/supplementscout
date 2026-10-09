@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "kind": "ra-stab-01-fit-house-signed-stock-delta-recovery-preparation",
+  "recorded_on": "2026-10-09",
+  "status": "PREPARED_NOT_DEPLOYED",
+  "retailer": {
+    "id": 9,
+    "slug": "fit-house"
+  },
+  "incident": {
+    "queue_worker_run_id": 37865904014,
+    "queue_worker_artifact_id": 11588671319,
+    "queue_worker_artifact_digest": "8e6a9b3b6afd9594d06b95a0257b5673a6fae29982ed19a7429631fd8329daff",
+    "affected_execution_request_id": "0f058ea0-20b7-43ea-8e69-83acb831a56c",
+    "affected_review_id": 1115,
+    "affected_offer_id": 697,
+    "control_only_recovery_run_id": 37883359564,
+    "observed_error": "STABLE_OOS_BASELINE_EXCEEDED",
+    "observed_current_oos_count": 111,
+    "approved_stable_oos_baseline": 104,
+    "root_cause": "The stable-OOS guard persisted verified Review Queue transitions from in-stock to OOS as positive allowances, but did not subtract a sealed verified transition from OOS back to in-stock.",
+    "business_state": "The stock return for offer 697 and its freshness confirmations had already passed postflight and fresh idempotency in the worker run. The later recovery attempt made no additional business or price-history write."
+  },
+  "verified_transitions": [
+    {
+      "offer_id": 697,
+      "before_in_stock": false,
+      "after_in_stock": true,
+      "oos_delta": -1
+    },
+    {
+      "offer_id": 983,
+      "before_in_stock": true,
+      "after_in_stock": false,
+      "oos_delta": 1
+    },
+    {
+      "offer_id": 1859,
+      "before_in_stock": true,
+      "after_in_stock": false,
+      "oos_delta": 1
+    }
+  ],
+  "prepared_repair": {
+    "summary": "Reuse only sealed, executed Review Queue stock transitions and account for both directions as a signed net delta before requiring exact equality with the observed OOS count.",
+    "approved_baseline_changed": false,
+    "threshold_widened": false,
+    "guard_weakened": false,
+    "new_executor": false,
+    "new_approval_path": false,
+    "shared_core_retailer_branch_added": false,
+    "retry_or_replay": false,
+    "unknown_drift_still_fails_closed": true
+  },
+  "unaffected_requests": [
+    {
+      "review_id": 1116,
+      "offer_id": 735,
+      "state": "UNTOUCHED_PRE_WRITE"
+    },
+    {
+      "review_id": 1119,
+      "offer_id": 1904,
+      "state": "UNTOUCHED_PRE_WRITE"
+    }
+  ],
+  "verification": {
+    "focused_command": "node --test scripts/fit-house-offer-refresh.test.js scripts/admin-auth.test.js",
+    "focused_result": "PASS 106/106",
+    "quick_gate": "PASS",
+    "full_gate": "PASS",
+    "project_gate": "PASS"
+  },
+  "next_bounded_step": "Merge the reviewed code after green CI, then perform exactly one control-only recovery of the already-applied request. Do not retry or replay the offer change and do not touch offers 735 or 1904.",
+  "natural_observation_credit": "0/3"
+}
