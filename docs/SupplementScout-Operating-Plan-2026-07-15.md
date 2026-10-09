@@ -913,6 +913,23 @@ Offers `735` and `1904` remain untouched. RA-STAB-01 remains `IN_PROGRESS` at
 `0/3`. Evidence: [Fit House signed stock-delta recovery
 preparation](retailer-automation/evidence/RA-STAB-01-FIT-HOUSE-SIGNED-STOCK-DELTA-RECOVERY-PREPARATION-2026-10-09.json).
 
+Fresh read-only 10 Reps run `37885704534` confirmed that both the storefront and
+protected CSV source are healthy again. The source returned HTTP `200` with
+`516` products and `1857` variants; the complete protected scope was
+`950 = 934 executable + 16 source-missing review`, with 837 confirmations and
+97 safe stock changes. Authorized apply run `37886686256` then failed closed
+before registration/apply and made zero writes because the shared Review Queue
+binding still assumed that a source-missing profile could contain only
+confirmations in its separate executable scope. The prepared common repair
+validates the exact classifier partition instead: confirmations plus safe
+commercial changes must equal the executable scope, stock-change IDs must match
+the classifier, and review rows remain disjoint. There is no retailer branch,
+new executor, retry, replay or weaker guard. The exact live artifact and focused,
+quick and full gates pass locally. After green CI, use one new fresh ordinary
+run rather than resuming the failed plan. RA-STAB-01 remains `IN_PROGRESS` at
+`0/3`. Evidence: [10 Reps shared executable partition
+preparation](retailer-automation/evidence/RA-STAB-01-10REPS-SHARED-EXECUTABLE-PARTITION-PREPARATION-2026-10-09.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

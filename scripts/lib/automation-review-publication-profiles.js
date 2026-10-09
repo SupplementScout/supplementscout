@@ -105,14 +105,17 @@ function validateStandard(profile, context) {
   const executionIds = sortedIds(Array.isArray(report.execution_offer_ids) ? report.execution_offer_ids : []);
   const verificationIds = sortedIds(Array.isArray(report.verification_offer_ids) ? report.verification_offer_ids : []);
   const stockChangeIds = sortedIds(Array.isArray(report.stock_change_offer_ids) ? report.stock_change_offer_ids : []);
-  invariant(executionIds.length === executableCount && stockChangeIds.length === 0, `${label} executable offer IDs drifted`);
-  invariant(verificationIds.length === executableCount, `${label} verification offer IDs drifted`);
-  sameJson(executionIds, verificationIds, `${label} executable and verified scopes differ`);
+  invariant(executionIds.length === executableCount
+    && executionIds.length === report.execution_offer_ids.length
+    && verificationIds.length === report.verification_offer_ids.length
+    && stockChangeIds.length === report.stock_change_offer_ids.length,
+  `${label} executable offer IDs drifted`);
 
   if (profile.reviewType === "stock") {
+    invariant(stockChangeIds.length === 0, `${label} executable offer IDs drifted`);
+    invariant(verificationIds.length === executableCount, `${label} verification offer IDs drifted`);
+    sameJson(executionIds, verificationIds, `${label} executable and verified scopes differ`);
     invariant(Number(report.classification?.VERIFY_NO_CHANGE || 0) === executableCount && Number(report.classification?.UPDATE_STOCK || 0) === reviewCount, `${label} ordinary classification drifted`);
-  } else {
-    invariant(Number(report.classification?.VERIFY_NO_CHANGE || 0) === executableCount && Object.entries(report.classification || {}).every(([action, count]) => action === "VERIFY_NO_CHANGE" || Number(count) === 0), `${label} pre-execution scope contains a commercial action`);
   }
   const classifierScope = diagnostic.classifier_summary?.scope;
   const reviewIds = sortedIds(report.review_rows.map((row) => row.offer_id));
@@ -125,6 +128,20 @@ function validateStandard(profile, context) {
   sameJson(sortedIds(classifierScope.scope_row_ids || []), expectedClassifierIds, `${label} preflight classifier IDs drifted`);
   sameJson(diagnostic.classifier_summary.action_counts || {}, report.classification || {}, `${label} preflight classifier actions drifted`);
   if (classifierCoversReview) sameJson(sortedIds(diagnostic.classifier_summary.changed_row_ids || []), reviewIds, `${label} preflight changed IDs drifted`);
+  else {
+    const executableChangedRows = Array.isArray(diagnostic.classifier_summary.changed_rows) ? diagnostic.classifier_summary.changed_rows : [];
+    const executableChangedIds = sortedIds(executableChangedRows.map((row) => row.offer_id));
+    invariant(executableChangedIds.length === executableChangedRows.length, `${label} preflight changed IDs drifted`);
+    sameJson(executableChangedIds, sortedIds(diagnostic.classifier_summary.changed_row_ids || []), `${label} preflight changed IDs drifted`);
+    invariant(verificationIds.every((offerId) => !executableChangedIds.includes(offerId)), `${label} executable changed and verified scopes overlap`);
+    sameJson(sortedIds([...verificationIds, ...executableChangedIds]), executionIds, `${label} executable classifier partition drifted`);
+    sameJson(stockChangeIds, sortedIds(executableChangedRows.filter((row) => row.changed_fields?.stock === true).map((row) => row.offer_id)), `${label} executable stock-change IDs drifted`);
+    const actionCounts = Object.values(report.classification || {});
+    invariant(actionCounts.every((count) => Number.isInteger(Number(count)) && Number(count) >= 0)
+      && actionCounts.reduce((sum, count) => sum + Number(count), 0) === executableCount
+      && Number(report.classification?.VERIFY_NO_CHANGE || 0) === verificationIds.length,
+    `${label} ordinary classification drifted`);
+  }
 
   const changedRows = profile.reviewType === "stock"
     ? [...diagnostic.classifier_summary.changed_rows].map((row) => ({
