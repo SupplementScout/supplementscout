@@ -903,10 +903,14 @@ business write and failed closed on the same condition. The prepared repair
 uses signed sealed Review Queue transitions (`+1` into OOS, `-1` back in stock)
 and still requires the exact resulting count. It changes no approved baseline,
 threshold, shared executor or approval boundary. The real three-offer sequence
-is covered by regression and focused, quick and full gates pass. Deployment
-and one exact control-only recovery are the remaining bounded steps; offers
-`735` and `1904` remain untouched. RA-STAB-01 remains `IN_PROGRESS` at `0/3`.
-Evidence: [Fit House signed stock-delta recovery
+is covered by regression and focused, quick and full gates pass. PR `#306`
+merged the repair as `16abf47e83a9c1c7d4002f66c5616bdd036cad26` after green
+CI. Exact control-only recovery `37884246127` then passed and closed request
+`0f058ea0-20b7-43ea-8e69-83acb831a56c` plus review `1115` as `EXECUTED` with
+fresh postflight/idempotency, zero recovery catalogue writes and zero
+price-history delta. It did not replay the original stock/freshness operation.
+Offers `735` and `1904` remain untouched. RA-STAB-01 remains `IN_PROGRESS` at
+`0/3`. Evidence: [Fit House signed stock-delta recovery
 preparation](retailer-automation/evidence/RA-STAB-01-FIT-HOUSE-SIGNED-STOCK-DELTA-RECOVERY-PREPARATION-2026-10-09.json).
 
 **12 September 2026 nutrition planning checkpoint:**
