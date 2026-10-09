@@ -930,6 +930,24 @@ run rather than resuming the failed plan. RA-STAB-01 remains `IN_PROGRESS` at
 `0/3`. Evidence: [10 Reps shared executable partition
 preparation](retailer-automation/evidence/RA-STAB-01-10REPS-SHARED-EXECUTABLE-PARTITION-PREPARATION-2026-10-09.json).
 
+PR `#308` merged that common partition repair as
+`6fb61872b535cd4c5453d603991609514d2be6a8`. New fresh ordinary 10 Reps run
+`37887683300` then proved the repaired boundary: source capture, full dry-run,
+database baseline, all 22 read-only validator children and Review Queue binding
+passed. The apply still failed closed before registration with `Invalid child
+count` and made zero offer, catalogue, price-history, approval or control-plan
+writes. The reason is another shared contract mismatch: the planner must split
+65 new-OOS changes into at least 22 children to preserve the existing maximum
+of 3 per child, while all sequential registration functions still cap a parent
+at 20 children. The prepared common correction aligns the parent limit at 50
+in the planner and all nine existing registration functions while retaining the
+50-row and 3-new-OOS child limits, exact role/ACL properties and all existing
+approval/executor guards. It adds no retailer condition, retry, replay or new
+write path. The separate shared publisher refreshed exactly the 16 current
+10 Reps review rows with zero catalogue writes. RA-STAB-01 remains
+`IN_PROGRESS` at `0/3`. Evidence: [shared sequential child-capacity
+preparation](retailer-automation/evidence/RA-STAB-01-SHARED-SEQUENTIAL-CHILD-CAPACITY-PREPARATION-2026-10-09.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is

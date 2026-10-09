@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "task": "RA-STAB-01",
+  "status": "PREPARED_NOT_DEPLOYED",
+  "observed_at": "2026-10-09",
+  "incident": {
+    "workflow_run_id": "37887683300",
+    "workflow_job_id": "113681252567",
+    "commit": "6fb61872b535cd4c5453d603991609514d2be6a8",
+    "source_artifact_id": "11596418985",
+    "source_artifact_digest": "80cd285c59dbd30f1435d47920b0c2253a8d79ff6e486006abba8a3da3a8d2f6",
+    "result": "FAIL_CLOSED_BEFORE_REGISTRATION",
+    "error_code": "RSBI_GUARDRAIL_EXCEEDED",
+    "error_summary": "Invalid child count",
+    "failure_stage": "REGISTER_CONTROL_PLAN",
+    "database_writes_attempted": 1,
+    "database_writes_completed": 0,
+    "business_writes_completed": 0,
+    "control_writes_completed": 0,
+    "approvals_created": 0,
+    "approvals_consumed": 0
+  },
+  "fresh_plan": {
+    "approved_scope": 950,
+    "executable_scope": 934,
+    "review_scope": 16,
+    "verify_no_change": 837,
+    "stock_changes": 97,
+    "new_oos_changes": 65,
+    "net_oos_increase": 33,
+    "validator_children": 22,
+    "maximum_rows_per_child": 50,
+    "maximum_new_oos_per_child": 3,
+    "source_http_status": 200,
+    "source_products": 516,
+    "source_variants": 1857,
+    "source_retries": 0
+  },
+  "root_cause": {
+    "class": "SHARED_CONTROL_CONTRACT_MISMATCH",
+    "summary": "The shared planner correctly created 22 validator-safe children for 65 new OOS changes, while all shared sequential registration functions still rejected every parent above 20 children.",
+    "retailer_specific": false
+  },
+  "review_queue_publication": {
+    "result": "PASS",
+    "artifact_id": "11597535010",
+    "active_review_count": 16,
+    "created_count": 16,
+    "superseded_count": 16,
+    "catalogue_writes": 0,
+    "database_writes": 65,
+    "note": "These writes refreshed review/control records only; no offer, product, variant, mapping or price-history row changed."
+  },
+  "prepared_change": {
+    "migration": "20261009100000_align_shared_sequential_child_capacity.sql",
+    "migration_sha256": "97af9483d3f306a72822de982f18eb9def83f510e12b4d5748ac103782270a4f",
+    "shared_parent_child_limit": 50,
+    "unchanged_child_row_limit": 50,
+    "unchanged_new_oos_per_child_limit": 3,
+    "registration_functions": 9,
+    "application_preflight_limit": 50,
+    "catalogue_writes": 0,
+    "new_retailer_branch": false,
+    "new_executor": false,
+    "new_retry_or_replay": false
+  },
+  "local_verification": {
+    "focused_tests": "PASS_56_OF_56",
+    "exact_incident_regression": "PASS_934_ROWS_65_NEW_OOS_22_CHILDREN",
+    "verify_project_before_documentation": "PASS"
+  },
+  "next_step": "Complete quick/full/project gates and CI, deploy only the exact prepared migration after explicit hash-bound production authority, then start one new fresh 10 Reps run without retry or replay.",
+  "observation_credit": "0/3"
+}
