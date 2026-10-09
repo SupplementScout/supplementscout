@@ -1,6 +1,6 @@
 # SupplementScout Operating Plan
 
-**Status date:** 12 September 2026<br>
+**Status date:** 9 October 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
@@ -4850,20 +4850,21 @@ publication.
 
 ### Next task
 
-Continue `SEO-15` with bounded, read-only verification of new UTC-date
-confirmations in the next ordinary Jon's/Fit House runs and source timestamps
-in GYM HIGH. The mandatory first audit is complete; do not repeat its baseline
-or enable Stage 3. Re-audit continuity on 16 September, then hold conditional
-30-day readiness reviews on 24 September for Jon's and 25 September for Fit
-House. These are evidence reviews, not automatic publication dates.
+Continue `SEO-15` at the separate owner-decision gate for bounded Stage 3.
+The overdue 30-day read-only audit completed 9 October in run `37927290755`:
+813 series, 26,007 linked observations and zero database writes. Five Jon's
+decreases passed the amount and prior-price continuity screen; only offers
+`1337` and `1339` also remain fresh, in stock and identity-matched. Two are out
+of stock and one has current identity drift, so they remain excluded. Fit House
+producer-wide continuity is still partial and GYM HIGH remains owner-deferred.
+Do not repeat the September baseline, backfill gaps or enable public historical
+claims without the planned separate owner decision. See the
+[9 October audit](rollouts/seo15-accrual-and-growth-audit-2026-10-09.md).
 
-Current producer scope is 503 Jon's, 260 Fit House and 50 GYM HIGH identity
-series. Other configured producers remain disabled. GYM HIGH public use remains
-owner-deferred, and its actual first observations were 3 September. Preserve
-the quarantined/identity-incomplete rows and do not backfill missing days.
-See [9 September accrual and weekly growth audit](rollouts/seo15-accrual-and-growth-audit-2026-09-09.md) and the SEO-15 technical plan for evidence and method.
-Continue weekly GSC/GA4 with an attribution/internal-test-traffic check before
-claiming growth; the latest organic and alternatives samples are too small.
+Continue weekly GSC/GA4 with attribution checks. Run `37925170969` captured
+1,535 final GSC impressions and 15 clicks for 30 September-6 October, but 45 of
+59 GA4 Organic Search sessions still come from one referral user. Use 14 as the
+conservative external-session signal and make no conversion claim.
 
 ### Then
 

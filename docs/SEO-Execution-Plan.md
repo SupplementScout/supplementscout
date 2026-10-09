@@ -1,10 +1,20 @@
 # SupplementScout SEO Execution Plan
 
-**Status date:** 10 September 2026<br>
+**Status date:** 9 October 2026<br>
 **Owner:** SupplementScout  
 **Scope:** Organic search traffic, indexation, internal discovery, search landing
 pages, structured data, measurement and authority building.  
 **Parent authority:** `docs/SupplementScout-Operating-Plan-2026-07-15.md`
+
+**9 October SEO-15 and measurement checkpoint:** the overdue 30-day read-only
+audit is complete. Production has 813 identity series and 26,007 linked
+observations. Five Jon's price decreases pass the historical amount and
+continuity screen; two offers (`1337`, `1339`) also remain fresh, in stock and
+identity-matched. Public Stage 3 remains disabled pending its required separate
+owner decision. Authenticated GSC/GA4 run `37925170969` reports 1,535 GSC
+impressions and 15 clicks for 30 September-6 October, but GA4 still contains a
+45-session one-user referral pattern. See the
+[9 October audit](rollouts/seo15-accrual-and-growth-audit-2026-10-09.md).
 
 **10 September measurement correction:** read-only run `34491056108` re-read
 2–8 September with daily completeness and traffic-quality evidence. GSC settled
@@ -134,28 +144,25 @@ Console evidence and user value.
 | SEO-12 | P1 | Begin legitimate authority and backlink acquisition. | `PLANNED` | Priority retailer/brand/community outreach uses useful live resources; earned links and outcomes are recorded monthly; no bulk or paid-link scheme is used. |
 | SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `LIVE VERIFIED` | Protein Bars shipped in commit `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f`, production deployment `6048852742` succeeded, and public HTTP, canonical, robots, sitemap, schema, exact-pack, delivered-price and internal-link checks passed. |
 | SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `LIVE VERIFIED` | Applied Nutrition, Per4m, BioTech USA and eBay UK are individually gated and live verified; GYM HIGH remains owner-deferred and no dynamic page generator exists. |
-| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `BLOCKED` | Stage 1/P0 and approved Stage 2A producers are production verified. Mandatory read-only audit completed 9 September: 813 series / 8,173 observations, no identity drift or duplicate daily confirmation; 47 quarantined Jon's rows. Jon's 503 series pass 14 elapsed days; Fit House's 260 first mature at 16:10 UTC today; GYM HIGH 50 began 3 September and remain owner-deferred. Blocker: missing whole observation dates (Fit House 4, Jon's 6), immature history and zero delivered-price decreases. Stage 3 remains disabled pending continuity, maturity, a real qualifying drop and separate decision. Next: normal producer/source-timestamp verification, 16 September recheck, conditional 24-25 September readiness reviews. |
+| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `BLOCKED` | Stage 1/P0 and approved Stage 2A producers are production verified. Read-only 30-day audit `37927290755` captured 813 series / 26,007 linked observations with zero writes. All series pass 30 elapsed days. Five Jon's decreases pass the amount and seven-day prior-price screen; offers `1337` and `1339` also remain fresh, in stock, latest-state equal and identity-matched. Three other decreases fail closed (two out of stock, one identity mismatch). Fit House continuity remains partial and GYM HIGH remains owner-deferred. **Blocker:** the required separate owner decision for the bounded two-row Stage 3 implementation; public historical claims remain disabled. |
 | SEO-16 | P1 | Launch guarded two-product comparison. | `LIVE VERIFIED` | Commit `7eec604` deployed the owner-approved lifecycle launch on 26 August 2026. Public base and pair checks passed HTTP, robots, canonical, exact-pack and delivered-price contracts; the homepage link and exactly one sitemap entry were verified. |
 | SEO-17 | P2 | Add owner-reviewed expert decision notes. | `PLANNED` | Expert judgement is clearly labelled and dated, verified facts retain provenance, and unsupported medical or formulation claims cannot publish. |
 
 ## 6. Current active task
 
-**Next executable task:** SEO-15 - verify new-date producer continuity and
-source timestamps following the completed 9 September read-only audit. No SEO
-implementation is `IN PROGRESS`. SEO-15 stays `BLOCKED` for public Stage 3
-claims because dates alone do not establish continuous prior-price proof or
-real qualifying drops. SEO-17 remains behind the SEO-15 readiness decision.
+**Next executable task:** SEO-15 - obtain the required separate owner decision
+for a bounded Stage 3 implementation. No SEO implementation is `IN PROGRESS`.
+The [9 October audit](rollouts/seo15-accrual-and-growth-audit-2026-10-09.md)
+proves two currently qualifying Jon's rows while three other real decreases
+fail closed. If approved, implement the existing per-row selector and UI
+without enabling another producer, backfilling history or weakening any gate.
+SEO-17 remains behind this decision.
 
-[9 September accrual and weekly growth audit](rollouts/seo15-accrual-and-growth-audit-2026-09-09.md) records 813 series, 8,173 observations, zero historical decreases,
-missing days and the exact 14/30-day gates. Next accrual recheck: 16 September;
-conditional publication-readiness reviews: 24-25 September. Preserve legacy
-history, quarantines, disabled producers and GYM HIGH's public deferral.
-
-The weekly GSC/GA4 read and traffic-quality follow-up are complete. Exact-date
-run `34491056108` supersedes the provisional run for 2–8 September: 1,276 final
-impressions, 2 clicks and a conservative external-search signal of 4 sessions.
-The full 71-session GA4 Organic Search label is contaminated by 67 sessions from
-one `search.google.com / referral` user. No growth or conversion-uplift claim.
+The latest weekly GSC/GA4 read is run `37925170969` for 30 September-6 October:
+1,535 final impressions, 15 clicks and all seven dates present. GA4 has 59
+Organic Search sessions, but 45 belong to one `search.google.com / referral`
+user; use 14 sessions as the conservative external signal. Zero retailer clicks
+and zero Better-value clicks mean no conversion-uplift claim.
 
 The SEO-15 technical plan remains the bounded design and evidence reference;
 this execution ledger remains the sole SEO status and ordering authority.
@@ -273,6 +280,7 @@ invent a date to silence the Guardian.
 
 | Date | Type | Evidence | State |
 |---|---|---|---|
+| 2026-10-09 | Weekly GSC/GA4 | Authenticated read-only workflow run `37925170969`, artifact `11613338938`, report SHA-256 `698e8c154f992de529b4a8aeb1276a22ee16f49a1ecf5a4ec955f4ec20a37245`, covering 2026-09-30 through 2026-10-06. GSC: 1,535 impressions, 15 clicks, 0.98% CTR, position 36.59; all seven dates final and present. GA4: 59 Organic Search sessions/11 users, with 45 sessions from one `search.google.com / referral` user; conservative external signal 14 sessions. Zero retailer clicks; Better-value 8 impressions/0 clicks. Sitemap 1,322 submitted URLs and 0 warnings/errors; URL Inspection 6/6 without error. | `CAPTURED; TRAFFIC CONTAMINATION ISOLATED; NO CONVERSION CLAIM` |
 | 2026-09-10 | Weekly GSC/GA4 | Authenticated read-only workflow run `34491056108`, artifact `10157749027`, report SHA-256 `846ff030418a4460e288f0b6ea1fbd774b914d62f31d07e104bee39974f42d3a`, covering 2026-09-02 through 2026-09-08. GSC settled at 1,276 impressions, 2 clicks, 0.16% CTR and position 54.54; all seven dates have final activity, final/all totals agree and no incomplete date is reported. GA4 reports 71 Organic Search sessions/4 users, but 67 sessions belong to one `search.google.com / referral` user; the remaining Google/Bing rows contain 4 sessions. Seven retailer clicks and the one-user Better-value funnel lack source attribution. Zero Google configuration writes. | `CAPTURED; TRAFFIC CONTAMINATION ISOLATED; NO GROWTH CLAIM` |
 | 2026-09-03 | Better-value measurement validation | Authenticated read-only workflow run `33743176950` on commit `562ed4b`, artifact `9888548236` (ZIP SHA-256 `118b1122401fc307a99be1be5625d27140f4cc205fc6fbff0446b266e3edc118`; report SHA-256 `bb6bacbef5cd39798efc2d6b47c9d3b843bf2f213b147bf965da041e19139947`). Schema v3 successfully queried the existing Better-value impression/select events and the closed select-to-retailer-click user funnel with a 30-minute downstream window. The report covers 2026-08-27 through 2026-09-02 and correctly contains zero Better-value observations because the period ends before the 3 September release; this validates the reporting contract only and is not post-launch CTR evidence. URL Inspection completed 6/6 and the sitemap returned 0 warnings and 0 errors. | `VALIDATED; KPI PENDING POST-LAUNCH DATA` |
 | 2026-08-31 | Weekly GSC/GA4 | Authenticated read-only workflow run `33413636032`, artifact `9766122662` (ZIP SHA-256 `982775ba4eba0d7fd191bd521e0bd929f034578e6a7cb443d658c2bd80e99355`), covering 2026-08-24 through 2026-08-30: GSC 1,076 impressions, 5 clicks, 0.46% CTR and average position 64.55; GA4 Organic Search 20 sessions, 5 users, 115 views and 0 organic retailer-offer clicks. Sitemap reported 1,115 submitted URLs with 0 warnings and 0 errors. URL Inspection completed 6/6 targets with 0 errors: five canonical `www` URLs were submitted and indexed, while the apex hostname was correctly reported as a redirect to the indexed `www` homepage. The sitemap API's `indexed: 0` remains excluded from aggregate Page-indexing evidence. This period predates the 3 September Better-value release and cannot measure its CTR. | `CAPTURED` |
