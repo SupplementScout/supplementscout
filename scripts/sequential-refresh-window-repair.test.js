@@ -88,6 +88,8 @@ test('shared sequential registrations accept the same bounded 50-child capacity 
   assert.match(capacity,/retailer_catalogue_business_counts\(\) is distinct from v_before/);
   assert.match(capacity,/retailer-offer-sync:global-execution/);
   assert.match(automation,/MAXIMUM_SEQUENTIAL_CHILDREN=50/);
+  assert.match(automation,/MAXIMUM_SEQUENTIAL_ROWS_PER_CHILD=20/);
+  assert.match(automation,/balancedExecutionBatches\(executionRows,MAXIMUM_SEQUENTIAL_ROWS_PER_CHILD,3,/);
   assert.match(automation,/executionBatches\.length<=MAXIMUM_SEQUENTIAL_CHILDREN/);
   assert.doesNotMatch(capacity,/\b(?:insert into|update|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history|retailers)\b/i);
 });

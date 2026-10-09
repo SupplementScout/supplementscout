@@ -959,6 +959,21 @@ being sealed to this verified ledger before the one authorized fresh 10 Reps
 run, preventing the already-known stale-binding failure mode. RA-STAB-01 remains
 `IN_PROGRESS` at `0/3`. Evidence: [shared sequential child-capacity deployment](retailer-automation/evidence/RA-STAB-01-SHARED-SEQUENTIAL-CHILD-CAPACITY-DEPLOYMENT-2026-10-09.json).
 
+PR `#310` sealed runtime ledger `232` as
+`be09593c2bea16da6a52dadc7674f6bb9e709aae`. The one authorized fresh 10 Reps
+run `37892636516` passed every read/source/validation boundary, registered its
+22-child parent and completed four children covering 172 rows. Its fifth,
+43-row child exceeded the unchanged 120-second query boundary and failed
+closed. Independent read-only production discovery proves four applied, one
+approved-unapplied and 17 planned children, with no hidden fifth apply, retry,
+replay or recovery. The prepared retailer-neutral correction lowers the shared
+operational child size from 50 to 20 rows; the same live fixture becomes 47
+children, still within the deployed parent cap of 50. The database hard cap,
+three-new-OOS cap, timeout and all guards remain unchanged. After merge, the
+partial parent needs one separately authorized control-only close preserving
+the four applied children, followed by one new fresh run. RA-STAB-01 remains
+`IN_PROGRESS` at `0/3`. Evidence: [10 Reps partial timeout and shared correction](retailer-automation/evidence/RA-STAB-01-10REPS-PARTIAL-TIMEOUT-2026-10-09.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
