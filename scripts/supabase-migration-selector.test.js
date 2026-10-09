@@ -264,6 +264,8 @@ const PRICE_HISTORY_REUSE_MIGRATION = "20260908210000_reuse_atomic_price_history
 const PRICE_HISTORY_REUSE_SHA256 = "f94b4218264c5b321d682f07361b51a0915f5e469915bb351d98bf2f9d35c4b9";
 const ALL_WRITER_SERIALIZATION_MIGRATION = "20261008120000_serialize_all_approved_offer_writes.sql";
 const SHARED_EXECUTOR_STATE_READ_MIGRATION = "20261008200000_consolidate_shared_executor_state_reads.sql";
+const SEO15_BOUNDED_STAGE3_MIGRATION = "20261009140000_add_seo15_bounded_stage3_evidence.sql";
+const SEO15_AUTOMATIC_CANDIDATES_MIGRATION = "20261009160000_add_seo15_automatic_candidate_inventory.sql";
 const temporaryRoots = [];
 
 function temporaryRoot() {
@@ -296,8 +298,15 @@ function currentRemoteLedger(sourceDir = SOURCE) {
     });
 }
 
+function withoutCurrentSeo15Migrations(rows) {
+  return rows.filter(({ version, name }) => ![
+    SEO15_BOUNDED_STAGE3_MIGRATION,
+    SEO15_AUTOMATIC_CANDIDATES_MIGRATION,
+  ].includes(`${version}_${name}.sql`));
+}
+
 function preFixtureRemoteLedger(sourceDir = SOURCE) {
-  return currentRemoteLedger(sourceDir).filter(
+  return withoutCurrentSeo15Migrations(currentRemoteLedger(sourceDir)).filter(
     ({ version, name }) => ![
       RA004_FIXTURE_MIGRATION,
       RA004_COMPATIBILITY_MIGRATION,
@@ -310,7 +319,7 @@ function preFixtureRemoteLedger(sourceDir = SOURCE) {
 }
 
 function preCompatibilityRemoteLedger(sourceDir = SOURCE) {
-  return currentRemoteLedger(sourceDir).filter(
+  return withoutCurrentSeo15Migrations(currentRemoteLedger(sourceDir)).filter(
     ({ version, name }) => ![
       RA004_COMPATIBILITY_MIGRATION,
       RA004_CONSOLIDATED_OWNERSHIP_MIGRATION,
@@ -340,11 +349,11 @@ test.after(() => {
   }
 });
 
-test("staging records the shared executor migration as applied and closed", () => {
+test("staging records the SEO-15 candidate migrations as applied and closed", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 100);
+  assert.equal(result.ledger_count, 102);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending_files, ["20261009140000_add_seo15_bounded_stage3_evidence.sql", "20261009160000_add_seo15_automatic_candidate_inventory.sql"]);
+  assert.deepEqual(result.pending_files, []);
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
@@ -909,16 +918,16 @@ test("owner-authorized ACL/RLS activation selects exactly one migration from led
   ]), /staging-only/);
 });
 
-test("staging contract records the shared executor migration at ledger 100", () => {
+test("staging contract records the SEO-15 candidate migrations at ledger 102", () => {
   const filename = "20260928100000_diagnose_ra004_preflight_acl_rls.sql";
-  assert.equal(CONTRACT.ledgerCount, 100);
+  assert.equal(CONTRACT.ledgerCount, 102);
   assert.equal(CONTRACT.ledgerFingerprint,
-    "e85e59782faaeec14c5f307052939454d6149b2b7e58b2b05b29e3e6f64dbf9c");
+    "39f6e622120b0002a0019eb6f535eb303e7b58269705d0ae9ec2e89de5176a14");
   assert.ok(CONTRACT.appliedExcluded.includes(filename));
   assert.ok(CONTRACT.appliedExcluded.includes(RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION));
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === filename));
   assert.ok(CONTRACT.appliedExcluded.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
-  assert.equal(currentRemoteLedger().length, 100);
+  assert.equal(currentRemoteLedger().length, 102);
   assert.equal(ledgerRowsFingerprint(currentRemoteLedger(), { targetEnvironment: "STAGING" }),
     CONTRACT.ledgerFingerprint);
 });
@@ -1027,7 +1036,7 @@ test("consumed provider identity activation is terminal while its prepared form 
   assert.throws(() => validateSelection(validInput({
     activationManifest: RA004_PROVIDER_IDENTITY_ACTIVATION,
   })), /status mismatch/);
-  const preLedger = currentRemoteLedger().filter(
+  const preLedger = withoutCurrentSeo15Migrations(currentRemoteLedger()).filter(
     ({ version, name }) => ![
       RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION,
       SHARED_EXECUTOR_STATE_READ_MIGRATION,
@@ -1068,7 +1077,7 @@ test("provider identity activation fails closed on ledger, SHA, retry, productio
   const check = (mutate, expected) => {
     const manifest = preparedProviderIdentityActivation();
     mutate(manifest);
-    const preLedger = currentRemoteLedger().filter(
+    const preLedger = withoutCurrentSeo15Migrations(currentRemoteLedger()).filter(
       ({ version, name }) => ![
         RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION,
         SHARED_EXECUTOR_STATE_READ_MIGRATION,
@@ -1168,7 +1177,7 @@ test("final RA-004 activation selects exactly the three owner-authorized staging
 test("historical prepared consolidated RA-004 activation selected exactly one migration from ledger 96", () => {
   const result = validateSelection(validInput({
     activationManifest: preparedConsolidatedActivation(),
-    remoteLedger: currentRemoteLedger().filter(
+    remoteLedger: withoutCurrentSeo15Migrations(currentRemoteLedger()).filter(
       ({ version, name }) => ![
         RA004_CONSOLIDATED_OWNERSHIP_MIGRATION,
         RA004_ACL_RLS_CORRECTION_MIGRATION,
@@ -1364,15 +1373,12 @@ test("completed RA-004 fixture activation cannot select or materialize a migrati
   })), /status mismatch/);
 });
 
-test("staging keeps the applied shared executor migration closed", () => {
+test("staging keeps the applied SEO-15 candidate migrations closed", () => {
   const result = validateSelection(validInput());
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_files, ["20261009140000_add_seo15_bounded_stage3_evidence.sql", "20261009160000_add_seo15_automatic_candidate_inventory.sql"]);
-  assert.deepEqual(result.pending_sha256s, {
-    "20261009140000_add_seo15_bounded_stage3_evidence.sql": "f233c07c7f0f4095ead851720bf562910c157bc0dc79e5fe6f5d4ed89ea575bb",
-    "20261009160000_add_seo15_automatic_candidate_inventory.sql": "337b795f923fa90f77124196f75294a6281d88006c8287d1c5f2118eac2eccad",
-  });
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
 });
 

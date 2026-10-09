@@ -23,14 +23,8 @@ const parentApprovalRepair = fs.readFileSync(path.join(
 test("migration is hash-bound and transactional", () => {
   const repositoryBytes = fs.readFileSync(file, "utf8").replaceAll("\r\n", "\n");
   assert.equal(crypto.createHash("sha256").update(repositoryBytes).digest("hex"), expectedSha);
-  assert.deepEqual(selector.CONTRACTS.STAGING.pending, [{
-    filename: "20261009140000_add_seo15_bounded_stage3_evidence.sql",
-    sha256: "f233c07c7f0f4095ead851720bf562910c157bc0dc79e5fe6f5d4ed89ea575bb",
-  }, {
-    filename: "20261009160000_add_seo15_automatic_candidate_inventory.sql",
-    sha256: "337b795f923fa90f77124196f75294a6281d88006c8287d1c5f2118eac2eccad",
-  }]);
-  assert.equal(selector.CONTRACTS.STAGING.ledgerCount, 100);
+  assert.deepEqual(selector.CONTRACTS.STAGING.pending, []);
+  assert.equal(selector.CONTRACTS.STAGING.ledgerCount, 102);
   assert.equal(
     selector.CONTRACTS.PRODUCTION.pending.some(({ filename }) =>
       filename.includes("fit_house_offer_sync_registration"),
