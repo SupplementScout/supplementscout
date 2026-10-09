@@ -6,6 +6,19 @@
 pages, structured data, measurement and authority building.  
 **Parent authority:** `docs/SupplementScout-Operating-Plan-2026-07-15.md`
 
+**9 October SEO-15 monitoring activation:** the variable-gated daily audit and
+authenticated read-only monitor are now active. Scheduled run `37948016384`
+passed with 813 series, 26,007 linked observations and zero writes. A shared
+SQL optimization removed repeated history work without changing the result;
+production is now ledger `236`, fingerprint
+`30c5be960a05c77a710cead483dfb84812e758c7872b0b9a6abd938021d72a5b`.
+PR `#325` fixed shared delivered-price arithmetic to exact pennies and full CI
+run `37954720951` passed. Authenticated production postflight shows exactly two
+verified and released Jon's candidates (`1337`, `1339`), zero awaiting retailer
+approval and no inventory error. Public `/deals` remains HTTP `200` without the
+price-drop section because `SEO15_STAGE3_ENABLED` remains off. No offer,
+catalogue, identity or price-history write occurred.
+
 **9 October SEO-15 production checkpoint:** both exact migrations passed a
 rollback rehearsal, applied successfully and passed independent read-only
 postflight at ledger `235`, fingerprint
@@ -181,18 +194,21 @@ Console evidence and user value.
 | SEO-12 | P1 | Begin legitimate authority and backlink acquisition. | `PLANNED` | Priority retailer/brand/community outreach uses useful live resources; earned links and outcomes are recorded monthly; no bulk or paid-link scheme is used. |
 | SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `LIVE VERIFIED` | Protein Bars shipped in commit `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f`, production deployment `6048852742` succeeded, and public HTTP, canonical, robots, sitemap, schema, exact-pack, delivered-price and internal-link checks passed. |
 | SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `LIVE VERIFIED` | Applied Nutrition, Per4m, BioTech USA and eBay UK are individually gated and live verified; GYM HIGH remains owner-deferred and no dynamic page generator exists. |
-| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `IN PROGRESS` | Stage 1/P0 and approved Stage 2A producers are production verified. Read-only 30-day audit `37927290755` captured 813 series / 26,007 linked observations with zero writes. The two-offer Jon's canary is implemented and remains default-off. The active follow-up replaces its fixed offer scope with one shared, fail-closed automatic candidate inventory: Jon's is the only source released for eventual publication, while candidates from other already-enabled eligible sources remain read-only discovery until a separate owner decision. No new producer or history backfill is allowed. Monitoring and public flags stay off through local/CI, staging schema and production readback checks. |
+| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `IN PROGRESS` | Stage 1/P0 and approved Stage 2A producers are production verified. Read-only 30-day audit `37927290755` captured 813 series / 26,007 linked observations with zero writes. The shared fail-closed automatic inventory is production verified; Jon's is the only released source. The daily read-only audit and authenticated monitor are active and show 2 released candidates / 0 awaiting approval. Public Stage 3 remains off because the readiness gate is not met and still requires a separate owner decision. No new producer or history backfill is allowed. |
 | SEO-16 | P1 | Launch guarded two-product comparison. | `LIVE VERIFIED` | Commit `7eec604` deployed the owner-approved lifecycle launch on 26 August 2026. Public base and pair checks passed HTTP, robots, canonical, exact-pack and delivered-price contracts; the homepage link and exactly one sitemap entry were verified. |
 | SEO-17 | P2 | Add owner-reviewed expert decision notes. | `PLANNED` | Expert judgement is clearly labelled and dated, verified facts retain provenance, and unsupported medical or formulation claims cannot publish. |
 
 ## 6. Current active task
 
-**Next executable task:** SEO-15 automatic Stage 3 candidates are `IN PROGRESS`
-and production verified. Enable and verify the read-only admin monitor and the
-variable-gated daily audit while keeping `SEO15_STAGE3_ENABLED` off. Other
-enabled eligible sources remain read-only discovery only. Do not enable another
-producer or retailer release, backfill history, change product identity or
-weaken any gate. SEO-17 remains behind this release.
+**Next executable task:** SEO-15 automatic Stage 3 monitoring is active and
+production verified. Let the existing daily read-only audit accumulate genuine
+candidates and review its ordinary scheduled evidence; the current `2 / 2 / 0`
+inventory is below the unchanged public readiness gate of 12 products, 30
+offers and 4 retailers. Keep `SEO15_STAGE3_ENABLED` off. Other enabled eligible
+sources remain read-only discovery only. Do not enable another producer or
+retailer release, backfill history, change product identity or weaken any gate.
+Public activation requires a separate owner decision after the gate passes;
+SEO-17 remains behind this release.
 
 The latest weekly GSC/GA4 read is run `37925170969` for 30 September-6 October:
 1,535 final impressions, 15 clicks and all seven dates present. GA4 has 59
