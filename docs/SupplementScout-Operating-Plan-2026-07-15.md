@@ -5,27 +5,23 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
-**9 October 2026 RA-STAB-01 current incident checkpoint:** a fresh read-only
-watchdog separated stale schedule failures from one current defect. KIOR is
-healthy on current `main` (`11/11` unchanged rows), Whey Okay is clear and its
-fresh dry-run passed (`579` unchanged plus `10` review rows), and the latest 10
-Reps live proof remains clear. Fit House alone reproduced a current failure:
-its source was healthy, but a consumed one-time owner contract still vetoed a
-later ordinary `275 unchanged + 11 stock-change` partition. A retailer-neutral
-correction is prepared in the shared classifier: aggregate risk rows go to the
-existing Review Queue while safe rows continue, stale one-time authority grants
-no write and no longer blocks isolation-only operation, and every prior
-owner-deferred row remains deferred. No retailer IDs, importer, executor,
-approval path, threshold increase or production write were added. The exact
-Fit House shape is covered as `275 executable + 11 review`; focused tests pass
-`83/83` and the quick gate passes. PR `#327` merged the aggregate partition.
-Its first post-merge read-only run `37962781276` then exposed a second
-zero-write source-chain defect: protected synthetic rows were recognized in the
-first step but the following reconciliation and second confirmation capture
-received the older source array. The prepared follow-up uses one shared source
-selector in both captures and adds a regression; it adds no identity exception.
-The follow-up is not deployed and
-RA-STAB-01 remains `IN_PROGRESS` at `0/3`. See the [preparation
+**9 October 2026 RA-STAB-01 current incident checkpoint:** KIOR is healthy on
+current `main`: read-only run `37959509322` passed all `11` unchanged rows with
+zero writes. Whey Okay is control-clear and its fresh dry-run passed `579`
+unchanged plus `10` review rows; the latest 10 Reps live proof also remains
+clear. Fit House exposed two related common-path defects. PR `#327` merged the
+retailer-neutral aggregate-risk partition, and PR `#328` merged the shared
+source-chain correction as `cb532e4fe2e4df50ab4c73932b6468a26e0ffd6a`.
+Post-merge read-only run `37963946528` now passes `275` safe confirmations plus
+`11` Review Queue rows with zero blocked rows and zero database, business,
+control, approval or recovery writes. The source was healthy and stable across
+both captures (`242` products, `338` variants, HTTP `200`, zero retries). No
+retailer ID branch, importer, executor, approval path, identity exception,
+threshold increase or guard weakening was added. Fresh watchdog `37964214687`
+still reports four latest *scheduled* attempts as incomplete; that is truthful
+historical observation rather than a current dry-run failure. Manual proofs do
+not erase scheduled history, so RA-STAB-01 remains `IN_PROGRESS` at `0/3` until
+three consecutive ordinary schedule intervals pass. See the [live readback
 evidence](retailer-automation/evidence/RA-STAB-01-SHARED-AGGREGATE-REVIEW-PARTITION-PREPARATION-2026-10-09.json).
 
 **9 October 2026 SEO-15 monitoring activation:** the daily read-only audit and
