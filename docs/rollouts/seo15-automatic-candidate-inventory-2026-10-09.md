@@ -51,6 +51,9 @@ deployment or public activation.
 - `git diff --check`: PASS.
 - The PostgreSQL integration fixture covers automatic admission of a future
   Jon's offer, discovery-only treatment of an equally qualified Fit House
-  offer, exact ACLs and zero business-row changes. The local Docker daemon is
-  unavailable, so that database fixture remains a required CI result before
-  any schema deployment.
+  offer, exact ACLs and zero business-row changes. The local Docker daemon was
+  unavailable. In manual integration run `37936072454`, the exact combined
+  Stage 3 database subtest passed (`ok 34`, 3.52 seconds). The wider historical
+  integration suite still reported four unrelated pre-existing fixture
+  failures, so this is not recorded as a whole-suite pass and does not
+  authorize schema deployment.
