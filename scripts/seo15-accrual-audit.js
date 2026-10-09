@@ -117,6 +117,23 @@ select jsonb_build_object(
   'identity_series',(select count(*) from public.price_identity_series),
   'identity_linked_observations',(select count(*) from public.price_history where identity_series_id is not null),
   'producers',(select coalesce(jsonb_agg(to_jsonb(p) order by p.retailer_id),'[]'::jsonb) from public.price_observation_producers p),
+  'qualifying_drops',(select coalesce(jsonb_agg(jsonb_build_object(
+    'retailer_id',d.retailer_id,'retailer_slug',pop.retailer_slug,
+    'identity_series_id',d.identity_series_id,'offer_id',d.offer_id,
+    'observation_date',d.observation_date,'checked_at',d.checked_at,
+    'previous_total_price',d.previous_total_price,'new_total_price',d.total_price,
+    'decrease_amount',d.previous_total_price-d.total_price,
+    'decrease_ratio',(d.previous_total_price-d.total_price)/d.previous_total_price,
+    'evidence_status',d.evidence_status,'anomaly_flags',d.anomaly_flags,
+    'continuous_7d',d.continuous_7d,'identity_matches',s.identity_matches,
+    'latest_matches',s.latest_matches,'current_state_eligible',s.current_state_eligible,
+    'current_total_price',o.total_price,'current_in_stock',o.in_stock,'current_last_checked_at',o.last_checked_at,
+    'public_use',pop.public_use
+  ) order by d.retailer_id,d.observation_date,d.identity_series_id),'[]'::jsonb)
+    from drops d join identity_state s on s.id=d.identity_series_id
+    join public.offers o on o.id=d.offer_id
+    left join public.price_observation_producers pop on pop.retailer_id=d.retailer_id and pop.source_importer=s.source_importer
+    where d.threshold_drop and d.continuous_7d),
   'retailers',(select coalesce(jsonb_agg(to_jsonb(r)||jsonb_build_object(
     'missing_whole_dates',coalesce((select jsonb_agg(day::date order by day) from generate_series(r.first_proven::date,current_date-1,interval '1 day') day where not exists(select 1 from daily d where d.retailer_id=r.retailer_id and d.observation_date=day::date and d.series_count=r.series)),'[]'::jsonb),
     'daily_counts',coalesce((select jsonb_object_agg(d.observation_date,jsonb_build_object('observations',d.observation_count,'proven',d.proven,'quarantined',d.quarantined,'series',d.series_count) order by d.observation_date) from daily d where d.retailer_id=r.retailer_id),'{}'::jsonb)

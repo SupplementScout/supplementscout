@@ -9,7 +9,7 @@ test("SEO-15 audit output is restricted to tmp", () => {
 
 test("SEO-15 audit SQL is read-only and covers maturity, continuity and drops", () => {
   assert.doesNotMatch(AUDIT_SQL, /\b(?:insert|update|delete|truncate|alter|create|drop|grant|revoke)\b/i);
-  for (const token of ["price_identity_series", "price_observation_producers", "missing_whole_dates", "at_least_30_days", "continuous_7d_threshold_decreases", "identity_drift"]) assert.match(AUDIT_SQL, new RegExp(token));
+  for (const token of ["price_identity_series", "price_observation_producers", "missing_whole_dates", "at_least_30_days", "continuous_7d_threshold_decreases", "qualifying_drops", "current_state_eligible", "identity_drift"]) assert.match(AUDIT_SQL, new RegExp(token));
 });
 
 test("SEO-15 database session is repeatable-read, read-only and rolled back", async () => {
