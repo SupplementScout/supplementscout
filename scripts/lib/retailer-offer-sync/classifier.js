@@ -286,4 +286,29 @@ function partitionExecutableRows(classification) {
   };
 }
 
-module.exports = { buildGuardEvidence, canonicalVariantUrl, classifyExistingOffers, partitionExecutableRows };
+function isolateAggregateRiskRows(classification) {
+  const reason = classification?.reason;
+  if (!["MASS_OOS", "MASS_CHANGE", "MASS_PRICE"].includes(reason) || !Array.isArray(classification.rows)) {
+    throw new Error("AGGREGATE_RISK_ISOLATION_INVALID");
+  }
+  const held = classification.rows.filter((row) => {
+    if (reason === "MASS_PRICE") return Boolean(row.changed_fields?.price);
+    if (reason === "MASS_OOS") return Boolean(row.target?.in_stock) && !Boolean(row.source?.in_stock);
+    return row.action !== "VERIFY_NO_CHANGE";
+  });
+  if (held.length === 0) throw new Error("AGGREGATE_RISK_ISOLATION_EMPTY");
+  const heldIds = new Set(held.map((row) => String(row.offer_id)));
+  const quarantinedRows = [...(classification.quarantined_rows || []), ...held.map((row) => ({ ...row, reason }))];
+  if (new Set(quarantinedRows.map((row) => String(row.offer_id))).size !== quarantinedRows.length) {
+    throw new Error("AGGREGATE_RISK_ISOLATION_OVERLAP");
+  }
+  return {
+    ...classification,
+    state: "DRY_RUN_READY_WITH_REVIEW",
+    reason: null,
+    rows: classification.rows.filter((row) => !heldIds.has(String(row.offer_id))),
+    quarantined_rows: quarantinedRows,
+  };
+}
+
+module.exports = { buildGuardEvidence, canonicalVariantUrl, classifyExistingOffers, isolateAggregateRiskRows, partitionExecutableRows };

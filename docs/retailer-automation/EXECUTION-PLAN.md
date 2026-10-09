@@ -2666,6 +2666,31 @@ live proof but no natural-interval credit; RA-STAB-01 remains `IN_PROGRESS` at
 with correlated watchdog and database evidence. Evidence: [10 Reps compact
 fingerprint live proof](evidence/RA-STAB-01-10REPS-COMPACT-FINGERPRINT-LIVE-PROOF-2026-10-09.json).
 
+A fresh read-only watchdog `37959713036` then distinguished old schedule
+evidence from current runtime health. KIOR's failed schedule used an older
+commit and stopped on the migration-ledger hash; current-main dry-run
+`37959509322` passed all `11` unchanged rows with zero writes. Whey Okay's old
+schedule had encountered a control conflict, but current diagnostic
+`37960338261` is `CLEAR` and dry-run `37960466540` passed `579` unchanged plus
+`10` review rows. The successful 10 Reps proof and clear control readback remain
+current. Fit House alone reproduced a present defect in read-only run
+`37960409561`: a healthy `242`-product, `338`-variant source produced `275`
+unchanged and `11` stock-change rows, but the consumed one-time returned-offer
+contract rejected the later ordinary scope before shared isolation.
+
+The prepared correction completes the existing common safe/review partition.
+For isolation-enabled profiles, `MASS_OOS` holds new OOS transitions,
+`MASS_PRICE` holds price changes and `MASS_CHANGE` holds changed rows in the
+existing Review Queue while the remaining safe rows continue. A stale one-time
+review contract still cannot authorize a write, but it no longer vetoes a later
+isolation-only cycle; existing owner-deferred rows remain deferred. The exact
+Fit House regression produces `275` executable confirmations and `11` review
+rows. No retailer identity branch, new importer, executor, approval path,
+threshold increase, retry or replay was added. Focused tests pass `82/82` and
+`verify:quick` passes. The correction is `PREPARED_NOT_DEPLOYED`; it earns no
+ordinary interval credit and the counter remains `0/3`. Evidence: [shared
+aggregate review partition preparation](evidence/RA-STAB-01-SHARED-AGGREGATE-REVIEW-PARTITION-PREPARATION-2026-10-09.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

@@ -5,6 +5,23 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
+**9 October 2026 RA-STAB-01 current incident checkpoint:** a fresh read-only
+watchdog separated stale schedule failures from one current defect. KIOR is
+healthy on current `main` (`11/11` unchanged rows), Whey Okay is clear and its
+fresh dry-run passed (`579` unchanged plus `10` review rows), and the latest 10
+Reps live proof remains clear. Fit House alone reproduced a current failure:
+its source was healthy, but a consumed one-time owner contract still vetoed a
+later ordinary `275 unchanged + 11 stock-change` partition. A retailer-neutral
+correction is prepared in the shared classifier: aggregate risk rows go to the
+existing Review Queue while safe rows continue, stale one-time authority grants
+no write and no longer blocks isolation-only operation, and every prior
+owner-deferred row remains deferred. No retailer IDs, importer, executor,
+approval path, threshold increase or production write were added. The exact
+Fit House shape is covered as `275 executable + 11 review`; focused tests pass
+`82/82` and the quick gate passes. The correction is not deployed and
+RA-STAB-01 remains `IN_PROGRESS` at `0/3`. See the [preparation
+evidence](retailer-automation/evidence/RA-STAB-01-SHARED-AGGREGATE-REVIEW-PARTITION-PREPARATION-2026-10-09.json).
+
 **9 October 2026 SEO-15 monitoring activation:** the daily read-only audit and
 authenticated candidate monitor are active. Scheduled run `37948016384` passed
 with 813 series, 26,007 linked observations and zero writes. The shared

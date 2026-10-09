@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "evidence_type": "RA-STAB-01 shared aggregate review partition preparation",
+  "status": "PREPARED_NOT_DEPLOYED",
+  "date": "2026-10-09",
+  "task": "RA-STAB-01",
+  "incident_readback": {
+    "watchdog_run_id": 37959713036,
+    "watchdog_result": "FAILED_SYSTEM",
+    "database_writes": 0,
+    "retailers": {
+      "KIOR Health": {
+        "failed_schedule_run_id": 37945505242,
+        "failure": "RSBI_SOURCE_HASH_MISMATCH on older commit fc8cf77b92043ff867f956857bdd9dd992883928",
+        "current_read_only_run_id": 37959509322,
+        "current_result": "PASS",
+        "current_scope": "11 VERIFY_NO_CHANGE",
+        "writes": 0
+      },
+      "Whey Okay": {
+        "failed_schedule_run_id": 37909444015,
+        "failure": "active approval, workflow or conflicting session exists",
+        "control_diagnostic_run_id": 37960338261,
+        "control_result": "CLEAR: zero active parents, sessions, approvals and runs",
+        "current_read_only_run_id": 37960466540,
+        "current_result": "PASS_WITH_REVIEW",
+        "current_scope": "579 VERIFY_NO_CHANGE plus 10 source-missing review rows",
+        "writes": 0
+      },
+      "10 Reps": {
+        "latest_live_proof_run_id": 37920753417,
+        "result": "PASS_WITH_REVIEW",
+        "scope": "934 executable rows plus 16 review rows",
+        "control_readback_run_id": 37922058572,
+        "control_result": "CLEAR"
+      },
+      "Fit House": {
+        "current_read_only_run_id": 37960409561,
+        "result": "FAIL_CLOSED",
+        "failure_code": "FIT_HOUSE_ISOLATION_SCOPE_MISMATCH",
+        "source": "HTTP 200; 242 products; 338 variants; complete capture; zero retries",
+        "classification": "275 VERIFY_NO_CHANGE plus 11 UPDATE_STOCK",
+        "cause": "a consumed one-time owner contract still vetoed later ordinary changes before the existing isolation path could publish them for review",
+        "writes": 0
+      }
+    }
+  },
+  "prepared_correction": {
+    "shared_core": "scripts/lib/retailer-offer-sync/classifier.js",
+    "shared_runtime": "scripts/fit-house-offer-refresh.js",
+    "behavior": [
+      "MASS_OOS isolates only new out-of-stock transitions while safe rows remain executable",
+      "MASS_PRICE isolates price-changing rows",
+      "MASS_CHANGE isolates all changed rows",
+      "a stale one-time reviewed scope cannot authorize writes and cannot veto a later isolation-only cycle",
+      "existing owner-deferred rows remain in Review Queue"
+    ],
+    "fit_house_incident_regression": "286 rows become exactly 275 executable confirmations plus 11 review rows",
+    "retailer_specific_ids_added_to_runtime": 0,
+    "new_importers": 0,
+    "new_executors": 0,
+    "new_approval_paths": 0,
+    "guardrails_weakened": false
+  },
+  "local_verification": {
+    "focused_tests": "PASS 82/82",
+    "verify_quick": "PASS",
+    "verify_project_before_documentation": "PASS",
+    "verify_full": "PASS"
+  },
+  "production_state": {
+    "correction_deployed": false,
+    "offers_changed_by_this_preparation": 0,
+    "price_history_changed_by_this_preparation": 0,
+    "review_queue_changed_by_this_preparation": 0,
+    "ordinary_interval_counter": "0/3"
+  },
+  "next_gate": "Pass verify:full, merge after green CI, then run one fresh read-only Fit House dry-run on merged main. Any apply remains separately controlled."
+}
