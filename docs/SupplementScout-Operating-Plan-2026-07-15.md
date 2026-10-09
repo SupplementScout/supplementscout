@@ -5,6 +5,17 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
+**9 October 2026 SEO-15 staging schema checkpoint:** the owner authorized the
+operation, and both Stage 3 migrations were applied only to staging after an exact rollback
+rehearsal. The independent postflight passed at ledger `102`, fingerprint
+`39f6e622120b0002a0019eb6f535eb303e7b58269705d0ae9ec2e89de5176a14`.
+Products, variants, retailer mappings, offers and price-history counts remained
+`974/1981/1974/1973/1984`. A separate repeatable-read readback returned the
+valid automatic-candidate envelope, zero candidates as expected for staging,
+the exact private ACL matrix and zero writes. Production migrations, the admin
+monitor, daily schedule variable and public price-drop section remain off and
+require their separately controlled next steps.
+
 **9 October 2026 SEO-15 automatic candidate decision:** after the bounded
 two-offer implementation passed local, CI and live default-off checks, the
 owner approved replacing per-offer release maintenance with one shared
@@ -4736,14 +4747,13 @@ Target experience:
 
 ### Current active task
 
-`SEO-15` remains the binding task. Its two-offer Jon's Stage 3 canary is
-implemented and default-off; the active follow-up replaces that fixed offer
-scope with one shared, fail-closed automatic candidate inventory. Jon's is the
-only source released for eventual publication. Candidates from other
+`SEO-15` remains the binding task. Its shared automatic candidate inventory is
+implemented, merged and staging-verified at ledger `102`. Jon's is the only
+source released for eventual publication. Candidates from other
 already-enabled eligible sources remain read-only discovery until a separate
-owner decision. Keep monitoring and public flags off through local/CI, staging
-schema and production readback checks. No new producer, history backfill or
-product-identity change is allowed. `SEO-16` is complete and `LIVE VERIFIED`.
+owner decision. Keep monitoring and public flags off through the separately
+controlled production schema/readback step. No new producer, history backfill
+or product-identity change is allowed. `SEO-16` is complete and `LIVE VERIFIED`.
 The following paragraphs retain the historical producer rollout evidence.
 Stage 1 `/deals` and the corrective Indexability Lifecycle P0 are deployed and
 live verified. Stage 2A identity foundation is production verified. Jon's
@@ -4875,8 +4885,9 @@ publication.
 
 ### Next task
 
-Complete the automatic `SEO-15` Stage 3 candidate inventory and prove its
-database contract. The overdue 30-day read-only audit completed 9 October in
+Prepare the separately controlled production schema/readback step for the
+staging-verified automatic `SEO-15` Stage 3 candidate inventory. The overdue
+30-day read-only audit completed 9 October in
 run `37927290755`: 813 series, 26,007 linked observations and zero database
 writes. The existing two-offer Jon's canary remains the audited foundation,
 but offer IDs are no longer a permanent maintenance list: any future Jon's

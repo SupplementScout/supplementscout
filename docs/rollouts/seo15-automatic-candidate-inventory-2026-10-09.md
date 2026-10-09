@@ -37,8 +37,8 @@ deployment or public activation.
   `337b795f923fa90f77124196f75294a6281d88006c8287d1c5f2118eac2eccad`.
 - `SEO15_STAGE3_MONITOR_ENABLED`, repository variable
   `SEO15_CANDIDATE_MONITOR_ENABLED` and `SEO15_STAGE3_ENABLED` remain off.
-- Staging must apply both migrations in order and prove exact read-only output,
-  ACLs and zero business writes before production is considered.
+- Staging applied both migrations in order after rollback rehearsal and proved
+  the exact read-only output, ACLs and zero business writes.
 - Production schema/readback and public activation remain separately controlled.
 
 ## Local verification
@@ -57,3 +57,16 @@ deployment or public activation.
   integration suite still reported four unrelated pre-existing fixture
   failures, so this is not recorded as a whole-suite pass and does not
   authorize schema deployment.
+
+## Staging verification
+
+- Rollback rehearsal: PASS for both exact migrations; catalogue counts stayed
+  `974/1981/1974/1973/1984`.
+- Apply: PASS; staging ledger advanced from `100` to `102` with fingerprint
+  `39f6e622120b0002a0019eb6f535eb303e7b58269705d0ae9ec2e89de5176a14`.
+- Independent postflight: PASS with the same counts and zero writes.
+- Separate repeatable-read inventory readback: PASS. Staging has no Jon's
+  producer fixture, so zero candidates and zero released retailers are the
+  expected result. The service role can execute only the RPC; public roles
+  cannot execute it or read the release table.
+- No production migration or flag activation occurred.

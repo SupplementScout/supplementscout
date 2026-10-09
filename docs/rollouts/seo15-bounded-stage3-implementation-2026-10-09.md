@@ -11,7 +11,7 @@
 
 - `/deals` can read a narrow, service-role-only evidence function and show verified tracked price drops.
 - The public section is fail-closed and remains hidden unless `SEO15_STAGE3_ENABLED=true` and every current evidence check passes.
-- Migration `20261009140000_add_seo15_bounded_stage3_evidence.sql` is pending for both staging and production. Its SHA-256 is `f233c07c7f0f4095ead851720bf562910c157bc0dc79e5fe6f5d4ed89ea575bb`.
+- Migration `20261009140000_add_seo15_bounded_stage3_evidence.sql` is applied and verified on staging and remains pending for production. Its SHA-256 is `f233c07c7f0f4095ead851720bf562910c157bc0dc79e5fe6f5d4ed89ea575bb`.
 - The function is read-only, restricted to the two approved offers and executable only by `service_role`.
 - A bounded rollback removes only the new evidence function.
 
@@ -29,7 +29,7 @@
 ## Required final control before publication
 
 1. Merge only after all required PR checks are green and the bounded database integration subtest has passed.
-2. Apply the exact migration to staging and verify its read-only result is exactly offers `1337` and `1339`, with zero writes.
+2. Apply the exact migration to staging and verify its read-only result with zero writes. Complete: staging has no Jon's fixture data, so the combined automatic inventory correctly returned zero candidates while its schema and ACL contracts passed.
 3. Apply the same exact migration to production and repeat the read-only verification.
 4. Enable the public flag only after a separate final owner decision based on those controls.
 

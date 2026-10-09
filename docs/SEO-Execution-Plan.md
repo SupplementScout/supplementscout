@@ -6,6 +6,15 @@
 pages, structured data, measurement and authority building.  
 **Parent authority:** `docs/SupplementScout-Operating-Plan-2026-07-15.md`
 
+**9 October SEO-15 staging checkpoint:** the exact bounded-evidence and
+automatic-candidate migrations passed rollback rehearsal and were applied only
+to staging. Independent readback passed at ledger `102`, fingerprint
+`39f6e622120b0002a0019eb6f535eb303e7b58269705d0ae9ec2e89de5176a14`,
+with unchanged catalogue counts `974/1981/1974/1973/1984`. The inventory RPC
+returned a valid zero-candidate staging envelope, exact private ACLs and zero
+writes. Production schema, monitor, schedule variable and public release remain
+off and separately controlled.
+
 **9 October SEO-15 and measurement checkpoint:** the overdue 30-day read-only
 audit is complete. Production has 813 identity series and 26,007 linked
 observations. Five Jon's price decreases pass the historical amount and
@@ -31,8 +40,9 @@ of maintaining offer IDs. Jon's is the only source-level public release; other
 already enabled eligible producers are discovery-only until a separate owner
 decision. Prepare the central release registry, read-only inventory RPC,
 default-off admin monitor and variable-gated daily read-only audit. Do not
-deploy either pending migration or enable either flag before the staged schema
-and readback controls.
+deploy either migration to production or enable either flag before the staged
+schema and readback controls. Those staging controls subsequently passed as
+recorded above.
 
 **10 September measurement correction:** read-only run `34491056108` re-read
 2–8 September with daily completeness and traffic-quality evidence. GSC settled
@@ -168,14 +178,13 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-15 automatic Stage 3 candidates are `IN PROGRESS`.
-Verify the one shared candidate inventory and source-level release registry,
-with Jon's as the only released source. Keep `SEO15_STAGE3_MONITOR_ENABLED`,
-the scheduled monitor variable and `SEO15_STAGE3_ENABLED` off through merge,
-schema rehearsal and production readback. Other enabled eligible sources are
-read-only discovery only. Do not enable another producer or retailer release,
-backfill history, change product identity or weaken any gate. SEO-17 remains
-behind this release.
+**Next executable task:** SEO-15 automatic Stage 3 candidates are `IN PROGRESS`
+and staging verified. Prepare the exact production migration/readback control
+for the same two SHA-bound migrations. Keep `SEO15_STAGE3_MONITOR_ENABLED`, the
+scheduled monitor variable and `SEO15_STAGE3_ENABLED` off. Other enabled
+eligible sources remain read-only discovery only. Do not enable another
+producer or retailer release, backfill history, change product identity or
+weaken any gate. SEO-17 remains behind this release.
 
 The latest weekly GSC/GA4 read is run `37925170969` for 30 September-6 October:
 1,535 final impressions, 15 clicks and all seven dates present. GA4 has 59
