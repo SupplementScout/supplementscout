@@ -2638,6 +2638,34 @@ ledger `233` before the separately authorized control-only close of parent
 occurred in this authorized sequence. Evidence: [compact fingerprint production
 deployment](evidence/RA-STAB-01-COMPACT-FINGERPRINT-DEPLOYMENT-2026-10-09.json).
 
+PR `#314` sealed the production runtime at ledger `233` as merge commit
+`82ea06e00b4311730309e66a32ad2af9fee6d739`. Owner-authorized control-only run
+`37920649441` then revalidated partial 10 Reps parent
+`63a57694-c40b-45d6-8a87-90ca7aa22b8d`, preserved all 25 applied children and
+their 25 apply runs, and superseded only the 22 unexecuted children. It made 24
+control writes and zero business or price-history writes, with no retry or
+replay.
+
+The one authorized fresh ordinary-path run `37920753417` completed successfully
+in `10m50s`. It captured all `516` products and `1857` variants from the
+protected CSV with HTTP `200` and zero source retries, reproduced the exact
+`950 = 934 executable + 16 review` partition, and applied all `934` safe rows in
+all `47` children. Postflight proved `27` stock transitions, `934` freshness
+updates, zero catalogue-row delta and zero price-history delta. The fresh
+idempotency capture returned `934` no-change rows, the same 16 isolated review
+rows and zero writes, approvals or recovery calls. The shared Review Queue
+publisher refreshed exactly those 16 cards without catalogue writes. Final
+independent read-only discovery run `37922058572` returned `CLEAR`, zero blocking
+plans and unchanged counts `1337/3632/3758/3758/29600` at ledger `233`.
+
+This live proof closes the compact-fingerprint incident without a retailer
+branch, second executor, timeout increase or weakened guard. The repaired path
+is now frozen. Because the successful run was manually dispatched, it provides
+live proof but no natural-interval credit; RA-STAB-01 remains `IN_PROGRESS` at
+`0/3`. The only next gate is three consecutive ordinary scheduled intervals
+with correlated watchdog and database evidence. Evidence: [10 Reps compact
+fingerprint live proof](evidence/RA-STAB-01-10REPS-COMPACT-FINGERPRINT-LIVE-PROOF-2026-10-09.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
