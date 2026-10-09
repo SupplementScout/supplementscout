@@ -6,6 +6,7 @@ const test = require("node:test");
 const root = path.resolve(__dirname, "..");
 const migration = fs.readFileSync(path.join(root, "supabase/migrations/20260718160000_add_retailer_offer_mixed_batch_executor.sql"), "utf8");
 const stateReadMigration = fs.readFileSync(path.join(root, "supabase/migrations/20261008200000_consolidate_shared_executor_state_reads.sql"), "utf8");
+const compactFingerprintMigration = fs.readFileSync(path.join(root, "supabase/migrations/20261009120000_add_compact_other_retailer_fingerprint.sql"), "utf8");
 const postgresScenario = fs.readFileSync(path.join(root, "supabase/test/retailer_offer_mixed_batch_executor_integration_test.sql"), "utf8");
 
 test("mixed PostgreSQL scenario composes all six executable actions in one 26-row child", () => {
@@ -66,4 +67,24 @@ test("shared executor caches one post-state without removing any safety check", 
   assert.doesNotMatch(newExecutor, /retailer_id\s*=\s*\d+|retailer_slug|Whey Okay|Fit House|Simply Supplements/i);
   assert.match(stateReadMigration, /^begin;/i);
   assert.match(stateReadMigration, /commit;\s*$/i);
+});
+
+test("shared executor uses a compact exact other-retailer fingerprint without stranding historical recovery manifests", () => {
+  assert.match(compactFingerprintMigration, /create function public\.retailer_catalogue_other_retailer_fingerprint_v2/);
+  assert.match(compactFingerprintMigration, /to_jsonb\(rp\)::text/);
+  assert.match(compactFingerprintMigration, /to_jsonb\(o\)::text/);
+  assert.match(compactFingerprintMigration, /to_jsonb\(ph\)::text/);
+  assert.match(compactFingerprintMigration, /pg_catalog\.sha256/);
+  assert.match(compactFingerprintMigration, /row_count/);
+  assert.match(compactFingerprintMigration, /rows_fingerprint/);
+  assert.match(compactFingerprintMigration, /20261009120000_add_compact_other_retailer_fingerprint/);
+  assert.match(compactFingerprintMigration, /return public\.retailer_catalogue_other_retailer_fingerprint_v2\(p_retailer_id\)/);
+  assert.match(compactFingerprintMigration, /return public\.retailer_catalogue_other_retailer_fingerprint\(p_retailer_id\)/);
+  assert.match(compactFingerprintMigration, /retailer_catalogue_other_retailer_fingerprint_for_migration\(v_child\.retailer_id,v_manifest\.mixed_batch_migration_versions\)/);
+  assert.match(compactFingerprintMigration, /retailer_catalogue_protected_shared_fingerprint\(\)/);
+  assert.match(compactFingerprintMigration, /retailer_catalogue_orphan_counts\(\)/);
+  assert.match(compactFingerprintMigration, /RSBI_ROLLBACK_OWNERSHIP_CONFLICT/);
+  assert.doesNotMatch(compactFingerprintMigration, /retailer_id\s*=\s*14|10 Reps|Whey Okay|Fit House/i);
+  assert.match(compactFingerprintMigration, /^begin;/i);
+  assert.match(compactFingerprintMigration, /commit;\s*$/i);
 });

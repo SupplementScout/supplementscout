@@ -19,6 +19,24 @@ may later resume only as artifact-first recorded replay. See the
 [stabilization reset](retailer-automation/evidence/RA-STABILIZATION-RESET-2026-09-29.md)
 and the [execution ledger](retailer-automation/EXECUTION-PLAN.md).
 
+**9 October 2026 current RA-STAB-01 checkpoint:** the old partial 10 Reps plan
+was closed exactly as authorized, preserving four completed children and
+closing only 18 unexecuted children with zero business writes. The following
+single fresh run proved the 20-row child target is safe but not sufficient: 25
+children and 500 rows committed atomically before child 26 timed out, while 16
+source-missing identities remained isolated in Review Queue. Independent
+readback proves exactly 25 applied, one expired approved/unexecuted and 21
+planned children; there was no retry, replay, hidden write or price-history
+count change. The common bottleneck is the twice-per-child full fingerprint of
+all unrelated mappings, offers and roughly 29,600 history rows. A versioned
+shared compact fingerprint is locally prepared without retailer branches,
+parallel executors, timeout increases or weaker guards. Historical recovery
+manifests keep the legacy algorithm. The exact PostgreSQL 17
+migration/executor/recovery scenario passed in CI run `37917685369`; PR review
+and merge come next. Production deployment, partial-plan close and any further
+fresh run are not yet authorized. RA-STAB-01 remains `IN_PROGRESS` at `0/3` ordinary
+intervals. See [the preparation evidence](retailer-automation/evidence/RA-STAB-01-10REPS-COMPACT-FINGERPRINT-PREPARATION-2026-10-09.json).
+
 The separately authorized RA-STAB-01 schema phase completed on 29 September
 2026 through the guarded coordinator merged in PR `#146`. Production migration
 ledger 222 advanced to 223 with the exact reviewed sequential-close migration;

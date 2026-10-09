@@ -2590,6 +2590,41 @@ and closing only 18 unexecuted children, followed by one new fresh run. Manual
 work earns no ordinary observation credit; RA-STAB-01 remains `IN_PROGRESS` at
 `0/3`. Evidence: [10 Reps partial timeout and shared correction](evidence/RA-STAB-01-10REPS-PARTIAL-TIMEOUT-2026-10-09.json).
 
+PR `#311` merged the 20-row shared child target as
+`20dea68bb4f7ad92c3d364fee12c685efea8a78d`. The owner-authorized control-only
+close run `37898666426` then preserved all four applied children of expired 10
+Reps parent `ebdc44cb-668b-41ba-8fae-fb3f9b70ed4d` and closed exactly its 18
+unexecuted children with zero business or price-history writes. The one new
+fresh run `37898775120` used 47 children for the current
+`950 = 934 executable + 16 review` partition. It safely committed 25 children
+and 500 rows, then its twenty-sixth 20-row child reached the unchanged
+120-second query boundary. Read-only run `37914426428` independently proves one
+`PARTIALLY_APPLIED` parent `63a57694-c40b-45d6-8a87-90ca7aa22b8d`, exactly 25
+applied, one expired approved/unexecuted and 21 planned children, 25 apply runs,
+zero hidden write, retry, replay or close, and unchanged catalogue counts
+`1337/3632/3758/3758/29600`.
+
+This second partial result disproves child-size reduction as a sufficient
+solution: the first 500 rows already consumed about 39 minutes, so all 47
+children cannot reliably finish inside the 45-minute parent approval window.
+The common executor still computes a full other-retailer fingerprint twice per
+child by materialising every unrelated mapping, offer and price-history row.
+Migration `20261009120000_add_compact_other_retailer_fingerprint.sql` prepares
+one shared, versioned correction: every complete row remains covered by
+SHA-256, but fixed-width ordered row digests and relation counts replace the
+wide aggregate JSON. Historical recovery manifests remain bound to the legacy
+algorithm; only manifests whose immutable ledger includes the new migration use
+V2. No retailer branch, executor, approval path, timeout increase, approval
+extension or guard relaxation is added. Focused tests, `verify:quick` and
+`verify:full` pass locally. GitHub run `37917685369`, job `113777767079`, proves
+the exact PostgreSQL 17 migration/executor/recovery scenario as passing test 43.
+The wider historical integration batch remains red on four unrelated tests
+(`27`, `31`, `67`, `68`), which are not folded into this correction. The current
+partial plan must not be resumed or replayed, and merge, deployment, close and
+another fresh run each remain separate future gates. Manual work gives no
+ordinary interval credit; RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence:
+[10 Reps compact fingerprint preparation](evidence/RA-STAB-01-10REPS-COMPACT-FINGERPRINT-PREPARATION-2026-10-09.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
