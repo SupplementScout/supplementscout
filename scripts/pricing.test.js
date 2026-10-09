@@ -431,6 +431,14 @@ test("zero shipping remains valid free delivery", () => {
   });
 });
 
+test("delivered price uses exact penny arithmetic for decimal product and shipping prices", () => {
+  assert.deepEqual(getDeliveredPrice({ price: 23.49, shipping_cost: 3.99 }), {
+    productPrice: 23.49,
+    shippingCost: 3.99,
+    totalPrice: 27.48,
+  });
+});
+
 test("search offer ranking prefers known delivered total over null shipping", () => {
   const offers = normalizeSearchOffers([
     {

@@ -171,7 +171,7 @@ test("published explanations remain bound to the implemented pricing and freshne
     "utf8"
   );
 
-  assert.match(pricing, /productPrice \+ shippingCost/);
+  assert.match(pricing, /Math\.round\(productPrice \* 100\) \+ Math\.round\(shippingCost \* 100\)/);
   assert.match(pricing, /if \(shippingCost === null\)/);
   assert.match(freshness, /maximumOfferAgeHours:\s*MAXIMUM_CURRENT_OFFER_AGE_HOURS/);
   const sharedFreshness = fs.readFileSync(

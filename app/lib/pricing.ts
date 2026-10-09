@@ -51,7 +51,8 @@ export function getDeliveredPrice(offer: PriceInput): DeliveredPrice | null {
   return {
     productPrice,
     shippingCost,
-    totalPrice: productPrice + shippingCost,
+    totalPrice:
+      (Math.round(productPrice * 100) + Math.round(shippingCost * 100)) / 100,
   };
 }
 
