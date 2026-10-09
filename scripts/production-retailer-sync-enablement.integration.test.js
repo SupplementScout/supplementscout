@@ -11,6 +11,7 @@ const SEQUENTIAL_CLOSE_MIGRATION = path.join(ROOT, "supabase/migrations/20260929
 const PARTIAL_SEQUENTIAL_CLOSE_MIGRATION = path.join(ROOT, "supabase/migrations/20261006120000_extend_partial_sequential_plan_close.sql");
 const REVIEWED_DISPATCH_MIGRATION = path.join(ROOT, "supabase/migrations/20260722120000_add_reviewed_jons_stock_only_override.sql");
 const STATE_READ_MIGRATION = path.join(ROOT, "supabase/migrations/20261008200000_consolidate_shared_executor_state_reads.sql");
+const COMPACT_FINGERPRINT_MIGRATION = path.join(ROOT, "supabase/migrations/20261009120000_add_compact_other_retailer_fingerprint.sql");
 const IMAGE = "postgres:17-alpine";
 const PRODUCTION_REF = "aftboxmrdgyhizicfsfu";
 const STAGING_REF = "hxnrsyyqffztlvcrtgbf";
@@ -322,6 +323,9 @@ test("production sequence passes exact identity and fails staging, drift, order,
     requireSuccess(psql(container,pass,"insert into supabase_migrations.schema_migrations values('20261006120000','extend_partial_sequential_plan_close',array[]::text[])"),"record shared partial sequential plan close migration");
     requireSuccess(psqlText(container,pass,fs.readFileSync(REVIEWED_DISPATCH_MIGRATION,"utf8")),"shared reviewed dispatch migration");
     requireSuccess(psqlText(container,pass,fs.readFileSync(STATE_READ_MIGRATION,"utf8")),"shared executor state-read consolidation migration");
+    requireSuccess(psql(container,pass,"insert into supabase_migrations.schema_migrations values('20261008200000','consolidate_shared_executor_state_reads',array[]::text[])"),"record shared executor state-read migration");
+    requireSuccess(psqlText(container,pass,fs.readFileSync(COMPACT_FINGERPRINT_MIGRATION,"utf8")),"compact other-retailer fingerprint migration");
+    requireSuccess(psql(container,pass,"insert into supabase_migrations.schema_migrations values('20261009120000','add_compact_other_retailer_fingerprint',array[]::text[])"),"record compact other-retailer fingerprint migration");
 
     for(const scenario of [
       "retailer_offer_read_only_validator_integration_test.sql",

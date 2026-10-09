@@ -133,6 +133,8 @@ const CONTRACTS = Object.freeze({
       "e85e59782faaeec14c5f307052939454d6149b2b7e58b2b05b29e3e6f64dbf9c",
     appliedExcluded: APPLIED_EXCLUSIONS.STAGING,
     excluded: Object.freeze({
+      "20261009120000_add_compact_other_retailer_fingerprint.sql":
+        "b365d247777650aba6333399d4173ecb369d85a1465074bb6961c23b94f2ac84",
       "20261008200000_consolidate_shared_executor_state_reads.sql":
         "a4701b3b94573e453a359f228e0914405d58f338b82d7b5f7158fc5cec385826",
       "20260920150000_add_nutrition_candidate_creatine_components.sql":
@@ -455,6 +457,8 @@ const CONTRACTS = Object.freeze({
       "6d22d965f22c5d281c3b4b4c8a9dfd5f7b7892e853bea185b2a51dd412f06104",
     appliedExcluded: APPLIED_EXCLUSIONS.PRODUCTION,
     excluded: Object.freeze({
+      "20261009120000_add_compact_other_retailer_fingerprint.sql":
+        "b365d247777650aba6333399d4173ecb369d85a1465074bb6961c23b94f2ac84",
       "20261008200000_consolidate_shared_executor_state_reads.sql":
         "a4701b3b94573e453a359f228e0914405d58f338b82d7b5f7158fc5cec385826",
       "20260717120000_create_retailer_catalogue_control_ledger.sql":

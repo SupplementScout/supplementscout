@@ -719,8 +719,12 @@ test("runtime staging artifacts bind the same migration ledger as the staging se
 
 test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.equal(Object.keys(contract.excluded).length, 23);
+  assert.equal(Object.keys(contract.excluded).length, 24);
   assert.deepEqual(contract.pending, []);
+  assert.equal(
+    contract.excluded["20261009120000_add_compact_other_retailer_fingerprint.sql"],
+    "b365d247777650aba6333399d4173ecb369d85a1465074bb6961c23b94f2ac84",
+  );
   assert.equal(
     contract.excluded["20261008200000_consolidate_shared_executor_state_reads.sql"],
     "a4701b3b94573e453a359f228e0914405d58f338b82d7b5f7158fc5cec385826",

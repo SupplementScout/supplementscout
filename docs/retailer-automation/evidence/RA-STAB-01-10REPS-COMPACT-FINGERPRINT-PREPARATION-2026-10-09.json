@@ -1,0 +1,140 @@
+{
+  "schema_version": "ra-stab-01-10reps-compact-fingerprint-preparation-v1",
+  "captured_at": "2026-10-09",
+  "task": "RA-STAB-01",
+  "status": "LOCAL_AND_TARGETED_POSTGRES_VERIFIED_PENDING_PR_REVIEW_AND_SEPARATE_DEPLOYMENT_AUTHORITY",
+  "scope": "shared retailer executor performance correction after the fresh 10 Reps partial run",
+  "authorized_operations": {
+    "closed_expired_parent_plan_id": "ebdc44cb-668b-41ba-8fae-fb3f9b70ed4d",
+    "fresh_run_count": 1,
+    "retry_count": 0,
+    "replay_count": 0
+  },
+  "expired_plan_close": {
+    "workflow_run_id": "37898666426",
+    "workflow_url": "https://github.com/SupplementScout/supplementscout/actions/runs/37898666426",
+    "conclusion": "success",
+    "artifact_id": "11601078731",
+    "artifact_name": "retailer-control-recovery-37898666426-1",
+    "artifact_digest": "sha256:fb8bde9ab563de9f3f10e85eb4b700d41811dd15c355a8471ce8d5a1db33db0a",
+    "preserved_applied_children": 4,
+    "closed_unexecuted_children": 18,
+    "business_writes": 0,
+    "price_history_writes": 0
+  },
+  "fresh_run": {
+    "workflow_run_id": "37898775120",
+    "workflow_url": "https://github.com/SupplementScout/supplementscout/actions/runs/37898775120",
+    "head_sha": "20dea68bb4f7ad92c3d364fee12c685efea8a78d",
+    "conclusion": "failure",
+    "failure_stage": "EXECUTOR",
+    "error_message": "Query read timeout",
+    "artifact_id": "11601944945",
+    "artifact_name": "10reps-offer-refresh-37898775120-1",
+    "artifact_digest": "sha256:8b33a6a82c2868037cdaaab8479cf6a14795e0e06dd0f6910d4693cfa2c44eb4",
+    "apply_diagnostic_sha256": "275f8b914186b24c5f6136765d92e9a8abbbb0c66f3275b04da97a2a75d7b355",
+    "source": {
+      "http_status": 200,
+      "products": 516,
+      "variants": 1857,
+      "retry_count": 0
+    },
+    "partition": {
+      "approved_mappings": 950,
+      "executable_rows": 934,
+      "review_rows": 16,
+      "blocked_rows": 0,
+      "children": 47,
+      "maximum_rows_per_child": 20
+    },
+    "partial_progress": {
+      "parent_plan_id": "63a57694-c40b-45d6-8a87-90ca7aa22b8d",
+      "completed_children": 25,
+      "completed_rows": 500,
+      "approved_unexecuted_children": 1,
+      "planned_children": 21,
+      "failed_child_index_zero_based": 25,
+      "failed_child_plan_id": "086c9a78-6dfe-424b-b721-dc7c5c3ba738",
+      "failed_child_rows": 20,
+      "failed_child_stage": "EXECUTOR"
+    }
+  },
+  "independent_readback": {
+    "workflow_run_id": "37914426428",
+    "workflow_url": "https://github.com/SupplementScout/supplementscout/actions/runs/37914426428",
+    "conclusion": "success",
+    "artifact_id": "11609575459",
+    "artifact_name": "retailer-control-recovery-37914426428-1",
+    "artifact_digest": "sha256:fb24aeb92c7aeb47cd48b41a541252635ef1529482a0df7f52d38fc70eab801e",
+    "discovery_sha256": "06aa788c845fca2cc4440ccaa7c92526ba940bea632c98c0a836e5f04de77f82",
+    "result": "FOUND_EXACTLY_ONE",
+    "parent_status": "PARTIALLY_APPLIED",
+    "child_count": 47,
+    "applied_child_count": 25,
+    "approved_child_count": 1,
+    "planned_child_count": 21,
+    "apply_run_count": 25,
+    "automatic_retries": 0,
+    "close_calls": 0,
+    "control_writes": 0,
+    "business_writes": 0,
+    "price_history_writes": 0,
+    "catalogue_counts": {
+      "products": 1337,
+      "product_variants": 3632,
+      "retailer_products": 3758,
+      "offers": 3758,
+      "price_history": 29600
+    },
+    "migration_ledger_count": 232,
+    "migration_ledger_fingerprint": "6d22d965f22c5d281c3b4b4c8a9dfd5f7b7892e853bea185b2a51dd412f06104"
+  },
+  "diagnosis": {
+    "source_or_identity_failure": false,
+    "shared_executor_failure": true,
+    "observation": "Twenty-five 20-row children required about 39 minutes before the twenty-sixth child reached the unchanged 120-second query boundary. The 47-child parent cannot reliably finish inside its 45-minute approval window.",
+    "shared_cost": "Each child computes the full other-retailer fingerprint twice. The legacy fingerprint materialises complete retailer_product, offer and price_history rows, including roughly 29600 history rows in the current catalogue.",
+    "rejected_workaround": "Further child-size reduction would increase child count and total overhead without removing the repeated full-catalogue work. No timeout or approval-window increase is proposed."
+  },
+  "prepared_change": {
+    "migration": "supabase/migrations/20261009120000_add_compact_other_retailer_fingerprint.sql",
+    "sha256": "b365d247777650aba6333399d4173ecb369d85a1465074bb6961c23b94f2ac84",
+    "scope": "shared executor and shared recovery compatibility only",
+    "mechanism": "Hash each complete unrelated row to a fixed-width SHA-256 digest, then hash ordered relation digests and counts instead of materialising one wide JSON document.",
+    "historical_compatibility": "Historical recovery manifests continue to use the legacy fingerprint. New manifests select V2 only when their immutable migration ledger contains this migration.",
+    "retailer_specific_branches_added": 0,
+    "new_executor_paths_added": 0,
+    "new_approval_paths_added": 0,
+    "timeouts_increased": false,
+    "approval_windows_increased": false,
+    "guardrails_weakened": false
+  },
+  "verification": {
+    "focused_tests": "PASS 59/59",
+    "project_guardian_before_documentation": "PASS",
+    "project_guardian_after_documentation": "PASS",
+    "quality_gate_quick": "PASS",
+    "quality_gate_full": "PASS",
+    "postgres_17_local_scenario": "NOT_RUN_DOCKER_DAEMON_UNAVAILABLE",
+    "postgres_17_ci_scenario": {
+      "result": "PASS",
+      "workflow_run_id": "37917685369",
+      "job_id": "113777767079",
+      "head_sha": "89dc84f36b7b59e3e51633e77cd2c9fb2b3ce301",
+      "test": "production sequence passes exact identity and fails staging, drift, order, rerun, and injected failure atomically",
+      "test_number": 43
+    },
+    "full_integration_suite": "FAIL_OUTSIDE_CHANGE_SCOPE: four historical tests remained red (27, 31, 67 and 68); the exact PostgreSQL 17 migration/executor/recovery scenario passed.",
+    "required_next_gate": "PR review and required PR checks come before merge. Production deployment remains a separate exact authorization."
+  },
+  "production": {
+    "migration_deployed": false,
+    "new_run_authorized": false,
+    "partial_plan_close_authorized": false,
+    "retry_or_replay_authorized": false
+  },
+  "observation": {
+    "ra_stab_01_status": "IN_PROGRESS",
+    "ordinary_interval_counter": "0/3"
+  }
+}
