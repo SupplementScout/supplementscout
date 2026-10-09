@@ -2625,6 +2625,19 @@ another fresh run each remain separate future gates. Manual work gives no
 ordinary interval credit; RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence:
 [10 Reps compact fingerprint preparation](evidence/RA-STAB-01-10REPS-COMPACT-FINGERPRINT-PREPARATION-2026-10-09.json).
 
+PR `#312` merged the shared implementation as
+`23aa8387da7040214158c2a3078da7c4fcbcd723`; PR `#313` then exposed only the
+owner-authorized production migration. Rollback-only rehearsal, apply and an
+independent read-only postflight all passed. Production advanced from ledger
+`232` to `233` with fingerprint
+`65bd715ca8d7012125308e505c6af94b633820498d442d7ee7e84c89800df3cc`.
+All catalogue counts stayed unchanged at `1337/3632/3758/3758/29600`, including
+zero offer or price-history writes. The runtime binding is being closed at
+ledger `233` before the separately authorized control-only close of parent
+`63a57694-c40b-45d6-8a87-90ca7aa22b8d`. No retry, replay or fresh run has yet
+occurred in this authorized sequence. Evidence: [compact fingerprint production
+deployment](evidence/RA-STAB-01-COMPACT-FINGERPRINT-DEPLOYMENT-2026-10-09.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

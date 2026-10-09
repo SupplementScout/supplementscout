@@ -166,6 +166,7 @@ const EXCLUSIONS = Object.freeze({
     "20261009100000_align_shared_sequential_child_capacity",
   ]),
   PRODUCTION: Object.freeze([
+    "20261009120000_add_compact_other_retailer_fingerprint",
     "20261008200000_consolidate_shared_executor_state_reads",
     "20260717120000_create_retailer_catalogue_control_ledger",
     "20260717130000_add_local_retailer_catalogue_child_executor",
@@ -211,17 +212,13 @@ const APPLIED_EXCLUSIONS = Object.freeze({
     "20261006190000_add_automation_review_verified_postflight_recovery.sql",
     "20261008140000_add_active_retailer_parent_inventory.sql",
     "20261008200000_consolidate_shared_executor_state_reads.sql",
+    "20261009120000_add_compact_other_retailer_fingerprint.sql",
   ]),
 });
 
 const PENDING_MIGRATIONS = Object.freeze({
   STAGING: Object.freeze([]),
-  PRODUCTION: Object.freeze([
-    Object.freeze({
-      filename: "20261009120000_add_compact_other_retailer_fingerprint.sql",
-      sha256: "b365d247777650aba6333399d4173ecb369d85a1465074bb6961c23b94f2ac84",
-    }),
-  ]),
+  PRODUCTION: Object.freeze([]),
 });
 
 function migrationIdentifier(filename) {
