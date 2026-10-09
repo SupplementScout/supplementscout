@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "kind": "seo15-accrual-and-growth-audit",
+  "captured_at": "2026-10-09T11:55:09.768645+00:00",
+  "stage3_readiness": "OWNER_DECISION_REQUIRED",
+  "database_writes": 0,
+  "google_configuration_writes": 0,
+  "seo15_run_id": "37927290755",
+  "seo15_artifact_id": "11613814836",
+  "seo15_report_sha256": "d48a55cd48ee167d0d870277409fe4d7470f16504d356848c0befe02169ca9bd",
+  "growth_run_id": "37925170969",
+  "growth_artifact_id": "11613338938",
+  "growth_report_sha256": "698e8c154f992de529b4a8aeb1276a22ee16f49a1ecf5a4ec955f4ec20a37245",
+  "history": {
+    "rows": 30146,
+    "legacy_excluded": 4139,
+    "identity_series": 813,
+    "linked_observations": 26007,
+    "qualifying_current_drops": [
+      { "offer_id": 1339, "previous_total_price": 35.48, "current_total_price": 27.48, "decrease_percent": 22.55 },
+      { "offer_id": 1337, "previous_total_price": 35.48, "current_total_price": 27.48, "decrease_percent": 22.55 }
+    ],
+    "excluded_threshold_drops": [
+      { "offer_id": 1284, "reason": "OUT_OF_STOCK" },
+      { "offer_id": 1251, "reason": "OUT_OF_STOCK" },
+      { "offer_id": 1192, "reason": "IDENTITY_MISMATCH" }
+    ]
+  },
+  "growth": {
+    "period": { "start": "2026-09-30", "end": "2026-10-06" },
+    "gsc": { "impressions": 1535, "clicks": 15, "ctr": 0.009771986970684038, "average_position": 36.59348534201954, "complete_final_dates": 7 },
+    "ga4": { "organic_sessions": 59, "organic_users": 11, "views": 400, "retailer_offer_clicks": 0, "conservative_external_sessions": 14 },
+    "better_value": { "impressions": 8, "clicks": 0 }
+  },
+  "decision": "Keep public Stage 3 disabled until the separate owner decision; if approved, implement only the existing per-row fail-closed selector and UI for currently qualifying rows."
+}

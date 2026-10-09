@@ -583,9 +583,9 @@ to SEO-15 Stage 3. No ordering change is made by this plan.
 | Fit House Stage 2A producer | `6e5a3a214b9064050d20f6d54e9ed51c292c20ab` | production ledger `151`, fingerprint `12ece4c71ab77f1488afaeac6dc94049ff65b07c30309fd01bf7e8b0f30db28a`; run `32986975109`; artifact `9613320669` | official rehearsal, apply, `286/286` preflight, six validator batches, apply and fresh-source idempotency passed | exactly 260 series and daily confirmations; 26 `MISSING_OR_CONFLICTING_EXACT_IDENTITY` skips; zero anomalies, duplicate series, duplicate daily confirmations or other-retailer series changes | `PRODUCTION VERIFIED`; accrual continues, public claims disabled |
 | 7-day audit | 9 September read-only audit | linked evidence above | retrospective observation-date continuity checked | gaps documented; no backfill | complete |
 | 14-day audit | 9 September read-only audit | linked evidence above | Jon's 503 pass elapsed age; Fit House first reaches 14 days at 16:10 UTC today | zero qualifying drops; continuity gaps remain | audit complete; Stage 3 not ready |
-| 30-day audit | pending | Jon's 24 September; Fit House 25 September; GYM HIGH 3 October | conditional evidence review, not publication promise | pending | not due |
+| 30-day audit | read-only run `37927290755` | 9 October private artifact `11613814836` | 813/813 series pass age; producer-wide continuity remains incomplete | five Jon's threshold drops; two (`1337`, `1339`) pass current identity/stock/freshness | audit complete; separate Stage 3 owner decision required |
 | 60-day audit | n/a | n/a | pending | pending | not due |
-| Stage 3 | pending separate approval | pending | pending | pending | not started |
+| Stage 3 | pending separate approval | two currently qualifying Jon's rows | existing per-row fail-closed contract | public claims remain disabled | not started |
 
 ## 16. Complete conditions
 
