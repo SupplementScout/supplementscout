@@ -86,6 +86,8 @@ function rawDropEvidence(overrides = {}) {
     latest_matches: true,
     producer_enabled: true,
     producer_public_use: "eligible-after-separate-approval",
+    producer_approved_scope: "reviewed-current-sync",
+    release_enabled: true,
     ...overrides,
   };
 }
@@ -168,24 +170,42 @@ test("readiness gate requires 12 products, 30 offers, 4 retailers and two retail
   assert.equal(evaluateDealsIndexability(summary, false).indexable, false);
 });
 
-test("bounded Stage 3 selector publishes only the two owner-approved Jon's offers when every rule passes", () => {
+test("automatic Stage 3 selector accepts new proven offers without a product allowlist but publishes only released retailers", () => {
   const deals = loadDeals();
   assert.equal(deals.isVerifiedPriceDropsEnabled({ SEO15_STAGE3_ENABLED: "true" }), true);
   assert.equal(deals.isVerifiedPriceDropsEnabled({ SEO15_STAGE3_ENABLED: "TRUE" }), false);
-  assert.deepEqual(deals.VERIFIED_PRICE_DROP_SCOPE, {
-    retailerId: "10",
-    retailerSlug: "jon-s-supplements",
-    offerIds: ["1337", "1339"],
-  });
+  assert.equal(deals.isPriceDropCandidateMonitorEnabled({ SEO15_STAGE3_MONITOR_ENABLED: "true" }), true);
+  assert.equal(deals.isPriceDropCandidateMonitorEnabled({ SEO15_STAGE3_MONITOR_ENABLED: "TRUE" }), false);
 
   const rows = deals.normalizeVerifiedPriceDrops([
     rawDropEvidence(),
     rawDropEvidence({ drop_observation_id: 9002, identity_series_id: 502, offer_id: 1339 }),
-    rawDropEvidence({ drop_observation_id: 9003, identity_series_id: 503, offer_id: 1192 }),
+    rawDropEvidence({ drop_observation_id: 9003, identity_series_id: 503, offer_id: 1401 }),
+    rawDropEvidence({ drop_observation_id: 9004, identity_series_id: 504, offer_id: 991, retailer_id: 9, retailer_slug: "fit-house", retailer_name: "Fit House", producer_approved_scope: "approved-286", release_enabled: false }),
   ], new Date("2026-10-09T12:00:00.000Z"));
-  assert.deepEqual(rows.map((row) => row.offer.id), ["1337", "1339"]);
+  assert.deepEqual(rows.map((row) => row.offer.id), ["1337", "1339", "1401"]);
   assert.equal(rows[0].savingAmount, 8);
   assert.equal(rows[0].savingPercent, 22.5);
+});
+
+test("candidate inventory recomputes safe counts and fails closed on an invalid envelope", () => {
+  const deals = loadDeals();
+  const raw = {
+    schema_version: 1,
+    kind: "seo15-stage3-candidate-inventory",
+    captured_at: "2026-10-09T12:00:00.000Z",
+    database_writes: 0,
+    candidates: [
+      rawDropEvidence(),
+      rawDropEvidence({ drop_observation_id: 9004, identity_series_id: 504, offer_id: 991, retailer_id: 9, retailer_slug: "fit-house", retailer_name: "Fit House", producer_approved_scope: "approved-286", release_enabled: false }),
+    ],
+  };
+  const inventory = deals.normalizePriceDropCandidateInventory(raw, new Date("2026-10-09T12:00:00.000Z"));
+  assert.equal(inventory.available, true);
+  assert.equal(inventory.candidateCount, 2);
+  assert.equal(inventory.releasedCandidateCount, 1);
+  assert.equal(inventory.awaitingRetailerApprovalCount, 1);
+  assert.equal(deals.normalizePriceDropCandidateInventory({ ...raw, database_writes: 1 }).error, true);
 });
 
 test("verified drops fail closed for every historical, identity and current-state guard", () => {
@@ -207,6 +227,7 @@ test("verified drops fail closed for every historical, identity and current-stat
     { current_total_price: 28.48 },
     { producer_enabled: false },
     { producer_public_use: "owner-deferred" },
+    { producer_approved_scope: "" },
   ];
   for (const override of invalid) {
     assert.deepEqual(
@@ -229,6 +250,22 @@ test("Stage 3 database boundary is read-only, exact-scope and unavailable to pub
   assert.match(migration, /grant execute on function public\.get_seo15_bounded_stage3_evidence\(\) to service_role/i);
   assert.doesNotMatch(migration, /\b(insert|update|delete|truncate)\s+(into\s+|from\s+)?public\./i);
   assert.match(rollback, /drop function if exists public\.get_seo15_bounded_stage3_evidence\(\)/i);
+});
+
+test("automatic candidate inventory has one source-level release gate and no offer allowlist", () => {
+  const migration = fs.readFileSync(path.join(process.cwd(), "supabase/migrations/20261009160000_add_seo15_automatic_candidate_inventory.sql"), "utf8");
+  const rollback = fs.readFileSync(path.join(process.cwd(), "supabase/rollbacks/20261009160000_add_seo15_automatic_candidate_inventory.sql"), "utf8");
+  assert.match(migration, /create table public\.seo15_stage3_retailer_releases/i);
+  assert.match(migration, /jons-stage3-automatic-candidates-v1/i);
+  assert.match(migration, /where pop\.enabled and pop\.public_use='eligible-after-separate-approval'/i);
+  assert.match(migration, /current_last_checked_at>=clock_timestamp\(\)-interval '24 hours'/i);
+  assert.match(migration, /released_candidate_count/i);
+  assert.match(migration, /awaiting_retailer_approval_count/i);
+  assert.doesNotMatch(migration, /s\.offer_id in \(/i);
+  assert.match(migration, /revoke all on table public\.seo15_stage3_retailer_releases from public,anon,authenticated,service_role/i);
+  assert.match(migration, /grant execute on function public\.get_seo15_stage3_candidate_inventory\(\) to service_role/i);
+  assert.match(rollback, /drop function if exists public\.get_seo15_stage3_candidate_inventory\(\)/i);
+  assert.match(rollback, /drop table if exists public\.seo15_stage3_retailer_releases/i);
 });
 
 test("launch gate remains monitoring evidence and does not control stable base-page indexing", async () => {
@@ -376,4 +413,19 @@ test("verified price-drop section stays hidden until enabled and then renders on
   assert.match(visible, /£8\.00 lower \(22\.5%\)/);
   assert.match(visible, /\/go\/1337\?source=deals_verified_drop/);
   assert.doesNotMatch(visible, /lowest-ever/i);
+});
+
+test("admin candidate monitor is read-only, gated separately and linked from the existing admin", () => {
+  const monitor = fs.readFileSync(path.join(process.cwd(), "app/admin/deals-monitor/page.tsx"), "utf8");
+  const admin = fs.readFileSync(path.join(process.cwd(), "app/admin/page.tsx"), "utf8");
+  const workflow = fs.readFileSync(path.join(process.cwd(), ".github/workflows/seo15-accrual-audit.yml"), "utf8");
+  assert.match(admin, /href="\/admin\/deals-monitor"/);
+  assert.match(monitor, /requireAdminPage\(\)/);
+  assert.match(monitor, /isPriceDropCandidateMonitorEnabled\(\)/);
+  assert.match(monitor, /loadPriceDropCandidateInventory\(\)/);
+  assert.match(monitor, /Waiting for retailer approval/);
+  assert.doesNotMatch(monitor, /<form|action=|update\(|insert\(|delete\(/i);
+  assert.match(workflow, /cron: "23 7 \* \* \*"/);
+  assert.match(workflow, /vars\.SEO15_CANDIDATE_MONITOR_ENABLED == 'true'/);
+  assert.match(workflow, /environment: production-readonly/);
 });

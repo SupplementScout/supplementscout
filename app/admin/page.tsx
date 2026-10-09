@@ -93,6 +93,12 @@ export default async function AdminPage() {
             <h2 className="text-xl font-bold">Automation Review Queue</h2>
             <p className="mt-2 text-sm leading-6 text-zinc-600">Review isolated identity, commercial, mapping and source failures without direct catalogue writes.</p>
           </Link>
+          <Link href="/admin/deals-monitor" className="rounded-lg border border-zinc-200 bg-white p-5 hover:border-zinc-950">
+            <h2 className="text-xl font-bold">Deals candidate monitor</h2>
+            <p className="mt-2 text-sm leading-6 text-zinc-600">
+              See which verified price drops publish automatically and which retailers still need a source-level decision.
+            </p>
+          </Link>
         </section>
       </div>
     </main>

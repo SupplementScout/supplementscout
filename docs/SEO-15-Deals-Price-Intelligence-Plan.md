@@ -11,8 +11,9 @@ See [continuity evidence](rollouts/seo15-producer-continuity-2026-09-09.md).
 **Prepared:** 24 August 2026  
 **State:** Stage 1 and corrective Indexability Lifecycle P0 live verified;
 Stage 2A enabled for the approved Jon's, Fit House and GYM HIGH scopes; bounded
-Stage 3 implementation in progress for Jon's offers `1337` and `1339`, with
-public enablement disabled pending final verification
+Stage 3 canary merged for Jon's offers `1337` and `1339`; automatic Stage 3
+candidate inventory in progress with Jon's as the only source-level release,
+and monitor/public enablement disabled pending final verification
 **Authority:** `docs/SEO-Execution-Plan.md` remains the SEO status and ordering
 authority. `docs/SupplementScout-Operating-Plan-2026-07-15.md` remains the
 project authority. This document records only SEO-15 technical scope, gates,
@@ -587,7 +588,8 @@ to SEO-15 Stage 3. No ordering change is made by this plan.
 | 14-day audit | 9 September read-only audit | linked evidence above | Jon's 503 pass elapsed age; Fit House first reaches 14 days at 16:10 UTC today | zero qualifying drops; continuity gaps remain | audit complete; Stage 3 not ready |
 | 30-day audit | read-only run `37927290755` | 9 October private artifact `11613814836` | 813/813 series pass age; producer-wide continuity remains incomplete | five Jon's threshold drops; two (`1337`, `1339`) pass current identity/stock/freshness | audit complete; separate Stage 3 owner decision required |
 | 60-day audit | n/a | n/a | pending | pending | not due |
-| Stage 3 | owner-approved bounded implementation on 9 October | exact Jon's offers `1337`, `1339`; no other producer or row | shared selector plus read-only exact-scope evidence boundary; default-off release gate | public claims remain disabled pending schema/readback and release verification | in progress |
+| Stage 3 bounded canary | owner-approved implementation merged as `a8de525` on 9 October | exact Jon's offers `1337`, `1339`; no other producer or row | shared selector plus read-only exact-scope evidence boundary; default-off release gate | live `/deals` unchanged; schema not deployed | verified default-off foundation |
+| Stage 3 automatic candidates | owner-approved follow-up on 9 October | automatic offer qualification for the already approved Jon's source; other enabled eligible producers discovery-only | one central source release registry, one read-only inventory RPC, default-off admin monitor and variable-gated daily read-only audit | public and monitor flags remain off; migrations pending staging/production controls | in progress |
 
 ## 16. Complete conditions
 

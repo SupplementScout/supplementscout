@@ -9,6 +9,7 @@ const root = path.resolve(__dirname, "..");
 const image = "postgres:17-alpine";
 const migration = path.join(root, "supabase/migrations/20260824160000_add_identity_proven_price_observations.sql");
 const stage3Migration = path.join(root, "supabase/migrations/20261009140000_add_seo15_bounded_stage3_evidence.sql");
+const automaticCandidatesMigration = path.join(root, "supabase/migrations/20261009160000_add_seo15_automatic_candidate_inventory.sql");
 const rollback = path.join(root, "supabase/rollbacks/20260824160000_add_identity_proven_price_observations.sql");
 const stage2Setup = path.join(root, "supabase/test/product_variants_stage2_migration_test.sql");
 const prerequisites = [
@@ -327,7 +328,8 @@ test("bounded Stage 3 evidence function exposes only exact approved Jon's rows w
         evidence_status text not null,anomaly_flags text[] not null default '{}'
       );
       create table public.price_observation_producers(
-        retailer_id bigint not null,source_importer text not null,enabled boolean not null,public_use text not null,
+        retailer_id bigint not null,retailer_slug text not null,source_importer text not null,approved_scope text not null,
+        enabled boolean not null,public_use text not null,
         primary key(retailer_id,source_importer)
       );
       create or replace function public.retailer_catalogue_actual_database_target()
@@ -341,36 +343,46 @@ test("bounded Stage 3 evidence function exposes only exact approved Jon's rows w
         'series',(select count(*) from public.price_identity_series)
       ) $counts$;
       insert into public.retailers(id,name,slug) values
-        (10,'Jon''s Supplements','jon-s-supplements');
+        (9,'Fit House','fit-house'),(10,'Jon''s Supplements','jon-s-supplements');
       insert into public.products(id,name,slug,brand,category,product_format,is_active) values
         (7101,'HR Labs Defib Lemon','hr-labs-defib-lemon','HR Labs','Pre Workout','powder',true),
-        (7102,'HR Labs Defib Jelly Bean','hr-labs-defib-jelly-bean','HR Labs','Pre Workout','powder',true);
+        (7102,'HR Labs Defib Jelly Bean','hr-labs-defib-jelly-bean','HR Labs','Pre Workout','powder',true),
+        (7103,'Future Jon''s Candidate','future-jons-candidate','Example','Creatine','powder',true),
+        (7104,'Fit House Candidate','fit-house-candidate','Example','Creatine','powder',true);
       insert into public.product_variants(id,product_id,is_active,pack_count,size_value,size_unit,product_format) values
-        (7201,7101,true,1,420,'g','powder'),(7202,7102,true,1,420,'g','powder');
+        (7201,7101,true,1,420,'g','powder'),(7202,7102,true,1,420,'g','powder'),
+        (7203,7103,true,1,500,'g','powder'),(7204,7104,true,1,500,'g','powder');
       insert into public.retailer_products(id,retailer_id,product_id,product_variant_id,external_product_id,external_variant_id,external_gtin) values
         (7301,10,7101,7201,'jons-1339','lemon','05000000001339'),
-        (7302,10,7102,7202,'jons-1337','jelly','05000000001337');
+        (7302,10,7102,7202,'jons-1337','jelly','05000000001337'),
+        (7303,10,7103,7203,'jons-1401','default','05000000001401'),
+        (7304,9,7104,7204,'fit-991','default','05000000000991');
       insert into public.offers(id,product_id,retailer_id,retailer_product_id,product_variant_id,price,shipping_cost,total_price,in_stock,url,last_checked_at) values
-        (1339,7101,10,7301,7201,27.48,0,27.48,true,'https://jons.example/1339','2026-10-09T10:00:00Z'),
-        (1337,7102,10,7302,7202,27.48,0,27.48,true,'https://jons.example/1337','2026-10-09T10:00:00Z');
+        (1339,7101,10,7301,7201,27.48,0,27.48,true,'https://jons.example/1339',clock_timestamp()-interval '1 hour'),
+        (1337,7102,10,7302,7202,27.48,0,27.48,true,'https://jons.example/1337',clock_timestamp()-interval '1 hour'),
+        (1401,7103,10,7303,7203,27.48,0,27.48,true,'https://jons.example/1401',clock_timestamp()-interval '1 hour'),
+        (991,7104,9,7304,7204,27.48,0,27.48,true,'https://fit.example/991',clock_timestamp()-interval '1 hour');
       insert into public.price_identity_series(
         id,offer_id,retailer_id,product_id,product_variant_id,retailer_product_id,
         external_product_id,external_variant_id,gtin,size_value,size_unit,pack_count,product_format,source_importer
       ) values
         (7401,1339,10,7101,7201,7301,'jons-1339','lemon','05000000001339',420,'g',1,'powder','retailer_offer_mixed_batch'),
-        (7402,1337,10,7102,7202,7302,'jons-1337','jelly','05000000001337',420,'g',1,'powder','retailer_offer_mixed_batch');
-      insert into public.price_observation_producers(retailer_id,source_importer,enabled,public_use)
-        values(10,'retailer_offer_mixed_batch',true,'eligible-after-separate-approval');
+        (7402,1337,10,7102,7202,7302,'jons-1337','jelly','05000000001337',420,'g',1,'powder','retailer_offer_mixed_batch'),
+        (7403,1401,10,7103,7203,7303,'jons-1401','default','05000000001401',500,'g',1,'powder','retailer_offer_mixed_batch'),
+        (7404,991,9,7104,7204,7304,'fit-991','default','05000000000991',500,'g',1,'powder','retailer_offer_mixed_batch');
+      insert into public.price_observation_producers(retailer_id,retailer_slug,source_importer,approved_scope,enabled,public_use) values
+        (10,'jon-s-supplements','retailer_offer_mixed_batch','reviewed-current-sync',true,'eligible-after-separate-approval'),
+        (9,'fit-house','retailer_offer_mixed_batch','approved-286',true,'eligible-after-separate-approval');
       do $seed$
       declare v_offer bigint; v_series bigint; v_day date;
       begin
-        foreach v_offer in array array[1337::bigint,1339::bigint] loop
-          v_series:=case when v_offer=1337 then 7402 else 7401 end;
-          for v_day in select generate_series('2026-09-21'::date,'2026-09-27'::date,interval '1 day')::date loop
+        foreach v_offer in array array[991::bigint,1337::bigint,1339::bigint,1401::bigint] loop
+          v_series:=case v_offer when 991 then 7404 when 1337 then 7402 when 1339 then 7401 else 7403 end;
+          for v_day in select generate_series(current_date-18,current_date-12,interval '1 day')::date loop
             insert into public.price_history(offer_id,identity_series_id,price,shipping_cost,total_price,in_stock,checked_at,observation_date,evidence_status)
               values(v_offer,v_series,35.48,0,35.48,true,v_day::timestamptz+interval '10 hours',v_day,'proven');
           end loop;
-          for v_day in select generate_series('2026-09-28'::date,'2026-10-09'::date,interval '1 day')::date loop
+          for v_day in select generate_series(current_date-11,current_date,interval '1 day')::date loop
             insert into public.price_history(offer_id,identity_series_id,price,shipping_cost,total_price,in_stock,checked_at,observation_date,evidence_status)
               values(v_offer,v_series,27.48,0,27.48,true,v_day::timestamptz+interval '10 hours',v_day,'proven');
           end loop;
@@ -397,6 +409,22 @@ test("bounded Stage 3 evidence function exposes only exact approved Jon's rows w
       assert.equal(row.producer_public_use, "eligible-after-separate-approval");
     }
     requireFailure(psql(container, database, "set role anon; select public.get_seo15_bounded_stage3_evidence();"), "public Stage 3 evidence access", /permission denied/i);
+
+    requireSuccess(psqlFile(container, database, automaticCandidatesMigration), "apply automatic Stage 3 candidate inventory migration");
+    const automaticBefore = json(container, database, "select public.retailer_catalogue_business_counts()::text");
+    const inventory = json(container, database, "select public.get_seo15_stage3_candidate_inventory()::text");
+    const automaticAfter = json(container, database, "select public.retailer_catalogue_business_counts()::text");
+    assert.deepEqual(automaticAfter, automaticBefore);
+    assert.equal(inventory.database_writes, 0);
+    assert.equal(inventory.summary.candidate_count, 4);
+    assert.equal(inventory.summary.released_candidate_count, 3);
+    assert.equal(inventory.summary.awaiting_retailer_approval_count, 1);
+    assert.deepEqual(inventory.candidates.filter((row) => row.release_enabled).map((row) => Number(row.offer_id)).sort((a, b) => a - b), [1337, 1339, 1401]);
+    assert.deepEqual(inventory.candidates.filter((row) => !row.release_enabled).map((row) => Number(row.offer_id)), [991]);
+    assert.equal(json(container, database, "select has_function_privilege('service_role','public.get_seo15_stage3_candidate_inventory()','execute')::text::jsonb"), true);
+    assert.equal(json(container, database, "select has_function_privilege('anon','public.get_seo15_stage3_candidate_inventory()','execute')::text::jsonb"), false);
+    assert.equal(json(container, database, "select has_table_privilege('service_role','public.seo15_stage3_retailer_releases','select')::text::jsonb"), false);
+    requireFailure(psql(container, database, "set role anon; select public.get_seo15_stage3_candidate_inventory();"), "public automatic Stage 3 inventory access", /permission denied/i);
   } catch (error) {
     primaryError = error;
     throw error;

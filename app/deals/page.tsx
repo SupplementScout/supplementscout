@@ -24,7 +24,7 @@ const description =
   "Compare today's recently checked delivered prices for exact supplement variants available from multiple UK retailers.";
 const getCachedDeals = createLifecycleDataLoader(
   pagePath,
-  "deals-price-intelligence-v1",
+  "deals-price-intelligence-v2",
   getDeals
 );
 
