@@ -63,11 +63,13 @@ the raw GA4 session total as a growth or conversion claim.
 
 ## Decision and next step
 
-SEO-15 is no longer blocked by age or the absence of a real price drop. It is
-blocked only on the planned separate owner decision for a bounded Stage 3
-implementation using the two currently qualifying Jon's rows and the existing
-per-row fail-closed contract. No public historical wording is enabled. SEO-17
-remains behind that decision; weekly GSC/GA4 measurement continues.
+SEO-15 is no longer blocked by age or the absence of a real price drop. The
+owner approved bounded Stage 3 implementation on 9 October for only offers
+`1337` and `1339`, using the existing per-row fail-closed contract, with no new
+producer, backfill or publication before final verification. Implementation is
+in progress behind a default-off release gate. No public historical wording is
+enabled. SEO-17 remains behind that release; weekly GSC/GA4 measurement
+continues.
 
 The raw reports remain private. Their JSON SHA-256 values are
 `d48a55cd48ee167d0d870277409fe4d7470f16504d356848c0befe02169ca9bd`

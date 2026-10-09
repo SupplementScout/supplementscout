@@ -7,6 +7,7 @@ import {
   getDeals,
   type DealsResult,
   type DealsRow,
+  type VerifiedPriceDropRow,
 } from "../lib/dealsPriceIntelligence";
 import {
   assertLifecycleDataAvailable,
@@ -152,10 +153,53 @@ function PriceCard({ row, position }: { row: DealsRow; position: number }) {
   );
 }
 
+function VerifiedDropCard({ row }: { row: VerifiedPriceDropRow }) {
+  return (
+    <article className="rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm sm:p-6">
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_21rem] lg:items-center">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
+            Verified price drop · {row.offer.retailer.name}
+          </p>
+          <Link href={row.productUrl} className="block">
+            <h3 className="mt-2 text-xl font-bold hover:underline">{row.name}</h3>
+          </Link>
+          <p className="mt-2 text-sm font-semibold text-zinc-800">Exact pack: {row.packLabel}</p>
+          <p className="mt-3 text-sm leading-6 text-zinc-700">
+            The earlier delivered price was confirmed across seven consecutive days. The current lower delivered price still matches this same offer and exact pack.
+          </p>
+          <OfferCheckedBadge checkedAt={row.lastCheckedAt} />
+        </div>
+        <div className="rounded-xl bg-emerald-50 p-4">
+          <p className="text-sm text-zinc-600">
+            Previous delivered price <span className="font-semibold line-through">{formatCurrency(row.previousDeliveredPrice)}</span>
+          </p>
+          <p className="mt-1 text-3xl font-extrabold">{formatCurrency(row.currentDeliveredPrice)}</p>
+          <p className="mt-2 font-semibold text-emerald-800">
+            {formatCurrency(row.savingAmount)} lower ({row.savingPercent}%)
+          </p>
+          <p className="mt-2 text-xs leading-5 text-zinc-600">
+            Verified from tracked observations for this retailer offer. It does not represent complete lifetime price history.
+          </p>
+          <a
+            href={`/go/${row.offer.id}?source=deals_verified_drop`}
+            rel="sponsored nofollow noopener noreferrer"
+            className="mt-4 flex min-h-11 items-center justify-center rounded-lg bg-zinc-950 px-4 text-sm font-semibold text-white hover:bg-zinc-800"
+          >
+            Check current retailer price
+          </a>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 export function DealsPageContent({ result }: { result: DealsResult }) {
   assertDealsDataAvailable(result);
   const jsonLd = buildDealsStructuredData(result.rows);
   const latestCheck = formatCheckedAt(result.summary.latestOfferCheckedAt);
+  const verifiedDrops = result.verifiedDrops || [];
+  const showVerifiedDrops = result.verifiedDropsEnabled === true && verifiedDrops.length > 0;
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
       <CategoryViewAnalytics category="Deals" sourcePage="deals_current_prices" />
@@ -183,13 +227,31 @@ export function DealsPageContent({ result }: { result: DealsResult }) {
             Compare current delivered prices only where the same exact variant and pack is available from at least two recently checked UK retailers.
           </p>
           <p className="mt-4 text-sm leading-6 text-zinc-600">
-            This page shows today&apos;s price evidence. It does not claim that a price has fallen or compare it with an earlier price.
+            {showVerifiedDrops
+              ? "Current comparisons and verified price drops use separate evidence rules. Historical claims appear only when the same exact offer and pack pass every check."
+              : "This page shows today’s price evidence. It does not claim that a price has fallen or compare it with an earlier price."}
           </p>
           <p className="mt-3 text-sm leading-6 text-zinc-600">
             Coverage is limited to the retailers SupplementScout currently tracks and does not represent every retailer in the UK market.
           </p>
         </div>
       </section>
+      {showVerifiedDrops && (
+        <section className="border-y border-emerald-200 bg-emerald-50/40">
+          <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+            <div className="max-w-4xl">
+              <p className="text-sm font-semibold uppercase tracking-wide text-emerald-700">Historical evidence</p>
+              <h2 className="mt-2 text-3xl font-bold">Verified price drops</h2>
+              <p className="mt-3 leading-7 text-zinc-700">
+                These are current delivered prices that are at least £2 and 10% below a stable earlier delivered price for the same exact retailer offer, variant and pack. Coverage is limited to tracked observations.
+              </p>
+            </div>
+            <div className="mt-6 space-y-4">
+              {verifiedDrops.map((row) => <VerifiedDropCard key={row.id} row={row} />)}
+            </div>
+          </div>
+        </section>
+      )}
       <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <h2 className="text-2xl font-bold">Current exact-variant prices</h2>

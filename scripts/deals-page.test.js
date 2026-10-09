@@ -35,15 +35,59 @@ const pricing = compileModule(path.join(process.cwd(), "app/lib/pricing.ts"));
 const freshness = compileModule(path.join(process.cwd(), "app/lib/offerFreshness.ts"));
 const dealsPath = path.join(process.cwd(), "app/lib/dealsPriceIntelligence.ts");
 
-function loadDeals(rows = []) {
+function loadDeals(rows = [], rpcResult = { data: [], error: null }) {
   const builder = { select: () => builder, eq: () => builder, gt: () => builder, order: () => builder, range: () => ({ data: rows, error: null }) };
   return compileModule(dealsPath, {
     "server-only": {},
     react: { cache: (fn) => fn },
     "./offerFreshness": freshness,
     "./pricing": pricing,
-    "./supabaseAdmin": { supabaseAdmin: { from: () => builder } },
+    "./supabaseAdmin": { supabaseAdmin: { from: () => builder, rpc: async () => rpcResult } },
   });
+}
+
+function rawDropEvidence(overrides = {}) {
+  return {
+    drop_observation_id: 9001,
+    identity_series_id: 501,
+    offer_id: 1337,
+    retailer_id: 10,
+    retailer_slug: "jon-s-supplements",
+    retailer_name: "Jon's Supplements",
+    product_name: "HR Labs Defib Pre-Workout",
+    product_slug: "hr-labs-defib-pre-workout",
+    product_brand: "HR Labs",
+    product_image: null,
+    product_active: true,
+    product_merged_into_id: null,
+    variant_active: true,
+    pack_count: 1,
+    size_value: 420,
+    size_unit: "g",
+    offer_url: "https://jons.example/defib-jelly-bean",
+    current_product_price: 27.48,
+    current_shipping_cost: 0,
+    current_total_price: 27.48,
+    current_in_stock: true,
+    current_last_checked_at: "2026-10-09T11:00:00.000Z",
+    previous_total_price: 35.48,
+    drop_total_price: 27.48,
+    drop_checked_at: "2026-09-28T10:00:00.000Z",
+    drop_observation_date: "2026-09-28",
+    drop_evidence_status: "proven",
+    drop_anomaly_flags: [],
+    first_proven_at: "2026-08-25T10:00:00.000Z",
+    distinct_proven_dates: 40,
+    prior_stable_dates: 7,
+    prior_conflicts: 0,
+    subsequent_conflicts: 0,
+    offer_series_count: 1,
+    identity_matches: true,
+    latest_matches: true,
+    producer_enabled: true,
+    producer_public_use: "eligible-after-separate-approval",
+    ...overrides,
+  };
 }
 
 const NOW = new Date("2026-08-24T12:00:00.000Z");
@@ -122,6 +166,69 @@ test("readiness gate requires 12 products, 30 offers, 4 retailers and two retail
   assert.equal(evaluateDealsIndexability({ ...summary, visibleProducts: 11, productsWithMultipleFreshRetailers: 11 }, true).indexable, false);
   assert.equal(evaluateDealsIndexability({ ...summary, qualifyingOffers: 29 }, true).indexable, false);
   assert.equal(evaluateDealsIndexability(summary, false).indexable, false);
+});
+
+test("bounded Stage 3 selector publishes only the two owner-approved Jon's offers when every rule passes", () => {
+  const deals = loadDeals();
+  assert.equal(deals.isVerifiedPriceDropsEnabled({ SEO15_STAGE3_ENABLED: "true" }), true);
+  assert.equal(deals.isVerifiedPriceDropsEnabled({ SEO15_STAGE3_ENABLED: "TRUE" }), false);
+  assert.deepEqual(deals.VERIFIED_PRICE_DROP_SCOPE, {
+    retailerId: "10",
+    retailerSlug: "jon-s-supplements",
+    offerIds: ["1337", "1339"],
+  });
+
+  const rows = deals.normalizeVerifiedPriceDrops([
+    rawDropEvidence(),
+    rawDropEvidence({ drop_observation_id: 9002, identity_series_id: 502, offer_id: 1339 }),
+    rawDropEvidence({ drop_observation_id: 9003, identity_series_id: 503, offer_id: 1192 }),
+  ], new Date("2026-10-09T12:00:00.000Z"));
+  assert.deepEqual(rows.map((row) => row.offer.id), ["1337", "1339"]);
+  assert.equal(rows[0].savingAmount, 8);
+  assert.equal(rows[0].savingPercent, 22.5);
+});
+
+test("verified drops fail closed for every historical, identity and current-state guard", () => {
+  const deals = loadDeals();
+  const invalid = [
+    { previous_total_price: 29 },
+    { distinct_proven_dates: 2 },
+    { first_proven_at: "2026-10-01T10:00:00.000Z" },
+    { prior_stable_dates: 6 },
+    { prior_conflicts: 1 },
+    { subsequent_conflicts: 1 },
+    { offer_series_count: 2 },
+    { identity_matches: false },
+    { latest_matches: false },
+    { drop_evidence_status: "quarantined" },
+    { drop_anomaly_flags: ["RAPID_REVERSAL"] },
+    { current_in_stock: false },
+    { current_last_checked_at: "2026-10-08T11:59:59.000Z" },
+    { current_total_price: 28.48 },
+    { producer_enabled: false },
+    { producer_public_use: "owner-deferred" },
+  ];
+  for (const override of invalid) {
+    assert.deepEqual(
+      deals.normalizeVerifiedPriceDrops([rawDropEvidence(override)], new Date("2026-10-09T12:00:00.000Z")),
+      [],
+      JSON.stringify(override)
+    );
+  }
+});
+
+test("Stage 3 database boundary is read-only, exact-scope and unavailable to public roles", () => {
+  const migration = fs.readFileSync(path.join(process.cwd(), "supabase/migrations/20261009140000_add_seo15_bounded_stage3_evidence.sql"), "utf8");
+  const rollback = fs.readFileSync(path.join(process.cwd(), "supabase/rollbacks/20261009140000_add_seo15_bounded_stage3_evidence.sql"), "utf8");
+  assert.match(migration, /stable\s+security definer/i);
+  assert.match(migration, /s\.retailer_id=10 and s\.offer_id in \(1337,1339\)/i);
+  assert.match(migration, /o\.id in \(1337,1339\) and o\.retailer_id<>10/i);
+  assert.match(migration, /v_environment not in \('STAGING','PRODUCTION'\)/i);
+  assert.match(migration, /v_environment='PRODUCTION' and v_scope_count<>2/i);
+  assert.match(migration, /revoke all on function public\.get_seo15_bounded_stage3_evidence\(\) from public,anon,authenticated,service_role/i);
+  assert.match(migration, /grant execute on function public\.get_seo15_bounded_stage3_evidence\(\) to service_role/i);
+  assert.doesNotMatch(migration, /\b(insert|update|delete|truncate)\s+(into\s+|from\s+)?public\./i);
+  assert.match(rollback, /drop function if exists public\.get_seo15_bounded_stage3_evidence\(\)/i);
 });
 
 test("launch gate remains monitoring evidence and does not control stable base-page indexing", async () => {
@@ -242,4 +349,31 @@ test("query errors abort page rendering instead of returning a false 200/noindex
   const errorSource = fs.readFileSync(path.join(process.cwd(), "app/deals/error.tsx"), "utf8");
   assert.match(errorSource, /LifecycleHubError/);
   assert.match(errorSource, /unstable_retry/);
+});
+
+test("verified price-drop section stays hidden until enabled and then renders only qualified evidence", () => {
+  const deals = loadDeals();
+  const drop = deals.normalizeVerifiedPriceDrops([rawDropEvidence()], new Date("2026-10-09T12:00:00.000Z"))[0];
+  const Link = ({ href, children, ...props }) => React.createElement("a", { href: typeof href === "string" ? href : "#", ...props }, children);
+  const page = compileModule(path.join(process.cwd(), "app/deals/page.tsx"), {
+    next: {}, "next/link": { __esModule: true, default: Link },
+    "../components/ComparisonProductVisuals": require("./test-helpers/comparison-product-visuals"),
+    "../components/CategoryViewAnalytics": { __esModule: true, default: () => null },
+    "../components/ComparisonTransparencyLinks": { __esModule: true, default: () => null },
+    "../lib/pricing": pricing,
+    "../lib/dealsPriceIntelligence": { ...deals, getDeals: async () => deals.emptyDealsResult(false) },
+  });
+  const base = { ...deals.emptyDealsResult(false), verifiedDrops: [drop] };
+  const hidden = renderToStaticMarkup(React.createElement(page.DealsPageContent, { result: base }));
+  assert.doesNotMatch(hidden, /Historical evidence/);
+  const visible = renderToStaticMarkup(React.createElement(page.DealsPageContent, {
+    result: { ...base, verifiedDropsEnabled: true },
+  }));
+  assert.match(visible, /Historical evidence/);
+  assert.match(visible, /Verified price drops/);
+  assert.match(visible, /£35\.48/);
+  assert.match(visible, /£27\.48/);
+  assert.match(visible, /£8\.00 lower \(22\.5%\)/);
+  assert.match(visible, /\/go\/1337\?source=deals_verified_drop/);
+  assert.doesNotMatch(visible, /lowest-ever/i);
 });

@@ -8,6 +8,7 @@ const test = require("node:test");
 const root = path.resolve(__dirname, "..");
 const image = "postgres:17-alpine";
 const migration = path.join(root, "supabase/migrations/20260824160000_add_identity_proven_price_observations.sql");
+const stage3Migration = path.join(root, "supabase/migrations/20261009140000_add_seo15_bounded_stage3_evidence.sql");
 const rollback = path.join(root, "supabase/rollbacks/20260824160000_add_identity_proven_price_observations.sql");
 const stage2Setup = path.join(root, "supabase/test/product_variants_stage2_migration_test.sql");
 const prerequisites = [
@@ -281,4 +282,91 @@ test("migration and rollback are additive, legacy-safe and contain no public cla
   assert.doesNotMatch(sql, /update public\.price_history set identity_series_id[^\n]*where identity_series_id is null\s*;/i, "no broad legacy backfill");
   assert.match(down, /rollback blocked after identity-proven accrual/i);
   assert.doesNotMatch(sql, /price drop|lowest ever|down from|\/deals/i);
+});
+
+test("bounded Stage 3 evidence function exposes only exact approved Jon's rows without writes", { skip: !dockerAvailable() && "Docker daemon unavailable" }, () => {
+  const container = `supplementscout-seo15-stage3-${crypto.randomBytes(5).toString("hex")}`;
+  const database = "supplementscout_seo15_stage3_test";
+  let primaryError;
+  try {
+    requireSuccess(run("docker", ["run", "--detach", "--rm", "--name", container, "--network", "none", "-e", "POSTGRES_PASSWORD=identity-local-only", "-v", `${root}:/workspace:ro`, image]), "start Stage 3 PostgreSQL");
+    waitForPostgres(container);
+    requireSuccess(exec(container, ["createdb", "-U", "postgres", database]), "create Stage 3 database");
+    requireSuccess(psql(container, database, "do $roles$ begin if not exists(select 1 from pg_roles where rolname='anon') then create role anon nologin; end if; if not exists(select 1 from pg_roles where rolname='authenticated') then create role authenticated nologin; end if; if not exists(select 1 from pg_roles where rolname='service_role') then create role service_role nologin; end if; end $roles$;"), "create Stage 3 roles");
+    requireSuccess(psqlFile(container, database, prerequisites[0]), "apply Stage 3 baseline");
+    requireSuccess(psqlFile(container, database, stage2Setup, ["stage2_test_database_confirmed=1", "stage2_test_host=127.0.0.1", `stage2_expected_database=${database}`, "stage2_scenario=success"]), "seed Stage 3 Product Variants fixture");
+    for (const prerequisite of prerequisites.slice(1)) requireSuccess(psqlFile(container, database, prerequisite), `apply Stage 3 ${path.basename(prerequisite)}`);
+    requireSuccess(psql(container, database, `
+      insert into public.retailers(id,name,slug,website) values
+        (1,'GYM HIGH','gym-high','https://gymhigh.co.uk'),(3,'Whey Okay','whey-okay','https://wheyokay.com'),
+        (7,'Simply Supplements','simply-supplements','https://www.simplysupplements.co.uk'),(9,'Fit House','fit-house','https://fithouse.uk'),
+        (10,'Jon''s Supplements','jon-s-supplements','https://jonssupplements.co.uk')
+      on conflict(id) do update set name=excluded.name,slug=excluded.slug,website=excluded.website;
+      create or replace function public.retailer_catalogue_actual_database_target()
+      returns jsonb language sql stable security definer set search_path=pg_catalog,public,pg_temp
+      as $target$ select jsonb_build_object('target_environment','STAGING') $target$;`), "prepare Stage 3 target");
+    requireSuccess(psqlFile(container, database, migration), "apply identity foundation for Stage 3");
+    requireSuccess(psql(container, database, `
+      insert into public.products(id,name,slug,brand,category,product_format,is_active) values
+        (7101,'HR Labs Defib Lemon','hr-labs-defib-lemon','HR Labs','Pre Workout','powder',true),
+        (7102,'HR Labs Defib Jelly Bean','hr-labs-defib-jelly-bean','HR Labs','Pre Workout','powder',true);
+      insert into public.product_variants(id,product_id,variant_key,display_name,flavour_code,flavour_label,size_value,size_unit,pack_count,product_format,is_active,is_default) values
+        (7201,7101,'lemon-420g','Lemon Fizz Bombs / 420g','lemon','Lemon Fizz Bombs',420,'g',1,'powder',true,false),
+        (7202,7102,'jelly-420g','Jelly Bean / 420g','jelly-bean','Jelly Bean',420,'g',1,'powder',true,false);
+      insert into public.retailer_products(id,retailer_id,product_id,product_variant_id,external_product_id,external_variant_id,external_name,external_url,match_method,match_confidence) values
+        (7301,10,7101,7201,'jons-1339','lemon','HR Labs Defib Lemon','https://jons.example/1339','external_id',100),
+        (7302,10,7102,7202,'jons-1337','jelly','HR Labs Defib Jelly','https://jons.example/1337','external_id',100);
+      insert into public.offers(id,product_id,retailer_id,retailer_product_id,product_variant_id,price,shipping_cost,total_price,in_stock,url,last_checked_at) values
+        (1339,7101,10,7301,7201,35.48,0,35.48,true,'https://jons.example/1339','2026-08-25T10:00:00Z'),
+        (1337,7102,10,7302,7202,35.48,0,35.48,true,'https://jons.example/1337','2026-08-25T10:00:00Z');
+      update public.price_observation_producers set enabled=true
+      where retailer_id=10 and source_importer='retailer_offer_mixed_batch';
+      select public.record_identity_proven_price_observation(id,'daily_confirmation','stage3-initial-'||id,'retailer_offer_mixed_batch')
+      from public.offers where id in (1337,1339);
+      do $seed$
+      declare v_offer bigint; v_day date;
+      begin
+        foreach v_offer in array array[1337::bigint,1339::bigint] loop
+          for v_day in select generate_series('2026-09-21'::date,'2026-09-27'::date,interval '1 day')::date loop
+            update public.offers set last_checked_at=v_day::timestamptz+interval '10 hours' where id=v_offer;
+            perform public.record_identity_proven_price_observation(v_offer,'daily_confirmation','stage3-prior-'||v_offer||'-'||to_char(v_day,'YYYYMMDD'),'retailer_offer_mixed_batch');
+          end loop;
+          update public.offers set price=27.48,total_price=27.48,last_checked_at='2026-09-28T10:00:00Z' where id=v_offer;
+          insert into public.price_history(offer_id,price,shipping_cost,total_price,checked_at)
+            values(v_offer,27.48,0,27.48,'2026-09-28T10:00:00Z');
+          perform public.record_identity_proven_price_observation(v_offer,'delivered_price_changed','stage3-drop-'||v_offer,'retailer_offer_mixed_batch',currval('public.price_history_id_seq'));
+          for v_day in select generate_series('2026-09-29'::date,'2026-10-09'::date,interval '1 day')::date loop
+            update public.offers set last_checked_at=v_day::timestamptz+interval '10 hours' where id=v_offer;
+            perform public.record_identity_proven_price_observation(v_offer,'daily_confirmation','stage3-after-'||v_offer||'-'||to_char(v_day,'YYYYMMDD'),'retailer_offer_mixed_batch');
+          end loop;
+        end loop;
+      end
+      $seed$;`), "seed bounded Stage 3 evidence");
+    requireSuccess(psqlFile(container, database, stage3Migration), "apply bounded Stage 3 evidence migration");
+
+    const before = json(container, database, "select public.retailer_catalogue_business_counts()::text");
+    const evidence = json(container, database, "select public.get_seo15_bounded_stage3_evidence()::text");
+    const after = json(container, database, "select public.retailer_catalogue_business_counts()::text");
+    assert.deepEqual(after, before);
+    assert.equal(json(container, database, "select has_function_privilege('service_role','public.get_seo15_bounded_stage3_evidence()','execute')::text::jsonb"), true);
+    assert.equal(json(container, database, "select has_function_privilege('anon','public.get_seo15_bounded_stage3_evidence()','execute')::text::jsonb"), false);
+    assert.deepEqual(evidence.map((row) => Number(row.offer_id)).sort((a, b) => a - b), [1337, 1339]);
+    for (const row of evidence) {
+      assert.equal(row.identity_matches, true);
+      assert.equal(row.latest_matches, true);
+      assert.equal(row.prior_stable_dates, 7);
+      assert.equal(row.prior_conflicts, 0);
+      assert.equal(row.subsequent_conflicts, 0);
+      assert.equal(row.offer_series_count, 1);
+      assert.equal(row.producer_enabled, true);
+      assert.equal(row.producer_public_use, "eligible-after-separate-approval");
+    }
+    requireFailure(psql(container, database, "set role anon; select public.get_seo15_bounded_stage3_evidence();"), "public Stage 3 evidence access", /permission denied/i);
+  } catch (error) {
+    primaryError = error;
+    throw error;
+  } finally {
+    const cleanup = run("docker", ["rm", "--force", container], 30_000);
+    if (!primaryError && cleanup.status !== 0) assert.fail(output(cleanup));
+  }
 });

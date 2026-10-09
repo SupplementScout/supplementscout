@@ -85,6 +85,10 @@ test("guardian permits the binding next roadmap task to remain explicitly blocke
   const docs = currentDocs();
   const baseline = guardian.validateDocuments(docs, new Date("2026-08-01T12:00:00Z"));
   docs.seo = setLedgerStatus(docs.seo, baseline.nextTask, "BLOCKED");
+  docs.seo = docs.seo.replace(
+    new RegExp(`^\\|\\s*${baseline.nextTask}\\s*\\|.*$`, "m"),
+    (row) => row.replace(/\|\s*$/, " Blocker: synthetic external dependency. |"),
+  );
   const result = guardian.validateDocuments(docs, new Date("2026-08-01T12:00:00Z"));
   assert.equal(result.ok, true, result.errors.join("\n"));
   assert.deepEqual(result.inProgress, []);

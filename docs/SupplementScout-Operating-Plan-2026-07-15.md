@@ -5,6 +5,13 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
+**9 October 2026 SEO-15 bounded Stage 3 decision:** the owner approved
+implementation for only the two currently qualifying Jon's offers (`1337`,
+`1339`). SEO-15 is the single active SEO implementation. It must reuse the one
+`/deals` selector, add only a read-only exact-scope evidence boundary, keep the
+public release flag off through final verification, and must not add producers,
+backfill history, expand scope or weaken freshness, identity or anomaly gates.
+
 **29 September 2026 retailer-automation stabilization checkpoint:** the owner
 stopped further RA-004 live canary retries after the terminal `v3` attempt. Its
 cleanup, revoked temporary credentials, closed staging/production selectors,
@@ -4713,12 +4720,13 @@ Target experience:
 
 ### Current active task
 
-`SEO-15` remains the binding next task and is `BLOCKED` for Stage 3.
-The mandatory accrual audit was completed on 9 September; missing observation
-dates, maturity and zero qualifying price drops are the current evidence gates.
-No SEO implementation is `IN PROGRESS`. Next: verify ordinary-producer
-continuity and source timestamps, re-audit on 16 September, then review 30-day
-readiness on 24-25 September. `SEO-16` is complete and `LIVE VERIFIED`.
+`SEO-15` remains the binding task and bounded Stage 3 is `IN PROGRESS` for only
+Jon's offers `1337` and `1339` after the owner decision on 9 October. The
+30-day read-only audit is complete. Implement the shared fail-closed selector,
+read-only exact-scope evidence boundary and UI behind the default-off release
+gate, then require staging/schema, production readback and final public checks.
+No new producer, backfill or scope expansion is allowed. `SEO-16` is complete
+and `LIVE VERIFIED`.
 The following paragraphs retain the historical producer rollout evidence.
 Stage 1 `/deals` and the corrective Indexability Lifecycle P0 are deployed and
 live verified. Stage 2A identity foundation is production verified. Jon's
@@ -4850,15 +4858,16 @@ publication.
 
 ### Next task
 
-Continue `SEO-15` at the separate owner-decision gate for bounded Stage 3.
+Continue the owner-approved bounded `SEO-15` Stage 3 implementation for only
+Jon's offers `1337` and `1339`.
 The overdue 30-day read-only audit completed 9 October in run `37927290755`:
 813 series, 26,007 linked observations and zero database writes. Five Jon's
 decreases passed the amount and prior-price continuity screen; only offers
 `1337` and `1339` also remain fresh, in stock and identity-matched. Two are out
 of stock and one has current identity drift, so they remain excluded. Fit House
 producer-wide continuity is still partial and GYM HIGH remains owner-deferred.
-Do not repeat the September baseline, backfill gaps or enable public historical
-claims without the planned separate owner decision. See the
+Do not repeat the September baseline, backfill gaps, expand the exact scope or
+enable public historical claims before the final verification gate. See the
 [9 October audit](rollouts/seo15-accrual-and-growth-audit-2026-10-09.md).
 
 Continue weekly GSC/GA4 with attribution checks. Run `37925170969` captured
