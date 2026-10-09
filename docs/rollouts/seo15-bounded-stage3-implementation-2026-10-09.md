@@ -24,11 +24,11 @@
 - TypeScript — pass.
 - `npm run verify:quick` — pass.
 - `npm run verify:full` — pass, including the production Next.js build.
-- The disposable PostgreSQL integration is present but skipped locally because Docker is unavailable; CI must run it before merge.
+- The disposable PostgreSQL integration was skipped locally because Docker is unavailable. In isolated CI run `37931322821`, the bounded Stage 3 database subtest passed against PostgreSQL: exact two-row output, zero business writes and the restricted permission matrix all passed. The full legacy integration batch remained red on four unrelated pre-existing tests (Predators Gear, nutrition provenance and two expired-approval ledger counters); they are outside this approved scope and were not hidden or weakened.
 
 ## Required final control before publication
 
-1. Merge only after green CI, including the database integration test.
+1. Merge only after all required PR checks are green and the bounded database integration subtest has passed.
 2. Apply the exact migration to staging and verify its read-only result is exactly offers `1337` and `1339`, with zero writes.
 3. Apply the same exact migration to production and repeat the read-only verification.
 4. Enable the public flag only after a separate final owner decision based on those controls.
