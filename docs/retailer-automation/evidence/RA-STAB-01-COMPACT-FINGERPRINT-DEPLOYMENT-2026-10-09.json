@@ -1,0 +1,75 @@
+{
+  "schema_version": "ra-stab-01-compact-fingerprint-deployment-v1",
+  "captured_at": "2026-10-09T10:47:12.2457429Z",
+  "task": "RA-STAB-01",
+  "status": "DEPLOYED_VERIFIED_PENDING_AUTHORIZED_CONTROL_CLOSE",
+  "owner_authorization": {
+    "migration": "20261009120000_add_compact_other_retailer_fingerprint.sql",
+    "sha256": "b365d247777650aba6333399d4173ecb369d85a1465074bb6961c23b94f2ac84",
+    "close_parent_plan_id": "63a57694-c40b-45d6-8a87-90ca7aa22b8d",
+    "preserve_applied_children": 25,
+    "close_unexecuted_children": 22,
+    "fresh_run_count": 1,
+    "retry_count": 0,
+    "replay_count": 0
+  },
+  "repository": {
+    "implementation_pr": 312,
+    "implementation_merge_commit": "23aa8387da7040214158c2a3078da7c4fcbcd723",
+    "deployment_activation_pr": 313,
+    "deployment_activation_merge_commit": "d7368b37",
+    "deployment_source": "clean origin/main"
+  },
+  "rehearsal": {
+    "result": "PASS",
+    "mode": "rollback-only",
+    "confirmation": "89a50a00038401b0",
+    "committed": false
+  },
+  "deployment": {
+    "result": "PASS",
+    "confirmation": "89a50a00038401b0",
+    "ledger_before": {
+      "count": 232,
+      "fingerprint": "6d22d965f22c5d281c3b4b4c8a9dfd5f7b7892e853bea185b2a51dd412f06104"
+    },
+    "ledger_after": {
+      "count": 233,
+      "fingerprint": "65bd715ca8d7012125308e505c6af94b633820498d442d7ee7e84c89800df3cc"
+    },
+    "applied": [
+      "20261009120000_add_compact_other_retailer_fingerprint"
+    ]
+  },
+  "catalogue_counts_before": {
+    "products": 1337,
+    "product_variants": 3632,
+    "retailer_products": 3758,
+    "offers": 3758,
+    "price_history": 29600
+  },
+  "catalogue_counts_after": {
+    "products": 1337,
+    "product_variants": 3632,
+    "retailer_products": 3758,
+    "offers": 3758,
+    "price_history": 29600
+  },
+  "independent_postflight": {
+    "result": "PASS",
+    "read_only": true,
+    "database_writes": 0,
+    "ledger_count": 233,
+    "ledger_fingerprint": "65bd715ca8d7012125308e505c6af94b633820498d442d7ee7e84c89800df3cc",
+    "catalogue_counts_unchanged": true,
+    "review_queue_private": true
+  },
+  "production_effects": {
+    "business_writes": 0,
+    "price_history_writes": 0,
+    "offer_changes": 0,
+    "retry_count": 0,
+    "replay_count": 0
+  },
+  "next_gate": "Merge the ledger-233 closeout, then perform only the authorized control close before the single fresh 10 Reps run."
+}

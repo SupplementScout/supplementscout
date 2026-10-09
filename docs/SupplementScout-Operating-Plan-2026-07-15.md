@@ -33,8 +33,13 @@ shared compact fingerprint is locally prepared without retailer branches,
 parallel executors, timeout increases or weaker guards. Historical recovery
 manifests keep the legacy algorithm. The exact PostgreSQL 17
 migration/executor/recovery scenario passed in CI run `37917685369`; PR review
-and merge come next. Production deployment, partial-plan close and any further
-fresh run are not yet authorized. RA-STAB-01 remains `IN_PROGRESS` at `0/3` ordinary
+and merge completed in PR `#312`. The exact migration then passed rollback-only
+rehearsal, production apply and independent read-only postflight through the
+PR `#313` activation. Production is now at ledger `233`, fingerprint
+`65bd715ca8d7012125308e505c6af94b633820498d442d7ee7e84c89800df3cc`,
+with catalogue counts unchanged. Repository closeout at ledger `233` precedes
+the already authorized partial-plan close and one fresh run. RA-STAB-01 remains
+`IN_PROGRESS` at `0/3` ordinary
 intervals. See [the preparation evidence](retailer-automation/evidence/RA-STAB-01-10REPS-COMPACT-FINGERPRINT-PREPARATION-2026-10-09.json).
 
 The separately authorized RA-STAB-01 schema phase completed on 29 September
