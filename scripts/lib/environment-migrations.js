@@ -215,12 +215,7 @@ const APPLIED_EXCLUSIONS = Object.freeze({
 
 const PENDING_MIGRATIONS = Object.freeze({
   STAGING: Object.freeze([]),
-  PRODUCTION: Object.freeze([
-    Object.freeze({
-      filename: "20261009100000_align_shared_sequential_child_capacity.sql",
-      sha256: "97af9483d3f306a72822de982f18eb9def83f510e12b4d5748ac103782270a4f",
-    }),
-  ]),
+  PRODUCTION: Object.freeze([]),
 });
 
 function migrationIdentifier(filename) {
