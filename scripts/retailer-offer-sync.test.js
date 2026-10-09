@@ -87,6 +87,13 @@ test("aggregate guard failures isolate only risky rows through the shared review
   const isolatedChange = isolateAggregateRiskRows({ state: "BLOCKED", reason: "MASS_CHANGE", rows: [unchanged, newOos, returned], quarantined_rows: [] });
   assert.deepEqual(isolatedChange.rows.map((row) => row.offer_id), ["1"]);
   assert.deepEqual(isolatedChange.quarantined_rows.map((row) => row.offer_id), ["2", "3"]);
+  const priceReturn = { ...returned, offer_id: "5", action: "UPDATE_PRICE_AND_STOCK", changed_fields: { price: true, stock: true } };
+  const combinedGuards = isolateAggregateRiskRows({
+    state: "BLOCKED", reason: "MASS_OOS", rows: [unchanged, newOos, priceReturn], quarantined_rows: [],
+    guard_evidence: { guards: [{ guard: "MASS_OOS", result: "BLOCK" }, { guard: "MASS_PRICE", result: "BLOCK" }, { guard: "MASS_CHANGE", result: "PASS" }] },
+  });
+  assert.deepEqual(combinedGuards.rows.map((row) => row.offer_id), ["1"]);
+  assert.deepEqual(combinedGuards.quarantined_rows.map((row) => [row.offer_id, row.reason]), [["2", "MASS_OOS"], ["5", "MASS_PRICE"]]);
   assert.throws(() => isolateAggregateRiskRows({ state: "BLOCKED", reason: "IDENTITY_DRIFT", rows: [unchanged], quarantined_rows: [] }), /AGGREGATE_RISK_ISOLATION_INVALID/);
   assert.throws(() => isolateAggregateRiskRows({ state: "BLOCKED", reason: "MASS_OOS", rows: [unchanged], quarantined_rows: [] }), /AGGREGATE_RISK_ISOLATION_EMPTY/);
 });
