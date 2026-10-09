@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "task": "RA-STAB-01",
+  "status": "DEPLOYED_AWAITING_FRESH_RUN",
+  "observed_at": "2026-10-09",
+  "authorization": {
+    "migration": "20261009100000_align_shared_sequential_child_capacity.sql",
+    "sha256": "97af9483d3f306a72822de982f18eb9def83f510e12b4d5748ac103782270a4f",
+    "fresh_run": "one new ordinary 10 Reps run",
+    "retry_or_replay_authorized": false
+  },
+  "release": {
+    "preparation_commit": "071f3b01",
+    "pull_request": 309,
+    "merge_commit": "8ef14ef2e8b8ab7695e78dd6d7d1b5ee65b6674f"
+  },
+  "deployment": {
+    "rollback_only_rehearsal": "PASS",
+    "confirmation": "005c32d3042ddacd",
+    "apply": "PASS",
+    "postflight_read_only": "PASS",
+    "ledger_count_before": 231,
+    "ledger_count_after": 232,
+    "ledger_fingerprint_after": "6d22d965f22c5d281c3b4b4c8a9dfd5f7b7892e853bea185b2a51dd412f06104",
+    "catalogue_counts_before": {
+      "products": 1337,
+      "product_variants": 3632,
+      "retailer_products": 3758,
+      "offers": 3758,
+      "price_history": 29600
+    },
+    "catalogue_counts_after": {
+      "products": 1337,
+      "product_variants": 3632,
+      "retailer_products": 3758,
+      "offers": 3758,
+      "price_history": 29600
+    },
+    "catalogue_writes": 0,
+    "guard_checks": "PASS"
+  },
+  "implementation": {
+    "shared_parent_child_limit": 50,
+    "unchanged_child_row_limit": 50,
+    "unchanged_new_oos_per_child_limit": 3,
+    "registration_functions": 9,
+    "retailer_specific_branch_added": false,
+    "new_executor_added": false,
+    "guard_weakened": false
+  },
+  "next_step": "Seal the production runtime binding at ledger 232, then start the one authorized new fresh 10 Reps run from that merged commit without retry or replay.",
+  "observation_credit": "0/3"
+}

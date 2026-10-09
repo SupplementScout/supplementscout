@@ -2555,6 +2555,19 @@ or replacement run is yet recorded. RA-STAB-01 remains `IN_PROGRESS` at `0/3`.
 Evidence: [shared sequential child-capacity
 preparation](evidence/RA-STAB-01-SHARED-SEQUENTIAL-CHILD-CAPACITY-PREPARATION-2026-10-09.json).
 
+PR `#309` merged the common alignment at
+`8ef14ef2e8b8ab7695e78dd6d7d1b5ee65b6674f`. The exact hash-bound migration
+subsequently passed rollback-only production rehearsal, apply and independent
+read-only postflight. The production ledger advanced from `231` to `232` with
+fingerprint
+`6d22d965f22c5d281c3b4b4c8a9dfd5f7b7892e853bea185b2a51dd412f06104`;
+all catalogue counts remained unchanged (`1337` products, `3632` variants,
+`3758` mappings, `3758` offers and `29600` price-history rows). The repository
+runtime binding must be sealed and merged at ledger `232` before dispatching
+the one authorized fresh 10 Reps run, so the ordinary ledger guard sees the
+same verified database state. No retry or replay occurred. Evidence: [shared
+sequential child-capacity deployment](evidence/RA-STAB-01-SHARED-SEQUENTIAL-CHILD-CAPACITY-DEPLOYMENT-2026-10-09.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

@@ -948,6 +948,17 @@ write path. The separate shared publisher refreshed exactly the 16 current
 `IN_PROGRESS` at `0/3`. Evidence: [shared sequential child-capacity
 preparation](retailer-automation/evidence/RA-STAB-01-SHARED-SEQUENTIAL-CHILD-CAPACITY-PREPARATION-2026-10-09.json).
 
+PR `#309` merged the common capacity alignment as
+`8ef14ef2e8b8ab7695e78dd6d7d1b5ee65b6674f`. The exact authorized migration
+then passed rollback-only production rehearsal, apply and independent read-only
+postflight. Production advanced from ledger `231` to `232`, fingerprint
+`6d22d965f22c5d281c3b4b4c8a9dfd5f7b7892e853bea185b2a51dd412f06104`.
+All five catalogue counts remained unchanged, including `3758` offers and
+`29600` price-history rows. No retry or replay occurred. The runtime binding is
+being sealed to this verified ledger before the one authorized fresh 10 Reps
+run, preventing the already-known stale-binding failure mode. RA-STAB-01 remains
+`IN_PROGRESS` at `0/3`. Evidence: [shared sequential child-capacity deployment](retailer-automation/evidence/RA-STAB-01-SHARED-SEQUENTIAL-CHILD-CAPACITY-DEPLOYMENT-2026-10-09.json).
+
 **12 September 2026 nutrition planning checkpoint:**
 [Nutrition Execution Plan](Nutrition-Execution-Plan.md) is the canonical ledger
 for Nutrition Data Enrichment, subordinate to this Operating Plan. NUT-01 is
