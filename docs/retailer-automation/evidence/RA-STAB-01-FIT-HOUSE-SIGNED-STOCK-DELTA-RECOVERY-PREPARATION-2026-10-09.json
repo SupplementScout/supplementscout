@@ -2,7 +2,7 @@
   "schema_version": 1,
   "kind": "ra-stab-01-fit-house-signed-stock-delta-recovery-preparation",
   "recorded_on": "2026-10-09",
-  "status": "PREPARED_NOT_DEPLOYED",
+  "status": "VERIFIED_COMPLETE",
   "retailer": {
     "id": 9,
     "slug": "fit-house"
@@ -71,6 +71,31 @@
     "full_gate": "PASS",
     "project_gate": "PASS"
   },
-  "next_bounded_step": "Merge the reviewed code after green CI, then perform exactly one control-only recovery of the already-applied request. Do not retry or replay the offer change and do not touch offers 735 or 1904.",
+  "deployment": {
+    "commit": "eff84f0219ffd5a3106182bd2c9662a3cc4a3fc9",
+    "pull_request": 306,
+    "merge_commit": "16abf47e83a9c1c7d4002f66c5616bdd036cad26",
+    "quality_gate_run_id": 37884014642,
+    "project_guardian_run_id": 37884014698,
+    "ci_result": "PASS"
+  },
+  "control_only_recovery": {
+    "run_id": 37884246127,
+    "artifact_id": 11595561997,
+    "artifact_digest": "cd0229a84059160a6c1eaf3d62208827817bdc6e4edf373cfe391dd3b1709e51",
+    "result": "PASS",
+    "control_status": "EXECUTED",
+    "catalogue_writes": 0,
+    "replayed_original_operation": false,
+    "fresh_postflight": "PASS",
+    "fresh_idempotency": "PASS",
+    "original_verified_database_writes": 20,
+    "original_verified_stock_delta": 1,
+    "original_verified_freshness_confirmations": 20,
+    "price_history_delta": 0,
+    "owner_decision_audit": "PASS_WITH_REVIEW",
+    "system_failure_count": 0
+  },
+  "remaining_scope": "Offers 735 and 1904 remain untouched. Observe ordinary schedules; do not retry or replay this request.",
   "natural_observation_credit": "0/3"
 }

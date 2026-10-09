@@ -2502,10 +2502,16 @@ require equality with the exact resulting OOS count. The approved baseline is
 unchanged, unknown drift still fails closed, and no shared-core branch, new
 executor, retry, replay or threshold widening was added. A regression covers
 the real `697/983/1859` sequence; focused tests (`106/106`), quick and full
-gates pass. Deployment and one exact control-only status recovery remain the
-next bounded steps; offers `735` and `1904` remain untouched. This manual repair
-does not advance natural-cycle credit, so RA-STAB-01 remains `IN_PROGRESS` at
-`0/3`. Evidence: [Fit House signed stock-delta recovery
+gates pass. PR `#306` merged the repair as
+`16abf47e83a9c1c7d4002f66c5616bdd036cad26` after all CI checks passed. The
+single exact control-only recovery `37884246127` then passed: request
+`0f058ea0-20b7-43ea-8e69-83acb831a56c` and review `1115` are `EXECUTED`, fresh
+postflight and idempotency passed, and the recovery made zero catalogue writes.
+It reused the original verified `20` writes (`1` stock return plus `19`
+freshness-only confirmations) and recorded zero price-history delta. Offers
+`735` and `1904` remain untouched. This manual repair does not advance
+natural-cycle credit, so RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence:
+[Fit House signed stock-delta recovery
 preparation](evidence/RA-STAB-01-FIT-HOUSE-SIGNED-STOCK-DELTA-RECOVERY-PREPARATION-2026-10-09.json).
 
 **Acceptance:**
