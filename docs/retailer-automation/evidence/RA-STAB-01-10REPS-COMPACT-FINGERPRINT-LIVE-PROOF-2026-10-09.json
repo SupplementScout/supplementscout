@@ -1,0 +1,145 @@
+{
+  "schema_version": "ra-stab-01-10reps-compact-fingerprint-live-proof-v1",
+  "captured_at": "2026-10-09T11:12:21.8715545Z",
+  "task": "RA-STAB-01",
+  "status": "MANUAL_LIVE_PROOF_PASS_PENDING_NATURAL_INTERVALS",
+  "owner_authorization": {
+    "close_parent_plan_id": "63a57694-c40b-45d6-8a87-90ca7aa22b8d",
+    "preserve_applied_children": 25,
+    "close_unexecuted_children": 22,
+    "fresh_run_count": 1,
+    "retry_count": 0,
+    "replay_count": 0
+  },
+  "repository_closeout": {
+    "pull_request": 314,
+    "merge_commit": "82ea06e00b4311730309e66a32ad2af9fee6d739",
+    "production_ledger_count": 233,
+    "production_ledger_fingerprint": "65bd715ca8d7012125308e505c6af94b633820498d442d7ee7e84c89800df3cc",
+    "pending_production_migrations": 0
+  },
+  "control_close": {
+    "workflow_run_id": 37920649441,
+    "workflow_job_id": 113787488076,
+    "result": "PASS",
+    "parent_status": "SUPERSEDED",
+    "preserved_applied_child_count": 25,
+    "closed_child_count": 22,
+    "apply_runs_preserved": 25,
+    "control_writes": 24,
+    "business_writes": 0,
+    "price_history_writes": 0,
+    "automatic_retries": 0,
+    "already_closed": false
+  },
+  "fresh_run": {
+    "workflow_run_id": 37920753417,
+    "workflow_job_id": 113787821753,
+    "result": "PASS_WITH_REVIEW",
+    "job_started_at": "2026-10-09T10:57:23Z",
+    "job_completed_at": "2026-10-09T11:08:13Z",
+    "apply_started_at": "2026-10-09T10:59:36Z",
+    "apply_completed_at": "2026-10-09T11:06:14Z",
+    "source": {
+      "http_status": 200,
+      "content_type": "text/csv; charset=utf-8",
+      "products": 516,
+      "variants": 1857,
+      "available": 1366,
+      "retry_count": 0,
+      "fingerprint": "e9d12402d30e240f26df20ad7ffbc0f3f09f84e6d59eeae05f2dd8e9f644ab2a"
+    },
+    "partition": {
+      "approved_mappings": 950,
+      "executable_rows": 934,
+      "review_rows": 16,
+      "blocked_rows": 0,
+      "children": 47
+    },
+    "execution": {
+      "parent_plan_id": "ccdd5e2c-6c09-4fbe-9176-ffb0ccf39d19",
+      "executed_rows": 934,
+      "applied_children": 47,
+      "offers_refreshed": 934,
+      "stock_updates": 27,
+      "freshness_updates": 934,
+      "products_delta": 0,
+      "variants_delta": 0,
+      "mappings_delta": 0,
+      "offers_delta": 0,
+      "price_history_delta": 0,
+      "recovery_calls": 0
+    },
+    "postflight": {
+      "result": "PASS",
+      "executed_plan_count": 934,
+      "review_row_count": 16,
+      "blocked_row_count": 0,
+      "price_change_count": 0,
+      "stock_change_count": 27,
+      "freshness_change_count": 934,
+      "price_history_delta": 0,
+      "completed_at": "2026-10-09T11:06:16.350Z"
+    },
+    "fresh_idempotency": {
+      "result": "PASS",
+      "executable_rows": 934,
+      "changed_rows": 0,
+      "review_rows": 16,
+      "database_writes_attempted": 0,
+      "database_writes_completed": 0,
+      "business_writes_completed": 0,
+      "control_writes_completed": 0,
+      "approvals_created": 0,
+      "approvals_consumed": 0,
+      "recovery_calls": 0
+    },
+    "artifact": {
+      "id": 11611778663,
+      "name": "10reps-offer-refresh-37920753417-1",
+      "sha256": "24e6904bc025e3811646b6371b82a823ed777b86270773df18184a5e833c0429"
+    }
+  },
+  "review_queue": {
+    "result": "PASS",
+    "operation_count": 16,
+    "created_count": 0,
+    "refreshed_count": 16,
+    "superseded_count": 0,
+    "resolved_by_source_count": 0,
+    "expired_count": 0,
+    "catalogue_writes": 0,
+    "artifact_id": 11612147334,
+    "artifact_sha256": "c99618b6d3bded9b98520331c4c819d54c06a64e4af0b9d78d71cdc2aaa66fef"
+  },
+  "independent_final_readback": {
+    "workflow_run_id": 37922058572,
+    "workflow_job_id": 113792094129,
+    "result": "CLEAR",
+    "blocking_candidate_count": 0,
+    "catalogue_counts": {
+      "products": 1337,
+      "product_variants": 3632,
+      "retailer_products": 3758,
+      "offers": 3758,
+      "price_history": 29600
+    },
+    "migration_ledger_count": 233,
+    "migration_ledger_fingerprint": "65bd715ca8d7012125308e505c6af94b633820498d442d7ee7e84c89800df3cc",
+    "read_transactions": 1,
+    "automatic_retries": 0,
+    "close_calls": 0,
+    "control_writes": 0,
+    "business_writes": 0,
+    "price_history_writes": 0
+  },
+  "assessment": {
+    "shared_compact_fingerprint_proved_live": true,
+    "retailer_specific_branch_added": false,
+    "timeout_increased": false,
+    "guardrail_weakened": false,
+    "manual_run_natural_interval_credit": 0,
+    "natural_interval_counter": "0/3"
+  },
+  "next_gate": "Freeze the repaired path and observe three consecutive ordinary scheduled intervals with correlated watchdog and database evidence."
+}

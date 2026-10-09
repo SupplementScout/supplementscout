@@ -38,9 +38,21 @@ rehearsal, production apply and independent read-only postflight through the
 PR `#313` activation. Production is now at ledger `233`, fingerprint
 `65bd715ca8d7012125308e505c6af94b633820498d442d7ee7e84c89800df3cc`,
 with catalogue counts unchanged. Repository closeout at ledger `233` precedes
-the already authorized partial-plan close and one fresh run. RA-STAB-01 remains
-`IN_PROGRESS` at `0/3` ordinary
-intervals. See [the preparation evidence](retailer-automation/evidence/RA-STAB-01-10REPS-COMPACT-FINGERPRINT-PREPARATION-2026-10-09.json).
+the already authorized partial-plan close and one fresh run.
+
+PR `#314` sealed that runtime binding. Control-only run `37920649441` then
+preserved the 25 completed children and closed only the 22 unexecuted children,
+with zero offer or price-history writes. Fresh run `37920753417` completed all
+47 children and all 934 executable rows in `10m50s`; 16 uncertain identities
+remained isolated in Review Queue. Postflight proved 27 stock transitions, 934
+freshness updates, zero catalogue-row delta and zero price-history delta. A
+fresh source capture found no repeated change and made zero writes. Final
+read-only discovery `37922058572` returned `CLEAR`, with no blocking 10 Reps
+plan and unchanged catalogue counts. This proves the shared compact-fingerprint
+repair live without a retailer branch, timeout increase or weakened guard. The
+path is frozen; only three ordinary scheduled observations remain. Because this
+was a manual verification, RA-STAB-01 remains `IN_PROGRESS` at `0/3` ordinary
+intervals. See [the live proof](retailer-automation/evidence/RA-STAB-01-10REPS-COMPACT-FINGERPRINT-LIVE-PROOF-2026-10-09.json).
 
 The separately authorized RA-STAB-01 schema phase completed on 29 September
 2026 through the guarded coordinator merged in PR `#146`. Production migration
