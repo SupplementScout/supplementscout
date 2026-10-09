@@ -2686,10 +2686,22 @@ review contract still cannot authorize a write, but it no longer vetoes a later
 isolation-only cycle; existing owner-deferred rows remain deferred. The exact
 Fit House regression produces `275` executable confirmations and `11` review
 rows. No retailer identity branch, new importer, executor, approval path,
-threshold increase, retry or replay was added. Focused tests pass `82/82` and
+threshold increase, retry or replay was added. Focused tests pass `83/83` and
 `verify:quick` passes. The correction is `PREPARED_NOT_DEPLOYED`; it earns no
 ordinary interval credit and the counter remains `0/3`. Evidence: [shared
 aggregate review partition preparation](evidence/RA-STAB-01-SHARED-AGGREGATE-REVIEW-PARTITION-PREPARATION-2026-10-09.json).
+
+PR `#327` merged the shared aggregate partition as
+`773fc3934ad1db7aa00130721636d94911a4d407`. Its first post-merge read-only Fit
+House run `37962781276` failed closed with zero writes before classification.
+The healthy, unchanged source capture still contained `242` products and `338`
+variants, but six protected synthetic source rows recognized by the first
+reconciliation step were not passed to the next common reconciliation call;
+the same older-array selection was present in the second confirmation capture.
+The prepared follow-up introduces one shared source-precedence helper and uses
+it in both captures. It adds no offer ID, source exception, approval or write
+path. The new incident regression and neighboring focused suite pass `83/83`.
+This follow-up remains `PREPARED_NOT_DEPLOYED`, and the counter remains `0/3`.
 
 **Acceptance:**
 

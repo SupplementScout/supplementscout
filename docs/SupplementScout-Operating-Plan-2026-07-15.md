@@ -18,7 +18,13 @@ no write and no longer blocks isolation-only operation, and every prior
 owner-deferred row remains deferred. No retailer IDs, importer, executor,
 approval path, threshold increase or production write were added. The exact
 Fit House shape is covered as `275 executable + 11 review`; focused tests pass
-`82/82` and the quick gate passes. The correction is not deployed and
+`83/83` and the quick gate passes. PR `#327` merged the aggregate partition.
+Its first post-merge read-only run `37962781276` then exposed a second
+zero-write source-chain defect: protected synthetic rows were recognized in the
+first step but the following reconciliation and second confirmation capture
+received the older source array. The prepared follow-up uses one shared source
+selector in both captures and adds a regression; it adds no identity exception.
+The follow-up is not deployed and
 RA-STAB-01 remains `IN_PROGRESS` at `0/3`. See the [preparation
 evidence](retailer-automation/evidence/RA-STAB-01-SHARED-AGGREGATE-REVIEW-PARTITION-PREPARATION-2026-10-09.json).
 
