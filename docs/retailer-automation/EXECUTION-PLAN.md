@@ -2568,6 +2568,28 @@ the one authorized fresh 10 Reps run, so the ordinary ledger guard sees the
 same verified database state. No retry or replay occurred. Evidence: [shared
 sequential child-capacity deployment](evidence/RA-STAB-01-SHARED-SEQUENTIAL-CHILD-CAPACITY-DEPLOYMENT-2026-10-09.json).
 
+PR `#310` then sealed runtime ledger `232` as merge commit
+`be09593c2bea16da6a52dadc7674f6bb9e709aae`. The one authorized fresh 10 Reps
+run `37892636516` passed source capture, dry-run, baseline, all 22 validators
+and Review Queue publication. It registered the parent successfully and safely
+completed four children covering 172 rows. The fifth 43-row child exceeded the
+unchanged 120-second database query boundary and failed closed. Read-only
+production discovery proves exactly four `APPLIED`, one `APPROVED` and 17
+`PLANNED` children, with no hidden fifth apply and no retry, replay or recovery.
+
+This is a shared executor-transaction sizing incident, not a 10 Reps identity
+or source problem. The prepared common correction changes the operational
+child target from 50 to 20 rows while retaining the database hard cap of 50,
+the maximum of three new OOS rows, the 50-child parent cap and every existing
+approval, stale-state, identity and postflight guard. The same 934-row fixture
+now produces 47 bounded children. No timeout is increased, no retailer branch
+or second executor is added, and an incident regression covers the exact live
+shape. The partial plan must not be resumed: after merge, the next separately
+authorized boundary is one control-only close preserving four applied children
+and closing only 18 unexecuted children, followed by one new fresh run. Manual
+work earns no ordinary observation credit; RA-STAB-01 remains `IN_PROGRESS` at
+`0/3`. Evidence: [10 Reps partial timeout and shared correction](evidence/RA-STAB-01-10REPS-PARTIAL-TIMEOUT-2026-10-09.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

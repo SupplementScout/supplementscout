@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "task": "RA-STAB-01",
+  "status": "PARTIAL_EXECUTION_FAIL_CLOSED_SHARED_CORRECTION_PREPARED",
+  "observed_at": "2026-10-09",
+  "authorization": {
+    "fresh_run": "one new ordinary 10 Reps run",
+    "retry_or_replay_authorized": false,
+    "run_allowance_consumed": true
+  },
+  "release": {
+    "runtime_binding_pull_request": 310,
+    "runtime_binding_commit": "be09593c2bea16da6a52dadc7674f6bb9e709aae",
+    "workflow_run_id": "37892636516",
+    "workflow_run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/37892636516",
+    "run_attempt": 1
+  },
+  "source_and_partition": {
+    "source_products": 516,
+    "source_variants": 1857,
+    "approved_mappings": 950,
+    "executable_rows": 934,
+    "review_rows": 16,
+    "confirmations": 837,
+    "stock_changes": 97,
+    "new_oos": 65,
+    "validator_children": 22,
+    "validator_result": "PASS",
+    "review_queue_publication": "PASS"
+  },
+  "execution": {
+    "result": "FAIL_CLOSED_PARTIAL",
+    "failure_stage": "EXECUTOR",
+    "error": "Query read timeout",
+    "parent_plan_id": "ebdc44cb-668b-41ba-8fae-fb3f9b70ed4d",
+    "parent_plan_fingerprint": "819236a65965b507527d39774fc7f9fb5b4fd5bff81cc0f12615f4ccddb57fb9",
+    "total_children": 22,
+    "completed_children": 4,
+    "completed_rows": 172,
+    "approvals_created": 5,
+    "approvals_consumed": 4,
+    "failed_child_index": 4,
+    "failed_child_id": "d41c1c60-2b64-4089-b33b-f4a4ca58b1bf",
+    "failed_child_rows": 43,
+    "failed_approval_id": "925b2b7f-3dcd-47b9-9c44-ee766a9486dd",
+    "automatic_retries": 0,
+    "replays": 0,
+    "recovery_calls": 0
+  },
+  "read_only_production_readback": {
+    "generated_at": "2026-10-09T06:26:58.933Z",
+    "parent_status": "PARTIALLY_APPLIED",
+    "applied_children": 4,
+    "approved_unapplied_children": 1,
+    "planned_children": 17,
+    "applying_children": 0,
+    "apply_runs": 4,
+    "fifth_child_secret_commit": false,
+    "migration_ledger_count": 232,
+    "migration_fingerprint": "6d22d965f22c5d281c3b4b4c8a9dfd5f7b7892e853bea185b2a51dd412f06104",
+    "catalogue_row_counts": {
+      "products": 1337,
+      "product_variants": 3632,
+      "retailer_products": 3758,
+      "offers": 3758,
+      "price_history": 29600
+    },
+    "writes_from_readback": 0
+  },
+  "root_cause": {
+    "class": "SHARED_EXECUTOR_TRANSACTION_EXCEEDED_QUERY_TIMEOUT",
+    "query_timeout_ms": 120000,
+    "old_operational_rows_per_child": 50,
+    "observed_failed_child_rows": 43,
+    "retailer_specific": false
+  },
+  "prepared_shared_correction": {
+    "operational_rows_per_child_before": 50,
+    "operational_rows_per_child_after": 20,
+    "expected_children_for_same_934_rows": 47,
+    "shared_parent_child_limit": 50,
+    "new_oos_per_child_limit": 3,
+    "query_timeout_changed": false,
+    "database_hard_row_limit_changed": false,
+    "retailer_specific_branch_added": false,
+    "new_executor_added": false,
+    "guard_weakened": false,
+    "incident_regression": "934 rows and 65 new OOS produce 47 children, each at most 20 rows and 3 new OOS"
+  },
+  "next_gate": "After the shared correction is merged, obtain one exact authorization to close only the 18 unexecuted children while preserving the four applied children, then dispatch one new fresh 10 Reps run without retry or replay.",
+  "observation_credit": "0/3"
+}

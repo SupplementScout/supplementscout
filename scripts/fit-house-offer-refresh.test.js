@@ -8,6 +8,7 @@ const config = require("../config/retailers/fit-house-offer-sync.json");
 const {
   APPROVED_CANONICAL_REBINDINGS,
   MAXIMUM_SEQUENTIAL_CHILDREN,
+  MAXIMUM_SEQUENTIAL_ROWS_PER_CHILD,
   appliedAutomationReviewStockDelta,
   applyApprovedStableOosBaselineGuard,
   approvedStableOosBaseline,
@@ -836,11 +837,12 @@ test("the live 10 Reps OOS wave fits the shared sequential parent capacity", () 
       offer: { values: { in_stock: index >= 65 } },
     },
   }));
-  const batches = balancedExecutionBatches(rows, 50, 3);
-  assert.equal(batches.length, 22);
+  const batches = balancedExecutionBatches(rows);
+  assert.equal(batches.length, 47);
   assert.ok(batches.length <= MAXIMUM_SEQUENTIAL_CHILDREN);
   assert.equal(batches.flat().length, 934);
-  assert.ok(batches.every((batch) => batch.length <= 50));
+  assert.ok(batches.every((batch) => batch.length <= MAXIMUM_SEQUENTIAL_ROWS_PER_CHILD));
+  assert.ok(batches.every((batch) => batch.length < 43));
   assert.ok(batches.every((batch) => batch.filter((row) =>
     row.atomic_plan.expected_state.offer.in_stock &&
     !row.atomic_plan.offer.values.in_stock).length <= 3));
