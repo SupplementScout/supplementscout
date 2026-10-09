@@ -6,6 +6,15 @@
 pages, structured data, measurement and authority building.  
 **Parent authority:** `docs/SupplementScout-Operating-Plan-2026-07-15.md`
 
+**9 October SEO-15 production checkpoint:** both exact migrations passed a
+rollback rehearsal, applied successfully and passed independent read-only
+postflight at ledger `235`, fingerprint
+`396018525843a13082b1db09377e1469f2efc8f41bb2adfe252d0818634bcbe3`.
+Catalogue counts remained `1337/3632/3758/3758/30146`. The final repeatable-read
+inventory returned exactly released Jon's offers `1337` and `1339`, one exact
+Jon's source release, no awaiting retailer approvals, the intended private ACL
+matrix and zero writes. Monitor, schedule and public-release flags remain off.
+
 **9 October SEO-15 staging checkpoint:** the exact bounded-evidence and
 automatic-candidate migrations passed rollback rehearsal and were applied only
 to staging. Independent readback passed at ledger `102`, fingerprint
@@ -179,10 +188,9 @@ Console evidence and user value.
 ## 6. Current active task
 
 **Next executable task:** SEO-15 automatic Stage 3 candidates are `IN PROGRESS`
-and staging verified. Prepare the exact production migration/readback control
-for the same two SHA-bound migrations. Keep `SEO15_STAGE3_MONITOR_ENABLED`, the
-scheduled monitor variable and `SEO15_STAGE3_ENABLED` off. Other enabled
-eligible sources remain read-only discovery only. Do not enable another
+and production verified. Enable and verify the read-only admin monitor and the
+variable-gated daily audit while keeping `SEO15_STAGE3_ENABLED` off. Other
+enabled eligible sources remain read-only discovery only. Do not enable another
 producer or retailer release, backfill history, change product identity or
 weaken any gate. SEO-17 remains behind this release.
 

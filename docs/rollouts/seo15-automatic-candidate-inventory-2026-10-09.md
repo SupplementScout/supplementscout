@@ -39,7 +39,8 @@ deployment or public activation.
   `SEO15_CANDIDATE_MONITOR_ENABLED` and `SEO15_STAGE3_ENABLED` remain off.
 - Staging applied both migrations in order after rollback rehearsal and proved
   the exact read-only output, ACLs and zero business writes.
-- Production schema/readback and public activation remain separately controlled.
+- Production schema/readback passed. Monitor, schedule and public activation
+  remain separately controlled.
 
 ## Local verification
 
@@ -69,4 +70,21 @@ deployment or public activation.
   producer fixture, so zero candidates and zero released retailers are the
   expected result. The service role can execute only the RPC; public roles
   cannot execute it or read the release table.
-- No production migration or flag activation occurred.
+- At that staging checkpoint, no production migration or flag activation had
+  occurred.
+
+## Production verification
+
+- Rollback rehearsal: PASS for both exact migrations; catalogue counts stayed
+  `1337/3632/3758/3758/30146`.
+- Apply and independent postflight: PASS; production ledger advanced from
+  `233` to `235` with fingerprint
+  `396018525843a13082b1db09377e1469f2efc8f41bb2adfe252d0818634bcbe3`.
+- Separate repeatable-read inventory readback: PASS. It returned exactly two
+  released Jon's candidates, offers `1337` and `1339`, one exact Jon's release
+  registry row, no awaiting retailer approvals and zero writes.
+- The service role can execute the two evidence RPCs. Anonymous and
+  authenticated roles cannot execute them, and no application role can read
+  the private release table directly.
+- Catalogue and price-history counts were identical before and after readback.
+- Monitor, daily schedule and public-release flags remain off.
