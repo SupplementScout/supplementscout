@@ -208,6 +208,20 @@ test("candidate inventory recomputes safe counts and fails closed on an invalid 
   assert.equal(deals.normalizePriceDropCandidateInventory({ ...raw, database_writes: 1 }).error, true);
 });
 
+test("candidate inventory accepts exact penny totals without floating-point rejection", () => {
+  const deals = loadDeals();
+  const candidates = deals.normalizePriceDropCandidates([
+    rawDropEvidence({
+      current_product_price: 23.49,
+      current_shipping_cost: 3.99,
+      current_total_price: 27.48,
+      drop_total_price: 27.48,
+    }),
+  ], new Date("2026-10-09T12:00:00.000Z"));
+  assert.equal(candidates.length, 1);
+  assert.equal(candidates[0].offer.deliveredPrice.totalPrice, 27.48);
+});
+
 test("verified drops fail closed for every historical, identity and current-state guard", () => {
   const deals = loadDeals();
   const invalid = [
