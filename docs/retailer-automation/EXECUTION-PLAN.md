@@ -2514,6 +2514,26 @@ natural-cycle credit, so RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence:
 [Fit House signed stock-delta recovery
 preparation](evidence/RA-STAB-01-FIT-HOUSE-SIGNED-STOCK-DELTA-RECOVERY-PREPARATION-2026-10-09.json).
 
+Fresh read-only 10 Reps run `37885704534` proved that the protected CSV source
+had recovered: HTTP `200`, `516` products, `1857` variants, no retry, and a
+complete `950 = 934 executable + 16 source-missing review` partition. The 934
+executable rows comprised `837` confirmations and `97` validator-approved stock
+changes. The separately authorized apply run `37886686256` repeated the healthy
+capture but failed closed before registration or apply while binding the same-run
+Review Queue source. It made zero database, business and control writes. Root
+cause is a shared publication-contract defect: the standard source-missing
+profile required every executable row to be `VERIFY_NO_CHANGE`, although the
+shared validator and planner correctly allow safe commercial changes in that
+separate executable scope. The prepared common repair validates the exact union
+of confirmations and classifier-proven executable changes, including exact
+stock-change IDs, while retaining disjoint review scope, zero blocked rows and
+fail-closed count/identity checks. It contains no retailer-name/ID branch, new
+executor, retry, replay or guard relaxation. The real `837 + 97 + 16` incident
+passes locally along with focused `77/77`, quick and full gates. Merge after
+green CI, then use one new fresh ordinary run; never resume or replay the failed
+plan. RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence: [10 Reps shared
+executable partition preparation](evidence/RA-STAB-01-10REPS-SHARED-EXECUTABLE-PARTITION-PREPARATION-2026-10-09.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;

@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "kind": "ra-stab-01-10reps-shared-executable-partition-preparation",
+  "recorded_on": "2026-10-09",
+  "status": "PREPARED_NOT_DEPLOYED",
+  "retailer": {
+    "id": 14,
+    "slug": "10-reps"
+  },
+  "source_recovery_proof": {
+    "read_only_run_id": 37885704534,
+    "artifact_id": 11595948892,
+    "artifact_digest": "dce1615fe605f64bd2e2eaf58b3cedcf1874f3c2826fd50807647792f0f0210e",
+    "result": "PASS_WITH_REVIEW",
+    "http_status": 200,
+    "retry_count": 0,
+    "products": 516,
+    "variants": 1857,
+    "approved_scope": 950,
+    "executable_scope": 934,
+    "confirmations": 837,
+    "safe_stock_changes": 97,
+    "source_missing_review": 16,
+    "price_changes": 0,
+    "database_writes": 0
+  },
+  "failed_apply": {
+    "run_id": 37886686256,
+    "artifact_id": 11596736656,
+    "artifact_digest": "798bd042597a6c32640eb1d91994b4df27c31bf69b8f1f747647cf9405b8f5d4",
+    "failure_step": "Bind fresh 10 Reps Review Queue source",
+    "error": "10 Reps executable offer IDs drifted",
+    "apply_started": false,
+    "registration_started": false,
+    "database_writes": 0,
+    "business_writes": 0,
+    "control_writes": 0,
+    "retry_or_replay": false
+  },
+  "root_cause": "The shared standard source-missing publication profile required all executable rows to be VERIFY_NO_CHANGE even though the existing validator and planner permit safe commercial changes in the separate executable scope.",
+  "prepared_repair": {
+    "scope": "shared standard publication contract",
+    "retailer_branch_added": false,
+    "new_executor": false,
+    "new_approval_path": false,
+    "guard_weakened": false,
+    "retry_or_replay": false,
+    "checks": [
+      "execution IDs are unique and equal executable count",
+      "verified and changed executable IDs are disjoint",
+      "verified plus changed IDs exactly equal executable IDs",
+      "stock-change IDs exactly match classifier stock changes",
+      "classification counts exactly equal executable count",
+      "review IDs remain disjoint and complete the approved scope"
+    ]
+  },
+  "verification": {
+    "live_artifact_readback": "PASS for 934 executable, 16 review, 97 stock changes and 837 confirmations",
+    "focused_tests": "PASS 77/77",
+    "quick_gate": "PASS",
+    "full_gate": "PASS",
+    "project_gate": "PASS"
+  },
+  "next_bounded_step": "Merge after green CI, then start one new fresh ordinary 10 Reps run. Do not resume or replay run 37886686256.",
+  "natural_observation_credit": "0/3"
+}

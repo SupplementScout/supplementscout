@@ -632,6 +632,49 @@ test("10 Reps source adapter seals the fresh 934 safe plus 16 review partition w
   assert.equal(contract.catalogue_writes, 0);
 });
 
+test("10 Reps source adapter accepts safe executable stock changes alongside isolated source-missing reviews", () => {
+  const fixture = writeTenRepsFixture();
+  const reportPath = path.join(fixture.directory, "production-dry-run.json");
+  const diagnosticPath = path.join(fixture.directory, "production-preflight-diagnostic.json");
+  const report = JSON.parse(fs.readFileSync(reportPath, "utf8"));
+  const diagnostic = JSON.parse(fs.readFileSync(diagnosticPath, "utf8"));
+  const stockChangeIds = report.execution_offer_ids.slice(0, 97);
+  const verificationIds = report.execution_offer_ids.slice(97);
+  const baselineByOffer = new Map(fixture.baselineRows.map((row) => [row.offer_id, row]));
+  const changedRows = stockChangeIds.map((offerId) => {
+    const row = baselineByOffer.get(offerId);
+    return {
+      offer_id: offerId,
+      retailer_product_id: row.mapping_id,
+      external_product_id: row.external_product_id,
+      external_variant_id: row.external_variant_id,
+      action: "UPDATE_STOCK",
+      changed_fields: { price: false, stock: true, url: false, blocked: false },
+      old_price: row.price,
+      new_price: row.price,
+      old_stock: row.in_stock,
+      new_stock: !row.in_stock,
+    };
+  });
+  report.stock_change_offer_ids = stockChangeIds;
+  report.verification_offer_ids = verificationIds;
+  report.classification = { UPDATE_STOCK: 97, VERIFY_NO_CHANGE: 837 };
+  diagnostic.classifier_summary.action_counts = report.classification;
+  diagnostic.classifier_summary.changed_row_ids = stockChangeIds;
+  diagnostic.classifier_summary.changed_rows = changedRows;
+  writeJson(reportPath, report);
+  writeJson(diagnosticPath, diagnostic);
+
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "workflow_dispatch", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "37886686256", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
+  const contract = buildFitHouseSourceContract(fixture.directory, env, "10-reps");
+  assert.equal(contract.executable_plan_count, 934);
+  assert.equal(contract.review_row_count, 16);
+
+  report.verification_offer_ids.push(stockChangeIds[0]);
+  writeJson(reportPath, report);
+  assert.throws(() => buildFitHouseSourceContract(fixture.directory, env, "10-reps"), /changed and verified scopes overlap/);
+});
+
 test("10 Reps adapter builds exactly 16 shared-publisher identity-review cards and zero catalogue writes", () => {
   const fixture = writeTenRepsFixture();
   const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "workflow_dispatch", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "37357956664", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
