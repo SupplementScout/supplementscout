@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "evidence_type": "RA-STAB-01 shared aggregate review partition preparation",
-  "status": "PREPARED_NOT_DEPLOYED",
+  "evidence_type": "RA-STAB-01 shared aggregate review partition live readback",
+  "status": "LIVE_READ_ONLY_VERIFIED",
   "date": "2026-10-09",
   "task": "RA-STAB-01",
   "incident_readback": {
@@ -52,6 +52,36 @@
       "cause": "the first capture recognized protected synthetic source rows, but the following common reconciliation step received the earlier source array; the same omission existed in the second confirmation capture",
       "source": "HTTP 200; 242 products; 338 variants; complete capture; zero retries",
       "writes": 0
+    },
+    "post_followup_read_only_fit_house": {
+      "run_id": 37963946528,
+      "commit": "cb532e4fe2e4df50ab4c73932b6468a26e0ffd6a",
+      "result": "PASS_WITH_REVIEW",
+      "source": "HTTP 200; 242 products; 338 variants; complete stable double capture; zero retries",
+      "source_fingerprint": "3334da61c9cdff2f3e9dd9429d8729c4477c3932260ce2fba0691ff2fc704678",
+      "partition": "275 executable VERIFY_NO_CHANGE plus 11 review rows; zero blocked rows",
+      "review_partition": "10 existing OWNER_DEFERRED_STOCK_REVIEW plus 1 MASS_OOS",
+      "validator_batches": 14,
+      "database_writes_attempted": 0,
+      "database_writes_completed": 0,
+      "business_writes_completed": 0,
+      "control_writes_completed": 0,
+      "approvals_created": 0,
+      "approvals_consumed": 0,
+      "recovery_calls": 0
+    },
+    "post_followup_watchdog": {
+      "run_id": 37964214687,
+      "commit": "cb532e4fe2e4df50ab4c73932b6468a26e0ffd6a",
+      "result": "FAILED_SYSTEM",
+      "database_writes": 0,
+      "meaning": "four latest scheduled attempts remain historical incomplete runs; manual apply and read-only proofs do not replace ordinary schedule evidence",
+      "historical_scheduled_failures": [
+        "Whey Okay",
+        "KIOR Health",
+        "Fit House",
+        "10 Reps"
+      ]
     }
   },
   "prepared_correction": {
@@ -80,11 +110,13 @@
   },
   "production_state": {
     "aggregate_partition_deployed": true,
-    "source_chain_followup_deployed": false,
+    "aggregate_partition_merge_commit": "773fc3934ad1db7aa00130721636d94911a4d407",
+    "source_chain_followup_deployed": true,
+    "source_chain_followup_merge_commit": "cb532e4fe2e4df50ab4c73932b6468a26e0ffd6a",
     "offers_changed_by_this_preparation": 0,
     "price_history_changed_by_this_preparation": 0,
     "review_queue_changed_by_this_preparation": 0,
     "ordinary_interval_counter": "0/3"
   },
-  "next_gate": "Pass verify:full, merge after green CI, then run one fresh read-only Fit House dry-run on merged main. Any apply remains separately controlled."
+  "next_gate": "Observe three consecutive ordinary scheduled intervals with correlated watchdog and database evidence. Do not retry, replay or resume historical plans."
 }

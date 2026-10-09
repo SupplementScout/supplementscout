@@ -2701,7 +2701,27 @@ the same older-array selection was present in the second confirmation capture.
 The prepared follow-up introduces one shared source-precedence helper and uses
 it in both captures. It adds no offer ID, source exception, approval or write
 path. The new incident regression and neighboring focused suite pass `83/83`.
-This follow-up remains `PREPARED_NOT_DEPLOYED`, and the counter remains `0/3`.
+PR `#328` merged that follow-up as
+`cb532e4fe2e4df50ab4c73932b6468a26e0ffd6a`. Fresh post-merge read-only Fit
+House run `37963946528` passed as `PASS_WITH_REVIEW`: all `286` approved rows
+were accounted for as `275` safe freshness confirmations plus `11` review rows
+(`10` existing owner-deferred stock rows and one `MASS_OOS` row), with zero
+blocked rows. Both source captures agreed at fingerprint
+`3334da61c9cdff2f3e9dd9429d8729c4477c3932260ce2fba0691ff2fc704678`;
+the source returned HTTP `200`, `242` products and `338` variants with zero
+retries. The validator passed all `14` batches and the run attempted and
+completed zero database, business, control, approval and recovery writes.
+
+Fresh read-only watchdog `37964214687` then checked all `12` configured
+retailers with zero writes. It continues to report Whey Okay, KIOR, Fit House
+and 10 Reps as failed because their latest *scheduled* attempts remain older
+incomplete runs; the successful manual apply/read-only proofs do not replace
+that ordinary-schedule evidence. This is intentional and is not bypassed or
+relabelled as success. Current-path evidence is clear for KIOR, Whey Okay,
+Fit House and 10 Reps, but RA-STAB-01 remains `IN_PROGRESS` at `0/3`. The only
+next gate is three consecutive ordinary scheduled intervals with correlated
+watchdog and database evidence; no retry, replay or historical-plan resume is
+opened.
 
 **Acceptance:**
 
