@@ -7,7 +7,7 @@ const test = require("node:test");
 const config = require("../config/retailers/fit-house-offer-sync.json");
 const {
   APPROVED_CANONICAL_REBINDINGS,
-  appliedAutomationReviewOosAllowance,
+  appliedAutomationReviewStockDelta,
   applyApprovedStableOosBaselineGuard,
   approvedStableOosBaseline,
   applyOwnerApprovedMissingVariantGuardBaseline,
@@ -19,7 +19,7 @@ const {
   controlChildApprovalError,
   controlParentApprovalError,
   controlRegistrationEvidence,
-  durableAutomationReviewOosAllowances,
+  durableAutomationReviewStockTransitions,
   enforceConfirmationOnly,
   enforceProtectedStockReportScope,
   executionReportContext,
@@ -54,10 +54,10 @@ test("post-apply idempotency accepts only the sealed owner-approved OOS transiti
   const transition = prepareAutomationReviewIdempotencyTransition({ review, decision });
   const state = { records: [...Array.from({ length: 104 }, (_, index) => ({ offer: { id: String(index + 2000), in_stock: false } })), { offer: { id: "1982", in_stock: false } }] };
   assert.throws(() => applyApprovedStableOosBaselineGuard(state), (error) => error.code === "STABLE_OOS_BASELINE_EXCEEDED");
-  assert.equal(appliedAutomationReviewOosAllowance(state, transition), 1);
+  assert.equal(appliedAutomationReviewStockDelta(state, transition), 1);
   assert.equal(applyApprovedStableOosBaselineGuard(state, null, transition).result, "PASS");
   assert.throws(() => applyApprovedStableOosBaselineGuard({ records: [...state.records, { offer: { id: "9999", in_stock: false } }] }, null, transition), (error) => error.code === "STABLE_OOS_BASELINE_EXCEEDED");
-  assert.throws(() => appliedAutomationReviewOosAllowance({ records: state.records.map((record) => String(record.offer.id) === "1982" ? { offer: { ...record.offer, in_stock: true } } : record) }, transition), /AUTOMATION_REVIEW_IDEMPOTENCY_AFTER_STATE_DRIFT/);
+  assert.throws(() => appliedAutomationReviewStockDelta({ records: state.records.map((record) => String(record.offer.id) === "1982" ? { offer: { ...record.offer, in_stock: true } } : record) }, transition), /AUTOMATION_REVIEW_IDEMPOTENCY_AFTER_STATE_DRIFT/);
 });
 
 test("ordinary Fit House runs reuse only durable verified Review Queue OOS evidence", () => {
@@ -66,11 +66,38 @@ test("ordinary Fit House runs reuse only durable verified Review Queue OOS evide
     automationReviews: [{ id: 1121, offer_id: 1982, review_status: "EXECUTED", operation_type: "UPDATE_STOCK", source_row_fingerprint: "a".repeat(64), plan_fingerprint: "b".repeat(64), before_state: { in_stock: true }, proposed_state: { in_stock: false } }],
     automationReviewExecutions: [{ review_id: 1121, retailer_id: 9, operation_type: "UPDATE_STOCK", review_fingerprint: "a".repeat(64), plan_fingerprint: "b".repeat(64), status: "EXECUTED", postflight_hash: "c".repeat(64), executed_offer_ids: ["1982"], failed_offer_ids: [], remaining_offer_ids: [], actual_deltas: { stock: 1 }, database_writes: 20, idempotency_result: "PASS", last_checkpoint: "VERIFIED_POSTFLIGHT_RECOVERY", completed_at: "2026-10-06T17:27:53.098Z" }],
   };
-  assert.deepEqual(durableAutomationReviewOosAllowances(state), ["1982"]);
+  assert.deepEqual(durableAutomationReviewStockTransitions(state), [{ offer_id: "1982", before_in_stock: true, after_in_stock: false, oos_delta: 1 }]);
   assert.equal(applyApprovedStableOosBaselineGuard(state).result, "PASS");
-  assert.deepEqual(applyApprovedStableOosBaselineGuard(state).durable_automation_review_oos_offer_ids, ["1982"]);
-  assert.deepEqual(durableAutomationReviewOosAllowances({ ...state, automationReviewExecutions: [{ ...state.automationReviewExecutions[0], postflight_hash: null }] }), []);
+  assert.deepEqual(applyApprovedStableOosBaselineGuard(state).durable_automation_review_stock_transitions, [{ offer_id: "1982", before_in_stock: true, after_in_stock: false, oos_delta: 1 }]);
+  assert.deepEqual(durableAutomationReviewStockTransitions({ ...state, automationReviewExecutions: [{ ...state.automationReviewExecutions[0], postflight_hash: null }] }), []);
   assert.throws(() => applyApprovedStableOosBaselineGuard({ ...state, automationReviewExecutions: [] }), (error) => error.code === "STABLE_OOS_BASELINE_EXCEEDED");
+});
+
+test("stable OOS guard accounts for a reviewed return to stock during recovery and later ordinary runs", () => {
+  const baseRecords = [
+    ...Array.from({ length: 103 }, (_, index) => ({ offer: { id: String(index + 2000), in_stock: false } })),
+    { offer: { id: "697", in_stock: true } },
+    { offer: { id: "983", in_stock: false } },
+    { offer: { id: "1859", in_stock: false } },
+  ];
+  const reviews = [
+    { id: 1113, offer_id: 983, before_state: { in_stock: true }, proposed_state: { in_stock: false } },
+    { id: 1114, offer_id: 1859, before_state: { in_stock: true }, proposed_state: { in_stock: false } },
+  ].map((row, index) => ({ ...row, review_status: "EXECUTED", operation_type: "UPDATE_STOCK", source_row_fingerprint: String.fromCharCode(97 + index).repeat(64), plan_fingerprint: String.fromCharCode(99 + index).repeat(64) }));
+  const executions = reviews.map((review) => ({ review_id: review.id, retailer_id: 9, operation_type: "UPDATE_STOCK", review_fingerprint: review.source_row_fingerprint, plan_fingerprint: review.plan_fingerprint, status: "EXECUTED", postflight_hash: "e".repeat(64), executed_offer_ids: [String(review.offer_id)], failed_offer_ids: [], remaining_offer_ids: [], actual_deltas: { stock: 1 }, database_writes: 20, idempotency_result: "PASS", last_checkpoint: "IDEMPOTENCY_PASSED", completed_at: "2026-10-09T00:42:00.000Z" }));
+  const recoveryReview = { id: 1115, offer_id: 697, operation_type: "UPDATE_STOCK", source_row_fingerprint: "f".repeat(64), plan_fingerprint: "1".repeat(64), before_state: { in_stock: false }, proposed_state: { in_stock: true } };
+  const recoveryDecision = { kind: "automation-review-owner-decision-v1", execution_request_id: "0f058ea0-20b7-43ea-8e69-83acb831a56c", review_id: "1115", retailer_id: "9", retailer_slug: "fit-house", review_fingerprint: recoveryReview.source_row_fingerprint, plan_fingerprint: recoveryReview.plan_fingerprint, idempotency_key: "2".repeat(64) };
+  const transition = prepareAutomationReviewIdempotencyTransition({ review: recoveryReview, decision: recoveryDecision });
+  const recovering = { records: baseRecords, automationReviews: reviews, automationReviewExecutions: executions };
+  assert.equal(appliedAutomationReviewStockDelta(recovering, transition), -1);
+  assert.equal(applyApprovedStableOosBaselineGuard(recovering, null, transition).current_oos_count, 105);
+  const recovered = {
+    ...recovering,
+    automationReviews: [...reviews, { ...recoveryReview, review_status: "EXECUTED" }],
+    automationReviewExecutions: [...executions, { review_id: 1115, retailer_id: 9, operation_type: "UPDATE_STOCK", review_fingerprint: recoveryReview.source_row_fingerprint, plan_fingerprint: recoveryReview.plan_fingerprint, status: "EXECUTED", postflight_hash: "3".repeat(64), executed_offer_ids: ["697"], failed_offer_ids: [], remaining_offer_ids: [], actual_deltas: { stock: 1 }, database_writes: 20, idempotency_result: "PASS", last_checkpoint: "VERIFIED_POSTFLIGHT_RECOVERY", completed_at: "2026-10-09T04:20:00.000Z" }],
+  };
+  assert.equal(applyApprovedStableOosBaselineGuard(recovered).durable_automation_review_stock_delta, 1);
+  assert.deepEqual(durableAutomationReviewStockTransitions(recovered).map((row) => [row.offer_id, row.oos_delta]), [["697", -1], ["983", 1], ["1859", 1]]);
 });
 
 test("Review Queue selection executes one stock decision with nineteen unchanged confirmations", () => {

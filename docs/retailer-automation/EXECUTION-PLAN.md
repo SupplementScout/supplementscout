@@ -2488,6 +2488,26 @@ a natural interval. The path is frozen for three ordinary scheduled
 observations, so RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence: [Whey
 post-consolidation live proof](evidence/RA-STAB-01-WHEY-POST-CONSOLIDATION-LIVE-PROOF-2026-10-08.json).
 
+The next Review Queue worker exposed one bounded Fit House accounting defect,
+not new catalogue drift. Run `37865904014` completed the reviewed stock changes
+for offers `983` and `1859` and also applied the reviewed return to stock for
+offer `697`; every completed row passed postflight and fresh idempotency. The
+worker nevertheless left request `0f058ea0-20b7-43ea-8e69-83acb831a56c`
+failed because the stable-OOS guard remembered verified moves into OOS (`+1`)
+but did not subtract a verified move back into stock (`-1`). A subsequent exact
+control-only recovery `37883359564` failed closed before any additional
+business write and reproduced the same cause. The guard is now prepared to
+account for both directions as signed, sealed Review Queue transitions and to
+require equality with the exact resulting OOS count. The approved baseline is
+unchanged, unknown drift still fails closed, and no shared-core branch, new
+executor, retry, replay or threshold widening was added. A regression covers
+the real `697/983/1859` sequence; focused tests (`106/106`), quick and full
+gates pass. Deployment and one exact control-only status recovery remain the
+next bounded steps; offers `735` and `1904` remain untouched. This manual repair
+does not advance natural-cycle credit, so RA-STAB-01 remains `IN_PROGRESS` at
+`0/3`. Evidence: [Fit House signed stock-delta recovery
+preparation](evidence/RA-STAB-01-FIT-HOUSE-SIGNED-STOCK-DELTA-RECOVERY-PREPARATION-2026-10-09.json).
+
 **Acceptance:**
 
 - one timestamped inventory for all 12 configured retailers;
