@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "kind": "ra-stab-01-shared-review-source-partition-contract-preparation",
+  "status": "PREPARED_NOT_YET_LIVE_VERIFIED",
+  "recorded_at": "2026-10-10",
+  "task": "RA-STAB-01",
+  "incident": {
+    "workflow": "Shared Retailer Offer Refresh",
+    "run_id": "38039918378",
+    "retailer": "Fit House",
+    "retailer_id": "9",
+    "source_commit": "04de3ffd",
+    "source_result": "PASS_WITH_REVIEW",
+    "approved_mapping_count": 286,
+    "executable_plan_count": 275,
+    "review_row_count": 11,
+    "blocked_row_count": 0,
+    "source_products": 242,
+    "source_variants": 338,
+    "source_http_status": 200,
+    "source_retries": 0,
+    "failure_stage": "Bind fresh Fit House Review Queue source",
+    "catalogue_apply_started": false,
+    "catalogue_writes": 0
+  },
+  "root_cause": "The shared classifier correctly removed isolated review rows from the executable changed-row set, while the shared Review Queue source publisher still required those rows to remain in that executable set. The two common components therefore enforced incompatible representations of the same safe execution/review partition.",
+  "correction": {
+    "design": "One canonical isolated-review row contract is emitted by the existing refresh report and consumed by the existing shared publisher.",
+    "shared_files": [
+      "scripts/fit-house-offer-refresh.js",
+      "scripts/lib/automation-review-publication-profiles.js"
+    ],
+    "new_importer": false,
+    "new_executor": false,
+    "new_approval_path": false,
+    "retailer_condition_in_shared_core": false,
+    "threshold_increase": false,
+    "guard_weakening": false,
+    "direct_database_write": false
+  },
+  "regressions": {
+    "exact_incident": "Fit House source adapter accepts the exact natural 275 plus 11 isolated partition",
+    "canonical_review_row": "review report rows preserve the canonical isolated stock transition",
+    "focused_command": "node --test scripts/fit-house-offer-refresh.test.js scripts/retailer-offer-sync.test.js scripts/automation-review-reconciliation-dry-run.test.js",
+    "focused_result": "PASS",
+    "focused_tests": 103,
+    "quick_gate": "PASS",
+    "project_guardian_before_ledger_change": "PASS"
+  },
+  "live_acceptance_pending": [
+    "merge through green CI",
+    "one fresh ordinary-path Fit House run using existing guards",
+    "Review Queue publication succeeds for the exact fresh isolated scope",
+    "apply, postflight and idempotency evidence are internally consistent",
+    "fresh read-only watchdog is correlated without rewriting scheduled history"
+  ],
+  "ordinary_observation_counter": "0/3",
+  "notes": "The failed scheduled interval remains failed. A manual live proof can validate the correction but cannot be counted as an ordinary scheduled interval."
+}

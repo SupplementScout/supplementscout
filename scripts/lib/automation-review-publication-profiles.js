@@ -96,10 +96,43 @@ function normalizeMissingRows(report, baselineByOffer, label, invariant) {
   }).sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
 }
 
+function normalizeStockReviewRows(report, baselineByOffer, label, invariant) {
+  invariant(Array.isArray(report.review_rows), `${label} review rows are missing`);
+  return [...report.review_rows].map((review) => {
+    const offerId = String(review.offer_id);
+    const before = baselineByOffer.get(offerId);
+    invariant(before, `${label} baseline missing for review offer ${offerId}`);
+    invariant(review.action === "UPDATE_STOCK" && review.changed_fields?.stock === true
+      && review.changed_fields?.price === false && review.changed_fields?.url === false,
+    `${label} review action drifted for offer ${offerId}`);
+    invariant(String(review.retailer_product_id) === String(before.mapping_id)
+      && String(review.external_product_id) === String(before.external_product_id)
+      && String(review.external_variant_id) === String(before.external_variant_id),
+    `${label} source identity drift for offer ${offerId}`);
+    invariant(Number.isFinite(Number(review.old_price)) && Number.isFinite(Number(review.new_price))
+      && Number(review.old_price).toFixed(2) === Number(before.price).toFixed(2)
+      && Number(review.old_price).toFixed(2) === Number(review.new_price).toFixed(2)
+      && typeof review.old_stock === "boolean" && typeof review.new_stock === "boolean"
+      && review.old_stock === before.in_stock && review.old_stock !== review.new_stock,
+    `${label} review before-state or stock transition drifted for offer ${offerId}`);
+    return {
+      offer_id: offerId,
+      retailer_product_id: String(review.retailer_product_id),
+      external_product_id: String(review.external_product_id),
+      external_variant_id: String(review.external_variant_id),
+      old_price: Number(review.old_price).toFixed(2),
+      new_price: Number(review.new_price).toFixed(2),
+      old_stock: review.old_stock,
+      new_stock: review.new_stock,
+      action: review.action,
+    };
+  }).sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
+}
+
 function validateStandard(profile, context) {
   const { report, diagnostic, baselineByOffer, invariant, sameJson, sortedIds } = context;
   const label = profile.retailer.name;
-  const { executableCount, reviewCount } = validateOrdinaryPartition(profile, report, invariant);
+  const { executableCount } = validateOrdinaryPartition(profile, report, invariant);
   noWriteDiagnostic(diagnostic, label, invariant);
 
   const executionIds = sortedIds(Array.isArray(report.execution_offer_ids) ? report.execution_offer_ids : []);
@@ -115,7 +148,9 @@ function validateStandard(profile, context) {
     invariant(stockChangeIds.length === 0, `${label} executable offer IDs drifted`);
     invariant(verificationIds.length === executableCount, `${label} verification offer IDs drifted`);
     sameJson(executionIds, verificationIds, `${label} executable and verified scopes differ`);
-    invariant(Number(report.classification?.VERIFY_NO_CHANGE || 0) === executableCount && Number(report.classification?.UPDATE_STOCK || 0) === reviewCount, `${label} ordinary classification drifted`);
+    invariant(Number(report.classification?.VERIFY_NO_CHANGE || 0) === executableCount
+      && Object.entries(report.classification || {}).every(([action, count]) => action === "VERIFY_NO_CHANGE" || Number(count) === 0),
+    `${label} ordinary classification drifted`);
   }
   const classifierScope = diagnostic.classifier_summary?.scope;
   const reviewIds = sortedIds(report.review_rows.map((row) => row.offer_id));
@@ -127,8 +162,14 @@ function validateStandard(profile, context) {
   invariant(classifierScope && Number(classifierScope.blocked_rows || 0) === 0 && classifierScope.reconciled === true && Number(classifierScope.reconciled_total) === expectedClassifierCount, `${label} preflight classifier scope drifted`);
   sameJson(sortedIds(classifierScope.scope_row_ids || []), expectedClassifierIds, `${label} preflight classifier IDs drifted`);
   sameJson(diagnostic.classifier_summary.action_counts || {}, report.classification || {}, `${label} preflight classifier actions drifted`);
-  if (classifierCoversReview) sameJson(sortedIds(diagnostic.classifier_summary.changed_row_ids || []), reviewIds, `${label} preflight changed IDs drifted`);
-  else {
+  if (classifierCoversReview) {
+    const executableChangedRows = Array.isArray(diagnostic.classifier_summary.changed_rows) ? diagnostic.classifier_summary.changed_rows : [];
+    const executableChangedIds = sortedIds(executableChangedRows.map((row) => row.offer_id));
+    invariant(executableChangedIds.length === executableChangedRows.length, `${label} preflight changed IDs drifted`);
+    sameJson(executableChangedIds, sortedIds(diagnostic.classifier_summary.changed_row_ids || []), `${label} preflight changed IDs drifted`);
+    invariant(executableChangedIds.every((offerId) => executionIds.includes(offerId) && !reviewIds.includes(offerId)), `${label} executable changed and review scopes overlap`);
+    invariant(new Set([...executionIds, ...reviewIds]).size === profile.approvedMappingCount, `${label} approved partition is incomplete`);
+  } else {
     const executableChangedRows = Array.isArray(diagnostic.classifier_summary.changed_rows) ? diagnostic.classifier_summary.changed_rows : [];
     const executableChangedIds = sortedIds(executableChangedRows.map((row) => row.offer_id));
     invariant(executableChangedIds.length === executableChangedRows.length, `${label} preflight changed IDs drifted`);
@@ -144,12 +185,7 @@ function validateStandard(profile, context) {
   }
 
   const changedRows = profile.reviewType === "stock"
-    ? [...diagnostic.classifier_summary.changed_rows].map((row) => ({
-      offer_id: String(row.offer_id), retailer_product_id: String(row.retailer_product_id),
-      external_product_id: String(row.external_product_id), external_variant_id: String(row.external_variant_id),
-      old_price: String(row.old_price), new_price: String(row.new_price),
-      old_stock: row.old_stock === true, new_stock: row.new_stock === true, action: row.action,
-    })).sort((a, b) => Number(a.offer_id) - Number(b.offer_id))
+    ? normalizeStockReviewRows(report, baselineByOffer, label, invariant)
     : normalizeMissingRows(report, baselineByOffer, label, invariant);
   if (profile.reviewType === "stock") sameJson(reviewIds, sortedIds(report.deferred_changed_offer_ids), `${label} deferred review IDs drifted`);
   return { executableCount, executionIds, changedRows, reviewIds };

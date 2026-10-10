@@ -5,6 +5,23 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
+**10 October 2026 RA-STAB-01 shared partition correction prepared:** ordinary
+run `38039918378` reached a healthy Fit House source capture and correctly split
+all `286` approved offers into `275` safe confirmations plus `11` isolated
+Review Queue rows, with zero blocked rows and no catalogue apply. The workflow
+then stopped safely before writes because the shared Review Queue publisher
+still expected isolated review rows to remain in the executable classifier's
+changed-row list. The shared classifier and publisher therefore enforced two
+incompatible representations of the same partition. The prepared correction
+adds the complete isolated-review evidence to the existing refresh report and
+validates it in the existing common publisher. It adds no retailer condition,
+importer, executor or approval route; it does not increase a threshold, weaken
+a guard or write directly to the database. The exact `275 + 11` incident and
+canonical stock-transition regressions pass as part of `103/103` focused tests,
+and `verify:quick` plus the pre-ledger Project Guardian pass. Live acceptance,
+green CI and the post-change evidence are still pending, so RA-STAB-01 remains
+`IN_PROGRESS` at `0/3` ordinary intervals. See the [preparation evidence](retailer-automation/evidence/RA-STAB-01-SHARED-REVIEW-SOURCE-PARTITION-CONTRACT-PREPARATION-2026-10-10.json).
+
 **9 October 2026 RA-STAB-01 current incident checkpoint:** KIOR is healthy on
 current `main`: read-only run `37959509322` passed all `11` unchanged rows with
 zero writes. Whey Okay is control-clear and its fresh dry-run passed `579`
