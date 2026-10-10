@@ -25,6 +25,24 @@ run, cutover or retry is not authorized by this reset.
 See
 [`evidence/RA-STABILIZATION-RESET-2026-09-29.md`](evidence/RA-STABILIZATION-RESET-2026-09-29.md).
 
+**10 October shared execution/review partition incident — correction prepared:**
+ordinary shared run `38039918378` captured a healthy Fit House source and
+correctly produced `275` executable confirmations plus `11` isolated review
+rows across the immutable `286`-offer scope. It failed closed before apply at
+the Review Queue source-binding step because that shared publisher expected the
+isolated rows inside the executable classifier's changed-row evidence even
+though the previously corrected shared partition had intentionally removed
+them. The correction establishes one complete isolated-review report contract
+between those existing components and validates identity, baseline price,
+unchanged price and the exact stock transition before publication. It contains
+no retailer branch in shared core, new path, limit change or database write.
+The exact incident and canonical review-row regressions pass in the `103`-test
+focused suite; `verify:quick` and the pre-change Project Guardian also pass.
+Merge, CI and one fresh guarded live proof remain required. That proof will not
+rewrite the failed scheduled interval or advance the `0/3` ordinary counter.
+Evidence:
+[`evidence/RA-STAB-01-SHARED-REVIEW-SOURCE-PARTITION-CONTRACT-PREPARATION-2026-10-10.json`](evidence/RA-STAB-01-SHARED-REVIEW-SOURCE-PARTITION-CONTRACT-PREPARATION-2026-10-10.json).
+
 **Allowed statuses:** `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`,
 `READY_FOR_VERIFICATION`, `READY_FOR_REVERIFICATION`, `VERIFIED_COMPLETE`
 

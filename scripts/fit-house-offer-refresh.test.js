@@ -39,6 +39,7 @@ const {
   reconcileOwnerApprovedMissingVariant,
   reconcileOwnerApprovedSixAbsent,
   requireAuditedMissingOwnerApproval,
+  reviewReportRow,
   safeRetailerCatalogueError,
   safeUpdateDisabled,
   safeValidatorResult,
@@ -51,6 +52,19 @@ const {
 } = require("./fit-house-offer-refresh");
 const { prepareAutomationReviewIdempotencyTransition } = require("./lib/retailer-offer-sync/automation-review-decision");
 const { isolateAggregateRiskRows } = require("./lib/retailer-offer-sync/classifier");
+
+test("review report rows preserve the canonical isolated stock transition", () => {
+  const row = reviewReportRow({
+    offer_id: "727", retailer_product_id: "900", external_product_id: "product-727", external_variant_id: "variant-727",
+    reason: "MASS_OOS", action: "UPDATE_STOCK", changed_fields: { price: false, stock: true, url: false, blocked: false },
+    target: { price: "19.99", in_stock: true }, source: { price: "19.99", in_stock: false }, source_captured_at: "2026-10-10T09:01:59.696Z",
+  });
+  assert.deepEqual(row, {
+    offer_id: "727", retailer_product_id: "900", external_product_id: "product-727", external_variant_id: "variant-727",
+    reason: "MASS_OOS", action: "UPDATE_STOCK", changed_fields: { price: false, stock: true, url: false, blocked: false },
+    old_price: "19.99", new_price: "19.99", old_stock: true, new_stock: false, source_captured_at: "2026-10-10T09:01:59.696Z",
+  });
+});
 
 test("post-apply idempotency accepts only the sealed owner-approved OOS transition", () => {
   const review = { id: 1121, offer_id: 1982, operation_type: "UPDATE_STOCK", source_row_fingerprint: "a".repeat(64), plan_fingerprint: "b".repeat(64), before_state: { in_stock: true }, proposed_state: { in_stock: false } };

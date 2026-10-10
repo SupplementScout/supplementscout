@@ -415,7 +415,7 @@ test("dry-run builder has no direct queue writes or publication RPC apply call",
   assert.match(source, /buildPublicationRpcRequest/);
 });
 
-function writeFitHouseFixture({ executableCount = 272 } = {}) {
+function writeFitHouseFixture({ executableCount = 272, reviewCount = 14 } = {}) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "fit-house-review-source-"));
   const sourceFingerprint = "8".repeat(64);
   const baselineRows = Array.from({ length: 286 }, (_, index) => ({
@@ -439,7 +439,7 @@ function writeFitHouseFixture({ executableCount = 272 } = {}) {
     url: `https://fithouse.uk/products/product-${index + 1}`,
     last_checked_at: "2026-10-05T09:00:00.000Z",
   }));
-  const changedRows = baselineRows.slice(0, 14).map((row) => ({
+  const changedRows = baselineRows.slice(0, reviewCount).map((row) => ({
     offer_id: row.offer_id,
     retailer_product_id: row.mapping_id,
     external_product_id: row.external_product_id,
@@ -451,18 +451,21 @@ function writeFitHouseFixture({ executableCount = 272 } = {}) {
     old_stock: row.in_stock,
     new_stock: !row.in_stock,
   }));
-  const reviewRows = changedRows.map((row) => ({ offer_id: row.offer_id, reason: "OWNER_DEFERRED_STOCK_REVIEW", external_product_id: row.external_product_id, external_variant_id: row.external_variant_id }));
-  const executionOfferIds = baselineRows.slice(14, 14 + executableCount).map((row) => row.offer_id);
+  const reviewRows = changedRows.map((row, index) => ({
+    ...row,
+    reason: index === changedRows.length - 1 ? "MASS_OOS" : "OWNER_DEFERRED_STOCK_REVIEW",
+  }));
+  const executionOfferIds = baselineRows.slice(reviewCount, reviewCount + executableCount).map((row) => row.offer_id);
   const report = {
     result: "PASS_WITH_REVIEW", mode: "dry-run", target: "production",
     source: { fingerprint: sourceFingerprint }, approved_mapping_count: 286,
     deferred_changed_offer_ids: changedRows.map((row) => row.offer_id), execution_offer_ids: executionOfferIds,
     verification_offer_ids: executionOfferIds, stock_change_offer_ids: [], executable_plan_count: executableCount,
-    executed_plan_count: 0, review_row_count: 14, blocked_row_count: 0,
-    classification: { VERIFY_NO_CHANGE: executableCount, UPDATE_STOCK: 14 },
+    executed_plan_count: 0, review_row_count: reviewCount, blocked_row_count: 0,
+    classification: { VERIFY_NO_CHANGE: executableCount },
     review_rows: reviewRows,
   };
-  const diagnostic = { result: "PASS", timestamp: "2026-10-05T09:01:00.000Z", failure_stage: null, approved_mapping_count: 286, source: { fingerprint: sourceFingerprint }, database_writes_attempted: 0, database_writes_completed: 0, business_writes_completed: 0, control_writes_completed: 0, approvals_created: 0, approvals_consumed: 0, recovery_calls: 0, classifier_summary: { scope: { scope_row_ids: baselineRows.map((row) => row.offer_id), blocked_rows: 0, reconciled: true, reconciled_total: 286 }, action_counts: report.classification, changed_row_ids: changedRows.map((row) => row.offer_id), changed_rows: changedRows } };
+  const diagnostic = { result: "PASS", timestamp: "2026-10-05T09:01:00.000Z", failure_stage: null, approved_mapping_count: 286, source: { fingerprint: sourceFingerprint }, database_writes_attempted: 0, database_writes_completed: 0, business_writes_completed: 0, control_writes_completed: 0, approvals_created: 0, approvals_consumed: 0, recovery_calls: 0, classifier_summary: { scope: { scope_row_ids: baselineRows.map((row) => row.offer_id), blocked_rows: 0, reconciled: true, reconciled_total: 286 }, action_counts: report.classification, changed_row_ids: [], changed_rows: [] } };
   const baseline = { schema_version: 1, kind: "retailer-offer-refresh-db-baseline", result: "PASS", profile: "fit-house", snapshot: { captured_at: "2026-10-05T09:00:59.000Z", retailer_id: "9", retailer_name: "Fit House", row_count: 286, rows: baselineRows }, evidence_hash: "a".repeat(64) };
   writeJson(path.join(directory, "production-dry-run.json"), report);
   writeJson(path.join(directory, "production-preflight-diagnostic.json"), diagnostic);
@@ -500,6 +503,16 @@ test("Fit House source adapter accepts the ordinary 272 safe confirmations plus 
   assert.throws(() => buildFitHouseSourceContract(fixture.directory, env), /executable offer IDs drifted/);
 });
 
+test("Fit House source adapter accepts the exact natural 275 plus 11 isolated partition", () => {
+  const fixture = writeFitHouseFixture({ executableCount: 275, reviewCount: 11 });
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "38039918378", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
+  const contract = buildFitHouseSourceContract(fixture.directory, env);
+  assert.equal(contract.executable_plan_count, 275);
+  assert.equal(contract.review_row_count, 11);
+  assert.equal(contract.catalogue_offer_ids.length, 286);
+  assert.deepEqual(contract.review_offer_ids, fixture.changedRows.map((row) => row.offer_id));
+});
+
 test("Fit House source adapter rejects count-to-row drift and accepts an exact repartition", () => {
   const fixture = writeFitHouseFixture();
   const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "37313299039", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
@@ -508,13 +521,12 @@ test("Fit House source adapter rejects count-to-row drift and accepts an exact r
   report.review_row_count = 13;
   writeJson(reportPath, report);
   assert.throws(() => buildFitHouseSourceContract(fixture.directory, env), /ordinary partition is incomplete/);
-  report.review_rows.pop(); report.deferred_changed_offer_ids.pop(); diagnostic.classifier_summary.changed_row_ids.pop(); diagnostic.classifier_summary.changed_rows.pop();
+  report.review_rows.pop(); report.deferred_changed_offer_ids.pop();
   const resolvedOfferId = fixture.changedRows.at(-1).offer_id;
   report.execution_offer_ids.push(resolvedOfferId);
   report.verification_offer_ids.push(resolvedOfferId);
   report.executable_plan_count += 1;
   report.classification.VERIFY_NO_CHANGE += 1;
-  report.classification.UPDATE_STOCK -= 1;
   diagnostic.classifier_summary.action_counts = report.classification;
   writeJson(reportPath, report); writeJson(diagnosticPath, diagnostic);
   const contract = buildFitHouseSourceContract(fixture.directory, env);
