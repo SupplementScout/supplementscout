@@ -453,13 +453,13 @@ function writeFitHouseFixture({ executableCount = 272, reviewCount = 14 } = {}) 
   }));
   const reviewRows = changedRows.map((row, index) => ({
     ...row,
-    reason: index === changedRows.length - 1 ? "MASS_OOS" : "OWNER_DEFERRED_STOCK_REVIEW",
+    reason: index === 0 ? "MASS_OOS" : "OWNER_DEFERRED_STOCK_REVIEW",
   }));
   const executionOfferIds = baselineRows.slice(reviewCount, reviewCount + executableCount).map((row) => row.offer_id);
   const report = {
     result: "PASS_WITH_REVIEW", mode: "dry-run", target: "production",
     source: { fingerprint: sourceFingerprint }, approved_mapping_count: 286,
-    deferred_changed_offer_ids: changedRows.map((row) => row.offer_id), execution_offer_ids: executionOfferIds,
+    deferred_changed_offer_ids: reviewRows.filter((row) => row.reason === "OWNER_DEFERRED_STOCK_REVIEW").map((row) => row.offer_id), execution_offer_ids: executionOfferIds,
     verification_offer_ids: executionOfferIds, stock_change_offer_ids: [], executable_plan_count: executableCount,
     executed_plan_count: 0, review_row_count: reviewCount, blocked_row_count: 0,
     classification: { VERIFY_NO_CHANGE: executableCount },
@@ -513,6 +513,16 @@ test("Fit House source adapter accepts the exact natural 275 plus 11 isolated pa
   assert.deepEqual(contract.review_offer_ids, fixture.changedRows.map((row) => row.offer_id));
 });
 
+test("Fit House source adapter keeps aggregate MASS_OOS review separate from owner-deferred IDs", () => {
+  const fixture = writeFitHouseFixture({ executableCount: 275, reviewCount: 11 });
+  const reportPath = path.join(fixture.directory, "production-dry-run.json");
+  const report = JSON.parse(fs.readFileSync(reportPath, "utf8"));
+  report.deferred_changed_offer_ids.push(fixture.changedRows[0].offer_id);
+  writeJson(reportPath, report);
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "workflow_dispatch", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "38049959238", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
+  assert.throws(() => buildFitHouseSourceContract(fixture.directory, env), /deferred review IDs drifted/);
+});
+
 test("Fit House source adapter rejects count-to-row drift and accepts an exact repartition", () => {
   const fixture = writeFitHouseFixture();
   const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "37313299039", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
@@ -521,7 +531,8 @@ test("Fit House source adapter rejects count-to-row drift and accepts an exact r
   report.review_row_count = 13;
   writeJson(reportPath, report);
   assert.throws(() => buildFitHouseSourceContract(fixture.directory, env), /ordinary partition is incomplete/);
-  report.review_rows.pop(); report.deferred_changed_offer_ids.pop();
+  const removedReview = report.review_rows.pop();
+  if (removedReview.reason === "OWNER_DEFERRED_STOCK_REVIEW") report.deferred_changed_offer_ids.pop();
   const resolvedOfferId = fixture.changedRows.at(-1).offer_id;
   report.execution_offer_ids.push(resolvedOfferId);
   report.verification_offer_ids.push(resolvedOfferId);
