@@ -102,6 +102,7 @@ function normalizeStockReviewRows(report, baselineByOffer, label, invariant) {
     const offerId = String(review.offer_id);
     const before = baselineByOffer.get(offerId);
     invariant(before, `${label} baseline missing for review offer ${offerId}`);
+    invariant(["OWNER_DEFERRED_STOCK_REVIEW", "MASS_OOS"].includes(review.reason), `${label} review reason drifted for offer ${offerId}`);
     invariant(review.action === "UPDATE_STOCK" && review.changed_fields?.stock === true
       && review.changed_fields?.price === false && review.changed_fields?.url === false,
     `${label} review action drifted for offer ${offerId}`);
@@ -115,6 +116,7 @@ function normalizeStockReviewRows(report, baselineByOffer, label, invariant) {
       && typeof review.old_stock === "boolean" && typeof review.new_stock === "boolean"
       && review.old_stock === before.in_stock && review.old_stock !== review.new_stock,
     `${label} review before-state or stock transition drifted for offer ${offerId}`);
+    invariant(review.reason !== "MASS_OOS" || (review.old_stock === true && review.new_stock === false), `${label} mass OOS transition drifted for offer ${offerId}`);
     return {
       offer_id: offerId,
       retailer_product_id: String(review.retailer_product_id),
@@ -187,7 +189,12 @@ function validateStandard(profile, context) {
   const changedRows = profile.reviewType === "stock"
     ? normalizeStockReviewRows(report, baselineByOffer, label, invariant)
     : normalizeMissingRows(report, baselineByOffer, label, invariant);
-  if (profile.reviewType === "stock") sameJson(reviewIds, sortedIds(report.deferred_changed_offer_ids), `${label} deferred review IDs drifted`);
+  if (profile.reviewType === "stock") {
+    const deferredReviewIds = sortedIds(report.review_rows
+      .filter((row) => row.reason === "OWNER_DEFERRED_STOCK_REVIEW")
+      .map((row) => row.offer_id));
+    sameJson(deferredReviewIds, sortedIds(report.deferred_changed_offer_ids), `${label} deferred review IDs drifted`);
+  }
   return { executableCount, executionIds, changedRows, reviewIds };
 }
 
