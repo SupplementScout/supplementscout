@@ -43,6 +43,25 @@ rewrite the failed scheduled interval or advance the `0/3` ordinary counter.
 Evidence:
 [`evidence/RA-STAB-01-SHARED-REVIEW-SOURCE-PARTITION-CONTRACT-PREPARATION-2026-10-10.json`](evidence/RA-STAB-01-SHARED-REVIEW-SOURCE-PARTITION-CONTRACT-PREPARATION-2026-10-10.json).
 
+**10 October shared partition live proof — complete; ordinary observation
+pending:** PRs `#331` and `#332` merged the common contract correction. Fresh
+attempt `38049959238` failed closed before apply and proved that the current
+review partition contains ten owner-deferred stock rows plus one independently
+isolated `MASS_OOS` row. The second correction validates that distinction and
+requires `MASS_OOS` to remain an exact available-to-unavailable stock-only
+transition. Run `38050504732` then completed Fit House capture, source binding,
+`275` safe executions, DB postflight, fresh idempotency capture and publication
+of all `11` review cards. No price, stock, URL or business price-history value
+changed; `249` daily confirmation rows record freshness only. Queue publication
+created `11`, superseded `7` stale approved cards and made zero catalogue
+writes. Fresh KIOR run `38051144358` completed all `11` confirmations with
+green postflight, zero commercial changes and zero-write idempotency. Watchdog
+`38050909298` was read-only and correlated the current Fit House success, while
+correctly preserving the failed scheduled attempt and review-backlog growth; it
+preceded the KIOR proof. Manual success is live acceptance, not an ordinary
+schedule interval. RA-STAB-01 remains `IN_PROGRESS` at `0/3`. Evidence:
+[`evidence/RA-STAB-01-SHARED-REVIEW-PARTITION-LIVE-PROOF-2026-10-10.json`](evidence/RA-STAB-01-SHARED-REVIEW-PARTITION-LIVE-PROOF-2026-10-10.json).
+
 **Allowed statuses:** `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`,
 `READY_FOR_VERIFICATION`, `READY_FOR_REVERIFICATION`, `VERIFIED_COMPLETE`
 

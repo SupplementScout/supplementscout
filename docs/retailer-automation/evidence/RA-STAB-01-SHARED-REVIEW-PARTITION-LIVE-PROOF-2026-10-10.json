@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "kind": "ra-stab-01-shared-review-partition-live-proof",
+  "status": "LIVE_PROOF_COMPLETE_ORDINARY_OBSERVATION_PENDING",
+  "recorded_at": "2026-10-10",
+  "task": "RA-STAB-01",
+  "implementation": {
+    "pull_requests": [331, 332],
+    "merge_commits": [
+      "8bbf9cc13ca220a3a1c6465bb50b105be5ee05dd",
+      "c53af3cc6e35c084a3a90994d776efdf96e542e5"
+    ],
+    "design": "One canonical isolated-review evidence contract between the existing shared classifier/report and the existing Review Queue publisher, including distinct owner-deferred and aggregate-risk reasons.",
+    "retailer_condition_in_shared_core": false,
+    "new_importer": false,
+    "new_executor": false,
+    "new_approval_path": false,
+    "threshold_increase": false,
+    "guard_weakening": false
+  },
+  "fail_closed_discovery": {
+    "run_id": "38049959238",
+    "result": "FAIL_BEFORE_APPLY",
+    "failure": "Fit House deferred review IDs drifted",
+    "catalogue_apply_started": false,
+    "catalogue_writes": 0,
+    "finding": "The fresh 11-row review scope contained ten OWNER_DEFERRED_STOCK_REVIEW rows and one independently isolated MASS_OOS row. The publisher incorrectly treated the deferred subset as the whole review set."
+  },
+  "fit_house_live_proof": {
+    "run_id": "38050504732",
+    "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/38050504732",
+    "head_sha": "c53af3cc6e35c084a3a90994d776efdf96e542e5",
+    "result": "PASS",
+    "source": {
+      "http_status": 200,
+      "retries": 0,
+      "products": 242,
+      "variants": 338,
+      "fingerprint": "3334da61c9cdff2f3e9dd9429d8729c4477c3932260ce2fba0691ff2fc704678"
+    },
+    "partition": {
+      "approved": 286,
+      "executed": 275,
+      "review": 11,
+      "owner_deferred_review": 10,
+      "mass_oos_review": 1,
+      "blocked": 0
+    },
+    "postflight": {
+      "result": "PASS",
+      "freshness_changes": 275,
+      "price_changes": 0,
+      "stock_changes": 0,
+      "shipping_changes": 0,
+      "total_changes": 0,
+      "offer_url_changes": 0,
+      "mapping_url_changes": 0,
+      "business_price_history_delta": 0,
+      "daily_confirmation_delta": 249
+    },
+    "idempotency": {
+      "result": "PASS",
+      "database_writes_attempted": 0,
+      "database_writes_completed": 0,
+      "business_writes_completed": 0,
+      "control_writes_completed": 0
+    },
+    "refresh_artifact": {
+      "id": 11669072784,
+      "digest": "sha256:4f3e1a16ab615ef8cfc4fc72ddbe27c8dc3dfe503bac24c7e58733eaff89f003"
+    },
+    "review_queue": {
+      "result": "PASS",
+      "created": 11,
+      "superseded": 7,
+      "refreshed": 0,
+      "resolved_by_source": 0,
+      "catalogue_writes": 0,
+      "artifact_id": 11668794365,
+      "artifact_digest": "sha256:3edf6131987d9cac826faa5cdf6244c4963f95e4952093a0570b3764a302c349"
+    }
+  },
+  "kior_fresh_proof": {
+    "run_id": "38051144358",
+    "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/38051144358",
+    "result": "PASS",
+    "approved": 11,
+    "executed": 11,
+    "review": 0,
+    "blocked": 0,
+    "freshness_changes": 11,
+    "commercial_changes": 0,
+    "business_price_history_delta": 0,
+    "idempotency_result": "PASS",
+    "idempotency_writes": 0,
+    "artifact_id": 11669143339,
+    "artifact_digest": "sha256:edf290957ac639d4086554926ff6765d07ba85c7341c243f59b2839d45880043"
+  },
+  "watchdog_readback": {
+    "run_id": "38050909298",
+    "generated_at": "2026-10-10T12:09:28.377Z",
+    "database_writes": 0,
+    "fit_house_current_complete_success": "38050504732",
+    "reported_failures": {
+      "Fit House": ["LATEST_ORDINARY_ATTEMPT_INCOMPLETE", "MONITORED_BACKLOG_GROWTH"],
+      "KIOR Health": ["LATEST_ORDINARY_ATTEMPT_INCOMPLETE"]
+    },
+    "interpretation": "The readback correlates the complete fresh Fit House proof but intentionally retains the failed scheduled history and reports the newly published 11-row review backlog. The KIOR proof completed after this watchdog. Manual proofs do not replace ordinary schedule evidence.",
+    "artifact_id": 11669687310,
+    "artifact_digest": "sha256:b3b198750f76428b560f791793b6f1bb7fbdd8c1213cb8e071b55027794b7536"
+  },
+  "local_and_ci_verification": {
+    "focused_tests": 104,
+    "focused_result": "PASS",
+    "verify_quick": "PASS",
+    "verify_full": "PASS",
+    "project_guardian": "PASS",
+    "pull_request_ci": "PASS"
+  },
+  "ordinary_observation_counter": "0/3",
+  "next_step": "Observe the next ordinary scheduled runs. Count an interval only when the scheduled Fit House, KIOR and other required retailer paths complete with correlated capture, apply, postflight and idempotency evidence; do not reclassify these manual proofs as ordinary intervals."
+}

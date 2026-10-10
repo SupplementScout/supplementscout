@@ -5,6 +5,27 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
+**10 October 2026 RA-STAB-01 shared partition live proof:** PRs `#331` and
+`#332` merged the retailer-neutral report/publisher contract as commits
+`8bbf9cc13ca220a3a1c6465bb50b105be5ee05dd` and
+`c53af3cc6e35c084a3a90994d776efdf96e542e5`. The first fresh attempt
+`38049959238` exposed a second semantic mismatch and failed closed before apply
+with zero catalogue writes: ten rows were owner-deferred while one separate row
+was isolated by `MASS_OOS`. The completed correction validates those reasons
+separately without a retailer branch or relaxed guard. Fresh run `38050504732`
+then passed the full Fit House path: healthy `242`-product / `338`-variant
+source, `275` safe executions, `11` review rows, zero blocked rows, green DB
+postflight and green zero-write idempotency. It changed only freshness; prices,
+stock, URLs and business price history were unchanged. The shared Review Queue
+publisher created the `11` current cards and superseded `7` stale approved
+cards with zero catalogue writes. Fresh KIOR run `38051144358` also passed all
+`11` rows, postflight and zero-write idempotency with no commercial change.
+Read-only watchdog `38050909298` correlated the complete Fit House proof but
+truthfully retained the failed ordinary schedule and newly grown review backlog;
+it ran before the fresh KIOR proof. These manual live proofs validate current
+operation but do not rewrite scheduled history, so RA-STAB-01 remains
+`IN_PROGRESS` at `0/3` ordinary intervals. See the [live proof evidence](retailer-automation/evidence/RA-STAB-01-SHARED-REVIEW-PARTITION-LIVE-PROOF-2026-10-10.json).
+
 **10 October 2026 RA-STAB-01 shared partition correction prepared:** ordinary
 run `38039918378` reached a healthy Fit House source capture and correctly split
 all `286` approved offers into `275` safe confirmations plus `11` isolated
