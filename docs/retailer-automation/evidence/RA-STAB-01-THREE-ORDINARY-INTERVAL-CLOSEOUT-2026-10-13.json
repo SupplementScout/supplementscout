@@ -8,7 +8,7 @@
   "repository_closeout_base": "8c5a4b43ffe4693025613e9a18e30def57000b14",
   "governance": {
     "owner_direction": "On 2026-10-13 Marek confirmed that the third natural interval had completed and directed the formal closeout to proceed.",
-    "pull_request": "PENDING",
+    "pull_request": 335,
     "rollback": "Documentation-only closeout; revert the closeout commit if any cited run or artifact is disproved. No runtime or production-data rollback is applicable."
   },
   "ordinary_observation_counter": "3/3",
