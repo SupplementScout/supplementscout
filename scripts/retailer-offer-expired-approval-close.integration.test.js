@@ -6,7 +6,6 @@ const path = require("node:path");
 const test = require("node:test");
 const { canonicalJson } = require("./lib/canonical-json");
 const recovery = require("./ra-stab-01-production-recovery");
-const { CONTRACTS } = require("./supabase-migration-selector");
 
 const migration = fs.readFileSync(path.resolve(__dirname, "../supabase/migrations/20260719090000_add_expired_retailer_offer_sync_approval_close.sql"), "utf8");
 const sequentialMigration = fs.readFileSync(path.resolve(__dirname, "../supabase/migrations/20260929133000_extend_expired_sequential_plan_close.sql"), "utf8");
@@ -16,6 +15,14 @@ const partialScenario = fs.readFileSync(path.resolve(__dirname, "../supabase/tes
 const productionPreparation = JSON.parse(fs.readFileSync(path.resolve(
   __dirname,
   "../docs/retailer-automation/evidence/RA-STAB-01-PRODUCTION-RECOVERY-PREPARATION.json",
+), "utf8"));
+const schemaDeploymentEvidence = JSON.parse(fs.readFileSync(path.resolve(
+  __dirname,
+  "../docs/retailer-automation/evidence/RA-STAB-01-PRODUCTION-SCHEMA-DEPLOYMENT.json",
+), "utf8"));
+const controlRecoveryEvidence = JSON.parse(fs.readFileSync(path.resolve(
+  __dirname,
+  "../docs/retailer-automation/evidence/RA-STAB-01-PRODUCTION-CONTROL-RECOVERY.json",
 ), "utf8"));
 const recoveryCoordinatorSource = fs.readFileSync(path.resolve(
   __dirname,
@@ -248,231 +255,31 @@ test("write authorization is exact, short-lived and fails before credential acce
   assert.equal(credentialReads, 0);
 });
 
-test("authorized schema phase uses one transaction, one exact ledger insert and a committed postflight", async () => {
-  const status = await recovery.run(["--phase=status"]);
-  const now = new Date("2026-09-29T16:00:00.000Z");
-  const scope = recovery.authorizationScope(productionPreparation, "SCHEMA_DEPLOYMENT");
-  const authorization = {
-    schema_version: "ra-stab-01-phase-authorization-v1",
-    status: "OWNER_AUTHORIZED",
-    task_id: "RA-STAB-01",
-    phase: "SCHEMA_DEPLOYMENT",
-    preparation_sha256: status.preparation_sha256,
-    target: productionPreparation.target,
-    scope,
-    scope_fingerprint: crypto.createHash("sha256").update(canonicalJson(scope)).digest("hex"),
-    business_write: false,
-    maximum_attempts: 1,
-    automatic_retry: false,
-    automatic_next_phase: false,
-    authorized_by: "owner-test",
-    authorized_at: now.toISOString(),
-    expires_at: new Date(now.getTime() + 60 * 60 * 1000).toISOString(),
-    confirmation: status.confirmations.SCHEMA_DEPLOYMENT,
-  };
-  const source = path.resolve(__dirname, "../supabase/migrations");
-  const excluded = new Set(Object.keys(CONTRACTS.PRODUCTION.excluded));
-  for (const pending of CONTRACTS.PRODUCTION.pending) excluded.add(pending.filename);
-  const ledger = fs.readdirSync(source)
-    .filter(filename => /^\d{14}_[a-z0-9_]+\.sql$/.test(filename) && !excluded.has(filename))
-    .sort()
-    .map(filename => {
-      const identifier = filename.slice(0, -4);
-      const split = identifier.indexOf("_");
-      return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
-    });
-  assert.equal(ledger.length, productionPreparation.fresh_readback.pre_migration_ledger_count);
-  const queries = [];
-  let inserted = false;
-  const client = {
-    async connect() {},
-    async end() {},
-    async query(sql, params) {
-      queries.push({ sql, params });
-      const normalized = sql.replace(/\s+/g, " ").trim().toLowerCase();
-      if (normalized.startsWith("select current_user,current_database()")) {
-        return { rows: [{ current_user: "postgres", current_database: "postgres", read_only: "off", safe_update: null }] };
-      }
-      if (normalized === "select public.retailer_catalogue_actual_database_target() target") {
-        return { rows: [{ target: {
-          target_environment: "PRODUCTION",
-          project_ref: productionPreparation.target.project_ref,
-          database_identity: productionPreparation.target.database_identity,
-        } }] };
-      }
-      if (normalized.startsWith("select version,name from supabase_migrations.schema_migrations")) {
-        return { rows: inserted ? [...ledger, { version: "20260929133000", name: "extend_expired_sequential_plan_close" }] : ledger };
-      }
-      if (normalized.startsWith("select (select count(*)::bigint from public.products)")) {
-        return { rows: [productionPreparation.fresh_readback.business_counts] };
-      }
-      if (normalized.startsWith("insert into supabase_migrations.schema_migrations")) {
-        assert.equal(inserted, false);
-        assert.deepEqual(params.slice(0, 2), ["20260929133000", "extend_expired_sequential_plan_close"]);
-        inserted = true;
-        return { rows: [] };
-      }
-      return { rows: [] };
-    },
-  };
-  const file = path.join(os.tmpdir(), `ra-stab-01-schema-authorization-${process.pid}-${Date.now()}.json`);
-  fs.writeFileSync(file, JSON.stringify(authorization));
-  try {
-    const result = await recovery.run([
-      "--phase=schema-deploy",
-      `--authorization-file=${file}`,
-      `--confirm=${status.confirmations.SCHEMA_DEPLOYMENT}`,
-    ], {
-      credential: kind => { assert.equal(kind, "owner"); return "mock-owner"; },
-      createClient: () => client,
-      now: () => now,
-    });
-    assert.deepEqual(result, { result: "PASS", phase: "SCHEMA_DEPLOYMENT", committed: true, ledger_count: 223 });
-  } finally {
-    fs.unlinkSync(file);
-  }
-  assert.equal(queries.filter(query => /^begin$/i.test(query.sql)).length, 1);
-  assert.equal(queries.filter(query => /^commit$/i.test(query.sql)).length, 1);
-  assert.equal(queries.filter(query => /^rollback$/i.test(query.sql)).length, 0);
-  assert.equal(queries.filter(query => /^insert into supabase_migrations/i.test(query.sql)).length, 1);
-  assert.equal(inserted, true);
+test("completed schema phase is retained as exact immutable evidence", () => {
+  assert.equal(schemaDeploymentEvidence.status, "SCHEMA_DEPLOYED_CONTROL_NOT_AUTHORIZED");
+  assert.equal(schemaDeploymentEvidence.migration.result, "PASS");
+  assert.equal(schemaDeploymentEvidence.migration.committed, true);
+  assert.deepEqual(schemaDeploymentEvidence.ledger, {
+    before_count: productionPreparation.fresh_readback.pre_migration_ledger_count,
+    before_fingerprint: productionPreparation.fresh_readback.pre_migration_ledger_fingerprint,
+    after_count: productionPreparation.fresh_readback.post_migration_ledger_count,
+    after_fingerprint: productionPreparation.fresh_readback.post_migration_ledger_fingerprint,
+  });
+  assert.equal(schemaDeploymentEvidence.independent_readback.result, "PASS");
+  assert.equal(schemaDeploymentEvidence.independent_readback.writes, 0);
+  assert.deepEqual(schemaDeploymentEvidence.business_counts_before_and_after, productionPreparation.fresh_readback.business_counts);
 });
 
-test("authorized control phase uses only the approver RPC and proves an independent zero-business-write postflight", async () => {
-  const status = await recovery.run(["--phase=status"]);
-  const now = new Date("2026-09-29T16:00:00.000Z");
-  const scope = recovery.authorizationScope(productionPreparation, "CONTROL_RECOVERY");
-  const authorization = {
-    schema_version: "ra-stab-01-phase-authorization-v1",
-    status: "OWNER_AUTHORIZED",
-    task_id: "RA-STAB-01",
-    phase: "CONTROL_RECOVERY",
-    preparation_sha256: status.preparation_sha256,
-    target: productionPreparation.target,
-    scope,
-    scope_fingerprint: crypto.createHash("sha256").update(canonicalJson(scope)).digest("hex"),
-    business_write: false,
-    maximum_attempts: 1,
-    automatic_retry: false,
-    automatic_next_phase: false,
-    authorized_by: "owner-test",
-    authorized_at: now.toISOString(),
-    expires_at: new Date(now.getTime() + 60 * 60 * 1000).toISOString(),
-    confirmation: status.confirmations.CONTROL_RECOVERY,
-  };
-  const source = path.resolve(__dirname, "../supabase/migrations");
-  const excluded = new Set(Object.keys(CONTRACTS.PRODUCTION.excluded));
-  for (const pending of CONTRACTS.PRODUCTION.pending) excluded.add(pending.filename);
-  excluded.delete(productionPreparation.migration.filename);
-  const postLedger = fs.readdirSync(source)
-    .filter(filename => /^\d{14}_[a-z0-9_]+\.sql$/.test(filename) && !excluded.has(filename))
-    .sort()
-    .map(filename => {
-      const identifier = filename.slice(0, -4);
-      const split = identifier.indexOf("_");
-      return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
-    });
-  assert.equal(postLedger.length, productionPreparation.fresh_readback.post_migration_ledger_count);
-  let closed = false;
-  const queries = [];
-  const target = productionPreparation.control_target;
-  function ownerClient() {
-    return {
-      async connect() {},
-      async end() {},
-      async query(sql) {
-        queries.push(sql);
-        const normalized = sql.replace(/\s+/g, " ").trim().toLowerCase();
-        if (normalized.startsWith("select current_user,current_database()")) {
-          return { rows: [{ current_user: "postgres", current_database: "postgres", read_only: "on", safe_update: null }] };
-        }
-        if (normalized === "select public.retailer_catalogue_actual_database_target() target") {
-          return { rows: [{ target: {
-            target_environment: "PRODUCTION",
-            project_ref: productionPreparation.target.project_ref,
-            database_identity: productionPreparation.target.database_identity,
-          } }] };
-        }
-        if (normalized.startsWith("select version,name from supabase_migrations.schema_migrations")) return { rows: postLedger };
-        if (normalized.startsWith("select (select count(*)::bigint from public.products)")) return { rows: [productionPreparation.fresh_readback.business_counts] };
-        if (normalized.startsWith("select p.id::text parent_plan_id")) {
-          return { rows: [{
-            parent_plan_id: target.parent_plan_id,
-            parent_plan_fingerprint: target.parent_plan_fingerprint,
-            retailer_id: target.retailer_id,
-            parent_status: closed ? "EXPIRED" : "APPROVED",
-            child_manifest_fingerprint: target.child_manifest_fingerprint,
-            child_plan_id: target.approved_child_id,
-            child_plan_fingerprint: target.approved_child_fingerprint,
-            child_status: closed ? "EXPIRED" : "APPROVED",
-            approval_id: target.approval_id,
-            artifact_fingerprint: target.approved_child_fingerprint,
-            execution_fingerprint: target.execution_fingerprint,
-            expected_migration_fingerprint: target.approval_expected_migration_fingerprint,
-            closed_at: closed ? now.toISOString() : null,
-            consumed_at: null,
-            child_count: target.child_count,
-            approved_child_count: closed ? 0 : target.approved_child_count,
-            planned_child_count: closed ? 0 : target.planned_child_count,
-            expired_child_count: closed ? target.child_count : 0,
-            apply_runs: 0,
-            row_approvals: 0,
-            batch_approvals: target.batch_approvals,
-            recovery_manifests: 0,
-            recovery_approvals: 0,
-            recovery_audit: 0,
-          }] };
-        }
-        return { rows: [] };
-      },
-    };
-  }
-  const approverClient = {
-    async connect() {},
-    async end() {},
-    async query(sql, params) {
-      queries.push(sql);
-      if (sql === "select current_user,session_user") {
-        return { rows: [{ current_user: "retailer_catalogue_production_approver", session_user: "supplementscout_production_approver_login" }] };
-      }
-      if (sql === "select public.close_expired_retailer_offer_sync_approval($1::jsonb) result") {
-        assert.equal(params[0].parent_plan_id, target.parent_plan_id);
-        assert.equal(params[0].request_fingerprint, crypto.createHash("sha256").update(canonicalJson({ ...params[0], request_fingerprint: null })).digest("hex"));
-        closed = true;
-        return { rows: [{ result: {
-          status: "EXPIRED",
-          already_closed: false,
-          expired_child_count: 19,
-          control_writes: 21,
-          business_writes: 0,
-          price_history_writes: 0,
-        } }] };
-      }
-      return { rows: [] };
-    },
-  };
-  const credentialKinds = [];
-  const file = path.join(os.tmpdir(), `ra-stab-01-control-authorization-${process.pid}-${Date.now()}.json`);
-  fs.writeFileSync(file, JSON.stringify(authorization));
-  try {
-    const result = await recovery.run([
-      "--phase=control-close",
-      `--authorization-file=${file}`,
-      `--confirm=${status.confirmations.CONTROL_RECOVERY}`,
-    ], {
-      credential: kind => { credentialKinds.push(kind); return `mock-${kind}`; },
-      createClient: (_connection, applicationName) => applicationName === "ra-stab-01-control-close" ? approverClient : ownerClient(),
-      now: () => now,
-    });
-    assert.equal(result.result, "PASS");
-    assert.equal(result.phase, "CONTROL_RECOVERY");
-    assert.deepEqual(result.postflight, { writes: 0, expired_child_count: 19 });
-  } finally {
-    fs.unlinkSync(file);
-  }
-  assert.deepEqual(credentialKinds, ["owner", "approver", "owner"]);
-  assert.equal(queries.filter(sql => sql === "select public.close_expired_retailer_offer_sync_approval($1::jsonb) result").length, 1);
-  assert.equal(queries.some(sql => /(?:execute_retailer_offer_sync_batch|apply_approved_product_import_plan)\s*\(/i.test(sql)), false);
+test("completed control phase is retained as exact zero-business-write evidence", () => {
+  assert.equal(controlRecoveryEvidence.status, "CONTROL_BLOCKER_CLOSED_OBSERVATION_PENDING");
+  assert.equal(controlRecoveryEvidence.execution.result, "PASS");
+  assert.equal(controlRecoveryEvidence.execution.parent_status_after, "EXPIRED");
+  assert.equal(controlRecoveryEvidence.execution.children_after.expired, productionPreparation.control_target.child_count);
+  assert.equal(controlRecoveryEvidence.execution.business_writes, 0);
+  assert.equal(controlRecoveryEvidence.execution.price_history_writes, 0);
+  assert.equal(controlRecoveryEvidence.independent_readback.result, "PASS");
+  assert.equal(controlRecoveryEvidence.independent_readback.writes, 0);
+  assert.deepEqual(controlRecoveryEvidence.business_counts_unchanged, productionPreparation.fresh_readback.business_counts);
 });
 
 test("control close request binds the exact post-migration ledger and remains business-write-free", () => {

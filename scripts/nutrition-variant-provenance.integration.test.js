@@ -43,6 +43,9 @@ function wait(container) {
 }
 const hash = "1182c1aeab46a72ff38709e349d692ab18d45355d87549574d30bb04f3067842";
 const archive = `supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/38/${hash}/38-Applied-Pump-3G-375g.jpg`;
+function testFingerprint(label) {
+  return crypto.createHash("sha256").update(`nutrition-variant-provenance:${label}`).digest("hex");
+}
 function insertCandidate({ fingerprint, product = 38, variant = "726", uri = archive, sourceHash = hash }) {
   return `
     insert into public.nutrition_candidates(
@@ -606,12 +609,12 @@ test("variant candidate migration preserves legacy rows and enforces exact immut
     }
 
     for (const fact of [
-      { fingerprint: "c".repeat(64), field: "creatine_component_per_serving_mg", value: 750, sourceValue: 750, sourceUnit: "mg", form: "creatine_monohydrate" },
-      { fingerprint: "d".repeat(64), field: "creatine_component_per_serving_mg", value: 350, sourceValue: 350, sourceUnit: "mg", form: "creatine_malate" },
+      { fingerprint: testFingerprint("creatine-component-monohydrate"), field: "creatine_component_per_serving_mg", value: 750, sourceValue: 750, sourceUnit: "mg", form: "creatine_monohydrate" },
+      { fingerprint: testFingerprint("creatine-component-malate"), field: "creatine_component_per_serving_mg", value: 350, sourceValue: 350, sourceUnit: "mg", form: "creatine_malate" },
     ]) ok(sql(container, insertStructuredCandidate(fact)), `structured creatine component ${fact.form}`);
 
     ok(sql(container, insertStructuredCandidate({
-      fingerprint: "e".repeat(64), field: "citrulline_component_per_serving_mg",
+      fingerprint: testFingerprint("citrulline-component-nitrate"), field: "citrulline_component_per_serving_mg",
       value: 2000, sourceValue: 2000, sourceUnit: "mg", form: "citrulline_nitrate",
     })), "structured citrulline nitrate component");
     assert.equal(ok(sql(container, `
