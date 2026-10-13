@@ -83,7 +83,8 @@ test('Predators Gear reviewed-new-products-v3 DB policy accepts only exact revie
         if v_retailer_actual is null
   or v_external_product_id !~ '^[0-9]{10,}$'
   or v_external_variant_id !~ '^[0-9]{10,}$'
-  or v_external_product_id = v_external_variant_id then
+  or v_external_product_id = v_external_variant_id
+then
           raise exception 'invalid product import plan: reviewed retailer product values';
         end if;
         if v_retailer_actual->>'slug'='jon-s-supplements' then null;
