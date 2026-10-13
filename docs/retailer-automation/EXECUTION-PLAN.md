@@ -1,8 +1,9 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: PRODUCTION STABILIZATION ACTIVE — RA-004 LIVE RETRY STOPPED**
+**Status: PRODUCTION STABILIZATION VERIFIED COMPLETE — RA-004 REMAINS BLOCKED**
 
-**Current active task:** RA-STAB-01 — `IN_PROGRESS`. On 29 September 2026 the
+**Current active task:** none. RA-STAB-01 is `VERIFIED_COMPLETE` after three
+consecutive ordinary intervals on 11–13 October 2026. On 29 September 2026 the
 owner stopped further RA-004 live canary retries after the five-day sequence of
 staging-interface, credential, ledger, ACL, provider-identity and final SQL
 contract failures. The consumed `v3` activation remains terminal and
@@ -24,6 +25,19 @@ run, cutover or retry is not authorized by this reset.
 
 See
 [`evidence/RA-STABILIZATION-RESET-2026-09-29.md`](evidence/RA-STABILIZATION-RESET-2026-09-29.md).
+
+**13 October ordinary observation closeout — verified complete:** the affected
+Whey Okay and shared Fit House/10 Reps guarded paths completed three consecutive
+ordinary scheduled intervals on 11, 12 and 13 October. Their six source runs
+passed capture/dry-run, Review Queue source binding, guarded apply, database
+postflight, fresh idempotency capture and queue publication. The three following
+scheduled watchdogs inspected all 12 retailers, reported zero failed systems
+and made zero database writes. The final result is `PASS_WITH_REVIEW`: current
+review work and classified monitored backlog remain visible and do not need to
+be cleared to satisfy stabilization. No manual run, retry, replay, baseline
+widening, manually initiated production write or runtime change was counted. RA-STAB-01 is
+`VERIFIED_COMPLETE` at `3/3`; RA-004 remains `BLOCKED` and is not reopened by
+this closeout. Evidence: [three-interval closeout](evidence/RA-STAB-01-THREE-ORDINARY-INTERVAL-CLOSEOUT-2026-10-13.json).
 
 **10 October shared execution/review partition incident — correction prepared:**
 ordinary shared run `38039918378` captured a healthy Fit House source and
@@ -84,7 +98,7 @@ Every task records:
 
 ## RA-STAB-01 — Existing-path production stabilization
 
-**Status:** `IN_PROGRESS`
+**Status:** `VERIFIED_COMPLETE`
 
 **Owner decision:** explicit instruction on 29 September 2026 to stop further
 RA-004 live retries, preserve completed evidence, stabilize the existing

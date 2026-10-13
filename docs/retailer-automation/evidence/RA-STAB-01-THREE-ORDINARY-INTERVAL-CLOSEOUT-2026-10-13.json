@@ -1,0 +1,231 @@
+{
+  "schema_version": 1,
+  "kind": "ra-stab-01-three-ordinary-interval-closeout",
+  "status": "VERIFIED_COMPLETE",
+  "recorded_at": "2026-10-13",
+  "task": "RA-STAB-01",
+  "runtime_baseline_commit": "75ea33350de32815e946e53be8579956a9b84906",
+  "repository_closeout_base": "8c5a4b43ffe4693025613e9a18e30def57000b14",
+  "governance": {
+    "owner_direction": "On 2026-10-13 Marek confirmed that the third natural interval had completed and directed the formal closeout to proceed.",
+    "pull_request": 335,
+    "rollback": "Documentation-only closeout; revert the closeout commit if any cited run or artifact is disproved. No runtime or production-data rollback is applicable."
+  },
+  "ordinary_observation_counter": "3/3",
+  "observation_contract": {
+    "consecutive_calendar_intervals": true,
+    "manual_dispatches_counted": false,
+    "retry_or_replay_counted": false,
+    "affected_scheduled_paths": [
+      "Whey Okay dedicated guarded path",
+      "Fit House / 10 Reps shared guarded path",
+      "read-only retailer automation watchdog"
+    ],
+    "required_steps": [
+      "source capture and dry-run",
+      "Review Queue source binding",
+      "guarded apply",
+      "database postflight",
+      "fresh idempotency capture",
+      "Review Queue publication",
+      "correlated read-only watchdog"
+    ]
+  },
+  "intervals": [
+    {
+      "interval": 1,
+      "date": "2026-10-11",
+      "whey_okay": {
+        "run_id": "38126631913",
+        "event": "schedule",
+        "conclusion": "success",
+        "refresh_artifact": {
+          "id": 11697572510,
+          "digest": "sha256:ac02ac98ae1b5afe3b54caf079a89778a54fd80f0ed709abdf77bf875b25498b"
+        },
+        "review_queue_artifact": {
+          "id": 11697442873,
+          "digest": "sha256:31985a7fa446c4e553f562c7956d7ff67b8efcd3dbff207ae7c48ffd701b4df2"
+        },
+        "required_steps": "PASS"
+      },
+      "shared_fit_house_10_reps": {
+        "run_id": "38127903502",
+        "event": "schedule",
+        "conclusion": "success",
+        "fit_house_artifact": {
+          "id": 11697624950,
+          "digest": "sha256:7b3365f127bc3caa049b81f4bbbe9166d6acb6cbf2d95e3241f911ce07175d7f"
+        },
+        "ten_reps_artifact": {
+          "id": 11698900188,
+          "digest": "sha256:7f0d38b363fbed7f760d05004238d83fc619ff0fb20e4d3846b36eea00d8af60"
+        },
+        "review_queue_artifact": {
+          "id": 11697179892,
+          "digest": "sha256:34baaa2b3b7122229eb4a83bbb2eb3fc19426ff195c3aa629ec997246e1ca9ba"
+        },
+        "required_steps": "PASS"
+      },
+      "watchdog": {
+        "run_id": "38140138200",
+        "event": "schedule",
+        "conclusion": "success",
+        "generated_at": "2026-10-11T12:40:40.992Z",
+        "result": "PASS_WITH_REVIEW",
+        "failed_retailers": 0,
+        "database_writes": 0,
+        "artifact": {
+          "id": 11702811197,
+          "digest": "sha256:a0d12cff0bc0afb35d01380fc1b1d874ca736a35ee2af8e2165ba0b10b302ebf"
+        }
+      }
+    },
+    {
+      "interval": 2,
+      "date": "2026-10-12",
+      "whey_okay": {
+        "run_id": "38228878350",
+        "event": "schedule",
+        "conclusion": "success",
+        "refresh_artifact": {
+          "id": 11737148279,
+          "digest": "sha256:65d0ae899144871f98bf8ecf5b1d6371a52410b242e6b64d3fe6b8f66e17a668"
+        },
+        "review_queue_artifact": {
+          "id": 11737797536,
+          "digest": "sha256:f5de0b06408fb954026d8336b0e3a37f503a1345ce0d827491342cc877d0232e"
+        },
+        "required_steps": "PASS"
+      },
+      "shared_fit_house_10_reps": {
+        "run_id": "38231971673",
+        "event": "schedule",
+        "conclusion": "success",
+        "fit_house_artifact": {
+          "id": 11739211237,
+          "digest": "sha256:8b1bab6bc0b7fa0e4d36aeec11773b6d82f12c313f871b1340c1c0f73330246a"
+        },
+        "ten_reps_artifact": {
+          "id": 11740005061,
+          "digest": "sha256:e7c2fbbf055e6ba412c87d4d02f51f23e8748a7a9a0eebccd520a9bac9ca330c"
+        },
+        "review_queue_artifact": {
+          "id": 11739222716,
+          "digest": "sha256:fe7fcce37220d58cf2242dd23d4a630e44dae220df2418aa7d0b0820ac6eb056"
+        },
+        "required_steps": "PASS"
+      },
+      "watchdog": {
+        "run_id": "38268536473",
+        "event": "schedule",
+        "conclusion": "success",
+        "generated_at": "2026-10-12T15:13:05.407Z",
+        "result": "PASS_WITH_REVIEW",
+        "failed_retailers": 0,
+        "database_writes": 0,
+        "artifact": {
+          "id": 11756265962,
+          "digest": "sha256:03d6c1f0fc2fdcba7695589eae762d054351896a923d8949b2f4235d99fe230e"
+        }
+      }
+    },
+    {
+      "interval": 3,
+      "date": "2026-10-13",
+      "whey_okay": {
+        "run_id": "38376522795",
+        "event": "schedule",
+        "conclusion": "success",
+        "refresh_artifact": {
+          "id": 11800894019,
+          "digest": "sha256:a67e81d3c317ccd7c395f652bbcd3f34098d20c201e1c6a443fdea1129890c54"
+        },
+        "review_queue_artifact": {
+          "id": 11800823739,
+          "digest": "sha256:c34a8419a274920aa0909dbfa6fb7da79a5728be90d71c974cffefad624d9925"
+        },
+        "required_steps": "PASS"
+      },
+      "shared_fit_house_10_reps": {
+        "run_id": "38378481840",
+        "event": "schedule",
+        "conclusion": "success",
+        "fit_house_artifact": {
+          "id": 11802296901,
+          "digest": "sha256:95d970abfe70f7260765eafce9d684c9270fcc5c429201e06521d709f9b53633"
+        },
+        "ten_reps_artifact": {
+          "id": 11803361009,
+          "digest": "sha256:27486f0fa5588c4d005d8ccb02003d9d358af4b048ea1216ea17589fb79a9c3d"
+        },
+        "review_queue_artifact": {
+          "id": 11803247003,
+          "digest": "sha256:381c283c83984758376534ca70851d7ee01c9a158ad4f00ca7d8b59945fd3230"
+        },
+        "required_steps": "PASS"
+      },
+      "watchdog": {
+        "run_id": "38410155806",
+        "event": "schedule",
+        "conclusion": "success",
+        "generated_at": "2026-10-13T14:04:17.848Z",
+        "result": "PASS_WITH_REVIEW",
+        "failed_retailers": 0,
+        "database_writes": 0,
+        "artifact": {
+          "id": 11820263594,
+          "digest": "sha256:477da1c9232b33eb2f902b3526abc41bde75d90caaada47e3e14dceed9529b29"
+        }
+      }
+    }
+  ],
+  "final_watchdog_inventory": {
+    "configured_retailers": 12,
+    "failed_system": 0,
+    "database_writes": 0,
+    "closeout_snapshot_digest_prefix": "2520eb",
+    "note": "The retained watchdog artifact is authoritative for the complete closeout snapshot and its full internal digest; only the independently recorded prefix is repeated here. Artifact integrity is anchored by the complete watchdog artifact digest above.",
+    "retailers": [
+      { "name": "GYM HIGH", "result": "PASS_WITH_MONITORED_BACKLOG", "correlation": "INCOMPLETE_CORE", "review_rows": 0 },
+      { "name": "Whey Okay", "result": "PASS_WITH_MONITORED_BACKLOG", "correlation": "CORRELATED", "review_rows": 10 },
+      { "name": "Discount Supplements", "result": "PASS_WITH_MONITORED_BACKLOG", "correlation": "CORRELATED", "review_rows": 0 },
+      { "name": "Dolphin Fitness", "result": "PASS_WITH_MONITORED_BACKLOG", "correlation": "CORRELATED", "review_rows": 0 },
+      { "name": "Simply Supplements", "result": "PASS_WITH_REVIEW", "review_rows": 1 },
+      { "name": "KIOR Health", "result": "PASS", "review_rows": 0 },
+      { "name": "Fit House", "result": "PASS_WITH_REVIEW", "review_rows": 11 },
+      { "name": "Jon's Supplements", "result": "PASS_WITH_REVIEW", "review_rows": 8 },
+      { "name": "6 Pack Nutrition", "result": "PASS_WITH_REVIEW", "review_rows": 14 },
+      { "name": "eBay", "result": "PASS_WITH_REVIEW", "review_rows": 81 },
+      { "name": "Predator Nutrition", "result": "PASS_WITH_MONITORED_BACKLOG", "correlation": "INCOMPLETE_CORE", "review_rows": 0 },
+      { "name": "10 Reps", "result": "PASS_WITH_REVIEW", "review_rows": 22 }
+    ],
+    "interpretation": "Review Queue work and explicitly classified monitored backlog remain visible owner work; neither is an unexplained system failure and neither requires clearing to close the stabilization observation contract."
+  },
+  "acceptance": {
+    "all_12_retailers_inventory": "PASS",
+    "every_non_green_result_classified": "PASS",
+    "normal_review_not_reported_as_failed_system": "PASS",
+    "no_retailer_specific_shared_core_branch": "PASS",
+    "incident_regressions_and_quality_gates": "PASS",
+    "three_consecutive_ordinary_intervals": "PASS",
+    "final_watchdog_and_postflight_agree": "PASS",
+    "zero_unrelated_change": "PASS"
+  },
+  "closeout_invariants": {
+    "manual_production_or_control_write_performed_by_closeout": false,
+    "catalogue_write_performed_by_watchdogs": false,
+    "manual_retry_or_replay": false,
+    "baseline_widening": false,
+    "runtime_code_change": false,
+    "review_queue_clearance_required": false,
+    "ra_004_reopened": false
+  },
+  "local_verification": {
+    "pre_change_project_guardian": "PASS",
+    "post_change_project_guardian": "PASS",
+    "verify_quick": "PASS",
+    "verify_full": "PASS"
+  },
+  "decision": "RA-STAB-01 is VERIFIED_COMPLETE at 3/3 ordinary intervals. There is no active retailer implementation task after this closeout. RA-004 remains BLOCKED; an artifact-first recorded replay may be proposed only through a separate scoped owner decision and is not authorized by this record."
+}

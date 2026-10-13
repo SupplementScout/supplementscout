@@ -1,9 +1,25 @@
 # SupplementScout Operating Plan
 
-**Status date:** 9 October 2026<br>
+**Status date:** 13 October 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
+
+**13 October 2026 RA-STAB-01 ordinary observation closeout:** three consecutive
+ordinary scheduled intervals completed on 11–13 October for the affected Whey
+Okay and shared Fit House/10 Reps guarded paths. All six source runs passed the
+full capture, source-binding, guarded apply, postflight, fresh idempotency and
+Review Queue publication contract. Each following scheduled watchdog inspected
+all 12 retailers, found zero failed systems and made zero database writes. The
+final watchdog correctly reports `PASS_WITH_REVIEW`: owner review work and
+classified monitored backlog remain visible but are not stabilization failures.
+No manual run, retry, replay, baseline widening, manually initiated production
+write or runtime change was counted. RA-STAB-01 is therefore
+`VERIFIED_COMPLETE` at `3/3`.
+There is now no active retailer implementation task. RA-004 remains `BLOCKED`;
+any artifact-first recorded replay needs a separate scoped owner decision. See
+the [three-interval closeout evidence](retailer-automation/evidence/RA-STAB-01-THREE-ORDINARY-INTERVAL-CLOSEOUT-2026-10-13.json)
+and the [execution ledger](retailer-automation/EXECUTION-PLAN.md).
 
 **10 October 2026 RA-STAB-01 shared partition live proof:** PRs `#331` and
 `#332` merged the retailer-neutral report/publisher contract as commits
