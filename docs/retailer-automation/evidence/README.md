@@ -2,8 +2,9 @@
 
 ## Current authority
 
-The current retailer task is RA-STAB-01 and RA-004 is owner-stopped and
-`BLOCKED`. Older statements below that say RA-004 is `IN_PROGRESS` or
+RA-STAB-01 is `VERIFIED_COMPLETE` at `3/3` ordinary intervals and there is no
+active retailer implementation task. RA-004 is owner-stopped and `BLOCKED`.
+Older statements below that say RA-STAB-01 is active or RA-004 is `IN_PROGRESS` or
 `NOT_STARTED` are retained historical checkpoints, not current authority. The
 [29 September stabilization reset](RA-STABILIZATION-RESET-2026-09-29.md) and
 the [execution ledger](../EXECUTION-PLAN.md) supersede those status statements.
@@ -21,6 +22,8 @@ input. It does not authorize RA-004, a new capture or any write.
 [RA-003 historical incident and legacy compatibility evidence](RA-003.md)
 
 [29 September production-stabilization reset and RA-004 stop decision](RA-STABILIZATION-RESET-2026-09-29.md)
+
+[RA-STAB-01 three consecutive ordinary intervals and final closeout](RA-STAB-01-THREE-ORDINARY-INTERVAL-CLOSEOUT-2026-10-13.json)
 
 [RA-STAB-01 evidence-preservation and replay-readiness audit](RA-STAB-01-EVIDENCE-PRESERVATION-AUDIT.json)
 
