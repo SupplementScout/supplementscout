@@ -1,9 +1,10 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: PRODUCTION STABILIZATION VERIFIED COMPLETE — RA-004 REMAINS BLOCKED**
+**Status: POST-CLOSEOUT INCIDENT CORRECTION IN PROGRESS — RA-004 REMAINS BLOCKED**
 
-**Current active task:** none. RA-STAB-01 is `VERIFIED_COMPLETE` after three
-consecutive ordinary intervals on 11–13 October 2026. On 29 September 2026 the
+**Current active task:** RA-STAB-02. RA-STAB-01 remains `VERIFIED_COMPLETE`
+after three consecutive ordinary intervals on 11–13 October 2026; it is not
+reopened or rewritten by the later incident. On 29 September 2026 the
 owner stopped further RA-004 live canary retries after the five-day sequence of
 staging-interface, credential, ledger, ACL, provider-identity and final SQL
 contract failures. The consumed `v3` activation remains terminal and
@@ -25,6 +26,24 @@ run, cutover or retry is not authorized by this reset.
 
 See
 [`evidence/RA-STABILIZATION-RESET-2026-09-29.md`](evidence/RA-STABILIZATION-RESET-2026-09-29.md).
+
+**14 October post-closeout mixed-partition incident — correction prepared:**
+ordinary shared run `38532219108` captured a healthy 10 Reps source and produced
+`917` executable rows plus `33` review rows across the unchanged `950`-offer
+scope. The review scope contained `22` source-missing identities isolated before
+classification and `11` `MASS_OOS` stock transitions isolated by the classifier.
+The existing source binder failed closed before apply because it supported only
+classifier coverage of the executable scope or the complete approved scope, not
+this exact mixed boundary. Fit House completed normally in the same workflow.
+The correction adds the missing common mixed-partition contract, reuses the
+existing identity and stock review-card contracts, and removes the unused
+`maximumReviewCount` profile fields. It adds no importer, publisher, executor,
+retailer branch in shared core, database write or guardrail exception. The exact
+retained production artifact now binds locally as `917 + 33`, with zero
+catalogue writes; the focused suite and `verify:quick` pass. Merge, CI, one fresh
+ordinary shared run and a following correlated watchdog remain required.
+Evidence:
+[`evidence/RA-STAB-02-10REPS-MIXED-REVIEW-PARTITION-PREPARATION-2026-10-14.json`](evidence/RA-STAB-02-10REPS-MIXED-REVIEW-PARTITION-PREPARATION-2026-10-14.json).
 
 **13 October ordinary observation closeout — verified complete:** the affected
 Whey Okay and shared Fit House/10 Reps guarded paths completed three consecutive
@@ -95,6 +114,35 @@ Every task records:
 - production readback:
 - owner approval reference:
 - rollback result:
+
+## RA-STAB-02 — 10 Reps mixed Review Queue partition incident
+
+**Status:** `IN_PROGRESS`
+
+**Goal:** restore the existing common Review Queue source binding when one
+ordinary run contains both pre-classifier source-missing rows and
+classifier-isolated policy rows, without changing the approved execution scope
+or adding a second mechanism.
+
+**Scope:** common publication-profile validation, the existing shared source
+binder, an exact incident regression, ordinary scheduled verification and the
+following watchdog correlation.
+
+**Out of scope:** manual retailer retry, manual apply, baseline widening,
+identity decisions, new approval/publisher/executor paths, RA-004 replay,
+migration activation and direct database writes.
+
+**Current evidence:** run `38532219108` failed closed at source binding; apply,
+postflight and idempotency were skipped for 10 Reps. The retained artifact proves
+`917` executable rows, `22` source-missing reviews, `11` `MASS_OOS` reviews and
+zero executed plans. The prepared common correction accepts that exact artifact
+with zero catalogue writes. Local focused tests and `npm run verify:quick` pass.
+
+**Next bounded step:** merge only after CI passes, then observe the next ordinary
+shared schedule and its following watchdog. Do not manufacture verification with
+a manual dispatch. Mark `VERIFIED_COMPLETE` only after source binding, guarded
+apply, read-only postflight, fresh idempotency and Review Queue publication all
+pass for 10 Reps and the following watchdog correlates the result.
 
 ## RA-STAB-01 — Existing-path production stabilization
 

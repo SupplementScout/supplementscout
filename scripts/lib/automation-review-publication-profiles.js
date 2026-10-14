@@ -69,7 +69,11 @@ function validateJonsCapture(profile, { report, diagnostic, invariant }) {
 function validateStandardChangedRows(profile, changedRows, invariant) {
   const valid = profile.reviewType === "stock"
     ? changedRows.every((row) => row.action === "UPDATE_STOCK" && row.old_price === row.new_price && row.old_stock !== row.new_stock)
-    : changedRows.every((row) => row.action === "SOURCE_MISSING" && row.old_price === row.new_price && row.old_stock === row.new_stock);
+    : profile.reviewType === "mixed"
+      ? changedRows.every((row) => row.action === "SOURCE_MISSING"
+        ? row.old_price === row.new_price && row.old_stock === row.new_stock
+        : row.action === "UPDATE_STOCK" && row.old_price === row.new_price && row.old_stock !== row.new_stock)
+      : changedRows.every((row) => row.action === "SOURCE_MISSING" && row.old_price === row.new_price && row.old_stock === row.new_stock);
   invariant(valid, `${profile.retailer.name} review scope contains an unsafe catalogue change`);
 }
 
@@ -131,6 +135,14 @@ function normalizeStockReviewRows(report, baselineByOffer, label, invariant) {
   }).sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
 }
 
+function normalizeMixedReviewRows(report, baselineByOffer, label, invariant) {
+  const missingRows = report.review_rows.filter((row) => row.reason === "SOURCE_VARIANT_MISSING");
+  const stockRows = report.review_rows.filter((row) => row.reason !== "SOURCE_VARIANT_MISSING");
+  const normalizedMissing = normalizeMissingRows({ review_rows: missingRows }, baselineByOffer, label, invariant);
+  const normalizedStock = normalizeStockReviewRows({ review_rows: stockRows }, baselineByOffer, label, invariant);
+  return [...normalizedMissing, ...normalizedStock].sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
+}
+
 function validateStandard(profile, context) {
   const { report, diagnostic, baselineByOffer, invariant, sameJson, sortedIds } = context;
   const label = profile.retailer.name;
@@ -157,10 +169,16 @@ function validateStandard(profile, context) {
   const classifierScope = diagnostic.classifier_summary?.scope;
   const reviewIds = sortedIds(report.review_rows.map((row) => row.offer_id));
   const classifierCoversReview = profile.classifierCoverage === "full-partition";
-  const expectedClassifierIds = classifierCoversReview
-    ? sortedIds([...executionIds, ...reviewIds])
+  const classifierReviewRows = profile.classifierCoverage === "mixed-partition"
+    ? report.review_rows.filter((row) => profile.classifierReviewReasons.includes(row.reason))
+    : [];
+  const classifierReviewIds = sortedIds(classifierReviewRows.map((row) => row.offer_id));
+  const expectedClassifierIds = classifierCoversReview || classifierReviewIds.length > 0
+    ? sortedIds([...executionIds, ...(classifierCoversReview ? reviewIds : classifierReviewIds)])
     : executionIds;
-  const expectedClassifierCount = classifierCoversReview ? profile.approvedMappingCount : executableCount;
+  const expectedClassifierCount = classifierCoversReview
+    ? profile.approvedMappingCount
+    : executableCount + classifierReviewIds.length;
   invariant(classifierScope && Number(classifierScope.blocked_rows || 0) === 0 && classifierScope.reconciled === true && Number(classifierScope.reconciled_total) === expectedClassifierCount, `${label} preflight classifier scope drifted`);
   sameJson(sortedIds(classifierScope.scope_row_ids || []), expectedClassifierIds, `${label} preflight classifier IDs drifted`);
   sameJson(diagnostic.classifier_summary.action_counts || {}, report.classification || {}, `${label} preflight classifier actions drifted`);
@@ -176,6 +194,7 @@ function validateStandard(profile, context) {
     const executableChangedIds = sortedIds(executableChangedRows.map((row) => row.offer_id));
     invariant(executableChangedIds.length === executableChangedRows.length, `${label} preflight changed IDs drifted`);
     sameJson(executableChangedIds, sortedIds(diagnostic.classifier_summary.changed_row_ids || []), `${label} preflight changed IDs drifted`);
+    invariant(executableChangedIds.every((offerId) => executionIds.includes(offerId)), `${label} classifier changed scope drifted`);
     invariant(verificationIds.every((offerId) => !executableChangedIds.includes(offerId)), `${label} executable changed and verified scopes overlap`);
     sameJson(sortedIds([...verificationIds, ...executableChangedIds]), executionIds, `${label} executable classifier partition drifted`);
     sameJson(stockChangeIds, sortedIds(executableChangedRows.filter((row) => row.changed_fields?.stock === true).map((row) => row.offer_id)), `${label} executable stock-change IDs drifted`);
@@ -188,7 +207,9 @@ function validateStandard(profile, context) {
 
   const changedRows = profile.reviewType === "stock"
     ? normalizeStockReviewRows(report, baselineByOffer, label, invariant)
-    : normalizeMissingRows(report, baselineByOffer, label, invariant);
+    : profile.reviewType === "mixed"
+      ? normalizeMixedReviewRows(report, baselineByOffer, label, invariant)
+      : normalizeMissingRows(report, baselineByOffer, label, invariant);
   if (profile.reviewType === "stock") {
     const deferredReviewIds = sortedIds(report.review_rows
       .filter((row) => row.reason === "OWNER_DEFERRED_STOCK_REVIEW")
@@ -315,7 +336,7 @@ function sixPackMatchesActiveReview(row) {
 }
 
 function reviewCard(profile, beforeState, changed) {
-  if (profile.reviewType === "stock") return {
+  if (profile.reviewType === "stock" || (profile.reviewType === "mixed" && changed.action === "UPDATE_STOCK")) return {
     proposedState: { ...beforeState, in_stock: changed.new_stock },
     reasonCodes: "STOCK_CHANGE", confidence: "HIGH", sourcePrice: changed.new_price,
     reviewKind: "COMMERCIAL_CHANGE", operationType: "UPDATE_STOCK", evidenceReason: "OWNER_DEFERRED_STOCK_REVIEW",
@@ -328,6 +349,8 @@ function reviewCard(profile, beforeState, changed) {
 }
 
 function matchesActiveReview(profile, row) {
+  if (profile.reviewType === "mixed") return (row.review_kind === "COMMERCIAL_CHANGE" && row.operation_type === "UPDATE_STOCK" && reasonList(row.reason_codes).includes("STOCK_CHANGE"))
+    || (row.review_kind === "IDENTITY_CONFLICT" && row.operation_type === "MANUAL_REVIEW_IDENTITY" && reasonList(row.reason_codes).includes("SOURCE_MISSING"));
   return profile.reviewType === "stock"
     ? row.review_kind === "COMMERCIAL_CHANGE" && row.operation_type === "UPDATE_STOCK" && reasonList(row.reason_codes).includes("STOCK_CHANGE")
     : row.review_kind === "IDENTITY_CONFLICT" && row.operation_type === "MANUAL_REVIEW_IDENTITY" && reasonList(row.reason_codes).includes("SOURCE_MISSING");
@@ -350,11 +373,11 @@ function profile(values) {
 }
 
 const PROFILES = Object.freeze({
-  "fit-house": profile({ key: "fit-house", retailer: Object.freeze({ id: "9", name: "Fit House", slug: "fit-house" }), approvedMappingCount: 286, maximumReviewCount: 14, sourceDirectory: "fit-house-offer-refresh", artifactPrefix: "fit-house-offer-refresh", reconciliationFile: "fit-house-reconciliation-dry-run.json", contractName: "fit-house-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "stock", classifierCoverage: "full-partition" }),
-  "10-reps": profile({ key: "10-reps", retailer: Object.freeze({ id: "14", name: "10 Reps", slug: "10-reps" }), approvedMappingCount: 950, maximumReviewCount: 16, sourceDirectory: "10reps-offer-refresh", artifactPrefix: "10reps-offer-refresh", reconciliationFile: "10reps-reconciliation-dry-run.json", contractName: "10-reps-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "source-missing", classifierCoverage: "executable-only" }),
-  "whey-okay": profile({ key: "whey-okay", retailer: Object.freeze({ id: "3", name: "Whey Okay", slug: "whey-okay" }), approvedMappingCount: 589, maximumReviewCount: 10, sourceDirectory: "whey-okay-offer-refresh", artifactPrefix: "whey-okay-offer-refresh", reconciliationFile: "whey-okay-reconciliation-dry-run.json", contractName: "whey-okay-automation-review-source-v1", workflow: ".github/workflows/whey-okay-offer-refresh.yml", workflowName: "Whey Okay Offer Refresh", reviewType: "source-missing", captureFiles: WHEY_CAPTURE_FILES, sealedFiles: WHEY_SEALED_FILES, sourceFingerprint: (report) => report.source?.semantic_fingerprint, validate: validateWhey }),
-  "jons-supplements": profile({ key: "jons-supplements", retailer: Object.freeze({ id: "10", name: "Jon's Supplements", slug: "jon-s-supplements" }), postflightProfile: "jons-supplements", approvedMappingCount: 506, maximumReviewCount: 5, sourceDirectory: "jons-offer-refresh", artifactPrefix: "jons-offer-refresh", reconciliationFile: "jons-reconciliation-dry-run.json", contractName: "jons-automation-review-source-v1", workflow: ".github/workflows/jons-offer-refresh.yml", workflowName: "Jon's Offer Refresh", reviewType: "source-missing", validateCapture: validateJonsCapture, validate: validateJons }),
-  "six-pack-supplements": profile({ key: "six-pack-supplements", retailer: Object.freeze({ id: "11", name: "6 Pack Supplements", slug: "6-pack-supplements" }), postflightProfile: "six-pack-supplements", approvedMappingCount: 506, maximumReviewCount: 14, sourceDirectory: "six-pack-offer-refresh", artifactPrefix: "six-pack-offer-refresh", reconciliationFile: "six-pack-reconciliation-dry-run.json", contractName: "six-pack-automation-review-source-v1", workflow: ".github/workflows/six-pack-offer-refresh.yml", workflowName: "6 Pack Supplements Offer Refresh", reviewType: "mixed-policy", captureFiles: SIX_PACK_CAPTURE_FILES, sealedFiles: SIX_PACK_SEALED_FILES, sourceFingerprint: (report) => report.source_snapshot_fingerprint, captureTimestamp: (source) => source.report.source_captured_at, validateCapture: validateSixPackCapture, validate: validateSixPack, validateChangedRows: validateSixPackChangedRows, reviewCard: sixPackReviewCard, matchesActiveReview: sixPackMatchesActiveReview }),
+  "fit-house": profile({ key: "fit-house", retailer: Object.freeze({ id: "9", name: "Fit House", slug: "fit-house" }), approvedMappingCount: 286, sourceDirectory: "fit-house-offer-refresh", artifactPrefix: "fit-house-offer-refresh", reconciliationFile: "fit-house-reconciliation-dry-run.json", contractName: "fit-house-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "stock", classifierCoverage: "full-partition" }),
+  "10-reps": profile({ key: "10-reps", retailer: Object.freeze({ id: "14", name: "10 Reps", slug: "10-reps" }), approvedMappingCount: 950, sourceDirectory: "10reps-offer-refresh", artifactPrefix: "10reps-offer-refresh", reconciliationFile: "10reps-reconciliation-dry-run.json", contractName: "10-reps-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", classifierCoverage: "mixed-partition", classifierReviewReasons: Object.freeze(["MASS_OOS"]) }),
+  "whey-okay": profile({ key: "whey-okay", retailer: Object.freeze({ id: "3", name: "Whey Okay", slug: "whey-okay" }), approvedMappingCount: 589, sourceDirectory: "whey-okay-offer-refresh", artifactPrefix: "whey-okay-offer-refresh", reconciliationFile: "whey-okay-reconciliation-dry-run.json", contractName: "whey-okay-automation-review-source-v1", workflow: ".github/workflows/whey-okay-offer-refresh.yml", workflowName: "Whey Okay Offer Refresh", reviewType: "source-missing", captureFiles: WHEY_CAPTURE_FILES, sealedFiles: WHEY_SEALED_FILES, sourceFingerprint: (report) => report.source?.semantic_fingerprint, validate: validateWhey }),
+  "jons-supplements": profile({ key: "jons-supplements", retailer: Object.freeze({ id: "10", name: "Jon's Supplements", slug: "jon-s-supplements" }), postflightProfile: "jons-supplements", approvedMappingCount: 506, sourceDirectory: "jons-offer-refresh", artifactPrefix: "jons-offer-refresh", reconciliationFile: "jons-reconciliation-dry-run.json", contractName: "jons-automation-review-source-v1", workflow: ".github/workflows/jons-offer-refresh.yml", workflowName: "Jon's Offer Refresh", reviewType: "source-missing", validateCapture: validateJonsCapture, validate: validateJons }),
+  "six-pack-supplements": profile({ key: "six-pack-supplements", retailer: Object.freeze({ id: "11", name: "6 Pack Supplements", slug: "6-pack-supplements" }), postflightProfile: "six-pack-supplements", approvedMappingCount: 506, sourceDirectory: "six-pack-offer-refresh", artifactPrefix: "six-pack-offer-refresh", reconciliationFile: "six-pack-reconciliation-dry-run.json", contractName: "six-pack-automation-review-source-v1", workflow: ".github/workflows/six-pack-offer-refresh.yml", workflowName: "6 Pack Supplements Offer Refresh", reviewType: "mixed-policy", captureFiles: SIX_PACK_CAPTURE_FILES, sealedFiles: SIX_PACK_SEALED_FILES, sourceFingerprint: (report) => report.source_snapshot_fingerprint, captureTimestamp: (source) => source.report.source_captured_at, validateCapture: validateSixPackCapture, validate: validateSixPack, validateChangedRows: validateSixPackChangedRows, reviewCard: sixPackReviewCard, matchesActiveReview: sixPackMatchesActiveReview }),
 });
 
 function profileFor(value = "fit-house", invariant = (condition, message) => { if (!condition) throw new Error(message); }) {

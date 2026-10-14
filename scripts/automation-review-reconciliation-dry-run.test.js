@@ -18,6 +18,7 @@ const {
   buildManifestRows: buildFitHouseManifestRows,
   buildOutput: buildFitHouseOutput,
   buildSourceContract: buildFitHouseSourceContract,
+  profileFor,
   verifySourceContract: verifyFitHouseSourceContract,
 } = require("./shared-retailer-automation-review-source");
 
@@ -696,6 +697,79 @@ test("10 Reps source adapter accepts safe executable stock changes alongside iso
   report.verification_offer_ids.push(stockChangeIds[0]);
   writeJson(reportPath, report);
   assert.throws(() => buildFitHouseSourceContract(fixture.directory, env, "10-reps"), /changed and verified scopes overlap/);
+});
+
+test("10 Reps source adapter binds executable rows with source-missing and classifier-isolated MASS_OOS reviews", () => {
+  const fixture = writeTenRepsFixture();
+  const reportPath = path.join(fixture.directory, "production-dry-run.json");
+  const diagnosticPath = path.join(fixture.directory, "production-preflight-diagnostic.json");
+  const report = JSON.parse(fs.readFileSync(reportPath, "utf8"));
+  const diagnostic = JSON.parse(fs.readFileSync(diagnosticPath, "utf8"));
+  const baselineByOffer = new Map(fixture.baselineRows.map((row) => [row.offer_id, row]));
+  const newlyReviewedIds = report.execution_offer_ids.slice(0, 17);
+  const addedMissingIds = newlyReviewedIds.slice(0, 6);
+  const massOosIds = newlyReviewedIds.slice(6);
+  const executionIds = report.execution_offer_ids.slice(17);
+  const executableStockIds = executionIds.slice(0, 3);
+  const verificationIds = executionIds.slice(3);
+  const stockRow = (offerId, reason) => {
+    const row = baselineByOffer.get(offerId);
+    return {
+      offer_id: offerId,
+      retailer_product_id: row.mapping_id,
+      external_product_id: row.external_product_id,
+      external_variant_id: row.external_variant_id,
+      reason,
+      action: "UPDATE_STOCK",
+      changed_fields: { price: false, stock: true, url: false, blocked: false },
+      old_price: row.price,
+      new_price: row.price,
+      old_stock: true,
+      new_stock: false,
+    };
+  };
+  const executableStockRows = executableStockIds.map((offerId) => stockRow(offerId, null));
+  const massOosRows = massOosIds.map((offerId) => stockRow(offerId, "MASS_OOS"));
+  const addedMissingRows = addedMissingIds.map((offerId) => {
+    const row = baselineByOffer.get(offerId);
+    return { offer_id: offerId, reason: "SOURCE_VARIANT_MISSING", external_product_id: row.external_product_id, external_variant_id: row.external_variant_id };
+  });
+
+  report.execution_offer_ids = executionIds;
+  report.verification_offer_ids = verificationIds;
+  report.stock_change_offer_ids = executableStockIds;
+  report.executable_plan_count = 917;
+  report.review_rows = [...report.review_rows, ...addedMissingRows, ...massOosRows];
+  report.review_row_count = 33;
+  report.classification = { VERIFY_NO_CHANGE: 914, UPDATE_STOCK: 3 };
+  diagnostic.classifier_summary.scope.scope_row_ids = [...executionIds, ...massOosIds].sort((a, b) => Number(a) - Number(b));
+  diagnostic.classifier_summary.scope.reconciled_total = 928;
+  diagnostic.classifier_summary.action_counts = report.classification;
+  diagnostic.classifier_summary.changed_rows = executableStockRows;
+  diagnostic.classifier_summary.changed_row_ids = executableStockIds;
+  writeJson(reportPath, report);
+  writeJson(diagnosticPath, diagnostic);
+
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "38532219108", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
+  const contract = buildFitHouseSourceContract(fixture.directory, env, "10-reps");
+  assert.equal(contract.executable_plan_count, 917);
+  assert.equal(contract.review_row_count, 33);
+  assert.equal(contract.review_offer_ids.length, 33);
+  assert.equal(massOosIds.every((offerId) => contract.review_offer_ids.includes(offerId)), true);
+  assert.equal(contract.catalogue_writes, 0);
+});
+
+test("10 Reps mixed review profile reuses the existing identity and stock review card contracts", () => {
+  const profile = profileFor("10-reps");
+  const before = { price: "10.00", in_stock: true, url: "https://www.10reps.co.uk/product" };
+  const missing = profile.reviewCard(before, { action: "SOURCE_MISSING", new_price: "10.00", new_stock: true });
+  const stock = profile.reviewCard(before, { action: "UPDATE_STOCK", new_price: "10.00", new_stock: false });
+  assert.equal(missing.operationType, "MANUAL_REVIEW_IDENTITY");
+  assert.equal(missing.reasonCodes, "SOURCE_MISSING");
+  assert.equal(stock.operationType, "UPDATE_STOCK");
+  assert.equal(stock.reasonCodes, "STOCK_CHANGE");
+  assert.equal(profile.matchesActiveReview({ review_kind: "IDENTITY_CONFLICT", operation_type: "MANUAL_REVIEW_IDENTITY", reason_codes: ["SOURCE_MISSING"] }), true);
+  assert.equal(profile.matchesActiveReview({ review_kind: "COMMERCIAL_CHANGE", operation_type: "UPDATE_STOCK", reason_codes: ["STOCK_CHANGE"] }), true);
 });
 
 test("10 Reps adapter builds exactly 16 shared-publisher identity-review cards and zero catalogue writes", () => {

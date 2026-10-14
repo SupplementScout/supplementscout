@@ -1,10 +1,17 @@
 # SupplementScout SEO Execution Plan
 
-**Status date:** 9 October 2026<br>
+**Status date:** 14 October 2026<br>
 **Owner:** SupplementScout  
 **Scope:** Organic search traffic, indexation, internal discovery, search landing
 pages, structured data, measurement and authority building.  
 **Parent authority:** `docs/SupplementScout-Operating-Plan-2026-07-15.md`
+
+**14 October GYM HIGH owner decision:** the standing `owner_deferred` decision
+is ended. GYM HIGH may proceed through the existing SEO-15 source-release and
+indexability lifecycle after the active RA-STAB-02 incident is verified. This is
+not a public launch: no route, release-registry write or Stage 3 flag is changed
+by the decision alone, and all existing freshness, identity, anomaly, readiness
+and live-evidence gates remain binding.
 
 **9 October SEO-15 monitoring activation:** the variable-gated daily audit and
 authenticated read-only monitor are now active. Scheduled run `37948016384`
@@ -193,20 +200,23 @@ Console evidence and user value.
 | SEO-11 | P2 | Normalize brand identities before brand SEO pages. | `LIVE VERIFIED` | Case/alias splits such as `PER4M` and `Per4m`, plus `Unknown`, are reviewed; uncertain identities stay unchanged for owner review and only sufficiently covered brands may proceed to indexable pages. |
 | SEO-12 | P1 | Begin legitimate authority and backlink acquisition. | `PLANNED` | Priority retailer/brand/community outreach uses useful live resources; earned links and outcomes are recorded monthly; no bulk or paid-link scheme is used. |
 | SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `LIVE VERIFIED` | Protein Bars shipped in commit `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f`, production deployment `6048852742` succeeded, and public HTTP, canonical, robots, sitemap, schema, exact-pack, delivered-price and internal-link checks passed. |
-| SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `LIVE VERIFIED` | Applied Nutrition, Per4m, BioTech USA and eBay UK are individually gated and live verified; GYM HIGH remains owner-deferred and no dynamic page generator exists. |
-| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `IN PROGRESS` | Stage 1/P0 and approved Stage 2A producers are production verified. Read-only 30-day audit `37927290755` captured 813 series / 26,007 linked observations with zero writes. The shared fail-closed automatic inventory is production verified; Jon's is the only released source. The daily read-only audit and authenticated monitor are active and show 2 released candidates / 0 awaiting approval. Public Stage 3 remains off because the readiness gate is not met and still requires a separate owner decision. No new producer or history backfill is allowed. |
+| SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `LIVE VERIFIED` | Applied Nutrition, Per4m, BioTech USA and eBay UK are individually gated and live verified. The GYM HIGH owner defer ended on 14 October, but any new page still requires a fresh gate, route registration and the complete indexability lifecycle; no dynamic page generator exists. |
+| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `IN PROGRESS` | Stage 1/P0 and approved Stage 2A producers are production verified. The latest read-only audit has 813 series / 29,136 linked observations and zero writes. Jon's remains the only released source with 2 candidates. GYM HIGH is now owner-approved to proceed through the existing source-release gate after RA-STAB-02 verification. Public Stage 3 remains off because the unchanged 12-product / 30-offer / 4-retailer readiness gate is not met. No history backfill is allowed. |
 | SEO-16 | P1 | Launch guarded two-product comparison. | `LIVE VERIFIED` | Commit `7eec604` deployed the owner-approved lifecycle launch on 26 August 2026. Public base and pair checks passed HTTP, robots, canonical, exact-pack and delivered-price contracts; the homepage link and exactly one sitemap entry were verified. |
 | SEO-17 | P2 | Add owner-reviewed expert decision notes. | `PLANNED` | Expert judgement is clearly labelled and dated, verified facts retain provenance, and unsupported medical or formulation claims cannot publish. |
 
 ## 6. Current active task
 
 **Next executable task:** SEO-15 automatic Stage 3 monitoring is active and
-production verified. Let the existing daily read-only audit accumulate genuine
-candidates and review its ordinary scheduled evidence; the current `2 / 2 / 0`
+production verified. RA-STAB-02 is the temporary safety dependency; do not alter
+the production release registry until its ordinary verification completes. Then
+prepare the newly owner-approved GYM HIGH source through the existing bounded
+release mechanism and fresh evidence. Continue the daily read-only audit; the
+current `2 / 2 / 0`
 inventory is below the unchanged public readiness gate of 12 products, 30
 offers and 4 retailers. Keep `SEO15_STAGE3_ENABLED` off. Other enabled eligible
-sources remain read-only discovery only. Do not enable another producer or
-retailer release, backfill history, change product identity or weaken any gate.
+sources remain read-only discovery only. Do not backfill history, change product
+identity or weaken any gate.
 Public activation requires a separate owner decision after the gate passes;
 SEO-17 remains behind this release.
 
