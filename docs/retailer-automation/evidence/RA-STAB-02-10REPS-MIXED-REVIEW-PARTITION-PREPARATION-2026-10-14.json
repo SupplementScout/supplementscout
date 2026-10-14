@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "task": "RA-STAB-02",
-  "status": "CORRECTION_PREPARED",
+  "status": "MERGED_AWAITING_ORDINARY_VERIFICATION",
   "observed_at": "2026-10-14",
   "source_run": {
     "run_id": "38532219108",
@@ -22,6 +22,9 @@
     "executable_stock_changes": 3
   },
   "correction": {
+    "commit_sha": "64fe88249a4a835aa8b921d2ef58b6e10b03e89e",
+    "pull_request": 336,
+    "merge_commit_sha": "e30b8859731d81662ba15336d78bc2dbf1968cf7",
     "new_runtime": false,
     "new_importer": false,
     "new_publisher": false,
@@ -37,10 +40,30 @@
     "verify_quick": "PASS",
     "quality_gate_manifest_review": "UNCHANGED_TEST_FILE_INVENTORY"
   },
+  "ci_evidence": {
+    "pull_request_quality_gate_run_id": "38558203302",
+    "project_guardian_run_id": "38558203339",
+    "main_quality_gate_run_id": "38558511973",
+    "result": "PASS"
+  },
+  "post_merge_watchdog": {
+    "run_id": "38558515264",
+    "generated_at": "2026-10-14T11:43:17.540Z",
+    "result": "FAIL",
+    "database_writes": 0,
+    "failed_retailers": {
+      "10 Reps": [
+        "LATEST_ATTEMPT_NOT_SUCCESSFUL",
+        "LATEST_ORDINARY_ATTEMPT_INCOMPLETE",
+        "MONITORED_BACKLOG_GROWTH"
+      ],
+      "Simply Supplements": [
+        "MONITORED_BACKLOG_GROWTH"
+      ]
+    },
+    "interpretation": "OBSERVATION_BASELINE_NOT_POST_FIX_ACCEPTANCE"
+  },
   "remaining_evidence": [
-    "commit_sha",
-    "pull_request",
-    "required_ci",
     "ordinary_shared_schedule",
     "correlated_following_watchdog"
   ]
