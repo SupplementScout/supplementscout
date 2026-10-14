@@ -1,9 +1,27 @@
 # SupplementScout Operating Plan
 
-**Status date:** 13 October 2026<br>
+**Status date:** 14 October 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
+
+**14 October 2026 controlled execution checkpoint:** one post-closeout retailer
+incident is active as `RA-STAB-02`. Shared run `38532219108` failed closed before
+10 Reps apply because the existing Review Queue binder did not represent an
+otherwise valid mixed partition of `917` executable, `22` source-missing and
+`11` classifier-isolated `MASS_OOS` rows. The prepared correction extends the
+existing common profile contract and removes dead review-count configuration;
+it creates no new runtime or write path. RA-STAB-01 remains complete and RA-004
+remains blocked. Local retained-artifact validation and `verify:quick` pass;
+merge, CI, a fresh ordinary interval and correlated watchdog remain required.
+
+**14 October 2026 GYM HIGH owner decision:** the owner has ended the standing
+`owner_deferred` decision for GYM HIGH. This authorizes GYM HIGH to be evaluated
+and prepared through the existing SEO-15 source-release and indexability gates;
+it does not itself publish a route, enable the public Stage 3 flag, bypass the
+12-product / 30-offer / 4-retailer gate, or authorize an unreviewed production
+write. Implementation follows RA-STAB-02 verification and requires fresh bounded
+evidence and the existing guarded release mechanism.
 
 **13 October 2026 RA-STAB-01 ordinary observation closeout:** three consecutive
 ordinary scheduled intervals completed on 11–13 October for the affected Whey

@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "task": "RA-STAB-02",
+  "status": "CORRECTION_PREPARED",
+  "observed_at": "2026-10-14",
+  "source_run": {
+    "run_id": "38532219108",
+    "commit_sha": "fffd56b941556c846024f78c6ccbcc43fa4a52f7",
+    "workflow": "Shared Retailer Offer Refresh",
+    "job": "ten-reps-offer-refresh",
+    "failure_step": "Bind fresh 10 Reps Review Queue source",
+    "failure": "10 Reps preflight classifier scope drifted",
+    "apply_executed": false,
+    "database_writes": 0
+  },
+  "partition": {
+    "approved_offers": 950,
+    "executable_rows": 917,
+    "review_rows": 33,
+    "source_missing_rows": 22,
+    "mass_oos_rows": 11,
+    "executable_stock_changes": 3
+  },
+  "correction": {
+    "new_runtime": false,
+    "new_importer": false,
+    "new_publisher": false,
+    "new_executor": false,
+    "retailer_branch_in_shared_core": false,
+    "guardrail_weakened": false,
+    "dead_configuration_removed": ["maximumReviewCount"],
+    "catalogue_writes": 0
+  },
+  "local_evidence": {
+    "retained_artifact_contract": "PASS_917_EXECUTABLE_33_REVIEW_ZERO_WRITES",
+    "focused_test": "PASS",
+    "verify_quick": "PASS",
+    "quality_gate_manifest_review": "UNCHANGED_TEST_FILE_INVENTORY"
+  },
+  "remaining_evidence": [
+    "commit_sha",
+    "pull_request",
+    "required_ci",
+    "ordinary_shared_schedule",
+    "correlated_following_watchdog"
+  ]
+}
