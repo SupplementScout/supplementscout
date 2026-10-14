@@ -1,7 +1,7 @@
 # WheyWise Competitive Intelligence Analysis
 
 _Original audit: 17 July 2026_<br>
-_Current verified comparison: 17 August 2026_
+_Current verified comparison: 14 October 2026_
 
 ## Purpose
 
@@ -9,7 +9,46 @@ This document records competitive intelligence about wheywise.co.uk and converts
 
 This is a supporting document. It does not replace the SupplementScout Operating Plan. The Operating Plan remains the source of truth for priorities and execution.
 
-## Current verified comparison - 17 August 2026
+## Current verified comparison - 14 October 2026
+
+This read-only review counted both live public sitemaps and inspected the
+current home and commercial entry pages. Sitemap counts measure published URLs,
+not Google indexation, rankings or traffic. No unsupported traffic estimate is
+introduced.
+
+| Measure | SupplementScout | WheyWise | Change since 17 August |
+|---|---:|---:|---|
+| Total sitemap URLs | 1,322 | 1,423 | SupplementScout added 232 URLs while WheyWise added 40. The footprint gap narrowed from 293 to 101 URLs. |
+| Product-like sitemap URLs | 1,295 `/product/` | 694 `/product/` plus 480 `/vitamin/` | SupplementScout now has 121 more published item pages. Raw catalogue-page breadth is no longer the acquisition bottleneck. |
+| Non-product sitemap URLs | 27 | 249 | WheyWise retains a 222-URL lead in query, editorial and decision-support entry points. |
+| Major non-product groups | Controlled category, comparison, deals, methodology, brand and retailer hubs | 107 blog, 64 `/compare/`, 42 protein-review, nine vitamin-comparison, four tool, four supplement-review, three supplement-comparison and two vitamin-review URLs | Since August, WheyWise added 28 blog, 34 compare and 26 protein-review URLs. This is its clearest current growth move. |
+| Current public scale claims | 1,295 active catalogue products and 12 represented UK retailers | The home page says 773 protein powders and 10 retailers, while other copy on the same page says more than 1,900 products, 182+ brands and later 43 brands | WheyWise's count consistency remains weaker; SupplementScout should not copy these claims or infer traffic from them. |
+| Commercial decision surface | Exact-variant `/deals` currently reports 107 products, 515 qualifying offers and eight retailers, ranked by known delivered price | Protein, supplement and vitamin comparisons, finder, calculator, price trends, pair comparison, discount codes and brand-versus-brand pages | WheyWise has broader acquisition and tool coverage; SupplementScout has the stronger exact-identity and delivered-cost evidence boundary. |
+
+### Current competitive judgement
+
+The raw public-catalogue gap has reversed, but the useful non-product search
+surface has not. WheyWise is concentrating on commercial query coverage,
+editorial velocity and interactive decision support. SupplementScout's correct
+response remains the existing sequence: finish the identity-proven SEO-15
+price-drop capability, then add bounded SEO-17 decision notes where they improve
+a real choice. A mass page generator, copied popularity signals or weaker
+identity gates would increase risk without addressing the evidence-backed gap.
+
+The current SupplementScout advantage is more defensible than in August:
+current public counts come from the canonical catalogue, `/deals` requires the
+same exact variant and pack across recently checked retailers, and displayed
+totals include known delivery. Preserve those contracts while improving the
+number and quality of entry points. The public Stage 3 price-drop section must
+still remain off until its unchanged readiness and owner-release gates pass.
+
+The monthly review therefore does not reorder the roadmap. `SEO-15` remains the
+single active SEO implementation, `SEO-17` remains next, and weekly GSC/GA4 is
+still the only defensible traffic evidence for SupplementScout. Retailer
+stabilization and its production-evidence gates retain priority over either
+implementation.
+
+## Previous verified comparison - 17 August 2026
 
 This read-only spot check compared both public sitemaps and current public
 WheyWise acquisition pages. Sitemap counts describe published URLs, not
@@ -762,3 +801,21 @@ Review monthly:
   SEO-15, SEO-16 and SEO-17.
 - The current multi-retailer checkpoint is 169 products, leaving 81 to 250.
   Outbound outreach remains paused.
+
+### 14 October 2026
+
+- Public sitemap counts are now 1,322 for SupplementScout and 1,423 for
+  WheyWise. The total footprint gap narrowed from 293 to 101 URLs.
+- SupplementScout now exposes 1,295 product URLs versus 1,174 WheyWise
+  product-plus-vitamin URLs. Catalogue-page breadth is no longer the primary
+  gap.
+- WheyWise retains the material acquisition lead outside item pages: 249
+  non-product URLs versus 27, driven especially by 107 blog, 64 compare and 42
+  protein-review URLs.
+- WheyWise's current home page still presents mutually inconsistent scale
+  claims. SupplementScout will retain canonical counts, exact identity, known
+  delivered-price ranking and fail-closed publication instead of matching
+  claim volume.
+- The new evidence reinforces the binding order rather than changing it:
+  complete SEO-15, then SEO-17. Do not create a broad page generator or start a
+  second SEO implementation.
