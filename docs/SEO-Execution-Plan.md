@@ -220,11 +220,16 @@ identity or weaken any gate.
 Public activation requires a separate owner decision after the gate passes;
 SEO-17 remains behind this release.
 
-The latest weekly GSC/GA4 read is run `37925170969` for 30 September-6 October:
-1,535 final impressions, 15 clicks and all seven dates present. GA4 has 59
-Organic Search sessions, but 45 belong to one `search.google.com / referral`
-user; use 14 sessions as the conservative external signal. Zero retailer clicks
-and zero Better-value clicks mean no conversion-uplift claim.
+The latest weekly GSC/GA4 read is scheduled run `38289200062` for 5-11 October:
+1,479 final impressions and 6 clicks across the six settled dates. The 11
+October row remains non-final (`220` impressions / `1` click), so it is excluded
+from those headline totals. GA4 has 82 Organic Search sessions, but 70 belong to
+one `search.google.com / referral` user; use 12 sessions as the conservative
+external signal. One retailer click and zero Better-value clicks do not support
+a conversion-uplift claim. Against 28 September-4 October, final GSC impressions
+rose from 1,234 to 1,479 while clicks fell from 13 to 6, CTR fell from 1.05% to
+0.41% and average position moved from 34.24 to 38.95. Keep measurement running;
+do not change the SEO-15 then SEO-17 sequence from this small weekly sample.
 
 The SEO-15 technical plan remains the bounded design and evidence reference;
 this execution ledger remains the sole SEO status and ordering authority.
@@ -346,6 +351,7 @@ invent a date to silence the Guardian.
 
 | Date | Type | Evidence | State |
 |---|---|---|---|
+| 2026-10-12 | Weekly GSC/GA4 | Authenticated scheduled read-only workflow run `38289200062`, artifact `11764014630` (GitHub artifact digest SHA-256 `597b3f16c5dec6c2e3eebec9fd20230ec24f1237e4a71e8a6aeb109ea914ae64`; report SHA-256 `30dbea289d20934ec681fe16e5ba80cf19f813324abf7cdc7898b78d89ac351b`), covering 2026-10-05 through 2026-10-11. GSC final totals: 1,479 impressions, 6 clicks, 0.41% CTR and position 38.95 across 5-10 October; 11 October remained non-final with 220 impressions/1 click and is excluded from headline totals. GA4: 82 Organic Search sessions/7 users, including 70 sessions from one `search.google.com / referral` user; conservative external signal 12 sessions. One retailer click; Better-value 7 impressions/0 clicks. Sitemap 1,322 submitted URLs and 0 warnings/errors; URL Inspection 6/6 without error. Versus the previous full weekly report, impressions increased but clicks, CTR and average position worsened; no growth or conversion-uplift claim is supported. | `CAPTURED; ONE GSC DATE NON-FINAL; TRAFFIC CONTAMINATION ISOLATED; NO GROWTH CLAIM` |
 | 2026-10-09 | Weekly GSC/GA4 | Authenticated read-only workflow run `37925170969`, artifact `11613338938`, report SHA-256 `698e8c154f992de529b4a8aeb1276a22ee16f49a1ecf5a4ec955f4ec20a37245`, covering 2026-09-30 through 2026-10-06. GSC: 1,535 impressions, 15 clicks, 0.98% CTR, position 36.59; all seven dates final and present. GA4: 59 Organic Search sessions/11 users, with 45 sessions from one `search.google.com / referral` user; conservative external signal 14 sessions. Zero retailer clicks; Better-value 8 impressions/0 clicks. Sitemap 1,322 submitted URLs and 0 warnings/errors; URL Inspection 6/6 without error. | `CAPTURED; TRAFFIC CONTAMINATION ISOLATED; NO CONVERSION CLAIM` |
 | 2026-09-10 | Weekly GSC/GA4 | Authenticated read-only workflow run `34491056108`, artifact `10157749027`, report SHA-256 `846ff030418a4460e288f0b6ea1fbd774b914d62f31d07e104bee39974f42d3a`, covering 2026-09-02 through 2026-09-08. GSC settled at 1,276 impressions, 2 clicks, 0.16% CTR and position 54.54; all seven dates have final activity, final/all totals agree and no incomplete date is reported. GA4 reports 71 Organic Search sessions/4 users, but 67 sessions belong to one `search.google.com / referral` user; the remaining Google/Bing rows contain 4 sessions. Seven retailer clicks and the one-user Better-value funnel lack source attribution. Zero Google configuration writes. | `CAPTURED; TRAFFIC CONTAMINATION ISOLATED; NO GROWTH CLAIM` |
 | 2026-09-03 | Better-value measurement validation | Authenticated read-only workflow run `33743176950` on commit `562ed4b`, artifact `9888548236` (ZIP SHA-256 `118b1122401fc307a99be1be5625d27140f4cc205fc6fbff0446b266e3edc118`; report SHA-256 `bb6bacbef5cd39798efc2d6b47c9d3b843bf2f213b147bf965da041e19139947`). Schema v3 successfully queried the existing Better-value impression/select events and the closed select-to-retailer-click user funnel with a 30-minute downstream window. The report covers 2026-08-27 through 2026-09-02 and correctly contains zero Better-value observations because the period ends before the 3 September release; this validates the reporting contract only and is not post-launch CTR evidence. URL Inspection completed 6/6 and the sitemap returned 0 warnings and 0 errors. | `VALIDATED; KPI PENDING POST-LAUNCH DATA` |
