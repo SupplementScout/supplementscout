@@ -40,8 +40,11 @@ existing identity and stock review-card contracts, and removes the unused
 `maximumReviewCount` profile fields. It adds no importer, publisher, executor,
 retailer branch in shared core, database write or guardrail exception. The exact
 retained production artifact now binds locally as `917 + 33`, with zero
-catalogue writes; the focused suite and `verify:quick` pass. Merge, CI, one fresh
-ordinary shared run and a following correlated watchdog remain required.
+catalogue writes. PR `#336` merged as `e30b8859731d81662ba15336d78bc2dbf1968cf7`;
+its PR and main full quality gates passed. Scheduled watchdog `38558515264` then
+honestly retained the failed 10 Reps attempt and separately reported Simply
+Supplements monitored-backlog growth, with zero writes. One fresh ordinary shared
+run and a following correlated watchdog remain required.
 Evidence:
 [`evidence/RA-STAB-02-10REPS-MIXED-REVIEW-PARTITION-PREPARATION-2026-10-14.json`](evidence/RA-STAB-02-10REPS-MIXED-REVIEW-PARTITION-PREPARATION-2026-10-14.json).
 
@@ -136,7 +139,13 @@ migration activation and direct database writes.
 postflight and idempotency were skipped for 10 Reps. The retained artifact proves
 `917` executable rows, `22` source-missing reviews, `11` `MASS_OOS` reviews and
 zero executed plans. The prepared common correction accepts that exact artifact
-with zero catalogue writes. Local focused tests and `npm run verify:quick` pass.
+with zero catalogue writes. Local focused tests, `npm run verify:quick` and
+`npm run verify:full` pass. PR `#336` and main CI passed. Scheduled watchdog
+`38558515264` made zero writes and failed for the already-known incomplete 10
+Reps run plus separate Simply Supplements monitored-backlog growth; it is an
+observation baseline, not post-fix 10 Reps acceptance. Simply remains inside this
+single observation task until a fresh ordinary result proves whether the growth
+is transient or requires later separate classification.
 
 **Next bounded step:** merge only after CI passes, then observe the next ordinary
 shared schedule and its following watchdog. Do not manufacture verification with
