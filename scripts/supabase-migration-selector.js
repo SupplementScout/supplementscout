@@ -133,6 +133,8 @@ const CONTRACTS = Object.freeze({
       "052e795f1d9d3a47783207fe9f80c8e3573d1ca81226090a09436db27d66ef6c",
     appliedExcluded: APPLIED_EXCLUSIONS.STAGING,
     excluded: Object.freeze({
+      "20261015130000_release_gym_high_seo15_stage3_source.sql":
+        "ccceccaffb4fc725d3d0d00515d5be6f2ede43aa65077d7abd97fc2e3b57b235",
       "20261009120000_add_compact_other_retailer_fingerprint.sql":
         "b365d247777650aba6333399d4173ecb369d85a1465074bb6961c23b94f2ac84",
       "20261008200000_consolidate_shared_executor_state_reads.sql":

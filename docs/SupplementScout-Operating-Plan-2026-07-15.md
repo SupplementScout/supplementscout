@@ -5,6 +5,20 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
+**15 October 2026 GYM HIGH source-release preparation:** fresh read-only
+production evidence confirms exactly `50` mature, non-quarantined GYM HIGH
+series, `1,966` proven observations, `26` currently eligible series and no
+threshold-qualified drop. The exact production-only migration reuses the
+existing producer row, source-release registry and candidate-inventory RPC; it
+adds no route, table, RPC, importer or executor. Focused tests and the quick and
+full quality gates passed. A production-schema transaction rehearsal passed and
+rolled back with catalogue counts unchanged at
+`1337/3632/3758/3758/34823`; no production write was committed. The package is
+therefore ready for review/merge and a guarded apply from merged code, followed
+by an independent read-only audit. Public Stage 3 remains off and its unchanged
+`12 / 30 / 4` readiness gate remains binding. See the
+[release evidence](rollouts/seo15-gym-high-source-release-2026-10-15.md).
+
 **15 October 2026 controlled execution checkpoint:** RA-STAB-02 is
 `VERIFIED_COMPLETE`. Natural shared run `38700695612` on merge commit
 `94c7f2e12971f292037a49f1b7fd6f0c167eeb01` passed the complete 10 Reps path:
@@ -23,10 +37,11 @@ the [RA-STAB-02 closeout evidence](retailer-automation/evidence/RA-STAB-02-ORDIN
 and prepared through the existing SEO-15 source-release and indexability gates;
 it does not itself publish a route, enable the public Stage 3 flag, bypass the
 12-product / 30-offer / 4-retailer gate, or authorize an unreviewed production
-write. RA-STAB-02 verification is now complete. The next bounded implementation
-is an exact GYM HIGH source-release migration through the existing guarded
-mechanism, with fresh preflight, rollback rehearsal and production readback; no
-public route or Stage 3 activation is implied.
+write. RA-STAB-02 verification is now complete. The exact GYM HIGH source-release
+migration has passed fresh preflight, local gates and a production rollback
+rehearsal; the remaining bounded steps are review/merge, guarded apply and
+independent production readback. No public route or Stage 3 activation is
+implied.
 
 **13 October 2026 RA-STAB-01 ordinary observation closeout:** three consecutive
 ordinary scheduled intervals completed on 11–13 October for the affected Whey

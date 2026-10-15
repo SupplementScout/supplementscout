@@ -10,6 +10,8 @@ const image = "postgres:17-alpine";
 const migration = path.join(root, "supabase/migrations/20260824160000_add_identity_proven_price_observations.sql");
 const stage3Migration = path.join(root, "supabase/migrations/20261009140000_add_seo15_bounded_stage3_evidence.sql");
 const automaticCandidatesMigration = path.join(root, "supabase/migrations/20261009160000_add_seo15_automatic_candidate_inventory.sql");
+const gymHighSourceReleaseMigration = path.join(root, "supabase/migrations/20261015130000_release_gym_high_seo15_stage3_source.sql");
+const gymHighSourceReleaseRollback = path.join(root, "supabase/rollbacks/20261015130000_release_gym_high_seo15_stage3_source.sql");
 const rollback = path.join(root, "supabase/rollbacks/20260824160000_add_identity_proven_price_observations.sql");
 const stage2Setup = path.join(root, "supabase/test/product_variants_stage2_migration_test.sql");
 const prerequisites = [
@@ -329,12 +331,17 @@ test("bounded Stage 3 evidence function exposes only exact approved Jon's rows w
       );
       create table public.price_observation_producers(
         retailer_id bigint not null,retailer_slug text not null,source_importer text not null,approved_scope text not null,
-        enabled boolean not null,public_use text not null,
+        technically_capable boolean not null,enabled boolean not null,public_use text not null,terms_mode text not null,
+        updated_at timestamptz not null default clock_timestamp(),
         primary key(retailer_id,source_importer)
       );
       create or replace function public.retailer_catalogue_actual_database_target()
       returns jsonb language sql stable security definer set search_path=pg_catalog,public,pg_temp
-      as $target$ select jsonb_build_object('target_environment','PRODUCTION') $target$;
+      as $target$ select jsonb_build_object(
+        'target_environment','PRODUCTION',
+        'project_ref','aftboxmrdgyhizicfsfu',
+        'database_identity','supplementscout-production:aftboxmrdgyhizicfsfu'
+      ) $target$;
       create or replace function public.retailer_catalogue_business_counts()
       returns jsonb language sql stable set search_path=pg_catalog,public,pg_temp
       as $counts$ select jsonb_build_object(
@@ -343,25 +350,35 @@ test("bounded Stage 3 evidence function exposes only exact approved Jon's rows w
         'series',(select count(*) from public.price_identity_series)
       ) $counts$;
       insert into public.retailers(id,name,slug) values
-        (9,'Fit House','fit-house'),(10,'Jon''s Supplements','jon-s-supplements');
+        (1,'GYM HIGH','gym-high'),(9,'Fit House','fit-house'),(10,'Jon''s Supplements','jon-s-supplements');
       insert into public.products(id,name,slug,brand,category,product_format,is_active) values
         (7101,'HR Labs Defib Lemon','hr-labs-defib-lemon','HR Labs','Pre Workout','powder',true),
         (7102,'HR Labs Defib Jelly Bean','hr-labs-defib-jelly-bean','HR Labs','Pre Workout','powder',true),
         (7103,'Future Jon''s Candidate','future-jons-candidate','Example','Creatine','powder',true),
         (7104,'Fit House Candidate','fit-house-candidate','Example','Creatine','powder',true);
+      insert into public.products(id,name,slug,brand,category,product_format,is_active)
+      select 8100+g,'GYM HIGH Evidence '||g,'gym-high-evidence-'||g,'GYM HIGH','Creatine','powder',true
+      from generate_series(1,50) g;
       insert into public.product_variants(id,product_id,is_active,pack_count,size_value,size_unit,product_format) values
         (7201,7101,true,1,420,'g','powder'),(7202,7102,true,1,420,'g','powder'),
         (7203,7103,true,1,500,'g','powder'),(7204,7104,true,1,500,'g','powder');
+      insert into public.product_variants(id,product_id,is_active,pack_count,size_value,size_unit,product_format)
+      select 8200+g,8100+g,true,1,500,'g','powder' from generate_series(1,50) g;
       insert into public.retailer_products(id,retailer_id,product_id,product_variant_id,external_product_id,external_variant_id,external_gtin) values
         (7301,10,7101,7201,'jons-1339','lemon','05000000001339'),
         (7302,10,7102,7202,'jons-1337','jelly','05000000001337'),
         (7303,10,7103,7203,'jons-1401','default','05000000001401'),
         (7304,9,7104,7204,'fit-991','default','05000000000991');
+      insert into public.retailer_products(id,retailer_id,product_id,product_variant_id,external_product_id,external_variant_id)
+      select 8300+g,1,8100+g,8200+g,'gym-'||g,'gym-variant-'||g from generate_series(1,50) g;
       insert into public.offers(id,product_id,retailer_id,retailer_product_id,product_variant_id,price,shipping_cost,total_price,in_stock,url,last_checked_at) values
         (1339,7101,10,7301,7201,27.48,0,27.48,true,'https://jons.example/1339',clock_timestamp()-interval '1 hour'),
         (1337,7102,10,7302,7202,27.48,0,27.48,true,'https://jons.example/1337',clock_timestamp()-interval '1 hour'),
         (1401,7103,10,7303,7203,27.48,0,27.48,true,'https://jons.example/1401',clock_timestamp()-interval '1 hour'),
         (991,7104,9,7304,7204,27.48,0,27.48,true,'https://fit.example/991',clock_timestamp()-interval '1 hour');
+      insert into public.offers(id,product_id,retailer_id,retailer_product_id,product_variant_id,price,shipping_cost,total_price,in_stock,url,last_checked_at)
+      select 8400+g,8100+g,1,8300+g,8200+g,20,0,20,true,'https://gym.example/'||g,clock_timestamp()-interval '1 hour'
+      from generate_series(1,50) g;
       insert into public.price_identity_series(
         id,offer_id,retailer_id,product_id,product_variant_id,retailer_product_id,
         external_product_id,external_variant_id,gtin,size_value,size_unit,pack_count,product_format,source_importer
@@ -370,9 +387,18 @@ test("bounded Stage 3 evidence function exposes only exact approved Jon's rows w
         (7402,1337,10,7102,7202,7302,'jons-1337','jelly','05000000001337',420,'g',1,'powder','retailer_offer_mixed_batch'),
         (7403,1401,10,7103,7203,7303,'jons-1401','default','05000000001401',500,'g',1,'powder','retailer_offer_mixed_batch'),
         (7404,991,9,7104,7204,7304,'fit-991','default','05000000000991',500,'g',1,'powder','retailer_offer_mixed_batch');
-      insert into public.price_observation_producers(retailer_id,retailer_slug,source_importer,approved_scope,enabled,public_use) values
-        (10,'jon-s-supplements','retailer_offer_mixed_batch','reviewed-current-sync',true,'eligible-after-separate-approval'),
-        (9,'fit-house','retailer_offer_mixed_batch','approved-286',true,'eligible-after-separate-approval');
+      insert into public.price_identity_series(
+        id,offer_id,retailer_id,product_id,product_variant_id,retailer_product_id,
+        external_product_id,external_variant_id,size_value,size_unit,pack_count,product_format,source_importer
+      )
+      select 8500+g,8400+g,1,8100+g,8200+g,8300+g,'gym-'||g,'gym-variant-'||g,500,'g',1,'powder','gym-high-reviewed-full-catalogue-v1'
+      from generate_series(1,50) g;
+      insert into public.price_observation_producers(
+        retailer_id,retailer_slug,source_importer,approved_scope,technically_capable,enabled,public_use,terms_mode
+      ) values
+        (1,'gym-high','gym-high-reviewed-full-catalogue-v1','reviewed-66',true,true,'owner-deferred','standard-single-purchase-only'),
+        (10,'jon-s-supplements','retailer_offer_mixed_batch','reviewed-current-sync',true,true,'eligible-after-separate-approval','standard-single-purchase-only'),
+        (9,'fit-house','retailer_offer_mixed_batch','approved-286',true,true,'eligible-after-separate-approval','standard-single-purchase-only');
       do $seed$
       declare v_offer bigint; v_series bigint; v_day date;
       begin
@@ -387,6 +413,12 @@ test("bounded Stage 3 evidence function exposes only exact approved Jon's rows w
               values(v_offer,v_series,27.48,0,27.48,true,v_day::timestamptz+interval '10 hours',v_day,'proven');
           end loop;
         end loop;
+        insert into public.price_history(
+          offer_id,identity_series_id,price,shipping_cost,total_price,in_stock,checked_at,observation_date,evidence_status
+        )
+        select 8400+g,8500+g,20,0,20,true,
+          (current_date-(3-d))::timestamptz+interval '10 hours',current_date-(3-d),'proven'
+        from generate_series(1,50) g cross join generate_series(1,3) d;
       end
       $seed$;`), "seed bounded Stage 3 evidence");
     requireSuccess(psqlFile(container, database, stage3Migration), "apply bounded Stage 3 evidence migration");
@@ -425,6 +457,26 @@ test("bounded Stage 3 evidence function exposes only exact approved Jon's rows w
     assert.equal(json(container, database, "select has_function_privilege('anon','public.get_seo15_stage3_candidate_inventory()','execute')::text::jsonb"), false);
     assert.equal(json(container, database, "select has_table_privilege('service_role','public.seo15_stage3_retailer_releases','select')::text::jsonb"), false);
     requireFailure(psql(container, database, "set role anon; select public.get_seo15_stage3_candidate_inventory();"), "public automatic Stage 3 inventory access", /permission denied/i);
+
+    const releaseBefore = json(container, database, "select public.retailer_catalogue_business_counts()::text");
+    requireSuccess(psqlFile(container, database, gymHighSourceReleaseMigration), "apply GYM HIGH Stage 3 source release migration");
+    const releasedInventory = json(container, database, "select public.get_seo15_stage3_candidate_inventory()::text");
+    assert.deepEqual(json(container, database, "select public.retailer_catalogue_business_counts()::text"), releaseBefore);
+    assert.deepEqual(releasedInventory.candidates, inventory.candidates);
+    assert.equal(releasedInventory.summary.candidate_count, inventory.summary.candidate_count);
+    assert.equal(releasedInventory.summary.released_candidate_count, inventory.summary.released_candidate_count);
+    assert.equal(releasedInventory.summary.awaiting_retailer_approval_count, inventory.summary.awaiting_retailer_approval_count);
+    assert.equal(releasedInventory.summary.released_retailer_count, 2);
+    assert.equal(json(container, database, "select (public_use='eligible-after-separate-approval')::text::jsonb from public.price_observation_producers where retailer_id=1 and source_importer='gym-high-reviewed-full-catalogue-v1'"), true);
+    assert.equal(json(container, database, "select count(*)::text::jsonb from public.seo15_stage3_retailer_releases where retailer_id=1 and source_importer='gym-high-reviewed-full-catalogue-v1' and owner_scope='gym-high-stage3-automatic-candidates-v1' and release_enabled"), 1);
+
+    requireSuccess(psqlFile(container, database, gymHighSourceReleaseRollback), "rollback GYM HIGH Stage 3 source release migration");
+    const rolledBackInventory = json(container, database, "select public.get_seo15_stage3_candidate_inventory()::text");
+    assert.deepEqual(json(container, database, "select public.retailer_catalogue_business_counts()::text"), releaseBefore);
+    assert.deepEqual(rolledBackInventory.candidates, inventory.candidates);
+    assert.equal(rolledBackInventory.summary.released_retailer_count, 1);
+    assert.equal(json(container, database, "select (public_use='owner-deferred')::text::jsonb from public.price_observation_producers where retailer_id=1 and source_importer='gym-high-reviewed-full-catalogue-v1'"), true);
+    assert.equal(json(container, database, "select count(*)::text::jsonb from public.seo15_stage3_retailer_releases where retailer_id=1"), 0);
   } catch (error) {
     primaryError = error;
     throw error;

@@ -181,6 +181,8 @@ const TIMESTAMP_OPERATOR_SHA256 = "16d92f7e0b404b81bcbda62bfb512ff6690bb78b36b7e
 const REVIEW_QUEUE_PUBLICATION_MIGRATION = "20260831110000_create_automation_review_queue_publication_rpc.sql";
 const REVIEW_QUEUE_PUBLICATION_SHA256 = "8680e3303a8b4b22025f85af83a59a8dafbebc91e97719e423af8dff79f28409";
 const SEO15_INVENTORY_OPTIMIZATION_MIGRATION = "20261009180000_optimize_seo15_candidate_inventory.sql";
+const SEO15_GYM_HIGH_SOURCE_RELEASE_MIGRATION = "20261015130000_release_gym_high_seo15_stage3_source.sql";
+const SEO15_GYM_HIGH_SOURCE_RELEASE_SHA256 = "ccceccaffb4fc725d3d0d00515d5be6f2ede43aa65077d7abd97fc2e3b57b235";
 const NUTRITION_VARIANT_PROVENANCE_MIGRATION = "20260911120000_add_nutrition_candidate_variant_provenance.sql";
 const NUTRITION_VARIANT_PROVENANCE_SHA256 = "62a7a5dd812d4559889d7392217095b67841d1d6db37e5519ee6e1593bc207cb";
 const NUTRITION_PREWORKOUT_FACTS_MIGRATION = "20260911130000_add_nutrition_candidate_preworkout_facts.sql";
@@ -462,7 +464,10 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
 
 test("production records the optimized SEO-15 inventory migration as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: SEO15_GYM_HIGH_SOURCE_RELEASE_MIGRATION,
+    sha256: SEO15_GYM_HIGH_SOURCE_RELEASE_SHA256,
+  }]);
   assert.deepEqual(contract.appliedExcluded, [
     "20260929133000_extend_expired_sequential_plan_close.sql",
     "20261004120000_add_central_control_plan_readback.sql",
@@ -587,7 +592,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACT.ledgerFingerprint);
 });
 
-test("production accepts ledger 236 with the optimized SEO-15 inventory applied", () => {
+test("production accepts ledger 236 with the GYM HIGH SEO-15 release pending", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   for (const filename of contract.appliedExcluded) excluded.delete(filename);
@@ -616,7 +621,7 @@ test("production accepts ledger 236 with the optimized SEO-15 inventory applied"
   });
   assert.equal(result.ledger_count, 236);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 236);
+  assert.equal(result.selected_files.length, 237);
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
   assert.ok(result.excluded_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
@@ -627,10 +632,12 @@ test("production accepts ledger 236 with the optimized SEO-15 inventory applied"
   assert.ok(result.selected_files.includes("20261006170000_add_automation_review_owner_decision_validation.sql"));
   assert.ok(result.selected_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
   assert.ok(result.excluded_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.deepEqual(result.pending_files, [SEO15_GYM_HIGH_SOURCE_RELEASE_MIGRATION]);
+  assert.equal(result.pending_file, SEO15_GYM_HIGH_SOURCE_RELEASE_MIGRATION);
+  assert.equal(result.pending_sha256, SEO15_GYM_HIGH_SOURCE_RELEASE_SHA256);
+  assert.deepEqual(result.pending_sha256s, {
+    [SEO15_GYM_HIGH_SOURCE_RELEASE_MIGRATION]: SEO15_GYM_HIGH_SOURCE_RELEASE_SHA256,
+  });
   assert.ok(result.selected_files.includes("20261009120000_add_compact_other_retailer_fingerprint.sql"));
   assert.ok(result.excluded_files.includes("20261009120000_add_compact_other_retailer_fingerprint.sql"));
   assert.ok(result.selected_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
@@ -721,6 +728,7 @@ test("runtime production artifacts bind the same migration ledger as the product
   assert.equal(binding.versions.length, CONTRACTS.PRODUCTION.ledgerCount);
   assert.equal(binding.fingerprint, CONTRACTS.PRODUCTION.ledgerFingerprint);
   assert.ok(binding.versions.includes("20260929133000_extend_expired_sequential_plan_close"));
+  assert.ok(!binding.versions.includes(SEO15_GYM_HIGH_SOURCE_RELEASE_MIGRATION.slice(0, -4)));
 });
 
 test("runtime staging artifacts bind the same migration ledger as the staging selector", () => {
@@ -733,12 +741,20 @@ test("runtime staging artifacts bind the same migration ledger as the staging se
   for (const { filename } of CONTRACTS.STAGING.pending) {
     assert.ok(!binding.versions.includes(filename.slice(0, -4)));
   }
+  assert.equal(
+    CONTRACTS.STAGING.excluded[SEO15_GYM_HIGH_SOURCE_RELEASE_MIGRATION],
+    SEO15_GYM_HIGH_SOURCE_RELEASE_SHA256,
+  );
+  assert.ok(!binding.versions.includes(SEO15_GYM_HIGH_SOURCE_RELEASE_MIGRATION.slice(0, -4)));
 });
 
 test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.equal(Object.keys(contract.excluded).length, 24);
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: SEO15_GYM_HIGH_SOURCE_RELEASE_MIGRATION,
+    sha256: SEO15_GYM_HIGH_SOURCE_RELEASE_SHA256,
+  }]);
   assert.equal(
     contract.excluded["20261009120000_add_compact_other_retailer_fingerprint.sql"],
     "b365d247777650aba6333399d4173ecb369d85a1465074bb6961c23b94f2ac84",
