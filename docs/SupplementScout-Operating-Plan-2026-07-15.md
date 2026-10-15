@@ -9,13 +9,19 @@
 the separate nutrition work, the owner explicitly resumed the UX-retention
 goal. Release A adds a shared quick-decision layer and server-side controls to
 the ten existing live category routes; it does not add an SEO route, change a
-lifecycle decision, alter catalogue data or write to production. The work is
-locally complete on current `origin/main` and the focused, quick and full
-quality gates pass, but it is not complete until deployment and public
-verification. SEO-15 remains the single `IN PROGRESS` SEO task and keeps its
-existing order before SEO-17. This separately scoped product release may
-continue beside SEO-15's current read-only monitoring, but must pause before
-any overlapping SEO implementation touches the same routes or release boundary.
+lifecycle decision, alter catalogue data or write to production. PR `#351`
+shipped as `7e1a08b9`; live verification found one stale-cache shape mismatch
+on `/creatine`, and the required query-version correction plus regression test
+shipped in PR `#352` as `832401ae`. Deployment
+`dpl_6jR2Noz6wRFCjMVWPQhLd2udQtVu`, main Quality Gate run `38773042665` and
+public verification all pass. All ten routes return HTTP `200` with their
+decision and control layers; representative clean/parameter robots,
+canonicals, sitemap, comparison-selection and responsive checks pass. Release
+A is `LIVE VERIFIED`; Release B (My Supplements MVP) is the next UX-retention
+unit. SEO-15 remains the single `IN PROGRESS` SEO task and keeps its existing
+order before SEO-17. This separately scoped product release may continue beside
+SEO-15's current read-only monitoring, but must pause before any overlapping
+SEO implementation touches the same routes or release boundary.
 
 **15 October 2026 GYM HIGH source release:** fresh read-only
 production evidence confirms exactly `50` mature, non-quarantined GYM HIGH
