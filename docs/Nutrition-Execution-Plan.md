@@ -6479,3 +6479,40 @@ write occurred. NUT-03 remains `IN PROGRESS`. One next step is explicit owner
 authorization to archive and hash-readback the four source reviews, then advance
 the unchanged `25` candidates through the guarded workflow. Variant `3185`
 remains outside that operation.
+
+### NUT-03 current-offer five-variant execution
+
+15 October 2026, explicit owner authorization advanced the unchanged `25`
+candidates for products `784`, `789`, `842` and `972` through private archive,
+store, authenticated review, explicit-ID plans and guarded apply. The five exact
+variants are `996`, `1086`, `3591`, `1250` and `3168`; candidates `3182`-`3206`
+are all `APPROVED`. The four source reviews were stored in private
+`nutrition-sources`, and independent downloads matched all four SHA-256 values.
+
+Four plans contained zero product updates and exactly five
+`product_variants.nutrition_override` updates. Their SHA-256 values are
+`36bf630cec0e3e686a3c3349e4c1b40fd0071d5175390f472f1788755a58bd8e`,
+`8932f5a9d28e86cc1505731a70888a1904bb33a53a86e256e96c3310894c17e5`,
+`58edd85ccfb003d60b4602d976c37979fa7fecf5ecb985a198ffc497c7edeac7`
+and `03e97fb5b366c9797ddda260ba6203bcb41fb03bc2ade149aaf7bb11649eb232`.
+Fresh readback matched every full `after` object, approval and evidence record;
+`nutrition_verified`, legacy `creatine_per_serving_g` and products were
+unchanged. Replaying the plans produced four safe stale-before rejections and
+zero additional writes.
+
+All five public variant URLs display the applied facts without private
+provenance. The caffeine-free filter includes confirmed-absent variant `1250`
+and excludes the four targets whose caffeine is present or present without a
+single disclosed total. At readback, the time-dependent current-offer set was
+`398`: `374` complete, `7` partial and `17` without facts; all five targets are
+individually classified complete. Aggregate classes also reflect concurrent
+offer-freshness changes outside this operation and are not treated as a fixed
+before/after cohort.
+
+Machine-readable evidence is in
+[nutrition-nut03-current-six-execution-2026-10-15.json](rollouts/nutrition-nut03-current-six-execution-2026-10-15.json).
+Variant `3185` remains excluded because its `40 ml` serving cannot yet be
+represented safely by the current public gram-serving presentation. NUT-03
+remains `IN PROGRESS`. One next step is a separately authorized, minimal
+presentation extension preserving `serving_basis_unit = ml` before that variant
+is reconsidered.
