@@ -9,6 +9,12 @@ blocked, without changing the SEO order or enabling historical price claims.
 **Scope:** Existing public category and product UX only. No lifecycle status,
 catalogue data or production data is changed by this approval.
 
+**Current concurrency readback:** current `origin/main` now records SEO-15 as
+`IN PROGRESS`, but its executable step is the already established read-only
+daily monitoring path. Release A remains a separate product release with no
+SEO-15 data, route or release-flag change. It may continue beside that
+monitoring and must pause before any overlapping SEO implementation begins.
+
 ## 1. Outcome
 
 Turn the first SupplementScout visit into a short, explainable decision and
@@ -23,9 +29,10 @@ Phase 1 is complete only when both bounded releases below are live verified:
    price without creating an account.
 
 This product release does not alter the binding SEO order. The SEO ledger still
-names SEO-15 as the next SEO task and keeps SEO-17 behind it. Release A may run
-only while no SEO implementation is in progress and must preserve every
-lifecycle, indexability and truthful-price contract.
+names SEO-15 as the active SEO task and keeps SEO-17 behind it. Release A may
+run beside SEO-15's current read-only monitoring because it is separately
+scoped, but it must pause before overlapping SEO implementation begins and must
+preserve every lifecycle, indexability and truthful-price contract.
 
 ## 2. Evidence checked before design
 
@@ -254,12 +261,15 @@ Release A is locally implemented but is not yet complete or live verified.
 - Old repository copies under `.worktrees/` and `tmp/` are excluded from the
   TypeScript and lint input sets. This removed duplicate checking without
   deleting or changing those workspaces.
-- Focused category, analytics and control coverage passed 126/126. The sealed
-  inventory is 305 tests: 257 safe, 44 integration, four artifact-bound and 21
-  quick smoke files. `npm run verify:quick` passed 393/393 and
-  `npm run verify:full` passed, including Project Guardian, TypeScript, ESLint,
-  all safe tests, baseline migration validation and the Next.js production
-  build.
+- The implementation was transferred onto current `origin/main` at
+  `a89fe881` without copying the old branch or duplicating mechanisms. The only
+  merge conflict was the sealed test inventory; it was reconciled to the
+  current complete list.
+- Focused category, analytics and control coverage passed 132/132. The sealed
+  inventory is 330 tests: 277 safe, 49 integration, four artifact-bound and 37
+  quick smoke files. `npm run verify:quick` and `npm run verify:full` passed,
+  including Project Guardian, TypeScript, ESLint, all safe tests, baseline
+  migration validation and the Next.js production build.
 - No deployment, production data write or live verification was performed.
   The next Release A action is a normal reviewed deployment followed by the
   representative protein/creatine, mobile/desktop, canonical/robots, compare
