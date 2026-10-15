@@ -13,6 +13,7 @@ export type PublicNutritionSourceKind =
 
 export type AppliedPreWorkoutFactKey =
   | "serving_size_g"
+  | "serving_size_ml"
   | "caffeine"
   | "beta_alanine"
   | "citrulline"
@@ -24,7 +25,8 @@ export type AppliedPreWorkoutFact = {
   key: AppliedPreWorkoutFactKey;
   informationState: PreWorkoutInformationState | null;
   amountPerServingMg: number | null;
-  servingSizeG: number | null;
+  servingSizeValue: number | null;
+  servingSizeUnit: "g" | "ml" | "count" | null;
   servingBasisText: string | null;
   ingredientForm: string | null;
   ingredientRatio: string | null;
@@ -37,6 +39,16 @@ export type AppliedPreWorkoutFacts = {
   facts: AppliedPreWorkoutFact[];
   caffeineFreeConfirmed: boolean;
 };
+
+export function hasCompleteAppliedPreWorkoutFacts(facts: AppliedPreWorkoutFacts) {
+  const keys = new Set(facts.facts.map((fact) => fact.key));
+  const servingFacts = Number(keys.has("serving_size_g")) + Number(keys.has("serving_size_ml"));
+  return servingFacts === 1 &&
+    keys.has("caffeine") &&
+    keys.has("beta_alanine") &&
+    (keys.has("creatine") || keys.has("creatine_component")) &&
+    (keys.has("citrulline") || keys.has("citrulline_component"));
+}
 
 export type ReviewedNutritionCandidate = {
   product_id: number | string | null;
@@ -69,6 +81,11 @@ const STRUCTURED_FIELDS = {
   citrulline_per_serving_mg: "citrulline",
   creatine_declared_form_per_serving_mg: "creatine",
 } as const;
+
+const SERVING_FIELDS = [
+  { key: "serving_size_g", unit: "g" },
+  { key: "serving_size_ml", unit: "ml" },
+] as const;
 
 const INFORMATION_STATES = new Set<PreWorkoutInformationState>([
   "present_with_amount",
@@ -242,6 +259,14 @@ function componentIdentity(fact: Record<string, unknown>) {
   return `${String(fact.ingredient_form || "")}|${String(fact.ingredient_ratio || "")}`;
 }
 
+function servingBasis(applied: Record<string, unknown>) {
+  const value = finitePositive(applied.serving_basis_value);
+  const unit = applied.serving_basis_unit;
+  return value !== null && ["g", "ml", "count"].includes(String(unit))
+    ? { value, unit: unit as "g" | "ml" | "count" }
+    : { value: null, unit: null };
+}
+
 export function resolveAppliedPreWorkoutFacts(
   productId: number | string,
   productVariantId: number | string,
@@ -259,17 +284,21 @@ export function resolveAppliedPreWorkoutFacts(
   const hasCreatineComponents = Array.isArray(override.creatine_components);
   const creatineRepresentationConflict = hasSingularCreatine && hasCreatineComponents;
 
-  const servingSize = finitePositive(override.serving_size_g);
-  const servingCandidates = matchingCandidates(
-    candidates,
-    exactProductId,
-    exactVariantId,
-    "serving_size_g"
-  ).filter((candidate) =>
-    candidate.proposed_unit === "g" &&
-    finitePositive(candidate.proposed_value) === servingSize &&
-    finitePositive(candidate.approved_value) === servingSize
-  );
+  const appliedServings = SERVING_FIELDS.flatMap((definition) => {
+    const value = finitePositive(override[definition.key]);
+    if (value === null) return [];
+    const matches = matchingCandidates(
+      candidates,
+      exactProductId,
+      exactVariantId,
+      definition.key
+    ).filter((candidate) =>
+      candidate.proposed_unit === definition.unit &&
+      finitePositive(candidate.proposed_value) === value &&
+      finitePositive(candidate.approved_value) === value
+    );
+    return matches.length ? [{ ...definition, value, matches }] : [];
+  });
 
   const structuredMatches = new Map<AppliedPreWorkoutFactKey, ReviewedNutritionCandidate[]>();
   for (const [candidateField, targetField] of Object.entries(STRUCTURED_FIELDS)) {
@@ -341,24 +370,29 @@ export function resolveAppliedPreWorkoutFacts(
     ) componentMatches.length = 0;
   }
 
-  if (servingSize !== null && servingCandidates.length > 0) {
+  if (appliedServings.length === 1) {
+    const serving = appliedServings[0];
     const servingBasisText = [
       ...structuredMatches.values(),
       componentMatches.map(({ candidate }) => candidate),
       creatineComponentMatches.map(({ candidate }) => candidate),
     ]
       .flat()
-      .find((candidate) => finitePositive(candidate.serving_basis_value) === servingSize)
+      .find((candidate) =>
+        finitePositive(candidate.serving_basis_value) === serving.value &&
+        candidate.serving_basis_unit === serving.unit
+      )
       ?.serving_basis_text || null;
     facts.push({
-      key: "serving_size_g",
+      key: serving.key,
       informationState: null,
       amountPerServingMg: null,
-      servingSizeG: servingSize,
+      servingSizeValue: serving.value,
+      servingSizeUnit: serving.unit,
       servingBasisText,
       ingredientForm: null,
       ingredientRatio: null,
-      sourceKinds: uniqueSources(servingCandidates),
+      sourceKinds: uniqueSources(serving.matches),
     });
   }
 
@@ -367,11 +401,13 @@ export function resolveAppliedPreWorkoutFacts(
     const applied = override[key];
     if (!matches?.length || !isRecord(applied)) continue;
     const state = applied.information_state as PreWorkoutInformationState;
+    const basis = servingBasis(applied);
     facts.push({
       key,
       informationState: state,
       amountPerServingMg: finitePositive(applied.amount_per_serving_mg),
-      servingSizeG: finitePositive(applied.serving_basis_value),
+      servingSizeValue: basis.value,
+      servingSizeUnit: basis.unit,
       servingBasisText: typeof applied.serving_basis_text === "string" ? applied.serving_basis_text : null,
       ingredientForm: typeof applied.ingredient_form === "string" ? applied.ingredient_form : null,
       ingredientRatio: typeof applied.ingredient_ratio === "string" ? applied.ingredient_ratio : null,
@@ -380,11 +416,13 @@ export function resolveAppliedPreWorkoutFacts(
   }
 
   for (const { applied, candidate } of componentMatches) {
+    const basis = servingBasis(applied);
     facts.push({
       key: "citrulline_component",
       informationState: "present_with_amount",
       amountPerServingMg: finitePositive(applied.amount_per_serving_mg),
-      servingSizeG: finitePositive(applied.serving_basis_value),
+      servingSizeValue: basis.value,
+      servingSizeUnit: basis.unit,
       servingBasisText: typeof applied.serving_basis_text === "string" ? applied.serving_basis_text : null,
       ingredientForm: typeof applied.ingredient_form === "string" ? applied.ingredient_form : null,
       ingredientRatio: typeof applied.ingredient_ratio === "string" ? applied.ingredient_ratio : null,
@@ -392,10 +430,12 @@ export function resolveAppliedPreWorkoutFacts(
     });
   }
   for (const { applied, candidate } of creatineComponentMatches) {
+    const basis = servingBasis(applied);
     facts.push({
       key: "creatine_component", informationState: "present_with_amount",
       amountPerServingMg: finitePositive(applied.amount_per_serving_mg),
-      servingSizeG: finitePositive(applied.serving_basis_value),
+      servingSizeValue: basis.value,
+      servingSizeUnit: basis.unit,
       servingBasisText: typeof applied.serving_basis_text === "string" ? applied.serving_basis_text : null,
       ingredientForm: typeof applied.ingredient_form === "string" ? applied.ingredient_form : null,
       ingredientRatio: null, sourceKinds: uniqueSources([candidate]),

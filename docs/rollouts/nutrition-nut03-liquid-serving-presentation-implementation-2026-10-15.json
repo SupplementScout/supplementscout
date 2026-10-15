@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-nut03-liquid-serving-presentation-implementation-v1",
+  "status": "IMPLEMENTED_LOCALLY",
+  "implemented_at": "2026-10-15",
+  "scope": {
+    "production_data_writes": 0,
+    "migrations": 0,
+    "target_product_id": "973",
+    "target_variant_id": "3185",
+    "target_serving": {
+      "value": 40,
+      "unit": "ml"
+    }
+  },
+  "implementation": {
+    "parallel_importer_or_panel_created": false,
+    "product_specific_exception_created": false,
+    "reviewed_fact_model": "generic serving value plus explicit g/ml/count unit",
+    "public_presentation": "renders reviewed serving_size_ml as ml",
+    "completeness": "accepts exactly one reviewed serving representation and fails closed when both g and ml are present",
+    "planner": "existing variant planner preserves serving_size_ml without synthesizing serving_size_g"
+  },
+  "verification": {
+    "focused_nutrition_and_presentation_tests": {
+      "result": "PASS",
+      "passed": 74,
+      "failed": 0
+    },
+    "typecheck": "PASS",
+    "verify_inventory": "PASS",
+    "verify_project_before_documentation": "PASS",
+    "verify_quick": "PASS",
+    "verify_full": {
+      "result": "FAIL_UNRELATED_EXISTING_ARTIFACT_FIXTURES",
+      "passed": 423,
+      "failed": 8,
+      "skipped": 3,
+      "failures": [
+        "discount-supplements-stage1 reviewed evidence SHA mismatch",
+        "six-pack approved automation manifest SHA mismatch",
+        "Automation Review Queue scheduled worker fixture mismatch",
+        "four Review Queue eBay worker fixture mismatches",
+        "tracked reviewed nutrition batch 2 differs by line endings"
+      ]
+    }
+  },
+  "production": {
+    "code_deployed": false,
+    "candidate_store": false,
+    "review": false,
+    "plan": false,
+    "apply": false,
+    "variant_3185_unchanged": true
+  },
+  "next_step": "Publish and deploy this bounded compatibility change, verify the existing product presentation, and only then prepare variant 3185 for a separately authorized guarded nutrition workflow."
+}

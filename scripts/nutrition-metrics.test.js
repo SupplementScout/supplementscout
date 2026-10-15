@@ -25,7 +25,7 @@ function loadModule(relativePath) {
 const { getEffectiveNutritionMetrics } = loadModule(
   "app/lib/nutritionMetrics.ts"
 );
-const { resolveAppliedPreWorkoutFacts } = loadModule(
+const { hasCompleteAppliedPreWorkoutFacts, resolveAppliedPreWorkoutFacts } = loadModule(
   "app/lib/reviewedPreWorkoutFacts.ts"
 );
 
@@ -212,6 +212,7 @@ test("applied pre-workout facts require an exact approved candidate match", () =
 
   const result = resolveAppliedPreWorkoutFacts("411", "1047", override, candidates);
   assert.equal(result.facts.length, 5);
+  assert.equal(hasCompleteAppliedPreWorkoutFacts(result), true);
   assert.equal(result.caffeineFreeConfirmed, true);
   assert.deepEqual(
     result.facts.find((fact) => fact.key === "caffeine").sourceKinds,
@@ -265,6 +266,61 @@ test("applied pre-workout facts preserve retailer source provenance", () => {
 
   const result = resolveAppliedPreWorkoutFacts("411", "1047", override, [candidate]);
   assert.deepEqual(result.facts[0].sourceKinds, ["retailer_source"]);
+});
+
+test("applied pre-workout facts preserve a reviewed liquid serving in ml", () => {
+  const override = {
+    serving_size_ml: 40,
+    caffeine: { information_state: "confirmed_absent" },
+    beta_alanine: { information_state: "confirmed_absent" },
+    citrulline: {
+      information_state: "present_with_amount",
+      amount_per_serving_mg: 5000,
+      source_quantity_value: 5000,
+      source_quantity_unit: "mg",
+      quantity_basis: "per_serving",
+      serving_basis_value: 40,
+      serving_basis_unit: "ml",
+      serving_basis_text: "1 serving (40 ml)",
+      ingredient_form: "l_citrulline",
+    },
+    creatine: { information_state: "confirmed_absent" },
+  };
+  const candidates = [
+    reviewedCandidate({ proposed_field: "serving_size_ml", proposed_value: 40, proposed_unit: "ml", approved_value: 40, information_state: null, warning_flags: [], source_locator: "image:supplement-facts" }),
+    reviewedCandidate(),
+    reviewedCandidate({ proposed_field: "beta_alanine_per_serving_mg", source_locator: "image:supplement-facts" }),
+    reviewedCandidate({ proposed_field: "citrulline_per_serving_mg", proposed_value: 5000, proposed_unit: "mg", approved_value: 5000, information_state: "present_with_amount", source_quantity_value: 5000, source_quantity_unit: "mg", quantity_basis: "per_serving", serving_basis_value: 40, serving_basis_unit: "ml", serving_basis_text: "1 serving (40 ml)", ingredient_form: "l_citrulline", warning_flags: [], source_locator: "image:supplement-facts" }),
+    reviewedCandidate({ proposed_field: "creatine_declared_form_per_serving_mg", source_locator: "image:supplement-facts" }),
+  ];
+
+  const result = resolveAppliedPreWorkoutFacts("411", "1047", override, candidates);
+  assert.equal(result.facts.length, 5);
+  assert.deepEqual(
+    result.facts.find((fact) => fact.key === "serving_size_ml"),
+    {
+      key: "serving_size_ml",
+      informationState: null,
+      amountPerServingMg: null,
+      servingSizeValue: 40,
+      servingSizeUnit: "ml",
+      servingBasisText: "1 serving (40 ml)",
+      ingredientForm: null,
+      ingredientRatio: null,
+      sourceKinds: ["product_label"],
+    }
+  );
+  assert.equal(result.facts.find((fact) => fact.key === "citrulline").servingSizeUnit, "ml");
+  assert.equal(resolveAppliedPreWorkoutFacts("411", "1047", { ...override, serving_size_g: 40 }, [
+    ...candidates,
+    reviewedCandidate({ proposed_field: "serving_size_g", proposed_value: 40, proposed_unit: "g", approved_value: 40, information_state: null }),
+  ]).facts.some((fact) => fact.key.startsWith("serving_size_")), false);
+  assert.equal(hasCompleteAppliedPreWorkoutFacts(resolveAppliedPreWorkoutFacts(
+    "411", "1047", { ...override, serving_size_g: 40 }, [
+      ...candidates,
+      reviewedCandidate({ proposed_field: "serving_size_g", proposed_value: 40, proposed_unit: "g", approved_value: 40, information_state: null }),
+    ]
+  )), false);
 });
 
 test("applied facts fail closed on drift and malformed ingredient forms", () => {

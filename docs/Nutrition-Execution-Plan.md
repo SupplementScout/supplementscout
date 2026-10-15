@@ -6516,3 +6516,37 @@ represented safely by the current public gram-serving presentation. NUT-03
 remains `IN PROGRESS`. One next step is a separately authorized, minimal
 presentation extension preserving `serving_basis_unit = ml` before that variant
 is reconsidered.
+
+### NUT-03 liquid-serving presentation compatibility
+
+15 October 2026, the separately authorized bounded implementation extended the
+existing reviewed pre-workout fact path to preserve an explicit serving value
+and unit. The same resolver and component now support reviewed `serving_size_g`
+and `serving_size_ml` facts; no product-specific branch, second importer or
+second panel was added. If both serving representations are present, the
+resolver fails closed and exposes neither as the reviewed serving. Structured
+ingredient facts retain their actual `g`, `ml` or `count` serving-basis unit.
+
+The existing variant planner already supported `serving_size_ml`. A regression
+test now proves that a `40 ml` exact-variant candidate changes only
+`nutrition_override.serving_size_ml` and never synthesizes
+`serving_size_g`. Public rendering displays `40 ml per serving`, and the
+reusable completeness contract accepts exactly one reviewed serving
+representation together with the four tracked ingredient facts.
+
+Focused nutrition, planner and presentation tests passed `74/74`; typecheck,
+test inventory, `verify:project` and `verify:quick` passed. `verify:full`
+remains explicitly non-green: `423` passed, `8` failed and `3` skipped because
+of unrelated sealed retailer/review fixture mismatches, including historical
+SHA drift and a CRLF/LF manifest comparison. Those fixtures were not changed in
+this nutrition task.
+
+Machine-readable evidence is in
+[nutrition-nut03-liquid-serving-presentation-implementation-2026-10-15.json](rollouts/nutrition-nut03-liquid-serving-presentation-implementation-2026-10-15.json).
+Its SHA-256 is
+`d8e7e684acce47f1d955512cee02676085b81a9f9f87a00921b3c90e74539de2`.
+No migration, candidate store, review, plan, apply or other production data
+write occurred, and variant `3185` remains unchanged. NUT-03 stays
+`IN PROGRESS`. One next step is to publish and deploy this bounded compatibility
+change and verify the existing public product presentation before preparing
+variant `3185` for a separately authorized guarded nutrition workflow.
