@@ -1,4 +1,5 @@
 import { formatCurrency } from "../lib/pricing";
+import Link from "next/link";
 import type {
   CategoryDecisionAnswer,
   CategoryDecisionReason,
@@ -89,7 +90,7 @@ export default function CategoryDecisionPanel({
                 recently checked offer{answer.offerCount === 1 ? "" : "s"}.
               </p>
               <OfferCheckedBadge checkedAt={answer.lastCheckedAt} />
-              <div className="mt-auto grid gap-2 pt-5 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+              <div className="mt-auto grid gap-2 pt-5 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
                 <CategoryDecisionProductLink
                   href={answer.productUrl}
                   className="inline-flex min-h-11 items-center justify-center rounded-lg bg-zinc-950 px-4 text-center text-sm font-semibold text-white hover:bg-zinc-800"
@@ -109,6 +110,12 @@ export default function CategoryDecisionPanel({
                 >
                   Add to comparison
                 </CategoryDecisionCompareLink>
+                <Link
+                  href={`${answer.productUrl}#save-to-my-supplements`}
+                  className="inline-flex min-h-11 items-center justify-center rounded-lg border border-emerald-300 px-4 text-center text-sm font-semibold text-emerald-900 hover:bg-emerald-50"
+                >
+                  Save product
+                </Link>
               </div>
             </article>
           ))}

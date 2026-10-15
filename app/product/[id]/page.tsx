@@ -1,5 +1,6 @@
 import PriceHistoryChart from "../../components/PriceHistoryChart";
 import RetailerOfferCard from "../../components/RetailerOfferCard";
+import SaveToMySupplementsButton from "../../components/SaveToMySupplementsButton";
 import ReviewedPreWorkoutFacts from "../../components/ReviewedPreWorkoutFacts";
 import {
   BetterValueAlternativeLink,
@@ -60,6 +61,7 @@ import {
   BETTER_VALUE_BASIS_LABELS,
   getBetterValueAlternatives,
 } from "../../lib/betterValueAlternatives";
+import { selectMySupplementPack } from "../../lib/mySupplementsPack";
 
 type ProductRouteProduct = {
   id: string;
@@ -300,7 +302,14 @@ export default async function ProductPage({
         .eq("product_id", product.id)
         .eq("is_active", true)
         .order("display_name")
-    : { data: [], error: null };
+    : requestedVariantId
+      ? await supabaseAdmin
+          .from("product_variants")
+          .select("id,product_id,variant_key,display_name,flavour_label,size_value,size_unit,product_format,nutrition_override,is_default,is_active")
+          .eq("product_id", product.id)
+          .eq("id", requestedVariantId)
+          .eq("is_active", true)
+      : { data: [], error: null };
   const productVariants = productVariantError
     ? []
     : (productVariantData || []) as unknown as ProductPageVariant[];
@@ -605,6 +614,16 @@ export default async function ProductPage({
   const selectedAppliedFacts = selectedVariantId
     ? appliedFactsByVariant.get(selectedVariantId) || null
     : null;
+  const mySupplementsPack = selectedVariantId
+    ? selectMySupplementPack({
+      unitCount: product.unit_count,
+      unitType: product.unit_type,
+      netWeightG: effectiveMetrics.net_weight_g,
+      servingCount: effectiveMetrics.serving_count_verified,
+      unitPricingVerified: effectiveMetrics.unit_pricing_verified,
+      variantLabel: selectedVariantLabel || null,
+    })
+    : null;
   const showPreWorkoutFacts = isPreWorkoutProduct && selectedVariant !== null;
   const hasPriceHistorySummary =
     lowestHistoricalPrice !== null ||
@@ -820,6 +839,21 @@ export default async function ProductPage({
                   )}
                 </div>
               </div>
+              {selectedVariantId && mySupplementsPack && (
+                <SaveToMySupplementsButton
+                  product={{
+                    productId: String(product.id),
+                    slug: product.slug,
+                    variantId: selectedVariantId,
+                    name: product.name,
+                    brand: product.brand,
+                    category: product.category,
+                    pack: mySupplementsPack.packLabel,
+                    packAmount: mySupplementsPack.packAmount,
+                    packUnit: mySupplementsPack.packUnit,
+                  }}
+                />
+              )}
             </div>
 
             <div

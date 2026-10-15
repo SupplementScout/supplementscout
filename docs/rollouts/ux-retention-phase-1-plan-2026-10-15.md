@@ -1,6 +1,6 @@
 # UX Retention Phase 1 Execution Pack
 
-**Status:** RELEASE A LIVE VERIFIED — RELEASE B NEXT
+**Status:** RELEASE A LIVE VERIFIED — RELEASE B LOCAL IMPLEMENTATION IN PROGRESS
 **Prepared:** 15 October 2026  
 **Owner decision:** On 15 October 2026 the owner explicitly resumed this goal
 after completing the separate nutrition work. Phase 1 is classified as a
@@ -423,6 +423,60 @@ Required live proof:
 - confirm route is `noindex, follow`, absent from sitemap and linked from the
   approved entry points;
 - verify rejection and acceptance analytics behavior independently.
+
+### 4.8 Release B implementation checkpoint — 15 October 2026
+
+Release B is implemented locally and remains `IN PROGRESS` until deployment and
+live verification are complete.
+
+- A fresh repository search confirmed there was no existing saved-supplement,
+  run-out, reorder, export/import or Web Share owner. The existing exact-variant
+  selection, pricing, nutrition, freshness and consent-aware analytics
+  mechanisms were retained rather than replaced.
+- `app/lib/mySupplements.ts` is the single versioned local-storage owner. It
+  caps the list at 30 exact product/variant pairs and rejects malformed,
+  oversized, duplicate or unknown-version documents without overwriting the
+  current list. Health conditions, medication, pregnancy, goals and notes are
+  not stored.
+- `/api/my-supplements/current` is a bounded, read-only reconciliation route.
+  It accepts only numeric product/variant pairs, returns no private evidence,
+  sends private/no-store and noindex headers, and has no database mutation
+  path. Its shared server owner reuses the existing freshness, delivered-price,
+  effective-nutrition and exact-pack helpers. Stale, OOS and unknown-delivery
+  offers cannot become the current winner.
+- `/my-supplements` is an account-free English user tool with explicit
+  `noindex, follow`, a clean canonical and an explicit test proving it is absent
+  from the sitemap and lifecycle-hub registry. A global local-count shortcut,
+  exact product-page save action and category decision-card entry point use the
+  same storage owner.
+- The local UI supports remaining amount, same-unit daily use, conservative
+  complete-day run-out and reorder estimates, optional last price paid,
+  current exact-variant delivered-price readback and verified recurring cost.
+  Missing or incompatible evidence stays incomplete rather than being guessed.
+- Export has an explicit field preview before downloading versioned JSON.
+  Import validates first and requires an explicit merge or replace choice.
+  Sharing sends canonical product/variant links only; remaining amounts, use,
+  dates and entered prices are excluded.
+- Analytics extends the existing typed consent-aware dispatcher. Stack views
+  use count bands; estimate, export/import and sharing events use controlled
+  states only. No second queue or deterministic cross-device identity was
+  added.
+- Focused tests, TypeScript and ESLint pass. The resealed quality inventory is
+  331 tests: 278 safe, 49 integration, four artifact-bound and 38 quick. Both
+  `npm run verify:quick` and the isolated `npm run verify:full` passed,
+  including the production build.
+- A real local production build using the existing read-only production data
+  connection returned HTTP `200` for the product, category, My Supplements,
+  current-data API and sitemap paths. A browser saved exact product `1231`,
+  variant `3653`, refreshed the page and retained the entry. Run-out, reorder,
+  recurring cost, current delivered price and export preview all rendered. The
+  API returned an exact match and current price with `private, no-store` and
+  `noindex, nofollow, noarchive` headers. At 390 pixels the page had no
+  horizontal overflow. `/my-supplements` rendered `noindex, follow`, a clean
+  canonical and remained absent from the sitemap.
+- Deployment, production persistence/export checks and independent live
+  analytics acceptance/rejection proof remain pending, so Release B is not yet
+  complete.
 
 ## 5. UX success and guardrails
 
