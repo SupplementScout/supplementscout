@@ -229,6 +229,11 @@ test("the /creatine route exists and is a Server Component", () => {
   assert.equal(fs.existsSync(pagePath), true);
   assert.equal(source.includes('"use client"'), false);
   assert.match(source, /await getCachedCreatineComparison\(\)/);
+  assert.match(
+    source,
+    /createLifecycleDataLoader\(\s*pagePath,\s*"creatine-comparison-v2"/,
+    "the expanded creatine row shape must not reuse the v1 production cache"
+  );
 });
 
 test("Creatine metadata is unique, canonical and stable after live verification", async () => {
