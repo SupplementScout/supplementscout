@@ -6418,3 +6418,64 @@ facts. Machine-readable evidence is in
 `b8f7f4e40f5bccd060687d534b2f43663d4a2261ccee2bf24ecaf32c218c7103`).
 NUT-03 remains `IN PROGRESS`; the practical current-offer remainder is `19`
 variants with exact evidence or identity blockers.
+
+## NUT-03 current-offer reconciliation and six-variant preparation
+
+15 October 2026, a fresh read-only production reconciliation replaced the old
+`369`-variant offer denominator with the actual current set: `398` exact
+variants, of which `374` are complete, `2` partial and `22` have no applied
+facts. Eighteen previously recorded incomplete variants remain current, six
+new incomplete variants entered the current-offer scope, and historical variant
+`3928` is no longer current. No completed variant was reprocessed.
+
+The six new variants were assessed as one closed NUT-03 preparation step.
+Official shared-product context now binds PER4M variants `1086` and `3591` to
+the retained 570 g / 19 g formula, and the current Conteh manufacturer page
+binds Cherry variant `1250` to the shared Mega Pump Elite 19.5 g table. Exact
+retailer-hosted label evidence supports Smack variant `996`; the Kilo Labs
+manufacturer page and exact retailer context support Supreme V2 variant `3168`.
+
+Four local artifacts contain `25` pending candidates for five variants:
+
+- product `784`, variant `996`: artifact SHA-256
+  `8f3b1d92946e5a361533a6d89b2b78a60cba347cd8ef96f3cf03603f816e2bec`,
+  fingerprint
+  `6f2903a4128d4e405d5cf2be46e493b92e156f028c917f7456d506a12b9a188d`;
+- product `789`, variants `1086` and `3591`: artifact SHA-256
+  `0d6d148a54dad1895d9ca39a9b3859ec3e05978205c3db0f5c233cc251ddde93`,
+  fingerprint
+  `2bc415cfa2604b6cf020970c77e1c6b0ace6bd103a6457c7aebdd1fa67d9b9c1`;
+- product `842`, variant `1250`: artifact SHA-256
+  `e908c3d41ad83e98196040dfcacb6b14e61002fa19fc9258c4071a3b3a73a576`,
+  fingerprint
+  `23526feb1b23c105500d9d76b2aa09468e9e604401dfb2d350970068ec8c009c`;
+- product `972`, variant `3168`: artifact SHA-256
+  `033aa609d0312b0c621f7b2e321663aa4f9bb6bbf134b5158ea807fc94ee62d3`,
+  fingerprint
+  `a3cef59ec9b9331424d4ba032b35970ba10162eb94addec54231a649a3c4bd8a`.
+
+All four `nutrition:candidates:store --dry-run` validations passed with `25`
+candidate rows, zero product updates and zero database writes. Multi-source
+caffeine labels for Smack and Supreme remain
+`present_amount_not_disclosed`: individual caffeine-compound masses are
+preserved, but compound mass is not converted into a guessed total caffeine
+amount.
+
+Kilo Labs Thiquid variant `3185` remains isolated. Its retained exact source
+establishes a `40 ml` serving, caffeine and beta-alanine absence, `5000 mg`
+L-citrulline and creatine absence. The existing public pre-workout presentation
+assumes structured serving-basis values are grams, so applying this liquid
+variant now could display `40 ml` as `40 g`. It requires a separately authorized
+extension that preserves `serving_basis_unit = ml` through presentation and
+completeness checks.
+
+Machine-readable evidence is in
+[nutrition-nut03-current-six-preparation-2026-10-15.json](rollouts/nutrition-nut03-current-six-preparation-2026-10-15.json).
+Raw pages, images and candidate artifacts remain under ignored `tmp/`. The four
+new source reviews have not been written to private production storage; their
+planned durable URIs therefore remain pending separate authorization. No
+candidate store, review, plan, apply, catalogue update or production-storage
+write occurred. NUT-03 remains `IN PROGRESS`. One next step is explicit owner
+authorization to archive and hash-readback the four source reviews, then advance
+the unchanged `25` candidates through the guarded workflow. Variant `3185`
+remains outside that operation.
