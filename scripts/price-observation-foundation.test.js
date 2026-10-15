@@ -105,6 +105,25 @@ test("GYM HIGH producer enablement is exact, production-only and rollback-safe",
   assert.doesNotMatch(rollback, /delete from public\.(price_history|price_identity_series)/i);
 });
 
+test("GYM HIGH SEO-15 source release reuses the exact private release gate and is rollback-safe", () => {
+  const migration = fs.readFileSync(path.join(process.cwd(), "supabase/migrations/20261015130000_release_gym_high_seo15_stage3_source.sql"), "utf8");
+  const rollback = fs.readFileSync(path.join(process.cwd(), "supabase/rollbacks/20261015130000_release_gym_high_seo15_stage3_source.sql"), "utf8");
+  assert.match(migration, /owner-chat-2026-10-14-end-gym-high-owner-deferred/);
+  assert.match(migration, /target_environment' <> 'PRODUCTION'/);
+  assert.match(migration, /source_importer=v_source and approved_scope='reviewed-66'/);
+  assert.match(migration, /public_use='owner-deferred'/);
+  assert.match(migration, /set public_use='eligible-after-separate-approval'/);
+  assert.match(migration, /insert into public\.seo15_stage3_retailer_releases/);
+  assert.match(migration, /gym-high-stage3-automatic-candidates-v1/);
+  assert.match(migration, /v_after_inventory->'candidates'<>v_before_inventory->'candidates'/);
+  assert.match(migration, /released_retailer_count.*integer<>2/);
+  assert.doesNotMatch(migration, /create\s+(?:table|function)|drop\s+(?:table|function)/i);
+  assert.doesNotMatch(migration, /(?:insert|update|delete)\s+(?:into\s+)?public\.(?:products|product_variants|retailer_products|offers|price_history|price_identity_series)/i);
+  assert.match(rollback, /delete from public\.seo15_stage3_retailer_releases/);
+  assert.match(rollback, /set public_use='owner-deferred'/);
+  assert.doesNotMatch(rollback, /delete from public\.(?:price_history|price_identity_series)/i);
+});
+
 test("Fit House producer enablement is exact, production-only and rollback-safe", () => {
   const migration = fs.readFileSync(path.join(process.cwd(), "supabase/migrations/20260826190000_enable_fit_house_price_observation_producer.sql"), "utf8");
   const rollback = fs.readFileSync(path.join(process.cwd(), "supabase/rollbacks/20260826190000_enable_fit_house_price_observation_producer.sql"), "utf8");
