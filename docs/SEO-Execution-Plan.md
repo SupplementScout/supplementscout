@@ -201,7 +201,7 @@ Console evidence and user value.
 | SEO-12 | P1 | Begin legitimate authority and backlink acquisition. | `PLANNED` | Priority retailer/brand/community outreach uses useful live resources; earned links and outcomes are recorded monthly; no bulk or paid-link scheme is used. |
 | SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `LIVE VERIFIED` | Protein Bars shipped in commit `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f`, production deployment `6048852742` succeeded, and public HTTP, canonical, robots, sitemap, schema, exact-pack, delivered-price and internal-link checks passed. |
 | SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `LIVE VERIFIED` | Applied Nutrition, Per4m, BioTech USA and eBay UK are individually gated and live verified. The GYM HIGH owner defer ended on 14 October, but any new page still requires a fresh gate, route registration and the complete indexability lifecycle; no dynamic page generator exists. |
-| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `IN PROGRESS` | Stage 1/P0 and approved Stage 2A producers are production verified. The latest read-only audit has 813 series / 29,136 linked observations and zero writes. Jon's remains the only released source with 2 candidates. GYM HIGH is now owner-approved to proceed through the existing source-release gate after RA-STAB-02 verification. Public Stage 3 remains off because the unchanged 12-product / 30-offer / 4-retailer readiness gate is not met. No history backfill is allowed. |
+| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `IN PROGRESS` | Stage 1/P0 and approved Stage 2A producers are production verified. Scheduled read-only audit `38567577154` has 813 series / 34,023 history rows / 29,880 identity-linked observations and zero writes. Jon's remains the only released source with 2 candidates. GYM HIGH is now owner-approved to proceed through the existing source-release gate after RA-STAB-02 verification. Public Stage 3 remains off because the unchanged 12-product / 30-offer / 4-retailer readiness gate is not met. No history backfill is allowed. |
 | SEO-16 | P1 | Launch guarded two-product comparison. | `LIVE VERIFIED` | Commit `7eec604` deployed the owner-approved lifecycle launch on 26 August 2026. Public base and pair checks passed HTTP, robots, canonical, exact-pack and delivered-price contracts; the homepage link and exactly one sitemap entry were verified. |
 | SEO-17 | P2 | Add owner-reviewed expert decision notes. | `PLANNED` | Expert judgement is clearly labelled and dated, verified facts retain provenance, and unsupported medical or formulation claims cannot publish. |
 
@@ -219,6 +219,16 @@ sources remain read-only discovery only. Do not backfill history, change product
 identity or weaken any gate.
 Public activation requires a separate owner decision after the gate passes;
 SEO-17 remains behind this release.
+
+The latest scheduled SEO-15 audit is run `38567577154`, artifact
+`11896442395` (GitHub artifact digest SHA-256
+`f6bf0d72d32a29927a33b0ae73e00bfa74d5613c01e264b9501ccb39756d0fe5`),
+captured on 14 October with zero writes. GYM HIGH remains technically capable
+and producer-enabled with 50 series, 1,917 proven observations, 26 currently
+eligible series and zero threshold-qualified drops. Its database
+`public_use='owner-deferred'` value is retained until RA-STAB-02 verifies and a
+separate exact release migration passes its preflight; the 14 October owner
+decision alone does not mutate production state.
 
 The latest weekly GSC/GA4 read is scheduled run `38289200062` for 5-11 October:
 1,479 final impressions and 6 clicks across the six settled dates. The 11
