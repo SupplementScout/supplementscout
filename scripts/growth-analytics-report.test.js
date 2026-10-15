@@ -8,6 +8,7 @@ const {
   GOOGLE_SCOPES,
   OUTPUT_ROOT,
   buildWeeklyReport,
+  buildUxMeasurement,
   conservativeExternalSearchSignal,
   createServiceAccountJwt,
   normalizePropertyId,
@@ -17,6 +18,7 @@ const {
   renderSafeSummary,
   reportingPeriod,
   safeRatio,
+  uxPhase1MeasurementPeriod,
 } = require("./growth-analytics-report");
 
 const { privateKey } = crypto.generateKeyPairSync("rsa", { modulusLength: 2048 });
@@ -80,6 +82,68 @@ test("CTR calculations fail closed when the denominator is absent", () => {
   assert.equal(safeRatio(3, 12), 0.25);
   assert.equal(safeRatio(3, 0), 0);
   assert.equal(safeRatio("invalid", 12), 0);
+});
+
+test("UX Phase 1 measurement uses one exact 28-day window and labels maturity", () => {
+  assert.deepEqual(uxPhase1MeasurementPeriod("2026-10-14"), {
+    startDate: "2026-10-15",
+    endDate: "2026-11-11",
+    observedThrough: null,
+    observedDays: 0,
+    targetDays: 28,
+    status: "NOT_STARTED",
+  });
+  assert.equal(uxPhase1MeasurementPeriod("2026-10-20").status, "COLLECTING");
+  assert.equal(uxPhase1MeasurementPeriod("2026-10-20").observedDays, 6);
+  assert.deepEqual(uxPhase1MeasurementPeriod("2026-12-01"), {
+    startDate: "2026-10-15",
+    endDate: "2026-11-11",
+    observedThrough: "2026-11-11",
+    observedDays: 28,
+    targetDays: 28,
+    status: "COMPLETE",
+  });
+});
+
+test("UX measurement reports consented events and same-user funnels without inventing return maturity", () => {
+  const eventResponse = {
+    dimensionHeaders: [{ name: "eventName" }],
+    metricHeaders: [{ name: "eventCount" }, { name: "totalUsers" }],
+    rows: [
+      { dimensionValues: [{ value: "search" }], metricValues: [{ value: "12" }, { value: "9" }] },
+      { dimensionValues: [{ value: "select_search_result" }], metricValues: [{ value: "5" }, { value: "4" }] },
+      { dimensionValues: [{ value: "return_to_my_supplements_7d" }], metricValues: [{ value: "2" }, { value: "2" }] },
+    ],
+  };
+  const funnel = (firstName, firstUsers, secondName, secondUsers) => ({
+    funnelTable: {
+      dimensionHeaders: [{ name: "funnelStepName" }],
+      metricHeaders: [{ name: "activeUsers" }],
+      rows: [
+        { dimensionValues: [{ value: `1. ${firstName}` }], metricValues: [{ value: String(firstUsers) }] },
+        { dimensionValues: [{ value: `2. ${secondName}` }], metricValues: [{ value: String(secondUsers) }] },
+      ],
+    },
+  });
+  const measurement = buildUxMeasurement(
+    uxPhase1MeasurementPeriod("2026-10-20"),
+    eventResponse,
+    {
+      categoryDecision: funnel("Decision answers viewed", 8, "Decision answer selected", 3),
+      comparison: funnel("Comparison started", 4, "Comparison completed", 2),
+      searchToProduct: funnel("Search performed", 9, "Search result selected", 4),
+      productToRetailer: funnel("Product viewed", 7, "Retailer offer clicked", 2),
+      mySupplementsToRetailer: funnel("My Supplements viewed", 3, "Retailer offer clicked", 1),
+      saveToReturn7Days: funnel("Supplement saved", 5, "My Supplements return", 2),
+      saveToReturn30Days: funnel("Supplement saved", 5, "My Supplements return", 3),
+    }
+  );
+  assert.deepEqual(measurement.eventCounts.search, { events: 12, users: 9 });
+  assert.deepEqual(measurement.eventCounts.return_to_my_supplements_7d, { events: 2, users: 2 });
+  assert.equal(measurement.searchToProduct.userCompletionRate, 4 / 9);
+  assert.equal(measurement.saveToReturn7Days.windowSeconds, 604800);
+  assert.equal(measurement.saveToReturn30Days.windowSeconds, 2592000);
+  assert.match(measurement.limitations.join(" "), /right-censored/);
 });
 
 test("conservative external search signal preserves totals and removes only the known operational referral", () => {
@@ -278,7 +342,7 @@ test("authenticated report combines GSC, sitemap and organic GA4 evidence", asyn
     ctr: 0,
     position: 18.5,
   });
-  assert.equal(report.schemaVersion, 5);
+  assert.equal(report.schemaVersion, 6);
   assert.equal(report.searchConsole.sitemaps[0].errors, 0);
   assert.deepEqual(report.ga4.organicSearch, {
     sessions: 20,
@@ -316,7 +380,7 @@ test("authenticated report combines GSC, sitemap and organic GA4 evidence", asyn
   assert.equal(report.searchConsole.indexing.inspections[0].state, "ok");
   assert.equal(report.searchConsole.indexing.inspectedCount, 2);
   assert.match(report.limitations.pageIndexingTotals, /URL-level/);
-  assert.equal(requests.length, 19);
+  assert.equal(requests.length, 27);
   const gscBodies = requests
     .filter(({ url }) => url.includes("searchAnalytics"))
     .map(({ options }) => JSON.parse(options.body));
@@ -334,6 +398,11 @@ test("authenticated report combines GSC, sitemap and organic GA4 evidence", asyn
     JSON.parse(funnelRequest.options.body).funnel.steps[1].withinDurationFromPriorStep,
     "1800s"
   );
+  const funnelBodies = requests
+    .filter(({ url }) => url.includes(":runFunnelReport"))
+    .map(({ options }) => JSON.parse(options.body));
+  assert.ok(funnelBodies.some((body) => body.funnel.steps[0].name === "Search performed" && body.funnel.steps[1].filterExpression.funnelEventFilter.eventName === "select_search_result"));
+  assert.ok(funnelBodies.some((body) => body.funnel.steps[0].name === "Supplement saved" && body.funnel.steps[1].withinDurationFromPriorStep === "2592000s"));
 });
 
 test("Google API errors stop the report without fabricated evidence", async () => {
