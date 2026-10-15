@@ -33,7 +33,15 @@ also be started manually. It requests only these OAuth scopes:
 The report is uploaded as a private GitHub Actions artifact for 35 days. It
 contains the seven-day GSC totals, top queries and pages, URL-level inspection of
 top pages plus homepage, sitemap status, GA4 organic sessions/users/views and
-organic `retailer_offer_click` events. A local authorised session can run:
+organic `retailer_offer_click` events. The same report also owns the bounded
+UX-retention measurement added after the 15 October 2026 release. It reads only
+consented event totals and same-GA4-user funnels for category decisions,
+comparison completion, search-result selection, product-to-retailer movement,
+My Supplements use and save-to-return sequences. The first window is fixed to
+15 October through 11 November 2026 (28 calendar days); incomplete 7/30-day
+return opportunities remain labelled as incomplete rather than treated as
+failures. No GA4 setting, custom dimension or user identity is written. A local
+authorised session can run:
 
 ```text
 npm run analytics:weekly

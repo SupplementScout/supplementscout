@@ -1,6 +1,6 @@
 # UX Retention Phase 1 Execution Pack
 
-**Status:** PHASE 1 LIVE VERIFIED — FIRST CLEAN MEASUREMENT WINDOW NEXT
+**Status:** PHASE 1 LIVE VERIFIED — MEASUREMENT INSTRUMENTATION IN PROGRESS
 **Prepared:** 15 October 2026  
 **Owner decision:** On 15 October 2026 the owner explicitly resumed this goal
 after completing the separate nutrition work. Phase 1 is classified as a
@@ -521,6 +521,31 @@ Guardrails:
 The first report sets a defensible baseline. An uplift target may be approved
 only after enough external traffic exists; low or contaminated samples remain
 explicitly inconclusive.
+
+### 5.1 Measurement implementation checkpoint — 15 October 2026
+
+The existing authenticated, read-only Growth Analytics report is being extended
+for the first clean UX window; no second reporting system is being created.
+
+- The exact first window is 15 October through 11 November 2026, 28 calendar
+  days. Reports state `COLLECTING` until all 28 days exist and never turn
+  missing or immature data into zero-performance claims.
+- The existing consent-aware dispatcher adds an explicit search-result
+  selection event without raw search text. My Supplements adds bounded return
+  events after six hours, seven days and 30 days, using only the existing item
+  count band and no saved product, usage, price or health data.
+- The existing report reads event and same-GA4-user funnel evidence for category
+  decision selection, comparison completion, search to product, product to
+  retailer, My Supplements to retailer and save to return. It makes no
+  cross-device or account-identity claim.
+- Seven- and 30-day return results remain explicitly right-censored until each
+  save has had the full observation opportunity. Threshold return events are
+  reported separately, and no uplift claim is allowed from an immature or
+  contaminated sample.
+- The implementation changes no catalogue, price, SEO route, GA4 setting or
+  production data. Local focused tests, TypeScript, ESLint and
+  `npm run verify:quick` pass. Deployment and authenticated production-readonly
+  API proof remain required before this measurement instrumentation is closed.
 
 ## 6. Approved implementation sequence
 

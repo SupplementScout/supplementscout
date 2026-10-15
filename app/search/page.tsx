@@ -7,6 +7,7 @@ import SearchInput from "../components/SearchInput";
 import SearchPagination from "../components/SearchPagination";
 import SearchAnalyticsEvents from "../components/SearchAnalyticsEvents";
 import SearchResultsLayout from "../components/SearchResultsLayout";
+import SearchResultSelectionAnalytics from "../components/SearchResultSelectionAnalytics";
 import {
   normalizeSearchQuery,
   normalizeSearchFilters,
@@ -291,12 +292,17 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 ) : (
                   <div>
                     <div className="space-y-3 sm:space-y-4">
-                      {results.map((product) => (
-                        <ProductResultCard
+                      {results.map((product, index) => (
+                        <SearchResultSelectionAnalytics
                           key={product.id}
-                          product={product}
-                          searchMobileFirst
-                        />
+                          productId={String(product.id)}
+                          position={startResult + index}
+                        >
+                          <ProductResultCard
+                            product={product}
+                            searchMobileFirst
+                          />
+                        </SearchResultSelectionAnalytics>
                       ))}
                     </div>
 

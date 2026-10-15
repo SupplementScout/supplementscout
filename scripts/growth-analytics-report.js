@@ -13,6 +13,23 @@ const GOOGLE_SCOPES = [
 ];
 const OUTPUT_ROOT = path.join(process.cwd(), "tmp", "growth-analytics");
 const OPERATIONAL_SEARCH_REFERRAL = "search.google.com / referral";
+const UX_PHASE1_START_DATE = "2026-10-15";
+const UX_PHASE1_END_DATE = "2026-11-11";
+const UX_PHASE1_EVENT_NAMES = [
+  "view_category_decision_answers",
+  "select_category_decision_answer",
+  "add_product_to_comparison",
+  "complete_two_product_comparison",
+  "search",
+  "select_search_result",
+  "view_product",
+  "retailer_offer_click",
+  "save_supplement",
+  "view_my_supplements",
+  "return_to_my_supplements",
+  "return_to_my_supplements_7d",
+  "return_to_my_supplements_30d",
+];
 
 function base64Url(value) {
   return Buffer.from(value)
@@ -198,6 +215,93 @@ function safeRatio(numerator, denominator) {
   return safeDenominator > 0 ? safeNumerator / safeDenominator : 0;
 }
 
+function uxPhase1MeasurementPeriod(reportEndDate) {
+  const requestedEnd = new Date(`${reportEndDate}T00:00:00.000Z`);
+  const phaseStart = new Date(`${UX_PHASE1_START_DATE}T00:00:00.000Z`);
+  const phaseEnd = new Date(`${UX_PHASE1_END_DATE}T00:00:00.000Z`);
+  if (requestedEnd < phaseStart) {
+    return {
+      startDate: UX_PHASE1_START_DATE,
+      endDate: UX_PHASE1_END_DATE,
+      observedThrough: null,
+      observedDays: 0,
+      targetDays: 28,
+      status: "NOT_STARTED",
+    };
+  }
+  const observedEnd = requestedEnd < phaseEnd ? requestedEnd : phaseEnd;
+  const observedDays = Math.floor((observedEnd - phaseStart) / 86400000) + 1;
+  return {
+    startDate: UX_PHASE1_START_DATE,
+    endDate: UX_PHASE1_END_DATE,
+    observedThrough: isoDate(observedEnd),
+    observedDays,
+    targetDays: 28,
+    status: observedDays >= 28 ? "COMPLETE" : "COLLECTING",
+  };
+}
+
+function funnelRequest(dateRanges, firstName, firstEvent, secondName, secondEvent, windowSeconds) {
+  return {
+    dateRanges,
+    funnel: {
+      isOpenFunnel: false,
+      steps: [
+        {
+          name: firstName,
+          filterExpression: { funnelEventFilter: { eventName: firstEvent } },
+        },
+        {
+          name: secondName,
+          withinDurationFromPriorStep: `${windowSeconds}s`,
+          filterExpression: { funnelEventFilter: { eventName: secondEvent } },
+        },
+      ],
+    },
+  };
+}
+
+function funnelSummary(response, firstName, secondName, windowSeconds) {
+  const startingUsers = funnelActiveUsers(response, firstName);
+  const completingUsers = funnelActiveUsers(response, secondName);
+  return {
+    startingUsers,
+    completingUsers,
+    userCompletionRate: safeRatio(completingUsers, startingUsers),
+    windowSeconds,
+  };
+}
+
+function buildUxMeasurement(period, eventResponse, funnels) {
+  const rows = period.status === "NOT_STARTED" ? [] : gaMetricRows(eventResponse);
+  const metric = (eventName, key) => numberValue(rows.find((row) => row.eventName === eventName)?.[key]);
+  const eventCounts = Object.fromEntries(
+    UX_PHASE1_EVENT_NAMES.map((eventName) => [eventName, {
+      events: metric(eventName, "eventCount"),
+      users: metric(eventName, "totalUsers"),
+    }])
+  );
+  const emptyFunnel = {};
+  const usable = period.status === "NOT_STARTED" ? emptyFunnel : funnels;
+  return {
+    period,
+    eventCounts,
+    categoryDecision: funnelSummary(usable.categoryDecision, "Decision answers viewed", "Decision answer selected", 1800),
+    comparison: funnelSummary(usable.comparison, "Comparison started", "Comparison completed", 1800),
+    searchToProduct: funnelSummary(usable.searchToProduct, "Search performed", "Search result selected", 1800),
+    productToRetailer: funnelSummary(usable.productToRetailer, "Product viewed", "Retailer offer clicked", 1800),
+    mySupplementsToRetailer: funnelSummary(usable.mySupplementsToRetailer, "My Supplements viewed", "Retailer offer clicked", 1800),
+    saveToReturn7Days: funnelSummary(usable.saveToReturn7Days, "Supplement saved", "My Supplements return", 604800),
+    saveToReturn30Days: funnelSummary(usable.saveToReturn30Days, "Supplement saved", "My Supplements return", 2592000),
+    limitations: [
+      "Only consented GA4 activity is counted; absence of an event is not proof that no user completed the action.",
+      "Funnel users are same-GA4-user sequences, not account identities, and do not provide cross-device attribution.",
+      "Seven- and 30-day save-to-return rates remain right-censored until every save has had the full observation window; threshold return events are reported separately.",
+      "The search funnel uses the explicit search-result selection event added for this measurement window; it does not infer navigation from page views.",
+    ],
+  };
+}
+
 function funnelActiveUsers(response, stepName) {
   const report = response?.funnelTable || {};
   const dimensionNames = (report.dimensionHeaders || []).map((item) => item.name);
@@ -299,6 +403,7 @@ function renderSafeSummary(report) {
     (total, sitemap) => total + numberValue(sitemap.errors),
     0
   );
+  const ux = report.ga4.uxRetentionPhase1;
 
   return [
     "## Weekly Growth Analytics",
@@ -311,6 +416,10 @@ function renderSafeSummary(report) {
     `- GA4 configured data filters: ${trafficQuality.dataFilterConfiguration.state}`,
     `- Better-value: ${betterValue.impressions} impressions, ${betterValue.clicks} clicks, ${(betterValue.clickThroughRate * 100).toFixed(2)}% CTR`,
     `- Better-value downstream: ${betterValue.downstreamRetailerClickUsers}/${betterValue.selectingUsers} users within 30 minutes`,
+    `- UX Phase 1 window: ${ux.period.status}, ${ux.period.observedDays}/${ux.period.targetDays} days`,
+    `- UX decision users: ${ux.categoryDecision.completingUsers}/${ux.categoryDecision.startingUsers}`,
+    `- UX search-to-product users: ${ux.searchToProduct.completingUsers}/${ux.searchToProduct.startingUsers}`,
+    `- UX save-to-return users (7-day observation): ${ux.saveToReturn7Days.completingUsers}/${ux.saveToReturn7Days.startingUsers}`,
     `- Sitemap errors: ${sitemapErrors}`,
     `- Index inspections: ${report.searchConsole.indexing.inspectedCount}/${report.searchConsole.indexing.inspectionTargets.length} requested URLs`,
   ].join("\n");
@@ -362,14 +471,19 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
   const propertyId = normalizePropertyId(env.GA4_PROPERTY_ID);
   const siteUrl = normalizeSiteUrl(env.GSC_SITE_URL);
   const period = reportingPeriod(now, endDate);
+  const uxPeriod = uxPhase1MeasurementPeriod(period.endDate);
   const accessToken = await getAccessToken(fetchImpl, account, now);
   const encodedSite = encodeURIComponent(siteUrl);
   const gscQueryUrl = `${GSC_API_ROOT}/sites/${encodedSite}/searchAnalytics/query`;
   const gaReportUrl = `${GA4_API_ROOT}/properties/${propertyId}:runReport`;
   const gaFunnelUrl = `${GA4_FUNNEL_API_ROOT}/properties/${propertyId}:runFunnelReport`;
   const dateRanges = [{ startDate: period.startDate, endDate: period.endDate }];
+  const uxDateRanges = [{
+    startDate: uxPeriod.observedThrough ? uxPeriod.startDate : period.startDate,
+    endDate: uxPeriod.observedThrough || period.endDate,
+  }];
 
-  const [gscTotals, gscQueries, gscDailyFinal, gscDailyAll, gscPages, gscPageQueries, sitemaps, gaChannels, gaOfferClicks, gaBetterValueEvents, gaBetterValueFunnel, gaOrganicDaily, gaOrganicHostnames, gaOrganicCountries, gaOrganicSources, gaTestFilters] =
+  const [gscTotals, gscQueries, gscDailyFinal, gscDailyAll, gscPages, gscPageQueries, sitemaps, gaChannels, gaOfferClicks, gaBetterValueEvents, gaBetterValueFunnel, gaUxEvents, gaDecisionFunnel, gaComparisonFunnel, gaSearchToProductFunnel, gaProductToRetailerFunnel, gaMySupplementsToRetailerFunnel, gaSaveToReturn7DaysFunnel, gaSaveToReturn30DaysFunnel, gaOrganicDaily, gaOrganicHostnames, gaOrganicCountries, gaOrganicSources, gaTestFilters] =
     await Promise.all([
       postJson(fetchImpl, gscQueryUrl, accessToken, { ...period, rowLimit: 1, dataState: "final" }),
       postJson(fetchImpl, gscQueryUrl, accessToken, {
@@ -477,6 +591,24 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
           ],
         },
       }),
+      postJson(fetchImpl, gaReportUrl, accessToken, {
+        dateRanges: uxDateRanges,
+        dimensions: [{ name: "eventName" }],
+        metrics: [{ name: "eventCount" }, { name: "totalUsers" }],
+        dimensionFilter: {
+          filter: {
+            fieldName: "eventName",
+            inListFilter: { values: UX_PHASE1_EVENT_NAMES },
+          },
+        },
+      }),
+      postJson(fetchImpl, gaFunnelUrl, accessToken, funnelRequest(uxDateRanges, "Decision answers viewed", "view_category_decision_answers", "Decision answer selected", "select_category_decision_answer", 1800)),
+      postJson(fetchImpl, gaFunnelUrl, accessToken, funnelRequest(uxDateRanges, "Comparison started", "add_product_to_comparison", "Comparison completed", "complete_two_product_comparison", 1800)),
+      postJson(fetchImpl, gaFunnelUrl, accessToken, funnelRequest(uxDateRanges, "Search performed", "search", "Search result selected", "select_search_result", 1800)),
+      postJson(fetchImpl, gaFunnelUrl, accessToken, funnelRequest(uxDateRanges, "Product viewed", "view_product", "Retailer offer clicked", "retailer_offer_click", 1800)),
+      postJson(fetchImpl, gaFunnelUrl, accessToken, funnelRequest(uxDateRanges, "My Supplements viewed", "view_my_supplements", "Retailer offer clicked", "retailer_offer_click", 1800)),
+      postJson(fetchImpl, gaFunnelUrl, accessToken, funnelRequest(uxDateRanges, "Supplement saved", "save_supplement", "My Supplements return", "return_to_my_supplements", 604800)),
+      postJson(fetchImpl, gaFunnelUrl, accessToken, funnelRequest(uxDateRanges, "Supplement saved", "save_supplement", "My Supplements return", "return_to_my_supplements", 2592000)),
       postJson(fetchImpl, gaReportUrl, accessToken, {
         dateRanges,
         dimensions: [{ name: "date" }],
@@ -587,9 +719,18 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
   const testFilterRows = gaTestFilters.state === "available"
     ? gaMetricRows(gaTestFilters.response)
     : [];
+  const uxMeasurement = buildUxMeasurement(uxPeriod, gaUxEvents, {
+    categoryDecision: gaDecisionFunnel,
+    comparison: gaComparisonFunnel,
+    searchToProduct: gaSearchToProductFunnel,
+    productToRetailer: gaProductToRetailerFunnel,
+    mySupplementsToRetailer: gaMySupplementsToRetailerFunnel,
+    saveToReturn7Days: gaSaveToReturn7DaysFunnel,
+    saveToReturn30Days: gaSaveToReturn30DaysFunnel,
+  });
 
   return {
-    schemaVersion: 5,
+    schemaVersion: 6,
     generatedAt: now.toISOString(),
     period,
     source: {
@@ -667,6 +808,7 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
         ),
         downstreamWindowMinutes: 30,
       },
+      uxRetentionPhase1: uxMeasurement,
       channelRows: channels,
     },
     limitations: {
@@ -716,6 +858,7 @@ module.exports = {
   GOOGLE_SCOPES,
   OUTPUT_ROOT,
   buildWeeklyReport,
+  buildUxMeasurement,
   conservativeExternalSearchSignal,
   createServiceAccountJwt,
   normalizePropertyId,
@@ -725,4 +868,5 @@ module.exports = {
   renderSafeSummary,
   reportingPeriod,
   safeRatio,
+  uxPhase1MeasurementPeriod,
 };

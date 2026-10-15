@@ -68,21 +68,45 @@ export default function MySupplementsManager() {
   const importInput = useRef<HTMLInputElement>(null);
   const viewAnalyticsSent = useRef(false);
   const viewAnalyticsPayload = useRef<AnalyticsEventMap["view_my_supplements"] | null>(null);
+  const returnAnalyticsAge = useRef<{ ageMs: number; itemCountBand: "1" | "2_5" | "6_15" | "16_30" } | null>(null);
+  const returnAnalyticsSent = useRef(new Set<"return_to_my_supplements" | "return_to_my_supplements_7d" | "return_to_my_supplements_30d">());
 
   useEffect(() => {
     function sendView() {
-      if (viewAnalyticsSent.current || !viewAnalyticsPayload.current) return;
-      viewAnalyticsSent.current = sendAnalyticsEvent("view_my_supplements", viewAnalyticsPayload.current);
+      if (!viewAnalyticsSent.current && viewAnalyticsPayload.current) {
+        viewAnalyticsSent.current = sendAnalyticsEvent("view_my_supplements", viewAnalyticsPayload.current);
+      }
+      const returnState = returnAnalyticsAge.current;
+      if (!returnState) return;
+      const thresholds = [
+        ["return_to_my_supplements", 6 * 60 * 60 * 1000],
+        ["return_to_my_supplements_7d", 7 * 24 * 60 * 60 * 1000],
+        ["return_to_my_supplements_30d", 30 * 24 * 60 * 60 * 1000],
+      ] as const;
+      for (const [name, minimumAge] of thresholds) {
+        if (returnState.ageMs < minimumAge || returnAnalyticsSent.current.has(name)) continue;
+        if (sendAnalyticsEvent(name, { item_count_band: returnState.itemCountBand })) {
+          returnAnalyticsSent.current.add(name);
+        }
+      }
     }
     const timer = window.setTimeout(() => {
       const saved = readMySupplements(window.localStorage);
       setDocument(saved);
-      const isReturnVisit = saved.items.some((item) => Date.now() - Date.parse(item.createdAt) > 6 * 60 * 60 * 1000);
+      const oldestSavedAge = saved.items.reduce((age, item) => {
+        const createdAt = Date.parse(item.createdAt);
+        return Number.isFinite(createdAt) ? Math.max(age, Date.now() - createdAt) : age;
+      }, 0);
+      const isReturnVisit = oldestSavedAge > 6 * 60 * 60 * 1000;
+      const countBand = itemCountBand(saved.items.length);
       viewAnalyticsPayload.current = {
-        item_count_band: itemCountBand(saved.items.length),
+        item_count_band: countBand,
         reconciliation_state: saved.items.length === 0 ? "empty" : "checking",
         is_return_visit: isReturnVisit,
       };
+      returnAnalyticsAge.current = saved.items.length > 0
+        ? { ageMs: oldestSavedAge, itemCountBand: countBand as "1" | "2_5" | "6_15" | "16_30" }
+        : null;
       sendView();
     }, 0);
     window.addEventListener(ANALYTICS_READY_EVENT, sendView);

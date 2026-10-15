@@ -24,6 +24,8 @@ const analytics = loadTypeScriptModule("app/lib/analytics.ts");
 const layoutSource = fs.readFileSync(path.join(process.cwd(), "app/layout.tsx"), "utf8");
 const componentSource = fs.readFileSync(path.join(process.cwd(), "app/components/AnalyticsConsent.tsx"), "utf8");
 const offerLinkSource = fs.readFileSync(path.join(process.cwd(), "app/components/ProductAnalytics.tsx"), "utf8");
+const searchSelectionSource = fs.readFileSync(path.join(process.cwd(), "app/components/SearchResultSelectionAnalytics.tsx"), "utf8");
+const mySupplementsManagerSource = fs.readFileSync(path.join(process.cwd(), "app/components/MySupplementsManager.tsx"), "utf8");
 const nextConfigSource = fs.readFileSync(path.join(process.cwd(), "next.config.ts"), "utf8");
 
 test("Consent Mode v2 defaults deny analytics and every advertising signal", () => {
@@ -125,6 +127,26 @@ test("category decision events use the shared consent-aware dispatcher", () => {
     ["event", "category_filter_used", filter],
     ["event", "category_sort_used", sort],
   ]);
+  delete global.window;
+});
+
+test("search selection and My Supplements returns stay consent-aware and privacy bounded", () => {
+  const calls = [];
+  global.window = { __supplementScoutAnalyticsConsent: "granted", __supplementScoutAnalyticsReady: true, gtag: (...args) => calls.push(args) };
+  assert.equal(analytics.sendAnalyticsEvent("select_search_result", { product_id: "7", position: 2 }), true);
+  assert.equal(analytics.sendAnalyticsEvent("return_to_my_supplements", { item_count_band: "2_5" }), true);
+  assert.equal(analytics.sendAnalyticsEvent("return_to_my_supplements_7d", { item_count_band: "2_5" }), true);
+  assert.equal(analytics.sendAnalyticsEvent("return_to_my_supplements_30d", { item_count_band: "2_5" }), true);
+  assert.deepEqual(calls.map((call) => call[1]), [
+    "select_search_result",
+    "return_to_my_supplements",
+    "return_to_my_supplements_7d",
+    "return_to_my_supplements_30d",
+  ]);
+  assert.match(searchSelectionSource, /onClickCapture/);
+  assert.doesNotMatch(searchSelectionSource, /preventDefault/);
+  assert.match(mySupplementsManagerSource, /7 \* 24 \* 60 \* 60 \* 1000/);
+  assert.match(mySupplementsManagerSource, /30 \* 24 \* 60 \* 60 \* 1000/);
   delete global.window;
 });
 

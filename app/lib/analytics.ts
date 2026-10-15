@@ -54,6 +54,10 @@ export type AnalyticsEventMap = {
     has_filters: boolean;
     search_context: "site_search";
   };
+  select_search_result: {
+    product_id: string;
+    position: number;
+  };
   filter_used: {
     filter_name: "category" | "brand" | "retailer" | "caffeine";
     filter_action: "apply" | "remove";
@@ -92,6 +96,15 @@ export type AnalyticsEventMap = {
     item_count_band: "0" | "1" | "2_5" | "6_15" | "16_30";
     reconciliation_state: "empty" | "checking";
     is_return_visit: boolean;
+  };
+  return_to_my_supplements: {
+    item_count_band: "1" | "2_5" | "6_15" | "16_30";
+  };
+  return_to_my_supplements_7d: {
+    item_count_band: "1" | "2_5" | "6_15" | "16_30";
+  };
+  return_to_my_supplements_30d: {
+    item_count_band: "1" | "2_5" | "6_15" | "16_30";
   };
   save_supplement: {
     product_id: string;
@@ -136,12 +149,16 @@ export const ANALYTICS_EVENT_PARAMETER_KEYS = {
   category_filter_used: ["category", "filter_name", "filter_action"],
   category_sort_used: ["category", "sort_option"],
   search: ["result_count", "has_filters", "search_context"],
+  select_search_result: ["product_id", "position"],
   filter_used: ["filter_name", "filter_action"],
   sort_used: ["sort_option"],
   retailer_offer_click: ["product_id", "product_name", "variant_id", "category", "retailer_id", "retailer_name", "offer_price", "position", "source_page", "is_affiliate"],
   view_better_value_alternatives: ["current_product_id", "category", "value_basis", "alternative_count", "source_page"],
   select_better_value_alternative: ["current_product_id", "alternative_product_id", "category", "value_basis", "position", "source_page"],
   view_my_supplements: ["item_count_band", "reconciliation_state", "is_return_visit"],
+  return_to_my_supplements: ["item_count_band"],
+  return_to_my_supplements_7d: ["item_count_band"],
+  return_to_my_supplements_30d: ["item_count_band"],
   save_supplement: ["product_id", "category", "entry_point"],
   update_supply_estimate: ["calculation_state"],
   remove_saved_supplement: ["product_id", "source_page"],
