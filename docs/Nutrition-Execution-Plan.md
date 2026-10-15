@@ -6578,3 +6578,40 @@ No migration or production nutrition write occurred. NUT-03 remains
 `IN PROGRESS`. One next step is to prepare and dry-run one exact five-fact
 candidate artifact for product `973`, variant `3185`; production store, review,
 plan and apply remain separately controlled.
+
+### NUT-03 Kilo Labs Thiquid exact-variant preparation
+
+15 October 2026, the deployed liquid-serving compatibility unblocked local
+preparation for product `973`, variant `3185`, Kilo Labs Thiquid 1000 ml. A fresh
+read-only production preflight confirmed the exact product-variant binding,
+liquid format, 1000 ml volume, 25 verified servings, empty
+`nutrition_override`, zero existing candidates for the variant and zero matches
+for the five new fingerprints.
+
+The retained exact Fit House page and retained comparison Supplement Facts were
+reused without another collection. Their SHA-256 values remain
+`872b290b876d5a41388c5c9e424e96fb22a0e71a9e40f93b1ef0c44665e3b992`
+and `ca159590af7ea89cb9306c253a2afb7f96f08d2d4e9793f029ecfa82c7747d69`.
+One ignored artifact proposes exactly five pending facts: a 40 ml serving,
+confirmed caffeine absence, confirmed beta-alanine absence, 5000 mg free-form
+L-citrulline per that 40 ml serving and confirmed creatine absence. Absence
+values are null and record declared-composition evidence rather than a
+laboratory zero.
+
+The artifact is
+`tmp/nutrition-thiquid-3185-preparation-2026-10-15/candidate-artifact/nutrition-candidates-ncr1-nut03-thiquid-973-3185-20261015.json`,
+SHA-256
+`c4fdd315e09a3299b4f238c9567233550ae8893175171032884dd01fa7a8f16a`
+and fingerprint
+`5edabfb317badeaf87c931218dbf8355e1bf817a4f53d9898b3fe7e77a591a40`.
+All five candidate fingerprints are unique. The existing store validator passed
+in `DRY_RUN_NO_DATABASE` mode with five candidate rows, zero product updates and
+zero database writes.
+
+Machine-readable evidence is in
+[nutrition-nut03-thiquid-3185-preparation-2026-10-15.json](rollouts/nutrition-nut03-thiquid-3185-preparation-2026-10-15.json).
+The source review has not yet been written to private production storage, and no
+candidate store, review, plan or apply occurred. NUT-03 remains `IN PROGRESS`.
+One next step is one owner decision authorizing private archive readback followed
+by controlled store, authenticated review, explicit-ID plan and guarded apply of
+exactly this unchanged five-candidate artifact.
