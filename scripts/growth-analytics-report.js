@@ -12,6 +12,7 @@ const GOOGLE_SCOPES = [
   "https://www.googleapis.com/auth/webmasters.readonly",
 ];
 const OUTPUT_ROOT = path.join(process.cwd(), "tmp", "growth-analytics");
+const OPERATIONAL_SEARCH_REFERRAL = "search.google.com / referral";
 
 function base64Url(value) {
   return Buffer.from(value)
@@ -274,6 +275,47 @@ function sumRows(rows, key) {
   return rows.reduce((total, row) => total + numberValue(row[key]), 0);
 }
 
+function conservativeExternalSearchSignal(totalOrganicSessions, sourceMediumRows) {
+  const excludedRows = sourceMediumRows.filter(
+    (row) => row.sessionSourceMedium === OPERATIONAL_SEARCH_REFERRAL
+  );
+  const excludedSessions = sumRows(excludedRows, "sessions");
+  return {
+    sessions: Math.max(0, numberValue(totalOrganicSessions) - excludedSessions),
+    excludedSessions,
+    excludedSourceRowUsers: sumRows(excludedRows, "totalUsers"),
+    excludedSourceMedium: OPERATIONAL_SEARCH_REFERRAL,
+    excludedSourceObserved: excludedRows.length > 0,
+    basis:
+      "GA4 Organic Search sessions minus search.google.com / referral sessions; original GA4 totals remain unchanged and the remainder is not proof that every session is external.",
+  };
+}
+
+function renderSafeSummary(report) {
+  const betterValue = report.ga4.betterValueAlternatives;
+  const trafficQuality = report.ga4.organicTrafficQuality;
+  const externalSignal = trafficQuality.conservativeExternalSearchSignal;
+  const sitemapErrors = report.searchConsole.sitemaps.reduce(
+    (total, sitemap) => total + numberValue(sitemap.errors),
+    0
+  );
+
+  return [
+    "## Weekly Growth Analytics",
+    `- Period: ${report.period.startDate} to ${report.period.endDate}`,
+    `- GSC: ${report.searchConsole.totals.clicks} clicks, ${report.searchConsole.totals.impressions} impressions`,
+    `- GSC completeness: ${report.searchConsole.dailyCompleteness.status}`,
+    `- GA4 organic: ${report.ga4.organicSearch.sessions} sessions, ${report.ga4.organicSearch.retailerOfferClicks} retailer-offer clicks`,
+    `- GA4 conservative external-search signal: ${externalSignal.sessions} sessions (${externalSignal.excludedSessions} operational referral sessions excluded)`,
+    `- GA4 hostnames: ${trafficQuality.hostnameRows.map((row) => row.hostName).join(", ")}`,
+    `- GA4 configured data filters: ${trafficQuality.dataFilterConfiguration.state}`,
+    `- Better-value: ${betterValue.impressions} impressions, ${betterValue.clicks} clicks, ${(betterValue.clickThroughRate * 100).toFixed(2)}% CTR`,
+    `- Better-value downstream: ${betterValue.downstreamRetailerClickUsers}/${betterValue.selectingUsers} users within 30 minutes`,
+    `- Sitemap errors: ${sitemapErrors}`,
+    `- Index inspections: ${report.searchConsole.indexing.inspectedCount}/${report.searchConsole.indexing.inspectionTargets.length} requested URLs`,
+  ].join("\n");
+}
+
 async function inspectUrlIndexing(fetchImpl, accessToken, siteUrl, inspectionUrl) {
   const response = await postJson(
     fetchImpl,
@@ -481,6 +523,11 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
   const organic = channels.find(
     (row) => row.sessionDefaultChannelGroup === "Organic Search"
   ) || { sessions: 0, totalUsers: 0, screenPageViews: 0 };
+  const organicSourceMediumRows = gaMetricRows(gaOrganicSources);
+  const externalSearchSignal = conservativeExternalSearchSignal(
+    organic.sessions,
+    organicSourceMediumRows
+  );
   const offerClicks = gaMetricRows(gaOfferClicks)[0]?.eventCount || 0;
   const betterValueEvents = gaMetricRows(gaBetterValueEvents);
   const betterValueImpressions =
@@ -542,7 +589,7 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
     : [];
 
   return {
-    schemaVersion: 4,
+    schemaVersion: 5,
     generatedAt: now.toISOString(),
     period,
     source: {
@@ -595,7 +642,8 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
         dailyRows: gaMetricRows(gaOrganicDaily),
         hostnameRows: gaMetricRows(gaOrganicHostnames),
         countryRows: gaMetricRows(gaOrganicCountries),
-        sourceMediumRows: gaMetricRows(gaOrganicSources),
+        sourceMediumRows: organicSourceMediumRows,
+        conservativeExternalSearchSignal: externalSearchSignal,
         testDataFilterEvidence: gaTestFilters.state === "available"
           ? { state: "available", rows: testFilterRows }
           : gaTestFilters,
@@ -668,11 +716,13 @@ module.exports = {
   GOOGLE_SCOPES,
   OUTPUT_ROOT,
   buildWeeklyReport,
+  conservativeExternalSearchSignal,
   createServiceAccountJwt,
   normalizePropertyId,
   normalizeSiteUrl,
   parseEndDate,
   parseServiceAccount,
+  renderSafeSummary,
   reportingPeriod,
   safeRatio,
 };
