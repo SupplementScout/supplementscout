@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import CategoryViewAnalytics from "../components/CategoryViewAnalytics";
+import CategoryDecisionPanel from "../components/CategoryDecisionPanel";
+import CategoryComparisonControls from "../components/CategoryComparisonControls";
 import {
   ComparisonProductThumbnail,
   OfferCheckedBadge,
@@ -13,6 +15,15 @@ import {
   type RouteSearchParams,
 } from "../lib/indexabilityLifecycle";
 import { createLifecycleDataLoader } from "../lib/lifecycleDataCache";
+import {
+  categoryDecisionCandidates,
+  selectCategoryDecisionAnswers,
+} from "../lib/categoryDecision";
+import {
+  buildCategoryControlView,
+  sharedCategoryControlFacts,
+  type CategoryControlView,
+} from "../lib/categoryControls";
 import { formatCurrency, formatUnitPrice } from "../lib/pricing";
 import {
   getWheyIsolateComparison,
@@ -172,11 +183,16 @@ function IsolateProductCard({ row, position }: { row: WheyIsolateComparisonRow; 
   );
 }
 
-export function WheyIsolatePageContent({ result }: { result: WheyIsolateComparisonResult }) {
+export function WheyIsolatePageContent({ result, controlView }: { result: WheyIsolateComparisonResult; controlView?: CategoryControlView<WheyIsolateComparisonRow> }) {
   const jsonLd = buildWheyIsolateStructuredData(result.rows);
   const latestCheck = formatCheckedAt(result.summary.latestOfferCheckedAt);
   const lowestDeliveredRows = getLowestDeliveredWheyIsolateRows(result.rows);
   const lowestDeliveredRow = lowestDeliveredRows[0] ?? null;
+  const decisionAnswers = selectCategoryDecisionAnswers(
+    categoryDecisionCandidates(result.rows, {
+      valueBasis: "cost_per_25g_protein",
+    })
+  );
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
       <CategoryViewAnalytics category="Whey Isolate" sourcePage="whey_isolate_comparison" />
@@ -200,35 +216,16 @@ export function WheyIsolatePageContent({ result }: { result: WheyIsolateComparis
           {!result.error && <p className="mt-4 text-sm leading-6 text-zinc-600">Current coverage: {result.summary.visibleProducts} products, {result.summary.freshOffers} fresh offers and {result.summary.freshRetailers} retailers. {result.summary.productsWithMultipleFreshRetailers} products currently have multiple retailers.</p>}
         </div>
       </section>
-      {lowestDeliveredRows.length > 0 && (
-        <section className="border-y border-zinc-200 bg-white">
-          <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
-            <div className="max-w-4xl">
-              <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Quick price answer</p>
-              <h2 className="mt-2 text-2xl font-bold">Lowest known delivered Whey Isolate prices</h2>
-              <p className="mt-3 leading-7 text-zinc-700">
-                These are the lowest recently checked in-stock totals where delivery is known. Offers with missing delivery are excluded from this shortlist rather than estimated.
-              </p>
-            </div>
-            <div className="mt-6 grid gap-4 md:grid-cols-3">
-              {lowestDeliveredRows.map((row, index) => (
-                <article key={row.id} className="rounded-xl border border-zinc-200 bg-zinc-50 p-5">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">#{index + 1} lowest known delivered total</p>
-                  <h3 className="mt-2 font-bold"><Link href={row.productUrl} className="hover:underline">{row.name}</Link></h3>
-                  <p className="mt-3 text-2xl font-extrabold">{formatCurrency(row.bestOffer.deliveredPrice!.totalPrice)}</p>
-                  <p className="mt-1 text-sm text-zinc-600">From {row.bestOffer.retailer.name}, including known delivery.</p>
-                  <Link href={row.productUrl} className="mt-4 inline-flex min-h-11 items-center font-semibold underline">Compare offers</Link>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      <CategoryDecisionPanel
+        answers={decisionAnswers}
+        category="Whey Isolate"
+      />
       <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><h2 className="text-2xl font-bold">Current Whey Isolate comparison</h2><p className="text-sm text-zinc-600">{latestCheck ? `Latest retailer check: ${latestCheck}` : "No current check time available"}</p></div>
         <p className="mt-4 max-w-4xl text-sm leading-6 text-zinc-600">Products with broader retailer coverage appear first. This is a coverage and price ordering, not a nutritional or health ranking.</p>
+        {controlView && <CategoryComparisonControls basePath={pagePath} category="Whey Isolate" controls={controlView.controls} facets={controlView.facets} sorts={controlView.sorts} resultCount={result.rows.length} totalCount={controlView.totalCount} />}
         {result.error && <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-6"><h2 className="text-xl font-bold">Current Whey Isolate data is temporarily unavailable</h2><p className="mt-2">No old prices have been substituted.</p></div>}
-        {!result.error && result.rows.length === 0 && <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-6"><h2 className="text-xl font-bold">No recently checked Whey Isolate offers</h2><p className="mt-2 text-zinc-600">Older prices remain hidden until retailer data is checked again.</p></div>}
+        {!result.error && result.rows.length === 0 && (!controlView || controlView.totalCount === 0) && <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-6"><h2 className="text-xl font-bold">No recently checked Whey Isolate offers</h2><p className="mt-2 text-zinc-600">Older prices remain hidden until retailer data is checked again.</p></div>}
         {result.rows.length > 0 && <div className="mt-6 space-y-4">{result.rows.map((row, index) => <IsolateProductCard key={row.id} row={row} position={index + 1} />)}</div>}
       </section>
       <section className="border-y border-zinc-200 bg-white">
@@ -255,8 +252,10 @@ export function WheyIsolatePageContent({ result }: { result: WheyIsolateComparis
   );
 }
 
-export default async function WheyIsolatePage() {
+export default async function WheyIsolatePage({ searchParams }: PageProps = {}) {
+  const params = await (searchParams || Promise.resolve({}));
   const result = await getCachedWheyIsolateComparison();
   assertLifecycleDataAvailable(result, pagePath);
-  return <WheyIsolatePageContent result={result} />;
+  const controlView = buildCategoryControlView(result.rows, params, (row) => sharedCategoryControlFacts(row, { verifiedProteinValue: true }), { verifiedValueSort: true });
+  return <WheyIsolatePageContent result={{ ...result, rows: controlView.rows }} controlView={controlView} />;
 }

@@ -28,6 +28,8 @@ function compileModule(filename, options = {}) {
 
     if (request.endsWith("/indexabilityLifecycle")) return compileModule(path.join(process.cwd(), "app/lib/indexabilityLifecycle.ts"));
     if (request.endsWith("/lifecycleDataCache")) return { createLifecycleDataLoader: (_path, _version, load) => load };
+    if (request.endsWith("/categoryControls")) return compileModule(path.join(process.cwd(), "app/lib/categoryControls.ts"));
+    if (request.endsWith("/CategoryComparisonControls")) return () => null;
     return originalLoad.call(this, request, parent, isMain);
   };
 
@@ -52,6 +54,7 @@ const categoryRoutesPath = path.join(process.cwd(), "app", "lib", "categoryRoute
 const sitemapPath = path.join(process.cwd(), "app", "sitemap.ts");
 
 const pricing = compileModule(pricingPath);
+const categoryDecision = compileModule(path.join(process.cwd(), "app", "lib", "categoryDecision.ts"));
 const offerFreshness = compileModule(offerFreshnessPath);
 const launch = compileModule(launchPath, { mocks: { "./offerFreshness": offerFreshness } });
 const FIXTURE_NOW = new Date("2026-07-16T21:00:00.000Z");
@@ -187,6 +190,10 @@ function loadPage(result = comparisonFixture()) {
     mocks: {
       "next/link": { __esModule: true, default: Link },
       "../components/ComparisonProductVisuals": require("./test-helpers/comparison-product-visuals"),
+      "../components/CategoryDecisionPanel": {
+        __esModule: true,
+        default: ({ answers }) => React.createElement("section", null, `Quick decision ${answers.length}`),
+      },
       "../components/ComparisonTransparencyLinks": {
         __esModule: true,
         default: () => null,
@@ -200,6 +207,7 @@ function loadPage(result = comparisonFixture()) {
       "../lib/creatineLaunch": launch,
       "../lib/offerFreshness": offerFreshness,
       "../lib/pricing": pricing,
+      "../lib/categoryDecision": categoryDecision,
     },
   });
 
@@ -431,17 +439,14 @@ test("query errors return a safe empty result", async () => {
   }
 });
 
-test("SSR content includes direct answer, comparison fields, stale catalogue rows and verified fallback", () => {
+test("SSR content includes quick decisions, comparison fields, stale catalogue rows and verified fallback", () => {
   const { page } = loadPage();
   const html = renderToStaticMarkup(React.createElement(page.CreatinePageContent, { result: comparisonFixture() }));
 
   assert.match(html, /Compare Creatine Supplements UK/);
   assert.match(html, /This page compares creatine products available from UK supplement retailers/);
-  assert.match(html, /What is the lowest current creatine delivered price\?/);
-  assert.match(html, /Across 3 active creatine products in this comparison/);
-  assert.match(html, /lowest known delivered price is <strong>£14\.00<\/strong>/);
+  assert.match(html, /Quick decision 1/);
   assert.match(html, /href="\/product\/verified-creatine"/);
-  assert.match(html, /not a claim about every UK seller/);
   for (const heading of ["Product", "Brand", "Best available retailer", "Product price", "Delivered price", "Retailer count", "Cost per 5 g", "Stock\/status"]) {
     assert.match(html, new RegExp(heading));
   }

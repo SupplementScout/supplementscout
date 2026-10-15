@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import CategoryViewAnalytics from "../components/CategoryViewAnalytics";
+import CategoryDecisionPanel from "../components/CategoryDecisionPanel";
+import CategoryComparisonControls from "../components/CategoryComparisonControls";
 import {
   ComparisonProductThumbnail,
   OfferCheckedBadge,
@@ -13,6 +15,11 @@ import {
   type RouteSearchParams,
 } from "../lib/indexabilityLifecycle";
 import { createLifecycleDataLoader } from "../lib/lifecycleDataCache";
+import {
+  categoryDecisionCandidates,
+  selectCategoryDecisionAnswers,
+} from "../lib/categoryDecision";
+import { buildCategoryControlView, sharedCategoryControlFacts, type CategoryControlView } from "../lib/categoryControls";
 import {
   getAminoAcidsComparison,
   type AminoAcidsComparisonResult,
@@ -218,11 +225,16 @@ function AminoAcidsProductCard({
 
 export function AminoAcidsPageContent({
   result,
+  controlView,
 }: {
   result: AminoAcidsComparisonResult;
+  controlView?: CategoryControlView<AminoAcidsComparisonRow>;
 }) {
   const latestCheck = formatCheckedAt(result.summary.latestOfferCheckedAt);
   const jsonLd = buildAminoAcidsStructuredData(result.rows);
+  const decisionAnswers = selectCategoryDecisionAnswers(
+    categoryDecisionCandidates(result.rows)
+  );
 
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
@@ -272,6 +284,8 @@ export function AminoAcidsPageContent({
         </div>
       </section>
 
+      <CategoryDecisionPanel answers={decisionAnswers} category="Amino Acids" />
+
       <section className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 sm:pb-14">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -286,6 +300,8 @@ export function AminoAcidsPageContent({
           effectiveness or suitability.
         </p>
 
+        {controlView && <CategoryComparisonControls basePath={pagePath} category="Amino Acids" controls={controlView.controls} facets={controlView.facets} sorts={controlView.sorts} resultCount={result.rows.length} totalCount={controlView.totalCount} />}
+
         {result.error && (
           <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-6">
             <h2 className="text-xl font-bold">Current amino acid data is temporarily unavailable</h2>
@@ -293,7 +309,7 @@ export function AminoAcidsPageContent({
             <Link href="/search?q=amino%20acids" className="mt-4 inline-flex font-semibold underline">Search amino acids</Link>
           </div>
         )}
-        {!result.error && result.rows.length === 0 && (
+        {!result.error && result.rows.length === 0 && (!controlView || controlView.totalCount === 0) && (
           <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-6">
             <h2 className="text-xl font-bold">No recently checked amino acid offers</h2>
             <p className="mt-2 text-zinc-600">Older prices remain hidden until retailer data is checked again.</p>
@@ -363,8 +379,10 @@ export function AminoAcidsPageContent({
   );
 }
 
-export default async function AminoAcidsPage() {
+export default async function AminoAcidsPage({ searchParams }: PageProps = {}) {
+  const params = await (searchParams || Promise.resolve({}));
   const result = await getCachedAminoAcidsComparison();
   assertLifecycleDataAvailable(result, pagePath);
-  return <AminoAcidsPageContent result={result} />;
+  const controlView = buildCategoryControlView(result.rows, params, sharedCategoryControlFacts);
+  return <AminoAcidsPageContent result={{ ...result, rows: controlView.rows }} controlView={controlView} />;
 }

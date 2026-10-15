@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import CategoryDecisionPanel from "../components/CategoryDecisionPanel";
+import CategoryComparisonControls from "../components/CategoryComparisonControls";
 import { OfferCheckedBadge } from "../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLinks";
 import {
@@ -13,6 +15,15 @@ import {
   type RouteSearchParams,
 } from "../lib/indexabilityLifecycle";
 import { createLifecycleDataLoader } from "../lib/lifecycleDataCache";
+import {
+  creatineDecisionCandidates,
+  selectCategoryDecisionAnswers,
+} from "../lib/categoryDecision";
+import {
+  buildCategoryControlView,
+  creatineCategoryControlFacts,
+  type CategoryControlView,
+} from "../lib/categoryControls";
 import { formatCurrency } from "../lib/pricing";
 import { OFFER_PRESENTATION_LABELS } from "../lib/offerFreshness";
 
@@ -191,15 +202,12 @@ function ProductIdentity({ row }: { row: CreatineComparisonRow }) {
   );
 }
 
-export function CreatinePageContent({ result }: { result: CreatineComparisonResult }) {
+export function CreatinePageContent({ result, controlView }: { result: CreatineComparisonResult; controlView?: CategoryControlView<CreatineComparisonRow> }) {
   const lastUpdated = formatCheckedAt(result.summary.latestOfferCheckedAt);
   const jsonLd = buildCreatineStructuredData(result.rows, result.summary.latestOfferCheckedAt);
-  const lowestDeliveredRow = result.rows.find(
-    (row) => row.bestOffer?.deliveredPrice !== null
+  const decisionAnswers = selectCategoryDecisionAnswers(
+    creatineDecisionCandidates(result.rows)
   );
-  const lowestDeliveredOffer = lowestDeliveredRow?.bestOffer?.deliveredPrice
-    ? lowestDeliveredRow.bestOffer
-    : null;
 
   return (
     <main className="min-h-screen w-full overflow-x-hidden bg-zinc-50 text-zinc-950">
@@ -245,37 +253,10 @@ export function CreatinePageContent({ result }: { result: CreatineComparisonResu
         </div>
       </section>
 
-      {lowestDeliveredRow && lowestDeliveredOffer?.deliveredPrice && (
-        <section className="mx-auto max-w-7xl px-4 pb-8 sm:px-6 sm:pb-12">
-          <div className="max-w-4xl rounded-xl border border-zinc-200 bg-white p-5 sm:p-6">
-            <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
-              Quick price answer
-            </p>
-            <h2 className="mt-2 text-2xl font-bold">
-              What is the lowest current creatine delivered price?
-            </h2>
-            <p className="mt-3 leading-7 text-zinc-700">
-              Across {result.summary.activeProducts} active creatine products
-              in this comparison, the lowest known delivered price is{" "}
-              <strong>{formatCurrency(lowestDeliveredOffer.deliveredPrice.totalPrice)}</strong>{" "}
-              for{" "}
-              <Link
-                href={lowestDeliveredRow.productUrl}
-                className="font-semibold text-zinc-950 underline"
-              >
-                {lowestDeliveredRow.name}
-              </Link>
-              .
-            </p>
-            <p className="mt-3 text-sm leading-6 text-zinc-600">
-              This is the lowest recently checked total in SupplementScout&apos;s
-              current retailer coverage, including known delivery costs. It is
-              not a claim about every UK seller. Confirm the final price and
-              stock with the retailer before buying.
-            </p>
-          </div>
-        </section>
-      )}
+      <CategoryDecisionPanel
+        answers={decisionAnswers}
+        category="Creatine"
+      />
 
       <section aria-labelledby="comparison-heading" className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 sm:pb-14">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -288,6 +269,8 @@ export function CreatinePageContent({ result }: { result: CreatineComparisonResu
           </p>
         </div>
 
+        {controlView && <CategoryComparisonControls basePath={pagePath} category="Creatine" controls={controlView.controls} facets={controlView.facets} sorts={controlView.sorts} resultCount={result.rows.length} totalCount={controlView.totalCount} />}
+
         {result.error && (
           <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-6">
             <h3 className="text-lg font-bold">The comparison is temporarily unavailable</h3>
@@ -296,7 +279,7 @@ export function CreatinePageContent({ result }: { result: CreatineComparisonResu
           </div>
         )}
 
-        {!result.error && result.rows.length === 0 && (
+        {!result.error && result.rows.length === 0 && (!controlView || controlView.totalCount === 0) && (
           <div className="mt-6 rounded-lg border border-zinc-200 bg-white p-6 text-center sm:p-8">
             <h3 className="text-xl font-bold">No Creatine products are available to compare</h3>
             <p className="mx-auto mt-2 max-w-2xl text-zinc-600">There are no active Creatine catalogue products to show right now. Try the broader search while retailer coverage is updated.</p>
@@ -409,8 +392,10 @@ export function CreatinePageContent({ result }: { result: CreatineComparisonResu
   );
 }
 
-export default async function CreatinePage() {
+export default async function CreatinePage({ searchParams }: PageProps = {}) {
+  const params = await (searchParams || Promise.resolve({}));
   const result = await getCachedCreatineComparison();
   assertLifecycleDataAvailable(result, pagePath);
-  return <CreatinePageContent result={result} />;
+  const controlView = buildCategoryControlView(result.rows, params, creatineCategoryControlFacts, { verifiedValueSort: true });
+  return <CreatinePageContent result={{ ...result, rows: controlView.rows }} controlView={controlView} />;
 }

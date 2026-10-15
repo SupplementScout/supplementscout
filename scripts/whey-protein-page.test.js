@@ -26,6 +26,8 @@ function compileModule(filename, options = {}) {
     }
     if (request.endsWith("/indexabilityLifecycle")) return compileModule(path.join(process.cwd(), "app/lib/indexabilityLifecycle.ts"));
     if (request.endsWith("/lifecycleDataCache")) return { createLifecycleDataLoader: (_path, _version, load) => load };
+    if (request.endsWith("/categoryControls")) return compileModule(path.join(process.cwd(), "app/lib/categoryControls.ts"));
+    if (request.endsWith("/CategoryComparisonControls")) return () => null;
     return originalLoad.call(this, request, parent, isMain);
   };
   try {
@@ -79,6 +81,9 @@ const categoryComparison = compileModule(categoryComparisonPath, {
     "./pricing": pricing,
   },
 });
+const categoryDecision = compileModule(
+  path.join(process.cwd(), "app", "lib", "categoryDecision.ts")
+);
 const FIXTURE_NOW = new Date("2026-07-29T12:00:00.000Z");
 
 function rawOffer(overrides = {}) {
@@ -177,11 +182,16 @@ function loadPage(result = fixtureResult()) {
         __esModule: true,
         default: () => null,
       },
+      "../components/CategoryDecisionPanel": {
+        __esModule: true,
+        default: ({ answers }) => React.createElement("section", null, `Quick decision ${answers.length}`),
+      },
       "../components/ComparisonTransparencyLinks": {
         __esModule: true,
         default: () => null,
       },
       "../lib/pricing": pricing,
+      "../lib/categoryDecision": categoryDecision,
       "../lib/wheyComparison": {
         getWheyComparison: async () => {
           calls += 1;
@@ -482,7 +492,7 @@ test("structured data describes the collection and breadcrumbs without fake Prod
   assert.equal(JSON.stringify(data).includes('"@type":"Product"'), false);
 });
 
-test("server-rendered page explains ranking, delivery and verification limits", () => {
+test("server-rendered page includes quick decisions and explains ranking, delivery and verification limits", () => {
   const { page } = loadPage();
   const html = renderToStaticMarkup(
     React.createElement(page.WheyProteinPageContent, {
@@ -491,11 +501,8 @@ test("server-rendered page explains ranking, delivery and verification limits", 
   );
 
   assert.match(html, /Compare Whey Protein Prices UK/);
-  assert.match(html, /What is the lowest current Whey Protein delivered price\?/);
-  assert.match(html, /Across 2 Whey Protein products with recently checked offers/);
-  assert.match(html, /lowest known delivered price is <strong>£28\.99<\/strong>/);
+  assert.match(html, /Quick decision 2/);
   assert.match(html, /href="\/product\/example-whey-protein-1kg"/);
-  assert.match(html, /not a claim about every UK seller/);
   assert.match(html, /Includes known delivery/);
   assert.match(html, /coverage-first comparison/i);
   assert.match(html, /not a claim that the first product is nutritionally superior/i);

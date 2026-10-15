@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import CategoryViewAnalytics from "../components/CategoryViewAnalytics";
+import ComparisonCompletionAnalytics from "../components/ComparisonCompletionAnalytics";
 import {
   ComparisonProductThumbnail,
   OfferCheckedBadge,
@@ -284,10 +285,16 @@ export function TwoProductComparisonPageContent({
             <p className="mt-2 text-zinc-600">Older, incomplete or identity-unresolved offers remain excluded.</p>
           </div>
         ) : selection.state === "ready" && selection.left && selection.right ? (
-          <div className="grid gap-6 lg:grid-cols-2">
-            <ComparisonCard row={selection.left} />
-            <ComparisonCard row={selection.right} />
-          </div>
+          <>
+            <ComparisonCompletionAnalytics
+              leftProductId={selection.left.id}
+              rightProductId={selection.right.id}
+            />
+            <div className="grid gap-6 lg:grid-cols-2">
+              <ComparisonCard row={selection.left} />
+              <ComparisonCard row={selection.right} />
+            </div>
+          </>
         ) : (
           <div className="rounded-xl border border-zinc-200 bg-white p-6 text-zinc-700">
             <SelectionMessage state={selection.state} />

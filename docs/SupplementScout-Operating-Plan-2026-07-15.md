@@ -5,6 +5,18 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
+**15 October 2026 separately scoped product UX checkpoint:** after completing
+the separate nutrition work, the owner explicitly resumed the UX-retention
+goal. Release A adds a shared quick-decision layer and server-side controls to
+the ten existing live category routes; it does not add an SEO route, change a
+lifecycle decision, alter catalogue data or write to production. The work is
+locally complete on current `origin/main` and the focused, quick and full
+quality gates pass, but it is not complete until deployment and public
+verification. SEO-15 remains the single `IN PROGRESS` SEO task and keeps its
+existing order before SEO-17. This separately scoped product release may
+continue beside SEO-15's current read-only monitoring, but must pause before
+any overlapping SEO implementation touches the same routes or release boundary.
+
 **15 October 2026 GYM HIGH source release:** fresh read-only
 production evidence confirms exactly `50` mature, non-quarantined GYM HIGH
 series, `1,966` proven observations, `26` currently eligible series and no
