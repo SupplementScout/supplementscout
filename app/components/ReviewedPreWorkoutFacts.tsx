@@ -7,6 +7,7 @@ import {
 
 const FACT_LABELS: Record<AppliedPreWorkoutFact["key"], string> = {
   serving_size_g: "Serving",
+  serving_size_ml: "Serving",
   caffeine: "Caffeine",
   beta_alanine: "Beta-alanine",
   citrulline: "Citrulline",
@@ -20,8 +21,12 @@ function formatAmount(value: number) {
 }
 
 function factValue(fact: AppliedPreWorkoutFact) {
-  if (fact.key === "serving_size_g" && fact.servingSizeG !== null) {
-    return fact.servingBasisText || `${fact.servingSizeG.toLocaleString("en-GB")} g per serving`;
+  if (
+    ["serving_size_g", "serving_size_ml"].includes(fact.key) &&
+    fact.servingSizeValue !== null && fact.servingSizeUnit !== null
+  ) {
+    return fact.servingBasisText ||
+      `${fact.servingSizeValue.toLocaleString("en-GB")} ${fact.servingSizeUnit} per serving`;
   }
   if (fact.informationState === "confirmed_absent") return "Confirmed absent";
   if (fact.informationState === "present_amount_not_disclosed") {

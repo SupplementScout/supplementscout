@@ -6334,3 +6334,219 @@ one shared Darkstims serving-mass question. Machine-readable evidence is in
 NUT-03 remains `IN PROGRESS`; one next step is obtaining one authoritative
 gram mass for the current Pump V2 scoop or new exact evidence for one of the
 remaining `19` blocked variants.
+
+## NUT-03 Darkstims serving preparation
+
+20 September 2026, the owner supplied the retained current Pump V2 formula-panel
+image. Visual review confirms `SERVING SIZE: 2 LEVEL SCOOPS` and `1 Serving
+(27.5g)`, alongside the already applied ingredient amounts. The original WEBP
+has SHA-256
+`9aac148b94660d475228edec2580a4d57d8d7c36193730180b8fb5a3d3515fb9`.
+It was stored once in private `nutrition-sources`; independent archive readback
+matched the same hash.
+
+One offline artifact now contains exactly four pending `serving_size_g = 27.5`
+candidates for product `1275`, variants `3755`, `3913`, `3914` and `3915`.
+The shared manufacturer-label context binds the same current formula panel to
+the four variants. Dry-run passed with four candidate rows, zero product updates
+and zero database writes. Artifact SHA-256 is
+`510751c42e585646dd67308592ec78db3d72c6233df24b914a71af39a23fa56f`;
+artifact fingerprint is
+`858cc881241cba74397a9a9925121ecdf52146d87ea5bb850244b1dd0061f28f`.
+
+Machine-readable preparation evidence is in
+[nutrition-darkstims-serving-preparation-2026-09-20.json](rollouts/nutrition-darkstims-serving-preparation-2026-09-20.json)
+(SHA-256
+`6d26b0e51e1081eab9abc72e62f172f92a24f7d5c9b1f91fb2f37875c71e8a4b`).
+No production candidate, review, plan or apply occurred. One next step is one
+owner decision for controlled `store -> authenticated review -> explicit-ID
+plan -> guarded apply` of exactly these four unchanged serving candidates.
+Successful apply would make all four Darkstims variants complete and move
+current-offer coverage to `350/369` complete, `2` partial and `17` without
+facts. NUT-03 remains `IN PROGRESS`.
+
+### Darkstims serving-context correction
+
+The authorized four-candidate serving apply was stopped during production
+preflight before store. The new label proves that the displayed `5000 mg`
+beta-alanine, `8000 mg` L-citrulline and `2000 mg` citrulline nitrate amounts
+belong to `2 level scoops (27.5 g)`, while the already applied ingredient facts
+retain the earlier website-derived `1 scoop` basis. Adding only
+`serving_size_g = 27.5` would leave contradictory serving context.
+
+A corrected replacement artifact therefore contains `16` pending candidates:
+the serving size plus the same three ingredient amounts with the label-confirmed
+serving basis for each of variants `3755`, `3913`, `3914` and `3915`. Values and
+forms are unchanged. Dry-run passed with zero writes. Artifact SHA-256 is
+`241c3163e7c2cab0b22324b38cec3b6fb7420457970cb4234c55b75f1bb583a3`;
+fingerprint is
+`d44c407642bd40af2e70e4278bae6dd8175a4a310fdba66034eef3543e4041ac`.
+No candidate from either package was stored in this correction turn.
+
+Machine-readable evidence is in
+[nutrition-darkstims-serving-correction-preparation-2026-09-20.json](rollouts/nutrition-darkstims-serving-correction-preparation-2026-09-20.json)
+(SHA-256
+`f7f0b7da466521213d05ac5a7e0b79d3ca91f314a509410a1ef2217abc4456cd`).
+One next step is explicit owner authorization for the corrected `16`-candidate
+artifact through store, authenticated review, explicit-ID plan and guarded
+apply. The earlier four-candidate authorization must not be reused.
+
+### Darkstims serving-context correction execution
+
+20 September 2026, explicit owner authorization advanced the corrected
+`16`-candidate artifact through production store, authenticated review, plan
+and guarded apply. Candidates `3166`-`3181` were created and approved with the
+unchanged manufacturer-label image and exact variant bindings.
+
+The zero-product-update plan has SHA-256
+`8ec3a8d96dfcbaeb8697b592578072d25099892339aac720a792469372e4dc29`
+and fingerprint
+`456756369c9475a21bdb4a3d1ac6fe950cc17d928f1f2e0713ec52dc19fa152f`.
+It changed only `serving_size_g`, `beta_alanine` and
+`citrulline_components` on variants `3755`, `3913`, `3914` and `3915`.
+Each now records `27.5 g`, `2 level scoops (27.5 g)`, `5000 mg`
+beta-alanine, `8000 mg` L-citrulline and `2000 mg` citrulline nitrate.
+The existing confirmed-absent caffeine and creatine facts remain unchanged.
+
+Fresh production readback matched every complete plan-after object and all
+`16` approved evidence records. All four public pages display the corrected
+serving and ingredient context without private provenance. Current-offer
+coverage is now `350/369` complete (`94.9%`), `2` partial and `17` without
+facts. Machine-readable evidence is in
+[nutrition-darkstims-serving-correction-execution-2026-09-20.json](rollouts/nutrition-darkstims-serving-correction-execution-2026-09-20.json)
+(SHA-256
+`b8f7f4e40f5bccd060687d534b2f43663d4a2261ccee2bf24ecaf32c218c7103`).
+NUT-03 remains `IN PROGRESS`; the practical current-offer remainder is `19`
+variants with exact evidence or identity blockers.
+
+## NUT-03 current-offer reconciliation and six-variant preparation
+
+15 October 2026, a fresh read-only production reconciliation replaced the old
+`369`-variant offer denominator with the actual current set: `398` exact
+variants, of which `374` are complete, `2` partial and `22` have no applied
+facts. Eighteen previously recorded incomplete variants remain current, six
+new incomplete variants entered the current-offer scope, and historical variant
+`3928` is no longer current. No completed variant was reprocessed.
+
+The six new variants were assessed as one closed NUT-03 preparation step.
+Official shared-product context now binds PER4M variants `1086` and `3591` to
+the retained 570 g / 19 g formula, and the current Conteh manufacturer page
+binds Cherry variant `1250` to the shared Mega Pump Elite 19.5 g table. Exact
+retailer-hosted label evidence supports Smack variant `996`; the Kilo Labs
+manufacturer page and exact retailer context support Supreme V2 variant `3168`.
+
+Four local artifacts contain `25` pending candidates for five variants:
+
+- product `784`, variant `996`: artifact SHA-256
+  `8f3b1d92946e5a361533a6d89b2b78a60cba347cd8ef96f3cf03603f816e2bec`,
+  fingerprint
+  `6f2903a4128d4e405d5cf2be46e493b92e156f028c917f7456d506a12b9a188d`;
+- product `789`, variants `1086` and `3591`: artifact SHA-256
+  `0d6d148a54dad1895d9ca39a9b3859ec3e05978205c3db0f5c233cc251ddde93`,
+  fingerprint
+  `2bc415cfa2604b6cf020970c77e1c6b0ace6bd103a6457c7aebdd1fa67d9b9c1`;
+- product `842`, variant `1250`: artifact SHA-256
+  `e908c3d41ad83e98196040dfcacb6b14e61002fa19fc9258c4071a3b3a73a576`,
+  fingerprint
+  `23526feb1b23c105500d9d76b2aa09468e9e604401dfb2d350970068ec8c009c`;
+- product `972`, variant `3168`: artifact SHA-256
+  `033aa609d0312b0c621f7b2e321663aa4f9bb6bbf134b5158ea807fc94ee62d3`,
+  fingerprint
+  `a3cef59ec9b9331424d4ba032b35970ba10162eb94addec54231a649a3c4bd8a`.
+
+All four `nutrition:candidates:store --dry-run` validations passed with `25`
+candidate rows, zero product updates and zero database writes. Multi-source
+caffeine labels for Smack and Supreme remain
+`present_amount_not_disclosed`: individual caffeine-compound masses are
+preserved, but compound mass is not converted into a guessed total caffeine
+amount.
+
+Kilo Labs Thiquid variant `3185` remains isolated. Its retained exact source
+establishes a `40 ml` serving, caffeine and beta-alanine absence, `5000 mg`
+L-citrulline and creatine absence. The existing public pre-workout presentation
+assumes structured serving-basis values are grams, so applying this liquid
+variant now could display `40 ml` as `40 g`. It requires a separately authorized
+extension that preserves `serving_basis_unit = ml` through presentation and
+completeness checks.
+
+Machine-readable evidence is in
+[nutrition-nut03-current-six-preparation-2026-10-15.json](rollouts/nutrition-nut03-current-six-preparation-2026-10-15.json).
+Raw pages, images and candidate artifacts remain under ignored `tmp/`. The four
+new source reviews have not been written to private production storage; their
+planned durable URIs therefore remain pending separate authorization. No
+candidate store, review, plan, apply, catalogue update or production-storage
+write occurred. NUT-03 remains `IN PROGRESS`. One next step is explicit owner
+authorization to archive and hash-readback the four source reviews, then advance
+the unchanged `25` candidates through the guarded workflow. Variant `3185`
+remains outside that operation.
+
+### NUT-03 current-offer five-variant execution
+
+15 October 2026, explicit owner authorization advanced the unchanged `25`
+candidates for products `784`, `789`, `842` and `972` through private archive,
+store, authenticated review, explicit-ID plans and guarded apply. The five exact
+variants are `996`, `1086`, `3591`, `1250` and `3168`; candidates `3182`-`3206`
+are all `APPROVED`. The four source reviews were stored in private
+`nutrition-sources`, and independent downloads matched all four SHA-256 values.
+
+Four plans contained zero product updates and exactly five
+`product_variants.nutrition_override` updates. Their SHA-256 values are
+`36bf630cec0e3e686a3c3349e4c1b40fd0071d5175390f472f1788755a58bd8e`,
+`8932f5a9d28e86cc1505731a70888a1904bb33a53a86e256e96c3310894c17e5`,
+`58edd85ccfb003d60b4602d976c37979fa7fecf5ecb985a198ffc497c7edeac7`
+and `03e97fb5b366c9797ddda260ba6203bcb41fb03bc2ade149aaf7bb11649eb232`.
+Fresh readback matched every full `after` object, approval and evidence record;
+`nutrition_verified`, legacy `creatine_per_serving_g` and products were
+unchanged. Replaying the plans produced four safe stale-before rejections and
+zero additional writes.
+
+All five public variant URLs display the applied facts without private
+provenance. The caffeine-free filter includes confirmed-absent variant `1250`
+and excludes the four targets whose caffeine is present or present without a
+single disclosed total. At readback, the time-dependent current-offer set was
+`398`: `374` complete, `7` partial and `17` without facts; all five targets are
+individually classified complete. Aggregate classes also reflect concurrent
+offer-freshness changes outside this operation and are not treated as a fixed
+before/after cohort.
+
+Machine-readable evidence is in
+[nutrition-nut03-current-six-execution-2026-10-15.json](rollouts/nutrition-nut03-current-six-execution-2026-10-15.json).
+Variant `3185` remains excluded because its `40 ml` serving cannot yet be
+represented safely by the current public gram-serving presentation. NUT-03
+remains `IN PROGRESS`. One next step is a separately authorized, minimal
+presentation extension preserving `serving_basis_unit = ml` before that variant
+is reconsidered.
+
+### NUT-03 liquid-serving presentation compatibility
+
+15 October 2026, the separately authorized bounded implementation extended the
+existing reviewed pre-workout fact path to preserve an explicit serving value
+and unit. The same resolver and component now support reviewed `serving_size_g`
+and `serving_size_ml` facts; no product-specific branch, second importer or
+second panel was added. If both serving representations are present, the
+resolver fails closed and exposes neither as the reviewed serving. Structured
+ingredient facts retain their actual `g`, `ml` or `count` serving-basis unit.
+
+The existing variant planner already supported `serving_size_ml`. A regression
+test now proves that a `40 ml` exact-variant candidate changes only
+`nutrition_override.serving_size_ml` and never synthesizes
+`serving_size_g`. Public rendering displays `40 ml per serving`, and the
+reusable completeness contract accepts exactly one reviewed serving
+representation together with the four tracked ingredient facts.
+
+Focused nutrition, planner and presentation tests passed `74/74`; typecheck,
+test inventory, `verify:project` and `verify:quick` passed. `verify:full`
+remains explicitly non-green: `423` passed, `8` failed and `3` skipped because
+of unrelated sealed retailer/review fixture mismatches, including historical
+SHA drift and a CRLF/LF manifest comparison. Those fixtures were not changed in
+this nutrition task.
+
+Machine-readable evidence is in
+[nutrition-nut03-liquid-serving-presentation-implementation-2026-10-15.json](rollouts/nutrition-nut03-liquid-serving-presentation-implementation-2026-10-15.json).
+Its SHA-256 is
+`d8e7e684acce47f1d955512cee02676085b81a9f9f87a00921b3c90e74539de2`.
+No migration, candidate store, review, plan, apply or other production data
+write occurred, and variant `3185` remains unchanged. NUT-03 stays
+`IN PROGRESS`. One next step is to publish and deploy this bounded compatibility
+change and verify the existing public product presentation before preparing
+variant `3185` for a separately authorized guarded nutrition workflow.

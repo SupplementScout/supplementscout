@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-nut03-current-six-preparation-evidence-v1",
+  "status": "LOCAL_VALIDATION_PENDING_ARCHIVE",
+  "prepared_at": "2026-10-15",
+  "production_readback": {
+    "current_offer_variants": 398,
+    "complete": 374,
+    "partial": 2,
+    "none": 22,
+    "database_writes": 0
+  },
+  "scope": {
+    "assessed_variants": 6,
+    "ready_after_archive_variants": 5,
+    "candidate_facts": 25,
+    "production_candidate_writes": 0,
+    "review_writes": 0,
+    "apply_writes": 0,
+    "production_storage_writes": 0
+  },
+  "artifacts": [
+    {
+      "product_id": "784",
+      "variant_ids": ["996"],
+      "candidate_count": 5,
+      "path": "tmp/nutrition-nut03-current-six-2026-10-15/candidate-artifact/nutrition-candidates-ncr1-nut03-current-six-20261015-784.json",
+      "sha256": "8f3b1d92946e5a361533a6d89b2b78a60cba347cd8ef96f3cf03603f816e2bec",
+      "fingerprint": "6f2903a4128d4e405d5cf2be46e493b92e156f028c917f7456d506a12b9a188d",
+      "dry_run": "PASS"
+    },
+    {
+      "product_id": "789",
+      "variant_ids": ["1086", "3591"],
+      "candidate_count": 10,
+      "path": "tmp/nutrition-nut03-current-six-2026-10-15/candidate-artifact/nutrition-candidates-ncr1-nut03-current-six-20261015-789.json",
+      "sha256": "0d6d148a54dad1895d9ca39a9b3859ec3e05978205c3db0f5c233cc251ddde93",
+      "fingerprint": "2bc415cfa2604b6cf020970c77e1c6b0ace6bd103a6457c7aebdd1fa67d9b9c1",
+      "dry_run": "PASS"
+    },
+    {
+      "product_id": "842",
+      "variant_ids": ["1250"],
+      "candidate_count": 5,
+      "path": "tmp/nutrition-nut03-current-six-2026-10-15/candidate-artifact/nutrition-candidates-ncr1-nut03-current-six-20261015-842.json",
+      "sha256": "e908c3d41ad83e98196040dfcacb6b14e61002fa19fc9258c4071a3b3a73a576",
+      "fingerprint": "23526feb1b23c105500d9d76b2aa09468e9e604401dfb2d350970068ec8c009c",
+      "dry_run": "PASS"
+    },
+    {
+      "product_id": "972",
+      "variant_ids": ["3168"],
+      "candidate_count": 5,
+      "path": "tmp/nutrition-nut03-current-six-2026-10-15/candidate-artifact/nutrition-candidates-ncr1-nut03-current-six-20261015-972.json",
+      "sha256": "033aa609d0312b0c621f7b2e321663aa4f9bb6bbf134b5158ea807fc94ee62d3",
+      "fingerprint": "a3cef59ec9b9331424d4ba032b35970ba10162eb94addec54231a649a3c4bd8a",
+      "dry_run": "PASS"
+    }
+  ],
+  "proposals": [
+    {
+      "product_id": "784",
+      "variant_id": "996",
+      "serving": "2 scoops (19.4 g)",
+      "caffeine": "present_amount_not_disclosed; 150 mg caffeine anhydrous plus 200 mg dicaffeine malate at 74% caffeine are preserved as written",
+      "beta_alanine_mg": 3200,
+      "citrulline": "6000 mg L-citrulline",
+      "creatine": "confirmed_absent"
+    },
+    {
+      "product_id": "789",
+      "variant_ids": ["1086", "3591"],
+      "serving": "1 scoop (19 g)",
+      "caffeine_mg": 300,
+      "beta_alanine_mg": 3200,
+      "citrulline": "8000 mg L-citrulline",
+      "creatine": "confirmed_absent"
+    },
+    {
+      "product_id": "842",
+      "variant_id": "1250",
+      "serving": "1 level scoop (19.5 g)",
+      "caffeine": "confirmed_absent",
+      "beta_alanine": "confirmed_absent",
+      "citrulline": "5000 mg L-citrulline",
+      "creatine": "confirmed_absent"
+    },
+    {
+      "product_id": "972",
+      "variant_id": "3168",
+      "serving": "1 scoop (19.8 g)",
+      "caffeine": "present_amount_not_disclosed; 350 mg caffeine anhydrous plus 100 mg dicaffeine malate are preserved as written",
+      "beta_alanine_mg": 3500,
+      "citrulline": "8500 mg citrulline malate 2:1",
+      "creatine": "confirmed_absent"
+    }
+  ],
+  "blocked": [
+    {
+      "product_id": "973",
+      "variant_id": "3185",
+      "source_facts": {
+        "serving": "40 ml",
+        "caffeine": "confirmed_absent",
+        "beta_alanine": "confirmed_absent",
+        "citrulline": "5000 mg L-citrulline",
+        "creatine": "confirmed_absent"
+      },
+      "reason": "The existing public pre-workout presentation assumes structured serving-basis values are grams and cannot safely present a liquid 40 ml serving.",
+      "required_action": "Extend the existing presentation and completeness contract to preserve serving_basis_unit=ml before candidate store/apply."
+    }
+  ],
+  "archive": {
+    "local_sources": "tmp/nutrition-nut03-current-six-2026-10-15",
+    "private_source_reviews": 4,
+    "status": "PENDING_SEPARATE_AUTHORIZATION",
+    "note": "Dry-run validates durable URI syntax but does not prove the planned private objects exist. No production storage write occurred."
+  },
+  "next_step": "After separate authorization, archive the four source reviews with hash readback and advance the unchanged 25 candidates through the guarded production workflow. Variant 3185 remains isolated pending liquid-serving presentation support."
+}

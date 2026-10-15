@@ -174,6 +174,42 @@ test("bounded product 38 variant 726 test candidate preserves exact identity and
   assert.equal(validatePlan(plan), plan);
 });
 
+test("variant planner preserves a liquid serving as ml without creating a gram serving", () => {
+  const liquid = candidate({
+    product_id: "973",
+    product_variant_id: "3185",
+    proposed_field: "serving_size_ml",
+    proposed_value: 40,
+    approved_value: 40,
+    proposed_unit: "ml",
+    source_file_sha256: pumpHash,
+    source_archive_uri: pumpArchive,
+    evidence_snippet: "Serving size: 40 ml",
+  });
+  const plan = buildApprovedPlan(
+    [liquid],
+    [{ id: "973", name: "Kilo Labs Thiquid" }],
+    runId,
+    "2026-10-15T12:00:00.000Z",
+    [{ id: "3185", product_id: "973", display_name: "25 servings", nutrition_override: {} }],
+  );
+
+  assert.equal(plan.status, "READY_FOR_EXPLICIT_APPLY");
+  assert.equal(plan.product_updates.length, 0);
+  const servingChange = plan.variant_updates[0].changes.serving_size_ml;
+  assert.equal(servingChange.before, null);
+  assert.equal(servingChange.after, 40);
+  assert.equal(servingChange.no_change, false);
+  assert.equal(servingChange.evidence.length, 1);
+  assert.equal(servingChange.evidence[0].source_field, "serving_size_ml");
+  assert.equal(servingChange.evidence[0].product_variant_id, "3185");
+  assert.equal(servingChange.evidence[0].source_file_sha256, pumpHash);
+  assert.equal(servingChange.evidence[0].source_archive_uri, pumpArchive);
+  assert.equal(plan.variant_updates[0].after_nutrition_override.serving_size_ml, 40);
+  assert.equal("serving_size_g" in plan.variant_updates[0].after_nutrition_override, false);
+  assert.equal(validatePlan(plan), plan);
+});
+
 test("variant planner rejects a product mismatch and missing durable evidence", () => {
   const base = candidate({
     product_id: "38", product_variant_id: "726", source_file_sha256: pumpHash,

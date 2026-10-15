@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-nut03-current-six-execution-evidence-v1",
+  "status": "APPLIED_AND_READ_BACK",
+  "executed_at": "2026-10-15",
+  "production": {
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "target_environment": "PRODUCTION",
+    "preflight": "PASS",
+    "existing_candidate_fingerprints_before": 0,
+    "target_overrides_empty_before": 5
+  },
+  "scope": {
+    "candidate_count": 25,
+    "candidate_ids": [
+      "3182", "3183", "3184", "3185", "3186",
+      "3187", "3188", "3189", "3190", "3191",
+      "3192", "3193", "3194", "3195", "3196",
+      "3197", "3198", "3199", "3200", "3201",
+      "3202", "3203", "3204", "3205", "3206"
+    ],
+    "product_ids": ["784", "789", "842", "972"],
+    "variant_ids": ["996", "1086", "3591", "1250", "3168"],
+    "product_updates": 0,
+    "variant_updates": 5,
+    "excluded_variant_ids": ["3185"]
+  },
+  "archive": {
+    "bucket": "nutrition-sources",
+    "private": true,
+    "objects_stored": 4,
+    "hash_readback": "4/4 PASS",
+    "reviews": [
+      {"product_id": "784", "sha256": "c60eac51ee8be08e4834c5328bc0dd834fb85e70f41cd1212d4e65df0b1e5680"},
+      {"product_id": "789", "sha256": "80f2d297d37dd8741e96770402f62f3af1a0ffd32b79eb76875c591bbdec61fa"},
+      {"product_id": "842", "sha256": "5992e7dbaa288cc0f7c1d759c03a1dc0ccf51da165bc39c85cc2c27760842b9f"},
+      {"product_id": "972", "sha256": "c62d51812ba7258f0b78fd0980333c87b03cc583958e684b29e2996d7ba367bf"}
+    ]
+  },
+  "store": {
+    "result": "PASS",
+    "candidate_rows_created": 25,
+    "product_updates": 0
+  },
+  "review": {
+    "result": "PASS",
+    "mechanism": "authenticated existing admin review route",
+    "approved": 25,
+    "already_approved": 0,
+    "review_metadata_present_after": true
+  },
+  "plans": [
+    {
+      "run_id": "NCR1-nut03-current-six-20261015-784",
+      "variant_ids": ["996"],
+      "candidate_ids": ["3182", "3183", "3184", "3185", "3186"],
+      "path": "tmp/nutrition-approved-plan/NCR1-nut03-current-six-20261015-784-ef03adbc31ea.json",
+      "sha256": "36bf630cec0e3e686a3c3349e4c1b40fd0071d5175390f472f1788755a58bd8e",
+      "fingerprint": "ef03adbc31ea54160b7bc3ba2a2dc7f3c0db2f7c46887ee77603fb2324023486"
+    },
+    {
+      "run_id": "NCR1-nut03-current-six-20261015-789",
+      "variant_ids": ["1086", "3591"],
+      "candidate_ids": ["3187", "3188", "3189", "3190", "3191", "3192", "3193", "3194", "3195", "3196"],
+      "path": "tmp/nutrition-approved-plan/NCR1-nut03-current-six-20261015-789-858a911c80c6.json",
+      "sha256": "8932f5a9d28e86cc1505731a70888a1904bb33a53a86e256e96c3310894c17e5",
+      "fingerprint": "858a911c80c6409d771afde472bee6fc5ddb20243344a2dae1ce16cd48e47760"
+    },
+    {
+      "run_id": "NCR1-nut03-current-six-20261015-842",
+      "variant_ids": ["1250"],
+      "candidate_ids": ["3197", "3198", "3199", "3200", "3201"],
+      "path": "tmp/nutrition-approved-plan/NCR1-nut03-current-six-20261015-842-abc3290301f4.json",
+      "sha256": "58edd85ccfb003d60b4602d976c37979fa7fecf5ecb985a198ffc497c7edeac7",
+      "fingerprint": "abc3290301f43327f3d350608e8accca6dc3a4a658a259dff981c0397f44190f"
+    },
+    {
+      "run_id": "NCR1-nut03-current-six-20261015-972",
+      "variant_ids": ["3168"],
+      "candidate_ids": ["3202", "3203", "3204", "3205", "3206"],
+      "path": "tmp/nutrition-approved-plan/NCR1-nut03-current-six-20261015-972-3360b2d9bc29.json",
+      "sha256": "03e97fb5b366c9797ddda260ba6203bcb41fb03bc2ade149aaf7bb11649eb232",
+      "fingerprint": "3360b2d9bc290da95e1c4c9033a4b9915739c5e54caee4bd50f5370130cb3d00"
+    }
+  ],
+  "apply": {
+    "result": "PASS",
+    "status": "APPLIED_REVIEWED_NUTRITION_FIELDS",
+    "changed_products": 0,
+    "changed_variants": 5,
+    "changed_fields_per_variant": ["serving_size_g", "caffeine", "beta_alanine", "citrulline", "creatine"]
+  },
+  "independent_readback": {
+    "result": "PASS",
+    "complete_plan_after_matches": 5,
+    "approved_candidates": 25,
+    "evidence_unchanged": true,
+    "nutrition_verified_unchanged": true,
+    "legacy_creatine_per_serving_g_unchanged": true,
+    "queue_before": {"approved": 3159, "pending": 16, "rejected": 6},
+    "queue_after": {"approved": 3184, "pending": 16, "rejected": 6}
+  },
+  "idempotency": {
+    "result": "PASS_SAFE_REJECTION",
+    "plans_checked": 4,
+    "additional_writes": 0,
+    "reason": "Each replay was rejected because the target override no longer matched the plan's empty before state."
+  },
+  "public_readback": {
+    "result": "PASS",
+    "pages_checked": 5,
+    "urls": [
+      "https://www.supplementscout.co.uk/product/smack-pre-workout-pink-starblast-20-servings?variant=996",
+      "https://www.supplementscout.co.uk/product/per4m-pre-workout-stim-570g?variant=1086",
+      "https://www.supplementscout.co.uk/product/per4m-pre-workout-stim-570g?variant=3591",
+      "https://www.supplementscout.co.uk/product/conteh-sports-mega-pump-elite-30-servings?variant=1250",
+      "https://www.supplementscout.co.uk/product/kilo-labs-supreme-pre-workout-20-servings-peach-rings-flavour?variant=3168"
+    ],
+    "caffeine_free_filter": {
+      "result": "PASS",
+      "expected_target_visible": "1250",
+      "caffeinated_or_unquantified_targets_excluded": ["996", "1086", "3591", "3168"]
+    },
+    "private_provenance_exposed": false
+  },
+  "current_offer_readback": {
+    "definition": "active exact pre-workout variants with an in-stock offer checked within 24 hours",
+    "total": 398,
+    "complete": 374,
+    "partial": 7,
+    "none": 17,
+    "all_five_targets_classified_complete": true,
+    "note": "The live offer set is time-dependent. The five targets moved from empty overrides to complete; aggregate class counts also reflect concurrent freshness changes outside this operation."
+  },
+  "retained_blocker": {
+    "product_id": "973",
+    "variant_id": "3185",
+    "reason": "Liquid 40 ml serving still requires presentation and completeness support for serving_basis_unit=ml."
+  },
+  "next_step": "Prepare the separately authorized presentation extension for liquid ml servings before reconsidering product 973 variant 3185; do not reuse this apply authorization."
+}

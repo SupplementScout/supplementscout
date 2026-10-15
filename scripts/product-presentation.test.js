@@ -399,11 +399,11 @@ test("reviewed pre-workout facts render exact states, forms and public source ki
       productVariantId: "1047",
       caffeineFreeConfirmed: true,
       facts: [
-        { key: "serving_size_g", informationState: null, amountPerServingMg: null, servingSizeG: 17, servingBasisText: "Serving Size:17g (2 scoops)", ingredientForm: null, ingredientRatio: null, sourceKinds: ["product_label"] },
-        { key: "caffeine", informationState: "confirmed_absent", amountPerServingMg: null, servingSizeG: null, servingBasisText: null, ingredientForm: null, ingredientRatio: null, sourceKinds: ["brand_owner_statement"] },
-        { key: "citrulline", informationState: "present_with_amount", amountPerServingMg: 5000, servingSizeG: 15, servingBasisText: "Serving Size: 2 Scoops (15 g)", ingredientForm: "citrulline_malate", ingredientRatio: "2:1", sourceKinds: ["product_label"] },
-        { key: "creatine", informationState: "present_with_amount", amountPerServingMg: 3000, servingSizeG: 15, servingBasisText: "Serving Size: 2 Scoops (15 g)", ingredientForm: "creatine_monohydrate", ingredientRatio: null, sourceKinds: ["product_label"] },
-        { key: "beta_alanine", informationState: "conflicting_information", amountPerServingMg: null, servingSizeG: null, servingBasisText: null, ingredientForm: null, ingredientRatio: null, sourceKinds: ["manufacturer_source"] },
+        { key: "serving_size_g", informationState: null, amountPerServingMg: null, servingSizeValue: 17, servingSizeUnit: "g", servingBasisText: "Serving Size:17g (2 scoops)", ingredientForm: null, ingredientRatio: null, sourceKinds: ["product_label"] },
+        { key: "caffeine", informationState: "confirmed_absent", amountPerServingMg: null, servingSizeValue: null, servingSizeUnit: null, servingBasisText: null, ingredientForm: null, ingredientRatio: null, sourceKinds: ["brand_owner_statement"] },
+        { key: "citrulline", informationState: "present_with_amount", amountPerServingMg: 5000, servingSizeValue: 15, servingSizeUnit: "g", servingBasisText: "Serving Size: 2 Scoops (15 g)", ingredientForm: "citrulline_malate", ingredientRatio: "2:1", sourceKinds: ["product_label"] },
+        { key: "creatine", informationState: "present_with_amount", amountPerServingMg: 3000, servingSizeValue: 15, servingSizeUnit: "g", servingBasisText: "Serving Size: 2 Scoops (15 g)", ingredientForm: "creatine_monohydrate", ingredientRatio: null, sourceKinds: ["product_label"] },
+        { key: "beta_alanine", informationState: "conflicting_information", amountPerServingMg: null, servingSizeValue: null, servingSizeUnit: null, servingBasisText: null, ingredientForm: null, ingredientRatio: null, sourceKinds: ["manufacturer_source"] },
       ],
     },
   }));
@@ -418,6 +418,22 @@ test("reviewed pre-workout facts render exact states, forms and public source ki
   assert.doesNotMatch(html, /supabase-storage|source_archive_uri|approved_by/);
 });
 
+test("reviewed pre-workout facts render liquid servings as ml", () => {
+  const Component = loadReviewedPreWorkoutFactsComponent();
+  const html = renderToStaticMarkup(React.createElement(Component, {
+    variantName: "Liquid / 25 servings",
+    facts: {
+      productId: "973",
+      productVariantId: "3185",
+      caffeineFreeConfirmed: true,
+      facts: [{ key: "serving_size_ml", informationState: null, amountPerServingMg: null, servingSizeValue: 40, servingSizeUnit: "ml", servingBasisText: null, ingredientForm: null, ingredientRatio: null, sourceKinds: ["product_label"] }],
+    },
+  }));
+
+  assert.match(html, /40 ml per serving/);
+  assert.doesNotMatch(html, /40 g per serving/);
+});
+
 test("reviewed citrulline blend components render separately without implying a pure total", () => {
   const Component = loadReviewedPreWorkoutFactsComponent();
   const html = renderToStaticMarkup(React.createElement(Component, {
@@ -427,8 +443,8 @@ test("reviewed citrulline blend components render separately without implying a 
       productVariantId: "3763",
       caffeineFreeConfirmed: false,
       facts: [
-        { key: "citrulline_component", informationState: "present_with_amount", amountPerServingMg: 2500, servingSizeG: 17, servingBasisText: "Approx. 2 scoops (17 g)", ingredientForm: "citrulline_malate", ingredientRatio: "2:1", sourceKinds: ["manufacturer_source"] },
-        { key: "citrulline_component", informationState: "present_with_amount", amountPerServingMg: 500, servingSizeG: 17, servingBasisText: "Approx. 2 scoops (17 g)", ingredientForm: "l_citrulline", ingredientRatio: null, sourceKinds: ["manufacturer_source"] },
+        { key: "citrulline_component", informationState: "present_with_amount", amountPerServingMg: 2500, servingSizeValue: 17, servingSizeUnit: "g", servingBasisText: "Approx. 2 scoops (17 g)", ingredientForm: "citrulline_malate", ingredientRatio: "2:1", sourceKinds: ["manufacturer_source"] },
+        { key: "citrulline_component", informationState: "present_with_amount", amountPerServingMg: 500, servingSizeValue: 17, servingSizeUnit: "g", servingBasisText: "Approx. 2 scoops (17 g)", ingredientForm: "l_citrulline", ingredientRatio: null, sourceKinds: ["manufacturer_source"] },
       ],
     },
   }));
