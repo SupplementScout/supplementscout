@@ -88,6 +88,35 @@ export type AnalyticsEventMap = {
     position: number;
     source_page: "product";
   };
+  view_my_supplements: {
+    item_count_band: "0" | "1" | "2_5" | "6_15" | "16_30";
+    reconciliation_state: "empty" | "checking";
+    is_return_visit: boolean;
+  };
+  save_supplement: {
+    product_id: string;
+    category?: string;
+    entry_point: "product";
+  };
+  update_supply_estimate: {
+    calculation_state: "remaining" | "daily_use" | "reorder_buffer" | "last_price";
+  };
+  remove_saved_supplement: {
+    product_id: string;
+    source_page: "my_supplements";
+  };
+  export_my_supplements: {
+    item_count_band: "0" | "1" | "2_5" | "6_15" | "16_30";
+    result: "downloaded";
+  };
+  import_my_supplements: {
+    mode: "merge" | "replace";
+    item_count_band: "0" | "1" | "2_5" | "6_15" | "16_30";
+    result: "applied";
+  };
+  share_my_supplements: {
+    item_count_band: "0" | "1" | "2_5" | "6_15" | "16_30";
+  };
   no_results: {
     result_count: 0;
     has_filters: boolean;
@@ -112,6 +141,13 @@ export const ANALYTICS_EVENT_PARAMETER_KEYS = {
   retailer_offer_click: ["product_id", "product_name", "variant_id", "category", "retailer_id", "retailer_name", "offer_price", "position", "source_page", "is_affiliate"],
   view_better_value_alternatives: ["current_product_id", "category", "value_basis", "alternative_count", "source_page"],
   select_better_value_alternative: ["current_product_id", "alternative_product_id", "category", "value_basis", "position", "source_page"],
+  view_my_supplements: ["item_count_band", "reconciliation_state", "is_return_visit"],
+  save_supplement: ["product_id", "category", "entry_point"],
+  update_supply_estimate: ["calculation_state"],
+  remove_saved_supplement: ["product_id", "source_page"],
+  export_my_supplements: ["item_count_band", "result"],
+  import_my_supplements: ["mode", "item_count_band", "result"],
+  share_my_supplements: ["item_count_band"],
   no_results: ["result_count", "has_filters", "source_page"],
 } as const satisfies Record<AnalyticsEventName, readonly string[]>;
 export type QueuedAnalyticsEvent = {
