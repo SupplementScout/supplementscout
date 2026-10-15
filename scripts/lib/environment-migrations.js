@@ -219,12 +219,7 @@ const APPLIED_EXCLUSIONS = Object.freeze({
 
 const PENDING_MIGRATIONS = Object.freeze({
   STAGING: Object.freeze([]),
-  PRODUCTION: Object.freeze([
-    Object.freeze({
-      filename: "20261015130000_release_gym_high_seo15_stage3_source.sql",
-      sha256: "ccceccaffb4fc725d3d0d00515d5be6f2ede43aa65077d7abd97fc2e3b57b235",
-    }),
-  ]),
+  PRODUCTION: Object.freeze([]),
 });
 
 function migrationIdentifier(filename) {

@@ -1,6 +1,6 @@
 # SEO-15 GYM HIGH source release — 15 October 2026
 
-**State:** prepared and rollback-rehearsed; production apply not yet performed
+**State:** production applied and independently verified
 
 **Authority:** `owner-chat-2026-10-14-end-gym-high-owner-deferred`
 
@@ -81,16 +81,35 @@ inside the transaction and after rollback:
 The existing private Review Queue schema and anon/authenticated denials also
 remained intact. No production write was committed.
 
-## Remaining release sequence
+## Production apply and independent readback
 
-1. Review and merge this exact SHA-bound package with passing CI.
-2. From the merged commit, apply exactly the selected migration through
-   `scripts/apply-selected-migrations.js`; do not use direct SQL or include any
-   unrelated migration.
-3. Run the independent read-only SEO-15 audit and migration-ledger readback.
-   Require two released retailers, unchanged two Jon's candidates, zero GYM HIGH
-   candidates unless fresh evidence independently qualifies one, unchanged
-   catalogue counts and the intended private ACLs.
-4. Seal the new production ledger and evidence in the canonical plans. Keep the
-   public Stage 3 flag off: the `12 products / 30 offers / 4 retailers` gate and
-   its separate owner decision remain binding.
+PR `#347` passed all required checks and merged as
+`a7ff61e1ab9a8aa110fa9a82ff63318e30c98413`. Main Project Guardian, Baseline
+Validation and Quality Gate run `38736396533` passed. A final rollback-only
+rehearsal from that exact merge commit passed before apply.
+
+The existing selected-migration runner then committed exactly migration
+`20261015130000_release_gym_high_seo15_stage3_source` with confirmation
+fingerprint `1ec9a03651428e9f`. Production advanced from ledger `236` to `237`,
+fingerprint
+`1272bbbbca81609d1278bc31dd9015710d0dffc2fa5c48fa8345bb5e63010747`.
+Catalogue counts remained `1337/3632/3758/3758/34823`.
+
+Independent `verify-selected-migrations.js` readback passed in a read-only
+transaction with the same ledger, fingerprint, migration identity, counts and
+private schema checks. A separate repeatable-read SEO-15 audit captured at
+`2026-10-15T12:43:39.479963+00:00` also reported `database_writes=0`; artifact
+SHA-256:
+`b351f5357f4e436443cc572bff8960d54d1fb4d22b45ab12b9dc018272f87330`.
+
+- GYM HIGH is now `public_use='eligible-after-separate-approval'` with exactly
+  `50` series, `1,966` proven observations, `26` currently eligible series and
+  zero threshold-qualified drops.
+- Released retailer count is exactly `2`, while the inventory remains exactly
+  the same two released Jon's candidates (`1337`, `1339`) and zero awaiting
+  retailer approvals. No GYM HIGH candidate was invented by the release.
+- The public Stage 3 flag remains off. The `12 products / 30 offers / 4
+  retailers` gate and its separate owner decision remain binding.
+
+The remaining closeout is repository-only: seal ledger `237` in the selector
+and canonical plans so the applied migration cannot be selected or replayed.
