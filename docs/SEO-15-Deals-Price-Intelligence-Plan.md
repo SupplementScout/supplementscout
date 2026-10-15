@@ -6,9 +6,10 @@ has exactly 50 mature non-quarantined GYM HIGH series, 1,966 proven observations
 26 currently eligible series and no qualifying drops. One production-only
 migration reuses the existing producer, release registry and automatic inventory
 RPC. Focused tests, quick/full gates and a production transaction rehearsal
-passed; the rehearsal rolled back with unchanged catalogue counts and zero
-committed writes. Review/merge, guarded apply and independent read-only readback
-remain. This does not enable the public flag or create a GYM HIGH route. See the
+passed. PR `#347` merged, guarded apply advanced production to ledger `237`, and
+independent read-only readbacks passed with unchanged catalogue counts. Released
+sources are now Jon's and GYM HIGH, while candidates remain exactly the two Jon's
+rows. This does not enable the public flag or create a GYM HIGH route. See the
 [release evidence](rollouts/seo15-gym-high-source-release-2026-10-15.md).
 
 **9 September continuity follow-up:** read-only investigation complete; historical
@@ -602,7 +603,7 @@ to SEO-15 Stage 3. No ordering change is made by this plan.
 | 60-day audit | n/a | n/a | pending | pending | not due |
 | Stage 3 bounded canary | owner-approved implementation merged as `a8de525` on 9 October | exact Jon's offers `1337`, `1339`; no other producer or row | shared selector plus read-only exact-scope evidence boundary; default-off release gate | staging and production schema/readbacks passed | verified default-off foundation |
 | Stage 3 automatic candidates | owner-approved follow-up merged as `c6054cf` on 9 October | automatic offer qualification for the already approved Jon's source; other enabled eligible producers discovery-only | one central source release registry, one read-only inventory RPC, default-off admin monitor and variable-gated daily read-only audit | production ledger `235`; exactly two released Jon's candidates, private ACLs and zero writes; monitor, schedule and public flags remain off | production verified; in progress |
-| GYM HIGH Stage 3 source release | preparation on 15 October; commit pending | exact production-only migration `20261015130000`; production remains ledger `236` before apply | fresh exact-state audit; focused tests `70/70`; quick/full gates; production transaction rehearsal passed and rolled back | 50 mature non-quarantined series, 1,966 proven observations, 26 currently eligible, zero qualifying drops; catalogue counts unchanged `1337/3632/3758/3758/34823`; zero committed writes | prepared and rollback-rehearsed; merge/apply/readback pending |
+| GYM HIGH Stage 3 source release | `5c3089ea`; merged in PR `#347` as `a7ff61e1` | production ledger `237`, fingerprint `1272bbbbca81609d1278bc31dd9015710d0dffc2fa5c48fa8345bb5e63010747` | fresh exact-state audit; focused tests `70/70`; quick/full gates; production transaction rehearsal passed and rolled back | guarded apply and independent readbacks passed; 50 mature non-quarantined series, 1,966 proven observations, 26 currently eligible, zero qualifying drops; released retailer count 2; candidates unchanged at two Jon's rows; catalogue counts unchanged `1337/3632/3758/3758/34823`; zero audit writes | production verified; public Stage 3 remains off |
 
 ## 16. Complete conditions
 
