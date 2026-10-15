@@ -65,9 +65,11 @@ export type CreatineComparisonRow = {
   name: string;
   brand: string | null;
   image: string | null;
+  productFormat: string | null;
   netWeightG: number | null;
   verifiedServingCount: number | null;
   creatinePerServingG: number | null;
+  offers: CreatineComparisonOffer[];
   bestOffer: CreatineComparisonOffer | null;
   offerCount: number;
   retailerCount: number;
@@ -264,12 +266,14 @@ export function normalizeCreatineComparison(
       name: product.name,
       brand: product.brand,
       image: product.image,
+      productFormat: product.product_format,
       netWeightG: positiveNumber(product.net_weight_g),
       verifiedServingCount: positiveInteger(product.serving_count_verified),
       creatinePerServingG:
         product.nutrition_verified === true
           ? positiveNumber(product.creatine_per_serving_g)
           : null,
+      offers,
       bestOffer,
       offerCount: offers.length,
       retailerCount,

@@ -19,6 +19,8 @@ function compileModule(filename, mocks = {}) {
     if (parent === mod && Object.hasOwn(mocks, request)) return mocks[request];
     if (request.endsWith("/indexabilityLifecycle")) return compileModule(path.join(process.cwd(), "app/lib/indexabilityLifecycle.ts"));
     if (request.endsWith("/lifecycleDataCache")) return { createLifecycleDataLoader: (_path, _version, load) => load };
+    if (request.endsWith("/categoryControls")) return compileModule(path.join(process.cwd(), "app/lib/categoryControls.ts"));
+    if (request.endsWith("/CategoryComparisonControls")) return () => null;
     return originalLoad.call(this, request, parent, isMain);
   };
   try {
@@ -41,6 +43,7 @@ const categoryComparison = compileModule(path.join(process.cwd(), "app/lib/categ
   "./offerFreshness": offerFreshness,
   "./pricing": pricing,
 });
+const categoryDecision = compileModule(path.join(process.cwd(), "app/lib/categoryDecision.ts"));
 const comparisonPath = path.join(process.cwd(), "app/lib/veganProteinComparison.ts");
 const pagePath = path.join(process.cwd(), "app/vegan-protein/page.tsx");
 const FIXTURE_NOW = new Date("2026-08-04T12:00:00.000Z");
@@ -119,8 +122,10 @@ function loadPage(result = fixtureResult()) {
     "next/link": { __esModule: true, default: Link },
     "../components/ComparisonProductVisuals": require("./test-helpers/comparison-product-visuals"),
     "../components/CategoryViewAnalytics": { __esModule: true, default: () => null },
+    "../components/CategoryDecisionPanel": { __esModule: true, default: ({ answers }) => React.createElement("section", null, `Quick decision ${answers.length}`) },
     "../components/ComparisonTransparencyLinks": { __esModule: true, default: () => null },
     "../lib/pricing": pricing,
+    "../lib/categoryDecision": categoryDecision,
     "../lib/veganProteinComparison": {
       getVeganProteinComparison: async () => result,
       evaluateVeganProteinIndexability: comparison.evaluateVeganProteinIndexability,

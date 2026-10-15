@@ -26,6 +26,8 @@ function compileModule(filename, options = {}) {
     }
     if (request.endsWith("/indexabilityLifecycle")) return compileModule(path.join(process.cwd(), "app/lib/indexabilityLifecycle.ts"));
     if (request.endsWith("/lifecycleDataCache")) return { createLifecycleDataLoader: (_path, _version, load) => load };
+    if (request.endsWith("/categoryControls")) return compileModule(path.join(process.cwd(), "app/lib/categoryControls.ts"));
+    if (request.endsWith("/CategoryComparisonControls")) return () => null;
     return originalLoad.call(this, request, parent, isMain);
   };
   try {
@@ -70,6 +72,7 @@ const categoryComparison = compileModule(categoryComparisonPath, {
     "./pricing": pricing,
   },
 });
+const categoryDecision = compileModule(path.join(process.cwd(), "app", "lib", "categoryDecision.ts"));
 const FIXTURE_NOW = new Date("2026-08-01T12:00:00.000Z");
 
 function rawOffer(overrides = {}) {
@@ -166,11 +169,16 @@ function loadPage(result = fixtureResult()) {
         __esModule: true,
         default: () => null,
       },
+      "../components/CategoryDecisionPanel": {
+        __esModule: true,
+        default: ({ answers }) => answers.length ? React.createElement("section", null, `Quick decision ${answers.length}`) : null,
+      },
       "../components/ComparisonTransparencyLinks": {
         __esModule: true,
         default: () => null,
       },
       "../lib/pricing": pricing,
+      "../lib/categoryDecision": categoryDecision,
       "../lib/preWorkoutComparison": {
         getPreWorkoutComparison: async () => {
           calls += 1;

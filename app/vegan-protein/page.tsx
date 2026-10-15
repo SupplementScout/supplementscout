@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import CategoryViewAnalytics from "../components/CategoryViewAnalytics";
+import CategoryDecisionPanel from "../components/CategoryDecisionPanel";
+import CategoryComparisonControls from "../components/CategoryComparisonControls";
 import {
   ComparisonProductThumbnail,
   OfferCheckedBadge,
@@ -13,6 +15,15 @@ import {
   type RouteSearchParams,
 } from "../lib/indexabilityLifecycle";
 import { createLifecycleDataLoader } from "../lib/lifecycleDataCache";
+import {
+  categoryDecisionCandidates,
+  selectCategoryDecisionAnswers,
+} from "../lib/categoryDecision";
+import {
+  buildCategoryControlView,
+  sharedCategoryControlFacts,
+  type CategoryControlView,
+} from "../lib/categoryControls";
 import { formatCurrency, formatUnitPrice } from "../lib/pricing";
 import {
   getVeganProteinComparison,
@@ -170,11 +181,18 @@ function VeganProteinProductCard({
 
 export function VeganProteinPageContent({
   result,
+  controlView,
 }: {
   result: VeganProteinComparisonResult;
+  controlView?: CategoryControlView<VeganProteinComparisonRow>;
 }) {
   const latestCheck = formatCheckedAt(result.summary.latestOfferCheckedAt);
   const jsonLd = buildVeganProteinStructuredData(result.rows);
+  const decisionAnswers = selectCategoryDecisionAnswers(
+    categoryDecisionCandidates(result.rows, {
+      valueBasis: "cost_per_25g_protein",
+    })
+  );
 
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
@@ -201,11 +219,17 @@ export function VeganProteinPageContent({
         </div>
       </section>
 
+      <CategoryDecisionPanel
+        answers={decisionAnswers}
+        category="Vegan Protein"
+      />
+
       <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><h2 className="text-2xl font-bold">Current Vegan Protein comparison</h2><p className="text-sm text-zinc-600">{latestCheck ? `Latest retailer check: ${latestCheck}` : "No current check time available"}</p></div>
         <p className="mt-4 max-w-4xl text-sm leading-6 text-zinc-600">Products with broader retailer coverage appear first. This is a coverage-first price comparison, not a ranking of taste, formulation, effectiveness or suitability.</p>
+        {controlView && <CategoryComparisonControls basePath={pagePath} category="Vegan Protein" controls={controlView.controls} facets={controlView.facets} sorts={controlView.sorts} resultCount={result.rows.length} totalCount={controlView.totalCount} />}
         {result.error && <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-6"><h2 className="text-xl font-bold">Current Vegan Protein data is temporarily unavailable</h2><p className="mt-2">No old prices have been substituted.</p></div>}
-        {!result.error && result.rows.length === 0 && <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-6"><h2 className="text-xl font-bold">No recently checked Vegan Protein offers</h2><p className="mt-2 text-zinc-600">Older prices remain hidden until retailer data is checked again.</p></div>}
+        {!result.error && result.rows.length === 0 && (!controlView || controlView.totalCount === 0) && <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-6"><h2 className="text-xl font-bold">No recently checked Vegan Protein offers</h2><p className="mt-2 text-zinc-600">Older prices remain hidden until retailer data is checked again.</p></div>}
         {result.rows.length > 0 && <div className="mt-6 space-y-4">{result.rows.map((row, index) => <VeganProteinProductCard key={row.id} row={row} position={index + 1} />)}</div>}
       </section>
 
@@ -231,8 +255,10 @@ export function VeganProteinPageContent({
   );
 }
 
-export default async function VeganProteinPage() {
+export default async function VeganProteinPage({ searchParams }: PageProps = {}) {
+  const params = await (searchParams || Promise.resolve({}));
   const result = await getCachedVeganProteinComparison();
   assertLifecycleDataAvailable(result, pagePath);
-  return <VeganProteinPageContent result={result} />;
+  const controlView = buildCategoryControlView(result.rows, params, (row) => sharedCategoryControlFacts(row, { verifiedProteinValue: true }), { verifiedValueSort: true });
+  return <VeganProteinPageContent result={{ ...result, rows: controlView.rows }} controlView={controlView} />;
 }

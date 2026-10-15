@@ -19,6 +19,8 @@ function compileModule(filename, mocks = {}) {
     if (parent === mod && Object.hasOwn(mocks, request)) return mocks[request];
     if (request.endsWith("/indexabilityLifecycle")) return compileModule(path.join(process.cwd(), "app/lib/indexabilityLifecycle.ts"));
     if (request.endsWith("/lifecycleDataCache")) return { createLifecycleDataLoader: (_path, _version, load) => load };
+    if (request.endsWith("/categoryControls")) return compileModule(path.join(process.cwd(), "app/lib/categoryControls.ts"));
+    if (request.endsWith("/CategoryComparisonControls")) return () => null;
     return originalLoad.call(this, request, parent, isMain);
   };
   try {
@@ -33,6 +35,7 @@ const pricing = compileModule(path.join(process.cwd(), "app/lib/pricing.ts"));
 const offerFreshness = compileModule(path.join(process.cwd(), "app/lib/offerFreshness.ts"));
 const creatineLaunch = compileModule(path.join(process.cwd(), "app/lib/creatineLaunch.ts"), { "./offerFreshness": offerFreshness });
 const categoryComparison = compileModule(path.join(process.cwd(), "app/lib/categoryComparison.ts"), { "./creatineLaunch": creatineLaunch, "./offerFreshness": offerFreshness, "./pricing": pricing });
+const categoryDecision = compileModule(path.join(process.cwd(), "app/lib/categoryDecision.ts"));
 const comparisonPath = path.join(process.cwd(), "app/lib/multivitaminsComparison.ts");
 
 function loadComparison(rows = []) {
@@ -101,8 +104,10 @@ test("page metadata, SSR, structured data and discovery links use one canonical"
     next: {}, "next/link": { __esModule: true, default: Link },
     "../components/ComparisonProductVisuals": require("./test-helpers/comparison-product-visuals"),
     "../components/CategoryViewAnalytics": { __esModule: true, default: () => null },
+    "../components/CategoryDecisionPanel": { __esModule: true, default: ({ answers }) => answers.length ? React.createElement("section", null, `Quick decision ${answers.length}`) : null },
     "../components/ComparisonTransparencyLinks": { __esModule: true, default: () => React.createElement("a", { href: "/how-we-compare" }, "Method") },
     "../lib/pricing": pricing,
+    "../lib/categoryDecision": categoryDecision,
     "../lib/multivitaminsComparison": { ...comparison, getMultivitaminsComparison: async () => result },
   });
   const metadata = await page.generateMetadata();

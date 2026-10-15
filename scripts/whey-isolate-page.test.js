@@ -19,6 +19,8 @@ function compileModule(filename, mocks = {}) {
     if (parent === mod && Object.hasOwn(mocks, request)) return mocks[request];
     if (request.endsWith("/indexabilityLifecycle")) return compileModule(path.join(process.cwd(), "app/lib/indexabilityLifecycle.ts"));
     if (request.endsWith("/lifecycleDataCache")) return { createLifecycleDataLoader: (_path, _version, load) => load };
+    if (request.endsWith("/categoryControls")) return compileModule(path.join(process.cwd(), "app/lib/categoryControls.ts"));
+    if (request.endsWith("/CategoryComparisonControls")) return () => null;
     return originalLoad.call(this, request, parent, isMain);
   };
   try {
@@ -41,6 +43,7 @@ const categoryComparison = compileModule(path.join(process.cwd(), "app/lib/categ
   "./offerFreshness": offerFreshness,
   "./pricing": pricing,
 });
+const categoryDecision = compileModule(path.join(process.cwd(), "app/lib/categoryDecision.ts"));
 const comparisonPath = path.join(process.cwd(), "app/lib/wheyIsolateComparison.ts");
 
 function loadComparison(rows = []) {
@@ -140,8 +143,10 @@ test("page metadata, SSR, structured data and discovery links use one canonical"
     next: {}, "next/link": { __esModule: true, default: Link },
     "../components/ComparisonProductVisuals": require("./test-helpers/comparison-product-visuals"),
     "../components/CategoryViewAnalytics": { __esModule: true, default: () => null },
+    "../components/CategoryDecisionPanel": { __esModule: true, default: ({ answers }) => React.createElement("section", null, `Quick decision ${answers.length}`) },
     "../components/ComparisonTransparencyLinks": { __esModule: true, default: () => React.createElement("a", { href: "/how-we-compare" }, "Method") },
     "../lib/pricing": pricing,
+    "../lib/categoryDecision": categoryDecision,
     "../lib/wheyIsolateComparison": { ...comparison, getWheyIsolateComparison: async () => result },
   });
   const metadata = await page.generateMetadata();
@@ -151,7 +156,7 @@ test("page metadata, SSR, structured data and discovery links use one canonical"
   assert.match(html, /Whey Isolate Prices UK – Compare Delivered Cost/);
   assert.match(html, /explicit isolate, ISO or WPI identity/);
   assert.match(html, /coverage and price ordering, not a nutritional or health ranking/);
-  assert.match(html, /Lowest known delivered Whey Isolate prices/);
+  assert.match(html, /Quick decision/);
   assert.match(html, /Which Whey Isolate has the lowest known delivered price\?/);
   assert.match(html, /has the lowest delivered total at £33\.99/);
   const lowestRows = page.getLowestDeliveredWheyIsolateRows([

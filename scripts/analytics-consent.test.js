@@ -102,6 +102,32 @@ test("better-value impression and click events use consent-aware non-personal pa
   delete global.window;
 });
 
+test("category decision events use the shared consent-aware dispatcher", () => {
+  const calls = [];
+  global.window = { __supplementScoutAnalyticsConsent: "granted", __supplementScoutAnalyticsReady: true, gtag: (...args) => calls.push(args) };
+  const view = { category: "Creatine", answer_count: 3, reason_types: "lowest_delivered_total|best_verified_value|broadest_retailer_coverage" };
+  const select = { category: "Creatine", product_id: "7", reason_type: "best_verified_value", position: 2 };
+  const compare = { product_id: "7", category: "Creatine", source_page: "category_decision_answers", position: 2 };
+  const complete = { left_product_id: "7", right_product_id: "8", source_page: "two_product_comparison" };
+  const filter = { category: "Creatine", filter_name: "retailer", filter_action: "apply" };
+  const sort = { category: "Creatine", sort_option: "delivered_total" };
+  assert.equal(analytics.sendAnalyticsEvent("view_category_decision_answers", view), true);
+  assert.equal(analytics.sendAnalyticsEvent("select_category_decision_answer", select), true);
+  assert.equal(analytics.sendAnalyticsEvent("add_product_to_comparison", compare), true);
+  assert.equal(analytics.sendAnalyticsEvent("complete_two_product_comparison", complete), true);
+  assert.equal(analytics.sendAnalyticsEvent("category_filter_used", filter), true);
+  assert.equal(analytics.sendAnalyticsEvent("category_sort_used", sort), true);
+  assert.deepEqual(calls, [
+    ["event", "view_category_decision_answers", view],
+    ["event", "select_category_decision_answer", select],
+    ["event", "add_product_to_comparison", compare],
+    ["event", "complete_two_product_comparison", complete],
+    ["event", "category_filter_used", filter],
+    ["event", "category_sort_used", sort],
+  ]);
+  delete global.window;
+});
+
 test("analytics failure is swallowed and cannot block the existing retailer anchor", () => {
   global.window = { __supplementScoutAnalyticsConsent: "granted", __supplementScoutAnalyticsReady: true, gtag: () => { throw new Error("offline"); } };
   assert.equal(analytics.sendAnalyticsEvent("retailer_offer_click", { product_id: "7", product_name: "Example", position: 1, source_page: "product_best_offer", is_affiliate: false }), false);

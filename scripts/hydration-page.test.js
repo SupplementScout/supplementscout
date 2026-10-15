@@ -26,6 +26,8 @@ function compileModule(filename, options = {}) {
     }
     if (request.endsWith("/indexabilityLifecycle")) return compileModule(path.join(process.cwd(), "app/lib/indexabilityLifecycle.ts"));
     if (request.endsWith("/lifecycleDataCache")) return { createLifecycleDataLoader: (_path, _version, load) => load };
+    if (request.endsWith("/categoryControls")) return compileModule(path.join(process.cwd(), "app/lib/categoryControls.ts"));
+    if (request.endsWith("/CategoryComparisonControls")) return () => null;
     return originalLoad.call(this, request, parent, isMain);
   };
   try {
@@ -43,6 +45,7 @@ const offerFreshnessPath = path.join(process.cwd(), "app", "lib", "offerFreshnes
 const creatineLaunchPath = path.join(process.cwd(), "app", "lib", "creatineLaunch.ts");
 const comparisonPath = path.join(process.cwd(), "app", "lib", "hydrationComparison.ts");
 const categoryComparisonPath = path.join(process.cwd(), "app", "lib", "categoryComparison.ts");
+const categoryDecision = compileModule(path.join(process.cwd(), "app", "lib", "categoryDecision.ts"));
 const pagePath = path.join(process.cwd(), "app", "hydration", "page.tsx");
 const sitemapPath = path.join(process.cwd(), "app", "sitemap.ts");
 const pricing = compileModule(pricingPath);
@@ -145,6 +148,10 @@ function loadPage(result = fixtureResult()) {
         __esModule: true,
         default: () => null,
       },
+      "../components/CategoryDecisionPanel": {
+        __esModule: true,
+        default: ({ answers }) => answers.length ? React.createElement("section", null, `Quick decision ${answers.length}`) : null,
+      },
       "../components/ComparisonTransparencyLinks": {
         __esModule: true,
         default: () => null,
@@ -159,6 +166,7 @@ function loadPage(result = fixtureResult()) {
         HYDRATION_INDEX_GATE: loadComparison().HYDRATION_INDEX_GATE,
       },
       "../lib/pricing": pricing,
+      "../lib/categoryDecision": categoryDecision,
     },
   });
   return { page, calls: () => calls };

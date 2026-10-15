@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import CategoryViewAnalytics from "../components/CategoryViewAnalytics";
+import CategoryDecisionPanel from "../components/CategoryDecisionPanel";
+import CategoryComparisonControls from "../components/CategoryComparisonControls";
 import {
   ComparisonProductThumbnail,
   OfferCheckedBadge,
@@ -13,6 +15,15 @@ import {
   type RouteSearchParams,
 } from "../lib/indexabilityLifecycle";
 import { createLifecycleDataLoader } from "../lib/lifecycleDataCache";
+import {
+  categoryDecisionCandidates,
+  selectCategoryDecisionAnswers,
+} from "../lib/categoryDecision";
+import {
+  buildCategoryControlView,
+  sharedCategoryControlFacts,
+  type CategoryControlView,
+} from "../lib/categoryControls";
 import {
   getWheyComparison,
   type WheyComparisonResult,
@@ -246,23 +257,17 @@ function WheyProductCard({
 
 export function WheyProteinPageContent({
   result,
+  controlView,
 }: {
   result: WheyComparisonResult;
+  controlView?: CategoryControlView<WheyComparisonRow>;
 }) {
   const jsonLd = buildWheyStructuredData(result.rows);
   const latestCheck = formatCheckedAt(result.summary.latestOfferCheckedAt);
-  const lowestDeliveredRow = result.rows.reduce<WheyComparisonRow | null>(
-    (lowest, row) => {
-      const total = row.bestOffer?.deliveredPrice?.totalPrice;
-      const lowestTotal = lowest?.bestOffer?.deliveredPrice?.totalPrice;
-
-      if (total === undefined || total === null) return lowest;
-      if (lowestTotal === undefined || lowestTotal === null || total < lowestTotal) {
-        return row;
-      }
-      return lowest;
-    },
-    null
+  const decisionAnswers = selectCategoryDecisionAnswers(
+    categoryDecisionCandidates(result.rows, {
+      valueBasis: "cost_per_25g_protein",
+    })
   );
 
   return (
@@ -336,41 +341,10 @@ export function WheyProteinPageContent({
         </div>
       </section>
 
-      {lowestDeliveredRow?.bestOffer?.deliveredPrice && (
-        <section className="mx-auto max-w-7xl px-4 pb-8 sm:px-6 sm:pb-12">
-          <div className="max-w-4xl rounded-xl border border-zinc-200 bg-white p-5 sm:p-6">
-            <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
-              Quick price answer
-            </p>
-            <h2 className="mt-2 text-2xl font-bold">
-              What is the lowest current Whey Protein delivered price?
-            </h2>
-            <p className="mt-3 leading-7 text-zinc-700">
-              Across {result.summary.visibleProducts} Whey Protein products with
-              recently checked offers, the lowest known delivered price is{" "}
-              <strong>
-                {formatCurrency(
-                  lowestDeliveredRow.bestOffer.deliveredPrice.totalPrice
-                )}
-              </strong>{" "}
-              for{" "}
-              <Link
-                href={lowestDeliveredRow.productUrl}
-                className="font-semibold text-zinc-950 underline"
-              >
-                {lowestDeliveredRow.name}
-              </Link>
-              .
-            </p>
-            <p className="mt-3 text-sm leading-6 text-zinc-600">
-              This is the lowest recently checked total in SupplementScout&apos;s
-              current retailer coverage, including known delivery costs. It is
-              not a claim about every UK seller. Confirm the final price and
-              stock with the retailer before buying.
-            </p>
-          </div>
-        </section>
-      )}
+      <CategoryDecisionPanel
+        answers={decisionAnswers}
+        category="Whey Protein"
+      />
 
       <section className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 sm:pb-14">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -396,6 +370,18 @@ export function WheyProteinPageContent({
           first product is nutritionally superior.
         </p>
 
+        {controlView && (
+          <CategoryComparisonControls
+            basePath={pagePath}
+            category="Whey Protein"
+            controls={controlView.controls}
+            facets={controlView.facets}
+            sorts={controlView.sorts}
+            resultCount={result.rows.length}
+            totalCount={controlView.totalCount}
+          />
+        )}
+
         {result.error && (
           <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-6">
             <h2 className="text-xl font-bold">
@@ -414,7 +400,9 @@ export function WheyProteinPageContent({
           </div>
         )}
 
-        {!result.error && result.rows.length === 0 && (
+        {!result.error &&
+          result.rows.length === 0 &&
+          (!controlView || controlView.totalCount === 0) && (
           <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-6">
             <h2 className="text-xl font-bold">
               No recently checked Whey Protein offers
@@ -588,8 +576,20 @@ export function WheyProteinPageContent({
   );
 }
 
-export default async function WheyProteinPage() {
+export default async function WheyProteinPage({ searchParams }: PageProps = {}) {
+  const params = await (searchParams || Promise.resolve({}));
   const result = await getCachedWheyComparison();
   assertLifecycleDataAvailable(result, pagePath);
-  return <WheyProteinPageContent result={result} />;
+  const controlView = buildCategoryControlView(
+    result.rows,
+    params,
+    (row) => sharedCategoryControlFacts(row, { verifiedProteinValue: true }),
+    { verifiedValueSort: true }
+  );
+  return (
+    <WheyProteinPageContent
+      result={{ ...result, rows: controlView.rows }}
+      controlView={controlView}
+    />
+  );
 }

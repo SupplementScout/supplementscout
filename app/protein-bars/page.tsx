@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import CategoryViewAnalytics from "../components/CategoryViewAnalytics";
+import CategoryDecisionPanel from "../components/CategoryDecisionPanel";
+import CategoryComparisonControls from "../components/CategoryComparisonControls";
 import {
   ComparisonProductThumbnail,
   OfferCheckedBadge,
@@ -13,6 +15,11 @@ import {
   type RouteSearchParams,
 } from "../lib/indexabilityLifecycle";
 import { createLifecycleDataLoader } from "../lib/lifecycleDataCache";
+import {
+  categoryDecisionCandidates,
+  selectCategoryDecisionAnswers,
+} from "../lib/categoryDecision";
+import { buildCategoryControlView, sharedCategoryControlFacts, type CategoryControlView } from "../lib/categoryControls";
 import {
   getProteinBarsComparison,
   type ProteinBarsComparisonResult,
@@ -134,9 +141,12 @@ function ProteinBarCard({ row, position }: { row: ProteinBarsComparisonRow; posi
   );
 }
 
-export function ProteinBarsPageContent({ result }: { result: ProteinBarsComparisonResult }) {
+export function ProteinBarsPageContent({ result, controlView }: { result: ProteinBarsComparisonResult; controlView?: CategoryControlView<ProteinBarsComparisonRow> }) {
   const latestCheck = formatCheckedAt(result.summary.latestOfferCheckedAt);
   const jsonLd = buildProteinBarsStructuredData(result.rows);
+  const decisionAnswers = selectCategoryDecisionAnswers(
+    categoryDecisionCandidates(result.rows)
+  );
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
       <CategoryViewAnalytics category="Protein Bars" sourcePage="protein_bars_comparison" />
@@ -153,11 +163,13 @@ export function ProteinBarsPageContent({ result }: { result: ProteinBarsComparis
           {!result.error && <p className="mt-4 text-sm leading-6 text-zinc-600">Current coverage: {result.summary.visibleProducts} products, {result.summary.freshOffers} exact-pack offers and {result.summary.freshRetailers} retailers. {result.summary.productsWithMultipleFreshRetailers} products currently have multiple retailers.</p>}
         </div>
       </section>
+      <CategoryDecisionPanel answers={decisionAnswers} category="Protein Bars" />
       <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><h2 className="text-2xl font-bold">Current Protein Bar comparison</h2><p className="text-sm text-zinc-600">{latestCheck ? `Latest retailer check: ${latestCheck}` : "No current check time available"}</p></div>
         <p className="mt-4 max-w-4xl text-sm leading-6 text-zinc-600">Products with broader exact-pack retailer coverage appear first. This is a price and availability comparison, not a ranking of taste, nutrition, quality or suitability.</p>
         {result.error && <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-6"><h2 className="text-xl font-bold">Current Protein Bar data is temporarily unavailable</h2><p className="mt-2">No old prices or uncertain packs have been substituted.</p></div>}
-        {!result.error && result.rows.length === 0 && <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-6"><h2 className="text-xl font-bold">No recently checked exact-pack offers</h2><p className="mt-2 text-zinc-600">Older prices and unresolved packs remain hidden until data is checked again.</p></div>}
+        {controlView && <CategoryComparisonControls basePath={pagePath} category="Protein Bars" controls={controlView.controls} facets={controlView.facets} sorts={controlView.sorts} resultCount={result.rows.length} totalCount={controlView.totalCount} />}
+        {!result.error && result.rows.length === 0 && (!controlView || controlView.totalCount === 0) && <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-6"><h2 className="text-xl font-bold">No recently checked exact-pack offers</h2><p className="mt-2 text-zinc-600">Older prices and unresolved packs remain hidden until data is checked again.</p></div>}
         {result.rows.length > 0 && <div className="mt-6 space-y-4">{result.rows.map((row, index) => <ProteinBarCard key={row.id} row={row} position={index + 1} />)}</div>}
       </section>
       <section className="border-y border-zinc-200 bg-white">
@@ -181,8 +193,10 @@ export function ProteinBarsPageContent({ result }: { result: ProteinBarsComparis
   );
 }
 
-export default async function ProteinBarsPage() {
+export default async function ProteinBarsPage({ searchParams }: PageProps = {}) {
+  const params = await (searchParams || Promise.resolve({}));
   const result = await getCachedProteinBarsComparison();
   assertLifecycleDataAvailable(result, pagePath);
-  return <ProteinBarsPageContent result={result} />;
+  const controlView = buildCategoryControlView(result.rows, params, sharedCategoryControlFacts);
+  return <ProteinBarsPageContent result={{ ...result, rows: controlView.rows }} controlView={controlView} />;
 }

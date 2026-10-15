@@ -228,6 +228,7 @@ test("live-verified base is indexable while parameters stay noindex and no winne
     next: {},
     "next/link": { __esModule: true, default: Link },
     "../components/CategoryViewAnalytics": { __esModule: true, default: () => null },
+    "../components/ComparisonCompletionAnalytics": { __esModule: true, default: () => null },
     "../components/ComparisonProductVisuals": require("./test-helpers/comparison-product-visuals"),
     "../components/ComparisonTransparencyLinks": { __esModule: true, default: () => React.createElement("a", { href: "/how-we-compare" }, "Method") },
     "../lib/pricing": pricing,

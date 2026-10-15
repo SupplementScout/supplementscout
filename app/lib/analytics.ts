@@ -1,5 +1,8 @@
 "use client";
 
+import type { CategoryDecisionReasonType } from "./categoryDecision";
+export type { CategoryDecisionReasonType } from "./categoryDecision";
+
 export type AnalyticsEventMap = {
   view_product: {
     product_id: string;
@@ -10,6 +13,41 @@ export type AnalyticsEventMap = {
   view_category: {
     category: string;
     source_page: string;
+  };
+  view_category_decision_answers: {
+    category: string;
+    answer_count: number;
+    reason_types: string;
+  };
+  select_category_decision_answer: {
+    category: string;
+    product_id: string;
+    reason_type: CategoryDecisionReasonType;
+    position: number;
+  };
+  add_product_to_comparison: {
+    product_id: string;
+    category: string;
+    source_page: "category_decision_answers";
+    position: number;
+  };
+  complete_two_product_comparison: {
+    left_product_id: string;
+    right_product_id: string;
+    source_page: "two_product_comparison";
+  };
+  category_filter_used: {
+    category: string;
+    filter_name: "brand" | "retailer" | "format";
+    filter_action: "apply" | "remove";
+  };
+  category_sort_used: {
+    category: string;
+    sort_option:
+      | "decision"
+      | "delivered_total"
+      | "verified_value"
+      | "retailer_coverage";
   };
   search: {
     result_count: number;
@@ -62,6 +100,12 @@ export const ANALYTICS_READY_EVENT = "supplementscout:analytics-ready";
 export const ANALYTICS_EVENT_PARAMETER_KEYS = {
   view_product: ["product_id", "product_name", "variant_id", "category"],
   view_category: ["category", "source_page"],
+  view_category_decision_answers: ["category", "answer_count", "reason_types"],
+  select_category_decision_answer: ["category", "product_id", "reason_type", "position"],
+  add_product_to_comparison: ["product_id", "category", "source_page", "position"],
+  complete_two_product_comparison: ["left_product_id", "right_product_id", "source_page"],
+  category_filter_used: ["category", "filter_name", "filter_action"],
+  category_sort_used: ["category", "sort_option"],
   search: ["result_count", "has_filters", "search_context"],
   filter_used: ["filter_name", "filter_action"],
   sort_used: ["sort_option"],

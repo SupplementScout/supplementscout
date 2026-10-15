@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import CategoryViewAnalytics from "../components/CategoryViewAnalytics";
+import CategoryDecisionPanel from "../components/CategoryDecisionPanel";
+import CategoryComparisonControls from "../components/CategoryComparisonControls";
 import {
   ComparisonProductThumbnail,
   OfferCheckedBadge,
@@ -13,6 +15,11 @@ import {
   type RouteSearchParams,
 } from "../lib/indexabilityLifecycle";
 import { createLifecycleDataLoader } from "../lib/lifecycleDataCache";
+import {
+  categoryDecisionCandidates,
+  selectCategoryDecisionAnswers,
+} from "../lib/categoryDecision";
+import { buildCategoryControlView, sharedCategoryControlFacts, type CategoryControlView } from "../lib/categoryControls";
 import {
   getMultivitaminsComparison,
   type MultivitaminsComparisonResult,
@@ -157,9 +164,12 @@ function MultivitaminsProductCard({
   );
 }
 
-export function MultivitaminsPageContent({ result }: { result: MultivitaminsComparisonResult }) {
+export function MultivitaminsPageContent({ result, controlView }: { result: MultivitaminsComparisonResult; controlView?: CategoryControlView<MultivitaminsComparisonRow> }) {
   const latestCheck = formatCheckedAt(result.summary.latestOfferCheckedAt);
   const jsonLd = buildMultivitaminsStructuredData(result.rows);
+  const decisionAnswers = selectCategoryDecisionAnswers(
+    categoryDecisionCandidates(result.rows)
+  );
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
       <CategoryViewAnalytics category="Multivitamins" sourcePage="multivitamins_comparison" />
@@ -176,11 +186,13 @@ export function MultivitaminsPageContent({ result }: { result: MultivitaminsComp
           {!result.error && <p className="mt-4 text-sm leading-6 text-zinc-600">Current coverage: {result.summary.visibleProducts} products, {result.summary.freshOffers} fresh offers and {result.summary.freshRetailers} retailers. {result.summary.productsWithMultipleFreshRetailers} products currently have multiple retailers.</p>}
         </div>
       </section>
+      <CategoryDecisionPanel answers={decisionAnswers} category="Multivitamins" />
       <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><h2 className="text-2xl font-bold">Current Multivitamins comparison</h2><p className="text-sm text-zinc-600">{latestCheck ? `Latest retailer check: ${latestCheck}` : "No current check time available"}</p></div>
         <p className="mt-4 max-w-4xl text-sm leading-6 text-zinc-600">Products with broader retailer coverage appear first. This is a coverage-first price comparison, not a ranking of formulation, effectiveness or suitability.</p>
         {result.error && <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-6"><h2 className="text-xl font-bold">Current Multivitamins data is temporarily unavailable</h2><p className="mt-2">No old prices have been substituted.</p></div>}
-        {!result.error && result.rows.length === 0 && <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-6"><h2 className="text-xl font-bold">No recently checked Multivitamin offers</h2><p className="mt-2 text-zinc-600">Older prices remain hidden until retailer data is checked again.</p></div>}
+        {controlView && <CategoryComparisonControls basePath={pagePath} category="Multivitamins" controls={controlView.controls} facets={controlView.facets} sorts={controlView.sorts} resultCount={result.rows.length} totalCount={controlView.totalCount} />}
+        {!result.error && result.rows.length === 0 && (!controlView || controlView.totalCount === 0) && <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-6"><h2 className="text-xl font-bold">No recently checked Multivitamin offers</h2><p className="mt-2 text-zinc-600">Older prices remain hidden until retailer data is checked again.</p></div>}
         {result.rows.length > 0 && <div className="mt-6 space-y-4">{result.rows.map((row, index) => <MultivitaminsProductCard key={row.id} row={row} position={index + 1} />)}</div>}
       </section>
       <section className="border-y border-zinc-200 bg-white">
@@ -204,8 +216,10 @@ export function MultivitaminsPageContent({ result }: { result: MultivitaminsComp
   );
 }
 
-export default async function MultivitaminsPage() {
+export default async function MultivitaminsPage({ searchParams }: PageProps = {}) {
+  const params = await (searchParams || Promise.resolve({}));
   const result = await getCachedMultivitaminsComparison();
   assertLifecycleDataAvailable(result, pagePath);
-  return <MultivitaminsPageContent result={result} />;
+  const controlView = buildCategoryControlView(result.rows, params, sharedCategoryControlFacts);
+  return <MultivitaminsPageContent result={{ ...result, rows: controlView.rows }} controlView={controlView} />;
 }

@@ -19,6 +19,8 @@ function compileModule(filename, mocks = {}) {
     if (parent === mod && Object.hasOwn(mocks, request)) return mocks[request];
     if (request.endsWith("/indexabilityLifecycle")) return compileModule(path.join(process.cwd(), "app/lib/indexabilityLifecycle.ts"));
     if (request.endsWith("/lifecycleDataCache")) return { createLifecycleDataLoader: (_path, _version, load) => load };
+    if (request.endsWith("/categoryControls")) return compileModule(path.join(process.cwd(), "app/lib/categoryControls.ts"));
+    if (request.endsWith("/CategoryComparisonControls")) return () => null;
     return originalLoad.call(this, request, parent, isMain);
   };
   try {
@@ -35,6 +37,8 @@ const pricing = compileModule(path.join(process.cwd(), "app/lib/pricing.ts"));
 const offerFreshness = compileModule(path.join(process.cwd(), "app/lib/offerFreshness.ts"));
 const creatineLaunch = compileModule(path.join(process.cwd(), "app/lib/creatineLaunch.ts"), { "./offerFreshness": offerFreshness });
 const categoryComparison = compileModule(path.join(process.cwd(), "app/lib/categoryComparison.ts"), { "./creatineLaunch": creatineLaunch, "./offerFreshness": offerFreshness, "./pricing": pricing });
+const categoryDecision = compileModule(path.join(process.cwd(), "app/lib/categoryDecision.ts"));
+const CategoryDecisionPanel = ({ answers }) => answers.length ? React.createElement("section", null, `Quick decision ${answers.length}`) : null;
 const comparisonPath = path.join(process.cwd(), "app/lib/proteinBarsComparison.ts");
 
 function loadComparison(rows = []) {
@@ -130,8 +134,10 @@ test("page metadata, SSR, schema and discovery use one Protein Bars canonical", 
     next: {}, "next/link": { __esModule: true, default: Link },
     "../components/ComparisonProductVisuals": require("./test-helpers/comparison-product-visuals"),
     "../components/CategoryViewAnalytics": { __esModule: true, default: () => null },
+    "../components/CategoryDecisionPanel": { __esModule: true, default: CategoryDecisionPanel },
     "../components/ComparisonTransparencyLinks": { __esModule: true, default: () => React.createElement("a", { href: "/how-we-compare" }, "Method") },
     "../lib/pricing": pricing,
+    "../lib/categoryDecision": categoryDecision,
     "../lib/proteinBarsComparison": { ...comparison, getProteinBarsComparison: async () => result },
   });
   const metadata = await page.generateMetadata();
@@ -162,8 +168,10 @@ test("live-verified metadata remains indexable when exact-pack coverage falls", 
     next: {}, "next/link": { __esModule: true, default: () => null },
     "../components/ComparisonProductVisuals": require("./test-helpers/comparison-product-visuals"),
     "../components/CategoryViewAnalytics": { __esModule: true, default: () => null },
+    "../components/CategoryDecisionPanel": { __esModule: true, default: CategoryDecisionPanel },
     "../components/ComparisonTransparencyLinks": { __esModule: true, default: () => null },
     "../lib/pricing": pricing,
+    "../lib/categoryDecision": categoryDecision,
     "../lib/proteinBarsComparison": { ...comparison, getProteinBarsComparison: async () => empty },
   });
   assert.deepEqual((await page.generateMetadata()).robots, { index: true, follow: true });

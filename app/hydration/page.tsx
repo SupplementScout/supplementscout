@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import CategoryViewAnalytics from "../components/CategoryViewAnalytics";
+import CategoryDecisionPanel from "../components/CategoryDecisionPanel";
+import CategoryComparisonControls from "../components/CategoryComparisonControls";
 import {
   ComparisonProductThumbnail,
   OfferCheckedBadge,
@@ -13,6 +15,11 @@ import {
   type RouteSearchParams,
 } from "../lib/indexabilityLifecycle";
 import { createLifecycleDataLoader } from "../lib/lifecycleDataCache";
+import {
+  categoryDecisionCandidates,
+  selectCategoryDecisionAnswers,
+} from "../lib/categoryDecision";
+import { buildCategoryControlView, sharedCategoryControlFacts, type CategoryControlView } from "../lib/categoryControls";
 import {
   getHydrationComparison,
   type HydrationComparisonResult,
@@ -201,11 +208,16 @@ function HydrationProductCard({ row }: { row: HydrationComparisonRow }) {
 
 export function HydrationPageContent({
   result,
+  controlView,
 }: {
   result: HydrationComparisonResult;
+  controlView?: CategoryControlView<HydrationComparisonRow>;
 }) {
   const jsonLd = buildHydrationStructuredData(result.rows);
   const latestCheck = formatCheckedAt(result.summary.latestOfferCheckedAt);
+  const decisionAnswers = selectCategoryDecisionAnswers(
+    categoryDecisionCandidates(result.rows)
+  );
 
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
@@ -268,6 +280,8 @@ export function HydrationPageContent({
         </div>
       </section>
 
+      <CategoryDecisionPanel answers={decisionAnswers} category="Hydration" />
+
       <section className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 sm:pb-14">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -279,6 +293,8 @@ export function HydrationPageContent({
           </p>
         </div>
 
+        {controlView && <CategoryComparisonControls basePath={pagePath} category="Hydration" controls={controlView.controls} facets={controlView.facets} sorts={controlView.sorts} resultCount={result.rows.length} totalCount={controlView.totalCount} />}
+
         {result.error && (
           <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-6">
             <h2 className="text-xl font-bold">Current hydration data is temporarily unavailable</h2>
@@ -287,7 +303,7 @@ export function HydrationPageContent({
           </div>
         )}
 
-        {!result.error && result.rows.length === 0 && (
+        {!result.error && result.rows.length === 0 && (!controlView || controlView.totalCount === 0) && (
           <div className="mt-6 rounded-lg border border-zinc-200 bg-white p-6">
             <h2 className="text-xl font-bold">No recently checked hydration offers</h2>
             <p className="mt-2 text-zinc-600">Older prices remain hidden until retailer data is checked again.</p>
@@ -357,8 +373,10 @@ export function HydrationPageContent({
   );
 }
 
-export default async function HydrationPage() {
+export default async function HydrationPage({ searchParams }: PageProps = {}) {
+  const params = await (searchParams || Promise.resolve({}));
   const result = await getCachedHydrationComparison();
   assertLifecycleDataAvailable(result, pagePath);
-  return <HydrationPageContent result={result} />;
+  const controlView = buildCategoryControlView(result.rows, params, sharedCategoryControlFacts);
+  return <HydrationPageContent result={{ ...result, rows: controlView.rows }} controlView={controlView} />;
 }
