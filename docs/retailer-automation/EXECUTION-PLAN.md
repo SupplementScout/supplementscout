@@ -143,15 +143,29 @@ with zero catalogue writes. Local focused tests, `npm run verify:quick` and
 `npm run verify:full` pass. PR `#336` and main CI passed. Scheduled watchdog
 `38558515264` made zero writes and failed for the already-known incomplete 10
 Reps run plus separate Simply Supplements monitored-backlog growth; it is an
-observation baseline, not post-fix 10 Reps acceptance. Simply remains inside this
-single observation task until a fresh ordinary result proves whether the growth
-is transient or requires later separate classification.
+observation baseline, not post-fix 10 Reps acceptance. The Simply question is
+now classified read-only rather than folded into the 10 Reps defect. Natural
+runs `38135273464`, `38253308502` and `38398873170` each isolated only approved
+offer `670` as `SOURCE_VARIANT_MISSING`; run `38547222177` completed normally
+with `118` executable rows plus offers `669` and `670` isolated for that same
+reason, followed by passing DB postflight and idempotency. Offer `669` retained
+its exact product / variant identity `16212558479709 / 64756981727581`, SKU
+`C466`, price GBP `13.29` and OOS state. A 15 October public readback found that
+exact unchanged OOS variant at its canonical product JSON while the complete
+bulk pagination (`140 + 45 + 82 + 0 = 267` products) omitted it. This is a
+source-feed omission correctly failed closed, not an execution regression,
+identity decision or authority to widen the monitored baseline. Watchdog
+`38681499726` made zero writes and reports Simply only for the resulting exact
+`REVIEW_SCOPE_DRIFT`.
 
 **Next bounded step:** merge only after CI passes, then observe the next ordinary
 shared schedule and its following watchdog. Do not manufacture verification with
 a manual dispatch. Mark `VERIFIED_COMPLETE` only after source binding, guarded
 apply, read-only postflight, fresh idempotency and Review Queue publication all
-pass for 10 Reps and the following watchdog correlates the result.
+pass for 10 Reps and the following watchdog correlates the result. An aggregate
+watchdog failure caused only by the separately classified exact Simply omission
+does not replace the required 10 Reps correlation; any new or unexplained
+failure still stops closeout.
 
 ## RA-STAB-01 — Existing-path production stabilization
 
