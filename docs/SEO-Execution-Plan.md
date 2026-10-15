@@ -19,6 +19,17 @@ and zero awaiting approvals. It adds no route, table, RPC, importer or executor.
 Public Stage 3 remains off. See the
 [release evidence](rollouts/seo15-gym-high-source-release-2026-10-15.md).
 
+**15 October post-release readiness audit:** the latest ordinary scheduled run
+`38736679434` passed, but its payload was captured at `12:42:48Z`, immediately
+before the GYM HIGH release at `12:43:02Z`; it is not natural post-release
+proof. A fresh read-only production audit at `13:00:45Z` confirms two released
+sources, but still only two released Jon's offer candidates for one canonical
+product and zero awaiting approvals. GYM HIGH and Fit House contribute no
+threshold-qualified drop. The constraint is genuine candidate breadth, not
+infrastructure or an approval queue. Keep the public flag off and inspect the
+next ordinary run expected after `07:23Z` on 16 October. See the
+[readiness audit](rollouts/seo15-post-gym-high-readiness-audit-2026-10-15.md).
+
 **14 October GYM HIGH owner decision:** the standing `owner_deferred` decision
 is ended. RA-STAB-02 completed its natural-run and correlated-watchdog
 verification on 15 October, so GYM HIGH may now proceed through the existing
@@ -235,18 +246,22 @@ identity or weaken any gate.
 Public activation requires a separate owner decision after the gate passes;
 SEO-17 remains behind this release.
 
-The latest scheduled SEO-15 audit remains run `38567577154`, artifact
-`11896442395` (GitHub artifact digest SHA-256
-`f6bf0d72d32a29927a33b0ae73e00bfa74d5613c01e264b9501ccb39756d0fe5`).
-The fresher local production read-only preflight captured on 15 October has 813
+The latest scheduled SEO-15 audit is run `38736679434`, artifact `11974021909`
+(GitHub artifact digest SHA-256
+`5d36b9f80b58005dadd4f0cafcaf72a9a8f25e00d508f054311c65b52e232ce5`).
+Its `12:42:48Z` payload predates the `12:43:02Z` GYM HIGH release, so it is not
+post-release natural evidence. The fresher production read-only audit captured
+at `13:00:45Z` on 15 October has 813
 series, 34,823 history rows, 30,673 identity-linked observations and zero
 writes. GYM HIGH is technically capable and producer-enabled with 50 series,
 1,966 proven observations, 26 currently eligible series and zero
 threshold-qualified drops. Its database
 `public_use='eligible-after-separate-approval'` value and the second
 source-release row are independently verified. The inventory still contains only
-the two Jon's candidates, with zero awaiting retailer approvals and zero audit
-writes.
+the two Jon's candidates for one canonical product, with zero awaiting retailer
+approvals and zero audit writes. Fit House and GYM HIGH have zero
+threshold-qualified drops. The first ordinary post-release audit is expected on
+16 October after the `07:23Z` schedule.
 
 The latest weekly GSC/GA4 read is scheduled run `38289200062` for 5-11 October:
 1,479 final impressions and 6 clicks across the six settled dates. The 11

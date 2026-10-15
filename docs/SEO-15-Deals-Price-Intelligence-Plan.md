@@ -12,6 +12,16 @@ sources are now Jon's and GYM HIGH, while candidates remain exactly the two Jon'
 rows. This does not enable the public flag or create a GYM HIGH route. See the
 [release evidence](rollouts/seo15-gym-high-source-release-2026-10-15.md).
 
+**15 October post-release readiness checkpoint:** scheduled run `38736679434`
+completed successfully, but its evidence capture preceded the GYM HIGH release
+by seconds and cannot serve as natural post-release proof. A fresh read-only
+audit after release confirms Jon's and GYM HIGH as released sources, two
+released Jon's offer candidates for one canonical product, zero awaiting
+approvals and zero GYM HIGH or Fit House threshold-qualified drops. The
+bottleneck is genuine event breadth. Keep Stage 3 off and inspect the first
+ordinary run on or after 16 October 07:23 UTC. See the
+[readiness audit](rollouts/seo15-post-gym-high-readiness-audit-2026-10-15.md).
+
 **9 September continuity follow-up:** read-only investigation complete; historical
 failed runs explain all ten missing whole dates. Current Fit House/Jon's history
 has September 9 observations. GYM HIGH reused September 8 evidence after an
@@ -24,8 +34,8 @@ See [continuity evidence](rollouts/seo15-producer-continuity-2026-09-09.md).
 **State:** Stage 1 and corrective Indexability Lifecycle P0 live verified;
 Stage 2A enabled for the approved Jon's, Fit House and GYM HIGH scopes; bounded
 Stage 3 canary merged for Jon's offers `1337` and `1339`; automatic Stage 3
-candidate inventory in progress with Jon's as the only source-level release,
-and monitor/public enablement disabled pending final verification
+candidate inventory in progress with Jon's and GYM HIGH as released sources,
+and public enablement disabled pending final verification
 **Authority:** `docs/SEO-Execution-Plan.md` remains the SEO status and ordering
 authority. `docs/SupplementScout-Operating-Plan-2026-07-15.md` remains the
 project authority. This document records only SEO-15 technical scope, gates,
