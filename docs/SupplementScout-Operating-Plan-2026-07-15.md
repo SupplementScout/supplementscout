@@ -7,21 +7,21 @@
 
 **15 October 2026 separately scoped product UX checkpoint:** after completing
 the separate nutrition work, the owner explicitly resumed the UX-retention
-goal. Release A adds a shared quick-decision layer and server-side controls to
-the ten existing live category routes; it does not add an SEO route, change a
-lifecycle decision, alter catalogue data or write to production. PR `#351`
-shipped as `7e1a08b9`; live verification found one stale-cache shape mismatch
-on `/creatine`, and the required query-version correction plus regression test
-shipped in PR `#352` as `832401ae`. Deployment
-`dpl_6jR2Noz6wRFCjMVWPQhLd2udQtVu`, main Quality Gate run `38773042665` and
-public verification all pass. All ten routes return HTTP `200` with their
-decision and control layers; representative clean/parameter robots,
-canonicals, sitemap, comparison-selection and responsive checks pass. Release
-A is `LIVE VERIFIED`; Release B (My Supplements MVP) is the next UX-retention
-unit. SEO-15 remains the single `IN PROGRESS` SEO task and keeps its existing
-order before SEO-17. This separately scoped product release may continue beside
-SEO-15's current read-only monitoring, but must pause before any overlapping
-SEO implementation touches the same routes or release boundary.
+goal. Release A's shared category decision layer is `LIVE VERIFIED` through PRs
+`#351` and `#352`, deployment `dpl_6jR2Noz6wRFCjMVWPQhLd2udQtVu` and main
+Quality Gate run `38773042665`. Release B's account-free, local-only My
+Supplements MVP is also `LIVE VERIFIED`: PR `#354` merged as `3d68fc4c`, main
+Quality Gate run `38778892879` passed and deployment
+`dpl_FFfq3Ch9q4jmTEmEtvD6Q9CgEXHV` is live on the production domain. Exact
+variant persistence, run-out/reorder estimates, recurring cost, current-price
+readback, private export, 390-pixel rendering, noindex/canonical/sitemap policy
+and independent rejected/accepted analytics behavior all passed production
+checks. Phase 1 changes no catalogue or production data and adds no SEO route.
+Its next unit is the first clean measurement window, not another
+implementation. SEO-15 remains the single `IN PROGRESS` SEO task and keeps its
+existing order before SEO-17. No alert implementation begins without a fresh
+repository, execution-evidence and production audit plus any required owner
+decision.
 
 **15 October 2026 GYM HIGH source release:** fresh read-only
 production evidence confirms exactly `50` mature, non-quarantined GYM HIGH

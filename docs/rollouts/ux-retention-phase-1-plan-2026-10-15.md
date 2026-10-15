@@ -1,6 +1,6 @@
 # UX Retention Phase 1 Execution Pack
 
-**Status:** RELEASE A LIVE VERIFIED — RELEASE B LOCAL IMPLEMENTATION IN PROGRESS
+**Status:** PHASE 1 LIVE VERIFIED — FIRST CLEAN MEASUREMENT WINDOW NEXT
 **Prepared:** 15 October 2026  
 **Owner decision:** On 15 October 2026 the owner explicitly resumed this goal
 after completing the separate nutrition work. Phase 1 is classified as a
@@ -424,10 +424,9 @@ Required live proof:
   approved entry points;
 - verify rejection and acceptance analytics behavior independently.
 
-### 4.8 Release B implementation checkpoint — 15 October 2026
+### 4.8 Release B live verification checkpoint — 15 October 2026
 
-Release B is implemented locally and remains `IN PROGRESS` until deployment and
-live verification are complete.
+Release B is deployed and `LIVE VERIFIED`.
 
 - A fresh repository search confirmed there was no existing saved-supplement,
   run-out, reorder, export/import or Web Share owner. The existing exact-variant
@@ -474,9 +473,27 @@ live verification are complete.
   `noindex, nofollow, noarchive` headers. At 390 pixels the page had no
   horizontal overflow. `/my-supplements` rendered `noindex, follow`, a clean
   canonical and remained absent from the sitemap.
-- Deployment, production persistence/export checks and independent live
-  analytics acceptance/rejection proof remain pending, so Release B is not yet
-  complete.
+- PR `#354` merged as `3d68fc4c`. Main Quality Gate run `38778892879` passed,
+  and production deployment `dpl_FFfq3Ch9q4jmTEmEtvD6Q9CgEXHV` reached Ready
+  and was assigned to `https://www.supplementscout.co.uk`.
+- Independent production browser proof repeated the exact product `1231`,
+  variant `3653` flow. The saved item and its remaining amount, daily use and
+  optional last price survived a reload. Run-out, reorder, monthly cost,
+  current exact-variant price and the private export preview all rendered.
+- The production reconciliation API returned HTTP `200`, an exact variant
+  match and a current price, with `private, no-store` and
+  `noindex, nofollow, noarchive` headers. The page rendered without horizontal
+  overflow at 390 pixels.
+- `/my-supplements` returned HTTP `200`, `noindex, follow` and its clean
+  canonical, and remained absent from the sitemap. The live product and Whey
+  Protein category entry points both rendered their save actions.
+- Analytics was checked independently in both consent states. Rejection stored
+  denied consent and emitted no events. Acceptance stored granted consent and
+  emitted `view_my_supplements` through the existing dispatcher.
+- Release B is therefore `LIVE VERIFIED`. Phase 1 is complete. The next active
+  UX-retention unit is the first clean measurement window in section 5. No
+  alert implementation starts until a fresh repository, evidence and
+  production audit confirms its boundary and any required owner decision.
 
 ## 5. UX success and guardrails
 
