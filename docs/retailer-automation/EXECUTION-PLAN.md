@@ -1,10 +1,9 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: POST-CLOSEOUT INCIDENT CORRECTION IN PROGRESS — RA-004 REMAINS BLOCKED**
+**Status: POST-CLOSEOUT INCIDENT VERIFIED COMPLETE — RA-004 REMAINS BLOCKED**
 
-**Current active task:** RA-STAB-02. RA-STAB-01 remains `VERIFIED_COMPLETE`
-after three consecutive ordinary intervals on 11–13 October 2026; it is not
-reopened or rewritten by the later incident. On 29 September 2026 the
+**Current active task:** none. RA-STAB-02 and RA-STAB-01 are
+`VERIFIED_COMPLETE`. On 29 September 2026 the
 owner stopped further RA-004 live canary retries after the five-day sequence of
 staging-interface, credential, ledger, ACL, provider-identity and final SQL
 contract failures. The consumed `v3` activation remains terminal and
@@ -27,7 +26,7 @@ run, cutover or retry is not authorized by this reset.
 See
 [`evidence/RA-STABILIZATION-RESET-2026-09-29.md`](evidence/RA-STABILIZATION-RESET-2026-09-29.md).
 
-**14 October post-closeout mixed-partition incident — correction prepared:**
+**15 October post-closeout mixed-partition incident — verified complete:**
 ordinary shared run `38532219108` captured a healthy 10 Reps source and produced
 `917` executable rows plus `33` review rows across the unchanged `950`-offer
 scope. The review scope contained `22` source-missing identities isolated before
@@ -41,12 +40,22 @@ existing identity and stock review-card contracts, and removes the unused
 retailer branch in shared core, database write or guardrail exception. The exact
 retained production artifact now binds locally as `917 + 33`, with zero
 catalogue writes. PR `#336` merged as `e30b8859731d81662ba15336d78bc2dbf1968cf7`;
-its PR and main full quality gates passed. Scheduled watchdog `38558515264` then
-honestly retained the failed 10 Reps attempt and separately reported Simply
-Supplements monitored-backlog growth, with zero writes. One fresh ordinary shared
-run and a following correlated watchdog remain required.
+its PR and main full quality gates passed. The next natural scheduled run
+`38700695612` on merge commit `94c7f2e12971f292037a49f1b7fd6f0c167eeb01`
+then passed the complete 10 Reps path: `917` guarded executions, the exact `22`
+`SOURCE_VARIANT_MISSING` plus `11` `MASS_OOS` review partition, zero blocked
+rows, green DB postflight, green zero-write idempotency and successful Review
+Queue publication. The apply made three bounded stock updates and `917`
+freshness updates, with zero price, shipping or URL changes. The queue created
+`33` current cards, superseded `22` stale cards and made zero catalogue writes.
+Following scheduled watchdog `38726464998` correlated that exact run, returned
+10 Reps as `PASS_WITH_REVIEW` with a passing scope partition and no failures,
+and made zero database writes. Its aggregate failure is solely the separately
+classified Simply Supplements source-feed omission (`REVIEW_SCOPE_DRIFT`). No
+manual dispatch, retry, baseline widening, direct database write or new runtime
+was used. RA-STAB-02 is `VERIFIED_COMPLETE`.
 Evidence:
-[`evidence/RA-STAB-02-10REPS-MIXED-REVIEW-PARTITION-PREPARATION-2026-10-14.json`](evidence/RA-STAB-02-10REPS-MIXED-REVIEW-PARTITION-PREPARATION-2026-10-14.json).
+[`evidence/RA-STAB-02-ORDINARY-CLOSEOUT-2026-10-15.json`](evidence/RA-STAB-02-ORDINARY-CLOSEOUT-2026-10-15.json).
 
 **13 October ordinary observation closeout — verified complete:** the affected
 Whey Okay and shared Fit House/10 Reps guarded paths completed three consecutive
@@ -120,7 +129,7 @@ Every task records:
 
 ## RA-STAB-02 — 10 Reps mixed Review Queue partition incident
 
-**Status:** `IN_PROGRESS`
+**Status:** `VERIFIED_COMPLETE`
 
 **Goal:** restore the existing common Review Queue source binding when one
 ordinary run contains both pre-classifier source-missing rows and
@@ -135,37 +144,27 @@ following watchdog correlation.
 identity decisions, new approval/publisher/executor paths, RA-004 replay,
 migration activation and direct database writes.
 
-**Current evidence:** run `38532219108` failed closed at source binding; apply,
-postflight and idempotency were skipped for 10 Reps. The retained artifact proves
-`917` executable rows, `22` source-missing reviews, `11` `MASS_OOS` reviews and
-zero executed plans. The prepared common correction accepts that exact artifact
-with zero catalogue writes. Local focused tests, `npm run verify:quick` and
-`npm run verify:full` pass. PR `#336` and main CI passed. Scheduled watchdog
-`38558515264` made zero writes and failed for the already-known incomplete 10
-Reps run plus separate Simply Supplements monitored-backlog growth; it is an
-observation baseline, not post-fix 10 Reps acceptance. The Simply question is
-now classified read-only rather than folded into the 10 Reps defect. Natural
-runs `38135273464`, `38253308502` and `38398873170` each isolated only approved
-offer `670` as `SOURCE_VARIANT_MISSING`; run `38547222177` completed normally
-with `118` executable rows plus offers `669` and `670` isolated for that same
-reason, followed by passing DB postflight and idempotency. Offer `669` retained
-its exact product / variant identity `16212558479709 / 64756981727581`, SKU
-`C466`, price GBP `13.29` and OOS state. A 15 October public readback found that
-exact unchanged OOS variant at its canonical product JSON while the complete
-bulk pagination (`140 + 45 + 82 + 0 = 267` products) omitted it. This is a
-source-feed omission correctly failed closed, not an execution regression,
-identity decision or authority to widen the monitored baseline. Watchdog
-`38681499726` made zero writes and reports Simply only for the resulting exact
-`REVIEW_SCOPE_DRIFT`.
+**Completion evidence:** natural scheduled run `38700695612` completed source
+binding, `917` guarded executions, read-only DB postflight, fresh zero-write
+idempotency and Review Queue publication for the exact `917 + 22 + 11`
+partition. Artifact `11956278531`, digest
+`sha256:19e63d55a9ef7ad3d0f415e5f3b8da2d87c24a6eb6e5c39bbd2b90d0f7fc3305`,
+records zero blocked rows, three stock updates, `917` freshness updates and no
+price, shipping or URL changes. Queue artifact `11957005590`, digest
+`sha256:03bb26438088e240eb66e48102a2507a93a5011507fe6c2d53aa3c01c08fb074`,
+records `33` created cards, `22` superseded cards and zero catalogue writes.
+Following scheduled watchdog `38726464998`, artifact `11968533175`, correlated
+the exact run with a passing full-scope partition and no 10 Reps failures. Its
+only failed retailer is Simply Supplements for the already classified exact
+source-feed omission. The closeout used no manual run, retry, baseline widening,
+direct database write or new mechanism. Full evidence:
+[`evidence/RA-STAB-02-ORDINARY-CLOSEOUT-2026-10-15.json`](evidence/RA-STAB-02-ORDINARY-CLOSEOUT-2026-10-15.json).
 
-**Next bounded step:** merge only after CI passes, then observe the next ordinary
-shared schedule and its following watchdog. Do not manufacture verification with
-a manual dispatch. Mark `VERIFIED_COMPLETE` only after source binding, guarded
-apply, read-only postflight, fresh idempotency and Review Queue publication all
-pass for 10 Reps and the following watchdog correlates the result. An aggregate
-watchdog failure caused only by the separately classified exact Simply omission
-does not replace the required 10 Reps correlation; any new or unexplained
-failure still stops closeout.
+**Next bounded step:** do not reopen RA-STAB-02 for expected review-backed
+backlog warnings. RA-004 remains blocked and no retailer-consolidation task is
+active. Return to the Operating Plan sequence: prepare the separately
+owner-approved GYM HIGH participation in SEO-15 through the existing bounded
+source-release mechanism and its own guarded evidence.
 
 ## RA-STAB-01 — Existing-path production stabilization
 
