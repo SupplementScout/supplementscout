@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-nut03-liquid-serving-presentation-deployment-v1",
+  "status": "DEPLOYED_AND_READ_BACK",
+  "deployed_at": "2026-10-15",
+  "source": {
+    "pull_request": "https://github.com/SupplementScout/supplementscout/pull/342",
+    "merge_commit": "b0c66bf2440554ead2af218a4f19df77bcba9727"
+  },
+  "scope": {
+    "production_data_writes": 0,
+    "migrations": 0,
+    "candidate_store": false,
+    "review": false,
+    "plan": false,
+    "apply": false,
+    "variant_3185_unchanged": true
+  },
+  "verification": {
+    "local_focused_tests": "74/74 PASS",
+    "local_verify_project": "PASS",
+    "local_verify_quick": "PASS",
+    "local_verify_full": "PASS",
+    "pull_request_quality_gate": "PASS",
+    "main_project_guardian_run": "https://github.com/SupplementScout/supplementscout/actions/runs/38722458165",
+    "main_quality_gate_run": "https://github.com/SupplementScout/supplementscout/actions/runs/38722458269",
+    "main_quality_gate": "PASS",
+    "vercel": {
+      "status": "SUCCESS",
+      "description": "Deployment has completed",
+      "deployment": "https://vercel.com/supplement-scout/supplementscout/3u7XXAnu92ARXMx1V55RjNFNM6em"
+    }
+  },
+  "public_readback": {
+    "result": "PASS",
+    "checked_urls": [
+      "https://www.supplementscout.co.uk/product/conteh-sports-mega-pump-elite-30-servings?variant=1250",
+      "https://www.supplementscout.co.uk/product/per4m-pre-workout-stim-570g?variant=1086",
+      "https://www.supplementscout.co.uk/product/kilo-labs-thiquid-25-servings?variant=3185"
+    ],
+    "existing_reviewed_facts_visible": true,
+    "private_archive_uri_exposed": false,
+    "variant_3185": {
+      "page_status": 200,
+      "serving_display": "40 ml",
+      "reviewed_ingredient_facts_visible": false,
+      "empty_state": "No reviewed ingredient facts are available for this exact variant."
+    }
+  },
+  "next_step": "Prepare and dry-run one exact five-fact candidate artifact for product 973 variant 3185; production store, review, plan and apply remain separately controlled."
+}

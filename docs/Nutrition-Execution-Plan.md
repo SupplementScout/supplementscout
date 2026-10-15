@@ -6550,3 +6550,31 @@ write occurred, and variant `3185` remains unchanged. NUT-03 stays
 `IN PROGRESS`. One next step is to publish and deploy this bounded compatibility
 change and verify the existing public product presentation before preparing
 variant `3185` for a separately authorized guarded nutrition workflow.
+
+### NUT-03 liquid-serving production deployment
+
+15 October 2026, PR
+[#342](https://github.com/SupplementScout/supplementscout/pull/342) merged the
+bounded liquid-serving compatibility change into `main` at commit
+`b0c66bf2440554ead2af218a4f19df77bcba9727`. The clean current-main integration
+passed the focused `74/74` nutrition tests, `verify:project`, `verify:quick` and
+`verify:full`, including the production build. GitHub Project Guardian and the
+post-merge full Quality Gate passed, and Vercel reported the production
+deployment complete.
+
+Fresh public readback returned `200` for existing reviewed variants `1250` and
+`1086`; their reviewed facts remained visible and no private archive URI was
+present. Product `973`, variant `3185`, also returned `200` and displayed its
+existing `40 ml` serving. It correctly retained the empty reviewed-ingredient
+state because no candidates for that variant have been stored, reviewed or
+applied. Deployment therefore proves presentation compatibility without being
+misstated as a nutrition data write.
+
+Machine-readable deployment evidence is in
+[nutrition-nut03-liquid-serving-presentation-deployment-2026-10-15.json](rollouts/nutrition-nut03-liquid-serving-presentation-deployment-2026-10-15.json).
+Its SHA-256 is
+`a3761190cd851bd21a1f6b90ad89a728faf6ed65764678765470c9b0f55db758`.
+No migration or production nutrition write occurred. NUT-03 remains
+`IN PROGRESS`. One next step is to prepare and dry-run one exact five-fact
+candidate artifact for product `973`, variant `3185`; production store, review,
+plan and apply remain separately controlled.
