@@ -558,6 +558,16 @@ first clean UX window; no second reporting system was created.
   return opportunities remain explicit.
 - Measurement instrumentation is therefore `LIVE VERIFIED`. The active UX unit
   is collection of the fixed 28-day window, not another implementation.
+- On 15 October the owner approved preserving that clean window: no planned My
+  Supplements product change starts before the 11 November end date. Existing
+  read-only UX measurement and SEO-15 monitoring continue; an urgent corrective
+  fix may still proceed under the normal evidence gates.
+- After the complete window is available, the first approved direction is a
+  bounded in-page "Needs attention" reorder reminder. It must reuse the existing
+  local saved list, `calculateMySupplementSchedule` and current exact-variant
+  readback. The first unit adds no account, email, push notification, database
+  write or public historical price-drop claim. A fresh repository, evidence and
+  production audit remains mandatory before implementation.
 
 ## 6. Approved implementation sequence
 
@@ -571,8 +581,11 @@ Only one bounded implementation is active at a time:
 4. implement and live-verify Release A;
 5. record evidence and close Release A;
 6. implement and live-verify Release B;
-7. run the first clean measurement window and record limitations;
-8. return to the binding sequence or request the next explicit owner decision.
+7. run the first clean measurement window through 11 November and record its
+   limitations;
+8. after the complete-window readback, re-audit current state and implement the
+   bounded in-page reorder reminder described above; threshold-price, restock,
+   cheaper-variant and alternative alerts remain later separately gated units.
 
 ### Mandatory reuse and anti-spaghetti gate
 

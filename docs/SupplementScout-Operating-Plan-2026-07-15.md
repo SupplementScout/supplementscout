@@ -29,7 +29,14 @@ conclusion. The active UX unit is collection of that clean window, not another
 implementation. SEO-15 remains the single `IN PROGRESS` SEO task and keeps its
 existing order before SEO-17. No alert implementation begins without a fresh
 repository, execution-evidence and production audit plus any required owner
-decision.
+decision. The owner approved preserving the clean window through 11 November:
+no planned My Supplements product change starts during it. After the complete
+window readback, the first approved direction is a bounded in-page reorder
+attention panel reusing the existing local list, schedule calculation and
+exact-variant current-price readback. Its first unit adds no account, email,
+push notification, database write or public price-drop claim. Price-threshold,
+restock, cheaper-variant and alternative alerts remain later separately gated
+units, and SEO-15 monitoring continues unchanged.
 
 **15 October 2026 GYM HIGH source release:** fresh read-only
 production evidence confirms exactly `50` mature, non-quarantined GYM HIGH
