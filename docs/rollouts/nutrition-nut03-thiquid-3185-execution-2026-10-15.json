@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-nut03-thiquid-3185-execution-evidence-v1",
+  "status": "LIVE_VERIFIED",
+  "executed_at": "2026-10-15",
+  "target": {
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "environment": "PRODUCTION",
+    "identity_check": "PASS"
+  },
+  "scope": {
+    "product_id": "973",
+    "variant_id": "3185",
+    "product": "Kilo Labs Thiquid 25 servings",
+    "variant": "1000ml",
+    "candidate_count": 5,
+    "product_updates": 0,
+    "variant_updates": 1,
+    "destination": "product_variants.nutrition_override"
+  },
+  "artifact": {
+    "path": "tmp/nutrition-thiquid-3185-preparation-2026-10-15/candidate-artifact/nutrition-candidates-ncr1-nut03-thiquid-973-3185-20261015.json",
+    "sha256": "c4fdd315e09a3299b4f238c9567233550ae8893175171032884dd01fa7a8f16a",
+    "fingerprint": "5edabfb317badeaf87c931218dbf8355e1bf817a4f53d9898b3fe7e77a591a40"
+  },
+  "archive": {
+    "bucket": "nutrition-sources",
+    "bucket_public": false,
+    "action": "stored",
+    "source_review_sha256": "32baeef8a3c32f9ad00fa6f0b39c260559ca72a79aa3debb97c58b8e49ec935e",
+    "readback_sha256": "32baeef8a3c32f9ad00fa6f0b39c260559ca72a79aa3debb97c58b8e49ec935e",
+    "retained_without_automatic_expiry": true
+  },
+  "store": {
+    "result": "PASS",
+    "mode": "CANDIDATE_TABLE_WRITE_ONLY",
+    "candidate_rows": 5,
+    "product_updates": 0,
+    "candidate_ids": ["3207", "3208", "3209", "3210", "3211"]
+  },
+  "review": {
+    "result": "PASS",
+    "mechanism": "authenticated-admin-panel",
+    "approved": 5,
+    "already_approved": 0,
+    "candidate_ids": ["3207", "3208", "3209", "3210", "3211"]
+  },
+  "plan": {
+    "path": "tmp/nutrition-approved-plan/NCR1-nut03-thiquid-3185-20261015-44960fd51e37.json",
+    "sha256": "dae6ceab081d4b859199885e72377f0ccdd792c7aa5361d854a9a577beb5de39",
+    "fingerprint": "44960fd51e37a267862dea17fea974fc8e5ffd1c30079bc9ecf8fff10b045da0",
+    "before": {},
+    "after": {
+      "beta_alanine": { "information_state": "confirmed_absent" },
+      "caffeine": { "information_state": "confirmed_absent" },
+      "citrulline": {
+        "information_state": "present_with_amount",
+        "amount_per_serving_mg": 5000,
+        "source_quantity_value": 5000,
+        "source_quantity_unit": "mg",
+        "quantity_basis": "per_serving",
+        "serving_basis_text": "1000 ml bottle, 25 servings; suggested use 20-40 ml (1-2 capfuls). Exact full serving: 40 ml.",
+        "serving_basis_value": 40,
+        "serving_basis_unit": "ml",
+        "ingredient_form": "l_citrulline"
+      },
+      "creatine": { "information_state": "confirmed_absent" },
+      "serving_size_ml": 40
+    },
+    "product_updates": 0,
+    "variant_updates": 1,
+    "blockers": []
+  },
+  "apply": {
+    "result": "PASS",
+    "status": "APPLIED_REVIEWED_NUTRITION_FIELDS",
+    "changed_products": [],
+    "changed_variants": ["3185"],
+    "changed_fields": ["beta_alanine", "caffeine", "citrulline", "creatine", "serving_size_ml"]
+  },
+  "independent_readback": {
+    "result": "PASS",
+    "complete_after_match": true,
+    "candidate_approvals": 5,
+    "candidate_evidence_unchanged": true,
+    "review_metadata_present": true,
+    "nutrition_verified_unchanged": true,
+    "legacy_creatine_per_serving_g_unchanged": true,
+    "queue_before": { "approved": 3184, "pending": 16, "rejected": 6 },
+    "queue_after": { "approved": 3189, "pending": 16, "rejected": 6 }
+  },
+  "replay": {
+    "result": "PASS_SAFE_REJECTION",
+    "additional_writes": 0,
+    "reason": "Variant 3185 nutrition override changed after plan generation"
+  },
+  "public_readback": {
+    "result": "PASS",
+    "url": "https://www.supplementscout.co.uk/product/kilo-labs-thiquid-25-servings?variant=3185",
+    "http_status": 200,
+    "serving_40_ml_visible": true,
+    "caffeine_confirmed_absent_visible": true,
+    "beta_alanine_visible": true,
+    "citrulline_5000_mg_visible": true,
+    "l_citrulline_visible": true,
+    "creatine_visible": true,
+    "private_archive_uri_absent": true,
+    "caffeine_free_filter": {
+      "url": "https://www.supplementscout.co.uk/search?q=pre%20workout&caffeine=free",
+      "http_status": 200,
+      "expected_product_visible": true
+    }
+  },
+  "next_step": "Reconcile the current-offer coverage ledger after this exact variant completion, then select the next unresolved family with retained evidence; do not reprocess variant 3185."
+}

@@ -6615,3 +6615,36 @@ candidate store, review, plan or apply occurred. NUT-03 remains `IN PROGRESS`.
 One next step is one owner decision authorizing private archive readback followed
 by controlled store, authenticated review, explicit-ID plan and guarded apply of
 exactly this unchanged five-candidate artifact.
+
+### NUT-03 Kilo Labs Thiquid exact-variant execution
+
+15 October 2026, explicit owner authorization advanced the unchanged five-row
+artifact for product `973`, variant `3185`, through private archive, store,
+authenticated review, explicit-ID planning and guarded apply. The private
+`nutrition-sources` readback matched source-review SHA-256
+`32baeef8a3c32f9ad00fa6f0b39c260559ca72a79aa3debb97c58b8e49ec935e`.
+Candidate IDs `3207`-`3211` were created once and all five are approved with
+unchanged fingerprints, source hashes and durable archive reference.
+
+The one-variant plan has SHA-256
+`dae6ceab081d4b859199885e72377f0ccdd792c7aa5361d854a9a577beb5de39`
+and fingerprint
+`44960fd51e37a267862dea17fea974fc8e5ffd1c30079bc9ecf8fff10b045da0`.
+It contained zero product updates and changed only variant `3185` from an empty
+override to the reviewed 40 ml serving, confirmed caffeine and beta-alanine
+absence, 5000 mg free-form L-citrulline per 40 ml and confirmed creatine
+absence. Absence values remain null. The product-level `nutrition_verified` and
+legacy `creatine_per_serving_g` fields are unchanged.
+
+A new read-only production connection matched the full planned `after` object,
+all five approvals and evidence records. Exact replay failed closed against the
+stale before-state with zero additional writes. The public exact-variant page
+returns `200`, displays the 40 ml serving and reviewed ingredient facts without
+the private URI, and the product appears in the caffeine-free filter.
+
+Machine-readable evidence is in
+[nutrition-nut03-thiquid-3185-execution-2026-10-15.json](rollouts/nutrition-nut03-thiquid-3185-execution-2026-10-15.json).
+This completes this exact liquid variant; it does not close NUT-03 or the full
+catalogue. One next step is a fresh read-only current-offer coverage
+reconciliation followed by selection of the next unresolved family with
+retained evidence. Variant `3185` must not be processed again.
