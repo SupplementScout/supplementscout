@@ -1,6 +1,6 @@
 # UX Retention Phase 1 Execution Pack
 
-**Status:** PHASE 1 LIVE VERIFIED — MEASUREMENT INSTRUMENTATION IN PROGRESS
+**Status:** PHASE 1 LIVE VERIFIED — FIRST CLEAN MEASUREMENT WINDOW COLLECTING
 **Prepared:** 15 October 2026  
 **Owner decision:** On 15 October 2026 the owner explicitly resumed this goal
 after completing the separate nutrition work. Phase 1 is classified as a
@@ -524,8 +524,8 @@ explicitly inconclusive.
 
 ### 5.1 Measurement implementation checkpoint — 15 October 2026
 
-The existing authenticated, read-only Growth Analytics report is being extended
-for the first clean UX window; no second reporting system is being created.
+The existing authenticated, read-only Growth Analytics report now owns the
+first clean UX window; no second reporting system was created.
 
 - The exact first window is 15 October through 11 November 2026, 28 calendar
   days. Reports state `COLLECTING` until all 28 days exist and never turn
@@ -543,9 +543,21 @@ for the first clean UX window; no second reporting system is being created.
   reported separately, and no uplift claim is allowed from an immature or
   contaminated sample.
 - The implementation changes no catalogue, price, SEO route, GA4 setting or
-  production data. Local focused tests, TypeScript, ESLint and
-  `npm run verify:quick` pass. Deployment and authenticated production-readonly
-  API proof remain required before this measurement instrumentation is closed.
+  production data. PR `#356` merged as `5666607b`; main Quality Gate run
+  `38785039900` and Project Guardian run `38785039819` passed, and production
+  deployment `EhAxT6tDDAKpU8yoHqk1RfEscogz` completed successfully.
+- A production browser check on 15 October proved the explicit search-result
+  selection event and the My Supplements six-hour, seven-day and 30-day return
+  events with consent granted. The isolated test used browser-local sample data
+  only and made no production write.
+- Authenticated production-readonly Growth Analytics run `38788025323` passed
+  against the merge commit and uploaded private artifact
+  `growth-analytics-38788025323-1` (schema `6`). Its UX period is `COLLECTING`:
+  15 October through 11 November 2026, with one of 28 days observed. Early zero
+  counts are not a performance conclusion; consent limits and immature 7/30-day
+  return opportunities remain explicit.
+- Measurement instrumentation is therefore `LIVE VERIFIED`. The active UX unit
+  is collection of the fixed 28-day window, not another implementation.
 
 ## 6. Approved implementation sequence
 

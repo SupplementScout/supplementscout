@@ -17,7 +17,15 @@ variant persistence, run-out/reorder estimates, recurring cost, current-price
 readback, private export, 390-pixel rendering, noindex/canonical/sitemap policy
 and independent rejected/accepted analytics behavior all passed production
 checks. Phase 1 changes no catalogue or production data and adds no SEO route.
-Its next unit is the first clean measurement window, not another
+The reused Growth Analytics path is also `LIVE VERIFIED`: PR `#356` merged as
+`5666607b`, main Quality Gate run `38785039900`, Project Guardian run
+`38785039819` and production deployment `EhAxT6tDDAKpU8yoHqk1RfEscogz` passed.
+A production browser check proved the consent-aware search-selection and My
+Supplements return events without a production write. Authenticated read-only
+run `38788025323` produced private schema-6 artifact
+`growth-analytics-38788025323-1`; the fixed 15 October–11 November window is
+`COLLECTING` with one of 28 days observed. Early zero counts are not a product
+conclusion. The active UX unit is collection of that clean window, not another
 implementation. SEO-15 remains the single `IN PROGRESS` SEO task and keeps its
 existing order before SEO-17. No alert implementation begins without a fresh
 repository, execution-evidence and production audit plus any required owner
