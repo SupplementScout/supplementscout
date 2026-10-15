@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "kind": "nutrition-nut03-thiquid-3185-preparation-evidence-v1",
+  "status": "READY_FOR_OWNER_DECISION",
+  "prepared_at": "2026-10-15",
+  "target": {
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "environment": "PRODUCTION",
+    "read_only_preflight": "PASS"
+  },
+  "scope": {
+    "product_id": "973",
+    "variant_id": "3185",
+    "product": "Kilo Labs Thiquid 25 servings",
+    "variant": "1000ml",
+    "candidate_count": 5,
+    "unique_candidate_fingerprints": 5,
+    "production_candidate_writes": 0,
+    "review_writes": 0,
+    "plan_writes": 0,
+    "apply_writes": 0,
+    "production_storage_writes": 0
+  },
+  "production_preflight": {
+    "variant_product_binding": "PASS",
+    "product_format": "liquid",
+    "net_volume_ml": 1000,
+    "serving_count_verified": 25,
+    "nutrition_override_before": {},
+    "exact_variant_candidates_before": 0,
+    "exact_fingerprints_already_stored": 0,
+    "nutrition_verified": false,
+    "legacy_creatine_per_serving_g": null,
+    "database_writes": 0
+  },
+  "sources": [
+    {
+      "url": "https://fithouse.uk/products/kilo-labs-thiquid-25-servings",
+      "local_path": "tmp/nutrition-thiquid-3185-preparation-2026-10-15/kilo-thiquid-fithouse.html",
+      "sha256": "872b290b876d5a41388c5c9e424e96fb22a0e71a9e40f93b1ef0c44665e3b992",
+      "role": "exact current UK catalogue product and serving context"
+    },
+    {
+      "url": "https://nutricartel.com/products/thiquid-pump-serum",
+      "local_path": "tmp/nutrition-thiquid-3185-preparation-2026-10-15/kilo-thiquid-nutricartel.html",
+      "sha256": "ca159590af7ea89cb9306c253a2afb7f96f08d2d4e9793f029ecfa82c7747d69",
+      "role": "retailer-hosted Supplement Facts and complete declared active formula"
+    }
+  ],
+  "evidence_review": {
+    "path": "tmp/nutrition-thiquid-3185-preparation-2026-10-15/evidence/product-973-variant-3185-source-review.json",
+    "sha256": "32baeef8a3c32f9ad00fa6f0b39c260559ca72a79aa3debb97c58b8e49ec935e",
+    "planned_archive_uri": "supabase-storage://nutrition-sources/evidence/nut-03/thiquid-3185-2026-10-15/32baeef8a3c32f9ad00fa6f0b39c260559ca72a79aa3debb97c58b8e49ec935e/product-973-variant-3185-source-review.json",
+    "archive_status": "PENDING_SEPARATE_AUTHORIZATION"
+  },
+  "artifact": {
+    "path": "tmp/nutrition-thiquid-3185-preparation-2026-10-15/candidate-artifact/nutrition-candidates-ncr1-nut03-thiquid-973-3185-20261015.json",
+    "sha256": "c4fdd315e09a3299b4f238c9567233550ae8893175171032884dd01fa7a8f16a",
+    "fingerprint": "5edabfb317badeaf87c931218dbf8355e1bf817a4f53d9898b3fe7e77a591a40",
+    "candidate_fingerprints": [
+      "a68cb5236a2e7383d7b29b352de1c5afd76ab8c574dd5de060cf9ffaec3dcae6",
+      "b53bddb790e38569d1faaad8a2eafdd03dac82d8b5924582d36bb87790463bcc",
+      "e36101f1b2d7a96bc4db641b5370725cfb7d8c0ece4eaad56d9009e455c866d2",
+      "beef069d632662b6ae31f88367205c6577fc9003abfe4428b330daff0c53b8c2",
+      "ff594bf6c200464562c0b2932cb67921bdcb9cdc927859afcf9d0bf4377ff411"
+    ]
+  },
+  "proposals": [
+    {
+      "field": "serving_size_ml",
+      "information_state": null,
+      "value": 40,
+      "unit": "ml",
+      "basis": "1000 ml bottle / 25 servings; suggested use 20-40 ml (1-2 capfuls)"
+    },
+    {
+      "field": "caffeine_per_serving_mg",
+      "information_state": "confirmed_absent",
+      "value": null,
+      "unit": null,
+      "basis": "exact product page states stimulant free and caffeine-free performance"
+    },
+    {
+      "field": "beta_alanine_per_serving_mg",
+      "information_state": "confirmed_absent",
+      "value": null,
+      "unit": null,
+      "basis": "complete declared active formula contains no beta-alanine or undisclosed blend"
+    },
+    {
+      "field": "citrulline_per_serving_mg",
+      "information_state": "present_with_amount",
+      "value": 5000,
+      "unit": "mg",
+      "ingredient_form": "l_citrulline",
+      "serving_basis_value": 40,
+      "serving_basis_unit": "ml",
+      "source_quantity_value": 5000,
+      "source_quantity_unit": "mg"
+    },
+    {
+      "field": "creatine_declared_form_per_serving_mg",
+      "information_state": "confirmed_absent",
+      "value": null,
+      "unit": null,
+      "basis": "complete declared active formula contains no creatine form or undisclosed blend"
+    }
+  ],
+  "validation": {
+    "command": "npm run nutrition:candidates:store -- --dry-run --input=tmp/nutrition-thiquid-3185-preparation-2026-10-15/candidate-artifact/nutrition-candidates-ncr1-nut03-thiquid-973-3185-20261015.json",
+    "result": "PASS",
+    "mode": "DRY_RUN_NO_DATABASE",
+    "candidate_rows": 5,
+    "product_updates": 0,
+    "database_writes": 0
+  },
+  "next_step": "One owner decision may authorize archiving the unchanged evidence review, then controlled store, authenticated review, explicit-ID plan and guarded apply of exactly these five candidates."
+}
