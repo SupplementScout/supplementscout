@@ -34,7 +34,7 @@ const description =
   "Compare creatine supplement prices, delivery costs and retailer availability from UK supplement retailers.";
 const getCachedCreatineComparison = createLifecycleDataLoader(
   pagePath,
-  "creatine-comparison-v1",
+  "creatine-comparison-v2",
   getCreatineComparison
 );
 
