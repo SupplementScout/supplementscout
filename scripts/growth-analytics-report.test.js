@@ -8,11 +8,13 @@ const {
   GOOGLE_SCOPES,
   OUTPUT_ROOT,
   buildWeeklyReport,
+  conservativeExternalSearchSignal,
   createServiceAccountJwt,
   normalizePropertyId,
   normalizeSiteUrl,
   parseEndDate,
   parseServiceAccount,
+  renderSafeSummary,
   reportingPeriod,
   safeRatio,
 } = require("./growth-analytics-report");
@@ -78,6 +80,32 @@ test("CTR calculations fail closed when the denominator is absent", () => {
   assert.equal(safeRatio(3, 12), 0.25);
   assert.equal(safeRatio(3, 0), 0);
   assert.equal(safeRatio("invalid", 12), 0);
+});
+
+test("conservative external search signal preserves totals and removes only the known operational referral", () => {
+  assert.deepEqual(conservativeExternalSearchSignal(9, [
+    { sessionSourceMedium: "google / organic", sessions: 5, totalUsers: 4 },
+    { sessionSourceMedium: "bing / organic", sessions: 4, totalUsers: 3 },
+  ]), {
+    sessions: 9,
+    excludedSessions: 0,
+    excludedSourceRowUsers: 0,
+    excludedSourceMedium: "search.google.com / referral",
+    excludedSourceObserved: false,
+    basis: "GA4 Organic Search sessions minus search.google.com / referral sessions; original GA4 totals remain unchanged and the remainder is not proof that every session is external.",
+  });
+
+  const contaminated = conservativeExternalSearchSignal(12, [
+    { sessionSourceMedium: "search.google.com / referral", sessions: 10, totalUsers: 1 },
+    { sessionSourceMedium: "google / organic", sessions: 2, totalUsers: 2 },
+  ]);
+  assert.equal(contaminated.sessions, 2);
+  assert.equal(contaminated.excludedSessions, 10);
+  assert.equal(contaminated.excludedSourceRowUsers, 1);
+
+  assert.equal(conservativeExternalSearchSignal(3, [
+    { sessionSourceMedium: "search.google.com / referral", sessions: 4, totalUsers: 1 },
+  ]).sessions, 0);
 });
 
 test("authenticated report combines GSC, sitemap and organic GA4 evidence", async () => {
@@ -190,7 +218,11 @@ test("authenticated report combines GSC, sitemap and organic GA4 evidence", asyn
       return response({
         dimensionHeaders: [{ name: "sessionSourceMedium" }],
         metricHeaders: [{ name: "sessions" }, { name: "totalUsers" }],
-        rows: [{ dimensionValues: [{ value: "google / organic" }], metricValues: [{ value: "20" }, { value: "16" }] }],
+        rows: [
+          { dimensionValues: [{ value: "search.google.com / referral" }], metricValues: [{ value: "14" }, { value: "1" }] },
+          { dimensionValues: [{ value: "google / organic" }], metricValues: [{ value: "4" }, { value: "3" }] },
+          { dimensionValues: [{ value: "bing / organic" }], metricValues: [{ value: "2" }, { value: "1" }] },
+        ],
       });
     }
     if (body.dimensions?.[0]?.name === "testDataFilterName") {
@@ -246,7 +278,7 @@ test("authenticated report combines GSC, sitemap and organic GA4 evidence", asyn
     ctr: 0,
     position: 18.5,
   });
-  assert.equal(report.schemaVersion, 4);
+  assert.equal(report.schemaVersion, 5);
   assert.equal(report.searchConsole.sitemaps[0].errors, 0);
   assert.deepEqual(report.ga4.organicSearch, {
     sessions: 20,
@@ -261,6 +293,14 @@ test("authenticated report combines GSC, sitemap and organic GA4 evidence", asyn
   assert.equal(report.ga4.organicTrafficQuality.hostnameRows[0].hostName, "www.supplementscout.co.uk");
   assert.equal(report.ga4.organicTrafficQuality.dataFilterConfiguration.state, "not_exposed_by_supported_api");
   assert.equal(report.ga4.organicTrafficQuality.testDataFilterEvidence.state, "available");
+  assert.deepEqual(report.ga4.organicTrafficQuality.conservativeExternalSearchSignal, {
+    sessions: 6,
+    excludedSessions: 14,
+    excludedSourceRowUsers: 1,
+    excludedSourceMedium: "search.google.com / referral",
+    excludedSourceObserved: true,
+    basis: "GA4 Organic Search sessions minus search.google.com / referral sessions; original GA4 totals remain unchanged and the remainder is not proof that every session is external.",
+  });
   assert.deepEqual(report.ga4.betterValueAlternatives, {
     impressions: 12,
     clicks: 3,
@@ -270,6 +310,8 @@ test("authenticated report combines GSC, sitemap and organic GA4 evidence", asyn
     downstreamRetailerClickThroughRate: 2 / 3,
     downstreamWindowMinutes: 30,
   });
+  assert.match(renderSafeSummary(report), /GA4 conservative external-search signal: 6 sessions \(14 operational referral sessions excluded\)/);
+  assert.match(renderSafeSummary(report), /Sitemap errors: 0/);
   assert.equal(report.searchConsole.indexing.inspectionTargets.length, 2);
   assert.equal(report.searchConsole.indexing.inspections[0].state, "ok");
   assert.equal(report.searchConsole.indexing.inspectedCount, 2);
@@ -334,6 +376,8 @@ test("scheduled workflow is read-only, protected and publishes only report artif
   assert.match(workflow, /--end-date="\$GROWTH_REPORT_END_DATE"/);
   assert.match(workflow, /vars\.GA4_PROPERTY_ID/);
   assert.match(workflow, /vars\.GSC_SITE_URL/);
+  assert.match(workflow, /renderSafeSummary/);
+  assert.doesNotMatch(workflow, /betterValueAlternatives|conservativeExternalSearchSignal/);
   assert.match(workflow, /path: tmp\/growth-analytics\/\*\.json/);
   assert.doesNotMatch(workflow, /contents: write|git push|service_role|SUPABASE/);
 });
