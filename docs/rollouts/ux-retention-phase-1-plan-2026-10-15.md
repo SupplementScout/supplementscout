@@ -1,6 +1,6 @@
 # UX Retention Phase 1 Execution Pack
 
-**Status:** RELEASE A IN PROGRESS — SEPARATE PRODUCT UX RELEASE APPROVED  
+**Status:** RELEASE A LIVE VERIFIED — RELEASE B NEXT
 **Prepared:** 15 October 2026  
 **Owner decision:** On 15 October 2026 the owner explicitly resumed this goal
 after completing the separate nutrition work. Phase 1 is classified as a
@@ -243,9 +243,9 @@ Required live proof:
 - consent-granted events appear without affecting navigation; refusal leaves
   them absent.
 
-### 3.6 Local implementation checkpoint — 15 October 2026
+### 3.6 Release A live verification checkpoint — 15 October 2026
 
-Release A is locally implemented but is not yet complete or live verified.
+Release A is deployed and live verified.
 
 - One shared decision selector and one shared answer panel now serve all ten
   reviewed category routes. Duplicate winners collapse, unknown delivery
@@ -270,10 +270,34 @@ Release A is locally implemented but is not yet complete or live verified.
   quick smoke files. `npm run verify:quick` and `npm run verify:full` passed,
   including Project Guardian, TypeScript, ESLint, all safe tests, baseline
   migration validation and the Next.js production build.
-- No deployment, production data write or live verification was performed.
-  The next Release A action is a normal reviewed deployment followed by the
-  representative protein/creatine, mobile/desktop, canonical/robots, compare
-  and consent-event readbacks listed in section 3.5.
+- PR `#351` merged as `7e1a08b9`; its Vercel production deployment completed
+  and the post-merge Quality Gate run `38770715414` passed.
+- The first live readback correctly found a `/creatine` HTTP `500`. Production
+  logs proved that the expanded row shape was reading an old v1 lifecycle-cache
+  entry. The route now uses `creatine-comparison-v2`, with a regression test
+  that prevents the expanded shape from reusing v1. PR `#352` merged as
+  `832401ae`; deployment `dpl_6jR2Noz6wRFCjMVWPQhLd2udQtVu` and main Quality
+  Gate run `38773042665` passed. The correction changed no catalogue or
+  production data.
+- All ten reviewed routes returned HTTP `200` and rendered both `Quick decision`
+  and `Recommended order` on the final deployment. Whey Protein and Creatine
+  clean routes returned `index, follow` with self-canonicals; their sorted
+  states returned `noindex, follow` with the clean canonical.
+- The final sitemap returned HTTP `200`, contained 1,322 URLs and contained
+  Whey Protein and Creatine exactly once each. The first live Whey decision
+  linked to `/compare?left=1231`, and that page rendered product `1231` as the
+  selected left product.
+- Desktop and 390-pixel browser checks rendered the decision layer and controls.
+  The existing wide comparison table retains its explicitly tested horizontal
+  scroll container on narrow screens, so the full product-link path remains
+  available rather than being removed or truncated.
+- Consent refusal remained stored through the existing versioned consent owner,
+  suppressed the initial banner after reload and left navigation functional.
+  Allowlist and consent behavior passed the focused and full automated tests;
+  no personal fields or second analytics queue was introduced.
+- Release A is therefore `LIVE VERIFIED`. The next active UX-retention unit is
+  Release B, My Supplements MVP, starting with a fresh repository/production
+  duplication audit before implementation.
 
 ## 4. Release B — My Supplements MVP
 
