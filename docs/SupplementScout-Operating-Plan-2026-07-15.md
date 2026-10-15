@@ -22,6 +22,17 @@ writes. Public Stage 3 remains off and its unchanged `12 / 30 / 4` readiness
 gate remains binding. See the
 [release evidence](rollouts/seo15-gym-high-source-release-2026-10-15.md).
 
+**15 October 2026 post-release readiness audit:** scheduled SEO-15 run
+`38736679434` passed but captured its payload at `12:42:48Z`, before the GYM
+HIGH release at `12:43:02Z`, so it is not natural post-release evidence. A fresh
+read-only audit at `13:00:45Z` confirms two released sources and zero writes,
+but the candidate inventory is still two Jon's offers for one canonical product
+and one retailer; GYM HIGH and Fit House have no threshold-qualified drops. The
+bottleneck is genuine price-event breadth, not missing infrastructure or a
+retailer-approval queue. Public Stage 3 stays off. Inspect the ordinary audit
+expected after 16 October 07:23 UTC. See the
+[readiness audit](rollouts/seo15-post-gym-high-readiness-audit-2026-10-15.md).
+
 **15 October 2026 controlled execution checkpoint:** RA-STAB-02 is
 `VERIFIED_COMPLETE`. Natural shared run `38700695612` on merge commit
 `94c7f2e12971f292037a49f1b7fd6f0c167eeb01` passed the complete 10 Reps path:
@@ -4897,8 +4908,8 @@ Target experience:
 
 `SEO-15` remains the binding task. Its shared automatic candidate inventory,
 daily read-only audit and authenticated monitor are active and
-production-verified at ledger `236`. Jon's is the only source released for
-eventual publication. The live inventory is `2` verified, `2` released and `0`
+production-verified at ledger `237`. Jon's and GYM HIGH are the released sources
+for eventual publication. The live inventory is `2` verified, `2` released and `0`
 awaiting approval, below the unchanged public readiness gate of 12 products,
 30 offers and 4 retailers. Candidates from other already-enabled eligible
 sources remain read-only discovery until a separate owner decision. Keep
