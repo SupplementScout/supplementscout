@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "task": "RA-STAB-02",
+  "status": "VERIFIED_COMPLETE",
+  "observed_at": "2026-10-15",
+  "ordinary_shared_run": {
+    "run_id": "38700695612",
+    "event": "schedule",
+    "workflow": "Shared Retailer Offer Refresh",
+    "commit_sha": "94c7f2e12971f292037a49f1b7fd6f0c167eeb01",
+    "conclusion": "success",
+    "manual_retry": false,
+    "ten_reps_job": "success",
+    "review_queue_job": "success"
+  },
+  "ten_reps_artifact": {
+    "artifact_id": "11956278531",
+    "name": "10reps-offer-refresh-38700695612-1",
+    "digest": "sha256:19e63d55a9ef7ad3d0f415e5f3b8da2d87c24a6eb6e5c39bbd2b90d0f7fc3305",
+    "approved_offers": 950,
+    "executable_rows": 917,
+    "executed_rows": 917,
+    "review_rows": 33,
+    "source_variant_missing_rows": 22,
+    "mass_oos_rows": 11,
+    "blocked_rows": 0,
+    "verify_no_change_rows": 914,
+    "stock_update_rows": 3,
+    "price_update_rows": 0,
+    "shipping_update_rows": 0,
+    "url_update_rows": 0,
+    "freshness_update_rows": 917,
+    "postflight": "PASS",
+    "idempotency": "PASS_ZERO_WRITES",
+    "source_http_status": 200,
+    "source_retry_count": 0,
+    "source_products": 516,
+    "source_variants": 1862,
+    "source_fingerprint": "e60e385aebe60c8741cc8c84e009631affe0b7117536665ab763d4fece1f6550",
+    "recovery_calls": 0,
+    "direct_database_write": false,
+    "file_hashes": {
+      "automation-review-classification.json": "sha256:37342c5d461dc49a235a0aa7333c474812f04fc41bbfede016f68425deefd07f",
+      "production-apply.json": "sha256:859a0312840bba3c760c4bc2eb6be5dff49ce3288538e931b19df8464e56f855",
+      "production-db-postflight.json": "sha256:5a77c0dc59704e88ed0a820adf2ee60441aa6d80357c457bc0786b162791b636",
+      "production-idempotency-diagnostic.json": "sha256:c95dcabd6f401c781b91bc2f1a8eea9eac6810e65aceb7d7058fa7c5bb27b7e1"
+    }
+  },
+  "review_queue_artifact": {
+    "artifact_id": "11957005590",
+    "name": "shared-retailer-automation-review-queue-refresh-38700695612-1",
+    "digest": "sha256:03bb26438088e240eb66e48102a2507a93a5011507fe6c2d53aa3c01c08fb074",
+    "result": "PASS",
+    "created_cards": 33,
+    "superseded_cards": 22,
+    "catalogue_writes": 0,
+    "file_hash": "sha256:f9b859246dff2b8b48d29295c2b3b4fb3840461ef13820064e9c4e2aca6c7194"
+  },
+  "following_watchdog": {
+    "run_id": "38726464998",
+    "event": "schedule",
+    "commit_sha": "1bcb93015866988bdcf04cbcad697e8c1f484d75",
+    "artifact_id": "11968533175",
+    "artifact_digest": "sha256:ebe4af2f7e55ff60aa1e4eb2f46cf81afc333ca04fe1d25c81bf9b2265796663",
+    "file_hash": "sha256:885c6bd8c88d67e307db97b76cf923926a101fd8604d48f6687e462d47305f88",
+    "database_writes": 0,
+    "ten_reps": {
+      "result": "PASS_WITH_REVIEW",
+      "evidence_correlation": "CORRELATED",
+      "correlated_run_id": "38700695612",
+      "scope_partition": "PASS",
+      "failures": []
+    },
+    "aggregate_result": "FAIL",
+    "failed_retailers": {
+      "Simply Supplements": [
+        "MONITORED_BACKLOG_GROWTH:REVIEW_SCOPE_DRIFT"
+      ]
+    },
+    "interpretation": "THE_ONLY_FAILED_RETAILER_IS_THE_PREVIOUSLY_CLASSIFIED_SIMPLY_SOURCE_FEED_OMISSION"
+  },
+  "guardrail_assessment": {
+    "new_runtime": false,
+    "new_importer": false,
+    "new_publisher": false,
+    "new_executor": false,
+    "retailer_branch_in_shared_core": false,
+    "guardrail_weakened": false,
+    "baseline_widened": false,
+    "manual_dispatch_counted": false,
+    "unauthorized_retry": false,
+    "direct_database_write": false
+  },
+  "remaining_evidence": []
+}
