@@ -1005,10 +1005,22 @@ test("eBay refresh workflow is scheduled, default dry-run and has no push trigge
   assert.match(workflow, /--approved-contract=tmp\/ebay-offer-refresh\/approved-artifact\/production-dry-run-contract\.json/);
   const prepareStep = workflow.match(/- name: Prepare exact approved existing-offer refresh[\s\S]*?run: npm run ebay:refresh[^\n]+/)?.[0] || "";
   assert.doesNotMatch(prepareStep, /--emit-approval-contract=true/);
-  assert.throws(
-    () => parseRefreshArgs(["--target=production", "--mode=prepare-apply", "--emit-approval-contract=true"]),
-    /Only a dry-run may emit a review source contract/,
-  );
+  const previousEventName = process.env.GITHUB_EVENT_NAME;
+  try {
+    process.env.GITHUB_EVENT_NAME = "schedule";
+    assert.throws(
+      () => parseRefreshArgs(["--target=production", "--mode=prepare-apply", "--emit-approval-contract=true"]),
+      /Only a dry-run may emit a review source contract/,
+    );
+    process.env.GITHUB_EVENT_NAME = "workflow_dispatch";
+    assert.throws(
+      () => parseRefreshArgs(["--target=production", "--mode=prepare-apply"]),
+      /Artifact-bound manual apply requires --approved-contract/,
+    );
+  } finally {
+    if (previousEventName === undefined) delete process.env.GITHUB_EVENT_NAME;
+    else process.env.GITHUB_EVENT_NAME = previousEventName;
+  }
   assert.match(workflow, /EBAY_CLIENT_ID/);
   assert.match(workflow, /JONS_SYNC_APPROVER_DATABASE_URL/);
   assert.match(workflow, /vars\.EBAY_REFRESH_ENABLED == 'true'/);
