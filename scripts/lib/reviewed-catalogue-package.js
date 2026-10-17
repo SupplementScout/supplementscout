@@ -3,6 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { parse } = require("csv-parse/sync");
 const { canonicalJson, normalizeNumbersToDecimalStrings } = require("./canonical-json");
+const { TARGETS } = require("./reviewed-catalogue-target");
 
 const HEX32 = /^[0-9a-f]{32}$/;
 const HEX64 = /^[0-9a-f]{64}$/;
@@ -14,6 +15,9 @@ const REVIEWED_ACTIONS = new Set([
 ]);
 const REVIEWED_ROW_KEYS = ["review_row", "external_product_id", "external_variant_id", "external_sku", "external_gtin", "source_url", "product_id", "product_variant_id", "action", "brand", "category", "product_name", "variant_name", "flavour", "size_value", "size_unit", "pack_count", "product_format", "price", "in_stock", "source_row_fingerprint", "plan_fingerprint"];
 const REVIEWED_COUNT_ROW_KEYS = [...REVIEWED_ROW_KEYS, "unit_count", "unit_type"];
+const REVIEWED_V2_ROW_KEYS = REVIEWED_ROW_KEYS.filter(key => key !== "source_url").concat("external_url", "affiliate_url");
+const REVIEWED_V2_COUNT_ROW_KEYS = [...REVIEWED_V2_ROW_KEYS, "unit_count", "unit_type"];
+const TARGET_PROJECTS = Object.freeze(Object.fromEntries(Object.values(TARGETS).map(target => [target.environment, target.projectRef])));
 
 function fail(message) {
   throw new Error(message);
@@ -56,8 +60,15 @@ function decimal(value, label) {
 }
 
 function validateManifest(manifest, profileId) {
-  exactKeys(manifest, ["schema_version", "kind", "status", "authorized_by", "authorized_at", "retailer", "policy", "profiles"], "reviewed manifest");
-  invariant(manifest.schema_version === 1 && manifest.kind === "reviewed-catalogue-package-v1", "Reviewed manifest identity mismatch");
+  const isV2 = manifest?.schema_version === 2 && manifest?.kind === "reviewed-catalogue-package-v2";
+  exactKeys(manifest, isV2
+    ? ["schema_version", "kind", "status", "authorized_by", "authorized_at", "target_environment", "target_project_ref", "retailer", "policy", "profiles"]
+    : ["schema_version", "kind", "status", "authorized_by", "authorized_at", "retailer", "policy", "profiles"], "reviewed manifest");
+  invariant(isV2 || manifest.schema_version === 1 && manifest.kind === "reviewed-catalogue-package-v1", "Reviewed manifest identity mismatch");
+  if (isV2) {
+    invariant(Object.hasOwn(TARGET_PROJECTS, manifest.target_environment), "Reviewed manifest target environment invalid");
+    invariant(manifest.target_project_ref === TARGET_PROJECTS[manifest.target_environment], "Reviewed manifest target project mismatch");
+  }
   invariant(manifest.status === "OWNER_APPROVED", "Reviewed manifest is not owner approved");
   invariant(typeof manifest.authorized_by === "string" && manifest.authorized_by.trim(), "Reviewed manifest authorizer missing");
   invariant(!Number.isNaN(Date.parse(manifest.authorized_at)), "Reviewed manifest authorization time invalid");
@@ -87,7 +98,9 @@ function validateManifest(manifest, profileId) {
   const fingerprints = new Set();
   for (const row of profile.rows) {
     const hasCountIdentity = Object.hasOwn(row, "unit_count") || Object.hasOwn(row, "unit_type");
-    exactKeys(row, hasCountIdentity ? REVIEWED_COUNT_ROW_KEYS : REVIEWED_ROW_KEYS, "reviewed row");
+    exactKeys(row, hasCountIdentity
+      ? (isV2 ? REVIEWED_V2_COUNT_ROW_KEYS : REVIEWED_COUNT_ROW_KEYS)
+      : (isV2 ? REVIEWED_V2_ROW_KEYS : REVIEWED_ROW_KEYS), "reviewed row");
     invariant(Number.isSafeInteger(row.review_row) && row.review_row > 0, "Reviewed row number invalid");
     invariant(typeof row.external_product_id === "string" && row.external_product_id && typeof row.external_variant_id === "string" && row.external_variant_id, "Reviewed source identity missing");
     invariant(REVIEWED_ACTIONS.has(row.action), "Reviewed action invalid");
@@ -101,7 +114,14 @@ function validateManifest(manifest, profileId) {
         invariant(row.size_value === null && row.size_unit === null, "Reviewed count identity cannot also be a size identity");
       }
     }
-    invariant(/^https:\/\//.test(row.source_url), "Reviewed source URL invalid");
+    if (isV2) {
+      invariant(/^https:\/\//.test(row.external_url) && /^https:\/\//.test(row.affiliate_url), "Reviewed V2 URLs invalid");
+      const retailerHost = new URL(manifest.retailer.website).hostname.replace(/^www\./, "");
+      const directHost = new URL(row.external_url).hostname.replace(/^www\./, "");
+      invariant(directHost === retailerHost, "Reviewed direct URL host mismatch");
+    } else {
+      invariant(/^https:\/\//.test(row.source_url), "Reviewed source URL invalid");
+    }
     invariant(!sourceIds.has(row.external_variant_id) && !fingerprints.has(row.plan_fingerprint), "Reviewed row identity is duplicated");
     sourceIds.add(row.external_variant_id);
     fingerprints.add(row.plan_fingerprint);
@@ -120,7 +140,7 @@ function actionCounts(plans) {
   };
 }
 
-function validatePlan(entry, reviewed, retailer) {
+function validatePlan(entry, reviewed, retailer, manifestKind = "reviewed-catalogue-package-v1") {
   const plan = entry.resolved_plan;
   invariant(planFingerprint(plan) === entry.plan_fingerprint && entry.plan_fingerprint === reviewed.plan_fingerprint, "Reviewed plan fingerprint mismatch");
   invariant(entry.source_row_fingerprint === reviewed.source_row_fingerprint, "Reviewed source fingerprint mismatch");
@@ -132,7 +152,12 @@ function validatePlan(entry, reviewed, retailer) {
   invariant(String(mapping.external_product_id) === reviewed.external_product_id && String(mapping.external_variant_id) === reviewed.external_variant_id, "Reviewed source identity mismatch");
   invariant((mapping.external_sku ?? null) === reviewed.external_sku && (mapping.external_gtin ?? null) === reviewed.external_gtin, "Reviewed SKU/GTIN mismatch");
   invariant(mapping.external_gtin == null || mapping.external_gtin !== mapping.external_sku, "Reviewed SKU cannot be promoted to GTIN");
-  invariant(mapping.external_url === reviewed.source_url && offer.url === reviewed.source_url, "Reviewed source URL mismatch");
+  if (manifestKind === "reviewed-catalogue-package-v2") {
+    invariant(mapping.external_url === reviewed.external_url, "Reviewed direct URL mismatch");
+    invariant(offer.url === reviewed.affiliate_url, "Reviewed affiliate URL mismatch");
+  } else {
+    invariant(mapping.external_url === reviewed.source_url && offer.url === reviewed.source_url, "Reviewed source URL mismatch");
+  }
   invariant(String(plan.product.id ?? "") === String(reviewed.product_id ?? ""), "Reviewed product binding mismatch");
   invariant(String(plan.product_variant.id ?? "") === String(reviewed.product_variant_id ?? ""), "Reviewed variant binding mismatch");
   const validActions = reviewed.action === "map_existing_variant"
@@ -194,7 +219,7 @@ function loadReviewedPackageScope(options, readFile = fs.readFileSync) {
     invariant(entry, "Reviewed artifact plan missing");
     const source = artifact.source_rows.find(candidate => candidate.plan_fingerprint === reviewed.plan_fingerprint);
     invariant(source && source.status === "planned" && source.source_row_fingerprint === reviewed.source_row_fingerprint, "Reviewed artifact source row mismatch");
-    validatePlan(entry, reviewed, manifest.retailer);
+    validatePlan(entry, reviewed, manifest.retailer, manifest.kind);
   }
   return { root, manifestPath, manifest, profile, csvPath, artifactPath, artifact, csvRows, byFingerprint };
 }

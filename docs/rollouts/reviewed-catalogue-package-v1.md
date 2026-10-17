@@ -4,6 +4,12 @@ This is the shared onboarding path for owner-reviewed retailer catalogue rows.
 It replaces new retailer- or product-specific approval runners. Existing sealed
 rollouts remain valid and are not rewritten.
 
+Version 1 remains production-only and keeps its original single `source_url`
+meaning for both the retailer mapping and offer. Version 2 is additive: it
+binds `external_url` to `retailer_products.external_url`, `affiliate_url` to
+`offers.url`, and adds the exact `target_environment` and
+`target_project_ref`. No version 1 manifest or historical digest is changed.
+
 The owner reviews one manifest under `config/retailers/`. The manifest binds an
 existing retailer, the exact ignored CSV and dry-run artifact by SHA-256, every
 source row and plan fingerprint, all intended catalogue actions, shipping,
@@ -77,8 +83,13 @@ node scripts/import-products.js --mode=feed --safe-create --dry-run --csv=<ignor
 The approval-only command is:
 
 ```text
-node scripts/reviewed-catalogue-artifact-approver.js --manifest=<tracked-manifest> --manifest-sha256=<sha256> --profile=<profile-id> --plan-fingerprint=<fingerprint>
+node scripts/reviewed-catalogue-artifact-approver.js --target=production --manifest=<tracked-manifest> --manifest-sha256=<sha256> --profile=<profile-id> --plan-fingerprint=<fingerprint>
 ```
+
+For version 2, pass the exact manifest target as `--target=staging` or
+`--target=production`. The target must match both environment fields in the
+manifest. Protected role credentials and the trusted CA remain outside the
+repository.
 
 The established `import-products.js --pilot-apply` command consumes one returned
 approval ID. The original artifact is never loop-applied; each selected plan is

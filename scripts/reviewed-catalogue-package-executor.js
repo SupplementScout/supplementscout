@@ -4,24 +4,17 @@ const { execFileSync } = require("node:child_process");
 const { Client } = require("pg");
 const { canonicalJson } = require("./lib/canonical-json");
 const { loadReviewedPackageScope } = require("./lib/reviewed-catalogue-package");
-const { normalizeVerifiedConnectionString, postgresClientConfig } = require("./lib/secure-postgres");
+const {
+  TARGETS,
+  assertManifestTarget,
+  clientConfig,
+  parseCredential,
+  roleTransaction,
+  targetContract,
+} = require("./lib/reviewed-catalogue-target");
 const { verifyReceipt } = require("./reviewed-catalogue-artifact-approver");
 
 const ROOT = path.resolve(__dirname, "..");
-const PROJECT_REF = "aftboxmrdgyhizicfsfu";
-const ROLE = Object.freeze({
-  approver: "retailer_catalogue_production_approver",
-  executor: "retailer_catalogue_production_executor",
-  validator: "retailer_catalogue_production_validator",
-});
-const LOGIN = Object.freeze({
-  approver: "supplementscout_production_approver_login",
-  executor: "supplementscout_production_executor_login",
-  validator: "supplementscout_production_validator_login",
-});
-const CREDENTIAL = Object.freeze(Object.fromEntries(Object.keys(ROLE).map(kind => [kind,
-  path.join(process.env.USERPROFILE || "", `.supplementscout/credentials/production-${kind}.env`),
-])));
 const APPROVAL_SQL = "select public.approve_reviewed_catalogue_import_plan($1::jsonb,$2,$3,$4,$5,now()+interval '15 minutes') result";
 const APPLY_SQL = "select public.apply_approved_product_import_plan($1::uuid,$2,$3,$4,$5::bigint,$6,$7) result";
 
@@ -44,58 +37,23 @@ function exactPath(relative, prefix) {
 function parseArgs(argv) {
   const values = {};
   for (const arg of argv) {
-    const match = arg.match(/^--(mode|manifest|manifest-sha256|profile|output)=(.+)$/);
+    const match = arg.match(/^--(target|mode|manifest|manifest-sha256|profile|output)=(.+)$/);
     invariant(match, "Unknown or incomplete reviewed package argument");
     invariant(values[match[1]] === undefined, "Duplicate reviewed package argument");
     values[match[1]] = match[2];
   }
-  invariant(Object.keys(values).length === 5, "Mode, manifest, manifest SHA-256, profile and output are required");
+  invariant(Object.keys(values).length === 6, "Target, mode, manifest, manifest SHA-256, profile and output are required");
+  invariant(TARGETS[values.target], "Target must be staging or production");
   invariant(["preflight", "apply"].includes(values.mode), "Mode must be preflight or apply");
   invariant(/^[0-9a-f]{64}$/i.test(values["manifest-sha256"]), "Exact manifest SHA-256 required");
   return {
+    target: values.target,
     mode: values.mode,
     manifestPath: values.manifest.replaceAll("\\", "/"),
     manifestSha256: values["manifest-sha256"].toLowerCase(),
     profileId: values.profile,
     outputPath: values.output.replaceAll("\\", "/"),
   };
-}
-
-function parseCredential(kind, text) {
-  invariant(ROLE[kind], "Unknown protected role");
-  const rows = text.split(/\r?\n/).map(line => line.match(/^([A-Z0-9_]+_DATABASE_URL)=(.*)$/)).filter(Boolean);
-  invariant(rows.length === 1, `Protected ${kind} credential must contain one database URL`);
-  let url;
-  try { url = new URL(rows[0][2].trim().replace(/^(['"])(.*)\1$/, "$2")); } catch { throw new Error(`Invalid protected ${kind} credential`); }
-  const login = decodeURIComponent(url.username);
-  invariant(["postgres:", "postgresql:"].includes(url.protocol), "Direct PostgreSQL credential required");
-  invariant(
-    (url.hostname === `db.${PROJECT_REF}.supabase.co` && login === LOGIN[kind]) ||
-    (/^aws-[a-z0-9-]+\.pooler\.supabase\.com$/.test(url.hostname) && login === `${LOGIN[kind]}.${PROJECT_REF}` && url.port === "5432"),
-    `Protected production ${kind} endpoint/login required`,
-  );
-  invariant(url.pathname === "/postgres" && Boolean(url.password), `Protected ${kind} password required`);
-  for (const key of url.searchParams.keys()) invariant(key === "sslmode", "Unexpected credential option");
-  return normalizeVerifiedConnectionString(url.href, `${kind} reviewed catalogue`);
-}
-
-async function roleTransaction(client, kind, callback, { readOnly = false } = {}) {
-  let began = false;
-  try {
-    await client.query("begin"); began = true;
-    if (readOnly) await client.query("set transaction read only");
-    else await client.query("select set_config('app.retailer_catalogue_production_marker','1',true),set_config('app.retailer_catalogue_allow','1',true)");
-    await client.query(`set local role ${ROLE[kind]}`);
-    const identity = (await client.query("select current_user,session_user,current_setting('transaction_read_only') transaction_read_only")).rows[0];
-    invariant(identity.current_user === ROLE[kind] && identity.session_user === LOGIN[kind], `Protected ${kind} identity mismatch`);
-    invariant(!readOnly || identity.transaction_read_only === "on", "Validator transaction is not read only");
-    const result = await callback(client);
-    await client.query(readOnly ? "rollback" : "commit"); began = false;
-    return result;
-  } catch (error) {
-    if (began) await client.query("rollback").catch(() => {});
-    throw error;
-  }
 }
 
 async function one(client, sql, values, label) {
@@ -216,16 +174,16 @@ function assertCleanMain(exec = execFileSync) {
   return head;
 }
 
-async function approve(client, prepared) {
-  return roleTransaction(client, "approver", async connection => {
+async function approve(client, prepared, target) {
+  return roleTransaction(client, target, "approver", async connection => {
     const receipt = (await connection.query(APPROVAL_SQL, [prepared.entry.resolved_plan, prepared.profile.artifact_sha256, prepared.artifact.run_id, prepared.manifestSha256, prepared.profile.id])).rows[0]?.result;
     verifyReceipt(receipt, prepared);
     return receipt;
   });
 }
 
-async function apply(client, prepared, receipt) {
-  return roleTransaction(client, "executor", async connection => {
+async function apply(client, prepared, receipt, target) {
+  return roleTransaction(client, target, "executor", async connection => {
     const entry = prepared.entry;
     const result = (await connection.query(APPLY_SQL, [receipt.approval_id, prepared.profile.artifact_sha256, entry.plan_fingerprint, entry.source_row_fingerprint, entry.retailer_id, entry.plan_kind, prepared.artifact.run_id])).rows[0]?.result;
     invariant(result && result.approval_status === "consumed" && result.already_applied !== true, "Atomic apply receipt invalid");
@@ -236,6 +194,7 @@ async function apply(client, prepared, receipt) {
 
 function loadScope(options) {
   const loaded = loadReviewedPackageScope({ root: ROOT, ...options });
+  assertManifestTarget(loaded.manifest, options.target);
   const entries = loaded.profile.rows.map(row => loaded.byFingerprint.get(row.plan_fingerprint));
   invariant(entries.every(Boolean), "Reviewed entry order is incomplete");
   const createdParents = loaded.profile.rows.filter(row => row.action.startsWith("create_product")).map(row => row.external_product_id);
@@ -243,9 +202,10 @@ function loadScope(options) {
   return { ...loaded, entries, manifestSha256: options.manifestSha256 };
 }
 
-async function connect(kind, ClientClass = Client) {
-  const connectionString = parseCredential(kind, fs.readFileSync(CREDENTIAL[kind], "utf8"));
-  const client = new ClientClass(postgresClientConfig({ connectionString, applicationName: `reviewed-catalogue-package-${kind}` }));
+async function connect(target, kind, ClientClass = Client) {
+  const contract = targetContract(target, kind);
+  const connectionString = parseCredential(target, kind, fs.readFileSync(contract.credentialPath, "utf8"));
+  const client = new ClientClass(clientConfig(target, kind, connectionString, { applicationName: `reviewed-catalogue-package-${target}-${kind}` }));
   await client.connect();
   return client;
 }
@@ -254,38 +214,39 @@ async function run(options, dependencies = {}) {
   const output = exactPath(options.outputPath, "tmp/retailer-feeds/");
   fs.mkdirSync(path.dirname(output), { recursive: true });
   const loaded = loadScope(options);
-  const result = { result: "RUNNING", mode: options.mode, manifest_sha256: options.manifestSha256, profile: loaded.profile.id, requested: loaded.entries.length, completed: [], errors: [], approval_count: 0, apply_count: 0, database_writes: 0, started_at: new Date().toISOString() };
+  const target = TARGETS[options.target];
+  const result = { result: "RUNNING", mode: options.mode, target_environment: target.environment, target_project_ref: target.projectRef, manifest_sha256: options.manifestSha256, profile: loaded.profile.id, requested: loaded.entries.length, completed: [], errors: [], approval_count: 0, apply_count: 0, database_writes: 0, started_at: new Date().toISOString() };
   const clients = {};
   try {
     if (options.mode === "apply") result.source_commit = assertCleanMain(dependencies.execFileSync || execFileSync);
-    clients.validator = await connect("validator", dependencies.Client || Client);
-    const retailer = await roleTransaction(clients.validator, "validator", client => one(client, "select id,name,slug,website from public.retailers where id=$1::bigint", [loaded.manifest.retailer.id], "retailer"), { readOnly: true });
+    clients.validator = await connect(options.target, "validator", dependencies.Client || Client);
+    const retailer = await roleTransaction(clients.validator, options.target, "validator", client => one(client, "select id,name,slug,website from public.retailers where id=$1::bigint", [loaded.manifest.retailer.id], "retailer"), { readOnly: true });
     invariant(String(retailer.id) === String(loaded.manifest.retailer.id) && retailer.name === loaded.manifest.retailer.name && retailer.slug === loaded.manifest.retailer.slug && retailer.website === loaded.manifest.retailer.website, "Retailer identity mismatch");
-    const existing = await roleTransaction(clients.validator, "validator", async client => {
+    const existing = await roleTransaction(clients.validator, options.target, "validator", async client => {
       const ids = loaded.entries.map(entry => entry.resolved_plan.retailer_product.values.external_variant_id);
       return (await client.query("select external_variant_id from public.retailer_products where retailer_id=$1::bigint and external_variant_id=any($2::text[])", [loaded.manifest.retailer.id, ids])).rows.map(row => row.external_variant_id);
     }, { readOnly: true });
     invariant(existing.length === 0, "Reviewed package contains an already mapped source row; generate a fresh remaining package");
-    const baseline = await roleTransaction(clients.validator, "validator", client => counts(client, loaded.manifest.retailer.id), { readOnly: true });
+    const baseline = await roleTransaction(clients.validator, options.target, "validator", client => counts(client, loaded.manifest.retailer.id), { readOnly: true });
     result.baseline = baseline;
     if (options.mode === "preflight") {
       Object.assign(result, { result: "PASS", completed_at: new Date().toISOString(), database_writes: 0 });
       fs.writeFileSync(output, `${JSON.stringify(result, null, 2)}\n`);
       return result;
     }
-    clients.approver = await connect("approver", dependencies.Client || Client);
-    clients.executor = await connect("executor", dependencies.Client || Client);
+    clients.approver = await connect(options.target, "approver", dependencies.Client || Client);
+    clients.executor = await connect(options.target, "executor", dependencies.Client || Client);
     let currentCounts = baseline;
     for (let index = 0; index < loaded.entries.length; index += 1) {
       const entry = loaded.entries[index];
       const prepared = { ...loaded, entry, reviewed: loaded.profile.rows[index] };
-      const receipt = await approve(clients.approver, prepared);
+      const receipt = await approve(clients.approver, prepared, options.target);
       result.approval_count += 1;
-      const execution = await apply(clients.executor, prepared, receipt);
+      const execution = await apply(clients.executor, prepared, receipt, options.target);
       result.apply_count += 1;
       const delta = expectedDelta(entry.resolved_plan);
       result.database_writes += Object.values(delta).reduce((sum, value) => sum + value, 0);
-      const checked = await roleTransaction(clients.validator, "validator", async client => ({ counts: await counts(client, loaded.manifest.retailer.id), target: await captureTarget(client, entry) }), { readOnly: true });
+      const checked = await roleTransaction(clients.validator, options.target, "validator", async client => ({ counts: await counts(client, loaded.manifest.retailer.id), target: await captureTarget(client, entry) }), { readOnly: true });
       for (const key of Object.keys(delta)) invariant(checked.counts[key] - currentCounts[key] === delta[key], `${key} row-count delta mismatch`);
       const row = verifyTarget(entry, checked.target);
       for (const field of ["product_id", "product_variant_id", "retailer_product_id", "offer_id", "price_history_id"]) {
@@ -315,4 +276,4 @@ if (require.main === module) run(parseArgs(process.argv.slice(2)))
   .then(result => console.log(JSON.stringify({ result: result.result, completed: result.completed.length, requested: result.requested, database_writes: result.database_writes }, null, 2)))
   .catch(error => { console.error(`Reviewed package stopped: ${safeError(error)}`); process.exitCode = 1; });
 
-module.exports = { APPLY_SQL, APPROVAL_SQL, CREDENTIAL, LOGIN, ROLE, apply, approve, assertCleanMain, expectedDelta, parseArgs, parseCredential, roleTransaction, run, safeError, verifyTarget };
+module.exports = { APPLY_SQL, APPROVAL_SQL, TARGETS, apply, approve, assertCleanMain, connect, expectedDelta, loadScope, parseArgs, parseCredential, roleTransaction, run, safeError, targetContract, verifyTarget };

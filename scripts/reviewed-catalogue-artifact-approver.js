@@ -2,16 +2,16 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { Client } = require("pg");
 const { loadReviewedPackage } = require("./lib/reviewed-catalogue-package");
-const { normalizeVerifiedConnectionString, postgresClientConfig } = require("./lib/secure-postgres");
+const {
+  TARGETS,
+  assertManifestTarget,
+  clientConfig,
+  parseCredential,
+  roleTransaction,
+  targetContract,
+} = require("./lib/reviewed-catalogue-target");
 
 const ROOT = path.resolve(__dirname, "..");
-const CREDENTIAL_PATH = path.join(
-  process.env.USERPROFILE || "",
-  ".supplementscout/credentials/production-approver.env",
-);
-const APPROVER_ROLE = "retailer_catalogue_production_approver";
-const APPROVER_LOGIN = "supplementscout_production_approver_login";
-const PROJECT_REF = "aftboxmrdgyhizicfsfu";
 const APPROVAL_SQL = "select public.approve_reviewed_catalogue_import_plan($1::jsonb,$2,$3,$4,$5,now()+interval '15 minutes') result";
 
 function invariant(condition, message) {
@@ -21,32 +21,21 @@ function invariant(condition, message) {
 function parseArgs(argv) {
   const values = {};
   for (const arg of argv) {
-    const match = arg.match(/^--(manifest|manifest-sha256|profile|plan-fingerprint)=(.+)$/);
+    const match = arg.match(/^--(target|manifest|manifest-sha256|profile|plan-fingerprint)=(.+)$/);
     invariant(match, "Unknown or incomplete reviewed catalogue argument");
     const key = match[1].replaceAll("-", "");
     invariant(values[key] === undefined, "Duplicate reviewed catalogue argument");
     values[key] = match[2];
   }
-  invariant(Object.keys(values).length === 4, "Manifest, manifest SHA-256, profile and plan fingerprint are required");
+  invariant(Object.keys(values).length === 5, "Target, manifest, manifest SHA-256, profile and plan fingerprint are required");
+  invariant(TARGETS[values.target], "Target must be staging or production");
   return {
+    target: values.target,
     manifestPath: values.manifest.replaceAll("\\", "/"),
     manifestSha256: values.manifestsha256.toLowerCase(),
     profileId: values.profile,
     planFingerprint: values.planfingerprint.toLowerCase(),
   };
-}
-
-function parseCredential(text) {
-  const entries = text.split(/\r?\n/).map(line => line.match(/^([A-Z0-9_]+_DATABASE_URL)=(.*)$/)).filter(Boolean);
-  invariant(entries.length === 1, "Protected credential must contain exactly one database URL");
-  let url;
-  try { url = new URL(entries[0][2].trim().replace(/^(['"])(.*)\1$/, "$2")); } catch { throw new Error("Invalid protected credential"); }
-  invariant(["postgres:", "postgresql:"].includes(url.protocol), "Direct PostgreSQL credential required");
-  const login = decodeURIComponent(url.username);
-  invariant((url.hostname === `db.${PROJECT_REF}.supabase.co` && login === APPROVER_LOGIN) || (/^aws-[a-z0-9-]+\.pooler\.supabase\.com$/.test(url.hostname) && login === `${APPROVER_LOGIN}.${PROJECT_REF}` && url.port === "5432"), "Protected production approver endpoint/login required");
-  invariant(url.pathname === "/postgres" && Boolean(url.password), "Protected approver database/password required");
-  for (const key of url.searchParams.keys()) invariant(key === "sslmode", "Unexpected credential option");
-  return normalizeVerifiedConnectionString(url.href, "reviewed catalogue approver");
 }
 
 function verifyReceipt(receipt, prepared, now = Date.now()) {
@@ -65,33 +54,23 @@ function verifyReceipt(receipt, prepared, now = Date.now()) {
   invariant(expiry > now && expiry <= now + 16 * 60_000, "Invalid approval expiry");
 }
 
-async function approveWithClient(prepared, client) {
-  let began = false;
+async function approveWithClient(prepared, client, target) {
   try {
     await client.connect();
-    await client.query("begin");
-    began = true;
-    await client.query("select set_config('app.retailer_catalogue_production_marker','1',true),set_config('app.retailer_catalogue_allow','1',true)");
-    await client.query(`SET LOCAL ROLE ${APPROVER_ROLE}`);
-    const identity = (await client.query("select current_user,session_user")).rows[0];
-    invariant(identity.current_user === APPROVER_ROLE && identity.session_user === APPROVER_LOGIN, "Protected approver identity mismatch");
-    const response = await client.query(APPROVAL_SQL, [prepared.entry.resolved_plan, prepared.profile.artifact_sha256, prepared.artifact.run_id, prepared.manifestSha256, prepared.profile.id]);
-    const receipt = response.rows[0]?.result;
-    verifyReceipt(receipt, prepared);
-    await client.query("commit");
-    began = false;
-    return {
-      approval_id: receipt.approval_id,
-      expires_at: receipt.expires_at,
-      plan_fingerprint: receipt.plan_fingerprint,
-      product_id: prepared.entry.resolved_plan.product.id == null ? null : Number(prepared.entry.resolved_plan.product.id),
-      product_variant_id: prepared.entry.resolved_plan.product_variant.id == null ? null : Number(prepared.entry.resolved_plan.product_variant.id),
-      retailer_id: prepared.manifest.retailer.id,
-      approval_only: true,
-    };
-  } catch (error) {
-    if (began) await client.query("rollback").catch(() => {});
-    throw error;
+    return await roleTransaction(client, target, "approver", async connection => {
+      const response = await connection.query(APPROVAL_SQL, [prepared.entry.resolved_plan, prepared.profile.artifact_sha256, prepared.artifact.run_id, prepared.manifestSha256, prepared.profile.id]);
+      const receipt = response.rows[0]?.result;
+      verifyReceipt(receipt, prepared);
+      return {
+        approval_id: receipt.approval_id,
+        expires_at: receipt.expires_at,
+        plan_fingerprint: receipt.plan_fingerprint,
+        product_id: prepared.entry.resolved_plan.product.id == null ? null : Number(prepared.entry.resolved_plan.product.id),
+        product_variant_id: prepared.entry.resolved_plan.product_variant.id == null ? null : Number(prepared.entry.resolved_plan.product_variant.id),
+        retailer_id: prepared.manifest.retailer.id,
+        approval_only: true,
+      };
+    });
   } finally {
     await client.end().catch(() => {});
   }
@@ -99,10 +78,12 @@ async function approveWithClient(prepared, client) {
 
 async function runApproval(options) {
   const prepared = loadReviewedPackage({ root: ROOT, ...options });
+  assertManifestTarget(prepared.manifest, options.target);
   prepared.manifestSha256 = options.manifestSha256;
-  const connectionString = parseCredential(fs.readFileSync(CREDENTIAL_PATH, "utf8"));
-  const client = new Client(postgresClientConfig({ connectionString, applicationName: "reviewed-catalogue-artifact-approver" }));
-  return approveWithClient(prepared, client);
+  const contract = targetContract(options.target, "approver");
+  const connectionString = parseCredential(options.target, "approver", fs.readFileSync(contract.credentialPath, "utf8"));
+  const client = new Client(clientConfig(options.target, "approver", connectionString, { applicationName: `reviewed-catalogue-artifact-approver-${options.target}` }));
+  return approveWithClient(prepared, client, options.target);
 }
 
 if (require.main === module) {
@@ -111,4 +92,4 @@ if (require.main === module) {
     .catch(() => { console.error("Reviewed catalogue approval failed; credentials and database diagnostics suppressed."); process.exitCode = 1; });
 }
 
-module.exports = { APPROVAL_SQL, APPROVER_LOGIN, APPROVER_ROLE, CREDENTIAL_PATH, approveWithClient, parseArgs, parseCredential, runApproval, verifyReceipt };
+module.exports = { APPROVAL_SQL, TARGETS, approveWithClient, parseArgs, parseCredential, runApproval, targetContract, verifyReceipt };

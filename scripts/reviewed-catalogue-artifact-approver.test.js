@@ -5,11 +5,11 @@ const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
 const { loadReviewedPackage, loadReviewedPackageScope, normalizedManifestSha, planFingerprint, sha256, validateManifest } = require("./lib/reviewed-catalogue-package");
-const { APPROVAL_SQL, CREDENTIAL_PATH, approveWithClient, parseArgs, parseCredential } = require("./reviewed-catalogue-artifact-approver");
+const { APPROVAL_SQL, approveWithClient, parseArgs, parseCredential } = require("./reviewed-catalogue-artifact-approver");
+const { TARGETS, assertManifestTarget, assertSafeUpdateDisabled, roleTransaction: targetRoleTransaction, targetContract } = require("./lib/reviewed-catalogue-target");
 const {
   APPLY_SQL: PACKAGE_APPLY_SQL,
   APPROVAL_SQL: PACKAGE_APPROVAL_SQL,
-  CREDENTIAL: PACKAGE_CREDENTIAL,
   apply: applyPackage,
   expectedDelta,
   parseArgs: parsePackageArgs,
@@ -17,6 +17,15 @@ const {
   roleTransaction,
   verifyTarget,
 } = require("./reviewed-catalogue-package-executor");
+
+function reseal(value) {
+  fs.writeFileSync(value.artifactPath, `${JSON.stringify(value.artifact, null, 2)}\n`);
+  value.manifest.profiles[0].artifact_sha256 = sha256(fs.readFileSync(value.artifactPath));
+  fs.writeFileSync(value.manifestPath, `${JSON.stringify(value.manifest, null, 2)}\n`);
+  value.manifestSha256 = normalizedManifestSha(fs.readFileSync(value.manifestPath));
+  value.plan = value.artifact.plans[0].resolved_plan;
+  return value;
+}
 
 function fixture() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "reviewed-catalogue-"));
@@ -53,6 +62,31 @@ function fixture() {
   return { root, manifest, manifestPath, manifestSha256: normalizedManifestSha(fs.readFileSync(manifestPath)), artifact, artifactPath, plan };
 }
 
+function v2Fixture({ target = "staging", directUrl = "https://shop.example/product/p-7?variant=v-short", affiliateUrl = "https://shop.example/product/p-7?variant=v-short&sca_ref=tracked" } = {}) {
+  const value = fixture();
+  const contract = TARGETS[target];
+  const row = value.manifest.profiles[0].rows[0];
+  value.manifest.schema_version = 2;
+  value.manifest.kind = "reviewed-catalogue-package-v2";
+  value.manifest.target_environment = contract.environment;
+  value.manifest.target_project_ref = contract.projectRef;
+  delete row.source_url;
+  row.external_url = directUrl;
+  row.affiliate_url = affiliateUrl;
+  const sourceRowFingerprint = crypto.createHash("sha256").update(JSON.stringify({ directUrl, affiliateUrl })).digest("hex");
+  row.source_row_fingerprint = sourceRowFingerprint;
+  value.plan.retailer_product.values.external_url = directUrl;
+  value.plan.offer.values.url = affiliateUrl;
+  value.plan.meta.source_row_fingerprint = sourceRowFingerprint;
+  value.plan.meta.plan_fingerprint = planFingerprint(value.plan);
+  row.plan_fingerprint = value.plan.meta.plan_fingerprint;
+  value.artifact.plans[0].source_row_fingerprint = sourceRowFingerprint;
+  value.artifact.plans[0].plan_fingerprint = value.plan.meta.plan_fingerprint;
+  value.artifact.source_rows[0].source_row_fingerprint = sourceRowFingerprint;
+  value.artifact.source_rows[0].plan_fingerprint = value.plan.meta.plan_fingerprint;
+  return reseal(value);
+}
+
 function load(value) {
   return loadReviewedPackage({ root: value.root, manifestPath: "config/retailers/example-reviewed.json", manifestSha256: value.manifestSha256, profileId: "batch-1", planFingerprint: value.plan.meta.plan_fingerprint });
 }
@@ -63,6 +97,74 @@ test("one common reviewed package accepts arbitrary source IDs and reviewed prod
   assert.equal(prepared.reviewed.external_variant_id, "v-short");
   assert.equal(prepared.reviewed.product_format, "liquid");
   assert.equal(prepared.entry.plan_fingerprint, value.plan.meta.plan_fingerprint);
+});
+
+test("reviewed catalogue v1 remains byte-compatible and keeps its single source URL contract", () => {
+  const value = fixture();
+  const before = JSON.stringify(value.manifest);
+  const loaded = load(value);
+  assert.equal(JSON.stringify(value.manifest), before);
+  assert.equal(loaded.manifest.kind, "reviewed-catalogue-package-v1");
+  assert.equal(loaded.reviewed.source_url, loaded.entry.resolved_plan.offer.values.url);
+  assert.doesNotThrow(() => assertManifestTarget(loaded.manifest, "production"));
+  assert.throws(() => assertManifestTarget(loaded.manifest, "staging"), /v1 remains production-only/);
+});
+
+test("reviewed catalogue v2 binds distinct direct and affiliate URLs including preserved query parameters", () => {
+  const value = v2Fixture();
+  const loaded = load(value);
+  assert.equal(loaded.reviewed.external_url, "https://shop.example/product/p-7?variant=v-short");
+  assert.equal(loaded.reviewed.affiliate_url, "https://shop.example/product/p-7?variant=v-short&sca_ref=tracked");
+  assert.equal(loaded.entry.resolved_plan.retailer_product.values.external_url, loaded.reviewed.external_url);
+  assert.equal(loaded.entry.resolved_plan.offer.values.url, loaded.reviewed.affiliate_url);
+  assert.doesNotThrow(() => assertManifestTarget(loaded.manifest, "staging"));
+});
+
+test("reviewed catalogue v2 permits the backward-safe equal-URL case", () => {
+  const url = "https://shop.example/product/p-7?variant=v-short";
+  assert.doesNotThrow(() => load(v2Fixture({ directUrl: url, affiliateUrl: url })));
+});
+
+test("reviewed catalogue v2 rejects URL drift, swaps, missing affiliate URL and wrong direct host", () => {
+  for (const [label, mutate, expected] of [
+    ["direct drift", value => { value.manifest.profiles[0].rows[0].external_url += "&changed=1"; }, /direct URL mismatch/],
+    ["affiliate drift", value => { value.manifest.profiles[0].rows[0].affiliate_url += "&changed=1"; }, /affiliate URL mismatch/],
+    ["swapped", value => {
+      const row = value.manifest.profiles[0].rows[0];
+      [row.external_url, row.affiliate_url] = [row.affiliate_url, row.external_url];
+    }, /direct URL mismatch/],
+  ]) {
+    const value = v2Fixture();
+    mutate(value);
+    reseal(value);
+    assert.throws(() => load(value), expected, label);
+  }
+  const missing = v2Fixture();
+  delete missing.manifest.profiles[0].rows[0].affiliate_url;
+  assert.throws(() => validateManifest(missing.manifest, "batch-1"), /keys mismatch/);
+  const wrongHost = v2Fixture({ directUrl: "https://other.example/product/p-7", affiliateUrl: "https://other.example/product/p-7?ref=tracked" });
+  assert.throws(() => validateManifest(wrongHost.manifest, "batch-1"), /direct URL host mismatch/);
+});
+
+test("reviewed catalogue v2 fingerprints bind both URLs", () => {
+  const base = v2Fixture();
+  const affiliateChanged = v2Fixture({ affiliateUrl: "https://shop.example/product/p-7?variant=v-short&ref=other" });
+  const directChanged = v2Fixture({ directUrl: "https://shop.example/product/p-7?variant=v-other" });
+  for (const changed of [affiliateChanged, directChanged]) {
+    assert.notEqual(changed.manifest.profiles[0].rows[0].source_row_fingerprint, base.manifest.profiles[0].rows[0].source_row_fingerprint);
+    assert.notEqual(changed.manifest.profiles[0].rows[0].plan_fingerprint, base.manifest.profiles[0].rows[0].plan_fingerprint);
+  }
+});
+
+test("reviewed catalogue v2 target environment and project ref are an exact pair", () => {
+  for (const target of ["staging", "production"]) {
+    const value = v2Fixture({ target });
+    assert.equal(validateManifest(value.manifest, "batch-1").id, "batch-1");
+    assert.doesNotThrow(() => assertManifestTarget(value.manifest, target));
+  }
+  const drift = v2Fixture();
+  drift.manifest.target_project_ref = TARGETS.production.projectRef;
+  assert.throws(() => validateManifest(drift.manifest, "batch-1"), /target project mismatch/);
 });
 
 test("common reviewed manifest supports an exact owner-reviewed count identity", () => {
@@ -133,25 +235,35 @@ test("reviewed package rejects digest, scope, shipping, SKU-as-GTIN and canonica
 });
 
 test("closed CLI requires the manifest digest, profile and one exact fingerprint", () => {
-  assert.deepEqual(parseArgs(["--manifest=config/retailers/a.json", `--manifest-sha256=${"a".repeat(64)}`, "--profile=batch-1", `--plan-fingerprint=${"b".repeat(32)}`]), { manifestPath: "config/retailers/a.json", manifestSha256: "a".repeat(64), profileId: "batch-1", planFingerprint: "b".repeat(32) });
+  assert.deepEqual(parseArgs(["--target=staging", "--manifest=config/retailers/a.json", `--manifest-sha256=${"a".repeat(64)}`, "--profile=batch-1", `--plan-fingerprint=${"b".repeat(32)}`]), { target: "staging", manifestPath: "config/retailers/a.json", manifestSha256: "a".repeat(64), profileId: "batch-1", planFingerprint: "b".repeat(32) });
   assert.throws(() => parseArgs(["--profile=batch-1"]), /required/);
+  assert.throws(() => parseArgs(["--target=other", "--manifest=a", `--manifest-sha256=${"a".repeat(64)}`, "--profile=p", `--plan-fingerprint=${"b".repeat(32)}`]), /staging or production/);
 });
 
-test("credential is direct PostgreSQL approver-only", () => {
-  assert.equal(CREDENTIAL_PATH, path.join(process.env.USERPROFILE || "", ".supplementscout/credentials/production-approver.env"));
-  const direct = `REVIEWED_CATALOGUE_DATABASE_URL=postgresql://${encodeURIComponent("supplementscout_production_approver_login.aftboxmrdgyhizicfsfu")}:secret@aws-0-eu-west-2.pooler.supabase.com:5432/postgres?sslmode=verify-full`;
-  assert.match(parseCredential(direct), /^postgresql:/);
-  assert.throws(() => parseCredential("SUPABASE_SERVICE_ROLE_KEY=secret"), /exactly one database URL/);
+test("credentials are target-bound protected direct PostgreSQL roles", () => {
+  for (const target of ["staging", "production"]) for (const kind of ["validator", "approver", "executor"]) {
+    const contract = targetContract(target, kind);
+    assert.equal(contract.credentialPath, target === "staging"
+      ? path.join(__dirname, "..", `.env.staging.${kind}.local`)
+      : path.join(process.env.USERPROFILE || "", ".supplementscout", "credentials", `production-${kind}.env`));
+    const direct = `REVIEWED_CATALOGUE_DATABASE_URL=postgresql://${contract.login}.${contract.projectRef}:secret@aws-0-eu-west-2.pooler.supabase.com:5432/postgres?sslmode=verify-full`;
+    assert.match(parseCredential(target, kind, direct), /^postgresql:/);
+    const other = target === "staging" ? "production" : "staging";
+    assert.throws(() => parseCredential(other, kind, direct), /endpoint\/login required/);
+  }
+  assert.throws(() => parseCredential("production", "approver", "SUPABASE_SERVICE_ROLE_KEY=secret"), /one database URL/);
+  assert.throws(() => parseCredential("production", "approver", `X_DATABASE_URL=postgresql://wrong:secret@db.${TARGETS.production.projectRef}.supabase.co/postgres?sslmode=verify-full`), /endpoint\/login required/);
+  assert.throws(() => parseCredential("production", "wrong", "X_DATABASE_URL=x"), /Unknown protected/);
 });
 
 test("approval transaction uses only the approver role and approval RPC", async () => {
   const value = fixture();
   const prepared = load(value); prepared.manifestSha256 = value.manifestSha256;
   const queries = [];
-  const client = { async connect() {}, async end() {}, async query(sql, params) { queries.push({ sql, params }); if (sql === "select current_user,session_user") return { rows: [{ current_user: "retailer_catalogue_production_approver", session_user: "supplementscout_production_approver_login" }] }; if (sql === APPROVAL_SQL) return { rows: [{ result: { approval_id: "123e4567-e89b-42d3-a456-426614174000", status: "approved", artifact_sha256: prepared.profile.artifact_sha256, run_id: prepared.artifact.run_id, plan_fingerprint: prepared.entry.plan_fingerprint, source_row_fingerprint: prepared.entry.source_row_fingerprint, retailer_id: "14", plan_kind: "feed", expires_at: new Date(Date.now() + 10 * 60_000).toISOString() } }] }; return { rows: [] }; } };
-  const result = await approveWithClient(prepared, client);
+  const client = { async connect() {}, async end() {}, async query(sql, params) { queries.push({ sql, params }); if (sql.startsWith("select current_user")) return { rows: [{ current_user: "retailer_catalogue_production_approver", session_user: "supplementscout_production_approver_login", current_database: "postgres", transaction_read_only: "off", target_marker: "1", opposite_marker: null, catalogue_allow: "1", safe_update: null }] }; if (sql === APPROVAL_SQL) return { rows: [{ result: { approval_id: "123e4567-e89b-42d3-a456-426614174000", status: "approved", artifact_sha256: prepared.profile.artifact_sha256, run_id: prepared.artifact.run_id, plan_fingerprint: prepared.entry.plan_fingerprint, source_row_fingerprint: prepared.entry.source_row_fingerprint, retailer_id: "14", plan_kind: "feed", expires_at: new Date(Date.now() + 10 * 60_000).toISOString() } }] }; return { rows: [] }; } };
+  const result = await approveWithClient(prepared, client, "production");
   assert.equal(result.approval_only, true);
-  assert.deepEqual(queries.map(query => query.sql), ["begin", "select set_config('app.retailer_catalogue_production_marker','1',true),set_config('app.retailer_catalogue_allow','1',true)", "SET LOCAL ROLE retailer_catalogue_production_approver", "select current_user,session_user", APPROVAL_SQL, "commit"]);
+  assert.deepEqual(queries.map(query => query.sql), ["begin", "select set_config($1,'1',true),set_config('app.retailer_catalogue_allow','1',true)", "set local role retailer_catalogue_production_approver", "select current_user,session_user,current_database(),current_setting('transaction_read_only') transaction_read_only,current_setting($1,true) target_marker,current_setting($2,true) opposite_marker,current_setting('app.retailer_catalogue_allow',true) catalogue_allow,current_setting('app.safe_update',true) safe_update", APPROVAL_SQL, "commit"]);
   const source = fs.readFileSync(path.join(__dirname, "reviewed-catalogue-artifact-approver.js"), "utf8");
   assert.doesNotMatch(source, /apply_approved_product_import_plan|pilot-apply|service_role|\.from\(|\b(insert into|update (products|product_variants|retailer_products|offers|price_history)|delete from)\b/i);
 });
@@ -183,43 +295,117 @@ test("shared database contract accepts reviewed count identity without retailer-
 
 test("package executor CLI binds one complete manifest profile and explicit mode", () => {
   assert.deepEqual(parsePackageArgs([
+    "--target=staging",
     "--mode=apply",
     "--manifest=config/retailers/example.json",
     `--manifest-sha256=${"a".repeat(64)}`,
     "--profile=batch-1",
     "--output=tmp/retailer-feeds/example/result.json",
   ]), {
-    mode: "apply", manifestPath: "config/retailers/example.json", manifestSha256: "a".repeat(64),
+    target: "staging", mode: "apply", manifestPath: "config/retailers/example.json", manifestSha256: "a".repeat(64),
     profileId: "batch-1", outputPath: "tmp/retailer-feeds/example/result.json",
   });
   assert.throws(() => parsePackageArgs(["--mode=apply"]), /required/);
   assert.throws(() => parsePackageArgs([
-    "--mode=bulk", "--manifest=config/retailers/example.json", `--manifest-sha256=${"a".repeat(64)}`,
+    "--target=production", "--mode=bulk", "--manifest=config/retailers/example.json", `--manifest-sha256=${"a".repeat(64)}`,
     "--profile=batch-1", "--output=tmp/retailer-feeds/example/result.json",
   ]), /preflight or apply/);
 });
 
 test("package executor requires three distinct protected direct PostgreSQL credentials", () => {
-  for (const kind of ["approver", "executor", "validator"]) {
-    assert.equal(PACKAGE_CREDENTIAL[kind], path.join(process.env.USERPROFILE || "", `.supplementscout/credentials/production-${kind}.env`));
-    const login = `supplementscout_production_${kind}_login.aftboxmrdgyhizicfsfu`;
-    assert.match(parsePackageCredential(kind, `CATALOGUE_DATABASE_URL=postgresql://${login}:secret@aws-0-eu-west-2.pooler.supabase.com:5432/postgres?sslmode=verify-full`), /^postgresql:/);
+  for (const target of ["staging", "production"]) for (const kind of ["approver", "executor", "validator"]) {
+    const contract = targetContract(target, kind);
+    const login = `${contract.login}.${contract.projectRef}`;
+    assert.match(parsePackageCredential(target, kind, `CATALOGUE_DATABASE_URL=postgresql://${login}:secret@aws-0-eu-west-2.pooler.supabase.com:5432/postgres?sslmode=verify-full`), /^postgresql:/);
   }
-  assert.throws(() => parsePackageCredential("executor", "SUPABASE_SERVICE_ROLE_KEY=secret"), /one database URL/);
+  assert.throws(() => parsePackageCredential("production", "executor", "SUPABASE_SERVICE_ROLE_KEY=secret"), /one database URL/);
 });
 
 test("package role transactions set the exact role, commit success and roll back errors", async () => {
   const queries = [];
-  const client = { async query(sql) {
-    queries.push(sql);
-    if (sql.startsWith("select current_user")) return { rows: [{ current_user: "retailer_catalogue_production_executor", session_user: "supplementscout_production_executor_login", transaction_read_only: "off" }] };
+  const client = { async query(sql, params) {
+    queries.push({ sql, params });
+    if (sql.startsWith("select current_user")) return { rows: [{ current_user: "retailer_catalogue_staging_executor", session_user: "supplementscout_staging_executor_login", current_database: "postgres", transaction_read_only: "off", target_marker: "1", opposite_marker: null, catalogue_allow: "1", safe_update: null }] };
     return { rows: [] };
   } };
-  assert.equal(await roleTransaction(client, "executor", async () => "done"), "done");
-  assert.deepEqual(queries, ["begin", "select set_config('app.retailer_catalogue_production_marker','1',true),set_config('app.retailer_catalogue_allow','1',true)", "set local role retailer_catalogue_production_executor", "select current_user,session_user,current_setting('transaction_read_only') transaction_read_only", "commit"]);
+  assert.equal(await roleTransaction(client, "staging", "executor", async () => "done"), "done");
+  assert.deepEqual(queries.map(query => query.sql), ["begin", "select set_config($1,'1',true),set_config('app.retailer_catalogue_allow','1',true)", "set local role retailer_catalogue_staging_executor", "select current_user,session_user,current_database(),current_setting('transaction_read_only') transaction_read_only,current_setting($1,true) target_marker,current_setting($2,true) opposite_marker,current_setting('app.retailer_catalogue_allow',true) catalogue_allow,current_setting('app.safe_update',true) safe_update", "commit"]);
+  assert.deepEqual(queries[1].params, ["app.retailer_catalogue_staging_marker"]);
   queries.length = 0;
-  await assert.rejects(() => roleTransaction(client, "executor", async () => { throw new Error("stop"); }), /stop/);
-  assert.equal(queries.at(-1), "rollback");
+  await assert.rejects(() => roleTransaction(client, "staging", "executor", async () => { throw new Error("stop"); }), /stop/);
+  assert.equal(queries.at(-1).sql, "rollback");
+});
+
+function sessionClient(target, kind, overrides = {}) {
+  const contract = targetContract(target, kind);
+  const queries = [];
+  const identity = {
+    current_user: contract.role,
+    session_user: contract.login,
+    current_database: "postgres",
+    transaction_read_only: kind === "validator" ? "on" : "off",
+    target_marker: kind === "validator" ? null : "1",
+    opposite_marker: null,
+    catalogue_allow: kind === "validator" ? null : "1",
+    safe_update: null,
+    ...overrides,
+  };
+  return {
+    queries,
+    client: { async query(sql, params) {
+      queries.push({ sql, params });
+      if (sql.startsWith("select current_user")) return { rows: [identity] };
+      return { rows: [] };
+    } },
+  };
+}
+
+test("staging and production validator preflights are read-only and target-bound", async () => {
+  for (const target of ["staging", "production"]) {
+    const { client, queries } = sessionClient(target, "validator");
+    assert.equal(await targetRoleTransaction(client, target, "validator", async () => "PASS", { readOnly: true }), "PASS");
+    assert.equal(queries[1].sql, "set transaction read only");
+    assert.equal(queries.at(-1).sql, "rollback");
+  }
+});
+
+test("staging and production apply sessions require their exact marker and role", async () => {
+  for (const target of ["staging", "production"]) {
+    const { client, queries } = sessionClient(target, "executor");
+    assert.equal(await targetRoleTransaction(client, target, "executor", async () => "PASS"), "PASS");
+    assert.deepEqual(queries[1].params, [TARGETS[target].marker]);
+    assert.equal(queries.at(-1).sql, "commit");
+  }
+});
+
+test("reviewed sessions reject wrong login, group role, database, marker and SAFE_UPDATE", async () => {
+  for (const [label, overrides, expected] of [
+    ["login", { session_user: "supplementscout_production_executor_login" }, /identity mismatch/],
+    ["role", { current_user: "retailer_catalogue_production_executor" }, /identity mismatch/],
+    ["database", { current_database: "other" }, /database mismatch/],
+    ["missing marker", { target_marker: null }, /marker mismatch/],
+    ["wrong marker", { opposite_marker: "1" }, /Cross-environment/],
+    ["SAFE_UPDATE", { safe_update: "on" }, /SAFE_UPDATE/],
+  ]) {
+    const { client, queries } = sessionClient("staging", "executor", overrides);
+    await assert.rejects(() => targetRoleTransaction(client, "staging", "executor", async () => "unexpected"), expected, label);
+    assert.equal(queries.at(-1).sql, "rollback");
+  }
+  assert.throws(() => assertSafeUpdateDisabled({ SAFE_UPDATE: "true" }), /SAFE_UPDATE/);
+  assert.doesNotThrow(() => assertSafeUpdateDisabled({ SAFE_UPDATE: "false" }));
+});
+
+test("reviewed target path rejects insecure TLS and contains no insecure fallback", () => {
+  const contract = targetContract("production", "validator");
+  const insecure = `X_DATABASE_URL=postgresql://${contract.login}.${contract.projectRef}:secret@aws-0-eu-west-2.pooler.supabase.com:5432/postgres?sslmode=require`;
+  assert.throws(() => parseCredential("production", "validator", insecure), /verify-full/);
+  const sources = [
+    "lib/reviewed-catalogue-target.js",
+    "reviewed-catalogue-artifact-approver.js",
+    "reviewed-catalogue-package-executor.js",
+  ].map(file => fs.readFileSync(path.join(__dirname, file), "utf8")).join("\n");
+  assert.doesNotMatch(sources, /rejectUnauthorized\s*:\s*false/);
+  assert.match(sources, /secure-postgres/);
 });
 
 test("package executor accepts the standard atomic receipt without a replay flag and rejects an explicit replay", async () => {
@@ -239,20 +425,20 @@ test("package executor accepts the standard atomic receipt without a replay flag
   const queries = [];
   const client = { async query(sql) {
     queries.push(sql);
-    if (sql.startsWith("select current_user")) return { rows: [{ current_user: "retailer_catalogue_production_executor", session_user: "supplementscout_production_executor_login", transaction_read_only: "off" }] };
+    if (sql.startsWith("select current_user")) return { rows: [{ current_user: "retailer_catalogue_production_executor", session_user: "supplementscout_production_executor_login", current_database: "postgres", transaction_read_only: "off", target_marker: "1", opposite_marker: null, catalogue_allow: "1", safe_update: null }] };
     if (sql === PACKAGE_APPLY_SQL) return { rows: [{ result: baseResult }] };
     return { rows: [] };
   } };
-  assert.deepEqual(await applyPackage(client, prepared, receipt), baseResult);
+  assert.deepEqual(await applyPackage(client, prepared, receipt, "production"), baseResult);
   assert.equal(queries.at(-1), "commit");
   queries.length = 0;
   const replayClient = { ...client, async query(sql) {
     queries.push(sql);
-    if (sql.startsWith("select current_user")) return { rows: [{ current_user: "retailer_catalogue_production_executor", session_user: "supplementscout_production_executor_login", transaction_read_only: "off" }] };
+    if (sql.startsWith("select current_user")) return { rows: [{ current_user: "retailer_catalogue_production_executor", session_user: "supplementscout_production_executor_login", current_database: "postgres", transaction_read_only: "off", target_marker: "1", opposite_marker: null, catalogue_allow: "1", safe_update: null }] };
     if (sql === PACKAGE_APPLY_SQL) return { rows: [{ result: { ...baseResult, already_applied: true } }] };
     return { rows: [] };
   } };
-  await assert.rejects(() => applyPackage(replayClient, prepared, receipt), /receipt invalid/);
+  await assert.rejects(() => applyPackage(replayClient, prepared, receipt, "production"), /receipt invalid/);
   assert.equal(queries.at(-1), "rollback");
 });
 

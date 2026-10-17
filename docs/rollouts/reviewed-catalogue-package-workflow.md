@@ -30,8 +30,14 @@ shipping actions.
 Run the shared read-only gate before owner approval:
 
 ```text
-node scripts/reviewed-catalogue-package-executor.js --mode=preflight --manifest=config/retailers/<manifest>.json --manifest-sha256=<sha256> --profile=<profile> --output=tmp/retailer-feeds/<retailer>/preflight.json
+node scripts/reviewed-catalogue-package-executor.js --target=<staging|production> --mode=preflight --manifest=config/retailers/<manifest>.json --manifest-sha256=<sha256> --profile=<profile> --output=tmp/retailer-feeds/<retailer>/preflight.json
 ```
+
+Version 1 packages require `--target=production`. Version 2 packages carry an
+exact `STAGING` or `PRODUCTION` environment and Supabase project reference;
+the CLI target, credential endpoint, login role, transaction marker and
+manifest must all agree. Both targets use the shared verify-full PostgreSQL
+TLS helper and a trusted private CA path.
 
 ## Controlled apply
 
