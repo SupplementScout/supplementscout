@@ -1,4 +1,5 @@
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
 const test = require("node:test");
 const {
   parseArgs,
@@ -61,4 +62,12 @@ test("catalogue deltas default to zero and allow only exact declared table chang
   });
   assert.throws(() => expectedCatalogueCounts(before, [{ expectedCatalogueDeltas: { unknown: 1 } }]), /invalid expected/);
   assert.throws(() => expectedCatalogueCounts(before, [{ expectedCatalogueDeltas: { offers: 0.5 } }]), /invalid expected/);
+});
+
+test("selected migration paths require the shared verified PostgreSQL TLS helper", () => {
+  for (const file of ["apply-selected-migrations.js", "supabase-migration-selector.js"]) {
+    const source = fs.readFileSync(require.resolve(`./${file}`), "utf8");
+    assert.match(source, /postgresClientConfig\(\{/);
+    assert.doesNotMatch(source, /rejectUnauthorized\s*:\s*false/);
+  }
 });

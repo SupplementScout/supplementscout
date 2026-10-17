@@ -2,6 +2,7 @@ const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const { Client } = require("pg");
+const { postgresClientConfig } = require("./lib/secure-postgres");
 const {
   CONTRACTS,
   ledgerIdentifier,
@@ -182,11 +183,10 @@ async function main(argv = process.argv.slice(2)) {
     };
   });
 
-  const client = new Client({
+  const client = new Client(postgresClientConfig({
     connectionString: env[contract.databaseUrlEnvironmentKey],
-    ssl: { rejectUnauthorized: false },
-    application_name: `supplementscout-selected-migrations-${options.mode.toLowerCase()}`,
-  });
+    applicationName: `supplementscout-selected-migrations-${options.mode.toLowerCase()}`,
+  }));
   await client.connect();
   let transactionOpen = false;
   try {

@@ -2,6 +2,7 @@ const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const { Client } = require("pg");
+const { postgresClientConfig } = require("./lib/secure-postgres");
 const { sha256: stableJsonSha256 } = require("./lib/stable-json-hash");
 const {
   CONTRACT_VERSION: RA004_LEDGER_FINGERPRINT_VERSION,
@@ -1111,12 +1112,11 @@ function parseArgs(argv) {
 }
 
 async function readRemoteState(databaseUrl) {
-  const client = new Client({
+  const client = new Client(postgresClientConfig({
     connectionString: databaseUrl,
-    ssl: { rejectUnauthorized: true, servername: new URL(databaseUrl).hostname, minVersion: "TLSv1.2" },
-    application_name: "supabase-environment-migration-selector",
-    options: "-c default_transaction_read_only=on -c statement_timeout=120000",
-  });
+    applicationName: "supabase-environment-migration-selector",
+    defaultReadOnly: true,
+  }));
   await client.connect();
   try {
     await client.query("begin read only");
