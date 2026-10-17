@@ -1,7 +1,11 @@
 const path = require("node:path");
 const { normalizeVerifiedConnectionString, postgresClientConfig } = require("./secure-postgres");
 
-const ROOT = path.resolve(__dirname, "../..");
+const DEFAULT_CREDENTIAL_ROOT = path.join(
+  process.env.USERPROFILE || process.env.HOME || "",
+  ".supplementscout",
+  "credentials",
+);
 
 const TARGETS = Object.freeze({
   staging: Object.freeze({
@@ -21,7 +25,20 @@ function invariant(condition, message) {
   if (!condition) throw new Error(message);
 }
 
-function targetContract(target, kind) {
+function credentialPath(target, kind, env = process.env) {
+  const exactKey = `SUPPLEMENTSCOUT_REVIEWED_${target}_${kind}_CREDENTIAL_FILE`.toUpperCase();
+  const exact = String(env[exactKey] || "").trim();
+  if (exact) {
+    invariant(path.isAbsolute(exact), `${exactKey} must be an absolute path`);
+    return path.normalize(exact);
+  }
+  const configuredRoot = String(env.SUPPLEMENTSCOUT_CREDENTIAL_ROOT || "").trim();
+  const root = configuredRoot || DEFAULT_CREDENTIAL_ROOT;
+  invariant(path.isAbsolute(root), "Reviewed catalogue credential root must be absolute");
+  return path.join(root, `${target}-${kind}.env`);
+}
+
+function targetContract(target, kind, env = process.env) {
   const base = TARGETS[target];
   invariant(base, "Reviewed catalogue target must be staging or production");
   invariant(KINDS.has(kind), "Unknown protected reviewed catalogue role");
@@ -31,9 +48,7 @@ function targetContract(target, kind) {
     kind,
     role: `retailer_catalogue_${target}_${kind}`,
     login: `supplementscout_${target}_${kind}_login`,
-    credentialPath: target === "staging"
-      ? path.join(ROOT, `.env.staging.${kind}.local`)
-      : path.join(process.env.USERPROFILE || "", ".supplementscout", "credentials", `production-${kind}.env`),
+    credentialPath: credentialPath(target, kind, env),
   };
 }
 
@@ -124,6 +139,7 @@ module.exports = {
   assertManifestTarget,
   assertSafeUpdateDisabled,
   clientConfig,
+  credentialPath,
   parseCredential,
   roleTransaction,
   targetContract,

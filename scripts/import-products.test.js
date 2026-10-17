@@ -8933,3 +8933,85 @@ test("dry-run artifact is the sole immutable input for approval and pilot apply"
     fs.rmSync(directory, { recursive: true, force: true });
   }
 });
+
+function reviewedV2Profile(target = "STAGING") {
+  const project = target === "STAGING" ? "hxnrsyyqffztlvcrtgbf" : "aftboxmrdgyhizicfsfu";
+  return {
+    manifest: {
+      kind: "reviewed-catalogue-package-v2",
+      target_environment: target,
+      target_project_ref: project,
+      retailer: { id: 12, name: "Example Nutrition", slug: "example-nutrition", website: "https://example.test" },
+    },
+    profile: { row_count: 1, rows: [{
+      review_row: 1,
+      action: "create_product_with_variant",
+      external_product_id: "10000000000001",
+      external_variant_id: "20000000000001",
+      product_id: null,
+      product_variant_id: null,
+      product_name: "Example Creatine Monohydrate 500g",
+      variant_name: "Unflavoured / 500g",
+      flavour: "unflavoured",
+      size_value: "500",
+      size_unit: "g",
+      pack_count: 1,
+      product_format: "powder",
+      unit_count: null,
+      unit_type: null,
+      external_url: "https://example.test/products/creatine?variant=20000000000001",
+      affiliate_url: "https://affiliate.example/click?variant=20000000000001",
+      brand: "Example Nutrition",
+      category: "Creatine",
+    }] },
+  };
+}
+
+test("reviewed V2 keeps direct and affiliate URLs separate and hash-locks its target", async () => {
+  const row = baseCanonicalFeedRow({
+    external_product_id: "10000000000001",
+    external_variant_id: "20000000000001",
+    external_sku: "EX-CREATINE-500",
+    external_url: "https://example.test/products/creatine?variant=20000000000001",
+    affiliate_url: "https://affiliate.example/click?variant=20000000000001",
+  });
+  const seed = reviewedSeed({
+    retailers: [{ id: 12, name: "Example Nutrition", slug: "example-nutrition", website: "https://example.test" }],
+  });
+  const plans = [];
+  for (const target of ["STAGING", "PRODUCTION"]) {
+    const profile = reviewedV2Profile(target);
+    const normalized = normalizeCanonicalRetailerFeedRows([row], {
+      safeCreate: true,
+      reviewedCatalogueProfile: profile,
+    });
+    assert.equal(normalized[0].__reviewed_catalogue_identity.contract, "reviewed-catalogue-package-v2");
+    assert.equal(normalized[0].__reviewed_catalogue_identity.target_environment, target);
+    assert.equal(normalized[0].__reviewed_catalogue_identity.external_url, row.external_url);
+    assert.equal(normalized[0].__reviewed_catalogue_identity.affiliate_url, row.affiliate_url);
+    const supabase = createMockSupabase(seed);
+    setSupabaseForTests(supabase);
+    const result = await runImportRowsRaw(normalized, { mode: "feed", dryRun: true, safeCreate: true, rowsAlreadyNormalized: true });
+    assert.equal(result.report.approvedRows.length, 1, JSON.stringify(result.blockedRows));
+    const plan = result.report.approvedRows[0].importPlan;
+    assert.equal(plan.retailer_product.values.external_url, row.external_url);
+    assert.equal(plan.offer.values.url, row.affiliate_url);
+    plans.push(plan);
+  }
+  assert.notEqual(plans[0].meta.source_row_fingerprint, plans[1].meta.source_row_fingerprint);
+  assert.notEqual(plans[0].meta.plan_fingerprint, plans[1].meta.plan_fingerprint);
+  const swapped = { ...row, external_url: row.affiliate_url, affiliate_url: row.external_url };
+  const swappedRows = normalizeCanonicalRetailerFeedRows([swapped], { safeCreate: true, reviewedCatalogueProfile: reviewedV2Profile() });
+  setSupabaseForTests(createMockSupabase(seed));
+  const blocked = await runImportRowsRaw(swappedRows, { mode: "feed", dryRun: true, safeCreate: true, rowsAlreadyNormalized: true });
+  assert.equal(blocked.report.approvedRows.length, 0);
+  assert.match(blocked.blockedRows[0].reason, /parent identity contract mismatch|URL/);
+});
+
+test("reviewed V2 CLI requires an explicit protected target while legacy arguments stay compatible", () => {
+  const base = ["--mode=feed", "--safe-create", "--dry-run", "--csv=tmp/feed.csv", "--reviewed-manifest=config/retailers/example.json", `--reviewed-manifest-sha256=${"a".repeat(64)}`, "--reviewed-profile=batch-1"];
+  assert.equal(parseArgs([...base, "--target=staging"]).reviewedTarget, "staging");
+  assert.throws(() => parseArgs(["--target=staging", "--dry-run"]), /only for reviewed catalogue/);
+  const legacy = parseArgs(["--mode=feed", "--dry-run", "--csv=tmp/feed.csv"]);
+  assert.equal(legacy.reviewedTarget, null);
+});

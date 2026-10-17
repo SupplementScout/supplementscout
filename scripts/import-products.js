@@ -4,6 +4,7 @@ const path = require("path");
 const { parse } = require("csv-parse/sync");
 const dotenv = require("dotenv");
 const { createClient } = require("@supabase/supabase-js");
+const { Client } = require("pg");
 const {
   addDecimalStrings,
   assertNoUndefined,
@@ -19,6 +20,19 @@ const {
   validateSharedParentPeerCohort,
 } = require("./lib/retailer-shared-parent-identity");
 const { loadReviewedSourceProfile } = require("./lib/reviewed-catalogue-package");
+const {
+  buildStateRequest,
+  createStateClient,
+  readState,
+  validatePlans,
+} = require("./lib/reviewed-catalogue-state");
+const {
+  assertManifestTarget,
+  clientConfig,
+  parseCredential,
+  roleTransaction,
+  targetContract,
+} = require("./lib/reviewed-catalogue-target");
 const {
   analyzeFeedRows,
   assessVariantCompatibility,
@@ -1917,13 +1931,14 @@ function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
       : genericReviewed.action === "create_product_with_variant"
         ? "create_reviewed_product_variant"
         : genericReviewed.action;
+    const reviewedContract = genericReviewedProfile.manifest.kind || "reviewed-catalogue-package-v1";
     return {
       ...corrected,
       external_options: action === "create_product_with_default_variant"
         ? "{}"
         : corrected.external_options,
       __reviewed_catalogue_identity: {
-        contract: "reviewed-catalogue-package-v1",
+        contract: reviewedContract,
         retailer_slug: genericReviewedProfile.manifest.retailer.slug,
         review_row: genericReviewed.review_row,
         action,
@@ -1940,7 +1955,14 @@ function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
         product_format: genericReviewed.product_format,
         unit_count: genericReviewed.unit_count ?? null,
         unit_type: genericReviewed.unit_type ?? null,
-        source_url: genericReviewed.source_url,
+        ...(reviewedContract === "reviewed-catalogue-package-v2"
+          ? {
+              external_url: genericReviewed.external_url,
+              affiliate_url: genericReviewed.affiliate_url,
+              target_environment: genericReviewedProfile.manifest.target_environment,
+              target_project_ref: genericReviewedProfile.manifest.target_project_ref,
+            }
+          : { source_url: genericReviewed.source_url }),
         brand: genericReviewed.brand,
         category: genericReviewed.category,
       },
@@ -3019,7 +3041,7 @@ async function validateNewRetailerMappingIdentity({
   );
   const reviewedCatalogueIdentity = row.__reviewed_catalogue_identity;
   const exactReviewedCataloguePlannedVariant = Boolean(
-    reviewedCatalogueIdentity?.contract === "reviewed-catalogue-package-v1" &&
+    ["reviewed-catalogue-package-v1", "reviewed-catalogue-package-v2"].includes(reviewedCatalogueIdentity?.contract) &&
     reviewedCatalogueIdentity.action === "create_variant_after_parent" &&
     reviewedCatalogueIdentity.external_product_id === externalProductId &&
     reviewedCatalogueIdentity.external_variant_id === externalVariantId &&
@@ -4230,13 +4252,17 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
   const reviewedTenReps = row.__reviewed_10reps_new_product_identity;
   const reviewedPredators = row.__reviewed_predators_new_product_identity;
   if (genericReviewed) {
+    const reviewedUrlMatches = genericReviewed.contract === "reviewed-catalogue-package-v2"
+      ? (getDirectRetailerProductUrl(row) || getRetailerProductUrl(row)) === genericReviewed.external_url &&
+        getOfferUrl(row) === genericReviewed.affiliate_url
+      : (getDirectRetailerProductUrl(row) || getRetailerProductUrl(row)) === genericReviewed.source_url;
     if (
-      genericReviewed.contract !== "reviewed-catalogue-package-v1" ||
+      !["reviewed-catalogue-package-v1", "reviewed-catalogue-package-v2"].includes(genericReviewed.contract) ||
       retailerSlug !== genericReviewed.retailer_slug ||
       !["create_reviewed_product_variant", "create_product_with_default_variant", "create_variant_after_parent"].includes(genericReviewed.action) ||
       externalProductId !== genericReviewed.external_product_id ||
       externalVariantId !== genericReviewed.external_variant_id ||
-      (getDirectRetailerProductUrl(row) || getRetailerProductUrl(row)) !== genericReviewed.source_url
+      !reviewedUrlMatches
     ) {
       throw new Error("reviewed catalogue parent identity contract mismatch");
     }
@@ -5770,7 +5796,7 @@ async function runImportRows(rows, options = {}) {
   const safeCreate = Boolean(options.safeCreate);
   validatePilotApply(rows, options);
 
-  if (mode === "feed") {
+  if (mode === "feed" && !options.rowsAlreadyNormalized) {
     rows = normalizeCanonicalRetailerFeedRows(rows, {
       safeCreate,
       sourceFileSha256: options.sourceFileSha256,
@@ -5860,6 +5886,7 @@ function parseArgs(argv) {
     reviewedManifestPath: null,
     reviewedManifestSha256: null,
     reviewedProfileId: null,
+    reviewedTarget: null,
   };
 
   for (const arg of argv) {
@@ -5893,6 +5920,9 @@ function parseArgs(argv) {
       options.reviewedManifestSha256 = arg.slice("--reviewed-manifest-sha256=".length).toLowerCase();
     } else if (arg.startsWith("--reviewed-profile=")) {
       options.reviewedProfileId = arg.slice("--reviewed-profile=".length);
+    } else if (arg.startsWith("--target=")) {
+      if (options.reviewedTarget) throw new Error("Only one --target is allowed");
+      options.reviewedTarget = arg.slice("--target=".length).toLowerCase();
     } else {
       throw new Error(`Unknown argument: ${arg}`);
     }
@@ -5926,8 +5956,57 @@ function parseArgs(argv) {
   if (reviewedArguments === 3 && (!options.dryRun || options.mode !== "feed" || !options.safeCreate)) {
     throw new Error("Reviewed catalogue manifest is supported only for feed safe-create dry-runs");
   }
+  if (options.reviewedTarget && !["staging", "production"].includes(options.reviewedTarget)) {
+    throw new Error("Reviewed catalogue target must be staging or production");
+  }
+  if (options.reviewedTarget && reviewedArguments !== 3) {
+    throw new Error("--target is supported only for reviewed catalogue dry-runs");
+  }
 
   return options;
+}
+
+async function runReviewedV2Import(rows, options, reviewedCatalogueProfile) {
+  if (!options.reviewedTarget) throw new Error("Reviewed catalogue V2 requires --target=staging or --target=production");
+  assertManifestTarget(reviewedCatalogueProfile.manifest, options.reviewedTarget);
+  const contract = targetContract(options.reviewedTarget, "validator");
+  const connectionString = parseCredential(
+    options.reviewedTarget,
+    "validator",
+    fs.readFileSync(contract.credentialPath, "utf8"),
+  );
+  const client = new Client(clientConfig(options.reviewedTarget, "validator", connectionString, {
+    applicationName: `reviewed-catalogue-import-${options.reviewedTarget}-validator`,
+  }));
+  await client.connect();
+  try {
+    return await roleTransaction(client, options.reviewedTarget, "validator", async connection => {
+      const normalizedRows = normalizeCanonicalRetailerFeedRows(rows, {
+        safeCreate: options.safeCreate,
+        sourceFileSha256: options.sourceFileSha256,
+        reviewedCatalogueProfile,
+      });
+      const request = buildStateRequest(reviewedCatalogueProfile.manifest, normalizedRows, {
+        directUrl: row => getDirectRetailerProductUrl(row) || getRetailerProductUrl(row),
+        externalGtin: getExternalGtin,
+        productData: row => buildProductData(row, 0, "feed"),
+        productGtin: row => getProductLevelGtin(row, "feed"),
+        productNameKey: normalizeProductName,
+      });
+      const state = await readState(connection, request);
+      const previous = supabase;
+      supabase = createStateClient(state);
+      try {
+        const result = await runImportRows(normalizedRows, { ...options, rowsAlreadyNormalized: true });
+        await validatePlans(connection, result.report.approvedRows);
+        return result;
+      } finally {
+        supabase = previous;
+      }
+    }, { readOnly: true });
+  } finally {
+    await client.end().catch(() => {});
+  }
 }
 
 function validatePilotApply(rows, options) {
@@ -5989,11 +6068,17 @@ async function runImport(options = parseArgs(process.argv.slice(2))) {
   });
 
   console.log(`Found ${rows.length} CSV row(s).`);
-  const result = await runImportRows(rows, {
+  if (reviewedCatalogueProfile?.manifest.kind === "reviewed-catalogue-package-v1" && options.reviewedTarget) {
+    throw new Error("Reviewed catalogue V1 keeps its historical target behavior and does not accept --target");
+  }
+  const importOptions = {
     ...options,
     sourceFileSha256: sha256Bytes(csvBytes),
     reviewedCatalogueProfile,
-  });
+  };
+  const result = reviewedCatalogueProfile?.manifest.kind === "reviewed-catalogue-package-v2"
+    ? await runReviewedV2Import(rows, importOptions, reviewedCatalogueProfile)
+    : await runImportRows(rows, importOptions);
 
   if (options.dryRun) {
     const artifactResult = writeDryRunArtifact(rows, result, {

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 333,
-    "sha256": "5871fff8279e947f20aabefc59fa6e953be3d7e26927da4ce6876d357dbfd6e8"
+    "count": 334,
+    "sha256": "d353b626eb7e03fedfb5dd8cb5ea1a49a81c83ce54afad2b14205cfacd45d1ea"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -41,6 +41,7 @@
     "scripts/retailer-snapshot-phase1.integration.test.js",
     "scripts/retailer-snapshot-staging-executor.integration.test.js",
     "scripts/retailer-url-identity-migration.integration.test.js",
+    "scripts/reviewed-catalogue-state.integration.test.js",
     "scripts/reviewed-jons-stock-only-override.integration.test.js",
     "scripts/reviewed-mixed-change-migration.integration.test.js",
     "scripts/reviewed-nutrition-policy-migration.integration.test.js",

@@ -6,7 +6,8 @@ const path = require("node:path");
 const test = require("node:test");
 const { loadReviewedPackage, loadReviewedPackageScope, normalizedManifestSha, planFingerprint, sha256, validateManifest } = require("./lib/reviewed-catalogue-package");
 const { APPROVAL_SQL, approveWithClient, parseArgs, parseCredential } = require("./reviewed-catalogue-artifact-approver");
-const { TARGETS, assertManifestTarget, assertSafeUpdateDisabled, roleTransaction: targetRoleTransaction, targetContract } = require("./lib/reviewed-catalogue-target");
+const { TARGETS, assertManifestTarget, assertSafeUpdateDisabled, credentialPath, roleTransaction: targetRoleTransaction, targetContract } = require("./lib/reviewed-catalogue-target");
+const { buildExecutionStateRequest, createStateClient, readState, validatePlans } = require("./lib/reviewed-catalogue-state");
 const {
   APPLY_SQL: PACKAGE_APPLY_SQL,
   APPROVAL_SQL: PACKAGE_APPROVAL_SQL,
@@ -243,9 +244,7 @@ test("closed CLI requires the manifest digest, profile and one exact fingerprint
 test("credentials are target-bound protected direct PostgreSQL roles", () => {
   for (const target of ["staging", "production"]) for (const kind of ["validator", "approver", "executor"]) {
     const contract = targetContract(target, kind);
-    assert.equal(contract.credentialPath, target === "staging"
-      ? path.join(__dirname, "..", `.env.staging.${kind}.local`)
-      : path.join(process.env.USERPROFILE || "", ".supplementscout", "credentials", `production-${kind}.env`));
+    assert.equal(contract.credentialPath, path.join(process.env.USERPROFILE || process.env.HOME || "", ".supplementscout", "credentials", `${target}-${kind}.env`));
     const direct = `REVIEWED_CATALOGUE_DATABASE_URL=postgresql://${contract.login}.${contract.projectRef}:secret@aws-0-eu-west-2.pooler.supabase.com:5432/postgres?sslmode=verify-full`;
     assert.match(parseCredential(target, kind, direct), /^postgresql:/);
     const other = target === "staging" ? "production" : "staging";
@@ -254,6 +253,37 @@ test("credentials are target-bound protected direct PostgreSQL roles", () => {
   assert.throws(() => parseCredential("production", "approver", "SUPABASE_SERVICE_ROLE_KEY=secret"), /one database URL/);
   assert.throws(() => parseCredential("production", "approver", `X_DATABASE_URL=postgresql://wrong:secret@db.${TARGETS.production.projectRef}.supabase.co/postgres?sslmode=verify-full`), /endpoint\/login required/);
   assert.throws(() => parseCredential("production", "wrong", "X_DATABASE_URL=x"), /Unknown protected/);
+  assert.equal(credentialPath("staging", "validator", { SUPPLEMENTSCOUT_CREDENTIAL_ROOT: "C:\\private" }), path.join("C:\\private", "staging-validator.env"));
+  assert.equal(credentialPath("staging", "validator", { SUPPLEMENTSCOUT_REVIEWED_STAGING_VALIDATOR_CREDENTIAL_FILE: "C:\\exact\\validator.env" }), path.normalize("C:\\exact\\validator.env"));
+  assert.throws(() => credentialPath("staging", "validator", { SUPPLEMENTSCOUT_CREDENTIAL_ROOT: "relative" }), /absolute/);
+});
+
+test("bounded reviewed state provider is read-only and validates every atomic plan", async () => {
+  const value = v2Fixture();
+  const loaded = load(value);
+  const request = buildExecutionStateRequest(value.manifest, [loaded.entry]);
+  const state = {
+    schema_version: 1,
+    target_environment: value.manifest.target_environment,
+    target_project_ref: value.manifest.target_project_ref,
+    retailer: value.manifest.retailer,
+    products: [loaded.entry.resolved_plan.expected_state.product],
+    product_variants: [loaded.entry.resolved_plan.expected_state.product_variant],
+    retailer_products: [], offers: [], price_history: [],
+    counts: { products: 1, product_variants: 1, retailer_products: 0, offers: 0, price_history: 0 },
+  };
+  const queries = [];
+  const database = { async query(sql, params) {
+    queries.push({ sql, params });
+    if (sql.startsWith("select public.read_reviewed_catalogue_import_state")) return { rows: [{ state }] };
+    return { rows: [{ result: { valid: true } }] };
+  } };
+  assert.deepEqual(await readState(database, request), state);
+  const provider = createStateClient(state);
+  assert.deepEqual((await provider.from("retailers").select().eq("slug", value.manifest.retailer.slug).maybeSingle()).data, state.retailer);
+  assert.throws(() => provider.from("products").insert({}), /read only/);
+  await validatePlans(database, [{ importPlan: loaded.entry.resolved_plan }]);
+  assert.equal(queries.filter(query => query.sql.includes("validate_product_import_plan_read_only")).length, 1);
 });
 
 test("approval transaction uses only the approver role and approval RPC", async () => {
@@ -473,6 +503,20 @@ test("package executor uses only approval/apply RPCs and contains no direct busi
   assert.match(PACKAGE_APPROVAL_SQL, /approve_reviewed_catalogue_import_plan/);
   assert.match(PACKAGE_APPLY_SQL, /apply_approved_product_import_plan/);
   assert.doesNotMatch(source, /SUPABASE_SERVICE_ROLE_KEY|service_role|createClient|\.from\(|postgrest/i);
+  assert.doesNotMatch(source, /client\.query\(["'`]select[\s\S]{0,120}(?:retailers|products|product_variants|retailer_products|offers|price_history)/i);
+  assert.match(source, /readState\(client, request\)/);
   assert.doesNotMatch(source, /\b(?:insert\s+into|update|delete\s+from)\s+(?:public\.)?(?:retailers|products|product_variants|retailer_products|offers|price_history)\b/i);
   assert.doesNotMatch(source, /spawnSync|forEach\([^)]*approve|Promise\.all\([^)]*apply/i);
+});
+
+test("bounded reviewed state RPC is validator-only and adds no table grants", () => {
+  const sql = fs.readFileSync(path.join(__dirname, "../supabase/migrations/20261017130000_add_reviewed_catalogue_bounded_state.sql"), "utf8");
+  assert.match(sql, /stable\s+security definer\s+set search_path = pg_catalog, public, pg_temp/i);
+  assert.match(sql, /jsonb_array_length\(p_request->'rows'\)[\s\S]+v_row_count>200/i);
+  assert.match(sql, /transaction_read_only'\)<>'on'/i);
+  assert.match(sql, /grant execute on function public\.read_reviewed_catalogue_import_state\(jsonb\)[\s\S]+retailer_catalogue_staging_validator, retailer_catalogue_production_validator/i);
+  assert.match(sql, /revoke all on function public\.read_reviewed_catalogue_import_state\(jsonb\)[\s\S]+service_role[\s\S]+approver[\s\S]+executor/i);
+  assert.doesNotMatch(sql, /grant\s+select\s+on/i);
+  assert.doesNotMatch(sql, /\b(?:insert\s+into|update|delete\s+from)\s+public\.(?:retailers|products|product_variants|retailer_products|offers|price_history)\b/i);
+  assert.doesNotMatch(sql, /execute\s+format|\bexecute\s+['"]/i);
 });

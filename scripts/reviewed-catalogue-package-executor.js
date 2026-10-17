@@ -4,6 +4,7 @@ const { execFileSync } = require("node:child_process");
 const { Client } = require("pg");
 const { canonicalJson } = require("./lib/canonical-json");
 const { loadReviewedPackageScope } = require("./lib/reviewed-catalogue-package");
+const { buildExecutionStateRequest, readState } = require("./lib/reviewed-catalogue-state");
 const {
   TARGETS,
   assertManifestTarget,
@@ -56,21 +57,6 @@ function parseArgs(argv) {
   };
 }
 
-async function one(client, sql, values, label) {
-  const rows = (await client.query(sql, values)).rows;
-  invariant(rows.length === 1, `${label} must resolve exactly once`);
-  return rows[0];
-}
-
-async function counts(client, retailerId) {
-  return one(client, `select
-    (select count(*)::int from public.products) products,
-    (select count(*)::int from public.product_variants) product_variants,
-    (select count(*)::int from public.retailer_products where retailer_id=$1::bigint) retailer_products,
-    (select count(*)::int from public.offers where retailer_id=$1::bigint) offers,
-    (select count(*)::int from public.price_history ph join public.offers o on o.id=ph.offer_id where o.retailer_id=$1::bigint) price_history`, [retailerId], "catalogue counts");
-}
-
 function comparable(row) {
   if (!row) return null;
   const copy = { ...row };
@@ -107,20 +93,31 @@ function expectedDelta(plan) {
   };
 }
 
-async function captureTarget(client, entry) {
+function captureTarget(state, entry) {
   const plan = entry.resolved_plan;
   const externalVariantId = plan.retailer_product.values.external_variant_id;
-  const mappings = (await client.query("select * from public.retailer_products where retailer_id=$1::bigint and external_variant_id=$2", [entry.retailer_id, externalVariantId])).rows;
+  const mappings = state.retailer_products.filter(mapping =>
+    String(mapping.retailer_id) === String(entry.retailer_id) &&
+    String(mapping.external_variant_id) === String(externalVariantId));
   if (!mappings.length) return { mapping: null };
   invariant(mappings.length === 1, "Retailer mapping identity is duplicated");
   const mapping = mappings[0];
-  const [product, variant, offer, history] = await Promise.all([
-    one(client, "select * from public.products where id=$1::bigint", [mapping.product_id], "product"),
-    one(client, "select * from public.product_variants where id=$1::bigint", [mapping.product_variant_id], "variant"),
-    one(client, "select * from public.offers where retailer_product_id=$1::bigint", [mapping.id], "offer"),
-    client.query("select * from public.price_history where offer_id=(select id from public.offers where retailer_product_id=$1::bigint) order by id", [mapping.id]),
-  ]);
-  return { mapping, product, variant, offer, history: history.rows };
+  const products = state.products.filter(product => String(product.id) === String(mapping.product_id));
+  const variants = state.product_variants.filter(variant => String(variant.id) === String(mapping.product_variant_id));
+  const offers = state.offers.filter(offer => String(offer.retailer_product_id) === String(mapping.id));
+  invariant(products.length === 1 && variants.length === 1 && offers.length === 1, "Applied target identity is missing or ambiguous");
+  const history = state.price_history
+    .filter(row => String(row.offer_id) === String(offers[0].id))
+    .sort((left, right) => Number(left.id) - Number(right.id));
+  return { mapping, product: products[0], variant: variants[0], offer: offers[0], history };
+}
+
+function stateRequest(loaded, target) {
+  return buildExecutionStateRequest({
+    ...loaded.manifest,
+    target_environment: TARGETS[target].environment,
+    target_project_ref: TARGETS[target].projectRef,
+  }, loaded.entries);
 }
 
 function compareFields(actual, expected, fields, label) {
@@ -220,14 +217,16 @@ async function run(options, dependencies = {}) {
   try {
     if (options.mode === "apply") result.source_commit = assertCleanMain(dependencies.execFileSync || execFileSync);
     clients.validator = await connect(options.target, "validator", dependencies.Client || Client);
-    const retailer = await roleTransaction(clients.validator, options.target, "validator", client => one(client, "select id,name,slug,website from public.retailers where id=$1::bigint", [loaded.manifest.retailer.id], "retailer"), { readOnly: true });
+    const request = stateRequest(loaded, options.target);
+    const initialState = await roleTransaction(clients.validator, options.target, "validator", client => readState(client, request), { readOnly: true });
+    const retailer = initialState.retailer;
     invariant(String(retailer.id) === String(loaded.manifest.retailer.id) && retailer.name === loaded.manifest.retailer.name && retailer.slug === loaded.manifest.retailer.slug && retailer.website === loaded.manifest.retailer.website, "Retailer identity mismatch");
-    const existing = await roleTransaction(clients.validator, options.target, "validator", async client => {
-      const ids = loaded.entries.map(entry => entry.resolved_plan.retailer_product.values.external_variant_id);
-      return (await client.query("select external_variant_id from public.retailer_products where retailer_id=$1::bigint and external_variant_id=any($2::text[])", [loaded.manifest.retailer.id, ids])).rows.map(row => row.external_variant_id);
-    }, { readOnly: true });
+    const ids = new Set(loaded.entries.map(entry => String(entry.resolved_plan.retailer_product.values.external_variant_id)));
+    const existing = initialState.retailer_products
+      .filter(row => String(row.retailer_id) === String(loaded.manifest.retailer.id) && ids.has(String(row.external_variant_id)))
+      .map(row => row.external_variant_id);
     invariant(existing.length === 0, "Reviewed package contains an already mapped source row; generate a fresh remaining package");
-    const baseline = await roleTransaction(clients.validator, options.target, "validator", client => counts(client, loaded.manifest.retailer.id), { readOnly: true });
+    const baseline = initialState.counts;
     result.baseline = baseline;
     if (options.mode === "preflight") {
       Object.assign(result, { result: "PASS", completed_at: new Date().toISOString(), database_writes: 0 });
@@ -246,7 +245,8 @@ async function run(options, dependencies = {}) {
       result.apply_count += 1;
       const delta = expectedDelta(entry.resolved_plan);
       result.database_writes += Object.values(delta).reduce((sum, value) => sum + value, 0);
-      const checked = await roleTransaction(clients.validator, options.target, "validator", async client => ({ counts: await counts(client, loaded.manifest.retailer.id), target: await captureTarget(client, entry) }), { readOnly: true });
+      const checkedState = await roleTransaction(clients.validator, options.target, "validator", client => readState(client, request), { readOnly: true });
+      const checked = { counts: checkedState.counts, target: captureTarget(checkedState, entry) };
       for (const key of Object.keys(delta)) invariant(checked.counts[key] - currentCounts[key] === delta[key], `${key} row-count delta mismatch`);
       const row = verifyTarget(entry, checked.target);
       for (const field of ["product_id", "product_variant_id", "retailer_product_id", "offer_id", "price_history_id"]) {
