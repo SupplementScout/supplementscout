@@ -242,6 +242,8 @@ test("closed CLI requires the manifest digest, profile and one exact fingerprint
 });
 
 test("credentials are target-bound protected direct PostgreSQL roles", () => {
+  const credentialRoot = path.resolve("private");
+  const exactCredential = path.resolve("exact", "validator.env");
   for (const target of ["staging", "production"]) for (const kind of ["validator", "approver", "executor"]) {
     const contract = targetContract(target, kind);
     assert.equal(contract.credentialPath, path.join(process.env.USERPROFILE || process.env.HOME || "", ".supplementscout", "credentials", `${target}-${kind}.env`));
@@ -253,8 +255,8 @@ test("credentials are target-bound protected direct PostgreSQL roles", () => {
   assert.throws(() => parseCredential("production", "approver", "SUPABASE_SERVICE_ROLE_KEY=secret"), /one database URL/);
   assert.throws(() => parseCredential("production", "approver", `X_DATABASE_URL=postgresql://wrong:secret@db.${TARGETS.production.projectRef}.supabase.co/postgres?sslmode=verify-full`), /endpoint\/login required/);
   assert.throws(() => parseCredential("production", "wrong", "X_DATABASE_URL=x"), /Unknown protected/);
-  assert.equal(credentialPath("staging", "validator", { SUPPLEMENTSCOUT_CREDENTIAL_ROOT: "C:\\private" }), path.join("C:\\private", "staging-validator.env"));
-  assert.equal(credentialPath("staging", "validator", { SUPPLEMENTSCOUT_REVIEWED_STAGING_VALIDATOR_CREDENTIAL_FILE: "C:\\exact\\validator.env" }), path.normalize("C:\\exact\\validator.env"));
+  assert.equal(credentialPath("staging", "validator", { SUPPLEMENTSCOUT_CREDENTIAL_ROOT: credentialRoot }), path.join(credentialRoot, "staging-validator.env"));
+  assert.equal(credentialPath("staging", "validator", { SUPPLEMENTSCOUT_REVIEWED_STAGING_VALIDATOR_CREDENTIAL_FILE: exactCredential }), path.normalize(exactCredential));
   assert.throws(() => credentialPath("staging", "validator", { SUPPLEMENTSCOUT_CREDENTIAL_ROOT: "relative" }), /absolute/);
 });
 

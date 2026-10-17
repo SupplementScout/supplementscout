@@ -78,8 +78,9 @@ test("verified PostgreSQL TLS requires verify-full, a CA and hostname verificati
   for (const mode of ["disable", "allow", "prefer", "require", "no-verify"]) {
     assert.throws(() => normalizeVerifiedConnectionString(`postgresql://user:secret@db.example.test/postgres?sslmode=${mode}`), /verify-full/);
   }
+  const rootCaPath = path.resolve("private", "root.crt");
   const tlsOptions = {
-    env: { PGSSLROOTCERT: "C:\\private\\root.crt" },
+    env: { PGSSLROOTCERT: rootCaPath },
     stat: () => ({ isFile: () => true }),
     readFile: () => Buffer.from("test-ca"),
     X509CertificateClass: class {
