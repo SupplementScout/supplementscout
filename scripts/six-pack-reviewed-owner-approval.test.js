@@ -27,8 +27,9 @@ const CHANGES = [
   ["2066", "39.99", "44.99", true, true], ["2422", "41.99", "44.99", true, true],
 ];
 
+const testRootCaPath = path.resolve("private", "test-root.crt");
 const TEST_TLS = {
-  env: { PGSSLROOTCERT: "C:\\private\\test-root.crt" },
+  env: { PGSSLROOTCERT: testRootCaPath },
   stat: () => ({ isFile: () => true }),
   readFile: () => Buffer.from("test-ca"),
   X509CertificateClass: class {
