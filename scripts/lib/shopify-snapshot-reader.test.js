@@ -1,6 +1,6 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
-const { normalizeMarketCountry, projectShopifyVariants, readShopifySnapshot } = require("./shopify-snapshot-reader");
+const { normalizeMarketCountry, projectShopifyCanonicalRecords, projectShopifyVariants, readShopifySnapshot } = require("./shopify-snapshot-reader");
 
 function response(body, { status = 200, contentType = "application/json; charset=utf-8" } = {}) {
   const text = typeof body === "string" ? body : JSON.stringify(body);
@@ -23,6 +23,26 @@ test("reads all Shopify pages and seals a deterministic manifest", async () => {
   assert.equal(result.source_diagnostic.pagination_completed, true); assert.equal(result.source_diagnostic.pages_fetched, 2);
   assert.equal(result.source_diagnostic.final_http_status, 200); assert.match(result.source_diagnostic.final_content_type, /application\/json/);
   assert.deepEqual(projectShopifyVariants({ products: [{ id: 1, handle: "p", variants: [{ id: 2, price: "9.99", available: true }] }] }, { shippingCost: "3.99" })[0], { external_product_id: "1", external_variant_id: "2", product_handle: "p", external_sku: null, price: "9.99", shipping_cost: "3.99", in_stock: true, source_updated_at: null });
+});
+
+test("projects neutral canonical-matcher records from Shopify product and option evidence", () => {
+  const rows = projectShopifyCanonicalRecords({
+    store_origin: "https://shop.example",
+    products: [{
+      id: 10, title: "Example Whey 900g", vendor: "Example", handle: "example-whey",
+      options: [{ name: "Flavour", position: 1 }],
+      variants: [{ id: 20, title: "Chocolate", option1: "Chocolate", sku: "EX-20", barcode: "05012345678901", price: "24.99", available: true }],
+    }],
+  });
+  assert.deepEqual(rows[0], {
+    source_record_id: "10:20", external_product_id: "10", external_variant_id: "20", source_type: "variation",
+    product_name: "Example Whey 900g", variant_name: "Chocolate", brand: "Example", external_sku: "EX-20",
+    external_gtin: "05012345678901", external_options: { Flavour: "Chocolate" }, price: "24.99", in_stock: true,
+    variant_url: "https://shop.example/products/example-whey?variant=20", policy_state: "ELIGIBLE", policy_code: null,
+  });
+  assert.equal(projectShopifyCanonicalRecords({ products: [{ id: 1, variants: [{ id: 2, title: "Default Title", price: "1" }] }] }, {
+    classifyPolicy: () => "PROHIBITED",
+  })[0].policy_state, "EXCLUDED");
 });
 
 test("optionally requests a single explicit Shopify market country", async () => {

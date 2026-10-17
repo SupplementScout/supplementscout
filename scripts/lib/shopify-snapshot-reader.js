@@ -97,6 +97,44 @@ function projectShopifyVariants(snapshot, { shippingCost = null } = {}) {
   return rows;
 }
 
+function projectShopifyCanonicalRecords(snapshot, { classifyPolicy = () => null } = {}) {
+  if (!snapshot || !Array.isArray(snapshot.products)) throw new Error("A Shopify product snapshot is required");
+  if (typeof classifyPolicy !== "function") throw new Error("Shopify policy classifier must be a function");
+  const origin = snapshot.store_origin ? new URL(snapshot.store_origin) : null;
+  const rows = [];
+  for (const product of snapshot.products) {
+    const variants = Array.isArray(product.variants) ? product.variants : [];
+    const optionNames = new Map((product.options || []).map((option) => [Number(option.position), String(option.name || `Option ${option.position}`)]));
+    for (const variant of variants) {
+      const externalOptions = {};
+      for (let position = 1; position <= 3; position += 1) {
+        const value = variant[`option${position}`];
+        if (value != null && String(value).trim() && String(value) !== "Default Title") {
+          externalOptions[optionNames.get(position) || `Option ${position}`] = String(value);
+        }
+      }
+      const record = {
+        source_record_id: `${product.id}:${variant.id}`,
+        external_product_id: String(product.id),
+        external_variant_id: String(variant.id),
+        source_type: variants.length > 1 || (variant.title && variant.title !== "Default Title") ? "variation" : "simple",
+        product_name: String(product.title || ""),
+        variant_name: String(variant.title || ""),
+        brand: String(product.vendor || ""),
+        external_sku: variant.sku == null || String(variant.sku).trim() === "" ? null : String(variant.sku),
+        external_gtin: variant.barcode == null || String(variant.barcode).trim() === "" ? null : String(variant.barcode),
+        external_options: externalOptions,
+        price: String(variant.price),
+        in_stock: Boolean(variant.available),
+        variant_url: origin && product.handle ? new URL(`/products/${encodeURIComponent(product.handle)}?variant=${encodeURIComponent(variant.id)}`, origin).href : null,
+      };
+      const policyCode = classifyPolicy(record, product, variant);
+      rows.push({ ...record, policy_state: policyCode ? "EXCLUDED" : "ELIGIBLE", policy_code: policyCode || null });
+    }
+  }
+  return rows;
+}
+
 function sourceError(code, message, diagnostic, cause) {
   return new ShopifySourceError(code, message, { ...diagnostic, completed_at: new Date().toISOString() }, cause);
 }
@@ -308,4 +346,4 @@ async function readShopifySnapshot({
   throw sourceError("SOURCE_INCOMPLETE", "Shopify pagination exceeded the configured maximum", diagnostic);
 }
 
-module.exports = { ShopifySourceError, assertSemanticShopifySnapshot, canonical, compareShopifySnapshots, normalizeMarketCountry, projectShopifyVariants, readShopifySnapshot, semanticShopifySnapshot, sha256, shopifySnapshotFingerprints };
+module.exports = { ShopifySourceError, assertSemanticShopifySnapshot, canonical, compareShopifySnapshots, normalizeMarketCountry, projectShopifyCanonicalRecords, projectShopifyVariants, readShopifySnapshot, semanticShopifySnapshot, sha256, shopifySnapshotFingerprints };
