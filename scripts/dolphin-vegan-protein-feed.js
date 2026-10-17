@@ -22,8 +22,9 @@ function parseProductPage(html, capturedAt = new Date().toISOString()) {
   const price = Number(offer.price);
   if (!Number.isFinite(price) || price <= 0) fail("Dolphin price is invalid");
   const availability = String(offer.availability || "");
-  if (!/\/(InStock|OutOfStock)$/.test(availability)) fail("Dolphin availability is invalid");
-  const inStock = availability.endsWith("/InStock");
+  const availabilityState = availability.match(/^https?:\/\/schema\.org\/(InStock|LimitedAvailability|OutOfStock)$/)?.[1];
+  if (!availabilityState) fail("Dolphin availability is invalid");
+  const inStock = availabilityState !== "OutOfStock";
   return {
     retailer_name: config.retailer_name, retailer_website: config.retailer_website,
     external_product_id: config.external_product_id, external_variant_id: config.external_variant_id,

@@ -25,6 +25,19 @@ test("parses only the exact approved Dolphin variant", () => {
   assert.equal(row.offer_id, "2490");
 });
 
+test("treats Dolphin limited availability as available without widening identity checks", () => {
+  const row = parseProductPage(html({
+    offers: {
+      price: "21.95",
+      priceCurrency: "GBP",
+      availability: "https://schema.org/LimitedAvailability",
+      seller: { name: "Dolphin Fitness" },
+    },
+  }), "2026-10-17T17:00:00.000Z");
+  assert.equal(row.in_stock, "true");
+  assert.equal(row.external_variant_id, "193943-VANILLA");
+});
+
 test("fails closed on identity, currency and availability drift", () => {
   assert.throws(() => parseProductPage(html({ sku: "WRONG" })), /ProductGroup is missing|variant identity drift/);
   assert.throws(() => parseProductPage(html({ offers: { price: "21.95", priceCurrency: "USD", availability: "http://schema.org/InStock", seller: { name: "Dolphin Fitness" } } })), /identity drift/);
