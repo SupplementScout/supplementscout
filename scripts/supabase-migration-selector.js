@@ -129,9 +129,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 103,
+    ledgerCount: 104,
     ledgerFingerprint:
-      "052e795f1d9d3a47783207fe9f80c8e3573d1ca81226090a09436db27d66ef6c",
+      "51e0e00937fe4c4673b470c31bcea5ae28807d6789cbc5e1dda0d55e32778029",
     appliedExcluded: APPLIED_EXCLUSIONS.STAGING,
     excluded: Object.freeze({
       "20261015130000_release_gym_high_seo15_stage3_source.sql":

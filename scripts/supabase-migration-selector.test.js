@@ -306,6 +306,7 @@ function withoutCurrentSeo15Migrations(rows) {
     SEO15_BOUNDED_STAGE3_MIGRATION,
     SEO15_AUTOMATIC_CANDIDATES_MIGRATION,
     SEO15_INVENTORY_OPTIMIZATION_MIGRATION,
+    "20261017120000_add_retailer_identity_bootstrap.sql",
   ].includes(`${version}_${name}.sql`));
 }
 
@@ -353,13 +354,13 @@ test.after(() => {
   }
 });
 
-test("staging records the optimized SEO-15 inventory migration as applied", () => {
+test("staging records the retailer identity bootstrap migration as applied", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 103);
+  assert.equal(result.ledger_count, 104);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending_files, ["20261017120000_add_retailer_identity_bootstrap.sql"]);
-  assert.equal(result.pending_file, "20261017120000_add_retailer_identity_bootstrap.sql");
-  assert.equal(result.pending_sha256, "12bbea1d4db0957001198c72f9ce368a114ebc27fbf14c2ad01aa9cfbf3c187d");
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
@@ -924,16 +925,16 @@ test("owner-authorized ACL/RLS activation selects exactly one migration from led
   ]), /staging-only/);
 });
 
-test("staging contract records the optimized SEO-15 candidate inventory at ledger 103", () => {
+test("staging contract records the retailer identity bootstrap at ledger 104", () => {
   const filename = "20260928100000_diagnose_ra004_preflight_acl_rls.sql";
-  assert.equal(CONTRACT.ledgerCount, 103);
+  assert.equal(CONTRACT.ledgerCount, 104);
   assert.equal(CONTRACT.ledgerFingerprint,
-    "052e795f1d9d3a47783207fe9f80c8e3573d1ca81226090a09436db27d66ef6c");
+    "51e0e00937fe4c4673b470c31bcea5ae28807d6789cbc5e1dda0d55e32778029");
   assert.ok(CONTRACT.appliedExcluded.includes(filename));
   assert.ok(CONTRACT.appliedExcluded.includes(RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION));
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === filename));
   assert.ok(CONTRACT.appliedExcluded.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
-  assert.equal(currentRemoteLedger().length, 103);
+  assert.equal(currentRemoteLedger().length, 104);
   assert.equal(ledgerRowsFingerprint(currentRemoteLedger(), { targetEnvironment: "STAGING" }),
     CONTRACT.ledgerFingerprint);
 });
@@ -1381,12 +1382,10 @@ test("completed RA-004 fixture activation cannot select or materialize a migrati
 
 test("staging keeps all applied SEO-15 migrations closed", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, "20261017120000_add_retailer_identity_bootstrap.sql");
-  assert.equal(result.pending_sha256, "12bbea1d4db0957001198c72f9ce368a114ebc27fbf14c2ad01aa9cfbf3c187d");
-  assert.deepEqual(result.pending_files, ["20261017120000_add_retailer_identity_bootstrap.sql"]);
-  assert.deepEqual(result.pending_sha256s, {
-    "20261017120000_add_retailer_identity_bootstrap.sql": "12bbea1d4db0957001198c72f9ce368a114ebc27fbf14c2ad01aa9cfbf3c187d",
-  });
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
 });
