@@ -169,7 +169,8 @@ test("legacy entry point is now a thin profile wrapper with no direct database w
   assert.match(source, /require\("\.\/fit-house-offer-refresh"\)/);
   assert.doesNotMatch(source, /\.from\(|\.update\(|\.insert\(|SUPABASE_SERVICE_ROLE_KEY/);
   assert.match(engineSource, /roleCredential\(target,"validator"\)/);
-  assert.match(engineSource, /default_transaction_read_only=on/);
+  assert.match(engineSource, /postgresClientConfig/);
+  assert.match(engineSource, /defaultReadOnly:true/);
   assert.match(engineSource, /set role retailer_catalogue_\$\{target\}_validator/);
   assert.doesNotMatch(engineSource, /target==="staging"&&!process\.env\.GITHUB_ACTIONS/);
 });

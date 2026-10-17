@@ -308,7 +308,6 @@ function credential(kind) {
   const value = process.env[`SIX_PACK_SYNC_${kind.toUpperCase()}_DATABASE_URL`];
   if (!value) fail(`Missing SIX_PACK_SYNC_${kind.toUpperCase()}_DATABASE_URL`);
   const parsed = new URL(value);
-  parsed.searchParams.delete("sslmode");
   if (parsed.href.includes("hxnrsyyqffztlvcrtgbf")) fail(`${kind} credential points to staging`);
   return parsed.href;
 }

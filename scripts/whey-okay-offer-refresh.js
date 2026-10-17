@@ -3,6 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { execFileSync } = require("node:child_process");
 const { Client } = require("pg");
+const { postgresClientConfig } = require("./lib/secure-postgres");
 const {
   readEkmGoogleProductFeed,
   sha256,
@@ -148,19 +149,18 @@ function roleCredential(target, kind) {
   }
   invariant(url, `missing ${kind} database URL`);
   const parsed = new URL(url);
-  parsed.searchParams.delete("sslmode");
   const opposite =
     TARGETS[target === "production" ? "staging" : "production"].ref;
   invariant(!parsed.href.includes(opposite), `${kind} opposite target`);
   return parsed.href;
 }
 async function roleCall(target, kind, readOnly, body) {
-  const client = new Client({
+  const client = new Client(postgresClientConfig({
     connectionString: roleCredential(target, kind),
-    ssl: { rejectUnauthorized: false },
-    application_name: `whey-okay-offer-refresh-${kind}`,
-    options: "-c statement_timeout=180000 -c lock_timeout=15000",
-  });
+    applicationName: `whey-okay-offer-refresh-${kind}`,
+    statementTimeoutMs: 180000,
+    lockTimeoutMs: 15000,
+  }));
   await client.connect();
   try {
     const safeUpdate = (

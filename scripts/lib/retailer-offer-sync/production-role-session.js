@@ -19,11 +19,16 @@ function assertSettingName(value) {
   return value;
 }
 
-async function openPostgresClient({ connectionString, applicationName, ClientClass = Client, defaultReadOnly = false, tlsOptions }) {
+async function openPostgresClient({ connectionString, applicationName, ClientClass = Client, defaultReadOnly = false,
+  statementTimeoutMs, connectionTimeoutMillis, queryTimeoutMs, keepAlive, tlsOptions }) {
   const client = new ClientClass(postgresClientConfig({
     connectionString,
     applicationName,
     defaultReadOnly,
+    ...(statementTimeoutMs === undefined ? {} : { statementTimeoutMs }),
+    ...(connectionTimeoutMillis === undefined ? {} : { connectionTimeoutMillis }),
+    ...(queryTimeoutMs === undefined ? {} : { queryTimeoutMs }),
+    ...(keepAlive === undefined ? {} : { keepAlive }),
     tlsOptions,
   }));
   await client.connect();

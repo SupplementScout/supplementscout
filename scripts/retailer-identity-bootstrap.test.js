@@ -73,13 +73,19 @@ test("changed plan fields or fingerprints are rejected", () => {
   assert.throws(() => validateRetailerIdentityBootstrapPlan(fingerprint), /fingerprint/);
 });
 
-test("verified PostgreSQL TLS requires verify-full, a CA and hostname verification", () => {
-  assert.match(normalizeVerifiedConnectionString("postgresql://user:secret@db.example.test/postgres?sslmode=verify-full"), /^postgresql:/);
-  for (const mode of ["disable", "allow", "prefer", "require", "no-verify"]) {
-    assert.throws(() => normalizeVerifiedConnectionString(`postgresql://user:secret@db.example.test/postgres?sslmode=${mode}`), /verify-full/);
+test("verified PostgreSQL TLS accepts legacy secure inputs and enforces a CA and hostname verification", () => {
+  for (const suffix of ["?sslmode=verify-full", "?sslmode=require", ""]) {
+    const normalized = normalizeVerifiedConnectionString(`postgresql://user:secret@db.example.test/postgres${suffix}`);
+    assert.match(normalized, /^postgresql:/);
+    assert.doesNotMatch(normalized, /sslmode/);
   }
+  for (const mode of ["disable", "allow", "prefer", "verify-ca", "no-verify", "unknown"]) {
+    assert.throws(() => normalizeVerifiedConnectionString(`postgresql://user:secret@db.example.test/postgres?sslmode=${mode}`), /insecure or unsupported/);
+  }
+  const rootCaPath = path.resolve("private", "root.crt");
   const tlsOptions = {
-    env: { PGSSLROOTCERT: "C:\\private\\root.crt" },
+    connectionString: "postgresql://user:secret@db.example.test/postgres",
+    env: { PGSSLROOTCERT: rootCaPath },
     stat: () => ({ isFile: () => true }),
     readFile: () => Buffer.from("test-ca"),
     X509CertificateClass: class {

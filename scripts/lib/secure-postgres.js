@@ -3,6 +3,10 @@ const path = require("node:path");
 const tls = require("node:tls");
 const { X509Certificate } = require("node:crypto");
 
+const BUNDLED_SUPABASE_CA = path.resolve(__dirname, "../../config/certs/supabase-root-ca.crt");
+const SUPABASE_ROOT_CA_FINGERPRINT = "80:70:25:AD:50:D4:ED:21:9D:2C:9C:7D:29:9C:00:4F:82:4E:B0:0C:F7:F6:5A:FE:F6:07:D0:7B:72:E6:CA:FA";
+const SUPABASE_ROOT_CA_COMMON_NAME = "CN=Supabase Root 2021 CA";
+
 function invariant(condition, message) {
   if (!condition) throw new Error(message);
 }
@@ -14,9 +18,22 @@ function normalizeVerifiedConnectionString(value, label = "database") {
   invariant(["postgres:", "postgresql:"].includes(parsed.protocol), `Direct PostgreSQL ${label} credential required`);
   const modes = parsed.searchParams.getAll("sslmode");
   invariant(modes.length <= 1, "Duplicate sslmode is forbidden");
-  if (modes.length === 1) invariant(modes[0].toLowerCase() === "verify-full", "PostgreSQL sslmode must be verify-full");
+  if (modes.length === 1) {
+    invariant(["require", "verify-full"].includes(modes[0].toLowerCase()), "PostgreSQL sslmode is insecure or unsupported");
+  }
   parsed.searchParams.delete("sslmode");
   return parsed.href;
+}
+
+function connectionHostname(connectionString) {
+  let parsed;
+  try { parsed = new URL(connectionString); } catch { throw new Error("Invalid protected database credential"); }
+  return parsed.hostname.toLowerCase();
+}
+
+function isApprovedSupabaseHostname(hostname) {
+  return /^db\.[a-z0-9]{20}\.supabase\.co$/.test(hostname) ||
+    /^aws-[a-z0-9-]+\.pooler\.supabase\.com$/.test(hostname);
 }
 
 function loadTrustedRootCa(options = {}) {
@@ -25,12 +42,18 @@ function loadTrustedRootCa(options = {}) {
   const stat = options.stat || fs.statSync;
   const Certificate = options.X509CertificateClass || X509Certificate;
   const now = options.now || new Date();
-  const caPath = env.PGSSLROOTCERT || env.SUPPLEMENTSCOUT_DATABASE_CA_CERT || env.NODE_EXTRA_CA_CERTS;
+  const hostname = connectionHostname(options.connectionString);
+  const explicitPath = env.PGSSLROOTCERT || env.SUPPLEMENTSCOUT_DATABASE_CA_CERT || env.NODE_EXTRA_CA_CERTS;
+  const caPath = explicitPath || (isApprovedSupabaseHostname(hostname) ? BUNDLED_SUPABASE_CA : null);
   invariant(typeof caPath === "string" && path.isAbsolute(caPath), "A trusted absolute PostgreSQL root CA path is required");
   invariant(stat(caPath).isFile(), "PostgreSQL root CA path must name a file");
   const ca = readFile(caPath);
   const certificate = new Certificate(ca);
   invariant(Date.parse(certificate.validFrom) <= now.getTime() && Date.parse(certificate.validTo) > now.getTime(), "PostgreSQL root CA is not currently valid");
+  if (isApprovedSupabaseHostname(hostname)) {
+    invariant(certificate.fingerprint256 === SUPABASE_ROOT_CA_FINGERPRINT, "Supabase PostgreSQL root CA fingerprint mismatch");
+    invariant(certificate.subject.includes(SUPABASE_ROOT_CA_COMMON_NAME) && certificate.issuer === certificate.subject, "Supabase PostgreSQL root CA identity mismatch");
+  }
   return { ca, caPath, fingerprint256: certificate.fingerprint256, validTo: certificate.validTo };
 }
 
@@ -41,17 +64,25 @@ function verifiedTlsOptions(options = {}) {
 
 function postgresClientConfig(options) {
   const { connectionString, applicationName, defaultReadOnly = false, statementTimeoutMs = 120000,
-    connectionTimeoutMillis = 15000, queryTimeoutMs = 120000, keepAlive = true, tlsOptions } = options;
+    connectionTimeoutMillis = 15000, queryTimeoutMs = 120000, keepAlive = true, lockTimeoutMs, tlsOptions } = options;
   invariant(!options.ssl, "Callers may not override verified PostgreSQL TLS settings");
   return {
     connectionString: normalizeVerifiedConnectionString(connectionString),
-    ssl: verifiedTlsOptions(tlsOptions),
+    ssl: verifiedTlsOptions({ ...tlsOptions, connectionString }),
     application_name: applicationName,
     connectionTimeoutMillis,
     query_timeout: queryTimeoutMs,
     keepAlive,
-    options: `${defaultReadOnly ? "-c default_transaction_read_only=on " : ""}-c statement_timeout=${statementTimeoutMs}`,
+    options: `${defaultReadOnly ? "-c default_transaction_read_only=on " : ""}-c statement_timeout=${statementTimeoutMs}${lockTimeoutMs === undefined ? "" : ` -c lock_timeout=${lockTimeoutMs}`}`,
   };
 }
 
-module.exports = { loadTrustedRootCa, normalizeVerifiedConnectionString, postgresClientConfig, verifiedTlsOptions };
+module.exports = {
+  BUNDLED_SUPABASE_CA,
+  SUPABASE_ROOT_CA_FINGERPRINT,
+  isApprovedSupabaseHostname,
+  loadTrustedRootCa,
+  normalizeVerifiedConnectionString,
+  postgresClientConfig,
+  verifiedTlsOptions,
+};

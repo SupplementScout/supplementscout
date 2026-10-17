@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 334,
-    "sha256": "d353b626eb7e03fedfb5dd8cb5ea1a49a81c83ce54afad2b14205cfacd45d1ea"
+    "count": 335,
+    "sha256": "110680a10665d65fc8d465e37362ca1db04db93f4ffebdb822c73e4e5e23c8a8"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -112,6 +112,7 @@
     "scripts/retailer-control-state-export.test.js",
     "scripts/retailer-offer-sync-performance-audit.test.js",
     "scripts/search.test.js",
+    "scripts/secure-postgres.test.js",
     "scripts/seo15-accrual-audit.test.js",
     "scripts/sitemap-freshness.test.js",
     "scripts/whey-protein-page.test.js"

@@ -1,6 +1,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const { Client } = require("pg");
+const { postgresClientConfig } = require("./lib/secure-postgres");
 const { loadDryRunArtifact } = require("./import-products");
 const { assertApproval, inspectVariants } = require("./gym-high-reviewed-catalogue-bootstrap");
 const { shippingCostForPrice } = require("./gym-high-shipping-policy");
@@ -33,18 +34,15 @@ function credential(kind) {
   const value = process.env[`GYM_HIGH_${kind.toUpperCase()}_DATABASE_URL`];
   if (!value) fail(`Missing GYM_HIGH_${kind.toUpperCase()}_DATABASE_URL`);
   const parsed = new URL(value);
-  parsed.searchParams.delete("sslmode");
   if (parsed.href.includes("hxnrsyyqffztlvcrtgbf")) fail(`${kind} credential points to staging`);
   return parsed.href;
 }
 
 async function openRoleClient(kind) {
-  const client = new Client({
+  const client = new Client(postgresClientConfig({
     connectionString: credential(kind),
-    ssl: { rejectUnauthorized: false },
-    application_name: `gym-high-full-catalogue-${kind}`,
-    options: "-c statement_timeout=120000",
-  });
+    applicationName: `gym-high-full-catalogue-${kind}`,
+  }));
   await client.connect();
   return client;
 }

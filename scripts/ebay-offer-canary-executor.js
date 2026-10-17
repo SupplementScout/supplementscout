@@ -2,6 +2,7 @@ const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const { Client } = require("pg");
+const { postgresClientConfig } = require("./lib/secure-postgres");
 const { loadDryRunArtifact } = require("./import-products");
 const { assertConfig, getApplicationToken } = require("./lib/ebay-browse-pilot");
 
@@ -165,18 +166,15 @@ function credential(kind) {
   const value = process.env[`EBAY_CANARY_${kind.toUpperCase()}_DATABASE_URL`];
   if (!value) fail(`Missing EBAY_CANARY_${kind.toUpperCase()}_DATABASE_URL`);
   const parsed = new URL(value);
-  parsed.searchParams.delete("sslmode");
   if (parsed.href.includes("hxnrsyyqffztlvcrtgbf")) fail(`${kind} credential points to staging`);
   return parsed.href;
 }
 
 async function roleCall(kind, callback) {
-  const client = new Client({
+  const client = new Client(postgresClientConfig({
     connectionString: credential(kind),
-    ssl: { rejectUnauthorized: false },
-    application_name: `ebay-offer-canary-${kind}`,
-    options: "-c statement_timeout=120000",
-  });
+    applicationName: `ebay-offer-canary-${kind}`,
+  }));
   await client.connect();
   try {
     await client.query("begin");
