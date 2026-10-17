@@ -4,6 +4,7 @@ const { execFileSync } = require("node:child_process");
 const { Client } = require("pg");
 const { canonicalJson } = require("./lib/canonical-json");
 const { loadReviewedPackageScope } = require("./lib/reviewed-catalogue-package");
+const { normalizeVerifiedConnectionString, postgresClientConfig } = require("./lib/secure-postgres");
 const { verifyReceipt } = require("./reviewed-catalogue-artifact-approver");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -75,8 +76,7 @@ function parseCredential(kind, text) {
   );
   invariant(url.pathname === "/postgres" && Boolean(url.password), `Protected ${kind} password required`);
   for (const key of url.searchParams.keys()) invariant(key === "sslmode", "Unexpected credential option");
-  url.searchParams.delete("sslmode");
-  return url.href;
+  return normalizeVerifiedConnectionString(url.href, `${kind} reviewed catalogue`);
 }
 
 async function roleTransaction(client, kind, callback, { readOnly = false } = {}) {
@@ -245,7 +245,7 @@ function loadScope(options) {
 
 async function connect(kind, ClientClass = Client) {
   const connectionString = parseCredential(kind, fs.readFileSync(CREDENTIAL[kind], "utf8"));
-  const client = new ClientClass({ connectionString, ssl: { rejectUnauthorized: false }, application_name: `reviewed-catalogue-package-${kind}`, options: "-c statement_timeout=120000" });
+  const client = new ClientClass(postgresClientConfig({ connectionString, applicationName: `reviewed-catalogue-package-${kind}` }));
   await client.connect();
   return client;
 }

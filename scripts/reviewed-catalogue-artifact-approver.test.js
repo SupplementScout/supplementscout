@@ -139,7 +139,7 @@ test("closed CLI requires the manifest digest, profile and one exact fingerprint
 
 test("credential is direct PostgreSQL approver-only", () => {
   assert.equal(CREDENTIAL_PATH, path.join(process.env.USERPROFILE || "", ".supplementscout/credentials/production-approver.env"));
-  const direct = `REVIEWED_CATALOGUE_DATABASE_URL=postgresql://${encodeURIComponent("supplementscout_production_approver_login.aftboxmrdgyhizicfsfu")}:secret@aws-0-eu-west-2.pooler.supabase.com:5432/postgres?sslmode=require`;
+  const direct = `REVIEWED_CATALOGUE_DATABASE_URL=postgresql://${encodeURIComponent("supplementscout_production_approver_login.aftboxmrdgyhizicfsfu")}:secret@aws-0-eu-west-2.pooler.supabase.com:5432/postgres?sslmode=verify-full`;
   assert.match(parseCredential(direct), /^postgresql:/);
   assert.throws(() => parseCredential("SUPABASE_SERVICE_ROLE_KEY=secret"), /exactly one database URL/);
 });
@@ -203,7 +203,7 @@ test("package executor requires three distinct protected direct PostgreSQL crede
   for (const kind of ["approver", "executor", "validator"]) {
     assert.equal(PACKAGE_CREDENTIAL[kind], path.join(process.env.USERPROFILE || "", `.supplementscout/credentials/production-${kind}.env`));
     const login = `supplementscout_production_${kind}_login.aftboxmrdgyhizicfsfu`;
-    assert.match(parsePackageCredential(kind, `CATALOGUE_DATABASE_URL=postgresql://${login}:secret@aws-0-eu-west-2.pooler.supabase.com:5432/postgres?sslmode=require`), /^postgresql:/);
+    assert.match(parsePackageCredential(kind, `CATALOGUE_DATABASE_URL=postgresql://${login}:secret@aws-0-eu-west-2.pooler.supabase.com:5432/postgres?sslmode=verify-full`), /^postgresql:/);
   }
   assert.throws(() => parsePackageCredential("executor", "SUPABASE_SERVICE_ROLE_KEY=secret"), /one database URL/);
 });

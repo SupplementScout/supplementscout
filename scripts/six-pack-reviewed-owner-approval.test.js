@@ -27,6 +27,16 @@ const CHANGES = [
   ["2066", "39.99", "44.99", true, true], ["2422", "41.99", "44.99", true, true],
 ];
 
+const TEST_TLS = {
+  env: { PGSSLROOTCERT: "C:\\private\\test-root.crt" },
+  stat: () => ({ isFile: () => true }),
+  readFile: () => Buffer.from("test-ca"),
+  X509CertificateClass: class {
+    constructor() { this.validFrom = "2020-01-01T00:00:00Z"; this.validTo = "2035-01-01T00:00:00Z"; this.fingerprint256 = "TEST"; }
+  },
+  now: new Date("2030-01-01T00:00:00Z"),
+};
+
 function fixture() {
   const captured = new Date(Date.now() - 60_000).toISOString();
   const beforeAt = new Date(Date.parse(captured) - 86_400_000).toISOString();
@@ -311,7 +321,7 @@ test("reviewed checks activate the exact validator role on one read-only client 
     callbackClient = client;
     await client.query("select * from public.offers");
     return "captured";
-  }, { Client: FakeClient, env: { SIX_PACK_SYNC_VALIDATOR_DATABASE_URL: "postgres://validator.invalid/database" } });
+  }, { Client: FakeClient, env: { SIX_PACK_SYNC_VALIDATOR_DATABASE_URL: "postgres://validator.invalid/database" }, tlsOptions: TEST_TLS });
   assert.equal(result, "captured");
   assert.deepEqual(calls.map(([sql]) => sql), [
     "connect", "begin read only", `set local role ${VALIDATOR_ROLE}`,
@@ -338,7 +348,7 @@ test("validator activation and read failures roll back before any reviewed apply
     const promise = withReadOnlyValidatorClient(async (client) => {
       callbackEntered = true;
       await client.query("select * from public.offers");
-    }, { Client: FakeClient, env: { SIX_PACK_SYNC_VALIDATOR_DATABASE_URL: "postgres://validator.invalid/database" } });
+    }, { Client: FakeClient, env: { SIX_PACK_SYNC_VALIDATOR_DATABASE_URL: "postgres://validator.invalid/database" }, tlsOptions: TEST_TLS });
     await assert.rejects(promise);
     assert.ok(calls.includes("rollback"));
     assert.ok(!calls.includes("commit"));

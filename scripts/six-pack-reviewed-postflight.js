@@ -117,6 +117,7 @@ async function withReadOnlyValidatorClient(callback, dependencies = {}) {
     role: VALIDATOR_ROLE,
     expectedSessionUser: VALIDATOR_LOGIN,
     kind: "validator",
+    tlsOptions: dependencies.tlsOptions,
   }, callback);
   return session.result;
 }

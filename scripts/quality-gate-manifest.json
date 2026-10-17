@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 331,
-    "sha256": "b9f82547b45ccbe9f5ec63adb40d459524927bc02a554b8f45c14483924fc819"
+    "count": 333,
+    "sha256": "5871fff8279e947f20aabefc59fa6e953be3d7e26927da4ce6876d357dbfd6e8"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -32,6 +32,7 @@
     "scripts/ra004-staging-preflight.integration.test.js",
     "scripts/ra004-staging-retailer-fixture.integration.test.js",
     "scripts/retailer-control-state-interface.integration.test.js",
+    "scripts/retailer-identity-bootstrap.integration.test.js",
     "scripts/retailer-offer-expired-approval-close.integration.test.js",
     "scripts/retailer-offer-mixed-batch-migration.integration.test.js",
     "scripts/retailer-offer-read-only-validator.integration.test.js",
@@ -92,6 +93,7 @@
     "scripts/project-guardian.test.js",
     "scripts/protein-bars-page.test.js",
     "scripts/quality-gate.test.js",
+    "scripts/retailer-identity-bootstrap.test.js",
     "scripts/ra-stab-01-control-plan-readback.test.js",
     "scripts/ra-stab-central-readback-migration.test.js",
     "scripts/ra-stab-control-plan-acl-inventory.test.js",

@@ -357,13 +357,13 @@ test("staging records the optimized SEO-15 inventory migration as applied", () =
   const result = validateSelection(validInput());
   assert.equal(result.ledger_count, 103);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, ["20261017120000_add_retailer_identity_bootstrap.sql"]);
+  assert.equal(result.pending_file, "20261017120000_add_retailer_identity_bootstrap.sql");
+  assert.equal(result.pending_sha256, "12bbea1d4db0957001198c72f9ce368a114ebc27fbf14c2ad01aa9cfbf3c187d");
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
-  assert.equal(result.selected_files.length, 103);
+  assert.equal(result.selected_files.length, 104);
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes(RA004_FIXTURE_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_GUARD_MIGRATION));
@@ -464,7 +464,10 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
 
 test("production records the optimized SEO-15 inventory migration as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: "20261017120000_add_retailer_identity_bootstrap.sql",
+    sha256: "12bbea1d4db0957001198c72f9ce368a114ebc27fbf14c2ad01aa9cfbf3c187d",
+  }]);
   assert.deepEqual(contract.appliedExcluded, [
     "20260929133000_extend_expired_sequential_plan_close.sql",
     "20261004120000_add_central_control_plan_readback.sql",
@@ -573,7 +576,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 103);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 104);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -618,7 +621,7 @@ test("production records the GYM HIGH SEO-15 source release at ledger 237", () =
   });
   assert.equal(result.ledger_count, 237);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 237);
+  assert.equal(result.selected_files.length, 238);
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
   assert.ok(result.excluded_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
@@ -629,10 +632,12 @@ test("production records the GYM HIGH SEO-15 source release at ledger 237", () =
   assert.ok(result.selected_files.includes("20261006170000_add_automation_review_owner_decision_validation.sql"));
   assert.ok(result.selected_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
   assert.ok(result.excluded_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.deepEqual(result.pending_files, ["20261017120000_add_retailer_identity_bootstrap.sql"]);
+  assert.equal(result.pending_file, "20261017120000_add_retailer_identity_bootstrap.sql");
+  assert.equal(result.pending_sha256, "12bbea1d4db0957001198c72f9ce368a114ebc27fbf14c2ad01aa9cfbf3c187d");
+  assert.deepEqual(result.pending_sha256s, {
+    "20261017120000_add_retailer_identity_bootstrap.sql": "12bbea1d4db0957001198c72f9ce368a114ebc27fbf14c2ad01aa9cfbf3c187d",
+  });
   assert.ok(result.selected_files.includes(SEO15_GYM_HIGH_SOURCE_RELEASE_MIGRATION));
   assert.ok(result.selected_files.includes("20261009120000_add_compact_other_retailer_fingerprint.sql"));
   assert.ok(result.excluded_files.includes("20261009120000_add_compact_other_retailer_fingerprint.sql"));
@@ -747,7 +752,10 @@ test("runtime staging artifacts bind the same migration ledger as the staging se
 test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.equal(Object.keys(contract.excluded).length, 24);
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: "20261017120000_add_retailer_identity_bootstrap.sql",
+    sha256: "12bbea1d4db0957001198c72f9ce368a114ebc27fbf14c2ad01aa9cfbf3c187d",
+  }]);
   assert.equal(
     contract.excluded["20261009120000_add_compact_other_retailer_fingerprint.sql"],
     "b365d247777650aba6333399d4173ecb369d85a1465074bb6961c23b94f2ac84",
@@ -1373,10 +1381,12 @@ test("completed RA-004 fixture activation cannot select or materialize a migrati
 
 test("staging keeps all applied SEO-15 migrations closed", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending_file, "20261017120000_add_retailer_identity_bootstrap.sql");
+  assert.equal(result.pending_sha256, "12bbea1d4db0957001198c72f9ce368a114ebc27fbf14c2ad01aa9cfbf3c187d");
+  assert.deepEqual(result.pending_files, ["20261017120000_add_retailer_identity_bootstrap.sql"]);
+  assert.deepEqual(result.pending_sha256s, {
+    "20261017120000_add_retailer_identity_bootstrap.sql": "12bbea1d4db0957001198c72f9ce368a114ebc27fbf14c2ad01aa9cfbf3c187d",
+  });
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
 });

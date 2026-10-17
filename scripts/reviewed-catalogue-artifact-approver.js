@@ -2,6 +2,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { Client } = require("pg");
 const { loadReviewedPackage } = require("./lib/reviewed-catalogue-package");
+const { normalizeVerifiedConnectionString, postgresClientConfig } = require("./lib/secure-postgres");
 
 const ROOT = path.resolve(__dirname, "..");
 const CREDENTIAL_PATH = path.join(
@@ -45,8 +46,7 @@ function parseCredential(text) {
   invariant((url.hostname === `db.${PROJECT_REF}.supabase.co` && login === APPROVER_LOGIN) || (/^aws-[a-z0-9-]+\.pooler\.supabase\.com$/.test(url.hostname) && login === `${APPROVER_LOGIN}.${PROJECT_REF}` && url.port === "5432"), "Protected production approver endpoint/login required");
   invariant(url.pathname === "/postgres" && Boolean(url.password), "Protected approver database/password required");
   for (const key of url.searchParams.keys()) invariant(key === "sslmode", "Unexpected credential option");
-  url.searchParams.delete("sslmode");
-  return url.href;
+  return normalizeVerifiedConnectionString(url.href, "reviewed catalogue approver");
 }
 
 function verifyReceipt(receipt, prepared, now = Date.now()) {
@@ -101,7 +101,7 @@ async function runApproval(options) {
   const prepared = loadReviewedPackage({ root: ROOT, ...options });
   prepared.manifestSha256 = options.manifestSha256;
   const connectionString = parseCredential(fs.readFileSync(CREDENTIAL_PATH, "utf8"));
-  const client = new Client({ connectionString, ssl: { rejectUnauthorized: false }, application_name: "reviewed-catalogue-artifact-approver", options: "-c statement_timeout=120000" });
+  const client = new Client(postgresClientConfig({ connectionString, applicationName: "reviewed-catalogue-artifact-approver" }));
   return approveWithClient(prepared, client);
 }
 

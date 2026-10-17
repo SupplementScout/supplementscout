@@ -1,14 +1,12 @@
 const { Client } = require("pg");
+const { normalizeVerifiedConnectionString, postgresClientConfig } = require("../secure-postgres");
 
 function invariant(condition, message) {
   if (!condition) throw new Error(message);
 }
 
 function normalizeConnectionString(value, label) {
-  invariant(value, `Missing protected ${label} database credential`);
-  const parsed = new URL(value);
-  parsed.searchParams.delete("sslmode");
-  return parsed.href;
+  return normalizeVerifiedConnectionString(value, label);
 }
 
 function assertIdentifier(value, label) {
@@ -21,16 +19,13 @@ function assertSettingName(value) {
   return value;
 }
 
-async function openPostgresClient({ connectionString, applicationName, ClientClass = Client, defaultReadOnly = false }) {
-  const client = new ClientClass({
+async function openPostgresClient({ connectionString, applicationName, ClientClass = Client, defaultReadOnly = false, tlsOptions }) {
+  const client = new ClientClass(postgresClientConfig({
     connectionString,
-    ssl: { rejectUnauthorized: false },
-    application_name: applicationName,
-    connectionTimeoutMillis: 15000,
-    query_timeout: 120000,
-    keepAlive: true,
-    options: `${defaultReadOnly ? "-c default_transaction_read_only=on " : ""}-c statement_timeout=120000`,
-  });
+    applicationName,
+    defaultReadOnly,
+    tlsOptions,
+  }));
   await client.connect();
   return client;
 }
