@@ -463,12 +463,9 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the optimized SEO-15 inventory migration as applied", () => {
+test("production records the retailer identity bootstrap migration as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{
-    filename: "20261017120000_add_retailer_identity_bootstrap.sql",
-    sha256: "12bbea1d4db0957001198c72f9ce368a114ebc27fbf14c2ad01aa9cfbf3c187d",
-  }]);
+  assert.deepEqual(contract.pending, []);
   assert.deepEqual(contract.appliedExcluded, [
     "20260929133000_extend_expired_sequential_plan_close.sql",
     "20261004120000_add_central_control_plan_readback.sql",
@@ -478,10 +475,10 @@ test("production records the optimized SEO-15 inventory migration as applied", (
     "20261008200000_consolidate_shared_executor_state_reads.sql",
     "20261009120000_add_compact_other_retailer_fingerprint.sql",
   ]);
-  assert.equal(contract.ledgerCount, 237);
+  assert.equal(contract.ledgerCount, 238);
   assert.equal(
     contract.ledgerFingerprint,
-    "1272bbbbca81609d1278bc31dd9015710d0dffc2fa5c48fa8345bb5e63010747",
+    "b105cc3ff76e46702bde85f13cc4cb3ebe0dc294b1b5332a6a54f0c2d1f41fef",
   );
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_VARIANT_PROVENANCE_MIGRATION)), NUTRITION_VARIANT_PROVENANCE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, NUTRITION_PREWORKOUT_FACTS_MIGRATION)), NUTRITION_PREWORKOUT_FACTS_SHA256);
@@ -593,7 +590,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACT.ledgerFingerprint);
 });
 
-test("production records the GYM HIGH SEO-15 source release at ledger 237", () => {
+test("production records the retailer identity bootstrap at ledger 238", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   for (const filename of contract.appliedExcluded) excluded.delete(filename);
@@ -620,7 +617,7 @@ test("production records the GYM HIGH SEO-15 source release at ledger 237", () =
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 237);
+  assert.equal(result.ledger_count, 238);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 238);
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
@@ -633,12 +630,10 @@ test("production records the GYM HIGH SEO-15 source release at ledger 237", () =
   assert.ok(result.selected_files.includes("20261006170000_add_automation_review_owner_decision_validation.sql"));
   assert.ok(result.selected_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
   assert.ok(result.excluded_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
-  assert.deepEqual(result.pending_files, ["20261017120000_add_retailer_identity_bootstrap.sql"]);
-  assert.equal(result.pending_file, "20261017120000_add_retailer_identity_bootstrap.sql");
-  assert.equal(result.pending_sha256, "12bbea1d4db0957001198c72f9ce368a114ebc27fbf14c2ad01aa9cfbf3c187d");
-  assert.deepEqual(result.pending_sha256s, {
-    "20261017120000_add_retailer_identity_bootstrap.sql": "12bbea1d4db0957001198c72f9ce368a114ebc27fbf14c2ad01aa9cfbf3c187d",
-  });
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(SEO15_GYM_HIGH_SOURCE_RELEASE_MIGRATION));
   assert.ok(result.selected_files.includes("20261009120000_add_compact_other_retailer_fingerprint.sql"));
   assert.ok(result.excluded_files.includes("20261009120000_add_compact_other_retailer_fingerprint.sql"));
@@ -753,10 +748,7 @@ test("runtime staging artifacts bind the same migration ledger as the staging se
 test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.equal(Object.keys(contract.excluded).length, 24);
-  assert.deepEqual(contract.pending, [{
-    filename: "20261017120000_add_retailer_identity_bootstrap.sql",
-    sha256: "12bbea1d4db0957001198c72f9ce368a114ebc27fbf14c2ad01aa9cfbf3c187d",
-  }]);
+  assert.deepEqual(contract.pending, []);
   assert.equal(
     contract.excluded["20261009120000_add_compact_other_retailer_fingerprint.sql"],
     "b365d247777650aba6333399d4173ecb369d85a1465074bb6961c23b94f2ac84",
