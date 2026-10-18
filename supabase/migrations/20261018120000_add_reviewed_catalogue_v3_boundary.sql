@@ -3,11 +3,17 @@ begin;
 set local lock_timeout = '5s';
 set local statement_timeout = '60s';
 
+select pg_advisory_xact_lock(hashtextextended('reviewed-catalogue-v3-schema',0));
+
 do $preflight$
+declare
+  v_validator oid;
+  v_validator_sha256 text;
+  v_target jsonb;
+  v_expected_validator_role text;
+  v_validator_acl_count integer;
 begin
-  if to_regprocedure('public.atomic_import_reviewed_catalogue_plan_allowed(jsonb)') is null
-     or to_regprocedure('public.validate_reviewed_catalogue_import_plan(jsonb)') is null
-     or to_regprocedure('public.validate_product_import_plan_read_only(jsonb)') is null
+  if to_regprocedure('public.validate_product_import_plan_read_only(jsonb)') is null
      or to_regprocedure('public.apply_approved_product_import_plan(uuid,text,text,text,bigint,text,text)') is null
      or to_regprocedure('public.retailer_catalogue_actual_database_target()') is null
      or to_regprocedure('public.atomic_import_canonical_json(jsonb)') is null
@@ -16,13 +22,63 @@ begin
      or to_regprocedure('public.atomic_import_normalized_identity(text)') is null then
     raise exception 'reviewed catalogue V3 prerequisites are missing';
   end if;
-  if to_regprocedure('public.atomic_import_validate_reviewed_catalogue_before_v3(jsonb)') is not null
+  if to_regprocedure('public.atomic_import_validate_product_before_reviewed_v3(jsonb)') is not null
      or to_regprocedure('public.validate_reviewed_catalogue_v3_plan_read_only(jsonb,jsonb)') is not null
      or exists(select 1 from information_schema.columns where table_schema='public' and table_name='approved_import_plans' and column_name='authorization_envelope') then
     raise exception 'reviewed catalogue V3 boundary already exists';
   end if;
+
+  v_validator:='public.validate_product_import_plan_read_only(jsonb)'::regprocedure;
+  select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(v_validator),'UTF8')),'hex')
+    into v_validator_sha256;
+  if v_validator_sha256 not in (
+    '70f134e6f7d3afa25de52353ff5e8aca3cc0f7c34a58d9da3577ead4ac11f4a9',
+    'b9d99d9245ff2ea493fa9ed4d160f0e9ff4c450764cb40a5a23325d0ca069583'
+  ) then
+    raise exception 'reviewed catalogue V3 unsupported validator lineage: %',v_validator_sha256;
+  end if;
+
+  v_target:=public.retailer_catalogue_actual_database_target();
+  v_expected_validator_role:=case v_target->>'target_environment'
+    when 'STAGING' then 'retailer_catalogue_staging_validator'
+    when 'PRODUCTION' then 'retailer_catalogue_production_validator' end;
+  if v_expected_validator_role is null then
+    raise exception 'reviewed catalogue V3 unsupported database target';
+  end if;
+  select coalesce(array_length(p.proacl,1),0) into v_validator_acl_count
+    from pg_proc p where p.oid=v_validator;
+  if not exists(
+       select 1 from pg_proc p
+       where p.oid=v_validator and p.proowner='postgres'::regrole and p.provolatile='s' and p.prosecdef
+         and p.proconfig=array['search_path=pg_catalog, public, pg_temp']::text[]
+     )
+     or v_validator_acl_count<>2
+     or not has_function_privilege(v_expected_validator_role,v_validator,'execute')
+     or exists(
+       select 1 from pg_proc p cross join lateral aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) acl
+       where p.oid=v_validator and acl.grantee=0 and acl.privilege_type='EXECUTE'
+     )
+     or has_function_privilege('anon',v_validator,'execute')
+     or has_function_privilege('authenticated',v_validator,'execute')
+     or has_function_privilege('service_role',v_validator,'execute') then
+    raise exception 'reviewed catalogue V3 validator ownership or ACL baseline differs';
+  end if;
 end
 $preflight$;
+
+do $execution_result$
+begin
+  if not exists(
+    select 1 from information_schema.columns
+    where table_schema='public' and table_name='approved_import_plans' and column_name='execution_result'
+  ) then
+    alter table public.approved_import_plans add column execution_result jsonb;
+    alter table public.approved_import_plans
+      add constraint approved_import_plans_v3_created_execution_result_check
+      check (execution_result is null or jsonb_typeof(execution_result)='object');
+  end if;
+end
+$execution_result$;
 
 alter table public.approved_import_plans
   add column authorization_envelope jsonb;
@@ -436,43 +492,45 @@ as $allowed$
     select 1 from public.approved_import_plans a
     where a.id::text=nullif(current_setting('app.reviewed_catalogue_v3_approval_id',true),'')
       and a.status='approved' and a.consumed_at is null and a.expires_at>now()
-      and a.source ~ '^reviewed-catalogue-package-v3:[A-Za-z0-9._-]+:[0-9a-f]{64}:(STAGING|PRODUCTION):[a-z0-9]{20}$'
-      and a.plan_json=p_plan and a.authorization_envelope->>'kind'='reviewed-catalogue-authorization-v3'
+      and jsonb_typeof(a.authorization_envelope)='object'
+      and a.authorization_envelope->>'kind'='reviewed-catalogue-authorization-v3'
+      and a.source='reviewed-catalogue-package-v3:'||(a.authorization_envelope->>'profile_id')||':'||
+        (a.authorization_envelope->>'manifest_sha256')||':'||(a.authorization_envelope->>'target_environment')||':'||
+        (a.authorization_envelope->>'target_project_ref')
+      and a.plan_json=p_plan
+      and a.artifact_sha256=a.authorization_envelope->>'artifact_sha256'
+      and a.run_id=a.authorization_envelope->>'run_id'
+      and a.plan_fingerprint=a.authorization_envelope->>'plan_fingerprint'
+      and a.source_row_fingerprint=a.authorization_envelope->>'source_row_fingerprint'
+      and a.plan_kind='feed'
+      and a.retailer_id=nullif(a.authorization_envelope#>>'{retailer,id}','')::bigint
+      and a.plan_fingerprint=p_plan#>>'{meta,plan_fingerprint}'
+      and a.source_row_fingerprint=p_plan#>>'{meta,source_row_fingerprint}'
+      and a.retailer_id=nullif(p_plan#>>'{retailer,id}','')::bigint
+      and a.authorization_envelope->>'target_environment'=public.retailer_catalogue_actual_database_target()->>'target_environment'
+      and a.authorization_envelope->>'target_project_ref'=public.retailer_catalogue_actual_database_target()->>'project_ref'
       and current_setting('role',true)=case a.authorization_envelope->>'target_environment'
         when 'STAGING' then 'retailer_catalogue_staging_executor'
         when 'PRODUCTION' then 'retailer_catalogue_production_executor' end
       and session_user=case a.authorization_envelope->>'target_environment'
         when 'STAGING' then 'supplementscout_staging_executor_login'
         when 'PRODUCTION' then 'supplementscout_production_executor_login' end
+      and current_setting(
+        case a.authorization_envelope->>'target_environment'
+          when 'STAGING' then 'app.retailer_catalogue_staging_marker'
+          when 'PRODUCTION' then 'app.retailer_catalogue_production_marker' end,
+        true
+      )='1'
+      and current_setting('app.retailer_catalogue_allow',true)='1'
+      and lower(coalesce(current_setting('app.safe_update',true),''))<>all(array['1','on','true'])
+      and current_setting('transaction_read_only')='off'
   )
 $allowed$;
 
-create or replace function public.atomic_import_reviewed_catalogue_plan_allowed(p_plan jsonb)
-returns boolean
-language sql
-stable
-security definer
-set search_path = pg_catalog, public, pg_temp
-as $allowed$
-  select exists (
-    select 1 from public.approved_import_plans a
-    where a.status = 'approved'
-      and a.consumed_at is null
-      and a.expires_at > now()
-      and a.source ~ '^reviewed-catalogue-package-v1:[A-Za-z0-9._-]+:[0-9a-f]{64}$'
-      and a.plan_json = p_plan
-      and a.plan_fingerprint = p_plan#>>'{meta,plan_fingerprint}'
-      and a.source_row_fingerprint = p_plan#>>'{meta,source_row_fingerprint}'
-      and a.plan_kind = p_plan#>>'{meta,plan_kind}'
-      and a.retailer_id = nullif(p_plan#>>'{retailer,id}','')::bigint
-      and md5(public.atomic_import_canonical_json(jsonb_set(p_plan,'{meta,plan_fingerprint}','null'::jsonb,false))) = a.plan_fingerprint
-  ) or public.atomic_import_reviewed_catalogue_v3_plan_allowed(p_plan)
-$allowed$;
+alter function public.validate_product_import_plan_read_only(jsonb)
+  rename to atomic_import_validate_product_before_reviewed_v3;
 
-alter function public.validate_reviewed_catalogue_import_plan(jsonb)
-  rename to atomic_import_validate_reviewed_catalogue_before_v3;
-
-create function public.validate_reviewed_catalogue_import_plan(p_plan jsonb)
+create function public.validate_product_import_plan_read_only(p_plan jsonb)
 returns jsonb
 language plpgsql
 stable
@@ -480,14 +538,14 @@ security definer
 set search_path = pg_catalog, public, pg_temp
 as $wrapper$
 declare
-  v_envelope jsonb;
+  v_approval public.approved_import_plans%rowtype;
 begin
   if public.atomic_import_reviewed_catalogue_v3_plan_allowed(p_plan) then
-    select authorization_envelope into v_envelope from public.approved_import_plans
+    select * into strict v_approval from public.approved_import_plans
       where id::text=current_setting('app.reviewed_catalogue_v3_approval_id',true);
-    return public.atomic_import_validate_reviewed_catalogue_v3_plan(p_plan,v_envelope);
+    return public.atomic_import_validate_reviewed_catalogue_v3_plan(p_plan,v_approval.authorization_envelope);
   end if;
-  return public.atomic_import_validate_reviewed_catalogue_before_v3(p_plan);
+  return public.atomic_import_validate_product_before_reviewed_v3(p_plan);
 end
 $wrapper$;
 
@@ -580,7 +638,8 @@ begin
   perform pg_advisory_xact_lock(hashtextextended('retailer-offer-sync:global-execution',0));
   select * into v_approval from public.approved_import_plans where id=p_approval_id for update;
   if not found then raise exception 'V3_APPROVAL_MISMATCH: approval not found'; end if;
-  if v_approval.source !~ '^reviewed-catalogue-package-v3:'
+  if v_approval.source is distinct from 'reviewed-catalogue-package-v3:'||(p_envelope->>'profile_id')||':'||
+       (p_envelope->>'manifest_sha256')||':'||(p_envelope->>'target_environment')||':'||(p_envelope->>'target_project_ref')
      or v_approval.plan_json is distinct from p_plan
      or v_approval.authorization_envelope is distinct from p_envelope
      or v_approval.artifact_sha256 is distinct from p_envelope->>'artifact_sha256'
@@ -618,9 +677,7 @@ alter function public.atomic_import_reviewed_v3_physical_role_allowed(jsonb,json
 alter function public.atomic_import_reviewed_v3_count_role_allowed(jsonb,jsonb) owner to postgres;
 alter function public.validate_reviewed_catalogue_v3_plan_read_only(jsonb,jsonb) owner to postgres;
 alter function public.atomic_import_reviewed_catalogue_v3_plan_allowed(jsonb) owner to postgres;
-alter function public.atomic_import_reviewed_catalogue_plan_allowed(jsonb) owner to postgres;
-alter function public.atomic_import_validate_reviewed_catalogue_before_v3(jsonb) owner to postgres;
-alter function public.validate_reviewed_catalogue_import_plan(jsonb) owner to postgres;
+alter function public.validate_product_import_plan_read_only(jsonb) owner to postgres;
 alter function public.approve_reviewed_catalogue_v3_plan(jsonb,jsonb,timestamptz) owner to postgres;
 alter function public.apply_approved_reviewed_catalogue_v3_plan(uuid,jsonb,jsonb) owner to postgres;
 
@@ -629,18 +686,37 @@ revoke all on function public.atomic_import_validate_reviewed_catalogue_v3_plan(
   public.atomic_import_reviewed_v3_count_role_allowed(jsonb,jsonb),
   public.validate_reviewed_catalogue_v3_plan_read_only(jsonb,jsonb),
   public.atomic_import_reviewed_catalogue_v3_plan_allowed(jsonb),
-  public.atomic_import_validate_reviewed_catalogue_before_v3(jsonb),
-  public.validate_reviewed_catalogue_import_plan(jsonb),
+  public.validate_product_import_plan_read_only(jsonb),
   public.approve_reviewed_catalogue_v3_plan(jsonb,jsonb,timestamptz),
   public.apply_approved_reviewed_catalogue_v3_plan(uuid,jsonb,jsonb)
   from public,anon,authenticated,service_role,
     retailer_catalogue_staging_validator,retailer_catalogue_staging_approver,retailer_catalogue_staging_executor,
     retailer_catalogue_production_validator,retailer_catalogue_production_approver,retailer_catalogue_production_executor;
-grant execute on function public.validate_reviewed_catalogue_v3_plan_read_only(jsonb,jsonb)
-  to retailer_catalogue_staging_validator,retailer_catalogue_production_validator;
-grant execute on function public.approve_reviewed_catalogue_v3_plan(jsonb,jsonb,timestamptz)
-  to retailer_catalogue_staging_approver,retailer_catalogue_production_approver;
-grant execute on function public.apply_approved_reviewed_catalogue_v3_plan(uuid,jsonb,jsonb)
-  to retailer_catalogue_staging_executor,retailer_catalogue_production_executor;
+
+do $acl$
+declare
+  v_environment text:=public.retailer_catalogue_actual_database_target()->>'target_environment';
+  v_validator text;
+  v_approver text;
+  v_executor text;
+begin
+  v_validator:=case v_environment
+    when 'STAGING' then 'retailer_catalogue_staging_validator'
+    when 'PRODUCTION' then 'retailer_catalogue_production_validator' end;
+  v_approver:=case v_environment
+    when 'STAGING' then 'retailer_catalogue_staging_approver'
+    when 'PRODUCTION' then 'retailer_catalogue_production_approver' end;
+  v_executor:=case v_environment
+    when 'STAGING' then 'retailer_catalogue_staging_executor'
+    when 'PRODUCTION' then 'retailer_catalogue_production_executor' end;
+  if v_validator is null or v_approver is null or v_executor is null then
+    raise exception 'reviewed catalogue V3 unsupported database target';
+  end if;
+  execute format('grant execute on function public.validate_product_import_plan_read_only(jsonb) to %I',v_validator);
+  execute format('grant execute on function public.validate_reviewed_catalogue_v3_plan_read_only(jsonb,jsonb) to %I',v_validator);
+  execute format('grant execute on function public.approve_reviewed_catalogue_v3_plan(jsonb,jsonb,timestamptz) to %I',v_approver);
+  execute format('grant execute on function public.apply_approved_reviewed_catalogue_v3_plan(uuid,jsonb,jsonb) to %I',v_executor);
+end
+$acl$;
 
 commit;

@@ -659,16 +659,26 @@ test("V3 database boundary is additive, role-separated and contains no retailer 
   assert.match(migration, /create function public\.validate_reviewed_catalogue_v3_plan_read_only\(p_plan jsonb,p_envelope jsonb\)/i);
   assert.match(migration, /create function public\.approve_reviewed_catalogue_v3_plan\([\s\S]+perform public\.atomic_import_validate_reviewed_catalogue_v3_plan\(p_plan,p_envelope\)/i);
   assert.match(migration, /create function public\.apply_approved_reviewed_catalogue_v3_plan\([\s\S]+public\.apply_approved_product_import_plan/i);
+  assert.match(migration, /70f134e6f7d3afa25de52353ff5e8aca3cc0f7c34a58d9da3577ead4ac11f4a9/);
+  assert.match(migration, /b9d99d9245ff2ea493fa9ed4d160f0e9ff4c450764cb40a5a23325d0ca069583/);
+  assert.match(migration, /rename to atomic_import_validate_product_before_reviewed_v3/i);
+  assert.match(migration, /create function public\.validate_product_import_plan_read_only\(p_plan jsonb\)[\s\S]+atomic_import_validate_product_before_reviewed_v3\(p_plan\)/i);
+  assert.match(migration, /app\.reviewed_catalogue_v3_approval_id[\s\S]+status='approved'[\s\S]+authorization_envelope[\s\S]+session_user[\s\S]+app\.retailer_catalogue_allow[\s\S]+transaction_read_only/i);
+  assert.match(migration, /if not exists\([\s\S]+column_name='execution_result'[\s\S]+add column execution_result jsonb/i);
   assert.match(migration, /grant execute on function public\.validate_reviewed_catalogue_v3_plan_read_only[\s\S]+validator/i);
   assert.match(migration, /grant execute on function public\.approve_reviewed_catalogue_v3_plan[\s\S]+approver/i);
   assert.match(migration, /grant execute on function public\.apply_approved_reviewed_catalogue_v3_plan[\s\S]+executor/i);
   assert.doesNotMatch(migration, /grant\s+(?:select|insert|update|delete)\s+on/i);
   assert.doesNotMatch(migration, /grant execute[\s\S]{0,180}\b(?:service_role|anon|authenticated)\b/i);
   assert.doesNotMatch(migration, /gladiator/i);
+  assert.doesNotMatch(migration, /create or replace function public\.atomic_import_reviewed_catalogue_plan_allowed/i);
+  assert.doesNotMatch(migration, /rename to atomic_import_validate_reviewed_catalogue_before_v3/i);
   assert.doesNotMatch(validator, /\b(?:insert\s+into|update|delete\s+from)\s+public\./i);
   assert.doesNotMatch(validator, /execute\s+format|\bexecute\s+['"]/i);
   assert.match(rollback, /rollback blocked by durable approval evidence/i);
-  assert.match(rollback, /rename to validate_reviewed_catalogue_import_plan/i);
+  assert.match(rollback, /rename to validate_product_import_plan_read_only/i);
+  assert.match(rollback, /approved_import_plans_v3_created_execution_result_check[\s\S]+execution_result is not null[\s\S]+drop column execution_result/i);
+  assert.doesNotMatch(rollback, /create or replace function public\.atomic_import_reviewed_catalogue_plan_allowed/i);
   assert.doesNotMatch(rollback, /\b(?:insert\s+into|update|delete\s+from)\s+public\.(?:retailers|products|product_variants|retailer_products|offers|price_history)\b/i);
 });
 
