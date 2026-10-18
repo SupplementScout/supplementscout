@@ -203,8 +203,8 @@ begin
      or p_plan#>>'{retailer,action}'<>'existing' then
     raise exception 'V3_RETAILER_MISMATCH: exact existing retailer identity required';
   end if;
-  if p_envelope->>'direct_source_url' not like regexp_replace(v_retailer.website,'/$','')||'/products/%'
-     or p_envelope->>'direct_source_url' !~ ('[?&]variant='||p_envelope->>'external_variant_id'||'(&|$)') then
+  if (p_envelope->>'direct_source_url') not like regexp_replace(v_retailer.website,'/$','')||'/products/%'
+     or (p_envelope->>'direct_source_url') !~ ('[?&]variant='||(p_envelope->>'external_variant_id')||'(&|$)') then
     raise exception 'V3_SOURCE_URL_MISMATCH: strict Shopify variant URL required';
   end if;
 
@@ -528,8 +528,8 @@ begin
       and source ~ '^reviewed-catalogue-package-v3:' and plan_fingerprint=p_envelope->>'plan_fingerprint') then
     raise exception 'V3_APPROVAL_MISMATCH: a live approval already exists for this plan';
   end if;
-  v_source:='reviewed-catalogue-package-v3:'||p_envelope->>'profile_id'||':'||p_envelope->>'manifest_sha256'||':'||
-    p_envelope->>'target_environment'||':'||p_envelope->>'target_project_ref';
+  v_source:='reviewed-catalogue-package-v3:'||(p_envelope->>'profile_id')||':'||(p_envelope->>'manifest_sha256')||':'||
+    (p_envelope->>'target_environment')||':'||(p_envelope->>'target_project_ref');
   insert into public.approved_import_plans(
     artifact_sha256,run_id,plan_fingerprint,source_row_fingerprint,plan_kind,retailer_id,
     expires_at,source,plan_json,authorization_envelope

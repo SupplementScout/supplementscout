@@ -220,7 +220,7 @@ const APPLIED_EXCLUSIONS = Object.freeze({
 const PENDING_MIGRATIONS = Object.freeze({
   STAGING: Object.freeze([Object.freeze({
     filename: "20261018120000_add_reviewed_catalogue_v3_boundary.sql",
-    sha256: "df1e61bef37729804650a3a902f2b500b6e2dc041a3f82aefee018a5ed2c3b0a",
+    sha256: "832dccaa31f76b25181f6ed7fb93acdb51208724695e2fb75ae739ecc953bc20",
   })]),
   PRODUCTION: Object.freeze([
     Object.freeze({
@@ -229,7 +229,7 @@ const PENDING_MIGRATIONS = Object.freeze({
     }),
     Object.freeze({
       filename: "20261018120000_add_reviewed_catalogue_v3_boundary.sql",
-      sha256: "df1e61bef37729804650a3a902f2b500b6e2dc041a3f82aefee018a5ed2c3b0a",
+      sha256: "832dccaa31f76b25181f6ed7fb93acdb51208724695e2fb75ae739ecc953bc20",
     }),
   ]),
 });
