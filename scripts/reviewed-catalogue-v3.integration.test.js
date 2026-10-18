@@ -116,8 +116,12 @@ test("reviewed catalogue V3 has a separate validated approval boundary and reuse
     const plan = planFixture();
     plan.meta.plan_fingerprint = succeed(sql(container, `select md5(public.atomic_import_canonical_json(jsonb_set(${literal(plan)},'{meta,plan_fingerprint}','null'::jsonb,false)))`, true), "compute plan fingerprint").stdout.trim();
     const envelope = envelopeFixture(plan);
-    const legacy = { legacy: true };
-    succeed(sql(container, `insert into approved_import_plans(artifact_sha256,run_id,plan_fingerprint,source_row_fingerprint,plan_kind,retailer_id,expires_at,source,plan_json) values('${"4".repeat(64)}','legacy','legacy','${"5".repeat(64)}','feed',12,now()+interval '1 hour','reviewed-catalogue-package-v1:legacy:${"6".repeat(64)}',${literal(legacy)})`), "seed V1 compatibility row");
+    const legacy = structuredClone(plan);
+    legacy.meta.source_row_fingerprint = "5".repeat(64);
+    legacy.meta.idempotency_key = "legacy-test";
+    legacy.meta.plan_fingerprint = null;
+    legacy.meta.plan_fingerprint = succeed(sql(container, `select md5(public.atomic_import_canonical_json(jsonb_set(${literal(legacy)},'{meta,plan_fingerprint}','null'::jsonb,false)))`, true), "compute legacy plan fingerprint").stdout.trim();
+    succeed(sql(container, `insert into approved_import_plans(artifact_sha256,run_id,plan_fingerprint,source_row_fingerprint,plan_kind,retailer_id,expires_at,source,plan_json) values('${"4".repeat(64)}','legacy','${legacy.meta.plan_fingerprint}','${legacy.meta.source_row_fingerprint}','feed',12,now()+interval '1 hour','reviewed-catalogue-package-v1:legacy:${"6".repeat(64)}',${literal(legacy)})`), "seed V1 compatibility row");
     assert.equal(succeed(sql(container, `select public.atomic_import_reviewed_catalogue_plan_allowed(${literal(legacy)})`, true), "legacy pre-migration allow").stdout.trim(), "t");
     succeed(file(container, MIGRATION), "apply V3 migration");
     assert.equal(succeed(sql(container, `select public.atomic_import_reviewed_catalogue_plan_allowed(${literal(legacy)})`, true), "legacy post-migration allow").stdout.trim(), "t");
