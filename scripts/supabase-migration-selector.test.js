@@ -309,6 +309,7 @@ function withoutCurrentSeo15Migrations(rows) {
     SEO15_AUTOMATIC_CANDIDATES_MIGRATION,
     SEO15_INVENTORY_OPTIMIZATION_MIGRATION,
     "20261017120000_add_retailer_identity_bootstrap.sql",
+    REVIEWED_STATE_MIGRATION,
   ].includes(`${version}_${name}.sql`));
 }
 
@@ -356,13 +357,13 @@ test.after(() => {
   }
 });
 
-test("staging records the retailer identity bootstrap as applied and selects only the reviewed state migration", () => {
+test("staging records the bounded reviewed state migration as applied", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 104);
+  assert.equal(result.ledger_count, 105);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending_files, [REVIEWED_STATE_MIGRATION]);
-  assert.equal(result.pending_file, REVIEWED_STATE_MIGRATION);
-  assert.equal(result.pending_sha256, REVIEWED_STATE_SHA256);
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
@@ -919,16 +920,17 @@ test("owner-authorized ACL/RLS activation selects exactly one migration from led
   ]), /staging-only/);
 });
 
-test("staging contract records the retailer identity bootstrap at ledger 104", () => {
+test("staging contract records bounded reviewed state at ledger 105", () => {
   const filename = "20260928100000_diagnose_ra004_preflight_acl_rls.sql";
-  assert.equal(CONTRACT.ledgerCount, 104);
+  assert.equal(CONTRACT.ledgerCount, 105);
   assert.equal(CONTRACT.ledgerFingerprint,
-    "51e0e00937fe4c4673b470c31bcea5ae28807d6789cbc5e1dda0d55e32778029");
+    "ad386b4dcbaf0ec0def34ec175dcd8f5e30d93a01c4394aa5d436a4d5beaf4ce");
   assert.ok(CONTRACT.appliedExcluded.includes(filename));
   assert.ok(CONTRACT.appliedExcluded.includes(RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION));
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === filename));
   assert.ok(CONTRACT.appliedExcluded.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
-  assert.equal(currentRemoteLedger().length, 104);
+  assert.ok(!CONTRACT.pending.some((entry) => entry.filename === REVIEWED_STATE_MIGRATION));
+  assert.equal(currentRemoteLedger().length, 105);
   assert.equal(ledgerRowsFingerprint(currentRemoteLedger(), { targetEnvironment: "STAGING" }),
     CONTRACT.ledgerFingerprint);
 });
@@ -1374,12 +1376,12 @@ test("completed RA-004 fixture activation cannot select or materialize a migrati
   })), /status mismatch/);
 });
 
-test("staging keeps applied SEO-15 migrations closed while selecting only reviewed state", () => {
+test("staging keeps applied SEO-15 and reviewed state migrations closed", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, REVIEWED_STATE_MIGRATION);
-  assert.equal(result.pending_sha256, REVIEWED_STATE_SHA256);
-  assert.deepEqual(result.pending_files, [REVIEWED_STATE_MIGRATION]);
-  assert.deepEqual(result.pending_sha256s, { [REVIEWED_STATE_MIGRATION]: REVIEWED_STATE_SHA256 });
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
 });
