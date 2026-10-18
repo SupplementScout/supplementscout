@@ -3,6 +3,10 @@ const path = require("node:path");
 const { Client } = require("pg");
 const { loadReviewedPackage } = require("./lib/reviewed-catalogue-package");
 const {
+  CONTRACT_KIND: REVIEWED_V3_KIND,
+  buildV3Envelope,
+} = require("./lib/reviewed-catalogue-v3");
+const {
   TARGETS,
   assertManifestTarget,
   clientConfig,
@@ -13,6 +17,7 @@ const {
 
 const ROOT = path.resolve(__dirname, "..");
 const APPROVAL_SQL = "select public.approve_reviewed_catalogue_import_plan($1::jsonb,$2,$3,$4,$5,now()+interval '15 minutes') result";
+const V3_APPROVAL_SQL = "select public.approve_reviewed_catalogue_v3_plan($1::jsonb,$2::jsonb,now()+interval '15 minutes') result";
 
 function invariant(condition, message) {
   if (!condition) throw new Error(message);
@@ -50,6 +55,15 @@ function verifyReceipt(receipt, prepared, now = Date.now()) {
     plan_kind: "feed",
   };
   for (const [key, value] of Object.entries(expected)) invariant(String(receipt[key]) === value, `Approval receipt ${key} mismatch`);
+  if (prepared.manifest.kind === REVIEWED_V3_KIND) {
+    const v3Expected = {
+      contract_kind: REVIEWED_V3_KIND,
+      manifest_sha256: prepared.manifestSha256,
+      target_environment: prepared.manifest.target_environment,
+      target_project_ref: prepared.manifest.target_project_ref,
+    };
+    for (const [key, value] of Object.entries(v3Expected)) invariant(String(receipt[key]) === value, `Approval receipt ${key} mismatch`);
+  }
   const expiry = Date.parse(receipt.expires_at);
   invariant(expiry > now && expiry <= now + 16 * 60_000, "Invalid approval expiry");
 }
@@ -58,7 +72,14 @@ async function approveWithClient(prepared, client, target) {
   try {
     await client.connect();
     return await roleTransaction(client, target, "approver", async connection => {
-      const response = await connection.query(APPROVAL_SQL, [prepared.entry.resolved_plan, prepared.profile.artifact_sha256, prepared.artifact.run_id, prepared.manifestSha256, prepared.profile.id]);
+      const isV3 = prepared.manifest.kind === REVIEWED_V3_KIND;
+      const envelope = isV3 ? buildV3Envelope(prepared) : null;
+      const response = await connection.query(
+        isV3 ? V3_APPROVAL_SQL : APPROVAL_SQL,
+        isV3
+          ? [prepared.entry.resolved_plan, envelope]
+          : [prepared.entry.resolved_plan, prepared.profile.artifact_sha256, prepared.artifact.run_id, prepared.manifestSha256, prepared.profile.id],
+      );
       const receipt = response.rows[0]?.result;
       verifyReceipt(receipt, prepared);
       return {
@@ -92,4 +113,4 @@ if (require.main === module) {
     .catch(() => { console.error("Reviewed catalogue approval failed; credentials and database diagnostics suppressed."); process.exitCode = 1; });
 }
 
-module.exports = { APPROVAL_SQL, TARGETS, approveWithClient, parseArgs, parseCredential, runApproval, targetContract, verifyReceipt };
+module.exports = { APPROVAL_SQL, V3_APPROVAL_SQL, TARGETS, approveWithClient, parseArgs, parseCredential, runApproval, targetContract, verifyReceipt };

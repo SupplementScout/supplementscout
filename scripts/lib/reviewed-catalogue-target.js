@@ -81,7 +81,10 @@ function assertManifestTarget(manifest, target) {
     invariant(target === "production", "Reviewed catalogue package v1 remains production-only");
     return contract;
   }
-  invariant(manifest.kind === "reviewed-catalogue-package-v2", "Unsupported reviewed catalogue package kind");
+  invariant(
+    ["reviewed-catalogue-package-v2", "reviewed-catalogue-package-v3"].includes(manifest.kind),
+    "Unsupported reviewed catalogue package kind",
+  );
   invariant(manifest.target_environment === contract.environment, "Reviewed manifest target environment mismatch");
   invariant(manifest.target_project_ref === contract.projectRef, "Reviewed manifest target project mismatch");
   return contract;

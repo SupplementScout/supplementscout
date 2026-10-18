@@ -4,6 +4,11 @@ const path = require("node:path");
 const { parse } = require("csv-parse/sync");
 const { canonicalJson, normalizeNumbersToDecimalStrings } = require("./canonical-json");
 const { TARGETS } = require("./reviewed-catalogue-target");
+const {
+  CONTRACT_KIND: REVIEWED_V3_KIND,
+  assertV3ActionSemantics,
+  strictShopifyUrl,
+} = require("./reviewed-catalogue-v3");
 
 const HEX32 = /^[0-9a-f]{32}$/;
 const HEX64 = /^[0-9a-f]{64}$/;
@@ -17,6 +22,8 @@ const REVIEWED_ROW_KEYS = ["review_row", "external_product_id", "external_varian
 const REVIEWED_COUNT_ROW_KEYS = [...REVIEWED_ROW_KEYS, "unit_count", "unit_type"];
 const REVIEWED_V2_ROW_KEYS = REVIEWED_ROW_KEYS.filter(key => key !== "source_url").concat("external_url", "affiliate_url");
 const REVIEWED_V2_COUNT_ROW_KEYS = [...REVIEWED_V2_ROW_KEYS, "unit_count", "unit_type"];
+const REVIEWED_V3_ROW_KEYS = [...REVIEWED_V2_ROW_KEYS, "external_options", "option_roles", "source_structure"];
+const REVIEWED_V3_COUNT_ROW_KEYS = [...REVIEWED_V3_ROW_KEYS, "unit_count", "unit_type"];
 const TARGET_PROJECTS = Object.freeze(Object.fromEntries(Object.values(TARGETS).map(target => [target.environment, target.projectRef])));
 
 function fail(message) {
@@ -61,11 +68,15 @@ function decimal(value, label) {
 
 function validateManifest(manifest, profileId) {
   const isV2 = manifest?.schema_version === 2 && manifest?.kind === "reviewed-catalogue-package-v2";
-  exactKeys(manifest, isV2
-    ? ["schema_version", "kind", "status", "authorized_by", "authorized_at", "target_environment", "target_project_ref", "retailer", "policy", "profiles"]
+  const isV3 = manifest?.schema_version === 3 && manifest?.kind === REVIEWED_V3_KIND;
+  exactKeys(manifest, isV3
+    ? ["schema_version", "kind", "source_platform", "status", "authorized_by", "authorized_at", "target_environment", "target_project_ref", "retailer", "policy", "profiles"]
+    : isV2
+      ? ["schema_version", "kind", "status", "authorized_by", "authorized_at", "target_environment", "target_project_ref", "retailer", "policy", "profiles"]
     : ["schema_version", "kind", "status", "authorized_by", "authorized_at", "retailer", "policy", "profiles"], "reviewed manifest");
-  invariant(isV2 || manifest.schema_version === 1 && manifest.kind === "reviewed-catalogue-package-v1", "Reviewed manifest identity mismatch");
-  if (isV2) {
+  invariant(isV3 || isV2 || manifest.schema_version === 1 && manifest.kind === "reviewed-catalogue-package-v1", "Reviewed manifest identity mismatch");
+  if (isV3) invariant(manifest.source_platform === "shopify", "Reviewed V3 source platform invalid");
+  if (isV2 || isV3) {
     invariant(Object.hasOwn(TARGET_PROJECTS, manifest.target_environment), "Reviewed manifest target environment invalid");
     invariant(manifest.target_project_ref === TARGET_PROJECTS[manifest.target_environment], "Reviewed manifest target project mismatch");
   }
@@ -99,8 +110,8 @@ function validateManifest(manifest, profileId) {
   for (const row of profile.rows) {
     const hasCountIdentity = Object.hasOwn(row, "unit_count") || Object.hasOwn(row, "unit_type");
     exactKeys(row, hasCountIdentity
-      ? (isV2 ? REVIEWED_V2_COUNT_ROW_KEYS : REVIEWED_COUNT_ROW_KEYS)
-      : (isV2 ? REVIEWED_V2_ROW_KEYS : REVIEWED_ROW_KEYS), "reviewed row");
+      ? (isV3 ? REVIEWED_V3_COUNT_ROW_KEYS : isV2 ? REVIEWED_V2_COUNT_ROW_KEYS : REVIEWED_COUNT_ROW_KEYS)
+      : (isV3 ? REVIEWED_V3_ROW_KEYS : isV2 ? REVIEWED_V2_ROW_KEYS : REVIEWED_ROW_KEYS), "reviewed row");
     invariant(Number.isSafeInteger(row.review_row) && row.review_row > 0, "Reviewed row number invalid");
     invariant(typeof row.external_product_id === "string" && row.external_product_id && typeof row.external_variant_id === "string" && row.external_variant_id, "Reviewed source identity missing");
     invariant(REVIEWED_ACTIONS.has(row.action), "Reviewed action invalid");
@@ -114,13 +125,17 @@ function validateManifest(manifest, profileId) {
         invariant(row.size_value === null && row.size_unit === null, "Reviewed count identity cannot also be a size identity");
       }
     }
-    if (isV2) {
+    if (isV2 || isV3) {
       invariant(/^https:\/\//.test(row.external_url) && /^https:\/\//.test(row.affiliate_url), "Reviewed V2 URLs invalid");
       const retailerHost = new URL(manifest.retailer.website).hostname.replace(/^www\./, "");
       const directHost = new URL(row.external_url).hostname.replace(/^www\./, "");
       invariant(directHost === retailerHost, "Reviewed direct URL host mismatch");
     } else {
       invariant(/^https:\/\//.test(row.source_url), "Reviewed source URL invalid");
+    }
+    if (isV3) {
+      invariant(strictShopifyUrl(row.external_url, manifest.retailer.website, row.external_variant_id), "Reviewed V3 direct Shopify URL identity mismatch");
+      assertV3ActionSemantics(row);
     }
     invariant(!sourceIds.has(row.external_variant_id) && !fingerprints.has(row.plan_fingerprint), "Reviewed row identity is duplicated");
     sourceIds.add(row.external_variant_id);
@@ -152,11 +167,15 @@ function validatePlan(entry, reviewed, retailer, manifestKind = "reviewed-catalo
   invariant(String(mapping.external_product_id) === reviewed.external_product_id && String(mapping.external_variant_id) === reviewed.external_variant_id, "Reviewed source identity mismatch");
   invariant((mapping.external_sku ?? null) === reviewed.external_sku && (mapping.external_gtin ?? null) === reviewed.external_gtin, "Reviewed SKU/GTIN mismatch");
   invariant(mapping.external_gtin == null || mapping.external_gtin !== mapping.external_sku, "Reviewed SKU cannot be promoted to GTIN");
-  if (manifestKind === "reviewed-catalogue-package-v2") {
+  if (["reviewed-catalogue-package-v2", REVIEWED_V3_KIND].includes(manifestKind)) {
     invariant(mapping.external_url === reviewed.external_url, "Reviewed direct URL mismatch");
     invariant(offer.url === reviewed.affiliate_url, "Reviewed affiliate URL mismatch");
   } else {
     invariant(mapping.external_url === reviewed.source_url && offer.url === reviewed.source_url, "Reviewed source URL mismatch");
+  }
+  if (manifestKind === REVIEWED_V3_KIND) {
+    invariant(canonicalJson(mapping.external_options || {}) === canonicalJson(reviewed.external_options), "Reviewed V3 raw external options mismatch");
+    assertV3ActionSemantics(reviewed);
   }
   invariant(String(plan.product.id ?? "") === String(reviewed.product_id ?? ""), "Reviewed product binding mismatch");
   invariant(String(plan.product_variant.id ?? "") === String(reviewed.product_variant_id ?? ""), "Reviewed variant binding mismatch");
@@ -241,7 +260,13 @@ function loadReviewedSourceProfile(options, sourceBytes, readFile = fs.readFileS
   const manifest = JSON.parse(manifestBytes);
   const profile = validateManifest(manifest, options.profileId);
   invariant(sha256(sourceBytes) === profile.csv_sha256, "Reviewed CSV SHA-256 mismatch");
-  return { manifest, profile, manifestPath };
+  if (manifest.kind !== REVIEWED_V3_KIND) return { manifest, profile, manifestPath };
+  const artifactPath = withinRoot(root, profile.artifact_path, "tmp/retailer-feeds/");
+  const artifactBytes = readFile(artifactPath);
+  invariant(sha256(artifactBytes) === profile.artifact_sha256, "Reviewed artifact SHA-256 mismatch");
+  const artifact = normalizeNumbersToDecimalStrings(JSON.parse(artifactBytes));
+  invariant(typeof artifact.run_id === "string" && artifact.run_id, "Reviewed V3 artifact run ID missing");
+  return { manifest, profile, manifestPath, artifactPath, artifact };
 }
 
 module.exports = { actionCounts, loadReviewedPackage, loadReviewedPackageScope, loadReviewedSourceProfile, normalizedManifestSha, planFingerprint, sha256, validateManifest, validatePlan };

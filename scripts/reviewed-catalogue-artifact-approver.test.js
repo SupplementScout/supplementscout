@@ -5,9 +5,10 @@ const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
 const { loadReviewedPackage, loadReviewedPackageScope, normalizedManifestSha, planFingerprint, sha256, validateManifest } = require("./lib/reviewed-catalogue-package");
-const { APPROVAL_SQL, approveWithClient, parseArgs, parseCredential } = require("./reviewed-catalogue-artifact-approver");
+const { buildV3Envelope, isV3SourceExcluded, resolveOptionRoles } = require("./lib/reviewed-catalogue-v3");
+const { APPROVAL_SQL, V3_APPROVAL_SQL, approveWithClient, parseArgs, parseCredential } = require("./reviewed-catalogue-artifact-approver");
 const { TARGETS, assertManifestTarget, assertSafeUpdateDisabled, credentialPath, roleTransaction: targetRoleTransaction, targetContract } = require("./lib/reviewed-catalogue-target");
-const { buildExecutionStateRequest, createStateClient, readState, validatePlans } = require("./lib/reviewed-catalogue-state");
+const { buildExecutionStateRequest, createStateClient, readState, validatePlans, V2_VALIDATION_SQL, V3_VALIDATION_SQL } = require("./lib/reviewed-catalogue-state");
 const {
   APPLY_SQL: PACKAGE_APPLY_SQL,
   APPROVAL_SQL: PACKAGE_APPROVAL_SQL,
@@ -78,6 +79,32 @@ function v2Fixture({ target = "staging", directUrl = "https://shop.example/produ
   row.source_row_fingerprint = sourceRowFingerprint;
   value.plan.retailer_product.values.external_url = directUrl;
   value.plan.offer.values.url = affiliateUrl;
+  value.plan.meta.source_row_fingerprint = sourceRowFingerprint;
+  value.plan.meta.plan_fingerprint = planFingerprint(value.plan);
+  row.plan_fingerprint = value.plan.meta.plan_fingerprint;
+  value.artifact.plans[0].source_row_fingerprint = sourceRowFingerprint;
+  value.artifact.plans[0].plan_fingerprint = value.plan.meta.plan_fingerprint;
+  value.artifact.source_rows[0].source_row_fingerprint = sourceRowFingerprint;
+  value.artifact.source_rows[0].plan_fingerprint = value.plan.meta.plan_fingerprint;
+  return reseal(value);
+}
+
+function v3Fixture({ target = "staging", rawOptions = { Flavours: "Berry", Size: "35 Servings", Weight: "420g" } } = {}) {
+  const value = v2Fixture({
+    target,
+    directUrl: "https://shop.example/products/p-7?variant=v-short",
+    affiliateUrl: "https://shop.example/products/p-7?variant=v-short&sca_ref=tracked",
+  });
+  const row = value.manifest.profiles[0].rows[0];
+  value.manifest.schema_version = 3;
+  value.manifest.kind = "reviewed-catalogue-package-v3";
+  value.manifest.source_platform = "shopify";
+  row.external_options = rawOptions;
+  row.option_roles = resolveOptionRoles(rawOptions);
+  row.source_structure = { product_variant_count: 2, meaningful_variant_axes: ["flavour"] };
+  value.plan.retailer_product.values.external_options = rawOptions;
+  const sourceRowFingerprint = crypto.createHash("sha256").update(JSON.stringify({ rawOptions, target })).digest("hex");
+  row.source_row_fingerprint = sourceRowFingerprint;
   value.plan.meta.source_row_fingerprint = sourceRowFingerprint;
   value.plan.meta.plan_fingerprint = planFingerprint(value.plan);
   row.plan_fingerprint = value.plan.meta.plan_fingerprint;
@@ -166,6 +193,68 @@ test("reviewed catalogue v2 target environment and project ref are an exact pair
   const drift = v2Fixture();
   drift.manifest.target_project_ref = TARGETS.production.projectRef;
   assert.throws(() => validateManifest(drift.manifest, "batch-1"), /target project mismatch/);
+});
+
+test("reviewed catalogue v3 is explicit, closed and preserves raw Shopify option evidence", () => {
+  const value = v3Fixture();
+  const loaded = load(value);
+  assert.equal(loaded.manifest.kind, "reviewed-catalogue-package-v3");
+  assert.deepEqual(loaded.reviewed.external_options, { Flavours: "Berry", Size: "35 Servings", Weight: "420g" });
+  assert.deepEqual(loaded.reviewed.option_roles, {
+    flavour: { source_key: "Flavours", source_value: "Berry" },
+    physical_size: { source_key: "Weight", source_value: "420g", size_value: "420", size_unit: "g" },
+    count: { source_key: "Size", source_value: "35 Servings", count_value: "35", count_unit: "servings" },
+  });
+  const envelope = buildV3Envelope({ ...loaded, manifestSha256: value.manifestSha256 });
+  assert.equal(envelope.kind, "reviewed-catalogue-authorization-v3");
+  assert.equal(envelope.external_options.Size, "35 Servings");
+  const drift = v3Fixture();
+  drift.manifest.profiles[0].rows[0].unexpected = true;
+  assert.throws(() => validateManifest(drift.manifest, "batch-1"), /keys mismatch/);
+});
+
+test("reviewed catalogue V3 is explicit at the protected target boundary", () => {
+  const v2 = v2Fixture();
+  const v3 = v3Fixture();
+  assert.doesNotThrow(() => assertManifestTarget(v2.manifest, "staging"));
+  assert.doesNotThrow(() => assertManifestTarget(v3.manifest, "staging"));
+  assert.throws(
+    () => assertManifestTarget({ ...v3.manifest, kind: "reviewed-catalogue-package-v4" }, "staging"),
+    /Unsupported reviewed catalogue package kind/,
+  );
+});
+
+test("reviewed catalogue v3 option semantics distinguish weight, servings and plural flavour aliases", () => {
+  for (const alias of ["Flavour", "Flavor", "Flavours", "Flavors"]) {
+    const roles = resolveOptionRoles({ [alias]: "Berry", Size: "35 Servings", Weight: "875g" });
+    assert.equal(roles.flavour.source_key, alias);
+    assert.equal(roles.physical_size.size_value, "875");
+    assert.equal(roles.physical_size.size_unit, "g");
+    assert.equal(roles.count.count_value, "35");
+    assert.equal(roles.count.count_unit, "servings");
+  }
+  assert.equal(resolveOptionRoles({ Size: "35 Servings" }).physical_size, null);
+});
+
+test("reviewed catalogue v3 default variant requires one source variant and no flavour axis", () => {
+  const value = v3Fixture({ rawOptions: { Size: "60 Servings" } });
+  const row = value.manifest.profiles[0].rows[0];
+  row.action = "create_product_with_default_variant";
+  row.flavour = null;
+  row.size_value = null;
+  row.size_unit = null;
+  row.unit_count = 60;
+  row.unit_type = "servings";
+  row.source_structure = { product_variant_count: 1, meaningful_variant_axes: [] };
+  assert.doesNotThrow(() => validateManifest(value.manifest, "batch-1"));
+  row.source_structure.product_variant_count = 2;
+  assert.throws(() => validateManifest(value.manifest, "batch-1"), /default variant requires one source variant/);
+});
+
+test("reviewed catalogue v3 keeps commercial exclusions without treating formula stack prose as a bundle", () => {
+  assert.equal(isV3SourceExcluded({ product_name: "Whey Bundle", description: "ordinary" }), true);
+  assert.equal(isV3SourceExcluded({ product_name: "LFT V3", description: "caffeine stack for serious energy" }), false);
+  assert.equal(isV3SourceExcluded({ product_name: "LFT V3", description: "includes a free item" }), true);
 });
 
 test("common reviewed manifest supports an exact owner-reviewed count identity", () => {
@@ -288,6 +377,23 @@ test("bounded reviewed state provider is read-only and validates every atomic pl
   assert.equal(queries.filter(query => query.sql.includes("validate_product_import_plan_read_only")).length, 1);
 });
 
+test("reviewed V3 validation sends the exact plan and authorization envelope to its separate RPC", async () => {
+  const value = v3Fixture();
+  const loaded = load(value);
+  const queries = [];
+  const database = { async query(sql, params) { queries.push({ sql, params }); return { rows: [{ result: { valid: true } }] }; } };
+  await validatePlans(database, [{ importPlan: loaded.entry.resolved_plan }], {
+    manifest: loaded.manifest,
+    profile: loaded.profile,
+    artifact: loaded.artifact,
+    manifestSha256: value.manifestSha256,
+  });
+  assert.equal(queries[0].sql, V3_VALIDATION_SQL);
+  assert.equal(queries[0].params[0], loaded.entry.resolved_plan);
+  assert.equal(queries[0].params[1].kind, "reviewed-catalogue-authorization-v3");
+  assert.equal(V2_VALIDATION_SQL, "select public.validate_product_import_plan_read_only($1::jsonb) result");
+});
+
 test("approval transaction uses only the approver role and approval RPC", async () => {
   const value = fixture();
   const prepared = load(value); prepared.manifestSha256 = value.manifestSha256;
@@ -298,6 +404,29 @@ test("approval transaction uses only the approver role and approval RPC", async 
   assert.deepEqual(queries.map(query => query.sql), ["begin", "select set_config($1,'1',true),set_config('app.retailer_catalogue_allow','1',true)", "set local role retailer_catalogue_production_approver", "select current_user,session_user,current_database(),current_setting('transaction_read_only') transaction_read_only,current_setting($1,true) target_marker,current_setting($2,true) opposite_marker,current_setting('app.retailer_catalogue_allow',true) catalogue_allow,current_setting('app.safe_update',true) safe_update", APPROVAL_SQL, "commit"]);
   const source = fs.readFileSync(path.join(__dirname, "reviewed-catalogue-artifact-approver.js"), "utf8");
   assert.doesNotMatch(source, /apply_approved_product_import_plan|pilot-apply|service_role|\.from\(|\b(insert into|update (products|product_variants|retailer_products|offers|price_history)|delete from)\b/i);
+});
+
+test("reviewed V3 approval uses only the separately versioned approver RPC", async () => {
+  const value = v3Fixture();
+  const prepared = load(value); prepared.manifestSha256 = value.manifestSha256;
+  const queries = [];
+  const client = { async connect() {}, async end() {}, async query(sql, params) {
+    queries.push({ sql, params });
+    if (sql.startsWith("select current_user")) return { rows: [{ current_user: "retailer_catalogue_staging_approver", session_user: "supplementscout_staging_approver_login", current_database: "postgres", transaction_read_only: "off", target_marker: "1", opposite_marker: null, catalogue_allow: "1", safe_update: null }] };
+    if (sql === V3_APPROVAL_SQL) return { rows: [{ result: {
+      approval_id: "123e4567-e89b-42d3-a456-426614174000", status: "approved",
+      artifact_sha256: prepared.profile.artifact_sha256, run_id: prepared.artifact.run_id,
+      plan_fingerprint: prepared.entry.plan_fingerprint, source_row_fingerprint: prepared.entry.source_row_fingerprint,
+      retailer_id: "14", plan_kind: "feed", contract_kind: "reviewed-catalogue-package-v3",
+      manifest_sha256: prepared.manifestSha256, target_environment: "STAGING", target_project_ref: TARGETS.staging.projectRef,
+      expires_at: new Date(Date.now() + 10 * 60_000).toISOString(),
+    } }] };
+    return { rows: [] };
+  } };
+  const result = await approveWithClient(prepared, client, "staging");
+  assert.equal(result.approval_only, true);
+  assert.equal(queries.find(query => query.sql === V3_APPROVAL_SQL).params[1].kind, "reviewed-catalogue-authorization-v3");
+  assert.ok(!queries.some(query => query.sql === APPROVAL_SQL));
 });
 
 test("database contract accepts only ledger-bound reviewed plans and keeps role separation", () => {
@@ -521,4 +650,36 @@ test("bounded reviewed state RPC is validator-only and adds no table grants", ()
   assert.doesNotMatch(sql, /grant\s+select\s+on/i);
   assert.doesNotMatch(sql, /\b(?:insert\s+into|update|delete\s+from)\s+public\.(?:retailers|products|product_variants|retailer_products|offers|price_history)\b/i);
   assert.doesNotMatch(sql, /execute\s+format|\bexecute\s+['"]/i);
+});
+
+test("V3 database boundary is additive, role-separated and contains no retailer policy", () => {
+  const migration = fs.readFileSync(path.join(__dirname, "../supabase/migrations/20261018120000_add_reviewed_catalogue_v3_boundary.sql"), "utf8");
+  const rollback = fs.readFileSync(path.join(__dirname, "../supabase/rollbacks/20261018120000_add_reviewed_catalogue_v3_boundary_rollback.sql"), "utf8");
+  const validator = migration.match(/create function public\.atomic_import_validate_reviewed_catalogue_v3_plan[\s\S]+?(?=create function public\.validate_reviewed_catalogue_v3_plan_read_only)/i)?.[0] || "";
+  assert.match(migration, /create function public\.validate_reviewed_catalogue_v3_plan_read_only\(p_plan jsonb,p_envelope jsonb\)/i);
+  assert.match(migration, /create function public\.approve_reviewed_catalogue_v3_plan\([\s\S]+perform public\.atomic_import_validate_reviewed_catalogue_v3_plan\(p_plan,p_envelope\)/i);
+  assert.match(migration, /create function public\.apply_approved_reviewed_catalogue_v3_plan\([\s\S]+public\.apply_approved_product_import_plan/i);
+  assert.match(migration, /grant execute on function public\.validate_reviewed_catalogue_v3_plan_read_only[\s\S]+validator/i);
+  assert.match(migration, /grant execute on function public\.approve_reviewed_catalogue_v3_plan[\s\S]+approver/i);
+  assert.match(migration, /grant execute on function public\.apply_approved_reviewed_catalogue_v3_plan[\s\S]+executor/i);
+  assert.doesNotMatch(migration, /grant\s+(?:select|insert|update|delete)\s+on/i);
+  assert.doesNotMatch(migration, /grant execute[\s\S]{0,180}\b(?:service_role|anon|authenticated)\b/i);
+  assert.doesNotMatch(migration, /gladiator/i);
+  assert.doesNotMatch(validator, /\b(?:insert\s+into|update|delete\s+from)\s+public\./i);
+  assert.doesNotMatch(validator, /execute\s+format|\bexecute\s+['"]/i);
+  assert.match(rollback, /rollback blocked by durable approval evidence/i);
+  assert.match(rollback, /rename to validate_reviewed_catalogue_import_plan/i);
+  assert.doesNotMatch(rollback, /\b(?:insert\s+into|update|delete\s+from)\s+public\.(?:retailers|products|product_variants|retailer_products|offers|price_history)\b/i);
+});
+
+test("existing workflows and scheduled retailer entry points do not opt into V3", () => {
+  const workflowRoot = path.join(__dirname, "../.github/workflows");
+  const workflowText = fs.readdirSync(workflowRoot)
+    .filter(file => /\.ya?ml$/i.test(file))
+    .map(file => fs.readFileSync(path.join(workflowRoot, file), "utf8"))
+    .join("\n");
+  assert.doesNotMatch(workflowText, /reviewed-catalogue-package-v3|reviewed_catalogue_v3/i);
+  assert.equal(V2_VALIDATION_SQL, "select public.validate_product_import_plan_read_only($1::jsonb) result");
+  assert.equal(APPROVAL_SQL, "select public.approve_reviewed_catalogue_import_plan($1::jsonb,$2,$3,$4,$5,now()+interval '15 minutes') result");
+  assert.equal(PACKAGE_APPROVAL_SQL, APPROVAL_SQL);
 });

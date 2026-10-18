@@ -1,4 +1,8 @@
 const MAX_REVIEWED_ROWS = 200;
+const { CONTRACT_KIND: REVIEWED_V3_KIND, buildV3Envelope } = require("./reviewed-catalogue-v3");
+
+const V2_VALIDATION_SQL = "select public.validate_product_import_plan_read_only($1::jsonb) result";
+const V3_VALIDATION_SQL = "select public.validate_reviewed_catalogue_v3_plan_read_only($1::jsonb,$2::jsonb) result";
 
 function invariant(condition, message) {
   if (!condition) throw new Error(message);
@@ -10,8 +14,11 @@ function nullable(value) {
 }
 
 function buildStateRequest(manifest, rows, helpers) {
-  invariant(manifest?.kind === "reviewed-catalogue-package-v2", "Reviewed V2 manifest required");
-  invariant(Array.isArray(rows) && rows.length > 0 && rows.length <= MAX_REVIEWED_ROWS, "Reviewed V2 state request row count invalid");
+  invariant(
+    ["reviewed-catalogue-package-v2", REVIEWED_V3_KIND].includes(manifest?.kind),
+    "Reviewed V2 or V3 manifest required",
+  );
+  invariant(Array.isArray(rows) && rows.length > 0 && rows.length <= MAX_REVIEWED_ROWS, "Reviewed state request row count invalid");
   const requested = rows.map((row) => {
     const product = helpers.productData(row);
     return {
@@ -138,13 +145,25 @@ function createStateClient(state) {
   };
 }
 
-async function validatePlans(client, plans) {
+async function validatePlans(client, plans, context = null) {
   for (const entry of plans) {
+    const plan = entry.importPlan;
+    const isV3 = context?.manifest?.kind === REVIEWED_V3_KIND;
+    const reviewed = isV3
+      ? context.profile.rows.find(row => row.plan_fingerprint === plan.meta.plan_fingerprint)
+      : null;
+    const envelope = isV3
+      ? buildV3Envelope({
+          ...context,
+          reviewed,
+          entry: { importPlan: plan },
+        })
+      : null;
     const rows = (await client.query(
-      "select public.validate_product_import_plan_read_only($1::jsonb) result",
-      [entry.importPlan],
+      isV3 ? V3_VALIDATION_SQL : V2_VALIDATION_SQL,
+      isV3 ? [plan, envelope] : [plan],
     )).rows;
-    invariant(rows.length === 1 && rows[0].result?.valid === true, "Reviewed V2 atomic plan validation failed");
+    invariant(rows.length === 1 && rows[0].result?.valid === true, "Reviewed atomic plan validation failed");
   }
 }
 
@@ -156,4 +175,6 @@ module.exports = {
   readState,
   validatePlans,
   validateState,
+  V2_VALIDATION_SQL,
+  V3_VALIDATION_SQL,
 };

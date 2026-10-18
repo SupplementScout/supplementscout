@@ -21,6 +21,10 @@ const {
 } = require("./lib/retailer-shared-parent-identity");
 const { loadReviewedSourceProfile } = require("./lib/reviewed-catalogue-package");
 const {
+  CONTRACT_KIND: REVIEWED_V3_KIND,
+  isV3SourceExcluded,
+} = require("./lib/reviewed-catalogue-v3");
+const {
   buildStateRequest,
   createStateClient,
   readState,
@@ -1934,7 +1938,7 @@ function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
     const reviewedContract = genericReviewedProfile.manifest.kind || "reviewed-catalogue-package-v1";
     return {
       ...corrected,
-      external_options: action === "create_product_with_default_variant"
+      external_options: action === "create_product_with_default_variant" && reviewedContract !== REVIEWED_V3_KIND
         ? "{}"
         : corrected.external_options,
       __reviewed_catalogue_identity: {
@@ -1955,7 +1959,7 @@ function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
         product_format: genericReviewed.product_format,
         unit_count: genericReviewed.unit_count ?? null,
         unit_type: genericReviewed.unit_type ?? null,
-        ...(reviewedContract === "reviewed-catalogue-package-v2"
+        ...(["reviewed-catalogue-package-v2", REVIEWED_V3_KIND].includes(reviewedContract)
           ? {
               external_url: genericReviewed.external_url,
               affiliate_url: genericReviewed.affiliate_url,
@@ -1963,6 +1967,13 @@ function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
               target_project_ref: genericReviewedProfile.manifest.target_project_ref,
             }
           : { source_url: genericReviewed.source_url }),
+        ...(reviewedContract === REVIEWED_V3_KIND
+          ? {
+              external_options: genericReviewed.external_options,
+              option_roles: genericReviewed.option_roles,
+              source_structure: genericReviewed.source_structure,
+            }
+          : {}),
         brand: genericReviewed.brand,
         category: genericReviewed.category,
       },
@@ -3041,7 +3052,7 @@ async function validateNewRetailerMappingIdentity({
   );
   const reviewedCatalogueIdentity = row.__reviewed_catalogue_identity;
   const exactReviewedCataloguePlannedVariant = Boolean(
-    ["reviewed-catalogue-package-v1", "reviewed-catalogue-package-v2"].includes(reviewedCatalogueIdentity?.contract) &&
+    ["reviewed-catalogue-package-v1", "reviewed-catalogue-package-v2", REVIEWED_V3_KIND].includes(reviewedCatalogueIdentity?.contract) &&
     reviewedCatalogueIdentity.action === "create_variant_after_parent" &&
     reviewedCatalogueIdentity.external_product_id === externalProductId &&
     reviewedCatalogueIdentity.external_variant_id === externalVariantId &&
@@ -3384,7 +3395,7 @@ function collectCanonicalVariantEvidence(row) {
   const reviewedTenReps = row.__reviewed_catalogue_identity ||
     row.__reviewed_10reps_new_product_identity;
   if (
-    reviewedTenReps?.contract === "reviewed-catalogue-package-v1" &&
+    ["reviewed-catalogue-package-v1", REVIEWED_V3_KIND].includes(reviewedTenReps?.contract) &&
     reviewedTenReps.action === "create_product_with_default_variant"
   ) {
     return {
@@ -4252,12 +4263,12 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
   const reviewedTenReps = row.__reviewed_10reps_new_product_identity;
   const reviewedPredators = row.__reviewed_predators_new_product_identity;
   if (genericReviewed) {
-    const reviewedUrlMatches = genericReviewed.contract === "reviewed-catalogue-package-v2"
+    const reviewedUrlMatches = ["reviewed-catalogue-package-v2", REVIEWED_V3_KIND].includes(genericReviewed.contract)
       ? (getDirectRetailerProductUrl(row) || getRetailerProductUrl(row)) === genericReviewed.external_url &&
         getOfferUrl(row) === genericReviewed.affiliate_url
       : (getDirectRetailerProductUrl(row) || getRetailerProductUrl(row)) === genericReviewed.source_url;
     if (
-      !["reviewed-catalogue-package-v1", "reviewed-catalogue-package-v2"].includes(genericReviewed.contract) ||
+      !["reviewed-catalogue-package-v1", "reviewed-catalogue-package-v2", REVIEWED_V3_KIND].includes(genericReviewed.contract) ||
       retailerSlug !== genericReviewed.retailer_slug ||
       !["create_reviewed_product_variant", "create_product_with_default_variant", "create_variant_after_parent"].includes(genericReviewed.action) ||
       externalProductId !== genericReviewed.external_product_id ||
@@ -4387,7 +4398,11 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
     throw new Error("reviewed parent explicit-variant requires in-stock for-sale source row");
   }
 
-  const optionFlavours = externalOptionValues(externalOptions, ["flavour", "flavor"]);
+  const reviewedV3 = genericReviewed?.contract === REVIEWED_V3_KIND;
+  const optionFlavours = externalOptionValues(
+    externalOptions,
+    reviewedV3 ? ["flavour", "flavor", "flavours", "flavors"] : ["flavour", "flavor"],
+  );
   if (
     policy.allowUnflavoured
       ? optionFlavours.length > 1 ||
@@ -4412,7 +4427,19 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
     Number(evidence.packCount) > 1 &&
     reviewedSizeKey({ size: parseSize(optionSizes[0]) }) === reviewedSizeKey(evidence) &&
     Number(parsePackCount(optionSizes[0])) === Number(evidence.packCount);
-  if (optionSizes.length > 0 && (
+  if (reviewedV3) {
+    if (!valuesEqual(externalOptions, genericReviewed.external_options)) {
+      throw new Error("reviewed V3 raw Shopify option evidence mismatch");
+    }
+    const physical = genericReviewed.option_roles?.physical_size;
+    const count = genericReviewed.option_roles?.count;
+    if (
+      (policy.size && (!physical || sizeKey(parseSize(`${physical.size_value} ${physical.size_unit}`)) !== policy.size)) ||
+      (policy.unitCount != null && (!count || Number(count.count_value) !== policy.unitCount || count.count_unit !== policy.unitType))
+    ) {
+      throw new Error("reviewed V3 resolved option role evidence mismatch");
+    }
+  } else if (optionSizes.length > 0 && (
     optionSizes.length !== 1 ||
     (!reviewedPackedSizeMatches && !reviewedCountOptionMatches && sizeKey(parseExplicitSize(optionSizes[0])) !== sizeKey(evidence.size))
   )) {
@@ -4423,12 +4450,8 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
     );
   }
 
-  if (NO_SKU_SOURCE_EXCLUSION_PATTERN.test([
-    row.product_name,
-    row.external_name,
-    row.variant_name,
-    row.description,
-    row.external_url,
+  if (reviewedV3 ? isV3SourceExcluded(row) : NO_SKU_SOURCE_EXCLUSION_PATTERN.test([
+    row.product_name, row.external_name, row.variant_name, row.description, row.external_url,
   ].filter(Boolean).join(" "))) {
     throw new Error("reviewed parent explicit-variant source row is bundle/free/BBE/dated");
   }
@@ -4521,7 +4544,7 @@ function assertStrictNoSkuShopifyCreateVariantEvidence(row, product, evidence, p
   }
   const optionFlavours = externalOptionValues(
     externalOptions,
-    exactReviewedWooCommerceCreate
+    exactReviewedWooCommerceCreate || reviewedTenRepsIdentity?.contract === REVIEWED_V3_KIND
       ? ["flavour", "flavor", "flavours", "flavors"]
       : ["flavour", "flavor"]
   );
@@ -4542,7 +4565,9 @@ function assertStrictNoSkuShopifyCreateVariantEvidence(row, product, evidence, p
   ) {
     throw new Error("create_variant without SKU product format mismatch");
   }
-  if (NO_SKU_SOURCE_EXCLUSION_PATTERN.test(sourceText)) {
+  if (reviewedTenRepsIdentity?.contract === REVIEWED_V3_KIND
+    ? isV3SourceExcluded(row)
+    : NO_SKU_SOURCE_EXCLUSION_PATTERN.test(sourceText)) {
     throw new Error("create_variant without SKU source row is bundle/free/BBE/dated");
   }
 }
@@ -5966,8 +5991,8 @@ function parseArgs(argv) {
   return options;
 }
 
-async function runReviewedV2Import(rows, options, reviewedCatalogueProfile) {
-  if (!options.reviewedTarget) throw new Error("Reviewed catalogue V2 requires --target=staging or --target=production");
+async function runReviewedBoundedImport(rows, options, reviewedCatalogueProfile) {
+  if (!options.reviewedTarget) throw new Error("Reviewed catalogue V2/V3 requires --target=staging or --target=production");
   assertManifestTarget(reviewedCatalogueProfile.manifest, options.reviewedTarget);
   const contract = targetContract(options.reviewedTarget, "validator");
   const connectionString = parseCredential(
@@ -5998,7 +6023,12 @@ async function runReviewedV2Import(rows, options, reviewedCatalogueProfile) {
       supabase = createStateClient(state);
       try {
         const result = await runImportRows(normalizedRows, { ...options, rowsAlreadyNormalized: true });
-        await validatePlans(connection, result.report.approvedRows);
+        await validatePlans(connection, result.report.approvedRows, {
+          manifest: reviewedCatalogueProfile.manifest,
+          profile: reviewedCatalogueProfile.profile,
+          artifact: reviewedCatalogueProfile.artifact,
+          manifestSha256: options.reviewedManifestSha256,
+        });
         return result;
       } finally {
         supabase = previous;
@@ -6076,8 +6106,8 @@ async function runImport(options = parseArgs(process.argv.slice(2))) {
     sourceFileSha256: sha256Bytes(csvBytes),
     reviewedCatalogueProfile,
   };
-  const result = reviewedCatalogueProfile?.manifest.kind === "reviewed-catalogue-package-v2"
-    ? await runReviewedV2Import(rows, importOptions, reviewedCatalogueProfile)
+  const result = ["reviewed-catalogue-package-v2", REVIEWED_V3_KIND].includes(reviewedCatalogueProfile?.manifest.kind)
+    ? await runReviewedBoundedImport(rows, importOptions, reviewedCatalogueProfile)
     : await runImportRows(rows, importOptions);
 
   if (options.dryRun) {

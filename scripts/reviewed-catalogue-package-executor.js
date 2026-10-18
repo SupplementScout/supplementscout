@@ -4,6 +4,10 @@ const { execFileSync } = require("node:child_process");
 const { Client } = require("pg");
 const { canonicalJson } = require("./lib/canonical-json");
 const { loadReviewedPackageScope } = require("./lib/reviewed-catalogue-package");
+const {
+  CONTRACT_KIND: REVIEWED_V3_KIND,
+  buildV3Envelope,
+} = require("./lib/reviewed-catalogue-v3");
 const { buildExecutionStateRequest, readState } = require("./lib/reviewed-catalogue-state");
 const {
   TARGETS,
@@ -18,6 +22,8 @@ const { verifyReceipt } = require("./reviewed-catalogue-artifact-approver");
 const ROOT = path.resolve(__dirname, "..");
 const APPROVAL_SQL = "select public.approve_reviewed_catalogue_import_plan($1::jsonb,$2,$3,$4,$5,now()+interval '15 minutes') result";
 const APPLY_SQL = "select public.apply_approved_product_import_plan($1::uuid,$2,$3,$4,$5::bigint,$6,$7) result";
+const V3_APPROVAL_SQL = "select public.approve_reviewed_catalogue_v3_plan($1::jsonb,$2::jsonb,now()+interval '15 minutes') result";
+const V3_APPLY_SQL = "select public.apply_approved_reviewed_catalogue_v3_plan($1::uuid,$2::jsonb,$3::jsonb) result";
 
 function invariant(value, message) { if (!value) throw new Error(message); }
 function safeError(error) {
@@ -173,7 +179,14 @@ function assertCleanMain(exec = execFileSync) {
 
 async function approve(client, prepared, target) {
   return roleTransaction(client, target, "approver", async connection => {
-    const receipt = (await connection.query(APPROVAL_SQL, [prepared.entry.resolved_plan, prepared.profile.artifact_sha256, prepared.artifact.run_id, prepared.manifestSha256, prepared.profile.id])).rows[0]?.result;
+    const isV3 = prepared.manifest.kind === REVIEWED_V3_KIND;
+    const envelope = isV3 ? buildV3Envelope(prepared) : null;
+    const receipt = (await connection.query(
+      isV3 ? V3_APPROVAL_SQL : APPROVAL_SQL,
+      isV3
+        ? [prepared.entry.resolved_plan, envelope]
+        : [prepared.entry.resolved_plan, prepared.profile.artifact_sha256, prepared.artifact.run_id, prepared.manifestSha256, prepared.profile.id],
+    )).rows[0]?.result;
     verifyReceipt(receipt, prepared);
     return receipt;
   });
@@ -182,7 +195,14 @@ async function approve(client, prepared, target) {
 async function apply(client, prepared, receipt, target) {
   return roleTransaction(client, target, "executor", async connection => {
     const entry = prepared.entry;
-    const result = (await connection.query(APPLY_SQL, [receipt.approval_id, prepared.profile.artifact_sha256, entry.plan_fingerprint, entry.source_row_fingerprint, entry.retailer_id, entry.plan_kind, prepared.artifact.run_id])).rows[0]?.result;
+    const isV3 = prepared.manifest.kind === REVIEWED_V3_KIND;
+    const envelope = isV3 ? buildV3Envelope(prepared) : null;
+    const result = (await connection.query(
+      isV3 ? V3_APPLY_SQL : APPLY_SQL,
+      isV3
+        ? [receipt.approval_id, entry.resolved_plan, envelope]
+        : [receipt.approval_id, prepared.profile.artifact_sha256, entry.plan_fingerprint, entry.source_row_fingerprint, entry.retailer_id, entry.plan_kind, prepared.artifact.run_id],
+    )).rows[0]?.result;
     invariant(result && result.approval_status === "consumed" && result.already_applied !== true, "Atomic apply receipt invalid");
     for (const field of ["artifact_sha256", "plan_fingerprint", "source_row_fingerprint", "retailer_id", "plan_kind", "run_id"]) invariant(String(result[field]) === String({ artifact_sha256: prepared.profile.artifact_sha256, plan_fingerprint: entry.plan_fingerprint, source_row_fingerprint: entry.source_row_fingerprint, retailer_id: entry.retailer_id, plan_kind: entry.plan_kind, run_id: prepared.artifact.run_id }[field]), `Apply receipt ${field} mismatch`);
     return result;
@@ -276,4 +296,4 @@ if (require.main === module) run(parseArgs(process.argv.slice(2)))
   .then(result => console.log(JSON.stringify({ result: result.result, completed: result.completed.length, requested: result.requested, database_writes: result.database_writes }, null, 2)))
   .catch(error => { console.error(`Reviewed package stopped: ${safeError(error)}`); process.exitCode = 1; });
 
-module.exports = { APPLY_SQL, APPROVAL_SQL, TARGETS, apply, approve, assertCleanMain, connect, expectedDelta, loadScope, parseArgs, parseCredential, roleTransaction, run, safeError, targetContract, verifyTarget };
+module.exports = { APPLY_SQL, APPROVAL_SQL, V3_APPLY_SQL, V3_APPROVAL_SQL, TARGETS, apply, approve, assertCleanMain, connect, expectedDelta, loadScope, parseArgs, parseCredential, roleTransaction, run, safeError, targetContract, verifyTarget };

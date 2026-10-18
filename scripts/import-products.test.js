@@ -8967,6 +8967,21 @@ function reviewedV2Profile(target = "STAGING") {
   };
 }
 
+function reviewedV3Profile(reviewed, target = "STAGING") {
+  const project = target === "STAGING" ? "hxnrsyyqffztlvcrtgbf" : "aftboxmrdgyhizicfsfu";
+  return {
+    manifest: {
+      schema_version: 3,
+      kind: "reviewed-catalogue-package-v3",
+      source_platform: "shopify",
+      target_environment: target,
+      target_project_ref: project,
+      retailer: { id: 12, name: "Example Nutrition", slug: "example-nutrition", website: "https://example.test" },
+    },
+    profile: { row_count: 1, rows: [reviewed] },
+  };
+}
+
 test("reviewed V2 keeps direct and affiliate URLs separate and hash-locks its target", async () => {
   const row = baseCanonicalFeedRow({
     external_product_id: "10000000000001",
@@ -9014,4 +9029,78 @@ test("reviewed V2 CLI requires an explicit protected target while legacy argumen
   assert.throws(() => parseArgs(["--target=staging", "--dry-run"]), /only for reviewed catalogue/);
   const legacy = parseArgs(["--mode=feed", "--dry-run", "--csv=tmp/feed.csv"]);
   assert.equal(legacy.reviewedTarget, null);
+});
+
+test("reviewed V3 plans plural flavour with raw Size and Weight semantics without source rewriting", async () => {
+  const externalOptions = { Flavours: "Grapefruit", Size: "35 Servings", Weight: "875g" };
+  const row = baseCanonicalFeedRow({
+    retailer_name: "Example Nutrition", retailer_website: "https://example.test",
+    external_product_id: "7462538510381", external_variant_id: "41660010364973", external_sku: "",
+    external_options: JSON.stringify(externalOptions),
+    external_url: "https://example.test/products/clear-whey?variant=41660010364973",
+    affiliate_url: "https://affiliate.example/click?variant=41660010364973",
+    product_name: "Applied Nutrition Clear Whey 875g", variant_name: "Grapefruit / 875g",
+    brand: "Applied Nutrition", category: "Whey Protein", product_format: "powder",
+    flavour: "Grapefruit", size: "875", size_unit: "g", pack_count: "1",
+    slug: "applied-nutrition-clear-whey-875g", description: "caffeine stack wording is formulation prose",
+  });
+  const reviewed = {
+    review_row: 1, action: "create_product_with_variant", external_product_id: row.external_product_id,
+    external_variant_id: row.external_variant_id, product_id: null, product_variant_id: null,
+    product_name: row.product_name, variant_name: row.variant_name, brand: row.brand, category: row.category,
+    flavour: "Grapefruit", size_value: "875", size_unit: "g", pack_count: "1", product_format: "powder",
+    unit_count: null, unit_type: null, external_url: row.external_url, affiliate_url: row.affiliate_url,
+    external_options: externalOptions,
+    option_roles: {
+      flavour: { source_key: "Flavours", source_value: "Grapefruit" },
+      physical_size: { source_key: "Weight", source_value: "875g", size_value: "875", size_unit: "g" },
+      count: { source_key: "Size", source_value: "35 Servings", count_value: "35", count_unit: "servings" },
+    },
+    source_structure: { product_variant_count: 12, meaningful_variant_axes: ["flavour"] },
+  };
+  const normalized = normalizeCanonicalRetailerFeedRows([row], { safeCreate: true, reviewedCatalogueProfile: reviewedV3Profile(reviewed) });
+  assert.deepEqual(JSON.parse(normalized[0].external_options), externalOptions);
+  setSupabaseForTests(createMockSupabase(reviewedSeed({ retailers: [{ id: 12, name: "Example Nutrition", slug: "example-nutrition", website: "https://example.test", is_active: true }] })));
+  const result = await runImportRowsRaw(normalized, { mode: "feed", safeCreate: true, dryRun: true, rowsAlreadyNormalized: true });
+  assert.deepEqual(result.report.blockedRows, []);
+  const plan = result.report.approvedRows[0].importPlan;
+  assert.equal(plan.product.action, "create_or_reuse_reviewed");
+  assert.equal(plan.product_variant.action, "create_reviewed_variant");
+  assert.deepEqual(plan.retailer_product.values.external_options, externalOptions);
+
+  const bundleRows = normalizeCanonicalRetailerFeedRows([{ ...row, product_name: `${row.product_name} Bundle` }], { safeCreate: true, reviewedCatalogueProfile: reviewedV3Profile({ ...reviewed, product_name: `${row.product_name} Bundle` }) });
+  setSupabaseForTests(createMockSupabase(reviewedSeed({ retailers: [{ id: 12, name: "Example Nutrition", slug: "example-nutrition", website: "https://example.test", is_active: true }] })));
+  const blocked = await runImportRowsRaw(bundleRows, { mode: "feed", safeCreate: true, dryRun: true, rowsAlreadyNormalized: true });
+  assert.match(blocked.report.blockedRows[0].block_reason, /bundle\/free\/BBE\/dated/);
+});
+
+test("reviewed V3 derives the existing create_default model from one source variant without a flavour axis", async () => {
+  const externalOptions = { Size: "60 Servings" };
+  const row = baseCanonicalFeedRow({
+    retailer_name: "Example Nutrition", retailer_website: "https://example.test",
+    external_product_id: "14654194286966", external_variant_id: "53561109741942", external_sku: "",
+    external_options: JSON.stringify(externalOptions), external_url: "https://example.test/products/magnesium?variant=53561109741942",
+    affiliate_url: "https://affiliate.example/click?variant=53561109741942",
+    product_name: "Supplement Needs Magnesium Bisglycinate", variant_name: "", flavour: "",
+    brand: "Supplement Needs", category: "Vitamins", product_format: "capsule", size: "", size_unit: "", pack_count: "1",
+    slug: "supplement-needs-magnesium-bisglycinate",
+  });
+  const reviewed = {
+    review_row: 1, action: "create_product_with_default_variant", external_product_id: row.external_product_id,
+    external_variant_id: row.external_variant_id, product_id: null, product_variant_id: null,
+    product_name: row.product_name, variant_name: "", brand: row.brand, category: row.category,
+    flavour: null, size_value: null, size_unit: null, pack_count: "1", product_format: "capsule",
+    unit_count: 60, unit_type: "servings", external_url: row.external_url, affiliate_url: row.affiliate_url,
+    external_options: externalOptions,
+    option_roles: { flavour: null, physical_size: null, count: { source_key: "Size", source_value: "60 Servings", count_value: "60", count_unit: "servings" } },
+    source_structure: { product_variant_count: 1, meaningful_variant_axes: [] },
+  };
+  const normalized = normalizeCanonicalRetailerFeedRows([row], { safeCreate: true, reviewedCatalogueProfile: reviewedV3Profile(reviewed) });
+  assert.deepEqual(JSON.parse(normalized[0].external_options), externalOptions);
+  setSupabaseForTests(createMockSupabase(reviewedSeed({ retailers: [{ id: 12, name: "Example Nutrition", slug: "example-nutrition", website: "https://example.test", is_active: true }] })));
+  const result = await runImportRowsRaw(normalized, { mode: "feed", safeCreate: true, dryRun: true, rowsAlreadyNormalized: true });
+  assert.deepEqual(result.report.blockedRows, []);
+  assert.equal(result.report.approvedRows[0].importPlan.product.action, "create");
+  assert.equal(result.report.approvedRows[0].importPlan.product_variant.action, "create_default");
+  assert.deepEqual(result.report.approvedRows[0].importPlan.retailer_product.values.external_options, externalOptions);
 });
