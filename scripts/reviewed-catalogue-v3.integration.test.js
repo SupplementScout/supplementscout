@@ -57,7 +57,7 @@ function envelopeFixture(plan) {
 }
 
 function asRole(login, role, statement, { readOnly = false } = {}) {
-  const marker = readOnly ? "" : "select set_config('app.retailer_catalogue_staging_marker','1',true),set_config('app.retailer_catalogue_allow','1',true);";
+  const marker = readOnly ? "" : "set local app.retailer_catalogue_staging_marker='1'; set local app.retailer_catalogue_allow='1';";
   return `set session authorization ${login}; begin${readOnly ? " read only" : ""}; ${marker} set local role ${role}; ${statement}; ${readOnly ? "rollback" : "commit"};`;
 }
 
