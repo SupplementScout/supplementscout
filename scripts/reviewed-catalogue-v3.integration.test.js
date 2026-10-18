@@ -93,7 +93,7 @@ function asRole(environment, kind, statement, { readOnly = false, approvalId = n
     ? ""
     : `set local ${roles.marker}='1'; set local app.retailer_catalogue_allow='1';`;
   const context = approvalId
-    ? `select set_config('app.reviewed_catalogue_v3_approval_id','${approvalId}',true);`
+    ? `set local app.reviewed_catalogue_v3_approval_id='${approvalId}';`
     : "";
   return `set session authorization ${login}; begin${readOnly ? " read only" : ""}; ${settings} set local role ${role}; ${context} ${statement}; ${readOnly ? "rollback" : "commit"};`;
 }
