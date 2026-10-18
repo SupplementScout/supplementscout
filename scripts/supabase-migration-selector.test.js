@@ -29,6 +29,8 @@ const REVIEWED_STATE_MIGRATION = "20261017130000_add_reviewed_catalogue_bounded_
 const REVIEWED_STATE_SHA256 = "b87256d9cbd4bb6e7533961ea2000af51b268fc0b3239926ce5e992d98480654";
 const REVIEWED_V3_MIGRATION = "20261018120000_add_reviewed_catalogue_v3_boundary.sql";
 const REVIEWED_V3_SHA256 = "28e6ae565780e86cebe6f0aed487af79c56903f370d12b7d09a9aa7389c7dc10";
+const REVIEWED_V3_OPTION_ROLE_MIGRATION = "20261018190000_fix_reviewed_catalogue_v3_apply_option_roles.sql";
+const REVIEWED_V3_OPTION_ROLE_SHA256 = "6adfb14adef5e22cebb358f73a6b71fa860c581461dedf072856d9f8e166c94c";
 const RA004_CONTROL_STATE_MIGRATION = "20260924100000_add_transactional_retailer_control_state_interface.sql";
 const RA004_PREFLIGHT_MIGRATION = "20260925100000_add_ra004_staging_preflight_metadata_interface.sql";
 const RA004_FORWARD_CONTROL_STATE_MIGRATION = "20260927100000_reissue_transactional_retailer_control_state_interface.sql";
@@ -360,17 +362,17 @@ test.after(() => {
   }
 });
 
-test("staging records bounded state and V3 as applied", () => {
+test("staging records bounded state and V3 as applied with the option-role fix pending", () => {
   const result = validateSelection(validInput());
   assert.equal(result.ledger_count, 106);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, [REVIEWED_V3_OPTION_ROLE_MIGRATION]);
+  assert.equal(result.pending_file, REVIEWED_V3_OPTION_ROLE_MIGRATION);
+  assert.equal(result.pending_sha256, REVIEWED_V3_OPTION_ROLE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
-  assert.equal(result.selected_files.length, 106);
+  assert.equal(result.selected_files.length, 107);
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes(RA004_FIXTURE_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_GUARD_MIGRATION));
@@ -469,11 +471,12 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the retailer identity bootstrap as applied and keeps reviewed state and V3 pending", () => {
+test("production records the retailer identity bootstrap as applied and keeps all reviewed V3 migrations pending", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.deepEqual(contract.pending, [
     { filename: REVIEWED_STATE_MIGRATION, sha256: REVIEWED_STATE_SHA256 },
     { filename: REVIEWED_V3_MIGRATION, sha256: REVIEWED_V3_SHA256 },
+    { filename: REVIEWED_V3_OPTION_ROLE_MIGRATION, sha256: REVIEWED_V3_OPTION_ROLE_SHA256 },
   ]);
   assert.deepEqual(contract.appliedExcluded, [
     "20260929133000_extend_expired_sequential_plan_close.sql",
@@ -583,7 +586,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 106);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 107);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -599,7 +602,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACT.ledgerFingerprint);
 });
 
-test("production records the retailer identity bootstrap at ledger 238 and selects reviewed state plus V3", () => {
+test("production records the retailer identity bootstrap at ledger 238 and selects the reviewed V3 migration chain", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   for (const filename of contract.appliedExcluded) excluded.delete(filename);
@@ -628,7 +631,7 @@ test("production records the retailer identity bootstrap at ledger 238 and selec
   });
   assert.equal(result.ledger_count, 238);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 240);
+  assert.equal(result.selected_files.length, 241);
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
   assert.ok(result.excluded_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
@@ -639,12 +642,13 @@ test("production records the retailer identity bootstrap at ledger 238 and selec
   assert.ok(result.selected_files.includes("20261006170000_add_automation_review_owner_decision_validation.sql"));
   assert.ok(result.selected_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
   assert.ok(result.excluded_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
-  assert.deepEqual(result.pending_files, [REVIEWED_STATE_MIGRATION, REVIEWED_V3_MIGRATION]);
+  assert.deepEqual(result.pending_files, [REVIEWED_STATE_MIGRATION, REVIEWED_V3_MIGRATION, REVIEWED_V3_OPTION_ROLE_MIGRATION]);
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);
   assert.deepEqual(result.pending_sha256s, {
     [REVIEWED_STATE_MIGRATION]: REVIEWED_STATE_SHA256,
     [REVIEWED_V3_MIGRATION]: REVIEWED_V3_SHA256,
+    [REVIEWED_V3_OPTION_ROLE_MIGRATION]: REVIEWED_V3_OPTION_ROLE_SHA256,
   });
   assert.ok(result.selected_files.includes(SEO15_GYM_HIGH_SOURCE_RELEASE_MIGRATION));
   assert.ok(result.selected_files.includes("20261009120000_add_compact_other_retailer_fingerprint.sql"));
@@ -763,6 +767,7 @@ test("production exclusions are exact and the approved identity foundation is se
   assert.deepEqual(contract.pending, [
     { filename: REVIEWED_STATE_MIGRATION, sha256: REVIEWED_STATE_SHA256 },
     { filename: REVIEWED_V3_MIGRATION, sha256: REVIEWED_V3_SHA256 },
+    { filename: REVIEWED_V3_OPTION_ROLE_MIGRATION, sha256: REVIEWED_V3_OPTION_ROLE_SHA256 },
   ]);
   assert.equal(
     contract.excluded["20261009120000_add_compact_other_retailer_fingerprint.sql"],
@@ -932,7 +937,7 @@ test("owner-authorized ACL/RLS activation selects exactly one migration from led
   ]), /staging-only/);
 });
 
-test("staging contract records reviewed V3 at ledger 106", () => {
+test("staging contract records reviewed V3 at ledger 106 and leaves the option-role fix pending", () => {
   const filename = "20260928100000_diagnose_ra004_preflight_acl_rls.sql";
   assert.equal(CONTRACT.ledgerCount, 106);
   assert.equal(CONTRACT.ledgerFingerprint,
@@ -942,7 +947,9 @@ test("staging contract records reviewed V3 at ledger 106", () => {
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === filename));
   assert.ok(CONTRACT.appliedExcluded.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === REVIEWED_STATE_MIGRATION));
-  assert.deepEqual(CONTRACT.pending, []);
+  assert.deepEqual(CONTRACT.pending, [
+    { filename: REVIEWED_V3_OPTION_ROLE_MIGRATION, sha256: REVIEWED_V3_OPTION_ROLE_SHA256 },
+  ]);
   assert.equal(currentRemoteLedger().length, 106);
   assert.equal(ledgerRowsFingerprint(currentRemoteLedger(), { targetEnvironment: "STAGING" }),
     CONTRACT.ledgerFingerprint);
@@ -1389,12 +1396,14 @@ test("completed RA-004 fixture activation cannot select or materialize a migrati
   })), /status mismatch/);
 });
 
-test("staging keeps applied SEO-15, reviewed state, and V3 migrations closed", () => {
+test("staging keeps applied SEO-15 and V3 closed while selecting only the option-role fix", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending_file, REVIEWED_V3_OPTION_ROLE_MIGRATION);
+  assert.equal(result.pending_sha256, REVIEWED_V3_OPTION_ROLE_SHA256);
+  assert.deepEqual(result.pending_files, [REVIEWED_V3_OPTION_ROLE_MIGRATION]);
+  assert.deepEqual(result.pending_sha256s, {
+    [REVIEWED_V3_OPTION_ROLE_MIGRATION]: REVIEWED_V3_OPTION_ROLE_SHA256,
+  });
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
 });

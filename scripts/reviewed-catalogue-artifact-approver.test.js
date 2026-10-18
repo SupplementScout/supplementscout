@@ -682,6 +682,27 @@ test("V3 database boundary is additive, role-separated and contains no retailer 
   assert.doesNotMatch(rollback, /\b(?:insert\s+into|update|delete\s+from)\s+public\.(?:retailers|products|product_variants|retailer_products|offers|price_history)\b/i);
 });
 
+test("V3 apply option-role compatibility is validation-only and fail-closed", () => {
+  const migration = fs.readFileSync(path.join(__dirname, "../supabase/migrations/20261018190000_fix_reviewed_catalogue_v3_apply_option_roles.sql"), "utf8");
+  const rollback = fs.readFileSync(path.join(__dirname, "../supabase/rollbacks/20261018190000_fix_reviewed_catalogue_v3_apply_option_roles_rollback.sql"), "utf8");
+  const helper = migration.match(/create function public\.atomic_import_reviewed_v3_legacy_validation_evidence[\s\S]+?(?=alter function public\.atomic_import_reviewed_v3_legacy_validation_evidence)/i)?.[0] || "";
+  assert.match(migration, /69311caa0dda83010f986dfbd76bc0017d3a0f999c64b1dd5e35dcb87b7d4c48/);
+  assert.match(migration, /0b0bccb01e521228db93f495db7984372df5b177cf7009edc205620c1ddef634/);
+  assert.match(migration, /atomic_import_reviewed_catalogue_v3_plan_allowed\(p_plan\)[\s\S]+authorization_envelope[\s\S]+atomic_import_reviewed_v3_legacy_validation_evidence/i);
+  assert.match(helper, /atomic_import_validate_reviewed_catalogue_v3_plan\(p_plan,p_envelope\)/i);
+  assert.match(helper, /v_evidence->'external_options' is distinct from v_raw_options/i);
+  assert.match(helper, /v_validation_options := v_validation_options-v_count_key/i);
+  assert.match(helper, /to_jsonb\(v_physical->>'source_value'\)/i);
+  assert.doesNotMatch(helper, /\b(?:insert\s+into|update|delete\s+from)\s+public\./i);
+  assert.match(migration, /insert into public\.retailer_products\([\s\S]+p_plan#>'\{retailer_product,values,external_options\}'/i);
+  assert.doesNotMatch(migration, /gladiator|41660010332205|8158fb71-46f3-4e09-91a3-69f50cdaa683/i);
+  assert.doesNotMatch(migration, /grant\s+(?:select|insert|update|delete)\s+on/i);
+  assert.match(rollback, /rollback blocked by runtime drift/i);
+  assert.match(rollback, /cannot restore known lineage/i);
+  assert.match(rollback, /drop function public\.atomic_import_reviewed_v3_legacy_validation_evidence/i);
+  assert.doesNotMatch(rollback, /\b(?:insert\s+into|update|delete\s+from)\s+public\.(?:retailers|products|product_variants|retailer_products|offers|price_history|approved_import_plans)\b/i);
+});
+
 test("existing workflows and scheduled retailer entry points do not opt into V3", () => {
   const workflowRoot = path.join(__dirname, "../.github/workflows");
   const workflowText = fs.readdirSync(workflowRoot)
