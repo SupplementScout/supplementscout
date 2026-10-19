@@ -8,11 +8,15 @@ select pg_advisory_xact_lock(hashtextextended('reviewed-catalogue-v3-schema',0))
 do $preflight$
 declare
   v_standard regprocedure;
+  v_pre_source regprocedure;
   v_definition text;
+  v_pre_source_definition text;
   v_sha256 text;
   v_target jsonb;
 begin
   if to_regprocedure('public.atomic_import_apply_standard_plan_core(jsonb)') is null
+     or to_regprocedure('public.atomic_import_apply_pre_source_metadata_plan_core(jsonb)') is null
+     or to_regprocedure('public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)') is null
      or to_regprocedure('public.atomic_import_reviewed_catalogue_v3_plan_allowed(jsonb)') is null
      or to_regprocedure('public.atomic_import_validate_reviewed_catalogue_v3_plan(jsonb,jsonb)') is null
      or to_regprocedure('public.apply_approved_reviewed_catalogue_v3_plan(uuid,jsonb,jsonb)') is null then
@@ -73,6 +77,33 @@ begin
        where p.oid=v_standard and acl.grantee<>p.proowner and acl.privilege_type='EXECUTE'
      ) then
     raise exception 'reviewed catalogue V3 apply ownership or ACL baseline differs';
+  end if;
+
+  v_pre_source := 'public.atomic_import_apply_pre_source_metadata_plan_core(jsonb)'::regprocedure;
+  v_pre_source_definition := pg_get_functiondef(v_pre_source);
+  if encode(pg_catalog.sha256(convert_to(v_pre_source_definition,'UTF8')),'hex')
+       <> 'f560a7a93e3458db20d4a71451da35b53fe1fac9379bfedcd86ab98b76d3d648'
+     or (length(v_pre_source_definition)-length(replace(v_pre_source_definition,$anchor$    v_product_created := true;
+  end if;
+
+  perform public.validate_product_import_plan_read_only(p_plan);
+
+  insert into public.product_variants($anchor$,'')))/length($anchor$    v_product_created := true;
+  end if;
+
+  perform public.validate_product_import_plan_read_only(p_plan);
+
+  insert into public.product_variants($anchor$)<>1
+     or not exists(
+       select 1 from pg_proc p
+       where p.oid=v_pre_source and p.proowner='postgres'::regrole and p.provolatile='v' and p.prosecdef
+         and p.proconfig=array['search_path=pg_catalog, public, pg_temp']::text[]
+     )
+     or exists(
+       select 1 from pg_proc p cross join lateral aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) acl
+       where p.oid=v_pre_source and acl.grantee<>p.proowner and acl.privilege_type='EXECUTE'
+     ) then
+    raise exception 'reviewed catalogue V3 pre-source apply lineage differs';
   end if;
 
   v_target := public.retailer_catalogue_actual_database_target();
@@ -210,10 +241,46 @@ revoke all on function public.atomic_import_apply_standard_plan_core(jsonb)
     retailer_catalogue_staging_validator,retailer_catalogue_staging_approver,retailer_catalogue_staging_executor,
     retailer_catalogue_production_validator,retailer_catalogue_production_approver,retailer_catalogue_production_executor;
 
+do $install_pre_source$
+declare
+  v_definition text := pg_get_functiondef(
+    'public.atomic_import_apply_pre_source_metadata_plan_core(jsonb)'::regprocedure
+  );
+  v_original text := $patch$    v_product_created := true;
+  end if;
+
+  perform public.validate_product_import_plan_read_only(p_plan);
+
+  insert into public.product_variants($patch$;
+  v_patched text := $patch$    v_product_created := true;
+  end if;
+
+  if public.atomic_import_reviewed_catalogue_v3_plan_allowed(p_plan) then
+    perform public.atomic_import_validate_pre_source_metadata_plan_core(p_plan);
+  else
+    perform public.validate_product_import_plan_read_only(p_plan);
+  end if;
+
+  insert into public.product_variants($patch$;
+begin
+  v_definition := replace(v_definition,v_original,v_patched);
+  execute v_definition;
+end
+$install_pre_source$;
+
+alter function public.atomic_import_apply_pre_source_metadata_plan_core(jsonb) owner to postgres;
+revoke all on function public.atomic_import_apply_pre_source_metadata_plan_core(jsonb)
+  from public,anon,authenticated,service_role,
+    retailer_catalogue_staging_validator,retailer_catalogue_staging_approver,retailer_catalogue_staging_executor,
+    retailer_catalogue_production_validator,retailer_catalogue_production_approver,retailer_catalogue_production_executor;
+
 do $postflight$
 declare
   v_definition text := pg_get_functiondef(
     'public.atomic_import_apply_standard_plan_core(jsonb)'::regprocedure
+  );
+  v_pre_source_definition text := pg_get_functiondef(
+    'public.atomic_import_apply_pre_source_metadata_plan_core(jsonb)'::regprocedure
   );
   v_helper regprocedure := 'public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)'::regprocedure;
 begin
@@ -221,6 +288,8 @@ begin
      or (length(v_definition)-length(replace(v_definition,'v_reviewed_v3_legacy_evidence->''external_options''','')))/length('v_reviewed_v3_legacy_evidence->''external_options''')<>4
      or position($anchor$insert into public.retailer_products($anchor$ in v_definition)=0
      or position($anchor$p_plan#>'{retailer_product,values,external_options}'$anchor$ in v_definition)=0
+     or position('if public.atomic_import_reviewed_catalogue_v3_plan_allowed(p_plan) then' in v_pre_source_definition)=0
+     or position('perform public.atomic_import_validate_pre_source_metadata_plan_core(p_plan);' in v_pre_source_definition)=0
      or not exists(
        select 1 from pg_proc p
        where p.oid=v_helper and p.proowner='postgres'::regrole and p.provolatile='s' and p.prosecdef

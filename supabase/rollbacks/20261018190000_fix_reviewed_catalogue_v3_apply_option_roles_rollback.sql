@@ -97,6 +97,52 @@ begin
 end
 $rollback$;
 
+do $restore_pre_source$
+declare
+  v_pre_source regprocedure := 'public.atomic_import_apply_pre_source_metadata_plan_core(jsonb)'::regprocedure;
+  v_definition text := pg_get_functiondef(v_pre_source);
+  v_original text := $patch$    v_product_created := true;
+  end if;
+
+  perform public.validate_product_import_plan_read_only(p_plan);
+
+  insert into public.product_variants($patch$;
+  v_patched text := $patch$    v_product_created := true;
+  end if;
+
+  if public.atomic_import_reviewed_catalogue_v3_plan_allowed(p_plan) then
+    perform public.atomic_import_validate_pre_source_metadata_plan_core(p_plan);
+  else
+    perform public.validate_product_import_plan_read_only(p_plan);
+  end if;
+
+  insert into public.product_variants($patch$;
+  v_restored text;
+  v_sha256 text;
+begin
+  if (length(v_definition)-length(replace(v_definition,v_patched,'')))/length(v_patched)<>1
+     or not exists(
+       select 1 from pg_proc p
+       where p.oid=v_pre_source and p.proowner='postgres'::regrole and p.provolatile='v' and p.prosecdef
+         and p.proconfig=array['search_path=pg_catalog, public, pg_temp']::text[]
+     ) then
+    raise exception 'reviewed catalogue V3 pre-source rollback blocked by runtime drift';
+  end if;
+  v_restored := replace(v_definition,v_patched,v_original);
+  v_sha256 := encode(pg_catalog.sha256(convert_to(v_restored,'UTF8')),'hex');
+  if v_sha256<>'f560a7a93e3458db20d4a71451da35b53fe1fac9379bfedcd86ab98b76d3d648' then
+    raise exception 'reviewed catalogue V3 pre-source rollback cannot restore known lineage: %',v_sha256;
+  end if;
+  execute v_restored;
+end
+$restore_pre_source$;
+
+alter function public.atomic_import_apply_pre_source_metadata_plan_core(jsonb) owner to postgres;
+revoke all on function public.atomic_import_apply_pre_source_metadata_plan_core(jsonb)
+  from public,anon,authenticated,service_role,
+    retailer_catalogue_staging_validator,retailer_catalogue_staging_approver,retailer_catalogue_staging_executor,
+    retailer_catalogue_production_validator,retailer_catalogue_production_approver,retailer_catalogue_production_executor;
+
 alter function public.atomic_import_apply_standard_plan_core(jsonb) owner to postgres;
 revoke all on function public.atomic_import_apply_standard_plan_core(jsonb)
   from public,anon,authenticated,service_role,

@@ -221,7 +221,7 @@ const PENDING_MIGRATIONS = Object.freeze({
   STAGING: Object.freeze([
     Object.freeze({
       filename: "20261018190000_fix_reviewed_catalogue_v3_apply_option_roles.sql",
-      sha256: "6adfb14adef5e22cebb358f73a6b71fa860c581461dedf072856d9f8e166c94c",
+      sha256: "566114c4a2d312dece3618dc0dd0f54f08186d29921ce38928032417485376a1",
     }),
   ]),
   PRODUCTION: Object.freeze([
@@ -235,7 +235,7 @@ const PENDING_MIGRATIONS = Object.freeze({
     }),
     Object.freeze({
       filename: "20261018190000_fix_reviewed_catalogue_v3_apply_option_roles.sql",
-      sha256: "6adfb14adef5e22cebb358f73a6b71fa860c581461dedf072856d9f8e166c94c",
+      sha256: "566114c4a2d312dece3618dc0dd0f54f08186d29921ce38928032417485376a1",
     }),
   ]),
 });

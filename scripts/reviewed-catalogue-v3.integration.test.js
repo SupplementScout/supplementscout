@@ -18,6 +18,7 @@ const TARGETS = Object.freeze({
     validatorSha: "70f134e6f7d3afa25de52353ff5e8aca3cc0f7c34a58d9da3577ead4ac11f4a9",
     standardCoreFixture: "supabase/test/reviewed_catalogue_v3_staging_standard_apply_core.sql",
     standardCoreSha: "69311caa0dda83010f986dfbd76bc0017d3a0f999c64b1dd5e35dcb87b7d4c48",
+    preSourceCoreSha: "f560a7a93e3458db20d4a71451da35b53fe1fac9379bfedcd86ab98b76d3d648",
     legacyCountSizeError: "variant option size mismatch",
     hasV1: false,
     hasExecutionResult: false,
@@ -27,6 +28,7 @@ const TARGETS = Object.freeze({
     validatorSha: "b9d99d9245ff2ea493fa9ed4d160f0e9ff4c450764cb40a5a23325d0ca069583",
     standardCoreFixture: "supabase/test/reviewed_catalogue_v3_production_standard_apply_core.sql",
     standardCoreSha: "0b0bccb01e521228db93f495db7984372df5b177cf7009edc205620c1ddef634",
+    preSourceCoreSha: "f560a7a93e3458db20d4a71451da35b53fe1fac9379bfedcd86ab98b76d3d648",
     legacyCountSizeError: "variant option size mismatch",
     hasV1: true,
     hasExecutionResult: true,
@@ -491,6 +493,10 @@ function exerciseBaseline(environment) {
       'public.atomic_import_apply_standard_plan_core(jsonb)'::regprocedure
     ),'UTF8')),'hex')`, `${environment} exact standard apply SHA`);
     assert.equal(standardCoreBefore, target.standardCoreSha);
+    const preSourceCoreBefore = scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
+      'public.atomic_import_apply_pre_source_metadata_plan_core(jsonb)'::regprocedure
+    ),'UTF8')),'hex')`, `${environment} exact pre-source apply SHA`);
+    assert.equal(preSourceCoreBefore, target.preSourceCoreSha);
 
     const beforeValidatorSha = scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
       'public.validate_product_import_plan_read_only(jsonb)'::regprocedure
@@ -747,6 +753,9 @@ function exerciseBaseline(environment) {
     assert.equal(scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
       'public.atomic_import_apply_standard_plan_core(jsonb)'::regprocedure
     ),'UTF8')),'hex')`, `${environment} restored standard apply SHA`), standardCoreBefore);
+    assert.equal(scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
+      'public.atomic_import_apply_pre_source_metadata_plan_core(jsonb)'::regprocedure
+    ),'UTF8')),'hex')`, `${environment} restored pre-source apply SHA`), preSourceCoreBefore);
     succeed(file(container, ROLLBACK), `${environment} successful rollback`);
     const restoredSha = scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
       'public.validate_product_import_plan_read_only(jsonb)'::regprocedure
