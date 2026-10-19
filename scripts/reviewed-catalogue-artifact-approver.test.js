@@ -13,10 +13,13 @@ const {
   APPLY_SQL: PACKAGE_APPLY_SQL,
   APPROVAL_SQL: PACKAGE_APPROVAL_SQL,
   apply: applyPackage,
+  captureTarget,
   expectedDelta,
+  opaqueDecimalId,
   parseArgs: parsePackageArgs,
   parseCredential: parsePackageCredential,
   roleTransaction,
+  sameExpectedState,
   verifyTarget,
 } = require("./reviewed-catalogue-package-executor");
 
@@ -627,6 +630,63 @@ test("package executor keeps per-plan atomic deltas and strict commercial readba
   assert.throws(() => verifyTarget(numericEntry, { product, variant: { ...numericVariant, pack_count: 2 }, mapping, offer, history }), /existing variant mismatch/);
   assert.throws(() => verifyTarget(entry, { product: { ...product, name: "Changed" }, variant, mapping, offer, history }), /existing product mismatch/);
   assert.throws(() => verifyTarget(entry, { product, variant, mapping, offer: { ...offer, shipping_cost: "4.99" }, history }), /price mismatch/);
+});
+
+test("package postflight normalizes only safe decimal database identities", () => {
+  assert.equal(opaqueDecimalId(338), "338");
+  assert.equal(opaqueDecimalId("338"), "338");
+  assert.equal(opaqueDecimalId(null), null);
+  assert.equal(opaqueDecimalId("900719925474099312345"), "900719925474099312345");
+  assert.equal(opaqueDecimalId(Number.MAX_SAFE_INTEGER + 1), Number.MAX_SAFE_INTEGER + 1);
+
+  assert.doesNotThrow(() => sameExpectedState(
+    { id: 338, product_id: 338, merged_into_product_id: null, name: "Clear Whey" },
+    { id: "338", product_id: "338", merged_into_product_id: null, name: "Clear Whey" },
+    "existing product",
+  ));
+  assert.doesNotThrow(() => sameExpectedState(
+    { id: "900719925474099312345", product_id: "900719925474099312344" },
+    { id: "900719925474099312345", product_id: "900719925474099312344" },
+    "large identity",
+  ));
+  assert.throws(() => sameExpectedState(
+    { id: "900719925474099312346" },
+    { id: "900719925474099312345" },
+    "large identity",
+  ), /large identity mismatch/);
+  assert.throws(() => sameExpectedState(
+    { id: 339, name: "Clear Whey" },
+    { id: "338", name: "Clear Whey" },
+    "existing product",
+  ), /existing product mismatch/);
+  assert.throws(() => sameExpectedState(
+    { id: 338, merged_into_product_id: 99 },
+    { id: "338", merged_into_product_id: null },
+    "merged product",
+  ), /merged product mismatch/);
+  assert.throws(() => sameExpectedState(
+    { id: 338, name: 338 },
+    { id: "338", name: "338" },
+    "ordinary string",
+  ), /ordinary string mismatch/);
+});
+
+test("package postflight accepts numeric IDs captured from PostgreSQL JSON", () => {
+  const plan = fixture().plan;
+  const entry = { plan_fingerprint: plan.meta.plan_fingerprint, retailer_id: "14", resolved_plan: plan };
+  const state = {
+    products: [{ ...plan.expected_state.product, id: 788 }],
+    product_variants: [{ ...plan.expected_state.product_variant, id: 1080, product_id: 788 }],
+    retailer_products: [{ id: 3010, ...plan.retailer_product.values, retailer_id: 14, product_id: 788, product_variant_id: 1080, match_confidence: "100.00" }],
+    offers: [{ id: 2823, ...plan.offer.values, retailer_id: 14, product_id: 788, product_variant_id: 1080, retailer_product_id: 3010 }],
+    price_history: [{ id: 9001, offer_id: 2823, checked_at: plan.offer.values.last_checked_at, ...plan.price_history.values }],
+  };
+  const target = captureTarget(state, entry);
+  const checked = verifyTarget(entry, target);
+  assert.equal(checked.product_id, "788");
+  assert.equal(checked.product_variant_id, "1080");
+  assert.equal(checked.retailer_product_id, "3010");
+  assert.equal(checked.offer_id, "2823");
 });
 
 test("package executor uses only approval/apply RPCs and contains no direct business DML or service role", () => {

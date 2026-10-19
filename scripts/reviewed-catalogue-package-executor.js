@@ -71,11 +71,34 @@ function comparable(row) {
   return copy;
 }
 
+const EXPECTED_STATE_ID_FIELDS = new Set([
+  "id",
+  "merged_into_product_id",
+  "offer_id",
+  "product_id",
+  "product_variant_id",
+  "retailer_id",
+  "retailer_product_id",
+]);
+
+function opaqueDecimalId(value) {
+  if (value == null) return value;
+  if (typeof value === "number" && Number.isSafeInteger(value) && value >= 0) return String(value);
+  if (typeof value === "string" && /^(?:0|[1-9][0-9]*)$/.test(value)) return value;
+  return value;
+}
+
 function sameExpectedState(actual, expected, label) {
   const expectedComparable = comparable(expected);
   const actualComparable = Object.fromEntries(
     Object.keys(expectedComparable).map(field => [field, comparable(actual)?.[field]])
   );
+  for (const field of EXPECTED_STATE_ID_FIELDS) {
+    if (Object.hasOwn(expectedComparable, field)) {
+      expectedComparable[field] = opaqueDecimalId(expectedComparable[field]);
+      actualComparable[field] = opaqueDecimalId(actualComparable[field]);
+    }
+  }
   for (const field of ["size_value", "pack_count"]) {
     if (expectedComparable[field] != null && actualComparable[field] != null) {
       const expectedNumber = Number(expectedComparable[field]);
@@ -296,4 +319,4 @@ if (require.main === module) run(parseArgs(process.argv.slice(2)))
   .then(result => console.log(JSON.stringify({ result: result.result, completed: result.completed.length, requested: result.requested, database_writes: result.database_writes }, null, 2)))
   .catch(error => { console.error(`Reviewed package stopped: ${safeError(error)}`); process.exitCode = 1; });
 
-module.exports = { APPLY_SQL, APPROVAL_SQL, V3_APPLY_SQL, V3_APPROVAL_SQL, TARGETS, apply, approve, assertCleanMain, connect, expectedDelta, loadScope, parseArgs, parseCredential, roleTransaction, run, safeError, targetContract, verifyTarget };
+module.exports = { APPLY_SQL, APPROVAL_SQL, V3_APPLY_SQL, V3_APPROVAL_SQL, TARGETS, apply, approve, assertCleanMain, captureTarget, connect, expectedDelta, loadScope, opaqueDecimalId, parseArgs, parseCredential, roleTransaction, run, safeError, sameExpectedState, targetContract, verifyTarget };
