@@ -148,6 +148,9 @@ begin
   if p_plan->>'force_error'='1' then raise exception 'FIXTURE_NON_V3_REJECT' using errcode='22023'; end if;
   return jsonb_build_object('valid',true,'path','production-fallback');
 end$$;
+create function public.atomic_import_validate_pre_source_metadata_plan_core(p_plan jsonb) returns jsonb language sql stable as $$
+  select public.atomic_import_validate_before_reviewed_catalogue_package(p_plan)
+$$;
 create function public.validate_product_import_plan_read_only(p_plan jsonb)
 returns jsonb
 language plpgsql
