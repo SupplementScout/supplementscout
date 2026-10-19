@@ -11,6 +11,8 @@ const MIGRATION = "supabase/migrations/20261018120000_add_reviewed_catalogue_v3_
 const ROLLBACK = "supabase/rollbacks/20261018120000_add_reviewed_catalogue_v3_boundary_rollback.sql";
 const OPTION_ROLE_MIGRATION = "supabase/migrations/20261018190000_fix_reviewed_catalogue_v3_apply_option_roles.sql";
 const OPTION_ROLE_ROLLBACK = "supabase/rollbacks/20261018190000_fix_reviewed_catalogue_v3_apply_option_roles_rollback.sql";
+const POST_CREATE_OPTION_ROLE_MIGRATION = "supabase/migrations/20261019100000_fix_reviewed_v3_post_create_option_roles.sql";
+const POST_CREATE_OPTION_ROLE_ROLLBACK = "supabase/rollbacks/20261019100000_fix_reviewed_v3_post_create_option_roles_rollback.sql";
 const LIVE_APPLY_DISPATCH_FIXTURE = "supabase/test/reviewed_catalogue_v3_live_apply_dispatch_fixture.sql";
 const TARGETS = Object.freeze({
   STAGING: Object.freeze({
@@ -19,6 +21,9 @@ const TARGETS = Object.freeze({
     standardCoreFixture: "supabase/test/reviewed_catalogue_v3_staging_standard_apply_core.sql",
     standardCoreSha: "69311caa0dda83010f986dfbd76bc0017d3a0f999c64b1dd5e35dcb87b7d4c48",
     preSourceCoreSha: "f560a7a93e3458db20d4a71451da35b53fe1fac9379bfedcd86ab98b76d3d648",
+    livePreSourceValidatorFixture: "supabase/test/reviewed_catalogue_v3_staging_pre_source_validator.sql",
+    livePreSourceValidatorSha: "3b78fcd6f6d175c01a83484811b473a703b5d134b79faaac5f6dfb039f0039eb",
+    patchedPreSourceValidatorSha: "47913d9e685b0b0804cac3349a7e8d037878834071a7ad4a69be0c826090e44e",
     legacyCountSizeError: "variant option size mismatch",
     hasV1: false,
     hasExecutionResult: false,
@@ -29,6 +34,9 @@ const TARGETS = Object.freeze({
     standardCoreFixture: "supabase/test/reviewed_catalogue_v3_production_standard_apply_core.sql",
     standardCoreSha: "0b0bccb01e521228db93f495db7984372df5b177cf7009edc205620c1ddef634",
     preSourceCoreSha: "f560a7a93e3458db20d4a71451da35b53fe1fac9379bfedcd86ab98b76d3d648",
+    livePreSourceValidatorFixture: "supabase/test/reviewed_catalogue_v3_production_pre_source_validator.sql",
+    livePreSourceValidatorSha: "fbd7752889269b8bdc4b57c729b3233ce17507c6f5766be7a150d99363a6bf87",
+    patchedPreSourceValidatorSha: "7771649ee17b055e5f90ad343a33abf6c950c90c293c575442ee3cb61d671c6e",
     legacyCountSizeError: "variant option size mismatch",
     hasV1: true,
     hasExecutionResult: true,
@@ -220,6 +228,8 @@ end$$;
 create function public.atomic_import_is_legacy_mapping_upgrade(p_plan jsonb) returns boolean language sql immutable as $$select false$$;
 create function public.atomic_import_is_simply_identity_only_upgrade(p_plan jsonb) returns boolean language sql immutable as $$select false$$;
 create function public.atomic_import_safe_create_category_allowed(p_category text,p_name text,p_format text) returns boolean language sql immutable as $$select true$$;
+create function public.atomic_import_reviewed_parent_variant_allowed(text,text,text,text,text,text) returns boolean language sql immutable as $$select true$$;
+create function public.atomic_import_predators_v3_parent_variant_transport_allowed(jsonb,jsonb) returns boolean language sql immutable as $$select true$$;
 create function public.apply_verified_offer_no_change_plan(p_plan jsonb) returns jsonb language plpgsql volatile as $$begin raise exception 'fixture no-change path not expected'; end$$;
 create function public.retailer_catalogue_actual_database_target() returns jsonb language sql stable security definer as $$select '{"target_environment":"${environment}","project_ref":"${target.projectRef}"}'::jsonb$$;
 ${target.hasV1 ? productionValidator : stagingValidator}
@@ -351,7 +361,10 @@ function actionFixture(environment, action, index) {
           variant_key: `flavour-${index}-875g`, display_name: `Flavour ${index} / 875g`,
           flavour_code: `flavour-${index}`, flavour_label: `Flavour ${index}`, size_value: "875",
           size_unit: "g", pack_count: "1", product_format: "powder",
-        } }
+        }, ...(action === "create_product_with_variant" ? { evidence: {
+          flavour, size_value: "875", size_unit: "g", pack_count: "1",
+          product_format: "powder", external_options: externalOptions, approved_mapping_id: null,
+        } } : {}) }
         : { action: "existing", id: "200", evidence: {
           flavour: "cherry and apple", size_value: "875", size_unit: "g", pack_count: "1",
           product_format: "powder", external_options: externalOptions, approved_mapping_id: null,
@@ -456,14 +469,18 @@ function columnMetadata(container, column, label) {
   return JSON.parse(value);
 }
 
-function validatorMetadata(container, label) {
+function functionMetadata(container, signature, label) {
   return json(container, `select jsonb_build_object(
     'owner',p.proowner::regrole::text,
     'volatility',p.provolatile,
     'security_definer',p.prosecdef,
     'config',p.proconfig,
     'acl',p.proacl::text
-  ) from pg_proc p where p.oid='public.validate_product_import_plan_read_only(jsonb)'::regprocedure`, label);
+  ) from pg_proc p where p.oid='${signature}'::regprocedure`, label);
+}
+
+function validatorMetadata(container, label) {
+  return functionMetadata(container, "public.validate_product_import_plan_read_only(jsonb)", label);
 }
 
 function exerciseBaseline(environment) {
@@ -653,6 +670,102 @@ function exerciseBaseline(environment) {
     fails(sql(container, `set session authorization service_role; begin; select set_config('app.reviewed_catalogue_v3_approval_id','${preFixApproval.approval_id}',true); select public.atomic_import_apply_standard_plan_core(${literal(preFixFixture.plan)}); rollback`), `${environment} service-role compatibility spoof`, /permission denied/);
     fails(sql(container, asRole(environment, "executor", `select public.atomic_import_apply_standard_plan_core(${literal(preFixFixture.plan)})`)), `${environment} ordinary executor direct compatibility`, /permission denied/);
 
+    succeed(file(container, target.livePreSourceValidatorFixture), `${environment} install exact live pre-source validator`);
+    succeed(sql(container, `
+      alter function public.atomic_import_validate_pre_source_metadata_plan_core(jsonb) owner to postgres;
+      revoke all on function public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)
+        from public,anon,authenticated,service_role,
+          retailer_catalogue_staging_validator,retailer_catalogue_staging_approver,retailer_catalogue_staging_executor,
+          retailer_catalogue_production_validator,retailer_catalogue_production_approver,retailer_catalogue_production_executor;
+    `), `${environment} seal exact live pre-source validator`);
+    assert.equal(scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
+      'public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)'::regprocedure
+    ),'UTF8')),'hex')`, `${environment} exact live pre-source validator SHA`), target.livePreSourceValidatorSha);
+    const livePreSourceMetadata = functionMetadata(
+      container,
+      "public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)",
+      `${environment} exact live pre-source validator metadata`,
+    );
+
+    const gapFixture = actionFixture(environment, "create_product_with_variant", 93);
+    gapFixture.plan.product.values.servings = "67";
+    gapFixture.plan.product.values.net_weight_g = "2000";
+    gapFixture.plan.product_variant.values.variant_key = "caramel-biscuit-2kg";
+    gapFixture.plan.product_variant.values.display_name = "Caramel Biscuit / 67 Servings / 2kg";
+    gapFixture.plan.product_variant.values.flavour_code = "caramel-biscuit";
+    gapFixture.plan.product_variant.values.flavour_label = "Caramel Biscuit";
+    gapFixture.plan.product_variant.values.size_value = "2000";
+    gapFixture.plan.product_variant.evidence = {
+      flavour: "Caramel Biscuit", size_value: "2000", size_unit: "g", pack_count: "1",
+      product_format: "powder",
+      external_options: { Flavour: "Caramel Biscuit", Size: "67 Servings", Weight: "2kg" },
+      approved_mapping_id: null,
+    };
+    gapFixture.plan.retailer_product.values.external_options =
+      gapFixture.plan.product_variant.evidence.external_options;
+    gapFixture.envelope.external_options = gapFixture.plan.product_variant.evidence.external_options;
+    gapFixture.envelope.option_roles = {
+      flavour: { source_key: "Flavour", source_value: "Caramel Biscuit" },
+      physical_size: { source_key: "Weight", source_value: "2kg", size_value: "2000", size_unit: "g" },
+      count: { source_key: "Size", source_value: "67 Servings", count_value: "67", count_unit: "servings" },
+    };
+    const sealedGapFixture = seal(container, gapFixture, `${environment} reviewed-create 2kg 67 servings`);
+    const gapReadOnlyValidation = json(
+      container,
+      asRole(environment, "validator", `select public.validate_reviewed_catalogue_v3_plan_read_only(${literal(sealedGapFixture.plan)},${literal(sealedGapFixture.envelope)})`, { readOnly: true }),
+      `${environment} reviewed-create 2kg 67 servings V3 read-only validation`,
+    );
+    assert.equal(gapReadOnlyValidation.valid, true);
+    const gapApproval = json(
+      container,
+      asRole(environment, "approver", `select public.approve_reviewed_catalogue_v3_plan(${literal(sealedGapFixture.plan)},${literal(sealedGapFixture.envelope)})`),
+      `${environment} reviewed-create 2kg 67 servings approval`,
+    );
+    const gapCountsBefore = counts(container, `${environment} reviewed-create pre-fix counts`);
+    fails(
+      sql(container, asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${gapApproval.approval_id}',${literal(sealedGapFixture.plan)},${literal(sealedGapFixture.envelope)})`)),
+      `${environment} reviewed-create exact post-create pre-fix failure`,
+      /reviewed variant option size mismatch/,
+    );
+    assert.deepEqual(counts(container, `${environment} reviewed-create rolled-back counts`), gapCountsBefore);
+    assert.equal(
+      scalar(container, `select status||':'||coalesce(consumed_at::text,'NULL') from approved_import_plans where id='${gapApproval.approval_id}'`, `${environment} reviewed-create failed approval state`),
+      "approved:NULL",
+    );
+    fails(
+      sql(container, `select public.atomic_import_validate_pre_source_metadata_plan_core(${literal(sealedGapFixture.plan)})`),
+      `${environment} non-V3 reviewed-create remains closed before fix`,
+      /reviewed variant option size mismatch/,
+    );
+
+    succeed(file(container, POST_CREATE_OPTION_ROLE_MIGRATION), `${environment} apply reviewed-create post-create option-role migration`);
+    assert.equal(scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
+      'public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)'::regprocedure
+    ),'UTF8')),'hex')`, `${environment} patched live pre-source validator SHA`), target.patchedPreSourceValidatorSha);
+    assert.deepEqual(
+      functionMetadata(container, "public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)", `${environment} patched live pre-source validator metadata`),
+      livePreSourceMetadata,
+    );
+    fails(
+      sql(container, `select public.atomic_import_validate_pre_source_metadata_plan_core(${literal(sealedGapFixture.plan)})`),
+      `${environment} non-V3 reviewed-create remains closed after fix`,
+      /reviewed variant option size mismatch/,
+    );
+    const gapApplied = json(
+      container,
+      asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${gapApproval.approval_id}',${literal(sealedGapFixture.plan)},${literal(sealedGapFixture.envelope)})`),
+      `${environment} reviewed-create post-fix apply`,
+    );
+    assert.equal(gapApplied.approval_status, "consumed");
+    assert.deepEqual(
+      json(container, `select external_options from public.retailer_products where id=${gapApplied.retailer_product_id}`, `${environment} reviewed-create stored raw options`),
+      { Flavour: "Caramel Biscuit", Size: "67 Servings", Weight: "2kg" },
+    );
+    const gapCountsAfter = counts(container, `${environment} reviewed-create post-fix counts`);
+    for (const table of ["products", "product_variants", "retailer_products", "offers", "price_history"]) {
+      assert.equal(gapCountsAfter[table] - gapCountsBefore[table], 1, `${environment} reviewed-create ${table} delta`);
+    }
+
     const actionCases = [
       ["map_existing_variant", { products: 0, product_variants: 0 }],
       ["create_variant_on_existing_product", { products: 0, product_variants: 1 }],
@@ -751,6 +864,14 @@ function exerciseBaseline(environment) {
     );
 
     succeed(sql(container, "delete from public.approved_import_plans where source like 'reviewed-catalogue-package-v3:%'"), `${environment} remove disposable V3 fixture approvals`);
+    succeed(file(container, POST_CREATE_OPTION_ROLE_ROLLBACK), `${environment} rollback reviewed-create post-create option-role migration`);
+    assert.equal(scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
+      'public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)'::regprocedure
+    ),'UTF8')),'hex')`, `${environment} restored live pre-source validator SHA`), target.livePreSourceValidatorSha);
+    assert.deepEqual(
+      functionMetadata(container, "public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)", `${environment} restored live pre-source validator metadata`),
+      livePreSourceMetadata,
+    );
     succeed(file(container, OPTION_ROLE_ROLLBACK), `${environment} rollback V3 option-role compatibility`);
     assert.equal(scalar(container, "select to_regprocedure('public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)') is null", `${environment} compatibility helper removed`), "t");
     assert.equal(scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
@@ -759,6 +880,19 @@ function exerciseBaseline(environment) {
     assert.equal(scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
       'public.atomic_import_apply_pre_source_metadata_plan_core(jsonb)'::regprocedure
     ),'UTF8')),'hex')`, `${environment} restored pre-source apply SHA`), preSourceCoreBefore);
+    succeed(sql(container, environment === "STAGING" ? `
+      create or replace function public.atomic_import_validate_pre_source_metadata_plan_core(p_plan jsonb)
+      returns jsonb language plpgsql stable as $$
+      begin
+        if p_plan->>'force_error'='1' then raise exception 'FIXTURE_NON_V3_REJECT' using errcode='22023'; end if;
+        return jsonb_build_object('valid',true,'path','staging-fallback');
+      end$$;
+    ` : `
+      create or replace function public.atomic_import_validate_pre_source_metadata_plan_core(p_plan jsonb)
+      returns jsonb language sql stable as $$
+        select public.atomic_import_validate_before_reviewed_catalogue_package(p_plan)
+      $$;
+    `), `${environment} restore original simplified pre-source validator fixture`);
     succeed(file(container, ROLLBACK), `${environment} successful rollback`);
     const restoredSha = scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
       'public.validate_product_import_plan_read_only(jsonb)'::regprocedure
