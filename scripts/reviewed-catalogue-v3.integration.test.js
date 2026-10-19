@@ -391,18 +391,24 @@ function actionFixture(environment, action, index) {
       },
       retailer_product: null, offer: null,
     },
-    approval: defaultVariant ? {
-      approved: true, approval_type: "safe_create", approved_category: "Whey Protein",
-      source_row_fingerprint: null, canonical_name: `Example Protein ${index}`,
-      has_variant_evidence: false, approval_fingerprint: null,
+    approval: newProduct ? {
+      approved: true,
+      approval_type: defaultVariant ? "safe_create" : "reviewed_parent_variant_safe_create",
+      approved_category: "Whey Protein",
+      source_row_fingerprint: null,
+      canonical_name: `Example Protein ${index}`,
+      has_variant_evidence: !defaultVariant,
+      approval_fingerprint: null,
     } : { approved: false, approval_type: "none" },
   };
+  if (newProduct) {
+    plan.approval.source_row_fingerprint = plan.meta.source_row_fingerprint;
+  }
   if (defaultVariant) {
     plan.product.values.servings = null;
     plan.product.values.net_weight_g = null;
     plan.product.values.unit_count = "60";
     plan.product.values.unit_type = "servings";
-    plan.approval.source_row_fingerprint = plan.meta.source_row_fingerprint;
   }
   const envelope = {
     schema_version: 3, kind: "reviewed-catalogue-authorization-v3", source_platform: "shopify",
@@ -434,7 +440,7 @@ function actionFixture(environment, action, index) {
 }
 
 function seal(container, fixture, label) {
-  if (fixture.plan.approval.approval_type === "safe_create") {
+  if (Object.hasOwn(fixture.plan.approval, "approval_fingerprint")) {
     fixture.plan.approval.approval_fingerprint = scalar(
       container,
       `select md5(public.atomic_import_canonical_json(jsonb_set(${literal(fixture.plan.approval)},'{approval_fingerprint}','null'::jsonb,false)))`,
