@@ -13,6 +13,8 @@ const OPTION_ROLE_MIGRATION = "supabase/migrations/20261018190000_fix_reviewed_c
 const OPTION_ROLE_ROLLBACK = "supabase/rollbacks/20261018190000_fix_reviewed_catalogue_v3_apply_option_roles_rollback.sql";
 const POST_CREATE_OPTION_ROLE_MIGRATION = "supabase/migrations/20261019100000_fix_reviewed_v3_post_create_option_roles.sql";
 const POST_CREATE_OPTION_ROLE_ROLLBACK = "supabase/rollbacks/20261019100000_fix_reviewed_v3_post_create_option_roles_rollback.sql";
+const TRUSTED_PARENT_POLICY_MIGRATION = "supabase/migrations/20261019120000_bridge_trusted_v3_reviewed_parent_policy.sql";
+const TRUSTED_PARENT_POLICY_ROLLBACK = "supabase/rollbacks/20261019120000_bridge_trusted_v3_reviewed_parent_policy_rollback.sql";
 const LEGACY_COMPATIBILITY_HELPER_SHA = "849df8441e8994daf1acb514705808fde17467e033185e30cc432ad165a13905";
 const POST_CREATE_COMPATIBILITY_HELPER_SHA = "906cb5abad08deb8452fa9ae4fed8be8669b760e6f2ef088ae8846f5536b27db";
 const LIVE_APPLY_DISPATCH_FIXTURE = "supabase/test/reviewed_catalogue_v3_live_apply_dispatch_fixture.sql";
@@ -230,8 +232,13 @@ end$$;
 create function public.atomic_import_is_legacy_mapping_upgrade(p_plan jsonb) returns boolean language sql immutable as $$select false$$;
 create function public.atomic_import_is_simply_identity_only_upgrade(p_plan jsonb) returns boolean language sql immutable as $$select false$$;
 create function public.atomic_import_safe_create_category_allowed(p_category text,p_name text,p_format text) returns boolean language sql immutable as $$select true$$;
-create function public.atomic_import_reviewed_parent_variant_allowed(text,text,text,text,text,text) returns boolean language sql immutable as $$select true$$;
-create function public.atomic_import_predators_v3_parent_variant_transport_allowed(jsonb,jsonb) returns boolean language sql immutable as $$select true$$;
+create function public.atomic_import_reviewed_parent_variant_allowed(
+  p_name text,p_brand text,p_category text,p_format text,p_size_value text,p_size_unit text
+) returns boolean language sql immutable set search_path=pg_catalog,public,pg_temp as $$
+  select p_name='CNP Premium Whey 2kg' and p_brand='CNP' and p_category='Whey Protein'
+    and p_format='powder' and p_size_value::numeric=2000 and lower(p_size_unit)='g'
+$$;
+create function public.atomic_import_predators_v3_parent_variant_transport_allowed(jsonb,jsonb) returns boolean language sql immutable as $$select false$$;
 create function public.atomic_import_10reps_v8_parent_variant_transport_allowed(jsonb,jsonb) returns boolean language sql immutable as $$select false$$;
 create function public.atomic_import_10reps_v9_parent_variant_transport_allowed(jsonb,jsonb) returns boolean language sql immutable as $$select false$$;
 create function public.atomic_import_10reps_v10_parent_variant_transport_allowed(jsonb,jsonb) returns boolean language sql immutable as $$select false$$;
@@ -706,6 +713,19 @@ function exerciseBaseline(environment) {
     assert.equal(scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
       'public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)'::regprocedure
     ),'UTF8')),'hex')`, `${environment} pre-fix compatibility helper SHA`), LEGACY_COMPATIBILITY_HELPER_SHA);
+    const legacyPolicyBefore = json(container, `select jsonb_build_object(
+      'family',encode(pg_catalog.sha256(convert_to(pg_get_functiondef('public.atomic_import_reviewed_parent_variant_allowed(text,text,text,text,text,text)'::regprocedure),'UTF8')),'hex'),
+      'predators',encode(pg_catalog.sha256(convert_to(pg_get_functiondef('public.atomic_import_predators_v3_parent_variant_transport_allowed(jsonb,jsonb)'::regprocedure),'UTF8')),'hex'),
+      'ten_reps_v8',encode(pg_catalog.sha256(convert_to(pg_get_functiondef('public.atomic_import_10reps_v8_parent_variant_transport_allowed(jsonb,jsonb)'::regprocedure),'UTF8')),'hex'),
+      'ten_reps_v9',encode(pg_catalog.sha256(convert_to(pg_get_functiondef('public.atomic_import_10reps_v9_parent_variant_transport_allowed(jsonb,jsonb)'::regprocedure),'UTF8')),'hex'),
+      'ten_reps_v10',encode(pg_catalog.sha256(convert_to(pg_get_functiondef('public.atomic_import_10reps_v10_parent_variant_transport_allowed(jsonb,jsonb)'::regprocedure),'UTF8')),'hex')
+    )`, `${environment} legacy policy hashes before bridge`);
+    assert.equal(scalar(container, `select public.atomic_import_reviewed_parent_variant_allowed(
+      'CNP Premium Whey 2kg','CNP','Whey Protein','powder','2000','g'
+    )`, `${environment} historical family allowed before bridge`), "t");
+    assert.equal(scalar(container, `select public.atomic_import_reviewed_parent_variant_allowed(
+      'Generic Whey Product 2kg','Generic Brand','Whey Protein','powder','2000','g'
+    )`, `${environment} unknown family blocked before bridge`), "f");
 
     const gapFixture = actionFixture(environment, "create_product_with_variant", 93);
     gapFixture.plan.product.values.servings = "67";
@@ -788,10 +808,52 @@ function exerciseBaseline(environment) {
       `${environment} service-role compatibility remains denied after fix`,
       /permission denied/,
     );
+    fails(
+      sql(container, asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${gapApproval.approval_id}',${literal(sealedGapFixture.plan)},${literal(sealedGapFixture.envelope)})`)),
+      `${environment} generic reviewed-create pre-bridge family blocker`,
+      /reviewed parent explicit-variant policy does not allow this canonical family/,
+    );
+    assert.deepEqual(counts(container, `${environment} generic reviewed-create family rollback counts`), gapCountsBefore);
+    assert.equal(
+      scalar(container, `select status||':'||coalesce(consumed_at::text,'NULL') from approved_import_plans where id='${gapApproval.approval_id}'`, `${environment} family failure approval state`),
+      "approved:NULL",
+    );
+    succeed(sql(container, `create or replace function public.atomic_import_reviewed_parent_variant_allowed(
+      p_name text,p_brand text,p_category text,p_format text,p_size_value text,p_size_unit text
+    ) returns boolean language sql immutable set search_path=pg_catalog,public,pg_temp as $$select true$$`), `${environment} test-only family gate isolation`);
+    fails(
+      sql(container, asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${gapApproval.approval_id}',${literal(sealedGapFixture.plan)},${literal(sealedGapFixture.envelope)})`)),
+      `${environment} family-only patch exposes next retailer transport blocker`,
+      /reviewed parent explicit-variant retailer and transport policy does not allow this plan/,
+    );
+    assert.deepEqual(counts(container, `${environment} generic reviewed-create transport rollback counts`), gapCountsBefore);
+    succeed(sql(container, `create or replace function public.atomic_import_reviewed_parent_variant_allowed(
+      p_name text,p_brand text,p_category text,p_format text,p_size_value text,p_size_unit text
+    ) returns boolean language sql immutable set search_path=pg_catalog,public,pg_temp as $$
+      select p_name='CNP Premium Whey 2kg' and p_brand='CNP' and p_category='Whey Protein'
+        and p_format='powder' and p_size_value::numeric=2000 and lower(p_size_unit)='g'
+    $$`), `${environment} restore exact test legacy family policy`);
+
+    succeed(file(container, TRUSTED_PARENT_POLICY_MIGRATION), `${environment} apply trusted V3 reviewed-parent policy bridge`);
+    assert.deepEqual(
+      json(container, `select jsonb_build_object(
+        'family',encode(pg_catalog.sha256(convert_to(pg_get_functiondef('public.atomic_import_reviewed_parent_variant_allowed(text,text,text,text,text,text)'::regprocedure),'UTF8')),'hex'),
+        'predators',encode(pg_catalog.sha256(convert_to(pg_get_functiondef('public.atomic_import_predators_v3_parent_variant_transport_allowed(jsonb,jsonb)'::regprocedure),'UTF8')),'hex'),
+        'ten_reps_v8',encode(pg_catalog.sha256(convert_to(pg_get_functiondef('public.atomic_import_10reps_v8_parent_variant_transport_allowed(jsonb,jsonb)'::regprocedure),'UTF8')),'hex'),
+        'ten_reps_v9',encode(pg_catalog.sha256(convert_to(pg_get_functiondef('public.atomic_import_10reps_v9_parent_variant_transport_allowed(jsonb,jsonb)'::regprocedure),'UTF8')),'hex'),
+        'ten_reps_v10',encode(pg_catalog.sha256(convert_to(pg_get_functiondef('public.atomic_import_10reps_v10_parent_variant_transport_allowed(jsonb,jsonb)'::regprocedure),'UTF8')),'hex')
+      )`, `${environment} legacy policy hashes after bridge`),
+      legacyPolicyBefore,
+    );
+    assert.deepEqual(
+      functionMetadata(container, "public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)", `${environment} bridged validator metadata`),
+      livePreSourceMetadata,
+    );
+    fails(file(container, TRUSTED_PARENT_POLICY_ROLLBACK), `${environment} bridge rollback with live reviewed-create approval`, /rollback blocked by live approval/i);
     const gapApplied = json(
       container,
       asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${gapApproval.approval_id}',${literal(sealedGapFixture.plan)},${literal(sealedGapFixture.envelope)})`),
-      `${environment} reviewed-create post-fix apply`,
+      `${environment} reviewed-create post-bridge apply`,
     );
     assert.equal(gapApplied.approval_status, "consumed");
     assert.deepEqual(
@@ -901,6 +963,14 @@ function exerciseBaseline(environment) {
     );
 
     succeed(sql(container, "delete from public.approved_import_plans where source like 'reviewed-catalogue-package-v3:%'"), `${environment} remove disposable V3 fixture approvals`);
+    succeed(file(container, TRUSTED_PARENT_POLICY_ROLLBACK), `${environment} rollback trusted V3 reviewed-parent policy bridge`);
+    assert.equal(scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
+      'public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)'::regprocedure
+    ),'UTF8')),'hex')`, `${environment} bridge rollback validator SHA`), target.patchedPreSourceValidatorSha);
+    assert.deepEqual(
+      functionMetadata(container, "public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)", `${environment} bridge rollback validator metadata`),
+      livePreSourceMetadata,
+    );
     succeed(file(container, POST_CREATE_OPTION_ROLE_ROLLBACK), `${environment} rollback reviewed-create post-create option-role migration`);
     assert.equal(scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
       'public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)'::regprocedure

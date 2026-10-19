@@ -786,6 +786,32 @@ test("V3 post-create option-role compatibility preserves the trusted plan and ra
   assert.doesNotMatch(rollbackExecutable, /\b(?:insert\s+into|update|delete\s+from)\s+public\.(?:retailers|products|product_variants|retailer_products|offers|price_history|approved_import_plans)\b/i);
 });
 
+test("trusted V3 reviewed-parent bridge replaces only legacy family and transport authorization", () => {
+  const migration = fs.readFileSync(path.join(__dirname, "../supabase/migrations/20261019120000_bridge_trusted_v3_reviewed_parent_policy.sql"), "utf8");
+  const rollback = fs.readFileSync(path.join(__dirname, "../supabase/rollbacks/20261019120000_bridge_trusted_v3_reviewed_parent_policy_rollback.sql"), "utf8");
+  const migrationExecutable = migration.replace(/\$patch\$[\s\S]*?\$patch\$/gi, "");
+  const rollbackExecutable = rollback.replace(/\$patch\$[\s\S]*?\$patch\$/gi, "");
+
+  assert.match(migration, /47913d9e685b0b0804cac3349a7e8d037878834071a7ad4a69be0c826090e44e/);
+  assert.match(migration, /7771649ee17b055e5f90ad343a33abf6c950c90c293c575442ee3cb61d671c6e/);
+  assert.match(migration, /v_trusted_v3 := public\.atomic_import_reviewed_catalogue_v3_plan_allowed\(p_plan\)/i);
+  assert.match(migration, /not v_trusted_v3 and not public\.atomic_import_reviewed_parent_variant_allowed/i);
+  assert.match(migration, /\)\) or p_plan#>>'\{approval,approved_category\}' is distinct from v_product_values->>'category'/i);
+  assert.match(migration, /if v_trusted_v3 then[\s\S]+elsif v_retailer_actual->>'slug' = 'jon-s-supplements'/i);
+  assert.match(migration, /8f938dc266a7f2d9f2e1cb8d6b4f2a82e5d8841ee72b64f8fc610edf6fa48e99/);
+  assert.match(migration, /f1f5697a7ca6c3064b358e9296b98a1e411907a127b03248d14f9d75f90b4307/);
+  assert.match(migration, /b6670a735282f9d04d0064ce2a3bdbbca055d1b99201a4db87fed2d50a25c734/);
+  assert.doesNotMatch(migration, /gladiator|naughty boy|7555942383661|41805313015853/i);
+  assert.doesNotMatch(migration, /create\s+(?:or\s+replace\s+)?function\s+public\.atomic_import_(?:reviewed_parent_variant_allowed|predators|10reps)/i);
+  assert.doesNotMatch(migrationExecutable, /\b(?:insert\s+into|update|delete\s+from)\s+public\.(?:retailers|products|product_variants|retailer_products|offers|price_history|approved_import_plans)\b/i);
+  assert.doesNotMatch(migrationExecutable, /\b(?:grant|revoke)\b/i);
+  assert.match(rollback, /rollback blocked by live approval/i);
+  assert.match(rollback, /47913d9e685b0b0804cac3349a7e8d037878834071a7ad4a69be0c826090e44e/);
+  assert.match(rollback, /7771649ee17b055e5f90ad343a33abf6c950c90c293c575442ee3cb61d671c6e/);
+  assert.doesNotMatch(rollbackExecutable, /\b(?:insert\s+into|update|delete\s+from)\s+public\.(?:retailers|products|product_variants|retailer_products|offers|price_history|approved_import_plans)\b/i);
+  assert.doesNotMatch(rollbackExecutable, /\b(?:grant|revoke)\b/i);
+});
+
 test("existing workflows and scheduled retailer entry points do not opt into V3", () => {
   const workflowRoot = path.join(__dirname, "../.github/workflows");
   const workflowText = fs.readdirSync(workflowRoot)

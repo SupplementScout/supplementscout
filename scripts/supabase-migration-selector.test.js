@@ -33,6 +33,8 @@ const REVIEWED_V3_OPTION_ROLE_MIGRATION = "20261018190000_fix_reviewed_catalogue
 const REVIEWED_V3_OPTION_ROLE_SHA256 = "566114c4a2d312dece3618dc0dd0f54f08186d29921ce38928032417485376a1";
 const REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION = "20261019100000_fix_reviewed_v3_post_create_option_roles.sql";
 const REVIEWED_V3_POST_CREATE_OPTION_ROLE_SHA256 = "bcf85fac13e737857350a24d4d267b5bb2e0a70e9cfa205ba2d58345bc79ff87";
+const REVIEWED_V3_PARENT_POLICY_MIGRATION = "20261019120000_bridge_trusted_v3_reviewed_parent_policy.sql";
+const REVIEWED_V3_PARENT_POLICY_SHA256 = "2ac0e653f0e4f82f517ed93d1a5dd20ef78a74aa848bae57bd2a2addba0c9d28";
 const RA004_CONTROL_STATE_MIGRATION = "20260924100000_add_transactional_retailer_control_state_interface.sql";
 const RA004_PREFLIGHT_MIGRATION = "20260925100000_add_ra004_staging_preflight_metadata_interface.sql";
 const RA004_FORWARD_CONTROL_STATE_MIGRATION = "20260927100000_reissue_transactional_retailer_control_state_interface.sql";
@@ -366,18 +368,20 @@ test.after(() => {
   }
 });
 
-test("staging records the V3 post-create fix as applied", () => {
+test("staging records the V3 post-create fix as applied and the parent-policy bridge as pending", () => {
   const result = validateSelection(validInput());
   assert.equal(result.ledger_count, 108);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, [REVIEWED_V3_PARENT_POLICY_MIGRATION]);
+  assert.deepEqual(result.pending_sha256s, {
+    [REVIEWED_V3_PARENT_POLICY_MIGRATION]: REVIEWED_V3_PARENT_POLICY_SHA256,
+  });
+  assert.equal(result.pending_file, REVIEWED_V3_PARENT_POLICY_MIGRATION);
+  assert.equal(result.pending_sha256, REVIEWED_V3_PARENT_POLICY_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
-  assert.equal(result.selected_files.length, 108);
+  assert.equal(result.selected_files.length, 109);
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes(RA004_FIXTURE_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_GUARD_MIGRATION));
@@ -484,6 +488,7 @@ test("production records the retailer identity bootstrap as applied and keeps al
     { filename: REVIEWED_V3_MIGRATION, sha256: REVIEWED_V3_SHA256 },
     { filename: REVIEWED_V3_OPTION_ROLE_MIGRATION, sha256: REVIEWED_V3_OPTION_ROLE_SHA256 },
     { filename: REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION, sha256: REVIEWED_V3_POST_CREATE_OPTION_ROLE_SHA256 },
+    { filename: REVIEWED_V3_PARENT_POLICY_MIGRATION, sha256: REVIEWED_V3_PARENT_POLICY_SHA256 },
   ]);
   assert.deepEqual(contract.appliedExcluded, [
     "20260929133000_extend_expired_sequential_plan_close.sql",
@@ -593,7 +598,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 108);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 109);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -638,7 +643,7 @@ test("production records the retailer identity bootstrap at ledger 238 and selec
   });
   assert.equal(result.ledger_count, 238);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 242);
+  assert.equal(result.selected_files.length, 243);
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
   assert.ok(result.excluded_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
@@ -654,6 +659,7 @@ test("production records the retailer identity bootstrap at ledger 238 and selec
     REVIEWED_V3_MIGRATION,
     REVIEWED_V3_OPTION_ROLE_MIGRATION,
     REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION,
+    REVIEWED_V3_PARENT_POLICY_MIGRATION,
   ]);
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);
@@ -662,6 +668,7 @@ test("production records the retailer identity bootstrap at ledger 238 and selec
     [REVIEWED_V3_MIGRATION]: REVIEWED_V3_SHA256,
     [REVIEWED_V3_OPTION_ROLE_MIGRATION]: REVIEWED_V3_OPTION_ROLE_SHA256,
     [REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION]: REVIEWED_V3_POST_CREATE_OPTION_ROLE_SHA256,
+    [REVIEWED_V3_PARENT_POLICY_MIGRATION]: REVIEWED_V3_PARENT_POLICY_SHA256,
   });
   assert.ok(result.selected_files.includes(SEO15_GYM_HIGH_SOURCE_RELEASE_MIGRATION));
   assert.ok(result.selected_files.includes("20261009120000_add_compact_other_retailer_fingerprint.sql"));
@@ -782,6 +789,7 @@ test("production exclusions are exact and the approved identity foundation is se
     { filename: REVIEWED_V3_MIGRATION, sha256: REVIEWED_V3_SHA256 },
     { filename: REVIEWED_V3_OPTION_ROLE_MIGRATION, sha256: REVIEWED_V3_OPTION_ROLE_SHA256 },
     { filename: REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION, sha256: REVIEWED_V3_POST_CREATE_OPTION_ROLE_SHA256 },
+    { filename: REVIEWED_V3_PARENT_POLICY_MIGRATION, sha256: REVIEWED_V3_PARENT_POLICY_SHA256 },
   ]);
   assert.equal(
     contract.excluded["20261009120000_add_compact_other_retailer_fingerprint.sql"],
@@ -951,7 +959,7 @@ test("owner-authorized ACL/RLS activation selects exactly one migration from led
   ]), /staging-only/);
 });
 
-test("staging contract records the post-create option-role fix at ledger 108", () => {
+test("staging contract records ledger 108 and only the parent-policy bridge as pending", () => {
   const filename = "20260928100000_diagnose_ra004_preflight_acl_rls.sql";
   assert.equal(CONTRACT.ledgerCount, 108);
   assert.equal(CONTRACT.ledgerFingerprint,
@@ -961,7 +969,9 @@ test("staging contract records the post-create option-role fix at ledger 108", (
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === filename));
   assert.ok(CONTRACT.appliedExcluded.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === REVIEWED_STATE_MIGRATION));
-  assert.deepEqual(CONTRACT.pending, []);
+  assert.deepEqual(CONTRACT.pending, [
+    { filename: REVIEWED_V3_PARENT_POLICY_MIGRATION, sha256: REVIEWED_V3_PARENT_POLICY_SHA256 },
+  ]);
   assert.equal(currentRemoteLedger().length, 108);
   assert.ok(currentRemoteLedger().some(({ version, name }) =>
     `${version}_${name}.sql` === REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION));
@@ -1410,12 +1420,14 @@ test("completed RA-004 fixture activation cannot select or materialize a migrati
   })), /status mismatch/);
 });
 
-test("staging keeps applied SEO-15 and the complete V3 migration chain closed", () => {
+test("staging keeps applied SEO-15 and the deployed V3 migration chain closed", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending_file, REVIEWED_V3_PARENT_POLICY_MIGRATION);
+  assert.equal(result.pending_sha256, REVIEWED_V3_PARENT_POLICY_SHA256);
+  assert.deepEqual(result.pending_files, [REVIEWED_V3_PARENT_POLICY_MIGRATION]);
+  assert.deepEqual(result.pending_sha256s, {
+    [REVIEWED_V3_PARENT_POLICY_MIGRATION]: REVIEWED_V3_PARENT_POLICY_SHA256,
+  });
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(result.selected_files.includes(REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION));
