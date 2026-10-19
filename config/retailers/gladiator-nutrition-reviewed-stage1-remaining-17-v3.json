@@ -1,0 +1,959 @@
+{
+  "schema_version": 3,
+  "kind": "reviewed-catalogue-package-v3",
+  "source_platform": "shopify",
+  "status": "OWNER_APPROVED",
+  "authorized_by": "Marek Kalinka - prior Batch 1 family identity approval; Stage 1 apply is not authorized",
+  "authorized_at": "2026-10-17T00:00:00.000Z",
+  "target_environment": "STAGING",
+  "target_project_ref": "hxnrsyyqffztlvcrtgbf",
+  "retailer": {
+    "id": 12,
+    "name": "Gladiator Nutrition",
+    "slug": "gladiator-nutrition",
+    "website": "https://gladiatornutrition.co.uk",
+    "expected_action": "existing",
+    "shipping_known": true,
+    "shipping_cost": 6.99
+  },
+  "policy": {
+    "reviewed_rows_only": true,
+    "allow_product_creation": true,
+    "allow_variant_creation": true,
+    "allow_canonical_product_updates": false,
+    "allow_canonical_variant_updates": false,
+    "allow_canonical_gtin_updates": false,
+    "allow_category_changes": false,
+    "sku_is_not_gtin": true,
+    "one_plan_at_a_time": true,
+    "fresh_single_use_approval_per_plan": true,
+    "strict_production_readback_after_each_apply": true
+  },
+  "profiles": [
+    {
+      "id": "stage-1-remaining-17",
+      "status": "DRY_RUN_PASS",
+      "csv_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-nutrition-v3-stage1-remaining-17.csv",
+      "csv_sha256": "a5b2a25a002f32867fb8f2ef42c475b8f40050931289cc7f9101b3740e3beae0",
+      "artifact_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-nutrition-v3-stage1-remaining-17-dry-run.json",
+      "artifact_sha256": "505607ccd17535a8921d28f7892bc23a145a83f72e20af891ce451bd8cd6f1c2",
+      "row_count": 17,
+      "blocked_row_count": 0,
+      "conflict_count": 0,
+      "expected_actions": {
+        "retailers_create": 0,
+        "products_create": 17,
+        "product_variants_create": 17,
+        "retailer_products_create": 17,
+        "offers_create": 17,
+        "price_history_create": 17
+      },
+      "rows": [
+        {
+          "review_row": 1,
+          "external_product_id": "15443784794486",
+          "external_variant_id": "56650718970230",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "Naughty Boy Lifestyle",
+          "category": "Whey Protein",
+          "product_name": "Naughty Boy Whey 900g",
+          "variant_name": "Strawberry Milkshake / 30 Servings / 900g",
+          "flavour": "Strawberry Milkshake",
+          "size_value": "900",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 33.99,
+          "in_stock": true,
+          "source_row_fingerprint": "dd70609b2aa4fc89b78cdf8b0130eda55c92f04caa0d5a01348cec006a55e7ae",
+          "plan_fingerprint": "522226f477bf2f74b69be23e78960f07",
+          "external_url": "https://gladiatornutrition.co.uk/products/naughty-boy-whey-900g?variant=56650718970230",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/naughty-boy-whey-900g?variant=56650718970230&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Strawberry Milkshake",
+            "Size": "30 Servings",
+            "Weight": "900g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Strawberry Milkshake"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "900g",
+              "size_value": "900",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 28,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 2,
+          "external_product_id": "7458245312557",
+          "external_variant_id": "41644324519981",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "TWP Nutrition",
+          "category": "Whey Protein",
+          "product_name": "TWP Whey Protein 2.1kg",
+          "variant_name": "Banana Split / 70 Servings / 2.1kg",
+          "flavour": "Banana Split",
+          "size_value": "2100",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 49.99,
+          "in_stock": true,
+          "source_row_fingerprint": "d508ac731247e2bafbcfe361c1721f216a21e54ee1e9d1ff6a2bfe0f197147f2",
+          "plan_fingerprint": "1d531f7b57c36fa44ae1dd23b9d31c15",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-all-the-whey-up?variant=41644324519981",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-all-the-whey-up?variant=41644324519981&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Banana Split",
+            "Size": "70 Servings",
+            "Weight": "2.1kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Banana Split"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2.1kg",
+              "size_value": "2100",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "70 Servings",
+              "count_value": "70",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 29,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 3,
+          "external_product_id": "7558841335853",
+          "external_variant_id": "41811191791661",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "TWP Nutrition",
+          "category": "Whey Protein",
+          "product_name": "TWP Whey Protein Isolate 900g",
+          "variant_name": "Chocolate Caramel / 30 Servings / 900g",
+          "flavour": "Chocolate Caramel",
+          "size_value": "900",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 36.99,
+          "in_stock": true,
+          "source_row_fingerprint": "ecb97266c99011c5da5e72e8f832c703e4b3483f0249dc25535b00e4994c039c",
+          "plan_fingerprint": "f1bb92f6d174523dbd2c531a9c34fda3",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-whey-isolate?variant=41811191791661",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-whey-isolate?variant=41811191791661&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Chocolate Caramel",
+            "Size": "30 Servings",
+            "Weight": "900g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Chocolate Caramel"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "900g",
+              "size_value": "900",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 6,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 4,
+          "external_product_id": "5245623369773",
+          "external_variant_id": "41643912298541",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "TWP Nutrition",
+          "category": "Creatine",
+          "product_name": "TWP Crea-Scendo Creatine Monohydrate",
+          "variant_name": "Rancher Candy / 30 Servings / 472g",
+          "flavour": "Rancher Candy",
+          "size_value": "472",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 29.99,
+          "in_stock": true,
+          "source_row_fingerprint": "e220d82c7f87a084fb4bfe1c0ca2ed0cfa8a55a4db4586cb349e761b83d0e951",
+          "plan_fingerprint": "c5404cf7867d2ed0e6bc605fac9d42b2",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-crea-scendo?variant=41643912298541",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-crea-scendo?variant=41643912298541&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Rancher Candy",
+            "Size": "30 Servings",
+            "Weight": "472g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Rancher Candy"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "472g",
+              "size_value": "472",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 4,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 5,
+          "external_product_id": "5242776780845",
+          "external_variant_id": "55228069249398",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "Ghost Lifestyle",
+          "category": "Pre Workout",
+          "product_name": "Ghost Legend Pre Workout",
+          "variant_name": "Orange Cream / 30 Servings / 660g",
+          "flavour": "Orange Cream",
+          "size_value": "660",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 38.99,
+          "in_stock": true,
+          "source_row_fingerprint": "5be39c46633b1312b9f514998c895be13a7a3620cbe910f1cf0a35b9abbe5996",
+          "plan_fingerprint": "1ecaa3a81ca44734f6d4be99929796f1",
+          "external_url": "https://gladiatornutrition.co.uk/products/ghost-legend?variant=55228069249398",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/ghost-legend?variant=55228069249398&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Orange Cream",
+            "Size": "30 Servings",
+            "Weight": "660g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Orange Cream"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "660g",
+              "size_value": "660",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 9,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 6,
+          "external_product_id": "15306546905462",
+          "external_variant_id": "56130555576694",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "Naughty Boy Lifestyle",
+          "category": "Pre Workout",
+          "product_name": "Naughty Boy Menace V2 Pre-Workout",
+          "variant_name": "Fruit Twist / 60/30 Servings / 320g",
+          "flavour": "Fruit Twist",
+          "size_value": "320",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 32.99,
+          "in_stock": true,
+          "source_row_fingerprint": "dd3f6f91364c068693d3f47732857c2959ae6d4794bfff8ef4797f67c32022ca",
+          "plan_fingerprint": "cb80afc7fac0f7889eab81437602979f",
+          "external_url": "https://gladiatornutrition.co.uk/products/naughty-boy-menace-v2-pre-workout?variant=56130555576694",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/naughty-boy-menace-v2-pre-workout?variant=56130555576694&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Fruit Twist",
+            "Size": "60/30 Servings",
+            "Weight": "320g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Fruit Twist"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "320g",
+              "size_value": "320",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "60/30 Servings",
+              "count_value": "60/30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 14,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 7,
+          "external_product_id": "5298105778221",
+          "external_variant_id": "41306097385517",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "TWP Nutrition",
+          "category": "Pre Workout",
+          "product_name": "TWP LFT V2 Pre Workout",
+          "variant_name": "Georgie's Blood / 30 Servings / 390g",
+          "flavour": "Georgie's Blood",
+          "size_value": "390",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 29.99,
+          "in_stock": true,
+          "source_row_fingerprint": "8b1dd429dc349de98a4037338afea9b2495ca5ea8d730454bb930387469af1b2",
+          "plan_fingerprint": "f210b6f5b61e764a829c7f2ffddcfbe7",
+          "external_url": "https://gladiatornutrition.co.uk/products/lft-v2?variant=41306097385517",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/lft-v2?variant=41306097385517&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavours": "Georgie's Blood",
+            "Size": "30 Servings",
+            "Weight": "390g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavours",
+              "source_value": "Georgie's Blood"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "390g",
+              "size_value": "390",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 13,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 8,
+          "external_product_id": "15919088861558",
+          "external_variant_id": "58916612211062",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "TWP Nutrition",
+          "category": "Pre Workout",
+          "product_name": "TWP LFT V3 Extreme Stim Pre Workout",
+          "variant_name": "Pick N Mix / 60/30 Servings / 360g",
+          "flavour": "Pick N Mix",
+          "size_value": "360",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 33.99,
+          "in_stock": true,
+          "source_row_fingerprint": "cf38c9e05999a044a5a02876f25d55e1f8626fea17d668fb78359b685b8b9460",
+          "plan_fingerprint": "7c391bb8dfa8827e2765bb880ad3e24a",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-lft-v3-extreme-stim-pre-workout?variant=58916612211062",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-lft-v3-extreme-stim-pre-workout?variant=58916612211062&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Pick N Mix",
+            "Size": "60/30 Servings",
+            "Weight": "360g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Pick N Mix"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "360g",
+              "size_value": "360",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "60/30 Servings",
+              "count_value": "60/30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 3,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 9,
+          "external_product_id": "7760102981677",
+          "external_variant_id": "42231995727917",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "TWP Nutrition",
+          "category": "Pre Workout",
+          "product_name": "TWP Nutrition Pre Raw Pre Workout",
+          "variant_name": "Candy Energy / 30 Servings / 375g",
+          "flavour": "Candy Energy",
+          "size_value": "375",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 22.99,
+          "in_stock": true,
+          "source_row_fingerprint": "c184d9a57e3a44f5635b700f3097d84db2648b74d488e8aa612eb1262ab80ba4",
+          "plan_fingerprint": "c8a93a6d118b930bc6b5c7f926bb665f",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-pre-raw-pre-workout?variant=42231995727917",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-pre-raw-pre-workout?variant=42231995727917&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Candy Energy",
+            "Size": "30 Servings",
+            "Weight": "375g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Candy Energy"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "375g",
+              "size_value": "375",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 6,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 10,
+          "external_product_id": "15681432682870",
+          "external_variant_id": "57593757270390",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "NutriFitt",
+          "category": "Pre Workout",
+          "product_name": "NutriFitt Symbiote Extreme High-Stim Pre-Workout",
+          "variant_name": "Apocalyptic Sherbet / 20 Servings / 380g",
+          "flavour": "Apocalyptic Sherbet",
+          "size_value": "380",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 41.99,
+          "in_stock": true,
+          "source_row_fingerprint": "a9a30c0a382eb66e53950ab522d23aed56557634cf5630956cc8553940a4aa0f",
+          "plan_fingerprint": "02141fbe9f6fab2202fa5e1cb889cb0d",
+          "external_url": "https://gladiatornutrition.co.uk/products/nutrifitt-symbiote-extreme-high-stim-pre-workout?variant=57593757270390",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/nutrifitt-symbiote-extreme-high-stim-pre-workout?variant=57593757270390&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Apocalyptic Sherbet",
+            "Size": "20 Servings",
+            "Weight": "380g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Apocalyptic Sherbet"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "380g",
+              "size_value": "380",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "20 Servings",
+              "count_value": "20",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 4,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 11,
+          "external_product_id": "7760104390701",
+          "external_variant_id": "42232023973933",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "TWP Nutrition",
+          "category": "Mass Gainer",
+          "product_name": "TWP Nutrition All The Weight Up Mass Gainer 5kg",
+          "variant_name": "Chocolate Fudge Cake / 25/50 Servings / 5kg",
+          "flavour": "Chocolate Fudge Cake",
+          "size_value": "5000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 49.99,
+          "in_stock": true,
+          "source_row_fingerprint": "ba711bf722c145e33c90fb0b2bf2316d9fa71fa86698a404fd3739ecf44bb615",
+          "plan_fingerprint": "a45fd31f8aaf401d3bb2ba84cd18993a",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-all-the-weight-up-mass-gainer?variant=42232023973933",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-all-the-weight-up-mass-gainer?variant=42232023973933&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Chocolate Fudge Cake",
+            "Size": "25/50 Servings",
+            "Weight": "5kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Chocolate Fudge Cake"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "5kg",
+              "size_value": "5000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "25/50 Servings",
+              "count_value": "25/50",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 3,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 12,
+          "external_product_id": "14654194286966",
+          "external_variant_id": "53561109741942",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_default_variant",
+          "brand": "Supplement Needs",
+          "category": "Health Supplements",
+          "product_name": "Supplement Needs Magnesium Bisglycinate",
+          "variant_name": "",
+          "flavour": null,
+          "size_value": null,
+          "size_unit": null,
+          "pack_count": "1",
+          "product_format": "capsule",
+          "price": 14.99,
+          "in_stock": true,
+          "source_row_fingerprint": "f93349e1884026da1801b0f478ddf4fb4960eba5a99ae473dad3e95b02ab7cb8",
+          "plan_fingerprint": "6473649beab4c43315936004f525d3c0",
+          "external_url": "https://gladiatornutrition.co.uk/products/supplement-needs-magnesium-bisglycinate?variant=53561109741942",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/supplement-needs-magnesium-bisglycinate?variant=53561109741942&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Size": "60 Servings"
+          },
+          "option_roles": {
+            "flavour": null,
+            "physical_size": null,
+            "count": {
+              "source_key": "Size",
+              "source_value": "60 Servings",
+              "count_value": "60",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 1,
+            "meaningful_variant_axes": []
+          },
+          "unit_count": 60,
+          "unit_type": "servings"
+        },
+        {
+          "review_row": 13,
+          "external_product_id": "15244172951926",
+          "external_variant_id": "55888074342774",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_default_variant",
+          "brand": "TWP Nutrition",
+          "category": "Vitamins",
+          "product_name": "TWP Nutrition Vitamin D3 + K2",
+          "variant_name": "",
+          "flavour": null,
+          "size_value": null,
+          "size_unit": null,
+          "pack_count": "1",
+          "product_format": "capsule",
+          "price": 12.99,
+          "in_stock": true,
+          "source_row_fingerprint": "92120ecbd65a5e11ba04a9f283f095e9ebd0af8a81fd54bb1d90d15e91278f35",
+          "plan_fingerprint": "2f8c2f26ff1a23e6be68a2eefc7eaee7",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-vitamin-d3-k2?variant=55888074342774",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-vitamin-d3-k2?variant=55888074342774&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Size": "90 Servings"
+          },
+          "option_roles": {
+            "flavour": null,
+            "physical_size": null,
+            "count": {
+              "source_key": "Size",
+              "source_value": "90 Servings",
+              "count_value": "90",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 1,
+            "meaningful_variant_axes": []
+          },
+          "unit_count": 90,
+          "unit_type": "servings"
+        },
+        {
+          "review_row": 14,
+          "external_product_id": "15244131860854",
+          "external_variant_id": "55887864496502",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_default_variant",
+          "brand": "TWP Nutrition",
+          "category": "Health Supplements",
+          "product_name": "TWP Nutrition Omega 3 Fish Oils",
+          "variant_name": "",
+          "flavour": null,
+          "size_value": null,
+          "size_unit": null,
+          "pack_count": "1",
+          "product_format": "softgel",
+          "price": 16.99,
+          "in_stock": true,
+          "source_row_fingerprint": "f6ec03578273873f07c1d710b64a0f2c7b92e2d9e5e34e74c11595c8ad2e6feb",
+          "plan_fingerprint": "1c1b8530e1bd18218235f7082df4cb46",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-omega-3-fish-oils?variant=55887864496502",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-omega-3-fish-oils?variant=55887864496502&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Size": "90 Servings"
+          },
+          "option_roles": {
+            "flavour": null,
+            "physical_size": null,
+            "count": {
+              "source_key": "Size",
+              "source_value": "90 Servings",
+              "count_value": "90",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 1,
+            "meaningful_variant_axes": []
+          },
+          "unit_count": 90,
+          "unit_type": "servings"
+        },
+        {
+          "review_row": 15,
+          "external_product_id": "4916354514989",
+          "external_variant_id": "33879575035949",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_default_variant",
+          "brand": "TWP Nutrition",
+          "category": "Health Supplements",
+          "product_name": "TWP Ashwagandha",
+          "variant_name": "",
+          "flavour": null,
+          "size_value": null,
+          "size_unit": null,
+          "pack_count": "1",
+          "product_format": "capsule",
+          "price": 15.99,
+          "in_stock": true,
+          "source_row_fingerprint": "01cc4d9f45671409747c1f8b9166a362b60b26c68cb7c7b8cf2ea265dd7df261",
+          "plan_fingerprint": "d3753d4e9a3dc347dbfa7f8302ac1515",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-ashwagandha?variant=33879575035949",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-ashwagandha?variant=33879575035949&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Size": "30 Servings"
+          },
+          "option_roles": {
+            "flavour": null,
+            "physical_size": null,
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 1,
+            "meaningful_variant_axes": []
+          },
+          "unit_count": 30,
+          "unit_type": "servings"
+        },
+        {
+          "review_row": 16,
+          "external_product_id": "5235098484781",
+          "external_variant_id": "34938530660397",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "TWP Nutrition",
+          "category": "Amino Acids",
+          "product_name": "TWP Endure BCAA/EAA",
+          "variant_name": "Twisted Slush / 30 Servings / 510g",
+          "flavour": "Twisted Slush",
+          "size_value": "510",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 28.99,
+          "in_stock": true,
+          "source_row_fingerprint": "21fa816af31ae6173f0a10878576b5fe7894360c46cbb00de2f69be8c814a7f2",
+          "plan_fingerprint": "7f5d81a4538f614f804551f5c0f814c0",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-endure-bcaa-eaa?variant=34938530660397",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-endure-bcaa-eaa?variant=34938530660397&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Twisted Slush",
+            "Size": "30 Servings",
+            "Weight": "510g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Twisted Slush"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "510g",
+              "size_value": "510",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 23,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 17,
+          "external_product_id": "7460084154413",
+          "external_variant_id": "41651459457069",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "TWP Nutrition",
+          "category": "Health Supplements",
+          "product_name": "TWP Hydraplenish Electrolytes",
+          "variant_name": "Mango Passionfruit / 80 Servings / 800g",
+          "flavour": "Mango Passionfruit",
+          "size_value": "800",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 33.99,
+          "in_stock": true,
+          "source_row_fingerprint": "1825ff08fbf87e1ef26932625783738c359cc2d394d377000ab64e273d4dd854",
+          "plan_fingerprint": "9699419990e9d70cd7a3a73bb6ac4df5",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-hydraplenish?variant=41651459457069",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-hydraplenish?variant=41651459457069&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Mango Passionfruit",
+            "Size": "80 Servings",
+            "Weight": "800g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Mango Passionfruit"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "800g",
+              "size_value": "800",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "80 Servings",
+              "count_value": "80",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 6,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        }
+      ]
+    }
+  ]
+}
