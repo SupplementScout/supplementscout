@@ -232,6 +232,7 @@ create function public.atomic_import_is_simply_identity_only_upgrade(p_plan json
 create function public.atomic_import_safe_create_category_allowed(p_category text,p_name text,p_format text) returns boolean language sql immutable as $$select true$$;
 create function public.atomic_import_reviewed_parent_variant_allowed(text,text,text,text,text,text) returns boolean language sql immutable as $$select true$$;
 create function public.atomic_import_predators_v3_parent_variant_transport_allowed(jsonb,jsonb) returns boolean language sql immutable as $$select true$$;
+create function public.atomic_import_10reps_v10_parent_variant_transport_allowed(jsonb,jsonb) returns boolean language sql immutable as $$select false$$;
 create function public.atomic_import_validate_variant_plan_core(p_plan jsonb) returns jsonb language sql stable as $$select jsonb_build_object('valid',true,'path','fixture-variant-core')$$;
 create function public.apply_verified_offer_no_change_plan(p_plan jsonb) returns jsonb language plpgsql volatile as $$begin raise exception 'fixture no-change path not expected'; end$$;
 create function public.retailer_catalogue_actual_database_target() returns jsonb language sql stable security definer as $$select '{"target_environment":"${environment}","project_ref":"${target.projectRef}"}'::jsonb$$;
