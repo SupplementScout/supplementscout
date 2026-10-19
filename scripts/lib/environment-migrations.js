@@ -218,12 +218,7 @@ const APPLIED_EXCLUSIONS = Object.freeze({
 });
 
 const PENDING_MIGRATIONS = Object.freeze({
-  STAGING: Object.freeze([
-    Object.freeze({
-      filename: "20261019130000_fix_reviewed_v3_plural_flavour_compatibility.sql",
-      sha256: "6787556be4c02be0f805b177e6a03bbad11c76b48cb9c336ba69c69cd5544a4d",
-    }),
-  ]),
+  STAGING: Object.freeze([]),
   PRODUCTION: Object.freeze([
     Object.freeze({
       filename: "20261017130000_add_reviewed_catalogue_bounded_state.sql",

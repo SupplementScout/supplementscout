@@ -372,16 +372,14 @@ test.after(() => {
   }
 });
 
-test("staging records the deployed reviewed V3 chain and selects only plural-flavour compatibility", () => {
+test("staging records the deployed reviewed V3 chain including plural-flavour compatibility", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 109);
+  assert.equal(result.ledger_count, 110);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending_files, [REVIEWED_V3_PLURAL_FLAVOUR_MIGRATION]);
-  assert.deepEqual(result.pending_sha256s, {
-    [REVIEWED_V3_PLURAL_FLAVOUR_MIGRATION]: REVIEWED_V3_PLURAL_FLAVOUR_SHA256,
-  });
-  assert.equal(result.pending_file, REVIEWED_V3_PLURAL_FLAVOUR_MIGRATION);
-  assert.equal(result.pending_sha256, REVIEWED_V3_PLURAL_FLAVOUR_SHA256);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
@@ -967,24 +965,24 @@ test("owner-authorized ACL/RLS activation selects exactly one migration from led
   ]), /staging-only/);
 });
 
-test("staging contract records ledger 109 with only plural-flavour compatibility pending", () => {
+test("staging contract records ledger 110 with plural-flavour compatibility deployed", () => {
   const filename = "20260928100000_diagnose_ra004_preflight_acl_rls.sql";
-  assert.equal(CONTRACT.ledgerCount, 109);
+  assert.equal(CONTRACT.ledgerCount, 110);
   assert.equal(CONTRACT.ledgerFingerprint,
-    "fb6e9d5ecf5046959a0b47a99985e6aac940ea5fb80d53bbc68245eddb0b478d");
+    "7bac63f41fd36a44f1bb8ab735e7b80e623870adca36b2517daaa78da3f23cd9");
   assert.ok(CONTRACT.appliedExcluded.includes(filename));
   assert.ok(CONTRACT.appliedExcluded.includes(RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION));
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === filename));
   assert.ok(CONTRACT.appliedExcluded.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === REVIEWED_STATE_MIGRATION));
-  assert.deepEqual(CONTRACT.pending, [
-    { filename: REVIEWED_V3_PLURAL_FLAVOUR_MIGRATION, sha256: REVIEWED_V3_PLURAL_FLAVOUR_SHA256 },
-  ]);
-  assert.equal(currentRemoteLedger().length, 109);
+  assert.deepEqual(CONTRACT.pending, []);
+  assert.equal(currentRemoteLedger().length, 110);
   assert.ok(currentRemoteLedger().some(({ version, name }) =>
     `${version}_${name}.sql` === REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION));
   assert.ok(currentRemoteLedger().some(({ version, name }) =>
     `${version}_${name}.sql` === REVIEWED_V3_PARENT_POLICY_MIGRATION));
+  assert.ok(currentRemoteLedger().some(({ version, name }) =>
+    `${version}_${name}.sql` === REVIEWED_V3_PLURAL_FLAVOUR_MIGRATION));
   assert.equal(ledgerRowsFingerprint(currentRemoteLedger(), { targetEnvironment: "STAGING" }),
     CONTRACT.ledgerFingerprint);
 });
@@ -1430,17 +1428,16 @@ test("completed RA-004 fixture activation cannot select or materialize a migrati
   })), /status mismatch/);
 });
 
-test("staging keeps applied SEO-15 and the deployed V3 chain closed while selecting the new compatibility migration", () => {
+test("staging keeps applied SEO-15 and the full deployed V3 chain closed", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, REVIEWED_V3_PLURAL_FLAVOUR_MIGRATION);
-  assert.equal(result.pending_sha256, REVIEWED_V3_PLURAL_FLAVOUR_SHA256);
-  assert.deepEqual(result.pending_files, [REVIEWED_V3_PLURAL_FLAVOUR_MIGRATION]);
-  assert.deepEqual(result.pending_sha256s, {
-    [REVIEWED_V3_PLURAL_FLAVOUR_MIGRATION]: REVIEWED_V3_PLURAL_FLAVOUR_SHA256,
-  });
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(result.selected_files.includes(REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION));
+  assert.ok(result.selected_files.includes(REVIEWED_V3_PLURAL_FLAVOUR_MIGRATION));
 });
 
 test("Group A identity migrations are production-bound and cannot change commercial fields", () => {
