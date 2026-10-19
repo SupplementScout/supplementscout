@@ -321,6 +321,7 @@ function withoutCurrentSeo15Migrations(rows) {
     REVIEWED_V3_MIGRATION,
     REVIEWED_V3_OPTION_ROLE_MIGRATION,
     REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION,
+    REVIEWED_V3_PARENT_POLICY_MIGRATION,
   ].includes(`${version}_${name}.sql`));
 }
 
@@ -368,16 +369,14 @@ test.after(() => {
   }
 });
 
-test("staging records the V3 post-create fix as applied and the parent-policy bridge as pending", () => {
+test("staging records the full reviewed V3 infrastructure chain as applied", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 108);
+  assert.equal(result.ledger_count, 109);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending_files, [REVIEWED_V3_PARENT_POLICY_MIGRATION]);
-  assert.deepEqual(result.pending_sha256s, {
-    [REVIEWED_V3_PARENT_POLICY_MIGRATION]: REVIEWED_V3_PARENT_POLICY_SHA256,
-  });
-  assert.equal(result.pending_file, REVIEWED_V3_PARENT_POLICY_MIGRATION);
-  assert.equal(result.pending_sha256, REVIEWED_V3_PARENT_POLICY_SHA256);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
@@ -959,22 +958,22 @@ test("owner-authorized ACL/RLS activation selects exactly one migration from led
   ]), /staging-only/);
 });
 
-test("staging contract records ledger 108 and only the parent-policy bridge as pending", () => {
+test("staging contract records ledger 109 with no reviewed migration pending", () => {
   const filename = "20260928100000_diagnose_ra004_preflight_acl_rls.sql";
-  assert.equal(CONTRACT.ledgerCount, 108);
+  assert.equal(CONTRACT.ledgerCount, 109);
   assert.equal(CONTRACT.ledgerFingerprint,
-    "fbd8ec7710d167a5259bd0c4083b168c12b6a1ed5f72b21e3b623bac0b5c7d6e");
+    "fb6e9d5ecf5046959a0b47a99985e6aac940ea5fb80d53bbc68245eddb0b478d");
   assert.ok(CONTRACT.appliedExcluded.includes(filename));
   assert.ok(CONTRACT.appliedExcluded.includes(RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION));
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === filename));
   assert.ok(CONTRACT.appliedExcluded.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === REVIEWED_STATE_MIGRATION));
-  assert.deepEqual(CONTRACT.pending, [
-    { filename: REVIEWED_V3_PARENT_POLICY_MIGRATION, sha256: REVIEWED_V3_PARENT_POLICY_SHA256 },
-  ]);
-  assert.equal(currentRemoteLedger().length, 108);
+  assert.deepEqual(CONTRACT.pending, []);
+  assert.equal(currentRemoteLedger().length, 109);
   assert.ok(currentRemoteLedger().some(({ version, name }) =>
     `${version}_${name}.sql` === REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION));
+  assert.ok(currentRemoteLedger().some(({ version, name }) =>
+    `${version}_${name}.sql` === REVIEWED_V3_PARENT_POLICY_MIGRATION));
   assert.equal(ledgerRowsFingerprint(currentRemoteLedger(), { targetEnvironment: "STAGING" }),
     CONTRACT.ledgerFingerprint);
 });
@@ -1422,12 +1421,10 @@ test("completed RA-004 fixture activation cannot select or materialize a migrati
 
 test("staging keeps applied SEO-15 and the deployed V3 migration chain closed", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, REVIEWED_V3_PARENT_POLICY_MIGRATION);
-  assert.equal(result.pending_sha256, REVIEWED_V3_PARENT_POLICY_SHA256);
-  assert.deepEqual(result.pending_files, [REVIEWED_V3_PARENT_POLICY_MIGRATION]);
-  assert.deepEqual(result.pending_sha256s, {
-    [REVIEWED_V3_PARENT_POLICY_MIGRATION]: REVIEWED_V3_PARENT_POLICY_SHA256,
-  });
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(result.selected_files.includes(REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION));
