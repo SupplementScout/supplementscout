@@ -7,6 +7,14 @@ select pg_advisory_xact_lock(hashtextextended('reviewed-catalogue-v3-schema',0))
 
 do $install$
 declare
+  v_helper regprocedure;
+  v_helper_definition text;
+  v_helper_patched text;
+  v_helper_owner oid;
+  v_helper_volatility "char";
+  v_helper_security_definer boolean;
+  v_helper_config text[];
+  v_helper_acl aclitem[];
   v_validator regprocedure;
   v_definition text;
   v_patched text;
@@ -16,6 +24,18 @@ declare
   v_security_definer boolean;
   v_config text[];
   v_acl aclitem[];
+  v_helper_original_validation text := $patch$  perform public.atomic_import_validate_reviewed_catalogue_v3_plan(p_plan,p_envelope);$patch$;
+  v_helper_patched_validation text := $patch$  if not public.atomic_import_reviewed_catalogue_v3_plan_allowed(p_plan) then
+    raise exception 'V3_LEGACY_COMPATIBILITY_MISMATCH: trusted V3 context required';
+  end if;
+  if not exists(
+    select 1 from public.approved_import_plans
+    where id::text=current_setting('app.reviewed_catalogue_v3_approval_id',true)
+      and plan_json=p_plan
+      and authorization_envelope=p_envelope
+  ) then
+    raise exception 'V3_LEGACY_COMPATIBILITY_MISMATCH: approval envelope binding differs';
+  end if;$patch$;
   v_original_declaration text := '  v_evidence jsonb;';
   v_patched_declaration text := $patch$  v_evidence jsonb;
   v_reviewed_v3_envelope jsonb;$patch$;
@@ -53,6 +73,36 @@ begin
        'public.apply_approved_reviewed_catalogue_v3_plan(uuid,jsonb,jsonb)'::regprocedure
      ),'UTF8')),'hex') <> 'b6670a735282f9d04d0064ce2a3bdbbca055d1b99201a4db87fed2d50a25c734' then
     raise exception 'reviewed catalogue V3 post-create trust-boundary lineage differs';
+  end if;
+
+  v_helper := 'public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)'::regprocedure;
+  select pg_get_functiondef(v_helper),p.proowner,p.provolatile,p.prosecdef,p.proconfig,p.proacl
+    into v_helper_definition,v_helper_owner,v_helper_volatility,v_helper_security_definer,v_helper_config,v_helper_acl
+    from pg_proc p where p.oid=v_helper;
+  if (length(v_helper_definition)-length(replace(v_helper_definition,v_helper_original_validation,'')))
+       /length(v_helper_original_validation)<>1
+     or v_helper_owner<>'postgres'::regrole
+     or v_helper_volatility<>'s'
+     or not v_helper_security_definer
+     or v_helper_config is distinct from array['search_path=pg_catalog, public, pg_temp']::text[]
+     or exists(
+       select 1 from pg_proc p
+       cross join lateral aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) acl
+       where p.oid=v_helper and acl.grantee<>p.proowner and acl.privilege_type='EXECUTE'
+     ) then
+    raise exception 'reviewed catalogue V3 compatibility helper anchors or metadata differ';
+  end if;
+  v_helper_patched := replace(v_helper_definition,v_helper_original_validation,v_helper_patched_validation);
+  execute v_helper_patched;
+  if encode(pg_catalog.sha256(convert_to(pg_get_functiondef(v_helper),'UTF8')),'hex')
+       <> '906cb5abad08deb8452fa9ae4fed8be8669b760e6f2ef088ae8846f5536b27db'
+     or not exists(
+       select 1 from pg_proc p where p.oid=v_helper
+         and p.proowner=v_helper_owner and p.provolatile=v_helper_volatility
+         and p.prosecdef=v_helper_security_definer
+         and p.proconfig is not distinct from v_helper_config and p.proacl is not distinct from v_helper_acl
+     ) then
+    raise exception 'reviewed catalogue V3 compatibility helper verification failed';
   end if;
 
   v_validator := 'public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)'::regprocedure;

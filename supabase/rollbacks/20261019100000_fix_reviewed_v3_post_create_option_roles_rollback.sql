@@ -7,6 +7,14 @@ select pg_advisory_xact_lock(hashtextextended('reviewed-catalogue-v3-schema',0))
 
 do $rollback$
 declare
+  v_helper regprocedure;
+  v_helper_definition text;
+  v_helper_restored text;
+  v_helper_owner oid;
+  v_helper_volatility "char";
+  v_helper_security_definer boolean;
+  v_helper_config text[];
+  v_helper_acl aclitem[];
   v_validator regprocedure;
   v_definition text;
   v_restored text;
@@ -16,6 +24,18 @@ declare
   v_security_definer boolean;
   v_config text[];
   v_acl aclitem[];
+  v_helper_original_validation text := $patch$  perform public.atomic_import_validate_reviewed_catalogue_v3_plan(p_plan,p_envelope);$patch$;
+  v_helper_patched_validation text := $patch$  if not public.atomic_import_reviewed_catalogue_v3_plan_allowed(p_plan) then
+    raise exception 'V3_LEGACY_COMPATIBILITY_MISMATCH: trusted V3 context required';
+  end if;
+  if not exists(
+    select 1 from public.approved_import_plans
+    where id::text=current_setting('app.reviewed_catalogue_v3_approval_id',true)
+      and plan_json=p_plan
+      and authorization_envelope=p_envelope
+  ) then
+    raise exception 'V3_LEGACY_COMPATIBILITY_MISMATCH: approval envelope binding differs';
+  end if;$patch$;
   v_original_declaration text := '  v_evidence jsonb;';
   v_patched_declaration text := $patch$  v_evidence jsonb;
   v_reviewed_v3_envelope jsonb;$patch$;
@@ -74,6 +94,31 @@ begin
       and p.proconfig is not distinct from v_config and p.proacl is not distinct from v_acl
   ) then
     raise exception 'reviewed catalogue V3 post-create rollback changed function metadata';
+  end if;
+
+  v_helper := 'public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)'::regprocedure;
+  select pg_get_functiondef(v_helper),p.proowner,p.provolatile,p.prosecdef,p.proconfig,p.proacl
+    into v_helper_definition,v_helper_owner,v_helper_volatility,v_helper_security_definer,v_helper_config,v_helper_acl
+    from pg_proc p where p.oid=v_helper;
+  if encode(pg_catalog.sha256(convert_to(v_helper_definition,'UTF8')),'hex')
+       <> '906cb5abad08deb8452fa9ae4fed8be8669b760e6f2ef088ae8846f5536b27db'
+     or (length(v_helper_definition)-length(replace(v_helper_definition,v_helper_patched_validation,'')))
+       /length(v_helper_patched_validation)<>1 then
+    raise exception 'reviewed catalogue V3 compatibility helper rollback blocked by runtime drift';
+  end if;
+  v_helper_restored := replace(v_helper_definition,v_helper_patched_validation,v_helper_original_validation);
+  if encode(pg_catalog.sha256(convert_to(v_helper_restored,'UTF8')),'hex')
+       <> '849df8441e8994daf1acb514705808fde17467e033185e30cc432ad165a13905' then
+    raise exception 'reviewed catalogue V3 compatibility helper rollback cannot restore known lineage';
+  end if;
+  execute v_helper_restored;
+  if not exists(
+    select 1 from pg_proc p where p.oid=v_helper
+      and p.proowner=v_helper_owner and p.provolatile=v_helper_volatility
+      and p.prosecdef=v_helper_security_definer
+      and p.proconfig is not distinct from v_helper_config and p.proacl is not distinct from v_helper_acl
+  ) then
+    raise exception 'reviewed catalogue V3 compatibility helper rollback changed function metadata';
   end if;
 end
 $rollback$;

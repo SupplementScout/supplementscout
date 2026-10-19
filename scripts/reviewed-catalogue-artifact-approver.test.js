@@ -767,6 +767,25 @@ test("V3 apply option-role compatibility is validation-only and fail-closed", ()
   assert.doesNotMatch(rollbackExecutable, /\b(?:insert\s+into|update|delete\s+from)\s+public\.(?:retailers|products|product_variants|retailer_products|offers|price_history|approved_import_plans)\b/i);
 });
 
+test("V3 post-create option-role compatibility preserves the trusted plan and raw DML", () => {
+  const migration = fs.readFileSync(path.join(__dirname, "../supabase/migrations/20261019100000_fix_reviewed_v3_post_create_option_roles.sql"), "utf8");
+  const rollback = fs.readFileSync(path.join(__dirname, "../supabase/rollbacks/20261019100000_fix_reviewed_v3_post_create_option_roles_rollback.sql"), "utf8");
+  const migrationExecutable = migration.replace(/\$patch\$[\s\S]*?\$patch\$/gi, "");
+  const rollbackExecutable = rollback.replace(/\$patch\$[\s\S]*?\$patch\$/gi, "");
+
+  assert.match(migration, /atomic_import_reviewed_catalogue_v3_plan_allowed\(p_plan\)[\s\S]+plan_json=p_plan[\s\S]+authorization_envelope=p_envelope/i);
+  assert.match(migration, /current_setting\('app\.reviewed_catalogue_v3_approval_id',true\)/i);
+  assert.match(migration, /atomic_import_reviewed_v3_legacy_validation_evidence\(p_plan,v_reviewed_v3_envelope\)/i);
+  assert.match(migration, /p_plan#>'\{retailer_product,values,external_options\}'/i);
+  assert.match(migration, /906cb5abad08deb8452fa9ae4fed8be8669b760e6f2ef088ae8846f5536b27db/i);
+  assert.match(rollback, /849df8441e8994daf1acb514705808fde17467e033185e30cc432ad165a13905/i);
+  assert.match(rollback, /rollback blocked by live approval/i);
+  assert.doesNotMatch(migration, /gladiator|naughty boy|7555942383661|41805313015853/i);
+  assert.doesNotMatch(migrationExecutable, /\b(?:insert\s+into|update|delete\s+from)\s+public\.(?:retailers|products|product_variants|retailer_products|offers|price_history|approved_import_plans)\b/i);
+  assert.doesNotMatch(migrationExecutable, /\bgrant\b/i);
+  assert.doesNotMatch(rollbackExecutable, /\b(?:insert\s+into|update|delete\s+from)\s+public\.(?:retailers|products|product_variants|retailer_products|offers|price_history|approved_import_plans)\b/i);
+});
+
 test("existing workflows and scheduled retailer entry points do not opt into V3", () => {
   const workflowRoot = path.join(__dirname, "../.github/workflows");
   const workflowText = fs.readdirSync(workflowRoot)

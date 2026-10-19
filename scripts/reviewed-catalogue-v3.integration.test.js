@@ -13,6 +13,8 @@ const OPTION_ROLE_MIGRATION = "supabase/migrations/20261018190000_fix_reviewed_c
 const OPTION_ROLE_ROLLBACK = "supabase/rollbacks/20261018190000_fix_reviewed_catalogue_v3_apply_option_roles_rollback.sql";
 const POST_CREATE_OPTION_ROLE_MIGRATION = "supabase/migrations/20261019100000_fix_reviewed_v3_post_create_option_roles.sql";
 const POST_CREATE_OPTION_ROLE_ROLLBACK = "supabase/rollbacks/20261019100000_fix_reviewed_v3_post_create_option_roles_rollback.sql";
+const LEGACY_COMPATIBILITY_HELPER_SHA = "849df8441e8994daf1acb514705808fde17467e033185e30cc432ad165a13905";
+const POST_CREATE_COMPATIBILITY_HELPER_SHA = "906cb5abad08deb8452fa9ae4fed8be8669b760e6f2ef088ae8846f5536b27db";
 const LIVE_APPLY_DISPATCH_FIXTURE = "supabase/test/reviewed_catalogue_v3_live_apply_dispatch_fixture.sql";
 const TARGETS = Object.freeze({
   STAGING: Object.freeze({
@@ -692,6 +694,14 @@ function exerciseBaseline(environment) {
       "public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)",
       `${environment} exact live pre-source validator metadata`,
     );
+    const compatibilityHelperMetadata = functionMetadata(
+      container,
+      "public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)",
+      `${environment} pre-fix compatibility helper metadata`,
+    );
+    assert.equal(scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
+      'public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)'::regprocedure
+    ),'UTF8')),'hex')`, `${environment} pre-fix compatibility helper SHA`), LEGACY_COMPATIBILITY_HELPER_SHA);
 
     const gapFixture = actionFixture(environment, "create_product_with_variant", 93);
     gapFixture.plan.product.values.servings = "67";
@@ -752,10 +762,27 @@ function exerciseBaseline(environment) {
       functionMetadata(container, "public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)", `${environment} patched live pre-source validator metadata`),
       livePreSourceMetadata,
     );
+    assert.equal(scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
+      'public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)'::regprocedure
+    ),'UTF8')),'hex')`, `${environment} patched compatibility helper SHA`), POST_CREATE_COMPATIBILITY_HELPER_SHA);
+    assert.deepEqual(
+      functionMetadata(container, "public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)", `${environment} patched compatibility helper metadata`),
+      compatibilityHelperMetadata,
+    );
     fails(
       sql(container, `select public.atomic_import_validate_pre_source_metadata_plan_core(${literal(sealedGapFixture.plan)})`),
       `${environment} non-V3 reviewed-create remains closed after fix`,
       /reviewed variant option size mismatch/,
+    );
+    fails(
+      sql(container, `begin; select set_config('app.reviewed_catalogue_v3_approval_id','${gapApproval.approval_id}',true); select public.atomic_import_validate_pre_source_metadata_plan_core(${literal(sealedGapFixture.plan)}); rollback`),
+      `${environment} fake GUC remains insufficient after fix`,
+      /reviewed variant option size mismatch/,
+    );
+    fails(
+      sql(container, `set session authorization service_role; begin; select set_config('app.reviewed_catalogue_v3_approval_id','${gapApproval.approval_id}',true); select public.atomic_import_validate_pre_source_metadata_plan_core(${literal(sealedGapFixture.plan)}); rollback`),
+      `${environment} service-role compatibility remains denied after fix`,
+      /permission denied/,
     );
     const gapApplied = json(
       container,
@@ -877,6 +904,13 @@ function exerciseBaseline(environment) {
     assert.deepEqual(
       functionMetadata(container, "public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)", `${environment} restored live pre-source validator metadata`),
       livePreSourceMetadata,
+    );
+    assert.equal(scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
+      'public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)'::regprocedure
+    ),'UTF8')),'hex')`, `${environment} restored compatibility helper SHA`), LEGACY_COMPATIBILITY_HELPER_SHA);
+    assert.deepEqual(
+      functionMetadata(container, "public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)", `${environment} restored compatibility helper metadata`),
+      compatibilityHelperMetadata,
     );
     succeed(file(container, OPTION_ROLE_ROLLBACK), `${environment} rollback V3 option-role compatibility`);
     assert.equal(scalar(container, "select to_regprocedure('public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)') is null", `${environment} compatibility helper removed`), "t");
