@@ -18,6 +18,7 @@ const TARGETS = Object.freeze({
     validatorSha: "70f134e6f7d3afa25de52353ff5e8aca3cc0f7c34a58d9da3577ead4ac11f4a9",
     standardCoreFixture: "supabase/test/reviewed_catalogue_v3_staging_standard_apply_core.sql",
     standardCoreSha: "69311caa0dda83010f986dfbd76bc0017d3a0f999c64b1dd5e35dcb87b7d4c48",
+    legacyCountSizeError: "variant option size mismatch",
     hasV1: false,
     hasExecutionResult: false,
   }),
@@ -26,6 +27,7 @@ const TARGETS = Object.freeze({
     validatorSha: "b9d99d9245ff2ea493fa9ed4d160f0e9ff4c450764cb40a5a23325d0ca069583",
     standardCoreFixture: "supabase/test/reviewed_catalogue_v3_production_standard_apply_core.sql",
     standardCoreSha: "0b0bccb01e521228db93f495db7984372df5b177cf7009edc205620c1ddef634",
+    legacyCountSizeError: "invalid variant option size",
     hasV1: true,
     hasExecutionResult: true,
   }),
@@ -599,8 +601,12 @@ function exerciseBaseline(environment) {
       `select public.fixture_capture_standard_apply_error(${literal(preFixFixture.plan)})`,
       `${environment} non-V3 count-size error before`,
     );
-    assert.deepEqual(nonV3ErrorBefore, { sqlstate: "P0001", message: "variant option size mismatch" });
-    fails(sql(container, asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${preFixApproval.approval_id}',${literal(preFixFixture.plan)},${literal(preFixFixture.envelope)})`)), `${environment} exact pre-fix apply failure`, /variant option size mismatch/);
+    assert.deepEqual(nonV3ErrorBefore, { sqlstate: "P0001", message: target.legacyCountSizeError });
+    fails(
+      sql(container, asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${preFixApproval.approval_id}',${literal(preFixFixture.plan)},${literal(preFixFixture.envelope)})`)),
+      `${environment} exact pre-fix apply failure`,
+      new RegExp(target.legacyCountSizeError),
+    );
     assert.equal(scalar(container, `select status||':'||coalesce(consumed_at::text,'NULL') from approved_import_plans where id='${preFixApproval.approval_id}'`, `${environment} pre-fix approval remains unconsumed`), "approved:NULL");
     succeed(sql(container, `delete from public.approved_import_plans where id='${preFixApproval.approval_id}'`), `${environment} remove disposable pre-fix approval`);
 
