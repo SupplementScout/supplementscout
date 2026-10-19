@@ -218,7 +218,12 @@ const APPLIED_EXCLUSIONS = Object.freeze({
 });
 
 const PENDING_MIGRATIONS = Object.freeze({
-  STAGING: Object.freeze([]),
+  STAGING: Object.freeze([
+    Object.freeze({
+      filename: "20261019130000_fix_reviewed_v3_plural_flavour_compatibility.sql",
+      sha256: "6787556be4c02be0f805b177e6a03bbad11c76b48cb9c336ba69c69cd5544a4d",
+    }),
+  ]),
   PRODUCTION: Object.freeze([
     Object.freeze({
       filename: "20261017130000_add_reviewed_catalogue_bounded_state.sql",
@@ -239,6 +244,10 @@ const PENDING_MIGRATIONS = Object.freeze({
     Object.freeze({
       filename: "20261019120000_bridge_trusted_v3_reviewed_parent_policy.sql",
       sha256: "2ac0e653f0e4f82f517ed93d1a5dd20ef78a74aa848bae57bd2a2addba0c9d28",
+    }),
+    Object.freeze({
+      filename: "20261019130000_fix_reviewed_v3_plural_flavour_compatibility.sql",
+      sha256: "6787556be4c02be0f805b177e6a03bbad11c76b48cb9c336ba69c69cd5544a4d",
     }),
   ]),
 });

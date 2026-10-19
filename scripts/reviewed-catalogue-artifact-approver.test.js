@@ -812,6 +812,30 @@ test("trusted V3 reviewed-parent bridge replaces only legacy family and transpor
   assert.doesNotMatch(rollbackExecutable, /\b(?:grant|revoke)\b/i);
 });
 
+test("trusted V3 plural flavour compatibility is validation-only, generic and bounded", () => {
+  const migration = fs.readFileSync(path.join(__dirname, "../supabase/migrations/20261019130000_fix_reviewed_v3_plural_flavour_compatibility.sql"), "utf8");
+  const rollback = fs.readFileSync(path.join(__dirname, "../supabase/rollbacks/20261019130000_fix_reviewed_v3_plural_flavour_compatibility_rollback.sql"), "utf8");
+  const migrationExecutable = migration.replace(/\$patch\$[\s\S]*?\$patch\$/gi, "");
+  const rollbackExecutable = rollback.replace(/\$patch\$[\s\S]*?\$patch\$/gi, "");
+
+  assert.match(migration, /906cb5abad08deb8452fa9ae4fed8be8669b760e6f2ef088ae8846f5536b27db/);
+  assert.match(migration, /3f25c76ae3407552f99e035d60f2629838ab878d5f127b20d29be02aa834fdfc/);
+  assert.match(migration, /p_envelope#>'\{option_roles,flavour\}'/i);
+  assert.match(migration, /not in \('flavour','flavor','flavours','flavors'\)/i);
+  assert.match(migration, /v_flavour_alias_count<>1/i);
+  assert.match(migration, /array\['Flavour'\][\s\S]+to_jsonb\(v_flavour->>'source_value'\)/i);
+  assert.match(migration, /jsonb_set\(v_evidence,'\{external_options\}',v_validation_options,false\)/i);
+  assert.match(migration, /p\.proowner=v_owner[\s\S]+p\.provolatile=v_volatility[\s\S]+p\.prosecdef=v_security_definer[\s\S]+p\.proconfig is not distinct from v_config[\s\S]+p\.proacl is not distinct from v_acl/i);
+  assert.doesNotMatch(migration, /gladiator|twp|5298105778221|41306097385517|georgie/i);
+  assert.doesNotMatch(migrationExecutable, /\b(?:insert\s+into|update|delete\s+from)\s+public\.(?:retailers|products|product_variants|retailer_products|offers|price_history|approved_import_plans)\b/i);
+  assert.doesNotMatch(migrationExecutable, /\b(?:grant|revoke)\b/i);
+  assert.match(rollback, /rollback blocked by live approval/i);
+  assert.match(rollback, /906cb5abad08deb8452fa9ae4fed8be8669b760e6f2ef088ae8846f5536b27db/);
+  assert.match(rollback, /3f25c76ae3407552f99e035d60f2629838ab878d5f127b20d29be02aa834fdfc/);
+  assert.doesNotMatch(rollbackExecutable, /\b(?:insert\s+into|update|delete\s+from)\s+public\.(?:retailers|products|product_variants|retailer_products|offers|price_history|approved_import_plans)\b/i);
+  assert.doesNotMatch(rollbackExecutable, /\b(?:grant|revoke)\b/i);
+});
+
 test("existing workflows and scheduled retailer entry points do not opt into V3", () => {
   const workflowRoot = path.join(__dirname, "../.github/workflows");
   const workflowText = fs.readdirSync(workflowRoot)

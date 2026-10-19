@@ -15,8 +15,11 @@ const POST_CREATE_OPTION_ROLE_MIGRATION = "supabase/migrations/20261019100000_fi
 const POST_CREATE_OPTION_ROLE_ROLLBACK = "supabase/rollbacks/20261019100000_fix_reviewed_v3_post_create_option_roles_rollback.sql";
 const TRUSTED_PARENT_POLICY_MIGRATION = "supabase/migrations/20261019120000_bridge_trusted_v3_reviewed_parent_policy.sql";
 const TRUSTED_PARENT_POLICY_ROLLBACK = "supabase/rollbacks/20261019120000_bridge_trusted_v3_reviewed_parent_policy_rollback.sql";
+const PLURAL_FLAVOUR_MIGRATION = "supabase/migrations/20261019130000_fix_reviewed_v3_plural_flavour_compatibility.sql";
+const PLURAL_FLAVOUR_ROLLBACK = "supabase/rollbacks/20261019130000_fix_reviewed_v3_plural_flavour_compatibility_rollback.sql";
 const LEGACY_COMPATIBILITY_HELPER_SHA = "849df8441e8994daf1acb514705808fde17467e033185e30cc432ad165a13905";
 const POST_CREATE_COMPATIBILITY_HELPER_SHA = "906cb5abad08deb8452fa9ae4fed8be8669b760e6f2ef088ae8846f5536b27db";
+const PLURAL_FLAVOUR_COMPATIBILITY_HELPER_SHA = "3f25c76ae3407552f99e035d60f2629838ab878d5f127b20d29be02aa834fdfc";
 const LIVE_APPLY_DISPATCH_FIXTURE = "supabase/test/reviewed_catalogue_v3_live_apply_dispatch_fixture.sql";
 const TARGETS = Object.freeze({
   STAGING: Object.freeze({
@@ -452,6 +455,31 @@ function actionFixture(environment, action, index) {
   return { plan, envelope };
 }
 
+function reviewedCreateFlavourFixture(environment, index, sourceKey, sourceValue) {
+  const fixture = actionFixture(environment, "create_product_with_variant", index);
+  const normalized = sourceValue.toLowerCase().replaceAll("'", "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const externalOptions = { [sourceKey]: sourceValue, Size: "30 Servings", Weight: "390g" };
+  fixture.plan.product.values.servings = "30";
+  fixture.plan.product.values.net_weight_g = "390";
+  fixture.plan.product_variant.values = {
+    variant_key: `${normalized}-390g`, display_name: `${sourceValue} / 390g`,
+    flavour_code: normalized, flavour_label: sourceValue, size_value: "390",
+    size_unit: "g", pack_count: "1", product_format: "powder",
+  };
+  fixture.plan.product_variant.evidence = {
+    flavour: normalized, size_value: "390", size_unit: "g", pack_count: "1",
+    product_format: "powder", external_options: externalOptions, approved_mapping_id: null,
+  };
+  fixture.plan.retailer_product.values.external_options = externalOptions;
+  fixture.envelope.external_options = externalOptions;
+  fixture.envelope.option_roles = {
+    flavour: { source_key: sourceKey, source_value: sourceValue },
+    physical_size: { source_key: "Weight", source_value: "390g", size_value: "390", size_unit: "g" },
+    count: { source_key: "Size", source_value: "30 Servings", count_value: "30", count_unit: "servings" },
+  };
+  return fixture;
+}
+
 function seal(container, fixture, label) {
   if (Object.hasOwn(fixture.plan.approval, "approval_fingerprint")) {
     fixture.plan.approval.approval_fingerprint = scalar(
@@ -868,6 +896,167 @@ function exerciseBaseline(environment) {
       assert.equal(gapCountsAfter[table] - gapCountsBefore[table], 1, `${environment} reviewed-create ${table} delta`);
     }
 
+    const exactPluralFixture = seal(
+      container,
+      reviewedCreateFlavourFixture(environment, 94, "Flavours", "Georgie's Blood"),
+      `${environment} exact plural reviewed-create regression`,
+    );
+    const exactPluralValidation = json(
+      container,
+      asRole(environment, "validator", `select public.validate_reviewed_catalogue_v3_plan_read_only(${literal(exactPluralFixture.plan)},${literal(exactPluralFixture.envelope)})`, { readOnly: true }),
+      `${environment} exact plural V3 pre-fix validation`,
+    );
+    assert.equal(exactPluralValidation.valid, true);
+    const exactPluralApproval = json(
+      container,
+      asRole(environment, "approver", `select public.approve_reviewed_catalogue_v3_plan(${literal(exactPluralFixture.plan)},${literal(exactPluralFixture.envelope)})`),
+      `${environment} exact plural pre-fix approval`,
+    );
+    const exactPluralCountsBefore = counts(container, `${environment} exact plural pre-fix counts`);
+    fails(
+      sql(container, asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${exactPluralApproval.approval_id}',${literal(exactPluralFixture.plan)},${literal(exactPluralFixture.envelope)})`)),
+      `${environment} exact plural pre-fix apply failure`,
+      /reviewed variant option flavour mismatch/,
+    );
+    assert.deepEqual(counts(container, `${environment} exact plural pre-fix rollback counts`), exactPluralCountsBefore);
+    assert.deepEqual(
+      json(container, `select jsonb_build_object('status',status,'consumed_at',consumed_at,'execution_result',execution_result) from public.approved_import_plans where id='${exactPluralApproval.approval_id}'`, `${environment} exact plural failed approval state`),
+      { status: "approved", consumed_at: null, execution_result: null },
+    );
+    fails(
+      sql(container, `select public.atomic_import_validate_pre_source_metadata_plan_core(${literal(exactPluralFixture.plan)})`),
+      `${environment} non-V3 plural flavour error before`,
+      /reviewed variant option flavour mismatch/,
+    );
+    const traditionalFlavorFixture = actionFixture(environment, "map_existing_variant", 95);
+    traditionalFlavorFixture.plan.retailer_product.values.external_options = { Flavor: "Cherry & Apple", Size: "875g" };
+    traditionalFlavorFixture.plan.product_variant.evidence.external_options = traditionalFlavorFixture.plan.retailer_product.values.external_options;
+    const sealedTraditionalFlavorFixture = seal(container, traditionalFlavorFixture, `${environment} traditional Flavor evidence`);
+    const traditionalFlavorBefore = json(
+      container,
+      `begin; select public.atomic_import_apply_standard_plan_core(${literal(sealedTraditionalFlavorFixture.plan)}); rollback`,
+      `${environment} traditional Flavor before plural fix`,
+    );
+    assert.deepEqual(counts(container, `${environment} traditional Flavor rollback before counts`), exactPluralCountsBefore);
+
+    succeed(file(container, PLURAL_FLAVOUR_MIGRATION), `${environment} apply plural-flavour compatibility migration`);
+    assert.equal(scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
+      'public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)'::regprocedure
+    ),'UTF8')),'hex')`, `${environment} plural-flavour compatibility helper SHA`), PLURAL_FLAVOUR_COMPATIBILITY_HELPER_SHA);
+    assert.deepEqual(
+      functionMetadata(container, "public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)", `${environment} plural-flavour compatibility helper metadata`),
+      compatibilityHelperMetadata,
+    );
+    fails(
+      sql(container, `select public.atomic_import_validate_pre_source_metadata_plan_core(${literal(exactPluralFixture.plan)})`),
+      `${environment} non-V3 plural flavour error after`,
+      /reviewed variant option flavour mismatch/,
+    );
+    const traditionalFlavorAfter = json(
+      container,
+      `begin; select public.atomic_import_apply_standard_plan_core(${literal(sealedTraditionalFlavorFixture.plan)}); rollback`,
+      `${environment} traditional Flavor after plural fix`,
+    );
+    assert.equal(traditionalFlavorAfter.product_id, traditionalFlavorBefore.product_id);
+    assert.equal(traditionalFlavorAfter.product_variant_id, traditionalFlavorBefore.product_variant_id);
+    assert.equal(traditionalFlavorAfter.retailer_product_action, traditionalFlavorBefore.retailer_product_action);
+    assert.equal(traditionalFlavorAfter.offer_action, traditionalFlavorBefore.offer_action);
+    assert.equal(traditionalFlavorAfter.price_history_action, traditionalFlavorBefore.price_history_action);
+    assert.deepEqual(counts(container, `${environment} traditional Flavor rollback after counts`), exactPluralCountsBefore);
+    fails(file(container, PLURAL_FLAVOUR_ROLLBACK), `${environment} plural-flavour rollback with live approval`, /rollback blocked by live approval/i);
+    fails(
+      sql(container, `begin; select set_config('app.reviewed_catalogue_v3_approval_id','${exactPluralApproval.approval_id}',true); select public.atomic_import_validate_pre_source_metadata_plan_core(${literal(exactPluralFixture.plan)}); rollback`),
+      `${environment} plural-flavour fake GUC remains insufficient`,
+      /reviewed variant option flavour mismatch/,
+    );
+    fails(
+      sql(container, asRole(environment, "validator", `select public.atomic_import_reviewed_v3_legacy_validation_evidence(${literal(exactPluralFixture.plan)},${literal(exactPluralFixture.envelope)})`, { readOnly: true, approvalId: exactPluralApproval.approval_id })),
+      `${environment} validator cannot execute plural-flavour helper`,
+      /permission denied/,
+    );
+    fails(
+      sql(container, `set session authorization service_role; begin; select set_config('app.reviewed_catalogue_v3_approval_id','${exactPluralApproval.approval_id}',true); select public.atomic_import_reviewed_v3_legacy_validation_evidence(${literal(exactPluralFixture.plan)},${literal(exactPluralFixture.envelope)}); rollback`),
+      `${environment} service_role cannot execute plural-flavour helper`,
+      /permission denied/,
+    );
+    const exactPluralApplied = json(
+      container,
+      asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${exactPluralApproval.approval_id}',${literal(exactPluralFixture.plan)},${literal(exactPluralFixture.envelope)})`),
+      `${environment} exact plural post-fix apply`,
+    );
+    assert.equal(exactPluralApplied.approval_status, "consumed");
+    const exactPluralCountsAfter = counts(container, `${environment} exact plural post-fix counts`);
+    for (const table of ["products", "product_variants", "retailer_products", "offers", "price_history"]) {
+      assert.equal(exactPluralCountsAfter[table] - exactPluralCountsBefore[table], 1, `${environment} exact plural ${table} delta`);
+    }
+    assert.deepEqual(
+      json(container, `select external_options from public.retailer_products where id=${exactPluralApplied.retailer_product_id}`, `${environment} exact plural stored raw options`),
+      { Flavours: "Georgie's Blood", Size: "30 Servings", Weight: "390g" },
+    );
+
+    for (const [index, alias] of ["Flavour", "Flavor", "Flavours", "Flavors"].entries()) {
+      const sourceValue = `Alias ${index + 1}`;
+      const aliasFixture = seal(
+        container,
+        reviewedCreateFlavourFixture(environment, 100 + index, alias, sourceValue),
+        `${environment} ${alias} full-apply fixture`,
+      );
+      const aliasValidation = json(
+        container,
+        asRole(environment, "validator", `select public.validate_reviewed_catalogue_v3_plan_read_only(${literal(aliasFixture.plan)},${literal(aliasFixture.envelope)})`, { readOnly: true }),
+        `${environment} ${alias} read-only validation`,
+      );
+      assert.equal(aliasValidation.valid, true);
+      const aliasBefore = counts(container, `${environment} ${alias} counts before`);
+      const aliasApproval = json(
+        container,
+        asRole(environment, "approver", `select public.approve_reviewed_catalogue_v3_plan(${literal(aliasFixture.plan)},${literal(aliasFixture.envelope)})`),
+        `${environment} ${alias} approval`,
+      );
+      const aliasApplied = json(
+        container,
+        asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${aliasApproval.approval_id}',${literal(aliasFixture.plan)},${literal(aliasFixture.envelope)})`),
+        `${environment} ${alias} apply`,
+      );
+      assert.equal(aliasApplied.approval_status, "consumed");
+      assert.deepEqual(
+        json(container, `select external_options from public.retailer_products where id=${aliasApplied.retailer_product_id}`, `${environment} ${alias} stored source key`),
+        aliasFixture.envelope.external_options,
+      );
+      const aliasAfter = counts(container, `${environment} ${alias} counts after`);
+      for (const table of ["products", "product_variants", "retailer_products", "offers", "price_history"]) {
+        assert.equal(aliasAfter[table] - aliasBefore[table], 1, `${environment} ${alias} ${table} delta`);
+      }
+    }
+
+    const wrongRoleFixture = reviewedCreateFlavourFixture(environment, 110, "Flavours", "Wrong Role");
+    wrongRoleFixture.envelope.option_roles.flavour.source_value = "Different Value";
+    const sealedWrongRoleFixture = seal(container, wrongRoleFixture, `${environment} wrong plural role binding`);
+    fails(
+      sql(container, asRole(environment, "validator", `select public.validate_reviewed_catalogue_v3_plan_read_only(${literal(sealedWrongRoleFixture.plan)},${literal(sealedWrongRoleFixture.envelope)})`, { readOnly: true })),
+      `${environment} plural source wrong role value`,
+      /flavour role is not exact raw evidence/,
+    );
+
+    const tasteFixture = reviewedCreateFlavourFixture(environment, 111, "Taste", "Unknown Taste");
+    const sealedTasteFixture = seal(container, tasteFixture, `${environment} unknown Taste flavour role`);
+    fails(
+      sql(container, asRole(environment, "validator", `select public.validate_reviewed_catalogue_v3_plan_read_only(${literal(sealedTasteFixture.plan)},${literal(sealedTasteFixture.envelope)})`, { readOnly: true })),
+      `${environment} unknown Taste flavour role`,
+      /flavour role is not exact raw evidence/,
+    );
+
+    const conflictingFixture = reviewedCreateFlavourFixture(environment, 112, "Flavours", "Conflict One");
+    conflictingFixture.plan.product_variant.evidence.external_options.Flavour = "Conflict Two";
+    conflictingFixture.plan.retailer_product.values.external_options.Flavour = "Conflict Two";
+    conflictingFixture.envelope.external_options.Flavour = "Conflict Two";
+    const sealedConflictingFixture = seal(container, conflictingFixture, `${environment} conflicting flavour aliases`);
+    fails(
+      sql(container, asRole(environment, "validator", `select public.validate_reviewed_catalogue_v3_plan_read_only(${literal(sealedConflictingFixture.plan)},${literal(sealedConflictingFixture.envelope)})`, { readOnly: true })),
+      `${environment} conflicting flavour aliases`,
+      /flavour role coverage differs from raw evidence/,
+    );
+
     const actionCases = [
       ["map_existing_variant", { products: 0, product_variants: 0 }],
       ["create_variant_on_existing_product", { products: 0, product_variants: 1 }],
@@ -966,6 +1155,14 @@ function exerciseBaseline(environment) {
     );
 
     succeed(sql(container, "delete from public.approved_import_plans where source like 'reviewed-catalogue-package-v3:%'"), `${environment} remove disposable V3 fixture approvals`);
+    succeed(file(container, PLURAL_FLAVOUR_ROLLBACK), `${environment} rollback plural-flavour compatibility migration`);
+    assert.equal(scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
+      'public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)'::regprocedure
+    ),'UTF8')),'hex')`, `${environment} plural-flavour rollback helper SHA`), POST_CREATE_COMPATIBILITY_HELPER_SHA);
+    assert.deepEqual(
+      functionMetadata(container, "public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)", `${environment} plural-flavour rollback helper metadata`),
+      compatibilityHelperMetadata,
+    );
     succeed(file(container, TRUSTED_PARENT_POLICY_ROLLBACK), `${environment} rollback trusted V3 reviewed-parent policy bridge`);
     assert.equal(scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
       'public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)'::regprocedure

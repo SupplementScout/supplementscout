@@ -35,6 +35,8 @@ const REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION = "20261019100000_fix_review
 const REVIEWED_V3_POST_CREATE_OPTION_ROLE_SHA256 = "bcf85fac13e737857350a24d4d267b5bb2e0a70e9cfa205ba2d58345bc79ff87";
 const REVIEWED_V3_PARENT_POLICY_MIGRATION = "20261019120000_bridge_trusted_v3_reviewed_parent_policy.sql";
 const REVIEWED_V3_PARENT_POLICY_SHA256 = "2ac0e653f0e4f82f517ed93d1a5dd20ef78a74aa848bae57bd2a2addba0c9d28";
+const REVIEWED_V3_PLURAL_FLAVOUR_MIGRATION = "20261019130000_fix_reviewed_v3_plural_flavour_compatibility.sql";
+const REVIEWED_V3_PLURAL_FLAVOUR_SHA256 = "6787556be4c02be0f805b177e6a03bbad11c76b48cb9c336ba69c69cd5544a4d";
 const RA004_CONTROL_STATE_MIGRATION = "20260924100000_add_transactional_retailer_control_state_interface.sql";
 const RA004_PREFLIGHT_MIGRATION = "20260925100000_add_ra004_staging_preflight_metadata_interface.sql";
 const RA004_FORWARD_CONTROL_STATE_MIGRATION = "20260927100000_reissue_transactional_retailer_control_state_interface.sql";
@@ -322,6 +324,7 @@ function withoutCurrentSeo15Migrations(rows) {
     REVIEWED_V3_OPTION_ROLE_MIGRATION,
     REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION,
     REVIEWED_V3_PARENT_POLICY_MIGRATION,
+    REVIEWED_V3_PLURAL_FLAVOUR_MIGRATION,
   ].includes(`${version}_${name}.sql`));
 }
 
@@ -369,18 +372,20 @@ test.after(() => {
   }
 });
 
-test("staging records the full reviewed V3 infrastructure chain as applied", () => {
+test("staging records the deployed reviewed V3 chain and selects only plural-flavour compatibility", () => {
   const result = validateSelection(validInput());
   assert.equal(result.ledger_count, 109);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, [REVIEWED_V3_PLURAL_FLAVOUR_MIGRATION]);
+  assert.deepEqual(result.pending_sha256s, {
+    [REVIEWED_V3_PLURAL_FLAVOUR_MIGRATION]: REVIEWED_V3_PLURAL_FLAVOUR_SHA256,
+  });
+  assert.equal(result.pending_file, REVIEWED_V3_PLURAL_FLAVOUR_MIGRATION);
+  assert.equal(result.pending_sha256, REVIEWED_V3_PLURAL_FLAVOUR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
-  assert.equal(result.selected_files.length, 109);
+  assert.equal(result.selected_files.length, 110);
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes(RA004_FIXTURE_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_GUARD_MIGRATION));
@@ -488,6 +493,7 @@ test("production records the retailer identity bootstrap as applied and keeps al
     { filename: REVIEWED_V3_OPTION_ROLE_MIGRATION, sha256: REVIEWED_V3_OPTION_ROLE_SHA256 },
     { filename: REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION, sha256: REVIEWED_V3_POST_CREATE_OPTION_ROLE_SHA256 },
     { filename: REVIEWED_V3_PARENT_POLICY_MIGRATION, sha256: REVIEWED_V3_PARENT_POLICY_SHA256 },
+    { filename: REVIEWED_V3_PLURAL_FLAVOUR_MIGRATION, sha256: REVIEWED_V3_PLURAL_FLAVOUR_SHA256 },
   ]);
   assert.deepEqual(contract.appliedExcluded, [
     "20260929133000_extend_expired_sequential_plan_close.sql",
@@ -597,7 +603,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 109);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 110);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -642,7 +648,7 @@ test("production records the retailer identity bootstrap at ledger 238 and selec
   });
   assert.equal(result.ledger_count, 238);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 243);
+  assert.equal(result.selected_files.length, 244);
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
   assert.ok(result.excluded_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
@@ -659,6 +665,7 @@ test("production records the retailer identity bootstrap at ledger 238 and selec
     REVIEWED_V3_OPTION_ROLE_MIGRATION,
     REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION,
     REVIEWED_V3_PARENT_POLICY_MIGRATION,
+    REVIEWED_V3_PLURAL_FLAVOUR_MIGRATION,
   ]);
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);
@@ -668,6 +675,7 @@ test("production records the retailer identity bootstrap at ledger 238 and selec
     [REVIEWED_V3_OPTION_ROLE_MIGRATION]: REVIEWED_V3_OPTION_ROLE_SHA256,
     [REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION]: REVIEWED_V3_POST_CREATE_OPTION_ROLE_SHA256,
     [REVIEWED_V3_PARENT_POLICY_MIGRATION]: REVIEWED_V3_PARENT_POLICY_SHA256,
+    [REVIEWED_V3_PLURAL_FLAVOUR_MIGRATION]: REVIEWED_V3_PLURAL_FLAVOUR_SHA256,
   });
   assert.ok(result.selected_files.includes(SEO15_GYM_HIGH_SOURCE_RELEASE_MIGRATION));
   assert.ok(result.selected_files.includes("20261009120000_add_compact_other_retailer_fingerprint.sql"));
@@ -789,6 +797,7 @@ test("production exclusions are exact and the approved identity foundation is se
     { filename: REVIEWED_V3_OPTION_ROLE_MIGRATION, sha256: REVIEWED_V3_OPTION_ROLE_SHA256 },
     { filename: REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION, sha256: REVIEWED_V3_POST_CREATE_OPTION_ROLE_SHA256 },
     { filename: REVIEWED_V3_PARENT_POLICY_MIGRATION, sha256: REVIEWED_V3_PARENT_POLICY_SHA256 },
+    { filename: REVIEWED_V3_PLURAL_FLAVOUR_MIGRATION, sha256: REVIEWED_V3_PLURAL_FLAVOUR_SHA256 },
   ]);
   assert.equal(
     contract.excluded["20261009120000_add_compact_other_retailer_fingerprint.sql"],
@@ -958,7 +967,7 @@ test("owner-authorized ACL/RLS activation selects exactly one migration from led
   ]), /staging-only/);
 });
 
-test("staging contract records ledger 109 with no reviewed migration pending", () => {
+test("staging contract records ledger 109 with only plural-flavour compatibility pending", () => {
   const filename = "20260928100000_diagnose_ra004_preflight_acl_rls.sql";
   assert.equal(CONTRACT.ledgerCount, 109);
   assert.equal(CONTRACT.ledgerFingerprint,
@@ -968,7 +977,9 @@ test("staging contract records ledger 109 with no reviewed migration pending", (
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === filename));
   assert.ok(CONTRACT.appliedExcluded.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === REVIEWED_STATE_MIGRATION));
-  assert.deepEqual(CONTRACT.pending, []);
+  assert.deepEqual(CONTRACT.pending, [
+    { filename: REVIEWED_V3_PLURAL_FLAVOUR_MIGRATION, sha256: REVIEWED_V3_PLURAL_FLAVOUR_SHA256 },
+  ]);
   assert.equal(currentRemoteLedger().length, 109);
   assert.ok(currentRemoteLedger().some(({ version, name }) =>
     `${version}_${name}.sql` === REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION));
@@ -1419,12 +1430,14 @@ test("completed RA-004 fixture activation cannot select or materialize a migrati
   })), /status mismatch/);
 });
 
-test("staging keeps applied SEO-15 and the deployed V3 migration chain closed", () => {
+test("staging keeps applied SEO-15 and the deployed V3 chain closed while selecting the new compatibility migration", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending_file, REVIEWED_V3_PLURAL_FLAVOUR_MIGRATION);
+  assert.equal(result.pending_sha256, REVIEWED_V3_PLURAL_FLAVOUR_SHA256);
+  assert.deepEqual(result.pending_files, [REVIEWED_V3_PLURAL_FLAVOUR_MIGRATION]);
+  assert.deepEqual(result.pending_sha256s, {
+    [REVIEWED_V3_PLURAL_FLAVOUR_MIGRATION]: REVIEWED_V3_PLURAL_FLAVOUR_SHA256,
+  });
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(result.selected_files.includes(REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION));
