@@ -27,7 +27,7 @@ const TARGETS = Object.freeze({
     validatorSha: "b9d99d9245ff2ea493fa9ed4d160f0e9ff4c450764cb40a5a23325d0ca069583",
     standardCoreFixture: "supabase/test/reviewed_catalogue_v3_production_standard_apply_core.sql",
     standardCoreSha: "0b0bccb01e521228db93f495db7984372df5b177cf7009edc205620c1ddef634",
-    legacyCountSizeError: "invalid variant option size",
+    legacyCountSizeError: "variant option size mismatch",
     hasV1: true,
     hasExecutionResult: true,
   }),
@@ -190,14 +190,27 @@ create function public.atomic_import_has_exact_keys(p_value jsonb,p_keys text[])
 create function public.atomic_import_is_decimal_string(p_value text) returns boolean language sql immutable as $$select p_value ~ '^(0|[1-9][0-9]*)(\\.[0-9]+)?$'$$;
 create function public.atomic_import_normalized_identity(p_value text) returns text language sql immutable as $$select lower(regexp_replace(btrim(coalesce(p_value,'')),'[^a-zA-Z0-9]+','','g'))$$;
 create function public.atomic_import_normalize_product_format(p_value text) returns text language sql immutable as $$select lower(replace(btrim(coalesce(p_value,'')),'_',' '))$$;
-create function public.atomic_import_normalize_size(p_value text) returns jsonb language plpgsql immutable as $$
+create function public.atomic_import_normalize_size(p_value text)
+returns jsonb language plpgsql immutable strict set search_path=pg_catalog as $$
 declare m text[]; amount numeric; unit text;
 begin
-  m:=regexp_match(btrim(p_value),'^(\\d+(?:[.,]\\d+)?)\\s*(mcg|mg|kg|g|ml|cl|l)$','i');
+  m:=regexp_match(lower(trim(p_value)),'^([0-9]+([.,][0-9]+)?)[[:space:]]*(kg|g|mg|mcg|iu|l|ml|serving|servings|serve|serves)$');
   if m is null then return null; end if;
-  amount:=replace(m[1],',','.')::numeric; unit:=lower(m[2]);
-  if unit='kg' then amount:=amount*1000; unit:='g'; elsif unit='l' then amount:=amount*1000; unit:='ml'; elsif unit='cl' then amount:=amount*10; unit:='ml'; end if;
-  return jsonb_build_object('value',amount::text,'unit',unit);
+  amount:=replace(m[1],',','.')::numeric; unit:=m[3];
+  if amount<=0 then return null; end if;
+  return case unit
+    when 'kg' then jsonb_build_object('value',amount*1000,'unit','g','dimension','mass')
+    when 'mg' then jsonb_build_object('value',amount/1000,'unit','g','dimension','mass')
+    when 'mcg' then jsonb_build_object('value',amount/1000000,'unit','g','dimension','mass')
+    when 'l' then jsonb_build_object('value',amount*1000,'unit','ml','dimension','volume')
+    when 'ml' then jsonb_build_object('value',amount,'unit','ml','dimension','volume')
+    when 'iu' then jsonb_build_object('value',amount,'unit','iu','dimension','potency')
+    when 'serving' then jsonb_build_object('value',amount,'unit','servings','dimension','count')
+    when 'servings' then jsonb_build_object('value',amount,'unit','servings','dimension','count')
+    when 'serve' then jsonb_build_object('value',amount,'unit','servings','dimension','count')
+    when 'serves' then jsonb_build_object('value',amount,'unit','servings','dimension','count')
+    else jsonb_build_object('value',amount,'unit','g','dimension','mass')
+  end;
 end$$;
 create function public.atomic_import_is_legacy_mapping_upgrade(p_plan jsonb) returns boolean language sql immutable as $$select false$$;
 create function public.atomic_import_is_simply_identity_only_upgrade(p_plan jsonb) returns boolean language sql immutable as $$select false$$;
