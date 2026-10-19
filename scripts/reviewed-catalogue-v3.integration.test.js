@@ -720,6 +720,11 @@ function exerciseBaseline(environment) {
       'ten_reps_v9',encode(pg_catalog.sha256(convert_to(pg_get_functiondef('public.atomic_import_10reps_v9_parent_variant_transport_allowed(jsonb,jsonb)'::regprocedure),'UTF8')),'hex'),
       'ten_reps_v10',encode(pg_catalog.sha256(convert_to(pg_get_functiondef('public.atomic_import_10reps_v10_parent_variant_transport_allowed(jsonb,jsonb)'::regprocedure),'UTF8')),'hex')
     )`, `${environment} legacy policy hashes before bridge`);
+    const legacyFamilyDefinitionBefore = scalar(
+      container,
+      "select pg_get_functiondef('public.atomic_import_reviewed_parent_variant_allowed(text,text,text,text,text,text)'::regprocedure)",
+      `${environment} exact legacy family definition before isolation`,
+    );
     assert.equal(scalar(container, `select public.atomic_import_reviewed_parent_variant_allowed(
       'CNP Premium Whey 2kg','CNP','Whey Protein','powder','2000','g'
     )`, `${environment} historical family allowed before bridge`), "t");
@@ -827,12 +832,10 @@ function exerciseBaseline(environment) {
       /reviewed parent explicit-variant retailer and transport policy does not allow this plan/,
     );
     assert.deepEqual(counts(container, `${environment} generic reviewed-create transport rollback counts`), gapCountsBefore);
-    succeed(sql(container, `create or replace function public.atomic_import_reviewed_parent_variant_allowed(
-      p_name text,p_brand text,p_category text,p_format text,p_size_value text,p_size_unit text
-    ) returns boolean language sql immutable set search_path=pg_catalog,public,pg_temp as $$
-      select p_name='CNP Premium Whey 2kg' and p_brand='CNP' and p_category='Whey Protein'
-        and p_format='powder' and p_size_value::numeric=2000 and lower(p_size_unit)='g'
-    $$`), `${environment} restore exact test legacy family policy`);
+    succeed(
+      sql(container, legacyFamilyDefinitionBefore),
+      `${environment} restore byte-exact test legacy family policy`,
+    );
 
     succeed(file(container, TRUSTED_PARENT_POLICY_MIGRATION), `${environment} apply trusted V3 reviewed-parent policy bridge`);
     assert.deepEqual(
