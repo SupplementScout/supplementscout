@@ -218,12 +218,7 @@ const APPLIED_EXCLUSIONS = Object.freeze({
 });
 
 const PENDING_MIGRATIONS = Object.freeze({
-  STAGING: Object.freeze([
-    Object.freeze({
-      filename: "20261019100000_fix_reviewed_v3_post_create_option_roles.sql",
-      sha256: "bcf85fac13e737857350a24d4d267b5bb2e0a70e9cfa205ba2d58345bc79ff87",
-    }),
-  ]),
+  STAGING: Object.freeze([]),
   PRODUCTION: Object.freeze([
     Object.freeze({
       filename: "20261017130000_add_reviewed_catalogue_bounded_state.sql",
