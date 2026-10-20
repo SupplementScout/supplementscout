@@ -225,32 +225,7 @@ const APPLIED_EXCLUSIONS = Object.freeze({
 
 const PENDING_MIGRATIONS = Object.freeze({
   STAGING: Object.freeze([]),
-  PRODUCTION: Object.freeze([
-    Object.freeze({
-      filename: "20261017131000_add_environment_safe_reviewed_catalogue_bounded_state.sql",
-      sha256: "255190dafd76732dc67f8c98f6acbd3e4707f0492c633dc4c4b9aae1eeaa7dc6",
-    }),
-    Object.freeze({
-      filename: "20261018121000_add_environment_safe_reviewed_catalogue_v3_boundary.sql",
-      sha256: "30c563420ed0bcb02e4d38b2ec74dc997bff16df52cb07991557aa53e6adb279",
-    }),
-    Object.freeze({
-      filename: "20261018191000_fix_environment_safe_reviewed_v3_apply_option_roles.sql",
-      sha256: "2813af060d0cc09a987f8df5c208383971439db716cdf1cf19fc7ace74da9d76",
-    }),
-    Object.freeze({
-      filename: "20261019100000_fix_reviewed_v3_post_create_option_roles.sql",
-      sha256: "bcf85fac13e737857350a24d4d267b5bb2e0a70e9cfa205ba2d58345bc79ff87",
-    }),
-    Object.freeze({
-      filename: "20261019120000_bridge_trusted_v3_reviewed_parent_policy.sql",
-      sha256: "2ac0e653f0e4f82f517ed93d1a5dd20ef78a74aa848bae57bd2a2addba0c9d28",
-    }),
-    Object.freeze({
-      filename: "20261019130000_fix_reviewed_v3_plural_flavour_compatibility.sql",
-      sha256: "6787556be4c02be0f805b177e6a03bbad11c76b48cb9c336ba69c69cd5544a4d",
-    }),
-  ]),
+  PRODUCTION: Object.freeze([]),
 });
 
 function migrationIdentifier(filename) {
