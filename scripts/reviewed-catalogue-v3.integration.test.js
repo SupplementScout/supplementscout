@@ -1,5 +1,6 @@
 const assert = require("node:assert/strict");
 const crypto = require("node:crypto");
+const fs = require("node:fs");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const test = require("node:test");
@@ -7,6 +8,8 @@ const test = require("node:test");
 const ROOT = path.resolve(__dirname, "..");
 const IMAGE = "postgres:17-alpine";
 const PASSWORD = "reviewed-v3-local-only";
+const BOUNDED_STATE_MIGRATION = "supabase/migrations/20261017130000_add_reviewed_catalogue_bounded_state.sql";
+const BOUNDED_STATE_ROLLBACK = "supabase/rollbacks/20261017130000_add_reviewed_catalogue_bounded_state_rollback.sql";
 const MIGRATION = "supabase/migrations/20261018120000_add_reviewed_catalogue_v3_boundary.sql";
 const ROLLBACK = "supabase/rollbacks/20261018120000_add_reviewed_catalogue_v3_boundary_rollback.sql";
 const OPTION_ROLE_MIGRATION = "supabase/migrations/20261018190000_fix_reviewed_catalogue_v3_apply_option_roles.sql";
@@ -20,7 +23,19 @@ const PLURAL_FLAVOUR_ROLLBACK = "supabase/rollbacks/20261019130000_fix_reviewed_
 const LEGACY_COMPATIBILITY_HELPER_SHA = "849df8441e8994daf1acb514705808fde17467e033185e30cc432ad165a13905";
 const POST_CREATE_COMPATIBILITY_HELPER_SHA = "906cb5abad08deb8452fa9ae4fed8be8669b760e6f2ef088ae8846f5536b27db";
 const PLURAL_FLAVOUR_COMPATIBILITY_HELPER_SHA = "3f25c76ae3407552f99e035d60f2629838ab878d5f127b20d29be02aa834fdfc";
+const BOUNDED_STATE_SHA = "2e0f4696d3b9c437257e849f58db2ffc35b835d265eca83e6f3459a8cf2e44f4";
 const LIVE_APPLY_DISPATCH_FIXTURE = "supabase/test/reviewed_catalogue_v3_live_apply_dispatch_fixture.sql";
+const BOUNDARY_FUNCTIONS = Object.freeze([
+  "public.atomic_import_reviewed_v3_physical_role_allowed(jsonb,jsonb)",
+  "public.atomic_import_reviewed_v3_count_role_allowed(jsonb,jsonb)",
+  "public.atomic_import_validate_reviewed_catalogue_v3_plan(jsonb,jsonb)",
+  "public.validate_reviewed_catalogue_v3_plan_read_only(jsonb,jsonb)",
+  "public.atomic_import_reviewed_catalogue_v3_plan_allowed(jsonb)",
+  "public.validate_product_import_plan_read_only(jsonb)",
+  "public.approve_reviewed_catalogue_v3_plan(jsonb,jsonb,timestamp with time zone)",
+  "public.apply_approved_reviewed_catalogue_v3_plan(uuid,jsonb,jsonb)",
+  "public.atomic_import_validate_product_before_reviewed_v3(jsonb)",
+]);
 const TARGETS = Object.freeze({
   STAGING: Object.freeze({
     projectRef: "hxnrsyyqffztlvcrtgbf",
@@ -31,6 +46,8 @@ const TARGETS = Object.freeze({
     livePreSourceValidatorFixture: "supabase/test/reviewed_catalogue_v3_staging_pre_source_validator.sql",
     livePreSourceValidatorSha: "3b78fcd6f6d175c01a83484811b473a703b5d134b79faaac5f6dfb039f0039eb",
     patchedPreSourceValidatorSha: "47913d9e685b0b0804cac3349a7e8d037878834071a7ad4a69be0c826090e44e",
+    postBoundaryFallbackSha: "c8e47e4495fe78641b1cccf6ffe2dc6cbc980ae86ee341effd8278a8d86c918f",
+    postTrustedParentSha: "0f2308eb0759cff2a4d97708a3bdfca24d50820483310117771f1bd3a2a3149a",
     legacyCountSizeError: "variant option size mismatch",
     hasV1: false,
     hasExecutionResult: false,
@@ -44,14 +61,16 @@ const TARGETS = Object.freeze({
     livePreSourceValidatorFixture: "supabase/test/reviewed_catalogue_v3_production_pre_source_validator.sql",
     livePreSourceValidatorSha: "fbd7752889269b8bdc4b57c729b3233ce17507c6f5766be7a150d99363a6bf87",
     patchedPreSourceValidatorSha: "7771649ee17b055e5f90ad343a33abf6c950c90c293c575442ee3cb61d671c6e",
+    postBoundaryFallbackSha: "47001d0eb21fce1b136b1050f2c91b392f54bb29cf67825d370a2f03a6f37d3a",
+    postTrustedParentSha: "80e9f09e1b9ad414689d0f42876bb8f169f528b4efad61d9713f3dad6850a942",
     legacyCountSizeError: "variant option size mismatch",
     hasV1: true,
     hasExecutionResult: true,
   }),
 });
 
-function run(command, args, timeout = 180_000) {
-  return spawnSync(command, args, { cwd: ROOT, encoding: "utf8", timeout });
+function run(command, args, timeout = 180_000, input = undefined) {
+  return spawnSync(command, args, { cwd: ROOT, encoding: "utf8", timeout, input });
 }
 function output(result) { return `${result.stdout || ""}\n${result.stderr || ""}`; }
 function succeed(result, label) {
@@ -81,6 +100,14 @@ function file(container, name) {
     "-U", "postgres", "-d", "postgres", "-f", `/workspace/${name}`,
   ]);
 }
+function fixtureFile(container, name) {
+  const contents = fs.readFileSync(path.join(ROOT, name), "utf8").replaceAll("\r\n", "\n");
+  return run("docker", [
+    "exec", "-i", "-e", `PGPASSWORD=${PASSWORD}`, container,
+    "psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1",
+    "-U", "postgres", "-d", "postgres",
+  ], 180_000, contents);
+}
 function literal(value) { return `'${JSON.stringify(value).replaceAll("'", "''")}'::jsonb`; }
 function scalar(container, statement, label) {
   return succeed(sql(container, statement, true), label).stdout.trim();
@@ -89,10 +116,13 @@ function json(container, statement, label) {
   return JSON.parse(scalar(container, statement, label));
 }
 function wait(container) {
-  for (let attempt = 0; attempt < 80; attempt += 1) {
-    if (exec(container, [
+  let consecutiveReadyChecks = 0;
+  for (let attempt = 0; attempt < 120; attempt += 1) {
+    const ready = exec(container, [
       "psql", "-X", "--no-psqlrc", "-U", "postgres", "-tAc", "select 1",
-    ], 5_000).stdout.trim() === "1") return;
+    ], 5_000).stdout.trim() === "1";
+    consecutiveReadyChecks = ready ? consecutiveReadyChecks + 1 : 0;
+    if (consecutiveReadyChecks === 3) return;
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 250);
   }
   assert.fail("PostgreSQL did not become ready");
@@ -507,6 +537,99 @@ function counts(container, label) {
   )`, label);
 }
 
+function succeedWithoutBusinessChange(container, name, label) {
+  const before = counts(container, `${label} counts before`);
+  succeed(file(container, name), label);
+  assert.deepEqual(counts(container, `${label} counts after`), before, `${label} changed business rows`);
+}
+
+function functionDefinition(container, signature, label) {
+  return scalar(container, `select pg_get_functiondef('${signature}'::regprocedure)`, label);
+}
+
+function functionSha(container, signature, label) {
+  return scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
+    '${signature}'::regprocedure
+  ),'UTF8')),'hex')`, label);
+}
+
+function tamperedDefinition(definition) {
+  const marker = definition.match(/\nAS (\$[^$]*\$)\n/i);
+  assert.ok(marker, "function definition has a dollar-quoted body");
+  return definition.replace(marker[0], `${marker[0]}-- rollback-lineage-tamper\n`);
+}
+
+function boundaryStateDigest(container, label) {
+  return scalar(container, `select md5(jsonb_build_object(
+    'functions',(select jsonb_agg(jsonb_build_object(
+      'signature',p.oid::regprocedure::text,
+      'sha256',encode(pg_catalog.sha256(convert_to(pg_get_functiondef(p.oid),'UTF8')),'hex'),
+      'owner',p.proowner::regrole::text,'volatility',p.provolatile,
+      'security_definer',p.prosecdef,'config',p.proconfig,
+      'acl',(select coalesce(jsonb_agg(jsonb_build_object(
+        'grantor',acl.grantor::regrole::text,'grantee',case when acl.grantee=0 then 'PUBLIC' else acl.grantee::regrole::text end,
+        'privilege',acl.privilege_type,'grantable',acl.is_grantable
+      ) order by acl.grantee,acl.privilege_type,acl.is_grantable),'[]'::jsonb)
+        from aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) acl)
+    ) order by p.oid::regprocedure::text) from pg_proc p where p.oid in (
+      ${BOUNDARY_FUNCTIONS.map(signature => `'${signature}'::regprocedure`).join(",\n      ")}
+    )),
+    'columns',(select jsonb_agg(jsonb_build_object(
+      'name',a.attname,'type',format_type(a.atttypid,a.atttypmod),'not_null',a.attnotnull,
+      'default',pg_get_expr(d.adbin,d.adrelid)
+    ) order by a.attname) from pg_attribute a left join pg_attrdef d
+      on d.adrelid=a.attrelid and d.adnum=a.attnum
+      where a.attrelid='public.approved_import_plans'::regclass and not a.attisdropped
+        and a.attname in ('authorization_envelope','execution_result')),
+    'constraints',(select jsonb_agg(jsonb_build_object(
+      'name',c.conname,'definition',pg_get_constraintdef(c.oid,true),'validated',c.convalidated,
+      'deferrable',c.condeferrable,'deferred',c.condeferred
+    ) order by c.conname) from pg_constraint c
+      where c.conrelid='public.approved_import_plans'::regclass
+        and c.conname in ('approved_import_plans_v3_envelope_check','approved_import_plans_v3_created_execution_result_check'))
+  )::text)`, label);
+}
+
+function functionStateDigest(container, signature, label) {
+  return scalar(container, `select md5(jsonb_build_object(
+    'definition',pg_get_functiondef(p.oid),'owner',p.proowner::regrole::text,
+    'volatility',p.provolatile,'security_definer',p.prosecdef,'config',p.proconfig,
+    'acl',(select coalesce(jsonb_agg(jsonb_build_object(
+      'grantor',acl.grantor::regrole::text,'grantee',case when acl.grantee=0 then 'PUBLIC' else acl.grantee::regrole::text end,
+      'privilege',acl.privilege_type,'grantable',acl.is_grantable
+    ) order by acl.grantee,acl.privilege_type,acl.is_grantable),'[]'::jsonb)
+      from aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) acl)
+  )::text) from pg_proc p where p.oid='${signature}'::regprocedure`, label);
+}
+
+function publicFunctionAndApprovalSchemaState(container, label) {
+  return json(container, `select jsonb_build_object(
+    'functions',(select jsonb_agg(jsonb_build_object(
+      'signature',p.oid::regprocedure::text,
+      'sha256',encode(pg_catalog.sha256(convert_to(pg_get_functiondef(p.oid),'UTF8')),'hex'),
+      'owner',p.proowner::regrole::text,'volatility',p.provolatile,
+      'security_definer',p.prosecdef,'config',p.proconfig,
+      'acl',(select coalesce(jsonb_agg(jsonb_build_object(
+        'grantor',acl.grantor::regrole::text,'grantee',case when acl.grantee=0 then 'PUBLIC' else acl.grantee::regrole::text end,
+        'privilege',acl.privilege_type,'grantable',acl.is_grantable
+      ) order by acl.grantee,acl.privilege_type,acl.is_grantable),'[]'::jsonb)
+        from aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) acl)
+    ) order by p.oid::regprocedure::text)
+      from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public'),
+    'columns',(select jsonb_agg(jsonb_build_object(
+      'name',a.attname,'type',format_type(a.atttypid,a.atttypmod),'not_null',a.attnotnull,
+      'default',pg_get_expr(d.adbin,d.adrelid)
+    ) order by a.attnum) from pg_attribute a left join pg_attrdef d
+      on d.adrelid=a.attrelid and d.adnum=a.attnum
+      where a.attrelid='public.approved_import_plans'::regclass and a.attnum>0 and not a.attisdropped),
+    'constraints',(select coalesce(jsonb_agg(jsonb_build_object(
+      'name',c.conname,'definition',pg_get_constraintdef(c.oid,true),'validated',c.convalidated,
+      'deferrable',c.condeferrable,'deferred',c.condeferred
+    ) order by c.conname),'[]'::jsonb) from pg_constraint c
+      where c.conrelid='public.approved_import_plans'::regclass)
+  )`, label);
+}
+
 function columnMetadata(container, column, label) {
   const value = scalar(container, `select coalesce((
     select jsonb_build_object('data_type',data_type,'is_nullable',is_nullable,'column_default',column_default)::text
@@ -530,6 +653,184 @@ function validatorMetadata(container, label) {
   return functionMetadata(container, "public.validate_product_import_plan_read_only(jsonb)", label);
 }
 
+function exerciseBoundedStateRollbackGuards(container, environment) {
+  const signature = "public.read_reviewed_catalogue_import_state(jsonb)";
+  const baselineCounts = counts(container, `${environment} bounded-state baseline counts`);
+  const assertExact = label => {
+    assert.equal(functionSha(container, signature, `${label} SHA`), BOUNDED_STATE_SHA);
+    assert.deepEqual(counts(container, `${label} counts`), baselineCounts);
+  };
+  const restore = label => {
+    succeedWithoutBusinessChange(container, BOUNDED_STATE_MIGRATION, label);
+    assertExact(label);
+  };
+  const scenarios = [
+    ["body", `create or replace function public.read_reviewed_catalogue_import_state(p_request jsonb)
+      returns jsonb language sql stable security definer
+      set search_path=pg_catalog,public,pg_temp as $$select '{}'::jsonb$$`],
+    ["owner", `alter function ${signature} owner to anon`],
+    ["volatility", `alter function ${signature} volatile`],
+    ["security-definer", `alter function ${signature} security invoker`],
+    ["search-path", `alter function ${signature} set search_path=public`],
+    ["execute-privilege", `grant execute on function ${signature} to service_role`],
+  ];
+
+  restore(`${environment} install bounded state for rollback guards`);
+  for (const [name, statement] of scenarios) {
+    succeed(sql(container, statement), `${environment} bounded-state tamper ${name}`);
+    const tamperedSha = functionSha(container, signature, `${environment} bounded-state tampered ${name} SHA`);
+    if (name === "body") assert.notEqual(tamperedSha, BOUNDED_STATE_SHA);
+    fails(
+      file(container, BOUNDED_STATE_ROLLBACK),
+      `${environment} bounded-state ${name} fail closed`,
+      /bounded-state rollback lineage or metadata differs/i,
+    );
+    assert.equal(
+      scalar(container, `select to_regprocedure('${signature}') is not null`, `${environment} bounded-state ${name} remains`),
+      "t",
+    );
+    assert.deepEqual(counts(container, `${environment} bounded-state ${name} counts`), baselineCounts);
+    restore(`${environment} restore bounded state after ${name}`);
+  }
+
+  succeedWithoutBusinessChange(container, BOUNDED_STATE_ROLLBACK, `${environment} bounded-state happy rollback`);
+  assert.equal(scalar(container, `select to_regprocedure('${signature}') is null`, `${environment} bounded-state removed`), "t");
+  fails(
+    file(container, BOUNDED_STATE_ROLLBACK),
+    `${environment} bounded-state missing target fails closed`,
+    /bounded-state rollback target is missing/i,
+  );
+  assert.deepEqual(counts(container, `${environment} bounded-state missing-target counts`), baselineCounts);
+  restore(`${environment} reinstall bounded state for full chain`);
+}
+
+function exerciseBoundaryRollbackTamperGuards(container, environment) {
+  const target = TARGETS[environment];
+  const baseline = boundaryStateDigest(container, `${environment} boundary baseline digest`);
+  const baselineCounts = counts(container, `${environment} boundary baseline counts`);
+  const assertFailedRollbackPreserved = (label, pattern) => {
+    const before = boundaryStateDigest(container, `${label} digest before`);
+    fails(file(container, ROLLBACK), label, pattern);
+    assert.equal(boundaryStateDigest(container, `${label} digest after`), before, `${label} changed schema`);
+    assert.deepEqual(counts(container, `${label} counts after`), baselineCounts, `${label} changed business rows`);
+  };
+  const assertRestored = label => {
+    assert.equal(boundaryStateDigest(container, label), baseline, `${label} did not restore exact boundary state`);
+  };
+
+  assert.equal(
+    functionSha(container, "public.atomic_import_validate_product_before_reviewed_v3(jsonb)", `${environment} fallback boundary SHA`),
+    target.postBoundaryFallbackSha,
+  );
+
+  for (const signature of BOUNDARY_FUNCTIONS) {
+    const original = functionDefinition(container, signature, `${environment} capture ${signature}`);
+    succeed(sql(container, tamperedDefinition(original)), `${environment} tamper definition ${signature}`);
+    assertFailedRollbackPreserved(
+      `${environment} boundary definition fail closed ${signature}`,
+      /rollback lineage or metadata differs/i,
+    );
+    succeed(sql(container, original), `${environment} restore definition ${signature}`);
+    assertRestored(`${environment} restored definition ${signature}`);
+  }
+
+  const internal = "public.atomic_import_reviewed_v3_physical_role_allowed(jsonb,jsonb)";
+  succeed(sql(container, `grant execute on function ${internal} to service_role`), `${environment} boundary ACL tamper`);
+  assertFailedRollbackPreserved(`${environment} boundary ACL fail closed`, /rollback lineage or metadata differs/i);
+  succeed(sql(container, `revoke execute on function ${internal} from service_role`), `${environment} restore boundary ACL`);
+  assertRestored(`${environment} restored boundary ACL`);
+
+  succeed(sql(container, `alter function ${internal} owner to anon`), `${environment} boundary owner tamper`);
+  assertFailedRollbackPreserved(`${environment} boundary owner fail closed`, /rollback lineage or metadata differs/i);
+  succeed(sql(container, `alter function ${internal} owner to postgres;
+    revoke all on function ${internal} from public,anon,authenticated,service_role,
+      retailer_catalogue_staging_validator,retailer_catalogue_staging_approver,retailer_catalogue_staging_executor,
+      retailer_catalogue_production_validator,retailer_catalogue_production_approver,retailer_catalogue_production_executor;
+    grant execute on function ${internal} to postgres`), `${environment} restore boundary owner`);
+  assertRestored(`${environment} restored boundary owner`);
+
+  succeed(sql(container, `alter function ${internal} set search_path=public`), `${environment} boundary search_path tamper`);
+  assertFailedRollbackPreserved(`${environment} boundary search_path fail closed`, /rollback lineage or metadata differs/i);
+  succeed(sql(container, `alter function ${internal} set search_path=pg_catalog,public,pg_temp`), `${environment} restore boundary search_path`);
+  assertRestored(`${environment} restored boundary search_path`);
+
+  succeed(sql(container, "alter table public.approved_import_plans alter column authorization_envelope set default '{}'::jsonb"), `${environment} envelope metadata tamper`);
+  assertFailedRollbackPreserved(`${environment} envelope metadata fail closed`, /authorization_envelope metadata differs/i);
+  succeed(sql(container, "alter table public.approved_import_plans alter column authorization_envelope drop default"), `${environment} restore envelope metadata`);
+  assertRestored(`${environment} restored envelope metadata`);
+
+  succeed(sql(container, `alter table public.approved_import_plans drop constraint approved_import_plans_v3_envelope_check;
+    alter table public.approved_import_plans add constraint approved_import_plans_v3_envelope_check check (
+      authorization_envelope is null or jsonb_typeof(authorization_envelope)='object'
+    )`), `${environment} envelope constraint tamper`);
+  assertFailedRollbackPreserved(`${environment} envelope constraint fail closed`, /authorization envelope constraint differs/i);
+  succeed(sql(container, `alter table public.approved_import_plans drop constraint approved_import_plans_v3_envelope_check;
+    alter table public.approved_import_plans add constraint approved_import_plans_v3_envelope_check check (
+      (source !~ '^reviewed-catalogue-package-v3:' and authorization_envelope is null)
+      or (
+        source ~ '^reviewed-catalogue-package-v3:[A-Za-z0-9._-]+:[0-9a-f]{64}:(STAGING|PRODUCTION):[a-z0-9]{20}$'
+        and jsonb_typeof(authorization_envelope)='object'
+        and authorization_envelope->>'kind'='reviewed-catalogue-authorization-v3'
+      )
+    )`), `${environment} restore envelope constraint`);
+  assertRestored(`${environment} restored envelope constraint`);
+
+  succeed(sql(container, "alter table public.approved_import_plans alter column execution_result set default '{}'::jsonb"), `${environment} execution_result metadata tamper`);
+  assertFailedRollbackPreserved(`${environment} execution_result metadata fail closed`, /execution_result metadata differs/i);
+  succeed(sql(container, "alter table public.approved_import_plans alter column execution_result drop default"), `${environment} restore execution_result metadata`);
+  assertRestored(`${environment} restored execution_result metadata`);
+
+  const evidenceSource = `reviewed-catalogue-package-v3:rollback-tamper:${"e".repeat(64)}:${environment}:${target.projectRef}`;
+  succeed(sql(container, `insert into public.approved_import_plans(source,authorization_envelope)
+    values('${evidenceSource}','{"kind":"reviewed-catalogue-authorization-v3"}'::jsonb)`), `${environment} seed durable rollback evidence`);
+  assertFailedRollbackPreserved(`${environment} durable evidence fail closed`, /rollback blocked by durable approval evidence/i);
+  assert.equal(scalar(container, `select count(*) from public.approved_import_plans where source='${evidenceSource}'`, `${environment} durable evidence retained`), "1");
+  succeed(sql(container, `delete from public.approved_import_plans where source='${evidenceSource}'`), `${environment} remove disposable durable evidence`);
+  assertRestored(`${environment} boundary state after evidence cleanup`);
+}
+
+function exerciseTrustedParentRollbackTamperGuards(container, environment) {
+  const signature = "public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)";
+  const target = TARGETS[environment];
+  const baseline = functionStateDigest(container, signature, `${environment} trusted-parent baseline digest`);
+  const baselineCounts = counts(container, `${environment} trusted-parent baseline counts`);
+  const original = functionDefinition(container, signature, `${environment} trusted-parent original definition`);
+  const assertFailedRollbackPreserved = label => {
+    const before = functionStateDigest(container, signature, `${label} digest before`);
+    fails(file(container, TRUSTED_PARENT_POLICY_ROLLBACK), label, /rollback lineage or metadata differs/i);
+    assert.equal(functionStateDigest(container, signature, `${label} digest after`), before, `${label} changed validator`);
+    assert.deepEqual(counts(container, `${label} counts after`), baselineCounts, `${label} changed business rows`);
+  };
+  const assertRestored = label => {
+    assert.equal(functionStateDigest(container, signature, label), baseline, `${label} did not restore exact validator state`);
+  };
+
+  assert.equal(functionSha(container, signature, `${environment} trusted-parent post-migration SHA`), target.postTrustedParentSha);
+  succeed(sql(container, tamperedDefinition(original)), `${environment} trusted-parent anchor-preserving body tamper`);
+  assertFailedRollbackPreserved(`${environment} trusted-parent body SHA fail closed`);
+  succeed(sql(container, original), `${environment} restore trusted-parent body`);
+  assertRestored(`${environment} restored trusted-parent body`);
+
+  succeed(sql(container, `alter function ${signature} owner to anon`), `${environment} trusted-parent owner tamper`);
+  assertFailedRollbackPreserved(`${environment} trusted-parent owner fail closed`);
+  succeed(sql(container, `alter function ${signature} owner to postgres;
+    revoke all on function ${signature} from public,anon,authenticated,service_role,
+      retailer_catalogue_staging_validator,retailer_catalogue_staging_approver,retailer_catalogue_staging_executor,
+      retailer_catalogue_production_validator,retailer_catalogue_production_approver,retailer_catalogue_production_executor;
+    grant execute on function ${signature} to postgres`), `${environment} restore trusted-parent owner`);
+  assertRestored(`${environment} restored trusted-parent owner`);
+
+  succeed(sql(container, `grant execute on function ${signature} to service_role`), `${environment} trusted-parent ACL tamper`);
+  assertFailedRollbackPreserved(`${environment} trusted-parent ACL fail closed`);
+  succeed(sql(container, `revoke execute on function ${signature} from service_role`), `${environment} restore trusted-parent ACL`);
+  assertRestored(`${environment} restored trusted-parent ACL`);
+
+  succeed(sql(container, `alter function ${signature} set search_path=public`), `${environment} trusted-parent search_path tamper`);
+  assertFailedRollbackPreserved(`${environment} trusted-parent search_path fail closed`);
+  succeed(sql(container, `alter function ${signature} set search_path=pg_catalog,public,pg_temp`), `${environment} restore trusted-parent search_path`);
+  assertRestored(`${environment} restored trusted-parent search_path`);
+}
+
 function exerciseBaseline(environment) {
   const target = TARGETS[environment];
   const container = `supplementscout-reviewed-v3-${environment.toLowerCase()}-${crypto.randomBytes(5).toString("hex")}`;
@@ -540,8 +841,8 @@ function exerciseBaseline(environment) {
     ]), `${environment} start PostgreSQL`);
     wait(container);
     succeed(sql(container, setupSql(environment)), `${environment} prepare baseline`);
-    succeed(file(container, target.standardCoreFixture), `${environment} install exact live standard apply core`);
-    succeed(file(container, LIVE_APPLY_DISPATCH_FIXTURE), `${environment} install exact live apply dispatch cores`);
+    succeed(fixtureFile(container, target.standardCoreFixture), `${environment} install exact live standard apply core`);
+    succeed(fixtureFile(container, LIVE_APPLY_DISPATCH_FIXTURE), `${environment} install exact live apply dispatch cores`);
     succeed(sql(container, `
       alter function public.atomic_import_apply_standard_plan_core(jsonb) owner to postgres;
       revoke all on function public.atomic_import_apply_standard_plan_core(jsonb) from public,anon,authenticated,service_role,
@@ -556,6 +857,13 @@ function exerciseBaseline(environment) {
           retailer_catalogue_staging_validator,retailer_catalogue_staging_approver,retailer_catalogue_staging_executor,
           retailer_catalogue_production_validator,retailer_catalogue_production_approver,retailer_catalogue_production_executor;
     `), `${environment} seal exact live apply dispatch cores`);
+    const originalPreSourceValidatorDefinition = functionDefinition(
+      container,
+      "public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)",
+      `${environment} original pre-source validator definition`,
+    );
+    const originalLineageState = publicFunctionAndApprovalSchemaState(container, `${environment} original lineage state`);
+    exerciseBoundedStateRollbackGuards(container, environment);
     const standardCoreBefore = scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
       'public.atomic_import_apply_standard_plan_core(jsonb)'::regprocedure
     ),'UTF8')),'hex')`, `${environment} exact standard apply SHA`);
@@ -606,7 +914,8 @@ function exerciseBaseline(environment) {
       E'\\n' order by id
     ),'')) from public.approved_import_plans`, `${environment} legacy digest before`);
 
-    succeed(file(container, MIGRATION), `${environment} apply corrected V3 migration`);
+    succeedWithoutBusinessChange(container, MIGRATION, `${environment} apply corrected V3 migration`);
+    exerciseBoundaryRollbackTamperGuards(container, environment);
     assert.equal(scalar(container, "select to_regprocedure('public.atomic_import_validate_product_before_reviewed_v3(jsonb)') is not null", `${environment} fallback exists`), "t");
     assert.equal(scalar(container, "select to_regprocedure('public.validate_product_import_plan_read_only(jsonb)') is not null", `${environment} wrapper exists`), "t");
     assert.equal(scalar(container, "select to_regprocedure('public.atomic_import_reviewed_catalogue_plan_allowed(jsonb)') is not null", `${environment} V1 presence unchanged`), target.hasV1 ? "t" : "f");
@@ -696,7 +1005,7 @@ function exerciseBaseline(environment) {
     assert.equal(scalar(container, `select status||':'||coalesce(consumed_at::text,'NULL') from approved_import_plans where id='${preFixApproval.approval_id}'`, `${environment} pre-fix approval remains unconsumed`), "approved:NULL");
     succeed(sql(container, `delete from public.approved_import_plans where id='${preFixApproval.approval_id}'`), `${environment} remove disposable pre-fix approval`);
 
-    succeed(file(container, OPTION_ROLE_MIGRATION), `${environment} apply V3 option-role compatibility migration`);
+    succeedWithoutBusinessChange(container, OPTION_ROLE_MIGRATION, `${environment} apply V3 option-role compatibility migration`);
     assert.equal(scalar(container, "select to_regprocedure('public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)') is not null", `${environment} compatibility helper exists`), "t");
     assert.deepEqual(
       json(container, `select public.fixture_capture_standard_apply_error(${literal(preFixFixture.plan)})`, `${environment} non-V3 count-size error after`),
@@ -717,7 +1026,7 @@ function exerciseBaseline(environment) {
     fails(sql(container, `set session authorization service_role; begin; select set_config('app.reviewed_catalogue_v3_approval_id','${preFixApproval.approval_id}',true); select public.atomic_import_apply_standard_plan_core(${literal(preFixFixture.plan)}); rollback`), `${environment} service-role compatibility spoof`, /permission denied/);
     fails(sql(container, asRole(environment, "executor", `select public.atomic_import_apply_standard_plan_core(${literal(preFixFixture.plan)})`)), `${environment} ordinary executor direct compatibility`, /permission denied/);
 
-    succeed(file(container, target.livePreSourceValidatorFixture), `${environment} install exact live pre-source validator`);
+    succeed(fixtureFile(container, target.livePreSourceValidatorFixture), `${environment} install exact live pre-source validator`);
     succeed(sql(container, `
       alter function public.atomic_import_validate_pre_source_metadata_plan_core(jsonb) owner to postgres;
       revoke all on function public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)
@@ -811,7 +1120,7 @@ function exerciseBaseline(environment) {
       /reviewed variant option size mismatch/,
     );
 
-    succeed(file(container, POST_CREATE_OPTION_ROLE_MIGRATION), `${environment} apply reviewed-create post-create option-role migration`);
+    succeedWithoutBusinessChange(container, POST_CREATE_OPTION_ROLE_MIGRATION, `${environment} apply reviewed-create post-create option-role migration`);
     assert.equal(scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
       'public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)'::regprocedure
     ),'UTF8')),'hex')`, `${environment} patched live pre-source validator SHA`), target.patchedPreSourceValidatorSha);
@@ -865,7 +1174,7 @@ function exerciseBaseline(environment) {
       `${environment} restore byte-exact test legacy family policy`,
     );
 
-    succeed(file(container, TRUSTED_PARENT_POLICY_MIGRATION), `${environment} apply trusted V3 reviewed-parent policy bridge`);
+    succeedWithoutBusinessChange(container, TRUSTED_PARENT_POLICY_MIGRATION, `${environment} apply trusted V3 reviewed-parent policy bridge`);
     assert.deepEqual(
       json(container, `select jsonb_build_object(
         'family',encode(pg_catalog.sha256(convert_to(pg_get_functiondef('public.atomic_import_reviewed_parent_variant_allowed(text,text,text,text,text,text)'::regprocedure),'UTF8')),'hex'),
@@ -895,6 +1204,7 @@ function exerciseBaseline(environment) {
     for (const table of ["products", "product_variants", "retailer_products", "offers", "price_history"]) {
       assert.equal(gapCountsAfter[table] - gapCountsBefore[table], 1, `${environment} reviewed-create ${table} delta`);
     }
+    exerciseTrustedParentRollbackTamperGuards(container, environment);
 
     const exactPluralFixture = seal(
       container,
@@ -939,7 +1249,7 @@ function exerciseBaseline(environment) {
     );
     assert.deepEqual(counts(container, `${environment} traditional Flavor rollback before counts`), exactPluralCountsBefore);
 
-    succeed(file(container, PLURAL_FLAVOUR_MIGRATION), `${environment} apply plural-flavour compatibility migration`);
+    succeedWithoutBusinessChange(container, PLURAL_FLAVOUR_MIGRATION, `${environment} apply plural-flavour compatibility migration`);
     assert.equal(scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
       'public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)'::regprocedure
     ),'UTF8')),'hex')`, `${environment} plural-flavour compatibility helper SHA`), PLURAL_FLAVOUR_COMPATIBILITY_HELPER_SHA);
@@ -1155,7 +1465,7 @@ function exerciseBaseline(environment) {
     );
 
     succeed(sql(container, "delete from public.approved_import_plans where source like 'reviewed-catalogue-package-v3:%'"), `${environment} remove disposable V3 fixture approvals`);
-    succeed(file(container, PLURAL_FLAVOUR_ROLLBACK), `${environment} rollback plural-flavour compatibility migration`);
+    succeedWithoutBusinessChange(container, PLURAL_FLAVOUR_ROLLBACK, `${environment} rollback plural-flavour compatibility migration`);
     assert.equal(scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
       'public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)'::regprocedure
     ),'UTF8')),'hex')`, `${environment} plural-flavour rollback helper SHA`), POST_CREATE_COMPATIBILITY_HELPER_SHA);
@@ -1163,7 +1473,7 @@ function exerciseBaseline(environment) {
       functionMetadata(container, "public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)", `${environment} plural-flavour rollback helper metadata`),
       compatibilityHelperMetadata,
     );
-    succeed(file(container, TRUSTED_PARENT_POLICY_ROLLBACK), `${environment} rollback trusted V3 reviewed-parent policy bridge`);
+    succeedWithoutBusinessChange(container, TRUSTED_PARENT_POLICY_ROLLBACK, `${environment} rollback trusted V3 reviewed-parent policy bridge`);
     assert.equal(scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
       'public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)'::regprocedure
     ),'UTF8')),'hex')`, `${environment} bridge rollback validator SHA`), target.patchedPreSourceValidatorSha);
@@ -1171,7 +1481,7 @@ function exerciseBaseline(environment) {
       functionMetadata(container, "public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)", `${environment} bridge rollback validator metadata`),
       livePreSourceMetadata,
     );
-    succeed(file(container, POST_CREATE_OPTION_ROLE_ROLLBACK), `${environment} rollback reviewed-create post-create option-role migration`);
+    succeedWithoutBusinessChange(container, POST_CREATE_OPTION_ROLE_ROLLBACK, `${environment} rollback reviewed-create post-create option-role migration`);
     assert.equal(scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
       'public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)'::regprocedure
     ),'UTF8')),'hex')`, `${environment} restored live pre-source validator SHA`), target.livePreSourceValidatorSha);
@@ -1186,7 +1496,7 @@ function exerciseBaseline(environment) {
       functionMetadata(container, "public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)", `${environment} restored compatibility helper metadata`),
       compatibilityHelperMetadata,
     );
-    succeed(file(container, OPTION_ROLE_ROLLBACK), `${environment} rollback V3 option-role compatibility`);
+    succeedWithoutBusinessChange(container, OPTION_ROLE_ROLLBACK, `${environment} rollback V3 option-role compatibility`);
     assert.equal(scalar(container, "select to_regprocedure('public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)') is null", `${environment} compatibility helper removed`), "t");
     assert.equal(scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
       'public.atomic_import_apply_standard_plan_core(jsonb)'::regprocedure
@@ -1194,20 +1504,9 @@ function exerciseBaseline(environment) {
     assert.equal(scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
       'public.atomic_import_apply_pre_source_metadata_plan_core(jsonb)'::regprocedure
     ),'UTF8')),'hex')`, `${environment} restored pre-source apply SHA`), preSourceCoreBefore);
-    succeed(sql(container, environment === "STAGING" ? `
-      create or replace function public.atomic_import_validate_pre_source_metadata_plan_core(p_plan jsonb)
-      returns jsonb language plpgsql stable as $$
-      begin
-        if p_plan->>'force_error'='1' then raise exception 'FIXTURE_NON_V3_REJECT' using errcode='22023'; end if;
-        return jsonb_build_object('valid',true,'path','staging-fallback');
-      end$$;
-    ` : `
-      create or replace function public.atomic_import_validate_pre_source_metadata_plan_core(p_plan jsonb)
-      returns jsonb language sql stable as $$
-        select public.atomic_import_validate_before_reviewed_catalogue_package(p_plan)
-      $$;
-    `), `${environment} restore original simplified pre-source validator fixture`);
-    succeed(file(container, ROLLBACK), `${environment} successful rollback`);
+    succeed(sql(container, `${originalPreSourceValidatorDefinition};
+      grant execute on function public.atomic_import_validate_pre_source_metadata_plan_core(jsonb) to public`), `${environment} restore exact original pre-source validator fixture`);
+    succeedWithoutBusinessChange(container, ROLLBACK, `${environment} successful rollback`);
     const restoredSha = scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
       'public.validate_product_import_plan_read_only(jsonb)'::regprocedure
     ),'UTF8')),'hex')`, `${environment} restored validator SHA`);
@@ -1223,6 +1522,13 @@ function exerciseBaseline(environment) {
         'public.validate_reviewed_catalogue_import_plan(jsonb)'::regprocedure
       ),'UTF8')),'hex')`, `${environment} V1 function rollback`), v1FunctionBefore);
     }
+    succeedWithoutBusinessChange(container, BOUNDED_STATE_ROLLBACK, `${environment} final bounded-state rollback`);
+    assert.equal(scalar(container, "select to_regprocedure('public.read_reviewed_catalogue_import_state(jsonb)') is null", `${environment} bounded state absent after full rollback`), "t");
+    assert.deepEqual(
+      publicFunctionAndApprovalSchemaState(container, `${environment} full rollback lineage state`),
+      originalLineageState,
+      `${environment} full rollback did not restore the exact original function/schema lineage`,
+    );
   } finally {
     run("docker", ["rm", "--force", container], 30_000);
   }
@@ -1230,6 +1536,11 @@ function exerciseBaseline(environment) {
 
 test("reviewed catalogue V3 independently wraps staging and production validator lineages", { timeout: 600_000 }, (t) => {
   if (!dockerAvailable()) return t.skip("Docker unavailable");
-  exerciseBaseline("STAGING");
-  exerciseBaseline("PRODUCTION");
+  const environments = process.env.REVIEWED_V3_TEST_ENV
+    ? [process.env.REVIEWED_V3_TEST_ENV]
+    : ["STAGING", "PRODUCTION"];
+  for (const environment of environments) {
+    assert.ok(Object.hasOwn(TARGETS, environment), `unsupported focused environment ${environment}`);
+    exerciseBaseline(environment);
+  }
 });

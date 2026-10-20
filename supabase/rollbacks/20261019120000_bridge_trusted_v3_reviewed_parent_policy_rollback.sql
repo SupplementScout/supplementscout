@@ -10,6 +10,7 @@ declare
   v_validator regprocedure := 'public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)'::regprocedure;
   v_definition text;
   v_restored text;
+  v_sha256 text;
   v_owner oid;
   v_volatility "char";
   v_security_definer boolean;
@@ -57,7 +58,12 @@ begin
   select pg_get_functiondef(v_validator),p.proowner,p.provolatile,p.prosecdef,p.proconfig,p.proacl
     into v_definition,v_owner,v_volatility,v_security_definer,v_config,v_acl
     from pg_proc p where p.oid=v_validator;
-  if v_owner<>'postgres'::regrole
+  v_sha256 := encode(pg_catalog.sha256(convert_to(v_definition,'UTF8')),'hex');
+  if v_sha256 not in (
+       '0f2308eb0759cff2a4d97708a3bdfca24d50820483310117771f1bd3a2a3149a',
+       '80e9f09e1b9ad414689d0f42876bb8f169f528b4efad61d9713f3dad6850a942'
+     )
+     or v_owner<>'postgres'::regrole
      or v_volatility<>'s'
      or not v_security_definer
      or v_config is distinct from array['search_path=pg_catalog, public, pg_temp']::text[]
@@ -70,7 +76,7 @@ begin
      or (length(v_definition)-length(replace(v_definition,v_patched_begin,'')))/length(v_patched_begin)<>1
      or (length(v_definition)-length(replace(v_definition,v_patched_family,'')))/length(v_patched_family)<>1
      or (length(v_definition)-length(replace(v_definition,v_patched_transport,'')))/length(v_patched_transport)<>1 then
-    raise exception 'trusted V3 reviewed-parent rollback lineage or metadata differs';
+    raise exception 'trusted V3 reviewed-parent rollback lineage or metadata differs: %',v_sha256;
   end if;
 
   v_restored := replace(v_definition,v_patched_declaration,v_original_declaration);
