@@ -20,6 +20,8 @@ const TRUSTED_PARENT_POLICY_MIGRATION = "supabase/migrations/20261019120000_brid
 const TRUSTED_PARENT_POLICY_ROLLBACK = "supabase/rollbacks/20261019120000_bridge_trusted_v3_reviewed_parent_policy_rollback.sql";
 const PLURAL_FLAVOUR_MIGRATION = "supabase/migrations/20261019130000_fix_reviewed_v3_plural_flavour_compatibility.sql";
 const PLURAL_FLAVOUR_ROLLBACK = "supabase/rollbacks/20261019130000_fix_reviewed_v3_plural_flavour_compatibility_rollback.sql";
+const ROLE_AWARE_SIZE_MIGRATION = "supabase/migrations/20261020180000_fix_reviewed_v3_role_aware_legacy_size_projection.sql";
+const ROLE_AWARE_SIZE_ROLLBACK = "supabase/rollbacks/20261020180000_fix_reviewed_v3_role_aware_legacy_size_projection_rollback.sql";
 const ENVIRONMENT_SAFE_FORWARD_CHAIN = Object.freeze([
   ENVIRONMENT_SAFE_BOUNDED_STATE_MIGRATION,
   ENVIRONMENT_SAFE_MIGRATION,
@@ -27,6 +29,7 @@ const ENVIRONMENT_SAFE_FORWARD_CHAIN = Object.freeze([
   POST_CREATE_OPTION_ROLE_MIGRATION,
   TRUSTED_PARENT_POLICY_MIGRATION,
   PLURAL_FLAVOUR_MIGRATION,
+  ROLE_AWARE_SIZE_MIGRATION,
 ]);
 const ENVIRONMENT_SAFE_ROLLBACK_CHAIN = Object.freeze([
   ENVIRONMENT_SAFE_BOUNDED_STATE_ROLLBACK,
@@ -35,6 +38,7 @@ const ENVIRONMENT_SAFE_ROLLBACK_CHAIN = Object.freeze([
   POST_CREATE_OPTION_ROLE_ROLLBACK,
   TRUSTED_PARENT_POLICY_ROLLBACK,
   PLURAL_FLAVOUR_ROLLBACK,
+  ROLE_AWARE_SIZE_ROLLBACK,
 ]);
 const LEGACY_COMPATIBILITY_HELPER_SHA = "849df8441e8994daf1acb514705808fde17467e033185e30cc432ad165a13905";
 const POST_CREATE_COMPATIBILITY_HELPER_SHA = "906cb5abad08deb8452fa9ae4fed8be8669b760e6f2ef088ae8846f5536b27db";
@@ -530,6 +534,55 @@ function reviewedCreateFlavourFixture(environment, index, sourceKey, sourceValue
     flavour: { source_key: sourceKey, source_value: sourceValue },
     physical_size: { source_key: "Weight", source_value: "390g", size_value: "390", size_unit: "g" },
     count: { source_key: "Size", source_value: "30 Servings", count_value: "30", count_unit: "servings" },
+  };
+  return fixture;
+}
+
+function roleAwareLegacySizeFixture(environment, index, {
+  flavour,
+  rawSize,
+  physicalKey = "Weight",
+  physicalValue,
+  sizeValue,
+  sizeUnit = "g",
+  count = null,
+} = {}) {
+  const fixture = actionFixture(environment, "create_product_with_variant", index);
+  const normalized = flavour.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const externalOptions = { Flavour: flavour, Size: rawSize };
+  if (physicalKey !== "Size") externalOptions[physicalKey] = physicalValue;
+  fixture.plan.product.values.net_weight_g = sizeUnit === "g" ? sizeValue : null;
+  fixture.plan.product.values.servings = null;
+  fixture.plan.product_variant.values = {
+    variant_key: `${normalized}-${sizeValue}${sizeUnit}`,
+    display_name: `${flavour} / ${rawSize} / ${physicalValue}`,
+    flavour_code: normalized,
+    flavour_label: flavour,
+    size_value: sizeValue,
+    size_unit: sizeUnit,
+    pack_count: "1",
+    product_format: "powder",
+  };
+  fixture.plan.product_variant.evidence = {
+    flavour: normalized,
+    size_value: sizeValue,
+    size_unit: sizeUnit,
+    pack_count: "1",
+    product_format: "powder",
+    external_options: externalOptions,
+    approved_mapping_id: null,
+  };
+  fixture.plan.retailer_product.values.external_options = externalOptions;
+  fixture.envelope.external_options = externalOptions;
+  fixture.envelope.option_roles = {
+    flavour: { source_key: "Flavour", source_value: flavour },
+    physical_size: {
+      source_key: physicalKey,
+      source_value: physicalValue,
+      size_value: sizeValue,
+      size_unit: sizeUnit,
+    },
+    count,
   };
   return fixture;
 }
@@ -1398,6 +1451,167 @@ function exerciseBaseline(environment) {
       { Flavours: "Georgie's Blood", Size: "30 Servings", Weight: "390g" },
     );
 
+    const preRoleAwareFixture = seal(
+      container,
+      roleAwareLegacySizeFixture(environment, 120, {
+        flavour: "Chocolate Chip", rawSize: "12 x 60g Cookies",
+        physicalValue: "720g", sizeValue: "720",
+      }),
+      `${environment} role-aware size pre-fix fixture`,
+    );
+    const preRoleAwareValidation = json(
+      container,
+      asRole(environment, "validator", `select public.validate_reviewed_catalogue_v3_plan_read_only(${literal(preRoleAwareFixture.plan)},${literal(preRoleAwareFixture.envelope)})`, { readOnly: true }),
+      `${environment} role-aware size pre-fix read-only validation`,
+    );
+    assert.equal(preRoleAwareValidation.valid, true);
+    const preRoleAwareApproval = json(
+      container,
+      asRole(environment, "approver", `select public.approve_reviewed_catalogue_v3_plan(${literal(preRoleAwareFixture.plan)},${literal(preRoleAwareFixture.envelope)})`),
+      `${environment} role-aware size pre-fix approval`,
+    );
+    const preRoleAwareCounts = counts(container, `${environment} role-aware size pre-fix counts`);
+    fails(
+      sql(container, asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${preRoleAwareApproval.approval_id}',${literal(preRoleAwareFixture.plan)},${literal(preRoleAwareFixture.envelope)})`)),
+      `${environment} role-aware size pre-fix apply`,
+      /reviewed variant option size mismatch/,
+    );
+    assert.deepEqual(counts(container, `${environment} role-aware size pre-fix rollback counts`), preRoleAwareCounts);
+    assert.equal(
+      scalar(container, `select status||':'||coalesce(consumed_at::text,'NULL') from approved_import_plans where id='${preRoleAwareApproval.approval_id}'`, `${environment} role-aware size failed approval state`),
+      "approved:NULL",
+    );
+    fails(
+      file(container, ROLE_AWARE_SIZE_MIGRATION),
+      `${environment} role-aware migration with live approval`,
+      /blocked by live approval/,
+    );
+    succeed(
+      sql(container, `delete from public.approved_import_plans where id='${preRoleAwareApproval.approval_id}'`),
+      `${environment} remove disposable role-aware size failed approval`,
+    );
+    fails(
+      sql(container, `select public.atomic_import_validate_pre_source_metadata_plan_core(${literal(preRoleAwareFixture.plan)})`),
+      `${environment} non-V3 role-aware size remains closed before fix`,
+      /reviewed variant option size mismatch/,
+    );
+
+    succeedWithoutBusinessChange(container, ROLE_AWARE_SIZE_MIGRATION, `${environment} apply role-aware legacy size projection migration`);
+    assert.equal(functionSha(container, "public.atomic_import_reviewed_v3_legacy_validation_projection(jsonb,jsonb)", `${environment} projection SHA`), "48ce4f1bf0cb9c9d5dd75f2617b92482a19806bc272bd9ee95adab3518e5d92a");
+    assert.equal(functionSha(container, "public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)", `${environment} helper SHA`), "a5b8a05c0dc9cba672cbb4607c8d63660744165f88d2807e26d299159277b0f8");
+    assert.equal(functionSha(container, "public.atomic_import_validate_reviewed_catalogue_v3_plan(jsonb,jsonb)", `${environment} validator SHA`), "04392ff0eff0e814ba54e41d0b9af38478174eda6f427e7eefcc35d18c7b3e0c");
+    assert.deepEqual(
+      functionMetadata(container, "public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)", `${environment} role-aware compatibility helper metadata`),
+      compatibilityHelperMetadata,
+    );
+    const projectionMetadata = functionMetadata(
+      container,
+      "public.atomic_import_reviewed_v3_legacy_validation_projection(jsonb,jsonb)",
+      `${environment} role-aware projection metadata`,
+    );
+    assert.deepEqual(projectionMetadata, {
+      owner: "postgres", volatility: "s", security_definer: true,
+      config: ["search_path=pg_catalog, public, pg_temp"], acl: "{postgres=X/postgres}",
+    });
+    fails(
+      sql(container, `select public.atomic_import_validate_pre_source_metadata_plan_core(${literal(preRoleAwareFixture.plan)})`),
+      `${environment} non-V3 role-aware size remains closed after fix`,
+      /reviewed variant option size mismatch/,
+    );
+    fails(
+      sql(container, `set session authorization service_role; select public.atomic_import_reviewed_v3_legacy_validation_projection(${literal(preRoleAwareFixture.plan)},${literal(preRoleAwareFixture.envelope)})`),
+      `${environment} service role cannot execute role-aware projection`,
+      /permission denied/,
+    );
+
+    const roleAwarePassFixtures = [
+      ["cookie pack wording", roleAwareLegacySizeFixture(environment, 121, {
+        flavour: "Chocolate Chip", rawSize: "12 x 60g Cookies",
+        physicalValue: "720g", sizeValue: "720",
+      })],
+      ["slash count wording", roleAwareLegacySizeFixture(environment, 122, {
+        flavour: "Sugar Sweet", rawSize: "40/80",
+        physicalValue: "1.8kg", sizeValue: "1800",
+      })],
+      ["Size count role", reviewedCreateFlavourFixture(environment, 123, "Flavour", "Count Role")],
+      ["Size physical role", roleAwareLegacySizeFixture(environment, 124, {
+        flavour: "Physical Size", rawSize: "720g", physicalKey: "Size",
+        physicalValue: "720g", sizeValue: "720",
+      })],
+    ];
+    for (const [label, rawFixture] of roleAwarePassFixtures) {
+      const fixture = seal(container, rawFixture, `${environment} ${label}`);
+      const validation = json(
+        container,
+        asRole(environment, "validator", `select public.validate_reviewed_catalogue_v3_plan_read_only(${literal(fixture.plan)},${literal(fixture.envelope)})`, { readOnly: true }),
+        `${environment} ${label} read-only validation`,
+      );
+      assert.equal(validation.valid, true);
+      const before = counts(container, `${environment} ${label} counts before`);
+      const approval = json(
+        container,
+        asRole(environment, "approver", `select public.approve_reviewed_catalogue_v3_plan(${literal(fixture.plan)},${literal(fixture.envelope)})`),
+        `${environment} ${label} approval`,
+      );
+      const applied = json(
+        container,
+        asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${approval.approval_id}',${literal(fixture.plan)},${literal(fixture.envelope)})`),
+        `${environment} ${label} apply`,
+      );
+      assert.equal(applied.approval_status, "consumed");
+      assert.deepEqual(
+        json(container, `select external_options from public.retailer_products where id=${applied.retailer_product_id}`, `${environment} ${label} persisted raw options`),
+        fixture.envelope.external_options,
+      );
+      const after = counts(container, `${environment} ${label} counts after`);
+      for (const table of ["products", "product_variants", "retailer_products", "offers", "price_history"]) {
+        assert.equal(after[table] - before[table], 1, `${environment} ${label} ${table} delta`);
+      }
+    }
+
+    const negativeRoleAwareFixtures = [];
+    const wrongPhysical = roleAwareLegacySizeFixture(environment, 130, {
+      flavour: "Wrong Physical", rawSize: "12 x 60g Cookies", physicalValue: "720g", sizeValue: "720",
+    });
+    wrongPhysical.envelope.option_roles.physical_size.source_value = "719g";
+    negativeRoleAwareFixtures.push(["physical source mismatch", wrongPhysical, /physical size role is not exact raw evidence/]);
+    const missingPhysical = roleAwareLegacySizeFixture(environment, 131, {
+      flavour: "Missing Physical", rawSize: "12 x 60g Cookies", physicalValue: "720g", sizeValue: "720",
+    });
+    delete missingPhysical.envelope.external_options.Weight;
+    delete missingPhysical.plan.retailer_product.values.external_options.Weight;
+    delete missingPhysical.plan.product_variant.evidence.external_options.Weight;
+    negativeRoleAwareFixtures.push(["missing physical option", missingPhysical, /physical size role is not exact raw evidence/]);
+    const roleConflict = roleAwareLegacySizeFixture(environment, 132, {
+      flavour: "Role Conflict", rawSize: "30 Servings", physicalKey: "Size",
+      physicalValue: "30 Servings", sizeValue: "30", sizeUnit: "g",
+      count: { source_key: "Size", source_value: "30 Servings", count_value: "30", count_unit: "servings" },
+    });
+    negativeRoleAwareFixtures.push(["physical count conflict", roleConflict, /physical size role is not exact raw evidence|physical and count roles conflict/]);
+    const ambiguousSize = roleAwareLegacySizeFixture(environment, 133, {
+      flavour: "Ambiguous Size", rawSize: "12 x 60g Cookies", physicalValue: "720g", sizeValue: "720",
+    });
+    ambiguousSize.envelope.external_options.size = "40/80";
+    ambiguousSize.plan.retailer_product.values.external_options.size = "40/80";
+    ambiguousSize.plan.product_variant.evidence.external_options.size = "40/80";
+    negativeRoleAwareFixtures.push(["ambiguous Size aliases", ambiguousSize, /ambiguous size aliases/]);
+    const envelopeMismatch = roleAwareLegacySizeFixture(environment, 134, {
+      flavour: "Envelope Mismatch", rawSize: "12 x 60g Cookies", physicalValue: "720g", sizeValue: "720",
+    });
+    envelopeMismatch.envelope.external_options = {
+      ...envelopeMismatch.envelope.external_options,
+      Size: "different",
+    };
+    negativeRoleAwareFixtures.push(["envelope raw mismatch", envelopeMismatch, /plan and authorization envelope differ/]);
+    for (const [label, rawFixture, expected] of negativeRoleAwareFixtures) {
+      const fixture = seal(container, rawFixture, `${environment} ${label}`);
+      fails(
+        sql(container, asRole(environment, "validator", `select public.validate_reviewed_catalogue_v3_plan_read_only(${literal(fixture.plan)},${literal(fixture.envelope)})`, { readOnly: true })),
+        `${environment} ${label} read-only rejection`,
+        expected,
+      );
+    }
+
     for (const [index, alias] of ["Flavour", "Flavor", "Flavours", "Flavors"].entries()) {
       const sourceValue = `Alias ${index + 1}`;
       const aliasFixture = seal(
@@ -1485,7 +1699,7 @@ function exerciseBaseline(environment) {
       assert.equal(approval.contract_kind, "reviewed-catalogue-package-v3");
 
       if (index === 0) {
-        fails(file(container, target.boundaryRollback), `${environment} rollback with live approval`, /rollback blocked by durable approval evidence/i);
+        fails(file(container, ROLE_AWARE_SIZE_ROLLBACK), `${environment} role-aware rollback with live approval`, /rollback blocked by live approval/i);
         const spoofed = json(
           container,
           asRole(environment, "validator", `select public.validate_product_import_plan_read_only(${literal(fixture.plan)})`, { readOnly: true, approvalId: approval.approval_id }),
@@ -1515,7 +1729,7 @@ function exerciseBaseline(environment) {
       for (const table of ["retailer_products", "offers", "price_history"]) {
         assert.equal(after[table] - before[table], 1, `${environment} ${action} ${table}`);
       }
-      if (index === 0) fails(file(container, target.boundaryRollback), `${environment} rollback with consumed approval`, /rollback blocked by durable approval evidence/i);
+      if (index === 0) fails(file(container, ROLE_AWARE_SIZE_ROLLBACK), `${environment} role-aware rollback with consumed approval`, /rollback blocked by later durable approval evidence/i);
       const replay = json(
         container,
         asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${approval.approval_id}',${literal(fixture.plan)},${literal(fixture.envelope)})`),
@@ -1559,6 +1773,16 @@ function exerciseBaseline(environment) {
     );
 
     succeed(sql(container, "delete from public.approved_import_plans where source like 'reviewed-catalogue-package-v3:%'"), `${environment} remove disposable V3 fixture approvals`);
+    succeedWithoutBusinessChange(container, ROLE_AWARE_SIZE_ROLLBACK, `${environment} rollback role-aware legacy size projection migration`);
+    assert.equal(
+      scalar(container, "select to_regprocedure('public.atomic_import_reviewed_v3_legacy_validation_projection(jsonb,jsonb)') is null", `${environment} role-aware projection removed`),
+      "t",
+    );
+    assert.equal(functionSha(
+      container,
+      "public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)",
+      `${environment} role-aware rollback helper SHA`,
+    ), PLURAL_FLAVOUR_COMPATIBILITY_HELPER_SHA);
     succeedWithoutBusinessChange(container, PLURAL_FLAVOUR_ROLLBACK, `${environment} rollback plural-flavour compatibility migration`);
     assert.equal(scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
       'public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)'::regprocedure

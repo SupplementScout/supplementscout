@@ -836,6 +836,31 @@ test("trusted V3 plural flavour compatibility is validation-only, generic and bo
   assert.doesNotMatch(rollbackExecutable, /\b(?:grant|revoke)\b/i);
 });
 
+test("trusted V3 role-aware legacy size projection is shared, generic and fail-closed", () => {
+  const migration = fs.readFileSync(path.join(__dirname, "../supabase/migrations/20261020180000_fix_reviewed_v3_role_aware_legacy_size_projection.sql"), "utf8");
+  const rollback = fs.readFileSync(path.join(__dirname, "../supabase/rollbacks/20261020180000_fix_reviewed_v3_role_aware_legacy_size_projection_rollback.sql"), "utf8");
+  const migrationExecutable = migration.replace(/\$patch\$[\s\S]*?\$patch\$/gi, "");
+  const rollbackExecutable = rollback.replace(/\$patch\$[\s\S]*?\$patch\$/gi, "");
+
+  assert.match(migration, /3f25c76ae3407552f99e035d60f2629838ab878d5f127b20d29be02aa834fdfc/);
+  assert.match(migration, /f1f5697a7ca6c3064b358e9296b98a1e411907a127b03248d14f9d75f90b4307/);
+  assert.match(migration, /48ce4f1bf0cb9c9d5dd75f2617b92482a19806bc272bd9ee95adab3518e5d92a/);
+  assert.match(migration, /a5b8a05c0dc9cba672cbb4607c8d63660744165f88d2807e26d299159277b0f8/);
+  assert.match(migration, /04392ff0eff0e814ba54e41d0b9af38478174eda6f427e7eefcc35d18c7b3e0c/);
+  assert.match(migration, /atomic_import_reviewed_v3_legacy_validation_projection\(p_plan,p_envelope\)/i);
+  assert.match(migration, /v_size_key_count>1[\s\S]+ambiguous size aliases/i);
+  assert.match(migration, /v_physical_key is not null and v_count_key is null[\s\S]+v_validation_options-v_size_key/i);
+  assert.match(migration, /jsonb_typeof\(p_plan#>'\{product_variant,evidence\}'\)='object'[\s\S]+perform public\.atomic_import_reviewed_v3_legacy_validation_projection/i);
+  assert.match(migration, /blocked by live approval/i);
+  assert.match(rollback, /blocked by later durable approval evidence/i);
+  assert.match(rollback, /3f25c76ae3407552f99e035d60f2629838ab878d5f127b20d29be02aa834fdfc/);
+  assert.match(rollback, /f1f5697a7ca6c3064b358e9296b98a1e411907a127b03248d14f9d75f90b4307/);
+  assert.doesNotMatch(migration, /gladiator|kayow|twp|57418273358198|41779916898349/i);
+  assert.doesNotMatch(migrationExecutable, /\b(?:insert\s+into|update|delete\s+from)\s+public\.(?:retailers|products|product_variants|retailer_products|offers|price_history|approved_import_plans)\b/i);
+  assert.doesNotMatch(rollbackExecutable, /\b(?:insert\s+into|update|delete\s+from)\s+public\.(?:retailers|products|product_variants|retailer_products|offers|price_history|approved_import_plans)\b/i);
+  assert.doesNotMatch(migration, /\bgrant\b/i);
+});
+
 test("existing workflows and scheduled retailer entry points do not opt into V3", () => {
   const workflowRoot = path.join(__dirname, "../.github/workflows");
   const workflowText = fs.readdirSync(workflowRoot)
