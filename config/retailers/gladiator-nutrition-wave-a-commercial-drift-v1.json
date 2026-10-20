@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "kind": "gladiator-nutrition-wave-a-commercial-drift-v1",
+  "status": "NON_EXECUTABLE_SOURCE_DRIFT_EVIDENCE",
+  "generated_at": "2026-10-20T16:25:41.935Z",
+  "base_main_commit": "18eee2c86cc40d908539de02012902c45cafdafe",
+  "historical_manifest_path": "config/retailers/gladiator-nutrition-full-catalogue-wave-a-safe-v3.json",
+  "historical_manifest_sha256": "af51e435470ee2d6fdf8712f6b5ad8a6b54bad678b472ae7abf5c6e0ab65ee07",
+  "historical_held_path": "config/retailers/gladiator-nutrition-wave-a-held-reconciliation-v1.json",
+  "historical_held_sha256": "ce67884c5833245a42c3c8d8846bb5a443eb2748304737646371728ec52a67e0",
+  "stable_manifest_path": "config/retailers/gladiator-nutrition-full-catalogue-wave-a-stable-v1.json",
+  "stable_manifest_sha256": "3ab6102609b748f6437ccf76e4b4954288b888cc4b325bc392fe15b9a441c266",
+  "database_writes_authorized": false,
+  "approvals_authorized": false,
+  "apply_authorized": false,
+  "migrations_authorized": false,
+  "automation_authorized": false,
+  "source_evidence": {
+    "capture_a": {
+      "captured_at": "2026-10-20T16:20:57.872Z",
+      "product_count": 155,
+      "variant_count": 852,
+      "in_stock_count": 481,
+      "out_of_stock_count": 371,
+      "raw_source_fingerprint": "f3643b36e65e47cfa8270e96334ef99a686310092402d5db490e5e42ef6eed96",
+      "semantic_source_fingerprint": "f5058f24d8d8c10c649c20a7c7c1f516a58ee5f692ab162c04173da02edc9789",
+      "identity_fingerprint": "fd07d63f3481a8ce5864d3fe9d4c5e1131e2b2c57d3dbbc2706f715b247c34b5",
+      "commercial_fingerprint": "60bbee619e3bb272ccbfd0377f3c8c4e936e345f0e4d850e3ec58395520d4a7e"
+    },
+    "capture_b": {
+      "captured_at": "2026-10-20T16:21:00.742Z",
+      "product_count": 155,
+      "variant_count": 852,
+      "in_stock_count": 481,
+      "out_of_stock_count": 371,
+      "raw_source_fingerprint": "57deb984fdb123108c172e4b068d887f5b24003e479f3682b7f1c20c5e7034b5",
+      "semantic_source_fingerprint": "f5058f24d8d8c10c649c20a7c7c1f516a58ee5f692ab162c04173da02edc9789",
+      "identity_fingerprint": "fd07d63f3481a8ce5864d3fe9d4c5e1131e2b2c57d3dbbc2706f715b247c34b5",
+      "commercial_fingerprint": "60bbee619e3bb272ccbfd0377f3c8c4e936e345f0e4d850e3ec58395520d4a7e"
+    },
+    "a_b_match": {
+      "identity_match": true,
+      "semantic_match": true,
+      "commercial_match": true
+    }
+  },
+  "production_evidence": {
+    "ledger_count": 244,
+    "ledger_fingerprint": "d004ba9cb89b5709505ca9a29d743dde0f22878d65ae3931d9cd2b15e01a34f8",
+    "gladiator_mappings": 187,
+    "gladiator_offers": 187,
+    "transaction": "BEGIN READ ONLY / ROLLBACK",
+    "database_writes": 0
+  },
+  "classification_summary": {
+    "historical_safe_rows": 90,
+    "EXACTLY_UNCHANGED": 85,
+    "COMMERCIAL_CHANGED": 5,
+    "IDENTITY_CHANGED": 0,
+    "MISSING": 0,
+    "DUPLICATED": 0,
+    "parity": 90
+  },
+  "stable_subset": {
+    "row_count": 85,
+    "profile_id": "gladiator-full-catalogue-wave-a-stable-v1",
+    "csv_sha256": "5623d69a054999fb02c216180d009eeed8dfbd82d3bf6365953a9d78a972a07c",
+    "artifact_sha256": "ef852df34fb54a26bb7486b2e4fb9918a753ad901508daf5df5fba7a533e9a11",
+    "run_id": "gladiator-full-catalogue-wave-a-stable-v1-20261020T162540Z",
+    "action_distribution": {
+      "create_product_with_variant": 16,
+      "create_variant_on_existing_product": 21,
+      "create_product_with_default_variant": 5,
+      "map_existing_variant": 43
+    },
+    "expected_actions": {
+      "retailers_create": 0,
+      "products_create": 21,
+      "product_variants_create": 42,
+      "retailer_products_create": 85,
+      "offers_create": 85,
+      "price_history_create": 85
+    },
+    "source_and_plan_fingerprints_reused_exactly": true,
+    "production_state_exclusions": 0,
+    "planner_pass": 85,
+    "planner_blocked": 0,
+    "validator_pass": 85
+  },
+  "excluded_rows": [
+    {
+      "classification": "COMMERCIAL_CHANGED",
+      "external_product_id": "15719647379830",
+      "external_variant_id": "57774589215094",
+      "source_product_title": "3D Energy Drink",
+      "source_variant_title": "Spicy Mango / 473ml",
+      "action": "create_product_with_variant",
+      "old_price": 2.75,
+      "fresh_price": 2.75,
+      "old_in_stock": true,
+      "fresh_in_stock": false,
+      "identity_unchanged": true,
+      "identity_changes": [],
+      "commercial_changes": [
+        "in_stock"
+      ],
+      "recommended_later_handling": "Reconcile and replan separately from a future fresh source snapshot; do not execute the historical plan."
+    },
+    {
+      "classification": "COMMERCIAL_CHANGED",
+      "external_product_id": "15026499354998",
+      "external_variant_id": "55135499780470",
+      "source_product_title": "Myoblox 24/7 Aminos BCAA/EAA",
+      "source_variant_title": "Galactic Glow / 30 Servings / 367.7g",
+      "action": "create_product_with_variant",
+      "old_price": 26.99,
+      "fresh_price": 19.99,
+      "old_in_stock": true,
+      "fresh_in_stock": true,
+      "identity_unchanged": true,
+      "identity_changes": [],
+      "commercial_changes": [
+        "price"
+      ],
+      "recommended_later_handling": "Reconcile and replan separately from a future fresh source snapshot; do not execute the historical plan."
+    },
+    {
+      "classification": "COMMERCIAL_CHANGED",
+      "external_product_id": "7462413434925",
+      "external_variant_id": "41659545223213",
+      "source_product_title": "Applied Nutrition Critical Mass Gainer 6kg",
+      "source_variant_title": "Strawberry / 25 Servings / 6kg",
+      "action": "map_existing_variant",
+      "old_price": 49.99,
+      "fresh_price": 49.99,
+      "old_in_stock": true,
+      "fresh_in_stock": false,
+      "identity_unchanged": true,
+      "identity_changes": [],
+      "commercial_changes": [
+        "in_stock"
+      ],
+      "recommended_later_handling": "Reconcile and replan separately from a future fresh source snapshot; do not execute the historical plan."
+    },
+    {
+      "classification": "COMMERCIAL_CHANGED",
+      "external_product_id": "7462413434925",
+      "external_variant_id": "41659545255981",
+      "source_product_title": "Applied Nutrition Critical Mass Gainer 6kg",
+      "source_variant_title": "Banana / 25 Servings / 6kg",
+      "action": "map_existing_variant",
+      "old_price": 49.99,
+      "fresh_price": 49.99,
+      "old_in_stock": true,
+      "fresh_in_stock": false,
+      "identity_unchanged": true,
+      "identity_changes": [],
+      "commercial_changes": [
+        "in_stock"
+      ],
+      "recommended_later_handling": "Reconcile and replan separately from a future fresh source snapshot; do not execute the historical plan."
+    },
+    {
+      "classification": "COMMERCIAL_CHANGED",
+      "external_product_id": "7462413434925",
+      "external_variant_id": "41659545288749",
+      "source_product_title": "Applied Nutrition Critical Mass Gainer 6kg",
+      "source_variant_title": "Vanilla / 25 Servings / 6kg",
+      "action": "map_existing_variant",
+      "old_price": 49.99,
+      "fresh_price": 49.99,
+      "old_in_stock": true,
+      "fresh_in_stock": false,
+      "identity_unchanged": true,
+      "identity_changes": [],
+      "commercial_changes": [
+        "in_stock"
+      ],
+      "recommended_later_handling": "Reconcile and replan separately from a future fresh source snapshot; do not execute the historical plan."
+    }
+  ]
+}

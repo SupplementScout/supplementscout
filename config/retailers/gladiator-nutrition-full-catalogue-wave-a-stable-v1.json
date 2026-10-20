@@ -1,0 +1,4734 @@
+{
+  "schema_version": 3,
+  "kind": "reviewed-catalogue-package-v3",
+  "source_platform": "shopify",
+  "status": "OWNER_APPROVED",
+  "authorized_by": "Marek Kalinka - read-only stable-subset freeze; execution approval is not granted",
+  "authorized_at": "2026-10-20T00:00:00.000Z",
+  "target_environment": "PRODUCTION",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "retailer": {
+    "id": 15,
+    "name": "Gladiator Nutrition",
+    "slug": "gladiator-nutrition",
+    "website": "https://gladiatornutrition.co.uk",
+    "expected_action": "existing",
+    "shipping_known": true,
+    "shipping_cost": 6.99
+  },
+  "policy": {
+    "reviewed_rows_only": true,
+    "allow_product_creation": true,
+    "allow_variant_creation": true,
+    "allow_canonical_product_updates": false,
+    "allow_canonical_variant_updates": false,
+    "allow_canonical_gtin_updates": false,
+    "allow_category_changes": false,
+    "sku_is_not_gtin": true,
+    "one_plan_at_a_time": true,
+    "fresh_single_use_approval_per_plan": true,
+    "strict_production_readback_after_each_apply": true
+  },
+  "profiles": [
+    {
+      "id": "gladiator-full-catalogue-wave-a-stable-v1",
+      "status": "DRY_RUN_PASS",
+      "csv_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-full-catalogue-wave-a-stable-v1.csv",
+      "csv_sha256": "5623d69a054999fb02c216180d009eeed8dfbd82d3bf6365953a9d78a972a07c",
+      "artifact_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-full-catalogue-wave-a-stable-v1-dry-run.json",
+      "artifact_sha256": "ef852df34fb54a26bb7486b2e4fb9918a753ad901508daf5df5fba7a533e9a11",
+      "row_count": 85,
+      "blocked_row_count": 0,
+      "conflict_count": 0,
+      "expected_actions": {
+        "retailers_create": 0,
+        "products_create": 21,
+        "product_variants_create": 42,
+        "retailer_products_create": 85,
+        "offers_create": 85,
+        "price_history_create": 85
+      },
+      "rows": [
+        {
+          "review_row": 1,
+          "external_product_id": "15937457258870",
+          "external_variant_id": "58996295860598",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "Applied Nutrition",
+          "category": "Pre Workout",
+          "product_name": "Applied Nutrition Carb X Carb Powder 125g",
+          "variant_name": "Blackcurrant / 5 Servings / 125g",
+          "flavour": "Blackcurrant",
+          "size_value": "125",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 4.99,
+          "in_stock": true,
+          "source_row_fingerprint": "b567f4ccfc6b6de61e6e37f1db1a005ffa201dd3211c020f9d344f9da1deff3c",
+          "plan_fingerprint": "462a5e606b6d6670ec048b7d49b59480",
+          "external_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-carb-x-carb-powder-125g?variant=58996295860598",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-carb-x-carb-powder-125g?variant=58996295860598&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Blackcurrant",
+            "Size": "5 Servings",
+            "Weight": "125g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Blackcurrant"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "125g",
+              "size_value": "125",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "5 Servings",
+              "count_value": "5",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 5,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 2,
+          "external_product_id": "15924855079286",
+          "external_variant_id": "58943980208502",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 1377,
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "TWP Nutrition",
+          "category": "Creatine",
+          "product_name": "TWP Crea-Scendo Creatine Monohydrate",
+          "variant_name": "Unflavoured / 200 Servings / 1kg",
+          "flavour": "Unflavoured",
+          "size_value": "1000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 29.99,
+          "in_stock": true,
+          "source_row_fingerprint": "3382e3d5fa5813e948c60de0be2cc5e5e6fe968b81b001118257bd09997c367c",
+          "plan_fingerprint": "ad65ceca0e0962fd289fbdffc0325d80",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-crea-scendo-raw-creatine-monohydrate-1kg?variant=58943980208502",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-crea-scendo-raw-creatine-monohydrate-1kg?variant=58943980208502&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Unflavoured",
+            "Size": "200 Servings",
+            "Weight": "1kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Unflavoured"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "1kg",
+              "size_value": "1000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "200 Servings",
+              "count_value": "200",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 1,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 3,
+          "external_product_id": "15924714209654",
+          "external_variant_id": "58943496061302",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 1377,
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "TWP Nutrition",
+          "category": "Creatine",
+          "product_name": "TWP Crea-Scendo Creatine Monohydrate",
+          "variant_name": "Unflavoured / 50 Servings (3g) / 150g",
+          "flavour": "Unflavoured",
+          "size_value": "150",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 9.99,
+          "in_stock": true,
+          "source_row_fingerprint": "12cb59ce0683d889ea0f250397c02d83e20b27cd5ee7a57634d8900d88955001",
+          "plan_fingerprint": "22314628917fb5658c0f3762b4eee933",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-crea-scendo-raw-creatine-monohydrate-150g?variant=58943496061302",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-crea-scendo-raw-creatine-monohydrate-150g?variant=58943496061302&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Unflavoured",
+            "Size": "50 Servings (3g)",
+            "Weight": "150g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Unflavoured"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "150g",
+              "size_value": "150",
+              "size_unit": "g"
+            },
+            "count": null
+          },
+          "source_structure": {
+            "product_variant_count": 1,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 4,
+          "external_product_id": "15854812234102",
+          "external_variant_id": "58551157227894",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "TWP Nutrition",
+          "category": "Health Supplements",
+          "product_name": "TWP Nutrition Replenish Carb/Electrolyte Powder",
+          "variant_name": "Jakked Baby / 30 Servings / 990g",
+          "flavour": "Jakked Baby",
+          "size_value": "990",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 37.99,
+          "in_stock": true,
+          "source_row_fingerprint": "3234a77a740276d24558ab6327a7d1c376de04b6643497c676bd85283f71bcaa",
+          "plan_fingerprint": "6be353fada28fe809412117b669d9a8a",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-replenish-carb-electrolyte-powder?variant=58551157227894",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-replenish-carb-electrolyte-powder?variant=58551157227894&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Jakked Baby",
+            "Size": "30 Servings",
+            "Weight": "990g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Jakked Baby"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "990g",
+              "size_value": "990",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 2,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 6,
+          "external_product_id": "15718699139446",
+          "external_variant_id": "57768378597750",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "TBJP",
+          "category": "Health Supplements",
+          "product_name": "TBJP Nutrition Cream Of Rice",
+          "variant_name": "Salted Caramel / 80 Servings / 2kg",
+          "flavour": "Salted Caramel",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 16.99,
+          "in_stock": true,
+          "source_row_fingerprint": "9acec6336e509073f2002fd310177db0c4741a04e11af40b809de65c5256bee1",
+          "plan_fingerprint": "99c7b3ec66850d7c4d1f0ec5e118e55f",
+          "external_url": "https://gladiatornutrition.co.uk/products/tbjp-nutrition-cream-of-rice?variant=57768378597750",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/tbjp-nutrition-cream-of-rice?variant=57768378597750&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Salted Caramel",
+            "Size": "80 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Salted Caramel"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "80 Servings",
+              "count_value": "80",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 21,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 7,
+          "external_product_id": "15681405649270",
+          "external_variant_id": "57593594020214",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "KiloLabs",
+          "category": "Pre Workout",
+          "product_name": "KiloLabs Stim Thugga Extreme Pre-Workout",
+          "variant_name": "Watermelon Peach / 20 Servings / 400g",
+          "flavour": "Watermelon Peach",
+          "size_value": "400",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 41.99,
+          "in_stock": true,
+          "source_row_fingerprint": "9b1d0f4dfe4b35afbd5ac26516eb91ad0456a717322fd7fc4db7465a234eb160",
+          "plan_fingerprint": "ff51a8c67369911966c651d8468a2365",
+          "external_url": "https://gladiatornutrition.co.uk/products/kilo-labs-stim-thugga-extreme-pre-workout?variant=57593594020214",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/kilo-labs-stim-thugga-extreme-pre-workout?variant=57593594020214&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Watermelon Peach",
+            "Size": "20 Servings",
+            "Weight": "400g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Watermelon Peach"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "400g",
+              "size_value": "400",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "20 Servings",
+              "count_value": "20",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 2,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 8,
+          "external_product_id": "15661476807030",
+          "external_variant_id": "57519364604278",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "TWP Nutrition",
+          "category": "Vitamins",
+          "product_name": "TWP Nutrition Kick Start AM Creatine/Multi Vit",
+          "variant_name": "Orange & Mango / 30 Servings / 600g",
+          "flavour": "Orange & Mango",
+          "size_value": "600",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 34.99,
+          "in_stock": true,
+          "source_row_fingerprint": "4eb7b3c5d4771ed6e8a1aded24d5e0a57ff9281f3e7396b0e2177509fffce61a",
+          "plan_fingerprint": "73cd614d92e3d6ef9559043ed2f0f38b",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-kick-start-am-all-in-one?variant=57519364604278",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-kick-start-am-all-in-one?variant=57519364604278&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Orange & Mango",
+            "Size": "30 Servings",
+            "Weight": "600g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Orange & Mango"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "600g",
+              "size_value": "600",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 3,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 9,
+          "external_product_id": "15640614568310",
+          "external_variant_id": "57418273358198",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "Kayow",
+          "category": "Protein Bars",
+          "product_name": "Kayow Protein Cookie",
+          "variant_name": "Chocolate Chip / 12 x 60g Cookies / 720g",
+          "flavour": "Chocolate Chip",
+          "size_value": "720",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "bar",
+          "price": 22.99,
+          "in_stock": true,
+          "source_row_fingerprint": "1da31cf3eccc1d3d42b692a0d38812961d550f9d65ae8c7ed28edc97b04d35f3",
+          "plan_fingerprint": "92161efdcc27e487b3b78f47a786d7f7",
+          "external_url": "https://gladiatornutrition.co.uk/products/kayow-protein-cookie?variant=57418273358198",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/kayow-protein-cookie?variant=57418273358198&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Chocolate Chip",
+            "Size": "12 x 60g Cookies",
+            "Weight": "720g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Chocolate Chip"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "720g",
+              "size_value": "720",
+              "size_unit": "g"
+            },
+            "count": null
+          },
+          "source_structure": {
+            "product_variant_count": 3,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 10,
+          "external_product_id": "15571426312566",
+          "external_variant_id": "57166658208118",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "Strom Sports",
+          "category": "Pre Workout",
+          "product_name": "Strom Sports Support Max Neuro Nootropic",
+          "variant_name": "Mango / 30 Servings / 150g",
+          "flavour": "Mango",
+          "size_value": "150",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 29.99,
+          "in_stock": true,
+          "source_row_fingerprint": "f8632b696ae4488f9a4bf53026235f611349d4f8df4de249b8664a1a7424079b",
+          "plan_fingerprint": "67d49c46d9576da22d3aa87f3574390e",
+          "external_url": "https://gladiatornutrition.co.uk/products/strom-sports-support-max-neuro-nootropic?variant=57166658208118",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/strom-sports-support-max-neuro-nootropic?variant=57166658208118&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Mango",
+            "Size": "30 Servings",
+            "Weight": "150g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Mango"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "150g",
+              "size_value": "150",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 3,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 11,
+          "external_product_id": "15246472610166",
+          "external_variant_id": "55897618579830",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "Ghost Lifestyle",
+          "category": "Pre Workout",
+          "product_name": "Ghost Lifestyle Energy Drink",
+          "variant_name": "Sour Warheads Watermelon / 500ml",
+          "flavour": "Sour Warheads Watermelon",
+          "size_value": "500",
+          "size_unit": "ml",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 2.75,
+          "in_stock": true,
+          "source_row_fingerprint": "9644baf294a56a9bfd48a397944457c166a09657619b45584a16496ee9184241",
+          "plan_fingerprint": "ca2a2ebb6d68ca4efc3f417f5450eac2",
+          "external_url": "https://gladiatornutrition.co.uk/products/ghost-lifestyle-energy-drink?variant=55897618579830",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/ghost-lifestyle-energy-drink?variant=55897618579830&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Sour Warheads Watermelon",
+            "Size": "500ml"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Sour Warheads Watermelon"
+            },
+            "physical_size": {
+              "source_key": "Size",
+              "source_value": "500ml",
+              "size_value": "500",
+              "size_unit": "ml"
+            },
+            "count": null
+          },
+          "source_structure": {
+            "product_variant_count": 5,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 12,
+          "external_product_id": "15246439219574",
+          "external_variant_id": "55897495372150",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_default_variant",
+          "brand": "Supplement Needs",
+          "category": "Vitamins",
+          "product_name": "Supplement Needs TUDCA & NAC",
+          "variant_name": "",
+          "flavour": null,
+          "size_value": null,
+          "size_unit": null,
+          "pack_count": "1",
+          "product_format": "capsule",
+          "price": 38.99,
+          "in_stock": true,
+          "source_row_fingerprint": "ce515fbc8c1f51a4fa0c1af31a0b53fd46d30ebbb44503ec100c098dc9037bdf",
+          "plan_fingerprint": "24e7f3cec40857f4f091d0c3d8830f4e",
+          "external_url": "https://gladiatornutrition.co.uk/products/supplement-needs-tudca-nac?variant=55897495372150",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/supplement-needs-tudca-nac?variant=55897495372150&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Size": "30 Servings"
+          },
+          "option_roles": {
+            "flavour": null,
+            "physical_size": null,
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 1,
+            "meaningful_variant_axes": []
+          },
+          "unit_count": 30,
+          "unit_type": "servings"
+        },
+        {
+          "review_row": 14,
+          "external_product_id": "15024297542006",
+          "external_variant_id": "55130169114998",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "Supplement Needs",
+          "category": "Pre Workout",
+          "product_name": "Supplement Needs Pre Focus Nootropic",
+          "variant_name": "Strawberry Surge / 30 Servings / 225g",
+          "flavour": "Strawberry Surge",
+          "size_value": "225",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 36.99,
+          "in_stock": true,
+          "source_row_fingerprint": "56592b138b863531150a78f02e466a0cf3ea6e1fb75cbff89aed8eea2e474878",
+          "plan_fingerprint": "59e44ed1951f7e5f4f05aeeb98fe7beb",
+          "external_url": "https://gladiatornutrition.co.uk/products/supplement-needs-pre-focus-nootropic?variant=55130169114998",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/supplement-needs-pre-focus-nootropic?variant=55130169114998&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Strawberry Surge",
+            "Size": "30 Servings",
+            "Weight": "225g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Strawberry Surge"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "225g",
+              "size_value": "225",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 3,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 15,
+          "external_product_id": "14863320056182",
+          "external_variant_id": "54845106389366",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "TWP Nutrition",
+          "category": "Amino Acids",
+          "product_name": "TWP Nutrition SWEAAT EAA Hydration",
+          "variant_name": "Blue Lemonade / 30 Servings / 450g",
+          "flavour": "Blue Lemonade",
+          "size_value": "450",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 21.99,
+          "in_stock": true,
+          "source_row_fingerprint": "7220a6d39a642b617e14e4e0e4da18a4772eede8e7e5bde9f7dc16eb56b59170",
+          "plan_fingerprint": "6438e6187b4676cf95db71aee9e68920",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-sweaat-eaa-hydration?variant=54845106389366",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-sweaat-eaa-hydration?variant=54845106389366&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Blue Lemonade",
+            "Size": "30 Servings",
+            "Weight": "450g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Blue Lemonade"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "450g",
+              "size_value": "450",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 5,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 16,
+          "external_product_id": "14652892643702",
+          "external_variant_id": "53558455599478",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_default_variant",
+          "brand": "TWP Nutrition",
+          "category": "Vitamins",
+          "product_name": "TWP Renov8 Joint & Inflammatory Support",
+          "variant_name": "",
+          "flavour": null,
+          "size_value": null,
+          "size_unit": null,
+          "pack_count": "1",
+          "product_format": "capsule",
+          "price": 32.99,
+          "in_stock": true,
+          "source_row_fingerprint": "6f5d6dfb94d1914b03a08f112136114c2913e6e24443219d645922f8d209115c",
+          "plan_fingerprint": "67033c3add0786f79282c366cf02da22",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-renov8-joint-inflammatory-support?variant=53558455599478",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-renov8-joint-inflammatory-support?variant=53558455599478&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Size": "30 Servings"
+          },
+          "option_roles": {
+            "flavour": null,
+            "physical_size": null,
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 1,
+            "meaningful_variant_axes": []
+          },
+          "unit_count": 30,
+          "unit_type": "servings"
+        },
+        {
+          "review_row": 17,
+          "external_product_id": "8036937170989",
+          "external_variant_id": "43023771336749",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "Extremis Cartel",
+          "category": "Health Supplements",
+          "product_name": "Xtremis Cartel Sueno Sleep Formula",
+          "variant_name": "Dreamin Grapes / 40/20 Servings / 388g",
+          "flavour": "Dreamin Grapes",
+          "size_value": "388",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 46.99,
+          "in_stock": true,
+          "source_row_fingerprint": "77dafaa54fb78dc54c3759886e163ce26b31dac059ea78a8dd51ccf6d9a09a99",
+          "plan_fingerprint": "2c263e1053e4b0345820c0e16228de79",
+          "external_url": "https://gladiatornutrition.co.uk/products/xtremis-cartel-sueno-sleep-formula?variant=43023771336749",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/xtremis-cartel-sueno-sleep-formula?variant=43023771336749&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Dreamin Grapes",
+            "Size": "40/20 Servings",
+            "Weight": "388g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Dreamin Grapes"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "388g",
+              "size_value": "388",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40/20 Servings",
+              "count_value": "40/20",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 2,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 18,
+          "external_product_id": "8018720194605",
+          "external_variant_id": "42968451153965",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 1213,
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Refined Nutrition",
+          "category": "Vitamins",
+          "product_name": "Refined Nutrition Ultra Vitamin C 1000mg 90 Tablets",
+          "variant_name": "Cherry Lime / 30 Servings / 300g",
+          "flavour": "Cherry Lime",
+          "size_value": "300",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "tablet",
+          "price": 19.99,
+          "in_stock": true,
+          "source_row_fingerprint": "9e2295a87ab325ac9f2f6d45de69c037271cf69d172f042231ee1c718885c01a",
+          "plan_fingerprint": "efa9ebb421f41683c69cdaea7aa93db2",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-hydraplenish-electrolytes-30-servings?variant=42968451153965",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-hydraplenish-electrolytes-30-servings?variant=42968451153965&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Cherry Lime",
+            "Size": "30 Servings",
+            "Weight": "300g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Cherry Lime"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "300g",
+              "size_value": "300",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 11,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 19,
+          "external_product_id": "8018720194605",
+          "external_variant_id": "42968451186733",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 1213,
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Refined Nutrition",
+          "category": "Vitamins",
+          "product_name": "Refined Nutrition Ultra Vitamin C 1000mg 90 Tablets",
+          "variant_name": "Pineapple & Coconut / 30 Servings / 300g",
+          "flavour": "Pineapple & Coconut",
+          "size_value": "300",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "tablet",
+          "price": 19.99,
+          "in_stock": true,
+          "source_row_fingerprint": "ebe35599b76e57d9836c691e0fa7d7bca617352da07bf38af35f2b9ef6540b1b",
+          "plan_fingerprint": "507f97cd8f92e69db3030fd8dfab61ef",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-hydraplenish-electrolytes-30-servings?variant=42968451186733",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-hydraplenish-electrolytes-30-servings?variant=42968451186733&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Pineapple & Coconut",
+            "Size": "30 Servings",
+            "Weight": "300g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Pineapple & Coconut"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "300g",
+              "size_value": "300",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 11,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 20,
+          "external_product_id": "8018720194605",
+          "external_variant_id": "42968451219501",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 1213,
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Refined Nutrition",
+          "category": "Vitamins",
+          "product_name": "Refined Nutrition Ultra Vitamin C 1000mg 90 Tablets",
+          "variant_name": "Blue Lemonade / 30 Servings / 300g",
+          "flavour": "Blue Lemonade",
+          "size_value": "300",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "tablet",
+          "price": 19.99,
+          "in_stock": true,
+          "source_row_fingerprint": "100f249dea92e3f1763a0cba09e17ffd9e4d916154913e0ea3849794419df351",
+          "plan_fingerprint": "1aeebee22d0cbe45186834e9eb4aceb1",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-hydraplenish-electrolytes-30-servings?variant=42968451219501",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-hydraplenish-electrolytes-30-servings?variant=42968451219501&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Blue Lemonade",
+            "Size": "30 Servings",
+            "Weight": "300g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Blue Lemonade"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "300g",
+              "size_value": "300",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 11,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 21,
+          "external_product_id": "8018720194605",
+          "external_variant_id": "57118562845046",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 1213,
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Refined Nutrition",
+          "category": "Vitamins",
+          "product_name": "Refined Nutrition Ultra Vitamin C 1000mg 90 Tablets",
+          "variant_name": "Watermelon Crush / 30 Servings / 300g",
+          "flavour": "Watermelon Crush",
+          "size_value": "300",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "tablet",
+          "price": 19.99,
+          "in_stock": true,
+          "source_row_fingerprint": "bdef0aa91e4a59a287d840ab8108d575d93a7dbda406327fec2b7b579459a2d4",
+          "plan_fingerprint": "e2f5a6a024eff31b754e2c525feca292",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-hydraplenish-electrolytes-30-servings?variant=57118562845046",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-hydraplenish-electrolytes-30-servings?variant=57118562845046&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Watermelon Crush",
+            "Size": "30 Servings",
+            "Weight": "300g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Watermelon Crush"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "300g",
+              "size_value": "300",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 11,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 22,
+          "external_product_id": "8018720194605",
+          "external_variant_id": "57118562877814",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 1213,
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Refined Nutrition",
+          "category": "Vitamins",
+          "product_name": "Refined Nutrition Ultra Vitamin C 1000mg 90 Tablets",
+          "variant_name": "Mango Passionfruit / 30 Servings / 300g",
+          "flavour": "Mango Passionfruit",
+          "size_value": "300",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "tablet",
+          "price": 19.99,
+          "in_stock": true,
+          "source_row_fingerprint": "f3b85d54ccb08b6b53b45d868c69bb8ded927e932bcd19d145dc03c6485620d4",
+          "plan_fingerprint": "0d87f30cd41dc6abfe74194892f145aa",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-hydraplenish-electrolytes-30-servings?variant=57118562877814",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-hydraplenish-electrolytes-30-servings?variant=57118562877814&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Mango Passionfruit",
+            "Size": "30 Servings",
+            "Weight": "300g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Mango Passionfruit"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "300g",
+              "size_value": "300",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 11,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 23,
+          "external_product_id": "8018720194605",
+          "external_variant_id": "57118562910582",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 1213,
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Refined Nutrition",
+          "category": "Vitamins",
+          "product_name": "Refined Nutrition Ultra Vitamin C 1000mg 90 Tablets",
+          "variant_name": "Strawberry Kiwi / 30 Servings / 300g",
+          "flavour": "Strawberry Kiwi",
+          "size_value": "300",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "tablet",
+          "price": 19.99,
+          "in_stock": true,
+          "source_row_fingerprint": "7918e9c7887900c0b907409b4bc6e10fc04983f050989770928225bde79d7998",
+          "plan_fingerprint": "5d52764573376ac4b597c288ebeb88fc",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-hydraplenish-electrolytes-30-servings?variant=57118562910582",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-hydraplenish-electrolytes-30-servings?variant=57118562910582&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Strawberry Kiwi",
+            "Size": "30 Servings",
+            "Weight": "300g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Strawberry Kiwi"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "300g",
+              "size_value": "300",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 11,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 24,
+          "external_product_id": "8018720194605",
+          "external_variant_id": "58853323997558",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 1213,
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Refined Nutrition",
+          "category": "Vitamins",
+          "product_name": "Refined Nutrition Ultra Vitamin C 1000mg 90 Tablets",
+          "variant_name": "Country Apple / 30 Servings / 300g",
+          "flavour": "Country Apple",
+          "size_value": "300",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "tablet",
+          "price": 19.99,
+          "in_stock": true,
+          "source_row_fingerprint": "56189e2fb2da5124c03f391e2a9eee0bfa4faef6c2df5cd561376b4bee629e59",
+          "plan_fingerprint": "4e426e5af895996cbbdb2974bacada7f",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-hydraplenish-electrolytes-30-servings?variant=58853323997558",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-hydraplenish-electrolytes-30-servings?variant=58853323997558&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Country Apple",
+            "Size": "30 Servings",
+            "Weight": "300g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Country Apple"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "300g",
+              "size_value": "300",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 11,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 25,
+          "external_product_id": "8018720194605",
+          "external_variant_id": "58853324030326",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 1213,
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Refined Nutrition",
+          "category": "Vitamins",
+          "product_name": "Refined Nutrition Ultra Vitamin C 1000mg 90 Tablets",
+          "variant_name": "Elderflower / 30 Servings / 300g",
+          "flavour": "Elderflower",
+          "size_value": "300",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "tablet",
+          "price": 19.99,
+          "in_stock": true,
+          "source_row_fingerprint": "6dc95060433d7318c134759f3b1c8e4ceea167cffbd984b3319ac557255e04e8",
+          "plan_fingerprint": "0d03c0812f7884230dd22f9fca33ce19",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-hydraplenish-electrolytes-30-servings?variant=58853324030326",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-hydraplenish-electrolytes-30-servings?variant=58853324030326&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Elderflower",
+            "Size": "30 Servings",
+            "Weight": "300g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Elderflower"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "300g",
+              "size_value": "300",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 11,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 26,
+          "external_product_id": "8018720194605",
+          "external_variant_id": "58853324063094",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 1213,
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Refined Nutrition",
+          "category": "Vitamins",
+          "product_name": "Refined Nutrition Ultra Vitamin C 1000mg 90 Tablets",
+          "variant_name": "Raspberry Vanilla / 30 Servings / 300g",
+          "flavour": "Raspberry Vanilla",
+          "size_value": "300",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "tablet",
+          "price": 19.99,
+          "in_stock": true,
+          "source_row_fingerprint": "b2056986fad852d1eb54ad4fb1f2a4a89cdb5215958cae62ffb95037698c9d2c",
+          "plan_fingerprint": "04b91a69c033964345835cd21f2f3a8d",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-hydraplenish-electrolytes-30-servings?variant=58853324063094",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-hydraplenish-electrolytes-30-servings?variant=58853324063094&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Raspberry Vanilla",
+            "Size": "30 Servings",
+            "Weight": "300g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Raspberry Vanilla"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "300g",
+              "size_value": "300",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 11,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 27,
+          "external_product_id": "8018720194605",
+          "external_variant_id": "58853324095862",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 1213,
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Refined Nutrition",
+          "category": "Vitamins",
+          "product_name": "Refined Nutrition Ultra Vitamin C 1000mg 90 Tablets",
+          "variant_name": "Sweet Orange Juice / 30 Servings / 300g",
+          "flavour": "Sweet Orange Juice",
+          "size_value": "300",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "tablet",
+          "price": 19.99,
+          "in_stock": true,
+          "source_row_fingerprint": "df23badb7c67077ba0699b9b63d543b0cad5442d750d4ec4fe5dbdb20ae612f9",
+          "plan_fingerprint": "399e12f469cd228a93d832a0da6a2585",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-hydraplenish-electrolytes-30-servings?variant=58853324095862",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-hydraplenish-electrolytes-30-servings?variant=58853324095862&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Sweet Orange Juice",
+            "Size": "30 Servings",
+            "Weight": "300g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Sweet Orange Juice"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "300g",
+              "size_value": "300",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 11,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 28,
+          "external_product_id": "8018720194605",
+          "external_variant_id": "58853324128630",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 1213,
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Refined Nutrition",
+          "category": "Vitamins",
+          "product_name": "Refined Nutrition Ultra Vitamin C 1000mg 90 Tablets",
+          "variant_name": "Cloudy Lemonade / 30 Servings / 300g",
+          "flavour": "Cloudy Lemonade",
+          "size_value": "300",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "tablet",
+          "price": 19.99,
+          "in_stock": true,
+          "source_row_fingerprint": "bc06851496c68b8f764a2390cd5b25167f5d94c86f7fea0f58a39f0820567783",
+          "plan_fingerprint": "e00de9af1ae4182b95e5ec2ae35c82e6",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-hydraplenish-electrolytes-30-servings?variant=58853324128630",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-hydraplenish-electrolytes-30-servings?variant=58853324128630&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Cloudy Lemonade",
+            "Size": "30 Servings",
+            "Weight": "300g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Cloudy Lemonade"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "300g",
+              "size_value": "300",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 11,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 29,
+          "external_product_id": "7669049655341",
+          "external_variant_id": "41985244004397",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 1377,
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "TWP Nutrition",
+          "category": "Creatine",
+          "product_name": "TWP Crea-Scendo Creatine Monohydrate",
+          "variant_name": "Unflavoured / 100 Servings / 500g",
+          "flavour": "Unflavoured",
+          "size_value": "500",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 22.99,
+          "in_stock": true,
+          "source_row_fingerprint": "7efcce8aae66b24701149c3a70ec88fb9ffe9b3c8eff8185043d1c0e530f30c7",
+          "plan_fingerprint": "61bd678f4239acc844756f13ef6961eb",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-crea-scendo-raw-creatine-monohydrate-100-servings?variant=41985244004397",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-crea-scendo-raw-creatine-monohydrate-100-servings?variant=41985244004397&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Unflavoured",
+            "Size": "100 Servings",
+            "Weight": "500g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Unflavoured"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "500g",
+              "size_value": "500",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "100 Servings",
+              "count_value": "100",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 1,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 30,
+          "external_product_id": "7596702859309",
+          "external_variant_id": "41880379883565",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "TWP Nutrition",
+          "category": "Amino Acids",
+          "product_name": "TWP Glutamine Raw 500g",
+          "variant_name": "Unflavoured / 100 Servings / 500g",
+          "flavour": "Unflavoured",
+          "size_value": "500",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 18.99,
+          "in_stock": true,
+          "source_row_fingerprint": "6494fcd4e3311b780929b19277ee156cd2e1715c8dc1c879c8c6891c06100347",
+          "plan_fingerprint": "32ebeec6921e31f88f2f8e57e72c2982",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-glutamine-raw-500g?variant=41880379883565",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-glutamine-raw-500g?variant=41880379883565&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Unflavoured",
+            "Size": "100 Servings",
+            "Weight": "500g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Unflavoured"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "500g",
+              "size_value": "500",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "100 Servings",
+              "count_value": "100",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 1,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 31,
+          "external_product_id": "7543209885741",
+          "external_variant_id": "41779916898349",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "TWP Nutrition",
+          "category": "Health Supplements",
+          "product_name": "TWP Anytime COR+ Cream Of Rice",
+          "variant_name": "Sugar Sweet / 40/80 / 1.8kg",
+          "flavour": "Sugar Sweet",
+          "size_value": "1800",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 16.99,
+          "in_stock": true,
+          "source_row_fingerprint": "a15d991dd760dfe9bea662e6d35c7a353f3c9b33e767bca566d3a7eb6a84cfe4",
+          "plan_fingerprint": "888b8605d136de9654212a800f1fe973",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-cream-of-rice?variant=41779916898349",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-cream-of-rice?variant=41779916898349&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Sugar Sweet",
+            "Size": "40/80",
+            "Weight": "1.8kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Sugar Sweet"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "1.8kg",
+              "size_value": "1800",
+              "size_unit": "g"
+            },
+            "count": null
+          },
+          "source_structure": {
+            "product_variant_count": 5,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 32,
+          "external_product_id": "7495585398829",
+          "external_variant_id": "41701200625709",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "Naughty Boy Lifestyle",
+          "category": "Amino Acids",
+          "product_name": "Naughty Boy Amino EAA/BCAA",
+          "variant_name": "Blue Razz Bon Bons / 30 Servings / 345g",
+          "flavour": "Blue Razz Bon Bons",
+          "size_value": "345",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 19.99,
+          "in_stock": true,
+          "source_row_fingerprint": "f0024c7645a6d3d07211173cbba801a83e0a5d0f2851ef15c17f739fea7b840e",
+          "plan_fingerprint": "76736228a24bfd3b818c1646c4c6278a",
+          "external_url": "https://gladiatornutrition.co.uk/products/naughty-boy-eaa-summer-vibes?variant=41701200625709",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/naughty-boy-eaa-summer-vibes?variant=41701200625709&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Blue Razz Bon Bons",
+            "Size": "30 Servings",
+            "Weight": "345g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Blue Razz Bon Bons"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "345g",
+              "size_value": "345",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 11,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 33,
+          "external_product_id": "7465438773293",
+          "external_variant_id": "41667848372269",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 1377,
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "TWP Nutrition",
+          "category": "Creatine",
+          "product_name": "TWP Crea-Scendo Creatine Monohydrate",
+          "variant_name": "Unflavoured / 50 Servings / 250g",
+          "flavour": "Unflavoured",
+          "size_value": "250",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 13.99,
+          "in_stock": true,
+          "source_row_fingerprint": "8481022a097253d94952ef85e8c3f6a8743d468bd1e1b220e4c583ce0ba11de4",
+          "plan_fingerprint": "b48c0d786c229d99adcd13fa8ef5ddbc",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-crea-scendo-raw-creatine-monohydrate?variant=41667848372269",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-crea-scendo-raw-creatine-monohydrate?variant=41667848372269&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Unflavoured",
+            "Size": "50 Servings",
+            "Weight": "250g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Unflavoured"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "250g",
+              "size_value": "250",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "50 Servings",
+              "count_value": "50",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 1,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 37,
+          "external_product_id": "7462413434925",
+          "external_variant_id": "41659545321517",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 124,
+          "product_variant_id": 772,
+          "action": "map_existing_variant",
+          "brand": "Applied Nutrition",
+          "category": "Mass Gainer",
+          "product_name": "Applied Nutrition Critical Mass Gainer 6kg",
+          "variant_name": "Chocolate / 6kg",
+          "flavour": "Chocolate",
+          "size_value": "6000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 49.99,
+          "in_stock": true,
+          "source_row_fingerprint": "91750b859670c7c3666f0f8d959fd635ac456baf37687d1be56ec718058b225d",
+          "plan_fingerprint": "238df6d4e4bf3a3039c54e8663a9c206",
+          "external_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-critical-mass-original?variant=41659545321517",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-critical-mass-original?variant=41659545321517&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Chocolate",
+            "Size": "25 Servings",
+            "Weight": "6kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Chocolate"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "6kg",
+              "size_value": "6000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "25 Servings",
+              "count_value": "25",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 6,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 38,
+          "external_product_id": "7462413434925",
+          "external_variant_id": "42003980222509",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 124,
+          "product_variant_id": 1754,
+          "action": "map_existing_variant",
+          "brand": "Applied Nutrition",
+          "category": "Mass Gainer",
+          "product_name": "Applied Nutrition Critical Mass Gainer 6kg",
+          "variant_name": "Cookies & Cream / 6kg",
+          "flavour": "Cookies & Cream",
+          "size_value": "6000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 49.99,
+          "in_stock": false,
+          "source_row_fingerprint": "32410ebe5e9e2440994d7425015f35ac33068cb018fbace2d1c1e5d88b6beb3a",
+          "plan_fingerprint": "6258c1013ecf5fb720e4c135f330f333",
+          "external_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-critical-mass-original?variant=42003980222509",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-critical-mass-original?variant=42003980222509&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Cookies & Cream",
+            "Size": "25 Servings",
+            "Weight": "6kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Cookies & Cream"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "6kg",
+              "size_value": "6000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "25 Servings",
+              "count_value": "25",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 6,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 39,
+          "external_product_id": "7460054630445",
+          "external_variant_id": "41651419906093",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "TWP Nutrition",
+          "category": "Health Supplements",
+          "product_name": "TWP Sleep EAAZY Sleep Formula",
+          "variant_name": "Peaches & Dreams / 25 Servings / 280g",
+          "flavour": "Peaches & Dreams",
+          "size_value": "280",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 37.99,
+          "in_stock": true,
+          "source_row_fingerprint": "aec35f114bfd4a9b5b38def3b1110c2a9ca4783fc65f5b577bfbd009597971a7",
+          "plan_fingerprint": "69492e750d5448b5dddce386cea55ed7",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-sleep-e-a-a-zzzy?variant=41651419906093",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-sleep-e-a-a-zzzy?variant=41651419906093&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Peaches & Dreams",
+            "Size": "25 Servings",
+            "Weight": "280g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Peaches & Dreams"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "280g",
+              "size_value": "280",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "25 Servings",
+              "count_value": "25",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 2,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 40,
+          "external_product_id": "6587318140973",
+          "external_variant_id": "39415760060461",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 1009,
+          "product_variant_id": 2073,
+          "action": "map_existing_variant",
+          "brand": "Applied Nutrition",
+          "category": "Whey Protein",
+          "product_name": "Applied Nutrition ISO-XP 1kg",
+          "variant_name": "Choco Bueno / 1kg",
+          "flavour": "Choco bueno",
+          "size_value": "1000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 44.99,
+          "in_stock": false,
+          "source_row_fingerprint": "6c52cabf2529e73a6f87bcd3e46e8907321879ee533e1d6a325528712fe4b855",
+          "plan_fingerprint": "41ba39394c25d4a6304a8d7645988fc9",
+          "external_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-iso-xp-1?variant=39415760060461",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-iso-xp-1?variant=39415760060461&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Choco bueno",
+            "Size": "40 Servings",
+            "Weight": "1kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Choco bueno"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "1kg",
+              "size_value": "1000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40 Servings",
+              "count_value": "40",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 8,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 41,
+          "external_product_id": "6587318140973",
+          "external_variant_id": "39415760093229",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 1009,
+          "product_variant_id": 2074,
+          "action": "map_existing_variant",
+          "brand": "Applied Nutrition",
+          "category": "Whey Protein",
+          "product_name": "Applied Nutrition ISO-XP 1kg",
+          "variant_name": "Choco Candies / 1kg",
+          "flavour": "Choco candies",
+          "size_value": "1000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 44.99,
+          "in_stock": false,
+          "source_row_fingerprint": "c9488d12455de8dcd36a701aa783a9854f3d2e563f4166ee0c97639b195cbbca",
+          "plan_fingerprint": "5fea37015681f079c206a1071e65cfba",
+          "external_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-iso-xp-1?variant=39415760093229",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-iso-xp-1?variant=39415760093229&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Choco candies",
+            "Size": "40 Servings",
+            "Weight": "1kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Choco candies"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "1kg",
+              "size_value": "1000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40 Servings",
+              "count_value": "40",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 8,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 42,
+          "external_product_id": "6587318140973",
+          "external_variant_id": "39415760125997",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 1009,
+          "product_variant_id": 2075,
+          "action": "map_existing_variant",
+          "brand": "Applied Nutrition",
+          "category": "Whey Protein",
+          "product_name": "Applied Nutrition ISO-XP 1kg",
+          "variant_name": "Choco Caramel / 1kg",
+          "flavour": "Choco caramel",
+          "size_value": "1000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 44.99,
+          "in_stock": true,
+          "source_row_fingerprint": "29a7e6d4f8b83558371169f03167d525cd4b866027bd08b8fc2955daeaf73dfe",
+          "plan_fingerprint": "a3b85abc6051dd8bc0a9283443142cc9",
+          "external_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-iso-xp-1?variant=39415760125997",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-iso-xp-1?variant=39415760125997&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Choco caramel",
+            "Size": "40 Servings",
+            "Weight": "1kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Choco caramel"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "1kg",
+              "size_value": "1000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40 Servings",
+              "count_value": "40",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 8,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 43,
+          "external_product_id": "6587318140973",
+          "external_variant_id": "39415760158765",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 1009,
+          "product_variant_id": 2076,
+          "action": "map_existing_variant",
+          "brand": "Applied Nutrition",
+          "category": "Whey Protein",
+          "product_name": "Applied Nutrition ISO-XP 1kg",
+          "variant_name": "Choco Coco / 1kg",
+          "flavour": "Choco coco",
+          "size_value": "1000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 44.99,
+          "in_stock": false,
+          "source_row_fingerprint": "13f1611a800a4113f7647c2998b400fb797c24c9c167bc4385d249fa84e5054f",
+          "plan_fingerprint": "ddbb524818e9df1ec44073b00600b6d8",
+          "external_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-iso-xp-1?variant=39415760158765",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-iso-xp-1?variant=39415760158765&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Choco coco",
+            "Size": "40 Servings",
+            "Weight": "1kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Choco coco"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "1kg",
+              "size_value": "1000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40 Servings",
+              "count_value": "40",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 8,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 44,
+          "external_product_id": "6587318140973",
+          "external_variant_id": "39415760191533",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 1009,
+          "product_variant_id": 2077,
+          "action": "map_existing_variant",
+          "brand": "Applied Nutrition",
+          "category": "Whey Protein",
+          "product_name": "Applied Nutrition ISO-XP 1kg",
+          "variant_name": "Choco Honeycomb / 1kg",
+          "flavour": "Choco Honeycomb",
+          "size_value": "1000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 44.99,
+          "in_stock": true,
+          "source_row_fingerprint": "7b97cbe040ed67e537e0d3642f9a8db8a2f2314d875a0801a7730e85c9b0b34a",
+          "plan_fingerprint": "baaba459f5fe89b6c618bc0b9b47cbb1",
+          "external_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-iso-xp-1?variant=39415760191533",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-iso-xp-1?variant=39415760191533&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Choco Honeycomb",
+            "Size": "40 Servings",
+            "Weight": "1kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Choco Honeycomb"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "1kg",
+              "size_value": "1000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40 Servings",
+              "count_value": "40",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 8,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 45,
+          "external_product_id": "6587318140973",
+          "external_variant_id": "55228139307382",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 1009,
+          "product_variant_id": 2079,
+          "action": "map_existing_variant",
+          "brand": "Applied Nutrition",
+          "category": "Whey Protein",
+          "product_name": "Applied Nutrition ISO-XP 1kg",
+          "variant_name": "Chocolate Dessert / 1kg",
+          "flavour": "Chocolate Dessert",
+          "size_value": "1000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 44.99,
+          "in_stock": false,
+          "source_row_fingerprint": "3cdd951eaa25210c2a17bcf80ffd1c4e36115dceb739b1aef4ef125fdd08b8b8",
+          "plan_fingerprint": "430e0c06b2b325bf4ab7dfd55ed13cc6",
+          "external_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-iso-xp-1?variant=55228139307382",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-iso-xp-1?variant=55228139307382&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Chocolate Dessert",
+            "Size": "40 Servings",
+            "Weight": "1kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Chocolate Dessert"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "1kg",
+              "size_value": "1000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40 Servings",
+              "count_value": "40",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 8,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 46,
+          "external_product_id": "6587318140973",
+          "external_variant_id": "55228139340150",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 1009,
+          "product_variant_id": 2081,
+          "action": "map_existing_variant",
+          "brand": "Applied Nutrition",
+          "category": "Whey Protein",
+          "product_name": "Applied Nutrition ISO-XP 1kg",
+          "variant_name": "Strawberry / 1kg",
+          "flavour": "Strawberry",
+          "size_value": "1000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 44.99,
+          "in_stock": true,
+          "source_row_fingerprint": "f145fca083c4b7265c8b19288c6d2717093eec9d33712dadebbcb9ab64bb2c7a",
+          "plan_fingerprint": "2c873253050c01277605cf386e43c3e5",
+          "external_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-iso-xp-1?variant=55228139340150",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-iso-xp-1?variant=55228139340150&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Strawberry",
+            "Size": "40 Servings",
+            "Weight": "1kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Strawberry"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "1kg",
+              "size_value": "1000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40 Servings",
+              "count_value": "40",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 8,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 47,
+          "external_product_id": "6587318140973",
+          "external_variant_id": "55228139372918",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 1009,
+          "product_variant_id": 2080,
+          "action": "map_existing_variant",
+          "brand": "Applied Nutrition",
+          "category": "Whey Protein",
+          "product_name": "Applied Nutrition ISO-XP 1kg",
+          "variant_name": "Vanilla / 1kg",
+          "flavour": "Vanilla",
+          "size_value": "1000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 44.99,
+          "in_stock": false,
+          "source_row_fingerprint": "e98032452050622400f688f89ffa54d4d3bcd80e8ae4fd0ff8e84132a6fd809c",
+          "plan_fingerprint": "f4ad70221f8baab691b46effc8fbd16c",
+          "external_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-iso-xp-1?variant=55228139372918",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-iso-xp-1?variant=55228139372918&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Vanilla",
+            "Size": "40 Servings",
+            "Weight": "1kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Vanilla"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "1kg",
+              "size_value": "1000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40 Servings",
+              "count_value": "40",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 8,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 48,
+          "external_product_id": "6581179809837",
+          "external_variant_id": "39400181202989",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "HR Labs",
+          "category": "Health Supplements",
+          "product_name": "HR Labs Carb Up Carb Powder",
+          "variant_name": "Grape Bubbalicious / 30 Servings / 1kg",
+          "flavour": "Grape Bubbalicious",
+          "size_value": "1000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 37.99,
+          "in_stock": true,
+          "source_row_fingerprint": "e6ab3b8bd9afb492dbccce1b1a03ef5fd8efe5e797452571d979ec032090bd4c",
+          "plan_fingerprint": "de42795317b229c8a4d513b4e5e710f2",
+          "external_url": "https://gladiatornutrition.co.uk/products/hr-labs-carb-up?variant=39400181202989",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/hr-labs-carb-up?variant=39400181202989&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Grape Bubbalicious",
+            "Size": "30 Servings",
+            "Weight": "1kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Grape Bubbalicious"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "1kg",
+              "size_value": "1000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 2,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 49,
+          "external_product_id": "6581134032941",
+          "external_variant_id": "39400110850093",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 62,
+          "product_variant_id": 2648,
+          "action": "map_existing_variant",
+          "brand": "HR Labs",
+          "category": "Pre Workout",
+          "product_name": "HR Labs Defib Pre-Workout",
+          "variant_name": "Iced Blue Slush / 420g (V3)",
+          "flavour": "Iced Blue Slush",
+          "size_value": "420",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 34.99,
+          "in_stock": true,
+          "source_row_fingerprint": "7c19dc6f489f3feb17312b9a8ce16a0eecd900c1b7ce99a13dd3322f39284cea",
+          "plan_fingerprint": "e010afd572fa84436b0073a700fe0674",
+          "external_url": "https://gladiatornutrition.co.uk/products/hr-labs-defib?variant=39400110850093",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/hr-labs-defib?variant=39400110850093&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Iced Blue Slush",
+            "Size": "40/20 Servings",
+            "Weight": "420g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Iced Blue Slush"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "420g",
+              "size_value": "420",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40/20 Servings",
+              "count_value": "40/20",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 8,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 50,
+          "external_product_id": "6581134032941",
+          "external_variant_id": "39400110882861",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 62,
+          "product_variant_id": 2645,
+          "action": "map_existing_variant",
+          "brand": "HR Labs",
+          "category": "Pre Workout",
+          "product_name": "HR Labs Defib Pre-Workout",
+          "variant_name": "Cherryade / 420g (V3)",
+          "flavour": "Cherryade",
+          "size_value": "420",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 34.99,
+          "in_stock": true,
+          "source_row_fingerprint": "f8c82053320a63f9c533ad05068e845983cafdff1071ca4a3439c8748533f4f4",
+          "plan_fingerprint": "1857df8cf830c54917826231bddba9d2",
+          "external_url": "https://gladiatornutrition.co.uk/products/hr-labs-defib?variant=39400110882861",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/hr-labs-defib?variant=39400110882861&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Cherryade",
+            "Size": "40/20 Servings",
+            "Weight": "420g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Cherryade"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "420g",
+              "size_value": "420",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40/20 Servings",
+              "count_value": "40/20",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 8,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 51,
+          "external_product_id": "6581134032941",
+          "external_variant_id": "41629976428589",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 62,
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "HR Labs",
+          "category": "Pre Workout",
+          "product_name": "HR Labs Defib Pre-Workout",
+          "variant_name": "Fizzy Cola Bottles / 40/20 Servings / 420g",
+          "flavour": "Fizzy Cola Bottles",
+          "size_value": "420",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 34.99,
+          "in_stock": false,
+          "source_row_fingerprint": "d74bfe5e7c60feed3c7d2e68ae14b4906a4bc1b7cb81b7efbb76b251975629e9",
+          "plan_fingerprint": "00396b9108c983c8533314eed050acd4",
+          "external_url": "https://gladiatornutrition.co.uk/products/hr-labs-defib?variant=41629976428589",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/hr-labs-defib?variant=41629976428589&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Fizzy Cola Bottles",
+            "Size": "40/20 Servings",
+            "Weight": "420g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Fizzy Cola Bottles"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "420g",
+              "size_value": "420",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40/20 Servings",
+              "count_value": "40/20",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 8,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 52,
+          "external_product_id": "6581134032941",
+          "external_variant_id": "42003985465389",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 62,
+          "product_variant_id": 2646,
+          "action": "map_existing_variant",
+          "brand": "HR Labs",
+          "category": "Pre Workout",
+          "product_name": "HR Labs Defib Pre-Workout",
+          "variant_name": "Fizzy Bubblegum Bottles / 420g (V3)",
+          "flavour": "Fizzy Bubblegum Bottles",
+          "size_value": "420",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 34.99,
+          "in_stock": false,
+          "source_row_fingerprint": "bf86a61702b36d81fbd15643a368da969c572a6a3e900dc4e4d1737ccc02855a",
+          "plan_fingerprint": "e568470fef519509dfdb67e11a1022eb",
+          "external_url": "https://gladiatornutrition.co.uk/products/hr-labs-defib?variant=42003985465389",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/hr-labs-defib?variant=42003985465389&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Fizzy Bubblegum Bottles",
+            "Size": "40/20 Servings",
+            "Weight": "420g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Fizzy Bubblegum Bottles"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "420g",
+              "size_value": "420",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40/20 Servings",
+              "count_value": "40/20",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 8,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 53,
+          "external_product_id": "6581134032941",
+          "external_variant_id": "42003985498157",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 62,
+          "product_variant_id": 2649,
+          "action": "map_existing_variant",
+          "brand": "HR Labs",
+          "category": "Pre Workout",
+          "product_name": "HR Labs Defib Pre-Workout",
+          "variant_name": "Lemon Fizz Bombs / 420g (V3)",
+          "flavour": "Lemon Fizz Bombs",
+          "size_value": "420",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 34.99,
+          "in_stock": false,
+          "source_row_fingerprint": "c266444054a803bf0f70a0d125d2e585ca58ff605a92418e4c2a5d481a7f2467",
+          "plan_fingerprint": "3d6322f9c0e9a76bdb42b05a92b4589d",
+          "external_url": "https://gladiatornutrition.co.uk/products/hr-labs-defib?variant=42003985498157",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/hr-labs-defib?variant=42003985498157&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Lemon Fizz Bombs",
+            "Size": "40/20 Servings",
+            "Weight": "420g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Lemon Fizz Bombs"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "420g",
+              "size_value": "420",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40/20 Servings",
+              "count_value": "40/20",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 8,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 54,
+          "external_product_id": "6581134032941",
+          "external_variant_id": "57768751989110",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 62,
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "HR Labs",
+          "category": "Pre Workout",
+          "product_name": "HR Labs Defib Pre-Workout",
+          "variant_name": "Fruit Punch / 40/20 Servings / 420g",
+          "flavour": "Fruit Punch",
+          "size_value": "420",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 34.99,
+          "in_stock": true,
+          "source_row_fingerprint": "aefb65b161fd32b35510134410ec1a6482a00eaa74fbf5d752fdb5913f610238",
+          "plan_fingerprint": "6f0893243a9fb6b0c7074b0cdc455296",
+          "external_url": "https://gladiatornutrition.co.uk/products/hr-labs-defib?variant=57768751989110",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/hr-labs-defib?variant=57768751989110&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Fruit Punch",
+            "Size": "40/20 Servings",
+            "Weight": "420g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Fruit Punch"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "420g",
+              "size_value": "420",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40/20 Servings",
+              "count_value": "40/20",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 8,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 55,
+          "external_product_id": "6581134032941",
+          "external_variant_id": "57768752021878",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 62,
+          "product_variant_id": 2651,
+          "action": "map_existing_variant",
+          "brand": "HR Labs",
+          "category": "Pre Workout",
+          "product_name": "HR Labs Defib Pre-Workout",
+          "variant_name": "Gummy Bears / 420g (V3)",
+          "flavour": "Gummy Bears",
+          "size_value": "420",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 34.99,
+          "in_stock": false,
+          "source_row_fingerprint": "fc117a1eabd2e985f1cb4b439987bdb982b59a2e8fd85307dadf0a5fe5208458",
+          "plan_fingerprint": "e4e0d93b39df70b66095fb992a5cb68c",
+          "external_url": "https://gladiatornutrition.co.uk/products/hr-labs-defib?variant=57768752021878",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/hr-labs-defib?variant=57768752021878&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Gummy Bears",
+            "Size": "40/20 Servings",
+            "Weight": "420g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Gummy Bears"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "420g",
+              "size_value": "420",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40/20 Servings",
+              "count_value": "40/20",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 8,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 56,
+          "external_product_id": "6581134032941",
+          "external_variant_id": "57768752054646",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 62,
+          "product_variant_id": 2650,
+          "action": "map_existing_variant",
+          "brand": "HR Labs",
+          "category": "Pre Workout",
+          "product_name": "HR Labs Defib Pre-Workout",
+          "variant_name": "Pink Lemonade / 420g (V3)",
+          "flavour": "Pink Lemonade",
+          "size_value": "420",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 34.99,
+          "in_stock": false,
+          "source_row_fingerprint": "701eee1973ac9a65e7a3f3e3a813f484234b865b813c8ba57e86267dab53a36e",
+          "plan_fingerprint": "1ca0be89249104cc0bfcc3b61558fafc",
+          "external_url": "https://gladiatornutrition.co.uk/products/hr-labs-defib?variant=57768752054646",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/hr-labs-defib?variant=57768752054646&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Pink Lemonade",
+            "Size": "40/20 Servings",
+            "Weight": "420g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Pink Lemonade"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "420g",
+              "size_value": "420",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40/20 Servings",
+              "count_value": "40/20",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 8,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 57,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "39400065695789",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1117,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Double Chocolate / 2kg",
+          "flavour": "Double Chocolate",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": true,
+          "source_row_fingerprint": "4a05a54d1ef088856dbe2f22d4ae607ee768e426c9f0ed945ad49953dd9dfd4f",
+          "plan_fingerprint": "ea88c7c37831816c549768c8a3ee11eb",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=39400065695789",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=39400065695789&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Double Chocolate",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Double Chocolate"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 58,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "39723859640365",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1110,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Chocolate Peanut Butter / 2kg",
+          "flavour": "Chocolate Peanut Butter",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": false,
+          "source_row_fingerprint": "bd73a0f58457363d4c09c266f7dbc4244f619f7c2cb60afc1c91e3c3cd426051",
+          "plan_fingerprint": "0532e3c413d438c095c99f103741d21c",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=39723859640365",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=39723859640365&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Chocolate Peanut Butter",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Chocolate Peanut Butter"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 59,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "40523335008301",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1107,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Chocolate Brownie Batter / 2kg",
+          "flavour": "Chocolate Brownie Batter",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": true,
+          "source_row_fingerprint": "fac52704756196c615010f748c1e28935ef6d156b87bcb9794c4d3706f71636f",
+          "plan_fingerprint": "ce77e99e5d838235db1116eea1acd0c0",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=40523335008301",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=40523335008301&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Chocolate Brownie Batter",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Chocolate Brownie Batter"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 60,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "40523353948205",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1103,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Caramel Biscuit / 2kg",
+          "flavour": "Caramel Biscuit",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": false,
+          "source_row_fingerprint": "f336cdde279a61821d43db429857c9c04486db1c5f5389841791326ae57c3a98",
+          "plan_fingerprint": "470d98104802664e9c41c63666149979",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=40523353948205",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=40523353948205&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Caramel Biscuit",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Caramel Biscuit"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 61,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "40523355947053",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1109,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Chocolate Orange / 2kg",
+          "flavour": "Chocolate Orange",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": false,
+          "source_row_fingerprint": "ebd67189557ccd69b56773b4d8c199af15ecf0fd4b259ae1c026df1deaa04857",
+          "plan_fingerprint": "ae4885c262122a0eb3f6143ebe70e57b",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=40523355947053",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=40523355947053&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Chocolate Orange",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Chocolate Orange"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 62,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "40523361026093",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1104,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Carrot Cake / 2kg",
+          "flavour": "Carrot Cake",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": false,
+          "source_row_fingerprint": "5f88ebddb2ba87aa95016a6dd44c717a90854d24ec017af0107cf675f27938ce",
+          "plan_fingerprint": "f6c2bb29d9ca5352747cc57ccb32404d",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=40523361026093",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=40523361026093&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Carrot Cake",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Carrot Cake"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 63,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "40523363188781",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1102,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Blueberry Muffin / 2kg",
+          "flavour": "Blueberry Muffin",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": false,
+          "source_row_fingerprint": "e9a3a2848b1a64b0c88aece5a52a958fad872ff027f0947391880acef4e1a1f4",
+          "plan_fingerprint": "ece54702d15205876d04a543065ae3b4",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=40523363188781",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=40523363188781&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Blueberry Muffin",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Blueberry Muffin"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 64,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "40523363647533",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1126,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Salted Caramel / 2kg",
+          "flavour": "Salted Caramel",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": true,
+          "source_row_fingerprint": "65ab59e72bde69853fbc1f767eab789c3196eaf2c31f4cf4702488d1ba05cbba",
+          "plan_fingerprint": "60beff0b4aa3464059e41dd714c2a4a6",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=40523363647533",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=40523363647533&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Salted Caramel",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Salted Caramel"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 65,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "41069102137389",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Coconut Creme / 67 Servings / 2kg",
+          "flavour": "Coconut Creme",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": true,
+          "source_row_fingerprint": "f90f5bf5a2d7999975cc005f98ccf68ebb66db81e435646009436067d6c03c5c",
+          "plan_fingerprint": "0e24289487229f17096c2684c6ad061e",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41069102137389",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41069102137389&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Coconut Creme",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Coconut Creme"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 66,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "41069102825517",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1120,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Key Lime Pie / 2kg",
+          "flavour": "Key Lime Pie",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": false,
+          "source_row_fingerprint": "ff7431d6b0a17310498814539028002789398cf5c0d81d9b234a6b6c178ec973",
+          "plan_fingerprint": "9bba9fb2ee33f347e054da3ef7508225",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41069102825517",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41069102825517&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Key Lime Pie",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Key Lime Pie"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 67,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "41069104169005",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1121,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Lemon Cheesecake / 2kg",
+          "flavour": "Lemon Cheesecake",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": false,
+          "source_row_fingerprint": "42f8244a8db2629b6b46235909291cbdc67a699bfb2f92285f3e8cc6035c6176",
+          "plan_fingerprint": "471a43a2a6ced05a100c2675bdbb19c4",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41069104169005",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41069104169005&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Lemon Cheesecake",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Lemon Cheesecake"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 68,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "41069104988205",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1122,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Minty Chocolate / 2kg",
+          "flavour": "Minty Chocolate",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": true,
+          "source_row_fingerprint": "d9cbd28eed1134bc1459c42d3518b59bb8275b09a50e3e585375e8cfe2a190df",
+          "plan_fingerprint": "a7d5c2904bcd1c66007a84f0db7ad177",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41069104988205",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41069104988205&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Minty Chocolate",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Minty Chocolate"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 69,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "41069106298925",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1124,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Peanut Butter & Jelly / 2kg",
+          "flavour": "Peanut Butter & Jelly",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": false,
+          "source_row_fingerprint": "db59e3384b397fcee8bb35cc7fbeddc9c00aa76d7a96e9881c1953eeaf1a4380",
+          "plan_fingerprint": "4897511adbf2e4e5fe8eeafdb99e066f",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41069106298925",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41069106298925&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Peanut Butter & Jelly",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Peanut Butter & Jelly"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 70,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "41069106888749",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1130,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "White Chocolate Hazelnut / 2kg",
+          "flavour": "White Chocolate Hazelnut",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": true,
+          "source_row_fingerprint": "30ede407f4e11c2d369c3b0e08a99baaaa25dbe042597049625cf1e44579c9b2",
+          "plan_fingerprint": "fa40647b5984da58d8c41b3f2b39607c",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41069106888749",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41069106888749&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "White Chocolate Hazelnut",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "White Chocolate Hazelnut"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 71,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "41069107347501",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1129,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "White Chocolate / 2kg",
+          "flavour": "White Chocolate",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": true,
+          "source_row_fingerprint": "f854df671b9e7640d18c652532f528d8f8ed71079a034e2897cc86f735fca050",
+          "plan_fingerprint": "cc3eaa8ef3709937393b40e596129a51",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41069107347501",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41069107347501&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "White Chocolate",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "White Chocolate"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 72,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "41069108363309",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1125,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Raspberry White Chocolate / 2kg",
+          "flavour": "Raspberry White Chocolate",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": true,
+          "source_row_fingerprint": "332a45af248924a3a662318c20c0115f4b164a36fbf16081c97fdf05aa981445",
+          "plan_fingerprint": "738c6c3d8aa9dd29b3ee1efc888e577a",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41069108363309",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41069108363309&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Raspberry White Chocolate",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Raspberry White Chocolate"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 73,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "41382028116013",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1111,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Chocolate Pistachio / 2kg",
+          "flavour": "Chocolate Pistachio",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": false,
+          "source_row_fingerprint": "9b0e8dd5cf63f95fb3cc971230ea7ff7e3b034f15dd6d65afb51c91c18d16248",
+          "plan_fingerprint": "51c4c93bb3055d1648291cbc359f84a9",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41382028116013",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41382028116013&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Chocolate Pistachio",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Chocolate Pistachio"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 74,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "41382029066285",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1123,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Neapolitan Ice Cream / 2kg",
+          "flavour": "Neapolitan Ice Cream",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": false,
+          "source_row_fingerprint": "7f53880922a75cab6a91a8cedc25afd3a951d8529f27814a2c34cce61c44775e",
+          "plan_fingerprint": "3dcd2ed630e2a003dd13e842e366ea34",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41382029066285",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41382029066285&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Neapolitan Ice Cream",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Neapolitan Ice Cream"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 75,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "41382029459501",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1105,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Cereal Milk / 2kg",
+          "flavour": "Cereal Milk",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": true,
+          "source_row_fingerprint": "6c9145be615fb5dde16995ba1ec8c8226b2c387a92b8fd6ff3f502a0a441f06b",
+          "plan_fingerprint": "a955d58861e4b28433b16425bc8f4fae",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41382029459501",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41382029459501&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Cereal Milk",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Cereal Milk"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 76,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "41638788759597",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1127,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Sweet & Salty Popcorn / 2kg",
+          "flavour": "Sweet & Salty Popcorn",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": true,
+          "source_row_fingerprint": "7bece99dcbb5706a678ceab38a6265fc7d7c66bfccb3ec167f3d9be70884b7d1",
+          "plan_fingerprint": "f542b7f7ef2544b767cbfdd36831f2bb",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41638788759597",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41638788759597&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Sweet & Salty Popcorn",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Sweet & Salty Popcorn"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 77,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "41638788792365",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1118,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Fluffy Marshmallow / 2kg",
+          "flavour": "Fluffy Marshmallow",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": true,
+          "source_row_fingerprint": "e689e24bcaeaf9adecb9cbad8c06a8dbf30a3b6c54851282ccffe4ec64f54509",
+          "plan_fingerprint": "7ff92f4e54d2237e234087f006c8d8df",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41638788792365",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41638788792365&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Fluffy Marshmallow",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Fluffy Marshmallow"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 78,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "41811493388333",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1119,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Jammy Biscuit / 2kg",
+          "flavour": "Jammy Biscuit",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": true,
+          "source_row_fingerprint": "bff8145fbe213b39243a5fd340c19cabc39c67801f2fdccbbe86852c115a3b3d",
+          "plan_fingerprint": "926cbdc7c2fc03b6d28de2a3d85d6abc",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41811493388333",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41811493388333&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Jammy Biscuit",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Jammy Biscuit"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 79,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "55155117425014",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1106,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Cherry Bakewell / 2kg",
+          "flavour": "Cherry Bakewell",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": false,
+          "source_row_fingerprint": "d363b4a7ad332f622828a0bd22143eb4f33e5a39aaab7fe3eed8367d7e42afa2",
+          "plan_fingerprint": "ea2f9a51e5523f20417afea4aef5f7a4",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=55155117425014",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=55155117425014&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Cherry Bakewell",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Cherry Bakewell"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 80,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "55155228213622",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "S'Mores / 67 Servings / 2kg",
+          "flavour": "S'Mores",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": true,
+          "source_row_fingerprint": "2eb007dcc624eceeb11eaf6abfd5f0d0b9d479a438ac3379b7094cc76035cb30",
+          "plan_fingerprint": "da4796b61c0554a622b8dab22659618a",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=55155228213622",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=55155228213622&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "S'Mores",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "S'Mores"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 81,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "55572596949366",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1131,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Dubai Chocolate / 2kg",
+          "flavour": "Dubai Chocolate",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": true,
+          "source_row_fingerprint": "a7b0145763b07352489dfaf9130f82b2408a137b26d57e7f5b1a5044e429663d",
+          "plan_fingerprint": "e4cbd1b3b46d52894791dd9e6352e569",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=55572596949366",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=55572596949366&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Dubai Chocolate",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Dubai Chocolate"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 82,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "56656055959926",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1133,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Sticky Toffee Pudding / 2kg",
+          "flavour": "Sticky Toffee Pudding",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": false,
+          "source_row_fingerprint": "6f3d14c12fb38fa36d7ad3af7cf4845a868ac0404145a2b93f5753af136bcd76",
+          "plan_fingerprint": "300565d8e1a18b1d5d0c1e683a0ca27a",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=56656055959926",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=56656055959926&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Sticky Toffee Pudding",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Sticky Toffee Pudding"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 83,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "58019918348662",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1115,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Cookie Dough / 2kg",
+          "flavour": "Cookie Dough",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": false,
+          "source_row_fingerprint": "ebd3ff15917718641b429979a90c709786812fff051a3fb87efd7a9ca6e9827b",
+          "plan_fingerprint": "59c737a23cebaa8ac45ee2eecf2a42c2",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=58019918348662",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=58019918348662&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Cookie Dough",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Cookie Dough"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 84,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "58276610834806",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Unflavoured / 67 Servings / 2kg",
+          "flavour": "Unflavoured",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": true,
+          "source_row_fingerprint": "ed94f38ccd6562983e5bea548dd201c78163dde2be4525445823ddda3bc0bd62",
+          "plan_fingerprint": "d5871e9607e8d95ed12b085b3f55a284",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=58276610834806",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=58276610834806&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Unflavoured",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Unflavoured"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 85,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "58276610867574",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1135,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "French Toast Maple Swirl / 2kg",
+          "flavour": "French Toast Maple Swirl",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": true,
+          "source_row_fingerprint": "d2ccfde4ca1cd1c762c17a36d1aca2320b395882f2e6430d4b929041cc30fe00",
+          "plan_fingerprint": "f1287ae778be7de290a65d188d559d1e",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=58276610867574",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=58276610867574&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "French Toast Maple Swirl",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "French Toast Maple Swirl"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 86,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "58276610900342",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 12,
+          "product_variant_id": 1136,
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Chocolate Caramel / 2kg",
+          "flavour": "Chocolate Caramel",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": true,
+          "source_row_fingerprint": "4a8eb443651d800e7907648eaf99c64a5eceacde5321def12da60a930abb2f05",
+          "plan_fingerprint": "75f0da7094ee4031acb5ac24968835a6",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=58276610900342",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=58276610900342&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Chocolate Caramel",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Chocolate Caramel"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 87,
+          "external_product_id": "5245688381485",
+          "external_variant_id": "41643991007277",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_default_variant",
+          "brand": "TWP Nutrition",
+          "category": "Health Supplements",
+          "product_name": "TWP Enhanced health",
+          "variant_name": "",
+          "flavour": null,
+          "size_value": null,
+          "size_unit": null,
+          "pack_count": "1",
+          "product_format": "capsule",
+          "price": 24.99,
+          "in_stock": true,
+          "source_row_fingerprint": "48c0446aadca2910ebc25da7b908d5b2ee7024b3f0488544f7e6cf51d9a3b5d9",
+          "plan_fingerprint": "f09360401ba654cb487b84ccc3246ab8",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-enhanced-health?variant=41643991007277",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-enhanced-health?variant=41643991007277&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Size": "30 Servings"
+          },
+          "option_roles": {
+            "flavour": null,
+            "physical_size": null,
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 1,
+            "meaningful_variant_axes": []
+          },
+          "unit_count": 30,
+          "unit_type": "servings"
+        },
+        {
+          "review_row": 88,
+          "external_product_id": "5245633986605",
+          "external_variant_id": "41644091473965",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_default_variant",
+          "brand": "TWP Nutrition",
+          "category": "Vitamins",
+          "product_name": "TWP Whealth Multi Vitamin",
+          "variant_name": "",
+          "flavour": null,
+          "size_value": null,
+          "size_unit": null,
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 38.99,
+          "in_stock": true,
+          "source_row_fingerprint": "2498f1f26c0ee6e9d7be74bd4e53359f2bc510959e837baea103c35572d20120",
+          "plan_fingerprint": "4085f9564f07ae0608a593dd5ea498ef",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-whealth?variant=41644091473965",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-whealth?variant=41644091473965&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Size": "30 Servings"
+          },
+          "option_roles": {
+            "flavour": null,
+            "physical_size": null,
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 1,
+            "meaningful_variant_axes": []
+          },
+          "unit_count": 30,
+          "unit_type": "servings"
+        },
+        {
+          "review_row": 89,
+          "external_product_id": "5242089209901",
+          "external_variant_id": "34950659604525",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": 346,
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Ghost",
+          "category": "Amino Acids",
+          "product_name": "Ghost Amino V2",
+          "variant_name": "Warheads Sour Green Apple / 40 Servings / 422g",
+          "flavour": "Warheads Sour Green Apple",
+          "size_value": "422",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 31.99,
+          "in_stock": false,
+          "source_row_fingerprint": "210b98783740827b8b11184fe1806676297466590ec99dbd7b74c7b2bf8a5c9b",
+          "plan_fingerprint": "af4a8363b8f1ec82a5b3f200c77d24c6",
+          "external_url": "https://gladiatornutrition.co.uk/products/ghost-amino-v2?variant=34950659604525",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/ghost-amino-v2?variant=34950659604525&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Warheads Sour Green Apple",
+            "Size": "40 Servings",
+            "Weight": "422g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Warheads Sour Green Apple"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "422g",
+              "size_value": "422",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40 Servings",
+              "count_value": "40",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 4,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 90,
+          "external_product_id": "4916353499181",
+          "external_variant_id": "33879572021293",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_default_variant",
+          "brand": "TWP Nutrition",
+          "category": "Health Supplements",
+          "product_name": "TWP I-Drive GDA",
+          "variant_name": "",
+          "flavour": null,
+          "size_value": null,
+          "size_unit": null,
+          "pack_count": "1",
+          "product_format": "capsule",
+          "price": 22.99,
+          "in_stock": true,
+          "source_row_fingerprint": "4ec732e400e3a7b772aa02df7195a39dfd1be981498a54efe2faa2e4ec653ed6",
+          "plan_fingerprint": "5551a4497936bd5dd647677ef805241a",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-i-drive?variant=33879572021293",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-i-drive?variant=33879572021293&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Size": "60 Servings"
+          },
+          "option_roles": {
+            "flavour": null,
+            "physical_size": null,
+            "count": {
+              "source_key": "Size",
+              "source_value": "60 Servings",
+              "count_value": "60",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 1,
+            "meaningful_variant_axes": []
+          },
+          "unit_count": 60,
+          "unit_type": "servings"
+        }
+      ]
+    }
+  ]
+}
