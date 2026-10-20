@@ -35,8 +35,8 @@ test("migration is hash-bound and transactional", () => {
     ),
     false,
   );
-  assert.equal(selector.CONTRACTS.PRODUCTION.ledgerCount, 244);
-  assert.equal(selector.CONTRACTS.PRODUCTION.ledgerFingerprint, "d004ba9cb89b5709505ca9a29d743dde0f22878d65ae3931d9cd2b15e01a34f8");
+  assert.equal(selector.CONTRACTS.PRODUCTION.ledgerCount, 245);
+  assert.equal(selector.CONTRACTS.PRODUCTION.ledgerFingerprint, "7cf0280778830f919c3ed81ea9c98d4efaa689392ab7a9d5c65ed673c3d51163");
   assert.match(parentApprovalRepair, /md5\(v_definition\)<>'c0a21cce669814ae4f900c9858081754'/);
   assert.match(parentApprovalRepair, /retailer_id not in \(4,5,7,8,9,14\)/);
   assert.match(parentApprovalRepair, /when 9 then 'fit-house'/);

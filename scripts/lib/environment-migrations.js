@@ -225,12 +225,7 @@ const APPLIED_EXCLUSIONS = Object.freeze({
 
 const PENDING_MIGRATIONS = Object.freeze({
   STAGING: Object.freeze([]),
-  PRODUCTION: Object.freeze([
-    Object.freeze({
-      filename: "20261020180000_fix_reviewed_v3_role_aware_legacy_size_projection.sql",
-      sha256: "6bcbf7d8996a806f7f2c4659511ff96c63970ca52d5d6f0ff357688107c0b56c",
-    }),
-  ]),
+  PRODUCTION: Object.freeze([]),
 });
 
 function migrationIdentifier(filename) {
