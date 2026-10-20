@@ -165,6 +165,9 @@ const EXCLUSIONS = Object.freeze({
     "20261006190000_add_automation_review_verified_postflight_recovery",
     "20261008100000_align_shared_stable_oos_validation",
     "20261009100000_align_shared_sequential_child_capacity",
+    "20261017131000_add_environment_safe_reviewed_catalogue_bounded_state",
+    "20261018121000_add_environment_safe_reviewed_catalogue_v3_boundary",
+    "20261018191000_fix_environment_safe_reviewed_v3_apply_option_roles",
   ]),
   PRODUCTION: Object.freeze([
     "20261009120000_add_compact_other_retailer_fingerprint",
@@ -191,6 +194,9 @@ const EXCLUSIONS = Object.freeze({
     "20261006120000_extend_partial_sequential_plan_close",
     "20261006190000_add_automation_review_verified_postflight_recovery",
     "20261008140000_add_active_retailer_parent_inventory",
+    "20261017130000_add_reviewed_catalogue_bounded_state",
+    "20261018120000_add_reviewed_catalogue_v3_boundary",
+    "20261018190000_fix_reviewed_catalogue_v3_apply_option_roles",
   ]),
 });
 
@@ -221,16 +227,16 @@ const PENDING_MIGRATIONS = Object.freeze({
   STAGING: Object.freeze([]),
   PRODUCTION: Object.freeze([
     Object.freeze({
-      filename: "20261017130000_add_reviewed_catalogue_bounded_state.sql",
-      sha256: "b87256d9cbd4bb6e7533961ea2000af51b268fc0b3239926ce5e992d98480654",
+      filename: "20261017131000_add_environment_safe_reviewed_catalogue_bounded_state.sql",
+      sha256: "255190dafd76732dc67f8c98f6acbd3e4707f0492c633dc4c4b9aae1eeaa7dc6",
     }),
     Object.freeze({
-      filename: "20261018120000_add_reviewed_catalogue_v3_boundary.sql",
-      sha256: "28e6ae565780e86cebe6f0aed487af79c56903f370d12b7d09a9aa7389c7dc10",
+      filename: "20261018121000_add_environment_safe_reviewed_catalogue_v3_boundary.sql",
+      sha256: "30c563420ed0bcb02e4d38b2ec74dc997bff16df52cb07991557aa53e6adb279",
     }),
     Object.freeze({
-      filename: "20261018190000_fix_reviewed_catalogue_v3_apply_option_roles.sql",
-      sha256: "566114c4a2d312dece3618dc0dd0f54f08186d29921ce38928032417485376a1",
+      filename: "20261018191000_fix_environment_safe_reviewed_v3_apply_option_roles.sql",
+      sha256: "2813af060d0cc09a987f8df5c208383971439db716cdf1cf19fc7ace74da9d76",
     }),
     Object.freeze({
       filename: "20261019100000_fix_reviewed_v3_post_create_option_roles.sql",

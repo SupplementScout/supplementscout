@@ -445,6 +445,12 @@ const CONTRACTS = Object.freeze({
         "500a02c99919a540e0d34485b94828f255de3e24fc9e78de9f59d94e19d36085",
       "20261009100000_align_shared_sequential_child_capacity.sql":
         "97af9483d3f306a72822de982f18eb9def83f510e12b4d5748ac103782270a4f",
+      "20261017131000_add_environment_safe_reviewed_catalogue_bounded_state.sql":
+        "255190dafd76732dc67f8c98f6acbd3e4707f0492c633dc4c4b9aae1eeaa7dc6",
+      "20261018121000_add_environment_safe_reviewed_catalogue_v3_boundary.sql":
+        "30c563420ed0bcb02e4d38b2ec74dc997bff16df52cb07991557aa53e6adb279",
+      "20261018191000_fix_environment_safe_reviewed_v3_apply_option_roles.sql":
+        "2813af060d0cc09a987f8df5c208383971439db716cdf1cf19fc7ace74da9d76",
     }),
     pending: PENDING_MIGRATIONS.STAGING,
   }),
@@ -508,6 +514,12 @@ const CONTRACTS = Object.freeze({
         "1f4182a456916c1a8b3c19be89cb46c870d92b4060a2a9c4fbd62291b538f7d8",
       "20261008140000_add_active_retailer_parent_inventory.sql":
         "6499f29df0c33311d6810fd33293d1de72d4de3e92b75b3e9027e67a46e317e6",
+      "20261017130000_add_reviewed_catalogue_bounded_state.sql":
+        "b87256d9cbd4bb6e7533961ea2000af51b268fc0b3239926ce5e992d98480654",
+      "20261018120000_add_reviewed_catalogue_v3_boundary.sql":
+        "28e6ae565780e86cebe6f0aed487af79c56903f370d12b7d09a9aa7389c7dc10",
+      "20261018190000_fix_reviewed_catalogue_v3_apply_option_roles.sql":
+        "566114c4a2d312dece3618dc0dd0f54f08186d29921ce38928032417485376a1",
     }),
     pending: PENDING_MIGRATIONS.PRODUCTION,
   }),

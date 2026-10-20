@@ -8,18 +8,26 @@ const test = require("node:test");
 const ROOT = path.resolve(__dirname, "..");
 const IMAGE = "postgres:17-alpine";
 const PASSWORD = "reviewed-v3-local-only";
-const BOUNDED_STATE_MIGRATION = "supabase/migrations/20261017130000_add_reviewed_catalogue_bounded_state.sql";
-const BOUNDED_STATE_ROLLBACK = "supabase/rollbacks/20261017130000_add_reviewed_catalogue_bounded_state_rollback.sql";
-const MIGRATION = "supabase/migrations/20261018120000_add_reviewed_catalogue_v3_boundary.sql";
-const ROLLBACK = "supabase/rollbacks/20261018120000_add_reviewed_catalogue_v3_boundary_rollback.sql";
-const OPTION_ROLE_MIGRATION = "supabase/migrations/20261018190000_fix_reviewed_catalogue_v3_apply_option_roles.sql";
-const OPTION_ROLE_ROLLBACK = "supabase/rollbacks/20261018190000_fix_reviewed_catalogue_v3_apply_option_roles_rollback.sql";
+const ENVIRONMENT_SAFE_BOUNDED_STATE_MIGRATION = "supabase/migrations/20261017131000_add_environment_safe_reviewed_catalogue_bounded_state.sql";
+const ENVIRONMENT_SAFE_BOUNDED_STATE_ROLLBACK = "supabase/rollbacks/20261017131000_add_environment_safe_reviewed_catalogue_bounded_state_rollback.sql";
+const ENVIRONMENT_SAFE_MIGRATION = "supabase/migrations/20261018121000_add_environment_safe_reviewed_catalogue_v3_boundary.sql";
+const ENVIRONMENT_SAFE_ROLLBACK = "supabase/rollbacks/20261018121000_add_environment_safe_reviewed_catalogue_v3_boundary_rollback.sql";
+const ENVIRONMENT_SAFE_OPTION_ROLE_MIGRATION = "supabase/migrations/20261018191000_fix_environment_safe_reviewed_v3_apply_option_roles.sql";
+const ENVIRONMENT_SAFE_OPTION_ROLE_ROLLBACK = "supabase/rollbacks/20261018191000_fix_environment_safe_reviewed_v3_apply_option_roles_rollback.sql";
 const POST_CREATE_OPTION_ROLE_MIGRATION = "supabase/migrations/20261019100000_fix_reviewed_v3_post_create_option_roles.sql";
 const POST_CREATE_OPTION_ROLE_ROLLBACK = "supabase/rollbacks/20261019100000_fix_reviewed_v3_post_create_option_roles_rollback.sql";
 const TRUSTED_PARENT_POLICY_MIGRATION = "supabase/migrations/20261019120000_bridge_trusted_v3_reviewed_parent_policy.sql";
 const TRUSTED_PARENT_POLICY_ROLLBACK = "supabase/rollbacks/20261019120000_bridge_trusted_v3_reviewed_parent_policy_rollback.sql";
 const PLURAL_FLAVOUR_MIGRATION = "supabase/migrations/20261019130000_fix_reviewed_v3_plural_flavour_compatibility.sql";
 const PLURAL_FLAVOUR_ROLLBACK = "supabase/rollbacks/20261019130000_fix_reviewed_v3_plural_flavour_compatibility_rollback.sql";
+const ENVIRONMENT_SAFE_FORWARD_CHAIN = Object.freeze([
+  ENVIRONMENT_SAFE_BOUNDED_STATE_MIGRATION,
+  ENVIRONMENT_SAFE_MIGRATION,
+  ENVIRONMENT_SAFE_OPTION_ROLE_MIGRATION,
+  POST_CREATE_OPTION_ROLE_MIGRATION,
+  TRUSTED_PARENT_POLICY_MIGRATION,
+  PLURAL_FLAVOUR_MIGRATION,
+]);
 const LEGACY_COMPATIBILITY_HELPER_SHA = "849df8441e8994daf1acb514705808fde17467e033185e30cc432ad165a13905";
 const POST_CREATE_COMPATIBILITY_HELPER_SHA = "906cb5abad08deb8452fa9ae4fed8be8669b760e6f2ef088ae8846f5536b27db";
 const PLURAL_FLAVOUR_COMPATIBILITY_HELPER_SHA = "3f25c76ae3407552f99e035d60f2629838ab878d5f127b20d29be02aa834fdfc";
@@ -51,6 +59,12 @@ const TARGETS = Object.freeze({
     legacyCountSizeError: "variant option size mismatch",
     hasV1: false,
     hasExecutionResult: false,
+    boundedStateMigration: ENVIRONMENT_SAFE_BOUNDED_STATE_MIGRATION,
+    boundedStateRollback: ENVIRONMENT_SAFE_BOUNDED_STATE_ROLLBACK,
+    boundaryMigration: ENVIRONMENT_SAFE_MIGRATION,
+    boundaryRollback: ENVIRONMENT_SAFE_ROLLBACK,
+    optionRoleMigration: ENVIRONMENT_SAFE_OPTION_ROLE_MIGRATION,
+    optionRoleRollback: ENVIRONMENT_SAFE_OPTION_ROLE_ROLLBACK,
   }),
   PRODUCTION: Object.freeze({
     projectRef: "aftboxmrdgyhizicfsfu",
@@ -66,6 +80,12 @@ const TARGETS = Object.freeze({
     legacyCountSizeError: "variant option size mismatch",
     hasV1: true,
     hasExecutionResult: true,
+    boundedStateMigration: ENVIRONMENT_SAFE_BOUNDED_STATE_MIGRATION,
+    boundedStateRollback: ENVIRONMENT_SAFE_BOUNDED_STATE_ROLLBACK,
+    boundaryMigration: ENVIRONMENT_SAFE_MIGRATION,
+    boundaryRollback: ENVIRONMENT_SAFE_ROLLBACK,
+    optionRoleMigration: ENVIRONMENT_SAFE_OPTION_ROLE_MIGRATION,
+    optionRoleRollback: ENVIRONMENT_SAFE_OPTION_ROLE_ROLLBACK,
   }),
 });
 
@@ -156,6 +176,7 @@ function asRole(environment, kind, statement, { readOnly = false, approvalId = n
 
 function setupSql(environment) {
   const target = TARGETS[environment];
+  const roles = roleNames(environment);
   const executionResult = target.hasExecutionResult ? ",execution_result jsonb" : "";
   const stagingValidator = `
 create function public.atomic_import_is_source_bound_offer_sync_plan(p_plan jsonb) returns boolean language sql immutable as $$select false$$;
@@ -213,16 +234,11 @@ $function$;`;
   return `
 create extension pgcrypto;
 create role anon nologin; create role authenticated nologin; create role service_role nologin;
-create role retailer_catalogue_staging_validator nologin; create role retailer_catalogue_staging_approver nologin; create role retailer_catalogue_staging_executor nologin;
-create role retailer_catalogue_production_validator nologin; create role retailer_catalogue_production_approver nologin; create role retailer_catalogue_production_executor nologin;
-create role supplementscout_staging_validator_login login; create role supplementscout_staging_approver_login login; create role supplementscout_staging_executor_login login;
-create role supplementscout_production_validator_login login; create role supplementscout_production_approver_login login; create role supplementscout_production_executor_login login;
-grant retailer_catalogue_staging_validator to supplementscout_staging_validator_login with set true;
-grant retailer_catalogue_staging_approver to supplementscout_staging_approver_login with set true;
-grant retailer_catalogue_staging_executor to supplementscout_staging_executor_login with set true;
-grant retailer_catalogue_production_validator to supplementscout_production_validator_login with set true;
-grant retailer_catalogue_production_approver to supplementscout_production_approver_login with set true;
-grant retailer_catalogue_production_executor to supplementscout_production_executor_login with set true;
+create role ${roles.validator} nologin; create role ${roles.approver} nologin; create role ${roles.executor} nologin;
+create role ${roles.validatorLogin} login; create role ${roles.approverLogin} login; create role ${roles.executorLogin} login;
+grant ${roles.validator} to ${roles.validatorLogin} with set true;
+grant ${roles.approver} to ${roles.approverLogin} with set true;
+grant ${roles.executor} to ${roles.executorLogin} with set true;
 create table public.retailers(id bigint primary key,name text not null,slug text not null,website text not null);
 create table public.products(id bigint generated by default as identity primary key,name text,slug text,brand text,category text,gtin text,price numeric,image text,description text,servings integer,net_weight_g numeric,net_volume_ml numeric,serving_count_verified integer,serving_size_g numeric,serving_size_ml numeric,protein_per_serving_g numeric,creatine_per_serving_g numeric,unit_count integer,unit_type text,unit_pricing_verified boolean,nutrition_verified boolean,is_active boolean default true,merged_into_product_id bigint,merged_at timestamptz,product_format text);
 create table public.product_variants(id bigint generated by default as identity primary key,product_id bigint,variant_key text,display_name text,flavour_code text,flavour_label text,size_value numeric,size_unit text,pack_count integer,product_format text,gtin text,nutrition_override jsonb default '{}'::jsonb,is_default boolean default false,is_active boolean default true);
@@ -279,7 +295,7 @@ create function public.atomic_import_validate_variant_plan_core(p_plan jsonb) re
 create function public.apply_verified_offer_no_change_plan(p_plan jsonb) returns jsonb language plpgsql volatile as $$begin raise exception 'fixture no-change path not expected'; end$$;
 create function public.retailer_catalogue_actual_database_target() returns jsonb language sql stable security definer as $$select '{"target_environment":"${environment}","project_ref":"${target.projectRef}"}'::jsonb$$;
 ${target.hasV1 ? productionValidator : stagingValidator}
-revoke all on function public.validate_product_import_plan_read_only(jsonb) from public,anon,authenticated,service_role,retailer_catalogue_staging_validator,retailer_catalogue_production_validator;
+revoke all on function public.validate_product_import_plan_read_only(jsonb) from public,anon,authenticated,service_role,${roles.validator},${roles.approver},${roles.executor};
 grant execute on function public.validate_product_import_plan_read_only(jsonb) to ${roleNames(environment).validator};
 create function public.fixture_capture_validator_error(p_plan jsonb) returns jsonb language plpgsql volatile as $$
 begin
@@ -360,7 +376,7 @@ begin
   return result;
 end
 $approved$;
-revoke all on all tables in schema public from anon,authenticated,service_role,retailer_catalogue_staging_validator,retailer_catalogue_staging_approver,retailer_catalogue_staging_executor,retailer_catalogue_production_validator,retailer_catalogue_production_approver,retailer_catalogue_production_executor;
+revoke all on all tables in schema public from anon,authenticated,service_role,${roles.validator},${roles.approver},${roles.executor};
 `;
 }
 
@@ -653,7 +669,62 @@ function validatorMetadata(container, label) {
   return functionMetadata(container, "public.validate_product_import_plan_read_only(jsonb)", label);
 }
 
+function exerciseRequiredEnvironmentRoleGuards(container, environment) {
+  const target = TARGETS[environment];
+  const roles = roleNames(environment);
+  const baselineCounts = counts(container, `${environment} required-role baseline counts`);
+  const temporarilyMissing = (role, migration, pattern, label) => {
+    const temporaryRole = `${role}_temporarily_missing`;
+    succeed(sql(container, `alter role ${role} rename to ${temporaryRole}`), `${label} hide role`);
+    try {
+      fails(file(container, migration), `${label} fail closed`, pattern);
+      assert.deepEqual(counts(container, `${label} counts`), baselineCounts);
+    } finally {
+      succeed(sql(container, `alter role ${temporaryRole} rename to ${role}`), `${label} restore role`);
+    }
+  };
+
+  temporarilyMissing(
+    roles.validator,
+    target.boundedStateMigration,
+    /required validator role is missing/i,
+    `${environment} bounded-state missing validator`,
+  );
+  assert.equal(
+    scalar(container, "select to_regprocedure('public.read_reviewed_catalogue_import_state(jsonb)') is null", `${environment} failed bounded-state install rolled back`),
+    "t",
+  );
+
+  succeedWithoutBusinessChange(
+    container,
+    target.boundedStateMigration,
+    `${environment} install bounded state for required-role guards`,
+  );
+  for (const [kind, role] of [["approver", roles.approver], ["executor", roles.executor]]) {
+    temporarilyMissing(
+      role,
+      target.boundaryMigration,
+      /required environment roles are missing/i,
+      `${environment} boundary missing ${kind}`,
+    );
+    assert.equal(
+      scalar(container, "select to_regprocedure('public.validate_reviewed_catalogue_v3_plan_read_only(jsonb,jsonb)') is null", `${environment} failed boundary install rolled back for ${kind}`),
+      "t",
+    );
+    assert.equal(
+      scalar(container, "select count(*) from information_schema.columns where table_schema='public' and table_name='approved_import_plans' and column_name='authorization_envelope'", `${environment} failed boundary column rolled back for ${kind}`),
+      "0",
+    );
+  }
+  succeedWithoutBusinessChange(
+    container,
+    target.boundedStateRollback,
+    `${environment} reset bounded state after required-role guards`,
+  );
+}
+
 function exerciseBoundedStateRollbackGuards(container, environment) {
+  const target = TARGETS[environment];
   const signature = "public.read_reviewed_catalogue_import_state(jsonb)";
   const baselineCounts = counts(container, `${environment} bounded-state baseline counts`);
   const assertExact = label => {
@@ -661,7 +732,7 @@ function exerciseBoundedStateRollbackGuards(container, environment) {
     assert.deepEqual(counts(container, `${label} counts`), baselineCounts);
   };
   const restore = label => {
-    succeedWithoutBusinessChange(container, BOUNDED_STATE_MIGRATION, label);
+    succeedWithoutBusinessChange(container, target.boundedStateMigration, label);
     assertExact(label);
   };
   const scenarios = [
@@ -681,7 +752,7 @@ function exerciseBoundedStateRollbackGuards(container, environment) {
     const tamperedSha = functionSha(container, signature, `${environment} bounded-state tampered ${name} SHA`);
     if (name === "body") assert.notEqual(tamperedSha, BOUNDED_STATE_SHA);
     fails(
-      file(container, BOUNDED_STATE_ROLLBACK),
+      file(container, target.boundedStateRollback),
       `${environment} bounded-state ${name} fail closed`,
       /bounded-state rollback lineage or metadata differs/i,
     );
@@ -693,10 +764,10 @@ function exerciseBoundedStateRollbackGuards(container, environment) {
     restore(`${environment} restore bounded state after ${name}`);
   }
 
-  succeedWithoutBusinessChange(container, BOUNDED_STATE_ROLLBACK, `${environment} bounded-state happy rollback`);
+  succeedWithoutBusinessChange(container, target.boundedStateRollback, `${environment} bounded-state happy rollback`);
   assert.equal(scalar(container, `select to_regprocedure('${signature}') is null`, `${environment} bounded-state removed`), "t");
   fails(
-    file(container, BOUNDED_STATE_ROLLBACK),
+    file(container, target.boundedStateRollback),
     `${environment} bounded-state missing target fails closed`,
     /bounded-state rollback target is missing/i,
   );
@@ -706,11 +777,12 @@ function exerciseBoundedStateRollbackGuards(container, environment) {
 
 function exerciseBoundaryRollbackTamperGuards(container, environment) {
   const target = TARGETS[environment];
+  const roles = roleNames(environment);
   const baseline = boundaryStateDigest(container, `${environment} boundary baseline digest`);
   const baselineCounts = counts(container, `${environment} boundary baseline counts`);
   const assertFailedRollbackPreserved = (label, pattern) => {
     const before = boundaryStateDigest(container, `${label} digest before`);
-    fails(file(container, ROLLBACK), label, pattern);
+    fails(file(container, target.boundaryRollback), label, pattern);
     assert.equal(boundaryStateDigest(container, `${label} digest after`), before, `${label} changed schema`);
     assert.deepEqual(counts(container, `${label} counts after`), baselineCounts, `${label} changed business rows`);
   };
@@ -744,8 +816,7 @@ function exerciseBoundaryRollbackTamperGuards(container, environment) {
   assertFailedRollbackPreserved(`${environment} boundary owner fail closed`, /rollback lineage or metadata differs/i);
   succeed(sql(container, `alter function ${internal} owner to postgres;
     revoke all on function ${internal} from public,anon,authenticated,service_role,
-      retailer_catalogue_staging_validator,retailer_catalogue_staging_approver,retailer_catalogue_staging_executor,
-      retailer_catalogue_production_validator,retailer_catalogue_production_approver,retailer_catalogue_production_executor;
+      ${roles.validator},${roles.approver},${roles.executor};
     grant execute on function ${internal} to postgres`), `${environment} restore boundary owner`);
   assertRestored(`${environment} restored boundary owner`);
 
@@ -792,6 +863,7 @@ function exerciseBoundaryRollbackTamperGuards(container, environment) {
 function exerciseTrustedParentRollbackTamperGuards(container, environment) {
   const signature = "public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)";
   const target = TARGETS[environment];
+  const roles = roleNames(environment);
   const baseline = functionStateDigest(container, signature, `${environment} trusted-parent baseline digest`);
   const baselineCounts = counts(container, `${environment} trusted-parent baseline counts`);
   const original = functionDefinition(container, signature, `${environment} trusted-parent original definition`);
@@ -815,8 +887,7 @@ function exerciseTrustedParentRollbackTamperGuards(container, environment) {
   assertFailedRollbackPreserved(`${environment} trusted-parent owner fail closed`);
   succeed(sql(container, `alter function ${signature} owner to postgres;
     revoke all on function ${signature} from public,anon,authenticated,service_role,
-      retailer_catalogue_staging_validator,retailer_catalogue_staging_approver,retailer_catalogue_staging_executor,
-      retailer_catalogue_production_validator,retailer_catalogue_production_approver,retailer_catalogue_production_executor;
+      ${roles.validator},${roles.approver},${roles.executor};
     grant execute on function ${signature} to postgres`), `${environment} restore trusted-parent owner`);
   assertRestored(`${environment} restored trusted-parent owner`);
 
@@ -833,6 +904,7 @@ function exerciseTrustedParentRollbackTamperGuards(container, environment) {
 
 function exerciseBaseline(environment) {
   const target = TARGETS[environment];
+  const roles = roleNames(environment);
   const container = `supplementscout-reviewed-v3-${environment.toLowerCase()}-${crypto.randomBytes(5).toString("hex")}`;
   try {
     succeed(run("docker", [
@@ -841,21 +913,36 @@ function exerciseBaseline(environment) {
     ]), `${environment} start PostgreSQL`);
     wait(container);
     succeed(sql(container, setupSql(environment)), `${environment} prepare baseline`);
+    const oppositeRoles = roleNames(environment === "STAGING" ? "PRODUCTION" : "STAGING");
+    const roleInventory = json(container, `select jsonb_build_object(
+      'validator',to_regrole('${roles.validator}') is not null,
+      'approver',to_regrole('${roles.approver}') is not null,
+      'executor',to_regrole('${roles.executor}') is not null,
+      'opposite_validator',to_regrole('${oppositeRoles.validator}') is not null,
+      'opposite_approver',to_regrole('${oppositeRoles.approver}') is not null,
+      'opposite_executor',to_regrole('${oppositeRoles.executor}') is not null
+    )`, `${environment} exact role inventory`);
+    assert.deepEqual(roleInventory, {
+      validator: true,
+      approver: true,
+      executor: true,
+      opposite_validator: false,
+      opposite_approver: false,
+      opposite_executor: false,
+    });
     succeed(fixtureFile(container, target.standardCoreFixture), `${environment} install exact live standard apply core`);
     succeed(fixtureFile(container, LIVE_APPLY_DISPATCH_FIXTURE), `${environment} install exact live apply dispatch cores`);
     succeed(sql(container, `
       alter function public.atomic_import_apply_standard_plan_core(jsonb) owner to postgres;
       revoke all on function public.atomic_import_apply_standard_plan_core(jsonb) from public,anon,authenticated,service_role,
-        retailer_catalogue_staging_validator,retailer_catalogue_staging_approver,retailer_catalogue_staging_executor,
-        retailer_catalogue_production_validator,retailer_catalogue_production_approver,retailer_catalogue_production_executor;
+        ${roles.validator},${roles.approver},${roles.executor};
       alter function public.atomic_import_apply_variant_plan_core(jsonb) owner to postgres;
       alter function public.atomic_import_apply_pre_source_metadata_plan_core(jsonb) owner to postgres;
       alter function public.apply_product_import_plan(jsonb) owner to postgres;
       revoke all on function public.atomic_import_apply_variant_plan_core(jsonb),
         public.atomic_import_apply_pre_source_metadata_plan_core(jsonb),public.apply_product_import_plan(jsonb)
         from public,anon,authenticated,service_role,
-          retailer_catalogue_staging_validator,retailer_catalogue_staging_approver,retailer_catalogue_staging_executor,
-          retailer_catalogue_production_validator,retailer_catalogue_production_approver,retailer_catalogue_production_executor;
+          ${roles.validator},${roles.approver},${roles.executor};
     `), `${environment} seal exact live apply dispatch cores`);
     const originalPreSourceValidatorDefinition = functionDefinition(
       container,
@@ -863,6 +950,7 @@ function exerciseBaseline(environment) {
       `${environment} original pre-source validator definition`,
     );
     const originalLineageState = publicFunctionAndApprovalSchemaState(container, `${environment} original lineage state`);
+    exerciseRequiredEnvironmentRoleGuards(container, environment);
     exerciseBoundedStateRollbackGuards(container, environment);
     const standardCoreBefore = scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
       'public.atomic_import_apply_standard_plan_core(jsonb)'::regprocedure
@@ -914,7 +1002,7 @@ function exerciseBaseline(environment) {
       E'\\n' order by id
     ),'')) from public.approved_import_plans`, `${environment} legacy digest before`);
 
-    succeedWithoutBusinessChange(container, MIGRATION, `${environment} apply corrected V3 migration`);
+    succeedWithoutBusinessChange(container, target.boundaryMigration, `${environment} apply corrected V3 migration`);
     exerciseBoundaryRollbackTamperGuards(container, environment);
     assert.equal(scalar(container, "select to_regprocedure('public.atomic_import_validate_product_before_reviewed_v3(jsonb)') is not null", `${environment} fallback exists`), "t");
     assert.equal(scalar(container, "select to_regprocedure('public.validate_product_import_plan_read_only(jsonb)') is not null", `${environment} wrapper exists`), "t");
@@ -944,7 +1032,6 @@ function exerciseBaseline(environment) {
       ),'UTF8')),'hex')`, `${environment} V1 function after`), v1FunctionBefore);
     }
 
-    const roles = roleNames(environment);
     const acl = json(container, `select jsonb_build_object(
       'validator_read',has_function_privilege('${roles.validator}','public.validate_reviewed_catalogue_v3_plan_read_only(jsonb,jsonb)','execute'),
       'validator_public_wrapper',has_function_privilege('${roles.validator}','public.validate_product_import_plan_read_only(jsonb)','execute'),
@@ -1005,7 +1092,7 @@ function exerciseBaseline(environment) {
     assert.equal(scalar(container, `select status||':'||coalesce(consumed_at::text,'NULL') from approved_import_plans where id='${preFixApproval.approval_id}'`, `${environment} pre-fix approval remains unconsumed`), "approved:NULL");
     succeed(sql(container, `delete from public.approved_import_plans where id='${preFixApproval.approval_id}'`), `${environment} remove disposable pre-fix approval`);
 
-    succeedWithoutBusinessChange(container, OPTION_ROLE_MIGRATION, `${environment} apply V3 option-role compatibility migration`);
+    succeedWithoutBusinessChange(container, target.optionRoleMigration, `${environment} apply V3 option-role compatibility migration`);
     assert.equal(scalar(container, "select to_regprocedure('public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)') is not null", `${environment} compatibility helper exists`), "t");
     assert.deepEqual(
       json(container, `select public.fixture_capture_standard_apply_error(${literal(preFixFixture.plan)})`, `${environment} non-V3 count-size error after`),
@@ -1031,8 +1118,7 @@ function exerciseBaseline(environment) {
       alter function public.atomic_import_validate_pre_source_metadata_plan_core(jsonb) owner to postgres;
       revoke all on function public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)
         from public,anon,authenticated,service_role,
-          retailer_catalogue_staging_validator,retailer_catalogue_staging_approver,retailer_catalogue_staging_executor,
-          retailer_catalogue_production_validator,retailer_catalogue_production_approver,retailer_catalogue_production_executor;
+          ${roles.validator},${roles.approver},${roles.executor};
     `), `${environment} seal exact live pre-source validator`);
     assert.equal(scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
       'public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)'::regprocedure
@@ -1391,7 +1477,7 @@ function exerciseBaseline(environment) {
       assert.equal(approval.contract_kind, "reviewed-catalogue-package-v3");
 
       if (index === 0) {
-        fails(file(container, ROLLBACK), `${environment} rollback with live approval`, /rollback blocked by durable approval evidence/i);
+        fails(file(container, target.boundaryRollback), `${environment} rollback with live approval`, /rollback blocked by durable approval evidence/i);
         const spoofed = json(
           container,
           asRole(environment, "validator", `select public.validate_product_import_plan_read_only(${literal(fixture.plan)})`, { readOnly: true, approvalId: approval.approval_id }),
@@ -1421,7 +1507,7 @@ function exerciseBaseline(environment) {
       for (const table of ["retailer_products", "offers", "price_history"]) {
         assert.equal(after[table] - before[table], 1, `${environment} ${action} ${table}`);
       }
-      if (index === 0) fails(file(container, ROLLBACK), `${environment} rollback with consumed approval`, /rollback blocked by durable approval evidence/i);
+      if (index === 0) fails(file(container, target.boundaryRollback), `${environment} rollback with consumed approval`, /rollback blocked by durable approval evidence/i);
       const replay = json(
         container,
         asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${approval.approval_id}',${literal(fixture.plan)},${literal(fixture.envelope)})`),
@@ -1496,7 +1582,7 @@ function exerciseBaseline(environment) {
       functionMetadata(container, "public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)", `${environment} restored compatibility helper metadata`),
       compatibilityHelperMetadata,
     );
-    succeedWithoutBusinessChange(container, OPTION_ROLE_ROLLBACK, `${environment} rollback V3 option-role compatibility`);
+    succeedWithoutBusinessChange(container, target.optionRoleRollback, `${environment} rollback V3 option-role compatibility`);
     assert.equal(scalar(container, "select to_regprocedure('public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)') is null", `${environment} compatibility helper removed`), "t");
     assert.equal(scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
       'public.atomic_import_apply_standard_plan_core(jsonb)'::regprocedure
@@ -1506,7 +1592,7 @@ function exerciseBaseline(environment) {
     ),'UTF8')),'hex')`, `${environment} restored pre-source apply SHA`), preSourceCoreBefore);
     succeed(sql(container, `${originalPreSourceValidatorDefinition};
       grant execute on function public.atomic_import_validate_pre_source_metadata_plan_core(jsonb) to public`), `${environment} restore exact original pre-source validator fixture`);
-    succeedWithoutBusinessChange(container, ROLLBACK, `${environment} successful rollback`);
+    succeedWithoutBusinessChange(container, target.boundaryRollback, `${environment} successful rollback`);
     const restoredSha = scalar(container, `select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
       'public.validate_product_import_plan_read_only(jsonb)'::regprocedure
     ),'UTF8')),'hex')`, `${environment} restored validator SHA`);
@@ -1522,7 +1608,7 @@ function exerciseBaseline(environment) {
         'public.validate_reviewed_catalogue_import_plan(jsonb)'::regprocedure
       ),'UTF8')),'hex')`, `${environment} V1 function rollback`), v1FunctionBefore);
     }
-    succeedWithoutBusinessChange(container, BOUNDED_STATE_ROLLBACK, `${environment} final bounded-state rollback`);
+    succeedWithoutBusinessChange(container, target.boundedStateRollback, `${environment} final bounded-state rollback`);
     assert.equal(scalar(container, "select to_regprocedure('public.read_reviewed_catalogue_import_state(jsonb)') is null", `${environment} bounded state absent after full rollback`), "t");
     assert.deepEqual(
       publicFunctionAndApprovalSchemaState(container, `${environment} full rollback lineage state`),
@@ -1533,6 +1619,15 @@ function exerciseBaseline(environment) {
     run("docker", ["rm", "--force", container], 30_000);
   }
 }
+
+test("reviewed catalogue V3 installer has no direct cross-environment ACL references", () => {
+  const directNamedRoleAcl = /\b(?:grant|revoke)\b[^;]*\b(?:to|from)\s+[^;]*retailer_catalogue_(?:staging|production)_/i;
+  for (const migration of ENVIRONMENT_SAFE_FORWARD_CHAIN) {
+    const contents = fs.readFileSync(path.join(ROOT, migration), "utf8");
+    const unsafeStatements = contents.split(";").filter((statement) => directNamedRoleAcl.test(statement));
+    assert.deepEqual(unsafeStatements, [], `${migration} contains a direct environment-role ACL statement`);
+  }
+});
 
 test("reviewed catalogue V3 independently wraps staging and production validator lineages", { timeout: 600_000 }, (t) => {
   if (!dockerAvailable()) return t.skip("Docker unavailable");
