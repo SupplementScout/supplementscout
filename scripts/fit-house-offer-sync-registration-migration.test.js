@@ -28,7 +28,7 @@ test("migration is hash-bound and transactional", () => {
       filename.includes("fit_house_offer_sync_registration")),
     false,
   );
-  assert.equal(selector.CONTRACTS.STAGING.ledgerCount, 110);
+  assert.equal(selector.CONTRACTS.STAGING.ledgerCount, 111);
   assert.equal(
     selector.CONTRACTS.PRODUCTION.pending.some(({ filename }) =>
       filename.includes("fit_house_offer_sync_registration"),
