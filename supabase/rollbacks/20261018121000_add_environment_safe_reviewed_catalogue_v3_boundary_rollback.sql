@@ -207,10 +207,10 @@ begin
     when 'STAGING' then '70f134e6f7d3afa25de52353ff5e8aca3cc0f7c34a58d9da3577ead4ac11f4a9'
     when 'PRODUCTION' then 'b9d99d9245ff2ea493fa9ed4d160f0e9ff4c450764cb40a5a23325d0ca069583'
   end;
-  v_expected_role := case v_environment
-    when 'STAGING' then 'retailer_catalogue_staging_validator'::regrole
-    when 'PRODUCTION' then 'retailer_catalogue_production_validator'::regrole
-  end;
+  v_expected_role := to_regrole(case v_environment
+    when 'STAGING' then 'retailer_catalogue_staging_validator'
+    when 'PRODUCTION' then 'retailer_catalogue_production_validator'
+  end);
   select encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
     v_function
   ),'UTF8')),'hex') into v_sha256;

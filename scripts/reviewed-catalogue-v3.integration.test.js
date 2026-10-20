@@ -28,6 +28,14 @@ const ENVIRONMENT_SAFE_FORWARD_CHAIN = Object.freeze([
   TRUSTED_PARENT_POLICY_MIGRATION,
   PLURAL_FLAVOUR_MIGRATION,
 ]);
+const ENVIRONMENT_SAFE_ROLLBACK_CHAIN = Object.freeze([
+  ENVIRONMENT_SAFE_BOUNDED_STATE_ROLLBACK,
+  ENVIRONMENT_SAFE_ROLLBACK,
+  ENVIRONMENT_SAFE_OPTION_ROLE_ROLLBACK,
+  POST_CREATE_OPTION_ROLE_ROLLBACK,
+  TRUSTED_PARENT_POLICY_ROLLBACK,
+  PLURAL_FLAVOUR_ROLLBACK,
+]);
 const LEGACY_COMPATIBILITY_HELPER_SHA = "849df8441e8994daf1acb514705808fde17467e033185e30cc432ad165a13905";
 const POST_CREATE_COMPATIBILITY_HELPER_SHA = "906cb5abad08deb8452fa9ae4fed8be8669b760e6f2ef088ae8846f5536b27db";
 const PLURAL_FLAVOUR_COMPATIBILITY_HELPER_SHA = "3f25c76ae3407552f99e035d60f2629838ab878d5f127b20d29be02aa834fdfc";
@@ -1626,6 +1634,14 @@ test("reviewed catalogue V3 installer has no direct cross-environment ACL refere
     const contents = fs.readFileSync(path.join(ROOT, migration), "utf8");
     const unsafeStatements = contents.split(";").filter((statement) => directNamedRoleAcl.test(statement));
     assert.deepEqual(unsafeStatements, [], `${migration} contains a direct environment-role ACL statement`);
+  }
+});
+
+test("reviewed catalogue V3 rollbacks resolve only the selected environment role", () => {
+  const eagerNamedRoleCast = /retailer_catalogue_(?:staging|production)_[a-z_]+'\s*::\s*regrole/i;
+  for (const rollback of ENVIRONMENT_SAFE_ROLLBACK_CHAIN) {
+    const contents = fs.readFileSync(path.join(ROOT, rollback), "utf8");
+    assert.doesNotMatch(contents, eagerNamedRoleCast, `${rollback} eagerly resolves an environment role`);
   }
 });
 
