@@ -1,0 +1,105 @@
+{
+  "schema_version": 3,
+  "kind": "reviewed-catalogue-package-v3",
+  "source_platform": "shopify",
+  "status": "OWNER_APPROVED",
+  "authorized_by": "Marek Kalinka",
+  "authorized_at": "2026-10-21T15:36:58.290Z",
+  "target_environment": "PRODUCTION",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "retailer": {
+    "id": 15,
+    "name": "Gladiator Nutrition",
+    "slug": "gladiator-nutrition",
+    "website": "https://gladiatornutrition.co.uk",
+    "expected_action": "existing",
+    "shipping_known": true,
+    "shipping_cost": 6.99
+  },
+  "policy": {
+    "reviewed_rows_only": true,
+    "allow_product_creation": true,
+    "allow_variant_creation": true,
+    "allow_canonical_product_updates": false,
+    "allow_canonical_variant_updates": false,
+    "allow_canonical_gtin_updates": false,
+    "allow_category_changes": false,
+    "sku_is_not_gtin": true,
+    "one_plan_at_a_time": true,
+    "fresh_single_use_approval_per_plan": true,
+    "strict_production_readback_after_each_apply": true
+  },
+  "profiles": [
+    {
+      "id": "gladiator-production-3d-energy-anchor-fresh-v1",
+      "status": "DRY_RUN_PASS",
+      "csv_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-production-3d-energy-anchor-fresh-v1.csv",
+      "csv_sha256": "f3985bee47907a9b2e0b254e1ba205d0137b29b0ab3fea26ead492f3fa3cc699",
+      "artifact_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-production-3d-energy-anchor-fresh-v1-dry-run.json",
+      "artifact_sha256": "acf1c6075d730516c49320297684bfa5718ffa0407afbf72b2edf81ce6ca5fa6",
+      "row_count": 1,
+      "blocked_row_count": 0,
+      "conflict_count": 0,
+      "expected_actions": {
+        "retailers_create": 0,
+        "products_create": 1,
+        "product_variants_create": 1,
+        "retailer_products_create": 1,
+        "offers_create": 1,
+        "price_history_create": 1
+      },
+      "rows": [
+        {
+          "review_row": 1,
+          "external_product_id": "15719647379830",
+          "external_variant_id": "57774589346166",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "3D Energy",
+          "category": "Energy Drinks",
+          "product_name": "3D Energy Drink",
+          "variant_name": "Watermelon Grape / 473ml",
+          "flavour": "Watermelon Grape",
+          "size_value": "473",
+          "size_unit": "ml",
+          "pack_count": "1",
+          "product_format": "liquid",
+          "price": 2.75,
+          "in_stock": true,
+          "source_row_fingerprint": "5ace44ab135bf7ab7ced58d25d72c16aae97023e5bd00f3dfeb2a4356a51cc60",
+          "plan_fingerprint": "ce818b6d81b0e6b1b512d334b8597f43",
+          "external_url": "https://gladiatornutrition.co.uk/products/3d-energy-drink?variant=57774589346166",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/3d-energy-drink?variant=57774589346166&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Watermelon Grape",
+            "Size": "473ml"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Watermelon Grape"
+            },
+            "physical_size": {
+              "source_key": "Size",
+              "source_value": "473ml",
+              "size_value": "473",
+              "size_unit": "ml"
+            },
+            "count": null
+          },
+          "source_structure": {
+            "product_variant_count": 7,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        }
+      ]
+    }
+  ]
+}
