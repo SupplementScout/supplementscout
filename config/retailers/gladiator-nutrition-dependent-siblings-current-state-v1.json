@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "kind": "gladiator-nutrition-dependent-siblings-current-state-v1",
-  "status": "PREPARATION_ONLY",
+  "status": "OWNER_APPROVED",
   "generated_at": "2026-10-21T06:58:44.341Z",
   "base_commit": "7fa89a529792f26296d4caee3f6ac4c4a358d322",
   "database_writes_authorized": false,
@@ -454,7 +454,7 @@
     "artifact_sha256": "c1fa13e309e30afb958fc7060211663e2e6fca21692bdb16c5142593f394af38",
     "run_id": "fb33c1cc-e926-4355-b660-af5001a64a51",
     "manifest_path": "config/retailers/gladiator-nutrition-dependent-siblings-v1.json",
-    "manifest_sha256": "23a729f07ee53b838fbda2760bb6aa02bdd93efefdc2b4152350e3ee00c3ab15",
+    "manifest_sha256": "f18b8b2b98cc3ac846a2d178e51f619e4f035eac043d94df134aec7243276ac2",
     "artifact_action_counts": {
       "retailers_create": 0,
       "products_create": 0,
