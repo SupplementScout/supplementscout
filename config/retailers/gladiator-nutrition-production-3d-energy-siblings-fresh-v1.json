@@ -1,0 +1,355 @@
+{
+  "schema_version": 3,
+  "kind": "reviewed-catalogue-package-v3",
+  "source_platform": "shopify",
+  "status": "OWNER_APPROVED",
+  "authorized_by": "Marek Kalinka",
+  "authorized_at": "2026-10-21T16:24:02.306Z",
+  "target_environment": "PRODUCTION",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "retailer": {
+    "id": 15,
+    "name": "Gladiator Nutrition",
+    "slug": "gladiator-nutrition",
+    "website": "https://gladiatornutrition.co.uk",
+    "expected_action": "existing",
+    "shipping_known": true,
+    "shipping_cost": 6.99
+  },
+  "policy": {
+    "reviewed_rows_only": true,
+    "allow_product_creation": true,
+    "allow_variant_creation": true,
+    "allow_canonical_product_updates": false,
+    "allow_canonical_variant_updates": false,
+    "allow_canonical_gtin_updates": false,
+    "allow_category_changes": false,
+    "sku_is_not_gtin": true,
+    "one_plan_at_a_time": true,
+    "fresh_single_use_approval_per_plan": true,
+    "strict_production_readback_after_each_apply": true
+  },
+  "profiles": [
+    {
+      "id": "gladiator-production-3d-energy-siblings-fresh-v1",
+      "status": "DRY_RUN_PASS",
+      "csv_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-production-3d-energy-siblings-fresh-v1.csv",
+      "csv_sha256": "72fe81a4783d228a18e7ef489c8caaefb279e6e2ec5aa0a666bbd8bf86effacb",
+      "artifact_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-production-3d-energy-siblings-fresh-v1-dry-run.json",
+      "artifact_sha256": "9fda50996ff932f45bdc8d67359f91b757e373dd4858c532a19d86ad0f766f7f",
+      "row_count": 6,
+      "blocked_row_count": 0,
+      "conflict_count": 0,
+      "expected_actions": {
+        "retailers_create": 0,
+        "products_create": 0,
+        "product_variants_create": 6,
+        "retailer_products_create": 6,
+        "offers_create": 6,
+        "price_history_create": 6
+      },
+      "rows": [
+        {
+          "review_row": 1,
+          "external_product_id": "15719647379830",
+          "external_variant_id": "57774589215094",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1415",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "3D Energy",
+          "category": "Energy Drinks",
+          "product_name": "3D Energy Drink",
+          "variant_name": "Spicy Mango / 473ml",
+          "flavour": "Spicy Mango",
+          "size_value": "473",
+          "size_unit": "ml",
+          "pack_count": "1",
+          "product_format": "liquid",
+          "price": 2.75,
+          "in_stock": false,
+          "source_row_fingerprint": "f98974bf41a40131dab52fcee4fee9f22b9521efc1821a0b287c3332e4e42766",
+          "plan_fingerprint": "95a36fbaf390e06af7c0e05fc683adea",
+          "external_url": "https://gladiatornutrition.co.uk/products/3d-energy-drink?variant=57774589215094",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/3d-energy-drink?variant=57774589215094&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Spicy Mango",
+            "Size": "473ml"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Spicy Mango"
+            },
+            "physical_size": {
+              "source_key": "Size",
+              "source_value": "473ml",
+              "size_value": "473",
+              "size_unit": "ml"
+            },
+            "count": null
+          },
+          "source_structure": {
+            "product_variant_count": 7,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 2,
+          "external_product_id": "15719647379830",
+          "external_variant_id": "57774589247862",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1415",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "3D Energy",
+          "category": "Energy Drinks",
+          "product_name": "3D Energy Drink",
+          "variant_name": "Liberty Pop / 473ml",
+          "flavour": "Liberty Pop",
+          "size_value": "473",
+          "size_unit": "ml",
+          "pack_count": "1",
+          "product_format": "liquid",
+          "price": 2.75,
+          "in_stock": false,
+          "source_row_fingerprint": "7b89d7ed0649efee61aba77173778fde245ce716e9f8e866a21a729b3cfaeef2",
+          "plan_fingerprint": "56c63b5cb02914130c274bb68de4a2b0",
+          "external_url": "https://gladiatornutrition.co.uk/products/3d-energy-drink?variant=57774589247862",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/3d-energy-drink?variant=57774589247862&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Liberty Pop",
+            "Size": "473ml"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Liberty Pop"
+            },
+            "physical_size": {
+              "source_key": "Size",
+              "source_value": "473ml",
+              "size_value": "473",
+              "size_unit": "ml"
+            },
+            "count": null
+          },
+          "source_structure": {
+            "product_variant_count": 7,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 3,
+          "external_product_id": "15719647379830",
+          "external_variant_id": "57774589280630",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1415",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "3D Energy",
+          "category": "Energy Drinks",
+          "product_name": "3D Energy Drink",
+          "variant_name": "Blueberry Mist / 473ml",
+          "flavour": "Blueberry Mist",
+          "size_value": "473",
+          "size_unit": "ml",
+          "pack_count": "1",
+          "product_format": "liquid",
+          "price": 2.75,
+          "in_stock": false,
+          "source_row_fingerprint": "6da58f2c06672db55689e658b60a5d0a5e6d15fae44e843c0a1ca35c4b393181",
+          "plan_fingerprint": "99c3ab0ea274d2810d5f407e17d41308",
+          "external_url": "https://gladiatornutrition.co.uk/products/3d-energy-drink?variant=57774589280630",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/3d-energy-drink?variant=57774589280630&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Blueberry Mist",
+            "Size": "473ml"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Blueberry Mist"
+            },
+            "physical_size": {
+              "source_key": "Size",
+              "source_value": "473ml",
+              "size_value": "473",
+              "size_unit": "ml"
+            },
+            "count": null
+          },
+          "source_structure": {
+            "product_variant_count": 7,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 4,
+          "external_product_id": "15719647379830",
+          "external_variant_id": "57774589313398",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1415",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "3D Energy",
+          "category": "Energy Drinks",
+          "product_name": "3D Energy Drink",
+          "variant_name": "Cucumber Melon / 473ml",
+          "flavour": "Cucumber Melon",
+          "size_value": "473",
+          "size_unit": "ml",
+          "pack_count": "1",
+          "product_format": "liquid",
+          "price": 2.75,
+          "in_stock": false,
+          "source_row_fingerprint": "0b797af1631f9ac56fe04f206c9670a38cd1e6b2923d98e645451bbbcedf03e2",
+          "plan_fingerprint": "cd384fcfd06c345407c8249bf8958545",
+          "external_url": "https://gladiatornutrition.co.uk/products/3d-energy-drink?variant=57774589313398",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/3d-energy-drink?variant=57774589313398&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Cucumber Melon",
+            "Size": "473ml"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Cucumber Melon"
+            },
+            "physical_size": {
+              "source_key": "Size",
+              "source_value": "473ml",
+              "size_value": "473",
+              "size_unit": "ml"
+            },
+            "count": null
+          },
+          "source_structure": {
+            "product_variant_count": 7,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 5,
+          "external_product_id": "15719647379830",
+          "external_variant_id": "57774589378934",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1415",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "3D Energy",
+          "category": "Energy Drinks",
+          "product_name": "3D Energy Drink",
+          "variant_name": "Strawberry Lemonade / 473ml",
+          "flavour": "Strawberry Lemonade",
+          "size_value": "473",
+          "size_unit": "ml",
+          "pack_count": "1",
+          "product_format": "liquid",
+          "price": 2.75,
+          "in_stock": false,
+          "source_row_fingerprint": "40fa3e4554dc3486f7c2aa92a557706754a1b13b4009d8f925725d0fefb8d154",
+          "plan_fingerprint": "ff0b7362f1f282f866afceba57315623",
+          "external_url": "https://gladiatornutrition.co.uk/products/3d-energy-drink?variant=57774589378934",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/3d-energy-drink?variant=57774589378934&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Strawberry Lemonade",
+            "Size": "473ml"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Strawberry Lemonade"
+            },
+            "physical_size": {
+              "source_key": "Size",
+              "source_value": "473ml",
+              "size_value": "473",
+              "size_unit": "ml"
+            },
+            "count": null
+          },
+          "source_structure": {
+            "product_variant_count": 7,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 6,
+          "external_product_id": "15719647379830",
+          "external_variant_id": "57774589411702",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1415",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "3D Energy",
+          "category": "Energy Drinks",
+          "product_name": "3D Energy Drink",
+          "variant_name": "Citrus Forest / 473ml",
+          "flavour": "Citrus Forest",
+          "size_value": "473",
+          "size_unit": "ml",
+          "pack_count": "1",
+          "product_format": "liquid",
+          "price": 2.75,
+          "in_stock": true,
+          "source_row_fingerprint": "f20ec28a47c38770c8cc2ab5bbbd4ba08a891d12f90569ab8459a375fedef8e6",
+          "plan_fingerprint": "85e37fa1b56a423fbf14136b4cb70311",
+          "external_url": "https://gladiatornutrition.co.uk/products/3d-energy-drink?variant=57774589411702",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/3d-energy-drink?variant=57774589411702&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Citrus Forest",
+            "Size": "473ml"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Citrus Forest"
+            },
+            "physical_size": {
+              "source_key": "Size",
+              "source_value": "473ml",
+              "size_value": "473",
+              "size_unit": "ml"
+            },
+            "count": null
+          },
+          "source_structure": {
+            "product_variant_count": 7,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        }
+      ]
+    }
+  ]
+}
