@@ -1,0 +1,1441 @@
+{
+  "schema_version": 1,
+  "kind": "gladiator-nutrition-parent-unlock-review-v1",
+  "status": "PREPARATION_ONLY",
+  "executable": false,
+  "database_writes_authorized": false,
+  "approvals_authorized": false,
+  "apply_authorized": false,
+  "migrations_authorized": false,
+  "staging_writes_authorized": false,
+  "production_writes_authorized": false,
+  "automation_authorized": false,
+  "generated_at": "2026-10-21T08:05:47.688Z",
+  "base_commit": "ad8adb6ab3a2683dd767b30ec9dab85e70586bdc",
+  "branch": "prep/gladiator-parent-unlock-review-v1",
+  "purpose": "Non-executable family-level owner decision triage. It contains no DB approval plans, CSV, artifact or apply authority.",
+  "source_ab": {
+    "transport": "NODE_USE_SYSTEM_CA=1; TLS certificate and hostname verification enabled",
+    "capture_a": {
+      "captured_at": "2026-10-21T07:53:13.662Z",
+      "page_count": 1,
+      "product_count": 155,
+      "variant_count": 852,
+      "in_stock_count": 471,
+      "out_of_stock_count": 381,
+      "identity_fingerprint": "a7102858f30c8c34f8bbf45c8bf75143111c1be1063517511d8cc1c6020895cb",
+      "semantic_fingerprint": "042a167734fc319e3a039a9e128753a814da1a3e5c3891c73a005307024c4efb",
+      "commercial_fingerprint": "19fca41d694a5c696ea038263842f7c30e1af6916810dab5bc8f68f7770f02fc"
+    },
+    "capture_b": {
+      "captured_at": "2026-10-21T07:53:14.166Z",
+      "page_count": 1,
+      "product_count": 155,
+      "variant_count": 852,
+      "in_stock_count": 471,
+      "out_of_stock_count": 381,
+      "identity_fingerprint": "a7102858f30c8c34f8bbf45c8bf75143111c1be1063517511d8cc1c6020895cb",
+      "semantic_fingerprint": "042a167734fc319e3a039a9e128753a814da1a3e5c3891c73a005307024c4efb",
+      "commercial_fingerprint": "19fca41d694a5c696ea038263842f7c30e1af6916810dab5bc8f68f7770f02fc"
+    },
+    "comparison": {
+      "product_identity_match": true,
+      "variant_identity_match": true,
+      "semantic_match": true,
+      "commercial_match": true
+    }
+  },
+  "production_readback": {
+    "captured_at": "2026-10-21T07:53:45.718Z",
+    "tls": "verify-full with trusted CA and hostname verification",
+    "transaction": "BEGIN READ ONLY / ROLLBACK",
+    "identity": {
+      "current_user": "postgres",
+      "session_user": "postgres",
+      "current_role": "postgres",
+      "transaction_read_only": "on",
+      "safe_update": null
+    },
+    "ledger": 245,
+    "ledger_fingerprint": "7cf0280778830f919c3ed81ea9c98d4efaa689392ab7a9d5c65ed673c3d51163",
+    "gladiator_retailer_id": 15,
+    "gladiator_mappings": 332,
+    "gladiator_offers": 332,
+    "gladiator_price_history": 332,
+    "integrity": {
+      "duplicate_external_variant_ids": 0,
+      "source_missing_mappings": 0,
+      "invalid_canonical_targets": 0,
+      "missing_offers": 0,
+      "mappings_without_exactly_one_price_history_row": 0
+    },
+    "database_writes": 0
+  },
+  "current_catalogue_reconciliation": {
+    "source_variant_count": 852,
+    "status_counts": {
+      "ALREADY_MAPPED": 332,
+      "SAFE_MAP_EXISTING_VARIANT": 0,
+      "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT": 3,
+      "SAFE_CREATE_NEW_PRODUCT_ANCHOR": 0,
+      "SAFE_CREATE_STANDALONE_PRODUCT": 0,
+      "DEPENDENT_SIBLING_WAITING_FOR_PARENT": 62,
+      "REVIEW_CANONICAL_MATCH": 279,
+      "REVIEW_IDENTITY_OR_OPTIONS": 131,
+      "HELD_CURRENT_POLICY": 23,
+      "HELD_OOS_NEW_PARENT": 12,
+      "EXCLUDE_EXPLICIT_POLICY": 10,
+      "BLOCKED": 0
+    },
+    "parity": 852,
+    "baseline_transition": {
+      "expected_baseline_dependent": 65,
+      "current_dependent": 62,
+      "reason": "Three Ghost Amino V2 rows moved naturally to SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT because the live canonical parent now exists."
+    },
+    "new_safe_rows": [
+      {
+        "external_product_id": "5242089209901",
+        "external_variant_id": "34950659637293",
+        "source_family_name": "Ghost Amino V2 BCAA/EAA",
+        "source_variant_title": "Blue Raspberry / 40 Servings / 422g",
+        "raw_external_options": {
+          "Flavour": "Blue Raspberry",
+          "Size": "40 Servings",
+          "Weight": "422g"
+        },
+        "in_stock": false,
+        "price": 31.99,
+        "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+        "canonical_product_id": "346",
+        "canonical_product_name": "Ghost Amino V2",
+        "proof": "Existing generic V3 planner PASS: product existing 346, variant create, 0 blocked; no package generated."
+      },
+      {
+        "external_product_id": "5242089209901",
+        "external_variant_id": "34950659670061",
+        "source_family_name": "Ghost Amino V2 BCAA/EAA",
+        "source_variant_title": "Welchs grape / 40 Servings / 422g",
+        "raw_external_options": {
+          "Flavour": "Welchs grape",
+          "Size": "40 Servings",
+          "Weight": "422g"
+        },
+        "in_stock": false,
+        "price": 31.99,
+        "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+        "canonical_product_id": "346",
+        "canonical_product_name": "Ghost Amino V2",
+        "proof": "Existing generic V3 planner PASS: product existing 346, variant create, 0 blocked; no package generated."
+      },
+      {
+        "external_product_id": "5242089209901",
+        "external_variant_id": "40067445686317",
+        "source_family_name": "Ghost Amino V2 BCAA/EAA",
+        "source_variant_title": "Mango / 40 Servings / 422g",
+        "raw_external_options": {
+          "Flavour": "Mango",
+          "Size": "40 Servings",
+          "Weight": "422g"
+        },
+        "in_stock": false,
+        "price": 31.99,
+        "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+        "canonical_product_id": "346",
+        "canonical_product_name": "Ghost Amino V2",
+        "proof": "Existing generic V3 planner PASS: product existing 346, variant create, 0 blocked; no package generated."
+      }
+    ],
+    "packaging_or_execution_performed": false
+  },
+  "parent_unlock": {
+    "dependent_row_count": 62,
+    "dependent_family_count": 14,
+    "all_dependent_rows_accounted_for_once": true,
+    "families": [
+      {
+        "source_family_name": "3D Energy Drink",
+        "external_product_id": "15719647379830",
+        "total_current_variants": 7,
+        "already_mapped_variants": 0,
+        "dependent_variants": 6,
+        "review_variants": 0,
+        "held_variants": 1,
+        "excluded_variants": 0,
+        "in_stock_variants": 2,
+        "out_of_stock_variants": 5,
+        "canonical_parent_exists": false,
+        "dependent_external_variant_ids": [
+          "57774589247862",
+          "57774589280630",
+          "57774589313398",
+          "57774589346166",
+          "57774589378934",
+          "57774589411702"
+        ],
+        "unlock_classification": "A_OWNER_REVIEW_CAN_RESOLVE",
+        "priority": "P0_UNLOCK",
+        "unlock_count": 5,
+        "dependent_rows_resolved_after_anchor_and_sibling_wave": 6,
+        "candidate_anchor": {
+          "external_variant_id": "57774589346166",
+          "variant_title": "Watermelon Grape / 473ml",
+          "price": 2.75,
+          "in_stock": true,
+          "raw_external_options": {
+            "Flavour": "Watermelon Grape",
+            "Size": "473ml"
+          },
+          "current_classification": "DEPENDENT_SIBLING_WAITING_FOR_PARENT",
+          "current_planner_or_review_reason": "reviewed source family still has no live canonical parent; waits behind one safe anchor",
+          "candidate_canonical_match": {
+            "status": "NEW_PRODUCT_REVIEW",
+            "reason": "NEW_PRODUCT_REVIEW",
+            "canonical_product_id": null,
+            "canonical_product_name": null,
+            "canonical_variant_id": null,
+            "canonical_variant_name": null,
+            "top_candidates": []
+          },
+          "confidence_and_evidence": "Exact Shopify title and vendor; structured Flavour + 473ml; current matcher finds no credible canonical collision; an in-stock row exists.",
+          "why_not_currently_executable": "Exact new canonical identity/category/format has not been owner-confirmed; no approval exists.",
+          "proposed_new_canonical_identity": {
+            "name": "3D Energy Drink",
+            "slug": "3d-energy-drink",
+            "brand": "3D Energy",
+            "category": "Energy Drinks",
+            "product_format": "liquid",
+            "variant_display_name": "Watermelon Grape / 473ml",
+            "flavour": "Watermelon Grape",
+            "size_value": "473",
+            "size_unit": "ml",
+            "pack_count": 1
+          }
+        }
+      },
+      {
+        "source_family_name": "TBJP Oats So Creamy",
+        "external_product_id": "15906051490166",
+        "total_current_variants": 19,
+        "already_mapped_variants": 0,
+        "dependent_variants": 18,
+        "review_variants": 0,
+        "held_variants": 1,
+        "excluded_variants": 0,
+        "in_stock_variants": 4,
+        "out_of_stock_variants": 15,
+        "canonical_parent_exists": false,
+        "dependent_external_variant_ids": [
+          "58853967593846",
+          "58853967626614",
+          "58853967659382",
+          "58853967692150",
+          "58853967724918",
+          "58853967757686",
+          "58853967790454",
+          "58853967823222",
+          "58853967855990",
+          "58853967888758",
+          "58853967921526",
+          "58853967954294",
+          "58853967987062",
+          "58853968019830",
+          "58853968052598",
+          "58853968085366",
+          "58853968118134",
+          "58853968150902"
+        ],
+        "unlock_classification": "B_CURRENT_SOURCE_EVIDENCE_INSUFFICIENT",
+        "priority": "DEFER",
+        "unlock_count": 18,
+        "dependent_rows_resolved_after_anchor_and_sibling_wave": 18,
+        "candidate_anchor": {
+          "external_variant_id": "58853967561078",
+          "variant_title": "Milk Chocolate Salted Caramel",
+          "price": 17.99,
+          "in_stock": true,
+          "raw_external_options": {
+            "Flavour": "Milk Chocolate Salted Caramel"
+          },
+          "current_classification": "HELD_CURRENT_POLICY",
+          "current_planner_or_review_reason": "SOURCE_HAS_NO_UNAMBIGUOUS_SIZE_OR_UNIT_COUNT_EVIDENCE",
+          "candidate_canonical_match": {
+            "status": "NEW_PRODUCT_REVIEW",
+            "reason": "NEW_PRODUCT_REVIEW",
+            "canonical_product_id": null,
+            "canonical_product_name": null,
+            "canonical_variant_id": null,
+            "canonical_variant_name": null,
+            "top_candidates": []
+          },
+          "confidence_and_evidence": "Exact Shopify family, vendor and flavour are present, but neither structured options nor reliable source evidence provides physical size or unit count.",
+          "why_not_currently_executable": "Owner review cannot safely invent the missing size/count identity.",
+          "proposed_new_canonical_identity": null
+        }
+      },
+      {
+        "source_family_name": "Xtremis Cartel El Jefe High Stim Pre Workout",
+        "external_product_id": "7301033525293",
+        "total_current_variants": 9,
+        "already_mapped_variants": 0,
+        "dependent_variants": 8,
+        "review_variants": 0,
+        "held_variants": 1,
+        "excluded_variants": 0,
+        "in_stock_variants": 0,
+        "out_of_stock_variants": 9,
+        "canonical_parent_exists": false,
+        "dependent_external_variant_ids": [
+          "41395566018605",
+          "42157339213869",
+          "53551898984822",
+          "55448847122806",
+          "55887619326326",
+          "56909693190518",
+          "56909693223286",
+          "57857459683702"
+        ],
+        "unlock_classification": "E_OOS_PARENT_WAIT",
+        "priority": "DEFER",
+        "unlock_count": 8,
+        "dependent_rows_resolved_after_anchor_and_sibling_wave": 8,
+        "candidate_anchor": {
+          "external_variant_id": "41395565985837",
+          "variant_title": "Sour Gummy Bear / 40/20 Servings / 460g",
+          "price": 43.99,
+          "in_stock": false,
+          "raw_external_options": {
+            "Flavour": "Sour Gummy Bear",
+            "Size": "40/20 Servings",
+            "Weight ": "460g"
+          },
+          "current_classification": "HELD_OOS_NEW_PARENT",
+          "current_planner_or_review_reason": "current source remains out of stock and the canonical parent is absent",
+          "candidate_canonical_match": {
+            "status": "NEW_PRODUCT_REVIEW",
+            "reason": "NEW_PRODUCT_REVIEW",
+            "canonical_product_id": null,
+            "canonical_product_name": null,
+            "canonical_variant_id": null,
+            "canonical_variant_name": null,
+            "top_candidates": []
+          },
+          "confidence_and_evidence": "Exact family/vendor/options are present and the current matcher reports NEW_PRODUCT_REVIEW with no competing canonical candidate.",
+          "why_not_currently_executable": "Every current source row in the family is out of stock and no canonical parent exists.",
+          "proposed_new_canonical_identity": null
+        }
+      },
+      {
+        "source_family_name": "Xtremis Cartel Sicario Pump Pre Workout",
+        "external_product_id": "7301077270573",
+        "total_current_variants": 8,
+        "already_mapped_variants": 0,
+        "dependent_variants": 7,
+        "review_variants": 0,
+        "held_variants": 1,
+        "excluded_variants": 0,
+        "in_stock_variants": 0,
+        "out_of_stock_variants": 8,
+        "canonical_parent_exists": false,
+        "dependent_external_variant_ids": [
+          "55127502127478",
+          "55127502160246",
+          "55887342862710",
+          "57103907357046",
+          "57857453064566",
+          "57857453097334",
+          "58067492634998"
+        ],
+        "unlock_classification": "E_OOS_PARENT_WAIT",
+        "priority": "DEFER",
+        "unlock_count": 7,
+        "dependent_rows_resolved_after_anchor_and_sibling_wave": 7,
+        "candidate_anchor": {
+          "external_variant_id": "41395628310573",
+          "variant_title": "Blue Razz Lemonade / 40/20 Servings / 709g",
+          "price": 43.99,
+          "in_stock": false,
+          "raw_external_options": {
+            "Flavour": "Blue Razz Lemonade",
+            "Size": "40/20 Servings",
+            "Weight": "709g"
+          },
+          "current_classification": "HELD_OOS_NEW_PARENT",
+          "current_planner_or_review_reason": "current source remains out of stock and the canonical parent is absent",
+          "candidate_canonical_match": {
+            "status": "NEW_PRODUCT_REVIEW",
+            "reason": "NEW_PRODUCT_REVIEW",
+            "canonical_product_id": null,
+            "canonical_product_name": null,
+            "canonical_variant_id": null,
+            "canonical_variant_name": null,
+            "top_candidates": []
+          },
+          "confidence_and_evidence": "Exact family/vendor/options are present and the current matcher reports NEW_PRODUCT_REVIEW with no competing canonical candidate.",
+          "why_not_currently_executable": "Every current source row in the family is out of stock and no canonical parent exists.",
+          "proposed_new_canonical_identity": null
+        }
+      },
+      {
+        "source_family_name": "Ghost Lifestyle Intra EAA & Hydration",
+        "external_product_id": "15259571945846",
+        "total_current_variants": 6,
+        "already_mapped_variants": 0,
+        "dependent_variants": 5,
+        "review_variants": 0,
+        "held_variants": 1,
+        "excluded_variants": 0,
+        "in_stock_variants": 0,
+        "out_of_stock_variants": 6,
+        "canonical_parent_exists": false,
+        "dependent_external_variant_ids": [
+          "55944012759414",
+          "55944012792182",
+          "55944012824950",
+          "55944012857718",
+          "55944018461046"
+        ],
+        "unlock_classification": "E_OOS_PARENT_WAIT",
+        "priority": "DEFER",
+        "unlock_count": 5,
+        "dependent_rows_resolved_after_anchor_and_sibling_wave": 5,
+        "candidate_anchor": {
+          "external_variant_id": "55944012726646",
+          "variant_title": "Iced Tea Lemonade / 20 Servings / 440g",
+          "price": 29.99,
+          "in_stock": false,
+          "raw_external_options": {
+            "Flavour": "Iced Tea Lemonade",
+            "Size": "20 Servings",
+            "Weight": "440g"
+          },
+          "current_classification": "HELD_OOS_NEW_PARENT",
+          "current_planner_or_review_reason": "current source remains out of stock and the canonical parent is absent",
+          "candidate_canonical_match": {
+            "status": "NEW_PRODUCT_REVIEW",
+            "reason": "NEW_PRODUCT_REVIEW",
+            "canonical_product_id": null,
+            "canonical_product_name": null,
+            "canonical_variant_id": null,
+            "canonical_variant_name": null,
+            "top_candidates": []
+          },
+          "confidence_and_evidence": "Exact family/vendor/options are present and the current matcher reports NEW_PRODUCT_REVIEW with no competing canonical candidate.",
+          "why_not_currently_executable": "Every current source row in the family is out of stock and no canonical parent exists.",
+          "proposed_new_canonical_identity": null
+        }
+      },
+      {
+        "source_family_name": "Condemned Convict V2 High Stim Pre Workout",
+        "external_product_id": "7890481446957",
+        "total_current_variants": 4,
+        "already_mapped_variants": 0,
+        "dependent_variants": 3,
+        "review_variants": 0,
+        "held_variants": 1,
+        "excluded_variants": 0,
+        "in_stock_variants": 0,
+        "out_of_stock_variants": 4,
+        "canonical_parent_exists": false,
+        "dependent_external_variant_ids": [
+          "42627715170349",
+          "42627715203117",
+          "42627715235885"
+        ],
+        "unlock_classification": "E_OOS_PARENT_WAIT",
+        "priority": "DEFER",
+        "unlock_count": 3,
+        "dependent_rows_resolved_after_anchor_and_sibling_wave": 3,
+        "candidate_anchor": {
+          "external_variant_id": "42627715137581",
+          "variant_title": "Watermelon / 25 Servings / 418.75g",
+          "price": 42.99,
+          "in_stock": false,
+          "raw_external_options": {
+            "Flavour": "Watermelon",
+            "Size": "25 Servings",
+            "Weight": "418.75g"
+          },
+          "current_classification": "HELD_OOS_NEW_PARENT",
+          "current_planner_or_review_reason": "current source remains out of stock and the canonical parent is absent",
+          "candidate_canonical_match": {
+            "status": "NEW_PRODUCT_REVIEW",
+            "reason": "NEW_PRODUCT_REVIEW",
+            "canonical_product_id": null,
+            "canonical_product_name": null,
+            "canonical_variant_id": null,
+            "canonical_variant_name": null,
+            "top_candidates": []
+          },
+          "confidence_and_evidence": "Exact family/vendor/options are present and the current matcher reports NEW_PRODUCT_REVIEW with no competing canonical candidate.",
+          "why_not_currently_executable": "Every current source row in the family is out of stock and no canonical parent exists.",
+          "proposed_new_canonical_identity": null
+        }
+      },
+      {
+        "source_family_name": "KiloLabs Stim Thug Extreme Pre-Workout",
+        "external_product_id": "14652995764598",
+        "total_current_variants": 4,
+        "already_mapped_variants": 0,
+        "dependent_variants": 3,
+        "review_variants": 0,
+        "held_variants": 1,
+        "excluded_variants": 0,
+        "in_stock_variants": 0,
+        "out_of_stock_variants": 4,
+        "canonical_parent_exists": false,
+        "dependent_external_variant_ids": [
+          "53558698508662",
+          "53558698541430",
+          "53558698574198"
+        ],
+        "unlock_classification": "F_TRUE_CANONICAL_AMBIGUITY",
+        "priority": "DEFER",
+        "unlock_count": 3,
+        "dependent_rows_resolved_after_anchor_and_sibling_wave": 3,
+        "candidate_anchor": {
+          "external_variant_id": "53558698475894",
+          "variant_title": "Mother Pucker (Raspberry/Lemonade) / 20 Servings / 344g",
+          "price": 41.99,
+          "in_stock": false,
+          "raw_external_options": {
+            "Flavour": "Mother Pucker (Raspberry/Lemonade)",
+            "Size": "20 Servings",
+            "Weight": "344g"
+          },
+          "current_classification": "HELD_OOS_NEW_PARENT",
+          "current_planner_or_review_reason": "current source remains out of stock and the canonical parent is absent",
+          "candidate_canonical_match": {
+            "status": "AMBIGUOUS_REVIEW",
+            "reason": "AMBIGUOUS_REVIEW",
+            "canonical_product_id": null,
+            "canonical_product_name": null,
+            "canonical_variant_id": null,
+            "canonical_variant_name": null,
+            "top_candidates": [
+              {
+                "product_id": "1393",
+                "name": "KiloLabs Stim Thugga Extreme Pre-Workout",
+                "brand": "KiloLabs",
+                "score": 74.6667,
+                "name_similarity": 0.8333,
+                "exact_name": false,
+                "exact_signature": false,
+                "brand_match": true,
+                "size_match": null,
+                "format_match": null,
+                "matched_name": "KiloLabs Stim Thugga Extreme Pre-Workout",
+                "matched_name_source": "canonical"
+              }
+            ]
+          },
+          "confidence_and_evidence": "Current catalogue product 1393 'KiloLabs Stim Thugga Extreme Pre-Workout' is a plausible non-exact candidate (score 74.6667) for source 'Stim Thug Extreme'.",
+          "why_not_currently_executable": "Existing product 1393 versus a distinct new family cannot be resolved from current exact evidence; source is also wholly OOS.",
+          "proposed_new_canonical_identity": null
+        }
+      },
+      {
+        "source_family_name": "Alpha Lion Supreme Pre Workout",
+        "external_product_id": "7459039150125",
+        "total_current_variants": 3,
+        "already_mapped_variants": 0,
+        "dependent_variants": 2,
+        "review_variants": 0,
+        "held_variants": 1,
+        "excluded_variants": 0,
+        "in_stock_variants": 0,
+        "out_of_stock_variants": 3,
+        "canonical_parent_exists": false,
+        "dependent_external_variant_ids": [
+          "41649705386029",
+          "41649705418797"
+        ],
+        "unlock_classification": "E_OOS_PARENT_WAIT",
+        "priority": "DEFER",
+        "unlock_count": 2,
+        "dependent_rows_resolved_after_anchor_and_sibling_wave": 2,
+        "candidate_anchor": {
+          "external_variant_id": "41649705353261",
+          "variant_title": "Cherry Popper / 21 Servings / 357g",
+          "price": 45.99,
+          "in_stock": false,
+          "raw_external_options": {
+            "Flavour": "Cherry Popper",
+            "Size": "21 Servings",
+            "Weight": "357g"
+          },
+          "current_classification": "HELD_OOS_NEW_PARENT",
+          "current_planner_or_review_reason": "current source remains out of stock and the canonical parent is absent",
+          "candidate_canonical_match": {
+            "status": "NEW_PRODUCT_REVIEW",
+            "reason": "NEW_PRODUCT_REVIEW",
+            "canonical_product_id": null,
+            "canonical_product_name": null,
+            "canonical_variant_id": null,
+            "canonical_variant_name": null,
+            "top_candidates": []
+          },
+          "confidence_and_evidence": "Exact family/vendor/options are present and the current matcher reports NEW_PRODUCT_REVIEW with no competing canonical candidate.",
+          "why_not_currently_executable": "Every current source row in the family is out of stock and no canonical parent exists.",
+          "proposed_new_canonical_identity": null
+        }
+      },
+      {
+        "source_family_name": "Endure Electrolyte & Energy Drink",
+        "external_product_id": "15805907140982",
+        "total_current_variants": 6,
+        "already_mapped_variants": 0,
+        "dependent_variants": 2,
+        "review_variants": 3,
+        "held_variants": 1,
+        "excluded_variants": 0,
+        "in_stock_variants": 6,
+        "out_of_stock_variants": 0,
+        "canonical_parent_exists": false,
+        "dependent_external_variant_ids": [
+          "58268718301558",
+          "58268718334326"
+        ],
+        "unlock_classification": "B_CURRENT_SOURCE_EVIDENCE_INSUFFICIENT",
+        "priority": "DEFER",
+        "unlock_count": 2,
+        "dependent_rows_resolved_after_anchor_and_sibling_wave": 2,
+        "candidate_anchor": {
+          "external_variant_id": "58268718268790",
+          "variant_title": "Tropical",
+          "price": 2,
+          "in_stock": true,
+          "raw_external_options": {
+            "Flavour": "Tropical"
+          },
+          "current_classification": "HELD_CURRENT_POLICY",
+          "current_planner_or_review_reason": "SOURCE_HAS_NO_UNAMBIGUOUS_SIZE_OR_UNIT_COUNT_EVIDENCE",
+          "candidate_canonical_match": {
+            "status": "NEW_PRODUCT_REVIEW",
+            "reason": "NEW_PRODUCT_REVIEW",
+            "canonical_product_id": null,
+            "canonical_product_name": null,
+            "canonical_variant_id": null,
+            "canonical_variant_name": null,
+            "top_candidates": []
+          },
+          "confidence_and_evidence": "Exact family/vendor/flavour are present; single-can rows have no structured size/count and case count is embedded in flavour text.",
+          "why_not_currently_executable": "The source does not prove the physical can size needed for a canonical anchor.",
+          "proposed_new_canonical_identity": null
+        }
+      },
+      {
+        "source_family_name": "TWP Nutrition Hydraplenish Electrolyte/Hydration Sachet",
+        "external_product_id": "15331478962550",
+        "total_current_variants": 4,
+        "already_mapped_variants": 0,
+        "dependent_variants": 2,
+        "review_variants": 1,
+        "held_variants": 1,
+        "excluded_variants": 0,
+        "in_stock_variants": 4,
+        "out_of_stock_variants": 0,
+        "canonical_parent_exists": false,
+        "dependent_external_variant_ids": [
+          "56240449192310",
+          "56240449225078"
+        ],
+        "unlock_classification": "D_GENERIC_ARCHITECTURE_GAP",
+        "priority": "DEFER",
+        "unlock_count": 2,
+        "dependent_rows_resolved_after_anchor_and_sibling_wave": 2,
+        "candidate_anchor": {
+          "external_variant_id": "56240449159542",
+          "variant_title": "Pineapple Coconut / 1 Sachet = 1 Serving",
+          "price": 1.5,
+          "in_stock": true,
+          "raw_external_options": {
+            "Flavour": "Pineapple Coconut",
+            "Size": "1 Sachet = 1 Serving"
+          },
+          "current_classification": "HELD_CURRENT_POLICY",
+          "current_planner_or_review_reason": "COMPOSITE_SACHET_COUNT_SYNTAX_NOT_SUPPORTED_BY_CURRENT_GENERIC_OPTION_ROLE_PARSER",
+          "candidate_canonical_match": {
+            "status": "NEW_PRODUCT_REVIEW",
+            "reason": "NEW_PRODUCT_REVIEW",
+            "canonical_product_id": null,
+            "canonical_product_name": null,
+            "canonical_variant_id": null,
+            "canonical_variant_name": null,
+            "top_candidates": []
+          },
+          "confidence_and_evidence": "Shopify provides Flavour plus the exact composite Size value '1 Sachet = 1 Serving'.",
+          "why_not_currently_executable": "The current generic option-role parser cannot represent this composite sachet/count syntax without special treatment.",
+          "proposed_new_canonical_identity": null
+        }
+      },
+      {
+        "source_family_name": "TWP Nutrition Sweaat Hydration/Recovery Sachet",
+        "external_product_id": "15331778003318",
+        "total_current_variants": 4,
+        "already_mapped_variants": 0,
+        "dependent_variants": 2,
+        "review_variants": 1,
+        "held_variants": 1,
+        "excluded_variants": 0,
+        "in_stock_variants": 4,
+        "out_of_stock_variants": 0,
+        "canonical_parent_exists": false,
+        "dependent_external_variant_ids": [
+          "56241122115958",
+          "56241122148726"
+        ],
+        "unlock_classification": "F_TRUE_CANONICAL_AMBIGUITY",
+        "priority": "DEFER",
+        "unlock_count": 2,
+        "dependent_rows_resolved_after_anchor_and_sibling_wave": 2,
+        "candidate_anchor": {
+          "external_variant_id": "56241122083190",
+          "variant_title": "Jakked Baby / 1 Sachet = 1 Serving",
+          "price": 1.5,
+          "in_stock": true,
+          "raw_external_options": {
+            "Flavour": "Jakked Baby",
+            "Size": "1 Sachet = 1 Serving"
+          },
+          "current_classification": "HELD_CURRENT_POLICY",
+          "current_planner_or_review_reason": "COMPOSITE_SACHET_COUNT_SYNTAX_NOT_SUPPORTED_BY_CURRENT_GENERIC_OPTION_ROLE_PARSER",
+          "candidate_canonical_match": {
+            "status": "AMBIGUOUS_REVIEW",
+            "reason": "AMBIGUOUS_REVIEW",
+            "canonical_product_id": null,
+            "canonical_product_name": null,
+            "canonical_variant_id": null,
+            "canonical_variant_name": null,
+            "top_candidates": [
+              {
+                "product_id": "1402",
+                "name": "TWP Nutrition SWEAAT EAA Hydration",
+                "brand": "TWP Nutrition",
+                "score": 56.1818,
+                "name_similarity": 0.7273,
+                "exact_name": false,
+                "exact_signature": false,
+                "brand_match": true,
+                "size_match": null,
+                "format_match": false,
+                "matched_name": "TWP Nutrition SWEAAT EAA Hydration",
+                "matched_name_source": "canonical"
+              }
+            ]
+          },
+          "confidence_and_evidence": "The source is a SWEAAT hydration/recovery sachet; current catalogue product 1402 'TWP Nutrition SWEAAT EAA Hydration' is a plausible but non-exact candidate (score 56.1818, format mismatch).",
+          "why_not_currently_executable": "A separate sachet family and a variant of product 1402 are both plausible; composite sachet syntax is also unsupported today.",
+          "proposed_new_canonical_identity": null
+        }
+      },
+      {
+        "source_family_name": "Xtremis Cartel El Jefe Limited Edition Pre Workout",
+        "external_product_id": "15872513737078",
+        "total_current_variants": 3,
+        "already_mapped_variants": 0,
+        "dependent_variants": 2,
+        "review_variants": 0,
+        "held_variants": 1,
+        "excluded_variants": 0,
+        "in_stock_variants": 0,
+        "out_of_stock_variants": 3,
+        "canonical_parent_exists": false,
+        "dependent_external_variant_ids": [
+          "58659085812086",
+          "58659085844854"
+        ],
+        "unlock_classification": "E_OOS_PARENT_WAIT",
+        "priority": "DEFER",
+        "unlock_count": 2,
+        "dependent_rows_resolved_after_anchor_and_sibling_wave": 2,
+        "candidate_anchor": {
+          "external_variant_id": "58659085779318",
+          "variant_title": "Blue Lemonade / 40/20 Servings / 601g",
+          "price": 49.99,
+          "in_stock": false,
+          "raw_external_options": {
+            "Flavour": "Blue Lemonade",
+            "Size": "40/20 Servings",
+            "Weight": "601g"
+          },
+          "current_classification": "HELD_OOS_NEW_PARENT",
+          "current_planner_or_review_reason": "current source remains out of stock and the canonical parent is absent",
+          "candidate_canonical_match": {
+            "status": "NEW_PRODUCT_REVIEW",
+            "reason": "NEW_PRODUCT_REVIEW",
+            "canonical_product_id": null,
+            "canonical_product_name": null,
+            "canonical_variant_id": null,
+            "canonical_variant_name": null,
+            "top_candidates": []
+          },
+          "confidence_and_evidence": "Exact family/vendor/options are present and the current matcher reports NEW_PRODUCT_REVIEW with no competing canonical candidate.",
+          "why_not_currently_executable": "Every current source row in the family is out of stock and no canonical parent exists.",
+          "proposed_new_canonical_identity": null
+        }
+      },
+      {
+        "source_family_name": "Dark Labs Crack Pre-Workout",
+        "external_product_id": "15287389880694",
+        "total_current_variants": 2,
+        "already_mapped_variants": 0,
+        "dependent_variants": 1,
+        "review_variants": 0,
+        "held_variants": 1,
+        "excluded_variants": 0,
+        "in_stock_variants": 0,
+        "out_of_stock_variants": 2,
+        "canonical_parent_exists": false,
+        "dependent_external_variant_ids": [
+          "56061091545462"
+        ],
+        "unlock_classification": "E_OOS_PARENT_WAIT",
+        "priority": "DEFER",
+        "unlock_count": 1,
+        "dependent_rows_resolved_after_anchor_and_sibling_wave": 1,
+        "candidate_anchor": {
+          "external_variant_id": "56061091512694",
+          "variant_title": "Very Dark Berry / 40/20 Servings / 412g",
+          "price": 48.99,
+          "in_stock": false,
+          "raw_external_options": {
+            "Flavour": "Very Dark Berry",
+            "Size": "40/20 Servings",
+            "Weight": "412g"
+          },
+          "current_classification": "HELD_OOS_NEW_PARENT",
+          "current_planner_or_review_reason": "current source remains out of stock and the canonical parent is absent",
+          "candidate_canonical_match": {
+            "status": "NEW_PRODUCT_REVIEW",
+            "reason": "NEW_PRODUCT_REVIEW",
+            "canonical_product_id": null,
+            "canonical_product_name": null,
+            "canonical_variant_id": null,
+            "canonical_variant_name": null,
+            "top_candidates": []
+          },
+          "confidence_and_evidence": "Exact family/vendor/options are present and the current matcher reports NEW_PRODUCT_REVIEW with no competing canonical candidate.",
+          "why_not_currently_executable": "Every current source row in the family is out of stock and no canonical parent exists.",
+          "proposed_new_canonical_identity": null
+        }
+      },
+      {
+        "source_family_name": "Olympic Weight Plates 2inch\"",
+        "external_product_id": "7469566984237",
+        "total_current_variants": 2,
+        "already_mapped_variants": 0,
+        "dependent_variants": 1,
+        "review_variants": 0,
+        "held_variants": 1,
+        "excluded_variants": 0,
+        "in_stock_variants": 2,
+        "out_of_stock_variants": 0,
+        "canonical_parent_exists": false,
+        "dependent_external_variant_ids": [
+          "41673071755309"
+        ],
+        "unlock_classification": "D_GENERIC_ARCHITECTURE_GAP",
+        "priority": "DEFER",
+        "unlock_count": 1,
+        "dependent_rows_resolved_after_anchor_and_sibling_wave": 1,
+        "candidate_anchor": {
+          "external_variant_id": "41673071722541",
+          "variant_title": "20kg",
+          "price": 29.99,
+          "in_stock": true,
+          "raw_external_options": {
+            "Weight": "20kg"
+          },
+          "current_classification": "HELD_CURRENT_POLICY",
+          "current_planner_or_review_reason": "NON_FLAVOUR_WEIGHT_AXIS_NOT_SUPPORTED_BY_CURRENT_EXPLICIT_VARIANT_PATH",
+          "candidate_canonical_match": {
+            "status": "NEW_PRODUCT_REVIEW",
+            "reason": "NEW_PRODUCT_REVIEW",
+            "canonical_product_id": null,
+            "canonical_product_name": null,
+            "canonical_variant_id": null,
+            "canonical_variant_name": null,
+            "top_candidates": []
+          },
+          "confidence_and_evidence": "Shopify provides exact 20kg/25kg weight options for one equipment family.",
+          "why_not_currently_executable": "The current explicit variant path does not safely model a non-flavour weight axis.",
+          "proposed_new_canonical_identity": null
+        }
+      }
+    ],
+    "classification_summary": {
+      "A_OWNER_REVIEW_CAN_RESOLVE": {
+        "family_count": 1,
+        "dependent_row_count": 6,
+        "external_product_ids": [
+          "15719647379830"
+        ]
+      },
+      "B_CURRENT_SOURCE_EVIDENCE_INSUFFICIENT": {
+        "family_count": 2,
+        "dependent_row_count": 20,
+        "external_product_ids": [
+          "15906051490166",
+          "15805907140982"
+        ]
+      },
+      "C_CURRENT_POLICY_HOLD": {
+        "family_count": 0,
+        "dependent_row_count": 0,
+        "external_product_ids": []
+      },
+      "D_GENERIC_ARCHITECTURE_GAP": {
+        "family_count": 2,
+        "dependent_row_count": 3,
+        "external_product_ids": [
+          "15331478962550",
+          "7469566984237"
+        ]
+      },
+      "E_OOS_PARENT_WAIT": {
+        "family_count": 7,
+        "dependent_row_count": 28,
+        "external_product_ids": [
+          "7301033525293",
+          "7301077270573",
+          "15259571945846",
+          "7890481446957",
+          "7459039150125",
+          "15872513737078",
+          "15287389880694"
+        ]
+      },
+      "F_TRUE_CANONICAL_AMBIGUITY": {
+        "family_count": 2,
+        "dependent_row_count": 5,
+        "external_product_ids": [
+          "14652995764598",
+          "15331778003318"
+        ]
+      }
+    },
+    "priorities": {
+      "P0_UNLOCK": {
+        "family_count": 1,
+        "total_unlock_count": 5,
+        "external_product_ids": [
+          "15719647379830"
+        ]
+      },
+      "P1_UNLOCK": {
+        "family_count": 0,
+        "total_unlock_count": 0,
+        "external_product_ids": []
+      },
+      "DEFER": {
+        "family_count": 13,
+        "total_unlock_count": 56,
+        "external_product_ids": [
+          "15906051490166",
+          "7301033525293",
+          "7301077270573",
+          "15259571945846",
+          "7890481446957",
+          "14652995764598",
+          "7459039150125",
+          "15805907140982",
+          "15331478962550",
+          "15331778003318",
+          "15872513737078",
+          "15287389880694",
+          "7469566984237"
+        ]
+      }
+    }
+  },
+  "broader_review": {
+    "pre_sibling_conflict_review_total": 404,
+    "sibling_conflict_rows_added_to_review": 6,
+    "supplied_current_baseline_review_total": 410,
+    "exact_safe_promotions": 0,
+    "still_REVIEW_CANONICAL_MATCH": 279,
+    "still_REVIEW_IDENTITY_OR_OPTIONS": 131,
+    "new_sibling_conflict_rows_included": 6,
+    "exact_current_review_total": 410,
+    "current_recheck_transition": "410 -> 410",
+    "current_matcher_state_counts": {
+      "AMBIGUOUS_REVIEW": 274,
+      "HIGH_CONFIDENCE_REVIEW": 6,
+      "NEW_PRODUCT_REVIEW": 107,
+      "VARIANT_REVIEW": 23
+    },
+    "thresholds_lowered": false
+  },
+  "sibling_conflict_diagnostics": [
+    {
+      "external_product_id": "15640614568310",
+      "external_variant_id": "57418273325430",
+      "source_product_title": "Kayow Protein Cookie",
+      "source_variant_title": "Salted Caramel / 12 x 60g Cookies / 720g",
+      "raw_shopify_options": {
+        "Flavour": "Salted Caramel",
+        "Size": "12 x 60g Cookies",
+        "Weight": "720g"
+      },
+      "source_matcher_evidence": {
+        "flavour": "salted caramel",
+        "size": {
+          "value": "60",
+          "unit": "g",
+          "dimension": "mass",
+          "perUnit": true
+        },
+        "pack_count": 12,
+        "product_format": "powder"
+      },
+      "live_canonical_product": {
+        "id": "1396",
+        "name": "Kayow Protein Cookie",
+        "slug": "kayow-protein-cookie",
+        "brand": "Kayow",
+        "category": "Protein Bars",
+        "product_format": "bar",
+        "gtin": null,
+        "is_active": true,
+        "merged_into_product_id": null
+      },
+      "live_canonical_variants": [
+        {
+          "id": "4304",
+          "product_id": "1396",
+          "variant_key": "chocolate-chip-720g",
+          "display_name": "Chocolate Chip / 12 x 60g Cookies / 720g",
+          "flavour_code": "chocolate chip",
+          "flavour_label": "Chocolate Chip",
+          "size_value": "720",
+          "size_unit": "g",
+          "pack_count": 1,
+          "product_format": "bar",
+          "gtin": null,
+          "is_active": true,
+          "is_default": false
+        }
+      ],
+      "diagnostic_classification": "D_GENERIC_ARCHITECTURE_GAP",
+      "diagnosis": "The source explicitly says 12 x 60g and 720g. The live variant stores 720g with pack_count 1 while the matcher derives pack_count 12; the current generic reviewed path cannot safely reconcile that composite evidence without a contract/parser change.",
+      "additional_owner_note": null,
+      "parent_unlock_blocker": false
+    },
+    {
+      "external_product_id": "15640614568310",
+      "external_variant_id": "57418273390966",
+      "source_product_title": "Kayow Protein Cookie",
+      "source_variant_title": "Double Chocolate Chip / 12 x 60g Cookies / 720g",
+      "raw_shopify_options": {
+        "Flavour": "Double Chocolate Chip",
+        "Size": "12 x 60g Cookies",
+        "Weight": "720g"
+      },
+      "source_matcher_evidence": {
+        "flavour": "double chocolate chip",
+        "size": {
+          "value": "60",
+          "unit": "g",
+          "dimension": "mass",
+          "perUnit": true
+        },
+        "pack_count": 12,
+        "product_format": "powder"
+      },
+      "live_canonical_product": {
+        "id": "1396",
+        "name": "Kayow Protein Cookie",
+        "slug": "kayow-protein-cookie",
+        "brand": "Kayow",
+        "category": "Protein Bars",
+        "product_format": "bar",
+        "gtin": null,
+        "is_active": true,
+        "merged_into_product_id": null
+      },
+      "live_canonical_variants": [
+        {
+          "id": "4304",
+          "product_id": "1396",
+          "variant_key": "chocolate-chip-720g",
+          "display_name": "Chocolate Chip / 12 x 60g Cookies / 720g",
+          "flavour_code": "chocolate chip",
+          "flavour_label": "Chocolate Chip",
+          "size_value": "720",
+          "size_unit": "g",
+          "pack_count": 1,
+          "product_format": "bar",
+          "gtin": null,
+          "is_active": true,
+          "is_default": false
+        }
+      ],
+      "diagnostic_classification": "D_GENERIC_ARCHITECTURE_GAP",
+      "diagnosis": "The source explicitly says 12 x 60g and 720g. The live variant stores 720g with pack_count 1 while the matcher derives pack_count 12; the current generic reviewed path cannot safely reconcile that composite evidence without a contract/parser change.",
+      "additional_owner_note": null,
+      "parent_unlock_blocker": false
+    },
+    {
+      "external_product_id": "15246472610166",
+      "external_variant_id": "55897618612598",
+      "source_product_title": "Ghost Lifestyle Energy Drink",
+      "source_variant_title": "Cherry Limeade / 500ml",
+      "raw_shopify_options": {
+        "Flavour": "Cherry Limeade",
+        "Size": "500ml"
+      },
+      "source_matcher_evidence": {
+        "flavour": "cherry limeade",
+        "size": {
+          "value": "500",
+          "unit": "ml",
+          "dimension": "volume"
+        },
+        "pack_count": null,
+        "product_format": "liquid"
+      },
+      "live_canonical_product": {
+        "id": "1398",
+        "name": "Ghost Lifestyle Energy Drink",
+        "slug": "ghost-lifestyle-energy-drink",
+        "brand": "Ghost Lifestyle",
+        "category": "Pre Workout",
+        "product_format": "powder",
+        "gtin": null,
+        "is_active": true,
+        "merged_into_product_id": null
+      },
+      "live_canonical_variants": [
+        {
+          "id": "4306",
+          "product_id": "1398",
+          "variant_key": "sour-warheads-watermelon-500ml",
+          "display_name": "Sour Warheads Watermelon / 500ml",
+          "flavour_code": "sour warheads watermelon",
+          "flavour_label": "Sour Warheads Watermelon",
+          "size_value": "500",
+          "size_unit": "ml",
+          "pack_count": 1,
+          "product_format": "powder",
+          "gtin": null,
+          "is_active": true,
+          "is_default": false
+        }
+      ],
+      "diagnostic_classification": "A_CENSUS_OR_DERIVATION_ERROR",
+      "diagnosis": "The exact source is a 500ml drink and the matcher derives liquid, but the live product and anchor variant were created as powder. The conflict is a prior canonical derivation error, not uncertainty about the source format.",
+      "additional_owner_note": null,
+      "parent_unlock_blocker": false
+    },
+    {
+      "external_product_id": "15246472610166",
+      "external_variant_id": "55897618645366",
+      "source_product_title": "Ghost Lifestyle Energy Drink",
+      "source_variant_title": "Original / 500ml",
+      "raw_shopify_options": {
+        "Flavour": "Original",
+        "Size": "500ml"
+      },
+      "source_matcher_evidence": {
+        "flavour": "original",
+        "size": {
+          "value": "500",
+          "unit": "ml",
+          "dimension": "volume"
+        },
+        "pack_count": null,
+        "product_format": "liquid"
+      },
+      "live_canonical_product": {
+        "id": "1398",
+        "name": "Ghost Lifestyle Energy Drink",
+        "slug": "ghost-lifestyle-energy-drink",
+        "brand": "Ghost Lifestyle",
+        "category": "Pre Workout",
+        "product_format": "powder",
+        "gtin": null,
+        "is_active": true,
+        "merged_into_product_id": null
+      },
+      "live_canonical_variants": [
+        {
+          "id": "4306",
+          "product_id": "1398",
+          "variant_key": "sour-warheads-watermelon-500ml",
+          "display_name": "Sour Warheads Watermelon / 500ml",
+          "flavour_code": "sour warheads watermelon",
+          "flavour_label": "Sour Warheads Watermelon",
+          "size_value": "500",
+          "size_unit": "ml",
+          "pack_count": 1,
+          "product_format": "powder",
+          "gtin": null,
+          "is_active": true,
+          "is_default": false
+        }
+      ],
+      "diagnostic_classification": "A_CENSUS_OR_DERIVATION_ERROR",
+      "diagnosis": "The exact source is a 500ml drink and the matcher derives liquid, but the live product and anchor variant were created as powder. The conflict is a prior canonical derivation error, not uncertainty about the source format.",
+      "additional_owner_note": null,
+      "parent_unlock_blocker": false
+    },
+    {
+      "external_product_id": "15246472610166",
+      "external_variant_id": "55897618678134",
+      "source_product_title": "Ghost Lifestyle Energy Drink",
+      "source_variant_title": "Blue Raspberry / 500ml",
+      "raw_shopify_options": {
+        "Flavour": "Blue Raspberry",
+        "Size": "500ml"
+      },
+      "source_matcher_evidence": {
+        "flavour": "blue raspberry",
+        "size": {
+          "value": "500",
+          "unit": "ml",
+          "dimension": "volume"
+        },
+        "pack_count": null,
+        "product_format": "liquid"
+      },
+      "live_canonical_product": {
+        "id": "1398",
+        "name": "Ghost Lifestyle Energy Drink",
+        "slug": "ghost-lifestyle-energy-drink",
+        "brand": "Ghost Lifestyle",
+        "category": "Pre Workout",
+        "product_format": "powder",
+        "gtin": null,
+        "is_active": true,
+        "merged_into_product_id": null
+      },
+      "live_canonical_variants": [
+        {
+          "id": "4306",
+          "product_id": "1398",
+          "variant_key": "sour-warheads-watermelon-500ml",
+          "display_name": "Sour Warheads Watermelon / 500ml",
+          "flavour_code": "sour warheads watermelon",
+          "flavour_label": "Sour Warheads Watermelon",
+          "size_value": "500",
+          "size_unit": "ml",
+          "pack_count": 1,
+          "product_format": "powder",
+          "gtin": null,
+          "is_active": true,
+          "is_default": false
+        }
+      ],
+      "diagnostic_classification": "A_CENSUS_OR_DERIVATION_ERROR",
+      "diagnosis": "The exact source is a 500ml drink and the matcher derives liquid, but the live product and anchor variant were created as powder. The conflict is a prior canonical derivation error, not uncertainty about the source format.",
+      "additional_owner_note": null,
+      "parent_unlock_blocker": false
+    },
+    {
+      "external_product_id": "15246472610166",
+      "external_variant_id": "57774038745462",
+      "source_product_title": "Ghost Lifestyle Energy Drink",
+      "source_variant_title": "Pink Lemonade (NEW) / 500ml",
+      "raw_shopify_options": {
+        "Flavour": "Pink Lemonade (NEW)",
+        "Size": "500ml"
+      },
+      "source_matcher_evidence": {
+        "flavour": "pink lemonade new",
+        "size": {
+          "value": "500",
+          "unit": "ml",
+          "dimension": "volume"
+        },
+        "pack_count": null,
+        "product_format": "liquid"
+      },
+      "live_canonical_product": {
+        "id": "1398",
+        "name": "Ghost Lifestyle Energy Drink",
+        "slug": "ghost-lifestyle-energy-drink",
+        "brand": "Ghost Lifestyle",
+        "category": "Pre Workout",
+        "product_format": "powder",
+        "gtin": null,
+        "is_active": true,
+        "merged_into_product_id": null
+      },
+      "live_canonical_variants": [
+        {
+          "id": "4306",
+          "product_id": "1398",
+          "variant_key": "sour-warheads-watermelon-500ml",
+          "display_name": "Sour Warheads Watermelon / 500ml",
+          "flavour_code": "sour warheads watermelon",
+          "flavour_label": "Sour Warheads Watermelon",
+          "size_value": "500",
+          "size_unit": "ml",
+          "pack_count": 1,
+          "product_format": "powder",
+          "gtin": null,
+          "is_active": true,
+          "is_default": false
+        }
+      ],
+      "diagnostic_classification": "A_CENSUS_OR_DERIVATION_ERROR",
+      "diagnosis": "The exact source is a 500ml drink and the matcher derives liquid, but the live product and anchor variant were created as powder. The conflict is a prior canonical derivation error, not uncertainty about the source format.",
+      "additional_owner_note": "After the format error is resolved separately, owner review must also decide whether '(NEW)' is merchandising text or part of the stable flavour label.",
+      "parent_unlock_blocker": false
+    }
+  ],
+  "held": {
+    "total": 35,
+    "policy": 17,
+    "oos_parent": 12,
+    "missing_evidence": 2,
+    "architecture_gap": 3,
+    "other": 1,
+    "exact_reason_counts": {
+      "COMPOSITE_SACHET_COUNT_SYNTAX_NOT_SUPPORTED_BY_CURRENT_GENERIC_OPTION_ROLE_PARSER": 2,
+      "current generic planner: ambiguous variant identity": 1,
+      "current source is out of stock and the canonical parent is absent": 1,
+      "current source remains out of stock and the canonical parent is absent": 11,
+      "CURRENT_GENERIC_EXCLUDED_PRODUCT_TYPE_POLICY": 1,
+      "CURRENT_SAFE_CREATE_CATEGORY_NOT_ALLOWED": 16,
+      "NON_FLAVOUR_WEIGHT_AXIS_NOT_SUPPORTED_BY_CURRENT_EXPLICIT_VARIANT_PATH": 1,
+      "SOURCE_HAS_NO_UNAMBIGUOUS_SIZE_OR_UNIT_COUNT_EVIDENCE": 2
+    },
+    "naturally_cleared_parent_candidates": [],
+    "naturally_cleared_count": 0
+  },
+  "explicit_exclusions": {
+    "policy": "MVPRE explicit owner exclusion remains unchanged and is not reopened.",
+    "row_count": 10,
+    "family_count": 2,
+    "families": [
+      "15655850312054:Innovapharm MVPRE 365",
+      "8036899487789:InnovaPharm MVPre 3.0 Pre Workout"
+    ],
+    "rows": [
+      {
+        "external_product_id": "15655850312054",
+        "external_variant_id": "57492934525302",
+        "source_product_title": "Innovapharm MVPRE 365",
+        "source_variant_title": "Bahama Mama / 40/20 Servings / 480g",
+        "in_stock": false
+      },
+      {
+        "external_product_id": "15655850312054",
+        "external_variant_id": "57492934558070",
+        "source_product_title": "Innovapharm MVPRE 365",
+        "source_variant_title": "Blue Razz Popsicle / 40/20 Servings / 480g",
+        "in_stock": false
+      },
+      {
+        "external_product_id": "15655850312054",
+        "external_variant_id": "57492934590838",
+        "source_product_title": "Innovapharm MVPRE 365",
+        "source_variant_title": "Monkey Punch / 40/20 Servings / 480g",
+        "in_stock": false
+      },
+      {
+        "external_product_id": "8036899487789",
+        "external_variant_id": "43023707799597",
+        "source_product_title": "InnovaPharm MVPre 3.0 Pre Workout",
+        "source_variant_title": "Rainbow Rock Candy / 40/20 Servings / 437g",
+        "in_stock": true
+      },
+      {
+        "external_product_id": "8036899487789",
+        "external_variant_id": "43023707832365",
+        "source_product_title": "InnovaPharm MVPre 3.0 Pre Workout",
+        "source_variant_title": "Sweet Apple Punch / 40/20 Servings / 437g",
+        "in_stock": true
+      },
+      {
+        "external_product_id": "8036899487789",
+        "external_variant_id": "43023707865133",
+        "source_product_title": "InnovaPharm MVPre 3.0 Pre Workout",
+        "source_variant_title": "Rocket Pop / 40/20 Servings / 437g",
+        "in_stock": true
+      },
+      {
+        "external_product_id": "8036899487789",
+        "external_variant_id": "43023707897901",
+        "source_product_title": "InnovaPharm MVPre 3.0 Pre Workout",
+        "source_variant_title": "Jungle Juice / 40/20 Servings / 437g",
+        "in_stock": true
+      },
+      {
+        "external_product_id": "8036899487789",
+        "external_variant_id": "43023707930669",
+        "source_product_title": "InnovaPharm MVPre 3.0 Pre Workout",
+        "source_variant_title": "Watermelon Lemonade / 40/20 Servings / 437g",
+        "in_stock": true
+      },
+      {
+        "external_product_id": "8036899487789",
+        "external_variant_id": "43023707963437",
+        "source_product_title": "InnovaPharm MVPre 3.0 Pre Workout",
+        "source_variant_title": "Gusher Blast / 40/20 Servings / 437g",
+        "in_stock": true
+      },
+      {
+        "external_product_id": "8036899487789",
+        "external_variant_id": "43023707996205",
+        "source_product_title": "InnovaPharm MVPre 3.0 Pre Workout",
+        "source_variant_title": "Roadside Lemonade / 40/20 Servings / 437g",
+        "in_stock": false
+      }
+    ]
+  },
+  "proposed_first_owner_review_batch": {
+    "status": "DECISION_PACKET_ONLY_NOT_OWNER_APPROVED",
+    "family_limit": 10,
+    "family_count": 1,
+    "candidate_anchor_count": 1,
+    "total_unlock_count": 5,
+    "current_dependent_rows_that_could_disappear_after_anchor_and_sibling_wave": 6,
+    "total_source_variants_affected": 7,
+    "execution_eligibility_promised": false,
+    "decisions": [
+      {
+        "decision_number": 1,
+        "decision_state": "PROPOSED_NOT_OWNER_APPROVED",
+        "family": "3D Energy Drink",
+        "source_product_id": "15719647379830",
+        "candidate_anchor_external_variant_id": "57774589346166",
+        "candidate_canonical_product_or_proposed_identity": {
+          "name": "3D Energy Drink",
+          "slug": "3d-energy-drink",
+          "brand": "3D Energy",
+          "category": "Energy Drinks",
+          "product_format": "liquid",
+          "variant_display_name": "Watermelon Grape / 473ml",
+          "flavour": "Watermelon Grape",
+          "size_value": "473",
+          "size_unit": "ml",
+          "pack_count": 1
+        },
+        "exact_proposed_action": "Owner decides whether this exact in-stock source row may be the new canonical parent anchor; a later separately authorized task must still run the official planner and validator.",
+        "key_identity_evidence": "Exact Shopify title and vendor; structured Flavour + 473ml; current matcher finds no credible canonical collision; an in-stock row exists.",
+        "raw_options": {
+          "Flavour": "Watermelon Grape",
+          "Size": "473ml"
+        },
+        "stock": true,
+        "price": 2.75,
+        "unlock_count": 5,
+        "current_dependent_rows_resolved_after_anchor_and_sibling_wave": 6,
+        "why_owner_review_is_sufficient": "The generic V3 model already represents a liquid flavour variant with a physical ml size; only exact canonical identity/category confirmation is missing.",
+        "protected_if_rejected": "No plan exists, no approval exists, all seven source variants remain unmapped, and production remains unchanged."
+      }
+    ]
+  },
+  "safeguards": {
+    "owner_approvals_created": 0,
+    "production_writes": 0,
+    "staging_writes": 0,
+    "migrations": 0,
+    "automation": "NOT_ACTIVATED",
+    "code_changes": 0,
+    "policy_changes": 0
+  }
+}
