@@ -1,0 +1,223 @@
+{
+  "schema_version": 3,
+  "kind": "reviewed-catalogue-package-v3",
+  "source_platform": "shopify",
+  "status": "OWNER_APPROVED",
+  "authorized_by": "Marek Kalinka",
+  "authorized_at": "2026-10-21T17:19:44.933Z",
+  "target_environment": "PRODUCTION",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "retailer": {
+    "id": 15,
+    "name": "Gladiator Nutrition",
+    "slug": "gladiator-nutrition",
+    "website": "https://gladiatornutrition.co.uk",
+    "expected_action": "existing",
+    "shipping_known": true,
+    "shipping_cost": 6.99
+  },
+  "policy": {
+    "reviewed_rows_only": true,
+    "allow_product_creation": true,
+    "allow_variant_creation": true,
+    "allow_canonical_product_updates": false,
+    "allow_canonical_variant_updates": false,
+    "allow_canonical_gtin_updates": false,
+    "allow_category_changes": false,
+    "sku_is_not_gtin": true,
+    "one_plan_at_a_time": true,
+    "fresh_single_use_approval_per_plan": true,
+    "strict_production_readback_after_each_apply": true
+  },
+  "profiles": [
+    {
+      "id": "gladiator-nutrition-production-ghost-amino-v2-siblings-fresh-v1",
+      "status": "DRY_RUN_PASS",
+      "csv_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-nutrition-production-ghost-amino-v2-siblings-fresh-v1.csv",
+      "csv_sha256": "7336c70f520cfcb3bce163dfbbb3c98d17fa77055eab2d8091b6cac9c364e18f",
+      "artifact_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-nutrition-production-ghost-amino-v2-siblings-fresh-v1-dry-run.json",
+      "artifact_sha256": "cc40f346aff5b9a8dda9f572d70c3180a5eaa2b472562a85fb3c12f401e01748",
+      "row_count": 3,
+      "blocked_row_count": 0,
+      "conflict_count": 0,
+      "expected_actions": {
+        "retailers_create": 0,
+        "products_create": 0,
+        "product_variants_create": 3,
+        "retailer_products_create": 3,
+        "offers_create": 3,
+        "price_history_create": 3
+      },
+      "rows": [
+        {
+          "review_row": 1,
+          "external_product_id": "5242089209901",
+          "external_variant_id": "34950659637293",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "346",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Ghost",
+          "category": "Amino Acids",
+          "product_name": "Ghost Amino V2",
+          "variant_name": "Blue Raspberry / 40 Servings / 422g",
+          "flavour": "Blue Raspberry",
+          "size_value": "422",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 31.99,
+          "in_stock": false,
+          "source_row_fingerprint": "279237a833ba92195a45ac06a35d9632db9eb5d448d9418179d0f76ddd93c10a",
+          "plan_fingerprint": "351333eb55a91f957922f6938d2834a6",
+          "external_url": "https://gladiatornutrition.co.uk/products/ghost-amino-v2?variant=34950659637293",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/ghost-amino-v2?variant=34950659637293&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Blue Raspberry",
+            "Size": "40 Servings",
+            "Weight": "422g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Blue Raspberry"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "422g",
+              "size_value": "422",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40 Servings",
+              "count_value": "40",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 4,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 2,
+          "external_product_id": "5242089209901",
+          "external_variant_id": "34950659670061",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "346",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Ghost",
+          "category": "Amino Acids",
+          "product_name": "Ghost Amino V2",
+          "variant_name": "Welchs grape / 40 Servings / 422g",
+          "flavour": "Welchs grape",
+          "size_value": "422",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 31.99,
+          "in_stock": false,
+          "source_row_fingerprint": "9722b264b39be2801961f4c76a0c82c9ca6998e204bbb353516912012a346540",
+          "plan_fingerprint": "600b3b44fe4a18e9de67a2471f23262e",
+          "external_url": "https://gladiatornutrition.co.uk/products/ghost-amino-v2?variant=34950659670061",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/ghost-amino-v2?variant=34950659670061&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Welchs grape",
+            "Size": "40 Servings",
+            "Weight": "422g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Welchs grape"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "422g",
+              "size_value": "422",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40 Servings",
+              "count_value": "40",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 4,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 3,
+          "external_product_id": "5242089209901",
+          "external_variant_id": "40067445686317",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "346",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Ghost",
+          "category": "Amino Acids",
+          "product_name": "Ghost Amino V2",
+          "variant_name": "Mango / 40 Servings / 422g",
+          "flavour": "Mango",
+          "size_value": "422",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 31.99,
+          "in_stock": false,
+          "source_row_fingerprint": "198202f9ffda6c1a47c8bc1dcc5a8b9c97bc68c6d9f225ab7ebed0934aea195d",
+          "plan_fingerprint": "d505a7e1eea15808cc95ac46f381582e",
+          "external_url": "https://gladiatornutrition.co.uk/products/ghost-amino-v2?variant=40067445686317",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/ghost-amino-v2?variant=40067445686317&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Mango",
+            "Size": "40 Servings",
+            "Weight": "422g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Mango"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "422g",
+              "size_value": "422",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40 Servings",
+              "count_value": "40",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 4,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        }
+      ]
+    }
+  ]
+}
