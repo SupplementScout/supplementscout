@@ -498,12 +498,9 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production preserves deployed V3 bytes and selects only the Ghost Lifestyle metadata correction", () => {
+test("production preserves deployed V3 and Ghost Lifestyle metadata correction bytes", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{
-    filename: GHOST_LIFESTYLE_METADATA_MIGRATION,
-    sha256: GHOST_LIFESTYLE_METADATA_SHA256,
-  }]);
+  assert.deepEqual(contract.pending, []);
   assert.deepEqual(contract.appliedExcluded, [
     "20260929133000_extend_expired_sequential_plan_close.sql",
     "20261004120000_add_central_control_plan_readback.sql",
@@ -513,11 +510,12 @@ test("production preserves deployed V3 bytes and selects only the Ghost Lifestyl
     "20261008200000_consolidate_shared_executor_state_reads.sql",
     "20261009120000_add_compact_other_retailer_fingerprint.sql",
   ]);
-  assert.equal(contract.ledgerCount, 246);
+  assert.equal(contract.ledgerCount, 247);
   assert.equal(
     contract.ledgerFingerprint,
-    "2ec4495c786b3b5f4937e912f47a8a8b900d4ee0d04ab60f22e811d8298fed05",
+    "a563e474aeb62345e4f204e32f881fe691e678635ea79c085f92ab25ef63a462",
   );
+  assert.equal(sha256File(path.join(SOURCE, GHOST_LIFESTYLE_METADATA_MIGRATION)), GHOST_LIFESTYLE_METADATA_SHA256);
   assert.equal(contract.excluded[REVIEWED_STATE_MIGRATION], REVIEWED_STATE_SHA256);
   assert.equal(contract.excluded[REVIEWED_V3_MIGRATION], REVIEWED_V3_SHA256);
   assert.equal(contract.excluded[REVIEWED_V3_OPTION_ROLE_MIGRATION], REVIEWED_V3_OPTION_ROLE_SHA256);
@@ -644,7 +642,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACT.ledgerFingerprint);
 });
 
-test("production records the deployed reviewed V3 migration chain at ledger 246", () => {
+test("production records the deployed reviewed V3 and Ghost metadata chain at ledger 247", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   for (const filename of contract.appliedExcluded) excluded.delete(filename);
@@ -671,7 +669,7 @@ test("production records the deployed reviewed V3 migration chain at ledger 246"
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 246);
+  assert.equal(result.ledger_count, 247);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 247);
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
@@ -685,10 +683,10 @@ test("production records the deployed reviewed V3 migration chain at ledger 246"
   assert.ok(result.selected_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
   assert.ok(result.excluded_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
   assert.ok(result.selected_files.includes(REVIEWED_V3_PARENT_FORMAT_MIGRATION));
-  assert.deepEqual(result.pending_files, [GHOST_LIFESTYLE_METADATA_MIGRATION]);
-  assert.equal(result.pending_file, GHOST_LIFESTYLE_METADATA_MIGRATION);
-  assert.equal(result.pending_sha256, GHOST_LIFESTYLE_METADATA_SHA256);
-  assert.deepEqual(result.pending_sha256s, { [GHOST_LIFESTYLE_METADATA_MIGRATION]: GHOST_LIFESTYLE_METADATA_SHA256 });
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_sha256s, {});
   for (const filename of [
     ENVIRONMENT_SAFE_REVIEWED_STATE_MIGRATION,
     ENVIRONMENT_SAFE_REVIEWED_V3_MIGRATION,
@@ -787,9 +785,9 @@ test("runtime production artifacts bind the same migration ledger as the product
   const binding = migrationBinding("PRODUCTION");
   assert.equal(binding.versions.length, CONTRACTS.PRODUCTION.ledgerCount);
   assert.equal(binding.fingerprint, CONTRACTS.PRODUCTION.ledgerFingerprint);
-  assert.equal(CONTRACTS.PRODUCTION.pending.length, 1);
+  assert.equal(CONTRACTS.PRODUCTION.pending.length, 0);
   assert.ok(binding.versions.includes(REVIEWED_V3_PARENT_FORMAT_MIGRATION.slice(0, -4)));
-  assert.ok(!binding.versions.includes(GHOST_LIFESTYLE_METADATA_MIGRATION.slice(0, -4)));
+  assert.ok(binding.versions.includes(GHOST_LIFESTYLE_METADATA_MIGRATION.slice(0, -4)));
   assert.ok(binding.versions.includes(REVIEWED_V3_ROLE_AWARE_SIZE_MIGRATION.slice(0, -4)));
   assert.ok(binding.versions.includes("20260929133000_extend_expired_sequential_plan_close"));
   assert.ok(binding.versions.includes(SEO15_GYM_HIGH_SOURCE_RELEASE_MIGRATION.slice(0, -4)));
@@ -828,10 +826,7 @@ test("runtime staging artifacts bind the same migration ledger as the staging se
 test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.equal(Object.keys(contract.excluded).length, 27);
-  assert.deepEqual(contract.pending, [{
-    filename: GHOST_LIFESTYLE_METADATA_MIGRATION,
-    sha256: GHOST_LIFESTYLE_METADATA_SHA256,
-  }]);
+  assert.deepEqual(contract.pending, []);
   assert.equal(
     contract.excluded["20261009120000_add_compact_other_retailer_fingerprint.sql"],
     "b365d247777650aba6333399d4173ecb369d85a1465074bb6961c23b94f2ac84",
