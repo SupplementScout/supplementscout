@@ -1,0 +1,1603 @@
+{
+  "schema_version": 3,
+  "kind": "reviewed-catalogue-package-v3",
+  "source_platform": "shopify",
+  "status": "PREPARATION_ONLY",
+  "authorized_by": null,
+  "authorized_at": null,
+  "target_environment": "PRODUCTION",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "retailer": {
+    "id": 15,
+    "name": "Gladiator Nutrition",
+    "slug": "gladiator-nutrition",
+    "website": "https://gladiatornutrition.co.uk",
+    "expected_action": "existing",
+    "shipping_known": true,
+    "shipping_cost": 6.99
+  },
+  "policy": {
+    "reviewed_rows_only": true,
+    "allow_product_creation": false,
+    "allow_variant_creation": true,
+    "allow_canonical_product_updates": false,
+    "allow_canonical_variant_updates": false,
+    "allow_canonical_gtin_updates": false,
+    "allow_category_changes": false,
+    "sku_is_not_gtin": true,
+    "one_plan_at_a_time": true,
+    "fresh_single_use_approval_per_plan": true,
+    "strict_production_readback_after_each_apply": true
+  },
+  "profiles": [
+    {
+      "id": "gladiator-nutrition-dependent-siblings-v1",
+      "status": "DRY_RUN_PASS",
+      "csv_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-nutrition-dependent-siblings-v1.csv",
+      "csv_sha256": "385033c1f89d25379202974c412856f110f27da1972d107a13a0fa2a80cc9165",
+      "artifact_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-nutrition-dependent-siblings-v1-dry-run.json",
+      "artifact_sha256": "c1fa13e309e30afb958fc7060211663e2e6fca21692bdb16c5142593f394af38",
+      "row_count": 28,
+      "blocked_row_count": 0,
+      "conflict_count": 0,
+      "expected_actions": {
+        "retailers_create": 0,
+        "products_create": 0,
+        "product_variants_create": 28,
+        "retailer_products_create": 28,
+        "offers_create": 28,
+        "price_history_create": 28
+      },
+      "rows": [
+        {
+          "review_row": 1,
+          "external_product_id": "15571426312566",
+          "external_variant_id": "57166658240886",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1397",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Strom Sports",
+          "category": "Pre Workout",
+          "product_name": "Strom Sports Support Max Neuro Nootropic",
+          "variant_name": "Pineapple / 30 Servings / 150g",
+          "flavour": "Pineapple",
+          "size_value": "150",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 29.99,
+          "in_stock": false,
+          "source_row_fingerprint": "6c56a2ff192e69fcf1526f9d9c0fde78c9430984a7a6d9dfaf6d33c5ca3029ac",
+          "plan_fingerprint": "100e488f1ddb628beebbb1c68c8b07b0",
+          "external_url": "https://gladiatornutrition.co.uk/products/strom-sports-support-max-neuro-nootropic?variant=57166658240886",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/strom-sports-support-max-neuro-nootropic?variant=57166658240886&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Pineapple",
+            "Size": "30 Servings",
+            "Weight": "150g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Pineapple"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "150g",
+              "size_value": "150",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 3,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 2,
+          "external_product_id": "15571426312566",
+          "external_variant_id": "57166658273654",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1397",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Strom Sports",
+          "category": "Pre Workout",
+          "product_name": "Strom Sports Support Max Neuro Nootropic",
+          "variant_name": "Lime / 30 Servings / 150g",
+          "flavour": "Lime",
+          "size_value": "150",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 29.99,
+          "in_stock": true,
+          "source_row_fingerprint": "086ac67ba42226fd604b0f689fa23dc99405c7616454197f622119469ecc12f6",
+          "plan_fingerprint": "46659954505e3eaa1540dd24dddaea47",
+          "external_url": "https://gladiatornutrition.co.uk/products/strom-sports-support-max-neuro-nootropic?variant=57166658273654",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/strom-sports-support-max-neuro-nootropic?variant=57166658273654&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Lime",
+            "Size": "30 Servings",
+            "Weight": "150g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Lime"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "150g",
+              "size_value": "150",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 3,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 3,
+          "external_product_id": "15026499354998",
+          "external_variant_id": "55135499813238",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1400",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Myoblox",
+          "category": "Amino Acids",
+          "product_name": "Myoblox 24/7 Aminos BCAA/EAA",
+          "variant_name": "Gorilla Juice / 30 Servings / 367.7g",
+          "flavour": "Gorilla Juice",
+          "size_value": "367.7",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 19.99,
+          "in_stock": true,
+          "source_row_fingerprint": "75c38ef5d661a99e4259e8bea439ac491e5d92b1611b80fee64e4a5a7756dfe9",
+          "plan_fingerprint": "8a48398aa7c79448a9f8d6f67a64be7e",
+          "external_url": "https://gladiatornutrition.co.uk/products/myoblox-24-7-aminos-bcaa-eaa?variant=55135499813238",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/myoblox-24-7-aminos-bcaa-eaa?variant=55135499813238&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Gorilla Juice",
+            "Size": "30 Servings",
+            "Weight": "367.7g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Gorilla Juice"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "367.7g",
+              "size_value": "367.7",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 4,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 4,
+          "external_product_id": "15026499354998",
+          "external_variant_id": "55135499846006",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1400",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Myoblox",
+          "category": "Amino Acids",
+          "product_name": "Myoblox 24/7 Aminos BCAA/EAA",
+          "variant_name": "Colour Money / 30 Servings / 367.7g",
+          "flavour": "Colour Money",
+          "size_value": "367.7",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 19.99,
+          "in_stock": true,
+          "source_row_fingerprint": "50e77181730afc25a11e97bf617339f1e9e25a9e7182aa5912d0ae423f306cd8",
+          "plan_fingerprint": "7e2bce3fcc9156dfd3f8c02481d1635b",
+          "external_url": "https://gladiatornutrition.co.uk/products/myoblox-24-7-aminos-bcaa-eaa?variant=55135499846006",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/myoblox-24-7-aminos-bcaa-eaa?variant=55135499846006&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Colour Money",
+            "Size": "30 Servings",
+            "Weight": "367.7g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Colour Money"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "367.7g",
+              "size_value": "367.7",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 4,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 5,
+          "external_product_id": "15026499354998",
+          "external_variant_id": "55135499878774",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1400",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Myoblox",
+          "category": "Amino Acids",
+          "product_name": "Myoblox 24/7 Aminos BCAA/EAA",
+          "variant_name": "Rainbow Haze / 30 Servings / 367.7g",
+          "flavour": "Rainbow Haze",
+          "size_value": "367.7",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 19.99,
+          "in_stock": true,
+          "source_row_fingerprint": "64910bbf88d7229e1eea46ddd7c0be27bb364d52f67662e7a25862d294a78d33",
+          "plan_fingerprint": "28698e7dc5c7410f7777fe48383f25f1",
+          "external_url": "https://gladiatornutrition.co.uk/products/myoblox-24-7-aminos-bcaa-eaa?variant=55135499878774",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/myoblox-24-7-aminos-bcaa-eaa?variant=55135499878774&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Rainbow Haze",
+            "Size": "30 Servings",
+            "Weight": "367.7g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Rainbow Haze"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "367.7g",
+              "size_value": "367.7",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 4,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 6,
+          "external_product_id": "15024297542006",
+          "external_variant_id": "55130169082230",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1401",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Supplement Needs",
+          "category": "Pre Workout",
+          "product_name": "Supplement Needs Pre Focus Nootropic",
+          "variant_name": "Cola Lime Twist / 30 Servings / 225g",
+          "flavour": "Cola Lime Twist",
+          "size_value": "225",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 36.99,
+          "in_stock": false,
+          "source_row_fingerprint": "05a457b1764c97d88b9de76605e56f2c946abd44add5425cec995f7638e283c7",
+          "plan_fingerprint": "b6dac9b30742751ead54f48b4b85c421",
+          "external_url": "https://gladiatornutrition.co.uk/products/supplement-needs-pre-focus-nootropic?variant=55130169082230",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/supplement-needs-pre-focus-nootropic?variant=55130169082230&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Cola Lime Twist",
+            "Size": "30 Servings",
+            "Weight": "225g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Cola Lime Twist"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "225g",
+              "size_value": "225",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 3,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 7,
+          "external_product_id": "15024297542006",
+          "external_variant_id": "57208301420918",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1401",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Supplement Needs",
+          "category": "Pre Workout",
+          "product_name": "Supplement Needs Pre Focus Nootropic",
+          "variant_name": "Lemon Sherbet / 30 Servings / 225g",
+          "flavour": "Lemon Sherbet",
+          "size_value": "225",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 36.99,
+          "in_stock": false,
+          "source_row_fingerprint": "cfd1cd637a80a6c5eba02a3a7bb88d6b045a1d30a1d8d005ba1b3e94a3987ee4",
+          "plan_fingerprint": "3b70610055d314b35c7c1c43ba4acf47",
+          "external_url": "https://gladiatornutrition.co.uk/products/supplement-needs-pre-focus-nootropic?variant=57208301420918",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/supplement-needs-pre-focus-nootropic?variant=57208301420918&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Lemon Sherbet",
+            "Size": "30 Servings",
+            "Weight": "225g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Lemon Sherbet"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "225g",
+              "size_value": "225",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 3,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 8,
+          "external_product_id": "14863320056182",
+          "external_variant_id": "54845106422134",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1402",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "TWP Nutrition",
+          "category": "Amino Acids",
+          "product_name": "TWP Nutrition SWEAAT EAA Hydration",
+          "variant_name": "Pink Lemonade / 30 Servings / 450g",
+          "flavour": "Pink Lemonade",
+          "size_value": "450",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 21.99,
+          "in_stock": true,
+          "source_row_fingerprint": "4f6643fc2d61cc48078134ebae09cbaf3db1c6324aabbd32cddc8eeaea1d091d",
+          "plan_fingerprint": "9002b7a39c45153be1294b26b93159e2",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-sweaat-eaa-hydration?variant=54845106422134",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-sweaat-eaa-hydration?variant=54845106422134&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Pink Lemonade",
+            "Size": "30 Servings",
+            "Weight": "450g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Pink Lemonade"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "450g",
+              "size_value": "450",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 5,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 9,
+          "external_product_id": "14863320056182",
+          "external_variant_id": "54845106454902",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1402",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "TWP Nutrition",
+          "category": "Amino Acids",
+          "product_name": "TWP Nutrition SWEAAT EAA Hydration",
+          "variant_name": "Bubblegum Grape / 30 Servings / 450g",
+          "flavour": "Bubblegum Grape",
+          "size_value": "450",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 21.99,
+          "in_stock": true,
+          "source_row_fingerprint": "5cf6eab27b535f618e04fdf12fd35263c593f676a36aad452c54144eccf02eb8",
+          "plan_fingerprint": "3c271d8caf942712f90047929348b57a",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-sweaat-eaa-hydration?variant=54845106454902",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-sweaat-eaa-hydration?variant=54845106454902&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Bubblegum Grape",
+            "Size": "30 Servings",
+            "Weight": "450g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Bubblegum Grape"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "450g",
+              "size_value": "450",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 5,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 10,
+          "external_product_id": "14863320056182",
+          "external_variant_id": "54845106487670",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1402",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "TWP Nutrition",
+          "category": "Amino Acids",
+          "product_name": "TWP Nutrition SWEAAT EAA Hydration",
+          "variant_name": "Cotton Candy / 30 Servings / 450g",
+          "flavour": "Cotton Candy",
+          "size_value": "450",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 21.99,
+          "in_stock": true,
+          "source_row_fingerprint": "901a71e0d0717aa4aebbfd304d7678d725e69e0d5294da9129dd43151ebd78b4",
+          "plan_fingerprint": "934b94744c10924b4adab026fcc85154",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-sweaat-eaa-hydration?variant=54845106487670",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-sweaat-eaa-hydration?variant=54845106487670&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Cotton Candy",
+            "Size": "30 Servings",
+            "Weight": "450g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Cotton Candy"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "450g",
+              "size_value": "450",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 5,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 11,
+          "external_product_id": "14863320056182",
+          "external_variant_id": "55135441715574",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1402",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "TWP Nutrition",
+          "category": "Amino Acids",
+          "product_name": "TWP Nutrition SWEAAT EAA Hydration",
+          "variant_name": "Jacked Baby / 30 Servings / 450g",
+          "flavour": "Jacked Baby",
+          "size_value": "450",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 21.99,
+          "in_stock": true,
+          "source_row_fingerprint": "6589056c0c13769aaa34be546000bec81dcee58038d06b261e71252742e6f841",
+          "plan_fingerprint": "70a54905d5a9e44ff56ac28728920585",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-sweaat-eaa-hydration?variant=55135441715574",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-sweaat-eaa-hydration?variant=55135441715574&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Jacked Baby",
+            "Size": "30 Servings",
+            "Weight": "450g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Jacked Baby"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "450g",
+              "size_value": "450",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 5,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 12,
+          "external_product_id": "8036937170989",
+          "external_variant_id": "43023771369517",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1404",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Extremis Cartel",
+          "category": "Health Supplements",
+          "product_name": "Xtremis Cartel Sueno Sleep Formula",
+          "variant_name": "Dreamin Lemons / 40/20 Servings / 388g",
+          "flavour": "Dreamin Lemons",
+          "size_value": "388",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 46.99,
+          "in_stock": true,
+          "source_row_fingerprint": "592125d4699d8f506364a3bdcc3eec015bfea0fb3b49267c7da7ab3bcd8beda9",
+          "plan_fingerprint": "3f1db0298af5bafe6fcf0180708fe42d",
+          "external_url": "https://gladiatornutrition.co.uk/products/xtremis-cartel-sueno-sleep-formula?variant=43023771369517",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/xtremis-cartel-sueno-sleep-formula?variant=43023771369517&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Dreamin Lemons",
+            "Size": "40/20 Servings",
+            "Weight": "388g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Dreamin Lemons"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "388g",
+              "size_value": "388",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40/20 Servings",
+              "count_value": "40/20",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 2,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 13,
+          "external_product_id": "7543209885741",
+          "external_variant_id": "41779916603437",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1406",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "TWP Nutrition",
+          "category": "Health Supplements",
+          "product_name": "TWP Anytime COR+ Cream Of Rice",
+          "variant_name": "Chocolate Caramel / 40/80 / 1.8kg",
+          "flavour": "Chocolate Caramel",
+          "size_value": "1800",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 16.99,
+          "in_stock": false,
+          "source_row_fingerprint": "355b446810e79a1af62b0bb96af773271be20c7e915e00578c07979321a41759",
+          "plan_fingerprint": "a30bf1284dd526199966aa3601fb1746",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-cream-of-rice?variant=41779916603437",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-cream-of-rice?variant=41779916603437&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Chocolate Caramel",
+            "Size": "40/80",
+            "Weight": "1.8kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Chocolate Caramel"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "1.8kg",
+              "size_value": "1800",
+              "size_unit": "g"
+            },
+            "count": null
+          },
+          "source_structure": {
+            "product_variant_count": 5,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 14,
+          "external_product_id": "7543209885741",
+          "external_variant_id": "42004108443693",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1406",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "TWP Nutrition",
+          "category": "Health Supplements",
+          "product_name": "TWP Anytime COR+ Cream Of Rice",
+          "variant_name": "Gold / 40/80 / 1.8kg",
+          "flavour": "Gold",
+          "size_value": "1800",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 16.99,
+          "in_stock": true,
+          "source_row_fingerprint": "3f3d202b9f2ac1c1f434b611b4e0815a20c27908db2a61d4ef2ba2920bd12734",
+          "plan_fingerprint": "347c98ea68a58c76a08f39b181551f61",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-cream-of-rice?variant=42004108443693",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-cream-of-rice?variant=42004108443693&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Gold",
+            "Size": "40/80",
+            "Weight": "1.8kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Gold"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "1.8kg",
+              "size_value": "1800",
+              "size_unit": "g"
+            },
+            "count": null
+          },
+          "source_structure": {
+            "product_variant_count": 5,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 15,
+          "external_product_id": "7543209885741",
+          "external_variant_id": "42517751693357",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1406",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "TWP Nutrition",
+          "category": "Health Supplements",
+          "product_name": "TWP Anytime COR+ Cream Of Rice",
+          "variant_name": "Red Velvet / 40/80 / 1.8kg",
+          "flavour": "Red Velvet",
+          "size_value": "1800",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 16.99,
+          "in_stock": true,
+          "source_row_fingerprint": "082b1f8ac20741f457599bb3a45a3ebf442e2fa1a32e730f125a489461db2a27",
+          "plan_fingerprint": "f566a74aad50a62de557e45702f005d8",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-cream-of-rice?variant=42517751693357",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-cream-of-rice?variant=42517751693357&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Red Velvet",
+            "Size": "40/80",
+            "Weight": "1.8kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Red Velvet"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "1.8kg",
+              "size_value": "1800",
+              "size_unit": "g"
+            },
+            "count": null
+          },
+          "source_structure": {
+            "product_variant_count": 5,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 16,
+          "external_product_id": "7543209885741",
+          "external_variant_id": "42517751726125",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1406",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "TWP Nutrition",
+          "category": "Health Supplements",
+          "product_name": "TWP Anytime COR+ Cream Of Rice",
+          "variant_name": "Cookie Dough Brownie / 40/80 / 1.8kg",
+          "flavour": "Cookie Dough Brownie",
+          "size_value": "1800",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 16.99,
+          "in_stock": false,
+          "source_row_fingerprint": "15816a3605182040407242cbe7801164aecc8e3feb0d880bb1432fedf242a19a",
+          "plan_fingerprint": "64d7f718b8740e3ba4792b3a41999695",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-cream-of-rice?variant=42517751726125",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-cream-of-rice?variant=42517751726125&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Cookie Dough Brownie",
+            "Size": "40/80",
+            "Weight": "1.8kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Cookie Dough Brownie"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "1.8kg",
+              "size_value": "1800",
+              "size_unit": "g"
+            },
+            "count": null
+          },
+          "source_structure": {
+            "product_variant_count": 5,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 17,
+          "external_product_id": "7495585398829",
+          "external_variant_id": "41701200658477",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1407",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Naughty Boy Lifestyle",
+          "category": "Amino Acids",
+          "product_name": "Naughty Boy Amino EAA/BCAA",
+          "variant_name": "Summer Fruits / 30 Servings / 345g",
+          "flavour": "Summer Fruits",
+          "size_value": "345",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 19.99,
+          "in_stock": false,
+          "source_row_fingerprint": "e405f7e184ecbd91661cdc3ca24d7bfcfdfa5f9884a9f9d17438166bca10fdbd",
+          "plan_fingerprint": "b79a96764c2834741802acbac5d24151",
+          "external_url": "https://gladiatornutrition.co.uk/products/naughty-boy-eaa-summer-vibes?variant=41701200658477",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/naughty-boy-eaa-summer-vibes?variant=41701200658477&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Summer Fruits",
+            "Size": "30 Servings",
+            "Weight": "345g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Summer Fruits"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "345g",
+              "size_value": "345",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 11,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 18,
+          "external_product_id": "7495585398829",
+          "external_variant_id": "41701200691245",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1407",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Naughty Boy Lifestyle",
+          "category": "Amino Acids",
+          "product_name": "Naughty Boy Amino EAA/BCAA",
+          "variant_name": "Cherry Mango / 30 Servings / 345g",
+          "flavour": "Cherry Mango",
+          "size_value": "345",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 19.99,
+          "in_stock": false,
+          "source_row_fingerprint": "9ec80a0278069b45ba7f33bea0b45fd06e29022310910a70dedf67e3fffe0648",
+          "plan_fingerprint": "4e70f120923cfe0d11ba47bc3964cecd",
+          "external_url": "https://gladiatornutrition.co.uk/products/naughty-boy-eaa-summer-vibes?variant=41701200691245",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/naughty-boy-eaa-summer-vibes?variant=41701200691245&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Cherry Mango",
+            "Size": "30 Servings",
+            "Weight": "345g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Cherry Mango"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "345g",
+              "size_value": "345",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 11,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 19,
+          "external_product_id": "7495585398829",
+          "external_variant_id": "42261983264813",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1407",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Naughty Boy Lifestyle",
+          "category": "Amino Acids",
+          "product_name": "Naughty Boy Amino EAA/BCAA",
+          "variant_name": "Fizzy Peach Sweets / 30 Servings / 345g",
+          "flavour": "Fizzy Peach Sweets",
+          "size_value": "345",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 19.99,
+          "in_stock": false,
+          "source_row_fingerprint": "bd1d77db679b7eb34b20b687312b532e6abbfd3ff40144eb53909bf88aae6c7f",
+          "plan_fingerprint": "a2bc2a169e22bd4f396c230acf06c4e4",
+          "external_url": "https://gladiatornutrition.co.uk/products/naughty-boy-eaa-summer-vibes?variant=42261983264813",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/naughty-boy-eaa-summer-vibes?variant=42261983264813&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Fizzy Peach Sweets",
+            "Size": "30 Servings",
+            "Weight": "345g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Fizzy Peach Sweets"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "345g",
+              "size_value": "345",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 11,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 20,
+          "external_product_id": "7495585398829",
+          "external_variant_id": "42261983297581",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1407",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Naughty Boy Lifestyle",
+          "category": "Amino Acids",
+          "product_name": "Naughty Boy Amino EAA/BCAA",
+          "variant_name": "Pink Lemonade / 30 Servings / 345g",
+          "flavour": "Pink Lemonade",
+          "size_value": "345",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 19.99,
+          "in_stock": false,
+          "source_row_fingerprint": "dee8565807effe2af98bd3df6cc4666de55e8d65c6bcaadbac9bf98809e2c06e",
+          "plan_fingerprint": "beb521d87802f8108b0490695820ef2f",
+          "external_url": "https://gladiatornutrition.co.uk/products/naughty-boy-eaa-summer-vibes?variant=42261983297581",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/naughty-boy-eaa-summer-vibes?variant=42261983297581&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Pink Lemonade",
+            "Size": "30 Servings",
+            "Weight": "345g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Pink Lemonade"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "345g",
+              "size_value": "345",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 11,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 21,
+          "external_product_id": "7495585398829",
+          "external_variant_id": "55187128254838",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1407",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Naughty Boy Lifestyle",
+          "category": "Amino Acids",
+          "product_name": "Naughty Boy Amino EAA/BCAA",
+          "variant_name": "Pick N Pix / 30 Servings / 345g",
+          "flavour": "Pick N Pix",
+          "size_value": "345",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 19.99,
+          "in_stock": true,
+          "source_row_fingerprint": "bd81529bd0385bd3388a2c2250ae76297a1120774ff8421ca2ab72072c851f39",
+          "plan_fingerprint": "eb77cf3dbf076a56d3919a0aba8bd8fc",
+          "external_url": "https://gladiatornutrition.co.uk/products/naughty-boy-eaa-summer-vibes?variant=55187128254838",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/naughty-boy-eaa-summer-vibes?variant=55187128254838&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Pick N Pix",
+            "Size": "30 Servings",
+            "Weight": "345g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Pick N Pix"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "345g",
+              "size_value": "345",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 11,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 22,
+          "external_product_id": "7495585398829",
+          "external_variant_id": "55187128287606",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1407",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Naughty Boy Lifestyle",
+          "category": "Amino Acids",
+          "product_name": "Naughty Boy Amino EAA/BCAA",
+          "variant_name": "Candy Bubblegum / 30 Servings / 345g",
+          "flavour": "Candy Bubblegum",
+          "size_value": "345",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 19.99,
+          "in_stock": true,
+          "source_row_fingerprint": "eef7028aa27362bbb366f30d891abda92edf450c8cfb46eb22dcb8249cbb91ba",
+          "plan_fingerprint": "bbcfd9754beaae097201c3a3a1dafc81",
+          "external_url": "https://gladiatornutrition.co.uk/products/naughty-boy-eaa-summer-vibes?variant=55187128287606",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/naughty-boy-eaa-summer-vibes?variant=55187128287606&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Candy Bubblegum",
+            "Size": "30 Servings",
+            "Weight": "345g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Candy Bubblegum"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "345g",
+              "size_value": "345",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 11,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 23,
+          "external_product_id": "7495585398829",
+          "external_variant_id": "55187128320374",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1407",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Naughty Boy Lifestyle",
+          "category": "Amino Acids",
+          "product_name": "Naughty Boy Amino EAA/BCAA",
+          "variant_name": "Ultra Energy / 30 Servings / 345g",
+          "flavour": "Ultra Energy",
+          "size_value": "345",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 19.99,
+          "in_stock": true,
+          "source_row_fingerprint": "d59a949aa58463a4ef1b4264f9a8283697c6efe0157b309cf41f4722ebfeab56",
+          "plan_fingerprint": "de3d20c0cb9553d2808c822ada5c4367",
+          "external_url": "https://gladiatornutrition.co.uk/products/naughty-boy-eaa-summer-vibes?variant=55187128320374",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/naughty-boy-eaa-summer-vibes?variant=55187128320374&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Ultra Energy",
+            "Size": "30 Servings",
+            "Weight": "345g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Ultra Energy"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "345g",
+              "size_value": "345",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 11,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 24,
+          "external_product_id": "7495585398829",
+          "external_variant_id": "55187128353142",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1407",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Naughty Boy Lifestyle",
+          "category": "Amino Acids",
+          "product_name": "Naughty Boy Amino EAA/BCAA",
+          "variant_name": "Blueberry Pineapple / 30 Servings / 345g",
+          "flavour": "Blueberry Pineapple",
+          "size_value": "345",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 19.99,
+          "in_stock": false,
+          "source_row_fingerprint": "3c350070ef7aefb882f02f174b6b9d6dd804e57d582da2dd9fd09c82313fba18",
+          "plan_fingerprint": "d2332cb467249dca7cc87c05258ec34b",
+          "external_url": "https://gladiatornutrition.co.uk/products/naughty-boy-eaa-summer-vibes?variant=55187128353142",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/naughty-boy-eaa-summer-vibes?variant=55187128353142&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Blueberry Pineapple",
+            "Size": "30 Servings",
+            "Weight": "345g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Blueberry Pineapple"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "345g",
+              "size_value": "345",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 11,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 25,
+          "external_product_id": "7495585398829",
+          "external_variant_id": "55187128385910",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1407",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Naughty Boy Lifestyle",
+          "category": "Amino Acids",
+          "product_name": "Naughty Boy Amino EAA/BCAA",
+          "variant_name": "Strawberry Mango / 30 Servings / 345g",
+          "flavour": "Strawberry Mango",
+          "size_value": "345",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 19.99,
+          "in_stock": false,
+          "source_row_fingerprint": "b1d72b9b9a94827d8b863575e355aa513cf9fe190effe5c9e1e2eda1857d2f2e",
+          "plan_fingerprint": "6538a0ba1596ec75b6d2ff5910a0432c",
+          "external_url": "https://gladiatornutrition.co.uk/products/naughty-boy-eaa-summer-vibes?variant=55187128385910",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/naughty-boy-eaa-summer-vibes?variant=55187128385910&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Strawberry Mango",
+            "Size": "30 Servings",
+            "Weight": "345g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Strawberry Mango"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "345g",
+              "size_value": "345",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 11,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 26,
+          "external_product_id": "7495585398829",
+          "external_variant_id": "56655814328694",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1407",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Naughty Boy Lifestyle",
+          "category": "Amino Acids",
+          "product_name": "Naughty Boy Amino EAA/BCAA",
+          "variant_name": "Mafiosa Twist / 30 Servings / 345g",
+          "flavour": "Mafiosa Twist",
+          "size_value": "345",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 19.99,
+          "in_stock": true,
+          "source_row_fingerprint": "4880ddb8267571fe27feffadcf032aea851ca5266fecd2e01404bb6f0aba96dc",
+          "plan_fingerprint": "4188719ed567663af19ea58bde484253",
+          "external_url": "https://gladiatornutrition.co.uk/products/naughty-boy-eaa-summer-vibes?variant=56655814328694",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/naughty-boy-eaa-summer-vibes?variant=56655814328694&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Mafiosa Twist",
+            "Size": "30 Servings",
+            "Weight": "345g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Mafiosa Twist"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "345g",
+              "size_value": "345",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 11,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 27,
+          "external_product_id": "7460054630445",
+          "external_variant_id": "41651419938861",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1408",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "TWP Nutrition",
+          "category": "Health Supplements",
+          "product_name": "TWP Sleep EAAZY Sleep Formula",
+          "variant_name": "Bed Time Beena / 25 Servings / 280g",
+          "flavour": "Bed Time Beena",
+          "size_value": "280",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 37.99,
+          "in_stock": true,
+          "source_row_fingerprint": "1a95281b08b3ad439a8615b1a2aa7097fb9d97afe6f19dd141c806d1e0e79f3b",
+          "plan_fingerprint": "bcda242b03b856ff8ff105d0dcedabb5",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-sleep-e-a-a-zzzy?variant=41651419938861",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-sleep-e-a-a-zzzy?variant=41651419938861&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Bed Time Beena",
+            "Size": "25 Servings",
+            "Weight": "280g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Bed Time Beena"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "280g",
+              "size_value": "280",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "25 Servings",
+              "count_value": "25",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 2,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 28,
+          "external_product_id": "6581179809837",
+          "external_variant_id": "39400181235757",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1409",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "HR Labs",
+          "category": "Health Supplements",
+          "product_name": "HR Labs Carb Up Carb Powder",
+          "variant_name": "Life is Peachy / 30 Servings / 1kg",
+          "flavour": "Life is Peachy",
+          "size_value": "1000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 37.99,
+          "in_stock": false,
+          "source_row_fingerprint": "b53e3b6a726ba49ac8343ab62319187c293fdd069386dc0c87d1216afdd94325",
+          "plan_fingerprint": "1318366def43654b9e94d644549b9bf3",
+          "external_url": "https://gladiatornutrition.co.uk/products/hr-labs-carb-up?variant=39400181235757",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/hr-labs-carb-up?variant=39400181235757&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Life is Peachy",
+            "Size": "30 Servings",
+            "Weight": "1kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Life is Peachy"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "1kg",
+              "size_value": "1000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 2,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        }
+      ]
+    }
+  ]
+}

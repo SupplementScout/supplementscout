@@ -1,0 +1,1215 @@
+{
+  "schema_version": 1,
+  "kind": "gladiator-nutrition-dependent-siblings-current-state-v1",
+  "status": "PREPARATION_ONLY",
+  "generated_at": "2026-10-21T06:58:44.341Z",
+  "base_commit": "7fa89a529792f26296d4caee3f6ac4c4a358d322",
+  "database_writes_authorized": false,
+  "approvals_authorized": false,
+  "apply_authorized": false,
+  "migrations_authorized": false,
+  "staging_writes_authorized": false,
+  "automation_authorized": false,
+  "source_freeze": {
+    "capture_a": {
+      "captured_at": "2026-10-21T06:54:45.198Z",
+      "page_count": 1,
+      "product_count": 155,
+      "variant_count": 852,
+      "in_stock_count": 471,
+      "out_of_stock_count": 381,
+      "identity_fingerprint": "a7102858f30c8c34f8bbf45c8bf75143111c1be1063517511d8cc1c6020895cb",
+      "semantic_fingerprint": "042a167734fc319e3a039a9e128753a814da1a3e5c3891c73a005307024c4efb",
+      "commercial_fingerprint": "19fca41d694a5c696ea038263842f7c30e1af6916810dab5bc8f68f7770f02fc"
+    },
+    "capture_b": {
+      "captured_at": "2026-10-21T06:54:45.609Z",
+      "page_count": 1,
+      "product_count": 155,
+      "variant_count": 852,
+      "in_stock_count": 471,
+      "out_of_stock_count": 381,
+      "identity_fingerprint": "a7102858f30c8c34f8bbf45c8bf75143111c1be1063517511d8cc1c6020895cb",
+      "semantic_fingerprint": "042a167734fc319e3a039a9e128753a814da1a3e5c3891c73a005307024c4efb",
+      "commercial_fingerprint": "19fca41d694a5c696ea038263842f7c30e1af6916810dab5bc8f68f7770f02fc"
+    },
+    "comparison": {
+      "product_identity_match": true,
+      "variant_identity_match": true,
+      "semantic_match": true,
+      "commercial_match": true
+    }
+  },
+  "production_readback": {
+    "captured_at": "2026-10-21T06:55:21.975Z",
+    "transaction": "BEGIN READ ONLY / ROLLBACK",
+    "ledger_count": 245,
+    "ledger_fingerprint": "7cf0280778830f919c3ed81ea9c98d4efaa689392ab7a9d5c65ed673c3d51163",
+    "gladiator_mappings": 304,
+    "gladiator_offers": 304,
+    "gladiator_price_history": 304,
+    "database_writes": 0
+  },
+  "parent_readback": {
+    "result": "PASS",
+    "count": 12,
+    "families": [
+      {
+        "name": "Kayow Protein Cookie",
+        "external_product_id": "15640614568310",
+        "anchor_external_variant_id": "57418273358198",
+        "product_id": "1396",
+        "canonical_name": "Kayow Protein Cookie",
+        "canonical_slug": "kayow-protein-cookie",
+        "is_active": true,
+        "merged_into_product_id": null,
+        "anchor_mapping_id": "4268",
+        "anchor_product_variant_id": "4304",
+        "anchor_offer_id": "4081",
+        "existing_family_mapping_count": 1,
+        "result": "PASS"
+      },
+      {
+        "name": "Strom Sports Support Max Neuro Nootropic",
+        "external_product_id": "15571426312566",
+        "anchor_external_variant_id": "57166658208118",
+        "product_id": "1397",
+        "canonical_name": "Strom Sports Support Max Neuro Nootropic",
+        "canonical_slug": "strom-sports-support-max-neuro-nootropic",
+        "is_active": true,
+        "merged_into_product_id": null,
+        "anchor_mapping_id": "4269",
+        "anchor_product_variant_id": "4305",
+        "anchor_offer_id": "4082",
+        "existing_family_mapping_count": 1,
+        "result": "PASS"
+      },
+      {
+        "name": "Ghost Lifestyle Energy Drink",
+        "external_product_id": "15246472610166",
+        "anchor_external_variant_id": "55897618579830",
+        "product_id": "1398",
+        "canonical_name": "Ghost Lifestyle Energy Drink",
+        "canonical_slug": "ghost-lifestyle-energy-drink",
+        "is_active": true,
+        "merged_into_product_id": null,
+        "anchor_mapping_id": "4270",
+        "anchor_product_variant_id": "4306",
+        "anchor_offer_id": "4083",
+        "existing_family_mapping_count": 1,
+        "result": "PASS"
+      },
+      {
+        "name": "Myoblox 24/7 Aminos BCAA/EAA",
+        "external_product_id": "15026499354998",
+        "anchor_external_variant_id": "55135499780470",
+        "product_id": "1400",
+        "canonical_name": "Myoblox 24/7 Aminos BCAA/EAA",
+        "canonical_slug": "myoblox-24-7-aminos-bcaa-eaa",
+        "is_active": true,
+        "merged_into_product_id": null,
+        "anchor_mapping_id": "4272",
+        "anchor_product_variant_id": "4308",
+        "anchor_offer_id": "4085",
+        "existing_family_mapping_count": 1,
+        "result": "PASS"
+      },
+      {
+        "name": "Supplement Needs Pre Focus Nootropic",
+        "external_product_id": "15024297542006",
+        "anchor_external_variant_id": "55130169114998",
+        "product_id": "1401",
+        "canonical_name": "Supplement Needs Pre Focus Nootropic",
+        "canonical_slug": "supplement-needs-pre-focus-nootropic",
+        "is_active": true,
+        "merged_into_product_id": null,
+        "anchor_mapping_id": "4273",
+        "anchor_product_variant_id": "4309",
+        "anchor_offer_id": "4086",
+        "existing_family_mapping_count": 1,
+        "result": "PASS"
+      },
+      {
+        "name": "TWP Nutrition SWEAAT EAA Hydration",
+        "external_product_id": "14863320056182",
+        "anchor_external_variant_id": "54845106389366",
+        "product_id": "1402",
+        "canonical_name": "TWP Nutrition SWEAAT EAA Hydration",
+        "canonical_slug": "twp-nutrition-sweaat-eaa-hydration",
+        "is_active": true,
+        "merged_into_product_id": null,
+        "anchor_mapping_id": "4274",
+        "anchor_product_variant_id": "4310",
+        "anchor_offer_id": "4087",
+        "existing_family_mapping_count": 1,
+        "result": "PASS"
+      },
+      {
+        "name": "Xtremis Cartel Sueno Sleep Formula",
+        "external_product_id": "8036937170989",
+        "anchor_external_variant_id": "43023771336749",
+        "product_id": "1404",
+        "canonical_name": "Xtremis Cartel Sueno Sleep Formula",
+        "canonical_slug": "xtremis-cartel-sueno-sleep-formula",
+        "is_active": true,
+        "merged_into_product_id": null,
+        "anchor_mapping_id": "4276",
+        "anchor_product_variant_id": "4312",
+        "anchor_offer_id": "4089",
+        "existing_family_mapping_count": 1,
+        "result": "PASS"
+      },
+      {
+        "name": "TWP Glutamine Raw 500g",
+        "external_product_id": "7596702859309",
+        "anchor_external_variant_id": "41880379883565",
+        "product_id": "1405",
+        "canonical_name": "TWP Glutamine Raw 500g",
+        "canonical_slug": "twp-glutamine-raw-500g",
+        "is_active": true,
+        "merged_into_product_id": null,
+        "anchor_mapping_id": "4289",
+        "anchor_product_variant_id": "4325",
+        "anchor_offer_id": "4102",
+        "existing_family_mapping_count": 1,
+        "result": "PASS"
+      },
+      {
+        "name": "TWP Anytime COR+ Cream Of Rice",
+        "external_product_id": "7543209885741",
+        "anchor_external_variant_id": "41779916898349",
+        "product_id": "1406",
+        "canonical_name": "TWP Anytime COR+ Cream Of Rice",
+        "canonical_slug": "twp-cream-of-rice",
+        "is_active": true,
+        "merged_into_product_id": null,
+        "anchor_mapping_id": "4290",
+        "anchor_product_variant_id": "4326",
+        "anchor_offer_id": "4103",
+        "existing_family_mapping_count": 1,
+        "result": "PASS"
+      },
+      {
+        "name": "Naughty Boy Amino EAA/BCAA",
+        "external_product_id": "7495585398829",
+        "anchor_external_variant_id": "41701200625709",
+        "product_id": "1407",
+        "canonical_name": "Naughty Boy Amino EAA/BCAA",
+        "canonical_slug": "naughty-boy-eaa-summer-vibes",
+        "is_active": true,
+        "merged_into_product_id": null,
+        "anchor_mapping_id": "4291",
+        "anchor_product_variant_id": "4327",
+        "anchor_offer_id": "4104",
+        "existing_family_mapping_count": 1,
+        "result": "PASS"
+      },
+      {
+        "name": "TWP Sleep EAAZY Sleep Formula",
+        "external_product_id": "7460054630445",
+        "anchor_external_variant_id": "41651419906093",
+        "product_id": "1408",
+        "canonical_name": "TWP Sleep EAAZY Sleep Formula",
+        "canonical_slug": "twp-sleep-e-a-a-zzzy",
+        "is_active": true,
+        "merged_into_product_id": null,
+        "anchor_mapping_id": "4298",
+        "anchor_product_variant_id": "4329",
+        "anchor_offer_id": "4111",
+        "existing_family_mapping_count": 1,
+        "result": "PASS"
+      },
+      {
+        "name": "HR Labs Carb Up Carb Powder",
+        "external_product_id": "6581179809837",
+        "anchor_external_variant_id": "39400181202989",
+        "product_id": "1409",
+        "canonical_name": "HR Labs Carb Up Carb Powder",
+        "canonical_slug": "hr-labs-carb-up",
+        "is_active": true,
+        "merged_into_product_id": null,
+        "anchor_mapping_id": "4307",
+        "anchor_product_variant_id": "4330",
+        "anchor_offer_id": "4120",
+        "existing_family_mapping_count": 1,
+        "result": "PASS"
+      }
+    ]
+  },
+  "scoped_family_counts": [
+    {
+      "source_family": "Kayow Protein Cookie",
+      "external_product_id": "15640614568310",
+      "product_id": "1396",
+      "total_variants": 3,
+      "already_mapped": 1,
+      "remaining_unmapped": 2
+    },
+    {
+      "source_family": "Strom Sports Support Max Neuro Nootropic",
+      "external_product_id": "15571426312566",
+      "product_id": "1397",
+      "total_variants": 3,
+      "already_mapped": 1,
+      "remaining_unmapped": 2
+    },
+    {
+      "source_family": "Ghost Lifestyle Energy Drink",
+      "external_product_id": "15246472610166",
+      "product_id": "1398",
+      "total_variants": 5,
+      "already_mapped": 1,
+      "remaining_unmapped": 4
+    },
+    {
+      "source_family": "Myoblox 24/7 Aminos BCAA/EAA",
+      "external_product_id": "15026499354998",
+      "product_id": "1400",
+      "total_variants": 4,
+      "already_mapped": 1,
+      "remaining_unmapped": 3
+    },
+    {
+      "source_family": "Supplement Needs Pre Focus Nootropic",
+      "external_product_id": "15024297542006",
+      "product_id": "1401",
+      "total_variants": 3,
+      "already_mapped": 1,
+      "remaining_unmapped": 2
+    },
+    {
+      "source_family": "TWP Nutrition SWEAAT EAA Hydration",
+      "external_product_id": "14863320056182",
+      "product_id": "1402",
+      "total_variants": 5,
+      "already_mapped": 1,
+      "remaining_unmapped": 4
+    },
+    {
+      "source_family": "Xtremis Cartel Sueno Sleep Formula",
+      "external_product_id": "8036937170989",
+      "product_id": "1404",
+      "total_variants": 2,
+      "already_mapped": 1,
+      "remaining_unmapped": 1
+    },
+    {
+      "source_family": "TWP Glutamine Raw 500g",
+      "external_product_id": "7596702859309",
+      "product_id": "1405",
+      "total_variants": 1,
+      "already_mapped": 1,
+      "remaining_unmapped": 0
+    },
+    {
+      "source_family": "TWP Anytime COR+ Cream Of Rice",
+      "external_product_id": "7543209885741",
+      "product_id": "1406",
+      "total_variants": 5,
+      "already_mapped": 1,
+      "remaining_unmapped": 4
+    },
+    {
+      "source_family": "Naughty Boy Amino EAA/BCAA",
+      "external_product_id": "7495585398829",
+      "product_id": "1407",
+      "total_variants": 11,
+      "already_mapped": 1,
+      "remaining_unmapped": 10
+    },
+    {
+      "source_family": "TWP Sleep EAAZY Sleep Formula",
+      "external_product_id": "7460054630445",
+      "product_id": "1408",
+      "total_variants": 2,
+      "already_mapped": 1,
+      "remaining_unmapped": 1
+    },
+    {
+      "source_family": "HR Labs Carb Up Carb Powder",
+      "external_product_id": "6581179809837",
+      "product_id": "1409",
+      "total_variants": 2,
+      "already_mapped": 1,
+      "remaining_unmapped": 1
+    }
+  ],
+  "scoped_parity": {
+    "total_source_variants": 46,
+    "classified": 46,
+    "result": "PASS"
+  },
+  "classification_counts": {
+    "ALREADY_MAPPED": 12,
+    "REVIEW_IDENTITY_OR_OPTIONS": 6,
+    "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT": 28
+  },
+  "planner": {
+    "candidates_before_role_checks": 34,
+    "role_check_rejections": 0,
+    "candidates_submitted": 34,
+    "rejected": [
+      {
+        "external_product_id": "15640614568310",
+        "external_variant_id": "57418273325430",
+        "source_product_title": "Kayow Protein Cookie",
+        "source_variant_title": "Salted Caramel / 12 x 60g Cookies / 720g",
+        "status": "REVIEW_IDENTITY_OR_OPTIONS",
+        "canonical_product_id": "1396",
+        "canonical_variant_id": null,
+        "reason": "pack-count conflict"
+      },
+      {
+        "external_product_id": "15640614568310",
+        "external_variant_id": "57418273390966",
+        "source_product_title": "Kayow Protein Cookie",
+        "source_variant_title": "Double Chocolate Chip / 12 x 60g Cookies / 720g",
+        "status": "REVIEW_IDENTITY_OR_OPTIONS",
+        "canonical_product_id": "1396",
+        "canonical_variant_id": null,
+        "reason": "pack-count conflict"
+      },
+      {
+        "external_product_id": "15246472610166",
+        "external_variant_id": "55897618612598",
+        "source_product_title": "Ghost Lifestyle Energy Drink",
+        "source_variant_title": "Cherry Limeade / 500ml",
+        "status": "REVIEW_IDENTITY_OR_OPTIONS",
+        "canonical_product_id": "1398",
+        "canonical_variant_id": null,
+        "reason": "format conflict; format conflict"
+      },
+      {
+        "external_product_id": "15246472610166",
+        "external_variant_id": "55897618645366",
+        "source_product_title": "Ghost Lifestyle Energy Drink",
+        "source_variant_title": "Original / 500ml",
+        "status": "REVIEW_IDENTITY_OR_OPTIONS",
+        "canonical_product_id": "1398",
+        "canonical_variant_id": null,
+        "reason": "format conflict; format conflict"
+      },
+      {
+        "external_product_id": "15246472610166",
+        "external_variant_id": "55897618678134",
+        "source_product_title": "Ghost Lifestyle Energy Drink",
+        "source_variant_title": "Blue Raspberry / 500ml",
+        "status": "REVIEW_IDENTITY_OR_OPTIONS",
+        "canonical_product_id": "1398",
+        "canonical_variant_id": null,
+        "reason": "format conflict; format conflict"
+      },
+      {
+        "external_product_id": "15246472610166",
+        "external_variant_id": "57774038745462",
+        "source_product_title": "Ghost Lifestyle Energy Drink",
+        "source_variant_title": "Pink Lemonade (NEW) / 500ml",
+        "status": "REVIEW_IDENTITY_OR_OPTIONS",
+        "canonical_product_id": "1398",
+        "canonical_variant_id": null,
+        "reason": "format conflict; format conflict"
+      }
+    ],
+    "final_candidates": 28,
+    "final_pass": 28,
+    "final_blocked": 0,
+    "action_distribution": {
+      "create_variant_on_existing_product": 28
+    }
+  },
+  "collision_checks": {
+    "existing_external_variant_ids_in_executable": 0,
+    "mapping_url_collisions": 0,
+    "canonical_target_duplicates": 0,
+    "unsafe_sku_collisions": 0,
+    "gtin_collisions": 0,
+    "external_options_collisions": 0,
+    "duplicate_siblings": 0
+  },
+  "commercial_policy": {
+    "mapping_urls_direct_without_sca_ref": true,
+    "offer_urls_exact_sca_ref": "11968733.U3nlV04VwN4S",
+    "marcus_occurrences": 0,
+    "shipping_below_75": 6.99,
+    "shipping_at_or_above_75": 0,
+    "total_equals_price_plus_shipping": true,
+    "current_stock_used": true,
+    "raw_external_options_immutable": true
+  },
+  "previous_dependent_99_breakdown": {
+    "executable": 28,
+    "still_dependent_other_parent_absent": 65,
+    "review": 6,
+    "held": 0,
+    "already_mapped": 0,
+    "blocked": 0,
+    "source_missing": 0
+  },
+  "package": {
+    "profile_id": "gladiator-nutrition-dependent-siblings-v1",
+    "row_count": 28,
+    "csv_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-nutrition-dependent-siblings-v1.csv",
+    "csv_sha256": "385033c1f89d25379202974c412856f110f27da1972d107a13a0fa2a80cc9165",
+    "artifact_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-nutrition-dependent-siblings-v1-dry-run.json",
+    "artifact_sha256": "c1fa13e309e30afb958fc7060211663e2e6fca21692bdb16c5142593f394af38",
+    "run_id": "fb33c1cc-e926-4355-b660-af5001a64a51",
+    "manifest_path": "config/retailers/gladiator-nutrition-dependent-siblings-v1.json",
+    "manifest_sha256": "23a729f07ee53b838fbda2760bb6aa02bdd93efefdc2b4152350e3ee00c3ab15",
+    "artifact_action_counts": {
+      "retailers_create": 0,
+      "products_create": 0,
+      "product_variants_create": 28,
+      "retailer_products_create": 28,
+      "offers_create": 28,
+      "price_history_create": 28
+    },
+    "manifest_expected_actions": {
+      "retailers_create": 0,
+      "products_create": 0,
+      "product_variants_create": 28,
+      "retailer_products_create": 28,
+      "offers_create": 28,
+      "price_history_create": 28
+    },
+    "action_counts_parity": "PASS",
+    "loader_equivalent_preparation_validation": "PASS"
+  },
+  "expected_deltas_if_separately_owner_approved": {
+    "products": 0,
+    "product_variants": 28,
+    "retailer_products": 28,
+    "offers": 28,
+    "price_history": 28,
+    "post_apply_gladiator_mappings": 332,
+    "post_apply_gladiator_offers": 332
+  },
+  "official_production_validator": {
+    "result": "PASS",
+    "validated": 28,
+    "requested": 28,
+    "identity": {
+      "current_user": "retailer_catalogue_production_validator",
+      "session_user": "supplementscout_production_validator_login",
+      "current_role": "retailer_catalogue_production_validator",
+      "transaction_read_only": "on",
+      "safe_update": null
+    },
+    "transaction": "BEGIN READ ONLY / ROLLBACK",
+    "database_writes": 0
+  },
+  "automation": "NOT_ACTIVATED",
+  "scoped_variants": [
+    {
+      "external_product_id": "15640614568310",
+      "external_variant_id": "57418273358198",
+      "source_product_title": "Kayow Protein Cookie",
+      "source_variant_title": "Chocolate Chip / 12 x 60g Cookies / 720g",
+      "status": "ALREADY_MAPPED",
+      "canonical_product_id": "1396",
+      "canonical_variant_id": "4304",
+      "reason": "existing Gladiator mapping"
+    },
+    {
+      "external_product_id": "15571426312566",
+      "external_variant_id": "57166658208118",
+      "source_product_title": "Strom Sports Support Max Neuro Nootropic",
+      "source_variant_title": "Mango / 30 Servings / 150g",
+      "status": "ALREADY_MAPPED",
+      "canonical_product_id": "1397",
+      "canonical_variant_id": "4305",
+      "reason": "existing Gladiator mapping"
+    },
+    {
+      "external_product_id": "15246472610166",
+      "external_variant_id": "55897618579830",
+      "source_product_title": "Ghost Lifestyle Energy Drink",
+      "source_variant_title": "Sour Warheads Watermelon / 500ml",
+      "status": "ALREADY_MAPPED",
+      "canonical_product_id": "1398",
+      "canonical_variant_id": "4306",
+      "reason": "existing Gladiator mapping"
+    },
+    {
+      "external_product_id": "15026499354998",
+      "external_variant_id": "55135499780470",
+      "source_product_title": "Myoblox 24/7 Aminos BCAA/EAA",
+      "source_variant_title": "Galactic Glow / 30 Servings / 367.7g",
+      "status": "ALREADY_MAPPED",
+      "canonical_product_id": "1400",
+      "canonical_variant_id": "4308",
+      "reason": "existing Gladiator mapping"
+    },
+    {
+      "external_product_id": "15024297542006",
+      "external_variant_id": "55130169114998",
+      "source_product_title": "Supplement Needs Pre Focus Nootropic",
+      "source_variant_title": "Strawberry Surge / 30 Servings / 225g",
+      "status": "ALREADY_MAPPED",
+      "canonical_product_id": "1401",
+      "canonical_variant_id": "4309",
+      "reason": "existing Gladiator mapping"
+    },
+    {
+      "external_product_id": "14863320056182",
+      "external_variant_id": "54845106389366",
+      "source_product_title": "TWP Nutrition SWEAAT EAA Hydration",
+      "source_variant_title": "Blue Lemonade / 30 Servings / 450g",
+      "status": "ALREADY_MAPPED",
+      "canonical_product_id": "1402",
+      "canonical_variant_id": "4310",
+      "reason": "existing Gladiator mapping"
+    },
+    {
+      "external_product_id": "8036937170989",
+      "external_variant_id": "43023771336749",
+      "source_product_title": "Xtremis Cartel Sueno Sleep Formula",
+      "source_variant_title": "Dreamin Grapes / 40/20 Servings / 388g",
+      "status": "ALREADY_MAPPED",
+      "canonical_product_id": "1404",
+      "canonical_variant_id": "4312",
+      "reason": "existing Gladiator mapping"
+    },
+    {
+      "external_product_id": "7596702859309",
+      "external_variant_id": "41880379883565",
+      "source_product_title": "TWP Glutamine Raw 500g",
+      "source_variant_title": "Unflavoured / 100 Servings / 500g",
+      "status": "ALREADY_MAPPED",
+      "canonical_product_id": "1405",
+      "canonical_variant_id": "4325",
+      "reason": "existing Gladiator mapping"
+    },
+    {
+      "external_product_id": "7543209885741",
+      "external_variant_id": "41779916898349",
+      "source_product_title": "TWP Anytime COR+ Cream Of Rice",
+      "source_variant_title": "Sugar Sweet / 40/80 / 1.8kg",
+      "status": "ALREADY_MAPPED",
+      "canonical_product_id": "1406",
+      "canonical_variant_id": "4326",
+      "reason": "existing Gladiator mapping"
+    },
+    {
+      "external_product_id": "7495585398829",
+      "external_variant_id": "41701200625709",
+      "source_product_title": "Naughty Boy Amino EAA/BCAA",
+      "source_variant_title": "Blue Razz Bon Bons / 30 Servings / 345g",
+      "status": "ALREADY_MAPPED",
+      "canonical_product_id": "1407",
+      "canonical_variant_id": "4327",
+      "reason": "existing Gladiator mapping"
+    },
+    {
+      "external_product_id": "7460054630445",
+      "external_variant_id": "41651419906093",
+      "source_product_title": "TWP Sleep EAAZY Sleep Formula",
+      "source_variant_title": "Peaches & Dreams / 25 Servings / 280g",
+      "status": "ALREADY_MAPPED",
+      "canonical_product_id": "1408",
+      "canonical_variant_id": "4329",
+      "reason": "existing Gladiator mapping"
+    },
+    {
+      "external_product_id": "6581179809837",
+      "external_variant_id": "39400181202989",
+      "source_product_title": "HR Labs Carb Up Carb Powder",
+      "source_variant_title": "Grape Bubbalicious / 30 Servings / 1kg",
+      "status": "ALREADY_MAPPED",
+      "canonical_product_id": "1409",
+      "canonical_variant_id": "4330",
+      "reason": "existing Gladiator mapping"
+    },
+    {
+      "external_product_id": "15571426312566",
+      "external_variant_id": "57166658240886",
+      "source_product_title": "Strom Sports Support Max Neuro Nootropic",
+      "source_variant_title": "Pineapple / 30 Servings / 150g",
+      "external_options": {
+        "Flavour": "Pineapple",
+        "Size": "30 Servings",
+        "Weight": "150g"
+      },
+      "price": 29.99,
+      "in_stock": false,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1397",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "100e488f1ddb628beebbb1c68c8b07b0",
+      "source_row_fingerprint": "6c56a2ff192e69fcf1526f9d9c0fde78c9430984a7a6d9dfaf6d33c5ca3029ac"
+    },
+    {
+      "external_product_id": "15571426312566",
+      "external_variant_id": "57166658273654",
+      "source_product_title": "Strom Sports Support Max Neuro Nootropic",
+      "source_variant_title": "Lime / 30 Servings / 150g",
+      "external_options": {
+        "Flavour": "Lime",
+        "Size": "30 Servings",
+        "Weight": "150g"
+      },
+      "price": 29.99,
+      "in_stock": true,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1397",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "46659954505e3eaa1540dd24dddaea47",
+      "source_row_fingerprint": "086ac67ba42226fd604b0f689fa23dc99405c7616454197f622119469ecc12f6"
+    },
+    {
+      "external_product_id": "15026499354998",
+      "external_variant_id": "55135499813238",
+      "source_product_title": "Myoblox 24/7 Aminos BCAA/EAA",
+      "source_variant_title": "Gorilla Juice / 30 Servings / 367.7g",
+      "external_options": {
+        "Flavour": "Gorilla Juice",
+        "Size": "30 Servings",
+        "Weight": "367.7g"
+      },
+      "price": 19.99,
+      "in_stock": true,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1400",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "8a48398aa7c79448a9f8d6f67a64be7e",
+      "source_row_fingerprint": "75c38ef5d661a99e4259e8bea439ac491e5d92b1611b80fee64e4a5a7756dfe9"
+    },
+    {
+      "external_product_id": "15026499354998",
+      "external_variant_id": "55135499846006",
+      "source_product_title": "Myoblox 24/7 Aminos BCAA/EAA",
+      "source_variant_title": "Colour Money / 30 Servings / 367.7g",
+      "external_options": {
+        "Flavour": "Colour Money",
+        "Size": "30 Servings",
+        "Weight": "367.7g"
+      },
+      "price": 19.99,
+      "in_stock": true,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1400",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "7e2bce3fcc9156dfd3f8c02481d1635b",
+      "source_row_fingerprint": "50e77181730afc25a11e97bf617339f1e9e25a9e7182aa5912d0ae423f306cd8"
+    },
+    {
+      "external_product_id": "15026499354998",
+      "external_variant_id": "55135499878774",
+      "source_product_title": "Myoblox 24/7 Aminos BCAA/EAA",
+      "source_variant_title": "Rainbow Haze / 30 Servings / 367.7g",
+      "external_options": {
+        "Flavour": "Rainbow Haze",
+        "Size": "30 Servings",
+        "Weight": "367.7g"
+      },
+      "price": 19.99,
+      "in_stock": true,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1400",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "28698e7dc5c7410f7777fe48383f25f1",
+      "source_row_fingerprint": "64910bbf88d7229e1eea46ddd7c0be27bb364d52f67662e7a25862d294a78d33"
+    },
+    {
+      "external_product_id": "15024297542006",
+      "external_variant_id": "55130169082230",
+      "source_product_title": "Supplement Needs Pre Focus Nootropic",
+      "source_variant_title": "Cola Lime Twist / 30 Servings / 225g",
+      "external_options": {
+        "Flavour": "Cola Lime Twist",
+        "Size": "30 Servings",
+        "Weight": "225g"
+      },
+      "price": 36.99,
+      "in_stock": false,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1401",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "b6dac9b30742751ead54f48b4b85c421",
+      "source_row_fingerprint": "05a457b1764c97d88b9de76605e56f2c946abd44add5425cec995f7638e283c7"
+    },
+    {
+      "external_product_id": "15024297542006",
+      "external_variant_id": "57208301420918",
+      "source_product_title": "Supplement Needs Pre Focus Nootropic",
+      "source_variant_title": "Lemon Sherbet / 30 Servings / 225g",
+      "external_options": {
+        "Flavour": "Lemon Sherbet",
+        "Size": "30 Servings",
+        "Weight": "225g"
+      },
+      "price": 36.99,
+      "in_stock": false,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1401",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "3b70610055d314b35c7c1c43ba4acf47",
+      "source_row_fingerprint": "cfd1cd637a80a6c5eba02a3a7bb88d6b045a1d30a1d8d005ba1b3e94a3987ee4"
+    },
+    {
+      "external_product_id": "14863320056182",
+      "external_variant_id": "54845106422134",
+      "source_product_title": "TWP Nutrition SWEAAT EAA Hydration",
+      "source_variant_title": "Pink Lemonade / 30 Servings / 450g",
+      "external_options": {
+        "Flavour": "Pink Lemonade",
+        "Size": "30 Servings",
+        "Weight": "450g"
+      },
+      "price": 21.99,
+      "in_stock": true,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1402",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "9002b7a39c45153be1294b26b93159e2",
+      "source_row_fingerprint": "4f6643fc2d61cc48078134ebae09cbaf3db1c6324aabbd32cddc8eeaea1d091d"
+    },
+    {
+      "external_product_id": "14863320056182",
+      "external_variant_id": "54845106454902",
+      "source_product_title": "TWP Nutrition SWEAAT EAA Hydration",
+      "source_variant_title": "Bubblegum Grape / 30 Servings / 450g",
+      "external_options": {
+        "Flavour": "Bubblegum Grape",
+        "Size": "30 Servings",
+        "Weight": "450g"
+      },
+      "price": 21.99,
+      "in_stock": true,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1402",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "3c271d8caf942712f90047929348b57a",
+      "source_row_fingerprint": "5cf6eab27b535f618e04fdf12fd35263c593f676a36aad452c54144eccf02eb8"
+    },
+    {
+      "external_product_id": "14863320056182",
+      "external_variant_id": "54845106487670",
+      "source_product_title": "TWP Nutrition SWEAAT EAA Hydration",
+      "source_variant_title": "Cotton Candy / 30 Servings / 450g",
+      "external_options": {
+        "Flavour": "Cotton Candy",
+        "Size": "30 Servings",
+        "Weight": "450g"
+      },
+      "price": 21.99,
+      "in_stock": true,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1402",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "934b94744c10924b4adab026fcc85154",
+      "source_row_fingerprint": "901a71e0d0717aa4aebbfd304d7678d725e69e0d5294da9129dd43151ebd78b4"
+    },
+    {
+      "external_product_id": "14863320056182",
+      "external_variant_id": "55135441715574",
+      "source_product_title": "TWP Nutrition SWEAAT EAA Hydration",
+      "source_variant_title": "Jacked Baby / 30 Servings / 450g",
+      "external_options": {
+        "Flavour": "Jacked Baby",
+        "Size": "30 Servings",
+        "Weight": "450g"
+      },
+      "price": 21.99,
+      "in_stock": true,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1402",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "70a54905d5a9e44ff56ac28728920585",
+      "source_row_fingerprint": "6589056c0c13769aaa34be546000bec81dcee58038d06b261e71252742e6f841"
+    },
+    {
+      "external_product_id": "8036937170989",
+      "external_variant_id": "43023771369517",
+      "source_product_title": "Xtremis Cartel Sueno Sleep Formula",
+      "source_variant_title": "Dreamin Lemons / 40/20 Servings / 388g",
+      "external_options": {
+        "Flavour": "Dreamin Lemons",
+        "Size": "40/20 Servings",
+        "Weight": "388g"
+      },
+      "price": 46.99,
+      "in_stock": true,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1404",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "3f1db0298af5bafe6fcf0180708fe42d",
+      "source_row_fingerprint": "592125d4699d8f506364a3bdcc3eec015bfea0fb3b49267c7da7ab3bcd8beda9"
+    },
+    {
+      "external_product_id": "7543209885741",
+      "external_variant_id": "41779916603437",
+      "source_product_title": "TWP Anytime COR+ Cream Of Rice",
+      "source_variant_title": "Chocolate Caramel / 40/80 / 1.8kg",
+      "external_options": {
+        "Flavour": "Chocolate Caramel",
+        "Size": "40/80",
+        "Weight": "1.8kg"
+      },
+      "price": 16.99,
+      "in_stock": false,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1406",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "a30bf1284dd526199966aa3601fb1746",
+      "source_row_fingerprint": "355b446810e79a1af62b0bb96af773271be20c7e915e00578c07979321a41759"
+    },
+    {
+      "external_product_id": "7543209885741",
+      "external_variant_id": "42004108443693",
+      "source_product_title": "TWP Anytime COR+ Cream Of Rice",
+      "source_variant_title": "Gold / 40/80 / 1.8kg",
+      "external_options": {
+        "Flavour": "Gold",
+        "Size": "40/80",
+        "Weight": "1.8kg"
+      },
+      "price": 16.99,
+      "in_stock": true,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1406",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "347c98ea68a58c76a08f39b181551f61",
+      "source_row_fingerprint": "3f3d202b9f2ac1c1f434b611b4e0815a20c27908db2a61d4ef2ba2920bd12734"
+    },
+    {
+      "external_product_id": "7543209885741",
+      "external_variant_id": "42517751693357",
+      "source_product_title": "TWP Anytime COR+ Cream Of Rice",
+      "source_variant_title": "Red Velvet / 40/80 / 1.8kg",
+      "external_options": {
+        "Flavour": "Red Velvet",
+        "Size": "40/80",
+        "Weight": "1.8kg"
+      },
+      "price": 16.99,
+      "in_stock": true,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1406",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "f566a74aad50a62de557e45702f005d8",
+      "source_row_fingerprint": "082b1f8ac20741f457599bb3a45a3ebf442e2fa1a32e730f125a489461db2a27"
+    },
+    {
+      "external_product_id": "7543209885741",
+      "external_variant_id": "42517751726125",
+      "source_product_title": "TWP Anytime COR+ Cream Of Rice",
+      "source_variant_title": "Cookie Dough Brownie / 40/80 / 1.8kg",
+      "external_options": {
+        "Flavour": "Cookie Dough Brownie",
+        "Size": "40/80",
+        "Weight": "1.8kg"
+      },
+      "price": 16.99,
+      "in_stock": false,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1406",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "64d7f718b8740e3ba4792b3a41999695",
+      "source_row_fingerprint": "15816a3605182040407242cbe7801164aecc8e3feb0d880bb1432fedf242a19a"
+    },
+    {
+      "external_product_id": "7495585398829",
+      "external_variant_id": "41701200658477",
+      "source_product_title": "Naughty Boy Amino EAA/BCAA",
+      "source_variant_title": "Summer Fruits / 30 Servings / 345g",
+      "external_options": {
+        "Flavour": "Summer Fruits",
+        "Size": "30 Servings",
+        "Weight": "345g"
+      },
+      "price": 19.99,
+      "in_stock": false,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1407",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "b79a96764c2834741802acbac5d24151",
+      "source_row_fingerprint": "e405f7e184ecbd91661cdc3ca24d7bfcfdfa5f9884a9f9d17438166bca10fdbd"
+    },
+    {
+      "external_product_id": "7495585398829",
+      "external_variant_id": "41701200691245",
+      "source_product_title": "Naughty Boy Amino EAA/BCAA",
+      "source_variant_title": "Cherry Mango / 30 Servings / 345g",
+      "external_options": {
+        "Flavour": "Cherry Mango",
+        "Size": "30 Servings",
+        "Weight": "345g"
+      },
+      "price": 19.99,
+      "in_stock": false,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1407",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "4e70f120923cfe0d11ba47bc3964cecd",
+      "source_row_fingerprint": "9ec80a0278069b45ba7f33bea0b45fd06e29022310910a70dedf67e3fffe0648"
+    },
+    {
+      "external_product_id": "7495585398829",
+      "external_variant_id": "42261983264813",
+      "source_product_title": "Naughty Boy Amino EAA/BCAA",
+      "source_variant_title": "Fizzy Peach Sweets / 30 Servings / 345g",
+      "external_options": {
+        "Flavour": "Fizzy Peach Sweets",
+        "Size": "30 Servings",
+        "Weight": "345g"
+      },
+      "price": 19.99,
+      "in_stock": false,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1407",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "a2bc2a169e22bd4f396c230acf06c4e4",
+      "source_row_fingerprint": "bd1d77db679b7eb34b20b687312b532e6abbfd3ff40144eb53909bf88aae6c7f"
+    },
+    {
+      "external_product_id": "7495585398829",
+      "external_variant_id": "42261983297581",
+      "source_product_title": "Naughty Boy Amino EAA/BCAA",
+      "source_variant_title": "Pink Lemonade / 30 Servings / 345g",
+      "external_options": {
+        "Flavour": "Pink Lemonade",
+        "Size": "30 Servings",
+        "Weight": "345g"
+      },
+      "price": 19.99,
+      "in_stock": false,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1407",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "beb521d87802f8108b0490695820ef2f",
+      "source_row_fingerprint": "dee8565807effe2af98bd3df6cc4666de55e8d65c6bcaadbac9bf98809e2c06e"
+    },
+    {
+      "external_product_id": "7495585398829",
+      "external_variant_id": "55187128254838",
+      "source_product_title": "Naughty Boy Amino EAA/BCAA",
+      "source_variant_title": "Pick N Pix / 30 Servings / 345g",
+      "external_options": {
+        "Flavour": "Pick N Pix",
+        "Size": "30 Servings",
+        "Weight": "345g"
+      },
+      "price": 19.99,
+      "in_stock": true,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1407",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "eb77cf3dbf076a56d3919a0aba8bd8fc",
+      "source_row_fingerprint": "bd81529bd0385bd3388a2c2250ae76297a1120774ff8421ca2ab72072c851f39"
+    },
+    {
+      "external_product_id": "7495585398829",
+      "external_variant_id": "55187128287606",
+      "source_product_title": "Naughty Boy Amino EAA/BCAA",
+      "source_variant_title": "Candy Bubblegum / 30 Servings / 345g",
+      "external_options": {
+        "Flavour": "Candy Bubblegum",
+        "Size": "30 Servings",
+        "Weight": "345g"
+      },
+      "price": 19.99,
+      "in_stock": true,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1407",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "bbcfd9754beaae097201c3a3a1dafc81",
+      "source_row_fingerprint": "eef7028aa27362bbb366f30d891abda92edf450c8cfb46eb22dcb8249cbb91ba"
+    },
+    {
+      "external_product_id": "7495585398829",
+      "external_variant_id": "55187128320374",
+      "source_product_title": "Naughty Boy Amino EAA/BCAA",
+      "source_variant_title": "Ultra Energy / 30 Servings / 345g",
+      "external_options": {
+        "Flavour": "Ultra Energy",
+        "Size": "30 Servings",
+        "Weight": "345g"
+      },
+      "price": 19.99,
+      "in_stock": true,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1407",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "de3d20c0cb9553d2808c822ada5c4367",
+      "source_row_fingerprint": "d59a949aa58463a4ef1b4264f9a8283697c6efe0157b309cf41f4722ebfeab56"
+    },
+    {
+      "external_product_id": "7495585398829",
+      "external_variant_id": "55187128353142",
+      "source_product_title": "Naughty Boy Amino EAA/BCAA",
+      "source_variant_title": "Blueberry Pineapple / 30 Servings / 345g",
+      "external_options": {
+        "Flavour": "Blueberry Pineapple",
+        "Size": "30 Servings",
+        "Weight": "345g"
+      },
+      "price": 19.99,
+      "in_stock": false,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1407",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "d2332cb467249dca7cc87c05258ec34b",
+      "source_row_fingerprint": "3c350070ef7aefb882f02f174b6b9d6dd804e57d582da2dd9fd09c82313fba18"
+    },
+    {
+      "external_product_id": "7495585398829",
+      "external_variant_id": "55187128385910",
+      "source_product_title": "Naughty Boy Amino EAA/BCAA",
+      "source_variant_title": "Strawberry Mango / 30 Servings / 345g",
+      "external_options": {
+        "Flavour": "Strawberry Mango",
+        "Size": "30 Servings",
+        "Weight": "345g"
+      },
+      "price": 19.99,
+      "in_stock": false,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1407",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "6538a0ba1596ec75b6d2ff5910a0432c",
+      "source_row_fingerprint": "b1d72b9b9a94827d8b863575e355aa513cf9fe190effe5c9e1e2eda1857d2f2e"
+    },
+    {
+      "external_product_id": "7495585398829",
+      "external_variant_id": "56655814328694",
+      "source_product_title": "Naughty Boy Amino EAA/BCAA",
+      "source_variant_title": "Mafiosa Twist / 30 Servings / 345g",
+      "external_options": {
+        "Flavour": "Mafiosa Twist",
+        "Size": "30 Servings",
+        "Weight": "345g"
+      },
+      "price": 19.99,
+      "in_stock": true,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1407",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "4188719ed567663af19ea58bde484253",
+      "source_row_fingerprint": "4880ddb8267571fe27feffadcf032aea851ca5266fecd2e01404bb6f0aba96dc"
+    },
+    {
+      "external_product_id": "7460054630445",
+      "external_variant_id": "41651419938861",
+      "source_product_title": "TWP Sleep EAAZY Sleep Formula",
+      "source_variant_title": "Bed Time Beena / 25 Servings / 280g",
+      "external_options": {
+        "Flavour": "Bed Time Beena",
+        "Size": "25 Servings",
+        "Weight": "280g"
+      },
+      "price": 37.99,
+      "in_stock": true,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1408",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "bcda242b03b856ff8ff105d0dcedabb5",
+      "source_row_fingerprint": "1a95281b08b3ad439a8615b1a2aa7097fb9d97afe6f19dd141c806d1e0e79f3b"
+    },
+    {
+      "external_product_id": "6581179809837",
+      "external_variant_id": "39400181235757",
+      "source_product_title": "HR Labs Carb Up Carb Powder",
+      "source_variant_title": "Life is Peachy / 30 Servings / 1kg",
+      "external_options": {
+        "Flavour": "Life is Peachy",
+        "Size": "30 Servings",
+        "Weight": "1kg"
+      },
+      "price": 37.99,
+      "in_stock": false,
+      "status": "SAFE_CREATE_VARIANT_ON_EXISTING_PRODUCT",
+      "canonical_product_id": "1409",
+      "canonical_variant_id": null,
+      "reason": "current source and production state passed the generic V3 planner",
+      "plan_fingerprint": "1318366def43654b9e94d644549b9bf3",
+      "source_row_fingerprint": "b53e3b6a726ba49ac8343ab62319187c293fdd069386dc0c87d1216afdd94325"
+    },
+    {
+      "external_product_id": "15640614568310",
+      "external_variant_id": "57418273325430",
+      "source_product_title": "Kayow Protein Cookie",
+      "source_variant_title": "Salted Caramel / 12 x 60g Cookies / 720g",
+      "status": "REVIEW_IDENTITY_OR_OPTIONS",
+      "canonical_product_id": "1396",
+      "canonical_variant_id": null,
+      "reason": "pack-count conflict"
+    },
+    {
+      "external_product_id": "15640614568310",
+      "external_variant_id": "57418273390966",
+      "source_product_title": "Kayow Protein Cookie",
+      "source_variant_title": "Double Chocolate Chip / 12 x 60g Cookies / 720g",
+      "status": "REVIEW_IDENTITY_OR_OPTIONS",
+      "canonical_product_id": "1396",
+      "canonical_variant_id": null,
+      "reason": "pack-count conflict"
+    },
+    {
+      "external_product_id": "15246472610166",
+      "external_variant_id": "55897618612598",
+      "source_product_title": "Ghost Lifestyle Energy Drink",
+      "source_variant_title": "Cherry Limeade / 500ml",
+      "status": "REVIEW_IDENTITY_OR_OPTIONS",
+      "canonical_product_id": "1398",
+      "canonical_variant_id": null,
+      "reason": "format conflict; format conflict"
+    },
+    {
+      "external_product_id": "15246472610166",
+      "external_variant_id": "55897618645366",
+      "source_product_title": "Ghost Lifestyle Energy Drink",
+      "source_variant_title": "Original / 500ml",
+      "status": "REVIEW_IDENTITY_OR_OPTIONS",
+      "canonical_product_id": "1398",
+      "canonical_variant_id": null,
+      "reason": "format conflict; format conflict"
+    },
+    {
+      "external_product_id": "15246472610166",
+      "external_variant_id": "55897618678134",
+      "source_product_title": "Ghost Lifestyle Energy Drink",
+      "source_variant_title": "Blue Raspberry / 500ml",
+      "status": "REVIEW_IDENTITY_OR_OPTIONS",
+      "canonical_product_id": "1398",
+      "canonical_variant_id": null,
+      "reason": "format conflict; format conflict"
+    },
+    {
+      "external_product_id": "15246472610166",
+      "external_variant_id": "57774038745462",
+      "source_product_title": "Ghost Lifestyle Energy Drink",
+      "source_variant_title": "Pink Lemonade (NEW) / 500ml",
+      "status": "REVIEW_IDENTITY_OR_OPTIONS",
+      "canonical_product_id": "1398",
+      "canonical_variant_id": null,
+      "reason": "format conflict; format conflict"
+    }
+  ]
+}
