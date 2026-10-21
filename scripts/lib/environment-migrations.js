@@ -226,10 +226,7 @@ const APPLIED_EXCLUSIONS = Object.freeze({
 
 const PENDING_MIGRATIONS = Object.freeze({
   STAGING: Object.freeze([]),
-  PRODUCTION: Object.freeze([Object.freeze({
-    filename: "20261021190000_correct_ghost_lifestyle_energy_drink_metadata.sql",
-    sha256: "74f3b7bd5baf337bceece57f40b19dd57435f074dc65528ba7c8d9bd38ddb8c1",
-  })]),
+  PRODUCTION: Object.freeze([]),
 });
 
 function migrationIdentifier(filename) {
