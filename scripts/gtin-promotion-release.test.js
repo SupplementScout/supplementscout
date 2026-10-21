@@ -81,8 +81,8 @@ test("deployed GTIN, Whey Okay rebind and traffic classification migrations rema
   ]) assert.equal(pending.has(filename), false);
   assert.equal(GTIN_REVIEWED_LEDGER.count, 225);
   assert.equal(GTIN_REVIEWED_LEDGER.fingerprint, "4981529d078bc0c4dc5d0597b3a6327f44270e76f4cca1a93483abe4c950cf9f");
-  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 245);
-  assert.equal(CONTRACTS.PRODUCTION.ledgerFingerprint, "7cf0280778830f919c3ed81ea9c98d4efaa689392ab7a9d5c65ed673c3d51163");
+  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 246);
+  assert.equal(CONTRACTS.PRODUCTION.ledgerFingerprint, "2ec4495c786b3b5f4937e912f47a8a8b900d4ee0d04ab60f22e811d8298fed05");
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", MIGRATION)), true);
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", "20260816173000_extend_guarded_gtin_promotion_exact_36.sql")), true);
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", "20260817114500_add_outbound_click_traffic_classification.sql")), true);
@@ -97,7 +97,7 @@ test("production migration preflight keeps the reviewed 225-row history frozen a
   assert.equal(classifyProductionMigrationLedger(rows), "ALREADY_PRESENT");
   assert.equal(classifyProductionMigrationLedger([
     ...rows,
-    { version: "20261021100000", name: "later_reviewed_migration" },
+    { version: "20261021200000", name: "later_reviewed_migration" },
   ]), "ALREADY_PRESENT");
 });
 

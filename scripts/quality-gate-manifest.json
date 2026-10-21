@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 336,
-    "sha256": "3998ad3f08eca5b18b85ae318bd3d8af6b130bfc2540c54497400b9b00dd9cfd"
+    "count": 337,
+    "sha256": "3e491a0e611ccc03eac59345c35fa787343dc97da76cb7d0d71615c339b59fa8"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -17,6 +17,7 @@
     "scripts/batch-g-replacement-variants-data-migration.test.js",
     "scripts/fit-house-catalogue-closeout-migration.test.js",
     "scripts/fit-house-whey-pro-synergy-reconciliation-migration.test.js",
+    "scripts/ghost-lifestyle-energy-drink-metadata-migration.integration.test.js",
     "scripts/gtin-promotion-postgres.integration.test.js",
     "scripts/jons-final-closeout-policy-migration.integration.test.js",
     "scripts/jons-per4m-product-families-data-migration.test.js",

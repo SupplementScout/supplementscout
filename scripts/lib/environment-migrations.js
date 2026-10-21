@@ -168,6 +168,7 @@ const EXCLUSIONS = Object.freeze({
     "20261017131000_add_environment_safe_reviewed_catalogue_bounded_state",
     "20261018121000_add_environment_safe_reviewed_catalogue_v3_boundary",
     "20261018191000_fix_environment_safe_reviewed_v3_apply_option_roles",
+    "20261021190000_correct_ghost_lifestyle_energy_drink_metadata",
   ]),
   PRODUCTION: Object.freeze([
     "20261009120000_add_compact_other_retailer_fingerprint",
@@ -226,8 +227,8 @@ const APPLIED_EXCLUSIONS = Object.freeze({
 const PENDING_MIGRATIONS = Object.freeze({
   STAGING: Object.freeze([]),
   PRODUCTION: Object.freeze([Object.freeze({
-    filename: "20261021120000_align_trusted_v3_reviewed_parent_format_policy.sql",
-    sha256: "e04745296ae0984f99f498f7816867c6dee8ebddb1032acd9378ec16de80e6ba",
+    filename: "20261021190000_correct_ghost_lifestyle_energy_drink_metadata.sql",
+    sha256: "74f3b7bd5baf337bceece57f40b19dd57435f074dc65528ba7c8d9bd38ddb8c1",
   })]),
 });
 
