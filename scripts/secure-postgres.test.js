@@ -22,6 +22,7 @@ const LIVE_POSTGRES_SURFACES = [
   "scripts/ebay-offer-canary-executor.js",
   "scripts/gym-high-full-catalogue-executor.js",
   "scripts/six-pack-offer-refresh-executor.js",
+  "scripts/verify-selected-migrations.js",
 ];
 
 test("verify-full, legacy require and absent sslmode all become the same verified TLS configuration", () => {
