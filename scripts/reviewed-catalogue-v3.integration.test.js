@@ -22,6 +22,8 @@ const PLURAL_FLAVOUR_MIGRATION = "supabase/migrations/20261019130000_fix_reviewe
 const PLURAL_FLAVOUR_ROLLBACK = "supabase/rollbacks/20261019130000_fix_reviewed_v3_plural_flavour_compatibility_rollback.sql";
 const ROLE_AWARE_SIZE_MIGRATION = "supabase/migrations/20261020180000_fix_reviewed_v3_role_aware_legacy_size_projection.sql";
 const ROLE_AWARE_SIZE_ROLLBACK = "supabase/rollbacks/20261020180000_fix_reviewed_v3_role_aware_legacy_size_projection_rollback.sql";
+const TRUSTED_PARENT_FORMAT_MIGRATION = "supabase/migrations/20261021120000_align_trusted_v3_reviewed_parent_format_policy.sql";
+const TRUSTED_PARENT_FORMAT_ROLLBACK = "supabase/rollbacks/20261021120000_align_trusted_v3_reviewed_parent_format_policy_rollback.sql";
 const ENVIRONMENT_SAFE_FORWARD_CHAIN = Object.freeze([
   ENVIRONMENT_SAFE_BOUNDED_STATE_MIGRATION,
   ENVIRONMENT_SAFE_MIGRATION,
@@ -30,6 +32,7 @@ const ENVIRONMENT_SAFE_FORWARD_CHAIN = Object.freeze([
   TRUSTED_PARENT_POLICY_MIGRATION,
   PLURAL_FLAVOUR_MIGRATION,
   ROLE_AWARE_SIZE_MIGRATION,
+  TRUSTED_PARENT_FORMAT_MIGRATION,
 ]);
 const ENVIRONMENT_SAFE_ROLLBACK_CHAIN = Object.freeze([
   ENVIRONMENT_SAFE_BOUNDED_STATE_ROLLBACK,
@@ -39,6 +42,7 @@ const ENVIRONMENT_SAFE_ROLLBACK_CHAIN = Object.freeze([
   TRUSTED_PARENT_POLICY_ROLLBACK,
   PLURAL_FLAVOUR_ROLLBACK,
   ROLE_AWARE_SIZE_ROLLBACK,
+  TRUSTED_PARENT_FORMAT_ROLLBACK,
 ]);
 const LEGACY_COMPATIBILITY_HELPER_SHA = "849df8441e8994daf1acb514705808fde17467e033185e30cc432ad165a13905";
 const POST_CREATE_COMPATIBILITY_HELPER_SHA = "906cb5abad08deb8452fa9ae4fed8be8669b760e6f2ef088ae8846f5536b27db";
@@ -68,6 +72,7 @@ const TARGETS = Object.freeze({
     patchedPreSourceValidatorSha: "47913d9e685b0b0804cac3349a7e8d037878834071a7ad4a69be0c826090e44e",
     postBoundaryFallbackSha: "c8e47e4495fe78641b1cccf6ffe2dc6cbc980ae86ee341effd8278a8d86c918f",
     postTrustedParentSha: "0f2308eb0759cff2a4d97708a3bdfca24d50820483310117771f1bd3a2a3149a",
+    postTrustedParentFormatSha: "c82e291550787e553fc906a669c348f0b7d6cd034bfb8bd326d7a9c646e7511a",
     legacyCountSizeError: "variant option size mismatch",
     hasV1: false,
     hasExecutionResult: false,
@@ -89,6 +94,7 @@ const TARGETS = Object.freeze({
     patchedPreSourceValidatorSha: "7771649ee17b055e5f90ad343a33abf6c950c90c293c575442ee3cb61d671c6e",
     postBoundaryFallbackSha: "47001d0eb21fce1b136b1050f2c91b392f54bb29cf67825d370a2f03a6f37d3a",
     postTrustedParentSha: "80e9f09e1b9ad414689d0f42876bb8f169f528b4efad61d9713f3dad6850a942",
+    postTrustedParentFormatSha: "c8370ee49d873f9cf8f6f375653848248b2cbe19f0e0b869f392e45405ae5daf",
     legacyCountSizeError: "variant option size mismatch",
     hasV1: true,
     hasExecutionResult: true,
@@ -534,6 +540,58 @@ function reviewedCreateFlavourFixture(environment, index, sourceKey, sourceValue
     flavour: { source_key: sourceKey, source_value: sourceValue },
     physical_size: { source_key: "Weight", source_value: "390g", size_value: "390", size_unit: "g" },
     count: { source_key: "Size", source_value: "30 Servings", count_value: "30", count_unit: "servings" },
+  };
+  return fixture;
+}
+
+function reviewedLiquidParentFixture(environment, index) {
+  const fixture = actionFixture(environment, "create_product_with_variant", index);
+  const externalOptions = { Flavour: "Watermelon Grape", Size: "473ml" };
+  fixture.plan.product.values = {
+    ...fixture.plan.product.values,
+    name: `Example Energy Drink ${index}`,
+    slug: `example-energy-drink-${index}`,
+    brand: "Example Energy",
+    category: "Energy Drinks",
+    description: "Carbonated energy drink",
+    servings: null,
+    net_weight_g: null,
+    net_volume_ml: null,
+    product_format: "liquid",
+  };
+  fixture.plan.product_variant.values = {
+    variant_key: "watermelon-grape-473ml",
+    display_name: "Watermelon Grape / 473ml",
+    flavour_code: "watermelon-grape",
+    flavour_label: "Watermelon Grape",
+    size_value: "473",
+    size_unit: "ml",
+    pack_count: "1",
+    product_format: "liquid",
+  };
+  fixture.plan.product_variant.evidence = {
+    flavour: "watermelon-grape",
+    size_value: "473",
+    size_unit: "ml",
+    pack_count: "1",
+    product_format: "liquid",
+    external_options: externalOptions,
+    approved_mapping_id: null,
+  };
+  fixture.plan.retailer_product.values.external_options = externalOptions;
+  fixture.plan.approval.approved_category = "Energy Drinks";
+  fixture.plan.approval.canonical_name = fixture.plan.product.values.name;
+  fixture.envelope.external_options = externalOptions;
+  fixture.envelope.option_roles = {
+    flavour: { source_key: "Flavour", source_value: "Watermelon Grape" },
+    physical_size: {
+      source_key: "Size", source_value: "473ml", size_value: "473", size_unit: "ml",
+    },
+    count: null,
+  };
+  fixture.envelope.source_structure = {
+    product_variant_count: 4,
+    meaningful_variant_axes: ["flavour"],
   };
   return fixture;
 }
@@ -1524,6 +1582,84 @@ function exerciseBaseline(environment) {
       /permission denied/,
     );
 
+    const liquidFixture = seal(
+      container,
+      reviewedLiquidParentFixture(environment, 140),
+      `${environment} trusted V3 liquid parent fixture`,
+    );
+    const liquidValidationBefore = json(
+      container,
+      asRole(environment, "validator", `select public.validate_reviewed_catalogue_v3_plan_read_only(${literal(liquidFixture.plan)},${literal(liquidFixture.envelope)})`, { readOnly: true }),
+      `${environment} liquid parent read-only validation before parity fix`,
+    );
+    assert.equal(liquidValidationBefore.valid, true);
+    const liquidApprovalBefore = json(
+      container,
+      asRole(environment, "approver", `select public.approve_reviewed_catalogue_v3_plan(${literal(liquidFixture.plan)},${literal(liquidFixture.envelope)})`),
+      `${environment} liquid parent approval before parity fix`,
+    );
+    const liquidCountsBefore = counts(container, `${environment} liquid parent pre-fix counts`);
+    fails(
+      sql(container, asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${liquidApprovalBefore.approval_id}',${literal(liquidFixture.plan)},${literal(liquidFixture.envelope)})`)),
+      `${environment} liquid parent apply before parity fix`,
+      /invalid product import plan: reviewed parent values/,
+    );
+    assert.deepEqual(counts(container, `${environment} liquid parent pre-fix rollback counts`), liquidCountsBefore);
+    assert.equal(
+      scalar(container, `select status||':'||coalesce(consumed_at::text,'NULL') from approved_import_plans where id='${liquidApprovalBefore.approval_id}'`, `${environment} liquid parent failed approval state`),
+      "approved:NULL",
+    );
+    fails(
+      file(container, TRUSTED_PARENT_FORMAT_MIGRATION),
+      `${environment} trusted parent format migration with live approval`,
+      /blocked by live approval/,
+    );
+    succeed(
+      sql(container, `delete from public.approved_import_plans where id='${liquidApprovalBefore.approval_id}'`),
+      `${environment} remove disposable liquid parent failed approval`,
+    );
+    fails(
+      sql(container, `select public.atomic_import_validate_pre_source_metadata_plan_core(${literal(liquidFixture.plan)})`),
+      `${environment} non-V3 liquid parent remains closed before parity fix`,
+      /invalid product import plan: reviewed parent values/,
+    );
+
+    succeedWithoutBusinessChange(container, TRUSTED_PARENT_FORMAT_MIGRATION, `${environment} apply trusted V3 reviewed-parent format policy`);
+    assert.equal(
+      functionSha(container, "public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)", `${environment} trusted parent format validator SHA`),
+      target.postTrustedParentFormatSha,
+    );
+    fails(
+      sql(container, `select public.atomic_import_validate_pre_source_metadata_plan_core(${literal(liquidFixture.plan)})`),
+      `${environment} non-V3 liquid parent remains closed after parity fix`,
+      /invalid product import plan: reviewed parent values/,
+    );
+    const liquidCountsApplyBefore = counts(container, `${environment} liquid parent post-fix counts before`);
+    const liquidApproval = json(
+      container,
+      asRole(environment, "approver", `select public.approve_reviewed_catalogue_v3_plan(${literal(liquidFixture.plan)},${literal(liquidFixture.envelope)})`),
+      `${environment} liquid parent approval after parity fix`,
+    );
+    fails(
+      file(container, TRUSTED_PARENT_FORMAT_ROLLBACK),
+      `${environment} trusted parent format rollback with live approval`,
+      /blocked by live approval/,
+    );
+    const liquidApplied = json(
+      container,
+      asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${liquidApproval.approval_id}',${literal(liquidFixture.plan)},${literal(liquidFixture.envelope)})`),
+      `${environment} liquid parent apply after parity fix`,
+    );
+    assert.equal(liquidApplied.approval_status, "consumed");
+    assert.deepEqual(
+      json(container, `select external_options from public.retailer_products where id=${liquidApplied.retailer_product_id}`, `${environment} liquid parent stored raw options`),
+      liquidFixture.envelope.external_options,
+    );
+    const liquidCountsAfter = counts(container, `${environment} liquid parent post-fix counts after`);
+    for (const table of ["products", "product_variants", "retailer_products", "offers", "price_history"]) {
+      assert.equal(liquidCountsAfter[table] - liquidCountsApplyBefore[table], 1, `${environment} liquid parent ${table} delta`);
+    }
+
     const roleAwarePassFixtures = [
       ["cookie pack wording", roleAwareLegacySizeFixture(environment, 121, {
         flavour: "Chocolate Chip", rawSize: "12 x 60g Cookies",
@@ -1773,6 +1909,11 @@ function exerciseBaseline(environment) {
     );
 
     succeed(sql(container, "delete from public.approved_import_plans where source like 'reviewed-catalogue-package-v3:%'"), `${environment} remove disposable V3 fixture approvals`);
+    succeedWithoutBusinessChange(container, TRUSTED_PARENT_FORMAT_ROLLBACK, `${environment} rollback trusted V3 reviewed-parent format policy`);
+    assert.equal(
+      functionSha(container, "public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)", `${environment} trusted parent format rollback SHA`),
+      target.postTrustedParentSha,
+    );
     succeedWithoutBusinessChange(container, ROLE_AWARE_SIZE_ROLLBACK, `${environment} rollback role-aware legacy size projection migration`);
     assert.equal(
       scalar(container, "select to_regprocedure('public.atomic_import_reviewed_v3_legacy_validation_projection(jsonb,jsonb)') is null", `${environment} role-aware projection removed`),

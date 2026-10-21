@@ -812,6 +812,29 @@ test("trusted V3 reviewed-parent bridge replaces only legacy family and transpor
   assert.doesNotMatch(rollbackExecutable, /\b(?:grant|revoke)\b/i);
 });
 
+test("trusted V3 reviewed-parent format parity reuses the existing trust boundary and stays fail-closed", () => {
+  const migration = fs.readFileSync(path.join(__dirname, "../supabase/migrations/20261021120000_align_trusted_v3_reviewed_parent_format_policy.sql"), "utf8");
+  const rollback = fs.readFileSync(path.join(__dirname, "../supabase/rollbacks/20261021120000_align_trusted_v3_reviewed_parent_format_policy_rollback.sql"), "utf8");
+  const migrationExecutable = migration.replace(/\$patch\$[\s\S]*?\$patch\$/gi, "");
+  const rollbackExecutable = rollback.replace(/\$patch\$[\s\S]*?\$patch\$/gi, "");
+
+  assert.match(migration, /v_trusted_v3 := public\.atomic_import_reviewed_catalogue_v3_plan_allowed\(p_plan\)/i);
+  assert.match(migration, /not v_trusted_v3 and v_product_values->>'product_format' not in \('powder','bar'\)/i);
+  assert.match(migration, /0f2308eb0759cff2a4d97708a3bdfca24d50820483310117771f1bd3a2a3149a/);
+  assert.match(migration, /80e9f09e1b9ad414689d0f42876bb8f169f528b4efad61d9713f3dad6850a942/);
+  assert.match(migration, /c82e291550787e553fc906a669c348f0b7d6cd034bfb8bd326d7a9c646e7511a/);
+  assert.match(migration, /c8370ee49d873f9cf8f6f375653848248b2cbe19f0e0b869f392e45405ae5daf/);
+  assert.match(migration, /blocked by live approval/i);
+  assert.match(rollback, /blocked by live approval/i);
+  assert.match(rollback, /blocked by later durable approval evidence/i);
+  assert.doesNotMatch(migration, /gladiator|3d energy|7555942383661|41805313015853/i);
+  assert.doesNotMatch(migration, /create\s+(?:or\s+replace\s+)?function\s+public\.atomic_import_reviewed_catalogue_v3_plan_allowed/i);
+  assert.doesNotMatch(migrationExecutable, /\b(?:insert\s+into|update|delete\s+from)\s+public\.(?:retailers|products|product_variants|retailer_products|offers|price_history|approved_import_plans)\b/i);
+  assert.doesNotMatch(migrationExecutable, /\b(?:grant|revoke)\b/i);
+  assert.doesNotMatch(rollbackExecutable, /\b(?:insert\s+into|update|delete\s+from)\s+public\.(?:retailers|products|product_variants|retailer_products|offers|price_history|approved_import_plans)\b/i);
+  assert.doesNotMatch(rollbackExecutable, /\b(?:grant|revoke)\b/i);
+});
+
 test("trusted V3 plural flavour compatibility is validation-only, generic and bounded", () => {
   const migration = fs.readFileSync(path.join(__dirname, "../supabase/migrations/20261019130000_fix_reviewed_v3_plural_flavour_compatibility.sql"), "utf8");
   const rollback = fs.readFileSync(path.join(__dirname, "../supabase/rollbacks/20261019130000_fix_reviewed_v3_plural_flavour_compatibility_rollback.sql"), "utf8");

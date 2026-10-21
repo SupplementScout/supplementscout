@@ -45,6 +45,8 @@ const REVIEWED_V3_PLURAL_FLAVOUR_MIGRATION = "20261019130000_fix_reviewed_v3_plu
 const REVIEWED_V3_PLURAL_FLAVOUR_SHA256 = "6787556be4c02be0f805b177e6a03bbad11c76b48cb9c336ba69c69cd5544a4d";
 const REVIEWED_V3_ROLE_AWARE_SIZE_MIGRATION = "20261020180000_fix_reviewed_v3_role_aware_legacy_size_projection.sql";
 const REVIEWED_V3_ROLE_AWARE_SIZE_SHA256 = "6bcbf7d8996a806f7f2c4659511ff96c63970ca52d5d6f0ff357688107c0b56c";
+const REVIEWED_V3_PARENT_FORMAT_MIGRATION = "20261021120000_align_trusted_v3_reviewed_parent_format_policy.sql";
+const REVIEWED_V3_PARENT_FORMAT_SHA256 = "e04745296ae0984f99f498f7816867c6dee8ebddb1032acd9378ec16de80e6ba";
 const RA004_CONTROL_STATE_MIGRATION = "20260924100000_add_transactional_retailer_control_state_interface.sql";
 const RA004_PREFLIGHT_MIGRATION = "20260925100000_add_ra004_staging_preflight_metadata_interface.sql";
 const RA004_FORWARD_CONTROL_STATE_MIGRATION = "20260927100000_reissue_transactional_retailer_control_state_interface.sql";
@@ -381,18 +383,18 @@ test.after(() => {
   }
 });
 
-test("staging records the deployed reviewed V3 role-aware size fix with no pending migration", () => {
+test("staging records the deployed reviewed V3 chain and selects only the parent-format parity migration", () => {
   const result = validateSelection(validInput());
   assert.equal(result.ledger_count, 111);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, [REVIEWED_V3_PARENT_FORMAT_MIGRATION]);
+  assert.deepEqual(result.pending_sha256s, { [REVIEWED_V3_PARENT_FORMAT_MIGRATION]: REVIEWED_V3_PARENT_FORMAT_SHA256 });
+  assert.equal(result.pending_file, REVIEWED_V3_PARENT_FORMAT_MIGRATION);
+  assert.equal(result.pending_sha256, REVIEWED_V3_PARENT_FORMAT_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
-  assert.equal(result.selected_files.length, 111);
+  assert.equal(result.selected_files.length, 112);
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes(RA004_FIXTURE_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_GUARD_MIGRATION));
@@ -492,9 +494,12 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production preserves deployed V3 bytes with no pending migration", () => {
+test("production preserves deployed V3 bytes and selects only the parent-format parity migration", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: REVIEWED_V3_PARENT_FORMAT_MIGRATION,
+    sha256: REVIEWED_V3_PARENT_FORMAT_SHA256,
+  }]);
   assert.deepEqual(contract.appliedExcluded, [
     "20260929133000_extend_expired_sequential_plan_close.sql",
     "20261004120000_add_central_control_plan_readback.sql",
@@ -618,7 +623,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 111);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 112);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -663,7 +668,7 @@ test("production records the deployed reviewed V3 migration chain at ledger 245"
   });
   assert.equal(result.ledger_count, 245);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 245);
+  assert.equal(result.selected_files.length, 246);
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
   assert.ok(result.excluded_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
@@ -674,10 +679,10 @@ test("production records the deployed reviewed V3 migration chain at ledger 245"
   assert.ok(result.selected_files.includes("20261006170000_add_automation_review_owner_decision_validation.sql"));
   assert.ok(result.selected_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
   assert.ok(result.excluded_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.deepEqual(result.pending_files, [REVIEWED_V3_PARENT_FORMAT_MIGRATION]);
+  assert.equal(result.pending_file, REVIEWED_V3_PARENT_FORMAT_MIGRATION);
+  assert.equal(result.pending_sha256, REVIEWED_V3_PARENT_FORMAT_SHA256);
+  assert.deepEqual(result.pending_sha256s, { [REVIEWED_V3_PARENT_FORMAT_MIGRATION]: REVIEWED_V3_PARENT_FORMAT_SHA256 });
   for (const filename of [
     ENVIRONMENT_SAFE_REVIEWED_STATE_MIGRATION,
     ENVIRONMENT_SAFE_REVIEWED_V3_MIGRATION,
@@ -776,7 +781,8 @@ test("runtime production artifacts bind the same migration ledger as the product
   const binding = migrationBinding("PRODUCTION");
   assert.equal(binding.versions.length, CONTRACTS.PRODUCTION.ledgerCount);
   assert.equal(binding.fingerprint, CONTRACTS.PRODUCTION.ledgerFingerprint);
-  assert.equal(CONTRACTS.PRODUCTION.pending.length, 0);
+  assert.equal(CONTRACTS.PRODUCTION.pending.length, 1);
+  assert.ok(!binding.versions.includes(REVIEWED_V3_PARENT_FORMAT_MIGRATION.slice(0, -4)));
   assert.ok(binding.versions.includes(REVIEWED_V3_ROLE_AWARE_SIZE_MIGRATION.slice(0, -4)));
   assert.ok(binding.versions.includes("20260929133000_extend_expired_sequential_plan_close"));
   assert.ok(binding.versions.includes(SEO15_GYM_HIGH_SOURCE_RELEASE_MIGRATION.slice(0, -4)));
@@ -815,7 +821,10 @@ test("runtime staging artifacts bind the same migration ledger as the staging se
 test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.equal(Object.keys(contract.excluded).length, 27);
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: REVIEWED_V3_PARENT_FORMAT_MIGRATION,
+    sha256: REVIEWED_V3_PARENT_FORMAT_SHA256,
+  }]);
   assert.equal(
     contract.excluded["20261009120000_add_compact_other_retailer_fingerprint.sql"],
     "b365d247777650aba6333399d4173ecb369d85a1465074bb6961c23b94f2ac84",
@@ -994,7 +1003,10 @@ test("staging contract records ledger 111 with the role-aware size fix applied",
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === filename));
   assert.ok(CONTRACT.appliedExcluded.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === REVIEWED_STATE_MIGRATION));
-  assert.deepEqual(CONTRACT.pending, []);
+  assert.deepEqual(CONTRACT.pending, [{
+    filename: REVIEWED_V3_PARENT_FORMAT_MIGRATION,
+    sha256: REVIEWED_V3_PARENT_FORMAT_SHA256,
+  }]);
   assert.equal(currentRemoteLedger().length, 111);
   assert.ok(currentRemoteLedger().some(({ version, name }) =>
     `${version}_${name}.sql` === REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION));
@@ -1449,12 +1461,12 @@ test("completed RA-004 fixture activation cannot select or materialize a migrati
   })), /status mismatch/);
 });
 
-test("staging keeps deployed SEO-15 and V3 closed with no pending migration", () => {
+test("staging keeps deployed SEO-15 and selects only the V3 parent-format parity migration", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending_file, REVIEWED_V3_PARENT_FORMAT_MIGRATION);
+  assert.equal(result.pending_sha256, REVIEWED_V3_PARENT_FORMAT_SHA256);
+  assert.deepEqual(result.pending_files, [REVIEWED_V3_PARENT_FORMAT_MIGRATION]);
+  assert.deepEqual(result.pending_sha256s, { [REVIEWED_V3_PARENT_FORMAT_MIGRATION]: REVIEWED_V3_PARENT_FORMAT_SHA256 });
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(result.selected_files.includes(REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION));
