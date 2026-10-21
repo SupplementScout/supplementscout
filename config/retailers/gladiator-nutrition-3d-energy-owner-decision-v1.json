@@ -75,7 +75,7 @@
   },
   "frozen_preparation": {
     "manifest_path": "config/retailers/gladiator-nutrition-next-safe-micro-batch-v1.json",
-    "manifest_sha256": "7250f29701a8fd31adf761e024bed21e5137719dd294b6cfb23f06bd797355c0",
+    "manifest_sha256": "c2c9b9102471b24a3ffa95d90094d29f40a511d5b1440118e2bfd59e03c1fdd2",
     "artifact_sha256": "8ed4eb444033f061a25e42b0d6d6439b93d479d3af69ee321d8bf6c730819b14",
     "csv_sha256": "9006cbdcd3a60234b4dc368aa76591596780aca919a75dd26e21dcaaaa06d86a",
     "run_id": "e2722f76-f5ef-46a6-8dad-15fdf31b4e1a"

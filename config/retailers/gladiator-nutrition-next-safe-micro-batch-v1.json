@@ -2,9 +2,9 @@
   "schema_version": 3,
   "kind": "reviewed-catalogue-package-v3",
   "source_platform": "shopify",
-  "status": "PREPARATION_ONLY",
-  "authorized_by": null,
-  "authorized_at": null,
+  "status": "OWNER_APPROVED",
+  "authorized_by": "Marek Kalinka — owner approval for exact Gladiator 3D Energy + Ghost Amino 4-row micro-batch",
+  "authorized_at": "2026-10-21T08:29:43.969Z",
   "target_environment": "PRODUCTION",
   "target_project_ref": "aftboxmrdgyhizicfsfu",
   "retailer": {
