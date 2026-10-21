@@ -1,5 +1,6 @@
 const path = require("node:path");
 const { Client } = require("pg");
+const { postgresClientConfig } = require("./lib/secure-postgres");
 const {
   appliedPendingIdentifiers,
   catalogueCounts,
@@ -50,12 +51,14 @@ async function main(argv = process.argv.slice(2)) {
   invariant(env[contract.projectRefEnvironmentKey] === options.projectRef, "environment file project ref mismatch");
   invariant(env[contract.databaseUrlEnvironmentKey], "owner database URL is missing");
 
-  const client = new Client({
-    connectionString: env[contract.databaseUrlEnvironmentKey],
-    ssl: { rejectUnauthorized: false },
-    application_name: "supplementscout-selected-migrations-verifier",
-    options: "-c default_transaction_read_only=on -c statement_timeout=120000",
-  });
+  const client = new Client(
+    postgresClientConfig({
+      connectionString: env[contract.databaseUrlEnvironmentKey],
+      applicationName: "supplementscout-selected-migrations-verifier",
+      defaultReadOnly: true,
+      statementTimeoutMs: 120000,
+    }),
+  );
   await client.connect();
   try {
     await client.query("begin read only");
