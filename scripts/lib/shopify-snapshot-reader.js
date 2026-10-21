@@ -58,13 +58,87 @@ function shopifySnapshotFingerprints(snapshot) {
 function compareShopifySnapshots(boundSnapshot, freshSnapshot) {
   const bound = shopifySnapshotFingerprints(boundSnapshot);
   const fresh = shopifySnapshotFingerprints(freshSnapshot);
+  const semanticMatch = bound.semantic_source_fingerprint === fresh.semantic_source_fingerprint;
+  const timestamp_drift = timestampDriftEvidence(boundSnapshot, freshSnapshot);
+  const status = !semanticMatch || timestamp_drift.invalid_count > 0
+    ? "BLOCKED_MATERIAL_SOURCE_DRIFT"
+    : timestamp_drift.product_count > 0 || timestamp_drift.variant_count > 0
+      ? "PASS_WITH_TIMESTAMP_ONLY_DRIFT"
+      : "PASS";
+  const reason_code = !semanticMatch
+    ? "SEMANTIC_SOURCE_DRIFT"
+    : timestamp_drift.invalid_count > 0
+      ? "INVALID_TIMESTAMP_DRIFT"
+      : status === "PASS_WITH_TIMESTAMP_ONLY_DRIFT" ? "TIMESTAMP_ONLY_SOURCE_DRIFT" : null;
   return {
     raw_match: bound.raw_source_fingerprint === fresh.raw_source_fingerprint,
-    semantic_match: bound.semantic_source_fingerprint === fresh.semantic_source_fingerprint,
-    non_semantic_raw_drift: bound.raw_source_fingerprint !== fresh.raw_source_fingerprint && bound.semantic_source_fingerprint === fresh.semantic_source_fingerprint,
+    semantic_match: semanticMatch,
+    non_semantic_raw_drift: bound.raw_source_fingerprint !== fresh.raw_source_fingerprint && semanticMatch,
+    status,
+    reason_code,
+    timestamp_drift,
     bound,
     fresh,
   };
+}
+
+function timestampTransition(left, right) {
+  const bound = left == null ? null : String(left);
+  const fresh = right == null ? null : String(right);
+  if (bound === fresh) return null;
+  const valid = bound !== null && fresh !== null && Number.isFinite(Date.parse(bound)) && Number.isFinite(Date.parse(fresh));
+  return { bound, fresh, valid };
+}
+
+function timestampDriftEvidence(boundSnapshot, freshSnapshot) {
+  const transitions = new Map();
+  let productCount = 0;
+  let variantCount = 0;
+  let invalidCount = 0;
+  function record(kind, transition) {
+    if (!transition) return;
+    if (kind === "product") productCount += 1;
+    else variantCount += 1;
+    if (!transition.valid) invalidCount += 1;
+    const key = `${transition.bound ?? "<missing>"}\u0000${transition.fresh ?? "<missing>"}`;
+    const evidence = transitions.get(key) || { bound: transition.bound, fresh: transition.fresh, product_count: 0, variant_count: 0 };
+    evidence[`${kind}_count`] += 1;
+    transitions.set(key, evidence);
+  }
+  const freshProducts = new Map(freshSnapshot.products.map(product => [String(product.id), product]));
+  for (const boundProduct of boundSnapshot.products) {
+    const freshProduct = freshProducts.get(String(boundProduct.id));
+    if (!freshProduct) continue;
+    record("product", timestampTransition(boundProduct.updated_at, freshProduct.updated_at));
+    const freshVariants = new Map((freshProduct.variants || []).map(variant => [String(variant.id), variant]));
+    for (const boundVariant of boundProduct.variants || []) {
+      const freshVariant = freshVariants.get(String(boundVariant.id));
+      if (!freshVariant) continue;
+      record("variant", timestampTransition(boundVariant.updated_at, freshVariant.updated_at));
+    }
+  }
+  return {
+    product_count: productCount,
+    variant_count: variantCount,
+    invalid_count: invalidCount,
+    transitions: [...transitions.values()],
+  };
+}
+
+function classifyShopifySourceRowDrift(boundRow, freshRow) {
+  if (!boundRow || !freshRow || Array.isArray(boundRow) || Array.isArray(freshRow) || typeof boundRow !== "object" || typeof freshRow !== "object") {
+    throw new Error("Shopify source row objects are required");
+  }
+  if (canonical(boundRow) === canonical(freshRow)) return { status: "PASS", reason_code: null, timestamp_drift: null };
+  const bound = { ...boundRow };
+  const fresh = { ...freshRow };
+  const timestamp_drift = timestampTransition(bound.source_updated_at, fresh.source_updated_at);
+  delete bound.source_updated_at;
+  delete fresh.source_updated_at;
+  if (timestamp_drift?.valid && canonical(bound) === canonical(fresh)) {
+    return { status: "PASS_WITH_TIMESTAMP_ONLY_DRIFT", reason_code: "TIMESTAMP_ONLY_SOURCE_DRIFT", timestamp_drift };
+  }
+  return { status: "BLOCKED_MATERIAL_SOURCE_DRIFT", reason_code: timestamp_drift && !timestamp_drift.valid ? "INVALID_TIMESTAMP_DRIFT" : "SOURCE_ROW_DRIFT", timestamp_drift };
 }
 
 function assertSemanticShopifySnapshot(boundSnapshot, freshSnapshot) {
@@ -346,4 +420,4 @@ async function readShopifySnapshot({
   throw sourceError("SOURCE_INCOMPLETE", "Shopify pagination exceeded the configured maximum", diagnostic);
 }
 
-module.exports = { ShopifySourceError, assertSemanticShopifySnapshot, canonical, compareShopifySnapshots, normalizeMarketCountry, projectShopifyCanonicalRecords, projectShopifyVariants, readShopifySnapshot, semanticShopifySnapshot, sha256, shopifySnapshotFingerprints };
+module.exports = { ShopifySourceError, assertSemanticShopifySnapshot, canonical, classifyShopifySourceRowDrift, compareShopifySnapshots, normalizeMarketCountry, projectShopifyCanonicalRecords, projectShopifyVariants, readShopifySnapshot, semanticShopifySnapshot, sha256, shopifySnapshotFingerprints };
