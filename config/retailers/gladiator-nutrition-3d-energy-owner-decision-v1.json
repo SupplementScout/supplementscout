@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "kind": "gladiator-nutrition-3d-energy-owner-decision-v1",
+  "status": "OWNER_IDENTITY_DECISION_ONLY",
+  "executable": false,
+  "database_writes_authorized": false,
+  "database_approvals_authorized": false,
+  "apply_authorized": false,
+  "owner": "Marek Kalinka",
+  "decision_recorded_at": "2026-10-21T08:18:26.221Z",
+  "decision_source": "Direct owner instruction in the current controlled Gladiator task.",
+  "base_main": "ad8adb6ab3a2683dd767b30ec9dab85e70586bdc",
+  "parent_unlock_review": {
+    "path": "config/retailers/gladiator-nutrition-parent-unlock-review-v1.json",
+    "sha256": "472823d4f4c449a6393915a23d0c310a26f5b5e2752050f0c47ffd59b558ae4d",
+    "commit": "044acc10a4223de35c9c25038cbe86b4137b5c06"
+  },
+  "approved_source_identity": {
+    "source_product_id": "15719647379830",
+    "anchor_external_variant_id": "57774589346166",
+    "source_product_title": "3D Energy Drink",
+    "source_vendor": "3D Energy",
+    "source_handle": "3d-energy-drink",
+    "source_variant_title": "Watermelon Grape / 473ml",
+    "raw_external_options": {
+      "Flavour": "Watermelon Grape",
+      "Size": "473ml"
+    },
+    "fresh_price": 2.75,
+    "fresh_in_stock": true,
+    "source_capture_a_at": "2026-10-21T08:14:16.627Z",
+    "source_capture_b_at": "2026-10-21T08:14:17.118Z",
+    "identity_fingerprint": "a7102858f30c8c34f8bbf45c8bf75143111c1be1063517511d8cc1c6020895cb",
+    "semantic_fingerprint": "042a167734fc319e3a039a9e128753a814da1a3e5c3891c73a005307024c4efb",
+    "commercial_fingerprint": "19fca41d694a5c696ea038263842f7c30e1af6916810dab5bc8f68f7770f02fc"
+  },
+  "approved_canonical_identity": {
+    "name": "3D Energy Drink",
+    "slug": "3d-energy-drink",
+    "brand": "3D Energy",
+    "category": "Energy Drinks",
+    "product_format": "liquid",
+    "anchor_variant_display_name": "Watermelon Grape / 473ml",
+    "flavour": "Watermelon Grape",
+    "size_value": "473",
+    "size_unit": "ml",
+    "pack_count": 1
+  },
+  "collision_check": {
+    "existing_candidate_mappings": 0,
+    "exact_active_3d_products": 0,
+    "sku": 0,
+    "gtin": 0
+  },
+  "generic_planner": {
+    "result": "PASS",
+    "requested": 4,
+    "planned": 4,
+    "rejected": 0,
+    "rejected_rows": []
+  },
+  "official_production_v3_validator": {
+    "result": "PASS",
+    "validated": 4,
+    "requested": 4,
+    "identity": {
+      "current_user": "retailer_catalogue_production_validator",
+      "session_user": "supplementscout_production_validator_login",
+      "current_role": "retailer_catalogue_production_validator",
+      "transaction_read_only": "on",
+      "safe_update": null
+    },
+    "transaction": "BEGIN READ ONLY / ROLLBACK",
+    "database_writes": 0
+  },
+  "frozen_preparation": {
+    "manifest_path": "config/retailers/gladiator-nutrition-next-safe-micro-batch-v1.json",
+    "manifest_sha256": "7250f29701a8fd31adf761e024bed21e5137719dd294b6cfb23f06bd797355c0",
+    "artifact_sha256": "8ed4eb444033f061a25e42b0d6d6439b93d479d3af69ee321d8bf6c730819b14",
+    "csv_sha256": "9006cbdcd3a60234b4dc368aa76591596780aca919a75dd26e21dcaaaa06d86a",
+    "run_id": "e2722f76-f5ef-46a6-8dad-15fdf31b4e1a"
+  },
+  "execution_authorized": false,
+  "owner_approval_plan_created": false,
+  "database_writes": 0
+}

@@ -1,0 +1,273 @@
+{
+  "schema_version": 3,
+  "kind": "reviewed-catalogue-package-v3",
+  "source_platform": "shopify",
+  "status": "PREPARATION_ONLY",
+  "authorized_by": null,
+  "authorized_at": null,
+  "target_environment": "PRODUCTION",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "retailer": {
+    "id": 15,
+    "name": "Gladiator Nutrition",
+    "slug": "gladiator-nutrition",
+    "website": "https://gladiatornutrition.co.uk",
+    "expected_action": "existing",
+    "shipping_known": true,
+    "shipping_cost": 6.99
+  },
+  "policy": {
+    "reviewed_rows_only": true,
+    "allow_product_creation": true,
+    "allow_variant_creation": true,
+    "allow_canonical_product_updates": false,
+    "allow_canonical_variant_updates": false,
+    "allow_canonical_gtin_updates": false,
+    "allow_category_changes": false,
+    "sku_is_not_gtin": true,
+    "one_plan_at_a_time": true,
+    "fresh_single_use_approval_per_plan": true,
+    "strict_production_readback_after_each_apply": true
+  },
+  "profiles": [
+    {
+      "id": "gladiator-nutrition-next-safe-micro-batch-v1",
+      "status": "DRY_RUN_PASS",
+      "csv_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-nutrition-next-safe-micro-batch-v1.csv",
+      "csv_sha256": "9006cbdcd3a60234b4dc368aa76591596780aca919a75dd26e21dcaaaa06d86a",
+      "artifact_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-nutrition-next-safe-micro-batch-v1-dry-run.json",
+      "artifact_sha256": "8ed4eb444033f061a25e42b0d6d6439b93d479d3af69ee321d8bf6c730819b14",
+      "row_count": 4,
+      "blocked_row_count": 0,
+      "conflict_count": 0,
+      "expected_actions": {
+        "retailers_create": 0,
+        "products_create": 1,
+        "product_variants_create": 4,
+        "retailer_products_create": 4,
+        "offers_create": 4,
+        "price_history_create": 4
+      },
+      "rows": [
+        {
+          "review_row": 1,
+          "external_product_id": "15719647379830",
+          "external_variant_id": "57774589346166",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "3D Energy",
+          "category": "Energy Drinks",
+          "product_name": "3D Energy Drink",
+          "variant_name": "Watermelon Grape / 473ml",
+          "flavour": "Watermelon Grape",
+          "size_value": "473",
+          "size_unit": "ml",
+          "pack_count": "1",
+          "product_format": "liquid",
+          "price": 2.75,
+          "in_stock": true,
+          "source_row_fingerprint": "a1d4e0d6c4c3c93c4f8522bcf5e0ec5e92ea388638c8f2868fc77599e466524b",
+          "plan_fingerprint": "fb0ab8972231e130c16a172ed5046457",
+          "external_url": "https://gladiatornutrition.co.uk/products/3d-energy-drink?variant=57774589346166",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/3d-energy-drink?variant=57774589346166&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Watermelon Grape",
+            "Size": "473ml"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Watermelon Grape"
+            },
+            "physical_size": {
+              "source_key": "Size",
+              "source_value": "473ml",
+              "size_value": "473",
+              "size_unit": "ml"
+            },
+            "count": null
+          },
+          "source_structure": {
+            "product_variant_count": 7,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 2,
+          "external_product_id": "5242089209901",
+          "external_variant_id": "34950659637293",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "346",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Ghost",
+          "category": "Amino Acids",
+          "product_name": "Ghost Amino V2",
+          "variant_name": "Blue Raspberry / 40 Servings / 422g",
+          "flavour": "Blue Raspberry",
+          "size_value": "422",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 31.99,
+          "in_stock": false,
+          "source_row_fingerprint": "07a13680836c9fb19c18e208cc779208876f07d2fa4e76b288d83075b7558bfc",
+          "plan_fingerprint": "d10a7a545803c20665e3eee347e8aec3",
+          "external_url": "https://gladiatornutrition.co.uk/products/ghost-amino-v2?variant=34950659637293",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/ghost-amino-v2?variant=34950659637293&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Blue Raspberry",
+            "Size": "40 Servings",
+            "Weight": "422g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Blue Raspberry"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "422g",
+              "size_value": "422",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40 Servings",
+              "count_value": "40",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 4,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 3,
+          "external_product_id": "5242089209901",
+          "external_variant_id": "34950659670061",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "346",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Ghost",
+          "category": "Amino Acids",
+          "product_name": "Ghost Amino V2",
+          "variant_name": "Welchs grape / 40 Servings / 422g",
+          "flavour": "Welchs grape",
+          "size_value": "422",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 31.99,
+          "in_stock": false,
+          "source_row_fingerprint": "ed8296acf474624b668374870cb4afd2040c9b77e7fd9d0c859e6191d132864b",
+          "plan_fingerprint": "e81b4e516651bf8b41c961737072e379",
+          "external_url": "https://gladiatornutrition.co.uk/products/ghost-amino-v2?variant=34950659670061",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/ghost-amino-v2?variant=34950659670061&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Welchs grape",
+            "Size": "40 Servings",
+            "Weight": "422g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Welchs grape"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "422g",
+              "size_value": "422",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40 Servings",
+              "count_value": "40",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 4,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 4,
+          "external_product_id": "5242089209901",
+          "external_variant_id": "40067445686317",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "346",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Ghost",
+          "category": "Amino Acids",
+          "product_name": "Ghost Amino V2",
+          "variant_name": "Mango / 40 Servings / 422g",
+          "flavour": "Mango",
+          "size_value": "422",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 31.99,
+          "in_stock": false,
+          "source_row_fingerprint": "688e04d405fac6d0eabfd7d9eb95b8c2c1c56b4ad95a67ba53d5fb32e0cb7f12",
+          "plan_fingerprint": "42853ebc47f4a1581dcc7bd5682ffa3e",
+          "external_url": "https://gladiatornutrition.co.uk/products/ghost-amino-v2?variant=40067445686317",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/ghost-amino-v2?variant=40067445686317&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Mango",
+            "Size": "40 Servings",
+            "Weight": "422g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Mango"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "422g",
+              "size_value": "422",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40 Servings",
+              "count_value": "40",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 4,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        }
+      ]
+    }
+  ]
+}
