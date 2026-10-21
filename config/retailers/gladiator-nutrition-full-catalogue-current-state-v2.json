@@ -398,13 +398,13 @@
     "artifact_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-nutrition-full-catalogue-current-frontier-v1-dry-run.json",
     "artifact_sha256": "80a646376f412d574da0655fb791b3649a0640ba047e280287858d4f34885e23",
     "run_id": "1f073f35-21f3-4cf2-b38b-5d2a44504b64",
-    "manifest_sha256": "e849d14bdfe63f6c4438e14651ff0938c920ae5f510334a711b2ae727f8fd121",
+    "manifest_sha256": "085cc7dda844aa50da711b8cd9c5ff0817da5a13b7ec8307d1dbe4137609345f",
     "row_scoped_freshness_required_before_each_future_apply": true,
     "unrelated_out_of_package_source_drift_does_not_invalidate_package": true
   },
   "expected_deltas_if_separately_authorized_and_fully_applied": {
     "products": 17,
-    "product_variants": 59,
+    "product_variants": 64,
     "retailer_products": 110,
     "offers": 110,
     "price_history": 110,

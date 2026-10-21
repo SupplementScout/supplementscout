@@ -2,9 +2,9 @@
   "schema_version": 3,
   "kind": "reviewed-catalogue-package-v3",
   "source_platform": "shopify",
-  "status": "PREPARATION_ONLY",
-  "authorized_by": null,
-  "authorized_at": null,
+  "status": "OWNER_APPROVED",
+  "authorized_by": "Marek Kalinka — owner approval for exact Gladiator Current Frontier 110",
+  "authorized_at": "2026-10-21T05:41:55.328Z",
   "target_environment": "PRODUCTION",
   "target_project_ref": "aftboxmrdgyhizicfsfu",
   "retailer": {
@@ -43,7 +43,7 @@
       "expected_actions": {
         "retailers_create": 0,
         "products_create": 17,
-        "product_variants_create": 59,
+        "product_variants_create": 64,
         "retailer_products_create": 110,
         "offers_create": 110,
         "price_history_create": 110
