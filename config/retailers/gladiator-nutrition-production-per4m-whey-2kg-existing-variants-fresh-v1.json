@@ -1,0 +1,503 @@
+{
+  "schema_version": 3,
+  "kind": "reviewed-catalogue-package-v3",
+  "source_platform": "shopify",
+  "status": "OWNER_APPROVED",
+  "authorized_by": "Marek Kalinka",
+  "authorized_at": "2026-10-22T05:47:25.442Z",
+  "target_environment": "PRODUCTION",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "retailer": {
+    "id": 15,
+    "name": "Gladiator Nutrition",
+    "slug": "gladiator-nutrition",
+    "website": "https://gladiatornutrition.co.uk",
+    "expected_action": "existing",
+    "shipping_known": true,
+    "shipping_cost": 6.99
+  },
+  "policy": {
+    "reviewed_rows_only": true,
+    "allow_product_creation": false,
+    "allow_variant_creation": false,
+    "allow_canonical_product_updates": false,
+    "allow_canonical_variant_updates": false,
+    "allow_canonical_gtin_updates": false,
+    "allow_category_changes": false,
+    "sku_is_not_gtin": true,
+    "one_plan_at_a_time": true,
+    "fresh_single_use_approval_per_plan": true,
+    "strict_production_readback_after_each_apply": true
+  },
+  "profiles": [
+    {
+      "id": "gladiator-nutrition-production-per4m-whey-2kg-existing-variants-fresh-v1",
+      "status": "DRY_RUN_PASS",
+      "csv_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-nutrition-production-per4m-whey-2kg-existing-variants-fresh-v1.csv",
+      "csv_sha256": "b969c9821f6da19f7a3c719d08a42f18bedef17bd8b97c0b8213801900665bf5",
+      "artifact_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-nutrition-production-per4m-whey-2kg-existing-variants-fresh-v1-dry-run.json",
+      "artifact_sha256": "0b7fca5766a866b519a8b8fb6b8adf0e251f4d9bc08db1a409b0077f2af1b27a",
+      "row_count": 8,
+      "blocked_row_count": 0,
+      "conflict_count": 0,
+      "expected_actions": {
+        "retailers_create": 0,
+        "products_create": 0,
+        "product_variants_create": 0,
+        "retailer_products_create": 8,
+        "offers_create": 8,
+        "price_history_create": 8
+      },
+      "rows": [
+        {
+          "review_row": 1,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "39400065728557",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "12",
+          "product_variant_id": "1003",
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Strawberry Cream / 2kg",
+          "flavour": "Strawberry Cream",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": true,
+          "source_row_fingerprint": "5921c826bbce62ef4f463c958a13b6a6e8b6d56f6f035ded4d443a7073c2c5f2",
+          "plan_fingerprint": "d001da13173186de1adca91c44062c5c",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=39400065728557",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=39400065728557&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Strawberry",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Strawberry"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 2,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "39400065761325",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "12",
+          "product_variant_id": "1128",
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Vanilla Cream / 2kg",
+          "flavour": "Vanilla Cream",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": true,
+          "source_row_fingerprint": "2b954cd100e85675408c0c71a5abbe8259ba738001ec860c936a31a31e2dd6c5",
+          "plan_fingerprint": "708dc1112c25b9dbf4e95621b00fb085",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=39400065761325",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=39400065761325&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Vanilla",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Vanilla"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 3,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "40523362172973",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "12",
+          "product_variant_id": "1113",
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Choctella / 2kg",
+          "flavour": "Choctella",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": true,
+          "source_row_fingerprint": "10dce8e14fbb86169fce3d88c577b10baf6175aeb419bf62557a97cb619b52e0",
+          "plan_fingerprint": "cb95ef27db9d05f86edeeff76015992c",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=40523362172973",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=40523362172973&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Chocotella",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Chocotella"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 4,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "40523362598957",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "12",
+          "product_variant_id": "1100",
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Banana Cream / 2kg",
+          "flavour": "Banana Cream",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": true,
+          "source_row_fingerprint": "8c2f3f5884302e046662741af7f02b04b51d6b479b0979fabddc6875a570dc49",
+          "plan_fingerprint": "2113a0d1d621db1d25f213d2888b438f",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=40523362598957",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=40523362598957&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Banana",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Banana"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 5,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "41069101088813",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "12",
+          "product_variant_id": "1114",
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Cinnamon Donut / 2kg",
+          "flavour": "Cinnamon Donut",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": true,
+          "source_row_fingerprint": "37010cf1796c2c0efb9c0634b480480448ce12e5fb80488dfdff13c1f6c5171d",
+          "plan_fingerprint": "5be2cffe2305c71071c428ede9c3f926",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41069101088813",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41069101088813&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Cinnamon Doughnut",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Cinnamon Doughnut"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 6,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "41069102497837",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "12",
+          "product_variant_id": "1116",
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Cookie N' Cream / 2kg",
+          "flavour": "Cookie N' Cream",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": true,
+          "source_row_fingerprint": "c8fb5f68448a63c3872e4cbcd132bea0cab0f53c7454967561125ef0d71c9111",
+          "plan_fingerprint": "5098b883adc62419c79d6d626cff2d6d",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41069102497837",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41069102497837&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Cookies & Cream",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Cookies & Cream"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 7,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "41638788825133",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "12",
+          "product_variant_id": "1112",
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Chocolate Raspberry / 2kg",
+          "flavour": "Chocolate Raspberry",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": false,
+          "source_row_fingerprint": "f3e2366942b2b10690e9cccfaf72441d267bff9b8f1845ea849b8e7e42a461da",
+          "plan_fingerprint": "5d0f34d7177b50f5c223a3d76055de6c",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41638788825133",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=41638788825133&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Chocolate & Raspberry",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Chocolate & Raspberry"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 8,
+          "external_product_id": "6581117780013",
+          "external_variant_id": "57447244595574",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "12",
+          "product_variant_id": "1134",
+          "action": "map_existing_variant",
+          "brand": "Per4m",
+          "category": "Whey Protein",
+          "product_name": "Per4m Whey Protein 2kg",
+          "variant_name": "Chocolate Egg'splosion (limited Edition) / 2kg",
+          "flavour": "Chocolate Egg'splosion (limited Edition)",
+          "size_value": "2000",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 64.99,
+          "in_stock": true,
+          "source_row_fingerprint": "44c535dd76816e6c79ee6b1425d20a21be4a0669640419286a335db7482527e1",
+          "plan_fingerprint": "f6ad16c8c49888342c03e0891083f222",
+          "external_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=57447244595574",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/per4m-whey?variant=57447244595574&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Egg'splosion (Limited Edition)",
+            "Size": "67 Servings",
+            "Weight": "2kg"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Egg'splosion (Limited Edition)"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "2kg",
+              "size_value": "2000",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "67 Servings",
+              "count_value": "67",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 38,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        }
+      ]
+    }
+  ]
+}
