@@ -239,6 +239,48 @@ test("reviewed catalogue v3 option semantics distinguish weight, servings and pl
   assert.equal(resolveOptionRoles({ Size: "35 Servings" }).physical_size, null);
 });
 
+test("reviewed catalogue v3 option roles support one exact composite count and physical size", () => {
+  const singular = resolveOptionRoles({ Flavour: "Apple Burst", Size: "1 Serving (330ml)" });
+  assert.deepEqual(singular.physical_size, {
+    source_key: "Size", source_value: "1 Serving (330ml)", size_value: "330", size_unit: "ml",
+  });
+  assert.deepEqual(singular.count, {
+    source_key: "Size", source_value: "1 Serving (330ml)", count_value: "1", count_unit: "servings",
+  });
+
+  const plural = resolveOptionRoles({ Size: "2 Servings (33cl)" });
+  assert.deepEqual(plural.physical_size, {
+    source_key: "Size", source_value: "2 Servings (33cl)", size_value: "330", size_unit: "ml",
+  });
+  assert.deepEqual(plural.count, {
+    source_key: "Size", source_value: "2 Servings (33cl)", count_value: "2", count_unit: "servings",
+  });
+});
+
+test("reviewed catalogue v3 composite option grammar rejects ambiguous or partial values", () => {
+  for (const value of [
+    "1 Serving 330ml 500ml",
+    "330ml or 500ml",
+    "1 or 2 Servings (330ml)",
+    "1 Serving (330ml) extra",
+    "1 Unknown (330ml)",
+    "0 Servings (330ml)",
+  ]) {
+    const roles = resolveOptionRoles({ Size: value });
+    assert.equal(roles.physical_size, null, value);
+    assert.equal(roles.count, null, value);
+  }
+  assert.deepEqual(resolveOptionRoles({ Size: "330ml" }).physical_size, {
+    source_key: "Size", source_value: "330ml", size_value: "330", size_unit: "ml",
+  });
+  assert.deepEqual(resolveOptionRoles({ Weight: "2.27kg" }).physical_size, {
+    source_key: "Weight", source_value: "2.27kg", size_value: "2270", size_unit: "g",
+  });
+  assert.deepEqual(resolveOptionRoles({ Size: "30 Servings" }).count, {
+    source_key: "Size", source_value: "30 Servings", count_value: "30", count_unit: "servings",
+  });
+});
+
 test("reviewed catalogue v3 default variant requires one source variant and no flavour axis", () => {
   const value = v3Fixture({ rawOptions: { Size: "60 Servings" } });
   const row = value.manifest.profiles[0].rows[0];
