@@ -24,6 +24,9 @@ const ROLE_AWARE_SIZE_MIGRATION = "supabase/migrations/20261020180000_fix_review
 const ROLE_AWARE_SIZE_ROLLBACK = "supabase/rollbacks/20261020180000_fix_reviewed_v3_role_aware_legacy_size_projection_rollback.sql";
 const TRUSTED_PARENT_FORMAT_MIGRATION = "supabase/migrations/20261021120000_align_trusted_v3_reviewed_parent_format_policy.sql";
 const TRUSTED_PARENT_FORMAT_ROLLBACK = "supabase/rollbacks/20261021120000_align_trusted_v3_reviewed_parent_format_policy_rollback.sql";
+const EXISTING_VARIANT_FLAVOUR_ALIAS_MIGRATION = "supabase/migrations/20261022080000_allow_reviewed_v3_existing_variant_flavour_alias_projection.sql";
+const EXISTING_VARIANT_FLAVOUR_ALIAS_ROLLBACK = "supabase/rollbacks/20261022080000_allow_reviewed_v3_existing_variant_flavour_alias_projection_rollback.sql";
+const EXISTING_VARIANT_FLAVOUR_ALIAS_PROJECTION_SHA = "7714cb21a64af063079c34cd5929b242030913c850532d5e71162839b974f1e6";
 const ENVIRONMENT_SAFE_FORWARD_CHAIN = Object.freeze([
   ENVIRONMENT_SAFE_BOUNDED_STATE_MIGRATION,
   ENVIRONMENT_SAFE_MIGRATION,
@@ -33,6 +36,7 @@ const ENVIRONMENT_SAFE_FORWARD_CHAIN = Object.freeze([
   PLURAL_FLAVOUR_MIGRATION,
   ROLE_AWARE_SIZE_MIGRATION,
   TRUSTED_PARENT_FORMAT_MIGRATION,
+  EXISTING_VARIANT_FLAVOUR_ALIAS_MIGRATION,
 ]);
 const ENVIRONMENT_SAFE_ROLLBACK_CHAIN = Object.freeze([
   ENVIRONMENT_SAFE_BOUNDED_STATE_ROLLBACK,
@@ -43,6 +47,7 @@ const ENVIRONMENT_SAFE_ROLLBACK_CHAIN = Object.freeze([
   PLURAL_FLAVOUR_ROLLBACK,
   ROLE_AWARE_SIZE_ROLLBACK,
   TRUSTED_PARENT_FORMAT_ROLLBACK,
+  EXISTING_VARIANT_FLAVOUR_ALIAS_ROLLBACK,
 ]);
 const LEGACY_COMPATIBILITY_HELPER_SHA = "849df8441e8994daf1acb514705808fde17467e033185e30cc432ad165a13905";
 const POST_CREATE_COMPATIBILITY_HELPER_SHA = "906cb5abad08deb8452fa9ae4fed8be8669b760e6f2ef088ae8846f5536b27db";
@@ -251,6 +256,12 @@ end
 $function$;`;
   return `
 create extension pgcrypto;
+create schema supabase_migrations;
+create table supabase_migrations.schema_migrations(
+  version text primary key,
+  name text not null,
+  statements text[] not null default array[]::text[]
+);
 create role anon nologin; create role authenticated nologin; create role service_role nologin;
 create role ${roles.validator} nologin; create role ${roles.approver} nologin; create role ${roles.executor} nologin;
 create role ${roles.validatorLogin} login; create role ${roles.approverLogin} login; create role ${roles.executorLogin} login;
@@ -517,6 +528,30 @@ function actionFixture(environment, action, index) {
     source_row_fingerprint: plan.meta.source_row_fingerprint, plan_fingerprint: null,
   };
   return { plan, envelope };
+}
+
+function existingVariantFlavourAliasFixture(environment, index, rawFlavour, canonicalFlavour, sourceKey = "Flavour") {
+  const fixture = actionFixture(environment, "map_existing_variant", index);
+  const variantId = String(300 + index);
+  const normalized = canonicalFlavour.toLowerCase().replaceAll("'", "").replace(/[^a-z0-9]+/g, " ").trim();
+  const variantKey = normalized.replace(/\s+/g, "-") + "-875g";
+  const externalOptions = { [sourceKey]: rawFlavour, Size: "35 Servings", Weight: "875g" };
+  fixture.plan.product_variant.id = variantId;
+  fixture.plan.product_variant.evidence = {
+    flavour: normalized, size_value: "875", size_unit: "g", pack_count: "1",
+    product_format: "powder", external_options: externalOptions, approved_mapping_id: null,
+  };
+  fixture.plan.retailer_product.values.product_variant_id = variantId;
+  fixture.plan.retailer_product.values.external_options = externalOptions;
+  fixture.plan.expected_state.product_variant = {
+    id: variantId, product_id: "100", variant_key: variantKey,
+    display_name: `${canonicalFlavour} / 875g`, flavour_code: normalized,
+    flavour_label: canonicalFlavour, size_value: "875", size_unit: "g",
+    pack_count: "1", product_format: "powder", is_default: false, is_active: true,
+  };
+  fixture.envelope.external_options = externalOptions;
+  fixture.envelope.option_roles.flavour = { source_key: sourceKey, source_value: rawFlavour };
+  return { ...fixture, variantId, variantKey, canonicalFlavour };
 }
 
 function reviewedCreateFlavourFixture(environment, index, sourceKey, sourceValue) {
@@ -1660,6 +1695,173 @@ function exerciseBaseline(environment) {
       assert.equal(liquidCountsAfter[table] - liquidCountsApplyBefore[table], 1, `${environment} liquid parent ${table} delta`);
     }
 
+    const aliasFixtures = [
+      ["Strawberry alias", existingVariantFlavourAliasFixture(environment, 161, "Strawberry", "Strawberry Cream")],
+      ["Chocotella spelling alias", existingVariantFlavourAliasFixture(environment, 162, "Chocotella", "Choctella", "Flavor")],
+      ["Chocolate Raspberry punctuation alias", existingVariantFlavourAliasFixture(environment, 163, "Chocolate & Raspberry", "Chocolate Raspberry", "Flavours")],
+      ["Eggsplosion expanded alias", existingVariantFlavourAliasFixture(environment, 164, "Egg'splosion (Limited Edition)", "Chocolate Egg'splosion (limited Edition)", "Flavors")],
+    ];
+    for (const [, fixture] of aliasFixtures) {
+      const expected = fixture.plan.expected_state.product_variant;
+      succeed(sql(container, `insert into public.product_variants(
+        id,product_id,variant_key,display_name,flavour_code,flavour_label,size_value,size_unit,
+        pack_count,product_format,is_default,is_active
+      ) values(
+        ${fixture.variantId},100,${literal(expected.variant_key)}#>>'{}',${literal(expected.display_name)}#>>'{}',
+        ${literal(expected.flavour_code)}#>>'{}',${literal(expected.flavour_label)}#>>'{}',875,'g',1,'powder',false,true
+      )`), `${environment} seed ${expected.flavour_label} canonical variant`);
+    }
+
+    const sealedPreAlias = seal(container, aliasFixtures[0][1], `${environment} pre-fix Strawberry alias`);
+    const preAliasValidation = json(
+      container,
+      asRole(environment, "validator", `select public.validate_reviewed_catalogue_v3_plan_read_only(${literal(sealedPreAlias.plan)},${literal(sealedPreAlias.envelope)})`, { readOnly: true }),
+      `${environment} pre-fix Strawberry alias validation`,
+    );
+    assert.equal(preAliasValidation.valid, true);
+    const preAliasApproval = json(
+      container,
+      asRole(environment, "approver", `select public.approve_reviewed_catalogue_v3_plan(${literal(sealedPreAlias.plan)},${literal(sealedPreAlias.envelope)})`),
+      `${environment} pre-fix Strawberry alias approval`,
+    );
+    const preAliasCounts = counts(container, `${environment} pre-fix Strawberry alias counts`);
+    fails(
+      sql(container, asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${preAliasApproval.approval_id}',${literal(sealedPreAlias.plan)},${literal(sealedPreAlias.envelope)})`)),
+      `${environment} pre-fix Strawberry alias apply`,
+      /variant option flavour mismatch/,
+    );
+    assert.deepEqual(counts(container, `${environment} pre-fix Strawberry alias rollback counts`), preAliasCounts);
+    succeed(sql(container, `delete from public.approved_import_plans where id='${preAliasApproval.approval_id}'`), `${environment} remove disposable pre-fix alias approval`);
+    assert.deepEqual(
+      json(container, `select public.fixture_capture_standard_apply_error(${literal(sealedPreAlias.plan)})`, `${environment} non-V3 alias remains closed before fix`),
+      { sqlstate: "P0001", message: "variant option flavour mismatch" },
+    );
+
+    succeedWithoutBusinessChange(container, EXISTING_VARIANT_FLAVOUR_ALIAS_MIGRATION, `${environment} apply existing-variant flavour alias migration`);
+    assert.equal(
+      functionSha(container, "public.atomic_import_reviewed_v3_legacy_validation_projection(jsonb,jsonb)", `${environment} alias projection SHA`),
+      EXISTING_VARIANT_FLAVOUR_ALIAS_PROJECTION_SHA,
+    );
+    assert.deepEqual(
+      functionMetadata(container, "public.atomic_import_reviewed_v3_legacy_validation_projection(jsonb,jsonb)", `${environment} alias projection metadata`),
+      projectionMetadata,
+    );
+    succeed(sql(container, `insert into supabase_migrations.schema_migrations(version,name)
+      values('20261022080000','allow_reviewed_v3_existing_variant_flavour_alias_projection')
+      on conflict (version) do update set name=excluded.name`), `${environment} seed disposable alias migration ledger`);
+    succeedWithoutBusinessChange(container, EXISTING_VARIANT_FLAVOUR_ALIAS_ROLLBACK, `${environment} clean alias projection rollback`);
+    assert.equal(
+      functionSha(container, "public.atomic_import_reviewed_v3_legacy_validation_projection(jsonb,jsonb)", `${environment} clean alias rollback SHA`),
+      "48ce4f1bf0cb9c9d5dd75f2617b92482a19806bc272bd9ee95adab3518e5d92a",
+    );
+    succeedWithoutBusinessChange(container, EXISTING_VARIANT_FLAVOUR_ALIAS_MIGRATION, `${environment} reapply existing-variant flavour alias migration`);
+
+    const aliasTargetFailures = [
+      ["changed target variant", (fixture) => { fixture.plan.expected_state.product_variant.id = "9999"; }],
+      ["target belongs to different product", (fixture) => { fixture.plan.expected_state.product_variant.product_id = "9999"; }],
+      ["default target variant", (fixture) => { fixture.plan.expected_state.product_variant.is_default = true; }],
+      ["inactive target variant", (fixture) => { fixture.plan.expected_state.product_variant.is_active = false; }],
+      ["empty canonical flavour", (fixture) => { fixture.plan.expected_state.product_variant.flavour_label = " "; }],
+    ];
+    for (const [label, mutate] of aliasTargetFailures) {
+      const fixture = structuredClone(sealedPreAlias);
+      mutate(fixture);
+      fails(
+        sql(container, `select public.atomic_import_reviewed_v3_legacy_validation_projection(${literal(fixture.plan)},${literal(fixture.envelope)})`),
+        `${environment} ${label} remains closed`,
+        /existing variant alias target differs/,
+      );
+    }
+    const ambiguousAlias = structuredClone(sealedPreAlias);
+    ambiguousAlias.plan.retailer_product.values.external_options.Flavor = "Strawberry";
+    ambiguousAlias.plan.product_variant.evidence.external_options.Flavor = "Strawberry";
+    ambiguousAlias.envelope.external_options.Flavor = "Strawberry";
+    fails(
+      sql(container, `select public.atomic_import_reviewed_v3_legacy_validation_projection(${literal(ambiguousAlias.plan)},${literal(ambiguousAlias.envelope)})`),
+      `${environment} multiple flavour keys remain closed`,
+      /ambiguous flavour aliases/,
+    );
+
+    const aliasReceipts = [];
+    for (const [label, rawFixture] of aliasFixtures) {
+      const fixture = seal(container, rawFixture, `${environment} ${label}`);
+      const validation = json(
+        container,
+        asRole(environment, "validator", `select public.validate_reviewed_catalogue_v3_plan_read_only(${literal(fixture.plan)},${literal(fixture.envelope)})`, { readOnly: true }),
+        `${environment} ${label} validation`,
+      );
+      assert.equal(validation.valid, true);
+      const before = counts(container, `${environment} ${label} counts before`);
+      const approval = json(
+        container,
+        asRole(environment, "approver", `select public.approve_reviewed_catalogue_v3_plan(${literal(fixture.plan)},${literal(fixture.envelope)})`),
+        `${environment} ${label} approval`,
+      );
+      const applied = json(
+        container,
+        asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${approval.approval_id}',${literal(fixture.plan)},${literal(fixture.envelope)})`),
+        `${environment} ${label} apply`,
+      );
+      assert.equal(applied.approval_status, "consumed");
+      assert.equal(String(applied.product_variant_id), fixture.variantId);
+      assert.deepEqual(
+        json(container, `select external_options from public.retailer_products where id=${applied.retailer_product_id}`, `${environment} ${label} raw storage`),
+        fixture.envelope.external_options,
+      );
+      assert.equal(
+        scalar(container, `select product_variant_id::text from public.offers where id=${applied.offer_id}`, `${environment} ${label} offer target`),
+        fixture.variantId,
+      );
+      const after = counts(container, `${environment} ${label} counts after`);
+      assert.equal(after.products - before.products, 0);
+      assert.equal(after.product_variants - before.product_variants, 0);
+      for (const table of ["retailer_products", "offers", "price_history"]) {
+        assert.equal(after[table] - before[table], 1, `${environment} ${label} ${table} delta`);
+      }
+      assert.equal(scalar(container, `select count(*)::text from price_history where offer_id=${applied.offer_id}`, `${environment} ${label} history count`), "1");
+      assert.equal(scalar(container, `select status from approved_import_plans where id='${approval.approval_id}'`, `${environment} ${label} consumed approval`), "consumed");
+      const replay = json(
+        container,
+        asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${approval.approval_id}',${literal(fixture.plan)},${literal(fixture.envelope)})`),
+        `${environment} ${label} replay`,
+      );
+      assert.equal(replay.status, "ALREADY_APPLIED");
+      assert.deepEqual(counts(container, `${environment} ${label} replay counts`), after);
+      aliasReceipts.push({ approval, applied, fixture });
+    }
+    assert.equal(aliasReceipts.length, 4);
+    assert.equal(aliasReceipts[0].fixture.envelope.external_options.Flavour, "Strawberry");
+    assert.notEqual(aliasReceipts[0].fixture.envelope.external_options.Flavour, "Strawberry Cream");
+    fails(
+      file(container, EXISTING_VARIANT_FLAVOUR_ALIAS_ROLLBACK),
+      `${environment} alias rollback after dependent execution`,
+      /blocked by dependent execution/,
+    );
+    assert.deepEqual(
+      json(container, `select public.fixture_capture_standard_apply_error(${literal(sealedPreAlias.plan)})`, `${environment} non-V3 alias remains closed after fix`),
+      { sqlstate: "P0001", message: "variant option flavour mismatch" },
+    );
+
+    const mismatchedCreate = actionFixture(environment, "create_product_with_variant", 165);
+    mismatchedCreate.plan.retailer_product.values.external_options.Flavour = "Retailer Alias";
+    mismatchedCreate.plan.product_variant.evidence.external_options.Flavour = "Retailer Alias";
+    mismatchedCreate.envelope.external_options.Flavour = "Retailer Alias";
+    mismatchedCreate.envelope.option_roles.flavour.source_value = "Retailer Alias";
+    const sealedMismatchedCreate = seal(container, mismatchedCreate, `${environment} mismatched reviewed create flavour`);
+    const mismatchedCreateApproval = json(
+      container,
+      asRole(environment, "approver", `select public.approve_reviewed_catalogue_v3_plan(${literal(sealedMismatchedCreate.plan)},${literal(sealedMismatchedCreate.envelope)})`),
+      `${environment} mismatched reviewed create approval`,
+    );
+    const mismatchedCreateCounts = counts(container, `${environment} mismatched reviewed create counts`);
+    fails(
+      sql(container, asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${mismatchedCreateApproval.approval_id}',${literal(sealedMismatchedCreate.plan)},${literal(sealedMismatchedCreate.envelope)})`)),
+      `${environment} mismatched reviewed create apply remains closed`,
+      /variant option flavour mismatch/,
+    );
+    assert.deepEqual(counts(container, `${environment} mismatched reviewed create rollback counts`), mismatchedCreateCounts);
+    succeed(sql(container, `delete from public.approved_import_plans where id='${mismatchedCreateApproval.approval_id}'`), `${environment} remove disposable mismatched create approval`);
+
     const roleAwarePassFixtures = [
       ["cookie pack wording", roleAwareLegacySizeFixture(environment, 121, {
         flavour: "Chocolate Chip", rawSize: "12 x 60g Cookies",
@@ -1909,6 +2111,11 @@ function exerciseBaseline(environment) {
     );
 
     succeed(sql(container, "delete from public.approved_import_plans where source like 'reviewed-catalogue-package-v3:%'"), `${environment} remove disposable V3 fixture approvals`);
+    succeedWithoutBusinessChange(container, EXISTING_VARIANT_FLAVOUR_ALIAS_ROLLBACK, `${environment} rollback existing-variant flavour alias projection`);
+    assert.equal(
+      functionSha(container, "public.atomic_import_reviewed_v3_legacy_validation_projection(jsonb,jsonb)", `${environment} restored pre-alias projection SHA`),
+      "48ce4f1bf0cb9c9d5dd75f2617b92482a19806bc272bd9ee95adab3518e5d92a",
+    );
     succeedWithoutBusinessChange(container, TRUSTED_PARENT_FORMAT_ROLLBACK, `${environment} rollback trusted V3 reviewed-parent format policy`);
     assert.equal(
       functionSha(container, "public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)", `${environment} trusted parent format rollback SHA`),

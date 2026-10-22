@@ -49,6 +49,10 @@ const REVIEWED_V3_PARENT_FORMAT_MIGRATION = "20261021120000_align_trusted_v3_rev
 const REVIEWED_V3_PARENT_FORMAT_SHA256 = "e04745296ae0984f99f498f7816867c6dee8ebddb1032acd9378ec16de80e6ba";
 const GHOST_LIFESTYLE_METADATA_MIGRATION = "20261021190000_correct_ghost_lifestyle_energy_drink_metadata.sql";
 const GHOST_LIFESTYLE_METADATA_SHA256 = "74f3b7bd5baf337bceece57f40b19dd57435f074dc65528ba7c8d9bd38ddb8c1";
+const REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION = "20261022080000_allow_reviewed_v3_existing_variant_flavour_alias_projection.sql";
+const REVIEWED_V3_EXISTING_VARIANT_ALIAS_SHA256 = "a0e6be56558ea8ce2a36152b8a0cd31e38f0cb905a447940485af495cc8b09ff";
+const REVIEWED_V3_EXISTING_VARIANT_ALIAS_ROLLBACK = "20261022080000_allow_reviewed_v3_existing_variant_flavour_alias_projection_rollback.sql";
+const REVIEWED_V3_EXISTING_VARIANT_ALIAS_ROLLBACK_SHA256 = "6c7e4887e9a2e80ba07880c35a03044819975e870d02393a7220b35c57739dbc";
 const RA004_CONTROL_STATE_MIGRATION = "20260924100000_add_transactional_retailer_control_state_interface.sql";
 const RA004_PREFLIGHT_MIGRATION = "20260925100000_add_ra004_staging_preflight_metadata_interface.sql";
 const RA004_FORWARD_CONTROL_STATE_MIGRATION = "20260927100000_reissue_transactional_retailer_control_state_interface.sql";
@@ -386,18 +390,20 @@ test.after(() => {
   }
 });
 
-test("staging records the deployed parent-format parity migration with no pending migration", () => {
+test("staging records ledger 112 and selects only the V3 existing-variant alias migration", () => {
   const result = validateSelection(validInput());
   assert.equal(result.ledger_count, 112);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, [REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION]);
+  assert.deepEqual(result.pending_sha256s, {
+    [REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION]: REVIEWED_V3_EXISTING_VARIANT_ALIAS_SHA256,
+  });
+  assert.equal(result.pending_file, REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION);
+  assert.equal(result.pending_sha256, REVIEWED_V3_EXISTING_VARIANT_ALIAS_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
-  assert.equal(result.selected_files.length, 112);
+  assert.equal(result.selected_files.length, 113);
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes(RA004_FIXTURE_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_GUARD_MIGRATION));
@@ -500,7 +506,10 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
 
 test("production preserves deployed V3 and Ghost Lifestyle metadata correction bytes", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION,
+    sha256: REVIEWED_V3_EXISTING_VARIANT_ALIAS_SHA256,
+  }]);
   assert.deepEqual(contract.appliedExcluded, [
     "20260929133000_extend_expired_sequential_plan_close.sql",
     "20261004120000_add_central_control_plan_readback.sql",
@@ -569,6 +578,35 @@ test("production preserves deployed V3 and Ghost Lifestyle metadata correction b
   assert.equal(sha256File(path.join(SOURCE, TEN_REPS_V10_SIBLING_MIGRATION)), TEN_REPS_V10_SIBLING_SHA256);
 });
 
+test("reviewed V3 existing-variant flavour alias migration is shared, projection-only, and rollback-guarded", () => {
+  const migrationPath = path.join(SOURCE, REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION);
+  const rollbackPath = path.join(ROOT, "supabase", "rollbacks", REVIEWED_V3_EXISTING_VARIANT_ALIAS_ROLLBACK);
+  const migration = fs.readFileSync(migrationPath, "utf8");
+  const rollback = fs.readFileSync(rollbackPath, "utf8");
+  assert.equal(sha256File(migrationPath), REVIEWED_V3_EXISTING_VARIANT_ALIAS_SHA256);
+  assert.equal(sha256File(rollbackPath), REVIEWED_V3_EXISTING_VARIANT_ALIAS_ROLLBACK_SHA256);
+  for (const sql of [migration, rollback]) {
+    assert.match(sql, /^begin;[\s\S]*commit;\s*$/i);
+    assert.match(sql, /reviewed-catalogue-v3-schema/);
+    assert.match(sql, /atomic_import_reviewed_v3_legacy_validation_projection\(jsonb,jsonb\)/);
+    assert.doesNotMatch(sql, /Gladiator|Per4m|10 Reps/i);
+    assert.doesNotMatch(sql, /create\s+table|alias_registry|flavour_aliases/i);
+    assert.doesNotMatch(sql, /create\s+(?:or\s+replace\s+)?function\s+public\.(?:apply_approved_product_import_plan|atomic_import_apply_standard_plan_core)/i);
+    assert.doesNotMatch(sql, /\bgrant\s+execute\b/i);
+    assert.doesNotMatch(sql, /\b(?:insert into|update|delete from)\s+public\.(?:retailers|products|product_variants|retailer_products|offers|price_history|approved_import_plans)\b/i);
+  }
+  assert.equal((migration.match(/create or replace function public\.atomic_import_reviewed_v3_legacy_validation_projection/g) || []).length, 1);
+  assert.match(migration, /48ce4f1bf0cb9c9d5dd75f2617b92482a19806bc272bd9ee95adab3518e5d92a/);
+  assert.match(migration, /7714cb21a64af063079c34cd5929b242030913c850532d5e71162839b974f1e6/);
+  assert.match(migration, /reviewed_action'='map_existing_variant'/);
+  assert.match(migration, /v_validation_options:=jsonb_set/);
+  assert.match(rollback, /schema_migrations[\s\S]*20261022080000/);
+  assert.match(rollback, /blocked by live approval/);
+  assert.match(rollback, /blocked by dependent execution/);
+  assert.match(rollback, /7714cb21a64af063079c34cd5929b242030913c850532d5e71162839b974f1e6/);
+  assert.match(rollback, /48ce4f1bf0cb9c9d5dd75f2617b92482a19806bc272bd9ee95adab3518e5d92a/);
+});
+
 test("an additional pending migration fails closed", () => {
   const sourceDir = sourceCopy();
   fs.copyFileSync(
@@ -626,7 +664,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 112);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 113);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -671,7 +709,7 @@ test("production records the deployed reviewed V3 and Ghost metadata chain at le
   });
   assert.equal(result.ledger_count, 247);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 247);
+  assert.equal(result.selected_files.length, 248);
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
   assert.ok(result.excluded_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
@@ -683,10 +721,12 @@ test("production records the deployed reviewed V3 and Ghost metadata chain at le
   assert.ok(result.selected_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
   assert.ok(result.excluded_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
   assert.ok(result.selected_files.includes(REVIEWED_V3_PARENT_FORMAT_MIGRATION));
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.deepEqual(result.pending_files, [REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION]);
+  assert.equal(result.pending_file, REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION);
+  assert.equal(result.pending_sha256, REVIEWED_V3_EXISTING_VARIANT_ALIAS_SHA256);
+  assert.deepEqual(result.pending_sha256s, {
+    [REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION]: REVIEWED_V3_EXISTING_VARIANT_ALIAS_SHA256,
+  });
   for (const filename of [
     ENVIRONMENT_SAFE_REVIEWED_STATE_MIGRATION,
     ENVIRONMENT_SAFE_REVIEWED_V3_MIGRATION,
@@ -785,7 +825,8 @@ test("runtime production artifacts bind the same migration ledger as the product
   const binding = migrationBinding("PRODUCTION");
   assert.equal(binding.versions.length, CONTRACTS.PRODUCTION.ledgerCount);
   assert.equal(binding.fingerprint, CONTRACTS.PRODUCTION.ledgerFingerprint);
-  assert.equal(CONTRACTS.PRODUCTION.pending.length, 0);
+  assert.equal(CONTRACTS.PRODUCTION.pending.length, 1);
+  assert.equal(CONTRACTS.PRODUCTION.pending[0].filename, REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION);
   assert.ok(binding.versions.includes(REVIEWED_V3_PARENT_FORMAT_MIGRATION.slice(0, -4)));
   assert.ok(binding.versions.includes(GHOST_LIFESTYLE_METADATA_MIGRATION.slice(0, -4)));
   assert.ok(binding.versions.includes(REVIEWED_V3_ROLE_AWARE_SIZE_MIGRATION.slice(0, -4)));
@@ -826,7 +867,10 @@ test("runtime staging artifacts bind the same migration ledger as the staging se
 test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.equal(Object.keys(contract.excluded).length, 27);
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION,
+    sha256: REVIEWED_V3_EXISTING_VARIANT_ALIAS_SHA256,
+  }]);
   assert.equal(
     contract.excluded["20261009120000_add_compact_other_retailer_fingerprint.sql"],
     "b365d247777650aba6333399d4173ecb369d85a1465074bb6961c23b94f2ac84",
@@ -1005,7 +1049,10 @@ test("staging contract records ledger 112 with the parent-format parity fix appl
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === filename));
   assert.ok(CONTRACT.appliedExcluded.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === REVIEWED_STATE_MIGRATION));
-  assert.deepEqual(CONTRACT.pending, []);
+  assert.deepEqual(CONTRACT.pending, [{
+    filename: REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION,
+    sha256: REVIEWED_V3_EXISTING_VARIANT_ALIAS_SHA256,
+  }]);
   assert.equal(currentRemoteLedger().length, 112);
   assert.ok(currentRemoteLedger().some(({ version, name }) =>
     `${version}_${name}.sql` === REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION));
@@ -1464,10 +1511,12 @@ test("completed RA-004 fixture activation cannot select or materialize a migrati
 
 test("staging keeps deployed SEO-15 and the deployed V3 parent-format parity migration", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending_file, REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION);
+  assert.equal(result.pending_sha256, REVIEWED_V3_EXISTING_VARIANT_ALIAS_SHA256);
+  assert.deepEqual(result.pending_files, [REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION]);
+  assert.deepEqual(result.pending_sha256s, {
+    [REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION]: REVIEWED_V3_EXISTING_VARIANT_ALIAS_SHA256,
+  });
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(result.selected_files.includes(REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION));
