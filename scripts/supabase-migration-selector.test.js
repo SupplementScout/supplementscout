@@ -343,6 +343,7 @@ function withoutCurrentSeo15Migrations(rows) {
     REVIEWED_V3_PLURAL_FLAVOUR_MIGRATION,
     REVIEWED_V3_ROLE_AWARE_SIZE_MIGRATION,
     REVIEWED_V3_PARENT_FORMAT_MIGRATION,
+    REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION,
   ].includes(`${version}_${name}.sql`));
 }
 
@@ -390,16 +391,14 @@ test.after(() => {
   }
 });
 
-test("staging records ledger 112 and selects only the V3 existing-variant alias migration", () => {
+test("staging records ledger 113 with no pending migrations", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 112);
+  assert.equal(result.ledger_count, 113);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending_files, [REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION]);
-  assert.deepEqual(result.pending_sha256s, {
-    [REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION]: REVIEWED_V3_EXISTING_VARIANT_ALIAS_SHA256,
-  });
-  assert.equal(result.pending_file, REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION);
-  assert.equal(result.pending_sha256, REVIEWED_V3_EXISTING_VARIANT_ALIAS_SHA256);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
@@ -1039,21 +1038,18 @@ test("owner-authorized ACL/RLS activation selects exactly one migration from led
   ]), /staging-only/);
 });
 
-test("staging contract records ledger 112 with the parent-format parity fix applied", () => {
+test("staging contract records ledger 113 with the existing-variant alias migration applied", () => {
   const filename = "20260928100000_diagnose_ra004_preflight_acl_rls.sql";
-  assert.equal(CONTRACT.ledgerCount, 112);
+  assert.equal(CONTRACT.ledgerCount, 113);
   assert.equal(CONTRACT.ledgerFingerprint,
-    "912e598e8012568a061908e7a6dc3f93d98d5801f4cf951f852a9d93006231a8");
+    "4bc9ed5c7c9a91b6a327a1581ecc995ccd088624317807750960e48d88b2efc0");
   assert.ok(CONTRACT.appliedExcluded.includes(filename));
   assert.ok(CONTRACT.appliedExcluded.includes(RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION));
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === filename));
   assert.ok(CONTRACT.appliedExcluded.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === REVIEWED_STATE_MIGRATION));
-  assert.deepEqual(CONTRACT.pending, [{
-    filename: REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION,
-    sha256: REVIEWED_V3_EXISTING_VARIANT_ALIAS_SHA256,
-  }]);
-  assert.equal(currentRemoteLedger().length, 112);
+  assert.deepEqual(CONTRACT.pending, []);
+  assert.equal(currentRemoteLedger().length, 113);
   assert.ok(currentRemoteLedger().some(({ version, name }) =>
     `${version}_${name}.sql` === REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION));
   assert.ok(currentRemoteLedger().some(({ version, name }) =>
@@ -1064,6 +1060,8 @@ test("staging contract records ledger 112 with the parent-format parity fix appl
     `${version}_${name}.sql` === REVIEWED_V3_ROLE_AWARE_SIZE_MIGRATION));
   assert.ok(currentRemoteLedger().some(({ version, name }) =>
     `${version}_${name}.sql` === REVIEWED_V3_PARENT_FORMAT_MIGRATION));
+  assert.ok(currentRemoteLedger().some(({ version, name }) =>
+    `${version}_${name}.sql` === REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION));
   assert.equal(ledgerRowsFingerprint(currentRemoteLedger(), { targetEnvironment: "STAGING" }),
     CONTRACT.ledgerFingerprint);
 });
@@ -1509,20 +1507,19 @@ test("completed RA-004 fixture activation cannot select or materialize a migrati
   })), /status mismatch/);
 });
 
-test("staging keeps deployed SEO-15 and the deployed V3 parent-format parity migration", () => {
+test("staging keeps deployed SEO-15 and the deployed V3 alias migration", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION);
-  assert.equal(result.pending_sha256, REVIEWED_V3_EXISTING_VARIANT_ALIAS_SHA256);
-  assert.deepEqual(result.pending_files, [REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION]);
-  assert.deepEqual(result.pending_sha256s, {
-    [REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION]: REVIEWED_V3_EXISTING_VARIANT_ALIAS_SHA256,
-  });
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(result.selected_files.includes(REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_PLURAL_FLAVOUR_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_ROLE_AWARE_SIZE_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_PARENT_FORMAT_MIGRATION));
+  assert.ok(result.selected_files.includes(REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION));
 });
 
 test("Group A identity migrations are production-bound and cannot change commercial fields", () => {

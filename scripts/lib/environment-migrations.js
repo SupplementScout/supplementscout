@@ -225,12 +225,7 @@ const APPLIED_EXCLUSIONS = Object.freeze({
 });
 
 const PENDING_MIGRATIONS = Object.freeze({
-  STAGING: Object.freeze([
-    Object.freeze({
-      filename: "20261022080000_allow_reviewed_v3_existing_variant_flavour_alias_projection.sql",
-      sha256: "a0e6be56558ea8ce2a36152b8a0cd31e38f0cb905a447940485af495cc8b09ff",
-    }),
-  ]),
+  STAGING: Object.freeze([]),
   PRODUCTION: Object.freeze([
     Object.freeze({
       filename: "20261022080000_allow_reviewed_v3_existing_variant_flavour_alias_projection.sql",
