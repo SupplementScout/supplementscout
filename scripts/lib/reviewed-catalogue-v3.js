@@ -27,9 +27,27 @@ function decimalString(value) {
   return String(number).replace(/\.0+$/, "").replace(/(\.\d*?)0+$/, "$1");
 }
 
+function parseCompositeSize(value) {
+  const match = String(value || "").trim().match(
+    /^([1-9]\d*)\s*([a-z]+)\s*\(\s*(\d+(?:[.,]\d+)?)\s*(mcg|mg|kg|g|ml|cl|l)\s*\)$/i,
+  );
+  if (!match) return null;
+  const countUnit = normalizeCountUnit(match[2]);
+  if (!countUnit) return null;
+  let amount = Number(match[3].replace(",", "."));
+  let unit = match[4].toLowerCase();
+  if (unit === "kg") { amount *= 1000; unit = "g"; }
+  if (unit === "l") { amount *= 1000; unit = "ml"; }
+  if (unit === "cl") { amount *= 10; unit = "ml"; }
+  return {
+    count: { count_value: match[1], count_unit: countUnit },
+    physical_size: { size_value: decimalString(amount), size_unit: unit },
+  };
+}
+
 function parsePhysicalSize(value) {
   const match = String(value || "").trim().match(/^(\d+(?:[.,]\d+)?)\s*(mcg|mg|kg|g|ml|cl|l)$/i);
-  if (!match) return null;
+  if (!match) return parseCompositeSize(value)?.physical_size || null;
   let amount = Number(match[1].replace(",", "."));
   let unit = match[2].toLowerCase();
   if (unit === "kg") { amount *= 1000; unit = "g"; }
@@ -54,8 +72,8 @@ function normalizeCountUnit(value) {
 }
 
 function parseCount(value) {
-  const match = String(value || "").trim().match(/^(\d+(?:\s*\/\s*\d+)?)\s*([a-z]+)$/i);
-  if (!match) return null;
+  const match = String(value || "").trim().match(/^([1-9]\d*(?:\s*\/\s*[1-9]\d*)?)\s*([a-z]+)$/i);
+  if (!match) return parseCompositeSize(value)?.count || null;
   const countUnit = normalizeCountUnit(match[2]);
   if (!countUnit) return null;
   return { count_value: match[1].replace(/\s+/g, ""), count_unit: countUnit };
@@ -185,6 +203,7 @@ module.exports = {
   buildV3Envelope,
   isV3SourceExcluded,
   parseCount,
+  parseCompositeSize,
   parsePhysicalSize,
   resolveOptionRoles,
   strictShopifyUrl,
