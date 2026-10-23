@@ -674,6 +674,31 @@ test("package executor keeps per-plan atomic deltas and strict commercial readba
   assert.throws(() => verifyTarget(entry, { product, variant, mapping, offer: { ...offer, shipping_cost: "4.99" }, history }), /price mismatch/);
 });
 
+test("package executor compares offer and price-history money by canonical decimal value", () => {
+  const plan = fixture().plan;
+  plan.offer.values = { ...plan.offer.values, price: "2.4", shipping_cost: "6.99", total_price: "9.39" };
+  plan.price_history.values = { ...plan.price_history.values, price: "2.4", shipping_cost: "6.99", total_price: "9.39" };
+  const entry = { plan_fingerprint: plan.meta.plan_fingerprint, resolved_plan: plan };
+  const product = { ...plan.expected_state.product };
+  const variant = { ...plan.expected_state.product_variant };
+  const mapping = { id: "3010", ...plan.retailer_product.values };
+  const offer = {
+    id: "2823", ...plan.offer.values, retailer_product_id: "3010",
+    price: "2.40", shipping_cost: "6.990", total_price: "9.3900",
+  };
+  const history = [{
+    id: "9001", offer_id: "2823", checked_at: plan.offer.values.last_checked_at,
+    ...plan.price_history.values, price: "2.40", shipping_cost: "6.990", total_price: "9.3900",
+  }];
+
+  assert.doesNotThrow(() => verifyTarget(entry, { product, variant, mapping, offer, history }));
+  for (const [field, value] of [["price", "2.41"], ["shipping_cost", "7"], ["total_price", "9.40"]]) {
+    assert.throws(() => verifyTarget(entry, { product, variant, mapping, offer: { ...offer, [field]: value }, history }), /Offer price mismatch/);
+    assert.throws(() => verifyTarget(entry, { product, variant, mapping, offer, history: [{ ...history[0], [field]: value }] }), /Price history mismatch/);
+  }
+  assert.throws(() => verifyTarget(entry, { product, variant, mapping, offer: { ...offer, price: "not-money" }, history }), /offer price must be a valid decimal/);
+});
+
 test("package postflight normalizes only safe decimal database identities", () => {
   assert.equal(opaqueDecimalId(338), "338");
   assert.equal(opaqueDecimalId("338"), "338");

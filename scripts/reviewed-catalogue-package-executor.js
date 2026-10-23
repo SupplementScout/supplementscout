@@ -2,7 +2,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { execFileSync } = require("node:child_process");
 const { Client } = require("pg");
-const { canonicalJson } = require("./lib/canonical-json");
+const { canonicalJson, normalizeDecimalString } = require("./lib/canonical-json");
 const { loadReviewedPackageScope } = require("./lib/reviewed-catalogue-package");
 const {
   CONTRACT_KIND: REVIEWED_V3_KIND,
@@ -32,6 +32,12 @@ function safeError(error) {
     .replace(/(?:password|token|secret|key)=[^\s&]+/gi, "[REDACTED_PARAMETER]");
 }
 function decimal(value) { return Number(value).toFixed(2); }
+const MONEY_FIELDS = Object.freeze(["price", "shipping_cost", "total_price"]);
+function sameMoneyFields(actual, expected, label) {
+  return MONEY_FIELDS.every(field =>
+    normalizeDecimalString(actual[field], `${label} ${field}`) ===
+    normalizeDecimalString(expected[field], `${label} ${field}`));
+}
 function same(actual, expected, message) { invariant(canonicalJson(actual) === canonicalJson(expected), `${message} mismatch`); }
 function exactPath(relative, prefix) {
   invariant(typeof relative === "string" && relative.replaceAll("\\", "/").startsWith(prefix), `${prefix} path required`);
@@ -175,12 +181,12 @@ function verifyTarget(entry, state, { requireSingleHistory = true } = {}) {
   }
   invariant(String(state.mapping.product_id) === String(state.product.id) && String(state.mapping.product_variant_id) === String(state.variant.id), "Mapping target mismatch");
   invariant(String(state.offer.retailer_product_id) === String(state.mapping.id) && String(state.offer.product_id) === String(state.product.id) && String(state.offer.product_variant_id) === String(state.variant.id), "Offer target mismatch");
-  invariant(decimal(state.offer.price) === plan.offer.values.price && decimal(state.offer.shipping_cost) === plan.offer.values.shipping_cost && decimal(state.offer.total_price) === plan.offer.values.total_price, "Offer price mismatch");
+  invariant(sameMoneyFields(state.offer, plan.offer.values, "offer"), "Offer price mismatch");
   invariant(state.offer.in_stock === Boolean(plan.offer.values.in_stock) && state.offer.url === plan.offer.values.url, "Offer stock or URL mismatch");
   invariant(new Date(state.offer.last_checked_at).toISOString() === new Date(plan.offer.values.last_checked_at).toISOString(), "Offer timestamp mismatch");
   if (requireSingleHistory) invariant(state.history.length === 1, "Initial price history count mismatch");
   const history = state.history.at(-1);
-  invariant(history && decimal(history.price) === plan.offer.values.price && decimal(history.shipping_cost) === plan.offer.values.shipping_cost && decimal(history.total_price) === plan.offer.values.total_price, "Price history mismatch");
+  invariant(history && sameMoneyFields(history, plan.offer.values, "price history"), "Price history mismatch");
   invariant(new Date(history.checked_at).toISOString() === new Date(plan.offer.values.last_checked_at).toISOString(), "Price history timestamp mismatch");
   return {
     plan_fingerprint: entry.plan_fingerprint,
