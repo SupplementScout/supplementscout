@@ -3,6 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { Client } = require("pg");
 const { canonicalJson } = require("./lib/canonical-json");
+const { postgresClientConfig } = require("./lib/secure-postgres");
 const { catalogueCounts, databaseState } = require("./apply-selected-migrations");
 const {
   CONTRACTS,
@@ -135,18 +136,19 @@ function connectionString(kind) {
   const raw = process.env[name];
   invariant(raw, `${name} is required`);
   const url = new URL(raw);
-  url.searchParams.delete("sslmode");
   invariant(url.href.includes(PRODUCTION.projectRef), `${name} target mismatch`);
   return url.href;
 }
 
 function createClient(connection, applicationName, readOnly = false) {
-  return new Client({
+  return new Client(postgresClientConfig({
     connectionString: connection,
-    ssl: { rejectUnauthorized: false },
-    application_name: applicationName,
-    ...(readOnly ? { options: "-c default_transaction_read_only=on" } : {}),
-  });
+    applicationName,
+    defaultReadOnly: readOnly,
+    connectionTimeoutMillis: 0,
+    queryTimeoutMs: 0,
+    statementTimeoutMs: 0,
+  }));
 }
 
 async function assertProduction(client) {

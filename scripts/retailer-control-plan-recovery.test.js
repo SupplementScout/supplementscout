@@ -131,7 +131,7 @@ test("one retailer-neutral recovery path replaces the retired store-specific clo
   const source = fs.readFileSync(path.join(__dirname, "retailer-control-plan-recovery.js"), "utf8");
   const workflow = fs.readFileSync(path.join(__dirname, "../.github/workflows/fit-house-offer-refresh.yml"), "utf8");
   const partialMigration = fs.readFileSync(path.join(__dirname, "../supabase/migrations/20261006120000_extend_partial_sequential_plan_close.sql"), "utf8");
-  assert.doesNotMatch(source, /10 Reps|Simply Supplements|Fit House|retailer_id\s*[=!]==?\s*["']?\d+/i);
+  assert.doesNotMatch(source, /10 Reps|Simply Supplements|Fit House|Jon's Supplements|Whey Okay|retailer_id\s*[=!]==?\s*["']?\d+/i);
   assert.doesNotMatch(source, /\b(?:insert\s+into|update|delete\s+from)\s+public\./i);
   assert.match(source, /close_expired_retailer_offer_sync_approval/);
   assert.doesNotMatch(partialMigration, /10 Reps|Simply Supplements|Fit House|retailer_id\s*[=!<>]+\s*14/i);
@@ -141,6 +141,24 @@ test("one retailer-neutral recovery path replaces the retired store-specific clo
   assert.match(workflow, /SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL/);
   assert.match(workflow, /JONS_SYNC_APPROVER_DATABASE_URL/);
   assert.equal(fs.existsSync(path.join(__dirname, "close-simply-expired-reviewed-plan.js")), false);
+});
+
+test("shared recovery delegates verified TLS without changing its timeout contract", () => {
+  const source = fs.readFileSync(path.join(__dirname, "retailer-control-plan-recovery.js"), "utf8");
+  assert.match(source, /require\("\.\/lib\/secure-postgres"\)/);
+  assert.match(source, /postgresClientConfig\(\{/);
+  assert.doesNotMatch(source, /rejectUnauthorized\s*:\s*false/);
+  assert.doesNotMatch(source, /\bssl\s*:/);
+  for (const timeout of ["connectionTimeoutMillis", "queryTimeoutMs", "statementTimeoutMs"])
+    assert.match(source, new RegExp(`${timeout}: 0`));
+  assert.match(source, /defaultReadOnly: readOnly/);
+});
+
+test("shared recovery keeps discovery and preflight read-only and close RPC-only", () => {
+  const source = fs.readFileSync(path.join(__dirname, "retailer-control-plan-recovery.js"), "utf8");
+  assert.equal((source.match(/begin isolation level repeatable read read only/g) || []).length, 3);
+  assert.equal((source.match(/select public\.close_expired_retailer_offer_sync_approval\(\$1::jsonb\) result/g) || []).length, 1);
+  assert.doesNotMatch(source, /\b(?:insert\s+into|update|delete\s+from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history)\b/i);
 });
 
 test("shared recovery accepts only an expired wholly unexecuted sequential tree", () => {
