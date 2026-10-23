@@ -6,6 +6,9 @@ const tls = require("node:tls");
 const { X509Certificate } = require("node:crypto");
 const {
   BUNDLED_SUPABASE_CA,
+  DEFAULT_POSTGRES_CONNECTION_TIMEOUT_MS,
+  DEFAULT_POSTGRES_QUERY_TIMEOUT_MS,
+  DEFAULT_POSTGRES_STATEMENT_TIMEOUT_MS,
   SUPABASE_ROOT_CA_FINGERPRINT,
   isApprovedSupabaseHostname,
   normalizeVerifiedConnectionString,
@@ -36,6 +39,16 @@ test("verify-full, legacy require and absent sslmode all become the same verifie
     assert.match(certificate.subject, /CN=Supabase Root 2021 CA/);
     assert.equal(certificate.issuer, certificate.subject);
   }
+});
+
+test("shared PostgreSQL timeout defaults remain exact and observable", () => {
+  assert.equal(DEFAULT_POSTGRES_CONNECTION_TIMEOUT_MS, 15000);
+  assert.equal(DEFAULT_POSTGRES_QUERY_TIMEOUT_MS, 120000);
+  assert.equal(DEFAULT_POSTGRES_STATEMENT_TIMEOUT_MS, 120000);
+  const config = postgresClientConfig({ connectionString: SUPABASE_URL, applicationName: "timeout-contract-test" });
+  assert.equal(config.connectionTimeoutMillis, DEFAULT_POSTGRES_CONNECTION_TIMEOUT_MS);
+  assert.equal(config.query_timeout, DEFAULT_POSTGRES_QUERY_TIMEOUT_MS);
+  assert.match(config.options, new RegExp(`statement_timeout=${DEFAULT_POSTGRES_STATEMENT_TIMEOUT_MS}`));
 });
 
 test("insecure, hostname-weaker and unknown sslmode inputs fail closed", () => {

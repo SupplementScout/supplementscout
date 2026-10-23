@@ -12,13 +12,19 @@ const { buildExecutionStateRequest, createStateClient, readState, validatePlans,
 const {
   APPLY_SQL: PACKAGE_APPLY_SQL,
   APPROVAL_SQL: PACKAGE_APPROVAL_SQL,
+  EXECUTION_STAGES,
+  EXECUTOR_TIMEOUT_CONFIG,
+  TIMEOUT_CLASSES,
   apply: applyPackage,
   captureTarget,
+  classifyTimeout,
   expectedDelta,
   opaqueDecimalId,
   parseArgs: parsePackageArgs,
   parseCredential: parsePackageCredential,
   roleTransaction,
+  run: runPackage,
+  safeError,
   sameExpectedState,
   verifyTarget,
 } = require("./reviewed-catalogue-package-executor");
@@ -699,6 +705,136 @@ test("package executor compares offer and price-history money by canonical decim
   assert.throws(() => verifyTarget(entry, { product, variant, mapping, offer: { ...offer, price: "not-money" }, history }), /offer price must be a valid decimal/);
 });
 
+function executorScenario() {
+  const value = fixture();
+  const prepared = load(value);
+  const loaded = {
+    ...prepared,
+    manifest: value.manifest,
+    profile: value.manifest.profiles[0],
+    entries: [prepared.entry],
+    manifestSha256: value.manifestSha256,
+  };
+  const baseline = { products: 1, product_variants: 1, retailer_products: 0, offers: 0, price_history: 0 };
+  const plan = prepared.entry.resolved_plan;
+  const initialState = {
+    retailer: value.manifest.retailer,
+    products: [plan.expected_state.product],
+    product_variants: [plan.expected_state.product_variant],
+    retailer_products: [], offers: [], price_history: [], counts: baseline,
+  };
+  const appliedState = {
+    retailer: value.manifest.retailer,
+    products: [{ ...plan.expected_state.product }],
+    product_variants: [{ ...plan.expected_state.product_variant }],
+    retailer_products: [{ id: "3010", ...plan.retailer_product.values }],
+    offers: [{ id: "2823", ...plan.offer.values, retailer_product_id: "3010" }],
+    price_history: [{ id: "9001", offer_id: "2823", checked_at: plan.offer.values.last_checked_at, ...plan.price_history.values }],
+    counts: { products: 1, product_variants: 1, retailer_products: 1, offers: 1, price_history: 1 },
+  };
+  let written;
+  let readCount = 0;
+  let tick = 0;
+  const client = { async end() {} };
+  const dependencies = {
+    loadScope: () => loaded,
+    assertCleanMain: () => "a".repeat(40),
+    connect: async () => client,
+    roleTransaction: async (connection, target, kind, callback) => callback(connection),
+    readState: async () => readCount++ === 0 ? initialState : appliedState,
+    approve: async () => ({ approval_id: "123e4567-e89b-42d3-a456-426614174000", expires_at: "2026-09-07T10:20:00.000Z" }),
+    apply: async () => ({ approval_status: "consumed", consumed_at: "2026-09-07T10:06:00.000Z" }),
+    writeFileSync: (output, contents) => { written = JSON.parse(contents); },
+    now: () => new Date(Date.UTC(2026, 8, 7, 10, 0, tick++)).toISOString(),
+  };
+  const options = {
+    target: "production", mode: "apply", manifestPath: "unused.json",
+    manifestSha256: value.manifestSha256, profileId: "batch-1",
+    outputPath: "tmp/retailer-feeds/test/reviewed-executor-observability.json",
+  };
+  return { dependencies, getWritten: () => written, options };
+}
+
+test("package executor durably classifies an apply client timeout without retrying", async () => {
+  const scenario = executorScenario();
+  let applyCalls = 0;
+  scenario.dependencies.apply = async () => { applyCalls += 1; throw new Error("Query read timeout"); };
+  await assert.rejects(() => runPackage(scenario.options, scenario.dependencies), /Query read timeout/);
+  const result = scenario.getWritten();
+  assert.equal(result.result, "BLOCKED");
+  assert.equal(result.approval_count, 1);
+  assert.equal(result.apply_count, 0);
+  assert.equal(result.completed.length, 0);
+  assert.equal(result.failure_stage, EXECUTION_STAGES.APPLY_RPC);
+  assert.equal(result.error_class, TIMEOUT_CLASSES.CLIENT_QUERY_TIMEOUT);
+  assert.equal(result.safe_error, "Query read timeout");
+  assert.equal(result.current_row.sequence, 1);
+  assert.equal(result.current_row.external_variant_id, "v-short");
+  assert.equal(result.current_row.plan_fingerprint.length, 32);
+  assert.ok(result.current_row.approval_started_at);
+  assert.ok(result.current_row.approval_completed_at);
+  assert.ok(result.current_row.apply_started_at);
+  assert.equal(result.current_row.apply_completed_at, undefined);
+  assert.equal(result.current_row.readback_started_at, undefined);
+  assert.deepEqual(result.timeout_config, { connection_timeout_ms: 15000, query_timeout_ms: 120000, statement_timeout_ms: 120000 });
+  assert.equal(result.retry_count, 0);
+  assert.equal(applyCalls, 1);
+});
+
+test("package executor records approval and post-apply readback failure boundaries", async () => {
+  const approvalFailure = executorScenario();
+  approvalFailure.dependencies.approve = async () => { throw new Error("approval stopped"); };
+  await assert.rejects(() => runPackage(approvalFailure.options, approvalFailure.dependencies), /approval stopped/);
+  assert.equal(approvalFailure.getWritten().failure_stage, EXECUTION_STAGES.APPROVAL_RPC);
+  assert.equal(approvalFailure.getWritten().approval_count, 0);
+  assert.equal(approvalFailure.getWritten().apply_count, 0);
+
+  const readbackFailure = executorScenario();
+  let reads = 0;
+  const originalRead = readbackFailure.dependencies.readState;
+  readbackFailure.dependencies.readState = async (...args) => {
+    if (reads++ === 1) throw new Error("readback stopped");
+    return originalRead(...args);
+  };
+  await assert.rejects(() => runPackage(readbackFailure.options, readbackFailure.dependencies), /readback stopped/);
+  const result = readbackFailure.getWritten();
+  assert.equal(result.failure_stage, EXECUTION_STAGES.POST_APPLY_STATE_READ);
+  assert.equal(result.approval_count, 1);
+  assert.equal(result.apply_count, 1);
+  assert.equal(result.completed.length, 0);
+  assert.ok(result.current_row.apply_completed_at);
+  assert.ok(result.current_row.readback_started_at);
+  assert.equal(result.current_row.readback_completed_at, undefined);
+});
+
+test("package executor success remains sequential and gains additive diagnostics", async () => {
+  const scenario = executorScenario();
+  const result = await runPackage(scenario.options, scenario.dependencies);
+  assert.equal(result.result, "PASS");
+  assert.equal(result.approval_count, 1);
+  assert.equal(result.apply_count, 1);
+  assert.equal(result.completed.length, 1);
+  assert.equal(result.database_writes, 3);
+  assert.equal(result.current_stage, null);
+  assert.equal(result.current_row, null);
+  assert.equal(result.row_diagnostics.length, 1);
+  assert.equal(result.row_diagnostics[0].stage, "COMPLETED");
+  assert.ok(result.row_diagnostics[0].verify_completed_at);
+  assert.deepEqual(result.final, { products: 1, product_variants: 1, retailer_products: 1, offers: 1, price_history: 1 });
+});
+
+test("timeout classifier is narrow and safe errors redact credentials", () => {
+  assert.equal(classifyTimeout(new Error("Query read timeout")), TIMEOUT_CLASSES.CLIENT_QUERY_TIMEOUT);
+  assert.equal(classifyTimeout(Object.assign(new Error("cancelled"), { code: "57014" })), TIMEOUT_CLASSES.SERVER_STATEMENT_TIMEOUT);
+  assert.equal(classifyTimeout(new Error("canceling statement due to statement timeout")), TIMEOUT_CLASSES.SERVER_STATEMENT_TIMEOUT);
+  assert.equal(classifyTimeout(new Error("socket timeout")), TIMEOUT_CLASSES.UNKNOWN);
+  assert.deepEqual(EXECUTOR_TIMEOUT_CONFIG, { connection_timeout_ms: 15000, query_timeout_ms: 120000, statement_timeout_ms: 120000 });
+  const redacted = safeError(new Error("postgresql://user:password@db.example/postgres password=hunter2 token=abc secret=def key=ghi"));
+  assert.doesNotMatch(redacted, /hunter2|abc|def|ghi|user:password/);
+  assert.match(redacted, /REDACTED_DATABASE_URL/);
+  assert.match(redacted, /REDACTED_PARAMETER/);
+});
+
 test("package postflight normalizes only safe decimal database identities", () => {
   assert.equal(opaqueDecimalId(338), "338");
   assert.equal(opaqueDecimalId("338"), "338");
@@ -762,7 +898,7 @@ test("package executor uses only approval/apply RPCs and contains no direct busi
   assert.match(PACKAGE_APPLY_SQL, /apply_approved_product_import_plan/);
   assert.doesNotMatch(source, /SUPABASE_SERVICE_ROLE_KEY|service_role|createClient|\.from\(|postgrest/i);
   assert.doesNotMatch(source, /client\.query\(["'`]select[\s\S]{0,120}(?:retailers|products|product_variants|retailer_products|offers|price_history)/i);
-  assert.match(source, /readState\(client, request\)/);
+  assert.match(source, /readStateImpl\(client, request\)/);
   assert.doesNotMatch(source, /\b(?:insert\s+into|update|delete\s+from)\s+(?:public\.)?(?:retailers|products|product_variants|retailer_products|offers|price_history)\b/i);
   assert.doesNotMatch(source, /spawnSync|forEach\([^)]*approve|Promise\.all\([^)]*apply/i);
 });

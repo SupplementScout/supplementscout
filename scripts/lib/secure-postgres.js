@@ -6,6 +6,9 @@ const { X509Certificate } = require("node:crypto");
 const BUNDLED_SUPABASE_CA = path.resolve(__dirname, "../../config/certs/supabase-root-ca.crt");
 const SUPABASE_ROOT_CA_FINGERPRINT = "80:70:25:AD:50:D4:ED:21:9D:2C:9C:7D:29:9C:00:4F:82:4E:B0:0C:F7:F6:5A:FE:F6:07:D0:7B:72:E6:CA:FA";
 const SUPABASE_ROOT_CA_COMMON_NAME = "CN=Supabase Root 2021 CA";
+const DEFAULT_POSTGRES_CONNECTION_TIMEOUT_MS = 15000;
+const DEFAULT_POSTGRES_QUERY_TIMEOUT_MS = 120000;
+const DEFAULT_POSTGRES_STATEMENT_TIMEOUT_MS = 120000;
 
 function invariant(condition, message) {
   if (!condition) throw new Error(message);
@@ -63,8 +66,11 @@ function verifiedTlsOptions(options = {}) {
 }
 
 function postgresClientConfig(options) {
-  const { connectionString, applicationName, defaultReadOnly = false, statementTimeoutMs = 120000,
-    connectionTimeoutMillis = 15000, queryTimeoutMs = 120000, keepAlive = true, lockTimeoutMs, tlsOptions } = options;
+  const { connectionString, applicationName, defaultReadOnly = false,
+    statementTimeoutMs = DEFAULT_POSTGRES_STATEMENT_TIMEOUT_MS,
+    connectionTimeoutMillis = DEFAULT_POSTGRES_CONNECTION_TIMEOUT_MS,
+    queryTimeoutMs = DEFAULT_POSTGRES_QUERY_TIMEOUT_MS,
+    keepAlive = true, lockTimeoutMs, tlsOptions } = options;
   invariant(!options.ssl, "Callers may not override verified PostgreSQL TLS settings");
   return {
     connectionString: normalizeVerifiedConnectionString(connectionString),
@@ -79,6 +85,9 @@ function postgresClientConfig(options) {
 
 module.exports = {
   BUNDLED_SUPABASE_CA,
+  DEFAULT_POSTGRES_CONNECTION_TIMEOUT_MS,
+  DEFAULT_POSTGRES_QUERY_TIMEOUT_MS,
+  DEFAULT_POSTGRES_STATEMENT_TIMEOUT_MS,
   SUPABASE_ROOT_CA_FINGERPRINT,
   isApprovedSupabaseHostname,
   loadTrustedRootCa,

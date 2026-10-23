@@ -10,6 +10,11 @@ const {
 } = require("./lib/reviewed-catalogue-v3");
 const { buildExecutionStateRequest, readState } = require("./lib/reviewed-catalogue-state");
 const {
+  DEFAULT_POSTGRES_CONNECTION_TIMEOUT_MS,
+  DEFAULT_POSTGRES_QUERY_TIMEOUT_MS,
+  DEFAULT_POSTGRES_STATEMENT_TIMEOUT_MS,
+} = require("./lib/secure-postgres");
+const {
   TARGETS,
   assertManifestTarget,
   clientConfig,
@@ -24,12 +29,39 @@ const APPROVAL_SQL = "select public.approve_reviewed_catalogue_import_plan($1::j
 const APPLY_SQL = "select public.apply_approved_product_import_plan($1::uuid,$2,$3,$4,$5::bigint,$6,$7) result";
 const V3_APPROVAL_SQL = "select public.approve_reviewed_catalogue_v3_plan($1::jsonb,$2::jsonb,now()+interval '15 minutes') result";
 const V3_APPLY_SQL = "select public.apply_approved_reviewed_catalogue_v3_plan($1::uuid,$2::jsonb,$3::jsonb) result";
+const EXECUTOR_TIMEOUT_CONFIG = Object.freeze({
+  connection_timeout_ms: DEFAULT_POSTGRES_CONNECTION_TIMEOUT_MS,
+  query_timeout_ms: DEFAULT_POSTGRES_QUERY_TIMEOUT_MS,
+  statement_timeout_ms: DEFAULT_POSTGRES_STATEMENT_TIMEOUT_MS,
+});
+const EXECUTION_STAGES = Object.freeze({
+  INITIAL_STATE_READ: "INITIAL_STATE_READ",
+  ROLE_CONNECTION_SETUP: "ROLE_CONNECTION_SETUP",
+  APPROVAL_RPC: "APPROVAL_RPC",
+  APPLY_RPC: "APPLY_RPC",
+  POST_APPLY_STATE_READ: "POST_APPLY_STATE_READ",
+  POST_APPLY_VERIFY: "POST_APPLY_VERIFY",
+  FINAL_COUNT_VERIFY: "FINAL_COUNT_VERIFY",
+});
+const TIMEOUT_CLASSES = Object.freeze({
+  CLIENT_QUERY_TIMEOUT: "CLIENT_QUERY_TIMEOUT",
+  SERVER_STATEMENT_TIMEOUT: "SERVER_STATEMENT_TIMEOUT",
+  UNKNOWN: "UNKNOWN",
+});
 
 function invariant(value, message) { if (!value) throw new Error(message); }
 function safeError(error) {
   return String(error?.message || error || "unknown error")
     .replace(/postgres(?:ql)?:\/\/\S+/gi, "[REDACTED_DATABASE_URL]")
     .replace(/(?:password|token|secret|key)=[^\s&]+/gi, "[REDACTED_PARAMETER]");
+}
+function classifyTimeout(error) {
+  const message = String(error?.message || error || "").trim();
+  if (message === "Query read timeout") return TIMEOUT_CLASSES.CLIENT_QUERY_TIMEOUT;
+  if (String(error?.code || "") === "57014" || message === "canceling statement due to statement timeout") {
+    return TIMEOUT_CLASSES.SERVER_STATEMENT_TIMEOUT;
+  }
+  return TIMEOUT_CLASSES.UNKNOWN;
 }
 function decimal(value) { return Number(value).toFixed(2); }
 const MONEY_FIELDS = Object.freeze(["price", "shipping_cost", "total_price"]);
@@ -259,15 +291,38 @@ async function connect(target, kind, ClientClass = Client) {
 async function run(options, dependencies = {}) {
   const output = exactPath(options.outputPath, "tmp/retailer-feeds/");
   fs.mkdirSync(path.dirname(output), { recursive: true });
-  const loaded = loadScope(options);
+  const loadScopeImpl = dependencies.loadScope || loadScope;
+  const connectImpl = dependencies.connect || connect;
+  const roleTransactionImpl = dependencies.roleTransaction || roleTransaction;
+  const readStateImpl = dependencies.readState || readState;
+  const approveImpl = dependencies.approve || approve;
+  const applyImpl = dependencies.apply || apply;
+  const writeFile = dependencies.writeFileSync || fs.writeFileSync;
+  const now = dependencies.now || (() => new Date().toISOString());
+  const timestamp = () => new Date(now()).toISOString();
+  const persist = value => writeFile(output, `${JSON.stringify(value, null, 2)}\n`);
+  const loaded = loadScopeImpl(options);
   const target = TARGETS[options.target];
-  const result = { result: "RUNNING", mode: options.mode, target_environment: target.environment, target_project_ref: target.projectRef, manifest_sha256: options.manifestSha256, profile: loaded.profile.id, requested: loaded.entries.length, completed: [], errors: [], approval_count: 0, apply_count: 0, database_writes: 0, started_at: new Date().toISOString() };
+  const result = {
+    result: "RUNNING", mode: options.mode, target_environment: target.environment,
+    target_project_ref: target.projectRef, manifest_sha256: options.manifestSha256,
+    profile: loaded.profile.id, requested: loaded.entries.length, completed: [], errors: [],
+    approval_count: 0, apply_count: 0, database_writes: 0, started_at: timestamp(),
+    current_stage: EXECUTION_STAGES.ROLE_CONNECTION_SETUP, current_row: null,
+    stage_timestamps: {}, row_diagnostics: [], timeout_config: { ...EXECUTOR_TIMEOUT_CONFIG }, retry_count: 0,
+  };
   const clients = {};
   try {
-    if (options.mode === "apply") result.source_commit = assertCleanMain(dependencies.execFileSync || execFileSync);
-    clients.validator = await connect(options.target, "validator", dependencies.Client || Client);
+    if (options.mode === "apply") {
+      const assertCleanMainImpl = dependencies.assertCleanMain || assertCleanMain;
+      result.source_commit = assertCleanMainImpl(dependencies.execFileSync || execFileSync);
+    }
+    clients.validator = await connectImpl(options.target, "validator", dependencies.Client || Client);
     const request = stateRequest(loaded, options.target);
-    const initialState = await roleTransaction(clients.validator, options.target, "validator", client => readState(client, request), { readOnly: true });
+    result.current_stage = EXECUTION_STAGES.INITIAL_STATE_READ;
+    result.stage_timestamps.initial_state_read_started_at = timestamp();
+    const initialState = await roleTransactionImpl(clients.validator, options.target, "validator", client => readStateImpl(client, request), { readOnly: true });
+    result.stage_timestamps.initial_state_read_completed_at = timestamp();
     const retailer = initialState.retailer;
     invariant(String(retailer.id) === String(loaded.manifest.retailer.id) && retailer.name === loaded.manifest.retailer.name && retailer.slug === loaded.manifest.retailer.slug && retailer.website === loaded.manifest.retailer.website, "Retailer identity mismatch");
     const ids = new Set(loaded.entries.map(entry => String(entry.resolved_plan.retailer_product.values.external_variant_id)));
@@ -278,43 +333,78 @@ async function run(options, dependencies = {}) {
     const baseline = initialState.counts;
     result.baseline = baseline;
     if (options.mode === "preflight") {
-      Object.assign(result, { result: "PASS", completed_at: new Date().toISOString(), database_writes: 0 });
-      fs.writeFileSync(output, `${JSON.stringify(result, null, 2)}\n`);
+      Object.assign(result, { result: "PASS", current_stage: null, completed_at: timestamp(), database_writes: 0 });
+      persist(result);
       return result;
     }
-    clients.approver = await connect(options.target, "approver", dependencies.Client || Client);
-    clients.executor = await connect(options.target, "executor", dependencies.Client || Client);
+    result.current_stage = EXECUTION_STAGES.ROLE_CONNECTION_SETUP;
+    result.stage_timestamps.role_connection_setup_started_at = timestamp();
+    clients.approver = await connectImpl(options.target, "approver", dependencies.Client || Client);
+    clients.executor = await connectImpl(options.target, "executor", dependencies.Client || Client);
+    result.stage_timestamps.role_connection_setup_completed_at = timestamp();
     let currentCounts = baseline;
     for (let index = 0; index < loaded.entries.length; index += 1) {
       const entry = loaded.entries[index];
       const prepared = { ...loaded, entry, reviewed: loaded.profile.rows[index] };
-      const receipt = await approve(clients.approver, prepared, options.target);
+      result.current_stage = EXECUTION_STAGES.APPROVAL_RPC;
+      result.current_row = {
+        sequence: index + 1,
+        external_variant_id: entry.resolved_plan.retailer_product.values.external_variant_id,
+        plan_fingerprint: entry.plan_fingerprint,
+        stage: EXECUTION_STAGES.APPROVAL_RPC,
+        approval_started_at: timestamp(),
+      };
+      const receipt = await approveImpl(clients.approver, prepared, options.target);
+      result.current_row.approval_completed_at = timestamp();
       result.approval_count += 1;
-      const execution = await apply(clients.executor, prepared, receipt, options.target);
+      result.current_stage = EXECUTION_STAGES.APPLY_RPC;
+      result.current_row.stage = EXECUTION_STAGES.APPLY_RPC;
+      result.current_row.apply_started_at = timestamp();
+      const execution = await applyImpl(clients.executor, prepared, receipt, options.target);
+      result.current_row.apply_completed_at = timestamp();
       result.apply_count += 1;
       const delta = expectedDelta(entry.resolved_plan);
       result.database_writes += Object.values(delta).reduce((sum, value) => sum + value, 0);
-      const checkedState = await roleTransaction(clients.validator, options.target, "validator", client => readState(client, request), { readOnly: true });
+      result.current_stage = EXECUTION_STAGES.POST_APPLY_STATE_READ;
+      result.current_row.stage = EXECUTION_STAGES.POST_APPLY_STATE_READ;
+      result.current_row.readback_started_at = timestamp();
+      const checkedState = await roleTransactionImpl(clients.validator, options.target, "validator", client => readStateImpl(client, request), { readOnly: true });
+      result.current_row.readback_completed_at = timestamp();
+      result.current_stage = EXECUTION_STAGES.POST_APPLY_VERIFY;
+      result.current_row.stage = EXECUTION_STAGES.POST_APPLY_VERIFY;
+      result.current_row.verify_started_at = timestamp();
       const checked = { counts: checkedState.counts, target: captureTarget(checkedState, entry) };
       for (const key of Object.keys(delta)) invariant(checked.counts[key] - currentCounts[key] === delta[key], `${key} row-count delta mismatch`);
       const row = verifyTarget(entry, checked.target);
       for (const field of ["product_id", "product_variant_id", "retailer_product_id", "offer_id", "price_history_id"]) {
         if (execution[field] != null) invariant(String(execution[field]) === row[field], `Apply and readback ${field} mismatch`);
       }
+      result.current_row.verify_completed_at = timestamp();
       result.completed.push({ sequence: index + 1, approval_id: receipt.approval_id, approval_expires_at: receipt.expires_at, consumed_at: execution.consumed_at, ...row });
+      result.row_diagnostics.push({ ...result.current_row, stage: "COMPLETED" });
+      result.current_row = null;
       currentCounts = checked.counts;
-      fs.writeFileSync(output, `${JSON.stringify(result, null, 2)}\n`);
+      persist(result);
       console.log(`PASS ${index + 1}/${loaded.entries.length} product=${row.product_id} variant=${row.product_variant_id} offer=${row.offer_id}`);
     }
+    result.current_stage = EXECUTION_STAGES.FINAL_COUNT_VERIFY;
+    result.stage_timestamps.final_count_verify_started_at = timestamp();
     const expectedFinal = { ...baseline };
     for (const entry of loaded.entries) for (const [key, value] of Object.entries(expectedDelta(entry.resolved_plan))) expectedFinal[key] += value;
     same(currentCounts, expectedFinal, "final counts");
-    Object.assign(result, { result: "PASS", final: currentCounts, completed_at: new Date().toISOString() });
-    fs.writeFileSync(output, `${JSON.stringify(result, null, 2)}\n`);
+    result.stage_timestamps.final_count_verify_completed_at = timestamp();
+    Object.assign(result, { result: "PASS", current_stage: null, final: currentCounts, completed_at: timestamp() });
+    persist(result);
     return result;
   } catch (error) {
-    result.result = "BLOCKED"; result.errors.push(safeError(error)); result.stopped_at = new Date().toISOString();
-    fs.writeFileSync(output, `${JSON.stringify(result, null, 2)}\n`);
+    const redacted = safeError(error);
+    result.result = "BLOCKED";
+    result.failure_stage = result.current_stage || TIMEOUT_CLASSES.UNKNOWN;
+    result.error_class = classifyTimeout(error);
+    result.safe_error = redacted;
+    result.errors.push(redacted);
+    result.stopped_at = timestamp();
+    persist(result);
     throw error;
   } finally {
     await Promise.all(Object.values(clients).map(client => client.end().catch(() => {})));
@@ -325,4 +415,4 @@ if (require.main === module) run(parseArgs(process.argv.slice(2)))
   .then(result => console.log(JSON.stringify({ result: result.result, completed: result.completed.length, requested: result.requested, database_writes: result.database_writes }, null, 2)))
   .catch(error => { console.error(`Reviewed package stopped: ${safeError(error)}`); process.exitCode = 1; });
 
-module.exports = { APPLY_SQL, APPROVAL_SQL, V3_APPLY_SQL, V3_APPROVAL_SQL, TARGETS, apply, approve, assertCleanMain, captureTarget, connect, expectedDelta, loadScope, opaqueDecimalId, parseArgs, parseCredential, roleTransaction, run, safeError, sameExpectedState, targetContract, verifyTarget };
+module.exports = { APPLY_SQL, APPROVAL_SQL, EXECUTION_STAGES, EXECUTOR_TIMEOUT_CONFIG, TIMEOUT_CLASSES, V3_APPLY_SQL, V3_APPROVAL_SQL, TARGETS, apply, approve, assertCleanMain, captureTarget, classifyTimeout, connect, expectedDelta, loadScope, opaqueDecimalId, parseArgs, parseCredential, roleTransaction, run, safeError, sameExpectedState, targetContract, verifyTarget };
