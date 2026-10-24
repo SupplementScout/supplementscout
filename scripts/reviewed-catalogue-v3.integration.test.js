@@ -29,6 +29,8 @@ const EXISTING_VARIANT_FLAVOUR_ALIAS_ROLLBACK = "supabase/rollbacks/202610220800
 const EXISTING_VARIANT_FLAVOUR_ALIAS_PROJECTION_SHA = "7714cb21a64af063079c34cd5929b242030913c850532d5e71162839b974f1e6";
 const EVIDENCE_PARITY_MIGRATION = "supabase/migrations/20261022120000_fix_reviewed_v3_apply_evidence_parity.sql";
 const EVIDENCE_PARITY_ROLLBACK = "supabase/rollbacks/20261022120000_fix_reviewed_v3_apply_evidence_parity_rollback.sql";
+const COMPOSITE_CREATE_SIZE_MIGRATION = "supabase/migrations/20261024120000_fix_reviewed_v3_create_product_composite_size_projection.sql";
+const COMPOSITE_CREATE_SIZE_ROLLBACK = "supabase/rollbacks/20261024120000_fix_reviewed_v3_create_product_composite_size_projection_rollback.sql";
 const ENVIRONMENT_SAFE_FORWARD_CHAIN = Object.freeze([
   ENVIRONMENT_SAFE_BOUNDED_STATE_MIGRATION,
   ENVIRONMENT_SAFE_MIGRATION,
@@ -40,6 +42,7 @@ const ENVIRONMENT_SAFE_FORWARD_CHAIN = Object.freeze([
   TRUSTED_PARENT_FORMAT_MIGRATION,
   EXISTING_VARIANT_FLAVOUR_ALIAS_MIGRATION,
   EVIDENCE_PARITY_MIGRATION,
+  COMPOSITE_CREATE_SIZE_MIGRATION,
 ]);
 const ENVIRONMENT_SAFE_ROLLBACK_CHAIN = Object.freeze([
   ENVIRONMENT_SAFE_BOUNDED_STATE_ROLLBACK,
@@ -52,6 +55,7 @@ const ENVIRONMENT_SAFE_ROLLBACK_CHAIN = Object.freeze([
   TRUSTED_PARENT_FORMAT_ROLLBACK,
   EXISTING_VARIANT_FLAVOUR_ALIAS_ROLLBACK,
   EVIDENCE_PARITY_ROLLBACK,
+  COMPOSITE_CREATE_SIZE_ROLLBACK,
 ]);
 const LEGACY_COMPATIBILITY_HELPER_SHA = "849df8441e8994daf1acb514705808fde17467e033185e30cc432ad165a13905";
 const POST_CREATE_COMPATIBILITY_HELPER_SHA = "906cb5abad08deb8452fa9ae4fed8be8669b760e6f2ef088ae8846f5536b27db";
@@ -677,6 +681,78 @@ function reviewedLiquidParentFixture(environment, index) {
       source_key: "Size", source_value: "473ml", size_value: "473", size_unit: "ml",
     },
     count: null,
+  };
+  fixture.envelope.source_structure = {
+    product_variant_count: 4,
+    meaningful_variant_axes: ["flavour"],
+  };
+  return fixture;
+}
+
+function compositeCreationFixture(environment, action, index) {
+  assert.ok([
+    "create_product_with_variant",
+    "create_variant_on_existing_product",
+  ].includes(action));
+  const fixture = action === "create_product_with_variant"
+    ? reviewedLiquidParentFixture(environment, index)
+    : actionFixture(environment, action, index);
+  const flavour = `Example Apple ${index}`;
+  const flavourCode = flavour.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  const externalOptions = { Flavour: flavour, Size: "1 Serving (355ml)" };
+
+  if (action === "create_product_with_variant") {
+    fixture.plan.product.values = {
+      ...fixture.plan.product.values,
+      name: `Example Composite Energy Drink ${index}`,
+      slug: `example-composite-energy-drink-${index}`,
+      brand: "Example Nutrition",
+      category: "Energy Drinks",
+      servings: null,
+      net_weight_g: null,
+      net_volume_ml: null,
+      product_format: "liquid",
+    };
+    fixture.plan.approval.approved_category = "Energy Drinks";
+    fixture.plan.approval.canonical_name = fixture.plan.product.values.name;
+  } else {
+    fixture.plan.product.id = "101";
+    fixture.plan.expected_state.product = {
+      id: "101", name: "Evidence Product 101", is_active: true,
+      merged_into_product_id: null, product_format: "liquid",
+    };
+  }
+  fixture.plan.product_variant.values = {
+    variant_key: `${flavourCode}-355ml`,
+    display_name: `${flavour} / 355ml`,
+    flavour_code: flavourCode,
+    flavour_label: flavour,
+    size_value: "355",
+    size_unit: "ml",
+    pack_count: "1",
+    product_format: "liquid",
+  };
+  fixture.plan.product_variant.evidence = {
+    flavour: flavourCode,
+    size_value: "355",
+    size_unit: "ml",
+    pack_count: "1",
+    product_format: "liquid",
+    external_options: externalOptions,
+    approved_mapping_id: null,
+  };
+  fixture.plan.retailer_product.values.external_options = externalOptions;
+  fixture.envelope.external_options = externalOptions;
+  fixture.envelope.option_roles = {
+    flavour: { source_key: "Flavour", source_value: flavour },
+    physical_size: {
+      source_key: "Size", source_value: "1 Serving (355ml)",
+      size_value: "355", size_unit: "ml",
+    },
+    count: {
+      source_key: "Size", source_value: "1 Serving (355ml)",
+      count_value: "1", count_unit: "servings",
+    },
   };
   fixture.envelope.source_structure = {
     product_variant_count: 4,
@@ -1813,9 +1889,144 @@ function exerciseBaseline(environment) {
     succeed(sql(container, `insert into supabase_migrations.schema_migrations(version,name)
       values('20261022120000','fix_reviewed_v3_apply_evidence_parity')
       on conflict (version) do update set name=excluded.name`), `${environment} seed disposable evidence parity migration ledger`);
+    succeedWithoutBusinessChange(container, COMPOSITE_CREATE_SIZE_MIGRATION, `${environment} apply composite create size projection migration`);
+    succeed(sql(container, `insert into supabase_migrations.schema_migrations(version,name)
+      values('20261024120000','fix_reviewed_v3_create_product_composite_size_projection')
+      on conflict (version) do update set name=excluded.name`), `${environment} seed disposable composite create size migration ledger`);
 
     succeed(sql(container, `insert into public.products(id,name,slug,brand,category,is_active,product_format)
       values(101,'Evidence Product 101','evidence-product-101','Example','Energy Drinks',true,'liquid')`), `${environment} seed liquid evidence parent`);
+
+    const compositeCreationCases = [
+      ["create_product_with_variant", 181, { products: 1, product_variants: 1 }],
+      ["create_variant_on_existing_product", 182, { products: 0, product_variants: 1 }],
+    ];
+    for (const [action, index, expectedDelta] of compositeCreationCases) {
+      const fixture = seal(
+        container,
+        compositeCreationFixture(environment, action, index),
+        `${environment} ${action} composite size`,
+      );
+      const projected = json(
+        container,
+        `select public.atomic_import_reviewed_v3_legacy_validation_projection(${literal(fixture.plan)},${literal(fixture.envelope)})`,
+        `${environment} ${action} composite validation projection`,
+      );
+      assert.equal(projected.external_options.Size, "355ml");
+      assert.deepEqual(fixture.envelope.external_options, {
+        Flavour: `Example Apple ${index}`, Size: "1 Serving (355ml)",
+      });
+      const validation = json(
+        container,
+        asRole(environment, "validator", `select public.validate_reviewed_catalogue_v3_plan_read_only(${literal(fixture.plan)},${literal(fixture.envelope)})`, { readOnly: true }),
+        `${environment} ${action} composite protected validation`,
+      );
+      assert.equal(validation.valid, true);
+      const before = counts(container, `${environment} ${action} composite before`);
+      const approval = json(
+        container,
+        asRole(environment, "approver", `select public.approve_reviewed_catalogue_v3_plan(${literal(fixture.plan)},${literal(fixture.envelope)})`),
+        `${environment} ${action} composite approval`,
+      );
+      const applied = json(
+        container,
+        asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${approval.approval_id}',${literal(fixture.plan)},${literal(fixture.envelope)})`),
+        `${environment} ${action} composite apply`,
+      );
+      assert.equal(applied.approval_status, "consumed");
+      assert.equal(
+        scalar(container, `select status from approved_import_plans where id='${approval.approval_id}'`, `${environment} ${action} composite approval consumed`),
+        "consumed",
+      );
+      assert.deepEqual(
+        json(container, `select external_options from retailer_products where id=${applied.retailer_product_id}`, `${environment} ${action} composite raw evidence`),
+        fixture.envelope.external_options,
+      );
+      assert.deepEqual(
+        json(container, `select jsonb_build_object('size_value',size_value::text,'size_unit',size_unit,'product_format',product_format) from product_variants where id=${applied.product_variant_id}`, `${environment} ${action} composite created variant`),
+        { size_value: "355", size_unit: "ml", product_format: "liquid" },
+      );
+      const after = counts(container, `${environment} ${action} composite after`);
+      assert.equal(after.products - before.products, expectedDelta.products);
+      assert.equal(after.product_variants - before.product_variants, expectedDelta.product_variants);
+      for (const table of ["retailer_products", "offers", "price_history"]) {
+        assert.equal(after[table] - before[table], 1, `${environment} ${action} composite ${table} delta`);
+      }
+    }
+
+    const compositeNegativeCases = [];
+    const ambiguousPhysical = compositeCreationFixture(environment, "create_product_with_variant", 190);
+    for (const targetOptions of [
+      ambiguousPhysical.plan.product_variant.evidence.external_options,
+      ambiguousPhysical.plan.retailer_product.values.external_options,
+      ambiguousPhysical.envelope.external_options,
+    ]) targetOptions.Size = "1 Serving (355ml / 500ml)";
+    ambiguousPhysical.envelope.option_roles.physical_size.source_value = "1 Serving (355ml / 500ml)";
+    ambiguousPhysical.envelope.option_roles.count.source_value = "1 Serving (355ml / 500ml)";
+    compositeNegativeCases.push(["ambiguous physical composite", ambiguousPhysical]);
+
+    const ambiguousCount = compositeCreationFixture(environment, "create_product_with_variant", 191);
+    for (const targetOptions of [
+      ambiguousCount.plan.product_variant.evidence.external_options,
+      ambiguousCount.plan.retailer_product.values.external_options,
+      ambiguousCount.envelope.external_options,
+    ]) targetOptions.Size = "1 or 2 Servings (355ml)";
+    ambiguousCount.envelope.option_roles.physical_size.source_value = "1 or 2 Servings (355ml)";
+    ambiguousCount.envelope.option_roles.count.source_value = "1 or 2 Servings (355ml)";
+    compositeNegativeCases.push(["ambiguous composite count", ambiguousCount]);
+
+    const roleSourceMismatch = compositeCreationFixture(environment, "create_product_with_variant", 192);
+    roleSourceMismatch.envelope.option_roles.count.source_value = "2 Servings (355ml)";
+    compositeNegativeCases.push(["role source value mismatch", roleSourceMismatch]);
+
+    const wrongPhysicalProof = compositeCreationFixture(environment, "create_product_with_variant", 193);
+    for (const targetOptions of [
+      wrongPhysicalProof.plan.product_variant.evidence.external_options,
+      wrongPhysicalProof.plan.retailer_product.values.external_options,
+      wrongPhysicalProof.envelope.external_options,
+    ]) targetOptions.Size = "1 Serving (330ml)";
+    wrongPhysicalProof.envelope.option_roles.physical_size.source_value = "1 Serving (330ml)";
+    wrongPhysicalProof.envelope.option_roles.count.source_value = "1 Serving (330ml)";
+    compositeNegativeCases.push(["physical proof differs from raw source", wrongPhysicalProof]);
+
+    const wrongCountProof = compositeCreationFixture(environment, "create_product_with_variant", 194);
+    for (const targetOptions of [
+      wrongCountProof.plan.product_variant.evidence.external_options,
+      wrongCountProof.plan.retailer_product.values.external_options,
+      wrongCountProof.envelope.external_options,
+    ]) targetOptions.Size = "2 Servings (355ml)";
+    wrongCountProof.envelope.option_roles.physical_size.source_value = "2 Servings (355ml)";
+    wrongCountProof.envelope.option_roles.count.source_value = "2 Servings (355ml)";
+    compositeNegativeCases.push(["count proof differs from raw source", wrongCountProof]);
+
+    const invalidCanonicalSize = compositeCreationFixture(environment, "create_product_with_variant", 195);
+    invalidCanonicalSize.plan.product_variant.values.size_value = "invalid";
+    compositeNegativeCases.push(["invalid canonical size", invalidCanonicalSize]);
+
+    const tamperedProjectionTarget = compositeCreationFixture(environment, "create_product_with_variant", 196);
+    tamperedProjectionTarget.plan.product_variant.values.size_value = "500";
+    tamperedProjectionTarget.plan.product_variant.values.variant_key = "example-apple-196-500ml";
+    tamperedProjectionTarget.plan.product_variant.values.display_name = "Example Apple 196 / 500ml";
+    compositeNegativeCases.push(["tampered legacy projection target", tamperedProjectionTarget]);
+
+    const missingPhysicalRole = compositeCreationFixture(environment, "create_product_with_variant", 197);
+    missingPhysicalRole.envelope.option_roles.physical_size = null;
+    compositeNegativeCases.push(["missing physical role", missingPhysicalRole]);
+
+    const missingCountRole = compositeCreationFixture(environment, "create_product_with_variant", 198);
+    missingCountRole.envelope.option_roles.count = null;
+    compositeNegativeCases.push(["missing count role", missingCountRole]);
+
+    for (const [label, rawFixture] of compositeNegativeCases) {
+      const fixture = seal(container, rawFixture, `${environment} ${label}`);
+      const before = counts(container, `${environment} ${label} before`);
+      fails(
+        sql(container, asRole(environment, "validator", `select public.validate_reviewed_catalogue_v3_plan_read_only(${literal(fixture.plan)},${literal(fixture.envelope)})`, { readOnly: true })),
+        `${environment} ${label} rejected before writes`,
+        /physical size role is not exact raw evidence|count role is not exact raw evidence|V3_LEGACY_COMPATIBILITY_MISMATCH|variant values|canonical/i,
+      );
+      assert.deepEqual(counts(container, `${environment} ${label} after`), before);
+    }
     assert.equal(scalar(container, `select public.atomic_import_reviewed_v3_physical_role_allowed(
       '{"Size":"1 Serving (330ml)"}'::jsonb,
       '{"source_key":"Size","source_value":"1 Serving (330ml)","size_value":"330","size_unit":"ml"}'::jsonb
@@ -2300,6 +2511,17 @@ function exerciseBaseline(environment) {
     );
 
     succeed(sql(container, "delete from public.approved_import_plans where source like 'reviewed-catalogue-package-v3:%'"), `${environment} remove disposable V3 fixture approvals`);
+    succeedWithoutBusinessChange(container, COMPOSITE_CREATE_SIZE_ROLLBACK, `${environment} rollback composite create size projection migration`);
+    assert.equal(
+      functionSha(container, "public.atomic_import_reviewed_v3_legacy_validation_projection(jsonb,jsonb)", `${environment} restored pre-composite projection SHA`),
+      "cc0be112418a5843f1526d9ee2c746564cb9ec40d6be1ff26724fbc92934bda5",
+    );
+    succeedWithoutBusinessChange(container, COMPOSITE_CREATE_SIZE_MIGRATION, `${environment} reapply composite create size projection migration`);
+    assert.notEqual(
+      functionSha(container, "public.atomic_import_reviewed_v3_legacy_validation_projection(jsonb,jsonb)", `${environment} reapplied composite projection SHA`),
+      "cc0be112418a5843f1526d9ee2c746564cb9ec40d6be1ff26724fbc92934bda5",
+    );
+    succeedWithoutBusinessChange(container, COMPOSITE_CREATE_SIZE_ROLLBACK, `${environment} final rollback composite create size projection migration`);
     succeedWithoutBusinessChange(container, EVIDENCE_PARITY_ROLLBACK, `${environment} rollback evidence parity migration`);
     succeedWithoutBusinessChange(container, EXISTING_VARIANT_FLAVOUR_ALIAS_ROLLBACK, `${environment} rollback existing-variant flavour alias projection`);
     assert.equal(
