@@ -1,0 +1,223 @@
+{
+  "schema_version": 3,
+  "kind": "reviewed-catalogue-package-v3",
+  "source_platform": "shopify",
+  "status": "OWNER_APPROVED",
+  "authorized_by": "Marek Kalinka - prior owner decision ROBIMY for exact B08/B13/B15/B17/B19/B20/B26/B29 family identities. This package carries only three independently safe existing-parent rows. Preparation/preflight only; no production apply authorized by this task.",
+  "authorized_at": "2026-10-24T00:00:00.000Z",
+  "target_environment": "PRODUCTION",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "retailer": {
+    "id": 15,
+    "name": "Gladiator Nutrition",
+    "slug": "gladiator-nutrition",
+    "website": "https://gladiatornutrition.co.uk",
+    "expected_action": "existing",
+    "shipping_known": true,
+    "shipping_cost": 6.99
+  },
+  "policy": {
+    "reviewed_rows_only": true,
+    "allow_product_creation": false,
+    "allow_variant_creation": true,
+    "allow_canonical_product_updates": false,
+    "allow_canonical_variant_updates": false,
+    "allow_canonical_gtin_updates": false,
+    "allow_category_changes": false,
+    "sku_is_not_gtin": true,
+    "one_plan_at_a_time": true,
+    "fresh_single_use_approval_per_plan": true,
+    "strict_production_readback_after_each_apply": true
+  },
+  "profiles": [
+    {
+      "id": "gladiator-nutrition-production-next-safe-anchors-3-v1",
+      "status": "DRY_RUN_PASS",
+      "csv_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-nutrition-production-next-safe-anchors-3-v1.csv",
+      "csv_sha256": "aa519c66430c7b0a8462b2b25edbdba83e46e10d123d0c30db88cb1fec3924fb",
+      "artifact_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-nutrition-production-next-safe-anchors-3-v1-dry-run.json",
+      "artifact_sha256": "7d8500d1e1ed55d886ca128f606e436f57c8571408422e3e0b1fae94ca073bbc",
+      "row_count": 3,
+      "blocked_row_count": 0,
+      "conflict_count": 0,
+      "expected_actions": {
+        "retailers_create": 0,
+        "products_create": 0,
+        "product_variants_create": 3,
+        "retailer_products_create": 3,
+        "offers_create": 3,
+        "price_history_create": 3
+      },
+      "rows": [
+        {
+          "review_row": 1,
+          "external_product_id": "5243443413037",
+          "external_variant_id": "41624483463213",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "235",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Ghost",
+          "category": "Health Supplements",
+          "product_name": "Ghost Gamer Nootropic 40 Servings",
+          "variant_name": "Blue Raspberry / 40/20 Servings / 190g",
+          "flavour": "Blue Raspberry",
+          "size_value": "190",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 32.99,
+          "in_stock": false,
+          "source_row_fingerprint": "8fd35ae0cfddb868b5910f15d6ccdeb80bc963a257dd79c3657c9b8bce3e3098",
+          "plan_fingerprint": "6beb9de1108678ba09a7a1aff5c7c5f7",
+          "external_url": "https://gladiatornutrition.co.uk/products/ghost-gamer?variant=41624483463213",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/ghost-gamer?variant=41624483463213&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Blue Raspberry",
+            "Size": "40/20 Servings",
+            "Weight": "190g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Blue Raspberry"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "190g",
+              "size_value": "190",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40/20 Servings",
+              "count_value": "40/20",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 4,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 2,
+          "external_product_id": "7954395758637",
+          "external_variant_id": "42791439990829",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "760",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "HR Labs",
+          "category": "Amino Acids",
+          "product_name": "HR Labs Hydro EAA 30 servings",
+          "variant_name": "Grape Bubbalicious / 30 Servings / 540g",
+          "flavour": "Grape Bubbalicious",
+          "size_value": "540",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 33.99,
+          "in_stock": false,
+          "source_row_fingerprint": "570c573824a654d2d2458e2bffdcffd2e3ec4df50bdd1c1e03c24349a5e760fc",
+          "plan_fingerprint": "e8bf1fc2840bf91c868a85c03997038a",
+          "external_url": "https://gladiatornutrition.co.uk/products/hr-labs-hydro-eaa?variant=42791439990829",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/hr-labs-hydro-eaa?variant=42791439990829&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Grape Bubbalicious",
+            "Size": "30 Servings",
+            "Weight": "540g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Grape Bubbalicious"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "540g",
+              "size_value": "540",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 4,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 3,
+          "external_product_id": "14652995764598",
+          "external_variant_id": "53558698508662",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "971",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Kilo Labs",
+          "category": "Pre Workout",
+          "product_name": "Kilo Labs Stim Thug 20 servings",
+          "variant_name": "Punch Line / 20 Servings / 344g",
+          "flavour": "Punch Line",
+          "size_value": "344",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 41.99,
+          "in_stock": false,
+          "source_row_fingerprint": "a7a00350e6cbf7c5cab219261d8d0167efe2e58cf21a98e04297480ad46c3c2e",
+          "plan_fingerprint": "90bcce2b1869a1f10f43d534e62850b9",
+          "external_url": "https://gladiatornutrition.co.uk/products/kilolabs-stim-thug-extreme-pre-workout?variant=53558698508662",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/kilolabs-stim-thug-extreme-pre-workout?variant=53558698508662&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Punch Line (Tropical Punch)",
+            "Size": "20 Servings",
+            "Weight": "344g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Punch Line (Tropical Punch)"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "344g",
+              "size_value": "344",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "20 Servings",
+              "count_value": "20",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 4,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        }
+      ]
+    }
+  ]
+}
