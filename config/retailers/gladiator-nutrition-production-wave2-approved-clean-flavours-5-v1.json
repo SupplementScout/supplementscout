@@ -1,0 +1,335 @@
+{
+  "schema_version": 3,
+  "kind": "reviewed-catalogue-package-v3",
+  "source_platform": "shopify",
+  "status": "OWNER_APPROVED",
+  "authorized_by": "Marek Kalinka — owner explicitly approved canonical flavours Cherry Razz, Mafiosa Twist, Lemon Lime Sherbert, Kandy Korn, and Angel Hair while raw Shopify external_options remain unchanged. Cocomelon external variant 55780902142326 remains HOLD outside this package. Preparation/preflight only; no production apply authorized by this task.",
+  "authorized_at": "2026-10-24T00:00:00.000Z",
+  "target_environment": "PRODUCTION",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "retailer": {
+    "id": 15,
+    "name": "Gladiator Nutrition",
+    "slug": "gladiator-nutrition",
+    "website": "https://gladiatornutrition.co.uk",
+    "expected_action": "existing",
+    "shipping_known": true,
+    "shipping_cost": 6.99
+  },
+  "policy": {
+    "reviewed_rows_only": true,
+    "allow_product_creation": false,
+    "allow_variant_creation": true,
+    "allow_canonical_product_updates": false,
+    "allow_canonical_variant_updates": false,
+    "allow_canonical_gtin_updates": false,
+    "allow_category_changes": false,
+    "sku_is_not_gtin": true,
+    "one_plan_at_a_time": true,
+    "fresh_single_use_approval_per_plan": true,
+    "strict_production_readback_after_each_apply": true
+  },
+  "profiles": [
+    {
+      "id": "gladiator-nutrition-production-wave2-approved-clean-flavours-5-v1",
+      "status": "DRY_RUN_PASS",
+      "csv_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-nutrition-production-wave2-approved-clean-flavours-5-v1.csv",
+      "csv_sha256": "9b753df3fdfa14b7676451eba4664485434ebf7d105ac37c22a6665f44218453",
+      "artifact_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-nutrition-production-wave2-approved-clean-flavours-5-v1-dry-run.json",
+      "artifact_sha256": "5f2ced2cef1688d2e8d516800607e205fb1e19be726240f9400c518eb3ab94be",
+      "row_count": 5,
+      "blocked_row_count": 0,
+      "conflict_count": 0,
+      "expected_actions": {
+        "retailers_create": 0,
+        "products_create": 0,
+        "product_variants_create": 5,
+        "retailer_products_create": 5,
+        "offers_create": 5,
+        "price_history_create": 5
+      },
+      "rows": [
+        {
+          "review_row": 1,
+          "external_product_id": "7991477010477",
+          "external_variant_id": "55780902109558",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1425",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Naughty Boy Lifestyle",
+          "category": "Hydration",
+          "product_name": "Naughty Boy Hydration 255g",
+          "variant_name": "Cherry Razz / 30 Servings / 255g",
+          "flavour": "Cherry Razz",
+          "size_value": "255",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 19.99,
+          "in_stock": true,
+          "source_row_fingerprint": "0c155d5161d4c4c61f61b3695cf5c06dfa47c5d0252f5a97177b381fa4eadcd6",
+          "plan_fingerprint": "cf88eaa50324aab332f04ac9b932d6af",
+          "external_url": "https://gladiatornutrition.co.uk/products/naughty-boy-hydration-electroyltes?variant=55780902109558",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/naughty-boy-hydration-electroyltes?variant=55780902109558&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Cherry Razz (New)",
+            "Size": "30 Servings",
+            "Weight": "255g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Cherry Razz (New)"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "255g",
+              "size_value": "255",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 14,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 2,
+          "external_product_id": "7991477010477",
+          "external_variant_id": "56114340594038",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1425",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Naughty Boy Lifestyle",
+          "category": "Hydration",
+          "product_name": "Naughty Boy Hydration 255g",
+          "variant_name": "Mafiosa Twist / 30 Servings / 255g",
+          "flavour": "Mafiosa Twist",
+          "size_value": "255",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 19.99,
+          "in_stock": false,
+          "source_row_fingerprint": "7833a0d5b2d17e38a876049a8a5df1788c65d228c8405adb913fddf3360016cc",
+          "plan_fingerprint": "71ef17eb7f2e3d77010cad054479ad27",
+          "external_url": "https://gladiatornutrition.co.uk/products/naughty-boy-hydration-electroyltes?variant=56114340594038",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/naughty-boy-hydration-electroyltes?variant=56114340594038&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Mafiosa Twist (New)",
+            "Size": "30 Servings",
+            "Weight": "255g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Mafiosa Twist (New)"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "255g",
+              "size_value": "255",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 14,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 3,
+          "external_product_id": "4916340457517",
+          "external_variant_id": "33879520641069",
+          "external_sku": "lemon",
+          "external_gtin": null,
+          "product_id": "1432",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "TWP Nutrition",
+          "category": "Pre Workout",
+          "product_name": "TWP Nutrition Hustle Pre-Workout 559g",
+          "variant_name": "Lemon Lime Sherbert / 40/20 Servings / 559g",
+          "flavour": "Lemon Lime Sherbert",
+          "size_value": "559",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 19.49,
+          "in_stock": true,
+          "source_row_fingerprint": "7a8de98ffad727110e6fffb3f09d1d82b89ed8286b9939339853782bca89bfda",
+          "plan_fingerprint": "cce172a13e06add4d8fde32ad7c679f5",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-hustle-pre-workout?variant=33879520641069",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-nutrition-hustle-pre-workout?variant=33879520641069&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Lemon Lime Sherbert (OOD)",
+            "Size": "40/20 Servings",
+            "Weight": "559g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Lemon Lime Sherbert (OOD)"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "559g",
+              "size_value": "559",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40/20 Servings",
+              "count_value": "40/20",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 6,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 4,
+          "external_product_id": "7467901878317",
+          "external_variant_id": "56540860350838",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1435",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "TWP Nutrition",
+          "category": "Whey Protein",
+          "product_name": "TWP Nutrition Whey Protein 900g",
+          "variant_name": "Kandy Korn / 30 Servings / 900g",
+          "flavour": "Kandy Korn",
+          "size_value": "900",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 28.99,
+          "in_stock": true,
+          "source_row_fingerprint": "cdc514e8b618cb8148d636c25de5714a33c6ca0492d4537b8faa8d119f760b39",
+          "plan_fingerprint": "3c2564fc404d6a0803d6a51423b1f9ff",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-whey-protein?variant=56540860350838",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-whey-protein?variant=56540860350838&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Kandy Korn (Halloween Limited Edition)",
+            "Size": "30 Servings",
+            "Weight": "900g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Kandy Korn (Halloween Limited Edition)"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "900g",
+              "size_value": "900",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 19,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 5,
+          "external_product_id": "7467901878317",
+          "external_variant_id": "57721654673782",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "1435",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "TWP Nutrition",
+          "category": "Whey Protein",
+          "product_name": "TWP Nutrition Whey Protein 900g",
+          "variant_name": "Angel Hair / 30 Servings / 900g",
+          "flavour": "Angel Hair",
+          "size_value": "900",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 28.99,
+          "in_stock": true,
+          "source_row_fingerprint": "f37c9fcb60dcdde264424c68cb524fede34e5bc22421562e21e6f808ce60f183",
+          "plan_fingerprint": "384e39c550137a4314a57e95d4004d09",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-whey-protein?variant=57721654673782",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-whey-protein?variant=57721654673782&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Angel Hair (NEW)",
+            "Size": "30 Servings",
+            "Weight": "900g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Angel Hair (NEW)"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "900g",
+              "size_value": "900",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 19,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        }
+      ]
+    }
+  ]
+}
