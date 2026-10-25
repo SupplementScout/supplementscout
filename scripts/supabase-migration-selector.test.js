@@ -359,6 +359,7 @@ function withoutCurrentSeo15Migrations(rows) {
     REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION,
     REVIEWED_V3_EVIDENCE_PARITY_MIGRATION,
     REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION,
+    REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION,
   ].includes(`${version}_${name}.sql`));
 }
 
@@ -406,18 +407,19 @@ test.after(() => {
   }
 });
 
-test("staging records ledger 115 with the composite create size migration applied", () => {
+test("staging records ledger 116 with canonical identity evidence applied", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 115);
+  assert.equal(result.ledger_count, 116);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending_files, [REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION]);
-  assert.deepEqual(result.pending_sha256s, { [REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION]: REVIEWED_V3_CANONICAL_EVIDENCE_SHA256 });
-  assert.equal(result.pending_file, REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION);
-  assert.equal(result.pending_sha256, REVIEWED_V3_CANONICAL_EVIDENCE_SHA256);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
   assert.equal(result.selected_files.length, 116);
+  assert.ok(result.selected_files.includes(REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION));
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes(RA004_FIXTURE_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_GUARD_MIGRATION));
@@ -1127,18 +1129,20 @@ test("owner-authorized ACL/RLS activation selects exactly one migration from led
   ]), /staging-only/);
 });
 
-test("staging contract records ledger 115 with the composite create size migration applied", () => {
+test("staging contract records ledger 116 with canonical identity evidence applied", () => {
   const filename = "20260928100000_diagnose_ra004_preflight_acl_rls.sql";
-  assert.equal(CONTRACT.ledgerCount, 115);
+  assert.equal(CONTRACT.ledgerCount, 116);
   assert.equal(CONTRACT.ledgerFingerprint,
-    "a2eb16215b5e16a5ff1d8e7d110025c005ac09d2e6b689774a530fdb279ce236");
+    "2512d290592561704edd9ff65b3bd2697a9cc46b729ec39c3c57ebc6e88f076e");
   assert.ok(CONTRACT.appliedExcluded.includes(filename));
   assert.ok(CONTRACT.appliedExcluded.includes(RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION));
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === filename));
   assert.ok(CONTRACT.appliedExcluded.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === REVIEWED_STATE_MIGRATION));
-  assert.deepEqual(CONTRACT.pending, REVIEWED_V3_CANONICAL_EVIDENCE_PENDING);
-  assert.equal(currentRemoteLedger().length, 115);
+  assert.deepEqual(CONTRACT.pending, []);
+  assert.equal(currentRemoteLedger().length, 116);
+  assert.ok(currentRemoteLedger().some(({ version, name }) =>
+    `${version}_${name}.sql` === REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION));
   assert.ok(currentRemoteLedger().some(({ version, name }) =>
     `${version}_${name}.sql` === REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION));
   assert.ok(currentRemoteLedger().some(({ version, name }) =>
@@ -1600,12 +1604,12 @@ test("completed RA-004 fixture activation cannot select or materialize a migrati
   })), /status mismatch/);
 });
 
-test("staging keeps deployed V3 lineage and selects only canonical evidence as pending", () => {
+test("staging keeps canonical evidence deployed while production alone remains pending", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION);
-  assert.equal(result.pending_sha256, REVIEWED_V3_CANONICAL_EVIDENCE_SHA256);
-  assert.deepEqual(result.pending_files, [REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION]);
-  assert.deepEqual(result.pending_sha256s, { [REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION]: REVIEWED_V3_CANONICAL_EVIDENCE_SHA256 });
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(result.selected_files.includes(REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION));
@@ -1615,6 +1619,21 @@ test("staging keeps deployed V3 lineage and selects only canonical evidence as p
   assert.ok(result.selected_files.includes(REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_EVIDENCE_PARITY_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION));
+  assert.ok(result.selected_files.includes(REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION));
+  assert.deepEqual(CONTRACTS.PRODUCTION.pending, REVIEWED_V3_CANONICAL_EVIDENCE_PENDING);
+  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 250);
+  assert.equal(CONTRACTS.PRODUCTION.ledgerFingerprint,
+    "27f5ea8182482078fc71b7eeea44202a3839f214d7eae42b738f21257394eb54");
+  const productionPostIdentifiers = [
+    ...migrationBinding("PRODUCTION").versions,
+    REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION.slice(0, -4),
+  ].sort();
+  const productionPostRows = productionPostIdentifiers.map(identifier => {
+    const split = identifier.indexOf("_");
+    return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
+  });
+  assert.equal(ledgerRowsFingerprint(productionPostRows, { targetEnvironment: "PRODUCTION" }),
+    "477f8d50f3232bf19cbfaf25a1461400a8dc24c327f7d1c9f4dda15e19cde3b1");
 });
 
 test("activated environment bindings cannot remain pending or diverge from selector contracts", () => {

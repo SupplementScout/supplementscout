@@ -225,9 +225,7 @@ const APPLIED_EXCLUSIONS = Object.freeze({
 });
 
 const PENDING_MIGRATIONS = Object.freeze({
-  STAGING: Object.freeze([
-    Object.freeze({ filename: "20261025120000_add_reviewed_v3_canonical_identity_evidence.sql", sha256: "21cbebf49d6eb9499c4a9bb6f0fe8c24f1e3c70818fba75220b7241fc9ba134d", expectedCatalogueDeltas: Object.freeze({}) }),
-  ]),
+  STAGING: Object.freeze([]),
   PRODUCTION: Object.freeze([
     Object.freeze({ filename: "20261025120000_add_reviewed_v3_canonical_identity_evidence.sql", sha256: "21cbebf49d6eb9499c4a9bb6f0fe8c24f1e3c70818fba75220b7241fc9ba134d", expectedCatalogueDeltas: Object.freeze({}) }),
   ]),
