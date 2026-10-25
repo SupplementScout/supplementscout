@@ -1,0 +1,559 @@
+{
+  "schema_version": 3,
+  "kind": "reviewed-catalogue-package-v3",
+  "source_platform": "shopify",
+  "status": "OWNER_APPROVED",
+  "authorized_by": "Marek Kalinka — prior family-level approval for B08, B15 and B19 identities; this package contains only their nine reconciled siblings. Preparation/preflight only; no production approval or apply authorized.",
+  "authorized_at": "2026-10-25T00:00:00.000Z",
+  "target_environment": "PRODUCTION",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "retailer": {
+    "id": 15,
+    "name": "Gladiator Nutrition",
+    "slug": "gladiator-nutrition",
+    "website": "https://gladiatornutrition.co.uk",
+    "expected_action": "existing",
+    "shipping_known": true,
+    "shipping_cost": 6.99
+  },
+  "policy": {
+    "reviewed_rows_only": true,
+    "allow_product_creation": false,
+    "allow_variant_creation": true,
+    "allow_canonical_product_updates": false,
+    "allow_canonical_variant_updates": false,
+    "allow_canonical_gtin_updates": false,
+    "allow_category_changes": false,
+    "sku_is_not_gtin": true,
+    "one_plan_at_a_time": true,
+    "fresh_single_use_approval_per_plan": true,
+    "strict_production_readback_after_each_apply": true
+  },
+  "profiles": [
+    {
+      "id": "gladiator-nutrition-production-b08-b15-b19-remaining-siblings-9-v1",
+      "status": "DRY_RUN_PASS",
+      "csv_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-nutrition-production-b08-b15-b19-remaining-siblings-9-v1.csv",
+      "csv_sha256": "4e797917c8c65ec363ec8632f62dcb6426ef407731444a26fb4717938c025c78",
+      "artifact_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-nutrition-production-b08-b15-b19-remaining-siblings-9-v1-dry-run.json",
+      "artifact_sha256": "dd6b23d2e1205762fe9d3d811e061dd6855957da3e818994882b416467e2de30",
+      "row_count": 9,
+      "blocked_row_count": 0,
+      "conflict_count": 0,
+      "expected_actions": {
+        "retailers_create": 0,
+        "products_create": 0,
+        "product_variants_create": 9,
+        "retailer_products_create": 9,
+        "offers_create": 9,
+        "price_history_create": 9
+      },
+      "rows": [
+        {
+          "review_row": 1,
+          "external_product_id": "5243443413037",
+          "external_variant_id": "34954677878829",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "235",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Ghost",
+          "category": "Health Supplements",
+          "product_name": "Ghost Gamer Nootropic 40 Servings",
+          "variant_name": "Peach / 40/20 Servings / 190g",
+          "flavour": "Peach",
+          "size_value": "190",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 32.99,
+          "in_stock": false,
+          "source_row_fingerprint": "b28660829c56af7d33d24164d1f6bd8f0b6ad2fd83a864c16f57b81b574627ea",
+          "plan_fingerprint": "3346a2076a04f458c79fe7c319f65e38",
+          "external_url": "https://gladiatornutrition.co.uk/products/ghost-gamer?variant=34954677878829",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/ghost-gamer?variant=34954677878829&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Peach",
+            "Size": "40/20 Servings",
+            "Weight": "190g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Peach"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "190g",
+              "size_value": "190",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40/20 Servings",
+              "count_value": "40/20",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 4,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 2,
+          "external_product_id": "5243443413037",
+          "external_variant_id": "34954677911597",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "235",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Ghost",
+          "category": "Health Supplements",
+          "product_name": "Ghost Gamer Nootropic 40 Servings",
+          "variant_name": "Warheads Sour Watermelon / 40/20 Servings / 190g",
+          "flavour": "Warheads Sour Watermelon",
+          "size_value": "190",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 32.99,
+          "in_stock": false,
+          "source_row_fingerprint": "90e6f9c00c1138f565c5ba718619d82466fcd3cd2e36b5fb423c0ff28137fb1a",
+          "plan_fingerprint": "9ae165788cbae06e87c18db7cd3271a5",
+          "external_url": "https://gladiatornutrition.co.uk/products/ghost-gamer?variant=34954677911597",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/ghost-gamer?variant=34954677911597&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Warheads Sour Watermelon",
+            "Size": "40/20 Servings",
+            "Weight": "190g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Warheads Sour Watermelon"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "190g",
+              "size_value": "190",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40/20 Servings",
+              "count_value": "40/20",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 4,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 3,
+          "external_product_id": "5243443413037",
+          "external_variant_id": "42704921329709",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "235",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Ghost",
+          "category": "Health Supplements",
+          "product_name": "Ghost Gamer Nootropic 40 Servings",
+          "variant_name": "Faze Pop / 40/20 Servings / 190g",
+          "flavour": "Faze Pop",
+          "size_value": "190",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 32.99,
+          "in_stock": false,
+          "source_row_fingerprint": "207abf76adacfbd2c752bbc3a41303ae6d099e768f9feab35e502af413f23b2e",
+          "plan_fingerprint": "82ccc4695373408147a5ea1b2fa6924d",
+          "external_url": "https://gladiatornutrition.co.uk/products/ghost-gamer?variant=42704921329709",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/ghost-gamer?variant=42704921329709&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Faze Pop",
+            "Size": "40/20 Servings",
+            "Weight": "190g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Faze Pop"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "190g",
+              "size_value": "190",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "40/20 Servings",
+              "count_value": "40/20",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 4,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 4,
+          "external_product_id": "7954395758637",
+          "external_variant_id": "42791439925293",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "760",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "HR Labs",
+          "category": "Amino Acids",
+          "product_name": "HR Labs Hydro EAA 30 servings",
+          "variant_name": "Strawberry & Peaches / 30 Servings / 540g",
+          "flavour": "Strawberry & Peaches",
+          "size_value": "540",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 33.99,
+          "in_stock": false,
+          "source_row_fingerprint": "48919e8fafe8ae479a0550e9756dac1087715488fbf00ebad1a554080cb9e6cc",
+          "plan_fingerprint": "fbeb8c061515b35ad469bf0b11a01d9e",
+          "external_url": "https://gladiatornutrition.co.uk/products/hr-labs-hydro-eaa?variant=42791439925293",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/hr-labs-hydro-eaa?variant=42791439925293&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Strawberry & Peaches",
+            "Size": "30 Servings",
+            "Weight": "540g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Strawberry & Peaches"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "540g",
+              "size_value": "540",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 4,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 5,
+          "external_product_id": "7954395758637",
+          "external_variant_id": "42791439958061",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "760",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "HR Labs",
+          "category": "Amino Acids",
+          "product_name": "HR Labs Hydro EAA 30 servings",
+          "variant_name": "Chery Bubblegum / 30 Servings / 540g",
+          "flavour": "Chery Bubblegum",
+          "size_value": "540",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 33.99,
+          "in_stock": false,
+          "source_row_fingerprint": "96bbc104f2dde3e9caa68c72d0bd55e9bffa109b251398ebae5ecc94fdaf81af",
+          "plan_fingerprint": "fb30e9fd72d7c81c97b8ffa16b777d0b",
+          "external_url": "https://gladiatornutrition.co.uk/products/hr-labs-hydro-eaa?variant=42791439958061",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/hr-labs-hydro-eaa?variant=42791439958061&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Chery Bubblegum",
+            "Size": "30 Servings",
+            "Weight": "540g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Chery Bubblegum"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "540g",
+              "size_value": "540",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 4,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 6,
+          "external_product_id": "7954395758637",
+          "external_variant_id": "42791440023597",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "760",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "HR Labs",
+          "category": "Amino Acids",
+          "product_name": "HR Labs Hydro EAA 30 servings",
+          "variant_name": "Super Fresh OJ / 30 Servings / 540g",
+          "flavour": "Super Fresh OJ",
+          "size_value": "540",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 33.99,
+          "in_stock": false,
+          "source_row_fingerprint": "7e2548e0892a19dca49499d64bef3d870967968fcd16ec136b2b0bf0a6eabd39",
+          "plan_fingerprint": "56432fd9e7e799c9b8650ecf1137d499",
+          "external_url": "https://gladiatornutrition.co.uk/products/hr-labs-hydro-eaa?variant=42791440023597",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/hr-labs-hydro-eaa?variant=42791440023597&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Super Fresh OJ",
+            "Size": "30 Servings",
+            "Weight": "540g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Super Fresh OJ"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "540g",
+              "size_value": "540",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 4,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 7,
+          "external_product_id": "14652995764598",
+          "external_variant_id": "53558698475894",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "971",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Kilo Labs",
+          "category": "Pre Workout",
+          "product_name": "Kilo Labs Stim Thug 20 servings",
+          "variant_name": "Mother Pucker / 20 Servings / 344g",
+          "flavour": "Mother Pucker",
+          "size_value": "344",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 41.99,
+          "in_stock": false,
+          "source_row_fingerprint": "e9354e37e248082138fb696122fe2e3b6ecb6b922036597df241d86e1a7719dd",
+          "plan_fingerprint": "c13bf3f884404b59ad8e9409d42e27ff",
+          "external_url": "https://gladiatornutrition.co.uk/products/kilolabs-stim-thug-extreme-pre-workout?variant=53558698475894",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/kilolabs-stim-thug-extreme-pre-workout?variant=53558698475894&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Mother Pucker (Raspberry/Lemonade)",
+            "Size": "20 Servings",
+            "Weight": "344g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Mother Pucker (Raspberry/Lemonade)"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "344g",
+              "size_value": "344",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "20 Servings",
+              "count_value": "20",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 4,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 8,
+          "external_product_id": "14652995764598",
+          "external_variant_id": "53558698541430",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "971",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Kilo Labs",
+          "category": "Pre Workout",
+          "product_name": "Kilo Labs Stim Thug 20 servings",
+          "variant_name": "Slay My Name - Dragonfruit / 20 Servings / 344g",
+          "flavour": "Slay My Name - Dragonfruit",
+          "size_value": "344",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 41.99,
+          "in_stock": false,
+          "source_row_fingerprint": "613e19650e9fe2df943d85404f85f09c672a75c2262a2584c01b151c40a1e28b",
+          "plan_fingerprint": "c5b139c8d254512614c391b3d8dd4ea4",
+          "external_url": "https://gladiatornutrition.co.uk/products/kilolabs-stim-thug-extreme-pre-workout?variant=53558698541430",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/kilolabs-stim-thug-extreme-pre-workout?variant=53558698541430&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Slay My Name (Dragonfruit)",
+            "Size": "20 Servings",
+            "Weight": "344g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Slay My Name (Dragonfruit)"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "344g",
+              "size_value": "344",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "20 Servings",
+              "count_value": "20",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 4,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 9,
+          "external_product_id": "14652995764598",
+          "external_variant_id": "53558698574198",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "971",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Kilo Labs",
+          "category": "Pre Workout",
+          "product_name": "Kilo Labs Stim Thug 20 servings",
+          "variant_name": "It Was All A Dream / 20 Servings / 344g",
+          "flavour": "It Was All A Dream",
+          "size_value": "344",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 41.99,
+          "in_stock": false,
+          "source_row_fingerprint": "848befad913bfc93825b5f70df41811623661281c6f93ace5b6580a38dc36aa3",
+          "plan_fingerprint": "1d4610337f2148ff313c6487fad21e47",
+          "external_url": "https://gladiatornutrition.co.uk/products/kilolabs-stim-thug-extreme-pre-workout?variant=53558698574198",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/kilolabs-stim-thug-extreme-pre-workout?variant=53558698574198&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "It Was All A Dream (Orange)",
+            "Size": "20 Servings",
+            "Weight": "344g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "It Was All A Dream (Orange)"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "344g",
+              "size_value": "344",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "20 Servings",
+              "count_value": "20",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 4,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        }
+      ]
+    }
+  ]
+}
