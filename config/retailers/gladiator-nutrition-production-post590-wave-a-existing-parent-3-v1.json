@@ -1,0 +1,222 @@
+{
+  "schema_version": 3,
+  "kind": "reviewed-catalogue-package-v3",
+  "source_platform": "shopify",
+  "status": "OWNER_APPROVED",
+  "authorized_by": "Marek Kalinka - owner-directed preparation of the exact post-590 Wave A existing-parent scope. Identity review only; no production apply is authorized by this package-preparation task.",
+  "authorized_at": "2026-10-25T00:00:00.000Z",
+  "target_environment": "PRODUCTION",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "retailer": {
+    "id": 15,
+    "name": "Gladiator Nutrition",
+    "slug": "gladiator-nutrition",
+    "website": "https://gladiatornutrition.co.uk",
+    "expected_action": "existing",
+    "shipping_known": true,
+    "shipping_cost": 6.99
+  },
+  "policy": {
+    "reviewed_rows_only": true,
+    "allow_product_creation": false,
+    "allow_variant_creation": true,
+    "allow_canonical_product_updates": false,
+    "allow_canonical_variant_updates": false,
+    "allow_canonical_gtin_updates": false,
+    "allow_category_changes": false,
+    "sku_is_not_gtin": true,
+    "one_plan_at_a_time": true,
+    "fresh_single_use_approval_per_plan": true,
+    "strict_production_readback_after_each_apply": true
+  },
+  "profiles": [
+    {
+      "id": "gladiator-nutrition-production-post590-wave-a-existing-parent-3-v1",
+      "status": "DRY_RUN_PASS",
+      "csv_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-nutrition-production-post590-wave-a-existing-parent-3-v1.csv",
+      "csv_sha256": "eccee4830b91b77b1ea4185b6cee8de110e6c750d9de86c5c62a1ac09a05553f",
+      "artifact_path": "tmp/retailer-feeds/gladiator-nutrition/gladiator-nutrition-production-post590-wave-a-existing-parent-3-v1-dry-run.json",
+      "artifact_sha256": "8054fffe26efb2a959dccf32c46a7bffdb51b63ba19b405bb59c6685945ac2ef",
+      "row_count": 3,
+      "blocked_row_count": 0,
+      "conflict_count": 0,
+      "expected_actions": {
+        "retailers_create": 0,
+        "products_create": 0,
+        "product_variants_create": 3,
+        "retailer_products_create": 3,
+        "offers_create": 3,
+        "price_history_create": 3
+      },
+      "rows": [
+        {
+          "review_row": 1,
+          "external_product_id": "4916443381805",
+          "external_variant_id": "33879870603309",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "215",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Applied Nutrition",
+          "category": "Pre Workout",
+          "product_name": "Applied Nutrition ABE Ultimate Pre-Workout 315g",
+          "variant_name": "Blue Raspberry / 30 Servings / 315g",
+          "flavour": "Blue Raspberry",
+          "size_value": "315",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 22.99,
+          "in_stock": true,
+          "source_row_fingerprint": "ee986426315fa7e1d1558fabeb7bebc6b31915e043421a9cdc0934abf00d8408",
+          "plan_fingerprint": "0a5f94776fd1745b86a153da97add4a2",
+          "external_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-abe?variant=33879870603309",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-abe?variant=33879870603309&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Blue Raspberry",
+            "Size": "30 Servings",
+            "Weight": "315g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Blue Raspberry"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "315g",
+              "size_value": "315",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 19,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 2,
+          "external_product_id": "4916443381805",
+          "external_variant_id": "55980802507126",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "215",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Applied Nutrition",
+          "category": "Pre Workout",
+          "product_name": "Applied Nutrition ABE Ultimate Pre-Workout 315g",
+          "variant_name": "Cool Watermelon / 30 Servings / 315g",
+          "flavour": "Cool Watermelon",
+          "size_value": "315",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 22.99,
+          "in_stock": true,
+          "source_row_fingerprint": "03045a585c920ed2b72004b37a112df1116da875c99cdf59d3fda0b45962902a",
+          "plan_fingerprint": "242b212e9bb8395013303001d79998cc",
+          "external_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-abe?variant=55980802507126",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-abe?variant=55980802507126&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Cool Watermelon",
+            "Size": "30 Servings",
+            "Weight": "315g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Cool Watermelon"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "315g",
+              "size_value": "315",
+              "size_unit": "g"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "30 Servings",
+              "count_value": "30",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 19,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        },
+        {
+          "review_row": 3,
+          "external_product_id": "15581734109558",
+          "external_variant_id": "57208638472566",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": "273",
+          "product_variant_id": null,
+          "action": "create_variant_on_existing_product",
+          "brand": "Applied Nutrition",
+          "category": "Health Supplements",
+          "product_name": "Applied Nutrition ABE - Energy RTD Drink",
+          "variant_name": "Orange Burst / 1 Serving (330ml)",
+          "flavour": "Orange Burst",
+          "size_value": "330",
+          "size_unit": "ml",
+          "pack_count": "1",
+          "product_format": "liquid",
+          "price": 2.4,
+          "in_stock": true,
+          "source_row_fingerprint": "ce3fcba8b44c7582a747a6fa62a0c353d0643912c4ee86bdd8926a3f41fa8de8",
+          "plan_fingerprint": "a0d56ee2913c437d63fbc3c67dc8ea21",
+          "external_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-abe-energy-can?variant=57208638472566",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/applied-nutrition-abe-energy-can?variant=57208638472566&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Orange Burst",
+            "Size": "1 Serving (330ml)"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Orange Burst"
+            },
+            "physical_size": {
+              "source_key": "Size",
+              "source_value": "1 Serving (330ml)",
+              "size_value": "330",
+              "size_unit": "ml"
+            },
+            "count": {
+              "source_key": "Size",
+              "source_value": "1 Serving (330ml)",
+              "count_value": "1",
+              "count_unit": "servings"
+            }
+          },
+          "source_structure": {
+            "product_variant_count": 10,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null
+        }
+      ]
+    }
+  ]
+}
