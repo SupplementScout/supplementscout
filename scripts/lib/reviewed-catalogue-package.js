@@ -109,9 +109,10 @@ function validateManifest(manifest, profileId) {
   const fingerprints = new Set();
   for (const row of profile.rows) {
     const hasCountIdentity = Object.hasOwn(row, "unit_count") || Object.hasOwn(row, "unit_type");
-    exactKeys(row, hasCountIdentity
+    const rowKeys = hasCountIdentity
       ? (isV3 ? REVIEWED_V3_COUNT_ROW_KEYS : isV2 ? REVIEWED_V2_COUNT_ROW_KEYS : REVIEWED_COUNT_ROW_KEYS)
-      : (isV3 ? REVIEWED_V3_ROW_KEYS : isV2 ? REVIEWED_V2_ROW_KEYS : REVIEWED_ROW_KEYS), "reviewed row");
+      : (isV3 ? REVIEWED_V3_ROW_KEYS : isV2 ? REVIEWED_V2_ROW_KEYS : REVIEWED_ROW_KEYS);
+    exactKeys(row, isV3 && Object.hasOwn(row, "canonical_identity_evidence") ? [...rowKeys, "canonical_identity_evidence"] : rowKeys, "reviewed row");
     invariant(Number.isSafeInteger(row.review_row) && row.review_row > 0, "Reviewed row number invalid");
     invariant(typeof row.external_product_id === "string" && row.external_product_id && typeof row.external_variant_id === "string" && row.external_variant_id, "Reviewed source identity missing");
     invariant(REVIEWED_ACTIONS.has(row.action), "Reviewed action invalid");
@@ -135,7 +136,7 @@ function validateManifest(manifest, profileId) {
     }
     if (isV3) {
       invariant(strictShopifyUrl(row.external_url, manifest.retailer.website, row.external_variant_id), "Reviewed V3 direct Shopify URL identity mismatch");
-      assertV3ActionSemantics(row);
+      assertV3ActionSemantics(row, { retailer_id: manifest.retailer.id, authorized_at: manifest.authorized_at });
     }
     invariant(!sourceIds.has(row.external_variant_id) && !fingerprints.has(row.plan_fingerprint), "Reviewed row identity is duplicated");
     sourceIds.add(row.external_variant_id);
@@ -155,7 +156,7 @@ function actionCounts(plans) {
   };
 }
 
-function validatePlan(entry, reviewed, retailer, manifestKind = "reviewed-catalogue-package-v1") {
+function validatePlan(entry, reviewed, retailer, manifestKind = "reviewed-catalogue-package-v1", authorizedAt = null) {
   const plan = entry.resolved_plan;
   invariant(planFingerprint(plan) === entry.plan_fingerprint && entry.plan_fingerprint === reviewed.plan_fingerprint, "Reviewed plan fingerprint mismatch");
   invariant(entry.source_row_fingerprint === reviewed.source_row_fingerprint, "Reviewed source fingerprint mismatch");
@@ -175,7 +176,14 @@ function validatePlan(entry, reviewed, retailer, manifestKind = "reviewed-catalo
   }
   if (manifestKind === REVIEWED_V3_KIND) {
     invariant(canonicalJson(mapping.external_options || {}) === canonicalJson(reviewed.external_options), "Reviewed V3 raw external options mismatch");
-    assertV3ActionSemantics(reviewed);
+    if (reviewed.canonical_identity_evidence != null) {
+      invariant(
+        canonicalJson(plan.product_variant.evidence?.canonical_identity_evidence) ===
+          canonicalJson(normalizeNumbersToDecimalStrings(reviewed.canonical_identity_evidence)),
+        "Reviewed V3 canonical evidence plan binding mismatch",
+      );
+    }
+    assertV3ActionSemantics(reviewed, { retailer_id: retailer.id, authorized_at: authorizedAt });
   }
   invariant(String(plan.product.id ?? "") === String(reviewed.product_id ?? ""), "Reviewed product binding mismatch");
   invariant(String(plan.product_variant.id ?? "") === String(reviewed.product_variant_id ?? ""), "Reviewed variant binding mismatch");
@@ -238,7 +246,7 @@ function loadReviewedPackageScope(options, readFile = fs.readFileSync) {
     invariant(entry, "Reviewed artifact plan missing");
     const source = artifact.source_rows.find(candidate => candidate.plan_fingerprint === reviewed.plan_fingerprint);
     invariant(source && source.status === "planned" && source.source_row_fingerprint === reviewed.source_row_fingerprint, "Reviewed artifact source row mismatch");
-    validatePlan(entry, reviewed, manifest.retailer, manifest.kind);
+    validatePlan(entry, reviewed, manifest.retailer, manifest.kind, manifest.authorized_at);
   }
   return { root, manifestPath, manifest, profile, csvPath, artifactPath, artifact, csvRows, byFingerprint };
 }

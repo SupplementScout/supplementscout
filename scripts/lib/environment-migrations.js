@@ -225,8 +225,12 @@ const APPLIED_EXCLUSIONS = Object.freeze({
 });
 
 const PENDING_MIGRATIONS = Object.freeze({
-  STAGING: Object.freeze([]),
-  PRODUCTION: Object.freeze([]),
+  STAGING: Object.freeze([
+    Object.freeze({ filename: "20261025120000_add_reviewed_v3_canonical_identity_evidence.sql", sha256: "4240928cf9682303fcb35b2b6cb34c21d806b24e2f5907927b9d56ae4c6aec44", expectedCatalogueDeltas: Object.freeze({}) }),
+  ]),
+  PRODUCTION: Object.freeze([
+    Object.freeze({ filename: "20261025120000_add_reviewed_v3_canonical_identity_evidence.sql", sha256: "4240928cf9682303fcb35b2b6cb34c21d806b24e2f5907927b9d56ae4c6aec44", expectedCatalogueDeltas: Object.freeze({}) }),
+  ]),
 });
 
 function migrationIdentifier(filename) {

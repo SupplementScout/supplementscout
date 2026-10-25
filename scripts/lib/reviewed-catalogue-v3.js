@@ -1,4 +1,5 @@
-const { canonicalJson } = require("./canonical-json");
+const { canonicalJson, normalizeNumbersToDecimalStrings } = require("./canonical-json");
+const { validateCanonicalIdentityEvidence } = require("./reviewed-catalogue-canonical-evidence");
 
 const CONTRACT_KIND = "reviewed-catalogue-package-v3";
 const ENVELOPE_KIND = "reviewed-catalogue-authorization-v3";
@@ -125,7 +126,16 @@ function validateSourceStructure(structure) {
   return { product_variant_count: structure.product_variant_count, meaningful_variant_axes: axes };
 }
 
-function assertV3ActionSemantics(reviewed) {
+function evidenceContext(reviewed, context = {}) {
+  return {
+    retailer_id: context.retailer_id, authorized_at: context.authorized_at,
+    external_product_id: reviewed.external_product_id, external_variant_id: reviewed.external_variant_id,
+    source_row_fingerprint: reviewed.source_row_fingerprint, brand: reviewed.brand,
+    product_identity: reviewed.product_name, external_gtin: reviewed.external_gtin, external_sku: reviewed.external_sku,
+  };
+}
+
+function assertV3ActionSemantics(reviewed, context = {}) {
   const structure = validateSourceStructure(reviewed.source_structure);
   const roles = validateOptionRoles(reviewed.external_options, reviewed.option_roles);
   if (reviewed.action === "create_product_with_default_variant") {
@@ -135,11 +145,30 @@ function assertV3ActionSemantics(reviewed) {
   if (["create_product_with_variant", "create_variant_on_existing_product"].includes(reviewed.action)) {
     invariant(roles.flavour && structure.meaningful_variant_axes.includes("flavour"), "V3 explicit variant requires a reviewed flavour axis");
   }
+  const projection = validateCanonicalIdentityEvidence(reviewed.canonical_identity_evidence, evidenceContext(reviewed, context));
+  const selectedPhysical = projection?.selected_facts.physical_size;
+  const selectedCount = projection?.selected_facts.container_count;
+  const selectedPackCount = projection?.selected_facts.pack_count;
+  const selectedFormat = projection?.selected_facts.product_format;
   if (reviewed.size_value != null || reviewed.size_unit != null) {
-    invariant(roles.physical_size && roles.physical_size.size_value === String(reviewed.size_value) && roles.physical_size.size_unit === reviewed.size_unit, "V3 physical size role mismatch");
+    invariant(
+      roles.physical_size && roles.physical_size.size_value === String(reviewed.size_value) && roles.physical_size.size_unit === reviewed.size_unit ||
+      selectedPhysical && selectedPhysical.normalized_value === String(reviewed.size_value) && selectedPhysical.unit === reviewed.size_unit,
+      "V3 physical size role mismatch",
+    );
   }
   if (reviewed.unit_count != null || reviewed.unit_type != null) {
-    invariant(roles.count && roles.count.count_value === String(reviewed.unit_count) && roles.count.count_unit === reviewed.unit_type, "V3 count role mismatch");
+    invariant(
+      roles.count && roles.count.count_value === String(reviewed.unit_count) && roles.count.count_unit === reviewed.unit_type ||
+      selectedCount && selectedCount.normalized_value === String(reviewed.unit_count) && selectedCount.unit === reviewed.unit_type,
+      "V3 count role mismatch",
+    );
+  }
+  if (selectedPackCount) {
+    invariant(selectedPackCount.normalized_value === String(reviewed.pack_count) && selectedPackCount.unit === "packs", "V3 pack count projection mismatch");
+  }
+  if (selectedFormat) {
+    invariant(selectedFormat.normalized_value === reviewed.product_format && selectedFormat.unit === "format", "V3 product format projection mismatch");
   }
 }
 
@@ -163,7 +192,7 @@ function isV3SourceExcluded(row) {
 
 function buildV3Envelope({ manifest, profile, reviewed, entry, artifact, manifestSha256 }) {
   invariant(manifest?.kind === CONTRACT_KIND && manifest.schema_version === 3, "Reviewed V3 manifest required");
-  assertV3ActionSemantics(reviewed);
+  assertV3ActionSemantics(reviewed, { retailer_id: manifest.retailer.id, authorized_at: manifest.authorized_at });
   const plan = entry.resolved_plan || entry.importPlan;
   invariant(plan, "Reviewed V3 plan missing");
   return {
@@ -192,6 +221,9 @@ function buildV3Envelope({ manifest, profile, reviewed, entry, artifact, manifes
     option_roles: reviewed.option_roles,
     source_structure: reviewed.source_structure,
     source_row_fingerprint: reviewed.source_row_fingerprint,
+    ...(reviewed.canonical_identity_evidence == null ? {} : {
+      canonical_identity_evidence: normalizeNumbersToDecimalStrings(reviewed.canonical_identity_evidence),
+    }),
     plan_fingerprint: reviewed.plan_fingerprint,
   };
 }

@@ -20,6 +20,7 @@ const {
   validateSharedParentPeerCohort,
 } = require("./lib/retailer-shared-parent-identity");
 const { loadReviewedSourceProfile } = require("./lib/reviewed-catalogue-package");
+const { validateCanonicalIdentityEvidence } = require("./lib/reviewed-catalogue-canonical-evidence");
 const {
   CONTRACT_KIND: REVIEWED_V3_KIND,
   isV3SourceExcluded,
@@ -1969,9 +1970,15 @@ function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
           : { source_url: genericReviewed.source_url }),
         ...(reviewedContract === REVIEWED_V3_KIND
           ? {
+              external_sku: genericReviewed.external_sku,
+              external_gtin: genericReviewed.external_gtin,
+              source_row_fingerprint: genericReviewed.source_row_fingerprint,
               external_options: genericReviewed.external_options,
               option_roles: genericReviewed.option_roles,
               source_structure: genericReviewed.source_structure,
+              canonical_identity_evidence: genericReviewed.canonical_identity_evidence ?? null,
+              evidence_authorized_at: genericReviewedProfile.manifest.authorized_at,
+              evidence_retailer_id: String(genericReviewedProfile.manifest.retailer.id),
             }
           : {}),
         brand: genericReviewed.brand,
@@ -4433,9 +4440,29 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
     }
     const physical = genericReviewed.option_roles?.physical_size;
     const count = genericReviewed.option_roles?.count;
+    const canonicalProjection = validateCanonicalIdentityEvidence(
+      genericReviewed.canonical_identity_evidence,
+      {
+        retailer_id: genericReviewed.evidence_retailer_id,
+        authorized_at: genericReviewed.evidence_authorized_at,
+        external_product_id: genericReviewed.external_product_id,
+        external_variant_id: genericReviewed.external_variant_id,
+        source_row_fingerprint: genericReviewed.source_row_fingerprint,
+        brand: genericReviewed.brand,
+        product_identity: genericReviewed.product_name,
+        external_gtin: genericReviewed.external_gtin,
+        external_sku: genericReviewed.external_sku,
+      },
+    );
+    const projectedPhysical = canonicalProjection?.selected_facts.physical_size;
+    const projectedCount = canonicalProjection?.selected_facts.container_count;
     if (
-      (policy.size && (!physical || sizeKey(parseSize(`${physical.size_value} ${physical.size_unit}`)) !== policy.size)) ||
-      (policy.unitCount != null && (!count || Number(count.count_value) !== policy.unitCount || count.count_unit !== policy.unitType))
+      (policy.size &&
+        (!physical || sizeKey(parseSize(`${physical.size_value} ${physical.size_unit}`)) !== policy.size) &&
+        (!projectedPhysical || sizeKey(parseSize(`${projectedPhysical.normalized_value} ${projectedPhysical.unit}`)) !== policy.size)) ||
+      (policy.unitCount != null &&
+        (!count || Number(count.count_value) !== policy.unitCount || count.count_unit !== policy.unitType) &&
+        (!projectedCount || Number(projectedCount.normalized_value) !== policy.unitCount || projectedCount.unit !== policy.unitType))
     ) {
       throw new Error("reviewed V3 resolved option role evidence mismatch");
     }
@@ -4791,6 +4818,9 @@ function buildVariantEvidence(row, mapping, productVariant = null) {
     approved_mapping_id: mapping?.id ?? null,
   };
   const reviewedCountIdentity = row.__reviewed_catalogue_identity;
+  if (reviewedCountIdentity?.canonical_identity_evidence) {
+    variantEvidence.canonical_identity_evidence = reviewedCountIdentity.canonical_identity_evidence;
+  }
   if (reviewedCountIdentity?.unit_count != null) {
     variantEvidence.unit_count = normalizeDecimalString(
       reviewedCountIdentity.unit_count,

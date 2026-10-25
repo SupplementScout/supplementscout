@@ -4,6 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const test = require("node:test");
+const { canonicalEvidenceSha256 } = require("./lib/reviewed-catalogue-canonical-evidence");
 
 const ROOT = path.resolve(__dirname, "..");
 const IMAGE = "postgres:17-alpine";
@@ -31,6 +32,8 @@ const EVIDENCE_PARITY_MIGRATION = "supabase/migrations/20261022120000_fix_review
 const EVIDENCE_PARITY_ROLLBACK = "supabase/rollbacks/20261022120000_fix_reviewed_v3_apply_evidence_parity_rollback.sql";
 const COMPOSITE_CREATE_SIZE_MIGRATION = "supabase/migrations/20261024120000_fix_reviewed_v3_create_product_composite_size_projection.sql";
 const COMPOSITE_CREATE_SIZE_ROLLBACK = "supabase/rollbacks/20261024120000_fix_reviewed_v3_create_product_composite_size_projection_rollback.sql";
+const CANONICAL_EVIDENCE_MIGRATION = "supabase/migrations/20261025120000_add_reviewed_v3_canonical_identity_evidence.sql";
+const CANONICAL_EVIDENCE_ROLLBACK = "supabase/rollbacks/20261025120000_add_reviewed_v3_canonical_identity_evidence_rollback.sql";
 const ENVIRONMENT_SAFE_FORWARD_CHAIN = Object.freeze([
   ENVIRONMENT_SAFE_BOUNDED_STATE_MIGRATION,
   ENVIRONMENT_SAFE_MIGRATION,
@@ -43,6 +46,7 @@ const ENVIRONMENT_SAFE_FORWARD_CHAIN = Object.freeze([
   EXISTING_VARIANT_FLAVOUR_ALIAS_MIGRATION,
   EVIDENCE_PARITY_MIGRATION,
   COMPOSITE_CREATE_SIZE_MIGRATION,
+  CANONICAL_EVIDENCE_MIGRATION,
 ]);
 const ENVIRONMENT_SAFE_ROLLBACK_CHAIN = Object.freeze([
   ENVIRONMENT_SAFE_BOUNDED_STATE_ROLLBACK,
@@ -56,6 +60,7 @@ const ENVIRONMENT_SAFE_ROLLBACK_CHAIN = Object.freeze([
   EXISTING_VARIANT_FLAVOUR_ALIAS_ROLLBACK,
   EVIDENCE_PARITY_ROLLBACK,
   COMPOSITE_CREATE_SIZE_ROLLBACK,
+  CANONICAL_EVIDENCE_ROLLBACK,
 ]);
 const LEGACY_COMPATIBILITY_HELPER_SHA = "849df8441e8994daf1acb514705808fde17467e033185e30cc432ad165a13905";
 const POST_CREATE_COMPATIBILITY_HELPER_SHA = "906cb5abad08deb8452fa9ae4fed8be8669b760e6f2ef088ae8846f5536b27db";
@@ -288,7 +293,37 @@ insert into public.products(id,name,slug,brand,category,gtin,is_active,merged_in
 values(100,'Existing Protein','existing-protein','Example Nutrition','Whey Protein',null,true,null,'powder');
 insert into public.product_variants(id,product_id,variant_key,display_name,flavour_code,flavour_label,size_value,size_unit,pack_count,product_format,is_default,is_active)
 values(200,100,'cherry-and-apple-875g','Cherry & Apple / 875g','cherry and apple','Cherry & Apple',875,'g',1,'powder',false,true);
-create function public.atomic_import_canonical_json(p_value jsonb) returns text language sql immutable as $$select p_value::text$$;
+create function public.atomic_import_canonical_json(p_value jsonb)
+returns text
+language plpgsql
+immutable
+strict
+set search_path=pg_catalog
+as $canonical_json$
+declare
+  v_result text;
+begin
+  case jsonb_typeof(p_value)
+    when 'object' then
+      select '{' || coalesce(string_agg(
+        to_jsonb(entry.key)::text || ':' || public.atomic_import_canonical_json(entry.value),
+        ',' order by entry.key
+      ), '') || '}'
+      into v_result
+      from jsonb_each(p_value) as entry;
+    when 'array' then
+      select '[' || coalesce(string_agg(
+        public.atomic_import_canonical_json(entry.value),
+        ',' order by entry.ordinality
+      ), '') || ']'
+      into v_result
+      from jsonb_array_elements(p_value) with ordinality as entry(value, ordinality);
+    else
+      v_result := p_value::text;
+  end case;
+  return v_result;
+end;
+$canonical_json$;
 create function public.atomic_import_has_exact_keys(p_value jsonb,p_keys text[]) returns boolean language sql immutable as $$select jsonb_typeof(p_value)='object' and (select array_agg(key order by key) from jsonb_object_keys(p_value) key)=(select array_agg(key order by key) from unnest(p_keys) key)$$;
 create function public.atomic_import_is_decimal_string(p_value text) returns boolean language sql immutable as $$select p_value ~ '^(0|[1-9][0-9]*)(\\.[0-9]+)?$'$$;
 create function public.atomic_import_normalized_identity(p_value text) returns text language sql immutable as $$select lower(regexp_replace(btrim(coalesce(p_value,'')),'[^a-zA-Z0-9]+','','g'))$$;
@@ -536,6 +571,76 @@ function actionFixture(environment, action, index) {
     source_row_fingerprint: plan.meta.source_row_fingerprint, plan_fingerprint: null,
   };
   return { plan, envelope };
+}
+
+function canonicalEvidenceFixture(environment, index) {
+  const fixture = actionFixture(environment, "create_product_with_variant", index);
+  const binding = {
+    retailer_id: "12", external_product_id: fixture.envelope.external_product_id,
+    external_variant_id: fixture.envelope.external_variant_id,
+    source_row_fingerprint: fixture.envelope.source_row_fingerprint,
+    brand: "Example", product_identity: `Example Protein ${index}`,
+    external_gtin: null, external_sku: null, package_authorized_at: "2026-10-25T12:00:00.000Z",
+  };
+  const identity = { brand: binding.brand, product_identity: binding.product_identity, external_gtin: null, external_sku: null, pack_configuration: "2 pieces x 22g" };
+  const external = [
+    { fact_id: "pieces", role: "piece_count", normalized_value: "2", unit: "pieces", evidence_source_type: "manufacturer_label", source_url: "https://manufacturer.example/item", captured_at: "2026-10-25T10:00:00.000Z", source_content_sha256: "b".repeat(64), identity_binding: identity },
+    { fact_id: "piece-size", role: "physical_size", normalized_value: "22", unit: "g", evidence_source_type: "manufacturer_label", source_url: "https://manufacturer.example/item", captured_at: "2026-10-25T10:00:00.000Z", source_content_sha256: "b".repeat(64), identity_binding: identity },
+  ];
+  const derived = { fact_id: "pack-size", role: "physical_size", formula_id: "multiply_exact_decimal_v1", operand_fact_ids: ["pieces", "piece-size"], normalized_value: "44", unit: "g", derivation_sha256: null };
+  derived.derivation_sha256 = canonicalEvidenceSha256({ formula_id: derived.formula_id, ordered_operands: external.map(fact => ({ fact_id: fact.fact_id, normalized_value: fact.normalized_value, unit: fact.unit })), result: "44", unit: "g" });
+  const evidence = {
+    contract_version: "1", binding,
+    raw_source_facts: [{ fact_id: "raw-weight", role: "physical_size", raw_value: "265g", source_key: "Weight", source_row_fingerprint: binding.source_row_fingerprint }],
+    external_evidence_facts: external, derived_facts: [derived],
+    canonical_selected_facts: [{ role: "physical_size", selected_fact_id: "pack-size", normalized_value: "44", unit: "g", evidence_review_decision: "ACCEPT_FOR_CANONICAL_IDENTITY" }],
+    conflict_records: [{ raw_fact_id: "raw-weight", canonical_fact_id: "pack-size", classification: "UNEXPLAINED_CONFLICTING_METADATA", disposition: "PRESERVE_RAW_DO_NOT_USE_FOR_CANONICAL_IDENTITY" }],
+    evidence_review_decision: { decision: "ACCEPT_EXACT_FACTS_FOR_CANONICAL_IDENTITY", reviewed_fact_ids: ["pack-size"], reviewed_by: "catalogue-evidence-reviewer:test", reviewed_at: "2026-10-25T11:00:00.000Z", decision_evidence_sha256: null },
+  };
+  evidence.evidence_review_decision.decision_evidence_sha256 = canonicalEvidenceSha256(evidence);
+  fixture.plan.product_variant.values.size_value = "44";
+  fixture.plan.product_variant.values.variant_key = `flavour-${index}-44g`;
+  fixture.plan.product_variant.values.display_name = `Flavour ${index} / 44g`;
+  fixture.plan.product_variant.evidence.size_value = "44";
+  fixture.plan.product_variant.evidence.canonical_identity_evidence = evidence;
+  fixture.plan.retailer_product.values.external_options.Weight = "265g";
+  fixture.envelope.external_options.Weight = "265g";
+  fixture.envelope.option_roles.physical_size = { source_key: "Weight", source_value: "265g", size_value: "265", size_unit: "g" };
+  fixture.envelope.canonical_identity_evidence = evidence;
+  return fixture;
+}
+
+function canonicalCountEvidenceFixture(environment, index) {
+  const fixture = actionFixture(environment, "create_product_with_default_variant", index);
+  const binding = {
+    retailer_id: "12", external_product_id: fixture.envelope.external_product_id,
+    external_variant_id: fixture.envelope.external_variant_id,
+    source_row_fingerprint: fixture.envelope.source_row_fingerprint,
+    brand: "Example", product_identity: `Example Protein ${index}`,
+    external_gtin: null, external_sku: null, package_authorized_at: "2026-10-25T12:00:00.000Z",
+  };
+  const evidence = {
+    contract_version: "1", binding,
+    raw_source_facts: [{ fact_id: "raw-servings", role: "serving_count", raw_value: "60 Servings", source_key: "Size", source_row_fingerprint: binding.source_row_fingerprint }],
+    external_evidence_facts: [{
+      fact_id: "manufacturer-count", role: "container_count", normalized_value: "60", unit: "capsules",
+      evidence_source_type: "manufacturer_product_page", source_url: "https://manufacturer.example/item",
+      captured_at: "2026-10-25T10:00:00.000Z", source_content_sha256: "c".repeat(64),
+      identity_binding: { brand: binding.brand, product_identity: binding.product_identity, external_gtin: null, external_sku: null, pack_configuration: "60 capsules" },
+    }],
+    derived_facts: [],
+    canonical_selected_facts: [{ role: "container_count", selected_fact_id: "manufacturer-count", normalized_value: "60", unit: "capsules", evidence_review_decision: "ACCEPT_FOR_CANONICAL_IDENTITY" }],
+    conflict_records: [{ raw_fact_id: "raw-servings", canonical_fact_id: "manufacturer-count", classification: "SERVING_COUNT_NOT_CONTAINER_COUNT", disposition: "PRESERVE_RAW_DO_NOT_USE_FOR_CANONICAL_IDENTITY" }],
+    evidence_review_decision: { decision: "ACCEPT_EXACT_FACTS_FOR_CANONICAL_IDENTITY", reviewed_fact_ids: ["manufacturer-count"], reviewed_by: "catalogue-evidence-reviewer:test", reviewed_at: "2026-10-25T11:00:00.000Z", decision_evidence_sha256: null },
+  };
+  evidence.evidence_review_decision.decision_evidence_sha256 = canonicalEvidenceSha256(evidence);
+  fixture.plan.product.values.unit_count = "60";
+  fixture.plan.product.values.unit_type = "capsules";
+  fixture.plan.product_variant.evidence.unit_count = "60";
+  fixture.plan.product_variant.evidence.unit_type = "capsules";
+  fixture.plan.product_variant.evidence.canonical_identity_evidence = evidence;
+  fixture.envelope.canonical_identity_evidence = evidence;
+  return fixture;
 }
 
 function existingVariantFlavourAliasFixture(environment, index, rawFlavour, canonicalFlavour, sourceKey = "Flavour") {
@@ -1893,6 +1998,54 @@ function exerciseBaseline(environment) {
     succeed(sql(container, `insert into supabase_migrations.schema_migrations(version,name)
       values('20261024120000','fix_reviewed_v3_create_product_composite_size_projection')
       on conflict (version) do update set name=excluded.name`), `${environment} seed disposable composite create size migration ledger`);
+    const beforeCanonicalValidatorMetadata = functionMetadata(
+      container,
+      "public.atomic_import_validate_reviewed_catalogue_v3_plan(jsonb,jsonb)",
+      `${environment} canonical evidence validator metadata before`,
+    );
+    succeedWithoutBusinessChange(container, CANONICAL_EVIDENCE_MIGRATION, `${environment} apply canonical identity evidence migration`);
+    assert.deepEqual(
+      functionMetadata(container, "public.atomic_import_validate_reviewed_catalogue_v3_plan(jsonb,jsonb)", `${environment} canonical evidence validator metadata after`),
+      beforeCanonicalValidatorMetadata,
+    );
+    const canonicalHelperMetadata = functionMetadata(
+      container,
+      "public.atomic_import_reviewed_v3_canonical_role_allowed(jsonb,jsonb,text)",
+      `${environment} canonical evidence helper metadata`,
+    );
+    assert.equal(canonicalHelperMetadata.owner, "postgres");
+    assert.equal(canonicalHelperMetadata.volatility, "s");
+    assert.equal(canonicalHelperMetadata.security_definer, true);
+    assert.deepEqual(canonicalHelperMetadata.config, ["search_path=pg_catalog, public, pg_temp"]);
+    assert.doesNotMatch(canonicalHelperMetadata.acl || "", /PUBLIC|anon|authenticated|service_role/);
+
+    const canonicalEvidence = seal(container, canonicalEvidenceFixture(environment, 190), `${environment} canonical evidence`);
+    const canonicalEvidenceResult = json(
+      container,
+      asRole(environment, "validator", `select public.validate_reviewed_catalogue_v3_plan_read_only(${literal(canonicalEvidence.plan)},${literal(canonicalEvidence.envelope)})`, { readOnly: true }),
+      `${environment} canonical evidence read-only projection`,
+    );
+    assert.equal(canonicalEvidenceResult.valid, true);
+    const canonicalCountEvidence = seal(container, canonicalCountEvidenceFixture(environment, 191), `${environment} canonical count evidence`);
+    const canonicalCountResult = json(
+      container,
+      asRole(environment, "validator", `select public.validate_reviewed_catalogue_v3_plan_read_only(${literal(canonicalCountEvidence.plan)},${literal(canonicalCountEvidence.envelope)})`, { readOnly: true }),
+      `${environment} canonical count evidence read-only projection`,
+    );
+    assert.equal(canonicalCountResult.valid, true);
+    const missingConflict = structuredClone(canonicalEvidence);
+    missingConflict.envelope.canonical_identity_evidence.conflict_records = [];
+    missingConflict.plan.product_variant.evidence.canonical_identity_evidence.conflict_records = [];
+    for (const target of [missingConflict.envelope.canonical_identity_evidence, missingConflict.plan.product_variant.evidence.canonical_identity_evidence]) {
+      target.evidence_review_decision.decision_evidence_sha256 = null;
+      target.evidence_review_decision.decision_evidence_sha256 = canonicalEvidenceSha256(target);
+    }
+    seal(container, missingConflict, `${environment} canonical evidence missing conflict`);
+    fails(
+      sql(container, asRole(environment, "validator", `select public.validate_reviewed_catalogue_v3_plan_read_only(${literal(missingConflict.plan)},${literal(missingConflict.envelope)})`, { readOnly: true })),
+      `${environment} missing canonical conflict`,
+      /V3_CANONICAL_CONFLICT_RECORD_REQUIRED/,
+    );
 
     succeed(sql(container, `insert into public.products(id,name,slug,brand,category,is_active,product_format)
       values(101,'Evidence Product 101','evidence-product-101','Example','Energy Drinks',true,'liquid')`), `${environment} seed liquid evidence parent`);
@@ -2511,6 +2664,7 @@ function exerciseBaseline(environment) {
     );
 
     succeed(sql(container, "delete from public.approved_import_plans where source like 'reviewed-catalogue-package-v3:%'"), `${environment} remove disposable V3 fixture approvals`);
+    succeedWithoutBusinessChange(container, CANONICAL_EVIDENCE_ROLLBACK, `${environment} rollback canonical identity evidence migration`);
     succeedWithoutBusinessChange(container, COMPOSITE_CREATE_SIZE_ROLLBACK, `${environment} rollback composite create size projection migration`);
     assert.equal(
       functionSha(container, "public.atomic_import_reviewed_v3_legacy_validation_projection(jsonb,jsonb)", `${environment} restored pre-composite projection SHA`),

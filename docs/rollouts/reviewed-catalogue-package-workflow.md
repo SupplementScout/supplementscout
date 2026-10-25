@@ -67,6 +67,37 @@ artifact. A package may contain only one product-creation anchor for each source
 product family. Create additional sibling variants in a fresh package after the
 parent exists.
 
+## V3 canonical identity evidence
+
+A V3 reviewed row may carry the optional, versioned
+`canonical_identity_evidence` sub-contract when its canonical physical or count
+identity cannot be proved by raw option-role parity alone. Its absence preserves
+the original V3 behavior exactly. Its presence is fail-closed and separates:
+
+- raw facts, retained exactly from the retailer source;
+- captured and hashed external facts bound to the exact product, variant and
+  pack configuration;
+- deterministic derived facts recomputed from versioned operands without
+  rounding;
+- the exact facts selected for canonical identity; and
+- mandatory conflict records for every material raw/canonical difference.
+
+The evidence review decision is a fact-provenance decision. It is distinct from
+the owner's business approval and cannot be replaced by an owner override. The
+sub-contract is embedded in the immutable manifest row, copied exactly into the
+plan evidence and authorization envelope, and therefore covered by the manifest
+SHA, artifact SHA and plan fingerprint. The executor never fetches an evidence
+URL or chooses canonical values at runtime.
+
+JavaScript validates the contract during package generation and loading. The
+database validator independently checks the same closed schema, bindings,
+source eligibility, derivations, conflicts, review and target projection before
+approval or apply. Raw `external_options` remain unchanged. Deploy the matching
+SQL function migration to STAGING and then PRODUCTION, with the usual lineage,
+security and rollback rehearsal, before merging or executing evidence-backed
+packages. Historical packages and clean raw-role multipacks continue through
+the original path.
+
 ## Permanent boundaries
 
 - Owner review remains mandatory for product identity and production writes.

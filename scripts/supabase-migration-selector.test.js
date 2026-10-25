@@ -61,6 +61,11 @@ const REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION = "20261024120000_fix_reviewed
 const REVIEWED_V3_COMPOSITE_CREATE_SIZE_SHA256 = "5536ffd43d89110cd91cbc003ff77e2e54c19c725e87bec78f796f0ad0f57af0";
 const REVIEWED_V3_COMPOSITE_CREATE_SIZE_ROLLBACK = "20261024120000_fix_reviewed_v3_create_product_composite_size_projection_rollback.sql";
 const REVIEWED_V3_COMPOSITE_CREATE_SIZE_ROLLBACK_SHA256 = "e6ee5ae251c0c2d332f12297d614e776a34d5425362bed82a1296d5bfc8f511a";
+const REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION = "20261025120000_add_reviewed_v3_canonical_identity_evidence.sql";
+const REVIEWED_V3_CANONICAL_EVIDENCE_SHA256 = "4240928cf9682303fcb35b2b6cb34c21d806b24e2f5907927b9d56ae4c6aec44";
+const REVIEWED_V3_CANONICAL_EVIDENCE_ROLLBACK = "20261025120000_add_reviewed_v3_canonical_identity_evidence_rollback.sql";
+const REVIEWED_V3_CANONICAL_EVIDENCE_ROLLBACK_SHA256 = "30a3f9e8081161c6639403c5c8facb20f6697897280598d248f9b0d8934cca95";
+const REVIEWED_V3_CANONICAL_EVIDENCE_PENDING = [{ filename: REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION, sha256: REVIEWED_V3_CANONICAL_EVIDENCE_SHA256, expectedCatalogueDeltas: {} }];
 const RA004_CONTROL_STATE_MIGRATION = "20260924100000_add_transactional_retailer_control_state_interface.sql";
 const RA004_PREFLIGHT_MIGRATION = "20260925100000_add_ra004_staging_preflight_metadata_interface.sql";
 const RA004_FORWARD_CONTROL_STATE_MIGRATION = "20260927100000_reissue_transactional_retailer_control_state_interface.sql";
@@ -405,14 +410,14 @@ test("staging records ledger 115 with the composite create size migration applie
   const result = validateSelection(validInput());
   assert.equal(result.ledger_count, 115);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, [REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION]);
+  assert.deepEqual(result.pending_sha256s, { [REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION]: REVIEWED_V3_CANONICAL_EVIDENCE_SHA256 });
+  assert.equal(result.pending_file, REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION);
+  assert.equal(result.pending_sha256, REVIEWED_V3_CANONICAL_EVIDENCE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
-  assert.equal(result.selected_files.length, 115);
+  assert.equal(result.selected_files.length, 116);
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes(RA004_FIXTURE_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_GUARD_MIGRATION));
@@ -516,7 +521,7 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
 
 test("production preserves deployed V3 and Ghost Lifestyle metadata correction bytes", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, REVIEWED_V3_CANONICAL_EVIDENCE_PENDING);
   assert.deepEqual(contract.appliedExcluded, [
     "20260929133000_extend_expired_sequential_plan_close.sql",
     "20261004120000_add_central_control_plan_readback.sql",
@@ -667,6 +672,27 @@ test("reviewed V3 composite create size projection is generic, projection-only, 
   assert.match(rollback, /cc0be112418a5843f1526d9ee2c746564cb9ec40d6be1ff26724fbc92934bda5/);
 });
 
+test("reviewed V3 canonical identity evidence migration is generic, fail-closed, and rollback-guarded", () => {
+  const migrationPath = path.join(SOURCE, REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION);
+  const rollbackPath = path.join(ROOT, "supabase", "rollbacks", REVIEWED_V3_CANONICAL_EVIDENCE_ROLLBACK);
+  const migration = fs.readFileSync(migrationPath, "utf8");
+  const rollback = fs.readFileSync(rollbackPath, "utf8");
+  assert.equal(sha256File(migrationPath), REVIEWED_V3_CANONICAL_EVIDENCE_SHA256);
+  assert.equal(sha256File(rollbackPath), REVIEWED_V3_CANONICAL_EVIDENCE_ROLLBACK_SHA256);
+  assert.match(migration, /atomic_import_reviewed_v3_canonical_role_allowed/);
+  assert.match(migration, /04392ff0eff0e814ba54e41d0b9af38478174eda6f427e7eefcc35d18c7b3e0c/);
+  assert.match(migration, /033cd54202f3ed2946eb78ba37a311c5a56a4f6eb421c0424b3239ad75c19baf/);
+  assert.match(migration, /security definer/);
+  assert.match(migration, /set search_path=pg_catalog, public, pg_temp/);
+  assert.match(migration, /revoke all on function .* from public,anon,authenticated,service_role/);
+  assert.doesNotMatch(migration, /Gladiator|Kayow|Tongkat|TWP|retailer[_ ]?15/i);
+  assert.doesNotMatch(migration, /insert\s+into\s+public\.(products|product_variants|retailer_products|offers|price_history)/i);
+  assert.match(rollback, /rollback blocked by durable evidence-backed approval/);
+  assert.match(rollback, /033cd54202f3ed2946eb78ba37a311c5a56a4f6eb421c0424b3239ad75c19baf/);
+  assert.match(rollback, /04392ff0eff0e814ba54e41d0b9af38478174eda6f427e7eefcc35d18c7b3e0c/);
+  assert.match(rollback, /drop function public\.atomic_import_reviewed_v3_canonical_role_allowed/);
+});
+
 test("an additional pending migration fails closed", () => {
   const sourceDir = sourceCopy();
   fs.copyFileSync(
@@ -724,7 +750,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 115);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 116);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -769,7 +795,7 @@ test("production records the deployed reviewed V3 composite size migration at le
   });
   assert.equal(result.ledger_count, 250);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 250);
+  assert.equal(result.selected_files.length, 251);
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
   assert.ok(result.excluded_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
@@ -781,10 +807,10 @@ test("production records the deployed reviewed V3 composite size migration at le
   assert.ok(result.selected_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
   assert.ok(result.excluded_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
   assert.ok(result.selected_files.includes(REVIEWED_V3_PARENT_FORMAT_MIGRATION));
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.deepEqual(result.pending_files, [REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION]);
+  assert.equal(result.pending_file, REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION);
+  assert.equal(result.pending_sha256, REVIEWED_V3_CANONICAL_EVIDENCE_SHA256);
+  assert.deepEqual(result.pending_sha256s, { [REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION]: REVIEWED_V3_CANONICAL_EVIDENCE_SHA256 });
   assert.ok(result.selected_files.includes(REVIEWED_V3_EVIDENCE_PARITY_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION));
   for (const filename of [
@@ -885,7 +911,7 @@ test("runtime production artifacts bind the same migration ledger as the product
   const binding = migrationBinding("PRODUCTION");
   assert.equal(binding.versions.length, CONTRACTS.PRODUCTION.ledgerCount);
   assert.equal(binding.fingerprint, CONTRACTS.PRODUCTION.ledgerFingerprint);
-  assert.deepEqual(CONTRACTS.PRODUCTION.pending, []);
+  assert.deepEqual(CONTRACTS.PRODUCTION.pending, REVIEWED_V3_CANONICAL_EVIDENCE_PENDING);
   assert.ok(binding.versions.includes(REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION.slice(0, -4)));
   assert.ok(binding.versions.includes(REVIEWED_V3_EVIDENCE_PARITY_MIGRATION.slice(0, -4)));
   assert.ok(binding.versions.includes(REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION.slice(0, -4)));
@@ -929,7 +955,7 @@ test("runtime staging artifacts bind the same migration ledger as the staging se
 test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.equal(Object.keys(contract.excluded).length, 27);
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, REVIEWED_V3_CANONICAL_EVIDENCE_PENDING);
   assert.equal(
     contract.excluded["20261009120000_add_compact_other_retailer_fingerprint.sql"],
     "b365d247777650aba6333399d4173ecb369d85a1465074bb6961c23b94f2ac84",
@@ -1108,7 +1134,7 @@ test("staging contract records ledger 115 with the composite create size migrati
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === filename));
   assert.ok(CONTRACT.appliedExcluded.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === REVIEWED_STATE_MIGRATION));
-  assert.deepEqual(CONTRACT.pending, []);
+  assert.deepEqual(CONTRACT.pending, REVIEWED_V3_CANONICAL_EVIDENCE_PENDING);
   assert.equal(currentRemoteLedger().length, 115);
   assert.ok(currentRemoteLedger().some(({ version, name }) =>
     `${version}_${name}.sql` === REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION));
@@ -1571,12 +1597,12 @@ test("completed RA-004 fixture activation cannot select or materialize a migrati
   })), /status mismatch/);
 });
 
-test("staging keeps deployed V3 lineage with no migration pending", () => {
+test("staging keeps deployed V3 lineage and selects only canonical evidence as pending", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending_file, REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION);
+  assert.equal(result.pending_sha256, REVIEWED_V3_CANONICAL_EVIDENCE_SHA256);
+  assert.deepEqual(result.pending_files, [REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION]);
+  assert.deepEqual(result.pending_sha256s, { [REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION]: REVIEWED_V3_CANONICAL_EVIDENCE_SHA256 });
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(result.selected_files.includes(REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION));
