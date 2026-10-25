@@ -10,6 +10,7 @@ const {
   applyArtifactPlan,
   approveArtifactPlan,
   assessVariantCompatibility,
+  buildDryRunArtifact,
   buildRetailerProductPayload,
   buildRowLevelOfferResults,
   buildVariantEvidence,
@@ -36,12 +37,15 @@ const {
   normalizeCategory,
   normalizeFlavour,
   normalizeCanonicalRetailerFeedRows,
+  planFingerprint,
   normalizeShippingForImport,
   priceHistoryTotal,
   resolvePlanTimestamp,
   runImportRows: runImportRowsRaw,
   setSupabaseForTests,
   shouldLogCategoryNormalization,
+  sourceFingerprintProjection,
+  sourceRowFingerprint,
   validatePilotApply,
   writeDryRunArtifact,
 } = require("./import-products");
@@ -8981,6 +8985,225 @@ function reviewedV3Profile(reviewed, target = "STAGING") {
     profile: { row_count: 1, rows: [reviewed] },
   };
 }
+
+function reviewedV3CanonicalEvidenceSourceRow({ productIdentity, brand, externalVariantId }) {
+  return {
+    retailer_name: "Example Nutrition",
+    retailer_website: "https://example.test",
+    external_product_id: `product-${externalVariantId}`,
+    external_variant_id: externalVariantId,
+    external_sku: `SKU-${externalVariantId}`,
+    external_options: JSON.stringify({ Size: "12 x Packs of 2 x 22g Cups", Weight: "265g" }),
+    product_name: productIdentity,
+    variant_name: "Milk Chocolate Hazelnut / 12 Pack",
+    brand,
+    category: "Protein Bars",
+    product_format: "bar",
+    price: "19.99",
+    in_stock: true,
+    __reviewed_catalogue_identity: {
+      contract: "reviewed-catalogue-package-v3",
+      source_row_fingerprint: null,
+      canonical_identity_evidence: {
+        contract_version: "1",
+        binding: {
+          external_variant_id: externalVariantId,
+          source_row_fingerprint: null,
+        },
+        raw_source_facts: [{
+          fact_id: "raw-pack-structure",
+          role: "pack_structure",
+          raw_value: "12 x Packs of 2 x 22g Cups",
+          source_key: "Size",
+          source_row_fingerprint: null,
+        }],
+        external_evidence_facts: [{
+          fact_id: "manufacturer-pack-count",
+          role: "pack_count",
+          normalized_value: "12",
+          unit: "packs",
+          source_content_sha256: "b".repeat(64),
+        }],
+        derived_facts: [],
+        canonical_selected_facts: [{
+          role: "pack_count",
+          selected_fact_id: "manufacturer-pack-count",
+          normalized_value: "12",
+          unit: "packs",
+        }],
+        conflict_records: [],
+        evidence_review_decision: {
+          decision: "ACCEPT_EXACT_FACTS_FOR_CANONICAL_IDENTITY",
+          decision_evidence_sha256: null,
+        },
+      },
+    },
+  };
+}
+
+function finalizeReviewedV3CanonicalEvidenceSourceRow(row, fingerprint, evidenceSha) {
+  const finalized = structuredClone(row);
+  const identity = finalized.__reviewed_catalogue_identity;
+  const evidence = identity.canonical_identity_evidence;
+  identity.source_row_fingerprint = fingerprint;
+  evidence.binding.source_row_fingerprint = fingerprint;
+  for (const fact of evidence.raw_source_facts) fact.source_row_fingerprint = fingerprint;
+  evidence.evidence_review_decision.decision_evidence_sha256 = evidenceSha;
+  return finalized;
+}
+
+test("legacy source-row fingerprint remains byte-for-byte compatible", () => {
+  const row = {
+    retailer_name: "Legacy Nutrition",
+    external_product_id: "100",
+    external_variant_id: "200",
+    price: "10.00",
+    in_stock: true,
+    external_options: '{"Size":"60 Capsules"}',
+  };
+  assert.equal(
+    sourceRowFingerprint(row),
+    "e3f0ccd0e3e0d524f13e5ee1c6f22e707e81d0e8ae9d7bae090d34bf05fa29c3",
+  );
+});
+
+test("reviewed V3 source projection neutralizes only canonical-evidence self references", () => {
+  const provisional = reviewedV3CanonicalEvidenceSourceRow({
+    productIdentity: "KAYOW Protein Butter Cups",
+    brand: "KAYOW",
+    externalVariantId: "57417961668982",
+  });
+  const sourceFingerprint = sourceRowFingerprint(provisional);
+  const finalized = finalizeReviewedV3CanonicalEvidenceSourceRow(
+    provisional,
+    sourceFingerprint,
+    "c".repeat(64),
+  );
+  const projection = sourceFingerprintProjection(finalized);
+
+  assert.equal(sourceRowFingerprint(finalized), sourceFingerprint);
+  assert.equal(projection.__reviewed_catalogue_identity.source_row_fingerprint, null);
+  assert.equal(projection.__reviewed_catalogue_identity.canonical_identity_evidence.binding.source_row_fingerprint, null);
+  assert.equal(projection.__reviewed_catalogue_identity.canonical_identity_evidence.raw_source_facts[0].source_row_fingerprint, null);
+  assert.equal(projection.__reviewed_catalogue_identity.canonical_identity_evidence.evidence_review_decision.decision_evidence_sha256, null);
+  assert.equal(projection.price, "19.99");
+  assert.equal(projection.__reviewed_catalogue_identity.canonical_identity_evidence.raw_source_facts[0].raw_value, "12 x Packs of 2 x 22g Cups");
+  assert.equal(finalized.__reviewed_catalogue_identity.source_row_fingerprint, sourceFingerprint);
+});
+
+test("reviewed V3 canonical-evidence finalization is stable for TWP and KAYOW while meaningful drift stays bound", () => {
+  for (const fixture of [
+    { productIdentity: "TWP Tongkat Ali", brand: "TWP", externalVariantId: "41706864803885" },
+    { productIdentity: "KAYOW Protein Butter Cups", brand: "KAYOW", externalVariantId: "57417961668982" },
+  ]) {
+    const provisional = reviewedV3CanonicalEvidenceSourceRow(fixture);
+    const firstSourceFingerprint = sourceRowFingerprint(provisional);
+    const finalized = finalizeReviewedV3CanonicalEvidenceSourceRow(
+      provisional,
+      firstSourceFingerprint,
+      "d".repeat(64),
+    );
+    const secondSourceFingerprint = sourceRowFingerprint(finalized);
+    const firstPlan = {
+      meta: { source_row_fingerprint: secondSourceFingerprint, plan_fingerprint: null },
+      product_variant: { evidence: finalized.__reviewed_catalogue_identity.canonical_identity_evidence },
+    };
+    const repeatedPlan = structuredClone(firstPlan);
+
+    assert.equal(secondSourceFingerprint, firstSourceFingerprint, fixture.productIdentity);
+    assert.equal(planFingerprint(firstPlan), planFingerprint(repeatedPlan), fixture.productIdentity);
+
+    const changedRawFact = structuredClone(finalized);
+    changedRawFact.__reviewed_catalogue_identity.canonical_identity_evidence.raw_source_facts[0].raw_value = "11 x Packs of 2 x 22g Cups";
+    assert.notEqual(sourceRowFingerprint(changedRawFact), secondSourceFingerprint, fixture.productIdentity);
+
+    const changedCommercialValue = { ...finalized, price: "20.00" };
+    assert.notEqual(sourceRowFingerprint(changedCommercialValue), secondSourceFingerprint, fixture.productIdentity);
+
+    const changedIdentity = { ...finalized, external_sku: `${finalized.external_sku}-CHANGED` };
+    assert.notEqual(sourceRowFingerprint(changedIdentity), secondSourceFingerprint, fixture.productIdentity);
+
+    const changedEvidenceSha = structuredClone(firstPlan);
+    changedEvidenceSha.product_variant.evidence.evidence_review_decision.decision_evidence_sha256 = "e".repeat(64);
+    assert.notEqual(planFingerprint(changedEvidenceSha), planFingerprint(firstPlan), fixture.productIdentity);
+  }
+});
+
+test("evidence-backed reviewed V3 dry-run artifact freezes and reloads deterministically", () => {
+  const provisional = reviewedV3CanonicalEvidenceSourceRow({
+    productIdentity: "TWP Tongkat Ali",
+    brand: "TWP",
+    externalVariantId: "41706864803885",
+  });
+  provisional.external_options = JSON.stringify({ Size: "60/30 Servings" });
+  provisional.__reviewed_catalogue_identity.canonical_identity_evidence.raw_source_facts[0] = {
+    fact_id: "raw-servings",
+    role: "serving_count",
+    raw_value: "60/30 Servings",
+    source_key: "Size",
+    source_row_fingerprint: null,
+  };
+  const sourceFingerprint = sourceRowFingerprint(provisional);
+  const finalized = finalizeReviewedV3CanonicalEvidenceSourceRow(
+    provisional,
+    sourceFingerprint,
+    "f".repeat(64),
+  );
+  const plan = {
+    meta: {
+      source_row_fingerprint: sourceFingerprint,
+      plan_fingerprint: null,
+      plan_kind: "atomic_product_import_v1",
+      operation_type: "standard_import",
+    },
+    retailer: { action: "existing", id: "15" },
+    product_variant: {
+      evidence: finalized.__reviewed_catalogue_identity.canonical_identity_evidence,
+    },
+  };
+  plan.meta.plan_fingerprint = planFingerprint(plan);
+  const result = {
+    report: { approvedRows: [{ rowNumber: 2, row: finalized, importPlan: plan }] },
+    blockedRows: [],
+    skipped: 0,
+  };
+  const options = {
+    runId: "reviewed-v3-evidence-freeze",
+    createdAt: "2026-10-25T12:00:00.000Z",
+    sourceContent: canonicalJson(finalized),
+    sourceFileName: "frozen-source.json",
+    environmentMarker: "test",
+  };
+  const first = buildDryRunArtifact([finalized], result, options);
+  const second = buildDryRunArtifact([structuredClone(finalized)], structuredClone(result), options);
+  assert.deepEqual(second, first);
+  assert.equal(first.source_rows[0].source_row_fingerprint, sourceFingerprint);
+  assert.equal(first.plans[0].plan_fingerprint, plan.meta.plan_fingerprint);
+
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "supplementscout-evidence-artifact-"));
+  const artifactPath = path.join(directory, "artifact.json");
+  try {
+    writeDryRunArtifact([finalized], result, { ...options, artifactPath });
+    const loaded = loadDryRunArtifact(artifactPath);
+    assert.deepEqual(loaded.artifact, first);
+    assert.equal(loaded.artifact.plans[0].source_row_fingerprint, loaded.artifact.source_rows[0].source_row_fingerprint);
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("reviewed V3 source projection fails closed on partial canonical-evidence self-reference shapes", () => {
+  const row = reviewedV3CanonicalEvidenceSourceRow({
+    productIdentity: "KAYOW Protein Butter Cups",
+    brand: "KAYOW",
+    externalVariantId: "57417961668982",
+  });
+  delete row.__reviewed_catalogue_identity.canonical_identity_evidence.raw_source_facts[0].source_row_fingerprint;
+  assert.throws(
+    () => sourceRowFingerprint(row),
+    /V3_CANONICAL_EVIDENCE_FINGERPRINT_SELF_REFERENCE_SHAPE_INVALID/,
+  );
+});
 
 test("reviewed V2 keeps direct and affiliate URLs separate and hash-locks its target", async () => {
   const row = baseCanonicalFeedRow({
