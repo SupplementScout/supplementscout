@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 const { canonicalEvidenceSha256, validateCanonicalIdentityEvidence } = require("./lib/reviewed-catalogue-canonical-evidence");
 const { assertV3ActionSemantics } = require("./lib/reviewed-catalogue-v3");
 const { validateManifest } = require("./lib/reviewed-catalogue-package");
+const { planFingerprint, sourceRowFingerprint } = require("./import-products");
 
 const AUTHORIZED_AT = "2026-10-25T12:00:00.000Z";
 const FINGERPRINT = "a".repeat(64);
@@ -75,6 +76,151 @@ function context(evidence) {
   };
 }
 function rehash(evidence) { evidence.evidence_review_decision.decision_evidence_sha256 = null; evidence.evidence_review_decision.decision_evidence_sha256 = canonicalEvidenceSha256(evidence); }
+
+function evidenceBackedSourceTemplate({ tongkat = false } = {}) {
+  const evidence = fixture({ tongkat });
+  evidence.binding.source_row_fingerprint = null;
+  for (const fact of evidence.raw_source_facts) fact.source_row_fingerprint = null;
+  evidence.evidence_review_decision.decision_evidence_sha256 = null;
+  const binding = evidence.binding;
+  return {
+    retailer_id: binding.retailer_id,
+    external_product_id: binding.external_product_id,
+    external_variant_id: binding.external_variant_id,
+    external_sku: binding.external_sku,
+    external_options: context(evidence).external_options,
+    brand: binding.brand,
+    product_name: binding.product_identity,
+    price: "19.99",
+    in_stock: true,
+    __reviewed_catalogue_identity: {
+      contract: "reviewed-catalogue-package-v3",
+      source_row_fingerprint: null,
+      canonical_identity_evidence: evidence,
+    },
+  };
+}
+
+function finalizeEvidenceBackedSource(row) {
+  const finalized = structuredClone(row);
+  const sourceFingerprint = sourceRowFingerprint(finalized);
+  const identity = finalized.__reviewed_catalogue_identity;
+  const evidence = identity.canonical_identity_evidence;
+  identity.source_row_fingerprint = sourceFingerprint;
+  evidence.binding.source_row_fingerprint = sourceFingerprint;
+  for (const fact of evidence.raw_source_facts) fact.source_row_fingerprint = sourceFingerprint;
+  rehash(evidence);
+  return { finalized, sourceFingerprint };
+}
+
+test("TWP and KAYOW evidence finalize in one deterministic source and plan fingerprint pass", () => {
+  for (const tongkat of [true, false]) {
+    const { finalized, sourceFingerprint } = finalizeEvidenceBackedSource(evidenceBackedSourceTemplate({ tongkat }));
+    const evidence = finalized.__reviewed_catalogue_identity.canonical_identity_evidence;
+    const decisionHash = evidence.evidence_review_decision.decision_evidence_sha256;
+    const validationContext = context(evidence);
+    validationContext.source_row_fingerprint = sourceFingerprint;
+
+    assert.equal(sourceRowFingerprint(finalized), sourceFingerprint);
+    assert.doesNotThrow(() => validateCanonicalIdentityEvidence(evidence, validationContext));
+    const repeatedEvidence = structuredClone(evidence);
+    rehash(repeatedEvidence);
+    assert.equal(repeatedEvidence.evidence_review_decision.decision_evidence_sha256, decisionHash);
+
+    const plan = {
+      meta: { source_row_fingerprint: sourceFingerprint, plan_fingerprint: null },
+      product_variant: { evidence },
+    };
+    assert.equal(planFingerprint(structuredClone(plan)), planFingerprint(plan));
+    assert.equal(sourceRowFingerprint(finalized), sourceFingerprint);
+  }
+});
+
+test("source fingerprint still binds every material canonical-evidence dimension", () => {
+  const { finalized, sourceFingerprint } = finalizeEvidenceBackedSource(evidenceBackedSourceTemplate());
+  const mutations = [
+    row => { row.external_options.Weight = "266g"; },
+    row => { row.__reviewed_catalogue_identity.canonical_identity_evidence.raw_source_facts[0].raw_value = "11 x Packs of 2 x 22g Cups"; },
+    row => { row.__reviewed_catalogue_identity.canonical_identity_evidence.raw_source_facts[0].source_key = "Pack"; },
+    row => { row.__reviewed_catalogue_identity.canonical_identity_evidence.external_evidence_facts[0].normalized_value = "3"; },
+    row => { row.__reviewed_catalogue_identity.canonical_identity_evidence.external_evidence_facts[0].evidence_source_type = "manufacturer_product_page"; },
+    row => { row.__reviewed_catalogue_identity.canonical_identity_evidence.external_evidence_facts[0].source_url += "?changed=1"; },
+    row => { row.__reviewed_catalogue_identity.canonical_identity_evidence.external_evidence_facts[0].captured_at = "2026-10-25T10:01:00.000Z"; },
+    row => { row.__reviewed_catalogue_identity.canonical_identity_evidence.external_evidence_facts[0].source_content_sha256 = "c".repeat(64); },
+    row => { row.__reviewed_catalogue_identity.canonical_identity_evidence.external_evidence_facts[0].identity_binding.pack_configuration = "11 packs x 2 cups x 22g"; },
+    row => { row.__reviewed_catalogue_identity.canonical_identity_evidence.derived_facts[0].operand_fact_ids = ["packs", "cup-size"]; },
+    row => { row.__reviewed_catalogue_identity.canonical_identity_evidence.derived_facts[0].formula_id = "different_formula"; },
+    row => { row.__reviewed_catalogue_identity.canonical_identity_evidence.derived_facts[0].normalized_value = "45"; },
+    row => { row.__reviewed_catalogue_identity.canonical_identity_evidence.derived_facts[0].derivation_sha256 = "c".repeat(64); },
+    row => { row.__reviewed_catalogue_identity.canonical_identity_evidence.canonical_selected_facts[0].normalized_value = "45"; },
+    row => { row.__reviewed_catalogue_identity.canonical_identity_evidence.conflict_records[0].classification = "DIFFERENT_CONFLICT"; },
+    row => { row.__reviewed_catalogue_identity.canonical_identity_evidence.conflict_records[0].disposition = "REJECT"; },
+    row => { row.__reviewed_catalogue_identity.canonical_identity_evidence.evidence_review_decision.reviewed_by = "catalogue-evidence-reviewer:other"; },
+    row => { row.__reviewed_catalogue_identity.canonical_identity_evidence.evidence_review_decision.reviewed_at = "2026-10-25T11:01:00.000Z"; },
+    row => { row.__reviewed_catalogue_identity.canonical_identity_evidence.binding.package_authorized_at = "2026-10-25T12:01:00.000Z"; },
+    row => { row.external_product_id = "different-product"; },
+  ];
+  for (const mutate of mutations) {
+    const changed = structuredClone(finalized);
+    mutate(changed);
+    assert.notEqual(sourceRowFingerprint(changed), sourceFingerprint);
+  }
+
+  const { finalized: tongkat, sourceFingerprint: tongkatFingerprint } = finalizeEvidenceBackedSource(evidenceBackedSourceTemplate({ tongkat: true }));
+  tongkat.__reviewed_catalogue_identity.canonical_identity_evidence.external_evidence_facts[0].normalized_value = "61";
+  assert.notEqual(sourceRowFingerprint(tongkat), tongkatFingerprint);
+});
+
+test("self-reference normalization does not weaken full evidence validation or plan binding", () => {
+  const { finalized, sourceFingerprint } = finalizeEvidenceBackedSource(evidenceBackedSourceTemplate());
+  const evidence = finalized.__reviewed_catalogue_identity.canonical_identity_evidence;
+  const validationContext = context(evidence);
+  validationContext.source_row_fingerprint = sourceFingerprint;
+  const originalPlan = { meta: { source_row_fingerprint: sourceFingerprint, plan_fingerprint: null }, product_variant: { evidence } };
+
+  const wrongBinding = structuredClone(finalized);
+  wrongBinding.__reviewed_catalogue_identity.canonical_identity_evidence.binding.source_row_fingerprint = "9".repeat(64);
+  assert.equal(sourceRowFingerprint(wrongBinding), sourceFingerprint);
+  assert.throws(
+    () => validateCanonicalIdentityEvidence(wrongBinding.__reviewed_catalogue_identity.canonical_identity_evidence, validationContext),
+    /V3_CANONICAL_EVIDENCE_BINDING_MISMATCH/,
+  );
+
+  const wrongRawFact = structuredClone(finalized);
+  wrongRawFact.__reviewed_catalogue_identity.canonical_identity_evidence.raw_source_facts[0].source_row_fingerprint = "8".repeat(64);
+  assert.equal(sourceRowFingerprint(wrongRawFact), sourceFingerprint);
+  assert.throws(
+    () => validateCanonicalIdentityEvidence(wrongRawFact.__reviewed_catalogue_identity.canonical_identity_evidence, validationContext),
+    /V3_CANONICAL_EVIDENCE_BINDING_MISMATCH/,
+  );
+
+  const wrongDecisionHash = structuredClone(finalized);
+  wrongDecisionHash.__reviewed_catalogue_identity.canonical_identity_evidence.evidence_review_decision.decision_evidence_sha256 = "7".repeat(64);
+  assert.equal(sourceRowFingerprint(wrongDecisionHash), sourceFingerprint);
+  assert.throws(
+    () => validateCanonicalIdentityEvidence(wrongDecisionHash.__reviewed_catalogue_identity.canonical_identity_evidence, validationContext),
+    /V3_CANONICAL_EVIDENCE_HASH_MISMATCH/,
+  );
+  const changedPlan = structuredClone(originalPlan);
+  changedPlan.product_variant.evidence = wrongDecisionHash.__reviewed_catalogue_identity.canonical_identity_evidence;
+  assert.notEqual(planFingerprint(changedPlan), planFingerprint(originalPlan));
+
+  const unknownField = structuredClone(finalized);
+  unknownField.__reviewed_catalogue_identity.canonical_identity_evidence.future_unreviewed_field = true;
+  assert.notEqual(sourceRowFingerprint(unknownField), sourceFingerprint);
+  assert.throws(
+    () => validateCanonicalIdentityEvidence(unknownField.__reviewed_catalogue_identity.canonical_identity_evidence, validationContext),
+    /V3_CANONICAL_EVIDENCE_SCHEMA_MISMATCH/,
+  );
+
+  const otherVariant = structuredClone(finalized);
+  otherVariant.external_variant_id = "different-variant";
+  assert.notEqual(sourceRowFingerprint(otherVariant), sourceFingerprint);
+  assert.throws(
+    () => validateCanonicalIdentityEvidence(evidence, { ...validationContext, external_variant_id: "different-variant" }),
+    /V3_CANONICAL_EVIDENCE_BINDING_MISMATCH/,
+  );
+});
 
 function reviewedRow(evidence, { tongkat = false } = {}) {
   return {

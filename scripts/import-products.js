@@ -264,8 +264,52 @@ function normalizeSourceRow(row) {
   return normalizeNumbersToDecimalStrings(omitUndefinedObjectFields(row));
 }
 
+function sourceFingerprintProjection(row) {
+  const normalized = normalizeSourceRow(row);
+  const identity = normalized?.__reviewed_catalogue_identity;
+  const evidence = identity?.canonical_identity_evidence;
+
+  if (identity?.contract !== REVIEWED_V3_KIND || evidence == null) {
+    return normalized;
+  }
+
+  const hasOwn = (value, key) => value != null
+    && typeof value === "object"
+    && !Array.isArray(value)
+    && Object.prototype.hasOwnProperty.call(value, key);
+  const rawFacts = evidence.raw_source_facts;
+  const completeSelfReferenceShape = hasOwn(identity, "source_row_fingerprint")
+    && hasOwn(evidence.binding, "source_row_fingerprint")
+    && Array.isArray(rawFacts)
+    && rawFacts.length > 0
+    && rawFacts.every((fact) => hasOwn(fact, "source_row_fingerprint"))
+    && hasOwn(evidence.evidence_review_decision, "decision_evidence_sha256");
+
+  if (!completeSelfReferenceShape) {
+    throw new Error("V3_CANONICAL_EVIDENCE_FINGERPRINT_SELF_REFERENCE_SHAPE_INVALID");
+  }
+
+  const projected = structuredClone(normalized);
+  const projectedIdentity = projected.__reviewed_catalogue_identity;
+  const projectedEvidence = projectedIdentity.canonical_identity_evidence;
+
+  // These values are derived from the enclosing row/evidence. Neutralizing only
+  // their exact slots breaks the hash cycle while every identity, semantic and
+  // commercial input remains bound by the source-row fingerprint. The full
+  // evidence (including these values) remains protected by plan_fingerprint and
+  // by validateCanonicalIdentityEvidence at validation/apply time.
+  projectedIdentity.source_row_fingerprint = null;
+  projectedEvidence.binding.source_row_fingerprint = null;
+  for (const fact of projectedEvidence.raw_source_facts) {
+    fact.source_row_fingerprint = null;
+  }
+  projectedEvidence.evidence_review_decision.decision_evidence_sha256 = null;
+
+  return projected;
+}
+
 function sourceRowFingerprint(row) {
-  return hashJson(normalizeSourceRow(row), "sha256");
+  return hashJson(sourceFingerprintProjection(row), "sha256");
 }
 
 // Trust model: service_role is a trusted backend administrator. Fingerprints and
@@ -6255,6 +6299,7 @@ module.exports = {
   normalizeFlavour,
   normalizeCanonicalRetailerFeedRows,
   normalizeSourceRow,
+  sourceFingerprintProjection,
   normalizeShippingForImport,
   priceHistoryTotal,
   runImport,
