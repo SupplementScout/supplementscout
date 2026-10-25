@@ -132,6 +132,7 @@ function evidenceContext(reviewed, context = {}) {
     external_product_id: reviewed.external_product_id, external_variant_id: reviewed.external_variant_id,
     source_row_fingerprint: reviewed.source_row_fingerprint, brand: reviewed.brand,
     product_identity: reviewed.product_name, external_gtin: reviewed.external_gtin, external_sku: reviewed.external_sku,
+    external_options: reviewed.external_options, option_roles: reviewed.option_roles,
   };
 }
 

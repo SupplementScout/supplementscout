@@ -62,9 +62,9 @@ const REVIEWED_V3_COMPOSITE_CREATE_SIZE_SHA256 = "5536ffd43d89110cd91cbc003ff77e
 const REVIEWED_V3_COMPOSITE_CREATE_SIZE_ROLLBACK = "20261024120000_fix_reviewed_v3_create_product_composite_size_projection_rollback.sql";
 const REVIEWED_V3_COMPOSITE_CREATE_SIZE_ROLLBACK_SHA256 = "e6ee5ae251c0c2d332f12297d614e776a34d5425362bed82a1296d5bfc8f511a";
 const REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION = "20261025120000_add_reviewed_v3_canonical_identity_evidence.sql";
-const REVIEWED_V3_CANONICAL_EVIDENCE_SHA256 = "4240928cf9682303fcb35b2b6cb34c21d806b24e2f5907927b9d56ae4c6aec44";
+const REVIEWED_V3_CANONICAL_EVIDENCE_SHA256 = "21cbebf49d6eb9499c4a9bb6f0fe8c24f1e3c70818fba75220b7241fc9ba134d";
 const REVIEWED_V3_CANONICAL_EVIDENCE_ROLLBACK = "20261025120000_add_reviewed_v3_canonical_identity_evidence_rollback.sql";
-const REVIEWED_V3_CANONICAL_EVIDENCE_ROLLBACK_SHA256 = "30a3f9e8081161c6639403c5c8facb20f6697897280598d248f9b0d8934cca95";
+const REVIEWED_V3_CANONICAL_EVIDENCE_ROLLBACK_SHA256 = "7ca2a600144a7047718b6744340ceeff98489835af9e4dca6840c190c91a6d60";
 const REVIEWED_V3_CANONICAL_EVIDENCE_PENDING = [{ filename: REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION, sha256: REVIEWED_V3_CANONICAL_EVIDENCE_SHA256, expectedCatalogueDeltas: {} }];
 const RA004_CONTROL_STATE_MIGRATION = "20260924100000_add_transactional_retailer_control_state_interface.sql";
 const RA004_PREFLIGHT_MIGRATION = "20260925100000_add_ra004_staging_preflight_metadata_interface.sql";
@@ -684,11 +684,14 @@ test("reviewed V3 canonical identity evidence migration is generic, fail-closed,
   assert.match(migration, /033cd54202f3ed2946eb78ba37a311c5a56a4f6eb421c0424b3239ad75c19baf/);
   assert.match(migration, /security definer/);
   assert.match(migration, /set search_path=pg_catalog, public, pg_temp/);
+  assert.match(migration, /V3_CANONICAL_RAW_FACT_BINDING_MISMATCH/);
+  assert.match(migration, /v_external_options->>\(v_fact->>'source_key'\) is distinct from v_fact->>'raw_value'/);
   assert.match(migration, /revoke all on function .* from public,anon,authenticated,service_role/);
   assert.doesNotMatch(migration, /Gladiator|Kayow|Tongkat|TWP|retailer[_ ]?15/i);
   assert.doesNotMatch(migration, /insert\s+into\s+public\.(products|product_variants|retailer_products|offers|price_history)/i);
   assert.match(rollback, /rollback blocked by durable evidence-backed approval/);
   assert.match(rollback, /033cd54202f3ed2946eb78ba37a311c5a56a4f6eb421c0424b3239ad75c19baf/);
+  assert.match(rollback, /cc6c8017e87a3f02129dbd855960d8078348eb8271713a274e26ef5dcdf15f46/);
   assert.match(rollback, /04392ff0eff0e814ba54e41d0b9af38478174eda6f427e7eefcc35d18c7b3e0c/);
   assert.match(rollback, /drop function public\.atomic_import_reviewed_v3_canonical_role_allowed/);
 });

@@ -4452,6 +4452,8 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
         product_identity: genericReviewed.product_name,
         external_gtin: genericReviewed.external_gtin,
         external_sku: genericReviewed.external_sku,
+        external_options: genericReviewed.external_options,
+        option_roles: genericReviewed.option_roles,
       },
     );
     const projectedPhysical = canonicalProjection?.selected_facts.physical_size;

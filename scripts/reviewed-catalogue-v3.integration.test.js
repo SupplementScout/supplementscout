@@ -575,53 +575,93 @@ function actionFixture(environment, action, index) {
 
 function canonicalEvidenceFixture(environment, index) {
   const fixture = actionFixture(environment, "create_product_with_variant", index);
+  const externalProductId = "15640537334134";
+  const externalVariantId = "57417961668982";
+  fixture.envelope.external_product_id = externalProductId;
+  fixture.envelope.external_variant_id = externalVariantId;
+  fixture.plan.retailer_product.values.external_product_id = externalProductId;
+  fixture.plan.retailer_product.values.external_variant_id = externalVariantId;
+  fixture.plan.retailer_product.values.external_url = `https://example.test/products/kayow?variant=${externalVariantId}`;
+  fixture.envelope.direct_source_url = fixture.plan.retailer_product.values.external_url;
+  fixture.plan.product.values.name = "KAYOW Protein Butter Cups";
+  fixture.plan.product.values.brand = "KAYOW";
+  fixture.plan.approval.canonical_name = fixture.plan.product.values.name;
   const binding = {
-    retailer_id: "12", external_product_id: fixture.envelope.external_product_id,
-    external_variant_id: fixture.envelope.external_variant_id,
+    retailer_id: "12", external_product_id: externalProductId,
+    external_variant_id: externalVariantId,
     source_row_fingerprint: fixture.envelope.source_row_fingerprint,
-    brand: "Example", product_identity: `Example Protein ${index}`,
+    brand: "KAYOW", product_identity: "KAYOW Protein Butter Cups",
     external_gtin: null, external_sku: null, package_authorized_at: "2026-10-25T12:00:00.000Z",
   };
   const identity = { brand: binding.brand, product_identity: binding.product_identity, external_gtin: null, external_sku: null, pack_configuration: "2 pieces x 22g" };
   const external = [
     { fact_id: "pieces", role: "piece_count", normalized_value: "2", unit: "pieces", evidence_source_type: "manufacturer_label", source_url: "https://manufacturer.example/item", captured_at: "2026-10-25T10:00:00.000Z", source_content_sha256: "b".repeat(64), identity_binding: identity },
     { fact_id: "piece-size", role: "physical_size", normalized_value: "22", unit: "g", evidence_source_type: "manufacturer_label", source_url: "https://manufacturer.example/item", captured_at: "2026-10-25T10:00:00.000Z", source_content_sha256: "b".repeat(64), identity_binding: identity },
+    { fact_id: "packs", role: "pack_count", normalized_value: "12", unit: "packs", evidence_source_type: "manufacturer_label", source_url: "https://manufacturer.example/item", captured_at: "2026-10-25T10:00:00.000Z", source_content_sha256: "b".repeat(64), identity_binding: identity },
   ];
   const derived = { fact_id: "pack-size", role: "physical_size", formula_id: "multiply_exact_decimal_v1", operand_fact_ids: ["pieces", "piece-size"], normalized_value: "44", unit: "g", derivation_sha256: null };
-  derived.derivation_sha256 = canonicalEvidenceSha256({ formula_id: derived.formula_id, ordered_operands: external.map(fact => ({ fact_id: fact.fact_id, normalized_value: fact.normalized_value, unit: fact.unit })), result: "44", unit: "g" });
+  derived.derivation_sha256 = canonicalEvidenceSha256({ formula_id: derived.formula_id, ordered_operands: external.slice(0, 2).map(fact => ({ fact_id: fact.fact_id, normalized_value: fact.normalized_value, unit: fact.unit })), result: "44", unit: "g" });
+  const total = { fact_id: "total", role: "total_content", formula_id: "multiply_exact_decimal_v1", operand_fact_ids: ["packs", "pack-size"], normalized_value: "528", unit: "g", derivation_sha256: null };
+  total.derivation_sha256 = canonicalEvidenceSha256({ formula_id: total.formula_id, ordered_operands: [external[2], derived].map(fact => ({ fact_id: fact.fact_id, normalized_value: fact.normalized_value, unit: fact.unit })), result: "528", unit: "g" });
   const evidence = {
     contract_version: "1", binding,
-    raw_source_facts: [{ fact_id: "raw-weight", role: "physical_size", raw_value: "265g", source_key: "Weight", source_row_fingerprint: binding.source_row_fingerprint }],
-    external_evidence_facts: external, derived_facts: [derived],
-    canonical_selected_facts: [{ role: "physical_size", selected_fact_id: "pack-size", normalized_value: "44", unit: "g", evidence_review_decision: "ACCEPT_FOR_CANONICAL_IDENTITY" }],
+    raw_source_facts: [
+      { fact_id: "raw-pack-structure", role: "pack_structure", raw_value: "12 x Packs of 2 x 22g Cups", source_key: "Size", source_row_fingerprint: binding.source_row_fingerprint },
+      { fact_id: "raw-weight", role: "physical_size", raw_value: "265g", source_key: "Weight", source_row_fingerprint: binding.source_row_fingerprint },
+    ],
+    external_evidence_facts: external, derived_facts: [derived, total],
+    canonical_selected_facts: [
+      { role: "physical_size", selected_fact_id: "pack-size", normalized_value: "44", unit: "g", evidence_review_decision: "ACCEPT_FOR_CANONICAL_IDENTITY" },
+      { role: "pack_count", selected_fact_id: "packs", normalized_value: "12", unit: "packs", evidence_review_decision: "ACCEPT_FOR_CANONICAL_IDENTITY" },
+    ],
     conflict_records: [{ raw_fact_id: "raw-weight", canonical_fact_id: "pack-size", classification: "UNEXPLAINED_CONFLICTING_METADATA", disposition: "PRESERVE_RAW_DO_NOT_USE_FOR_CANONICAL_IDENTITY" }],
-    evidence_review_decision: { decision: "ACCEPT_EXACT_FACTS_FOR_CANONICAL_IDENTITY", reviewed_fact_ids: ["pack-size"], reviewed_by: "catalogue-evidence-reviewer:test", reviewed_at: "2026-10-25T11:00:00.000Z", decision_evidence_sha256: null },
+    evidence_review_decision: { decision: "ACCEPT_EXACT_FACTS_FOR_CANONICAL_IDENTITY", reviewed_fact_ids: ["pack-size", "packs"], reviewed_by: "catalogue-evidence-reviewer:test", reviewed_at: "2026-10-25T11:00:00.000Z", decision_evidence_sha256: null },
   };
   evidence.evidence_review_decision.decision_evidence_sha256 = canonicalEvidenceSha256(evidence);
   fixture.plan.product_variant.values.size_value = "44";
+  fixture.plan.product_variant.values.pack_count = "12";
   fixture.plan.product_variant.values.variant_key = `flavour-${index}-44g`;
   fixture.plan.product_variant.values.display_name = `Flavour ${index} / 44g`;
   fixture.plan.product_variant.evidence.size_value = "44";
+  fixture.plan.product_variant.evidence.pack_count = "12";
   fixture.plan.product_variant.evidence.canonical_identity_evidence = evidence;
-  fixture.plan.retailer_product.values.external_options.Weight = "265g";
-  fixture.envelope.external_options.Weight = "265g";
+  fixture.plan.retailer_product.values.external_options = { Flavour: `Flavour ${index}`, Size: "12 x Packs of 2 x 22g Cups", Weight: "265g" };
+  fixture.plan.product_variant.evidence.external_options = fixture.plan.retailer_product.values.external_options;
+  fixture.envelope.external_options = fixture.plan.retailer_product.values.external_options;
   fixture.envelope.option_roles.physical_size = { source_key: "Weight", source_value: "265g", size_value: "265", size_unit: "g" };
+  fixture.envelope.option_roles.count = null;
+  fixture.envelope.source_structure = { product_variant_count: 5, meaningful_variant_axes: ["flavour"] };
   fixture.envelope.canonical_identity_evidence = evidence;
   return fixture;
 }
 
 function canonicalCountEvidenceFixture(environment, index) {
   const fixture = actionFixture(environment, "create_product_with_default_variant", index);
+  const externalProductId = "7500539297837";
+  const externalVariantId = "41706864803885";
+  fixture.envelope.external_product_id = externalProductId;
+  fixture.envelope.external_variant_id = externalVariantId;
+  fixture.plan.retailer_product.values.external_product_id = externalProductId;
+  fixture.plan.retailer_product.values.external_variant_id = externalVariantId;
+  fixture.plan.retailer_product.values.external_url = `https://example.test/products/tongkat?variant=${externalVariantId}`;
+  fixture.envelope.direct_source_url = fixture.plan.retailer_product.values.external_url;
+  fixture.plan.product.values.name = "TWP Tongkat Ali";
+  fixture.plan.product.values.brand = "TWP";
+  fixture.plan.approval.canonical_name = fixture.plan.product.values.name;
+  fixture.plan.retailer_product.values.external_options = { Size: "60/30 Servings" };
+  fixture.plan.product_variant.evidence.external_options = fixture.plan.retailer_product.values.external_options;
+  fixture.envelope.external_options = fixture.plan.retailer_product.values.external_options;
+  fixture.envelope.option_roles.count = { source_key: "Size", source_value: "60/30 Servings", count_value: "60/30", count_unit: "servings" };
   const binding = {
-    retailer_id: "12", external_product_id: fixture.envelope.external_product_id,
-    external_variant_id: fixture.envelope.external_variant_id,
+    retailer_id: "12", external_product_id: externalProductId,
+    external_variant_id: externalVariantId,
     source_row_fingerprint: fixture.envelope.source_row_fingerprint,
-    brand: "Example", product_identity: `Example Protein ${index}`,
+    brand: "TWP", product_identity: "TWP Tongkat Ali",
     external_gtin: null, external_sku: null, package_authorized_at: "2026-10-25T12:00:00.000Z",
   };
   const evidence = {
     contract_version: "1", binding,
-    raw_source_facts: [{ fact_id: "raw-servings", role: "serving_count", raw_value: "60 Servings", source_key: "Size", source_row_fingerprint: binding.source_row_fingerprint }],
+    raw_source_facts: [{ fact_id: "raw-servings", role: "serving_count", raw_value: "60/30 Servings", source_key: "Size", source_row_fingerprint: binding.source_row_fingerprint }],
     external_evidence_facts: [{
       fact_id: "manufacturer-count", role: "container_count", normalized_value: "60", unit: "capsules",
       evidence_source_type: "manufacturer_product_page", source_url: "https://manufacturer.example/item",
@@ -2018,6 +2058,10 @@ function exerciseBaseline(environment) {
     assert.equal(canonicalHelperMetadata.security_definer, true);
     assert.deepEqual(canonicalHelperMetadata.config, ["search_path=pg_catalog, public, pg_temp"]);
     assert.doesNotMatch(canonicalHelperMetadata.acl || "", /PUBLIC|anon|authenticated|service_role/);
+    assert.equal(
+      functionSha(container, "public.atomic_import_reviewed_v3_canonical_role_allowed(jsonb,jsonb,text)", `${environment} canonical evidence helper SHA`),
+      "cc6c8017e87a3f02129dbd855960d8078348eb8271713a274e26ef5dcdf15f46",
+    );
 
     const canonicalEvidence = seal(container, canonicalEvidenceFixture(environment, 190), `${environment} canonical evidence`);
     const canonicalEvidenceResult = json(
@@ -2033,6 +2077,38 @@ function exerciseBaseline(environment) {
       `${environment} canonical count evidence read-only projection`,
     );
     assert.equal(canonicalCountResult.valid, true);
+    for (const [label, source] of [
+      ["physical", canonicalEvidence],
+      ["container count", canonicalCountEvidence],
+    ]) {
+      const omittedRaw = structuredClone(source);
+      omittedRaw.envelope.canonical_identity_evidence.raw_source_facts = [];
+      omittedRaw.envelope.canonical_identity_evidence.conflict_records = [];
+      omittedRaw.plan.product_variant.evidence.canonical_identity_evidence.raw_source_facts = [];
+      omittedRaw.plan.product_variant.evidence.canonical_identity_evidence.conflict_records = [];
+      for (const target of [omittedRaw.envelope.canonical_identity_evidence, omittedRaw.plan.product_variant.evidence.canonical_identity_evidence]) {
+        target.evidence_review_decision.decision_evidence_sha256 = null;
+        target.evidence_review_decision.decision_evidence_sha256 = canonicalEvidenceSha256(target);
+      }
+      seal(container, omittedRaw, `${environment} canonical evidence omitted ${label} raw fact before fix`);
+      fails(
+        sql(container, asRole(environment, "validator", `select public.validate_reviewed_catalogue_v3_plan_read_only(${literal(omittedRaw.plan)},${literal(omittedRaw.envelope)})`, { readOnly: true })),
+        `${environment} canonical evidence omitted ${label} raw fact after fix`,
+        /V3_CANONICAL_RAW_FACT_BINDING_MISMATCH/,
+      );
+    }
+    const wrongRawValue = structuredClone(canonicalEvidence);
+    for (const target of [wrongRawValue.envelope.canonical_identity_evidence, wrongRawValue.plan.product_variant.evidence.canonical_identity_evidence]) {
+      target.raw_source_facts.find(fact => fact.fact_id === "raw-weight").raw_value = "264g";
+      target.evidence_review_decision.decision_evidence_sha256 = null;
+      target.evidence_review_decision.decision_evidence_sha256 = canonicalEvidenceSha256(target);
+    }
+    seal(container, wrongRawValue, `${environment} canonical evidence wrong raw value`);
+    fails(
+      sql(container, asRole(environment, "validator", `select public.validate_reviewed_catalogue_v3_plan_read_only(${literal(wrongRawValue.plan)},${literal(wrongRawValue.envelope)})`, { readOnly: true })),
+      `${environment} canonical evidence wrong raw value`,
+      /V3_CANONICAL_RAW_FACT_BINDING_MISMATCH/,
+    );
     const missingConflict = structuredClone(canonicalEvidence);
     missingConflict.envelope.canonical_identity_evidence.conflict_records = [];
     missingConflict.plan.product_variant.evidence.canonical_identity_evidence.conflict_records = [];

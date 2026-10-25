@@ -5,9 +5,11 @@ select pg_advisory_xact_lock(hashtextextended('reviewed-catalogue-v3-schema',0))
 do $rollback$
 declare
   v_function regprocedure:='public.atomic_import_validate_reviewed_catalogue_v3_plan(jsonb,jsonb)'::regprocedure;
+  v_helper regprocedure:='public.atomic_import_reviewed_v3_canonical_role_allowed(jsonb,jsonb,text)'::regprocedure;
   v_definition text:=pg_get_functiondef(v_function);
 begin
   if encode(pg_catalog.sha256(convert_to(v_definition,'UTF8')),'hex')<>'033cd54202f3ed2946eb78ba37a311c5a56a4f6eb421c0424b3239ad75c19baf' then raise exception 'reviewed V3 canonical evidence rollback lineage differs'; end if;
+  if encode(pg_catalog.sha256(convert_to(pg_get_functiondef(v_helper),'UTF8')),'hex')<>'cc6c8017e87a3f02129dbd855960d8078348eb8271713a274e26ef5dcdf15f46' then raise exception 'reviewed V3 canonical evidence helper rollback lineage differs'; end if;
   if exists(select 1 from public.approved_import_plans where authorization_envelope ? 'canonical_identity_evidence' and authorization_envelope->'canonical_identity_evidence'<>'null'::jsonb) then
     raise exception 'reviewed V3 canonical evidence rollback blocked by durable evidence-backed approval';
   end if;

@@ -82,6 +82,17 @@ the original V3 behavior exactly. Its presence is fail-closed and separates:
 - the exact facts selected for canonical identity; and
 - mandatory conflict records for every material raw/canonical difference.
 
+Raw facts are not a self-declared subset. Every supplied raw fact must bind to
+the exact key and byte-preserved value in the row's validated
+`external_options`, and its role must agree with the authoritative
+`option_roles`. When a selected canonical physical-size or container-count fact
+displaces an authoritative normalized raw role, the contract must contain
+exactly one corresponding raw fact and exactly one linked conflict record.
+Omitting the raw fact, substituting another option, duplicating the binding or
+adding an orphan conflict fails closed. A preserved pack-structure string does
+not itself create a false scalar conflict when no authoritative raw pack-count
+role exists.
+
 The evidence review decision is a fact-provenance decision. It is distinct from
 the owner's business approval and cannot be replaced by an owner override. The
 sub-contract is embedded in the immutable manifest row, copied exactly into the

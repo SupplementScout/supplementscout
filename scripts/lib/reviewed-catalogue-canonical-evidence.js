@@ -17,12 +17,6 @@ const COUNT_UNITS = {
   pack_count: new Set(["packs"]),
   piece_count: new Set(["pieces"]),
 };
-const RAW_CONFLICT_ROLES = {
-  physical_size: new Set(["physical_size"]),
-  container_count: new Set(["container_count", "serving_count"]),
-  pack_count: new Set(["pack_count", "pack_structure"]),
-  product_format: new Set(["product_format"]),
-};
 const CONFLICTS = new Set(["UNEXPLAINED_CONFLICTING_METADATA", "SERVING_COUNT_NOT_CONTAINER_COUNT", "PACK_CONFIGURATION_CONFLICT"]);
 const ROOT_KEYS = ["contract_version", "binding", "raw_source_facts", "external_evidence_facts", "derived_facts", "canonical_selected_facts", "conflict_records", "evidence_review_decision"];
 
@@ -84,6 +78,47 @@ function admissibleExternalFact(fact, allFacts, context) {
     peers.some(item => item.evidence_source_type !== fact.evidence_source_type);
 }
 
+function authoritativeRawRoles(context, sourceKey) {
+  const roles = new Set();
+  const physical = context.option_roles?.physical_size;
+  const count = context.option_roles?.count;
+  if (physical?.source_key === sourceKey) roles.add("physical_size");
+  if (count?.source_key === sourceKey) {
+    if (count.count_unit === "servings") roles.add("serving_count");
+    else if (COUNT_UNITS.container_count.has(count.count_unit)) roles.add("container_count");
+    else fail("V3_CANONICAL_RAW_FACT_BINDING_MISMATCH");
+  }
+  return roles;
+}
+
+function rawConflictObligations(selected, context) {
+  const obligations = [];
+  const physical = context.option_roles?.physical_size;
+  if (selected.physical_size && physical &&
+      (String(physical.size_value) !== selected.physical_size.normalized_value || physical.size_unit !== selected.physical_size.unit)) {
+    obligations.push({
+      selected: selected.physical_size, raw_role: "physical_size",
+      source_key: physical.source_key, raw_value: physical.source_value,
+      classifications: new Set(["UNEXPLAINED_CONFLICTING_METADATA", "PACK_CONFIGURATION_CONFLICT"]),
+    });
+  }
+  const count = context.option_roles?.count;
+  if (selected.container_count && count &&
+      (String(count.count_value) !== selected.container_count.normalized_value || count.count_unit !== selected.container_count.unit)) {
+    const serving = count.count_unit === "servings";
+    const rawRole = serving ? "serving_count" : COUNT_UNITS.container_count.has(count.count_unit) ? "container_count" : null;
+    if (!rawRole) fail("V3_CANONICAL_RAW_FACT_BINDING_MISMATCH");
+    obligations.push({
+      selected: selected.container_count, raw_role: rawRole,
+      source_key: count.source_key, raw_value: count.source_value,
+      classifications: new Set(serving
+        ? ["SERVING_COUNT_NOT_CONTAINER_COUNT"]
+        : ["UNEXPLAINED_CONFLICTING_METADATA", "PACK_CONFIGURATION_CONFLICT"]),
+    });
+  }
+  return obligations;
+}
+
 function validateCanonicalIdentityEvidence(evidence, context) {
   if (evidence == null) return null;
   exactKeys(evidence, ROOT_KEYS);
@@ -102,11 +137,22 @@ function validateCanonicalIdentityEvidence(evidence, context) {
   for (const key of ["raw_source_facts", "external_evidence_facts", "derived_facts", "canonical_selected_facts", "conflict_records"]) {
     if (!Array.isArray(evidence[key])) fail("V3_CANONICAL_EVIDENCE_SCHEMA_MISMATCH");
   }
+  if (!context.external_options || typeof context.external_options !== "object" || Array.isArray(context.external_options) ||
+      !context.option_roles || typeof context.option_roles !== "object" || Array.isArray(context.option_roles)) {
+    fail("V3_CANONICAL_RAW_FACT_BINDING_MISMATCH");
+  }
   const facts = new Map();
+  const rawBindings = new Set();
   for (const fact of evidence.raw_source_facts) {
     exactKeys(fact, ["fact_id", "role", "raw_value", "source_key", "source_row_fingerprint"]);
     requireValue(typeof fact.fact_id === "string" && FACT_ROLES.has(fact.role) && typeof fact.raw_value === "string" && typeof fact.source_key === "string", "V3_CANONICAL_EVIDENCE_SCHEMA_MISMATCH");
     if (fact.source_row_fingerprint !== context.source_row_fingerprint) fail("V3_CANONICAL_EVIDENCE_BINDING_MISMATCH");
+    if (!Object.hasOwn(context.external_options, fact.source_key) || context.external_options[fact.source_key] !== fact.raw_value) fail("V3_CANONICAL_RAW_FACT_BINDING_MISMATCH");
+    const representedRoles = authoritativeRawRoles(context, fact.source_key);
+    if (representedRoles.size && !representedRoles.has(fact.role)) fail("V3_CANONICAL_RAW_FACT_BINDING_MISMATCH");
+    const rawBinding = canonicalJson([fact.source_key, fact.role]);
+    if (rawBindings.has(rawBinding)) fail("V3_CANONICAL_RAW_FACT_BINDING_MISMATCH");
+    rawBindings.add(rawBinding);
     if (facts.has(fact.fact_id)) fail("V3_CANONICAL_EVIDENCE_SCHEMA_MISMATCH");
     facts.set(fact.fact_id, { ...fact, kind: "raw" });
   }
@@ -161,13 +207,32 @@ function validateCanonicalIdentityEvidence(evidence, context) {
   }
   requireValue(Object.keys(selected).length > 0, "V3_CANONICAL_EVIDENCE_REVIEW_MISSING");
 
+  const obligations = rawConflictObligations(selected, context);
+  const requiredConflicts = [];
+  for (const obligation of obligations) {
+    const rawFacts = [...facts.values()].filter(item => item.kind === "raw" && item.role === obligation.raw_role &&
+      item.source_key === obligation.source_key && item.raw_value === obligation.raw_value &&
+      item.source_row_fingerprint === context.source_row_fingerprint);
+    if (rawFacts.length !== 1) fail("V3_CANONICAL_RAW_FACT_BINDING_MISMATCH");
+    requiredConflicts.push({ obligation, raw: rawFacts[0] });
+  }
+  const conflictBindings = new Set();
   for (const conflict of evidence.conflict_records) {
     exactKeys(conflict, ["raw_fact_id", "canonical_fact_id", "classification", "disposition"]);
     if (facts.get(conflict.raw_fact_id)?.kind !== "raw" || !Object.values(selected).some(item => item.selected_fact_id === conflict.canonical_fact_id) || !CONFLICTS.has(conflict.classification) || conflict.disposition !== "PRESERVE_RAW_DO_NOT_USE_FOR_CANONICAL_IDENTITY") fail("V3_CANONICAL_EVIDENCE_SCHEMA_MISMATCH");
+    const conflictBinding = canonicalJson([conflict.raw_fact_id, conflict.canonical_fact_id]);
+    if (conflictBindings.has(conflictBinding)) fail("V3_CANONICAL_EVIDENCE_SCHEMA_MISMATCH");
+    conflictBindings.add(conflictBinding);
+    const required = requiredConflicts.find(item => item.raw.fact_id === conflict.raw_fact_id &&
+      item.obligation.selected.selected_fact_id === conflict.canonical_fact_id &&
+      item.obligation.classifications.has(conflict.classification));
+    if (!required) fail("V3_CANONICAL_EVIDENCE_SCHEMA_MISMATCH");
   }
-  for (const selectedFact of Object.values(selected)) {
-    const mismatchedRaw = [...facts.values()].filter(item => item.kind === "raw" && RAW_CONFLICT_ROLES[selectedFact.role].has(item.role) && item.raw_value !== selectedFact.normalized_value);
-    for (const raw of mismatchedRaw) if (!evidence.conflict_records.some(item => item.raw_fact_id === raw.fact_id && item.canonical_fact_id === selectedFact.selected_fact_id)) fail("V3_CANONICAL_CONFLICT_RECORD_REQUIRED");
+  for (const required of requiredConflicts) {
+    const matches = evidence.conflict_records.filter(item => item.raw_fact_id === required.raw.fact_id &&
+      item.canonical_fact_id === required.obligation.selected.selected_fact_id &&
+      required.obligation.classifications.has(item.classification));
+    if (matches.length !== 1) fail("V3_CANONICAL_CONFLICT_RECORD_REQUIRED");
   }
 
   const review = evidence.evidence_review_decision;

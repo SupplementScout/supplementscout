@@ -37,6 +37,15 @@ declare
   v_expected_hash text;
   v_known_ids text[];
   v_physical_operands integer;
+  v_external_options jsonb:=p_envelope->'external_options';
+  v_option_roles jsonb:=p_envelope->'option_roles';
+  v_obligations jsonb:='[]'::jsonb;
+  v_raw_fact jsonb;
+  v_raw_role text;
+  v_source_key text;
+  v_raw_value text;
+  v_required_class text;
+  v_match_count integer;
 begin
   if v_evidence is null or v_evidence='null'::jsonb then return false; end if;
   if v_evidence is distinct from v_plan_evidence
@@ -58,7 +67,8 @@ begin
   end if;
   if jsonb_typeof(v_evidence->'raw_source_facts')<>'array' or jsonb_typeof(v_evidence->'external_evidence_facts')<>'array'
      or jsonb_typeof(v_evidence->'derived_facts')<>'array' or jsonb_typeof(v_evidence->'canonical_selected_facts')<>'array'
-     or jsonb_typeof(v_evidence->'conflict_records')<>'array' then
+     or jsonb_typeof(v_evidence->'conflict_records')<>'array'
+     or jsonb_typeof(v_external_options)<>'object' or jsonb_typeof(v_option_roles)<>'object' then
     raise exception 'V3_CANONICAL_EVIDENCE_SCHEMA_MISMATCH';
   end if;
   if (select count(*)<>count(distinct x->>'fact_id') from (
@@ -73,7 +83,28 @@ begin
        or v_fact->>'source_row_fingerprint' is distinct from v_binding->>'source_row_fingerprint' then
       raise exception 'V3_CANONICAL_EVIDENCE_SCHEMA_MISMATCH';
     end if;
+    if not (v_external_options ? (v_fact->>'source_key'))
+       or v_external_options->>(v_fact->>'source_key') is distinct from v_fact->>'raw_value'
+       or (
+         (
+           v_option_roles#>>'{physical_size,source_key}'=v_fact->>'source_key'
+           or v_option_roles#>>'{count,source_key}'=v_fact->>'source_key'
+         )
+         and not (
+           v_option_roles#>>'{physical_size,source_key}'=v_fact->>'source_key' and v_fact->>'role'='physical_size'
+           or v_option_roles#>>'{count,source_key}'=v_fact->>'source_key' and (
+             v_option_roles#>>'{count,count_unit}'='servings' and v_fact->>'role'='serving_count'
+             or v_option_roles#>>'{count,count_unit}' in ('capsules','tablets','softgels','pieces') and v_fact->>'role'='container_count'
+           )
+         )
+       ) then
+      raise exception 'V3_CANONICAL_RAW_FACT_BINDING_MISMATCH';
+    end if;
   end loop;
+  if exists(
+    select 1 from jsonb_array_elements(v_evidence->'raw_source_facts') raw
+    group by raw->>'source_key',raw->>'role' having count(*)<>1
+  ) then raise exception 'V3_CANONICAL_RAW_FACT_BINDING_MISMATCH'; end if;
 
   for v_fact in select value from jsonb_array_elements(v_evidence->'external_evidence_facts') loop
     if not public.atomic_import_has_exact_keys(v_fact,array['fact_id','role','normalized_value','unit','evidence_source_type','source_url','captured_at','source_content_sha256','identity_binding'])
@@ -179,25 +210,73 @@ begin
     end if;
   end loop;
   if jsonb_array_length(v_evidence->'canonical_selected_facts')=0 then raise exception 'V3_CANONICAL_EVIDENCE_REVIEW_MISSING'; end if;
+
+  for v_selected in select value from jsonb_array_elements(v_evidence->'canonical_selected_facts') loop
+    v_raw_role:=null; v_source_key:=null; v_raw_value:=null; v_required_class:=null;
+    if v_selected->>'role'='physical_size' and jsonb_typeof(v_option_roles->'physical_size')='object'
+       and (v_option_roles#>>'{physical_size,size_value}' is distinct from v_selected->>'normalized_value'
+         or v_option_roles#>>'{physical_size,size_unit}' is distinct from v_selected->>'unit') then
+      v_raw_role:='physical_size';
+      v_source_key:=v_option_roles#>>'{physical_size,source_key}';
+      v_raw_value:=v_option_roles#>>'{physical_size,source_value}';
+      v_required_class:='PHYSICAL';
+    elsif v_selected->>'role'='container_count' and jsonb_typeof(v_option_roles->'count')='object'
+       and (v_option_roles#>>'{count,count_value}' is distinct from v_selected->>'normalized_value'
+         or v_option_roles#>>'{count,count_unit}' is distinct from v_selected->>'unit') then
+      if v_option_roles#>>'{count,count_unit}'='servings' then
+        v_raw_role:='serving_count'; v_required_class:='SERVING_COUNT_NOT_CONTAINER_COUNT';
+      elsif v_option_roles#>>'{count,count_unit}' in ('capsules','tablets','softgels','pieces') then
+        v_raw_role:='container_count'; v_required_class:='CONTAINER';
+      else
+        raise exception 'V3_CANONICAL_RAW_FACT_BINDING_MISMATCH';
+      end if;
+      v_source_key:=v_option_roles#>>'{count,source_key}';
+      v_raw_value:=v_option_roles#>>'{count,source_value}';
+    end if;
+    if v_raw_role is not null then
+      select count(*) into v_match_count
+      from jsonb_array_elements(v_evidence->'raw_source_facts') raw
+      where raw->>'role'=v_raw_role and raw->>'source_key'=v_source_key
+        and raw->>'raw_value'=v_raw_value
+        and raw->>'source_row_fingerprint'=v_binding->>'source_row_fingerprint';
+      if v_match_count<>1 then raise exception 'V3_CANONICAL_RAW_FACT_BINDING_MISMATCH'; end if;
+      select raw into v_raw_fact
+      from jsonb_array_elements(v_evidence->'raw_source_facts') raw
+      where raw->>'role'=v_raw_role and raw->>'source_key'=v_source_key
+        and raw->>'raw_value'=v_raw_value
+        and raw->>'source_row_fingerprint'=v_binding->>'source_row_fingerprint';
+      v_obligations:=v_obligations||jsonb_build_array(jsonb_build_object(
+        'raw_fact_id',v_raw_fact->>'fact_id','canonical_fact_id',v_selected->>'selected_fact_id','required_class',v_required_class
+      ));
+    end if;
+  end loop;
+
   for v_fact in select value from jsonb_array_elements(v_evidence->'conflict_records') loop
     if not public.atomic_import_has_exact_keys(v_fact,array['raw_fact_id','canonical_fact_id','classification','disposition'])
        or v_fact->>'classification' not in ('UNEXPLAINED_CONFLICTING_METADATA','SERVING_COUNT_NOT_CONTAINER_COUNT','PACK_CONFIGURATION_CONFLICT')
        or v_fact->>'disposition'<>'PRESERVE_RAW_DO_NOT_USE_FOR_CANONICAL_IDENTITY'
        or not exists(select 1 from jsonb_array_elements(v_evidence->'raw_source_facts') raw where raw->>'fact_id'=v_fact->>'raw_fact_id')
-       or not exists(select 1 from jsonb_array_elements(v_evidence->'canonical_selected_facts') selected_fact where selected_fact->>'selected_fact_id'=v_fact->>'canonical_fact_id') then
+       or not exists(select 1 from jsonb_array_elements(v_evidence->'canonical_selected_facts') selected_fact where selected_fact->>'selected_fact_id'=v_fact->>'canonical_fact_id')
+       or not exists(select 1 from jsonb_array_elements(v_obligations) obligation
+         where obligation->>'raw_fact_id'=v_fact->>'raw_fact_id'
+           and obligation->>'canonical_fact_id'=v_fact->>'canonical_fact_id'
+           and (obligation->>'required_class'=v_fact->>'classification'
+             or obligation->>'required_class' in ('PHYSICAL','CONTAINER') and v_fact->>'classification' in ('UNEXPLAINED_CONFLICTING_METADATA','PACK_CONFIGURATION_CONFLICT'))) then
       raise exception 'V3_CANONICAL_EVIDENCE_SCHEMA_MISMATCH';
     end if;
   end loop;
   if exists(
-    select 1 from jsonb_array_elements(v_evidence->'canonical_selected_facts') selected_fact
-    join jsonb_array_elements(v_evidence->'raw_source_facts') raw on
-      raw->>'role'=selected_fact->>'role'
-      or (selected_fact->>'role'='container_count' and raw->>'role'='serving_count')
-      or (selected_fact->>'role'='pack_count' and raw->>'role'='pack_structure')
-    where raw->>'raw_value' is distinct from selected_fact->>'normalized_value'
-      and not exists(select 1 from jsonb_array_elements(v_evidence->'conflict_records') conflict
-        where conflict->>'raw_fact_id'=raw->>'fact_id' and conflict->>'canonical_fact_id'=selected_fact->>'selected_fact_id')
+    select 1 from jsonb_array_elements(v_obligations) obligation
+    where (select count(*) from jsonb_array_elements(v_evidence->'conflict_records') conflict
+      where conflict->>'raw_fact_id'=obligation->>'raw_fact_id'
+        and conflict->>'canonical_fact_id'=obligation->>'canonical_fact_id'
+        and (conflict->>'classification'=obligation->>'required_class'
+          or obligation->>'required_class' in ('PHYSICAL','CONTAINER') and conflict->>'classification' in ('UNEXPLAINED_CONFLICTING_METADATA','PACK_CONFIGURATION_CONFLICT')))<>1
   ) then raise exception 'V3_CANONICAL_CONFLICT_RECORD_REQUIRED'; end if;
+  if exists(
+    select 1 from jsonb_array_elements(v_evidence->'conflict_records') conflict
+    group by conflict->>'raw_fact_id',conflict->>'canonical_fact_id' having count(*)<>1
+  ) then raise exception 'V3_CANONICAL_EVIDENCE_SCHEMA_MISMATCH'; end if;
   v_review:=v_evidence->'evidence_review_decision';
   if not public.atomic_import_has_exact_keys(v_review,array['decision','reviewed_fact_ids','reviewed_by','reviewed_at','decision_evidence_sha256'])
      or v_review->>'decision'<>'ACCEPT_EXACT_FACTS_FOR_CANONICAL_IDENTITY' or jsonb_array_length(v_review->'reviewed_fact_ids')=0
@@ -219,13 +298,6 @@ begin
   ) q where x->>'fact_id'=v_selected->>'selected_fact_id';
   if v_source is null or v_source->>'role' is distinct from p_role or v_source->>'normalized_value' is distinct from v_selected->>'normalized_value' or v_source->>'unit' is distinct from v_selected->>'unit' then
     raise exception 'V3_CANONICAL_EVIDENCE_CANONICAL_FACT_MISMATCH';
-  end if;
-  if exists(select 1 from jsonb_array_elements(v_evidence->'raw_source_facts') raw where
-    (raw->>'role'=p_role or (p_role='container_count' and raw->>'role'='serving_count') or (p_role='pack_count' and raw->>'role'='pack_structure'))
-    and raw->>'raw_value' is distinct from v_selected->>'normalized_value'
-    and not exists(select 1 from jsonb_array_elements(v_evidence->'conflict_records') c where c->>'raw_fact_id'=raw->>'fact_id' and c->>'canonical_fact_id'=v_selected->>'selected_fact_id'
-      and c->>'classification' in ('UNEXPLAINED_CONFLICTING_METADATA','SERVING_COUNT_NOT_CONTAINER_COUNT','PACK_CONFIGURATION_CONFLICT') and c->>'disposition'='PRESERVE_RAW_DO_NOT_USE_FOR_CANONICAL_IDENTITY')) then
-    raise exception 'V3_CANONICAL_CONFLICT_RECORD_REQUIRED';
   end if;
   v_review:=v_evidence->'evidence_review_decision';
   if not public.atomic_import_has_exact_keys(v_review,array['decision','reviewed_fact_ids','reviewed_by','reviewed_at','decision_evidence_sha256'])

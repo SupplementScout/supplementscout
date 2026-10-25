@@ -2,6 +2,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const { canonicalEvidenceSha256, validateCanonicalIdentityEvidence } = require("./lib/reviewed-catalogue-canonical-evidence");
 const { assertV3ActionSemantics } = require("./lib/reviewed-catalogue-v3");
+const { validateManifest } = require("./lib/reviewed-catalogue-package");
 
 const AUTHORIZED_AT = "2026-10-25T12:00:00.000Z";
 const FINGERPRINT = "a".repeat(64);
@@ -18,13 +19,16 @@ function derivation(factId, role, operands, normalizedValue, unit, allFacts) {
 }
 function fixture({ tongkat = false } = {}) {
   const binding = {
-    retailer_id: "15", external_product_id: tongkat ? "200" : "100", external_variant_id: tongkat ? "201" : "101",
+    retailer_id: "15", external_product_id: tongkat ? "7500539297837" : "15640537334134", external_variant_id: tongkat ? "41706864803885" : "57417961668982",
     source_row_fingerprint: FINGERPRINT, brand: tongkat ? "TWP" : "KAYOW", product_identity: tongkat ? "Tongkat Ali" : "Protein Butter Cups",
     external_gtin: null, external_sku: tongkat ? "TA-60" : "KBC-12", package_authorized_at: AUTHORIZED_AT,
   };
   const raw = tongkat
     ? [{ fact_id: "raw-servings", role: "serving_count", raw_value: "60/30 Servings", source_key: "Size", source_row_fingerprint: FINGERPRINT }]
-    : [{ fact_id: "raw-weight", role: "physical_size", raw_value: "265g", source_key: "Weight", source_row_fingerprint: FINGERPRINT }];
+    : [
+      { fact_id: "raw-pack-structure", role: "pack_structure", raw_value: "12 x Packs of 2 x 22g Cups", source_key: "Size", source_row_fingerprint: FINGERPRINT },
+      { fact_id: "raw-weight", role: "physical_size", raw_value: "265g", source_key: "Weight", source_row_fingerprint: FINGERPRINT },
+    ];
   const identity_binding = { brand: binding.brand, product_identity: binding.product_identity, external_gtin: null, external_sku: binding.external_sku, pack_configuration: tongkat ? "60 capsules" : "12 packs x 2 cups x 22g" };
   const external = tongkat ? [{
     fact_id: "manufacturer-count", role: "container_count", normalized_value: "60", unit: "capsules", evidence_source_type: "manufacturer_product_page",
@@ -57,9 +61,73 @@ function fixture({ tongkat = false } = {}) {
 }
 function context(evidence) {
   const b = evidence.binding;
-  return { retailer_id: b.retailer_id, authorized_at: AUTHORIZED_AT, external_product_id: b.external_product_id, external_variant_id: b.external_variant_id, source_row_fingerprint: b.source_row_fingerprint, brand: b.brand, product_identity: b.product_identity, external_gtin: b.external_gtin, external_sku: b.external_sku };
+  const tongkat = b.external_product_id === "7500539297837";
+  return {
+    retailer_id: b.retailer_id, authorized_at: AUTHORIZED_AT, external_product_id: b.external_product_id,
+    external_variant_id: b.external_variant_id, source_row_fingerprint: b.source_row_fingerprint,
+    brand: b.brand, product_identity: b.product_identity, external_gtin: b.external_gtin, external_sku: b.external_sku,
+    external_options: tongkat
+      ? { Size: "60/30 Servings" }
+      : { Flavour: "Milk Chocolate Hazelnut", Size: "12 x Packs of 2 x 22g Cups", Weight: "265g" },
+    option_roles: tongkat
+      ? { flavour: null, physical_size: null, count: { source_key: "Size", source_value: "60/30 Servings", count_value: "60/30", count_unit: "servings" } }
+      : { flavour: { source_key: "Flavour", source_value: "Milk Chocolate Hazelnut" }, physical_size: { source_key: "Weight", source_value: "265g", size_value: "265", size_unit: "g" }, count: null },
+  };
 }
 function rehash(evidence) { evidence.evidence_review_decision.decision_evidence_sha256 = null; evidence.evidence_review_decision.decision_evidence_sha256 = canonicalEvidenceSha256(evidence); }
+
+function reviewedRow(evidence, { tongkat = false } = {}) {
+  return {
+    review_row: 1, external_product_id: evidence.binding.external_product_id,
+    external_variant_id: evidence.binding.external_variant_id, external_sku: evidence.binding.external_sku,
+    external_gtin: evidence.binding.external_gtin,
+    external_url: `https://example.myshopify.com/products/item?variant=${evidence.binding.external_variant_id}`,
+    affiliate_url: `https://example.myshopify.com/products/item?variant=${evidence.binding.external_variant_id}`,
+    product_id: null, product_variant_id: null,
+    action: tongkat ? "create_product_with_default_variant" : "create_product_with_variant",
+    brand: evidence.binding.brand, category: "Supplements", product_name: evidence.binding.product_identity,
+    variant_name: tongkat ? "Default" : "Milk Chocolate Hazelnut", flavour: tongkat ? null : "Milk Chocolate Hazelnut",
+    size_value: tongkat ? null : 44, size_unit: tongkat ? null : "g", pack_count: tongkat ? 1 : 12,
+    product_format: tongkat ? "capsule" : "bar", price: 10, in_stock: true,
+    source_row_fingerprint: FINGERPRINT, plan_fingerprint: "a".repeat(32),
+    external_options: tongkat
+      ? { Size: "60/30 Servings" }
+      : { Flavour: "Milk Chocolate Hazelnut", Size: "12 x Packs of 2 x 22g Cups", Weight: "265g" },
+    option_roles: tongkat
+      ? { flavour: null, physical_size: null, count: { source_key: "Size", source_value: "60/30 Servings", count_value: "60/30", count_unit: "servings" } }
+      : { flavour: { source_key: "Flavour", source_value: "Milk Chocolate Hazelnut" }, physical_size: { source_key: "Weight", source_value: "265g", size_value: "265", size_unit: "g" }, count: null },
+    source_structure: tongkat
+      ? { product_variant_count: 1, meaningful_variant_axes: [] }
+      : { product_variant_count: 5, meaningful_variant_axes: ["flavour"] },
+    ...(tongkat ? { unit_count: 60, unit_type: "capsules" } : {}),
+    canonical_identity_evidence: evidence,
+  };
+}
+
+function reviewedManifest(row) {
+  return {
+    schema_version: 3, kind: "reviewed-catalogue-package-v3", source_platform: "shopify",
+    status: "OWNER_APPROVED", authorized_by: "owner:marek", authorized_at: AUTHORIZED_AT,
+    target_environment: "STAGING", target_project_ref: "hxnrsyyqffztlvcrtgbf",
+    retailer: { id: 15, name: "Example", slug: "example", website: "https://example.myshopify.com", expected_action: "existing", shipping_known: true, shipping_cost: 0 },
+    policy: { reviewed_rows_only: true, allow_product_creation: true, allow_variant_creation: true, allow_canonical_product_updates: false, allow_canonical_variant_updates: false, allow_canonical_gtin_updates: false, allow_category_changes: false, sku_is_not_gtin: true, one_plan_at_a_time: true, fresh_single_use_approval_per_plan: true, strict_production_readback_after_each_apply: true },
+    profiles: [{ id: "bypass-proof", status: "DRY_RUN_PASS", csv_path: "tmp/retailer-feeds/example.csv", csv_sha256: "b".repeat(64), artifact_path: "tmp/retailer-feeds/example.json", artifact_sha256: "c".repeat(64), row_count: 1, blocked_row_count: 0, conflict_count: 0, expected_actions: { retailers_create: 0, products_create: 1, product_variants_create: 1, retailer_products_create: 1, offers_create: 1, price_history_create: 1 }, rows: [row] }],
+  };
+}
+
+test("fails closed: omitted physical raw fact and conflict cannot pass any JavaScript path", () => {
+  const evidence = fixture(); evidence.raw_source_facts = []; evidence.conflict_records = []; rehash(evidence);
+  assert.throws(() => validateCanonicalIdentityEvidence(evidence, context(evidence)), /V3_CANONICAL_RAW_FACT_BINDING_MISMATCH/);
+  assert.throws(() => assertV3ActionSemantics(reviewedRow(evidence), { retailer_id: "15", authorized_at: AUTHORIZED_AT }), /V3_CANONICAL_RAW_FACT_BINDING_MISMATCH/);
+  assert.throws(() => validateManifest(reviewedManifest(reviewedRow(evidence)), "bypass-proof"), /V3_CANONICAL_RAW_FACT_BINDING_MISMATCH/);
+});
+
+test("fails closed: omitted serving raw fact and conflict cannot pass any JavaScript path", () => {
+  const evidence = fixture({ tongkat: true }); evidence.raw_source_facts = []; evidence.conflict_records = []; rehash(evidence);
+  assert.throws(() => validateCanonicalIdentityEvidence(evidence, context(evidence)), /V3_CANONICAL_RAW_FACT_BINDING_MISMATCH/);
+  assert.throws(() => assertV3ActionSemantics(reviewedRow(evidence, { tongkat: true }), { retailer_id: "15", authorized_at: AUTHORIZED_AT }), /V3_CANONICAL_RAW_FACT_BINDING_MISMATCH/);
+  assert.throws(() => validateManifest(reviewedManifest(reviewedRow(evidence, { tongkat: true })), "bypass-proof"), /V3_CANONICAL_RAW_FACT_BINDING_MISMATCH/);
+});
 
 test("projects nested multipack canonical facts and total deterministically", () => {
   const evidence = fixture();
@@ -75,14 +143,7 @@ test("projects serving text to an evidence-backed container count without rewrit
 test("absence preserves the legacy V3 path", () => assert.equal(validateCanonicalIdentityEvidence(null, {}), null));
 test("V3 semantics accept evidence projection but retain exact raw option roles", () => {
   const evidence = fixture();
-  assert.doesNotThrow(() => assertV3ActionSemantics({
-    action: "create_product_with_variant", external_product_id: "100", external_variant_id: "101", source_row_fingerprint: FINGERPRINT,
-    external_sku: "KBC-12", external_gtin: null, brand: "KAYOW", product_name: "Protein Butter Cups", flavour: "Chocolate",
-    external_options: { Flavour: "Chocolate", Weight: "265g" },
-    option_roles: { flavour: { source_key: "Flavour", source_value: "Chocolate" }, physical_size: { source_key: "Weight", source_value: "265g", size_value: "265", size_unit: "g" }, count: null },
-    source_structure: { product_variant_count: 5, meaningful_variant_axes: ["flavour"] }, size_value: "44", size_unit: "g", pack_count: "12", product_format: "bar", unit_count: null, unit_type: null,
-    canonical_identity_evidence: evidence,
-  }, { retailer_id: "15", authorized_at: AUTHORIZED_AT }));
+  assert.doesNotThrow(() => assertV3ActionSemantics(reviewedRow(evidence), { retailer_id: "15", authorized_at: AUTHORIZED_AT }));
 });
 for (const [name, mutate, code] of [
   ["unknown version", e => { e.contract_version = "2"; }, "V3_CANONICAL_EVIDENCE_SCHEMA_MISMATCH"],
@@ -97,15 +158,25 @@ for (const [name, mutate, code] of [
 });
 
 test("all five flavour rows retain distinct immutable row bindings", () => {
-  const variants = ["Chocolate", "Cinnamon", "Cookie Dough", "Peanut", "White Chocolate"];
-  for (const [index, flavour] of variants.entries()) {
+  const variants = [
+    ["57417961668982", "Milk Chocolate Hazelnut", true],
+    ["57417961701750", "Milk Chocolate Cinnamon", false],
+    ["57417961734518", "Milk Chocolate Cookies & Cream", true],
+    ["57417961767286", "Milk Chocolate Salted Caramel", true],
+    ["57417961800054", "Milk Chocolate", true],
+  ];
+  for (const [variantId, flavour, inStock] of variants) {
     const evidence = fixture();
-    evidence.binding.external_variant_id = String(101 + index);
+    evidence.binding.external_variant_id = variantId;
     evidence.binding.product_identity = `Protein Butter Cups / ${flavour}`;
     for (const fact of evidence.external_evidence_facts) fact.identity_binding.product_identity = evidence.binding.product_identity;
     for (const fact of evidence.raw_source_facts) fact.source_row_fingerprint = evidence.binding.source_row_fingerprint;
     rehash(evidence);
-    assert.equal(validateCanonicalIdentityEvidence(evidence, context(evidence)).selected_facts.physical_size.normalized_value, "44");
+    const exactContext = context(evidence);
+    exactContext.external_options.Flavour = flavour;
+    exactContext.option_roles.flavour = { source_key: "Flavour", source_value: flavour };
+    assert.equal(validateCanonicalIdentityEvidence(evidence, exactContext).selected_facts.physical_size.normalized_value, "44");
+    assert.equal(typeof inStock, "boolean");
   }
 });
 
@@ -159,11 +230,31 @@ for (const [name, build, mutate, code] of [
   ["unknown field", () => fixture(), e => { e.owner_override = true; rehash(e); }, "V3_CANONICAL_EVIDENCE_SCHEMA_MISMATCH"],
   ["selected fact omitted from evidence review", () => fixture(), e => { e.evidence_review_decision.reviewed_fact_ids = ["pack-size"]; rehash(e); }, "V3_CANONICAL_EVIDENCE_REVIEW_MISSING"],
   ["Tongkat missing cross-role conflict", () => fixture({ tongkat: true }), e => { e.conflict_records = []; rehash(e); }, "V3_CANONICAL_CONFLICT_RECORD_REQUIRED"],
+  ["wrong raw source key", () => fixture(), e => { e.raw_source_facts.find(f => f.fact_id === "raw-weight").source_key = "Size"; rehash(e); }, "V3_CANONICAL_RAW_FACT_BINDING_MISMATCH"],
+  ["wrong raw value", () => fixture(), e => { e.raw_source_facts.find(f => f.fact_id === "raw-weight").raw_value = "264g"; rehash(e); }, "V3_CANONICAL_RAW_FACT_BINDING_MISMATCH"],
+  ["wrong raw role", () => fixture(), e => { e.raw_source_facts.find(f => f.fact_id === "raw-weight").role = "pack_structure"; rehash(e); }, "V3_CANONICAL_RAW_FACT_BINDING_MISMATCH"],
+  ["wrong raw source-row fingerprint", () => fixture(), e => { e.raw_source_facts.find(f => f.fact_id === "raw-weight").source_row_fingerprint = "d".repeat(64); rehash(e); }, "V3_CANONICAL_EVIDENCE_BINDING_MISMATCH"],
+  ["duplicate raw fact for one source option", () => fixture(), e => { const duplicate = structuredClone(e.raw_source_facts.find(f => f.fact_id === "raw-weight")); duplicate.fact_id = "raw-weight-duplicate"; e.raw_source_facts.push(duplicate); rehash(e); }, "V3_CANONICAL_RAW_FACT_BINDING_MISMATCH"],
+  ["physical raw fact omitted but unrelated raw fact remains", () => fixture(), e => { e.raw_source_facts = e.raw_source_facts.filter(f => f.fact_id !== "raw-weight"); e.conflict_records = []; rehash(e); }, "V3_CANONICAL_RAW_FACT_BINDING_MISMATCH"],
+  ["conflict points to another source option", () => fixture(), e => { e.conflict_records[0].raw_fact_id = "raw-pack-structure"; rehash(e); }, "V3_CANONICAL_EVIDENCE_SCHEMA_MISMATCH"],
+  ["orphan conflict", () => fixture(), e => { e.conflict_records.push({ raw_fact_id: "raw-pack-structure", canonical_fact_id: "packs", classification: "PACK_CONFIGURATION_CONFLICT", disposition: "PRESERVE_RAW_DO_NOT_USE_FOR_CANONICAL_IDENTITY" }); rehash(e); }, "V3_CANONICAL_EVIDENCE_SCHEMA_MISMATCH"],
 ]) test(`fails closed: ${name}`, () => {
   const evidence = build();
   const expectedContext = context(evidence);
   mutate(evidence);
   assert.throws(() => validateCanonicalIdentityEvidence(evidence, expectedContext), new RegExp(code));
+});
+
+test("matching authoritative physical role does not require a false conflict", () => {
+  const evidence = fixture();
+  const rawWeight = evidence.raw_source_facts.find(fact => fact.fact_id === "raw-weight");
+  rawWeight.raw_value = "44g";
+  evidence.conflict_records = [];
+  rehash(evidence);
+  const exactContext = context(evidence);
+  exactContext.external_options.Weight = "44g";
+  exactContext.option_roles.physical_size = { source_key: "Weight", source_value: "44g", size_value: "44", size_unit: "g" };
+  assert.doesNotThrow(() => validateCanonicalIdentityEvidence(evidence, exactContext));
 });
 
 test("evidence cannot be rebound to another product, variant, or source row", () => {
@@ -178,12 +269,7 @@ test("evidence cannot be rebound to another product, variant, or source row", ()
 
 test("target projection mutation remains a hard failure", () => {
   const evidence = fixture();
-  assert.throws(() => assertV3ActionSemantics({
-    action: "create_product_with_variant", external_product_id: "100", external_variant_id: "101", source_row_fingerprint: FINGERPRINT,
-    external_sku: "KBC-12", external_gtin: null, brand: "KAYOW", product_name: "Protein Butter Cups", flavour: "Chocolate",
-    external_options: { Flavour: "Chocolate", Weight: "265g" },
-    option_roles: { flavour: { source_key: "Flavour", source_value: "Chocolate" }, physical_size: { source_key: "Weight", source_value: "265g", size_value: "265", size_unit: "g" }, count: null },
-    source_structure: { product_variant_count: 5, meaningful_variant_axes: ["flavour"] }, size_value: "45", size_unit: "g", pack_count: "12", product_format: "bar",
-    canonical_identity_evidence: evidence,
-  }, { retailer_id: "15", authorized_at: AUTHORIZED_AT }), /V3 physical size role mismatch/);
+  const reviewed = reviewedRow(evidence);
+  reviewed.size_value = 45;
+  assert.throws(() => assertV3ActionSemantics(reviewed, { retailer_id: "15", authorized_at: AUTHORIZED_AT }), /V3 physical size role mismatch/);
 });
