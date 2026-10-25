@@ -225,18 +225,8 @@ const APPLIED_EXCLUSIONS = Object.freeze({
 });
 
 const PENDING_MIGRATIONS = Object.freeze({
-  STAGING: Object.freeze([
-    Object.freeze({
-      filename: "20261024120000_fix_reviewed_v3_create_product_composite_size_projection.sql",
-      sha256: "5536ffd43d89110cd91cbc003ff77e2e54c19c725e87bec78f796f0ad0f57af0",
-    }),
-  ]),
-  PRODUCTION: Object.freeze([
-    Object.freeze({
-      filename: "20261024120000_fix_reviewed_v3_create_product_composite_size_projection.sql",
-      sha256: "5536ffd43d89110cd91cbc003ff77e2e54c19c725e87bec78f796f0ad0f57af0",
-    }),
-  ]),
+  STAGING: Object.freeze([]),
+  PRODUCTION: Object.freeze([]),
 });
 
 function migrationIdentifier(filename) {

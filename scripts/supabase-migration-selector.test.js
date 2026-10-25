@@ -353,6 +353,7 @@ function withoutCurrentSeo15Migrations(rows) {
     REVIEWED_V3_PARENT_FORMAT_MIGRATION,
     REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION,
     REVIEWED_V3_EVIDENCE_PARITY_MIGRATION,
+    REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION,
   ].includes(`${version}_${name}.sql`));
 }
 
@@ -400,16 +401,14 @@ test.after(() => {
   }
 });
 
-test("staging records ledger 114 with the composite create size migration pending", () => {
+test("staging records ledger 115 with the composite create size migration applied", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 114);
+  assert.equal(result.ledger_count, 115);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending_files, [REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION]);
-  assert.deepEqual(result.pending_sha256s, {
-    [REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION]: REVIEWED_V3_COMPOSITE_CREATE_SIZE_SHA256,
-  });
-  assert.equal(result.pending_file, REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION);
-  assert.equal(result.pending_sha256, REVIEWED_V3_COMPOSITE_CREATE_SIZE_SHA256);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
@@ -517,10 +516,7 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
 
 test("production preserves deployed V3 and Ghost Lifestyle metadata correction bytes", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{
-    filename: REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION,
-    sha256: REVIEWED_V3_COMPOSITE_CREATE_SIZE_SHA256,
-  }]);
+  assert.deepEqual(contract.pending, []);
   assert.deepEqual(contract.appliedExcluded, [
     "20260929133000_extend_expired_sequential_plan_close.sql",
     "20261004120000_add_central_control_plan_readback.sql",
@@ -530,10 +526,10 @@ test("production preserves deployed V3 and Ghost Lifestyle metadata correction b
     "20261008200000_consolidate_shared_executor_state_reads.sql",
     "20261009120000_add_compact_other_retailer_fingerprint.sql",
   ]);
-  assert.equal(contract.ledgerCount, 249);
+  assert.equal(contract.ledgerCount, 250);
   assert.equal(
     contract.ledgerFingerprint,
-    "fb9651fe196eee67f74e0d9cfc4aa26edf18f4512946e4333de54554c17d3d25",
+    "27f5ea8182482078fc71b7eeea44202a3839f214d7eae42b738f21257394eb54",
   );
   assert.equal(sha256File(path.join(SOURCE, GHOST_LIFESTYLE_METADATA_MIGRATION)), GHOST_LIFESTYLE_METADATA_SHA256);
   assert.equal(contract.excluded[REVIEWED_STATE_MIGRATION], REVIEWED_STATE_SHA256);
@@ -744,7 +740,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACT.ledgerFingerprint);
 });
 
-test("production records the deployed reviewed V3 evidence-parity migration at ledger 249", () => {
+test("production records the deployed reviewed V3 composite size migration at ledger 250", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   for (const filename of contract.appliedExcluded) excluded.delete(filename);
@@ -771,7 +767,7 @@ test("production records the deployed reviewed V3 evidence-parity migration at l
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 249);
+  assert.equal(result.ledger_count, 250);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 250);
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
@@ -785,12 +781,10 @@ test("production records the deployed reviewed V3 evidence-parity migration at l
   assert.ok(result.selected_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
   assert.ok(result.excluded_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
   assert.ok(result.selected_files.includes(REVIEWED_V3_PARENT_FORMAT_MIGRATION));
-  assert.deepEqual(result.pending_files, [REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION]);
-  assert.equal(result.pending_file, REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION);
-  assert.equal(result.pending_sha256, REVIEWED_V3_COMPOSITE_CREATE_SIZE_SHA256);
-  assert.deepEqual(result.pending_sha256s, {
-    [REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION]: REVIEWED_V3_COMPOSITE_CREATE_SIZE_SHA256,
-  });
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(REVIEWED_V3_EVIDENCE_PARITY_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION));
   for (const filename of [
@@ -891,10 +885,8 @@ test("runtime production artifacts bind the same migration ledger as the product
   const binding = migrationBinding("PRODUCTION");
   assert.equal(binding.versions.length, CONTRACTS.PRODUCTION.ledgerCount);
   assert.equal(binding.fingerprint, CONTRACTS.PRODUCTION.ledgerFingerprint);
-  assert.deepEqual(CONTRACTS.PRODUCTION.pending, [{
-    filename: REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION,
-    sha256: REVIEWED_V3_COMPOSITE_CREATE_SIZE_SHA256,
-  }]);
+  assert.deepEqual(CONTRACTS.PRODUCTION.pending, []);
+  assert.ok(binding.versions.includes(REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION.slice(0, -4)));
   assert.ok(binding.versions.includes(REVIEWED_V3_EVIDENCE_PARITY_MIGRATION.slice(0, -4)));
   assert.ok(binding.versions.includes(REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION.slice(0, -4)));
   assert.ok(binding.versions.includes(REVIEWED_V3_PARENT_FORMAT_MIGRATION.slice(0, -4)));
@@ -937,10 +929,7 @@ test("runtime staging artifacts bind the same migration ledger as the staging se
 test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.equal(Object.keys(contract.excluded).length, 27);
-  assert.deepEqual(contract.pending, [{
-    filename: REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION,
-    sha256: REVIEWED_V3_COMPOSITE_CREATE_SIZE_SHA256,
-  }]);
+  assert.deepEqual(contract.pending, []);
   assert.equal(
     contract.excluded["20261009120000_add_compact_other_retailer_fingerprint.sql"],
     "b365d247777650aba6333399d4173ecb369d85a1465074bb6961c23b94f2ac84",
@@ -1109,21 +1098,20 @@ test("owner-authorized ACL/RLS activation selects exactly one migration from led
   ]), /staging-only/);
 });
 
-test("staging contract records ledger 114 with only the composite create size migration pending", () => {
+test("staging contract records ledger 115 with the composite create size migration applied", () => {
   const filename = "20260928100000_diagnose_ra004_preflight_acl_rls.sql";
-  assert.equal(CONTRACT.ledgerCount, 114);
+  assert.equal(CONTRACT.ledgerCount, 115);
   assert.equal(CONTRACT.ledgerFingerprint,
-    "fd2b684eccb12ea59fd1f8a11a5182da56ab6d76a959db7533c264dd438f3efd");
+    "a2eb16215b5e16a5ff1d8e7d110025c005ac09d2e6b689774a530fdb279ce236");
   assert.ok(CONTRACT.appliedExcluded.includes(filename));
   assert.ok(CONTRACT.appliedExcluded.includes(RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION));
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === filename));
   assert.ok(CONTRACT.appliedExcluded.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === REVIEWED_STATE_MIGRATION));
-  assert.deepEqual(CONTRACT.pending, [{
-    filename: REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION,
-    sha256: REVIEWED_V3_COMPOSITE_CREATE_SIZE_SHA256,
-  }]);
-  assert.equal(currentRemoteLedger().length, 114);
+  assert.deepEqual(CONTRACT.pending, []);
+  assert.equal(currentRemoteLedger().length, 115);
+  assert.ok(currentRemoteLedger().some(({ version, name }) =>
+    `${version}_${name}.sql` === REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION));
   assert.ok(currentRemoteLedger().some(({ version, name }) =>
     `${version}_${name}.sql` === REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION));
   assert.ok(currentRemoteLedger().some(({ version, name }) =>
@@ -1583,14 +1571,12 @@ test("completed RA-004 fixture activation cannot select or materialize a migrati
   })), /status mismatch/);
 });
 
-test("staging keeps deployed V3 lineage and selects only the composite create size migration", () => {
+test("staging keeps deployed V3 lineage with no migration pending", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION);
-  assert.equal(result.pending_sha256, REVIEWED_V3_COMPOSITE_CREATE_SIZE_SHA256);
-  assert.deepEqual(result.pending_files, [REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION]);
-  assert.deepEqual(result.pending_sha256s, {
-    [REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION]: REVIEWED_V3_COMPOSITE_CREATE_SIZE_SHA256,
-  });
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(result.selected_files.includes(REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION));
@@ -1599,6 +1585,24 @@ test("staging keeps deployed V3 lineage and selects only the composite create si
   assert.ok(result.selected_files.includes(REVIEWED_V3_PARENT_FORMAT_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_EVIDENCE_PARITY_MIGRATION));
+  assert.ok(result.selected_files.includes(REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION));
+});
+
+test("activated environment bindings cannot remain pending or diverge from selector contracts", () => {
+  for (const environment of ["STAGING", "PRODUCTION"]) {
+    const contract = CONTRACTS[environment];
+    const binding = migrationBinding(environment);
+    const pendingIdentifiers = new Set(contract.pending.map(({ filename }) => filename.slice(0, -4)));
+
+    assert.equal(binding.versions.length, contract.ledgerCount);
+    assert.equal(binding.fingerprint, contract.ledgerFingerprint);
+    assert.deepEqual([...binding.versions].sort(), binding.versions);
+    assert.equal(new Set(binding.versions).size, binding.versions.length);
+    assert.ok(binding.versions.every((identifier) => !pendingIdentifiers.has(identifier)));
+    assert.ok(binding.versions.includes(REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION.slice(0, -4)));
+    assert.ok(!contract.pending.some(({ filename }) =>
+      filename === REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION));
+  }
 });
 
 test("Group A identity migrations are production-bound and cannot change commercial fields", () => {

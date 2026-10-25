@@ -129,9 +129,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 114,
+    ledgerCount: 115,
     ledgerFingerprint:
-      "fd2b684eccb12ea59fd1f8a11a5182da56ab6d76a959db7533c264dd438f3efd",
+      "a2eb16215b5e16a5ff1d8e7d110025c005ac09d2e6b689774a530fdb279ce236",
     appliedExcluded: APPLIED_EXCLUSIONS.STAGING,
     excluded: Object.freeze({
       "20261015130000_release_gym_high_seo15_stage3_source.sql":
@@ -463,9 +463,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 249,
+    ledgerCount: 250,
     ledgerFingerprint:
-      "fb9651fe196eee67f74e0d9cfc4aa26edf18f4512946e4333de54554c17d3d25",
+      "27f5ea8182482078fc71b7eeea44202a3839f214d7eae42b738f21257394eb54",
     appliedExcluded: APPLIED_EXCLUSIONS.PRODUCTION,
     excluded: Object.freeze({
       "20261009120000_add_compact_other_retailer_fingerprint.sql":
