@@ -1,0 +1,252 @@
+{
+  "schema_version": 3,
+  "kind": "reviewed-catalogue-package-v3",
+  "source_platform": "shopify",
+  "status": "OWNER_APPROVED",
+  "authorized_by": "Marek Kalinka",
+  "authorized_at": "2026-10-26T16:22:16.245Z",
+  "target_environment": "PRODUCTION",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "retailer": {
+    "id": 15,
+    "name": "Gladiator Nutrition",
+    "slug": "gladiator-nutrition",
+    "website": "https://gladiatornutrition.co.uk",
+    "expected_action": "existing",
+    "shipping_known": true,
+    "shipping_cost": 6.99
+  },
+  "policy": {
+    "reviewed_rows_only": true,
+    "allow_product_creation": true,
+    "allow_variant_creation": true,
+    "allow_canonical_product_updates": false,
+    "allow_canonical_variant_updates": false,
+    "allow_canonical_gtin_updates": false,
+    "allow_category_changes": false,
+    "sku_is_not_gtin": true,
+    "one_plan_at_a_time": true,
+    "fresh_single_use_approval_per_plan": true,
+    "strict_production_readback_after_each_apply": true
+  },
+  "profiles": [
+    {
+      "id": "gladiator-nutrition-production-kayow-butter-cups-anchor-v1",
+      "status": "DRY_RUN_PASS",
+      "csv_path": "tmp/retailer-feeds/gladiator-nutrition/kayow-butter-cups-production-anchor-20261026/gladiator-nutrition-production-kayow-butter-cups-anchor-v1.csv",
+      "csv_sha256": "3e671a53018aceb545fe933084680c4a2855a67ea05a4ed5a13f0fcafd0e2b3c",
+      "artifact_path": "tmp/retailer-feeds/gladiator-nutrition/kayow-butter-cups-production-anchor-20261026/gladiator-nutrition-production-kayow-butter-cups-anchor-v1-dry-run.json",
+      "artifact_sha256": "8a40a31c0bbdaa22f5448dd7c9e158d4d621df7e02351ffe0ca6f9e8ca662a56",
+      "row_count": 1,
+      "blocked_row_count": 0,
+      "conflict_count": 0,
+      "expected_actions": {
+        "retailers_create": 0,
+        "products_create": 1,
+        "product_variants_create": 1,
+        "retailer_products_create": 1,
+        "offers_create": 1,
+        "price_history_create": 1
+      },
+      "rows": [
+        {
+          "review_row": 1,
+          "action": "create_product_with_variant",
+          "external_product_id": "15640537334134",
+          "external_variant_id": "57417961800054",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "product_name": "Kayow Protein Butter Cups",
+          "variant_name": "Milk Chocolate / 12 x 44g",
+          "brand": "Kayow",
+          "category": "Protein Bars",
+          "flavour": "Milk Chocolate",
+          "size_value": "44",
+          "size_unit": "g",
+          "pack_count": "12",
+          "product_format": "bar",
+          "price": 22.99,
+          "in_stock": true,
+          "source_row_fingerprint": "a92f01f15742fe4617fed08d84d6c195f87e29d6fd7d70e0dbe0742a5c52c340",
+          "plan_fingerprint": "3cf758469e491ddbc1e7ab77e0b78087",
+          "external_url": "https://gladiatornutrition.co.uk/products/kayow-protein-butter-cups?variant=57417961800054",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/kayow-protein-butter-cups?variant=57417961800054&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Flavour": "Milk Chocolate",
+            "Size": "12 x Packs of 2 x 22g Cups",
+            "Weight": "265g"
+          },
+          "option_roles": {
+            "flavour": {
+              "source_key": "Flavour",
+              "source_value": "Milk Chocolate"
+            },
+            "physical_size": {
+              "source_key": "Weight",
+              "source_value": "265g",
+              "size_value": "265",
+              "size_unit": "g"
+            },
+            "count": null
+          },
+          "source_structure": {
+            "product_variant_count": 5,
+            "meaningful_variant_axes": [
+              "flavour"
+            ]
+          },
+          "unit_count": null,
+          "unit_type": null,
+          "canonical_identity_evidence": {
+            "contract_version": "1",
+            "binding": {
+              "retailer_id": "15",
+              "external_product_id": "15640537334134",
+              "external_variant_id": "57417961800054",
+              "source_row_fingerprint": "a92f01f15742fe4617fed08d84d6c195f87e29d6fd7d70e0dbe0742a5c52c340",
+              "brand": "Kayow",
+              "product_identity": "Kayow Protein Butter Cups",
+              "external_gtin": null,
+              "external_sku": null,
+              "package_authorized_at": "2026-10-26T16:22:16.245Z"
+            },
+            "raw_source_facts": [
+              {
+                "fact_id": "shopify-pack-structure",
+                "role": "pack_structure",
+                "raw_value": "12 x Packs of 2 x 22g Cups",
+                "source_key": "Size",
+                "source_row_fingerprint": "a92f01f15742fe4617fed08d84d6c195f87e29d6fd7d70e0dbe0742a5c52c340"
+              },
+              {
+                "fact_id": "shopify-conflicting-weight",
+                "role": "physical_size",
+                "raw_value": "265g",
+                "source_key": "Weight",
+                "source_row_fingerprint": "a92f01f15742fe4617fed08d84d6c195f87e29d6fd7d70e0dbe0742a5c52c340"
+              }
+            ],
+            "external_evidence_facts": [
+              {
+                "fact_id": "manufacturer-cups-per-pack",
+                "role": "piece_count",
+                "normalized_value": "2",
+                "unit": "pieces",
+                "evidence_source_type": "manufacturer_product_page",
+                "source_url": "https://www.kayownutrition.com/products/milk-chocolate-protein-peanut-butter-cups",
+                "captured_at": "2026-10-25T10:09:02.110Z",
+                "source_content_sha256": "a67c48c8b4fce2779638fbf246e5d4f208315e0fc1b3caba1c2de327430f6da7",
+                "identity_binding": {
+                  "brand": "Kayow",
+                  "product_identity": "Kayow Protein Butter Cups",
+                  "external_gtin": null,
+                  "external_sku": null,
+                  "pack_configuration": "12 packs x 2 cups x 22g"
+                }
+              },
+              {
+                "fact_id": "manufacturer-grams-per-cup",
+                "role": "physical_size",
+                "normalized_value": "22",
+                "unit": "g",
+                "evidence_source_type": "manufacturer_product_page",
+                "source_url": "https://www.kayownutrition.com/products/milk-chocolate-protein-peanut-butter-cups",
+                "captured_at": "2026-10-25T10:09:02.110Z",
+                "source_content_sha256": "a67c48c8b4fce2779638fbf246e5d4f208315e0fc1b3caba1c2de327430f6da7",
+                "identity_binding": {
+                  "brand": "Kayow",
+                  "product_identity": "Kayow Protein Butter Cups",
+                  "external_gtin": null,
+                  "external_sku": null,
+                  "pack_configuration": "12 packs x 2 cups x 22g"
+                }
+              },
+              {
+                "fact_id": "manufacturer-retail-pack-count",
+                "role": "pack_count",
+                "normalized_value": "12",
+                "unit": "packs",
+                "evidence_source_type": "manufacturer_product_page",
+                "source_url": "https://www.kayownutrition.com/products/milk-chocolate-protein-peanut-butter-cups",
+                "captured_at": "2026-10-25T10:09:02.110Z",
+                "source_content_sha256": "a67c48c8b4fce2779638fbf246e5d4f208315e0fc1b3caba1c2de327430f6da7",
+                "identity_binding": {
+                  "brand": "Kayow",
+                  "product_identity": "Kayow Protein Butter Cups",
+                  "external_gtin": null,
+                  "external_sku": null,
+                  "pack_configuration": "12 packs x 2 cups x 22g"
+                }
+              }
+            ],
+            "derived_facts": [
+              {
+                "fact_id": "derived-retail-pack-size",
+                "role": "physical_size",
+                "formula_id": "multiply_exact_decimal_v1",
+                "operand_fact_ids": [
+                  "manufacturer-cups-per-pack",
+                  "manufacturer-grams-per-cup"
+                ],
+                "normalized_value": "44",
+                "unit": "g",
+                "derivation_sha256": "f43b5e55e36d36c1f7048b34133df5e979cac1f2a8ecf50b44fabf5fdf5669d1"
+              },
+              {
+                "fact_id": "derived-total-content",
+                "role": "total_content",
+                "formula_id": "multiply_exact_decimal_v1",
+                "operand_fact_ids": [
+                  "manufacturer-retail-pack-count",
+                  "derived-retail-pack-size"
+                ],
+                "normalized_value": "528",
+                "unit": "g",
+                "derivation_sha256": "ac276befae49cc0bcd6215ef17533a5ee2a663b1fd42c216c196e0c68804b1d1"
+              }
+            ],
+            "canonical_selected_facts": [
+              {
+                "role": "physical_size",
+                "selected_fact_id": "derived-retail-pack-size",
+                "normalized_value": "44",
+                "unit": "g",
+                "evidence_review_decision": "ACCEPT_FOR_CANONICAL_IDENTITY"
+              },
+              {
+                "role": "pack_count",
+                "selected_fact_id": "manufacturer-retail-pack-count",
+                "normalized_value": "12",
+                "unit": "packs",
+                "evidence_review_decision": "ACCEPT_FOR_CANONICAL_IDENTITY"
+              }
+            ],
+            "conflict_records": [
+              {
+                "raw_fact_id": "shopify-conflicting-weight",
+                "canonical_fact_id": "derived-retail-pack-size",
+                "classification": "UNEXPLAINED_CONFLICTING_METADATA",
+                "disposition": "PRESERVE_RAW_DO_NOT_USE_FOR_CANONICAL_IDENTITY"
+              }
+            ],
+            "evidence_review_decision": {
+              "decision": "ACCEPT_EXACT_FACTS_FOR_CANONICAL_IDENTITY",
+              "reviewed_fact_ids": [
+                "manufacturer-cups-per-pack",
+                "manufacturer-grams-per-cup",
+                "manufacturer-retail-pack-count",
+                "derived-retail-pack-size",
+                "derived-total-content"
+              ],
+              "reviewed_by": "catalogue-evidence-reviewer:marek",
+              "reviewed_at": "2026-10-25T10:09:02.110Z",
+              "decision_evidence_sha256": "bdb8bbfc98f29e50ad049217b6b911187f3b410803795029a8cae3a5a7869658"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
