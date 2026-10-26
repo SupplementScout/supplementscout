@@ -34,6 +34,8 @@ const COMPOSITE_CREATE_SIZE_MIGRATION = "supabase/migrations/20261024120000_fix_
 const COMPOSITE_CREATE_SIZE_ROLLBACK = "supabase/rollbacks/20261024120000_fix_reviewed_v3_create_product_composite_size_projection_rollback.sql";
 const CANONICAL_EVIDENCE_MIGRATION = "supabase/migrations/20261025120000_add_reviewed_v3_canonical_identity_evidence.sql";
 const CANONICAL_EVIDENCE_ROLLBACK = "supabase/rollbacks/20261025120000_add_reviewed_v3_canonical_identity_evidence_rollback.sql";
+const CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION = "supabase/migrations/20261026120000_fix_reviewed_v3_canonical_evidence_apply_projection.sql";
+const CANONICAL_EVIDENCE_APPLY_PROJECTION_ROLLBACK = "supabase/rollbacks/20261026120000_fix_reviewed_v3_canonical_evidence_apply_projection_rollback.sql";
 const ENVIRONMENT_SAFE_FORWARD_CHAIN = Object.freeze([
   ENVIRONMENT_SAFE_BOUNDED_STATE_MIGRATION,
   ENVIRONMENT_SAFE_MIGRATION,
@@ -47,6 +49,7 @@ const ENVIRONMENT_SAFE_FORWARD_CHAIN = Object.freeze([
   EVIDENCE_PARITY_MIGRATION,
   COMPOSITE_CREATE_SIZE_MIGRATION,
   CANONICAL_EVIDENCE_MIGRATION,
+  CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION,
 ]);
 const ENVIRONMENT_SAFE_ROLLBACK_CHAIN = Object.freeze([
   ENVIRONMENT_SAFE_BOUNDED_STATE_ROLLBACK,
@@ -61,6 +64,7 @@ const ENVIRONMENT_SAFE_ROLLBACK_CHAIN = Object.freeze([
   EVIDENCE_PARITY_ROLLBACK,
   COMPOSITE_CREATE_SIZE_ROLLBACK,
   CANONICAL_EVIDENCE_ROLLBACK,
+  CANONICAL_EVIDENCE_APPLY_PROJECTION_ROLLBACK,
 ]);
 const LEGACY_COMPATIBILITY_HELPER_SHA = "849df8441e8994daf1acb514705808fde17467e033185e30cc432ad165a13905";
 const POST_CREATE_COMPATIBILITY_HELPER_SHA = "906cb5abad08deb8452fa9ae4fed8be8669b760e6f2ef088ae8846f5536b27db";
@@ -2077,6 +2081,141 @@ function exerciseBaseline(environment) {
       `${environment} canonical count evidence read-only projection`,
     );
     assert.equal(canonicalCountResult.valid, true);
+
+    const preFixCanonicalCounts = counts(container, `${environment} canonical evidence pre-fix counts`);
+    const preFixCanonicalApproval = json(
+      container,
+      asRole(environment, "approver", `select public.approve_reviewed_catalogue_v3_plan(${literal(canonicalCountEvidence.plan)},${literal(canonicalCountEvidence.envelope)})`),
+      `${environment} exact TWP canonical evidence pre-fix approval`,
+    );
+    fails(
+      sql(container, asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${preFixCanonicalApproval.approval_id}',${literal(canonicalCountEvidence.plan)},${literal(canonicalCountEvidence.envelope)})`)),
+      `${environment} exact TWP canonical evidence pre-fix apply`,
+      /invalid product import plan: variant evidence/,
+    );
+    assert.deepEqual(counts(container, `${environment} canonical evidence pre-fix rollback counts`), preFixCanonicalCounts);
+    assert.equal(
+      scalar(container, `select status||':'||coalesce(consumed_at::text,'NULL') from approved_import_plans where id='${preFixCanonicalApproval.approval_id}'`, `${environment} canonical evidence pre-fix approval state`),
+      "approved:NULL",
+    );
+    succeed(sql(container, `delete from public.approved_import_plans where id='${preFixCanonicalApproval.approval_id}'`), `${environment} remove disposable canonical evidence pre-fix approval`);
+
+    succeedWithoutBusinessChange(
+      container,
+      CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION,
+      `${environment} apply canonical evidence projection parity migration`,
+    );
+    succeed(sql(container, `insert into supabase_migrations.schema_migrations(version,name)
+      values('20261026120000','fix_reviewed_v3_canonical_evidence_apply_projection')
+      on conflict (version) do update set name=excluded.name`), `${environment} seed disposable canonical evidence projection ledger`);
+
+    const projectedTwpEvidence = json(
+      container,
+      `select public.atomic_import_reviewed_v3_legacy_validation_projection(${literal(canonicalCountEvidence.plan)},${literal(canonicalCountEvidence.envelope)})`,
+      `${environment} exact TWP legacy projection`,
+    );
+    assert.equal(Object.hasOwn(projectedTwpEvidence, "canonical_identity_evidence"), false);
+    assert.deepEqual(canonicalCountEvidence.plan.product_variant.evidence.canonical_identity_evidence, canonicalCountEvidence.envelope.canonical_identity_evidence);
+
+    const twpCountsBefore = counts(container, `${environment} exact TWP counts before`);
+    const twpApproval = json(
+      container,
+      asRole(environment, "approver", `select public.approve_reviewed_catalogue_v3_plan(${literal(canonicalCountEvidence.plan)},${literal(canonicalCountEvidence.envelope)})`),
+      `${environment} exact TWP approval after projection fix`,
+    );
+    const twpApplied = json(
+      container,
+      asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${twpApproval.approval_id}',${literal(canonicalCountEvidence.plan)},${literal(canonicalCountEvidence.envelope)})`),
+      `${environment} exact TWP apply after projection fix`,
+    );
+    assert.equal(twpApplied.approval_status, "consumed");
+    assert.equal(scalar(container, `select status from approved_import_plans where id='${twpApproval.approval_id}'`, `${environment} exact TWP approval consumed`), "consumed");
+    assert.deepEqual(
+      json(container, `select external_options from retailer_products where id=${twpApplied.retailer_product_id}`, `${environment} exact TWP raw options`),
+      { Size: "60/30 Servings" },
+    );
+    const twpCountsAfter = counts(container, `${environment} exact TWP counts after`);
+    for (const table of ["products", "product_variants", "retailer_products", "offers", "price_history"]) {
+      assert.equal(twpCountsAfter[table] - twpCountsBefore[table], 1, `${environment} exact TWP ${table} delta`);
+    }
+    const twpReplay = json(
+      container,
+      asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${twpApproval.approval_id}',${literal(canonicalCountEvidence.plan)},${literal(canonicalCountEvidence.envelope)})`),
+      `${environment} exact TWP replay`,
+    );
+    assert.equal(twpReplay.status, "ALREADY_APPLIED");
+    assert.equal(twpReplay.already_applied, true);
+    assert.deepEqual(counts(container, `${environment} exact TWP replay counts`), twpCountsAfter);
+
+    const kayowCountsBefore = counts(container, `${environment} KAYOW counts before`);
+    const kayowApproval = json(
+      container,
+      asRole(environment, "approver", `select public.approve_reviewed_catalogue_v3_plan(${literal(canonicalEvidence.plan)},${literal(canonicalEvidence.envelope)})`),
+      `${environment} KAYOW approval after projection fix`,
+    );
+    const kayowApplied = json(
+      container,
+      asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${kayowApproval.approval_id}',${literal(canonicalEvidence.plan)},${literal(canonicalEvidence.envelope)})`),
+      `${environment} KAYOW apply after projection fix`,
+    );
+    assert.equal(kayowApplied.approval_status, "consumed");
+    assert.deepEqual(
+      json(container, `select external_options from retailer_products where id=${kayowApplied.retailer_product_id}`, `${environment} KAYOW raw options`),
+      { Flavour: "Flavour 190", Size: "12 x Packs of 2 x 22g Cups", Weight: "265g" },
+    );
+    assert.deepEqual(
+      json(container, `select jsonb_build_object('size_value',size_value::text,'size_unit',size_unit,'pack_count',pack_count::text) from product_variants where id=${kayowApplied.product_variant_id}`, `${environment} KAYOW canonical variant`),
+      { size_value: "44", size_unit: "g", pack_count: "12" },
+    );
+    assert.equal(
+      canonicalEvidence.envelope.canonical_identity_evidence.derived_facts.find((fact) => fact.fact_id === "total").normalized_value,
+      "528",
+    );
+    const kayowCountsAfter = counts(container, `${environment} KAYOW counts after`);
+    for (const table of ["products", "product_variants", "retailer_products", "offers", "price_history"]) {
+      assert.equal(kayowCountsAfter[table] - kayowCountsBefore[table], 1, `${environment} KAYOW ${table} delta`);
+    }
+
+    fails(
+      file(container, CANONICAL_EVIDENCE_APPLY_PROJECTION_ROLLBACK),
+      `${environment} canonical evidence projection rollback after dependent execution`,
+      /blocked by dependent execution/,
+    );
+
+    const postApprovalTamperFixture = canonicalCountEvidenceFixture(environment, 292);
+    postApprovalTamperFixture.envelope.external_product_id = "7500539297992";
+    postApprovalTamperFixture.envelope.external_variant_id = "41706864803992";
+    postApprovalTamperFixture.plan.retailer_product.values.external_product_id = "7500539297992";
+    postApprovalTamperFixture.plan.retailer_product.values.external_variant_id = "41706864803992";
+    postApprovalTamperFixture.plan.retailer_product.values.external_url = "https://example.test/products/tongkat-tamper?variant=41706864803992";
+    postApprovalTamperFixture.envelope.direct_source_url = postApprovalTamperFixture.plan.retailer_product.values.external_url;
+    postApprovalTamperFixture.plan.product.values.name = "TWP Tongkat Ali Tamper Fixture";
+    postApprovalTamperFixture.plan.product.values.slug = "twp-tongkat-ali-tamper-fixture";
+    postApprovalTamperFixture.plan.approval.canonical_name = postApprovalTamperFixture.plan.product.values.name;
+    for (const target of [postApprovalTamperFixture.envelope.canonical_identity_evidence, postApprovalTamperFixture.plan.product_variant.evidence.canonical_identity_evidence]) {
+      target.binding.external_product_id = "7500539297992";
+      target.binding.external_variant_id = "41706864803992";
+      target.binding.product_identity = postApprovalTamperFixture.plan.product.values.name;
+      for (const fact of target.external_evidence_facts) fact.identity_binding.product_identity = postApprovalTamperFixture.plan.product.values.name;
+      target.evidence_review_decision.decision_evidence_sha256 = null;
+      target.evidence_review_decision.decision_evidence_sha256 = canonicalEvidenceSha256(target);
+    }
+    const postApprovalTamper = seal(container, postApprovalTamperFixture, `${environment} canonical evidence post-approval tamper`);
+    const tamperApproval = json(
+      container,
+      asRole(environment, "approver", `select public.approve_reviewed_catalogue_v3_plan(${literal(postApprovalTamper.plan)},${literal(postApprovalTamper.envelope)})`),
+      `${environment} canonical evidence tamper approval`,
+    );
+    const tamperCounts = counts(container, `${environment} canonical evidence tamper counts`);
+    postApprovalTamper.plan.product_variant.evidence.canonical_identity_evidence.evidence_review_decision.decision_evidence_sha256 = "0".repeat(64);
+    fails(
+      sql(container, asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${tamperApproval.approval_id}',${literal(postApprovalTamper.plan)},${literal(postApprovalTamper.envelope)})`)),
+      `${environment} canonical evidence tampered after approval`,
+      /V3_APPROVAL_MISMATCH|V3_CANONICAL_EVIDENCE_HASH_MISMATCH/,
+    );
+    assert.deepEqual(counts(container, `${environment} canonical evidence tamper counts after`), tamperCounts);
+    assert.equal(scalar(container, `select status from approved_import_plans where id='${tamperApproval.approval_id}'`, `${environment} tampered approval remains unused`), "approved");
+    succeed(sql(container, `delete from approved_import_plans where id='${tamperApproval.approval_id}'`), `${environment} remove disposable tamper approval`);
     for (const [label, source] of [
       ["physical", canonicalEvidence],
       ["container count", canonicalCountEvidence],
@@ -2122,6 +2261,48 @@ function exerciseBaseline(environment) {
       `${environment} missing canonical conflict`,
       /V3_CANONICAL_CONFLICT_RECORD_REQUIRED/,
     );
+
+    const wrongDecisionHash = structuredClone(canonicalCountEvidence);
+    for (const target of [wrongDecisionHash.envelope.canonical_identity_evidence, wrongDecisionHash.plan.product_variant.evidence.canonical_identity_evidence]) {
+      target.evidence_review_decision.decision_evidence_sha256 = "0".repeat(64);
+    }
+    seal(container, wrongDecisionHash, `${environment} canonical evidence wrong decision hash`);
+    fails(
+      sql(container, asRole(environment, "validator", `select public.validate_reviewed_catalogue_v3_plan_read_only(${literal(wrongDecisionHash.plan)},${literal(wrongDecisionHash.envelope)})`, { readOnly: true })),
+      `${environment} canonical evidence wrong decision hash`,
+      /V3_CANONICAL_EVIDENCE_HASH_MISMATCH/,
+    );
+
+    const wrongCanonicalCount = structuredClone(canonicalCountEvidence);
+    for (const target of [wrongCanonicalCount.envelope.canonical_identity_evidence, wrongCanonicalCount.plan.product_variant.evidence.canonical_identity_evidence]) {
+      target.canonical_selected_facts[0].normalized_value = "61";
+      target.evidence_review_decision.decision_evidence_sha256 = null;
+      target.evidence_review_decision.decision_evidence_sha256 = canonicalEvidenceSha256(target);
+    }
+    seal(container, wrongCanonicalCount, `${environment} canonical evidence wrong canonical count`);
+    fails(
+      sql(container, asRole(environment, "validator", `select public.validate_reviewed_catalogue_v3_plan_read_only(${literal(wrongCanonicalCount.plan)},${literal(wrongCanonicalCount.envelope)})`, { readOnly: true })),
+      `${environment} canonical evidence wrong canonical count`,
+      /V3_CANONICAL_EVIDENCE_CANONICAL_FACT_MISMATCH/,
+    );
+
+    for (const [label, field, value] of [
+      ["other product", "external_product_id", "7500539297999"],
+      ["other variant", "external_variant_id", "41706864803999"],
+    ]) {
+      const otherIdentity = structuredClone(canonicalCountEvidence);
+      for (const target of [otherIdentity.envelope.canonical_identity_evidence, otherIdentity.plan.product_variant.evidence.canonical_identity_evidence]) {
+        target.binding[field] = value;
+        target.evidence_review_decision.decision_evidence_sha256 = null;
+        target.evidence_review_decision.decision_evidence_sha256 = canonicalEvidenceSha256(target);
+      }
+      seal(container, otherIdentity, `${environment} canonical evidence ${label}`);
+      fails(
+        sql(container, asRole(environment, "validator", `select public.validate_reviewed_catalogue_v3_plan_read_only(${literal(otherIdentity.plan)},${literal(otherIdentity.envelope)})`, { readOnly: true })),
+        `${environment} canonical evidence ${label}`,
+        /V3_CANONICAL_EVIDENCE_BINDING_MISMATCH/,
+      );
+    }
 
     succeed(sql(container, `insert into public.products(id,name,slug,brand,category,is_active,product_format)
       values(101,'Evidence Product 101','evidence-product-101','Example','Energy Drinks',true,'liquid')`), `${environment} seed liquid evidence parent`);
@@ -2740,6 +2921,11 @@ function exerciseBaseline(environment) {
     );
 
     succeed(sql(container, "delete from public.approved_import_plans where source like 'reviewed-catalogue-package-v3:%'"), `${environment} remove disposable V3 fixture approvals`);
+    succeedWithoutBusinessChange(container, CANONICAL_EVIDENCE_APPLY_PROJECTION_ROLLBACK, `${environment} rollback canonical evidence projection parity migration`);
+    assert.equal(
+      functionSha(container, "public.atomic_import_reviewed_v3_legacy_validation_projection(jsonb,jsonb)", `${environment} restored pre-canonical-projection SHA`),
+      "2548c3b702403a2fda4176dbe732c993d85e14690157286aa65029f434813dff",
+    );
     succeedWithoutBusinessChange(container, CANONICAL_EVIDENCE_ROLLBACK, `${environment} rollback canonical identity evidence migration`);
     succeedWithoutBusinessChange(container, COMPOSITE_CREATE_SIZE_ROLLBACK, `${environment} rollback composite create size projection migration`);
     assert.equal(
