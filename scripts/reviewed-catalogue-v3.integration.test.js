@@ -36,6 +36,16 @@ const CANONICAL_EVIDENCE_MIGRATION = "supabase/migrations/20261025120000_add_rev
 const CANONICAL_EVIDENCE_ROLLBACK = "supabase/rollbacks/20261025120000_add_reviewed_v3_canonical_identity_evidence_rollback.sql";
 const CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION = "supabase/migrations/20261026120000_fix_reviewed_v3_canonical_evidence_apply_projection.sql";
 const CANONICAL_EVIDENCE_APPLY_PROJECTION_ROLLBACK = "supabase/rollbacks/20261026120000_fix_reviewed_v3_canonical_evidence_apply_projection_rollback.sql";
+const V3_1_CONSOLIDATION_MIGRATION = "supabase/migrations/20261027120000_consolidate_reviewed_catalogue_v3_owned_runtime.sql";
+const V3_1_CONSOLIDATION_ROLLBACK = "supabase/rollbacks/20261027120000_consolidate_reviewed_catalogue_v3_owned_runtime_rollback.sql";
+const V3_1_FUNCTION_SHAS = Object.freeze({
+  "public.atomic_import_reviewed_v3_physical_role_allowed(jsonb,jsonb)": "154d86c8abd1a0dc5aaa0bc71704be17c590af578dfffbea2adff82847068a49",
+  "public.atomic_import_reviewed_v3_count_role_allowed(jsonb,jsonb)": "90afc70b4adfa0d2836d501d240e1e98c72fec0d8ce0df99227de86b7f548f5a",
+  "public.atomic_import_reviewed_v3_legacy_validation_projection(jsonb,jsonb)": "8bc6eb2fd25499182cfbd70f29f9316056f36f8d403232a5fa6ee35df786a80c",
+  "public.atomic_import_reviewed_v3_legacy_validation_evidence(jsonb,jsonb)": "a5b8a05c0dc9cba672cbb4607c8d63660744165f88d2807e26d299159277b0f8",
+  "public.atomic_import_reviewed_v3_canonical_role_allowed(jsonb,jsonb,text)": "cc6c8017e87a3f02129dbd855960d8078348eb8271713a274e26ef5dcdf15f46",
+  "public.atomic_import_validate_reviewed_catalogue_v3_plan(jsonb,jsonb)": "033cd54202f3ed2946eb78ba37a311c5a56a4f6eb421c0424b3239ad75c19baf",
+});
 const ENVIRONMENT_SAFE_FORWARD_CHAIN = Object.freeze([
   ENVIRONMENT_SAFE_BOUNDED_STATE_MIGRATION,
   ENVIRONMENT_SAFE_MIGRATION,
@@ -50,6 +60,7 @@ const ENVIRONMENT_SAFE_FORWARD_CHAIN = Object.freeze([
   COMPOSITE_CREATE_SIZE_MIGRATION,
   CANONICAL_EVIDENCE_MIGRATION,
   CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION,
+  V3_1_CONSOLIDATION_MIGRATION,
 ]);
 const ENVIRONMENT_SAFE_ROLLBACK_CHAIN = Object.freeze([
   ENVIRONMENT_SAFE_BOUNDED_STATE_ROLLBACK,
@@ -65,6 +76,7 @@ const ENVIRONMENT_SAFE_ROLLBACK_CHAIN = Object.freeze([
   COMPOSITE_CREATE_SIZE_ROLLBACK,
   CANONICAL_EVIDENCE_ROLLBACK,
   CANONICAL_EVIDENCE_APPLY_PROJECTION_ROLLBACK,
+  V3_1_CONSOLIDATION_ROLLBACK,
 ]);
 const LEGACY_COMPATIBILITY_HELPER_SHA = "849df8441e8994daf1acb514705808fde17467e033185e30cc432ad165a13905";
 const POST_CREATE_COMPATIBILITY_HELPER_SHA = "906cb5abad08deb8452fa9ae4fed8be8669b760e6f2ef088ae8846f5536b27db";
@@ -2109,6 +2121,44 @@ function exerciseBaseline(environment) {
       values('20261026120000','fix_reviewed_v3_canonical_evidence_apply_projection')
       on conflict (version) do update set name=excluded.name`), `${environment} seed disposable canonical evidence projection ledger`);
 
+    const v31CountsBefore = counts(container, `${environment} V3.1 consolidation counts before`);
+    const v31MetadataBefore = Object.fromEntries(Object.keys(V3_1_FUNCTION_SHAS).map((signature) => [
+      signature,
+      functionMetadata(container, signature, `${environment} V3.1 preflight metadata ${signature}`),
+    ]));
+    const v31SharedBefore = {
+      standard: functionSha(container, "public.atomic_import_apply_standard_plan_core(jsonb)", `${environment} V3.1 standard core before`),
+      preSource: functionSha(container, "public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)", `${environment} V3.1 pre-source core before`),
+    };
+    const v31BlockingApproval = json(
+      container,
+      asRole(environment, "approver", `select public.approve_reviewed_catalogue_v3_plan(${literal(canonicalCountEvidence.plan)},${literal(canonicalCountEvidence.envelope)})`),
+      `${environment} V3.1 blocking approval`,
+    );
+    fails(
+      file(container, V3_1_CONSOLIDATION_MIGRATION),
+      `${environment} V3.1 consolidation with live approval`,
+      /consolidation blocked by live approval/i,
+    );
+    assert.deepEqual(counts(container, `${environment} V3.1 blocked counts`), v31CountsBefore);
+    succeed(sql(container, `delete from public.approved_import_plans where id='${v31BlockingApproval.approval_id}'`), `${environment} remove disposable V3.1 blocking approval`);
+    succeedWithoutBusinessChange(container, V3_1_CONSOLIDATION_MIGRATION, `${environment} apply V3.1 consolidation`);
+    succeed(sql(container, `insert into supabase_migrations.schema_migrations(version,name)
+      values('20261027120000','consolidate_reviewed_catalogue_v3_owned_runtime')
+      on conflict (version) do update set name=excluded.name`), `${environment} seed disposable V3.1 consolidation ledger`);
+    assert.deepEqual(counts(container, `${environment} V3.1 counts after`), v31CountsBefore);
+    for (const [signature, expectedSha] of Object.entries(V3_1_FUNCTION_SHAS)) {
+      assert.equal(functionSha(container, signature, `${environment} V3.1 SHA ${signature}`), expectedSha);
+      assert.deepEqual(
+        functionMetadata(container, signature, `${environment} V3.1 metadata ${signature}`),
+        v31MetadataBefore[signature],
+      );
+    }
+    assert.deepEqual({
+      standard: functionSha(container, "public.atomic_import_apply_standard_plan_core(jsonb)", `${environment} V3.1 standard core after`),
+      preSource: functionSha(container, "public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)", `${environment} V3.1 pre-source core after`),
+    }, v31SharedBefore);
+
     const projectedTwpEvidence = json(
       container,
       `select public.atomic_import_reviewed_v3_legacy_validation_projection(${literal(canonicalCountEvidence.plan)},${literal(canonicalCountEvidence.envelope)})`,
@@ -2921,6 +2971,19 @@ function exerciseBaseline(environment) {
     );
 
     succeed(sql(container, "delete from public.approved_import_plans where source like 'reviewed-catalogue-package-v3:%'"), `${environment} remove disposable V3 fixture approvals`);
+    succeedWithoutBusinessChange(container, V3_1_CONSOLIDATION_ROLLBACK, `${environment} rollback V3.1 consolidation`);
+    for (const [signature, expectedSha] of Object.entries(V3_1_FUNCTION_SHAS)) {
+      assert.equal(functionSha(container, signature, `${environment} V3.1 rollback SHA ${signature}`), expectedSha);
+      assert.deepEqual(
+        functionMetadata(container, signature, `${environment} V3.1 rollback metadata ${signature}`),
+        v31MetadataBefore[signature],
+      );
+    }
+    assert.deepEqual({
+      standard: functionSha(container, "public.atomic_import_apply_standard_plan_core(jsonb)", `${environment} V3.1 rollback standard core`),
+      preSource: functionSha(container, "public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)", `${environment} V3.1 rollback pre-source core`),
+    }, v31SharedBefore);
+    succeed(sql(container, "delete from supabase_migrations.schema_migrations where version='20261027120000'"), `${environment} remove disposable V3.1 ledger`);
     succeedWithoutBusinessChange(container, CANONICAL_EVIDENCE_APPLY_PROJECTION_ROLLBACK, `${environment} rollback canonical evidence projection parity migration`);
     assert.equal(
       functionSha(container, "public.atomic_import_reviewed_v3_legacy_validation_projection(jsonb,jsonb)", `${environment} restored pre-canonical-projection SHA`),
