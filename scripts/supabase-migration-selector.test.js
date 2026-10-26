@@ -373,6 +373,7 @@ function withoutCurrentSeo15Migrations(rows) {
     REVIEWED_V3_EVIDENCE_PARITY_MIGRATION,
     REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION,
     REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION,
+    REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION,
   ].includes(`${version}_${name}.sql`));
 }
 
@@ -420,16 +421,14 @@ test.after(() => {
   }
 });
 
-test("staging records ledger 116 with canonical identity evidence applied", () => {
+test("staging records ledger 117 with canonical evidence apply projection closed", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 116);
+  assert.equal(result.ledger_count, 117);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending_files, [REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION]);
-  assert.deepEqual(result.pending_sha256s, {
-    [REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION]: REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_SHA256,
-  });
-  assert.equal(result.pending_file, REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION);
-  assert.equal(result.pending_sha256, REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_SHA256);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
@@ -446,6 +445,7 @@ test("staging records ledger 116 with canonical identity evidence applied", () =
   assert.ok(result.selected_files.includes(REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_PARENT_FORMAT_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_EVIDENCE_PARITY_MIGRATION));
+  assert.ok(result.selected_files.includes(REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION));
 });
 
 test("the local-only migration is the exact shared-policy exclusion", () => {
@@ -1176,18 +1176,18 @@ test("owner-authorized ACL/RLS activation selects exactly one migration from led
   ]), /staging-only/);
 });
 
-test("staging contract records ledger 116 with canonical identity evidence applied", () => {
+test("staging contract records ledger 117 with canonical evidence projection applied", () => {
   const filename = "20260928100000_diagnose_ra004_preflight_acl_rls.sql";
-  assert.equal(CONTRACT.ledgerCount, 116);
+  assert.equal(CONTRACT.ledgerCount, 117);
   assert.equal(CONTRACT.ledgerFingerprint,
-    "2512d290592561704edd9ff65b3bd2697a9cc46b729ec39c3c57ebc6e88f076e");
+    "193530b3247db4c67c604046cbab1a2190b9af43914611aa4c57166fd7ecad14");
   assert.ok(CONTRACT.appliedExcluded.includes(filename));
   assert.ok(CONTRACT.appliedExcluded.includes(RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION));
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === filename));
   assert.ok(CONTRACT.appliedExcluded.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === REVIEWED_STATE_MIGRATION));
-  assert.deepEqual(CONTRACT.pending, REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_PENDING);
-  assert.equal(currentRemoteLedger().length, 116);
+  assert.deepEqual(CONTRACT.pending, []);
+  assert.equal(currentRemoteLedger().length, 117);
   assert.ok(currentRemoteLedger().some(({ version, name }) =>
     `${version}_${name}.sql` === REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION));
   assert.ok(currentRemoteLedger().some(({ version, name }) =>
@@ -1206,6 +1206,8 @@ test("staging contract records ledger 116 with canonical identity evidence appli
     `${version}_${name}.sql` === REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION));
   assert.ok(currentRemoteLedger().some(({ version, name }) =>
     `${version}_${name}.sql` === REVIEWED_V3_EVIDENCE_PARITY_MIGRATION));
+  assert.ok(currentRemoteLedger().some(({ version, name }) =>
+    `${version}_${name}.sql` === REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION));
   assert.equal(ledgerRowsFingerprint(currentRemoteLedger(), { targetEnvironment: "STAGING" }),
     CONTRACT.ledgerFingerprint);
 });
@@ -1651,14 +1653,12 @@ test("completed RA-004 fixture activation cannot select or materialize a migrati
   })), /status mismatch/);
 });
 
-test("canonical evidence apply projection remains pending without advancing either ledger", () => {
+test("canonical evidence apply projection is closed on staging and remains ordered after its production prerequisite", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION);
-  assert.equal(result.pending_sha256, REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_SHA256);
-  assert.deepEqual(result.pending_files, [REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION]);
-  assert.deepEqual(result.pending_sha256s, {
-    [REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION]: REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_SHA256,
-  });
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(result.selected_files.includes(REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION));
@@ -1669,10 +1669,24 @@ test("canonical evidence apply projection remains pending without advancing eith
   assert.ok(result.selected_files.includes(REVIEWED_V3_EVIDENCE_PARITY_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION));
+  assert.ok(result.selected_files.includes(REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION));
   assert.deepEqual(CONTRACTS.PRODUCTION.pending, REVIEWED_V3_PRODUCTION_PENDING);
   assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 250);
   assert.equal(CONTRACTS.PRODUCTION.ledgerFingerprint,
     "27f5ea8182482078fc71b7eeea44202a3839f214d7eae42b738f21257394eb54");
+  const productionPrerequisiteIdentifiers = [
+    ...migrationBinding("PRODUCTION").versions,
+    REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION.slice(0, -4),
+  ].sort();
+  const productionPrerequisiteRows = productionPrerequisiteIdentifiers.map(identifier => {
+    const split = identifier.indexOf("_");
+    return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
+  });
+  assert.equal(productionPrerequisiteRows.length, 251);
+  assert.equal(
+    ledgerRowsFingerprint(productionPrerequisiteRows, { targetEnvironment: "PRODUCTION" }),
+    "477f8d50f3232bf19cbfaf25a1461400a8dc24c327f7d1c9f4dda15e19cde3b1",
+  );
   const productionPostIdentifiers = [
     ...migrationBinding("PRODUCTION").versions,
     REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION.slice(0, -4),
@@ -1687,14 +1701,7 @@ test("canonical evidence apply projection remains pending without advancing eith
     ledgerRowsFingerprint(productionPostRows, { targetEnvironment: "PRODUCTION" }),
     "7f082a9b1388523275dcd6e03850caeacb69b504a19909d16f2f7372d91d4281",
   );
-  const stagingPostIdentifiers = [
-    ...migrationBinding("STAGING").versions,
-    REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION.slice(0, -4),
-  ].sort();
-  const stagingPostRows = stagingPostIdentifiers.map(identifier => {
-    const split = identifier.indexOf("_");
-    return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
-  });
+  const stagingPostRows = currentRemoteLedger();
   assert.equal(stagingPostRows.length, 117);
   assert.equal(
     ledgerRowsFingerprint(stagingPostRows, { targetEnvironment: "STAGING" }),
