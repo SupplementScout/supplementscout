@@ -65,20 +65,11 @@ const REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION = "20261025120000_add_reviewed_v3
 const REVIEWED_V3_CANONICAL_EVIDENCE_SHA256 = "21cbebf49d6eb9499c4a9bb6f0fe8c24f1e3c70818fba75220b7241fc9ba134d";
 const REVIEWED_V3_CANONICAL_EVIDENCE_ROLLBACK = "20261025120000_add_reviewed_v3_canonical_identity_evidence_rollback.sql";
 const REVIEWED_V3_CANONICAL_EVIDENCE_ROLLBACK_SHA256 = "7ca2a600144a7047718b6744340ceeff98489835af9e4dca6840c190c91a6d60";
-const REVIEWED_V3_CANONICAL_EVIDENCE_PENDING = [{ filename: REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION, sha256: REVIEWED_V3_CANONICAL_EVIDENCE_SHA256, expectedCatalogueDeltas: {} }];
 const REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION = "20261026120000_fix_reviewed_v3_canonical_evidence_apply_projection.sql";
 const REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_SHA256 = "e8d5b7c408a5f6dc2df77fb2d507d5dd49c940ab984b90cc887ea1b9260d4edb";
 const REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_ROLLBACK = "20261026120000_fix_reviewed_v3_canonical_evidence_apply_projection_rollback.sql";
 const REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_ROLLBACK_SHA256 = "d579607b31ba73dcd8539dcb278177c33c2da4d066304bd1d8941032aaba733b";
-const REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_PENDING = [{
-  filename: REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION,
-  sha256: REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_SHA256,
-  expectedCatalogueDeltas: {},
-}];
-const REVIEWED_V3_PRODUCTION_PENDING = [
-  ...REVIEWED_V3_CANONICAL_EVIDENCE_PENDING,
-  ...REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_PENDING,
-];
+const REVIEWED_V3_PRODUCTION_PENDING = [];
 const RA004_CONTROL_STATE_MIGRATION = "20260924100000_add_transactional_retailer_control_state_interface.sql";
 const RA004_PREFLIGHT_MIGRATION = "20260925100000_add_ra004_staging_preflight_metadata_interface.sql";
 const RA004_FORWARD_CONTROL_STATE_MIGRATION = "20260927100000_reissue_transactional_retailer_control_state_interface.sql";
@@ -548,10 +539,10 @@ test("production preserves deployed V3 and Ghost Lifestyle metadata correction b
     "20261008200000_consolidate_shared_executor_state_reads.sql",
     "20261009120000_add_compact_other_retailer_fingerprint.sql",
   ]);
-  assert.equal(contract.ledgerCount, 250);
+  assert.equal(contract.ledgerCount, 252);
   assert.equal(
     contract.ledgerFingerprint,
-    "27f5ea8182482078fc71b7eeea44202a3839f214d7eae42b738f21257394eb54",
+    "7f082a9b1388523275dcd6e03850caeacb69b504a19909d16f2f7372d91d4281",
   );
   assert.equal(sha256File(path.join(SOURCE, GHOST_LIFESTYLE_METADATA_MIGRATION)), GHOST_LIFESTYLE_METADATA_SHA256);
   assert.equal(contract.excluded[REVIEWED_STATE_MIGRATION], REVIEWED_STATE_SHA256);
@@ -812,7 +803,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACT.ledgerFingerprint);
 });
 
-test("production records the deployed reviewed V3 composite size migration at ledger 250", () => {
+test("production records the deployed canonical evidence migrations at ledger 252", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   for (const filename of contract.appliedExcluded) excluded.delete(filename);
@@ -839,7 +830,7 @@ test("production records the deployed reviewed V3 composite size migration at le
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 250);
+  assert.equal(result.ledger_count, 252);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 252);
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
@@ -853,16 +844,10 @@ test("production records the deployed reviewed V3 composite size migration at le
   assert.ok(result.selected_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
   assert.ok(result.excluded_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
   assert.ok(result.selected_files.includes(REVIEWED_V3_PARENT_FORMAT_MIGRATION));
-  assert.deepEqual(result.pending_files, [
-    REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION,
-    REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION,
-  ]);
+  assert.deepEqual(result.pending_files, []);
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {
-    [REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION]: REVIEWED_V3_CANONICAL_EVIDENCE_SHA256,
-    [REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION]: REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_SHA256,
-  });
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(REVIEWED_V3_EVIDENCE_PARITY_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION));
   for (const filename of [
@@ -1671,13 +1656,13 @@ test("canonical evidence apply projection is closed on staging and remains order
   assert.ok(result.selected_files.includes(REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION));
   assert.deepEqual(CONTRACTS.PRODUCTION.pending, REVIEWED_V3_PRODUCTION_PENDING);
-  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 250);
+  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 252);
   assert.equal(CONTRACTS.PRODUCTION.ledgerFingerprint,
-    "27f5ea8182482078fc71b7eeea44202a3839f214d7eae42b738f21257394eb54");
+    "7f082a9b1388523275dcd6e03850caeacb69b504a19909d16f2f7372d91d4281");
   const productionPrerequisiteIdentifiers = [
-    ...migrationBinding("PRODUCTION").versions,
-    REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION.slice(0, -4),
-  ].sort();
+    ...migrationBinding("PRODUCTION").versions.filter(identifier =>
+      identifier !== REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION.slice(0, -4)),
+  ];
   const productionPrerequisiteRows = productionPrerequisiteIdentifiers.map(identifier => {
     const split = identifier.indexOf("_");
     return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
@@ -1687,11 +1672,7 @@ test("canonical evidence apply projection is closed on staging and remains order
     ledgerRowsFingerprint(productionPrerequisiteRows, { targetEnvironment: "PRODUCTION" }),
     "477f8d50f3232bf19cbfaf25a1461400a8dc24c327f7d1c9f4dda15e19cde3b1",
   );
-  const productionPostIdentifiers = [
-    ...migrationBinding("PRODUCTION").versions,
-    REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION.slice(0, -4),
-    REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION.slice(0, -4),
-  ].sort();
+  const productionPostIdentifiers = migrationBinding("PRODUCTION").versions;
   const productionPostRows = productionPostIdentifiers.map(identifier => {
     const split = identifier.indexOf("_");
     return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
