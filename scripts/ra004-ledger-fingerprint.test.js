@@ -20,7 +20,7 @@ const ROOT = path.resolve(__dirname, "..");
 const FIXTURE_PATH = path.join(__dirname, "test-fixtures", "ra004-ledger-fingerprint-v1", "staging-ledger-97.json");
 const GOLDEN_PATH = path.join(__dirname, "test-fixtures", "ra004-ledger-fingerprint-v1", "golden-vectors.json");
 const EXPECTED = "bbfc25a25826ebfd4901941099903921e1f5adeb9d952eb6aa93c64939e3849c";
-const EXPECTED_CURRENT = "193530b3247db4c67c604046cbab1a2190b9af43914611aa4c57166fd7ecad14";
+const EXPECTED_CURRENT = "f42803bfcda3f5dfd587a5bc92583ae347d50bdf7f10066fe1e6db1d378f4e75";
 const EXPECTED_PRODUCTION = "7f082a9b1388523275dcd6e03850caeacb69b504a19909d16f2f7372d91d4281";
 const LEGACY_SELECTOR_FINGERPRINT = "1692043d963e98570cd69ea2f46654c35f35a78f26c35b3d96e04751d528331c";
 
@@ -55,7 +55,7 @@ function productionRepositoryLedger() {
     .map((filename) => ({ version: filename.slice(0, 14), name: filename.slice(15, -4) }));
 }
 
-test("the neutral fixture preserves ledger 97 and the repository reconstructs current ledger 117", () => {
+test("the neutral fixture preserves ledger 97 and the repository reconstructs current ledger 118", () => {
   const value = fixture();
   assert.equal(value.contract_version, CONTRACT_VERSION);
   assert.equal(value.expected_count, 97);
@@ -110,6 +110,10 @@ test("the neutral fixture preserves ledger 97 and the repository reconstructs cu
   assert.deepEqual(current[116], {
     version: "20261026120000",
     name: "fix_reviewed_v3_canonical_evidence_apply_projection",
+  });
+  assert.deepEqual(current[117], {
+    version: "20261027120000",
+    name: "consolidate_reviewed_catalogue_v3_owned_runtime",
   });
   assert.equal(ledgerFingerprint(value.rows, { targetEnvironment: "STAGING" }), EXPECTED);
   assert.equal(
