@@ -228,6 +228,7 @@ const PENDING_MIGRATIONS = Object.freeze({
   STAGING: Object.freeze([]),
   PRODUCTION: Object.freeze([
     Object.freeze({ filename: "20261025120000_add_reviewed_v3_canonical_identity_evidence.sql", sha256: "21cbebf49d6eb9499c4a9bb6f0fe8c24f1e3c70818fba75220b7241fc9ba134d", expectedCatalogueDeltas: Object.freeze({}) }),
+    Object.freeze({ filename: "20261026120000_fix_reviewed_v3_canonical_evidence_apply_projection.sql", sha256: "e8d5b7c408a5f6dc2df77fb2d507d5dd49c940ab984b90cc887ea1b9260d4edb", expectedCatalogueDeltas: Object.freeze({}) }),
   ]),
 });
 
