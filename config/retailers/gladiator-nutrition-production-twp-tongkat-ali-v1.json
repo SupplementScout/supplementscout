@@ -1,0 +1,168 @@
+{
+  "schema_version": 3,
+  "kind": "reviewed-catalogue-package-v3",
+  "source_platform": "shopify",
+  "status": "OWNER_APPROVED",
+  "authorized_by": "Marek Kalinka",
+  "authorized_at": "2026-10-26T14:27:24.841Z",
+  "target_environment": "PRODUCTION",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "retailer": {
+    "id": 15,
+    "name": "Gladiator Nutrition",
+    "slug": "gladiator-nutrition",
+    "website": "https://gladiatornutrition.co.uk",
+    "expected_action": "existing",
+    "shipping_known": true,
+    "shipping_cost": 6.99
+  },
+  "policy": {
+    "reviewed_rows_only": true,
+    "allow_product_creation": true,
+    "allow_variant_creation": true,
+    "allow_canonical_product_updates": false,
+    "allow_canonical_variant_updates": false,
+    "allow_canonical_gtin_updates": false,
+    "allow_category_changes": false,
+    "sku_is_not_gtin": true,
+    "one_plan_at_a_time": true,
+    "fresh_single_use_approval_per_plan": true,
+    "strict_production_readback_after_each_apply": true
+  },
+  "profiles": [
+    {
+      "id": "gladiator-nutrition-production-twp-tongkat-ali-v1",
+      "status": "DRY_RUN_PASS",
+      "csv_path": "tmp/retailer-feeds/gladiator-nutrition/twp-tongkat-ali-production-final-20261026/gladiator-nutrition-production-twp-tongkat-ali-v1.csv",
+      "csv_sha256": "3f8fdacbb25f882ae7ce7c771068ba087faf389a9e5fc4cf6893f25dfeb11d7f",
+      "artifact_path": "tmp/retailer-feeds/gladiator-nutrition/twp-tongkat-ali-production-final-20261026/gladiator-nutrition-production-twp-tongkat-ali-v1-dry-run.json",
+      "artifact_sha256": "6542b5bb5878953e3e3c8bffa91cd37f52738f8d4e5a539114832546cee6f534",
+      "row_count": 1,
+      "blocked_row_count": 0,
+      "conflict_count": 0,
+      "expected_actions": {
+        "retailers_create": 0,
+        "products_create": 1,
+        "product_variants_create": 1,
+        "retailer_products_create": 1,
+        "offers_create": 1,
+        "price_history_create": 1
+      },
+      "rows": [
+        {
+          "review_row": 1,
+          "external_product_id": "7500539297837",
+          "external_variant_id": "41706864803885",
+          "external_sku": null,
+          "external_gtin": null,
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_default_variant",
+          "brand": "TWP",
+          "category": "Health Supplements",
+          "product_name": "TWP Tongkat Ali",
+          "variant_name": "Default",
+          "flavour": null,
+          "size_value": null,
+          "size_unit": null,
+          "pack_count": 1,
+          "product_format": "capsule",
+          "price": 23.99,
+          "in_stock": true,
+          "source_row_fingerprint": "b03bf20abb81167b5d89fda37f912ce1243a3c72a0f4b3122245965f7a013a64",
+          "plan_fingerprint": "2e44a8ba7da271e66827926c152bcc13",
+          "external_url": "https://gladiatornutrition.co.uk/products/twp-tongkat-ali?variant=41706864803885",
+          "affiliate_url": "https://gladiatornutrition.co.uk/products/twp-tongkat-ali?variant=41706864803885&sca_ref=11968733.U3nlV04VwN4S",
+          "external_options": {
+            "Size": "60/30 Servings"
+          },
+          "option_roles": {
+            "count": {
+              "count_unit": "servings",
+              "count_value": "60/30",
+              "source_key": "Size",
+              "source_value": "60/30 Servings"
+            },
+            "flavour": null,
+            "physical_size": null
+          },
+          "source_structure": {
+            "product_variant_count": 1,
+            "meaningful_variant_axes": []
+          },
+          "unit_count": 60,
+          "unit_type": "capsules",
+          "canonical_identity_evidence": {
+            "binding": {
+              "brand": "TWP",
+              "external_gtin": null,
+              "external_product_id": "7500539297837",
+              "external_sku": null,
+              "external_variant_id": "41706864803885",
+              "package_authorized_at": "2026-10-26T14:27:24.841Z",
+              "product_identity": "TWP Tongkat Ali",
+              "retailer_id": "15",
+              "source_row_fingerprint": "b03bf20abb81167b5d89fda37f912ce1243a3c72a0f4b3122245965f7a013a64"
+            },
+            "canonical_selected_facts": [
+              {
+                "evidence_review_decision": "ACCEPT_FOR_CANONICAL_IDENTITY",
+                "normalized_value": "60",
+                "role": "container_count",
+                "selected_fact_id": "manufacturer-label-container-count",
+                "unit": "capsules"
+              }
+            ],
+            "conflict_records": [
+              {
+                "canonical_fact_id": "manufacturer-label-container-count",
+                "classification": "SERVING_COUNT_NOT_CONTAINER_COUNT",
+                "disposition": "PRESERVE_RAW_DO_NOT_USE_FOR_CANONICAL_IDENTITY",
+                "raw_fact_id": "shopify-size-serving-count"
+              }
+            ],
+            "contract_version": "1",
+            "derived_facts": [],
+            "evidence_review_decision": {
+              "decision": "ACCEPT_EXACT_FACTS_FOR_CANONICAL_IDENTITY",
+              "decision_evidence_sha256": "63358735b64de6e5ebbb96fc7abd5ee4c94efcef33e9cf0a029f39c83a8ab9e0",
+              "reviewed_at": "2026-10-26T08:18:00.000Z",
+              "reviewed_by": "catalogue-evidence-reviewer:marek",
+              "reviewed_fact_ids": [
+                "manufacturer-label-container-count"
+              ]
+            },
+            "external_evidence_facts": [
+              {
+                "captured_at": "2026-10-25T18:39:29.136Z",
+                "evidence_source_type": "manufacturer_label",
+                "fact_id": "manufacturer-label-container-count",
+                "identity_binding": {
+                  "brand": "TWP",
+                  "external_gtin": null,
+                  "external_sku": null,
+                  "pack_configuration": "60 capsules",
+                  "product_identity": "TWP Tongkat Ali"
+                },
+                "normalized_value": "60",
+                "role": "container_count",
+                "source_content_sha256": "e5b1a108e13fc2c0ec9b32072967bbf8cec9774e012bf0b3b48a41127a64103e",
+                "source_url": "https://twpnutrition.com/cdn/shop/files/twp_1200x1200_tongkak_1024x1024.jpg?v=1690915333",
+                "unit": "capsules"
+              }
+            ],
+            "raw_source_facts": [
+              {
+                "fact_id": "shopify-size-serving-count",
+                "raw_value": "60/30 Servings",
+                "role": "serving_count",
+                "source_key": "Size",
+                "source_row_fingerprint": "b03bf20abb81167b5d89fda37f912ce1243a3c72a0f4b3122245965f7a013a64"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
