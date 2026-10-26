@@ -74,7 +74,9 @@ Mapping rules:
 - store the retailer barcode only in `external_gtin`;
 - keep `size` numeric and put its unit in `size_unit`;
 - use `pack_count` for multipack evidence, not canonical `unit_count`;
-- use ISO 8601 UTC for `source_updated_at` when supplied.
+- use strict UTC RFC3339 for `source_updated_at`: `Z` or `+00:00`, with an
+  optional one-to-three-digit fractional second. The importer normalizes every
+  accepted value with `toISOString()`.
 
 The importer currently uses the three headers below together to recognise the canonical schema:
 
@@ -86,7 +88,13 @@ shipping_known
 
 After recognition, it validates all required headers and required row values. `variant_name` is mapped to variant evidence, `size` and `size_unit` are joined, and `pack_count` is passed to the existing variant guards as `pack of N` evidence.
 
-`external_product_id`, `external_variant_id`, and `source_updated_at` are not yet persisted or used for matching.
+`external_product_id` and `external_variant_id` are not yet persisted or used for
+matching. For bounded Reviewed Catalogue V2/V3 planning, `source_updated_at` is a
+required hash-bound source value, is normalized to canonical UTC, and becomes
+the offer plan's `last_checked_at`;
+the planner never substitutes its current clock, manifest authorization time,
+evidence review time, or artifact creation time. Historical non-reviewed inputs
+without a canonical source timestamp retain their existing clock-based behavior.
 
 ## 4. Validate the canonical schema
 

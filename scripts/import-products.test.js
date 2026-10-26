@@ -58,6 +58,9 @@ const {
   canonicalJson,
   normalizeDecimalString,
 } = require("./lib/canonical-json");
+const {
+  canonicalEvidenceSha256,
+} = require("./lib/reviewed-catalogue-canonical-evidence");
 const predatorsReviewedNewProducts = require("../config/retailers/predators-gear-reviewed-new-products-v1.json");
 const predatorsReviewedNewProductsV3 = require("../config/retailers/predators-gear-reviewed-new-products-v3.json");
 const predatorsReviewedCm3MissingVariants = require("../config/retailers/predators-gear-reviewed-cm3-missing-variants-v1.json");
@@ -352,7 +355,6 @@ test("mixed planning accepts one exact source capture while legacy planning stil
   assert.throws(() => resolvePlanTimestamp("2026-07-18T16:09:19Z"), /exact UTC RFC3339/);
   assert.throws(() => resolvePlanTimestamp("not-a-timestamp"), /Invalid time value/);
 });
-
 test("reviewed Six Pack RTD evidence preserves the sealed catalogue format", () => {
   const row = {
     pack_count: "1",
@@ -577,7 +579,7 @@ function baseCanonicalFeedRow(overrides = {}) {
     flavour: "unflavoured",
     product_format: "powder",
     pack_count: "1",
-    source_updated_at: "2026-07-10T09:30:00Z",
+    source_updated_at: "2026-07-10T09:30:00.000Z",
     ...overrides,
   };
 }
@@ -9326,4 +9328,567 @@ test("reviewed V3 derives the existing create_default model from one source vari
   assert.equal(result.report.approvedRows[0].importPlan.product.action, "create");
   assert.equal(result.report.approvedRows[0].importPlan.product_variant.action, "create_default");
   assert.deepEqual(result.report.approvedRows[0].importPlan.retailer_product.values.external_options, externalOptions);
+});
+
+function reviewedTimestampEvidence({ kind, authorizedAt, reviewedAt }) {
+  const twp = kind === "twp";
+  const externalProductId = twp ? "7500539297837" : "15640537334134";
+  const externalVariantId = twp ? "41706864803885" : "57417961668982";
+  const brand = twp ? "TWP" : "KAYOW";
+  const productIdentity = twp ? "TWP Tongkat Ali" : "KAYOW Protein Butter Cups";
+  const externalSku = twp ? null : "KBC-12";
+  const rawSourceFacts = twp
+    ? [{
+        fact_id: "raw-servings",
+        role: "serving_count",
+        raw_value: "60/30 Servings",
+        source_key: "Size",
+        source_row_fingerprint: null,
+      }]
+    : [
+        {
+          fact_id: "raw-pack-structure",
+          role: "pack_structure",
+          raw_value: "12 x Packs of 2 x 22g Cups",
+          source_key: "Size",
+          source_row_fingerprint: null,
+        },
+        {
+          fact_id: "raw-weight",
+          role: "physical_size",
+          raw_value: "265g",
+          source_key: "Weight",
+          source_row_fingerprint: null,
+        },
+      ];
+  const identityBinding = {
+    brand,
+    product_identity: productIdentity,
+    external_gtin: null,
+    external_sku: externalSku,
+    pack_configuration: twp ? "60 capsules" : "12 packs x 2 cups x 22g",
+  };
+  const externalEvidenceFacts = twp
+    ? [{
+        fact_id: "manufacturer-count",
+        role: "container_count",
+        normalized_value: "60",
+        unit: "capsules",
+        evidence_source_type: "manufacturer_product_page",
+        source_url: "https://manufacturer.example/tongkat",
+        captured_at: "2026-10-25T10:00:00.000Z",
+        source_content_sha256: "b".repeat(64),
+        identity_binding: identityBinding,
+      }]
+    : [
+        {
+          fact_id: "cups",
+          role: "piece_count",
+          normalized_value: "2",
+          unit: "pieces",
+          evidence_source_type: "manufacturer_label",
+          source_url: "https://manufacturer.example/cups",
+          captured_at: "2026-10-25T10:00:00.000Z",
+          source_content_sha256: "b".repeat(64),
+          identity_binding: identityBinding,
+        },
+        {
+          fact_id: "cup-size",
+          role: "physical_size",
+          normalized_value: "22",
+          unit: "g",
+          evidence_source_type: "manufacturer_label",
+          source_url: "https://manufacturer.example/cups",
+          captured_at: "2026-10-25T10:00:00.000Z",
+          source_content_sha256: "b".repeat(64),
+          identity_binding: identityBinding,
+        },
+        {
+          fact_id: "packs",
+          role: "pack_count",
+          normalized_value: "12",
+          unit: "packs",
+          evidence_source_type: "manufacturer_label",
+          source_url: "https://manufacturer.example/cups",
+          captured_at: "2026-10-25T10:00:00.000Z",
+          source_content_sha256: "b".repeat(64),
+          identity_binding: identityBinding,
+        },
+      ];
+  const derive = (factId, role, operandFactIds, normalizedValue) => {
+    const allFacts = [...externalEvidenceFacts];
+    const orderedOperands = operandFactIds.map((factIdValue) => {
+      const fact = allFacts.find((candidate) => candidate.fact_id === factIdValue);
+      return {
+        fact_id: factIdValue,
+        normalized_value: fact.normalized_value,
+        unit: fact.unit,
+      };
+    });
+    return {
+      fact_id: factId,
+      role,
+      formula_id: "multiply_exact_decimal_v1",
+      operand_fact_ids: operandFactIds,
+      normalized_value: normalizedValue,
+      unit: "g",
+      derivation_sha256: canonicalEvidenceSha256({
+        formula_id: "multiply_exact_decimal_v1",
+        ordered_operands: orderedOperands,
+        result: normalizedValue,
+        unit: "g",
+      }),
+    };
+  };
+  const derivedFacts = twp
+    ? []
+    : [derive("pack-size", "physical_size", ["cups", "cup-size"], "44")];
+  if (!twp) {
+    const orderedOperands = [
+      { fact_id: "packs", normalized_value: "12", unit: "packs" },
+      { fact_id: "pack-size", normalized_value: "44", unit: "g" },
+    ];
+    derivedFacts.push({
+      fact_id: "total",
+      role: "total_content",
+      formula_id: "multiply_exact_decimal_v1",
+      operand_fact_ids: ["packs", "pack-size"],
+      normalized_value: "528",
+      unit: "g",
+      derivation_sha256: canonicalEvidenceSha256({
+        formula_id: "multiply_exact_decimal_v1",
+        ordered_operands: orderedOperands,
+        result: "528",
+        unit: "g",
+      }),
+    });
+  }
+  const canonicalSelectedFacts = twp
+    ? [{
+        role: "container_count",
+        selected_fact_id: "manufacturer-count",
+        normalized_value: "60",
+        unit: "capsules",
+        evidence_review_decision: "ACCEPT_FOR_CANONICAL_IDENTITY",
+      }]
+    : [
+        {
+          role: "physical_size",
+          selected_fact_id: "pack-size",
+          normalized_value: "44",
+          unit: "g",
+          evidence_review_decision: "ACCEPT_FOR_CANONICAL_IDENTITY",
+        },
+        {
+          role: "pack_count",
+          selected_fact_id: "packs",
+          normalized_value: "12",
+          unit: "packs",
+          evidence_review_decision: "ACCEPT_FOR_CANONICAL_IDENTITY",
+        },
+      ];
+  return {
+    contract_version: "1",
+    binding: {
+      retailer_id: "12",
+      external_product_id: externalProductId,
+      external_variant_id: externalVariantId,
+      source_row_fingerprint: null,
+      brand,
+      product_identity: productIdentity,
+      external_gtin: null,
+      external_sku: externalSku,
+      package_authorized_at: authorizedAt,
+    },
+    raw_source_facts: rawSourceFacts,
+    external_evidence_facts: externalEvidenceFacts,
+    derived_facts: derivedFacts,
+    canonical_selected_facts: canonicalSelectedFacts,
+    conflict_records: twp
+      ? [{
+          raw_fact_id: "raw-servings",
+          canonical_fact_id: "manufacturer-count",
+          classification: "SERVING_COUNT_NOT_CONTAINER_COUNT",
+          disposition: "PRESERVE_RAW_DO_NOT_USE_FOR_CANONICAL_IDENTITY",
+        }]
+      : [{
+          raw_fact_id: "raw-weight",
+          canonical_fact_id: "pack-size",
+          classification: "UNEXPLAINED_CONFLICTING_METADATA",
+          disposition: "PRESERVE_RAW_DO_NOT_USE_FOR_CANONICAL_IDENTITY",
+        }],
+    evidence_review_decision: {
+      decision: "ACCEPT_EXACT_FACTS_FOR_CANONICAL_IDENTITY",
+      reviewed_fact_ids: canonicalSelectedFacts.map((fact) => fact.selected_fact_id),
+      reviewed_by: "catalogue-evidence-reviewer:marek",
+      reviewed_at: reviewedAt,
+      decision_evidence_sha256: null,
+    },
+  };
+}
+
+function reviewedTimestampPlannerFixture({
+  kind = "twp",
+  sourceTimestamp = "2026-10-25T20:27:55+00:00",
+  authorizedAt = "2026-10-25T20:32:54.324Z",
+  reviewedAt = "2026-10-25T20:32:53.324Z",
+} = {}) {
+  const twp = kind === "twp";
+  const externalOptions = twp
+    ? { Size: "60/30 Servings" }
+    : {
+        Flavour: "Milk Chocolate Hazelnut",
+        Size: "12 x Packs of 2 x 22g Cups",
+        Weight: "265g",
+      };
+  const externalVariantId = twp ? "41706864803885" : "57417961668982";
+  const row = baseCanonicalFeedRow({
+    retailer_name: "Example Nutrition",
+    retailer_website: "https://example.test",
+    external_product_id: twp ? "7500539297837" : "15640537334134",
+    external_variant_id: externalVariantId,
+    external_sku: twp ? "" : "KBC-12",
+    external_gtin: "",
+    external_options: JSON.stringify(externalOptions),
+    external_url: `https://example.test/products/${twp ? "twp-tongkat-ali" : "kayow-protein-butter-cups"}?variant=${externalVariantId}`,
+    affiliate_url: `https://affiliate.example/click?variant=${externalVariantId}`,
+    product_name: twp ? "TWP Tongkat Ali" : "KAYOW Protein Butter Cups",
+    variant_name: twp ? "Default" : "Milk Chocolate Hazelnut / 12 x 44g",
+    brand: twp ? "TWP" : "KAYOW",
+    category: twp ? "Health Supplements" : "Protein Bars",
+    product_format: twp ? "capsule" : "bar",
+    flavour: twp ? "" : "Milk Chocolate Hazelnut",
+    size: twp ? "" : "44",
+    size_unit: twp ? "" : "g",
+    pack_count: twp ? "1" : "12",
+    source_updated_at: sourceTimestamp,
+    slug: twp ? "twp-tongkat-ali" : "kayow-protein-butter-cups",
+  });
+  const evidence = reviewedTimestampEvidence({ kind, authorizedAt, reviewedAt });
+  const reviewed = {
+    review_row: 1,
+    action: twp ? "create_product_with_default_variant" : "create_product_with_variant",
+    external_product_id: row.external_product_id,
+    external_variant_id: row.external_variant_id,
+    external_sku: row.external_sku || null,
+    external_gtin: null,
+    product_id: null,
+    product_variant_id: null,
+    product_name: row.product_name,
+    variant_name: row.variant_name,
+    brand: row.brand,
+    category: row.category,
+    flavour: twp ? null : row.flavour,
+    size_value: twp ? null : "44",
+    size_unit: twp ? null : "g",
+    pack_count: twp ? "1" : "12",
+    product_format: row.product_format,
+    unit_count: twp ? 60 : null,
+    unit_type: twp ? "capsules" : null,
+    external_url: row.external_url,
+    affiliate_url: row.affiliate_url,
+    external_options: externalOptions,
+    option_roles: twp
+      ? {
+          flavour: null,
+          physical_size: null,
+          count: {
+            source_key: "Size",
+            source_value: "60/30 Servings",
+            count_value: "60/30",
+            count_unit: "servings",
+          },
+        }
+      : {
+          flavour: {
+            source_key: "Flavour",
+            source_value: "Milk Chocolate Hazelnut",
+          },
+          physical_size: {
+            source_key: "Weight",
+            source_value: "265g",
+            size_value: "265",
+            size_unit: "g",
+          },
+          count: null,
+        },
+    source_structure: {
+      product_variant_count: twp ? 1 : 5,
+      meaningful_variant_axes: twp ? [] : ["flavour"],
+    },
+    source_row_fingerprint: null,
+    canonical_identity_evidence: evidence,
+  };
+  const profile = reviewedV3Profile(reviewed);
+  profile.manifest.authorized_at = authorizedAt;
+  const provisional = normalizeCanonicalRetailerFeedRows([row], {
+    safeCreate: true,
+    reviewedCatalogueProfile: profile,
+  });
+  const sourceFingerprint = sourceRowFingerprint(provisional[0]);
+  reviewed.source_row_fingerprint = sourceFingerprint;
+  evidence.binding.source_row_fingerprint = sourceFingerprint;
+  for (const fact of evidence.raw_source_facts) {
+    fact.source_row_fingerprint = sourceFingerprint;
+  }
+  evidence.evidence_review_decision.decision_evidence_sha256 =
+    canonicalEvidenceSha256(evidence);
+  const normalized = normalizeCanonicalRetailerFeedRows([row], {
+    safeCreate: true,
+    reviewedCatalogueProfile: profile,
+  });
+  assert.equal(sourceRowFingerprint(normalized[0]), sourceFingerprint);
+  return {
+    row,
+    normalized,
+    profile,
+    sourceFingerprint,
+    decisionHash: evidence.evidence_review_decision.decision_evidence_sha256,
+    sourceTimestamp,
+    expectedTimestamp: new Date(sourceTimestamp).toISOString(),
+    seed: reviewedSeed({
+      retailers: [{
+        id: 12,
+        name: "Example Nutrition",
+        slug: "example-nutrition",
+        website: "https://example.test",
+        is_active: true,
+      }],
+    }),
+  };
+}
+
+async function planReviewedTimestampFixture(fixture) {
+  setSupabaseForTests(createMockSupabase(structuredClone(fixture.seed)));
+  const result = await runImportRowsRaw(structuredClone(fixture.normalized), {
+    mode: "feed",
+    safeCreate: true,
+    dryRun: true,
+    rowsAlreadyNormalized: true,
+  });
+  assert.deepEqual(result.report.blockedRows, []);
+  assert.equal(result.report.approvedRows.length, 1);
+  return { result, plan: result.report.approvedRows[0].importPlan };
+}
+
+test("reviewed V3 TWP actual planner is deterministic across three complete passes", async () => {
+  const fixture = reviewedTimestampPlannerFixture();
+  const passes = [];
+  for (let index = 0; index < 3; index += 1) {
+    passes.push((await planReviewedTimestampFixture(fixture)).plan);
+    await new Promise((resolve) => setTimeout(resolve, 5));
+  }
+  assert.deepEqual(passes[1], passes[0]);
+  assert.deepEqual(passes[2], passes[0]);
+  assert.equal(passes[0].offer.values.last_checked_at, fixture.expectedTimestamp);
+  assert.equal(passes[0].meta.source_row_fingerprint, fixture.sourceFingerprint);
+  assert.equal(new Set(passes.map((plan) => plan.meta.plan_fingerprint)).size, 1);
+  assert.equal(
+    passes[0].product_variant.evidence.canonical_identity_evidence
+      .evidence_review_decision.decision_evidence_sha256,
+    fixture.decisionHash,
+  );
+});
+
+test("reviewed V3 accepts every strict UTC source timestamp form and canonicalizes it", async () => {
+  for (const [sourceTimestamp, expectedTimestamp] of [
+    ["2026-10-25T20:27:55Z", "2026-10-25T20:27:55.000Z"],
+    ["2026-10-25T20:27:55.1Z", "2026-10-25T20:27:55.100Z"],
+    ["2026-10-25T20:27:55.12+00:00", "2026-10-25T20:27:55.120Z"],
+    ["2026-10-25T20:27:55.123+00:00", "2026-10-25T20:27:55.123Z"],
+  ]) {
+    const fixture = reviewedTimestampPlannerFixture({ sourceTimestamp });
+    const { plan } = await planReviewedTimestampFixture(fixture);
+    assert.equal(plan.offer.values.last_checked_at, expectedTimestamp);
+  }
+});
+
+test("reviewed V3 KAYOW actual planner preserves nested-pack evidence deterministically", async () => {
+  const fixture = reviewedTimestampPlannerFixture({
+    kind: "kayow",
+    sourceTimestamp: "2026-10-25T20:27:55.000Z",
+  });
+  const first = (await planReviewedTimestampFixture(fixture)).plan;
+  const second = (await planReviewedTimestampFixture(fixture)).plan;
+  assert.deepEqual(second, first);
+  assert.equal(first.offer.values.last_checked_at, fixture.expectedTimestamp);
+  assert.deepEqual(first.retailer_product.values.external_options, {
+    Flavour: "Milk Chocolate Hazelnut",
+    Size: "12 x Packs of 2 x 22g Cups",
+    Weight: "265g",
+  });
+  assert.equal(first.product_variant.values.size_value, "44");
+  assert.equal(first.product_variant.values.size_unit, "g");
+  assert.equal(first.product_variant.values.pack_count, "12");
+  assert.equal(
+    first.product_variant.evidence.canonical_identity_evidence.derived_facts
+      .find((fact) => fact.fact_id === "total").normalized_value,
+    "528",
+  );
+});
+
+test("reviewed V2/V3 source timestamps fail closed before plan construction", async () => {
+  for (const [value, expected] of [
+    [undefined, "REVIEWED_SOURCE_CAPTURE_TIMESTAMP_REQUIRED"],
+    ["", "REVIEWED_SOURCE_CAPTURE_TIMESTAMP_REQUIRED"],
+    ["2026-10-25T20:27:55", "REVIEWED_SOURCE_CAPTURE_TIMESTAMP_INVALID"],
+    ["2026-10-25T21:27:55.000+01:00", "REVIEWED_SOURCE_CAPTURE_TIMESTAMP_INVALID"],
+    ["2026-10-25T15:27:55-05:00", "REVIEWED_SOURCE_CAPTURE_TIMESTAMP_INVALID"],
+    ["2026-10-25T20:27:55-00:00", "REVIEWED_SOURCE_CAPTURE_TIMESTAMP_INVALID"],
+    ["2026-02-30T20:27:55Z", "REVIEWED_SOURCE_CAPTURE_TIMESTAMP_INVALID"],
+    ["not-a-timestamp", "REVIEWED_SOURCE_CAPTURE_TIMESTAMP_INVALID"],
+  ]) {
+    const fixture = reviewedTimestampPlannerFixture();
+    if (value === undefined) delete fixture.normalized[0].source_updated_at;
+    else fixture.normalized[0].source_updated_at = value;
+    setSupabaseForTests(createMockSupabase(structuredClone(fixture.seed)));
+    const result = await runImportRowsRaw(fixture.normalized, {
+      mode: "feed",
+      safeCreate: true,
+      dryRun: true,
+      rowsAlreadyNormalized: true,
+    });
+    assert.equal(result.report.approvedRows.length, 0);
+    assert.match(
+      result.blockedRows[0].reason || result.blockedRows[0].block_reason,
+      new RegExp(expected),
+    );
+  }
+
+  const v2Row = baseCanonicalFeedRow({
+    external_product_id: "10000000000001",
+    external_variant_id: "20000000000001",
+    external_sku: "EX-CREATINE-500",
+    external_url: "https://example.test/products/creatine?variant=20000000000001",
+    affiliate_url: "https://affiliate.example/click?variant=20000000000001",
+  });
+  const v2Rows = normalizeCanonicalRetailerFeedRows([v2Row], {
+    safeCreate: true,
+    reviewedCatalogueProfile: reviewedV2Profile(),
+  });
+  delete v2Rows[0].source_updated_at;
+  setSupabaseForTests(createMockSupabase(reviewedSeed({
+    retailers: [{
+      id: 12,
+      name: "Example Nutrition",
+      slug: "example-nutrition",
+      website: "https://example.test",
+      is_active: true,
+    }],
+  })));
+  const v2Result = await runImportRowsRaw(v2Rows, {
+    mode: "feed",
+    safeCreate: true,
+    dryRun: true,
+    rowsAlreadyNormalized: true,
+  });
+  assert.equal(v2Result.report.approvedRows.length, 0);
+  assert.match(
+    v2Result.blockedRows[0].reason || v2Result.blockedRows[0].block_reason,
+    /REVIEWED_SOURCE_CAPTURE_TIMESTAMP_REQUIRED/,
+  );
+});
+
+test("reviewed timestamp is hash-bound while authorization and review clocks never replace it", async () => {
+  const original = reviewedTimestampPlannerFixture();
+  const changedTimestamp = reviewedTimestampPlannerFixture({
+    sourceTimestamp: "2026-10-25T20:27:56+00:00",
+  });
+  const changedAuthorization = reviewedTimestampPlannerFixture({
+    authorizedAt: "2026-10-25T21:32:54.324Z",
+  });
+  const changedReview = reviewedTimestampPlannerFixture({
+    reviewedAt: "2026-10-25T21:32:53.324Z",
+  });
+  const originalPlan = (await planReviewedTimestampFixture(original)).plan;
+  const timestampPlan = (await planReviewedTimestampFixture(changedTimestamp)).plan;
+  const authorizationPlan = (await planReviewedTimestampFixture(changedAuthorization)).plan;
+  const reviewPlan = (await planReviewedTimestampFixture(changedReview)).plan;
+
+  assert.notEqual(changedTimestamp.sourceFingerprint, original.sourceFingerprint);
+  assert.notEqual(timestampPlan.meta.plan_fingerprint, originalPlan.meta.plan_fingerprint);
+  assert.equal(timestampPlan.offer.values.last_checked_at, changedTimestamp.expectedTimestamp);
+  assert.equal(authorizationPlan.offer.values.last_checked_at, original.expectedTimestamp);
+  assert.equal(reviewPlan.offer.values.last_checked_at, original.expectedTimestamp);
+});
+
+test("reviewed V3 artifact freeze, write, load and replan preserve the full plan", async () => {
+  const fixture = reviewedTimestampPlannerFixture();
+  const first = await planReviewedTimestampFixture(fixture);
+  const artifactOptions = {
+    runId: "reviewed-source-timestamp-determinism",
+    createdAt: "2026-10-26T00:00:00.000Z",
+    sourceContent: JSON.stringify(fixture.normalized[0]),
+    sourceFileName: "reviewed-source.csv",
+    environmentMarker: "test",
+  };
+  const expectedArtifact = buildDryRunArtifact(
+    fixture.normalized,
+    first.result,
+    artifactOptions,
+  );
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "reviewed-timestamp-artifact-"));
+  const artifactPath = path.join(directory, "artifact.json");
+  try {
+    writeDryRunArtifact(fixture.normalized, first.result, {
+      ...artifactOptions,
+      artifactPath,
+    });
+    const loaded = loadDryRunArtifact(artifactPath);
+    const replay = await planReviewedTimestampFixture(fixture);
+    assert.deepEqual(loaded.artifact, expectedArtifact);
+    assert.deepEqual(replay.plan, first.plan);
+    assert.equal(
+      loaded.artifact.plans[0].source_row_fingerprint,
+      fixture.sourceFingerprint,
+    );
+    assert.equal(
+      loaded.artifact.plans[0].plan_fingerprint,
+      first.plan.meta.plan_fingerprint,
+    );
+    assert.equal(
+      loaded.artifact.plans[0].resolved_plan.offer.values.last_checked_at,
+      fixture.expectedTimestamp,
+    );
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("non-reviewed feed keeps legacy clock fallback and uses a supplied canonical timestamp", async () => {
+  const timestamp = "2026-10-25T20:27:55.000Z";
+  const withTimestamp = baseSafeCreateFeedRow({ source_updated_at: `  ${timestamp}  ` });
+  const withoutTimestamp = { ...withTimestamp };
+  delete withoutTimestamp.source_updated_at;
+  const seed = reviewedSeed({
+    retailers: [{
+      id: 12,
+      name: "Simply Supplements",
+      slug: "simply-supplements",
+      website: "https://www.simplysupplements.co.uk",
+      is_active: true,
+    }],
+  });
+
+  setSupabaseForTests(createMockSupabase(structuredClone(seed)));
+  const deterministic = await runImportRowsRaw([withTimestamp], {
+    mode: "feed",
+    safeCreate: true,
+    dryRun: true,
+  });
+  assert.equal(
+    deterministic.report.approvedRows[0].importPlan.offer.values.last_checked_at,
+    timestamp,
+  );
+
+  setSupabaseForTests(createMockSupabase(structuredClone(seed)));
+  const legacy = await runImportRowsRaw([withoutTimestamp], {
+    mode: "feed",
+    safeCreate: true,
+    dryRun: true,
+  });
+  assert.match(
+    legacy.report.approvedRows[0].importPlan.offer.values.last_checked_at,
+    /^\d{4}-\d{2}-\d{2}T/,
+  );
 });
