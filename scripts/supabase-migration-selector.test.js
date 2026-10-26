@@ -373,6 +373,7 @@ function withoutCurrentSeo15Migrations(rows) {
     REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION,
     REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION,
     REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION,
+    REVIEWED_V3_1_CONSOLIDATION_MIGRATION,
   ].includes(`${version}_${name}.sql`));
 }
 
@@ -420,16 +421,14 @@ test.after(() => {
   }
 });
 
-test("staging records ledger 117 with V3.1 consolidation pending exactly once", () => {
+test("staging records ledger 118 with V3.1 consolidation applied exactly once", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 117);
+  assert.equal(result.ledger_count, 118);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending_files, [REVIEWED_V3_1_CONSOLIDATION_MIGRATION]);
-  assert.deepEqual(result.pending_sha256s, {
-    [REVIEWED_V3_1_CONSOLIDATION_MIGRATION]: REVIEWED_V3_1_CONSOLIDATION_SHA256,
-  });
-  assert.equal(result.pending_file, REVIEWED_V3_1_CONSOLIDATION_MIGRATION);
-  assert.equal(result.pending_sha256, REVIEWED_V3_1_CONSOLIDATION_SHA256);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
@@ -1208,18 +1207,18 @@ test("owner-authorized ACL/RLS activation selects exactly one migration from led
   ]), /staging-only/);
 });
 
-test("staging contract records ledger 117 with V3.1 consolidation pending", () => {
+test("staging contract records ledger 118 with V3.1 consolidation applied", () => {
   const filename = "20260928100000_diagnose_ra004_preflight_acl_rls.sql";
-  assert.equal(CONTRACT.ledgerCount, 117);
+  assert.equal(CONTRACT.ledgerCount, 118);
   assert.equal(CONTRACT.ledgerFingerprint,
-    "193530b3247db4c67c604046cbab1a2190b9af43914611aa4c57166fd7ecad14");
+    "f42803bfcda3f5dfd587a5bc92583ae347d50bdf7f10066fe1e6db1d378f4e75");
   assert.ok(CONTRACT.appliedExcluded.includes(filename));
   assert.ok(CONTRACT.appliedExcluded.includes(RA004_CONTROL_PROVIDER_IDENTITY_MIGRATION));
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === filename));
   assert.ok(CONTRACT.appliedExcluded.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === REVIEWED_STATE_MIGRATION));
-  assert.deepEqual(CONTRACT.pending, REVIEWED_V3_PRODUCTION_PENDING);
-  assert.equal(currentRemoteLedger().length, 117);
+  assert.deepEqual(CONTRACT.pending, []);
+  assert.equal(currentRemoteLedger().length, 118);
   assert.ok(currentRemoteLedger().some(({ version, name }) =>
     `${version}_${name}.sql` === REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION));
   assert.ok(currentRemoteLedger().some(({ version, name }) =>
@@ -1240,6 +1239,8 @@ test("staging contract records ledger 117 with V3.1 consolidation pending", () =
     `${version}_${name}.sql` === REVIEWED_V3_EVIDENCE_PARITY_MIGRATION));
   assert.ok(currentRemoteLedger().some(({ version, name }) =>
     `${version}_${name}.sql` === REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION));
+  assert.ok(currentRemoteLedger().some(({ version, name }) =>
+    `${version}_${name}.sql` === REVIEWED_V3_1_CONSOLIDATION_MIGRATION));
   assert.equal(ledgerRowsFingerprint(currentRemoteLedger(), { targetEnvironment: "STAGING" }),
     CONTRACT.ledgerFingerprint);
 });
@@ -1685,14 +1686,12 @@ test("completed RA-004 fixture activation cannot select or materialize a migrati
   })), /status mismatch/);
 });
 
-test("V3.1 consolidation is pending on both environments after the closed canonical evidence chain", () => {
+test("V3.1 consolidation is applied on staging and remains pending on production", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, REVIEWED_V3_1_CONSOLIDATION_MIGRATION);
-  assert.equal(result.pending_sha256, REVIEWED_V3_1_CONSOLIDATION_SHA256);
-  assert.deepEqual(result.pending_files, [REVIEWED_V3_1_CONSOLIDATION_MIGRATION]);
-  assert.deepEqual(result.pending_sha256s, {
-    [REVIEWED_V3_1_CONSOLIDATION_MIGRATION]: REVIEWED_V3_1_CONSOLIDATION_SHA256,
-  });
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(result.selected_files.includes(REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION));
@@ -1733,29 +1732,24 @@ test("V3.1 consolidation is pending on both environments after the closed canoni
     "7f082a9b1388523275dcd6e03850caeacb69b504a19909d16f2f7372d91d4281",
   );
   const stagingPostRows = currentRemoteLedger();
-  assert.equal(stagingPostRows.length, 117);
+  assert.equal(stagingPostRows.length, 118);
   assert.equal(
     ledgerRowsFingerprint(stagingPostRows, { targetEnvironment: "STAGING" }),
-    "193530b3247db4c67c604046cbab1a2190b9af43914611aa4c57166fd7ecad14",
+    "f42803bfcda3f5dfd587a5bc92583ae347d50bdf7f10066fe1e6db1d378f4e75",
   );
-  for (const [environment, expectedCount, expectedFingerprint] of [
-    ["STAGING", 118, "f42803bfcda3f5dfd587a5bc92583ae347d50bdf7f10066fe1e6db1d378f4e75"],
-    ["PRODUCTION", 253, "a22d17584c85ecc86adb89c96062aeffba063a666c68f6b1b747869cae317139"],
-  ]) {
-    const futureIdentifiers = [
-      ...migrationBinding(environment).versions,
-      REVIEWED_V3_1_CONSOLIDATION_MIGRATION.slice(0, -4),
-    ].sort();
-    const futureRows = futureIdentifiers.map((identifier) => {
-      const split = identifier.indexOf("_");
-      return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
-    });
-    assert.equal(futureRows.length, expectedCount);
-    assert.equal(
-      ledgerRowsFingerprint(futureRows, { targetEnvironment: environment }),
-      expectedFingerprint,
-    );
-  }
+  const productionFutureIdentifiers = [
+    ...migrationBinding("PRODUCTION").versions,
+    REVIEWED_V3_1_CONSOLIDATION_MIGRATION.slice(0, -4),
+  ].sort();
+  const productionFutureRows = productionFutureIdentifiers.map((identifier) => {
+    const split = identifier.indexOf("_");
+    return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
+  });
+  assert.equal(productionFutureRows.length, 253);
+  assert.equal(
+    ledgerRowsFingerprint(productionFutureRows, { targetEnvironment: "PRODUCTION" }),
+    "a22d17584c85ecc86adb89c96062aeffba063a666c68f6b1b747869cae317139",
+  );
 });
 
 test("activated environment bindings cannot remain pending or diverge from selector contracts", () => {
