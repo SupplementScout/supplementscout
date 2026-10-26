@@ -225,8 +225,20 @@ const APPLIED_EXCLUSIONS = Object.freeze({
 });
 
 const PENDING_MIGRATIONS = Object.freeze({
-  STAGING: Object.freeze([]),
-  PRODUCTION: Object.freeze([]),
+  STAGING: Object.freeze([
+    Object.freeze({
+      filename: "20261027120000_consolidate_reviewed_catalogue_v3_owned_runtime.sql",
+      sha256: "dc0334dcd79217705a44533349a3e65f56d517716cebc6cd016345d1694acbd2",
+      expectedCatalogueDeltas: Object.freeze({}),
+    }),
+  ]),
+  PRODUCTION: Object.freeze([
+    Object.freeze({
+      filename: "20261027120000_consolidate_reviewed_catalogue_v3_owned_runtime.sql",
+      sha256: "dc0334dcd79217705a44533349a3e65f56d517716cebc6cd016345d1694acbd2",
+      expectedCatalogueDeltas: Object.freeze({}),
+    }),
+  ]),
 });
 
 function migrationIdentifier(filename) {

@@ -69,7 +69,15 @@ const REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION = "2026102612000
 const REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_SHA256 = "e8d5b7c408a5f6dc2df77fb2d507d5dd49c940ab984b90cc887ea1b9260d4edb";
 const REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_ROLLBACK = "20261026120000_fix_reviewed_v3_canonical_evidence_apply_projection_rollback.sql";
 const REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_ROLLBACK_SHA256 = "d579607b31ba73dcd8539dcb278177c33c2da4d066304bd1d8941032aaba733b";
-const REVIEWED_V3_PRODUCTION_PENDING = [];
+const REVIEWED_V3_1_CONSOLIDATION_MIGRATION = "20261027120000_consolidate_reviewed_catalogue_v3_owned_runtime.sql";
+const REVIEWED_V3_1_CONSOLIDATION_SHA256 = "dc0334dcd79217705a44533349a3e65f56d517716cebc6cd016345d1694acbd2";
+const REVIEWED_V3_1_CONSOLIDATION_ROLLBACK = "20261027120000_consolidate_reviewed_catalogue_v3_owned_runtime_rollback.sql";
+const REVIEWED_V3_1_CONSOLIDATION_ROLLBACK_SHA256 = "49c0ef4faf2861fc7448fd94f1463a1f0ac5425cdf7e5f5c4c6982d7206254d7";
+const REVIEWED_V3_PRODUCTION_PENDING = [{
+  filename: REVIEWED_V3_1_CONSOLIDATION_MIGRATION,
+  sha256: REVIEWED_V3_1_CONSOLIDATION_SHA256,
+  expectedCatalogueDeltas: {},
+}];
 const RA004_CONTROL_STATE_MIGRATION = "20260924100000_add_transactional_retailer_control_state_interface.sql";
 const RA004_PREFLIGHT_MIGRATION = "20260925100000_add_ra004_staging_preflight_metadata_interface.sql";
 const RA004_FORWARD_CONTROL_STATE_MIGRATION = "20260927100000_reissue_transactional_retailer_control_state_interface.sql";
@@ -412,18 +420,20 @@ test.after(() => {
   }
 });
 
-test("staging records ledger 117 with canonical evidence apply projection closed", () => {
+test("staging records ledger 117 with V3.1 consolidation pending exactly once", () => {
   const result = validateSelection(validInput());
   assert.equal(result.ledger_count, 117);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, [REVIEWED_V3_1_CONSOLIDATION_MIGRATION]);
+  assert.deepEqual(result.pending_sha256s, {
+    [REVIEWED_V3_1_CONSOLIDATION_MIGRATION]: REVIEWED_V3_1_CONSOLIDATION_SHA256,
+  });
+  assert.equal(result.pending_file, REVIEWED_V3_1_CONSOLIDATION_MIGRATION);
+  assert.equal(result.pending_sha256, REVIEWED_V3_1_CONSOLIDATION_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
-  assert.equal(result.selected_files.length, 117);
+  assert.equal(result.selected_files.length, 118);
   assert.ok(result.selected_files.includes(REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION));
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes(RA004_FIXTURE_MIGRATION));
@@ -437,6 +447,7 @@ test("staging records ledger 117 with canonical evidence apply projection closed
   assert.ok(result.selected_files.includes(REVIEWED_V3_PARENT_FORMAT_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_EVIDENCE_PARITY_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION));
+  assert.ok(result.selected_files.includes(REVIEWED_V3_1_CONSOLIDATION_MIGRATION));
 });
 
 test("the local-only migration is the exact shared-policy exclusion", () => {
@@ -730,6 +741,39 @@ test("reviewed V3 canonical evidence apply projection migration is generic and r
   assert.match(rollback, /2548c3b702403a2fda4176dbe732c993d85e14690157286aa65029f434813dff/);
 });
 
+test("reviewed V3.1 consolidation seals exactly six owned functions without shared-core changes", () => {
+  const migrationPath = path.join(SOURCE, REVIEWED_V3_1_CONSOLIDATION_MIGRATION);
+  const rollbackPath = path.join(ROOT, "supabase", "rollbacks", REVIEWED_V3_1_CONSOLIDATION_ROLLBACK);
+  const migration = fs.readFileSync(migrationPath, "utf8");
+  const rollback = fs.readFileSync(rollbackPath, "utf8");
+  assert.equal(sha256File(migrationPath), REVIEWED_V3_1_CONSOLIDATION_SHA256);
+  assert.equal(sha256File(rollbackPath), REVIEWED_V3_1_CONSOLIDATION_ROLLBACK_SHA256);
+  const exactFunctions = [
+    "atomic_import_reviewed_v3_physical_role_allowed",
+    "atomic_import_reviewed_v3_count_role_allowed",
+    "atomic_import_reviewed_v3_legacy_validation_projection",
+    "atomic_import_reviewed_v3_legacy_validation_evidence",
+    "atomic_import_reviewed_v3_canonical_role_allowed",
+    "atomic_import_validate_reviewed_catalogue_v3_plan",
+  ];
+  for (const sql of [migration, rollback]) {
+    assert.equal((sql.match(/CREATE OR REPLACE FUNCTION public\./g) || []).length, 6);
+    for (const functionName of exactFunctions) {
+      assert.match(sql, new RegExp(`CREATE OR REPLACE FUNCTION public\\.${functionName}\\(`));
+    }
+    assert.doesNotMatch(sql, /CREATE OR REPLACE FUNCTION public\.(?:atomic_import_apply_standard_plan_core|atomic_import_validate_pre_source_metadata_plan_core|validate_product_import_plan_read_only|apply_approved_product_import_plan)/i);
+    assert.doesNotMatch(sql, /execute\s+replace|replace\s*\(\s*pg_get_functiondef/i);
+    assert.doesNotMatch(sql, /Gladiator|Kayow|Tongkat|TWP|Infinity|retailer_id\s*=\s*(?:12|15)/i);
+    assert.doesNotMatch(sql, /\b(?:insert into|update|delete from)\s+public\.(?:retailers|products|product_variants|retailer_products|offers|price_history|approved_import_plans)\b/i);
+    assert.match(sql, /blocked by live approval/);
+    assert.match(sql, /changed business counts/);
+    assert.match(sql, /changed owner, volatility, security, search_path or ACL/);
+    assert.match(sql, /0fb47d632b21b4323a16fd4e9a3ec9886b747a21014e247e8d73f7999a586209/);
+    assert.match(sql, /9367d8cd30f742a163b2f4b4a8f48488b432862bb5c8b04d61755884ea72fe0c/);
+  }
+  assert.match(rollback, /V3\.1 consolidation rollback ledger entry missing/);
+});
+
 test("an additional pending migration fails closed", () => {
   const sourceDir = sourceCopy();
   fs.copyFileSync(
@@ -787,7 +831,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 117);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 118);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -832,7 +876,7 @@ test("production records the deployed canonical evidence migrations at ledger 25
   });
   assert.equal(result.ledger_count, 252);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 252);
+  assert.equal(result.selected_files.length, 253);
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
   assert.ok(result.excluded_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
@@ -844,10 +888,13 @@ test("production records the deployed canonical evidence migrations at ledger 25
   assert.ok(result.selected_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
   assert.ok(result.excluded_files.includes("20261006190000_add_automation_review_verified_postflight_recovery.sql"));
   assert.ok(result.selected_files.includes(REVIEWED_V3_PARENT_FORMAT_MIGRATION));
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.deepEqual(result.pending_files, [REVIEWED_V3_1_CONSOLIDATION_MIGRATION]);
+  assert.equal(result.pending_file, REVIEWED_V3_1_CONSOLIDATION_MIGRATION);
+  assert.equal(result.pending_sha256, REVIEWED_V3_1_CONSOLIDATION_SHA256);
+  assert.deepEqual(result.pending_sha256s, {
+    [REVIEWED_V3_1_CONSOLIDATION_MIGRATION]: REVIEWED_V3_1_CONSOLIDATION_SHA256,
+  });
+  assert.ok(result.selected_files.includes(REVIEWED_V3_1_CONSOLIDATION_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_EVIDENCE_PARITY_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION));
   for (const filename of [
@@ -1161,7 +1208,7 @@ test("owner-authorized ACL/RLS activation selects exactly one migration from led
   ]), /staging-only/);
 });
 
-test("staging contract records ledger 117 with canonical evidence projection applied", () => {
+test("staging contract records ledger 117 with V3.1 consolidation pending", () => {
   const filename = "20260928100000_diagnose_ra004_preflight_acl_rls.sql";
   assert.equal(CONTRACT.ledgerCount, 117);
   assert.equal(CONTRACT.ledgerFingerprint,
@@ -1171,7 +1218,7 @@ test("staging contract records ledger 117 with canonical evidence projection app
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === filename));
   assert.ok(CONTRACT.appliedExcluded.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(!CONTRACT.pending.some((entry) => entry.filename === REVIEWED_STATE_MIGRATION));
-  assert.deepEqual(CONTRACT.pending, []);
+  assert.deepEqual(CONTRACT.pending, REVIEWED_V3_PRODUCTION_PENDING);
   assert.equal(currentRemoteLedger().length, 117);
   assert.ok(currentRemoteLedger().some(({ version, name }) =>
     `${version}_${name}.sql` === REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION));
@@ -1638,12 +1685,14 @@ test("completed RA-004 fixture activation cannot select or materialize a migrati
   })), /status mismatch/);
 });
 
-test("canonical evidence apply projection is closed on staging and remains ordered after its production prerequisite", () => {
+test("V3.1 consolidation is pending on both environments after the closed canonical evidence chain", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending_file, REVIEWED_V3_1_CONSOLIDATION_MIGRATION);
+  assert.equal(result.pending_sha256, REVIEWED_V3_1_CONSOLIDATION_SHA256);
+  assert.deepEqual(result.pending_files, [REVIEWED_V3_1_CONSOLIDATION_MIGRATION]);
+  assert.deepEqual(result.pending_sha256s, {
+    [REVIEWED_V3_1_CONSOLIDATION_MIGRATION]: REVIEWED_V3_1_CONSOLIDATION_SHA256,
+  });
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(result.selected_files.includes(REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION));
@@ -1655,6 +1704,7 @@ test("canonical evidence apply projection is closed on staging and remains order
   assert.ok(result.selected_files.includes(REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION));
+  assert.ok(result.selected_files.includes(REVIEWED_V3_1_CONSOLIDATION_MIGRATION));
   assert.deepEqual(CONTRACTS.PRODUCTION.pending, REVIEWED_V3_PRODUCTION_PENDING);
   assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 252);
   assert.equal(CONTRACTS.PRODUCTION.ledgerFingerprint,
@@ -1688,6 +1738,24 @@ test("canonical evidence apply projection is closed on staging and remains order
     ledgerRowsFingerprint(stagingPostRows, { targetEnvironment: "STAGING" }),
     "193530b3247db4c67c604046cbab1a2190b9af43914611aa4c57166fd7ecad14",
   );
+  for (const [environment, expectedCount, expectedFingerprint] of [
+    ["STAGING", 118, "f42803bfcda3f5dfd587a5bc92583ae347d50bdf7f10066fe1e6db1d378f4e75"],
+    ["PRODUCTION", 253, "a22d17584c85ecc86adb89c96062aeffba063a666c68f6b1b747869cae317139"],
+  ]) {
+    const futureIdentifiers = [
+      ...migrationBinding(environment).versions,
+      REVIEWED_V3_1_CONSOLIDATION_MIGRATION.slice(0, -4),
+    ].sort();
+    const futureRows = futureIdentifiers.map((identifier) => {
+      const split = identifier.indexOf("_");
+      return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
+    });
+    assert.equal(futureRows.length, expectedCount);
+    assert.equal(
+      ledgerRowsFingerprint(futureRows, { targetEnvironment: environment }),
+      expectedFingerprint,
+    );
+  }
 });
 
 test("activated environment bindings cannot remain pending or diverge from selector contracts", () => {
