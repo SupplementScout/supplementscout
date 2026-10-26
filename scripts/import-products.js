@@ -4892,6 +4892,48 @@ function resolvePlanTimestamp(sourceCapturedAt) {
   return normalized;
 }
 
+const UTC_SOURCE_TIMESTAMP_PATTERN =
+  /^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,3})?(?:Z|\+00:00)$/;
+
+function normalizeUtcSourceTimestamp(value) {
+  if (!UTC_SOURCE_TIMESTAMP_PATTERN.test(value)) {
+    throw new Error("source_updated_at must be UTC RFC3339 using Z or +00:00");
+  }
+  const timestampWithoutZone = value.endsWith("Z")
+    ? value.slice(0, -1)
+    : value.slice(0, -6);
+  const [wholeSeconds, fraction = ""] = timestampWithoutZone.split(".");
+  const expected = `${wholeSeconds}.${fraction.padEnd(3, "0")}Z`;
+  const parsed = new Date(value);
+  if (!Number.isFinite(parsed.getTime()) || parsed.toISOString() !== expected) {
+    throw new Error("source_updated_at must be a valid UTC RFC3339 timestamp");
+  }
+  return parsed.toISOString();
+}
+
+function resolveRowSourceCapturedAt(row, options = {}) {
+  const required = Boolean(options.required);
+  const rawValue = row?.source_updated_at;
+  if (rawValue === undefined || rawValue === null || String(rawValue).trim() === "") {
+    if (required) throw new Error("REVIEWED_SOURCE_CAPTURE_TIMESTAMP_REQUIRED");
+    return undefined;
+  }
+
+  const sourceCapturedAt = String(rawValue).trim();
+  try {
+    return normalizeUtcSourceTimestamp(sourceCapturedAt);
+  } catch {
+    if (required) throw new Error("REVIEWED_SOURCE_CAPTURE_TIMESTAMP_INVALID");
+    return undefined;
+  }
+}
+
+function requiresReviewedSourceCapturedAt(row) {
+  return ["reviewed-catalogue-package-v2", REVIEWED_V3_KIND].includes(
+    row?.__reviewed_catalogue_identity?.contract
+  );
+}
+
 function buildAtomicImportPlan(item) {
   const {
     row, retailer, product, productVariant, mapping, existingOffer, offerPlan,
@@ -5118,11 +5160,22 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
   let shippingNormalizedRow = row;
   let shippingInferredFromPolicy = false;
   const shippingErrors = [];
+  let sourceCapturedAt;
 
   try {
     const shippingResult = normalizeShippingForImport(row, "feed");
     shippingNormalizedRow = shippingResult.row;
     shippingInferredFromPolicy = shippingResult.shippingInferredFromPolicy;
+  } catch (error) {
+    shippingErrors.push(error?.message || String(error));
+  }
+
+  try {
+    sourceCapturedAt = resolveRowSourceCapturedAt(shippingNormalizedRow, {
+      required:
+        Boolean(options.requireSourceCapturedAt) ||
+        requiresReviewedSourceCapturedAt(shippingNormalizedRow),
+    });
   } catch (error) {
     shippingErrors.push(error?.message || String(error));
   }
@@ -5599,6 +5652,7 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
     validationErrors,
     shippingInferredFromPolicy,
     mode: "feed",
+    sourceCapturedAt,
     legacyMappingUpgrade,
     sharedParentUrlPeers: mappingResolution.urlPeers,
     sharedParentIdentityRequired:
@@ -5691,10 +5745,14 @@ function addBatchIdentityCollisionErrors(resolvedRows) {
 
 async function preflightFeedRows(rows, options = {}) {
   const resolvedRows = [];
+  const requireSourceCapturedAt =
+    Boolean(options.requireSourceCapturedAt) ||
+    rows.some(requiresReviewedSourceCapturedAt);
 
   for (let index = 0; index < rows.length; index += 1) {
     resolvedRows.push(await resolveFeedRow(rows[index], index + 2, {
       ...options,
+      requireSourceCapturedAt,
       totalRows: rows.length,
     }));
   }
@@ -5906,7 +5964,13 @@ async function runImportRows(rows, options = {}) {
   }
 
   if (mode === "feed") {
-    const report = await preflightFeedRows(rows, { safeCreate });
+    const requireSourceCapturedAt =
+      Boolean(options.requireSourceCapturedAt) ||
+      rows.some(requiresReviewedSourceCapturedAt);
+    const report = await preflightFeedRows(rows, {
+      safeCreate,
+      requireSourceCapturedAt,
+    });
 
     console.log(formatPreflightReport(report));
 
