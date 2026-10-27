@@ -297,19 +297,24 @@ test("unknown, missing, identity-mismatched and collapsed sources remain isolate
   assert.notEqual(health.result, "PASS");
 });
 
-test("Gladiator wiring is registry-only and its workflow is manual shadow with no write path", () => {
+test("Gladiator wiring is registry-only and permits only manual dry-run or shared review publication", () => {
   const runtime = fs.readFileSync(path.join(ROOT, "scripts/fit-house-offer-refresh.js"), "utf8");
   const workflow = fs.readFileSync(path.join(ROOT, ".github/workflows/fit-house-offer-refresh.yml"), "utf8");
   const gladiatorJob = workflow.match(/  gladiator-nutrition-shadow:[\s\S]*?(?=\n  refresh-review-queue:)/)?.[0] || "";
   assert.equal((runtime.match(/gladiator-nutrition/g) || []).length, 4);
   assert.doesNotMatch(runtime, /retailer_id\s*={2,3}\s*15|config\.retailer_id\s*={2,3}\s*15/);
   assert.match(gladiatorJob, /github\.event_name == 'workflow_dispatch'/);
-  assert.match(gladiatorJob, /inputs\.operation == 'dry-run'/);
+  assert.match(gladiatorJob, /inputs\.operation == 'dry-run'[\s\S]*inputs\.operation == 'review-only'/);
+  assert.match(gladiatorJob, /dry-run\|review-only/);
   assert.doesNotMatch(gladiatorJob, /github\.event_name == 'schedule'/);
   assert.doesNotMatch(gladiatorJob, /--mode=apply|automation-review-reconciliation-apply|register_gladiator|APPROVER_DATABASE_URL|EXECUTOR_DATABASE_URL|SUPABASE_SERVICE_ROLE_KEY/);
   assert.match(gladiatorJob, /--mode=dry-run --isolate-unsafe=true/);
   assert.match(gladiatorJob, /--mode=baseline/);
   assert.match(gladiatorJob, /--mode=bind --profile=gladiator-nutrition/);
+  const queueJob = workflow.slice(workflow.indexOf("\n  refresh-review-queue:"), workflow.indexOf("\n  expired-control-plan-recovery:"));
+  assert.match(queueJob, /inputs\.retailer == 'gladiator-nutrition'[\s\S]*inputs\.operation == 'review-only'/);
+  assert.match(queueJob, /profile: gladiator-nutrition/);
+  assert.doesNotMatch(queueJob, /--mode=apply|register_gladiator|APPROVER_DATABASE_URL|EXECUTOR_DATABASE_URL/);
 });
 
 test("registration migration is a thin exact-scope boundary and rollback is lineage-guarded", () => {
