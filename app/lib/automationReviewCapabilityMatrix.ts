@@ -107,6 +107,19 @@ export const AUTOMATION_REVIEW_CAPABILITY_MATRIX: readonly RetailerCapabilityRow
     },
   },
   {
+    retailer: "Gladiator Nutrition",
+    retailerId: "15",
+    operations: {
+      ...defaultOperations,
+      UPDATE_PRICE: REVIEW_ONLY("Price decisions remain review-only until the shared protected adapter explicitly supports them."),
+      UPDATE_STOCK: registeredExecution("15", "UPDATE_STOCK", "One owner-approved stock decision is revalidated against a fresh full Shopify capture and executed with protected freshness confirmations."),
+      UPDATE_PRICE_AND_STOCK: REVIEW_ONLY("Combined commercial decisions remain review-only."),
+      IDENTITY_PROMOTION: REVIEW_ONLY("Identity promotions require owner approval and exact evidence; no automatic catalogue change is allowed."),
+      REBIND_EXISTING_VARIANT: REVIEW_ONLY("Gladiator identity changes require a separate exact owner-approved plan."),
+      SOURCE_MISSING: REVIEW_ONLY("Missing Shopify evidence remains isolated for review and cannot trigger a commercial write."),
+    },
+  },
+  {
     retailer: "Simply Supplements",
     retailerId: "7",
     operations: {

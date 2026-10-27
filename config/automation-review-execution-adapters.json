@@ -77,6 +77,27 @@
         "expected_commercial_changes": 1,
         "freshness_confirmation_count": 19
       }
+    },
+    {
+      "retailer_id": "15",
+      "retailer_slug": "gladiator-nutrition",
+      "worker_kind": "shared-retailer",
+      "operations": ["UPDATE_STOCK"],
+      "reason_codes": ["STOCK_CHANGE"],
+      "builder": "scripts/fit-house-offer-refresh.js#reviewQueueSelection",
+      "approval_rpc": "approve_retailer_offer_sync_batch",
+      "apply_rpc": "execute_retailer_offer_sync_batch",
+      "postflight": "scripts/retailer-offer-refresh-postflight.js#gladiator-nutrition",
+      "idempotency": "fresh full-scope rebuild must resolve the selected offer to VERIFY_NO_CHANGE after apply",
+      "shared_engine": {
+        "engine_module": "scripts/fit-house-offer-refresh.js",
+        "profile": "gladiator-nutrition",
+        "postflight_profile": "gladiator-nutrition",
+        "role_prefix": "GLADIATOR_NUTRITION_REFRESH",
+        "expected_execution_rows": 20,
+        "expected_commercial_changes": 1,
+        "freshness_confirmation_count": 19
+      }
     }
   ]
 }
