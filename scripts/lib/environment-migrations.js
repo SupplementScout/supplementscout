@@ -227,12 +227,7 @@ const APPLIED_EXCLUSIONS = Object.freeze({
 
 const PENDING_MIGRATIONS = Object.freeze({
   STAGING: Object.freeze([]),
-  PRODUCTION: Object.freeze([
-    Object.freeze({
-      filename: "20261027150000_extend_sequential_parent_approval_to_gladiator.sql",
-      sha256: "6a1b8934404950cd716675e7c7a5fe9d97714d4957054ad50c21ea6c83d804ec",
-    }),
-  ]),
+  PRODUCTION: Object.freeze([]),
 });
 
 function migrationIdentifier(filename) {
