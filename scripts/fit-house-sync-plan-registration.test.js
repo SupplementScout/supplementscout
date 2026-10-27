@@ -8,17 +8,18 @@ const workflow = fs.readFileSync(
   "utf8",
 );
 
-test("Fit House workflow runs scoped dry-run, apply, and idempotency on main", () => {
+test("shared retailer workflow runs scoped dry-run, apply, and idempotency on main", () => {
   assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
   assert.equal(
     (workflow.match(/node scripts\/fit-house-offer-refresh\.js --target=production --mode=dry-run/g) || []).length,
-    5,
+    6,
   );
   assert.equal(
     (workflow.match(/node scripts\/fit-house-offer-refresh\.js --target=production --mode=apply/g) || []).length,
-    2,
+    3,
   );
   assert.match(workflow, /cron: "47 2 \* \* \*"/);
+  assert.match(workflow, /cron: "17 8 \* \* \*"/);
   assert.match(workflow, /FIT_HOUSE_SYNC_VALIDATOR_DATABASE_URL/);
   assert.match(workflow, /secrets\.JONS_SYNC_VALIDATOR_DATABASE_URL/);
   assert.match(workflow, /RETAILER_REFRESH_PROFILE: 10reps/);
