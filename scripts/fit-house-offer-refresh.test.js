@@ -156,17 +156,63 @@ test("stable OOS guard accounts for a reviewed return to stock during recovery a
   assert.deepEqual(durableAutomationReviewStockTransitions(recovered).map((row) => [row.offer_id, row.oos_delta]), [["697", -1], ["983", 1], ["1859", 1]]);
 });
 
-test("Review Queue selection executes one stock decision with nineteen unchanged confirmations", () => {
-  const changed = { offer_id: "900", action: "UPDATE_STOCK", changed_fields: { stock: true, price: false, url: false, blocked: false }, target: { in_stock: true }, source: { in_stock: false } };
-  const stable = Array.from({ length: 24 }, (_, index) => ({ offer_id: String(index + 1), action: "VERIFY_NO_CHANGE", changed_fields: { stock: false, price: false, url: false, blocked: false }, target: { in_stock: true }, source: { in_stock: true } }));
-  const otherChange = { offer_id: "901", action: "UPDATE_STOCK", changed_fields: { stock: true, price: false, url: false, blocked: false }, target: { in_stock: false }, source: { in_stock: true } };
-  const selection = { offerId: "900", operation: "UPDATE_STOCK", maximumCommercialChanges: 1, freshnessConfirmationCount: 19 };
-  const selected = selectReviewQueueExecutionRows({ rows: [changed, otherChange, ...stable] }, selection);
+const reviewSelection = { offerId: "900", operation: "UPDATE_STOCK", maximumCommercialChanges: 1, freshnessConfirmationCount: 19 };
+const stockChange = (offerId = "900", overrides = {}) => ({
+  offer_id: offerId,
+  action: "UPDATE_STOCK",
+  reason: "MASS_OOS",
+  changed_fields: { stock: true, price: false, url: false, blocked: false },
+  target: { in_stock: true },
+  source: { in_stock: false },
+  ...overrides,
+});
+const unchangedConfirmations = (count = 24) => Array.from({ length: count }, (_, index) => ({
+  offer_id: String(index + 1),
+  action: "VERIFY_NO_CHANGE",
+  changed_fields: { stock: false, price: false, url: false, blocked: false },
+  target: { in_stock: true },
+  source: { in_stock: true },
+}));
+
+test("Review Queue selection preserves ordinary changed-row execution with deterministic confirmations", () => {
+  const stable = unchangedConfirmations().reverse();
+  const selected = selectReviewQueueExecutionRows({ rows: [stockChange(), ...stable] }, reviewSelection);
   assert.equal(selected.length, 20);
   assert.deepEqual(selected.filter((row) => row.action !== "VERIFY_NO_CHANGE").map((row) => row.offer_id), ["900"]);
   assert.deepEqual(selected.slice(1).map((row) => row.offer_id), Array.from({ length: 19 }, (_, index) => String(index + 1)));
-  assert.throws(() => selectReviewQueueExecutionRows({ rows: [{ ...changed, changed_fields: { ...changed.changed_fields, price: true } }, ...stable] }, selection), /not an isolated stock change/);
-  assert.throws(() => selectReviewQueueExecutionRows({ rows: [changed, ...stable.slice(0, 18)] }, selection), /confirmation scope mismatch/);
+  assert.equal(new Set(selected.map((row) => row.offer_id)).size, 20);
+});
+
+test("Review Queue selection accepts an owner-reviewed MASS_OOS row from the quarantined partition", () => {
+  const selected = selectReviewQueueExecutionRows({ rows: unchangedConfirmations(), quarantined_rows: [stockChange()] }, reviewSelection);
+  assert.equal(selected.length, 20);
+  assert.equal(selected[0].offer_id, "900");
+  assert.equal(selected[0].reason, "MASS_OOS");
+  assert.deepEqual(selected.slice(1).map((row) => row.offer_id), Array.from({ length: 19 }, (_, index) => String(index + 1)));
+});
+
+test("Review Queue selection keeps changed and quarantined rows out of freshness confirmations", () => {
+  const stable = unchangedConfirmations(18);
+  assert.throws(() => selectReviewQueueExecutionRows({ rows: [...stable, stockChange("901")], quarantined_rows: [stockChange()] }, reviewSelection), /REVIEW_EXECUTION_CONFIRMATION_SCOPE_DRIFT/);
+  assert.throws(() => selectReviewQueueExecutionRows({ rows: stable, quarantined_rows: [stockChange(), { ...unchangedConfirmations(1)[0], offer_id: "902" }] }, reviewSelection), /REVIEW_EXECUTION_CONFIRMATION_SCOPE_DRIFT/);
+});
+
+test("Review Queue selection fails closed on duplicate classifier offer identities", () => {
+  const stable = unchangedConfirmations();
+  assert.throws(() => selectReviewQueueExecutionRows({ rows: [stockChange(), ...stable], quarantined_rows: [stockChange()] }, reviewSelection), /REVIEW_EXECUTION_CLASSIFIER_PARTITION_DUPLICATE/);
+  assert.throws(() => selectReviewQueueExecutionRows({ rows: [stockChange(), stable[0], { ...stable[0] }, ...stable.slice(1)] }, reviewSelection), /REVIEW_EXECUTION_CLASSIFIER_PARTITION_DUPLICATE/);
+  assert.throws(() => selectReviewQueueExecutionRows({ rows: stable, quarantined_rows: [stockChange(), stockChange()] }, reviewSelection), /REVIEW_EXECUTION_CLASSIFIER_PARTITION_DUPLICATE/);
+  assert.throws(() => selectReviewQueueExecutionRows({ rows: null }, reviewSelection), /REVIEW_EXECUTION_CLASSIFIER_PARTITIONS_INVALID/);
+});
+
+test("Review Queue selection preserves operation and isolated-stock fail-closed guards", () => {
+  const stable = unchangedConfirmations();
+  assert.throws(() => selectReviewQueueExecutionRows({ rows: stable, quarantined_rows: [stockChange("900", { action: "UPDATE_PRICE" })] }, reviewSelection), /REVIEW_EXECUTION_SOURCE_OPERATION_DRIFT/);
+  assert.throws(() => selectReviewQueueExecutionRows({ rows: stable, quarantined_rows: [stockChange("900", { changed_fields: { stock: true, price: true, url: false, blocked: false } })] }, reviewSelection), /REVIEW_EXECUTION_NOT_ISOLATED_STOCK_CHANGE/);
+  assert.throws(() => selectReviewQueueExecutionRows({ rows: stable, quarantined_rows: [stockChange("900", { changed_fields: { stock: false, price: true, url: false, blocked: false } })] }, reviewSelection), /REVIEW_EXECUTION_NOT_ISOLATED_STOCK_CHANGE/);
+  assert.throws(() => selectReviewQueueExecutionRows({ rows: stable, quarantined_rows: [stockChange("900", { changed_fields: { stock: true, price: false, url: false, blocked: true } })] }, reviewSelection), /REVIEW_EXECUTION_NOT_ISOLATED_STOCK_CHANGE/);
+  assert.throws(() => selectReviewQueueExecutionRows({ rows: stable }, reviewSelection), /REVIEW_EXECUTION_SOURCE_OPERATION_DRIFT/);
+  assert.throws(() => selectReviewQueueExecutionRows({ rows: stable.slice(0, 18), quarantined_rows: [stockChange()] }, reviewSelection), /REVIEW_EXECUTION_CONFIRMATION_SCOPE_DRIFT/);
 });
 
 test("zero-execution review reports retain the shared discovery evidence shape", () => {
