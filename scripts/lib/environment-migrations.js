@@ -8,6 +8,7 @@ const ROOT = path.resolve(__dirname, "../..");
 const MIGRATION_FILE = /^\d{14}_[a-z0-9_]+\.sql$/;
 const EXCLUSIONS = Object.freeze({
   STAGING: Object.freeze([
+    "20261027150000_extend_sequential_parent_approval_to_gladiator",
     "20261015130000_release_gym_high_seo15_stage3_source",
     "20261009120000_add_compact_other_retailer_fingerprint",
     "20261008200000_consolidate_shared_executor_state_reads",
@@ -226,7 +227,12 @@ const APPLIED_EXCLUSIONS = Object.freeze({
 
 const PENDING_MIGRATIONS = Object.freeze({
   STAGING: Object.freeze([]),
-  PRODUCTION: Object.freeze([]),
+  PRODUCTION: Object.freeze([
+    Object.freeze({
+      filename: "20261027150000_extend_sequential_parent_approval_to_gladiator.sql",
+      sha256: "6a1b8934404950cd716675e7c7a5fe9d97714d4957054ad50c21ea6c83d804ec",
+    }),
+  ]),
 });
 
 function migrationIdentifier(filename) {

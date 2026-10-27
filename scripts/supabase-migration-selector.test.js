@@ -75,7 +75,12 @@ const REVIEWED_V3_1_CONSOLIDATION_ROLLBACK = "20261027120000_consolidate_reviewe
 const REVIEWED_V3_1_CONSOLIDATION_ROLLBACK_SHA256 = "49c0ef4faf2861fc7448fd94f1463a1f0ac5425cdf7e5f5c4c6982d7206254d7";
 const GLADIATOR_REGISTRATION_MIGRATION = "20261027130000_add_gladiator_nutrition_offer_sync_registration.sql";
 const GLADIATOR_REGISTRATION_SHA256 = "88342c090c8c3e78d9c8413d1182972820cce5b588ed55ca4205f24a82d262c4";
-const GLADIATOR_REGISTRATION_PENDING = [];
+const GLADIATOR_PARENT_APPROVAL_MIGRATION = "20261027150000_extend_sequential_parent_approval_to_gladiator.sql";
+const GLADIATOR_PARENT_APPROVAL_SHA256 = "6a1b8934404950cd716675e7c7a5fe9d97714d4957054ad50c21ea6c83d804ec";
+const GLADIATOR_PARENT_APPROVAL_PENDING = [{
+  filename: GLADIATOR_PARENT_APPROVAL_MIGRATION,
+  sha256: GLADIATOR_PARENT_APPROVAL_SHA256,
+}];
 const RA004_CONTROL_STATE_MIGRATION = "20260924100000_add_transactional_retailer_control_state_interface.sql";
 const RA004_PREFLIGHT_MIGRATION = "20260925100000_add_ra004_staging_preflight_metadata_interface.sql";
 const RA004_FORWARD_CONTROL_STATE_MIGRATION = "20260927100000_reissue_transactional_retailer_control_state_interface.sql";
@@ -538,7 +543,7 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
 
 test("production preserves deployed V3 and Ghost Lifestyle metadata correction bytes", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, GLADIATOR_REGISTRATION_PENDING);
+  assert.deepEqual(contract.pending, GLADIATOR_PARENT_APPROVAL_PENDING);
   assert.deepEqual(contract.appliedExcluded, [
     "20260929133000_extend_expired_sequential_plan_close.sql",
     "20261004120000_add_central_control_plan_readback.sql",
@@ -874,9 +879,9 @@ test("production records the Gladiator registration at ledger 254", () => {
   });
   assert.equal(result.ledger_count, 254);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 254);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_sha256, null);
+  assert.equal(result.selected_files.length, 255);
+  assert.deepEqual(result.pending_files, [GLADIATOR_PARENT_APPROVAL_MIGRATION]);
+  assert.equal(result.pending_sha256, GLADIATOR_PARENT_APPROVAL_SHA256);
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
   assert.ok(result.excluded_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
@@ -989,7 +994,7 @@ test("runtime production artifacts bind the same migration ledger as the product
   const binding = migrationBinding("PRODUCTION");
   assert.equal(binding.versions.length, CONTRACTS.PRODUCTION.ledgerCount);
   assert.equal(binding.fingerprint, CONTRACTS.PRODUCTION.ledgerFingerprint);
-  assert.deepEqual(CONTRACTS.PRODUCTION.pending, GLADIATOR_REGISTRATION_PENDING);
+  assert.deepEqual(CONTRACTS.PRODUCTION.pending, GLADIATOR_PARENT_APPROVAL_PENDING);
   assert.ok(binding.versions.includes(REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION.slice(0, -4)));
   assert.ok(binding.versions.includes(REVIEWED_V3_EVIDENCE_PARITY_MIGRATION.slice(0, -4)));
   assert.ok(binding.versions.includes(REVIEWED_V3_EXISTING_VARIANT_ALIAS_MIGRATION.slice(0, -4)));
@@ -1033,7 +1038,7 @@ test("runtime staging artifacts bind the same migration ledger as the staging se
 test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.equal(Object.keys(contract.excluded).length, 27);
-  assert.deepEqual(contract.pending, GLADIATOR_REGISTRATION_PENDING);
+  assert.deepEqual(contract.pending, GLADIATOR_PARENT_APPROVAL_PENDING);
   assert.equal(
     contract.excluded["20261009120000_add_compact_other_retailer_fingerprint.sql"],
     "b365d247777650aba6333399d4173ecb369d85a1465074bb6961c23b94f2ac84",
@@ -1681,12 +1686,27 @@ test("completed RA-004 fixture activation cannot select or materialize a migrati
   })), /status mismatch/);
 });
 
-test("Gladiator registration is applied on staging and production", () => {
-  const result = validateSelection(validInput());
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+test("Gladiator registration is applied while the production-only parent approval extension is pending", () => {
+  const contract = CONTRACTS.PRODUCTION;
+  const remoteLedger = migrationBinding("PRODUCTION").versions.map((identifier) => {
+    const split = identifier.indexOf("_");
+    return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
+  });
+  const result = validateSelection({
+    environment: "PRODUCTION",
+    projectRef: contract.projectRef,
+    databaseTarget: {
+      target_environment: "PRODUCTION",
+      project_ref: contract.projectRef,
+      database_identity: contract.databaseIdentity,
+    },
+    remoteLedger,
+    sourceDir: SOURCE,
+  });
+  assert.equal(result.pending_file, GLADIATOR_PARENT_APPROVAL_MIGRATION);
+  assert.equal(result.pending_sha256, GLADIATOR_PARENT_APPROVAL_SHA256);
+  assert.deepEqual(result.pending_files, [GLADIATOR_PARENT_APPROVAL_MIGRATION]);
+  assert.deepEqual(result.pending_sha256s, { [GLADIATOR_PARENT_APPROVAL_MIGRATION]: GLADIATOR_PARENT_APPROVAL_SHA256 });
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20261008200000_consolidate_shared_executor_state_reads.sql"));
   assert.ok(result.selected_files.includes(REVIEWED_V3_POST_CREATE_OPTION_ROLE_MIGRATION));
@@ -1699,7 +1719,7 @@ test("Gladiator registration is applied on staging and production", () => {
   assert.ok(result.selected_files.includes(REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_1_CONSOLIDATION_MIGRATION));
-  assert.deepEqual(CONTRACTS.PRODUCTION.pending, GLADIATOR_REGISTRATION_PENDING);
+  assert.deepEqual(CONTRACTS.PRODUCTION.pending, GLADIATOR_PARENT_APPROVAL_PENDING);
   assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 254);
   assert.equal(CONTRACTS.PRODUCTION.ledgerFingerprint,
     "85849e2415b3787bd306acf4f1c81fd28e6ab9535fa76a7a89edee8c792e7251");
@@ -1750,11 +1770,22 @@ test("Gladiator registration is applied on staging and production", () => {
 test("Gladiator registration is applied exactly once on staging and production", () => {
   assert.equal(sha256File(path.join(SOURCE, GLADIATOR_REGISTRATION_MIGRATION)), GLADIATOR_REGISTRATION_SHA256);
   assert.deepEqual(CONTRACTS.STAGING.pending, []);
-  assert.deepEqual(CONTRACTS.PRODUCTION.pending, GLADIATOR_REGISTRATION_PENDING);
+  assert.deepEqual(CONTRACTS.PRODUCTION.pending, GLADIATOR_PARENT_APPROVAL_PENDING);
   assert.equal(migrationBinding("STAGING").versions.length, 119);
   assert.equal(migrationBinding("PRODUCTION").versions.length, 254);
   assert.equal(migrationBinding("STAGING").fingerprint, "4cd9dc154ce91ae0780e1d88b45714d542335c331ac53239d8396a3e233d102a");
   assert.equal(migrationBinding("PRODUCTION").fingerprint, "85849e2415b3787bd306acf4f1c81fd28e6ab9535fa76a7a89edee8c792e7251");
+  assert.equal(sha256File(path.join(SOURCE, GLADIATOR_PARENT_APPROVAL_MIGRATION)), GLADIATOR_PARENT_APPROVAL_SHA256);
+  const futureIdentifiers = [...migrationBinding("PRODUCTION").versions, GLADIATOR_PARENT_APPROVAL_MIGRATION.slice(0, -4)].sort();
+  const futureRows = futureIdentifiers.map((identifier) => {
+    const split = identifier.indexOf("_");
+    return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
+  });
+  assert.equal(futureRows.length, 255);
+  assert.equal(
+    ledgerRowsFingerprint(futureRows, { targetEnvironment: "PRODUCTION" }),
+    "2c4ccb59502109b85d05f94a0577060d6309c6de20623036570ddeb9b887c764",
+  );
 });
 
 test("activated environment bindings cannot remain pending or diverge from selector contracts", () => {
