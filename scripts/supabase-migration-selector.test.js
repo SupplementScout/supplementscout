@@ -75,11 +75,7 @@ const REVIEWED_V3_1_CONSOLIDATION_ROLLBACK = "20261027120000_consolidate_reviewe
 const REVIEWED_V3_1_CONSOLIDATION_ROLLBACK_SHA256 = "49c0ef4faf2861fc7448fd94f1463a1f0ac5425cdf7e5f5c4c6982d7206254d7";
 const GLADIATOR_REGISTRATION_MIGRATION = "20261027130000_add_gladiator_nutrition_offer_sync_registration.sql";
 const GLADIATOR_REGISTRATION_SHA256 = "88342c090c8c3e78d9c8413d1182972820cce5b588ed55ca4205f24a82d262c4";
-const GLADIATOR_REGISTRATION_PENDING = [{
-  filename: GLADIATOR_REGISTRATION_MIGRATION,
-  sha256: GLADIATOR_REGISTRATION_SHA256,
-  expectedCatalogueDeltas: {},
-}];
+const GLADIATOR_REGISTRATION_PENDING = [];
 const RA004_CONTROL_STATE_MIGRATION = "20260924100000_add_transactional_retailer_control_state_interface.sql";
 const RA004_PREFLIGHT_MIGRATION = "20260925100000_add_ra004_staging_preflight_metadata_interface.sql";
 const RA004_FORWARD_CONTROL_STATE_MIGRATION = "20260927100000_reissue_transactional_retailer_control_state_interface.sql";
@@ -552,10 +548,10 @@ test("production preserves deployed V3 and Ghost Lifestyle metadata correction b
     "20261008200000_consolidate_shared_executor_state_reads.sql",
     "20261009120000_add_compact_other_retailer_fingerprint.sql",
   ]);
-  assert.equal(contract.ledgerCount, 253);
+  assert.equal(contract.ledgerCount, 254);
   assert.equal(
     contract.ledgerFingerprint,
-    "a22d17584c85ecc86adb89c96062aeffba063a666c68f6b1b747869cae317139",
+    "85849e2415b3787bd306acf4f1c81fd28e6ab9535fa76a7a89edee8c792e7251",
   );
   assert.equal(sha256File(path.join(SOURCE, GHOST_LIFESTYLE_METADATA_MIGRATION)), GHOST_LIFESTYLE_METADATA_SHA256);
   assert.equal(contract.excluded[REVIEWED_STATE_MIGRATION], REVIEWED_STATE_SHA256);
@@ -849,7 +845,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACT.ledgerFingerprint);
 });
 
-test("production records the V3.1 consolidation at ledger 253", () => {
+test("production records the Gladiator registration at ledger 254", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   for (const filename of contract.appliedExcluded) excluded.delete(filename);
@@ -876,11 +872,11 @@ test("production records the V3.1 consolidation at ledger 253", () => {
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 253);
+  assert.equal(result.ledger_count, 254);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 254);
-  assert.deepEqual(result.pending_files, [GLADIATOR_REGISTRATION_MIGRATION]);
-  assert.equal(result.pending_sha256, GLADIATOR_REGISTRATION_SHA256);
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_sha256, null);
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
   assert.ok(result.excluded_files.includes("20260929133000_extend_expired_sequential_plan_close.sql"));
@@ -1685,7 +1681,7 @@ test("completed RA-004 fixture activation cannot select or materialize a migrati
   })), /status mismatch/);
 });
 
-test("Gladiator registration is applied on staging while remaining pending on production", () => {
+test("Gladiator registration is applied on staging and production", () => {
   const result = validateSelection(validInput());
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);
@@ -1704,13 +1700,14 @@ test("Gladiator registration is applied on staging while remaining pending on pr
   assert.ok(result.selected_files.includes(REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_1_CONSOLIDATION_MIGRATION));
   assert.deepEqual(CONTRACTS.PRODUCTION.pending, GLADIATOR_REGISTRATION_PENDING);
-  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 253);
+  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 254);
   assert.equal(CONTRACTS.PRODUCTION.ledgerFingerprint,
-    "a22d17584c85ecc86adb89c96062aeffba063a666c68f6b1b747869cae317139");
+    "85849e2415b3787bd306acf4f1c81fd28e6ab9535fa76a7a89edee8c792e7251");
   const productionPrerequisiteIdentifiers = [
     ...migrationBinding("PRODUCTION").versions.filter(identifier =>
       identifier !== REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION.slice(0, -4)
-      && identifier !== REVIEWED_V3_1_CONSOLIDATION_MIGRATION.slice(0, -4)),
+      && identifier !== REVIEWED_V3_1_CONSOLIDATION_MIGRATION.slice(0, -4)
+      && identifier !== GLADIATOR_REGISTRATION_MIGRATION.slice(0, -4)),
   ];
   const productionPrerequisiteRows = productionPrerequisiteIdentifiers.map(identifier => {
     const split = identifier.indexOf("_");
@@ -1722,7 +1719,8 @@ test("Gladiator registration is applied on staging while remaining pending on pr
     "477f8d50f3232bf19cbfaf25a1461400a8dc24c327f7d1c9f4dda15e19cde3b1",
   );
   const productionPostIdentifiers = migrationBinding("PRODUCTION").versions.filter(identifier =>
-    identifier !== REVIEWED_V3_1_CONSOLIDATION_MIGRATION.slice(0, -4));
+    identifier !== REVIEWED_V3_1_CONSOLIDATION_MIGRATION.slice(0, -4)
+    && identifier !== GLADIATOR_REGISTRATION_MIGRATION.slice(0, -4));
   const productionPostRows = productionPostIdentifiers.map(identifier => {
     const split = identifier.indexOf("_");
     return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
@@ -1742,29 +1740,21 @@ test("Gladiator registration is applied on staging while remaining pending on pr
     const split = identifier.indexOf("_");
     return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
   });
-  assert.equal(productionCurrentRows.length, 253);
+  assert.equal(productionCurrentRows.length, 254);
   assert.equal(
     ledgerRowsFingerprint(productionCurrentRows, { targetEnvironment: "PRODUCTION" }),
-    "a22d17584c85ecc86adb89c96062aeffba063a666c68f6b1b747869cae317139",
+    "85849e2415b3787bd306acf4f1c81fd28e6ab9535fa76a7a89edee8c792e7251",
   );
 });
 
-test("Gladiator registration is applied on staging and pending exactly once on production", () => {
+test("Gladiator registration is applied exactly once on staging and production", () => {
   assert.equal(sha256File(path.join(SOURCE, GLADIATOR_REGISTRATION_MIGRATION)), GLADIATOR_REGISTRATION_SHA256);
   assert.deepEqual(CONTRACTS.STAGING.pending, []);
   assert.deepEqual(CONTRACTS.PRODUCTION.pending, GLADIATOR_REGISTRATION_PENDING);
   assert.equal(migrationBinding("STAGING").versions.length, 119);
-  assert.equal(migrationBinding("PRODUCTION").versions.length, 253);
-  const futureFingerprint = (environment) => {
-    const identifiers = [...migrationBinding(environment).versions, GLADIATOR_REGISTRATION_MIGRATION.slice(0, -4)].sort();
-    const rows = identifiers.map((identifier) => {
-      const split = identifier.indexOf("_");
-      return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
-    });
-    return ledgerRowsFingerprint(rows, { targetEnvironment: environment });
-  };
+  assert.equal(migrationBinding("PRODUCTION").versions.length, 254);
   assert.equal(migrationBinding("STAGING").fingerprint, "4cd9dc154ce91ae0780e1d88b45714d542335c331ac53239d8396a3e233d102a");
-  assert.equal(futureFingerprint("PRODUCTION"), "85849e2415b3787bd306acf4f1c81fd28e6ab9535fa76a7a89edee8c792e7251");
+  assert.equal(migrationBinding("PRODUCTION").fingerprint, "85849e2415b3787bd306acf4f1c81fd28e6ab9535fa76a7a89edee8c792e7251");
 });
 
 test("activated environment bindings cannot remain pending or diverge from selector contracts", () => {
