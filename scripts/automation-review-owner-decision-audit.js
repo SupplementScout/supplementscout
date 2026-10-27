@@ -68,8 +68,35 @@ function hasVerifiedRecoveryEvidence(request, review, requestEvents) {
   });
 }
 
+function hasVerifiedZeroBusinessWriteCloseoutEvidence(request, review, requestEvents) {
+  return requestEvents.some((event) => {
+    const evidence = event.evidence || {};
+    return event.previous_status === "FAILED" && event.new_status === "FAILED"
+      && event.checkpoint === "VERIFIED_ZERO_BUSINESS_WRITE_CLOSEOUT"
+      && evidence.kind === "automation-review-verified-zero-business-write-closeout-v1"
+      && Number(evidence.business_writes) === 0
+      && Number(evidence.possible_database_writes) === Number(request.database_writes)
+      && String(evidence.execution_request_id || "") === String(request.id)
+      && String(evidence.review_id || "") === String(review.id)
+      && String(evidence.retailer_id || "") === String(request.retailer_id)
+      && String(evidence.retailer_slug || "") === String(request.retailer_slug)
+      && String(evidence.offer_id || "") === String(review.offer_id)
+      && String(evidence.original_run_id || "") === String(request.run_id)
+      && String(evidence.original_commit_sha || "") === String(request.commit_sha)
+      && array(evidence.parent_plan_ids).length > 0
+      && array(evidence.child_plan_ids).length > 0
+      && Number(evidence.apply_run_count) === 0
+      && Number(evidence.batch_approval_count) === 0
+      && Number(evidence.approved_import_plan_count) === 0
+      && Number(evidence.recovery_execution_count) === 0
+      && isHex64(evidence.before_state_offer_hash)
+      && isHex64(evidence.before_state_mapping_hash);
+  });
+}
+
 function auditData({ decisionEvents, reviews, requests, executionEvents }, now = new Date()) {
   const anomalies = [], summaries = [];
+  let verifiedZeroBusinessWriteCloseoutCount = 0;
   const reviewById = new Map(reviews.map((row) => [String(row.id), row]));
   const requestsByReview = new Map();
   const eventsByRequest = new Map();
@@ -90,6 +117,8 @@ function auditData({ decisionEvents, reviews, requests, executionEvents }, now =
     for (const request of reviewRequests) {
       if (String(request.retailer_id) !== String(review.retailer_id) || request.operation_type !== review.operation_type || request.review_fingerprint !== review.source_row_fingerprint || request.plan_fingerprint !== review.plan_fingerprint) anomalies.push({ code: "EXECUTION_REQUEST_BINDING_DRIFT", review_id: id, execution_request_id: request.id });
       const requestEvents = eventsByRequest.get(String(request.id)) || [], lastEvent = latest(requestEvents);
+      const zeroBusinessCloseout = hasVerifiedZeroBusinessWriteCloseoutEvidence(request, review, requestEvents);
+      if (zeroBusinessCloseout) verifiedZeroBusinessWriteCloseoutCount += 1;
       if (lastEvent && lastEvent.new_status !== request.status) anomalies.push({ code: "EXECUTION_EVENT_STATUS_DRIFT", review_id: id, execution_request_id: request.id, request_status: request.status, event_status: lastEvent.new_status });
       if (ACTIVE_EXECUTION.has(request.status)) {
         const threshold = request.status === "QUEUED" ? 10 : request.status === "DISPATCHED" ? 20 : 30;
@@ -104,7 +133,8 @@ function auditData({ decisionEvents, reviews, requests, executionEvents }, now =
         if (!valid) anomalies.push({ code: "EXECUTED_EVIDENCE_INCOMPLETE", review_id: id, execution_request_id: request.id });
       }
       if (request.status === "EXPIRED" && (Number(request.database_writes || 0) !== 0 || !request.error_code)) anomalies.push({ code: "EXPIRED_EVIDENCE_INVALID", review_id: id, execution_request_id: request.id });
-      if (request.status === "FAILED" && Number(request.database_writes || 0) > 0) anomalies.push({ code: "FAILED_AFTER_POSSIBLE_WRITE", review_id: id, execution_request_id: request.id, database_writes: request.database_writes });
+      if (request.status === "FAILED" && Number(request.database_writes || 0) > 0 && !zeroBusinessCloseout) anomalies.push({ code: "FAILED_AFTER_POSSIBLE_WRITE", review_id: id, execution_request_id: request.id, database_writes: request.database_writes });
+      if (newest?.id === request.id && zeroBusinessCloseout) outcome = "FAILED_VERIFIED_ZERO_BUSINESS_WRITE";
     }
     const executed = reviewRequests.filter((request) => request.status === "EXECUTED");
     const writeBearing = reviewRequests.filter((request) => Number(request.database_writes || 0) > 0);
@@ -122,7 +152,7 @@ function auditData({ decisionEvents, reviews, requests, executionEvents }, now =
     const replacement = reviewById.get(String(review.superseded_by_review_id));
     if (!replacement || String(replacement.retailer_id) !== String(review.retailer_id) || String(replacement.offer_id) !== String(review.offer_id) || Number(replacement.id) <= Number(review.id)) anomalies.push({ code: "SUPERSESSION_LINK_INVALID", review_id: String(review.id), superseded_by_review_id: String(review.superseded_by_review_id) });
   }
-  return { summaries, anomalies };
+  return { summaries, anomalies, verifiedZeroBusinessWriteCloseoutCount };
 }
 
 function monitorStatus({ reviews, requests, anomalies }) {
@@ -153,7 +183,7 @@ async function run(options = parseArgs(process.argv.slice(2)), dependencies = {}
   const audited = auditData({ decisionEvents, reviews, requests, executionEvents }, dependencies.now || new Date());
   const monitoring = monitorStatus({ reviews, requests, anomalies: audited.anomalies });
   const result = monitoring.monitor_status === "SUCCESS" ? "PASS" : monitoring.monitor_status === "WAITING_FOR_DECISION" ? "PASS_WITH_REVIEW" : "FAILED_SYSTEM";
-  const report = { schema_version: 2, kind: "automation-review-owner-decision-read-only-audit", result, ...monitoring, generated_at: (dependencies.now || new Date()).toISOString(), owner_actor: OWNER, decision_count: decisionEvents.length, summary_count: audited.summaries.length, anomaly_count: audited.anomalies.length, github_artifact_verification_required_count: audited.summaries.filter((row) => row.github_artifact_verification_required).length, catalogue_writes: 0, execution_calls: 0, ...audited };
+  const report = { schema_version: 2, kind: "automation-review-owner-decision-read-only-audit", result, ...monitoring, generated_at: (dependencies.now || new Date()).toISOString(), owner_actor: OWNER, decision_count: decisionEvents.length, summary_count: audited.summaries.length, anomaly_count: audited.anomalies.length, verified_zero_business_write_closeout_count: audited.verifiedZeroBusinessWriteCloseoutCount, github_artifact_verification_required_count: audited.summaries.filter((row) => row.github_artifact_verification_required).length, catalogue_writes: 0, execution_calls: 0, ...audited };
   fs.mkdirSync(path.dirname(options.output), { recursive: true });
   fs.writeFileSync(options.output, `${JSON.stringify(report, null, 2)}\n`);
   return report;
@@ -161,4 +191,4 @@ async function run(options = parseArgs(process.argv.slice(2)), dependencies = {}
 
 if (require.main === module) run().then((report) => { console.log(JSON.stringify({ result: report.result, monitor_status: report.monitor_status, decisions: report.decision_count, pending_owner_decisions: report.pending_owner_decision_count, review_attention: report.review_attention_count, system_failures: report.system_failure_count })); process.exitCode = auditExitCode(report) || undefined; }).catch((error) => { console.error(error.message); process.exitCode = 1; });
 
-module.exports = { auditData, auditExitCode, hasVerifiedRecoveryEvidence, monitorStatus, parseArgs, readAll, run };
+module.exports = { auditData, auditExitCode, hasVerifiedRecoveryEvidence, hasVerifiedZeroBusinessWriteCloseoutEvidence, monitorStatus, parseArgs, readAll, run };

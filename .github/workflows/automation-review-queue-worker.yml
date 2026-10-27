@@ -11,6 +11,10 @@ on:
         description: "Exact failed request UUID; control-only recovery after verified postflight and fresh idempotency"
         required: false
         type: string
+      zero_business_closeout_execution_request_id:
+        description: "Exact failed request UUID; append verified zero-business-write closeout evidence only"
+        required: false
+        type: string
   schedule:
     - cron: "*/5 * * * *"
 
@@ -24,7 +28,7 @@ concurrency:
 
 jobs:
   execute-next-approved-review:
-    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && ((github.event.inputs.execution_request_id != '' && github.event.inputs.recovery_execution_request_id == '') || (github.event.inputs.execution_request_id == '' && github.event.inputs.recovery_execution_request_id != '')))) }}
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && ((github.event.inputs.execution_request_id != '' && github.event.inputs.recovery_execution_request_id == '' && github.event.inputs.zero_business_closeout_execution_request_id == '') || (github.event.inputs.execution_request_id == '' && github.event.inputs.recovery_execution_request_id != '' && github.event.inputs.zero_business_closeout_execution_request_id == '') || (github.event.inputs.execution_request_id == '' && github.event.inputs.recovery_execution_request_id == '' && github.event.inputs.zero_business_closeout_execution_request_id != '')))) }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     environment: production-readonly
@@ -38,18 +42,18 @@ jobs:
           cache: npm
       - run: npm ci --ignore-scripts
       - name: Test queue worker without production credentials
-        run: node --test --test-name-pattern="Automation Review Queue scheduled worker|Review Queue eBay worker|shared retailer Review Queue worker|Fit House Review Queue worker" scripts/admin-auth.test.js
+        run: node --test --test-name-pattern="Automation Review Queue scheduled worker|Automation Review Queue zero-business closeout|Review Queue eBay worker|shared retailer Review Queue worker|Fit House Review Queue worker" scripts/admin-auth.test.js
       - name: Remove test-only execution evidence
         run: rm -rf tmp/automation-review-execution && mkdir -p tmp/automation-review-execution
       - name: Audit owner decisions read-only
-        if: ${{ github.event_name == 'schedule' || github.event.inputs.recovery_execution_request_id == '' }}
+        if: ${{ github.event_name == 'schedule' || (github.event.inputs.recovery_execution_request_id == '' && github.event.inputs.zero_business_closeout_execution_request_id == '') }}
         id: owner_audit
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/automation-review-owner-decision-audit.js --output=tmp/automation-review-execution/owner-decision-audit.json
       - name: Execute oldest approved queue request
-        if: ${{ steps.owner_audit.outcome == 'success' && (github.event_name == 'schedule' || github.event.inputs.recovery_execution_request_id == '') }}
+        if: ${{ steps.owner_audit.outcome == 'success' && (github.event_name == 'schedule' || (github.event.inputs.recovery_execution_request_id == '' && github.event.inputs.zero_business_closeout_execution_request_id == '')) }}
         env:
           EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
           EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
@@ -77,6 +81,14 @@ jobs:
           GLADIATOR_NUTRITION_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
           AUTOMATION_REVIEW_EXECUTION_REQUEST_ID: ${{ github.event.inputs.execution_request_id || '' }}
         run: node scripts/automation-review-queue-worker.js
+      - name: Verify and close failed zero-business request
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.zero_business_closeout_execution_request_id != '' }}
+        env:
+          SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL: ${{ secrets.SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          AUTOMATION_REVIEW_ZERO_BUSINESS_CLOSEOUT_REQUEST_ID: ${{ github.event.inputs.zero_business_closeout_execution_request_id }}
+        run: node scripts/automation-review-zero-business-closeout.js --execution-request-id=${{ github.event.inputs.zero_business_closeout_execution_request_id }}
       - name: Read failed request recovery metadata
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.recovery_execution_request_id != '' }}
         id: recovery_metadata
@@ -104,8 +116,8 @@ jobs:
           GLADIATOR_NUTRITION_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           AUTOMATION_REVIEW_RECOVERY_REQUEST_ID: ${{ github.event.inputs.recovery_execution_request_id }}
         run: node scripts/automation-review-postflight-recovery.js --mode=recover --execution-request-id=${{ github.event.inputs.recovery_execution_request_id }} --artifact-directory=tmp/automation-review-recovery-input
-      - name: Audit owner decisions after recovery
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.recovery_execution_request_id != '' }}
+      - name: Audit owner decisions after control closeout
+        if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.recovery_execution_request_id != '' || github.event.inputs.zero_business_closeout_execution_request_id != '') }}
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
