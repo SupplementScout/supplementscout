@@ -173,8 +173,14 @@ test("registration migration is a thin exact-scope boundary and rollback is line
   const rollbackPath = path.join(ROOT, "supabase", "rollbacks", ROLLBACK);
   const forward = fs.readFileSync(forwardPath, "utf8");
   const rollback = fs.readFileSync(rollbackPath, "utf8");
-  assert.equal(sha256(forwardPath), "c3b2975d9e25d20064e349e7e9416b6acae957a47a4be00bcd494416c17a48ca");
-  for (const token of ["register_fit_house_offer_sync_control_plan", "register_gladiator_nutrition_offer_sync_control_plan", "f07122185a4d601e9e4172378d2fcf6636e5ab1833c33c749f69bccd3fcd8078", "f2e46baa948348ccd92535095ad6833ee2a4b3b7a11547335c580e7a1b07962a", "jsonb_array_length(v_manifest) <> 603", "retailer_catalogue_assert_migration_ledger", "security_definer", "search_path=pg_catalog, public, pg_temp"]) assert.match(forward.toLowerCase(), new RegExp(token.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  assert.equal(sha256(forwardPath), "490d8e8d9af54053ad67a7c593b5e6e1834c7b2811101d426ca317893501246f");
+  assert.equal(sha256(rollbackPath), "1979f15337f958cf34eaf2e747a3a4cfa175b106167cc6f443a2e75f39bcb387");
+  for (const token of ["create or replace function public.register_gladiator_nutrition_offer_sync_control_plan", "f07122185a4d601e9e4172378d2fcf6636e5ab1833c33c749f69bccd3fcd8078", "f2e46baa948348ccd92535095ad6833ee2a4b3b7a11547335c580e7a1b07962a", "jsonb_array_length(v_manifest) <> 603", "retailer_catalogue_assert_migration_ledger", "security definer", "set search_path = pg_catalog, public, pg_temp"]) assert.match(forward.toLowerCase(), new RegExp(token.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  assert.doesNotMatch(forward, /pg_get_functiondef\s*\(\s*['"]public\.register_fit_house_offer_sync_control_plan/i);
+  assert.doesNotMatch(forward, /register_fit_house_offer_sync_control_plan/i);
+  assert.doesNotMatch(forward, /replace\s*\(\s*v_definition\s*,/i);
+  assert.doesNotMatch(forward, /overlay\s*\(/i);
+  assert.doesNotMatch(forward, /execute\s+v_definition/i);
   assert.match(forward, /revoke all[\s\S]*from public, anon, authenticated, service_role/);
   assert.match(forward, /creates no catalogue, offer, mapping, approval or price-history row/);
   assert.doesNotMatch(forward, /insert into public\.(products|product_variants|retailer_products|offers|price_history|approved_import_plans)/);

@@ -228,14 +228,14 @@ const PENDING_MIGRATIONS = Object.freeze({
   STAGING: Object.freeze([
     Object.freeze({
       filename: "20261027130000_add_gladiator_nutrition_offer_sync_registration.sql",
-      sha256: "c3b2975d9e25d20064e349e7e9416b6acae957a47a4be00bcd494416c17a48ca",
+      sha256: "490d8e8d9af54053ad67a7c593b5e6e1834c7b2811101d426ca317893501246f",
       expectedCatalogueDeltas: Object.freeze({}),
     }),
   ]),
   PRODUCTION: Object.freeze([
     Object.freeze({
       filename: "20261027130000_add_gladiator_nutrition_offer_sync_registration.sql",
-      sha256: "c3b2975d9e25d20064e349e7e9416b6acae957a47a4be00bcd494416c17a48ca",
+      sha256: "490d8e8d9af54053ad67a7c593b5e6e1834c7b2811101d426ca317893501246f",
       expectedCatalogueDeltas: Object.freeze({}),
     }),
   ]),
