@@ -2,8 +2,11 @@
 
 **Status: POST-CLOSEOUT INCIDENT VERIFIED COMPLETE — RA-004 REMAINS BLOCKED**
 
-**Current active task:** none. RA-STAB-02 and RA-STAB-01 are
-`VERIFIED_COMPLETE`. On 29 September 2026 the
+**Current active task:** Gladiator shared-pipeline adoption preparation
+(`IN_PROGRESS`). This is a config/registration adoption of the existing
+retailer-offer-sync spine, not a new automation path. Scheduled activation,
+database migration application and live execution remain unauthorized.
+RA-STAB-02 and RA-STAB-01 are `VERIFIED_COMPLETE`. On 29 September 2026 the
 owner stopped further RA-004 live canary retries after the five-day sequence of
 staging-interface, credential, ledger, ACL, provider-identity and final SQL
 contract failures. The consumed `v3` activation remains terminal and
@@ -25,6 +28,25 @@ run, cutover or retry is not authorized by this reset.
 
 See
 [`evidence/RA-STABILIZATION-RESET-2026-09-29.md`](evidence/RA-STABILIZATION-RESET-2026-09-29.md).
+
+**26 October Gladiator shared-pipeline adoption preparation — local evidence
+ready for Draft PR:** the fresh read-only production scope contains exactly
+`603` existing mappings and `603` offers for retailer `15`; the deterministic
+approved manifest SHA-256 is
+`f07122185a4d601e9e4172378d2fcf6636e5ab1833c33c749f69bccd3fcd8078`.
+The prepared profile reuses the current Shopify reader, classifier, mixed-batch
+executor, atomic importer, Review Queue, postflight and watchdog. It adds no
+catalogue identity and excludes all `249` unmapped source variants. The only
+shared behavior correction is in the existing Review Queue publication profile:
+a correctly quarantined `UPDATE_PRICE_AND_STOCK` row is now normalized by the
+same generic commercial-row contract while independent safe siblings remain
+executable. The exact 10 Reps mismatch is a regression fixture. The thin
+registration migration is pending once from STAGING ledger `118` and PRODUCTION
+ledger `253`; local PostgreSQL forward/rollback rehearsal preserves the source
+function, exact security properties and zero business writes. The workflow
+exposes Gladiator only as manual `dry-run` shadow; schedule/apply remains
+disabled. Next gate after review is a separately authorized STAGING migration
+and shadow proof. Branch: `automation/gladiator-shared-pipeline-adoption`.
 
 **15 October post-closeout mixed-partition incident — verified complete:**
 ordinary shared run `38532219108` captured a healthy 10 Reps source and produced

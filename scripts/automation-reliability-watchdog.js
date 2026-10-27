@@ -18,6 +18,7 @@ const VALIDATOR_LOGIN = "supplementscout_production_validator_login";
 const VALIDATOR_ROLE = "retailer_catalogue_production_validator";
 const WORKFLOW_RUNS_PER_PAGE = 25;
 const MAX_WORKFLOW_RUN_PAGES = 4;
+const EXPECTED_RETAILER_COUNT = 13;
 const WORKFLOW_STAGE_NAMES = Object.freeze([
   "capture",
   "apply",
@@ -36,9 +37,9 @@ function loadConfig(file = CONFIG_PATH) {
     config.maximum_success_age_hours === 48,
     "Watchdog success age must remain 48 hours",
   );
-  invariant(config.retailers.length === 12, "Watchdog must cover 12 retailers");
+  invariant(config.retailers.length === EXPECTED_RETAILER_COUNT, `Watchdog must cover ${EXPECTED_RETAILER_COUNT} retailers`);
   invariant(
-    new Set(config.retailers.map((row) => String(row.id))).size === 12,
+    new Set(config.retailers.map((row) => String(row.id))).size === EXPECTED_RETAILER_COUNT,
     "Watchdog retailer IDs must be unique",
   );
   const baseline = config.monitored_backlog;
@@ -48,8 +49,8 @@ function loadConfig(file = CONFIG_PATH) {
     "Watchdog monitored backlog snapshot hash is invalid",
   );
   invariant(
-    Object.keys(baseline.retailers || {}).length === 12,
-    "Watchdog monitored backlog must cover 12 retailers",
+    Object.keys(baseline.retailers || {}).length === EXPECTED_RETAILER_COUNT,
+    `Watchdog monitored backlog must cover ${EXPECTED_RETAILER_COUNT} retailers`,
   );
   invariant(
     baseline.closeout_counts.review_queue_pending ===

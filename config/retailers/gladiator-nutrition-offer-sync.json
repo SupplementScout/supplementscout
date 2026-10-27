@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "retailer_id": 15,
+  "retailer_name": "Gladiator Nutrition",
+  "retailer_slug": "gladiator-nutrition",
+  "store_url": "https://gladiatornutrition.co.uk",
+  "source_platform": "SHOPIFY",
+  "manifest_mode": "row_manifest",
+  "manifest_path": "config/retailers/gladiator-nutrition-approved-offer-manifest.json",
+  "manifest_sha256": "f07122185a4d601e9e4172378d2fcf6636e5ab1833c33c749f69bccd3fcd8078",
+  "approved_mapping_count": 603,
+  "registration_rpc": "register_gladiator_nutrition_offer_sync_control_plan",
+  "environment_prefix": "GLADIATOR_NUTRITION_REFRESH",
+  "phase_prefix": "GLADIATOR_NUTRITION_REFRESH",
+  "output_directory": "gladiator-nutrition-offer-refresh",
+  "guard_scope_name": "GLADIATOR_NUTRITION_APPROVED_EXISTING_603",
+  "source_baseline": {
+    "product_count": 155,
+    "variant_count": 852,
+    "minimum_count_ratio": 0.9,
+    "genuine_collapse_ratio": 0.75
+  },
+  "source_fetch": {
+    "pagination_completion": "short-page",
+    "maximum_attempts": 3,
+    "retry_base_delay_ms": 250,
+    "timeout_ms": 20000,
+    "maximum_pages": 20,
+    "user_agent": "SupplementScout-Gladiator-Nutrition-Offer-Refresh/1.0"
+  },
+  "guardrails": {
+    "preserve_existing_urls": true,
+    "allowed_existing_offer_hosts": ["gladiatornutrition.co.uk"],
+    "required_matched_offers": 603,
+    "source_freshness_hours": 24,
+    "future_clock_skew_minutes": 5,
+    "full_snapshot_minimum_source_count_ratio": 0.9,
+    "maximum_total_oos_ratio": 0.45,
+    "maximum_oos_increase_percentage_points": 0.05,
+    "maximum_changed_record_ratio": 0.25,
+    "mass_price_change_block_ratio": 0.2,
+    "per_row_price_hard_block_ratio": 0.25,
+    "per_row_price_hard_block_absolute_gbp": "20.00",
+    "mass_oos_block_count": 4,
+    "ignore_source_sku": true
+  },
+  "shipping_policy": {
+    "mode": "threshold",
+    "free_from_gbp": "75.00",
+    "standard_gbp": "6.99"
+  },
+  "discovery_policy": {
+    "mode": "report_only",
+    "catalogue_creates": false,
+    "missing_mapped_variant_mode": "BLOCK",
+    "maximum_missing_mapped_variants": 0,
+    "maximum_missing_mapped_variant_ratio": 0
+  },
+  "reviewed_mass_oos_enabled": false,
+  "preserve_existing_urls": true,
+  "policy": {
+    "existing_identity_only": true,
+    "catalogue_creates": false,
+    "mapping_creates": false,
+    "allowed_fields": ["price", "in_stock", "last_checked_at"],
+    "maximum_price_change_ratio": 0.25,
+    "maximum_price_change_absolute_gbp": "20.00"
+  }
+}

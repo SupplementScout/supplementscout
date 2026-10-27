@@ -759,6 +759,64 @@ test("10 Reps source adapter binds executable rows with source-missing and class
   assert.equal(contract.catalogue_writes, 0);
 });
 
+test("shared mixed review profile publishes a quarantined compound row without blocking its safe sibling", () => {
+  const fixture = writeTenRepsFixture();
+  const reportPath = path.join(fixture.directory, "production-dry-run.json");
+  const diagnosticPath = path.join(fixture.directory, "production-preflight-diagnostic.json");
+  const report = JSON.parse(fs.readFileSync(reportPath, "utf8"));
+  const diagnostic = JSON.parse(fs.readFileSync(diagnosticPath, "utf8"));
+  const baselineByOffer = new Map(fixture.baselineRows.map((row) => [row.offer_id, row]));
+  const compoundOfferId = report.execution_offer_ids[0];
+  const safeSiblingOfferId = report.execution_offer_ids[1];
+  const compoundBefore = baselineByOffer.get(compoundOfferId);
+  const compoundReview = {
+    offer_id: compoundOfferId,
+    retailer_product_id: compoundBefore.mapping_id,
+    external_product_id: compoundBefore.external_product_id,
+    external_variant_id: compoundBefore.external_variant_id,
+    reason: "MASS_OOS",
+    action: "UPDATE_PRICE_AND_STOCK",
+    changed_fields: { price: true, stock: true, url: false, blocked: false },
+    old_price: compoundBefore.price,
+    new_price: "9.50",
+    old_stock: true,
+    new_stock: false,
+  };
+  fixture.reviewRows.push(compoundReview);
+  report.execution_offer_ids = report.execution_offer_ids.filter((offerId) => offerId !== compoundOfferId);
+  report.verification_offer_ids = [...report.execution_offer_ids];
+  report.executable_plan_count = 933;
+  report.review_rows = [...report.review_rows, compoundReview];
+  report.review_row_count = 17;
+  report.classification = { VERIFY_NO_CHANGE: 933 };
+  diagnostic.classifier_summary.scope.scope_row_ids = [...report.execution_offer_ids, compoundOfferId]
+    .sort((a, b) => Number(a) - Number(b));
+  diagnostic.classifier_summary.scope.reconciled_total = 934;
+  diagnostic.classifier_summary.action_counts = report.classification;
+  writeJson(reportPath, report);
+  writeJson(diagnosticPath, diagnostic);
+
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "workflow_dispatch", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "40290104261", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
+  const contract = buildFitHouseSourceContract(fixture.directory, env, "10-reps");
+  assert.equal(contract.review_offer_ids.includes(compoundOfferId), true);
+  assert.equal(contract.catalogue_offer_ids.includes(safeSiblingOfferId), true);
+  assert.equal(contract.review_offer_ids.includes(safeSiblingOfferId), false);
+
+  writeJson(path.join(fixture.directory, "automation-review-source-contract.json"), contract);
+  const options = { profile: "10-reps", sourceArtifactDir: fixture.directory, sourceRunId: env.GITHUB_RUN_ID, sourceArtifactId: "121513913371", sourceCommitSha: env.GITHUB_SHA, sourceArtifactDigest: "c".repeat(64), sourceContractSha256: fileSha(path.join(fixture.directory, "automation-review-source-contract.json")), output: path.join(fixture.directory, "output.json") };
+  const source = verifyFitHouseSourceContract(options, new Date("2026-10-05T18:00:00Z"));
+  const rows = buildFitHouseManifestRows(source, publicationBaseline(fixture, "14"), options);
+  const compoundCard = rows.find((row) => row.offer_id === compoundOfferId);
+  assert.equal(compoundCard.operation_type, "UPDATE_PRICE_AND_STOCK");
+  assert.equal(compoundCard.reason_codes, "PRICE_AND_STOCK_CHANGE");
+  assert.equal(compoundCard.before_state.price, "10.00");
+  assert.equal(compoundCard.before_state.in_stock, true);
+  assert.equal(compoundCard.proposed_state.price, "9.50");
+  assert.equal(compoundCard.proposed_state.in_stock, false);
+  assert.equal(compoundCard.source_evidence.reason, "MASS_OOS");
+  assert.equal(compoundCard.impact_summary.executable, false);
+});
+
 test("10 Reps mixed review profile reuses the existing identity and stock review card contracts", () => {
   const profile = profileFor("10-reps");
   const before = { price: "10.00", in_stock: true, url: "https://www.10reps.co.uk/product" };

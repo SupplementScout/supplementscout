@@ -21,7 +21,7 @@ const {bindAutomationReviewDecision,verifyAutomationReviewIdempotencyTransition}
 const {selectReviewQueueExecutionRows}=require("./lib/automation-review-execution-selection");
 const {createSequentialExecutionProgress}=require("./lib/retailer-offer-sync/sequential-execution-progress");
 const PROFILE=process.env.RETAILER_REFRESH_PROFILE||"fit-house";
-const PROFILE_CONFIGS={"fit-house":"../config/retailers/fit-house-offer-sync.json","simply-supplements":"../config/retailers/simply-supplements-offer-sync.json","dolphin-vegan-protein":"../config/retailers/dolphin-vegan-protein-offer-sync.json","discount-supplements":"../config/retailers/discount-supplements-offer-sync.json","kior-health":"../config/retailers/kior-offer-sync.json","predators-gear":"../config/retailers/predators-gear-offer-sync.json","10reps":"../config/retailers/10reps-offer-sync.json"};
+const PROFILE_CONFIGS={"fit-house":"../config/retailers/fit-house-offer-sync.json","simply-supplements":"../config/retailers/simply-supplements-offer-sync.json","dolphin-vegan-protein":"../config/retailers/dolphin-vegan-protein-offer-sync.json","discount-supplements":"../config/retailers/discount-supplements-offer-sync.json","kior-health":"../config/retailers/kior-offer-sync.json","predators-gear":"../config/retailers/predators-gear-offer-sync.json","10reps":"../config/retailers/10reps-offer-sync.json","gladiator-nutrition":"../config/retailers/gladiator-nutrition-offer-sync.json"};
 const MAXIMUM_SEQUENTIAL_CHILDREN=50;
 const MAXIMUM_SEQUENTIAL_ROWS_PER_CHILD=20;
 invariantProfile(PROFILE_CONFIGS[PROFILE],`unsupported retailer refresh profile ${PROFILE}`);

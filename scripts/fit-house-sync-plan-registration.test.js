@@ -12,7 +12,7 @@ test("Fit House workflow runs scoped dry-run, apply, and idempotency on main", (
   assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
   assert.equal(
     (workflow.match(/node scripts\/fit-house-offer-refresh\.js --target=production --mode=dry-run/g) || []).length,
-    4,
+    5,
   );
   assert.equal(
     (workflow.match(/node scripts\/fit-house-offer-refresh\.js --target=production --mode=apply/g) || []).length,
