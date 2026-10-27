@@ -52,7 +52,7 @@ const {
 } = require("./fit-house-offer-refresh");
 const { prepareAutomationReviewIdempotencyTransition } = require("./lib/retailer-offer-sync/automation-review-decision");
 const { isolateAggregateRiskRows } = require("./lib/retailer-offer-sync/classifier");
-const { buildRowManifestStateRequests, readRowManifestState } = require("./lib/reviewed-catalogue-state");
+const { buildRowManifestStateRequests, readRowManifestState, ROW_MANIFEST_OFFER_SYNC_KEYS } = require("./lib/reviewed-catalogue-state");
 
 function boundedManifestRows(count) {
   return Array.from({ length: count }, (_, index) => ({
@@ -73,12 +73,12 @@ function boundedState(request, manifestRows, overrides = {}) {
     schema_version: 1,
     target_environment: request.target_environment,
     target_project_ref: request.target_project_ref,
-    retailer: { id: request.retailer.id, slug: request.retailer.slug, name: "Bounded Retailer", website: "https://example.test" },
-    products: productIds.map(id => ({ id, name: `Product ${id}`, is_active: true, merged_into_product_id: null })),
-    product_variants: selected.map(row => ({ id: row.canonical_variant_id, product_id: row.canonical_product_id, is_active: true })),
-    retailer_products: selected.map(row => ({ id: row.mapping_id, retailer_id: request.retailer.id, product_id: row.canonical_product_id, product_variant_id: row.canonical_variant_id, external_product_id: row.external_product_id, external_variant_id: row.external_variant_id })),
-    offers: selected.map(row => ({ id: row.offer_id, retailer_id: request.retailer.id, retailer_product_id: row.mapping_id, product_id: row.canonical_product_id, product_variant_id: row.canonical_variant_id })),
-    price_history: selected.map(row => ({ id: String(7000 + Number(row.mapping_id)), offer_id: row.offer_id })),
+    retailer: { id: request.retailer.id, slug: request.retailer.slug, name: "Bounded Retailer", website: "https://example.test", created_at: "2026-10-27T00:00:00Z" },
+    products: productIds.map(id => ({ id, name: `Product ${id}`, is_active: true, merged_into_product_id: null, product_format: "powder", description: "RPC-only extra" })),
+    product_variants: selected.map(row => ({ id: row.canonical_variant_id, product_id: row.canonical_product_id, variant_key: `variant-${row.canonical_variant_id}`, display_name: "Test", flavour_code: "test", flavour_label: "Test", size_value: "500", size_unit: "g", pack_count: 1, product_format: "powder", is_active: true, is_default: false, gtin: null })),
+    retailer_products: selected.map(row => ({ id: row.mapping_id, retailer_id: request.retailer.id, product_id: row.canonical_product_id, product_variant_id: row.canonical_variant_id, external_product_id: row.external_product_id, external_variant_id: row.external_variant_id, external_sku: `SKU-${row.external_variant_id}`, external_options: { Flavour: "Test" }, external_name: "Test", external_slug: "test", external_gtin: null, external_url: `https://example.test/products/test?variant=${row.external_variant_id}`, match_method: "EXACT", match_confidence: "1", updated_at: "2026-10-27T00:00:00Z", created_at: "2026-10-27T00:00:00Z" })),
+    offers: selected.map(row => ({ id: row.offer_id, retailer_id: request.retailer.id, retailer_product_id: row.mapping_id, product_id: row.canonical_product_id, product_variant_id: row.canonical_variant_id, price: "20.00", shipping_cost: "0.00", total_price: "20.00", in_stock: true, url: `https://example.test/products/test?variant=${row.external_variant_id}`, last_checked_at: "2026-10-27T00:00:00Z", created_at: "2026-10-27T00:00:00Z" })),
+    price_history: selected.map(row => ({ id: String(7000 + Number(row.mapping_id)), offer_id: row.offer_id, price: "20.00" })),
     counts: { products: 999, product_variants: 1999, retailer_products: manifestRows.length, offers: manifestRows.length, price_history: manifestRows.length },
     ...overrides,
   };
@@ -975,10 +975,44 @@ test("staging row-manifest state uses only the bounded RPC and reconstructs exac
   });
   assert.equal(state.retailer_products.length, 46);
   assert.equal(state.offers.length, 46);
+  assert.deepEqual(Object.keys(state.retailer), ROW_MANIFEST_OFFER_SYNC_KEYS.retailer);
+  for (const [key, expected] of Object.entries(ROW_MANIFEST_OFFER_SYNC_KEYS)) {
+    if (key === "retailer") continue;
+    assert.ok(state[key].length > 0);
+    assert.deepEqual(Object.keys(state[key][0]), expected, key);
+  }
+  assert.equal(state.products[0].description, undefined);
+  assert.equal(state.retailer_products[0].updated_at, "2026-10-27T00:00:00Z");
+  assert.equal(state.offers[0].last_checked_at, "2026-10-27T00:00:00Z");
+  assert.equal(state.retailer_products[0].external_url, `https://example.test/products/test?variant=${state.retailer_products[0].external_variant_id}`);
+  assert.equal(state.offers[0].price, "20.00");
+  assert.equal(state.offers[0].in_stock, true);
   assert.equal(queries.length, 1);
   assert.equal(queries[0], "select public.read_reviewed_catalogue_import_state($1::jsonb) state");
   for (const table of ["retailers", "products", "product_variants", "retailer_products", "offers", "price_history"])
     assert.doesNotMatch(queries.join("\n"), new RegExp(`from public\\.${table}\\b`, "i"));
+});
+
+test("row-manifest closed projection fails when any required entity field is absent", async () => {
+  const rows = boundedManifestRows(1);
+  const options = { targetEnvironment: "STAGING", targetProjectRef: "staging-ref", retailer: { id: 77, slug: "generic-retailer" }, rows };
+  const cases = [
+    ["retailer", "name"],
+    ["products", "product_format"],
+    ["product_variants", "display_name"],
+    ["retailer_products", "updated_at"],
+    ["offers", "last_checked_at"],
+    ["price_history", "id"],
+  ];
+  for (const [entity, field] of cases) {
+    const client = { query: async (_sql, values) => {
+      const response = boundedState(values[0], rows);
+      if (entity === "retailer") delete response.retailer[field];
+      else delete response[entity][0][field];
+      return { rows: [{ state: response }] };
+    } };
+    await assert.rejects(readRowManifestState(client, options), new RegExp(`${entity === "products" ? "product" : entity.replace(/s$/, "")}.*(?:${field}|identity missing)`, "i"));
+  }
 });
 
 test("row-manifest bounded requests chunk deterministically at 200 without inferred identities", () => {
