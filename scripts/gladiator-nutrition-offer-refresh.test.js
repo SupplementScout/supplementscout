@@ -9,6 +9,8 @@ process.env.RETAILER_REFRESH_PROFILE = "gladiator-nutrition";
 const engine = require("./fit-house-offer-refresh");
 const config = require("../config/retailers/gladiator-nutrition-offer-sync.json");
 const manifest = require("../config/retailers/gladiator-nutrition-approved-offer-manifest.json");
+const stagingConfig = require("../config/retailers/gladiator-nutrition-staging-offer-sync.json");
+const stagingManifest = require("../config/retailers/gladiator-nutrition-staging-approved-offer-manifest.json");
 
 const ROOT = path.resolve(__dirname, "..");
 const FORWARD = "20261027130000_add_gladiator_nutrition_offer_sync_registration.sql";
@@ -75,6 +77,35 @@ test("Gladiator adopts the shared row-manifest profile with exactly 603 existing
   assert.deepEqual(config.policy.allowed_fields, ["price", "in_stock", "last_checked_at"]);
   assert.equal(config.discovery_policy.mode, "report_only");
   assert.equal(config.schedule, undefined);
+});
+
+test("Gladiator registry keeps exact and isolated STAGING 12 and PRODUCTION 15 profiles", () => {
+  const runtime = fs.readFileSync(path.join(ROOT, "scripts/fit-house-offer-refresh.js"), "utf8");
+  assert.match(runtime, /"gladiator-nutrition-staging":"\.\.\/config\/retailers\/gladiator-nutrition-staging-offer-sync\.json"/);
+  assert.equal(stagingConfig.retailer_id, 12);
+  assert.equal(stagingConfig.retailer_slug, "gladiator-nutrition");
+  assert.equal(stagingConfig.approved_mapping_count, 46);
+  assert.equal(stagingConfig.manifest_path, "config/retailers/gladiator-nutrition-staging-approved-offer-manifest.json");
+  assert.equal(stagingConfig.manifest_sha256, "fbee4533e7ea70948a1b229154222200e5275cba6388aea98c0d1d88cf285343");
+  assert.equal(sha256(path.join(ROOT, stagingConfig.manifest_path)), stagingConfig.manifest_sha256);
+  assert.equal(stagingManifest.retailer.id, 12);
+  assert.equal(stagingManifest.approved_mapping_count, 46);
+  assert.equal(stagingManifest.rows.length, 46);
+  for (const field of ["mapping_id", "offer_id", "canonical_variant_id", "external_variant_id"])
+    assert.equal(new Set(stagingManifest.rows.map((row) => String(row[field]))).size, 46, `${field} must cover 46 distinct STAGING identities`);
+  assert.equal(config.retailer_id, 15);
+  assert.equal(config.approved_mapping_count, 603);
+  assert.equal(config.manifest_sha256, "f07122185a4d601e9e4172378d2fcf6636e5ab1833c33c749f69bccd3fcd8078");
+});
+
+test("environment binding changes no classifier, Shopify reader, reviewed executor or atomic importer", () => {
+  const immutable = {
+    "scripts/lib/retailer-offer-sync/classifier.js": "2a74112da8bd103a9cf7329dd422a6cce691d0589cfa8f09c2d0762b6465949f",
+    "scripts/lib/shopify-snapshot-reader.js": "4dea3b83d0dda3c1328511bbc9fcd20d35cd5dfd5d9daeabf2141237c16bf6ea",
+    "scripts/reviewed-catalogue-package-executor.js": "4284cd9d71a493dd8cce6638cd298825834beb2440afa2cac7d8092551ec879a",
+    "scripts/import-products.js": "5cbbcee7160fb24b7c97ef66a5b2a5ded5969e7ab047ea1777aa18f4e6e11513",
+  };
+  for (const [relative, expected] of Object.entries(immutable)) assert.equal(sha256(path.join(ROOT, relative)), expected, relative);
 });
 
 test("Gladiator threshold shipping is exact at 74.99, 75.00 and 75.01", () => {
@@ -157,7 +188,7 @@ test("Gladiator wiring is registry-only and its workflow is manual shadow with n
   const runtime = fs.readFileSync(path.join(ROOT, "scripts/fit-house-offer-refresh.js"), "utf8");
   const workflow = fs.readFileSync(path.join(ROOT, ".github/workflows/fit-house-offer-refresh.yml"), "utf8");
   const gladiatorJob = workflow.match(/  gladiator-nutrition-shadow:[\s\S]*?(?=\n  refresh-review-queue:)/)?.[0] || "";
-  assert.equal((runtime.match(/gladiator-nutrition/g) || []).length, 2);
+  assert.equal((runtime.match(/gladiator-nutrition/g) || []).length, 4);
   assert.doesNotMatch(runtime, /retailer_id\s*={2,3}\s*15|config\.retailer_id\s*={2,3}\s*15/);
   assert.match(gladiatorJob, /github\.event_name == 'workflow_dispatch'/);
   assert.match(gladiatorJob, /inputs\.operation == 'dry-run'/);
@@ -173,9 +204,11 @@ test("registration migration is a thin exact-scope boundary and rollback is line
   const rollbackPath = path.join(ROOT, "supabase", "rollbacks", ROLLBACK);
   const forward = fs.readFileSync(forwardPath, "utf8");
   const rollback = fs.readFileSync(rollbackPath, "utf8");
-  assert.equal(sha256(forwardPath), "490d8e8d9af54053ad67a7c593b5e6e1834c7b2811101d426ca317893501246f");
-  assert.equal(sha256(rollbackPath), "1979f15337f958cf34eaf2e747a3a4cfa175b106167cc6f443a2e75f39bcb387");
-  for (const token of ["create or replace function public.register_gladiator_nutrition_offer_sync_control_plan", "f07122185a4d601e9e4172378d2fcf6636e5ab1833c33c749f69bccd3fcd8078", "f2e46baa948348ccd92535095ad6833ee2a4b3b7a11547335c580e7a1b07962a", "jsonb_array_length(v_manifest) <> 603", "retailer_catalogue_assert_migration_ledger", "security definer", "set search_path = pg_catalog, public, pg_temp"]) assert.match(forward.toLowerCase(), new RegExp(token.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  assert.equal(sha256(forwardPath), "88342c090c8c3e78d9c8413d1182972820cce5b588ed55ca4205f24a82d262c4");
+  assert.equal(sha256(rollbackPath), "41ac86b81c02a831017ccd454519b3f82b6e7e8ce584ae694a8e287c00f21324");
+  for (const token of ["create or replace function public.register_gladiator_nutrition_offer_sync_control_plan", "v_retailer_id:=12", "v_retailer_id:=15", "v_expected_manifest_count:=46", "v_expected_manifest_count:=603", "fbee4533e7ea70948a1b229154222200e5275cba6388aea98c0d1d88cf285343", "80a6183e2454b9ccfcfddf54680e6e3c0493f8095ce81ff01b050fcf801cb455", "f07122185a4d601e9e4172378d2fcf6636e5ab1833c33c749f69bccd3fcd8078", "f2e46baa948348ccd92535095ad6833ee2a4b3b7a11547335c580e7a1b07962a", "retailer_catalogue_assert_migration_ledger", "security definer", "set search_path = pg_catalog, public, pg_temp"]) assert.match(forward.toLowerCase(), new RegExp(token.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  assert.doesNotMatch(forward, /where\s+(?:rp\.)?retailer_id\s*=\s*(?:12|15)\b/i);
+  assert.doesNotMatch(forward, /dependency_group'\s*,\s*'retailer-offer-sync:(?:12|15):/i);
   assert.doesNotMatch(forward, /pg_get_functiondef\s*\(\s*['"]public\.register_fit_house_offer_sync_control_plan/i);
   assert.doesNotMatch(forward, /register_fit_house_offer_sync_control_plan/i);
   assert.doesNotMatch(forward, /replace\s*\(\s*v_definition\s*,/i);

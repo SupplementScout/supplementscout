@@ -24,8 +24,8 @@ begin
   join pg_roles owner on owner.oid=proc.proowner
   where proc.oid=v_oid;
 
-  if v_sha256 <> '08883b3ccb14da0804ce8ab38c67d900ec455783177177e078e2d6007a57609e'
-     or position('Gladiator Nutrition frozen 603-offer existing-identity scope binding' in v_definition) = 0
+  if v_sha256 <> '7b900b07e2948729b47ce0eeb4583de7362ee5d38e70d9a74d6458dc7136dfa8'
+     or position('Gladiator Nutrition target-environment frozen existing-identity scope binding' in v_definition) = 0
      or v_owner <> 'postgres'
      or v_security_definer is distinct from true
      or v_volatility <> 'v'
