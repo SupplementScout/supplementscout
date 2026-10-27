@@ -8,11 +8,23 @@ function invariant(condition, code, message = code) {
 
 function selectReviewQueueExecutionRows(classification, selection) {
   invariant(selection.maximumCommercialChanges === 1 && Number.isInteger(selection.freshnessConfirmationCount) && selection.freshnessConfirmationCount > 0, "REVIEW_EXECUTION_SCOPE_MISSING", "review execution scope missing");
+  invariant(Array.isArray(classification.rows) && (classification.quarantined_rows === undefined || Array.isArray(classification.quarantined_rows)), "REVIEW_EXECUTION_CLASSIFIER_PARTITIONS_INVALID", "review execution classifier partitions are invalid");
+  const quarantinedRows = classification.quarantined_rows || [];
+  const classifierRows = [...classification.rows, ...quarantinedRows];
+  const offerCounts = new Map();
+  for (const row of classifierRows) {
+    const rowOfferId = String(row.offer_id);
+    offerCounts.set(rowOfferId, (offerCounts.get(rowOfferId) || 0) + 1);
+  }
+  invariant([...offerCounts.values()].every((count) => count === 1), "REVIEW_EXECUTION_CLASSIFIER_PARTITION_DUPLICATE", "review execution classifier partitions contain a duplicate offer");
   const offerId = String(selection.offerId);
-  const selected = classification.rows.filter((row) => String(row.offer_id) === offerId);
+  const selected = classifierRows.filter((row) => String(row.offer_id) === offerId);
   invariant(selected.length === 1 && selected[0].action === selection.operation, "REVIEW_EXECUTION_SOURCE_OPERATION_DRIFT", "review execution source no longer matches the approved operation");
   invariant(selected[0].changed_fields?.stock === true && !selected[0].changed_fields?.price && !selected[0].changed_fields?.url && !selected[0].changed_fields?.blocked, "REVIEW_EXECUTION_NOT_ISOLATED_STOCK_CHANGE", "review execution is not an isolated stock change");
-  const changedOfferIds = new Set(classification.rows.filter((row) => row.action !== "VERIFY_NO_CHANGE").map((row) => String(row.offer_id)));
+  const changedOfferIds = new Set([
+    ...classification.rows.filter((row) => row.action !== "VERIFY_NO_CHANGE").map((row) => String(row.offer_id)),
+    ...quarantinedRows.map((row) => String(row.offer_id)),
+  ]);
   const confirmations = classification.rows
     .filter((row) => !changedOfferIds.has(String(row.offer_id)) && row.action === "VERIFY_NO_CHANGE" && row.target.in_stock === true && row.source.in_stock === true && !row.changed_fields?.price && !row.changed_fields?.stock && !row.changed_fields?.url && !row.changed_fields?.blocked)
     .sort((left, right) => Number(left.offer_id) - Number(right.offer_id))
