@@ -1,5 +1,6 @@
 const MAX_REVIEWED_ROWS = 200;
 const { CONTRACT_KIND: REVIEWED_V3_KIND, buildV3Envelope } = require("./reviewed-catalogue-v3");
+const { canonicalJson } = require("./canonical-json");
 
 const V2_VALIDATION_SQL = "select public.validate_product_import_plan_read_only($1::jsonb) result";
 const V3_VALIDATION_SQL = "select public.validate_reviewed_catalogue_v3_plan_read_only($1::jsonb,$2::jsonb) result";
@@ -74,6 +75,124 @@ function buildExecutionStateRequest(manifest, entries) {
       };
     }),
   };
+}
+
+function buildRowManifestStateRequests({ targetEnvironment, targetProjectRef, retailer, rows }) {
+  invariant(targetEnvironment && targetProjectRef, "Row-manifest state target required");
+  invariant(retailer?.id && retailer?.slug, "Row-manifest state retailer required");
+  invariant(Array.isArray(rows) && rows.length > 0, "Row-manifest state rows required");
+  const normalized = rows.map(row => {
+    for (const field of ["mapping_id", "offer_id", "external_product_id", "external_variant_id", "canonical_product_id", "canonical_variant_id"])
+      invariant(nullable(row[field]), `Row-manifest state ${field} required`);
+    return {
+      mapping_id: String(row.mapping_id),
+      offer_id: String(row.offer_id),
+      external_product_id: String(row.external_product_id),
+      external_variant_id: String(row.external_variant_id),
+      canonical_product_id: String(row.canonical_product_id),
+      canonical_variant_id: String(row.canonical_variant_id),
+    };
+  }).sort((left, right) => left.external_variant_id.localeCompare(right.external_variant_id));
+  for (const field of ["mapping_id", "offer_id", "external_variant_id"])
+    invariant(new Set(normalized.map(row => row[field])).size === normalized.length, `Row-manifest state duplicate ${field}`);
+  const requests = [];
+  for (let index = 0; index < normalized.length; index += MAX_REVIEWED_ROWS) {
+    requests.push({
+      schema_version: 1,
+      target_environment: targetEnvironment,
+      target_project_ref: targetProjectRef,
+      retailer: { id: retailer.id, slug: retailer.slug },
+      rows: normalized.slice(index, index + MAX_REVIEWED_ROWS).map(row => ({
+        external_gtin: null,
+        external_product_id: row.external_product_id,
+        external_sku: null,
+        external_url: null,
+        external_variant_id: row.external_variant_id,
+        product_brand: null,
+        product_category: null,
+        product_gtin: null,
+        product_id: row.canonical_product_id,
+        product_name_key: null,
+        product_slug: null,
+        product_variant_id: row.canonical_variant_id,
+      })),
+    });
+  }
+  return { requests, rows: normalized };
+}
+
+function mergeBoundedStates(states, requests) {
+  invariant(states.length > 0 && states.length === requests.length, "Bounded state response count mismatch");
+  const first = validateState(states[0], requests[0]);
+  const merged = {
+    schema_version: 1,
+    target_environment: first.target_environment,
+    target_project_ref: first.target_project_ref,
+    retailer: first.retailer,
+    products: [],
+    product_variants: [],
+    retailer_products: [],
+    offers: [],
+    price_history: [],
+    counts: first.counts,
+  };
+  for (let index = 0; index < states.length; index += 1) {
+    const state = validateState(states[index], requests[index]);
+    invariant(canonicalJson(state.counts) === canonicalJson(first.counts), "Bounded state authoritative counts disagree");
+    for (const key of ["products", "product_variants", "retailer_products", "offers", "price_history"]) {
+      const byId = new Map(merged[key].map(row => [String(row.id), row]));
+      for (const row of state[key]) {
+        invariant(row.id != null, `Bounded state ${key} identity missing`);
+        const existing = byId.get(String(row.id));
+        invariant(!existing || canonicalJson(existing) === canonicalJson(row), `Bounded state ${key} identity conflict`);
+        if (!existing) {
+          merged[key].push(row);
+          byId.set(String(row.id), row);
+        }
+      }
+    }
+  }
+  for (const key of ["products", "product_variants", "retailer_products", "offers", "price_history"])
+    merged[key].sort((left, right) => String(left.id).localeCompare(String(right.id), undefined, { numeric: true }));
+  return merged;
+}
+
+async function readRowManifestState(client, options) {
+  const built = buildRowManifestStateRequests(options);
+  const states = [];
+  for (const request of built.requests) states.push(await readState(client, request));
+  const state = mergeBoundedStates(states, built.requests);
+  const mappings = new Map(state.retailer_products.map(row => [String(row.id), row]));
+  const offers = new Map(state.offers.map(row => [String(row.id), row]));
+  const products = new Set(state.products.map(row => String(row.id)));
+  const variants = new Set(state.product_variants.map(row => String(row.id)));
+  for (const row of built.rows) {
+    const mapping = mappings.get(row.mapping_id);
+    const offer = offers.get(row.offer_id);
+    invariant(mapping
+      && String(mapping.retailer_id) === String(options.retailer.id)
+      && String(mapping.product_id) === row.canonical_product_id
+      && String(mapping.product_variant_id) === row.canonical_variant_id
+      && String(mapping.external_product_id) === row.external_product_id
+      && String(mapping.external_variant_id) === row.external_variant_id,
+    "Row-manifest bounded mapping identity mismatch");
+    invariant(offer
+      && String(offer.retailer_id) === String(options.retailer.id)
+      && String(offer.retailer_product_id) === row.mapping_id
+      && String(offer.product_id) === row.canonical_product_id
+      && String(offer.product_variant_id) === row.canonical_variant_id,
+    "Row-manifest bounded offer identity mismatch");
+    invariant(products.has(row.canonical_product_id), "Row-manifest bounded product missing");
+    invariant(variants.has(row.canonical_variant_id), "Row-manifest bounded variant missing");
+  }
+  const mappingIds = new Set(built.rows.map(row => row.mapping_id));
+  const offerIds = new Set(built.rows.map(row => row.offer_id));
+  state.retailer_products = state.retailer_products.filter(row => mappingIds.has(String(row.id)));
+  state.offers = state.offers.filter(row => offerIds.has(String(row.id)) && mappingIds.has(String(row.retailer_product_id)));
+  state.price_history = state.price_history.filter(row => offerIds.has(String(row.offer_id)));
+  invariant(state.retailer_products.length === built.rows.length && state.offers.length === built.rows.length,
+    "Row-manifest bounded scope incomplete");
+  return state;
 }
 
 function validateState(state, request) {
@@ -170,9 +289,12 @@ async function validatePlans(client, plans, context = null) {
 module.exports = {
   MAX_REVIEWED_ROWS,
   buildExecutionStateRequest,
+  buildRowManifestStateRequests,
   buildStateRequest,
   createStateClient,
+  mergeBoundedStates,
   readState,
+  readRowManifestState,
   validatePlans,
   validateState,
   V2_VALIDATION_SQL,
