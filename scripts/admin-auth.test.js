@@ -1359,6 +1359,214 @@ test("owner decision audit is bounded, SELECT-only, and starts from immutable ad
   assert.match(workflow, /Monitor status:/);
 });
 
+test("Automation Review Queue zero-business closeout is strictly bound and control-only", async () => {
+  const auditModule = require("./automation-review-owner-decision-audit");
+  const closeoutModule = require("./automation-review-zero-business-closeout");
+  const closeoutSource = fs.readFileSync(path.join(process.cwd(), "scripts", "automation-review-zero-business-closeout.js"), "utf8");
+  const workflow = fs.readFileSync(path.join(process.cwd(), ".github", "workflows", "automation-review-queue-worker.yml"), "utf8");
+  const requestId = "11111111-1111-4111-8111-111111111111";
+  const parentId = "22222222-2222-4222-8222-222222222222";
+  const childId = "33333333-3333-4333-8333-333333333333";
+  const request = {
+    id: requestId,
+    review_id: 77,
+    retailer_id: 9,
+    retailer_slug: "fit-house",
+    operation_type: "UPDATE_STOCK",
+    review_fingerprint: "a".repeat(64),
+    plan_fingerprint: "b".repeat(64),
+    status: "FAILED",
+    last_checkpoint: "EXECUTION_FAILED",
+    database_writes: 20,
+    run_id: "40521391539",
+    commit_sha: "c".repeat(40),
+    requested_at: "2026-10-27T14:00:00Z",
+  };
+  const review = {
+    id: 77,
+    retailer_id: 9,
+    offer_id: 900,
+    retailer_product_id: 901,
+    current_product_id: 902,
+    current_variant_id: 903,
+    operation_type: "UPDATE_STOCK",
+    review_status: "FAILED",
+    execution_id: requestId,
+    source_row_fingerprint: request.review_fingerprint,
+    plan_fingerprint: request.plan_fingerprint,
+    before_state: {
+      offer_id: "900",
+      retailer_product_id: "901",
+      product_id: "902",
+      product_variant_id: "903",
+      external_product_id: "1000",
+      external_variant_id: "1001",
+      price: "12.50",
+      shipping_cost: "3.99",
+      total_price: "16.49",
+      in_stock: true,
+      url: "https://shop.test/product?affiliate=1",
+      external_url: "https://shop.test/product",
+    },
+  };
+  const decision = {
+    review_id: 77,
+    actor: "authenticated-admin",
+    previous_status: "PENDING",
+    new_status: "APPROVED",
+    source_row_fingerprint: request.review_fingerprint,
+    plan_fingerprint: request.plan_fingerprint,
+    created_at: "2026-10-27T13:59:00Z",
+  };
+  const evidence = {
+    kind: "automation-review-verified-zero-business-write-closeout-v1",
+    execution_request_id: requestId,
+    review_id: "77",
+    retailer_id: "9",
+    retailer_slug: "fit-house",
+    offer_id: "900",
+    original_run_id: request.run_id,
+    original_commit_sha: request.commit_sha,
+    possible_database_writes: 20,
+    business_writes: 0,
+    parent_plan_ids: [parentId],
+    child_plan_ids: [childId],
+    apply_run_count: 0,
+    batch_approval_count: 0,
+    approved_import_plan_count: 0,
+    recovery_execution_count: 0,
+    before_state_offer_hash: "d".repeat(64),
+    before_state_mapping_hash: "e".repeat(64),
+  };
+  const event = {
+    id: 2,
+    execution_request_id: requestId,
+    previous_status: "FAILED",
+    new_status: "FAILED",
+    checkpoint: "VERIFIED_ZERO_BUSINESS_WRITE_CLOSEOUT",
+    evidence,
+    created_at: "2026-10-27T14:05:00Z",
+  };
+  const withoutCloseout = auditModule.auditData({ decisionEvents: [decision], reviews: [review], requests: [request], executionEvents: [] });
+  assert.deepEqual(withoutCloseout.anomalies, [{ code: "FAILED_AFTER_POSSIBLE_WRITE", review_id: "77", execution_request_id: requestId, database_writes: 20 }]);
+  const withCloseout = auditModule.auditData({ decisionEvents: [decision], reviews: [review], requests: [request], executionEvents: [event] });
+  assert.equal(withCloseout.anomalies.length, 0);
+  assert.equal(withCloseout.verifiedZeroBusinessWriteCloseoutCount, 1);
+  assert.equal(withCloseout.summaries[0].outcome, "FAILED_VERIFIED_ZERO_BUSINESS_WRITE");
+  assert.equal(request.status, "FAILED");
+  assert.equal(review.review_status, "FAILED");
+  assert.equal(request.database_writes, 20);
+
+  const rejectedEvidence = [
+    { kind: "wrong" },
+    { execution_request_id: "44444444-4444-4444-8444-444444444444" },
+    { review_id: "78" },
+    { original_run_id: "40521391540" },
+    { original_commit_sha: "f".repeat(40) },
+    { business_writes: 1 },
+    { apply_run_count: 1 },
+    { batch_approval_count: 1 },
+    { parent_plan_ids: [] },
+    { child_plan_ids: [] },
+    { before_state_offer_hash: "invalid" },
+    { before_state_mapping_hash: "invalid" },
+  ];
+  for (const change of rejectedEvidence) {
+    const malformed = { ...event, evidence: { ...evidence, ...change } };
+    assert.equal(auditModule.hasVerifiedZeroBusinessWriteCloseoutEvidence(request, review, [malformed]), false);
+    const result = auditModule.auditData({ decisionEvents: [decision], reviews: [review], requests: [request], executionEvents: [malformed] });
+    assert.ok(result.anomalies.some((row) => row.code === "FAILED_AFTER_POSSIBLE_WRITE"));
+  }
+  const otherFailure = auditModule.monitorStatus({ reviews: [], requests: [], anomalies: [{ code: "EXECUTION_STUCK" }] });
+  assert.equal(otherFailure.monitor_status, "FAILED_SYSTEM");
+
+  const terminalEvent = { event: "FAILED_PLAN_SUPERSEDED", reason: "VERIFIED_TERMINAL_FAILURE", business_writes: 0 };
+  const snapshot = {
+    identity: { current_user: "postgres", session_user: "postgres", read_only: "on", safe_update: null },
+    target: { target_environment: "PRODUCTION", project_ref: "aftboxmrdgyhizicfsfu", database_identity: "supplementscout-production:aftboxmrdgyhizicfsfu" },
+    request,
+    review,
+    existingCloseoutCount: 0,
+    parentCandidates: [{ id: parentId, retailer_id: "9", target_environment: "PRODUCTION", status: "SUPERSEDED", created_by: `github:SupplementScout/supplementscout:${request.run_id}:1`, code_commit: request.commit_sha, audit_log: [terminalEvent] }],
+    children: [{ id: childId, parent_plan_id: parentId, retailer_id: "9", target_environment: "PRODUCTION", status: "SUPERSEDED", code_commit: request.commit_sha, audit_log: [terminalEvent] }],
+    counts: { apply_run_count: 0, batch_approval_count: 0, approved_import_plan_count: 0, recovery_execution_count: 0 },
+    offer: { row: { id: 900, retailer_product_id: 901, product_id: 902, product_variant_id: 903, retailer_id: 9, price: "12.5000", shipping_cost: "3.990", total_price: "16.49", in_stock: true, url: review.before_state.url }, row_hash: "d".repeat(64) },
+    mapping: { row: { id: 901, retailer_id: 9, product_id: 902, product_variant_id: 903, external_product_id: "1000", external_variant_id: "1001", external_url: review.before_state.external_url }, row_hash: "e".repeat(64) },
+  };
+  const verified = closeoutModule.verifyOwnerSnapshot(snapshot);
+  assert.deepEqual(verified.parentPlanIds, [parentId]);
+  assert.deepEqual(verified.childPlanIds, [childId]);
+  assert.throws(() => closeoutModule.verifyOwnerSnapshot({ ...snapshot, parentCandidates: [{ ...snapshot.parentCandidates[0], status: "FAILED" }] }), /PARENT_NOT_TERMINAL/);
+  assert.throws(() => closeoutModule.verifyOwnerSnapshot({ ...snapshot, counts: { ...snapshot.counts, apply_run_count: 1 } }), /APPLY_RUN_PRESENT/);
+  assert.throws(() => closeoutModule.verifyOwnerSnapshot({ ...snapshot, counts: { ...snapshot.counts, batch_approval_count: 1 } }), /BATCH_APPROVAL_PRESENT/);
+  assert.throws(() => closeoutModule.verifyOwnerSnapshot({ ...snapshot, offer: { ...snapshot.offer, row: { ...snapshot.offer.row, in_stock: false } } }), /OFFER_COMMERCIAL_DRIFT/);
+  assert.match(closeoutSource, /begin read only/);
+  assert.match(closeoutSource, /postgresClientConfig/);
+  assert.match(closeoutSource, /record_automation_review_execution_checkpoint/);
+  assert.doesNotMatch(closeoutSource, /(?:insert into|update|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
+
+  const ownerQueries = [];
+  const fakeOwner = {
+    connect: async () => {},
+    query: async (sql) => { ownerQueries.push(sql); return { rows: [] }; },
+    end: async () => {},
+  };
+  const rpcCalls = [];
+  const fakeControl = {
+    rpc: async (name, args) => {
+      rpcCalls.push({ name, args });
+      return { data: { status: "FAILED", last_checkpoint: "VERIFIED_ZERO_BUSINESS_WRITE_CLOSEOUT", database_writes: 20 }, error: null };
+    },
+  };
+  const env = {
+    GITHUB_ACTIONS: "true",
+    GITHUB_EVENT_NAME: "workflow_dispatch",
+    GITHUB_REF: "refs/heads/main",
+    GITHUB_REPOSITORY: "SupplementScout/supplementscout",
+    GITHUB_RUN_ID: "1",
+    GITHUB_SHA: "f".repeat(40),
+    AUTOMATION_REVIEW_ZERO_BUSINESS_CLOSEOUT_REQUEST_ID: requestId,
+    SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL: "postgresql://protected",
+    NEXT_PUBLIC_SUPABASE_URL: "https://example.test",
+    SUPABASE_SERVICE_ROLE_KEY: "protected",
+  };
+  const outputDirectory = path.join(process.cwd(), "tmp", "automation-review-execution");
+  const outputFile = path.join(outputDirectory, `${requestId}-zero-business-closeout.json`);
+  fs.rmSync(outputFile, { force: true });
+  const report = await closeoutModule.run(
+    { executionRequestId: requestId },
+    {
+      env,
+      ownerClient: fakeOwner,
+      controlClient: fakeControl,
+      readOwnerSnapshot: async () => snapshot,
+      readPostCheckpoint: async () => ({
+        request: { ...request, last_checkpoint: "VERIFIED_ZERO_BUSINESS_WRITE_CLOSEOUT" },
+        review,
+        events: [{ previous_status: "FAILED", new_status: "FAILED", checkpoint: "VERIFIED_ZERO_BUSINESS_WRITE_CLOSEOUT", evidence: closeoutModule.buildEvidence(closeoutModule.verifyOwnerSnapshot(snapshot), env, new Date("2026-10-27T14:05:00Z")) }],
+      }),
+      now: new Date("2026-10-27T14:05:00Z"),
+    },
+  );
+  assert.equal(report.request_status, "FAILED");
+  assert.equal(report.review_status, "FAILED");
+  assert.equal(report.database_writes_preserved, 20);
+  assert.deepEqual(ownerQueries, ["begin read only", "rollback", "begin read only", "rollback"]);
+  assert.equal(rpcCalls.length, 1);
+  assert.equal(rpcCalls[0].args.p_new_status, "FAILED");
+  assert.doesNotMatch(closeoutSource, /\.from\(/);
+  fs.rmSync(outputFile, { force: true });
+
+  assert.match(workflow, /zero_business_closeout_execution_request_id:[\s\S]*required: false/);
+  assert.match(workflow, /github\.event_name == 'workflow_dispatch' && github\.event\.inputs\.zero_business_closeout_execution_request_id != ''/);
+  assert.match(workflow, /Verify and close failed zero-business request/);
+  assert.match(workflow, /SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL: \$\{\{ secrets\.SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL \}\}/);
+  assert.match(workflow, /Execute oldest approved queue request[\s\S]*zero_business_closeout_execution_request_id == ''/);
+  assert.doesNotMatch(workflow, /schedule[\s\S]{0,200}zero_business_closeout_execution_request_id != ''/);
+  assert.equal((workflow.match(/name: Automation Review Queue Worker/g) || []).length, 1);
+  assert.match(workflow, /schedule:\s*\n\s*- cron: "\*\/5 \* \* \* \*"/);
+});
+
 test("Review Queue postflight recovery reuses the same workflow and cannot replay catalogue writes", () => {
   const source = fs.readFileSync(path.join(process.cwd(), "scripts", "automation-review-postflight-recovery.js"), "utf8");
   const workflow = fs.readFileSync(path.join(process.cwd(), ".github", "workflows", "automation-review-queue-worker.yml"), "utf8");
