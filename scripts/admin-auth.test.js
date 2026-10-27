@@ -884,7 +884,7 @@ test("automation review capability matrix exposes only registered execution path
   const matrixSource = fs.readFileSync(path.join(process.cwd(), "app", "lib", "automationReviewCapabilityMatrix.ts"), "utf8");
   const adapterSource = fs.readFileSync(path.join(process.cwd(), "app", "lib", "automationReviewAdapters.ts"), "utf8");
   const registry = require("../config/automation-review-execution-adapters.json");
-  for (const retailer of ["Whey Okay", "Discount Supplements", "Dolphin Fitness", "GYM HIGH", "Simply Supplements", "6 Pack Supplements", "KIOR Health", "Fit House", "10 Reps", "Jon's Supplements", "eBay UK"]) assert.match(matrixSource, new RegExp(retailer.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  for (const retailer of ["Whey Okay", "Discount Supplements", "Dolphin Fitness", "GYM HIGH", "Simply Supplements", "6 Pack Supplements", "KIOR Health", "Fit House", "10 Reps", "Gladiator Nutrition", "Jon's Supplements", "eBay UK"]) assert.match(matrixSource, new RegExp(retailer.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   for (const operation of ["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK", "UPDATE_PRICE_AND_STOCK", "IDENTITY_PROMOTION", "REBIND_EXISTING_VARIANT", "SOURCE_MISSING", "UNAVAILABLE_DECISION"]) assert.match(matrixSource, new RegExp(operation));
   for (const capability of ["AUTONOMOUS", "REVIEW_EXECUTABLE", "REVIEW_ONLY", "UNSUPPORTED"]) assert.match(matrixSource, new RegExp(capability));
   assert.match(matrixSource, /capabilityForReview/);
@@ -894,14 +894,16 @@ test("automation review capability matrix exposes only registered execution path
   assert.match(matrixSource, /confidenceForReview/);
   assert.match(matrixSource, /registeredExecution/);
   assert.match(adapterSource, /automation-review-execution-adapters\.json/);
-  assert.deepEqual(registry.adapters.map((adapter) => adapter.retailer_slug), ["ebay-uk", "fit-house", "10-reps", "whey-okay"]);
-  assert.equal(registry.adapters.filter((adapter) => adapter.operations.includes("UPDATE_STOCK")).length, 4);
+  assert.deepEqual(registry.adapters.map((adapter) => adapter.retailer_slug), ["ebay-uk", "fit-house", "10-reps", "whey-okay", "gladiator-nutrition"]);
+  assert.equal(registry.adapters.filter((adapter) => adapter.operations.includes("UPDATE_STOCK")).length, 5);
   assert.equal(registry.adapters.some((adapter) => adapter.operations.some((operation) => /REBIN|MARK_OOS/.test(operation))), false);
   const { capabilityForReview } = loadTsModule("app/lib/automationReviewCapabilityMatrix.ts");
   assert.equal(capabilityForReview("14", "UPDATE_STOCK", "COMMERCIAL_CHANGE").capability, "REVIEW_EXECUTABLE");
   assert.equal(capabilityForReview("14", "MANUAL_REVIEW_IDENTITY", "IDENTITY_CONFLICT").capability, "REVIEW_ONLY");
   assert.equal(capabilityForReview("3", "UPDATE_STOCK", "COMMERCIAL_CHANGE").capability, "REVIEW_EXECUTABLE");
   assert.equal(capabilityForReview("3", "UPDATE_PRICE", "COMMERCIAL_CHANGE").capability, "REVIEW_ONLY");
+  assert.equal(capabilityForReview("15", "UPDATE_STOCK", "COMMERCIAL_CHANGE").capability, "REVIEW_EXECUTABLE");
+  assert.equal(capabilityForReview("15", "UPDATE_PRICE", "COMMERCIAL_CHANGE").capability, "REVIEW_ONLY");
 });
 
 test("automation review decisions fail closed on auth, fingerprint, expiry and bulk incompatibility", () => {
@@ -1085,11 +1087,22 @@ test("automation review adapter registry is exact, single-row and default-deny",
   const source = fs.readFileSync(path.join(process.cwd(), "app", "lib", "automationReviewAdapters.ts"), "utf8");
   const raw = require("../config/automation-review-execution-adapters.json");
   const { REVIEW_EXECUTION_ADAPTERS } = require("./lib/automation-review-adapter-registry");
-  assert.equal(REVIEW_EXECUTION_ADAPTERS.length, 4);
-  assert.deepEqual(REVIEW_EXECUTION_ADAPTERS.map((adapter) => adapter.retailerId), ["12", "9", "14", "3"]);
+  assert.equal(REVIEW_EXECUTION_ADAPTERS.length, 5);
+  assert.deepEqual(REVIEW_EXECUTION_ADAPTERS.map((adapter) => adapter.retailerId), ["12", "9", "14", "3", "15"]);
   assert.deepEqual(REVIEW_EXECUTION_ADAPTERS.find((adapter) => adapter.retailerSlug === "ebay-uk").operations, ["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK"]);
   assert.deepEqual(REVIEW_EXECUTION_ADAPTERS.find((adapter) => adapter.retailerSlug === "10-reps").operations, ["UPDATE_STOCK"]);
   assert.deepEqual(REVIEW_EXECUTION_ADAPTERS.find((adapter) => adapter.retailerSlug === "whey-okay").operations, ["UPDATE_STOCK"]);
+  const gladiator = REVIEW_EXECUTION_ADAPTERS.find((adapter) => adapter.retailerSlug === "gladiator-nutrition");
+  assert.equal(gladiator.retailerId, "15");
+  assert.equal(gladiator.workerKind, "shared-retailer");
+  assert.deepEqual(gladiator.operations, ["UPDATE_STOCK"]);
+  assert.deepEqual(gladiator.reasonCodes, ["STOCK_CHANGE"]);
+  assert.equal(gladiator.sharedEngine.profile, "gladiator-nutrition");
+  assert.equal(gladiator.sharedEngine.postflightProfile, "gladiator-nutrition");
+  assert.equal(gladiator.sharedEngine.rolePrefix, "GLADIATOR_NUTRITION_REFRESH");
+  assert.equal(gladiator.sharedEngine.expectedExecutionRows, 20);
+  assert.equal(gladiator.sharedEngine.expectedCommercialChanges, 1);
+  assert.equal(gladiator.sharedEngine.freshnessConfirmationCount, 19);
   assert.equal(raw.adapters.find((adapter) => adapter.retailer_slug === "10-reps").shared_engine.freshness_confirmation_count, 19);
   for (const adapter of REVIEW_EXECUTION_ADAPTERS.filter((candidate) => candidate.workerKind === "shared-retailer")) {
     assert.match(adapter.sharedEngine.engineModule, /^scripts\/[a-z0-9-]+\.js$/);
@@ -1104,6 +1117,9 @@ test("automation review adapter registry is exact, single-row and default-deny",
   assert.doesNotMatch(source, /REBIN|MARK_OOS/);
   const { resolveReviewAdapter } = loadTsModule("app/lib/automationReviewAdapters.ts");
   assert.equal(resolveReviewAdapter("14", "UPDATE_STOCK", "STOCK_CHANGE").adapter?.retailerSlug, "10-reps");
+  assert.equal(resolveReviewAdapter("15", "UPDATE_STOCK", "STOCK_CHANGE").adapter?.retailerSlug, "gladiator-nutrition");
+  assert.equal(resolveReviewAdapter("15", "UPDATE_PRICE", "STOCK_CHANGE").adapter, null);
+  assert.equal(resolveReviewAdapter("15", "UPDATE_STOCK", "PRICE_CHANGE").adapter, null);
   assert.equal(resolveReviewAdapter("14", "MANUAL_REVIEW_IDENTITY", "SOURCE_MISSING").adapter, null);
 });
 
@@ -1366,12 +1382,12 @@ test("Review Queue postflight recovery reuses the same workflow and cannot repla
   assert.equal((workflow.match(/name: Automation Review Queue Worker/g) || []).length, 1);
 });
 
-test("shared retailer Review Queue worker uses one registry for Fit House, 10 Reps and Whey Okay", () => {
+test("shared retailer Review Queue worker uses one registry for Fit House, 10 Reps, Whey Okay and Gladiator", () => {
   const source = fs.readFileSync(path.join(process.cwd(), "scripts", "automation-review-shared-retailer-worker.js"), "utf8");
   const workflow = fs.readFileSync(path.join(process.cwd(), ".github", "workflows", "automation-review-queue-worker.yml"), "utf8");
   const capability = fs.readFileSync(path.join(process.cwd(), "app", "lib", "automationReviewCapabilityMatrix.ts"), "utf8");
   const { ADAPTERS, assertContext, parseArgs } = require("./automation-review-shared-retailer-worker");
-  assert.deepEqual(Object.keys(ADAPTERS), ["fit-house", "10-reps", "whey-okay"]);
+  assert.deepEqual(Object.keys(ADAPTERS), ["fit-house", "10-reps", "whey-okay", "gladiator-nutrition"]);
   for (const adapter of Object.values(ADAPTERS)) {
     assert.equal(adapter.expectedExecutionRows, 20);
     assert.equal(adapter.expectedCommercialChanges, 1);
@@ -1386,12 +1402,15 @@ test("shared retailer Review Queue worker uses one registry for Fit House, 10 Re
   assert.match(source, /IDEMPOTENCY_FAILED/);
   assert.doesNotMatch(source, /\b(?:insert into|update|delete from)\s+(?:public\.)?(?:products|product_variants|retailer_products|offers|price_history)\b/i);
   assert.match(workflow, /group: retailer-offer-production-write/);
-  for (const prefix of ["FIT_HOUSE_SYNC", "TEN_REPS_REFRESH", "WHEY_OKAY_SYNC"]) for (const role of ["VALIDATOR", "APPROVER", "EXECUTOR"]) assert.match(workflow, new RegExp(`${prefix}_${role}_DATABASE_URL`));
+  for (const prefix of ["FIT_HOUSE_SYNC", "TEN_REPS_REFRESH", "WHEY_OKAY_SYNC", "GLADIATOR_NUTRITION_REFRESH"]) for (const role of ["VALIDATOR", "APPROVER", "EXECUTOR"]) assert.match(workflow, new RegExp(`${prefix}_${role}_DATABASE_URL`));
+  for (const role of ["VALIDATOR", "APPROVER", "EXECUTOR"]) assert.match(workflow, new RegExp(`GLADIATOR_NUTRITION_REFRESH_${role}_DATABASE_URL: \\$\\{\\{ secrets\\.JONS_SYNC_${role}_DATABASE_URL \\}\\}`));
   assert.match(workflow, /WHEY_OKAY_REFRESH_VALIDATOR_DATABASE_URL/);
   assert.match(workflow, /TEN_REPS_FEED_URL/);
   assert.match(capability, /retailerId: "9"[\s\S]*UPDATE_STOCK: registeredExecution\("9"/);
   assert.match(capability, /retailerId: "14"[\s\S]*UPDATE_STOCK: registeredExecution\("14"/);
   assert.match(capability, /retailerId: "3"[\s\S]*UPDATE_STOCK: registeredExecution\("3"/);
+  assert.match(capability, /retailerId: "15"[\s\S]*UPDATE_STOCK: registeredExecution\("15"/);
+  assert.doesNotMatch(source, /gladiator/i);
   const args = ["--review-item-id=7", "--execution-request-id=11111111-1111-4111-8111-111111111111", "--retailer=10-reps", `--review-fingerprint=${"a".repeat(64)}`, `--review-plan-fingerprint=${"b".repeat(64)}`, `--execution-idempotency-key=${"c".repeat(64)}`, "--mode=review-queue"];
   assert.equal(parseArgs(args).retailer, "10-reps");
   const context = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", SUPABASE_SERVICE_ROLE_KEY: "control", NEXT_PUBLIC_SUPABASE_URL: "https://example.test", TEN_REPS_REFRESH_VALIDATOR_DATABASE_URL: "validator", TEN_REPS_REFRESH_APPROVER_DATABASE_URL: "approver", TEN_REPS_REFRESH_EXECUTOR_DATABASE_URL: "executor" };
@@ -1419,13 +1438,14 @@ test("shared retailer Review Queue selection isolates one stock decision with ex
   assert.throws(() => selectReviewQueueExecutionRows({ rows: [{ ...selected, changed_fields: { stock: true, price: true, url: false, blocked: false } }, ...confirmations] }, selection), /REVIEW_EXECUTION_NOT_ISOLATED_STOCK_CHANGE/);
 });
 
-test("shared retailer Review Queue worker behavior binds and proves Fit House, 10 Reps and Whey Okay stock decisions", async () => {
+test("shared retailer Review Queue worker behavior binds and proves Fit House, 10 Reps, Whey Okay and Gladiator stock decisions", async () => {
   const { run } = require("./automation-review-shared-retailer-worker");
-  const retailerIds = { "fit-house": "9", "10-reps": "14", "whey-okay": "3" };
+  const retailerIds = { "fit-house": "9", "10-reps": "14", "whey-okay": "3", "gladiator-nutrition": "15" };
   const scenarios = [
     { retailer: "fit-house", url: "https://fithouse.uk/p", rolePrefix: "FIT_HOUSE_SYNC", executionRequestId: "11111111-1111-4111-8111-111111111111" },
     { retailer: "10-reps", url: "https://www.10reps.co.uk/p", rolePrefix: "TEN_REPS_REFRESH", executionRequestId: "22222222-2222-4222-8222-222222222222" },
     { retailer: "whey-okay", url: "https://wheyokay.com/p", rolePrefix: "WHEY_OKAY_SYNC", executionRequestId: "33333333-3333-4333-8333-333333333333" },
+    { retailer: "gladiator-nutrition", url: "https://www.gladiatornutrition.co.uk/p", rolePrefix: "GLADIATOR_NUTRITION_REFRESH", executionRequestId: "44444444-4444-4444-8444-444444444444" },
   ];
   for (const scenario of scenarios) {
     const beforeState = { offer_id: "900", retailer_product_id: "800", product_id: "700", product_variant_id: "600", price: "10.00", shipping_cost: "3.99", total_price: "13.99", in_stock: true, url: scenario.url, external_url: scenario.url, external_product_id: "500", external_variant_id: "400" };
