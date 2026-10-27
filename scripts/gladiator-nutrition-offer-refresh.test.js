@@ -13,6 +13,8 @@ const config = require("../config/retailers/gladiator-nutrition-offer-sync.json"
 const manifest = require("../config/retailers/gladiator-nutrition-approved-offer-manifest.json");
 const stagingConfig = require("../config/retailers/gladiator-nutrition-staging-offer-sync.json");
 const stagingManifest = require("../config/retailers/gladiator-nutrition-staging-approved-offer-manifest.json");
+const tenRepsConfig = require("../config/retailers/10reps-offer-sync.json");
+const simplyConfig = require("../config/retailers/simply-supplements-offer-sync.json");
 
 const ROOT = path.resolve(__dirname, "..");
 const FORWARD = "20261027130000_add_gladiator_nutrition_offer_sync_registration.sql";
@@ -188,12 +190,33 @@ test("Gladiator STAGING full bounded rows project into 46 closed verified-no-cha
   }
 });
 
+test("Gladiator OOS limits match the shared read-only validator policy", () => {
+  const assertCompatible = (profile) => {
+    const guardrails = profile.guardrails;
+    assert.ok(guardrails.full_snapshot_minimum_source_count_ratio >= 0.9 && guardrails.full_snapshot_minimum_source_count_ratio <= 1);
+    assert.ok(guardrails.mass_oos_block_count - 1 >= 0 && guardrails.mass_oos_block_count - 1 <= 3);
+    assert.ok(guardrails.maximum_oos_increase_percentage_points >= 0 && guardrails.maximum_oos_increase_percentage_points <= 0.15);
+    assert.ok(guardrails.maximum_total_oos_ratio >= 0 && guardrails.maximum_total_oos_ratio <= 0.35);
+    assert.ok(guardrails.maximum_changed_record_ratio >= 0 && guardrails.maximum_changed_record_ratio <= 0.25);
+    assert.ok(guardrails.mass_price_change_block_ratio > 0 && guardrails.mass_price_change_block_ratio <= 0.2);
+    assert.ok(guardrails.per_row_price_hard_block_ratio > 0 && guardrails.per_row_price_hard_block_ratio <= 0.6);
+    assert.ok(Number(guardrails.per_row_price_hard_block_absolute_gbp) > 0 && Number(guardrails.per_row_price_hard_block_absolute_gbp) <= 20);
+  };
+  assert.equal(config.guardrails.maximum_total_oos_ratio, 0.35);
+  assert.equal(stagingConfig.guardrails.maximum_total_oos_ratio, 0.35);
+  assert.equal(tenRepsConfig.guardrails.maximum_total_oos_ratio, 0.35);
+  assert.equal(simplyConfig.guardrails.maximum_total_oos_ratio, 0.35);
+  assertCompatible(config);
+  assertCompatible(stagingConfig);
+});
+
 test("environment binding changes no classifier, Shopify reader, reviewed executor or atomic importer", () => {
   const immutable = {
     "scripts/lib/retailer-offer-sync/classifier.js": "475ed7dbe9fa73b2903e152466fbdf5085b238a69c067a9e3a0e3eea0ee613a0",
     "scripts/lib/shopify-snapshot-reader.js": "06d93e363ee95e4bbd73a17bd2292d9d258efb677634fa148685c42277811fce",
     "scripts/reviewed-catalogue-package-executor.js": "3450d4ca82784c2494ed97b1fa96147c629d2ff4b6bc51dda58a7085d4c9fc88",
     "scripts/import-products.js": "44a1039499f0db75848ee78f0358b0d73b34e58ab30cc5d8b342f8837557708d",
+    "supabase/migrations/20260718170000_add_read_only_mixed_batch_validator.sql": "09ece7d68328ee7e383375f6d13f55933e7c18be88137fa0108046d69f121510",
   };
   for (const [relative, expected] of Object.entries(immutable)) assert.equal(sha256Text(path.join(ROOT, relative)), expected, relative);
 });
