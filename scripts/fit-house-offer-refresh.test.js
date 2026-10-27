@@ -52,6 +52,37 @@ const {
 } = require("./fit-house-offer-refresh");
 const { prepareAutomationReviewIdempotencyTransition } = require("./lib/retailer-offer-sync/automation-review-decision");
 const { isolateAggregateRiskRows } = require("./lib/retailer-offer-sync/classifier");
+const { buildRowManifestStateRequests, readRowManifestState } = require("./lib/reviewed-catalogue-state");
+
+function boundedManifestRows(count) {
+  return Array.from({ length: count }, (_, index) => ({
+    mapping_id: String(1000 + index),
+    offer_id: String(2000 + index),
+    external_product_id: String(3000 + Math.floor(index / 2)),
+    external_variant_id: String(4000 + index),
+    canonical_product_id: String(5000 + Math.floor(index / 2)),
+    canonical_variant_id: String(6000 + index),
+  }));
+}
+
+function boundedState(request, manifestRows, overrides = {}) {
+  const byExternalVariant = new Map(manifestRows.map(row => [row.external_variant_id, row]));
+  const selected = request.rows.map(row => byExternalVariant.get(row.external_variant_id)).filter(Boolean);
+  const productIds = [...new Set(selected.map(row => row.canonical_product_id))];
+  return {
+    schema_version: 1,
+    target_environment: request.target_environment,
+    target_project_ref: request.target_project_ref,
+    retailer: { id: request.retailer.id, slug: request.retailer.slug, name: "Bounded Retailer", website: "https://example.test" },
+    products: productIds.map(id => ({ id, name: `Product ${id}`, is_active: true, merged_into_product_id: null })),
+    product_variants: selected.map(row => ({ id: row.canonical_variant_id, product_id: row.canonical_product_id, is_active: true })),
+    retailer_products: selected.map(row => ({ id: row.mapping_id, retailer_id: request.retailer.id, product_id: row.canonical_product_id, product_variant_id: row.canonical_variant_id, external_product_id: row.external_product_id, external_variant_id: row.external_variant_id })),
+    offers: selected.map(row => ({ id: row.offer_id, retailer_id: request.retailer.id, retailer_product_id: row.mapping_id, product_id: row.canonical_product_id, product_variant_id: row.canonical_variant_id })),
+    price_history: selected.map(row => ({ id: String(7000 + Number(row.mapping_id)), offer_id: row.offer_id })),
+    counts: { products: 999, product_variants: 1999, retailer_products: manifestRows.length, offers: manifestRows.length, price_history: manifestRows.length },
+    ...overrides,
+  };
+}
 
 test("review report rows preserve the canonical isolated stock transition", () => {
   const row = reviewReportRow({
@@ -927,4 +958,79 @@ test("automation is retailer-scoped, keeps SAFE_UPDATE unset, and creates no cat
   assert.equal(config.guardrails.ignore_source_sku, true);
   assert.match(automation, /connectionTimeoutMillis:DATABASE_CONNECTION_TIMEOUT_MS/);
   assert.match(automation, /query\.abortSignal\(controller\.signal\)/);
+});
+
+test("staging row-manifest state uses only the bounded RPC and reconstructs exact scope", async () => {
+  const rows = boundedManifestRows(46);
+  const queries = [];
+  const client = { query: async (sql, values) => {
+    queries.push(sql);
+    return { rows: [{ state: boundedState(values[0], rows) }] };
+  } };
+  const state = await readRowManifestState(client, {
+    targetEnvironment: "STAGING",
+    targetProjectRef: "hxnrsyyqffztlvcrtgbf",
+    retailer: { id: 12, slug: "gladiator-nutrition" },
+    rows,
+  });
+  assert.equal(state.retailer_products.length, 46);
+  assert.equal(state.offers.length, 46);
+  assert.equal(queries.length, 1);
+  assert.equal(queries[0], "select public.read_reviewed_catalogue_import_state($1::jsonb) state");
+  for (const table of ["retailers", "products", "product_variants", "retailer_products", "offers", "price_history"])
+    assert.doesNotMatch(queries.join("\n"), new RegExp(`from public\\.${table}\\b`, "i"));
+});
+
+test("row-manifest bounded requests chunk deterministically at 200 without inferred identities", () => {
+  const rows = boundedManifestRows(201).reverse();
+  const built = buildRowManifestStateRequests({
+    targetEnvironment: "STAGING",
+    targetProjectRef: "staging-ref",
+    retailer: { id: 77, slug: "generic-retailer" },
+    rows,
+  });
+  assert.deepEqual(built.requests.map(request => request.rows.length), [200, 1]);
+  assert.equal(built.requests.flatMap(request => request.rows).length, 201);
+  assert.deepEqual(built.requests.flatMap(request => request.rows).map(row => row.external_variant_id),
+    [...rows].map(row => row.external_variant_id).sort((left, right) => left.localeCompare(right)));
+  assert.ok(built.requests.every(request => request.rows.every(row => row.external_gtin === null && row.external_sku === null && row.product_name_key === null)));
+  assert.throws(() => buildRowManifestStateRequests({
+    targetEnvironment: "STAGING", targetProjectRef: "staging-ref", retailer: { id: 77, slug: "generic-retailer" }, rows: [rows[0], rows[0]],
+  }), /duplicate mapping_id/);
+});
+
+test("bounded state merge supports more than 200 rows and rejects missing or conflicting identities", async () => {
+  const rows = boundedManifestRows(201);
+  const stateFor = request => boundedState(request, rows);
+  const passingClient = { query: async (_sql, values) => ({ rows: [{ state: stateFor(values[0]) }] }) };
+  const options = { targetEnvironment: "STAGING", targetProjectRef: "staging-ref", retailer: { id: 77, slug: "generic-retailer" }, rows };
+  const state = await readRowManifestState(passingClient, options);
+  assert.equal(state.retailer_products.length, 201);
+  assert.equal(state.offers.length, 201);
+
+  const missingClient = { query: async (_sql, values) => {
+    const response = stateFor(values[0]);
+    response.retailer_products = response.retailer_products.slice(1);
+    return { rows: [{ state: response }] };
+  } };
+  await assert.rejects(readRowManifestState(missingClient, { ...options, rows: rows.slice(0, 2) }), /mapping identity mismatch/);
+
+  let call = 0;
+  const conflictClient = { query: async (_sql, values) => {
+    const response = stateFor(values[0]);
+    response.products.push({ id: "shared", name: call++ ? "Changed" : "Original", is_active: true });
+    return { rows: [{ state: response }] };
+  } };
+  await assert.rejects(readRowManifestState(conflictClient, options), /products identity conflict/);
+});
+
+test("bounded state rejects wrong environment and retailer while production direct path remains available", async () => {
+  const rows = boundedManifestRows(1);
+  const options = { targetEnvironment: "STAGING", targetProjectRef: "staging-ref", retailer: { id: 77, slug: "generic-retailer" }, rows };
+  const wrongEnvironment = { query: async (_sql, values) => ({ rows: [{ state: boundedState(values[0], rows, { target_environment: "PRODUCTION" }) }] }) };
+  await assert.rejects(readRowManifestState(wrongEnvironment, options), /environment mismatch/);
+  const wrongRetailer = { query: async (_sql, values) => ({ rows: [{ state: boundedState(values[0], rows, { retailer: { id: 78, slug: "other" } }) }] }) };
+  await assert.rejects(readRowManifestState(wrongRetailer, options), /retailer mismatch/);
+  assert.match(automation, /if\(target==="staging"&&exactRows\).*?else \[retailers,products,variants,mappings,offers,history\]=await Promise\.all/s);
+  assert.match(automation, /select id,name,slug,website from public\.retailers where id=\$1/);
 });

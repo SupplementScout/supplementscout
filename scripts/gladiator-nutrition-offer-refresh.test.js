@@ -4,6 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
 const { buildExistingOfferUpdatePlan } = require("./lib/retailer-offer-sync/existing-offer-plan");
+const { buildRowManifestStateRequests } = require("./lib/reviewed-catalogue-state");
 
 process.env.RETAILER_REFRESH_PROFILE = "gladiator-nutrition";
 const engine = require("./fit-house-offer-refresh");
@@ -100,6 +101,22 @@ test("Gladiator registry keeps exact and isolated STAGING 12 and PRODUCTION 15 p
   assert.equal(config.retailer_id, 15);
   assert.equal(config.approved_mapping_count, 603);
   assert.equal(config.manifest_sha256, "f07122185a4d601e9e4172378d2fcf6636e5ab1833c33c749f69bccd3fcd8078");
+});
+
+test("Gladiator STAGING exact 46-row manifest builds one bounded validator request", () => {
+  const built = buildRowManifestStateRequests({
+    targetEnvironment: "STAGING",
+    targetProjectRef: "hxnrsyyqffztlvcrtgbf",
+    retailer: stagingManifest.retailer,
+    rows: stagingManifest.rows,
+  });
+  assert.equal(built.requests.length, 1);
+  assert.equal(built.requests[0].rows.length, 46);
+  assert.deepEqual(
+    built.requests[0].rows.map((row) => row.external_variant_id).sort(),
+    stagingManifest.rows.map((row) => String(row.external_variant_id)).sort(),
+  );
+  assert.ok(built.requests[0].rows.every((row) => row.product_id && row.product_variant_id));
 });
 
 test("environment binding changes no classifier, Shopify reader, reviewed executor or atomic importer", () => {
