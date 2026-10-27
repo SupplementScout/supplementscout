@@ -297,24 +297,71 @@ test("unknown, missing, identity-mismatched and collapsed sources remain isolate
   assert.notEqual(health.result, "PASS");
 });
 
-test("Gladiator wiring is registry-only and permits only manual dry-run or shared review publication", () => {
+test("shared workflow routes Fit House, 10 Reps and Gladiator to their exact daily schedules", () => {
+  const workflow = fs.readFileSync(path.join(ROOT, ".github/workflows/fit-house-offer-refresh.yml"), "utf8");
+  const fitHouseJob = workflow.match(/  fit-house-offer-refresh:[\s\S]*?(?=\n  ten-reps-offer-refresh:)/)?.[0] || "";
+  const tenRepsJob = workflow.match(/  ten-reps-offer-refresh:[\s\S]*?(?=\n  gladiator-nutrition-offer-refresh:)/)?.[0] || "";
+  const gladiatorJob = workflow.match(/  gladiator-nutrition-offer-refresh:[\s\S]*?(?=\n  refresh-review-queue:)/)?.[0] || "";
+  assert.equal((workflow.match(/cron: "47 2 \* \* \*"/g) || []).length, 1);
+  assert.equal((workflow.match(/cron: "17 8 \* \* \*"/g) || []).length, 1);
+  assert.match(fitHouseJob, /github\.event_name == 'schedule' && github\.event\.schedule == '47 2 \* \* \*'/);
+  assert.doesNotMatch(fitHouseJob, /github\.event\.schedule == '17 8 \* \* \*'/);
+  assert.match(tenRepsJob, /github\.event_name == 'schedule' && github\.event\.schedule == '47 2 \* \* \*'/);
+  assert.doesNotMatch(tenRepsJob, /github\.event\.schedule == '17 8 \* \* \*'/);
+  assert.match(gladiatorJob, /github\.event_name == 'schedule' && github\.event\.schedule == '17 8 \* \* \*'/);
+  assert.doesNotMatch(gladiatorJob, /github\.event\.schedule == '47 2 \* \* \*'/);
+  assert.match(workflow, /group: retailer-offer-production-write[\s\S]*cancel-in-progress: false/);
+
+  const runtimeBody = (job) => job.slice(job.indexOf("\n    runs-on:"));
+  assert.equal(crypto.createHash("sha256").update(runtimeBody(fitHouseJob).replaceAll("\r\n", "\n")).digest("hex"), "4d3e118cb2151b946681cf6cacfaa0be4fe70f77688df4e1717bb6924d83db71");
+  assert.equal(crypto.createHash("sha256").update(runtimeBody(tenRepsJob).replaceAll("\r\n", "\n")).digest("hex"), "9b0d7ead1f35faa61ae9efebd189bb40932c76c1dbe0092a5cfc7531f6e676eb");
+});
+
+test("Gladiator scheduled refresh reuses the shared guarded flow while manual apply stays unavailable", () => {
   const runtime = fs.readFileSync(path.join(ROOT, "scripts/fit-house-offer-refresh.js"), "utf8");
   const workflow = fs.readFileSync(path.join(ROOT, ".github/workflows/fit-house-offer-refresh.yml"), "utf8");
-  const gladiatorJob = workflow.match(/  gladiator-nutrition-shadow:[\s\S]*?(?=\n  refresh-review-queue:)/)?.[0] || "";
+  const gladiatorJob = workflow.match(/  gladiator-nutrition-offer-refresh:[\s\S]*?(?=\n  refresh-review-queue:)/)?.[0] || "";
   assert.equal((runtime.match(/gladiator-nutrition/g) || []).length, 4);
+  assert.equal(sha256Text(path.join(ROOT, "scripts/fit-house-offer-refresh.js")), "fd0b23c0d084e38208396389bbadddb7a922e8ff0c692b67ba981b336a81573d");
   assert.doesNotMatch(runtime, /retailer_id\s*={2,3}\s*15|config\.retailer_id\s*={2,3}\s*15/);
   assert.match(gladiatorJob, /github\.event_name == 'workflow_dispatch'/);
   assert.match(gladiatorJob, /inputs\.operation == 'dry-run'[\s\S]*inputs\.operation == 'review-only'/);
   assert.match(gladiatorJob, /dry-run\|review-only/);
-  assert.doesNotMatch(gladiatorJob, /github\.event_name == 'schedule'/);
-  assert.doesNotMatch(gladiatorJob, /--mode=apply|automation-review-reconciliation-apply|register_gladiator|APPROVER_DATABASE_URL|EXECUTOR_DATABASE_URL|SUPABASE_SERVICE_ROLE_KEY/);
-  assert.match(gladiatorJob, /--mode=dry-run --isolate-unsafe=true/);
+  assert.doesNotMatch(gladiatorJob, /inputs\.operation == 'apply'/);
+  assert.match(gladiatorJob, /RETAILER_REFRESH_PROFILE: gladiator-nutrition/);
+  assert.equal((gladiatorJob.match(/--mode=dry-run --isolate-unsafe=true/g) || []).length, 2);
+  assert.equal((gladiatorJob.match(/--mode=apply --isolate-unsafe=true/g) || []).length, 1);
   assert.match(gladiatorJob, /--mode=baseline/);
   assert.match(gladiatorJob, /--mode=bind --profile=gladiator-nutrition/);
+  assert.match(gladiatorJob, /Apply safe Gladiator Nutrition offer refresh rows[\s\S]*github\.event_name == 'schedule' && github\.event\.schedule == '17 8 \* \* \*'/);
+  for (const credential of ["VALIDATOR", "APPROVER", "EXECUTOR"])
+    assert.match(gladiatorJob, new RegExp(`GLADIATOR_NUTRITION_REFRESH_${credential}_DATABASE_URL: \\$\\{\\{ secrets\\.JONS_SYNC_${credential}_DATABASE_URL \\}\\}`));
+  const orderedSteps = [
+    "Dry-run exact approved Gladiator Nutrition offers",
+    "Capture Gladiator Nutrition DB baseline read-only",
+    "Validate fresh Gladiator Nutrition Review Queue binding",
+    "Apply safe Gladiator Nutrition offer refresh rows",
+    "Verify Gladiator Nutrition DB postflight read-only",
+    "Verify Gladiator Nutrition idempotency with a fresh source capture",
+    "Upload Gladiator Nutrition refresh evidence",
+  ];
+  for (let index = 1; index < orderedSteps.length; index += 1)
+    assert.ok(gladiatorJob.indexOf(orderedSteps[index - 1]) < gladiatorJob.indexOf(orderedSteps[index]), `${orderedSteps[index]} must follow ${orderedSteps[index - 1]}`);
+  assert.match(gladiatorJob, /--mode=postflight[\s\S]*production-db-postflight\.json/);
+  assert.match(gladiatorJob, /actions\/upload-artifact@v7[\s\S]*gladiator-nutrition-offer-refresh-/);
+  assert.doesNotMatch(gladiatorJob, /SUPABASE_SERVICE_ROLE_KEY|approve_automation_review|PENDING\s*(?:->|→)\s*APPROVED|register_gladiator/);
+});
+
+test("Gladiator scheduled and manual review evidence use the existing shared queue publisher without automatic owner approval", () => {
+  const workflow = fs.readFileSync(path.join(ROOT, ".github/workflows/fit-house-offer-refresh.yml"), "utf8");
   const queueJob = workflow.slice(workflow.indexOf("\n  refresh-review-queue:"), workflow.indexOf("\n  expired-control-plan-recovery:"));
   assert.match(queueJob, /inputs\.retailer == 'gladiator-nutrition'[\s\S]*inputs\.operation == 'review-only'/);
+  assert.match(queueJob, /github\.event_name == 'schedule' && github\.event\.schedule == '17 8 \* \* \*'/);
   assert.match(queueJob, /profile: gladiator-nutrition/);
+  assert.match(queueJob, /uses: \.\/\.github\/actions\/publish-automation-review-queue/);
   assert.doesNotMatch(queueJob, /--mode=apply|register_gladiator|APPROVER_DATABASE_URL|EXECUTOR_DATABASE_URL/);
+  assert.doesNotMatch(queueJob, /approve_automation_review|PENDING\s*(?:->|→)\s*APPROVED/);
+  assert.equal(sha256Text(path.join(ROOT, ".github/workflows/automation-review-queue-worker.yml")), "0102a9f2426b478d6a4e29a12733dd3510a1f4cae7d9bb8c28b9c2fff3f89713");
 });
 
 test("registration migration is a thin exact-scope boundary and rollback is lineage-guarded", () => {

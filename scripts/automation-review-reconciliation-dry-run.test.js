@@ -1106,7 +1106,7 @@ test("shared retailer workflow publishes Fit House, 10 Reps and Gladiator throug
   assert.match(workflow, /Bind fresh Fit House Review Queue source/);
   assert.match(workflow, /Bind fresh 10 Reps Review Queue source/);
   assert.match(workflow, /Validate fresh Gladiator Nutrition Review Queue binding/);
-  assert.match(workflow, /refresh-review-queue:[\s\S]*needs: \[fit-house-offer-refresh, ten-reps-offer-refresh, gladiator-nutrition-shadow\]/);
+  assert.match(workflow, /refresh-review-queue:[\s\S]*needs: \[fit-house-offer-refresh, ten-reps-offer-refresh, gladiator-nutrition-offer-refresh\]/);
   assert.doesNotMatch(workflow, /needs\.fit-house-offer-refresh\.result == 'success'/);
   assert.doesNotMatch(workflow, /needs\.ten-reps-offer-refresh\.result == 'success'/);
   assert.match(workflow, /Capture Fit House DB baseline read-only[\s\S]*Bind fresh Fit House Review Queue source[\s\S]*Apply all approved Fit House offer refresh/);
@@ -1129,6 +1129,7 @@ test("shared retailer workflow publishes Fit House, 10 Reps and Gladiator throug
   const gladiatorPublication = queueJob.match(/- name: Reconcile and publish fresh Gladiator Nutrition Review Queue source[\s\S]*?(?=\n      - name: Upload shared queue refresh evidence)/)?.[0] || "";
   assert.match(gladiatorPublication, /inputs\.operation == 'review-only'/);
   assert.match(gladiatorPublication, /inputs\.retailer == 'gladiator-nutrition'/);
+  assert.match(gladiatorPublication, /github\.event_name == 'schedule'[\s\S]*github\.event\.schedule == '17 8 \* \* \*'/);
   assert.doesNotMatch(gladiatorPublication, /inputs\.operation == 'dry-run'|inputs\.operation == 'apply'/);
   const source = fs.readFileSync(path.join(process.cwd(), "scripts/shared-retailer-automation-review-source.js"), "utf8");
   assert.match(source, /buildPublicationRpcRequest/);
