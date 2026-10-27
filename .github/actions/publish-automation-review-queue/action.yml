@@ -1,0 +1,79 @@
+name: Publish Automation Review Queue source
+description: Reconcile one exact retailer refresh artifact through the shared Review Queue publisher.
+
+inputs:
+  display-name:
+    description: Human-readable retailer name used only in step labels.
+    required: true
+  profile:
+    description: Existing automation review publication profile.
+    required: true
+  artifact-id:
+    description: Exact source workflow artifact ID.
+    required: true
+  artifact-digest:
+    description: Exact source workflow artifact digest.
+    required: true
+  source-contract-sha256:
+    description: Exact source contract digest emitted by the binding step.
+    required: true
+  source-directory:
+    description: Isolated directory for the downloaded source artifact.
+    required: true
+  evidence-prefix:
+    description: Stable filename prefix for reconciliation evidence.
+    required: true
+  source-run-id:
+    description: Source workflow run ID.
+    required: true
+  source-commit-sha:
+    description: Source workflow commit SHA.
+    required: true
+  github-token:
+    description: Token used by the existing reconciliation evidence reader.
+    required: true
+  supabase-url:
+    description: Existing Review Queue publication endpoint.
+    required: true
+  service-role-key:
+    description: Existing Review Queue publication credential.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Download exact ${{ inputs.display-name }} source evidence
+      uses: actions/download-artifact@v8
+      with:
+        artifact-ids: ${{ inputs.artifact-id }}
+        path: ${{ inputs.source-directory }}
+        merge-multiple: true
+
+    - name: Build fresh ${{ inputs.display-name }} Review Queue changes
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        NEXT_PUBLIC_SUPABASE_URL: ${{ inputs.supabase-url }}
+        SUPABASE_SERVICE_ROLE_KEY: ${{ inputs.service-role-key }}
+        SOURCE_ARTIFACT_DIGEST: ${{ inputs.artifact-digest }}
+      run: >-
+        node scripts/shared-retailer-automation-review-source.js
+        --mode=reconcile
+        --profile=${{ inputs.profile }}
+        --source-artifact-dir=${{ inputs.source-directory }}
+        --source-run-id=${{ inputs.source-run-id }}
+        --source-artifact-id=${{ inputs.artifact-id }}
+        --source-commit-sha=${{ inputs.source-commit-sha }}
+        --source-artifact-digest=${SOURCE_ARTIFACT_DIGEST#sha256:}
+        --source-contract-sha256=${{ inputs.source-contract-sha256 }}
+        --output=tmp/automation-review-reconciliation/${{ inputs.evidence-prefix }}-reconciliation-dry-run.json
+
+    - name: Publish fresh ${{ inputs.display-name }} cards to Automation Review Queue
+      shell: bash
+      env:
+        NEXT_PUBLIC_SUPABASE_URL: ${{ inputs.supabase-url }}
+        SUPABASE_SERVICE_ROLE_KEY: ${{ inputs.service-role-key }}
+      run: >-
+        node scripts/automation-review-reconciliation-apply.js
+        --input=tmp/automation-review-reconciliation/${{ inputs.evidence-prefix }}-reconciliation-dry-run.json
+        --output=tmp/automation-review-reconciliation/${{ inputs.evidence-prefix }}-reconciliation-apply.json

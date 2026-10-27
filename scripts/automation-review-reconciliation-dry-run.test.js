@@ -1099,11 +1099,14 @@ test("Jon's and 6 Pack workflows reuse the publisher but receive no execution ad
   assert.equal(adapters.adapters.some((adapter) => ["10", "11"].includes(String(adapter.retailer_id))), false);
 });
 
-test("shared retailer workflow publishes bound Fit House and 10 Reps cards through one queue job", () => {
+test("shared retailer workflow publishes Fit House, 10 Reps and Gladiator through one generic queue unit", () => {
   const workflow = fs.readFileSync(path.join(process.cwd(), ".github/workflows/fit-house-offer-refresh.yml"), "utf8");
+  const action = fs.readFileSync(path.join(process.cwd(), ".github/actions/publish-automation-review-queue/action.yml"), "utf8");
+  const queueJob = workflow.slice(workflow.indexOf("\n  refresh-review-queue:"), workflow.indexOf("\n  expired-control-plan-recovery:"));
   assert.match(workflow, /Bind fresh Fit House Review Queue source/);
   assert.match(workflow, /Bind fresh 10 Reps Review Queue source/);
-  assert.match(workflow, /refresh-review-queue:[\s\S]*needs: \[fit-house-offer-refresh, ten-reps-offer-refresh\]/);
+  assert.match(workflow, /Validate fresh Gladiator Nutrition Review Queue binding/);
+  assert.match(workflow, /refresh-review-queue:[\s\S]*needs: \[fit-house-offer-refresh, ten-reps-offer-refresh, gladiator-nutrition-shadow\]/);
   assert.doesNotMatch(workflow, /needs\.fit-house-offer-refresh\.result == 'success'/);
   assert.doesNotMatch(workflow, /needs\.ten-reps-offer-refresh\.result == 'success'/);
   assert.match(workflow, /Capture Fit House DB baseline read-only[\s\S]*Bind fresh Fit House Review Queue source[\s\S]*Apply all approved Fit House offer refresh/);
@@ -1113,11 +1116,20 @@ test("shared retailer workflow publishes bound Fit House and 10 Reps cards throu
   assert.doesNotMatch(tenRepsApply, /review-only/);
   assert.match(workflow, /refresh-review-queue:[\s\S]*inputs\.operation == 'review-only'/);
   assert.match(workflow, /github\.event_name == 'schedule'|inputs\.operation == 'apply'/);
-  assert.match(workflow, /actions\/download-artifact@v8/);
-  assert.match(workflow, /shared-retailer-automation-review-source\.js[\s\S]*--profile=fit-house/);
-  assert.match(workflow, /shared-retailer-automation-review-source\.js[\s\S]*--profile=10-reps/);
-  assert.match(workflow, /Publish fresh 10 Reps cards to Automation Review Queue/);
-  assert.match(workflow, /automation-review-reconciliation-apply\.js/);
+  assert.equal((queueJob.match(/uses: \.\/\.github\/actions\/publish-automation-review-queue/g) || []).length, 3);
+  for (const profile of ["fit-house", "10-reps", "gladiator-nutrition"]) {
+    assert.match(queueJob, new RegExp(`profile: ${profile}`));
+  }
+  assert.doesNotMatch(queueJob, /shared-retailer-automation-review-source\.js|automation-review-reconciliation-apply\.js|actions\/download-artifact@v8/);
+  assert.equal((action.match(/actions\/download-artifact@v8/g) || []).length, 1);
+  assert.equal((action.match(/shared-retailer-automation-review-source\.js/g) || []).length, 1);
+  assert.equal((action.match(/automation-review-reconciliation-apply\.js/g) || []).length, 1);
+  assert.match(action, /--mode=reconcile[\s\S]*--profile=\$\{\{ inputs\.profile \}\}/);
+  assert.doesNotMatch(action, /fit-house|10reps|gladiator-nutrition|--mode=apply|register_|APPROVER_DATABASE_URL|EXECUTOR_DATABASE_URL/);
+  const gladiatorPublication = queueJob.match(/- name: Reconcile and publish fresh Gladiator Nutrition Review Queue source[\s\S]*?(?=\n      - name: Upload shared queue refresh evidence)/)?.[0] || "";
+  assert.match(gladiatorPublication, /inputs\.operation == 'review-only'/);
+  assert.match(gladiatorPublication, /inputs\.retailer == 'gladiator-nutrition'/);
+  assert.doesNotMatch(gladiatorPublication, /inputs\.operation == 'dry-run'|inputs\.operation == 'apply'/);
   const source = fs.readFileSync(path.join(process.cwd(), "scripts/shared-retailer-automation-review-source.js"), "utf8");
   assert.match(source, /buildPublicationRpcRequest/);
   assert.doesNotMatch(source, /publish_automation_review_queue_changes/);
