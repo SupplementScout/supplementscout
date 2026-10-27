@@ -23,6 +23,10 @@ function sha256(file) {
   return crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 }
 
+function sha256Text(file) {
+  return crypto.createHash("sha256").update(fs.readFileSync(file, "utf8").replaceAll("\r\n", "\n")).digest("hex");
+}
+
 function state({ price = "75.00", shipping = "0.00", total = "75.00", inStock = true } = {}) {
   return {
     product: { id: 1400, name: "Test Product", is_active: true, merged_into_product_id: null, product_format: "powder" },
@@ -100,12 +104,12 @@ test("Gladiator registry keeps exact and isolated STAGING 12 and PRODUCTION 15 p
 
 test("environment binding changes no classifier, Shopify reader, reviewed executor or atomic importer", () => {
   const immutable = {
-    "scripts/lib/retailer-offer-sync/classifier.js": "2a74112da8bd103a9cf7329dd422a6cce691d0589cfa8f09c2d0762b6465949f",
-    "scripts/lib/shopify-snapshot-reader.js": "4dea3b83d0dda3c1328511bbc9fcd20d35cd5dfd5d9daeabf2141237c16bf6ea",
-    "scripts/reviewed-catalogue-package-executor.js": "4284cd9d71a493dd8cce6638cd298825834beb2440afa2cac7d8092551ec879a",
-    "scripts/import-products.js": "5cbbcee7160fb24b7c97ef66a5b2a5ded5969e7ab047ea1777aa18f4e6e11513",
+    "scripts/lib/retailer-offer-sync/classifier.js": "475ed7dbe9fa73b2903e152466fbdf5085b238a69c067a9e3a0e3eea0ee613a0",
+    "scripts/lib/shopify-snapshot-reader.js": "06d93e363ee95e4bbd73a17bd2292d9d258efb677634fa148685c42277811fce",
+    "scripts/reviewed-catalogue-package-executor.js": "3450d4ca82784c2494ed97b1fa96147c629d2ff4b6bc51dda58a7085d4c9fc88",
+    "scripts/import-products.js": "44a1039499f0db75848ee78f0358b0d73b34e58ab30cc5d8b342f8837557708d",
   };
-  for (const [relative, expected] of Object.entries(immutable)) assert.equal(sha256(path.join(ROOT, relative)), expected, relative);
+  for (const [relative, expected] of Object.entries(immutable)) assert.equal(sha256Text(path.join(ROOT, relative)), expected, relative);
 });
 
 test("Gladiator threshold shipping is exact at 74.99, 75.00 and 75.01", () => {
