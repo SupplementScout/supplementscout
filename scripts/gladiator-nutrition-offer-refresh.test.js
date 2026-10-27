@@ -4,7 +4,8 @@ const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
 const { buildExistingOfferUpdatePlan } = require("./lib/retailer-offer-sync/existing-offer-plan");
-const { buildRowManifestStateRequests } = require("./lib/reviewed-catalogue-state");
+const { buildRowManifestStateRequests, readRowManifestState } = require("./lib/reviewed-catalogue-state");
+const { buildVerifiedNoChangeDryRun } = require("./verified-no-change-offer-refresh");
 
 process.env.RETAILER_REFRESH_PROFILE = "gladiator-nutrition";
 const engine = require("./fit-house-offer-refresh");
@@ -47,6 +48,24 @@ function source(values) {
     total_price: values.total,
     in_stock: values.inStock,
     url: AFFILIATE_URL,
+  };
+}
+
+function stagingBoundedState(request) {
+  const byExternalVariant = new Map(stagingManifest.rows.map(row => [String(row.external_variant_id), row]));
+  const selected = request.rows.map(row => byExternalVariant.get(String(row.external_variant_id)));
+  const productIds = [...new Set(selected.map(row => String(row.canonical_product_id)))];
+  return {
+    schema_version: 1,
+    target_environment: request.target_environment,
+    target_project_ref: request.target_project_ref,
+    retailer: { id: 12, name: "Gladiator Nutrition", slug: "gladiator-nutrition", website: "https://gladiatornutrition.co.uk", created_at: CAPTURED_AT },
+    products: productIds.map(id => ({ id, name: `Product ${id}`, is_active: true, merged_into_product_id: null, product_format: "powder", description: "bounded extra" })),
+    product_variants: selected.map(row => ({ id: String(row.canonical_variant_id), product_id: String(row.canonical_product_id), variant_key: `variant-${row.canonical_variant_id}`, display_name: "Test", flavour_code: "test", flavour_label: "Test", size_value: "500", size_unit: "g", pack_count: 1, product_format: "powder", is_active: true, is_default: false, gtin: null })),
+    retailer_products: selected.map(row => ({ id: String(row.mapping_id), retailer_id: 12, product_id: String(row.canonical_product_id), product_variant_id: String(row.canonical_variant_id), external_product_id: String(row.external_product_id), external_variant_id: String(row.external_variant_id), external_sku: `SKU-${row.external_variant_id}`, external_options: { Flavour: "Test" }, external_name: "Test", external_slug: "test", external_gtin: null, external_url: `https://gladiatornutrition.co.uk/products/test?variant=${row.external_variant_id}`, match_method: "EXACT", match_confidence: "1", updated_at: CAPTURED_AT, created_at: CAPTURED_AT })),
+    offers: selected.map(row => ({ id: String(row.offer_id), product_id: String(row.canonical_product_id), retailer_id: 12, product_variant_id: String(row.canonical_variant_id), retailer_product_id: String(row.mapping_id), price: "75.00", shipping_cost: "0.00", total_price: "75.00", in_stock: true, url: `https://gladiatornutrition.co.uk/products/test?variant=${row.external_variant_id}&sca_ref=11968733.U3nlV04VwN4S`, last_checked_at: "2026-10-26T11:00:00.000Z", created_at: CAPTURED_AT })),
+    price_history: selected.map(row => ({ id: String(9000 + Number(row.offer_id)), offer_id: String(row.offer_id), price: "75.00" })),
+    counts: { products: 995, product_variants: 2020, retailer_products: 46, offers: 46, price_history: 46 },
   };
 }
 
@@ -117,6 +136,56 @@ test("Gladiator STAGING exact 46-row manifest builds one bounded validator reque
     stagingManifest.rows.map((row) => String(row.external_variant_id)).sort(),
   );
   assert.ok(built.requests[0].rows.every((row) => row.product_id && row.product_variant_id));
+});
+
+test("Gladiator STAGING full bounded rows project into 46 closed verified-no-change plans", async () => {
+  const client = { query: async (_sql, values) => ({ rows: [{ state: stagingBoundedState(values[0]) }] }) };
+  const state = await readRowManifestState(client, {
+    targetEnvironment: "STAGING",
+    targetProjectRef: "hxnrsyyqffztlvcrtgbf",
+    retailer: stagingManifest.retailer,
+    rows: stagingManifest.rows,
+  });
+  const products = new Map(state.products.map(row => [String(row.id), row]));
+  const variants = new Map(state.product_variants.map(row => [String(row.id), row]));
+  const offers = new Map(state.offers.map(row => [String(row.retailer_product_id), row]));
+  const snapshotHash = "a".repeat(64);
+  const records = state.retailer_products.map(mapping => {
+    const offer = offers.get(String(mapping.id));
+    return engine.verificationRecord({
+      product: products.get(String(mapping.product_id)),
+      variant: variants.get(String(mapping.product_variant_id)),
+      retailer: state.retailer,
+      mapping,
+      offer,
+    }, {
+      external_product_id: String(mapping.external_product_id),
+      external_variant_id: String(mapping.external_variant_id),
+      price: offer.price,
+      shipping_cost: offer.shipping_cost,
+      total_price: offer.total_price,
+      in_stock: offer.in_stock,
+      url: offer.url,
+      external_url: mapping.external_url,
+    }, snapshotHash, CAPTURED_AT);
+  });
+  const dryRun = buildVerifiedNoChangeDryRun(records, {
+    expectedCount: 46,
+    targetEnvironment: "STAGING",
+    targetProjectRef: "hxnrsyyqffztlvcrtgbf",
+    sourceSnapshotSha256s: [snapshotHash],
+    now: new Date(CAPTURED_AT),
+  });
+  assert.equal(dryRun.result.planned, 46);
+  assert.equal(dryRun.result.report.blockedRows.length, 0);
+  for (const { importPlan, offerPlan } of dryRun.result.report.approvedRows) {
+    assert.equal(importPlan.product.action, "existing");
+    assert.equal(importPlan.product_variant.action, "existing");
+    assert.equal(importPlan.retailer_product.action, "noop");
+    assert.equal(importPlan.offer.action, "verify_no_change");
+    assert.equal(importPlan.price_history.action, "noop");
+    assert.equal(offerPlan.createsPriceHistory, false);
+  }
 });
 
 test("environment binding changes no classifier, Shopify reader, reviewed executor or atomic importer", () => {

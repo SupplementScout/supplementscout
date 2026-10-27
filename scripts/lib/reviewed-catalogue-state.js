@@ -4,6 +4,14 @@ const { canonicalJson } = require("./canonical-json");
 
 const V2_VALIDATION_SQL = "select public.validate_product_import_plan_read_only($1::jsonb) result";
 const V3_VALIDATION_SQL = "select public.validate_reviewed_catalogue_v3_plan_read_only($1::jsonb,$2::jsonb) result";
+const ROW_MANIFEST_OFFER_SYNC_KEYS = Object.freeze({
+  retailer: Object.freeze(["id", "name", "slug", "website"]),
+  products: Object.freeze(["id", "name", "is_active", "merged_into_product_id", "product_format"]),
+  product_variants: Object.freeze(["id", "product_id", "variant_key", "display_name", "flavour_code", "flavour_label", "size_value", "size_unit", "pack_count", "product_format", "is_active", "is_default"]),
+  retailer_products: Object.freeze(["id", "retailer_id", "product_id", "product_variant_id", "external_product_id", "external_variant_id", "external_sku", "external_options", "external_name", "external_slug", "external_gtin", "external_url", "match_method", "match_confidence", "updated_at"]),
+  offers: Object.freeze(["id", "product_id", "retailer_id", "product_variant_id", "retailer_product_id", "price", "shipping_cost", "total_price", "in_stock", "url", "last_checked_at"]),
+  price_history: Object.freeze(["id"]),
+});
 
 function invariant(condition, message) {
   if (!condition) throw new Error(message);
@@ -157,6 +165,25 @@ function mergeBoundedStates(states, requests) {
   return merged;
 }
 
+function projectClosedRow(row, keys, label) {
+  invariant(row && typeof row === "object" && !Array.isArray(row), `Row-manifest bounded ${label} invalid`);
+  for (const key of keys)
+    invariant(Object.hasOwn(row, key) && row[key] !== undefined, `Row-manifest bounded ${label} ${key} missing`);
+  return Object.fromEntries(keys.map(key => [key, row[key]]));
+}
+
+function projectRowManifestOfferSyncState(state) {
+  return {
+    ...state,
+    retailer: projectClosedRow(state.retailer, ROW_MANIFEST_OFFER_SYNC_KEYS.retailer, "retailer"),
+    products: state.products.map(row => projectClosedRow(row, ROW_MANIFEST_OFFER_SYNC_KEYS.products, "product")),
+    product_variants: state.product_variants.map(row => projectClosedRow(row, ROW_MANIFEST_OFFER_SYNC_KEYS.product_variants, "product_variant")),
+    retailer_products: state.retailer_products.map(row => projectClosedRow(row, ROW_MANIFEST_OFFER_SYNC_KEYS.retailer_products, "retailer_product")),
+    offers: state.offers.map(row => projectClosedRow(row, ROW_MANIFEST_OFFER_SYNC_KEYS.offers, "offer")),
+    price_history: state.price_history.map(row => projectClosedRow(row, ROW_MANIFEST_OFFER_SYNC_KEYS.price_history, "price_history")),
+  };
+}
+
 async function readRowManifestState(client, options) {
   const built = buildRowManifestStateRequests(options);
   const states = [];
@@ -192,7 +219,7 @@ async function readRowManifestState(client, options) {
   state.price_history = state.price_history.filter(row => offerIds.has(String(row.offer_id)));
   invariant(state.retailer_products.length === built.rows.length && state.offers.length === built.rows.length,
     "Row-manifest bounded scope incomplete");
-  return state;
+  return projectRowManifestOfferSyncState(state);
 }
 
 function validateState(state, request) {
@@ -293,8 +320,10 @@ module.exports = {
   buildStateRequest,
   createStateClient,
   mergeBoundedStates,
+  projectRowManifestOfferSyncState,
   readState,
   readRowManifestState,
+  ROW_MANIFEST_OFFER_SYNC_KEYS,
   validatePlans,
   validateState,
   V2_VALIDATION_SQL,
