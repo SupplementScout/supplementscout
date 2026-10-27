@@ -225,8 +225,20 @@ const APPLIED_EXCLUSIONS = Object.freeze({
 });
 
 const PENDING_MIGRATIONS = Object.freeze({
-  STAGING: Object.freeze([]),
-  PRODUCTION: Object.freeze([]),
+  STAGING: Object.freeze([
+    Object.freeze({
+      filename: "20261027130000_add_gladiator_nutrition_offer_sync_registration.sql",
+      sha256: "88342c090c8c3e78d9c8413d1182972820cce5b588ed55ca4205f24a82d262c4",
+      expectedCatalogueDeltas: Object.freeze({}),
+    }),
+  ]),
+  PRODUCTION: Object.freeze([
+    Object.freeze({
+      filename: "20261027130000_add_gladiator_nutrition_offer_sync_registration.sql",
+      sha256: "88342c090c8c3e78d9c8413d1182972820cce5b588ed55ca4205f24a82d262c4",
+      expectedCatalogueDeltas: Object.freeze({}),
+    }),
+  ]),
 });
 
 function migrationIdentifier(filename) {

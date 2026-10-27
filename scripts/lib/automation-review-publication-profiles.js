@@ -67,12 +67,16 @@ function validateJonsCapture(profile, { report, diagnostic, invariant }) {
 }
 
 function validateStandardChangedRows(profile, changedRows, invariant) {
+  const validStockChange = (row) => row.action === "UPDATE_STOCK"
+    && row.old_price === row.new_price && row.old_stock !== row.new_stock;
+  const validCompoundChange = (row) => row.action === "UPDATE_PRICE_AND_STOCK"
+    && row.old_price !== row.new_price && row.old_stock !== row.new_stock;
   const valid = profile.reviewType === "stock"
-    ? changedRows.every((row) => row.action === "UPDATE_STOCK" && row.old_price === row.new_price && row.old_stock !== row.new_stock)
+    ? changedRows.every(validStockChange)
     : profile.reviewType === "mixed"
       ? changedRows.every((row) => row.action === "SOURCE_MISSING"
         ? row.old_price === row.new_price && row.old_stock === row.new_stock
-        : row.action === "UPDATE_STOCK" && row.old_price === row.new_price && row.old_stock !== row.new_stock)
+        : validStockChange(row) || validCompoundChange(row))
       : changedRows.every((row) => row.action === "SOURCE_MISSING" && row.old_price === row.new_price && row.old_stock === row.new_stock);
   invariant(valid, `${profile.retailer.name} review scope contains an unsafe catalogue change`);
 }
@@ -100,15 +104,16 @@ function normalizeMissingRows(report, baselineByOffer, label, invariant) {
   }).sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
 }
 
-function normalizeStockReviewRows(report, baselineByOffer, label, invariant) {
+function normalizeCommercialReviewRows(report, baselineByOffer, label, invariant, allowedActions) {
   invariant(Array.isArray(report.review_rows), `${label} review rows are missing`);
   return [...report.review_rows].map((review) => {
     const offerId = String(review.offer_id);
     const before = baselineByOffer.get(offerId);
     invariant(before, `${label} baseline missing for review offer ${offerId}`);
     invariant(["OWNER_DEFERRED_STOCK_REVIEW", "MASS_OOS"].includes(review.reason), `${label} review reason drifted for offer ${offerId}`);
-    invariant(review.action === "UPDATE_STOCK" && review.changed_fields?.stock === true
-      && review.changed_fields?.price === false && review.changed_fields?.url === false,
+    invariant(allowedActions.includes(review.action) && review.changed_fields?.stock === true
+      && review.changed_fields?.price === (review.action === "UPDATE_PRICE_AND_STOCK")
+      && review.changed_fields?.url === false,
     `${label} review action drifted for offer ${offerId}`);
     invariant(String(review.retailer_product_id) === String(before.mapping_id)
       && String(review.external_product_id) === String(before.external_product_id)
@@ -116,30 +121,41 @@ function normalizeStockReviewRows(report, baselineByOffer, label, invariant) {
     `${label} source identity drift for offer ${offerId}`);
     invariant(Number.isFinite(Number(review.old_price)) && Number.isFinite(Number(review.new_price))
       && Number(review.old_price).toFixed(2) === Number(before.price).toFixed(2)
-      && Number(review.old_price).toFixed(2) === Number(review.new_price).toFixed(2)
       && typeof review.old_stock === "boolean" && typeof review.new_stock === "boolean"
       && review.old_stock === before.in_stock && review.old_stock !== review.new_stock,
     `${label} review before-state or stock transition drifted for offer ${offerId}`);
+    const oldPrice = Number(review.old_price).toFixed(2);
+    const newPrice = Number(review.new_price).toFixed(2);
+    invariant(review.action === "UPDATE_PRICE_AND_STOCK" ? oldPrice !== newPrice : oldPrice === newPrice,
+      `${label} review price transition drifted for offer ${offerId}`);
     invariant(review.reason !== "MASS_OOS" || (review.old_stock === true && review.new_stock === false), `${label} mass OOS transition drifted for offer ${offerId}`);
     return {
       offer_id: offerId,
       retailer_product_id: String(review.retailer_product_id),
       external_product_id: String(review.external_product_id),
       external_variant_id: String(review.external_variant_id),
-      old_price: Number(review.old_price).toFixed(2),
-      new_price: Number(review.new_price).toFixed(2),
+      old_price: oldPrice,
+      new_price: newPrice,
       old_stock: review.old_stock,
       new_stock: review.new_stock,
       action: review.action,
+      evidence_reason: review.reason,
     };
   }).sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
+}
+
+function normalizeStockReviewRows(report, baselineByOffer, label, invariant) {
+  return normalizeCommercialReviewRows(report, baselineByOffer, label, invariant, ["UPDATE_STOCK"]);
 }
 
 function normalizeMixedReviewRows(report, baselineByOffer, label, invariant) {
   const missingRows = report.review_rows.filter((row) => row.reason === "SOURCE_VARIANT_MISSING");
   const stockRows = report.review_rows.filter((row) => row.reason !== "SOURCE_VARIANT_MISSING");
   const normalizedMissing = normalizeMissingRows({ review_rows: missingRows }, baselineByOffer, label, invariant);
-  const normalizedStock = normalizeStockReviewRows({ review_rows: stockRows }, baselineByOffer, label, invariant);
+  const normalizedStock = normalizeCommercialReviewRows(
+    { review_rows: stockRows }, baselineByOffer, label, invariant,
+    ["UPDATE_STOCK", "UPDATE_PRICE_AND_STOCK"],
+  );
   return [...normalizedMissing, ...normalizedStock].sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
 }
 
@@ -339,7 +355,12 @@ function reviewCard(profile, beforeState, changed) {
   if (profile.reviewType === "stock" || (profile.reviewType === "mixed" && changed.action === "UPDATE_STOCK")) return {
     proposedState: { ...beforeState, in_stock: changed.new_stock },
     reasonCodes: "STOCK_CHANGE", confidence: "HIGH", sourcePrice: changed.new_price,
-    reviewKind: "COMMERCIAL_CHANGE", operationType: "UPDATE_STOCK", evidenceReason: "OWNER_DEFERRED_STOCK_REVIEW",
+    reviewKind: "COMMERCIAL_CHANGE", operationType: "UPDATE_STOCK", evidenceReason: changed.evidence_reason,
+  };
+  if (profile.reviewType === "mixed" && changed.action === "UPDATE_PRICE_AND_STOCK") return {
+    proposedState: { ...beforeState, price: changed.new_price, in_stock: changed.new_stock },
+    reasonCodes: "PRICE_AND_STOCK_CHANGE", confidence: "HIGH", sourcePrice: changed.new_price,
+    reviewKind: "COMMERCIAL_CHANGE", operationType: "UPDATE_PRICE_AND_STOCK", evidenceReason: changed.evidence_reason,
   };
   return {
     proposedState: { catalogue_action: "KEEP_UNCHANGED", identity_review: "READ_ONLY", automatic_action: false },
@@ -350,6 +371,7 @@ function reviewCard(profile, beforeState, changed) {
 
 function matchesActiveReview(profile, row) {
   if (profile.reviewType === "mixed") return (row.review_kind === "COMMERCIAL_CHANGE" && row.operation_type === "UPDATE_STOCK" && reasonList(row.reason_codes).includes("STOCK_CHANGE"))
+    || (row.review_kind === "COMMERCIAL_CHANGE" && row.operation_type === "UPDATE_PRICE_AND_STOCK" && reasonList(row.reason_codes).includes("PRICE_AND_STOCK_CHANGE"))
     || (row.review_kind === "IDENTITY_CONFLICT" && row.operation_type === "MANUAL_REVIEW_IDENTITY" && reasonList(row.reason_codes).includes("SOURCE_MISSING"));
   return profile.reviewType === "stock"
     ? row.review_kind === "COMMERCIAL_CHANGE" && row.operation_type === "UPDATE_STOCK" && reasonList(row.reason_codes).includes("STOCK_CHANGE")
@@ -374,6 +396,7 @@ function profile(values) {
 
 const PROFILES = Object.freeze({
   "fit-house": profile({ key: "fit-house", retailer: Object.freeze({ id: "9", name: "Fit House", slug: "fit-house" }), approvedMappingCount: 286, sourceDirectory: "fit-house-offer-refresh", artifactPrefix: "fit-house-offer-refresh", reconciliationFile: "fit-house-reconciliation-dry-run.json", contractName: "fit-house-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "stock", classifierCoverage: "full-partition" }),
+  "gladiator-nutrition": profile({ key: "gladiator-nutrition", retailer: Object.freeze({ id: "15", name: "Gladiator Nutrition", slug: "gladiator-nutrition" }), approvedMappingCount: 603, sourceDirectory: "gladiator-nutrition-offer-refresh", artifactPrefix: "gladiator-nutrition-offer-refresh", reconciliationFile: "gladiator-nutrition-reconciliation-dry-run.json", contractName: "gladiator-nutrition-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", classifierCoverage: "mixed-partition", classifierReviewReasons: Object.freeze(["MASS_OOS"]) }),
   "10-reps": profile({ key: "10-reps", retailer: Object.freeze({ id: "14", name: "10 Reps", slug: "10-reps" }), approvedMappingCount: 950, sourceDirectory: "10reps-offer-refresh", artifactPrefix: "10reps-offer-refresh", reconciliationFile: "10reps-reconciliation-dry-run.json", contractName: "10-reps-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", classifierCoverage: "mixed-partition", classifierReviewReasons: Object.freeze(["MASS_OOS"]) }),
   "whey-okay": profile({ key: "whey-okay", retailer: Object.freeze({ id: "3", name: "Whey Okay", slug: "whey-okay" }), approvedMappingCount: 589, sourceDirectory: "whey-okay-offer-refresh", artifactPrefix: "whey-okay-offer-refresh", reconciliationFile: "whey-okay-reconciliation-dry-run.json", contractName: "whey-okay-automation-review-source-v1", workflow: ".github/workflows/whey-okay-offer-refresh.yml", workflowName: "Whey Okay Offer Refresh", reviewType: "source-missing", captureFiles: WHEY_CAPTURE_FILES, sealedFiles: WHEY_SEALED_FILES, sourceFingerprint: (report) => report.source?.semantic_fingerprint, validate: validateWhey }),
   "jons-supplements": profile({ key: "jons-supplements", retailer: Object.freeze({ id: "10", name: "Jon's Supplements", slug: "jon-s-supplements" }), postflightProfile: "jons-supplements", approvedMappingCount: 506, sourceDirectory: "jons-offer-refresh", artifactPrefix: "jons-offer-refresh", reconciliationFile: "jons-reconciliation-dry-run.json", contractName: "jons-automation-review-source-v1", workflow: ".github/workflows/jons-offer-refresh.yml", workflowName: "Jon's Offer Refresh", reviewType: "source-missing", validateCapture: validateJonsCapture, validate: validateJons }),

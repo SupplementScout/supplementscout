@@ -44,6 +44,13 @@ const PROFILES = Object.freeze({
     credential: "FIT_HOUSE_SYNC_VALIDATOR_DATABASE_URL",
     approvedMappingCount: 286,
   },
+  "gladiator-nutrition": {
+    retailerId: "15",
+    retailerName: "Gladiator Nutrition",
+    credential: "GLADIATOR_NUTRITION_REFRESH_VALIDATOR_DATABASE_URL",
+    manifestPath: "config/retailers/gladiator-nutrition-approved-offer-manifest.json",
+    approvedMappingCount: 603,
+  },
   "kior-health": {
     retailerId: "8",
     retailerName: "KIOR Health",

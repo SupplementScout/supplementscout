@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       retailer:
-        description: "Retailer to verify; scheduled runs always cover both"
+        description: "Retailer to verify; scheduled runs cover Fit House and 10 Reps only"
         required: true
         default: all
         type: choice
@@ -12,6 +12,7 @@ on:
           - all
           - fit-house
           - 10reps
+          - gladiator-nutrition
       confirmations_only:
         description: "Require the complete Fit House scope to contain unchanged confirmations only"
         required: true
@@ -291,6 +292,77 @@ jobs:
           retention-days: 14
           if-no-files-found: warn
           path: tmp/10reps-offer-refresh/*.json
+
+  gladiator-nutrition-shadow:
+    name: gladiator-nutrition-shadow
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.retailer == 'gladiator-nutrition' && inputs.operation == 'dry-run' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: production-readonly
+    outputs:
+      artifact_id: ${{ steps.gladiator_artifact.outputs.artifact-id }}
+      artifact_digest: ${{ steps.gladiator_artifact.outputs.artifact-digest }}
+      source_contract_sha256: ${{ steps.gladiator_review_source.outputs.contract_sha256 }}
+      review_scope_fingerprint: ${{ steps.gladiator_review_source.outputs.review_scope_fingerprint }}
+    env:
+      RETAILER_REFRESH_PROFILE: gladiator-nutrition
+
+    steps:
+      - name: Validate Gladiator Nutrition shadow-only context
+        env:
+          EXPECTED_REPOSITORY: SupplementScout/supplementscout
+          SELECTED_RETAILER: ${{ inputs.retailer }}
+          SELECTED_OPERATION: ${{ inputs.operation }}
+        run: |
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$GITHUB_EVENT_NAME" = "workflow_dispatch"
+          test "$GITHUB_REPOSITORY" = "$EXPECTED_REPOSITORY"
+          test "$SELECTED_RETAILER" = "gladiator-nutrition"
+          test "$SELECTED_OPERATION" = "dry-run"
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test Gladiator shared adoption contracts
+        run: node --test scripts/gladiator-nutrition-offer-refresh.test.js scripts/retailer-offer-sync.test.js scripts/automation-review-reconciliation-dry-run.test.js
+
+      - name: Initialize Gladiator Nutrition shadow evidence path
+        run: mkdir -p tmp/gladiator-nutrition-offer-refresh
+
+      - name: Dry-run exact approved Gladiator Nutrition offers
+        env:
+          GLADIATOR_NUTRITION_REFRESH_PHASE: preflight
+          GLADIATOR_NUTRITION_REFRESH_TRIGGER_TYPE: workflow_dispatch
+          GLADIATOR_NUTRITION_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+        run: node scripts/fit-house-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
+
+      - name: Capture Gladiator Nutrition DB baseline read-only
+        env:
+          GLADIATOR_NUTRITION_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+        run: node scripts/retailer-offer-refresh-postflight.js --profile=gladiator-nutrition --mode=baseline --output=tmp/gladiator-nutrition-offer-refresh/production-db-baseline.json
+
+      - name: Validate fresh Gladiator Nutrition Review Queue binding
+        id: gladiator_review_source
+        run: node scripts/shared-retailer-automation-review-source.js --mode=bind --profile=gladiator-nutrition --source-artifact-dir=tmp/gladiator-nutrition-offer-refresh
+
+      - name: Upload Gladiator Nutrition shadow evidence
+        id: gladiator_artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: gladiator-nutrition-offer-refresh-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 14
+          if-no-files-found: warn
+          path: tmp/gladiator-nutrition-offer-refresh/*.json
 
   refresh-review-queue:
     needs: [fit-house-offer-refresh, ten-reps-offer-refresh]

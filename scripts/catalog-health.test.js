@@ -605,7 +605,7 @@ test("automation watchdog covers all retailers on a read-only six-hour schedule"
     path.join(process.cwd(), ".github/workflows/automation-reliability-watchdog.yml"),
     "utf8"
   );
-  assert.equal(config.retailers.length, 12);
+  assert.equal(config.retailers.length, 13);
   assert.equal(config.maximum_success_age_hours, 48);
   assert.match(workflow, /cron: "11 \*\/6 \* \* \*"/);
   assert.match(workflow, /actions: read/);
@@ -1438,7 +1438,28 @@ test("watchdog configuration binds exact stage alternatives for every retailer",
   assert.deepEqual(profiles.get("12").capture, ["Fresh read-only preflight", "Prepare exact approved existing-offer refresh"]);
   assert.deepEqual(profiles.get("12").idempotency, ["Seal same-run eBay apply, postflight and idempotency evidence"]);
   assert.deepEqual(profiles.get("14").idempotency, ["Verify 10 Reps idempotency with a fresh source capture"]);
-  assert.equal([...profiles.values()].filter((stages) => stages.idempotency.length > 0).length, 10);
+  assert.deepEqual(profiles.get("15"), {
+    capture: ["Dry-run exact approved Gladiator Nutrition offers"],
+    apply: ["Apply exact approved Gladiator Nutrition offer refresh"],
+    db_postflight: ["Verify Gladiator Nutrition DB postflight read-only"],
+    idempotency: ["Verify Gladiator Nutrition idempotency with a fresh source capture"],
+  });
+  assert.equal([...profiles.values()].filter((stages) => stages.idempotency.length > 0).length, 11);
+});
+
+test("Gladiator watchdog starts with zero monitored debt while scheduled activation stays disabled", () => {
+  const config = loadWatchdogConfig();
+  const profile = config.retailers.find((row) => row.id === 15);
+  const backlog = config.monitored_backlog.retailers["15"];
+  assert.equal(profile.workflow, "fit-house-offer-refresh.yml");
+  assert.deepEqual(profile.review_publication, {
+    job_name: "gladiator-nutrition-shadow",
+    step_name: "Validate fresh Gladiator Nutrition Review Queue binding",
+  });
+  assert.equal(backlog.maximum_offers_older_than_48h, 0);
+  assert.equal(backlog.maximum_review_row_count, 0);
+  assert.deepEqual(backlog.allowed_review_offer_ids, undefined);
+  assert.deepEqual(backlog.allowed_stale_offer_ids, undefined);
 });
 
 test("same-run eBay evidence sealer requires exact apply, postflight and idempotency correlation", () => {
@@ -1607,6 +1628,7 @@ test("shared DB postflight covers exact retailer scopes", () => {
     "dolphin-fitness": [1, 1],
     "ebay-uk": [237, 237],
     "fit-house": [286, null],
+    "gladiator-nutrition": [603, 603],
     "jons-supplements": [506, null],
     "kior-health": [11, 11],
     "simply-supplements": [120, null],
