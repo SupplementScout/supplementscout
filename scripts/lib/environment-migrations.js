@@ -230,7 +230,7 @@ const PENDING_MIGRATIONS = Object.freeze({
   PRODUCTION: Object.freeze([
     Object.freeze({
       filename: "20261027150000_extend_sequential_parent_approval_to_gladiator.sql",
-      sha256: "e9be68dd1ecd0a8990e37833f22631094ce90424a943293e90f5b72fc4c4dfb9",
+      sha256: "6a1b8934404950cd716675e7c7a5fe9d97714d4957054ad50c21ea6c83d804ec",
     }),
   ]),
 });

@@ -93,7 +93,7 @@ insert into public.retailer_catalogue_parent_plans values(
   '7bb83067fa94c01877616c5dc9b85aeb2fe7a82939c02f3194da1552de8d5290',
   '66cf2bc813e3f542cb883dba7ab1ddd2b467a9666e84ad3a35cf67bced7e0710',
   '{"expires_at":"2026-10-27T15:13:01.354Z"}',
-  '{"event":"APPROVED_RETAILER_AUTOMATION_PLAN_REGISTERED","workflow":{"run_id":"40521391539"},"manifest_fingerprint":"834766bb56dd8783677df88a644bdde382fec9070a33801d11919555f4dc958a","approved_manifest_sha256":"F07122185A4D601E9E4172378D2FCF6636E5AB1833C33C749F69BCCD3FCD8078","operation_count":20}'
+  '[{"event":"APPROVED_RETAILER_AUTOMATION_PLAN_REGISTERED","workflow":{"run_id":"40521391539"},"manifest_fingerprint":"834766bb56dd8783677df88a644bdde382fec9070a33801d11919555f4dc958a","approved_manifest_sha256":"F07122185A4D601E9E4172378D2FCF6636E5AB1833C33C749F69BCCD3FCD8078","operation_count":20}]'
 );
 insert into public.retailer_catalogue_child_plans values(
   '${CHILD_ID}','${PARENT_ID}','a3e338a85d7652c174b489e36f2a9525ace22e53d4ed3bf9acb109675dbd3cd1',
@@ -101,7 +101,7 @@ insert into public.retailer_catalogue_child_plans values(
   null,null,null,null,'40d5e93e8db21c93b9615263fcf5354b51c0011d',
   '["3887","3888","3890","3891","3892","3893","3894","3896","3897","3898","3899","3900","3901","3902","3903","3904","3905","3906","3907","3972"]',
   '2026-10-27T14:29:02.03652Z','2026-10-27T14:29:02.03652Z',
-  '{"event":"APPROVED_RETAILER_AUTOMATION_CHILD_REGISTERED","workflow":{"run_id":"40521391539"},"artifact_fingerprint":"a3e338a85d7652c174b489e36f2a9525ace22e53d4ed3bf9acb109675dbd3cd1"}'
+  '[{"event":"APPROVED_RETAILER_AUTOMATION_CHILD_REGISTERED","workflow":{"run_id":"40521391539"},"artifact_fingerprint":"a3e338a85d7652c174b489e36f2a9525ace22e53d4ed3bf9acb109675dbd3cd1"}]'
 );
 insert into public.product_match_review_queue values(2390,3972,4159,'FAILED','P0001');
 insert into public.automation_review_execution_requests values('b1129cb6-57c7-488e-9f69-7cce63e0bfdb',2390,'FAILED','40521391539','40d5e93e8db21c93b9615263fcf5354b51c0011d',20,'P0001','EXECUTION_FAILED');
@@ -196,18 +196,20 @@ test("migration is a narrow production-only shared allowlist extension with term
   assert.match(forward, /where id='16a6ed2d-931f-4081-969c-bd9340094eff'::uuid and status='PLANNED'/);
   assert.match(forward, /where id='6560bd60-bc36-4c52-8f13-32ac3ee84aa2'::uuid and status='PLANNED'/);
   assert.match(forward, /SHARED_PARENT_APPROVAL_ALLOWLIST_MISSING_RETAILER_15/);
+  assert.match(forward, /jsonb_typeof\(p\.audit_log\)='array'[\s\S]+jsonb_array_elements\(p\.audit_log\)/);
+  assert.match(forward, /jsonb_typeof\(c\.audit_log\)='array'[\s\S]+jsonb_array_elements\(c\.audit_log\)/);
   assert.match(rollback, /terminal supersede evidence mismatch/);
   assert.doesNotMatch(rollback, /update\s+public\.retailer_catalogue_(?:parent|child)_plans/i);
   assert.doesNotMatch(rollback, /status='PLANNED'/i);
 });
 
-test("disposable PostgreSQL proves success, unchanged business state, rollback safety and fail-closed incident drift", { skip: !dockerAvailable() && "Docker daemon unavailable" }, () => {
+test("disposable PostgreSQL proves array-shaped live evidence, unchanged business state, rollback safety and fail-closed drift", { skip: !dockerAvailable() && "Docker daemon unavailable" }, () => {
   const container = `supplementscout-gladiator-parent-${crypto.randomBytes(5).toString("hex")}`;
   let primaryError;
   try {
     ok(run("docker", ["run", "--detach", "--rm", "--name", container, "--network", "none", "-e", "POSTGRES_HOST_AUTH_METHOD=trust", "-v", `${ROOT}:/workspace:ro`, IMAGE]), "start PostgreSQL");
     waitForPostgres(container);
-    for (const database of ["success", "drift"]) {
+    for (const database of ["success", "drift", "object_shape"]) {
       ok(exec(container, ["createdb", "-U", "postgres", database]), `create ${database}`);
       ok(psqlText(container, database, fixtureSql()), `fixture ${database}`);
       ok(psqlText(container, database, oldFunctionSql()), `old function ${database}`);
@@ -236,6 +238,14 @@ test("disposable PostgreSQL proves success, unchanged business state, rollback s
     fails(psqlFile(container, "drift", FORWARD), "drifted incident migration", /precondition mismatch/);
     assert.equal(functionSha(container, "drift"), OLD_FUNCTION_SHA);
     assert.equal(ok(psql(container, "drift", `select status from retailer_catalogue_parent_plans where id='${PARENT_ID}'`), "drift rollback state").stdout.trim(), "PLANNED");
+
+    ok(psqlText(container, "object_shape", `
+      update public.retailer_catalogue_parent_plans set audit_log=audit_log->0 where id='${PARENT_ID}';
+      update public.retailer_catalogue_child_plans set audit_log=audit_log->0 where id='${CHILD_ID}';
+    `), "inject malformed object-shaped audit logs");
+    fails(psqlFile(container, "object_shape", FORWARD), "object-shaped audit log migration", /parent precondition mismatch/);
+    assert.equal(functionSha(container, "object_shape"), OLD_FUNCTION_SHA);
+    assert.equal(ok(psql(container, "object_shape", `select jsonb_typeof(audit_log)||':'||status from retailer_catalogue_parent_plans where id='${PARENT_ID}'`), "object-shaped parent remains untouched").stdout.trim(), "object:PLANNED");
   } catch (error) { primaryError = error; throw error; } finally {
     const cleanup = run("docker", ["rm", "-f", container], { timeout: 30000 });
     if (!primaryError && cleanup.status !== 0) assert.fail(output(cleanup));

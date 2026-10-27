@@ -67,11 +67,16 @@ begin
     and p.adapter_fingerprint='24bbd138a39f200ea7a134ee088853b82452915d1d0b259858850f96fbd84137'
     and p.policy_fingerprint='7bb83067fa94c01877616c5dc9b85aeb2fe7a82939c02f3194da1552de8d5290'
     and p.expected_state_fingerprint='66cf2bc813e3f542cb883dba7ab1ddd2b467a9666e84ad3a35cf67bced7e0710'
-    and p.audit_log->>'event'='APPROVED_RETAILER_AUTOMATION_PLAN_REGISTERED'
-    and p.audit_log->'workflow'->>'run_id'='40521391539'
-    and p.audit_log->>'manifest_fingerprint'='834766bb56dd8783677df88a644bdde382fec9070a33801d11919555f4dc958a'
-    and p.audit_log->>'approved_manifest_sha256'='F07122185A4D601E9E4172378D2FCF6636E5AB1833C33C749F69BCCD3FCD8078'
-    and (p.audit_log->>'operation_count')::integer=20
+    and jsonb_typeof(p.audit_log)='array'
+    and exists(
+      select 1
+      from jsonb_array_elements(p.audit_log) audit_event(value)
+      where audit_event.value->>'event'='APPROVED_RETAILER_AUTOMATION_PLAN_REGISTERED'
+        and audit_event.value#>>'{workflow,run_id}'='40521391539'
+        and audit_event.value->>'manifest_fingerprint'='834766bb56dd8783677df88a644bdde382fec9070a33801d11919555f4dc958a'
+        and audit_event.value->>'approved_manifest_sha256'='F07122185A4D601E9E4172378D2FCF6636E5AB1833C33C749F69BCCD3FCD8078'
+        and (audit_event.value->>'operation_count')::integer=20
+    )
   for update;
   if not found then raise exception 'Gladiator failed parent precondition mismatch'; end if;
 
@@ -88,9 +93,14 @@ begin
     and c.created_at='2026-10-27T14:29:02.03652Z'::timestamptz
     and c.updated_at='2026-10-27T14:29:02.03652Z'::timestamptz
     and c.record_ids='["3887","3888","3890","3891","3892","3893","3894","3896","3897","3898","3899","3900","3901","3902","3903","3904","3905","3906","3907","3972"]'::jsonb
-    and c.audit_log->>'event'='APPROVED_RETAILER_AUTOMATION_CHILD_REGISTERED'
-    and c.audit_log->'workflow'->>'run_id'='40521391539'
-    and c.audit_log->>'artifact_fingerprint'='a3e338a85d7652c174b489e36f2a9525ace22e53d4ed3bf9acb109675dbd3cd1'
+    and jsonb_typeof(c.audit_log)='array'
+    and exists(
+      select 1
+      from jsonb_array_elements(c.audit_log) audit_event(value)
+      where audit_event.value->>'event'='APPROVED_RETAILER_AUTOMATION_CHILD_REGISTERED'
+        and audit_event.value#>>'{workflow,run_id}'='40521391539'
+        and audit_event.value->>'artifact_fingerprint'='a3e338a85d7652c174b489e36f2a9525ace22e53d4ed3bf9acb109675dbd3cd1'
+    )
   for update;
   if not found
      or (select count(*) from public.retailer_catalogue_child_plans where parent_plan_id='6560bd60-bc36-4c52-8f13-32ac3ee84aa2'::uuid)<>1
