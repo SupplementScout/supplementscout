@@ -25,6 +25,10 @@ function loadModule(relativePath) {
 const { getEffectiveNutritionMetrics } = loadModule(
   "app/lib/nutritionMetrics.ts"
 );
+const {
+  getVerifiedCostPer25gProtein,
+  getVerifiedPricePerServing,
+} = loadModule("app/lib/pricing.ts");
 const { hasCompleteAppliedPreWorkoutFacts, resolveAppliedPreWorkoutFacts } = loadModule(
   "app/lib/reviewedPreWorkoutFacts.ts"
 );
@@ -53,6 +57,89 @@ test("empty variant override preserves verified product metrics", () => {
     }),
     product()
   );
+});
+
+test("exact matching structural pack preserves existing product metrics", () => {
+  assert.deepEqual(
+    getEffectiveNutritionMetrics(product(), {
+      size_value: 2000,
+      size_unit: "g",
+      product_format: "powder",
+      nutrition_override: {},
+    }),
+    product()
+  );
+});
+
+test("rounding-equivalent pack preserves reviewed serving facts only", () => {
+  const result = getEffectiveNutritionMetrics(
+    product({
+      net_weight_g: 2010,
+      serving_count_verified: 67,
+      serving_size_g: 30,
+      protein_per_serving_g: 21,
+    }),
+    {
+      size_value: 2000,
+      size_unit: "g",
+      product_format: "powder",
+      nutrition_override: {
+        serving_count_verified: 67,
+        serving_size_g: 30,
+      },
+    }
+  );
+  const deliveredPrice = {
+    productPrice: 35,
+    shippingCost: 0,
+    totalPrice: 35,
+  };
+
+  assert.equal(result.net_weight_g, 2000);
+  assert.equal(result.serving_count_verified, 67);
+  assert.equal(result.serving_size_g, 30);
+  assert.equal(result.protein_per_serving_g, null);
+  assert.equal(result.nutrition_verified, false);
+  assert.equal(result.unit_pricing_verified, false);
+  assert.equal(
+    getVerifiedPricePerServing(deliveredPrice, result.serving_count_verified),
+    35 / 67
+  );
+  assert.equal(
+    getVerifiedCostPer25gProtein(
+      deliveredPrice,
+      result.serving_count_verified,
+      result.protein_per_serving_g,
+      result.unit_pricing_verified,
+      result.nutrition_verified,
+      result.net_weight_g,
+      result.serving_size_g,
+      result.product_format
+    ),
+    null
+  );
+});
+
+test("rounding-equivalent pack comparison is symmetric", () => {
+  const result = getEffectiveNutritionMetrics(
+    product({ net_weight_g: 2000 }),
+    {
+      size_value: 2010,
+      size_unit: "g",
+      product_format: "powder",
+      nutrition_override: {
+        serving_count_verified: 67,
+        serving_size_g: 30,
+      },
+    }
+  );
+
+  assert.equal(result.net_weight_g, 2010);
+  assert.equal(result.serving_count_verified, 67);
+  assert.equal(result.serving_size_g, 30);
+  assert.equal(result.protein_per_serving_g, null);
+  assert.equal(result.nutrition_verified, false);
+  assert.equal(result.unit_pricing_verified, false);
 });
 
 test("pack mismatch keeps exact weight but fails closed for serving nutrition", () => {
