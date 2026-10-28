@@ -30,6 +30,8 @@ const UNIT_VALUE_KEYS = new Set([
   "serving_size_g",
 ]);
 
+const PACK_WEIGHT_ROUNDING_TOLERANCE_RATE = 0.01;
+
 function hasOwn(object: Record<string, unknown>, key: string) {
   return Object.prototype.hasOwnProperty.call(object, key);
 }
@@ -51,6 +53,21 @@ function positiveNumber(value: unknown) {
 function variantWeightG(variant: VariantNutritionMetrics) {
   if (variant?.size_unit?.trim().toLowerCase() !== "g") return null;
   return positiveNumber(variant.size_value);
+}
+
+function isMaterialPackMismatch(
+  structuralVariantWeight: number | null,
+  productWeight: number | null
+) {
+  if (structuralVariantWeight === null || productWeight === null) return false;
+
+  const roundingTolerance = Math.max(
+    1,
+    Math.max(structuralVariantWeight, productWeight) *
+      PACK_WEIGHT_ROUNDING_TOLERANCE_RATE
+  );
+
+  return Math.abs(structuralVariantWeight - productWeight) > roundingTolerance;
 }
 
 function overridesAny(
@@ -129,12 +146,13 @@ export function getEffectiveNutritionMetrics(
       : {};
   const structuralVariantWeight = variantWeightG(variant);
   const productWeight = positiveNumber(product.net_weight_g);
-  const packMismatch =
+  const distinctPackWeight =
     structuralVariantWeight !== null &&
     productWeight !== null &&
     structuralVariantWeight !== productWeight;
   const failClosedForPackMismatch =
-    packMismatch &&
+    structuralVariantWeight !== null &&
+    isMaterialPackMismatch(structuralVariantWeight, productWeight) &&
     !hasCompleteApprovedVariantNutrition(
       product,
       override,
@@ -164,22 +182,22 @@ export function getEffectiveNutritionMetrics(
     serving_count_verified: overrideValue(
       override,
       "serving_count_verified",
-      product.serving_count_verified
+      distinctPackWeight ? null : product.serving_count_verified
     ) as NutritionScalar,
     serving_size_g: overrideValue(
       override,
       "serving_size_g",
-      product.serving_size_g
+      distinctPackWeight ? null : product.serving_size_g
     ) as NutritionScalar,
     protein_per_serving_g: overrideValue(
       override,
       "protein_per_serving_g",
-      product.protein_per_serving_g
+      distinctPackWeight ? null : product.protein_per_serving_g
     ) as NutritionScalar,
     creatine_per_serving_g: overrideValue(
       override,
       "creatine_per_serving_g",
-      product.creatine_per_serving_g
+      distinctPackWeight ? null : product.creatine_per_serving_g
     ) as NutritionScalar,
     product_format: overrideValue(
       override,
