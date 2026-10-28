@@ -210,12 +210,28 @@ function sourceFingerprintByOffer(report, scope) {
 }
 
 function operationForReview(review, semantic) {
-  if (review.action === "UPDATE_PRICE") return { review_kind: "COMMERCIAL_CHANGE", operation_type: "UPDATE_PRICE", reason_codes: "PRICE_CHANGE", confidence: "MEDIUM", suggested_action: "MANUAL_REVIEW" };
+  if (review.action === "UPDATE_PRICE") return { review_kind: "COMMERCIAL_CHANGE", operation_type: "UPDATE_PRICE", reason_codes: review.reason === "HARD_PRICE_ANOMALY" ? "HARD_PRICE_ANOMALY" : "PRICE_CHANGE", confidence: "MEDIUM", suggested_action: "MANUAL_REVIEW" };
   if (review.action === "UPDATE_STOCK") return { review_kind: "COMMERCIAL_CHANGE", operation_type: "UPDATE_STOCK", reason_codes: "STOCK_CHANGE", confidence: "MEDIUM", suggested_action: "MANUAL_REVIEW" };
   if (review.action === "UPDATE_PRICE_AND_STOCK") return { review_kind: "COMMERCIAL_CHANGE", operation_type: "UPDATE_PRICE_AND_STOCK", reason_codes: "PRICE_AND_STOCK_CHANGE", confidence: "MEDIUM", suggested_action: "MANUAL_REVIEW" };
   if (review.review_type === "SOURCE_FAILURE" || semantic?.source_error) return { review_kind: "SOURCE_FAILURE", operation_type: "SOURCE_MISSING", reason_codes: "SOURCE_FAILURE", confidence: "LOW", suggested_action: "MANUAL_REVIEW" };
   if (review.review_type === "MAPPING_DRIFT") return { review_kind: "MAPPING_DRIFT", operation_type: "MANUAL_REVIEW", reason_codes: "MAPPING_DRIFT", confidence: "LOW", suggested_action: "MANUAL_REVIEW" };
   return { review_kind: "IDENTITY_CONFLICT", operation_type: "MANUAL_REVIEW_IDENTITY", reason_codes: "IDENTITY_CONFLICT", confidence: "LOW", suggested_action: "MANUAL_REVIEW" };
+}
+
+function proposedStateForReview(review, artifact) {
+  if (review.reason !== "HARD_PRICE_ANOMALY") return {};
+  const plan = artifact?.plans?.[0]?.resolved_plan;
+  const values = plan?.offer?.values;
+  if (review.action !== "UPDATE_PRICE" || !values) fail(`Missing exact proposed state for hard-price review offer ${review.offer_id}`);
+  return {
+    offer: {
+      price: String(values.price),
+      shipping_cost: String(values.shipping_cost),
+      total_price: String(values.total_price),
+      in_stock: values.in_stock === true,
+      url: values.url || null,
+    },
+  };
 }
 
 function beforeStateFromPlan(plan) {
@@ -262,6 +278,8 @@ function buildManifestRows(source, activeRows, currentStateRows = []) {
     const expectedState = artifact?.plans?.[0]?.resolved_plan?.expected_state || null;
     const before = beforeStateFromActive(active) || beforeStateFromActive(currentStateByOffer.get(offerId)) || beforeStateFromPlan(artifact);
     if (!before) fail(`Missing before_state for review offer ${offerId}`);
+    const proposedState = proposedStateForReview(review, artifact);
+    const reviewReasons = [...new Set([...(semantic.review_reasons || []), ...(review.review_reasons || []), review.reason].filter(Boolean))].sort();
     return {
       snapshot_id: `automation-review-${RETAILER_ID}-${source.options.sourceRunId}`,
       review_item_id: `${RETAILER_ID}:${offerId}:${source.options.sourceRunId}:${sourceRowFingerprint}`,
@@ -290,7 +308,7 @@ function buildManifestRows(source, activeRows, currentStateRows = []) {
       review_kind: op.review_kind,
       operation_type: op.operation_type,
       before_state: before,
-      proposed_state: {},
+      proposed_state: proposedState,
       impact_summary: { catalogue_writes: 0, executable: false, review_only: true },
       source_evidence: {
         workflow_run_id: source.options.sourceRunId,
@@ -304,7 +322,7 @@ function buildManifestRows(source, activeRows, currentStateRows = []) {
         review_scope_fingerprint: source.contract.review_scope_fingerprint,
         decision: semantic.decision || review.action || null,
         blockers: semantic.blockers || review.blockers || [],
-        review_reasons: semantic.review_reasons || review.review_reasons || [],
+        review_reasons: reviewReasons,
         source_error: semantic.source_error || review.source_error || null,
         returned_gtin: semantic.returned_gtin || review.returned_gtin || null,
         item_id: semantic.returned_item_id || review.item_id || null,

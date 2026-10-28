@@ -331,8 +331,44 @@ test("full 237-offer observation resolves an old review problem absent from the 
 
 test("review row normalization uses current allowlisted operations", () => {
   assert.equal(operationForReview({ action: "UPDATE_PRICE" }).operation_type, "UPDATE_PRICE");
+  assert.deepEqual(operationForReview({ action: "UPDATE_PRICE", reason: "HARD_PRICE_ANOMALY" }), { review_kind: "COMMERCIAL_CHANGE", operation_type: "UPDATE_PRICE", reason_codes: "HARD_PRICE_ANOMALY", confidence: "MEDIUM", suggested_action: "MANUAL_REVIEW" });
   assert.equal(operationForReview({ review_type: "SOURCE_FAILURE" }).operation_type, "SOURCE_MISSING");
   assert.equal(operationForReview({ review_type: "IDENTITY_CONFLICT" }).operation_type, "MANUAL_REVIEW_IDENTITY");
+});
+
+test("hard-price anomaly publishes one pending commercial review with exact before and proposed evidence", (t) => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "ebay-hard-price-review-"));
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const offerId = "2560", mappingId = "2745";
+  const proposed = { price: "129.00", shipping_cost: "0.00", total_price: "129.00", in_stock: true, url: "https://www.ebay.co.uk/itm/2560?mkevt=1" };
+  writeJson(path.join(directory, `artifact-${offerId}-2026-10-28.json`), { plans: [{ resolved_plan: { offer: { action: "update", id: offerId, values: proposed }, price_history: { action: "create" } } }] });
+  const semanticRow = semantic(offerId, mappingId, { decision: "REVIEW", price: "129.00", review_reasons: ["RETURNED_GTIN_UNPROVEN"] });
+  const source = {
+    report: {
+      captured_at: "2026-10-28T05:43:00.000Z",
+      review_rows: [{ offer_id: offerId, action: "UPDATE_PRICE", review_type: "COMMERCIAL_CHANGE", reason: "HARD_PRICE_ANOMALY", price_change: { before_price: "149.00", proposed_price: "129.00", absolute_delta: "20.00", ratio: 20 / 149, ratio_hard_limit: 0.6, absolute_hard_limit: "20.00" } }],
+      semantic_source_rows: [semanticRow],
+      source_row_fingerprints: [{ offer_id: offerId, mapping_id: mappingId, semantic_fingerprint: "a".repeat(64), scope: "REVIEW" }],
+    },
+    contract: { created_at: "2026-10-28T05:43:00.000Z", expires_at: "2026-10-29T05:43:00.000Z", full_capture_fingerprint: "b".repeat(64), executable_source_fingerprint: "c".repeat(64), review_scope_fingerprint: "d".repeat(64), plan_fingerprint: "e".repeat(64) },
+    options: { sourceArtifactDir: directory, sourceRunId: "40492923105", sourceArtifactId: "123", sourceArtifactDigest: "f".repeat(64), sourceContractSha256: "1".repeat(64), sourceReportSha256: "2".repeat(64), sourceArtifactContentSha256: "3".repeat(64) },
+  };
+  const before = { offer_id: offerId, retailer_product_id: mappingId, product_id: semanticRow.product_id, product_variant_id: semanticRow.product_variant_id, price: "149.00", shipping_cost: "0.00", total_price: "149.00", in_stock: true, url: proposed.url, external_url: semanticRow.external_url, external_product_id: semanticRow.external_product_id, external_variant_id: semanticRow.external_variant_id };
+  const rows = buildManifestRows(source, [], [{ offer_id: offerId, before_state: before }]);
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].primary_status, "PENDING");
+  assert.equal(rows[0].review_status, "PENDING");
+  assert.equal(rows[0].review_kind, "COMMERCIAL_CHANGE");
+  assert.equal(rows[0].operation_type, "UPDATE_PRICE");
+  assert.equal(rows[0].reason_codes, "HARD_PRICE_ANOMALY");
+  assert.equal(rows[0].source_price, "129.00");
+  assert.deepEqual(rows[0].before_state, before);
+  assert.deepEqual(rows[0].proposed_state, { offer: proposed });
+  assert.ok(rows[0].source_evidence.review_reasons.includes("HARD_PRICE_ANOMALY"));
+  assert.equal(rows[0].source_row_fingerprint, "a".repeat(64));
+  assert.equal(rows[0].artifact_fingerprint, "d".repeat(64));
+  assert.equal(rows[0].plan_fingerprint, "e".repeat(64));
+  assert.deepEqual(rows[0].impact_summary, { catalogue_writes: 0, executable: false, review_only: true });
 });
 
 test("missing queue history uses exact current DB offer and mapping state", () => {
