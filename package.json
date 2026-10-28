@@ -27,6 +27,7 @@
     "nutrition:creatine-unit-identity": "node scripts/creatine-unit-identity.js",
     "nutrition:unit-pricing": "node scripts/protein-unit-pricing.js",
     "nutrition:creatine-unit-pricing": "node scripts/creatine-unit-pricing.js",
+    "catalogue:pack-correction": "node scripts/reviewed-product-pack-correction.js",
     "verify:baseline": "node scripts/verify-baseline-migrations.js",
     "verify:project": "node scripts/project-guardian.js",
     "verify:inventory": "node scripts/quality-gate.js inventory",

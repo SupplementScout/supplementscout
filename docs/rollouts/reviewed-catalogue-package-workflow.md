@@ -109,12 +109,35 @@ security and rollback rehearsal, before merging or executing evidence-backed
 packages. Historical packages and clean raw-role multipacks continue through
 the original path.
 
+## Existing-product pack correction
+
+`reviewed-catalogue-product-pack-correction-v1` is the only canonical-update
+extension to this workflow. It is generic and deliberately narrow: one existing
+`products` row, the `net_weight_g` field, one positive exact-before value and one
+different positive reviewed-after value. Extra fields, identity metadata,
+`product_variants`, multiple targets and stale before-state all fail closed.
+
+Prepare an immutable local package from an existing evidence artifact with:
+
+```text
+npm run catalogue:pack-correction -- --mode=prepare --target=<staging|production> --source-artifact=tmp/<prepared>.json --source-artifact-sha256=<sha256> --source-artifact-fingerprint=<fingerprint> --evidence-sha256=<sha256> --output=tmp/<package>.json
+```
+
+`preflight` uses the protected validator in a read-only transaction. A future
+`apply` additionally requires an `OWNER_APPROVED` sealed package, exact package
+SHA-256, `--confirm-reviewed-product-pack-correction=true`, a clean
+`origin/main`, a fresh single-use approver receipt and the protected executor.
+The atomic RPC conditionally changes exactly one `net_weight_g`, compares every
+other product column, verifies zero row-count delta, consumes the approval and
+then undergoes a separate validator readback. The CLI writes an immutable audit
+artifact under `tmp/`. Preparing a package does not approve or apply it.
+
 ## Permanent boundaries
 
 - Owner review remains mandatory for product identity and production writes.
 - SKU is never treated as GTIN.
-- Canonical updates and category changes remain forbidden unless a future
-  manifest contract explicitly adds and validates such an action.
+- Canonical updates and category changes remain forbidden except for the exact
+  reviewed product-pack correction contract above.
 - The runner performs no direct business-table DML. It calls only the existing
   approval and atomic apply RPCs.
 - Price and stock automation starts only after catalogue onboarding is complete
