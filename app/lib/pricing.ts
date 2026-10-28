@@ -193,6 +193,66 @@ export function getVerifiedPricePerLitre(
     : null;
 }
 
+function getVerifiedTotalPackageNutrient(
+  servingCountVerified: number | string | null,
+  nutrientPerServingG: number | string | null,
+  unitPricingVerified: boolean | null,
+  nutritionVerified: boolean | null,
+  netWeightG: number | string | null,
+  servingSizeG: number | string | null,
+  productFormat: string | null
+) {
+  if (
+    nutritionVerified !== true ||
+    nutrientPerServingG === null ||
+    nutrientPerServingG === ""
+  ) {
+    return null;
+  }
+
+  const nutrientPerServing = Number(nutrientPerServingG);
+
+  if (!Number.isFinite(nutrientPerServing) || nutrientPerServing <= 0) {
+    return null;
+  }
+
+  if (servingCountVerified !== null && servingCountVerified !== "") {
+    const servings = Number(servingCountVerified);
+
+    if (!Number.isFinite(servings) || !Number.isInteger(servings) || servings <= 0) {
+      return null;
+    }
+
+    return nutrientPerServing * servings;
+  }
+
+  if (
+    unitPricingVerified !== true ||
+    productFormat !== "powder" ||
+    netWeightG === null ||
+    netWeightG === "" ||
+    servingSizeG === null ||
+    servingSizeG === ""
+  ) {
+    return null;
+  }
+
+  const netWeight = Number(netWeightG);
+  const servingSize = Number(servingSizeG);
+
+  if (
+    !Number.isFinite(netWeight) ||
+    netWeight <= 0 ||
+    !Number.isFinite(servingSize) ||
+    servingSize <= 0 ||
+    nutrientPerServing > servingSize
+  ) {
+    return null;
+  }
+
+  return (netWeight / servingSize) * nutrientPerServing;
+}
+
 export function getVerifiedCostPer25gProtein(
   deliveredPrice: DeliveredPrice | null,
   servingCountVerified: number | string | null,
@@ -203,11 +263,7 @@ export function getVerifiedCostPer25gProtein(
   servingSizeG: number | string | null = null,
   productFormat: string | null = null
 ) {
-  if (
-    unitPricingVerified !== true ||
-    nutritionVerified !== true ||
-    deliveredPrice === null
-  ) {
+  if (deliveredPrice === null) {
     return null;
   }
 
@@ -215,54 +271,17 @@ export function getVerifiedCostPer25gProtein(
     return null;
   }
 
-  if (proteinPerServingG === null || proteinPerServingG === "") {
-    return null;
-  }
+  const totalPackageProtein = getVerifiedTotalPackageNutrient(
+    servingCountVerified,
+    proteinPerServingG,
+    unitPricingVerified,
+    nutritionVerified,
+    netWeightG,
+    servingSizeG,
+    productFormat
+  );
 
-  const proteinPerServing = Number(proteinPerServingG);
-
-  if (!Number.isFinite(proteinPerServing) || proteinPerServing <= 0) {
-    return null;
-  }
-
-  let totalPackageProtein: number;
-
-  if (servingCountVerified !== null && servingCountVerified !== "") {
-    const servings = Number(servingCountVerified);
-
-    if (!Number.isFinite(servings) || !Number.isInteger(servings) || servings <= 0) {
-      return null;
-    }
-
-    totalPackageProtein = proteinPerServing * servings;
-  } else {
-    if (
-      productFormat !== "powder" ||
-      netWeightG === null ||
-      netWeightG === "" ||
-      servingSizeG === null ||
-      servingSizeG === ""
-    ) {
-      return null;
-    }
-
-    const netWeight = Number(netWeightG);
-    const servingSize = Number(servingSizeG);
-
-    if (
-      !Number.isFinite(netWeight) ||
-      netWeight <= 0 ||
-      !Number.isFinite(servingSize) ||
-      servingSize <= 0 ||
-      proteinPerServing > servingSize
-    ) {
-      return null;
-    }
-
-    totalPackageProtein = (netWeight / servingSize) * proteinPerServing;
-  }
-
-  if (!Number.isFinite(totalPackageProtein) || totalPackageProtein <= 0) {
+  if (totalPackageProtein === null || !Number.isFinite(totalPackageProtein) || totalPackageProtein <= 0) {
     return null;
   }
 
@@ -283,11 +302,7 @@ export function getVerifiedCostPer5gCreatine(
   servingSizeG: number | string | null,
   productFormat: string | null
 ) {
-  if (
-    unitPricingVerified !== true ||
-    nutritionVerified !== true ||
-    deliveredPrice === null
-  ) {
+  if (deliveredPrice === null) {
     return null;
   }
 
@@ -295,54 +310,17 @@ export function getVerifiedCostPer5gCreatine(
     return null;
   }
 
-  if (creatinePerServingG === null || creatinePerServingG === "") {
-    return null;
-  }
+  const totalPackageCreatine = getVerifiedTotalPackageNutrient(
+    servingCountVerified,
+    creatinePerServingG,
+    unitPricingVerified,
+    nutritionVerified,
+    netWeightG,
+    servingSizeG,
+    productFormat
+  );
 
-  const creatinePerServing = Number(creatinePerServingG);
-
-  if (!Number.isFinite(creatinePerServing) || creatinePerServing <= 0) {
-    return null;
-  }
-
-  let totalPackageCreatine: number;
-
-  if (servingCountVerified !== null && servingCountVerified !== "") {
-    const servings = Number(servingCountVerified);
-
-    if (!Number.isFinite(servings) || !Number.isInteger(servings) || servings <= 0) {
-      return null;
-    }
-
-    totalPackageCreatine = creatinePerServing * servings;
-  } else {
-    if (
-      productFormat !== "powder" ||
-      netWeightG === null ||
-      netWeightG === "" ||
-      servingSizeG === null ||
-      servingSizeG === ""
-    ) {
-      return null;
-    }
-
-    const netWeight = Number(netWeightG);
-    const servingSize = Number(servingSizeG);
-
-    if (
-      !Number.isFinite(netWeight) ||
-      netWeight <= 0 ||
-      !Number.isFinite(servingSize) ||
-      servingSize <= 0 ||
-      creatinePerServing > servingSize
-    ) {
-      return null;
-    }
-
-    totalPackageCreatine = (netWeight / servingSize) * creatinePerServing;
-  }
-
-  if (!Number.isFinite(totalPackageCreatine) || totalPackageCreatine <= 0) {
+  if (totalPackageCreatine === null || !Number.isFinite(totalPackageCreatine) || totalPackageCreatine <= 0) {
     return null;
   }
 

@@ -179,7 +179,7 @@ test("serving price supports serving-only products while unit price stays hidden
   assert.equal(getVerifiedPricePerUnit(deliveredPrice, null, null, false), null);
 });
 
-test("creatine cost keeps the verified serving-count path unchanged", () => {
+test("creatine cost uses reviewed serving count without broad unit verification", () => {
   const deliveredPrice = getDeliveredPrice({ price: 20, shipping_cost: 0 });
 
   assert.equal(
@@ -187,7 +187,7 @@ test("creatine cost keeps the verified serving-count path unchanged", () => {
       deliveredPrice,
       100,
       5,
-      true,
+      false,
       true,
       null,
       null,
@@ -197,13 +197,53 @@ test("creatine cost keeps the verified serving-count path unchanged", () => {
   );
 });
 
-test("protein cost keeps the verified serving-count path unchanged", () => {
+test("protein cost uses reviewed serving count without broad unit verification", () => {
   const deliveredPrice = getDeliveredPrice({ price: 40, shipping_cost: 0 });
 
   assert.equal(
-    getVerifiedCostPer25gProtein(deliveredPrice, 80, 25, true, true),
+    getVerifiedCostPer25gProtein(deliveredPrice, 80, 25, false, true),
     0.5
   );
+});
+
+test("protein exact-serving path fails closed for unreviewed or invalid facts", () => {
+  const deliveredPrice = getDeliveredPrice({ price: 40, shipping_cost: 0 });
+  const calculate = (servings, protein, nutritionVerified = true) =>
+    getVerifiedCostPer25gProtein(
+      deliveredPrice,
+      servings,
+      protein,
+      false,
+      nutritionVerified
+    );
+
+  assert.equal(calculate(80, 25, false), null);
+  for (const invalid of [0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY]) {
+    assert.equal(calculate(invalid, 25), null);
+  }
+  for (const invalid of [null, "", 0, -1, Number.NaN, Number.POSITIVE_INFINITY]) {
+    assert.equal(calculate(80, invalid), null);
+  }
+});
+
+test("creatine exact-serving path uses the same review and validity matrix", () => {
+  const deliveredPrice = getDeliveredPrice({ price: 20, shipping_cost: 0 });
+  const calculate = (servings, creatine, nutritionVerified = true) =>
+    getVerifiedCostPer5gCreatine(
+      deliveredPrice,
+      servings,
+      creatine,
+      false,
+      nutritionVerified,
+      null,
+      null,
+      null
+    );
+
+  assert.equal(calculate(100, 5), 0.2);
+  assert.equal(calculate(100, 5, false), null);
+  assert.equal(calculate(0, 5), null);
+  assert.equal(calculate(100, 0), null);
 });
 
 test("protein cost can use verified powder weight and serving composition", () => {
@@ -248,6 +288,100 @@ test("protein powder fallback fails closed for invalid or unverified inputs", ()
   assert.equal(calculate(true, true, 2000, null, 24), null);
   assert.equal(calculate(true, true, 2000, 30, 31), null);
   assert.equal(calculate(true, true, 2000, 30, 24, "bar"), null);
+});
+
+test("Batch 01 exact post-apply fixture unlocks only serving-based nutrition metrics", () => {
+  const fixtures = [
+    { variantId: 3273, netWeight: 510, delivered: 24.48, servings: 17, servingSize: 30, protein: 22.5, expectedServing: 1.44, expectedProtein: 1.6 },
+    { variantId: 3376, netWeight: 510, delivered: 24.48, servings: 17, servingSize: 30, protein: 22.5, expectedServing: 1.44, expectedProtein: 1.6 },
+    { variantId: 3377, netWeight: 510, delivered: 24.48, servings: 17, servingSize: 30, protein: 22.5, expectedServing: 1.44, expectedProtein: 1.6 },
+    { variantId: 3379, netWeight: 510, delivered: 24.48, servings: 17, servingSize: 30, protein: 22.5, expectedServing: 1.44, expectedProtein: 1.6 },
+    { variantId: 3385, netWeight: 510, delivered: 24.48, servings: 17, servingSize: 30, protein: 22.5, expectedServing: 1.44, expectedProtein: 1.6 },
+    { variantId: 3386, netWeight: 510, delivered: 24.48, servings: 17, servingSize: 30, protein: 22.5, expectedServing: 1.44, expectedProtein: 1.6 },
+    { variantId: 3387, netWeight: 510, delivered: 24.48, servings: 17, servingSize: 30, protein: 22.5, expectedServing: 1.44, expectedProtein: 1.6 },
+    { variantId: 3388, netWeight: 510, delivered: 24.48, servings: 17, servingSize: 30, protein: 22.5, expectedServing: 1.44, expectedProtein: 1.6 },
+    { variantId: 3390, netWeight: 510, delivered: 24.48, servings: 17, servingSize: 30, protein: 22.5, expectedServing: 1.44, expectedProtein: 1.6 },
+    { variantId: 3391, netWeight: 2100, delivered: 50.98, servings: 70, servingSize: 30, protein: 22.5, expectedServing: 0.7282857142857142, expectedProtein: 0.8092063492063493 },
+    { variantId: 3393, netWeight: 2100, delivered: 50.94, servings: 70, servingSize: 30, protein: 22.5, expectedServing: 0.7277142857142856, expectedProtein: 0.8085714285714285 },
+    { variantId: 3395, netWeight: 2100, delivered: 56.98, servings: 70, servingSize: 30, protein: 22.5, expectedServing: 0.814, expectedProtein: 0.9044444444444444 },
+    { variantId: 3407, netWeight: 2100, delivered: 56.98, servings: 70, servingSize: 30, protein: 22.5, expectedServing: 0.814, expectedProtein: 0.9044444444444444 },
+    { variantId: 3649, netWeight: 600, delivered: 30.94, servings: 20, servingSize: 30, protein: 24, expectedServing: 1.5470000000000002, expectedProtein: 1.6114583333333334 },
+    { variantId: 3650, netWeight: 640, delivered: 49.98, servings: 20, servingSize: 32, protein: 25, expectedServing: 2.4989999999999997, expectedProtein: 2.4989999999999997 },
+    { variantId: 3691, netWeight: 640, delivered: 49.98, servings: 20, servingSize: 32, protein: 25, expectedServing: 2.4989999999999997, expectedProtein: 2.4989999999999997 },
+    { variantId: 3696, netWeight: 1600, delivered: 125.48, servings: 40, servingSize: 40, protein: 30, expectedServing: 3.137, expectedProtein: 2.6141666666666667 },
+    { variantId: 3697, netWeight: 1000, delivered: 34.98, servings: 31, servingSize: 32, protein: 20, expectedServing: 1.1283870967741934, expectedProtein: 1.4104838709677416 },
+    { variantId: 3700, netWeight: 500, delivered: 28.98, servings: 15, servingSize: 33, protein: 25, expectedServing: 1.932, expectedProtein: 1.932 },
+    { variantId: 3702, netWeight: 1350, delivered: 64.98, servings: 45, servingSize: 30, protein: 22, expectedServing: 1.4440000000000002, expectedProtein: 1.640909090909091 },
+    { variantId: 3973, netWeight: 454, delivered: 21.98, servings: 16, servingSize: 28, protein: 21, expectedServing: 1.37375, expectedProtein: 1.6354166666666665 },
+    { variantId: 3988, netWeight: 454, delivered: 21.98, servings: 16, servingSize: 28, protein: 21, expectedServing: 1.37375, expectedProtein: 1.6354166666666665 },
+    { variantId: 3989, netWeight: 454, delivered: 21.98, servings: 16, servingSize: 28, protein: 21, expectedServing: 1.37375, expectedProtein: 1.6354166666666665 },
+    { variantId: 3990, netWeight: 454, delivered: 21.98, servings: 16, servingSize: 28, protein: 21, expectedServing: 1.37375, expectedProtein: 1.6354166666666665 },
+    { variantId: 4120, netWeight: 900, delivered: 40.98, servings: 30, servingSize: 30, protein: 22, expectedServing: 1.3659999999999999, expectedProtein: 1.5522727272727272 },
+  ];
+
+  for (const fixture of fixtures) {
+    const effective = nutritionMetricsModule.getEffectiveNutritionMetrics(
+      {
+        net_weight_g: fixture.netWeight,
+        serving_count_verified: null,
+        serving_size_g: null,
+        protein_per_serving_g: null,
+        creatine_per_serving_g: null,
+        product_format: "powder",
+        unit_pricing_verified: false,
+        nutrition_verified: false,
+      },
+      {
+        size_value: fixture.netWeight,
+        size_unit: "g",
+        product_format: "powder",
+        nutrition_override: {
+          serving_count_verified: fixture.servings,
+          serving_size_g: fixture.servingSize,
+          protein_per_serving_g: fixture.protein,
+          nutrition_verified: true,
+        },
+      }
+    );
+    const deliveredPrice = getDeliveredPrice({
+      price: fixture.delivered,
+      shipping_cost: 0,
+    });
+    const pricePerServing = getVerifiedPricePerServing(
+      deliveredPrice,
+      effective.serving_count_verified
+    );
+    const costPer25gProtein = getVerifiedCostPer25gProtein(
+      deliveredPrice,
+      effective.serving_count_verified,
+      effective.protein_per_serving_g,
+      effective.unit_pricing_verified,
+      effective.nutrition_verified,
+      effective.net_weight_g,
+      effective.serving_size_g,
+      effective.product_format
+    );
+
+    assert.equal(effective.unit_pricing_verified, false, fixture.variantId);
+    assert.equal(effective.nutrition_verified, true, fixture.variantId);
+    assert.ok(Math.abs(pricePerServing - fixture.expectedServing) < 1e-12, fixture.variantId);
+    assert.ok(Math.abs(costPer25gProtein - fixture.expectedProtein) < 1e-12, fixture.variantId);
+    assert.equal(
+      getVerifiedPricePerKg(
+        deliveredPrice,
+        effective.net_weight_g,
+        effective.product_format,
+        effective.unit_pricing_verified
+      ),
+      null,
+      fixture.variantId
+    );
+    assert.equal(
+      getVerifiedPricePerUnit(deliveredPrice, null, null, effective.unit_pricing_verified),
+      null,
+      fixture.variantId
+    );
+  }
 });
 
 test("creatine cost can use verified powder weight and serving composition", () => {
