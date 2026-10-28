@@ -26,6 +26,8 @@ const ROLLOUT_DIR = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary");
 const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH";
 const KIND = "ebay-existing-offer-refresh-exact-237-v1";
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
+const HARD_PRICE_RATIO_LIMIT = 0.60;
+const HARD_PRICE_ABSOLUTE_LIMIT = 20;
 const MAPPING_VALUE_KEYS = ["external_product_id", "external_variant_id", "external_sku", "external_options", "external_name", "external_slug", "external_gtin", "external_url", "match_method", "match_confidence", "product_variant_id"];
 const EXACT_GTIN_METADATA_GAPS = new Set(["FORMAT_UNPROVEN", "SIZE_UNPROVEN", "UNIT_COUNT_UNPROVEN"]);
 const REVIEWED_MISSING_GTIN_CONTINUITY = new Map([
@@ -488,9 +490,29 @@ function validatePlan(scope, loaded) {
   const before = plan.expected_state?.offer, after = plan.offer?.values;
   if (!["manual", "feed"].includes(entry.plan_kind) || String(entry.retailer_id) !== scope.retailer_id || !planTargetsExactScope(scope, plan)) fail(`Refresh plan escaped exact scope for offer ${scope.offer_id}`);
   if (!before || !after || String(before.retailer_product_id) !== scope.retailer_product_id || after.url !== scope.affiliate_url || after.in_stock !== true) fail(`Refresh plan changed identity, URL or guarded stock policy for offer ${scope.offer_id}`);
-  const oldPrice = Number(before.price), newPrice = Number(after.price), absolute = Math.abs(newPrice - oldPrice), ratio = absolute / Math.max(0.01, oldPrice);
-  if (!(newPrice > 0) || ratio >= 0.6 || absolute >= 20) fail(`Refresh price change exceeds the approved hard limit for offer ${scope.offer_id}`);
-  return { loaded, entry };
+  const readMoney = (value, field, { positive = false } = {}) => {
+    const number = Number(value);
+    if (!Number.isFinite(number) || (positive ? number <= 0 : number < 0)) fail(`Refresh plan contains invalid ${field} for offer ${scope.offer_id}`);
+    return number;
+  };
+  const oldPrice = readMoney(before.price, "before price", { positive: true });
+  const newPrice = readMoney(after.price, "proposed price", { positive: true });
+  const oldShipping = readMoney(before.shipping_cost, "before shipping");
+  const newShipping = readMoney(after.shipping_cost, "proposed shipping");
+  const oldTotal = readMoney(before.total_price, "before total");
+  const newTotal = readMoney(after.total_price, "proposed total");
+  if (Math.abs(oldPrice + oldShipping - oldTotal) > 0.011 || Math.abs(newPrice + newShipping - newTotal) > 0.011) fail(`Refresh plan contains malformed before or proposed totals for offer ${scope.offer_id}`);
+  const absolute = Math.abs(newPrice - oldPrice);
+  const ratio = absolute / oldPrice;
+  const priceChange = Object.freeze({
+    before_price: oldPrice.toFixed(2),
+    proposed_price: newPrice.toFixed(2),
+    absolute_delta: absolute.toFixed(2),
+    ratio,
+    ratio_hard_limit: HARD_PRICE_RATIO_LIMIT,
+    absolute_hard_limit: HARD_PRICE_ABSOLUTE_LIMIT.toFixed(2),
+  });
+  return { loaded, entry, priceChange, hardPriceAnomaly: ratio >= HARD_PRICE_RATIO_LIMIT || absolute >= HARD_PRICE_ABSOLUTE_LIMIT };
 }
 
 function validatePreparedArtifact(scope, loaded, now = new Date()) {
@@ -499,7 +521,9 @@ function validatePreparedArtifact(scope, loaded, now = new Date()) {
   if (!Number.isFinite(createdAt.getTime()) || ageMs < -120000 || ageMs > 15 * 60 * 1000) fail("Prepared refresh artifact is not fresh");
   const approved = validatePlan(scope, loaded);
   const plan = approved.entry.resolved_plan;
-  if (plan.offer.action !== "verify_no_change" || plan.price_history.action !== "noop") fail(`Only VERIFY_NO_CHANGE may execute automatically for offer ${scope.offer_id}`);
+  const before = plan.expected_state.offer, after = plan.offer.values;
+  const verifiedNoChange = ["price", "shipping_cost", "total_price"].every((field) => Number(before[field]) === Number(after[field])) && before.in_stock === after.in_stock && before.url === after.url;
+  if (approved.hardPriceAnomaly || plan.offer.action !== "verify_no_change" || plan.price_history.action !== "noop" || !verifiedNoChange) fail(`Only VERIFY_NO_CHANGE may execute automatically for offer ${scope.offer_id}`);
   return approved;
 }
 
@@ -736,10 +760,15 @@ async function run(options, dependencies = {}) {
   const importerIdentityReview = prepared.flatMap(({ review }) => review ? [review] : []);
   const preparedRows = prepared.filter(({ approved }) => approved).map(({ approved }) => {
     const plan = approved.entry.resolved_plan;
-    return { offer_id: String(plan.offer.id), action: actionForPlan(plan), approved };
+    return { offer_id: String(plan.offer.id), action: actionForPlan(plan), approved, hard_price_anomaly: approved.hardPriceAnomaly, price_change: approved.priceChange };
   });
   const executableRows = globalBlocked.length ? [] : preparedRows.filter((row) => row.action === "VERIFY_NO_CHANGE");
-  const commercialReview = preparedRows.filter((row) => row.action !== "VERIFY_NO_CHANGE").map((row) => ({ offer_id: row.offer_id, action: row.action, review_type: "COMMERCIAL_CHANGE" }));
+  const commercialReview = preparedRows.filter((row) => row.action !== "VERIFY_NO_CHANGE").map((row) => ({
+    offer_id: row.offer_id,
+    action: row.action,
+    review_type: "COMMERCIAL_CHANGE",
+    ...(row.hard_price_anomaly && row.action === "UPDATE_PRICE" ? { reason: "HARD_PRICE_ANOMALY", price_change: row.price_change } : {}),
+  }));
   const reviewRows = [...sourceFailureReview, ...identityReview, ...importerIdentityReview, ...commercialReview].sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
   const classification = preparedRows.reduce((counts, row) => ({ ...counts, [row.action]: (counts[row.action] || 0) + 1 }), {});
   const semanticSourceRows = buildSemanticSourceRows(SCOPES, evaluations);

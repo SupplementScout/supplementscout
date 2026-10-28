@@ -75,6 +75,36 @@ function assertDatabaseBeforeState(databaseOffer, expectedOffer) {
   for (const field of ["in_stock", "url"]) invariant(canonicalJson(databaseOffer[field]) === canonicalJson(expectedOffer[field]), `DATABASE_BEFORE_STATE_DRIFT_${field.toUpperCase()}`);
   invariant(canonicalTimestamp(databaseOffer.last_checked_at, "database.last_checked_at") === canonicalTimestamp(expectedOffer.last_checked_at, "plan.last_checked_at"), "DATABASE_BEFORE_STATE_DRIFT_LAST_CHECKED_AT");
 }
+function assertHardPriceReviewExecution(review, plan) {
+  if (review.reason_codes !== "HARD_PRICE_ANOMALY") return;
+  const before = plan.expected_state?.offer, mapping = plan.expected_state?.retailer_product, after = plan.offer?.values;
+  const reviewedBefore = review.before_state || {}, reviewedAfter = review.proposed_state?.offer;
+  invariant(review.operation_type === "UPDATE_PRICE" && plan.offer?.action === "update" && plan.price_history?.action === "create", "HARD_PRICE_REVIEW_OPERATION_INVALID");
+  invariant(/^[0-9a-f]{64}$/.test(review.source_row_fingerprint || "") && /^[0-9a-f]{64}$/.test(review.plan_fingerprint || ""), "HARD_PRICE_REVIEW_FINGERPRINT_INVALID");
+  invariant(before && mapping && after && reviewedAfter, "HARD_PRICE_REVIEW_STATE_MISSING");
+  const exactIdentity = [
+    [review.offer_id, plan.offer.id],
+    [review.retailer_product_id, before.retailer_product_id],
+    [reviewedBefore.offer_id, before.id],
+    [reviewedBefore.retailer_product_id, mapping.id],
+    [reviewedBefore.product_id, before.product_id],
+    [reviewedBefore.product_variant_id, before.product_variant_id],
+    [reviewedBefore.external_product_id, mapping.external_product_id],
+    [reviewedBefore.external_variant_id, mapping.external_variant_id],
+    [reviewedBefore.external_url, mapping.external_url],
+  ].every(([left, right]) => String(left) === String(right));
+  invariant(exactIdentity, "HARD_PRICE_REVIEW_IDENTITY_DRIFT");
+  for (const field of ["price", "shipping_cost", "total_price"]) invariant(normalizeDecimalString(reviewedBefore[field], `review.before.${field}`) === normalizeDecimalString(before[field], `plan.before.${field}`), "HARD_PRICE_REVIEW_BEFORE_STATE_DRIFT");
+  invariant(reviewedBefore.in_stock === before.in_stock && reviewedBefore.url === before.url, "HARD_PRICE_REVIEW_BEFORE_STATE_DRIFT");
+  for (const field of ["price", "shipping_cost", "total_price"]) invariant(normalizeDecimalString(reviewedAfter[field], `review.proposed.${field}`) === normalizeDecimalString(after[field], `plan.proposed.${field}`), "HARD_PRICE_REVIEW_PROPOSED_STATE_DRIFT");
+  invariant(reviewedAfter.in_stock === after.in_stock && reviewedAfter.url === after.url, "HARD_PRICE_REVIEW_PROPOSED_STATE_DRIFT");
+  invariant(normalizeDecimalString(before.shipping_cost, "before.shipping_cost") === normalizeDecimalString(after.shipping_cost, "after.shipping_cost") && before.in_stock === after.in_stock && before.url === after.url, "HARD_PRICE_REVIEW_EXTRA_COMMERCIAL_CHANGE");
+  const oldPrice = Number(before.price), newPrice = Number(after.price), shipping = Number(after.shipping_cost), total = Number(after.total_price);
+  const absolute = Math.abs(newPrice - oldPrice), ratio = absolute / oldPrice;
+  invariant(Number.isFinite(oldPrice) && oldPrice > 0 && Number.isFinite(newPrice) && newPrice > 0 && Number.isFinite(shipping) && shipping >= 0 && Number.isFinite(total) && Math.abs(newPrice + shipping - total) <= 0.011, "HARD_PRICE_REVIEW_PRICE_INVALID");
+  invariant(ratio >= 0.60 || absolute >= 20, "HARD_PRICE_REVIEW_THRESHOLD_MISMATCH");
+  invariant(String(review.source_price) === newPrice.toFixed(2), "APPROVED_PRICE_DRIFT");
+}
 function assertCommercialEvidence(review, plan, evaluation) {
   const evidence = review.source_evidence || {};
   for (const field of ["workflow_run_id", "artifact_id", "artifact_digest", "contract_sha256", "report_sha256", "artifact_content_sha256", "source_fingerprint", "review_scope_fingerprint"]) invariant(evidence[field], "COMMERCIAL_SOURCE_EVIDENCE_MISSING");
@@ -82,6 +112,7 @@ function assertCommercialEvidence(review, plan, evaluation) {
   invariant(String(review.source_price) === Number(plan.offer.values.price).toFixed(2), "APPROVED_PRICE_DRIFT");
   const semantic = buildSemanticSourceRows([SCOPES.find((scope) => scope.offer_id === String(review.offer_id))], [evaluation])[0];
   invariant(canonicalHash(semantic) === review.source_row_fingerprint, "SOURCE_FINGERPRINT_DRIFT");
+  assertHardPriceReviewExecution(review, plan);
 }
 async function executeWithSeparatedCredentials(executor, approved, kind, env = process.env) {
   const controlCredential = env.SUPABASE_SERVICE_ROLE_KEY;
@@ -148,4 +179,4 @@ async function run(options, dependencies = {}) {
 }
 
 if (require.main === module) run(parseArgs(process.argv.slice(2))).then((report) => console.log(JSON.stringify(report))).catch((error) => { console.error(error.message); process.exitCode = 1; });
-module.exports = { WORKER_KIND, assertCommercialEvidence, assertContext, assertDatabaseBeforeState, executeWithSeparatedCredentials, executionEvidence, expectedDeltas, hash, loadControlState, parseArgs, run, claimDispatched };
+module.exports = { WORKER_KIND, assertCommercialEvidence, assertContext, assertDatabaseBeforeState, assertHardPriceReviewExecution, executeWithSeparatedCredentials, executionEvidence, expectedDeltas, hash, loadControlState, parseArgs, run, claimDispatched };
