@@ -477,3 +477,55 @@ test("migration probes the canonical three-argument helper identity when its thi
   assert.match(migration, /to_regprocedure\('public\.retailer_catalogue_raise\(text,text,jsonb\)'\) is null/i);
   assert.doesNotMatch(migration, /to_regprocedure\('public\.retailer_catalogue_raise\(text,text\)'\)/i);
 });
+
+test("production-safe reissue preserves every reviewed function definition byte-for-byte", () => {
+  const original = fs.readFileSync(path.join(__dirname, "../supabase/migrations/20261028210000_add_reviewed_product_pack_correction.sql"), "utf8");
+  const reissue = fs.readFileSync(path.join(__dirname, "../supabase/migrations/20261029061000_reissue_reviewed_product_pack_correction_production_safe.sql"), "utf8");
+  const start = "create or replace function public.reviewed_product_pack_correction_validate_core(";
+  const end = "alter function public.reviewed_product_pack_correction_validate_core(jsonb,boolean) owner to postgres;";
+  const functionBlock = (sql) => sql.slice(sql.indexOf(start), sql.indexOf(end));
+  assert.ok(functionBlock(original).length > 1_000);
+  assert.equal(functionBlock(reissue), functionBlock(original));
+  assert.doesNotMatch(reissue, /\b(?:BSN|Syntha|PER4M)\b|product_id\s*=\s*(?:164|1013)/i);
+});
+
+test("production-safe reissue is exact-targeted and retains all business and approval guards", () => {
+  const migration = fs.readFileSync(path.join(__dirname, "../supabase/migrations/20261029061000_reissue_reviewed_product_pack_correction_production_safe.sql"), "utf8");
+  assert.match(migration, /v_target->>'target_environment'<>'PRODUCTION'/);
+  assert.match(migration, /v_target->>'project_ref'<>'aftboxmrdgyhizicfsfu'/);
+  assert.match(migration, /to_regprocedure\('public\.retailer_catalogue_raise\(text,text,jsonb\)'\) is null/i);
+  assert.match(migration, /p_package#>>'\{operation,expected_before\}'/);
+  assert.match(migration, /package_fingerprint.+is distinct from v_fingerprint/s);
+  assert.match(migration, /where id=v_before\.id and net_weight_g is not distinct from v_expected/i);
+  assert.match(migration, /get diagnostics v_updated=row_count/);
+  assert.match(migration, /if v_updated<>1/);
+  assert.match(migration, /v_after_count<>v_before_count/);
+  assert.match(migration, /status='approved' and consumed_at is null and expires_at>now\(\)/);
+  assert.match(migration, /set status='consumed',consumed_at=now\(\)/);
+  assert.doesNotMatch(migration, /update public\.(?:product_variants|offers|retailer_products|price_history)\s+set/i);
+});
+
+test("production-safe ACL tolerates absent staging roles but fails closed on missing production roles", () => {
+  const migration = fs.readFileSync(path.join(__dirname, "../supabase/migrations/20261029061000_reissue_reviewed_product_pack_correction_production_safe.sql"), "utf8");
+  assert.doesNotMatch(migration, /\b(?:from|to)\s+retailer_catalogue_staging_(?:validator|approver|executor)\b/i);
+  assert.match(migration, /if to_regrole\(v_role\) is not null then/);
+  assert.match(migration, /to_regrole\(v_validator\) is null[\s\S]+to_regrole\(v_approver\) is null[\s\S]+to_regrole\(v_executor\) is null/);
+  assert.match(migration, /raise exception 'reviewed product pack correction required PRODUCTION roles are missing'/);
+  assert.match(migration, /execute format\('revoke all on function %s from %I',v_signature,v_role\)/);
+  assert.match(migration, /grant execute on function public\.validate_reviewed_product_pack_correction_read_only\(jsonb\).+to %I/s);
+  assert.match(migration, /grant execute on function public\.approve_reviewed_product_pack_correction\(jsonb,text,timestamptz\) to %I/s);
+  assert.match(migration, /grant execute on function public\.apply_approved_reviewed_product_pack_correction\(uuid,jsonb,text\) to %I/s);
+  assert.match(migration, /p\.proowner<>'postgres'::regrole[\s\S]+p\.provolatile<>expected\.volatility[\s\S]+not p\.prosecdef[\s\S]+search_path=pg_catalog, public, pg_temp/);
+});
+
+test("production-safe rollback is exact-targeted, environment-safe and business-data-free", () => {
+  const rollback = fs.readFileSync(path.join(__dirname, "../supabase/rollbacks/20261029061000_reissue_reviewed_product_pack_correction_production_safe_rollback.sql"), "utf8");
+  assert.match(rollback, /v_target->>'target_environment'<>'PRODUCTION'/);
+  assert.match(rollback, /v_target->>'project_ref'<>'aftboxmrdgyhizicfsfu'/);
+  assert.doesNotMatch(rollback, /\b(?:from|to)\s+retailer_catalogue_staging_(?:validator|approver|executor)\b/i);
+  assert.match(rollback, /if to_regrole\(v_role\) is not null then/);
+  assert.equal((rollback.match(/drop function if exists public\./g) || []).length, 6);
+  assert.doesNotMatch(rollback, /\b(?:insert|update|delete|truncate)\b/i);
+  assert.match(rollback, /'approved_import_plans',\(select count\(\*\) from public\.approved_import_plans\)/);
+  assert.match(rollback, /if v_after is distinct from v_before/);
+});
