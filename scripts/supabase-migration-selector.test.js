@@ -82,10 +82,7 @@ const PRODUCT_PACK_CORRECTION_SHA256 = "37322f9172aeb841a8d4ce2e2594cb057929346e
 const PRODUCT_PACK_CORRECTION_REISSUE_MIGRATION = "20261029061000_reissue_reviewed_product_pack_correction_production_safe.sql";
 const PRODUCT_PACK_CORRECTION_REISSUE_SHA256 = "76572576ff7fa19efa2ab29feec47bca9586b8374573d4bc54def2f2dd900aa9";
 const PRODUCT_PACK_CORRECTION_STAGING_PENDING = Object.freeze([]);
-const PRODUCT_PACK_CORRECTION_PRODUCTION_PENDING = Object.freeze([{
-  filename: PRODUCT_PACK_CORRECTION_REISSUE_MIGRATION,
-  sha256: PRODUCT_PACK_CORRECTION_REISSUE_SHA256,
-}]);
+const PRODUCT_PACK_CORRECTION_PRODUCTION_PENDING = Object.freeze([]);
 const RA004_CONTROL_STATE_MIGRATION = "20260924100000_add_transactional_retailer_control_state_interface.sql";
 const RA004_PREFLIGHT_MIGRATION = "20260925100000_add_ra004_staging_preflight_metadata_interface.sql";
 const RA004_FORWARD_CONTROL_STATE_MIGRATION = "20260927100000_reissue_transactional_retailer_control_state_interface.sql";
@@ -562,10 +559,10 @@ test("production preserves deployed V3 and Ghost Lifestyle metadata correction b
     "20261008200000_consolidate_shared_executor_state_reads.sql",
     "20261009120000_add_compact_other_retailer_fingerprint.sql",
   ]);
-  assert.equal(contract.ledgerCount, 255);
+  assert.equal(contract.ledgerCount, 256);
   assert.equal(
     contract.ledgerFingerprint,
-    "2c4ccb59502109b85d05f94a0577060d6309c6de20623036570ddeb9b887c764",
+    "31d463799e346b39f003e4b8259e3a86a0bc3392157788d17e559b6486391c37",
   );
   assert.equal(sha256File(path.join(SOURCE, GHOST_LIFESTYLE_METADATA_MIGRATION)), GHOST_LIFESTYLE_METADATA_SHA256);
   assert.equal(contract.excluded[REVIEWED_STATE_MIGRATION], REVIEWED_STATE_SHA256);
@@ -859,7 +856,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACT.ledgerFingerprint);
 });
 
-test("production records the Gladiator parent approval extension at ledger 255", () => {
+test("production records the product pack correction reissue at ledger 256", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   for (const filename of contract.appliedExcluded) excluded.delete(filename);
@@ -886,13 +883,14 @@ test("production records the Gladiator parent approval extension at ledger 255",
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 255);
+  assert.equal(result.ledger_count, 256);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 256);
-  assert.deepEqual(result.pending_files, [PRODUCT_PACK_CORRECTION_REISSUE_MIGRATION]);
-  assert.deepEqual(result.pending_sha256s, { [PRODUCT_PACK_CORRECTION_REISSUE_MIGRATION]: PRODUCT_PACK_CORRECTION_REISSUE_SHA256 });
-  assert.equal(result.pending_file, PRODUCT_PACK_CORRECTION_REISSUE_MIGRATION);
-  assert.equal(result.pending_sha256, PRODUCT_PACK_CORRECTION_REISSUE_SHA256);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.ok(result.selected_files.includes(PRODUCT_PACK_CORRECTION_REISSUE_MIGRATION));
   assert.ok(result.excluded_files.includes(PRODUCT_PACK_CORRECTION_MIGRATION));
   assert.ok(!result.selected_files.includes(PRODUCT_PACK_CORRECTION_MIGRATION));
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
@@ -1009,7 +1007,7 @@ test("runtime production artifacts bind the same migration ledger as the product
   assert.equal(binding.fingerprint, CONTRACTS.PRODUCTION.ledgerFingerprint);
   assert.deepEqual(CONTRACTS.PRODUCTION.pending, PRODUCT_PACK_CORRECTION_PRODUCTION_PENDING);
   assert.ok(!binding.versions.includes(PRODUCT_PACK_CORRECTION_MIGRATION.slice(0, -4)));
-  assert.ok(!binding.versions.includes(PRODUCT_PACK_CORRECTION_REISSUE_MIGRATION.slice(0, -4)));
+  assert.ok(binding.versions.includes(PRODUCT_PACK_CORRECTION_REISSUE_MIGRATION.slice(0, -4)));
   assert.equal(CONTRACTS.PRODUCTION.excluded[PRODUCT_PACK_CORRECTION_MIGRATION], PRODUCT_PACK_CORRECTION_SHA256);
   assert.ok(binding.versions.includes(GLADIATOR_PARENT_APPROVAL_MIGRATION.slice(0, -4)));
   assert.ok(binding.versions.includes(REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION.slice(0, -4)));
@@ -1728,10 +1726,11 @@ test("Gladiator registration and production parent approval extension are both a
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.pending_file, PRODUCT_PACK_CORRECTION_REISSUE_MIGRATION);
-  assert.equal(result.pending_sha256, PRODUCT_PACK_CORRECTION_REISSUE_SHA256);
-  assert.deepEqual(result.pending_files, [PRODUCT_PACK_CORRECTION_REISSUE_MIGRATION]);
-  assert.deepEqual(result.pending_sha256s, { [PRODUCT_PACK_CORRECTION_REISSUE_MIGRATION]: PRODUCT_PACK_CORRECTION_REISSUE_SHA256 });
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
+  assert.ok(result.selected_files.includes(PRODUCT_PACK_CORRECTION_REISSUE_MIGRATION));
   assert.ok(result.excluded_files.includes(PRODUCT_PACK_CORRECTION_MIGRATION));
   assert.ok(!result.selected_files.includes(PRODUCT_PACK_CORRECTION_MIGRATION));
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
@@ -1747,9 +1746,9 @@ test("Gladiator registration and production parent approval extension are both a
   assert.ok(result.selected_files.includes(REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_1_CONSOLIDATION_MIGRATION));
   assert.deepEqual(CONTRACTS.PRODUCTION.pending, PRODUCT_PACK_CORRECTION_PRODUCTION_PENDING);
-  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 255);
+  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 256);
   assert.equal(CONTRACTS.PRODUCTION.ledgerFingerprint,
-    "2c4ccb59502109b85d05f94a0577060d6309c6de20623036570ddeb9b887c764");
+    "31d463799e346b39f003e4b8259e3a86a0bc3392157788d17e559b6486391c37");
   const productionPrerequisiteIdentifiers = [
     ...migrationBinding("PRODUCTION").versions.filter(identifier =>
       identifier !== REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION.slice(0, -4)
@@ -1761,10 +1760,10 @@ test("Gladiator registration and production parent approval extension are both a
     const split = identifier.indexOf("_");
     return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
   });
-  assert.equal(productionPrerequisiteRows.length, 251);
+  assert.equal(productionPrerequisiteRows.length, 252);
   assert.equal(
     ledgerRowsFingerprint(productionPrerequisiteRows, { targetEnvironment: "PRODUCTION" }),
-    "477f8d50f3232bf19cbfaf25a1461400a8dc24c327f7d1c9f4dda15e19cde3b1",
+    "ade0074165801f02f977367756eacbf2d91236312c5f4cd85a86c3fd16a0bafb",
   );
   const productionPostIdentifiers = migrationBinding("PRODUCTION").versions.filter(identifier =>
     identifier !== REVIEWED_V3_1_CONSOLIDATION_MIGRATION.slice(0, -4)
@@ -1774,10 +1773,10 @@ test("Gladiator registration and production parent approval extension are both a
     const split = identifier.indexOf("_");
     return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
   });
-  assert.equal(productionPostRows.length, 252);
+  assert.equal(productionPostRows.length, 253);
   assert.equal(
     ledgerRowsFingerprint(productionPostRows, { targetEnvironment: "PRODUCTION" }),
-    "7f082a9b1388523275dcd6e03850caeacb69b504a19909d16f2f7372d91d4281",
+    "124070f2597d5e9f322db228f519cb39f431e9ffba7320ec15b8d4a87a818de1",
   );
   const stagingPostRows = currentRemoteLedger();
   assert.equal(stagingPostRows.length, 120);
@@ -1789,10 +1788,10 @@ test("Gladiator registration and production parent approval extension are both a
     const split = identifier.indexOf("_");
     return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
   });
-  assert.equal(productionCurrentRows.length, 255);
+  assert.equal(productionCurrentRows.length, 256);
   assert.equal(
     ledgerRowsFingerprint(productionCurrentRows, { targetEnvironment: "PRODUCTION" }),
-    "2c4ccb59502109b85d05f94a0577060d6309c6de20623036570ddeb9b887c764",
+    "31d463799e346b39f003e4b8259e3a86a0bc3392157788d17e559b6486391c37",
   );
 });
 
@@ -1801,9 +1800,9 @@ test("Gladiator registration and parent approval migration are applied exactly o
   assert.deepEqual(CONTRACTS.STAGING.pending, PRODUCT_PACK_CORRECTION_STAGING_PENDING);
   assert.deepEqual(CONTRACTS.PRODUCTION.pending, PRODUCT_PACK_CORRECTION_PRODUCTION_PENDING);
   assert.equal(migrationBinding("STAGING").versions.length, 120);
-  assert.equal(migrationBinding("PRODUCTION").versions.length, 255);
+  assert.equal(migrationBinding("PRODUCTION").versions.length, 256);
   assert.equal(migrationBinding("STAGING").fingerprint, "31dc3e6e90dab56dd00843bef441cfba400e1d9480d2940f41b46cfff6e32277");
-  assert.equal(migrationBinding("PRODUCTION").fingerprint, "2c4ccb59502109b85d05f94a0577060d6309c6de20623036570ddeb9b887c764");
+  assert.equal(migrationBinding("PRODUCTION").fingerprint, "31d463799e346b39f003e4b8259e3a86a0bc3392157788d17e559b6486391c37");
   assert.equal(sha256File(path.join(SOURCE, GLADIATOR_PARENT_APPROVAL_MIGRATION)), GLADIATOR_PARENT_APPROVAL_SHA256);
   assert.ok(migrationBinding("PRODUCTION").versions.includes(GLADIATOR_PARENT_APPROVAL_MIGRATION.slice(0, -4)));
 });
