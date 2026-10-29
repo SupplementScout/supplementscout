@@ -471,3 +471,9 @@ test("SQL boundary is generic, role-separated and updates only one products.net_
   assert.match(migration, /grant execute on function public\.approve_reviewed_product_pack_correction\(jsonb,text,timestamptz\).+retailer_catalogue_production_approver/s);
   assert.match(migration, /grant execute on function public\.apply_approved_reviewed_product_pack_correction\(uuid,jsonb,text\).+retailer_catalogue_production_executor/s);
 });
+
+test("migration probes the canonical three-argument helper identity when its third argument has a default", () => {
+  const migration = fs.readFileSync(path.join(__dirname, "../supabase/migrations/20261028210000_add_reviewed_product_pack_correction.sql"), "utf8");
+  assert.match(migration, /to_regprocedure\('public\.retailer_catalogue_raise\(text,text,jsonb\)'\) is null/i);
+  assert.doesNotMatch(migration, /to_regprocedure\('public\.retailer_catalogue_raise\(text,text\)'\)/i);
+});

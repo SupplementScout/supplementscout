@@ -229,13 +229,13 @@ const PENDING_MIGRATIONS = Object.freeze({
   STAGING: Object.freeze([
     Object.freeze({
       filename: "20261028210000_add_reviewed_product_pack_correction.sql",
-      sha256: "30d1b30d268b6b78a219abe2bc51d757cee2de9455380335c3a98e74e7cdfb15",
+      sha256: "37322f9172aeb841a8d4ce2e2594cb057929346e9e0041838d6c14f3c950df7e",
     }),
   ]),
   PRODUCTION: Object.freeze([
     Object.freeze({
       filename: "20261028210000_add_reviewed_product_pack_correction.sql",
-      sha256: "30d1b30d268b6b78a219abe2bc51d757cee2de9455380335c3a98e74e7cdfb15",
+      sha256: "37322f9172aeb841a8d4ce2e2594cb057929346e9e0041838d6c14f3c950df7e",
     }),
   ]),
 });

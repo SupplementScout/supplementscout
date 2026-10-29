@@ -18,7 +18,7 @@ begin
   end if;
   if to_regprocedure('public.atomic_import_has_exact_keys(jsonb,text[])') is null
      or to_regprocedure('public.atomic_import_canonical_json(jsonb)') is null
-     or to_regprocedure('public.retailer_catalogue_raise(text,text)') is null
+     or to_regprocedure('public.retailer_catalogue_raise(text,text,jsonb)') is null
      or to_regclass('public.approved_import_plans') is null then
     raise exception 'reviewed product pack correction dependencies are missing';
   end if;
