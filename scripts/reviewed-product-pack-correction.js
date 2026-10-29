@@ -2,6 +2,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { Client } = require("pg");
 const {
+  buildOwnerApprovedPackage,
   buildPreparedPackage,
   loadPackage,
   sha256,
@@ -20,7 +21,7 @@ const VALIDATE_SQL = "select public.validate_reviewed_product_pack_correction_re
 const APPROVE_SQL = "select public.approve_reviewed_product_pack_correction($1::jsonb,$2,now()+interval '15 minutes') result";
 const APPLY_SQL = "select public.apply_approved_reviewed_product_pack_correction($1::uuid,$2::jsonb,$3) result";
 const READBACK_SQL = "select public.read_reviewed_product_pack_correction_state($1::jsonb) result";
-const MODES = new Set(["prepare", "preflight", "apply"]);
+const MODES = new Set(["prepare", "owner-approve", "preflight", "apply"]);
 
 function invariant(condition, message) {
   if (!condition) throw new Error(message);
@@ -32,6 +33,7 @@ function parseArgs(argv) {
     "mode", "target", "source-artifact", "source-artifact-sha256",
     "source-artifact-fingerprint", "evidence-sha256", "package",
     "package-sha256", "output", "confirm-reviewed-product-pack-correction",
+    "authorized-by", "confirm-owner-approval",
   ]);
   for (const arg of argv) {
     const match = arg.match(/^--([a-z0-9-]+)=(.+)$/);
@@ -39,13 +41,18 @@ function parseArgs(argv) {
     invariant(values[match[1]] === undefined, "Duplicate product pack correction argument");
     values[match[1]] = match[2];
   }
-  invariant(MODES.has(values.mode), "Product pack correction mode must be prepare, preflight or apply");
+  invariant(MODES.has(values.mode), "Product pack correction mode must be prepare, owner-approve, preflight or apply");
   invariant(TARGETS[values.target], "Product pack correction target must be staging or production");
   invariant(typeof values.output === "string", "Product pack correction output is required");
   if (values.mode === "prepare") {
     const required = ["source-artifact", "source-artifact-sha256", "source-artifact-fingerprint", "evidence-sha256"];
     invariant(required.every(key => values[key]), "Prepare requires exact source artifact and evidence bindings");
     invariant(Object.keys(values).length === 7, "Unexpected prepare argument");
+  } else if (values.mode === "owner-approve") {
+    invariant(values.package && values["package-sha256"], "Owner approval requires exact PREPARED package path and SHA-256");
+    invariant(values["authorized-by"], "Owner approval requires an explicit authorizer identity");
+    invariant(values["confirm-owner-approval"] === "true", "Owner approval requires explicit confirmation");
+    invariant(Object.keys(values).length === 7, "Unexpected owner-approve argument");
   } else {
     invariant(values.package && values["package-sha256"], "Preflight/apply requires exact package path and SHA-256");
     const expectedCount = values.mode === "apply" ? 6 : 5;
@@ -63,6 +70,8 @@ function parseArgs(argv) {
     packagePath: values.package?.replaceAll("\\", "/"),
     packageSha256: values["package-sha256"]?.toLowerCase(),
     confirmed: values["confirm-reviewed-product-pack-correction"] === "true",
+    authorizedBy: values["authorized-by"],
+    ownerApprovalConfirmed: values["confirm-owner-approval"] === "true",
   };
 }
 
@@ -138,6 +147,27 @@ async function run(options, dependencies = {}) {
     packageSha256: options.packageSha256,
     target: options.target,
   });
+  if (options.mode === "owner-approve") {
+    invariant(options.ownerApprovalConfirmed === true, "Product pack correction owner approval confirmation missing");
+    invariant(loaded.value.status === "PREPARED", "Owner approval requires a PREPARED product pack correction package");
+    invariant(path.resolve(loaded.absolutePackage) !== temporaryPath(options.outputPath, "Product pack correction output"), "Owner approval cannot overwrite the PREPARED package");
+    const now = dependencies.now || (() => new Date().toISOString());
+    const value = buildOwnerApprovedPackage(loaded.value, {
+      authorizedBy: options.authorizedBy,
+      authorizedAt: now(),
+    });
+    const written = writeNewJsonImpl(options.outputPath, value);
+    return {
+      result: "PASS",
+      mode: "owner-approve",
+      output_path: options.outputPath,
+      source_package_sha256: loaded.packageSha256,
+      source_package_fingerprint: loaded.value.package_fingerprint,
+      package_fingerprint: value.package_fingerprint,
+      package_sha256: written.sha256,
+      database_writes: 0,
+    };
+  }
   const connectImpl = dependencies.connect || connect;
   const transaction = dependencies.roleTransaction || roleTransaction;
   const clients = {};
