@@ -22,7 +22,10 @@ function loadModule(relativePath) {
   return mod.exports;
 }
 
-const { getEffectiveNutritionMetrics } = loadModule(
+const {
+  getEffectiveNutritionMetrics,
+  hasVariantAlignedReviewedNutrition,
+} = loadModule(
   "app/lib/nutritionMetrics.ts"
 );
 const {
@@ -45,6 +48,40 @@ function product(overrides = {}) {
     nutrition_verified: true,
     ...overrides,
   };
+}
+
+function reviewedAlignedOverride(overrides = {}) {
+  return {
+    serving_count_verified: 51,
+    serving_size_g: 35,
+    protein_per_serving_g: 26,
+    nutrition_verified: true,
+    ...overrides,
+  };
+}
+
+function materiallyDifferentVariant(override = reviewedAlignedOverride()) {
+  return {
+    size_value: 1800,
+    size_unit: "g",
+    product_format: "powder",
+    nutrition_override: override,
+  };
+}
+
+function assertMaterialMismatchFailsClosed(override) {
+  const result = getEffectiveNutritionMetrics(
+    product({ net_weight_g: 2270 }),
+    materiallyDifferentVariant(override)
+  );
+
+  assert.equal(result.net_weight_g, 1800);
+  assert.equal(result.serving_count_verified, null);
+  assert.equal(result.serving_size_g, null);
+  assert.equal(result.protein_per_serving_g, null);
+  assert.equal(result.creatine_per_serving_g, null);
+  assert.equal(result.nutrition_verified, false);
+  return result;
 }
 
 test("empty variant override preserves verified product metrics", () => {
@@ -188,37 +225,177 @@ test("verified variant nutrition overrides product-level values", () => {
   assert.equal(result.nutrition_verified, true);
 });
 
-test("incomplete approved override cannot reopen mismatched pack metrics", () => {
-  const result = getEffectiveNutritionMetrics(product(), {
+test("variant-aligned reviewed count and serving facts reopen only exact variant metrics", () => {
+  const variant = {
     size_value: 1800,
     size_unit: "g",
     product_format: "powder",
     nutrition_override: {
-      net_weight_g: 1800,
-      serving_count_verified: 72,
-      serving_size_g: 25,
-      protein_per_serving_g: 22,
-      unit_pricing_verified: true,
+      serving_count_verified: 60,
+      serving_size_g: 30,
+      protein_per_serving_g: 24,
       nutrition_verified: true,
     },
-  });
+  };
+  const result = getEffectiveNutritionMetrics(
+    product({ net_weight_g: 2270 }),
+    variant
+  );
 
+  assert.equal(hasVariantAlignedReviewedNutrition(variant, variant.nutrition_override), true);
   assert.equal(result.net_weight_g, 1800);
-  assert.equal(result.serving_count_verified, null);
-  assert.equal(result.protein_per_serving_g, null);
-  assert.equal(result.nutrition_verified, false);
+  assert.equal(result.serving_count_verified, 60);
+  assert.equal(result.serving_size_g, 30);
+  assert.equal(result.protein_per_serving_g, 24);
+  assert.equal(result.nutrition_verified, true);
+  assert.equal(result.unit_pricing_verified, false);
+});
+
+test("derived nutrition pack within existing structural tolerance is runtime ready", () => {
+  const variant = materiallyDifferentVariant();
+  const result = getEffectiveNutritionMetrics(
+    product({ net_weight_g: 2270 }),
+    variant
+  );
+  const deliveredPrice = { productPrice: 36, shippingCost: 0, totalPrice: 36 };
+
+  assert.equal(51 * 35, 1785);
+  assert.equal(1800 - 51 * 35, 15);
+  assert.equal(Math.max(1, 1800 * 0.01), 18);
+  assert.equal(hasVariantAlignedReviewedNutrition(variant, variant.nutrition_override), true);
+  assert.equal(result.net_weight_g, 1800);
+  assert.equal(result.serving_count_verified, 51);
+  assert.equal(result.serving_size_g, 35);
+  assert.equal(result.protein_per_serving_g, 26);
+  assert.equal(result.nutrition_verified, true);
+  assert.equal(result.unit_pricing_verified, false);
+  assert.equal(getVerifiedPricePerServing(deliveredPrice, result.serving_count_verified), 36 / 51);
+  assert.equal(
+    getVerifiedCostPer25gProtein(
+      deliveredPrice,
+      result.serving_count_verified,
+      result.protein_per_serving_g,
+      result.unit_pricing_verified,
+      result.nutrition_verified,
+      result.net_weight_g,
+      result.serving_size_g,
+      result.product_format
+    ),
+    (36 / (51 * 26)) * 25
+  );
+});
+
+test("variant-aligned path always uses the exact structural pack identity", () => {
+  const variant = materiallyDifferentVariant(reviewedAlignedOverride({
+    net_weight_g: 2270,
+  }));
+  const result = getEffectiveNutritionMetrics(
+    product({ net_weight_g: 2270 }),
+    variant
+  );
+
+  assert.equal(hasVariantAlignedReviewedNutrition(variant, variant.nutrition_override), true);
+  assert.equal(result.net_weight_g, 1800);
+  assert.equal(result.serving_count_verified, 51);
+  assert.equal(result.protein_per_serving_g, 26);
+});
+
+test("material mismatch without a variant override remains fail closed", () => {
+  assertMaterialMismatchFailsClosed({});
+});
+
+test("variant-aligned contract requires a serving count", () => {
+  const override = reviewedAlignedOverride();
+  delete override.serving_count_verified;
+  assert.equal(hasVariantAlignedReviewedNutrition(materiallyDifferentVariant(override), override), false);
+  assertMaterialMismatchFailsClosed(override);
+});
+
+test("variant-aligned contract requires a serving size", () => {
+  const override = reviewedAlignedOverride();
+  delete override.serving_size_g;
+  assert.equal(hasVariantAlignedReviewedNutrition(materiallyDifferentVariant(override), override), false);
+  assertMaterialMismatchFailsClosed(override);
+});
+
+test("variant-aligned contract requires explicit nutrition verification", () => {
+  for (const nutritionVerified of [false, null, undefined]) {
+    const override = reviewedAlignedOverride({ nutrition_verified: nutritionVerified });
+    assert.equal(hasVariantAlignedReviewedNutrition(materiallyDifferentVariant(override), override), false);
+    assertMaterialMismatchFailsClosed(override);
+  }
+});
+
+test("variant-aligned contract requires an exact reviewed nutrient", () => {
+  const override = reviewedAlignedOverride();
+  delete override.protein_per_serving_g;
+  assert.equal(hasVariantAlignedReviewedNutrition(materiallyDifferentVariant(override), override), false);
+  assertMaterialMismatchFailsClosed(override);
+});
+
+test("variant-aligned contract rejects an implied pack outside structural tolerance", () => {
+  const override = reviewedAlignedOverride({ serving_size_g: 40 });
+  assert.equal(51 * 40, 2040);
+  assert.equal(hasVariantAlignedReviewedNutrition(materiallyDifferentVariant(override), override), false);
+  assertMaterialMismatchFailsClosed(override);
+});
+
+test("variant-aligned contract rejects protein exceeding the serving size", () => {
+  const override = reviewedAlignedOverride({ protein_per_serving_g: 36 });
+  assert.equal(hasVariantAlignedReviewedNutrition(materiallyDifferentVariant(override), override), false);
+  assertMaterialMismatchFailsClosed(override);
+});
+
+test("variant-aligned contract rejects creatine exceeding the serving size", () => {
+  const override = reviewedAlignedOverride({
+    protein_per_serving_g: 26,
+    creatine_per_serving_g: 36,
+  });
+  assert.equal(hasVariantAlignedReviewedNutrition(materiallyDifferentVariant(override), override), false);
+  assertMaterialMismatchFailsClosed(override);
+});
+
+test("variant-aligned contract requires an exact structural gram pack", () => {
+  const override = reviewedAlignedOverride();
+  assert.equal(hasVariantAlignedReviewedNutrition({ nutrition_override: override }, override), false);
+  assert.equal(hasVariantAlignedReviewedNutrition({
+    size_value: 1800,
+    size_unit: "ml",
+    nutrition_override: override,
+  }, override), false);
+});
+
+test("material mismatch does not leak absent parent nutrition into the variant", () => {
+  const proteinOnly = materiallyDifferentVariant(reviewedAlignedOverride());
+  const proteinResult = getEffectiveNutritionMetrics(
+    product({ net_weight_g: 2270, creatine_per_serving_g: 5 }),
+    proteinOnly
+  );
+  assert.equal(proteinResult.protein_per_serving_g, 26);
+  assert.equal(proteinResult.creatine_per_serving_g, null);
+
+  const creatineOnlyOverride = reviewedAlignedOverride({
+    creatine_per_serving_g: 5,
+  });
+  delete creatineOnlyOverride.protein_per_serving_g;
+  const creatineOnly = materiallyDifferentVariant(creatineOnlyOverride);
+  const creatineResult = getEffectiveNutritionMetrics(
+    product({ net_weight_g: 2270, protein_per_serving_g: 24 }),
+    creatineOnly
+  );
+  assert.equal(hasVariantAlignedReviewedNutrition(creatineOnly, creatineOnlyOverride), true);
+  assert.equal(creatineResult.protein_per_serving_g, null);
+  assert.equal(creatineResult.creatine_per_serving_g, 5);
+  assert.equal(creatineResult.nutrition_verified, true);
 });
 
 test("numeric variant override fails closed without matching verification flags", () => {
-  const result = getEffectiveNutritionMetrics(product(), {
-    nutrition_override: {
-      serving_count_verified: 60,
-      protein_per_serving_g: 25,
-    },
+  const result = assertMaterialMismatchFailsClosed({
+    serving_count_verified: 60,
+    serving_size_g: 30,
+    protein_per_serving_g: 25,
   });
 
-  assert.equal(result.serving_count_verified, 60);
-  assert.equal(result.protein_per_serving_g, 25);
   assert.equal(result.unit_pricing_verified, false);
   assert.equal(result.nutrition_verified, false);
 });
@@ -233,6 +410,34 @@ test("explicit false variant verification cannot inherit product verification", 
 
   assert.equal(result.unit_pricing_verified, false);
   assert.equal(result.nutrition_verified, false);
+});
+
+test("generic same-pack reviewed nutrition remains runtime ready", () => {
+  const result = getEffectiveNutritionMetrics(
+    product({
+      net_weight_g: 1870,
+      serving_count_verified: 48,
+      serving_size_g: 39,
+      protein_per_serving_g: 24,
+    }),
+    {
+      size_value: 1870,
+      size_unit: "g",
+      product_format: "powder",
+      nutrition_override: {
+        serving_count_verified: 48,
+        serving_size_g: 39,
+        protein_per_serving_g: 24,
+        nutrition_verified: true,
+      },
+    }
+  );
+
+  assert.equal(result.net_weight_g, 1870);
+  assert.equal(result.serving_count_verified, 48);
+  assert.equal(result.serving_size_g, 39);
+  assert.equal(result.protein_per_serving_g, 24);
+  assert.equal(result.nutrition_verified, true);
 });
 
 function reviewedCandidate(overrides = {}) {
