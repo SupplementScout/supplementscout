@@ -229,12 +229,7 @@ const APPLIED_EXCLUSIONS = Object.freeze({
 
 const PENDING_MIGRATIONS = Object.freeze({
   STAGING: Object.freeze([]),
-  PRODUCTION: Object.freeze([
-    Object.freeze({
-      filename: "20261029061000_reissue_reviewed_product_pack_correction_production_safe.sql",
-      sha256: "76572576ff7fa19efa2ab29feec47bca9586b8374573d4bc54def2f2dd900aa9",
-    }),
-  ]),
+  PRODUCTION: Object.freeze([]),
 });
 
 function migrationIdentifier(filename) {
