@@ -5,6 +5,7 @@ const path = require("node:path");
 const test = require("node:test");
 const {
   CONTRACT_KIND,
+  buildOwnerApprovedPackage,
   buildPreparedPackage,
   loadPackage,
   packageFingerprint,
@@ -20,6 +21,7 @@ const {
   assertState,
   parseArgs,
   run,
+  writeNewJson,
 } = require("./reviewed-product-pack-correction");
 
 const PACKAGE_SHA = "a".repeat(64);
@@ -64,6 +66,15 @@ function packageFixture(overrides = {}) {
       row_count_delta_must_be_zero: true,
     },
     package_fingerprint: null,
+    ...overrides,
+  });
+}
+
+function preparedPackageFixture(overrides = {}) {
+  return packageFixture({
+    status: "PREPARED",
+    authorized_by: null,
+    authorized_at: null,
     ...overrides,
   });
 }
@@ -135,6 +146,168 @@ test("generic builder binds immutable preparation and source evidence without pr
   }).value.package_fingerprint, value.package_fingerprint);
 });
 
+test("owner approval creates a new sealed package and leaves PREPARED scope unchanged", async () => {
+  const prepared = preparedPackageFixture();
+  const original = structuredClone(prepared);
+  const approvedAt = "2026-10-29T12:34:56.789Z";
+  let output;
+  let databaseConnectionAttempted = false;
+  const result = await run({
+    mode: "owner-approve",
+    target: "production",
+    packagePath: "tmp/review/prepared-package.json",
+    packageSha256: PACKAGE_SHA,
+    outputPath: "tmp/review/owner-approved-package.json",
+    authorizedBy: "catalogue-owner",
+    ownerApprovalConfirmed: true,
+  }, {
+    loadPackage: () => ({
+      value: prepared,
+      packageSha256: PACKAGE_SHA,
+      absolutePackage: path.resolve(__dirname, "../tmp/review/prepared-package.json"),
+    }),
+    connect: async () => { databaseConnectionAttempted = true; throw new Error("must not connect"); },
+    now: () => approvedAt,
+    writeNewJson: (relativePath, value) => {
+      output = structuredClone(value);
+      const bytes = Buffer.from(`${JSON.stringify(value, null, 2)}\n`, "utf8");
+      return { sha256: sha256(bytes), bytes };
+    },
+  });
+  assert.deepEqual(prepared, original);
+  assert.equal(output.status, "OWNER_APPROVED");
+  assert.equal(output.authorized_by, "catalogue-owner");
+  assert.equal(output.authorized_at, approvedAt);
+  assert.deepEqual(output.operation, original.operation);
+  assert.deepEqual(output.evidence, original.evidence);
+  assert.deepEqual(output.policy, original.policy);
+  assert.equal(validatePackage(output, { target: "production" }), output);
+  assert.match(output.package_fingerprint, /^[0-9a-f]{64}$/);
+  assert.equal(output.package_fingerprint, packageFingerprint(output));
+  assert.match(result.package_sha256, /^[0-9a-f]{64}$/);
+  assert.notEqual(result.package_sha256, PACKAGE_SHA);
+  assert.equal(result.database_writes, 0);
+  assert.equal(databaseConnectionAttempted, false);
+});
+
+test("owner approval rejects an already OWNER_APPROVED package and invalid approval metadata", () => {
+  assert.throws(() => buildOwnerApprovedPackage(packageFixture(), {
+    authorizedBy: "catalogue-owner",
+    authorizedAt: "2026-10-29T12:34:56.789Z",
+  }), /requires a PREPARED/);
+  assert.throws(() => buildOwnerApprovedPackage(preparedPackageFixture(), {
+    authorizedBy: "Catalogue Owner",
+    authorizedAt: "2026-10-29T12:34:56.789Z",
+  }), /authorizer identity/);
+  assert.throws(() => buildOwnerApprovedPackage(preparedPackageFixture(), {
+    authorizedBy: "catalogue-owner",
+    authorizedAt: "2026-10-29",
+  }), /UTC ISO/);
+});
+
+test("exact PREPARED SHA, fingerprint and bound evidence drift fail closed", () => {
+  const fixture = preparedFixture();
+  const value = buildPreparedPackage({
+    root: fixture.root,
+    sourceArtifactPath: fixture.artifactPath,
+    sourceArtifactSha256: fixture.artifactSha256,
+    sourceArtifactFingerprint: fixture.artifact.artifact_fingerprint,
+    evidenceSha256: fixture.evidenceSha256,
+    target: "production",
+  });
+  const packagePath = "tmp/review/package.json";
+  const packageAbsolute = path.join(fixture.root, packagePath);
+  const bytes = Buffer.from(`${JSON.stringify(value, null, 2)}\n`, "utf8");
+  fs.writeFileSync(packageAbsolute, bytes);
+  assert.throws(() => loadPackage({
+    root: fixture.root,
+    packagePath,
+    packageSha256: "f".repeat(64),
+    target: "production",
+  }), /package SHA-256 mismatch/);
+
+  const tampered = structuredClone(value);
+  tampered.operation.reviewed_after = "1880";
+  const tamperedBytes = Buffer.from(`${JSON.stringify(tampered, null, 2)}\n`, "utf8");
+  fs.writeFileSync(packageAbsolute, tamperedBytes);
+  assert.throws(() => loadPackage({
+    root: fixture.root,
+    packagePath,
+    packageSha256: sha256(tamperedBytes),
+    target: "production",
+  }), /fingerprint mismatch/);
+
+  fs.writeFileSync(packageAbsolute, bytes);
+  fs.writeFileSync(path.join(fixture.root, "tmp/review/source.html"), "drifted evidence");
+  assert.throws(() => loadPackage({
+    root: fixture.root,
+    packagePath,
+    packageSha256: sha256(bytes),
+    target: "production",
+  }), /source_evidence SHA-256 mismatch/);
+
+  fs.writeFileSync(path.join(fixture.root, "tmp/review/source.html"), "generic exact pack evidence");
+  fs.writeFileSync(path.join(fixture.root, fixture.artifactPath), `${JSON.stringify({ ...fixture.artifact, drift: true }, null, 2)}\n`);
+  assert.throws(() => loadPackage({
+    root: fixture.root,
+    packagePath,
+    packageSha256: sha256(bytes),
+    target: "production",
+  }), /preparation_artifact SHA-256 mismatch/);
+});
+
+test("owner-approve CLI requires exact confirmation and blocks scope overrides", () => {
+  const base = [
+    "--mode=owner-approve",
+    "--target=production",
+    "--package=tmp/review/package.json",
+    `--package-sha256=${PACKAGE_SHA}`,
+    "--authorized-by=catalogue-owner",
+    "--output=tmp/review/approved.json",
+  ];
+  assert.throws(() => parseArgs(base), /explicit confirmation/);
+  assert.throws(() => parseArgs([...base, "--confirm-owner-approval=false"]), /explicit confirmation/);
+  assert.equal(parseArgs([...base, "--confirm-owner-approval=true"]).ownerApprovalConfirmed, true);
+  for (const override of [
+    "--product-id=992",
+    "--expected-before=1800",
+    "--reviewed-after=1900",
+    "--field=name",
+    "--target-project=other",
+    "--unsupported=value",
+  ]) assert.throws(() => parseArgs([...base, "--confirm-owner-approval=true", override]), /Unknown or incomplete/);
+});
+
+test("owner approval cannot overwrite its source or reuse an existing output", async () => {
+  const sourcePath = "tmp/review/prepared-package.json";
+  await assert.rejects(() => run({
+    mode: "owner-approve",
+    target: "production",
+    packagePath: sourcePath,
+    packageSha256: PACKAGE_SHA,
+    outputPath: sourcePath,
+    authorizedBy: "catalogue-owner",
+    ownerApprovalConfirmed: true,
+  }, {
+    loadPackage: () => ({
+      value: preparedPackageFixture(),
+      packageSha256: PACKAGE_SHA,
+      absolutePackage: path.resolve(__dirname, `../${sourcePath}`),
+    }),
+  }), /cannot overwrite/);
+
+  const testDirectory = `tmp/product-pack-owner-approval-test-${process.pid}-${Date.now()}`;
+  const outputPath = `${testDirectory}/existing.json`;
+  const absoluteDirectory = path.resolve(__dirname, `../${testDirectory}`);
+  fs.mkdirSync(absoluteDirectory, { recursive: true });
+  fs.writeFileSync(path.join(absoluteDirectory, "existing.json"), "existing");
+  try {
+    assert.throws(() => writeNewJson(outputPath, preparedPackageFixture()), /output already exists/);
+  } finally {
+    fs.rmSync(absoluteDirectory, { recursive: true, force: true });
+  }
+});
+
 test("closed package blocks unsupported, multiple and identity-changing fields", () => {
   const cases = [
     ["unsupported field", value => { value.operation.field = "name"; }, /field must be net_weight_g/],
@@ -197,6 +370,57 @@ test("apply requires the exact explicit confirmation", () => {
   assert.throws(() => parseArgs(base), /Unexpected apply argument|confirmation/);
   assert.throws(() => parseArgs([...base, "--confirm-reviewed-product-pack-correction=false"]), /explicit/);
   assert.equal(parseArgs([...base, "--confirm-reviewed-product-pack-correction=true"]).confirmed, true);
+});
+
+test("preflight remains read-only for a valid package", async () => {
+  const value = preparedPackageFixture();
+  const client = {
+    async query(sql) {
+      assert.equal(sql, VALIDATE_SQL);
+      return { rows: [{ result: { valid: true, table: "products", field: "net_weight_g", product_id: "991", current_value: "1820", products_count: 25 } }] };
+    },
+    async end() {},
+  };
+  const result = await run({
+    mode: "preflight",
+    target: "production",
+    packagePath: "tmp/review/package.json",
+    packageSha256: PACKAGE_SHA,
+    outputPath: "tmp/review/preflight.json",
+  }, {
+    loadPackage: () => ({ value, packageSha256: PACKAGE_SHA }),
+    connect: async () => client,
+    roleTransaction: async (connection, target, kind, callback) => callback(connection),
+    writeNewJson: () => ({ sha256: "b".repeat(64) }),
+  });
+  assert.equal(result.result, "PASS");
+  assert.equal(result.database_writes, 0);
+});
+
+test("apply refuses a PREPARED package even with separate apply confirmation", async () => {
+  const value = preparedPackageFixture();
+  let connectionCount = 0;
+  const client = {
+    async query(sql) {
+      assert.equal(sql, VALIDATE_SQL);
+      return { rows: [{ result: { valid: true, table: "products", field: "net_weight_g", product_id: "991", current_value: "1820", products_count: 25 } }] };
+    },
+    async end() {},
+  };
+  await assert.rejects(() => run({
+    mode: "apply",
+    target: "production",
+    packagePath: "tmp/review/package.json",
+    packageSha256: PACKAGE_SHA,
+    outputPath: "tmp/review/apply.json",
+    confirmed: true,
+  }, {
+    loadPackage: () => ({ value, packageSha256: PACKAGE_SHA }),
+    connect: async () => { connectionCount += 1; return client; },
+    roleTransaction: async (connection, target, kind, callback) => callback(connection),
+    writeNewJson: () => ({ sha256: "b".repeat(64) }),
+  }), /not owner approved/);
+  assert.equal(connectionCount, 1);
 });
 
 test("executor performs validator, one approval, one apply and exact post-write readback", async () => {

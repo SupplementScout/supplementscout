@@ -183,8 +183,29 @@ function buildPreparedPackage({ root, sourceArtifactPath, sourceArtifactSha256, 
   return value;
 }
 
+function buildOwnerApprovedPackage(prepared, { authorizedBy, authorizedAt }) {
+  validatePackage(prepared);
+  invariant(prepared.status === "PREPARED", "Owner approval requires a PREPARED product pack correction package");
+  invariant(
+    typeof authorizedBy === "string" && /^[a-z][a-z0-9._-]{2,63}$/.test(authorizedBy),
+    "Owner approval requires an explicit valid authorizer identity",
+  );
+  invariant(
+    typeof authorizedAt === "string" && !Number.isNaN(Date.parse(authorizedAt)) && new Date(authorizedAt).toISOString() === authorizedAt,
+    "Owner approval requires an exact UTC ISO authorization time",
+  );
+  const approved = structuredClone(prepared);
+  approved.status = "OWNER_APPROVED";
+  approved.authorized_by = authorizedBy;
+  approved.authorized_at = authorizedAt;
+  approved.package_fingerprint = packageFingerprint(approved);
+  validatePackage(approved);
+  return approved;
+}
+
 module.exports = {
   CONTRACT_KIND,
+  buildOwnerApprovedPackage,
   buildPreparedPackage,
   exactKeys,
   loadPackage,

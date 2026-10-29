@@ -123,14 +123,30 @@ Prepare an immutable local package from an existing evidence artifact with:
 npm run catalogue:pack-correction -- --mode=prepare --target=<staging|production> --source-artifact=tmp/<prepared>.json --source-artifact-sha256=<sha256> --source-artifact-fingerprint=<fingerprint> --evidence-sha256=<sha256> --output=tmp/<package>.json
 ```
 
-`preflight` uses the protected validator in a read-only transaction. A future
-`apply` additionally requires an `OWNER_APPROVED` sealed package, exact package
-SHA-256, `--confirm-reviewed-product-pack-correction=true`, a clean
-`origin/main`, a fresh single-use approver receipt and the protected executor.
+After the owner explicitly approves that exact immutable scope, create a new
+local seal without editing or overwriting the `PREPARED` package:
+
+```text
+npm run catalogue:pack-correction -- --mode=owner-approve --target=<staging|production> --package=tmp/<prepared-package>.json --package-sha256=<exact-prepared-sha256> --authorized-by=<owner-identity> --confirm-owner-approval=true --output=tmp/<new-owner-approved-package>.json
+```
+
+The lifecycle is `PREPARED` -> explicit local `OWNER_APPROVED` sealing ->
+read-only production `preflight` -> separate explicitly confirmed production
+`apply`. Owner approval validates the package fingerprint, target and every
+bound evidence file, changes only its approval status and metadata, reseals a
+new file, and performs no database connection or database write.
+
+`preflight` uses the protected validator in a read-only transaction. `apply`
+additionally requires an `OWNER_APPROVED` sealed package, exact package SHA-256,
+`--confirm-reviewed-product-pack-correction=true`, a clean `origin/main`, a
+fresh single-use approver receipt and the protected executor. The owner-approval
+seal and apply confirmation are independent controls; neither substitutes for
+the other.
 The atomic RPC conditionally changes exactly one `net_weight_g`, compares every
 other product column, verifies zero row-count delta, consumes the approval and
 then undergoes a separate validator readback. The CLI writes an immutable audit
-artifact under `tmp/`. Preparing a package does not approve or apply it.
+artifact under `tmp/`. Preparing or owner-approving a package does not preflight
+or apply it. No other canonical field is supported.
 
 ## Permanent boundaries
 
