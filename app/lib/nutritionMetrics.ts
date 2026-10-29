@@ -55,16 +55,18 @@ function variantWeightG(variant: VariantNutritionMetrics) {
   return positiveNumber(variant.size_value);
 }
 
+function packWeightRoundingTolerance(packWeight: number) {
+  return Math.max(1, packWeight * PACK_WEIGHT_ROUNDING_TOLERANCE_RATE);
+}
+
 function isMaterialPackMismatch(
   structuralVariantWeight: number | null,
   productWeight: number | null
 ) {
   if (structuralVariantWeight === null || productWeight === null) return false;
 
-  const roundingTolerance = Math.max(
-    1,
-    Math.max(structuralVariantWeight, productWeight) *
-      PACK_WEIGHT_ROUNDING_TOLERANCE_RATE
+  const roundingTolerance = packWeightRoundingTolerance(
+    Math.max(structuralVariantWeight, productWeight)
   );
 
   return Math.abs(structuralVariantWeight - productWeight) > roundingTolerance;
@@ -80,6 +82,39 @@ function overridesAny(
 function positiveInteger(value: unknown) {
   const number = positiveNumber(value);
   return number !== null && Number.isInteger(number) ? number : null;
+}
+
+export function hasVariantAlignedReviewedNutrition(
+  variant: VariantNutritionMetrics,
+  override: Record<string, unknown>
+) {
+  const structuralVariantWeight = variantWeightG(variant);
+  const servingCount = positiveInteger(override.serving_count_verified);
+  const servingSize = positiveNumber(override.serving_size_g);
+
+  if (
+    structuralVariantWeight === null ||
+    servingCount === null ||
+    servingSize === null ||
+    override.nutrition_verified !== true ||
+    Math.abs(structuralVariantWeight - servingCount * servingSize) >
+      packWeightRoundingTolerance(structuralVariantWeight)
+  ) {
+    return false;
+  }
+
+  let hasReviewedNutrient = false;
+  for (const nutrient of [
+    "protein_per_serving_g",
+    "creatine_per_serving_g",
+  ]) {
+    if (!hasOwn(override, nutrient)) continue;
+    const amount = positiveNumber(override[nutrient]);
+    if (amount === null || amount > servingSize) return false;
+    hasReviewedNutrient = true;
+  }
+
+  return hasReviewedNutrient;
 }
 
 function hasCompleteApprovedVariantNutrition(
@@ -150,14 +185,23 @@ export function getEffectiveNutritionMetrics(
     structuralVariantWeight !== null &&
     productWeight !== null &&
     structuralVariantWeight !== productWeight;
-  const failClosedForPackMismatch =
+  const materialPackMismatch =
     structuralVariantWeight !== null &&
-    isMaterialPackMismatch(structuralVariantWeight, productWeight) &&
-    !hasCompleteApprovedVariantNutrition(
+    isMaterialPackMismatch(structuralVariantWeight, productWeight);
+  const hasLegacyCompleteOverride =
+    materialPackMismatch &&
+    hasCompleteApprovedVariantNutrition(
       product,
       override,
       structuralVariantWeight
     );
+  const hasVariantAlignedOverride =
+    materialPackMismatch &&
+    hasVariantAlignedReviewedNutrition(variant, override);
+  const failClosedForPackMismatch =
+    materialPackMismatch &&
+    !hasLegacyCompleteOverride &&
+    !hasVariantAlignedOverride;
   const nutritionVerified = overridesAny(override, NUTRITION_VALUE_KEYS)
     ? override.nutrition_verified === true
     : overrideValue(
@@ -174,10 +218,14 @@ export function getEffectiveNutritionMetrics(
     ) === true;
 
   const effective = {
-    net_weight_g: overrideValue(
-      override,
-      "net_weight_g",
-      structuralVariantWeight ?? product.net_weight_g
+    net_weight_g: (
+      hasVariantAlignedOverride
+        ? structuralVariantWeight
+        : overrideValue(
+          override,
+          "net_weight_g",
+          structuralVariantWeight ?? product.net_weight_g
+        )
     ) as NutritionScalar,
     serving_count_verified: overrideValue(
       override,
