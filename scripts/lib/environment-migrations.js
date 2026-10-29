@@ -8,6 +8,7 @@ const ROOT = path.resolve(__dirname, "../..");
 const MIGRATION_FILE = /^\d{14}_[a-z0-9_]+\.sql$/;
 const EXCLUSIONS = Object.freeze({
   STAGING: Object.freeze([
+    "20261029061000_reissue_reviewed_product_pack_correction_production_safe",
     "20261027150000_extend_sequential_parent_approval_to_gladiator",
     "20261015130000_release_gym_high_seo15_stage3_source",
     "20261009120000_add_compact_other_retailer_fingerprint",
@@ -172,6 +173,7 @@ const EXCLUSIONS = Object.freeze({
     "20261021190000_correct_ghost_lifestyle_energy_drink_metadata",
   ]),
   PRODUCTION: Object.freeze([
+    "20261028210000_add_reviewed_product_pack_correction",
     "20261009120000_add_compact_other_retailer_fingerprint",
     "20261008200000_consolidate_shared_executor_state_reads",
     "20260717120000_create_retailer_catalogue_control_ledger",
@@ -226,16 +228,11 @@ const APPLIED_EXCLUSIONS = Object.freeze({
 });
 
 const PENDING_MIGRATIONS = Object.freeze({
-  STAGING: Object.freeze([
-    Object.freeze({
-      filename: "20261028210000_add_reviewed_product_pack_correction.sql",
-      sha256: "37322f9172aeb841a8d4ce2e2594cb057929346e9e0041838d6c14f3c950df7e",
-    }),
-  ]),
+  STAGING: Object.freeze([]),
   PRODUCTION: Object.freeze([
     Object.freeze({
-      filename: "20261028210000_add_reviewed_product_pack_correction.sql",
-      sha256: "37322f9172aeb841a8d4ce2e2594cb057929346e9e0041838d6c14f3c950df7e",
+      filename: "20261029061000_reissue_reviewed_product_pack_correction_production_safe.sql",
+      sha256: "76572576ff7fa19efa2ab29feec47bca9586b8374573d4bc54def2f2dd900aa9",
     }),
   ]),
 });
