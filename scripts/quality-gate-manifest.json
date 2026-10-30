@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 342,
-    "sha256": "01aba48a31c4574ea45ac1fd8aaaa3eaf97e6f9bd878c38dc27a4994e2c48d34"
+    "count": 345,
+    "sha256": "89d63499c05752008dc6fc0413d87152467c79730433c10b5c9305ab6370d44c"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -53,6 +53,7 @@
     "scripts/reviewed-strom-health-policy-migration.integration.test.js",
     "scripts/reviewed-variant-create-rebind.integration.test.js",
     "scripts/reviewed-variant-nutrition-migration.integration.test.js",
+    "scripts/sealed-artifacts.integration.test.js",
     "scripts/shared-parent-import-identity.integration.test.js",
     "scripts/verified-no-change-offer-refresh.integration.test.js",
     "scripts/verify-baseline-migrations.test.js",
@@ -117,6 +118,8 @@
     "scripts/retailer-control-state-export.test.js",
     "scripts/retailer-offer-sync-performance-audit.test.js",
     "scripts/search.test.js",
+    "scripts/sealed-artifacts-migration.test.js",
+    "scripts/sealed-artifacts.test.js",
     "scripts/secure-postgres.test.js",
     "scripts/seo15-accrual-audit.test.js",
     "scripts/sitemap-freshness.test.js",
