@@ -657,6 +657,50 @@ test("planner accepts an owner-resolved source conflict only when approved value
   assert.equal(plan.product_updates[0].changes.serving_size_g.evidence.some((row) => row.owner_corrected), true);
 });
 
+test("planner accepts exact resolved-source markers after individual same-value approval", () => {
+  const markers = [
+    "EXACT_VERSION_SOURCE_RESOLVES_CONFLICT",
+    "AUTHORITATIVE_SOURCE_RESOLVES_CONFLICT",
+    "FAMILY_SHARED_CURRENT_PANEL_RESOLVES_CONFLICT",
+  ];
+  for (const marker of markers) {
+    const plan = buildApprovedPlan(
+      [candidate({ warning_flags: [marker] })],
+      [{ id: "337", name: "Creatine", serving_size_g: null }],
+      runId,
+      "2026-08-02T12:00:00.000Z",
+    );
+    assert.equal(plan.status, "READY_FOR_EXPLICIT_APPLY", marker);
+    assert.equal(plan.blockers.length, 0, marker);
+  }
+});
+
+test("planner blocks unresolved and mixed unsafe warning flags after same-value approval", () => {
+  const cases = [
+    ["CROSS_SOURCE_CONFLICT"],
+    ["OCR_HTML_CONFLICT"],
+    ["PACKAGE_SERVING_MISMATCH"],
+    ["AMBIGUOUS"],
+    ["UNCLEAR"],
+    ["EXCEEDS"],
+    ["EXACT_VERSION_SOURCE_RESOLVES_CONFLICT", "PACKAGE_SERVING_MISMATCH"],
+    ["AUTHORITATIVE_SOURCE_RESOLVES_CONFLICT", "AMBIGUOUS"],
+  ];
+  for (const warningFlags of cases) {
+    const plan = buildApprovedPlan(
+      [candidate({ warning_flags: warningFlags })],
+      [{ id: "337", name: "Creatine", serving_size_g: null }],
+      runId,
+      "2026-08-02T12:00:00.000Z",
+    );
+    assert.equal(plan.status, "BLOCKED", warningFlags.join(" + "));
+    assert.ok(
+      plan.blockers.some((blocker) => blocker.code === "UNSAFE_WARNING_FLAG"),
+      warningFlags.join(" + "),
+    );
+  }
+});
+
 test("owner correction never resolves mismatch or non-convergent conflict flags", () => {
   const cases = [
     [candidate({ proposed_value: 5, approved_value: 3, warning_flags: ["PACKAGE_SERVING_MISMATCH"] })],
