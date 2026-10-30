@@ -33,6 +33,17 @@ const EXPECTED_UNITS = Object.freeze({
   serving_size_g: "g", serving_size_ml: "ml", protein_per_serving_g: "g", creatine_per_serving_g: "g",
 });
 const UNSAFE_FLAGS = /CONFLICT|AMBIGUOUS|UNCLEAR|MISMATCH|EXCEEDS/i;
+const RESOLVED_SOURCE_CONFLICT_FLAGS = new Set([
+  "EXACT_VERSION_SOURCE_RESOLVES_CONFLICT",
+  "AUTHORITATIVE_SOURCE_RESOLVES_CONFLICT",
+  "FAMILY_SHARED_CURRENT_PANEL_RESOLVES_CONFLICT",
+]);
+
+function unresolvedUnsafeFlags(flags) {
+  return flags.filter((flag) =>
+    UNSAFE_FLAGS.test(flag) && !RESOLVED_SOURCE_CONFLICT_FLAGS.has(flag)
+  );
+}
 
 function fail(message) { throw new Error(message); }
 function validateRunId(value) {
@@ -198,12 +209,16 @@ function buildApprovedPlan(candidates, products, runId, generatedAt = new Date()
       continue;
     }
     const unsafe = group.filter((item) =>
-      item.flags.some((flag) => UNSAFE_FLAGS.test(flag)) &&
+      unresolvedUnsafeFlags(item.flags).length > 0 &&
       !(item.structured && item.value.information_state === "conflicting_information")
     );
     if (unsafe.length) {
-      const ownerResolvedSourceConflict = group.some((item) => Number(item.candidate.approved_value) !== Number(item.candidate.proposed_value)) &&
-        unsafe.every((item) => item.flags.filter((flag) => UNSAFE_FLAGS.test(flag))
+      const resolvedMarkerMixedWithUnsafeFlag = unsafe.some((item) =>
+        item.flags.some((flag) => RESOLVED_SOURCE_CONFLICT_FLAGS.has(flag))
+      );
+      const ownerResolvedSourceConflict = !resolvedMarkerMixedWithUnsafeFlag &&
+        group.some((item) => Number(item.candidate.approved_value) !== Number(item.candidate.proposed_value)) &&
+        unsafe.every((item) => unresolvedUnsafeFlags(item.flags)
           .every((flag) => /CONFLICT/i.test(flag) && !/MISMATCH|EXCEEDS|AMBIGUOUS|UNCLEAR/i.test(flag)));
       if (!ownerResolvedSourceConflict) {
         for (const item of unsafe) blockers.push({
