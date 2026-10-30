@@ -26,6 +26,12 @@ const {
   isV3SourceExcluded,
 } = require("./lib/reviewed-catalogue-v3");
 const {
+  bindDurableArtifactContract,
+  createSealedArtifactsService,
+  createSupabaseSealedArtifactAdapters,
+  guardDependentMutation,
+} = require("./lib/sealed-artifacts");
+const {
   buildStateRequest,
   createStateClient,
   readState,
@@ -440,10 +446,24 @@ function buildDryRunArtifact(rows, result, options = {}) {
 }
 
 function writeDryRunArtifact(rows, result, options = {}) {
-  const artifact = buildDryRunArtifact(rows, result, options);
+  let artifact = buildDryRunArtifact(rows, result, options);
   const artifactPath = path.resolve(
     options.artifactPath || path.join(IMPORT_ARTIFACT_ROOT, `${artifact.run_id}.json`)
   );
+  const durableEnvironment = ["production", "staging", "test"].includes(options.durableEnvironment || options.environmentMarker)
+    ? options.durableEnvironment || options.environmentMarker
+    : null;
+  if (durableEnvironment) {
+    artifact = bindDurableArtifactContract(artifact, {
+      artifactKind: "APPROVED_PLAN",
+      environment: durableEnvironment,
+      filename: path.basename(artifactPath),
+      schemaVersion: Number(artifact.artifact_version),
+      producer: "import-products.writeDryRunArtifact",
+      gitSha: options.gitSha || process.env.GITHUB_SHA,
+      runId: artifact.run_id,
+    }, options.rolloutEnv || process.env);
+  }
   const bytes = Buffer.from(`${JSON.stringify(artifact, null, 2)}\n`, "utf8");
   const artifactSha256 = sha256Bytes(bytes);
   fs.mkdirSync(path.dirname(artifactPath), { recursive: true });
@@ -608,7 +628,7 @@ function loadDryRunArtifact(artifactPath) {
       }
     }
   }
-  return { artifact, artifactPath: resolvedPath, artifactSha256 };
+  return { artifact, artifactBytes: bytes, artifactPath: resolvedPath, artifactSha256 };
 }
 
 function selectArtifactPlan(loaded, fingerprint) {
@@ -5862,6 +5882,21 @@ function assertRpcMetadata(result, entry, loaded) {
   }
 }
 
+function sealedArtifactsServiceFor(client) {
+  return createSealedArtifactsService(createSupabaseSealedArtifactAdapters(client));
+}
+
+async function guardLoadedPlanMutation(loaded, supabaseClient, options, mutation) {
+  return guardDependentMutation({
+    artifact: loaded.artifact,
+    exactBytes: loaded.artifactBytes,
+    expectedArtifactKind: "APPROVED_PLAN",
+    expectedEnvironment: options.expectedDurableEnvironment,
+    serviceFactory: options.sealedArtifactsServiceFactory || (() => sealedArtifactsServiceFor(supabaseClient)),
+    mutation,
+  });
+}
+
 async function approveArtifactPlan(options = {}) {
   const supabase = getSupabase();
   if (typeof supabase.rpc !== "function") {
@@ -5880,7 +5915,9 @@ async function approveArtifactPlan(options = {}) {
     p_source: String(options.approvalSource || "supplementscout_importer"),
     ...(approvalExpiresAt ? { p_expires_at: approvalExpiresAt } : {}),
   };
-  const { data, error } = await supabase.rpc("approve_product_import_plan", args);
+  const { data, error } = await guardLoadedPlanMutation(loaded, supabase, options, () => (
+    supabase.rpc("approve_product_import_plan", args)
+  ));
   if (error) throw error;
   assertRpcMetadata(data, entry, loaded);
   return {
@@ -5906,15 +5943,17 @@ async function applyArtifactPlan(options = {}) {
   const loaded = loadDryRunArtifact(options.artifactPath);
   verifyOptionalSourceFile(loaded, options.sourcePath);
   const entry = selectArtifactPlan(loaded, options.planFingerprint);
-  const { data, error } = await supabase.rpc("apply_approved_product_import_plan", {
-    p_approval_id: approvalId,
-    p_artifact_sha256: loaded.artifactSha256,
-    p_plan_fingerprint: entry.plan_fingerprint,
-    p_source_row_fingerprint: entry.source_row_fingerprint,
-    p_retailer_id: entry.retailer_id,
-    p_plan_kind: entry.plan_kind,
-    p_run_id: loaded.artifact.run_id,
-  });
+  const { data, error } = await guardLoadedPlanMutation(loaded, supabase, options, () => (
+    supabase.rpc("apply_approved_product_import_plan", {
+      p_approval_id: approvalId,
+      p_artifact_sha256: loaded.artifactSha256,
+      p_plan_fingerprint: entry.plan_fingerprint,
+      p_source_row_fingerprint: entry.source_row_fingerprint,
+      p_retailer_id: entry.retailer_id,
+      p_plan_kind: entry.plan_kind,
+      p_run_id: loaded.artifact.run_id,
+    })
+  ));
   if (error) throw error;
   assertRpcMetadata(data, entry, loaded);
   const successfulRow = {

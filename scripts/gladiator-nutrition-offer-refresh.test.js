@@ -210,12 +210,12 @@ test("Gladiator OOS limits match the shared read-only validator policy", () => {
   assertCompatible(stagingConfig);
 });
 
-test("environment binding changes no classifier, Shopify reader, reviewed executor or atomic importer", () => {
+test("environment binding freezes the classifier, reader, executor and Phase-B guarded atomic importer", () => {
   const immutable = {
     "scripts/lib/retailer-offer-sync/classifier.js": "475ed7dbe9fa73b2903e152466fbdf5085b238a69c067a9e3a0e3eea0ee613a0",
     "scripts/lib/shopify-snapshot-reader.js": "06d93e363ee95e4bbd73a17bd2292d9d258efb677634fa148685c42277811fce",
     "scripts/reviewed-catalogue-package-executor.js": "3450d4ca82784c2494ed97b1fa96147c629d2ff4b6bc51dda58a7085d4c9fc88",
-    "scripts/import-products.js": "44a1039499f0db75848ee78f0358b0d73b34e58ab30cc5d8b342f8837557708d",
+    "scripts/import-products.js": "72dada752a9b9089ae87d3fe3cd84469a7194e03f8720d3936b5b8723a6032e2",
     "supabase/migrations/20260718170000_add_read_only_mixed_batch_validator.sql": "09ece7d68328ee7e383375f6d13f55933e7c18be88137fa0108046d69f121510",
   };
   for (const [relative, expected] of Object.entries(immutable)) assert.equal(sha256Text(path.join(ROOT, relative)), expected, relative);

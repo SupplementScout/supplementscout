@@ -52,6 +52,7 @@ runs:
     - name: Build fresh ${{ inputs.display-name }} Review Queue changes
       shell: bash
       env:
+        DURABLE_SEALED_ARTIFACTS_ENFORCEMENT: ${{ vars.DURABLE_SEALED_ARTIFACTS_ENFORCEMENT }}
         GITHUB_TOKEN: ${{ inputs.github-token }}
         NEXT_PUBLIC_SUPABASE_URL: ${{ inputs.supabase-url }}
         SUPABASE_SERVICE_ROLE_KEY: ${{ inputs.service-role-key }}
@@ -71,6 +72,7 @@ runs:
     - name: Publish fresh ${{ inputs.display-name }} cards to Automation Review Queue
       shell: bash
       env:
+        DURABLE_SEALED_ARTIFACTS_ENFORCEMENT: ${{ vars.DURABLE_SEALED_ARTIFACTS_ENFORCEMENT }}
         NEXT_PUBLIC_SUPABASE_URL: ${{ inputs.supabase-url }}
         SUPABASE_SERVICE_ROLE_KEY: ${{ inputs.service-role-key }}
       run: >-

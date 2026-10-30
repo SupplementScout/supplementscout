@@ -1,4 +1,5 @@
 const contract = require("./contract");
+const rollout = require("./rollout");
 const { createSealedArtifactsService } = require("./service");
 const {
   createSupabaseRegistryAdapter,
@@ -8,6 +9,7 @@ const {
 
 module.exports = {
   ...contract,
+  ...rollout,
   createSealedArtifactsService,
   createSupabaseRegistryAdapter,
   createSupabaseSealedArtifactAdapters,

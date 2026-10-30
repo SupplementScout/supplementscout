@@ -86,3 +86,72 @@ project. Staging activation requires an exact readback against project
 `hxnrsyyqffztlvcrtgbf`. Production activation in project
 `aftboxmrdgyhizicfsfu` requires separate explicit owner authorization. Phase B
 workflow enforcement remains disabled after activation.
+
+## Phase B shared enforcement bridge
+
+Phase B adds one shared rollout bridge in
+`scripts/lib/sealed-artifacts/rollout.js`. It does not replace any producer,
+approval system, planner, executor, registry or recovery mechanism. The bridge
+owns the durable-required policy, contract binding, environment checks, Phase A
+`seal()` plus fresh `verify()` sequence and the dependent-mutation guard.
+
+The single rollout control is
+`DURABLE_SEALED_ARTIFACTS_ENFORCEMENT`. Missing, empty and `OFF` all mean OFF;
+the only active value is `ON`. Invalid values fail closed. Repository merge does
+not set the control. The shared Review Queue action and the eBay queue publisher
+read the same repository configuration variable, but an absent variable remains
+empty/OFF and needs no new secret.
+
+OFF does not bind a new durable contract, initialize a sealed-artifact service,
+or write Storage/registry data. Existing workflows and artifacts therefore keep
+their previous behavior. ON binds only artifacts created at an integrated,
+environment-bound producer. The binding is the generic, versioned
+`durable_sealed_artifact_contract`; it contains no retailer, product, workflow,
+Wave or run-specific exception policy.
+
+An artifact without that field is legacy and remains on its existing path even
+while rollout is ON. An artifact that already contains the field is always
+guarded, including after the rollout control returns to OFF, so a new-contract
+artifact cannot silently downgrade. Turning rollout OFF stops creation of new
+bindings; it does not delete sealed data or bypass a binding already written.
+
+The initial shared choke points are:
+
+- the common import-plan writer plus its approval and pilot-apply RPC boundary,
+  where an exact target-bound `APPROVED_PLAN` file is sealed and freshly
+  verified before either dependent RPC;
+- the shared multi-retailer Review Queue reconciliation producer and the eBay
+  producer, followed by their single common reconciliation apply boundary,
+  where exact `REVIEW_REGISTRATION` file bytes are sealed and freshly verified
+  before the queue publication RPC.
+
+The producer writes the contract into the exact JSON file. The consumer reads
+the original bytes and never reconstructs or reserializes a bound artifact for
+sealing. The Phase A verified durable identity must agree with the contract's
+environment and artifact kind before the existing mutation callback is called.
+Missing registry/object data, tampering, metadata or SHA drift, wrong kind,
+wrong environment, failed seal, or failed fresh verify prevents the mutation.
+The guard does not add retries or replay; existing package atomicity, row
+isolation, recovery, approval and fingerprint behavior remains authoritative.
+
+`PREPARED_SCOPE`, `AUTOMATION_DIAGNOSTIC` and `HISTORICAL_DOC` remain
+durable-recommended and are not made mandatory. `TEMPORARY_DEBUG` remains
+unsealable. Phase B does not backfill historical artifacts and does not activate
+Phase C.
+
+## Phase B production activation boundary
+
+Production enforcement is intentionally OFF after the Phase B merge. A later
+bounded owner authorization is required before setting the one repository
+configuration variable from absent/`OFF` to `ON`. That activation can create
+new private `sealed-artifacts` objects and immutable `public.sealed_artifacts`
+rows only for newly contract-bound artifacts at the choke points above. It does
+not authorize business-data migration, historical backfill or any additional
+artifact class.
+
+The first live verification must use one newly generated Review Queue
+registration artifact, confirm its exact object and registry identity by fresh
+readback, then observe the already-existing queue RPC. If sealing or readback
+fails, the operator sees the Phase A error and the RPC is not called. Rollback is
+the single variable returning to `OFF`; existing durable objects and registry
+rows are immutable and remain available for recovery and audit.
