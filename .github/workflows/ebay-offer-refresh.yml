@@ -255,6 +255,7 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Build fresh Review Queue changes
         env:
+          DURABLE_SEALED_ARTIFACTS_ENFORCEMENT: ${{ vars.DURABLE_SEALED_ARTIFACTS_ENFORCEMENT }}
           GITHUB_TOKEN: ${{ github.token }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -273,6 +274,7 @@ jobs:
           --output=tmp/automation-review-reconciliation/reconciliation-dry-run.json
       - name: Publish fresh cards to Automation Review Queue
         env:
+          DURABLE_SEALED_ARTIFACTS_ENFORCEMENT: ${{ vars.DURABLE_SEALED_ARTIFACTS_ENFORCEMENT }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/automation-review-reconciliation-apply.js

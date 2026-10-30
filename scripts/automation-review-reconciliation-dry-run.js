@@ -8,6 +8,7 @@ const {
   canonicalJson,
   sha256,
 } = require("./lib/automation-review-publisher");
+const { bindDurableArtifactContract } = require("./lib/sealed-artifacts");
 const {
   extractZip,
   githubJson,
@@ -461,7 +462,7 @@ function buildOutput(source, baseline, manifestRows, outputPath, env = process.e
   const finalActiveEbayRows = baseline.active_ebay_review_count + operationCounts.CREATE - operationCounts.SUPERSEDE - operationCounts.RESOLVE_BY_SOURCE - operationCounts.EXPIRE;
   if (request.expected_baseline.catalogue_hash_without_review_queue !== baseline.catalogue_hash_without_review_queue) fail("Corrected catalogue hash mismatch between baseline and RPC request");
   if (request.expected_baseline.active_review_count !== baseline.active_ebay_review_count) fail("Active review count mismatch between baseline and RPC request");
-  const output = {
+  let output = {
     schema_version: 1,
     kind: OUTPUT_KIND,
     result: "PASS",
@@ -532,6 +533,16 @@ function buildOutput(source, baseline, manifestRows, outputPath, env = process.e
     manifest,
     request,
   };
+  output = bindDurableArtifactContract(output, {
+    artifactKind: "REVIEW_REGISTRATION",
+    environment: "production",
+    filename: path.basename(outputPath),
+    schemaVersion: output.schema_version,
+    producer: "automation-review-reconciliation",
+    gitSha: source.options.sourceCommitSha,
+    runId: source.options.sourceRunId,
+    artifactFingerprint: request.changeset_fingerprint,
+  }, env);
   const directory = path.dirname(outputPath);
   fs.mkdirSync(directory, { recursive: true });
   fs.writeFileSync(outputPath, `${JSON.stringify(output, null, 2)}\n`);

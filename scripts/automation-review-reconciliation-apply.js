@@ -3,6 +3,11 @@ const path = require("node:path");
 const dotenv = require("dotenv");
 const { createClient } = require("@supabase/supabase-js");
 const { validateRpcResult } = require("./lib/automation-review-publisher");
+const {
+  createSealedArtifactsService,
+  createSupabaseSealedArtifactAdapters,
+  guardDependentMutation,
+} = require("./lib/sealed-artifacts");
 
 const ROOT = path.resolve(__dirname, "..");
 const DEFAULT_INPUT = path.join(ROOT, "tmp", "automation-review-reconciliation", "reconciliation-dry-run.json");
@@ -37,11 +42,21 @@ function db(env = process.env) {
 }
 async function run(options, dependencies = {}) {
   const parsed = Array.isArray(options) ? parseArgs(options) : options;
-  const report = JSON.parse(fs.readFileSync(parsed.input, "utf8"));
+  const exactBytes = fs.readFileSync(parsed.input);
+  const report = JSON.parse(exactBytes.toString("utf8"));
   const env = dependencies.env || process.env;
   assertContext(report, env);
   const client = dependencies.client || db(env);
-  const { data, error } = await client.rpc("publish_automation_review_queue_changes", { p_request: report.request });
+  const { data, error } = await guardDependentMutation({
+    artifact: report,
+    exactBytes,
+    expectedArtifactKind: "REVIEW_REGISTRATION",
+    expectedEnvironment: "production",
+    serviceFactory: dependencies.sealedArtifactsServiceFactory || (() => (
+      createSealedArtifactsService(createSupabaseSealedArtifactAdapters(client))
+    )),
+    mutation: () => client.rpc("publish_automation_review_queue_changes", { p_request: report.request }),
+  });
   if (error) throw error;
   validateRpcResult(report.request, data);
   if (Number(data.catalogue_writes || 0) !== 0) fail("RECONCILIATION_CATALOGUE_WRITE_DETECTED");

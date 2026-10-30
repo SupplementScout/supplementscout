@@ -7,6 +7,7 @@ const {
   buildPublicationRpcRequest,
   sha256,
 } = require("./lib/automation-review-publisher");
+const { bindDurableArtifactContract } = require("./lib/sealed-artifacts");
 const {
   PROFILES,
   profileFor: publicationProfileFor,
@@ -333,7 +334,7 @@ function buildOutput(source, baseline, rows, options, env = process.env) {
   const request = buildPublicationRpcRequest(manifest, baseline.activeRows, { catalogueCounts: baseline.catalogueCounts });
   const operations = { CREATE: 0, REFRESH: 0, SUPERSEDE: 0, RESOLVE_BY_SOURCE: 0 };
   for (const operation of request.operations) operations[operation.op] = (operations[operation.op] || 0) + 1;
-  return {
+  return bindDurableArtifactContract({
     schema_version: 1,
     kind: "automation-review-queue-reconciliation-dry-run",
     result: "PASS",
@@ -350,7 +351,16 @@ function buildOutput(source, baseline, rows, options, env = process.env) {
     lifecycle_consistency: { one_future_rpc: true, no_direct_rest_writes: true, catalogue_writes: 0 },
     request,
     reconciliation_manifest_sha256: sha256(manifest),
-  };
+  }, {
+    artifactKind: "REVIEW_REGISTRATION",
+    environment: "production",
+    filename: path.basename(options.output),
+    schemaVersion: 1,
+    producer: "automation-review-reconciliation",
+    gitSha: options.sourceCommitSha,
+    runId: options.sourceRunId,
+    artifactFingerprint: request.changeset_fingerprint,
+  }, env);
 }
 
 function database(env = process.env) {
