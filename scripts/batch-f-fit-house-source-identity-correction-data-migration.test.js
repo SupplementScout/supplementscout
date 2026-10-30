@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const test = require('node:test');
+const { waitForStablePostgres } = require('./lib/docker-postgres-readiness');
 
 const root = path.resolve(__dirname, '..');
 const baseline = path.join(root, 'supabase/migrations/20260712211120_baseline_current_public_schema.sql');
@@ -21,7 +22,7 @@ function psql(container,args){return exec(container,['psql','-v','ON_ERROR_STOP=
 function sql(container,statement){return ok(psql(container,['-At','-c',statement]),'SQL').stdout.trim();}
 function literal(value){return `'${String(value).replaceAll("'","''")}'`;}
 function apply(container){return psql(container,['-f',`/workspace/${path.relative(root,migration).replaceAll('\\','/')}`]);}
-function wait(container){for(let i=0;i<80;i+=1){if(exec(container,['pg_isready','-U','postgres','-d','postgres'],5000).status===0)return;Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,250);}assert.fail('PostgreSQL unavailable');}
+function wait(container){waitForStablePostgres(()=>exec(container,['psql','-X','--no-psqlrc','-U','postgres','-d','postgres','-tAc','select 1'],5000));}
 function recreate(container){
   ok(exec(container,['dropdb','-U','postgres','--force','--if-exists',database]),'drop db');ok(exec(container,['createdb','-U','postgres',database]),'create db');
   ok(psql(container,['-c',"do $r$ begin if not exists(select 1 from pg_roles where rolname='anon')then create role anon nologin;end if;if not exists(select 1 from pg_roles where rolname='authenticated')then create role authenticated nologin;end if;if not exists(select 1 from pg_roles where rolname='service_role')then create role service_role nologin;end if;end $r$;"]),'roles');

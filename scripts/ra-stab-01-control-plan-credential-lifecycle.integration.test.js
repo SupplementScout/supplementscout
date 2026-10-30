@@ -3,6 +3,7 @@ const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const test = require("node:test");
 const { Client } = require("pg");
+const { waitForStablePostgres } = require("./lib/docker-postgres-readiness");
 const { ROLE, RPC, assertNarrowCapability, capabilityProof, revokeCredential, scram } =
   require("./ra-stab-01-control-plan-credential-issuer");
 
@@ -31,10 +32,9 @@ test("ephemeral credential lifecycle commits revoke before a forced DROP ROLE fa
   let ephemeral;
   let failure;
   try {
-    for (let attempt = 0; attempt < 40; attempt += 1) {
-      if (docker(container, ["pg_isready", "-U", "postgres"]).status === 0) break;
-      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 250);
-    }
+    waitForStablePostgres(() => docker(container, [
+      "psql", "-X", "--no-psqlrc", "-U", "postgres", "-d", "postgres", "-tAc", "select 1",
+    ]));
     const mapping = ok(run("docker", ["port", container, "5432/tcp"]), "read mapped PostgreSQL port");
     const port = Number(mapping.match(/:(\d+)$/)?.[1]);
     assert.ok(Number.isSafeInteger(port) && port > 0, mapping);

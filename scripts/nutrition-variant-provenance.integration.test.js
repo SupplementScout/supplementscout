@@ -3,6 +3,7 @@ const crypto = require("node:crypto");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const test = require("node:test");
+const { waitForStablePostgres } = require("./lib/docker-postgres-readiness");
 
 const root = path.resolve(__dirname, "..");
 const image = "postgres:17-alpine";
@@ -35,11 +36,9 @@ function sql(container, source) {
   return exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-tA", "-f", "-"], { stdin: true, input: source });
 }
 function wait(container) {
-  for (let attempt = 0; attempt < 80; attempt += 1) {
-    if (exec(container, ["pg_isready", "-U", "postgres"]).status === 0) return;
-    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 250);
-  }
-  assert.fail("PostgreSQL unavailable");
+  waitForStablePostgres(() => exec(container, [
+    "psql", "-X", "--no-psqlrc", "-U", "postgres", "-d", "postgres", "-tAc", "select 1",
+  ]));
 }
 const hash = "1182c1aeab46a72ff38709e349d692ab18d45355d87549574d30bb04f3067842";
 const archive = `supabase-storage://nutrition-sources/labels/nut-01/batch-01/applied-nutrition/38/${hash}/38-Applied-Pump-3G-375g.jpg`;

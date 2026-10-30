@@ -1055,7 +1055,7 @@ test("runtime staging artifacts bind the same migration ledger as the staging se
 
 test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.equal(Object.keys(contract.excluded).length, 28);
+  assert.equal(Object.keys(contract.excluded).length, 29);
   assert.deepEqual(contract.pending, PRODUCT_PACK_CORRECTION_PRODUCTION_PENDING);
   assert.equal(contract.excluded[PRODUCT_PACK_CORRECTION_MIGRATION], PRODUCT_PACK_CORRECTION_SHA256);
   assert.equal(

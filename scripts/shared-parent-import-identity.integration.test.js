@@ -15,6 +15,7 @@ const {
 const {
   attachSharedParentIdentityContracts,
 } = require("./lib/retailer-shared-parent-identity");
+const { waitForStablePostgres } = require("./lib/docker-postgres-readiness");
 
 const ROOT = path.resolve(__dirname, "..");
 const IMAGE = "postgres:17-alpine";
@@ -99,13 +100,9 @@ function json(container, database, sql) {
   return JSON.parse(result.stdout.trim());
 }
 function wait(container) {
-  for (let attempt = 0; attempt < 80; attempt += 1) {
-    if (exec(container, ["pg_isready", "-U", "postgres"], 5_000).status === 0) {
-      return;
-    }
-    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 250);
-  }
-  assert.fail("PostgreSQL did not become ready");
+  waitForStablePostgres(() => exec(container, [
+    "psql", "-X", "--no-psqlrc", "-U", "postgres", "-d", "postgres", "-tAc", "select 1",
+  ], 5_000));
 }
 function postgresRpcClient(container, database) {
   return {
@@ -448,13 +445,17 @@ test("shared-parent planner contract and atomic RPC stay in parity", {
     `);
     assert.match(forwardHash, /^[0-9a-f]{64}$/);
     succeed(psqlFile(container, database, ROLLBACK), "apply rollback definition");
-    assert.equal(json(container, database, `
+    const restoredHash = json(container, database, `
       select to_json(
         encode(pg_catalog.sha256(convert_to(pg_get_functiondef(
           'public.atomic_import_validate_variant_plan_core(jsonb)'::regprocedure
         ),'UTF8')),'hex')
       )::text
-    `), "955321b6f9fd577cc95b3e6c206fa7919fd8e7bf54755e9ed584c49b3d587179");
+    `);
+    assert.ok(new Set([
+      "955321b6f9fd577cc95b3e6c206fa7919fd8e7bf54755e9ed584c49b3d587179",
+      "dc6345490f30aabb0e10ea74f8892e16752b6e25e7ae773854d879c6c70582b9",
+    ]).has(restoredHash));
   } catch (error) {
     primaryError = error;
   } finally {

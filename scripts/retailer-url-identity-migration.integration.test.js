@@ -4,6 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const test = require("node:test");
+const { waitForStablePostgres } = require("./lib/docker-postgres-readiness");
 
 const ROOT = path.resolve(__dirname, "..");
 const IMAGE = "postgres:17-alpine";
@@ -114,11 +115,9 @@ function json(container, database, sql) {
   return JSON.parse(result.stdout.trim());
 }
 function wait(container) {
-  for (let attempt = 0; attempt < 80; attempt += 1) {
-    if (exec(container, ["pg_isready", "-U", "postgres"], 5_000).status === 0) return;
-    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 250);
-  }
-  assert.fail("PostgreSQL did not become ready");
+  waitForStablePostgres(() => exec(container, [
+    "psql", "-X", "--no-psqlrc", "-U", "postgres", "-d", "postgres", "-tAc", "select 1",
+  ], 5_000));
 }
 
 const STATE_SQL = `

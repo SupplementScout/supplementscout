@@ -134,6 +134,8 @@ const CONTRACTS = Object.freeze({
       "31dc3e6e90dab56dd00843bef441cfba400e1d9480d2940f41b46cfff6e32277",
     appliedExcluded: APPLIED_EXCLUSIONS.STAGING,
     excluded: Object.freeze({
+      "20261030120000_create_sealed_artifacts_registry.sql":
+        "23ebd020e712074719f7e2a35930ec061f1d7e019b35a3e302e7b8e5f8a676cc",
       "20261029061000_reissue_reviewed_product_pack_correction_production_safe.sql":
         "76572576ff7fa19efa2ab29feec47bca9586b8374573d4bc54def2f2dd900aa9",
       "20261027150000_extend_sequential_parent_approval_to_gladiator.sql":
@@ -472,6 +474,8 @@ const CONTRACTS = Object.freeze({
       "31d463799e346b39f003e4b8259e3a86a0bc3392157788d17e559b6486391c37",
     appliedExcluded: APPLIED_EXCLUSIONS.PRODUCTION,
     excluded: Object.freeze({
+      "20261030120000_create_sealed_artifacts_registry.sql":
+        "23ebd020e712074719f7e2a35930ec061f1d7e019b35a3e302e7b8e5f8a676cc",
       "20261028210000_add_reviewed_product_pack_correction.sql":
         "37322f9172aeb841a8d4ce2e2594cb057929346e9e0041838d6c14f3c950df7e",
       "20261009120000_add_compact_other_retailer_fingerprint.sql":

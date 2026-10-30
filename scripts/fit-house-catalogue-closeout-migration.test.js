@@ -4,6 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const test = require("node:test");
+const { waitForStablePostgres } = require("./lib/docker-postgres-readiness");
 
 const root = path.resolve(__dirname, "..");
 const baseline = path.join(
@@ -79,13 +80,9 @@ function apply(container) {
   ]);
 }
 function wait(container) {
-  for (let attempt = 0; attempt < 80; attempt += 1) {
-    if (exec(container, ["pg_isready", "-U", "postgres", "-d", "postgres"], 5000).status === 0) {
-      return;
-    }
-    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 250);
-  }
-  assert.fail("PostgreSQL unavailable");
+  waitForStablePostgres(() => exec(container, [
+    "psql", "-X", "--no-psqlrc", "-U", "postgres", "-d", "postgres", "-tAc", "select 1",
+  ], 5_000));
 }
 function recreate(container) {
   ok(exec(container, ["dropdb", "-U", "postgres", "--force", "--if-exists", database]), "drop db");
