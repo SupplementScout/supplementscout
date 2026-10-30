@@ -40,6 +40,7 @@ test("shared-parent rollback restores the exact prior function hash", () => {
   assert.match(sql, /Shared-parent identity contract v1/);
   assert.match(sql, /stale product import plan: retailer product identity/);
   assert.match(sql, /955321b6f9fd577cc95b3e6c206fa7919fd8e7bf54755e9ed584c49b3d587179/i);
+  assert.match(sql, /dc6345490f30aabb0e10ea74f8892e16752b6e25e7ae773854d879c6c70582b9/i);
   assert.match(sql, /commit;\s*$/i);
   assert.doesNotMatch(sql, /\binsert\s+into\s+public\./i);
   assert.doesNotMatch(sql, /\bupdate\s+public\./i);

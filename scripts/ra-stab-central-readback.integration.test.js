@@ -2,6 +2,7 @@ const assert = require("node:assert/strict");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const test = require("node:test");
+const { waitForStablePostgres } = require("./lib/docker-postgres-readiness");
 
 const ROOT = path.resolve(__dirname, "..");
 const IMAGE = "postgres:17-alpine";
@@ -33,9 +34,7 @@ test("central role can call only the private status wrapper", { timeout: 120_000
     "-e", "POSTGRES_USER=bootstrap", "-e", "POSTGRES_DB=postgres",
     "-e", "POSTGRES_PASSWORD=local-only", "-v", `${ROOT}:/workspace`, IMAGE]), "start postgres");
   try {
-    for (let i = 0; i < 40 && run("docker", ["exec", container, "pg_isready", "-U", "postgres"]).status !== 0; i += 1) {
-      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 250);
-    }
+    waitForStablePostgres(() => dbAs(container, "bootstrap", "select 1"));
     ok(dbAs(container, "bootstrap", `
       create role postgres login createrole createdb;
       grant postgres to bootstrap with admin true;
@@ -90,9 +89,7 @@ test("verified Review Queue recovery changes only failed control state after exa
     "-e", "POSTGRES_USER=bootstrap", "-e", "POSTGRES_DB=postgres",
     "-e", "POSTGRES_PASSWORD=local-only", "-v", `${ROOT}:/workspace`, IMAGE]), "start postgres");
   try {
-    for (let i = 0; i < 40 && run("docker", ["exec", container, "pg_isready", "-U", "bootstrap"]).status !== 0; i += 1) {
-      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 250);
-    }
+    waitForStablePostgres(() => dbAs(container, "bootstrap", "select 1"));
     ok(dbAs(container, "bootstrap", `
       create role service_role nologin;
       create role anon nologin;

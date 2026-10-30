@@ -4,6 +4,7 @@ const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const test = require("node:test");
 const { canonicalJson } = require("./lib/canonical-json");
+const { waitForStablePostgres } = require("./lib/docker-postgres-readiness");
 const { buildReviewedVariantCreateRebindPlan } = require("./lib/reviewed-variant-create-rebind-offer-update");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -30,11 +31,9 @@ function jsonAsRole(container, role, text) {
 }
 function literal(value) { return `'${JSON.stringify(value).replaceAll("'", "''")}'::jsonb`; }
 function wait(container) {
-  for (let index = 0; index < 80; index += 1) {
-    if (exec(container, ["pg_isready", "-U", "postgres"]).status === 0) return;
-    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 250);
-  }
-  assert.fail("PostgreSQL unavailable");
+  waitForStablePostgres(() => exec(container, [
+    "psql", "-X", "--no-psqlrc", "-U", "postgres", "-d", "postgres", "-tAc", "select 1",
+  ]));
 }
 function fixture() {
   const now = Date.now();

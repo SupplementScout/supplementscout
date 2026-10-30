@@ -2,6 +2,7 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const test = require('node:test');
+const { waitForStablePostgres } = require('./lib/docker-postgres-readiness');
 
 const root = path.resolve(__dirname, '..');
 const image = 'postgres:17-alpine';
@@ -20,7 +21,7 @@ test('final closeout DB policy accepts exact families and permits only strict no
   ok(run('docker',['run','--detach','--rm','--name',container,'-e',`POSTGRES_PASSWORD=${password}`,'-v',`${root.replaceAll('\\','/')}:/workspace:ro`,image]),'start postgres');
   let failure;
   try {
-    for(let i=0;i<30;i+=1){if(exec(container,['pg_isready','-U','postgres']).status===0)break;Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,250);}
+    waitForStablePostgres(()=>exec(container,['psql','-X','--no-psqlrc','-U','postgres','-d','postgres','-tAc','select 1']));
     ok(exec(container,['psql','-X','--no-psqlrc','-v','ON_ERROR_STOP=1','-U','postgres','-c',`
       create table public.product_variants(product_id bigint,is_active boolean,is_default boolean);
       create function public.atomic_import_safe_create_category_allowed(text,text,text) returns boolean language sql immutable as $fn$ select $1 in ('Vitamins','Health Supplements','Amino Acids','Creatine') $fn$;
@@ -65,7 +66,7 @@ test('Predators Gear reviewed-new-products-v3 DB policy accepts only exact revie
   ok(run('docker',['run','--detach','--rm','--name',container,'-e',`POSTGRES_PASSWORD=${password}`,'-v',`${root.replaceAll('\\','/')}:/workspace:ro`,image]),'start postgres');
   let failure;
   try{
-    for(let i=0;i<30;i+=1){if(exec(container,['pg_isready','-U','postgres']).status===0)break;Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,250);}
+    waitForStablePostgres(()=>exec(container,['psql','-X','--no-psqlrc','-U','postgres','-d','postgres','-tAc','select 1']));
     ok(exec(container,['psql','-X','--no-psqlrc','-v','ON_ERROR_STOP=1','-U','postgres','-c',`
       create role anon; create role authenticated; create role service_role;
       create function public.atomic_import_safe_create_category_allowed(p_category text,p_name text,p_product_format text) returns boolean language sql immutable as $fn$

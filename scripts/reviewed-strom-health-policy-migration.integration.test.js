@@ -2,6 +2,7 @@ const assert = require("node:assert/strict");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const test = require("node:test");
+const { waitForStablePostgres } = require("./lib/docker-postgres-readiness");
 
 const root = path.resolve(__dirname, "..");
 const image = "postgres:17-alpine";
@@ -16,10 +17,9 @@ test("reviewed Strom health-support DB policy accepts exact families and rejects
   ok(run("docker", ["run", "--detach", "--rm", "--name", container, "-e", `POSTGRES_PASSWORD=${password}`, "-v", `${root.replaceAll("\\", "/")}:/workspace:ro`, image]), "start postgres");
   let failure;
   try {
-    for (let attempt = 0; attempt < 30; attempt += 1) {
-      if (exec(container, ["pg_isready", "-U", "postgres"]).status === 0) break;
-      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 250);
-    }
+    waitForStablePostgres(() => exec(container, [
+      "psql", "-X", "--no-psqlrc", "-U", "postgres", "-d", "postgres", "-tAc", "select 1",
+    ]));
     ok(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-c", `
       create function public.atomic_import_reviewed_parent_variant_allowed(text,text,text,text,text,text) returns boolean language sql immutable as $fn$ select false $fn$;
       create function public.validate_product_import_plan_read_only(jsonb) returns jsonb language sql as $fn$ select '{}'::jsonb $fn$;

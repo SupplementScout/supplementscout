@@ -3,6 +3,7 @@ const crypto = require("node:crypto");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const test = require("node:test");
+const { waitForStablePostgres } = require("./lib/docker-postgres-readiness");
 
 const root = path.resolve(__dirname, "..");
 const image = "postgres:17-alpine";
@@ -25,11 +26,9 @@ function exec(container, args, timeout) {
   return run("docker", ["exec", "-e", `PGPASSWORD=${password}`, container, ...args], timeout);
 }
 function wait(container) {
-  for (let index = 0; index < 80; index += 1) {
-    if (exec(container, ["pg_isready", "-U", "postgres"], 5_000).status === 0) return;
-    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 250);
-  }
-  assert.fail("PostgreSQL not ready");
+  waitForStablePostgres(() => exec(container, [
+    "psql", "-X", "--no-psqlrc", "-U", "postgres", "-d", "postgres", "-tAc", "select 1",
+  ], 5_000));
 }
 
 test("reviewed hydration/bar allowlist migration passes exact families and blocks boundary drift", { skip: !dockerAvailable() && "Docker unavailable" }, () => {

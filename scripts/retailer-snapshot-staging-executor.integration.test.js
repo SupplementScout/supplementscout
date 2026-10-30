@@ -3,6 +3,7 @@ const crypto = require("node:crypto");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const test = require("node:test");
+const { waitForStablePostgres } = require("./lib/docker-postgres-readiness");
 
 const root = path.resolve(__dirname, "..");
 const image = "postgres:17-alpine";
@@ -42,7 +43,7 @@ function output(result) { return `${result.stdout || ""}\n${result.stderr || ""}
 function ok(result, label) { assert.equal(result.error, undefined, `${label}: ${result.error?.message}`); assert.equal(result.status, 0, `${label} failed:\n${output(result)}`); }
 function dockerAvailable() { const result = run("docker", ["version", "--format", "{{.Server.Version}}"], 10_000); return result.status === 0; }
 function exec(container, args, timeout) { return run("docker", ["exec", "-e", `PGPASSWORD=${postgresPassword}`, "-e", `PGHOST=${dbHost}`, container, ...args], timeout); }
-function wait(container) { for (let i = 0; i < 80; i += 1) { const result = exec(container, ["pg_isready", "-U", "postgres"], 5_000); if (result.status === 0) return; Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 250); } assert.fail("PostgreSQL not ready"); }
+function wait(container) { waitForStablePostgres(() => exec(container, ["psql", "-X", "--no-psqlrc", "-U", "postgres", "-d", "postgres", "-tAc", "select 1"], 5_000)); }
 function psqlFile(container, database, file, variables = []) { const args = ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1"]; for (const value of variables) args.push("-v", value); args.push("-U", "postgres", "-d", database, "-f", `/workspace/${file}`); return exec(container, args); }
 function psql(container, database, sql) { return exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database, "-c", sql]); }
 function recordMigration(container, database, identifier) { const split = identifier.indexOf("_"); return psql(container, database, `insert into supabase_migrations.schema_migrations(version,name,statements) values ('${identifier.slice(0, split)}','${identifier.slice(split + 1)}',array[]::text[])`); }

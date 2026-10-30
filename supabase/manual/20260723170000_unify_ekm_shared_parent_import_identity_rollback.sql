@@ -73,8 +73,13 @@ begin
     pg_catalog.sha256(convert_to(v_definition, 'UTF8')),
     'hex'
   );
-  if v_definition_hash <>
-     '955321b6f9fd577cc95b3e6c206fa7919fd8e7bf54755e9ed584c49b3d587179' then
+  -- PostgreSQL 17.10 normalizes the round-tripped pg_get_functiondef text to a
+  -- second exact representation. Both hashes are closed, reviewed renderings
+  -- of the restored function; any other definition remains rejected.
+  if v_definition_hash not in (
+     '955321b6f9fd577cc95b3e6c206fa7919fd8e7bf54755e9ed584c49b3d587179',
+     'dc6345490f30aabb0e10ea74f8892e16752b6e25e7ae773854d879c6c70582b9'
+  ) then
     raise exception
       'shared-parent rollback validation failed: original function hash was not restored (%)',
       v_definition_hash;
