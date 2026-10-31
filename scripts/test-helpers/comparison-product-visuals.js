@@ -8,6 +8,14 @@ function ComparisonProductThumbnail({ name, productUrl }) {
   );
 }
 
+function ComparisonProductHeroImage({ name, productUrl }) {
+  return React.createElement(
+    "a",
+    { href: productUrl, "aria-label": `View offers for ${name}` },
+    React.createElement("span", { role: "img", "aria-label": `${name} product image` })
+  );
+}
+
 function OfferCheckedBadge({ checkedAt }) {
   return React.createElement("p", null, `Offer checked ${checkedAt || "unavailable"}`);
 }
@@ -16,4 +24,9 @@ function UnavailableComparisonProductCard({ row }) {
   return React.createElement("article", null, `Availability being rechecked: ${row.name}`);
 }
 
-module.exports = { ComparisonProductThumbnail, OfferCheckedBadge, UnavailableComparisonProductCard };
+module.exports = {
+  ComparisonProductHeroImage,
+  ComparisonProductThumbnail,
+  OfferCheckedBadge,
+  UnavailableComparisonProductCard,
+};

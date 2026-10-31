@@ -52,6 +52,14 @@ const categoryComparison = compileModule(path.join(root, "app/lib/categoryCompar
   "./offerFreshness": offerFreshness,
   "./pricing": pricing,
 });
+const productOfferPresentation = compileModule(
+  path.join(root, "app/lib/productOfferPresentation.ts"),
+  { "./pricing": pricing }
+);
+const productComparisonMetrics = compileModule(
+  path.join(root, "app/lib/productComparisonMetrics.ts"),
+  { "./pricing": pricing }
+);
 const comparisonPath = path.join(root, "app/lib/twoProductComparison.ts");
 
 function loadComparison(overrides = {}) {
@@ -63,6 +71,9 @@ function loadComparison(overrides = {}) {
     },
     "./nutritionMetrics": nutritionMetrics,
     "./pricing": pricing,
+    "./reviewedPreWorkoutFacts.server": {
+      loadAppliedPreWorkoutFacts: async () => new Map(),
+    },
     "./supabase": { supabase: { from: () => ({}) } },
     ...overrides,
   });
@@ -112,6 +123,7 @@ function product(id, offers = [offer(id * 10)], overrides = {}) {
     serving_count_verified: null,
     serving_size_g: null,
     protein_per_serving_g: null,
+    creatine_per_serving_g: null,
     unit_pricing_verified: false,
     nutrition_verified: false,
     is_active: true,
@@ -152,7 +164,8 @@ test("normalization ranks only fresh exact packs but retains active unavailable 
   assert.equal(result.rows[0].exactPackLabel, "500g");
   assert.ok(Math.abs(result.rows[0].bestOffer.deliveredPrice.totalPrice - 23.99) < 0.001);
   assert.equal(result.rows[0].netWeightG, 500);
-  assert.equal(result.rows[1].bestOffer, null);
+  assert.equal(result.rows[1].bestOffer.deliveredPrice, null);
+  assert.equal(result.rows[1].bestOffer.productPrice, 20);
   assert.equal(result.rows[2].bestOffer, null);
   assert.equal(result.rows[3].bestOffer, null);
   assert.equal(result.rows[3].presentationState, "RECENT");
@@ -189,6 +202,185 @@ test("selection parsing is strict and all neutral states are explicit", () => {
   assert.equal(comparison.selectTwoProducts(rows, "1", "1").state, "duplicate");
   assert.equal(comparison.selectTwoProducts(rows, "1", "999").state, "not_found");
   assert.equal(comparison.selectTwoProducts(rows, "1", "2").state, "ready");
+});
+
+test("known delivery produces an objective winner while unknown delivery never does", () => {
+  const comparison = loadComparison();
+  const knownRows = comparison.normalizeTwoProductComparison([
+    product(1, [offer(10, { price: 20, shipping_cost: 3 })]),
+    product(2, [offer(20, { price: 25, shipping_cost: 4 })]),
+  ], { now: NOW }).rows;
+  const knownMetrics = productComparisonMetrics.buildProductComparisonMetrics(
+    knownRows[0],
+    knownRows[1]
+  );
+  assert.equal(
+    knownMetrics.find((metric) => metric.key === "delivered_total").outcome,
+    "left"
+  );
+
+  const uncertainRows = comparison.normalizeTwoProductComparison([
+    product(1, [offer(10, { price: 20, shipping_cost: 3 })]),
+    product(2, [offer(20, { price: 19, shipping_cost: null })]),
+  ], { now: NOW }).rows;
+  const uncertainMetrics = productComparisonMetrics.buildProductComparisonMetrics(
+    uncertainRows[0],
+    uncertainRows[1]
+  );
+  const delivered = uncertainMetrics.find((metric) => metric.key === "delivered_total");
+  assert.equal(delivered.label, "Known delivered total");
+  assert.equal(delivered.outcome, null);
+  assert.equal(delivered.right.display, "Delivery calculated by retailer");
+});
+
+test("lower cost per serving wins, equal displayed values tie, and missing rows stay hidden", () => {
+  const comparison = loadComparison();
+  const rows = comparison.normalizeTwoProductComparison([product(1), product(2)], { now: NOW }).rows;
+  const left = { ...rows[0], pricePerServing: 0.995 };
+  const right = { ...rows[1], pricePerServing: 1.25 };
+  const metrics = productComparisonMetrics.buildProductComparisonMetrics(left, right);
+  const perServing = metrics.find((metric) => metric.key === "price_per_serving");
+  assert.equal(perServing.outcome, "left");
+  assert.ok(
+    productComparisonMetrics.buildQuickComparisonVerdict(metrics).left.includes(
+      "Lower cost per serving"
+    )
+  );
+
+  const tied = productComparisonMetrics.buildProductComparisonMetrics(
+    { ...left, pricePerServing: 1.001 },
+    { ...right, pricePerServing: 1.004 }
+  ).find((metric) => metric.key === "price_per_serving");
+  assert.equal(tied.outcome, "tie");
+  assert.equal(tied.tieLabel, "Same cost per serving");
+
+  const missing = productComparisonMetrics.buildProductComparisonMetrics(
+    { ...rows[0], proteinPerServingG: null, costPer25gProtein: null },
+    { ...rows[1], proteinPerServingG: null, costPer25gProtein: null }
+  );
+  assert.equal(missing.some((metric) => metric.key === "protein_per_serving"), false);
+  assert.equal(missing.some((metric) => metric.key === "cost_per_25g_protein"), false);
+});
+
+test("category-aware facts are evidence-backed and information-only amounts never win", () => {
+  const comparison = loadComparison();
+  const rows = comparison.normalizeTwoProductComparison([product(1), product(2)], { now: NOW }).rows;
+  const proteinMetrics = productComparisonMetrics.buildProductComparisonMetrics(
+    { ...rows[0], category: "Protein", proteinPerServingG: 20 },
+    { ...rows[1], category: "Whey Protein", proteinPerServingG: 25 }
+  );
+  assert.equal(
+    proteinMetrics.find((metric) => metric.key === "protein_per_serving").outcome,
+    "right"
+  );
+
+  const creatineMetrics = productComparisonMetrics.buildProductComparisonMetrics(
+    { ...rows[0], category: "Creatine", creatinePerServingG: 5 },
+    { ...rows[1], category: "Creatine", creatinePerServingG: 3 }
+  );
+  const creatine = creatineMetrics.find((metric) => metric.key === "creatine_per_serving");
+  assert.equal(creatine.direction, "INFORMATION_ONLY");
+  assert.equal(creatine.outcome, null);
+
+  const preWorkoutMetrics = productComparisonMetrics.buildProductComparisonMetrics(
+    {
+      ...rows[0],
+      category: "Pre Workout",
+      preWorkoutFacts: {
+        productId: "1",
+        productVariantId: "2010",
+        caffeineFreeConfirmed: false,
+        facts: [{
+          key: "caffeine",
+          informationState: "present_with_amount",
+          amountPerServingMg: 250,
+          servingSizeValue: 10,
+          servingSizeUnit: "g",
+          servingBasisText: "One scoop",
+          ingredientForm: null,
+          ingredientRatio: null,
+          sourceKinds: ["product_label"],
+        }],
+      },
+    },
+    {
+      ...rows[1],
+      category: "Pre Workout",
+      preWorkoutFacts: {
+        productId: "2",
+        productVariantId: "2020",
+        caffeineFreeConfirmed: true,
+        facts: [{
+          key: "caffeine",
+          informationState: "confirmed_absent",
+          amountPerServingMg: null,
+          servingSizeValue: null,
+          servingSizeUnit: null,
+          servingBasisText: null,
+          ingredientForm: null,
+          ingredientRatio: null,
+          sourceKinds: ["product_label"],
+        }],
+      },
+    }
+  );
+  const caffeine = preWorkoutMetrics.find((metric) => metric.key === "caffeine_per_serving");
+  assert.equal(caffeine.direction, "INFORMATION_ONLY");
+  assert.equal(caffeine.outcome, null);
+  assert.equal(caffeine.right.display, "Confirmed absent");
+});
+
+test("cross-category comparison keeps universal metrics and suppresses incompatible facts", () => {
+  const comparison = loadComparison();
+  const rows = comparison.normalizeTwoProductComparison([product(1), product(2)], { now: NOW }).rows;
+  const left = { ...rows[0], category: "Protein", proteinPerServingG: 25 };
+  const right = { ...rows[1], category: "Creatine", creatinePerServingG: 5 };
+  const metrics = productComparisonMetrics.buildProductComparisonMetrics(left, right);
+  assert.equal(productComparisonMetrics.isCrossCategoryComparison(left, right), true);
+  assert.ok(metrics.some((metric) => metric.key === "product_price"));
+  assert.equal(metrics.some((metric) => metric.key === "protein_per_serving"), false);
+  assert.equal(metrics.some((metric) => metric.key === "creatine_per_serving"), false);
+});
+
+test("out-of-stock exact variants remain identifiable without a stale current price", () => {
+  const comparison = loadComparison();
+  const [row] = comparison.normalizeTwoProductComparison([
+    product(1, [offer(10, { in_stock: false })]),
+  ], { now: NOW }).rows;
+  assert.equal(row.presentationState, "OUT_OF_STOCK");
+  assert.equal(row.bestOffer, null);
+  assert.equal(row.exactVariantLabel, "500g");
+});
+
+test("price history summary ignores invalid values and reports the comparable period", () => {
+  const comparison = loadComparison();
+  const summary = comparison.summarizeComparisonPriceHistory([
+    { offer_id: 1, total_price: 24.99, checked_at: "2026-08-01T10:00:00.000Z" },
+    { offer_id: 1, total_price: 20.5, checked_at: "2026-08-03T10:00:00.000Z" },
+    { offer_id: 1, total_price: null, checked_at: "2026-08-04T10:00:00.000Z" },
+    { offer_id: 1, total_price: 19, checked_at: "invalid" },
+  ]);
+  assert.deepEqual(summary, {
+    lowestDeliveredPrice: 20.5,
+    firstRecordedAt: "2026-08-01T10:00:00.000Z",
+    lastRecordedAt: "2026-08-03T10:00:00.000Z",
+    recordCount: 2,
+  });
+});
+
+test("search and product pages expose secondary compare entry points without bypassing tracked offers", () => {
+  const searchCard = fs.readFileSync(path.join(root, "app/components/ProductResultCard.tsx"), "utf8");
+  const productPage = fs.readFileSync(path.join(root, "app/product/[id]/page.tsx"), "utf8");
+  const comparePage = fs.readFileSync(path.join(root, "app/compare/page.tsx"), "utf8");
+  for (const source of [searchCard, productPage]) {
+    assert.match(source, /pathname:\s*"\/compare"/);
+    assert.match(source, /query:\s*\{\s*left:/);
+    assert.match(source, />\s*Compare\s*</);
+  }
+  assert.match(comparePage, /#retailer-offers/);
+  assert.doesNotMatch(comparePage, /href=\{row\.bestOffer\.url\}/);
+  assert.match(comparePage, /overflow-x-clip/);
+  assert.match(comparePage, /grid-cols-2/);
 });
 
 test("complete catalogue query is paginated and exact variant resolution is strict", async () => {
@@ -231,7 +423,11 @@ test("live-verified base is indexable while parameters stay noindex and no winne
     "../components/ComparisonCompletionAnalytics": { __esModule: true, default: () => null },
     "../components/ComparisonProductVisuals": require("./test-helpers/comparison-product-visuals"),
     "../components/ComparisonTransparencyLinks": { __esModule: true, default: () => React.createElement("a", { href: "/how-we-compare" }, "Method") },
-    "../lib/pricing": pricing,
+    "../components/StatusBadge": { __esModule: true, default: ({ children }) => React.createElement("span", null, children) },
+    "../components/SupplementScoutIcon": { __esModule: true, default: () => React.createElement("span", { "aria-hidden": "true" }) },
+    "../lib/offerFreshness": offerFreshness,
+    "../lib/productComparisonMetrics": productComparisonMetrics,
+    "../lib/productOfferPresentation": productOfferPresentation,
     "../lib/twoProductComparison": { ...comparison, getTwoProductComparison: async () => result },
   });
   const baseMetadata = await page.generateMetadata();
@@ -244,9 +440,9 @@ test("live-verified base is indexable while parameters stay noindex and no winne
     params: { left: "1", right: "2" },
   }));
   assert.match(html, /Compare two supplements side by side/);
-  assert.match(html, /Exact variant: 500g/);
-  assert.match(html, /Lowest known delivered total/);
-  assert.match(html, /no product is declared a winner/i);
+  assert.match(html, /Selected variant: 500g/);
+  assert.match(html, /Total delivered price/);
+  assert.match(html, /not an overall score or a quality recommendation/i);
   assert.doesNotMatch(html, /is the winner|best product|recommended product/i);
   assert.deepEqual(page.buildTwoProductComparisonStructuredData()["@graph"].map((node) => node["@type"]), ["WebPage", "BreadcrumbList"]);
 });

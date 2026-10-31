@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { CategoryComparisonRow } from "../lib/categoryComparison";
 import { OFFER_PRESENTATION_LABELS } from "../lib/offerFreshness";
@@ -21,6 +22,39 @@ function formatCheckedAt(value: string | null) {
     timeStyle: "short",
     timeZone: "Europe/London",
   }).format(new Date(value));
+}
+
+export function ComparisonProductHeroImage({
+  image,
+  name,
+  productUrl,
+}: {
+  image: string | null;
+  name: string;
+  productUrl: string;
+}) {
+  return (
+    <Link
+      href={productUrl}
+      aria-label={`View offers for ${name}`}
+      className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-2xl border border-[var(--ss-border)] bg-[var(--ss-surface-muted)] p-2 focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
+    >
+      {image ? (
+        <Image
+          src={image}
+          alt={name}
+          fill
+          unoptimized
+          sizes="(max-width: 639px) 44vw, (max-width: 1023px) 320px, 520px"
+          className="object-contain p-3 sm:p-6"
+        />
+      ) : (
+        <span className="px-2 text-center text-xs font-semibold text-zinc-500">
+          Image unavailable
+        </span>
+      )}
+    </Link>
+  );
 }
 
 export function ComparisonProductThumbnail({

@@ -719,33 +719,43 @@ export default async function ProductPage({
                     )}
                   </div>
 
-                  {cheapestOffer ? (
-                    <RetailerOfferLink
-                      href={productOfferHref(cheapestOffer.id, "product_best_offer")}
-                      event={{
-                        ...productAnalytics,
-                        variant_id: String(cheapestOffer.product_variant_id),
-                        retailer_id: cheapestOffer.retailer?.id ? String(cheapestOffer.retailer.id) : undefined,
-                        retailer_name: cheapestOffer.retailer?.name || undefined,
-                        offer_price: getKnownProductPrice(cheapestOffer.price) ?? undefined,
-                        position: 1,
-                        source_page: "product_best_offer",
-                        is_affiliate: false,
-                      }}
-                      className="flex min-h-12 w-full min-w-0 max-w-full shrink-0 items-center justify-center gap-2 rounded-2xl bg-[var(--ss-ink)] px-6 py-3 text-center font-semibold text-white hover:bg-[var(--ss-accent-strong)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2 lg:w-auto lg:min-w-48 lg:px-8"
+                  <div className="grid w-full min-w-0 gap-2 lg:w-auto lg:min-w-48">
+                    {cheapestOffer ? (
+                      <RetailerOfferLink
+                        href={productOfferHref(cheapestOffer.id, "product_best_offer")}
+                        event={{
+                          ...productAnalytics,
+                          variant_id: String(cheapestOffer.product_variant_id),
+                          retailer_id: cheapestOffer.retailer?.id ? String(cheapestOffer.retailer.id) : undefined,
+                          retailer_name: cheapestOffer.retailer?.name || undefined,
+                          offer_price: getKnownProductPrice(cheapestOffer.price) ?? undefined,
+                          position: 1,
+                          source_page: "product_best_offer",
+                          is_affiliate: false,
+                        }}
+                        className="flex min-h-12 w-full min-w-0 max-w-full shrink-0 items-center justify-center gap-2 rounded-2xl bg-[var(--ss-ink)] px-6 py-3 text-center font-semibold text-white hover:bg-[var(--ss-accent-strong)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2 lg:px-8"
+                      >
+                        Go to{" "}
+                        {cheapestOffer.retailer?.name || "retailer"}
+                        <SupplementScoutIcon name="external-link" size={18} />
+                      </RetailerOfferLink>
+                    ) : (
+                      <button
+                        disabled
+                        className="min-h-12 w-full cursor-not-allowed rounded-2xl bg-zinc-300 px-8 py-3 font-semibold text-[#4B5563]"
+                      >
+                        No offer available
+                      </button>
+                    )}
+                    <Link
+                      href={{ pathname: "/compare", query: { left: String(product.id) } }}
+                      aria-label={`Compare ${product.name} with another product`}
+                      className="flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-[var(--ss-border-strong)] px-5 py-2.5 text-center text-sm font-semibold text-[var(--ss-ink)] hover:bg-[var(--ss-surface-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
                     >
-                      Go to{" "}
-                      {cheapestOffer.retailer?.name || "retailer"}
-                      <SupplementScoutIcon name="external-link" size={18} />
-                    </RetailerOfferLink>
-                  ) : (
-                    <button
-                      disabled
-                      className="min-h-12 w-full cursor-not-allowed rounded-2xl bg-zinc-300 px-8 py-3 font-semibold text-[#4B5563] lg:w-auto"
-                    >
-                      No offer available
-                    </button>
-                  )}
+                      Compare
+                      <SupplementScoutIcon name="calculator" size={16} />
+                    </Link>
+                  </div>
 
                 </div>
               </div>
