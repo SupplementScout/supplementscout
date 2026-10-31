@@ -226,6 +226,7 @@ const APPLIED_EXCLUSIONS = Object.freeze({
     "20261008140000_add_active_retailer_parent_inventory.sql",
     "20261008200000_consolidate_shared_executor_state_reads.sql",
     "20261009120000_add_compact_other_retailer_fingerprint.sql",
+    "20261030120000_create_sealed_artifacts_registry.sql",
   ]),
 });
 
