@@ -1161,7 +1161,16 @@ test("shared retailer workflow publishes Fit House, 10 Reps and Gladiator throug
   assert.equal((action.match(/shared-retailer-automation-review-source\.js/g) || []).length, 1);
   assert.equal((action.match(/automation-review-reconciliation-apply\.js/g) || []).length, 1);
   assert.match(action, /--mode=reconcile[\s\S]*--profile=\$\{\{ inputs\.profile \}\}/);
+  assert.match(action, /durable-sealed-artifacts-enforcement:\s*\n\s*description:[^\n]+\n\s*required: false\s*\n\s*default: ""/);
+  assert.doesNotMatch(action, /vars\.DURABLE_SEALED_ARTIFACTS_ENFORCEMENT/);
+  assert.equal((action.match(/DURABLE_SEALED_ARTIFACTS_ENFORCEMENT: \$\{\{ inputs\.durable-sealed-artifacts-enforcement \}\}/g) || []).length, 2);
+  assert.equal((queueJob.match(/durable-sealed-artifacts-enforcement: \$\{\{ vars\.DURABLE_SEALED_ARTIFACTS_ENFORCEMENT \}\}/g) || []).length, 3);
   assert.doesNotMatch(action, /fit-house|10reps|gladiator-nutrition|--mode=apply|register_|APPROVER_DATABASE_URL|EXECUTOR_DATABASE_URL/);
+  for (const displayName of ["Fit House", "10 Reps", "Gladiator Nutrition"]) {
+    const publication = queueJob.match(new RegExp(`- name: Reconcile and publish fresh ${displayName} Review Queue source[\\s\\S]*?(?=\\n      - name:)`))?.[0] || "";
+    assert.match(publication, /uses: \.\/\.github\/actions\/publish-automation-review-queue/);
+    assert.match(publication, /durable-sealed-artifacts-enforcement: \$\{\{ vars\.DURABLE_SEALED_ARTIFACTS_ENFORCEMENT \}\}/);
+  }
   const gladiatorPublication = queueJob.match(/- name: Reconcile and publish fresh Gladiator Nutrition Review Queue source[\s\S]*?(?=\n      - name: Upload shared queue refresh evidence)/)?.[0] || "";
   assert.match(gladiatorPublication, /inputs\.operation == 'review-only'/);
   assert.match(gladiatorPublication, /inputs\.retailer == 'gladiator-nutrition'/);

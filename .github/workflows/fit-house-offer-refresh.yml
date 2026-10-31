@@ -430,6 +430,7 @@ jobs:
           github-token: ${{ github.token }}
           supabase-url: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           service-role-key: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          durable-sealed-artifacts-enforcement: ${{ vars.DURABLE_SEALED_ARTIFACTS_ENFORCEMENT }}
       - name: Reconcile and publish fresh 10 Reps Review Queue source
         if: ${{ needs.ten-reps-offer-refresh.outputs.source_contract_sha256 != '' }}
         uses: ./.github/actions/publish-automation-review-queue
@@ -446,6 +447,7 @@ jobs:
           github-token: ${{ github.token }}
           supabase-url: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           service-role-key: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          durable-sealed-artifacts-enforcement: ${{ vars.DURABLE_SEALED_ARTIFACTS_ENFORCEMENT }}
       - name: Reconcile and publish fresh Gladiator Nutrition Review Queue source
         if: ${{ ((github.event_name == 'workflow_dispatch' && inputs.retailer == 'gladiator-nutrition' && inputs.operation == 'review-only') || (github.event_name == 'schedule' && github.event.schedule == '17 8 * * *')) && needs.gladiator-nutrition-offer-refresh.outputs.source_contract_sha256 != '' }}
         uses: ./.github/actions/publish-automation-review-queue
@@ -462,6 +464,7 @@ jobs:
           github-token: ${{ github.token }}
           supabase-url: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           service-role-key: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          durable-sealed-artifacts-enforcement: ${{ vars.DURABLE_SEALED_ARTIFACTS_ENFORCEMENT }}
       - name: Upload shared queue refresh evidence
         if: always()
         uses: actions/upload-artifact@v7
