@@ -25,7 +25,8 @@ export default function MySupplementsShortcut() {
   return (
     <Link
       href="/my-supplements"
-      className="fixed bottom-4 right-4 z-30 inline-flex min-h-12 items-center rounded-full border border-zinc-300 bg-white px-5 text-sm font-bold text-zinc-950 shadow-lg hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2"
+      data-my-supplements-shortcut
+      className="static z-30 mb-[max(0.75rem,env(safe-area-inset-bottom))] mr-[max(0.75rem,env(safe-area-inset-right))] mt-4 inline-flex min-h-12 max-w-[calc(100vw-1.5rem)] self-end items-center rounded-full border border-[var(--ss-border-strong)] bg-white px-4 text-sm font-bold text-[var(--ss-ink)] shadow-[0_10px_30px_rgba(16,32,27,0.14)] hover:border-[var(--ss-accent)] hover:bg-[var(--ss-surface-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2 sm:fixed sm:bottom-4 sm:right-4 sm:m-0 sm:px-5"
       aria-label={`My Supplements, ${count} saved`}
     >
       My Supplements{count > 0 ? ` (${count})` : ""}

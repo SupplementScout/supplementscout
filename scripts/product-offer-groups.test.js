@@ -96,6 +96,20 @@ function loadRetailerOfferCard() {
       return { sendAnalyticsEvent: () => {} };
     }
 
+    if (parent === mod && request === "./StatusBadge") {
+      return {
+        __esModule: true,
+        default: ({ children }) => React.createElement("span", null, children),
+      };
+    }
+
+    if (parent === mod && request === "./SupplementScoutIcon") {
+      return {
+        __esModule: true,
+        default: () => React.createElement("svg", { "aria-hidden": "true" }),
+      };
+    }
+
     return originalLoad.call(this, request, parent, isMain);
   };
 

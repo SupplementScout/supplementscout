@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import ActiveSearchFilters from "../components/ActiveSearchFilters";
 import ProductResultCard from "../components/ProductResultCard";
+import SupplementScoutIcon from "../components/SupplementScoutIcon";
 import SearchInput from "../components/SearchInput";
 import SearchPagination from "../components/SearchPagination";
 import SearchAnalyticsEvents from "../components/SearchAnalyticsEvents";
@@ -147,12 +148,15 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
       <section className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
         <SearchInput key={query} initialQuery={query} variant="compact" />
-        <p className="mt-3 text-sm leading-6 text-zinc-600">
-          Delivered totals include known shipping. When delivery is unknown, we mark it as calculated by the retailer and do not call it the confirmed cheapest delivered option.
-        </p>
+        <div className="mt-3 flex items-start gap-2 rounded-2xl border border-[var(--ss-border)] bg-[var(--ss-surface-muted)] px-4 py-3 text-sm leading-6 text-zinc-600">
+          <SupplementScoutIcon name="truck" size={18} className="mt-0.5 shrink-0 text-[var(--ss-accent)]" />
+          <p>
+            Delivered totals include known shipping. When delivery is unknown, we mark it as calculated by the retailer and do not call it the confirmed cheapest delivered option.
+          </p>
+        </div>
 
         {!hasQuery && (
-          <div className="mt-8 rounded-lg border border-zinc-200 bg-white p-8 text-center">
+          <div className="ss-card mt-8 p-8 text-center">
             <h1 className="text-3xl font-bold">Search supplement deals</h1>
             <p className="mx-auto mt-3 max-w-2xl text-zinc-600">
               Enter a product, brand or category to compare in-stock UK retailer

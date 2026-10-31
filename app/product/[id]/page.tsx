@@ -3,6 +3,8 @@ import RetailerOfferCard from "../../components/RetailerOfferCard";
 import ComparisonTransparencyLinks from "../../components/ComparisonTransparencyLinks";
 import SaveToMySupplementsButton from "../../components/SaveToMySupplementsButton";
 import ReviewedPreWorkoutFacts from "../../components/ReviewedPreWorkoutFacts";
+import StatusBadge from "../../components/StatusBadge";
+import SupplementScoutIcon from "../../components/SupplementScoutIcon";
 import {
   BetterValueAlternativeLink,
   BetterValueAlternativesImpression,
@@ -582,7 +584,7 @@ export default async function ProductPage({
         <div className="mt-5 grid min-w-0 max-w-full grid-cols-[minmax(0,1fr)] gap-5 lg:mt-8 lg:grid-cols-2 lg:gap-10">
           <div
             data-product-image
-            className="relative order-2 flex h-[220px] min-w-0 items-center justify-center overflow-hidden rounded-3xl border border-zinc-200 bg-white p-4 shadow-[0_18px_50px_rgba(15,23,42,0.07)] sm:h-[280px] sm:p-6 lg:order-none lg:aspect-square lg:h-auto lg:p-0"
+            className="ss-card relative order-2 flex h-[220px] min-w-0 items-center justify-center overflow-hidden p-4 sm:h-[280px] sm:p-6 lg:order-none lg:aspect-square lg:h-auto lg:p-0"
           >
             {product.image ? (
               <Image
@@ -651,24 +653,24 @@ export default async function ProductPage({
               {heroFacts.length > 0 && (
                 <dl className="mt-4 flex flex-wrap gap-2 text-sm text-zinc-700">
                   {heroFacts.map((fact) => (
-                    <div
-                      key={fact.label}
-                      className="rounded-full border border-zinc-200 bg-white px-3 py-1.5"
-                    >
+                    <div key={fact.label} className="ss-badge ss-badge--neutral">
                       <dt className="sr-only">{fact.label}</dt>
-                      <dd className="font-semibold">{fact.value}</dd>
+                      <dd className="flex items-center gap-1.5 font-semibold">
+                        <SupplementScoutIcon name="package" size={16} />
+                        {fact.value}
+                      </dd>
                     </div>
                   ))}
                 </dl>
               )}
 
-              <div className="mt-5 w-full min-w-0 max-w-full rounded-3xl border border-zinc-200 bg-white p-5 shadow-[0_18px_50px_rgba(15,23,42,0.07)] sm:mt-7 sm:p-6 lg:mt-8 lg:p-8">
+              <div className="ss-card mt-5 w-full min-w-0 max-w-full p-5 sm:mt-7 sm:p-6 lg:mt-8 lg:p-8">
                 <div className="grid min-w-0 max-w-full grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
                   <div className="min-w-0 max-w-full">
-                    <p className="text-sm font-semibold text-[#4B5563]">
+                    <StatusBadge tone={bestOfferPrice ? "comparison" : "evidence"} icon={bestOfferPrice ? "receipt" : "clock"}>
                       {bestOfferPrice?.label || OFFER_PRESENTATION_LABELS[offerPresentation.state]}
-                    </p>
-                    <div className="mt-1 break-words text-[48px] font-extrabold leading-none text-[#111827] [overflow-wrap:anywhere] sm:text-6xl lg:text-5xl">
+                    </StatusBadge>
+                    <div className="mt-3 break-words text-[48px] font-extrabold leading-none tracking-[-0.04em] text-[var(--ss-ink)] [overflow-wrap:anywhere] sm:text-6xl lg:text-5xl">
                       {bestOfferPrice?.primaryPrice || "Price unavailable"}
                     </div>
                     {bestOfferPrice && (
@@ -678,16 +680,18 @@ export default async function ProductPage({
                     )}
 
                     {cheapestOffer && (
-                      <div className="mt-4 min-w-0 max-w-full space-y-1 border-t border-zinc-200 pt-4 text-sm text-[#4B5563]">
+                      <div className="mt-4 min-w-0 max-w-full space-y-2 border-t border-zinc-200 pt-4 text-sm text-[#4B5563]">
                         <p className="break-words font-semibold text-[#111827] [overflow-wrap:anywhere]">
                           {cheapestOffer.retailer?.name || "Unknown retailer"}
                         </p>
-                        <p>
+                        <p className="flex items-start gap-2">
+                          <SupplementScoutIcon name="clock" size={16} className="mt-0.5 shrink-0 text-[var(--ss-accent)]" />
                           {cheapestOfferCheckedAt
                             ? `Price checked ${cheapestOfferCheckedAt}`
                             : "Price check date unavailable"}
                         </p>
-                        <p>
+                        <p className="flex items-start gap-2">
+                          <SupplementScoutIcon name="store" size={16} className="mt-0.5 shrink-0 text-[var(--ss-accent)]" />
                           {sortedOffers.length} in-stock offer{sortedOffers.length === 1 ? "" : "s"} from{" "}
                           {retailerOfferGroups.length} retailer{retailerOfferGroups.length === 1 ? "" : "s"}
                         </p>
@@ -728,10 +732,11 @@ export default async function ProductPage({
                         source_page: "product_best_offer",
                         is_affiliate: false,
                       }}
-                      className="flex min-h-12 w-full min-w-0 max-w-full shrink-0 items-center justify-center rounded-2xl bg-black px-6 py-3 text-center font-semibold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 lg:w-auto lg:min-w-48 lg:px-8"
+                      className="flex min-h-12 w-full min-w-0 max-w-full shrink-0 items-center justify-center gap-2 rounded-2xl bg-[var(--ss-ink)] px-6 py-3 text-center font-semibold text-white hover:bg-[var(--ss-accent-strong)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2 lg:w-auto lg:min-w-48 lg:px-8"
                     >
                       Go to{" "}
                       {cheapestOffer.retailer?.name || "retailer"}
+                      <SupplementScoutIcon name="external-link" size={18} />
                     </RetailerOfferLink>
                   ) : (
                     <button
@@ -768,14 +773,19 @@ export default async function ProductPage({
               <section
                 id="retailer-offers"
                 aria-labelledby="retailer-offers-heading"
-                className="w-full min-w-0 max-w-full rounded-3xl border border-zinc-200 bg-white p-5 shadow-[0_18px_50px_rgba(15,23,42,0.07)] sm:p-6 lg:mt-8 lg:p-8"
+                className="ss-card w-full min-w-0 max-w-full p-5 sm:p-6 lg:mt-8 lg:p-8"
               >
-                <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--ss-accent)]">
-                  Compare retailers
-                </p>
-                <h2 id="retailer-offers-heading" className="mt-2 text-2xl font-bold text-gray-900">
-                  Retailer offers
-                </h2>
+                <div className="flex items-center gap-3">
+                  <span className="ss-icon-tile h-11 w-11"><SupplementScoutIcon name="store" size={20} /></span>
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--ss-accent)]">
+                      Compare retailers
+                    </p>
+                    <h2 id="retailer-offers-heading" className="mt-1 text-2xl font-bold text-gray-900">
+                      Retailer offers
+                    </h2>
+                  </div>
+                </div>
 
                 {sortedOffers.length > 0 && (
                   <p className="mt-2 text-sm leading-6 text-gray-600">
@@ -823,15 +833,18 @@ export default async function ProductPage({
 
               <section
                 aria-labelledby="comparison-trust-heading"
-                className="mt-5 rounded-3xl border border-zinc-200 bg-[var(--ss-surface-muted)] p-5 sm:mt-7 sm:p-6"
+                className="mt-5 rounded-3xl border border-[var(--ss-border)] bg-[var(--ss-surface-muted)] p-5 sm:mt-7 sm:p-6"
               >
-                <h2 id="comparison-trust-heading" className="text-lg font-bold text-[var(--ss-ink)]">
-                  What these prices mean
-                </h2>
+                <div className="flex items-center gap-3">
+                  <span className="ss-icon-tile h-10 w-10 bg-white"><SupplementScoutIcon name="shield" size={20} /></span>
+                  <h2 id="comparison-trust-heading" className="text-lg font-bold text-[var(--ss-ink)]">
+                    What these prices mean
+                  </h2>
+                </div>
                 <ul className="mt-4 grid gap-3 text-sm leading-6 text-zinc-700 sm:grid-cols-3">
-                  <li><strong className="block text-zinc-950">Recently checked</strong>Only fresh in-stock offers are ranked as current.</li>
-                  <li><strong className="block text-zinc-950">Delivery stays explicit</strong>Unknown delivery is never assumed to be free.</li>
-                  <li><strong className="block text-zinc-950">Verified unit costs</strong>Per-serving and per-unit values appear only with supporting data.</li>
+                  <li className="rounded-2xl border border-white bg-white/75 p-4"><SupplementScoutIcon name="clock" size={18} className="mb-2 text-[var(--ss-accent)]" /><strong className="block text-zinc-950">Recently checked</strong>Only fresh in-stock offers are ranked as current.</li>
+                  <li className="rounded-2xl border border-white bg-white/75 p-4"><SupplementScoutIcon name="truck" size={18} className="mb-2 text-[var(--ss-accent)]" /><strong className="block text-zinc-950">Delivery stays explicit</strong>Unknown delivery is never assumed to be free.</li>
+                  <li className="rounded-2xl border border-white bg-white/75 p-4"><SupplementScoutIcon name="calculator" size={18} className="mb-2 text-[var(--ss-accent)]" /><strong className="block text-zinc-950">Verified unit costs</strong>Per-serving and per-unit values appear only with supporting data.</li>
                 </ul>
                 <div className="mt-4 flex flex-wrap gap-4 text-sm">
                   <ComparisonTransparencyLinks />
@@ -1088,8 +1101,14 @@ export default async function ProductPage({
                   </div>
                 </section>
               )}
-            <section className="mt-8 w-full min-w-0 max-w-full overflow-hidden rounded-3xl border border-zinc-200 bg-white p-5 shadow-[0_12px_36px_rgba(15,23,42,0.05)] sm:p-8">
-              <h2 className="text-2xl font-bold text-gray-900">Price history</h2>
+            <section className="ss-card mt-8 w-full min-w-0 max-w-full overflow-hidden p-5 sm:p-8">
+              <div className="flex items-center gap-3">
+                <span className="ss-icon-tile h-11 w-11"><SupplementScoutIcon name="chart" size={20} /></span>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--ss-accent)]">Recorded prices</p>
+                  <h2 className="mt-1 text-2xl font-bold text-gray-900">Price history</h2>
+                </div>
+              </div>
 
               <div className="mt-6">
                 <PriceHistoryChart data={chartData} currentPrice={cheapestTotal} />

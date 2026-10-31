@@ -14,6 +14,8 @@ import { formatCurrency, getKnownProductPrice } from "../lib/pricing";
 import { sendAnalyticsEvent } from "../lib/analytics";
 import { calculateDeliveredSavings } from "../lib/productOfferPresentation";
 import type { ProductAnalyticsContext } from "./ProductAnalytics";
+import StatusBadge from "./StatusBadge";
+import SupplementScoutIcon from "./SupplementScoutIcon";
 
 function formatShipping(value: number | string | null) {
   if (value === null || value === "") return "Delivery calculated by retailer";
@@ -85,18 +87,22 @@ export default function RetailerOfferCard({
     : null;
 
   return (
-    <article className="w-full min-w-0 max-w-full rounded-2xl border border-zinc-200 bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,0.05)] sm:p-5">
+    <article className="w-full min-w-0 max-w-full ss-card ss-card-interactive p-4 sm:p-5">
       <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex min-w-0 items-center gap-3">
-          {group.retailer?.logo && (
-            // Retailer logos are remote, data-driven URLs and keep their natural aspect ratio.
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={group.retailer.logo}
-              alt=""
-              className="h-10 w-10 shrink-0 rounded-lg object-contain"
-            />
-          )}
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-[var(--ss-border)] bg-[var(--ss-surface-muted)] p-1.5">
+            {group.retailer?.logo ? (
+              // Retailer logos are remote, data-driven URLs and keep their natural aspect ratio.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={group.retailer.logo}
+                alt=""
+                className="h-full w-full object-contain"
+              />
+            ) : (
+              <SupplementScoutIcon name="store" size={20} className="text-[var(--ss-accent)]" />
+            )}
+          </div>
           <div className="min-w-0">
             <h3 className="break-words font-semibold text-gray-900 [overflow-wrap:anywhere]">
               {group.retailer?.name || "Unknown retailer"}
@@ -117,11 +123,11 @@ export default function RetailerOfferCard({
         <div className="min-w-0 text-left sm:text-right">
           {selectedIsBestDeliveredPrice && (
             <div className="mb-2 flex flex-wrap items-center gap-2 sm:justify-end">
-              <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-800">
+              <StatusBadge tone="comparison" icon="receipt">
                 {deliveryComparisonComplete
                   ? "Lowest delivered price"
                   : "Lowest known delivered price"}
-              </span>
+              </StatusBadge>
               {deliveredSavings !== null && (
                 <span className="text-xs font-bold text-emerald-700">
                   Save {formatCurrency(deliveredSavings)}
@@ -129,20 +135,20 @@ export default function RetailerOfferCard({
               )}
             </div>
           )}
-          <span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800">
+          <StatusBadge tone="availability" icon="check">
             In stock
-          </span>
-          <dl className="mt-3 grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1 text-sm">
-            <dt className="text-gray-600">Product</dt>
+          </StatusBadge>
+          <dl className="mt-3 grid grid-cols-[minmax(0,1fr)_minmax(0,auto)] gap-x-4 gap-y-2 text-sm">
+            <dt className="flex items-center gap-1.5 text-gray-600"><SupplementScoutIcon name="package" size={16} />Product</dt>
             <dd className="text-right font-semibold text-gray-900">
               {formatProductPrice(selectedOffer.price)}
             </dd>
-            <dt className="text-gray-600">Delivery</dt>
+            <dt className="flex items-center gap-1.5 text-gray-600"><SupplementScoutIcon name="truck" size={16} />Delivery</dt>
             <dd className="text-right font-semibold text-gray-900">
               {formatShipping(selectedOffer.shipping_cost).replace(/^Delivery:\s*/, "")}
             </dd>
-            <dt className="pt-2 font-semibold text-gray-700">Total</dt>
-            <dd className="pt-2 text-right text-2xl font-bold text-gray-900">
+            <dt className="flex items-center gap-1.5 border-t border-zinc-200 pt-3 font-semibold text-gray-700"><SupplementScoutIcon name="receipt" size={16} />Total</dt>
+            <dd className="border-t border-zinc-200 pt-3 text-right text-2xl font-extrabold tracking-tight text-[var(--ss-ink)]">
               {selectedDeliveredTotal !== null
                 ? formatCurrency(selectedDeliveredTotal)
                 : "Calculated at checkout"}
@@ -226,9 +232,10 @@ export default function RetailerOfferCard({
               is_affiliate: false,
             });
           }}
-          className="flex min-h-12 w-full min-w-0 max-w-full shrink-0 items-center justify-center rounded-xl bg-black px-5 py-3 text-center text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 sm:w-auto"
+          className="flex min-h-12 w-full min-w-0 max-w-full shrink-0 items-center justify-center rounded-xl gap-2 bg-[var(--ss-ink)] px-5 py-3 text-center text-sm font-semibold text-white hover:bg-[var(--ss-accent-strong)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2 sm:w-auto"
         >
           Go to retailer{selectedVariantLabel ? ` · ${selectedVariantLabel}` : ""}
+          <SupplementScoutIcon name="external-link" size={16} />
         </a>
       </div>
     </article>

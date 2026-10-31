@@ -32,7 +32,7 @@ export default function HomeCategories({
             <Link
               key={item.label}
               href={item.href}
-              className={`rounded-2xl border border-zinc-200 bg-white p-5 text-left shadow-sm hover:border-zinc-950 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 sm:p-6 ${
+              className={`ss-card ss-card-interactive p-5 text-left focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2 sm:p-6 ${
                 !showAllCategories && index >= MOBILE_CATEGORY_LIMIT
                   ? "hidden md:block"
                   : ""

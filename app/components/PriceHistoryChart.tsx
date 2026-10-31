@@ -54,7 +54,7 @@ export default function PriceHistoryChart({
   return (
     <div>
       <dl className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-2xl bg-[var(--ss-surface-muted)] p-4">
+        <div className="rounded-2xl border border-[var(--ss-border)] bg-[var(--ss-surface-muted)] p-4">
           <dt className="text-xs font-bold uppercase tracking-[0.12em] text-zinc-500">
             Current delivered price
           </dt>
@@ -62,7 +62,7 @@ export default function PriceHistoryChart({
             {currentPrice === null ? "Unavailable" : formatCurrency(currentPrice)}
           </dd>
         </div>
-        <div className="rounded-2xl bg-[var(--ss-surface-muted)] p-4">
+        <div className="rounded-2xl border border-[#cfe1d6] bg-[#edf5f0] p-4">
           <dt className="text-xs font-bold uppercase tracking-[0.12em] text-zinc-500">
             Lowest recorded
           </dt>
@@ -70,7 +70,7 @@ export default function PriceHistoryChart({
             {lowest === null ? "Unavailable" : formatCurrency(lowest)}
           </dd>
         </div>
-        <div className="rounded-2xl bg-[var(--ss-surface-muted)] p-4">
+        <div className="rounded-2xl border border-[var(--ss-border)] bg-[var(--ss-surface-muted)] p-4">
           <dt className="text-xs font-bold uppercase tracking-[0.12em] text-zinc-500">
             Recorded trend
           </dt>
@@ -78,7 +78,7 @@ export default function PriceHistoryChart({
             {trendLabel(validData)}
           </dd>
         </div>
-        <div className="rounded-2xl bg-[var(--ss-surface-muted)] p-4">
+        <div className="rounded-2xl border border-[var(--ss-border)] bg-[var(--ss-surface-muted)] p-4">
           <dt className="text-xs font-bold uppercase tracking-[0.12em] text-zinc-500">
             History period
           </dt>
@@ -89,7 +89,11 @@ export default function PriceHistoryChart({
       </dl>
 
       {chartPoints.length >= 2 ? (
-        <div className="mt-6 overflow-hidden rounded-2xl border border-zinc-200 bg-white p-3 sm:p-5">
+        <div className="mt-6 overflow-hidden rounded-2xl border border-[var(--ss-border)] bg-white p-3 sm:p-5">
+          <div className="mb-3 flex items-center gap-2 text-xs font-semibold text-zinc-600">
+            <span className="h-0.5 w-6 rounded-full bg-[var(--ss-accent)]" aria-hidden="true" />
+            Recorded delivered total
+          </div>
           <svg
             viewBox={`0 0 ${chartWidth} ${chartHeight}`}
             role="img"

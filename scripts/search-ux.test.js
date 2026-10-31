@@ -123,6 +123,32 @@ test("mobile search card keeps identity before price and uses shared price prese
   assert.doesNotMatch(source, /line-clamp/);
 });
 
+test("visual polish uses one accessible shared icon and badge vocabulary", () => {
+  const iconSource = fs.readFileSync(
+    path.join(process.cwd(), "app", "components", "SupplementScoutIcon.tsx"),
+    "utf8"
+  );
+  const badgeSource = fs.readFileSync(
+    path.join(process.cwd(), "app", "components", "StatusBadge.tsx"),
+    "utf8"
+  );
+  const cardSource = fs.readFileSync(
+    path.join(process.cwd(), "app", "components", "ProductResultCard.tsx"),
+    "utf8"
+  );
+
+  assert.doesNotMatch(iconSource, /^"use client"/);
+  assert.match(iconSource, /stroke="currentColor"/);
+  assert.match(iconSource, /strokeWidth="1\.75"/);
+  assert.match(iconSource, /strokeLinecap="round"/);
+  assert.match(iconSource, /aria-hidden="true"/);
+  assert.match(iconSource, /size\?: 16 \| 18 \| 20 \| 24/);
+  assert.match(badgeSource, /"availability" \| "comparison" \| "evidence" \| "neutral"/);
+  assert.match(badgeSource, /className=\{`ss-badge/);
+  assert.match(cardSource, /<StatusBadge tone="availability" icon="check">/);
+  assert.match(cardSource, /<StatusBadge tone="neutral" icon="store">/);
+});
+
 test("search and landing queries do not require an offer row to expose a product", () => {
   const source = fs.readFileSync(
     path.join(process.cwd(), "app", "lib", "products.ts"),

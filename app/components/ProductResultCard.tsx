@@ -10,6 +10,8 @@ import {
   primarySearchValueMetric,
   searchResultSize,
 } from "../lib/searchResultPresentation";
+import StatusBadge from "./StatusBadge";
+import SupplementScoutIcon from "./SupplementScoutIcon";
 
 function productHref(product: ProductSearchResult) {
   const base = `/product/${product.slug || product.id}`;
@@ -56,12 +58,12 @@ export default function ProductResultCard({
   return (
     <article
       data-search-card={searchMobileFirst ? "primary" : undefined}
-      className="w-full min-w-0 overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-[0_12px_36px_rgba(15,23,42,0.06)]"
+      className="ss-card ss-card-interactive w-full min-w-0 overflow-hidden"
     >
-      <div className="grid min-w-0 grid-cols-[96px_minmax(0,1fr)] gap-4 p-4 sm:grid-cols-[120px_minmax(0,1fr)] sm:p-5 md:grid-cols-[132px_minmax(0,1fr)_260px] md:items-center md:gap-6">
+      <div className="grid min-w-0 grid-cols-[104px_minmax(0,1fr)] gap-4 p-4 sm:grid-cols-[128px_minmax(0,1fr)] sm:p-5 md:grid-cols-[144px_minmax(0,1fr)_268px] md:items-center md:gap-6">
         <Link
           href={productHref(product)}
-          className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-2xl border border-zinc-100 bg-[var(--ss-surface-muted)] p-2 focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
+          className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-2xl border border-[var(--ss-border)] bg-[var(--ss-surface-muted)] p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
           aria-label={`View offers for ${product.name}`}
         >
           {product.image ? (
@@ -70,8 +72,8 @@ export default function ProductResultCard({
               alt={product.name}
               fill
               unoptimized
-              sizes="(max-width: 639px) 96px, (max-width: 767px) 120px, 132px"
-              className="object-contain p-2"
+              sizes="(max-width: 639px) 104px, (max-width: 767px) 128px, 144px"
+              className="object-contain p-2.5"
             />
           ) : (
             <span className="px-2 text-center text-xs font-semibold text-zinc-500">
@@ -94,21 +96,24 @@ export default function ProductResultCard({
           </Link>
 
           {(packageSize || verifiedServings) && (
-            <p className="mt-1.5 text-sm text-zinc-600">
-              {[packageSize, verifiedServings ? `${verifiedServings} verified servings` : null]
-                .filter(Boolean)
-                .join(" · ")}
+            <p className="mt-2 flex items-start gap-1.5 text-sm leading-5 text-zinc-600">
+              <SupplementScoutIcon name="package" size={16} className="mt-0.5 shrink-0 text-zinc-500" />
+              <span>
+                {[packageSize, verifiedServings ? `${verifiedServings} verified servings` : null]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </span>
             </p>
           )}
 
           {cheapestOffer && (
-            <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
-              <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-800">
+            <div className="mt-3 flex flex-wrap gap-2">
+              <StatusBadge tone="availability" icon="check">
                 In stock
-              </span>
-              <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-zinc-700">
+              </StatusBadge>
+              <StatusBadge tone="neutral" icon="store">
                 {availabilityLabel}
-              </span>
+              </StatusBadge>
             </div>
           )}
         </div>
@@ -120,7 +125,7 @@ export default function ProductResultCard({
 
           {pricePresentation ? (
             <>
-              <p className="mt-1 text-3xl font-extrabold leading-none tracking-tight text-[var(--ss-ink)]">
+              <p className="mt-1.5 text-3xl font-extrabold leading-none tracking-[-0.035em] text-[var(--ss-ink)]">
                 {pricePresentation.primaryPrice}
               </p>
               <p className="mt-2 text-sm font-medium leading-5 text-zinc-700">
@@ -149,9 +154,10 @@ export default function ProductResultCard({
 
           <Link
             href={productHref(product)}
-            className="mt-4 flex min-h-12 w-full items-center justify-center rounded-xl bg-[var(--ss-ink)] px-4 py-3 text-center text-sm font-semibold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
+            className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--ss-ink)] px-4 py-3 text-center text-sm font-semibold text-white hover:bg-[var(--ss-accent-strong)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
           >
             View offers
+            <SupplementScoutIcon name="external-link" size={16} />
           </Link>
         </div>
       </div>

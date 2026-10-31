@@ -3,6 +3,8 @@ import ComparisonTransparencyLinks from "./components/ComparisonTransparencyLink
 import HomeCategories from "./components/HomeCategories";
 import HomeHeader from "./components/HomeHeader";
 import SearchInput from "./components/SearchInput";
+import StatusBadge from "./components/StatusBadge";
+import SupplementScoutIcon from "./components/SupplementScoutIcon";
 import {
   categoryBrowseHref,
   COMPARISON_CATEGORY_LINKS,
@@ -31,6 +33,13 @@ const popularSearches = [
   { label: "Vitamin D", href: "/vitamin-d" },
   { label: "Electrolytes", query: "electrolytes" },
 ];
+
+const comparisonHighlights = [
+  { icon: "store", label: "Compare UK retailers" },
+  { icon: "truck", label: "Delivered prices" },
+  { icon: "chart", label: "Price history" },
+  { icon: "calculator", label: "Cost per serving" },
+] as const;
 
 const goalLinks = [
   {
@@ -117,10 +126,10 @@ export default async function Home() {
     <main className="min-h-screen bg-[var(--ss-page)] pb-[env(safe-area-inset-bottom)] text-[var(--ss-ink)]">
       <HomeHeader />
 
-      <section className="border-b border-[#d8e4dc] bg-[#eaf2ed] px-4 pb-10 pt-9 text-center sm:px-6 sm:pb-16 sm:pt-16">
-        <p className="mx-auto inline-flex rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-[var(--ss-accent)] sm:text-sm">
+      <section className="border-b border-[#d8e4dc] bg-[#eaf2ed] px-4 pb-11 pt-10 text-center sm:px-6 sm:pb-16 sm:pt-16">
+        <StatusBadge tone="evidence" icon="shield" className="mx-auto uppercase tracking-[0.14em] text-[var(--ss-accent)]">
           The UK&apos;s Smart Supplement Search Engine
-        </p>
+        </StatusBadge>
 
         <h1 className="mx-auto mt-4 max-w-4xl break-words text-[2.35rem] font-extrabold leading-[1.05] tracking-[-0.035em] sm:mt-6 sm:text-6xl lg:text-7xl">
           Find the right supplement at the right price
@@ -133,10 +142,16 @@ export default async function Home() {
 
         <SearchInput />
 
-        <div className="mx-auto mt-5 flex max-w-3xl flex-wrap justify-center gap-2 text-xs font-semibold text-zinc-700 sm:text-sm">
-          <span className="rounded-full bg-white px-3 py-1.5">Delivery-aware totals</span>
-          <span className="rounded-full bg-white px-3 py-1.5">Verified unit costs</span>
-          <span className="rounded-full bg-white px-3 py-1.5">Fresh in-stock offers</span>
+        <div className="mx-auto mt-5 grid max-w-3xl grid-cols-2 gap-2 text-left sm:grid-cols-4 sm:gap-3">
+          {comparisonHighlights.map((item) => (
+            <div
+              key={item.label}
+              className="flex min-w-0 items-center gap-2 rounded-2xl border border-white/80 bg-white/80 px-3 py-3 text-xs font-semibold leading-4 text-zinc-700 shadow-[0_6px_20px_rgba(16,32,27,0.04)] sm:text-sm"
+            >
+              <SupplementScoutIcon name={item.icon} size={18} className="shrink-0 text-[var(--ss-accent)]" />
+              <span>{item.label}</span>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -144,16 +159,19 @@ export default async function Home() {
         aria-labelledby="popular-searches-heading"
         className="mx-auto max-w-7xl px-4 pb-8 pt-8 sm:px-6 sm:pb-12 sm:pt-10"
       >
-        <div className="rounded-3xl border border-zinc-200 bg-white p-4 shadow-[0_12px_36px_rgba(15,23,42,0.05)] sm:p-6">
-          <h2 id="popular-searches-heading" className="text-base font-bold">
-            Popular searches
-          </h2>
+        <div className="ss-card p-4 sm:p-6">
+          <div className="flex items-center gap-3">
+            <span className="ss-icon-tile h-9 w-9"><SupplementScoutIcon name="search" size={18} /></span>
+            <h2 id="popular-searches-heading" className="text-base font-bold">
+              Popular searches
+            </h2>
+          </div>
           <div className="mt-3 flex flex-wrap gap-2">
             {popularSearches.map((item) => (
               <Link
                 key={item.label}
                 href={itemHref(item)}
-                className="inline-flex min-h-11 items-center rounded-full border border-zinc-300 bg-[var(--ss-surface-muted)] px-4 text-sm font-semibold text-zinc-800 hover:border-[var(--ss-accent)] hover:text-[var(--ss-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
+                className="inline-flex min-h-11 items-center rounded-full border border-[var(--ss-border)] bg-[var(--ss-surface-muted)] px-4 text-sm font-semibold text-zinc-800 transition-colors hover:border-[var(--ss-accent)] hover:bg-white hover:text-[var(--ss-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
               >
                 {item.label}
               </Link>
@@ -174,7 +192,7 @@ export default async function Home() {
         {hasStatistics ? (
           <div className="grid gap-3 sm:grid-cols-3 sm:gap-4">
             {productCount !== null && (
-              <div className="rounded-2xl border border-zinc-200 p-5 sm:p-6">
+              <div className="ss-card p-5 sm:p-6">
                 <div className="text-2xl font-bold sm:text-3xl">
                   {productCount.toLocaleString("en-GB")}
                 </div>
@@ -185,7 +203,7 @@ export default async function Home() {
             )}
 
             {retailerCount !== null && (
-              <div className="rounded-2xl border border-zinc-200 p-5 sm:p-6">
+              <div className="ss-card p-5 sm:p-6">
                 <div className="text-2xl font-bold sm:text-3xl">
                   {retailerCount.toLocaleString("en-GB")}
                 </div>
@@ -196,7 +214,7 @@ export default async function Home() {
             )}
 
             {latestCheckDate && latestOfferCheckAt && (
-              <div className="rounded-2xl border border-zinc-200 p-5 sm:p-6">
+              <div className="ss-card p-5 sm:p-6">
                 <div className="text-xl font-bold sm:text-2xl">
                   <time dateTime={latestOfferCheckAt}>
                     {latestCheckDate}
@@ -233,7 +251,7 @@ export default async function Home() {
               <Link
                 key={goal.label}
                 href={itemHref(goal)}
-                className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm hover:border-zinc-950 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2"
+                className="ss-card ss-card-interactive p-5 focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
               >
                 <h3 className="text-lg font-semibold">{goal.label}</h3>
                 <p className="mt-2 text-sm leading-6 text-zinc-600">
@@ -264,20 +282,23 @@ export default async function Home() {
           </h2>
 
           <div className="mt-5 grid gap-3 sm:mt-8 sm:grid-cols-3 sm:gap-4">
-            <div className="rounded-2xl bg-white p-5">
-              <h3 className="font-semibold">Product price</h3>
+            <div className="ss-card p-5">
+              <span className="ss-icon-tile h-10 w-10"><SupplementScoutIcon name="receipt" size={20} /></span>
+              <h3 className="mt-4 font-semibold">Product price</h3>
               <p className="mt-2 text-sm leading-6 text-zinc-600">
                 See the retailer&apos;s current product price.
               </p>
             </div>
-            <div className="rounded-2xl bg-white p-5">
-              <h3 className="font-semibold">Known delivery cost</h3>
+            <div className="ss-card p-5">
+              <span className="ss-icon-tile h-10 w-10"><SupplementScoutIcon name="truck" size={20} /></span>
+              <h3 className="mt-4 font-semibold">Known delivery cost</h3>
               <p className="mt-2 text-sm leading-6 text-zinc-600">
                 Delivered totals include shipping when the cost is known.
               </p>
             </div>
-            <div className="rounded-2xl bg-white p-5">
-              <h3 className="font-semibold">Verified value metrics</h3>
+            <div className="ss-card p-5">
+              <span className="ss-icon-tile h-10 w-10"><SupplementScoutIcon name="calculator" size={20} /></span>
+              <h3 className="mt-4 font-semibold">Verified value metrics</h3>
               <p className="mt-2 text-sm leading-6 text-zinc-600">
                 See cost per serving or another verified unit when data is
                 available.

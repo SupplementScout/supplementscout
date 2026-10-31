@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import SupplementScoutIcon from "./SupplementScoutIcon";
 
 type SearchSuggestion = {
   id: string;
@@ -74,8 +75,8 @@ export default function SearchInput({
       : "flex flex-col gap-3 sm:flex-row";
   const inputClassName =
     variant === "compact"
-      ? "min-h-12 flex-1 rounded-xl border border-zinc-300 px-4 text-base text-zinc-950 outline-none placeholder:text-zinc-500 focus:border-[var(--ss-accent)] focus:ring-2 focus:ring-emerald-100"
-      : "min-h-14 flex-1 rounded-2xl border border-zinc-200 px-4 text-base outline-none focus:border-[var(--ss-accent)] focus:ring-2 focus:ring-emerald-100 sm:min-h-16 sm:px-6";
+      ? "min-h-12 w-full rounded-xl border border-zinc-300 py-3 pl-11 pr-4 text-base text-zinc-950 outline-none placeholder:text-zinc-500 focus:border-[var(--ss-accent)] focus:ring-2 focus:ring-emerald-100"
+      : "min-h-14 w-full rounded-2xl border border-zinc-200 py-3 pl-11 pr-4 text-base outline-none focus:border-[var(--ss-accent)] focus:ring-2 focus:ring-emerald-100 sm:min-h-16 sm:pl-12 sm:pr-6";
   const buttonClassName =
     variant === "compact"
       ? "min-h-12 rounded-xl bg-[var(--ss-accent)] px-6 text-sm font-semibold text-white hover:bg-[var(--ss-accent-strong)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
@@ -210,42 +211,49 @@ export default function SearchInput({
       className={formClassName}
     >
       <div className={rowClassName}>
-        <input
-          type="search"
-          name="q"
-          value={query}
-          onBlur={handleBlur}
-          onChange={(event) => {
-            const nextQuery = event.target.value;
+        <div className="relative min-w-0 flex-1">
+          <SupplementScoutIcon
+            name="search"
+            size={20}
+            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--ss-accent)]"
+          />
+          <input
+            type="search"
+            name="q"
+            value={query}
+            onBlur={handleBlur}
+            onChange={(event) => {
+              const nextQuery = event.target.value;
 
-            setQuery(nextQuery);
+              setQuery(nextQuery);
 
-            if (normalizeQuery(nextQuery).length < 2) {
-              setSuggestions([]);
-              setCorrectedQuery(null);
-              setIsLoading(false);
-              setHighlightedIndex(-1);
-              setIsOpen(false);
-              return;
-            }
+              if (normalizeQuery(nextQuery).length < 2) {
+                setSuggestions([]);
+                setCorrectedQuery(null);
+                setIsLoading(false);
+                setHighlightedIndex(-1);
+                setIsOpen(false);
+                return;
+              }
 
-            setIsOpen(true);
-          }}
-          onFocus={() => {
-            clearBlurTimeout();
-            setIsOpen(shouldSuggest && suggestions.length > 0);
-          }}
-          onKeyDown={handleKeyDown}
-          autoComplete="off"
-          aria-label="Search supplements, brands or categories"
-          role="combobox"
-          aria-autocomplete="list"
-          aria-expanded={isOpen && suggestions.length > 0}
-          aria-haspopup="listbox"
-          aria-controls="search-suggestions"
-          className={inputClassName}
-          placeholder="Search supplements, brands or categories"
-        />
+              setIsOpen(true);
+            }}
+            onFocus={() => {
+              clearBlurTimeout();
+              setIsOpen(shouldSuggest && suggestions.length > 0);
+            }}
+            onKeyDown={handleKeyDown}
+            autoComplete="off"
+            aria-label="Search supplements, brands or categories"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={isOpen && suggestions.length > 0}
+            aria-haspopup="listbox"
+            aria-controls="search-suggestions"
+            className={inputClassName}
+            placeholder="Search supplements, brands or categories"
+          />
+        </div>
         <button
           type="submit"
           className={buttonClassName}
