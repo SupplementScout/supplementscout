@@ -168,10 +168,23 @@ production validator to be `NOBYPASSRLS`. Production migration
 `20260820130000_allow_production_validator_bounded_rls_reads` intentionally
 made that role `BYPASSRLS` for its bounded catalogue reads. Fresh read-only
 forensics proved the role still needs that capability while it has no raw
-Review Queue table privilege. The unapplied reader migration now verifies the
-exact live role shape without changing it; its corrected bytes remain excluded
-and unapplied. Ledger remains `257` and enforcement remains OFF/absent. See
+Review Queue table privilege. The corrected migration verifies the exact live
+role shape without changing it. See
 [`PHASE-B-READER-LIVE-VALIDATOR-ROLE-CONTRACT-RECONCILIATION-2026-10-31.json`](retailer-automation/evidence/PHASE-B-READER-LIVE-VALIDATOR-ROLE-CONTRACT-RECONCILIATION-2026-10-31.json).
+
+The corrected SHA
+`9d1f9c004d58926101c4adc60e7515d8040bc9b6102213180538113e1c925608`
+was then applied exactly once under separate bounded owner authorization. The
+production ledger is `258` with fingerprint
+`cd6b36c93aea368c61a048f4315724cb631e60defeb16ffd396ace61e11a72ce`.
+The migration remains excluded from automatic deployment and is recorded as an
+applied exclusion. Fresh postflight proved the validator role remained
+`BYPASSRLS`, both raw Review Queue reads remained denied with `42501`, the
+reader returned four fully verified transitions with signed OOS delta `+2`, and
+all business, control, Review Queue, sealed registry and Storage fingerprints
+were unchanged. Enforcement remains OFF/absent and Phase C has not started.
+See
+[`PHASE-B-VERIFIED-REVIEW-READER-PRODUCTION-ACTIVATION-2026-10-31.json`](retailer-automation/evidence/PHASE-B-VERIFIED-REVIEW-READER-PRODUCTION-ACTIVATION-2026-10-31.json).
 
 The first live verification must use one newly generated Review Queue
 registration artifact, confirm its exact object and registry identity by fresh

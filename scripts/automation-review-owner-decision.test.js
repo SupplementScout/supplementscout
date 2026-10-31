@@ -170,7 +170,7 @@ test("verified stock-transition reader is generic, bounded, SELECT-only and vali
   assert.match(migration, /'SELECT,INSERT,UPDATE,DELETE,TRUNCATE'/);
   assert.match(rollback, /drop function public\.read_verified_automation_review_stock_transitions_v1\(bigint\)/);
   const selector = fs.readFileSync(path.join(__dirname, "lib", "environment-migrations.js"), "utf8");
-  assert.equal((selector.match(/20261031120000_add_verified_automation_review_stock_transition_reader/g) || []).length, 2);
+  assert.equal((selector.match(/20261031120000_add_verified_automation_review_stock_transition_reader/g) || []).length, 3);
 });
 
 test("verified postflight recovery is control-only, replay-safe and retailer-neutral", () => {
