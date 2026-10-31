@@ -59,14 +59,18 @@ test("managed Storage setup remains outside the automatic migration chain", () =
   assert.match(bucket, /intentionally outside migrations/i);
 });
 
-test("registry activation is excluded from both environment selectors until separately authorized", () => {
+test("registry activation remains excluded from automatic apply and is recorded as applied only in production", () => {
   const identifier = REGISTRY_MIGRATION.slice(0, -4);
   for (const environment of ["STAGING", "PRODUCTION"]) {
     assert.ok(EXCLUSIONS[environment].includes(identifier));
     assert.equal(CONTRACTS[environment].excluded[REGISTRY_MIGRATION], REGISTRY_SHA256);
-    assert.ok(!CONTRACTS[environment].appliedExcluded.includes(REGISTRY_MIGRATION));
     assert.ok(!CONTRACTS[environment].pending.some(({ filename }) => filename === REGISTRY_MIGRATION));
   }
+  assert.ok(!CONTRACTS.STAGING.appliedExcluded.includes(REGISTRY_MIGRATION));
+  assert.equal(
+    CONTRACTS.PRODUCTION.appliedExcluded.filter((filename) => filename === REGISTRY_MIGRATION).length,
+    1,
+  );
 });
 
 test("rollback refuses to remove durable bytes and only drops an empty registry", () => {
