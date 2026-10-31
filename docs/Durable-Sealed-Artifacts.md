@@ -149,6 +149,18 @@ rows only for newly contract-bound artifacts at the choke points above. It does
 not authorize business-data migration, historical backfill or any additional
 artifact class.
 
+The 31 October read-only activation preflight found a separate protected-reader
+parity blocker before any activation: Fit House had `111` current OOS offers,
+fully explained by baseline `104`, five applied owner-six offers and four exact
+executed Review Queue stock transitions with signed net delta `+2`. The service
+role-compatible state passed at `111`; the protected PostgreSQL validator path
+omitted that evidence and failed closed at `109`. A generic retailer-scoped,
+SELECT-only reader and shared runtime normalization are prepared, but the
+migration remains excluded from automatic selectors and unapplied pending a
+separate exact production authorization. Enforcement remains OFF/absent. The
+bounded proof is recorded in
+[`PHASE-B-VALIDATOR-DURABLE-REVIEW-EVIDENCE-PARITY-PREPARATION-2026-10-31.json`](retailer-automation/evidence/PHASE-B-VALIDATOR-DURABLE-REVIEW-EVIDENCE-PARITY-PREPARATION-2026-10-31.json).
+
 The first live verification must use one newly generated Review Queue
 registration artifact, confirm its exact object and registry identity by fresh
 readback, then observe the already-existing queue RPC. If sealing or readback

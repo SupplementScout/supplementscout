@@ -322,7 +322,7 @@ test("Gladiator scheduled refresh reuses the shared guarded flow while manual ap
   const workflow = fs.readFileSync(path.join(ROOT, ".github/workflows/fit-house-offer-refresh.yml"), "utf8");
   const gladiatorJob = workflow.match(/  gladiator-nutrition-offer-refresh:[\s\S]*?(?=\n  refresh-review-queue:)/)?.[0] || "";
   assert.equal((runtime.match(/gladiator-nutrition/g) || []).length, 4);
-  assert.equal(sha256Text(path.join(ROOT, "scripts/fit-house-offer-refresh.js")), "fd0b23c0d084e38208396389bbadddb7a922e8ff0c692b67ba981b336a81573d");
+  assert.equal(sha256Text(path.join(ROOT, "scripts/fit-house-offer-refresh.js")), "ce3c82020cb24e017e99426b1f79450dd101952a0fd0e6ae311738b9df19630c");
   assert.doesNotMatch(runtime, /retailer_id\s*={2,3}\s*15|config\.retailer_id\s*={2,3}\s*15/);
   assert.match(gladiatorJob, /github\.event_name == 'workflow_dispatch'/);
   assert.match(gladiatorJob, /inputs\.operation == 'dry-run'[\s\S]*inputs\.operation == 'review-only'/);

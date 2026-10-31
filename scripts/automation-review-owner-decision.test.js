@@ -136,6 +136,39 @@ test("database bridge validates the queue decision and contains no retailer exce
   assert.match(rollback, /drop function public\.validate_automation_review_owner_decision\(jsonb\)/);
 });
 
+test("verified stock-transition reader is generic, bounded, SELECT-only and validator-exclusive", () => {
+  const migration = fs.readFileSync(
+    path.join(__dirname, "..", "supabase", "migrations", "20261031120000_add_verified_automation_review_stock_transition_reader.sql"),
+    "utf8",
+  );
+  const rollback = fs.readFileSync(
+    path.join(__dirname, "..", "supabase", "rollbacks", "20261031120000_add_verified_automation_review_stock_transition_reader_rollback.sql"),
+    "utf8",
+  );
+  const body = migration.slice(
+    migration.indexOf("create function public.read_verified_automation_review_stock_transitions_v1"),
+    migration.indexOf("alter function public.read_verified_automation_review_stock_transitions_v1"),
+  );
+  assert.match(body, /\(\s*p_retailer_id bigint\s*\) returns table/);
+  assert.match(body, /language plpgsql\s+stable\s+security definer\s+set search_path=pg_catalog,public,pg_temp/);
+  assert.match(body, /current_setting\('role',true\) is distinct from 'retailer_catalogue_production_validator'/);
+  assert.match(body, /review\.retailer_id=p_retailer_id/);
+  assert.match(body, /execution\.retailer_id=p_retailer_id/);
+  assert.match(body, /review\.review_status='EXECUTED'/);
+  assert.match(body, /execution\.status='EXECUTED'/);
+  assert.match(body, /review\.operation_type='UPDATE_STOCK'/);
+  assert.doesNotMatch(body, /\b(?:insert\s+into|update|delete\s+from|execute\s+format)\b/i);
+  assert.doesNotMatch(migration, /retailer_id\s*=\s*(?:3|9|14)\b/i);
+  assert.doesNotMatch(migration, /\b(?:697|983|1859|1982)\b/);
+  assert.match(migration, /grant execute on function public\.read_verified_automation_review_stock_transitions_v1\(bigint\)\s+to retailer_catalogue_production_validator/);
+  assert.match(migration, /revoke all on function public\.read_verified_automation_review_stock_transitions_v1\(bigint\)[\s\S]+from public,anon,authenticated,service_role/);
+  assert.match(migration, /revoke all on table public\.product_match_review_queue\s+from retailer_catalogue_production_validator/);
+  assert.match(migration, /revoke all on table public\.automation_review_execution_requests\s+from retailer_catalogue_production_validator/);
+  assert.match(rollback, /drop function public\.read_verified_automation_review_stock_transitions_v1\(bigint\)/);
+  const selector = fs.readFileSync(path.join(__dirname, "lib", "environment-migrations.js"), "utf8");
+  assert.equal((selector.match(/20261031120000_add_verified_automation_review_stock_transition_reader/g) || []).length, 2);
+});
+
 test("verified postflight recovery is control-only, replay-safe and retailer-neutral", () => {
   const migration = fs.readFileSync(
     path.join(__dirname, "..", "supabase", "migrations", "20261006190000_add_automation_review_verified_postflight_recovery.sql"),
