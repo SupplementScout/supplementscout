@@ -33,7 +33,9 @@ const {
   loadOwnerApprovedSixAbsentManifest,
   loadReviewedMassOosManifest,
   mappedOfferSourceFingerprint,
+  normalizeVerifiedAutomationReviewStockTransitionRows,
   parseArgs,
+  readVerifiedAutomationReviewStockTransitionEvidence,
   reconcileAuditedMissingVariants,
   reconcileMissingMappedVariants,
   reconcileOwnerApprovedMissingVariant,
@@ -154,6 +156,137 @@ test("stable OOS guard accounts for a reviewed return to stock during recovery a
   };
   assert.equal(applyApprovedStableOosBaselineGuard(recovered).durable_automation_review_stock_delta, 1);
   assert.deepEqual(durableAutomationReviewStockTransitions(recovered).map((row) => [row.offer_id, row.oos_delta]), [["697", -1], ["983", 1], ["1859", 1]]);
+});
+
+function durableReviewFixture(offerId, reviewId, beforeInStock, proposedInStock, overrides = {}) {
+  const source = String.fromCharCode(97 + (reviewId % 6)).repeat(64);
+  const plan = String.fromCharCode(49 + (reviewId % 5)).repeat(64);
+  return {
+    review: {
+      id: String(reviewId), offer_id: String(offerId), review_status: "EXECUTED", operation_type: "UPDATE_STOCK",
+      source_row_fingerprint: source, plan_fingerprint: plan,
+      before_state: { in_stock: beforeInStock }, proposed_state: { in_stock: proposedInStock },
+      ...overrides.review,
+    },
+    execution: {
+      id: `00000000-0000-4000-8000-${String(reviewId).padStart(12, "0")}`,
+      review_id: String(reviewId), retailer_id: 9, operation_type: "UPDATE_STOCK",
+      review_fingerprint: source, plan_fingerprint: plan, status: "EXECUTED",
+      postflight_hash: "f".repeat(64), executed_offer_ids: [String(offerId)],
+      failed_offer_ids: [], remaining_offer_ids: [], actual_deltas: { stock: 1 },
+      database_writes: 20, idempotency_result: "PASS", last_checkpoint: "IDEMPOTENCY_PASSED",
+      completed_at: "2026-10-31T09:00:00.000Z", ...overrides.execution,
+    },
+  };
+}
+
+test("four current durable stock transitions retain signed +2 and explain OOS 111 without widening baseline", () => {
+  const fixtures = [
+    durableReviewFixture(697, 1115, false, true),
+    durableReviewFixture(983, 1113, true, false),
+    durableReviewFixture(1859, 1114, true, false),
+    durableReviewFixture(1982, 1121, true, false),
+  ];
+  const records = [
+    ...Array.from({ length: 103 }, (_, index) => ({ offer: { id: `baseline-${index}`, in_stock: false } })),
+    ...[718, 749, 757, 913, 940].map((id) => ({ offer: { id: String(id), in_stock: false } })),
+    { offer: { id: "759", in_stock: true } },
+    { offer: { id: "697", in_stock: true } },
+    { offer: { id: "983", in_stock: false } },
+    { offer: { id: "1859", in_stock: false } },
+    { offer: { id: "1982", in_stock: false } },
+  ];
+  const state = {
+    records,
+    automationReviews: fixtures.map((row) => row.review),
+    automationReviewExecutions: fixtures.map((row) => row.execution),
+  };
+  const transitions = durableAutomationReviewStockTransitions(state);
+  assert.deepEqual(transitions.map((row) => [row.offer_id, row.oos_delta]), [
+    ["697", -1], ["983", 1], ["1859", 1], ["1982", 1],
+  ]);
+  assert.equal(transitions.reduce((sum, row) => sum + row.oos_delta, 0), 2);
+  const guard = applyApprovedStableOosBaselineGuard(state);
+  assert.equal(approvedStableOosBaseline().count, 104);
+  assert.equal(guard.current_oos_count, 111);
+  assert.equal(104 + 5 + guard.durable_automation_review_stock_delta, 111);
+  assert.throws(
+    () => applyApprovedStableOosBaselineGuard({ ...state, records: [...records, { offer: { id: "unverified", in_stock: false } }] }),
+    (error) => error.code === "STABLE_OOS_BASELINE_EXCEEDED" && error.detail.expected_oos_count === 111,
+  );
+});
+
+test("durable transition predicate rejects every unverified evidence class and current-state drift", () => {
+  const base = durableReviewFixture(1982, 1121, true, false);
+  const state = (review = base.review, execution = base.execution, inStock = false) => ({
+    records: [{ offer: { id: "1982", in_stock: inStock } }],
+    automationReviews: [review], automationReviewExecutions: [execution],
+  });
+  assert.equal(durableAutomationReviewStockTransitions(state()).length, 1);
+  for (const invalid of [
+    state({ ...base.review, review_status: "APPROVED" }),
+    state(base.review, { ...base.execution, status: "FAILED" }),
+    state(base.review, { ...base.execution, review_fingerprint: "0".repeat(64) }),
+    state(base.review, { ...base.execution, plan_fingerprint: "0".repeat(64) }),
+    state(base.review, { ...base.execution, postflight_hash: "invalid" }),
+    state(base.review, { ...base.execution, idempotency_result: "FAIL" }),
+    state(base.review, { ...base.execution, failed_offer_ids: ["1982"] }),
+    state(base.review, { ...base.execution, remaining_offer_ids: ["1982"] }),
+    state(base.review, { ...base.execution, retailer_id: 10 }),
+    state(base.review, base.execution, true),
+  ]) assert.deepEqual(durableAutomationReviewStockTransitions(invalid), []);
+});
+
+test("protected validator reader normalizes to service-role-compatible evidence and is absent-safe", async () => {
+  const fixture = durableReviewFixture(1982, 1121, true, false);
+  const rpcRow = {
+    review_id: fixture.review.id,
+    execution_request_id: fixture.execution.id,
+    offer_id: fixture.review.offer_id,
+    retailer_id: fixture.execution.retailer_id,
+    review_operation_type: fixture.review.operation_type,
+    review_status: fixture.review.review_status,
+    source_row_fingerprint: fixture.review.source_row_fingerprint,
+    review_plan_fingerprint: fixture.review.plan_fingerprint,
+    before_in_stock: fixture.review.before_state.in_stock,
+    proposed_in_stock: fixture.review.proposed_state.in_stock,
+    execution_operation_type: fixture.execution.operation_type,
+    execution_status: fixture.execution.status,
+    review_fingerprint: fixture.execution.review_fingerprint,
+    execution_plan_fingerprint: fixture.execution.plan_fingerprint,
+    postflight_hash: fixture.execution.postflight_hash,
+    executed_offer_ids: fixture.execution.executed_offer_ids,
+    failed_offer_ids: fixture.execution.failed_offer_ids,
+    remaining_offer_ids: fixture.execution.remaining_offer_ids,
+    actual_deltas: fixture.execution.actual_deltas,
+    database_writes: fixture.execution.database_writes,
+    idempotency_result: fixture.execution.idempotency_result,
+    last_checkpoint: fixture.execution.last_checkpoint,
+    completed_at: new Date(fixture.execution.completed_at),
+  };
+  const normalized = normalizeVerifiedAutomationReviewStockTransitionRows([rpcRow]);
+  assert.deepEqual(normalized.automationReviews, [fixture.review]);
+  assert.deepEqual(normalized.automationReviewExecutions, [fixture.execution]);
+  assert.deepEqual(
+    durableAutomationReviewStockTransitions({ records: [{ offer: { id: "1982", in_stock: false } }], ...normalized }),
+    durableAutomationReviewStockTransitions({
+      records: [{ offer: { id: "1982", in_stock: false } }],
+      automationReviews: [fixture.review], automationReviewExecutions: [fixture.execution],
+    }),
+  );
+  const calls = [];
+  const client = { async query(sql, values) {
+    calls.push({ sql, values });
+    return calls.length === 1 ? { rows: [{ available: true }] } : { rows: [rpcRow] };
+  } };
+  const evidence = await readVerifiedAutomationReviewStockTransitionEvidence(client, 9);
+  assert.equal(evidence.interfaceAvailable, true);
+  assert.deepEqual(evidence.automationReviews, [fixture.review]);
+  assert.deepEqual(calls[1].values, [9]);
+  const absent = await readVerifiedAutomationReviewStockTransitionEvidence({
+    async query() { return { rows: [{ available: false }] }; },
+  }, 9);
+  assert.deepEqual(absent, { automationReviews: [], automationReviewExecutions: [], interfaceAvailable: false });
 });
 
 const reviewSelection = { offerId: "900", operation: "UPDATE_STOCK", maximumCommercialChanges: 1, freshnessConfirmationCount: 19 };

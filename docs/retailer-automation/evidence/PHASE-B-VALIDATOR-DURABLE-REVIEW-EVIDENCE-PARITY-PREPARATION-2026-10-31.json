@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "status": "PREPARED_PENDING_PRODUCTION_MIGRATION_AUTHORIZATION",
+  "captured_at": "2026-10-31",
+  "production_target": {
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "database_identity": "supplementscout-production:aftboxmrdgyhizicfsfu",
+    "transaction_read_only": true,
+    "database_writes": 0
+  },
+  "root_cause": "ROOT_CAUSE_CONFIRMED_VALIDATOR_READ_PATH_MISSING_DURABLE_REVIEW_EVIDENCE",
+  "current_fit_house_state": {
+    "retailer_id": 9,
+    "approved_scope_count": 286,
+    "actual_oos_count": 111,
+    "approved_stable_oos_baseline": 104,
+    "owner_approved_six_applied_offer_ids": ["718", "749", "757", "913", "940"],
+    "owner_approved_six_applied_count": 5,
+    "durable_review_stock_delta": 2,
+    "calculated_expected_oos_count": 111,
+    "actual_equals_expected": true
+  },
+  "verified_transitions": [
+    {
+      "offer_id": "697",
+      "review_id": "1115",
+      "execution_request_id": "0f058ea0-20b7-43ea-8e69-83acb831a56c",
+      "before_in_stock": false,
+      "after_in_stock": true,
+      "oos_delta": -1,
+      "postflight_hash": "35086fa26e721f405e042ee00f8718e487817ed47e502ed638d7cba15bdc6432",
+      "checkpoint": "VERIFIED_POSTFLIGHT_RECOVERY",
+      "idempotency_result": "PASS",
+      "current_offer_state": true,
+      "exact_current_js_predicate": true
+    },
+    {
+      "offer_id": "983",
+      "review_id": "1113",
+      "execution_request_id": "0f86dd83-f2e5-4f7a-ae6f-c5fb4d05a298",
+      "before_in_stock": true,
+      "after_in_stock": false,
+      "oos_delta": 1,
+      "postflight_hash": "3cca6adb6b8b37e59597e6684599a38eb13dc6280ad37249521744676a100420",
+      "checkpoint": "IDEMPOTENCY_PASSED",
+      "idempotency_result": "PASS",
+      "current_offer_state": false,
+      "exact_current_js_predicate": true
+    },
+    {
+      "offer_id": "1859",
+      "review_id": "1114",
+      "execution_request_id": "ad5a0e50-2771-4aad-9175-6f731b7eb235",
+      "before_in_stock": true,
+      "after_in_stock": false,
+      "oos_delta": 1,
+      "postflight_hash": "99423cdeca628b7c03fbe701cbb67f372a9ef817d25fc1473e47e03a5957d725",
+      "checkpoint": "IDEMPOTENCY_PASSED",
+      "idempotency_result": "PASS",
+      "current_offer_state": false,
+      "exact_current_js_predicate": true
+    },
+    {
+      "offer_id": "1982",
+      "review_id": "1121",
+      "execution_request_id": "976f67b4-c06c-4f73-a3c6-48ca63f45dfd",
+      "before_in_stock": true,
+      "after_in_stock": false,
+      "oos_delta": 1,
+      "postflight_hash": "ad8b4fcba6020f89639f432801b1e1a3b879a3bae6ce45fddc20fe7b7def1954",
+      "checkpoint": "VERIFIED_POSTFLIGHT_RECOVERY",
+      "idempotency_result": "PASS",
+      "current_offer_state": false,
+      "exact_current_js_predicate": true
+    }
+  ],
+  "path_parity_reproduction": {
+    "service_role_compatible_transition_count": 4,
+    "service_role_compatible_expected_oos_count": 111,
+    "service_role_compatible_result": "PASS",
+    "validator_transition_count_before_fix": 0,
+    "validator_expected_oos_count_before_fix": 109,
+    "validator_result_before_fix": "STABLE_OOS_BASELINE_EXCEEDED"
+  },
+  "prepared_boundary": {
+    "interface": "public.read_verified_automation_review_stock_transitions_v1(bigint)",
+    "migration": "20261031120000_add_verified_automation_review_stock_transition_reader.sql",
+    "migration_sha256": "d6bcf488201737a2206c102297de6ef157c69f51886c8508ae474a23846d9c47",
+    "production_apply_authorized": false,
+    "production_apply_performed": false,
+    "raw_queue_table_select_granted": false,
+    "business_data_writes": 0,
+    "baseline_changed": false,
+    "threshold_changed": false,
+    "offer_specific_runtime_exception_added": false,
+    "service_role_runtime_dependency_added": false,
+    "pre_ledger_count": 257,
+    "pre_ledger_fingerprint": "78a389c08626ce3a5f993647f8ac50b3e9aeffda5d0326fba1fb4bf2216e5ae4",
+    "expected_post_ledger_count": 258,
+    "expected_post_ledger_fingerprint": "cd6b36c93aea368c61a048f4315724cb631e60defeb16ffd396ace61e11a72ce"
+  },
+  "activation_boundary": {
+    "durable_sealed_artifacts_enforcement": "OFF_OR_ABSENT",
+    "phase_b_activation_performed": false,
+    "workflow_dispatches": 0,
+    "review_queue_writes": 0,
+    "replays": 0,
+    "phase_c": "NOT_STARTED"
+  }
+}

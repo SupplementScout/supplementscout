@@ -134,6 +134,8 @@ const CONTRACTS = Object.freeze({
       "31dc3e6e90dab56dd00843bef441cfba400e1d9480d2940f41b46cfff6e32277",
     appliedExcluded: APPLIED_EXCLUSIONS.STAGING,
     excluded: Object.freeze({
+      "20261031120000_add_verified_automation_review_stock_transition_reader.sql":
+        "d6bcf488201737a2206c102297de6ef157c69f51886c8508ae474a23846d9c47",
       "20261030120000_create_sealed_artifacts_registry.sql":
         "23ebd020e712074719f7e2a35930ec061f1d7e019b35a3e302e7b8e5f8a676cc",
       "20261029061000_reissue_reviewed_product_pack_correction_production_safe.sql":
@@ -474,6 +476,8 @@ const CONTRACTS = Object.freeze({
       "78a389c08626ce3a5f993647f8ac50b3e9aeffda5d0326fba1fb4bf2216e5ae4",
     appliedExcluded: APPLIED_EXCLUSIONS.PRODUCTION,
     excluded: Object.freeze({
+      "20261031120000_add_verified_automation_review_stock_transition_reader.sql":
+        "d6bcf488201737a2206c102297de6ef157c69f51886c8508ae474a23846d9c47",
       "20261030120000_create_sealed_artifacts_registry.sql":
         "23ebd020e712074719f7e2a35930ec061f1d7e019b35a3e302e7b8e5f8a676cc",
       "20261028210000_add_reviewed_product_pack_correction.sql":
