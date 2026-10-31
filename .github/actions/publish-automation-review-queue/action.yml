@@ -38,6 +38,10 @@ inputs:
   service-role-key:
     description: Existing Review Queue publication credential.
     required: true
+  durable-sealed-artifacts-enforcement:
+    description: Shared durable sealed artifacts rollout control; empty preserves OFF semantics.
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -52,7 +56,7 @@ runs:
     - name: Build fresh ${{ inputs.display-name }} Review Queue changes
       shell: bash
       env:
-        DURABLE_SEALED_ARTIFACTS_ENFORCEMENT: ${{ vars.DURABLE_SEALED_ARTIFACTS_ENFORCEMENT }}
+        DURABLE_SEALED_ARTIFACTS_ENFORCEMENT: ${{ inputs.durable-sealed-artifacts-enforcement }}
         GITHUB_TOKEN: ${{ inputs.github-token }}
         NEXT_PUBLIC_SUPABASE_URL: ${{ inputs.supabase-url }}
         SUPABASE_SERVICE_ROLE_KEY: ${{ inputs.service-role-key }}
@@ -72,7 +76,7 @@ runs:
     - name: Publish fresh ${{ inputs.display-name }} cards to Automation Review Queue
       shell: bash
       env:
-        DURABLE_SEALED_ARTIFACTS_ENFORCEMENT: ${{ vars.DURABLE_SEALED_ARTIFACTS_ENFORCEMENT }}
+        DURABLE_SEALED_ARTIFACTS_ENFORCEMENT: ${{ inputs.durable-sealed-artifacts-enforcement }}
         NEXT_PUBLIC_SUPABASE_URL: ${{ inputs.supabase-url }}
         SUPABASE_SERVICE_ROLE_KEY: ${{ inputs.service-role-key }}
       run: >-

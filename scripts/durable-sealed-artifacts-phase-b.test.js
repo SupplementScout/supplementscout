@@ -16,6 +16,11 @@ const {
   sha256,
 } = require("./lib/sealed-artifacts");
 const { createInMemorySealedArtifactAdapters } = require("./lib/sealed-artifacts/testing");
+const {
+  captureMatchingWorkflowDispatchRunIds,
+  normalizeDispatchStartToGitHubSecond,
+  selectSingleNewWorkflowDispatchRun,
+} = require("./lib/github-workflow-dispatch-selector");
 const { run: applyReviewRegistration } = require("./automation-review-reconciliation-apply");
 const { loadDryRunArtifact, writeDryRunArtifact } = require("./import-products");
 
@@ -233,8 +238,96 @@ test("missing rollout configuration means OFF", () => {
   assert.deepEqual(rolloutState({}), { enabled: false, value: "OFF" });
 });
 
+test("empty rollout configuration means OFF", () => {
+  assert.deepEqual(rolloutState({ [ROLLOUT_CONTROL]: "" }), { enabled: false, value: "OFF" });
+});
+
 test("invalid rollout values fail closed without becoming another flag system", () => {
   assert.throws(() => rolloutState({ [ROLLOUT_CONTROL]: "production" }), /must be ON, OFF, or absent/);
+});
+
+function workflowRun(id, overrides = {}) {
+  return {
+    id,
+    workflow_id: 320801274,
+    event: "workflow_dispatch",
+    head_branch: "main",
+    head_sha: "9".repeat(40),
+    created_at: "2026-10-31T10:07:34Z",
+    ...overrides,
+  };
+}
+
+const WORKFLOW_RUN_CRITERIA = Object.freeze({
+  workflowId: "320801274",
+  branch: "main",
+  headSha: "9".repeat(40),
+});
+
+test("workflow dispatch selection normalizes millisecond start down to GitHub second precision", () => {
+  assert.equal(normalizeDispatchStartToGitHubSecond("2026-10-31T10:07:33.206Z"), "2026-10-31T10:07:33.000Z");
+  const selected = selectSingleNewWorkflowDispatchRun({
+    runs: [workflowRun(2, { created_at: "2026-10-31T10:07:33Z" })],
+    baselineRunIds: [],
+    criteria: WORKFLOW_RUN_CRITERIA,
+    dispatchStartedAt: "2026-10-31T10:07:33.206Z",
+  });
+  assert.equal(selected.id, 2);
+});
+
+test("pre-dispatch matching run in the same second is excluded by run-ID set difference", () => {
+  const before = workflowRun(1, { created_at: "2026-10-31T10:07:33Z" });
+  const after = workflowRun(2, { created_at: "2026-10-31T10:07:33Z" });
+  const baselineRunIds = captureMatchingWorkflowDispatchRunIds([before], WORKFLOW_RUN_CRITERIA);
+  assert.deepEqual(baselineRunIds, ["1"]);
+  const selected = selectSingleNewWorkflowDispatchRun({
+    runs: [before, after],
+    baselineRunIds,
+    criteria: WORKFLOW_RUN_CRITERIA,
+    dispatchStartedAt: "2026-10-31T10:07:33.206Z",
+  });
+  assert.equal(selected.id, 2);
+});
+
+test("exactly one new matching workflow dispatch run passes", () => {
+  const selected = selectSingleNewWorkflowDispatchRun({
+    runs: [workflowRun(10), workflowRun(11)],
+    baselineRunIds: ["10"],
+    criteria: WORKFLOW_RUN_CRITERIA,
+  });
+  assert.equal(selected.id, 11);
+});
+
+test("zero new matching workflow dispatch runs fail closed", () => {
+  assert.throws(() => selectSingleNewWorkflowDispatchRun({
+    runs: [workflowRun(10)],
+    baselineRunIds: ["10"],
+    criteria: WORKFLOW_RUN_CRITERIA,
+  }), /found 0/);
+});
+
+test("multiple new matching workflow dispatch runs fail closed", () => {
+  assert.throws(() => selectSingleNewWorkflowDispatchRun({
+    runs: [workflowRun(10), workflowRun(11)],
+    baselineRunIds: [],
+    criteria: WORKFLOW_RUN_CRITERIA,
+  }), /found 2/);
+});
+
+test("wrong workflow, SHA, event, and branch are rejected", () => {
+  const mismatches = [
+    workflowRun(1, { workflow_id: 999 }),
+    workflowRun(2, { head_sha: "8".repeat(40) }),
+    workflowRun(3, { event: "schedule" }),
+    workflowRun(4, { head_branch: "feature" }),
+  ];
+  for (const run of mismatches) {
+    assert.throws(() => selectSingleNewWorkflowDispatchRun({
+      runs: [run],
+      baselineRunIds: [],
+      criteria: WORKFLOW_RUN_CRITERIA,
+    }), /found 0/);
+  }
 });
 
 test("bound artifacts require exact original bytes and never reserialize", async () => {
