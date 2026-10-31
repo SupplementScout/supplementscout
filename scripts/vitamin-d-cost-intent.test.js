@@ -25,7 +25,10 @@ test("Vitamin D answers cost intent once using existing landing data", () => {
     1
   );
   assert.match(source, /page === 1/);
-  assert.match(source, /results\[0\]\?\.cheapestOffer\?\.deliveredPrice\.totalPrice/);
+  assert.match(
+    source,
+    /results\[0\]\?\.cheapestOffer\?\.deliveredPrice\?\.totalPrice \?\? null/
+  );
   assert.match(source, /currently compares \{totalCount\} Vitamin D products/);
   assert.match(source, /formatCurrency\(lowestDeliveredPrice\)/);
   assert.match(source, /delivered cost per serving/);

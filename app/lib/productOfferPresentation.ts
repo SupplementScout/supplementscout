@@ -6,19 +6,26 @@ import {
 } from "./pricing";
 
 export type BestOfferPricePresentation = {
-  label: "Best delivered price" | "Lowest product price" | "Price unavailable";
+  label:
+    | "Lowest delivered price"
+    | "Lowest known delivered price"
+    | "Product price"
+    | "Price unavailable";
   primaryPrice: string;
   breakdown: string;
 };
 
 export function buildBestOfferPricePresentation(
-  offer: PriceInput
+  offer: PriceInput,
+  options: { deliveryComparisonComplete?: boolean } = {}
 ): BestOfferPricePresentation {
   const deliveredPrice = getDeliveredPrice(offer);
 
   if (deliveredPrice) {
     return {
-      label: "Best delivered price",
+      label: options.deliveryComparisonComplete === false
+        ? "Lowest known delivered price"
+        : "Lowest delivered price",
       primaryPrice: formatCurrency(deliveredPrice.totalPrice),
       breakdown:
         deliveredPrice.shippingCost === 0
@@ -31,9 +38,9 @@ export function buildBestOfferPricePresentation(
 
   if (productPrice !== null) {
     return {
-      label: "Lowest product price",
+      label: "Product price",
       primaryPrice: formatCurrency(productPrice),
-      breakdown: `${formatCurrency(productPrice)} product + delivery cost unknown`,
+      breakdown: "Delivery calculated by retailer",
     };
   }
 

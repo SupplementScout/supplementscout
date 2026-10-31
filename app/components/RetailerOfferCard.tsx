@@ -14,15 +14,17 @@ import { formatCurrency, getKnownProductPrice } from "../lib/pricing";
 import { sendAnalyticsEvent } from "../lib/analytics";
 import { calculateDeliveredSavings } from "../lib/productOfferPresentation";
 import type { ProductAnalyticsContext } from "./ProductAnalytics";
+import StatusBadge from "./StatusBadge";
+import SupplementScoutIcon from "./SupplementScoutIcon";
 
 function formatShipping(value: number | string | null) {
-  if (value === null || value === "") return "Delivery unknown";
+  if (value === null || value === "") return "Delivery calculated by retailer";
 
   const shipping = Number(value);
 
   return Number.isFinite(shipping) && shipping >= 0
     ? `Delivery: ${formatCurrency(shipping)}`
-    : "Delivery unknown";
+    : "Delivery calculated by retailer";
 }
 
 function formatProductPrice(value: number | string | null) {
@@ -48,12 +50,14 @@ export default function RetailerOfferCard({
   position,
   isBestDeliveredPrice = false,
   nextComparableDeliveredTotal = null,
+  deliveryComparisonComplete = false,
 }: {
   group: ProductOfferGroup;
   product: ProductAnalyticsContext;
   position: number;
   isBestDeliveredPrice?: boolean;
   nextComparableDeliveredTotal?: number | null;
+  deliveryComparisonComplete?: boolean;
 }) {
   const [selectedOfferId, setSelectedOfferId] = useState(
     String(group.offers[0]?.id || "")
@@ -74,25 +78,31 @@ export default function RetailerOfferCard({
     group.lowestDeliveredTotal !== null &&
     Math.abs(selectedDeliveredTotal - group.lowestDeliveredTotal) < 0.005;
   const deliveredSavings = selectedIsBestDeliveredPrice
-    ? calculateDeliveredSavings(
-      selectedDeliveredTotal,
-      nextComparableDeliveredTotal
-    )
+    ? deliveryComparisonComplete
+      ? calculateDeliveredSavings(
+          selectedDeliveredTotal,
+          nextComparableDeliveredTotal
+        )
+      : null
     : null;
 
   return (
-    <article className="w-full min-w-0 max-w-full rounded-2xl border border-zinc-200 p-4 sm:p-5">
+    <article className="w-full min-w-0 max-w-full ss-card ss-card-interactive p-4 sm:p-5">
       <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex min-w-0 items-center gap-3">
-          {group.retailer?.logo && (
-            // Retailer logos are remote, data-driven URLs and keep their natural aspect ratio.
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={group.retailer.logo}
-              alt=""
-              className="h-10 w-10 shrink-0 rounded-lg object-contain"
-            />
-          )}
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-[var(--ss-border)] bg-[var(--ss-surface-muted)] p-1.5">
+            {group.retailer?.logo ? (
+              // Retailer logos are remote, data-driven URLs and keep their natural aspect ratio.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={group.retailer.logo}
+                alt=""
+                className="h-full w-full object-contain"
+              />
+            ) : (
+              <SupplementScoutIcon name="store" size={20} className="text-[var(--ss-accent)]" />
+            )}
+          </div>
           <div className="min-w-0">
             <h3 className="break-words font-semibold text-gray-900 [overflow-wrap:anywhere]">
               {group.retailer?.name || "Unknown retailer"}
@@ -113,9 +123,11 @@ export default function RetailerOfferCard({
         <div className="min-w-0 text-left sm:text-right">
           {selectedIsBestDeliveredPrice && (
             <div className="mb-2 flex flex-wrap items-center gap-2 sm:justify-end">
-              <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-800">
-                Best delivered price
-              </span>
+              <StatusBadge tone="comparison" icon="receipt">
+                {deliveryComparisonComplete
+                  ? "Lowest delivered price"
+                  : "Lowest known delivered price"}
+              </StatusBadge>
               {deliveredSavings !== null && (
                 <span className="text-xs font-bold text-emerald-700">
                   Save {formatCurrency(deliveredSavings)}
@@ -123,17 +135,25 @@ export default function RetailerOfferCard({
               )}
             </div>
           )}
-          <p className="text-sm font-medium text-gray-700">
-            Product: {formatProductPrice(selectedOffer.price)}
-          </p>
-          <p className="text-sm font-medium text-gray-700">
-            {formatShipping(selectedOffer.shipping_cost)}
-          </p>
-          <p className="mt-1 break-words text-2xl font-bold text-gray-900 [overflow-wrap:anywhere]">
-            {selectedDeliveredTotal !== null
-              ? formatCurrency(selectedDeliveredTotal)
-              : "Total unknown"}
-          </p>
+          <StatusBadge tone="availability" icon="check">
+            In stock
+          </StatusBadge>
+          <dl className="mt-3 grid grid-cols-[minmax(0,1fr)_minmax(0,auto)] gap-x-4 gap-y-2 text-sm">
+            <dt className="flex items-center gap-1.5 text-gray-600"><SupplementScoutIcon name="package" size={16} />Product</dt>
+            <dd className="text-right font-semibold text-gray-900">
+              {formatProductPrice(selectedOffer.price)}
+            </dd>
+            <dt className="flex items-center gap-1.5 text-gray-600"><SupplementScoutIcon name="truck" size={16} />Delivery</dt>
+            <dd className="text-right font-semibold text-gray-900">
+              {formatShipping(selectedOffer.shipping_cost).replace(/^Delivery:\s*/, "")}
+            </dd>
+            <dt className="flex items-center gap-1.5 border-t border-zinc-200 pt-3 font-semibold text-gray-700"><SupplementScoutIcon name="receipt" size={16} />Total</dt>
+            <dd className="border-t border-zinc-200 pt-3 text-right text-2xl font-extrabold tracking-tight text-[var(--ss-ink)]">
+              {selectedDeliveredTotal !== null
+                ? formatCurrency(selectedDeliveredTotal)
+                : "Calculated at checkout"}
+            </dd>
+          </dl>
         </div>
       </div>
 
@@ -177,7 +197,12 @@ export default function RetailerOfferCard({
             <p>Lowest product price: {formatCurrency(group.lowestProductPrice)}</p>
           )}
           {group.lowestDeliveredTotal !== null && (
-            <p>Lowest delivered price: {formatCurrency(group.lowestDeliveredTotal)}</p>
+            <p>
+              {deliveryComparisonComplete
+                ? "Lowest delivered price"
+                : "Lowest known delivered price"}
+              : {formatCurrency(group.lowestDeliveredTotal)}
+            </p>
           )}
           {selectedOffer.last_checked_at && (
             <p>
@@ -207,9 +232,10 @@ export default function RetailerOfferCard({
               is_affiliate: false,
             });
           }}
-          className="flex min-h-12 w-full min-w-0 max-w-full shrink-0 items-center justify-center rounded-xl bg-black px-5 py-3 text-center text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 sm:w-auto"
+          className="flex min-h-12 w-full min-w-0 max-w-full shrink-0 items-center justify-center rounded-xl gap-2 bg-[var(--ss-ink)] px-5 py-3 text-center text-sm font-semibold text-white hover:bg-[var(--ss-accent-strong)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2 sm:w-auto"
         >
-          View deal{selectedVariantLabel ? ` · ${selectedVariantLabel}` : ""}
+          Go to retailer{selectedVariantLabel ? ` · ${selectedVariantLabel}` : ""}
+          <SupplementScoutIcon name="external-link" size={16} />
         </a>
       </div>
     </article>

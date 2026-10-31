@@ -274,17 +274,41 @@ function loadProductsModule(
   Module._load = function patchedLoad(request, parent, isMain) {
     if (parent === mod && request === "./pricing") {
       return {
-        getDeliveredPrice: ({ price, shipping_cost }) => ({
-          productPrice: Number(price),
-          shippingCost: Number(shipping_cost),
-          totalPrice: Number(price) + Number(shipping_cost),
-        }),
+        getKnownProductPrice: (price) => {
+          const value = Number(price);
+          return price === null || price === "" || !Number.isFinite(value) || value <= 0
+            ? null
+            : value;
+        },
+        getDeliveredPrice: ({ price, shipping_cost }) => {
+          const productPrice = Number(price);
+          const shippingCost = Number(shipping_cost);
+          if (
+            price === null ||
+            price === "" ||
+            shipping_cost === null ||
+            shipping_cost === "" ||
+            !Number.isFinite(productPrice) ||
+            productPrice <= 0 ||
+            !Number.isFinite(shippingCost) ||
+            shippingCost < 0
+          ) return null;
+          return {
+            productPrice,
+            shippingCost,
+            totalPrice: productPrice + shippingCost,
+          };
+        },
+        hasCompleteDeliveredPriceComparison: (offers) =>
+          offers.length > 0 && offers.every(({ price, shipping_cost }) =>
+            price !== null && price !== "" && shipping_cost !== null && shipping_cost !== ""
+          ),
         getVerifiedCostPer5gCreatine: () => null,
         getVerifiedCostPer25gProtein: () => null,
         getVerifiedPricePerKg: () => null,
         getVerifiedPricePerLitre: () => null,
         getVerifiedPricePerServing: (deliveredPrice, servingCount) =>
-          servingCount === null
+          servingCount === null || deliveredPrice === null
             ? null
             : deliveredPrice.totalPrice / Number(servingCount),
       };
@@ -1043,6 +1067,50 @@ test("existing delivered price sorts remain unchanged", async () => {
     descending.results.map((product) => product.id),
     ["321", "323", "322"]
   );
+});
+
+test("unknown delivery stays visible but sorts after comparable delivered totals", async () => {
+  const known = pricedSearchProduct(3241, "Known delivered", 12, null);
+  known.offers[0].shipping_cost = 2;
+  const unknown = pricedSearchProduct(3242, "Unknown delivery", 5, null);
+  unknown.offers[0].shipping_cost = null;
+
+  const result = await searchProductsWithRows(
+    "delivery",
+    [unknown, known],
+    "price_asc"
+  );
+
+  assert.deepEqual(result.results.map((product) => product.id), ["3241", "3242"]);
+  assert.equal(result.results[0].cheapestOffer.deliveredPrice.totalPrice, 14);
+  assert.equal(result.results[0].deliveryComparisonComplete, true);
+  assert.equal(result.results[1].cheapestOffer.productPrice, 5);
+  assert.equal(result.results[1].cheapestOffer.deliveredPrice, null);
+  assert.equal(result.results[1].deliveryComparisonComplete, false);
+  assert.equal(result.results[1].availableOfferCount, 1);
+});
+
+test("mixed known and unknown delivery never marks the product comparison complete", async () => {
+  const product = pricedSearchProduct(3243, "Mixed delivery", 12, null);
+  product.offers.push({
+    ...product.offers[0],
+    id: 32431,
+    price: 4,
+    shipping_cost: null,
+    retailer: {
+      id: 21,
+      name: "Unknown Delivery Retailer",
+      slug: "unknown-delivery-retailer",
+      logo: null,
+    },
+  });
+
+  const result = await searchProductsWithRows("mixed delivery", [product]);
+
+  assert.equal(result.results[0].cheapestOffer.deliveredPrice.totalPrice, 12);
+  assert.equal(result.results[0].availableOfferCount, 2);
+  assert.equal(result.results[0].availableRetailerCount, 2);
+  assert.equal(result.results[0].deliveryComparisonComplete, false);
 });
 
 test("search URLs preserve price per serving sort with filters and pagination", () => {

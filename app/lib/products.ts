@@ -1,5 +1,7 @@
 import {
   getDeliveredPrice,
+  getKnownProductPrice,
+  hasCompleteDeliveredPriceComparison,
   getVerifiedCostPer5gCreatine,
   getVerifiedCostPer25gProtein,
   getVerifiedPricePerKg,
@@ -58,7 +60,8 @@ export type SearchOffer = {
   in_stock: boolean | null;
   retailer: SearchRetailer | null;
   product_variant: RawProductVariant | null;
-  deliveredPrice: DeliveredPrice;
+  productPrice: number;
+  deliveredPrice: DeliveredPrice | null;
 };
 
 export type SearchFacetOption = {
@@ -131,6 +134,7 @@ export type ProductSearchResult = {
   validOffers: SearchOffer[];
   availableOfferCount: number;
   availableRetailerCount: number;
+  deliveryComparisonComplete: boolean;
   observedRetailerCount: number;
   observedRetailerKeys: string[];
   latestVerificationAt: string | null;
@@ -958,9 +962,10 @@ export function normalizeSearchOffers(offers: RawOffer[], now = new Date()) {
         offer.in_stock === true && isOfferFresh(offer.last_checked_at, now)
     )
     .map((offer) => {
+      const productPrice = getKnownProductPrice(offer.price);
       const deliveredPrice = getDeliveredPrice(offer);
 
-      if (!deliveredPrice) {
+      if (productPrice === null) {
         return null;
       }
 
@@ -974,6 +979,7 @@ export function normalizeSearchOffers(offers: RawOffer[], now = new Date()) {
         shipping_cost: offer.shipping_cost,
         url: offer.url,
         in_stock: offer.in_stock,
+        productPrice,
         retailer: normalizeRetailer(offer.retailer),
         product_variant: Array.isArray(offer.product_variant)
           ? offer.product_variant[0] || null
@@ -983,9 +989,18 @@ export function normalizeSearchOffers(offers: RawOffer[], now = new Date()) {
     })
     .filter((offer): offer is SearchOffer => offer !== null)
     .sort(
-      (left, right) =>
-        left.deliveredPrice.totalPrice - right.deliveredPrice.totalPrice ||
-        left.id.localeCompare(right.id)
+      (left, right) => {
+        if (left.deliveredPrice && right.deliveredPrice) {
+          return left.deliveredPrice.totalPrice - right.deliveredPrice.totalPrice ||
+            left.id.localeCompare(right.id);
+        }
+
+        if (left.deliveredPrice) return -1;
+        if (right.deliveredPrice) return 1;
+
+        return left.productPrice - right.productPrice ||
+          left.id.localeCompare(right.id);
+      }
     );
 }
 
@@ -1018,6 +1033,9 @@ function normalizeProduct(
     : caffeineEligibleOffers;
 
   const cheapestOffer = matchingRetailerOffers[0] || null;
+  const deliveryComparisonComplete = hasCompleteDeliveredPriceComparison(
+    matchingRetailerOffers
+  );
 
   const matchingObservedOffers = rawOffers.filter((offer) => {
     const variant = Array.isArray(offer.product_variant)
@@ -1074,8 +1092,9 @@ function normalizeProduct(
     unit_pricing_verified: effectiveMetrics.unit_pricing_verified,
     cheapestOffer,
     validOffers: caffeineEligibleOffers,
-    availableOfferCount: caffeineEligibleOffers.length,
-    availableRetailerCount: countAvailableRetailers(caffeineEligibleOffers),
+    availableOfferCount: matchingRetailerOffers.length,
+    availableRetailerCount: countAvailableRetailers(matchingRetailerOffers),
+    deliveryComparisonComplete,
     observedRetailerCount,
     observedRetailerKeys,
     latestVerificationAt: presentation.checkedAt,
@@ -1242,31 +1261,47 @@ function applyProductFilters(
   });
 }
 
+function compareSearchResultPrices(
+  left: ProductSearchResult,
+  right: ProductSearchResult,
+  direction: "asc" | "desc" = "asc"
+) {
+  const fallback =
+    left.name.localeCompare(right.name) || left.id.localeCompare(right.id);
+
+  if (!left.cheapestOffer) return right.cheapestOffer ? 1 : fallback;
+  if (!right.cheapestOffer) return -1;
+
+  const multiplier = direction === "asc" ? 1 : -1;
+  const leftDelivered = left.cheapestOffer.deliveredPrice;
+  const rightDelivered = right.cheapestOffer.deliveredPrice;
+
+  if (leftDelivered && rightDelivered) {
+    return (
+      (leftDelivered.totalPrice - rightDelivered.totalPrice) * multiplier ||
+      fallback
+    );
+  }
+
+  if (leftDelivered) return -1;
+  if (rightDelivered) return 1;
+
+  return (
+    (left.cheapestOffer.productPrice - right.cheapestOffer.productPrice) *
+      multiplier || fallback
+  );
+}
+
 function sortResults(results: ProductSearchResult[], sort: SearchSort) {
   return [...results].sort((left, right) => {
-    const fallback =
-      left.name.localeCompare(right.name) || left.id.localeCompare(right.id);
-    if (!left.cheapestOffer) {
-      return right.cheapestOffer ? 1 : fallback;
-    }
-
-    if (!right.cheapestOffer) {
-      return -1;
-    }
-
-    const deliveredPriceFallback =
-      left.cheapestOffer.deliveredPrice.totalPrice -
-        right.cheapestOffer.deliveredPrice.totalPrice || fallback;
+    const deliveredPriceFallback = compareSearchResultPrices(left, right);
 
     if (sort === "price_asc") {
-      return deliveredPriceFallback;
+      return compareSearchResultPrices(left, right, "asc");
     }
 
     if (sort === "price_desc") {
-      return (
-        right.cheapestOffer.deliveredPrice.totalPrice -
-          left.cheapestOffer.deliveredPrice.totalPrice || fallback
-      );
+      return compareSearchResultPrices(left, right, "desc");
     }
 
     if (sort === "price_per_serving_asc") {
@@ -1402,6 +1437,7 @@ export async function searchProducts(
   const isWithinBudget = (product: ProductSearchResult) =>
     intent.maxDeliveredPrice === null ||
     (product.cheapestOffer !== null &&
+      product.cheapestOffer.deliveredPrice !== null &&
       product.cheapestOffer.deliveredPrice.totalPrice <= intent.maxDeliveredPrice);
   const baseResults =
     intent.maxDeliveredPrice === null
@@ -1695,20 +1731,7 @@ export async function getLandingProducts(
       })
     )
     .filter((product): product is ProductSearchResult => product !== null)
-    .sort(
-      (left, right) => {
-        const fallback =
-          left.name.localeCompare(right.name) || left.id.localeCompare(right.id);
-
-        if (!left.cheapestOffer) return right.cheapestOffer ? 1 : fallback;
-        if (!right.cheapestOffer) return -1;
-
-        return (
-          left.cheapestOffer.deliveredPrice.totalPrice -
-            right.cheapestOffer.deliveredPrice.totalPrice || fallback
-        );
-      }
-    );
+    .sort((left, right) => compareSearchResultPrices(left, right));
   const totalCount = matchingResults.length;
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
   const page = Math.min(requestedPage, totalPages);

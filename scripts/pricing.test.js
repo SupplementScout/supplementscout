@@ -573,7 +573,7 @@ test("delivered price uses exact penny arithmetic for decimal product and shippi
   });
 });
 
-test("search offer ranking prefers known delivered total over null shipping", () => {
+test("search offer ranking keeps unknown shipping visible after known delivered totals", () => {
   const offers = normalizeSearchOffers([
     {
       id: "unknown-delivery",
@@ -596,9 +596,13 @@ test("search offer ranking prefers known delivered total over null shipping", ()
   ]);
 
   assert.equal(getDeliveredPrice({ price: 10, shipping_cost: null }), null);
-  assert.equal(offers.length, 1);
-  assert.equal(offers[0].id, "known-delivery");
+  assert.deepEqual(offers.map((offer) => offer.id), [
+    "known-delivery",
+    "unknown-delivery",
+  ]);
   assert.equal(offers[0].deliveredPrice.totalPrice, 13.99);
+  assert.equal(offers[1].productPrice, 10);
+  assert.equal(offers[1].deliveredPrice, null);
 });
 
 test("invalid offer prices are not treated as displayable product prices", () => {

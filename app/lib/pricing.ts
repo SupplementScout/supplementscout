@@ -56,6 +56,13 @@ export function getDeliveredPrice(offer: PriceInput): DeliveredPrice | null {
   };
 }
 
+export function hasCompleteDeliveredPriceComparison(offers: PriceInput[]) {
+  return (
+    offers.length > 0 &&
+    offers.every((offer) => getDeliveredPrice(offer) !== null)
+  );
+}
+
 export function getVerifiedPricePerServing(
   deliveredPrice: DeliveredPrice | null,
   servingCount: number | string | null

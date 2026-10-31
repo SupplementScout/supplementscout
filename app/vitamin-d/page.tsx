@@ -65,7 +65,7 @@ export default async function VitaminDPage({
 
   const lowestDeliveredPrice =
     page === 1
-      ? results[0]?.cheapestOffer?.deliveredPrice.totalPrice ?? null
+      ? results[0]?.cheapestOffer?.deliveredPrice?.totalPrice ?? null
       : null;
 
   return (

@@ -88,11 +88,11 @@ export default function HomeHeader() {
   }, [menuOpen]);
 
   return (
-    <header className="border-b border-zinc-200 bg-white">
+    <header className="border-b border-zinc-200 bg-white/95 backdrop-blur">
       <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:min-h-20 sm:px-6">
         <Link
           href="/"
-          className="text-lg font-bold tracking-tight text-zinc-950 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 sm:text-xl"
+          className="text-lg font-extrabold tracking-[-0.03em] text-[var(--ss-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2 sm:text-xl"
         >
           SupplementScout
         </Link>
@@ -115,7 +115,7 @@ export default function HomeHeader() {
         <div className="hidden md:block">
           <Link
             href="/deals"
-            className="inline-flex min-h-11 items-center rounded-full bg-zinc-950 px-5 text-sm font-semibold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2"
+            className="inline-flex min-h-11 items-center rounded-full bg-[var(--ss-accent)] px-5 text-sm font-semibold text-white hover:bg-[var(--ss-accent-strong)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
           >
             Find Deals
           </Link>

@@ -3,8 +3,6 @@ import type { ProductSearchResult } from "./products";
 
 type SearchValueInput = Pick<
   ProductSearchResult,
-  | "name"
-  | "category"
   | "verifiedCostPer5gCreatine"
   | "verifiedCostPer25gProtein"
   | "verifiedPricePerKg"
@@ -29,35 +27,18 @@ function metric(label: string, value: number | null, suffix: string) {
 export function primarySearchValueMetric(
   product: SearchValueInput
 ): SearchValueMetric | null {
-  const identity = `${product.category || ""} ${product.name}`.toLowerCase();
-  const perServing = metric(
-    "Per serving",
-    product.verifiedPricePerServing,
-    "per serving"
-  );
-
-  if (/\b(?:protein|whey|casein)\b/.test(identity)) {
-    return (
-      metric(
-        "Protein value",
-        product.verifiedCostPer25gProtein,
-        "per 25 g protein"
-      ) || perServing
-    );
-  }
-
-  if (/\bcreatine\b/.test(identity)) {
-    return (
-      metric(
-        "Creatine value",
-        product.verifiedCostPer5gCreatine,
-        "per 5 g creatine"
-      ) || perServing
-    );
-  }
-
   return (
-    perServing ||
+    metric(
+      "Protein value",
+      product.verifiedCostPer25gProtein,
+      "per 25 g protein"
+    ) ||
+    metric(
+      "Creatine value",
+      product.verifiedCostPer5gCreatine,
+      "per 5 g creatine"
+    ) ||
+    metric("Per serving", product.verifiedPricePerServing, "per serving") ||
     metric("Weight value", product.verifiedPricePerKg, "per kg") ||
     metric("Volume value", product.verifiedPricePerLitre, "per litre")
   );

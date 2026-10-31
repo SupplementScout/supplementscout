@@ -119,6 +119,17 @@ test("implementation reuses shared pricing, freshness, nutrition and exact varia
   assert.doesNotMatch(analytics, /saved_product_id|saved_variant_id|supplement_name/);
 });
 
+test("mobile shortcut uses one shared non-overlapping placement without hiding the control", () => {
+  const shortcut = fs.readFileSync(path.join(ROOT, "app/components/MySupplementsShortcut.tsx"), "utf8");
+
+  assert.match(shortcut, /data-my-supplements-shortcut/);
+  assert.match(shortcut, /env\(safe-area-inset-bottom\)/);
+  assert.doesNotMatch(shortcut, /hidden[^\n]*sm:/);
+  assert.match(shortcut, /className="static[^\n]*sm:fixed/);
+  assert.match(shortcut, /self-end/);
+  assert.doesNotMatch(shortcut, /className="fixed/);
+});
+
 test("current endpoint rejects bad input and returns bounded no-store data", async () => {
   const calls = [];
   const route = compileModule(path.join(ROOT, "app/api/my-supplements/current/route.ts"), {

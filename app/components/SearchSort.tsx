@@ -7,8 +7,8 @@ import { searchUrl } from "../lib/searchUrl";
 
 const sortOptions: Array<{ value: SearchSort; label: string }> = [
   { value: "relevance", label: "Relevance" },
-  { value: "price_asc", label: "Lowest total price" },
-  { value: "price_desc", label: "Highest total price" },
+  { value: "price_asc", label: "Lowest delivered price" },
+  { value: "price_desc", label: "Highest delivered price" },
   { value: "price_per_serving_asc", label: "Lowest price per serving" },
 ];
 

@@ -48,13 +48,13 @@ const {
   { "./pricing": pricing }
 );
 
-test("paid delivery shows full delivered total and explicit breakdown", () => {
+test("complete delivery comparison shows full delivered total and explicit breakdown", () => {
   const summary = buildBestOfferPricePresentation({
     price: 20,
     shipping_cost: 3.99,
-  });
+  }, { deliveryComparisonComplete: true });
 
-  assert.equal(summary.label, "Best delivered price");
+  assert.equal(summary.label, "Lowest delivered price");
   assert.equal(summary.primaryPrice, "£23.99");
   assert.equal(summary.breakdown, "£20.00 product + £3.99 delivery");
 });
@@ -64,9 +64,9 @@ test("free delivery is stated without displaying a misleading zero charge", () =
     buildBestOfferPricePresentation({
       price: "62.14",
       shipping_cost: 0,
-    }),
+    }, { deliveryComparisonComplete: true }),
     {
-      label: "Best delivered price",
+      label: "Lowest delivered price",
       primaryPrice: "£62.14",
       breakdown: "£62.14 product + free delivery",
     }
@@ -79,10 +79,21 @@ test("unknown delivery never labels product-only price as delivered", () => {
     shipping_cost: null,
   });
 
-  assert.equal(summary.label, "Lowest product price");
+  assert.equal(summary.label, "Product price");
   assert.equal(summary.primaryPrice, "£19.99");
-  assert.equal(summary.breakdown, "£19.99 product + delivery cost unknown");
-  assert.notEqual(summary.label, "Best delivered price");
+  assert.equal(summary.breakdown, "Delivery calculated by retailer");
+  assert.notEqual(summary.label, "Lowest delivered price");
+});
+
+test("an incomplete offer set never makes a confirmed lowest delivered claim", () => {
+  const summary = buildBestOfferPricePresentation(
+    { price: 20, shipping_cost: 3.99 },
+    { deliveryComparisonComplete: false }
+  );
+
+  assert.equal(summary.label, "Lowest known delivered price");
+  assert.equal(summary.primaryPrice, "£23.99");
+  assert.notEqual(summary.label, "Lowest delivered price");
 });
 
 test("missing product and delivery values have an explicit unavailable state", () => {

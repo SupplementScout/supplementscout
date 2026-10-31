@@ -1,6 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { ProductSearchResult } from "../lib/products";
-import { formatCurrency } from "../lib/pricing";
 import {
   buildBestOfferPricePresentation,
   formatOfferCheckedDate,
@@ -10,6 +10,8 @@ import {
   primarySearchValueMetric,
   searchResultSize,
 } from "../lib/searchResultPresentation";
+import StatusBadge from "./StatusBadge";
+import SupplementScoutIcon from "./SupplementScoutIcon";
 
 function productHref(product: ProductSearchResult) {
   const base = `/product/${product.slug || product.id}`;
@@ -18,21 +20,10 @@ function productHref(product: ProductSearchResult) {
     : base;
 }
 
-function safeBackgroundImage(value: string) {
-  return `url("${value.replace(/["\\\n\r]/g, "")}")`;
-}
-
-function formatDeliveryCost(value: number) {
-  return value === 0 ? "Free delivery" : formatCurrency(value);
-}
-
 function formatVerifiedServings(value: number | string | null) {
-  if (value === null || value === "") {
-    return null;
-  }
+  if (value === null || value === "") return null;
 
   const servings = Number(value);
-
   return Number.isFinite(servings) && Number.isInteger(servings) && servings > 0
     ? servings.toLocaleString("en-GB")
     : null;
@@ -47,255 +38,126 @@ export default function ProductResultCard({
 }) {
   const { cheapestOffer } = product;
   const retailerName = cheapestOffer?.retailer?.name || null;
-  const deliveredPrice = cheapestOffer?.deliveredPrice || null;
-  const verifiedServings = formatVerifiedServings(product.serving_count_verified);
   const pricePresentation = cheapestOffer
-    ? buildBestOfferPricePresentation(cheapestOffer)
+    ? buildBestOfferPricePresentation(cheapestOffer, {
+        deliveryComparisonComplete: product.deliveryComparisonComplete,
+      })
     : null;
   const valueMetric = primarySearchValueMetric(product);
   const packageSize = searchResultSize(product);
+  const verifiedServings = formatVerifiedServings(product.serving_count_verified);
   const verificationDate = formatOfferCheckedDate(product.latestVerificationAt);
-  const availabilityLabel =
-    product.availableRetailerCount > 1
-      ? `${product.availableRetailerCount} retailers`
-      : `${product.availableOfferCount} in-stock offer${
-          product.availableOfferCount === 1 ? "" : "s"
-        }`;
+  const availabilityLabel = product.availableRetailerCount > 0
+    ? `${product.availableRetailerCount} retailer${
+        product.availableRetailerCount === 1 ? "" : "s"
+      }`
+    : `${product.availableOfferCount} offer${
+        product.availableOfferCount === 1 ? "" : "s"
+      }`;
 
   return (
-    <article className="w-full min-w-0 max-w-full rounded-lg border border-zinc-200 bg-white shadow-sm">
-      <div
-        className={
-          searchMobileFirst
-            ? "grid min-w-0 grid-cols-1 gap-3 p-4 md:grid-cols-[148px_minmax(0,1fr)_250px] md:items-center md:gap-5 md:p-5"
-            : "grid min-w-0 grid-cols-[112px_minmax(0,1fr)] gap-x-3 gap-y-3 p-3 sm:grid-cols-[112px_minmax(0,1fr)] sm:gap-4 sm:p-5 md:grid-cols-[148px_minmax(0,1fr)_250px] md:items-center md:gap-5"
-        }
-      >
+    <article
+      data-search-card={searchMobileFirst ? "primary" : undefined}
+      className="ss-card ss-card-interactive w-full min-w-0 overflow-hidden"
+    >
+      <div className="grid min-w-0 grid-cols-[104px_minmax(0,1fr)] gap-4 p-4 sm:grid-cols-[128px_minmax(0,1fr)] sm:p-5 md:grid-cols-[144px_minmax(0,1fr)_268px] md:items-center md:gap-6">
         <Link
           href={productHref(product)}
-          className={
-            searchMobileFirst
-              ? "order-2 mx-auto flex h-32 w-full max-w-[180px] items-center justify-center rounded-lg border border-zinc-100 bg-zinc-50 p-2 md:order-1 md:h-36 md:max-w-none"
-              : "flex h-28 w-28 items-center justify-center rounded-lg border border-zinc-100 bg-zinc-50 p-2 sm:w-full md:h-36"
-          }
-          aria-label={`View ${product.name}`}
+          className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-2xl border border-[var(--ss-border)] bg-[var(--ss-surface-muted)] p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
+          aria-label={`View offers for ${product.name}`}
         >
           {product.image ? (
-            <div
-              aria-label={product.name}
-              role="img"
-              className="h-full w-full bg-contain bg-center bg-no-repeat"
-              style={{ backgroundImage: safeBackgroundImage(product.image) }}
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              unoptimized
+              sizes="(max-width: 639px) 104px, (max-width: 767px) 128px, 144px"
+              className="object-contain p-2.5"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center rounded-lg border border-dashed border-zinc-300 bg-white px-3 text-center text-xs font-semibold text-zinc-500">
-              No image
-            </div>
+            <span className="px-2 text-center text-xs font-semibold text-zinc-500">
+              Image unavailable
+            </span>
           )}
         </Link>
 
-        <div
-          className={
-            searchMobileFirst
-              ? "order-1 min-w-0 self-start md:order-2 md:self-center"
-              : "col-span-2 min-w-0 self-start sm:col-span-1 sm:self-center"
-          }
-        >
-          {searchMobileFirst && (
-            <div className="min-w-0 md:hidden">
-              {product.brand && (
-                <p className="break-words text-xs font-semibold uppercase tracking-wide text-zinc-600">
-                  {product.brand}
-                </p>
-              )}
-              {product.category && (
-                <p className="mt-1 break-words text-xs font-medium text-zinc-500">
-                  {product.category}
-                </p>
-              )}
-            </div>
-          )}
-          <div
-            className={`${
-              searchMobileFirst ? "hidden md:flex" : "flex"
-            } flex-wrap gap-x-2 gap-y-1 break-words text-xs font-semibold uppercase tracking-wide text-zinc-600`}
-          >
-            <span>{product.category || "Uncategorised"}</span>
-            <span aria-hidden="true">/</span>
-            <span>{product.brand || "Unknown brand"}</span>
+        <div className="min-w-0 self-start md:self-center">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500">
+            {product.brand && <span className="break-words">{product.brand}</span>}
+            {product.brand && product.category && <span aria-hidden="true">·</span>}
+            {product.category && <span className="break-words">{product.category}</span>}
           </div>
 
-          <Link href={productHref(product)} className="block min-w-0 max-w-full">
-            <h2 className="mt-1.5 max-w-full whitespace-normal break-words text-lg font-bold leading-snug text-zinc-950 hover:underline md:text-xl">
+          <Link href={productHref(product)} className="block min-w-0">
+            <h2 className="mt-1.5 break-words text-lg font-bold leading-snug text-[var(--ss-ink)] hover:underline sm:text-xl">
               {product.name}
             </h2>
           </Link>
 
-          {searchMobileFirst && packageSize && (
-            <p className="mt-1.5 text-sm font-medium text-zinc-600 md:hidden">
-              Size: {packageSize}
+          {(packageSize || verifiedServings) && (
+            <p className="mt-2 flex items-start gap-1.5 text-sm leading-5 text-zinc-600">
+              <SupplementScoutIcon name="package" size={16} className="mt-0.5 shrink-0 text-zinc-500" />
+              <span>
+                {[packageSize, verifiedServings ? `${verifiedServings} verified servings` : null]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </span>
             </p>
           )}
-          <div
-            className={`${
-              searchMobileFirst ? "hidden md:flex" : "flex"
-            } mt-2 min-w-0 flex-col items-start gap-1 text-sm sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3`}
-          >
-            <span className="max-w-full break-words font-semibold text-zinc-800">
-              {retailerName || OFFER_PRESENTATION_LABELS[product.presentationState]}
-            </span>
-            {cheapestOffer && (
-              <span className="max-w-full break-words text-zinc-600">
-                {product.availableOfferCount} in-stock offer
-                {product.availableOfferCount === 1 ? "" : "s"}
-              </span>
-            )}
-            {verifiedServings && (
-              <span className="max-w-full break-words text-zinc-600">
-                Verified servings: {verifiedServings}
-              </span>
-            )}
-          </div>
 
-          {!searchMobileFirst && (
-            <Link
-              href={productHref(product)}
-              className="mt-4 flex min-h-11 w-full items-center justify-center rounded-lg bg-zinc-950 px-4 py-3 text-center text-sm font-semibold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 sm:hidden"
-            >
-              View product
-            </Link>
+          {cheapestOffer && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              <StatusBadge tone="availability" icon="check">
+                In stock
+              </StatusBadge>
+              <StatusBadge tone="neutral" icon="store">
+                {availabilityLabel}
+              </StatusBadge>
+            </div>
           )}
         </div>
 
-        <div
-          className={
-            searchMobileFirst
-              ? "order-3 min-w-0 border-t border-zinc-200 pt-3 md:order-3 md:border-l md:border-t-0 md:pl-5 md:pt-0"
-              : "col-start-2 row-start-1 min-w-0 sm:col-span-2 sm:col-start-auto sm:row-start-auto sm:border-t sm:border-zinc-200 sm:pt-4 md:col-span-1 md:border-l md:border-t-0 md:pl-5 md:pt-0"
-          }
-        >
-          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-600">
-            {pricePresentation
-              ? searchMobileFirst
-                ? pricePresentation.label
-                : "Best delivered price"
-              : OFFER_PRESENTATION_LABELS[product.presentationState]}
+        <div className="col-span-2 min-w-0 border-t border-zinc-200 pt-4 md:col-span-1 md:border-l md:border-t-0 md:pl-6 md:pt-0">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-zinc-500">
+            {pricePresentation?.label || OFFER_PRESENTATION_LABELS[product.presentationState]}
           </p>
-          <p className={`mt-1 font-extrabold text-zinc-950 ${
-            pricePresentation
-              ? "text-2xl leading-none sm:text-3xl md:text-2xl"
-              : "text-lg leading-snug"
-          }`}>
-            {pricePresentation && deliveredPrice
-              ? searchMobileFirst
-                ? pricePresentation.primaryPrice
-                : formatCurrency(deliveredPrice.totalPrice)
-              : "Temporarily unavailable"}
-          </p>
-          {!cheapestOffer && (
-            <p className="mt-2 text-sm text-zinc-600">
-              {product.presentationState === "RECENT"
-                ? `Last verified in stock${verificationDate ? ` on ${verificationDate}` : ""}; the old price is not treated as current.`
-                : product.presentationState === "OUT_OF_STOCK"
-                  ? `A retailer check${verificationDate ? ` on ${verificationDate}` : ""} confirmed this product is out of stock.`
-                  : `No retailer price has been verified in the last 24 hours${verificationDate ? `; latest check ${verificationDate}` : ""}.`}
-              {product.observedRetailerCount > 0 && (
-                <> Evidence from {product.observedRetailerCount} retailer{product.observedRetailerCount === 1 ? "" : "s"}.</>
-              )}
-            </p>
-          )}
-          {product.caffeineFreeConfirmed && product.selectedVariantLabel && (
-            <p className="mt-2 text-sm font-semibold text-emerald-800">
-              Confirmed caffeine free · {product.selectedVariantLabel}
-            </p>
-          )}
-          {searchMobileFirst && pricePresentation && retailerName && (
-            <div className="md:hidden">
-              <p className="mt-2 break-words text-sm font-semibold text-zinc-800">
+
+          {pricePresentation ? (
+            <>
+              <p className="mt-1.5 text-3xl font-extrabold leading-none tracking-[-0.035em] text-[var(--ss-ink)]">
+                {pricePresentation.primaryPrice}
+              </p>
+              <p className="mt-2 text-sm font-medium leading-5 text-zinc-700">
                 {pricePresentation.breakdown}
               </p>
+              <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-sm text-zinc-600">
+                {retailerName && <span className="font-semibold text-zinc-800">{retailerName}</span>}
+                <span>{availabilityLabel}</span>
+              </div>
               {valueMetric && (
                 <div className="mt-3 border-t border-zinc-200 pt-3 text-sm">
                   <p className="text-zinc-500">{valueMetric.label}</p>
                   <p className="font-semibold text-zinc-900">{valueMetric.value}</p>
                 </div>
               )}
-              <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-sm text-zinc-600">
-                <span className="font-semibold text-zinc-800">{retailerName}</span>
-                <span>{availabilityLabel}</span>
-              </div>
-            </div>
-          )}
-          {cheapestOffer && deliveredPrice && retailerName && (
-            <div className={searchMobileFirst ? "hidden md:block" : ""}>
-              <p className="mt-1 hidden text-sm font-medium text-zinc-700 sm:block">
-                From {retailerName}
-              </p>
-
-              <dl className="mt-3 space-y-2 text-sm">
-              <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
-                <dt className="text-zinc-700">Product</dt>
-                <dd className="min-w-0 max-w-full break-words text-right font-semibold text-zinc-950">
-                  {formatCurrency(deliveredPrice.productPrice)}
-                </dd>
-              </div>
-              <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
-                <dt className="text-zinc-700">Delivery</dt>
-                <dd className="min-w-0 max-w-full break-words text-right font-semibold text-zinc-950">
-                  {formatDeliveryCost(deliveredPrice.shippingCost)}
-                </dd>
-              </div>
-              {product.verifiedPricePerServing !== null && (
-                <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1 border-t border-zinc-200 pt-2">
-                  <dt className="text-zinc-600">Per serving</dt>
-                  <dd className="min-w-0 max-w-full break-words text-right font-semibold text-zinc-800">
-                    {formatCurrency(product.verifiedPricePerServing)} per serving
-                  </dd>
-                </div>
-              )}
-              {product.verifiedPricePerKg !== null && (
-                <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1 border-t border-zinc-200 pt-2">
-                  <dt className="text-zinc-600">Per kg</dt>
-                  <dd className="min-w-0 max-w-full break-words text-right font-semibold text-zinc-800">
-                    {formatCurrency(product.verifiedPricePerKg)} per kg
-                  </dd>
-                </div>
-              )}
-              {product.verifiedPricePerLitre !== null && (
-                <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1 border-t border-zinc-200 pt-2">
-                  <dt className="text-zinc-600">Per litre</dt>
-                  <dd className="min-w-0 max-w-full break-words text-right font-semibold text-zinc-800">
-                    {formatCurrency(product.verifiedPricePerLitre)}/litre
-                  </dd>
-                </div>
-              )}
-              {product.verifiedCostPer25gProtein !== null && (
-                <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1 border-t border-zinc-200 pt-2">
-                  <dt className="text-zinc-600">Protein</dt>
-                  <dd className="min-w-0 max-w-full break-words text-right font-semibold text-zinc-800">
-                    {formatCurrency(product.verifiedCostPer25gProtein)} per 25 g protein
-                  </dd>
-                </div>
-              )}
-              {product.verifiedCostPer5gCreatine !== null && (
-                <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1 border-t border-zinc-200 pt-2">
-                  <dt className="text-zinc-600">Creatine</dt>
-                  <dd className="min-w-0 max-w-full break-words text-right font-semibold text-zinc-800">
-                    {formatCurrency(product.verifiedCostPer5gCreatine)} per 5 g creatine
-                  </dd>
-                </div>
-              )}
-              </dl>
-            </div>
+            </>
+          ) : (
+            <p className="mt-2 text-sm leading-6 text-zinc-600">
+              {product.presentationState === "RECENT"
+                ? `Previously in stock${verificationDate ? ` on ${verificationDate}` : ""}; the old price is not shown as current.`
+                : product.presentationState === "OUT_OF_STOCK"
+                  ? `A retailer check${verificationDate ? ` on ${verificationDate}` : ""} confirmed this product is out of stock.`
+                  : `No retailer price has been verified in the last 24 hours${verificationDate ? `; latest check ${verificationDate}` : ""}.`}
+            </p>
           )}
 
           <Link
             href={productHref(product)}
-            className={`mt-4 min-h-11 w-full items-center justify-center rounded-lg bg-zinc-950 px-4 py-3 text-center text-sm font-semibold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 ${
-              searchMobileFirst ? "flex" : "hidden sm:flex"
-            }`}
+            className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--ss-ink)] px-4 py-3 text-center text-sm font-semibold text-white hover:bg-[var(--ss-accent-strong)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
           >
-            View product
+            View offers
+            <SupplementScoutIcon name="external-link" size={16} />
           </Link>
         </div>
       </div>
