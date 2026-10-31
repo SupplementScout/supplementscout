@@ -161,6 +161,18 @@ separate exact production authorization. Enforcement remains OFF/absent. The
 bounded proof is recorded in
 [`PHASE-B-VALIDATOR-DURABLE-REVIEW-EVIDENCE-PARITY-PREPARATION-2026-10-31.json`](retailer-automation/evidence/PHASE-B-VALIDATOR-DURABLE-REVIEW-EVIDENCE-PARITY-PREPARATION-2026-10-31.json).
 
+The first owner-authorized apply of the reader migration's original SHA
+`d6bcf488201737a2206c102297de6ef157c69f51886c8508ae474a23846d9c47`
+failed closed before commit because its preflight incorrectly required the live
+production validator to be `NOBYPASSRLS`. Production migration
+`20260820130000_allow_production_validator_bounded_rls_reads` intentionally
+made that role `BYPASSRLS` for its bounded catalogue reads. Fresh read-only
+forensics proved the role still needs that capability while it has no raw
+Review Queue table privilege. The unapplied reader migration now verifies the
+exact live role shape without changing it; its corrected bytes remain excluded
+and unapplied. Ledger remains `257` and enforcement remains OFF/absent. See
+[`PHASE-B-READER-LIVE-VALIDATOR-ROLE-CONTRACT-RECONCILIATION-2026-10-31.json`](retailer-automation/evidence/PHASE-B-READER-LIVE-VALIDATOR-ROLE-CONTRACT-RECONCILIATION-2026-10-31.json).
+
 The first live verification must use one newly generated Review Queue
 registration artifact, confirm its exact object and registry identity by fresh
 readback, then observe the already-existing queue RPC. If sealing or readback

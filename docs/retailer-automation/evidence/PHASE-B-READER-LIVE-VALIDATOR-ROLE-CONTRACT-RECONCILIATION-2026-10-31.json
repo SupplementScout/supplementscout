@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "status": "CORRECTED_MIGRATION_PREPARED_NOT_APPLIED",
+  "captured_at": "2026-10-31",
+  "production_target": {
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "database_identity": "supplementscout-production:aftboxmrdgyhizicfsfu",
+    "transaction_read_only": true,
+    "production_writes": 0
+  },
+  "root_cause": "ROOT_CAUSE_CONFIRMED_READER_MIGRATION_ENCODED_OBSOLETE_NOBYPASSRLS_ASSUMPTION",
+  "failed_attempt": {
+    "migration": "20261031120000_add_verified_automation_review_stock_transition_reader.sql",
+    "sha256": "d6bcf488201737a2206c102297de6ef157c69f51886c8508ae474a23846d9c47",
+    "result": "ROLLED_BACK_BEFORE_COMMIT",
+    "failure": "VERIFIED_AUTOMATION_REVIEW_READER_VALIDATOR_ROLE_MISMATCH",
+    "ledger_delta": 0,
+    "function_created": false,
+    "retry_count": 0
+  },
+  "live_validator_role": {
+    "rolname": "retailer_catalogue_production_validator",
+    "rolcanlogin": false,
+    "rolinherit": false,
+    "rolsuper": false,
+    "rolcreatedb": false,
+    "rolcreaterole": false,
+    "rolreplication": false,
+    "rolbypassrls": true,
+    "rolconnlimit": -1,
+    "rolvaliduntil": null,
+    "rolconfig": null,
+    "historical_bypassrls_authority": "20260820130000_allow_production_validator_bounded_rls_reads",
+    "historical_select_authority": "20260820120000_allow_production_validator_offer_refresh_reads"
+  },
+  "dependency_proof": {
+    "direct_catalogue_select_tables": [
+      "offers",
+      "price_history",
+      "product_variants",
+      "products",
+      "retailer_products",
+      "retailers"
+    ],
+    "all_catalogue_tables_have_rls_enabled": true,
+    "retailer_products_has_no_read_policy": true,
+    "real_validator_catalogue_read_passed": true,
+    "would_removing_bypassrls_risk_existing_validator_reads": true
+  },
+  "review_queue_acl": {
+    "product_match_review_queue": {
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false,
+      "real_select_attempt": "DENIED_42501"
+    },
+    "automation_review_execution_requests": {
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false,
+      "real_select_attempt": "DENIED_42501"
+    }
+  },
+  "corrected_boundary": {
+    "migration": "20261031120000_add_verified_automation_review_stock_transition_reader.sql",
+    "sha256": "9d1f9c004d58926101c4adc60e7515d8040bc9b6102213180538113e1c925608",
+    "function": "public.read_verified_automation_review_stock_transitions_v1(bigint)",
+    "production_role_mutation": false,
+    "raw_queue_table_access_granted": false,
+    "excluded_from_staging_automatic_deploy": true,
+    "excluded_from_production_automatic_deploy": true,
+    "in_applied_exclusions_production": false,
+    "production_apply_authorized": false,
+    "production_apply_performed": false
+  },
+  "ledger": {
+    "actual_count": 257,
+    "actual_fingerprint": "78a389c08626ce3a5f993647f8ac50b3e9aeffda5d0326fba1fb4bf2216e5ae4",
+    "expected_post_apply_count_candidate": 258,
+    "expected_post_apply_fingerprint_candidate": "cd6b36c93aea368c61a048f4315724cb631e60defeb16ffd396ace61e11a72ce"
+  },
+  "activation_boundary": {
+    "durable_sealed_artifacts_enforcement": "OFF_OR_ABSENT",
+    "workflow_dispatches": 0,
+    "review_queue_writes": 0,
+    "sealed_artifact_writes": 0,
+    "catalogue_writes": 0,
+    "phase_c": "NOT_STARTED"
+  }
+}

@@ -158,12 +158,16 @@ test("verified stock-transition reader is generic, bounded, SELECT-only and vali
   assert.match(body, /execution\.status='EXECUTED'/);
   assert.match(body, /review\.operation_type='UPDATE_STOCK'/);
   assert.doesNotMatch(body, /\b(?:insert\s+into|update|delete\s+from|execute\s+format)\b/i);
+  assert.match(migration, /rolcanlogin=false[\s\S]+rolinherit=false[\s\S]+rolsuper=false[\s\S]+rolcreaterole=false[\s\S]+rolcreatedb=false[\s\S]+rolreplication=false[\s\S]+rolbypassrls=true/);
+  assert.match(migration, /20260820130000[\s\S]+bounded catalogue reads[\s\S]+table privileges remain explicitly revoked/);
+  assert.doesNotMatch(migration, /\balter\s+role\s+retailer_catalogue_production_validator\b/i);
   assert.doesNotMatch(migration, /retailer_id\s*=\s*(?:3|9|14)\b/i);
   assert.doesNotMatch(migration, /\b(?:697|983|1859|1982)\b/);
   assert.match(migration, /grant execute on function public\.read_verified_automation_review_stock_transitions_v1\(bigint\)\s+to retailer_catalogue_production_validator/);
   assert.match(migration, /revoke all on function public\.read_verified_automation_review_stock_transitions_v1\(bigint\)[\s\S]+from public,anon,authenticated,service_role/);
   assert.match(migration, /revoke all on table public\.product_match_review_queue\s+from retailer_catalogue_production_validator/);
   assert.match(migration, /revoke all on table public\.automation_review_execution_requests\s+from retailer_catalogue_production_validator/);
+  assert.match(migration, /'SELECT,INSERT,UPDATE,DELETE,TRUNCATE'/);
   assert.match(rollback, /drop function public\.read_verified_automation_review_stock_transitions_v1\(bigint\)/);
   const selector = fs.readFileSync(path.join(__dirname, "lib", "environment-migrations.js"), "utf8");
   assert.equal((selector.match(/20261031120000_add_verified_automation_review_stock_transition_reader/g) || []).length, 2);
