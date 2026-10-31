@@ -221,6 +221,7 @@ const APPLIED_EXCLUSIONS = Object.freeze({
     "20261008200000_consolidate_shared_executor_state_reads.sql",
   ]),
   PRODUCTION: Object.freeze([
+    "20261031120000_add_verified_automation_review_stock_transition_reader.sql",
     "20260929133000_extend_expired_sequential_plan_close.sql",
     "20261004120000_add_central_control_plan_readback.sql",
     "20261006120000_extend_partial_sequential_plan_close.sql",
