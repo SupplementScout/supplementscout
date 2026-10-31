@@ -1,5 +1,6 @@
 import PriceHistoryChart from "../../components/PriceHistoryChart";
 import RetailerOfferCard from "../../components/RetailerOfferCard";
+import ComparisonTransparencyLinks from "../../components/ComparisonTransparencyLinks";
 import SaveToMySupplementsButton from "../../components/SaveToMySupplementsButton";
 import ReviewedPreWorkoutFacts from "../../components/ReviewedPreWorkoutFacts";
 import {
@@ -10,6 +11,7 @@ import {
   type ProductAnalyticsContext,
 } from "../../components/ProductAnalytics";
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import {
@@ -17,6 +19,7 @@ import {
   formatUnitPrice,
   getDeliveredPrice,
   getKnownProductPrice,
+  hasCompleteDeliveredPriceComparison,
   getVerifiedCostPer5gCreatine,
   getVerifiedCostPer25gProtein,
   getVerifiedPricePerKg,
@@ -135,64 +138,6 @@ function knownDeliveredPrice(offer: {
     price: offer.price,
     shipping_cost: offer.shipping_cost,
   });
-}
-
-function PriceHistorySummary({
-  lowestHistoricalPrice,
-  lowestPriceDate,
-  averageHistoricalPrice,
-  averageDifferencePercent,
-  historyCount,
-  priceRating,
-}: {
-  lowestHistoricalPrice: number | null;
-  lowestPriceDate: string | null;
-  averageHistoricalPrice: number | null;
-  averageDifferencePercent: number | null;
-  historyCount: number;
-  priceRating: string | null;
-}) {
-  return (
-    <>
-      {lowestHistoricalPrice !== null && (
-        <p className="mt-2 text-sm font-medium text-[#4B5563]">
-          Lowest recorded price: £{lowestHistoricalPrice.toFixed(2)}
-        </p>
-      )}
-      {lowestPriceDate && (
-        <p className="mt-1 text-xs text-[#6B7280]">
-          Recorded on{" "}
-          {new Date(lowestPriceDate).toLocaleDateString("en-GB", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          })}
-        </p>
-      )}
-      {averageHistoricalPrice !== null && (
-        <p className="mt-1 text-sm text-[#4B5563]">
-          Average recorded price: £{averageHistoricalPrice.toFixed(2)}
-        </p>
-      )}
-      {averageDifferencePercent !== null && (
-        <p className="mt-1 text-sm font-semibold text-[#111827]">
-          {averageDifferencePercent <= 0
-            ? `${Math.abs(averageDifferencePercent).toFixed(1)}% below average`
-            : `${averageDifferencePercent.toFixed(1)}% above average`}
-        </p>
-      )}
-      {historyCount > 0 && (
-        <p className="mt-1 text-xs text-[#6B7280]">
-          Based on {historyCount} price record{historyCount === 1 ? "" : "s"}
-        </p>
-      )}
-      {priceRating && (
-        <p className="mt-2 text-sm font-semibold text-[#111827]">
-          Price rating: {priceRating}
-        </p>
-      )}
-    </>
-  );
 }
 
 export async function generateMetadata({
@@ -396,10 +341,6 @@ export default async function ProductPage({
 
   const offerIds = productOffers.map((offer) => offer.id);
 
-  let lowestHistoricalPrice: number | null = null;
-  let averageHistoricalPrice: number | null = null;
-  let historyCount = 0;
-  let lowestPriceDate: string | null = null;
   let chartData: { date: string; price: number }[] = [];
 
   if (offerIds.length > 0) {
@@ -444,29 +385,6 @@ export default async function ProductPage({
         new Date(b.checkedAt).getTime()
     );
 
-    const historicalPrices = dailyHistory.map((item) => item.price);
-
-    lowestHistoricalPrice =
-      historicalPrices.length > 0
-        ? Math.min(...historicalPrices)
-        : null;
-
-    if (lowestHistoricalPrice !== null) {
-      const lowestRecord = dailyHistory.find(
-        (item) => item.price === lowestHistoricalPrice
-      );
-
-      lowestPriceDate = lowestRecord?.checkedAt || null;
-    }
-
-    averageHistoricalPrice =
-      historicalPrices.length > 0
-        ? historicalPrices.reduce((sum, price) => sum + price, 0) /
-        historicalPrices.length
-        : null;
-
-    historyCount = historicalPrices.length;
-
     chartData = dailyHistory.map((item) => ({
       date: new Date(item.checkedAt).toLocaleDateString("en-GB", {
         day: "2-digit",
@@ -489,12 +407,17 @@ export default async function ProductPage({
   });
   const retailerOfferGroups = groupProductOffers(sortedOffers);
   const cheapestOffer = getBestProductOffer(sortedOffers);
+  const deliveryComparisonComplete = hasCompleteDeliveredPriceComparison(
+    sortedOffers
+  );
   const cheapestDeliveredPrice = cheapestOffer
     ? knownDeliveredPrice(cheapestOffer)
     : null;
   const cheapestTotal = cheapestDeliveredPrice?.totalPrice ?? null;
   const bestOfferPrice = cheapestOffer
-    ? buildBestOfferPricePresentation(cheapestOffer)
+    ? buildBestOfferPricePresentation(cheapestOffer, {
+        deliveryComparisonComplete,
+      })
     : null;
   const cheapestOfferCheckedAt = cheapestOffer
     ? formatOfferCheckedDate(cheapestOffer.last_checked_at)
@@ -507,31 +430,6 @@ export default async function ProductPage({
       ? comparableDeliveredTotals[1]
       : null;
 
-  let priceRating: string | null = null;
-
-  if (lowestHistoricalPrice !== null && cheapestTotal !== null && cheapestTotal > 0) {
-    const differencePercent =
-      ((cheapestTotal - lowestHistoricalPrice) / lowestHistoricalPrice) * 100;
-
-    if (differencePercent <= 0) {
-      priceRating = "Lowest recorded price";
-    } else if (differencePercent <= 5) {
-      priceRating = "Good price";
-    } else if (differencePercent <= 15) {
-      priceRating = "Average price";
-    } else {
-      priceRating = "High price";
-    }
-
-  }
-  let averageDifferencePercent: number | null = null;
-
-  if (averageHistoricalPrice !== null && averageHistoricalPrice > 0) {
-    averageDifferencePercent =
-      cheapestTotal !== null
-        ? ((cheapestTotal - averageHistoricalPrice) / averageHistoricalPrice) * 100
-        : null;
-  }
   const cheapestMetricOffer =
     sortedOffers.find((offer) => knownDeliveredPrice(offer) !== null) || null;
   const cheapestValidDeliveredPrice = cheapestMetricOffer
@@ -624,22 +522,14 @@ export default async function ProductPage({
       variantLabel: selectedVariantLabel || null,
     })
     : null;
+  const heroFacts = keyFacts
+    .filter((fact) =>
+      ["Net weight", "Net volume", "Verified servings", "Unit count"].includes(
+        fact.label
+      )
+    )
+    .slice(0, 3);
   const showPreWorkoutFacts = isPreWorkoutProduct && selectedVariant !== null;
-  const hasPriceHistorySummary =
-    lowestHistoricalPrice !== null ||
-    lowestPriceDate !== null ||
-    averageHistoricalPrice !== null ||
-    averageDifferencePercent !== null ||
-    historyCount > 0 ||
-    priceRating !== null;
-  const priceHistorySummaryProps = {
-    lowestHistoricalPrice,
-    lowestPriceDate,
-    averageHistoricalPrice,
-    averageDifferencePercent,
-    historyCount,
-    priceRating,
-  };
   const betterValueAlternatives = await betterValueAlternativesPromise;
   const betterValueBasis = betterValueAlternatives.basis;
   const betterValueBasisLabel = betterValueBasis
@@ -647,7 +537,7 @@ export default async function ProductPage({
     : null;
 
   return (
-    <main className="min-h-screen w-full min-w-0 max-w-full overflow-x-clip bg-zinc-50">
+    <main className="min-h-screen w-full min-w-0 max-w-full overflow-x-clip bg-[var(--ss-page)]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -692,18 +582,20 @@ export default async function ProductPage({
         <div className="mt-5 grid min-w-0 max-w-full grid-cols-[minmax(0,1fr)] gap-5 lg:mt-8 lg:grid-cols-2 lg:gap-10">
           <div
             data-product-image
-            className="order-2 flex h-[220px] min-w-0 items-center justify-center overflow-hidden rounded-3xl border border-zinc-200 bg-white p-4 shadow-sm sm:h-[280px] sm:p-6 lg:order-none lg:aspect-square lg:h-auto lg:p-0 lg:shadow"
+            className="relative order-2 flex h-[220px] min-w-0 items-center justify-center overflow-hidden rounded-3xl border border-zinc-200 bg-white p-4 shadow-[0_18px_50px_rgba(15,23,42,0.07)] sm:h-[280px] sm:p-6 lg:order-none lg:aspect-square lg:h-auto lg:p-0"
           >
             {product.image ? (
-              // Product images are remote, data-driven URLs and must preserve the full package.
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <Image
                 src={product.image}
                 alt={product.name}
-                className="max-h-[170px] min-w-0 max-w-full rounded-3xl object-contain sm:max-h-[220px] lg:h-full lg:max-h-none lg:p-8"
+                fill
+                unoptimized
+                preload
+                sizes="(max-width: 1023px) 100vw, 50vw"
+                className="object-contain p-6 sm:p-8 lg:p-12"
               />
             ) : (
-              <span className="text-[#6B7280]">Product Image</span>
+              <span className="text-[#6B7280]">Product image unavailable</span>
             )}
           </div>
 
@@ -756,7 +648,21 @@ export default async function ProductPage({
                 </p>
               )}
 
-              <div className="mt-5 w-full min-w-0 max-w-full rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:mt-7 sm:p-6 lg:mt-8 lg:rounded-3xl lg:p-8">
+              {heroFacts.length > 0 && (
+                <dl className="mt-4 flex flex-wrap gap-2 text-sm text-zinc-700">
+                  {heroFacts.map((fact) => (
+                    <div
+                      key={fact.label}
+                      className="rounded-full border border-zinc-200 bg-white px-3 py-1.5"
+                    >
+                      <dt className="sr-only">{fact.label}</dt>
+                      <dd className="font-semibold">{fact.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+
+              <div className="mt-5 w-full min-w-0 max-w-full rounded-3xl border border-zinc-200 bg-white p-5 shadow-[0_18px_50px_rgba(15,23,42,0.07)] sm:mt-7 sm:p-6 lg:mt-8 lg:p-8">
                 <div className="grid min-w-0 max-w-full grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
                   <div className="min-w-0 max-w-full">
                     <p className="text-sm font-semibold text-[#4B5563]">
@@ -780,6 +686,10 @@ export default async function ProductPage({
                           {cheapestOfferCheckedAt
                             ? `Price checked ${cheapestOfferCheckedAt}`
                             : "Price check date unavailable"}
+                        </p>
+                        <p>
+                          {sortedOffers.length} in-stock offer{sortedOffers.length === 1 ? "" : "s"} from{" "}
+                          {retailerOfferGroups.length} retailer{retailerOfferGroups.length === 1 ? "" : "s"}
                         </p>
                         <p>You’ll continue to the retailer’s external store.</p>
                       </div>
@@ -820,7 +730,7 @@ export default async function ProductPage({
                       }}
                       className="flex min-h-12 w-full min-w-0 max-w-full shrink-0 items-center justify-center rounded-2xl bg-black px-6 py-3 text-center font-semibold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 lg:w-auto lg:min-w-48 lg:px-8"
                     >
-                      View offer at{" "}
+                      Go to{" "}
                       {cheapestOffer.retailer?.name || "retailer"}
                     </RetailerOfferLink>
                   ) : (
@@ -832,11 +742,6 @@ export default async function ProductPage({
                     </button>
                   )}
 
-                  {hasPriceHistorySummary && (
-                    <div className="hidden lg:block">
-                      <PriceHistorySummary {...priceHistorySummaryProps} />
-                    </div>
-                  )}
                 </div>
               </div>
               {selectedVariantId && mySupplementsPack && (
@@ -860,15 +765,81 @@ export default async function ProductPage({
               data-product-details
               className="order-3 w-full min-w-0 max-w-full lg:order-none"
             >
-              {hasPriceHistorySummary && (
-                <section className="w-full min-w-0 max-w-full rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:p-6 lg:hidden">
-                  <h2 className="text-lg font-bold text-gray-900">Price context</h2>
-                  <PriceHistorySummary {...priceHistorySummaryProps} />
-                </section>
-              )}
+              <section
+                id="retailer-offers"
+                aria-labelledby="retailer-offers-heading"
+                className="w-full min-w-0 max-w-full rounded-3xl border border-zinc-200 bg-white p-5 shadow-[0_18px_50px_rgba(15,23,42,0.07)] sm:p-6 lg:mt-8 lg:p-8"
+              >
+                <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--ss-accent)]">
+                  Compare retailers
+                </p>
+                <h2 id="retailer-offers-heading" className="mt-2 text-2xl font-bold text-gray-900">
+                  Retailer offers
+                </h2>
+
+                {sortedOffers.length > 0 && (
+                  <p className="mt-2 text-sm leading-6 text-gray-600">
+                    {sortedOffers.length} fresh in-stock offer{sortedOffers.length === 1 ? "" : "s"} from{" "}
+                    {retailerOfferGroups.length} retailer{retailerOfferGroups.length === 1 ? "" : "s"}.{" "}
+                    {deliveryComparisonComplete
+                      ? "Every displayed offer has a known delivered total."
+                      : "Offers with unknown delivery are marked and are not treated as confirmed cheapest delivered."}
+                  </p>
+                )}
+                {retailerOfferGroups.some(
+                  (group) => String(group.retailer?.id) === "12"
+                ) && (
+                  <p className="mt-2 text-sm text-gray-600">
+                    <Link href="/retailers/ebay-uk" className="font-semibold underline underline-offset-4">
+                      Compare tracked eBay UK offers with other retailers
+                    </Link>
+                  </p>
+                )}
+                <div className="mt-5 space-y-3">
+                  {retailerOfferGroups.length > 0 ? (
+                    retailerOfferGroups.map((group, index) => (
+                      <RetailerOfferCard
+                        key={group.retailerKey}
+                        group={group}
+                        product={productAnalytics}
+                        position={index + 1}
+                        isBestDeliveredPrice={
+                          index === 0 && group.lowestDeliveredTotal !== null
+                        }
+                        nextComparableDeliveredTotal={
+                          index === 0 ? nextComparableDeliveredTotal : null
+                        }
+                        deliveryComparisonComplete={deliveryComparisonComplete}
+                      />
+                    ))
+                  ) : (
+                    <p className="text-sm font-medium text-gray-700">
+                      {OFFER_PRESENTATION_LABELS[offerPresentation.state]}
+                      {latestVerificationDate ? `; latest verification ${latestVerificationDate}` : ""}.
+                    </p>
+                  )}
+                </div>
+              </section>
+
+              <section
+                aria-labelledby="comparison-trust-heading"
+                className="mt-5 rounded-3xl border border-zinc-200 bg-[var(--ss-surface-muted)] p-5 sm:mt-7 sm:p-6"
+              >
+                <h2 id="comparison-trust-heading" className="text-lg font-bold text-[var(--ss-ink)]">
+                  What these prices mean
+                </h2>
+                <ul className="mt-4 grid gap-3 text-sm leading-6 text-zinc-700 sm:grid-cols-3">
+                  <li><strong className="block text-zinc-950">Recently checked</strong>Only fresh in-stock offers are ranked as current.</li>
+                  <li><strong className="block text-zinc-950">Delivery stays explicit</strong>Unknown delivery is never assumed to be free.</li>
+                  <li><strong className="block text-zinc-950">Verified unit costs</strong>Per-serving and per-unit values appear only with supporting data.</li>
+                </ul>
+                <div className="mt-4 flex flex-wrap gap-4 text-sm">
+                  <ComparisonTransparencyLinks />
+                </div>
+              </section>
 
             <section className="mt-5 w-full min-w-0 max-w-full rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:mt-7 sm:p-6 lg:mt-8 lg:rounded-3xl lg:p-8">
-              <h2 className="text-2xl font-bold text-gray-900">Product Summary</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Product summary</h2>
               <p className="mt-4 min-w-0 max-w-full break-words leading-8 text-gray-700 [overflow-wrap:anywhere]">{productSummary}</p>
             </section>
 
@@ -1073,11 +1044,13 @@ export default async function ProductPage({
                         className="flex min-w-0 flex-col rounded-2xl border border-zinc-200 bg-zinc-50 p-4"
                       >
                         {alternative.image && (
-                          // Product images are remote, data-driven URLs and must preserve the full package.
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
+                          <Image
                             src={alternative.image}
-                            alt=""
+                            alt={alternative.name}
+                            width={160}
+                            height={96}
+                            unoptimized
+                            sizes="160px"
                             className="mb-3 h-24 w-full object-contain"
                           />
                         )}
@@ -1115,57 +1088,13 @@ export default async function ProductPage({
                   </div>
                 </section>
               )}
-            <div className="mt-8 w-full min-w-0 max-w-full overflow-hidden rounded-2xl border bg-white p-5 sm:rounded-3xl sm:p-8">
+            <section className="mt-8 w-full min-w-0 max-w-full overflow-hidden rounded-3xl border border-zinc-200 bg-white p-5 shadow-[0_12px_36px_rgba(15,23,42,0.05)] sm:p-8">
               <h2 className="text-2xl font-bold text-gray-900">Price history</h2>
 
               <div className="mt-6">
-                <PriceHistoryChart data={chartData} />
+                <PriceHistoryChart data={chartData} currentPrice={cheapestTotal} />
               </div>
-            </div>
-            <div className="mt-8 w-full min-w-0 max-w-full rounded-2xl border bg-white p-5 sm:rounded-3xl sm:p-8">
-              <h2 className="text-2xl font-bold text-gray-900">All offers</h2>
-
-              {sortedOffers.length > 0 && (
-                <p className="mt-2 text-sm text-gray-600">
-                  {sortedOffers.length} offer{sortedOffers.length === 1 ? "" : "s"} from{" "}
-                  {retailerOfferGroups.length} retailer
-                  {retailerOfferGroups.length === 1 ? "" : "s"}
-                </p>
-              )}
-              {retailerOfferGroups.some(
-                (group) => String(group.retailer?.id) === "12"
-              ) && (
-                <p className="mt-2 text-sm text-gray-600">
-                  <Link href="/retailers/ebay-uk" className="font-semibold underline underline-offset-4">
-                    Compare tracked eBay UK offers with other retailers
-                  </Link>
-                </p>
-              )}
-
-              <div className="mt-6 space-y-3">
-                {retailerOfferGroups.length > 0 ? (
-                  retailerOfferGroups.map((group, index) => (
-                    <RetailerOfferCard
-                      key={group.retailerKey}
-                      group={group}
-                      product={productAnalytics}
-                      position={index + 1}
-                      isBestDeliveredPrice={
-                        index === 0 && group.lowestDeliveredTotal !== null
-                      }
-                      nextComparableDeliveredTotal={
-                        index === 0 ? nextComparableDeliveredTotal : null
-                      }
-                    />
-                  ))
-                ) : (
-                  <p className="text-sm font-medium text-gray-700">
-                    {OFFER_PRESENTATION_LABELS[offerPresentation.state]}
-                    {latestVerificationDate ? `; latest verification ${latestVerificationDate}` : ""}.
-                  </p>
-                )}
-              </div>
-            </div>
+            </section>
           </div>
           </div>
         </div>

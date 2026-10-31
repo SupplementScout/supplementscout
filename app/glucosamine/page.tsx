@@ -64,7 +64,7 @@ export default async function GlucosaminePage({
   }
 
   const lowestDeliveredProduct =
-    page === 1 && results[0]?.cheapestOffer ? results[0] : null;
+    page === 1 && results[0]?.cheapestOffer?.deliveredPrice ? results[0] : null;
 
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
@@ -119,8 +119,7 @@ export default async function GlucosaminePage({
               comparison, the lowest known delivered price is{" "}
               <strong>
                 {formatCurrency(
-                  lowestDeliveredProduct.cheapestOffer!.deliveredPrice
-                    .totalPrice
+                  lowestDeliveredProduct.cheapestOffer!.deliveredPrice!.totalPrice
                 )}
               </strong>{" "}
               for{" "}

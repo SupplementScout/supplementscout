@@ -66,20 +66,20 @@ export default function SearchInput({
   );
   const formClassName =
     variant === "compact"
-      ? "relative min-w-0 rounded-lg border border-zinc-200 bg-white p-3 shadow-sm sm:p-4"
-      : "relative mx-auto mt-6 max-w-3xl rounded-3xl border border-zinc-200 bg-white p-2.5 shadow-xl sm:mt-10 sm:p-3";
+      ? "relative min-w-0 rounded-2xl border border-zinc-200 bg-white p-3 shadow-[0_10px_30px_rgba(15,23,42,0.06)] sm:p-4"
+      : "relative mx-auto mt-7 max-w-3xl rounded-3xl border border-emerald-100 bg-white p-2.5 shadow-[0_18px_50px_rgba(8,116,90,0.14)] sm:mt-10 sm:p-3";
   const rowClassName =
     variant === "compact"
       ? "flex flex-col gap-3 md:flex-row"
       : "flex flex-col gap-3 sm:flex-row";
   const inputClassName =
     variant === "compact"
-      ? "min-h-12 flex-1 rounded-lg border border-zinc-300 px-4 text-base text-zinc-950 outline-none placeholder:text-zinc-500 focus:border-zinc-950"
-      : "min-h-14 flex-1 rounded-2xl border border-zinc-200 px-4 text-base outline-none focus:border-zinc-950 sm:min-h-16 sm:px-6";
+      ? "min-h-12 flex-1 rounded-xl border border-zinc-300 px-4 text-base text-zinc-950 outline-none placeholder:text-zinc-500 focus:border-[var(--ss-accent)] focus:ring-2 focus:ring-emerald-100"
+      : "min-h-14 flex-1 rounded-2xl border border-zinc-200 px-4 text-base outline-none focus:border-[var(--ss-accent)] focus:ring-2 focus:ring-emerald-100 sm:min-h-16 sm:px-6";
   const buttonClassName =
     variant === "compact"
-      ? "min-h-12 rounded-lg bg-zinc-950 px-6 text-sm font-semibold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2"
-      : "min-h-14 rounded-2xl bg-zinc-950 px-8 font-semibold text-white sm:min-h-16 sm:px-10";
+      ? "min-h-12 rounded-xl bg-[var(--ss-accent)] px-6 text-sm font-semibold text-white hover:bg-[var(--ss-accent-strong)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
+      : "min-h-14 rounded-2xl bg-[var(--ss-accent)] px-8 font-semibold text-white hover:bg-[var(--ss-accent-strong)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2 sm:min-h-16 sm:px-10";
   const dropdownClassName =
     variant === "compact"
       ? "absolute left-0 right-0 top-[calc(100%+0.5rem)] z-20 max-h-[min(65vh,28rem)] overflow-y-auto overscroll-contain rounded-lg border border-zinc-200 bg-white text-left shadow-2xl"

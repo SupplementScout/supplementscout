@@ -69,7 +69,7 @@ export default async function Omega3Page({ searchParams }: Omega3PageProps) {
   }
 
   const lowestDeliveredProduct =
-    page === 1 && results[0]?.cheapestOffer ? results[0] : null;
+    page === 1 && results[0]?.cheapestOffer?.deliveredPrice ? results[0] : null;
 
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
@@ -121,7 +121,7 @@ export default async function Omega3Page({ searchParams }: Omega3PageProps) {
               Of the {totalCount} matching products currently in this comparison, the
               lowest known delivered price is{" "}
               {formatCurrency(
-                lowestDeliveredProduct.cheapestOffer!.deliveredPrice.totalPrice
+                lowestDeliveredProduct.cheapestOffer!.deliveredPrice!.totalPrice
               )}{" "}
               for{" "}
               <Link

@@ -383,7 +383,10 @@ test("product page constrains mobile offer cards and long content without horizo
   assert.match(pageSource, /data-product-purchase[\s\S]*order-1[\s\S]*lg:order-none/);
   assert.match(pageSource, /data-product-image[\s\S]*order-2[\s\S]*h-\[220px\]/);
   assert.match(pageSource, /data-product-details[\s\S]*order-3[\s\S]*lg:order-none/);
-  assert.match(pageSource, /max-h-\[170px\][^\"]*object-contain/);
+  assert.match(
+    pageSource,
+    /data-product-image[\s\S]*<Image[\s\S]*fill[\s\S]*sizes="\(max-width: 1023px\) 100vw, 50vw"[\s\S]*object-contain/
+  );
   assert.match(retailerOfferCardSource, /<article className="w-full min-w-0 max-w-full/);
   assert.match(retailerOfferCardSource, /flex min-w-0 flex-col gap-4 sm:flex-row/);
   assert.match(retailerOfferCardSource, /w-full min-w-0 max-w-full shrink-0 items-center justify-center rounded-xl/);

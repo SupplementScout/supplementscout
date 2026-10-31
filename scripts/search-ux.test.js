@@ -111,15 +111,15 @@ test("mobile search card keeps identity before price and uses shared price prese
     "utf8"
   );
 
-  assert.ok(source.indexOf("<h2") < source.indexOf("pricePresentation.label"));
-  assert.match(source, /buildBestOfferPricePresentation\(cheapestOffer\)/);
+  assert.ok(source.indexOf("<h2") < source.indexOf("pricePresentation?.label"));
+  assert.match(source, /buildBestOfferPricePresentation\(cheapestOffer, \{/);
+  assert.match(source, /deliveryComparisonComplete: product\.deliveryComparisonComplete/);
   assert.match(source, /primarySearchValueMetric\(product\)/);
-  assert.match(source, /className="min-w-0 md:hidden"/);
-  assert.match(source, /searchMobileFirst \? "flex" : "hidden sm:flex"/);
-  assert.match(source, /className="md:hidden"[\s\S]*\{valueMetric &&/);
-  assert.match(source, /searchMobileFirst \? "hidden md:block" : ""/);
-  assert.match(source, /verifiedPricePerServing[\s\S]*verifiedPricePerKg[\s\S]*verifiedPricePerLitre/);
-  assert.match(source, /min-h-11/);
+  assert.match(source, /data-search-card=/);
+  assert.match(source, /<Image[\s\S]*unoptimized[\s\S]*sizes=/);
+  assert.match(source, /In stock/);
+  assert.match(source, /View offers/);
+  assert.match(source, /min-h-12/);
   assert.doesNotMatch(source, /line-clamp/);
 });
 
@@ -141,10 +141,10 @@ test("search cards show a safe no-price state without a retailer breakdown", () 
   );
 
   assert.match(source, /OFFER_PRESENTATION_LABELS\[product\.presentationState\]/);
-  assert.match(source, /Temporarily unavailable/);
   assert.match(source, /No retailer price has been verified in the last 24 hours/);
-  assert.match(source, /cheapestOffer && deliveredPrice && retailerName && \(/);
-  assert.match(source, /pricePresentation && deliveredPrice/);
+  assert.match(source, /pricePresentation \? \(/);
+  assert.match(source, /Image unavailable/);
+  assert.doesNotMatch(source, /confirmed cheapest delivered/);
 });
 
 test("sort applies immediately, preserves URL state and has no Apply button", () => {

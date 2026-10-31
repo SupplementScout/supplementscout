@@ -543,12 +543,13 @@ test("best retailer card shows its delivered-price badge and comparable saving",
       position: 1,
       isBestDeliveredPrice: true,
       nextComparableDeliveredTotal: groups[1].lowestDeliveredTotal,
+      deliveryComparisonComplete: true,
     })
   );
 
   assert.equal(groups[0].retailer.name, "Discount Supplements");
   assert.equal(groups[1].retailer.name, "Other Retailer");
-  assert.match(html, /Best delivered price/);
+  assert.match(html, /Lowest delivered price/);
   assert.match(html, /Save £5\.00/);
 });
 
@@ -609,8 +610,28 @@ test("product page loads availability evidence but keeps current offer ranking i
   assert.match(page, /BestOfferPricePresentation|buildBestOfferPricePresentation/);
   assert.match(page, /Variant: \{cheapestVariantLabel\}/);
   assert.match(page, /`Price checked \$\{cheapestOfferCheckedAt\}`/);
-  assert.match(page, /View offer at/);
+  assert.match(page, /Go to/);
   assert.match(page, /productOfferHref\(cheapestOffer\.id, "product_best_offer"\)/);
   assert.match(page, /source_page: "product_best_offer"/);
   assert.equal((page.match(/<RetailerOfferLink\b/g) || []).length, 1);
+});
+
+test("price history is server-rendered, factual and free of deal ratings", () => {
+  const page = fs.readFileSync(
+    path.join(process.cwd(), "app", "product", "[id]", "page.tsx"),
+    "utf8"
+  );
+  const chart = fs.readFileSync(
+    path.join(process.cwd(), "app", "components", "PriceHistoryChart.tsx"),
+    "utf8"
+  );
+
+  assert.doesNotMatch(chart, /^"use client"/);
+  assert.doesNotMatch(chart, /recharts|ResponsiveContainer|LineChart/);
+  assert.match(chart, /Current delivered price/);
+  assert.match(chart, /Lowest recorded/);
+  assert.match(chart, /Recorded trend/);
+  assert.match(chart, /History period/);
+  assert.match(chart, /<svg/);
+  assert.doesNotMatch(page, /Good price|Price rating|High price|Average price/);
 });

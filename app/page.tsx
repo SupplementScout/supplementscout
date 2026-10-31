@@ -114,35 +114,37 @@ export default async function Home() {
     productCount !== null || retailerCount !== null || latestCheckDate !== null;
 
   return (
-    <main className="min-h-screen bg-white pb-[env(safe-area-inset-bottom)] text-zinc-950">
+    <main className="min-h-screen bg-[var(--ss-page)] pb-[env(safe-area-inset-bottom)] text-[var(--ss-ink)]">
       <HomeHeader />
 
-      <section className="mx-auto max-w-7xl px-4 pb-8 pt-7 text-center sm:px-6 sm:pb-14 sm:pt-14">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-zinc-500 sm:text-sm">
-          SupplementScout
+      <section className="border-b border-[#d8e4dc] bg-[#eaf2ed] px-4 pb-10 pt-9 text-center sm:px-6 sm:pb-16 sm:pt-16">
+        <p className="mx-auto inline-flex rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-[var(--ss-accent)] sm:text-sm">
+          The UK&apos;s Smart Supplement Search Engine
         </p>
 
-        <h1 className="mx-auto mt-3 max-w-4xl text-4xl font-bold tracking-tight sm:mt-5 sm:text-6xl">
-          Compare supplements and real prices with delivery
+        <h1 className="mx-auto mt-4 max-w-4xl break-words text-[2.35rem] font-extrabold leading-[1.05] tracking-[-0.035em] sm:mt-6 sm:text-6xl lg:text-7xl">
+          Find the right supplement at the right price
         </h1>
 
-        <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-zinc-600 sm:mt-6 sm:text-lg sm:leading-8">
-          Search UK supplements, compare product prices and known delivery costs,
-          and see verified value metrics when available.
+        <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-zinc-700 sm:mt-6 sm:text-lg sm:leading-8">
+          Search products and brands, then compare current UK retailer offers,
+          delivered totals and verified unit costs in one clear view.
         </p>
 
         <SearchInput />
 
-        <p className="mx-auto mt-3 max-w-2xl text-sm text-zinc-500">
-          Delivered totals include known shipping costs.
-        </p>
+        <div className="mx-auto mt-5 flex max-w-3xl flex-wrap justify-center gap-2 text-xs font-semibold text-zinc-700 sm:text-sm">
+          <span className="rounded-full bg-white px-3 py-1.5">Delivery-aware totals</span>
+          <span className="rounded-full bg-white px-3 py-1.5">Verified unit costs</span>
+          <span className="rounded-full bg-white px-3 py-1.5">Fresh in-stock offers</span>
+        </div>
       </section>
 
       <section
         aria-labelledby="popular-searches-heading"
-        className="mx-auto max-w-7xl px-4 pb-8 sm:px-6 sm:pb-12"
+        className="mx-auto max-w-7xl px-4 pb-8 pt-8 sm:px-6 sm:pb-12 sm:pt-10"
       >
-        <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 sm:p-6">
+        <div className="rounded-3xl border border-zinc-200 bg-white p-4 shadow-[0_12px_36px_rgba(15,23,42,0.05)] sm:p-6">
           <h2 id="popular-searches-heading" className="text-base font-bold">
             Popular searches
           </h2>
@@ -151,7 +153,7 @@ export default async function Home() {
               <Link
                 key={item.label}
                 href={itemHref(item)}
-                className="inline-flex min-h-11 items-center rounded-full border border-zinc-300 bg-white px-4 text-sm font-semibold text-zinc-800 hover:border-zinc-950 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2"
+                className="inline-flex min-h-11 items-center rounded-full border border-zinc-300 bg-[var(--ss-surface-muted)] px-4 text-sm font-semibold text-zinc-800 hover:border-[var(--ss-accent)] hover:text-[var(--ss-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
               >
                 {item.label}
               </Link>

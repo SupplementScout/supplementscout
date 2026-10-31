@@ -45,7 +45,7 @@ export async function generateMetadata({
     ? `Search results for \u201c${query}\u201d`
     : "Search Supplements";
   const description =
-    "Search UK supplement prices and compare the cheapest available delivered offers.";
+    "Search UK supplements and compare current product prices, known delivery costs and verified unit pricing.";
 
   return {
     title,
@@ -133,7 +133,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   }
 
   return (
-    <main className="min-h-screen w-full overflow-x-hidden bg-zinc-50 text-zinc-950">
+    <main className="min-h-screen w-full overflow-x-hidden bg-[var(--ss-page)] text-[var(--ss-ink)]">
       <header className="border-b border-zinc-200 bg-white">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 sm:px-6 sm:py-5">
           <Link href="/" className="text-xl font-bold tracking-tight">
@@ -147,6 +147,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
       <section className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
         <SearchInput key={query} initialQuery={query} variant="compact" />
+        <p className="mt-3 text-sm leading-6 text-zinc-600">
+          Delivered totals include known shipping. When delivery is unknown, we mark it as calculated by the retailer and do not call it the confirmed cheapest delivered option.
+        </p>
 
         {!hasQuery && (
           <div className="mt-8 rounded-lg border border-zinc-200 bg-white p-8 text-center">
@@ -220,8 +223,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                     {hasActiveFilters && (
                       <p className="mt-1 hidden text-sm text-zinc-500 lg:block">
                         Filtered from {unfilteredCount} product
-                        {unfilteredCount === 1 ? "" : "s"} with an in-stock
-                        delivered offer
+                        {unfilteredCount === 1 ? "" : "s"} with a fresh in-stock offer
                       </p>
                     )}
                     {unfilteredCount >= resultLimit && resultLimit > 0 && (
@@ -291,7 +293,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                   </div>
                 ) : (
                   <div>
-                    <div className="space-y-3 sm:space-y-4">
+                    <div className="space-y-4 sm:space-y-5">
                       {results.map((product, index) => (
                         <SearchResultSelectionAnalytics
                           key={product.id}

@@ -16,13 +16,13 @@ import { calculateDeliveredSavings } from "../lib/productOfferPresentation";
 import type { ProductAnalyticsContext } from "./ProductAnalytics";
 
 function formatShipping(value: number | string | null) {
-  if (value === null || value === "") return "Delivery unknown";
+  if (value === null || value === "") return "Delivery calculated by retailer";
 
   const shipping = Number(value);
 
   return Number.isFinite(shipping) && shipping >= 0
     ? `Delivery: ${formatCurrency(shipping)}`
-    : "Delivery unknown";
+    : "Delivery calculated by retailer";
 }
 
 function formatProductPrice(value: number | string | null) {
@@ -48,12 +48,14 @@ export default function RetailerOfferCard({
   position,
   isBestDeliveredPrice = false,
   nextComparableDeliveredTotal = null,
+  deliveryComparisonComplete = false,
 }: {
   group: ProductOfferGroup;
   product: ProductAnalyticsContext;
   position: number;
   isBestDeliveredPrice?: boolean;
   nextComparableDeliveredTotal?: number | null;
+  deliveryComparisonComplete?: boolean;
 }) {
   const [selectedOfferId, setSelectedOfferId] = useState(
     String(group.offers[0]?.id || "")
@@ -74,14 +76,16 @@ export default function RetailerOfferCard({
     group.lowestDeliveredTotal !== null &&
     Math.abs(selectedDeliveredTotal - group.lowestDeliveredTotal) < 0.005;
   const deliveredSavings = selectedIsBestDeliveredPrice
-    ? calculateDeliveredSavings(
-      selectedDeliveredTotal,
-      nextComparableDeliveredTotal
-    )
+    ? deliveryComparisonComplete
+      ? calculateDeliveredSavings(
+          selectedDeliveredTotal,
+          nextComparableDeliveredTotal
+        )
+      : null
     : null;
 
   return (
-    <article className="w-full min-w-0 max-w-full rounded-2xl border border-zinc-200 p-4 sm:p-5">
+    <article className="w-full min-w-0 max-w-full rounded-2xl border border-zinc-200 bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,0.05)] sm:p-5">
       <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex min-w-0 items-center gap-3">
           {group.retailer?.logo && (
@@ -114,7 +118,9 @@ export default function RetailerOfferCard({
           {selectedIsBestDeliveredPrice && (
             <div className="mb-2 flex flex-wrap items-center gap-2 sm:justify-end">
               <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-800">
-                Best delivered price
+                {deliveryComparisonComplete
+                  ? "Lowest delivered price"
+                  : "Lowest known delivered price"}
               </span>
               {deliveredSavings !== null && (
                 <span className="text-xs font-bold text-emerald-700">
@@ -123,17 +129,25 @@ export default function RetailerOfferCard({
               )}
             </div>
           )}
-          <p className="text-sm font-medium text-gray-700">
-            Product: {formatProductPrice(selectedOffer.price)}
-          </p>
-          <p className="text-sm font-medium text-gray-700">
-            {formatShipping(selectedOffer.shipping_cost)}
-          </p>
-          <p className="mt-1 break-words text-2xl font-bold text-gray-900 [overflow-wrap:anywhere]">
-            {selectedDeliveredTotal !== null
-              ? formatCurrency(selectedDeliveredTotal)
-              : "Total unknown"}
-          </p>
+          <span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800">
+            In stock
+          </span>
+          <dl className="mt-3 grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1 text-sm">
+            <dt className="text-gray-600">Product</dt>
+            <dd className="text-right font-semibold text-gray-900">
+              {formatProductPrice(selectedOffer.price)}
+            </dd>
+            <dt className="text-gray-600">Delivery</dt>
+            <dd className="text-right font-semibold text-gray-900">
+              {formatShipping(selectedOffer.shipping_cost).replace(/^Delivery:\s*/, "")}
+            </dd>
+            <dt className="pt-2 font-semibold text-gray-700">Total</dt>
+            <dd className="pt-2 text-right text-2xl font-bold text-gray-900">
+              {selectedDeliveredTotal !== null
+                ? formatCurrency(selectedDeliveredTotal)
+                : "Calculated at checkout"}
+            </dd>
+          </dl>
         </div>
       </div>
 
@@ -177,7 +191,12 @@ export default function RetailerOfferCard({
             <p>Lowest product price: {formatCurrency(group.lowestProductPrice)}</p>
           )}
           {group.lowestDeliveredTotal !== null && (
-            <p>Lowest delivered price: {formatCurrency(group.lowestDeliveredTotal)}</p>
+            <p>
+              {deliveryComparisonComplete
+                ? "Lowest delivered price"
+                : "Lowest known delivered price"}
+              : {formatCurrency(group.lowestDeliveredTotal)}
+            </p>
           )}
           {selectedOffer.last_checked_at && (
             <p>
@@ -209,7 +228,7 @@ export default function RetailerOfferCard({
           }}
           className="flex min-h-12 w-full min-w-0 max-w-full shrink-0 items-center justify-center rounded-xl bg-black px-5 py-3 text-center text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 sm:w-auto"
         >
-          View deal{selectedVariantLabel ? ` · ${selectedVariantLabel}` : ""}
+          Go to retailer{selectedVariantLabel ? ` · ${selectedVariantLabel}` : ""}
         </a>
       </div>
     </article>
