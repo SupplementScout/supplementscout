@@ -1095,8 +1095,16 @@ test("production exclusions are exact and the approved identity foundation is se
   assert.deepEqual(contract.pending, PRODUCT_PACK_CORRECTION_PRODUCTION_PENDING);
   assert.equal(
     contract.excluded["20261031120000_add_verified_automation_review_stock_transition_reader.sql"],
-    "d6bcf488201737a2206c102297de6ef157c69f51886c8508ae474a23846d9c47",
+    "9d1f9c004d58926101c4adc60e7515d8040bc9b6102213180538113e1c925608",
   );
+  assert.equal(
+    CONTRACTS.STAGING.excluded["20261031120000_add_verified_automation_review_stock_transition_reader.sql"],
+    "9d1f9c004d58926101c4adc60e7515d8040bc9b6102213180538113e1c925608",
+  );
+  assert.ok(!APPLIED_EXCLUSIONS.PRODUCTION.includes("20261031120000_add_verified_automation_review_stock_transition_reader.sql"));
+  assert.ok(!APPLIED_EXCLUSIONS.STAGING.includes("20261031120000_add_verified_automation_review_stock_transition_reader.sql"));
+  assert.ok(!migrationBinding("PRODUCTION").versions.includes("20261031120000_add_verified_automation_review_stock_transition_reader"));
+  assert.ok(!migrationBinding("STAGING").versions.includes("20261031120000_add_verified_automation_review_stock_transition_reader"));
   assert.equal(contract.excluded[PRODUCT_PACK_CORRECTION_MIGRATION], PRODUCT_PACK_CORRECTION_SHA256);
   assert.equal(
     contract.excluded["20261009120000_add_compact_other_retailer_fingerprint.sql"],

@@ -113,7 +113,7 @@ test("verified Review Queue reader enforces retailer scope, exact ACLs, raw-tabl
     "run", "--detach", "--rm", "--name", container,
     "-e", "POSTGRES_PASSWORD=review-reader-local-only",
     "-v", `${ROOT.replaceAll("\\", "/")}:/workspace:ro`,
-    "postgres:16-alpine",
+    "postgres:17-alpine",
   ], 30_000);
   assert.equal(started.status, 0, started.stderr);
   waitForPostgres(container);
@@ -122,7 +122,7 @@ test("verified Review Queue reader enforces retailer scope, exact ACLs, raw-tabl
     create role anon nologin;
     create role authenticated nologin;
     create role service_role nologin;
-    create role retailer_catalogue_production_validator nologin noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls;
+    create role retailer_catalogue_production_validator nologin noinherit nosuperuser nocreatedb nocreaterole noreplication bypassrls;
     create role retailer_catalogue_production_approver nologin noinherit;
     create role retailer_catalogue_production_executor nologin noinherit;
     create table public.retailers(id bigint primary key);
@@ -137,6 +137,10 @@ test("verified Review Queue reader enforces retailer scope, exact ACLs, raw-tabl
       postflight_hash text,executed_offer_ids jsonb,failed_offer_ids jsonb,remaining_offer_ids jsonb,
       actual_deltas jsonb,database_writes integer,idempotency_result text,last_checkpoint text,completed_at timestamptz
     );
+    alter table public.product_match_review_queue enable row level security;
+    alter table public.product_match_review_queue force row level security;
+    alter table public.automation_review_execution_requests enable row level security;
+    alter table public.automation_review_execution_requests force row level security;
     revoke all on table public.product_match_review_queue,public.automation_review_execution_requests from public,anon,authenticated;
     grant select on table public.product_match_review_queue,public.automation_review_execution_requests to service_role;
     insert into public.retailers values (9),(10);
@@ -152,6 +156,10 @@ test("verified Review Queue reader enforces retailer scope, exact ACLs, raw-tabl
       ('00000000-0000-4000-8000-000000000004',4,9,'UPDATE_STOCK',repeat('1',64),repeat('2',64),'FAILED',repeat('6',64),'["4004"]','[]','[]','{"stock":1}',20,'PASS','IDEMPOTENCY_PASSED','2026-10-31T09:03:00Z');
   `);
   assert.equal(setup.status, 0, setup.stderr);
+  const exactRole = sql(container, `select concat_ws('|',rolcanlogin,rolinherit,rolsuper,rolcreatedb,rolcreaterole,rolreplication,rolbypassrls)
+    from pg_roles where rolname='retailer_catalogue_production_validator';`);
+  assert.equal(exactRole.status, 0, exactRole.stderr);
+  assert.equal(exactRole.stdout.trim(), "f|f|f|f|f|f|t");
   const applied = sqlFile(container, VERIFIED_READER_MIGRATION);
   assert.equal(applied.status, 0, applied.stderr);
 
@@ -171,22 +179,43 @@ test("verified Review Queue reader enforces retailer scope, exact ACLs, raw-tabl
     has_function_privilege('anon','public.read_verified_automation_review_stock_transitions_v1(bigint)','EXECUTE'),
     has_function_privilege('authenticated','public.read_verified_automation_review_stock_transitions_v1(bigint)','EXECUTE'),
     has_function_privilege('service_role','public.read_verified_automation_review_stock_transitions_v1(bigint)','EXECUTE'),
+    has_function_privilege('retailer_catalogue_production_approver','public.read_verified_automation_review_stock_transitions_v1(bigint)','EXECUTE'),
+    has_function_privilege('retailer_catalogue_production_executor','public.read_verified_automation_review_stock_transitions_v1(bigint)','EXECUTE'),
+    has_function_privilege('public','public.read_verified_automation_review_stock_transitions_v1(bigint)','EXECUTE'),
     has_table_privilege('retailer_catalogue_production_validator','public.product_match_review_queue','SELECT'),
     has_table_privilege('retailer_catalogue_production_validator','public.automation_review_execution_requests','SELECT');`);
   assert.equal(acl.status, 0, acl.stderr);
-  assert.equal(acl.stdout.trim(), "t|f|f|f|f|f");
-  const unauthorized = sql(container, "set role anon; select * from public.read_verified_automation_review_stock_transitions_v1(9);");
-  assert.notEqual(unauthorized.status, 0);
-  assert.match(unauthorized.stderr, /permission denied/i);
-  const rawRead = sql(container, "set role retailer_catalogue_production_validator; select * from public.product_match_review_queue;");
-  assert.notEqual(rawRead.status, 0);
-  assert.match(rawRead.stderr, /permission denied/i);
-  const rawMutation = sql(container, "set role retailer_catalogue_production_validator; update public.product_match_review_queue set review_status='EXECUTED' where id=1;");
-  assert.notEqual(rawMutation.status, 0);
-  assert.match(rawMutation.stderr, /permission denied/i);
+  assert.equal(acl.stdout.trim(), "t|f|f|f|f|f|f|f|f");
+  for (const role of ["anon", "authenticated", "service_role", "retailer_catalogue_production_approver", "retailer_catalogue_production_executor"]) {
+    const unauthorized = sql(container, `set role ${role}; select * from public.read_verified_automation_review_stock_transitions_v1(9);`);
+    assert.notEqual(unauthorized.status, 0, `${role} unexpectedly executed reader`);
+    assert.match(unauthorized.stderr, /permission denied/i);
+  }
+  for (const table of ["product_match_review_queue", "automation_review_execution_requests"]) {
+    const rawRead = sql(container, `set role retailer_catalogue_production_validator; select * from public.${table};`);
+    assert.notEqual(rawRead.status, 0, `BYPASSRLS unexpectedly overcame missing ${table} SELECT ACL`);
+    assert.match(rawRead.stderr, /permission denied/i);
+    for (const statement of [
+      `insert into public.${table} default values`,
+      `update public.${table} set id=id`,
+      `delete from public.${table}`,
+      `truncate public.${table}`,
+    ]) {
+      const mutation = sql(container, `set role retailer_catalogue_production_validator; ${statement};`);
+      assert.notEqual(mutation.status, 0, `${table} mutation unexpectedly allowed`);
+      assert.match(mutation.stderr, /permission denied/i);
+    }
+  }
+  const metadata = sql(container, `select pg_get_userbyid(proowner)||'|'||provolatile::text||'|'||prosecdef::text||'|'||array_to_string(proconfig,',')
+    from pg_proc where oid='public.read_verified_automation_review_stock_transitions_v1(bigint)'::regprocedure;`);
+  assert.equal(metadata.status, 0, metadata.stderr);
+  assert.equal(metadata.stdout.trim(), "postgres|s|true|search_path=pg_catalog, public, pg_temp");
   const invalidRetailer = sql(container, "set role retailer_catalogue_production_validator; select * from public.read_verified_automation_review_stock_transitions_v1(0);");
   assert.notEqual(invalidRetailer.status, 0);
   assert.match(invalidRetailer.stderr, /VERIFIED_AUTOMATION_REVIEW_READER_RETAILER_INVALID/);
+  const unknownRetailer = sql(container, "set role retailer_catalogue_production_validator; select * from public.read_verified_automation_review_stock_transitions_v1(999);");
+  assert.notEqual(unknownRetailer.status, 0);
+  assert.match(unknownRetailer.stderr, /VERIFIED_AUTOMATION_REVIEW_READER_RETAILER_NOT_FOUND/);
 
   const rolledBack = sqlFile(container, VERIFIED_READER_ROLLBACK);
   assert.equal(rolledBack.status, 0, rolledBack.stderr);

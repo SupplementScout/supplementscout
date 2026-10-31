@@ -3,6 +3,9 @@ begin;
 set local lock_timeout='5s';
 set local statement_timeout='120s';
 
+-- The production validator intentionally has BYPASSRLS from migration
+-- 20260820130000 for its bounded catalogue reads. This reader does not rely on
+-- raw Review Queue access; those table privileges remain explicitly revoked.
 do $preflight$
 begin
   if current_user <> 'postgres' then
@@ -17,11 +20,12 @@ begin
     select 1 from pg_roles
      where rolname='retailer_catalogue_production_validator'
        and rolcanlogin=false
+       and rolinherit=false
        and rolsuper=false
        and rolcreaterole=false
        and rolcreatedb=false
        and rolreplication=false
-       and rolbypassrls=false
+       and rolbypassrls=true
   ) then
     raise exception 'VERIFIED_AUTOMATION_REVIEW_READER_VALIDATOR_ROLE_MISMATCH';
   end if;
@@ -155,11 +159,19 @@ begin
      or has_function_privilege('public','public.read_verified_automation_review_stock_transitions_v1(bigint)','EXECUTE')
      or has_function_privilege('anon','public.read_verified_automation_review_stock_transitions_v1(bigint)','EXECUTE')
      or has_function_privilege('authenticated','public.read_verified_automation_review_stock_transitions_v1(bigint)','EXECUTE')
-     or has_function_privilege('service_role','public.read_verified_automation_review_stock_transitions_v1(bigint)','EXECUTE') then
+     or has_function_privilege('service_role','public.read_verified_automation_review_stock_transitions_v1(bigint)','EXECUTE')
+     or has_function_privilege('retailer_catalogue_production_approver','public.read_verified_automation_review_stock_transitions_v1(bigint)','EXECUTE')
+     or has_function_privilege('retailer_catalogue_production_executor','public.read_verified_automation_review_stock_transitions_v1(bigint)','EXECUTE') then
     raise exception 'VERIFIED_AUTOMATION_REVIEW_READER_ACL_MISMATCH';
   end if;
-  if has_table_privilege('retailer_catalogue_production_validator','public.product_match_review_queue','SELECT')
-     or has_table_privilege('retailer_catalogue_production_validator','public.automation_review_execution_requests','SELECT') then
+  if has_table_privilege(
+       'retailer_catalogue_production_validator',
+       'public.product_match_review_queue',
+       'SELECT,INSERT,UPDATE,DELETE,TRUNCATE')
+     or has_table_privilege(
+       'retailer_catalogue_production_validator',
+       'public.automation_review_execution_requests',
+       'SELECT,INSERT,UPDATE,DELETE,TRUNCATE') then
     raise exception 'VERIFIED_AUTOMATION_REVIEW_READER_RAW_TABLE_ACCESS_PRESENT';
   end if;
 end
