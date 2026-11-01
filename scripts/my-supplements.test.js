@@ -131,6 +131,17 @@ test("shortcut stays in document flow through tablets and only floats on wide sc
   assert.doesNotMatch(shortcut, /className="fixed/);
 });
 
+test("homepage footer reserves the wide-screen shortcut and safe-area clearance", () => {
+  const homepage = fs.readFileSync(path.join(ROOT, "app/page.tsx"), "utf8");
+
+  assert.ok(
+    homepage.includes(
+      "xl:pb-[calc(5rem+env(safe-area-inset-bottom))]"
+    )
+  );
+  assert.doesNotMatch(homepage, /IntersectionObserver|addEventListener\(["']scroll/);
+});
+
 test("current endpoint rejects bad input and returns bounded no-store data", async () => {
   const calls = [];
   const route = compileModule(path.join(ROOT, "app/api/my-supplements/current/route.ts"), {

@@ -47,6 +47,13 @@ const engine = compileModule(enginePath, {
     },
   },
 });
+const decisionSearch = compileModule(
+  path.join(ROOT, "app/lib/decisionSearch.ts"),
+  {
+    "./decisionEngine": engine,
+    "./searchIntent": searchIntent,
+  }
+);
 const NOW = new Date("2026-11-01T12:00:00.000Z");
 
 function offer(overrides = {}) {
@@ -413,6 +420,161 @@ test("serialized caffeine-free priority selection rebuilds the same DecisionRequ
   assert.equal(reloadedRequest.primaryPrioritySource, "url");
 });
 
+test("decision search href uses the effective plan and existing priority sort", () => {
+  const plan = searchIntent.buildSearchIntentPlan("caffeine free pre workout");
+  const url = new URL(
+    decisionSearch.decisionSearchHref({
+      plan,
+      priority: "LOWEST_DELIVERED_PRICE",
+    }),
+    "https://www.supplementscout.co.uk"
+  );
+
+  assert.equal(url.pathname, "/search");
+  assert.equal(url.searchParams.get("q"), "pre workout");
+  assert.equal(url.searchParams.get("caffeine"), "free");
+  assert.equal(url.searchParams.get("sort"), "price_asc");
+});
+
+test("decision search href preserves caffeine-free for cost-per-serving exploration", () => {
+  const plan = searchIntent.buildSearchIntentPlan("caffeine free pre workout");
+  const url = new URL(
+    decisionSearch.decisionSearchHref({
+      plan,
+      priority: "LOWEST_PRICE_PER_SERVING",
+    }),
+    "https://www.supplementscout.co.uk"
+  );
+
+  assert.equal(url.searchParams.get("caffeine"), "free");
+  assert.equal(url.searchParams.get("sort"), "price_per_serving_asc");
+});
+
+test("decision search href preserves canonical budget and servings constraints", () => {
+  const plan = searchIntent.buildSearchIntentPlan(
+    "creatine under £20 with at least 100 servings"
+  );
+  const url = new URL(
+    decisionSearch.decisionSearchHref({
+      plan,
+      priority: "LOWEST_COST_PER_5G_CREATINE",
+    }),
+    "https://www.supplementscout.co.uk"
+  );
+
+  assert.equal(url.searchParams.get("q"), "creatine under £20");
+  assert.equal(url.searchParams.get("servings_min"), "100");
+  assert.equal(url.searchParams.get("sort"), "cost_per_5g_creatine_asc");
+});
+
+test("decision search href preserves protein minimum and whey identity", () => {
+  const plan = searchIntent.buildSearchIntentPlan(
+    "whey with at least 25g protein and lowest price per serving"
+  );
+  const url = new URL(
+    decisionSearch.decisionSearchHref({
+      plan,
+      priority: "LOWEST_PRICE_PER_SERVING",
+    }),
+    "https://www.supplementscout.co.uk"
+  );
+
+  assert.equal(url.searchParams.get("q"), "whey");
+  assert.equal(url.searchParams.get("protein_min_g"), "25");
+  assert.equal(url.searchParams.get("sort"), "price_per_serving_asc");
+});
+
+test("decision search href preserves caffeine maximum and ingredient", () => {
+  const plan = searchIntent.buildSearchIntentPlan(
+    "pre workout under 200mg caffeine with citrulline"
+  );
+  const url = new URL(
+    decisionSearch.decisionSearchHref({
+      plan,
+      priority: "LOWEST_DELIVERED_PRICE",
+    }),
+    "https://www.supplementscout.co.uk"
+  );
+
+  assert.equal(url.searchParams.get("q"), "pre workout");
+  assert.equal(url.searchParams.get("caffeine_max_mg"), "200");
+  assert.deepEqual(url.searchParams.getAll("ingredient"), ["citrulline"]);
+  assert.equal(url.searchParams.get("sort"), "price_asc");
+});
+
+test("decision search href preserves format and non-empty category context", () => {
+  const plan = searchIntent.buildSearchIntentPlan("magnesium capsules");
+  const url = new URL(
+    decisionSearch.decisionSearchHref({
+      plan,
+      priority: "LOWEST_DELIVERED_PRICE",
+      category: "  Minerals  ",
+    }),
+    "https://www.supplementscout.co.uk"
+  );
+
+  assert.equal(url.searchParams.get("q"), "magnesium");
+  assert.equal(url.searchParams.get("format"), "capsule");
+  assert.equal(url.searchParams.get("category"), "Minerals");
+  assert.equal(
+    new URL(
+      decisionSearch.decisionSearchHref({
+        plan,
+        priority: "LOWEST_DELIVERED_PRICE",
+        category: "  ",
+      }),
+      "https://www.supplementscout.co.uk"
+    ).searchParams.has("category"),
+    false
+  );
+});
+
+test("every decision priority reuses its existing Search sort", () => {
+  const plan = searchIntent.buildSearchIntentPlan("creatine");
+  for (const [priority, definition] of Object.entries(
+    engine.DECISION_PRIORITY_DEFINITIONS
+  )) {
+    const url = new URL(
+      decisionSearch.decisionSearchHref({ plan, priority }),
+      "https://www.supplementscout.co.uk"
+    );
+    assert.equal(url.searchParams.get("sort"), definition.sort);
+  }
+});
+
+test("decision search CTA is shown only when an answered shortlist omits candidates", () => {
+  const result = (status, shortlistLength, candidateCount) => ({
+    status,
+    shortlist: Array.from({ length: shortlistLength }, (_, index) => ({
+      productId: String(index + 1),
+    })),
+    candidateCount,
+  });
+
+  assert.equal(
+    decisionSearch.shouldShowDecisionSearchLink(result("ANSWERED", 3, 4)),
+    true
+  );
+  for (const count of [1, 2, 3]) {
+    assert.equal(
+      decisionSearch.shouldShowDecisionSearchLink(
+        result("ANSWERED", count, count)
+      ),
+      false
+    );
+  }
+  for (const status of [
+    "DATA_GAP",
+    "SAFETY_BOUNDARY",
+    "NEEDS_CLARIFICATION",
+  ]) {
+    assert.equal(
+      decisionSearch.shouldShowDecisionSearchLink(result(status, 3, 10)),
+      false
+    );
+  }
+});
+
 test("request F is a DATA_GAP and request G is a SAFETY_BOUNDARY without search", async () => {
   let searchCalls = 0;
   const search = async () => {
@@ -501,6 +663,131 @@ test("shortlists are never padded and trade-offs remain structured", async () =>
     ["higher_upfront_price", "fewer_servings"]
   );
   assert.equal(typeof result.shortlist[0].tradeOffs[0].value, "number");
+});
+
+test("equal penny prices do not create a higher-price trade-off", async () => {
+  const fixture = searchFixture([
+    candidate(1, { totalPrice: 20, pricePerServing: 0.4 }),
+    candidate(2, { totalPrice: 20, pricePerServing: 0.5 }),
+  ]);
+  const result = await engine.runDecisionEngine(
+    request("creatine price per serving"),
+    { search: fixture.search, now: NOW }
+  );
+  assert.ok(
+    result.shortlist.every(({ tradeOffs }) =>
+      tradeOffs.every(({ type }) => type !== "higher_upfront_price")
+    )
+  );
+});
+
+test("floating noise within one penny does not create a monetary trade-off", async () => {
+  const fixture = searchFixture([
+    candidate(1, { totalPrice: 20.0000001, pricePerServing: 0.4 }),
+    candidate(2, { totalPrice: 20.0000002, pricePerServing: 0.5 }),
+  ]);
+  const result = await engine.runDecisionEngine(
+    request("creatine price per serving"),
+    { search: fixture.search, now: NOW }
+  );
+  assert.ok(
+    result.shortlist.every(({ tradeOffs }) =>
+      tradeOffs.every(({ type }) => type !== "higher_upfront_price")
+    )
+  );
+});
+
+test("one penny creates a truthful one-penny higher-price trade-off", async () => {
+  const fixture = searchFixture([
+    candidate(1, { totalPrice: 20, pricePerServing: 0.4 }),
+    candidate(2, { totalPrice: 20.01, pricePerServing: 0.5 }),
+  ]);
+  const result = await engine.runDecisionEngine(
+    request("creatine price per serving"),
+    { search: fixture.search, now: NOW }
+  );
+  const tradeOff = result.shortlist[1].tradeOffs.find(
+    ({ type }) => type === "higher_upfront_price"
+  );
+  assert.deepEqual(tradeOff, {
+    type: "higher_upfront_price",
+    comparedToProductId: "1",
+    value: 20.01,
+    comparedValue: 20,
+  });
+  assert.equal(Number((tradeOff.value - tradeOff.comparedValue).toFixed(2)), 0.01);
+});
+
+test("sub-penny values that display as the same price remain tied", async () => {
+  const fixture = searchFixture([
+    candidate(1, { totalPrice: 20.004, pricePerServing: 0.4 }),
+    candidate(2, { totalPrice: 20.003, pricePerServing: 0.5 }),
+  ]);
+  const result = await engine.runDecisionEngine(
+    request("creatine price per serving"),
+    { search: fixture.search, now: NOW }
+  );
+  assert.ok(
+    result.shortlist.every(({ tradeOffs }) =>
+      tradeOffs.every(({ type }) => type !== "higher_upfront_price")
+    )
+  );
+});
+
+test("equal-penny cheapest selection keeps the stable product-ID tie-break", async () => {
+  const fixture = searchFixture([
+    candidate(20, { totalPrice: 20.003, pricePerServing: 0.4 }),
+    candidate(2, { totalPrice: 20.004, pricePerServing: 0.5 }),
+    candidate(9, { totalPrice: 20.02, pricePerServing: 0.6 }),
+  ]);
+  const result = await engine.runDecisionEngine(
+    request("creatine price per serving"),
+    { search: fixture.search, now: NOW }
+  );
+  const monetaryTradeOff = result.shortlist[2].tradeOffs.find(
+    ({ type }) => type === "higher_upfront_price"
+  );
+  assert.equal(monetaryTradeOff.comparedToProductId, "2");
+  assert.equal(
+    Number((monetaryTradeOff.value - monetaryTradeOff.comparedValue).toFixed(2)),
+    0.02
+  );
+});
+
+test("non-price trade-offs remain available for equal-price products", async () => {
+  const fixture = searchFixture([
+    candidate(1, { totalPrice: 20, pricePerServing: 0.4 }),
+    candidate(2, { totalPrice: 20, pricePerServing: 0.5, extraOffers: 1 }),
+  ]);
+  const result = await engine.runDecisionEngine(
+    request("creatine price per serving"),
+    { search: fixture.search, now: NOW }
+  );
+  assert.deepEqual(
+    result.shortlist[0].tradeOffs.map(({ type }) => type),
+    ["fewer_retailers"]
+  );
+});
+
+test("trade-offs remain capped at two when three disadvantages apply", async () => {
+  const fixture = searchFixture([
+    candidate(1, { totalPrice: 20, pricePerServing: 0.4, servings: 50 }),
+    candidate(2, {
+      totalPrice: 15,
+      pricePerServing: 0.5,
+      servings: 100,
+      extraOffers: 1,
+    }),
+  ]);
+  const result = await engine.runDecisionEngine(
+    request("creatine price per serving"),
+    { search: fixture.search, now: NOW }
+  );
+  assert.deepEqual(
+    result.shortlist[0].tradeOffs.map(({ type }) => type),
+    ["higher_upfront_price", "fewer_servings"]
+  );
+  assert.ok(result.shortlist.every(({ tradeOffs }) => tradeOffs.length <= 2));
 });
 
 test("shared search extension remains bounded and carries exact offer freshness", () => {

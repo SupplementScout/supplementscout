@@ -274,6 +274,10 @@ function positiveMetric(value: number | string | null | undefined) {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 }
 
+function toPence(value: number) {
+  return Math.round(value * 100);
+}
+
 function stableIdCompare(left: string, right: string) {
   return left.localeCompare(right, "en", { numeric: true });
 }
@@ -638,9 +642,11 @@ function addTradeOffs(items: DecisionShortlistItem[]) {
   if (items.length < 2) return items;
   const cheapest = [...items].sort(
     (left, right) =>
-      left.deliveredPrice.totalPrice - right.deliveredPrice.totalPrice ||
+      toPence(left.deliveredPrice.totalPrice) -
+        toPence(right.deliveredPrice.totalPrice) ||
       stableIdCompare(left.productId, right.productId)
   )[0];
+  const cheapestPence = toPence(cheapest.deliveredPrice.totalPrice);
   const mostServings = [...items]
     .filter(({ verifiedServingCount }) => verifiedServingCount !== null)
     .sort(
@@ -657,12 +663,13 @@ function addTradeOffs(items: DecisionShortlistItem[]) {
 
   return items.map((item) => {
     const tradeOffs: DecisionTradeOff[] = [];
-    if (item.productId !== cheapest.productId) {
+    const itemPence = toPence(item.deliveredPrice.totalPrice);
+    if (itemPence > cheapestPence) {
       tradeOffs.push({
         type: "higher_upfront_price",
         comparedToProductId: cheapest.productId,
-        value: item.deliveredPrice.totalPrice,
-        comparedValue: cheapest.deliveredPrice.totalPrice,
+        value: itemPence / 100,
+        comparedValue: cheapestPence / 100,
       });
     }
     if (
