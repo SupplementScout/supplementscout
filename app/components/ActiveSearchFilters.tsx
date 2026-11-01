@@ -91,7 +91,7 @@ export default function ActiveSearchFilters({
     if (constraint.key === "min_verified_servings") {
       activeFilters.push({
         key: constraint.key,
-        label: "Intent",
+        label: "",
         value: constraint.label,
         href: searchUrl({
           query,
@@ -104,7 +104,7 @@ export default function ActiveSearchFilters({
     } else if (constraint.key === "min_protein_per_serving") {
       activeFilters.push({
         key: constraint.key,
-        label: "Intent",
+        label: "",
         value: constraint.label,
         href: searchUrl({
           query,
@@ -117,7 +117,7 @@ export default function ActiveSearchFilters({
     } else if (constraint.key === "max_caffeine") {
       activeFilters.push({
         key: constraint.key,
-        label: "Intent",
+        label: "",
         value: constraint.label,
         href: searchUrl({
           query,
@@ -130,7 +130,7 @@ export default function ActiveSearchFilters({
     } else if (constraint.key === "format") {
       activeFilters.push({
         key: constraint.key,
-        label: "Intent",
+        label: "",
         value: constraint.label,
         href: searchUrl({
           query,
@@ -144,7 +144,7 @@ export default function ActiveSearchFilters({
       const ingredient = constraint.key.slice("ingredient:".length);
       activeFilters.push({
         key: constraint.key,
-        label: "Intent",
+        label: "",
         value: constraint.label,
         href: searchUrl({
           query,
@@ -185,7 +185,8 @@ export default function ActiveSearchFilters({
           href={filter.href}
           className="rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:border-zinc-950"
         >
-          {filter.label}: {filter.value} <span aria-hidden="true">&times;</span>
+          {filter.label ? `${filter.label}: ` : ""}{filter.value}{" "}
+          <span aria-hidden="true">&times;</span>
         </Link>
       ))}
 
@@ -205,7 +206,7 @@ export default function ActiveSearchFilters({
         })}
         className="text-sm font-semibold text-zinc-700 underline underline-offset-4 hover:text-zinc-950"
       >
-        Clear interpreted intent and filters
+        Clear all filters
       </Link>
     </div>
   );

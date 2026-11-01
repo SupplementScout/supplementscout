@@ -33,6 +33,7 @@ import {
   buildProductKeyFacts,
   buildProductMetadataDescription,
   buildProductSummary,
+  selectedVariantPresentation,
 } from "../../lib/productPresentation";
 import {
   buildProductStructuredData,
@@ -437,9 +438,19 @@ export default async function ProductPage({
   const cheapestValidDeliveredPrice = cheapestMetricOffer
     ? knownDeliveredPrice(cheapestMetricOffer)
     : null;
+  const cheapestVariantLabel = cheapestOffer
+    ? getOfferVariantLabel(cheapestOffer)
+    : null;
+  const selectedVariant = requestedVariant || (
+    cheapestOffer
+      ? productVariants.find((variant) =>
+          String(variant.id) === String(cheapestOffer.product_variant_id)
+        ) || cheapestOffer.product_variant
+      : null
+  );
   const effectiveMetrics = getEffectiveNutritionMetrics(
     product,
-    cheapestMetricOffer?.product_variant || null
+    selectedVariant
   );
   const verifiedPricePerServing = getVerifiedPricePerServing(
     cheapestValidDeliveredPrice,
@@ -483,7 +494,12 @@ export default async function ProductPage({
     effectiveMetrics.serving_size_g,
     effectiveMetrics.product_format
   );
-  const productSummary = buildProductSummary(product);
+  const selectedPresentation = selectedVariant
+    ? selectedVariantPresentation(product, effectiveMetrics)
+    : product;
+  const productSummary = buildProductSummary(selectedPresentation, {
+    allowCuratedSummary: selectedVariant === null,
+  });
   const comparisonLink = comparisonLinkForProduct(product);
   const structuredData = buildProductStructuredData({
     categoryComparison: comparisonLink
@@ -493,22 +509,12 @@ export default async function ProductPage({
     offers: sortedOffers,
     product,
   });
-  const keyFacts = buildProductKeyFacts(product);
+  const keyFacts = buildProductKeyFacts(selectedPresentation);
   const productAnalytics: ProductAnalyticsContext = {
     product_id: String(product.id),
     product_name: product.name,
     ...(product.category ? { category: product.category } : {}),
   };
-  const cheapestVariantLabel = cheapestOffer
-    ? getOfferVariantLabel(cheapestOffer)
-    : null;
-  const selectedVariant = requestedVariant || (
-    cheapestOffer
-      ? productVariants.find((variant) =>
-          String(variant.id) === String(cheapestOffer.product_variant_id)
-        ) || cheapestOffer.product_variant
-      : null
-  );
   const selectedVariantId = selectedVariant ? String(selectedVariant.id) : null;
   const selectedVariantLabel = selectedVariant?.display_name || cheapestVariantLabel;
   const selectedAppliedFacts = selectedVariantId
@@ -526,7 +532,14 @@ export default async function ProductPage({
     : null;
   const heroFacts = keyFacts
     .filter((fact) =>
-      ["Net weight", "Net volume", "Verified servings", "Unit count"].includes(
+      [
+        "Net weight",
+        "Net volume",
+        "Verified servings",
+        "Unit count",
+        "Protein per serving",
+        "Creatine per serving",
+      ].includes(
         fact.label
       )
     )

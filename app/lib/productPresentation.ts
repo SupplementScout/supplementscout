@@ -21,6 +21,17 @@ export type ProductKeyFact = {
   value: string;
 };
 
+export type SelectedVariantPresentationMetrics = Pick<
+  ProductPresentationInput,
+  | "product_format"
+  | "net_weight_g"
+  | "serving_count_verified"
+  | "serving_size_g"
+  | "protein_per_serving_g"
+  | "creatine_per_serving_g"
+  | "nutrition_verified"
+>;
+
 const GYM_HIGH_WHEY_ID = "510";
 const GYM_HIGH_WHEY_NAME = "GYM HIGH Whey Pro Synergy Dynamic 600g";
 const GYM_HIGH_WHEY_SUMMARY =
@@ -252,8 +263,12 @@ function buildVerifiedFactSentence(product: ProductPresentationInput) {
   return null;
 }
 
-export function buildProductSummary(product: ProductPresentationInput) {
+export function buildProductSummary(
+  product: ProductPresentationInput,
+  options: { allowCuratedSummary?: boolean } = {}
+) {
   if (
+    options.allowCuratedSummary !== false &&
     String(product.id) === GYM_HIGH_WHEY_ID &&
     product.name === GYM_HIGH_WHEY_NAME
   ) {
@@ -292,6 +307,26 @@ export function buildProductMetadataDescription(
   product: ProductPresentationInput
 ) {
   return truncateMetadataDescription(buildProductSummary(product));
+}
+
+export function selectedVariantPresentation(
+  product: ProductPresentationInput,
+  metrics: SelectedVariantPresentationMetrics
+): ProductPresentationInput {
+  return {
+    ...product,
+    product_format: metrics.product_format,
+    net_weight_g: metrics.net_weight_g,
+    net_volume_ml: null,
+    serving_count_verified: metrics.serving_count_verified,
+    unit_count: null,
+    unit_type: null,
+    serving_size_g: metrics.serving_size_g,
+    serving_size_ml: null,
+    protein_per_serving_g: metrics.protein_per_serving_g,
+    creatine_per_serving_g: metrics.creatine_per_serving_g,
+    nutrition_verified: metrics.nutrition_verified,
+  };
 }
 
 export function buildProductKeyFacts(product: ProductPresentationInput) {

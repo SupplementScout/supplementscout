@@ -288,7 +288,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                     className="mb-5 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 text-sm text-zinc-700"
                   >
                     <h2 id="search-intent-heading" className="font-semibold text-zinc-950">
-                      What SupplementScout understood
+                      Your search
                     </h2>
                     <p className="mt-1">
                       Searching for: <strong>{intentPlan.textQuery || query}</strong>
@@ -398,6 +398,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                             product={product}
                             searchMobileFirst
                             preferredValueMetric={intentPlan.valueMetric || undefined}
+                            intentFilters={intentPlan.filters}
                           />
                         </SearchResultSelectionAnalytics>
                       ))}

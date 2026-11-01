@@ -1179,8 +1179,48 @@ test("value intent keeps meaningful discovery matches ahead of description-only 
   assert.equal(result.intentPlan.sort, "price_per_serving_asc");
   assert.deepEqual(
     result.results.map((product) => product.id),
-    ["3151", "3152"]
+    ["3151"]
   );
+  assert.equal(result.totalCount, 1);
+});
+
+test("value metric remains primary and relevance only breaks equal-metric ties", async () => {
+  const highRelevance = pricedSearchProduct(3153, "Protein", 20, 10);
+  const lowerMetric = pricedSearchProduct(3154, "Value Protein Mix", 10, 10);
+  const metricResult = await searchProductsWithRows(
+    "protein price per serving",
+    [highRelevance, lowerMetric]
+  );
+
+  assert.deepEqual(metricResult.results.map(({ id }) => id), ["3154", "3153"]);
+
+  const lowerRelevanceTie = pricedSearchProduct(3155, "Whey Protein", 10, 10);
+  const higherRelevanceTie = pricedSearchProduct(3156, "Protein", 20, 20);
+  const tieResult = await searchProductsWithRows(
+    "protein price per serving",
+    [lowerRelevanceTie, higherRelevanceTie]
+  );
+
+  assert.deepEqual(tieResult.results.map(({ id }) => id), ["3156", "3155"]);
+
+  const lowerRelevanceDisplayTie = pricedSearchProduct(
+    3157,
+    "Whey Protein",
+    10.01,
+    10
+  );
+  const higherRelevanceDisplayTie = pricedSearchProduct(
+    3158,
+    "Protein",
+    10.04,
+    10
+  );
+  const displayTieResult = await searchProductsWithRows(
+    "protein price per serving",
+    [lowerRelevanceDisplayTie, higherRelevanceDisplayTie]
+  );
+
+  assert.deepEqual(displayTieResult.results.map(({ id }) => id), ["3158", "3157"]);
 });
 
 test("new verified value sorts are ascending and place missing metrics last", async () => {
@@ -1208,6 +1248,14 @@ test("new verified value sorts are ascending and place missing metrics last", as
     proteinResult.results.map(({ id }) => id),
     ["316", "317", "318"]
   );
+  const proteinMetrics = proteinResult.results.map(
+    ({ verifiedCostPer25gProtein }) => verifiedCostPer25gProtein
+  );
+  assert.deepEqual(proteinMetrics.filter((value) => value !== null), [1, 1.5]);
+  assert.equal(
+    proteinMetrics.slice(proteinMetrics.indexOf(null)).some((value) => value !== null),
+    false
+  );
 
   const creatineBest = pricedSearchProduct(319, "Creatine best", 20, 40);
   Object.assign(creatineBest, {
@@ -1233,6 +1281,14 @@ test("new verified value sorts are ascending and place missing metrics last", as
     creatineResult.results.map(({ id }) => id),
     ["319", "320", "321"]
   );
+  const creatineMetrics = creatineResult.results.map(
+    ({ verifiedCostPer5gCreatine }) => verifiedCostPer5gCreatine
+  );
+  assert.deepEqual(creatineMetrics.filter((value) => value !== null), [0.5, 0.75]);
+  assert.equal(
+    creatineMetrics.slice(creatineMetrics.indexOf(null)).some((value) => value !== null),
+    false
+  );
 });
 
 test("search cards can present the exact metric requested by value intent", () => {
@@ -1245,11 +1301,13 @@ test("search cards can present the exact metric requested by value intent", () =
     "utf8"
   );
 
-  assert.match(source, /primarySearchValueMetric\(product, preferredValueMetric\)/);
+  assert.match(source, /searchResultIntentEvidence\(/);
+  assert.match(source, /\?variant=\$\{encodeURIComponent\(product\.selectedVariantId\)\}/);
   assert.match(
     pageSource,
     /preferredValueMetric=\{intentPlan\.valueMetric \|\| undefined\}/
   );
+  assert.match(pageSource, /intentFilters=\{intentPlan\.filters\}/);
 });
 
 test("an inapplicable cross-category value metric stays transparent and never fabricates values", async () => {
@@ -2119,10 +2177,11 @@ test("search intent transparency stays SSR and preserves search noindex rules", 
     "utf8"
   );
 
-  assert.match(pageSource, /What SupplementScout understood/);
+  assert.match(pageSource, /Your search/);
   assert.match(pageSource, /Not applied:/);
   assert.match(pageSource, /index:\s*false/);
   assert.match(pageSource, /canonical:\s*"\/search"/);
   assert.match(filtersSource, /intentUpdates: \{ caffeineMaxMg: null \}/);
-  assert.match(filtersSource, /Clear interpreted intent and filters/);
+  assert.match(filtersSource, /Clear all filters/);
+  assert.doesNotMatch(filtersSource, /label: "Intent"/);
 });

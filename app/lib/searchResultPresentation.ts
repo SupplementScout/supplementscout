@@ -1,6 +1,9 @@
 import { formatCurrency } from "./pricing";
 import type { ProductSearchResult } from "./products";
-import type { SearchValueMetric as SearchIntentValueMetric } from "./searchIntent";
+import type {
+  SearchIntentFilters,
+  SearchValueMetric as SearchIntentValueMetric,
+} from "./searchIntent";
 
 type SearchValueInput = Pick<
   ProductSearchResult,
@@ -64,6 +67,48 @@ export function primarySearchValueMetric(
     metric("Weight value", product.verifiedPricePerKg, "per kg") ||
     metric("Volume value", product.verifiedPricePerLitre, "per litre")
   );
+}
+
+export function searchResultIntentEvidence(
+  product: SearchValueInput & Pick<
+    ProductSearchResult,
+    "serving_count_verified" | "protein_per_serving_g" | "nutrition_verified"
+  >,
+  intentFilters?: Pick<
+    SearchIntentFilters,
+    "minVerifiedServings" | "minProteinPerServingG"
+  >,
+  preferredMetric?: SearchIntentValueMetric
+): SearchValueMetric | null {
+  const protein = positiveNumber(product.protein_per_serving_g);
+  if (
+    intentFilters?.minProteinPerServingG !== null &&
+    intentFilters?.minProteinPerServingG !== undefined &&
+    product.nutrition_verified === true &&
+    protein !== null &&
+    protein >= intentFilters.minProteinPerServingG
+  ) {
+    return {
+      label: "Protein per serving",
+      value: `${compactNumber(protein)} g protein per serving`,
+    };
+  }
+
+  const servings = positiveNumber(product.serving_count_verified);
+  if (
+    intentFilters?.minVerifiedServings !== null &&
+    intentFilters?.minVerifiedServings !== undefined &&
+    servings !== null &&
+    Number.isInteger(servings) &&
+    servings >= intentFilters.minVerifiedServings
+  ) {
+    return {
+      label: "Verified servings",
+      value: `${compactNumber(servings)} verified servings`,
+    };
+  }
+
+  return primarySearchValueMetric(product, preferredMetric);
 }
 
 function positiveNumber(value: number | string | null) {

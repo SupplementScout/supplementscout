@@ -101,7 +101,7 @@ export const SEARCH_VALUE_METRICS: Record<
 > = {
   price_per_serving: {
     sort: "price_per_serving_asc",
-    label: "Lowest verified delivered price per serving",
+    label: "Lowest cost per serving",
     applicability: "Products with a verified serving count",
     patterns: [
       /\b(?:price|cost|cheapest)\s+per\s+serving\b/gi,
@@ -110,7 +110,7 @@ export const SEARCH_VALUE_METRICS: Record<
   },
   cost_per_25g_protein: {
     sort: "cost_per_25g_protein_asc",
-    label: "Lowest verified delivered cost per 25 g protein",
+    label: "Lowest cost per 25 g protein",
     applicability: "Products with verified protein per serving",
     patterns: [
       /\b(?:price|cost|cheapest)\s+per\s+25\s*g(?:\s+(?:of\s+)?protein)?\b/gi,
@@ -118,7 +118,7 @@ export const SEARCH_VALUE_METRICS: Record<
   },
   cost_per_5g_creatine: {
     sort: "cost_per_5g_creatine_asc",
-    label: "Lowest verified delivered cost per 5 g creatine",
+    label: "Lowest cost per 5 g creatine",
     applicability: "Powder products with verified creatine and serving data",
     patterns: [
       /\b(?:price|cost|cheapest)\s+per\s+5\s*g(?:\s+(?:of\s+)?creatine)?\b/gi,
@@ -507,7 +507,7 @@ export function buildSearchIntentPlan(
   for (const ingredient of effectiveIngredients) {
     appliedConstraints.push({
       key: `ingredient:${ingredient}`,
-      label: `Reviewed ${INGREDIENT_LABELS[ingredient]} present`,
+      label: `Contains ${INGREDIENT_LABELS[ingredient].toLowerCase()}`,
       source: explicit.ingredients?.includes(ingredient) ? "url" : "query",
       removable: true,
     });

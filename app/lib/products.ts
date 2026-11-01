@@ -927,6 +927,24 @@ function scoreProduct(product: RawProduct, query: string) {
   return score;
 }
 
+function hasMeaningfulIdentityMatch(
+  product: Pick<ProductSearchResult, "name" | "brand" | "category">,
+  query: string
+) {
+  const normalizedQuery = normalizeWhitespace(query).toLowerCase();
+  if (!normalizedQuery) return false;
+
+  const name = normalizeWhitespace(product.name).toLowerCase();
+  const brand = normalizeWhitespace(product.brand || "").toLowerCase();
+  const category = normalizeWhitespace(product.category || "").toLowerCase();
+
+  return (
+    name.includes(normalizedQuery) ||
+    brand.includes(normalizedQuery) ||
+    category === normalizedQuery
+  );
+}
+
 function scoreProductForSearch(product: RawProduct, plan: SearchMetadata) {
   if (plan.searchMode !== "goal_mapped_ilike") {
     return scoreProduct(product, plan.originalQuery);
@@ -1403,26 +1421,23 @@ function sortResults(results: ProductSearchResult[], sort: SearchSort) {
   return [...results].sort((left, right) => {
     const deliveredPriceFallback = compareSearchResultPrices(left, right);
 
-    function compareNullableMetric(
-      leftValue: number | null,
-      rightValue: number | null
-    ) {
-      if (leftValue === null) {
-        return rightValue === null ? deliveredPriceFallback : 1;
-      }
-
-      if (rightValue === null) return -1;
-      return leftValue - rightValue || deliveredPriceFallback;
-    }
-
     function compareValueMetric(
       leftValue: number | null,
       rightValue: number | null
     ) {
-      const meaningfulMatchOrder =
-        Number(right.relevanceScore > 0) - Number(left.relevanceScore > 0);
+      if (leftValue === null) {
+        if (rightValue !== null) return 1;
+      } else if (rightValue === null) {
+        return -1;
+      } else {
+        const metricOrder =
+          Math.round(leftValue * 100) - Math.round(rightValue * 100);
+        if (metricOrder !== 0) return metricOrder;
+      }
 
-      return meaningfulMatchOrder || compareNullableMetric(leftValue, rightValue);
+      return (
+        right.relevanceScore - left.relevanceScore || deliveredPriceFallback
+      );
     }
 
     if (sort === "price_asc") {
@@ -1580,6 +1595,18 @@ export async function searchProducts(
       )
     )
     .filter((product): product is ProductSearchResult => product !== null);
+  const limitValueIntentToIdentityMatches =
+    intent.valueMetric !== null &&
+    intent.textQuery.trim().length > 0 &&
+    eligibleResults.some((product) =>
+      hasMeaningfulIdentityMatch(product, intent.textQuery)
+    );
+  const isWithinValueIntentScope = (product: ProductSearchResult) =>
+    !limitValueIntentToIdentityMatches ||
+    hasMeaningfulIdentityMatch(product, intent.textQuery);
+  const valueScopedEligibleResults = eligibleResults.filter(
+    isWithinValueIntentScope
+  );
   const isWithinBudget = (product: ProductSearchResult) =>
     intent.filters.maxDeliveredPrice === null ||
     (product.cheapestOffer !== null &&
@@ -1588,8 +1615,8 @@ export async function searchProducts(
         intent.filters.maxDeliveredPrice);
   const baseResults =
     intent.filters.maxDeliveredPrice === null
-      ? eligibleResults
-      : eligibleResults.filter(isWithinBudget);
+      ? valueScopedEligibleResults
+      : valueScopedEligibleResults.filter(isWithinBudget);
   const facets = buildFacets(baseResults);
   const filteredResults = filters.retailer || filters.caffeine === "free"
     ? enrichedProducts
@@ -1603,6 +1630,7 @@ export async function searchProducts(
           )
         )
         .filter((product): product is ProductSearchResult => product !== null)
+        .filter(isWithinValueIntentScope)
         .filter(isWithinBudget)
     : baseResults;
   const results = applyProductFilters(filteredResults, filters);

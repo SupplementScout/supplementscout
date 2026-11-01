@@ -10,9 +10,9 @@ const sortOptions: Array<{ value: SearchSort; label: string }> = [
   { value: "relevance", label: "Relevance" },
   { value: "price_asc", label: "Lowest delivered price" },
   { value: "price_desc", label: "Highest delivered price" },
-  { value: "price_per_serving_asc", label: "Lowest price per serving" },
-  { value: "cost_per_25g_protein_asc", label: "Lowest cost per 25g protein" },
-  { value: "cost_per_5g_creatine_asc", label: "Lowest cost per 5g creatine" },
+  { value: "price_per_serving_asc", label: "Lowest cost/serving" },
+  { value: "cost_per_25g_protein_asc", label: "Lowest cost/25 g protein" },
+  { value: "cost_per_5g_creatine_asc", label: "Lowest cost/5 g creatine" },
 ];
 
 export default function SearchSort({
@@ -30,7 +30,7 @@ export default function SearchSort({
 
   return (
     <div className="flex min-w-0 items-center gap-2">
-      <label htmlFor="search-sort" className="text-sm font-medium text-zinc-600">
+      <label htmlFor="search-sort" className="sr-only text-sm font-medium text-zinc-600 sm:not-sr-only">
         Sort
       </label>
       <select
@@ -51,7 +51,7 @@ export default function SearchSort({
             })
           );
         }}
-        className="min-h-11 min-w-0 max-w-[152px] rounded-lg border border-zinc-300 bg-white px-2 text-sm font-medium text-zinc-900 sm:max-w-none sm:px-3"
+        className="min-h-11 min-w-0 max-w-[170px] rounded-lg border border-zinc-300 bg-white px-2 text-sm font-medium text-zinc-900 sm:max-w-none sm:px-3"
       >
         {sortOptions.map((option) => (
           <option key={option.value} value={option.value}>
