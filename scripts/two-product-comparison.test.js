@@ -60,7 +60,41 @@ const productComparisonMetrics = compileModule(
   path.join(root, "app/lib/productComparisonMetrics.ts"),
   { "./pricing": pricing }
 );
+const comparisonSelector = compileModule(
+  path.join(root, "app/lib/comparisonSelector.ts")
+);
+const comparisonProductLinks = compileModule(
+  path.join(root, "app/lib/comparisonProductLinks.ts")
+);
 const comparisonPath = path.join(root, "app/lib/twoProductComparison.ts");
+
+const Link = ({ href, children, ...props }) => {
+  delete props.prefetch;
+  return React.createElement("a", { href, ...props }, children);
+};
+
+function loadComparisonPage(comparison, result) {
+  return compileModule(path.join(root, "app/compare/page.tsx"), {
+    next: {},
+    "next/link": { __esModule: true, default: Link },
+    "../components/CategoryViewAnalytics": { __esModule: true, default: () => null },
+    "../components/ComparisonCompletionAnalytics": { __esModule: true, default: () => null },
+    "../components/ComparisonProductVisuals": require("./test-helpers/comparison-product-visuals"),
+    "../components/SearchableComparisonSelectors": {
+      __esModule: true,
+      default: () => React.createElement("div", { "data-testid": "comparison-selectors" }),
+    },
+    "../components/ComparisonTransparencyLinks": { __esModule: true, default: () => React.createElement("a", { href: "/how-we-compare" }, "Method") },
+    "../components/StatusBadge": { __esModule: true, default: ({ children }) => React.createElement("span", null, children) },
+    "../components/SupplementScoutIcon": { __esModule: true, default: () => React.createElement("span", { "aria-hidden": "true" }) },
+    "../lib/comparisonProductLinks": comparisonProductLinks,
+    "../lib/comparisonSelector": comparisonSelector,
+    "../lib/offerFreshness": offerFreshness,
+    "../lib/productComparisonMetrics": productComparisonMetrics,
+    "../lib/productOfferPresentation": productOfferPresentation,
+    "../lib/twoProductComparison": { ...comparison, getTwoProductComparison: async () => result },
+  });
+}
 
 function loadComparison(overrides = {}) {
   return compileModule(comparisonPath, {
@@ -133,6 +167,163 @@ function product(id, offers = [offer(id * 10)], overrides = {}) {
     ...overrides,
   };
 }
+
+const selectorOptions = [
+  {
+    id: "1",
+    brand: "PER4M",
+    name: "Advanced Whey Protein",
+    exactVariantLabel: "Tiramisu / 1,816g",
+    exactPackLabel: "1,816g",
+  },
+  {
+    id: "2",
+    brand: "Example Nutrition",
+    name: "Clear Protein",
+    exactVariantLabel: "Lemon / 500g",
+    exactPackLabel: "500g",
+  },
+  {
+    id: "3",
+    brand: "Another Brand",
+    name: "Daily Creatine",
+    exactVariantLabel: "Unflavoured / 300g",
+    exactPackLabel: "300g",
+  },
+];
+
+test("searchable selector filters by brand with trimmed case-insensitive matching", () => {
+  assert.deepEqual(
+    comparisonSelector.filterComparisonSelectorOptions(selectorOptions, "  per4M  ").map((row) => row.id),
+    ["1"]
+  );
+});
+
+test("searchable selector filters by product name", () => {
+  assert.deepEqual(
+    comparisonSelector.filterComparisonSelectorOptions(selectorOptions, "clear protein").map((row) => row.id),
+    ["2"]
+  );
+});
+
+test("searchable selector filters by exact variant and pack labels", () => {
+  assert.deepEqual(
+    comparisonSelector.filterComparisonSelectorOptions(selectorOptions, "tiramisu").map((row) => row.id),
+    ["1"]
+  );
+  assert.deepEqual(
+    comparisonSelector.filterComparisonSelectorOptions(selectorOptions, "1,816g").map((row) => row.id),
+    ["1"]
+  );
+});
+
+test("searchable selector reports no matches and keeps the left/right URL contract", () => {
+  assert.deepEqual(
+    comparisonSelector.filterComparisonSelectorOptions(selectorOptions, "missing flavour"),
+    []
+  );
+  assert.equal(
+    comparisonSelector.comparisonSelectorStatus("missing flavour", 0, 0),
+    "No products match your search."
+  );
+  assert.equal(comparisonSelector.comparisonHref("12", "34"), "/compare?left=12&right=34");
+  assert.equal(comparisonSelector.comparisonHref(null, "34"), "/compare?right=34");
+});
+
+test("searchable selector keeps the current selection clear and results keyboard reachable", () => {
+  const selector = compileModule(
+    path.join(root, "app/components/SearchableComparisonSelectors.tsx"),
+    {
+      react: React,
+      "next/link": { __esModule: true, default: Link },
+      "../lib/comparisonSelector": comparisonSelector,
+    }
+  );
+  const currentHtml = renderToStaticMarkup(React.createElement(
+    selector.SearchableComparisonSelector,
+    {
+      slot: "left",
+      label: "Product A",
+      options: selectorOptions,
+      leftId: "1",
+      rightId: "2",
+    }
+  ));
+  assert.match(currentHtml, /Current Product A selection/);
+  assert.match(currentHtml, /PER4M/);
+  assert.match(currentHtml, /Tiramisu/);
+  assert.match(currentHtml, /Change Product A/);
+  assert.match(currentHtml, /href="\/compare\?right=2"/);
+
+  const searchStateReact = {
+    ...React,
+    useState: (initial) => [typeof initial === "string" ? "creatine" : initial, () => {}],
+  };
+  const searchingSelector = compileModule(
+    path.join(root, "app/components/SearchableComparisonSelectors.tsx"),
+    {
+      react: searchStateReact,
+      "next/link": { __esModule: true, default: Link },
+      "../lib/comparisonSelector": comparisonSelector,
+    }
+  );
+  const searchHtml = renderToStaticMarkup(React.createElement(
+    searchingSelector.SearchableComparisonSelector,
+    {
+      slot: "right",
+      label: "Product B",
+      options: selectorOptions,
+      leftId: "1",
+      rightId: null,
+    }
+  ));
+  assert.match(searchHtml, /<input[^>]+aria-controls=/);
+  assert.match(searchHtml, /href="\/compare\?left=1&amp;right=3"/);
+  assert.match(searchHtml, /Select Product B: Another Brand - Daily Creatine/);
+
+  const noMatchReact = {
+    ...React,
+    useState: (initial) => [typeof initial === "string" ? "not in catalogue" : initial, () => {}],
+  };
+  const noMatchSelector = compileModule(
+    path.join(root, "app/components/SearchableComparisonSelectors.tsx"),
+    {
+      react: noMatchReact,
+      "next/link": { __esModule: true, default: Link },
+      "../lib/comparisonSelector": comparisonSelector,
+    }
+  );
+  const noMatchHtml = renderToStaticMarkup(React.createElement(
+    noMatchSelector.SearchableComparisonSelector,
+    {
+      slot: "right",
+      label: "Product B",
+      options: selectorOptions,
+      leftId: "1",
+      rightId: null,
+    }
+  ));
+  assert.match(noMatchHtml, /No products match your search/);
+});
+
+test("comparison product links preserve exact variants, offers anchors and safe fallback", () => {
+  assert.equal(
+    comparisonProductLinks.comparisonProductHref("/product/example", "204"),
+    "/product/example?variant=204"
+  );
+  assert.equal(
+    comparisonProductLinks.comparisonProductHref("/product/example", "204", "retailer-offers"),
+    "/product/example?variant=204#retailer-offers"
+  );
+  assert.equal(
+    comparisonProductLinks.comparisonProductHref("/product/example", null),
+    "/product/example"
+  );
+  assert.equal(
+    comparisonProductLinks.comparisonProductHref("/product/example", null, "retailer-offers"),
+    "/product/example#retailer-offers"
+  );
+});
 
 test("exact pack identity never assumes one pack or falls back to product fields", () => {
   const comparison = loadComparison();
@@ -377,7 +568,7 @@ test("search and product pages expose secondary compare entry points without byp
     assert.match(source, /query:\s*\{\s*left:/);
     assert.match(source, />\s*Compare\s*</);
   }
-  assert.match(comparePage, /#retailer-offers/);
+  assert.match(comparePage, /comparisonProductHref/);
   assert.doesNotMatch(comparePage, /href=\{row\.bestOffer\.url\}/);
   assert.match(comparePage, /overflow-x-clip/);
   assert.match(comparePage, /grid-cols-2/);
@@ -415,21 +606,7 @@ test("live-verified base is indexable while parameters stay noindex and no winne
   const comparison = loadComparison();
   const normalized = comparison.normalizeTwoProductComparison([product(1), product(2)], { now: NOW });
   const result = { ...normalized, error: false };
-  const Link = ({ href, children, ...props }) => React.createElement("a", { href, ...props }, children);
-  const page = compileModule(path.join(root, "app/compare/page.tsx"), {
-    next: {},
-    "next/link": { __esModule: true, default: Link },
-    "../components/CategoryViewAnalytics": { __esModule: true, default: () => null },
-    "../components/ComparisonCompletionAnalytics": { __esModule: true, default: () => null },
-    "../components/ComparisonProductVisuals": require("./test-helpers/comparison-product-visuals"),
-    "../components/ComparisonTransparencyLinks": { __esModule: true, default: () => React.createElement("a", { href: "/how-we-compare" }, "Method") },
-    "../components/StatusBadge": { __esModule: true, default: ({ children }) => React.createElement("span", null, children) },
-    "../components/SupplementScoutIcon": { __esModule: true, default: () => React.createElement("span", { "aria-hidden": "true" }) },
-    "../lib/offerFreshness": offerFreshness,
-    "../lib/productComparisonMetrics": productComparisonMetrics,
-    "../lib/productOfferPresentation": productOfferPresentation,
-    "../lib/twoProductComparison": { ...comparison, getTwoProductComparison: async () => result },
-  });
+  const page = loadComparisonPage(comparison, result);
   const baseMetadata = await page.generateMetadata();
   assert.deepEqual(baseMetadata.robots, { index: true, follow: true });
   assert.equal(baseMetadata.alternates.canonical, "/compare");
@@ -443,6 +620,38 @@ test("live-verified base is indexable while parameters stay noindex and no winne
   assert.match(html, /Selected variant: 500g/);
   assert.match(html, /Total delivered price/);
   assert.match(html, /not an overall score or a quality recommendation/i);
+  assert.equal(
+    (html.match(/href="\/product\/product-1\?variant=2010"/g) || []).length,
+    2,
+    "product image and name preserve the exact variant"
+  );
+  assert.match(html, /href="\/product\/product-1\?variant=2010#retailer-offers"/);
+  assert.equal((html.match(/No clear measurable advantage/g) || []).length, 2);
+  assert.doesNotMatch(html, /Choose Product [AB] if your priority is/);
   assert.doesNotMatch(html, /is the winner|best product|recommended product/i);
   assert.deepEqual(page.buildTwoProductComparisonStructuredData()["@graph"].map((node) => node["@type"]), ["WebPage", "BreadcrumbList"]);
+});
+
+test("comparison links fall back without a variant and verdict reasons retain Choose Product copy", () => {
+  const comparison = loadComparison();
+  const normalized = comparison.normalizeTwoProductComparison([
+    product(1, [offer(10, { price: 15, shipping_cost: 3 })]),
+    product(2, [offer(20, { price: 25, shipping_cost: 4 })]),
+  ], { now: NOW });
+  normalized.rows[0] = { ...normalized.rows[0], exactVariantId: null };
+  const result = { ...normalized, error: false };
+  const page = loadComparisonPage(comparison, result);
+  const html = renderToStaticMarkup(React.createElement(page.TwoProductComparisonPageContent, {
+    result,
+    params: { left: "1", right: "2" },
+  }));
+
+  assert.equal(
+    (html.match(/href="\/product\/product-1"/g) || []).length,
+    2,
+    "product image and name use the product URL fallback"
+  );
+  assert.match(html, /href="\/product\/product-1#retailer-offers"/);
+  assert.match(html, /Choose Product A if your priority is/);
+  assert.match(html, /No clear measurable advantage/);
 });

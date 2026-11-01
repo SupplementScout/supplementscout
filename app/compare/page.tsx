@@ -6,6 +6,7 @@ import {
   ComparisonProductHeroImage,
   OfferCheckedBadge,
 } from "../components/ComparisonProductVisuals";
+import SearchableComparisonSelectors from "../components/SearchableComparisonSelectors";
 import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLinks";
 import StatusBadge from "../components/StatusBadge";
 import SupplementScoutIcon from "../components/SupplementScoutIcon";
@@ -16,6 +17,12 @@ import {
 } from "../lib/indexabilityLifecycle";
 import { createLifecycleDataLoader } from "../lib/lifecycleDataCache";
 import { OFFER_PRESENTATION_LABELS } from "../lib/offerFreshness";
+import { comparisonProductHref } from "../lib/comparisonProductLinks";
+import {
+  COMPARISON_PATH,
+  comparisonHref,
+  sortComparisonSelectorOptions,
+} from "../lib/comparisonSelector";
 import { buildBestOfferPricePresentation } from "../lib/productOfferPresentation";
 import {
   buildProductComparisonMetrics,
@@ -34,7 +41,7 @@ import {
 } from "../lib/twoProductComparison";
 
 const siteUrl = "https://www.supplementscout.co.uk";
-const pagePath = "/compare";
+const pagePath = COMPARISON_PATH;
 const pageUrl = `${siteUrl}${pagePath}`;
 const description =
   "Compare two supplement products side by side using recently checked UK prices, exact pack identity and verified nutrition metrics.";
@@ -101,52 +108,6 @@ export function buildTwoProductComparisonStructuredData() {
   };
 }
 
-function comparisonHref(leftId: string | null, rightId: string | null = null) {
-  const params = new URLSearchParams();
-  if (leftId) params.set("left", leftId);
-  if (rightId) params.set("right", rightId);
-  const query = params.toString();
-  return query ? `${pagePath}?${query}` : pagePath;
-}
-
-function ProductSelector({
-  name,
-  label,
-  rows,
-  selectedId,
-}: {
-  name: "left" | "right";
-  label: string;
-  rows: TwoProductComparisonRow[];
-  selectedId: string | null;
-}) {
-  const options = [...rows].sort(
-    (left, right) =>
-      (left.brand || "").localeCompare(right.brand || "") ||
-      left.name.localeCompare(right.name) ||
-      (left.exactPackLabel || "").localeCompare(right.exactPackLabel || "")
-  );
-  return (
-    <label className="block min-w-0">
-      <span className="text-sm font-bold text-[var(--ss-ink)]">{label}</span>
-      <select
-        name={name}
-        defaultValue={selectedId || ""}
-        className="mt-2 min-h-12 w-full min-w-0 rounded-xl border border-[var(--ss-border-strong)] bg-white px-3 py-3 text-sm text-zinc-950 focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
-      >
-        <option value="">Choose a product</option>
-        {options.map((row) => (
-          <option key={row.id} value={row.id}>
-            {[row.brand, row.name, row.exactVariantLabel]
-              .filter(Boolean)
-              .join(" - ")}
-          </option>
-        ))}
-      </select>
-    </label>
-  );
-}
-
 function SelectionMessage({
   state,
   selectedCount,
@@ -179,6 +140,12 @@ function ComparisonIdentityCard({
   row: TwoProductComparisonRow;
   productLabel: "Product A" | "Product B";
 }) {
+  const productHref = comparisonProductHref(row.productUrl, row.exactVariantId);
+  const offersHref = comparisonProductHref(
+    row.productUrl,
+    row.exactVariantId,
+    "retailer-offers"
+  );
   const deliveryComparisonComplete =
     row.offers.length > 0 &&
     row.offers.every((offer) => offer.deliveredPrice !== null);
@@ -200,13 +167,13 @@ function ComparisonIdentityCard({
         <ComparisonProductHeroImage
           image={row.image}
           name={row.name}
-          productUrl={row.productUrl}
+          productUrl={productHref}
         />
       </div>
       <p className="mt-4 break-words text-[11px] font-bold uppercase tracking-[0.12em] text-zinc-500 sm:text-xs">
         {row.brand || "Brand not stated"}
       </p>
-      <Link href={row.productUrl} className="block min-w-0">
+      <Link href={productHref} className="block min-w-0">
         <h2 className="mt-1.5 break-words text-base font-bold leading-snug text-[var(--ss-ink)] hover:underline sm:text-xl">
           {row.name}
         </h2>
@@ -253,7 +220,7 @@ function ComparisonIdentityCard({
       </div>
 
       <Link
-        href={`${row.productUrl}#retailer-offers`}
+        href={offersHref}
         className="mt-auto flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-[var(--ss-border-strong)] px-3 py-2.5 text-center text-sm font-semibold text-[var(--ss-ink)] hover:bg-[var(--ss-surface-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
       >
         View offers
@@ -400,8 +367,20 @@ function QuickVerdict({
         These are factual differences from the rows below, not an overall score or a quality recommendation.
       </p>
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        <VerdictCard label="Choose Product A if your priority is" name={left.name} reasons={verdict.left} />
-        <VerdictCard label="Choose Product B if your priority is" name={right.name} reasons={verdict.right} />
+        <VerdictCard
+          label={verdict.left.length > 0
+            ? "Choose Product A if your priority is"
+            : "No clear measurable advantage"}
+          name={left.name}
+          reasons={verdict.left}
+        />
+        <VerdictCard
+          label={verdict.right.length > 0
+            ? "Choose Product B if your priority is"
+            : "No clear measurable advantage"}
+          name={right.name}
+          reasons={verdict.right}
+        />
       </div>
     </section>
   );
@@ -429,6 +408,15 @@ export function TwoProductComparisonPageContent({
     (row) =>
       (row.bestOffer !== null && row.exactVariantLabel !== null) ||
       selectedIds.has(row.id)
+  );
+  const selectorOptions = sortComparisonSelectorOptions(
+    selectableRows.map((row) => ({
+      id: row.id,
+      brand: row.brand,
+      name: row.name,
+      exactVariantLabel: row.exactVariantLabel,
+      exactPackLabel: row.exactPackLabel,
+    }))
   );
   const metrics = selection.state === "ready" && selection.left && selection.right
     ? buildProductComparisonMetrics(selection.left, selection.right, priceHistory)
@@ -470,10 +458,8 @@ export function TwoProductComparisonPageContent({
           </p>
         </div>
 
-        <form
+        <section
           id="comparison-selection"
-          action={pagePath}
-          method="get"
           className="ss-card mt-8 scroll-mt-4 p-5 sm:p-6"
         >
           <div className="flex flex-col gap-2 border-b border-[var(--ss-border)] pb-4 sm:flex-row sm:items-center sm:justify-between">
@@ -487,18 +473,14 @@ export function TwoProductComparisonPageContent({
               {selectableRows.length} current exact variants available
             </p>
           </div>
-          <div className="mt-5 grid min-w-0 gap-5 md:grid-cols-2">
-            <ProductSelector name="left" label="Product A" rows={selectableRows} selectedId={leftId} />
-            <ProductSelector name="right" label="Product B" rows={selectableRows} selectedId={rightId} />
+          <div className="mt-5">
+            <SearchableComparisonSelectors
+              options={selectorOptions}
+              leftId={leftId}
+              rightId={rightId}
+            />
           </div>
           <div className="mt-5 flex flex-wrap items-center gap-3">
-            <button
-              type="submit"
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--ss-ink)] px-5 py-3 font-semibold text-white hover:bg-[var(--ss-accent-strong)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
-            >
-              Compare products
-              <SupplementScoutIcon name="calculator" size={18} />
-            </button>
             {(leftId || rightId) && (
               <Link
                 href={pagePath}
@@ -519,9 +501,9 @@ export function TwoProductComparisonPageContent({
             )}
           </div>
           <p className="mt-4 text-xs leading-5 text-zinc-500">
-            The URL stores both product IDs, so this comparison is reload-safe and shareable. Change either selector to replace a product.
+            Selecting a search result updates the URL with both product IDs, so this comparison remains reload-safe and shareable.
           </p>
-        </form>
+        </section>
       </section>
 
       <section className="mx-auto max-w-7xl space-y-5 px-4 pb-12 sm:px-6">
