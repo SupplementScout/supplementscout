@@ -159,6 +159,14 @@ export default function ProductResultCard({
             View offers
             <SupplementScoutIcon name="external-link" size={16} />
           </Link>
+          <Link
+            href={{ pathname: "/compare", query: { left: String(product.id) } }}
+            className="mt-2 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-[var(--ss-border-strong)] px-4 py-2.5 text-center text-sm font-semibold text-[var(--ss-ink)] hover:bg-[var(--ss-surface-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
+            aria-label={`Compare ${product.name} with another product`}
+          >
+            Compare
+            <SupplementScoutIcon name="calculator" size={16} />
+          </Link>
         </div>
       </div>
     </article>

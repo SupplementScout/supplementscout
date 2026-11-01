@@ -7,7 +7,9 @@ import {
   getDeliveredPrice,
   getKnownProductPrice,
   getVerifiedCostPer25gProtein,
+  getVerifiedCostPer5gCreatine,
   getVerifiedPricePerKg,
+  getVerifiedPricePerLitre,
   getVerifiedPricePerServing,
   getVerifiedPricePerUnit,
   type DeliveredPrice,
@@ -26,6 +28,7 @@ type EffectiveComparisonNutrition = {
 };
 export type ComparisonNutritionVariant = {
   id?: number | string;
+  product_id?: number | string;
   display_name?: string | null;
   flavour_label?: string | null;
   pack_count?: NutritionScalar;
@@ -73,6 +76,7 @@ export type RawCategoryComparisonProduct = {
   serving_count_verified: number | string | null;
   serving_size_g?: number | string | null;
   protein_per_serving_g?: number | string | null;
+  creatine_per_serving_g?: number | string | null;
   unit_pricing_verified?: boolean | null;
   nutrition_verified?: boolean | null;
   is_active: boolean | null;
@@ -107,6 +111,7 @@ export type CategoryComparisonRow = {
   verifiedServingCount: number | null;
   servingSizeG: number | null;
   proteinPerServingG: number | null;
+  creatinePerServingG: number | null;
   nutritionVerified: boolean;
   unitPricingVerified: boolean;
   offers: CategoryComparisonOffer[];
@@ -118,12 +123,14 @@ export type CategoryComparisonRow = {
   lastCheckedAt: string | null;
   presentationState: OfferPresentationState;
   pricePerKg: number | null;
+  pricePerLitre: number | null;
   pricePerServing: number | null;
   pricePerUnit: {
     price: number;
     unitType: "capsule" | "tablet";
   } | null;
   costPer25gProtein: number | null;
+  costPer5gCreatine: number | null;
 };
 
 export type CategoryComparisonSummary = {
@@ -331,7 +338,7 @@ export function normalizeCategoryComparison(
         serving_count_verified: product.serving_count_verified,
         serving_size_g: product.serving_size_g ?? null,
         protein_per_serving_g: product.protein_per_serving_g ?? null,
-        creatine_per_serving_g: null,
+        creatine_per_serving_g: product.creatine_per_serving_g ?? null,
         product_format: product.product_format ?? null,
         unit_pricing_verified: product.unit_pricing_verified ?? null,
         nutrition_verified: product.nutrition_verified ?? null,
@@ -360,6 +367,9 @@ export function normalizeCategoryComparison(
       const proteinPerServingG = positiveNumber(
         effectiveMetrics.protein_per_serving_g
       );
+      const creatinePerServingG = positiveNumber(
+        effectiveMetrics.creatine_per_serving_g
+      );
       const productFormat = effectiveMetrics.product_format || null;
       const unitPricingVerified = effectiveMetrics.unit_pricing_verified === true;
       const nutritionVerified = effectiveMetrics.nutrition_verified === true;
@@ -379,6 +389,7 @@ export function normalizeCategoryComparison(
         verifiedServingCount,
         servingSizeG,
         proteinPerServingG,
+        creatinePerServingG,
         nutritionVerified,
         unitPricingVerified,
         offers,
@@ -392,6 +403,12 @@ export function normalizeCategoryComparison(
         pricePerKg: getVerifiedPricePerKg(
           bestOffer?.deliveredPrice || null,
           netWeightG,
+          productFormat,
+          unitPricingVerified
+        ),
+        pricePerLitre: getVerifiedPricePerLitre(
+          bestOffer?.deliveredPrice || null,
+          product.net_volume_ml,
           productFormat,
           unitPricingVerified
         ),
@@ -409,6 +426,16 @@ export function normalizeCategoryComparison(
           bestOffer?.deliveredPrice || null,
           verifiedServingCount,
           proteinPerServingG,
+          unitPricingVerified,
+          nutritionVerified,
+          netWeightG,
+          servingSizeG,
+          productFormat
+        ),
+        costPer5gCreatine: getVerifiedCostPer5gCreatine(
+          bestOffer?.deliveredPrice || null,
+          verifiedServingCount,
+          creatinePerServingG,
           unitPricingVerified,
           nutritionVerified,
           netWeightG,

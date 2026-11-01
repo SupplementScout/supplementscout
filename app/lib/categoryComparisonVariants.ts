@@ -34,6 +34,7 @@ export async function resolveCategoryComparisonVariants<
       id,
       product_variant:product_variants!retailer_products_variant_product_fkey (
         id,
+        product_id,
         display_name,
         flavour_label,
         pack_count,
