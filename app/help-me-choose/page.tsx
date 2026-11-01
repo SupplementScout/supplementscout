@@ -23,6 +23,10 @@ import {
 import { formatCurrency } from "../lib/pricing";
 import { normalizeSearchFilters, normalizeSearchQuery } from "../lib/products";
 import {
+  decisionSearchHref,
+  shouldShowDecisionSearchLink,
+} from "../lib/decisionSearch";
+import {
   buildSearchIntentPlan,
   normalizeSearchIntentUrlState,
   searchIntentParamsFromPlan,
@@ -512,6 +516,23 @@ export default async function HelpMeChoosePage({ searchParams }: PageProps) {
                   />
                 ))}
               </div>
+
+              {shouldShowDecisionSearchLink(result) && (
+                <div className="mt-6 flex justify-center">
+                  <Link
+                    href={decisionSearchHref({
+                      plan,
+                      priority: resultPriority,
+                      category: result.interpretedRequest.categoryContext,
+                    })}
+                    data-decision-view-all-matches
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[var(--ss-accent)] bg-white px-5 py-3 text-center text-sm font-semibold text-[var(--ss-accent)] hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
+                  >
+                    <span>View all matching products</span>
+                    <span aria-hidden="true">&rarr;</span>
+                  </Link>
+                </div>
+              )}
 
               {result.ineligible.length > 0 && (
                 <p className="mt-5 text-sm leading-6 text-zinc-600">

@@ -47,6 +47,13 @@ const engine = compileModule(enginePath, {
     },
   },
 });
+const decisionSearch = compileModule(
+  path.join(ROOT, "app/lib/decisionSearch.ts"),
+  {
+    "./decisionEngine": engine,
+    "./searchIntent": searchIntent,
+  }
+);
 const NOW = new Date("2026-11-01T12:00:00.000Z");
 
 function offer(overrides = {}) {
@@ -411,6 +418,161 @@ test("serialized caffeine-free priority selection rebuilds the same DecisionRequ
   assert.equal(reloadedRequest.intentPlan.filters.caffeineFree, true);
   assert.equal(reloadedRequest.primaryPriority, "LOWEST_DELIVERED_PRICE");
   assert.equal(reloadedRequest.primaryPrioritySource, "url");
+});
+
+test("decision search href uses the effective plan and existing priority sort", () => {
+  const plan = searchIntent.buildSearchIntentPlan("caffeine free pre workout");
+  const url = new URL(
+    decisionSearch.decisionSearchHref({
+      plan,
+      priority: "LOWEST_DELIVERED_PRICE",
+    }),
+    "https://www.supplementscout.co.uk"
+  );
+
+  assert.equal(url.pathname, "/search");
+  assert.equal(url.searchParams.get("q"), "pre workout");
+  assert.equal(url.searchParams.get("caffeine"), "free");
+  assert.equal(url.searchParams.get("sort"), "price_asc");
+});
+
+test("decision search href preserves caffeine-free for cost-per-serving exploration", () => {
+  const plan = searchIntent.buildSearchIntentPlan("caffeine free pre workout");
+  const url = new URL(
+    decisionSearch.decisionSearchHref({
+      plan,
+      priority: "LOWEST_PRICE_PER_SERVING",
+    }),
+    "https://www.supplementscout.co.uk"
+  );
+
+  assert.equal(url.searchParams.get("caffeine"), "free");
+  assert.equal(url.searchParams.get("sort"), "price_per_serving_asc");
+});
+
+test("decision search href preserves canonical budget and servings constraints", () => {
+  const plan = searchIntent.buildSearchIntentPlan(
+    "creatine under £20 with at least 100 servings"
+  );
+  const url = new URL(
+    decisionSearch.decisionSearchHref({
+      plan,
+      priority: "LOWEST_COST_PER_5G_CREATINE",
+    }),
+    "https://www.supplementscout.co.uk"
+  );
+
+  assert.equal(url.searchParams.get("q"), "creatine under £20");
+  assert.equal(url.searchParams.get("servings_min"), "100");
+  assert.equal(url.searchParams.get("sort"), "cost_per_5g_creatine_asc");
+});
+
+test("decision search href preserves protein minimum and whey identity", () => {
+  const plan = searchIntent.buildSearchIntentPlan(
+    "whey with at least 25g protein and lowest price per serving"
+  );
+  const url = new URL(
+    decisionSearch.decisionSearchHref({
+      plan,
+      priority: "LOWEST_PRICE_PER_SERVING",
+    }),
+    "https://www.supplementscout.co.uk"
+  );
+
+  assert.equal(url.searchParams.get("q"), "whey");
+  assert.equal(url.searchParams.get("protein_min_g"), "25");
+  assert.equal(url.searchParams.get("sort"), "price_per_serving_asc");
+});
+
+test("decision search href preserves caffeine maximum and ingredient", () => {
+  const plan = searchIntent.buildSearchIntentPlan(
+    "pre workout under 200mg caffeine with citrulline"
+  );
+  const url = new URL(
+    decisionSearch.decisionSearchHref({
+      plan,
+      priority: "LOWEST_DELIVERED_PRICE",
+    }),
+    "https://www.supplementscout.co.uk"
+  );
+
+  assert.equal(url.searchParams.get("q"), "pre workout");
+  assert.equal(url.searchParams.get("caffeine_max_mg"), "200");
+  assert.deepEqual(url.searchParams.getAll("ingredient"), ["citrulline"]);
+  assert.equal(url.searchParams.get("sort"), "price_asc");
+});
+
+test("decision search href preserves format and non-empty category context", () => {
+  const plan = searchIntent.buildSearchIntentPlan("magnesium capsules");
+  const url = new URL(
+    decisionSearch.decisionSearchHref({
+      plan,
+      priority: "LOWEST_DELIVERED_PRICE",
+      category: "  Minerals  ",
+    }),
+    "https://www.supplementscout.co.uk"
+  );
+
+  assert.equal(url.searchParams.get("q"), "magnesium");
+  assert.equal(url.searchParams.get("format"), "capsule");
+  assert.equal(url.searchParams.get("category"), "Minerals");
+  assert.equal(
+    new URL(
+      decisionSearch.decisionSearchHref({
+        plan,
+        priority: "LOWEST_DELIVERED_PRICE",
+        category: "  ",
+      }),
+      "https://www.supplementscout.co.uk"
+    ).searchParams.has("category"),
+    false
+  );
+});
+
+test("every decision priority reuses its existing Search sort", () => {
+  const plan = searchIntent.buildSearchIntentPlan("creatine");
+  for (const [priority, definition] of Object.entries(
+    engine.DECISION_PRIORITY_DEFINITIONS
+  )) {
+    const url = new URL(
+      decisionSearch.decisionSearchHref({ plan, priority }),
+      "https://www.supplementscout.co.uk"
+    );
+    assert.equal(url.searchParams.get("sort"), definition.sort);
+  }
+});
+
+test("decision search CTA is shown only when an answered shortlist omits candidates", () => {
+  const result = (status, shortlistLength, candidateCount) => ({
+    status,
+    shortlist: Array.from({ length: shortlistLength }, (_, index) => ({
+      productId: String(index + 1),
+    })),
+    candidateCount,
+  });
+
+  assert.equal(
+    decisionSearch.shouldShowDecisionSearchLink(result("ANSWERED", 3, 4)),
+    true
+  );
+  for (const count of [1, 2, 3]) {
+    assert.equal(
+      decisionSearch.shouldShowDecisionSearchLink(
+        result("ANSWERED", count, count)
+      ),
+      false
+    );
+  }
+  for (const status of [
+    "DATA_GAP",
+    "SAFETY_BOUNDARY",
+    "NEEDS_CLARIFICATION",
+  ]) {
+    assert.equal(
+      decisionSearch.shouldShowDecisionSearchLink(result(status, 3, 10)),
+      false
+    );
+  }
 });
 
 test("request F is a DATA_GAP and request G is a SAFETY_BOUNDARY without search", async () => {

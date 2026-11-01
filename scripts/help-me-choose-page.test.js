@@ -17,6 +17,10 @@ const analyticsComponent = fs.readFileSync(
   path.join(ROOT, "app/components/DecisionAnalytics.tsx"),
   "utf8"
 );
+const decisionSearch = fs.readFileSync(
+  path.join(ROOT, "app/lib/decisionSearch.ts"),
+  "utf8"
+);
 
 test("homepage exposes one secondary Help me choose entry", () => {
   assert.match(homepage, /href="\/help-me-choose"/);
@@ -49,6 +53,32 @@ test("result links preserve exact variants and do not expose an unsafe compare C
   assert.doesNotMatch(page, /Compare this pick|Compare picks/);
 });
 
+test("answered shortlists expose one bounded secondary Search escape hatch", () => {
+  assert.match(page, /shouldShowDecisionSearchLink\(result\)/);
+  assert.match(page, /decisionSearchHref\(\{/);
+  assert.match(page, /data-decision-view-all-matches/);
+  assert.match(page, />\s*View all matching products\s*</);
+  assert.equal((page.match(/View all matching products/g) || []).length, 1);
+  assert.doesNotMatch(page, /Load more|View all \{result\.|matching products\}/);
+});
+
+test("full Search escape hatch reuses effective intent and priority definitions", () => {
+  assert.match(decisionSearch, /searchIntentParamsFromPlan\(options\.plan\)/);
+  assert.match(
+    decisionSearch,
+    /DECISION_PRIORITY_DEFINITIONS\[options\.priority\]\.sort/
+  );
+  assert.match(decisionSearch, /result\.status === "ANSWERED"/);
+  assert.match(
+    decisionSearch,
+    /result\.candidateCount > result\.shortlist\.length/
+  );
+  assert.doesNotMatch(
+    decisionSearch,
+    /LOWEST_DELIVERED_PRICE\s*:|LOWEST_PRICE_PER_SERVING\s*:/
+  );
+});
+
 test("bounded analytics never send raw query, health phrases or local storage", () => {
   for (const event of [
     "help_me_choose_started",
@@ -60,6 +90,7 @@ test("bounded analytics never send raw query, health phrases or local storage", 
     assert.match(analytics, new RegExp(event));
   }
   assert.doesNotMatch(analyticsComponent, /raw_query|query_text|search_term|health_phrase|localStorage|my_supplements/i);
+  assert.doesNotMatch(page, /decision_view_all_clicked|localStorage/);
 });
 
 test("UI is semantic, mobile-first and contains no score or chat treatment", () => {
