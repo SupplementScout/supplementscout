@@ -1,6 +1,11 @@
 "use client";
 
 import type { CategoryDecisionReasonType } from "./categoryDecision";
+import type {
+  DecisionPriority,
+  DecisionReasonType,
+  DecisionStatus,
+} from "./decisionEngine";
 export type { CategoryDecisionReasonType } from "./categoryDecision";
 
 export type AnalyticsEventMap = {
@@ -35,6 +40,28 @@ export type AnalyticsEventMap = {
     left_product_id: string;
     right_product_id: string;
     source_page: "two_product_comparison";
+  };
+  help_me_choose_started: {
+    entry_point: "help_me_choose";
+  };
+  decision_priority_selected: {
+    priority: DecisionPriority;
+  };
+  decision_results_viewed: {
+    status: Extract<DecisionStatus, "ANSWERED">;
+    priority: DecisionPriority;
+    result_count: number;
+    reason_type: DecisionReasonType;
+  };
+  decision_product_opened: {
+    product_id: string;
+    variant_id: string;
+    priority: DecisionPriority;
+    position: number;
+  };
+  decision_clarification_shown: {
+    status: Extract<DecisionStatus, "NEEDS_CLARIFICATION">;
+    choice_count: number;
   };
   category_filter_used: {
     category: string;
@@ -152,6 +179,11 @@ export const ANALYTICS_EVENT_PARAMETER_KEYS = {
   select_category_decision_answer: ["category", "product_id", "reason_type", "position"],
   add_product_to_comparison: ["product_id", "category", "source_page", "position"],
   complete_two_product_comparison: ["left_product_id", "right_product_id", "source_page"],
+  help_me_choose_started: ["entry_point"],
+  decision_priority_selected: ["priority"],
+  decision_results_viewed: ["status", "priority", "result_count", "reason_type"],
+  decision_product_opened: ["product_id", "variant_id", "priority", "position"],
+  decision_clarification_shown: ["status", "choice_count"],
   category_filter_used: ["category", "filter_name", "filter_action"],
   category_sort_used: ["category", "sort_option"],
   search: ["result_count", "has_filters", "search_context"],

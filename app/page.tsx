@@ -142,6 +142,16 @@ export default async function Home() {
 
         <SearchInput />
 
+        <div className="mt-4 flex justify-center">
+          <Link
+            href="/help-me-choose"
+            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[var(--ss-border-strong)] bg-white px-5 py-2.5 text-sm font-semibold text-[var(--ss-ink)] shadow-sm transition-colors hover:border-[var(--ss-accent)] hover:text-[var(--ss-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
+          >
+            <SupplementScoutIcon name="calculator" size={18} />
+            Help me choose
+          </Link>
+        </div>
+
         <div className="mx-auto mt-5 grid max-w-3xl grid-cols-2 gap-2 text-left sm:grid-cols-4 sm:gap-3">
           {comparisonHighlights.map((item) => (
             <div
