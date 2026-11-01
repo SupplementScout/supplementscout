@@ -1,5 +1,9 @@
 import { formatCurrency } from "./pricing";
 import type { ProductSearchResult } from "./products";
+import type {
+  SearchIntentFilters,
+  SearchValueMetric as SearchIntentValueMetric,
+} from "./searchIntent";
 
 type SearchValueInput = Pick<
   ProductSearchResult,
@@ -25,8 +29,29 @@ function metric(label: string, value: number | null, suffix: string) {
 }
 
 export function primarySearchValueMetric(
-  product: SearchValueInput
+  product: SearchValueInput,
+  preferredMetric?: SearchIntentValueMetric
 ): SearchValueMetric | null {
+  if (preferredMetric === "price_per_serving") {
+    return metric("Per serving", product.verifiedPricePerServing, "per serving");
+  }
+
+  if (preferredMetric === "cost_per_25g_protein") {
+    return metric(
+      "Protein value",
+      product.verifiedCostPer25gProtein,
+      "per 25 g protein"
+    );
+  }
+
+  if (preferredMetric === "cost_per_5g_creatine") {
+    return metric(
+      "Creatine value",
+      product.verifiedCostPer5gCreatine,
+      "per 5 g creatine"
+    );
+  }
+
   return (
     metric(
       "Protein value",
@@ -42,6 +67,48 @@ export function primarySearchValueMetric(
     metric("Weight value", product.verifiedPricePerKg, "per kg") ||
     metric("Volume value", product.verifiedPricePerLitre, "per litre")
   );
+}
+
+export function searchResultIntentEvidence(
+  product: SearchValueInput & Pick<
+    ProductSearchResult,
+    "serving_count_verified" | "protein_per_serving_g" | "nutrition_verified"
+  >,
+  intentFilters?: Pick<
+    SearchIntentFilters,
+    "minVerifiedServings" | "minProteinPerServingG"
+  >,
+  preferredMetric?: SearchIntentValueMetric
+): SearchValueMetric | null {
+  const protein = positiveNumber(product.protein_per_serving_g);
+  if (
+    intentFilters?.minProteinPerServingG !== null &&
+    intentFilters?.minProteinPerServingG !== undefined &&
+    product.nutrition_verified === true &&
+    protein !== null &&
+    protein >= intentFilters.minProteinPerServingG
+  ) {
+    return {
+      label: "Protein per serving",
+      value: `${compactNumber(protein)} g protein per serving`,
+    };
+  }
+
+  const servings = positiveNumber(product.serving_count_verified);
+  if (
+    intentFilters?.minVerifiedServings !== null &&
+    intentFilters?.minVerifiedServings !== undefined &&
+    servings !== null &&
+    Number.isInteger(servings) &&
+    servings >= intentFilters.minVerifiedServings
+  ) {
+    return {
+      label: "Verified servings",
+      value: `${compactNumber(servings)} verified servings`,
+    };
+  }
+
+  return primarySearchValueMetric(product, preferredMetric);
 }
 
 function positiveNumber(value: number | string | null) {

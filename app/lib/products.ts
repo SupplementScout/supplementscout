@@ -19,13 +19,20 @@ import {
 } from "./offerFreshness";
 import { loadAppliedPreWorkoutFacts } from "./reviewedPreWorkoutFacts.server";
 import type { AppliedPreWorkoutFacts } from "./reviewedPreWorkoutFacts";
+import {
+  buildSearchIntentPlan,
+  canonicalIntentQuery,
+  hasStructuredSearchIntent,
+  intentUrlStateFromPlan,
+  type IntentSearchSort,
+  type ReviewedSearchIngredient,
+  type SearchIntentFilters,
+  type SearchIntentPlan,
+} from "./searchIntent";
 import { supabase } from "./supabase";
 
-export type SearchSort =
-  | "relevance"
-  | "price_asc"
-  | "price_desc"
-  | "price_per_serving_asc";
+export type SearchSort = IntentSearchSort;
+export { buildSearchIntentPlan as parseSearchIntent };
 
 export const SEARCH_PAGE_SIZE = 24;
 export const SEARCH_RESULT_LOAD_LIMIT = 1000;
@@ -88,11 +95,6 @@ export type SearchMetadata = {
   queryVariants: string[];
   matchStatus: SearchMatchStatus;
   searchMode: SearchMode;
-};
-
-export type SearchIntent = {
-  textQuery: string;
-  maxDeliveredPrice: number | null;
 };
 
 export type SearchSuggestionType = "category" | "brand" | "product";
@@ -359,7 +361,9 @@ export function normalizeSearchSort(
   if (
     sort === "price_asc" ||
     sort === "price_desc" ||
-    sort === "price_per_serving_asc"
+    sort === "price_per_serving_asc" ||
+    sort === "cost_per_25g_protein_asc" ||
+    sort === "cost_per_5g_creatine_asc"
   ) {
     return sort;
   }
@@ -373,42 +377,6 @@ function sanitizeSupabaseOrTerm(query: string) {
 
 function normalizeWhitespace(value: string) {
   return value.trim().replace(/\s+/g, " ");
-}
-
-export function parseSearchIntent(query: string): SearchIntent {
-  const normalizedQuery = normalizeWhitespace(query);
-  const budgetMatch = normalizedQuery.match(
-    /^(.*?)\s+(?:under|below|up\s+to|less\s+than)\s*£?\s*(\d+(?:\.\d{1,2})?)\s*$/i
-  );
-
-  if (!budgetMatch) {
-    return {
-      textQuery: normalizedQuery,
-      maxDeliveredPrice: null,
-    };
-  }
-
-  const maxDeliveredPrice = Number(budgetMatch[2]);
-  const textQuery = normalizeWhitespace(
-    budgetMatch[1].replace(/^(?:best|cheapest)\s+/i, "")
-  );
-
-  if (
-    !textQuery ||
-    !Number.isFinite(maxDeliveredPrice) ||
-    maxDeliveredPrice <= 0 ||
-    maxDeliveredPrice > 1000
-  ) {
-    return {
-      textQuery: normalizedQuery,
-      maxDeliveredPrice: null,
-    };
-  }
-
-  return {
-    textQuery,
-    maxDeliveredPrice,
-  };
 }
 
 const searchQueryCorrections: Array<[RegExp, string]> = [
@@ -702,8 +670,30 @@ function buildSearchFilter(query: string) {
     .join(",");
 }
 
-function searchUrlForSuggestion(query: string) {
-  return `/search?q=${encodeURIComponent(query)}`;
+function searchUrlForSuggestion(query: string, intent?: SearchIntentPlan) {
+  if (!intent || !hasStructuredSearchIntent(intent)) {
+    return `/search?q=${encodeURIComponent(query)}`;
+  }
+
+  const params = new URLSearchParams();
+  const state = intentUrlStateFromPlan(intent);
+  params.set("q", canonicalIntentQuery({ ...intent, textQuery: query }));
+  if (state.servingsMin !== null) {
+    params.set("servings_min", String(state.servingsMin));
+  }
+  if (state.proteinMinG !== null) {
+    params.set("protein_min_g", String(state.proteinMinG));
+  }
+  if (state.caffeineMaxMg !== null) {
+    params.set("caffeine_max_mg", String(state.caffeineMaxMg));
+  }
+  if (state.format !== null) params.set("format", state.format);
+  for (const ingredient of state.ingredients) {
+    params.append("ingredient", ingredient);
+  }
+  if (intent.filters.caffeineFree) params.set("caffeine", "free");
+  if (intent.sort !== "relevance") params.set("sort", intent.sort);
+  return `/search?${params.toString()}`;
 }
 
 function productUrlForSuggestion(slug: string) {
@@ -937,6 +927,24 @@ function scoreProduct(product: RawProduct, query: string) {
   return score;
 }
 
+function hasMeaningfulIdentityMatch(
+  product: Pick<ProductSearchResult, "name" | "brand" | "category">,
+  query: string
+) {
+  const normalizedQuery = normalizeWhitespace(query).toLowerCase();
+  if (!normalizedQuery) return false;
+
+  const name = normalizeWhitespace(product.name).toLowerCase();
+  const brand = normalizeWhitespace(product.brand || "").toLowerCase();
+  const category = normalizeWhitespace(product.category || "").toLowerCase();
+
+  return (
+    name.includes(normalizedQuery) ||
+    brand.includes(normalizedQuery) ||
+    category === normalizedQuery
+  );
+}
+
 function scoreProductForSearch(product: RawProduct, plan: SearchMetadata) {
   if (plan.searchMode !== "goal_mapped_ilike") {
     return scoreProduct(product, plan.originalQuery);
@@ -1012,38 +1020,153 @@ export function countAvailableRetailers(offers: SearchOffer[]) {
   ).size;
 }
 
+const EMPTY_SEARCH_INTENT_FILTERS: SearchIntentFilters = {
+  maxDeliveredPrice: null,
+  minVerifiedServings: null,
+  minProteinPerServingG: null,
+  maxCaffeineMg: null,
+  caffeineFree: false,
+  ingredients: [],
+  format: null,
+};
+
+function positiveMetric(value: number | string | null | undefined) {
+  if (value === null || value === undefined || value === "") return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
+function hasOfferScopedIntent(filters: SearchIntentFilters) {
+  return (
+    filters.minVerifiedServings !== null ||
+    filters.minProteinPerServingG !== null ||
+    filters.maxCaffeineMg !== null ||
+    filters.caffeineFree ||
+    filters.ingredients.length > 0 ||
+    filters.format !== null
+  );
+}
+
+function ingredientFactKeys(ingredient: ReviewedSearchIngredient) {
+  if (ingredient === "citrulline") {
+    return new Set(["citrulline", "citrulline_component"]);
+  }
+  if (ingredient === "creatine") {
+    return new Set(["creatine", "creatine_component"]);
+  }
+  return new Set([ingredient]);
+}
+
+function hasReviewedIngredient(
+  facts: AppliedPreWorkoutFacts | null | undefined,
+  ingredient: ReviewedSearchIngredient
+) {
+  const acceptedKeys = ingredientFactKeys(ingredient);
+  return Boolean(
+    facts?.facts.some(
+      (fact) =>
+        acceptedKeys.has(fact.key) &&
+        (fact.informationState === "present_with_amount" ||
+          fact.informationState === "present_amount_not_disclosed")
+    )
+  );
+}
+
+export function offerMatchesSearchIntent(
+  product: RawProduct,
+  offer: SearchOffer,
+  filters: SearchIntentFilters
+) {
+  if (!hasOfferScopedIntent(filters)) return true;
+
+  const metrics = getEffectiveNutritionMetrics(
+    product,
+    offer.product_variant || null
+  );
+  const facts = offer.product_variant?.applied_preworkout_facts;
+
+  if (
+    filters.minVerifiedServings !== null &&
+    (positiveMetric(metrics.serving_count_verified) === null ||
+      Number(metrics.serving_count_verified) < filters.minVerifiedServings)
+  ) {
+    return false;
+  }
+
+  if (
+    filters.minProteinPerServingG !== null &&
+    (metrics.nutrition_verified !== true ||
+      positiveMetric(metrics.protein_per_serving_g) === null ||
+      Number(metrics.protein_per_serving_g) < filters.minProteinPerServingG)
+  ) {
+    return false;
+  }
+
+  if (filters.maxCaffeineMg !== null) {
+    const caffeine = facts?.facts.find((fact) => fact.key === "caffeine");
+    if (
+      caffeine?.informationState !== "present_with_amount" ||
+      caffeine.amountPerServingMg === null ||
+      caffeine.amountPerServingMg > filters.maxCaffeineMg
+    ) {
+      return false;
+    }
+  }
+
+  if (filters.caffeineFree && facts?.caffeineFreeConfirmed !== true) {
+    return false;
+  }
+
+  if (
+    filters.ingredients.some(
+      (ingredient) => !hasReviewedIngredient(facts, ingredient)
+    )
+  ) {
+    return false;
+  }
+
+  if (
+    filters.format !== null &&
+    normalizeWhitespace(metrics.product_format || "").toLowerCase() !==
+      filters.format
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
 function normalizeProduct(
   product: RawProduct,
   query: string,
   filters: SearchFilters,
-  searchPlan?: SearchMetadata
+  searchPlan?: SearchMetadata,
+  intentFilters: SearchIntentFilters = EMPTY_SEARCH_INTENT_FILTERS
 ): ProductSearchResult | null {
   const rawOffers = product.offers || [];
   const validOffers = normalizeSearchOffers(rawOffers);
-
-  const caffeineEligibleOffers = filters.caffeine === "free"
-    ? validOffers.filter((offer) =>
-        offer.product_variant?.applied_preworkout_facts?.caffeineFreeConfirmed === true
-      )
-    : validOffers;
+  const effectiveIntentFilters = filters.caffeine === "free"
+    ? { ...intentFilters, caffeineFree: true }
+    : intentFilters;
+  const intentEligibleOffers = validOffers.filter((offer) =>
+    offerMatchesSearchIntent(product, offer, effectiveIntentFilters)
+  );
   const matchingRetailerOffers = filters.retailer
-    ? caffeineEligibleOffers.filter(
+    ? intentEligibleOffers.filter(
         (offer) => retailerFilterValue(offer.retailer) === filters.retailer
       )
-    : caffeineEligibleOffers;
+    : intentEligibleOffers;
 
   const cheapestOffer = matchingRetailerOffers[0] || null;
   const deliveryComparisonComplete = hasCompleteDeliveredPriceComparison(
     matchingRetailerOffers
   );
 
+  const eligibleOfferIds = new Set(intentEligibleOffers.map(({ id }) => id));
   const matchingObservedOffers = rawOffers.filter((offer) => {
-    const variant = Array.isArray(offer.product_variant)
-      ? offer.product_variant[0] || null
-      : offer.product_variant || null;
     if (
-      filters.caffeine === "free" &&
-      variant?.applied_preworkout_facts?.caffeineFreeConfirmed !== true
+      hasOfferScopedIntent(effectiveIntentFilters) &&
+      !eligibleOfferIds.has(String(offer.id))
     ) return false;
     return !filters.retailer ||
       retailerFilterValue(normalizeRetailer(offer.retailer)) === filters.retailer;
@@ -1052,7 +1175,9 @@ function normalizeProduct(
   if (filters.retailer && matchingObservedOffers.length === 0) {
     return null;
   }
-  if (filters.caffeine === "free" && cheapestOffer === null) return null;
+  if (hasOfferScopedIntent(effectiveIntentFilters) && cheapestOffer === null) {
+    return null;
+  }
   const presentation = classifyOfferCollection(
     matchingObservedOffers.filter(isSearchPresentationEvidence)
   );
@@ -1091,7 +1216,7 @@ function normalizeProduct(
     nutrition_verified: effectiveMetrics.nutrition_verified,
     unit_pricing_verified: effectiveMetrics.unit_pricing_verified,
     cheapestOffer,
-    validOffers: caffeineEligibleOffers,
+    validOffers: intentEligibleOffers,
     availableOfferCount: matchingRetailerOffers.length,
     availableRetailerCount: countAvailableRetailers(matchingRetailerOffers),
     deliveryComparisonComplete,
@@ -1138,10 +1263,10 @@ function normalizeProduct(
     relevanceScore: searchPlan
       ? scoreProductForSearch(product, searchPlan)
       : scoreProduct(product, query),
-    selectedVariantId: filters.caffeine === "free"
+    selectedVariantId: hasOfferScopedIntent(effectiveIntentFilters)
       ? cheapestOffer?.product_variant_id || null
       : null,
-    selectedVariantLabel: filters.caffeine === "free"
+    selectedVariantLabel: hasOfferScopedIntent(effectiveIntentFilters)
       ? cheapestOffer?.product_variant?.display_name ||
         cheapestOffer?.product_variant?.flavour_label ||
         null
@@ -1296,6 +1421,25 @@ function sortResults(results: ProductSearchResult[], sort: SearchSort) {
   return [...results].sort((left, right) => {
     const deliveredPriceFallback = compareSearchResultPrices(left, right);
 
+    function compareValueMetric(
+      leftValue: number | null,
+      rightValue: number | null
+    ) {
+      if (leftValue === null) {
+        if (rightValue !== null) return 1;
+      } else if (rightValue === null) {
+        return -1;
+      } else {
+        const metricOrder =
+          Math.round(leftValue * 100) - Math.round(rightValue * 100);
+        if (metricOrder !== 0) return metricOrder;
+      }
+
+      return (
+        right.relevanceScore - left.relevanceScore || deliveredPriceFallback
+      );
+    }
+
     if (sort === "price_asc") {
       return compareSearchResultPrices(left, right, "asc");
     }
@@ -1305,17 +1449,23 @@ function sortResults(results: ProductSearchResult[], sort: SearchSort) {
     }
 
     if (sort === "price_per_serving_asc") {
-      if (left.verifiedPricePerServing === null) {
-        return right.verifiedPricePerServing === null ? deliveredPriceFallback : 1;
-      }
+      return compareValueMetric(
+        left.verifiedPricePerServing,
+        right.verifiedPricePerServing
+      );
+    }
 
-      if (right.verifiedPricePerServing === null) {
-        return -1;
-      }
+    if (sort === "cost_per_25g_protein_asc") {
+      return compareValueMetric(
+        left.verifiedCostPer25gProtein,
+        right.verifiedCostPer25gProtein
+      );
+    }
 
-      return (
-        left.verifiedPricePerServing - right.verifiedPricePerServing ||
-        deliveredPriceFallback
+    if (sort === "cost_per_5g_creatine_asc") {
+      return compareValueMetric(
+        left.verifiedCostPer5gCreatine,
+        right.verifiedCostPer5gCreatine
       );
     }
 
@@ -1330,9 +1480,15 @@ export async function searchProducts(
   query: string,
   sort: SearchSort,
   filters: SearchFilters = { category: "", brand: "", retailer: "", caffeine: "" },
-  requestedPage = 1
+  requestedPage = 1,
+  options: { intentPlan?: SearchIntentPlan } = {}
 ) {
-  const intent = parseSearchIntent(query);
+  const intent = options.intentPlan || buildSearchIntentPlan(query, {
+    caffeineFree: filters.caffeine === "free",
+    requestedSort: sort,
+    sortIsExplicit: sort !== "relevance",
+  });
+  const effectiveSort = intent.sort;
   const sanitizedQuery = sanitizeSupabaseOrTerm(intent.textQuery);
   const searchMetadata = buildSearchQueryPlan(sanitizedQuery);
 
@@ -1348,7 +1504,9 @@ export async function searchProducts(
       startResult: 0,
       endResult: 0,
       resultLimit: SEARCH_RESULT_LOAD_LIMIT,
-      maxDeliveredPrice: intent.maxDeliveredPrice,
+      maxDeliveredPrice: intent.filters.maxDeliveredPrice,
+      intentPlan: intent,
+      valueMetricAvailable: false,
       metadata: searchMetadata,
       error: null,
     };
@@ -1410,7 +1568,9 @@ export async function searchProducts(
       startResult: 0,
       endResult: 0,
       resultLimit: SEARCH_RESULT_LOAD_LIMIT,
-      maxDeliveredPrice: intent.maxDeliveredPrice,
+      maxDeliveredPrice: intent.filters.maxDeliveredPrice,
+      intentPlan: intent,
+      valueMetricAvailable: false,
       metadata: searchMetadata,
       error,
     };
@@ -1430,30 +1590,62 @@ export async function searchProducts(
           retailer: "",
           caffeine: "",
         },
-        searchMetadata
+        searchMetadata,
+        intent.filters
       )
     )
     .filter((product): product is ProductSearchResult => product !== null);
+  const limitValueIntentToIdentityMatches =
+    intent.valueMetric !== null &&
+    intent.textQuery.trim().length > 0 &&
+    eligibleResults.some((product) =>
+      hasMeaningfulIdentityMatch(product, intent.textQuery)
+    );
+  const isWithinValueIntentScope = (product: ProductSearchResult) =>
+    !limitValueIntentToIdentityMatches ||
+    hasMeaningfulIdentityMatch(product, intent.textQuery);
+  const valueScopedEligibleResults = eligibleResults.filter(
+    isWithinValueIntentScope
+  );
   const isWithinBudget = (product: ProductSearchResult) =>
-    intent.maxDeliveredPrice === null ||
+    intent.filters.maxDeliveredPrice === null ||
     (product.cheapestOffer !== null &&
       product.cheapestOffer.deliveredPrice !== null &&
-      product.cheapestOffer.deliveredPrice.totalPrice <= intent.maxDeliveredPrice);
+      product.cheapestOffer.deliveredPrice.totalPrice <=
+        intent.filters.maxDeliveredPrice);
   const baseResults =
-    intent.maxDeliveredPrice === null
-      ? eligibleResults
-      : eligibleResults.filter(isWithinBudget);
+    intent.filters.maxDeliveredPrice === null
+      ? valueScopedEligibleResults
+      : valueScopedEligibleResults.filter(isWithinBudget);
   const facets = buildFacets(baseResults);
   const filteredResults = filters.retailer || filters.caffeine === "free"
     ? enrichedProducts
         .map((product) =>
-          normalizeProduct(product, sanitizedQuery, filters, searchMetadata)
+          normalizeProduct(
+            product,
+            sanitizedQuery,
+            filters,
+            searchMetadata,
+            intent.filters
+          )
         )
         .filter((product): product is ProductSearchResult => product !== null)
+        .filter(isWithinValueIntentScope)
         .filter(isWithinBudget)
     : baseResults;
   const results = applyProductFilters(filteredResults, filters);
-  const sortedResults = sortResults(results, sort);
+  const sortedResults = sortResults(results, effectiveSort);
+  const valueMetricAvailable = intent.valueMetric === null || results.some(
+    (product) => {
+      if (intent.valueMetric === "price_per_serving") {
+        return product.verifiedPricePerServing !== null;
+      }
+      if (intent.valueMetric === "cost_per_25g_protein") {
+        return product.verifiedCostPer25gProtein !== null;
+      }
+      return product.verifiedCostPer5gCreatine !== null;
+    }
+  );
   const totalCount = sortedResults.length;
   const totalPages = Math.max(1, Math.ceil(totalCount / SEARCH_PAGE_SIZE));
   const page = Math.min(requestedPage, totalPages);
@@ -1483,14 +1675,16 @@ export async function searchProducts(
     startResult: totalCount === 0 ? 0 : startIndex + 1,
     endResult: endIndex,
     resultLimit: SEARCH_RESULT_LOAD_LIMIT,
-    maxDeliveredPrice: intent.maxDeliveredPrice,
+    maxDeliveredPrice: intent.filters.maxDeliveredPrice,
+    intentPlan: intent,
+    valueMetricAvailable,
     metadata,
     error: null,
   };
 }
 
 export async function getSearchSuggestions(query: string, limit?: number) {
-  const intent = parseSearchIntent(query);
+  const intent = buildSearchIntentPlan(query);
   const sanitizedQuery = sanitizeSupabaseOrTerm(intent.textQuery);
   const plan = buildSearchQueryPlan(sanitizedQuery);
   const resultLimit = normalizeSuggestionLimit(limit);
@@ -1561,7 +1755,7 @@ export async function getSearchSuggestions(query: string, limit?: number) {
         id: `category-${normalizeSuggestionKey(product.category).replace(/\s+/g, "-")}`,
         type: "category",
         label: product.category,
-        href: searchUrlForSuggestion(product.category),
+        href: searchUrlForSuggestion(product.category, intent),
         matchText: match.matchText,
         score: match.score,
       });
@@ -1578,7 +1772,7 @@ export async function getSearchSuggestions(query: string, limit?: number) {
         id: `brand-${normalizeSuggestionKey(product.brand).replace(/\s+/g, "-")}`,
         type: "brand",
         label: product.brand,
-        href: searchUrlForSuggestion(product.brand),
+        href: searchUrlForSuggestion(product.brand, intent),
         matchText: match.matchText,
         score: match.score,
       });
@@ -1597,7 +1791,9 @@ export async function getSearchSuggestions(query: string, limit?: number) {
         id: `product-${String(product.id)}`,
         type: "product",
         label: product.name,
-        href: productUrlForSuggestion(product.slug),
+        href: hasStructuredSearchIntent(intent)
+          ? searchUrlForSuggestion(product.name, intent)
+          : productUrlForSuggestion(product.slug),
         matchText: match.matchText,
         score: match.score,
       });

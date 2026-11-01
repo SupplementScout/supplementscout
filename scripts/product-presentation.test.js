@@ -69,6 +69,7 @@ const {
   buildProductKeyFacts,
   buildProductMetadataDescription,
   buildProductSummary,
+  selectedVariantPresentation,
 } = loadProductPresentationModule();
 
 function product(overrides = {}) {
@@ -281,6 +282,78 @@ test("nutrition facts require nutrition_verified", () => {
   assert.equal(unverified.some((fact) => fact.label.includes("per serving")), false);
   assert.equal(verified.some((fact) => fact.value === "24 g protein per serving"), true);
   assert.equal(verified.some((fact) => fact.value === "5 g creatine per serving"), true);
+});
+
+test("selected variant presentation is the only source for variant-sensitive facts", () => {
+  const baseProduct = product({
+    product_format: "powder",
+    net_weight_g: 500,
+    net_volume_ml: 750,
+    serving_count_verified: 88,
+    serving_size_g: 5.68,
+    serving_size_ml: 10,
+    unit_count: 88,
+    unit_type: "scoop",
+    protein_per_serving_g: 20,
+    creatine_per_serving_g: 3,
+    nutrition_verified: true,
+  });
+  const selected = selectedVariantPresentation(baseProduct, {
+    product_format: "powder",
+    net_weight_g: 600,
+    serving_count_verified: 100,
+    serving_size_g: 6,
+    protein_per_serving_g: 27,
+    creatine_per_serving_g: 5,
+    nutrition_verified: true,
+  });
+  const facts = buildProductKeyFacts(selected);
+
+  assert.equal(facts.some((fact) => fact.value === "100 servings"), true);
+  assert.equal(facts.some((fact) => fact.value === "27 g protein per serving"), true);
+  assert.equal(facts.some((fact) => fact.value === "5 g creatine per serving"), true);
+  assert.equal(facts.some((fact) => /88 servings|20 g protein/.test(fact.value)), false);
+  assert.equal(facts.some((fact) => fact.label === "Net volume"), false);
+  assert.equal(facts.some((fact) => fact.label === "Unit count"), false);
+  assert.match(
+    buildProductSummary(selected, { allowCuratedSummary: false }),
+    /600 g product contains 100 verified servings/
+  );
+});
+
+test("selected variant presentation stays fail-closed when protein proof is missing", () => {
+  const selected = selectedVariantPresentation(
+    product({ protein_per_serving_g: 24, nutrition_verified: true }),
+    {
+      product_format: "powder",
+      net_weight_g: 500,
+      serving_count_verified: 20,
+      serving_size_g: 25,
+      protein_per_serving_g: null,
+      creatine_per_serving_g: null,
+      nutrition_verified: true,
+    }
+  );
+
+  assert.equal(
+    buildProductKeyFacts(selected).some((fact) => fact.label === "Protein per serving"),
+    false
+  );
+});
+
+test("PDP derives facts and scoped offers from the requested selected variant", () => {
+  const source = fs.readFileSync(
+    path.join(process.cwd(), "app", "product", "[id]", "page.tsx"),
+    "utf8"
+  );
+
+  assert.match(source, /requestedVariant[\s\S]+offer\.product_variant_id[\s\S]+requestedVariant\.id/);
+  assert.match(source, /const selectedVariant = requestedVariant \|\|/);
+  assert.match(source, /getEffectiveNutritionMetrics\(\s*product,\s*selectedVariant\s*\)/);
+  assert.match(source, /selectedVariantPresentation\(product, effectiveMetrics\)/);
+  assert.match(source, /buildProductKeyFacts\(selectedPresentation\)/);
+  assert.match(source, /"Protein per serving"/);
+  assert.doesNotMatch(source, /buildProductKeyFacts\(product\)/);
 });
 
 test("Key facts never contain null or undefined", () => {

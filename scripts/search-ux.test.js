@@ -55,6 +55,9 @@ function valueProduct(overrides = {}) {
     verifiedPricePerKg: null,
     verifiedPricePerLitre: null,
     verifiedPricePerServing: null,
+    serving_count_verified: null,
+    protein_per_serving_g: null,
+    nutrition_verified: false,
     ...overrides,
   };
 }
@@ -105,6 +108,34 @@ test("search card package size is compact and absent without data", () => {
   );
 });
 
+test("search card intent evidence surfaces only the verified qualifying fact", () => {
+  assert.deepEqual(
+    presentation.searchResultIntentEvidence(
+      valueProduct({
+        protein_per_serving_g: 27,
+        nutrition_verified: true,
+        serving_count_verified: 40,
+      }),
+      { minProteinPerServingG: 25, minVerifiedServings: null }
+    ),
+    { label: "Protein per serving", value: "27 g protein per serving" }
+  );
+  assert.deepEqual(
+    presentation.searchResultIntentEvidence(
+      valueProduct({ serving_count_verified: 100 }),
+      { minProteinPerServingG: null, minVerifiedServings: 100 }
+    ),
+    { label: "Verified servings", value: "100 verified servings" }
+  );
+  assert.equal(
+    presentation.searchResultIntentEvidence(
+      valueProduct({ protein_per_serving_g: 27, nutrition_verified: false }),
+      { minProteinPerServingG: 25, minVerifiedServings: null }
+    ),
+    null
+  );
+});
+
 test("mobile search card keeps identity before price and uses shared price presentation", () => {
   const source = fs.readFileSync(
     path.join(process.cwd(), "app", "components", "ProductResultCard.tsx"),
@@ -114,7 +145,7 @@ test("mobile search card keeps identity before price and uses shared price prese
   assert.ok(source.indexOf("<h2") < source.indexOf("pricePresentation?.label"));
   assert.match(source, /buildBestOfferPricePresentation\(cheapestOffer, \{/);
   assert.match(source, /deliveryComparisonComplete: product\.deliveryComparisonComplete/);
-  assert.match(source, /primarySearchValueMetric\(product\)/);
+  assert.match(source, /searchResultIntentEvidence\(/);
   assert.match(source, /data-search-card=/);
   assert.match(source, /<Image[\s\S]*unoptimized[\s\S]*sizes=/);
   assert.match(source, /In stock/);
@@ -204,7 +235,10 @@ test("one mobile filter panel supports close, staged clear and Show results", ()
   assert.match(source, /mobileViewport\.removeEventListener\("change", onViewportChange\)/);
   assert.match(source, /restoreBodyOverflow\(\)/);
   assert.match(source, /document\.body\.style\.overflow = previousOverflow/);
-  assert.match(source, /router\.push\(searchUrl\(\{ query, sort, filters: draftFilters \}\)\)/);
+  assert.match(
+    source,
+    /router\.push\(searchUrl\(\{ query, sort, filters: draftFilters, intent \}\)\)/,
+  );
   assert.match(source, /sendAnalyticsEvent\("filter_used"/);
 });
 
@@ -225,11 +259,16 @@ test("no-results state preserves query, suggestions and filter clearing", () => 
     path.join(process.cwd(), "app", "search", "page.tsx"),
     "utf8"
   );
+  const intentSource = fs.readFileSync(
+    path.join(process.cwd(), "app", "lib", "searchIntent.ts"),
+    "utf8"
+  );
 
   assert.match(source, /No filtered results found/);
   assert.match(source, /metadata\.correctedQuery/);
-  assert.match(source, /maxDeliveredPrice/);
-  assert.match(source, /Delivered price up to/);
+  assert.match(source, /intentPlan/);
+  assert.match(intentSource, /maxDeliveredPrice/);
+  assert.match(intentSource, /Delivered price/);
   assert.match(source, /popularSearchSuggestions\.map/);
   assert.match(source, /Clear filters/);
   assert.match(source, /initialQuery=\{query\}/);
@@ -247,7 +286,10 @@ test("filter and sort changes reset pagination while pagination preserves state"
 
   assert.match(urlSource, /page = 1/);
   assert.match(urlSource, /if \(page > 1\)/);
-  assert.match(paginationSource, /searchUrl\(\{ query, sort, filters, page/);
+  assert.match(
+    paginationSource,
+    /searchUrl\(\{ query, sort, filters, intent, page/,
+  );
   assert.match(paginationSource, /min-h-11/);
 });
 

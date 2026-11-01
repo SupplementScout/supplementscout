@@ -69,6 +69,23 @@ function loadAppliedFactsModule(mockSupabaseAdmin, resolveAppliedPreWorkoutFacts
   return mod.exports;
 }
 
+function loadSearchIntentModule() {
+  const filename = path.join(process.cwd(), "app", "lib", "searchIntent.ts");
+  const source = fs.readFileSync(filename, "utf8");
+  const { outputText } = ts.transpileModule(source, {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+    },
+    fileName: filename,
+  });
+  const mod = new Module(filename, module);
+  mod.filename = filename;
+  mod.paths = Module._nodeModulePaths(path.dirname(filename));
+  mod._compile(outputText, filename);
+  return mod.exports;
+}
+
 function nutritionCandidatePages(pages) {
   const calls = [];
   return {
@@ -303,8 +320,35 @@ function loadProductsModule(
           offers.length > 0 && offers.every(({ price, shipping_cost }) =>
             price !== null && price !== "" && shipping_cost !== null && shipping_cost !== ""
           ),
-        getVerifiedCostPer5gCreatine: () => null,
-        getVerifiedCostPer25gProtein: () => null,
+        getVerifiedCostPer5gCreatine: (
+          deliveredPrice,
+          servingCount,
+          creatinePerServing,
+          unitPricingVerified,
+          nutritionVerified,
+          _netWeight,
+          _servingSize,
+          productFormat
+        ) =>
+          deliveredPrice && Number(servingCount) > 0 &&
+          Number(creatinePerServing) > 0 && unitPricingVerified === true &&
+          nutritionVerified === true && productFormat === "powder"
+            ? deliveredPrice.totalPrice /
+              ((Number(servingCount) * Number(creatinePerServing)) / 5)
+            : null,
+        getVerifiedCostPer25gProtein: (
+          deliveredPrice,
+          servingCount,
+          proteinPerServing,
+          unitPricingVerified,
+          nutritionVerified
+        ) =>
+          deliveredPrice && Number(servingCount) > 0 &&
+          Number(proteinPerServing) > 0 && unitPricingVerified === true &&
+          nutritionVerified === true
+            ? deliveredPrice.totalPrice /
+              ((Number(servingCount) * Number(proteinPerServing)) / 25)
+            : null,
         getVerifiedPricePerKg: () => null,
         getVerifiedPricePerLitre: () => null,
         getVerifiedPricePerServing: (deliveredPrice, servingCount) =>
@@ -316,7 +360,14 @@ function loadProductsModule(
 
     if (parent === mod && request === "./nutritionMetrics") {
       return {
-        getEffectiveNutritionMetrics: (product) => product,
+        getEffectiveNutritionMetrics: (product, variant) => ({
+          ...product,
+          ...(variant?.nutrition_override || {}),
+          product_format:
+            variant?.nutrition_override?.product_format ||
+            variant?.product_format ||
+            product.product_format,
+        }),
       };
     }
 
@@ -348,6 +399,10 @@ function loadProductsModule(
 
     if (parent === mod && request === "./reviewedPreWorkoutFacts.server") {
       return { loadAppliedPreWorkoutFacts: mockAppliedFactsLoader };
+    }
+
+    if (parent === mod && request === "./searchIntent") {
+      return loadSearchIntentModule();
     }
 
     return originalLoad.call(this, request, parent, isMain);
@@ -455,6 +510,11 @@ const {
     },
   });
 const { searchUrl } = loadSearchUrlModule();
+const {
+  canonicalIntentQuery,
+  intentUrlStateFromPlan,
+  normalizeSearchIntentUrlState,
+} = loadSearchIntentModule();
 
 const { searchProducts: searchProductsWithNoResults } = loadProductsModule({
   from: () => {
@@ -684,23 +744,81 @@ test("search query variants normalize extra whitespace and deduplicate variants"
   ]);
 });
 
-test("search intent extracts a safe delivered-price ceiling", () => {
-  assert.deepEqual(parseSearchIntent("best creatine under £20"), {
-    textQuery: "creatine",
-    maxDeliveredPrice: 20,
+test("search intent preserves the safe delivered-price ceiling in the shared plan", () => {
+  const bestCreatine = parseSearchIntent("best creatine under £20");
+  assert.equal(bestCreatine.textQuery, "creatine");
+  assert.equal(bestCreatine.filters.maxDeliveredPrice, 20);
+  assert.equal(bestCreatine.sort, "relevance");
+
+  const whey = parseSearchIntent("whey protein below 35.50");
+  assert.equal(whey.textQuery, "whey protein");
+  assert.equal(whey.filters.maxDeliveredPrice, 35.5);
+
+  for (const query of ["creatine under £20", "creatine below £20"]) {
+    const plan = parseSearchIntent(query);
+    assert.equal(plan.textQuery, "creatine", query);
+    assert.equal(plan.filters.maxDeliveredPrice, 20, query);
+  }
+
+  const caffeineFree = parseSearchIntent("pre workout without caffeine");
+  assert.equal(caffeineFree.textQuery, "pre workout");
+  assert.equal(caffeineFree.filters.caffeineFree, true);
+
+  const invalidBudget = parseSearchIntent("creatine under £0");
+  assert.equal(invalidBudget.textQuery, "creatine under £0");
+  assert.equal(invalidBudget.filters.maxDeliveredPrice, null);
+});
+
+test("bounded intent grammar cleans supported structural clauses", () => {
+  const cases = [
+    ["cheap creatine", "creatine", "price_asc", {}],
+    ["creatine 100 servings", "creatine", "relevance", { minVerifiedServings: 100 }],
+    ["creatine at least 100 servings", "creatine", "relevance", { minVerifiedServings: 100 }],
+    ["creatine 100+ servings", "creatine", "relevance", { minVerifiedServings: 100 }],
+    ["whey 25g protein", "whey", "relevance", { minProteinPerServingG: 25 }],
+    ["whey 25 g protein per serving", "whey", "relevance", { minProteinPerServingG: 25 }],
+    ["pre workout under 200mg caffeine", "pre workout", "relevance", { maxCaffeineMg: 200 }],
+    ["pre workout max 200 mg caffeine", "pre workout", "relevance", { maxCaffeineMg: 200 }],
+    ["caffeine free pre workout", "pre workout", "relevance", { caffeineFree: true }],
+    ["pre workout citrulline", "pre workout", "relevance", { ingredients: ["citrulline"] }],
+    ["pre workout beta alanine", "pre workout", "relevance", { ingredients: ["beta_alanine"] }],
+    ["magnesium capsules", "magnesium", "relevance", { format: "capsule" }],
+    ["protein price per serving", "protein", "price_per_serving_asc", {}],
+    ["protein cost per 25g protein", "protein", "cost_per_25g_protein_asc", {}],
+    ["creatine price per 5g", "creatine", "cost_per_5g_creatine_asc", {}],
+  ];
+
+  for (const [query, textQuery, sort, expectedFilters] of cases) {
+    const plan = parseSearchIntent(query);
+    assert.equal(plan.textQuery, textQuery, query);
+    assert.equal(plan.sort, sort, query);
+    for (const [key, value] of Object.entries(expectedFilters)) {
+      assert.deepEqual(plan.filters[key], value, `${query}: ${key}`);
+    }
+  }
+});
+
+test("unsupported low sugar is transparent but does not poison protein discovery", () => {
+  const plan = parseSearchIntent("protein low sugar");
+  assert.equal(plan.textQuery, "protein");
+  assert.deepEqual(plan.unsupportedClauses.map(({ key }) => key), ["low_sugar"]);
+  assert.match(plan.unsupportedClauses[0].reason, /verified sugar data/i);
+});
+
+test("explicit URL intent and explicit sort win over inferred query intent", () => {
+  const plan = parseSearchIntent("cheap pre workout under 200mg caffeine", {
+    explicit: { caffeineMaxMg: 150 },
+    requestedSort: "relevance",
+    sortIsExplicit: true,
   });
-  assert.deepEqual(parseSearchIntent("whey protein below 35.50"), {
-    textQuery: "whey protein",
-    maxDeliveredPrice: 35.5,
-  });
-  assert.deepEqual(parseSearchIntent("pre workout without caffeine"), {
-    textQuery: "pre workout without caffeine",
-    maxDeliveredPrice: null,
-  });
-  assert.deepEqual(parseSearchIntent("creatine under £0"), {
-    textQuery: "creatine under £0",
-    maxDeliveredPrice: null,
-  });
+
+  assert.equal(plan.textQuery, "pre workout");
+  assert.equal(plan.filters.maxCaffeineMg, 150);
+  assert.equal(plan.sort, "relevance");
+  assert.equal(
+    plan.appliedConstraints.find(({ key }) => key === "max_caffeine").source,
+    "url"
+  );
 });
 
 test("search query variants handle reversed size terms and spaced model names", () => {
@@ -1050,6 +1168,162 @@ test("price per serving ties use delivered total, name, then id", async () => {
   );
 });
 
+test("value intent keeps meaningful discovery matches ahead of description-only candidates", async () => {
+  const protein = pricedSearchProduct(3151, "Protein Powder", 20, 20);
+  const descriptionOnly = pricedSearchProduct(3152, "Biotin Tablets", 1, 100);
+  const result = await searchProductsWithRows(
+    "protein price per serving",
+    [descriptionOnly, protein]
+  );
+
+  assert.equal(result.intentPlan.sort, "price_per_serving_asc");
+  assert.deepEqual(
+    result.results.map((product) => product.id),
+    ["3151"]
+  );
+  assert.equal(result.totalCount, 1);
+});
+
+test("value metric remains primary and relevance only breaks equal-metric ties", async () => {
+  const highRelevance = pricedSearchProduct(3153, "Protein", 20, 10);
+  const lowerMetric = pricedSearchProduct(3154, "Value Protein Mix", 10, 10);
+  const metricResult = await searchProductsWithRows(
+    "protein price per serving",
+    [highRelevance, lowerMetric]
+  );
+
+  assert.deepEqual(metricResult.results.map(({ id }) => id), ["3154", "3153"]);
+
+  const lowerRelevanceTie = pricedSearchProduct(3155, "Whey Protein", 10, 10);
+  const higherRelevanceTie = pricedSearchProduct(3156, "Protein", 20, 20);
+  const tieResult = await searchProductsWithRows(
+    "protein price per serving",
+    [lowerRelevanceTie, higherRelevanceTie]
+  );
+
+  assert.deepEqual(tieResult.results.map(({ id }) => id), ["3156", "3155"]);
+
+  const lowerRelevanceDisplayTie = pricedSearchProduct(
+    3157,
+    "Whey Protein",
+    10.01,
+    10
+  );
+  const higherRelevanceDisplayTie = pricedSearchProduct(
+    3158,
+    "Protein",
+    10.04,
+    10
+  );
+  const displayTieResult = await searchProductsWithRows(
+    "protein price per serving",
+    [lowerRelevanceDisplayTie, higherRelevanceDisplayTie]
+  );
+
+  assert.deepEqual(displayTieResult.results.map(({ id }) => id), ["3158", "3157"]);
+});
+
+test("new verified value sorts are ascending and place missing metrics last", async () => {
+  const proteinBest = pricedSearchProduct(316, "Protein best", 20, 20);
+  Object.assign(proteinBest, {
+    protein_per_serving_g: 25,
+    nutrition_verified: true,
+    unit_pricing_verified: true,
+    product_format: "powder",
+  });
+  const proteinSecond = pricedSearchProduct(317, "Protein second", 15, 10);
+  Object.assign(proteinSecond, {
+    protein_per_serving_g: 25,
+    nutrition_verified: true,
+    unit_pricing_verified: true,
+    product_format: "powder",
+  });
+  const proteinUnknown = pricedSearchProduct(318, "Protein unknown", 5, null);
+  const proteinResult = await searchProductsWithRows(
+    "protein",
+    [proteinUnknown, proteinSecond, proteinBest],
+    "cost_per_25g_protein_asc"
+  );
+  assert.deepEqual(
+    proteinResult.results.map(({ id }) => id),
+    ["316", "317", "318"]
+  );
+  const proteinMetrics = proteinResult.results.map(
+    ({ verifiedCostPer25gProtein }) => verifiedCostPer25gProtein
+  );
+  assert.deepEqual(proteinMetrics.filter((value) => value !== null), [1, 1.5]);
+  assert.equal(
+    proteinMetrics.slice(proteinMetrics.indexOf(null)).some((value) => value !== null),
+    false
+  );
+
+  const creatineBest = pricedSearchProduct(319, "Creatine best", 20, 40);
+  Object.assign(creatineBest, {
+    creatine_per_serving_g: 5,
+    nutrition_verified: true,
+    unit_pricing_verified: true,
+    product_format: "powder",
+  });
+  const creatineSecond = pricedSearchProduct(320, "Creatine second", 15, 20);
+  Object.assign(creatineSecond, {
+    creatine_per_serving_g: 5,
+    nutrition_verified: true,
+    unit_pricing_verified: true,
+    product_format: "powder",
+  });
+  const creatineUnknown = pricedSearchProduct(321, "Creatine unknown", 4, null);
+  const creatineResult = await searchProductsWithRows(
+    "creatine",
+    [creatineUnknown, creatineSecond, creatineBest],
+    "cost_per_5g_creatine_asc"
+  );
+  assert.deepEqual(
+    creatineResult.results.map(({ id }) => id),
+    ["319", "320", "321"]
+  );
+  const creatineMetrics = creatineResult.results.map(
+    ({ verifiedCostPer5gCreatine }) => verifiedCostPer5gCreatine
+  );
+  assert.deepEqual(creatineMetrics.filter((value) => value !== null), [0.5, 0.75]);
+  assert.equal(
+    creatineMetrics.slice(creatineMetrics.indexOf(null)).some((value) => value !== null),
+    false
+  );
+});
+
+test("search cards can present the exact metric requested by value intent", () => {
+  const source = fs.readFileSync(
+    path.join(process.cwd(), "app", "components", "ProductResultCard.tsx"),
+    "utf8"
+  );
+  const pageSource = fs.readFileSync(
+    path.join(process.cwd(), "app", "search", "page.tsx"),
+    "utf8"
+  );
+
+  assert.match(source, /searchResultIntentEvidence\(/);
+  assert.match(source, /\?variant=\$\{encodeURIComponent\(product\.selectedVariantId\)\}/);
+  assert.match(
+    pageSource,
+    /preferredValueMetric=\{intentPlan\.valueMetric \|\| undefined\}/
+  );
+  assert.match(pageSource, /intentFilters=\{intentPlan\.filters\}/);
+});
+
+test("an inapplicable cross-category value metric stays transparent and never fabricates values", async () => {
+  const vitamin = searchProduct(329, "Vitamin D3", "Vitamin D");
+  const result = await searchProductsWithRows(
+    "vitamin d cost per 5g creatine",
+    [vitamin]
+  );
+
+  assert.equal(result.totalCount, 1);
+  assert.equal(result.intentPlan.textQuery, "vitamin d");
+  assert.equal(result.intentPlan.valueMetric, "cost_per_5g_creatine");
+  assert.equal(result.valueMetricAvailable, false);
+  assert.equal(result.results[0].verifiedCostPer5gCreatine, null);
+});
+
 test("existing delivered price sorts remain unchanged", async () => {
   const rows = [
     pricedSearchProduct(321, "Ten pounds", 10, null),
@@ -1141,6 +1415,57 @@ test("search URLs preserve price per serving sort with filters and pagination", 
   );
 });
 
+test("intent URLs are reload-safe and removal links do not reapply cleaned clauses", () => {
+  const plan = parseSearchIntent(
+    "cheap pre workout under 200mg caffeine citrulline powder"
+  );
+  const query = canonicalIntentQuery(plan);
+  const intent = intentUrlStateFromPlan(plan);
+  const url = searchUrl({
+    query,
+    sort: plan.sort,
+    filters: { category: "", brand: "", retailer: "", caffeine: "" },
+    intent,
+  });
+
+  assert.equal(query, "pre workout");
+  assert.match(url, /^\/search\?q=pre\+workout/);
+  assert.match(url, /caffeine_max_mg=200/);
+  assert.match(url, /format=powder/);
+  assert.match(url, /ingredient=citrulline/);
+  assert.match(url, /sort=price_asc/);
+
+  const reloaded = normalizeSearchIntentUrlState(
+    Object.fromEntries(new URL(`https://example.test${url}`).searchParams)
+  );
+  assert.equal(reloaded.caffeineMaxMg, 200);
+  assert.equal(reloaded.format, "powder");
+  assert.deepEqual(reloaded.ingredients, ["citrulline"]);
+
+  const removalUrl = searchUrl({
+    query,
+    sort: plan.sort,
+    filters: { category: "", brand: "", retailer: "", caffeine: "" },
+    intent,
+    intentUpdates: { caffeineMaxMg: null },
+  });
+  assert.doesNotMatch(removalUrl, /caffeine_max_mg/);
+  assert.doesNotMatch(removalUrl, /200mg/);
+});
+
+test("delivered-price intent stays in q instead of creating a duplicate URL parameter", () => {
+  const plan = parseSearchIntent("creatine under £20");
+  const url = searchUrl({
+    query: canonicalIntentQuery(plan),
+    sort: plan.sort,
+    filters: { category: "", brand: "", retailer: "", caffeine: "" },
+    intent: intentUrlStateFromPlan(plan),
+  });
+
+  assert.match(url, /q=creatine\+under\+%C2%A320/);
+  assert.doesNotMatch(url, /(?:max_price|price_max|delivered_price)/);
+});
+
 test("confirmed caffeine-free search requires exact variant proof and a current offer", async () => {
   const rows = [
     searchProduct(411, "GYM HIGH The Stinger", "Pre Workout", "GYM HIGH"),
@@ -1201,6 +1526,182 @@ test("confirmed caffeine-free search requires exact variant proof and a current 
   assert.equal(result.results[0].selectedVariantLabel, "Electric Red / 425g");
   assert.equal(result.results[0].caffeineFreeConfirmed, true);
   assert.equal(result.results[0].availableOfferCount, 1);
+});
+
+function exactVariantSearch(product, variants, facts = new Map()) {
+  const mockSupabase = {
+    from: (table) => {
+      if (table === "product_variants") {
+        const query = {
+          select: () => query,
+          eq: () => query,
+          in: () => ({ data: variants, error: null }),
+        };
+        return query;
+      }
+      const query = {
+        select: () => query,
+        eq: () => query,
+        is: () => query,
+        or: () => query,
+        order: () => query,
+        range: () => ({ data: [product], error: null }),
+      };
+      return query;
+    },
+  };
+  return loadProductsModule(mockSupabase, async () => facts).searchProducts;
+}
+
+function variantIntentProduct(name, overrides) {
+  const product = searchProduct(990800, name, "Pre Workout", "Test Brand");
+  product.product_format = "powder";
+  product.nutrition_verified = true;
+  product.unit_pricing_verified = true;
+  product.offers = overrides.map((_, index) => ({
+    ...product.offers[0],
+    id: 9908000 + index,
+    product_variant_id: 9908100 + index,
+    price: 10 + index,
+  }));
+  const variants = overrides.map((nutrition_override, index) => ({
+    id: 9908100 + index,
+    product_id: 990800,
+    display_name: `Variant ${index + 1}`,
+    flavour_label: `Flavour ${index + 1}`,
+    size_value: 300,
+    size_unit: "g",
+    product_format: nutrition_override.product_format || "powder",
+    nutrition_override,
+  }));
+  return { product, variants };
+}
+
+test("variant intent predicate selects the exact servings and protein variant", async () => {
+  const servings = variantIntentProduct("Intent Product", [
+    { serving_count_verified: 50 },
+    { serving_count_verified: 120 },
+  ]);
+  const servingsResult = await exactVariantSearch(
+    servings.product,
+    servings.variants
+  )("intent product 100 servings", "relevance");
+  assert.equal(servingsResult.totalCount, 1);
+  assert.equal(servingsResult.results[0].selectedVariantId, "9908101");
+  assert.equal(servingsResult.results[0].serving_count_verified, 120);
+
+  const protein = variantIntentProduct("Intent Whey", [
+    { protein_per_serving_g: 20, nutrition_verified: true },
+    { protein_per_serving_g: 30, nutrition_verified: true },
+  ]);
+  const proteinResult = await exactVariantSearch(
+    protein.product,
+    protein.variants
+  )("intent whey 25g protein", "relevance");
+  assert.equal(proteinResult.totalCount, 1);
+  assert.equal(proteinResult.results[0].selectedVariantId, "9908101");
+  assert.equal(proteinResult.results[0].protein_per_serving_g, 30);
+});
+
+test("variant intent predicate prevents caffeine and ingredient cross-variant leakage", async () => {
+  const caffeine = variantIntentProduct("Pre Workout", [{}, {}]);
+  const caffeineFacts = new Map([
+    ["9908100", {
+      productId: "990800",
+      productVariantId: "9908100",
+      caffeineFreeConfirmed: false,
+      facts: [{ key: "caffeine", informationState: "present_with_amount", amountPerServingMg: 300 }],
+    }],
+    ["9908101", {
+      productId: "990800",
+      productVariantId: "9908101",
+      caffeineFreeConfirmed: false,
+      facts: [{ key: "caffeine", informationState: "present_with_amount", amountPerServingMg: 150 }],
+    }],
+  ]);
+  const caffeineResult = await exactVariantSearch(
+    caffeine.product,
+    caffeine.variants,
+    caffeineFacts
+  )("pre workout under 200mg caffeine", "relevance");
+  assert.equal(caffeineResult.totalCount, 1);
+  assert.equal(caffeineResult.results[0].selectedVariantId, "9908101");
+
+  const ingredient = variantIntentProduct("Pre Workout", [{}, {}]);
+  const ingredientFacts = new Map([
+    ["9908100", {
+      productId: "990800",
+      productVariantId: "9908100",
+      caffeineFreeConfirmed: false,
+      facts: [{ key: "citrulline", informationState: "confirmed_absent", amountPerServingMg: null }],
+    }],
+    ["9908101", {
+      productId: "990800",
+      productVariantId: "9908101",
+      caffeineFreeConfirmed: false,
+      facts: [{ key: "citrulline", informationState: "present_amount_not_disclosed", amountPerServingMg: null }],
+    }],
+  ]);
+  const ingredientResult = await exactVariantSearch(
+    ingredient.product,
+    ingredient.variants,
+    ingredientFacts
+  )("pre workout citrulline", "relevance");
+  assert.equal(ingredientResult.totalCount, 1);
+  assert.equal(ingredientResult.results[0].selectedVariantId, "9908101");
+});
+
+test("variant intent predicate selects the exact normalized format variant", async () => {
+  const format = variantIntentProduct("Intent Magnesium", [
+    { product_format: "tablet" },
+    { product_format: "capsule" },
+  ]);
+  const result = await exactVariantSearch(format.product, format.variants)(
+    "intent magnesium capsules",
+    "relevance"
+  );
+
+  assert.equal(result.totalCount, 1);
+  assert.equal(result.results[0].selectedVariantId, "9908101");
+  assert.equal(result.results[0].product_format, "capsule");
+});
+
+test("missing or conflicting exact-variant facts never satisfy structured thresholds", async () => {
+  const caffeine = variantIntentProduct("Pre Workout", [{}, {}]);
+  const caffeineFacts = new Map([
+    ["9908100", {
+      productId: "990800",
+      productVariantId: "9908100",
+      caffeineFreeConfirmed: false,
+      facts: [],
+    }],
+    ["9908101", {
+      productId: "990800",
+      productVariantId: "9908101",
+      caffeineFreeConfirmed: false,
+      facts: [{ key: "caffeine", informationState: "conflicting_information", amountPerServingMg: 100 }],
+    }],
+  ]);
+  const caffeineResult = await exactVariantSearch(
+    caffeine.product,
+    caffeine.variants,
+    caffeineFacts
+  )("pre workout under 200mg caffeine", "relevance");
+  assert.equal(caffeineResult.totalCount, 0);
+
+  const metrics = variantIntentProduct("Intent Product", [
+    { serving_count_verified: null, protein_per_serving_g: null, nutrition_verified: true },
+  ]);
+  const servingsResult = await exactVariantSearch(metrics.product, metrics.variants)(
+    "intent product 100 servings",
+    "relevance"
+  );
+  const proteinResult = await exactVariantSearch(metrics.product, metrics.variants)(
+    "intent product 25g protein",
+    "relevance"
+  );
+  assert.equal(servingsResult.totalCount, 0);
+  assert.equal(proteinResult.totalCount, 0);
 });
 
 test("buildSearchQueryPlan returns corrected magnesium metadata", () => {
@@ -1651,4 +2152,36 @@ test("getSearchSuggestions removes duplicate type and label suggestions", async 
   );
 
   assert.deepEqual(keys, Array.from(new Set(keys)));
+});
+
+test("autocomplete search suggestions preserve recognized structural intent", async () => {
+  const result = await getSearchSuggestions("cheap whey protein 25g protein");
+  const wheySuggestion = result.suggestions.find((suggestion) =>
+    /whey/i.test(suggestion.label)
+  );
+
+  assert.ok(wheySuggestion);
+  assert.match(wheySuggestion.href, /^\/search\?/);
+  assert.match(wheySuggestion.href, /protein_min_g=25/);
+  assert.match(wheySuggestion.href, /sort=price_asc/);
+  assert.doesNotMatch(wheySuggestion.href, /25g\+protein/);
+});
+
+test("search intent transparency stays SSR and preserves search noindex rules", () => {
+  const pageSource = fs.readFileSync(
+    path.join(process.cwd(), "app", "search", "page.tsx"),
+    "utf8"
+  );
+  const filtersSource = fs.readFileSync(
+    path.join(process.cwd(), "app", "components", "ActiveSearchFilters.tsx"),
+    "utf8"
+  );
+
+  assert.match(pageSource, /Your search/);
+  assert.match(pageSource, /Not applied:/);
+  assert.match(pageSource, /index:\s*false/);
+  assert.match(pageSource, /canonical:\s*"\/search"/);
+  assert.match(filtersSource, /intentUpdates: \{ caffeineMaxMg: null \}/);
+  assert.match(filtersSource, /Clear all filters/);
+  assert.doesNotMatch(filtersSource, /label: "Intent"/);
 });

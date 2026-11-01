@@ -1,13 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ProductSearchResult } from "../lib/products";
+import type {
+  SearchIntentFilters,
+  SearchValueMetric as SearchIntentValueMetric,
+} from "../lib/searchIntent";
 import {
   buildBestOfferPricePresentation,
   formatOfferCheckedDate,
 } from "../lib/productOfferPresentation";
 import { OFFER_PRESENTATION_LABELS } from "../lib/offerFreshness";
 import {
-  primarySearchValueMetric,
+  searchResultIntentEvidence,
   searchResultSize,
 } from "../lib/searchResultPresentation";
 import StatusBadge from "./StatusBadge";
@@ -32,9 +36,16 @@ function formatVerifiedServings(value: number | string | null) {
 export default function ProductResultCard({
   product,
   searchMobileFirst = false,
+  preferredValueMetric,
+  intentFilters,
 }: {
   product: ProductSearchResult;
   searchMobileFirst?: boolean;
+  preferredValueMetric?: SearchIntentValueMetric;
+  intentFilters?: Pick<
+    SearchIntentFilters,
+    "minVerifiedServings" | "minProteinPerServingG"
+  >;
 }) {
   const { cheapestOffer } = product;
   const retailerName = cheapestOffer?.retailer?.name || null;
@@ -43,9 +54,15 @@ export default function ProductResultCard({
         deliveryComparisonComplete: product.deliveryComparisonComplete,
       })
     : null;
-  const valueMetric = primarySearchValueMetric(product);
+  const intentEvidence = searchResultIntentEvidence(
+    product,
+    intentFilters,
+    preferredValueMetric
+  );
   const packageSize = searchResultSize(product);
   const verifiedServings = formatVerifiedServings(product.serving_count_verified);
+  const showServingsInPackageLine =
+    intentEvidence?.label !== "Verified servings";
   const verificationDate = formatOfferCheckedDate(product.latestVerificationAt);
   const availabilityLabel = product.availableRetailerCount > 0
     ? `${product.availableRetailerCount} retailer${
@@ -95,11 +112,16 @@ export default function ProductResultCard({
             </h2>
           </Link>
 
-          {(packageSize || verifiedServings) && (
+          {(packageSize || (verifiedServings && showServingsInPackageLine)) && (
             <p className="mt-2 flex items-start gap-1.5 text-sm leading-5 text-zinc-600">
               <SupplementScoutIcon name="package" size={16} className="mt-0.5 shrink-0 text-zinc-500" />
               <span>
-                {[packageSize, verifiedServings ? `${verifiedServings} verified servings` : null]
+                {[
+                  packageSize,
+                  verifiedServings && showServingsInPackageLine
+                    ? `${verifiedServings} verified servings`
+                    : null,
+                ]
                   .filter(Boolean)
                   .join(" · ")}
               </span>
@@ -135,10 +157,10 @@ export default function ProductResultCard({
                 {retailerName && <span className="font-semibold text-zinc-800">{retailerName}</span>}
                 <span>{availabilityLabel}</span>
               </div>
-              {valueMetric && (
+              {intentEvidence && (
                 <div className="mt-3 border-t border-zinc-200 pt-3 text-sm">
-                  <p className="text-zinc-500">{valueMetric.label}</p>
-                  <p className="font-semibold text-zinc-900">{valueMetric.value}</p>
+                  <p className="text-zinc-500">{intentEvidence.label}</p>
+                  <p className="font-semibold text-zinc-900">{intentEvidence.value}</p>
                 </div>
               )}
             </>

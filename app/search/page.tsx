@@ -16,6 +16,12 @@ import {
   normalizeSearchSort,
   searchProducts,
 } from "../lib/products";
+import {
+  buildSearchIntentPlan,
+  canonicalIntentQuery,
+  intentUrlStateFromPlan,
+  normalizeSearchIntentUrlState,
+} from "../lib/searchIntent";
 import { logSearchResultsEvent } from "../lib/searchAnalytics";
 import { searchUrl } from "../lib/searchUrl";
 
@@ -27,6 +33,11 @@ type SearchPageProps = {
     brand?: string | string[];
     retailer?: string | string[];
     caffeine?: string | string[];
+    servings_min?: string | string[];
+    protein_min_g?: string | string[];
+    caffeine_max_mg?: string | string[];
+    format?: string | string[];
+    ingredient?: string | string[];
     page?: string | string[];
   }>;
 };
@@ -74,8 +85,22 @@ export async function generateMetadata({
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
   const query = normalizeSearchQuery(params.q);
-  const sort = normalizeSearchSort(params.sort);
-  const filters = normalizeSearchFilters(params);
+  const requestedSort = normalizeSearchSort(params.sort);
+  const normalizedFilters = normalizeSearchFilters(params);
+  const explicitIntent = normalizeSearchIntentUrlState(params);
+  const intentPlan = buildSearchIntentPlan(query, {
+    explicit: explicitIntent,
+    caffeineFree: normalizedFilters.caffeine === "free",
+    requestedSort,
+    sortIsExplicit: params.sort !== undefined,
+  });
+  const sort = intentPlan.sort;
+  const filters = {
+    ...normalizedFilters,
+    caffeine: intentPlan.filters.caffeineFree ? "free" : "",
+  };
+  const intentState = intentUrlStateFromPlan(intentPlan);
+  const queryForUrls = canonicalIntentQuery(intentPlan);
   const requestedPage = normalizeSearchPage(params.page);
   const hasQuery = query.length > 0;
   const {
@@ -88,11 +113,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     startResult,
     endResult,
     resultLimit,
-    maxDeliveredPrice,
     metadata,
+    valueMetricAvailable,
     error,
   } = hasQuery
-    ? await searchProducts(query, sort, filters, requestedPage)
+    ? await searchProducts(query, sort, filters, requestedPage, { intentPlan })
     : {
         results: [],
         facets: { categories: [], brands: [], retailers: [], caffeine: [] },
@@ -103,7 +128,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         startResult: 0,
         endResult: 0,
         resultLimit: 0,
-        maxDeliveredPrice: null,
+        valueMetricAvailable: false,
         metadata: {
           originalQuery: "",
           appliedQuery: "",
@@ -118,10 +143,24 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     filters.category.length > 0 ||
     filters.brand.length > 0 ||
     filters.retailer.length > 0 ||
-    filters.caffeine.length > 0;
+    filters.caffeine.length > 0 ||
+    intentState.servingsMin !== null ||
+    intentState.proteinMinG !== null ||
+    intentState.caffeineMaxMg !== null ||
+    intentState.format !== null ||
+    intentState.ingredients.length > 0;
+  const displayedAppliedConstraints = valueMetricAvailable
+    ? intentPlan.appliedConstraints
+    : intentPlan.appliedConstraints.filter(({ key }) => key !== "sort");
 
   if (hasQuery && !error && totalCount > 0 && requestedPage > totalPages) {
-    redirect(searchUrl({ query, sort, filters, page: totalPages }));
+    redirect(searchUrl({
+      query: queryForUrls,
+      sort,
+      filters,
+      intent: intentState,
+      page: totalPages,
+    }));
   }
 
   if (hasQuery && !error) {
@@ -189,9 +228,10 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
             {!error && (
               <SearchResultsLayout
-                query={query}
+                query={queryForUrls}
                 sort={sort}
                 filters={filters}
+                intent={intentState}
                 facets={facets}
                 totalCount={totalCount}
                 heading={
@@ -215,15 +255,6 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                         Showing results for &ldquo;{metadata.appliedQuery}&rdquo;
                       </p>
                     )}
-                    {maxDeliveredPrice !== null && (
-                      <p className="mt-1 text-sm font-medium text-zinc-700">
-                        Delivered price up to £
-                        {maxDeliveredPrice.toLocaleString("en-GB", {
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 2,
-                        })}
-                      </p>
-                    )}
                     {hasActiveFilters && (
                       <p className="mt-1 hidden text-sm text-zinc-500 lg:block">
                         Filtered from {unfilteredCount} product
@@ -240,13 +271,58 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 }
                 activeFilters={
                   <ActiveSearchFilters
-                    query={query}
+                    query={queryForUrls}
                     sort={sort}
                     filters={filters}
                     facets={facets}
+                    intent={intentState}
+                    intentPlan={intentPlan}
                   />
                 }
               >
+                {(intentPlan.appliedConstraints.length > 0 ||
+                  intentPlan.unsupportedClauses.length > 0 ||
+                  !valueMetricAvailable) && (
+                  <section
+                    aria-labelledby="search-intent-heading"
+                    className="mb-5 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 text-sm text-zinc-700"
+                  >
+                    <h2 id="search-intent-heading" className="font-semibold text-zinc-950">
+                      Your search
+                    </h2>
+                    <p className="mt-1">
+                      Searching for: <strong>{intentPlan.textQuery || query}</strong>
+                    </p>
+                    {displayedAppliedConstraints.length > 0 && (
+                      <div className="mt-3">
+                        <p className="font-medium text-zinc-900">Applied:</p>
+                        <ul className="mt-1 list-disc space-y-1 pl-5">
+                          {displayedAppliedConstraints.map((constraint) => (
+                            <li key={constraint.key}>{constraint.label}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {(intentPlan.unsupportedClauses.length > 0 ||
+                      !valueMetricAvailable) && (
+                      <div className="mt-3 border-t border-emerald-200 pt-3">
+                        <p className="font-medium text-zinc-900">Not applied:</p>
+                        <ul className="mt-1 list-disc space-y-1 pl-5">
+                          {intentPlan.unsupportedClauses.map((clause) => (
+                            <li key={clause.key}>
+                              {clause.label} — {clause.reason}
+                            </li>
+                          ))}
+                          {!valueMetricAvailable && intentPlan.valueMetric && (
+                            <li>
+                              The requested value metric has no verified values for these results.
+                            </li>
+                          )}
+                        </ul>
+                      </div>
+                    )}
+                  </section>
+                )}
                 {totalCount === 0 ? (
                   <div className="rounded-lg border border-zinc-200 bg-white p-6 text-center sm:p-8">
                     <h2 className="text-2xl font-bold">
@@ -273,6 +349,13 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                             query: suggestion.query,
                             sort: "relevance",
                             filters: { category: "", brand: "", retailer: "", caffeine: "" },
+                            intent: {
+                              servingsMin: null,
+                              proteinMinG: null,
+                              caffeineMaxMg: null,
+                              format: null,
+                              ingredients: [],
+                            },
                           })}
                           className="inline-flex min-h-11 items-center rounded-full border border-zinc-300 bg-white px-4 text-sm font-semibold text-zinc-800 hover:border-zinc-950"
                         >
@@ -285,9 +368,16 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                       <Link
                         prefetch={false}
                         href={searchUrl({
-                          query,
+                          query: queryForUrls,
                           sort,
                           filters: { category: "", brand: "", retailer: "", caffeine: "" },
+                          intent: {
+                            servingsMin: null,
+                            proteinMinG: null,
+                            caffeineMaxMg: null,
+                            format: null,
+                            ingredients: [],
+                          },
                         })}
                         className="mt-5 inline-flex min-h-11 items-center font-semibold text-zinc-800 underline underline-offset-4"
                       >
@@ -307,15 +397,18 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                           <ProductResultCard
                             product={product}
                             searchMobileFirst
+                            preferredValueMetric={intentPlan.valueMetric || undefined}
+                            intentFilters={intentPlan.filters}
                           />
                         </SearchResultSelectionAnalytics>
                       ))}
                     </div>
 
                     <SearchPagination
-                      query={query}
+                      query={queryForUrls}
                       sort={sort}
                       filters={filters}
+                      intent={intentState}
                       currentPage={page}
                       totalPages={totalPages}
                     />
