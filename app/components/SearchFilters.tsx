@@ -9,6 +9,7 @@ import type {
   SearchFilters as SearchFilterValues,
   SearchSort,
 } from "../lib/products";
+import type { SearchIntentUrlState } from "../lib/searchIntent";
 import { searchUrl } from "../lib/searchUrl";
 import { sendAnalyticsEvent } from "../lib/analytics";
 
@@ -33,6 +34,7 @@ function FilterOptionList({
   query,
   sort,
   filters,
+  intent,
   expanded,
   onExpand,
   onDraftChange,
@@ -43,6 +45,7 @@ function FilterOptionList({
   query: string;
   sort: SearchSort;
   filters: SearchFilterValues;
+  intent: SearchIntentUrlState;
   expanded: boolean;
   onExpand: () => void;
   onDraftChange: (key: FilterKey, value: string) => void;
@@ -69,6 +72,7 @@ function FilterOptionList({
                   query,
                   sort,
                   filters,
+                  intent,
                   updates: { [filterKey]: nextValue },
                 })}
                 onClick={(event) => {
@@ -122,6 +126,7 @@ export default function SearchFilters({
   query,
   sort,
   filters,
+  intent,
   facets,
   isOpen,
   onClose,
@@ -129,6 +134,7 @@ export default function SearchFilters({
   query: string;
   sort: SearchSort;
   filters: SearchFilterValues;
+  intent: SearchIntentUrlState;
   facets: SearchFacets;
   isOpen: boolean;
   onClose: () => void;
@@ -199,7 +205,7 @@ export default function SearchFilters({
       });
     });
 
-    router.push(searchUrl({ query, sort, filters: draftFilters }));
+    router.push(searchUrl({ query, sort, filters: draftFilters, intent }));
     onClose();
     window.setTimeout(() => {
       document.getElementById("search-results-list")?.scrollIntoView({
@@ -272,6 +278,7 @@ export default function SearchFilters({
               query={query}
               sort={sort}
               filters={draftFilters}
+              intent={intent}
               expanded={expanded.category}
               onExpand={() => setExpanded((current) => ({ ...current, category: true }))}
               onDraftChange={(key, value) =>
@@ -285,6 +292,7 @@ export default function SearchFilters({
               query={query}
               sort={sort}
               filters={draftFilters}
+              intent={intent}
               expanded={expanded.brand}
               onExpand={() => setExpanded((current) => ({ ...current, brand: true }))}
               onDraftChange={(key, value) =>
@@ -298,6 +306,7 @@ export default function SearchFilters({
               query={query}
               sort={sort}
               filters={draftFilters}
+              intent={intent}
               expanded={expanded.retailer}
               onExpand={() => setExpanded((current) => ({ ...current, retailer: true }))}
               onDraftChange={(key, value) =>
@@ -312,6 +321,7 @@ export default function SearchFilters({
                 query={query}
                 sort={sort}
                 filters={draftFilters}
+                intent={intent}
                 expanded={expanded.caffeine}
                 onExpand={() => setExpanded((current) => ({ ...current, caffeine: true }))}
                 onDraftChange={(key, value) =>

@@ -1,5 +1,6 @@
 import { formatCurrency } from "./pricing";
 import type { ProductSearchResult } from "./products";
+import type { SearchValueMetric as SearchIntentValueMetric } from "./searchIntent";
 
 type SearchValueInput = Pick<
   ProductSearchResult,
@@ -25,8 +26,29 @@ function metric(label: string, value: number | null, suffix: string) {
 }
 
 export function primarySearchValueMetric(
-  product: SearchValueInput
+  product: SearchValueInput,
+  preferredMetric?: SearchIntentValueMetric
 ): SearchValueMetric | null {
+  if (preferredMetric === "price_per_serving") {
+    return metric("Per serving", product.verifiedPricePerServing, "per serving");
+  }
+
+  if (preferredMetric === "cost_per_25g_protein") {
+    return metric(
+      "Protein value",
+      product.verifiedCostPer25gProtein,
+      "per 25 g protein"
+    );
+  }
+
+  if (preferredMetric === "cost_per_5g_creatine") {
+    return metric(
+      "Creatine value",
+      product.verifiedCostPer5gCreatine,
+      "per 5 g creatine"
+    );
+  }
+
   return (
     metric(
       "Protein value",

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ProductSearchResult } from "../lib/products";
+import type { SearchValueMetric as SearchIntentValueMetric } from "../lib/searchIntent";
 import {
   buildBestOfferPricePresentation,
   formatOfferCheckedDate,
@@ -32,9 +33,11 @@ function formatVerifiedServings(value: number | string | null) {
 export default function ProductResultCard({
   product,
   searchMobileFirst = false,
+  preferredValueMetric,
 }: {
   product: ProductSearchResult;
   searchMobileFirst?: boolean;
+  preferredValueMetric?: SearchIntentValueMetric;
 }) {
   const { cheapestOffer } = product;
   const retailerName = cheapestOffer?.retailer?.name || null;
@@ -43,7 +46,7 @@ export default function ProductResultCard({
         deliveryComparisonComplete: product.deliveryComparisonComplete,
       })
     : null;
-  const valueMetric = primarySearchValueMetric(product);
+  const valueMetric = primarySearchValueMetric(product, preferredValueMetric);
   const packageSize = searchResultSize(product);
   const verifiedServings = formatVerifiedServings(product.serving_count_verified);
   const verificationDate = formatOfferCheckedDate(product.latestVerificationAt);

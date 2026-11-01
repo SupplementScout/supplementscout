@@ -63,7 +63,13 @@ export type AnalyticsEventMap = {
     filter_action: "apply" | "remove";
   };
   sort_used: {
-    sort_option: "relevance" | "price_asc" | "price_desc" | "price_per_serving_asc";
+    sort_option:
+      | "relevance"
+      | "price_asc"
+      | "price_desc"
+      | "price_per_serving_asc"
+      | "cost_per_25g_protein_asc"
+      | "cost_per_5g_creatine_asc";
   };
   retailer_offer_click: {
     product_id: string;

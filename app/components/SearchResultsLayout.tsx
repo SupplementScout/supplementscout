@@ -7,6 +7,7 @@ import type {
   SearchFilters as SearchFilterValues,
   SearchSort as SearchSortValue,
 } from "../lib/products";
+import type { SearchIntentUrlState } from "../lib/searchIntent";
 import SearchFilters from "./SearchFilters";
 import SearchSort from "./SearchSort";
 
@@ -14,6 +15,7 @@ export default function SearchResultsLayout({
   query,
   sort,
   filters,
+  intent,
   facets,
   totalCount,
   heading,
@@ -23,6 +25,7 @@ export default function SearchResultsLayout({
   query: string;
   sort: SearchSortValue;
   filters: SearchFilterValues;
+  intent: SearchIntentUrlState;
   facets: SearchFacets;
   totalCount: number;
   heading: ReactNode;
@@ -35,6 +38,11 @@ export default function SearchResultsLayout({
     filters.brand,
     filters.retailer,
     filters.caffeine,
+    intent.servingsMin,
+    intent.proteinMinG,
+    intent.caffeineMaxMg,
+    intent.format,
+    ...intent.ingredients,
   ].filter(Boolean).length;
   const hasFilterOptions =
     activeFilterCount > 0 ||
@@ -65,7 +73,12 @@ export default function SearchResultsLayout({
               </button>
             )}
             {totalCount > 0 && (
-              <SearchSort query={query} sort={sort} filters={filters} />
+              <SearchSort
+                query={query}
+                sort={sort}
+                filters={filters}
+                intent={intent}
+              />
             )}
           </div>
         )}
@@ -84,6 +97,7 @@ export default function SearchResultsLayout({
             query={query}
             sort={sort}
             filters={filters}
+            intent={intent}
             facets={facets}
             isOpen={filtersOpen}
             onClose={() => setFiltersOpen(false)}

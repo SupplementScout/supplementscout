@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import type { SearchFilters, SearchSort } from "../lib/products";
+import type { SearchIntentUrlState } from "../lib/searchIntent";
 import { sendAnalyticsEvent } from "../lib/analytics";
 import { searchUrl } from "../lib/searchUrl";
 
@@ -10,16 +11,20 @@ const sortOptions: Array<{ value: SearchSort; label: string }> = [
   { value: "price_asc", label: "Lowest delivered price" },
   { value: "price_desc", label: "Highest delivered price" },
   { value: "price_per_serving_asc", label: "Lowest price per serving" },
+  { value: "cost_per_25g_protein_asc", label: "Lowest cost per 25g protein" },
+  { value: "cost_per_5g_creatine_asc", label: "Lowest cost per 5g creatine" },
 ];
 
 export default function SearchSort({
   query,
   sort,
   filters,
+  intent,
 }: {
   query: string;
   sort: SearchSort;
   filters: SearchFilters;
+  intent: SearchIntentUrlState;
 }) {
   const router = useRouter();
 
@@ -41,6 +46,7 @@ export default function SearchSort({
               query,
               sort,
               filters,
+              intent,
               updates: { sort: value },
             })
           );
