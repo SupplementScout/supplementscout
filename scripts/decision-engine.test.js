@@ -503,6 +503,131 @@ test("shortlists are never padded and trade-offs remain structured", async () =>
   assert.equal(typeof result.shortlist[0].tradeOffs[0].value, "number");
 });
 
+test("equal penny prices do not create a higher-price trade-off", async () => {
+  const fixture = searchFixture([
+    candidate(1, { totalPrice: 20, pricePerServing: 0.4 }),
+    candidate(2, { totalPrice: 20, pricePerServing: 0.5 }),
+  ]);
+  const result = await engine.runDecisionEngine(
+    request("creatine price per serving"),
+    { search: fixture.search, now: NOW }
+  );
+  assert.ok(
+    result.shortlist.every(({ tradeOffs }) =>
+      tradeOffs.every(({ type }) => type !== "higher_upfront_price")
+    )
+  );
+});
+
+test("floating noise within one penny does not create a monetary trade-off", async () => {
+  const fixture = searchFixture([
+    candidate(1, { totalPrice: 20.0000001, pricePerServing: 0.4 }),
+    candidate(2, { totalPrice: 20.0000002, pricePerServing: 0.5 }),
+  ]);
+  const result = await engine.runDecisionEngine(
+    request("creatine price per serving"),
+    { search: fixture.search, now: NOW }
+  );
+  assert.ok(
+    result.shortlist.every(({ tradeOffs }) =>
+      tradeOffs.every(({ type }) => type !== "higher_upfront_price")
+    )
+  );
+});
+
+test("one penny creates a truthful one-penny higher-price trade-off", async () => {
+  const fixture = searchFixture([
+    candidate(1, { totalPrice: 20, pricePerServing: 0.4 }),
+    candidate(2, { totalPrice: 20.01, pricePerServing: 0.5 }),
+  ]);
+  const result = await engine.runDecisionEngine(
+    request("creatine price per serving"),
+    { search: fixture.search, now: NOW }
+  );
+  const tradeOff = result.shortlist[1].tradeOffs.find(
+    ({ type }) => type === "higher_upfront_price"
+  );
+  assert.deepEqual(tradeOff, {
+    type: "higher_upfront_price",
+    comparedToProductId: "1",
+    value: 20.01,
+    comparedValue: 20,
+  });
+  assert.equal(Number((tradeOff.value - tradeOff.comparedValue).toFixed(2)), 0.01);
+});
+
+test("sub-penny values that display as the same price remain tied", async () => {
+  const fixture = searchFixture([
+    candidate(1, { totalPrice: 20.004, pricePerServing: 0.4 }),
+    candidate(2, { totalPrice: 20.003, pricePerServing: 0.5 }),
+  ]);
+  const result = await engine.runDecisionEngine(
+    request("creatine price per serving"),
+    { search: fixture.search, now: NOW }
+  );
+  assert.ok(
+    result.shortlist.every(({ tradeOffs }) =>
+      tradeOffs.every(({ type }) => type !== "higher_upfront_price")
+    )
+  );
+});
+
+test("equal-penny cheapest selection keeps the stable product-ID tie-break", async () => {
+  const fixture = searchFixture([
+    candidate(20, { totalPrice: 20.003, pricePerServing: 0.4 }),
+    candidate(2, { totalPrice: 20.004, pricePerServing: 0.5 }),
+    candidate(9, { totalPrice: 20.02, pricePerServing: 0.6 }),
+  ]);
+  const result = await engine.runDecisionEngine(
+    request("creatine price per serving"),
+    { search: fixture.search, now: NOW }
+  );
+  const monetaryTradeOff = result.shortlist[2].tradeOffs.find(
+    ({ type }) => type === "higher_upfront_price"
+  );
+  assert.equal(monetaryTradeOff.comparedToProductId, "2");
+  assert.equal(
+    Number((monetaryTradeOff.value - monetaryTradeOff.comparedValue).toFixed(2)),
+    0.02
+  );
+});
+
+test("non-price trade-offs remain available for equal-price products", async () => {
+  const fixture = searchFixture([
+    candidate(1, { totalPrice: 20, pricePerServing: 0.4 }),
+    candidate(2, { totalPrice: 20, pricePerServing: 0.5, extraOffers: 1 }),
+  ]);
+  const result = await engine.runDecisionEngine(
+    request("creatine price per serving"),
+    { search: fixture.search, now: NOW }
+  );
+  assert.deepEqual(
+    result.shortlist[0].tradeOffs.map(({ type }) => type),
+    ["fewer_retailers"]
+  );
+});
+
+test("trade-offs remain capped at two when three disadvantages apply", async () => {
+  const fixture = searchFixture([
+    candidate(1, { totalPrice: 20, pricePerServing: 0.4, servings: 50 }),
+    candidate(2, {
+      totalPrice: 15,
+      pricePerServing: 0.5,
+      servings: 100,
+      extraOffers: 1,
+    }),
+  ]);
+  const result = await engine.runDecisionEngine(
+    request("creatine price per serving"),
+    { search: fixture.search, now: NOW }
+  );
+  assert.deepEqual(
+    result.shortlist[0].tradeOffs.map(({ type }) => type),
+    ["higher_upfront_price", "fewer_servings"]
+  );
+  assert.ok(result.shortlist.every(({ tradeOffs }) => tradeOffs.length <= 2));
+});
+
 test("shared search extension remains bounded and carries exact offer freshness", () => {
   assert.match(productsSource, /pageSize\?: number/);
   assert.match(productsSource, /Math\.min\(\s*SEARCH_RESULT_LOAD_LIMIT/);

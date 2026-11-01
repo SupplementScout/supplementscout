@@ -321,7 +321,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <footer className="px-4 pb-[calc(2.5rem+env(safe-area-inset-bottom))] pt-8 sm:px-6 sm:py-10">
+      <footer className="px-4 pb-[calc(2.5rem+env(safe-area-inset-bottom))] pt-8 sm:px-6 sm:py-10 xl:pb-[calc(5rem+env(safe-area-inset-bottom))]">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 border-t border-zinc-200 pt-8 text-sm text-zinc-500 sm:flex-row">
           <p>&copy; 2026 SupplementScout</p>
           <nav className="flex flex-wrap gap-4">
