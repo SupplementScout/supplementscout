@@ -63,6 +63,7 @@ export type SearchOffer = {
   product_variant_id: string | null;
   price: number | string | null;
   shipping_cost: number | string | null;
+  last_checked_at: string | null;
   url: string | null;
   in_stock: boolean | null;
   retailer: SearchRetailer | null;
@@ -985,6 +986,7 @@ export function normalizeSearchOffers(offers: RawOffer[], now = new Date()) {
             : String(offer.product_variant_id),
         price: offer.price,
         shipping_cost: offer.shipping_cost,
+        last_checked_at: offer.last_checked_at,
         url: offer.url,
         in_stock: offer.in_stock,
         productPrice,
@@ -1481,8 +1483,14 @@ export async function searchProducts(
   sort: SearchSort,
   filters: SearchFilters = { category: "", brand: "", retailer: "", caffeine: "" },
   requestedPage = 1,
-  options: { intentPlan?: SearchIntentPlan } = {}
+  options: { intentPlan?: SearchIntentPlan; pageSize?: number } = {}
 ) {
+  const pageSize = Number.isInteger(options.pageSize)
+    ? Math.min(
+        SEARCH_RESULT_LOAD_LIMIT,
+        Math.max(1, Number(options.pageSize))
+      )
+    : SEARCH_PAGE_SIZE;
   const intent = options.intentPlan || buildSearchIntentPlan(query, {
     caffeineFree: filters.caffeine === "free",
     requestedSort: sort,
@@ -1499,7 +1507,7 @@ export async function searchProducts(
       totalCount: 0,
       unfilteredCount: 0,
       page: 1,
-      pageSize: SEARCH_PAGE_SIZE,
+      pageSize,
       totalPages: 1,
       startResult: 0,
       endResult: 0,
@@ -1563,7 +1571,7 @@ export async function searchProducts(
       totalCount: 0,
       unfilteredCount: 0,
       page: 1,
-      pageSize: SEARCH_PAGE_SIZE,
+      pageSize,
       totalPages: 1,
       startResult: 0,
       endResult: 0,
@@ -1647,13 +1655,13 @@ export async function searchProducts(
     }
   );
   const totalCount = sortedResults.length;
-  const totalPages = Math.max(1, Math.ceil(totalCount / SEARCH_PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
   const page = Math.min(requestedPage, totalPages);
-  const startIndex = totalCount === 0 ? 0 : (page - 1) * SEARCH_PAGE_SIZE;
+  const startIndex = totalCount === 0 ? 0 : (page - 1) * pageSize;
   const endIndex =
     totalCount === 0
       ? 0
-      : Math.min(startIndex + SEARCH_PAGE_SIZE, totalCount);
+      : Math.min(startIndex + pageSize, totalCount);
   const metadata: SearchMetadata = {
     ...searchMetadata,
     matchStatus:
@@ -1670,7 +1678,7 @@ export async function searchProducts(
     totalCount,
     unfilteredCount: baseResults.length,
     page,
-    pageSize: SEARCH_PAGE_SIZE,
+    pageSize,
     totalPages,
     startResult: totalCount === 0 ? 0 : startIndex + 1,
     endResult: endIndex,

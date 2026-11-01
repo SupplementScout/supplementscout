@@ -760,6 +760,13 @@ test("search intent preserves the safe delivered-price ceiling in the shared pla
     assert.equal(plan.filters.maxDeliveredPrice, 20, query);
   }
 
+  const combined = parseSearchIntent(
+    "creatine under £20 with at least 100 servings"
+  );
+  assert.equal(combined.textQuery, "creatine");
+  assert.equal(combined.filters.maxDeliveredPrice, 20);
+  assert.equal(combined.filters.minVerifiedServings, 100);
+
   const caffeineFree = parseSearchIntent("pre workout without caffeine");
   assert.equal(caffeineFree.textQuery, "pre workout");
   assert.equal(caffeineFree.filters.caffeineFree, true);
@@ -777,6 +784,7 @@ test("bounded intent grammar cleans supported structural clauses", () => {
     ["creatine 100+ servings", "creatine", "relevance", { minVerifiedServings: 100 }],
     ["whey 25g protein", "whey", "relevance", { minProteinPerServingG: 25 }],
     ["whey 25 g protein per serving", "whey", "relevance", { minProteinPerServingG: 25 }],
+    ["whey with at least 25g protein and lowest price per serving", "whey", "price_per_serving_asc", { minProteinPerServingG: 25 }],
     ["pre workout under 200mg caffeine", "pre workout", "relevance", { maxCaffeineMg: 200 }],
     ["pre workout max 200 mg caffeine", "pre workout", "relevance", { maxCaffeineMg: 200 }],
     ["caffeine free pre workout", "pre workout", "relevance", { caffeineFree: true }],

@@ -104,7 +104,7 @@ export const SEARCH_VALUE_METRICS: Record<
     label: "Lowest cost per serving",
     applicability: "Products with a verified serving count",
     patterns: [
-      /\b(?:price|cost|cheapest)\s+per\s+serving\b/gi,
+      /\b(?:lowest\s+)?(?:price|cost|cheapest)\s+per\s+serving\b/gi,
       /\bcheapest\s+by\s+(?:price|cost)\s+per\s+serving\b/gi,
     ],
   },
@@ -113,7 +113,7 @@ export const SEARCH_VALUE_METRICS: Record<
     label: "Lowest cost per 25 g protein",
     applicability: "Products with verified protein per serving",
     patterns: [
-      /\b(?:price|cost|cheapest)\s+per\s+25\s*g(?:\s+(?:of\s+)?protein)?\b/gi,
+      /\b(?:lowest\s+)?(?:price|cost|cheapest)\s+per\s+25\s*g(?:\s+(?:of\s+)?protein)?\b/gi,
     ],
   },
   cost_per_5g_creatine: {
@@ -121,7 +121,7 @@ export const SEARCH_VALUE_METRICS: Record<
     label: "Lowest cost per 5 g creatine",
     applicability: "Powder products with verified creatine and serving data",
     patterns: [
-      /\b(?:price|cost|cheapest)\s+per\s+5\s*g(?:\s+(?:of\s+)?creatine)?\b/gi,
+      /\b(?:lowest\s+)?(?:price|cost|cheapest)\s+per\s+5\s*g(?:\s+(?:of\s+)?creatine)?\b/gi,
     ],
   },
 };
@@ -240,7 +240,7 @@ function replaceMatches(
 function cleanStructuralText(value: string) {
   return normalizeWhitespace(
     value
-      .replace(/\b(?:with|and)\s*(?=$)/gi, " ")
+      .replace(/(?:\b(?:with|and)\b\s*)+$/gi, " ")
       .replace(/^\s*(?:and|with)\b/gi, " ")
       .replace(/\s+([,;])/g, "$1")
       .replace(/[,;]+\s*$/g, " ")
@@ -376,16 +376,28 @@ export function buildSearchIntentPlan(
   );
   caffeineFree = foundCaffeineFree;
 
+  working = working.replace(
+    /\b(?:under|below|up\s+to|less\s+than)\s*£\s*(\d+(?:\.\d{1,2})?)\b/gi,
+    (match, amount: string) => {
+      const parsedBudget = positiveNumber(amount, 1_000);
+      if (parsedBudget === null) return match;
+      maxDeliveredPrice ??= parsedBudget;
+      return " ";
+    }
+  );
+
   const budgetMatch = working.match(
-    /\b(?:under|below|up\s+to|less\s+than)\s*£?\s*(\d+(?:\.\d{1,2})?)\s*$/i
+    /\b(?:under|below|up\s+to|less\s+than)\s*(\d+(?:\.\d{1,2})?)\s*$/i
   );
   if (budgetMatch) {
     const parsedBudget = positiveNumber(budgetMatch[1], 1_000);
     if (parsedBudget !== null) {
       maxDeliveredPrice = parsedBudget;
       working = working.slice(0, budgetMatch.index).trim();
-      working = working.replace(/^(?:best)\s+/i, "");
     }
+  }
+  if (maxDeliveredPrice !== null) {
+    working = working.replace(/^(?:best)\s+/i, "");
   }
 
   let foundCheap = false;

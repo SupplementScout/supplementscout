@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 346,
-    "sha256": "5d46b6ca333a5052a0f77a1cc0261d9698b2fd5f8921f5063f83e16f151ad737"
+    "count": 348,
+    "sha256": "f487beeeb904e80c06fdfeadbd521bd475bb7446b038fa601c278fbc8843a8d6"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -88,8 +88,10 @@
     "scripts/category-decision.test.js",
     "scripts/category-landing-relevance.test.js",
     "scripts/deals-page.test.js",
+    "scripts/decision-engine.test.js",
     "scripts/durable-sealed-artifacts-phase-b.test.js",
     "scripts/ebay-account-deletion.test.js",
+    "scripts/help-me-choose-page.test.js",
     "scripts/indexability-lifecycle.test.js",
     "scripts/my-supplements.test.js",
     "scripts/offer-freshness.test.js",
