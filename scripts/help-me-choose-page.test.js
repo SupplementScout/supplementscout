@@ -30,6 +30,13 @@ test("Help Me Choose uses shareable GET state and Next 16 async searchParams", (
   assert.match(page, /searchParams: Promise<HelpMeChooseSearchParams>/);
   assert.match(page, /const params = await searchParams/);
   assert.match(page, /priority/);
+  assert.match(page, /searchIntentParamsFromPlan\(options\.plan\)/);
+  assert.doesNotMatch(page, /function decisionHref\(options: \{[^}]*caffeineFree:/);
+});
+
+test("priority selection uses document navigation so history reloads URL-derived state", () => {
+  assert.match(analyticsComponent, /<a\s+href=\{href\}/);
+  assert.doesNotMatch(analyticsComponent, /<Link\s+href=\{href\}[\s\S]*decision_priority_selected/);
 });
 test("canonical base is stable and parameterized decision states are noindex follow", () => {
   assert.match(page, /alternates: \{ canonical: "\/help-me-choose" \}/);
@@ -61,4 +68,5 @@ test("UI is semantic, mobile-first and contains no score or chat treatment", () 
   assert.match(page, /overflow-x-hidden/);
   assert.match(page, /grid gap-4 lg:grid-cols-3/);
   assert.doesNotMatch(page, /message bubble|chat transcript|scout score/i);
+  assert.doesNotMatch(page, /deterministic product matching|comparable current candidate|fresh exact-variant offer|does not use AI/i);
 });

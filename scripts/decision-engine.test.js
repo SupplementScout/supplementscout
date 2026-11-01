@@ -227,6 +227,75 @@ test("request A returns at most three exact variants ordered by delivered price"
   assert.equal(fixture.calls[0][4].pageSize, 1000);
 });
 
+for (const testCase of [
+  {
+    priority: "LOWEST_DELIVERED_PRICE",
+    query: "creatine",
+    winnerLabel: "Lowest delivered price",
+    metricLabel: "Delivered price",
+    values: [
+      { totalPrice: 30 },
+      { totalPrice: 10 },
+      { totalPrice: 20 },
+    ],
+  },
+  {
+    priority: "LOWEST_PRICE_PER_SERVING",
+    query: "creatine",
+    winnerLabel: "Lowest cost per serving",
+    metricLabel: "Cost per serving",
+    values: [
+      { pricePerServing: 0.6 },
+      { pricePerServing: 0.4 },
+      { pricePerServing: 0.5 },
+    ],
+  },
+  {
+    priority: "LOWEST_COST_PER_25G_PROTEIN",
+    query: "whey",
+    winnerLabel: "Lowest cost per 25 g protein",
+    metricLabel: "Cost per 25 g protein",
+    values: [
+      { category: "Whey Protein", costPer25g: 0.6 },
+      { category: "Whey Protein", costPer25g: 0.4 },
+      { category: "Whey Protein", costPer25g: 0.5 },
+    ],
+  },
+  {
+    priority: "LOWEST_COST_PER_5G_CREATINE",
+    query: "creatine",
+    winnerLabel: "Lowest cost per 5 g creatine",
+    metricLabel: "Cost per 5 g creatine",
+    values: [
+      { costPer5g: 0.6 },
+      { costPer5g: 0.4 },
+      { costPer5g: 0.5 },
+    ],
+  },
+]) {
+  test(`${testCase.priority} reserves its superlative reason for Pick 1`, async () => {
+    const fixture = searchFixture(
+      testCase.values.map((values, index) => candidate(index + 1, values))
+    );
+    const result = await engine.runDecisionEngine(
+      request(testCase.query, { explicitPriority: testCase.priority }),
+      { search: fixture.search, now: NOW }
+    );
+
+    assert.equal(result.status, "ANSWERED");
+    assert.equal(result.shortlist[0].primaryReason.label, testCase.winnerLabel);
+    assert.deepEqual(
+      result.shortlist.slice(1).map(({ primaryReason }) => primaryReason.label),
+      [testCase.metricLabel, testCase.metricLabel]
+    );
+    assert.ok(
+      result.shortlist.slice(1).every(
+        ({ primaryReason }) => !/\blowest\b/i.test(primaryReason.label)
+      )
+    );
+  });
+}
+
 test("request B applies hard constraints and asks exactly one priority question", async () => {
   const decisionRequest = request("creatine under £20 with at least 100 servings");
   assert.equal(decisionRequest.intentPlan.filters.maxDeliveredPrice, 20);
@@ -277,23 +346,71 @@ test("request C ranks only verified protein variants by price per serving", asyn
   assert.deepEqual(result.shortlist.map(({ productId }) => productId), ["2", "1"]);
 });
 
-test("requests D and E preserve exact reviewed filters and need a priority", async () => {
-  for (const query of [
-    "pre workout under 200mg caffeine with citrulline",
-    "caffeine free pre workout",
-  ]) {
-    const decisionRequest = request(query);
-    const fixture = searchFixture([
-      candidate(1, { category: "Pre Workout" }),
-      candidate(2, { category: "Pre Workout" }),
-    ]);
-    const result = await engine.runDecisionEngine(decisionRequest, {
-      search: fixture.search,
-      now: NOW,
-    });
-    assert.equal(result.status, "NEEDS_CLARIFICATION");
-    assert.equal(result.clarification.kind, "PRIMARY_PRIORITY");
-  }
+test("request D auto-resolves its only applicable priority without claiming a user choice", async () => {
+  const decisionRequest = request(
+    "pre workout under 200mg caffeine with citrulline"
+  );
+  const fixture = searchFixture([
+    candidate(1, { category: "Pre Workout", pricePerServing: null }),
+    candidate(2, { category: "Pre Workout", pricePerServing: null }),
+  ]);
+  const result = await engine.runDecisionEngine(decisionRequest, {
+    search: fixture.search,
+    now: NOW,
+  });
+
+  assert.equal(result.status, "ANSWERED");
+  assert.equal(result.interpretedRequest.primaryPriority, "LOWEST_DELIVERED_PRICE");
+  assert.equal(result.interpretedRequest.primaryPrioritySource, null);
+  assert.equal(result.clarification, null);
+});
+
+test("request E preserves caffeine-free intent while asking between applicable priorities", async () => {
+  const decisionRequest = request("caffeine free pre workout");
+  const fixture = searchFixture([
+    candidate(1, { category: "Pre Workout", caffeineFreeConfirmed: true }),
+    candidate(2, { category: "Pre Workout", caffeineFreeConfirmed: true }),
+  ]);
+  const result = await engine.runDecisionEngine(decisionRequest, {
+    search: fixture.search,
+    now: NOW,
+  });
+
+  assert.equal(result.status, "NEEDS_CLARIFICATION");
+  assert.equal(result.clarification.kind, "PRIMARY_PRIORITY");
+  assert.equal(decisionRequest.intentPlan.filters.caffeineFree, true);
+});
+
+test("serialized caffeine-free priority selection rebuilds the same DecisionRequest", () => {
+  const originalPlan = searchIntent.buildSearchIntentPlan(
+    "caffeine free pre workout"
+  );
+  const params = searchIntent.searchIntentParamsFromPlan(originalPlan);
+  params.set("priority", "lowest_delivered_price");
+  const explicit = searchIntent.normalizeSearchIntentUrlState({
+    servings_min: params.get("servings_min") || undefined,
+    protein_min_g: params.get("protein_min_g") || undefined,
+    caffeine_max_mg: params.get("caffeine_max_mg") || undefined,
+    format: params.get("format") || undefined,
+    ingredient: params.getAll("ingredient"),
+  });
+  const reloadedPlan = searchIntent.buildSearchIntentPlan(
+    params.get("q") || "",
+    {
+      explicit,
+      caffeineFree: params.get("caffeine") === "free",
+    }
+  );
+  const reloadedRequest = engine.createDecisionRequest({
+    intentPlan: reloadedPlan,
+    explicitPriority: engine.normalizeDecisionPriority(params.get("priority")),
+  });
+
+  assert.equal(params.get("q"), "pre workout");
+  assert.equal(params.get("caffeine"), "free");
+  assert.equal(reloadedRequest.intentPlan.filters.caffeineFree, true);
+  assert.equal(reloadedRequest.primaryPriority, "LOWEST_DELIVERED_PRICE");
+  assert.equal(reloadedRequest.primaryPrioritySource, "url");
 });
 
 test("request F is a DATA_GAP and request G is a SAFETY_BOUNDARY without search", async () => {

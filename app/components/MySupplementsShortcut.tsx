@@ -26,7 +26,7 @@ export default function MySupplementsShortcut() {
     <Link
       href="/my-supplements"
       data-my-supplements-shortcut
-      className="static z-30 mb-[max(0.75rem,env(safe-area-inset-bottom))] mr-[max(0.75rem,env(safe-area-inset-right))] mt-4 inline-flex min-h-12 max-w-[calc(100vw-1.5rem)] self-end items-center rounded-full border border-[var(--ss-border-strong)] bg-white px-4 text-sm font-bold text-[var(--ss-ink)] shadow-[0_10px_30px_rgba(16,32,27,0.14)] hover:border-[var(--ss-accent)] hover:bg-[var(--ss-surface-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2 sm:fixed sm:bottom-4 sm:right-4 sm:m-0 sm:px-5"
+      className="static z-30 mb-[max(0.75rem,env(safe-area-inset-bottom))] mr-[max(0.75rem,env(safe-area-inset-right))] mt-4 inline-flex min-h-12 max-w-[calc(100vw-1.5rem)] self-end items-center rounded-full border border-[var(--ss-border-strong)] bg-white px-4 text-sm font-bold text-[var(--ss-ink)] shadow-[0_10px_30px_rgba(16,32,27,0.14)] hover:border-[var(--ss-accent)] hover:bg-[var(--ss-surface-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2 xl:fixed xl:bottom-4 xl:right-4 xl:m-0 xl:px-5"
       aria-label={`My Supplements, ${count} saved`}
     >
       My Supplements{count > 0 ? ` (${count})` : ""}

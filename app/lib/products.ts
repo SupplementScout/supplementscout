@@ -21,9 +21,8 @@ import { loadAppliedPreWorkoutFacts } from "./reviewedPreWorkoutFacts.server";
 import type { AppliedPreWorkoutFacts } from "./reviewedPreWorkoutFacts";
 import {
   buildSearchIntentPlan,
-  canonicalIntentQuery,
   hasStructuredSearchIntent,
-  intentUrlStateFromPlan,
+  searchIntentParamsFromPlan,
   type IntentSearchSort,
   type ReviewedSearchIngredient,
   type SearchIntentFilters,
@@ -676,23 +675,7 @@ function searchUrlForSuggestion(query: string, intent?: SearchIntentPlan) {
     return `/search?q=${encodeURIComponent(query)}`;
   }
 
-  const params = new URLSearchParams();
-  const state = intentUrlStateFromPlan(intent);
-  params.set("q", canonicalIntentQuery({ ...intent, textQuery: query }));
-  if (state.servingsMin !== null) {
-    params.set("servings_min", String(state.servingsMin));
-  }
-  if (state.proteinMinG !== null) {
-    params.set("protein_min_g", String(state.proteinMinG));
-  }
-  if (state.caffeineMaxMg !== null) {
-    params.set("caffeine_max_mg", String(state.caffeineMaxMg));
-  }
-  if (state.format !== null) params.set("format", state.format);
-  for (const ingredient of state.ingredients) {
-    params.append("ingredient", ingredient);
-  }
-  if (intent.filters.caffeineFree) params.set("caffeine", "free");
+  const params = searchIntentParamsFromPlan({ ...intent, textQuery: query });
   if (intent.sort !== "relevance") params.set("sort", intent.sort);
   return `/search?${params.toString()}`;
 }

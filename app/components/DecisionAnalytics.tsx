@@ -57,7 +57,7 @@ export function DecisionPriorityLink({
   children: React.ReactNode;
 }) {
   return (
-    <Link
+    <a
       href={href}
       onClick={() =>
         sendAnalyticsEvent("decision_priority_selected", { priority })
@@ -65,7 +65,7 @@ export function DecisionPriorityLink({
       className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[var(--ss-border-strong)] bg-white px-4 py-3 text-center text-sm font-semibold text-[var(--ss-ink)] transition-colors hover:border-[var(--ss-accent)] hover:text-[var(--ss-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
     >
       {children}
-    </Link>
+    </a>
   );
 }
 export function DecisionProductLink({

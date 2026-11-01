@@ -582,6 +582,35 @@ export function intentUrlStateFromPlan(
   };
 }
 
+export function appendSearchIntentUrlState(
+  params: URLSearchParams,
+  state: SearchIntentUrlState
+) {
+  if (state.servingsMin !== null) {
+    params.set("servings_min", String(state.servingsMin));
+  }
+  if (state.proteinMinG !== null) {
+    params.set("protein_min_g", String(state.proteinMinG));
+  }
+  if (state.caffeineMaxMg !== null) {
+    params.set("caffeine_max_mg", String(state.caffeineMaxMg));
+  }
+  if (state.format !== null) params.set("format", state.format);
+  for (const ingredient of state.ingredients) {
+    params.append("ingredient", ingredient);
+  }
+  return params;
+}
+
+export function searchIntentParamsFromPlan(plan: SearchIntentPlan) {
+  const params = new URLSearchParams();
+  const query = canonicalIntentQuery(plan);
+  if (query) params.set("q", query);
+  appendSearchIntentUrlState(params, intentUrlStateFromPlan(plan));
+  if (plan.filters.caffeineFree) params.set("caffeine", "free");
+  return params;
+}
+
 export function canonicalIntentQuery(plan: SearchIntentPlan) {
   const clauses = [plan.textQuery];
 

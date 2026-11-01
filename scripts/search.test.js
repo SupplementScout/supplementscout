@@ -511,9 +511,11 @@ const {
   });
 const { searchUrl } = loadSearchUrlModule();
 const {
+  buildSearchIntentPlan,
   canonicalIntentQuery,
   intentUrlStateFromPlan,
   normalizeSearchIntentUrlState,
+  searchIntentParamsFromPlan,
 } = loadSearchIntentModule();
 
 const { searchProducts: searchProductsWithNoResults } = loadProductsModule({
@@ -1472,6 +1474,34 @@ test("delivered-price intent stays in q instead of creating a duplicate URL para
 
   assert.match(url, /q=creatine\+under\+%C2%A320/);
   assert.doesNotMatch(url, /(?:max_price|price_max|delivered_price)/);
+});
+
+test("effective intent serialization preserves every reviewed hard constraint on reload", () => {
+  const plans = [
+    parseSearchIntent("caffeine free pre workout"),
+    buildSearchIntentPlan("pre workout", { caffeineFree: true }),
+    parseSearchIntent("pre workout under 200mg caffeine with citrulline powder"),
+    parseSearchIntent("whey under £40 with at least 50 servings and 25g protein"),
+  ];
+
+  for (const plan of plans) {
+    const params = searchIntentParamsFromPlan(plan);
+    params.set("priority", "lowest_delivered_price");
+    const explicit = normalizeSearchIntentUrlState({
+      servings_min: params.get("servings_min") || undefined,
+      protein_min_g: params.get("protein_min_g") || undefined,
+      caffeine_max_mg: params.get("caffeine_max_mg") || undefined,
+      format: params.get("format") || undefined,
+      ingredient: params.getAll("ingredient"),
+    });
+    const reloaded = buildSearchIntentPlan(params.get("q") || "", {
+      explicit,
+      caffeineFree: params.get("caffeine") === "free",
+    });
+
+    assert.deepEqual(reloaded.filters, plan.filters);
+    assert.equal(params.get("priority"), "lowest_delivered_price");
+  }
 });
 
 test("confirmed caffeine-free search requires exact variant proof and a current offer", async () => {

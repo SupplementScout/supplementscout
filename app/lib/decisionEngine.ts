@@ -152,7 +152,8 @@ type PriorityDefinition = {
   sort: SearchSort;
   valueMetric: SearchValueMetric | null;
   reasonType: DecisionReasonType;
-  reasonLabel: string;
+  winnerReasonLabel: string;
+  metricLabel: string;
   evidenceBasis: string;
 };
 
@@ -165,35 +166,39 @@ export const DECISION_PRIORITY_DEFINITIONS: Record<
     sort: "price_asc",
     valueMetric: null,
     reasonType: "lowest_delivered_price",
-    reasonLabel: "Lowest delivered price",
-    evidenceBasis: "Fresh product price plus known delivery for this exact variant.",
+    winnerReasonLabel: "Lowest delivered price",
+    metricLabel: "Delivered price",
+    evidenceBasis: "Current product price plus known delivery for this variant.",
   },
   LOWEST_PRICE_PER_SERVING: {
     label: "Lowest cost per serving",
     sort: "price_per_serving_asc",
     valueMetric: "price_per_serving",
     reasonType: "lowest_price_per_serving",
-    reasonLabel: "Lowest cost per serving",
+    winnerReasonLabel: "Lowest cost per serving",
+    metricLabel: "Cost per serving",
     evidenceBasis:
-      "Fresh delivered total divided by the verified serving count for this exact variant.",
+      "Current delivered price divided by the verified serving count for this variant.",
   },
   LOWEST_COST_PER_25G_PROTEIN: {
     label: "Lowest cost per 25 g protein",
     sort: "cost_per_25g_protein_asc",
     valueMetric: "cost_per_25g_protein",
     reasonType: "lowest_cost_per_25g_protein",
-    reasonLabel: "Lowest cost per 25 g protein",
+    winnerReasonLabel: "Lowest cost per 25 g protein",
+    metricLabel: "Cost per 25 g protein",
     evidenceBasis:
-      "Fresh delivered total and verified protein data for this exact variant.",
+      "Current delivered price and verified protein details for this variant.",
   },
   LOWEST_COST_PER_5G_CREATINE: {
     label: "Lowest cost per 5 g creatine",
     sort: "cost_per_5g_creatine_asc",
     valueMetric: "cost_per_5g_creatine",
     reasonType: "lowest_cost_per_5g_creatine",
-    reasonLabel: "Lowest cost per 5 g creatine",
+    winnerReasonLabel: "Lowest cost per 5 g creatine",
+    metricLabel: "Cost per 5 g creatine",
     evidenceBasis:
-      "Fresh delivered total and verified creatine data for this exact variant.",
+      "Current delivered price and verified creatine details for this variant.",
   },
 };
 
@@ -570,7 +575,8 @@ function sortCandidates(
 
 function reasonForCandidate(
   candidate: DecisionCandidate,
-  priority: DecisionPriority
+  priority: DecisionPriority,
+  rank: number
 ): DecisionReason {
   const definition = DECISION_PRIORITY_DEFINITIONS[priority];
   const value = metricForPriority(candidate, priority) as number;
@@ -584,7 +590,8 @@ function reasonForCandidate(
           : " per 5 g creatine";
   return {
     type: definition.reasonType,
-    label: definition.reasonLabel,
+    label:
+      rank === 1 ? definition.winnerReasonLabel : definition.metricLabel,
     value,
     display: `${formatCurrency(value)}${suffix}`,
     evidenceBasis: definition.evidenceBasis,
@@ -607,7 +614,7 @@ function shortlistItem(
     category: candidate.product.category,
     image: candidate.product.image,
     exactVariantLabel: candidate.exactVariantLabel,
-    primaryReason: reasonForCandidate(candidate, priority),
+    primaryReason: reasonForCandidate(candidate, priority, rank),
     tradeOffs: [],
     deliveredPrice: {
       productPrice: candidate.productPrice,
@@ -781,7 +788,7 @@ export async function runDecisionEngine(
         ? [
             {
               reason:
-                "No fresh exact-variant offer with a complete delivered price",
+                "No current offer with a complete delivered price for this variant",
               count: exactVariantExcludedCount,
             },
           ]
@@ -793,18 +800,23 @@ export async function runDecisionEngine(
       ...withCandidateCounts,
       status: "DATA_GAP",
       message:
-        "No current exact-variant products satisfy every requirement with a complete delivered price.",
+        "No current products meet every requirement with a known delivered price.",
     };
   }
 
-  if (!request.primaryPriority && candidates.length > 1) {
+  const applicablePriorities = applicablePriorityChoices(candidates);
+  if (
+    !request.primaryPriority &&
+    candidates.length > 1 &&
+    applicablePriorities.length > 1
+  ) {
     return {
       ...withCandidateCounts,
       status: "NEEDS_CLARIFICATION",
       clarification: {
         kind: "PRIMARY_PRIORITY",
         question: "What matters most?",
-        choices: applicablePriorityChoices(candidates),
+        choices: applicablePriorities,
         actionHref: null,
       },
       message: "Choose one priority so the shortlist has one clear ordering rule.",
@@ -812,7 +824,9 @@ export async function runDecisionEngine(
   }
 
   const resolvedPriority =
-    request.primaryPriority || "LOWEST_DELIVERED_PRICE";
+    request.primaryPriority ||
+    applicablePriorities[0]?.priority ||
+    "LOWEST_DELIVERED_PRICE";
   const eligible = candidates.filter(
     (candidate) => metricForPriority(candidate, resolvedPriority) !== null
   );
@@ -821,13 +835,13 @@ export async function runDecisionEngine(
     return {
       ...withCandidateCounts,
       status: "DATA_GAP",
-      message: `No current exact-variant products have the verified metric required for ${DECISION_PRIORITY_DEFINITIONS[
+      message: `No current products have the verified details required for ${DECISION_PRIORITY_DEFINITIONS[
         resolvedPriority
       ].label.toLowerCase()}.`,
       ineligible: [
         ...withCandidateCounts.ineligible,
         {
-          reason: `Missing verified metric for ${DECISION_PRIORITY_DEFINITIONS[resolvedPriority].label}`,
+          reason: `Missing verified details for ${DECISION_PRIORITY_DEFINITIONS[resolvedPriority].label}`,
           count: missingMetricCount,
         },
       ],
@@ -858,7 +872,7 @@ export async function runDecisionEngine(
         ? [
             ...withCandidateCounts.ineligible,
             {
-              reason: `Missing verified metric for ${DECISION_PRIORITY_DEFINITIONS[resolvedPriority].label}`,
+              reason: `Missing verified details for ${DECISION_PRIORITY_DEFINITIONS[resolvedPriority].label}`,
               count: missingMetricCount,
             },
           ]

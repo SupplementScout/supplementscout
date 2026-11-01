@@ -24,9 +24,8 @@ import { formatCurrency } from "../lib/pricing";
 import { normalizeSearchFilters, normalizeSearchQuery } from "../lib/products";
 import {
   buildSearchIntentPlan,
-  canonicalIntentQuery,
-  intentUrlStateFromPlan,
   normalizeSearchIntentUrlState,
+  searchIntentParamsFromPlan,
   type SearchIntentPlan,
 } from "../lib/searchIntent";
 
@@ -52,7 +51,7 @@ type PageProps = {
 
 const title = "Help Me Choose a Supplement";
 const description =
-  "Describe what matters to you and get a deterministic shortlist using current delivered prices and verified product facts.";
+  "Describe what matters to you and compare current delivered prices with verified product details.";
 
 export async function generateMetadata({
   searchParams,
@@ -86,28 +85,10 @@ function decisionHref(options: {
   plan: SearchIntentPlan;
   priority: DecisionPriority;
   category: string;
-  caffeineFree: boolean;
 }) {
-  const params = new URLSearchParams();
-  const query = canonicalIntentQuery(options.plan);
-  const intent = intentUrlStateFromPlan(options.plan);
-  if (query) params.set("q", query);
+  const params = searchIntentParamsFromPlan(options.plan);
   params.set("priority", decisionPriorityUrlValue(options.priority));
   if (options.category) params.set("category", options.category);
-  if (options.caffeineFree) params.set("caffeine", "free");
-  if (intent.servingsMin !== null) {
-    params.set("servings_min", String(intent.servingsMin));
-  }
-  if (intent.proteinMinG !== null) {
-    params.set("protein_min_g", String(intent.proteinMinG));
-  }
-  if (intent.caffeineMaxMg !== null) {
-    params.set("caffeine_max_mg", String(intent.caffeineMaxMg));
-  }
-  if (intent.format) params.set("format", intent.format);
-  if (intent.ingredients.length > 0) {
-    params.set("ingredient", intent.ingredients.join(","));
-  }
   return `/help-me-choose?${params.toString()}`;
 }
 
@@ -357,14 +338,14 @@ export default async function HelpMeChoosePage({ searchParams }: PageProps) {
       <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
         <section className="mx-auto max-w-3xl text-center">
           <StatusBadge tone="evidence" icon="shield" className="uppercase tracking-[0.14em] text-[var(--ss-accent)]">
-            Deterministic product matching
+            Current price and product matching
           </StatusBadge>
           <h1 className="mt-4 text-4xl font-extrabold tracking-[-0.035em] sm:text-5xl">
             Help me choose
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-zinc-700 sm:text-lg">
-            Describe the supplement and shopping facts that matter to you. We
-            use current prices and verified product data—never a hidden score.
+            Describe the supplement and shopping details that matter to you.
+            We compare current prices with verified product details.
           </p>
 
           <Form
@@ -439,7 +420,6 @@ export default async function HelpMeChoosePage({ searchParams }: PageProps) {
                       plan,
                       priority: choice.priority,
                       category: normalizedFilters.category,
-                      caffeineFree: normalizedFilters.caffeine === "free",
                     })}
                   >
                     {choice.label}
@@ -510,15 +490,15 @@ export default async function HelpMeChoosePage({ searchParams }: PageProps) {
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--ss-accent)]">
-                    Evidence-backed shortlist
+                    Current matching products
                   </p>
                   <h2 id="top-picks-heading" className="mt-1 text-3xl font-extrabold tracking-tight">
                     Top picks
                   </h2>
                 </div>
                 <p className="text-sm text-zinc-600">
-                  {result.eligibleCandidateCount.toLocaleString("en-GB")} comparable current candidate
-                  {result.eligibleCandidateCount === 1 ? "" : "s"} · showing {result.shortlist.length}
+                  {result.eligibleCandidateCount.toLocaleString("en-GB")} current match
+                  {result.eligibleCandidateCount === 1 ? "" : "es"} · showing {result.shortlist.length}
                 </p>
               </div>
 
@@ -535,7 +515,7 @@ export default async function HelpMeChoosePage({ searchParams }: PageProps) {
 
               {result.ineligible.length > 0 && (
                 <p className="mt-5 text-sm leading-6 text-zinc-600">
-                  Products without the required verified metric, complete delivery price or fresh exact-variant offer were not used to fill the shortlist.
+                  Products without the required details, known delivery price or current offer were not included.
                 </p>
               )}
             </section>
@@ -545,7 +525,7 @@ export default async function HelpMeChoosePage({ searchParams }: PageProps) {
           <div className="flex items-start gap-3">
             <SupplementScoutIcon name="shield" size={20} className="mt-0.5 shrink-0 text-[var(--ss-accent)]" />
             <p>
-              Help Me Choose applies verified shopping facts and current offer data. It does not use AI, personal supplement history or medical suitability claims.
+              Help Me Choose uses current prices and verified shopping facts. It does not rank products for personal medical suitability.
             </p>
           </div>
         </section>
