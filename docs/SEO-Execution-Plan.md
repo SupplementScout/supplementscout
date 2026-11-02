@@ -1,10 +1,22 @@
 # SupplementScout SEO Execution Plan
 
-**Status date:** 15 October 2026<br>
+**Status date:** 2 November 2026<br>
 **Owner:** SupplementScout  
 **Scope:** Organic search traffic, indexation, internal discovery, search landing
 pages, structured data, measurement and authority building.  
 **Parent authority:** `docs/SupplementScout-Operating-Plan-2026-07-15.md`
+
+**2 November 2026 owner-approved post-SEO-15 order:** this documentation-only
+governance decision changes the binding future sequence, effective only after
+formal SEO-15 closeout, to `SEO-18` (homepage self-canonical plus one clean
+Help Me Choose sitemap entry), then `SEO-19` (reciprocal Vitamins and
+Multivitamins links), then the `SEO-20` PER4M title-only experiment. `SEO-15`
+remains the sole `IN PROGRESS` SEO task. `SEO-17` remains `PLANNED` and returns
+to owner review only when an exact, non-duplicative `/whey-protein`
+owner-reviewed decision-note payload is supplied. This roadmap approval does
+not authorize feature implementation, a production merge, a PER4M title
+deployment, a database write or public SEO-15 Stage 3 activation. See the
+[dated alignment record](rollouts/phase5-seo-roadmap-alignment-2026-11-02.md).
 
 **15 October GYM HIGH source release:** a fresh repeatable-read,
 read-only production audit confirms `50` mature non-quarantined GYM HIGH series,
@@ -228,7 +240,10 @@ Console evidence and user value.
 | SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `LIVE VERIFIED` | Applied Nutrition, Per4m, BioTech USA and eBay UK are individually gated and live verified. The GYM HIGH owner defer ended on 14 October, but any new page still requires a fresh gate, route registration and the complete indexability lifecycle; no dynamic page generator exists. |
 | SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `IN PROGRESS` | Stage 1/P0 and approved Stage 2A producers are production verified. Fresh 15 October evidence has 813 series / 34,823 history rows / 30,673 identity-linked observations and zero writes. GYM HIGH is now the second released source, but the inventory remains exactly 2 released Jon's candidates and 0 awaiting approvals. Public Stage 3 remains off because the unchanged 12-product / 30-offer / 4-retailer readiness gate is not met. No history backfill is allowed. |
 | SEO-16 | P1 | Launch guarded two-product comparison. | `LIVE VERIFIED` | Commit `7eec604` deployed the owner-approved lifecycle launch on 26 August 2026. Public base and pair checks passed HTTP, robots, canonical, exact-pack and delivered-price contracts; the homepage link and exactly one sitemap entry were verified. |
-| SEO-17 | P2 | Add owner-reviewed expert decision notes. | `PLANNED` | Expert judgement is clearly labelled and dated, verified facts retain provenance, and unsupported medical or formulation claims cannot publish. |
+| SEO-17 | P2 | Add owner-reviewed expert decision notes. | `PLANNED` | Before implementation, the owner must supply an exact, non-duplicative `/whey-protein` decision-note payload that adds value distinct from Help Me Choose, CategoryDecisionPanel, Quick Comparison, Better Value Alternatives and existing whey copy. Expert judgement must be clearly labelled and dated, verified facts retain provenance, and unsupported medical or formulation claims cannot publish. |
+| SEO-18 | P1 | Add the homepage self-canonical and one clean Help Me Choose sitemap entry. | `PLANNED` | After formal SEO-15 closeout, add homepage `alternates.canonical = "/"` without duplicating or changing title/description; preserve the Help Me Choose base as `index, follow`, parameter states as `noindex, follow` and their base canonical; add exactly one `/help-me-choose` sitemap URL with no query URL, fabricated `lastModified`, `/search`, schema, robots or copy change; pass focused tests, quality gates and live verification. |
+| SEO-19 | P1 | Add reciprocal Vitamins and Multivitamins contextual links. | `PLANNED` | After SEO-18 is `LIVE VERIFIED`, add `/vitamins` to `/multivitamins` with anchor `Multivitamins` and `/multivitamins` to `/vitamins` with anchor `Vitamins and minerals`; make no metadata, schema, loader, pagination or generic link-expansion change; pass focused tests, quality gates and live verification. |
+| SEO-20 | P1 | Run the PER4M title-only CTR experiment. | `PLANNED` | After SEO-19 is `LIVE VERIFIED` and a separate implementation/merge approval, change only `/brands/per4m` title to `Compare PER4M Prices Across UK Retailers | SupplementScout`; freeze title, meta, H1, body, schema, direct anchors and data presentation during measurement except for a production regression; observe at least 28 settled days, 500 page impressions and 300 brand-navigational query impressions; primary success is CTR improvement without material ranking deterioration. |
 
 ## 6. Current active task
 
@@ -243,8 +258,10 @@ inventory is below the unchanged public readiness gate of 12 products, 30
 offers and 4 retailers. Keep `SEO15_STAGE3_ENABLED` off. Other enabled eligible
 sources remain read-only discovery only. Do not backfill history, change product
 identity or weaken any gate.
-Public activation requires a separate owner decision after the gate passes;
-SEO-17 remains behind this release.
+Public activation requires a separate owner decision after the gate passes.
+Formal SEO-15 closeout is also required before any later SEO implementation.
+The owner-approved future order is `SEO-18 -> SEO-19 -> SEO-20`; `SEO-17`
+remains `PLANNED` behind its separate owner-content gate.
 
 The latest scheduled SEO-15 audit is run `38736679434`, artifact `11974021909`
 (GitHub artifact digest SHA-256
@@ -271,8 +288,9 @@ one `search.google.com / referral` user; use 12 sessions as the conservative
 external signal. One retailer click and zero Better-value clicks do not support
 a conversion-uplift claim. Against 28 September-4 October, final GSC impressions
 rose from 1,234 to 1,479 while clicks fell from 13 to 6, CTR fell from 1.05% to
-0.41% and average position moved from 34.24 to 38.95. Keep measurement running;
-do not change the SEO-15 then SEO-17 sequence from this small weekly sample.
+0.41% and average position moved from 34.24 to 38.95. Keep measurement running.
+This small weekly sample did not itself change the roadmap; the later explicit
+2 November owner decision now governs the post-SEO-15 order.
 
 The SEO-15 technical plan remains the bounded design and evidence reference;
 this execution ledger remains the sole SEO status and ordering authority.
@@ -284,12 +302,16 @@ and the active automatic-candidate follow-up is recorded in
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
 
-The sequence may change only when new Search Console evidence proves a more
-urgent indexing blocker. Record that evidence before changing priority.
+The 2 November owner decision explicitly supersedes the former post-SEO-15
+ordering after review of the Phase 4 overlap and Phase 5 evidence. Future
+priority changes still require named evidence, explicit owner approval and a
+Roadmap Steward alignment across the authoritative documents.
 
-Follow the binding sequence in Operating Plan section 0.0.7: SEO-16 is complete;
-return mandatorily to SEO-15 for due accrual audits and any separately approved
-Stage 3 decision, then SEO-17. SEO-13 and SEO-14 are complete, and the
+Follow the binding sequence in Operating Plan section 0.0.7: SEO-16 is
+complete; return mandatorily to SEO-15 for due accrual audits, any separately
+approved Stage 3 decision and formal closeout. Only after that closeout proceed
+to `SEO-18`, then `SEO-19`, then `SEO-20`. `SEO-17` remains `PLANNED` pending
+its exact owner-content gate. SEO-13 and SEO-14 are complete, and the
 250-product multi-retailer checkpoint is independently verified complete.
 SEO-07 measurement and SEO-12 legitimate authority work are continuous evidence
 tracks, not permission to run a second implementation or send outreach email

@@ -1,13 +1,31 @@
 # WheyWise Competitive Intelligence Analysis
 
 _Original audit: 17 July 2026_<br>
-_Current verified comparison: 14 October 2026_
+_Current verified comparison: 14 October 2026_<br>
+_Current roadmap response: 2 November 2026_
 
 ## Purpose
 
 This document records competitive intelligence about wheywise.co.uk and converts the findings into practical decisions for SupplementScout.
 
 This is a supporting document. It does not replace the SupplementScout Operating Plan. The Operating Plan remains the source of truth for priorities and execution.
+
+## Current roadmap response - 2 November 2026
+
+The owner explicitly superseded the previous post-SEO-15 recommendation after
+reviewing the verified Phase 4 overlap and Phase 5 readiness evidence. `SEO-15`
+remains the sole active SEO implementation through formal closeout. The
+approved immediate order after that closeout is `SEO-18` (homepage explicit
+self-canonical plus one clean Help Me Choose sitemap entry), then `SEO-19`
+(reciprocal Vitamins and Multivitamins contextual links), then the `SEO-20`
+PER4M title-only experiment. `SEO-17` remains `PLANNED` pending an exact,
+non-duplicative `/whey-protein` owner-reviewed decision-note payload.
+
+This is documentation-only governance alignment. It does not authorize any
+feature implementation, production merge, PER4M title deployment, database
+write or SEO-15 Stage 3 activation. The July, August and October competitive
+findings below remain historical evidence; where their ordering language
+conflicts with this dated owner decision, this current response governs.
 
 ## Current verified comparison - 14 October 2026
 
@@ -29,11 +47,11 @@ introduced.
 
 The raw public-catalogue gap has reversed, but the useful non-product search
 surface has not. WheyWise is concentrating on commercial query coverage,
-editorial velocity and interactive decision support. SupplementScout's correct
-response remains the existing sequence: finish the identity-proven SEO-15
-price-drop capability, then add bounded SEO-17 decision notes where they improve
-a real choice. A mass page generator, copied popularity signals or weaker
-identity gates would increase risk without addressing the evidence-backed gap.
+editorial velocity and interactive decision support. The current response is
+to finish SEO-15, close the bounded SEO-18 and SEO-19 technical/internal-link
+gaps, then run the measurable SEO-20 PER4M title-only experiment. A mass page
+generator, copied popularity signals or weaker identity gates would increase
+risk without addressing the evidence-backed gap.
 
 The current SupplementScout advantage is more defensible than in August:
 current public counts come from the canonical catalogue, `/deals` requires the
@@ -42,11 +60,13 @@ totals include known delivery. Preserve those contracts while improving the
 number and quality of entry points. The public Stage 3 price-drop section must
 still remain off until its unchanged readiness and owner-release gates pass.
 
-The monthly review therefore does not reorder the roadmap. `SEO-15` remains the
-single active SEO implementation, `SEO-17` remains next, and weekly GSC/GA4 is
-still the only defensible traffic evidence for SupplementScout. Retailer
-stabilization and its production-evidence gates retain priority over either
-implementation.
+The 14 October monthly review did not itself reorder the roadmap. The later
+2 November owner decision now governs the future sequence: `SEO-15` remains the
+single active SEO implementation, followed after formal closeout by `SEO-18`,
+`SEO-19` and `SEO-20`. `SEO-17` remains `PLANNED` behind its separate content
+gate. Weekly GSC/GA4 remains the only defensible traffic evidence for
+SupplementScout, and retailer stabilization keeps its production-evidence
+gates.
 
 ## Previous verified comparison - 17 August 2026
 
@@ -701,13 +721,20 @@ completion evidence.
 `SEO-11`, `SEO-13` and `SEO-14` are complete and live verified. The
 multi-retailer coverage milestone is independently verified at `250/250`.
 
-1. Return to `SEO-15` for the mandatory identity-proven accrual audits and any
-   separately approved Stage 3 decision; do not create a second pricing store.
-2. Complete `SEO-17`, owner-reviewed expert notes where they add real decision
-   value; clearly separate verified facts from expert judgement.
-3. Record Search Console and GA4 evidence weekly, including organic visibility,
+1. Return to `SEO-15` and keep it as the sole active SEO task through mandatory
+   identity-proven evidence, any separately approved Stage 3 decision and
+   formal closeout; do not create a second pricing store.
+2. After formal SEO-15 closeout, complete `SEO-18`, the bounded homepage
+   self-canonical and clean Help Me Choose sitemap task.
+3. After SEO-18 is `LIVE VERIFIED`, complete `SEO-19`, the bounded reciprocal
+   Vitamins and Multivitamins contextual links task.
+4. After SEO-19 is `LIVE VERIFIED` and separately approved for implementation
+   and merge, begin `SEO-20`, the PER4M title-only experiment.
+5. Keep `SEO-17` `PLANNED` until an exact, non-duplicative owner-reviewed
+   `/whey-protein` note payload passes its separate owner gate.
+6. Record Search Console and GA4 evidence weekly, including organic visibility,
    landing pages and organic retailer clicks.
-4. Continue legitimate authority research through useful data resources, but
+7. Continue legitimate authority research through useful data resources, but
    keep outbound outreach paused until the owner changes the no-email decision.
 
 Current checkpoint, 26 August 2026: SEO-16 is `LIVE VERIFIED`. Owner-approved
@@ -733,10 +760,11 @@ No workflow or production-data write ran. SEO-15 remains the next binding task
 and is blocked by elapsed time until its earliest audit on 8 September 2026;
 SEO-17 must not start before that return.
 
-The first three steps are the current build sequence. Measurement is continuous
-from the first release, and catalogue safety, automation monitoring and urgent
-production incidents remain permanent operating controls rather than competing
-roadmap items.
+The 2 November sequence above is the current build order. The dated 26 August
+checkpoint remains historical evidence of the former order. Measurement is
+continuous from the first release, and catalogue safety, automation monitoring
+and urgent production incidents remain permanent operating controls rather
+than competing roadmap items.
 
 ## Monitoring checklist
 
