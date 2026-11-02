@@ -1,9 +1,25 @@
 # SupplementScout Operating Plan
 
-**Status date:** 15 October 2026<br>
+**Status date:** 2 November 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
+
+**2 November 2026 owner-approved SEO roadmap governance alignment:** this
+documentation-only decision preserves `SEO-15` as the sole `IN PROGRESS` SEO
+task and changes only the binding order after its formal closeout. The approved
+future sequence is `SEO-18` (homepage explicit self-canonical plus exactly one
+clean `/help-me-choose` sitemap entry), then `SEO-19` (reciprocal Vitamins and
+Multivitamins contextual links), then the `SEO-20` PER4M title-only experiment.
+No part of SEO-18, SEO-19 or SEO-20 may start before formal SEO-15 closeout.
+`SEO-17` remains `PLANNED` and returns to owner review only after an exact,
+non-duplicative `/whey-protein` owner-reviewed decision-note payload is
+supplied. `SEO-02B` remains blocked. Owner roadmap approval is not feature
+implementation approval or production merge approval; every implementation
+and production merge still requires its own explicit authorization. No SEO-15
+gate, Stage 3 state, producer, candidate, evidence metric, database state or
+production behavior changes through this alignment. See the
+[dated decision record](rollouts/phase5-seo-roadmap-alignment-2026-11-02.md).
 
 **15 October 2026 separately scoped product UX checkpoint:** after completing
 the separate nutrition work, the owner explicitly resumed the UX-retention
@@ -2373,19 +2389,27 @@ automation. The full evidence is in
 `docs/Competitive-Intelligence/WheyWise-Analysis-2026-07.md`.
 
 This is the binding growth sequence. The owner advanced the accrual-safe order
-on 26 August 2026;
-that decision supersedes older immediate-task and competitive-response ordering
-where they conflict:
+on 26 August 2026 and explicitly superseded its post-SEO-15 portion on
+2 November 2026. The later decision governs where older immediate-task and
+competitive-response ordering conflicts:
 
 `SEO-11`, `SEO-13` and `SEO-14` are complete and live verified. The
 multi-retailer coverage milestone is also independently verified at `250/250`.
 
-1. return to `SEO-15` for its mandatory 14/30-day evidence audits and any
-   separately approved Stage 3 decision; do not infer historical claims;
-2. complete `SEO-17`, clearly labelled owner-reviewed expert notes where they
-   materially help a buying decision;
-3. record Search Console and GA4 evidence weekly throughout the sequence;
-4. continue authority research, but keep outbound outreach paused until the
+1. return to `SEO-15` and keep it as the sole active SEO task through its
+   mandatory evidence, any separately approved Stage 3 decision and formal
+   closeout; do not infer historical claims;
+2. after formal SEO-15 closeout, complete `SEO-18`, the bounded homepage
+   self-canonical and clean Help Me Choose sitemap task;
+3. after SEO-18 is `LIVE VERIFIED`, complete `SEO-19`, the bounded reciprocal
+   Vitamins and Multivitamins contextual links task;
+4. after SEO-19 is `LIVE VERIFIED` and separately approved for implementation
+   and merge, begin `SEO-20`, the PER4M title-only experiment and its isolated
+   measurement contract;
+5. keep `SEO-17` `PLANNED` until an exact, non-duplicative `/whey-protein`
+   owner-reviewed decision-note payload passes a separate owner review;
+6. record Search Console and GA4 evidence weekly throughout the sequence;
+7. continue authority research, but keep outbound outreach paused until the
    owner changes the current no-email decision.
 
 Only one SEO implementation may be `IN PROGRESS`. Measurement, read-only
@@ -4509,10 +4533,18 @@ Current priority order:
 `SEO-11`, `SEO-13`, `SEO-14`, `SEO-16` and the 250-product multi-retailer
 milestone are complete and live verified.
 
-1. `SEO-15`: follow up the completed 9 September accrual audit, verify
-   continuity, and make the conditional 24-25 September readiness decision.
-2. `SEO-17`: owner-reviewed expert decision notes after the SEO-15 decision.
-3. Continuous weekly GSC/GA4 measurement; outbound outreach remains paused.
+1. `SEO-15`: remain the sole active SEO task through the required evidence and
+   formal closeout; public Stage 3 still requires its separate readiness and
+   owner-release decision.
+2. `SEO-18`: after formal SEO-15 closeout, add the homepage self-canonical and
+   exactly one clean Help Me Choose base URL to the sitemap.
+3. `SEO-19`: after SEO-18 is `LIVE VERIFIED`, add only the approved reciprocal
+   Vitamins and Multivitamins contextual links.
+4. `SEO-20`: after SEO-19 is `LIVE VERIFIED`, and only with separate
+   implementation and merge approval, run the PER4M title-only experiment.
+5. `SEO-17`: remain `PLANNED` behind its exact, non-duplicative
+   owner-reviewed `/whey-protein` note-payload gate.
+6. Continue weekly GSC/GA4 measurement; outbound outreach remains paused.
 
 The complete definitions and interruption rules are in section 0.0.7.
 
@@ -5105,9 +5137,10 @@ conservative external-session signal and make no conversion claim.
 
 ### Then
 
-1. After the SEO-15 readiness decision, implement it only if its reviewed data
-   and quality gates pass; then proceed to `SEO-17`, reusing the existing data
-   model. SEO-16 is already live verified.
+1. Keep SEO-15 as the only active SEO implementation through formal closeout.
+   After that closeout, follow the owner-approved `SEO-18 -> SEO-19 -> SEO-20`
+   order; `SEO-17` remains `PLANNED` behind its separate owner-content gate.
+   SEO-16 is already live verified.
 2. Record GSC/GA4 evidence weekly; keep outbound outreach paused.
 3. Monitor scheduled retailer refreshes; keep new discovery report-only until
    reviewed and preserve all drift, replay and recovery controls.
