@@ -2,7 +2,7 @@
 
 Date: 2026-11-03
 
-Implementation state: local refactor complete; production closeout pending
+Implementation state: production verified and closed
 
 Starting `main`: `a90f6f892bc5113af4a51764cc201e421c3c33fa`
 
@@ -121,6 +121,42 @@ strong-only filtering, page-aware caching, shared pagination, exact metadata
 profiles, no catch-all route and the deliberate error-boundary decision. The
 quality-gate inventory was resealed after adding this test.
 
-Feature PR, approved head, merge SHA, tree equivalence, CI, production
-deployment and read-only route/homepage/Search/sitemap smoke evidence will be
-recorded here after guarded merge and deployment.
+The feature shipped through PR `#453`, **Refactor Category Coverage routes onto
+shared infrastructure**. Its approved and unchanged head was
+`750acd81c2992d9e59e66f70f7f4d766e8cf5129`. Project Guardian, Quality Gate,
+GitGuardian and Vercel all passed with zero unresolved review threads before a
+guarded squash merge.
+
+The feature merge is `92b1af1964c7fb03f81d7b5fd5f78486ba815ee3`.
+The feature-head and merged-main tree hashes are both
+`8c2414ad158342f7f757a1e42832e860563947bf`, proving exact tree equivalence.
+On the merged SHA, Project Guardian run `41680352681` passed and Quality Gate
+run `41680352422` passed. Vercel production deployment `7525323773` completed
+successfully at `2026-11-03T17:03:58Z` for that exact SHA.
+
+The read-only production checkpoint completed at `2026-11-03T17:07:47Z`:
+
+- `/testosterone-boosters` returned HTTP 200 with 11 unique products, including
+  `gym-high-testo-pro-180-capsules`, and retained `noindex, follow`;
+- `/fat-burners` returned HTTP 200 with 21 unique products, including
+  `gym-high-shred-mode-60-capsules`, and retained `noindex, follow`;
+- `/collagen` and `/collagen?page=2` both returned HTTP 200 with 24 and 5
+  products respectively: 29 unique products and zero cross-page duplicates;
+- browser titles, descriptions, canonicals, robots, OpenGraph and current
+  Twitter profiles matched the captured pre-refactor route baselines, including
+  the Collagen page-2 title and canonical;
+- the homepage contained exactly one link to each semantic route and exactly
+  one Weight Management Search fallback;
+- all three old text-search URLs returned HTTP 200 on `/search` with their
+  original query, Search canonical and Search result metadata; none redirected
+  to a semantic route;
+- the sitemap contained zero occurrences of each of the three planned routes;
+- semantic false-positive changes, Search changes, breadcrumb changes,
+  lifecycle changes, DB writes, DB/migration changes and production-config
+  changes were all zero.
+
+The accepted semantic contracts remain Testosterone `28 -> 11/6/11`, Fat
+`114 -> 21/77/16`, and Collagen `52 -> 29/21/2`. SEO-20 remains the sole SEO
+task `IN PROGRESS`; its files and the PER4M freeze are unchanged. The
+exact-category Search resolver, mobile-menu fix and Nootropics remain unstarted
+at this STOP point.
