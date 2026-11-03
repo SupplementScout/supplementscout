@@ -5,12 +5,15 @@ export const LIFECYCLE_DATA_CACHE_SECONDS = 3600;
 const LIFECYCLE_DATA_CACHE_MS = LIFECYCLE_DATA_CACHE_SECONDS * 1000;
 
 type LifecycleResult = { error: boolean };
-type CachedReader<T> = (timeBucket: number) => Promise<T>;
-type CacheFactory = <T>(
-  read: (timeBucket: number) => Promise<T>,
+type CachedReader<T, Args extends readonly unknown[]> = (
+  timeBucket: number,
+  ...args: Args
+) => Promise<T>;
+type CacheFactory = <T, Args extends readonly unknown[]>(
+  read: (timeBucket: number, ...args: Args) => Promise<T>,
   keyParts: string[],
   options: { revalidate: number; tags: string[] }
-) => CachedReader<T>;
+) => CachedReader<T, Args>;
 
 type LifecycleDataLoaderOptions = {
   now?: () => number;
@@ -24,10 +27,13 @@ type LifecycleDataLoaderOptions = {
  * a synchronous read rather than serving data older than one hour while a
  * background revalidation runs.
  */
-export function createLifecycleDataLoader<T extends LifecycleResult>(
+export function createLifecycleDataLoader<
+  T extends LifecycleResult,
+  Args extends readonly unknown[] = [],
+>(
   path: string,
   queryVersion: string,
-  load: () => Promise<T>,
+  load: (...args: Args) => Promise<T>,
   options: LifecycleDataLoaderOptions = {}
 ) {
   const now = options.now || Date.now;
@@ -36,10 +42,10 @@ export function createLifecycleDataLoader<T extends LifecycleResult>(
     ((read, keyParts, cacheOptions) =>
       unstable_cache(read, keyParts, cacheOptions));
 
-  const readCached = cacheFactory(
-    async (timeBucket) => {
+  const readCached = cacheFactory<T, Args>(
+    async (timeBucket, ...args) => {
       void timeBucket;
-      const result = await load();
+      const result = await load(...args);
       assertLifecycleDataAvailable(result, path);
       return result;
     },
@@ -50,5 +56,6 @@ export function createLifecycleDataLoader<T extends LifecycleResult>(
     }
   );
 
-  return () => readCached(Math.floor(now() / LIFECYCLE_DATA_CACHE_MS));
+  return (...args: Args) =>
+    readCached(Math.floor(now() / LIFECYCLE_DATA_CACHE_MS), ...args);
 }

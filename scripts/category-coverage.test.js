@@ -197,6 +197,73 @@ const expectedFatIds = {
   REVIEW_REQUIRED: [91, 94, 98, 99, 428, 504, 519, 522, 527, 591, 602, 666, 891, 1020, 1122, 1177],
 };
 
+const collagenDefinition = getCategoryCoverageDefinition("collagen");
+const collagenFixture = (id, name, category, description = "") => ({
+  id,
+  name,
+  category,
+  description,
+});
+const collagenFixtures = [
+  collagenFixture(188, "Applied Nutrition Keto Collagen 130g", "Vitamins"),
+  collagenFixture(422, "Vital Proteins Collagen Peptides Unflavoured 284g", "Vitamins"),
+  collagenFixture(435, "KIOR Health Collagen Probio 60 Caps", "Health Supplements"),
+  collagenFixture(440, "KIOR Health Collagen+ 60 Caps", "Health Supplements"),
+  collagenFixture(460, "KIOR Health Collagen Glow", "Health Supplements"),
+  collagenFixture(461, "KIOR Health Collagen Super", "Health Supplements"),
+  collagenFixture(551, "Vitamin C 500mg Capsules", "Vitamins", "Vitamin C contributes to normal collagen formation."),
+  collagenFixture(565, "Glucosamine 1,000mg with Vitamin C Tablets", "Health Supplements", "Vitamin C makes a contribution to collagen formation."),
+  collagenFixture(571, "Bone and Joint Health Gummies", "Health Supplements", "A multi-ingredient formula incorporating turmeric, collagen and vitamin E."),
+  collagenFixture(575, "Glucosamine 1,000mg with Vitamin C Capsules", "Health Supplements", "Vitamin C supports the production of collagen."),
+  collagenFixture(576, "Glucosamine 1,500mg with Vitamin C", "Health Supplements", "Vitamin C contributes to the normal formation of collagen."),
+  collagenFixture(577, "Glucosamine 500mg & Marine Collagen 400mg", "Health Supplements"),
+  collagenFixture(584, "Quick Release Glucosamine 65 Plus", "Health Supplements", "Vitamin C is included for its role in collagen formation."),
+  collagenFixture(586, "Multivitamin Gummies", "Vitamins", "Vitamin C contributes to collagen formation in the body."),
+  collagenFixture(595, "Super Vitamin B Complex", "Vitamins", "Vitamin B2 protects collagen from damage."),
+  collagenFixture(597, "Vitamin C 1000mg Powder", "Vitamins", "Vitamin C supports collagen formation."),
+  collagenFixture(598, "Hyaluronic Acid Capsules 200mg", "Health Supplements", "Vitamin C has a role in collagen synthesis."),
+  collagenFixture(612, "Mature Woman Multivitamin", "Vitamins", "A multivitamin with premium ingredients such as marine collagen, hyaluronic acid and lutein."),
+  collagenFixture(617, "Vitamin C 1000mg with Rosehip & Citrus Bioflavonoids", "Vitamins", "Supports healthy collagen levels."),
+  collagenFixture(628, "Potassium Citrate 1300mg with Vitamin C", "Health Supplements", "Vitamin C contributes to collagen collagen production."),
+  collagenFixture(629, "Chewable Vitamin C Tablets 1,000mg Orange Flavour", "Vitamins", "Vitamin C has a role in collagen formation."),
+  collagenFixture(630, "Cranberry Tablets 24,000mg with Vitamin C 160mg", "Health Supplements", "Vitamin C supports the formation of collagen."),
+  collagenFixture(631, "Vegan Glucosamine HCl 1000mg with Vitamin C 40mg", "Health Supplements", "Added Vitamin C to aid Collagen Production."),
+  collagenFixture(632, "Vitamin C 1000mg with Rosehip 800mg", "Vitamins", "Supports the body's ability to produce collagen."),
+  collagenFixture(633, "Marine Collagen Powder with Vitamin C", "Health Supplements"),
+  collagenFixture(634, "Hyaluronic Acid 400mg with Vitamin C 320mg", "Health Supplements", "Vitamin C contributes to normal collagen formation."),
+  collagenFixture(639, "Marine Collagen 1500mg", "Health Supplements"),
+  collagenFixture(640, "Turmeric Joint Care Plus", "Health Supplements", "Vitamin C supports cartilage through its role in collagen formation."),
+  collagenFixture(644, "Curcumin C3 Complex 12,000mg (Turmeric) Capsules", "Health Supplements", "Vitamin C contributes to collagen and cartilage formation."),
+  collagenFixture(650, "Odourless Garlic Capsules 3000mg", "Health Supplements", "Vitamin C supports blood vessels through its role in collagen formation."),
+  collagenFixture(660, "Evening Primrose Oil 1500mg", "Health Supplements", "Often taken alongside other food supplements such as zinc, biotin and collagen."),
+  collagenFixture(670, "ImmunoBoost Tablets with Black Garlic - SimplyBest", "Health Supplements", "Vitamin C contributes to normal collagen formation."),
+  collagenFixture(681, "Doctor's Best Pure Collagen Peptides 417g", "Health Supplements"),
+  collagenFixture(720, "Now Foods Collagen Peptides Powder 227g", "Health Supplements"),
+  collagenFixture(721, "Osavi Collagen & Electrolytes Orange & Grapefruit", "Health Supplements"),
+  collagenFixture(831, "Time 4 Collagen+ 45 Servings", "Health Supplements"),
+  collagenFixture(864, "CNP Loaded ISO Collagen Protein 2kg", "Whey Protein"),
+  collagenFixture(915, "Atlas Infusions Full-Spectrum Collagen 500g", "Health Supplements"),
+  collagenFixture(937, "Trained By JP Collagen Powder 300g", "Health Supplements"),
+  collagenFixture(986, "Osavi Advanced Marine Collagen 30 servings 360g", "Health Supplements"),
+  collagenFixture(989, "Osavi Collagen & Electrolytes 30 Servings", "Health Supplements"),
+  collagenFixture(1002, "Swanson Collagen Peptides Unflavoured 28 Servings", "Health Supplements"),
+  collagenFixture(1017, "Trec Nutrition Collagen Renover 350g", "Health Supplements"),
+  collagenFixture(1215, "Sunna Supplements Halal Collagen Protein 250g", "Health Supplements"),
+  collagenFixture(1216, "Sunna Supplements Marine Collagen 250g", "Health Supplements"),
+  collagenFixture(1221, "Applied Nutrition Collagen Peptides 300g", "Health Supplements"),
+  collagenFixture(1291, "Per4m Multi-Blend Collagen 301g", "Health Supplements"),
+  collagenFixture(1317, "Bloom Clear Protein Collagen 250g", "Health Supplements"),
+  collagenFixture(1331, "VOW Nutrition Collagen Chews", "Health Supplements"),
+  collagenFixture(1343, "Swanson Marine Collagen Peptides 400mg Capsules", "Health Supplements"),
+  collagenFixture(1359, "BioTechUSA Clear Collagen Professional 350g", "Health Supplements"),
+  collagenFixture(1433, "TWP Nutrition Collagen Raw 300g", "Collagen"),
+];
+const expectedCollagenIds = {
+  INCLUDE_STRONG: [188, 422, 435, 440, 460, 461, 577, 633, 639, 681, 720, 721, 831, 864, 915, 937, 986, 989, 1002, 1017, 1215, 1216, 1221, 1291, 1317, 1331, 1343, 1359, 1433],
+  EXCLUDE_STRONG: [551, 565, 575, 576, 584, 586, 595, 597, 598, 617, 628, 629, 630, 631, 632, 634, 640, 644, 650, 660, 670],
+  REVIEW_REQUIRED: [571, 612],
+};
+
 test("Testosterone Boosters definition exposes the shared route and candidate-only queries", () => {
   assert.ok(definition);
   assert.equal(definition.publicLabel, "Testosterone Boosters");
@@ -271,6 +338,71 @@ test("the 114 audited Fat fixtures reproduce the exact 21/77/16 contract", () =>
   assert.equal(actual.INCLUDE_STRONG.length, 21);
   assert.equal(actual.EXCLUDE_STRONG.length, 77);
   assert.equal(actual.REVIEW_REQUIRED.length, 16);
+});
+
+test("Collagen definition exposes one shared route and broad candidate-only queries", () => {
+  assert.ok(collagenDefinition);
+  assert.equal(collagenDefinition.publicLabel, "Collagen");
+  assert.equal(collagenDefinition.route, "/collagen");
+  assert.deepEqual(collagenDefinition.canonicalCategoryAliases, ["Collagen"]);
+  for (const query of [
+    "Collagen",
+    "collagen peptides",
+    "marine collagen",
+    "hydrolysed collagen",
+    "hydrolyzed collagen",
+    "collagen protein",
+    "bovine collagen",
+    "collagen powder",
+    "multi collagen",
+  ]) {
+    assert.ok(collagenDefinition.candidateQueries.includes(query), query);
+  }
+});
+
+test("the 52 audited Collagen fixtures reproduce the exact 29/21/2 contract", () => {
+  assert.equal(collagenFixtures.length, 52);
+  const actual = Object.fromEntries(
+    Object.keys(expectedCollagenIds).map((classification) => [classification, []])
+  );
+
+  for (const fixture of collagenFixtures) {
+    const evaluation = evaluateCategoryCoverage(collagenDefinition, fixture);
+    actual[evaluation.classification].push(fixture.id);
+  }
+
+  assert.deepEqual(actual, expectedCollagenIds);
+  assert.equal(actual.INCLUDE_STRONG.length, 29);
+  assert.equal(actual.EXCLUDE_STRONG.length, 21);
+  assert.equal(actual.REVIEW_REQUIRED.length, 2);
+});
+
+test("Collagen key identities include, exclude and fail closed exactly as audited", () => {
+  const classifications = new Map(
+    collagenFixtures.map((fixture) => [
+      fixture.id,
+      evaluateCategoryCoverage(collagenDefinition, fixture).classification,
+    ])
+  );
+
+  for (const id of [435, 460, 461, 720, 721, 831, 864, 937, 986, 989, 1002, 1017, 1221, 1291, 1331, 1343]) {
+    assert.equal(classifications.get(id), "INCLUDE_STRONG", id);
+  }
+  for (const id of [571, 612]) {
+    assert.equal(classifications.get(id), "REVIEW_REQUIRED", id);
+  }
+  for (const id of [551, 565, 575, 586, 598, 640, 650, 660, 670]) {
+    assert.equal(classifications.get(id), "EXCLUDE_STRONG", id);
+  }
+
+  assert.deepEqual(
+    evaluateCategoryCoverage(collagenDefinition, collagenFixtures.find(({ id }) => id === 551)).reasonCodes,
+    ["COLLAGEN_BENEFIT_COPY_ONLY"]
+  );
+  assert.deepEqual(
+    evaluateCategoryCoverage(collagenDefinition, collagenFixtures.find(({ id }) => id === 571)).reasonCodes,
+    ["DESCRIPTION_LEVEL_COLLAGEN_COMPONENT"]
+  );
 });
 
 test("Fat key regressions include, exclude and fail closed exactly as audited", () => {
@@ -366,6 +498,7 @@ test("exact label resolution is shared and aliases do not use fuzzy matching", (
     "/fat-burners"
   );
   assert.equal(categoryCoverageDefinitionForLabel("Weight Management"), null);
+  assert.equal(categoryCoverageDefinitionForLabel(" collagen ").route, "/collagen");
 });
 
 test("existing five reviewed landing definitions preserve their name-only boundaries", () => {
@@ -404,6 +537,9 @@ test("runtime coverage module contains no product-ID, slug, brand or retailer ex
   for (const { id } of fatFixtures) {
     assert.doesNotMatch(source, new RegExp(`\\b${id}\\b`), String(id));
   }
+  for (const { id } of collagenFixtures) {
+    assert.doesNotMatch(source, new RegExp(`\\b${id}\\b`), String(id));
+  }
 });
 
 test("pilot route reuses shared retrieval, cache, lifecycle and card contracts", () => {
@@ -438,4 +574,20 @@ test("pilot route reuses shared retrieval, cache, lifecycle and card contracts",
   );
   assert.match(fatSource, /"INCLUDE_STRONG"/);
   assert.match(fatSource, /<ProductResultCard key=\{product\.id\} product=\{product\}/);
+
+  const collagenSource = fs.readFileSync(
+    path.join(process.cwd(), "app/collagen/page.tsx"),
+    "utf8"
+  );
+  assert.match(collagenSource, /getLandingProducts\(/);
+  assert.match(collagenSource, /CATEGORY_LANDING_PAGE_SIZE/);
+  assert.match(collagenSource, /createLifecycleDataLoader\(/);
+  assert.match(collagenSource, /"collagen-category-v1"/);
+  assert.match(collagenSource, /assertLifecycleDataAvailable\(/);
+  assert.match(
+    collagenSource,
+    /evaluateCategoryCoverage\(collagenDefinition, product\)/
+  );
+  assert.match(collagenSource, /"INCLUDE_STRONG"/);
+  assert.match(collagenSource, /<ProductResultCard key=\{product\.id\} product=\{product\}/);
 });

@@ -202,6 +202,11 @@ const staticPages: MetadataRoute.Sitemap = [
     priority: 0.9,
   },
   {
+    url: `${siteUrl}/collagen`,
+    changeFrequency: "daily",
+    priority: 0.9,
+  },
+  {
     url: `${siteUrl}/how-we-compare`,
     changeFrequency: "monthly",
     priority: 0.7,
