@@ -2,7 +2,7 @@
 
 Date: 2026-11-03
 
-Implementation state: feature implementation prepared; production closeout pending
+Implementation state: feature merged and production-verified; closeout complete
 
 Starting `main`: `aaff507427ccc21d2e241b597a6167197ddb7cca`
 
@@ -78,8 +78,57 @@ writes are zero. Protein Powder and subtype work was not started.
 
 ## Production closeout evidence
 
-Pending guarded feature PR merge and production verification. This section
-will record the approved head, merge SHA, tree equivalence, CI, Vercel
-deployment, production membership, Search redirects, homepage discovery,
-sitemap exclusion and final Guardian evidence without changing the lifecycle
-from `planned`.
+Feature PR [#460](https://github.com/SupplementScout/supplementscout/pull/460)
+was squash-merged under the standing owner authorization after Project
+Guardian, Quality Gate, GitGuardian and Vercel passed with no unresolved review
+threads.
+
+- Approved feature head: `62e7505fa12b7bb48eebef5cc6dad39f083326e2`.
+- Feature merge SHA: `7a13f0e3466514662ae231fb98f8245f2bec3139`.
+- Approved-head tree and merge tree: identical
+  (`5bc47ba6215a78e7adc81ea516640122e930244a`).
+- Feature Project Guardian: PASS, run `41710347497`.
+- Feature Quality Gate: PASS, run `41710347620`.
+- Post-merge main Project Guardian: PASS, run `41710971224`.
+- Post-merge main Quality Gate: PASS, run `41710971178`.
+- Vercel production deployment: PASS, deployment
+  `7WosNvVYXEKJXFLX6Z3GesZCozbh` (GitHub deployment `7529570389`).
+- Production smoke completed: `2026-11-03T20:20:44.979Z`.
+
+Production `/nootropics` returned HTTP `200`, canonical
+`https://www.supplementscout.co.uk/nootropics` and `noindex, follow`. It
+rendered exactly all `13/13` audited strong members on one page, with `0`
+missing strong members, `0` strong false positives, all `21/21` review products
+absent and all `33/33` strong excludes absent. Strong recall and precision were
+both `100%` against the accepted audit contract. GYM HIGH The Stacker, Ultra
+Nutrio Limitless Nootropic, both Neutonic products, Brain Gains Switch On,
+Ghost Gamer, all three KIOR strong products, both explicit reviewed Pre Workout
+Nootropic products and both remaining explicit Nootropic products were visible.
+All four Lion's Mane review products, Bacopa, L-Tyrosine and Hydro Amino were
+absent.
+
+The production homepage contained exactly one href each for `/nootropics`,
+`/testosterone-boosters`, `/fat-burners` and `/collagen`. Clean exact
+`Nootropics` and lowercase `nootropics` Search requests returned HTTP `307`
+with `Location: /nootropics`. Singular `Nootropic` and `lion's mane` remained
+ordinary HTTP `200` Search responses without redirects. Raw Nootropics Search
+remained HTTP `200` with its unchanged four identities: Neutonic Focus Pouches,
+Ultra Nutrio Limitless Nootropic, KIOR Clear Mind+ and KIOR
+NOOTROPIC-FOCCUS.
+
+The production sitemap contained zero exact entries for Nootropics,
+Testosterone Boosters, Fat Burners and Collagen because all four routes remain
+`planned`. Regression smoke returned the unchanged semantic counts: `11`
+Testosterone Boosters, `21` Fat Burners and `29` unique Collagen products across
+both Collagen pages.
+
+A headless mobile production smoke confirmed that the navigation remains an
+opaque white, fixed full-viewport dialog portalled directly under `body`, locks
+body scroll while open, retains its four approved links and restores focus plus
+scroll state on Escape. No mobile-menu files were changed.
+
+Database writes were `0`; database and migration files, production
+configuration, Search algorithms, breadcrumbs, mobile navigation, SEO-20 and
+PER4M were unchanged. SEO-20 remained the sole in-progress SEO task and its
+measurement freeze remained intact. The Nootropics lifecycle remains
+`planned`; no Protein Powder or subtype work was started.
