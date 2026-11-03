@@ -2,7 +2,7 @@
 
 Date: 2026-11-03
 
-Implementation state: local implementation complete; production closeout pending
+Implementation state: live and production-verified
 
 Starting `main`: `da2277adbddebd7ab912d28beedc392c6e8b02a9`
 
@@ -70,7 +70,7 @@ by the implementation. SEO-20 remains the sole SEO task `IN PROGRESS` and the
 PER4M measurement freeze remains intact. The mobile-menu repair is explicitly
 deferred to the next task, and Nootropics has not started.
 
-## Verification and production closeout
+## Verification
 
 The focused resolver suite covers exact case/whitespace normalization,
 nonexact fail-closed behavior, public-lifecycle gating, every protected Search
@@ -79,5 +79,71 @@ planning, product loading and analytics. The quality-gate inventory is resealed
 with the new test.
 
 Feature PR, approved head, merge SHA, tree equivalence, CI, deployment and
-read-only production redirect/Search/category/sitemap evidence will be recorded
-here after guarded merge and deployment.
+read-only production redirect/Search/category/sitemap evidence are recorded
+below.
+
+The focused resolver suite passed `9/9`. The combined focused verification
+passed `143/143`: Category Coverage `14/14`, route architecture `5/5`, Search
+`76/76`, home navigation `11/11`, indexability lifecycle `18/18`, and product
+structured data `10/10`. Typecheck, lint, build, Project Guardian,
+`verify:quick` (`435/435`), `verify:full`, quality-gate manifest verification,
+and `git diff --check` all passed. The resealed manifest contains 351 tests:
+291 safe, 56 integration, 4 artifact and 49 quick.
+
+## Merge and deployment evidence
+
+- Feature branch: `feat/category-search-exact-intent`
+- Feature commit and approved PR head:
+  `182dee7ee8326f095c96b2fa0838e16f9073d9db`
+- Feature PR: `#455`, **Search: resolve exact Category Coverage intents**
+- PR gates: Project Guardian, Quality Gate, GitGuardian and Vercel passed; the
+  PR was clean and had zero unresolved review threads
+- Guarded squash merge:
+  `6fc25ef0521a9ae5da0e4b54867da8b6cae54e8a`
+- Feature-head and merged-main tree:
+  `6bd92fafa4d99d3aaa22f147a54aedc41493ee2f`
+- Post-merge `main` Project Guardian run `41693817607`: passed
+- Post-merge `main` Quality Gate run `41693817581`: passed
+- Vercel production deployment `7527218471`: successful for the exact merge
+  SHA at `2026-11-03T18:27:19Z`
+
+## Read-only production evidence
+
+The production smoke was performed after the successful deployment. Requests
+were first made without following redirects, and then followed separately.
+
+- `/search?q=Testosterone%20Boosters` returned `307` with
+  `Location: /testosterone-boosters`; following reached that route with `200`
+- `/search?q=Fat%20Burners` returned `307` with
+  `Location: /fat-burners`; following reached that route with `200`
+- `/search?q=Collagen` returned `307` with `Location: /collagen`; following
+  reached that route with `200`
+- lowercase `collagen`, uppercase `FAT BURNERS`, and whitespace-normalized
+  `Collagen` returned the same semantic destinations
+- `Collagen Peptides`, `Marine Collagen`, `Fat Burner`, `Testosterone`, and
+  `Testo Pro` remained ordinary `200` Search pages with Search `noindex`
+- exact category queries with the tested `sort` state remained ordinary `200`
+  Search pages, and repeated `q=Collagen&q=Creatine` failed closed to Search
+- all three Category Coverage pages exposed their generic
+  `/search?q=<label>&search_mode=raw` action; each rendered an ordinary `200`
+  Search page rather than redirecting back to the category
+
+The raw Search result counts remained Testosterone `7`, Fat `8`, and Collagen
+`52`. Product identities matched the timestamped pre-deployment baseline
+captured at `2026-11-03T18:21:48Z` through `2026-11-03T18:21:51Z`; for Collagen,
+the same first-page 24 identities were observed. This confirms the navigation
+resolver did not change the underlying Search result behavior.
+
+The final category and sitemap snapshot at `2026-11-03T18:31:49Z` returned
+`200` for all category pages. Testosterone exposed 11 unique products, Fat 21,
+and Collagen 29 unique products across its 24-item first page and 5-item second
+page with zero cross-page duplicates. Testosterone and Fat fit on one page, so
+their out-of-range `?page=2` requests correctly reused the single available
+page rather than representing a second result page. Each route retained its
+canonical, `noindex, follow`, and zero sitemap occurrences. Search pages
+retained `noindex, nofollow`.
+
+Production database writes, database-file changes, migrations, production
+configuration changes and external-service mutations were all `0`. SEO-20
+remains the sole SEO task `IN PROGRESS`, and the PER4M measurement freeze is
+unchanged. Mobile-menu work and Nootropics remain unstarted by this task.
