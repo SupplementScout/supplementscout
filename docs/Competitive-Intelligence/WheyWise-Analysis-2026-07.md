@@ -12,15 +12,17 @@ This is a supporting document. It does not replace the SupplementScout Operating
 
 ## Current roadmap response - 3 November 2026
 
-SEO-18 is `LIVE VERIFIED`. PR `#437` merged as production
-`75097fc49deeb1e9dfce582d7602c6b6c5b107c3`; equal trees, main Quality Gate
-`41614046140`, Vercel production and public homepage, Help Me Choose
-base/parameter and sitemap checks passed. The homepage title/description and
-Help Me Choose behavior, copy, schema, robots, canonical and lifecycle
-contracts remain unchanged.
+SEO-19 is `CODE COMPLETE` after the owner-authorized bounded implementation.
+The existing Vitamins popular-searches section links once to `/multivitamins`
+with anchor `Multivitamins`, and the existing Multivitamins
+related-comparisons section links once to `/vitamins` with anchor `Vitamins and
+minerals`. Focused tests, TypeScript, lint, quick/full gates and production
+build pass; metadata, schema, loaders, pagination and generic link mechanisms
+are unchanged.
 
-SEO-19 is now the next executable task and remains `PLANNED`. No SEO feature
-task is `IN PROGRESS`. SEO-20 and SEO-17 remain `PLANNED`; SEO-02B remains
+SEO-19 remains the next executable task pending guarded merge and production
+live verification. No SEO feature task is `IN PROGRESS`. SEO-18 and SEO-15
+remain `LIVE VERIFIED`; SEO-20 and SEO-17 remain `PLANNED`; SEO-02B remains
 `BLOCKED`. Public Stage 3 remains deferred and disabled.
 
 SEO-15 is `LIVE VERIFIED` after the owner-authorized documentation closeout
@@ -751,8 +753,9 @@ read-only monitor continues outside the implementation queue.
 
 SEO-18 is complete and `LIVE VERIFIED`.
 
-1. `SEO-19` is the next executable `PLANNED` task: the bounded reciprocal
-   Vitamins and Multivitamins contextual links.
+1. `SEO-19` is the next executable `CODE COMPLETE` task: the bounded reciprocal
+   Vitamins and Multivitamins contextual links await guarded merge and live
+   verification.
 2. After SEO-19 is `LIVE VERIFIED`, begin `SEO-20`, the PER4M title-only
    experiment under its applicable approval gate.
 3. Keep `SEO-17` `PLANNED` until an exact, non-duplicative owner-reviewed

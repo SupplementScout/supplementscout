@@ -135,6 +135,20 @@ test("Magnesium targets the observed tablets and supplements demand without chan
   assert.doesNotMatch(source, /best magnesium|medical advice for/i);
 });
 
+test("Vitamins links once to Multivitamins in its existing popular searches", () => {
+  const source = fs.readFileSync(
+    path.join(process.cwd(), "app", "vitamins", "page.tsx"),
+    "utf8"
+  );
+  const link = '{ href: "/multivitamins", label: "Multivitamins" }';
+
+  assert.match(
+    source,
+    /const popularSearches = \[[\s\S]*\{ href: "\/multivitamins", label: "Multivitamins" \}[\s\S]*\];/
+  );
+  assert.equal(source.split(link).length - 1, 1);
+});
+
 function loadPaginationModule() {
   const filename = path.join(
     process.cwd(),
