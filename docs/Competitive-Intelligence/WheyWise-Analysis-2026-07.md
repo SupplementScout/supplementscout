@@ -12,6 +12,20 @@ This is a supporting document. It does not replace the SupplementScout Operating
 
 ## Current roadmap response - 3 November 2026
 
+SEO-18 is `CODE COMPLETE` after the owner-authorized bounded implementation.
+The homepage declares its explicit self-canonical without changing the inherited
+title or description, and the sitemap contains one clean Help Me Choose base
+entry without query URLs, search, fabricated modification dates or a lifecycle
+registry change. Focused tests, TypeScript, lint, quick/full gates and the
+production build pass; Help Me Choose behavior, copy, schema, robots and
+canonical behavior are unchanged.
+
+SEO-18 remains the next executable task pending separate owner merge
+authorization and production live verification. No SEO feature task is `IN
+PROGRESS`. SEO-19, SEO-20 and SEO-17 remain `PLANNED`; SEO-02B remains
+`BLOCKED`. This implementation does not authorize a production merge, Stage 3
+enablement, threshold change, producer approval, database write or backfill.
+
 SEO-15 is `LIVE VERIFIED` after the owner-authorized documentation closeout
 based on ordinary scheduled run `41488694982` and its verified post-60-day
 artifact. The implementation and bounded canary are complete; public Stage 3
@@ -20,12 +34,8 @@ represented retailer` versus the unchanged `12 / 30 / 4` breadth gate. The
 existing scheduled read-only monitor continues operationally without remaining
 an active SEO implementation.
 
-`SEO-18` is now the next executable task but remains `PLANNED` pending separate
-owner implementation authorization. The binding order remains `SEO-18 ->
-SEO-19 -> SEO-20`; `SEO-17` remains `PLANNED` behind its exact owner-content
-gate. No SEO feature task is automatically `IN PROGRESS`. This current response
-does not authorize SEO-18 implementation, Stage 3 enablement, a production
-merge, a threshold change, producer approval, database write or backfill.
+The binding order remains `SEO-18 -> SEO-19 -> SEO-20`; `SEO-17` remains
+`PLANNED` behind its exact owner-content gate.
 
 ## Previous roadmap response - 2 November 2026
 
@@ -742,9 +752,8 @@ SEO-15 completed its owner-authorized closeout on 3 November 2026 and is `LIVE
 VERIFIED`. Public Stage 3 remains deferred and disabled; its scheduled
 read-only monitor continues outside the implementation queue.
 
-1. `SEO-18` is the next executable task and remains `PLANNED` pending separate
-   implementation authorization; it is the bounded homepage self-canonical and
-   clean Help Me Choose sitemap task.
+1. `SEO-18` is the next executable task and is `CODE COMPLETE`; it awaits
+   separate owner merge authorization and production live verification.
 2. After SEO-18 is `LIVE VERIFIED`, complete `SEO-19`, the bounded reciprocal
    Vitamins and Multivitamins contextual links task.
 3. After SEO-19 is `LIVE VERIFIED` and separately approved for implementation

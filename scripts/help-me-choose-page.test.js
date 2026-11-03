@@ -27,6 +27,18 @@ test("homepage exposes one secondary Help me choose entry", () => {
   assert.match(homepage, />\s*Help me choose\s*</);
   assert.equal((homepage.match(/href="\/help-me-choose"/g) || []).length, 1);
 });
+
+test("homepage declares only its explicit self-canonical metadata", () => {
+  assert.match(homepage, /import type \{ Metadata \} from "next";/);
+  const metadata = homepage.match(
+    /export const metadata: Metadata = \{[\s\S]*?\n\};/
+  );
+
+  assert.ok(metadata);
+  assert.match(metadata[0], /alternates: \{ canonical: "\/" \}/);
+  assert.doesNotMatch(metadata[0], /title|description|robots|openGraph|twitter/);
+});
+
 test("Help Me Choose uses shareable GET state and Next 16 async searchParams", () => {
   assert.match(page, /import Form from "next\/form"/);
   assert.match(page, /action="\/help-me-choose"/);

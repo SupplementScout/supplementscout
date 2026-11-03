@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import ComparisonTransparencyLinks from "./components/ComparisonTransparencyLinks";
 import HomeCategories from "./components/HomeCategories";
@@ -12,6 +13,10 @@ import {
 import { getHomepageData } from "./lib/homepageData";
 
 export const revalidate = 3600;
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 const popularSearches = [
   { label: "Compare two products", href: "/compare" },
