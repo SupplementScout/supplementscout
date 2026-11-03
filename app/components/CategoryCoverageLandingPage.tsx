@@ -3,6 +3,7 @@ import type {
   CategoryCoverageLandingPresentationConfig,
   CategoryCoverageLandingResult,
 } from "../lib/categoryCoverageLanding";
+import { categoryCoverageRawSearchHref } from "../lib/categorySearchIntent";
 import CategoryLandingPagination from "./CategoryLandingPagination";
 import ProductResultCard from "./ProductResultCard";
 
@@ -28,7 +29,7 @@ export default function CategoryCoverageLandingPage({
             SupplementScout
           </Link>
           <Link
-            href={`/search?q=${encodeURIComponent(presentation.searchQuery)}`}
+            href={categoryCoverageRawSearchHref(presentation.searchQuery)}
             className="text-sm font-semibold text-zinc-700 hover:text-zinc-950"
           >
             Search all products
