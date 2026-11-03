@@ -190,3 +190,20 @@ test("Fat Burners uses shared coverage while Weight Management keeps Search fall
   assert.doesNotMatch(categoryRoutesSource, /Fat Burners/);
   assert.doesNotMatch(categoryRoutesSource, /Weight Management/);
 });
+
+test("Collagen uses shared coverage and homepage discovery appends missing semantic labels generically", () => {
+  assert.match(
+    categoryCoverageSource,
+    /publicLabel: "Collagen",[\s\S]*route: "\/collagen"/
+  );
+  assert.doesNotMatch(categoryRoutesSource, /Collagen/);
+  assert.match(pageSource, /CATEGORY_COVERAGE_DEFINITIONS/);
+  assert.match(
+    pageSource,
+    /CATEGORY_COVERAGE_DEFINITIONS\.map\(\(definition\) => definition\.publicLabel\)/
+  );
+  assert.match(pageSource, /const seen = new Set<string>\(\)/);
+  assert.match(pageSource, /category\.trim\(\)\.toLowerCase\(\)/);
+  assert.match(pageSource, /homepageBrowseCategories\(categories\)/);
+  assert.doesNotMatch(pageSource, /if\s*\([^)]*category[^)]*===\s*["']Collagen/);
+});

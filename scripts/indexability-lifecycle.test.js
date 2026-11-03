@@ -70,9 +70,13 @@ test("approved public routes have one explicit live-verified lifecycle", () => {
 
 test("the public lifecycle registry is complete, routable and separate from owner-deferred decisions", () => {
   assert.equal(liveVerifiedPaths.length, 16);
-  assert.deepEqual(plannedPaths, ["/testosterone-boosters", "/fat-burners"]);
+  assert.deepEqual(plannedPaths, [
+    "/testosterone-boosters",
+    "/fat-burners",
+    "/collagen",
+  ]);
   assert.deepEqual(launchApprovedPaths, []);
-  assert.equal(publicPaths.length, 18);
+  assert.equal(publicPaths.length, 19);
   for (const route of publicPaths) {
     assert.equal(fs.existsSync(pageFiles.get(route)), true, route);
     assert.equal(
@@ -100,7 +104,11 @@ test("the public lifecycle registry is complete, routable and separate from owne
 });
 
 test("the semantic category pilots are registered but fail closed for indexing", () => {
-  for (const route of ["/testosterone-boosters", "/fat-burners"]) {
+  for (const route of [
+    "/testosterone-boosters",
+    "/fat-burners",
+    "/collagen",
+  ]) {
     assert.equal(lifecycle.getLifecycleStatus(route), "planned");
     assert.deepEqual(lifecycle.getLifecycleRobots(route), {
       index: false,
@@ -169,7 +177,11 @@ test("arbitrary parameters are noindex follow with the base route as canonical",
     });
     const source = fs.readFileSync(pageFiles.get(route), "utf8");
     assert.match(source, /getLifecycleRobots\(/, route);
-    assert.match(source, /alternates:\s*\{ canonical:/, route);
+    if (route === "/collagen") {
+      assert.match(source, /buildCategoryLandingMetadata\(/, route);
+    } else {
+      assert.match(source, /alternates:\s*\{ canonical:/, route);
+    }
   }
 });
 
@@ -269,10 +281,10 @@ test("Try again actually invokes the Next 16 Server Component retry", () => {
 function createTestCacheFactory(store, observations) {
   return (read, keyParts, options) => {
     observations.push({ keyParts, options });
-    return async (bucket) => {
-      const key = JSON.stringify([...keyParts, bucket]);
+    return async (bucket, ...args) => {
+      const key = JSON.stringify([...keyParts, bucket, ...args]);
       if (store.has(key)) return store.get(key);
-      const value = await read(bucket);
+      const value = await read(bucket, ...args);
       store.set(key, value);
       return value;
     };
@@ -337,6 +349,28 @@ test("loader errors are not cached while a valid empty result is cached", async 
   assert.deepEqual(await recovering(), { error: false, rows: [] });
   assert.deepEqual(await recovering(), { error: false, rows: [] });
   assert.equal(attempts, 2);
+});
+
+test("lifecycle data cache isolates pagination arguments without a second cache", async () => {
+  const cache = compileModule(
+    path.join(process.cwd(), "app/lib/lifecycleDataCache.ts"),
+    { "next/cache": { unstable_cache: () => { throw new Error("unexpected default cache"); } } }
+  );
+  const store = new Map();
+  const observations = [];
+  let reads = 0;
+  const load = cache.createLifecycleDataLoader(
+    "/collagen",
+    "collagen-category-v1",
+    async (page) => ({ error: false, page, reads: ++reads }),
+    { cacheFactory: createTestCacheFactory(store, observations) }
+  );
+
+  assert.deepEqual(await load(1), { error: false, page: 1, reads: 1 });
+  assert.deepEqual(await load(1), { error: false, page: 1, reads: 1 });
+  assert.deepEqual(await load(2), { error: false, page: 2, reads: 2 });
+  assert.deepEqual(await load(2), { error: false, page: 2, reads: 2 });
+  assert.equal(reads, 2);
 });
 
 test("an expired successful entry cannot hide the next loader failure", async () => {

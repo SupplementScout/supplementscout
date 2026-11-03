@@ -10,6 +10,7 @@ import {
   categoryBrowseHref,
   COMPARISON_CATEGORY_LINKS,
 } from "./lib/categoryRoutes";
+import { CATEGORY_COVERAGE_DEFINITIONS } from "./lib/categoryCoverage";
 import { getHomepageData } from "./lib/homepageData";
 
 export const revalidate = 3600;
@@ -81,12 +82,20 @@ const goalLinks = [
 
 const landingCategories = COMPARISON_CATEGORY_LINKS;
 
-const landingCategoryHrefs = new Map(
-  landingCategories.map((category) => [
-    category.label.toLowerCase(),
-    category.href,
-  ])
-);
+function homepageBrowseCategories(catalogueCategories: string[]) {
+  const seen = new Set<string>();
+
+  return [
+    ...landingCategories.map((category) => category.label),
+    ...catalogueCategories,
+    ...CATEGORY_COVERAGE_DEFINITIONS.map((definition) => definition.publicLabel),
+  ].filter((category) => {
+    const normalized = category.trim().toLowerCase();
+    if (!normalized || seen.has(normalized)) return false;
+    seen.add(normalized);
+    return true;
+  });
+}
 
 function searchHref(query: string) {
   return {
@@ -113,12 +122,7 @@ function checkedDate(value: string | null) {
 export default async function Home() {
   const { categories, latestOfferCheckAt, productCount, retailerCount } =
     await getHomepageData();
-  const browseCategories = [
-    ...landingCategories.map((category) => category.label),
-    ...categories.filter(
-      (category) => !landingCategoryHrefs.has(category.toLowerCase())
-    ),
-  ];
+  const browseCategories = homepageBrowseCategories(categories);
   const categoryLinks = browseCategories.map((category) => ({
     href: categoryBrowseHref(category),
     label: category,

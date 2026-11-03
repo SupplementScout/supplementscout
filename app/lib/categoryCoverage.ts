@@ -90,6 +90,13 @@ const ambiguousFatIngredientPattern =
 const ordinaryHealthProductPattern =
   /\b(?:alpha\s+lipoic\s+acid|biotin|collagen|cranberry|cream\s+of\s+rice|detox|folic\s+acid|garlic|glucosamine|hair\s+care|immunoboost|iron|l[-\s]?choline|magnesium|multivitamins?|omega[-\s]?3|potassium|sea\s+kelp|soya\s+isoflavones|starflower|taurine|vitamin|zinc)\b/i;
 
+const collagenNamePattern = /\bcollagen\b/i;
+const collagenBenefitCopyPattern =
+  /\b(?:collagen(?:\s+collagen)?\s+(?:formation|synthesis|production)|collagen\s+and\s+cartilage\s+formation|(?:formation|synthesis|production)\s+of\s+(?:healthy\s+)?collagen|produce\s+collagen|collagen\s+levels?)\b/i;
+const collagenProtectionCopyPattern = /\bprotects?\s+collagen\b/i;
+const collagenCompanionCopyPattern =
+  /\btaken\s+alongside[\s\S]{0,160}\bcollagen\b/i;
+
 const categoryCoverageDefinitions = [
   {
     key: "glucosamine",
@@ -357,6 +364,48 @@ const categoryCoverageDefinitions = [
       }),
       rule("AMBIGUOUS_SHRED_IDENTITY", "MEDIUM", "Shred wording without stronger Fat Burner evidence needs review.", {
         anyOf: [condition("name", /\bshred\w*\b/i)],
+      }),
+    ],
+  },
+  {
+    key: "collagen",
+    publicLabel: "Collagen",
+    route: "/collagen",
+    canonicalCategoryAliases: ["Collagen"],
+    candidateQueries: [
+      "Collagen",
+      "collagen peptides",
+      "marine collagen",
+      "hydrolysed collagen",
+      "hydrolyzed collagen",
+      "collagen protein",
+      "bovine collagen",
+      "collagen powder",
+      "multi collagen",
+    ],
+    excludeRules: [
+      rule("COLLAGEN_BENEFIT_COPY_ONLY", "HIGH", "Description identifies Collagen formation, synthesis, production or levels as a benefit rather than product identity.", {
+        anyOf: [condition("description", collagenBenefitCopyPattern)],
+        noneOf: [condition("name", collagenNamePattern)],
+      }),
+      rule("COLLAGEN_PROTECTION_COPY_ONLY", "HIGH", "Description mentions protecting Collagen without a Collagen product identity.", {
+        anyOf: [condition("description", collagenProtectionCopyPattern)],
+        noneOf: [condition("name", collagenNamePattern)],
+      }),
+      rule("COLLAGEN_COMPANION_COPY_ONLY", "HIGH", "Description only says the product may be taken alongside Collagen.", {
+        anyOf: [condition("description", collagenCompanionCopyPattern)],
+        noneOf: [condition("name", collagenNamePattern)],
+      }),
+    ],
+    includeRules: [
+      rule("EXPLICIT_COLLAGEN_NAME", "HIGH", "Name identifies Collagen as a primary or named co-primary product identity.", {
+        anyOf: [condition("name", collagenNamePattern)],
+      }),
+    ],
+    reviewRules: [
+      rule("DESCRIPTION_LEVEL_COLLAGEN_COMPONENT", "MEDIUM", "Description identifies Collagen as one component without a Collagen product-name identity.", {
+        anyOf: [condition("description", collagenNamePattern)],
+        noneOf: [condition("name", collagenNamePattern)],
       }),
     ],
   },
