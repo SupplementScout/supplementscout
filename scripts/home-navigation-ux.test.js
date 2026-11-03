@@ -19,6 +19,10 @@ const categoryRoutesSource = fs.readFileSync(
   path.join(process.cwd(), "app", "lib", "categoryRoutes.ts"),
   "utf8"
 );
+const categoryCoverageSource = fs.readFileSync(
+  path.join(process.cwd(), "app", "lib", "categoryCoverage.ts"),
+  "utf8"
+);
 const searchInputSource = fs.readFileSync(
   path.join(process.cwd(), "app", "components", "SearchInput.tsx"),
   "utf8"
@@ -167,4 +171,13 @@ test("mobile category list is limited without changing category routes", () => {
   ]) {
     assert.match(categoryRoutesSource, new RegExp(`href: "${route}"`));
   }
+});
+
+test("Testosterone Boosters homepage browsing uses the shared coverage route", () => {
+  assert.match(categoryRoutesSource, /categoryCoverageDefinitionForLabel\(category\)\?\.route/);
+  assert.match(
+    categoryCoverageSource,
+    /publicLabel: "Testosterone Boosters",[\s\S]*route: "\/testosterone-boosters"/
+  );
+  assert.doesNotMatch(categoryRoutesSource, /Testosterone Boosters/);
 });

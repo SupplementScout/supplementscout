@@ -55,9 +55,25 @@ function loadCategoryRoutesModule() {
   subtypeModule.filename = subtypeFilename;
   subtypeModule.paths = Module._nodeModulePaths(path.dirname(subtypeFilename));
   subtypeModule._compile(subtypeOutput, subtypeFilename);
+  const coverageFilename = path.join(
+    process.cwd(),
+    "app",
+    "lib",
+    "categoryCoverage.ts"
+  );
+  const coverageSource = fs.readFileSync(coverageFilename, "utf8");
+  const coverageOutput = ts.transpileModule(coverageSource, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+    fileName: coverageFilename,
+  }).outputText;
+  const coverageModule = new Module(coverageFilename, module);
+  coverageModule.filename = coverageFilename;
+  coverageModule.paths = Module._nodeModulePaths(path.dirname(coverageFilename));
+  coverageModule._compile(coverageOutput, coverageFilename);
   const originalLoad = Module._load;
   Module._load = function patchedLoad(request, parent, isMain) {
     if (parent === mod && request === "./proteinSubtypes") return subtypeModule.exports;
+    if (parent === mod && request === "./categoryCoverage") return coverageModule.exports;
     return originalLoad.call(this, request, parent, isMain);
   };
 
@@ -253,6 +269,10 @@ test("comparison category routing is shared, exact and safely falls back", () =>
   assert.equal(comparisonLinkForCategory("Creatine blends"), null);
   assert.equal(categoryBrowseHref("Creatine"), "/creatine");
   assert.equal(categoryBrowseHref("Protein Bars"), "/protein-bars");
+  assert.equal(
+    categoryBrowseHref("Testosterone Boosters"),
+    "/testosterone-boosters"
+  );
   assert.equal(
     categoryBrowseHref("Joint support & mobility"),
     "/search?q=Joint%20support%20%26%20mobility"
