@@ -2,6 +2,7 @@ import {
   hasReviewedVeganProteinIdentity,
   hasReviewedWheyIsolateIdentity,
 } from "./proteinSubtypes";
+import { categoryCoverageDefinitionForLabel } from "./categoryCoverage";
 
 export const COMPARISON_CATEGORY_LINKS = Object.freeze([
   { label: "Vitamins", href: "/vitamins" },
@@ -49,6 +50,7 @@ export function comparisonLinkForProduct(product: {
 export function categoryBrowseHref(category: string) {
   return (
     comparisonLinkForCategory(category)?.href ||
+    categoryCoverageDefinitionForLabel(category)?.route ||
     `/search?q=${encodeURIComponent(category)}`
   );
 }

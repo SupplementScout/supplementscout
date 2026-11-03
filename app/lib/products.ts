@@ -29,6 +29,11 @@ import {
   type SearchIntentPlan,
 } from "./searchIntent";
 import { supabase } from "./supabase";
+import {
+  evaluateCategoryCoverage,
+  getCategoryCoverageDefinition,
+  type CategoryCoverageProduct,
+} from "./categoryCoverage";
 
 export type SearchSort = IntentSearchSort;
 export { buildSearchIntentPlan as parseSearchIntent };
@@ -277,10 +282,7 @@ type RawSuggestionProduct = Pick<
   offers?: Array<Pick<RawOffer, "id" | "in_stock" | "price" | "last_checked_at">> | null;
 };
 
-export type LandingProductMatchInput = Pick<
-  RawProduct,
-  "name" | "brand" | "category" | "description"
->;
+export type LandingProductMatchInput = CategoryCoverageProduct;
 
 export type ReviewedLandingCategory =
   | "glucosamine"
@@ -293,27 +295,6 @@ type LandingProductsOptions = {
   page?: number;
   productFilter?: (product: LandingProductMatchInput) => boolean;
 };
-
-const vitaminLandingStrongPattern =
-  /\b(?:multivitamins?|vitamins?|vitamin\s+(?:a|b|c|d|d2|d3|e|k|k2)|b\s*complex|biotin|calcium|chromium|copper|folic\s+acid|iodine|iron|magnesium|manganese|minerals?|potassium|selenium|zinc)\b/;
-
-const vitaminLandingExcludedIdentityPattern =
-  /\b(?:amino|bcaa|chondroitin|cod\s+liver|collagen|creatine|eaa|electrolytes?|energy\s+drinks?|fish\s+oil|glucosamine|hydration|joint|krill|mass\s+gainer|nocco|omega|pre[-\s]?workout|protein|whey)\b/;
-
-const reviewedLandingNamePatterns: Record<
-  Exclude<ReviewedLandingCategory, "vitamins">,
-  RegExp
-> = {
-  glucosamine: /\bglucosamine\b/,
-  magnesium: /\b(?:magnesium|zma(?:ttack)?|zmb|zmpro)\b/,
-  "omega-3":
-    /\b(?:cod\s+liver\s+oil|fish\s+oil|flaxseed\s+oil|krill\s+oil|omega[-\s]?3)\b/,
-  "vitamin-d":
-    /\b(?:d2|d3|vit(?:amin)?\s+d(?:2|3)?)\b/,
-};
-
-const omega3LandingExcludedIdentityPattern =
-  /\b(?:cat|dog|pet|starflower|evening\s+primrose)\b/;
 
 function firstParamValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
@@ -394,10 +375,6 @@ const compactDosagePattern = /\b(\d{1,3})(\d{3})\s*(mg|iu)\b/gi;
 const separatedDosagePattern = /\b(\d{1,3})\s+(\d{3})\s*(mg|iu)\b/gi;
 const commaDosagePattern = /\b(\d{1,3}),(\d{3})\s*(mg|iu)\b/gi;
 
-function searchableText(values: Array<string | null | undefined>) {
-  return normalizeWhitespace(values.filter(Boolean).join(" ")).toLowerCase();
-}
-
 export function isVitaminLandingProductMatch(
   product: LandingProductMatchInput
 ) {
@@ -408,23 +385,12 @@ export function isReviewedLandingProductMatch(
   category: ReviewedLandingCategory,
   product: LandingProductMatchInput
 ) {
-  const identity = searchableText([product.name]);
-
-  if (category === "vitamins") {
-    return (
-      !vitaminLandingExcludedIdentityPattern.test(identity) &&
-      vitaminLandingStrongPattern.test(identity)
-    );
-  }
-
-  if (
-    category === "omega-3" &&
-    omega3LandingExcludedIdentityPattern.test(identity)
-  ) {
-    return false;
-  }
-
-  return reviewedLandingNamePatterns[category].test(identity);
+  const definition = getCategoryCoverageDefinition(category);
+  return Boolean(
+    definition &&
+      evaluateCategoryCoverage(definition, product).classification ===
+        "INCLUDE_STRONG"
+  );
 }
 
 function correctedSearchQuery(query: string) {

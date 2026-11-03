@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 348,
-    "sha256": "f487beeeb904e80c06fdfeadbd521bd475bb7446b038fa601c278fbc8843a8d6"
+    "count": 349,
+    "sha256": "8d86604148b3efb24cf27711939b5992012000e221d754a9369225ae3f37f102"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -85,6 +85,7 @@
     "scripts/analytics-consent.test.js",
     "scripts/better-value-alternatives.test.js",
     "scripts/category-controls.test.js",
+    "scripts/category-coverage.test.js",
     "scripts/category-decision.test.js",
     "scripts/category-landing-relevance.test.js",
     "scripts/deals-page.test.js",

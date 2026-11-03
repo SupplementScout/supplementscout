@@ -86,6 +86,23 @@ function loadSearchIntentModule() {
   return mod.exports;
 }
 
+function loadCategoryCoverageModule() {
+  const filename = path.join(process.cwd(), "app", "lib", "categoryCoverage.ts");
+  const source = fs.readFileSync(filename, "utf8");
+  const { outputText } = ts.transpileModule(source, {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+    },
+    fileName: filename,
+  });
+  const mod = new Module(filename, module);
+  mod.filename = filename;
+  mod.paths = Module._nodeModulePaths(path.dirname(filename));
+  mod._compile(outputText, filename);
+  return mod.exports;
+}
+
 function nutritionCandidatePages(pages) {
   const calls = [];
   return {
@@ -403,6 +420,10 @@ function loadProductsModule(
 
     if (parent === mod && request === "./searchIntent") {
       return loadSearchIntentModule();
+    }
+
+    if (parent === mod && request === "./categoryCoverage") {
+      return loadCategoryCoverageModule();
     }
 
     return originalLoad.call(this, request, parent, isMain);
