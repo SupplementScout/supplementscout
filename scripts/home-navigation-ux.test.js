@@ -2,6 +2,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
+const ts = require("typescript");
 
 const pageSource = fs.readFileSync(
   path.join(process.cwd(), "app", "page.tsx"),
@@ -27,17 +28,106 @@ const searchInputSource = fs.readFileSync(
   path.join(process.cwd(), "app", "components", "SearchInput.tsx"),
   "utf8"
 );
+const headerAst = ts.createSourceFile(
+  "HomeHeader.tsx",
+  headerSource,
+  ts.ScriptTarget.Latest,
+  true,
+  ts.ScriptKind.TSX
+);
+
+function collectAstNodes(root, predicate) {
+  const matches = [];
+
+  function visit(node) {
+    if (predicate(node)) matches.push(node);
+    ts.forEachChild(node, visit);
+  }
+
+  visit(root);
+  return matches;
+}
+
+function isJsxElementNamed(node, tagName) {
+  return (
+    ts.isJsxElement(node) &&
+    node.openingElement.tagName.getText(headerAst) === tagName
+  );
+}
 
 test("homepage renders one responsive header and one conditional mobile menu", () => {
   assert.equal((headerSource.match(/<header\b/g) || []).length, 1);
   assert.equal((headerSource.match(/<aside\b/g) || []).length, 1);
   assert.equal((pageSource.match(/<HomeHeader\b/g) || []).length, 1);
-  assert.match(headerSource, /menuOpen && \(/);
+  assert.match(headerSource, /menuOpen &&/);
   assert.match(headerSource, /onClick=\{\(\) => setMenuOpen\(true\)\}/);
   assert.match(headerSource, /aria-expanded=\{menuOpen\}/);
   assert.match(headerSource, /aria-controls="home-mobile-menu"/);
   assert.equal((headerSource.match(/id="home-mobile-menu"/g) || []).length, 1);
   assert.match(headerSource, /className="[^"]*md:hidden"/);
+});
+
+test("mobile dialog is portalled outside the backdrop-filtered header", () => {
+  const portalCalls = collectAstNodes(
+    headerAst,
+    (node) =>
+      ts.isCallExpression(node) &&
+      node.expression.getText(headerAst) === "createPortal"
+  );
+  const headers = collectAstNodes(headerAst, (node) =>
+    isJsxElementNamed(node, "header")
+  );
+
+  assert.equal(portalCalls.length, 1);
+  assert.equal(portalCalls[0].arguments[1]?.getText(headerAst), "document.body");
+  assert.equal(headers.length, 1);
+  assert.equal(
+    collectAstNodes(headers[0], (node) => isJsxElementNamed(node, "aside"))
+      .length,
+    0
+  );
+  assert.equal(
+    collectAstNodes(portalCalls[0].arguments[0], (node) =>
+      isJsxElementNamed(node, "aside")
+    ).length,
+    1
+  );
+  assert.match(headerSource, /typeof document !== "undefined"/);
+  assert.match(headerSource, /backdrop-blur/);
+});
+
+test("mobile dialog is an opaque safe-area-aware full viewport layer", () => {
+  const asideClassName = headerSource.match(
+    /<aside[\s\S]*?className="([^"]+)"/
+  )?.[1];
+
+  assert.ok(asideClassName);
+  for (const requiredClass of [
+    "fixed",
+    "inset-0",
+    "z-[100]",
+    "h-dvh",
+    "w-full",
+    "overflow-x-hidden",
+    "overflow-y-auto",
+    "overscroll-contain",
+    "bg-white",
+    "md:hidden",
+  ]) {
+    assert.ok(
+      asideClassName.includes(requiredClass),
+      `Expected mobile dialog class ${requiredClass}`
+    );
+  }
+
+  assert.match(asideClassName, /env\(safe-area-inset-top\)/);
+  assert.match(asideClassName, /env\(safe-area-inset-bottom\)/);
+  assert.doesNotMatch(asideClassName, /max-w-|bg-white\//);
+  assert.match(
+    headerSource,
+    /role="dialog"[\s\S]*aria-modal="true"[\s\S]*aria-label="Mobile navigation"/
+  );
+  assert.match(headerSource, />\s*Close\s*<\/button>/);
 });
 
 test("mobile menu supports Escape, focus management and complete cleanup", () => {
@@ -82,6 +172,16 @@ test("mobile menu contains only the four requested destinations", () => {
   )?.[1];
   assert.ok(navigationItemsBlock);
   assert.equal((navigationItemsBlock.match(/\{ label:/g) || []).length, 4);
+  assert.equal(
+    collectAstNodes(
+      headerAst,
+      (node) =>
+        ts.isVariableDeclaration(node) &&
+        node.name.getText(headerAst) === "navigationItems"
+    ).length,
+    1
+  );
+  assert.match(headerSource, /href="#search"/);
 });
 
 test("hero reuses one search input with mobile-safe autocomplete", () => {
