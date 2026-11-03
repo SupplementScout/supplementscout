@@ -34,6 +34,7 @@ export const PUBLIC_INDEXABILITY_LIFECYCLE = Object.freeze({
   "/brands/biotech-usa": "live_verified",
   "/retailers/ebay-uk": "live_verified",
   "/testosterone-boosters": "planned",
+  "/fat-burners": "planned",
 } satisfies Readonly<Record<string, IndexabilityLifecycleStatus>>);
 
 /** Reserved decisions which deliberately do not create public routes. */

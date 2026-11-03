@@ -70,9 +70,9 @@ test("approved public routes have one explicit live-verified lifecycle", () => {
 
 test("the public lifecycle registry is complete, routable and separate from owner-deferred decisions", () => {
   assert.equal(liveVerifiedPaths.length, 16);
-  assert.deepEqual(plannedPaths, ["/testosterone-boosters"]);
+  assert.deepEqual(plannedPaths, ["/testosterone-boosters", "/fat-burners"]);
   assert.deepEqual(launchApprovedPaths, []);
-  assert.equal(publicPaths.length, 17);
+  assert.equal(publicPaths.length, 18);
   for (const route of publicPaths) {
     assert.equal(fs.existsSync(pageFiles.get(route)), true, route);
     assert.equal(
@@ -99,16 +99,15 @@ test("the public lifecycle registry is complete, routable and separate from owne
   }
 });
 
-test("the Testosterone Boosters pilot is registered but fails closed for indexing", () => {
-  assert.equal(lifecycle.getLifecycleStatus("/testosterone-boosters"), "planned");
-  assert.deepEqual(lifecycle.getLifecycleRobots("/testosterone-boosters"), {
-    index: false,
-    follow: true,
-  });
-  assert.equal(
-    lifecycle.isLifecycleSitemapEligible("/testosterone-boosters"),
-    false
-  );
+test("the semantic category pilots are registered but fail closed for indexing", () => {
+  for (const route of ["/testosterone-boosters", "/fat-burners"]) {
+    assert.equal(lifecycle.getLifecycleStatus(route), "planned");
+    assert.deepEqual(lifecycle.getLifecycleRobots(route), {
+      index: false,
+      follow: true,
+    });
+    assert.equal(lifecycle.isLifecycleSitemapEligible(route), false);
+  }
 });
 
 test("unknown routes and statuses fail closed", () => {

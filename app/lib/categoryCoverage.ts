@@ -80,6 +80,16 @@ const exactTestosteroneCategoryPattern = /^\s*testosterone\s+boosters\s*$/i;
 const ambiguousTestosteroneIngredientPattern =
   /\b(?:fadogia(?:\s+agrestis)?|tongkat(?:\s+ali)?|long\s+jack|tribulus(?:\s+terrestris)?)\b/i;
 
+const exactFatBurnersCategoryPattern = /^\s*fat\s+burners\s*$/i;
+const explicitFatBurnerPattern =
+  /\bfat[-\s]+burn(?:ers?|ing)\b/i;
+const strongFatBurnerNamePattern =
+  /\b(?:burner|black\s+bombs?|clenburexin|hydroxycut|oxyshred|the\s+ripper|thermogenic)\b/i;
+const ambiguousFatIngredientPattern =
+  /\b(?:(?:acetyl\s+)?l[-\s]?carnitine|carnitine|cla|conjugated\s+linoleic\s+acid|glucomannan|mct(?:\s+gold)?\s+oil)\b/i;
+const ordinaryHealthProductPattern =
+  /\b(?:alpha\s+lipoic\s+acid|biotin|collagen|cranberry|cream\s+of\s+rice|detox|folic\s+acid|garlic|glucosamine|hair\s+care|immunoboost|iron|l[-\s]?choline|magnesium|multivitamins?|omega[-\s]?3|potassium|sea\s+kelp|soya\s+isoflavones|starflower|taurine|vitamin|zinc)\b/i;
+
 const categoryCoverageDefinitions = [
   {
     key: "glucosamine",
@@ -226,6 +236,127 @@ const categoryCoverageDefinitions = [
       }),
       rule("AMBIGUOUS_CANONICAL_CATEGORY", "MEDIUM", "Canonical category alone is candidate evidence, not strong semantic membership.", {
         anyOf: [condition("category", exactTestosteroneCategoryPattern)],
+      }),
+    ],
+  },
+  {
+    key: "fat-burners",
+    publicLabel: "Fat Burners",
+    route: "/fat-burners",
+    canonicalCategoryAliases: ["Fat Burners"],
+    candidateQueries: [
+      "Fat Burners",
+      "fat burner",
+      "fat burning",
+      "fat loss",
+      "thermogenic",
+      "thermogenesis",
+      "burner",
+      "shred",
+      "cuts",
+      "ripper",
+      "clenburexin",
+      "oxyshred",
+      "hydroxycut",
+    ],
+    excludeRules: [
+      rule("PRE_WORKOUT_ONLY_IDENTITY", "HIGH", "Product is a pre-workout without independent Fat Burner identity.", {
+        anyOf: [
+          condition("name", /\bpre[-\s]?workout\b/i),
+          condition("category", /^\s*pre\s+workout\s*$/i),
+        ],
+        noneOf: [
+          condition("name", strongFatBurnerNamePattern),
+        ],
+      }),
+      rule("ENERGY_DRINK_IDENTITY", "HIGH", "Product is an energy drink rather than a Fat Burner product.", {
+        anyOf: [
+          condition("name", /\benergy\s+drinks?\b/i),
+          condition("category", /^\s*energy\s+drinks?\s*$/i),
+        ],
+      }),
+      rule("CREATINE_PRODUCT_IDENTITY", "HIGH", "Product is an ordinary Creatine product or subtype.", {
+        anyOf: [
+          condition("name", /\bcreatine\b/i),
+          condition("category", /^\s*creatine\s*$/i),
+        ],
+      }),
+      rule("MASS_GAINER_IDENTITY", "HIGH", "Product is a Mass Gainer or mass stack.", {
+        anyOf: [
+          condition("name", /\b(?:mass\s+gainer|mass\s+stack)\b/i),
+          condition("category", /^\s*mass\s+gainer\s*$/i),
+        ],
+      }),
+      rule("MEAL_OR_RTD_IDENTITY", "HIGH", "Product is a meal or ready-to-drink food identity.", {
+        anyOf: [
+          condition("name", /\b(?:huel|meal\s+replacement|ready[-\s]?to[-\s]?drink|rtd)\b/i),
+        ],
+      }),
+      rule("DIET_OR_SLIMMING_PROTEIN_IDENTITY", "HIGH", "Product is a diet or slimming protein without Fat Burner identity.", {
+        anyOf: [condition("name", /\b(?:diet\s+whey|diet\s+protein|slimming\s+protein)\b/i)],
+        noneOf: [
+          condition("name", strongFatBurnerNamePattern),
+          condition("description", explicitFatBurnerPattern),
+        ],
+      }),
+      rule("WATER_LOSS_IDENTITY", "HIGH", "Product has a water-loss or diuretic identity rather than Fat Burner identity.", {
+        anyOf: [condition("name", /\b(?:aqua\s+loss|water[-\s]+loss|diuretic)\b/i)],
+      }),
+      rule("KETO_SALT_IDENTITY", "HIGH", "Product is a Keto salt product rather than a Fat Burner.", {
+        anyOf: [condition("name", /\bketo\s+a?\s*salt\b/i)],
+      }),
+      rule("APPLE_CIDER_VINEGAR_IDENTITY", "HIGH", "Product is an ordinary Apple Cider Vinegar supplement.", {
+        anyOf: [condition("name", /\bapple\s+cider\s+vinegar\b/i)],
+      }),
+      rule("ORDINARY_FIBRE_IDENTITY", "HIGH", "Product is an ordinary fibre supplement without reviewed Fat Burner identity.", {
+        anyOf: [condition("name", /\bpsyllium\s+husk\b/i)],
+      }),
+      rule("NON_SUPPLEMENT_ACCESSORY_IDENTITY", "HIGH", "Product is an accessory rather than a supplement.", {
+        anyOf: [condition("category", /^\s*accessories\s*$/i)],
+      }),
+      rule("ORDINARY_PROTEIN_IDENTITY", "HIGH", "Product is an ordinary protein product without Fat Burner identity.", {
+        anyOf: [
+          condition("name", /\b(?:protein\s+bars?|protein\s+(?:blend|powder))\b/i),
+          condition("category", /^\s*(?:protein\s+bars?|whey\s+protein)\s*$/i),
+        ],
+        noneOf: [
+          condition("name", strongFatBurnerNamePattern),
+          condition("description", explicitFatBurnerPattern),
+        ],
+      }),
+      rule("ORDINARY_AMINO_ACID_IDENTITY", "HIGH", "Product is an ordinary Amino Acid product without ambiguous Fat Burner evidence.", {
+        anyOf: [condition("category", /^\s*amino\s+acids\s*$/i)],
+        noneOf: [condition("name", ambiguousFatIngredientPattern)],
+      }),
+      rule("ORDINARY_VITAMIN_IDENTITY", "HIGH", "Product is an ordinary Vitamin product.", {
+        anyOf: [condition("category", /^\s*vitamins\s*$/i)],
+      }),
+      rule("ORDINARY_HEALTH_PRODUCT_IDENTITY", "HIGH", "Product has an ordinary health-product identity rather than Fat Burner identity.", {
+        anyOf: [condition("name", ordinaryHealthProductPattern)],
+        noneOf: [
+          condition("name", ambiguousFatIngredientPattern),
+          condition("name", strongFatBurnerNamePattern),
+          condition("description", explicitFatBurnerPattern),
+        ],
+      }),
+    ],
+    includeRules: [
+      rule("EXPLICIT_FAT_BURNER_NAME", "HIGH", "Name explicitly identifies a Fat Burner or established strong product family.", {
+        anyOf: [condition("name", strongFatBurnerNamePattern)],
+      }),
+      rule("EXPLICIT_FAT_BURNER_DESCRIPTION", "HIGH", "Description explicitly identifies a Fat Burner or fat-burning product.", {
+        anyOf: [condition("description", explicitFatBurnerPattern)],
+      }),
+      rule("SUPPORTED_FAT_BURNERS_CATEGORY", "HIGH", "The exact reviewed Fat Burners category supports product identity.", {
+        anyOf: [condition("category", exactFatBurnersCategoryPattern)],
+      }),
+    ],
+    reviewRules: [
+      rule("AMBIGUOUS_FAT_INGREDIENT_IDENTITY", "MEDIUM", "Ingredient-only identity needs reviewed semantic evidence.", {
+        anyOf: [condition("name", ambiguousFatIngredientPattern)],
+      }),
+      rule("AMBIGUOUS_SHRED_IDENTITY", "MEDIUM", "Shred wording without stronger Fat Burner evidence needs review.", {
+        anyOf: [condition("name", /\bshred\w*\b/i)],
       }),
     ],
   },
