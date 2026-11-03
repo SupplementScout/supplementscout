@@ -77,6 +77,22 @@ test("static pages omit lastModified until a truthful modification source exists
   assert.doesNotMatch(sitemapSource, /staticLastModified/);
 });
 
+test("Help Me Choose has exactly one clean weekly base sitemap entry", () => {
+  const entries =
+    sitemapSource.match(/url: `\$\{siteUrl\}\/help-me-choose`/g) || [];
+  const entry = sitemapSource.match(
+    /\{\s*url: `\$\{siteUrl\}\/help-me-choose`,[\s\S]*?\n\s*\},/
+  );
+
+  assert.equal(entries.length, 1);
+  assert.ok(entry);
+  assert.match(entry[0], /changeFrequency: "weekly"/);
+  assert.match(entry[0], /priority: 0\.8/);
+  assert.doesNotMatch(entry[0], /lastModified|\?|\/search/);
+  assert.doesNotMatch(sitemapSource, /`\$\{siteUrl\}\/help-me-choose\?/);
+  assert.doesNotMatch(sitemapSource, /`\$\{siteUrl\}\/search/);
+});
+
 test("readiness-gated noindex paths are excluded while ungated paths remain", () => {
   const { isSitemapPathIndexable } = loadIndexabilityModule();
   const readiness = new Map([

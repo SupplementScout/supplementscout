@@ -5,6 +5,21 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
+**3 November 2026 owner-authorized SEO-18 implementation:** SEO-18 is `CODE
+COMPLETE` on `feat/seo18-home-canonical-hmc-sitemap`. The implementation adds
+only the homepage self-canonical through the Metadata API and exactly one clean
+weekly-priority-0.8 Help Me Choose base URL to the sitemap. The inherited
+homepage title and description and all Help Me Choose behavior, copy, schema,
+robots, canonical and lifecycle behavior are unchanged. Focused tests,
+TypeScript, lint, quick/full quality gates and the production build pass.
+
+SEO-18 remains the next executable task pending a fresh explicit owner merge
+authorization and production live verification. It is not `LIVE VERIFIED`, and
+there are zero SEO feature tasks `IN PROGRESS`. SEO-19, SEO-20 and SEO-17 remain
+`PLANNED`; SEO-02B remains `BLOCKED`; SEO-15 remains `LIVE VERIFIED`, with
+public Stage 3 disabled and `DEFERRED / NOT READY`. See the
+[dated implementation record](rollouts/seo18-home-canonical-hmc-sitemap-2026-11-03.md).
+
 **3 November 2026 owner-authorized SEO-15 closeout:** SEO-15 is formally
 `LIVE VERIFIED` based on successful ordinary scheduled run `41488694982` and
 artifact `13162932296`. The final read-only evidence has `813/813` 60-day-mature
@@ -2421,9 +2436,8 @@ SEO-15 completed its owner-authorized closeout on 3 November 2026 and is `LIVE
 VERIFIED`. Public Stage 3 remains deferred and disabled; its read-only monitor
 continues outside the active implementation queue.
 
-1. `SEO-18` is the next executable task and remains `PLANNED` pending separate
-   implementation authorization; it is the bounded homepage self-canonical and
-   clean Help Me Choose sitemap task;
+1. `SEO-18` is the next executable task and is `CODE COMPLETE`; it awaits
+   separate owner merge authorization and production live verification;
 2. after SEO-18 is `LIVE VERIFIED`, complete `SEO-19`, the bounded reciprocal
    Vitamins and Multivitamins contextual links task;
 3. after SEO-19 is `LIVE VERIFIED` and separately approved for implementation
@@ -4560,9 +4574,9 @@ SEO-15 is `LIVE VERIFIED`; public Stage 3 remains deferred and disabled behind
 its unchanged `12 / 30 / 4` gate. Its daily read-only monitor continues as an
 operational evidence control.
 
-1. `SEO-18`: next executable but still `PLANNED`; after separate owner
-   implementation authorization, add the homepage self-canonical and exactly
-   one clean Help Me Choose base URL to the sitemap.
+1. `SEO-18`: next executable and `CODE COMPLETE`; the bounded homepage
+   self-canonical and one clean Help Me Choose sitemap entry await separate
+   owner merge authorization and production live verification.
 2. `SEO-19`: after SEO-18 is `LIVE VERIFIED`, add only the approved reciprocal
    Vitamins and Multivitamins contextual links.
 3. `SEO-20`: after SEO-19 is `LIVE VERIFIED`, and only with separate
@@ -4996,9 +5010,9 @@ Target experience:
 
 ### Current active task
 
-`SEO-18` is the next executable SEO task and remains `PLANNED`; implementation
-has not started and requires separate owner authorization. No SEO feature task
-is currently `IN PROGRESS`. SEO-15 is `LIVE VERIFIED` after the owner-authorized
+`SEO-18` is the next executable SEO task and is `CODE COMPLETE`; the bounded
+implementation awaits separate owner merge authorization and production live
+verification. No SEO feature task is currently `IN PROGRESS`. SEO-15 is `LIVE VERIFIED` after the owner-authorized
 3 November closeout. Its shared automatic candidate inventory and scheduled
 read-only audit continue as operational monitoring, not active implementation.
 Public Stage 3 remains disabled and deferred at current breadth `1 / 1 / 1`
@@ -5160,10 +5174,11 @@ conservative external-session signal and make no conversion claim.
 
 ### Then
 
-1. Keep `SEO-18` as the next executable task but `PLANNED` until separate owner
-   implementation authorization. Then follow the owner-approved `SEO-18 ->
-   SEO-19 -> SEO-20` order; `SEO-17` remains `PLANNED` behind its separate
-   owner-content gate. SEO-15 and SEO-16 are already live verified.
+1. Keep `SEO-18` as the next executable task at `CODE COMPLETE` until separate
+   owner merge authorization and production live verification. Then follow the
+   owner-approved `SEO-18 -> SEO-19 -> SEO-20` order; `SEO-17` remains
+   `PLANNED` behind its separate owner-content gate. SEO-15 and SEO-16 are
+   already live verified.
 2. Continue the SEO-15 scheduled read-only evidence monitor without treating it
    as active implementation; keep public Stage 3 disabled.
 3. Record GSC/GA4 evidence weekly; keep outbound outreach paused.
