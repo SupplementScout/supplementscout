@@ -273,6 +273,11 @@ test("comparison category routing is shared, exact and safely falls back", () =>
     categoryBrowseHref("Testosterone Boosters"),
     "/testosterone-boosters"
   );
+  assert.equal(categoryBrowseHref("Fat Burners"), "/fat-burners");
+  assert.equal(
+    categoryBrowseHref("Weight Management"),
+    "/search?q=Weight%20Management"
+  );
   assert.equal(
     categoryBrowseHref("Joint support & mobility"),
     "/search?q=Joint%20support%20%26%20mobility"

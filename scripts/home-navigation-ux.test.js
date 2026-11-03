@@ -181,3 +181,12 @@ test("Testosterone Boosters homepage browsing uses the shared coverage route", (
   );
   assert.doesNotMatch(categoryRoutesSource, /Testosterone Boosters/);
 });
+
+test("Fat Burners uses shared coverage while Weight Management keeps Search fallback", () => {
+  assert.match(
+    categoryCoverageSource,
+    /publicLabel: "Fat Burners",[\s\S]*route: "\/fat-burners"/
+  );
+  assert.doesNotMatch(categoryRoutesSource, /Fat Burners/);
+  assert.doesNotMatch(categoryRoutesSource, /Weight Management/);
+});
