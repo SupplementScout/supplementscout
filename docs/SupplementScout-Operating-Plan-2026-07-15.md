@@ -5,19 +5,19 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
-**3 November 2026 owner-authorized SEO-19 implementation:** SEO-19 is `CODE
-COMPLETE` on `feat/seo19-vitamins-multivitamins-links`. It adds only the
-approved reciprocal contextual links in the existing Vitamins popular-searches
-and Multivitamins related-comparisons sections, using exact anchors
-`Multivitamins` and `Vitamins and minerals`. Metadata, schema, loaders,
-pagination, indexability and generic link mechanisms are unchanged. Focused
-tests, TypeScript, lint, quick/full quality gates and the production build pass.
+**3 November 2026 SEO-19 production closeout:** SEO-19 is `LIVE VERIFIED`.
+PR `#439` merged approved head
+`50ffa635a7989ee7707205792b9befad1c9429f7` as production `main`
+`4bb719091cc762e806e96c097a49251ff756212d`, with equal trees. Main Project
+Guardian `41623541134`, Quality Gate `41623540890`, Vercel production and
+read-only public checks of both exact reciprocal links passed. HTTP, canonical,
+robots, title, description and schema baselines remain unchanged.
 
-SEO-19 remains the next executable task pending guarded merge and production
-live verification. There are zero SEO feature tasks `IN PROGRESS`. SEO-18 and
-SEO-15 remain `LIVE VERIFIED`; SEO-20 and SEO-17 remain `PLANNED`; SEO-02B
-remains `BLOCKED`; public Stage 3 remains disabled and `DEFERRED / NOT READY`
-behind the unchanged `12 / 30 / 4` gate. See the
+SEO-20 is now the next executable task and remains `PLANNED`; its implementation
+has not started and there are zero SEO feature tasks `IN PROGRESS`. SEO-18 and
+SEO-15 remain `LIVE VERIFIED`; SEO-17 remains `PLANNED`; SEO-02B remains
+`BLOCKED`; public Stage 3 remains disabled and `DEFERRED / NOT READY` behind the
+unchanged `12 / 30 / 4` gate. See the
 [dated implementation record](rollouts/seo19-vitamins-multivitamins-links-2026-11-03.md).
 
 **3 November 2026 owner-authorized SEO-15 closeout:** SEO-15 is formally
@@ -2438,15 +2438,15 @@ continues outside the active implementation queue.
 
 SEO-18 is complete and `LIVE VERIFIED`.
 
-1. `SEO-19` is the next executable `CODE COMPLETE` task: the bounded reciprocal
-   Vitamins and Multivitamins contextual links await guarded merge and live
-   verification;
-2. after SEO-19 is `LIVE VERIFIED`, begin `SEO-20`, the PER4M title-only
-   experiment and its isolated measurement contract;
-3. keep `SEO-17` `PLANNED` until an exact, non-duplicative `/whey-protein`
+SEO-19 is complete and `LIVE VERIFIED`.
+
+1. `SEO-20` is the next executable `PLANNED` task: the PER4M title-only
+   experiment and its isolated measurement contract; implementation has not
+   started;
+2. keep `SEO-17` `PLANNED` until an exact, non-duplicative `/whey-protein`
    owner-reviewed decision-note payload passes a separate owner review;
-4. record Search Console and GA4 evidence weekly throughout the sequence;
-5. continue authority research, but keep outbound outreach paused until the
+3. record Search Console and GA4 evidence weekly throughout the sequence;
+4. continue authority research, but keep outbound outreach paused until the
    owner changes the current no-email decision.
 
 Only one SEO implementation may be `IN PROGRESS`. Measurement, read-only
@@ -4575,11 +4575,10 @@ its unchanged `12 / 30 / 4` gate. Its daily read-only monitor continues as an
 operational evidence control.
 
 1. `SEO-18`: complete and `LIVE VERIFIED`.
-2. `SEO-19`: next executable and `CODE COMPLETE`; the approved reciprocal
-   Vitamins and Multivitamins contextual links await guarded merge and live
-   verification.
-3. `SEO-20`: after SEO-19 is `LIVE VERIFIED`, and only with separate
-   implementation and merge approval, run the PER4M title-only experiment.
+2. `SEO-19`: complete and `LIVE VERIFIED`.
+3. `SEO-20`: next executable and `PLANNED`; run the PER4M title-only experiment
+   only under its applicable implementation and merge gate. Implementation has
+   not started.
 4. `SEO-17`: remain `PLANNED` behind its exact, non-duplicative
    owner-reviewed `/whey-protein` note-payload gate.
 5. Continue weekly GSC/GA4 measurement; outbound outreach remains paused.
@@ -5009,9 +5008,9 @@ Target experience:
 
 ### Current active task
 
-`SEO-19` is the next executable SEO task and is `CODE COMPLETE`, pending guarded
-merge and production live verification. SEO-18 is `LIVE VERIFIED`. No SEO
-feature task is currently `IN PROGRESS`. SEO-15 is `LIVE VERIFIED` after the owner-authorized
+`SEO-20` is the next executable SEO task and remains `PLANNED`; implementation
+has not started. SEO-19 and SEO-18 are `LIVE VERIFIED`. No SEO feature task is
+currently `IN PROGRESS`. SEO-15 is `LIVE VERIFIED` after the owner-authorized
 3 November closeout. Its shared automatic candidate inventory and scheduled
 read-only audit continue as operational monitoring, not active implementation.
 Public Stage 3 remains disabled and deferred at current breadth `1 / 1 / 1`
@@ -5173,9 +5172,9 @@ conservative external-session signal and make no conversion claim.
 
 ### Then
 
-1. Keep SEO-18 `LIVE VERIFIED` and SEO-19 as the next executable `CODE COMPLETE`
-   task pending guarded merge and live verification, followed by SEO-20 only
-   after SEO-19 live verification. `SEO-17` remains
+1. Keep SEO-18 and SEO-19 `LIVE VERIFIED`, with SEO-20 as the next executable
+   `PLANNED` task under its applicable gate. Do not start SEO-20 as part of this
+   closeout. `SEO-17` remains
    `PLANNED` behind its separate owner-content gate. SEO-15 and SEO-16 are
    already live verified.
 2. Continue the SEO-15 scheduled read-only evidence monitor without treating it

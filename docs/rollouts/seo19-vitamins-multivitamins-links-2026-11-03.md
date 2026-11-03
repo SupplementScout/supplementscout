@@ -52,14 +52,28 @@ changed.
 - Final diff/scope check: pass; only the two implementation files, two existing
   test files and four authorized documentation files changed.
 
-## Release state and next gate
+## Production merge and verification
 
-SEO-19 is `CODE COMPLETE`, not yet `LIVE VERIFIED`. It remains the next
-executable task pending guarded merge, successful main CI and Vercel production
-deployment, and read-only public verification of the two exact contextual links
-plus unchanged HTTP, canonical, robots, metadata and schema baselines.
+- PR: `#439`.
+- Approved head: `50ffa635a7989ee7707205792b9befad1c9429f7`.
+- Final squash-main: `4bb719091cc762e806e96c097a49251ff756212d`.
+- Approved-head/final-main tree equivalence: pass; both tree hashes are
+  `26cfabce0b5fbe152eca9a5cfeed9e82c280a843`.
+- Main Project Guardian run `41623541134`: pass.
+- Main Quality Gate run `41623540890`: pass.
+- Vercel production deployment `6v5wDi3aQ8fYQeLgz1QRz72Hx6PD`: success.
+- `/vitamins`: HTTP `200`; exactly one `/multivitamins` link with anchor
+  `Multivitamins` in `Popular vitamin searches`; canonical
+  `https://www.supplementscout.co.uk/vitamins`; no robots meta; unchanged title
+  and description; zero schema blocks; no visible/runtime error.
+- `/multivitamins`: HTTP `200`; exactly one `/vitamins` link with anchor
+  `Vitamins and minerals` in `Related comparisons and information`; canonical
+  `https://www.supplementscout.co.uk/multivitamins`; `index, follow`; unchanged
+  title and description; one schema block; no visible/runtime error.
 
-SEO-18 and SEO-15 remain `LIVE VERIFIED`; SEO-20 and SEO-17 remain `PLANNED`;
-SEO-02B remains `BLOCKED`; zero SEO tasks are `IN PROGRESS`; public Stage 3
-remains disabled and `DEFERRED / NOT READY` behind the unchanged `12 / 30 / 4`
-gate. SEO-20 implementation has not started.
+SEO-19 is `LIVE VERIFIED`. SEO-20 is the next executable task and remains
+`PLANNED`; its implementation has not started. SEO-18 and SEO-15 remain `LIVE
+VERIFIED`; SEO-17 remains `PLANNED`; SEO-02B remains `BLOCKED`; zero SEO tasks
+are `IN PROGRESS`; public Stage 3 remains disabled and `DEFERRED / NOT READY`
+behind the unchanged `12 / 30 / 4` gate. The closeout made no database,
+configuration, threshold, producer or external-service mutation.
