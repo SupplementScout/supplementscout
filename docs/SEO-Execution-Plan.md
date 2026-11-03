@@ -6,22 +6,21 @@
 pages, structured data, measurement and authority building.  
 **Parent authority:** `docs/SupplementScout-Operating-Plan-2026-07-15.md`
 
-**3 November 2026 SEO-18 production closeout:** SEO-18 is `LIVE VERIFIED`.
-PR `#437` merged approved head
-`3e5bdac1bcbedc14cf37c8831c93604d63804f5b` as final production `main`
-`75097fc49deeb1e9dfce582d7602c6b6c5b107c3`; tree equivalence passed. Main
-Quality Gate run `41614046140` and Vercel production deployment passed.
-Read-only production checks returned HTTP `200`, exactly one homepage canonical
-normalizing to `https://www.supplementscout.co.uk/`, unchanged title and
-description, the existing Help Me Choose base `index, follow`, parameter state
-`noindex, follow`, and exactly one weekly-priority-0.8 sitemap entry with no
-`lastmod`, parameter URL or `/search` entry.
+**3 November 2026 owner-authorized SEO-19 implementation:** SEO-19 is `CODE
+COMPLETE` on `feat/seo19-vitamins-multivitamins-links`. The existing Vitamins
+popular-searches section now links once to `/multivitamins` with anchor
+`Multivitamins`; the existing Multivitamins related-comparisons section now
+links once to `/vitamins` with anchor `Vitamins and minerals`. No metadata,
+schema, loader, pagination, indexability or generic link-expansion mechanism
+changed.
 
-SEO-19 is now the next executable task and remains `PLANNED`; there are zero SEO
-tasks `IN PROGRESS`. SEO-20 and SEO-17 remain `PLANNED`; SEO-02B remains
-`BLOCKED`; SEO-15 remains `LIVE VERIFIED`; public Stage 3 remains `DEFERRED /
-NOT READY` behind the unchanged `12 / 30 / 4` gate. See the
-[dated implementation record](rollouts/seo18-home-canonical-hmc-sitemap-2026-11-03.md).
+Focused tests pass `23/23`; TypeScript, lint, the quick gate, the full gate and
+the production build pass. SEO-19 remains the next executable task at `CODE
+COMPLETE` until guarded merge and production live verification. There are zero
+SEO tasks `IN PROGRESS`. SEO-18 and SEO-15 remain `LIVE VERIFIED`; SEO-20 and
+SEO-17 remain `PLANNED`; SEO-02B remains `BLOCKED`; public Stage 3 remains
+`DEFERRED / NOT READY` behind the unchanged `12 / 30 / 4` gate. See the
+[dated implementation record](rollouts/seo19-vitamins-multivitamins-links-2026-11-03.md).
 
 **3 November 2026 owner-authorized SEO-15 closeout:** ordinary scheduled run
 `41488694982` completed successfully on `main` and captured the final read-only
@@ -285,13 +284,15 @@ Console evidence and user value.
 | SEO-16 | P1 | Launch guarded two-product comparison. | `LIVE VERIFIED` | Commit `7eec604` deployed the owner-approved lifecycle launch on 26 August 2026. Public base and pair checks passed HTTP, robots, canonical, exact-pack and delivered-price contracts; the homepage link and exactly one sitemap entry were verified. |
 | SEO-17 | P2 | Add owner-reviewed expert decision notes. | `PLANNED` | Before implementation, the owner must supply an exact, non-duplicative `/whey-protein` decision-note payload that adds value distinct from Help Me Choose, CategoryDecisionPanel, Quick Comparison, Better Value Alternatives and existing whey copy. Expert judgement must be clearly labelled and dated, verified facts retain provenance, and unsupported medical or formulation claims cannot publish. |
 | SEO-18 | P1 | Add the homepage self-canonical and one clean Help Me Choose sitemap entry. | `LIVE VERIFIED` | PR `#437` merged as production `75097fc49deeb1e9dfce582d7602c6b6c5b107c3`; tree equivalence, main Quality Gate `41614046140`, Vercel deployment and public homepage, Help Me Choose base/parameter and sitemap contracts all passed with no title, description, robots, behavior, schema or lifecycle-registry regression. |
-| SEO-19 | P1 | Add reciprocal Vitamins and Multivitamins contextual links. | `PLANNED` | After SEO-18 is `LIVE VERIFIED`, add `/vitamins` to `/multivitamins` with anchor `Multivitamins` and `/multivitamins` to `/vitamins` with anchor `Vitamins and minerals`; make no metadata, schema, loader, pagination or generic link-expansion change; pass focused tests, quality gates and live verification. |
+| SEO-19 | P1 | Add reciprocal Vitamins and Multivitamins contextual links. | `CODE COMPLETE` | Owner-authorized implementation adds exactly one `/multivitamins` link with anchor `Multivitamins` to the existing Vitamins popular-searches section and exactly one `/vitamins` link with anchor `Vitamins and minerals` to the existing Multivitamins related-comparisons section. Focused tests, TypeScript, lint, quick/full gates and production build pass; metadata, schema, loaders, pagination, indexability and generic link expansion remain unchanged. Production merge and live verification remain outstanding. |
 | SEO-20 | P1 | Run the PER4M title-only CTR experiment. | `PLANNED` | After SEO-19 is `LIVE VERIFIED` and a separate implementation/merge approval, change only `/brands/per4m` title to `Compare PER4M Prices Across UK Retailers | SupplementScout`; freeze title, meta, H1, body, schema, direct anchors and data presentation during measurement except for a production regression; observe at least 28 settled days, 500 page impressions and 300 brand-navigational query impressions; primary success is CTR improvement without material ranking deterioration. |
 
 ## 6. Current active task
 
-**Next executable task:** SEO-19 is `PLANNED`. SEO-18 is complete and `LIVE
-VERIFIED`; there are currently zero SEO tasks `IN PROGRESS`.
+**Next executable task:** SEO-19 is `CODE COMPLETE`. The bounded implementation
+is ready for guarded merge and production live verification; it is not yet
+`LIVE VERIFIED`. SEO-18 is complete and `LIVE VERIFIED`; there are currently
+zero SEO tasks `IN PROGRESS`.
 
 SEO-15 is `LIVE VERIFIED`. Owner-authorized closeout used ordinary scheduled
 run `41488694982` and artifact `13162932296`: `813/813` series pass 60-day
@@ -334,10 +335,10 @@ ordering after review of the Phase 4 overlap and Phase 5 evidence. Future
 priority changes still require named evidence, explicit owner approval and a
 Roadmap Steward alignment across the authoritative documents.
 
-Follow the binding sequence in Operating Plan section 0.0.7: SEO-15 and SEO-16
-are complete and `LIVE VERIFIED`; SEO-18 is also `LIVE VERIFIED`. `SEO-19` is
-the next executable task and remains `PLANNED`, followed by planned SEO-20.
-`SEO-17` remains `PLANNED`
+Follow the binding sequence in Operating Plan section 0.0.7: SEO-15, SEO-16 and
+SEO-18 are complete and `LIVE VERIFIED`. `SEO-19` is the next executable task
+and is `CODE COMPLETE` pending guarded merge and live verification, followed by
+planned SEO-20. `SEO-17` remains `PLANNED`
 pending its exact owner-content gate. SEO-13 and SEO-14 are complete, and the 250-product
 multi-retailer checkpoint is independently verified complete.
 SEO-07 measurement and SEO-12 legitimate authority work are continuous evidence
@@ -477,6 +478,27 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 3 November 2026 - SEO-19 Vitamins and Multivitamins links CODE COMPLETE
+
+- Starting `main` and `origin/main` were exact production SHA
+  `c175ad9dde03f83221819102eaff9e10f20108a8`; Project Guardian passed with
+  SEO-19 next, SEO-18 live verified and no SEO task in progress.
+- The pre-implementation audit confirmed that the reciprocal links were absent
+  and identified the existing Vitamins popular-searches and Multivitamins
+  related-comparisons sections as the bounded contextual placements.
+- `app/vitamins/page.tsx` adds exactly one `/multivitamins` link with anchor
+  `Multivitamins`. `app/multivitamins/page.tsx` adds exactly one `/vitamins`
+  link with anchor `Vitamins and minerals`.
+- Focused tests pass `23/23`; `npm run typecheck`, `npm run verify:quick`,
+  `npm run verify:full`, `npm run lint` and `npm run build` pass.
+- Metadata, canonical, robots, schema, loaders, pagination, data retrieval,
+  indexability lifecycle and generic link mechanisms are unchanged. No
+  migration, database write, manual workflow, production configuration,
+  threshold, producer approval, Stage 3 change or external service occurred.
+- SEO-19 is `CODE COMPLETE`, not live verified. It remains the next executable
+  task pending guarded merge and public readback; SEO-20 remains `PLANNED` and
+  zero SEO tasks are `IN PROGRESS`.
 
 ### 3 November 2026 - SEO-18 homepage canonical and Help Me Choose sitemap LIVE VERIFIED
 

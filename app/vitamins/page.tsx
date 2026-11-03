@@ -43,6 +43,7 @@ const popularSearches = [
   { href: "/magnesium", label: "Magnesium" },
   { href: "/omega-3", label: "Omega 3" },
   { href: "/glucosamine", label: "Glucosamine" },
+  { href: "/multivitamins", label: "Multivitamins" },
 ];
 
 const basePath = "/vitamins";

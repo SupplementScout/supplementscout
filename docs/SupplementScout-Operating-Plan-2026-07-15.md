@@ -5,20 +5,20 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
-**3 November 2026 SEO-18 production closeout:** SEO-18 is `LIVE VERIFIED`.
-PR `#437` merged approved head
-`3e5bdac1bcbedc14cf37c8831c93604d63804f5b` as production `main`
-`75097fc49deeb1e9dfce582d7602c6b6c5b107c3`, with equal trees. Main Quality
-Gate `41614046140`, Vercel production and read-only public homepage, Help Me
-Choose base/parameter and sitemap checks passed. The homepage title/description
-and Help Me Choose behavior, copy, schema, robots, canonical and lifecycle
-contracts remain unchanged.
+**3 November 2026 owner-authorized SEO-19 implementation:** SEO-19 is `CODE
+COMPLETE` on `feat/seo19-vitamins-multivitamins-links`. It adds only the
+approved reciprocal contextual links in the existing Vitamins popular-searches
+and Multivitamins related-comparisons sections, using exact anchors
+`Multivitamins` and `Vitamins and minerals`. Metadata, schema, loaders,
+pagination, indexability and generic link mechanisms are unchanged. Focused
+tests, TypeScript, lint, quick/full quality gates and the production build pass.
 
-SEO-19 is now the next executable task and remains `PLANNED`; there are zero SEO
-feature tasks `IN PROGRESS`. SEO-20 and SEO-17 remain `PLANNED`; SEO-02B remains
-`BLOCKED`; SEO-15 remains `LIVE VERIFIED`; public Stage 3 remains disabled and
-`DEFERRED / NOT READY` behind the unchanged `12 / 30 / 4` gate. See the
-[dated implementation record](rollouts/seo18-home-canonical-hmc-sitemap-2026-11-03.md).
+SEO-19 remains the next executable task pending guarded merge and production
+live verification. There are zero SEO feature tasks `IN PROGRESS`. SEO-18 and
+SEO-15 remain `LIVE VERIFIED`; SEO-20 and SEO-17 remain `PLANNED`; SEO-02B
+remains `BLOCKED`; public Stage 3 remains disabled and `DEFERRED / NOT READY`
+behind the unchanged `12 / 30 / 4` gate. See the
+[dated implementation record](rollouts/seo19-vitamins-multivitamins-links-2026-11-03.md).
 
 **3 November 2026 owner-authorized SEO-15 closeout:** SEO-15 is formally
 `LIVE VERIFIED` based on successful ordinary scheduled run `41488694982` and
@@ -2438,8 +2438,9 @@ continues outside the active implementation queue.
 
 SEO-18 is complete and `LIVE VERIFIED`.
 
-1. `SEO-19` is the next executable `PLANNED` task: the bounded reciprocal
-   Vitamins and Multivitamins contextual links;
+1. `SEO-19` is the next executable `CODE COMPLETE` task: the bounded reciprocal
+   Vitamins and Multivitamins contextual links await guarded merge and live
+   verification;
 2. after SEO-19 is `LIVE VERIFIED`, begin `SEO-20`, the PER4M title-only
    experiment and its isolated measurement contract;
 3. keep `SEO-17` `PLANNED` until an exact, non-duplicative `/whey-protein`
@@ -4574,8 +4575,9 @@ its unchanged `12 / 30 / 4` gate. Its daily read-only monitor continues as an
 operational evidence control.
 
 1. `SEO-18`: complete and `LIVE VERIFIED`.
-2. `SEO-19`: next executable and `PLANNED`; add only the approved reciprocal
-   Vitamins and Multivitamins contextual links.
+2. `SEO-19`: next executable and `CODE COMPLETE`; the approved reciprocal
+   Vitamins and Multivitamins contextual links await guarded merge and live
+   verification.
 3. `SEO-20`: after SEO-19 is `LIVE VERIFIED`, and only with separate
    implementation and merge approval, run the PER4M title-only experiment.
 4. `SEO-17`: remain `PLANNED` behind its exact, non-duplicative
@@ -5007,8 +5009,9 @@ Target experience:
 
 ### Current active task
 
-`SEO-19` is the next executable SEO task and remains `PLANNED`. SEO-18 is `LIVE
-VERIFIED`. No SEO feature task is currently `IN PROGRESS`. SEO-15 is `LIVE VERIFIED` after the owner-authorized
+`SEO-19` is the next executable SEO task and is `CODE COMPLETE`, pending guarded
+merge and production live verification. SEO-18 is `LIVE VERIFIED`. No SEO
+feature task is currently `IN PROGRESS`. SEO-15 is `LIVE VERIFIED` after the owner-authorized
 3 November closeout. Its shared automatic candidate inventory and scheduled
 read-only audit continue as operational monitoring, not active implementation.
 Public Stage 3 remains disabled and deferred at current breadth `1 / 1 / 1`
@@ -5170,8 +5173,9 @@ conservative external-session signal and make no conversion claim.
 
 ### Then
 
-1. Keep SEO-18 `LIVE VERIFIED` and SEO-19 as the next executable `PLANNED`
-   task, followed by SEO-20 only after SEO-19 live verification. `SEO-17` remains
+1. Keep SEO-18 `LIVE VERIFIED` and SEO-19 as the next executable `CODE COMPLETE`
+   task pending guarded merge and live verification, followed by SEO-20 only
+   after SEO-19 live verification. `SEO-17` remains
    `PLANNED` behind its separate owner-content gate. SEO-15 and SEO-16 are
    already live verified.
 2. Continue the SEO-15 scheduled read-only evidence monitor without treating it

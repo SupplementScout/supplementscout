@@ -116,6 +116,11 @@ test("page metadata, SSR, structured data and discovery links use one canonical"
   assert.match(html, /Compare Multivitamin Prices UK/);
   assert.match(html, /coverage-first price comparison, not a ranking/);
   assert.match(html, /checked within 24 hours/);
+  assert.match(
+    html,
+    /href="\/vitamins"[^>]*>Vitamins and minerals<\/a>/
+  );
+  assert.equal((html.match(/href="\/vitamins"/g) || []).length, 1);
   const schema = page.buildMultivitaminsStructuredData(result.rows);
   assert.deepEqual(schema["@graph"].map((node) => node["@type"]), ["CollectionPage", "ItemList", "BreadcrumbList"]);
   const sitemap = fs.readFileSync(path.join(process.cwd(), "app/sitemap.ts"), "utf8");
