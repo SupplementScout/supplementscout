@@ -307,3 +307,13 @@ test("Collagen uses shared coverage and homepage discovery appends missing seman
   assert.match(pageSource, /homepageBrowseCategories\(categories\)/);
   assert.doesNotMatch(pageSource, /if\s*\([^)]*category[^)]*===\s*["']Collagen/);
 });
+
+test("Nootropics uses generic shared coverage discovery without route-specific homepage code", () => {
+  assert.match(
+    categoryCoverageSource,
+    /publicLabel: "Nootropics",[\s\S]*route: "\/nootropics"/
+  );
+  assert.equal((categoryCoverageSource.match(/route: "\/nootropics"/g) || []).length, 1);
+  assert.doesNotMatch(categoryRoutesSource, /Nootropics|\/nootropics/);
+  assert.doesNotMatch(pageSource, /if\s*\([^)]*category[^)]*===\s*["']Nootropics/);
+});

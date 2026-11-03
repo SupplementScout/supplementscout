@@ -155,6 +155,10 @@ test("clean exact public Category Coverage labels resolve case-insensitively", (
     ["Collagen", "/collagen"],
     ["COLLAGEN", "/collagen"],
     ["  Collagen  ", "/collagen"],
+    ["Nootropics", "/nootropics"],
+    ["nootropics", "/nootropics"],
+    ["NOOTROPICS", "/nootropics"],
+    ["  Nootropics  ", "/nootropics"],
   ];
 
   for (const [query, href] of cases) {
@@ -172,6 +176,9 @@ test("nonexact, fuzzy and comparison-category queries remain normal Search", () 
     "Collagen Peptides",
     "Marine Collagen",
     "Best Collagen",
+    "Nootropic",
+    "Best Nootropics",
+    "Nootropics with caffeine",
     "Collagen under £30",
     "best fat burners",
     "test boosters",
@@ -211,12 +218,14 @@ test("every supplied Search state key makes exact queries fail closed", () => {
     page: "2",
   };
 
-  for (const [key, value] of Object.entries(states)) {
-    assert.equal(
-      resolver.resolveExactCategorySearchIntent({ q: "Collagen", [key]: value }),
-      null,
-      key
-    );
+  for (const query of ["Collagen", "Nootropics"]) {
+    for (const [key, value] of Object.entries(states)) {
+      assert.equal(
+        resolver.resolveExactCategorySearchIntent({ q: query, [key]: value }),
+        null,
+        `${query}: ${key}`
+      );
+    }
   }
 });
 
@@ -253,6 +262,21 @@ test("SearchPage redirects before planning, data loading and Search analytics", 
   await assert.rejects(
     page.default({ searchParams: Promise.resolve({ q: "Collagen" }) }),
     /REDIRECT:\/collagen/
+  );
+  assert.deepEqual(calls, {
+    intentPlan: 0,
+    searchProducts: 0,
+    analytics: 0,
+    redirect: 1,
+  });
+});
+
+test("SearchPage applies the generic exact resolver to Nootropics before Search work", async () => {
+  const { calls, page } = loadSearchPage();
+
+  await assert.rejects(
+    page.default({ searchParams: Promise.resolve({ q: "Nootropics" }) }),
+    /REDIRECT:\/nootropics/
   );
   assert.deepEqual(calls, {
     intentPlan: 0,
@@ -308,7 +332,7 @@ test("resolver architecture has one registry, generic form and generic raw link"
   assert.match(resolverSource, /PUBLIC_INDEXABILITY_LIFECYCLE/);
   assert.doesNotMatch(
     resolverSource,
-    /testosterone-boosters|fat-burners|\/collagen/
+    /testosterone-boosters|fat-burners|\/collagen|\/nootropics/
   );
   assert.match(pageSource, /resolveExactCategorySearchIntent\(params\)/);
   assert.ok(
@@ -318,7 +342,7 @@ test("resolver architecture has one registry, generic form and generic raw link"
   assert.match(inputSource, /action="\/search"/);
   assert.doesNotMatch(inputSource, /categorySearchIntent|search_mode/);
   assert.match(landingSource, /categoryCoverageRawSearchHref\(presentation\.searchQuery\)/);
-  assert.doesNotMatch(landingSource, /search_mode|testosterone|fat-burners|collagen/i);
+  assert.doesNotMatch(landingSource, /search_mode|testosterone|fat-burners|collagen|nootropics/i);
   assert.match(suggestionSource, /getSearchSuggestions\(query, limit\)/);
   assert.doesNotMatch(suggestionSource, /categorySearchIntent|search_mode/);
 });

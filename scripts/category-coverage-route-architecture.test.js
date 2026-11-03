@@ -57,10 +57,16 @@ const routeContracts = [
     definitionKey: "collagen",
     cacheVersion: "collagen-category-v1",
   },
+  {
+    route: "nootropics",
+    definitionKey: "nootropics",
+    cacheVersion: "nootropics-category-v1",
+  },
 ];
 const testosteroneFixtures = require("./fixtures/category-coverage/testosterone-boosters");
 const fatFixtures = require("./fixtures/category-coverage/fat-burners");
 const collagenFixtures = require("./fixtures/category-coverage/collagen");
+const nootropicsFixtures = require("./fixtures/category-coverage/nootropics");
 
 function config(overrides = {}) {
   return {
@@ -230,6 +236,11 @@ test("audited strong counts use one 24-item pagination contract without duplicat
       ids: collagenFixtures.expectedIds.INCLUDE_STRONG,
       pages: 2,
     },
+    {
+      key: "nootropics",
+      ids: nootropicsFixtures.expectedIds.INCLUDE_STRONG,
+      pages: 1,
+    },
   ];
 
   for (const contract of contracts) {
@@ -293,6 +304,20 @@ test("shared metadata preserves each pre-refactor route profile exactly", () => 
       }),
       title: "Compare Fat Burner Prices UK",
       ogTitle: "Compare Fat Burner Prices UK | SupplementScout",
+    },
+    {
+      config: config({
+        pagePath: "/nootropics",
+        description:
+          "Compare current UK retailer prices for products with a reviewed Nootropic identity.",
+        metadataProfile: "inherit-root-twitter",
+        presentation: {
+          ...config().presentation,
+          pageTitle: "Compare Nootropic Prices UK",
+        },
+      }),
+      title: "Compare Nootropic Prices UK",
+      ogTitle: "Compare Nootropic Prices UK | SupplementScout",
     },
   ];
 
@@ -360,7 +385,9 @@ test("shared metadata preserves each pre-refactor route profile exactly", () => 
 
 test("framework-required route error files remain tiny identical adapters", () => {
   const sources = routeContracts.map((contract) =>
-    fs.readFileSync(path.join(root, "app", contract.route, "error.tsx"), "utf8")
+    fs
+      .readFileSync(path.join(root, "app", contract.route, "error.tsx"), "utf8")
+      .replaceAll("\r\n", "\n")
   );
   assert.equal(new Set(sources).size, 1);
   assert.match(sources[0], /LifecycleHubError/);

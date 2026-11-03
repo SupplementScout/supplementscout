@@ -97,6 +97,13 @@ const collagenProtectionCopyPattern = /\bprotects?\s+collagen\b/i;
 const collagenCompanionCopyPattern =
   /\btaken\s+alongside[\s\S]{0,160}\bcollagen\b/i;
 
+const explicitNootropicPattern = /\bnootropics?\b/i;
+const exactNootropicsCategoryPattern = /^\s*nootropics\s*$/i;
+const nootropicStandaloneIngredientPattern =
+  /\b(?:alpha\s+gpc|bacopa(?:\s+monnieri)?|choline(?:\s*&\s*inositol)?|ginkgo(?:\s+biloba)?|ginseng|l[-\s]?tyrosine|rhodiola(?:\s+rosea)?)\b/i;
+const ordinaryNonNootropicIdentityPattern =
+  /\b(?:caffeine|garlic|glucosamine|hyaluronic\s+acid|magnesium|multivitamins?|omega[-\s]?3|potassium|vitamin\s+[a-z0-9]+|zinc)\b/i;
+
 const categoryCoverageDefinitions = [
   {
     key: "glucosamine",
@@ -406,6 +413,110 @@ const categoryCoverageDefinitions = [
       rule("DESCRIPTION_LEVEL_COLLAGEN_COMPONENT", "MEDIUM", "Description identifies Collagen as one component without a Collagen product-name identity.", {
         anyOf: [condition("description", collagenNamePattern)],
         noneOf: [condition("name", collagenNamePattern)],
+      }),
+    ],
+  },
+  {
+    key: "nootropics",
+    publicLabel: "Nootropics",
+    route: "/nootropics",
+    canonicalCategoryAliases: ["Nootropics"],
+    candidateQueries: [
+      "Nootropics",
+      "nootropic",
+      "brain booster",
+      "focus",
+      "cognitive",
+      "mental focus",
+      "lion's mane",
+      "bacopa",
+      "alpha gpc",
+      "tyrosine",
+      "choline",
+      "ginkgo",
+      "ginseng",
+      "rhodiola",
+      "mushroom",
+      "mushroom complex",
+      "reishi",
+    ],
+    excludeRules: [
+      rule("EXPLICIT_PREWORKOUT_PRIMARY_IDENTITY", "HIGH", "Name identifies an ordinary Pre Workout without an explicit Nootropic name.", {
+        anyOf: [condition("name", /\bpre[-\s]?workout\b/i)],
+        noneOf: [condition("name", explicitNootropicPattern)],
+      }),
+      rule("PREWORKOUT_DESCRIPTION_FALSE_POSITIVE", "HIGH", "Description identifies a Pre Workout focus claim without an explicit Nootropic identity.", {
+        anyOf: [condition("description", /\bpre[-\s]?workout\b/i)],
+        noneOf: [
+          condition("name", explicitNootropicPattern),
+          condition("description", explicitNootropicPattern),
+        ],
+      }),
+      rule("PUMP_PREWORKOUT_PRIMARY_IDENTITY", "HIGH", "Product is a Pump Pre Workout rather than a primary Nootropic identity.", {
+        allOf: [
+          condition("name", /\bpump\b/i),
+          condition("category", /^\s*pre\s+workout\s*$/i),
+        ],
+        noneOf: [condition("name", explicitNootropicPattern)],
+      }),
+      rule("AMINO_HYDRATION_PRIMARY_IDENTITY", "HIGH", "Product is an Amino Acid or hydration identity rather than a Nootropic.", {
+        anyOf: [
+          condition("name", /\b(?:amino|bcaa|eaa|hydration)\b/i),
+          condition("category", /^\s*amino\s+acids\s*$/i),
+        ],
+        noneOf: [condition("name", nootropicStandaloneIngredientPattern)],
+      }),
+      rule("NON_SUPPLEMENT_ACCESSORY_IDENTITY", "HIGH", "Product is an accessory rather than a supplement.", {
+        anyOf: [condition("category", /^\s*accessories\s*$/i)],
+      }),
+      rule("MASS_GAINER_PRIMARY_IDENTITY", "HIGH", "Product is a Mass Gainer with only a secondary mushroom component.", {
+        anyOf: [
+          condition("name", /\bmass\s+gainer\b/i),
+          condition("category", /^\s*mass\s+gainer\s*$/i),
+        ],
+      }),
+      rule("GENERIC_MUSHROOM_WELLNESS_IDENTITY", "HIGH", "Product has a generic mushroom-wellness identity without explicit Nootropic evidence.", {
+        anyOf: [condition("name", /\b(?:reishi|mushroom\s+superblend)\b/i)],
+        noneOf: [condition("name", explicitNootropicPattern)],
+      }),
+      rule("ORDINARY_NON_NOOTROPIC_IDENTITY", "HIGH", "Name identifies an ordinary vitamin, mineral or wellness product rather than a Nootropic.", {
+        anyOf: [condition("name", ordinaryNonNootropicIdentityPattern)],
+        noneOf: [condition("name", explicitNootropicPattern)],
+      }),
+    ],
+    includeRules: [
+      rule("EXPLICIT_NOOTROPIC_NAME", "HIGH", "Name identifies Nootropic as a primary or named co-primary product identity.", {
+        anyOf: [condition("name", explicitNootropicPattern)],
+      }),
+      rule("EXPLICIT_NOOTROPIC_DESCRIPTION", "HIGH", "Description identifies a Nootropic formula, blend or named co-primary identity.", {
+        anyOf: [condition("description", explicitNootropicPattern)],
+      }),
+      rule("FOCUS_IDENTITY_SUPPORTED_BY_EXACT_CATEGORY", "HIGH", "Focus identity is supported by the exact reviewed Nootropics category.", {
+        allOf: [
+          condition("name", /\bfocus(?:max)?\b/i),
+          condition("category", exactNootropicsCategoryPattern),
+        ],
+      }),
+    ],
+    reviewRules: [
+      rule("FOCUS_IDENTITY_AMBIGUITY", "MEDIUM", "Focus-only identity needs independent reviewed Nootropic evidence.", {
+        anyOf: [condition("name", /\b(?:focus(?:max)?|mentality)\b/i)],
+      }),
+      rule("STANDALONE_INGREDIENT_AMBIGUITY", "MEDIUM", "Standalone cognitive-associated ingredient identity needs review.", {
+        anyOf: [condition("name", nootropicStandaloneIngredientPattern)],
+        noneOf: [condition("name", /\bblack\s+maca\b/i)],
+      }),
+      rule("STANDALONE_LIONS_MANE_AMBIGUITY", "MEDIUM", "Standalone Lion's Mane identity needs review.", {
+        anyOf: [condition("name", /\blion['’]?s\s+mane\b/i)],
+      }),
+      rule("LOW_EVIDENCE_MUSHROOM_IDENTITY", "LOW", "Mushroom identity lacks enough evidence for inclusion or strong exclusion.", {
+        anyOf: [condition("name", /\bmushroom\s+complex\b/i)],
+      }),
+      rule("LOW_EVIDENCE_INGREDIENT_BLEND", "LOW", "Ingredient blend lacks enough evidence for Nootropic membership.", {
+        allOf: [
+          condition("name", /\bblack\s+maca\b/i),
+          condition("name", /\bginseng\b/i),
+        ],
       }),
     ],
   },

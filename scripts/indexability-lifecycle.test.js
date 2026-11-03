@@ -60,6 +60,7 @@ const categoryCoverageRoutes = new Set([
   "/testosterone-boosters",
   "/fat-burners",
   "/collagen",
+  "/nootropics",
 ]);
 const categoryCoverageHelper = fs.readFileSync(
   path.join(process.cwd(), "app/lib/categoryCoverageLanding.ts"),
@@ -87,9 +88,10 @@ test("the public lifecycle registry is complete, routable and separate from owne
     "/testosterone-boosters",
     "/fat-burners",
     "/collagen",
+    "/nootropics",
   ]);
   assert.deepEqual(launchApprovedPaths, []);
-  assert.equal(publicPaths.length, 19);
+  assert.equal(publicPaths.length, 20);
   for (const route of publicPaths) {
     assert.equal(fs.existsSync(pageFiles.get(route)), true, route);
     assert.equal(
@@ -121,6 +123,7 @@ test("the semantic category pilots are registered but fail closed for indexing",
     "/testosterone-boosters",
     "/fat-burners",
     "/collagen",
+    "/nootropics",
   ]) {
     assert.equal(lifecycle.getLifecycleStatus(route), "planned");
     assert.deepEqual(lifecycle.getLifecycleRobots(route), {

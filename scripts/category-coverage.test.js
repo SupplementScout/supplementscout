@@ -44,6 +44,12 @@ const {
   expectedIds: expectedCollagenIds,
 } = require("./fixtures/category-coverage/collagen");
 
+const nootropicsDefinition = getCategoryCoverageDefinition("nootropics");
+const {
+  fixtures: nootropicsFixtures,
+  expectedIds: expectedNootropicsIds,
+} = require("./fixtures/category-coverage/nootropics");
+
 test("Testosterone Boosters definition exposes the shared route and candidate-only queries", () => {
   assert.ok(definition);
   assert.equal(definition.publicLabel, "Testosterone Boosters");
@@ -155,6 +161,65 @@ test("the 52 audited Collagen fixtures reproduce the exact 29/21/2 contract", ()
   assert.equal(actual.INCLUDE_STRONG.length, 29);
   assert.equal(actual.EXCLUDE_STRONG.length, 21);
   assert.equal(actual.REVIEW_REQUIRED.length, 2);
+});
+
+test("Nootropics definition exposes one shared route and audited candidate queries", () => {
+  assert.ok(nootropicsDefinition);
+  assert.equal(nootropicsDefinition.publicLabel, "Nootropics");
+  assert.equal(nootropicsDefinition.route, "/nootropics");
+  assert.deepEqual(nootropicsDefinition.canonicalCategoryAliases, ["Nootropics"]);
+  for (const query of [
+    "Nootropics", "nootropic", "brain booster", "focus", "cognitive",
+    "mental focus", "lion's mane", "bacopa", "alpha gpc", "tyrosine",
+    "choline", "ginkgo", "ginseng", "rhodiola", "mushroom",
+    "mushroom complex", "reishi",
+  ]) {
+    assert.ok(nootropicsDefinition.candidateQueries.includes(query), query);
+  }
+});
+
+test("the 67 audited Nootropics fixtures reproduce the exact 13/33/21 contract", () => {
+  assert.equal(nootropicsFixtures.length, 67);
+  const actual = Object.fromEntries(
+    Object.keys(expectedNootropicsIds).map((classification) => [classification, []])
+  );
+
+  for (const fixture of nootropicsFixtures) {
+    const evaluation = evaluateCategoryCoverage(nootropicsDefinition, fixture);
+    actual[evaluation.classification].push(fixture.id);
+  }
+
+  assert.deepEqual(actual, expectedNootropicsIds);
+  assert.equal(actual.INCLUDE_STRONG.length, 13);
+  assert.equal(actual.EXCLUDE_STRONG.length, 33);
+  assert.equal(actual.REVIEW_REQUIRED.length, 21);
+});
+
+test("Nootropics Model A regressions preserve primary identity and fail closed", () => {
+  const evaluations = new Map(
+    nootropicsFixtures.map((fixture) => [
+      fixture.id,
+      evaluateCategoryCoverage(nootropicsDefinition, fixture),
+    ])
+  );
+
+  for (const id of [22, 23, 235, 367, 436, 437, 443, 960, 978, 1114, 1361, 1397, 1401]) {
+    assert.equal(evaluations.get(id).classification, "INCLUDE_STRONG", id);
+  }
+  assert.deepEqual(evaluations.get(481).reasonCodes, ["PUMP_PREWORKOUT_PRIMARY_IDENTITY"]);
+  assert.deepEqual(evaluations.get(367).reasonCodes, ["EXPLICIT_NOOTROPIC_DESCRIPTION"]);
+  assert.deepEqual(evaluations.get(1361).reasonCodes, ["FOCUS_IDENTITY_SUPPORTED_BY_EXACT_CATEGORY"]);
+  assert.equal(evaluations.get(1130).confidence, "LOW");
+  assert.equal(evaluations.get(1134).confidence, "LOW");
+
+  assert.equal(
+    evaluateCategoryCoverage(nootropicsDefinition, {
+      name: "Example Focus Pre Workout",
+      category: "Pre Workout",
+      description: "Energy and cognitive performance.",
+    }).classification,
+    "EXCLUDE_STRONG"
+  );
 });
 
 test("Collagen key identities include, exclude and fail closed exactly as audited", () => {
@@ -279,6 +344,8 @@ test("exact label resolution is shared and aliases do not use fuzzy matching", (
   );
   assert.equal(categoryCoverageDefinitionForLabel("Weight Management"), null);
   assert.equal(categoryCoverageDefinitionForLabel(" collagen ").route, "/collagen");
+  assert.equal(categoryCoverageDefinitionForLabel(" NOOTROPICS ").route, "/nootropics");
+  assert.equal(categoryCoverageDefinitionForLabel("Nootropic"), null);
 });
 
 test("existing five reviewed landing definitions preserve their name-only boundaries", () => {
@@ -320,6 +387,9 @@ test("runtime coverage module contains no product-ID, slug, brand or retailer ex
   for (const { id } of collagenFixtures) {
     assert.doesNotMatch(source, new RegExp(`\\b${id}\\b`), String(id));
   }
+  for (const { id } of nootropicsFixtures) {
+    assert.doesNotMatch(source, new RegExp(`\\b${id}\\b`), String(id));
+  }
 });
 
 test("semantic routes delegate retrieval and rendering to shared infrastructure", () => {
@@ -340,7 +410,7 @@ test("semantic routes delegate retrieval and rendering to shared infrastructure"
   assert.match(helper, /"INCLUDE_STRONG"/);
   assert.match(component, /<ProductResultCard key=\{product\.id\} product=\{product\}/);
 
-  for (const route of ["testosterone-boosters", "fat-burners", "collagen"]) {
+  for (const route of ["testosterone-boosters", "fat-burners", "collagen", "nootropics"]) {
     const source = fs.readFileSync(
       path.join(process.cwd(), "app", route, "page.tsx"),
       "utf8"
