@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 const MOBILE_HEADER_QUERY = "(max-width: 767px)";
 
@@ -88,80 +89,74 @@ export default function HomeHeader() {
   }, [menuOpen]);
 
   return (
-    <header className="border-b border-zinc-200 bg-white/95 backdrop-blur">
-      <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:min-h-20 sm:px-6">
-        <Link
-          href="/"
-          className="text-lg font-extrabold tracking-[-0.03em] text-[var(--ss-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2 sm:text-xl"
-        >
-          SupplementScout
-        </Link>
-
-        <nav
-          aria-label="Primary navigation"
-          className="hidden items-center gap-7 text-sm font-medium text-zinc-600 md:flex"
-        >
-          {navigationItems.map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              className="hover:text-zinc-950 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2"
-            >
-              {item.label}
-            </a>
-          ))}
-        </nav>
-
-        <div className="hidden md:block">
+    <>
+      <header className="border-b border-zinc-200 bg-white/95 backdrop-blur">
+        <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:min-h-20 sm:px-6">
           <Link
-            href="/deals"
-            className="inline-flex min-h-11 items-center rounded-full bg-[var(--ss-accent)] px-5 text-sm font-semibold text-white hover:bg-[var(--ss-accent-strong)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
+            href="/"
+            className="text-lg font-extrabold tracking-[-0.03em] text-[var(--ss-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2 sm:text-xl"
           >
-            Find Deals
+            SupplementScout
           </Link>
-        </div>
 
-        <div className="flex items-center gap-2 md:hidden">
-          <a
-            href="#search"
-            className="inline-flex min-h-11 items-center rounded-lg border border-zinc-300 px-3 text-sm font-semibold text-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2"
+          <nav
+            aria-label="Primary navigation"
+            className="hidden items-center gap-7 text-sm font-medium text-zinc-600 md:flex"
           >
-            Search
-          </a>
-          <button
-            ref={menuButtonRef}
-            type="button"
-            aria-label="Open navigation menu"
-            aria-expanded={menuOpen}
-            aria-controls="home-mobile-menu"
-            onClick={() => setMenuOpen(true)}
-            className="inline-flex min-h-11 items-center rounded-lg bg-zinc-950 px-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2"
-          >
-            Menu
-          </button>
-        </div>
-      </div>
+            {navigationItems.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="hover:text-zinc-950 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2"
+              >
+                {item.label}
+              </a>
+            ))}
+          </nav>
 
-      {menuOpen && (
-        <>
-          <button
-            type="button"
-            aria-label="Close navigation menu"
-            onClick={() => {
-              setMenuOpen(false);
-              menuButtonRef.current?.focus();
-            }}
-            className="fixed inset-0 z-40 bg-black/40 md:hidden"
-          />
+          <div className="hidden md:block">
+            <Link
+              href="/deals"
+              className="inline-flex min-h-11 items-center rounded-full bg-[var(--ss-accent)] px-5 text-sm font-semibold text-white hover:bg-[var(--ss-accent-strong)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
+            >
+              Find Deals
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-2 md:hidden">
+            <a
+              href="#search"
+              className="inline-flex min-h-11 items-center rounded-lg border border-zinc-300 px-3 text-sm font-semibold text-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2"
+            >
+              Search
+            </a>
+            <button
+              ref={menuButtonRef}
+              type="button"
+              aria-label="Open navigation menu"
+              aria-expanded={menuOpen}
+              aria-controls="home-mobile-menu"
+              onClick={() => setMenuOpen(true)}
+              className="inline-flex min-h-11 items-center rounded-lg bg-zinc-950 px-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2"
+            >
+              Menu
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {menuOpen &&
+        typeof document !== "undefined" &&
+        createPortal(
           <aside
             ref={menuPanelRef}
             id="home-mobile-menu"
             role="dialog"
             aria-modal="true"
             aria-label="Mobile navigation"
-            className="fixed inset-y-0 right-0 z-50 flex w-full max-w-sm flex-col bg-white p-5 shadow-2xl md:hidden"
+            className="fixed inset-0 z-[100] flex h-dvh w-full flex-col overflow-x-hidden overflow-y-auto overscroll-contain bg-white px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-[max(1.25rem,env(safe-area-inset-top))] md:hidden"
           >
-            <div className="flex items-center justify-between gap-4 border-b border-zinc-200 pb-4">
+            <div className="flex shrink-0 items-center justify-between gap-4 border-b border-zinc-200 pb-4">
               <p className="text-lg font-bold">Menu</p>
               <button
                 ref={closeButtonRef}
@@ -191,9 +186,9 @@ export default function HomeHeader() {
                 </a>
               ))}
             </nav>
-          </aside>
-        </>
-      )}
-    </header>
+          </aside>,
+          document.body
+        )}
+    </>
   );
 }
