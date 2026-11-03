@@ -2,7 +2,7 @@
 
 Date: 2026-11-03
 
-State: feature implementation complete locally; production evidence pending
+State: production pilot verified; documentation closeout recorded
 
 Starting `main`: `926bca9e4ac50d0d6170b4643e41f2fba36ed0e0`
 
@@ -102,5 +102,48 @@ their required runs.
 
 ## Production closeout
 
-Pending feature PR, guarded squash merge, main CI, Vercel production and
-read-only production verification. Lifecycle status must remain `planned`.
+Feature PR: `#445`, Category Coverage: fix Testosterone Boosters browse
+membership.
+
+Approved feature head: `51df2810144935fe01901f70f7c991f96cc7dc4b`.
+
+Squash merge on `main`: `cd66b817322078c5eaad2512a12ee7dcc69182a3`.
+
+Feature-head tree and squash-merge tree: identical
+(`adf963855c87b39e7084d8aec9b0a8aefdf339fd`).
+
+All PR checks passed: Project Guardian, Quality Gate, GitGuardian and Vercel
+Preview. There were zero review threads. Automatic post-merge Project Guardian
+run `41645983382` and Quality Gate run `41645983325` both passed without manual
+workflow dispatch. Vercel production deployment
+`Gg6AgRBFhYuXPVgAXmTZxR6LMv85` completed successfully for the merge SHA.
+
+Read-only production verification completed at
+`2026-11-03T13:41:14.5280252Z`:
+
+- `/testosterone-boosters` returned HTTP `200`, canonical
+  `https://www.supplementscout.co.uk/testosterone-boosters` and robots
+  `noindex, follow`;
+- the route exposed exactly `11` unique canonical product links, covering all
+  `11/11` approved strong identities, with `0` missing strong identities;
+- current catalogue display text differs from the audit wording for three
+  identities only: `Biotech USA Tribooster 60 Tablets`, `Olimp Nutrition DAA
+  Xtreme Prolact-Block - 60 tablets`, and `Animal Stack 21 Packs`; their
+  canonical slugs match the audited products;
+- all `6` strong excludes were absent, including Chaos Crew Turk, and all `11`
+  review-required products were absent;
+- strong recall was `100%` and strong precision was `100%`, with `0` strong
+  false positives;
+- the production homepage linked Testosterone Boosters to
+  `/testosterone-boosters` and did not retain the old Search href;
+- the old `/search?q=Testosterone%20Boosters` URL remained HTTP `200` with the
+  same seven baseline text-search cards and identities;
+- production `sitemap.xml` contained `0` occurrences of
+  `/testosterone-boosters`, as required by the `planned` lifecycle;
+- database writes were `0`, production configuration changes were `0`, and no
+  canonical product category was changed;
+- SEO-20 remained the sole SEO task `IN PROGRESS`; its PER4M experiment files
+  and freeze were unchanged.
+
+Lifecycle status remains `planned`. This closeout does not make the route
+indexable and does not authorize the next category pilot.
