@@ -2,7 +2,7 @@
 
 Date: 2026-11-03
 
-Implementation state: feature implementation complete; production closeout pending
+Implementation state: feature merged and production-verified; closeout complete
 
 Starting `main`: `54d3d238e17e8ac1c53ec1f196dabe718d399342`
 
@@ -152,8 +152,42 @@ menu remains unchanged and its fix remains future work.
 
 ## Production closeout evidence
 
-Pending feature merge and read-only production verification. This section will
-record the feature PR, approved head, merge SHA, tree equivalence, CI, Vercel
-deployment, production timestamp, pagination metrics, homepage discovery,
-Search and Whey readback, lifecycle/sitemap state, and the docs-only closeout
-PR.
+Feature PR [#451](https://github.com/SupplementScout/supplementscout/pull/451)
+was squash-merged under the standing owner authorization after Project
+Guardian, Quality Gate, GitGuardian and Vercel passed with no unresolved review
+threads.
+
+- Approved feature head: `c190c632c65b886264352eaa86bda3d4cea35cf8`.
+- Feature merge SHA: `ff5b9950ac35cb6e01a8603cecad8fd193df2965`.
+- Approved-head tree and merge tree: identical
+  (`5f40a14ea0c38c6dbd55959c2142f20421f8bf20`).
+- Feature Project Guardian: PASS, run `41672788637`.
+- Feature Quality Gate: PASS, run `41672787938`.
+- Post-merge main Project Guardian: PASS, run `41673342208`.
+- Post-merge main Quality Gate: PASS, run `41673342397`.
+- Vercel production deployment: PASS, deployment
+  `G8EF3atUW5u2GUZLbVDaiA67k3yG`.
+- Production smoke completed: `2026-11-03T16:24:52.1216835Z`.
+
+Production `/collagen` and `/collagen?page=2` both returned HTTP `200` with
+`noindex, follow`. Their respective canonicals were
+`https://www.supplementscout.co.uk/collagen` and
+`https://www.supplementscout.co.uk/collagen?page=2`. Page 1 rendered 24 unique
+product links and page 2 rendered 5; there were no cross-page duplicates. The
+union exactly matched all `29/29` audited strong members, with `0` missing,
+`0` strong false positives and both `2/2` review products absent. Strong recall
+and precision were both `100%` against the accepted audit contract.
+
+CNP Loaded ISO Collagen Protein was present in Collagen and remained absent
+from the semantic Whey landing. The production homepage contained exactly one
+href each for `/collagen`, `/testosterone-boosters` and `/fat-burners`, plus one
+unchanged `/search?q=Weight%20Management` fallback. The old Collagen Search
+remained HTTP `200` and reported 52 products.
+
+The production sitemap contained zero exact Collagen, Fat Burners or
+Testosterone Boosters route entries because all three remain `planned`.
+Database writes were `0`; production configuration, Search, breadcrumbs, Whey,
+Testosterone Boosters, Fat Burners, SEO-20 and PER4M remained unchanged.
+SEO-20 remained the sole in-progress SEO task and its measurement freeze
+remained intact. No exact-category Search resolver or mobile-menu fix was
+started.
