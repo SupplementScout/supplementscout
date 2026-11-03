@@ -9,6 +9,7 @@ import SearchPagination from "../components/SearchPagination";
 import SearchAnalyticsEvents from "../components/SearchAnalyticsEvents";
 import SearchResultsLayout from "../components/SearchResultsLayout";
 import SearchResultSelectionAnalytics from "../components/SearchResultSelectionAnalytics";
+import { resolveExactCategorySearchIntent } from "../lib/categorySearchIntent";
 import {
   normalizeSearchQuery,
   normalizeSearchFilters,
@@ -39,6 +40,7 @@ type SearchPageProps = {
     format?: string | string[];
     ingredient?: string | string[];
     page?: string | string[];
+    search_mode?: string | string[];
   }>;
 };
 
@@ -84,6 +86,12 @@ export async function generateMetadata({
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
+  const categoryIntent = resolveExactCategorySearchIntent(params);
+
+  if (categoryIntent) {
+    redirect(categoryIntent.href);
+  }
+
   const query = normalizeSearchQuery(params.q);
   const requestedSort = normalizeSearchSort(params.sort);
   const normalizedFilters = normalizeSearchFilters(params);
