@@ -30,239 +30,19 @@ const {
 
 const definition = getCategoryCoverageDefinition("testosterone-boosters");
 
-const fixtures = [
-  { id: 183, name: "BioTech USA Tribooster 60 Tablets", category: "Vitamins", description: "A strong testosterone booster formula." },
-  { id: 184, name: "7Nutrition Volcano Testosterone 150 Capsules", category: "Vitamins", description: "Natural testosterone booster." },
-  { id: 217, name: "Mutant Test 90 Capsules", category: "Vitamins", description: "Testosterone capsules and support formula." },
-  { id: 225, name: "Olimp T-100 Ultimate Testosterone 120 Capsules", category: "Health Supplements", description: null },
-  { id: 237, name: "TWP PCT Aftermath 2.0 120 Capsules", category: "Vitamins", description: "Post-cycle testosterone recovery support." },
-  { id: 285, name: "USN 19-Anabol Testo 90 Capsules", category: "Health Supplements", description: "Support for low testosterone." },
-  { id: 413, name: "GYM HIGH ZMB 60 Capsules", category: "Health Supplements", description: "Zinc and magnesium with testosterone support claims." },
-  { id: 420, name: "Long Jack Tongkat Ali 60 caps", category: "Health Supplements", description: "Single botanical extract." },
-  { id: 429, name: "GYM HIGH Testo Pro 180 Capsules", category: "Health Supplements", description: "Natural hormone support formula." },
-  { id: 431, name: "Black Mamba Fadogia Agrestis 60 Capsules", category: "Health Supplements", description: "Supports healthy testosterone levels." },
-  { id: 446, name: "Extreme Labs TT4 Tribulus Terrestris 90 Caps", category: "Health Supplements", description: "Tribulus supplement." },
-  { id: 459, name: "Applied Nutrition Turk-X Turkesterone Plus", category: "Health Supplements", description: "Muscle growth and body recomposition support." },
-  { id: 485, name: "Applied Nutrition Tongkat Ali 600mg 60 Capsules", category: "Health Supplements", description: "Vitality support." },
-  { id: 499, name: "Olimp DAA Xtreme Prolact-Block 60 Tablets", category: "Health Supplements", description: "An advanced testosterone booster." },
-  { id: 514, name: "Animal Stak 21 Packs", category: "Health Supplements", description: "Complete natural hormone support." },
-  { id: 596, name: "Simply Supplements Super Zinc Plus", category: "Vitamins", description: "Zinc contributes to normal testosterone synthesis." },
-  { id: 982, name: "Nordic Labs Long Jack Tongkat Ali 60 Capsules", category: "Health Supplements", description: null },
-  { id: 983, name: "Nordic Labs TestX Pro Turkesterone 60 Capsules", category: "Health Supplements", description: null },
-  { id: 992, name: "Osavi Tribulus Terrestris Saponins 200mg 180 Capsules", category: "Health Supplements", description: null },
-  { id: 1111, name: "Ultra Nutrio Mr Test 100 Capsules", category: "Testosterone Boosters", description: null },
-  { id: 1124, name: "Nordic Labs Fadogia Agrestis 60 Capsules", category: "Testosterone Boosters", description: null },
-  { id: 1218, name: "Refined Nutrition Tribulus 60 Capsules", category: "Health Supplements", description: null },
-  { id: 1363, name: "Chaos Crew Turk 10% Turkesterone 500mg", category: "Testosterone Boosters", description: null },
-  { id: 1364, name: "Swole Lifestyle Fadogia Agrestis 60 Capsules", category: "Testosterone Boosters", description: null },
-  { id: 1365, name: "Swole Lifestyle Tongkat Ali 60 Capsules", category: "Testosterone Boosters", description: null },
-  { id: 1366, name: "USN Anabolic Turk Test 1200 60 Capsules", category: "Testosterone Boosters", description: null },
-  { id: 1387, name: "TWP Ashwagandha", category: "Health Supplements", description: "May provide testosterone benefits." },
-  { id: 1436, name: "TWP Tongkat Ali", category: "Health Supplements", description: null },
-];
-
-const expectedIds = {
-  INCLUDE_STRONG: [183, 184, 217, 225, 285, 429, 499, 514, 983, 1111, 1366],
-  EXCLUDE_STRONG: [237, 413, 459, 596, 1363, 1387],
-  REVIEW_REQUIRED: [420, 431, 446, 485, 982, 992, 1124, 1218, 1364, 1365, 1436],
-};
+const { fixtures, expectedIds } = require("./fixtures/category-coverage/testosterone-boosters");
 
 const fatBurnersDefinition = getCategoryCoverageDefinition("fat-burners");
-const fatFixture = (id, name, category, description = "") => ({
-  id,
-  name,
-  category,
-  description,
-});
-const fatFixtures = [
-  fatFixture(52, "ProSupps Dr Jekyll Stim Free Pre Workout 225g", "Pre Workout", "A thermogenic pre-workout."),
-  fatFixture(76, "Boditronics Diet Whey 1.8kg", "Whey Protein"),
-  fatFixture(77, "Boditronics Diet Whey 900g", "Whey Protein"),
-  fatFixture(90, "Nutrex Lipo 6 Black Ultra Concentrate 60 Caps", "Health Supplements", "A revolutionary fat burner."),
-  fatFixture(91, "Project AD Shredabull Untamed 2.0 50 Caps", "Health Supplements"),
-  fatFixture(93, "JNX Sports The Ripper Fat Burner Powder 150g", "Weight Management"),
-  fatFixture(94, "Mutant Carnitine Liquid 1500 473ml", "Health Supplements"),
-  fatFixture(95, "Nutrex Lipo6 Black Keto 60 Capsules", "Health Supplements", "A ketogenic fat burner."),
-  fatFixture(96, "Nutrex Lipo 6 Aqua Loss 80 Caps", "Health Supplements"),
-  fatFixture(97, "5% Nutrition Rich Piana Keto aSalt 252g", "Health Supplements"),
-  fatFixture(98, "7Nutrition MCT Oil 400ml", "Health Supplements"),
-  fatFixture(99, "Nutrex Lipo6 CLA 45 Softgels", "Health Supplements"),
-  fatFixture(100, "HR Labs Fever 40 Fat Burner 75 Caps", "Weight Management"),
-  fatFixture(102, "PEScience Alphamine Thermogenic 244g", "Weight Management"),
-  fatFixture(103, "PEScience Alphamine Thermogenic 60 Capsules", "Weight Management"),
-  fatFixture(144, "Applied Nutrition Tornado Electric Shaker 400ml", "Accessories"),
-  fatFixture(151, "Barebells Protein Bars", "Protein Bars"),
-  fatFixture(153, "BioTech USA Mega Amino 3200 100 Tablets", "Amino Acids"),
-  fatFixture(163, "Dorian Yates Black Bombs 60 Tablets", "Health Supplements", "One of the strongest fat burners."),
-  fatFixture(177, "Finaflex Stimul8 180g", "Pre Workout", "A thermogenic high-stimulant pre-workout."),
-  fatFixture(185, "GYM HIGH Slimming Protein 1000g", "Whey Protein"),
-  fatFixture(239, "Ghost Burn Fat Burner 40 Servings", "Weight Management"),
-  fatFixture(367, "GYM HIGH The Stacker 240g", "Health Supplements", "Nootropic, thermogenic, pre-workout and fat burner."),
-  fatFixture(388, "Phoenix Fitness Speed Skipping Rope", "Accessories"),
-  fatFixture(390, "GYM HIGH Vegan Plant-Based-Protein Blend 600g", "Health Supplements"),
-  fatFixture(405, "GASP Stringer Vest Black", "Accessories"),
-  fatFixture(407, "CNP Creatine Monohydrate 250g", "Creatine"),
-  fatFixture(424, "NXT Nutrition Cream Of Rice 2kg", "Health Supplements"),
-  fatFixture(428, "Trec L-Carnitine 3000 Liquid Apricot 500 ml", "Weight Management"),
-  fatFixture(462, "Lean Mass Stack", "Health Supplements"),
-  fatFixture(476, "GYM HIGH Performance T-Shirt", "Accessories"),
-  fatFixture(497, "EHP Labs OxyShred Stim 60 Servings", "Health Supplements", "OxyShred thermogenic fat burner."),
-  fatFixture(498, "EHP Labs OxyShred Non-Stim 60 Servings", "Health Supplements", "A non-stimulant fat burner."),
-  fatFixture(501, "MuscleTech Hydroxycut Hardcore Super Elite 100 Vegan Capsules", "Health Supplements"),
-  fatFixture(504, "EHP Labs Acetyl L-Carnitine 100g", "Weight Management"),
-  fatFixture(507, "Animal Cuts Fat Burner 42 Packs", "Weight Management"),
-  fatFixture(508, "GYM HIGH Shred Mode 60 Capsules", "Health Supplements", "Thermogenic fat burner with a fully listed formula."),
-  fatFixture(519, "Olimp Nutrition MCT Oil - 400 ml", "Health Supplements"),
-  fatFixture(522, "Olimp L-Carnitine 1500 Extreme 120 Capsules", "Weight Management"),
-  fatFixture(527, "GYM HIGH L-Carnitine Liquid 500 ml", "Weight Management"),
-  fatFixture(551, "Vitamin C 500mg Capsules", "Vitamins"),
-  fatFixture(562, "Omega 3 for Kids 500mg", "Vitamins"),
-  fatFixture(564, "Folic Acid 400mcg", "Vitamins"),
-  fatFixture(566, "Potassium Chloride 1000mg", "Health Supplements"),
-  fatFixture(567, "Biotin Tablets 10,000mcg", "Vitamins"),
-  fatFixture(570, "Max Strength Glucosamine Sulphate 1858mg 2KCl", "Health Supplements"),
-  fatFixture(572, "Glucosamine Sulphate 1,500mg Tablets", "Health Supplements"),
-  fatFixture(575, "Glucosamine 1,000mg with Vitamin C Capsules", "Health Supplements"),
-  fatFixture(576, "Glucosamine 1,500mg with Vitamin C", "Health Supplements"),
-  fatFixture(581, "Glucosamine, Chondroitin & Calcium", "Health Supplements"),
-  fatFixture(584, "Quick Release Glucosamine 65 Plus", "Health Supplements"),
-  fatFixture(585, "Children's Chewable Multivitamins Orange Flavour", "Vitamins"),
-  fatFixture(586, "Multivitamin Gummies", "Vitamins"),
-  fatFixture(590, "L-Choline", "Vitamins"),
-  fatFixture(591, "Conjugated Linoleic Acid (CLA) Capsules", "Health Supplements"),
-  fatFixture(596, "Super Zinc Plus", "Vitamins"),
-  fatFixture(599, "Magnesium Bisglycinate 1500mg", "Vitamins"),
-  fatFixture(601, "Psyllium Husk Capsules 2250mg", "Health Supplements"),
-  fatFixture(602, "Glucomannan Fibre Capsules 3000mg", "Health Supplements"),
-  fatFixture(604, "Magnesium Citrate Tablets 700mg", "Vitamins"),
-  fatFixture(606, "Alpha Lipoic Acid (ALA) Capsules 750mg", "Health Supplements"),
-  fatFixture(609, "Hair Care Max for Men", "Health Supplements"),
-  fatFixture(610, "Liquid Omega 3", "Vitamins"),
-  fatFixture(611, "Bone Health Multivitamin", "Vitamins"),
-  fatFixture(612, "Mature Woman Multivitamin", "Vitamins"),
-  fatFixture(613, "Multivitamins for Mature Men", "Vitamins"),
-  fatFixture(615, "Anti-Fatigue Multivitamin", "Vitamins"),
-  fatFixture(616, "Starflower Oil Capsules 1000mg", "Health Supplements"),
-  fatFixture(618, "Vitamin D Tablets 400iu", "Vitamins"),
-  fatFixture(622, "Vitamin D3 4000iu & Vitamin K2 100mcg", "Vitamins"),
-  fatFixture(627, "Magnesium Tablets 200mg", "Health Supplements"),
-  fatFixture(629, "Chewable Vitamin C Tablets 1,000mg Orange Flavour", "Vitamins"),
-  fatFixture(632, "Vitamin C 1000mg with Rosehip 800mg", "Vitamins"),
-  fatFixture(633, "Marine Collagen Powder with Vitamin C", "Health Supplements"),
-  fatFixture(635, "A to Z Multivitamins & Minerals", "Health Supplements"),
-  fatFixture(637, "Iron 14mg", "Health Supplements"),
-  fatFixture(638, "Floradix Liquid Iron Formula", "Health Supplements"),
-  fatFixture(648, "Soya Isoflavones", "Vitamins"),
-  fatFixture(652, "Sea Kelp Capsules 4200mg", "Health Supplements"),
-  fatFixture(653, "Apple Cider Vinegar Gummies", "Health Supplements"),
-  fatFixture(655, "L-Taurine 1200mg", "Amino Acids"),
-  fatFixture(658, "Garlic Capsules 10,000mg", "Health Supplements"),
-  fatFixture(662, "Vitamin B6 Tablets 50mg", "Vitamins"),
-  fatFixture(664, "Vitamin B12 Tablets 500mcg", "Vitamins"),
-  fatFixture(666, "Acetyl L-Carnitine Capsules 500mg", "Amino Acids"),
-  fatFixture(668, "30 Day Detox & Colon Cleanse Plus", "Health Supplements"),
-  fatFixture(669, "Cranberry Tablets 5,000mg", "Health Supplements"),
-  fatFixture(670, "ImmunoBoost Tablets with Black Garlic", "Health Supplements"),
-  fatFixture(751, "Applied Nutrition Diet Whey Protein 1.8kg", "Whey Protein"),
-  fatFixture(752, "Applied Nutrition Diet Whey Protein 1kg", "Whey Protein"),
-  fatFixture(891, "Conteh Sports Pre Shred 90 Caps", "Health Supplements"),
-  fatFixture(1020, "7Nutrition L-CARNITINE 1000 - 120 vege caps", "Amino Acids"),
-  fatFixture(1084, "Waist Slimming Sweat Belt", "Accessories"),
-  fatFixture(1105, "Trec Nutrition Clenburexin 180 Capsules", "Fat Burners"),
-  fatFixture(1122, "Trec Nutrition MCT Gold Oil 400ml", "Health Supplements"),
-  fatFixture(1139, "Trec Nutrition Clenburexin 90 Capsules", "Fat Burners"),
-  fatFixture(1177, "Applied Nutrition L-Carnitine 3000 Liquid 480ml", "Weight Management"),
-  fatFixture(1186, "EHP Labs OXYSHRED Creatine Gummies 450g", "Creatine"),
-  fatFixture(1233, "PhD Nutrition Diet Whey 1kg", "Whey Protein"),
-  fatFixture(1234, "PhD Nutrition Diet Whey 2kg", "Whey Protein"),
-  fatFixture(1302, "EHP Labs OxyShred Ultra Energy Drink RTD 12 x 355ml", "Energy Drinks"),
-  fatFixture(1305, "Animal Cuts Powder 248g/265g", "Fat Burners"),
-  fatFixture(1311, "EHP Labs OxyShred 80 Gummies 400g", "Fat Burners"),
-  fatFixture(1313, "HUEL Ready-to Drink 8x500ml", "Weight Management"),
-  fatFixture(1314, "Huel Lite Ready-to-Drink 8 x 500ml", "Weight Management"),
-  fatFixture(1357, "AK-47 Burner 60 Capsules", "Fat Burners"),
-  fatFixture(1358, "TWP Diced V2 Stim Fat Burner 60 Capsules", "Fat Burners"),
-  fatFixture(1372, "TWP LFT V2 Pre Workout", "Pre Workout"),
-  fatFixture(1381, "TWP Nutrition Pre Raw Pre Workout", "Pre Workout"),
-  fatFixture(1382, "NutriFitt Symbiote Extreme High-Stim Pre-Workout", "Pre Workout"),
-  fatFixture(1383, "TWP Nutrition All The Weight Up Mass Gainer 5kg", "Mass Gainer"),
-  fatFixture(1417, "EHP Labs OxyShred Ultra Energy Drink RTD 355ml", "Energy Drinks"),
-  fatFixture(1419, "EHP Labs OxyShred Infinity Energy Drink 355ml", "Energy Drinks"),
-  fatFixture(1430, "Rich Piana All Day You Shred 325g", "Fat Burners"),
-];
-
-const expectedFatIds = {
-  INCLUDE_STRONG: [90, 93, 95, 100, 102, 103, 163, 239, 367, 497, 498, 501, 507, 508, 1105, 1139, 1305, 1311, 1357, 1358, 1430],
-  EXCLUDE_STRONG: [52, 76, 77, 96, 97, 144, 151, 153, 177, 185, 388, 390, 405, 407, 424, 462, 476, 551, 562, 564, 566, 567, 570, 572, 575, 576, 581, 584, 585, 586, 590, 596, 599, 601, 604, 606, 609, 610, 611, 612, 613, 615, 616, 618, 622, 627, 629, 632, 633, 635, 637, 638, 648, 652, 653, 655, 658, 662, 664, 668, 669, 670, 751, 752, 1084, 1186, 1233, 1234, 1302, 1313, 1314, 1372, 1381, 1382, 1383, 1417, 1419],
-  REVIEW_REQUIRED: [91, 94, 98, 99, 428, 504, 519, 522, 527, 591, 602, 666, 891, 1020, 1122, 1177],
-};
+const {
+  fixtures: fatFixtures,
+  expectedIds: expectedFatIds,
+} = require("./fixtures/category-coverage/fat-burners");
 
 const collagenDefinition = getCategoryCoverageDefinition("collagen");
-const collagenFixture = (id, name, category, description = "") => ({
-  id,
-  name,
-  category,
-  description,
-});
-const collagenFixtures = [
-  collagenFixture(188, "Applied Nutrition Keto Collagen 130g", "Vitamins"),
-  collagenFixture(422, "Vital Proteins Collagen Peptides Unflavoured 284g", "Vitamins"),
-  collagenFixture(435, "KIOR Health Collagen Probio 60 Caps", "Health Supplements"),
-  collagenFixture(440, "KIOR Health Collagen+ 60 Caps", "Health Supplements"),
-  collagenFixture(460, "KIOR Health Collagen Glow", "Health Supplements"),
-  collagenFixture(461, "KIOR Health Collagen Super", "Health Supplements"),
-  collagenFixture(551, "Vitamin C 500mg Capsules", "Vitamins", "Vitamin C contributes to normal collagen formation."),
-  collagenFixture(565, "Glucosamine 1,000mg with Vitamin C Tablets", "Health Supplements", "Vitamin C makes a contribution to collagen formation."),
-  collagenFixture(571, "Bone and Joint Health Gummies", "Health Supplements", "A multi-ingredient formula incorporating turmeric, collagen and vitamin E."),
-  collagenFixture(575, "Glucosamine 1,000mg with Vitamin C Capsules", "Health Supplements", "Vitamin C supports the production of collagen."),
-  collagenFixture(576, "Glucosamine 1,500mg with Vitamin C", "Health Supplements", "Vitamin C contributes to the normal formation of collagen."),
-  collagenFixture(577, "Glucosamine 500mg & Marine Collagen 400mg", "Health Supplements"),
-  collagenFixture(584, "Quick Release Glucosamine 65 Plus", "Health Supplements", "Vitamin C is included for its role in collagen formation."),
-  collagenFixture(586, "Multivitamin Gummies", "Vitamins", "Vitamin C contributes to collagen formation in the body."),
-  collagenFixture(595, "Super Vitamin B Complex", "Vitamins", "Vitamin B2 protects collagen from damage."),
-  collagenFixture(597, "Vitamin C 1000mg Powder", "Vitamins", "Vitamin C supports collagen formation."),
-  collagenFixture(598, "Hyaluronic Acid Capsules 200mg", "Health Supplements", "Vitamin C has a role in collagen synthesis."),
-  collagenFixture(612, "Mature Woman Multivitamin", "Vitamins", "A multivitamin with premium ingredients such as marine collagen, hyaluronic acid and lutein."),
-  collagenFixture(617, "Vitamin C 1000mg with Rosehip & Citrus Bioflavonoids", "Vitamins", "Supports healthy collagen levels."),
-  collagenFixture(628, "Potassium Citrate 1300mg with Vitamin C", "Health Supplements", "Vitamin C contributes to collagen collagen production."),
-  collagenFixture(629, "Chewable Vitamin C Tablets 1,000mg Orange Flavour", "Vitamins", "Vitamin C has a role in collagen formation."),
-  collagenFixture(630, "Cranberry Tablets 24,000mg with Vitamin C 160mg", "Health Supplements", "Vitamin C supports the formation of collagen."),
-  collagenFixture(631, "Vegan Glucosamine HCl 1000mg with Vitamin C 40mg", "Health Supplements", "Added Vitamin C to aid Collagen Production."),
-  collagenFixture(632, "Vitamin C 1000mg with Rosehip 800mg", "Vitamins", "Supports the body's ability to produce collagen."),
-  collagenFixture(633, "Marine Collagen Powder with Vitamin C", "Health Supplements"),
-  collagenFixture(634, "Hyaluronic Acid 400mg with Vitamin C 320mg", "Health Supplements", "Vitamin C contributes to normal collagen formation."),
-  collagenFixture(639, "Marine Collagen 1500mg", "Health Supplements"),
-  collagenFixture(640, "Turmeric Joint Care Plus", "Health Supplements", "Vitamin C supports cartilage through its role in collagen formation."),
-  collagenFixture(644, "Curcumin C3 Complex 12,000mg (Turmeric) Capsules", "Health Supplements", "Vitamin C contributes to collagen and cartilage formation."),
-  collagenFixture(650, "Odourless Garlic Capsules 3000mg", "Health Supplements", "Vitamin C supports blood vessels through its role in collagen formation."),
-  collagenFixture(660, "Evening Primrose Oil 1500mg", "Health Supplements", "Often taken alongside other food supplements such as zinc, biotin and collagen."),
-  collagenFixture(670, "ImmunoBoost Tablets with Black Garlic - SimplyBest", "Health Supplements", "Vitamin C contributes to normal collagen formation."),
-  collagenFixture(681, "Doctor's Best Pure Collagen Peptides 417g", "Health Supplements"),
-  collagenFixture(720, "Now Foods Collagen Peptides Powder 227g", "Health Supplements"),
-  collagenFixture(721, "Osavi Collagen & Electrolytes Orange & Grapefruit", "Health Supplements"),
-  collagenFixture(831, "Time 4 Collagen+ 45 Servings", "Health Supplements"),
-  collagenFixture(864, "CNP Loaded ISO Collagen Protein 2kg", "Whey Protein"),
-  collagenFixture(915, "Atlas Infusions Full-Spectrum Collagen 500g", "Health Supplements"),
-  collagenFixture(937, "Trained By JP Collagen Powder 300g", "Health Supplements"),
-  collagenFixture(986, "Osavi Advanced Marine Collagen 30 servings 360g", "Health Supplements"),
-  collagenFixture(989, "Osavi Collagen & Electrolytes 30 Servings", "Health Supplements"),
-  collagenFixture(1002, "Swanson Collagen Peptides Unflavoured 28 Servings", "Health Supplements"),
-  collagenFixture(1017, "Trec Nutrition Collagen Renover 350g", "Health Supplements"),
-  collagenFixture(1215, "Sunna Supplements Halal Collagen Protein 250g", "Health Supplements"),
-  collagenFixture(1216, "Sunna Supplements Marine Collagen 250g", "Health Supplements"),
-  collagenFixture(1221, "Applied Nutrition Collagen Peptides 300g", "Health Supplements"),
-  collagenFixture(1291, "Per4m Multi-Blend Collagen 301g", "Health Supplements"),
-  collagenFixture(1317, "Bloom Clear Protein Collagen 250g", "Health Supplements"),
-  collagenFixture(1331, "VOW Nutrition Collagen Chews", "Health Supplements"),
-  collagenFixture(1343, "Swanson Marine Collagen Peptides 400mg Capsules", "Health Supplements"),
-  collagenFixture(1359, "BioTechUSA Clear Collagen Professional 350g", "Health Supplements"),
-  collagenFixture(1433, "TWP Nutrition Collagen Raw 300g", "Collagen"),
-];
-const expectedCollagenIds = {
-  INCLUDE_STRONG: [188, 422, 435, 440, 460, 461, 577, 633, 639, 681, 720, 721, 831, 864, 915, 937, 986, 989, 1002, 1017, 1215, 1216, 1221, 1291, 1317, 1331, 1343, 1359, 1433],
-  EXCLUDE_STRONG: [551, 565, 575, 576, 584, 586, 595, 597, 598, 617, 628, 629, 630, 631, 632, 634, 640, 644, 650, 660, 670],
-  REVIEW_REQUIRED: [571, 612],
-};
+const {
+  fixtures: collagenFixtures,
+  expectedIds: expectedCollagenIds,
+} = require("./fixtures/category-coverage/collagen");
 
 test("Testosterone Boosters definition exposes the shared route and candidate-only queries", () => {
   assert.ok(definition);
@@ -542,52 +322,35 @@ test("runtime coverage module contains no product-ID, slug, brand or retailer ex
   }
 });
 
-test("pilot route reuses shared retrieval, cache, lifecycle and card contracts", () => {
-  const source = fs.readFileSync(
-    path.join(process.cwd(), "app/testosterone-boosters/page.tsx"),
+test("semantic routes delegate retrieval and rendering to shared infrastructure", () => {
+  const helper = fs.readFileSync(
+    path.join(process.cwd(), "app/lib/categoryCoverageLanding.ts"),
     "utf8"
   );
-  assert.match(source, /getLandingProducts\(/);
-  assert.match(source, /CATEGORY_LANDING_PAGE_SIZE/);
-  assert.match(source, /createLifecycleDataLoader\(/);
-  assert.match(source, /testosterone-boosters-category-v1/);
-  assert.match(source, /assertLifecycleDataAvailable\(/);
-  assert.match(
-    source,
-    /evaluateCategoryCoverage\(testosteroneBoosterDefinition, product\)/
+  const component = fs.readFileSync(
+    path.join(process.cwd(), "app/components/CategoryCoverageLandingPage.tsx"),
+    "utf8"
   );
-  assert.match(source, /"INCLUDE_STRONG"/);
-  assert.match(source, /<ProductResultCard key=\{product\.id\} product=\{product\}/);
 
-  const fatSource = fs.readFileSync(
-    path.join(process.cwd(), "app/fat-burners/page.tsx"),
-    "utf8"
-  );
-  assert.match(fatSource, /getLandingProducts\(/);
-  assert.match(fatSource, /CATEGORY_LANDING_PAGE_SIZE/);
-  assert.match(fatSource, /createLifecycleDataLoader\(/);
-  assert.match(fatSource, /fat-burners-category-v1/);
-  assert.match(fatSource, /assertLifecycleDataAvailable\(/);
-  assert.match(
-    fatSource,
-    /evaluateCategoryCoverage\(fatBurnersDefinition, product\)/
-  );
-  assert.match(fatSource, /"INCLUDE_STRONG"/);
-  assert.match(fatSource, /<ProductResultCard key=\{product\.id\} product=\{product\}/);
+  assert.match(helper, /getLandingProducts\(/);
+  assert.match(helper, /CATEGORY_LANDING_PAGE_SIZE/);
+  assert.match(helper, /createLifecycleDataLoader\(/);
+  assert.match(helper, /assertLifecycleDataAvailable\(/);
+  assert.match(helper, /evaluateCategoryCoverage\(coverageDefinition, product\)/);
+  assert.match(helper, /"INCLUDE_STRONG"/);
+  assert.match(component, /<ProductResultCard key=\{product\.id\} product=\{product\}/);
 
-  const collagenSource = fs.readFileSync(
-    path.join(process.cwd(), "app/collagen/page.tsx"),
-    "utf8"
-  );
-  assert.match(collagenSource, /getLandingProducts\(/);
-  assert.match(collagenSource, /CATEGORY_LANDING_PAGE_SIZE/);
-  assert.match(collagenSource, /createLifecycleDataLoader\(/);
-  assert.match(collagenSource, /"collagen-category-v1"/);
-  assert.match(collagenSource, /assertLifecycleDataAvailable\(/);
-  assert.match(
-    collagenSource,
-    /evaluateCategoryCoverage\(collagenDefinition, product\)/
-  );
-  assert.match(collagenSource, /"INCLUDE_STRONG"/);
-  assert.match(collagenSource, /<ProductResultCard key=\{product\.id\} product=\{product\}/);
+  for (const route of ["testosterone-boosters", "fat-burners", "collagen"]) {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), "app", route, "page.tsx"),
+      "utf8"
+    );
+    assert.match(source, /createCategoryCoverageLanding\(config\)/, route);
+    assert.match(source, /<CategoryCoverageLandingPage/, route);
+    assert.doesNotMatch(
+      source,
+      /getLandingProducts|evaluateCategoryCoverage|ProductResultCard/,
+      route
+    );
+  }
 });

@@ -149,27 +149,41 @@ test("Vitamins links once to Multivitamins in its existing popular searches", ()
   assert.equal(source.split(link).length - 1, 1);
 });
 
-test("Collagen uses shared semantic pagination without truncating strong members", () => {
-  const source = fs.readFileSync(
+test("Collagen config preserves its copy while shared infrastructure owns pagination", () => {
+  const route = fs.readFileSync(
     path.join(process.cwd(), "app", "collagen", "page.tsx"),
     "utf8"
   );
+  const helper = fs.readFileSync(
+    path.join(process.cwd(), "app", "lib", "categoryCoverageLanding.ts"),
+    "utf8"
+  );
+  const component = fs.readFileSync(
+    path.join(
+      process.cwd(),
+      "app",
+      "components",
+      "CategoryCoverageLandingPage.tsx"
+    ),
+    "utf8"
+  );
 
-  assert.match(source, /const pagePath = "\/collagen"/);
-  assert.match(source, /getCategoryCoverageDefinition\("collagen"\)/);
-  assert.match(source, /CATEGORY_LANDING_PAGE_SIZE/);
-  assert.match(source, /async function loadCollagenProducts\(page: number\)/);
-  assert.match(source, /\{\s*page,\s*productFilter:/);
-  assert.match(source, /getCachedCollagenProducts\(requestedPage\)/);
-  assert.match(source, /result\.page !== requestedPage/);
-  assert.match(source, /buildCategoryLandingMetadata\(/);
-  assert.match(source, /isCanonicalCategoryLandingPageParam\(pageParam\)/);
-  assert.match(source, /CategoryLandingPagination/);
-  assert.match(source, /totalCount/);
-  assert.match(source, /totalPages/);
-  assert.match(source, /Collagen Peptides and Marine Collagen are included/);
-  assert.match(source, /only mention Collagen formation or synthesis/);
-  assert.doesNotMatch(source, /\b(?:188|422|435|440|460|461|577|633|639|681|720|721|831|864|915|937|986|989|1002|1017|1215|1216|1221|1291|1317|1331|1343|1359|1433)\b/);
+  assert.match(route, /definitionKey: "collagen"/);
+  assert.match(route, /pagePath: "\/collagen"/);
+  assert.match(route, /cacheVersion: "collagen-category-v1"/);
+  assert.match(route, /Collagen Peptides and Marine Collagen are included/);
+  assert.match(route, /only mention Collagen formation or synthesis/);
+  assert.match(helper, /CATEGORY_LANDING_PAGE_SIZE/);
+  assert.match(helper, /async function loadProducts\(page: number\)/);
+  assert.match(helper, /page,\s*productFilter:/);
+  assert.match(helper, /getCachedProducts\(requestedPage\)/);
+  assert.match(helper, /result\.page !== requestedPage/);
+  assert.match(helper, /buildCategoryLandingMetadata\(/);
+  assert.match(helper, /isCanonicalCategoryLandingPageParam\(pageParam\)/);
+  assert.match(component, /CategoryLandingPagination/);
+  assert.match(component, /totalCount/);
+  assert.match(component, /totalPages/);
+  assert.doesNotMatch(route, /\b(?:188|422|435|440|460|461|577|633|639|681|720|721|831|864|915|937|986|989|1002|1017|1215|1216|1221|1291|1317|1331|1343|1359|1433)\b/);
 });
 
 function loadPaginationModule() {

@@ -56,6 +56,19 @@ const pageFiles = new Map(
     path.join(process.cwd(), "app", ...route.slice(1).split("/"), "page.tsx"),
   ])
 );
+const categoryCoverageRoutes = new Set([
+  "/testosterone-boosters",
+  "/fat-burners",
+  "/collagen",
+]);
+const categoryCoverageHelper = fs.readFileSync(
+  path.join(process.cwd(), "app/lib/categoryCoverageLanding.ts"),
+  "utf8"
+);
+const categoryCoverageComponent = fs.readFileSync(
+  path.join(process.cwd(), "app/components/CategoryCoverageLandingPage.tsx"),
+  "utf8"
+);
 
 test("approved public routes have one explicit live-verified lifecycle", () => {
   for (const route of liveVerifiedPaths) {
@@ -176,10 +189,12 @@ test("arbitrary parameters are noindex follow with the base route as canonical",
       follow: true,
     });
     const source = fs.readFileSync(pageFiles.get(route), "utf8");
-    assert.match(source, /getLifecycleRobots\(/, route);
-    if (route === "/collagen") {
-      assert.match(source, /buildCategoryLandingMetadata\(/, route);
+    if (categoryCoverageRoutes.has(route)) {
+      assert.match(source, /createCategoryCoverageLanding\(config\)/, route);
+      assert.match(categoryCoverageHelper, /getLifecycleRobots\(/, route);
+      assert.match(categoryCoverageHelper, /buildCategoryLandingMetadata\(/, route);
     } else {
+      assert.match(source, /getLifecycleRobots\(/, route);
       assert.match(source, /alternates:\s*\{ canonical:/, route);
     }
   }
@@ -188,12 +203,18 @@ test("arbitrary parameters are noindex follow with the base route as canonical",
 test("all lifecycle hubs abort on a loader error and retain honest empty states", () => {
   for (const [route, filename] of pageFiles) {
     const source = fs.readFileSync(filename, "utf8");
-    assert.match(source, /assert(Lifecycle|Deals)DataAvailable\(/, route);
     assert.match(source, /export const dynamic = "force-dynamic";/, route);
-    if (route !== "/deals") {
+    if (categoryCoverageRoutes.has(route)) {
+      assert.match(source, /createCategoryCoverageLanding\(config\)/, route);
+    } else {
+      assert.match(source, /assert(Lifecycle|Deals)DataAvailable\(/, route);
+    }
+    if (route !== "/deals" && !categoryCoverageRoutes.has(route)) {
       assert.match(source, /rows\.length === 0/, route);
     }
   }
+  assert.match(categoryCoverageHelper, /assertLifecycleDataAvailable\(/);
+  assert.match(categoryCoverageComponent, /rows\.length === 0/);
   assert.throws(
     () => lifecycle.assertLifecycleDataAvailable({ error: true }, "/whey-protein"),
     /temporarily unavailable/
@@ -403,10 +424,15 @@ test("metadata stays database-free while every hub page uses its unique cached l
   const versions = new Set();
   for (const [route, filename] of pageFiles) {
     const source = fs.readFileSync(filename, "utf8");
-    assert.match(source, /createLifecycleDataLoader\(/, route);
-    const match = source.match(
-      /createLifecycleDataLoader\(\s*[^,]+,\s*"([^"]+)"/m
-    );
+    const match = categoryCoverageRoutes.has(route)
+      ? source.match(/cacheVersion:\s*"([^"]+)"/m)
+      : source.match(/createLifecycleDataLoader\(\s*[^,]+,\s*"([^"]+)"/m);
+    if (categoryCoverageRoutes.has(route)) {
+      assert.match(source, /createCategoryCoverageLanding\(config\)/, route);
+      assert.match(categoryCoverageHelper, /createLifecycleDataLoader\(/, route);
+    } else {
+      assert.match(source, /createLifecycleDataLoader\(/, route);
+    }
     assert.ok(match, route);
     assert.equal(versions.has(match[1]), false, match[1]);
     versions.add(match[1]);
