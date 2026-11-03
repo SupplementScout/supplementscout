@@ -122,7 +122,7 @@ may start while this measurement is unresolved.
   `2026-11-03T11:51:34Z`.
 - Public smoke and measurement start: `2026-11-03T11:54:34Z`.
 - Activation documentation branch: `docs/seo20-experiment-activation`.
-- Activation documentation PR: pending creation.
+- Activation documentation PR: `#442`.
 
 The public route returned HTTP `200` with exact title `Compare PER4M Prices
 Across UK Retailers | SupplementScout`, exactly one canonical
