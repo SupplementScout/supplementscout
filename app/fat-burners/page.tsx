@@ -1,150 +1,53 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import ProductResultCard from "../components/ProductResultCard";
-import { CATEGORY_LANDING_PAGE_SIZE } from "../lib/categoryLandingPagination";
+import CategoryCoverageLandingPage from "../components/CategoryCoverageLandingPage";
 import {
-  evaluateCategoryCoverage,
-  getCategoryCoverageDefinition,
-} from "../lib/categoryCoverage";
-import {
-  assertLifecycleDataAvailable,
-  getLifecycleRobots,
-  type RouteSearchParams,
-} from "../lib/indexabilityLifecycle";
-import { createLifecycleDataLoader } from "../lib/lifecycleDataCache";
-import { getLandingProducts } from "../lib/products";
+  createCategoryCoverageLanding,
+  type CategoryCoverageLandingConfig,
+  type CategoryCoverageLandingPageProps,
+} from "../lib/categoryCoverageLanding";
 
-const pagePath = "/fat-burners";
-const definition = getCategoryCoverageDefinition("fat-burners");
+const config = {
+  definitionKey: "fat-burners",
+  pagePath: "/fat-burners",
+  cacheVersion: "fat-burners-category-v1",
+  description:
+    "Compare current UK retailer prices for products with a reviewed Fat Burner identity.",
+  metadataProfile: "inherit-root-twitter",
+  presentation: {
+    pageTitle: "Compare Fat Burner Prices UK",
+    searchQuery: "Fat Burners",
+    eyebrow: "Reviewed category coverage",
+    intro:
+      "SupplementScout uses reviewed product identity rules for this category. Products based only on ingredients such as L-Carnitine, CLA or MCT are not automatically treated as Fat Burners.",
+    secondaryCopy:
+      "Current retailer availability and prices can change. Check the exact label, directions and retailer information before buying; this is a price comparison, not an effectiveness or suitability ranking.",
+    sectionTitle: "Current Fat Burner products",
+    emptyTitle: "No reviewed Fat Burner products available",
+    emptyDescription:
+      "No product currently meets the strong category membership rules.",
+  },
+} satisfies CategoryCoverageLandingConfig;
 
-if (!definition) {
-  throw new Error("Fat Burners category coverage definition is missing.");
-}
-const fatBurnersDefinition = definition;
-
-const description =
-  "Compare current UK retailer prices for products with a reviewed Fat Burner identity.";
-
-async function loadFatBurnerProducts() {
-  const result = await getLandingProducts(
-    [...fatBurnersDefinition.candidateQueries],
-    CATEGORY_LANDING_PAGE_SIZE,
-    {
-      productFilter: (product) =>
-        evaluateCategoryCoverage(fatBurnersDefinition, product).classification ===
-        "INCLUDE_STRONG",
-    }
-  );
-
-  return { ...result, error: Boolean(result.error) };
-}
-
-const getCachedFatBurnerProducts = createLifecycleDataLoader(
-  pagePath,
-  "fat-burners-category-v1",
-  loadFatBurnerProducts
-);
+const landing = createCategoryCoverageLanding(config);
 
 export const revalidate = 3600;
 export const dynamic = "force-dynamic";
 
-type PageProps = { searchParams?: Promise<RouteSearchParams> };
-
 export async function generateMetadata({
   searchParams,
-}: PageProps = {}): Promise<Metadata> {
-  const params = await (searchParams || Promise.resolve({}));
-
-  return {
-    title: "Compare Fat Burner Prices UK",
-    description,
-    robots: getLifecycleRobots(pagePath, params),
-    alternates: { canonical: pagePath },
-    openGraph: {
-      title: "Compare Fat Burner Prices UK | SupplementScout",
-      description,
-      url: pagePath,
-      type: "website",
-    },
-  };
+}: CategoryCoverageLandingPageProps = {}) {
+  return landing.generateMetadata(searchParams);
 }
 
-export default async function FatBurnersPage() {
-  const result = await getCachedFatBurnerProducts();
-  assertLifecycleDataAvailable(result, pagePath);
-  const rows = result.results;
+export default async function FatBurnersPage({
+  searchParams,
+}: CategoryCoverageLandingPageProps = {}) {
+  const result = await landing.load(searchParams);
 
   return (
-    <main className="min-h-screen bg-zinc-50 text-zinc-950">
-      <header className="border-b border-zinc-200 bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 sm:py-5">
-          <Link href="/" className="text-xl font-bold tracking-tight">
-            SupplementScout
-          </Link>
-          <Link
-            href="/search?q=Fat%20Burners"
-            className="text-sm font-semibold text-zinc-700 hover:text-zinc-950"
-          >
-            Search all products
-          </Link>
-        </div>
-      </header>
-
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
-        <div className="max-w-4xl">
-          <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
-            Reviewed category coverage
-          </p>
-          <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">
-            Compare Fat Burner Prices UK
-          </h1>
-          <p className="mt-5 text-base leading-7 text-zinc-700 sm:text-lg">
-            SupplementScout uses reviewed product identity rules for this
-            category. Products based only on ingredients such as L-Carnitine,
-            CLA or MCT are not automatically treated as Fat Burners.
-          </p>
-          <p className="mt-4 text-sm leading-6 text-zinc-600">
-            Current retailer availability and prices can change. Check the exact
-            label, directions and retailer information before buying; this is a
-            price comparison, not an effectiveness or suitability ranking.
-          </p>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
-              Strong category members
-            </p>
-            <h2 className="mt-2 text-2xl font-bold sm:text-3xl">
-              Current Fat Burner products
-            </h2>
-          </div>
-          <p className="text-sm text-zinc-600">
-            {rows.length} reviewed product{rows.length === 1 ? "" : "s"}
-          </p>
-        </div>
-
-        {rows.length === 0 && (
-          <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-6">
-            <h2 className="text-xl font-bold">
-              No reviewed Fat Burner products available
-            </h2>
-            <p className="mt-2 text-zinc-600">
-              No product currently meets the strong category membership rules.
-            </p>
-          </div>
-        )}
-
-        {rows.length > 0 && (
-          <div className="mt-6 space-y-4">
-            {rows.map((product) => (
-              <ProductResultCard key={product.id} product={product} />
-            ))}
-          </div>
-        )}
-      </section>
-    </main>
+    <CategoryCoverageLandingPage
+      pagePath={config.pagePath}
+      presentation={config.presentation}
+      result={result}
+    />
   );
 }
