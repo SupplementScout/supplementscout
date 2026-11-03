@@ -2,7 +2,7 @@
 
 Date: 2026-11-03
 
-Implementation state: local implementation verified; production closeout pending
+Implementation state: live and production-verified
 
 Starting `main`: `cc6e84e6e7c54b8ed8f2405b697991b3fccf39b3`
 
@@ -88,5 +88,57 @@ both focus-trap wraps, Escape close, link close, body-overflow restoration and
 the mobile-to-desktop transition passed. Disposable screenshots remain outside
 the repository.
 
-Feature PR evidence, merge/tree equivalence, deployment, live navigation and
-category regression smoke will be recorded here after production deployment.
+## Merge and deployment evidence
+
+- Feature branch: `fix/home-mobile-menu-overlay`
+- Feature commit and approved PR head:
+  `8c7a753067c4315caca7b9c421b3f72c568257e5`
+- Feature PR: `#457`, **Fix homepage mobile menu overlay**
+- PR gates: Project Guardian, Quality Gate, GitGuardian and Vercel passed; the
+  PR was clean, mergeable and had zero unresolved review threads
+- Guarded squash merge:
+  `337b5f857583bd62ad0d6165856b13b74cd7e5b6`
+- Feature-head and merged-main tree:
+  `eba3919f884e043cfda66055906ef4ead646a8fb`
+- Post-merge `main` Project Guardian run `41699789739`: passed
+- Post-merge `main` Quality Gate run `41699789950`: passed
+- Vercel production deployment `7528030481`: successful for the exact merge
+  SHA at `2026-11-03T19:05:22Z`
+
+## Read-only production evidence
+
+The homepage returned HTTP `200`. Headless Chrome checks completed at requested
+small-iPhone and modern-iPhone dimensions `320 x 568` and `390 x 844`, at
+`2026-11-03T19:06:35Z` and `2026-11-03T19:06:42Z`. The modern viewport produced
+an exact `390 x 844` dialog whose parent was `BODY`, with `position: fixed`,
+opaque `rgb(255, 255, 255)` background, `z-index: 100`, vertical scrolling,
+overscroll containment and no horizontal overflow. The narrow screenshot also
+showed the complete menu without clipping or overlap.
+
+In both checks the hero point was covered by a dialog child and no hero text or
+cookie prompt showed through the opaque menu. All four destinations were
+visible and unchanged: `#search`, `#categories`, `#goals` and `#how-it-works`.
+Close was visible. Initial focus was Close; Shift+Tab wrapped to How it works;
+Tab wrapped to Close. Escape removed the dialog, restored the original body
+overflow and focused Menu. Activating Search supplements removed the dialog,
+restored body overflow and reached `#search`. Resizing an open menu to desktop
+removed the dialog, restored body overflow, exposed the desktop navigation as
+`display: flex` and kept the mobile Menu control hidden. Disposable screenshots
+were not committed.
+
+The source/deployment binding is exact: GitHub's successful Production
+deployment is attached to merge SHA `337b5f857583bd62ad0d6165856b13b74cd7e5b6`,
+and the live browser observed the portalled `BODY` architecture introduced by
+that tree.
+
+At `2026-11-03T19:07:53Z`, read-only regression smoke confirmed Collagen, Fat
+Burners and Testosterone Boosters still returned `307` to `/collagen`,
+`/fat-burners` and `/testosterone-boosters`. The semantic routes returned
+`200` with unchanged unique counts Testosterone `11`, Fat `21`, Collagen `29`
+(`24 + 5`).
+
+Database writes, database-file changes, migrations, production-configuration
+changes, Search changes, Category Coverage changes, cookie configuration
+changes, SEO-20 changes and PER4M experiment changes were all `0`. SEO-20
+remains the sole SEO task `IN PROGRESS`, and its measurement freeze remains
+intact. Nootropics remains unstarted by this task.
