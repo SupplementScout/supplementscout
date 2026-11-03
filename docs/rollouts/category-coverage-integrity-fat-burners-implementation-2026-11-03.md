@@ -2,8 +2,7 @@
 
 Date: 2026-11-03
 
-Implementation state: feature implementation in progress; production closeout
-evidence pending
+Implementation state: feature merged and production-verified; closeout complete
 
 Starting `main`: `12708fd7ec127a1a24b3b4422f9a21f902b2ddcd`
 
@@ -55,8 +54,38 @@ the five existing reviewed category definitions, PER4M and SEO-20 are
 unchanged. SEO-20 remains the sole in-progress SEO task and its measurement
 freeze remains intact. Database writes for this implementation are `0`.
 
-## Evidence pending production closeout
+## Production closeout evidence
 
-The feature PR, approved head, merge SHA, tree equivalence, main CI, Vercel
-deployment, production route/readback metrics and docs-only closeout PR will be
-recorded here after the guarded feature merge and successful production smoke.
+Feature PR [#448](https://github.com/SupplementScout/supplementscout/pull/448)
+was squash-merged under the standing owner authorization after Project
+Guardian, Quality Gate, GitGuardian and Vercel passed with no unresolved review
+threads.
+
+- Approved feature head: `35d5e442d94897b850e70e7049d66980854947c6`.
+- Feature merge SHA: `6a4c28d678c960a9c07869d8d8b7ab7b6db2be9e`.
+- Approved-head tree and merge tree: identical
+  (`af71af5fcda78a5ea52c0c2625bdbebed839c306`).
+- Post-merge main Project Guardian: PASS, run `41656474258`.
+- Post-merge main Quality Gate: PASS, run `41656474264`.
+- Vercel production deployment: PASS, deployment
+  `2GV21hrserHEZSyDJirhHNKSSPzb`.
+- Production smoke completed: `2026-11-03T14:47:54.3889121Z`.
+
+The production `/fat-burners` route returned HTTP `200`, canonical
+`https://www.supplementscout.co.uk/fat-burners` and `noindex, follow`. It
+rendered exactly `21` unique product links. All `21/21` audited strong members
+were visible, missing strong members were `0`, strong false positives were `0`
+and all `16/16` review products were absent. Strong recall and precision were
+both `100%` against the accepted audit contract.
+
+The production homepage contained one `/fat-burners` href, zero old
+`/search?q=Fat%20Burners` homepage hrefs and one unchanged
+`/search?q=Weight%20Management` href. The old Fat Burners Search remained HTTP
+`200` with the baseline eight products. The production sitemap contained zero
+Fat Burners, Testosterone Boosters or Weight Management occurrences, and
+`/weight-management` returned `404`.
+
+Database writes were `0`; production configuration, lifecycle state, Search,
+breadcrumbs, canonical category labels, Testosterone Boosters, SEO-20 and
+PER4M remained unchanged. SEO-20 remained the sole in-progress SEO task and its
+measurement freeze remained intact.
