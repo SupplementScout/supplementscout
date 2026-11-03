@@ -13,8 +13,8 @@ Guardian `41623541134`, Quality Gate `41623540890`, Vercel production and
 read-only public checks of both exact reciprocal links passed. HTTP, canonical,
 robots, title, description and schema baselines remain unchanged.
 
-SEO-20 is now `CODE COMPLETE` and remains the next executable task; production
-deployment is pending and there are zero SEO feature tasks `IN PROGRESS`. SEO-18 and
+SEO-20 is now `IN PROGRESS` and remains the next executable task; the title
+experiment is live and it is the only SEO feature task `IN PROGRESS`. SEO-18 and
 SEO-15 remain `LIVE VERIFIED`; SEO-17 remains `PLANNED`; SEO-02B remains
 `BLOCKED`; public Stage 3 remains disabled and `DEFERRED / NOT READY` behind the
 unchanged `12 / 30 / 4` gate. See the
@@ -2441,9 +2441,9 @@ SEO-18 is complete and `LIVE VERIFIED`.
 
 SEO-19 is complete and `LIVE VERIFIED`.
 
-1. `SEO-20` is the next executable `CODE COMPLETE` task: the PER4M title-only
-   implementation and focused test are complete, while production deployment
-   and its isolated measurement contract remain pending;
+1. `SEO-20` is the next executable and sole `IN PROGRESS` task: the PER4M
+   title-only experiment is live from `2026-11-03T11:54:34Z` and remains under
+   its isolated measurement contract;
 2. keep `SEO-17` `PLANNED` until an exact, non-duplicative `/whey-protein`
    owner-reviewed decision-note payload passes a separate owner review;
 3. record Search Console and GA4 evidence weekly throughout the sequence;
@@ -4577,9 +4577,8 @@ operational evidence control.
 
 1. `SEO-18`: complete and `LIVE VERIFIED`.
 2. `SEO-19`: complete and `LIVE VERIFIED`.
-3. `SEO-20`: next executable and `CODE COMPLETE`; the PER4M title-only change
-   and focused contract test are complete, while guarded merge, production
-   verification and measurement activation remain pending.
+3. `SEO-20`: next executable and `IN PROGRESS`; the PER4M title-only experiment
+   is live and frozen while the 28-settled-day and volume gates accrue.
 4. `SEO-17`: remain `PLANNED` behind its exact, non-duplicative
    owner-reviewed `/whey-protein` note-payload gate.
 5. Continue weekly GSC/GA4 measurement; outbound outreach remains paused.
@@ -5009,10 +5008,10 @@ Target experience:
 
 ### Current active task
 
-`SEO-20` is the next executable SEO task and is `CODE COMPLETE`; its bounded
-title-only implementation and focused test are complete while production
-deployment remains pending. SEO-19 and SEO-18 are `LIVE VERIFIED`. No SEO
-feature task is currently `IN PROGRESS`. SEO-15 is `LIVE VERIFIED` after the owner-authorized
+`SEO-20` is the next executable SEO task and the sole `IN PROGRESS` task. Its
+bounded title-only experiment is live in production from
+`2026-11-03T11:54:34Z` and remains frozen during measurement. SEO-19 and SEO-18
+are `LIVE VERIFIED`. SEO-15 is `LIVE VERIFIED` after the owner-authorized
 3 November closeout. Its shared automatic candidate inventory and scheduled
 read-only audit continue as operational monitoring, not active implementation.
 Public Stage 3 remains disabled and deferred at current breadth `1 / 1 / 1`
@@ -5175,8 +5174,7 @@ conservative external-session signal and make no conversion claim.
 ### Then
 
 1. Keep SEO-18 and SEO-19 `LIVE VERIFIED`, with SEO-20 as the next executable
-   `CODE COMPLETE` task pending guarded merge, production verification and
-   measurement activation. `SEO-17` remains
+   and sole `IN PROGRESS` task under its settled-day and volume gates. `SEO-17` remains
    `PLANNED` behind its separate owner-content gate. SEO-15 and SEO-16 are
    already live verified.
 2. Continue the SEO-15 scheduled read-only evidence monitor without treating it
