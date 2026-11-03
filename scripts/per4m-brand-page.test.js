@@ -50,6 +50,7 @@ const categoryComparison = compileModule(
 );
 const brandPath = path.join(root, "app/lib/per4mBrand.ts");
 const pagePath = path.join(root, "app/brands/per4m/page.tsx");
+const layoutPath = path.join(root, "app/layout.tsx");
 const fixtureNow = new Date("2026-08-20T12:00:00.000Z");
 
 function rawOffer(overrides = {}) {
@@ -227,17 +228,44 @@ test("production query is exact and bounded", () => {
 test("metadata, JSON-LD and visible page pass the brand quality contract", async () => {
   const { page } = loadPage();
   const metadata = await page.generateMetadata();
+  const layout = fs.readFileSync(layoutPath, "utf8");
+  assert.equal(metadata.title, "Compare PER4M Prices Across UK Retailers");
+  assert.match(layout, /template: "%s \| SupplementScout"/);
+  assert.equal(
+    `${metadata.title} | SupplementScout`,
+    "Compare PER4M Prices Across UK Retailers | SupplementScout"
+  );
+  assert.equal(
+    metadata.description,
+    "Compare current Per4m product prices from UK supplement retailers, including known delivery, retailer coverage and recently checked offers."
+  );
   assert.equal(metadata.robots.index, true);
+  assert.equal(metadata.robots.follow, true);
   assert.equal(metadata.alternates.canonical, "/brands/per4m");
+  assert.equal(metadata.openGraph.title, "Per4m Products & Prices UK | SupplementScout");
+  assert.equal(
+    metadata.openGraph.description,
+    "Compare current Per4m product prices from UK supplement retailers, including known delivery, retailer coverage and recently checked offers."
+  );
+  assert.equal(metadata.twitter.title, "Per4m Products & Prices UK | SupplementScout");
+  assert.equal(
+    metadata.twitter.description,
+    "Compare current Per4m product prices from UK supplement retailers, including known delivery, retailer coverage and recently checked offers."
+  );
   const result = passingResult();
   assert.equal(page.isPer4mStructuredDataValid(result.rows), true);
-  const json = JSON.stringify(page.buildPer4mStructuredData(result.rows));
+  const structuredData = page.buildPer4mStructuredData(result.rows);
+  const collectionPage = structuredData["@graph"].find((node) => node["@type"] === "CollectionPage");
+  const itemList = structuredData["@graph"].find((node) => node["@type"] === "ItemList");
+  assert.equal(collectionPage.name, "Per4m Products & Prices UK");
+  assert.equal(itemList.name, "Per4m products with recently checked UK retailer offers");
+  const json = JSON.stringify(structuredData);
   assert.match(json, /CollectionPage/);
   assert.match(json, /ItemList/);
   assert.match(json, /BreadcrumbList/);
   assert.doesNotMatch(json, /\"@type\":\"Product\"|seller|rating|review/i);
   const html = renderToStaticMarkup(React.createElement(page.Per4mPageContent, { result }));
-  assert.match(html, /Per4m Products &amp; Prices UK/);
+  assert.match(html, /<h1[^>]*>Per4m Products &amp; Prices UK<\/h1>/);
   assert.match(html, /independent comparison service/);
   assert.match(html, /checked within 24 hours/);
   assert.match(html, /https:\/\/per4mbetter\.com\/collections\/all/);
@@ -265,6 +293,15 @@ test("Per4m has bounded sitemap, homepage, product and analytics links", () => {
   assert.equal((sitemap.match(/brands\/per4m/g) || []).length, 1);
   assert.match(home, /Per4m.*\/brands\/per4m/);
   assert.match(product, /product\.brand === "Per4m"[\s\S]*"\/brands\/per4m"/);
+  for (const [href, expectedCount] of [
+    ["/whey-protein", 1],
+    ["/whey-isolate", 1],
+    ["/pre-workout", 1],
+    ["/search?brand=Per4m", 3],
+  ]) {
+    assert.equal(page.split(`href="${href}"`).length - 1, expectedCount);
+  }
+  assert.match(page, /<ComparisonTransparencyLinks \/>/);
   assert.match(page, /sourcePage="per4m_brand"/);
 });
 

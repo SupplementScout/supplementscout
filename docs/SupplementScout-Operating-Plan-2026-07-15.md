@@ -13,12 +13,13 @@ Guardian `41623541134`, Quality Gate `41623540890`, Vercel production and
 read-only public checks of both exact reciprocal links passed. HTTP, canonical,
 robots, title, description and schema baselines remain unchanged.
 
-SEO-20 is now the next executable task and remains `PLANNED`; its implementation
-has not started and there are zero SEO feature tasks `IN PROGRESS`. SEO-18 and
+SEO-20 is now `CODE COMPLETE` and remains the next executable task; production
+deployment is pending and there are zero SEO feature tasks `IN PROGRESS`. SEO-18 and
 SEO-15 remain `LIVE VERIFIED`; SEO-17 remains `PLANNED`; SEO-02B remains
 `BLOCKED`; public Stage 3 remains disabled and `DEFERRED / NOT READY` behind the
 unchanged `12 / 30 / 4` gate. See the
-[dated implementation record](rollouts/seo19-vitamins-multivitamins-links-2026-11-03.md).
+[SEO-19 implementation record](rollouts/seo19-vitamins-multivitamins-links-2026-11-03.md)
+and the [SEO-20 experiment record](rollouts/seo20-per4m-title-experiment-2026-11-03.md).
 
 **3 November 2026 owner-authorized SEO-15 closeout:** SEO-15 is formally
 `LIVE VERIFIED` based on successful ordinary scheduled run `41488694982` and
@@ -2440,9 +2441,9 @@ SEO-18 is complete and `LIVE VERIFIED`.
 
 SEO-19 is complete and `LIVE VERIFIED`.
 
-1. `SEO-20` is the next executable `PLANNED` task: the PER4M title-only
-   experiment and its isolated measurement contract; implementation has not
-   started;
+1. `SEO-20` is the next executable `CODE COMPLETE` task: the PER4M title-only
+   implementation and focused test are complete, while production deployment
+   and its isolated measurement contract remain pending;
 2. keep `SEO-17` `PLANNED` until an exact, non-duplicative `/whey-protein`
    owner-reviewed decision-note payload passes a separate owner review;
 3. record Search Console and GA4 evidence weekly throughout the sequence;
@@ -4576,9 +4577,9 @@ operational evidence control.
 
 1. `SEO-18`: complete and `LIVE VERIFIED`.
 2. `SEO-19`: complete and `LIVE VERIFIED`.
-3. `SEO-20`: next executable and `PLANNED`; run the PER4M title-only experiment
-   only under its applicable implementation and merge gate. Implementation has
-   not started.
+3. `SEO-20`: next executable and `CODE COMPLETE`; the PER4M title-only change
+   and focused contract test are complete, while guarded merge, production
+   verification and measurement activation remain pending.
 4. `SEO-17`: remain `PLANNED` behind its exact, non-duplicative
    owner-reviewed `/whey-protein` note-payload gate.
 5. Continue weekly GSC/GA4 measurement; outbound outreach remains paused.
@@ -5008,9 +5009,10 @@ Target experience:
 
 ### Current active task
 
-`SEO-20` is the next executable SEO task and remains `PLANNED`; implementation
-has not started. SEO-19 and SEO-18 are `LIVE VERIFIED`. No SEO feature task is
-currently `IN PROGRESS`. SEO-15 is `LIVE VERIFIED` after the owner-authorized
+`SEO-20` is the next executable SEO task and is `CODE COMPLETE`; its bounded
+title-only implementation and focused test are complete while production
+deployment remains pending. SEO-19 and SEO-18 are `LIVE VERIFIED`. No SEO
+feature task is currently `IN PROGRESS`. SEO-15 is `LIVE VERIFIED` after the owner-authorized
 3 November closeout. Its shared automatic candidate inventory and scheduled
 read-only audit continue as operational monitoring, not active implementation.
 Public Stage 3 remains disabled and deferred at current breadth `1 / 1 / 1`
@@ -5173,8 +5175,8 @@ conservative external-session signal and make no conversion claim.
 ### Then
 
 1. Keep SEO-18 and SEO-19 `LIVE VERIFIED`, with SEO-20 as the next executable
-   `PLANNED` task under its applicable gate. Do not start SEO-20 as part of this
-   closeout. `SEO-17` remains
+   `CODE COMPLETE` task pending guarded merge, production verification and
+   measurement activation. `SEO-17` remains
    `PLANNED` behind its separate owner-content gate. SEO-15 and SEO-16 are
    already live verified.
 2. Continue the SEO-15 scheduled read-only evidence monitor without treating it

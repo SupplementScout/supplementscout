@@ -18,10 +18,12 @@ SEO-19 is `LIVE VERIFIED`. PR `#439` merged as production
 of the two exact reciprocal links passed. Both routes retained their HTTP,
 canonical, robots, title, description and schema baselines.
 
-SEO-20 is now the next executable task and remains `PLANNED`; its implementation
-has not started. No SEO feature task is `IN PROGRESS`. SEO-18 and SEO-15 remain
-`LIVE VERIFIED`; SEO-17 remains `PLANNED`; SEO-02B remains `BLOCKED`. Public
-Stage 3 remains deferred and disabled.
+SEO-20 is now `CODE COMPLETE` and remains the next executable task. Its bounded
+title-only implementation and focused test are complete; production deployment
+is pending. No SEO feature task is `IN PROGRESS`. SEO-18 and SEO-15 remain `LIVE
+VERIFIED`; SEO-17 remains `PLANNED`; SEO-02B remains `BLOCKED`. Public Stage 3
+remains deferred and disabled. See the
+[dated experiment record](../rollouts/seo20-per4m-title-experiment-2026-11-03.md).
 
 SEO-15 is `LIVE VERIFIED` after the owner-authorized documentation closeout
 based on ordinary scheduled run `41488694982` and its verified post-60-day
@@ -753,9 +755,9 @@ SEO-18 is complete and `LIVE VERIFIED`.
 
 SEO-19 is complete and `LIVE VERIFIED`.
 
-1. `SEO-20` is the next executable `PLANNED` task: the PER4M title-only
-   experiment under its applicable approval gate. Implementation has not
-   started.
+1. `SEO-20` is the next executable `CODE COMPLETE` task: the PER4M title-only
+   change and focused test are complete; guarded merge, production verification
+   and measurement activation remain pending.
 2. Keep `SEO-17` `PLANNED` until an exact, non-duplicative owner-reviewed
    `/whey-protein` note payload passes its separate owner gate.
 3. Record Search Console and GA4 evidence weekly, including organic visibility,

@@ -16,12 +16,14 @@ production deployment passed.
 Read-only public checks returned HTTP `200` for `/vitamins` and
 `/multivitamins`, exactly one reciprocal link in each approved existing section
 with the exact anchors, and no visible/runtime error. Canonical, robots, title,
-description and schema baselines were unchanged. SEO-20 is now the next
-executable task and remains `PLANNED`; there are zero SEO tasks `IN PROGRESS`.
+description and schema baselines were unchanged. SEO-20 is now `CODE COMPLETE`
+and remains the next executable task; production deployment is pending and
+there are zero SEO tasks `IN PROGRESS`.
 SEO-18 and SEO-15 remain `LIVE VERIFIED`; SEO-17 remains `PLANNED`; SEO-02B
 remains `BLOCKED`; public Stage 3 remains `DEFERRED / NOT READY` behind the
 unchanged `12 / 30 / 4` gate. See the
-[dated implementation record](rollouts/seo19-vitamins-multivitamins-links-2026-11-03.md).
+[SEO-19 implementation record](rollouts/seo19-vitamins-multivitamins-links-2026-11-03.md)
+and the [SEO-20 experiment record](rollouts/seo20-per4m-title-experiment-2026-11-03.md).
 
 **3 November 2026 owner-authorized SEO-15 closeout:** ordinary scheduled run
 `41488694982` completed successfully on `main` and captured the final read-only
@@ -286,13 +288,16 @@ Console evidence and user value.
 | SEO-17 | P2 | Add owner-reviewed expert decision notes. | `PLANNED` | Before implementation, the owner must supply an exact, non-duplicative `/whey-protein` decision-note payload that adds value distinct from Help Me Choose, CategoryDecisionPanel, Quick Comparison, Better Value Alternatives and existing whey copy. Expert judgement must be clearly labelled and dated, verified facts retain provenance, and unsupported medical or formulation claims cannot publish. |
 | SEO-18 | P1 | Add the homepage self-canonical and one clean Help Me Choose sitemap entry. | `LIVE VERIFIED` | PR `#437` merged as production `75097fc49deeb1e9dfce582d7602c6b6c5b107c3`; tree equivalence, main Quality Gate `41614046140`, Vercel deployment and public homepage, Help Me Choose base/parameter and sitemap contracts all passed with no title, description, robots, behavior, schema or lifecycle-registry regression. |
 | SEO-19 | P1 | Add reciprocal Vitamins and Multivitamins contextual links. | `LIVE VERIFIED` | PR `#439` merged as production `4bb719091cc762e806e96c097a49251ff756212d`; tree equivalence, main Project Guardian `41623541134`, Quality Gate `41623540890`, Vercel deployment and public HTTP, link-placement, anchor, canonical, robots, metadata and schema checks passed. No loader, pagination, indexability, data or generic link-system regression occurred. |
-| SEO-20 | P1 | Run the PER4M title-only CTR experiment. | `PLANNED` | After SEO-19 is `LIVE VERIFIED` and a separate implementation/merge approval, change only `/brands/per4m` title to `Compare PER4M Prices Across UK Retailers | SupplementScout`; freeze title, meta, H1, body, schema, direct anchors and data presentation during measurement except for a production regression; observe at least 28 settled days, 500 page impressions and 300 brand-navigational query impressions; primary success is CTR improvement without material ranking deterioration. |
+| SEO-20 | P1 | Run the PER4M title-only CTR experiment. | `CODE COMPLETE` | Owner-authorized branch changes only `/brands/per4m` metadata title so the existing root template renders `Compare PER4M Prices Across UK Retailers | SupplementScout`; focused tests pass and production deployment is pending. Freeze the deployed title, meta, H1, body, schema, direct anchors and data presentation during measurement except for a production regression; observe at least 28 settled days, 500 page impressions and 300 brand-navigational query impressions; primary success is CTR improvement without material ranking deterioration. |
 
 ## 6. Current active task
 
-**Next executable task:** SEO-20 is `PLANNED`. SEO-19 and SEO-18 are complete
-and `LIVE VERIFIED`; there are currently zero SEO tasks `IN PROGRESS`. SEO-20
-implementation has not started.
+**Next executable task:** SEO-20 is `CODE COMPLETE`. SEO-19 and SEO-18 are
+complete and `LIVE VERIFIED`; there are currently zero SEO tasks `IN PROGRESS`.
+The title-only implementation and focused contract test are complete on the
+feature branch, while production deployment and experiment activation remain
+pending. See the
+[dated experiment record](rollouts/seo20-per4m-title-experiment-2026-11-03.md).
 
 SEO-15 is `LIVE VERIFIED`. Owner-authorized closeout used ordinary scheduled
 run `41488694982` and artifact `13162932296`: `813/813` series pass 60-day
