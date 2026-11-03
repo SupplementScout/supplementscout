@@ -265,3 +265,17 @@ test("landing data retrieval walks every database page before slicing results", 
   );
   assert.match(source, /matchingResults\.slice\(startIndex, startIndex \+ pageSize\)/);
 });
+
+test("Nootropics route preserves neutral reviewed-identity copy in the shared architecture", () => {
+  const route = fs.readFileSync(
+    path.join(process.cwd(), "app", "nootropics", "page.tsx"),
+    "utf8"
+  );
+
+  assert.match(route, /definitionKey: "nootropics"/);
+  assert.match(route, /pagePath: "\/nootropics"/);
+  assert.match(route, /cacheVersion: "nootropics-category-v1"/);
+  assert.match(route, /reviewed Nootropic identity/);
+  assert.match(route, /Standalone cognitive ingredients and ordinary focus claims/);
+  assert.doesNotMatch(route, /\b(?:best|top|recommended)\b/i);
+});
