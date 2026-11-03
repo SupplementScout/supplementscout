@@ -54,7 +54,7 @@ export async function generateMetadata({ searchParams }: PageProps = {}): Promis
   const params = await (searchParams || Promise.resolve({}));
 
   return {
-    title: "Per4m Products & Prices UK",
+    title: "Compare PER4M Prices Across UK Retailers",
     description,
     robots: getLifecycleRobots(pagePath, params),
     alternates: { canonical: pagePath },
