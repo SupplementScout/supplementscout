@@ -2,8 +2,9 @@
 
 ## Authority and baseline
 
-The owner authorized only the bounded SEO-18 implementation and PR preparation.
-Production merge and production writes remain outside this authority.
+The initial authority covered the bounded SEO-18 implementation and PR
+preparation. The owner later authorized the exact guarded squash merge and the
+standing roadmap authority covers this documentation-only production closeout.
 
 - Starting `main`: `b806a4ea53fd1a151a930eb938949ea87b2bbdfa`.
 - Starting `origin/main`: `b806a4ea53fd1a151a930eb938949ea87b2bbdfa`.
@@ -54,13 +55,24 @@ changed.
 
 ## Release state and next gate
 
-SEO-18 is `CODE COMPLETE`, not `LIVE VERIFIED`. It remains the next executable
-task with zero SEO tasks `IN PROGRESS`. SEO-19, SEO-20 and SEO-17 remain
-`PLANNED`; SEO-02B remains `BLOCKED`; SEO-15 remains `LIVE VERIFIED`; public
-Stage 3 remains disabled and `DEFERRED / NOT READY`.
+## Production merge and verification
 
-The PR must remain open until the owner provides a fresh explicit merge
-authorization. After an authorized merge, production readback must verify the
-homepage canonical and unchanged title/description, Help Me Choose base and
-parameter canonical/robots behavior, and exactly one clean sitemap URL before
-SEO-18 may become `LIVE VERIFIED` or SEO-19 may begin.
+- PR: `#437`.
+- Approved head: `3e5bdac1bcbedc14cf37c8831c93604d63804f5b`.
+- Final squash-main: `75097fc49deeb1e9dfce582d7602c6b6c5b107c3`.
+- Approved-head/final-main tree equivalence: pass.
+- Main Quality Gate run `41614046140`: pass.
+- Vercel production deployment: success.
+- Homepage: HTTP `200`, exactly one canonical normalizing to
+  `https://www.supplementscout.co.uk/`, unchanged title and description.
+- Help Me Choose base: HTTP `200`, base canonical, `index, follow`.
+- Help Me Choose `?q=creatine`: HTTP `200`, base canonical, `noindex, follow`.
+- Sitemap: HTTP `200`, exactly one clean Help Me Choose URL, `weekly`, priority
+  `0.8`, no `lastmod`, no parameter URL and no `/search` entry.
+
+SEO-18 is `LIVE VERIFIED`. SEO-19 is the next executable task and remains
+`PLANNED`; zero SEO tasks are `IN PROGRESS`. SEO-20 and SEO-17 remain `PLANNED`;
+SEO-02B remains `BLOCKED`; SEO-15 remains `LIVE VERIFIED`; public Stage 3
+remains disabled and `DEFERRED / NOT READY` behind the unchanged `12 / 30 / 4`
+gate. The closeout made no database, configuration, threshold, producer or
+external-service mutation.

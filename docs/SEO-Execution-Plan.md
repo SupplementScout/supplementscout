@@ -6,22 +6,21 @@
 pages, structured data, measurement and authority building.  
 **Parent authority:** `docs/SupplementScout-Operating-Plan-2026-07-15.md`
 
-**3 November 2026 owner-authorized SEO-18 implementation:** the bounded
-homepage canonical and Help Me Choose sitemap change is `CODE COMPLETE` on
-branch `feat/seo18-home-canonical-hmc-sitemap`. The homepage now declares only
-`alternates.canonical = "/"`, inheriting the existing layout title and
-description through the production `metadataBase`. The sitemap now contains
-exactly one clean `/help-me-choose` base URL with weekly frequency, priority
-`0.8` and no `lastModified`, query URL or `/search` entry. Help Me Choose page
-behavior, base/parameter robots, canonical behavior, copy, schema and lifecycle
-registries are unchanged.
+**3 November 2026 SEO-18 production closeout:** SEO-18 is `LIVE VERIFIED`.
+PR `#437` merged approved head
+`3e5bdac1bcbedc14cf37c8831c93604d63804f5b` as final production `main`
+`75097fc49deeb1e9dfce582d7602c6b6c5b107c3`; tree equivalence passed. Main
+Quality Gate run `41614046140` and Vercel production deployment passed.
+Read-only production checks returned HTTP `200`, exactly one homepage canonical
+normalizing to `https://www.supplementscout.co.uk/`, unchanged title and
+description, the existing Help Me Choose base `index, follow`, parameter state
+`noindex, follow`, and exactly one weekly-priority-0.8 sitemap entry with no
+`lastmod`, parameter URL or `/search` entry.
 
-Focused tests pass `18/18`; TypeScript, lint, the quick gate, the full gate and
-the production build pass. SEO-18 remains the next executable task at `CODE
-COMPLETE` until a separately owner-authorized production merge and live
-verification. There are zero SEO tasks `IN PROGRESS`. SEO-19, SEO-20 and SEO-17
-remain `PLANNED`; SEO-02B remains `BLOCKED`; SEO-15 remains `LIVE VERIFIED` and
-public Stage 3 remains `DEFERRED / NOT READY`. See the
+SEO-19 is now the next executable task and remains `PLANNED`; there are zero SEO
+tasks `IN PROGRESS`. SEO-20 and SEO-17 remain `PLANNED`; SEO-02B remains
+`BLOCKED`; SEO-15 remains `LIVE VERIFIED`; public Stage 3 remains `DEFERRED /
+NOT READY` behind the unchanged `12 / 30 / 4` gate. See the
 [dated implementation record](rollouts/seo18-home-canonical-hmc-sitemap-2026-11-03.md).
 
 **3 November 2026 owner-authorized SEO-15 closeout:** ordinary scheduled run
@@ -285,16 +284,14 @@ Console evidence and user value.
 | SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `LIVE VERIFIED` | Stage 1/P0, approved Stage 2A producers, the bounded default-off canary and the automatic read-only monitor are production verified. Final ordinary scheduled run `41488694982` proves `813/813` 60-day maturity and zero writes. Owner closeout decision: `COMPLETE_WITH_STAGE3_DEFERRED`. Public Stage 3 remains disabled and not ready at `1 product / 1 candidate / 1 represented retailer` against the unchanged `12 / 30 / 4` gate; monitoring continues operationally with no backfill or automatic producer approval. |
 | SEO-16 | P1 | Launch guarded two-product comparison. | `LIVE VERIFIED` | Commit `7eec604` deployed the owner-approved lifecycle launch on 26 August 2026. Public base and pair checks passed HTTP, robots, canonical, exact-pack and delivered-price contracts; the homepage link and exactly one sitemap entry were verified. |
 | SEO-17 | P2 | Add owner-reviewed expert decision notes. | `PLANNED` | Before implementation, the owner must supply an exact, non-duplicative `/whey-protein` decision-note payload that adds value distinct from Help Me Choose, CategoryDecisionPanel, Quick Comparison, Better Value Alternatives and existing whey copy. Expert judgement must be clearly labelled and dated, verified facts retain provenance, and unsupported medical or formulation claims cannot publish. |
-| SEO-18 | P1 | Add the homepage self-canonical and one clean Help Me Choose sitemap entry. | `CODE COMPLETE` | Owner-authorized implementation adds only homepage `alternates.canonical = "/"` and exactly one weekly-priority-0.8 `/help-me-choose` sitemap URL. Existing title/description inheritance, Help Me Choose base `index, follow`, parameter `noindex, follow`, base canonical, behavior, copy, schema and lifecycle registries remain unchanged. Focused tests, TypeScript, lint, quick/full gates and production build pass; production merge and live verification remain separately owner-gated. |
+| SEO-18 | P1 | Add the homepage self-canonical and one clean Help Me Choose sitemap entry. | `LIVE VERIFIED` | PR `#437` merged as production `75097fc49deeb1e9dfce582d7602c6b6c5b107c3`; tree equivalence, main Quality Gate `41614046140`, Vercel deployment and public homepage, Help Me Choose base/parameter and sitemap contracts all passed with no title, description, robots, behavior, schema or lifecycle-registry regression. |
 | SEO-19 | P1 | Add reciprocal Vitamins and Multivitamins contextual links. | `PLANNED` | After SEO-18 is `LIVE VERIFIED`, add `/vitamins` to `/multivitamins` with anchor `Multivitamins` and `/multivitamins` to `/vitamins` with anchor `Vitamins and minerals`; make no metadata, schema, loader, pagination or generic link-expansion change; pass focused tests, quality gates and live verification. |
 | SEO-20 | P1 | Run the PER4M title-only CTR experiment. | `PLANNED` | After SEO-19 is `LIVE VERIFIED` and a separate implementation/merge approval, change only `/brands/per4m` title to `Compare PER4M Prices Across UK Retailers | SupplementScout`; freeze title, meta, H1, body, schema, direct anchors and data presentation during measurement except for a production regression; observe at least 28 settled days, 500 page impressions and 300 brand-navigational query impressions; primary success is CTR improvement without material ranking deterioration. |
 
 ## 6. Current active task
 
-**Next executable task:** SEO-18 is `CODE COMPLETE`. The bounded implementation
-is ready for separate owner merge authorization and production live
-verification; it is not `LIVE VERIFIED` and has not been merged. There are
-currently zero SEO tasks `IN PROGRESS`.
+**Next executable task:** SEO-19 is `PLANNED`. SEO-18 is complete and `LIVE
+VERIFIED`; there are currently zero SEO tasks `IN PROGRESS`.
 
 SEO-15 is `LIVE VERIFIED`. Owner-authorized closeout used ordinary scheduled
 run `41488694982` and artifact `13162932296`: `813/813` series pass 60-day
@@ -338,9 +335,9 @@ priority changes still require named evidence, explicit owner approval and a
 Roadmap Steward alignment across the authoritative documents.
 
 Follow the binding sequence in Operating Plan section 0.0.7: SEO-15 and SEO-16
-are complete and `LIVE VERIFIED`; `SEO-18` is the next executable task and is
-`CODE COMPLETE` pending separate merge authorization and live verification.
-SEO-19 and SEO-20 remain `PLANNED` behind it. `SEO-17` remains `PLANNED`
+are complete and `LIVE VERIFIED`; SEO-18 is also `LIVE VERIFIED`. `SEO-19` is
+the next executable task and remains `PLANNED`, followed by planned SEO-20.
+`SEO-17` remains `PLANNED`
 pending its exact owner-content gate. SEO-13 and SEO-14 are complete, and the 250-product
 multi-retailer checkpoint is independently verified complete.
 SEO-07 measurement and SEO-12 legitimate authority work are continuous evidence
@@ -480,6 +477,26 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 3 November 2026 - SEO-18 homepage canonical and Help Me Choose sitemap LIVE VERIFIED
+
+- PR `#437` preserved exact approved head
+  `3e5bdac1bcbedc14cf37c8831c93604d63804f5b` and squash-merged to final
+  production `main` `75097fc49deeb1e9dfce582d7602c6b6c5b107c3`.
+  The approved-head and squash-main tree hashes were identical.
+- Project Guardian passed before and after merge; main Quality Gate run
+  `41614046140` passed and Vercel reported the final SHA deployed successfully.
+- Public homepage readback returned HTTP `200`, one canonical normalizing to
+  `https://www.supplementscout.co.uk/`, and the unchanged title and description.
+- Public `/help-me-choose` returned HTTP `200`, its base canonical and `index,
+  follow`; `?q=creatine` retained the base canonical and `noindex, follow`.
+- Public sitemap returned HTTP `200` with exactly one clean Help Me Choose URL,
+  `weekly`, priority `0.8`, no `lastmod`, no parameter state and no `/search`
+  entry. No visual/runtime regression was observed.
+- No migration, database write, manual workflow, production configuration,
+  GitHub variable, threshold, producer approval, Stage 3 change or new external
+  service occurred. SEO-18 is `LIVE VERIFIED`; SEO-19 is the next executable
+  `PLANNED` task and zero SEO tasks are `IN PROGRESS`.
 
 ### 3 November 2026 - SEO-18 homepage canonical and Help Me Choose sitemap CODE COMPLETE
 
