@@ -16,9 +16,9 @@ production deployment passed.
 Read-only public checks returned HTTP `200` for `/vitamins` and
 `/multivitamins`, exactly one reciprocal link in each approved existing section
 with the exact anchors, and no visible/runtime error. Canonical, robots, title,
-description and schema baselines were unchanged. SEO-20 is now `CODE COMPLETE`
-and remains the next executable task; production deployment is pending and
-there are zero SEO tasks `IN PROGRESS`.
+description and schema baselines were unchanged. SEO-20 is now `IN PROGRESS`
+and remains the next executable task; the title experiment is live and it is
+the only SEO task `IN PROGRESS`.
 SEO-18 and SEO-15 remain `LIVE VERIFIED`; SEO-17 remains `PLANNED`; SEO-02B
 remains `BLOCKED`; public Stage 3 remains `DEFERRED / NOT READY` behind the
 unchanged `12 / 30 / 4` gate. See the
@@ -288,15 +288,15 @@ Console evidence and user value.
 | SEO-17 | P2 | Add owner-reviewed expert decision notes. | `PLANNED` | Before implementation, the owner must supply an exact, non-duplicative `/whey-protein` decision-note payload that adds value distinct from Help Me Choose, CategoryDecisionPanel, Quick Comparison, Better Value Alternatives and existing whey copy. Expert judgement must be clearly labelled and dated, verified facts retain provenance, and unsupported medical or formulation claims cannot publish. |
 | SEO-18 | P1 | Add the homepage self-canonical and one clean Help Me Choose sitemap entry. | `LIVE VERIFIED` | PR `#437` merged as production `75097fc49deeb1e9dfce582d7602c6b6c5b107c3`; tree equivalence, main Quality Gate `41614046140`, Vercel deployment and public homepage, Help Me Choose base/parameter and sitemap contracts all passed with no title, description, robots, behavior, schema or lifecycle-registry regression. |
 | SEO-19 | P1 | Add reciprocal Vitamins and Multivitamins contextual links. | `LIVE VERIFIED` | PR `#439` merged as production `4bb719091cc762e806e96c097a49251ff756212d`; tree equivalence, main Project Guardian `41623541134`, Quality Gate `41623540890`, Vercel deployment and public HTTP, link-placement, anchor, canonical, robots, metadata and schema checks passed. No loader, pagination, indexability, data or generic link-system regression occurred. |
-| SEO-20 | P1 | Run the PER4M title-only CTR experiment. | `CODE COMPLETE` | Owner-authorized branch changes only `/brands/per4m` metadata title so the existing root template renders `Compare PER4M Prices Across UK Retailers | SupplementScout`; focused tests pass and production deployment is pending. Freeze the deployed title, meta, H1, body, schema, direct anchors and data presentation during measurement except for a production regression; observe at least 28 settled days, 500 page impressions and 300 brand-navigational query impressions; primary success is CTR improvement without material ranking deterioration. |
+| SEO-20 | P1 | Run the PER4M title-only CTR experiment. | `IN PROGRESS` | PR `#441` deployed production `4930dd541629ef06a919abe78992e52db5c8e97e`; public smoke at `2026-11-03T11:54:34Z` proved the exact browser title `Compare PER4M Prices Across UK Retailers | SupplementScout` and frozen-field parity. Freeze the deployed title, meta, H1, body, schema, direct anchors and data presentation during measurement except for a production regression; observe at least 28 settled days, 500 page impressions and 300 brand-navigational query impressions; primary success is CTR improvement without material ranking deterioration. |
 
 ## 6. Current active task
 
-**Next executable task:** SEO-20 is `CODE COMPLETE`. SEO-19 and SEO-18 are
-complete and `LIVE VERIFIED`; there are currently zero SEO tasks `IN PROGRESS`.
-The title-only implementation and focused contract test are complete on the
-feature branch, while production deployment and experiment activation remain
-pending. See the
+**Next executable task:** SEO-20 is `IN PROGRESS`. SEO-19 and SEO-18 are
+complete and `LIVE VERIFIED`; SEO-20 is the only SEO task `IN PROGRESS`. The
+title-only experiment is live in production and the measurement clock started
+at `2026-11-03T11:54:34Z`. It is not `LIVE VERIFIED` and cannot be evaluated
+until both the settled-day and volume thresholds pass. See the
 [dated experiment record](rollouts/seo20-per4m-title-experiment-2026-11-03.md).
 
 SEO-15 is `LIVE VERIFIED`. Owner-authorized closeout used ordinary scheduled
@@ -483,6 +483,32 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 3 November 2026 - SEO-20 PER4M title experiment IN PROGRESS
+
+- PR `#441` preserved approved head
+  `0204a9c04a1f927bf359d5b0e63f743128a4fc0a` and squash-merged as production
+  `main` `4930dd541629ef06a919abe78992e52db5c8e97e`; both trees equal
+  `9243c44cbbfcd30f8e58803c09d620f11f768734`.
+- PR Project Guardian, Quality Gate, GitGuardian and Vercel Preview passed.
+  Main Project Guardian `41630798548`, Quality Gate `41630798504` and Vercel
+  production deployment `83TXgMLWzzDnmCayrH6edVY1UUYs` passed.
+- Public smoke at `2026-11-03T11:54:34Z` returned HTTP `200` and exact browser
+  title `Compare PER4M Prices Across UK Retailers | SupplementScout`. Canonical,
+  robots, description, H1, body, Open Graph/Twitter, structured data, links,
+  analytics and data presentation matched baseline; the whole `<main>` SHA-256
+  remained `fbab4e8f93a478bb22d6af532609d5862818c2de165fce10b8839a437da610b5`.
+  Headless Chrome rendered the exact title and unchanged H1 with no runtime or
+  visible regression.
+- SEO-20 is `IN PROGRESS`, not `LIVE VERIFIED`. Measurement requires at least
+  28 settled post-deployment days, 500 page impressions and 300
+  brand-navigational query impressions. The primary question remains CTR
+  improvement without material ranking deterioration.
+- The title and all declared frozen fields stay unchanged except to repair a
+  genuine production regression. No parallel PER4M or Magnesium title
+  experiment may start. No migration, database write, manual workflow,
+  production configuration, threshold, producer, Stage 3 or external-service
+  change occurred.
 
 ### 3 November 2026 - SEO-19 Vitamins and Multivitamins links LIVE VERIFIED
 

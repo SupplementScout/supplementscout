@@ -108,7 +108,38 @@ may start while this measurement is unresolved.
   removed and one added line containing only the approved metadata title; after
   normalizing that title back to its baseline value, the whole file is equal.
 
-The feature PR, production deployment, smoke evidence, live timestamp and
-activation-docs PR are recorded here after they complete. Until then, SEO-20 is
-`CODE COMPLETE`, is still next executable, and there are zero SEO tasks `IN
-PROGRESS`.
+## Production merge, smoke and experiment activation
+
+- Feature PR: `#441`.
+- Approved head: `0204a9c04a1f927bf359d5b0e63f743128a4fc0a`.
+- Production squash-main: `4930dd541629ef06a919abe78992e52db5c8e97e`.
+- Tree equivalence: pass; both tree hashes are
+  `9243c44cbbfcd30f8e58803c09d620f11f768734`.
+- PR Project Guardian, Quality Gate, GitGuardian and Vercel Preview: pass.
+- Main Project Guardian `41630798548`: pass.
+- Main Quality Gate `41630798504`: pass.
+- Vercel production deployment `83TXgMLWzzDnmCayrH6edVY1UUYs`: success at
+  `2026-11-03T11:51:34Z`.
+- Public smoke and measurement start: `2026-11-03T11:54:34Z`.
+- Activation documentation branch: `docs/seo20-experiment-activation`.
+- Activation documentation PR: pending creation.
+
+The public route returned HTTP `200` with exact title `Compare PER4M Prices
+Across UK Retailers | SupplementScout`, exactly one canonical
+`https://www.supplementscout.co.uk/brands/per4m`, and `index, follow`. The meta
+description, H1, body, Open Graph title/description, Twitter title/description,
+one structured-data block and its CollectionPage, ItemList and BreadcrumbList
+names, direct links, analytics marker and 42 product links matched baseline.
+The entire `<main>` retained baseline SHA-256
+`fbab4e8f93a478bb22d6af532609d5862818c2de165fce10b8839a437da610b5`.
+Headless Chrome exited successfully, rendered the exact title and unchanged H1,
+and exposed no visible or runtime error.
+
+SEO-20 is now `IN PROGRESS`, remains the next executable task and is the only
+SEO task `IN PROGRESS`. It is not `LIVE VERIFIED`. The explicit measurement
+freeze and exit contract above are active from the smoke timestamp. SEO-19,
+SEO-18 and SEO-15 remain `LIVE VERIFIED`; SEO-17 remains `PLANNED`; SEO-02B
+remains `BLOCKED`; Stage 3 remains disabled and `DEFERRED / NOT READY` behind
+the unchanged `12 / 30 / 4` gate. No database, migration, manual workflow,
+configuration, secret, threshold, producer, external-service or Stage 3 change
+occurred. The activation documentation PR is recorded after guarded merge.
