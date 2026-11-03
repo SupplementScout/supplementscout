@@ -342,7 +342,11 @@ Roadmap Steward alignment across the authoritative documents.
 
 Follow the binding sequence in Operating Plan section 0.0.7: SEO-15, SEO-16,
 SEO-18 and SEO-19 are complete and `LIVE VERIFIED`. `SEO-20` is the next
-executable task and remains `PLANNED`; its implementation has not started.
+executable task and is `IN PROGRESS`. The PER4M title-only experiment is live
+in production and its measurement clock started at `2026-11-03T11:54:34Z`.
+SEO-20 is not `LIVE VERIFIED` and cannot be evaluated until at least 28 settled
+post-deployment days, 500 page impressions and 300 brand-navigational query
+impressions have accrued.
 `SEO-17` remains `PLANNED`
 pending its exact owner-content gate. SEO-13 and SEO-14 are complete, and the 250-product
 multi-retailer checkpoint is independently verified complete.
