@@ -1,17 +1,43 @@
 # SupplementScout SEO Execution Plan
 
-**Status date:** 2 November 2026<br>
+**Status date:** 3 November 2026<br>
 **Owner:** SupplementScout  
 **Scope:** Organic search traffic, indexation, internal discovery, search landing
 pages, structured data, measurement and authority building.  
 **Parent authority:** `docs/SupplementScout-Operating-Plan-2026-07-15.md`
 
-**2 November 2026 owner-approved post-SEO-15 order:** this documentation-only
-governance decision changes the binding future sequence, effective only after
-formal SEO-15 closeout, to `SEO-18` (homepage self-canonical plus one clean
+**3 November 2026 owner-authorized SEO-15 closeout:** ordinary scheduled run
+`41488694982` completed successfully on `main` and captured the final read-only
+evidence at `2026-11-02T17:11:40.345677Z`. Artifact `13162932296`,
+`seo15-accrual-audit-41488694982-1`, digest
+`sha256:6000829a0d2ddb6b48fd3b234aab6bfdb1df134e73663ea5a269ec94e89c33fb`,
+reports zero database writes, `813/813` 60-day-mature identity series, `41,675`
+proven and `312` quarantined observations, `461` current eligible offers and
+five threshold-qualified drops. The automatic inventory has one released
+candidate for one product from one represented candidate retailer; two
+retailer sources are released. GYM HIGH passes its 60-day evidence gate at
+`50/50` series, `2,848` proven observations, zero quarantined observations,
+`25` current eligible offers and zero qualifying drops or candidates.
+
+The owner selected `COMPLETE_WITH_STAGE3_DEFERRED`; the official ledger status
+is therefore `SEO-15 = LIVE VERIFIED`. Public Stage 3 remains disabled and
+`DEFERRED / NOT READY`: current breadth is `1 product / 1 candidate / 1
+represented retailer` against the unchanged `12 products / 30 candidates / 4
+retailers` gate. The verified bounded canary is evidence, not public readiness.
+The existing scheduled read-only SEO-15 Accrual Audit continues as an
+operational monitor, not an active implementation. `SEO-18` is now the next
+executable task but remains `PLANNED`; no SEO task is automatically `IN
+PROGRESS`. See the
+[dated closeout record](rollouts/seo15-60-day-closeout-2026-11-03.md).
+
+**2 November 2026 historical owner-approved post-SEO-15 order:** this
+documentation-only governance decision changed the binding future sequence,
+effective only after formal SEO-15 closeout, to `SEO-18` (homepage
+self-canonical plus one clean
 Help Me Choose sitemap entry), then `SEO-19` (reciprocal Vitamins and
-Multivitamins links), then the `SEO-20` PER4M title-only experiment. `SEO-15`
-remains the sole `IN PROGRESS` SEO task. `SEO-17` remains `PLANNED` and returns
+Multivitamins links), then the `SEO-20` PER4M title-only experiment. At that
+checkpoint, `SEO-15` remained the sole `IN PROGRESS` SEO task. `SEO-17`
+remained `PLANNED` and returned
 to owner review only when an exact, non-duplicative `/whey-protein`
 owner-reviewed decision-note payload is supplied. This roadmap approval does
 not authorize feature implementation, a production merge, a PER4M title
@@ -238,47 +264,35 @@ Console evidence and user value.
 | SEO-12 | P1 | Begin legitimate authority and backlink acquisition. | `PLANNED` | Priority retailer/brand/community outreach uses useful live resources; earned links and outcomes are recorded monthly; no bulk or paid-link scheme is used. |
 | SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `LIVE VERIFIED` | Protein Bars shipped in commit `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f`, production deployment `6048852742` succeeded, and public HTTP, canonical, robots, sitemap, schema, exact-pack, delivered-price and internal-link checks passed. |
 | SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `LIVE VERIFIED` | Applied Nutrition, Per4m, BioTech USA and eBay UK are individually gated and live verified. The GYM HIGH owner defer ended on 14 October, but any new page still requires a fresh gate, route registration and the complete indexability lifecycle; no dynamic page generator exists. |
-| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `IN PROGRESS` | Stage 1/P0 and approved Stage 2A producers are production verified. Fresh 15 October evidence has 813 series / 34,823 history rows / 30,673 identity-linked observations and zero writes. GYM HIGH is now the second released source, but the inventory remains exactly 2 released Jon's candidates and 0 awaiting approvals. Public Stage 3 remains off because the unchanged 12-product / 30-offer / 4-retailer readiness gate is not met. No history backfill is allowed. |
+| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `LIVE VERIFIED` | Stage 1/P0, approved Stage 2A producers, the bounded default-off canary and the automatic read-only monitor are production verified. Final ordinary scheduled run `41488694982` proves `813/813` 60-day maturity and zero writes. Owner closeout decision: `COMPLETE_WITH_STAGE3_DEFERRED`. Public Stage 3 remains disabled and not ready at `1 product / 1 candidate / 1 represented retailer` against the unchanged `12 / 30 / 4` gate; monitoring continues operationally with no backfill or automatic producer approval. |
 | SEO-16 | P1 | Launch guarded two-product comparison. | `LIVE VERIFIED` | Commit `7eec604` deployed the owner-approved lifecycle launch on 26 August 2026. Public base and pair checks passed HTTP, robots, canonical, exact-pack and delivered-price contracts; the homepage link and exactly one sitemap entry were verified. |
 | SEO-17 | P2 | Add owner-reviewed expert decision notes. | `PLANNED` | Before implementation, the owner must supply an exact, non-duplicative `/whey-protein` decision-note payload that adds value distinct from Help Me Choose, CategoryDecisionPanel, Quick Comparison, Better Value Alternatives and existing whey copy. Expert judgement must be clearly labelled and dated, verified facts retain provenance, and unsupported medical or formulation claims cannot publish. |
-| SEO-18 | P1 | Add the homepage self-canonical and one clean Help Me Choose sitemap entry. | `PLANNED` | After formal SEO-15 closeout, add homepage `alternates.canonical = "/"` without duplicating or changing title/description; preserve the Help Me Choose base as `index, follow`, parameter states as `noindex, follow` and their base canonical; add exactly one `/help-me-choose` sitemap URL with no query URL, fabricated `lastModified`, `/search`, schema, robots or copy change; pass focused tests, quality gates and live verification. |
+| SEO-18 | P1 | Add the homepage self-canonical and one clean Help Me Choose sitemap entry. | `PLANNED` | Formal SEO-15 closeout is recorded. Only after separate owner implementation authorization, add homepage `alternates.canonical = "/"` without duplicating or changing title/description; preserve the Help Me Choose base as `index, follow`, parameter states as `noindex, follow` and their base canonical; add exactly one `/help-me-choose` sitemap URL with no query URL, fabricated `lastModified`, `/search`, schema, robots or copy change; pass focused tests, quality gates and live verification. |
 | SEO-19 | P1 | Add reciprocal Vitamins and Multivitamins contextual links. | `PLANNED` | After SEO-18 is `LIVE VERIFIED`, add `/vitamins` to `/multivitamins` with anchor `Multivitamins` and `/multivitamins` to `/vitamins` with anchor `Vitamins and minerals`; make no metadata, schema, loader, pagination or generic link-expansion change; pass focused tests, quality gates and live verification. |
 | SEO-20 | P1 | Run the PER4M title-only CTR experiment. | `PLANNED` | After SEO-19 is `LIVE VERIFIED` and a separate implementation/merge approval, change only `/brands/per4m` title to `Compare PER4M Prices Across UK Retailers | SupplementScout`; freeze title, meta, H1, body, schema, direct anchors and data presentation during measurement except for a production regression; observe at least 28 settled days, 500 page impressions and 300 brand-navigational query impressions; primary success is CTR improvement without material ranking deterioration. |
 
 ## 6. Current active task
 
-**Next executable task:** SEO-15 automatic Stage 3 monitoring is active and
-production verified. RA-STAB-02 is `VERIFIED_COMPLETE`, and the exact GYM HIGH
-source release is production applied and independently verified. Seal production
-ledger `237` in the repository, then continue the existing daily read-only audit
-and evaluate the inventory against the unchanged public readiness gate. Do not
-add a table, RPC, importer, executor, public route or lifecycle entry.
-Continue the daily read-only audit; the current `2 / 2 / 0`
-inventory is below the unchanged public readiness gate of 12 products, 30
-offers and 4 retailers. Keep `SEO15_STAGE3_ENABLED` off. Other enabled eligible
-sources remain read-only discovery only. Do not backfill history, change product
-identity or weaken any gate.
-Public activation requires a separate owner decision after the gate passes.
-Formal SEO-15 closeout is also required before any later SEO implementation.
-The owner-approved future order is `SEO-18 -> SEO-19 -> SEO-20`; `SEO-17`
-remains `PLANNED` behind its separate owner-content gate.
+**Next executable task:** SEO-18 is `PLANNED`. It may begin only after separate
+owner implementation authorization; this documentation closeout does not mark
+it `IN PROGRESS` and does not implement the homepage canonical or Help Me
+Choose sitemap change. There are currently zero SEO tasks `IN PROGRESS`.
 
-The latest scheduled SEO-15 audit is run `38736679434`, artifact `11974021909`
-(GitHub artifact digest SHA-256
-`5d36b9f80b58005dadd4f0cafcaf72a9a8f25e00d508f054311c65b52e232ce5`).
-Its `12:42:48Z` payload predates the `12:43:02Z` GYM HIGH release, so it is not
-post-release natural evidence. The fresher production read-only audit captured
-at `13:00:45Z` on 15 October has 813
-series, 34,823 history rows, 30,673 identity-linked observations and zero
-writes. GYM HIGH is technically capable and producer-enabled with 50 series,
-1,966 proven observations, 26 currently eligible series and zero
-threshold-qualified drops. Its database
-`public_use='eligible-after-separate-approval'` value and the second
-source-release row are independently verified. The inventory still contains only
-the two Jon's candidates for one canonical product, with zero awaiting retailer
-approvals and zero audit writes. Fit House and GYM HIGH have zero
-threshold-qualified drops. The first ordinary post-release audit is expected on
-16 October after the `07:23Z` schedule.
+SEO-15 is `LIVE VERIFIED`. Owner-authorized closeout used ordinary scheduled
+run `41488694982` and artifact `13162932296`: `813/813` series pass 60-day
+maturity, the bounded canary and monitoring contract are production verified,
+and the audit made zero database writes. Public Stage 3 is deferred, disabled
+and not ready at current breadth `1 / 1 / 1` versus the unchanged `12 / 30 / 4`
+gate. The scheduled read-only audit continues operationally after closeout.
+
+Stage 3 may return for owner review only when an ordinary scheduled audit
+simultaneously shows at least 12 distinct eligible products, 30 released
+candidates and 4 separately owner-released represented retailers while all
+identity, freshness, stock, known-delivered-total, continuity, maturity,
+latest-state, source-release and conflict/quarantine gates pass. No backfill,
+threshold weakening, automatic producer approval, manual evidence manufacture
+or legacy/incomplete publication is permitted. Even then, Stage 3 remains off
+until separate explicit owner authorization.
 
 The latest weekly GSC/GA4 read is scheduled run `38289200062` for 5-11 October:
 1,479 final impressions and 6 clicks across the six settled dates. The 11
@@ -293,11 +307,9 @@ This small weekly sample did not itself change the roadmap; the later explicit
 2 November owner decision now governs the post-SEO-15 order.
 
 The SEO-15 technical plan remains the bounded design and evidence reference;
-this execution ledger remains the sole SEO status and ordering authority.
-The canary implementation is recorded in
-[`docs/rollouts/seo15-bounded-stage3-implementation-2026-10-09.md`](rollouts/seo15-bounded-stage3-implementation-2026-10-09.md),
-and the active automatic-candidate follow-up is recorded in
-[`docs/rollouts/seo15-automatic-candidate-inventory-2026-10-09.md`](rollouts/seo15-automatic-candidate-inventory-2026-10-09.md).
+this execution ledger remains the sole SEO status and ordering authority. The
+bounded canary and automatic-candidate records remain historical implementation
+evidence; the 3 November closeout record governs current completion state.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -307,12 +319,12 @@ ordering after review of the Phase 4 overlap and Phase 5 evidence. Future
 priority changes still require named evidence, explicit owner approval and a
 Roadmap Steward alignment across the authoritative documents.
 
-Follow the binding sequence in Operating Plan section 0.0.7: SEO-16 is
-complete; return mandatorily to SEO-15 for due accrual audits, any separately
-approved Stage 3 decision and formal closeout. Only after that closeout proceed
-to `SEO-18`, then `SEO-19`, then `SEO-20`. `SEO-17` remains `PLANNED` pending
-its exact owner-content gate. SEO-13 and SEO-14 are complete, and the
-250-product multi-retailer checkpoint is independently verified complete.
+Follow the binding sequence in Operating Plan section 0.0.7: SEO-15 and SEO-16
+are complete and `LIVE VERIFIED`; `SEO-18` is the next executable task, followed
+by `SEO-19` and `SEO-20`. All three remain `PLANNED` until their applicable
+owner gates are satisfied. `SEO-17` remains `PLANNED` pending its exact
+owner-content gate. SEO-13 and SEO-14 are complete, and the 250-product
+multi-retailer checkpoint is independently verified complete.
 SEO-07 measurement and SEO-12 legitimate authority work are continuous evidence
 tracks, not permission to run a second implementation or send outreach email
 while the owner's no-email decision remains in force.
@@ -450,6 +462,35 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 3 November 2026 - SEO-15 deals and price intelligence LIVE VERIFIED
+
+- The owner authorized documentation-only closeout from ordinary scheduled run
+  `41488694982` on exact `main` SHA
+  `bf6399a1eb1edd0c6a37147f277b4830638f8cb4`. The run completed successfully;
+  artifact `13162932296`, `seo15-accrual-audit-41488694982-1`, has digest
+  `sha256:6000829a0d2ddb6b48fd3b234aab6bfdb1df134e73663ea5a269ec94e89c33fb`.
+- The repeatable-read production evidence captured at
+  `2026-11-02T17:11:40.345677Z` made zero database writes and reports `813`
+  identity series, `813/813` 60-day maturity, `41,675` proven observations,
+  `312` quarantined observations, `461` current eligible offers and five
+  threshold-qualified drops. The fail-closed inventory has one released
+  candidate, one candidate product, one represented candidate retailer and two
+  released retailers.
+- GYM HIGH passes its 60-day evidence gate with `50/50` mature series, `2,848`
+  proven observations, zero quarantined observations, `25` current eligible
+  offers, zero qualifying drops and zero candidates. Jon's offer `1339` remains
+  the sole current candidate; identity, freshness, stock, delivered-price,
+  continuity, latest-state, source-release and conflict gates pass.
+- Stage 1 and the bounded canary retain their existing public/production live
+  verification and focused test evidence. The closeout decision is
+  `COMPLETE_WITH_STAGE3_DEFERRED`; official SEO-15 status is `LIVE VERIFIED`.
+  Public Stage 3 remains disabled and not ready at `1 / 1 / 1` against the
+  unchanged `12 / 30 / 4` breadth gate.
+- The scheduled read-only monitor continues operationally. No feature, workflow,
+  configuration, threshold, producer, database or public behavior changed in
+  this documentation closeout. SEO-18 is next executable but remains `PLANNED`
+  pending separate owner implementation authorization.
 
 ### 26 August 2026 - SEO-15 Fit House Stage 2A producer PRODUCTION VERIFIED
 

@@ -1,5 +1,29 @@
 # SEO-15 Deals and Price Intelligence — Technical Execution Plan
 
+**3 November final 60-day closeout checkpoint:** owner-authorized closeout uses
+successful ordinary scheduled run `41488694982` on exact `main` SHA
+`bf6399a1eb1edd0c6a37147f277b4830638f8cb4`. Artifact `13162932296`,
+`seo15-accrual-audit-41488694982-1`, digest
+`sha256:6000829a0d2ddb6b48fd3b234aab6bfdb1df134e73663ea5a269ec94e89c33fb`,
+captured read-only evidence at `2026-11-02T17:11:40.345677Z` with zero database
+writes. It reports `813` identity series, `813/813` at 60-day maturity, `41,675`
+proven observations, `312` quarantined observations, `461` current eligible
+offers, five threshold-qualified drops, one released candidate for one product
+from one represented candidate retailer and two released sources. Jon's offer
+`1339` is the current candidate. GYM HIGH passes at `50/50` mature series,
+`2,848` proven observations, zero quarantined observations, `25` current
+eligible offers and zero qualifying drops or candidates.
+
+The closeout decision is `COMPLETE_WITH_STAGE3_DEFERRED`; the authoritative
+ledger records SEO-15 as `LIVE VERIFIED`. Public Stage 3 remains disabled and
+not ready at `1 / 1 / 1` versus the unchanged `12 products / 30 candidates / 4
+retailers` breadth gate. The bounded canary is proven evidence only. The
+existing scheduled read-only audit continues operationally after closeout and
+does not remain an active SEO implementation. This technical plan does not
+authorize SEO-18 or redefine roadmap order; the authoritative ledgers make
+SEO-18 the next executable `PLANNED` task. See the
+[closeout record](rollouts/seo15-60-day-closeout-2026-11-03.md).
+
 **15 October GYM HIGH source-release checkpoint:** the owner defer ended on 14
 October and RA-STAB-02 is verified complete. Fresh production read-only evidence
 has exactly 50 mature non-quarantined GYM HIGH series, 1,966 proven observations,
@@ -31,11 +55,12 @@ dates; September 16 and conditional September 24–25 gates remain unchanged.
 See [continuity evidence](rollouts/seo15-producer-continuity-2026-09-09.md).
 
 **Prepared:** 24 August 2026  
-**State:** Stage 1 and corrective Indexability Lifecycle P0 live verified;
-Stage 2A enabled for the approved Jon's, Fit House and GYM HIGH scopes; bounded
-Stage 3 canary merged for Jon's offers `1337` and `1339`; automatic Stage 3
-candidate inventory in progress with Jon's and GYM HIGH as released sources,
-and public enablement disabled pending final verification
+**State:** SEO-15 `LIVE VERIFIED` after owner-authorized 60-day closeout. Stage
+1 and corrective Indexability Lifecycle P0 are live verified; Stage 2A is
+enabled for the approved Jon's, Fit House and GYM HIGH scopes; the bounded
+Stage 3 canary and automatic candidate monitor are production verified. Public
+Stage 3 remains disabled and deferred behind the unchanged `12 / 30 / 4` gate;
+the scheduled read-only monitor continues operationally.
 **Authority:** `docs/SEO-Execution-Plan.md` remains the SEO status and ordering
 authority. `docs/SupplementScout-Operating-Plan-2026-07-15.md` remains the
 project authority. This document records only SEO-15 technical scope, gates,
@@ -570,15 +595,16 @@ credentials.
 | Decision | State | Required owner action |
 |---|---|---|
 | Use one existing offers/history system and one central recorder | Implemented; production schema verified | Separately approve each bounded producer. |
-| Stage 1 gate `12 products / 30 offers / 4 retailers`, with 2+ retailers per exact variant | Approved launch evidence; monitoring remains active | Do not reuse as an hourly robots/sitemap switch. |
+| Public Stage 3 gate `12 products / 30 candidates / 4 retailers` | Unchanged; current breadth is `1 / 1 / 1`, so public Stage 3 is deferred and not ready | Continue ordinary scheduled read-only monitoring; do not use the gate as an hourly robots/sitemap switch. |
 | Classify the 14 Six Pack rows as 1 stock, 8 price and 5 price+stock approvals | Evidence ready; not applied | Approve/reject as a separate production-data action. |
 | Add normalized immutable identity series plus nullable history evidence with no backfill | Production migration verified; no backfill | Preserve legacy rows and approve producers separately. |
 | Record at most one unchanged confirmation/day/series | 813 production series audited; zero duplicate daily keys. GYM HIGH first actual observations start 3 September; latest run reuses 8 September dates. | Preserve idempotency; verify source timestamps and new-date accrual. |
-| Enable Stage 3 only after 7/14/30/60-day audits | Bounded implementation in progress for Jon's offers `1337` and `1339`; public gate remains off | Complete CI, staging and production read-only controls, then obtain a separate final enablement decision. |
-| Roadmap handling during accrual | SEO-16 is live verified; the mandatory SEO-15 return is active as the bounded Stage 3 implementation | Finish this exact two-offer control path before SEO-17; do not add producers or backfill. |
+| Enable Stage 3 only after 7/14/30/60-day audits | All elapsed-age audits are complete and the bounded canary is proven; public breadth still fails `1 / 1 / 1` versus `12 / 30 / 4`, so Stage 3 remains disabled and deferred | Return for owner review only after an ordinary scheduled audit naturally meets the unchanged breadth gate with every existing evidence gate passing. |
+| Roadmap handling after closeout | SEO-15 and SEO-16 are live verified; SEO-15 monitoring continues operationally and SEO-18 is the next executable `PLANNED` task in the authoritative ledgers | Do not start SEO-18 or enable Stage 3 without separate owner authorization; do not add producers or backfill. |
 
-If SEO-16 is temporarily selected, the ledger must preserve a mandatory return
-to SEO-15 Stage 3. No ordering change is made by this plan.
+The 3 November closeout satisfies the former mandatory return to SEO-15. This
+technical plan does not make ordering changes; the authoritative ledgers bind
+the current `SEO-18 -> SEO-19 -> SEO-20` sequence.
 
 ## 14. Blockers register
 
@@ -590,8 +616,8 @@ to SEO-15 Stage 3. No ordering change is made by this plan.
 | Partial/manual retailer automation | Historical breadth | Exclude affected rows; Stage 1 may proceed only if its gate independently passes. |
 | Six Pack 14-row recovery is not owner-applied | Six Pack freshness | Keep current DB state and handle through a separate approval. |
 | Full eBay read-only pass remains pending | eBay confidence | Do not run it here; exclude stale/unproven rows. |
-| Four additional Stage 2A producers are not approved; GYM HIGH needs new-date source-timestamp verification | Proven accrual breadth and continuity | Preserve current scopes; check next ordinary new-date confirmations and approve any additional producer separately. |
-| No elapsed proven history exists yet | Stage 3 | Hide historical sections until audits pass. |
+| Remaining non-released producers are not approved; released GYM HIGH has no qualifying drop | Proven public breadth | Preserve current scopes; continue ordinary evidence monitoring and require separate owner approval for every source release. |
+| Public breadth is `1 product / 1 candidate / 1 represented retailer` | Stage 3 | Keep Stage 3 disabled until an ordinary scheduled audit naturally reaches `12 / 30 / 4`; do not backfill or weaken gates. |
 
 ## 15. Evidence and release log
 
@@ -610,9 +636,9 @@ to SEO-15 Stage 3. No ordering change is made by this plan.
 | 7-day audit | 9 September read-only audit | linked evidence above | retrospective observation-date continuity checked | gaps documented; no backfill | complete |
 | 14-day audit | 9 September read-only audit | linked evidence above | Jon's 503 pass elapsed age; Fit House first reaches 14 days at 16:10 UTC today | zero qualifying drops; continuity gaps remain | audit complete; Stage 3 not ready |
 | 30-day audit | read-only run `37927290755` | 9 October private artifact `11613814836` | 813/813 series pass age; producer-wide continuity remains incomplete | five Jon's threshold drops; two (`1337`, `1339`) pass current identity/stock/freshness | audit complete; separate Stage 3 owner decision required |
-| 60-day audit | n/a | n/a | pending | pending | not due |
+| 60-day audit | ordinary scheduled run `41488694982` on `bf6399a1`; artifact `13162932296` | artifact digest `sha256:6000829a0d2ddb6b48fd3b234aab6bfdb1df134e73663ea5a269ec94e89c33fb` | read-only capture at `2026-11-02T17:11:40.345677Z`; `813/813` series pass age; GYM HIGH `50/50`; database writes `0` | `41,675` proven, `312` quarantined, `461` current eligible, five qualifying drops, one released candidate, two released sources and public breadth `1 / 1 / 1` | verified complete; SEO-15 closeout `LIVE VERIFIED`, public Stage 3 deferred |
 | Stage 3 bounded canary | owner-approved implementation merged as `a8de525` on 9 October | exact Jon's offers `1337`, `1339`; no other producer or row | shared selector plus read-only exact-scope evidence boundary; default-off release gate | staging and production schema/readbacks passed | verified default-off foundation |
-| Stage 3 automatic candidates | owner-approved follow-up merged as `c6054cf` on 9 October | automatic offer qualification for the already approved Jon's source; other enabled eligible producers discovery-only | one central source release registry, one read-only inventory RPC, default-off admin monitor and variable-gated daily read-only audit | production ledger `235`; exactly two released Jon's candidates, private ACLs and zero writes; monitor, schedule and public flags remain off | production verified; in progress |
+| Stage 3 automatic candidates | owner-approved follow-up merged as `c6054cf` on 9 October | automatic offer qualification for the already approved Jon's source; other enabled eligible producers discovery-only | one central source release registry, one read-only inventory RPC, default-off admin monitor and variable-gated daily read-only audit | final run `41488694982` has one released candidate, two released sources and zero writes; public flag remains off | production verified operational monitor; public Stage 3 deferred |
 | GYM HIGH Stage 3 source release | `5c3089ea`; merged in PR `#347` as `a7ff61e1` | production ledger `237`, fingerprint `1272bbbbca81609d1278bc31dd9015710d0dffc2fa5c48fa8345bb5e63010747` | fresh exact-state audit; focused tests `70/70`; quick/full gates; production transaction rehearsal passed and rolled back | guarded apply and independent readbacks passed; 50 mature non-quarantined series, 1,966 proven observations, 26 currently eligible, zero qualifying drops; released retailer count 2; candidates unchanged at two Jon's rows; catalogue counts unchanged `1337/3632/3758/3758/34823`; zero audit writes | production verified; public Stage 3 remains off |
 
 ## 16. Complete conditions
@@ -633,5 +659,8 @@ SEO-15 can be marked `LIVE VERIFIED` only when:
 6. exact commits, deployment/migration IDs and live checks are recorded in the
    authoritative SEO and Operating plans.
 
-This document cannot mark SEO-15 complete or reorder SEO-16. Those decisions
-remain in the existing source-of-truth ledgers.
+On 3 November 2026 the owner explicitly selected the second path in condition
+5: SEO-15 is complete and `LIVE VERIFIED`, while public Stage 3 remains a
+deferred sub-stage behind the unchanged breadth gate. This document records the
+technical evidence only; completion status and the next `SEO-18` task remain in
+the existing source-of-truth ledgers.

@@ -1,13 +1,34 @@
 # SupplementScout Operating Plan
 
-**Status date:** 2 November 2026<br>
+**Status date:** 3 November 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
-**2 November 2026 owner-approved SEO roadmap governance alignment:** this
-documentation-only decision preserves `SEO-15` as the sole `IN PROGRESS` SEO
-task and changes only the binding order after its formal closeout. The approved
+**3 November 2026 owner-authorized SEO-15 closeout:** SEO-15 is formally
+`LIVE VERIFIED` based on successful ordinary scheduled run `41488694982` and
+artifact `13162932296`. The final read-only evidence has `813/813` 60-day-mature
+series and zero database writes. Owner closeout decision
+`COMPLETE_WITH_STAGE3_DEFERRED` means the implementation is complete while the
+public Stage 3 sub-stage remains disabled, deferred and not ready. Current
+breadth is `1 product / 1 candidate / 1 represented retailer` against the
+unchanged `12 products / 30 candidates / 4 retailers` gate. The bounded canary
+is verified evidence only.
+
+The existing scheduled SEO-15 Accrual Audit continues as a read-only operational
+monitor, not an active SEO implementation. `SEO-18` is now the next executable
+SEO task but remains `PLANNED`; no feature task is automatically `IN PROGRESS`.
+The binding sequence remains `SEO-18 -> SEO-19 -> SEO-20`, with `SEO-17`
+separately owner-content-gated and `SEO-02B` blocked. This closeout authorizes no
+feature implementation, production merge, Stage 3 enablement, threshold change,
+producer approval, database write or backfill. It supersedes only the
+current-state portion of the 2 November checkpoint below. See the
+[dated closeout record](rollouts/seo15-60-day-closeout-2026-11-03.md).
+
+**2 November 2026 historical owner-approved SEO roadmap governance alignment:**
+this documentation-only decision preserved `SEO-15` as the sole `IN PROGRESS`
+SEO task at that checkpoint and changed only the binding order after its formal
+closeout. The approved
 future sequence is `SEO-18` (homepage explicit self-canonical plus exactly one
 clean `/help-me-choose` sitemap entry), then `SEO-19` (reciprocal Vitamins and
 Multivitamins contextual links), then the `SEO-20` PER4M title-only experiment.
@@ -2396,20 +2417,22 @@ competitive-response ordering conflicts:
 `SEO-11`, `SEO-13` and `SEO-14` are complete and live verified. The
 multi-retailer coverage milestone is also independently verified at `250/250`.
 
-1. return to `SEO-15` and keep it as the sole active SEO task through its
-   mandatory evidence, any separately approved Stage 3 decision and formal
-   closeout; do not infer historical claims;
-2. after formal SEO-15 closeout, complete `SEO-18`, the bounded homepage
-   self-canonical and clean Help Me Choose sitemap task;
-3. after SEO-18 is `LIVE VERIFIED`, complete `SEO-19`, the bounded reciprocal
+SEO-15 completed its owner-authorized closeout on 3 November 2026 and is `LIVE
+VERIFIED`. Public Stage 3 remains deferred and disabled; its read-only monitor
+continues outside the active implementation queue.
+
+1. `SEO-18` is the next executable task and remains `PLANNED` pending separate
+   implementation authorization; it is the bounded homepage self-canonical and
+   clean Help Me Choose sitemap task;
+2. after SEO-18 is `LIVE VERIFIED`, complete `SEO-19`, the bounded reciprocal
    Vitamins and Multivitamins contextual links task;
-4. after SEO-19 is `LIVE VERIFIED` and separately approved for implementation
+3. after SEO-19 is `LIVE VERIFIED` and separately approved for implementation
    and merge, begin `SEO-20`, the PER4M title-only experiment and its isolated
    measurement contract;
-5. keep `SEO-17` `PLANNED` until an exact, non-duplicative `/whey-protein`
+4. keep `SEO-17` `PLANNED` until an exact, non-duplicative `/whey-protein`
    owner-reviewed decision-note payload passes a separate owner review;
-6. record Search Console and GA4 evidence weekly throughout the sequence;
-7. continue authority research, but keep outbound outreach paused until the
+5. record Search Console and GA4 evidence weekly throughout the sequence;
+6. continue authority research, but keep outbound outreach paused until the
    owner changes the current no-email decision.
 
 Only one SEO implementation may be `IN PROGRESS`. Measurement, read-only
@@ -4533,18 +4556,20 @@ Current priority order:
 `SEO-11`, `SEO-13`, `SEO-14`, `SEO-16` and the 250-product multi-retailer
 milestone are complete and live verified.
 
-1. `SEO-15`: remain the sole active SEO task through the required evidence and
-   formal closeout; public Stage 3 still requires its separate readiness and
-   owner-release decision.
-2. `SEO-18`: after formal SEO-15 closeout, add the homepage self-canonical and
-   exactly one clean Help Me Choose base URL to the sitemap.
-3. `SEO-19`: after SEO-18 is `LIVE VERIFIED`, add only the approved reciprocal
+SEO-15 is `LIVE VERIFIED`; public Stage 3 remains deferred and disabled behind
+its unchanged `12 / 30 / 4` gate. Its daily read-only monitor continues as an
+operational evidence control.
+
+1. `SEO-18`: next executable but still `PLANNED`; after separate owner
+   implementation authorization, add the homepage self-canonical and exactly
+   one clean Help Me Choose base URL to the sitemap.
+2. `SEO-19`: after SEO-18 is `LIVE VERIFIED`, add only the approved reciprocal
    Vitamins and Multivitamins contextual links.
-4. `SEO-20`: after SEO-19 is `LIVE VERIFIED`, and only with separate
+3. `SEO-20`: after SEO-19 is `LIVE VERIFIED`, and only with separate
    implementation and merge approval, run the PER4M title-only experiment.
-5. `SEO-17`: remain `PLANNED` behind its exact, non-duplicative
+4. `SEO-17`: remain `PLANNED` behind its exact, non-duplicative
    owner-reviewed `/whey-protein` note-payload gate.
-6. Continue weekly GSC/GA4 measurement; outbound outreach remains paused.
+5. Continue weekly GSC/GA4 measurement; outbound outreach remains paused.
 
 The complete definitions and interruption rules are in section 0.0.7.
 
@@ -4971,16 +4996,14 @@ Target experience:
 
 ### Current active task
 
-`SEO-15` remains the binding task. Its shared automatic candidate inventory,
-daily read-only audit and authenticated monitor are active and
-production-verified at ledger `237`. Jon's and GYM HIGH are the released sources
-for eventual publication. The live inventory is `2` verified, `2` released and `0`
-awaiting approval, below the unchanged public readiness gate of 12 products,
-30 offers and 4 retailers. Candidates from other already-enabled eligible
-sources remain read-only discovery until a separate owner decision. Keep
-public release off while ordinary daily evidence accumulates. No new producer,
-history backfill or product-identity change is allowed. `SEO-16` is complete
-and `LIVE VERIFIED`.
+`SEO-18` is the next executable SEO task and remains `PLANNED`; implementation
+has not started and requires separate owner authorization. No SEO feature task
+is currently `IN PROGRESS`. SEO-15 is `LIVE VERIFIED` after the owner-authorized
+3 November closeout. Its shared automatic candidate inventory and scheduled
+read-only audit continue as operational monitoring, not active implementation.
+Public Stage 3 remains disabled and deferred at current breadth `1 / 1 / 1`
+against the unchanged `12 / 30 / 4` gate. `SEO-16` is also complete and `LIVE
+VERIFIED`.
 The following paragraphs retain the historical producer rollout evidence.
 Stage 1 `/deals` and the corrective Indexability Lifecycle P0 are deployed and
 live verified. Stage 2A identity foundation is production verified. Jon's
@@ -5137,14 +5160,16 @@ conservative external-session signal and make no conversion claim.
 
 ### Then
 
-1. Keep SEO-15 as the only active SEO implementation through formal closeout.
-   After that closeout, follow the owner-approved `SEO-18 -> SEO-19 -> SEO-20`
-   order; `SEO-17` remains `PLANNED` behind its separate owner-content gate.
-   SEO-16 is already live verified.
-2. Record GSC/GA4 evidence weekly; keep outbound outreach paused.
-3. Monitor scheduled retailer refreshes; keep new discovery report-only until
+1. Keep `SEO-18` as the next executable task but `PLANNED` until separate owner
+   implementation authorization. Then follow the owner-approved `SEO-18 ->
+   SEO-19 -> SEO-20` order; `SEO-17` remains `PLANNED` behind its separate
+   owner-content gate. SEO-15 and SEO-16 are already live verified.
+2. Continue the SEO-15 scheduled read-only evidence monitor without treating it
+   as active implementation; keep public Stage 3 disabled.
+3. Record GSC/GA4 evidence weekly; keep outbound outreach paused.
+4. Monitor scheduled retailer refreshes; keep new discovery report-only until
    reviewed and preserve all drift, replay and recovery controls.
-4. Freeze infrastructure and control-plane work unless a real batch exposes a
+5. Freeze infrastructure and control-plane work unless a real batch exposes a
    specific unsupported requirement.
 
 ### Deferred near-term
