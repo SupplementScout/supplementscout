@@ -20,6 +20,22 @@ workflows, artifacts, control ledger, Review Queue, postflight and watchdog.
 Work proceeds read-only until a specific recovery or business write has fresh
 bounded evidence and separate owner approval.
 
+**4 November Review Queue hard-price contract incident — repository correction
+prepared, production migration pending:** audit PR `#476` confirmed that the
+eBay producer and protected worker supported `HARD_PRICE_ANOMALY`, while the
+JavaScript publisher, SQL publication function and eBay adapter omitted it.
+The bounded correction adds one canonical reason registry, aligns the publisher,
+restricts the reason to eBay's existing `UPDATE_PRICE` adapter path and prepares
+the hash-bound forward migration
+`20261104120000_allow_automation_review_hard_price_anomaly.sql`. Worker hard-price
+identity, state, threshold and protected price-history checks remain unchanged.
+The exact failed-batch-shaped fixture and JS/SQL drift regressions pass with zero
+writes. The migration is pending for both environments and has not been applied;
+run `41836635201` and its historical 85 rows were not replayed. This incident
+does not change the sole active Gladiator preparation task, reopen RA-004 or
+authorize a retailer run. Evidence:
+[`automation-review-hard-price-contract-fix-2026-11-04.md`](../rollouts/automation-review-hard-price-contract-fix-2026-11-04.md).
+
 RA-004 is now `BLOCKED`. It may reopen only as artifact-first recorded replay:
 the same immutable snapshot must be evaluated by the current and candidate
 classifiers with zero network, control or business writes. Another staging

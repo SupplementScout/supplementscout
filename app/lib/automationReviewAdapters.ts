@@ -6,6 +6,7 @@ export type ReviewAdapter = {
   retailerSlug: string;
   operations: readonly string[];
   reasonCodes: readonly string[];
+  operationReasonCodes: Readonly<Record<string, readonly string[]>>;
   workflow: string;
   environment: string;
   builder: string;
@@ -32,6 +33,9 @@ export const REVIEW_ADAPTERS: readonly ReviewAdapter[] = Object.freeze(registry.
   retailerSlug: adapter.retailer_slug,
   operations: Object.freeze([...adapter.operations]),
   reasonCodes: Object.freeze([...adapter.reason_codes]),
+  operationReasonCodes: Object.freeze(Object.fromEntries(
+    Object.entries(adapter.operation_reason_codes).map(([operation, reasons]) => [operation, Object.freeze([...reasons])]),
+  )),
   workflow: registry.workflow,
   environment: registry.environment,
   builder: adapter.builder,
@@ -60,7 +64,8 @@ export function resolveReviewAdapter(retailerId: string | number | null, operati
   if (!adapter) return { adapter: null, code: "EXECUTION_UNSUPPORTED", reason: "No protected review worker is registered for this retailer." } as const;
   if (!operationType || !adapter.operations.includes(operationType)) return { adapter: null, code: "EXECUTION_UNSUPPORTED", reason: `The protected adapter does not support ${operationType || "an unknown operation"}.` } as const;
   const reasons = parsedReasons(reasonCodes);
-  if (!reasons.length || reasons.some((reason) => !adapter.reasonCodes.includes(reason))) return { adapter: null, code: "EXECUTION_UNSUPPORTED", reason: "The review reason is not in the adapter allowlist." } as const;
+  const operationReasons = adapter.operationReasonCodes[operationType] || [];
+  if (!reasons.length || reasons.some((reason) => !operationReasons.includes(reason))) return { adapter: null, code: "EXECUTION_UNSUPPORTED", reason: "The review reason is not in the adapter allowlist for this operation." } as const;
   return { adapter, code: "SUPPORTED", reason: null } as const;
 }
 

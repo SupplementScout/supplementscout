@@ -1,4 +1,5 @@
 const assert = require("node:assert/strict");
+const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
@@ -10,6 +11,20 @@ const migrationPath = path.join(
   "20260831110000_create_automation_review_queue_publication_rpc.sql",
 );
 const sql = fs.readFileSync(migrationPath, "utf8");
+const forwardPath = path.join(process.cwd(), "supabase", "migrations", "20261104120000_allow_automation_review_hard_price_anomaly.sql");
+const rollbackPath = path.join(process.cwd(), "supabase", "rollbacks", "20261104120000_allow_automation_review_hard_price_anomaly_rollback.sql");
+const forwardSql = fs.readFileSync(forwardPath, "utf8");
+const rollbackSql = fs.readFileSync(rollbackPath, "utf8");
+const reasonContract = require("../config/automation-review-reason-codes.json");
+
+function functionDefinition(source) {
+  return source.match(/create or replace function public\.publish_automation_review_queue_changes\(p_request jsonb\)[\s\S]*?\$\$;/i)?.[0] || "";
+}
+
+function publicationReasonCodes(source) {
+  const block = functionDefinition(source).match(/btrim\(reason\) not in \(\s*([\s\S]*?)\s*\)\s*\n\s*\) then/i)?.[1] || "";
+  return [...block.matchAll(/'([A-Z][A-Z0-9_]*)'/g)].map((match) => match[1]);
+}
 
 test("review queue publication migration is additive control-plane only", () => {
   assert.match(sql, /create table public\.automation_review_queue_publications/i);
@@ -96,4 +111,37 @@ test("RPC result is deterministic and audit-trigger aware without double audit i
   ]) {
     assert.match(sql, new RegExp(marker));
   }
+});
+
+test("historical publication migration is immutable and the forward migration changes only the reason contract", () => {
+  assert.equal(crypto.createHash("sha256").update(sql).digest("hex"), "8680e3303a8b4b22025f85af83a59a8dafbebc91e97719e423af8dff79f28409");
+  const forwardFunction = functionDefinition(forwardSql);
+  const rollbackFunction = functionDefinition(rollbackSql);
+  assert.ok(forwardFunction);
+  assert.equal(forwardFunction.replace("'HARD_PRICE_ANOMALY','STOCK_CHANGE'", "'STOCK_CHANGE'"), rollbackFunction);
+  assert.doesNotMatch(forwardSql, /create table/i);
+  assert.doesNotMatch(forwardSql, /\b(?:insert into|update|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history)\b/i);
+});
+
+test("canonical and SQL publication reason contracts are exact and fail closed", () => {
+  const sqlReasons = publicationReasonCodes(forwardSql);
+  assert.equal(sqlReasons.includes("HARD_PRICE_ANOMALY"), true);
+  assert.equal(sqlReasons.includes("UNKNOWN_REASON"), false);
+  assert.deepEqual([...sqlReasons].sort(), [...reasonContract.reason_codes].sort());
+  assert.match(forwardSql, /AUTOMATION_REVIEW_PUBLICATION_ROW_CONTRACT_INVALID/);
+});
+
+test("forward publication function preserves security, grants and idempotent control-plane protections", () => {
+  for (const marker of [
+    /security definer/i,
+    /set search_path = ''/i,
+    /coalesce\(auth\.role\(\), ''\) <> 'service_role'/i,
+    /AUTOMATION_REVIEW_PUBLICATION_IDEMPOTENCY_CONFLICT/,
+    /AUTOMATION_REVIEW_PUBLICATION_DUPLICATE_ACTIVE_ROW/,
+    /AUTOMATION_REVIEW_PUBLICATION_CATALOGUE_WRITE_DETECTED/,
+    /revoke all on function public\.publish_automation_review_queue_changes\(jsonb\) from public, anon, authenticated, service_role/i,
+    /grant execute on function public\.publish_automation_review_queue_changes\(jsonb\) to service_role/i,
+  ]) assert.match(forwardSql, marker);
+  assert.match(rollbackSql, /commit;\s*$/i);
+  assert.equal(publicationReasonCodes(rollbackSql).includes("HARD_PRICE_ANOMALY"), false);
 });

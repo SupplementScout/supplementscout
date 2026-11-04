@@ -1,5 +1,10 @@
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const Module = require("node:module");
+const path = require("node:path");
 const test = require("node:test");
+const ts = require("typescript");
+const reasonContract = require("../config/automation-review-reason-codes.json");
 const {
   buildPublicationRpcRequest,
   planPublication,
@@ -9,6 +14,29 @@ const {
   sqlJsonCatalogueCounts,
   validateManifest,
 } = require("./lib/automation-review-publisher");
+
+function loadReviewAdapters() {
+  const filename = path.join(process.cwd(), "app", "lib", "automationReviewAdapters.ts");
+  const source = fs.readFileSync(filename, "utf8");
+  const { outputText } = ts.transpileModule(source, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+    fileName: filename,
+  });
+  const mod = new Module(filename, module);
+  mod.filename = filename;
+  mod.paths = Module._nodeModulePaths(path.dirname(filename));
+  const originalLoad = Module._load;
+  Module._load = function loadModule(request, parent, isMain) {
+    if (request === "server-only") return {};
+    return originalLoad.call(this, request, parent, isMain);
+  };
+  try {
+    mod._compile(outputText, filename);
+    return mod.exports;
+  } finally {
+    Module._load = originalLoad;
+  }
+}
 
 function row(overrides = {}) {
   const semantic = {
@@ -143,6 +171,65 @@ test("validates retailer binding, schema, reason codes and batch limit", () => {
   assert.throws(() => validateManifest(manifest({ rows: Array.from({ length: 2 }, () => row()) })), /duplicate active problem/);
   assert.throws(() => validateManifest(manifest({ rows: [row()], observed_offer_ids: [] })), /Every review row offer/);
   assert.throws(() => validateManifest(manifest({ rows: [row(), row({ offer_id: "2749", source_row_fingerprint: "c".repeat(64) })] }), { maxRows: 1 }), /batch limit/);
+});
+
+test("canonical Review Queue reason contract includes hard-price anomalies and the publisher accepts them", () => {
+  assert.equal(reasonContract.schema_version, 1);
+  assert.equal(reasonContract.reason_codes.includes("HARD_PRICE_ANOMALY"), true);
+  const hardPrice = row({
+    review_kind: "COMMERCIAL_CHANGE",
+    operation_type: "UPDATE_PRICE",
+    reason_codes: "HARD_PRICE_ANOMALY",
+    source_row_fingerprint: "9".repeat(64),
+  });
+  const validated = validateManifest(manifest({ rows: [hardPrice] }));
+  const plan = planPublication(validated, []);
+  assert.equal(validated.rows[0].reason_codes, "HARD_PRICE_ANOMALY");
+  assert.equal(plan.counts.created, 1);
+  assert.equal(plan.counts.catalogue_writes, 0);
+});
+
+test("eBay adapter accepts hard-price anomalies only on the existing price-update path", () => {
+  const { REVIEW_EXECUTION_ADAPTERS } = require("./lib/automation-review-adapter-registry");
+  const { resolveReviewAdapter } = loadReviewAdapters();
+  const ebay = REVIEW_EXECUTION_ADAPTERS.find((adapter) => adapter.retailerSlug === "ebay-uk");
+  assert.deepEqual(ebay.operations, ["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK"]);
+  assert.deepEqual(ebay.operationReasonCodes.UPDATE_PRICE, ["PRICE_CHANGE", "HARD_PRICE_ANOMALY"]);
+  assert.deepEqual(ebay.operationReasonCodes.UPDATE_STOCK, ["STOCK_CHANGE"]);
+  assert.equal(resolveReviewAdapter("12", "UPDATE_PRICE", "HARD_PRICE_ANOMALY").adapter?.retailerSlug, "ebay-uk");
+  assert.equal(resolveReviewAdapter("12", "UPDATE_PRICE", "PRICE_CHANGE").adapter?.retailerSlug, "ebay-uk");
+  assert.equal(resolveReviewAdapter("12", "UPDATE_STOCK", "STOCK_CHANGE").adapter?.retailerSlug, "ebay-uk");
+  assert.equal(resolveReviewAdapter("12", "UPDATE_STOCK", "HARD_PRICE_ANOMALY").adapter, null);
+  assert.equal(resolveReviewAdapter("12", "UPDATE_PRICE_AND_STOCK", "HARD_PRICE_ANOMALY").adapter, null);
+  assert.equal(resolveReviewAdapter("12", "REBIND_EXISTING_VARIANT", "HARD_PRICE_ANOMALY").adapter, null);
+});
+
+test("failed-batch-shaped hard-price row crosses producer, publisher, adapter and worker contracts without writes", () => {
+  const { operationForReview } = require("./automation-review-reconciliation-dry-run");
+  const { assertHardPriceReviewExecution } = require("./automation-review-ebay-worker");
+  const { resolveReviewAdapter } = loadReviewAdapters();
+  const normalized = operationForReview({ action: "UPDATE_PRICE", reason: "HARD_PRICE_ANOMALY" });
+  assert.deepEqual(normalized, { review_kind: "COMMERCIAL_CHANGE", operation_type: "UPDATE_PRICE", reason_codes: "HARD_PRICE_ANOMALY", confidence: "MEDIUM", suggested_action: "MANUAL_REVIEW" });
+
+  const before = { id: "99001", retailer_product_id: "88001", product_id: "77001", product_variant_id: "66001", price: "149.00", shipping_cost: "0.00", total_price: "149.00", in_stock: true, url: "https://example.test/affiliate/item-1" };
+  const mapping = { id: "88001", external_product_id: "item-1", external_variant_id: "item-1", external_url: "https://example.test/source/item-1" };
+  const proposed = { price: "49.00", shipping_cost: "0.00", total_price: "49.00", in_stock: true, url: before.url };
+  const review = {
+    retailer_id: "12", retailer: "eBay UK", retailer_product_id: "88001", offer_id: "99001",
+    current_product_id: "77001", current_variant_id: "66001", proposed_product_id: null, proposed_variant_id: null,
+    review_status: "PENDING", ...normalized, source_price: "49.00",
+    source_row_fingerprint: "a".repeat(64), plan_fingerprint: "b".repeat(64),
+    before_state: { offer_id: "99001", retailer_product_id: "88001", product_id: "77001", product_variant_id: "66001", price: "149.00", shipping_cost: "0.00", total_price: "149.00", in_stock: true, url: before.url, external_url: mapping.external_url, external_product_id: mapping.external_product_id, external_variant_id: mapping.external_variant_id },
+    proposed_state: { offer: proposed }, impact_summary: { direct_catalogue_writes: 0 }, source_evidence: { workflow_run_id: "fixture-run", artifact_id: "fixture-artifact" },
+    source_captured_at: "2026-11-04T10:00:00.000Z", expires_at: "2026-11-11T10:00:00.000Z",
+  };
+  const input = { schema_version: 1, kind: "automation-review-publisher-manifest", generated_at: "2026-11-04T10:01:00.000Z", retailer_id: "12", retailer: "eBay UK", retailer_slug: "ebay-uk", observed_offer_ids: ["99001"], rows: [review] };
+  const validated = validateManifest(input);
+  const publication = planPublication(validated, []);
+  assert.equal(publication.counts.created, 1);
+  assert.equal(publication.counts.catalogue_writes, 0);
+  assert.equal(resolveReviewAdapter("12", validated.rows[0].operation_type, validated.rows[0].reason_codes).adapter?.retailerSlug, "ebay-uk");
+  assert.doesNotThrow(() => assertHardPriceReviewExecution(review, { offer: { action: "update", id: "99001", values: proposed }, price_history: { action: "create" }, expected_state: { offer: before, retailer_product: mapping } }));
 });
 
 test("plans create, refresh, supersede and resolved-by-source without catalogue writes", () => {
