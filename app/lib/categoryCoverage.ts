@@ -10,6 +10,7 @@ export type CategoryCoverageProduct = {
   brand?: string | null;
   category?: string | null;
   description?: string | null;
+  product_format?: string | null;
 };
 
 type CategoryCoverageField = keyof CategoryCoverageProduct;
@@ -35,16 +36,32 @@ export type CategoryCoverageEvaluation = {
   evidence: string[];
 };
 
-export type CategoryCoverageDefinition = {
+type CategoryCoverageDefinitionBase = {
   key: string;
-  publicLabel: string;
-  route: string;
   canonicalCategoryAliases: readonly string[];
   candidateQueries: readonly string[];
   includeRules: readonly CategoryCoverageRule[];
   excludeRules: readonly CategoryCoverageRule[];
   reviewRules: readonly CategoryCoverageRule[];
+  fallbackClassification?: CategoryCoverageClassification;
 };
+
+export type PublicCategoryCoverageDefinition =
+  CategoryCoverageDefinitionBase & {
+    publicLabel: string;
+    route: string;
+    exposure?: "public";
+  };
+
+export type InternalCategoryCoverageDefinition =
+  CategoryCoverageDefinitionBase & {
+    internalLabel: string;
+    exposure: "internal";
+  };
+
+export type CategoryCoverageDefinition =
+  | PublicCategoryCoverageDefinition
+  | InternalCategoryCoverageDefinition;
 
 const condition = (
   field: CategoryCoverageField,
@@ -85,6 +102,16 @@ const aminoBundlePattern =
 const aminoProteinCoIdentityPattern = /\b(?:protein|whey)\b/i;
 const aminoIntraWorkoutPattern = /\bintra[-\s]?workout\b/i;
 const exactEnergySupplementsCategoryPattern = /^\s*energy\s+supplements\s*$/i;
+
+const exactHydrationCategoryPattern = /^\s*hydration\s*$/i;
+const exactElectrolytesCategoryPattern = /^\s*electrolytes\s*$/i;
+const explicitHydrationNamePattern =
+  /\b(?:hydration|hydrate|rehydrate|rehydration)\b/i;
+const explicitElectrolyteNamePattern = /\belectrolytes?\b/i;
+const explicitIsotonicNamePattern = /\bisotonic\b/i;
+const energyGelNamePattern = /\benergy\s+gel\b/i;
+const hydrationDescriptionIdentityPattern =
+  /\ball[-\s]?in[-\s]?one\s+sports?\s+drink\b|\bhydration\b[\s\S]{0,60}\b(?:supplement|formula|drink)\b/i;
 
 const testosteroneStrongNamePattern =
   /\b(?:testosterone|testo|test\s*x|testx|tribooster)\b/i;
@@ -326,6 +353,238 @@ const categoryCoverageDefinitions = [
         }
       ),
     ],
+  },
+  {
+    key: "hydration",
+    publicLabel: "Hydration",
+    route: "/hydration",
+    canonicalCategoryAliases: ["Hydration"],
+    candidateQueries: [
+      "Hydration",
+      "Electrolytes",
+      "hydrate",
+      "rehydrate",
+      "rehydration",
+      "isotonic",
+      "sports drink",
+      "oral rehydration",
+      "mineral salt",
+      "fluid replacement",
+    ],
+    excludeRules: [
+      rule(
+        "HYDRATION_NON_SUPPLEMENT_ACCESSORY",
+        "HIGH",
+        "The product is an accessory rather than a Hydration supplement.",
+        { anyOf: [condition("category", /^\s*accessories\s*$/i)] }
+      ),
+      rule(
+        "HYDRATION_PLAIN_FUNCTIONAL_WATER",
+        "HIGH",
+        "Name identifies plain alkaline or ionised water without an independent Hydration supplement identity.",
+        {
+          allOf: [
+            condition("name", /\b(?:alkaline|ionised)\b[\s\S]*\bwater\b/i),
+          ],
+        }
+      ),
+      rule(
+        "HYDRATION_ORDINARY_MINERAL_IDENTITY",
+        "HIGH",
+        "Name identifies an ordinary mineral product without an independent Hydration, Electrolyte or isotonic identity.",
+        {
+          anyOf: [
+            condition("name", /\b(?:calcium|magnesium|potassium|sodium|zinc)\b/i),
+          ],
+          noneOf: [
+            condition("name", explicitHydrationNamePattern),
+            condition("name", explicitElectrolyteNamePattern),
+            condition("name", explicitIsotonicNamePattern),
+          ],
+        }
+      ),
+    ],
+    includeRules: [
+      rule(
+        "HYDRATION_EXPLICIT_NAME_IDENTITY",
+        "HIGH",
+        "Name explicitly identifies Hydration or rehydration as a product identity.",
+        { anyOf: [condition("name", explicitHydrationNamePattern)] }
+      ),
+      rule(
+        "HYDRATION_EXPLICIT_ELECTROLYTE_IDENTITY",
+        "HIGH",
+        "Name explicitly identifies an Electrolyte product identity.",
+        {
+          anyOf: [condition("name", explicitElectrolyteNamePattern)],
+          noneOf: [condition("name", energyGelNamePattern)],
+        }
+      ),
+      rule(
+        "HYDRATION_EXPLICIT_ISOTONIC_IDENTITY",
+        "HIGH",
+        "Name explicitly identifies an isotonic sports-hydration product.",
+        {
+          anyOf: [condition("name", explicitIsotonicNamePattern)],
+          noneOf: [condition("name", energyGelNamePattern)],
+        }
+      ),
+      rule(
+        "HYDRATION_SUPPORTED_CATEGORY_AND_FORMAT",
+        "HIGH",
+        "A reviewed Hydration or Electrolytes category is supported by powder format evidence.",
+        {
+          allOf: [
+            condition(
+              "category",
+              /^\s*(?:hydration|electrolytes)\s*$/i
+            ),
+            condition("product_format", /^\s*powder\s*$/i),
+          ],
+          noneOf: [condition("name", energyGelNamePattern)],
+        }
+      ),
+    ],
+    reviewRules: [
+      rule(
+        "HYDRATION_VITAMIN_WATER_AMBIGUITY",
+        "MEDIUM",
+        "Vitamin-water identity in the Hydration category needs product-level review.",
+        {
+          allOf: [
+            condition("name", /\bvitamin\s+water\b/i),
+            condition("category", exactHydrationCategoryPattern),
+          ],
+        }
+      ),
+      rule(
+        "HYDRATION_ELECTROLYTE_ENERGY_GEL_AMBIGUITY",
+        "MEDIUM",
+        "An Energy Gel with Electrolyte evidence has a conflicting primary identity.",
+        {
+          allOf: [condition("name", energyGelNamePattern)],
+          anyOf: [
+            condition("name", explicitElectrolyteNamePattern),
+            condition("category", exactElectrolytesCategoryPattern),
+          ],
+        }
+      ),
+      rule(
+        "HYDRATION_DESCRIPTION_ONLY_SPORTS_DRINK_IDENTITY",
+        "MEDIUM",
+        "An all-in-one sports drink identity appears only in the description.",
+        {
+          anyOf: [
+            condition(
+              "description",
+              /\ball[-\s]?in[-\s]?one\s+sports?\s+drink\b/i
+            ),
+          ],
+        }
+      ),
+      rule(
+        "HYDRATION_DESCRIPTION_ONLY_DRINK_IDENTITY",
+        "MEDIUM",
+        "A generic drink name has only description-level Hydration evidence.",
+        {
+          allOf: [
+            condition("name", /\bdrink\b/i),
+            condition("description", /\bhydration\b/i),
+          ],
+        }
+      ),
+      rule(
+        "HYDRATION_DESCRIPTION_ONLY_FORMULA_IDENTITY",
+        "MEDIUM",
+        "Hydration supplement, formula or drink identity appears only in the description.",
+        {
+          anyOf: [condition("description", hydrationDescriptionIdentityPattern)],
+        }
+      ),
+    ],
+    fallbackClassification: "EXCLUDE_STRONG",
+  },
+  {
+    key: "electrolytes",
+    internalLabel: "Electrolytes",
+    exposure: "internal",
+    canonicalCategoryAliases: ["Electrolytes"],
+    candidateQueries: ["Electrolytes", "electrolyte", "isotonic"],
+    excludeRules: [],
+    includeRules: [
+      rule(
+        "ELECTROLYTES_EXPLICIT_NAME_IDENTITY",
+        "HIGH",
+        "Name explicitly identifies an Electrolyte product identity.",
+        {
+          anyOf: [condition("name", explicitElectrolyteNamePattern)],
+          noneOf: [condition("name", energyGelNamePattern)],
+        }
+      ),
+      rule(
+        "ELECTROLYTES_EXPLICIT_ISOTONIC_IDENTITY",
+        "HIGH",
+        "Name explicitly identifies an isotonic sports-hydration product.",
+        {
+          anyOf: [condition("name", explicitIsotonicNamePattern)],
+          noneOf: [condition("name", energyGelNamePattern)],
+        }
+      ),
+      rule(
+        "ELECTROLYTES_SUPPORTED_CATEGORY_AND_FORMAT",
+        "HIGH",
+        "A reviewed Electrolytes category is supported by powder format evidence.",
+        {
+          allOf: [
+            condition("category", exactElectrolytesCategoryPattern),
+            condition("product_format", /^\s*powder\s*$/i),
+          ],
+          noneOf: [condition("name", energyGelNamePattern)],
+        }
+      ),
+    ],
+    reviewRules: [
+      rule(
+        "ELECTROLYTES_ENERGY_GEL_AMBIGUITY",
+        "MEDIUM",
+        "An Energy Gel with Electrolyte evidence has a conflicting primary identity.",
+        {
+          allOf: [condition("name", energyGelNamePattern)],
+          anyOf: [
+            condition("name", explicitElectrolyteNamePattern),
+            condition("category", exactElectrolytesCategoryPattern),
+          ],
+        }
+      ),
+      rule(
+        "ELECTROLYTES_EXPLICIT_HYDRATION_WITHOUT_EXPLICIT_IDENTITY",
+        "MEDIUM",
+        "Hydration identity without explicit Electrolyte or isotonic evidence needs review in the Electrolytes dimension.",
+        {
+          anyOf: [condition("name", explicitHydrationNamePattern)],
+          noneOf: [
+            condition("name", explicitElectrolyteNamePattern),
+            condition("name", explicitIsotonicNamePattern),
+          ],
+        }
+      ),
+      rule(
+        "ELECTROLYTES_HYDRATION_CATEGORY_WITHOUT_EXPLICIT_IDENTITY",
+        "MEDIUM",
+        "Hydration category and powder evidence without explicit Electrolyte or isotonic identity needs review.",
+        {
+          allOf: [
+            condition("category", exactHydrationCategoryPattern),
+            condition("product_format", /^\s*powder\s*$/i),
+          ],
+          noneOf: [
+            condition("name", explicitElectrolyteNamePattern),
+            condition("name", explicitIsotonicNamePattern),
+          ],
+        }
+      ),
+    ],
+    fallbackClassification: "EXCLUDE_STRONG",
   },
   {
     key: "testosterone-boosters",
@@ -666,9 +925,21 @@ const categoryCoverageDefinitions = [
   },
 ] as const satisfies readonly CategoryCoverageDefinition[];
 
-export const CATEGORY_COVERAGE_DEFINITIONS = Object.freeze(
+export const CATEGORY_COVERAGE_SEMANTIC_DEFINITIONS = Object.freeze(
   categoryCoverageDefinitions
 ) as readonly CategoryCoverageDefinition[];
+
+export function isPublicCategoryCoverageDefinition(
+  definition: CategoryCoverageDefinition
+): definition is PublicCategoryCoverageDefinition {
+  return definition.exposure !== "internal";
+}
+
+export const CATEGORY_COVERAGE_DEFINITIONS = Object.freeze(
+  CATEGORY_COVERAGE_SEMANTIC_DEFINITIONS.filter(
+    isPublicCategoryCoverageDefinition
+  )
+) as readonly PublicCategoryCoverageDefinition[];
 
 const confidenceRank: Record<CategoryCoverageConfidence, number> = {
   LOW: 0,
@@ -715,7 +986,9 @@ function evaluationFromRules(
 }
 
 export function getCategoryCoverageDefinition(key: string) {
-  return CATEGORY_COVERAGE_DEFINITIONS.find((definition) => definition.key === key);
+  return CATEGORY_COVERAGE_SEMANTIC_DEFINITIONS.find(
+    (definition) => definition.key === key
+  );
 }
 
 export function categoryCoverageDefinitionForLabel(
@@ -760,10 +1033,20 @@ export function evaluateCategoryCoverage(
     return evaluationFromRules("REVIEW_REQUIRED", reviews);
   }
 
+  const fallbackClassification =
+    definition.fallbackClassification || "REVIEW_REQUIRED";
   return {
-    classification: "REVIEW_REQUIRED",
-    confidence: "LOW",
-    reasonCodes: ["INSUFFICIENT_SEMANTIC_EVIDENCE"],
-    evidence: ["No deterministic include or exclude rule matched."],
+    classification: fallbackClassification,
+    confidence: fallbackClassification === "EXCLUDE_STRONG" ? "HIGH" : "LOW",
+    reasonCodes: [
+      fallbackClassification === "EXCLUDE_STRONG"
+        ? "NO_PRIMARY_CATEGORY_IDENTITY"
+        : "INSUFFICIENT_SEMANTIC_EVIDENCE",
+    ],
+    evidence: [
+      fallbackClassification === "EXCLUDE_STRONG"
+        ? "No deterministic primary product identity matched."
+        : "No deterministic include or exclude rule matched.",
+    ],
   };
 }

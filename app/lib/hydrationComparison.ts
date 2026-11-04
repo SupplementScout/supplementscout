@@ -5,13 +5,17 @@ import {
   evaluateCategoryIndexability,
   normalizeCategoryComparison,
   type CategoryComparisonOffer,
-  type CategoryComparisonResult,
   type CategoryComparisonRow,
   type CategoryComparisonSummary,
   type RawCategoryComparisonProduct,
 } from "./categoryComparison";
+import {
+  evaluateCategoryCoverage,
+  getCategoryCoverageDefinition,
+  type CategoryCoverageEvaluation,
+} from "./categoryCoverage";
 
-const HYDRATION_QUERY_LIMIT = 1000;
+export const HYDRATION_QUERY_PAGE_SIZE = 1000;
 
 export const HYDRATION_INDEX_GATE = {
   minimumProductsWithMultipleFreshRetailers: 3,
@@ -19,81 +23,140 @@ export const HYDRATION_INDEX_GATE = {
   minimumFreshOffers: 8,
 } as const;
 
-type RawRetailer = {
-  id: number | string;
-  name: string | null;
-  slug: string | null;
-};
-
-type RawHydrationOffer = {
-  id: number | string;
-  retailer_product_id: number | string | null;
-  price: number | string | null;
-  shipping_cost: number | string | null;
-  in_stock: boolean | null;
-  last_checked_at: string | null;
-  url: string | null;
-  retailer: RawRetailer | RawRetailer[] | null;
-};
-
-export type RawHydrationProduct = {
-  id: number | string;
-  slug: string | null;
-  name: string;
-  brand: string | null;
-  category: string | null;
-  image: string | null;
-  net_weight_g: number | string | null;
-  net_volume_ml: number | string | null;
-  unit_count: number | string | null;
-  unit_type: string | null;
-  serving_count_verified: number | string | null;
-  is_active: boolean | null;
-  merged_into_product_id: number | string | null;
-  merged_at: string | null;
-  offers?: RawHydrationOffer[] | null;
-};
-
-export type HydrationComparisonOffer = CategoryComparisonOffer;
-export type HydrationComparisonRow = CategoryComparisonRow;
-export type HydrationComparisonSummary = CategoryComparisonSummary;
-export type HydrationComparisonResult = CategoryComparisonResult;
-
-export function isHydrationCategoryProduct(product: RawHydrationProduct) {
-  if (
-    product.is_active !== true ||
-    product.merged_into_product_id !== null ||
-    product.merged_at !== null
-  ) {
-    return false;
+function requiredCoverageDefinition(key: string) {
+  const definition = getCategoryCoverageDefinition(key);
+  if (!definition) {
+    throw new Error(`Category Coverage definition unavailable: ${key}`);
   }
+  return definition;
+}
 
-  const category = product.category?.trim().toLowerCase() || "";
-  const evidence = `${category} ${product.name}`.toLowerCase();
+const hydrationDefinition = requiredCoverageDefinition("hydration");
+const electrolytesDefinition = requiredCoverageDefinition("electrolytes");
 
+const coreCandidateCategoryPattern =
+  /^\s*(?:hydration|electrolytes|energy\s+drinks?|energy\s+supplements)\s*$/i;
+const candidateNamePattern =
+  /\b(?:hydration|hydrate|rehydrat(?:e|ion)|electrolytes?|isotonic|sports?\s+drinks?|oral\s+rehydration|ors|mineral\s+salts?|sodium|potassium|magnesium|intra[-\s]?workout|fluid\s+replacement)\b/i;
+const candidateDescriptionPattern =
+  /\b(?:hydration|hydrate|rehydrat(?:e|ion)|electrolytes?|isotonic|sports?\s+drinks?|oral\s+rehydration|ors|mineral\s+salts?|fluid\s+replacement|replace(?:s|ment)?\s+(?:fluids?|salts?|minerals?)|sweat[\s\S]{0,80}(?:sodium|potassium|magnesium|minerals?))\b/i;
+
+const HYDRATION_CANDIDATE_OR_FILTER = [
+  "category.eq.Hydration",
+  "category.eq.Electrolytes",
+  "category.eq.Energy Drinks",
+  "category.eq.Energy Supplements",
+  ...[
+    "hydration",
+    "hydrate",
+    "rehydrate",
+    "rehydration",
+    "electrolyte",
+    "isotonic",
+    "sports drink",
+    "oral rehydration",
+    "mineral salt",
+    "sodium",
+    "potassium",
+    "magnesium",
+    "intra workout",
+    "intra-workout",
+    "fluid replacement",
+  ].map((value) => `name.ilike.%${value}%`),
+  ...[
+    "hydration",
+    "hydrate",
+    "rehydrate",
+    "rehydration",
+    "electrolyte",
+    "isotonic",
+    "sports drink",
+    "oral rehydration",
+    "mineral salt",
+    "fluid replacement",
+    "replace fluids",
+    "replace salts",
+    "replace minerals",
+    "sweat",
+  ].map((value) => `description.ilike.%${value}%`),
+].join(",");
+
+export type RawHydrationProduct = RawCategoryComparisonProduct & {
+  description: string | null;
+  product_format: string | null;
+};
+
+export type HydrationSemanticSubtype = "electrolytes";
+export type HydrationComparisonOffer = CategoryComparisonOffer;
+export type HydrationComparisonRow = CategoryComparisonRow & {
+  semanticSubtypes: HydrationSemanticSubtype[];
+};
+export type HydrationComparisonSummary = CategoryComparisonSummary;
+export type HydrationComparisonResult = {
+  rows: HydrationComparisonRow[];
+  summary: HydrationComparisonSummary;
+  error: boolean;
+};
+
+function isActiveUnmerged(product: RawHydrationProduct) {
   return (
-    category === "hydration" ||
-    /\bhydration\b|\belectrolytes?\b|\bhydrate\b/.test(evidence)
+    product.is_active === true &&
+    product.merged_into_product_id === null &&
+    product.merged_at === null
   );
+}
+
+export function hasHydrationCandidateEvidence(product: RawHydrationProduct) {
+  return (
+    coreCandidateCategoryPattern.test(product.category || "") ||
+    candidateNamePattern.test(product.name) ||
+    candidateDescriptionPattern.test(product.description || "")
+  );
+}
+
+export function evaluateHydrationCoverage(
+  product: RawHydrationProduct
+): CategoryCoverageEvaluation {
+  return evaluateCategoryCoverage(hydrationDefinition, product);
+}
+
+export function evaluateElectrolytesCoverage(
+  product: RawHydrationProduct
+): CategoryCoverageEvaluation {
+  return evaluateCategoryCoverage(electrolytesDefinition, product);
 }
 
 export function normalizeHydrationComparison(
   products: RawHydrationProduct[],
   options: { now?: Date } = {}
 ): Omit<HydrationComparisonResult, "error"> {
-  const normalizedProducts = products.map((product) => ({
-    ...product,
-    product_format: null,
-    serving_size_g: null,
-    protein_per_serving_g: null,
-    unit_pricing_verified: null,
-    nutrition_verified: null,
-  })) as RawCategoryComparisonProduct[];
-  return normalizeCategoryComparison(normalizedProducts, {
+  const electrolyteStrongIds = new Set(
+    products
+      .filter(
+        (product) =>
+          isActiveUnmerged(product) &&
+          evaluateElectrolytesCoverage(product).classification ===
+            "INCLUDE_STRONG"
+      )
+      .map((product) => String(product.id))
+  );
+  const normalized = normalizeCategoryComparison(products, {
     isProductInScope: (product) =>
-      isHydrationCategoryProduct(product as RawHydrationProduct),
+      isActiveUnmerged(product as RawHydrationProduct) &&
+      evaluateHydrationCoverage(product as RawHydrationProduct)
+        .classification === "INCLUDE_STRONG",
     now: options.now,
   });
+
+  return {
+    ...normalized,
+    rows: normalized.rows.map((row) => ({
+      ...row,
+      semanticSubtypes: electrolyteStrongIds.has(row.id)
+        ? (["electrolytes"] as HydrationSemanticSubtype[])
+        : [],
+    })),
+  };
 }
 
 export function evaluateHydrationIndexability(
@@ -107,8 +170,8 @@ export function evaluateHydrationIndexability(
   );
 }
 
-async function loadHydrationComparison(): Promise<HydrationComparisonResult> {
-  const { data, error } = await supabase
+async function loadHydrationCandidatePage(from: number, to: number) {
+  return supabase
     .from("products")
     .select(
       `
@@ -117,7 +180,9 @@ async function loadHydrationComparison(): Promise<HydrationComparisonResult> {
         name,
         brand,
         category,
+        description,
         image,
+        product_format,
         net_weight_g,
         net_volume_ml,
         unit_count,
@@ -145,19 +210,33 @@ async function loadHydrationComparison(): Promise<HydrationComparisonResult> {
     .eq("is_active", true)
     .is("merged_into_product_id", null)
     .is("merged_at", null)
-    .or(
-      "category.eq.Hydration,name.ilike.%hydration%,name.ilike.%electrolyte%,name.ilike.%hydrate%"
-    )
-    .order("name")
-    .range(0, HYDRATION_QUERY_LIMIT - 1);
+    .or(HYDRATION_CANDIDATE_OR_FILTER)
+    .order("id", { ascending: true })
+    .range(from, to);
+}
 
-  if (error) {
-    console.error("Unable to load the Hydration comparison.");
-    return emptyCategoryComparisonResult();
+async function loadHydrationComparison(): Promise<HydrationComparisonResult> {
+  const candidates: RawHydrationProduct[] = [];
+
+  for (let offset = 0; ; offset += HYDRATION_QUERY_PAGE_SIZE) {
+    const { data, error } = await loadHydrationCandidatePage(
+      offset,
+      offset + HYDRATION_QUERY_PAGE_SIZE - 1
+    );
+
+    if (error) {
+      console.error("Unable to load the Hydration comparison.");
+      const empty = emptyCategoryComparisonResult();
+      return { ...empty, rows: [] };
+    }
+
+    const page = (data || []) as RawHydrationProduct[];
+    candidates.push(...page.filter(hasHydrationCandidateEvidence));
+    if (page.length < HYDRATION_QUERY_PAGE_SIZE) break;
   }
 
   return {
-    ...normalizeHydrationComparison((data || []) as RawHydrationProduct[]),
+    ...normalizeHydrationComparison(candidates),
     error: false,
   };
 }

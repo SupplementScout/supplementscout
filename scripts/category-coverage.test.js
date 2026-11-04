@@ -29,6 +29,11 @@ const {
 } = loadCategoryCoverageModule();
 
 const aminoDefinition = getCategoryCoverageDefinition("amino-acids");
+const hydrationDefinition = getCategoryCoverageDefinition("hydration");
+const electrolytesDefinition = getCategoryCoverageDefinition("electrolytes");
+const hydrationElectrolytesFixtures = require(
+  "./fixtures/category-coverage/hydration-electrolytes"
+);
 const {
   fixtures: aminoFixtures,
   expectedIds: expectedAminoIds,
@@ -55,6 +60,48 @@ const {
   fixtures: nootropicsFixtures,
   expectedIds: expectedNootropicsIds,
 } = require("./fixtures/category-coverage/nootropics");
+
+test("Hydration is public while Electrolytes is one shared internal semantic definition", () => {
+  assert.ok(hydrationDefinition);
+  assert.equal(hydrationDefinition.publicLabel, "Hydration");
+  assert.equal(hydrationDefinition.route, "/hydration");
+  assert.ok(electrolytesDefinition);
+  assert.equal(electrolytesDefinition.exposure, "internal");
+  assert.equal(electrolytesDefinition.internalLabel, "Electrolytes");
+  assert.equal(categoryCoverageDefinitionForLabel("Hydration").route, "/hydration");
+  assert.equal(categoryCoverageDefinitionForLabel("Electrolytes"), null);
+});
+
+test("Hydration and Electrolytes fixtures preserve strong, review, exclusion and multi-membership boundaries", () => {
+  for (const { product, expected } of hydrationElectrolytesFixtures) {
+    assert.equal(
+      evaluateCategoryCoverage(hydrationDefinition, product).classification,
+      expected.hydration,
+      `Hydration: ${product.name}`
+    );
+    assert.equal(
+      evaluateCategoryCoverage(electrolytesDefinition, product).classification,
+      expected.electrolytes,
+      `Electrolytes: ${product.name}`
+    );
+  }
+});
+
+test("every Electrolytes strong fixture is also Hydration strong", () => {
+  for (const { product } of hydrationElectrolytesFixtures) {
+    const electrolyte = evaluateCategoryCoverage(
+      electrolytesDefinition,
+      product
+    );
+    if (electrolyte.classification === "INCLUDE_STRONG") {
+      assert.equal(
+        evaluateCategoryCoverage(hydrationDefinition, product).classification,
+        "INCLUDE_STRONG",
+        product.name
+      );
+    }
+  }
+});
 
 test("Amino Acids definition exposes one shared route and the audited candidate vocabulary", () => {
   assert.ok(aminoDefinition);
