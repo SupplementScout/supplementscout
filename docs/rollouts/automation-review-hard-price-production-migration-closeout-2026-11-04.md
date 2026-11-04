@@ -129,4 +129,4 @@ batch. No Review Queue decision or execution is authorized by this migration.
 - Local Quality Gate quick: `PASS`.
 - Local Quality Gate full, baseline validation and production build: `PASS`.
 - `git diff --check`: `PASS`.
-- Remote final gates: pending documentation-only PR validation.
+- Remote gates on head `90804662eb72cfd33796de20e23a55d2b99263bd`: Project Guardian `PASS`, full Quality Gate `PASS`, GitGuardian `PASS`, Vercel `PASS`; integration correctly skipped and unresolved review threads `0`. Any later metadata-only closeout commit must pass the same required checks before merge.
