@@ -159,6 +159,9 @@ test("clean exact public Category Coverage labels resolve case-insensitively", (
     ["nootropics", "/nootropics"],
     ["NOOTROPICS", "/nootropics"],
     ["  Nootropics  ", "/nootropics"],
+    ["Amino Acids", "/amino-acids"],
+    ["amino acids", "/amino-acids"],
+    [" AMINO   ACIDS ", "/amino-acids"],
   ];
 
   for (const [query, href] of cases) {
@@ -179,6 +182,9 @@ test("nonexact, fuzzy and comparison-category queries remain normal Search", () 
     "Nootropic",
     "Best Nootropics",
     "Nootropics with caffeine",
+    "Amino Acid",
+    "BCAA",
+    "EAA",
     "Collagen under £30",
     "best fat burners",
     "test boosters",
@@ -218,7 +224,7 @@ test("every supplied Search state key makes exact queries fail closed", () => {
     page: "2",
   };
 
-  for (const query of ["Collagen", "Nootropics"]) {
+  for (const query of ["Collagen", "Nootropics", "Amino Acids"]) {
     for (const [key, value] of Object.entries(states)) {
       assert.equal(
         resolver.resolveExactCategorySearchIntent({ q: query, [key]: value }),
@@ -250,6 +256,17 @@ test("one shared raw Search escape bypasses category navigation without filters"
   assert.equal(
     resolver.resolveExactCategorySearchIntent({
       q: "Fat Burners",
+      search_mode: "raw",
+    }),
+    null
+  );
+  assert.equal(
+    resolver.categoryCoverageRawSearchHref("Amino Acids"),
+    "/search?q=Amino+Acids&search_mode=raw"
+  );
+  assert.equal(
+    resolver.resolveExactCategorySearchIntent({
+      q: "Amino Acids",
       search_mode: "raw",
     }),
     null
@@ -286,6 +303,21 @@ test("SearchPage applies the generic exact resolver to Nootropics before Search 
   });
 });
 
+test("SearchPage applies the generic exact resolver to Amino Acids before Search work", async () => {
+  const { calls, page } = loadSearchPage();
+
+  await assert.rejects(
+    page.default({ searchParams: Promise.resolve({ q: "Amino Acids" }) }),
+    /REDIRECT:\/amino-acids/
+  );
+  assert.deepEqual(calls, {
+    intentPlan: 0,
+    searchProducts: 0,
+    analytics: 0,
+    redirect: 1,
+  });
+});
+
 test("raw mode renders ordinary Search and retains Search analytics", async () => {
   const { calls, page } = loadSearchPage();
 
@@ -307,6 +339,25 @@ test("raw mode renders ordinary Search and retains Search analytics", async () =
     searchParams: Promise.resolve({ q: "Collagen", search_mode: "raw" }),
   });
   assert.deepEqual(rawMetadata, ordinaryMetadata);
+});
+
+test("Amino Acids raw mode remains ordinary Search", async () => {
+  const { calls, page } = loadSearchPage();
+
+  const result = await page.default({
+    searchParams: Promise.resolve({
+      q: "Amino Acids",
+      search_mode: "raw",
+    }),
+  });
+
+  assert.ok(result);
+  assert.deepEqual(calls, {
+    intentPlan: 1,
+    searchProducts: 1,
+    analytics: 1,
+    redirect: 0,
+  });
 });
 
 test("resolver architecture has one registry, generic form and generic raw link", () => {

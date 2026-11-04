@@ -25,6 +25,7 @@ import {
   type AminoAcidsComparisonResult,
   type AminoAcidsComparisonRow,
 } from "../lib/aminoAcidsComparison";
+import { categoryCoverageRawSearchHref } from "../lib/categorySearchIntent";
 import { formatCurrency, formatUnitPrice } from "../lib/pricing";
 
 const siteUrl = "https://www.supplementscout.co.uk";
@@ -32,9 +33,10 @@ const pagePath = "/amino-acids";
 const pageUrl = `${siteUrl}${pagePath}`;
 const description =
   "Compare current amino acid, BCAA and EAA prices from UK supplement retailers using recently checked offers and known delivery costs.";
+const rawAminoSearchHref = categoryCoverageRawSearchHref("Amino Acids");
 const getCachedAminoAcidsComparison = createLifecycleDataLoader(
   pagePath,
-  "amino-acids-comparison-v1",
+  "amino-acids-comparison-v2",
   getAminoAcidsComparison
 );
 
@@ -252,7 +254,7 @@ export function AminoAcidsPageContent({
       <header className="border-b border-zinc-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 sm:py-5">
           <Link href="/" className="text-xl font-bold tracking-tight">SupplementScout</Link>
-          <Link href="/search?q=amino%20acids" className="text-sm font-semibold text-zinc-700 hover:text-zinc-950">
+          <Link href={rawAminoSearchHref} className="text-sm font-semibold text-zinc-700 hover:text-zinc-950">
             Search amino acids
           </Link>
         </div>
@@ -306,7 +308,7 @@ export function AminoAcidsPageContent({
           <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-6">
             <h2 className="text-xl font-bold">Current amino acid data is temporarily unavailable</h2>
             <p className="mt-2 text-zinc-700">No old prices have been substituted.</p>
-            <Link href="/search?q=amino%20acids" className="mt-4 inline-flex font-semibold underline">Search amino acids</Link>
+            <Link href={rawAminoSearchHref} className="mt-4 inline-flex font-semibold underline">Search amino acids</Link>
           </div>
         )}
         {!result.error && result.rows.length === 0 && (!controlView || controlView.totalCount === 0) && (
@@ -329,10 +331,12 @@ export function AminoAcidsPageContent({
           <div>
             <h2 className="text-2xl font-bold">Reviewed inclusion boundary</h2>
             <p className="mt-3 leading-7 text-zinc-700">
-              A product must be active in the reviewed Amino Acids category and
-              its canonical name must explicitly identify amino acids, BCAA,
-              EAA or a named amino-acid ingredient. Opaque blends, bundles,
-              NAC, 5-HTP and glutathione products are excluded rather than guessed.
+              A product must have evidence identifying Amino Acids, BCAA, EAA
+              or a named amino identity. That evidence normally comes from the
+              product name; an opaque product in the Amino Acids category also
+              needs an explicit formula description. Ambiguous blends, bundles
+              and adjacent derivatives are kept out of the comparison rather
+              than guessed.
             </p>
           </div>
           <div>
@@ -353,7 +357,7 @@ export function AminoAcidsPageContent({
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
         <h2 className="text-2xl font-bold">Amino acid comparison questions</h2>
         <div className="mt-6 grid gap-6 md:grid-cols-2">
-          <div><h3 className="font-bold">Are BCAA and EAA products included?</h3><p className="mt-2 leading-7 text-zinc-700">Yes, when the reviewed canonical category and product name identify them clearly and a recently checked offer is available.</p></div>
+          <div><h3 className="font-bold">Are BCAA and EAA products included?</h3><p className="mt-2 leading-7 text-zinc-700">Yes, when the product evidence clearly identifies BCAA or EAA as a primary or named co-primary identity. Products can remain visible even when no recently checked offer is available.</p></div>
           <div><h3 className="font-bold">Are all products directly equivalent?</h3><p className="mt-2 leading-7 text-zinc-700">No. The page includes blends and single-ingredient products in different formats. Compare the current label, pack size and directions before choosing.</p></div>
           <div><h3 className="font-bold">Does the first result mean the best product?</h3><p className="mt-2 leading-7 text-zinc-700">No. Ordering favours current retailer coverage and then offer coverage. We do not rank effects or personal suitability.</p></div>
           <div><h3 className="font-bold">Why can a value calculation be missing?</h3><p className="mt-2 leading-7 text-zinc-700">A price may be current while package or serving data is incomplete. Unverified per-kilogram or per-serving values stay hidden.</p></div>
@@ -366,7 +370,7 @@ export function AminoAcidsPageContent({
             <Link href="/pre-workout" className="font-semibold underline">Pre Workout comparison</Link>
             <Link href="/hydration" className="font-semibold underline">Hydration comparison</Link>
             <Link href="/creatine" className="font-semibold underline">Creatine comparison</Link>
-            <Link href="/search?q=amino%20acids" className="font-semibold underline">Search amino acid products</Link>
+            <Link href={rawAminoSearchHref} className="font-semibold underline">Search amino acid products</Link>
             <ComparisonTransparencyLinks />
           </div>
         </aside>

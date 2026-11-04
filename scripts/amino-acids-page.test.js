@@ -49,6 +49,9 @@ const categoryComparison = compileModule(
   path.join(process.cwd(), "app", "lib", "categoryComparison.ts"),
   { mocks: { "./creatineLaunch": freshness, "./offerFreshness": offerFreshness, "./pricing": pricing } }
 );
+const categoryCoverage = compileModule(
+  path.join(process.cwd(), "app", "lib", "categoryCoverage.ts")
+);
 const categoryDecision = compileModule(path.join(process.cwd(), "app", "lib", "categoryDecision.ts"));
 const comparisonPath = path.join(process.cwd(), "app", "lib", "aminoAcidsComparison.ts");
 const pagePath = path.join(process.cwd(), "app", "amino-acids", "page.tsx");
@@ -75,6 +78,7 @@ function rawProduct(overrides = {}) {
     name: "Example EAA 300g",
     brand: "Example Nutrition",
     category: "Amino Acids",
+    description: null,
     image: null,
     product_format: "powder",
     net_weight_g: 300,
@@ -98,6 +102,7 @@ function loadComparison(mockSupabase = {}) {
   return compileModule(comparisonPath, {
     mocks: {
       "./categoryComparison": categoryComparison,
+      "./categoryCoverage": categoryCoverage,
       "./supabase": { supabase: mockSupabase },
     },
   });
@@ -144,6 +149,10 @@ function loadPage(result = fixtureResult()) {
       "../components/ComparisonTransparencyLinks": { __esModule: true, default: () => null },
       "../lib/pricing": pricing,
       "../lib/categoryDecision": categoryDecision,
+      "../lib/categorySearchIntent": {
+        categoryCoverageRawSearchHref: (query) =>
+          `/search?q=${encodeURIComponent(query)}&search_mode=raw`,
+      },
       "../lib/aminoAcidsComparison": {
         getAminoAcidsComparison: async () => result,
         evaluateAminoAcidsIndexability: comparison.evaluateAminoAcidsIndexability,
@@ -153,15 +162,35 @@ function loadPage(result = fixtureResult()) {
   });
 }
 
-test("reviewed scope requires an explicit amino identity", () => {
-  const { isAminoAcidsProduct } = loadComparison();
-  for (const name of ["Example EAA 300g", "Example EAAs 300g", "Example BCAA 300g", "Example AminoX 300g", "L-Glutamine 500g", "Beta Alanine 250g"]) {
-    assert.equal(isAminoAcidsProduct(rawProduct({ name })), true, name);
+test("shared semantic scope is strong-only and independent of canonical category", () => {
+  const { evaluateAminoAcidsCoverage, isAminoAcidsProduct } = loadComparison();
+  for (const name of ["Example EAA 300g", "Example EAAs 300g", "Example BCAA 300g", "Example AminoX 300g", "L-Glutamine 500g", "Beta Alanine 250g", "L-Carnitine 500ml", "Creatine + HMB"]) {
+    const product = rawProduct({ name, category: "Health Supplements" });
+    assert.equal(evaluateAminoAcidsCoverage(product).classification, "INCLUDE_STRONG", name);
+    assert.equal(isAminoAcidsProduct(product), true, name);
   }
-  for (const name of ["The Grind 480g", "No Code mTOR 394g", "Hydro Amino 2-Pack", "NAC 300mg", "5-HTP 200mg", "Glutathione 500mg"]) {
-    assert.equal(isAminoAcidsProduct(rawProduct({ name })), false, name);
+
+  const opaqueSupported = rawProduct({
+    name: "Opaque Formula",
+    description: "An essential amino acids and BCAA formula.",
+  });
+  assert.equal(isAminoAcidsProduct(opaqueSupported), true);
+
+  for (const product of [
+    rawProduct({ name: "The Grind 480g", description: null }),
+    rawProduct({ name: "No Code mTOR 394g" }),
+    rawProduct({ name: "TIME 4 Intra-Workout 490g" }),
+    rawProduct({ name: "Hydro Amino 2-Pack" }),
+    rawProduct({ name: "NAC 300mg" }),
+    rawProduct({ name: "5-HTP 200mg" }),
+    rawProduct({ name: "Glutathione 500mg" }),
+    rawProduct({ name: "Caffeine + Taurine", category: "Energy Supplements" }),
+  ]) {
+    assert.equal(isAminoAcidsProduct(product), false, product.name);
   }
-  assert.equal(isAminoAcidsProduct(rawProduct({ category: "Health Supplements" })), false);
+
+  assert.equal(isAminoAcidsProduct(rawProduct({ is_active: false })), false);
+  assert.equal(isAminoAcidsProduct(rawProduct({ merged_at: "2026-11-04T00:00:00Z" })), false);
 });
 
 test("normalization keeps fresh mapped offers and ranks known delivery", () => {
@@ -179,6 +208,18 @@ test("normalization keeps fresh mapped offers and ranks known delivery", () => {
   assert.equal(result.summary.staleOrUnusableOffersExcluded, 2);
 });
 
+test("comparison normalization exposes strong products only", () => {
+  const { normalizeAminoAcidsComparison } = loadComparison();
+  const result = normalizeAminoAcidsComparison([
+    rawProduct({ id: 1, name: "Example EAA 300g", category: "Health Supplements" }),
+    rawProduct({ id: 2, name: "Opaque Catalyst", category: "Amino Acids" }),
+    rawProduct({ id: 3, name: "Soma NAC 300mg", category: "Amino Acids" }),
+  ], { now: FIXTURE_NOW });
+
+  assert.equal(result.summary.scopedProducts, 1);
+  assert.deepEqual(result.rows.map((row) => row.id), ["1"]);
+});
+
 test("indexability fails closed and passes only at the shared gate", () => {
   const comparison = loadComparison();
   const summary = fixtureResult().summary;
@@ -191,16 +232,43 @@ test("indexability fails closed and passes only at the shared gate", () => {
   }, true), { indexable: true, blockers: [] });
 });
 
-test("production query is bounded to the reviewed category", async () => {
+test("production query crosses categories, selects descriptions and paginates to exhaustion", async () => {
   const calls = [];
   const query = {};
-  for (const method of ["select", "eq", "is", "gt", "order"]) {
+  for (const method of ["select", "eq", "is", "or", "order"]) {
     query[method] = (...args) => { calls.push([method, ...args]); return query; };
   }
-  query.range = (...args) => { calls.push(["range", ...args]); return Promise.resolve({ data: [], error: null }); };
-  await loadComparison({ from: () => query }).getAminoAcidsComparison();
-  assert.ok(calls.some((call) => call[0] === "eq" && call[1] === "category" && call[2] === "Amino Acids"));
-  assert.ok(calls.some((call) => call[0] === "range" && call[1] === 0 && call[2] === 999));
+  query.range = (...args) => {
+    calls.push(["range", ...args]);
+    const page = args[0] === 0
+      ? Array.from({ length: 1000 }, (_, index) => rawProduct({ id: index + 1, offers: [] }))
+      : [rawProduct({ id: 1001, name: "Cross-category Taurine", category: "Health Supplements", offers: [] })];
+    return Promise.resolve({ data: page, error: null });
+  };
+  const result = await loadComparison({ from: () => query }).getAminoAcidsComparison();
+  assert.equal(result.error, false);
+  assert.ok(calls.some((call) => call[0] === "select" && /description/.test(call[1])));
+  assert.ok(calls.some((call) => call[0] === "or" && /category\.eq\.Amino Acids/.test(call[1]) && /carnitine/.test(call[1]) && /intra-workout/.test(call[1])));
+  assert.equal(calls.some((call) => call[0] === "eq" && call[1] === "category"), false);
+  assert.deepEqual(calls.filter((call) => call[0] === "range").map((call) => call.slice(1)), [[0, 999], [1000, 1999]]);
+  assert.equal(result.summary.scopedProducts, 1001);
+});
+
+test("a later candidate page failure aborts instead of publishing a partial result", async () => {
+  const query = {};
+  for (const method of ["select", "eq", "is", "or", "order"]) {
+    query[method] = () => query;
+  }
+  query.range = (from) => Promise.resolve(
+    from === 0
+      ? { data: Array.from({ length: 1000 }, (_, index) => rawProduct({ id: index + 1, offers: [] })), error: null }
+      : { data: null, error: { message: "page two failed" } }
+  );
+
+  const result = await loadComparison({ from: () => query }).getAminoAcidsComparison();
+  assert.equal(result.error, true);
+  assert.equal(result.rows.length, 0);
+  assert.equal(result.summary.scopedProducts, 0);
 });
 
 test("live-verified metadata is stable across coverage and uses one canonical", async () => {
@@ -225,10 +293,13 @@ test("server HTML explains taxonomy, delivery and ranking limits", () => {
   const html = renderToStaticMarkup(React.createElement(page.AminoAcidsPageContent, { result: fixtureResult() }));
   assert.match(html, /Compare Amino Acid, BCAA &amp; EAA Prices UK/);
   assert.match(html, /Reviewed inclusion boundary/);
-  assert.match(html, /Opaque blends, bundles/);
+  assert.match(html, /product evidence clearly identifies BCAA or EAA/i);
+  assert.match(html, /Ambiguous blends, bundles/);
+  assert.doesNotMatch(html, /must be active in the reviewed Amino Acids category/i);
   assert.match(html, /Includes known delivery/);
   assert.match(html, /not a ranking of formulation/i);
   assert.match(html, /application\/ld\+json/);
+  assert.match(html, /search_mode=raw/);
 });
 
 test("route has one sitemap URL, homepage entry and priority links", () => {
@@ -240,6 +311,20 @@ test("route has one sitemap URL, homepage entry and priority links", () => {
     const source = fs.readFileSync(path.join(process.cwd(), "app", route, "page.tsx"), "utf8");
     assert.match(source, /href="\/amino-acids"/, route);
   }
+  for (const route of ["bcaa", "eaa", "amino-acid"]) {
+    assert.equal(fs.existsSync(path.join(process.cwd(), "app", route, "page.tsx")), false, route);
+  }
+});
+
+test("route bumps only its semantic cache version and delegates membership to Category Coverage", () => {
+  const comparisonSource = fs.readFileSync(comparisonPath, "utf8");
+  const pageSource = fs.readFileSync(pagePath, "utf8");
+
+  assert.match(comparisonSource, /getCategoryCoverageDefinition\("amino-acids"\)/);
+  assert.match(comparisonSource, /evaluateCategoryCoverage\(aminoAcidsCoverageDefinition, product\)/);
+  assert.doesNotMatch(comparisonSource, /EXPLICIT_AMINO_PRODUCT|NON_COMPARABLE_AMINO_PRODUCT/);
+  assert.match(pageSource, /"amino-acids-comparison-v2"/);
+  assert.doesNotMatch(pageSource, /"amino-acids-comparison-v1"/);
 });
 
 test("page uses consent-aware category analytics", () => {
