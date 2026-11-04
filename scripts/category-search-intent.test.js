@@ -164,6 +164,9 @@ test("clean exact public Category Coverage labels resolve case-insensitively", (
     [" AMINO   ACIDS ", "/amino-acids"],
     ["Hydration", "/hydration"],
     [" hydration ", "/hydration"],
+    ["Carbohydrates", "/carbohydrates"],
+    [" carbohydrates ", "/carbohydrates"],
+    ["CARBOHYDRATES", "/carbohydrates"],
   ];
 
   for (const [query, href] of cases) {
@@ -188,6 +191,11 @@ test("nonexact, fuzzy and comparison-category queries remain normal Search", () 
     "BCAA",
     "EAA",
     "Electrolytes",
+    "Carbohydrate",
+    "Carb Powder",
+    "Cream of Rice",
+    "Dextrose",
+    "Vitargo",
     "Collagen under £30",
     "best fat burners",
     "test boosters",
@@ -227,7 +235,7 @@ test("every supplied Search state key makes exact queries fail closed", () => {
     page: "2",
   };
 
-  for (const query of ["Collagen", "Nootropics", "Amino Acids", "Hydration"]) {
+  for (const query of ["Collagen", "Nootropics", "Amino Acids", "Hydration", "Carbohydrates"]) {
     for (const [key, value] of Object.entries(states)) {
       assert.equal(
         resolver.resolveExactCategorySearchIntent({ q: query, [key]: value }),
@@ -285,6 +293,17 @@ test("one shared raw Search escape bypasses category navigation without filters"
     }),
     null
   );
+  assert.equal(
+    resolver.categoryCoverageRawSearchHref("Carbohydrates"),
+    "/search?q=Carbohydrates&search_mode=raw"
+  );
+  assert.equal(
+    resolver.resolveExactCategorySearchIntent({
+      q: "Carbohydrates",
+      search_mode: "raw",
+    }),
+    null
+  );
 });
 
 test("SearchPage redirects before planning, data loading and Search analytics", async () => {
@@ -323,6 +342,21 @@ test("SearchPage applies the generic exact resolver to Amino Acids before Search
   await assert.rejects(
     page.default({ searchParams: Promise.resolve({ q: "Amino Acids" }) }),
     /REDIRECT:\/amino-acids/
+  );
+  assert.deepEqual(calls, {
+    intentPlan: 0,
+    searchProducts: 0,
+    analytics: 0,
+    redirect: 1,
+  });
+});
+
+test("SearchPage applies the generic exact resolver to Carbohydrates before Search work", async () => {
+  const { calls, page } = loadSearchPage();
+
+  await assert.rejects(
+    page.default({ searchParams: Promise.resolve({ q: "Carbohydrates" }) }),
+    /REDIRECT:\/carbohydrates/
   );
   assert.deepEqual(calls, {
     intentPlan: 0,

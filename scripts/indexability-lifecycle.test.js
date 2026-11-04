@@ -89,9 +89,10 @@ test("the public lifecycle registry is complete, routable and separate from owne
     "/fat-burners",
     "/collagen",
     "/nootropics",
+    "/carbohydrates",
   ]);
   assert.deepEqual(launchApprovedPaths, []);
-  assert.equal(publicPaths.length, 20);
+  assert.equal(publicPaths.length, 21);
   for (const route of publicPaths) {
     assert.equal(fs.existsSync(pageFiles.get(route)), true, route);
     assert.equal(
@@ -124,6 +125,7 @@ test("the semantic category pilots are registered but fail closed for indexing",
     "/fat-burners",
     "/collagen",
     "/nootropics",
+    "/carbohydrates",
   ]) {
     assert.equal(lifecycle.getLifecycleStatus(route), "planned");
     assert.deepEqual(lifecycle.getLifecycleRobots(route), {

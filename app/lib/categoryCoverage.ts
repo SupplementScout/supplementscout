@@ -113,6 +113,18 @@ const energyGelNamePattern = /\benergy\s+gel\b/i;
 const hydrationDescriptionIdentityPattern =
   /\ball[-\s]?in[-\s]?one\s+sports?\s+drink\b|\bhydration\b[\s\S]{0,60}\b(?:supplement|formula|drink)\b/i;
 
+const exactCarbohydratesCategoryPattern = /^\s*carbohydrates\s*$/i;
+const explicitCarbohydrateNamePattern =
+  /\b(?:carbohydrates?|carbo|carbs?|carb(?:max|up)|cream\s+of\s+rice|(?:cyclic|cluster)\s+dextrin|dextrose|maltodextrin|vitargo|carbofuel)\b/i;
+const carbohydrateDescriptionIdentityPattern =
+  /\b(?:(?:carbohydrate|carb)\s+(?:powder|drink|supplement|formula|source|blend)|cream\s+of\s+rice|(?:cluster|cyclic)\s+dextrin|maltodextrin|dextrose|vitargo)\b/i;
+const carbohydrateFoodConflictPattern =
+  /\b(?:carb\s+killa|low[-\s]?carb|protein\s+(?:bars?|shakes?|spreads?)|croissants?|flapjacks?|ordinary\s+foods?|snacks?|spreads?|wafers?)\b/i;
+const carbohydrateProteinConflictPattern =
+  /\b(?:mass\s+gainers?|mass\s+gain|protein|whey)\b/i;
+const carbohydrateEnergyAmbiguityPattern =
+  /\b(?:energy\s+drinks?|energy\s+gels?|sports?\s+drinks?)\b/i;
+
 const testosteroneStrongNamePattern =
   /\b(?:testosterone|testo|test\s*x|testx|tribooster)\b/i;
 const standaloneTestNamePattern = /\btest\b/i;
@@ -581,6 +593,119 @@ const categoryCoverageDefinitions = [
             condition("name", explicitElectrolyteNamePattern),
             condition("name", explicitIsotonicNamePattern),
           ],
+        }
+      ),
+    ],
+    fallbackClassification: "EXCLUDE_STRONG",
+  },
+  {
+    key: "carbohydrates",
+    publicLabel: "Carbohydrates",
+    route: "/carbohydrates",
+    canonicalCategoryAliases: ["Carbohydrates"],
+    candidateQueries: [
+      "Carbohydrates",
+      "carbohydrate",
+      "carbo",
+      "carb",
+      "Cream of Rice",
+      "cyclic dextrin",
+      "cluster dextrin",
+      "dextrose",
+      "maltodextrin",
+      "Vitargo",
+      "carbohydrate powder",
+      "carbohydrate formula",
+      "carbohydrate drink",
+    ],
+    excludeRules: [
+      rule(
+        "CARBOHYDRATE_FOOD_OR_LOW_CARB_CONFLICT",
+        "HIGH",
+        "Name identifies low-carb branding, a Protein Bar or an ordinary food/snack rather than a carbohydrate supplement.",
+        {
+          anyOf: [condition("name", carbohydrateFoodConflictPattern)],
+        }
+      ),
+      rule(
+        "CARBOHYDRATE_PROTEIN_BAR_CATEGORY_CONFLICT",
+        "HIGH",
+        "The Protein Bars category conflicts with a primary carbohydrate supplement identity.",
+        {
+          anyOf: [condition("category", /^\s*protein\s+bars\s*$/i)],
+        }
+      ),
+    ],
+    includeRules: [
+      rule(
+        "EXPLICIT_CARBOHYDRATE_NAME_IDENTITY",
+        "HIGH",
+        "Name explicitly identifies a carbohydrate supplement, Cream of Rice or a named carbohydrate powder identity.",
+        {
+          anyOf: [condition("name", explicitCarbohydrateNamePattern)],
+          noneOf: [
+            condition("name", carbohydrateProteinConflictPattern),
+            condition("name", carbohydrateEnergyAmbiguityPattern),
+          ],
+        }
+      ),
+      rule(
+        "CARBOHYDRATES_CATEGORY_WITH_POWDER_FORMAT",
+        "HIGH",
+        "The reviewed Carbohydrates category is supported by powder format evidence.",
+        {
+          allOf: [
+            condition("category", exactCarbohydratesCategoryPattern),
+            condition("product_format", /^\s*powder\s*$/i),
+          ],
+          noneOf: [
+            condition("name", carbohydrateFoodConflictPattern),
+            condition("name", carbohydrateProteinConflictPattern),
+            condition("name", carbohydrateEnergyAmbiguityPattern),
+          ],
+        }
+      ),
+    ],
+    reviewRules: [
+      rule(
+        "CARBOHYDRATE_PROTEIN_COIDENTITY_AMBIGUITY",
+        "MEDIUM",
+        "Protein or Whey identity with carbohydrate evidence needs product-level review.",
+        {
+          allOf: [condition("name", carbohydrateProteinConflictPattern)],
+          anyOf: [
+            condition("name", explicitCarbohydrateNamePattern),
+            condition("description", carbohydrateDescriptionIdentityPattern),
+          ],
+        }
+      ),
+      rule(
+        "CARBOHYDRATE_ENERGY_OR_SPORTS_DRINK_AMBIGUITY",
+        "MEDIUM",
+        "Energy gel or drink identity with carbohydrate evidence needs product-level review.",
+        {
+          allOf: [
+            condition("name", carbohydrateEnergyAmbiguityPattern),
+            condition("description", carbohydrateDescriptionIdentityPattern),
+          ],
+        }
+      ),
+      rule(
+        "CARBOHYDRATE_DESCRIPTION_ONLY_IDENTITY",
+        "MEDIUM",
+        "Carbohydrate powder, formula, drink or named ingredient identity appears only in the description.",
+        {
+          anyOf: [
+            condition("description", carbohydrateDescriptionIdentityPattern),
+          ],
+        }
+      ),
+      rule(
+        "AMBIGUOUS_CARBOHYDRATES_CATEGORY",
+        "MEDIUM",
+        "The Carbohydrates category alone is candidate evidence, not universal semantic membership.",
+        {
+          anyOf: [condition("category", exactCarbohydratesCategoryPattern)],
         }
       ),
     ],

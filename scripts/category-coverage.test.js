@@ -38,6 +38,11 @@ const {
   fixtures: aminoFixtures,
   expectedIds: expectedAminoIds,
 } = require("./fixtures/category-coverage/amino-acids");
+const carbohydratesDefinition = getCategoryCoverageDefinition("carbohydrates");
+const {
+  fixtures: carbohydratesFixtures,
+  expectedIds: expectedCarbohydratesIds,
+} = require("./fixtures/category-coverage/carbohydrates");
 
 const definition = getCategoryCoverageDefinition("testosterone-boosters");
 
@@ -175,6 +180,127 @@ test("Amino identity is category-agnostic, supports audited multi-membership and
     assert.equal(
       evaluateCategoryCoverage(aminoDefinition, product).classification,
       "REVIEW_REQUIRED",
+      product.name
+    );
+  }
+});
+
+test("Carbohydrates exposes one public shared route with a narrow canonical alias", () => {
+  assert.ok(carbohydratesDefinition);
+  assert.equal(carbohydratesDefinition.publicLabel, "Carbohydrates");
+  assert.equal(carbohydratesDefinition.route, "/carbohydrates");
+  assert.deepEqual(carbohydratesDefinition.canonicalCategoryAliases, ["Carbohydrates"]);
+  for (const query of [
+    "carbohydrate", "carbo", "carb", "Cream of Rice", "cyclic dextrin",
+    "cluster dextrin", "dextrose", "maltodextrin", "Vitargo",
+    "carbohydrate powder", "carbohydrate formula", "carbohydrate drink",
+  ]) {
+    assert.ok(carbohydratesDefinition.candidateQueries.includes(query), query);
+  }
+  assert.equal(categoryCoverageDefinitionForLabel("Carbohydrates").route, "/carbohydrates");
+  assert.equal(categoryCoverageDefinitionForLabel("Carbohydrate"), null);
+  assert.equal(categoryCoverageDefinitionForLabel("Cream of Rice"), null);
+});
+
+test("the 34 audited Carbohydrates fixtures reproduce the exact 22/6/6 contract", () => {
+  assert.equal(carbohydratesFixtures.length, 34);
+  const actual = Object.fromEntries(
+    Object.keys(expectedCarbohydratesIds).map((classification) => [classification, []])
+  );
+
+  for (const fixture of carbohydratesFixtures) {
+    const evaluation = evaluateCategoryCoverage(carbohydratesDefinition, fixture);
+    actual[evaluation.classification].push(fixture.id);
+  }
+
+  assert.deepEqual(actual, expectedCarbohydratesIds);
+  assert.equal(actual.INCLUDE_STRONG.length, 22);
+  assert.equal(actual.REVIEW_REQUIRED.length, 6);
+  assert.equal(actual.EXCLUDE_STRONG.length, 6);
+});
+
+test("Carbohydrates generically includes explicit supplement identities and preserves Hydration multi-membership", () => {
+  for (const name of [
+    "Example Carbohydrate Powder",
+    "Example Carbo Powder",
+    "Example Carb Powder",
+    "Example CarbMax",
+    "Example Cream of Rice",
+    "Example Cyclic Dextrin",
+    "Example Cluster Dextrin",
+    "Example Dextrose",
+    "Example Maltodextrin",
+    "Example Vitargo",
+    "Example Carbohydrate + Electrolyte Powder",
+  ]) {
+    assert.equal(
+      evaluateCategoryCoverage(carbohydratesDefinition, {
+        name,
+        category: "Health Supplements",
+        product_format: "powder",
+      }).classification,
+      "INCLUDE_STRONG",
+      name
+    );
+  }
+
+  const coIdentity = {
+    name: "Carbohydrate + Electrolytes Powder",
+    category: "Electrolytes",
+    product_format: "powder",
+  };
+  assert.equal(
+    evaluateCategoryCoverage(carbohydratesDefinition, coIdentity).classification,
+    "INCLUDE_STRONG"
+  );
+  assert.equal(
+    evaluateCategoryCoverage(hydrationDefinition, coIdentity).classification,
+    "INCLUDE_STRONG"
+  );
+  assert.equal(
+    evaluateCategoryCoverage(electrolytesDefinition, coIdentity).classification,
+    "INCLUDE_STRONG"
+  );
+});
+
+test("Carbohydrates excludes foods and fails protein, Mass Gainer, gel and description-only ambiguity closed", () => {
+  for (const name of [
+    "Low Carb Protein Bar",
+    "Carb Killa Protein Shake",
+    "Protein Croissant",
+    "Protein Spread",
+    "Carb Killa Wafer",
+  ]) {
+    assert.equal(
+      evaluateCategoryCoverage(carbohydratesDefinition, {
+        name,
+        category: "Protein Bars",
+      }).classification,
+      "EXCLUDE_STRONG",
+      name
+    );
+  }
+
+  for (const product of [
+    { name: "High Energy Gel", description: "A carbohydrate source for sport." },
+    { name: "High Energy Drink Powder", description: "A carbohydrate drink powder." },
+    { name: "Whey Protein", category: "Whey Protein", description: "A protein and carbohydrate blend." },
+    { name: "Protein & Complex Carbs", category: "Protein Powder" },
+  ]) {
+    assert.equal(
+      evaluateCategoryCoverage(carbohydratesDefinition, product).classification,
+      "REVIEW_REQUIRED",
+      product.name
+    );
+  }
+
+  for (const product of [
+    { name: "Ordinary Mass Gainer", category: "Mass Gainer", description: "Contains carbohydrates." },
+    { name: "Ordinary Whey Protein", category: "Whey Protein", description: "Contains carbohydrates." },
+  ]) {
+    assert.notEqual(
+      evaluateCategoryCoverage(carbohydratesDefinition, product).classification,
+      "INCLUDE_STRONG",
       product.name
     );
   }
@@ -478,6 +604,9 @@ test("exact label resolution is shared and aliases do not use fuzzy matching", (
   assert.equal(categoryCoverageDefinitionForLabel("Nootropic"), null);
   assert.equal(categoryCoverageDefinitionForLabel(" amino acids ").route, "/amino-acids");
   assert.equal(categoryCoverageDefinitionForLabel("Amino Acid"), null);
+  assert.equal(categoryCoverageDefinitionForLabel(" carbohydrates ").route, "/carbohydrates");
+  assert.equal(categoryCoverageDefinitionForLabel("Carbohydrate"), null);
+  assert.equal(categoryCoverageDefinitionForLabel("Cream of Rice"), null);
 });
 
 test("existing five reviewed landing definitions preserve their name-only boundaries", () => {
@@ -525,9 +654,12 @@ test("runtime coverage module contains no product-ID, slug, brand or retailer ex
   for (const { id } of aminoFixtures) {
     assert.doesNotMatch(source, new RegExp(`\\b${id}\\b`), String(id));
   }
+  for (const { id } of carbohydratesFixtures) {
+    assert.doesNotMatch(source, new RegExp(`\\b${id}\\b`), String(id));
+  }
   assert.doesNotMatch(
     source,
-    /All Day You May|The Grind|No Code|Muscle Martini|Mutant GEAAR|Caffeine \+ Taurine/i
+    /All Day You May|The Grind|No Code|Muscle Martini|Mutant GEAAR|Caffeine \+ Taurine|Applied Nutrition Cream Of Rice|Strom Sports CarbMax|High5 Energy Drink|Naughty Boy Whey|Carb Killa/i
   );
 });
 
