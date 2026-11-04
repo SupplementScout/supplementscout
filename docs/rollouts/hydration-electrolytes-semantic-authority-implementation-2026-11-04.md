@@ -1,7 +1,7 @@
 # Hydration semantic authority and Electrolytes subtype implementation
 
 Date: 2026-11-04  
-Status: implementation validated locally; feature PR and production closeout pending
+Status: feature merged and production verified; documentation closeout in progress
 
 ## Authority and scope
 
@@ -121,28 +121,56 @@ DB writes: 0. Production configuration changes: 0.
 - Local production build readback: `/hydration` 200 with 35/35 rows; `?subtype=electrolytes` 200 with 24/35 rows and parameterized `noindex` preserved.
 - Desktop and narrow 500 px visual readback: PASS; existing `CategoryComparison` hierarchy, cards and responsive layout remain intact.
 - Feature branch: `feature/hydration-electrolytes-semantic-authority`.
-- Feature PR: pending.
-- Approved feature head SHA: pending.
-- Feature merge SHA: pending.
-- Tree equivalence: pending.
-- GitGuardian: pending PR checks.
-- Vercel: pending PR checks.
-- Unresolved review threads: pending PR readback.
+- Feature PR: `#471`.
+- Approved feature head SHA: `41178d1449c2c64a5011bf08c5a58a35b4a1c828`.
+- Feature squash merge SHA: `c7109945fd54eeb3c21a040420277f069883a2b4`.
+- Tree equivalence: PASS; feature and merge tree SHA are both `873b5dc2b2b38b3de87248a868e736c765387efc`.
+- Feature PR Project Guardian: PASS.
+- Feature PR Quality Gate `full`: PASS in 3m20s.
+- Feature PR GitGuardian: PASS.
+- Feature PR Vercel: PASS.
+- Unresolved review threads before merge: 0.
+- Post-merge Project Guardian: PASS.
+- Post-merge Quality Gate `full`: PASS in 3m18s.
+- Production Vercel deployment for `c7109945`: PASS at `2026-11-04T13:39:51Z`.
 
-## Production closeout (pending deployment)
+## Production closeout
 
-After the guarded feature merge, record in a documentation-only closeout if production evidence cannot be included in the feature merge:
+Read-only production route evidence at `2026-11-04T13:44:04.097Z`:
 
-- final `main` SHA and feature squash merge SHA;
-- CI/GitGuardian/Vercel and review-thread state;
-- production semantic and commercial counts;
-- `/hydration` visible count, missing strong, false positives, review visible, recall and precision;
-- isotonic historical miss visibility;
-- vitamin-water, Electrolyte-gel and plain-water removal from strong route membership;
-- `subtype=electrolytes` result count and composition;
-- exact Hydration redirect, Electrolytes ordinary Search and Hydration raw Search;
-- one `/hydration`, no `/electrolytes`, and unchanged `live_verified` lifecycle;
-- final Project Guardian and tree equivalence;
-- docs closeout PR and merge SHA if used.
+- `main` and feature squash merge SHA: `c7109945fd54eeb3c21a040420277f069883a2b4`.
+- `/hydration`: HTTP 200, canonical `/hydration`, indexable, 35 shown of 35 total.
+- Hydration strong/review/exclude: 35/5/55.
+- Route missing strong: 0.
+- Route false positives: 0.
+- Route review visible: 0.
+- Route recall: 35/35 = 100%.
+- Route precision: 35/35 = 100%.
+- Historical isotonic miss `7Nutrition Isotonic Gold 1000g`: visible.
+- Historical vitamin-water review: not visible.
+- Historical Electrolyte-gel review: not visible.
+- Historical plain functional-water false positive: not visible.
+- `?subtype=electrolytes`: HTTP 200, parameterized `noindex` preserved, 24 shown of 35 Hydration products.
+- Electrolytes strong/review/exclude: 24/12/59.
+- Electrolytes strong outside Hydration: 0.
+- `/electrolytes`: HTTP 404 with no redirect.
+- Exact Hydration Search: HTTP 307 to `/hydration`.
+- Exact Electrolytes Search: HTTP 200 ordinary Search with no redirect.
+- Hydration `search_mode=raw`: HTTP 200 ordinary Search with no redirect.
+- Homepage: one Hydration category entry; the second intentional `/hydration` link is the separate Hydration goal card, not a duplicate category entry. Electrolytes is absent from public discovery.
+- Sitemap: exactly one `/hydration` URL and zero `/electrolytes` URLs.
+- Lifecycle: `/hydration` remains `live_verified`.
 
-The stop point remains production verification and documentation closeout. Carbohydrates and Energy work must not start in this implementation.
+Fresh read-only semantic and commercial evidence at `2026-11-04T13:44:17.092Z`:
+
+- active unmerged catalogue: 1,357 across two pages;
+- candidate universe: 95;
+- Hydration: 35 strong, 5 review, 55 exclude, 125 fresh offers, 8 fresh retailers, 5 products with 2+ retailers and 3 with 3+ retailers;
+- Electrolytes: 24 strong, 12 review, 59 exclude, 69 fresh offers, 7 fresh retailers, 1 product with 2+ retailers and 1 with 3+ retailers;
+- Electrolytes strong outside Hydration: 0.
+
+DB writes remained 0. Production configuration changes remained 0. SEO-20 remained the sole SEO task `IN PROGRESS`; its policy and frozen PER4M surface are unchanged.
+
+Documentation closeout branch: `docs/hydration-electrolytes-production-closeout`. The PR and squash merge SHA are reported in the final owner handoff because a commit cannot truthfully contain its own future PR merge identity.
+
+The stop point is this production verification and documentation closeout. Carbohydrates and Energy work did not start.
