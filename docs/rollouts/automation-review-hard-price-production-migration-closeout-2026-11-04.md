@@ -122,8 +122,9 @@ batch. No Review Queue decision or execution is authorized by this migration.
 ## Documentation delivery
 
 - Closeout branch: `production/hard-price-anomaly-migration-closeout`.
-- Closeout PR: pending creation.
-- Documentation commit/head: pending.
+- Closeout PR: `#478`.
+- Evidence commit: `3b753dcd1561451277a0f5888d977884fa166fc9`.
+- Final PR head: recorded in PR metadata and final handoff because this document is part of that head.
 - Local Project Guardian: `PASS`.
 - Local Quality Gate quick: `PASS`.
 - Local Quality Gate full, baseline validation and production build: `PASS`.
