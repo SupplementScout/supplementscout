@@ -167,10 +167,81 @@ This readback used public anonymous read paths only. Database writes: **0**.
 
 ## Release closeout
 
-Feature PR, approved head SHA, squash merge SHA, tree equivalence, CI, Vercel
-production and post-deployment HTTP/semantic evidence will be appended through
-the authorized documentation-only closeout after the feature has deployed.
-Until then this section is deliberately not a `LIVE VERIFIED` claim.
+### Feature delivery
+
+- Feature PR: [#469](https://github.com/SupplementScout/supplementscout/pull/469).
+- Approved feature head: `776fac5e2b615a981c5adb3b8f3f4d471d20bdd4`.
+- Production squash merge: `f2ae5ae0c802a666855674be29de1ed1cb62762d`.
+- Feature-head and squash-merge trees are identical at
+  `062bab8b61d2d88c20a36048026ca3ba73b751da`; an empty Git diff independently
+  confirmed equivalence.
+- Before merge, Project Guardian, Quality Gate Full, GitGuardian and Vercel
+  Preview passed and the PR had zero unresolved review threads. The feature CI
+  runs were Project Guardian
+  [41830114929](https://github.com/SupplementScout/supplementscout/actions/runs/41830114929)
+  and Quality Gate
+  [41830115081](https://github.com/SupplementScout/supplementscout/actions/runs/41830115081).
+- Post-merge `main` passed Project Guardian
+  [41830634103](https://github.com/SupplementScout/supplementscout/actions/runs/41830634103)
+  and Quality Gate
+  [41830634375](https://github.com/SupplementScout/supplementscout/actions/runs/41830634375).
+- The production Vercel deployment for the squash merge completed successfully
+  at `2026-11-04T12:36:32Z`.
+
+### Production readback
+
+A fresh anonymous full-catalogue read at `2026-11-04T12:39:43.969Z` executed
+the deployed shared evaluator and route-loader code over all 1,357 active,
+unmerged products. It returned:
+
+| Measure | Production result |
+|---|---:|
+| Candidate universe | 110 |
+| `INCLUDE_STRONG` | 99 |
+| `REVIEW_REQUIRED` | 7 |
+| `EXCLUDE_STRONG` | 4 |
+| Route-loader visible | 99 |
+| Missing strong | 0 |
+| False positives | 0 |
+| Review visible | 0 |
+| Historical misses visible | 19/19 |
+| Historical reviews visible | 0/7 |
+| Historical excludes visible | 0/4 |
+| Recall against current strong set | 100% |
+| Precision against current visible set | 100% |
+| Fresh offers | 259 |
+| Fresh retailers | 10 |
+| Products with 2+ fresh retailers | 17 |
+
+The uncached loader's latest included offer check was
+`2026-11-04T12:37:35.633Z`. A public HTML read at
+`2026-11-04T12:43:27.667Z` showed the same 99/99 products, 10 retailers and 17
+multi-retailer products from the route cache, with 253 fresh offers in that
+cache snapshot. This six-offer commercial-timing difference does not change
+semantic membership; counts were observed rather than forced. The public HTML
+contained every still-current historical miss (including the current product
+name for product 522) and none of the seven review or four exclude products.
+
+Public behavior was also verified read-only:
+
+- `/amino-acids` returned 200, its unchanged canonical URL and `index, follow`;
+- the CategoryDecision panel, all 99 comparison rows, filters, sorting,
+  commercial cards and corrected semantic-boundary copy rendered;
+- robots did not block the route and the sitemap contained exactly one Amino
+  URL;
+- clean exact `/search?q=Amino%20Acids` returned 307 to `/amino-acids` through
+  the generic resolver;
+- `search_mode=raw` returned ordinary Search with 200, and BCAA, EAA and Amino
+  Acid remained ordinary 200 Search queries;
+- `/bcaa`, `/eaa` and `/amino-acid` each returned 404;
+- the homepage Popular categories section contained exactly one Amino Acids
+  label and destination. The pre-existing Popular searches link is a separate
+  discovery surface, not a duplicate category entry.
+
+The complete production and HTTP verification used public anonymous reads
+only. Database writes: **0**. Production configuration changes: **0**.
 
 SEO-20 remains the sole SEO task `IN PROGRESS`. `/amino-acids` remains
-`live_verified`; its lifecycle state and thresholds are unchanged.
+`live_verified`; its lifecycle state, indexability thresholds, canonical,
+robots and sitemap policy are unchanged. Hydration, Carbohydrates and Energy
+implementation did not start.
