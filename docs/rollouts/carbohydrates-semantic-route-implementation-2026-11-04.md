@@ -54,17 +54,74 @@ No `/cream-of-rice`, `/carb-powder`, `/sports-drinks`, `/dextrose` or `/vitargo`
 
 ## Verification and release evidence
 
-Local implementation verification is complete. Guarded release evidence will be recorded here after the feature and any documentation-only closeout PR complete:
+Local implementation verification completed before release:
 
 - focused Carbohydrates/Category Coverage/Search/homepage/lifecycle/sitemap tests: **104 passed, 0 failed**
-- Project Guardian before and after implementation: **PASS**; 22 SEO tasks; `SEO-20` remains the sole task `IN PROGRESS`
+- Project Guardian before and after implementation: **PASS**; 22 SEO tasks; `SEO-20` remained the sole SEO task `IN PROGRESS`
 - Quality Gate quick: **PASS**; 461 tests, 0 failed
 - Quality Gate full: **PASS**; 353-test inventory, 293 safe tests, 56 integration tests and four artifact-bound tests; baseline migration validation and Next.js production build passed
 - typecheck/lint/diff check: **PASS / PASS / PASS**
-- feature PR/head/merge/tree equivalence: pending
-- GitGuardian/Vercel/review threads: pending
-- production route/Search/homepage/sitemap readback: pending
-- production semantic/commercial readback: pending
-- final broad P1 category-cleanup closeout: pending production verification
+- focused Protein taxonomy/routes regression: **42 passed, 0 failed**
 
-Database writes: **0**. Production configuration changes: **0**. SEO-20 and the PER4M frozen surface are unchanged. Energy Drinks remains deferred and was not implemented.
+Feature release:
+
+- PR: [#473](https://github.com/SupplementScout/supplementscout/pull/473)
+- approved feature head: `32e6bc93f3976f11c530e47293185fc12526626e`
+- squash merge: `328fe12c0b26683c5c7c87a224068bb8b224b4d8`
+- approved-head/merge tree equivalence: **YES**
+- PR Project Guardian run `41846352417`: **PASS**
+- PR Quality Gate run `41846352188`: **PASS**
+- GitGuardian: **PASS**
+- Vercel preview: **PASS**
+- unresolved review threads: **0**
+- merged-main Project Guardian run `41846943418`: **PASS**
+- merged-main Quality Gate run `41846943383`: **PASS**
+- Vercel production deployment for merge `328fe12c...`: **PASS**
+
+## Production readback
+
+Fresh read-only semantic/commercial readback at `2026-11-04T14:28:56.439Z` reproduced the authoritative universe exactly:
+
+| Result | Production |
+|---|---:|
+| Candidates | 34 |
+| `INCLUDE_STRONG` | 22 |
+| `REVIEW_REQUIRED` | 6 |
+| `EXCLUDE_STRONG` | 6 |
+| Visible on `/carbohydrates` | 22 |
+| Missing strong | 0 |
+| False positives | 0 |
+| Review visible | 0 |
+| Recall | 100% |
+| Precision | 100% |
+| Fresh valid offers | 78 |
+| Fresh retailers | 8 |
+| Products with 2+ fresh retailers | 6 |
+| Products with 3+ fresh retailers | 0 |
+
+All 22 historical strong fixtures remain current and visible. All six historical review cases and all six historical excludes remain absent from the public comparison. Commercial movement from 70 to 78 offers, seven to eight retailers and four to six products with 2+ fresh retailers is legitimate fresh catalogue drift and was not forced.
+
+Fresh HTTP readback at `2026-11-04T14:26:49.7398170Z` confirmed:
+
+- `/carbohydrates`: **200**, canonical `/carbohydrates`, `noindex, follow`, factual subtype copy and raw-Search escape
+- parameterized `/carbohydrates?sort=price_asc`: **200**, the same canonical and `noindex, follow`
+- clean exact `/search?q=Carbohydrates`: **307 -> `/carbohydrates`** through the generic resolver
+- `/search?q=Carbohydrates&search_mode=raw`: **200 ordinary Search**, no redirect
+- singular `Carbohydrate` and `Cream of Rice` searches: **200 ordinary Search**, no redirect
+- homepage: exactly **one** `href="/carbohydrates"`
+- emitted sitemap: `/carbohydrates` **absent** while lifecycle is `planned`
+- `/cream-of-rice`, `/carb-powder`, `/sports-drinks`, `/dextrose` and `/vitargo`: **404**, no subtype routes created
+
+Fresh post-deployment regression readback confirmed Amino Acids at **99 / 7 / 4** with all 99 strong rows visible and no false positives; Hydration at **35 / 5 / 55**; and Electrolytes at **24 / 12 / 59**. Protein taxonomy/runtime files were untouched and the focused 42-test Protein suite passed. Existing Testosterone Boosters, Fat Burners, Collagen and Nootropics contracts also remained covered by the green full Quality Gate. No new P1 category regression was found.
+
+## Closeout decision
+
+The mandatory finishing sequence is production verified: Amino Acids, Hydration/Electrolytes and Carbohydrates. The exact clean category intent now resolves to the shared semantic page, while raw Search remains available. The new route deliberately remains `planned` and `noindex, follow`; this closeout is not an indexability promotion.
+
+Documentation-only closeout: [PR #474](https://github.com/SupplementScout/supplementscout/pull/474).
+
+**BROAD P1 CATEGORY CLEANUP IS CLOSED.**
+
+Energy Drinks remains a separately deferred commercial expansion and was not implemented. No further category sweep or P2/P3 taxonomy cleanup starts from this closeout. The project returns to the already governed higher-value queue rather than opening another category unit.
+
+Database writes: **0**. Production configuration changes: **0**. Migrations: **0**. `SEO-20` remains the sole SEO task `IN PROGRESS`; its policy and the PER4M frozen surface are unchanged.
