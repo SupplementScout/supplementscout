@@ -70,6 +70,22 @@ const vitaminExcludedPattern =
 const omega3ExcludedPattern =
   /\b(?:cat|dog|pet|starflower|evening\s+primrose)\b/i;
 
+const exactAminoAcidsCategoryPattern = /^\s*amino\s+acids\s*$/i;
+const explicitAminoFamilyPattern =
+  /\b(?:amino(?:\s+acids?|s|x)?|bcaas?|eaas?)\b/i;
+const explicitNamedAminoPattern =
+  /\b(?:glutamine|arginine|aakg|beta[-\s]?alanine|citrulline|carnitine|glycine|taurine|tyrosine|leucine|isoleucine|valine|lysine|hmb)\b/i;
+const explicitAminoIdentityPattern =
+  /\b(?:amino(?:\s+acids?|s|x)?|bcaas?|eaas?|glutamine|arginine|aakg|beta[-\s]?alanine|citrulline|carnitine|glycine|taurine|tyrosine|leucine|isoleucine|valine|lysine|hmb)\b/i;
+const explicitAminoDescriptionPattern =
+  /\b(?:amino\s+acids?|bcaas?|eaas?|branched[-\s]+chain\s+amino\s+acids?|essential\s+amino\s+acids?)\b/i;
+const aminoDerivativePattern = /\b(?:nac|5[-\s]?htp|glutathione)\b/i;
+const aminoBundlePattern =
+  /\b(?:bundles?|multipacks?|\d+\s*[-\s]?packs?)\b/i;
+const aminoProteinCoIdentityPattern = /\b(?:protein|whey)\b/i;
+const aminoIntraWorkoutPattern = /\bintra[-\s]?workout\b/i;
+const exactEnergySupplementsCategoryPattern = /^\s*energy\s+supplements\s*$/i;
+
 const testosteroneStrongNamePattern =
   /\b(?:testosterone|testo|test\s*x|testx|tribooster)\b/i;
 const standaloneTestNamePattern = /\btest\b/i;
@@ -182,6 +198,134 @@ const categoryCoverageDefinitions = [
       }),
     ],
     reviewRules: [],
+  },
+  {
+    key: "amino-acids",
+    publicLabel: "Amino Acids",
+    route: "/amino-acids",
+    canonicalCategoryAliases: ["Amino Acids"],
+    candidateQueries: [
+      "Amino Acids",
+      "amino",
+      "BCAA",
+      "EAA",
+      "glutamine",
+      "arginine",
+      "AAKG",
+      "beta alanine",
+      "citrulline",
+      "carnitine",
+      "glycine",
+      "taurine",
+      "tyrosine",
+      "leucine",
+      "isoleucine",
+      "valine",
+      "lysine",
+      "HMB",
+      "intra workout",
+    ],
+    excludeRules: [
+      rule(
+        "AMINO_DERIVATIVE_IDENTITY",
+        "HIGH",
+        "Name identifies NAC, 5-HTP or Glutathione rather than an Amino comparison identity.",
+        {
+          anyOf: [condition("name", aminoDerivativePattern)],
+        }
+      ),
+    ],
+    includeRules: [
+      rule(
+        "EXPLICIT_AMINO_FAMILY_NAME_IDENTITY",
+        "HIGH",
+        "Name identifies Amino Acids, BCAA or EAA as a primary or named co-primary identity.",
+        {
+          anyOf: [condition("name", explicitAminoFamilyPattern)],
+          noneOf: [
+            condition("name", aminoBundlePattern),
+            condition("name", aminoProteinCoIdentityPattern),
+          ],
+        }
+      ),
+      rule(
+        "EXPLICIT_NAMED_AMINO_IDENTITY",
+        "HIGH",
+        "Name identifies a named amino identity.",
+        {
+          anyOf: [condition("name", explicitNamedAminoPattern)],
+          noneOf: [
+            condition("name", aminoBundlePattern),
+            condition("name", aminoProteinCoIdentityPattern),
+            condition("name", /\bcaffeine\b/i),
+          ],
+        }
+      ),
+      rule(
+        "AMINO_CATEGORY_WITH_EXPLICIT_DESCRIPTION",
+        "HIGH",
+        "The reviewed Amino Acids category is supported by an explicit Amino Acids, BCAA or EAA formula description.",
+        {
+          allOf: [
+            condition("category", exactAminoAcidsCategoryPattern),
+            condition("description", explicitAminoDescriptionPattern),
+          ],
+          noneOf: [
+            condition("name", aminoBundlePattern),
+            condition("name", aminoProteinCoIdentityPattern),
+          ],
+        }
+      ),
+    ],
+    reviewRules: [
+      rule(
+        "AMINO_BUNDLE_OR_MULTIPACK_AMBIGUITY",
+        "MEDIUM",
+        "Bundle or multipack identity needs exact product-level review.",
+        {
+          anyOf: [condition("name", aminoBundlePattern)],
+        }
+      ),
+      rule(
+        "AMINO_PROTEIN_COIDENTITY_AMBIGUITY",
+        "MEDIUM",
+        "Protein or Whey co-identity needs independent Amino product evidence.",
+        {
+          allOf: [
+            condition("name", aminoProteinCoIdentityPattern),
+            condition("name", explicitAminoIdentityPattern),
+          ],
+        }
+      ),
+      rule(
+        "AMINO_ENERGY_FORMULA_AMBIGUITY",
+        "MEDIUM",
+        "Energy-supplement identity needs independent Amino product evidence.",
+        {
+          allOf: [
+            condition("category", exactEnergySupplementsCategoryPattern),
+            condition("name", /\bcaffeine\b/i),
+            condition("name", explicitNamedAminoPattern),
+          ],
+        }
+      ),
+      rule(
+        "AMINO_INTRA_WORKOUT_AMBIGUITY",
+        "MEDIUM",
+        "Intra-workout identity needs explicit Amino, BCAA or EAA evidence.",
+        {
+          anyOf: [condition("name", aminoIntraWorkoutPattern)],
+        }
+      ),
+      rule(
+        "AMBIGUOUS_AMINO_CATEGORY",
+        "MEDIUM",
+        "The Amino Acids category alone is candidate evidence, not strong semantic membership.",
+        {
+          anyOf: [condition("category", exactAminoAcidsCategoryPattern)],
+        }
+      ),
+    ],
   },
   {
     key: "testosterone-boosters",

@@ -28,6 +28,12 @@ const {
   getCategoryCoverageDefinition,
 } = loadCategoryCoverageModule();
 
+const aminoDefinition = getCategoryCoverageDefinition("amino-acids");
+const {
+  fixtures: aminoFixtures,
+  expectedIds: expectedAminoIds,
+} = require("./fixtures/category-coverage/amino-acids");
+
 const definition = getCategoryCoverageDefinition("testosterone-boosters");
 
 const { fixtures, expectedIds } = require("./fixtures/category-coverage/testosterone-boosters");
@@ -49,6 +55,83 @@ const {
   fixtures: nootropicsFixtures,
   expectedIds: expectedNootropicsIds,
 } = require("./fixtures/category-coverage/nootropics");
+
+test("Amino Acids definition exposes one shared route and the audited candidate vocabulary", () => {
+  assert.ok(aminoDefinition);
+  assert.equal(aminoDefinition.publicLabel, "Amino Acids");
+  assert.equal(aminoDefinition.route, "/amino-acids");
+  assert.deepEqual(aminoDefinition.canonicalCategoryAliases, ["Amino Acids"]);
+  for (const query of [
+    "amino", "BCAA", "EAA", "glutamine", "arginine", "AAKG",
+    "beta alanine", "citrulline", "carnitine", "glycine", "taurine",
+    "tyrosine", "leucine", "isoleucine", "valine", "lysine", "HMB",
+    "intra workout",
+  ]) {
+    assert.ok(aminoDefinition.candidateQueries.includes(query), query);
+  }
+});
+
+test("the 110 audited Amino fixtures reproduce the exact 99/7/4 contract", () => {
+  assert.equal(aminoFixtures.length, 110);
+  const actual = Object.fromEntries(
+    Object.keys(expectedAminoIds).map((classification) => [classification, []])
+  );
+
+  for (const fixture of aminoFixtures) {
+    const evaluation = evaluateCategoryCoverage(aminoDefinition, fixture);
+    actual[evaluation.classification].push(fixture.id);
+  }
+
+  assert.deepEqual(actual, expectedAminoIds);
+  assert.equal(actual.INCLUDE_STRONG.length, 99);
+  assert.equal(actual.REVIEW_REQUIRED.length, 7);
+  assert.equal(actual.EXCLUDE_STRONG.length, 4);
+});
+
+test("Amino identity is category-agnostic, supports audited multi-membership and fails ambiguity closed", () => {
+  const strong = [
+    { name: "Example BCAA Formula", category: "Health Supplements" },
+    { name: "Example EAA Hydration", category: "Hydration" },
+    { name: "Creatine + Taurine", category: "Creatine" },
+    { name: "Creatine + HMB", category: "Creatine" },
+    { name: "L-Carnitine Liquid", category: "Weight Management" },
+    { name: "Opaque Formula", category: "Amino Acids", description: "An essential amino acids and BCAA formula." },
+  ];
+  for (const product of strong) {
+    assert.equal(
+      evaluateCategoryCoverage(aminoDefinition, product).classification,
+      "INCLUDE_STRONG",
+      product.name
+    );
+  }
+
+  const excluded = ["NAC 300mg", "5-HTP 200mg", "L-Glutathione 500mg"];
+  for (const name of excluded) {
+    assert.equal(
+      evaluateCategoryCoverage(aminoDefinition, {
+        name,
+        category: "Amino Acids",
+      }).classification,
+      "EXCLUDE_STRONG",
+      name
+    );
+  }
+
+  const review = [
+    { name: "Opaque Catalyst", category: "Amino Acids" },
+    { name: "Intra-Workout Formula", category: "Amino Acids" },
+    { name: "Hydro Amino 2-Pack", category: "Amino Acids" },
+    { name: "Whey BCAA Bundle", category: "Whey Protein" },
+    { name: "Caffeine + Taurine", category: "Energy Supplements" },
+  ];
+  for (const product of review) {
+    assert.equal(
+      evaluateCategoryCoverage(aminoDefinition, product).classification,
+      "REVIEW_REQUIRED",
+      product.name
+    );
+  }
+});
 
 test("Testosterone Boosters definition exposes the shared route and candidate-only queries", () => {
   assert.ok(definition);
@@ -346,6 +429,8 @@ test("exact label resolution is shared and aliases do not use fuzzy matching", (
   assert.equal(categoryCoverageDefinitionForLabel(" collagen ").route, "/collagen");
   assert.equal(categoryCoverageDefinitionForLabel(" NOOTROPICS ").route, "/nootropics");
   assert.equal(categoryCoverageDefinitionForLabel("Nootropic"), null);
+  assert.equal(categoryCoverageDefinitionForLabel(" amino acids ").route, "/amino-acids");
+  assert.equal(categoryCoverageDefinitionForLabel("Amino Acid"), null);
 });
 
 test("existing five reviewed landing definitions preserve their name-only boundaries", () => {
@@ -390,6 +475,13 @@ test("runtime coverage module contains no product-ID, slug, brand or retailer ex
   for (const { id } of nootropicsFixtures) {
     assert.doesNotMatch(source, new RegExp(`\\b${id}\\b`), String(id));
   }
+  for (const { id } of aminoFixtures) {
+    assert.doesNotMatch(source, new RegExp(`\\b${id}\\b`), String(id));
+  }
+  assert.doesNotMatch(
+    source,
+    /All Day You May|The Grind|No Code|Muscle Martini|Mutant GEAAR|Caffeine \+ Taurine/i
+  );
 });
 
 test("semantic routes delegate retrieval and rendering to shared infrastructure", () => {

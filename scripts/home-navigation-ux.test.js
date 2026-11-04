@@ -317,3 +317,15 @@ test("Nootropics uses generic shared coverage discovery without route-specific h
   assert.doesNotMatch(categoryRoutesSource, /Nootropics|\/nootropics/);
   assert.doesNotMatch(pageSource, /if\s*\([^)]*category[^)]*===\s*["']Nootropics/);
 });
+
+test("Amino Acids shared definition keeps one deduplicated homepage destination", () => {
+  assert.match(
+    categoryCoverageSource,
+    /publicLabel: "Amino Acids",[\s\S]*route: "\/amino-acids"/
+  );
+  assert.equal((categoryCoverageSource.match(/route: "\/amino-acids"/g) || []).length, 1);
+  assert.equal((categoryRoutesSource.match(/label: "Amino Acids", href: "\/amino-acids"/g) || []).length, 1);
+  assert.match(pageSource, /const seen = new Set<string>\(\)/);
+  assert.match(pageSource, /if \(!normalized \|\| seen\.has\(normalized\)\) return false/);
+  assert.doesNotMatch(pageSource, /if\s*\([^)]*category[^)]*===\s*["']Amino Acids/);
+});
