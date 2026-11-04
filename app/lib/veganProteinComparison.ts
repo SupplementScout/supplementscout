@@ -11,14 +11,12 @@ import {
 } from "./categoryComparison";
 import { resolveCategoryComparisonVariants } from "./categoryComparisonVariants";
 import { supabase } from "./supabase";
-import {
-  ANIMAL_PROTEIN_IDENTITY,
-  hasReviewedVeganProteinIdentity,
-} from "./proteinSubtypes";
 import { getEffectiveNutritionMetrics } from "./nutritionMetrics";
 import { isOfferFresh } from "./offerFreshness";
+import { isProteinCandidateEligible } from "./proteinEligibility";
+import { evaluateProteinTaxonomy } from "./proteinTaxonomy";
 
-const QUERY_LIMIT = 1000;
+const QUERY_PAGE_SIZE = 1000;
 
 export const VEGAN_PROTEIN_INDEX_GATE = {
   minimumProductsWithMultipleFreshRetailers: 3,
@@ -61,17 +59,12 @@ export function isVeganProteinOfferFresh(
 }
 
 export function isVeganProteinProduct(product: RawVeganProteinProduct) {
-  if (
-    product.is_active !== true ||
-    product.merged_into_product_id !== null ||
-    product.merged_at !== null ||
-    !hasReviewedVeganProteinIdentity(product)
-  ) {
-    return false;
-  }
-
-  return !(product.offers || []).some((offer) =>
-    ANIMAL_PROTEIN_IDENTITY.test(retailerLabel(offer))
+  return (
+    isProteinCandidateEligible(product) &&
+    evaluateProteinTaxonomy({
+      ...product,
+      sourceLabels: (product.offers || []).map(retailerLabel).filter(Boolean),
+    }).vegan.state === "INCLUDE_STRONG"
   );
 }
 
@@ -100,11 +93,14 @@ export function evaluateVeganProteinIndexability(
 }
 
 async function loadVeganProteinComparison(): Promise<VeganProteinComparisonResult> {
-  const { data, error } = await supabase
-    .from("products")
-    .select(
-      `
-        id, slug, name, brand, category, image, product_format,
+  const candidates: RawVeganProteinProduct[] = [];
+
+  for (let offset = 0; ; offset += QUERY_PAGE_SIZE) {
+    const { data, error } = await supabase
+      .from("products")
+      .select(
+        `
+        id, slug, name, brand, category, description, image, product_format,
         net_weight_g, net_volume_ml, unit_count, unit_type,
         serving_count_verified, serving_size_g, protein_per_serving_g,
         unit_pricing_verified, nutrition_verified, is_active,
@@ -115,22 +111,28 @@ async function loadVeganProteinComparison(): Promise<VeganProteinComparisonResul
           retailer:retailers (id, name, slug),
           retailer_product:retailer_products (external_name)
         )
-      `
-    )
-    .eq("is_active", true)
-    .is("merged_into_product_id", null)
-    .is("merged_at", null)
-    .or("name.ilike.%vegan%,name.ilike.%plant%,name.ilike.%pea%,name.ilike.%rice%,name.ilike.%hemp%")
-    .order("name")
-    .range(0, QUERY_LIMIT - 1);
+        `
+      )
+      .eq("is_active", true)
+      .is("merged_into_product_id", null)
+      .is("merged_at", null)
+      .or("name.ilike.%vegan%,name.ilike.%plant%,name.ilike.%pea%,name.ilike.%rice%,name.ilike.%hemp%")
+      .order("name")
+      .order("id")
+      .range(offset, offset + QUERY_PAGE_SIZE - 1);
 
-  if (error) {
-    console.error("Unable to load the Vegan Protein comparison.");
-    return emptyCategoryComparisonResult();
+    if (error) {
+      console.error("Unable to load the Vegan Protein comparison.");
+      return emptyCategoryComparisonResult();
+    }
+
+    const page = (data || []) as RawVeganProteinProduct[];
+    candidates.push(...page);
+    if (page.length < QUERY_PAGE_SIZE) break;
   }
 
   const products = await resolveCategoryComparisonVariants(
-    (data || []) as RawVeganProteinProduct[]
+    candidates
   );
 
   return {

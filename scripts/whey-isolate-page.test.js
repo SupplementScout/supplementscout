@@ -37,7 +37,12 @@ const pricing = compileModule(path.join(process.cwd(), "app/lib/pricing.ts"));
 const offerFreshness = compileModule(path.join(process.cwd(), "app/lib/offerFreshness.ts"));
 const creatineLaunch = compileModule(path.join(process.cwd(), "app/lib/creatineLaunch.ts"), { "./offerFreshness": offerFreshness });
 const nutritionMetrics = compileModule(path.join(process.cwd(), "app/lib/nutritionMetrics.ts"));
-const proteinSubtypes = compileModule(path.join(process.cwd(), "app/lib/proteinSubtypes.ts"));
+const proteinTaxonomy = compileModule(path.join(process.cwd(), "app/lib/proteinTaxonomy.ts"));
+const proteinEligibility = compileModule(path.join(process.cwd(), "app/lib/proteinEligibility.ts"));
+const proteinSubtypes = compileModule(
+  path.join(process.cwd(), "app/lib/proteinSubtypes.ts"),
+  { "./proteinTaxonomy": proteinTaxonomy }
+);
 const categoryComparison = compileModule(path.join(process.cwd(), "app/lib/categoryComparison.ts"), {
   "./creatineLaunch": creatineLaunch,
   "./offerFreshness": offerFreshness,
@@ -48,7 +53,7 @@ const comparisonPath = path.join(process.cwd(), "app/lib/wheyIsolateComparison.t
 
 function loadComparison(rows = []) {
   const builder = {
-    select: () => builder, eq: () => builder, is: () => builder,
+    select: () => builder, eq: () => builder, is: () => builder, or: () => builder,
     gt: () => builder, order: () => builder,
     range: () => ({ data: rows, error: null }),
   };
@@ -57,6 +62,8 @@ function loadComparison(rows = []) {
     "./categoryComparison": categoryComparison,
     "./categoryComparisonVariants": { resolveCategoryComparisonVariants: async (products) => products },
     "./nutritionMetrics": nutritionMetrics,
+    "./proteinTaxonomy": proteinTaxonomy,
+    "./proteinEligibility": proteinEligibility,
     "./proteinSubtypes": proteinSubtypes,
     "./supabase": { supabase: { from: () => builder } },
   });
@@ -82,14 +89,15 @@ function rawProduct(id, name, offers = [rawOffer(id * 10, 1)], overrides = {}) {
   };
 }
 
-test("Whey Isolate scope requires canonical category and explicit isolate identity", () => {
+test("Whey Isolate scope requires explicit identity plus Whey source context", () => {
   const { isWheyIsolateProduct } = loadComparison();
   assert.equal(isWheyIsolateProduct(rawProduct(1, "Applied Nutrition ISO-XP 1kg")), true);
   assert.equal(isWheyIsolateProduct(rawProduct(2, "Example WPI 1kg")), true);
   assert.equal(isWheyIsolateProduct(rawProduct(3, "Example Whey Blend Isolate 1kg")), false);
   assert.equal(isWheyIsolateProduct(rawProduct(4, "Beef Isolate 1kg")), false);
-  assert.equal(isWheyIsolateProduct(rawProduct(5, "Whey Isolate 1kg", [], { category: "Health Supplements" })), false);
+  assert.equal(isWheyIsolateProduct(rawProduct(5, "100% Isolate 1kg", [], { category: "Health Supplements", description: "Made from whey protein isolate." })), true);
   assert.equal(isWheyIsolateProduct(rawProduct(6, "Whey Protein 1kg")), false);
+  assert.equal(isWheyIsolateProduct(rawProduct(7, "Clear Whey 1kg")), false);
 });
 
 test("normalization keeps only fresh offers and measures distinct retailer overlap", () => {
@@ -116,20 +124,32 @@ test("indexability uses the unchanged 3-product, 2-retailer and 20-offer gate", 
   assert.equal(evaluateWheyIsolateIndexability({ visibleProducts: 16, freshOffers: 78, freshRetailers: 4, productsWithMultipleFreshRetailers: 2, latestOfferCheckedAt: "2026-08-01T11:00:00Z", staleOrUnusableOffersExcluded: 0 }, true).indexable, false);
 });
 
-test("production query stays bounded to active Whey Protein products", async () => {
+test("production query stays bounded to semantic isolate candidates", async () => {
   const calls = [];
-  const builder = new Proxy({}, { get: (_, name) => (...args) => { calls.push([name, ...args]); return name === "range" ? { data: [], error: null } : builder; } });
+  let page = 0;
+  const builder = new Proxy({}, { get: (_, name) => (...args) => {
+    calls.push([name, ...args]);
+    if (name !== "range") return builder;
+    const data = page++ === 0
+      ? Array.from({ length: 1000 }, (_, index) => rawProduct(index + 1, `Example Whey Isolate ${index + 1}`))
+      : [];
+    return { data, error: null };
+  } });
   const comparison = compileModule(comparisonPath, {
     react: { cache: (fn) => fn },
     "./categoryComparison": categoryComparison,
     "./categoryComparisonVariants": { resolveCategoryComparisonVariants: async (products) => products },
     "./nutritionMetrics": nutritionMetrics,
+    "./proteinTaxonomy": proteinTaxonomy,
+    "./proteinEligibility": proteinEligibility,
     "./proteinSubtypes": proteinSubtypes,
     "./supabase": { supabase: { from: (table) => { calls.push(["from", table]); return builder; } } },
   });
   await comparison.getWheyIsolateComparison();
-  assert.ok(calls.some((row) => row[0] === "eq" && row[1] === "category" && row[2] === "Whey Protein"));
+  assert.ok(calls.some((row) => row[0] === "or" && String(row[1]).includes("name.ilike.%isolate%")));
+  assert.equal(calls.some((row) => row[0] === "eq" && row[1] === "category"), false);
   assert.ok(calls.some((row) => row[0] === "range" && row[1] === 0 && row[2] === 999));
+  assert.ok(calls.some((row) => row[0] === "range" && row[1] === 1000 && row[2] === 1999));
 });
 
 test("page metadata, SSR, structured data and discovery links use one canonical", async () => {

@@ -36,7 +36,9 @@ export function comparisonLinkForCategory(
 export function comparisonLinkForProduct(product: {
   name: string;
   category?: string | null;
+  description?: string | null;
   product_format?: string | null;
+  sourceLabels?: readonly string[] | null;
 }) {
   if (hasReviewedVeganProteinIdentity(product)) {
     return comparisonLinkForCategory("Vegan Protein");
