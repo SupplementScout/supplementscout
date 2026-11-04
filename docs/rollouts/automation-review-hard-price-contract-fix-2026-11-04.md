@@ -70,10 +70,12 @@ No new test file was added, removed or renamed, so the quality-gate manifest did
 ## Delivery record
 
 - Feature branch: `fix/automation-review-hard-price-contract`.
-- Feature PR: pending creation.
-- Feature head: pending commit.
+- Feature PR: `#477`.
+- Implementation commit: `06feb39628ea19e790844d1930d303f70b7b900a`.
+- Final feature head: recorded in PR metadata and the final delivery report because this document is part of that head.
 - Merge SHA: pending successful CI and squash merge.
 - Tree equivalence: pending post-merge verification.
+- Feature CI: pending GitHub execution; all required local gates above are green.
 - Production migration applied: **NO**.
 
 ## Required later production verification — not authorized here
