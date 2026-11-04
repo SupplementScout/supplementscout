@@ -1,7 +1,9 @@
 const source = require("../../config/automation-review-execution-adapters.json");
+const reasonContract = require("../../config/automation-review-reason-codes.json");
 
 const WORKER_KINDS = new Set(["ebay", "shared-retailer"]);
 const OPERATIONS = new Set(["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK", "UPDATE_PRICE_AND_STOCK"]);
+const REVIEW_REASON_CODES = new Set(reasonContract.reason_codes);
 
 function invariant(condition, code) {
   if (!condition) {
@@ -17,7 +19,13 @@ function freezeAdapter(raw) {
   invariant(WORKER_KINDS.has(raw.worker_kind), "REVIEW_ADAPTER_WORKER_KIND_INVALID");
   invariant(Array.isArray(raw.operations) && raw.operations.length > 0 && raw.operations.every((value) => OPERATIONS.has(value)), "REVIEW_ADAPTER_OPERATIONS_INVALID");
   invariant(Array.isArray(raw.reason_codes) && raw.reason_codes.length > 0 && raw.reason_codes.every((value) => /^[A-Z][A-Z0-9_]*$/.test(value)), "REVIEW_ADAPTER_REASONS_INVALID");
+  invariant(raw.reason_codes.every((value) => REVIEW_REASON_CODES.has(value)), "REVIEW_ADAPTER_REASON_UNKNOWN");
   invariant(new Set(raw.operations).size === raw.operations.length && new Set(raw.reason_codes).size === raw.reason_codes.length, "REVIEW_ADAPTER_ALLOWLIST_DUPLICATE");
+  invariant(raw.operation_reason_codes && typeof raw.operation_reason_codes === "object" && !Array.isArray(raw.operation_reason_codes), "REVIEW_ADAPTER_OPERATION_REASONS_INVALID");
+  invariant(Object.keys(raw.operation_reason_codes).length === raw.operations.length && raw.operations.every((operation) => Object.hasOwn(raw.operation_reason_codes, operation)), "REVIEW_ADAPTER_OPERATION_REASON_SCOPE_INVALID");
+  const operationReasons = Object.values(raw.operation_reason_codes).flat();
+  invariant(Object.values(raw.operation_reason_codes).every((reasons) => Array.isArray(reasons) && reasons.length > 0 && new Set(reasons).size === reasons.length && reasons.every((reason) => raw.reason_codes.includes(reason))), "REVIEW_ADAPTER_OPERATION_REASONS_INVALID");
+  invariant(new Set(operationReasons).size === raw.reason_codes.length && raw.reason_codes.every((reason) => operationReasons.includes(reason)), "REVIEW_ADAPTER_REASON_SCOPE_INVALID");
   invariant([raw.builder, raw.approval_rpc, raw.apply_rpc, raw.postflight, raw.idempotency].every((value) => typeof value === "string" && value.length > 0), "REVIEW_ADAPTER_CONTRACT_INVALID");
   if (raw.worker_kind === "shared-retailer") {
     const engine = raw.shared_engine;
@@ -36,6 +44,9 @@ function freezeAdapter(raw) {
     operations: Object.freeze([...raw.operations]),
     operationSet: new Set(raw.operations),
     reasonCodes: Object.freeze([...raw.reason_codes]),
+    operationReasonCodes: Object.freeze(Object.fromEntries(
+      Object.entries(raw.operation_reason_codes).map(([operation, reasons]) => [operation, Object.freeze([...reasons])]),
+    )),
     workflow: source.workflow,
     environment: source.environment,
     builder: raw.builder,

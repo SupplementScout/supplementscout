@@ -1,4 +1,5 @@
 const crypto = require("node:crypto");
+const reasonContract = require("../../config/automation-review-reason-codes.json");
 
 const ACTIVE_STATUSES = new Set(["PENDING", "APPROVED"]);
 const TERMINAL_STATUSES = new Set(["EXPIRED", "REJECTED", "IGNORED", "EXECUTED", "FAILED"]);
@@ -16,23 +17,14 @@ const OPERATIONS = new Set([
   "MANUAL_REVIEW_IDENTITY",
   "SCOPE_EXPANSION_REVIEW",
 ]);
-const REASON_CODES = new Set([
-  "FRESHNESS_CONFIRMATION",
-  "STALE_OFFER",
-  "NO_CHANGE_CONFIRMATION",
-  "PRICE_CHANGE",
-  "STOCK_CHANGE",
-  "PRICE_AND_STOCK_CHANGE",
-  "SOURCE_FAILURE",
-  "SOURCE_MISSING",
-  "MISSING_FROM_SOURCE",
-  "IDENTITY_CONFLICT",
-  "MAPPING_DRIFT",
-  "POLICY_REVIEW",
-  "SCOPE_EXPANSION_REVIEW",
-  "MANUAL_REVIEW",
-  "OUTSIDE_APPROVED_SCOPE",
-]);
+if (reasonContract.schema_version !== 1
+  || !Array.isArray(reasonContract.reason_codes)
+  || reasonContract.reason_codes.length === 0
+  || new Set(reasonContract.reason_codes).size !== reasonContract.reason_codes.length
+  || reasonContract.reason_codes.some((reason) => !/^[A-Z][A-Z0-9_]*$/.test(reason))) {
+  throw new Error("Invalid canonical Review Queue reason contract");
+}
+const REASON_CODES = new Set(reasonContract.reason_codes);
 const HEX64 = /^[0-9a-f]{64}$/;
 const MAX_BATCH_ROWS = 1000;
 const CATALOGUE_COUNT_KEYS = Object.freeze([

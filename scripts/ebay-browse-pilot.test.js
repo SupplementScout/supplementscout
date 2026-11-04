@@ -1078,11 +1078,21 @@ test("owner-approved hard-price execution remains bound to exact review, source,
   assert.equal(deltas.logical_field_deltas.offer_price_updates, 1);
   assert.equal(deltas.row_count_deltas.price_history, 1);
   assert.doesNotThrow(() => assertCommercialEvidence(review, plan, evaluation));
+  assert.doesNotThrow(() => assertHardPriceReviewExecution({ ...review, reason_codes: "PRICE_CHANGE" }, { offer: { action: "noop" } }));
+  assert.throws(() => assertHardPriceReviewExecution({ ...review, operation_type: "UPDATE_STOCK" }, plan), /HARD_PRICE_REVIEW_OPERATION_INVALID/);
+  assert.throws(() => assertHardPriceReviewExecution(review, { ...plan, price_history: { action: "noop" } }), /HARD_PRICE_REVIEW_OPERATION_INVALID/);
+  assert.throws(() => assertHardPriceReviewExecution({ ...review, before_state: { ...review.before_state, external_variant_id: "wrong-identity" } }, plan), /HARD_PRICE_REVIEW_IDENTITY_DRIFT/);
+  assert.throws(() => assertHardPriceReviewExecution({ ...review, proposed_state: null }, plan), /HARD_PRICE_REVIEW_STATE_MISSING/);
   assert.throws(() => assertHardPriceReviewExecution({ ...review, before_state: { ...review.before_state, price: "148.00" } }, plan), /HARD_PRICE_REVIEW_BEFORE_STATE_DRIFT/);
   assert.throws(() => assertHardPriceReviewExecution({ ...review, proposed_state: { offer: { ...proposed, price: "128.00" } } }, plan), /HARD_PRICE_REVIEW_PROPOSED_STATE_DRIFT/);
   const shippingPlan = { ...plan, offer: { ...plan.offer, values: { ...proposed, shipping_cost: "1.00", total_price: "130.00" } } };
   const shippingReview = { ...review, proposed_state: { offer: shippingPlan.offer.values } };
   assert.throws(() => assertHardPriceReviewExecution(shippingReview, shippingPlan), /HARD_PRICE_REVIEW_EXTRA_COMMERCIAL_CHANGE/);
+  const belowThresholdBefore = { ...before, price: "80.00", total_price: "80.00" };
+  const belowThresholdAfter = { ...proposed, price: "70.00", total_price: "70.00" };
+  const belowThresholdPlan = { ...plan, expected_state: { ...plan.expected_state, offer: belowThresholdBefore }, offer: { ...plan.offer, values: belowThresholdAfter } };
+  const belowThresholdReview = { ...review, source_price: "70.00", before_state: { ...review.before_state, price: "80.00", total_price: "80.00" }, proposed_state: { offer: belowThresholdAfter } };
+  assert.throws(() => assertHardPriceReviewExecution(belowThresholdReview, belowThresholdPlan), /HARD_PRICE_REVIEW_THRESHOLD_MISMATCH/);
   assert.throws(() => assertCommercialEvidence(review, plan, { ...evaluation, item_price: { value: 128, currency: "GBP" }, delivered_price: { value: 128, currency: "GBP" } }), /SOURCE_FINGERPRINT_DRIFT/);
 });
 
