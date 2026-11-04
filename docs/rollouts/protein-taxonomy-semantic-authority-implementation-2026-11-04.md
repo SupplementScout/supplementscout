@@ -2,7 +2,7 @@
 
 Date: 2026-11-04
 
-Implementation state: locally implemented; CI, guarded merge and production closeout pending
+Implementation state: production complete; documentation closeout pending merge
 
 Starting `main`: `b6a2072f8da2d3873b8f8604861cf0be2ddbab7e`
 
@@ -142,6 +142,52 @@ Local pre-merge verification is complete:
 - build route inventory: 37 static pages and the existing Whey, Isolate and
   Vegan routes only; no new protein route was introduced.
 
-Feature PR/CI, guarded squash merge and exact production route readback will
-be recorded here during closeout. No work is marked production-complete before
-that evidence exists.
+Feature delivery and production closeout are complete:
+
+- feature PR: `#463`, `Unify protein taxonomy across comparison routes`;
+- approved feature head: `4e4d6f5ebf768afed43dc5e1a2a32d04e50d5f42`;
+- guarded squash merge: `71cd6e10dded98c60dd2307256520822a316cee9` at
+  `2026-11-04T08:34:20Z`;
+- feature and merge tree: `444d19719f7d3e8963f1613a9e2986314053e54b`
+  on both commits;
+- PR Project Guardian run `41800158020`, Quality Gate run `41800158194`,
+  GitGuardian and Vercel Preview: PASS;
+- post-merge Project Guardian run `41800535230` and Quality Gate run
+  `41800535167`: PASS for the exact merge SHA;
+- Vercel production deployment `8kviaYarmo6hBXNjvHo6EDEhkrZT`: SUCCESS for
+  the exact merge SHA at `2026-11-04T08:35:20Z`.
+
+The final anonymous, read-only production readback completed at
+`2026-11-04T08:41:59.545Z` against all 1,357 active/unmerged products and the
+rendered public routes:
+
+- `/whey-protein`: exactly `101 / 101` audited strong products, zero missing,
+  zero false positives and zero review rows visible;
+- all seven previously missing Whey rows are visible: Optimum Nutrition 100%
+  Isolate 930g, Per4m Isolate Zero 900g, Mutant Iso Surge 727g, DY Nutrition
+  Shadowhey Concentrate 2kg, Strom Sports VelosiWhey ISO 1kg, Strom Sports
+  VelosiWhey 1.2kg and NutriSport H3avyweight Whey Protein Complex 500g;
+- all eight legacy reviewed Whey rows remain visible;
+- `/whey-isolate`: exactly `25 / 25` audited strong products, zero missing,
+  zero false positives and zero review rows visible;
+- the three previously missing strong Isolates are visible: Optimum Nutrition
+  100% Isolate 930g, Per4m Isolate Zero 900g and Mutant Iso Surge 727g;
+- all six review rows fail closed, including NIHpro, the three plain Clear Whey
+  rows, Olimp Iso Plus and Trained By JP Isolate Tri-Blend; CNP ISO Collagen,
+  all Beef isolates and all plant isolates are absent;
+- `/vegan-protein`: exactly `15 / 15`, zero missing and zero false positives;
+  BioTech USA Vegan Protein and GYM HIGH Vegan Plant-Based-Protein are visible;
+- the three newly recognized out-of-category Isolate product pages now resolve
+  to `/whey-isolate`; CNP ISO Collagen does not. No unrelated breadcrumb delta
+  was found;
+- existing delivered-price, retailer-coverage, verified-metric, decision-panel,
+  structured-data and category-analytics mechanisms remain unchanged;
+- `/whey-protein`, `/whey-isolate` and `/vegan-protein` remain in the sitemap;
+  no Protein Powder, Casein, Beef, Egg or Clear Whey route or sitemap entry
+  exists, and all five unapproved paths return 404;
+- Category Coverage remains Testosterone `11`, Fat `21`, Collagen `29` and
+  Nootropics `13`; exact Search still redirects `nootropics` to `/nootropics`;
+- no new exact-name exception was added beyond the centralized legacy eight;
+  database writes, migrations and production configuration changes: `0`;
+- `SEO-20` remains the sole active SEO implementation and the PER4M freeze is
+  intact. Energy Supplements / Energy Drinks was not started.
