@@ -10,9 +10,20 @@ import {
 } from "./categoryComparison";
 import { resolveCategoryComparisonVariants } from "./categoryComparisonVariants";
 import { getEffectiveNutritionMetrics } from "./nutritionMetrics";
+import { isProteinCandidateEligible } from "./proteinEligibility";
+import { evaluateProteinTaxonomy } from "./proteinTaxonomy";
 import { supabase } from "./supabase";
 
-const WHEY_QUERY_LIMIT = 1000;
+const WHEY_QUERY_PAGE_SIZE = 1000;
+const WHEY_CANDIDATE_FILTER = [
+  "category.eq.Whey Protein",
+  "name.ilike.%whey%",
+  "name.ilike.%isolate%",
+  "name.ilike.%iso-xp%",
+  "name.ilike.%iso 100%",
+  "name.ilike.%iso pro%",
+  "description.ilike.%whey%",
+].join(",");
 
 export const WHEY_INDEX_GATE = {
   minimumProductsWithMultipleFreshRetailers: 3,
@@ -20,46 +31,15 @@ export const WHEY_INDEX_GATE = {
   minimumFreshOffers: 20,
 } as const;
 
-const NON_WHEY_EVIDENCE =
-  /\b(?:beef|casein|collagen|egg white|plant|vegan)\b|\bbundle\b|\bnihpro\b/i;
-
-const WHEY_EVIDENCE =
-  /\bwhey\b|\bwhey\+|\bisolate\b|\biso[- ]?xp\b|\biso ?100\b|\biso ?pro\b/i;
-
-const REVIEWED_WHEY_BLEND_NAMES = new Set([
-  "bsn syntha-6 edge 1.87kg",
-  "grenade hydra 6 protein 1.8kg",
-  "pescience select protein 1.8kg",
-  "pescience select protein 905g",
-  "rule1 r1 protein 2.2kg",
-  "rule1 r1 protein 29 servings",
-  "trained by jp performance protein 1kg",
-  "trained by jp performance protein 2kg",
-]);
-
 export type RawWheyProduct = RawCategoryComparisonProduct;
 export type WheyComparisonRow = CategoryComparisonRow;
 export type WheyComparisonSummary = CategoryComparisonSummary;
 export type WheyComparisonResult = CategoryComparisonResult;
 
 export function isWheyProteinProduct(product: RawWheyProduct) {
-  if (
-    product.is_active !== true ||
-    product.merged_into_product_id !== null ||
-    product.merged_at !== null ||
-    product.category?.trim().toLowerCase() !== "whey protein"
-  ) {
-    return false;
-  }
-
-  const name = product.name.trim();
-  const normalizedName = name.toLowerCase();
-
-  if (NON_WHEY_EVIDENCE.test(name)) return false;
-
   return (
-    WHEY_EVIDENCE.test(name) ||
-    REVIEWED_WHEY_BLEND_NAMES.has(normalizedName)
+    isProteinCandidateEligible(product) &&
+    evaluateProteinTaxonomy(product).whey.state === "INCLUDE_STRONG"
   );
 }
 
@@ -86,15 +66,19 @@ export function evaluateWheyIndexability(
 }
 
 async function loadWheyComparison(): Promise<WheyComparisonResult> {
-  const { data, error } = await supabase
-    .from("products")
-    .select(
-      `
+  const candidates: RawWheyProduct[] = [];
+
+  for (let offset = 0; ; offset += WHEY_QUERY_PAGE_SIZE) {
+    const { data, error } = await supabase
+      .from("products")
+      .select(
+        `
         id,
         slug,
         name,
         brand,
         category,
+        description,
         image,
         product_format,
         net_weight_g,
@@ -123,22 +107,28 @@ async function loadWheyComparison(): Promise<WheyComparisonResult> {
             slug
           )
         )
-      `
-    )
-    .eq("is_active", true)
-    .is("merged_into_product_id", null)
-    .is("merged_at", null)
-    .eq("category", "Whey Protein")
-    .order("name")
-    .range(0, WHEY_QUERY_LIMIT - 1);
+        `
+      )
+      .eq("is_active", true)
+      .is("merged_into_product_id", null)
+      .is("merged_at", null)
+      .or(WHEY_CANDIDATE_FILTER)
+      .order("name")
+      .order("id")
+      .range(offset, offset + WHEY_QUERY_PAGE_SIZE - 1);
 
-  if (error) {
-    console.error("Unable to load the Whey Protein comparison.");
-    return emptyCategoryComparisonResult();
+    if (error) {
+      console.error("Unable to load the Whey Protein comparison.");
+      return emptyCategoryComparisonResult();
+    }
+
+    const page = (data || []) as RawWheyProduct[];
+    candidates.push(...page);
+    if (page.length < WHEY_QUERY_PAGE_SIZE) break;
   }
 
   const products = await resolveCategoryComparisonVariants(
-    (data || []) as RawWheyProduct[]
+    candidates
   );
 
   return {

@@ -40,6 +40,23 @@ function loadCategoryRoutesModule() {
     fileName: filename,
   });
   const mod = new Module(filename, module);
+  const authorityFilename = path.join(
+    process.cwd(),
+    "app",
+    "lib",
+    "proteinTaxonomy.ts"
+  );
+  const authorityOutput = ts.transpileModule(
+    fs.readFileSync(authorityFilename, "utf8"),
+    {
+      compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+      fileName: authorityFilename,
+    }
+  ).outputText;
+  const authorityModule = new Module(authorityFilename, module);
+  authorityModule.filename = authorityFilename;
+  authorityModule.paths = Module._nodeModulePaths(path.dirname(authorityFilename));
+  authorityModule._compile(authorityOutput, authorityFilename);
   const subtypeFilename = path.join(
     process.cwd(),
     "app",
@@ -54,7 +71,16 @@ function loadCategoryRoutesModule() {
   const subtypeModule = new Module(subtypeFilename, module);
   subtypeModule.filename = subtypeFilename;
   subtypeModule.paths = Module._nodeModulePaths(path.dirname(subtypeFilename));
-  subtypeModule._compile(subtypeOutput, subtypeFilename);
+  const originalSubtypeLoad = Module._load;
+  Module._load = function patchedSubtypeLoad(request, parent, isMain) {
+    if (parent === subtypeModule && request === "./proteinTaxonomy") return authorityModule.exports;
+    return originalSubtypeLoad.call(this, request, parent, isMain);
+  };
+  try {
+    subtypeModule._compile(subtypeOutput, subtypeFilename);
+  } finally {
+    Module._load = originalSubtypeLoad;
+  }
   const coverageFilename = path.join(
     process.cwd(),
     "app",
@@ -296,6 +322,15 @@ test("reviewed protein subtype links prefer isolate and vegan hubs", () => {
   );
   assert.equal(
     comparisonLinkForProduct({
+      name: "Optimum Nutrition 100% Isolate 930g",
+      category: "Health Supplements",
+      description: "Contains high quality whey protein.",
+      product_format: null,
+    }).href,
+    "/whey-isolate"
+  );
+  assert.equal(
+    comparisonLinkForProduct({
       name: "Ghost Vegan Protein 989g",
       category: "Protein",
       product_format: "powder",
@@ -305,6 +340,14 @@ test("reviewed protein subtype links prefer isolate and vegan hubs", () => {
   assert.equal(
     comparisonLinkForProduct({
       name: "Per4m Whey Protein 2kg",
+      category: "Whey Protein",
+      product_format: "powder",
+    }).href,
+    "/whey-protein"
+  );
+  assert.equal(
+    comparisonLinkForProduct({
+      name: "Ghost Clear Whey 640g",
       category: "Whey Protein",
       product_format: "powder",
     }).href,

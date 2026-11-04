@@ -10,10 +10,22 @@ import {
 } from "./categoryComparison";
 import { resolveCategoryComparisonVariants } from "./categoryComparisonVariants";
 import { supabase } from "./supabase";
-import { hasReviewedWheyIsolateIdentity } from "./proteinSubtypes";
 import { getEffectiveNutritionMetrics } from "./nutritionMetrics";
+import { isProteinCandidateEligible } from "./proteinEligibility";
+import { evaluateProteinTaxonomy } from "./proteinTaxonomy";
 
-const QUERY_LIMIT = 1000;
+const QUERY_PAGE_SIZE = 1000;
+const ISOLATE_CANDIDATE_FILTER = [
+  "name.ilike.%isolate%",
+  "name.ilike.%iso%",
+  "name.ilike.%wpi%",
+  "name.ilike.%iso-xp%",
+  "name.ilike.%iso 100%",
+  "name.ilike.%iso pro%",
+  "name.ilike.%iso whey%",
+  "name.ilike.%clear whey%",
+  "description.ilike.%whey protein isolate%",
+].join(",");
 
 export const WHEY_ISOLATE_INDEX_GATE = {
   minimumProductsWithMultipleFreshRetailers: 3,
@@ -27,16 +39,10 @@ export type WheyIsolateComparisonSummary = CategoryComparisonSummary;
 export type WheyIsolateComparisonResult = CategoryComparisonResult;
 
 export function isWheyIsolateProduct(product: RawWheyIsolateProduct) {
-  if (
-    product.is_active !== true ||
-    product.merged_into_product_id !== null ||
-    product.merged_at !== null ||
-    product.category?.trim().toLowerCase() !== "whey protein"
-  ) {
-    return false;
-  }
-
-  return hasReviewedWheyIsolateIdentity(product);
+  return (
+    isProteinCandidateEligible(product) &&
+    evaluateProteinTaxonomy(product).isolate.state === "INCLUDE_STRONG"
+  );
 }
 
 export function normalizeWheyIsolateComparison(
@@ -62,15 +68,19 @@ export function evaluateWheyIsolateIndexability(
 }
 
 async function loadWheyIsolateComparison(): Promise<WheyIsolateComparisonResult> {
-  const { data, error } = await supabase
-    .from("products")
-    .select(
-      `
+  const candidates: RawWheyIsolateProduct[] = [];
+
+  for (let offset = 0; ; offset += QUERY_PAGE_SIZE) {
+    const { data, error } = await supabase
+      .from("products")
+      .select(
+        `
         id,
         slug,
         name,
         brand,
         category,
+        description,
         image,
         product_format,
         net_weight_g,
@@ -95,22 +105,28 @@ async function loadWheyIsolateComparison(): Promise<WheyIsolateComparisonResult>
           url,
           retailer:retailers (id, name, slug)
         )
-      `
-    )
-    .eq("is_active", true)
-    .is("merged_into_product_id", null)
-    .is("merged_at", null)
-    .eq("category", "Whey Protein")
-    .order("name")
-    .range(0, QUERY_LIMIT - 1);
+        `
+      )
+      .eq("is_active", true)
+      .is("merged_into_product_id", null)
+      .is("merged_at", null)
+      .or(ISOLATE_CANDIDATE_FILTER)
+      .order("name")
+      .order("id")
+      .range(offset, offset + QUERY_PAGE_SIZE - 1);
 
-  if (error) {
-    console.error("Unable to load the Whey Isolate comparison.");
-    return emptyCategoryComparisonResult();
+    if (error) {
+      console.error("Unable to load the Whey Isolate comparison.");
+      return emptyCategoryComparisonResult();
+    }
+
+    const page = (data || []) as RawWheyIsolateProduct[];
+    candidates.push(...page);
+    if (page.length < QUERY_PAGE_SIZE) break;
   }
 
   const products = await resolveCategoryComparisonVariants(
-    (data || []) as RawWheyIsolateProduct[]
+    candidates
   );
 
   return {

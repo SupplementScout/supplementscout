@@ -74,6 +74,8 @@ const freshness = compileModule(freshnessPath, {
   mocks: { "./offerFreshness": offerFreshness },
 });
 const nutritionMetrics = compileModule(path.join(process.cwd(), "app", "lib", "nutritionMetrics.ts"));
+const proteinTaxonomy = compileModule(path.join(process.cwd(), "app", "lib", "proteinTaxonomy.ts"));
+const proteinEligibility = compileModule(path.join(process.cwd(), "app", "lib", "proteinEligibility.ts"));
 const categoryComparison = compileModule(categoryComparisonPath, {
   mocks: {
     "./creatineLaunch": freshness,
@@ -132,6 +134,8 @@ function loadWheyComparison(mockSupabase = {}) {
       "./categoryComparison": categoryComparison,
       "./categoryComparisonVariants": { resolveCategoryComparisonVariants: async (products) => products },
       "./nutritionMetrics": nutritionMetrics,
+      "./proteinTaxonomy": proteinTaxonomy,
+      "./proteinEligibility": proteinEligibility,
       "./supabase": { supabase: mockSupabase },
     },
   });
@@ -243,7 +247,7 @@ test("Whey scope includes reviewed dairy whey and excludes broad protein leaks",
   );
 });
 
-test("inactive, merged and wrongly categorised products are excluded", () => {
+test("eligibility is enforced while semantic Whey evidence is category-agnostic", () => {
   const { isWheyProteinProduct } = loadWheyComparison();
   assert.equal(isWheyProteinProduct(rawProduct({ is_active: false })), false);
   assert.equal(
@@ -257,7 +261,11 @@ test("inactive, merged and wrongly categorised products are excluded", () => {
     false
   );
   assert.equal(
-    isWheyProteinProduct(rawProduct({ category: "Pre Workout" })),
+    isWheyProteinProduct(rawProduct({ category: "Health Supplements" })),
+    true
+  );
+  assert.equal(
+    isWheyProteinProduct(rawProduct({ name: "Generic Protein Powder 1kg", category: "Whey Protein" })),
     false
   );
 });
@@ -414,10 +422,11 @@ test("the indexability gate closes safely when comparison coverage falls", () =>
   assert.deepEqual(ready, { indexable: true, blockers: [] });
 });
 
-test("the production query is bounded and requires the exact Whey category", async () => {
+test("the production query is bounded, semantic and safely paginated", async () => {
   const calls = [];
+  let page = 0;
   const query = {};
-  for (const method of ["select", "eq", "is", "gt", "order"]) {
+  for (const method of ["select", "eq", "is", "or", "gt", "order"]) {
     query[method] = (...args) => {
       calls.push([method, ...args]);
       return query;
@@ -425,25 +434,23 @@ test("the production query is bounded and requires the exact Whey category", asy
   }
   query.range = (...args) => {
     calls.push(["range", ...args]);
-    return Promise.resolve({ data: [], error: null });
+    const data = page++ === 0
+      ? Array.from({ length: 1000 }, (_, index) => rawProduct({ id: index + 1, slug: `whey-${index + 1}` }))
+      : [];
+    return Promise.resolve({ data, error: null });
   };
 
   const whey = loadWheyComparison({ from: () => query });
   const result = await whey.getWheyComparison();
   assert.equal(result.error, false);
-  assert.ok(
-    calls.some(
-      (call) =>
-        call[0] === "eq" &&
-        call[1] === "category" &&
-        call[2] === "Whey Protein"
-    )
-  );
+  assert.ok(calls.some((call) => call[0] === "or" && String(call[1]).includes("name.ilike.%whey%")));
+  assert.equal(calls.some((call) => call[0] === "eq" && call[1] === "category"), false);
   assert.ok(
     calls.some(
       (call) => call[0] === "range" && call[1] === 0 && call[2] === 999
     )
   );
+  assert.ok(calls.some((call) => call[0] === "range" && call[1] === 1000 && call[2] === 1999));
 });
 
 test("live-verified metadata is canonical and stable across live coverage", async () => {

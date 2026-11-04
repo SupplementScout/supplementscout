@@ -67,6 +67,7 @@ export type RawCategoryComparisonProduct = {
   name: string;
   brand: string | null;
   category: string | null;
+  description?: string | null;
   image: string | null;
   product_format?: string | null;
   net_weight_g: number | string | null;

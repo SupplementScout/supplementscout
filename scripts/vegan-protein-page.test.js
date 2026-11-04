@@ -37,7 +37,12 @@ const pricing = compileModule(path.join(process.cwd(), "app/lib/pricing.ts"));
 const offerFreshness = compileModule(path.join(process.cwd(), "app/lib/offerFreshness.ts"));
 const creatineLaunch = compileModule(path.join(process.cwd(), "app/lib/creatineLaunch.ts"), { "./offerFreshness": offerFreshness });
 const nutritionMetrics = compileModule(path.join(process.cwd(), "app/lib/nutritionMetrics.ts"));
-const proteinSubtypes = compileModule(path.join(process.cwd(), "app/lib/proteinSubtypes.ts"));
+const proteinTaxonomy = compileModule(path.join(process.cwd(), "app/lib/proteinTaxonomy.ts"));
+const proteinEligibility = compileModule(path.join(process.cwd(), "app/lib/proteinEligibility.ts"));
+const proteinSubtypes = compileModule(
+  path.join(process.cwd(), "app/lib/proteinSubtypes.ts"),
+  { "./proteinTaxonomy": proteinTaxonomy }
+);
 const categoryComparison = compileModule(path.join(process.cwd(), "app/lib/categoryComparison.ts"), {
   "./creatineLaunch": creatineLaunch,
   "./offerFreshness": offerFreshness,
@@ -96,6 +101,8 @@ function loadComparison(mockSupabase = {}) {
     "./categoryComparisonVariants": { resolveCategoryComparisonVariants: async (products) => products },
     "./nutritionMetrics": nutritionMetrics,
     "./offerFreshness": offerFreshness,
+    "./proteinTaxonomy": proteinTaxonomy,
+    "./proteinEligibility": proteinEligibility,
     "./proteinSubtypes": proteinSubtypes,
     "./supabase": { supabase: mockSupabase },
   });
@@ -173,12 +180,20 @@ test("indexability uses the unchanged shared quality gate", () => {
 
 test("production query is bounded to explicit plant identity candidates", async () => {
   const calls = [];
+  let page = 0;
   const query = {};
   for (const method of ["select", "eq", "is", "or", "gt", "order"]) query[method] = (...args) => { calls.push([method, ...args]); return query; };
-  query.range = (...args) => { calls.push(["range", ...args]); return Promise.resolve({ data: [], error: null }); };
+  query.range = (...args) => {
+    calls.push(["range", ...args]);
+    const data = page++ === 0
+      ? Array.from({ length: 1000 }, (_, index) => rawProduct(index + 1))
+      : [];
+    return Promise.resolve({ data, error: null });
+  };
   await loadComparison({ from: () => query }).getVeganProteinComparison();
   assert.ok(calls.some((call) => call[0] === "or" && String(call[1]).includes("name.ilike.%vegan%")));
   assert.ok(calls.some((call) => call[0] === "range" && call[1] === 0 && call[2] === 999));
+  assert.ok(calls.some((call) => call[0] === "range" && call[1] === 1000 && call[2] === 1999));
 });
 
 test("live-verified metadata is stable and uses one canonical", async () => {
