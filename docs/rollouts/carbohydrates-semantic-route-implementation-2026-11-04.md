@@ -118,6 +118,8 @@ Fresh post-deployment regression readback confirmed Amino Acids at **99 / 7 / 4*
 
 The mandatory finishing sequence is production verified: Amino Acids, Hydration/Electrolytes and Carbohydrates. The exact clean category intent now resolves to the shared semantic page, while raw Search remains available. The new route deliberately remains `planned` and `noindex, follow`; this closeout is not an indexability promotion.
 
+Documentation-only closeout: [PR #474](https://github.com/SupplementScout/supplementscout/pull/474).
+
 **BROAD P1 CATEGORY CLEANUP IS CLOSED.**
 
 Energy Drinks remains a separately deferred commercial expansion and was not implemented. No further category sweep or P2/P3 taxonomy cleanup starts from this closeout. The project returns to the already governed higher-value queue rather than opening another category unit.
