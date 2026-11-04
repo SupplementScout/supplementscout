@@ -19,7 +19,11 @@ import {
   categoryDecisionCandidates,
   selectCategoryDecisionAnswers,
 } from "../lib/categoryDecision";
-import { buildCategoryControlView, sharedCategoryControlFacts, type CategoryControlView } from "../lib/categoryControls";
+import {
+  buildCategoryControlView,
+  sharedCategoryControlFacts,
+  type CategoryControlView,
+} from "../lib/categoryControls";
 import {
   getHydrationComparison,
   type HydrationComparisonResult,
@@ -34,7 +38,7 @@ const description =
   "Browse recently checked hydration and electrolyte products, current prices and stock from UK supplement retailers.";
 const getCachedHydrationComparison = createLifecycleDataLoader(
   pagePath,
-  "hydration-comparison-v1",
+  "hydration-comparison-v2",
   getHydrationComparison
 );
 
@@ -85,6 +89,15 @@ function productFacts(row: HydrationComparisonRow) {
       ? `${row.verifiedServingCount.toLocaleString("en-GB")} verified servings`
       : null,
   ].filter(Boolean);
+}
+
+function hydrationControlFacts(row: HydrationComparisonRow) {
+  return {
+    ...sharedCategoryControlFacts(row),
+    subtypes: row.semanticSubtypes.includes("electrolytes")
+      ? [{ value: "electrolytes", label: "Electrolytes" }]
+      : [],
+  };
 }
 
 export function buildHydrationStructuredData(rows: HydrationComparisonRow[]) {
@@ -263,9 +276,10 @@ export function HydrationPageContent({
             Hydration &amp; Electrolyte Supplements UK
           </h1>
           <p className="mt-5 text-base leading-7 text-zinc-700 sm:text-lg sm:leading-8">
-            Browse hydration powders, electrolyte mixes, tablets and formulas
-            with recently checked in-stock prices. Check available prices and
-            stock now; more retailer comparisons will appear as current coverage grows.
+            Browse explicitly identified hydration, electrolyte and isotonic
+            sports-hydration products with recently checked in-stock prices.
+            Use the Electrolytes subtype to narrow the results; more retailer
+            comparisons will appear as current coverage grows.
           </p>
           {!result.error && (
             <p className="mt-4 text-sm leading-6 text-zinc-600">
@@ -349,7 +363,7 @@ export function HydrationPageContent({
         <h2 className="text-2xl font-bold">Hydration and electrolyte questions</h2>
         <div className="mt-6 grid gap-6 md:grid-cols-2">
           <div><h3 className="font-bold">What are hydration supplements?</h3><p className="mt-2 leading-7 text-zinc-700">They are products designed to add fluid-mixing ingredients and, commonly, electrolytes to a drink. Formats include powders, tablets and ready-to-drink products.</p></div>
-          <div><h3 className="font-bold">What do electrolyte products commonly contain?</h3><p className="mt-2 leading-7 text-zinc-700">Formulas commonly use minerals such as sodium, potassium or magnesium. Amounts vary, so check the product label rather than assuming every formula is equivalent.</p></div>
+          <div><h3 className="font-bold">What do electrolyte products commonly contain?</h3><p className="mt-2 leading-7 text-zinc-700">Formulas commonly use minerals such as sodium, potassium or magnesium. A mineral ingredient alone does not make every mineral supplement an electrolyte product, so check the product identity and label.</p></div>
           <div><h3 className="font-bold">Who may use hydration products?</h3><p className="mt-2 leading-7 text-zinc-700">People commonly consider them around exercise, travel or other situations involving fluid intake. Individual needs vary; follow the label and seek qualified advice when appropriate.</p></div>
           <div><h3 className="font-bold">How are hydration products different from EAA or pre-workout?</h3><p className="mt-2 leading-7 text-zinc-700">Hydration products are positioned around fluids and electrolytes. EAA products focus on essential amino acids, while pre-workouts use ingredients intended for use before training. Combination products appear here only when hydration or electrolyte positioning is explicit.</p></div>
           <div><h3 className="font-bold">How does SupplementScout check prices and stock?</h3><p className="mt-2 leading-7 text-zinc-700">Retailer offers are mapped to reviewed canonical products. This page accepts only valid in-stock offers checked within 24 hours and never fills missing prices by estimation.</p></div>
@@ -377,6 +391,10 @@ export default async function HydrationPage({ searchParams }: PageProps = {}) {
   const params = await (searchParams || Promise.resolve({}));
   const result = await getCachedHydrationComparison();
   assertLifecycleDataAvailable(result, pagePath);
-  const controlView = buildCategoryControlView(result.rows, params, sharedCategoryControlFacts);
+  const controlView = buildCategoryControlView(
+    result.rows,
+    params,
+    hydrationControlFacts
+  );
   return <HydrationPageContent result={{ ...result, rows: controlView.rows }} controlView={controlView} />;
 }

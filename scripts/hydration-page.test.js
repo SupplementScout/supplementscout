@@ -27,6 +27,7 @@ function compileModule(filename, options = {}) {
     if (request.endsWith("/indexabilityLifecycle")) return compileModule(path.join(process.cwd(), "app/lib/indexabilityLifecycle.ts"));
     if (request.endsWith("/lifecycleDataCache")) return { createLifecycleDataLoader: (_path, _version, load) => load };
     if (request.endsWith("/categoryControls")) return compileModule(path.join(process.cwd(), "app/lib/categoryControls.ts"));
+    if (request.endsWith("/categoryCoverage")) return compileModule(path.join(process.cwd(), "app/lib/categoryCoverage.ts"));
     if (request.endsWith("/CategoryComparisonControls")) return () => null;
     return originalLoad.call(this, request, parent, isMain);
   };
@@ -74,7 +75,9 @@ function rawProduct(overrides = {}) {
     name: "Example Hydration Electrolytes 300g",
     brand: "Example Nutrition",
     category: "Health Supplements",
+    description: "",
     image: "https://example.test/hydration.png",
+    product_format: "powder",
     net_weight_g: 300,
     net_volume_ml: null,
     unit_count: null,
@@ -195,22 +198,39 @@ test("the live-verified /hydration route is canonical and stable across coverage
   assert.deepEqual(readyMetadata.robots, { index: true, follow: true });
 });
 
-test("hydration scope uses explicit words and excludes unrelated products", () => {
-  const { isHydrationCategoryProduct } = loadComparison();
-  assert.equal(isHydrationCategoryProduct(rawProduct()), true);
-  assert.equal(isHydrationCategoryProduct(rawProduct({ name: "BCAA Amino Hydrate 450g" })), true);
-  assert.equal(isHydrationCategoryProduct(rawProduct({ name: "EAA + Hydration 300g" })), true);
-  assert.equal(isHydrationCategoryProduct(rawProduct({ name: "Creatine Monohydrate 500g", category: "Creatine" })), false);
-  assert.equal(isHydrationCategoryProduct(rawProduct({ name: "Pure EAA 300g", category: "Amino Acids" })), false);
-  assert.equal(isHydrationCategoryProduct(rawProduct({ name: "Pre Workout Watermelon 300g", category: "Pre Workout" })), false);
-  assert.equal(isHydrationCategoryProduct(rawProduct({ name: "Salt Tablets", category: "Vitamins" })), false);
+test("hydration loader delegates semantic truth to shared Category Coverage", () => {
+  const comparison = loadComparison();
+  assert.equal(comparison.evaluateHydrationCoverage(rawProduct()).classification, "INCLUDE_STRONG");
+  assert.equal(comparison.evaluateHydrationCoverage(rawProduct({ name: "BCAA Amino Hydrate 450g" })).classification, "INCLUDE_STRONG");
+  assert.equal(comparison.evaluateHydrationCoverage(rawProduct({ name: "7Nutrition Isotonic Gold 1000g", category: "Carbohydrates" })).classification, "INCLUDE_STRONG");
+  assert.equal(comparison.evaluateHydrationCoverage(rawProduct({ name: "Creatine Monohydrate 500g", category: "Creatine" })).classification, "EXCLUDE_STRONG");
+  assert.equal(comparison.evaluateHydrationCoverage(rawProduct({ name: "Alkaline Water", category: "Hydration", product_format: "liquid" })).classification, "EXCLUDE_STRONG");
+  const source = fs.readFileSync(comparisonPath, "utf8");
+  assert.doesNotMatch(source, /function isHydrationCategoryProduct|explicitHydrationNamePattern|VITAMIN_WATER_AMBIGUITY/);
+  assert.match(source, /evaluateCategoryCoverage\(hydrationDefinition, product\)/);
 });
 
 test("inactive and merged hydration products are excluded", () => {
-  const { isHydrationCategoryProduct } = loadComparison();
-  assert.equal(isHydrationCategoryProduct(rawProduct({ is_active: false })), false);
-  assert.equal(isHydrationCategoryProduct(rawProduct({ merged_into_product_id: 99 })), false);
-  assert.equal(isHydrationCategoryProduct(rawProduct({ merged_at: "2026-07-21T00:00:00Z" })), false);
+  const { normalizeHydrationComparison } = loadComparison();
+  const result = normalizeHydrationComparison([
+    rawProduct({ id: 1, is_active: false }),
+    rawProduct({ id: 2, merged_into_product_id: 99 }),
+    rawProduct({ id: 3, merged_at: "2026-07-21T00:00:00Z" }),
+  ], { now: FIXTURE_NOW });
+  assert.equal(result.rows.length, 0);
+});
+
+test("Electrolytes annotations include only shared strong subtype members", () => {
+  const { normalizeHydrationComparison } = loadComparison();
+  const result = normalizeHydrationComparison([
+    rawProduct({ id: 1, name: "Hydration Formula" }),
+    rawProduct({ id: 2, name: "Electrolytes Formula" }),
+    rawProduct({ id: 3, name: "Energy Gel Electrolyte", category: "Electrolytes", product_format: "sachet" }),
+  ], { now: FIXTURE_NOW });
+  assert.deepEqual(result.rows.map((row) => [row.id, row.semanticSubtypes]), [
+    ["2", ["electrolytes"]],
+    ["1", []],
+  ]);
 });
 
 test("normalization accepts only fresh valid mapped in-stock offers", () => {
@@ -276,6 +296,7 @@ test("live hydration coverage satisfies the existing indexability gate", () => {
 test("hydration appears exactly once in the sitemap", () => {
   const sitemap = fs.readFileSync(sitemapPath, "utf8");
   assert.equal((sitemap.match(/`\$\{siteUrl\}\/hydration`/g) || []).length, 1);
+  assert.equal((sitemap.match(/\/electrolytes/g) || []).length, 0);
 });
 
 test("structured data contains CollectionPage, ItemList and Breadcrumb but no Product", () => {
@@ -311,7 +332,7 @@ test("SSR shows current availability without a misleading comparison label", () 
 test("query is bounded and filters inactive and merged products", async () => {
   const calls = [];
   const query = {};
-  for (const method of ["select", "eq", "is", "gt", "or", "order"]) {
+  for (const method of ["select", "eq", "is", "or", "order"]) {
     query[method] = (...args) => {
       calls.push([method, ...args]);
       return query;
@@ -328,6 +349,51 @@ test("query is bounded and filters inactive and merged products", async () => {
   assert.ok(calls.some((call) => call[0] === "is" && call[1] === "merged_into_product_id"));
   assert.ok(calls.some((call) => call[0] === "is" && call[1] === "merged_at"));
   assert.ok(calls.some((call) => call[0] === "range" && call[1] === 0 && call[2] === 999));
+  assert.ok(calls.some((call) => call[0] === "or" && String(call[1]).includes("description.ilike")));
+});
+
+test("candidate loading paginates deterministically beyond the first 1,000 rows", async () => {
+  const ranges = [];
+  const query = {};
+  for (const method of ["select", "eq", "is", "or", "order"]) {
+    query[method] = () => query;
+  }
+  query.range = (from, to) => {
+    ranges.push([from, to]);
+    return Promise.resolve({
+      data: from === 0
+        ? Array.from({ length: 1000 }, (_, index) => rawProduct({ id: index + 1, name: `Hydration ${index + 1}`, offers: [] }))
+        : [],
+      error: null,
+    });
+  };
+  const comparison = loadComparison({ from: () => query });
+  const result = await comparison.getHydrationComparison();
+  assert.equal(result.error, false);
+  assert.deepEqual(ranges, [[0, 999], [1000, 1999]]);
+});
+
+test("a later-page retrieval error fails closed instead of publishing partial data", async () => {
+  const query = {};
+  for (const method of ["select", "eq", "is", "or", "order"]) {
+    query[method] = () => query;
+  }
+  query.range = (from) => Promise.resolve(
+    from === 0
+      ? { data: Array.from({ length: 1000 }, (_, index) => rawProduct({ id: index + 1, name: `Hydration ${index + 1}`, offers: [] })), error: null }
+      : { data: null, error: { message: "later page failed" } }
+  );
+  const comparison = loadComparison({ from: () => query });
+  const originalError = console.error;
+  console.error = () => {};
+  try {
+    const result = await comparison.getHydrationComparison();
+    assert.equal(result.error, true);
+    assert.deepEqual(result.rows, []);
+    assert.equal(result.summary.scopedProducts, 0);
+  } finally {
+    console.error = originalError;
+  }
 });
 
 test("default route loads hydration data once", async () => {
@@ -337,8 +403,32 @@ test("default route loads hydration data once", async () => {
   assert.equal(element.type, loaded.page.HydrationPageContent);
 });
 
+test("Electrolytes subtype composes with the shared server-side controls", async () => {
+  const loaded = loadPage();
+  const element = await loaded.page.default({
+    searchParams: Promise.resolve({ subtype: "electrolytes" }),
+  });
+  assert.equal(element.props.controlView.controls.subtype, "electrolytes");
+  assert.equal(element.props.controlView.facets.subtypes.length, 1);
+  assert.equal(
+    element.props.result.rows.every((row) =>
+      row.semanticSubtypes.includes("electrolytes")
+    ),
+    true
+  );
+});
+
+test("Electrolytes remains an internal subtype without an app route", () => {
+  assert.equal(
+    fs.existsSync(path.join(process.cwd(), "app", "electrolytes")),
+    false
+  );
+});
+
 test("hydration uses consent-aware category analytics", () => {
   const source = fs.readFileSync(pagePath, "utf8");
   assert.match(source, /category="Hydration"/);
   assert.match(source, /sourcePage="hydration_comparison"/);
+  assert.match(source, /hydration-comparison-v2/);
+  assert.match(source, /subtypes: row\.semanticSubtypes\.includes\("electrolytes"\)/);
 });

@@ -65,7 +65,7 @@ export type AnalyticsEventMap = {
   };
   category_filter_used: {
     category: string;
-    filter_name: "brand" | "retailer" | "format";
+    filter_name: "subtype" | "brand" | "retailer" | "format";
     filter_action: "apply" | "remove";
   };
   category_sort_used: {

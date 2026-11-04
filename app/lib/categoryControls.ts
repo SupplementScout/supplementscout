@@ -6,10 +6,15 @@ export type CategoryControlSort =
   | "verified_value"
   | "retailer_coverage";
 
-export type CategoryControlFilter = "brand" | "retailer" | "format";
+export type CategoryControlFilter =
+  | "subtype"
+  | "brand"
+  | "retailer"
+  | "format";
 
 export type CategoryControlValues = {
   sort: CategoryControlSort;
+  subtype: string;
   brand: string;
   retailer: string;
   format: string;
@@ -26,6 +31,7 @@ export type CategoryControlFacts = {
   brand: string | null;
   productFormat: string | null;
   retailers: Array<{ id: string; name: string }>;
+  subtypes?: Array<{ value: string; label: string }>;
   deliveredTotal: number | null;
   verifiedValue: number | null;
   retailerCount: number;
@@ -39,6 +45,7 @@ export type CategoryControlView<T> = {
     brands: CategoryControlFacet[];
     retailers: CategoryControlFacet[];
     formats: CategoryControlFacet[];
+    subtypes: CategoryControlFacet[];
   };
   sorts: CategoryControlSort[];
   totalCount: number;
@@ -187,6 +194,16 @@ export function buildCategoryControlView<T>(
     }),
     true
   );
+  const subtypes = facetValues(
+    indexed.flatMap(({ facts }) =>
+      (facts.subtypes || []).flatMap((subtype) => {
+        const value = safeLabel(subtype.value).toLocaleLowerCase("en-GB");
+        const label = safeLabel(subtype.label);
+        return value && label ? [{ value, label }] : [];
+      })
+    ),
+    true
+  );
 
   const allowedSorts: CategoryControlSort[] = [
     "decision",
@@ -198,8 +215,12 @@ export function buildCategoryControlView<T>(
   const requestedBrand = singleParam(params.brand).toLocaleLowerCase("en-GB");
   const requestedFormat = singleParam(params.format).toLocaleLowerCase("en-GB");
   const requestedRetailer = singleParam(params.retailer);
+  const requestedSubtype = singleParam(params.subtype).toLocaleLowerCase("en-GB");
   const controls: CategoryControlValues = {
     sort: allowedSorts.includes(requestedSort) ? requestedSort : "decision",
+    subtype: subtypes.some((facet) => facet.value === requestedSubtype)
+      ? requestedSubtype
+      : "",
     brand: brands.some((facet) => facet.value === requestedBrand)
       ? requestedBrand
       : "",
@@ -212,6 +233,16 @@ export function buildCategoryControlView<T>(
   };
 
   const filtered = indexed.filter(({ facts }) => {
+    if (
+      controls.subtype &&
+      !(facts.subtypes || []).some(
+        (subtype) =>
+          safeLabel(subtype.value).toLocaleLowerCase("en-GB") ===
+          controls.subtype
+      )
+    ) {
+      return false;
+    }
     if (
       controls.brand &&
       safeLabel(facts.brand).toLocaleLowerCase("en-GB") !== controls.brand
@@ -256,11 +287,11 @@ export function buildCategoryControlView<T>(
   return {
     rows: filtered.map(({ row }) => row),
     controls,
-    facets: { brands, retailers, formats },
+    facets: { brands, retailers, formats, subtypes },
     sorts: allowedSorts,
     totalCount: rows.length,
     hasActiveFilters: Boolean(
-      controls.brand || controls.retailer || controls.format
+      controls.subtype || controls.brand || controls.retailer || controls.format
     ),
   };
 }
@@ -273,6 +304,7 @@ export function categoryControlUrl(
   const next = { ...controls, ...updates };
   const params = new URLSearchParams();
   if (next.sort !== "decision") params.set("sort", next.sort);
+  if (next.subtype) params.set("subtype", next.subtype);
   if (next.brand) params.set("brand", next.brand);
   if (next.retailer) params.set("retailer", next.retailer);
   if (next.format) params.set("format", next.format);

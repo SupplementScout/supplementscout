@@ -162,6 +162,8 @@ test("clean exact public Category Coverage labels resolve case-insensitively", (
     ["Amino Acids", "/amino-acids"],
     ["amino acids", "/amino-acids"],
     [" AMINO   ACIDS ", "/amino-acids"],
+    ["Hydration", "/hydration"],
+    [" hydration ", "/hydration"],
   ];
 
   for (const [query, href] of cases) {
@@ -185,6 +187,7 @@ test("nonexact, fuzzy and comparison-category queries remain normal Search", () 
     "Amino Acid",
     "BCAA",
     "EAA",
+    "Electrolytes",
     "Collagen under £30",
     "best fat burners",
     "test boosters",
@@ -224,7 +227,7 @@ test("every supplied Search state key makes exact queries fail closed", () => {
     page: "2",
   };
 
-  for (const query of ["Collagen", "Nootropics", "Amino Acids"]) {
+  for (const query of ["Collagen", "Nootropics", "Amino Acids", "Hydration"]) {
     for (const [key, value] of Object.entries(states)) {
       assert.equal(
         resolver.resolveExactCategorySearchIntent({ q: query, [key]: value }),
@@ -267,6 +270,17 @@ test("one shared raw Search escape bypasses category navigation without filters"
   assert.equal(
     resolver.resolveExactCategorySearchIntent({
       q: "Amino Acids",
+      search_mode: "raw",
+    }),
+    null
+  );
+  assert.equal(
+    resolver.categoryCoverageRawSearchHref("Hydration"),
+    "/search?q=Hydration&search_mode=raw"
+  );
+  assert.equal(
+    resolver.resolveExactCategorySearchIntent({
+      q: "Hydration",
       search_mode: "raw",
     }),
     null

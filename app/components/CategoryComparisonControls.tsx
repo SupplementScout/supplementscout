@@ -29,6 +29,7 @@ function FilterGroup({
   controls,
   category,
   onNavigate,
+  minimumOptions = 2,
 }: {
   title: string;
   filterName: CategoryControlFilter;
@@ -37,8 +38,9 @@ function FilterGroup({
   controls: CategoryControlValues;
   category: string;
   onNavigate?: () => void;
+  minimumOptions?: number;
 }) {
-  if (options.length < 2) return null;
+  if (options.length < minimumOptions) return null;
   const selected = controls[filterName];
 
   return (
@@ -97,6 +99,7 @@ export default function CategoryComparisonControls({
     brands: CategoryControlFacet[];
     retailers: CategoryControlFacet[];
     formats: CategoryControlFacet[];
+    subtypes: CategoryControlFacet[];
   };
   sorts: CategoryControlSort[];
   resultCount: number;
@@ -105,14 +108,31 @@ export default function CategoryComparisonControls({
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const groups = [
-    { title: "Brand", filterName: "brand" as const, options: facets.brands },
+    {
+      title: "Subtype",
+      filterName: "subtype" as const,
+      options: facets.subtypes,
+      minimumOptions: 1,
+    },
+    {
+      title: "Brand",
+      filterName: "brand" as const,
+      options: facets.brands,
+      minimumOptions: 2,
+    },
     {
       title: "Retailer",
       filterName: "retailer" as const,
       options: facets.retailers,
+      minimumOptions: 2,
     },
-    { title: "Format", filterName: "format" as const, options: facets.formats },
-  ].filter((group) => group.options.length >= 2);
+    {
+      title: "Format",
+      filterName: "format" as const,
+      options: facets.formats,
+      minimumOptions: 2,
+    },
+  ].filter((group) => group.options.length >= group.minimumOptions);
 
   useEffect(() => {
     if (!isOpen) return;

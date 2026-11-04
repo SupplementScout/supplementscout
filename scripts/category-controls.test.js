@@ -68,11 +68,37 @@ test("unknown parameters fail closed to the clean decision view", () => {
 
   assert.deepEqual(view.controls, {
     sort: "decision",
+    subtype: "",
     brand: "",
     retailer: "",
     format: "",
   });
   assert.equal(controls.categoryControlUrl("/whey-protein", view.controls), "/whey-protein");
+});
+
+test("a reusable subtype facet composes with the existing controls", () => {
+  const rows = [
+    row({
+      id: "1",
+      subtypes: [{ value: "electrolytes", label: "Electrolytes" }],
+    }),
+    row({ id: "2", brand: "Beta", subtypes: [] }),
+  ];
+  const view = controls.buildCategoryControlView(
+    rows,
+    { subtype: "electrolytes", brand: "alpha" },
+    (item) => item
+  );
+
+  assert.deepEqual(view.rows.map((item) => item.id), ["1"]);
+  assert.equal(view.controls.subtype, "electrolytes");
+  assert.deepEqual(view.facets.subtypes, [
+    { value: "electrolytes", label: "Electrolytes", count: 1 },
+  ]);
+  assert.equal(
+    controls.categoryControlUrl("/hydration", view.controls),
+    "/hydration?subtype=electrolytes&brand=alpha"
+  );
 });
 
 test("verified-value sorting exists only when the route explicitly enables it", () => {
