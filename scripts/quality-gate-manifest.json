@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 352,
-    "sha256": "4feb3e656be3397a1ce09d62bf4e11791db97110e6e3e6cb8e7db9d5d2d8aea5"
+    "count": 353,
+    "sha256": "907c3d0071a06c7ba1cbbd590faecfffb1b24df37fcd3a2cbc2a578f49c42f6e"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -84,6 +84,7 @@
     "scripts/10reps-bootstrap-artifact-approver.test.js",
     "scripts/analytics-consent.test.js",
     "scripts/better-value-alternatives.test.js",
+    "scripts/carbohydrates-page.test.js",
     "scripts/category-controls.test.js",
     "scripts/category-coverage.test.js",
     "scripts/category-coverage-route-architecture.test.js",

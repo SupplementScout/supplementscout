@@ -122,6 +122,11 @@ const staticPages: MetadataRoute.Sitemap = [
     priority: 0.9,
   },
   {
+    url: `${siteUrl}/carbohydrates`,
+    changeFrequency: "daily",
+    priority: 0.9,
+  },
+  {
     url: `${siteUrl}/whey-protein`,
     changeFrequency: "daily",
     priority: 0.9,
