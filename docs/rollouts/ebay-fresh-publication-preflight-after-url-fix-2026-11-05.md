@@ -286,4 +286,5 @@ reviews or trigger eBay refresh.
 - Project Guardian before documentation: `PASS`.
 - Project Guardian after documentation: `PASS`.
 - Quality Gate quick/full: `PASS / PASS`.
-- GitGuardian, Vercel and unresolved review threads: pending documentation PR.
+- Documentation PR GitGuardian and Vercel: `PASS`; unresolved review threads:
+  `0` before merge.
