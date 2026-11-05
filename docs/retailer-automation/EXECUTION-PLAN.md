@@ -20,6 +20,26 @@ workflows, artifacts, control ledger, Review Queue, postflight and watchdog.
 Work proceeds read-only until a specific recovery or business write has fresh
 bounded evidence and separate owner approval.
 
+**5 November shared production migration-ledger regression — repository
+correction ready for verification:** production readback proves ledger `260`
+with fingerprint
+`17a00891dff4e0a4f53050a018594fd505aa0aabc02b5281580b42895d7fd61e`,
+including both November Review Queue migrations. Main still treated
+`20261105100000_refresh_pending_review_execution_binding.sql` as production
+pending and therefore sealed a 259-entry binding into the unrelated KIOR,
+Discount Supplements and Gladiator packages. Their retained diagnostics all
+failed closed at the shared validator with `RSBI_SOURCE_HASH_MISMATCH` and zero
+writes. The bounded correction removes only that stale PRODUCTION pending
+state, updates the frozen production count/fingerprint and preserves both
+migrations as pending in STAGING. It adds no SQL, retailer exception or
+validation bypass. Focused selector, fingerprint and three-retailer tests pass;
+live readback now has zero identifier drift. Local retailer dry-runs stopped at
+source HTTP `429` before validation and made zero writes, so final-main hosted
+dry-runs remain the acceptance canaries. The separate Review Queue scheduler
+audit found no repository regression; missing scheduled run records and the
+manual HTTP `500` remain an external GitHub scheduling/API incident. Evidence:
+[`production-migration-ledger-retailer-automation-regression-2026-11-05.md`](../rollouts/production-migration-ledger-retailer-automation-regression-2026-11-05.md).
+
 **4 November Review Queue hard-price contract incident — repository correction
 prepared, production migration pending:** audit PR `#476` confirmed that the
 eBay producer and protected worker supported `HARD_PRICE_ANOMALY`, while the
