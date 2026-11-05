@@ -119,8 +119,15 @@ function writeFixture() {
     review_offer_ids: ["2554", "2686"],
     executable_offer_ids: ["2748"],
   };
+  const commercialBefore = beforeState("2554");
   writeJson(path.join(directory, "artifact-2554-test.json"), {
-    plans: [{ resolved_plan: { offer: { action: "update", values: { price: "29.23", shipping_cost: "0.00", total_price: "29.23", in_stock: true, url: "https://www.ebay.co.uk/itm/external-2554?var=variant&mkevt=1" } } } }],
+    plans: [{ resolved_plan: {
+      offer: { action: "update", values: { price: "29.23", shipping_cost: "0.00", total_price: "29.23", in_stock: true, url: "https://www.ebay.co.uk/itm/external-2554?var=variant&mkevt=1" } },
+      expected_state: {
+        offer: { id: commercialBefore.offer_id, retailer_product_id: commercialBefore.retailer_product_id, product_id: commercialBefore.product_id, product_variant_id: commercialBefore.product_variant_id, price: commercialBefore.price, shipping_cost: commercialBefore.shipping_cost, total_price: commercialBefore.total_price, in_stock: commercialBefore.in_stock, url: commercialBefore.url },
+        retailer_product: { id: commercialBefore.retailer_product_id, product_id: commercialBefore.product_id, product_variant_id: commercialBefore.product_variant_id, external_url: commercialBefore.external_url, external_product_id: commercialBefore.external_product_id, external_variant_id: commercialBefore.external_variant_id },
+      },
+    } }],
   });
   writeJson(path.join(directory, "production-dry-run.json"), report);
   contract.report_sha256 = fileSha(path.join(directory, "production-dry-run.json"));
@@ -153,18 +160,39 @@ function semantic(offerId, mappingId, extra = {}) {
     shipping: extra.price == null ? null : "0.00",
     total: extra.price,
     affiliate_ready: true,
-    affiliate_url_returned: `https://www.ebay.co.uk/itm/external-${offerId}?campid=5339189922&var=variant`,
+    affiliate_url_returned: `https://www.ebay.co.uk/itm/external-${offerId}?var=variant&mkevt=1`,
+  };
+}
+
+function beforeState(offerId) {
+  return {
+    offer_id: offerId,
+    retailer_product_id: offerId === "2554" ? "2739" : "2872",
+    product_id: offerId === "2554" ? "67" : "468",
+    product_variant_id: offerId === "2554" ? "1033" : "2710",
+    price: "1.00",
+    shipping_cost: "0.00",
+    total_price: "1.00",
+    in_stock: true,
+    url: `https://www.ebay.co.uk/itm/external-${offerId}?var=variant&mkevt=1`,
+    external_url: `https://www.ebay.co.uk/itm/external-${offerId}?var=variant`,
+    external_product_id: `external-${offerId}`,
+    external_variant_id: `v1|external-${offerId}|variant`,
   };
 }
 
 function activeRows() {
   return [
     active("548", "2554", "a".repeat(64), "UPDATE_PRICE", "COMMERCIAL_CHANGE"),
-    active("575", "2686", "b".repeat(64), "MANUAL_REVIEW", "SOURCE_FAILURE"),
+    active("575", "2686", "b".repeat(64), "SOURCE_MISSING", "SOURCE_FAILURE"),
   ];
 }
 
 function active(id, offerId, fingerprint, operation, kind) {
+  const reason = operation === "UPDATE_PRICE" ? "PRICE_CHANGE"
+    : operation === "UPDATE_STOCK" ? "STOCK_CHANGE"
+      : operation === "UPDATE_PRICE_AND_STOCK" ? "PRICE_AND_STOCK_CHANGE"
+        : kind === "SOURCE_FAILURE" ? "SOURCE_FAILURE" : "IDENTITY_CONFLICT";
   return {
     id,
     retailer_id: "12",
@@ -178,22 +206,10 @@ function active(id, offerId, fingerprint, operation, kind) {
     review_status: "PENDING",
     review_kind: kind,
     operation_type: operation,
+    reason_codes: reason,
     source_row_fingerprint: fingerprint,
     superseded_by_review_id: null,
-    before_state: {
-      offer_id: offerId,
-      retailer_product_id: offerId === "2554" ? "2739" : "2872",
-      product_id: offerId === "2554" ? "67" : "468",
-      product_variant_id: offerId === "2554" ? "1033" : "2710",
-      price: "1.00",
-      shipping_cost: "0.00",
-      total_price: "1.00",
-      in_stock: true,
-      url: `https://www.ebay.co.uk/itm/external-${offerId}?var=variant&mkevt=1`,
-      external_url: `https://www.ebay.co.uk/itm/external-${offerId}?var=variant`,
-      external_product_id: `external-${offerId}`,
-      external_variant_id: `v1|external-${offerId}|variant`,
-    },
+    before_state: beforeState(offerId),
   };
 }
 
@@ -263,7 +279,7 @@ test("review reconciliation dry-run uses shared publisher and computes CREATE/SU
   const fixture = writeFixture();
   const options = sourceOptions(fixture.directory);
   const source = { ...verifySourceArtifact(options), options };
-  const rows = buildManifestRows(source, activeRows());
+  const rows = buildManifestRows(source, activeRows(), activeRows());
   const output = buildOutput(source, baseline(), rows, options.output, { GITHUB_RUN_ID: "999", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit, GITHUB_EVENT_NAME: "workflow_dispatch", GITHUB_REF: "refs/heads/main" });
 
   assert.equal(output.source.run_id, SOURCE.run);
@@ -288,7 +304,7 @@ test("matching fingerprints become REFRESH and missing source baseline stays iso
   const fixture = writeFixture();
   const options = sourceOptions(fixture.directory);
   const source = { ...verifySourceArtifact(options), options };
-  const rows = buildManifestRows(source, activeRows());
+  const rows = buildManifestRows(source, activeRows(), activeRows());
   const matchingActive = activeRows().map((row, index) => ({ ...row, source_row_fingerprint: rows[index].source_row_fingerprint }));
   const output = buildOutput(source, baseline(matchingActive), rows, options.output, {});
 
@@ -303,7 +319,7 @@ test("matching approved evidence stays immutable instead of becoming REFRESH", (
   const fixture = writeFixture();
   const options = sourceOptions(fixture.directory);
   const source = { ...verifySourceArtifact(options), options };
-  const rows = buildManifestRows(source, activeRows());
+  const rows = buildManifestRows(source, activeRows(), activeRows());
   const matchingApproved = activeRows().map((row, index) => ({ ...row, review_status: "APPROVED", decision_actor: "authenticated-admin", source_row_fingerprint: rows[index].source_row_fingerprint }));
   const output = buildOutput(source, baseline(matchingApproved), rows, options.output, {});
 
@@ -319,7 +335,7 @@ test("one transaction can refresh unchanged evidence and supersede changed evide
   const fixture = writeFixture();
   const options = sourceOptions(fixture.directory);
   const source = { ...verifySourceArtifact(options), options };
-  const rows = buildManifestRows(source, activeRows());
+  const rows = buildManifestRows(source, activeRows(), activeRows());
   const mixedActive = activeRows().map((row, index) => index === 0 ? { ...row, source_row_fingerprint: rows[index].source_row_fingerprint } : row);
   const output = buildOutput(source, baseline(mixedActive), rows, options.output, {});
 
@@ -334,7 +350,7 @@ test("full 237-offer observation resolves an old review problem absent from the 
   const fixture = writeFixture();
   const options = sourceOptions(fixture.directory);
   const source = { ...verifySourceArtifact(options), options };
-  const rows = buildManifestRows(source, activeRows());
+  const rows = buildManifestRows(source, activeRows(), activeRows());
   const oldResolved = active("600", "2748", "c".repeat(64), "MANUAL_REVIEW_IDENTITY", "IDENTITY_CONFLICT");
   const output = buildOutput(source, baseline([...activeRows(), oldResolved]), rows, options.output, {});
 
@@ -355,8 +371,17 @@ test("hard-price anomaly publishes one pending commercial review with exact befo
   t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
   const offerId = "2560", mappingId = "2745";
   const proposed = { price: "129.00", shipping_cost: "0.00", total_price: "129.00", in_stock: true, url: "https://www.ebay.co.uk/itm/2560?mkevt=1" };
-  writeJson(path.join(directory, `artifact-${offerId}-2026-10-28.json`), { plans: [{ resolved_plan: { offer: { action: "update", id: offerId, values: proposed }, price_history: { action: "create" } } }] });
   const semanticRow = semantic(offerId, mappingId, { decision: "REVIEW", price: "129.00", review_reasons: ["RETURNED_GTIN_UNPROVEN"] });
+  semanticRow.affiliate_url_returned = proposed.url;
+  const before = { offer_id: offerId, retailer_product_id: mappingId, product_id: semanticRow.product_id, product_variant_id: semanticRow.product_variant_id, price: "149.00", shipping_cost: "0.00", total_price: "149.00", in_stock: true, url: proposed.url, external_url: semanticRow.external_url, external_product_id: semanticRow.external_product_id, external_variant_id: semanticRow.external_variant_id };
+  writeJson(path.join(directory, `artifact-${offerId}-2026-10-28.json`), { plans: [{ resolved_plan: {
+    offer: { action: "update", id: offerId, values: proposed },
+    price_history: { action: "create" },
+    expected_state: {
+      offer: { id: before.offer_id, retailer_product_id: before.retailer_product_id, product_id: before.product_id, product_variant_id: before.product_variant_id, price: before.price, shipping_cost: before.shipping_cost, total_price: before.total_price, in_stock: before.in_stock, url: before.url },
+      retailer_product: { id: before.retailer_product_id, product_id: before.product_id, product_variant_id: before.product_variant_id, external_url: before.external_url, external_product_id: before.external_product_id, external_variant_id: before.external_variant_id },
+    },
+  } }] });
   const source = {
     report: {
       captured_at: "2026-10-28T05:43:00.000Z",
@@ -367,7 +392,6 @@ test("hard-price anomaly publishes one pending commercial review with exact befo
     contract: { created_at: "2026-10-28T05:43:00.000Z", expires_at: "2026-10-29T05:43:00.000Z", full_capture_fingerprint: "b".repeat(64), executable_source_fingerprint: "c".repeat(64), review_scope_fingerprint: "d".repeat(64), plan_fingerprint: "e".repeat(64) },
     options: { sourceArtifactDir: directory, sourceRunId: "40492923105", sourceArtifactId: "123", sourceArtifactDigest: "f".repeat(64), sourceContractSha256: "1".repeat(64), sourceReportSha256: "2".repeat(64), sourceArtifactContentSha256: "3".repeat(64) },
   };
-  const before = { offer_id: offerId, retailer_product_id: mappingId, product_id: semanticRow.product_id, product_variant_id: semanticRow.product_variant_id, price: "149.00", shipping_cost: "0.00", total_price: "149.00", in_stock: true, url: proposed.url, external_url: semanticRow.external_url, external_product_id: semanticRow.external_product_id, external_variant_id: semanticRow.external_variant_id };
   const rows = buildManifestRows(source, [], [{ offer_id: offerId, before_state: before }]);
   assert.equal(rows.length, 1);
   assert.equal(rows[0].primary_status, "PENDING");
@@ -383,6 +407,66 @@ test("hard-price anomaly publishes one pending commercial review with exact befo
   assert.equal(rows[0].artifact_fingerprint, "d".repeat(64));
   assert.equal(rows[0].plan_fingerprint, "e".repeat(64));
   assert.deepEqual(rows[0].impact_summary, { catalogue_writes: 0, executable: false, review_only: true });
+});
+
+test("same semantic combined problem refreshes from exact DB/plan baseline and passes the protected worker contract", (t) => {
+  const { assertCombinedPriceStockReviewExecution } = require("./automation-review-ebay-worker");
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "shared-pending-binding-refresh-"));
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const offerId = "99002", mappingId = "88002", fingerprint = "8".repeat(64), planFingerprint = "9".repeat(64);
+  const semanticRow = semantic(offerId, mappingId, { decision: "REVIEW", price: "11.00" });
+  semanticRow.affiliate_url_returned = "https://example.test/offer-99002";
+  const before = { offer_id: offerId, retailer_product_id: mappingId, product_id: semanticRow.product_id, product_variant_id: semanticRow.product_variant_id, price: "10.00", shipping_cost: "0.00", total_price: "10.00", in_stock: false, url: semanticRow.affiliate_url_returned, external_url: semanticRow.external_url, external_product_id: semanticRow.external_product_id, external_variant_id: semanticRow.external_variant_id };
+  const proposed = { price: "11.00", shipping_cost: "0.00", total_price: "11.00", in_stock: true, url: before.url };
+  const plan = {
+    product: { action: "existing", id: semanticRow.product_id },
+    product_variant: { action: "existing", id: semanticRow.product_variant_id },
+    retailer: { action: "existing", id: "12" },
+    retailer_product: { action: "noop", id: mappingId },
+    offer: { action: "update", id: offerId, values: proposed },
+    price_history: { action: "create" },
+    expected_state: {
+      offer: { id: offerId, retailer_product_id: mappingId, product_id: semanticRow.product_id, product_variant_id: semanticRow.product_variant_id, price: before.price, shipping_cost: before.shipping_cost, total_price: before.total_price, in_stock: before.in_stock, url: before.url },
+      retailer_product: { id: mappingId, retailer_id: "12", product_id: semanticRow.product_id, product_variant_id: semanticRow.product_variant_id, external_url: before.external_url, external_product_id: before.external_product_id, external_variant_id: before.external_variant_id },
+    },
+  };
+  writeJson(path.join(directory, `artifact-${offerId}-fixture.json`), { plans: [{ resolved_plan: plan }] });
+  const source = {
+    report: {
+      captured_at: "2026-11-05T08:00:00.000Z",
+      execution_offer_ids: [],
+      review_rows: [{ offer_id: offerId, action: "UPDATE_PRICE_AND_STOCK", reason: "PRICE_AND_STOCK_CHANGE", review_type: "COMMERCIAL_CHANGE" }],
+      semantic_source_rows: [semanticRow],
+      source_row_fingerprints: [{ offer_id: offerId, mapping_id: mappingId, semantic_fingerprint: fingerprint, scope: "REVIEW" }],
+    },
+    contract: { created_at: "2026-11-05T08:00:00.000Z", expires_at: "2026-11-06T08:00:00.000Z", full_capture_fingerprint: "a".repeat(64), executable_source_fingerprint: "b".repeat(64), review_scope_fingerprint: "c".repeat(64), plan_fingerprint: planFingerprint },
+    options: { sourceArtifactDir: directory, sourceRunId: "fixture-run", sourceArtifactId: "fixture-artifact", sourceArtifactDigest: "d".repeat(64), sourceContractSha256: "e".repeat(64), sourceReportSha256: "f".repeat(64), sourceArtifactContentSha256: "1".repeat(64), sourceCommitSha: SOURCE.commit, output: path.join(directory, "output.json") },
+  };
+  const staleActive = {
+    id: "700", retailer_id: "12", retailer: "eBay UK", retailer_product_id: mappingId, offer_id: offerId,
+    current_product_id: semanticRow.product_id, current_variant_id: semanticRow.product_variant_id,
+    proposed_product_id: null, proposed_variant_id: null, review_status: "PENDING", review_kind: "COMMERCIAL_CHANGE",
+    operation_type: "UPDATE_PRICE_AND_STOCK", reason_codes: "PRICE_AND_STOCK_CHANGE",
+    source_row_fingerprint: fingerprint, superseded_by_review_id: null,
+    before_state: { ...before, in_stock: true }, proposed_state: { offer: { ...proposed, in_stock: true } },
+  };
+  const current = [{ offer_id: offerId, before_state: before }];
+  const rows = buildManifestRows(source, [staleActive], current);
+  assert.equal(rows[0].source_row_fingerprint, fingerprint);
+  assert.equal(rows[0].before_state.in_stock, false);
+  assert.equal(rows[0].proposed_state.offer.in_stock, true);
+  const output = buildOutput(source, baseline([staleActive]), rows, source.options.output, {});
+  assert.equal(output.operations.REFRESH, 1);
+  assert.equal(output.operations.CREATE, 0);
+  const binding = output.request.operations[0].row.execution_binding;
+  assert.equal(binding.before_state.in_stock, false);
+  assert.equal(binding.proposed_state.offer.in_stock, true);
+  assert.equal(binding.plan_fingerprint, planFingerprint);
+  assert.doesNotThrow(() => assertCombinedPriceStockReviewExecution(rows[0], plan, { item_price: { value: 11 }, uk_shipping: { value: 0 }, delivered_price: { value: 11 }, affiliate_url: proposed.url }, planFingerprint));
+
+  assert.throws(() => buildManifestRows(source, [staleActive], [{ offer_id: offerId, before_state: { ...before, in_stock: true } }]), /before_state mismatch.*in_stock/);
+  const sourceDrift = { ...source, report: { ...source.report, semantic_source_rows: [{ ...semanticRow, price: "12.00" }] } };
+  assert.throws(() => buildManifestRows(sourceDrift, [staleActive], current), /proposed_state mismatch.*price/);
 });
 
 test("missing queue history uses exact current DB offer and mapping state", () => {

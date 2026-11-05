@@ -15,6 +15,11 @@ const forwardPath = path.join(process.cwd(), "supabase", "migrations", "20261104
 const rollbackPath = path.join(process.cwd(), "supabase", "rollbacks", "20261104120000_allow_automation_review_hard_price_anomaly_rollback.sql");
 const forwardSql = fs.readFileSync(forwardPath, "utf8");
 const rollbackSql = fs.readFileSync(rollbackPath, "utf8");
+const bindingForwardPath = path.join(process.cwd(), "supabase", "migrations", "20261105100000_refresh_pending_review_execution_binding.sql");
+const bindingRollbackPath = path.join(process.cwd(), "supabase", "rollbacks", "20261105100000_refresh_pending_review_execution_binding_rollback.sql");
+const bindingForwardSql = fs.readFileSync(bindingForwardPath, "utf8");
+const bindingRollbackSql = fs.readFileSync(bindingRollbackPath, "utf8");
+const auditTriggerSql = fs.readFileSync(path.join(process.cwd(), "supabase", "migrations", "20260830151000_extend_automation_review_execution_evidence.sql"), "utf8");
 const reasonContract = require("../config/automation-review-reason-codes.json");
 
 function functionDefinition(source) {
@@ -144,4 +149,52 @@ test("forward publication function preserves security, grants and idempotent con
   ]) assert.match(forwardSql, marker);
   assert.match(rollbackSql, /commit;\s*$/i);
   assert.equal(publicationReasonCodes(rollbackSql).includes("HARD_PRICE_ANOMALY"), false);
+});
+
+test("shared PENDING refresh migration atomically replaces the complete commercial execution binding", () => {
+  for (const marker of [
+    "AUTOMATION_REVIEW_PUBLICATION_REFRESH_CONTRACT_INVALID",
+    "AUTOMATION_REVIEW_PUBLICATION_REFRESH_IDENTITY_DRIFT",
+    "AUTOMATION_REVIEW_PUBLICATION_REFRESH_BINDING_REQUIRED",
+    "AUTOMATION_REVIEW_PUBLICATION_REFRESH_BINDING_INVALID",
+    "AUTOMATION_REVIEW_PUBLICATION_REFRESH_OPERATION_MISMATCH",
+    "source_price =",
+    "source_url =",
+    "before_state =",
+    "proposed_state =",
+    "impact_summary =",
+    "artifact_fingerprint =",
+    "plan_fingerprint =",
+    "plan_artifact_sha256 =",
+  ]) assert.match(bindingForwardSql, new RegExp(marker));
+  assert.match(bindingForwardSql, /v_existing_review\.review_status <> 'PENDING'/);
+  assert.match(bindingForwardSql, /v_row->'source_evidence' is not distinct from v_existing_review\.source_evidence/);
+  assert.match(bindingForwardSql, /from public\.offers o\s+join public\.retailer_products rp/i);
+  assert.match(bindingForwardSql, /execution_binding,before_state,in_stock[\s\S]*execution_binding,proposed_state,offer,in_stock/);
+  assert.match(bindingForwardSql, /execution_binding,before_state,url[\s\S]*execution_binding,proposed_state,offer,url/);
+});
+
+test("shared refresh migration remains one service-role control-plane function with zero catalogue writes", () => {
+  assert.doesNotMatch(bindingForwardSql, /create table|alter table|create (?:unique )?index/i);
+  assert.doesNotMatch(bindingForwardSql, /\b(?:insert into|update|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history)\b/i);
+  assert.match(bindingForwardSql, /security definer/i);
+  assert.match(bindingForwardSql, /set search_path = ''/i);
+  assert.match(bindingForwardSql, /revoke all on function public\.publish_automation_review_queue_changes\(jsonb\) from public, anon, authenticated, service_role/i);
+  assert.match(bindingForwardSql, /grant execute on function public\.publish_automation_review_queue_changes\(jsonb\) to service_role/i);
+  assert.deepEqual(publicationReasonCodes(bindingForwardSql).sort(), [...reasonContract.reason_codes].sort());
+});
+
+test("shared refresh audit trigger captures full old and new snapshots as EVIDENCE_REFRESHED", () => {
+  assert.match(auditTriggerSql, /v_event_type := 'EVIDENCE_REFRESHED'/);
+  assert.match(auditTriggerSql, /to_jsonb\(old\)/i);
+  assert.match(auditTriggerSql, /to_jsonb\(new\)/i);
+  assert.match(bindingForwardSql, /select count\(\*\) into v_audit_before from public\.product_match_review_events/i);
+  assert.match(bindingForwardSql, /select count\(\*\) into v_audit_after from public\.product_match_review_events/i);
+});
+
+test("shared refresh rollback restores the immediately preceding hard-price-aware RPC", () => {
+  assert.equal(functionDefinition(bindingRollbackSql), functionDefinition(forwardSql));
+  assert.equal(publicationReasonCodes(bindingRollbackSql).includes("HARD_PRICE_ANOMALY"), true);
+  assert.match(bindingRollbackSql, /commit;\s*$/i);
+  assert.doesNotMatch(bindingRollbackSql, /create table|alter table|create (?:unique )?index/i);
 });

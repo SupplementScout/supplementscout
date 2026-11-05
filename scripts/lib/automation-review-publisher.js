@@ -147,7 +147,10 @@ function planPublication(manifestInput, activeRowsInput, options = {}) {
   for (const row of manifest.rows) {
     const existing = activeByProblem.get(rowProblemKey(row));
     if (existing?.review_status === "APPROVED") preserved.push({ existing, row });
-    else if (existing) refreshed.push({ existing, row });
+    else if (existing) {
+      assertRefreshIdentity(existing, row);
+      refreshed.push({ existing, row });
+    }
     else created.push(row);
   }
   const newRowsByOffer = new Map(created.map((row) => [activeProblemKey(row), row]));
@@ -238,15 +241,62 @@ function publicationRow(row) {
   };
 }
 
+function textOrNull(value) {
+  return value == null || value === "" ? null : String(value);
+}
+
+function refreshIdentity(row) {
+  return {
+    retailer_id: String(row.retailer_id),
+    retailer_product_id: textOrNull(row.retailer_product_id),
+    offer_id: String(row.offer_id),
+    current_product_id: textOrNull(row.current_product_id),
+    current_variant_id: textOrNull(row.current_variant_id),
+    proposed_product_id: textOrNull(row.proposed_product_id),
+    proposed_variant_id: textOrNull(row.proposed_variant_id),
+    review_kind: row.review_kind,
+    operation_type: row.operation_type,
+    reason_codes: reasonList(row.reason_codes).join(","),
+    source_row_fingerprint: row.source_row_fingerprint,
+  };
+}
+
+function assertRefreshIdentity(existing, incoming) {
+  const expected = refreshIdentity(existing);
+  const next = refreshIdentity(incoming);
+  for (const key of Object.keys(next)) {
+    if (expected[key] !== next[key]) fail(`PENDING refresh immutable identity drift: ${key}`);
+  }
+}
+
+function refreshExecutionBinding(row) {
+  if (row.review_kind !== "COMMERCIAL_CHANGE") return null;
+  if (!["UPDATE_PRICE", "UPDATE_STOCK", "UPDATE_PRICE_AND_STOCK"].includes(row.operation_type)
+      || !row.before_state || !row.proposed_state
+      || !HEX64.test(row.plan_fingerprint || "") || !HEX64.test(row.plan_artifact_sha256 || "")) {
+    fail("Commercial PENDING refresh requires one complete execution binding");
+  }
+  return {
+    source_price: row.source_price == null || row.source_price === "" ? null : String(row.source_price),
+    source_url: textOrNull(row.source_url),
+    before_state: row.before_state,
+    proposed_state: row.proposed_state,
+    impact_summary: row.impact_summary || {},
+    artifact_fingerprint: row.artifact_fingerprint || row.source_row_fingerprint,
+    plan_fingerprint: row.plan_fingerprint,
+    plan_artifact_sha256: row.plan_artifact_sha256,
+  };
+}
+
 function refreshPayload(row) {
   return {
+    identity: refreshIdentity(row),
+    execution_binding: refreshExecutionBinding(row),
     source_evidence: row.source_evidence || {},
     source_captured_at: row.source_captured_at,
     expires_at: row.expires_at,
     workflow_run_url: row.workflow_run_url || null,
     artifact_url: row.artifact_url || null,
-    plan_fingerprint: row.plan_fingerprint || null,
-    plan_artifact_sha256: row.plan_artifact_sha256 || null,
   };
 }
 
@@ -365,13 +415,7 @@ async function publishReviewManifest(manifestInput, store, options = {}) {
     }
     for (const item of plan.refreshed) {
       await tx.refreshReviewRow(item.existing.id, item.existing.source_row_fingerprint, {
-        source_evidence: item.row.source_evidence,
-        source_captured_at: item.row.source_captured_at,
-        expires_at: item.row.expires_at,
-        workflow_run_url: item.row.workflow_run_url || null,
-        artifact_url: item.row.artifact_url || null,
-        plan_fingerprint: item.row.plan_fingerprint || null,
-        plan_artifact_sha256: item.row.plan_artifact_sha256 || null,
+        ...refreshPayload(item.row),
         decision_actor: "automation-review-publisher",
       });
     }
@@ -405,6 +449,7 @@ module.exports = {
   publishReviewManifest,
   publishReviewManifestViaRpc,
   reasonList,
+  refreshPayload,
   rowProblemKey,
   sha256,
   sqlJsonCatalogueCounts,
