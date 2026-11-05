@@ -427,7 +427,7 @@ async function readProductionState(env = process.env, clock = () => new Date()) 
   const mappings = await selectAll(db.from("retailer_products").select("*").in("id", mappingIds), "mapping read");
   const products = await selectAll(db.from("products").select("*").in("id", productIds), "product read");
   const variants = await selectAll(db.from("product_variants").select("*").in("id", variantIds), "variant read");
-  const activeRows = await selectAll(db.from("product_match_review_queue").select("id,retailer_id,retailer,offer_id,review_status,source_row_fingerprint,superseded_by_review_id,before_state,product_title,variant_title").in("retailer_id", RETAILERS.map((retailer) => retailer.id)).in("review_status", ACTIVE_STATUSES), "active review read");
+  const activeRows = await selectAll(db.from("product_match_review_queue").select("id,retailer_id,retailer,retailer_product_id,offer_id,current_product_id,current_variant_id,proposed_product_id,proposed_variant_id,review_status,review_kind,operation_type,reason_codes,source_row_fingerprint,superseded_by_review_id,before_state,product_title,variant_title").in("retailer_id", RETAILERS.map((retailer) => retailer.id)).in("review_status", ACTIVE_STATUSES), "active review read");
   const catalogueCounts = {};
   for (const table of ["products", "product_variants", "retailer_products", "offers", "price_history"]) {
     const { count, error } = await db.from(table).select("*", { count: "exact", head: true });

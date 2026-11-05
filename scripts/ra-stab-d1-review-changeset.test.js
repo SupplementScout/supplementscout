@@ -83,17 +83,30 @@ test("builds one read-only D1 bundle with two common publisher changesets and ex
   assert.equal(ten.find((row) => row.offer_id === "3627").canonical_candidates.length, 0);
 });
 
-test("uses the common lifecycle planner for an existing exact active row without widening scope", () => {
+test("legacy read-only D1 evidence cannot refresh an executable row without a complete plan binding", () => {
   const first = buildBundle(decisionPack, identityAudit, state());
   const row = first.retailer_changesets[0].preview_request.operations[0].row;
   const current = state();
-  current.active_rows = [{ id: "9001", retailer_id: "9", retailer: "Fit House", offer_id: row.offer_id, review_status: "PENDING", source_row_fingerprint: row.source_row_fingerprint }];
-  const output = buildBundle(decisionPack, identityAudit, current);
-  assert.equal(output.totals.create, 29);
-  assert.equal(output.totals.refresh, 1);
-  assert.equal(output.totals.preview_operations, 30);
-  assert.equal(output.retailer_changesets[0].preview_request.expected_baseline.active_review_count, 1);
-  assert.equal(output.totals.performed_database_writes, 0);
+  current.active_rows = [{
+    id: "9001",
+    retailer_id: "9",
+    retailer: "Fit House",
+    retailer_product_id: row.retailer_product_id,
+    offer_id: row.offer_id,
+    current_product_id: row.current_product_id,
+    current_variant_id: row.current_variant_id,
+    proposed_product_id: row.proposed_product_id,
+    proposed_variant_id: row.proposed_variant_id,
+    review_status: "PENDING",
+    review_kind: row.review_kind,
+    operation_type: row.operation_type,
+    reason_codes: row.reason_codes,
+    source_row_fingerprint: row.source_row_fingerprint,
+  }];
+  assert.throws(
+    () => buildBundle(decisionPack, identityAudit, current),
+    /Commercial PENDING refresh requires one complete execution binding/,
+  );
 });
 
 test("fails closed on catalogue drift, scope drift and any apply-shaped CLI argument", () => {

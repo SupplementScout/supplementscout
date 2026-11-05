@@ -102,8 +102,16 @@ function active(overrides = {}) {
     id: "501",
     retailer_id: base.retailer_id,
     retailer: base.retailer,
+    retailer_product_id: base.retailer_product_id,
     offer_id: base.offer_id,
+    current_product_id: base.current_product_id,
+    current_variant_id: base.current_variant_id,
+    proposed_product_id: base.proposed_product_id,
+    proposed_variant_id: base.proposed_variant_id,
     review_status: "PENDING",
+    review_kind: base.review_kind,
+    operation_type: base.operation_type,
+    reason_codes: base.reason_codes,
     source_row_fingerprint: base.source_row_fingerprint,
     ...overrides,
   };
@@ -143,7 +151,7 @@ function store({ activeRows = [], retailers = [{ id: "12", name: "eBay UK" }], f
             return { id: `new-${payload.offer_id}` };
           },
           async refreshReviewRow(id, fingerprint, payload) {
-            calls.push(["refreshReviewRow", id, fingerprint, payload.decision_actor]);
+            calls.push(["refreshReviewRow", id, fingerprint, payload]);
             if (failOn === "refresh") throw new Error("refresh failed");
             return { id };
           },
@@ -344,6 +352,7 @@ test("RPC publisher builds a single transactional changeset and does not use RES
   assert.equal(request.operations[0].op, "REFRESH");
   assert.equal(request.operations[0].expected.review_id, "501");
   assert.equal(request.operations[0].row.source_captured_at, row().source_captured_at);
+  assert.equal(request.operations[0].row.execution_binding, null);
 
   const calls = [];
   const result = await publishReviewManifestViaRpc(manifest(), {
@@ -362,6 +371,62 @@ test("RPC publisher builds a single transactional changeset and does not use RES
   assert.deepEqual(calls.map((call) => call[0]), ["publish_automation_review_queue_changes"]);
   assert.equal(result.mode, "apply");
   assert.equal(result.database_writes, 3);
+});
+
+test("same semantic PENDING commercial problem refreshes one internally consistent execution binding", async () => {
+  const fingerprint = "c".repeat(64);
+  const oldBefore = { offer_id: "2748", retailer_product_id: "2748", product_id: "100", product_variant_id: "200", price: "10.00", shipping_cost: "0.00", total_price: "10.00", in_stock: true, url: "https://example.test/offer", external_url: "https://example.test/source", external_product_id: "external-2748", external_variant_id: "variant-2748" };
+  const freshBefore = { ...oldBefore, in_stock: false };
+  const freshProposed = { offer: { price: "11.00", shipping_cost: "0.00", total_price: "11.00", in_stock: true, url: oldBefore.url } };
+  const incoming = row({
+    review_kind: "COMMERCIAL_CHANGE",
+    operation_type: "UPDATE_PRICE_AND_STOCK",
+    reason_codes: "PRICE_AND_STOCK_CHANGE",
+    source_row_fingerprint: fingerprint,
+    source_price: "11.00",
+    source_url: oldBefore.url,
+    before_state: freshBefore,
+    proposed_state: freshProposed,
+    impact_summary: { catalogue_writes: 0, executable: false, review_only: true },
+    source_evidence: { workflow_run_id: "fresh-run", artifact_id: "fresh-artifact" },
+    artifact_fingerprint: "d".repeat(64),
+    plan_fingerprint: "e".repeat(64),
+    plan_artifact_sha256: "f".repeat(64),
+  });
+  const existing = active({
+    review_kind: incoming.review_kind,
+    operation_type: incoming.operation_type,
+    reason_codes: incoming.reason_codes,
+    source_row_fingerprint: fingerprint,
+    before_state: oldBefore,
+    proposed_state: { offer: { ...freshProposed.offer, in_stock: true } },
+    plan_fingerprint: "1".repeat(64),
+  });
+  const request = buildPublicationRpcRequest(manifest({ rows: [incoming] }), [existing], { catalogueCounts: catalogueCounts() });
+  assert.equal(request.operations.length, 1);
+  assert.equal(request.operations[0].op, "REFRESH");
+  assert.equal(request.operations[0].expected.source_row_fingerprint, fingerprint);
+  assert.deepEqual(request.operations[0].row.execution_binding.before_state, freshBefore);
+  assert.deepEqual(request.operations[0].row.execution_binding.proposed_state, freshProposed);
+  assert.equal(request.operations[0].row.execution_binding.plan_fingerprint, "e".repeat(64));
+
+  const fake = store({ activeRows: [existing] });
+  const result = await publishReviewManifest(manifest({ rows: [incoming] }), fake, { mode: "apply" });
+  const refresh = fake.calls.find((call) => call[0] === "refreshReviewRow");
+  assert.equal(result.counts.refreshed, 1);
+  assert.deepEqual(refresh[3].execution_binding.before_state, freshBefore);
+  assert.deepEqual(refresh[3].execution_binding.proposed_state, freshProposed);
+  assert.equal(refresh[3].execution_binding.plan_fingerprint, "e".repeat(64));
+  assert.equal(refresh[3].identity.source_row_fingerprint, fingerprint);
+});
+
+test("PENDING refresh fails closed on canonical identity drift while APPROVED evidence remains frozen", () => {
+  const incoming = row();
+  assert.throws(() => planPublication(manifest(), [active({ current_variant_id: "999" })]), /immutable identity drift: current_variant_id/);
+  const approved = active({ review_status: "APPROVED", current_variant_id: "999", decision_actor: "authenticated-admin" });
+  const plan = planPublication(manifest({ rows: [incoming] }), [approved]);
+  assert.equal(plan.counts.preserved, 1);
+  assert.equal(plan.counts.refreshed, 0);
 });
 
 test("matching approved evidence is frozen and never refreshed by the publisher", () => {

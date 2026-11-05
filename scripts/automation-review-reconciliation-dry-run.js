@@ -9,6 +9,7 @@ const {
   sha256,
 } = require("./lib/automation-review-publisher");
 const { bindDurableArtifactContract } = require("./lib/sealed-artifacts");
+const { normalizeDecimalString } = require("./lib/canonical-json");
 const {
   extractZip,
   githubJson,
@@ -261,6 +262,47 @@ function beforeStateFromActive(row) {
   return null;
 }
 
+function nullableText(value) {
+  return value == null ? null : String(value);
+}
+
+function assertCommercialBaseline(current, planned, offerId) {
+  if (!current || !planned) fail(`Missing current DB or protected-plan before_state for commercial review offer ${offerId}`);
+  for (const field of [
+    "offer_id",
+    "retailer_product_id",
+    "product_id",
+    "product_variant_id",
+    "url",
+    "external_url",
+    "external_product_id",
+    "external_variant_id",
+  ]) {
+    if (nullableText(current[field]) !== nullableText(planned[field])) fail(`Current DB/protected-plan before_state mismatch for commercial review offer ${offerId}: ${field}`);
+  }
+  for (const field of ["price", "shipping_cost", "total_price"]) {
+    try {
+      if (normalizeDecimalString(current[field], `current.${field}`) !== normalizeDecimalString(planned[field], `plan.${field}`)) fail(`Current DB/protected-plan before_state mismatch for commercial review offer ${offerId}: ${field}`);
+    } catch {
+      fail(`Current DB/protected-plan before_state mismatch for commercial review offer ${offerId}: ${field}`);
+    }
+  }
+  if (current.in_stock !== planned.in_stock) fail(`Current DB/protected-plan before_state mismatch for commercial review offer ${offerId}: in_stock`);
+}
+
+function assertCommercialProposedState(semantic, proposedState, offerId) {
+  const proposed = proposedState?.offer;
+  if (!proposed || semantic?.affiliate_ready !== true) fail(`Missing verified proposed state for commercial review offer ${offerId}`);
+  for (const [sourceField, proposedField] of [["price", "price"], ["shipping", "shipping_cost"], ["total", "total_price"]]) {
+    try {
+      if (normalizeDecimalString(semantic[sourceField], `source.${sourceField}`) !== normalizeDecimalString(proposed[proposedField], `proposed.${proposedField}`)) fail(`Source/protected-plan proposed_state mismatch for commercial review offer ${offerId}: ${proposedField}`);
+    } catch {
+      fail(`Source/protected-plan proposed_state mismatch for commercial review offer ${offerId}: ${proposedField}`);
+    }
+  }
+  if (proposed.in_stock !== true || nullableText(semantic.affiliate_url_returned || semantic.affiliate_url) !== nullableText(proposed.url)) fail(`Source/protected-plan proposed_state mismatch for commercial review offer ${offerId}: stock/url`);
+}
+
 function buildManifestRows(source, activeRows, currentStateRows = []) {
   const byOffer = sourceRowByOffer(source.report);
   const sourceFingerprints = sourceFingerprintByOffer(source.report, "REVIEW");
@@ -277,9 +319,18 @@ function buildManifestRows(source, activeRows, currentStateRows = []) {
     const active = activeByOffer.get(offerId);
     const artifact = offerArtifacts.get(offerId);
     const expectedState = artifact?.plans?.[0]?.resolved_plan?.expected_state || null;
-    const before = beforeStateFromActive(active) || beforeStateFromActive(currentStateByOffer.get(offerId)) || beforeStateFromPlan(artifact);
+    const current = beforeStateFromActive(currentStateByOffer.get(offerId));
+    const planned = beforeStateFromPlan(artifact);
+    let before;
+    if (op.review_kind === "COMMERCIAL_CHANGE") {
+      assertCommercialBaseline(current, planned, offerId);
+      before = current;
+    } else {
+      before = beforeStateFromActive(active) || current || planned;
+    }
     if (!before) fail(`Missing before_state for review offer ${offerId}`);
     const proposedState = proposedStateForReview(review, artifact);
+    if (op.review_kind === "COMMERCIAL_CHANGE") assertCommercialProposedState(semantic, proposedState, offerId);
     const reviewReasons = [...new Set([...(semantic.review_reasons || []), ...(review.review_reasons || []), review.reason].filter(Boolean))].sort();
     return {
       snapshot_id: `automation-review-${RETAILER_ID}-${source.options.sourceRunId}`,
@@ -590,6 +641,8 @@ if (require.main === module) {
 
 module.exports = {
   buildManifestRows,
+  assertCommercialBaseline,
+  assertCommercialProposedState,
   buildOutput,
   currentReviewStateRows,
   fetchBaseline,

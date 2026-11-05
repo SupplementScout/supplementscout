@@ -239,11 +239,15 @@ const PENDING_MIGRATIONS = Object.freeze({
       filename: "20261104120000_allow_automation_review_hard_price_anomaly.sql",
       sha256: "26a7aa2155bebc49313e8827fe0377b4676af455b7aa964c293db0f30d5fce6d",
     }),
+    Object.freeze({
+      filename: "20261105100000_refresh_pending_review_execution_binding.sql",
+      sha256: "015f0de7448c10fcca10174e74dfbf7ca9e3150951f49090d01cd6eee869024c",
+    }),
   ]),
   PRODUCTION: Object.freeze([
     Object.freeze({
-      filename: "20261104120000_allow_automation_review_hard_price_anomaly.sql",
-      sha256: "26a7aa2155bebc49313e8827fe0377b4676af455b7aa964c293db0f30d5fce6d",
+      filename: "20261105100000_refresh_pending_review_execution_binding.sql",
+      sha256: "015f0de7448c10fcca10174e74dfbf7ca9e3150951f49090d01cd6eee869024c",
     }),
   ]),
 });
