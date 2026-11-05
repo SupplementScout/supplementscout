@@ -20,6 +20,29 @@ workflows, artifacts, control ledger, Review Queue, postflight and watchdog.
 Work proceeds read-only until a specific recovery or business write has fresh
 bounded evidence and separate owner approval.
 
+**5 November RA-SCHED-01 Review Queue worker scheduler liveness —
+`READY_FOR_NATURAL_VERIFICATION`:** the existing shared Automation Reliability
+Watchdog now has one declarative global platform check for
+`automation-review-queue-worker.yml`. It queries only the newest GitHub Actions
+run whose event is `schedule`; manual `workflow_dispatch` runs never establish
+scheduler health. The five-minute cadence is `HEALTHY` through 20 minutes,
+`DELAYED` after 20 through 60 minutes and `BROKEN` after 60 minutes or when no
+scheduled run/workflow can be resolved. `DELAYED` is warning-only. `BROKEN`
+adds global `REVIEW_QUEUE_WORKER_SCHEDULE_BROKEN` and derives the existing
+`FAILED_SYSTEM` monitor status without changing any retailer result. GitHub API
+or monitoring-infrastructure errors remain separately fail-closed as
+`MONITORING_INFRASTRUCTURE_ERROR` and are not relabelled as scheduler failures.
+The report and workflow summary expose status, last scheduled run and age.
+Focused watchdog tests pass `64/64`, including exact 5/20/21/60/61-minute
+boundaries, manual-run exclusion, unavailable workflow, API failure, retailer
+isolation and zero-write evidence. Pre/post Project Guardian, TypeScript,
+ESLint, the quick and full Quality Gates and the isolated production build all
+pass. This bounded incident change adds no
+scheduler, worker, queue, service, request path, production credential or
+database write and does not alter the active Gladiator adoption scope. Final
+acceptance is the first ordinary watchdog schedule after merge; a manual
+watchdog dispatch is explicitly excluded.
+
 **5 November shared production migration-ledger regression — repository
 correction ready for verification:** production readback proves ledger `260`
 with fingerprint

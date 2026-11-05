@@ -1,6 +1,19 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "maximum_success_age_hours": 48,
+  "platform_checks": [
+    {
+      "id": "review_queue_worker_schedule",
+      "type": "workflow_liveness",
+      "workflow": "automation-review-queue-worker.yml",
+      "expected_event": "schedule",
+      "cadence_minutes": 5,
+      "healthy_max_age_minutes": 20,
+      "delayed_max_age_minutes": 60,
+      "warning_code": "REVIEW_QUEUE_WORKER_SCHEDULE_DELAYED",
+      "failure_code": "REVIEW_QUEUE_WORKER_SCHEDULE_BROKEN"
+    }
+  ],
   "monitored_backlog": {
     "schema_version": 1,
     "closeout_snapshot_sha256": "2520eb28453314ea659238dd59c95aa987ed3a106de08e78f14873b8b3f83f08",

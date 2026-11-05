@@ -19,6 +19,7 @@ const VALIDATOR_ROLE = "retailer_catalogue_production_validator";
 const WORKFLOW_RUNS_PER_PAGE = 25;
 const MAX_WORKFLOW_RUN_PAGES = 4;
 const EXPECTED_RETAILER_COUNT = 13;
+const PLATFORM_CHECK_TYPES = Object.freeze(["workflow_liveness"]);
 const WORKFLOW_STAGE_NAMES = Object.freeze([
   "capture",
   "apply",
@@ -32,11 +33,51 @@ function invariant(condition, message) {
 
 function loadConfig(file = CONFIG_PATH) {
   const config = JSON.parse(fs.readFileSync(file, "utf8"));
-  invariant(config.schema_version === 2, "Unsupported watchdog config");
+  invariant(config.schema_version === 3, "Unsupported watchdog config");
   invariant(
     config.maximum_success_age_hours === 48,
     "Watchdog success age must remain 48 hours",
   );
+  invariant(
+    Array.isArray(config.platform_checks) && config.platform_checks.length > 0,
+    "Watchdog platform checks are missing",
+  );
+  invariant(
+    new Set(config.platform_checks.map((check) => check.id)).size === config.platform_checks.length,
+    "Watchdog platform check IDs must be unique",
+  );
+  for (const check of config.platform_checks) {
+    invariant(
+      check &&
+        typeof check === "object" &&
+        !Array.isArray(check) &&
+        typeof check.id === "string" &&
+        /^[a-z][a-z0-9_]*$/.test(check.id) &&
+        PLATFORM_CHECK_TYPES.includes(check.type),
+      "Watchdog platform check identity is invalid",
+    );
+    invariant(
+      typeof check.workflow === "string" &&
+        /^[A-Za-z0-9_.-]+\.ya?ml$/.test(check.workflow) &&
+        check.expected_event === "schedule",
+      `Watchdog platform workflow binding is invalid for ${check.id}`,
+    );
+    invariant(
+      Number.isInteger(check.cadence_minutes) &&
+        check.cadence_minutes > 0 &&
+        Number.isInteger(check.healthy_max_age_minutes) &&
+        check.healthy_max_age_minutes >= check.cadence_minutes &&
+        Number.isInteger(check.delayed_max_age_minutes) &&
+        check.delayed_max_age_minutes > check.healthy_max_age_minutes,
+      `Watchdog platform liveness thresholds are invalid for ${check.id}`,
+    );
+    invariant(
+      [check.warning_code, check.failure_code].every(
+        (code) => typeof code === "string" && /^[A-Z][A-Z0-9_]+$/.test(code),
+      ) && check.warning_code !== check.failure_code,
+      `Watchdog platform liveness codes are invalid for ${check.id}`,
+    );
+  }
   invariant(config.retailers.length === EXPECTED_RETAILER_COUNT, `Watchdog must cover ${EXPECTED_RETAILER_COUNT} retailers`);
   invariant(
     new Set(config.retailers.map((row) => String(row.id))).size === EXPECTED_RETAILER_COUNT,
@@ -600,22 +641,25 @@ function applyMonitoredBacklog(evaluation, baseline) {
 }
 
 function summarizeWatchdogResult(retailers, options = {}) {
-  const globalFailures = [];
+  const configuredGlobalFailures = options.globalFailures || [];
+  invariant(Array.isArray(configuredGlobalFailures), "Watchdog global failures are invalid");
+  const globalFailures = [...configuredGlobalFailures];
   if (options.databaseError) globalFailures.push("DATABASE_EVIDENCE_ERROR");
   if (options.monitoringError) globalFailures.push("MONITORING_INFRASTRUCTURE_ERROR");
   if (Number(options.databaseWrites || 0) !== 0) {
     globalFailures.push("UNAUTHORIZED_DATABASE_WRITE");
   }
-  if (globalFailures.length || retailers.some((row) => row.result === "FAIL")) {
-    return { result: "FAIL", monitorStatus: "FAILED_SYSTEM", globalFailures };
+  const uniqueGlobalFailures = [...new Set(globalFailures)];
+  if (uniqueGlobalFailures.length || retailers.some((row) => row.result === "FAIL")) {
+    return { result: "FAIL", monitorStatus: "FAILED_SYSTEM", globalFailures: uniqueGlobalFailures };
   }
   if (retailers.some((row) => row.result === "PASS_WITH_REVIEW")) {
-    return { result: "PASS_WITH_REVIEW", monitorStatus: "WAITING_FOR_DECISION", globalFailures };
+    return { result: "PASS_WITH_REVIEW", monitorStatus: "WAITING_FOR_DECISION", globalFailures: uniqueGlobalFailures };
   }
   if (retailers.some((row) => row.result === "PASS_WITH_MONITORED_BACKLOG")) {
-    return { result: "PASS_WITH_MONITORED_BACKLOG", monitorStatus: "WAITING_FOR_DECISION", globalFailures };
+    return { result: "PASS_WITH_MONITORED_BACKLOG", monitorStatus: "WAITING_FOR_DECISION", globalFailures: uniqueGlobalFailures };
   }
-  return { result: "PASS", monitorStatus: "SUCCESS", globalFailures };
+  return { result: "PASS", monitorStatus: "SUCCESS", globalFailures: uniqueGlobalFailures };
 }
 
 function watchdogExitCode(result) {
@@ -637,8 +681,74 @@ async function githubJson(url, token) {
       "user-agent": "SupplementScout-Automation-Reliability-Watchdog/1.0",
     },
   });
-  invariant(response.ok, `GitHub API ${response.status} for ${url}`);
+  if (!response.ok) {
+    const error = new Error(`GitHub API ${response.status} for ${url}`);
+    error.status = response.status;
+    throw error;
+  }
   return response.json();
+}
+
+function workflowLivenessResult(check, workflowRuns, now = new Date()) {
+  invariant(Array.isArray(workflowRuns), "Workflow liveness response is invalid");
+  invariant(now instanceof Date && Number.isFinite(now.getTime()), "Workflow liveness time is invalid");
+  const scheduledRuns = workflowRuns
+    .filter((run) => run?.event === check.expected_event)
+    .map((run) => {
+      const createdAt = Date.parse(run.created_at || "");
+      invariant(Number.isFinite(createdAt), "Scheduled workflow run creation time is invalid");
+      invariant(run.id !== undefined && run.id !== null, "Scheduled workflow run ID is missing");
+      return { run, createdAt };
+    })
+    .sort((left, right) => right.createdAt - left.createdAt || Number(right.run.id) - Number(left.run.id));
+  const latest = scheduledRuns[0] || null;
+  const ageMinutes = latest
+    ? Math.max(0, (now.getTime() - latest.createdAt) / (60 * 1000))
+    : null;
+  let status = "BROKEN";
+  if (ageMinutes !== null && ageMinutes <= check.healthy_max_age_minutes) status = "HEALTHY";
+  else if (ageMinutes !== null && ageMinutes <= check.delayed_max_age_minutes) status = "DELAYED";
+  return {
+    id: check.id,
+    type: check.type,
+    workflow: check.workflow,
+    expected_event: check.expected_event,
+    cadence_minutes: check.cadence_minutes,
+    healthy_max_age_minutes: check.healthy_max_age_minutes,
+    delayed_max_age_minutes: check.delayed_max_age_minutes,
+    status,
+    last_scheduled_run_id: latest ? String(latest.run.id) : null,
+    last_scheduled_run_url: latest?.run.html_url || null,
+    last_scheduled_run_created_at: latest?.run.created_at || null,
+    age_minutes: ageMinutes,
+    warning_code: status === "DELAYED" ? check.warning_code : null,
+    failure_code: status === "BROKEN" ? check.failure_code : null,
+  };
+}
+
+async function workflowLivenessCheck(check, repository, token, now, options = {}) {
+  const fetchJson = options.fetchJson || githubJson;
+  const snapshotKey = options.snapshotKey || now.toISOString();
+  invariant(typeof snapshotKey === "string" && /^[A-Za-z0-9_.:-]{1,100}$/.test(snapshotKey), "Workflow liveness snapshot key is invalid");
+  const base = `https://api.github.com/repos/${repository}`;
+  const encodedWorkflow = encodeURIComponent(check.workflow);
+  const encodedEvent = encodeURIComponent(check.expected_event);
+  const encodedSnapshot = encodeURIComponent(snapshotKey);
+  try {
+    const listing = await fetchJson(
+      `${base}/actions/workflows/${encodedWorkflow}/runs?event=${encodedEvent}&per_page=1&page=1&watchdog_snapshot=${encodedSnapshot}`,
+      token,
+    );
+    return workflowLivenessResult(check, listing.workflow_runs, now);
+  } catch (error) {
+    if (error?.status === 404) {
+      return {
+        ...workflowLivenessResult(check, [], now),
+        observation_error: error.message,
+      };
+    }
+    throw error;
+  }
 }
 
 function sha256(value) {
@@ -1304,6 +1414,35 @@ async function run(options, dependencies = {}) {
   let monitoringInfrastructureError = null;
   const workflowHistoryCache = new Map();
   const historySnapshotKey = env.GITHUB_RUN_ID || now.toISOString();
+  const platformChecks = [];
+  const platformWarnings = [];
+  const platformFailures = [];
+  for (const check of config.platform_checks) {
+    try {
+      const result = await (
+        dependencies.workflowLivenessCheck || workflowLivenessCheck
+      )(check, repository, token, now, { snapshotKey: historySnapshotKey });
+      platformChecks.push(result);
+      if (result.warning_code) platformWarnings.push(result.warning_code);
+      if (result.failure_code) platformFailures.push(result.failure_code);
+    } catch (error) {
+      monitoringInfrastructureError ||= error.message;
+      platformChecks.push({
+        id: check.id,
+        type: check.type,
+        workflow: check.workflow,
+        expected_event: check.expected_event,
+        status: "MONITORING_INFRASTRUCTURE_ERROR",
+        last_scheduled_run_id: null,
+        last_scheduled_run_url: null,
+        last_scheduled_run_created_at: null,
+        age_minutes: null,
+        warning_code: null,
+        failure_code: null,
+        monitoring_error: error.message,
+      });
+    }
+  }
   const historyFreshnessCutoff = new Date(
     now.getTime() - config.maximum_success_age_hours * 60 * 60 * 1000,
   ).toISOString();
@@ -1366,9 +1505,10 @@ async function run(options, dependencies = {}) {
     databaseError,
     monitoringError: monitoringInfrastructureError,
     databaseWrites,
+    globalFailures: platformFailures,
   });
   const report = {
-    schema_version: 1,
+    schema_version: 2,
     kind: "automation-reliability-watchdog",
     result: summary.result,
     monitor_status: summary.monitorStatus,
@@ -1386,6 +1526,8 @@ async function run(options, dependencies = {}) {
     ).length,
     database_error: databaseError,
     global_failures: summary.globalFailures,
+    global_warnings: [...new Set(platformWarnings)],
+    platform_checks: platformChecks,
     retailers,
     database_writes: databaseWrites,
   };
@@ -1446,5 +1588,7 @@ module.exports = {
   workflowAttempt,
   workflowRunSummary,
   workflowHistoryPage,
+  workflowLivenessCheck,
+  workflowLivenessResult,
   watchdogExitCode,
 };
