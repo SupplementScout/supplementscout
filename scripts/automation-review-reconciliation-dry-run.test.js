@@ -73,6 +73,23 @@ test("commercial reconciliation compares affiliate destinations semantically and
   assert.throws(() => assertCommercialProposedState({ ...semantic, affiliate_url_returned: "not a url" }, proposedState, "generic-offer"), /proposed_state mismatch.*stock\/url/);
 });
 
+test("commercial manifest creation rejects meaningful affiliate URL drift before protected URL alignment", (t) => {
+  for (const changedUrl of [
+    "https://example.test/itm/external-2554?mkevt=1&var=variant",
+    "https://www.ebay.co.uk/itm/other-listing?mkevt=1&var=variant",
+    "https://www.ebay.co.uk/itm/external-2554?mkevt=1&var=other",
+    "https://www.ebay.co.uk/itm/external-2554?mkevt=1",
+    "https://www.ebay.co.uk/itm/external-2554?extra=1&mkevt=1&var=variant",
+  ]) {
+    const fixture = writeFixture();
+    t.after(() => fs.rmSync(fixture.directory, { recursive: true, force: true }));
+    const options = sourceOptions(fixture.directory);
+    const source = { ...verifySourceArtifact(options), options };
+    source.report.semantic_source_rows[0].affiliate_url_returned = changedUrl;
+    assert.throws(() => buildManifestRows(source, activeRows(), activeRows()), /proposed_state mismatch.*stock\/url/);
+  }
+});
+
 function sourceOptions(directory, extra = {}) {
   const contractSha = fileSha(path.join(directory, "production-dry-run-contract.json"));
   const reportSha = fileSha(path.join(directory, "production-dry-run.json"));
@@ -311,6 +328,13 @@ test("review reconciliation dry-run uses shared publisher and computes CREATE/SU
   const options = sourceOptions(fixture.directory);
   const source = { ...verifySourceArtifact(options), options };
   const rows = buildManifestRows(source, activeRows(), activeRows());
+  const rawCommercialUrl = source.report.semantic_source_rows[0].affiliate_url_returned;
+  const protectedCommercialUrl = rows[0].proposed_state.offer.url;
+  assert.notEqual(rawCommercialUrl, protectedCommercialUrl);
+  assert.equal(rows[0].source_url, protectedCommercialUrl);
+  assert.equal(rows[0].source_row_fingerprint, "2".repeat(64));
+  assert.equal(rows[1].source_url, source.report.semantic_source_rows[1].affiliate_url_returned);
+  assert.equal(rows[1].source_row_fingerprint, "3".repeat(64));
   const output = buildOutput(source, baseline(), rows, options.output, { GITHUB_RUN_ID: "999", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit, GITHUB_EVENT_NAME: "workflow_dispatch", GITHUB_REF: "refs/heads/main" });
 
   assert.equal(output.source.run_id, SOURCE.run);
@@ -344,6 +368,8 @@ test("matching fingerprints become REFRESH and missing source baseline stays iso
   assert.equal(output.operations.REFRESH, 2);
   assert.equal(output.production_writes, 0);
   assert.equal(output.direct_rest_writes, 0);
+  const commercialRefresh = output.request.operations.find((operation) => operation.op === "REFRESH" && operation.expected.review_id === "548");
+  assert.equal(commercialRefresh.row.execution_binding.source_url, commercialRefresh.row.execution_binding.proposed_state.offer.url);
 });
 
 test("matching approved evidence stays immutable instead of becoming REFRESH", () => {
@@ -431,6 +457,8 @@ test("hard-price anomaly publishes one pending commercial review with exact befo
   assert.equal(rows[0].operation_type, "UPDATE_PRICE");
   assert.equal(rows[0].reason_codes, "HARD_PRICE_ANOMALY");
   assert.equal(rows[0].source_price, "129.00");
+  assert.notEqual(semanticRow.affiliate_url_returned, proposed.url);
+  assert.equal(rows[0].source_url, proposed.url);
   assert.deepEqual(rows[0].before_state, before);
   assert.deepEqual(rows[0].proposed_state, { offer: proposed });
   assert.ok(rows[0].source_evidence.review_reasons.includes("HARD_PRICE_ANOMALY"));
@@ -484,6 +512,8 @@ test("same semantic combined problem refreshes from exact DB/plan baseline and p
   const current = [{ offer_id: offerId, before_state: before }];
   const rows = buildManifestRows(source, [staleActive], current);
   assert.equal(rows[0].source_row_fingerprint, fingerprint);
+  assert.notEqual(semanticRow.affiliate_url_returned, proposed.url);
+  assert.equal(rows[0].source_url, proposed.url);
   assert.equal(rows[0].before_state.in_stock, false);
   assert.equal(rows[0].proposed_state.offer.in_stock, true);
   const output = buildOutput(source, baseline([staleActive]), rows, source.options.output, {});
@@ -492,6 +522,7 @@ test("same semantic combined problem refreshes from exact DB/plan baseline and p
   const binding = output.request.operations[0].row.execution_binding;
   assert.equal(binding.before_state.in_stock, false);
   assert.equal(binding.proposed_state.offer.in_stock, true);
+  assert.equal(binding.source_url, binding.proposed_state.offer.url);
   assert.equal(binding.plan_fingerprint, planFingerprint);
   assert.doesNotThrow(() => assertCombinedPriceStockReviewExecution(rows[0], plan, { item_price: { value: 11 }, uk_shipping: { value: 0 }, delivered_price: { value: 11 }, affiliate_url: proposed.url }, planFingerprint));
 
