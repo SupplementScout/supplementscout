@@ -68,6 +68,7 @@ const {
   isExecutionContractCandidate,
   loadConfig: loadWatchdogConfig,
   parseArgs: parseWatchdogArgs,
+  run: runWatchdog,
   runStages,
   selectWorkflowAttempts,
   summarizeWatchdogResult,
@@ -76,6 +77,8 @@ const {
   validateEbayIdempotencyArtifacts,
   workflowAttempt,
   workflowHistoryPage,
+  workflowLivenessCheck,
+  workflowLivenessResult,
   workflowRunSummary,
 } = require("./automation-reliability-watchdog");
 
@@ -91,6 +94,19 @@ const watchdogProfile = {
 
 function watchdogRun(id, { event = "schedule", conclusion = "success", createdAt = `2026-09-01T00:00:${String(id).padStart(2, "0")}Z` } = {}) {
   return { id, event, conclusion, head_sha: `sha-${id}`, html_url: `https://example.test/runs/${id}`, created_at: createdAt, updated_at: createdAt };
+}
+
+const workflowLivenessNow = new Date("2026-11-05T12:00:00.000Z");
+
+function workflowLivenessConfig() {
+  return loadWatchdogConfig().platform_checks[0];
+}
+
+function workflowRunAtAge(ageMinutes, { id = 1, event = "schedule" } = {}) {
+  return watchdogRun(id, {
+    event,
+    createdAt: new Date(workflowLivenessNow.getTime() - ageMinutes * 60 * 1000).toISOString(),
+  });
 }
 
 function watchdogJob(profile, conclusions, name = "retailer-job", id = 1, jobConclusion = null) {
@@ -606,11 +622,25 @@ test("automation watchdog covers all retailers on a read-only six-hour schedule"
     "utf8"
   );
   assert.equal(config.retailers.length, 13);
+  assert.equal(config.schema_version, 3);
   assert.equal(config.maximum_success_age_hours, 48);
+  assert.deepEqual(config.platform_checks, [{
+    id: "review_queue_worker_schedule",
+    type: "workflow_liveness",
+    workflow: "automation-review-queue-worker.yml",
+    expected_event: "schedule",
+    cadence_minutes: 5,
+    healthy_max_age_minutes: 20,
+    delayed_max_age_minutes: 60,
+    warning_code: "REVIEW_QUEUE_WORKER_SCHEDULE_DELAYED",
+    failure_code: "REVIEW_QUEUE_WORKER_SCHEDULE_BROKEN",
+  }]);
   assert.match(workflow, /cron: "11 \*\/6 \* \* \*"/);
   assert.match(workflow, /actions: read/);
   assert.match(workflow, /JONS_SYNC_VALIDATOR_DATABASE_URL/);
   assert.match(workflow, /Monitor status: \$\{r\.monitor_status\}/);
+  assert.match(workflow, /Global warnings: \$\{\(r\.global_warnings \|\| \[\]\)/);
+  assert.match(workflow, /Platform \$\{x\.id\}: \$\{x\.status\}/);
   assert.doesNotMatch(
     workflow,
     /APPROVER_DATABASE_URL|EXECUTOR_DATABASE_URL|SUPABASE_SERVICE_ROLE_KEY/
@@ -619,6 +649,163 @@ test("automation watchdog covers all retailers on a read-only six-hour schedule"
     () => parseWatchdogArgs(["--output=docs/watchdog.json"]),
     /inside repository tmp/
   );
+});
+
+test("review worker liveness classifies a scheduled run aged 5 minutes as healthy", () => {
+  const result = workflowLivenessResult(workflowLivenessConfig(), [workflowRunAtAge(5)], workflowLivenessNow);
+  assert.equal(result.status, "HEALTHY");
+  assert.equal(result.age_minutes, 5);
+  assert.equal(result.warning_code, null);
+  assert.equal(result.failure_code, null);
+});
+
+test("review worker liveness keeps the exact 20-minute boundary healthy", () => {
+  assert.equal(
+    workflowLivenessResult(workflowLivenessConfig(), [workflowRunAtAge(20)], workflowLivenessNow).status,
+    "HEALTHY",
+  );
+});
+
+test("review worker liveness classifies a scheduled run aged 21 minutes as delayed", () => {
+  const result = workflowLivenessResult(workflowLivenessConfig(), [workflowRunAtAge(21)], workflowLivenessNow);
+  assert.equal(result.status, "DELAYED");
+  assert.equal(result.warning_code, "REVIEW_QUEUE_WORKER_SCHEDULE_DELAYED");
+  assert.equal(result.failure_code, null);
+});
+
+test("review worker liveness keeps the exact 60-minute boundary delayed", () => {
+  assert.equal(
+    workflowLivenessResult(workflowLivenessConfig(), [workflowRunAtAge(60)], workflowLivenessNow).status,
+    "DELAYED",
+  );
+});
+
+test("review worker liveness classifies a scheduled run aged 61 minutes as broken", () => {
+  const result = workflowLivenessResult(workflowLivenessConfig(), [workflowRunAtAge(61)], workflowLivenessNow);
+  assert.equal(result.status, "BROKEN");
+  assert.equal(result.warning_code, null);
+  assert.equal(result.failure_code, "REVIEW_QUEUE_WORKER_SCHEDULE_BROKEN");
+});
+
+test("review worker liveness is broken when no scheduled run exists", () => {
+  const result = workflowLivenessResult(workflowLivenessConfig(), [], workflowLivenessNow);
+  assert.equal(result.status, "BROKEN");
+  assert.equal(result.last_scheduled_run_id, null);
+  assert.equal(result.age_minutes, null);
+  assert.equal(result.failure_code, "REVIEW_QUEUE_WORKER_SCHEDULE_BROKEN");
+});
+
+test("recent workflow_dispatch activity cannot hide a stale scheduled worker run", () => {
+  const result = workflowLivenessResult(workflowLivenessConfig(), [
+    workflowRunAtAge(5, { id: 2, event: "workflow_dispatch" }),
+    workflowRunAtAge(61, { id: 1 }),
+  ], workflowLivenessNow);
+  assert.equal(result.status, "BROKEN");
+  assert.equal(result.last_scheduled_run_id, "1");
+  assert.equal(result.age_minutes, 61);
+});
+
+test("manual review worker runs never count as scheduler health", () => {
+  const result = workflowLivenessResult(workflowLivenessConfig(), [
+    workflowRunAtAge(1, { id: 3, event: "workflow_dispatch" }),
+  ], workflowLivenessNow);
+  assert.equal(result.status, "BROKEN");
+  assert.equal(result.last_scheduled_run_id, null);
+});
+
+test("review worker liveness uses one bounded scheduled-only GitHub query", async () => {
+  const calls = [];
+  const result = await workflowLivenessCheck(
+    workflowLivenessConfig(),
+    "owner/repo",
+    "test-token",
+    workflowLivenessNow,
+    {
+      snapshotKey: "watchdog-123",
+      fetchJson: async (url) => {
+        calls.push(url);
+        return { workflow_runs: [workflowRunAtAge(5)] };
+      },
+    },
+  );
+  assert.equal(result.status, "HEALTHY");
+  assert.equal(calls.length, 1);
+  assert.match(calls[0], /automation-review-queue-worker\.yml\/runs\?event=schedule&per_page=1&page=1/);
+  assert.match(calls[0], /watchdog_snapshot=watchdog-123/);
+});
+
+test("an unresolved review worker workflow is a broken scheduler check", async () => {
+  const missing = new Error("GitHub API 404");
+  missing.status = 404;
+  const result = await workflowLivenessCheck(
+    workflowLivenessConfig(),
+    "owner/repo",
+    "test-token",
+    workflowLivenessNow,
+    { fetchJson: async () => { throw missing; } },
+  );
+  assert.equal(result.status, "BROKEN");
+  assert.equal(result.failure_code, "REVIEW_QUEUE_WORKER_SCHEDULE_BROKEN");
+  assert.equal(result.observation_error, "GitHub API 404");
+});
+
+test("GitHub API infrastructure failure is not misreported as scheduler broken", async () => {
+  const output = path.join(process.cwd(), "tmp", `watchdog-liveness-api-${process.pid}.json`);
+  const report = await runWatchdog({ output }, {
+    config: {
+      maximum_success_age_hours: 48,
+      platform_checks: [workflowLivenessConfig()],
+      monitored_backlog: { closeout_snapshot_sha256: "0".repeat(64), retailers: {} },
+      retailers: [],
+    },
+    env: { GITHUB_REPOSITORY: "owner/repo", GITHUB_TOKEN: "test-token", GITHUB_RUN_ID: "watchdog-api-test" },
+    now: workflowLivenessNow,
+    databaseEvidence: async () => new Map(),
+    workflowLivenessCheck: async () => { throw new Error("GitHub API 503"); },
+  });
+  fs.rmSync(output, { force: true });
+  assert.equal(report.monitor_status, "FAILED_SYSTEM");
+  assert.deepEqual(report.global_failures, ["MONITORING_INFRASTRUCTURE_ERROR"]);
+  assert.equal(report.global_failures.includes("REVIEW_QUEUE_WORKER_SCHEDULE_BROKEN"), false);
+  assert.equal(report.platform_checks[0].status, "MONITORING_INFRASTRUCTURE_ERROR");
+  assert.equal(report.database_writes, 0);
+});
+
+test("healthy review worker liveness does not change retailer result semantics", () => {
+  const healthy = workflowLivenessResult(workflowLivenessConfig(), [workflowRunAtAge(5)], workflowLivenessNow);
+  const summary = summarizeWatchdogResult([{ result: "PASS_WITH_REVIEW" }], {
+    globalFailures: healthy.failure_code ? [healthy.failure_code] : [],
+  });
+  assert.equal(summary.result, "PASS_WITH_REVIEW");
+  assert.equal(summary.monitorStatus, "WAITING_FOR_DECISION");
+  assert.deepEqual(summary.globalFailures, []);
+});
+
+test("delayed review worker liveness emits a global warning only", () => {
+  const delayed = workflowLivenessResult(workflowLivenessConfig(), [workflowRunAtAge(21)], workflowLivenessNow);
+  const summary = summarizeWatchdogResult([{ result: "PASS" }], {
+    globalFailures: delayed.failure_code ? [delayed.failure_code] : [],
+  });
+  assert.equal(delayed.warning_code, "REVIEW_QUEUE_WORKER_SCHEDULE_DELAYED");
+  assert.equal(delayed.failure_code, null);
+  assert.equal(summary.result, "PASS");
+  assert.equal(summary.monitorStatus, "SUCCESS");
+});
+
+test("broken review worker liveness produces the global failure and FAILED_SYSTEM", () => {
+  const broken = workflowLivenessResult(workflowLivenessConfig(), [workflowRunAtAge(61)], workflowLivenessNow);
+  const summary = summarizeWatchdogResult([{ result: "PASS" }], {
+    globalFailures: [broken.failure_code],
+  });
+  assert.deepEqual(summary.globalFailures, ["REVIEW_QUEUE_WORKER_SCHEDULE_BROKEN"]);
+  assert.equal(summary.result, "FAIL");
+  assert.equal(summary.monitorStatus, "FAILED_SYSTEM");
+});
+
+test("review worker liveness adds no request, queue, worker or database write path", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "scripts", "automation-reliability-watchdog.js"), "utf8");
+  assert.doesNotMatch(source, /require\([^\n]*(automation-review-queue-worker|automation-review-publisher|execution-request)/);
+  assert.doesNotMatch(source, /workflow_dispatches|\/dispatches|publishAutomationReview|executeAutomationReview/);
 });
 
 test("automation watchdog requires fresh capture, apply, DB postflight and exact execution counts", () => {
