@@ -334,6 +334,9 @@ function buildManifestRows(source, activeRows, currentStateRows = []) {
     if (!before) fail(`Missing before_state for review offer ${offerId}`);
     const proposedState = proposedStateForReview(review, artifact);
     if (op.review_kind === "COMMERCIAL_CHANGE") assertCommercialProposedState(semantic, proposedState, offerId);
+    const sourceUrl = op.review_kind === "COMMERCIAL_CHANGE"
+      ? proposedState.offer.url
+      : semantic.affiliate_url_returned || semantic.affiliate_url || semantic.external_url || null;
     const reviewReasons = [...new Set([...(semantic.review_reasons || []), ...(review.review_reasons || []), review.reason].filter(Boolean))].sort();
     return {
       snapshot_id: `automation-review-${RETAILER_ID}-${source.options.sourceRunId}`,
@@ -350,7 +353,7 @@ function buildManifestRows(source, activeRows, currentStateRows = []) {
       source_gtin: semantic.returned_gtin || null,
       source_weight: null,
       source_price: semantic.price == null ? null : String(semantic.price),
-      source_url: semantic.affiliate_url_returned || semantic.affiliate_url || semantic.external_url || null,
+      source_url: sourceUrl,
       suggested_action: op.suggested_action,
       retailer_id: RETAILER_ID,
       retailer_product_id: String(semantic.mapping_id),
