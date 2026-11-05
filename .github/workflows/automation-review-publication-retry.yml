@@ -1,0 +1,126 @@
+name: Authorized Review Queue Publication Retry
+
+on:
+  workflow_dispatch:
+    inputs:
+      reconciliation_run_id:
+        description: Exact GitHub run that produced the reconciliation artifact
+        required: true
+        type: string
+      reconciliation_artifact_id:
+        description: Exact reconciliation artifact ID
+        required: true
+        type: string
+      reconciliation_artifact_digest:
+        description: Exact SHA-256 digest reported by GitHub for the reconciliation artifact
+        required: true
+        type: string
+      source_run_id:
+        description: Exact source-evidence run bound by the reconciliation
+        required: true
+        type: string
+      source_artifact_id:
+        description: Exact source-evidence artifact ID
+        required: true
+        type: string
+      source_artifact_digest:
+        description: Exact SHA-256 digest reported by GitHub for the source artifact
+        required: true
+        type: string
+      batch_fingerprint:
+        description: Exact publisher batch fingerprint from the reconciliation request
+        required: true
+        type: string
+      changeset_fingerprint:
+        description: Exact changeset fingerprint from the reconciliation request
+        required: true
+        type: string
+      idempotency_key:
+        description: Exact publication idempotency key
+        required: true
+        type: string
+      request_hash:
+        description: Exact canonical request hash excluding the idempotency key
+        required: true
+        type: string
+      expected_retailer_id:
+        description: Exact retailer ID bound by the reconciliation request
+        required: true
+        type: string
+      expected_project_ref:
+        description: Exact production Supabase project reference
+        required: true
+        type: string
+      owner_confirmation:
+        description: OWNER_AUTHORIZED_REVIEW_QUEUE_PUBLICATION_RETRY:<run>:<artifact>:<artifact digest>:<batch>:<changeset>:<idempotency>:<request hash>
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: retailer-offer-production-write
+  cancel-in-progress: false
+
+jobs:
+  authorized-artifact-retry:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production-readonly
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Test shared publication retry contracts without production credentials
+        run: node --test scripts/automation-review-publication-retry.test.js
+      - name: Download the exact authorized reconciliation artifact
+        uses: actions/download-artifact@v8
+        with:
+          artifact-ids: ${{ inputs.reconciliation_artifact_id }}
+          run-id: ${{ inputs.reconciliation_run_id }}
+          github-token: ${{ github.token }}
+          path: tmp/automation-review-publication-retry/reconciliation-artifact
+          merge-multiple: true
+      - name: Apply the exact owner-authorized reconciliation request once
+        shell: bash
+        env:
+          DURABLE_SEALED_ARTIFACTS_ENFORCEMENT: ${{ vars.DURABLE_SEALED_ARTIFACTS_ENFORCEMENT }}
+          GITHUB_TOKEN: ${{ github.token }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RETRY_RECONCILIATION_RUN_ID: ${{ inputs.reconciliation_run_id }}
+          RETRY_RECONCILIATION_ARTIFACT_ID: ${{ inputs.reconciliation_artifact_id }}
+          RETRY_RECONCILIATION_ARTIFACT_DIGEST: ${{ inputs.reconciliation_artifact_digest }}
+          RETRY_SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+          RETRY_SOURCE_ARTIFACT_ID: ${{ inputs.source_artifact_id }}
+          RETRY_SOURCE_ARTIFACT_DIGEST: ${{ inputs.source_artifact_digest }}
+          RETRY_BATCH_FINGERPRINT: ${{ inputs.batch_fingerprint }}
+          RETRY_CHANGESET_FINGERPRINT: ${{ inputs.changeset_fingerprint }}
+          RETRY_IDEMPOTENCY_KEY: ${{ inputs.idempotency_key }}
+          RETRY_REQUEST_HASH: ${{ inputs.request_hash }}
+          RETRY_EXPECTED_RETAILER_ID: ${{ inputs.expected_retailer_id }}
+          RETRY_EXPECTED_PROJECT_REF: ${{ inputs.expected_project_ref }}
+          RETRY_OWNER_CONFIRMATION: ${{ inputs.owner_confirmation }}
+        run: |
+          mapfile -t reconciliation_files < <(find tmp/automation-review-publication-retry/reconciliation-artifact -type f -name '*reconciliation-dry-run.json' -print)
+          test "${#reconciliation_files[@]}" -eq 1
+          node scripts/automation-review-reconciliation-apply.js \
+            --mode=authorized-artifact-retry \
+            --input="${reconciliation_files[0]}" \
+            --output=tmp/automation-review-publication-retry/reconciliation-apply.json
+      - name: Upload bounded retry evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: automation-review-publication-retry-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: warn
+          path: tmp/automation-review-publication-retry/reconciliation-apply.json
