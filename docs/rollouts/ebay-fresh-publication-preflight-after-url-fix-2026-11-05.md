@@ -8,7 +8,7 @@
 - Starting authoritative `origin/main`:
   `c55a17488dfc2bbb728d92ec9953d5c024f47732`.
 - Production project: `aftboxmrdgyhizicfsfu`.
-- Documentation PR: assigned after local verification.
+- Documentation PR: `#485`.
 - Production database writes: `0`.
 - Review Queue/control-plane writes: `0`.
 - Executions: `0`.
