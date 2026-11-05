@@ -1039,6 +1039,72 @@ test("eBay hard-price isolation is generic and contains no offer-2560 runtime br
   assert.match(source, /ratio\s*>=\s*HARD_PRICE_RATIO_LIMIT\s*\|\|\s*absolute\s*>=\s*HARD_PRICE_ABSOLUTE_LIMIT/);
 });
 
+test("approved eBay price binding canonicalizes decimal scale while rejecting real drift", () => {
+  const evidence = Object.fromEntries([
+    "workflow_run_id", "artifact_id", "artifact_digest", "contract_sha256",
+    "report_sha256", "artifact_content_sha256", "source_fingerprint",
+    "review_scope_fingerprint",
+  ].map((field) => [field, field]));
+  const fixture = ({ offerId, reviewId, sourcePrice, planPrice }) => {
+    const scope = REFRESH_SCOPES.find((candidate) => candidate.offer_id === offerId);
+    assert.ok(scope, `missing fixture scope for review ${reviewId}`);
+    const numericPrice = Number(planPrice);
+    const evaluation = {
+      item_id: scope.external_variant_id,
+      legacy_item_id: scope.external_product_id,
+      returned_gtin: scope.gtin,
+      decision: "AUTO_ELIGIBLE",
+      blockers: [],
+      review_reasons: [],
+      continuity: { eligible: true, tier: "live_exact_gtin" },
+      seller: { username: "exact-business-seller", account_type: "BUSINESS" },
+      affiliate_ready: true,
+      affiliate_url: scope.affiliate_url,
+      item_price: { value: numericPrice, currency: "GBP" },
+      uk_shipping: { value: 0, currency: "GBP" },
+      delivered_price: { value: numericPrice, currency: "GBP" },
+    };
+    const review = {
+      id: reviewId,
+      offer_id: offerId,
+      review_kind: "COMMERCIAL_CHANGE",
+      operation_type: "UPDATE_PRICE",
+      reason_codes: "PRICE_CHANGE",
+      source_price: sourcePrice,
+      source_row_fingerprint: canonicalHash(buildSemanticSourceRows([scope], [evaluation])[0]),
+      plan_fingerprint: "b".repeat(64),
+      source_evidence: evidence,
+    };
+    return { evaluation, plan: { offer: { values: { price: planPrice } } }, review };
+  };
+
+  for (const sample of [
+    { reviewId: "3315", offerId: "2543", sourcePrice: 18.5, planPrice: "18.50" },
+    { reviewId: "3316", offerId: "2601", sourcePrice: 18.5, planPrice: "18.50" },
+    { reviewId: "3317", offerId: "2603", sourcePrice: 32.2, planPrice: "32.20" },
+    { reviewId: "3320", offerId: "2715", sourcePrice: 8.6, planPrice: "8.60" },
+    { reviewId: "1029", offerId: "2774", sourcePrice: 10.99, planPrice: "10.99" },
+  ]) {
+    const { review, plan, evaluation } = fixture(sample);
+    assert.doesNotThrow(() => assertCommercialEvidence(review, plan, evaluation), `review ${sample.reviewId}`);
+  }
+
+  for (const sample of [
+    { reviewId: "price-drift-18", offerId: "2543", sourcePrice: 18.49, planPrice: "18.50" },
+    { reviewId: "price-drift-32", offerId: "2603", sourcePrice: 32.21, planPrice: "32.20" },
+    { reviewId: "price-drift-8", offerId: "2715", sourcePrice: 8.61, planPrice: "8.60" },
+  ]) {
+    const { review, plan, evaluation } = fixture(sample);
+    assert.throws(() => assertCommercialEvidence(review, plan, evaluation), /APPROVED_PRICE_DRIFT/);
+  }
+
+  const exact = fixture({ reviewId: "source-fingerprint", offerId: "2603", sourcePrice: 32.2, planPrice: "32.20" });
+  assert.throws(() => assertCommercialEvidence({ ...exact.review, source_row_fingerprint: "f".repeat(64) }, exact.plan, exact.evaluation), /SOURCE_FINGERPRINT_DRIFT/);
+
+  const workerSource = fs.readFileSync(path.join(process.cwd(), "scripts/automation-review-ebay-worker.js"), "utf8");
+  assert.doesNotMatch(workerSource, /(?:3315|3316|3317|3320|2543|2601|2603|2715)/);
+});
+
 test("owner-approved hard-price execution remains bound to exact review, source, before and proposed state", () => {
   const scope = REFRESH_SCOPES.find((candidate) => candidate.offer_id === "2560");
   const evaluation = {
@@ -1078,6 +1144,8 @@ test("owner-approved hard-price execution remains bound to exact review, source,
   assert.equal(deltas.logical_field_deltas.offer_price_updates, 1);
   assert.equal(deltas.row_count_deltas.price_history, 1);
   assert.doesNotThrow(() => assertCommercialEvidence(review, plan, evaluation));
+  assert.doesNotThrow(() => assertHardPriceReviewExecution({ ...review, source_price: 129 }, plan));
+  assert.throws(() => assertHardPriceReviewExecution({ ...review, source_price: 128.99 }, plan), /APPROVED_PRICE_DRIFT/);
   assert.doesNotThrow(() => assertHardPriceReviewExecution({ ...review, reason_codes: "PRICE_CHANGE" }, { offer: { action: "noop" } }));
   assert.throws(() => assertHardPriceReviewExecution({ ...review, operation_type: "UPDATE_STOCK" }, plan), /HARD_PRICE_REVIEW_OPERATION_INVALID/);
   assert.throws(() => assertHardPriceReviewExecution(review, { ...plan, price_history: { action: "noop" } }), /HARD_PRICE_REVIEW_OPERATION_INVALID/);
@@ -1232,6 +1300,10 @@ test("unapproved eBay hard-price review cannot reach the executor", async () => 
   await assert.rejects(() => loadEbayControlState(client(review), options, {}), /REVIEW_BINDING_DRIFT/);
   const approved = await loadEbayControlState(client({ ...review, review_status: "APPROVED" }), options, {});
   assert.equal(approved.review.review_status, "APPROVED");
+  await assert.rejects(
+    () => loadEbayControlState(client({ ...review, review_status: "APPROVED" }), { ...options, reviewPlanFingerprint: "d".repeat(64) }, {}),
+    /EXECUTION_REQUEST_BINDING_DRIFT/,
+  );
 });
 
 test("eBay refresh workflow is scheduled, default dry-run and has no push trigger", () => {
