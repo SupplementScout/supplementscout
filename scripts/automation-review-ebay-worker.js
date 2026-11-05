@@ -3,7 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { canonicalJson, normalizeDecimalString } = require("./lib/canonical-json");
 const { canonicalTimestamp, canonicalizeTimestamps } = require("./lib/canonical-timestamp");
-const { buildSemanticSourceRows, canonicalHash } = require("./lib/ebay-artifact-bound-contract");
+const { buildSemanticSourceRows, canonicalHash, stableAffiliateUrl } = require("./lib/ebay-artifact-bound-contract");
 const { assertConfig, getApplicationToken } = require("./lib/ebay-browse-pilot");
 const { executePlan } = require("./ebay-offer-canary-executor");
 const { SCOPES, actionForPlan, buildSource, classifyContinuity, prepareScope } = require("./ebay-offer-refresh");
@@ -143,7 +143,7 @@ function assertCombinedPriceStockReviewExecution(review, plan, evaluation, bound
   const proposedPrice = Number(after.price), proposedShipping = Number(after.shipping_cost), proposedTotal = Number(after.total_price);
   invariant([sourcePrice, sourceShipping, sourceTotal, proposedPrice, proposedShipping, proposedTotal].every(Number.isFinite), "COMBINED_REVIEW_PRICE_INVALID");
   invariant(proposedPrice > 0 && proposedShipping >= 0 && Math.abs(proposedPrice + proposedShipping - proposedTotal) <= 0.011, "COMBINED_REVIEW_PRICE_INVALID");
-  invariant(sourcePrice === proposedPrice && sourceShipping === proposedShipping && sourceTotal === proposedTotal && after.in_stock === true && evaluation.affiliate_url === after.url, "COMBINED_REVIEW_SOURCE_DRIFT");
+  invariant(sourcePrice === proposedPrice && sourceShipping === proposedShipping && sourceTotal === proposedTotal && after.in_stock === true && stableAffiliateUrl(evaluation.affiliate_url) === stableAffiliateUrl(after.url), "COMBINED_REVIEW_SOURCE_DRIFT");
   const deltas = expectedDeltas(plan);
   invariant(canonicalJson(deltas.logical_field_deltas) === canonicalJson({ offer_price_updates: 1, offer_stock_updates: 1, offer_shipping_updates: 0, offer_total_updates: 1, offer_url_updates: 0, mapping_url_updates: 0, last_checked_at_updates: 1 }), "COMBINED_REVIEW_DELTA_INVALID");
   invariant(canonicalJson(deltas.row_count_deltas) === canonicalJson({ products: 0, product_variants: 0, retailer_products: 0, offers: 0, price_history: 1 }), "COMBINED_REVIEW_DELTA_INVALID");
