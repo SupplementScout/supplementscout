@@ -99,7 +99,7 @@ const PENDING_REFRESH_BINDING_MIGRATION = "20261105100000_refresh_pending_review
 const PENDING_REFRESH_BINDING_MIGRATION_SHA256 = "015f0de7448c10fcca10174e74dfbf7ca9e3150951f49090d01cd6eee869024c";
 const PENDING_REFRESH_BINDING = Object.freeze({ filename: PENDING_REFRESH_BINDING_MIGRATION, sha256: PENDING_REFRESH_BINDING_MIGRATION_SHA256 });
 const STAGING_PENDING = Object.freeze([...HARD_PRICE_ANOMALY_PENDING, PENDING_REFRESH_BINDING]);
-const PRODUCTION_PENDING = Object.freeze([PENDING_REFRESH_BINDING]);
+const PRODUCTION_PENDING = Object.freeze([]);
 const RA004_CONTROL_STATE_MIGRATION = "20260924100000_add_transactional_retailer_control_state_interface.sql";
 const RA004_PREFLIGHT_MIGRATION = "20260925100000_add_ra004_staging_preflight_metadata_interface.sql";
 const RA004_FORWARD_CONTROL_STATE_MIGRATION = "20260927100000_reissue_transactional_retailer_control_state_interface.sql";
@@ -578,10 +578,10 @@ test("production preserves deployed V3 and Ghost Lifestyle metadata correction b
     "20261009120000_add_compact_other_retailer_fingerprint.sql",
     SEALED_ARTIFACTS_REGISTRY_MIGRATION,
   ]);
-  assert.equal(contract.ledgerCount, 259);
+  assert.equal(contract.ledgerCount, 260);
   assert.equal(
     contract.ledgerFingerprint,
-    "d21a4044df80270db476bd264a9a4da19e90fe15310b2b918487ce4c480978af",
+    "17a00891dff4e0a4f53050a018594fd505aa0aabc02b5281580b42895d7fd61e",
   );
   assert.equal(sha256File(path.join(SOURCE, GHOST_LIFESTYLE_METADATA_MIGRATION)), GHOST_LIFESTYLE_METADATA_SHA256);
   assert.equal(contract.excluded[REVIEWED_STATE_MIGRATION], REVIEWED_STATE_SHA256);
@@ -875,7 +875,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACT.ledgerFingerprint);
 });
 
-test("production records ledger 259 and selects only the pending refresh-binding migration", () => {
+test("production records ledger 260 with the refresh-binding migration applied", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   for (const filename of contract.appliedExcluded) excluded.delete(filename);
@@ -902,13 +902,14 @@ test("production records ledger 259 and selects only the pending refresh-binding
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 259);
+  assert.equal(result.ledger_count, 260);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 260);
-  assert.deepEqual(result.pending_files, [PENDING_REFRESH_BINDING_MIGRATION]);
-  assert.deepEqual(result.pending_sha256s, { [PENDING_REFRESH_BINDING_MIGRATION]: PENDING_REFRESH_BINDING_MIGRATION_SHA256 });
-  assert.equal(result.pending_file, PENDING_REFRESH_BINDING_MIGRATION);
-  assert.equal(result.pending_sha256, PENDING_REFRESH_BINDING_MIGRATION_SHA256);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.ok(result.selected_files.includes(PENDING_REFRESH_BINDING_MIGRATION));
   assert.ok(result.selected_files.includes(PRODUCT_PACK_CORRECTION_REISSUE_MIGRATION));
   assert.ok(result.excluded_files.includes(PRODUCT_PACK_CORRECTION_MIGRATION));
   assert.ok(!result.selected_files.includes(PRODUCT_PACK_CORRECTION_MIGRATION));
@@ -1087,7 +1088,7 @@ test("applied excluded production migration participates in the canonical ledger
   assert.ok(result.selected_files.includes(VERIFIED_REVIEW_STOCK_TRANSITION_READER_MIGRATION));
   assert.deepEqual(result.remote_only, []);
   assert.deepEqual(result.unexpected_local, []);
-  assert.deepEqual(result.pending, [PENDING_REFRESH_BINDING_MIGRATION.slice(0, -4)]);
+  assert.deepEqual(result.pending, []);
 });
 
 test("runtime staging artifacts bind the same migration ledger as the staging selector", () => {
@@ -1782,7 +1783,7 @@ test("completed RA-004 fixture activation cannot select or materialize a migrati
   })), /status mismatch/);
 });
 
-test("Gladiator and hard-price migrations remain applied while the refresh-binding contract is pending", () => {
+test("shared production binding includes hard-price and refresh-binding migrations while staging keeps both pending", () => {
   const contract = CONTRACTS.PRODUCTION;
   const remoteLedger = migrationBinding("PRODUCTION").versions.map((identifier) => {
     const split = identifier.indexOf("_");
@@ -1799,10 +1800,14 @@ test("Gladiator and hard-price migrations remain applied while the refresh-bindi
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.pending_file, PENDING_REFRESH_BINDING_MIGRATION);
-  assert.equal(result.pending_sha256, PENDING_REFRESH_BINDING_MIGRATION_SHA256);
-  assert.deepEqual(result.pending_files, [PENDING_REFRESH_BINDING_MIGRATION]);
-  assert.deepEqual(result.pending_sha256s, { [PENDING_REFRESH_BINDING_MIGRATION]: PENDING_REFRESH_BINDING_MIGRATION_SHA256 });
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
+  assert.ok(result.selected_files.includes(HARD_PRICE_ANOMALY_MIGRATION));
+  assert.ok(result.selected_files.includes(PENDING_REFRESH_BINDING_MIGRATION));
+  assert.ok(!migrationBinding("STAGING").versions.includes(HARD_PRICE_ANOMALY_MIGRATION.slice(0, -4)));
+  assert.ok(!migrationBinding("STAGING").versions.includes(PENDING_REFRESH_BINDING_MIGRATION.slice(0, -4)));
   assert.ok(result.selected_files.includes(PRODUCT_PACK_CORRECTION_REISSUE_MIGRATION));
   assert.ok(result.excluded_files.includes(PRODUCT_PACK_CORRECTION_MIGRATION));
   assert.ok(!result.selected_files.includes(PRODUCT_PACK_CORRECTION_MIGRATION));
@@ -1819,9 +1824,9 @@ test("Gladiator and hard-price migrations remain applied while the refresh-bindi
   assert.ok(result.selected_files.includes(REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_1_CONSOLIDATION_MIGRATION));
   assert.deepEqual(CONTRACTS.PRODUCTION.pending, PRODUCTION_PENDING);
-  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 259);
+  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 260);
   assert.equal(CONTRACTS.PRODUCTION.ledgerFingerprint,
-    "d21a4044df80270db476bd264a9a4da19e90fe15310b2b918487ce4c480978af");
+    "17a00891dff4e0a4f53050a018594fd505aa0aabc02b5281580b42895d7fd61e");
   const productionPrerequisiteIdentifiers = [
     ...migrationBinding("PRODUCTION").versions.filter(identifier =>
       identifier !== REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION.slice(0, -4)
@@ -1833,10 +1838,10 @@ test("Gladiator and hard-price migrations remain applied while the refresh-bindi
     const split = identifier.indexOf("_");
     return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
   });
-  assert.equal(productionPrerequisiteRows.length, 255);
+  assert.equal(productionPrerequisiteRows.length, 256);
   assert.equal(
     ledgerRowsFingerprint(productionPrerequisiteRows, { targetEnvironment: "PRODUCTION" }),
-    "102117b07b10af09653e6a2cafbf1a9d37f2c45ffda58163dd943942447631a0",
+    "3b833f177f113e8e7e8554806d26a563ac520129beb0567c1210dc00938d1912",
   );
   const productionPostIdentifiers = migrationBinding("PRODUCTION").versions.filter(identifier =>
     identifier !== REVIEWED_V3_1_CONSOLIDATION_MIGRATION.slice(0, -4)
@@ -1846,10 +1851,10 @@ test("Gladiator and hard-price migrations remain applied while the refresh-bindi
     const split = identifier.indexOf("_");
     return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
   });
-  assert.equal(productionPostRows.length, 256);
+  assert.equal(productionPostRows.length, 257);
   assert.equal(
     ledgerRowsFingerprint(productionPostRows, { targetEnvironment: "PRODUCTION" }),
-    "aca0dc8b23c52061ffa922a87ee1628d69142c66682b5ebdb6034c1ee366661d",
+    "f609e96ee87898499fceb631aead4cb2bebac7c9c65c114c811cdb688c357ebb",
   );
   const stagingPostRows = currentRemoteLedger();
   assert.equal(stagingPostRows.length, 120);
@@ -1861,10 +1866,10 @@ test("Gladiator and hard-price migrations remain applied while the refresh-bindi
     const split = identifier.indexOf("_");
     return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
   });
-  assert.equal(productionCurrentRows.length, 259);
+  assert.equal(productionCurrentRows.length, 260);
   assert.equal(
     ledgerRowsFingerprint(productionCurrentRows, { targetEnvironment: "PRODUCTION" }),
-    "d21a4044df80270db476bd264a9a4da19e90fe15310b2b918487ce4c480978af",
+    "17a00891dff4e0a4f53050a018594fd505aa0aabc02b5281580b42895d7fd61e",
   );
 });
 
@@ -1873,9 +1878,9 @@ test("Gladiator registration and parent approval migration are applied exactly o
   assert.deepEqual(CONTRACTS.STAGING.pending, STAGING_PENDING);
   assert.deepEqual(CONTRACTS.PRODUCTION.pending, PRODUCTION_PENDING);
   assert.equal(migrationBinding("STAGING").versions.length, 120);
-  assert.equal(migrationBinding("PRODUCTION").versions.length, 259);
+  assert.equal(migrationBinding("PRODUCTION").versions.length, 260);
   assert.equal(migrationBinding("STAGING").fingerprint, "31dc3e6e90dab56dd00843bef441cfba400e1d9480d2940f41b46cfff6e32277");
-  assert.equal(migrationBinding("PRODUCTION").fingerprint, "d21a4044df80270db476bd264a9a4da19e90fe15310b2b918487ce4c480978af");
+  assert.equal(migrationBinding("PRODUCTION").fingerprint, "17a00891dff4e0a4f53050a018594fd505aa0aabc02b5281580b42895d7fd61e");
   assert.equal(sha256File(path.join(SOURCE, GLADIATOR_PARENT_APPROVAL_MIGRATION)), GLADIATOR_PARENT_APPROVAL_SHA256);
   assert.ok(migrationBinding("PRODUCTION").versions.includes(GLADIATOR_PARENT_APPROVAL_MIGRATION.slice(0, -4)));
 });

@@ -33,6 +33,7 @@ const {
   loadOwnerApprovedSixAbsentManifest,
   loadReviewedMassOosManifest,
   mappedOfferSourceFingerprint,
+  migrationBinding,
   normalizeVerifiedAutomationReviewStockTransitionRows,
   parseArgs,
   readVerifiedAutomationReviewStockTransitionEvidence,
@@ -658,6 +659,25 @@ const automation = fs.readFileSync(
   path.join(__dirname, "fit-house-offer-refresh.js"),
   "utf8",
 );
+
+test("KIOR, Discount Supplements, and Gladiator share the corrected production migration binding", () => {
+  const binding = migrationBinding("PRODUCTION");
+  assert.equal(binding.versions.length, 260);
+  assert.equal(
+    binding.fingerprint,
+    "17a00891dff4e0a4f53050a018594fd505aa0aabc02b5281580b42895d7fd61e",
+  );
+  for (const identifier of [
+    "20261104120000_allow_automation_review_hard_price_anomaly",
+    "20261105100000_refresh_pending_review_execution_binding",
+  ]) assert.ok(binding.versions.includes(identifier));
+
+  assert.match(automation, /binding=migrationBinding\(spec\.environment\)/);
+  for (const profile of ["discount-supplements", "kior-health", "gladiator-nutrition"]) {
+    assert.match(automation, new RegExp(`"${profile}":"\\.\\./config/retailers/[^\"]+"`));
+  }
+  assert.doesNotMatch(automation, /migrationBinding\([^)]*(?:retailer_slug|PROFILE|config)/);
+});
 
 test("approved manifest is immutable, unique, and bound to 286 stable Shopify variants", () => {
   const file = path.join(ROOT, config.manifest_path);
