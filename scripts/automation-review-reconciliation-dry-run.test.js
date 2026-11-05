@@ -10,6 +10,7 @@ const {
   currentReviewStateRows,
   operationForReview,
   parseArgs,
+  proposedStateForReview,
   verifySourceArtifact,
 } = require("./automation-review-reconciliation-dry-run");
 const { sha256 } = require("./lib/automation-review-publisher");
@@ -29,6 +30,16 @@ const SOURCE = Object.freeze({
   artifactDigest: "0e0f4bb7e6fbd068d1b3dc5aa263632445c8b112328170cd1a8c8d947d14ed88",
   artifactContent: "a7e47e3fea7938ceebd50e15fcca6813b54ba8865a885489f48a3401092abffc",
   reviewScope: "63067cd5432f9fc37898a32c38ce5348353648f262eb801ed6948095a04d2572",
+});
+
+test("eBay reconciliation publishes the exact final state for every commercial review operation", () => {
+  const values = { price: "19.50", shipping_cost: "0.00", total_price: "19.50", in_stock: true, url: "https://example.test/affiliate/exact-listing" };
+  const artifact = { plans: [{ resolved_plan: { offer: { action: "update", values } } }] };
+  for (const action of ["UPDATE_PRICE", "UPDATE_STOCK", "UPDATE_PRICE_AND_STOCK"]) {
+    assert.deepEqual(proposedStateForReview({ offer_id: "test-offer", action }, artifact), { offer: values });
+  }
+  assert.deepEqual(proposedStateForReview({ offer_id: "test-offer", action: "IDENTITY_CONFLICT" }, artifact), {});
+  assert.throws(() => proposedStateForReview({ offer_id: "test-offer", action: "UPDATE_PRICE_AND_STOCK" }, { plans: [] }), /Missing exact proposed state for commercial review/);
 });
 
 function sourceOptions(directory, extra = {}) {
@@ -108,6 +119,9 @@ function writeFixture() {
     review_offer_ids: ["2554", "2686"],
     executable_offer_ids: ["2748"],
   };
+  writeJson(path.join(directory, "artifact-2554-test.json"), {
+    plans: [{ resolved_plan: { offer: { action: "update", values: { price: "29.23", shipping_cost: "0.00", total_price: "29.23", in_stock: true, url: "https://www.ebay.co.uk/itm/external-2554?var=variant&mkevt=1" } } } }],
+  });
   writeJson(path.join(directory, "production-dry-run.json"), report);
   contract.report_sha256 = fileSha(path.join(directory, "production-dry-run.json"));
   writeJson(path.join(directory, "production-dry-run-contract.json"), contract);

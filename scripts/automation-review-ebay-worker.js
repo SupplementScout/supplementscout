@@ -13,7 +13,7 @@ const { checkpoint, claimDispatched, controlClient, loadControlState: loadBoundC
 const ROOT = path.resolve(__dirname, "..");
 const OUT = path.join(ROOT, "tmp", "automation-review-execution");
 const WORKER_KIND = "automation-review-ebay-single-offer-v2";
-const ALLOWED_OPERATIONS = new Set(["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK"]);
+const ALLOWED_OPERATIONS = new Set(["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK", "UPDATE_PRICE_AND_STOCK"]);
 
 function invariant(condition, code) {
   if (!condition) { const error = new Error(code); error.code = code; throw error; }
@@ -47,7 +47,7 @@ function executionEvidence(review, approved, postflight, idempotency, baseline) 
   return {
     run_id: String(process.env.GITHUB_RUN_ID), run_url: `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
     commit_sha: process.env.GITHUB_SHA, manifest_sha256: approved.loaded.artifactSha256, before_state_hash: hash(review.before_state), postflight_hash: postflight.postflight_hash,
-    executed_offer_ids: [String(review.offer_id)], failed_offer_ids: [], remaining_offer_ids: [], expected_deltas: plan.expected_deltas || { price_history: 0 },
+    executed_offer_ids: [String(review.offer_id)], failed_offer_ids: [], remaining_offer_ids: [], expected_deltas: expectedDeltas(plan),
     actual_deltas: { freshness: postflight.freshness_change_count, price: postflight.price_change_count, stock: postflight.stock_change_count, shipping: postflight.shipping_change_count, total: postflight.total_change_count, offer_url: postflight.offer_url_change_count, mapping_url: postflight.mapping_url_change_count },
     price_history_delta: postflight.price_history_delta, database_writes: 1, idempotency_result: idempotency,
     baseline_hash: baseline.evidence_hash, source_fingerprint: review.source_row_fingerprint,
@@ -105,7 +105,50 @@ function assertHardPriceReviewExecution(review, plan) {
   invariant(ratio >= 0.60 || absolute >= 20, "HARD_PRICE_REVIEW_THRESHOLD_MISMATCH");
   invariant(String(review.source_price) === newPrice.toFixed(2), "APPROVED_PRICE_DRIFT");
 }
-function assertCommercialEvidence(review, plan, evaluation) {
+function assertCombinedPriceStockReviewExecution(review, plan, evaluation, boundPlanFingerprint) {
+  if (review.operation_type !== "UPDATE_PRICE_AND_STOCK") return;
+  const before = plan.expected_state?.offer, mapping = plan.expected_state?.retailer_product, after = plan.offer?.values;
+  const reviewedBefore = review.before_state || {}, reviewedAfter = review.proposed_state?.offer;
+  invariant(review.review_kind === "COMMERCIAL_CHANGE" && review.reason_codes === "PRICE_AND_STOCK_CHANGE", "COMBINED_REVIEW_OPERATION_INVALID");
+  invariant(plan.offer?.action === "update" && plan.price_history?.action === "create", "COMBINED_REVIEW_OPERATION_INVALID");
+  invariant(plan.product?.action === "existing" && plan.product_variant?.action === "existing" && plan.retailer?.action === "existing" && plan.retailer_product?.action === "noop", "COMBINED_REVIEW_IDENTITY_DRIFT");
+  invariant(/^[0-9a-f]{64}$/.test(review.source_row_fingerprint || "") && /^[0-9a-f]{64}$/.test(review.plan_fingerprint || ""), "COMBINED_REVIEW_FINGERPRINT_INVALID");
+  invariant(boundPlanFingerprint === review.plan_fingerprint, "COMBINED_REVIEW_PLAN_FINGERPRINT_DRIFT");
+  invariant(before && mapping && after && reviewedAfter, "COMBINED_REVIEW_STATE_MISSING");
+  const exactIdentity = [
+    [review.retailer_id, plan.retailer.id],
+    [review.offer_id, plan.offer.id],
+    [review.retailer_product_id, plan.retailer_product.id],
+    [review.current_product_id, plan.product.id],
+    [review.current_variant_id, plan.product_variant.id],
+    [reviewedBefore.offer_id, before.id],
+    [reviewedBefore.retailer_product_id, mapping.id],
+    [reviewedBefore.product_id, before.product_id],
+    [reviewedBefore.product_variant_id, before.product_variant_id],
+    [reviewedBefore.external_product_id, mapping.external_product_id],
+    [reviewedBefore.external_variant_id, mapping.external_variant_id],
+    [reviewedBefore.external_url, mapping.external_url],
+    [mapping.retailer_id, plan.retailer.id],
+    [mapping.product_id, plan.product.id],
+    [mapping.product_variant_id, plan.product_variant.id],
+  ].every(([left, right]) => String(left) === String(right));
+  invariant(exactIdentity, "COMBINED_REVIEW_IDENTITY_DRIFT");
+  for (const field of ["price", "shipping_cost", "total_price"]) invariant(normalizeDecimalString(reviewedBefore[field], `review.before.${field}`) === normalizeDecimalString(before[field], `plan.before.${field}`), "COMBINED_REVIEW_BEFORE_STATE_DRIFT");
+  invariant(reviewedBefore.in_stock === before.in_stock && reviewedBefore.url === before.url, "COMBINED_REVIEW_BEFORE_STATE_DRIFT");
+  for (const field of ["price", "shipping_cost", "total_price"]) invariant(normalizeDecimalString(reviewedAfter[field], `review.proposed.${field}`) === normalizeDecimalString(after[field], `plan.proposed.${field}`), "COMBINED_REVIEW_PROPOSED_STATE_DRIFT");
+  invariant(reviewedAfter.in_stock === after.in_stock && reviewedAfter.url === after.url, "COMBINED_REVIEW_PROPOSED_STATE_DRIFT");
+  invariant(Number(before.price) !== Number(after.price) && before.in_stock !== after.in_stock, "COMBINED_REVIEW_DELTA_INVALID");
+  invariant(normalizeDecimalString(before.shipping_cost, "before.shipping_cost") === normalizeDecimalString(after.shipping_cost, "after.shipping_cost") && before.url === after.url, "COMBINED_REVIEW_EXTRA_COMMERCIAL_CHANGE");
+  const sourcePrice = Number(evaluation.item_price?.value), sourceShipping = Number(evaluation.uk_shipping?.value), sourceTotal = Number(evaluation.delivered_price?.value);
+  const proposedPrice = Number(after.price), proposedShipping = Number(after.shipping_cost), proposedTotal = Number(after.total_price);
+  invariant([sourcePrice, sourceShipping, sourceTotal, proposedPrice, proposedShipping, proposedTotal].every(Number.isFinite), "COMBINED_REVIEW_PRICE_INVALID");
+  invariant(proposedPrice > 0 && proposedShipping >= 0 && Math.abs(proposedPrice + proposedShipping - proposedTotal) <= 0.011, "COMBINED_REVIEW_PRICE_INVALID");
+  invariant(sourcePrice === proposedPrice && sourceShipping === proposedShipping && sourceTotal === proposedTotal && after.in_stock === true && evaluation.affiliate_url === after.url, "COMBINED_REVIEW_SOURCE_DRIFT");
+  const deltas = expectedDeltas(plan);
+  invariant(canonicalJson(deltas.logical_field_deltas) === canonicalJson({ offer_price_updates: 1, offer_stock_updates: 1, offer_shipping_updates: 0, offer_total_updates: 1, offer_url_updates: 0, mapping_url_updates: 0, last_checked_at_updates: 1 }), "COMBINED_REVIEW_DELTA_INVALID");
+  invariant(canonicalJson(deltas.row_count_deltas) === canonicalJson({ products: 0, product_variants: 0, retailer_products: 0, offers: 0, price_history: 1 }), "COMBINED_REVIEW_DELTA_INVALID");
+}
+function assertCommercialEvidence(review, plan, evaluation, boundPlanFingerprint) {
   const evidence = review.source_evidence || {};
   for (const field of ["workflow_run_id", "artifact_id", "artifact_digest", "contract_sha256", "report_sha256", "artifact_content_sha256", "source_fingerprint", "review_scope_fingerprint"]) invariant(evidence[field], "COMMERCIAL_SOURCE_EVIDENCE_MISSING");
   invariant(review.review_kind === "COMMERCIAL_CHANGE", "COMMERCIAL_REVIEW_KIND_INVALID");
@@ -113,6 +156,27 @@ function assertCommercialEvidence(review, plan, evaluation) {
   const semantic = buildSemanticSourceRows([SCOPES.find((scope) => scope.offer_id === String(review.offer_id))], [evaluation])[0];
   invariant(canonicalHash(semantic) === review.source_row_fingerprint, "SOURCE_FINGERPRINT_DRIFT");
   assertHardPriceReviewExecution(review, plan);
+  assertCombinedPriceStockReviewExecution(review, plan, evaluation, boundPlanFingerprint);
+}
+function assertApplyResult(applied, operation, offerId) {
+  const requiresPriceHistory = ["UPDATE_PRICE", "UPDATE_PRICE_AND_STOCK"].includes(operation);
+  invariant(String(applied?.offer_id) === String(offerId) && (requiresPriceHistory ? applied?.price_history_id != null : applied?.price_history_id == null), "APPLY_RESULT_SCOPE_DRIFT");
+}
+function assertPostflightResult(postflight, plan) {
+  const deltas = expectedDeltas(plan);
+  const logical = deltas.logical_field_deltas, rows = deltas.row_count_deltas;
+  invariant(postflight?.result === "PASS", "POSTFLIGHT_RESULT_INVALID");
+  invariant(Number(postflight.price_change_count) === logical.offer_price_updates, "POSTFLIGHT_PRICE_DRIFT");
+  invariant(Number(postflight.stock_change_count) === logical.offer_stock_updates, "POSTFLIGHT_STOCK_DRIFT");
+  invariant(Number(postflight.shipping_change_count) === logical.offer_shipping_updates, "POSTFLIGHT_SHIPPING_DRIFT");
+  invariant(Number(postflight.total_change_count) === logical.offer_total_updates, "POSTFLIGHT_TOTAL_DRIFT");
+  invariant(Number(postflight.offer_url_change_count) === logical.offer_url_updates && Number(postflight.mapping_url_change_count) === logical.mapping_url_updates, "POSTFLIGHT_URL_DRIFT");
+  invariant(Number(postflight.freshness_change_count) === logical.last_checked_at_updates, "POSTFLIGHT_FRESHNESS_DRIFT");
+  invariant(Number(postflight.price_history_delta) === rows.price_history, "POSTFLIGHT_PRICE_HISTORY_DRIFT");
+}
+function assertIdempotencyPrepared(fresh) {
+  const plan = fresh?.approved?.entry?.resolved_plan;
+  invariant(fresh?.approved && actionForPlan(fresh.approved.entry.resolved_plan) === "VERIFY_NO_CHANGE" && plan.offer?.action === "verify_no_change" && plan.price_history?.action === "noop", "IDEMPOTENCY_FAILED");
 }
 async function executeWithSeparatedCredentials(executor, approved, kind, env = process.env) {
   const controlCredential = env.SUPABASE_SERVICE_ROLE_KEY;
@@ -150,7 +214,7 @@ async function run(options, dependencies = {}) {
       invariant(approved.entry.plan_fingerprint === state.review.plan_fingerprint, "PLAN_FINGERPRINT_DRIFT");
       invariant(hash(plan.expected_state) === hash(state.review.before_state), "DATABASE_BEFORE_STATE_DRIFT");
       invariant(hash(plan.offer.values) === hash(state.review.proposed_state.offer || state.review.proposed_state), "PROPOSED_STATE_DRIFT");
-    } else assertCommercialEvidence(state.review, plan, evaluation);
+    } else assertCommercialEvidence(state.review, plan, evaluation, options.reviewPlanFingerprint);
 
     const baselinePath = path.join(OUT, `${options.executionRequestId}-baseline.json`), executionPath = path.join(OUT, `${options.executionRequestId}-execution.json`), postflightPath = path.join(OUT, `${options.executionRequestId}-postflight.json`);
     const baseline = await (dependencies.runPostflight || runPostflight)({ profile: "ebay-uk", mode: "baseline", baseline: null, execution: null, output: baselinePath }, dependencies);
@@ -159,13 +223,14 @@ async function run(options, dependencies = {}) {
     await checkpoint(client, options.executionRequestId, "EXECUTING", "REVALIDATION_PASSED", { run_id: String(process.env.GITHUB_RUN_ID), run_url: `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`, commit_sha: process.env.GITHUB_SHA, before_state_hash: baseline.evidence_hash });
     const applied = await executeWithSeparatedCredentials(dependencies.executePlan || executePlan, approved, WORKER_KIND, dependencies.env || process.env);
     databaseWrites = 1;
-    invariant(String(applied?.offer_id) === scope.offer_id && (operation === "UPDATE_PRICE" ? applied?.price_history_id != null : applied?.price_history_id == null), "APPLY_RESULT_SCOPE_DRIFT");
+    assertApplyResult(applied, operation, scope.offer_id);
     const reviewRows = SCOPES.filter((candidate) => candidate.offer_id !== scope.offer_id).map((candidate) => ({ offer_id: candidate.offer_id, review_type: "NOT_SELECTED_BY_EXECUTION_REQUEST" }));
     const execution = { result: "PASS_WITH_REVIEW", approved_mapping_count: 237, executable_plan_count: 1, executed_plan_count: 1, review_row_count: 236, blocked_row_count: 0, execution_offer_ids: [scope.offer_id], review_rows: reviewRows, full_capture_fingerprint: state.review.source_row_fingerprint, executable_source_fingerprint: state.review.source_row_fingerprint, review_scope_fingerprint: hash(reviewRows), source_row_fingerprints: [{ offer_id: scope.offer_id, semantic_fingerprint: state.review.source_row_fingerprint, scope: "EXECUTABLE" }], expected_deltas: expectedDeltas(plan) };
     fs.writeFileSync(executionPath, `${JSON.stringify(execution, null, 2)}\n`);
     const postflight = await (dependencies.runPostflight || runPostflight)({ profile: "ebay-uk", mode: "postflight", baseline: baselinePath, execution: executionPath, output: postflightPath }, dependencies);
+    assertPostflightResult(postflight, plan);
     const fresh = dependencies.idempotencyPrepared || await prepareScope(scope, dependencies.idempotencyEvaluation || await buildSource(scope, config, dependencies.fetchImpl || fetch, token), "dry-run", dependencies, `${Date.now()}-idempotency`);
-    invariant(fresh.approved && actionForPlan(fresh.approved.entry.resolved_plan) === "VERIFY_NO_CHANGE", "IDEMPOTENCY_FAILED");
+    assertIdempotencyPrepared(fresh);
     const evidence = { ...executionEvidence(state.review, approved, postflight, "PASS", baseline), fresh_capture_at: freshCaptureAt };
     await checkpoint(client, options.executionRequestId, "EXECUTED", "IDEMPOTENCY_PASSED", evidence);
     const report = { schema_version: 1, kind: WORKER_KIND, result: "PASS", execution_request_id: options.executionRequestId, review_item_ids: [options.reviewItemId], retailer: options.retailer, ...evidence };
@@ -179,4 +244,4 @@ async function run(options, dependencies = {}) {
 }
 
 if (require.main === module) run(parseArgs(process.argv.slice(2))).then((report) => console.log(JSON.stringify(report))).catch((error) => { console.error(error.message); process.exitCode = 1; });
-module.exports = { WORKER_KIND, assertCommercialEvidence, assertContext, assertDatabaseBeforeState, assertHardPriceReviewExecution, executeWithSeparatedCredentials, executionEvidence, expectedDeltas, hash, loadControlState, parseArgs, run, claimDispatched };
+module.exports = { WORKER_KIND, assertApplyResult, assertCombinedPriceStockReviewExecution, assertCommercialEvidence, assertContext, assertDatabaseBeforeState, assertHardPriceReviewExecution, assertIdempotencyPrepared, assertPostflightResult, executeWithSeparatedCredentials, executionEvidence, expectedDeltas, hash, loadControlState, parseArgs, run, claimDispatched };

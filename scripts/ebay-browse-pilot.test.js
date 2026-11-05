@@ -10,7 +10,7 @@ const { buildDiscoveryRows, buildItemRefreshInput, buildTitleLeadInput, currentO
 const { hash } = require("./lib/retailer-snapshot/fingerprints");
 const { CONFIRMATION: REFRESH_CONFIRMATION, SCOPES: REFRESH_SCOPES, SCOPE: REFRESH_SCOPE, actionForPlan: refreshActionForPlan, assertExecutionContext, buildSource: buildRefreshSource, classifyContinuity, initialImporterPlanTargetsExactScope, mappingUpdateIsSerializedNoop, parseArgs: parseRefreshArgs, partitionSourceFailures, rowFromEvaluation, run: runRefresh, validatePlan: validateRefreshPlan, validatePreparedArtifact } = require("./ebay-offer-refresh");
 const { approvalConfirmation, approvedFromEnv, bindSemanticEvidence, buildSemanticPlanRows, buildSemanticSourceRows, canonicalHash, fileSha256, loadAndVerifyContract, stableAffiliateUrl, verifyDatabaseBaseline, verifyFreshReport, writeDryRunContract } = require("./lib/ebay-artifact-bound-contract");
-const { assertCommercialEvidence, assertHardPriceReviewExecution, expectedDeltas: expectedEbayReviewDeltas, loadControlState: loadEbayControlState } = require("./automation-review-ebay-worker");
+const { assertApplyResult: assertEbayReviewApplyResult, assertCombinedPriceStockReviewExecution, assertCommercialEvidence, assertHardPriceReviewExecution, assertIdempotencyPrepared: assertEbayReviewIdempotency, assertPostflightResult: assertEbayReviewPostflight, expectedDeltas: expectedEbayReviewDeltas, loadControlState: loadEbayControlState } = require("./automation-review-ebay-worker");
 const { downloadAndVerify, writeBaselineDiagnostic } = require("./ebay-artifact-bound-verifier");
 const { CONFIRMATION: CANARY_CONFIRMATION, EXPECTED_SCOPE: CANARY_SCOPE, LIVE_EXPECTATIONS: CANARY_LIVE, parseArgs: parseCanaryArgs, validateLiveSources, validateRollout } = require("./ebay-offer-canary-executor");
 const { CONFIRMATION: BATCH_H_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_H_IDENTITIES, parseArgs: parseBatchHArgs, validateRollout: validateBatchHRollout } = require("./ebay-offer-batch-h-executor");
@@ -1094,6 +1094,89 @@ test("owner-approved hard-price execution remains bound to exact review, source,
   const belowThresholdReview = { ...review, source_price: "70.00", before_state: { ...review.before_state, price: "80.00", total_price: "80.00" }, proposed_state: { offer: belowThresholdAfter } };
   assert.throws(() => assertHardPriceReviewExecution(belowThresholdReview, belowThresholdPlan), /HARD_PRICE_REVIEW_THRESHOLD_MISMATCH/);
   assert.throws(() => assertCommercialEvidence(review, plan, { ...evaluation, item_price: { value: 128, currency: "GBP" }, delivered_price: { value: 128, currency: "GBP" } }), /SOURCE_FINGERPRINT_DRIFT/);
+});
+
+test("owner-approved combined eBay decision binds one atomic price-and-stock transition end to end", () => {
+  for (const fixtureOfferId of ["2749", "2769", "2774"]) {
+    const fixtureScope = REFRESH_SCOPES.find((candidate) => candidate.offer_id === fixtureOfferId);
+    assert.ok(fixtureScope);
+    const fixturePlan = { offer: { action: "update", values: { price: "19.50", shipping_cost: "0.00", total_price: "19.50", in_stock: true, url: fixtureScope.affiliate_url } }, price_history: { action: "create" }, expected_state: { offer: { price: "21.00", shipping_cost: "0.00", total_price: "21.00", in_stock: false, url: fixtureScope.affiliate_url } } };
+    assert.equal(refreshActionForPlan(fixturePlan), "UPDATE_PRICE_AND_STOCK");
+    assert.equal(expectedEbayReviewDeltas(fixturePlan).logical_field_deltas.offer_price_updates, 1);
+    assert.equal(expectedEbayReviewDeltas(fixturePlan).logical_field_deltas.offer_stock_updates, 1);
+  }
+  const scope = REFRESH_SCOPES.find((candidate) => candidate.offer_id === "2749");
+  assert.ok(scope);
+  const evaluation = {
+    item_id: scope.external_variant_id,
+    legacy_item_id: scope.external_product_id,
+    returned_gtin: scope.gtin,
+    decision: "AUTO_ELIGIBLE",
+    blockers: [],
+    review_reasons: [],
+    continuity: { eligible: true, tier: "live_exact_gtin" },
+    seller: { username: "exact-business-seller", account_type: "BUSINESS" },
+    affiliate_ready: true,
+    affiliate_url: scope.affiliate_url,
+    item_price: { value: 19.5, currency: "GBP" },
+    uk_shipping: { value: 0, currency: "GBP" },
+    delivered_price: { value: 19.5, currency: "GBP" },
+  };
+  const mapping = { id: scope.retailer_product_id, retailer_id: scope.retailer_id, product_id: scope.product_id, product_variant_id: scope.product_variant_id, external_product_id: scope.external_product_id, external_variant_id: scope.external_variant_id, external_url: scope.external_url };
+  const before = { id: scope.offer_id, retailer_product_id: scope.retailer_product_id, product_id: scope.product_id, product_variant_id: scope.product_variant_id, price: "21.00", shipping_cost: "0.00", total_price: "21.00", in_stock: false, url: scope.affiliate_url };
+  const proposed = { price: "19.50", shipping_cost: "0.00", total_price: "19.50", in_stock: true, url: scope.affiliate_url };
+  const plan = {
+    product: { action: "existing", id: scope.product_id }, product_variant: { action: "existing", id: scope.product_variant_id },
+    retailer: { action: "existing", id: scope.retailer_id }, retailer_product: { action: "noop", id: scope.retailer_product_id },
+    offer: { action: "update", id: scope.offer_id, values: proposed }, price_history: { action: "create" },
+    expected_state: { offer: before, retailer_product: mapping },
+  };
+  const sourceRow = buildSemanticSourceRows([scope], [evaluation])[0];
+  const review = {
+    retailer_id: scope.retailer_id, offer_id: scope.offer_id, retailer_product_id: scope.retailer_product_id,
+    current_product_id: scope.product_id, current_variant_id: scope.product_variant_id,
+    review_kind: "COMMERCIAL_CHANGE", operation_type: "UPDATE_PRICE_AND_STOCK", reason_codes: "PRICE_AND_STOCK_CHANGE",
+    source_price: "19.50", source_row_fingerprint: canonicalHash(sourceRow), plan_fingerprint: "c".repeat(64),
+    before_state: { offer_id: scope.offer_id, retailer_product_id: scope.retailer_product_id, product_id: scope.product_id, product_variant_id: scope.product_variant_id, price: before.price, shipping_cost: before.shipping_cost, total_price: before.total_price, in_stock: before.in_stock, url: before.url, external_url: scope.external_url, external_product_id: scope.external_product_id, external_variant_id: scope.external_variant_id },
+    proposed_state: { offer: proposed },
+    source_evidence: Object.fromEntries(["workflow_run_id", "artifact_id", "artifact_digest", "contract_sha256", "report_sha256", "artifact_content_sha256", "source_fingerprint", "review_scope_fingerprint"].map((field) => [field, field])),
+  };
+  assert.deepEqual(expectedEbayReviewDeltas(plan), {
+    logical_field_deltas: { offer_price_updates: 1, offer_stock_updates: 1, offer_shipping_updates: 0, offer_total_updates: 1, offer_url_updates: 0, mapping_url_updates: 0, last_checked_at_updates: 1 },
+    row_count_deltas: { products: 0, product_variants: 0, retailer_products: 0, offers: 0, price_history: 1 },
+  });
+  assert.doesNotThrow(() => assertCombinedPriceStockReviewExecution(review, plan, evaluation, review.plan_fingerprint));
+  assert.doesNotThrow(() => assertCommercialEvidence(review, plan, evaluation, review.plan_fingerprint));
+  assert.throws(() => assertCombinedPriceStockReviewExecution(review, plan, evaluation, "d".repeat(64)), /COMBINED_REVIEW_PLAN_FINGERPRINT_DRIFT/);
+  assert.throws(() => assertCombinedPriceStockReviewExecution({ ...review, reason_codes: "PRICE_CHANGE" }, plan, evaluation, review.plan_fingerprint), /COMBINED_REVIEW_OPERATION_INVALID/);
+  assert.throws(() => assertCombinedPriceStockReviewExecution({ ...review, current_variant_id: "wrong-variant" }, plan, evaluation, review.plan_fingerprint), /COMBINED_REVIEW_IDENTITY_DRIFT/);
+  assert.throws(() => assertCombinedPriceStockReviewExecution({ ...review, before_state: { ...review.before_state, price: "20.00" } }, plan, evaluation, review.plan_fingerprint), /COMBINED_REVIEW_BEFORE_STATE_DRIFT/);
+  assert.throws(() => assertCombinedPriceStockReviewExecution({ ...review, proposed_state: { offer: { ...proposed, in_stock: false } } }, plan, evaluation, review.plan_fingerprint), /COMBINED_REVIEW_PROPOSED_STATE_DRIFT/);
+  assert.throws(() => assertCombinedPriceStockReviewExecution(review, { ...plan, price_history: { action: "noop" } }, evaluation, review.plan_fingerprint), /COMBINED_REVIEW_OPERATION_INVALID/);
+  const shippingProposed = { ...proposed, shipping_cost: "1.00", total_price: "20.50" };
+  assert.throws(() => assertCombinedPriceStockReviewExecution({ ...review, proposed_state: { offer: shippingProposed } }, { ...plan, offer: { ...plan.offer, values: shippingProposed } }, evaluation, review.plan_fingerprint), /COMBINED_REVIEW_EXTRA_COMMERCIAL_CHANGE/);
+  const urlProposed = { ...proposed, url: "https://example.test/unreviewed-url" };
+  assert.throws(() => assertCombinedPriceStockReviewExecution({ ...review, proposed_state: { offer: urlProposed } }, { ...plan, offer: { ...plan.offer, values: urlProposed } }, evaluation, review.plan_fingerprint), /COMBINED_REVIEW_EXTRA_COMMERCIAL_CHANGE/);
+  const priceOnlyBefore = { ...before, in_stock: true };
+  assert.throws(() => assertCombinedPriceStockReviewExecution({ ...review, before_state: { ...review.before_state, in_stock: true } }, { ...plan, expected_state: { ...plan.expected_state, offer: priceOnlyBefore } }, evaluation, review.plan_fingerprint), /COMBINED_REVIEW_DELTA_INVALID/);
+  const stockOnlyBefore = { ...before, price: proposed.price, total_price: proposed.total_price };
+  assert.throws(() => assertCombinedPriceStockReviewExecution({ ...review, before_state: { ...review.before_state, price: proposed.price, total_price: proposed.total_price } }, { ...plan, expected_state: { ...plan.expected_state, offer: stockOnlyBefore } }, evaluation, review.plan_fingerprint), /COMBINED_REVIEW_DELTA_INVALID/);
+  assert.throws(() => assertCombinedPriceStockReviewExecution(review, plan, { ...evaluation, item_price: { value: 19.49, currency: "GBP" } }, review.plan_fingerprint), /COMBINED_REVIEW_SOURCE_DRIFT/);
+
+  assert.doesNotThrow(() => assertEbayReviewApplyResult({ offer_id: scope.offer_id, price_history_id: "991" }, "UPDATE_PRICE_AND_STOCK", scope.offer_id));
+  assert.throws(() => assertEbayReviewApplyResult({ offer_id: scope.offer_id, price_history_id: null }, "UPDATE_PRICE_AND_STOCK", scope.offer_id), /APPLY_RESULT_SCOPE_DRIFT/);
+  assert.doesNotThrow(() => assertEbayReviewApplyResult({ offer_id: scope.offer_id, price_history_id: "992" }, "UPDATE_PRICE", scope.offer_id));
+  assert.doesNotThrow(() => assertEbayReviewApplyResult({ offer_id: scope.offer_id, price_history_id: null }, "UPDATE_STOCK", scope.offer_id));
+  assert.doesNotThrow(() => assertEbayReviewApplyResult({ offer_id: scope.offer_id, price_history_id: null }, "VERIFY_NO_CHANGE", scope.offer_id));
+  const postflight = { result: "PASS", price_change_count: 1, stock_change_count: 1, shipping_change_count: 0, total_change_count: 1, offer_url_change_count: 0, mapping_url_change_count: 0, freshness_change_count: 1, price_history_delta: 1 };
+  assert.doesNotThrow(() => assertEbayReviewPostflight(postflight, plan));
+  assert.throws(() => assertEbayReviewPostflight({ ...postflight, stock_change_count: 0 }, plan), /POSTFLIGHT_STOCK_DRIFT/);
+  const noChangePlan = { offer: { action: "verify_no_change", values: proposed }, price_history: { action: "noop" }, expected_state: { offer: proposed } };
+  assert.doesNotThrow(() => assertEbayReviewIdempotency({ approved: { entry: { resolved_plan: noChangePlan } } }));
+  assert.throws(() => assertEbayReviewIdempotency({ approved: { entry: { resolved_plan: plan } } }), /IDEMPOTENCY_FAILED/);
+
+  const workerSource = fs.readFileSync(path.join(process.cwd(), "scripts", "automation-review-ebay-worker.js"), "utf8");
+  assert.doesNotMatch(workerSource, /\b(?:2749|2769|2774)\b/);
 });
 
 test("unapproved eBay hard-price review cannot reach the executor", async () => {

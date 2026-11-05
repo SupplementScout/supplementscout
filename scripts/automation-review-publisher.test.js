@@ -189,19 +189,26 @@ test("canonical Review Queue reason contract includes hard-price anomalies and t
   assert.equal(plan.counts.catalogue_writes, 0);
 });
 
-test("eBay adapter accepts hard-price anomalies only on the existing price-update path", () => {
+test("eBay adapter binds each commercial reason to exactly one protected operation", () => {
   const { REVIEW_EXECUTION_ADAPTERS } = require("./lib/automation-review-adapter-registry");
   const { resolveReviewAdapter } = loadReviewAdapters();
   const ebay = REVIEW_EXECUTION_ADAPTERS.find((adapter) => adapter.retailerSlug === "ebay-uk");
-  assert.deepEqual(ebay.operations, ["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK"]);
+  assert.deepEqual(ebay.operations, ["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK", "UPDATE_PRICE_AND_STOCK"]);
   assert.deepEqual(ebay.operationReasonCodes.UPDATE_PRICE, ["PRICE_CHANGE", "HARD_PRICE_ANOMALY"]);
   assert.deepEqual(ebay.operationReasonCodes.UPDATE_STOCK, ["STOCK_CHANGE"]);
+  assert.deepEqual(ebay.operationReasonCodes.UPDATE_PRICE_AND_STOCK, ["PRICE_AND_STOCK_CHANGE"]);
   assert.equal(resolveReviewAdapter("12", "UPDATE_PRICE", "HARD_PRICE_ANOMALY").adapter?.retailerSlug, "ebay-uk");
   assert.equal(resolveReviewAdapter("12", "UPDATE_PRICE", "PRICE_CHANGE").adapter?.retailerSlug, "ebay-uk");
   assert.equal(resolveReviewAdapter("12", "UPDATE_STOCK", "STOCK_CHANGE").adapter?.retailerSlug, "ebay-uk");
+  assert.equal(resolveReviewAdapter("12", "UPDATE_PRICE_AND_STOCK", "PRICE_AND_STOCK_CHANGE").adapter?.retailerSlug, "ebay-uk");
   assert.equal(resolveReviewAdapter("12", "UPDATE_STOCK", "HARD_PRICE_ANOMALY").adapter, null);
   assert.equal(resolveReviewAdapter("12", "UPDATE_PRICE_AND_STOCK", "HARD_PRICE_ANOMALY").adapter, null);
+  assert.equal(resolveReviewAdapter("12", "UPDATE_PRICE", "PRICE_AND_STOCK_CHANGE").adapter, null);
+  assert.equal(resolveReviewAdapter("12", "UPDATE_STOCK", "PRICE_AND_STOCK_CHANGE").adapter, null);
+  assert.equal(resolveReviewAdapter("12", "UPDATE_PRICE_AND_STOCK", "UNKNOWN_REASON").adapter, null);
   assert.equal(resolveReviewAdapter("12", "REBIND_EXISTING_VARIANT", "HARD_PRICE_ANOMALY").adapter, null);
+  const capabilityMatrix = fs.readFileSync(path.join(process.cwd(), "app", "lib", "automationReviewCapabilityMatrix.ts"), "utf8");
+  assert.match(capabilityMatrix, /UPDATE_PRICE_AND_STOCK: registeredExecution\("12", "UPDATE_PRICE_AND_STOCK"/);
 });
 
 test("failed-batch-shaped hard-price row crosses producer, publisher, adapter and worker contracts without writes", () => {

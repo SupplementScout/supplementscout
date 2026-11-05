@@ -220,10 +220,10 @@ function operationForReview(review, semantic) {
 }
 
 function proposedStateForReview(review, artifact) {
-  if (review.reason !== "HARD_PRICE_ANOMALY") return {};
+  if (!["UPDATE_PRICE", "UPDATE_STOCK", "UPDATE_PRICE_AND_STOCK"].includes(review.action)) return {};
   const plan = artifact?.plans?.[0]?.resolved_plan;
   const values = plan?.offer?.values;
-  if (review.action !== "UPDATE_PRICE" || !values) fail(`Missing exact proposed state for hard-price review offer ${review.offer_id}`);
+  if (!values) fail(`Missing exact proposed state for commercial review offer ${review.offer_id}`);
   return {
     offer: {
       price: String(values.price),
@@ -595,6 +595,7 @@ module.exports = {
   fetchBaseline,
   operationForReview,
   parseArgs,
+  proposedStateForReview,
   run,
   verifySourceArtifact,
 };

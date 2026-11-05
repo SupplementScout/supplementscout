@@ -45,6 +45,7 @@ export const AUTOMATION_REVIEW_CAPABILITY_MATRIX: readonly RetailerCapabilityRow
       VERIFY_NO_CHANGE: registeredExecution("12", "VERIFY_NO_CHANGE", "Single-row immutable Review Queue freshness execution is registered and artifact-bound."),
       UPDATE_PRICE: registeredExecution("12", "UPDATE_PRICE", "Single-row owner-approved eBay price execution revalidates immutable source evidence and database state."),
       UPDATE_STOCK: registeredExecution("12", "UPDATE_STOCK", "Single-row owner-approved eBay stock execution revalidates immutable source evidence and database state."),
+      UPDATE_PRICE_AND_STOCK: registeredExecution("12", "UPDATE_PRICE_AND_STOCK", "Single-row owner-approved eBay combined price-and-stock execution revalidates one immutable decision and applies it atomically."),
       IDENTITY_PROMOTION: REVIEW_ONLY("eBay identity conflicts stay in review; offer 2686 remains review-only."),
       REBIND_EXISTING_VARIANT: REVIEW_ONLY("eBay rebinds stay in review; no identity apply is authorized by the adapter."),
     },
