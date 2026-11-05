@@ -5,6 +5,7 @@ const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
 const {
+  assertCommercialProposedState,
   buildManifestRows,
   buildOutput,
   currentReviewStateRows,
@@ -40,6 +41,36 @@ test("eBay reconciliation publishes the exact final state for every commercial r
   }
   assert.deepEqual(proposedStateForReview({ offer_id: "test-offer", action: "IDENTITY_CONFLICT" }, artifact), {});
   assert.throws(() => proposedStateForReview({ offer_id: "test-offer", action: "UPDATE_PRICE_AND_STOCK" }, { plans: [] }), /Missing exact proposed state for commercial review/);
+});
+
+test("commercial reconciliation compares affiliate destinations semantically and preserves the protected plan URL", () => {
+  const planUrl = "https://www.ebay.co.uk:444/itm/generic-listing?campid=1&mkevt=1&tag=alpha&tag=beta";
+  const proposedState = { offer: { price: "19.50", shipping_cost: "0.00", total_price: "19.50", in_stock: true, url: planUrl } };
+  const semantic = {
+    price: "19.50",
+    shipping: "0.00",
+    total: "19.50",
+    affiliate_ready: true,
+    affiliate_url_returned: "https://www.ebay.co.uk:444/itm/generic-listing?tag=alpha&mkevt=1&amdata=technical&campid=1&tag=beta",
+  };
+
+  for (const operation of ["UPDATE_PRICE", "HARD_PRICE_ANOMALY", "UPDATE_PRICE_AND_STOCK"]) {
+    assert.doesNotThrow(() => assertCommercialProposedState(semantic, proposedState, operation));
+  }
+  assert.equal(proposedState.offer.url, planUrl);
+
+  for (const changedUrl of [
+    "https://www.example.test:444/itm/generic-listing?campid=1&mkevt=1&tag=alpha&tag=beta",
+    "https://www.ebay.co.uk:444/itm/other-listing?campid=1&mkevt=1&tag=alpha&tag=beta",
+    "https://www.ebay.co.uk:444/itm/generic-listing?campid=2&mkevt=1&tag=alpha&tag=beta",
+    "https://www.ebay.co.uk:444/itm/generic-listing?campid=1&mkevt=1&tag=alpha",
+    "https://www.ebay.co.uk:444/itm/generic-listing?campid=1&mkevt=1&tag=alpha&tag=beta&extra=1",
+    "http://www.ebay.co.uk:444/itm/generic-listing?campid=1&mkevt=1&tag=alpha&tag=beta",
+    "https://www.ebay.co.uk:445/itm/generic-listing?campid=1&mkevt=1&tag=alpha&tag=beta",
+  ]) {
+    assert.throws(() => assertCommercialProposedState({ ...semantic, affiliate_url_returned: changedUrl }, proposedState, "generic-offer"), /proposed_state mismatch.*stock\/url/);
+  }
+  assert.throws(() => assertCommercialProposedState({ ...semantic, affiliate_url_returned: "not a url" }, proposedState, "generic-offer"), /proposed_state mismatch.*stock\/url/);
 });
 
 function sourceOptions(directory, extra = {}) {
@@ -160,7 +191,7 @@ function semantic(offerId, mappingId, extra = {}) {
     shipping: extra.price == null ? null : "0.00",
     total: extra.price,
     affiliate_ready: true,
-    affiliate_url_returned: `https://www.ebay.co.uk/itm/external-${offerId}?var=variant&mkevt=1`,
+    affiliate_url_returned: `https://www.ebay.co.uk/itm/external-${offerId}?mkevt=1&var=variant`,
   };
 }
 
@@ -370,9 +401,9 @@ test("hard-price anomaly publishes one pending commercial review with exact befo
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "ebay-hard-price-review-"));
   t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
   const offerId = "2560", mappingId = "2745";
-  const proposed = { price: "129.00", shipping_cost: "0.00", total_price: "129.00", in_stock: true, url: "https://www.ebay.co.uk/itm/2560?mkevt=1" };
+  const proposed = { price: "129.00", shipping_cost: "0.00", total_price: "129.00", in_stock: true, url: "https://www.ebay.co.uk/itm/generic-hard-price?campid=1&mkevt=1" };
   const semanticRow = semantic(offerId, mappingId, { decision: "REVIEW", price: "129.00", review_reasons: ["RETURNED_GTIN_UNPROVEN"] });
-  semanticRow.affiliate_url_returned = proposed.url;
+  semanticRow.affiliate_url_returned = "https://www.ebay.co.uk/itm/generic-hard-price?mkevt=1&campid=1";
   const before = { offer_id: offerId, retailer_product_id: mappingId, product_id: semanticRow.product_id, product_variant_id: semanticRow.product_variant_id, price: "149.00", shipping_cost: "0.00", total_price: "149.00", in_stock: true, url: proposed.url, external_url: semanticRow.external_url, external_product_id: semanticRow.external_product_id, external_variant_id: semanticRow.external_variant_id };
   writeJson(path.join(directory, `artifact-${offerId}-2026-10-28.json`), { plans: [{ resolved_plan: {
     offer: { action: "update", id: offerId, values: proposed },
@@ -415,8 +446,8 @@ test("same semantic combined problem refreshes from exact DB/plan baseline and p
   t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
   const offerId = "99002", mappingId = "88002", fingerprint = "8".repeat(64), planFingerprint = "9".repeat(64);
   const semanticRow = semantic(offerId, mappingId, { decision: "REVIEW", price: "11.00" });
-  semanticRow.affiliate_url_returned = "https://example.test/offer-99002";
-  const before = { offer_id: offerId, retailer_product_id: mappingId, product_id: semanticRow.product_id, product_variant_id: semanticRow.product_variant_id, price: "10.00", shipping_cost: "0.00", total_price: "10.00", in_stock: false, url: semanticRow.affiliate_url_returned, external_url: semanticRow.external_url, external_product_id: semanticRow.external_product_id, external_variant_id: semanticRow.external_variant_id };
+  semanticRow.affiliate_url_returned = "https://example.test/generic-combined?mkevt=1&campid=1";
+  const before = { offer_id: offerId, retailer_product_id: mappingId, product_id: semanticRow.product_id, product_variant_id: semanticRow.product_variant_id, price: "10.00", shipping_cost: "0.00", total_price: "10.00", in_stock: false, url: "https://example.test/generic-combined?campid=1&mkevt=1", external_url: semanticRow.external_url, external_product_id: semanticRow.external_product_id, external_variant_id: semanticRow.external_variant_id };
   const proposed = { price: "11.00", shipping_cost: "0.00", total_price: "11.00", in_stock: true, url: before.url };
   const plan = {
     product: { action: "existing", id: semanticRow.product_id },

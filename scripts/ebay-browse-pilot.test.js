@@ -10,7 +10,7 @@ const { buildDiscoveryRows, buildItemRefreshInput, buildTitleLeadInput, currentO
 const { hash } = require("./lib/retailer-snapshot/fingerprints");
 const { CONFIRMATION: REFRESH_CONFIRMATION, SCOPES: REFRESH_SCOPES, SCOPE: REFRESH_SCOPE, actionForPlan: refreshActionForPlan, assertExecutionContext, buildSource: buildRefreshSource, classifyContinuity, initialImporterPlanTargetsExactScope, mappingUpdateIsSerializedNoop, parseArgs: parseRefreshArgs, partitionSourceFailures, rowFromEvaluation, run: runRefresh, validatePlan: validateRefreshPlan, validatePreparedArtifact } = require("./ebay-offer-refresh");
 const { approvalConfirmation, approvedFromEnv, bindSemanticEvidence, buildSemanticPlanRows, buildSemanticSourceRows, canonicalHash, fileSha256, loadAndVerifyContract, stableAffiliateUrl, verifyDatabaseBaseline, verifyFreshReport, writeDryRunContract } = require("./lib/ebay-artifact-bound-contract");
-const { assertApplyResult: assertEbayReviewApplyResult, assertCombinedPriceStockReviewExecution, assertCommercialEvidence, assertHardPriceReviewExecution, assertIdempotencyPrepared: assertEbayReviewIdempotency, assertPostflightResult: assertEbayReviewPostflight, expectedDeltas: expectedEbayReviewDeltas, loadControlState: loadEbayControlState } = require("./automation-review-ebay-worker");
+const { assertApplyResult: assertEbayReviewApplyResult, assertCombinedPriceStockReviewExecution, assertCommercialEvidence, assertDatabaseBeforeState: assertEbayDatabaseBeforeState, assertHardPriceReviewExecution, assertIdempotencyPrepared: assertEbayReviewIdempotency, assertPostflightResult: assertEbayReviewPostflight, expectedDeltas: expectedEbayReviewDeltas, loadControlState: loadEbayControlState } = require("./automation-review-ebay-worker");
 const { downloadAndVerify, writeBaselineDiagnostic } = require("./ebay-artifact-bound-verifier");
 const { CONFIRMATION: CANARY_CONFIRMATION, EXPECTED_SCOPE: CANARY_SCOPE, LIVE_EXPECTATIONS: CANARY_LIVE, parseArgs: parseCanaryArgs, validateLiveSources, validateRollout } = require("./ebay-offer-canary-executor");
 const { CONFIRMATION: BATCH_H_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_H_IDENTITIES, parseArgs: parseBatchHArgs, validateRollout: validateBatchHRollout } = require("./ebay-offer-batch-h-executor");
@@ -1179,6 +1179,49 @@ test("owner-approved combined eBay decision binds one atomic price-and-stock tra
   assert.doesNotMatch(workerSource, /\b(?:2749|2769|2774)\b/);
 });
 
+test("combined worker compares only the fresh affiliate destination semantically", () => {
+  const planUrl = "https://www.ebay.co.uk:444/itm/generic-worker?campid=1&mkevt=1&tag=alpha&tag=beta";
+  const before = { id: "offer-fixture", retailer_product_id: "mapping-fixture", product_id: "product-fixture", product_variant_id: "variant-fixture", price: "20.00", shipping_cost: "0.00", total_price: "20.00", in_stock: false, url: planUrl };
+  const proposed = { price: "19.00", shipping_cost: "0.00", total_price: "19.00", in_stock: true, url: planUrl };
+  const mapping = { id: "mapping-fixture", retailer_id: "12", product_id: "product-fixture", product_variant_id: "variant-fixture", external_product_id: "external-product", external_variant_id: "external-variant", external_url: "https://www.ebay.co.uk/itm/generic-worker" };
+  const plan = {
+    product: { action: "existing", id: "product-fixture" },
+    product_variant: { action: "existing", id: "variant-fixture" },
+    retailer: { action: "existing", id: "12" },
+    retailer_product: { action: "noop", id: "mapping-fixture" },
+    offer: { action: "update", id: "offer-fixture", values: proposed },
+    price_history: { action: "create" },
+    expected_state: { offer: before, retailer_product: mapping },
+  };
+  const review = {
+    retailer_id: "12", offer_id: "offer-fixture", retailer_product_id: "mapping-fixture",
+    current_product_id: "product-fixture", current_variant_id: "variant-fixture",
+    review_kind: "COMMERCIAL_CHANGE", operation_type: "UPDATE_PRICE_AND_STOCK", reason_codes: "PRICE_AND_STOCK_CHANGE",
+    source_row_fingerprint: "a".repeat(64), plan_fingerprint: "b".repeat(64),
+    before_state: { offer_id: "offer-fixture", retailer_product_id: "mapping-fixture", product_id: "product-fixture", product_variant_id: "variant-fixture", price: "20.00", shipping_cost: "0.00", total_price: "20.00", in_stock: false, url: planUrl, external_url: mapping.external_url, external_product_id: mapping.external_product_id, external_variant_id: mapping.external_variant_id },
+    proposed_state: { offer: proposed },
+  };
+  const evaluation = {
+    item_price: { value: 19 }, uk_shipping: { value: 0 }, delivered_price: { value: 19 },
+    affiliate_url: "https://www.ebay.co.uk:444/itm/generic-worker?tag=alpha&mkevt=1&amdata=technical&campid=1&tag=beta",
+  };
+
+  assert.doesNotThrow(() => assertCombinedPriceStockReviewExecution(review, plan, evaluation, review.plan_fingerprint));
+  assert.throws(() => assertCombinedPriceStockReviewExecution(review, plan, { ...evaluation, affiliate_url: "https://example.test:444/itm/generic-worker?campid=1&mkevt=1&tag=alpha&tag=beta" }, review.plan_fingerprint), /COMBINED_REVIEW_SOURCE_DRIFT/);
+  assert.throws(() => assertCombinedPriceStockReviewExecution(review, plan, { ...evaluation, affiliate_url: "https://www.ebay.co.uk:444/itm/generic-worker?campid=2&mkevt=1&tag=alpha&tag=beta" }, review.plan_fingerprint), /COMBINED_REVIEW_SOURCE_DRIFT/);
+  assert.throws(() => assertCombinedPriceStockReviewExecution({ ...review, proposed_state: { offer: { ...proposed, url: evaluation.affiliate_url } } }, plan, evaluation, review.plan_fingerprint), /COMBINED_REVIEW_PROPOSED_STATE_DRIFT/);
+
+  const workerSource = fs.readFileSync(path.join(process.cwd(), "scripts", "automation-review-ebay-worker.js"), "utf8");
+  assert.match(workerSource, /stableAffiliateUrl\(evaluation\.affiliate_url\)\s*===\s*stableAffiliateUrl\(after\.url\)/);
+  assert.doesNotMatch(workerSource, /function\s+stableAffiliateUrl\s*\(/);
+});
+
+test("worker DB/protected-plan offer URL baseline remains exact", () => {
+  const expected = { price: "19.00", shipping_cost: "0.00", total_price: "19.00", in_stock: true, url: "https://www.ebay.co.uk/itm/generic-worker?campid=1&mkevt=1", last_checked_at: "2026-11-05T08:00:00.000Z" };
+  assert.doesNotThrow(() => assertEbayDatabaseBeforeState({ ...expected }, expected));
+  assert.throws(() => assertEbayDatabaseBeforeState({ ...expected, url: "https://www.ebay.co.uk/itm/generic-worker?mkevt=1&campid=1" }, expected), /DATABASE_BEFORE_STATE_DRIFT_URL/);
+});
+
 test("unapproved eBay hard-price review cannot reach the executor", async () => {
   const fingerprint = "a".repeat(64), planFingerprint = "b".repeat(64), requestId = "11111111-1111-4111-8111-111111111111";
   const review = { id: "77", retailer_id: "12", retailer_product_id: "2745", offer_id: "2560", review_status: "PENDING", review_kind: "COMMERCIAL_CHANGE", operation_type: "UPDATE_PRICE", reason_codes: "HARD_PRICE_ANOMALY", source_row_fingerprint: fingerprint, plan_fingerprint: planFingerprint, source_captured_at: "2026-10-28T05:43:00.000Z", expires_at: "2099-10-28T05:43:00.000Z", decision_actor: "authenticated-admin", decision_at: "2026-10-28T06:00:00.000Z", before_state: { price: "149.00" }, proposed_state: { offer: { price: "129.00" } } };
@@ -1311,6 +1354,28 @@ test("eBay dry-run contract verifies exact file, report, manifest and semantic h
   assert.equal(fileSha256(path.join(fixture.directory, "production-dry-run-contract.json")), fixture.emitted.manifestSha256);
   assert.equal(fixture.emitted.manifest.source_row_fingerprints.length, 237);
   assert.equal(fixture.emitted.manifest.plan_row_fingerprints.length, 197);
+});
+
+test("stable affiliate URL contract ignores only ordering and amdata while preserving destination meaning", () => {
+  const canonical = "https://www.ebay.co.uk:444/itm/generic-listing?campid=1&mkevt=1&tag=alpha&tag=beta";
+  const reordered = "https://www.ebay.co.uk:444/itm/generic-listing?tag=alpha&mkevt=1&amdata=technical&campid=1&tag=beta";
+  assert.equal(stableAffiliateUrl(reordered), stableAffiliateUrl(canonical));
+
+  for (const changed of [
+    "https://example.test:444/itm/generic-listing?campid=1&mkevt=1&tag=alpha&tag=beta",
+    "https://www.ebay.co.uk:444/itm/other-listing?campid=1&mkevt=1&tag=alpha&tag=beta",
+    "https://www.ebay.co.uk:444/itm/generic-listing?campid=2&mkevt=1&tag=alpha&tag=beta",
+    "https://www.ebay.co.uk:444/itm/generic-listing?campid=1&mkevt=1&tag=alpha",
+    "https://www.ebay.co.uk:444/itm/generic-listing?campid=1&mkevt=1&tag=alpha&tag=beta&extra=1",
+    "http://www.ebay.co.uk:444/itm/generic-listing?campid=1&mkevt=1&tag=alpha&tag=beta",
+    "https://www.ebay.co.uk:445/itm/generic-listing?campid=1&mkevt=1&tag=alpha&tag=beta",
+    "https://www.ebay.co.uk:444/itm/generic-listing?campid=1&mkevt=1&tag=beta&tag=alpha",
+  ]) {
+    assert.notEqual(stableAffiliateUrl(changed), stableAffiliateUrl(canonical));
+  }
+
+  assert.equal(stableAffiliateUrl("not a url"), "not a url");
+  assert.notEqual(stableAffiliateUrl("not a url"), stableAffiliateUrl("another invalid url"));
 });
 
 test("eBay semantic fingerprints exclude freshness time, row/key order, affiliate amdata and decimal noise", () => {

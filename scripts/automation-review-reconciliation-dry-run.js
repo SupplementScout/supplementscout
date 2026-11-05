@@ -10,6 +10,7 @@ const {
 } = require("./lib/automation-review-publisher");
 const { bindDurableArtifactContract } = require("./lib/sealed-artifacts");
 const { normalizeDecimalString } = require("./lib/canonical-json");
+const { stableAffiliateUrl } = require("./lib/ebay-artifact-bound-contract");
 const {
   extractZip,
   githubJson,
@@ -300,7 +301,9 @@ function assertCommercialProposedState(semantic, proposedState, offerId) {
       fail(`Source/protected-plan proposed_state mismatch for commercial review offer ${offerId}: ${proposedField}`);
     }
   }
-  if (proposed.in_stock !== true || nullableText(semantic.affiliate_url_returned || semantic.affiliate_url) !== nullableText(proposed.url)) fail(`Source/protected-plan proposed_state mismatch for commercial review offer ${offerId}: stock/url`);
+  const sourceAffiliateUrl = stableAffiliateUrl(semantic.affiliate_url_returned || semantic.affiliate_url);
+  const proposedAffiliateUrl = stableAffiliateUrl(proposed.url);
+  if (proposed.in_stock !== true || sourceAffiliateUrl !== proposedAffiliateUrl) fail(`Source/protected-plan proposed_state mismatch for commercial review offer ${offerId}: stock/url`);
 }
 
 function buildManifestRows(source, activeRows, currentStateRows = []) {
