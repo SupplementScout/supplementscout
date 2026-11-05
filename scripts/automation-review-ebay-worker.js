@@ -103,7 +103,7 @@ function assertHardPriceReviewExecution(review, plan) {
   const absolute = Math.abs(newPrice - oldPrice), ratio = absolute / oldPrice;
   invariant(Number.isFinite(oldPrice) && oldPrice > 0 && Number.isFinite(newPrice) && newPrice > 0 && Number.isFinite(shipping) && shipping >= 0 && Number.isFinite(total) && Math.abs(newPrice + shipping - total) <= 0.011, "HARD_PRICE_REVIEW_PRICE_INVALID");
   invariant(ratio >= 0.60 || absolute >= 20, "HARD_PRICE_REVIEW_THRESHOLD_MISMATCH");
-  invariant(String(review.source_price) === newPrice.toFixed(2), "APPROVED_PRICE_DRIFT");
+  invariant(normalizeDecimalString(review.source_price, "review.source_price") === normalizeDecimalString(after.price, "plan.proposed.price"), "APPROVED_PRICE_DRIFT");
 }
 function assertCombinedPriceStockReviewExecution(review, plan, evaluation, boundPlanFingerprint) {
   if (review.operation_type !== "UPDATE_PRICE_AND_STOCK") return;
@@ -152,7 +152,7 @@ function assertCommercialEvidence(review, plan, evaluation, boundPlanFingerprint
   const evidence = review.source_evidence || {};
   for (const field of ["workflow_run_id", "artifact_id", "artifact_digest", "contract_sha256", "report_sha256", "artifact_content_sha256", "source_fingerprint", "review_scope_fingerprint"]) invariant(evidence[field], "COMMERCIAL_SOURCE_EVIDENCE_MISSING");
   invariant(review.review_kind === "COMMERCIAL_CHANGE", "COMMERCIAL_REVIEW_KIND_INVALID");
-  invariant(String(review.source_price) === Number(plan.offer.values.price).toFixed(2), "APPROVED_PRICE_DRIFT");
+  invariant(normalizeDecimalString(review.source_price, "review.source_price") === normalizeDecimalString(plan.offer.values.price, "plan.proposed.price"), "APPROVED_PRICE_DRIFT");
   const semantic = buildSemanticSourceRows([SCOPES.find((scope) => scope.offer_id === String(review.offer_id))], [evaluation])[0];
   invariant(canonicalHash(semantic) === review.source_row_fingerprint, "SOURCE_FINGERPRINT_DRIFT");
   assertHardPriceReviewExecution(review, plan);
