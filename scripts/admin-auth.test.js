@@ -1089,7 +1089,7 @@ test("automation review adapter registry is exact, single-row and default-deny",
   const { REVIEW_EXECUTION_ADAPTERS } = require("./lib/automation-review-adapter-registry");
   assert.equal(REVIEW_EXECUTION_ADAPTERS.length, 5);
   assert.deepEqual(REVIEW_EXECUTION_ADAPTERS.map((adapter) => adapter.retailerId), ["12", "9", "14", "3", "15"]);
-  assert.deepEqual(REVIEW_EXECUTION_ADAPTERS.find((adapter) => adapter.retailerSlug === "ebay-uk").operations, ["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK"]);
+  assert.deepEqual(REVIEW_EXECUTION_ADAPTERS.find((adapter) => adapter.retailerSlug === "ebay-uk").operations, ["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK", "UPDATE_PRICE_AND_STOCK"]);
   assert.deepEqual(REVIEW_EXECUTION_ADAPTERS.find((adapter) => adapter.retailerSlug === "10-reps").operations, ["UPDATE_STOCK"]);
   assert.deepEqual(REVIEW_EXECUTION_ADAPTERS.find((adapter) => adapter.retailerSlug === "whey-okay").operations, ["UPDATE_STOCK"]);
   const gladiator = REVIEW_EXECUTION_ADAPTERS.find((adapter) => adapter.retailerSlug === "gladiator-nutrition");

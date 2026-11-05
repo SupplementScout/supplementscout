@@ -7,12 +7,13 @@
       "retailer_id": "12",
       "retailer_slug": "ebay-uk",
       "worker_kind": "ebay",
-      "operations": ["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK"],
-      "reason_codes": ["FRESHNESS_CONFIRMATION", "STALE_OFFER", "NO_CHANGE_CONFIRMATION", "PRICE_CHANGE", "HARD_PRICE_ANOMALY", "STOCK_CHANGE"],
+      "operations": ["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK", "UPDATE_PRICE_AND_STOCK"],
+      "reason_codes": ["FRESHNESS_CONFIRMATION", "STALE_OFFER", "NO_CHANGE_CONFIRMATION", "PRICE_CHANGE", "HARD_PRICE_ANOMALY", "STOCK_CHANGE", "PRICE_AND_STOCK_CHANGE"],
       "operation_reason_codes": {
         "VERIFY_NO_CHANGE": ["FRESHNESS_CONFIRMATION", "STALE_OFFER", "NO_CHANGE_CONFIRMATION"],
         "UPDATE_PRICE": ["PRICE_CHANGE", "HARD_PRICE_ANOMALY"],
-        "UPDATE_STOCK": ["STOCK_CHANGE"]
+        "UPDATE_STOCK": ["STOCK_CHANGE"],
+        "UPDATE_PRICE_AND_STOCK": ["PRICE_AND_STOCK_CHANGE"]
       },
       "builder": "scripts/ebay-offer-refresh.js",
       "approval_rpc": "approve_product_import_plan",
