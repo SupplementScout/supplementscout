@@ -14,6 +14,9 @@ import { CATEGORY_COVERAGE_DEFINITIONS } from "./lib/categoryCoverage";
 import { getHomepageData } from "./lib/homepageData";
 
 export const revalidate = 3600;
+// Recheck offer freshness on every request; ISR may serve expired price claims
+// while regenerating stale HTML. The underlying catalogue/deals reads stay cached.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },

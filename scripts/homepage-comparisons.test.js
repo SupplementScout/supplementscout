@@ -99,6 +99,15 @@ test("cached offers must stay fresh through the next homepage revalidation", () 
   assert.equal(homeData.selectHomepageComparisons(current, now).state, "empty");
 });
 
+test("an unchanged cached snapshot stops producing price claims after offers expire", () => {
+  const cached = result();
+  assert.equal(homeData.selectHomepageComparisons(cached, now).state, "ready");
+  const later = new Date(now.getTime() + 25 * 3600_000);
+  const expired = homeData.selectHomepageComparisons(cached, later);
+  assert.equal(expired.state, "empty");
+  assert.doesNotMatch(featured(expired), /In stock|Lowest listed|Save /);
+});
+
 test("featured card renders exact variant links, known delivery, real totals and next-retailer saving in HTML", () => {
   const html = featured(homeData.selectHomepageComparisons(result(), now));
   assert.match(html, /Featured comparison/);
@@ -189,4 +198,5 @@ test("homepage retains server copy, one H1 and every canonical catalogue path wh
   assert.match(html, /aria-label="Search supplements, brands or categories"/);
   for (const href of ["/creatine", "/whey-protein", "/pre-workout", "/vitamins", "/compare", "/deals", "/help-me-choose", "/brands/per4m", "/data-freshness", "/privacy"]) assert.ok(html.includes(`href="${href}"`), href);
   assert.deepEqual(page.metadata.alternates, { canonical: "/" });
+  assert.equal(page.dynamic, "force-dynamic", "ISR must not serve expired commercial claims before background regeneration");
 });

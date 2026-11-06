@@ -33,8 +33,8 @@ export function selectHomepageComparisons(
 ): HomepageComparisons {
   if (result.error) return { state: "unavailable", rows: [] };
 
-  // Preserve the existing deals order. Require enough freshness for the next ISR
-  // interval too, rather than displaying an offer about to expire from the cache.
+  // Preserve the existing deals order and a one-hour freshness margin. Evaluate
+  // on every render, even when the shared loader returns an hourly snapshot.
   const nextRevalidation = new Date(now.getTime() + HOMEPAGE_REVALIDATE_SECONDS * 1000);
   const rows = result.rows.filter((row) =>
     row.offers.length >= 2 &&
