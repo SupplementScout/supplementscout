@@ -20,6 +20,37 @@ workflows, artifacts, control ledger, Review Queue, postflight and watchdog.
 Work proceeds read-only until a specific recovery or business write has fresh
 bounded evidence and separate owner approval.
 
+**6 November shared production-write pending-run preservation incident —
+`CODE_COMPLETE`:** eleven owner-approved 10 Reps Review Queue decisions each
+created the intended exact `workflow_dispatch` run. Two completed, while nine
+were cancelled before worker execution because GitHub's default concurrency
+behavior retains only one pending run per group and replaces the older pending
+run when another arrives. The running workflow remained protected by
+`cancel-in-progress: false`; the loss occurred only among waiting runs. The
+nine execution-request ledger rows remain `QUEUED`, so no owner approval or
+commercial write was lost or falsely marked complete.
+
+The bounded correction keeps the existing global
+`retailer-offer-production-write` group and adds GitHub's native `queue: max`
+policy to all seven workflows that share it: the Review Queue worker,
+publication retry, eBay, Fit House, Jon's, Simply Supplements and Whey Okay.
+At most one production-writing workflow still runs at a time, while up to 100
+waiting runs are preserved instead of replacing one another. One regression
+test enumerates the exact seven-workflow set and requires the same group,
+`cancel-in-progress: false` and `queue: max` contract everywhere; focused
+workflow and Review Queue tests pass `104/104`.
+
+This changes no worker, scheduler, queue, execution-request ledger, adapter,
+retailer logic, approval, revalidation, postflight, idempotency, database or
+migration. It creates no execution request or workflow dispatch and does not
+replay the nine queued decisions. Their recovery remains separately owner
+gated after merge and fresh revalidation. Scheduled Jon's run `42218194836`
+started normally and failed independently in its apply step with a PostgreSQL
+client timeout; it was not cancelled or replaced by this concurrency incident,
+and no retry is part of this change. Pre/post Project Guardian, focused tests
+and the local quick and full Quality Gates pass. PR CI, merge and fresh
+production evidence remain acceptance gates.
+
 **6 November RA-LEDGER-03 deterministic migration repository closeout —
 `CODE_COMPLETE`:** the existing selected-migration lifecycle now derives one
 exact post-apply binding from the same shared migration inventory, exclusions,

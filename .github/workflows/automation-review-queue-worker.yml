@@ -25,6 +25,7 @@ permissions:
 concurrency:
   group: retailer-offer-production-write
   cancel-in-progress: false
+  queue: max
 
 jobs:
   execute-next-approved-review:
