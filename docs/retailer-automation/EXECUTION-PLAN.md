@@ -65,6 +65,29 @@ Guardian passes. This code/test/docs task applied no migration and made zero
 database or workflow writes. Final local gates, PR CI and merge evidence are
 the remaining acceptance gates.
 
+**6 November owner-authorized Review Queue fallback cadence reduction —
+`CODE_COMPLETE`:** after the existing server-side immediate dispatcher was
+enabled, the owner explicitly selected a 30-minute fallback because a five-
+minute recovery window is not operationally required. The one existing
+`automation-review-queue-worker.yml` schedule changes only from `*/5` to
+`*/30`; exact `workflow_dispatch` by `execution_request_id`, the shared worker,
+execution-request ledger, adapter registry, revalidation, postflight,
+idempotency and concurrency group are unchanged. No second scheduler, worker
+or queue is introduced.
+
+The existing read-only watchdog policy now declares the real 30-minute
+cadence. A newest scheduled run aged at most 60 minutes is `HEALTHY`, more than
+60 through 120 minutes is warning-only `DELAYED`, and more than 120 minutes is
+`BROKEN`. Manual dispatches still cannot establish scheduler health. This
+prevents the new normal cadence from producing false delay warnings while still
+detecting four missed fallback windows. Focused workflow/hash and exact
+30/60/61/120/121-minute liveness tests pass `16/16`; pre-change Project
+Guardian passes. This repository-only change creates no execution request,
+workflow dispatch, Review Queue or database write. Local quick/full Quality
+Gates and the production build pass. PR CI, merge and the first ordinary
+30-minute scheduled run remain acceptance evidence; no synthetic worker
+dispatch is authorized.
+
 **5 November RA-SCHED-01 Review Queue worker scheduler liveness —
 `READY_FOR_NATURAL_VERIFICATION`:** the existing shared Automation Reliability
 Watchdog now has one declarative global platform check for

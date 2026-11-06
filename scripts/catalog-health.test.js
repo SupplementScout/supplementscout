@@ -629,9 +629,9 @@ test("automation watchdog covers all retailers on a read-only six-hour schedule"
     type: "workflow_liveness",
     workflow: "automation-review-queue-worker.yml",
     expected_event: "schedule",
-    cadence_minutes: 5,
-    healthy_max_age_minutes: 20,
-    delayed_max_age_minutes: 60,
+    cadence_minutes: 30,
+    healthy_max_age_minutes: 60,
+    delayed_max_age_minutes: 120,
     warning_code: "REVIEW_QUEUE_WORKER_SCHEDULE_DELAYED",
     failure_code: "REVIEW_QUEUE_WORKER_SCHEDULE_BROKEN",
   }]);
@@ -651,37 +651,37 @@ test("automation watchdog covers all retailers on a read-only six-hour schedule"
   );
 });
 
-test("review worker liveness classifies a scheduled run aged 5 minutes as healthy", () => {
-  const result = workflowLivenessResult(workflowLivenessConfig(), [workflowRunAtAge(5)], workflowLivenessNow);
+test("review worker liveness classifies a scheduled run aged 30 minutes as healthy", () => {
+  const result = workflowLivenessResult(workflowLivenessConfig(), [workflowRunAtAge(30)], workflowLivenessNow);
   assert.equal(result.status, "HEALTHY");
-  assert.equal(result.age_minutes, 5);
+  assert.equal(result.age_minutes, 30);
   assert.equal(result.warning_code, null);
   assert.equal(result.failure_code, null);
 });
 
-test("review worker liveness keeps the exact 20-minute boundary healthy", () => {
+test("review worker liveness keeps the exact 60-minute boundary healthy", () => {
   assert.equal(
-    workflowLivenessResult(workflowLivenessConfig(), [workflowRunAtAge(20)], workflowLivenessNow).status,
+    workflowLivenessResult(workflowLivenessConfig(), [workflowRunAtAge(60)], workflowLivenessNow).status,
     "HEALTHY",
   );
 });
 
-test("review worker liveness classifies a scheduled run aged 21 minutes as delayed", () => {
-  const result = workflowLivenessResult(workflowLivenessConfig(), [workflowRunAtAge(21)], workflowLivenessNow);
+test("review worker liveness classifies a scheduled run aged 61 minutes as delayed", () => {
+  const result = workflowLivenessResult(workflowLivenessConfig(), [workflowRunAtAge(61)], workflowLivenessNow);
   assert.equal(result.status, "DELAYED");
   assert.equal(result.warning_code, "REVIEW_QUEUE_WORKER_SCHEDULE_DELAYED");
   assert.equal(result.failure_code, null);
 });
 
-test("review worker liveness keeps the exact 60-minute boundary delayed", () => {
+test("review worker liveness keeps the exact 120-minute boundary delayed", () => {
   assert.equal(
-    workflowLivenessResult(workflowLivenessConfig(), [workflowRunAtAge(60)], workflowLivenessNow).status,
+    workflowLivenessResult(workflowLivenessConfig(), [workflowRunAtAge(120)], workflowLivenessNow).status,
     "DELAYED",
   );
 });
 
-test("review worker liveness classifies a scheduled run aged 61 minutes as broken", () => {
-  const result = workflowLivenessResult(workflowLivenessConfig(), [workflowRunAtAge(61)], workflowLivenessNow);
+test("review worker liveness classifies a scheduled run aged 121 minutes as broken", () => {
+  const result = workflowLivenessResult(workflowLivenessConfig(), [workflowRunAtAge(121)], workflowLivenessNow);
   assert.equal(result.status, "BROKEN");
   assert.equal(result.warning_code, null);
   assert.equal(result.failure_code, "REVIEW_QUEUE_WORKER_SCHEDULE_BROKEN");
@@ -698,11 +698,11 @@ test("review worker liveness is broken when no scheduled run exists", () => {
 test("recent workflow_dispatch activity cannot hide a stale scheduled worker run", () => {
   const result = workflowLivenessResult(workflowLivenessConfig(), [
     workflowRunAtAge(5, { id: 2, event: "workflow_dispatch" }),
-    workflowRunAtAge(61, { id: 1 }),
+    workflowRunAtAge(121, { id: 1 }),
   ], workflowLivenessNow);
   assert.equal(result.status, "BROKEN");
   assert.equal(result.last_scheduled_run_id, "1");
-  assert.equal(result.age_minutes, 61);
+  assert.equal(result.age_minutes, 121);
 });
 
 test("manual review worker runs never count as scheduler health", () => {
@@ -772,7 +772,7 @@ test("GitHub API infrastructure failure is not misreported as scheduler broken",
 });
 
 test("healthy review worker liveness does not change retailer result semantics", () => {
-  const healthy = workflowLivenessResult(workflowLivenessConfig(), [workflowRunAtAge(5)], workflowLivenessNow);
+  const healthy = workflowLivenessResult(workflowLivenessConfig(), [workflowRunAtAge(30)], workflowLivenessNow);
   const summary = summarizeWatchdogResult([{ result: "PASS_WITH_REVIEW" }], {
     globalFailures: healthy.failure_code ? [healthy.failure_code] : [],
   });
@@ -782,7 +782,7 @@ test("healthy review worker liveness does not change retailer result semantics",
 });
 
 test("delayed review worker liveness emits a global warning only", () => {
-  const delayed = workflowLivenessResult(workflowLivenessConfig(), [workflowRunAtAge(21)], workflowLivenessNow);
+  const delayed = workflowLivenessResult(workflowLivenessConfig(), [workflowRunAtAge(61)], workflowLivenessNow);
   const summary = summarizeWatchdogResult([{ result: "PASS" }], {
     globalFailures: delayed.failure_code ? [delayed.failure_code] : [],
   });
@@ -793,7 +793,7 @@ test("delayed review worker liveness emits a global warning only", () => {
 });
 
 test("broken review worker liveness produces the global failure and FAILED_SYSTEM", () => {
-  const broken = workflowLivenessResult(workflowLivenessConfig(), [workflowRunAtAge(61)], workflowLivenessNow);
+  const broken = workflowLivenessResult(workflowLivenessConfig(), [workflowRunAtAge(121)], workflowLivenessNow);
   const summary = summarizeWatchdogResult([{ result: "PASS" }], {
     globalFailures: [broken.failure_code],
   });
