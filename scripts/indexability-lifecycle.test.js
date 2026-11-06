@@ -429,14 +429,18 @@ test("metadata stays database-free while every hub page uses its unique cached l
   const versions = new Set();
   for (const [route, filename] of pageFiles) {
     const source = fs.readFileSync(filename, "utf8");
+    const loaderSource = route === "/deals"
+      ? fs.readFileSync(path.join(process.cwd(), "app/lib/dealsPriceIntelligence.ts"), "utf8")
+      : source;
     const match = categoryCoverageRoutes.has(route)
       ? source.match(/cacheVersion:\s*"([^"]+)"/m)
-      : source.match(/createLifecycleDataLoader\(\s*[^,]+,\s*"([^"]+)"/m);
+      : loaderSource.match(/createLifecycleDataLoader\(\s*[^,]+,\s*"([^"]+)"/m);
     if (categoryCoverageRoutes.has(route)) {
       assert.match(source, /createCategoryCoverageLanding\(config\)/, route);
       assert.match(categoryCoverageHelper, /createLifecycleDataLoader\(/, route);
     } else {
-      assert.match(source, /createLifecycleDataLoader\(/, route);
+      assert.match(loaderSource, /createLifecycleDataLoader\(/, route);
+      if (route === "/deals") assert.match(source, /await getCachedDeals\(\)/);
     }
     assert.ok(match, route);
     assert.equal(versions.has(match[1]), false, match[1]);

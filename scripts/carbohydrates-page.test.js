@@ -417,6 +417,8 @@ test("homepage deduplicates the production Carbohydrates label and sends its sin
       "next/link": { __esModule: true, default: Link },
       "./components/ComparisonTransparencyLinks": { __esModule: true, default: Noop },
       "./components/HomeCategories": { __esModule: true, default: HomeCategories },
+      "./home-comparisons": { HomeFeaturedComparison: () => null, HomeCurrentComparisons: () => null },
+      "./home.css": {},
       "./components/HomeHeader": { __esModule: true, default: Noop },
       "./components/SearchInput": { __esModule: true, default: Noop },
       "./components/StatusBadge": { __esModule: true, default: Noop },
@@ -427,6 +429,7 @@ test("homepage deduplicates the production Carbohydrates label and sends its sin
         getHomepageData: async () => ({
           categories: ["Carbohydrates", "Hydration", "Carbohydrates"],
           latestOfferCheckAt: null,
+          comparisons: { state: "empty", rows: [] },
           productCount: 1357,
           retailerCount: 10,
         }),

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import SupplementScoutIcon from "./SupplementScoutIcon";
 
 const MOBILE_CATEGORY_LIMIT = 7;
 
@@ -16,35 +17,50 @@ export default function HomeCategories({
   items: HomeCategoryLink[];
 }) {
   const [showAllCategories, setShowAllCategories] = useState(false);
+  const featuredCategories = [
+    { href: "/whey-protein", description: "Whey protein across UK retailers." },
+    { href: "/creatine", description: "Compare packs and verified unit costs." },
+    { href: "/pre-workout", description: "Compare pre-workout packs and prices." },
+    { href: "/vitamins", description: "Vitamins and everyday health essentials." },
+  ];
+  const featuredHrefs = new Set(featuredCategories.map((item) => item.href));
 
   return (
-    <section id="categories" className="px-4 py-10 sm:px-6 sm:py-16">
+    <section id="categories" className="home-categories px-5 sm:px-6" aria-labelledby="categories-heading">
       <div className="mx-auto max-w-7xl">
         <p className="text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500 sm:text-sm">
           Browse
         </p>
-        <h2 className="mt-2 text-2xl font-bold sm:text-3xl">
+        <h2 id="categories-heading" className="mt-2 text-2xl font-bold sm:text-3xl">
           Popular categories
         </h2>
 
-        <div className="mt-5 grid gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
-          {items.map((item, index) => (
+        <div className="home-category-featured">
+          {featuredCategories.map((category) => {
+            const item = items.find((item) => item.href === category.href);
+            return item ? (
+              <Link key={item.href} href={item.href} className="home-category-card">
+                <SupplementScoutIcon name={item.href === "/vitamins" ? "shield" : "package"} size={24} />
+                <h3>{item.label}</h3>
+                <p>{category.description}</p>
+                <span>Compare prices <span aria-hidden="true">→</span></span>
+              </Link>
+            ) : null;
+          })}
+        </div>
+
+        <div className="home-category-links">
+          {items.filter((item) => !featuredHrefs.has(item.href)).map((item, index) => (
             <Link
               key={item.label}
               href={item.href}
-              className={`ss-card ss-card-interactive p-5 text-left focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2 sm:p-6 ${
+              className={`text-left focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2 ${
                 !showAllCategories && index >= MOBILE_CATEGORY_LIMIT
                   ? "hidden md:block"
                   : ""
               }`}
             >
-              <h3 className="break-words text-lg font-semibold sm:text-xl">
-                {item.label}
-              </h3>
-              <p className="mt-2 text-sm leading-6 text-zinc-600">
-                Compare prices, sizes, servings and value across UK supplement
-                retailers.
-              </p>
+              {item.label}
             </Link>
           ))}
         </div>

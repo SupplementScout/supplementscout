@@ -4,7 +4,7 @@ import CategoryViewAnalytics from "../components/CategoryViewAnalytics";
 import { OfferCheckedBadge } from "../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLinks";
 import {
-  getDeals,
+  getCachedDeals,
   type DealsResult,
   type DealsRow,
   type VerifiedPriceDropRow,
@@ -14,7 +14,6 @@ import {
   getLifecycleRobots,
   type RouteSearchParams,
 } from "../lib/indexabilityLifecycle";
-import { createLifecycleDataLoader } from "../lib/lifecycleDataCache";
 import { formatCurrency } from "../lib/pricing";
 
 const siteUrl = "https://www.supplementscout.co.uk";
@@ -22,11 +21,6 @@ const pagePath = "/deals";
 const pageUrl = `${siteUrl}${pagePath}`;
 const description =
   "Compare today's recently checked delivered prices for exact supplement variants available from multiple UK retailers.";
-const getCachedDeals = createLifecycleDataLoader(
-  pagePath,
-  "deals-price-intelligence-v2",
-  getDeals
-);
 
 export const revalidate = 3600;
 export const dynamic = "force-dynamic";
