@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { HomeFeaturedComparison, HomeCurrentComparisons } from "./home-comparisons";
 import "./home.css";
 import ComparisonTransparencyLinks from "./components/ComparisonTransparencyLinks";
@@ -99,10 +98,7 @@ function homepageBrowseCategories(catalogueCategories: string[]) {
 }
 
 function searchHref(query: string) {
-  return {
-    pathname: "/search",
-    query: { q: query },
-  };
+  return `/search?q=${encodeURIComponent(query)}`;
 }
 
 function itemHref(item: { href?: string; query?: string }) {
@@ -149,9 +145,9 @@ export default async function Home() {
           <SearchInput />
           <div className="home-popular" aria-label="Popular searches">
             <span>Try:</span>
-            <Link href="/creatine">Creatine</Link>
-            <Link href="/whey-protein">Whey protein</Link>
-            <Link href="/pre-workout">Pre-workout</Link>
+            <a href="/creatine">Creatine</a>
+            <a href="/whey-protein">Whey protein</a>
+            <a href="/pre-workout">Pre-workout</a>
           </div>
         </div>
         <HomeFeaturedComparison comparisons={comparisons} />
@@ -238,7 +234,7 @@ export default async function Home() {
 
           <div className="mt-5 grid gap-3 sm:mt-8 sm:grid-cols-2 lg:grid-cols-3">
             {goalLinks.map((goal) => (
-              <Link
+              <a
                 key={goal.label}
                 href={itemHref(goal)}
                 className="ss-card ss-card-interactive p-5 focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
@@ -247,7 +243,7 @@ export default async function Home() {
                 <p className="mt-2 text-sm leading-6 text-zinc-600">
                   {goal.description}
                 </p>
-              </Link>
+              </a>
             ))}
           </div>
         </div>
@@ -301,35 +297,35 @@ export default async function Home() {
 
       <section className="home-section home-footer-links" aria-labelledby="popular-searches-heading">
         <h2 id="popular-searches-heading">Explore more comparisons</h2>
-        <div>{popularSearches.map((item) => <Link key={item.label} href={itemHref(item)}>{item.label}</Link>)}</div>
-        <p className="mt-3 text-sm text-slate-600">Need a starting point? <Link href="/help-me-choose" className="home-text-link">Help me choose</Link></p>
+        <div>{popularSearches.map((item) => <a key={item.label} href={itemHref(item)}>{item.label}</a>)}</div>
+        <p className="mt-3 text-sm text-slate-600">Need a starting point? <a href="/help-me-choose" className="home-text-link">Help me choose</a></p>
       </section>
 
       <footer className="px-4 pb-[calc(2.5rem+env(safe-area-inset-bottom))] pt-8 sm:px-6 sm:py-10 xl:pb-[calc(5rem+env(safe-area-inset-bottom))]">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 border-t border-zinc-200 pt-8 text-sm text-zinc-500 sm:flex-row">
           <p>&copy; 2026 SupplementScout</p>
           <nav aria-label="Footer" className="flex flex-wrap gap-x-4 gap-y-2 [&_a]:inline-flex [&_a]:min-h-11 [&_a]:items-center">
-            <Link href="/about" className="hover:text-zinc-950">
+            <a href="/about" className="hover:text-zinc-950">
               About
-            </Link>
-            <Link href="/how-we-compare" className="hover:text-zinc-950">
+            </a>
+            <a href="/how-we-compare" className="hover:text-zinc-950">
               How we compare
-            </Link>
-            <Link href="/data-freshness" className="hover:text-zinc-950">
+            </a>
+            <a href="/data-freshness" className="hover:text-zinc-950">
               Data freshness
-            </Link>
-            <Link href="/affiliate-disclosure" className="hover:text-zinc-950">
+            </a>
+            <a href="/affiliate-disclosure" className="hover:text-zinc-950">
               Affiliate Disclosure
-            </Link>
-            <Link href="/privacy" className="hover:text-zinc-950">
+            </a>
+            <a href="/privacy" className="hover:text-zinc-950">
               Privacy
-            </Link>
-            <Link href="/cookies" className="hover:text-zinc-950">
+            </a>
+            <a href="/cookies" className="hover:text-zinc-950">
               Cookies
-            </Link>
-            <Link href="/contact" className="hover:text-zinc-950">
+            </a>
+            <a href="/contact" className="hover:text-zinc-950">
               Contact
-            </Link>
+            </a>
           </nav>
         </div>
       </footer>

@@ -29,18 +29,18 @@ export function ComparisonProductHeroImage({
   name,
   productUrl,
   sizes = "(max-width: 639px) 44vw, (max-width: 1023px) 320px, 520px",
-  prefetch,
+  nativeNavigation = false,
 }: {
   image: string | null;
   name: string;
   productUrl: string;
   sizes?: string;
-  prefetch?: boolean;
+  nativeNavigation?: boolean;
 }) {
+  const ProductLink = nativeNavigation ? "a" : Link;
   return (
-    <Link
+    <ProductLink
       href={productUrl}
-      prefetch={prefetch}
       aria-label={`View offers for ${name}`}
       className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-2xl border border-[var(--ss-border)] bg-[var(--ss-surface-muted)] p-2 focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
     >
@@ -58,7 +58,7 @@ export function ComparisonProductHeroImage({
           Image unavailable
         </span>
       )}
-    </Link>
+    </ProductLink>
   );
 }
 
@@ -66,19 +66,19 @@ export function ComparisonProductThumbnail({
   image,
   name,
   productUrl,
-  prefetch,
+  nativeNavigation = false,
 }: {
   image: string | null;
   name: string;
   productUrl: string;
-  prefetch?: boolean;
+  nativeNavigation?: boolean;
 }) {
   const backgroundImage = safeBackgroundImage(image);
+  const ProductLink = nativeNavigation ? "a" : Link;
 
   return (
-    <Link
+    <ProductLink
       href={productUrl}
-      prefetch={prefetch}
       aria-label={`View ${name}`}
       className="flex h-24 w-24 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 p-2 sm:h-28 sm:w-28 lg:h-32 lg:w-32"
     >
@@ -94,7 +94,7 @@ export function ComparisonProductThumbnail({
           No image
         </span>
       )}
-    </Link>
+    </ProductLink>
   );
 }
 

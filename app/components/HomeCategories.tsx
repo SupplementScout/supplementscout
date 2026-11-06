@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import SupplementScoutIcon from "./SupplementScoutIcon";
 
@@ -39,19 +38,19 @@ export default function HomeCategories({
           {featuredCategories.map((category) => {
             const item = items.find((item) => item.href === category.href);
             return item ? (
-              <Link key={item.href} href={item.href} className="home-category-card">
+              <a key={item.href} href={item.href} className="home-category-card">
                 <SupplementScoutIcon name={item.href === "/vitamins" ? "shield" : "package"} size={24} />
                 <h3>{item.label}</h3>
                 <p>{category.description}</p>
                 <span>Compare prices <span aria-hidden="true">→</span></span>
-              </Link>
+              </a>
             ) : null;
           })}
         </div>
 
         <div className="home-category-links">
           {items.filter((item) => !featuredHrefs.has(item.href)).map((item, index) => (
-            <Link
+            <a
               key={item.label}
               href={item.href}
               className={`text-left focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2 ${
@@ -61,7 +60,7 @@ export default function HomeCategories({
               }`}
             >
               {item.label}
-            </Link>
+            </a>
           ))}
         </div>
 
