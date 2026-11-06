@@ -1567,6 +1567,183 @@ test("Automation Review Queue zero-business closeout is strictly bound and contr
   assert.match(workflow, /schedule:\s*\n\s*- cron: "8,38 \* \* \* \*"/);
 });
 
+test("Automation Review Queue cancelled dispatch closeout proves cancellation before execution and stays control-only", async () => {
+  const closeout = require("./automation-review-cancelled-dispatch-closeout");
+  const closeoutSource = fs.readFileSync(path.join(process.cwd(), "scripts", "automation-review-cancelled-dispatch-closeout.js"), "utf8");
+  const workerSource = fs.readFileSync(path.join(process.cwd(), "scripts", "automation-review-shared-retailer-worker.js"), "utf8");
+  const workflow = fs.readFileSync(path.join(process.cwd(), ".github", "workflows", "automation-review-queue-worker.yml"), "utf8");
+  const requestId = "11111111-1111-4111-8111-111111111111";
+  const request = {
+    id: requestId,
+    review_id: 77,
+    retailer_id: 14,
+    retailer_slug: "10-reps",
+    operation_type: "UPDATE_STOCK",
+    review_fingerprint: "a".repeat(64),
+    plan_fingerprint: "b".repeat(64),
+    status: "DISPATCHED",
+    last_checkpoint: "WORKFLOW_DISPATCH_CLAIMED",
+    database_writes: 0,
+    run_id: "42230815776",
+    commit_sha: "c".repeat(40),
+    error_code: null,
+    error_message: null,
+    completed_at: null,
+    before_state_hash: null,
+    postflight_hash: null,
+    idempotency_result: null,
+    executed_offer_ids: null,
+    failed_offer_ids: null,
+    remaining_offer_ids: null,
+    expected_deltas: null,
+    actual_deltas: null,
+  };
+  const review = {
+    id: 77,
+    retailer_id: 14,
+    offer_id: 900,
+    retailer_product_id: 901,
+    operation_type: "UPDATE_STOCK",
+    review_status: "APPROVED",
+    execution_id: null,
+    execution_started_at: null,
+    execution_completed_at: null,
+    source_row_fingerprint: request.review_fingerprint,
+    plan_fingerprint: request.plan_fingerprint,
+    before_state: {
+      offer_id: "900",
+      retailer_product_id: "901",
+      product_id: "902",
+      product_variant_id: "903",
+      external_product_id: "1000",
+      external_variant_id: "1001",
+      price: "12.50",
+      shipping_cost: "3.99",
+      total_price: "16.49",
+      in_stock: true,
+      url: "https://shop.test/product?affiliate=1",
+      external_url: "https://shop.test/product",
+    },
+  };
+  const events = [
+    { id: 1, previous_status: null, new_status: "QUEUED", checkpoint: "REQUEST_CREATED", evidence: { idempotency_key: "d".repeat(64) }, created_at: "2026-11-06T14:00:00Z" },
+    { id: 2, previous_status: "QUEUED", new_status: "DISPATCHED", checkpoint: "WORKFLOW_DISPATCH_CLAIMED", evidence: { run_id: request.run_id, commit_sha: request.commit_sha, database_writes: 0 }, created_at: "2026-11-06T14:09:18Z" },
+  ];
+  const snapshot = {
+    identity: { current_user: "postgres", session_user: "postgres", read_only: "on", safe_update: null },
+    target: { target_environment: "PRODUCTION", project_ref: "aftboxmrdgyhizicfsfu", database_identity: "supplementscout-production:aftboxmrdgyhizicfsfu" },
+    request,
+    review,
+    events,
+    existingCloseoutCount: 0,
+    counts: { parent_plan_count: 0, child_plan_count: 0, apply_run_count: 0, batch_approval_count: 0, approved_import_plan_count: 0, price_history_after_claim_count: 0 },
+    offer: { row: { id: 900, retailer_product_id: 901, product_id: 902, product_variant_id: 903, retailer_id: 14, price: "12.5000", shipping_cost: "3.990", total_price: "16.49", in_stock: true, url: review.before_state.url }, row_hash: "e".repeat(64) },
+    mapping: { row: { id: 901, retailer_id: 14, product_id: 902, product_variant_id: 903, external_product_id: "1000", external_variant_id: "1001", external_url: review.before_state.external_url }, row_hash: "f".repeat(64) },
+  };
+  const verified = closeout.verifyOwnerSnapshot(snapshot);
+  assert.equal(verified.request.id, requestId);
+  assert.throws(() => closeout.verifyOwnerSnapshot({ ...snapshot, events: [...events, { checkpoint: "REVALIDATION_PASSED" }] }), /EVENT_SCOPE_INVALID/);
+  assert.throws(() => closeout.verifyOwnerSnapshot({ ...snapshot, counts: { ...snapshot.counts, parent_plan_count: 1 } }), /PARENT_PLAN_COUNT_PRESENT/);
+  assert.throws(() => closeout.verifyOwnerSnapshot({ ...snapshot, request: { ...request, database_writes: 1 } }), /REQUEST_EVIDENCE_INVALID/);
+  assert.throws(() => closeout.verifyOwnerSnapshot({ ...snapshot, review: { ...review, review_status: "EXECUTING" } }), /REVIEW_STATE_INVALID/);
+
+  const githubRun = {
+    id: Number(request.run_id),
+    name: "Automation Review Queue Worker",
+    path: ".github/workflows/automation-review-queue-worker.yml",
+    event: "workflow_dispatch",
+    head_branch: "main",
+    head_sha: request.commit_sha,
+    status: "completed",
+    conclusion: "cancelled",
+    html_url: `https://github.com/SupplementScout/supplementscout/actions/runs/${request.run_id}`,
+  };
+  const githubJobs = { jobs: [{
+    id: 123,
+    name: "execute-next-approved-review",
+    status: "completed",
+    conclusion: "cancelled",
+    html_url: "https://github.test/job/123",
+    steps: [
+      { name: "Test queue worker without production credentials", conclusion: "success" },
+      { name: "Remove test-only execution evidence", conclusion: "success" },
+      { name: "Audit owner decisions read-only", conclusion: "success" },
+      { name: "Execute oldest approved queue request", status: "completed", conclusion: "cancelled", started_at: "2026-11-06T14:09:20Z", completed_at: "2026-11-06T14:09:43Z" },
+    ],
+  }] };
+  const cancelledRun = closeout.verifyCancelledRun(githubRun, githubJobs, request);
+  assert.equal(cancelledRun.runId, request.run_id);
+  assert.throws(() => closeout.verifyCancelledRun({ ...githubRun, conclusion: "success" }, githubJobs, request), /RUN_NOT_CANCELLED/);
+  assert.throws(() => closeout.verifyCancelledRun(githubRun, { jobs: [{ ...githubJobs.jobs[0], conclusion: "success" }] }, request), /JOB_NOT_CANCELLED/);
+
+  const env = {
+    GITHUB_ACTIONS: "true",
+    GITHUB_EVENT_NAME: "workflow_dispatch",
+    GITHUB_REF: "refs/heads/main",
+    GITHUB_REPOSITORY: "SupplementScout/supplementscout",
+    GITHUB_RUN_ID: "42240000000",
+    GITHUB_SHA: "1".repeat(40),
+    GITHUB_TOKEN: "protected",
+    AUTOMATION_REVIEW_CANCELLED_DISPATCH_CLOSEOUT_REQUEST_ID: requestId,
+    SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL: "postgresql://protected",
+    NEXT_PUBLIC_SUPABASE_URL: "https://example.test",
+    SUPABASE_SERVICE_ROLE_KEY: "protected",
+  };
+  assert.doesNotThrow(() => closeout.assertContext({ executionRequestId: requestId }, env));
+  assert.throws(() => closeout.assertContext({ executionRequestId: requestId }, { ...env, AUTOMATION_REVIEW_CANCELLED_DISPATCH_CLOSEOUT_REQUEST_ID: "22222222-2222-4222-8222-222222222222" }), /CONTEXT_REQUEST_DRIFT/);
+
+  const now = new Date("2026-11-06T15:00:00Z");
+  const evidence = closeout.buildEvidence(verified, cancelledRun, env, now);
+  const ownerQueries = [];
+  const fakeOwner = { connect: async () => {}, query: async (sql) => { ownerQueries.push(sql); return { rows: [] }; }, end: async () => {} };
+  const rpcCalls = [];
+  const fakeControl = { rpc: async (name, args) => {
+    rpcCalls.push({ name, args });
+    return { data: { status: "FAILED", last_checkpoint: closeout.CLOSEOUT_CHECKPOINT, error_code: closeout.ERROR_CODE, database_writes: 0 }, error: null };
+  } };
+  const output = path.join(process.cwd(), "tmp", "automation-review-execution", `${requestId}-cancelled-dispatch-closeout.json`);
+  fs.rmSync(output, { force: true });
+  const report = await closeout.run({ executionRequestId: requestId }, {
+    env,
+    ownerClient: fakeOwner,
+    controlClient: fakeControl,
+    readOwnerSnapshot: async () => snapshot,
+    readCancelledRun: async () => cancelledRun,
+    readPostSnapshot: async () => ({
+      request: { ...request, status: "FAILED", last_checkpoint: closeout.CLOSEOUT_CHECKPOINT, error_code: closeout.ERROR_CODE, error_message: closeout.ERROR_MESSAGE, completed_at: "2026-11-06T15:00:01Z" },
+      review,
+      events: [{ previous_status: "DISPATCHED", new_status: "FAILED", checkpoint: closeout.CLOSEOUT_CHECKPOINT, evidence }],
+      offer: { row_hash: snapshot.offer.row_hash },
+      mapping: { row_hash: snapshot.mapping.row_hash },
+      priceHistoryAfterClaimCount: 0,
+    }),
+    now,
+  });
+  assert.equal(report.request_status, "FAILED");
+  assert.equal(report.review_status, "APPROVED");
+  assert.equal(report.business_writes, 0);
+  assert.deepEqual(ownerQueries, ["begin read only", "rollback", "begin read only", "rollback"]);
+  assert.equal(rpcCalls.length, 1);
+  assert.equal(rpcCalls[0].name, "record_automation_review_execution_checkpoint");
+  assert.equal(rpcCalls[0].args.p_new_status, "FAILED");
+  fs.rmSync(output, { force: true });
+
+  const executingCheckpoint = workerSource.indexOf('checkpoint(db, options.executionRequestId, "EXECUTING", "REVALIDATION_PASSED"');
+  const possibleWriteBoundary = workerSource.indexOf("databaseWrites = rows.length");
+  const registerBoundary = workerSource.indexOf("engine.register(runPlan, request)");
+  assert.ok(executingCheckpoint > 0 && possibleWriteBoundary > executingCheckpoint && registerBoundary > possibleWriteBoundary);
+  assert.match(closeoutSource, /begin read only/);
+  assert.match(closeoutSource, /record_automation_review_execution_checkpoint/);
+  assert.doesNotMatch(closeoutSource, /(?:insert into|update|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
+  assert.match(workflow, /cancelled_dispatch_closeout_execution_request_id:[\s\S]*required: false/);
+  assert.match(workflow, /Verify and close cancelled pre-execution request/);
+  assert.match(workflow, /GITHUB_TOKEN: \$\{\{ github\.token \}\}/);
+  assert.match(workflow, /AUTOMATION_REVIEW_CANCELLED_DISPATCH_CLOSEOUT_REQUEST_ID/);
+  assert.match(workflow, /Execute oldest approved queue request[\s\S]*cancelled_dispatch_closeout_execution_request_id == ''/);
+  assert.equal((workflow.match(/name: Automation Review Queue Worker/g) || []).length, 1);
+  assert.match(workflow, /schedule:\s*\n\s*- cron: "8,38 \* \* \* \*"/);
+});
+
 test("Review Queue postflight recovery reuses the same workflow and cannot replay catalogue writes", () => {
   const source = fs.readFileSync(path.join(process.cwd(), "scripts", "automation-review-postflight-recovery.js"), "utf8");
   const workflow = fs.readFileSync(path.join(process.cwd(), ".github", "workflows", "automation-review-queue-worker.yml"), "utf8");
