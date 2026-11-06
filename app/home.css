@@ -137,6 +137,12 @@
   .home-current-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 639px) {
+  /* Defer offscreen text layout without removing server-rendered content.
+     Start near the measured mobile section height; remember the actual size. */
+  .home-section, .home-categories, .home-discovery, .ss-home > footer {
+    content-visibility: auto;
+    contain-intrinsic-block-size: auto 600px;
+  }
   .home-hero, .home-section, .home-benefits { padding-inline: 20px; }
   .home-hero { padding-top: 32px; }
   .home-eyebrow { font-size: 9px; letter-spacing: .09em; }

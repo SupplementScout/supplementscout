@@ -29,12 +29,7 @@ function load(relativePath, overrides = {}) {
         delete props.prefetch;
         return React.createElement("a", { ...props, href: typeof href === "string" ? href : `${href.pathname}?${new URLSearchParams(href.query)}` }, children);
       } };
-      if (request === "next/image") return { __esModule: true, default: (props) => {
-        const imageProps = { ...props };
-        delete imageProps.fill;
-        delete imageProps.unoptimized;
-        return React.createElement("img", imageProps);
-      } };
+      if (request === "next/image") return { getImageProps: require("next/image").getImageProps };
       if (request.startsWith(".")) {
         const base = path.resolve(path.dirname(filename), request);
         const resolved = [base, `${base}.ts`, `${base}.tsx`].find((file) => fs.existsSync(file));
@@ -128,6 +123,22 @@ test("missing image, logos, nutrition and price history have an honest server fa
   assert.match(html, /Image unavailable/);
   assert.doesNotMatch(html, /<img|NaN|undefined|null/);
   assert.equal((html.match(/class="home-offer-row"/g) || []).length, 2);
+});
+
+test("product images render native lazy HTML with Next sizing and readable fallback alt for both navigation modes", () => {
+  const { ComparisonProductHeroImage } = load("app/components/ComparisonProductVisuals.tsx");
+  for (const nativeNavigation of [false, true]) {
+    const html = renderToStaticMarkup(React.createElement(ComparisonProductHeroImage, {
+      image: "https://test-only.example/product.jpg", name: "TEST ONLY Supplement", productUrl: "/product/test-only?variant=10", sizes: "96px", nativeNavigation,
+    }));
+    assert.match(html, /src="https:\/\/test-only\.example\/product\.jpg"/);
+    assert.match(html, /alt="TEST ONLY Supplement"/);
+    assert.match(html, /loading="lazy"/);
+    assert.match(html, /decoding="async"/);
+    assert.match(html, /position:absolute/);
+    assert.match(html, /color:inherit/);
+    assert.match(html, /href="\/product\/test-only\?variant=10"/);
+  }
 });
 
 test("ties do not claim savings and free delivery is distinguished from unknown delivery", () => {

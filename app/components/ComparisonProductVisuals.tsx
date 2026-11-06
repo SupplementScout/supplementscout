@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { getImageProps } from "next/image";
 import Link from "next/link";
 import type { CategoryComparisonRow } from "../lib/categoryComparison";
 import { OFFER_PRESENTATION_LABELS } from "../lib/offerFreshness";
@@ -38,21 +38,23 @@ export function ComparisonProductHeroImage({
   nativeNavigation?: boolean;
 }) {
   const ProductLink = nativeNavigation ? "a" : Link;
+  const imageProps = image ? getImageProps({
+    src: image,
+    alt: name,
+    fill: true,
+    unoptimized: true,
+    sizes,
+    className: "object-contain p-3 sm:p-6",
+  }).props : null;
   return (
     <ProductLink
       href={productUrl}
       aria-label={`View offers for ${name}`}
       className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-2xl border border-[var(--ss-border)] bg-[var(--ss-surface-muted)] p-2 focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
     >
-      {image ? (
-        <Image
-          src={image}
-          alt={name}
-          fill
-          unoptimized
-          sizes={sizes}
-          className="object-contain p-3 sm:p-6"
-        />
+      {imageProps ? (
+        // eslint-disable-next-line @next/next/no-img-element -- Next supplies the image props without a client hydration boundary.
+        <img {...imageProps} style={{ ...imageProps.style, color: "inherit" }} />
       ) : (
         <span className="px-2 text-center text-xs font-semibold text-zinc-500">
           Image unavailable
