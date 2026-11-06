@@ -1564,7 +1564,7 @@ test("Automation Review Queue zero-business closeout is strictly bound and contr
   assert.match(workflow, /Execute oldest approved queue request[\s\S]*zero_business_closeout_execution_request_id == ''/);
   assert.doesNotMatch(workflow, /schedule[\s\S]{0,200}zero_business_closeout_execution_request_id != ''/);
   assert.equal((workflow.match(/name: Automation Review Queue Worker/g) || []).length, 1);
-  assert.match(workflow, /schedule:\s*\n\s*- cron: "\*\/30 \* \* \* \*"/);
+  assert.match(workflow, /schedule:\s*\n\s*- cron: "8,38 \* \* \* \*"/);
 });
 
 test("Review Queue postflight recovery reuses the same workflow and cannot replay catalogue writes", () => {
