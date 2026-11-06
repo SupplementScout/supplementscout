@@ -29,7 +29,6 @@ function load(relativePath, overrides = {}) {
         delete props.prefetch;
         return React.createElement("a", { ...props, href: typeof href === "string" ? href : `${href.pathname}?${new URLSearchParams(href.query)}` }, children);
       } };
-      if (request === "next/image") return { getImageProps: require("next/image").getImageProps };
       if (request.startsWith(".")) {
         const base = path.resolve(path.dirname(filename), request);
         const resolved = [base, `${base}.ts`, `${base}.tsx`].find((file) => fs.existsSync(file));
@@ -125,11 +124,11 @@ test("missing image, logos, nutrition and price history have an honest server fa
   assert.equal((html.match(/class="home-offer-row"/g) || []).length, 2);
 });
 
-test("product images render native lazy HTML with Next sizing and readable fallback alt for both navigation modes", () => {
+test("product images render native lazy HTML with a reserved fill box and readable fallback alt for both navigation modes", () => {
   const { ComparisonProductHeroImage } = load("app/components/ComparisonProductVisuals.tsx");
   for (const nativeNavigation of [false, true]) {
     const html = renderToStaticMarkup(React.createElement(ComparisonProductHeroImage, {
-      image: "https://test-only.example/product.jpg", name: "TEST ONLY Supplement", productUrl: "/product/test-only?variant=10", sizes: "96px", nativeNavigation,
+      image: "https://test-only.example/product.jpg", name: "TEST ONLY Supplement", productUrl: "/product/test-only?variant=10", nativeNavigation,
     }));
     assert.match(html, /src="https:\/\/test-only\.example\/product\.jpg"/);
     assert.match(html, /alt="TEST ONLY Supplement"/);

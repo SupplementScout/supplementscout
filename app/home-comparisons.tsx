@@ -44,7 +44,7 @@ export function HomeFeaturedComparison({ comparisons }: { comparisons: HomepageC
       </div>
       <div className="home-comparison-product">
         <div className="home-product-image">
-          <ComparisonProductHeroImage image={row.image} name={row.name} productUrl={productHref(row)} sizes="96px" nativeNavigation />
+          <ComparisonProductHeroImage image={row.image} name={row.name} productUrl={productHref(row)} nativeNavigation />
         </div>
         <div className="min-w-0">
           {row.brand && <p className="home-product-brand">{row.brand}</p>}

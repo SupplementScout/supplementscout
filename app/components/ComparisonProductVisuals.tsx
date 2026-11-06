@@ -1,4 +1,3 @@
-import { getImageProps } from "next/image";
 import Link from "next/link";
 import type { CategoryComparisonRow } from "../lib/categoryComparison";
 import { OFFER_PRESENTATION_LABELS } from "../lib/offerFreshness";
@@ -28,33 +27,30 @@ export function ComparisonProductHeroImage({
   image,
   name,
   productUrl,
-  sizes = "(max-width: 639px) 44vw, (max-width: 1023px) 320px, 520px",
   nativeNavigation = false,
 }: {
   image: string | null;
   name: string;
   productUrl: string;
-  sizes?: string;
   nativeNavigation?: boolean;
 }) {
   const ProductLink = nativeNavigation ? "a" : Link;
-  const imageProps = image ? getImageProps({
-    src: image,
-    alt: name,
-    fill: true,
-    unoptimized: true,
-    sizes,
-    className: "object-contain p-3 sm:p-6",
-  }).props : null;
   return (
     <ProductLink
       href={productUrl}
       aria-label={`View offers for ${name}`}
       className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-2xl border border-[var(--ss-border)] bg-[var(--ss-surface-muted)] p-2 focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
     >
-      {imageProps ? (
-        // eslint-disable-next-line @next/next/no-img-element -- Next supplies the image props without a client hydration boundary.
-        <img {...imageProps} style={{ ...imageProps.style, color: "inherit" }} />
+      {image ? (
+        // eslint-disable-next-line @next/next/no-img-element -- Original sources are unoptimized; the fixed aspect-square parent reserves their layout space.
+        <img
+          src={image}
+          alt={name}
+          loading="lazy"
+          decoding="async"
+          className="object-contain p-3 sm:p-6"
+          style={{ position: "absolute", height: "100%", width: "100%", inset: 0, color: "inherit" }}
+        />
       ) : (
         <span className="px-2 text-center text-xs font-semibold text-zinc-500">
           Image unavailable
