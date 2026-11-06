@@ -65,12 +65,24 @@ Guardian passes. This code/test/docs task applied no migration and made zero
 database or workflow writes. Final local gates, PR CI and merge evidence are
 the remaining acceptance gates.
 
-**6 November owner-authorized Review Queue fallback cadence reduction —
-`CODE_COMPLETE`:** after the existing server-side immediate dispatcher was
-enabled, the owner explicitly selected a 30-minute fallback because a five-
-minute recovery window is not operationally required. The one existing
-`automation-review-queue-worker.yml` schedule changes only from `*/5` to
-`*/30`; exact `workflow_dispatch` by `execution_request_id`, the shared worker,
+**6 November owner-authorized Review Queue fallback cadence reduction and
+stagger correction — `CODE_COMPLETE`:** after the existing server-side
+immediate dispatcher was enabled, the owner explicitly selected a 30-minute
+fallback because a five-minute recovery window is not operationally required.
+The first implementation changed the one existing
+`automation-review-queue-worker.yml` schedule from `*/5` to `*/30`. Neither
+the `10:30` nor `11:00` UTC target produced a run by `11:22` UTC after merge.
+Read-only history also showed that the earlier five-minute schedule was
+delivered only intermittently and that ordinary daily workflows can be created
+hours after their cron target; for example, 6 Pack run `42205190703` was
+created at `10:46` UTC for its `03:17` UTC schedule. GitHub documents scheduled
+events as delayable and droppable under load and recommends a different time
+of the hour.
+
+The owner therefore authorized the smallest bounded correction: keep exactly
+the same 30-minute cadence but stagger it to `8,38 * * * *`. This avoids the
+high-contention `:00` and `:30` targets and does not claim a GitHub delivery
+SLA. Exact `workflow_dispatch` by `execution_request_id`, the shared worker,
 execution-request ledger, adapter registry, revalidation, postflight,
 idempotency and concurrency group are unchanged. No second scheduler, worker
 or queue is introduced.
@@ -85,8 +97,8 @@ detecting four missed fallback windows. Focused workflow/hash and exact
 Guardian passes. This repository-only change creates no execution request,
 workflow dispatch, Review Queue or database write. Local quick/full Quality
 Gates and the production build pass. PR CI, merge and the first ordinary
-30-minute scheduled run remain acceptance evidence; no synthetic worker
-dispatch is authorized.
+staggered 30-minute scheduled run remain acceptance evidence; no synthetic
+worker dispatch is authorized.
 
 **5 November RA-SCHED-01 Review Queue worker scheduler liveness —
 `READY_FOR_NATURAL_VERIFICATION`:** the existing shared Automation Reliability

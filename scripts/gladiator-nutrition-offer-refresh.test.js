@@ -361,7 +361,7 @@ test("Gladiator scheduled and manual review evidence use the existing shared que
   assert.match(queueJob, /uses: \.\/\.github\/actions\/publish-automation-review-queue/);
   assert.doesNotMatch(queueJob, /--mode=apply|register_gladiator|APPROVER_DATABASE_URL|EXECUTOR_DATABASE_URL/);
   assert.doesNotMatch(queueJob, /approve_automation_review|PENDING\s*(?:->|→)\s*APPROVED/);
-  assert.equal(sha256Text(path.join(ROOT, ".github/workflows/automation-review-queue-worker.yml")), "5a38c4fb6ea9bf53ea6ec471710437c88dbfc2da8cff05c16a7516ca6ad0a240");
+  assert.equal(sha256Text(path.join(ROOT, ".github/workflows/automation-review-queue-worker.yml")), "4ae9d0da2a9083d71f3748829f250bab52a18937774960c66eefece3b7450993");
 });
 
 test("registration migration is a thin exact-scope boundary and rollback is lineage-guarded", () => {
